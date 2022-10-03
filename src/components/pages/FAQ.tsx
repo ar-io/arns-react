@@ -1,14 +1,5 @@
-
-
-
-function FAQ () {
-
-    return (
-        <div className="faq">
-
-
-        </div>
-    )
+function FAQ() {
+  return <div className="faq"></div>;
 }
 
-export default FAQ
+export default FAQ;

@@ -1,5 +1,4 @@
-function SelectTierCard () {
-
-    return(1)
+function SelectTierCard() {
+  return 1;
 }
-export default SelectTierCard
+export default SelectTierCard;

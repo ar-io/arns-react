@@ -1,14 +1,5 @@
-
-
-
-function ManageNames () {
-
-    return (
-        <div className="manageNames">
-
-
-        </div>
-    )
+function ManageNames() {
+  return <div className="manageNames"></div>;
 }
 
-export default ManageNames
+export default ManageNames;

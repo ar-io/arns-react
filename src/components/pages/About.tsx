@@ -1,14 +1,5 @@
-
-
-
-function About () {
-
-    return (
-        <div className="about">
-
-
-        </div>
-    )
+function About() {
+  return <div className="about"></div>;
 }
 
-export default About
+export default About;

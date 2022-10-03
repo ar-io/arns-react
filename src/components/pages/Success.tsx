@@ -1,14 +1,5 @@
-
-
-
-function Success () {
-
-    return (
-        <div className="success">
-
-
-        </div>
-    )
+function Success() {
+  return <div className="success"></div>;
 }
 
-export default Success
+export default Success;
