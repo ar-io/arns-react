@@ -1,15 +1,10 @@
-
 type helpButton = {
-    action: any,
-    state: any,
-    modal: any
+  action: any;
+  state: any;
+  modal: any;
+};
+
+function HelpButton() {
+  return <button className="helpButton transition">?</button>;
 }
-
-function HelpButton (){
-
-
-    return(
-        <button className='helpButton transition'>?</button>
-    )
-}
-export default HelpButton
+export default HelpButton;

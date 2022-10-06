@@ -1,13 +1,8 @@
-
-
-function NavSearchBar () {
-
-    return (
-        <div className="navSearchBar">
-
-            <button className="navSearchBarButton"></button>
-
-        </div>
-    )
+function NavSearchBar() {
+  return (
+    <div className="navSearchBar">
+      <button className="navSearchBarButton"></button>
+    </div>
+  );
 }
-export default NavSearchBar
+export default NavSearchBar;

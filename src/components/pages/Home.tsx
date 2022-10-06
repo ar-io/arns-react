@@ -75,8 +75,7 @@ function Home() {
         <></>
       )}
       {searchStateHeader === 'search' ? <FeaturedDomains /> : <></>}
-      {searchStateHeader === 'available' ? <YearsCounter/> : <></>}
-     
+      {searchStateHeader === 'available' ? <YearsCounter /> : <></>}
     </div>
   );
 }

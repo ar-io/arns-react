@@ -12,14 +12,12 @@ function NavBar({ connected, setConnected }: navBar) {
   return (
     <div className="navBar">
       <div className="navBarItemContainer">
-        <Link to="/Home"  className="brandLogo">
+        <Link to="/Home" className="brandLogo">
           <img src={winston} width={90} height={90} />
         </Link>
       </div>
 
       <div className="navBarItemContainer">
-   
-    
         <Link to="/About" className="navBarLink">
           <div>About</div>
         </Link>

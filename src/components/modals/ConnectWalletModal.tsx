@@ -30,7 +30,14 @@ function ConnectWalletModal({ setConnected }: ConnectWalletModal) {
         >
           Connect with an Arweave wallet
         </p>
-        <button className="modalCloseButton" onClick={()=>{setConnected(false)}}><FiX size={'25px'} color={"white"} /></button>
+        <button
+          className="modalCloseButton"
+          onClick={() => {
+            setConnected(false);
+          }}
+        >
+          <FiX size={'25px'} color={'white'} />
+        </button>
         <button className="walletConnectButton">
           <FiUpload color="white" size={'47px'} />
           Import your JSON keyfile
@@ -54,7 +61,6 @@ function ConnectWalletModal({ setConnected }: ConnectWalletModal) {
           </a>
         </text>
       </div>
-     
     </div>
   );
 }

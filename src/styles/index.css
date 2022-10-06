@@ -13,11 +13,11 @@
   font-style: normal;
   font-display: swap;
 }
-.transition{
+.transition {
   -webkit-transition: all 0.2s;
   -moz-transition: all 0.2s;
   -o-transition: all 0.2s;
-  transition: all .2s;
+  transition: all 0.2s;
 }
 
 :root {
@@ -89,7 +89,7 @@ body {
   -webkit-transition: all 0.2s;
   -moz-transition: all 0.2s;
   -o-transition: all 0.2s;
-  transition: all .2s;
+  transition: all 0.2s;
 }
 .connectButton:hover {
   cursor: pointer;
@@ -99,7 +99,6 @@ body {
   top: 2px;
   left: 2px;
 }
-
 
 .home {
   display: flex;
@@ -114,7 +113,7 @@ body {
   padding: 1em;
   overflow: visible;
 }
-.brandLogo{
+.brandLogo {
   z-index: 1;
 }
 .brandHeader {
@@ -176,7 +175,7 @@ body {
   box-shadow: 0px 0px 4px rgba(0, 0, 0);
   cursor: pointer;
 }
-.helpButton{
+.helpButton {
   display: flex;
   position: fixed;
   width: 50px;
@@ -192,14 +191,12 @@ body {
   border-radius: 25px;
   justify-content: center;
   align-items: center;
-
 }
-.helpButton:hover{
+.helpButton:hover {
   background-color: var(--bg-color);
   border: 2px solid var(--action-orange);
   color: var(--action-orange);
   cursor: pointer;
-
 }
 .textFaded {
   display: flex;
@@ -223,7 +220,7 @@ body {
   height: 12vw;
   min-height: 100px;
   background-color: var(--bg-color);
-  box-shadow: 0px 0px 1px #0D0D0D, 0px 8px 16px rgba(13, 13, 13, 0.9);
+  box-shadow: 0px 0px 1px #0d0d0d, 0px 8px 16px rgba(13, 13, 13, 0.9);
   border-radius: 24px;
   padding: 30px;
 }
@@ -270,12 +267,9 @@ body {
   flex-wrap: wrap;
   width: fit-content;
   max-width: 60vw;
-  justify-content:space-evenly;
+  justify-content: space-evenly;
   align-items: flex-start;
-
-  
 }
-
 
 .buttonLink {
   border: none;
@@ -296,7 +290,7 @@ body {
   justify-content: center;
   align-items: center;
 }
-.modalCloseButton{
+.modalCloseButton {
   display: flex;
   position: absolute;
   top: 25px;
@@ -312,10 +306,10 @@ body {
   -webkit-transition: all 0.2s;
   -moz-transition: all 0.2s;
   -o-transition: all 0.2s;
-  transition: all .2s;
+  transition: all 0.2s;
 }
-.modalCloseButton:hover{
-  border: 2px solid var(--text-white)
+.modalCloseButton:hover {
+  border: 2px solid var(--text-white);
 }
 
 .connectWalletModal {
@@ -353,22 +347,22 @@ body {
   -webkit-transition: all 0.5s;
   -moz-transition: all 0.5s;
   -o-transition: all 0.5s;
-  transition: all .5s;
+  transition: all 0.5s;
 }
 .walletConnectButton:hover {
   cursor: pointer;
   box-shadow: 0px 0px 4px rgba(255, 255, 255);
 }
-.yearsCounterContainer{
+.yearsCounterContainer {
   display: flex;
   flex-direction: column;
-  row-gap: .5em;
+  row-gap: 0.5em;
   width: 100%;
   height: fit-content;
   justify-content: center;
   align-items: center;
 }
-.yearsCounter{
+.yearsCounter {
   display: flex;
   flex-direction: row;
   width: 25%;
@@ -381,7 +375,7 @@ body {
   align-items: center;
   padding: 2px;
 }
-.counterButton{
+.counterButton {
   display: flex;
   width: 27px;
   height: 27px;
@@ -395,19 +389,19 @@ body {
   font-size: 18px;
   font-weight: 600;
 }
-.counterButton:hover{
+.counterButton:hover {
   cursor: pointer;
   border: 1px solid var(--bg-color);
   font-weight: 900;
 }
-.counterText{
+.counterText {
   margin: 0;
   padding: 0;
   font-family: 'Rubik-Bold';
   font-size: 18px;
   font-weight: 600;
 }
-.counterHeader{
+.counterHeader {
   display: flex;
   width: 100%;
   font-family: 'Rubik';
@@ -415,7 +409,6 @@ body {
   font-weight: 700;
   color: var(--text-white);
   justify-content: center;
-
 }
 .alignStart {
   justify-content: flex-start;
