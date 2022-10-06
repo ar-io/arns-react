@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import SearchBar from '../inputs/SearchBar';
 import FeaturedDomains from '../FeaturedDomains';
+import YearsCounter from '../inputs/YearsCounter';
 
 function Home() {
   const [searchStateHeader, setSearchStateHeader] = useState('unavailable'); //search, available, unavailable
@@ -29,7 +30,7 @@ function Home() {
       )}
       {searchStateHeader === 'available' ? (
         <p className="sectionHeader" style={{ fontFamily: 'Rubik-Bold' }}>
-          {searchName}sam{' '}
+          {searchName}sam
           <text
             style={{
               color: 'var(--success-green)',
@@ -74,6 +75,8 @@ function Home() {
         <></>
       )}
       {searchStateHeader === 'search' ? <FeaturedDomains /> : <></>}
+      {searchStateHeader === 'available' ? <YearsCounter/> : <></>}
+     
     </div>
   );
 }

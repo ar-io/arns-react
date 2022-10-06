@@ -9,6 +9,7 @@ import Success from './components/pages/Success';
 import ManageNames from './components/pages/ManageNames';
 import { useState, useEffect } from 'react';
 import ConnectWalletModal from './components/modals/ConnectWalletModal';
+import HelpButton from './components/inputs/buttons/HelpButton';
 
 function App() {
   const [connected, setConnected] = useState(false);
@@ -27,6 +28,7 @@ function App() {
         <Route path="/Register" element={<Register />} />
         <Route path="/ManageNames" element={<ManageNames />} />
       </Routes>
+      <HelpButton />
     </div>
   );
 }

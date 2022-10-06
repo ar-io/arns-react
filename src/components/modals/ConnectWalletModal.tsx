@@ -1,6 +1,6 @@
 import ArConnectIcon from '../../images/DarkMode/ArConnectIcon.png';
 import ArweaveAppIcon from '../../images/DarkMode/ArweaveAppIcon.png';
-import { FiUpload } from 'react-icons/fi';
+import { FiUpload, FiX } from 'react-icons/fi';
 import { useState } from 'react';
 
 type ConnectWalletModal = {
@@ -30,6 +30,7 @@ function ConnectWalletModal({ setConnected }: ConnectWalletModal) {
         >
           Connect with an Arweave wallet
         </p>
+        <button className="modalCloseButton" onClick={()=>{setConnected(false)}}><FiX size={'25px'} color={"white"} /></button>
         <button className="walletConnectButton">
           <FiUpload color="white" size={'47px'} />
           Import your JSON keyfile
@@ -53,6 +54,7 @@ function ConnectWalletModal({ setConnected }: ConnectWalletModal) {
           </a>
         </text>
       </div>
+     
     </div>
   );
 }
