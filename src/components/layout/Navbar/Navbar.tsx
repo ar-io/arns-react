@@ -1,5 +1,5 @@
 import winston from '../assets/images/DarkMode/winston-logo.png';
-import ConnectButton from './inputs/buttons/ConnectButton';
+import ConnectButton from '../../inputs/buttons/ConnectButton/ConnectButton';
 import { Link } from 'react-router-dom';
 
 type navBar = {
