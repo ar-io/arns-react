@@ -1,4 +1,4 @@
-import AntCard from './cards/AntCard';
+import AntCard from './cards/AntCard/AntCard';
 import previewImage from '../assets/images/antCardPreviewDefault.png';
 
 function FeaturedDomains() {

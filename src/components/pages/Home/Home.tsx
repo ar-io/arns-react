@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import SearchBar from '../inputs/SearchBar';
-import FeaturedDomains from '../FeaturedDomains';
-import YearsCounter from '../inputs/YearsCounter';
+import SearchBar from '../../inputs/SearchBar/SearchBar';
+import FeaturedDomains from '../../FeaturedDomains';
+import YearsCounter from '../../inputs/YearsCounter/YearsCounter';
 
 function Home() {
   const [searchStateHeader, setSearchStateHeader] = useState('unavailable'); //search, available, unavailable

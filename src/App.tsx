@@ -1,15 +1,15 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import NavBar from './components/Navbar';
-import Home from './components/pages/Home';
-import Register from './components/pages/Register';
-import About from './components/pages/About';
-import FAQ from './components/pages/FAQ';
-import Success from './components/pages/Success';
-import ManageNames from './components/pages/ManageNames';
+import NavBar from './components/layout/Navbar/Navbar';
+import Home from './components/pages/Home/Home';
+import Register from './components/pages/Register/Register';
+import About from './components/pages/About/About';
+import FAQ from './components/pages/FAQ/FAQ';
+import Success from './components/pages/Success/Success';
+import ManageNames from './components/pages/ManageNames/ManageNames';
 import { useState, useEffect } from 'react';
-import ConnectWalletModal from './components/modals/ConnectWalletModal';
-import HelpButton from './components/inputs/buttons/HelpButton';
+import ConnectWalletModal from './components/modals/ConnectWalletModal/ConnectWalletModal';
+import HelpButton from './components/inputs/buttons/HelpButton/HelpButton';
 
 function App() {
   const [connected, setConnected] = useState(false);
