@@ -33,10 +33,6 @@ Testing required a bit of configuration to use Jest with vite. We are using:
 - @babel/preset-env \ these babel libs allow use to use JSX, TS, and ES6 modules in tests 
 - identity-obj-proxy \ helps with css modules so we can see original class names
 
-### Configuration
-
-the important config files are `babel.config.cjs` (cjs is CommonJS module extension) and the "jest" key in package.json.
-
 
 ## Component Contribution
 These rules are to help keep the repo tidy and help know where everything is. A moment in the mind is worth nine in the fire.
