@@ -1,5 +1,5 @@
-import AntCard from './cards/AntCard/AntCard';
-import previewImage from '../assets/images/antCardPreviewDefault.png';
+import AntCard from '../../cards/AntCard/AntCard';
+import previewImage from '../../../assets/images/antCardPreviewDefault.png';
 
 function FeaturedDomains() {
   return (

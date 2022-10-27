@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import SearchBar from '../../inputs/SearchBar/SearchBar';
-import FeaturedDomains from '../../FeaturedDomains';
+import FeaturedDomains from '../../layout/FeaturedDomains/FeaturedDomains';
 import YearsCounter from '../../inputs/YearsCounter/YearsCounter';
 
 function Home() {

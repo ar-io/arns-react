@@ -1,4 +1,4 @@
-import searchIcon from '../../assets/images/DarkMode/SearchIcon.png';
+import searchIcon from '../../../assets/images/DarkMode/SearchIcon.png';
 
 type searchBar = {
   searchButtonAction: any;

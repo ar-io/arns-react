@@ -1,5 +1,5 @@
-import ArConnectIcon from '../../assets/images/DarkMode/ArConnectIcon.png';
-import ArweaveAppIcon from '../../assets/images/DarkMode/ArweaveAppIcon.png';
+import ArConnectIcon from '../../../assets/images/DarkMode/ArConnectIcon.png';
+import ArweaveAppIcon from '../../../assets/images/DarkMode/ArweaveAppIcon.png';
 import { FiUpload, FiX } from 'react-icons/fi';
 import { useState } from 'react';
 
