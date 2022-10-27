@@ -38,7 +38,7 @@ Testing required a bit of configuration to use Jest with vite. We are using:
 the important config files are `babel.config.cjs` (cjs is CommonJS module extension) and the "jest" key in package.json.
 
 
-## File Structure
+## Component Contribution
 These rules are to help keep the repo tidy and help know where everything is. A moment in the mind is worth nine in the fire.
 
 - When creating a component, create a folder for it, which includes its .tsx file named for its exported component, a testing folder named '__tests__', and its CSS file named as styles.css.
