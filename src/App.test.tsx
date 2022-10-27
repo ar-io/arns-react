@@ -1,4 +1,3 @@
-test("jest is working", ()=>{
+test('jest is working', () => {
   expect(true).toBe(true);
-})
-
+});

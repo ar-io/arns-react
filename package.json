@@ -34,14 +34,13 @@
     "typescript": "^4.6.4",
     "vite": "^3.1.0",
     "prettier": "^2.7.1"
-
   },
   "jest": {
     "testEnvironment": "jsdom",
     "setupFilesAfterEnv": [
       "<rootDir>/jest-setup.ts"
     ],
-    "collectCoverage":false,
+    "collectCoverage": false,
     "collectCoverageFrom": [
       "src/**/*.{ts,tsx,js,jsx}",
       "!src/**/*.d.ts"
