@@ -8,7 +8,6 @@ A React App for the Arweave Name System Registry, which lets users search for an
 
 - clone the repo
 - `npm install`
-- `npm run setup:contracts` - this will start arlocal in --persist mode, generate a wallet, and deploy the contracts
 - `npm run dev` - app will start on localhost:5173 and connect to arlocal.
 - open browser and navigate to localhost:5173
   The app should now be running, and you can connect your arconnect, arweave.app, or JWK wallet.
