@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1666819524393" clover="3.2.0">
+  <project timestamp="1666819524394" name="All files">
+    <metrics statements="4" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="0" elements="7" coveredelements="0" complexity="0" loc="4" ncloc="4" packages="1" files="2" classes="2"/>
+    <file name="App.tsx" path="/home/dev/Documents/code/arns-react/src/App.tsx">
+      <metrics statements="3" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="0"/>
+      <line num="6" count="0" type="stmt"/>
+      <line num="8" count="0" type="stmt"/>
+      <line num="20" count="0" type="stmt"/>
+    </file>
+    <file name="main.tsx" path="/home/dev/Documents/code/arns-react/src/main.tsx">
+      <metrics statements="1" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <line num="6" count="0" type="stmt"/>
+    </file>
+  </project>
+</coverage>
