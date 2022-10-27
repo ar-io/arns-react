@@ -3,7 +3,7 @@ A React App for the Arweave Name System Registry, which lets users search for an
 
 ## Getting Started
 
-### Running the app locally
+### Local Setup
 
 - clone the repo
 - `npm install`
