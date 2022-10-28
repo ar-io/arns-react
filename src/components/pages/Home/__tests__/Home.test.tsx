@@ -7,5 +7,4 @@ describe('Home', () => {
   test('render Home', () => {
     render(<Home />);
   });
-}
-)
+});
