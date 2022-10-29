@@ -1,10 +1,10 @@
-import React from 'react';
-import { render, fireEvent, cleanup } from 'test-utils';
-import '@testing-library/jest-dom';
+import { render, cleanup } from '@testing-library/react';
 import Home from '../Home';
 
-afterEach(cleanup);
+describe('Home', () => {
+  afterEach(cleanup);
 
-test('render Home', () => {
-  render(<Home />);
+  test('render Home', () => {
+    render(<Home />);
+  });
 });
