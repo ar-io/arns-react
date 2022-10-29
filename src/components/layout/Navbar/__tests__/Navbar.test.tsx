@@ -1,10 +1,12 @@
-import React from 'react';
-import { render, fireEvent, cleanup } from 'test-utils';
-import '@testing-library/jest-dom';
+import { render, cleanup } from '@testing-library/react';
 import Navbar from '../Navbar';
 
-afterEach(cleanup);
+describe('Navbar', ()=> {
+  afterEach(cleanup);
 
-test('render App', () => {
-  render(<Navbar />);
-});
+  test('render Navbar', () => {
+    render(<Navbar />);
+  });
+  
+})
+
