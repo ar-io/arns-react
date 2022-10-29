@@ -1,7 +1,6 @@
 import winston from '../../../assets/images/DarkMode/winston-white.gif';
 import { Link } from 'react-router-dom';
 
-
 function NavBar() {
   return (
     <div className="navBar">
@@ -10,9 +9,7 @@ function NavBar() {
           <img src={winston} width={90} height={90} />
         </Link>
       </div>
-
-     
-      </div>
+    </div>
   );
 }
 

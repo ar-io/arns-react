@@ -1,21 +1,21 @@
 .navBar {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1em;
-    width: border-box;
-    height: fit-content;
-  }
-  .navBarItemContainer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: fit-content;
-    height: fit-content;
-    column-gap: 1em;
-    color: var(--white);
-  }
-  .brandLogo {
-    z-index: 1;
-  }
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1em;
+  width: border-box;
+  height: fit-content;
+}
+.navBarItemContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  height: fit-content;
+  column-gap: 1em;
+  color: var(--white);
+}
+.brandLogo {
+  z-index: 1;
+}
