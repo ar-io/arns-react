@@ -1,10 +1,15 @@
 name: Build and Test
+
 on:
   push:
-  branches:
-    - 'GH-actions-build-and-test'
+    branches: [ GH-actions-build-and-test ]
+
+
 jobs:
-  test:
-  runs-on: ubuntu-latest
-  steps:
-run: npm test
+  test_build:
+    runs-on: ubuntu-latest
+    steps:
+        with:
+          node-version: 17
+      - run: npm test
+      - run: npm run build
