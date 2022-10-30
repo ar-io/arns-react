@@ -1,13 +1,10 @@
 name: Build and Test
 on:
- push:
- branches:
- - 'GH-actions-build-and-test'
+  push:
+  branches:
+    - 'GH-actions-build-and-test'
 jobs:
- test:
- runs-on: ubuntu-latest
- steps:
- - name: Testing!
+  test:
+  runs-on: ubuntu-latest
+  steps:
 run: npm test
- - name: Building ARNS
-run: npm run build
