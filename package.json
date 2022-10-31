@@ -46,11 +46,10 @@
       "!src/**/*.d.ts"
     ],
     "moduleNameMapper": {
-      "\\.(css|less)$": "identity-obj-proxy"
+      ".+\\.(css|less|gif|jpg|ttf|woff|woff2)$": "identity-obj-proxy"
     },
     "moduleDirectories": [
-      "node_modules",
-      "src/utils"
+      "node_modules"
     ]
   }
 }
