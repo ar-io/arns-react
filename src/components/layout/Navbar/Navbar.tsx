@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+// TODO: don't like this pattern, address with URL imports
 import * as logo from '../../../../assets/images/logo/winston-white.gif';
 
 function NavBar() {
@@ -6,7 +7,7 @@ function NavBar() {
     <div className="navBar">
       <div className="navBarItemContainer">
         <Link to="/" className="brandLogo">
-          <img src={logo} width={90} height={90} />
+          <img src={logo.default} width={90} height={90} />
         </Link>
       </div>
     </div>
