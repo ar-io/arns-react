@@ -2,13 +2,11 @@ name: Build and Test
 
 on:
   push:
-    branches: ['**']
-
 jobs:
   test_build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: npm install
       - run: npm test
       - run: npm run build
