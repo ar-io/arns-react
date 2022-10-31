@@ -1,14 +1,14 @@
 import { render, cleanup } from '@testing-library/react';
 import { BrowserRouter as Router } from 'react-router-dom';
-import Home from '../Home';
+import About from '../About';
 
-describe('Home', () => {
+describe('About', () => {
   afterEach(cleanup);
 
-  test('render Home', () => {
+  test('render About', () => {
     render(
       <Router>
-        <Home />
+        <About />
       </Router>,
     );
   });

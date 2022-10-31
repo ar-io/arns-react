@@ -1,14 +1,14 @@
 import { render, cleanup } from '@testing-library/react';
 import { BrowserRouter as Router } from 'react-router-dom';
-import Home from '../Home';
+import ManageNames from '../ManageNames';
 
-describe('Home', () => {
+describe('ManageNames', () => {
   afterEach(cleanup);
 
-  test('render Home', () => {
+  test('render ManageNames', () => {
     render(
       <Router>
-        <Home />
+        <ManageNames />
       </Router>,
     );
   });
