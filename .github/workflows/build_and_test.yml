@@ -2,8 +2,7 @@ name: Build and Test
 
 on:
   push:
-    branches: [ "**" ]
-
+    branches: ['**']
 
 jobs:
   test_build:
