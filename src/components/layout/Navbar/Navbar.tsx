@@ -7,7 +7,7 @@ function NavBar() {
     <div className="navBar">
       <div className="navBarItemContainer">
         <Link to="/" className="brandLogo">
-          <img src={logo.default} width={90} height={90} />
+          <img src={JSON.stringify(logo.default)} width={90} height={90} />
         </Link>
       </div>
     </div>
