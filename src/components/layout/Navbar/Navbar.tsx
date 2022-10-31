@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-// TODO: don't like this pattern, address with URL imports
 import logo from '../../../../assets/images/logo/winston-white.gif';
 
 function NavBar() {

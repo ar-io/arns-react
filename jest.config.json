@@ -1,0 +1,10 @@
+{
+  "testEnvironment": "jsdom",
+  "setupFilesAfterEnv": ["<rootDir>/jest-setup.ts"],
+  "collectCoverage": false,
+  "collectCoverageFrom": ["src/**/*.{ts,tsx,js,jsx}", "!src/**/*.d.ts"],
+  "moduleNameMapper": {
+    "\\.(css|gif)$": "jest-transform-stub"
+  },
+  "moduleDirectories": ["node_modules", "assets"]
+}
