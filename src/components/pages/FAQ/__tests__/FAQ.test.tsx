@@ -1,5 +1,4 @@
 import { render, cleanup } from '@testing-library/react';
-import { BrowserRouter as Router } from 'react-router-dom';
 import FAQ from '../FAQ';
 
 describe('FAQ', () => {
@@ -7,9 +6,7 @@ describe('FAQ', () => {
 
   test('render FAQ', () => {
     render(
-      <Router>
         <FAQ />
-      </Router>,
     );
   });
 });
