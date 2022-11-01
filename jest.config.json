@@ -7,5 +7,4 @@
     "\\.(css|gif)$": "jest-transform-stub"
   },
   "moduleDirectories": ["node_modules", "assets"]
-  
 }
