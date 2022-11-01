@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import * as logo from '../../../../assets/images/logo/winston-white.gif';
+import logo from '../../../../assets/images/logo/winston-white.gif';
 
 function NavBar() {
   return (
