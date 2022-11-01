@@ -1,12 +1,12 @@
 import { render, cleanup } from '@testing-library/react';
-import Home from '../Home';
+import About from '../About';
 
-describe('Home', () => {
+describe('About', () => {
   afterEach(cleanup);
 
-  test('render Home', () => {
+  test('render About', () => {
     render(
-        <Home />
+        <About />
     );
   });
 });
