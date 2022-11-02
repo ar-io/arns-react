@@ -9,7 +9,7 @@ function Home() {
   const [arnsRecords, setArnsRecords] = useState('');
   useEffect(() => {
     // TODO: might be beneficial to move this to a web worker
-    const fetchArNSContract = async (txId): Promise<Map<string, string>> => {
+    const fetchArNSContract = async (txId: string): Promise<Map<string, string>> => {
       const arnsContractState =
         await new LocalFileSystemDataProvider().getContractState(txId);
       if (!arnsContractState) {
