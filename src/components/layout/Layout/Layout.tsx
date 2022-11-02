@@ -11,7 +11,7 @@ function Layout() {
       </div>
       <div className="body">
         <div className="container">
-            <Outlet />
+          <Outlet />
         </div>
         <div className="footer">
           <Footer />
