@@ -3,7 +3,5 @@ type ArNSContractState = {
 };
 
 export interface SmartweaveContractSource {
-  getContractState(
-    txId: string,
-  ): Promise<ArNSContractState | undefined>;
+  getContractState(txId: string): Promise<ArNSContractState | undefined>;
 }

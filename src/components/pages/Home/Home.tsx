@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { LocalFileSystemDataProvider } from '../../../services/arweave/LocalFilesystemDataProvider.js';
+import { LocalFileSystemDataProvider } from '../../../services/arweave/LocalFilesystemDataProvider';
 import './styles.css';
 
 const ARNS_SOURCE_CONTRACT_TX_ID =
@@ -17,13 +17,13 @@ function Home() {
       const { records } = arnsContractState;
       return records;
     };
-    fetchArNSContract(ARNS_SOURCE_CONTRACT_TX_ID).then((records) => {
-      setArnsRecords(JSON.stringify(records, null, 2))
-    }).catch((error) => {
+    fetchArNSContract(ARNS_SOURCE_CONTRACT_TX_ID)
+      .then((records) => {
+        setArnsRecords(JSON.stringify(records, null, 2));
+      })
+      .catch((error) => {
         console.log(error.message);
-    });
-      
-
+      });
   }, [arnsRecords]);
 
   return (
