@@ -1,15 +1,18 @@
+import { Outlet } from 'react-router-dom';
 import NavBar from '../Navbar/Navbar';
 import Footer from '../Footer/Footer';
 import './styles.css';
 
-function Layout({ children }: { children: any }) {
+function Layout() {
   return (
     <>
       <div className="header">
         <NavBar />
       </div>
       <div className="body">
-        <div className="container">{children}</div>
+        <div className="container">
+            <Outlet />
+        </div>
         <div className="footer">
           <Footer />
         </div>
