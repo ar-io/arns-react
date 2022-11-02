@@ -1,6 +1,6 @@
 function Footer() {
   return (
-    <div style={{ 'justify-content': 'center' }}>
+    <div>
       <span>Copyright ar.io 2022</span>
     </div>
   );

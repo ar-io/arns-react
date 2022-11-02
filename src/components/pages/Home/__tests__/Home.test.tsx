@@ -5,8 +5,6 @@ describe('Home', () => {
   afterEach(cleanup);
 
   test('render Home', () => {
-    render(
-        <Home />
-    );
+    render(<Home />);
   });
 });
