@@ -4,7 +4,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 1em;
-  width: border-box;
+  width: 100%;
   height: fit-content;
 }
 .navBarItemContainer {

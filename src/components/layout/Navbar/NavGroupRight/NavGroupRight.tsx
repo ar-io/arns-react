@@ -5,7 +5,7 @@ const NavGroupRight = () => {
   return (
     <div className="navGroupRight">
       <NavBarLink path="/about" linkText="About" />
-      <NavBarLink path="/faq" linkText="FAQ" />
+      <NavBarLink path="/faq" linkText="FAQs" />
     </div>
   );
 }
