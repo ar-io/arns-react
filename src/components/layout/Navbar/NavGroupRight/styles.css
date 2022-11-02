@@ -4,6 +4,6 @@
   align-items: center;
   width: fit-content;
   height: fit-content;
-  column-gap: 1em;
+  column-gap: 2em;
   color: var(--text-white);
 }

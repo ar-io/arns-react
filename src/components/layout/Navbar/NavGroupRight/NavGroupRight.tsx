@@ -8,6 +8,6 @@ const NavGroupRight = () => {
       <NavBarLink path="/faq" linkText="FAQs" />
     </div>
   );
-}
+};
 
 export default NavGroupRight;
