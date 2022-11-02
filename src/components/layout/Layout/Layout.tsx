@@ -1,8 +1,8 @@
 import NavBar from '../Navbar/Navbar';
 import Footer from '../Footer/Footer';
-import './styles.css'; // will be injected into the page
+import './styles.css';
 
-function Layout({ children }) {
+function Layout({ children }: { children: any }) {
   return (
     <>
       <div className="header">

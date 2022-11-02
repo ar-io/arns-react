@@ -1,20 +1,20 @@
-import { Routes, Route, BrowserRouter as Router } from 'react-router-dom';
+import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from 'react-router-dom';
 import './index.css';
 import { About, FAQ, Home } from './components/pages';
-import { NavBar } from './components/layout';
+import { Layout } from './components/layout';
 
 function App() {
-  return (
-    <Router>
-      <NavBar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/faq" element={<FAQ />} />
-        <Route path="*" element={<Home />} />
-      </Routes>
-    </Router>
+  const router = createBrowserRouter(
+    createRoutesFromElements(
+      <Route element={<Layout/>}>
+        <Route index={true} element={<Home />} />
+        <Route path="about" element={<About />} />
+        <Route path="faq" element={<FAQ />} />
+      </Route>
+    )
   );
+
+  return <RouterProvider router={router} />;
 }
 
 export default App;
