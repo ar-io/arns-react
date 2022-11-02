@@ -12,6 +12,7 @@ jobs:
       - run: npm run build
   deploy-to-github:
     runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/develop' }}
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v3
