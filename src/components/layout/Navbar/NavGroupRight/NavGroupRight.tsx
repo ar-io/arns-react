@@ -1,14 +1,8 @@
-import './styles.css'
-import NavLink from '../NavLink/NavLink'
+import './styles.css';
+import NavLink from '../NavLink/NavLink';
 
-
-function NavGroupRight (){
-
-    return (
-        <div className="navGroupRight">
-
-        </div>
-    )
+function NavGroupRight() {
+  return <div className="navGroupRight"></div>;
 }
 
-export default NavGroupRight
+export default NavGroupRight;

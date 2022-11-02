@@ -1,0 +1,9 @@
+.navGroupRight {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  height: fit-content;
+  column-gap: 1em;
+  color: var(--white);
+}

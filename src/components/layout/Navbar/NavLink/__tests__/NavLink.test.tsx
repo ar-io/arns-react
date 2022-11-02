@@ -5,8 +5,6 @@ describe('NavLink', () => {
   afterEach(cleanup);
 
   test('render NavLink', () => {
-    render(
-        <NavLink />
-    );
+    render(<NavLink />);
   });
 });
