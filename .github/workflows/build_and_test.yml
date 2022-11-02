@@ -11,6 +11,7 @@ jobs:
       - run: npm test
       - run: npm run build
   deploy-to-github:
+    needs: test_build
     runs-on: ubuntu-latest
     if: ${{ github.ref == 'refs/heads/develop' }}
     steps:
