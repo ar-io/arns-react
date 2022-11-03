@@ -1,8 +1,14 @@
-import { SmartweaveContractSource, ArNSContractState, ArweaveTransactionId} from '../types';
+import {
+  SmartweaveContractSource,
+  ArNSContractState,
+  ArweaveTransactionId,
+} from '../types';
 import axios from 'axios';
 
 export class LocalFileSystemDataProvider implements SmartweaveContractSource {
-  async getContractState(contractId: ArweaveTransactionId): Promise<ArNSContractState | undefined> {
+  async getContractState(
+    contractId: ArweaveTransactionId,
+  ): Promise<ArNSContractState | undefined> {
     try {
       const localFile = `../../../data/contracts/${contractId}.json`;
       const { data } = await axios.get(localFile);
