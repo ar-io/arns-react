@@ -1,11 +1,10 @@
 import { render, cleanup } from '@testing-library/react';
 import SearchBar from '../SearchBar';
-import { BrowserRouter as Router } from 'react-router-dom';
 
-describe('SearchBarHome', () => {
+describe('SearchBar', () => {
   afterEach(cleanup);
 
-  test('render SearchBarHome', () => {
+  test('render SearchBar', () => {
     render(
       <SearchBar
         searchButtonAction={() => {
