@@ -5,11 +5,10 @@ describe('SearchBar', () => {
   afterEach(cleanup);
 
   test('render SearchBar', () => {
+   const stub = jest.fn();
     render(
       <SearchBar
-        searchButtonAction={() => {
-          console.log('search');
-        }}
+        searchButtonAction={stub}
       />,
     );
   });
