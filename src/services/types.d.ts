@@ -6,5 +6,5 @@ const transactionIdRegex = /^\/?([a-zA-Z0-9-_]{43})\/?$|^\/?([a-zA-Z0-9-_]{43})\
 type ArweaveTransactionId = transactionIdRegex;
 
 export interface SmartweaveContractSource {
-  getContractState(txId: ArweaveTransactionId): Promise<ArNSContractState | undefined>;
+  getContractState(contractId: ArweaveTransactionId): Promise<ArNSContractState | undefined>;
 }
