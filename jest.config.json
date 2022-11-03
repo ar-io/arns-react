@@ -5,7 +5,7 @@
   "collectCoverageFrom": ["src/**/*.{ts,tsx,js,jsx}", "!src/**/*.d.ts"],
   "moduleNameMapper": {
     "\\.(css|gif)$": "jest-transform-stub",
-    "\\.svg": "<rootDir>/__mocks__/svg.js"
+    "\\.svg": "<rootDir>/src/__tests__/__mocks__/svg.js"
   },
   "moduleDirectories": ["node_modules", "assets"]
 }
