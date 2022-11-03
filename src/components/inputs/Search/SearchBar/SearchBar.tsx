@@ -2,7 +2,7 @@ import { ReactComponent as SearchIcon } from '../../../icons/Search.svg';
 import './styles.css';
 import { searchBar } from '../../../../services/types';
 
-function SearchBarHome({ searchButtonAction }: searchBar) {
+function SearchBar({ searchButtonAction }: searchBar) {
   return (
     <div className="searchBar">
       <input type="text" placeholder="sam" />
@@ -18,4 +18,4 @@ function SearchBarHome({ searchButtonAction }: searchBar) {
   );
 }
 
-export default SearchBarHome;
+export default SearchBar;

@@ -1,10 +1,10 @@
-import SearchBarHome from '../../inputs/Search/SearchBarHome/SearchBarHome';
+import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import './styles.css';
 
 function Home() {
   return (
     <div className="home">
-      <SearchBarHome searchButtonAction={() => console.log('search')} />
+      <SearchBar searchButtonAction={() => console.log('search')} />
     </div>
   );
 }

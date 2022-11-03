@@ -1,5 +1,5 @@
 import { render, cleanup } from '@testing-library/react';
-import SearchBarHome from '../SearchBarHome';
+import SearchBar from '../SearchBar';
 import { BrowserRouter as Router } from 'react-router-dom';
 
 describe('SearchBarHome', () => {
@@ -7,7 +7,7 @@ describe('SearchBarHome', () => {
 
   test('render SearchBarHome', () => {
     render(
-      <SearchBarHome
+      <SearchBar
         searchButtonAction={() => {
           console.log('search');
         }}
