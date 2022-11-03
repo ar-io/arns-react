@@ -1,6 +1,6 @@
 import { ReactComponent as SearchIcon } from '../../../icons/Search.svg';
 import './styles.css';
-import { searchBar } from '../../../../services/types';
+import { searchBar } from '../../../../types';
 
 function SearchBar({ searchButtonAction }: searchBar) {
   return (
