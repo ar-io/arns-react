@@ -11,9 +11,8 @@
   margin: auto;
   align-items: center;
 }
-.searchBar:hover{
+.searchBar:hover {
   box-shadow: 0px 0px 4px 1px rgba(255, 255, 255, 0.72);
-
 }
 .searchBar input {
   display: flex;
@@ -25,12 +24,12 @@
   border: none;
   outline: none;
 }
-.searchBar input::placeholder{
+.searchBar input::placeholder {
   font-family: 'Rubik';
-font-style: normal;
-font-weight: 600;
-font-size: 18px;
-color: var(--placeholder-text)
+  font-style: normal;
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--placeholder-text);
 }
 .searchButton {
   display: flex;
@@ -42,7 +41,7 @@ color: var(--placeholder-text)
   border: none;
   justify-content: center;
   align-items: center;
-  margin-right: 5px;
+  margin-right: 9px;
 }
 .searchButton:hover {
   box-shadow: 0px 0px 4px rgba(0, 0, 0);
