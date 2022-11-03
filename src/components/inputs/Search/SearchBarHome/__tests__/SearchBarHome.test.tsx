@@ -1,5 +1,6 @@
 import { render, cleanup } from '@testing-library/react';
 import SearchBarHome from '../SearchBarHome';
+import { BrowserRouter as Router } from 'react-router-dom';
 
 describe('SearchBarHome', () => {
   afterEach(cleanup);
