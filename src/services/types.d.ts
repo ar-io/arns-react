@@ -10,3 +10,7 @@ export interface SmartweaveContractSource {
     contractId: ArweaveTransactionId,
   ): Promise<ArNSContractState | undefined>;
 }
+
+export type searchBar = {
+  searchButtonAction: any;
+};
