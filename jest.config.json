@@ -7,5 +7,6 @@
     "\\.(css|gif)$": "jest-transform-stub",
     "\\.svg": "<rootDir>/src/__tests__/__mocks__/svg.js"
   },
-  "moduleDirectories": ["node_modules", "assets"]
+  "moduleDirectories": ["node_modules", "assets"],
+  "testPathIgnorePatterns": ["src/__tests__/__mocks__"]
 }
