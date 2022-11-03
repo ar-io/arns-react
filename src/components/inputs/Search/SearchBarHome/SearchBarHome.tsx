@@ -1,4 +1,4 @@
-import { ReactComponent as SearchIcon } from '../../../../../assets/images/icons/Search.svg';
+import { ReactComponent as SearchIcon } from '../../../icons/Search.svg';
 import './styles.css';
 import { searchBar } from '../../../../services/types';
 
