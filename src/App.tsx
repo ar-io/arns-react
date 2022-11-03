@@ -18,7 +18,7 @@ function App() {
       </Route>,
     ), {
     // TODO: remove this when we're no longer deploying to github pages
-    basename: '/arns-react/',
+    basename: process.env.NODE_ENV !== 'test' ? '/arns-react/': '/'
     },
   );
 
