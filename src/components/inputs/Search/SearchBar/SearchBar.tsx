@@ -32,7 +32,7 @@ function SearchBar(props: SearchBarProps) {
             buttonAction();
           }}
         >
-          <SearchIcon fill="black" stroke="white" width="18.51" />
+          <SearchIcon fill="black" stroke="white" width="18.51" height="18.51" />
         </button>
       </div>
       <div>{footerText}</div>
