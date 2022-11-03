@@ -12,7 +12,9 @@ export interface SmartweaveContractSource {
 }
 
 export type searchBar = {
-  searchButtonAction: any;
+  searchButtonAction: any,
+  placeholderText: string,
+  searchState: string
 };
 
  
