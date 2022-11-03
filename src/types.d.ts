@@ -1,9 +1,9 @@
-type ArNSContractState = {
-  records: Map<string, string>;
+export type ArNSContractState = {
+  records: Map<string, ArweaveTransactionId>;
 };
 
-const transactionIdRegex = /([a-zA-Z0-9-_]{43})/;
-type ArweaveTransactionId = transactionIdRegex;
+// TODO: match this to a regex
+export type ArweaveTransactionId = string;
 
 export interface SmartweaveContractSource {
   getContractState(
@@ -14,4 +14,3 @@ export interface SmartweaveContractSource {
 export type searchBar = {
   searchButtonAction: any;
 };
-
