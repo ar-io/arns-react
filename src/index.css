@@ -35,3 +35,27 @@ body {
   padding: none;
   background-color: var(--bg-color);
 }
+.sectionHeader {
+  display: flex;
+  width: 100%;
+  font-family: 'Rubik';
+  font-style: normal;
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--text-section-header);
+  margin: auto;
+  margin-top: 1em;
+  justify-content: center;
+}
+.textFaded {
+  display: flex;
+  color: var(--text-faded);
+  font-family: 'Rubik';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 12px;
+  width: 50%;
+  margin: 0;
+  justify-content: center;
+  align-items: center;
+}

@@ -1,33 +1,18 @@
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import './styles.css';
-import { useState } from 'react';
 
 function Home() {
-  const [searchBarState, setSearchBarState] = useState('success');
-  const [searchState, setSearchState] = useState('');
-
-  function searchAction() {
-    if (searchState == 'success') {
-      setSearchBarState('error');
-    }
-    if (searchState == 'error') {
-      setSearchBarState('search');
-    }
-    if (searchState == 'search') {
-      setSearchBarState('success');
-    }
-  }
-
   return (
     <div className="home">
       <SearchBar
-        buttonAction={searchAction}
+        buttonAction={() => {
+          console.log('search');
+        }}
         placeholderText="Enter a name"
-        searchState={searchState}
-        searchBarState={searchBarState}
-        onChangeHandler={setSearchState}
-        headerText={''}
-        footerText={''}
+        headerText={'Find a domain name'}
+        footerText={
+          'Names must be 1-32 characters. Dashes and underscores are permitted, but cannot be trailing characters and cannot be used in single character domains.'
+        }
       />
     </div>
   );

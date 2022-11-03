@@ -10,12 +10,11 @@ describe('SearchBar', () => {
       <SearchBar
         buttonAction={stub}
         placeholderText="Enter a name"
-        searchState={"stub"}
-        searchBarState={"stub"}
-        onChangeHandler={stub}
-        headerText={''}
-        footerText={''}
-      />
+        headerText={'Find a domain name.'}
+        footerText={
+          'Names must be 1-32 characters. Dashes and underscores are permitted, but cannot be trailing characters and cannot be used in single character domains.'
+        }
+      />,
     );
   });
 });
