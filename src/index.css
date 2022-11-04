@@ -54,8 +54,10 @@ body {
   font-style: normal;
   font-weight: 500;
   font-size: 12px;
-  width: 50%;
+  max-width: 400px;
+  text-align: center;
   margin: 0;
   justify-content: center;
   align-items: center;
 }
+ 
