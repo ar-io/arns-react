@@ -3,7 +3,8 @@ import './styles.css';
 
 function Home() {
   return (
-    <div className="home">
+    <div className="page">
+      <div className="pageHeader">Arweave Name System</div>
       <SearchBar
         buttonAction={() => {
           console.log('search');

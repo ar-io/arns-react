@@ -10,12 +10,10 @@ function Layout() {
         <NavBar />
       </div>
       <div className="body">
-        <div className="container">
-          <Outlet />
-        </div>
-        <div className="footer">
-          <Footer />
-        </div>
+        <Outlet />
+      </div>
+      <div className="footer">
+        <Footer />
       </div>
     </>
   );

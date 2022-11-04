@@ -1,24 +1,21 @@
 .header {
   display: flex;
   flex-direction: row;
-  width: 100%;
-  min-height: 10vh;
+  padding: 2em;
+  max-height: 10vh;
 }
 
 .body {
   display: flex;
   flex-direction: column;
-  min-height: 90vh;
-}
-
-.container {
+  min-height: 85vh;
   flex: 1;
 }
 
 .footer {
   display: flex;
   flex-direction: row;
-  height: 100px;
+  height: 5vh;
   width: 100%;
   align-items: center;
   justify-content: center;

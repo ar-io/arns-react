@@ -7,4 +7,7 @@ export default defineConfig({
   plugins: [svgr(), react()],
   // TODO: remove this when no longer deploying to GH pages
   base: '/arns-react/',
+  define: {
+    APP_VERSION: JSON.stringify(process.env.npm_package_version),
+  },
 });

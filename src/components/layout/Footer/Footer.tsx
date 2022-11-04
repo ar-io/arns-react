@@ -1,7 +1,12 @@
 function Footer() {
   return (
     <div>
-      <span>Copyright ar.io 2022</span>
+      <div className="textFaded">
+        v{APP_VERSION}
+        <br />
+        <br />
+        Copyright ar.io 2022
+      </div>
     </div>
   );
 }

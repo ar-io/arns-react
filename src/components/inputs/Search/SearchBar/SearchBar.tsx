@@ -18,7 +18,7 @@ function SearchBar(props: SearchBarProps) {
           }}
         >
           <SearchIcon
-            fill="black"
+            fill="#121212"
             stroke="white"
             width="18.51"
             height="18.51"
