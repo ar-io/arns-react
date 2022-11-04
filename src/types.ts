@@ -1,5 +1,12 @@
 import React from 'react';
 
+
+export type GlobalState = {
+  arnsSourceContract: ArNSContractState;
+  gateway:string;
+  connectedWallet: string;
+  errors:Array<Error>;
+}
 export type ArNSContractState = {
   records: Map<string, ArweaveTransactionId>;
 };
