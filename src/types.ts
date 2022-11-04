@@ -1,7 +1,5 @@
-import React from 'react';
-
 export type ArNSContractState = {
-  records: Map<string, ArweaveTransactionId>;
+  records: { [x: string]: ArweaveTransactionId };
 };
 
 // TODO: match this to a regex
