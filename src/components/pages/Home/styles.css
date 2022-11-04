@@ -1,13 +1,10 @@
 .home {
   display: flex;
   flex-direction: column;
-  width: 60%;
+  width: 100%;
+  padding: 5% 20%;
   height: fit-content;
-  margin: auto;
   row-gap: 2em;
-
-  justify-content: center;
   align-items: center;
-  padding: 1em;
   overflow: visible;
 }

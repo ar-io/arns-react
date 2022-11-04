@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: row;
   width: 100%;
-  min-height: 10vh;
+  height: 5vh;
 }
 
 .body {
@@ -13,12 +13,13 @@
 
 .container {
   flex: 1;
+  display: flex;
 }
 
 .footer {
   display: flex;
   flex-direction: row;
-  height: 100px;
+  height: 5vh;
   width: 100%;
   align-items: center;
   justify-content: center;
