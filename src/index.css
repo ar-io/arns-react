@@ -38,6 +38,17 @@ body {
   background-color: var(--bg-color);
 }
 
+.page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 5% 20%;
+  height: fit-content;
+  row-gap: 2em;
+  align-items: center;
+  overflow: visible;
+}
+
 .pageHeader {
   display: flex;
   width: 100%;
