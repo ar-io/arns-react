@@ -6,7 +6,7 @@ import testContractState from '../../data/contracts/bLAgYxAdX2Ry-nt6aH2ixgvJXbps
 export type GlobalState = {
   arnsSourceContract: ArNSContractState;
   gateway: string;
-  connectedWallet: any;
+  connectedWallet?: string;
   errors: Array<Error>;
 };
 
