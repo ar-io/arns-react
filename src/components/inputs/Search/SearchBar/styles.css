@@ -22,6 +22,8 @@
   border: none;
   outline: none;
   padding-left: 26px;
+  background-color: var(--text-white);
+
 }
 .searchBar input::placeholder {
   font-family: 'Rubik';
