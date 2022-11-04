@@ -1,7 +1,7 @@
 function Footer() {
   return (
     <div>
-      <span>Copyright ar.io 2022</span>
+      <span className="textFaded">Copyright ar.io 2022</span>
     </div>
   );
 }
