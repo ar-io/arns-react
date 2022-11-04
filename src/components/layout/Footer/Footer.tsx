@@ -1,7 +1,6 @@
 function Footer() {
   return (
     <div>
-      {/* @ts-ignore */}
       <div className="textFaded">
         v{APP_VERSION}
         <br />

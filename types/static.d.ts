@@ -5,3 +5,6 @@ declare module '*.svg' {
   const src: string;
   export default src;
 }
+
+/* VERSION */
+declare const APP_VERSION: string
