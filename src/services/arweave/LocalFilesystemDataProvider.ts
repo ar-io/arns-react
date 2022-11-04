@@ -2,7 +2,7 @@ import {
   SmartweaveContractSource,
   ArNSContractState,
   ArweaveTransactionId,
-} from '../types';
+} from '../../types';
 import axios from 'axios';
 
 export class LocalFileSystemDataProvider implements SmartweaveContractSource {
