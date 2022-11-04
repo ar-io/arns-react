@@ -24,11 +24,6 @@ export const reducer = (state: GlobalState, action: Action): GlobalState => {
         ...state,
         arnsSourceContract: action.payload,
       };
-    case 'setErrors':
-      return {
-        ...state,
-        errors: action.payload,
-      };
 
     default:
       return state;

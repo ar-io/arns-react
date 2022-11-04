@@ -6,14 +6,14 @@ import testContractState from '../../data/contracts/bLAgYxAdX2Ry-nt6aH2ixgvJXbps
 export type GlobalState = {
   arnsSourceContract: ArNSContractState;
   gateway: string;
-  connectedWallet: string;
+  connectedWallet: any;
   errors: Array<Error>;
 };
 
 const initialState: GlobalState = {
-  arnsSourceContract: testContractState,
+  arnsSourceContract: { records: {} },
   gateway: 'arweave.net',
-  connectedWallet: '',
+  connectedWallet: undefined,
   errors: [],
 };
 
