@@ -15,7 +15,7 @@ export const reducer = (state: GlobalState, action: Action): GlobalState => {
       };
     case 'setGateway':
       return {
-        ...state, 
+        ...state,
         gateway: action.payload,
       };
     case 'setArnsContractState':

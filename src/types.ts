@@ -1,5 +1,5 @@
 export type ArNSContractState = {
-  records: { [x:string]: ArweaveTransactionId }
+  records: { [x: string]: ArweaveTransactionId } | undefined;
 };
 
 // TODO: match this to a regex

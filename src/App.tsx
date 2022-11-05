@@ -10,9 +10,8 @@ import { Layout } from './components/layout';
 import useArNSContract from './hooks/useArNSContract/useArNSContract';
 
 function App() {
-  useArNSContract()
+  useArNSContract();
 
-  
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route element={<Layout />}>
