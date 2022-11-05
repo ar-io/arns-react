@@ -21,7 +21,7 @@ export const reducer = (state: GlobalState, action: Action): GlobalState => {
     case 'setArnsContractState':
       return {
         ...state,
-        arnsSourceContract: action.payload,
+        arnsSourceContract: action.payload as ArNSContractState,
       };
 
     default:
