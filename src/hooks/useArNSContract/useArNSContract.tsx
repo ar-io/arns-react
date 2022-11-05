@@ -32,7 +32,7 @@ export default function useArNSContract() {
       });
 
       setTimeout(() => {
-        // 0.1 second delay before dispatching another calculation to prevent UI jitter
+        // short delay to prevent another dispatch
         setSendingContractState(false);
       }, 100);
     } catch (error) {
