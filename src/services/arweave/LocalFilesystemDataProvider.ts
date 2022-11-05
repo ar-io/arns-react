@@ -19,5 +19,4 @@ export class LocalFileSystemDataProvider implements SmartweaveContractSource {
     }
     return;
   }
- 
 }

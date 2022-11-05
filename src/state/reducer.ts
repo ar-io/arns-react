@@ -4,7 +4,7 @@ import type { ArweaveTransactionId, ArNSContractState } from '../types';
 export type Action =
   | { type: 'setWalletAddress'; payload: ArweaveTransactionId }
   | { type: 'setGateway'; payload: string }
-  | { type: 'setArnsContractState'; payload: ArNSContractState};
+  | { type: 'setArnsContractState'; payload: ArNSContractState };
 
 export const reducer = (state: GlobalState, action: Action): GlobalState => {
   switch (action.type) {
@@ -21,7 +21,7 @@ export const reducer = (state: GlobalState, action: Action): GlobalState => {
     case 'setArnsContractState':
       return {
         ...state,
-        arnsSourceContract: action.payload as ArNSContractState,
+        arnsSourceContract: action.payload,
       };
 
     default:

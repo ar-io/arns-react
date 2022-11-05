@@ -1,3 +1,3 @@
-import useArNSContract from "./useArNSContract/useArNSContract";
+import useArNSContract from './useArNSContract/useArNSContract';
 
-export {useArNSContract}
+export { useArNSContract };

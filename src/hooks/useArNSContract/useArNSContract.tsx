@@ -2,48 +2,44 @@ import { LocalFileSystemDataProvider } from '../../services/arweave/LocalFilesys
 import { useStateValue } from '../../state/state';
 import { useState, useEffect } from 'react';
 
-const localContractAddress = 'bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U';
+const ARNS_SOURCE_CONTRACT_ID = 'bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U';
 
 export default function useArNSContract() {
   const [{ arnsSourceContract }, dispatch] = useStateValue();
   const [sendingContractState, setSendingContractState] = useState(false);
 
-
-
-    useEffect(() => {
-      dispatchNewContractState();
-    }, []);
-    async function dispatchNewContractState(): Promise<void> {
-      try {
-        const localProvider = new LocalFileSystemDataProvider();
+  useEffect(() => {
+    dispatchNewContractState();
+  }, []);
+  async function dispatchNewContractState(): Promise<void> {
+    try {
+      const localProvider = new LocalFileSystemDataProvider();
       if (sendingContractState) {
         return;
       }
       setSendingContractState(true);
 
-      const localState = await localProvider.getContractState(
-        localContractAddress,
+      const arnsContractState = await localProvider.getContractState(
+        ARNS_SOURCE_CONTRACT_ID,
       );
-      if (!localState) {
+      if (!arnsContractState) {
         throw Error('ArNS contract state is empty');
       }
-      console.log(localState);
       dispatch({
         type: 'setArnsContractState',
-        payload: { records: localState.records },
+        payload: arnsContractState,
       });
 
       setTimeout(() => {
         // 0.1 second delay before dispatching another calculation to prevent UI jitter
         setSendingContractState(false);
       }, 100);
-    }
-    catch (error) {
+    } catch (error) {
       console.log(
         `error in setting contract state to GlobalState provider >>>`,
         error,
       );
     }
-  } 
+  }
   return;
 }
