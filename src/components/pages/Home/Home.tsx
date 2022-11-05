@@ -2,6 +2,8 @@ import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import './styles.css';
 
 function Home() {
+
+  
   return (
     <div className="page">
       <div className="pageHeader">Arweave Name System</div>
