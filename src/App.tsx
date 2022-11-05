@@ -7,8 +7,11 @@ import {
 import './index.css';
 import { About, FAQ, Home } from './components/pages';
 import { Layout } from './components/layout';
+import { useArNSContract } from './hooks/';
 
 function App() {
+  useArNSContract();
+
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route element={<Layout />}>

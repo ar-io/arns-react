@@ -1,7 +1,6 @@
 import React, { createContext, Dispatch, useContext, useReducer } from 'react';
 import type { ArNSContractState } from '../types';
 import type { Action } from './reducer';
-import testContractState from '../../data/contracts/bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U.json';
 
 export type GlobalState = {
   arnsSourceContract: ArNSContractState;
