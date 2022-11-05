@@ -8,13 +8,14 @@ export default function useArNSContract() {
   const [{ arnsSourceContract }, dispatch] = useStateValue();
   const [sendingContractState, setSendingContractState] = useState(false);
 
-  try {
-    const localProvider = new LocalFileSystemDataProvider();
+
 
     useEffect(() => {
       dispatchNewContractState();
     }, []);
     async function dispatchNewContractState(): Promise<void> {
+      try {
+        const localProvider = new LocalFileSystemDataProvider();
       if (sendingContractState) {
         return;
       }
@@ -37,11 +38,12 @@ export default function useArNSContract() {
         setSendingContractState(false);
       }, 100);
     }
-  } catch (error) {
-    console.log(
-      `error in setting contract state to GlobalState provider >>>`,
-      error,
-    );
-  }
+    catch (error) {
+      console.log(
+        `error in setting contract state to GlobalState provider >>>`,
+        error,
+      );
+    }
+  } 
   return;
 }

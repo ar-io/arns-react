@@ -7,7 +7,7 @@ import {
 import './index.css';
 import { About, FAQ, Home } from './components/pages';
 import { Layout } from './components/layout';
-import useArNSContract from './hooks/useArNSContract/useArNSContract';
+import {useArNSContract} from './hooks/';
 
 function App() {
   useArNSContract();
