@@ -10,8 +10,8 @@ function Home() {
   const [records, setRecords] = useState({});
 
   useEffect(() => {
-    let newRecords = arnsSourceContract.records;
-    setRecords(newRecords);
+    const records = arnsSourceContract.records;
+    setRecords(records);
   }, [arnsSourceContract]);
 
   return (
