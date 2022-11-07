@@ -1,3 +1,5 @@
+import React from 'react';
+
 export type ArNSContractState = {
   records: { [x: string]: ArweaveTransactionId };
 };
@@ -12,8 +14,9 @@ export interface SmartweaveContractSource {
 }
 
 export type SearchBarProps = {
-  buttonAction: () => void;
+  buttonAction: (props: string) => void;
   placeholderText: string;
-  headerText: string;
+  headerElement: JSX.Element;
   footerText: string;
+  availability: string;
 };
