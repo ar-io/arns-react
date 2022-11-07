@@ -1,20 +1,51 @@
 import { ReactComponent as SearchIcon } from '../../../icons/Search.svg';
-import { ReactComponent as ArrowUpRight } from '../../../icons/ArrowUpRight.svg';
 import './styles.css';
 import { SearchBarProps } from '../../../../types';
+import React, { useState } from 'react';
 
 function SearchBar(props: SearchBarProps) {
-  const { buttonAction, placeholderText, headerText, footerText } = props;
+  const {
+    buttonAction,
+    placeholderText,
+    headerElement,
+    footerText,
+    availability,
+  } = props;
+
+  const [searchBarText, setSearchBarText] = useState('');
+
+  function onHandleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setSearchBarText(e.target.value);
+    if (e.target.value == '') {
+      buttonAction(e.target.value);
+    }
+  }
 
   return (
     <>
-      <div className="sectionHeader">{headerText}</div>
-      <div className="searchBar">
-        <input type="text" placeholder={placeholderText} />
+      {headerElement}
+      <div
+        className="searchBar"
+        style={
+          availability === 'available'
+            ? { borderColor: 'var(--success-green)' }
+            : availability === 'unavailable'
+            ? { borderColor: 'var(--error-red)' }
+            : availability === 'search'
+            ? { borderColor: '' }
+            : {}
+        }
+      >
+        <input
+          type="text"
+          placeholder={placeholderText}
+          onChange={(e) => onHandleChange(e)}
+          onKeyDown={(e) => e.key == 'Enter' && buttonAction(searchBarText)}
+        />
         <button
           className="searchButton"
           onClick={() => {
-            buttonAction();
+            buttonAction(searchBarText);
           }}
         >
           <SearchIcon
