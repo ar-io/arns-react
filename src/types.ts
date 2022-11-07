@@ -21,6 +21,6 @@ export type SearchBarProps = {
 };
 
 export type SearchBarHeaderProps = {
-  isValid : Boolean | undefined;
+  isValid: Boolean | undefined;
   name: string;
-}
+};

@@ -4,21 +4,12 @@ import { SearchBarProps } from '../../../../types';
 import React, { useEffect, useState } from 'react';
 
 function SearchBar(props: SearchBarProps) {
-  
-  const {
-    buttonAction,
-    placeholderText,
-    headerElement,
-    footerText
-  } = props;
+  const { buttonAction, placeholderText, headerElement, footerText } = props;
 
-  
   const [searchBarText, setSearchBarText] = useState('');
   const [isValid, setIsValid] = useState<Boolean | undefined>(undefined);
 
- 
-
-  function onHandleChange(name:string) {
+  function onHandleChange(name: string) {
     setSearchBarText(name);
   }
 
@@ -42,16 +33,15 @@ function SearchBar(props: SearchBarProps) {
           placeholder={placeholderText}
           value={searchBarText}
           onChange={(e) => onHandleChange(e.target.value)}
-          onKeyDown={
-            (e) => {
-              if ( e.key == 'Enter'){
-              setIsValid(buttonAction(searchBarText))
+          onKeyDown={(e) => {
+            if (e.key == 'Enter') {
+              setIsValid(buttonAction(searchBarText));
             }
-            if ( e.key == 'Backspace'){
-             onHandleChange(""); setIsValid(undefined)
+            if (e.key == 'Backspace') {
+              onHandleChange('');
+              setIsValid(undefined);
             }
-            }          
-          }
+          }}
         />
         <button
           className="searchButton"

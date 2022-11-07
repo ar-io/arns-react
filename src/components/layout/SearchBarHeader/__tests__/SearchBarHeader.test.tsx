@@ -5,6 +5,6 @@ describe('AvailabilityHeader', () => {
   afterEach(cleanup);
 
   test('render AvailabilityHeader', () => {
-    render(<AvailabilityHeader availability='search' name="" />);
+    render(<AvailabilityHeader availability="search" name="" />);
   });
 });

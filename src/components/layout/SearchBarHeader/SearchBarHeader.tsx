@@ -1,6 +1,6 @@
 import { SearchBarHeaderProps } from '../../../types';
 import './styles.css';
-function SearchBarHeader({isValid,name}:SearchBarHeaderProps): JSX.Element {
+function SearchBarHeader({ isValid, name }: SearchBarHeaderProps): JSX.Element {
   return (
     <>
       {isValid == undefined || name == '' ? (
@@ -10,7 +10,8 @@ function SearchBarHeader({isValid,name}:SearchBarHeaderProps): JSX.Element {
       )}
       {isValid && name !== '' ? (
         <div className="sectionHeader">
-          {name}<span className="available">is available!</span>
+          {name}
+          <span className="available">is available!</span>
         </div>
       ) : (
         <></>
