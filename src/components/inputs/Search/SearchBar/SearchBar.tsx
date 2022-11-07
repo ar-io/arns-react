@@ -9,6 +9,12 @@ function SearchBar(props: SearchBarProps) {
   const [searchBarText, setSearchBarText] = useState('');
   const [isValid, setIsValid] = useState<Boolean | undefined>(undefined);
 
+  useEffect(() => {
+    if (searchBarText == '') {
+      setIsValid(undefined);
+    }
+  }, [searchBarText]);
+
   function onHandleChange(name: string) {
     setSearchBarText(name);
   }
@@ -36,10 +42,6 @@ function SearchBar(props: SearchBarProps) {
           onKeyDown={(e) => {
             if (e.key == 'Enter') {
               setIsValid(buttonAction(searchBarText));
-            }
-            if (e.key == 'Backspace') {
-              onHandleChange('');
-              setIsValid(undefined);
             }
           }}
         />
