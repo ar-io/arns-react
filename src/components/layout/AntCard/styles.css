@@ -1,0 +1,21 @@
+.card {
+  min-height: 250px;
+  display: flex;
+  background: #1f1f1f;
+  padding: 38px 0px 42px;
+  flex-direction: column;
+  align-items: center;
+  gap: 33px;
+  width: 75%;
+  max-width: 400px;
+  min-width: 250px;
+  box-shadow: 0px 0px 1px #0d0d0d, 0px 8px 16px rgba(13, 13, 13, 0.9);
+  border-radius: 24px;
+}
+
+.card .detail {
+  color: var(--text-white);
+  display: flex;
+  align-self: flex-start;
+  padding: 0 10px;
+}
