@@ -1,0 +1,14 @@
+.available {
+  color: var(--success-green);
+  font-weight: inherit;
+  font-size: inherit;
+  font-family: 'Rubik';
+  height: fit-content;
+}
+.unavailable {
+  color: var(--error-red);
+  font-weight: inherit;
+  font-size: inherit;
+  font-family: 'Rubik';
+  height: fit-content;
+}

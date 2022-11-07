@@ -15,6 +15,6 @@ export type SearchBarProps = {
   predicate: (value: string) => boolean;
   placeholderText: string;
   headerElement: JSX.Element;
-  footerText: string;
+  footerElement: JSX.Element;
   values: string[] | object;
 };

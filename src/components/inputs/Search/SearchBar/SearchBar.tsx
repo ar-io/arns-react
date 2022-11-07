@@ -4,7 +4,7 @@ import { SearchBarProps } from '../../../../types';
 import React, { useState } from 'react';
 
 function SearchBar(props: SearchBarProps) {
-  const { predicate, placeholderText, headerElement, footerText } = props;
+  const { predicate, placeholderText, headerElement, footerElement } = props;
 
   const [isValid, setIsValid] = useState(false);
   const [searchBarText, setSearchBarText] = useState('');
@@ -12,6 +12,7 @@ function SearchBar(props: SearchBarProps) {
   function onHandleChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.value === '') {
       setSearchSubmitted(false);
+      setIsValid(false);
       setSearchBarText('');
     }
   }
@@ -25,13 +26,11 @@ function SearchBar(props: SearchBarProps) {
 
   return (
     <>
-      <div>
-        {React.cloneElement(headerElement, {
-          ...props,
-          text: searchBarText,
-          isValid,
-        })}
-      </div>
+      {React.cloneElement(headerElement, {
+        ...props,
+        text: searchBarText,
+        isValid,
+      })}
       <div
         className="searchBar"
         style={
@@ -62,7 +61,11 @@ function SearchBar(props: SearchBarProps) {
           />
         </button>
       </div>
-      <div className="textFaded">{footerText}</div>
+      {React.cloneElement(footerElement, {
+        ...props,
+        isValid: (isValid || searchSubmitted), // TODO: show the ANT detail if name is taken, show purchase options/component if it's available
+        text: searchBarText,
+      })}
     </>
   );
 }
