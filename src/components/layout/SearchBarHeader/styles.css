@@ -3,8 +3,6 @@
   font-weight: inherit;
   font-size: inherit;
   font-family: 'Rubik';
-  padding-left: 4px;
-  margin: 0%;
   height: fit-content;
 }
 .unavailable {
@@ -12,7 +10,5 @@
   font-weight: inherit;
   font-size: inherit;
   font-family: 'Rubik';
-  padding-left: 4px;
-  margin: 0%;
   height: fit-content;
 }

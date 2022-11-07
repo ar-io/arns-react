@@ -4,48 +4,54 @@ import { SearchBarProps } from '../../../../types';
 import React, { useState } from 'react';
 
 function SearchBar(props: SearchBarProps) {
-  const {
-    buttonAction,
-    placeholderText,
-    headerElement,
-    footerText,
-    availability,
-  } = props;
+  const { predicate, placeholderText, headerElement, footerText } = props;
 
+  const [isValid, setIsValid] = useState(false);
   const [searchBarText, setSearchBarText] = useState('');
-
+  const [searchSubmitted, setSearchSubmitted] = useState(false);
   function onHandleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setSearchBarText(e.target.value);
-    if (e.target.value == '') {
-      buttonAction(e.target.value);
+    if (e.target.value === '') {
+      setSearchSubmitted(false);
+      setSearchBarText('');
     }
+  }
+
+  function onSubmit(e: any) {
+    setSearchBarText(e.target.value);
+    setSearchSubmitted(true);
+    const isAvailable = predicate(e.target.value);
+    setIsValid(isAvailable);
   }
 
   return (
     <>
-      {headerElement}
+      <div>
+        {React.cloneElement(headerElement, {
+          ...props,
+          text: searchBarText,
+          isValid,
+        })}
+      </div>
       <div
         className="searchBar"
         style={
-          availability === 'available'
-            ? { borderColor: 'var(--success-green)' }
-            : availability === 'unavailable'
-            ? { borderColor: 'var(--error-red)' }
-            : availability === 'search'
+          !searchSubmitted
             ? { borderColor: '' }
-            : {}
+            : isValid
+            ? { borderColor: 'var(--success-green)' }
+            : { borderColor: 'var(--error-red)' }
         }
       >
         <input
           type="text"
           placeholder={placeholderText}
           onChange={(e) => onHandleChange(e)}
-          onKeyDown={(e) => e.key == 'Enter' && buttonAction(searchBarText)}
+          onKeyDown={(e) => e.key == 'Enter' && onSubmit(e)}
         />
         <button
           className="searchButton"
-          onClick={() => {
-            buttonAction(searchBarText);
+          onClick={(e) => {
+            onSubmit(searchBarText);
           }}
         >
           <SearchIcon
