@@ -1,28 +1,23 @@
+import { SearchBarHeaderProps } from '../../../types';
 import './styles.css';
-function AvailabilityHeader({
-  availability,
-  name,
-}: {
-  availability: string;
-  name: string;
-}): JSX.Element {
+function SearchBarHeader({isValid,name}:SearchBarHeaderProps): JSX.Element {
   return (
     <>
-      {availability == 'search' || name == '' ? (
+      {isValid == undefined || name == '' ? (
         <div className="sectionHeader">Find a domain name</div>
       ) : (
         <></>
       )}
-      {availability == 'available' && name !== '' ? (
+      {isValid && name !== '' ? (
         <div className="sectionHeader">
-          {name} <span className="available">is available!</span>
+          {name}<span className="available">is available!</span>
         </div>
       ) : (
         <></>
       )}
-      {availability == 'unavailable' && name !== '' ? (
+      {!isValid && name !== '' ? (
         <div className="sectionHeader">
-          {name}{' '}
+          {name}
           <span className="unavailable">
             is already registered, try another name
           </span>
@@ -33,4 +28,4 @@ function AvailabilityHeader({
     </>
   );
 }
-export default AvailabilityHeader;
+export default SearchBarHeader;

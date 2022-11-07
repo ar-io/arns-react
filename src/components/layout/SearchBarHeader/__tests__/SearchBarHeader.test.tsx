@@ -1,5 +1,5 @@
 import { render, cleanup } from '@testing-library/react';
-import AvailabilityHeader from '../AvailabilityHeader';
+import AvailabilityHeader from '../SearchBarHeader';
 
 describe('AvailabilityHeader', () => {
   afterEach(cleanup);

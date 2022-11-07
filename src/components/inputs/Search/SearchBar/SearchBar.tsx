@@ -1,24 +1,25 @@
 import { ReactComponent as SearchIcon } from '../../../icons/Search.svg';
 import './styles.css';
 import { SearchBarProps } from '../../../../types';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 function SearchBar(props: SearchBarProps) {
+  
   const {
     buttonAction,
     placeholderText,
     headerElement,
-    footerText,
-    availability,
+    footerText
   } = props;
 
+  
   const [searchBarText, setSearchBarText] = useState('');
+  const [isValid, setIsValid] = useState<Boolean | undefined>(undefined);
 
-  function onHandleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setSearchBarText(e.target.value);
-    if (e.target.value == '') {
-      buttonAction(e.target.value);
-    }
+ 
+
+  function onHandleChange(name:string) {
+    setSearchBarText(name);
   }
 
   return (
@@ -27,11 +28,11 @@ function SearchBar(props: SearchBarProps) {
       <div
         className="searchBar"
         style={
-          availability === 'available'
+          isValid
             ? { borderColor: 'var(--success-green)' }
-            : availability === 'unavailable'
+            : isValid === false
             ? { borderColor: 'var(--error-red)' }
-            : availability === 'search'
+            : isValid === undefined
             ? { borderColor: '' }
             : {}
         }
@@ -39,13 +40,23 @@ function SearchBar(props: SearchBarProps) {
         <input
           type="text"
           placeholder={placeholderText}
-          onChange={(e) => onHandleChange(e)}
-          onKeyDown={(e) => e.key == 'Enter' && buttonAction(searchBarText)}
+          value={searchBarText}
+          onChange={(e) => onHandleChange(e.target.value)}
+          onKeyDown={
+            (e) => {
+              if ( e.key == 'Enter'){
+              setIsValid(buttonAction(searchBarText))
+            }
+            if ( e.key == 'Backspace'){
+             onHandleChange(""); setIsValid(undefined)
+            }
+            }          
+          }
         />
         <button
           className="searchButton"
           onClick={() => {
-            buttonAction(searchBarText);
+            setIsValid(buttonAction(searchBarText));
           }}
         >
           <SearchIcon
