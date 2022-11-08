@@ -6,37 +6,45 @@ import React, { useEffect, useState } from 'react';
 function SearchBar(props: SearchBarProps) {
   const { predicate, placeholderText, headerElement, footerElement } = props;
 
+  const [isDefault, setIsDefault] = useState(true)
   const [isValid, setIsValid] = useState(false);
   const [searchBarText, setSearchBarText] = useState('');
   const [searchSubmitted, setSearchSubmitted] = useState(false);
+  const [submittedName, setSubmittedName] = useState('')
 
 
   function onHandleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setSearchBarText(e.target.value);
     if (e.target.value === '') {
       setSearchSubmitted(false);
+      setSubmittedName("")
       setIsValid(false);
-      setSearchBarText('');
+      setIsDefault(true)
     }
   }
 
   function onSubmit(e: any) {
-    setSearchBarText(e.target.value);
+    setIsDefault(false)
+    setSubmittedName(e.target.value);
     setSearchSubmitted(true);
     const isAvailable = predicate(e.target.value);
     setIsValid(isAvailable);
+    if (!isAvailable) {
+      setSearchBarText("")
+    }
   }
 
   return (
     <>
       {React.cloneElement(headerElement, {
         ...props,
-        text: searchBarText,
+        text: submittedName,
         isValid,
       })}
       <div
         className="searchBar"
         style={
-          !searchSubmitted
+          !searchSubmitted || isDefault
             ? { borderColor: '' }
             : isValid
             ? { borderColor: 'var(--success-green)' }
@@ -45,7 +53,10 @@ function SearchBar(props: SearchBarProps) {
       >
         <input
           type="text"
-          placeholder={placeholderText}
+          placeholder={
+          isDefault ? placeholderText : "try another name"
+          }
+          value={searchBarText}
           onChange={(e) => onHandleChange(e)}
           onKeyDown={(e) => e.key == 'Enter' && onSubmit(e)}
         />
@@ -66,7 +77,7 @@ function SearchBar(props: SearchBarProps) {
       {React.cloneElement(footerElement, {
         ...props,
         isValid: isValid || searchSubmitted, // TODO: show the ANT detail if name is taken, show purchase options/component if it's available
-        text: searchBarText,
+        text: submittedName,
       })}
     </>
   );
