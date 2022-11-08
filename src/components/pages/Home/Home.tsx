@@ -2,8 +2,8 @@ import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import './styles.css';
 import { useStateValue } from '../../../state/state';
 import { useState, useEffect } from 'react';
-import { isArNSDomainNameAvailaible } from '../../../utils/searchUtils';
-import SearchBarHeader from '../../layout/SearchBarHeader/SearchBarHeader';
+import { ARNS_NAME_REGEX } from '../../../../types/constants';
+import { SearchBarHeader, SearchBarFooter } from '../../layout';
 
 function Home() {
   const [{ arnsSourceContract }] = useStateValue();
@@ -20,13 +20,18 @@ function Home() {
     <div className="page">
       <div className="pageHeader">Arweave Name System</div>
       <SearchBar
-        buttonAction={(props) =>
-          isArNSDomainNameAvailaible({ name: props, records: records })
+        values={records}
+        predicate={(value) =>
+          !Object.keys(records).includes(value) && ARNS_NAME_REGEX.test(value)
         }
         placeholderText={placeholderText}
-        headerElement={<SearchBarHeader isValid={undefined} name={''} />}
-        footerText={
-          'Names must be 1-32 characters. Dashes and underscores are permitted, but cannot be trailing characters and cannot be used in single character domains.'
+        headerElement={<SearchBarHeader defaultText={'Find a name'} />}
+        footerElement={
+          <SearchBarFooter
+            defaultText={
+              'Names must be 1-32 characters. Dashes and underscores are permitted, but cannot be trailing characters and cannot be used in single character domains.'
+            }
+          />
         }
       />
     </div>

@@ -14,13 +14,20 @@ export interface SmartweaveContractSource {
 }
 
 export type SearchBarProps = {
-  buttonAction: (props: string) => Boolean | undefined;
+  predicate: (value: string) => boolean;
   placeholderText: string;
   headerElement: JSX.Element;
-  footerText: string;
+  footerElement: JSX.Element;
+  values: string[] | object;
 };
 
 export type SearchBarHeaderProps = {
-  isValid: Boolean | undefined;
-  name: string;
+  defaultText: string;
+  isValid?: boolean;
+  text?: string;
+};
+
+export type SearchBarFooterProps = {
+  defaultText: string;
+  isValid?: boolean;
 };

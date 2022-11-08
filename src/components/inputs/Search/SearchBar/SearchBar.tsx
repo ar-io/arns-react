@@ -4,51 +4,55 @@ import { SearchBarProps } from '../../../../types';
 import React, { useEffect, useState } from 'react';
 
 function SearchBar(props: SearchBarProps) {
-  const { buttonAction, placeholderText, headerElement, footerText } = props;
+  const { predicate, placeholderText, headerElement, footerElement } = props;
 
+  const [isValid, setIsValid] = useState(false);
   const [searchBarText, setSearchBarText] = useState('');
-  const [isValid, setIsValid] = useState<Boolean | undefined>(undefined);
+  const [searchSubmitted, setSearchSubmitted] = useState(false);
 
-  useEffect(() => {
-    if (searchBarText == '') {
-      setIsValid(undefined);
+
+  function onHandleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    if (e.target.value === '') {
+      setSearchSubmitted(false);
+      setIsValid(false);
+      setSearchBarText('');
     }
-  }, [searchBarText]);
+  }
 
-  function onHandleChange(name: string) {
-    setSearchBarText(name);
+  function onSubmit(e: any) {
+    setSearchBarText(e.target.value);
+    setSearchSubmitted(true);
+    const isAvailable = predicate(e.target.value);
+    setIsValid(isAvailable);
   }
 
   return (
     <>
-      {headerElement}
+      {React.cloneElement(headerElement, {
+        ...props,
+        text: searchBarText,
+        isValid,
+      })}
       <div
         className="searchBar"
         style={
-          isValid
-            ? { borderColor: 'var(--success-green)' }
-            : isValid === false
-            ? { borderColor: 'var(--error-red)' }
-            : isValid === undefined
+          !searchSubmitted
             ? { borderColor: '' }
-            : {}
+            : isValid
+            ? { borderColor: 'var(--success-green)' }
+            : { borderColor: 'var(--error-red)' }
         }
       >
         <input
           type="text"
           placeholder={placeholderText}
-          value={searchBarText}
-          onChange={(e) => onHandleChange(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key == 'Enter') {
-              setIsValid(buttonAction(searchBarText));
-            }
-          }}
+          onChange={(e) => onHandleChange(e)}
+          onKeyDown={(e) => e.key == 'Enter' && onSubmit(e)}
         />
         <button
           className="searchButton"
-          onClick={() => {
-            setIsValid(buttonAction(searchBarText));
+          onClick={(e) => {
+            onSubmit(searchBarText);
           }}
         >
           <SearchIcon
@@ -59,7 +63,11 @@ function SearchBar(props: SearchBarProps) {
           />
         </button>
       </div>
-      <div className="textFaded">{footerText}</div>
+      {React.cloneElement(footerElement, {
+        ...props,
+        isValid: isValid || searchSubmitted, // TODO: show the ANT detail if name is taken, show purchase options/component if it's available
+        text: searchBarText,
+      })}
     </>
   );
 }

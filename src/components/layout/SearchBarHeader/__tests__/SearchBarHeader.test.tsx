@@ -1,10 +1,10 @@
 import { render, cleanup } from '@testing-library/react';
-import AvailabilityHeader from '../SearchBarHeader';
+import SearchBarHeader from '../SearchBarHeader';
 
-describe('AvailabilityHeader', () => {
+describe('SearchBarHeader', () => {
   afterEach(cleanup);
 
-  test('render AvailabilityHeader', () => {
-    render(<AvailabilityHeader availability="search" name="" />);
+  test('render SearchBarHeader', () => {
+    render(<SearchBarHeader defaultText="Example header" />);
   });
 });
