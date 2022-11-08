@@ -35,7 +35,7 @@ const DEFAULT_ATTRIBUTES = {
 function AntCard(props: AntCardProps) {
   const { contract } = props;
   const { id, domain } = contract;
-  const [antDetails, setAntDetails] = useState<{ [x: string]: string }>({});
+  const [antDetails, setAntDetails] = useState<{ [x: string]: string }>();
   const [limitDetails, setLimitDetails] = useState(true);
 
   useEffect(() => {
@@ -75,42 +75,39 @@ function AntCard(props: AntCardProps) {
   }
 
   return (
-    <div className="card">
+    <>
       {antDetails ? (
-        // TODO: pull tier from ant contract details
-        <span className="bubble">Tier 1</span>
+        <div className="card">
+          {/* // TODO: pull tier from ant contract details */}
+          <span className="bubble">Tier 1</span>
+          {Object.entries(antDetails).map(([key, value]) => {
+            if (!PRIMARY_DETAILS.includes(key) && limitDetails) {
+              return;
+            }
+            return (
+              <span className="detail" key={key}>
+                {key}:&nbsp;<b>{value}</b>
+              </span>
+            );
+          })}
+          {limitDetails ? (
+            <a onClick={showMore} className="link">
+              more details...
+            </a>
+          ) : (
+            <></>
+          )}
+          <button className="buttonLarge" onClick={handleClick}>
+            Upgrade
+          </button>
+        </div>
       ) : (
-        <></>
+        // TODO: remove this holder when ant's have multiple data providers
+        <span className="sectionHeader">
+          Uh oh. That ANT is not available at the moment. Try another.
+        </span>
       )}
-      {antDetails ? (
-        Object.entries(antDetails).map(([key, value]) => {
-          if (!PRIMARY_DETAILS.includes(key) && limitDetails) {
-            return;
-          }
-          return (
-            <span className="detail" key={key}>
-              {key}:&nbsp;<b>{value}</b>
-            </span>
-          );
-        })
-      ) : (
-        <></>
-      )}
-      {antDetails && limitDetails ? (
-        <a onClick={showMore} className="link">
-          more details...
-        </a>
-      ) : (
-        <></>
-      )}
-      {antDetails ? (
-        <button className="buttonLarge" onClick={handleClick}>
-          Upgrade
-        </button>
-      ) : (
-        <></>
-      )}
-    </div>
+    </>
   );
 }
 

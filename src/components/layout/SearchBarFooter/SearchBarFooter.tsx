@@ -8,7 +8,7 @@ function SearchBarFooter({
 }: SearchBarFooterProps): JSX.Element {
   return (
     <>
-      {!searchResult ? (
+      {!searchResult?.id ? (
         <div className="textFaded">{defaultText}</div>
       ) : (
         <AntCard contract={searchResult} />
