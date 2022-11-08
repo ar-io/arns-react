@@ -14,7 +14,7 @@ function SearchBar(props: SearchBarProps) {
 
 
   function onHandleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setSearchBarText(e.target.value);
+    setSearchBarText(e.target.value.trim());
     if (e.target.value === '') {
       setSearchSubmitted(false);
       setSubmittedName("")
