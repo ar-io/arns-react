@@ -54,7 +54,7 @@ function AntCard(props: AntCardProps) {
       const replacedKeys = Object.keys(allAntDetails).sort().reduce(
         (obj: any, key: string) => {
           // TODO: flatten recursive objects like subdomains, filter out for now
-          if (typeof allAntDetails[key] !== 'string') return obj;
+          if (typeof allAntDetails[key] === 'object') return obj;
           obj[mapKeyToAttribute(key)] = allAntDetails[key];
           return obj;
         },
