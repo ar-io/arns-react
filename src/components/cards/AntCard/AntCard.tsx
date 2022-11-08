@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
+import { startCase } from 'lodash';
 import { LocalFileSystemDataProvider } from '../../../services/arweave/LocalFilesystemDataProvider';
-import { AntCardProps } from '../../../types.js';
+import { AntCardProps } from '../../../types';
 import './styles.css';
 
 const ANT_DETAIL_MAPPINGS: { [x: string]: string } = {
@@ -14,7 +15,7 @@ function mapKeyToAttribute(key: string) {
   if (!!ANT_DETAIL_MAPPINGS[key]) {
     return ANT_DETAIL_MAPPINGS[key];
   }
-  return key;
+  return startCase(key);
 }
 
 const PRIMARY_DETAILS: string[] = [
@@ -29,7 +30,7 @@ const PRIMARY_DETAILS: string[] = [
 const DEFAULT_ATTRIBUTES = {
   tier: 1,
   nickname: 'N/A',
-  ttlSeconds: '60 seconds',
+  ttlSeconds: 60 * 60,
   leaseDuration: 'N/A',
   subdomains: 'Up to 100',
 };
