@@ -51,22 +51,16 @@ function AntCard(props: AntCardProps) {
         ...DEFAULT_ATTRIBUTES,
       };
       // TODO: consolidate this logic that sorts and updates key values
-      const replacedKeys = Object.keys(allAntDetails).reduce(
+      const replacedKeys = Object.keys(allAntDetails).sort().reduce(
         (obj: any, key: string) => {
-          obj[key] = allAntDetails[key];
+          // TODO: flatten recursive objects like subdomains, filter out for now
+          if (typeof allAntDetails[key] !== 'string') return obj;
+          obj[mapKeyToAttribute(key)] = allAntDetails[key];
           return obj;
         },
         {},
-      );
-      const sortedAntDetails = Object.keys(replacedKeys)
-        .sort()
-        .reduce((obj: any, key: string) => {
-          // TODO: flatten recursive objects like subdomains, filter out for now
-          if (typeof replacedKeys[key] !== 'string') return obj;
-          obj[key] = replacedKeys[key];
-          return obj;
-        }, {});
-      setAntDetails(sortedAntDetails);
+      )
+      setAntDetails(replacedKeys);
     });
   }, [contractId]);
 
@@ -83,18 +77,16 @@ function AntCard(props: AntCardProps) {
   return (
     <div className="card">
       {antDetails ? (
-        Object.entries(antDetails)
-          .sort((a: any, b: any) => a[1] - b[1])
-          .map(([key, value]) => {
-            if (!PRIMARY_DETAILS.includes(key) && limitDetails) {
-              return;
-            }
-            return (
-              <span className="detail" key={key}>
-                {key}:&nbsp;<b>{value}</b>
-              </span>
-            );
-          })
+        Object.entries(antDetails).map(([key, value]) => {
+          if (!PRIMARY_DETAILS.includes(key) && limitDetails) {
+            return;
+          }
+          return (
+            <span className="detail" key={key}>
+              {key}:&nbsp;<b>{value}</b>
+            </span>
+          );
+        })
       ) : (
         <></>
       )}
