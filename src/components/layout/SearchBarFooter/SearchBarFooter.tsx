@@ -8,7 +8,7 @@ function SearchBarFooter({
 }: SearchBarFooterProps): JSX.Element {
   return (
     <>
-      {!isValid ? <div className="textFaded">{defaultText}</div> : <AntCard />}
+      {!isValid ? <div className="textFaded">{defaultText}</div> : <AntCard contractId="Bmd3dbeMD5oxLxgMJuoxd5Ihi1qnNI6Ici8-24gN-Vw" />}
     </>
   );
 }

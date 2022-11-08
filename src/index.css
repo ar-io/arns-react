@@ -33,6 +33,7 @@ body {
   flex-direction: column;
   padding: none;
   background-color: var(--bg-color);
+  font-family: 'Rubik';
 }
 
 .page {
@@ -78,4 +79,12 @@ body {
   font-size: 12px;
   max-width: 475px;
   text-align: center;
+}
+
+.buttonLarge {
+  border-radius: 6px;
+  height: 45px;
+  width: 150px;
+  border: none;
+  font-family: 'Rubik-Bold'
 }
