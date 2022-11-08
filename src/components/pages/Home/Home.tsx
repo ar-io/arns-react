@@ -9,7 +9,6 @@ function Home() {
   const [{ arnsSourceContract }] = useStateValue();
   const [records, setRecords] = useState({});
 
-  const [placeholderText, setPlaceholderText] = useState('Find a name');
 
   useEffect(() => {
     let newRecords = arnsSourceContract.records;
@@ -24,8 +23,8 @@ function Home() {
         predicate={(value) =>
           !Object.keys(records).includes(value) && ARNS_NAME_REGEX.test(value)
         }
-        placeholderText={placeholderText}
-        headerElement={<SearchBarHeader defaultText={'Find a name'} />}
+        placeholderText={'Enter a name'}
+        headerElement={<SearchBarHeader defaultText={'Find a domain name'} />}
         footerElement={
           <SearchBarFooter
             defaultText={

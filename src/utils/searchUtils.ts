@@ -9,8 +9,8 @@ export function isArNSDomainNameAvailaible({
 }): Boolean | undefined {
   // if name is not in the legal character range or chars, return undefined
   if (!ARNS_NAME_REGEX.test(name) && name !== '') {
-    return;
-  } else {
+    return false;
+  } 
     //if not registered return true
     if (!Object.keys(records).includes(name) && name !== '') {
       return true;
@@ -20,4 +20,4 @@ export function isArNSDomainNameAvailaible({
       return false;
     }
   }
-}
+

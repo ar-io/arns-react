@@ -1,7 +1,7 @@
 import { ReactComponent as SearchIcon } from '../../../icons/Search.svg';
 import './styles.css';
 import { SearchBarProps } from '../../../../types';
-import React, { useEffect, useState } from 'react';
+import React, {useState } from 'react';
 
 function SearchBar(props: SearchBarProps) {
   const { predicate, placeholderText, headerElement, footerElement } = props;
@@ -12,22 +12,26 @@ function SearchBar(props: SearchBarProps) {
   const [searchSubmitted, setSearchSubmitted] = useState(false);
   const [submittedName, setSubmittedName] = useState('')
 
+  function reset(){
+    setSearchSubmitted(false);
+    setSubmittedName("")
+    setIsValid(false);
+    setIsDefault(true)
+    return
+  }
 
   function onHandleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setSearchBarText(e.target.value.trim());
     if (e.target.value === '') {
-      setSearchSubmitted(false);
-      setSubmittedName("")
-      setIsValid(false);
-      setIsDefault(true)
+    reset()
     }
   }
 
-  function onSubmit(e: any) {
+  function onSubmit(name: string) {
     setIsDefault(false)
-    setSubmittedName(e.target.value);
+    setSubmittedName(name);
     setSearchSubmitted(true);
-    const isAvailable = predicate(e.target.value);
+    const isAvailable = predicate(name);
     setIsValid(isAvailable);
     if (!isAvailable) {
       setSearchBarText("")
@@ -58,7 +62,7 @@ function SearchBar(props: SearchBarProps) {
           }
           value={searchBarText}
           onChange={(e) => onHandleChange(e)}
-          onKeyDown={(e) => e.key == 'Enter' && onSubmit(e)}
+          onKeyDown={(e) => e.key == 'Enter' && onSubmit(searchBarText)}
         />
         <button
           className="searchButton"
