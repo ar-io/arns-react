@@ -5,7 +5,7 @@ import { AntCardProps } from '../../../types';
 import './styles.css';
 
 const ANT_DETAIL_MAPPINGS: { [x: string]: string } = {
-  name: 'Domain',
+  name: 'Nickname',
   id: 'ANT Contract ID',
   leaseDuration: 'Lease Duration',
   ttlSeconds: 'TTL Seconds',
@@ -20,34 +20,35 @@ function mapKeyToAttribute(key: string) {
 
 const PRIMARY_DETAILS: string[] = [
   'id',
-  'name',
+  'domain',
   'owner',
   'controller',
   'ticker',
   'nickname',
 ].map((i) => mapKeyToAttribute(i));
 const DEFAULT_ATTRIBUTES = {
-  nickname: 'N/A',
   ttlSeconds: 60 * 60,
   leaseDuration: 'N/A',
   subdomains: 'Up to 100',
 };
 
 function AntCard(props: AntCardProps) {
-  const { contractId } = props;
+  const { contract } = props;
+  const { id, domain } = contract;
   const [antDetails, setAntDetails] = useState<{ [x: string]: string }>({});
   const [limitDetails, setLimitDetails] = useState(true);
 
   useEffect(() => {
     const dataProvider = new LocalFileSystemDataProvider();
-    dataProvider.getContractState(contractId).then((antContractState) => {
+    dataProvider.getContractState(id).then((antContractState) => {
       if (!antContractState) {
         return;
       }
       const allAntDetails: { [x: string]: any } = {
         ...antContractState,
-        id: contractId,
         ...DEFAULT_ATTRIBUTES,
+        id,
+        domain,
       };
       // TODO: consolidate this logic that sorts and updates key values
       const replacedKeys = Object.keys(allAntDetails)
@@ -61,7 +62,7 @@ function AntCard(props: AntCardProps) {
       setLimitDetails(true);
       setAntDetails(replacedKeys);
     });
-  }, [contractId]);
+  }, [id]);
 
   function showMore(e: any) {
     e.preventDefault();

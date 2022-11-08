@@ -11,7 +11,7 @@ function SearchBarFooter({
       {!searchResult ? (
         <div className="textFaded">{defaultText}</div>
       ) : (
-        <AntCard contractId={searchResult} />
+        <AntCard contract={searchResult} />
       )}
     </>
   );

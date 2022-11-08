@@ -84,7 +84,9 @@ function SearchBar(props: SearchBarProps) {
       </div>
       {React.cloneElement(footerElement, {
         ...props,
-        searchResult: submittedName ? searchResult : undefined,
+        searchResult: submittedName
+          ? { id: searchResult, domain: submittedName }
+          : undefined,
       })}
     </>
   );
