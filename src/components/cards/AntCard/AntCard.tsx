@@ -98,19 +98,20 @@ function AntCard(props: AntCardProps) {
       ) : (
         <></>
       )}
-      {limitDetails ? (
+      {antDetails && limitDetails ? (
         <a onClick={showMore} className="link">
           more details...
         </a>
       ) : (
         <></>
       )}
-      { antDetails ?
+      {antDetails ? (
         <button className="buttonLarge" onClick={handleClick}>
           Upgrade
-        </button> :
+        </button>
+      ) : (
         <></>
-      }
+      )}
     </div>
   );
 }
