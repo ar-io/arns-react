@@ -16,7 +16,7 @@ export type SearchBarProps = {
   placeholderText: string;
   headerElement: JSX.Element;
   footerElement: JSX.Element;
-  values: string[] | object;
+  values: { [x: string]: string };
 };
 
 export type SearchBarHeaderProps = {
@@ -28,5 +28,9 @@ export type SearchBarHeaderProps = {
 
 export type SearchBarFooterProps = {
   defaultText: string;
-  isValid?: boolean;
+  searchResult?: string;
+};
+
+export type AntCardProps = {
+  contractId: string;
 };
