@@ -50,15 +50,14 @@ function AntCard(props: AntCardProps) {
         ...DEFAULT_ATTRIBUTES,
       };
       // TODO: consolidate this logic that sorts and updates key values
-      const replacedKeys = Object.keys(allAntDetails).sort().reduce(
-        (obj: any, key: string) => {
+      const replacedKeys = Object.keys(allAntDetails)
+        .sort()
+        .reduce((obj: any, key: string) => {
           // TODO: flatten recursive objects like subdomains, filter out for now
           if (typeof allAntDetails[key] === 'object') return obj;
           obj[mapKeyToAttribute(key)] = allAntDetails[key];
           return obj;
-        },
-        {},
-      )
+        }, {});
       setLimitDetails(true);
       setAntDetails(replacedKeys);
     });
@@ -76,14 +75,12 @@ function AntCard(props: AntCardProps) {
 
   return (
     <div className="card">
-      {
-        antDetails ? (
-          // TODO: pull tier from ant contract details
-          <span className="bubble" >
-              Tier 1
-            </span>
-        ): <></>
-      }
+      {antDetails ? (
+        // TODO: pull tier from ant contract details
+        <span className="bubble">Tier 1</span>
+      ) : (
+        <></>
+      )}
       {antDetails ? (
         Object.entries(antDetails).map(([key, value]) => {
           if (!PRIMARY_DETAILS.includes(key) && limitDetails) {

@@ -6,7 +6,7 @@
   font-size: inherit;
   font-family: 'Rubik';
   height: fit-content;
-  text-align: center;;
+  text-align: center;
 }
 .unavailable {
   color: var(--error-red);
@@ -14,5 +14,5 @@
   font-size: inherit;
   font-family: 'Rubik';
   height: fit-content;
-  text-align: center;;
+  text-align: center;
 }
