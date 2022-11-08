@@ -24,11 +24,9 @@ const PRIMARY_DETAILS: string[] = [
   'owner',
   'controller',
   'ticker',
-  'tier',
   'nickname',
 ].map((i) => mapKeyToAttribute(i));
 const DEFAULT_ATTRIBUTES = {
-  tier: 1,
   nickname: 'N/A',
   ttlSeconds: 60 * 60,
   leaseDuration: 'N/A',
@@ -61,6 +59,7 @@ function AntCard(props: AntCardProps) {
         },
         {},
       )
+      setLimitDetails(true);
       setAntDetails(replacedKeys);
     });
   }, [contractId]);
@@ -77,6 +76,14 @@ function AntCard(props: AntCardProps) {
 
   return (
     <div className="card">
+      {
+        antDetails ? (
+          // TODO: pull tier from ant contract details
+          <span className="bubble" >
+              Tier 1
+            </span>
+        ): <></>
+      }
       {antDetails ? (
         Object.entries(antDetails).map(([key, value]) => {
           if (!PRIMARY_DETAILS.includes(key) && limitDetails) {

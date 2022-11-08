@@ -40,6 +40,10 @@ b {
   font-family: 'Rubik-Bold';
 }
 
+.bold {
+  font-family: 'Rubik-Bold';
+}
+
 .page {
   display: flex;
   flex-direction: column;
@@ -87,6 +91,7 @@ b {
 }
 
 .buttonLarge {
+  background-color: var(--text-white);
   border-radius: 6px;
   height: 45px;
   width: 150px;
