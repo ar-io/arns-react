@@ -1,7 +1,11 @@
 import { SearchBarHeaderProps } from '../../../types';
 import './styles.css';
-function SearchBarHeader({ defaultText, isValid, isDefault, text }: SearchBarHeaderProps):JSX.Element {
-
+function SearchBarHeader({
+  defaultText,
+  isValid,
+  isDefault,
+  text,
+}: SearchBarHeaderProps): JSX.Element {
   return (
     <>
       {!text || isDefault ? (

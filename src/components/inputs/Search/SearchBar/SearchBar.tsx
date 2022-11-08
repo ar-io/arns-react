@@ -1,40 +1,40 @@
 import { ReactComponent as SearchIcon } from '../../../icons/Search.svg';
 import './styles.css';
 import { SearchBarProps } from '../../../../types';
-import React, {useState } from 'react';
+import React, { useState } from 'react';
 
 function SearchBar(props: SearchBarProps) {
   const { predicate, placeholderText, headerElement, footerElement } = props;
 
-  const [isDefault, setIsDefault] = useState(true)
+  const [isDefault, setIsDefault] = useState(true);
   const [isValid, setIsValid] = useState(false);
   const [searchBarText, setSearchBarText] = useState('');
   const [searchSubmitted, setSearchSubmitted] = useState(false);
-  const [submittedName, setSubmittedName] = useState('')
+  const [submittedName, setSubmittedName] = useState('');
 
-  function reset(){
+  function reset() {
     setSearchSubmitted(false);
-    setSubmittedName("")
+    setSubmittedName('');
     setIsValid(false);
-    setIsDefault(true)
-    return
+    setIsDefault(true);
+    return;
   }
 
   function onHandleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setSearchBarText(e.target.value.trim());
     if (e.target.value === '') {
-    reset()
+      reset();
     }
   }
 
   function onSubmit(name: string) {
-    setIsDefault(false)
+    setIsDefault(false);
     setSubmittedName(name);
     setSearchSubmitted(true);
     const isAvailable = predicate(name);
     setIsValid(isAvailable);
     if (!isAvailable) {
-      setSearchBarText("")
+      setSearchBarText('');
     }
   }
 
@@ -57,9 +57,7 @@ function SearchBar(props: SearchBarProps) {
       >
         <input
           type="text"
-          placeholder={
-          isDefault ? placeholderText : "try another name"
-          }
+          placeholder={isDefault ? placeholderText : 'try another name'}
           value={searchBarText}
           onChange={(e) => onHandleChange(e)}
           onKeyDown={(e) => e.key == 'Enter' && onSubmit(searchBarText)}
