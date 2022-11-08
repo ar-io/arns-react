@@ -1,3 +1,5 @@
+import { Dispatch } from "react";
+
 export type ArNSContractState = {
   records: { [x: string]: ArweaveTransactionId };
 };
@@ -30,3 +32,8 @@ export type SearchBarFooterProps = {
   defaultText: string;
   isValid?: boolean;
 };
+
+export type ConnectWalletModalProps = {
+  setShowModal: any;
+};
+
