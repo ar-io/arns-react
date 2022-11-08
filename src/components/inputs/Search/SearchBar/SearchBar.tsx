@@ -4,48 +4,68 @@ import { SearchBarProps } from '../../../../types';
 import React, { useState } from 'react';
 
 function SearchBar(props: SearchBarProps) {
-  const {
-    buttonAction,
-    placeholderText,
-    headerElement,
-    footerText,
-    availability,
-  } = props;
+  const { predicate, placeholderText, headerElement, footerElement } = props;
 
+  const [isDefault, setIsDefault] = useState(true);
+  const [isValid, setIsValid] = useState(false);
   const [searchBarText, setSearchBarText] = useState('');
+  const [searchSubmitted, setSearchSubmitted] = useState(false);
+  const [submittedName, setSubmittedName] = useState('');
+
+  function reset() {
+    setSearchSubmitted(false);
+    setSubmittedName('');
+    setIsValid(false);
+    setIsDefault(true);
+    return;
+  }
 
   function onHandleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setSearchBarText(e.target.value);
-    if (e.target.value == '') {
-      buttonAction(e.target.value);
+    setSearchBarText(e.target.value.trim());
+    if (e.target.value === '') {
+      reset();
+    }
+  }
+
+  function onSubmit(name: string) {
+    setIsDefault(false);
+    setSubmittedName(name);
+    setSearchSubmitted(true);
+    const isAvailable = predicate(name);
+    setIsValid(isAvailable);
+    if (!isAvailable) {
+      setSearchBarText('');
     }
   }
 
   return (
     <>
-      {headerElement}
+      {React.cloneElement(headerElement, {
+        ...props,
+        text: submittedName,
+        isValid,
+      })}
       <div
         className="searchBar"
         style={
-          availability === 'available'
-            ? { borderColor: 'var(--success-green)' }
-            : availability === 'unavailable'
-            ? { borderColor: 'var(--error-red)' }
-            : availability === 'search'
+          !searchSubmitted || isDefault
             ? { borderColor: '' }
-            : {}
+            : isValid
+            ? { borderColor: 'var(--success-green)' }
+            : { borderColor: 'var(--error-red)' }
         }
       >
         <input
           type="text"
-          placeholder={placeholderText}
+          placeholder={isDefault ? placeholderText : 'try another name'}
+          value={searchBarText}
           onChange={(e) => onHandleChange(e)}
-          onKeyDown={(e) => e.key == 'Enter' && buttonAction(searchBarText)}
+          onKeyDown={(e) => e.key == 'Enter' && onSubmit(searchBarText)}
         />
         <button
           className="searchButton"
-          onClick={() => {
-            buttonAction(searchBarText);
+          onClick={(e) => {
+            onSubmit(searchBarText);
           }}
         >
           <SearchIcon
@@ -56,7 +76,11 @@ function SearchBar(props: SearchBarProps) {
           />
         </button>
       </div>
-      <div className="textFaded">{footerText}</div>
+      {React.cloneElement(footerElement, {
+        ...props,
+        isValid: isValid || searchSubmitted, // TODO: show the ANT detail if name is taken, show purchase options/component if it's available
+        text: submittedName,
+      })}
     </>
   );
 }
