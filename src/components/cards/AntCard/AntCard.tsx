@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { LocalFileSystemDataProvider } from '../../../services/arweave/LocalFilesystemDataProvider.js';
-import { VertoDataProvider } from '../../../services/arweave/VertoDataProvider.js';
+import { LocalFileSystemDataProvider } from '../../../services/arweave/LocalFilesystemDataProvider';
 import { AntCardProps } from '../../../types.js';
 import './styles.css';
 
@@ -106,10 +105,11 @@ function AntCard(props: AntCardProps) {
       ) : (
         <></>
       )}
-      {
+      { antDetails ?
         <button className="buttonLarge" onClick={handleClick}>
           Upgrade
-        </button>
+        </button> :
+        <></>
       }
     </div>
   );
