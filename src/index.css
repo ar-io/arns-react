@@ -36,6 +36,10 @@ body {
   font-family: 'Rubik';
 }
 
+b {
+  font-family: 'Rubik-Bold';
+}
+
 .page {
   display: flex;
   flex-direction: column;
