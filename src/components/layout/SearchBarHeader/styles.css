@@ -1,9 +1,12 @@
 .available {
+  display: flex;
+  flex-wrap: wrap;
   color: var(--success-green);
   font-weight: inherit;
   font-size: inherit;
   font-family: 'Rubik';
   height: fit-content;
+  text-align: center;;
 }
 .unavailable {
   color: var(--error-red);
@@ -11,4 +14,5 @@
   font-size: inherit;
   font-family: 'Rubik';
   height: fit-content;
+  text-align: center;;
 }

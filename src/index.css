@@ -60,6 +60,7 @@ body {
 
 .sectionHeader {
   display: flex;
+  flex-wrap: wrap;
   font-family: 'Rubik-Bold';
   font-style: normal;
   font-weight: 600;
