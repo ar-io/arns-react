@@ -1,4 +1,4 @@
-import { Dispatch } from "react";
+import { Dispatch } from 'react';
 
 export type ArNSContractState = {
   records: { [x: string]: ArweaveTransactionId };
@@ -36,4 +36,3 @@ export type SearchBarFooterProps = {
 export type ConnectWalletModalProps = {
   setShowModal: any;
 };
-

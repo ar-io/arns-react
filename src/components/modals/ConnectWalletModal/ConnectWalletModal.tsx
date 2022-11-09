@@ -1,20 +1,22 @@
-import {ArConnectIcon,ArweaveAppIcon, UploadJsonKey, CloseIcon}from '../../icons';
+import {
+  ArConnectIcon,
+  ArweaveAppIcon,
+  UploadJsonKey,
+  CloseIcon,
+} from '../../icons';
 import { useState } from 'react';
 import { ConnectWalletModalProps } from '../../../types';
-import './styles.css'
+import './styles.css';
 
-
-
-function ConnectWalletModal({setShowModal}:ConnectWalletModalProps):JSX.Element {
+function ConnectWalletModal({
+  setShowModal,
+}: ConnectWalletModalProps): JSX.Element {
   const [clickOut, setClickOut] = useState(false);
 
   return (
     <div
       className="modalContainer"
-      onClick={()=>
-        clickOut
-          &&  setShowModal(false)
-      }
+      onClick={() => clickOut && setShowModal(false)}
     >
       <div
         className="connectWalletModal"
@@ -33,14 +35,10 @@ function ConnectWalletModal({setShowModal}:ConnectWalletModalProps):JSX.Element 
             setShowModal(false);
           }}
         >
-            <CloseIcon 
-            width="30px"
-            height={"30px"}
-            fill="var(--text-white)"
-            />
+          <CloseIcon width="30px" height={'30px'} fill="var(--text-white)" />
         </button>
         <button className="walletConnectButton">
-        <img src={UploadJsonKey} alt="" width="47px" height="47px" />
+          <img src={UploadJsonKey} alt="" width="47px" height="47px" />
           Import your JSON keyfile
         </button>
         <button className="walletConnectButton">
