@@ -10,7 +10,7 @@ describe('SearchBar', () => {
     render(
       <SearchBar
         predicate={stub}
-        values={[]}
+        values={{}}
         placeholderText={'Find a name'}
         headerElement={<SearchBarHeader defaultText="Find a name" />}
         footerElement={

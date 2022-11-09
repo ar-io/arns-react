@@ -15,7 +15,7 @@ export class LocalFileSystemDataProvider implements SmartweaveContractSource {
       const arnsContractState = data as ArNSContractState;
       return arnsContractState;
     } catch (err) {
-      console.log('Unable to load contract state.');
+      console.error('Unable to load contract state.');
     }
     return;
   }

@@ -36,7 +36,7 @@ export default function useArNSContract() {
         setSendingContractState(false);
       }, 100);
     } catch (error) {
-      console.log(`Error in setting contract state.`, error);
+      console.error(`Error in setting contract state.`, error);
     }
   }
   return;

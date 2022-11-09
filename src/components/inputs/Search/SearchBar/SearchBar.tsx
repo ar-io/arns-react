@@ -4,19 +4,22 @@ import { SearchBarProps } from '../../../../types';
 import React, { useState } from 'react';
 
 function SearchBar(props: SearchBarProps) {
-  const { predicate, placeholderText, headerElement, footerElement } = props;
+  const { predicate, placeholderText, headerElement, footerElement, values } =
+    props;
 
   const [isDefault, setIsDefault] = useState(true);
   const [isValid, setIsValid] = useState(false);
   const [searchBarText, setSearchBarText] = useState('');
   const [searchSubmitted, setSearchSubmitted] = useState(false);
   const [submittedName, setSubmittedName] = useState('');
+  const [searchResult, setSearchResult] = useState('');
 
   function reset() {
     setSearchSubmitted(false);
     setSubmittedName('');
     setIsValid(false);
     setIsDefault(true);
+    setSearchResult('');
     return;
   }
 
@@ -34,7 +37,10 @@ function SearchBar(props: SearchBarProps) {
     const isAvailable = predicate(name);
     setIsValid(isAvailable);
     if (!isAvailable) {
+      setSearchResult(values[name]);
       setSearchBarText('');
+    } else {
+      setSearchResult('');
     }
   }
 
@@ -64,7 +70,7 @@ function SearchBar(props: SearchBarProps) {
         />
         <button
           className="searchButton"
-          onClick={(e) => {
+          onClick={() => {
             onSubmit(searchBarText);
           }}
         >
@@ -78,8 +84,9 @@ function SearchBar(props: SearchBarProps) {
       </div>
       {React.cloneElement(footerElement, {
         ...props,
-        isValid: isValid || searchSubmitted, // TODO: show the ANT detail if name is taken, show purchase options/component if it's available
-        text: submittedName,
+        searchResult: submittedName
+          ? { id: searchResult, domain: submittedName }
+          : undefined,
       })}
     </>
   );
