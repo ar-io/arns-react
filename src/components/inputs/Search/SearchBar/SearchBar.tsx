@@ -24,23 +24,27 @@ function SearchBar(props: SearchBarProps) {
   }
 
   function onHandleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setSearchBarText(e.target.value.trim());
+    setSearchBarText(e.target.value);
     if (e.target.value === '') {
       reset();
     }
   }
 
   function onSubmit(name: string) {
-    setIsDefault(false);
-    setSubmittedName(name);
-    setSearchSubmitted(true);
-    const isAvailable = predicate(name);
-    setIsValid(isAvailable);
-    if (!isAvailable) {
-      setSearchResult(values[name]);
-      setSearchBarText('');
+    if (name.length < 1 || name.length > 32) {
+    return;
     } else {
-      setSearchResult('');
+      setIsDefault(false);
+      setSubmittedName(name);
+      setSearchSubmitted(true);
+      const isAvailable = predicate(name);
+      setIsValid(isAvailable);
+      if (!isAvailable) {
+        setSearchResult(values[name]);
+        setSearchBarText('');
+      } else {
+        setSearchResult('');
+      }
     }
   }
 
