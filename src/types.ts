@@ -1,3 +1,4 @@
+
 export type ArNSContractState = {
   records: { [x: string]: ArweaveTransactionId };
 };
@@ -38,4 +39,8 @@ export type SearchBarFooterProps = {
 
 export type AntCardProps = {
   contract: ArNSDomain;
+};
+
+export type ConnectWalletModalProps = {
+  setShowModal: any;
 };
