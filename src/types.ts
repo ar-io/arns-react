@@ -1,4 +1,3 @@
-import { Dispatch } from 'react';
 
 export type ArNSContractState = {
   records: { [x: string]: ArweaveTransactionId };
