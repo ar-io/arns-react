@@ -1,5 +1,6 @@
 .card {
   min-height: 250px;
+  max-width: 75%;
   display: flex;
   background: #1f1f1f;
   padding: 60px;
@@ -11,10 +12,17 @@
   border-radius: 24px;
 }
 
+/* If the screen size is 600px wide or less, set the font-size of <div> to 30px */
+@media screen and (max-width: 600px) {
+  .card {
+    padding: 30px;
+  }
+}
+
 .detail {
   color: var(--text-white);
-  display: flex;
   align-self: flex-start;
+  word-break: break-all;
 }
 
 .bubble {
