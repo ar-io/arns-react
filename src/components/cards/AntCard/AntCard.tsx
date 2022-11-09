@@ -42,6 +42,7 @@ function AntCard(props: AntCardProps) {
     const dataProvider = new LocalFileSystemDataProvider();
     dataProvider.getContractState(id).then((antContractState) => {
       if (!antContractState) {
+        setAntDetails(undefined);
         return;
       }
       const allAntDetails: { [x: string]: any } = {
@@ -62,7 +63,7 @@ function AntCard(props: AntCardProps) {
       setLimitDetails(true);
       setAntDetails(replacedKeys);
     });
-  }, [id]);
+  }, [contract]);
 
   function showMore(e: any) {
     e.preventDefault();
