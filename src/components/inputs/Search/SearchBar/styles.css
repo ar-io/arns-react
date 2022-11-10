@@ -50,10 +50,3 @@
   box-shadow: 0px 0px 4px rgba(0, 0, 0);
   cursor: pointer;
 }
-.errorContainer {
-  display: flex;
-  flex-direction: column;
-}
-.illegalChar {
-  color: var(--error-red);
-}

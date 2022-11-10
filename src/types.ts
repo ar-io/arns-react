@@ -34,6 +34,7 @@ export type SearchBarHeaderProps = {
 export type SearchBarFooterProps = {
   defaultText: string;
   searchResult?: ArNSDomain;
+  isValid:Boolean;
 };
 
 export type AntCardProps = {

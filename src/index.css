@@ -43,6 +43,23 @@ b {
 .bold {
   font-family: 'Rubik-Bold';
 }
+.text{
+  display: flex;
+  font-family: 'Rubik';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 12px;
+  max-width: 475px;
+  text-align: center;
+}
+
+.faded {
+  color: var(--text-faded);
+}
+.white {
+  color: var(--text-white);
+}
+
 
 .page {
   display: flex;
@@ -77,27 +94,6 @@ b {
   margin: auto;
   margin-top: 1em;
   justify-content: center;
-}
-
-.textFaded {
-  display: flex;
-  color: var(--text-faded);
-  font-family: 'Rubik';
-  font-style: normal;
-  font-weight: 500;
-  font-size: 12px;
-  max-width: 475px;
-  text-align: center;
-}
-.textWhite {
-  display: flex;
-  color: var(--text-white);
-  font-family: 'Rubik-Bold';
-  font-style: normal;
-  font-weight: 500;
-  font-size: 12px;
-  max-width: 475px;
-  text-align: center;
 }
 
 .buttonLarge {

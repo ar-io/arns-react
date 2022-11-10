@@ -12,3 +12,10 @@
   font-family: 'Rubik';
   height: fit-content;
 }
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+}
+.illegalChar {
+  color: var(--error-red);
+}

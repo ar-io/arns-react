@@ -26,6 +26,9 @@ function SearchBar(props: SearchBarProps) {
   }
 
   function onHandleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    if (e.target.value === '') {
+      reset();
+    }
     if (
       ARNS_NAME_REGEX.test(e.target.value) ||
       e.target.value.length < 1 ||
@@ -37,9 +40,7 @@ function SearchBar(props: SearchBarProps) {
     } else {
       setIsValid(false);
     }
-    if (e.target.value === '') {
-      reset();
-    }
+    
   }
 
   function onSubmit(name: string) {
@@ -104,19 +105,7 @@ function SearchBar(props: SearchBarProps) {
       </div>
       {React.cloneElement(footerElement, {
         ...props,
-        defaultText: (
-          <>
-            {!isValid ? (
-              <div className="errorContainer">
-                <span className="illegalChar">
-                  {footerElement.props.defaultText}
-                </span>
-              </div>
-            ) : (
-              footerElement.props.defaultText
-            )}
-          </>
-        ),
+        isValid,
         searchResult: submittedName
           ? { id: searchResult, domain: submittedName }
           : undefined,
