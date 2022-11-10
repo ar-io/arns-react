@@ -70,10 +70,12 @@ function SearchBar(props: SearchBarProps) {
       <div
         className="searchBar"
         style={
-          !searchSubmitted || isDefault
-            ? { borderColor: '' }
-            : isAvailable
-            ? { borderColor: 'var(--success-green)' }
+          isValid
+            ? !searchSubmitted || isDefault
+              ? { borderColor: '' }
+              : isAvailable
+              ? { borderColor: 'var(--success-green)' }
+              : { borderColor: 'var(--error-red)' }
             : { borderColor: 'var(--error-red)' }
         }
       >
