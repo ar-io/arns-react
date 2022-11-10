@@ -40,7 +40,6 @@ function SearchBar(props: SearchBarProps) {
     } else {
       setIsValid(false);
     }
-    
   }
 
   function onSubmit(name: string) {

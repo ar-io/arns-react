@@ -49,17 +49,17 @@ function ConnectWalletModal({
           <img src={ArweaveAppIcon} alt="" width="47px" height="47px" />
           Connect using Arweave.app
         </button>
-        <text className="textWhite" style={{ marginTop: '1em' }}>
-          Don't have a wallet?
+        <span className="bold text white" style={{ marginTop: '1em' }}>
+          Don't have a wallet?&nbsp;
           <a
             target="_blank"
             href="https://ardrive.io/start"
-            style={{ color: 'inherit', marginLeft: '4px' }}
+            style={{ color: 'inherit' }}
           >
             {' '}
             Get one here
           </a>
-        </text>
+        </span>
       </div>
     </div>
   );

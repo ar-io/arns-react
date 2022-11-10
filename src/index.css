@@ -42,12 +42,11 @@ b {
 
 .bold {
   font-family: 'Rubik-Bold';
+  font-weight: 700;
 }
-.text{
+.text {
   display: flex;
   font-family: 'Rubik';
-  font-style: normal;
-  font-weight: 500;
   font-size: 12px;
   max-width: 475px;
   text-align: center;
@@ -59,7 +58,6 @@ b {
 .white {
   color: var(--text-white);
 }
-
 
 .page {
   display: flex;
