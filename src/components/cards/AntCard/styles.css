@@ -41,3 +41,7 @@
   cursor: pointer;
   text-decoration: underline;
 }
+.footer{
+  display: flex;
+  gap: 2em;
+}
