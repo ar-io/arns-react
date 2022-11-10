@@ -27,6 +27,7 @@
   font-weight: 700;
   font-size: 10px;
   color: var(--text-white);
+  text-decoration: none;
 }
 .expiryText {
   font-family: 'Rubik';
