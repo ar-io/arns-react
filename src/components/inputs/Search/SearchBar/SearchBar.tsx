@@ -46,7 +46,6 @@ function SearchBar(props: SearchBarProps) {
       setIsAvailable(predicate(name.toLowerCase()));
       if (!isAvailable) {
         setSearchResult(values[name]);
-        setSearchBarText('');
       } else {
         setSearchResult('');
       }
