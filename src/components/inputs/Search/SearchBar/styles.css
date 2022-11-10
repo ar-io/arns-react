@@ -2,7 +2,7 @@
   display: flex;
   width: 75%;
   max-width: 622px;
-  min-width: 250px;
+  min-width: 350px;
   height: 65px;
   background-color: var(--text-white);
   border: 2px solid #e0e0e0;
@@ -21,6 +21,7 @@
   border: none;
   outline: none;
   padding-left: 26px;
+  padding-right: 26px;
   background-color: var(--text-white);
   text-transform: lowercase;
 }
@@ -55,5 +56,4 @@
 }
 .illegalChar {
   color: var(--error-red);
-  text-decoration: underline;
 }
