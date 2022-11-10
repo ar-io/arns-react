@@ -45,3 +45,7 @@ export type AntCardProps = {
 export type ConnectWalletModalProps = {
   setShowModal: any;
 };
+
+export type ArnsCardProps = {
+  name: string;
+};
