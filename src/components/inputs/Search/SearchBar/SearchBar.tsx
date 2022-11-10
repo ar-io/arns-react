@@ -26,7 +26,12 @@ function SearchBar(props: SearchBarProps) {
   }
 
   function onHandleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    if (ARNS_NAME_REGEX.test(e.target.value) || e.target.value.length < 1) {
+    if (
+      ARNS_NAME_REGEX.test(e.target.value) ||
+      e.target.value.length < 1 ||
+      (e.target.value[e.target.value.length - 1] == '-' &&
+        e.target.value.length > 1)
+    ) {
       setSearchBarText(e.target.value);
       setIsValid(true);
     } else {
@@ -38,13 +43,15 @@ function SearchBar(props: SearchBarProps) {
   }
 
   function onSubmit(name: string) {
-    if (name.length < 1 || name.length > 32) {
+    if (name.length < 1 || name.length > 32 || !ARNS_NAME_REGEX.test(name)) {
+      setIsValid(false);
       return;
     } else {
       setIsDefault(false);
       setSubmittedName(name);
       setSearchSubmitted(true);
       setIsAvailable(predicate(name.toLowerCase()));
+      setIsValid(true);
       if (!isAvailable) {
         setSearchResult(values[name]);
       } else {
@@ -100,9 +107,8 @@ function SearchBar(props: SearchBarProps) {
             {!isValid ? (
               <div className="errorContainer">
                 <span className="illegalChar">
-                  INVALID CHARACTER, FOLLOW THE PATTERN REQUIRED BELOW
+                  {footerElement.props.defaultText}
                 </span>
-                {footerElement.props.defaultText}
               </div>
             ) : (
               footerElement.props.defaultText
