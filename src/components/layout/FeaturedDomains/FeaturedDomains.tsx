@@ -6,7 +6,7 @@ function FeaturedDomains() {
     <div className="featuredDomains">
       <span className="sectionHeader">Featured Domains</span>
       <div className="cardContainer">
-        <ArnsCard name="gql-guide" />
+        <ArnsCard name="ardrive" />
         <ArnsCard name="arwiki" />
         <ArnsCard name="pages" />
       </div>
