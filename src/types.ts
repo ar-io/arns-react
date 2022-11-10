@@ -26,7 +26,7 @@ export type SearchBarProps = {
 
 export type SearchBarHeaderProps = {
   defaultText: string;
-  isValid?: boolean;
+  isAvailable?: boolean;
   isDefault?: boolean;
   text?: string;
 };

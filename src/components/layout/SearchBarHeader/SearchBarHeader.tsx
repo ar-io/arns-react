@@ -2,7 +2,7 @@ import { SearchBarHeaderProps } from '../../../types';
 import './styles.css';
 function SearchBarHeader({
   defaultText,
-  isValid,
+  isAvailable,
   isDefault,
   text,
 }: SearchBarHeaderProps): JSX.Element {
@@ -10,7 +10,7 @@ function SearchBarHeader({
     <>
       {!text || isDefault ? (
         <div className="sectionHeader">{defaultText}</div>
-      ) : isValid ? (
+      ) : isAvailable ? (
         <div className="sectionHeader">
           {text}&nbsp;<span className="available">is available!</span>
         </div>

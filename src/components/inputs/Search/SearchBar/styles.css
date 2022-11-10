@@ -30,6 +30,7 @@
   font-weight: 600;
   font-size: 18px;
   color: var(--placeholder-text);
+  text-transform: none;
 }
 .searchButton {
   display: flex;
@@ -47,4 +48,12 @@
 .searchButton:hover {
   box-shadow: 0px 0px 4px rgba(0, 0, 0);
   cursor: pointer;
+}
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+}
+.illegalChar {
+  color: var(--error-red);
+  text-decoration: underline;
 }
