@@ -52,7 +52,7 @@ function ConnectWalletModal({
         <text className="textFaded" style={{ marginTop: '1em' }}>
           Don't have a wallet? get one{' '}
           <a
-            href="http://arwiki.wiki"
+            href="https://ardrive.io/start"
             style={{ color: 'inherit', marginLeft: '4px' }}
           >
             {' '}
