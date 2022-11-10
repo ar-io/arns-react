@@ -28,6 +28,7 @@ function SearchBar(props: SearchBarProps) {
   function onHandleChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (ARNS_NAME_REGEX.test(e.target.value) || e.target.value.length < 1) {
       setSearchBarText(e.target.value);
+      setIsValid(true);
     } else {
       setIsValid(false);
     }
