@@ -2,7 +2,6 @@ import { SearchBarFooterProps } from '../../../types';
 import AntCard from '../../cards/AntCard/AntCard';
 import FeaturedDomains from '../FeaturedDomains/FeaturedDomains';
 import './styles.css';
-import './styles.css';
 
 function SearchBarFooter({
   defaultText,

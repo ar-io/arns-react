@@ -1,3 +1,5 @@
+import './styles.css';
+import { ArnsDefault } from '../../icons';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
@@ -22,7 +24,18 @@ function ArnsCard({ name }: ArnsCardProps) {
   async function getAntDetailsFromName(name: string) {
     const antAddress = arnsSourceContract.records[name];
     const expiry = new Date().toDateString();
-    const imageUrl = await axios
+    const imageUrl = await getMetaImage();
+
+    setAntDetails({
+      name: name,
+      gateway: 'arweave.dev',
+      antContractAddress: antAddress,
+      image: imageUrl,
+      expiry: expiry,
+    });
+  }
+  async function getMetaImage() {
+    const img = await axios
       .get(`http://${name}.arweave.dev`)
       .then((res) => res.data)
       .then((html) => {
@@ -34,19 +47,20 @@ function ArnsCard({ name }: ArnsCardProps) {
 
         return metaImage;
       });
-
-    setAntDetails({
-      name: name,
-      gateway: 'arweave.dev',
-      antContractAddress: antAddress,
-      image: `${imageUrl}`,
-      expiry: expiry,
-    });
+    const status = await axios
+      .get(img!)
+      .then((res) => res.status)
+      .catch((error) => console.log(error));
+    if (status === 200) {
+      return `${img}`;
+    } else {
+      return `${ArnsDefault}`;
+    }
   }
 
   return (
     <div className="arnsCard">
-      <img className="arnsPreview" src={antDetails.image} alt="" />
+      <img className="arnsPreview" src={antDetails.image} />
       <div className="arnsCardFooter">
         <span className="arnsLink">{`${antDetails.name}.${antDetails.gateway}`}</span>
         <span className="expiryText">Exp. {antDetails.expiry}</span>
