@@ -62,7 +62,7 @@ function ArnsCard({ name }: ArnsCardProps) {
     <div className="arnsCard">
       <img className="arnsPreview" src={antDetails.image} />
       <div className="arnsCardFooter">
-      <a className="arnsLink" target="_blank" href={`http://${antDetails.name}.${antDetails.gateway}`}>{`${antDetails.name}.${antDetails.gateway}`}</a>
+      <a className="arnsLink" target="_blank" href={`https://${antDetails.name}.${antDetails.gateway}`}>{`${antDetails.name}.${antDetails.gateway}`}</a>
         <span className="expiryText">Exp. {antDetails.expiry}</span>
       </div>
     </div>
