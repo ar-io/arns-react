@@ -12,13 +12,6 @@
   border-radius: 24px;
 }
 
-/* If the screen size is 600px wide or less, set the font-size of <div> to 30px */
-@media screen and (max-width: 600px) {
-  .card {
-    padding: 30px;
-  }
-}
-
 .detail {
   color: var(--text-white);
   align-self: flex-start;
@@ -43,5 +36,18 @@
 }
 .footer{
   display: flex;
+  flex-wrap: wrap;
+  height: auto;
   gap: 2em;
+}
+
+/* If the screen size is 600px wide or less, set the font-size of <div> to 30px */
+@media screen and (max-width: 600px) {
+  .card {
+    padding: 30px;
+  }
+
+  .footer{
+    gap: 1em;
+  }
 }

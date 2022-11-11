@@ -99,12 +99,12 @@ function AntCard(props: AntCardProps) {
             <></>
           )}
           <div className='footer'>
-          <button className="buttonLarge" onClick={handleClick}>
-            Upgrade Tier
-          </button>
-          <button className="buttonLarge" onClick={handleClick}>
-            Extend Lease
-          </button>
+            <button className="buttonLarge" onClick={handleClick}>
+              Upgrade Tier
+            </button>
+            <button className="buttonLarge" onClick={handleClick}>
+              Extend Lease
+            </button>
           </div>
         </div>
       ) : (
