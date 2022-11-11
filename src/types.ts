@@ -17,7 +17,8 @@ export interface SmartweaveContractSource {
 }
 
 export type SearchBarProps = {
-  predicate: (value: string) => boolean;
+  successPredicate: (value: string | undefined) => boolean;
+  validationPredicate: (value: string | undefined) => boolean;
   placeholderText: string;
   headerElement: JSX.Element;
   footerElement: JSX.Element;
@@ -34,7 +35,7 @@ export type SearchBarHeaderProps = {
 export type SearchBarFooterProps = {
   defaultText: string;
   searchResult?: ArNSDomain;
-  isValid?: Boolean;
+  isSearchValid?: Boolean;
 };
 
 export type AntCardProps = {

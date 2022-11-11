@@ -5,13 +5,13 @@ import { SearchBarFooterProps } from '../../../types';
 function SearchBarFooter({
   defaultText,
   searchResult,
-  isValid,
+  isSearchValid,
 }: SearchBarFooterProps): JSX.Element {
   return (
     <>
       {!searchResult?.id ? (
         <div className="text faded">
-          {!isValid ? (
+          {!isSearchValid ? (
             <div className="errorContainer">
               <span className="illegalChar">{defaultText}</span>
             </div>
