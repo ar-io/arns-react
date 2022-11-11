@@ -19,7 +19,12 @@ function Home() {
       <div className="pageHeader">Arweave Name System</div>
       <SearchBar
         values={records}
-        predicate={(value) => !Object.keys(records).includes(value)}
+        successPredicate={(value: string | undefined) =>
+          value ? !Object.keys(records).includes(value) : false
+        }
+        validationPredicate={(value: string | undefined) =>
+          value ? ARNS_NAME_REGEX.test(value) : false
+        }
         placeholderText={'Enter a name'}
         headerElement={<SearchBarHeader defaultText={'Find a domain name'} />}
         footerElement={

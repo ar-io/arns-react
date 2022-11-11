@@ -1,62 +1,79 @@
-import { ReactComponent as SearchIcon } from '../../../icons/Search.svg';
-import './styles.css';
-import { SearchBarProps } from '../../../../types';
 import React, { useState } from 'react';
-import { ARNS_NAME_REGEX } from '../../../../../types/constants';
+import { SearchIcon } from '../../../icons';
+import { SearchBarProps } from '../../../../types';
+import './styles.css';
 
 function SearchBar(props: SearchBarProps) {
-  const { predicate, placeholderText, headerElement, footerElement, values } =
-    props;
+  const {
+    successPredicate,
+    validationPredicate,
+    placeholderText,
+    headerElement,
+    footerElement,
+    values,
+  } = props;
 
-  const [isDefault, setIsDefault] = useState(true);
-  const [isValid, setIsValid] = useState(true);
+  const [isSearchValid, setIsSearchValid] = useState(true);
+  const [showDefaultText, setShowDefaultText] = useState(true);
   const [isAvailable, setIsAvailable] = useState(false);
-  const [searchBarText, setSearchBarText] = useState('');
   const [searchSubmitted, setSearchSubmitted] = useState(false);
-  const [submittedName, setSubmittedName] = useState('');
-  const [searchResult, setSearchResult] = useState('');
+  const [searchBarText, setSearchBarText] = useState<string | undefined>();
+  const [submittedName, setSubmittedName] = useState<string | undefined>();
+  const [searchResult, setSearchResult] = useState<string | undefined>();
 
   function reset() {
     setSearchSubmitted(false);
-    setSubmittedName('');
-    setIsValid(true);
-    setIsDefault(true);
-    setSearchResult('');
+    setSubmittedName(undefined);
+    setIsSearchValid(true);
+    setShowDefaultText(true);
+    setSearchResult(undefined);
+    setSearchBarText(undefined);
     return;
   }
 
   function onHandleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    if (e.target.value === '') {
+    const input = e.target.value.trim().toLowerCase();
+    if (input === '') {
       reset();
+      return;
     }
-    if (
-      ARNS_NAME_REGEX.test(e.target.value) ||
-      e.target.value.length < 1 ||
-      (e.target.value[e.target.value.length - 1] == '-' &&
-        e.target.value.length > 1)
-    ) {
-      setSearchBarText(e.target.value);
-      setIsValid(true);
-    } else {
-      setIsValid(false);
+
+    // partially reset
+    setSearchResult(undefined);
+    setShowDefaultText(true);
+    setSubmittedName(undefined);
+
+    const searchValid = validationPredicate(input);
+    setIsSearchValid(searchValid);
+    if (!searchValid) {
+      return;
     }
+
+    // valid name
+    setSearchBarText(input);
   }
 
-  function onSubmit(name: string) {
-    if (name.length < 1 || name.length > 32 || !ARNS_NAME_REGEX.test(name)) {
-      setIsValid(false);
+  function onSubmit(e: any) {
+    e.preventDefault();
+
+    // validate again, just in case
+    const searchValid = validationPredicate(searchBarText);
+    setIsSearchValid(searchValid);
+    if (!searchValid) {
       return;
-    } else {
-      setIsDefault(false);
-      setSubmittedName(name);
-      setSearchSubmitted(true);
-      setIsAvailable(predicate(name.toLowerCase()));
-      setIsValid(true);
-      if (!isAvailable) {
-        setSearchResult(values[name]);
-      } else {
-        setSearchResult('');
-      }
+    }
+
+    // show updated states based on search result
+    const name = searchBarText!;
+    const searchSuccess = successPredicate(name);
+    setShowDefaultText(false);
+    setSubmittedName(name);
+    setSearchSubmitted(true);
+    setIsAvailable(searchSuccess);
+    setSearchResult(undefined);
+    if (!searchSuccess) {
+      setSearchResult(values[name]);
+      return;
     }
   }
 
@@ -70,8 +87,8 @@ function SearchBar(props: SearchBarProps) {
       <div
         className="searchBar"
         style={
-          isValid
-            ? !searchSubmitted || isDefault
+          isSearchValid
+            ? !searchSubmitted || showDefaultText
               ? { borderColor: '' }
               : isAvailable
               ? { borderColor: 'var(--success-green)' }
@@ -81,11 +98,9 @@ function SearchBar(props: SearchBarProps) {
       >
         <input
           type="text"
-          placeholder={isDefault ? placeholderText : 'try another name'}
-          value={searchBarText}
-          onChange={(e) => onHandleChange(e)}
-          onKeyDown={(e) => e.key == 'Enter' && onSubmit(searchBarText)}
-          pattern={ARNS_NAME_REGEX.source}
+          placeholder={showDefaultText ? placeholderText : 'try another name'}
+          onChange={onHandleChange}
+          onKeyDown={(e) => e.key == 'Enter' && isSearchValid && onSubmit(e)}
           maxLength={32}
         />
         <button
@@ -104,7 +119,7 @@ function SearchBar(props: SearchBarProps) {
       </div>
       {React.cloneElement(footerElement, {
         ...props,
-        isValid,
+        isSearchValid,
         searchResult: submittedName
           ? { id: searchResult, domain: submittedName }
           : undefined,

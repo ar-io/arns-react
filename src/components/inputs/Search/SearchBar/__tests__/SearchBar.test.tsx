@@ -9,7 +9,8 @@ describe('SearchBar', () => {
     const stub = jest.fn();
     render(
       <SearchBar
-        predicate={stub}
+        successPredicate={stub}
+        validationPredicate={stub}
         values={{}}
         placeholderText={'Find a name'}
         headerElement={<SearchBarHeader defaultText="Find a name" />}
