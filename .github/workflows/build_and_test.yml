@@ -8,8 +8,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: npm install
+        name: install
+      - run: npm run lint:check
+        name: lint
       - run: npm test
+        name: test
       - run: npm run build
+        name: build
 
   deploy-to-github:
     runs-on: ubuntu-latest
