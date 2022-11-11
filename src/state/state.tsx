@@ -1,4 +1,5 @@
-import React, { createContext, Dispatch, useContext, useReducer } from 'react';
+import React, { Dispatch, createContext, useContext, useReducer } from 'react';
+
 import type { ArNSContractState } from '../types';
 import type { Action } from './reducer';
 

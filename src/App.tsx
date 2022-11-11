@@ -4,10 +4,11 @@ import {
   createBrowserRouter,
   createRoutesFromElements,
 } from 'react-router-dom';
-import './index.css';
-import { About, FAQ, Home } from './components/pages';
+
 import { Layout } from './components/layout';
+import { About, FAQ, Home } from './components/pages';
 import { useArNSContract } from './hooks/';
+import './index.css';
 
 function App() {
   useArNSContract();

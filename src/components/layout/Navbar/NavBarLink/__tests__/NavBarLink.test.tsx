@@ -1,5 +1,6 @@
-import { render, cleanup } from '@testing-library/react';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { cleanup, render } from '@testing-library/react';
+import { BrowserRouter as Router } from 'react-router-dom';
+
 import NavBarLink from '../NavBarLink';
 
 describe('NavLink', () => {

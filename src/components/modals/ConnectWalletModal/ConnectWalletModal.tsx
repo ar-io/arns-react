@@ -1,11 +1,12 @@
+import { useState } from 'react';
+
+import { ConnectWalletModalProps } from '../../../types';
 import {
   ArConnectIcon,
   ArweaveAppIcon,
-  UploadJsonKey,
   CloseIcon,
+  UploadJsonKey,
 } from '../../icons';
-import { useState } from 'react';
-import { ConnectWalletModalProps } from '../../../types';
 import './styles.css';
 
 function ConnectWalletModal({
@@ -14,7 +15,7 @@ function ConnectWalletModal({
   const [clickOut, setClickOut] = useState(false);
 
   return (
-    <div
+    <button
       className="modalContainer"
       onClick={() => clickOut && setShowModal(false)}
     >
@@ -50,18 +51,18 @@ function ConnectWalletModal({
           Connect using Arweave.app
         </button>
         <span className="bold text white" style={{ marginTop: '1em' }}>
-          Don't have a wallet?&nbsp;
+          Don&apos;t have a wallet?&nbsp;
           <a
             target="_blank"
             href="https://ardrive.io/start"
             style={{ color: 'inherit' }}
+            rel="noreferrer"
           >
-            {' '}
-            Get one here
+            &nbsp;Get one here
           </a>
         </span>
       </div>
-    </div>
+    </button>
   );
 }
 export default ConnectWalletModal;

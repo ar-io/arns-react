@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { SearchIcon } from '../../../icons';
+
 import { SearchBarProps } from '../../../../types';
+import { SearchIcon } from '../../../icons';
 import './styles.css';
 
 function SearchBar(props: SearchBarProps) {
@@ -64,14 +65,14 @@ function SearchBar(props: SearchBarProps) {
     }
 
     // show updated states based on search result
-    const name = searchBarText!;
+    const name = searchBarText;
     const searchSuccess = successPredicate(name);
     setShowDefaultText(false);
     setSubmittedName(name);
     setSearchSubmitted(true);
     setIsAvailable(searchSuccess);
     setSearchResult(undefined);
-    if (!searchSuccess) {
+    if (!searchSuccess && name) {
       setSearchResult(values[name]);
       return;
     }

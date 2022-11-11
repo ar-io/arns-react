@@ -1,6 +1,6 @@
-import './styles.css';
-import NavBarLink from '../NavBarLink/NavBarLink';
 import ConnectButton from '../../../inputs/buttons/ConnectButton/ConnectButton';
+import NavBarLink from '../NavBarLink/NavBarLink';
+import './styles.css';
 
 const NavGroupRight = () => {
   return (
