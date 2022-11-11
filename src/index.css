@@ -42,6 +42,21 @@ b {
 
 .bold {
   font-family: 'Rubik-Bold';
+  font-weight: 700;
+}
+.text {
+  display: flex;
+  font-family: 'Rubik';
+  font-size: 12px;
+  max-width: 475px;
+  text-align: center;
+}
+
+.faded {
+  color: var(--text-faded);
+}
+.white {
+  color: var(--text-white);
 }
 
 .page {
@@ -73,21 +88,10 @@ b {
   font-style: normal;
   font-weight: 600;
   font-size: 18px;
-  color: var(--text-section-header);
+  color: var(--text-white);
   margin: auto;
   margin-top: 1em;
   justify-content: center;
-}
-
-.textFaded {
-  display: flex;
-  color: var(--text-faded);
-  font-family: 'Rubik';
-  font-style: normal;
-  font-weight: 500;
-  font-size: 12px;
-  max-width: 475px;
-  text-align: center;
 }
 
 .buttonLarge {

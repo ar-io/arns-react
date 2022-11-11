@@ -5,11 +5,20 @@ import { SearchBarFooterProps } from '../../../types';
 function SearchBarFooter({
   defaultText,
   searchResult,
+  isSearchValid,
 }: SearchBarFooterProps): JSX.Element {
   return (
     <>
       {!searchResult?.id ? (
-        <div className="textFaded">{defaultText}</div>
+        <div className="text faded">
+          {!isSearchValid ? (
+            <div className="errorContainer">
+              <span className="illegalChar">{defaultText}</span>
+            </div>
+          ) : (
+            defaultText
+          )}
+        </div>
       ) : (
         <AntCard contract={searchResult} />
       )}

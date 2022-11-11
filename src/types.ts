@@ -1,4 +1,3 @@
-
 export type ArNSContractState = {
   records: { [x: string]: ArweaveTransactionId };
 };
@@ -18,7 +17,8 @@ export interface SmartweaveContractSource {
 }
 
 export type SearchBarProps = {
-  predicate: (value: string) => boolean;
+  successPredicate: (value: string | undefined) => boolean;
+  validationPredicate: (value: string | undefined) => boolean;
   placeholderText: string;
   headerElement: JSX.Element;
   footerElement: JSX.Element;
@@ -27,7 +27,7 @@ export type SearchBarProps = {
 
 export type SearchBarHeaderProps = {
   defaultText: string;
-  isValid?: boolean;
+  isAvailable?: boolean;
   isDefault?: boolean;
   text?: string;
 };
@@ -35,6 +35,7 @@ export type SearchBarHeaderProps = {
 export type SearchBarFooterProps = {
   defaultText: string;
   searchResult?: ArNSDomain;
+  isSearchValid?: Boolean;
 };
 
 export type AntCardProps = {

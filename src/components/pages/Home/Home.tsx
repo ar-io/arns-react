@@ -19,15 +19,18 @@ function Home() {
       <div className="pageHeader">Arweave Name System</div>
       <SearchBar
         values={records}
-        predicate={(value) =>
-          !Object.keys(records).includes(value) && ARNS_NAME_REGEX.test(value)
+        successPredicate={(value: string | undefined) =>
+          value ? !Object.keys(records).includes(value) : false
+        }
+        validationPredicate={(value: string | undefined) =>
+          value ? ARNS_NAME_REGEX.test(value) : false
         }
         placeholderText={'Enter a name'}
         headerElement={<SearchBarHeader defaultText={'Find a domain name'} />}
         footerElement={
           <SearchBarFooter
             defaultText={
-              'Names must be 1-32 characters. Dashes and underscores are permitted, but cannot be trailing characters and cannot be used in single character domains.'
+              'Names must be 1-32 characters. Dashes are permitted, but cannot be trailing characters and cannot be used in single character domains.'
             }
           />
         }
