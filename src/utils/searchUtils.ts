@@ -1,25 +1,22 @@
 import { ARNS_NAME_REGEX } from '../../types/constants';
 
-export function isArNSDomainNameValid({
-  name,
-}: {
-  name: string | undefined;
-}): boolean | undefined {
+export function isArNSDomainNameValid({ name }: { name?: string }): boolean {
   // if name is not in the legal character range or chars, return undefined
   if (!name || !ARNS_NAME_REGEX.test(name)) {
     return false;
   }
+  return true;
 }
 
 export function isArNSDomainNameAvailable({
   name,
   records,
 }: {
-  name: string;
+  name?: string;
   records: Record<string, any>;
-}): boolean | undefined {
+}): boolean {
   //if registered return false
-  if (Object.keys(records).includes(name) && name !== '') {
+  if (!name || Object.keys(records).includes(name)) {
     return false;
   }
   return true;

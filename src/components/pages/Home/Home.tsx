@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 
-import { ARNS_NAME_REGEX } from '../../../../types/constants';
 import { useStateValue } from '../../../state/state';
+import {
+  isArNSDomainNameAvailable,
+  isArNSDomainNameValid,
+} from '../../../utils/searchUtils.js';
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import { SearchBarFooter, SearchBarHeader } from '../../layout';
 import './styles.css';
@@ -21,10 +24,10 @@ function Home() {
       <SearchBar
         values={records}
         successPredicate={(value: string | undefined) =>
-          value ? !Object.keys(records).includes(value) : false
+          isArNSDomainNameAvailable({ name: value, records })
         }
         validationPredicate={(value: string | undefined) =>
-          value ? ARNS_NAME_REGEX.test(value) : false
+          isArNSDomainNameValid({ name: value })
         }
         placeholderText={'Enter a name'}
         headerElement={<SearchBarHeader defaultText={'Find a domain name'} />}
