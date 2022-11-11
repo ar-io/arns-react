@@ -59,7 +59,7 @@ function SearchBar(props: SearchBarProps) {
     // validate again, just in case
     const searchValid = validationPredicate(searchBarText);
     setIsSearchValid(searchValid);
-    if (searchValid) {
+    if (!searchValid) {
       return;
     }
 
