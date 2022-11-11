@@ -93,9 +93,9 @@ function AntCard(props: AntCardProps) {
             );
           })}
           {limitDetails ? (
-            <a href="_blank" onClick={showMore} className="link">
+            <button className="link" onClick={showMore}>
               more details
-            </a>
+            </button>
           ) : (
             <></>
           )}

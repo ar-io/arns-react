@@ -6,7 +6,8 @@ import { useStateValue } from '../../state/state';
 const ARNS_SOURCE_CONTRACT_ID = 'bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U';
 
 export default function useArNSContract() {
-  const [dispatch] = useStateValue();
+  // eslint-disable-next-line
+  const [{}, dispatch] = useStateValue();
   const [sendingContractState, setSendingContractState] = useState(false);
 
   useEffect(() => {
