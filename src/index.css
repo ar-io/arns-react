@@ -3,7 +3,7 @@
   src: url('../assets/fonts/Rubik1/Rubik-Regular.ttf');
   font-weight: 100;
   font-style: normal;
-  font-display: block;
+  font-display: swap;
 }
 
 @font-face {
@@ -11,7 +11,7 @@
   src: url('../assets/fonts/Rubik1/Rubik-Bold.ttf');
   font-weight: 100;
   font-style: normal;
-  font-display: block;
+  font-display: swap;
 }
 :root {
   --bg-color: #1d1e1c;
