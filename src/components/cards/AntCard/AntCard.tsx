@@ -93,14 +93,19 @@ function AntCard(props: AntCardProps) {
           })}
           {limitDetails ? (
             <a onClick={showMore} className="link">
-              more details...
+              more details
             </a>
           ) : (
             <></>
           )}
+          <div className='footer'>
           <button className="buttonLarge" onClick={handleClick}>
-            Upgrade
+            Upgrade Tier
           </button>
+          <button className="buttonLarge" onClick={handleClick}>
+            Extend Lease
+          </button>
+          </div>
         </div>
       ) : (
         // TODO: remove this holder when ant's have multiple data providers
