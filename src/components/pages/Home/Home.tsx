@@ -4,7 +4,7 @@ import { useStateValue } from '../../../state/state';
 import {
   isArNSDomainNameAvailable,
   isArNSDomainNameValid,
-} from '../../../utils/searchUtils.js';
+} from '../../../utils/searchUtils';
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import { SearchBarFooter, SearchBarHeader } from '../../layout';
 import './styles.css';
