@@ -1,6 +1,6 @@
-import './styles.css';
-import AntCard from '../../cards/AntCard/AntCard';
 import { SearchBarFooterProps } from '../../../types';
+import AntCard from '../../cards/AntCard/AntCard';
+import './styles.css';
 
 function SearchBarFooter({
   defaultText,

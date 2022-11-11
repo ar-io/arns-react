@@ -1,9 +1,10 @@
-import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
-import './styles.css';
-import { useStateValue } from '../../../state/state';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+
 import { ARNS_NAME_REGEX } from '../../../../types/constants';
-import { SearchBarHeader, SearchBarFooter } from '../../layout';
+import { useStateValue } from '../../../state/state';
+import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
+import { SearchBarFooter, SearchBarHeader } from '../../layout';
+import './styles.css';
 
 function Home() {
   const [{ arnsSourceContract }] = useStateValue();

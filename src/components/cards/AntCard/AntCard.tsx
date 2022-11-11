@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
 import { startCase } from 'lodash';
+import { useEffect, useState } from 'react';
+
 import { LocalFileSystemDataProvider } from '../../../services/arweave/LocalFilesystemDataProvider';
 import { AntCardProps } from '../../../types';
 import './styles.css';
@@ -12,7 +13,7 @@ const ANT_DETAIL_MAPPINGS: { [x: string]: string } = {
 };
 
 function mapKeyToAttribute(key: string) {
-  if (!!ANT_DETAIL_MAPPINGS[key]) {
+  if (ANT_DETAIL_MAPPINGS[key]) {
     return ANT_DETAIL_MAPPINGS[key];
   }
   return startCase(key);
@@ -63,7 +64,7 @@ function AntCard(props: AntCardProps) {
       setLimitDetails(true);
       setAntDetails(replacedKeys);
     });
-  }, [contract]);
+  }, [id, domain]);
 
   function showMore(e: any) {
     e.preventDefault();
@@ -71,7 +72,7 @@ function AntCard(props: AntCardProps) {
   }
 
   // TODO: update this logic
-  function handleClick(e: any) {
+  function handleClick() {
     console.log('Coming soon!');
   }
 
@@ -92,13 +93,13 @@ function AntCard(props: AntCardProps) {
             );
           })}
           {limitDetails ? (
-            <a onClick={showMore} className="link">
+            <a href="_blank" onClick={showMore} className="link">
               more details
             </a>
           ) : (
             <></>
           )}
-          <div className='footer'>
+          <div className="footer">
             <button className="buttonLarge" onClick={handleClick}>
               Upgrade Tier
             </button>

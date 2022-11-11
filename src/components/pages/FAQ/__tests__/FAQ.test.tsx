@@ -1,4 +1,5 @@
-import { render, cleanup } from '@testing-library/react';
+import { cleanup, render } from '@testing-library/react';
+
 import FAQ from '../FAQ';
 
 describe('FAQ', () => {

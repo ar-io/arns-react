@@ -1,9 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+
 import App from './App';
 import './index.css';
-import GlobalStateProvider from './state/state';
 import { reducer } from './state/reducer';
+import GlobalStateProvider from './state/state';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>

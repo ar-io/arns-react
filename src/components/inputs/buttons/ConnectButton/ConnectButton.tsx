@@ -1,4 +1,5 @@
 import { useState } from 'react';
+
 import ConnectWalletModal from '../../../modals/ConnectWalletModal/ConnectWalletModal';
 import './styles.css';
 

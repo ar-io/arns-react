@@ -1,12 +1,12 @@
 import { ARNS_NAME_REGEX } from '../../types/constants';
 
-export function isArNSDomainNameAvailaible({
+export function isArNSDomainNameAvailable({
   name,
   records,
 }: {
   name: string;
-  records: {};
-}): Boolean | undefined {
+  records: Record<string, any>;
+}): boolean | undefined {
   // if name is not in the legal character range or chars, return undefined
   if (!ARNS_NAME_REGEX.test(name) && name !== '') {
     return false;

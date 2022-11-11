@@ -1,5 +1,6 @@
 import { SearchBarHeaderProps } from '../../../types';
 import './styles.css';
+
 function SearchBarHeader({
   defaultText,
   isAvailable,
