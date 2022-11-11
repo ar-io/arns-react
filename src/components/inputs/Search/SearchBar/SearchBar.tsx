@@ -43,9 +43,9 @@ function SearchBar(props: SearchBarProps) {
     setShowDefaultText(true);
     setSubmittedName(undefined);
 
-    const isSearchValid = validationPredicate(input);
-    setIsSearchValid(isSearchValid);
-    if (!isSearchValid) {
+    const searchValid = validationPredicate(input);
+    setIsSearchValid(searchValid);
+    if (!searchValid) {
       return;
     }
 
@@ -57,9 +57,9 @@ function SearchBar(props: SearchBarProps) {
     e.preventDefault();
 
     // validate again, just in case
-    const isSearchValid = validationPredicate(searchBarText);
-    setIsSearchValid(isSearchValid);
-    if (!isSearchValid) {
+    const searchValid = validationPredicate(searchBarText);
+    setIsSearchValid(searchValid);
+    if (searchValid) {
       return;
     }
 
