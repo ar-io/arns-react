@@ -13,7 +13,6 @@ import './index.css';
 function App() {
   // dispatches global state
   useArNSContract();
-  console.log('app');
 
   const router = createBrowserRouter(
     createRoutesFromElements(

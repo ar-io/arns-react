@@ -92,9 +92,11 @@ function AntCard(props: ArNSMapping) {
             );
           })}
           {limitDetails ? (
-            <button className="link" onClick={showMore}>
+            <span className='detail'>
+            <button className="link left" onClick={showMore}>
               more details
             </button>
+            </span>
           ) : (
             <></>
           )}
