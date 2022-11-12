@@ -45,16 +45,16 @@ b {
   font-family: 'Rubik-Bold';
   font-weight: 700;
 }
-.link{
-    border: none;
-    font-family: 'Rubik';
-    font-size: 16px;
-    font-weight: 500;
-    text-decoration: underline;
-    color: var(--text-white);
-    background: none;
-    margin: auto;
-    cursor: pointer;
+.link {
+  border: none;
+  font-family: 'Rubik';
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: underline;
+  color: var(--text-white);
+  background: none;
+  margin: auto;
+  cursor: pointer;
 }
 .text {
   display: flex;
