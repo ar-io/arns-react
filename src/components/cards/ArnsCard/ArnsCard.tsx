@@ -43,21 +43,21 @@ function ArnsCard({ domain, id }: ArNSMapping) {
             ?.querySelector("meta[property='og:image']")
             ?.getAttribute('content');
 
-            //check if content is using relative paths
+          //check if content is using relative paths
           //console.log(doc?.querySelector("meta[property='og:url']"));
 
-          console.log(doc)
+          console.log(doc);
           return metaImage;
         });
 
       if (!metaImage) {
         throw Error(`Failed to fetch meta tag for ${domain}.${gateway}.`);
       }
-      //todo: 
+      //todo:
       //if relative file path detected, change url to query properly
       //add path modification for relative link/permaweb app (arweave manifest)
-      if (metaImage[0] == '.'){
-        throw Error("Relative path detected, cant get image")
+      if (metaImage[0] == '.') {
+        throw Error('Relative path detected, cant get image');
       }
       return metaImage;
     } catch (error) {

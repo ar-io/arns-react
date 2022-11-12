@@ -62,13 +62,13 @@ b {
   max-width: 475px;
   text-decoration: none;
 }
-.left{
+.left {
   text-align: left;
 }
-.right{
+.right {
   text-align: right;
 }
-.center{
+.center {
   text-align: center;
   justify-content: center;
   align-items: center;

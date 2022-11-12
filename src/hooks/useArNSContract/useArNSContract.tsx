@@ -15,7 +15,6 @@ export default function useArNSContract() {
   });
 
   async function dispatchNewContractState(): Promise<void> {
-
     try {
       const localProvider = new LocalFileSystemDataProvider();
       if (sendingContractState) {
@@ -29,12 +28,12 @@ export default function useArNSContract() {
       if (!arnsContractState) {
         throw Error('ArNS contract state is empty');
       }
-     
+
       dispatch({
         type: 'setArnsContractState',
         payload: arnsContractState,
       });
-      
+
       setTimeout(() => {
         // short delay to prevent another dispatch
         setSendingContractState(false);
