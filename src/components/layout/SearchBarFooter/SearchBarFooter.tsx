@@ -5,25 +5,24 @@ import './styles.css';
 function SearchBarFooter({
   defaultText,
   searchResult,
-  isSearchValid
+  isSearchValid,
 }: SearchBarFooterProps): JSX.Element {
-  console.log("search footer")
   return (
     <>
-      {!searchResult?.id ? (<>
-        <div className="text faded">
-          {!isSearchValid ? (
-            <div className="errorContainer">
-              <span className="illegalChar">{defaultText}</span>
-            </div>
-          ) : (
-            defaultText
-          )}
-        </div>
-        
+      {!searchResult?.id ? (
+        <>
+          <div className="text faded">
+            {!isSearchValid ? (
+              <div className="errorContainer">
+                <span className="illegalChar">{defaultText}</span>
+              </div>
+            ) : (
+              defaultText
+            )}
+          </div>
         </>
       ) : (
-        <AntCard domain={{id:"",domain:""}} />
+        <AntCard domain={searchResult.domain} id={searchResult.id} />
       )}
     </>
   );
