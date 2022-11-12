@@ -21,14 +21,6 @@
 .arnsCardFooter {
   row-gap: 10px;
 }
-.arnsLink {
-  display: flex;
-  font-family: 'Rubik-Bold';
-  font-weight: 700;
-  font-size: 10px;
-  color: var(--text-white);
-  text-decoration: none;
-}
 .expiryText {
   font-family: 'Rubik';
   font-weight: 400;

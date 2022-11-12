@@ -1,10 +1,11 @@
 export type ArNSContractState = {
   records: { [x: string]: ArweaveTransactionId };
+
 };
 
 export type ArNSDomain = {
-  id: ArweaveTransactionId;
   domain: string;
+  id:ArweaveTransactionId
 };
 
 // TODO: match this to a regex
@@ -38,14 +39,8 @@ export type SearchBarFooterProps = {
   isSearchValid?: boolean;
 };
 
-export type AntCardProps = {
-  contract: ArNSDomain;
-};
 
 export type ConnectWalletModalProps = {
   setShowModal: any;
 };
 
-export type ArnsCardProps = {
-  name: string;
-};

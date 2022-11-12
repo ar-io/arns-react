@@ -1,6 +1,5 @@
 import { SearchBarFooterProps } from '../../../types';
 import AntCard from '../../cards/AntCard/AntCard';
-import FeaturedDomains from '../FeaturedDomains/FeaturedDomains';
 import './styles.css';
 
 function SearchBarFooter({
@@ -8,6 +7,7 @@ function SearchBarFooter({
   searchResult,
   isSearchValid
 }: SearchBarFooterProps): JSX.Element {
+  console.log("search footer")
   return (
     <>
       {!searchResult?.id ? (<>
@@ -20,10 +20,10 @@ function SearchBarFooter({
             defaultText
           )}
         </div>
-        <FeaturedDomains />
+        
         </>
       ) : (
-        <AntCard contract={searchResult} />
+        <AntCard domain={{id:"",domain:""}} />
       )}
     </>
   );

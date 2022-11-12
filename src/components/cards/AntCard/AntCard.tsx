@@ -2,7 +2,7 @@ import { startCase } from 'lodash';
 import { useEffect, useState } from 'react';
 
 import { LocalFileSystemDataProvider } from '../../../services/arweave/LocalFilesystemDataProvider';
-import { AntCardProps } from '../../../types';
+import { ArNSDomain } from '../../../types';
 import './styles.css';
 
 const ANT_DETAIL_MAPPINGS: { [x: string]: string } = {
@@ -33,9 +33,8 @@ const DEFAULT_ATTRIBUTES = {
   subdomains: 'Up to 100',
 };
 
-function AntCard(props: AntCardProps) {
-  const { contract } = props;
-  const { id, domain } = contract;
+function AntCard(props: ArNSDomain) {
+  const { id, domain } = props;
   const [antDetails, setAntDetails] = useState<{ [x: string]: string }>();
   const [limitDetails, setLimitDetails] = useState(true);
 

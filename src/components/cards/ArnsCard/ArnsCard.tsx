@@ -3,40 +3,35 @@ import { ArnsDefault } from '../../icons';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
-import { useStateValue } from '../../../state/state';
-import { ArnsCardProps } from '../../../types';
+import { ArNSDomain } from '../../../types';
 import './styles.css';
 
-function ArnsCard({ name }: ArnsCardProps) {
-  const [{ arnsSourceContract }] = useStateValue();
-  const [antDetails, setAntDetails] = useState({
-    name: 'arns',
+function ArnsCard({domain}: Partial<ArNSDomain>) {
+  const [antDetails, setAntDetails] = useState<{name:string|undefined,gateway:string,image:string|undefined,expiry:string }>({
+    name: domain,
     gateway: 'arweave.net',
-    antContractAddress: '',
-    image: '',
+    image: `${ArnsDefault}`,
     expiry: '',
   });
 
   useEffect(() => {
-    getAntDetailsFromName(name);
+    getAntDetailsFromName(domain);
   }, []);
 
-  async function getAntDetailsFromName(name: string) {
-    const antAddress = arnsSourceContract.records[name];
+  async function getAntDetailsFromName(name: string|undefined) {
     const expiry = new Date().toDateString();
     const imageUrl = await getMetaImage();
-
     setAntDetails({
       name: name,
       gateway: 'arweave.dev',
-      antContractAddress: antAddress,
-      image: imageUrl,
+      image: `${imageUrl}`,
       expiry: expiry,
     });
   }
   async function getMetaImage() {
+    try {
     const img = await axios
-      .get(`http://${name}.arweave.dev`)
+      .get(`http://${domain}.arweave.dev`)
       .then((res) => res.data)
       .then((html) => {
         const parser = new DOMParser();
@@ -56,13 +51,14 @@ function ArnsCard({ name }: ArnsCardProps) {
     } else {
       return `${ArnsDefault}`;
     }
+  }catch(error){console.log(error)}
   }
 
   return (
     <div className="arnsCard">
       <img className="arnsPreview" src={antDetails.image} />
       <div className="arnsCardFooter">
-      <a className="arnsLink" target="_blank" href={`https://${antDetails.name}.${antDetails.gateway}`}>{`${antDetails.name}.${antDetails.gateway}`}</a>
+      <a className="link" target="_blank" href={`https://${antDetails.name}.${antDetails.gateway}`}>{`${antDetails.name}.${antDetails.gateway}`}</a>
         <span className="expiryText">Exp. {antDetails.expiry}</span>
       </div>
     </div>
