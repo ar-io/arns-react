@@ -95,6 +95,10 @@ b {
   justify-content: center;
 }
 
+.underline {
+  text-decoration: underline;
+}
+
 .left {
   text-align: left;
 }
@@ -115,6 +119,9 @@ b {
 
 .white {
   color: var(--text-white);
+}
+.black{
+  color:var(--text-black)
 }
 
 .page {
@@ -175,6 +182,34 @@ b {
   color: var(--text-white);
   background: none;
   cursor: pointer;
+}
+
+.bubbleSmall{
+  display: flex;
+  align-self: flex-start;
+  border-radius: 1000px;
+  background-color: var(--text-white);
+  font-family: 'Rubik-Bold';
+  padding: 5px 15px;
+}
+.infoBubble{
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+   width: 150px;
+  height: fit-content;
+  padding: 13px;
+  line-break: strict;
+  background-color: var(--text-white);
+  border-radius: 1em;
+  left: 75px;
+  top: -150px;
+  gap: 10px;
+}
+
+.toolTip{
+  position: relative;
+  display: inline-block;
 }
 
 /* TOP LEVEL RESIZE RULES */
