@@ -28,6 +28,7 @@ export default function useArNSContract() {
       if (!arnsContractState) {
         throw Error('ArNS contract state is empty');
       }
+
       dispatch({
         type: 'setArnsContractState',
         payload: arnsContractState,
@@ -36,7 +37,7 @@ export default function useArNSContract() {
       setTimeout(() => {
         // short delay to prevent another dispatch
         setSendingContractState(false);
-      }, 100);
+      }, 60000);
     } catch (error) {
       console.error(`Error in setting contract state.`, error);
     }

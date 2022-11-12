@@ -1,26 +1,23 @@
 import { useEffect, useState } from 'react';
-import {FeaturedDomains} from '../../layout';
+
 import { useStateValue } from '../../../state/state';
 import {
   isArNSDomainNameAvailable,
   isArNSDomainNameValid,
 } from '../../../utils/searchUtils';
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
+import { FeaturedDomains } from '../../layout';
 import { SearchBarFooter, SearchBarHeader } from '../../layout';
 import './styles.css';
 
 function Home() {
-  console.log("home")
   const [{ arnsSourceContract }] = useStateValue();
   const [records, setRecords] = useState(arnsSourceContract.records);
 
   useEffect(() => {
     const records = arnsSourceContract.records;
     setRecords(records);
-  }, []);
-
-  
-
+  }, [arnsSourceContract]);
 
   return (
     <div className="page">
@@ -43,7 +40,7 @@ function Home() {
           />
         }
       />
-      <FeaturedDomains/>
+      <FeaturedDomains domains={records} />
     </div>
   );
 }

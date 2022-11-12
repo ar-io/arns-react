@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import {
   Route,
   RouterProvider,
@@ -12,7 +11,9 @@ import { useArNSContract } from './hooks/';
 import './index.css';
 
 function App() {
-useArNSContract()
+  // dispatches global state
+  useArNSContract();
+
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route element={<Layout />}>

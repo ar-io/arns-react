@@ -12,7 +12,7 @@ export type GlobalState = {
 
 const initialState: GlobalState = {
   arnsSourceContract: { records: {} },
-  gateway: 'arweave.net',
+  gateway: 'arweave.dev',
   connectedWallet: undefined,
   errors: [],
 };

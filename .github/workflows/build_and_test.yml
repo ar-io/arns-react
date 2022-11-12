@@ -7,11 +7,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        step: ["lint:check", "test", "build"]
+        step: ['lint:check', 'test', 'build']
     steps:
       - uses: actions/checkout@v3
       - run: npm install
-      - run : npm run ${{ matrix.step }}
+      - run: npm run ${{ matrix.step }}
 
   deploy-to-github:
     runs-on: ubuntu-latest

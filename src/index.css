@@ -45,23 +45,33 @@ b {
   font-family: 'Rubik-Bold';
   font-weight: 700;
 }
-.link{
-    border: none;
-    font-family: 'Rubik';
-    font-size: 16px;
-    font-weight: 500;
-    text-decoration: underline;
-    color: var(--text-white);
-    background: none;
-    margin: auto;
-    cursor: pointer;
+.link {
+  border: none;
+  font-family: 'Rubik';
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: underline;
+  color: var(--text-white);
+  background: none;
+  margin: auto;
+  cursor: pointer;
 }
 .text {
   display: flex;
-  font-family: 'Rubik';
   font-size: 12px;
   max-width: 475px;
+  text-decoration: none;
+}
+.left {
+  text-align: left;
+}
+.right {
+  text-align: right;
+}
+.center {
   text-align: center;
+  justify-content: center;
+  align-items: center;
 }
 
 .faded {
@@ -74,7 +84,7 @@ b {
 .page {
   display: flex;
   flex-direction: column;
-  padding: 5% 20%;
+  padding: 5% 5%;
   height: fit-content;
   row-gap: 2em;
   align-items: center;

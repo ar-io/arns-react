@@ -2,7 +2,7 @@ import { startCase } from 'lodash';
 import { useEffect, useState } from 'react';
 
 import { LocalFileSystemDataProvider } from '../../../services/arweave/LocalFilesystemDataProvider';
-import { ArNSDomain } from '../../../types';
+import { ArNSMapping } from '../../../types';
 import './styles.css';
 
 const ANT_DETAIL_MAPPINGS: { [x: string]: string } = {
@@ -33,7 +33,7 @@ const DEFAULT_ATTRIBUTES = {
   subdomains: 'Up to 100',
 };
 
-function AntCard(props: ArNSDomain) {
+function AntCard(props: ArNSMapping) {
   const { id, domain } = props;
   const [antDetails, setAntDetails] = useState<{ [x: string]: string }>();
   const [limitDetails, setLimitDetails] = useState(true);
@@ -92,9 +92,11 @@ function AntCard(props: ArNSDomain) {
             );
           })}
           {limitDetails ? (
-            <button className="link" onClick={showMore}>
-              more details
-            </button>
+            <span className="detail">
+              <button className="link left" onClick={showMore}>
+                more details
+              </button>
+            </span>
           ) : (
             <></>
           )}

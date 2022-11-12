@@ -1,64 +1,85 @@
-import './styles.css';
-import { ArnsDefault } from '../../icons';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
-import { ArNSDomain } from '../../../types';
+import { useStateValue } from '../../../state/state.js';
+import { ArNSDomain, ArNSMapping } from '../../../types';
+import { ArnsDefault as arnsDefaultImage } from '../../icons';
+import './styles.css';
 import './styles.css';
 
-function ArnsCard({domain}: Partial<ArNSDomain>) {
-  const [antDetails, setAntDetails] = useState<{name:string|undefined,gateway:string,image:string|undefined,expiry:string }>({
-    name: domain,
-    gateway: 'arweave.net',
-    image: `${ArnsDefault}`,
+function ArnsCard({ domain, id }: ArNSMapping) {
+  const [{ gateway }] = useStateValue();
+  const [antDetails, setAntDetails] = useState<ArNSDomain>({
+    domain,
+    id,
+    image: arnsDefaultImage,
     expiry: '',
   });
 
   useEffect(() => {
     getAntDetailsFromName(domain);
-  }, []);
+  }, [domain, id]);
 
-  async function getAntDetailsFromName(name: string|undefined) {
+  async function getAntDetailsFromName(domain: string) {
     const expiry = new Date().toDateString();
-    const imageUrl = await getMetaImage();
+    const image = await getMetaImage();
     setAntDetails({
-      name: name,
-      gateway: 'arweave.dev',
-      image: `${imageUrl}`,
+      ...antDetails,
+      domain,
+      image,
       expiry: expiry,
     });
   }
+
   async function getMetaImage() {
     try {
-    const img = await axios
-      .get(`http://${domain}.arweave.dev`)
-      .then((res) => res.data)
-      .then((html) => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const metaImage = doc
-          ?.querySelector("meta[property='og:image']")
-          ?.getAttribute('content');
+      const metaImage = await axios
+        .get(`http://${domain}.${gateway}`)
+        .then((res) => res.data)
+        .then((html) => {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, 'text/html');
+          const metaImage = doc
+            ?.querySelector("meta[property='og:image']")
+            ?.getAttribute('content');
 
-        return metaImage;
-      });
-    const status = await axios
-      .get(img!)
-      .then((res) => res.status)
-      .catch((error) => console.log(error));
-    if (status === 200) {
-      return `${img}`;
-    } else {
-      return `${ArnsDefault}`;
+          //check if content is using relative paths
+          //console.log(doc?.querySelector("meta[property='og:url']"));
+
+          console.log(doc);
+          return metaImage;
+        });
+
+      if (!metaImage) {
+        throw Error(`Failed to fetch meta tag for ${domain}.${gateway}.`);
+      }
+      //todo:
+      //if relative file path detected, change url to query properly
+      //add path modification for relative link/permaweb app (arweave manifest)
+      if (metaImage[0] == '.') {
+        throw Error('Relative path detected, cant get image');
+      }
+      return metaImage;
+    } catch (error) {
+      console.log(error);
+      return arnsDefaultImage;
     }
-  }catch(error){console.log(error)}
   }
 
   return (
     <div className="arnsCard">
-      <img className="arnsPreview" src={antDetails.image} />
+      <img
+        className="arnsPreview"
+        src={antDetails.image}
+        alt={`${domain}.${gateway}`}
+      />
       <div className="arnsCardFooter">
-      <a className="link" target="_blank" href={`https://${antDetails.name}.${antDetails.gateway}`}>{`${antDetails.name}.${antDetails.gateway}`}</a>
+        <a
+          className="text white bold"
+          target="_blank"
+          href={`https://${antDetails.domain}.${gateway}`}
+          rel="noreferrer"
+        >{`${antDetails.domain}.${gateway}`}</a>
         <span className="expiryText">Exp. {antDetails.expiry}</span>
       </div>
     </div>
