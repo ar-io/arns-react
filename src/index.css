@@ -58,10 +58,20 @@ b {
 }
 .text {
   display: flex;
-  font-family: 'Rubik';
   font-size: 12px;
   max-width: 475px;
+  text-decoration: none;
+}
+.left{
+  text-align: left;
+}
+.right{
+  text-align: right;
+}
+.center{
   text-align: center;
+  justify-content: center;
+  align-items: center;
 }
 
 .faded {
