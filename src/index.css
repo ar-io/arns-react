@@ -74,7 +74,7 @@ b {
 .page {
   display: flex;
   flex-direction: column;
-  padding: 5% 20%;
+  padding: 5% 5%;
   height: fit-content;
   row-gap: 2em;
   align-items: center;
