@@ -1,6 +1,5 @@
 import { SearchBarFooterProps } from '../../../types';
 import AntCard from '../../cards/AntCard/AntCard';
-import FeaturedDomains from '../FeaturedDomains/FeaturedDomains';
 import UpgradeTier from '../UpgradeTier/UpgradeTier';
 import './styles.css';
 
