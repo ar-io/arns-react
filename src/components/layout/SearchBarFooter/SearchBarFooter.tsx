@@ -12,7 +12,7 @@ function SearchBarFooter({
 }: SearchBarFooterProps): JSX.Element {
   return (
     <>
-      {!searchResult?.id ? (
+      {!searchResult?.domain ? (
         <div className="text faded center">
           {!isSearchValid ? (
             <div className="errorContainer">
