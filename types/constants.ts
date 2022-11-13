@@ -72,8 +72,8 @@ export function NAME_PRICE_CALC({
     if (tier > 3) {
       throw Error('Maximum tier is 3');
     }
-    if (!domain){
-      throw Error("Domain is undefined")
+    if (!domain) {
+      throw Error('Domain is undefined');
     }
     if (ARNS_NAME_REGEX.test(domain) && domain) {
       const nameLength = domain.length;

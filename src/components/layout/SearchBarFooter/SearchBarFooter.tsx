@@ -12,20 +12,21 @@ function SearchBarFooter({
 }: SearchBarFooterProps): JSX.Element {
   return (
     <>
-      
-        {!searchResult?.domain ?  <div className="text faded">
-                 { !isSearchValid ? <div className="errorContainer">
-                    <span className="illegalChar">{defaultText}</span>
-                  </div>
-                  : defaultText}
-          </div>
-          :
-       isAvailable ? <UpgradeTier domain={searchResult.domain} /> 
-          :
-        <AntCard domain={searchResult?.domain} id={searchResult?.id} />}
-        
-    
-   
+      {!searchResult?.domain ? (
+        <div className="text faded">
+          {!isSearchValid ? (
+            <div className="errorContainer">
+              <span className="illegalChar">{defaultText}</span>
+            </div>
+          ) : (
+            defaultText
+          )}
+        </div>
+      ) : isAvailable ? (
+        <UpgradeTier domain={searchResult.domain} />
+      ) : (
+        <AntCard domain={searchResult?.domain} id={searchResult?.id} />
+      )}
     </>
   );
 }

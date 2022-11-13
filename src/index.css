@@ -62,7 +62,7 @@ b {
   max-width: 475px;
   text-decoration: none;
 }
-.underline{
+.underline {
   text-decoration: underline;
 }
 .left {
@@ -83,8 +83,8 @@ b {
 .white {
   color: var(--text-white);
 }
-.black{
-  color:var(--text-black)
+.black {
+  color: var(--text-black);
 }
 
 .page {
@@ -145,7 +145,7 @@ b {
   background: none;
   cursor: pointer;
 }
-.bubbleSmall{
+.bubbleSmall {
   display: flex;
   align-self: flex-start;
   border-radius: 1000px;
@@ -153,22 +153,22 @@ b {
   font-family: 'Rubik-Bold';
   padding: 5px 15px;
 }
-.infoBubble{
+.infoBubble {
   display: flex;
   flex-direction: column;
   position: absolute;
-   width: 150px;
+  width: 150px;
   height: fit-content;
   padding: 13px;
   line-break: strict;
   background-color: var(--text-white);
   border-radius: 1em;
-  left: 75px;
+  left: 175px;
   top: -150px;
   gap: 10px;
 }
 
-.toolTip{
+.toolTip {
   position: relative;
   display: inline-block;
 }
