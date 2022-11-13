@@ -19,8 +19,6 @@ function UpgradeTier({ domain }: { domain: string | undefined }) {
 
   return (
     <div className="upgradeTier">
-      <div className="sectionHeader">Upgrade Tier</div>
-
       <YearsCounter setCount={setYears} count={years} />
       <div className="cardContainer">
         <TierCard thisTier={1} setTier={setTier} tier={tier} />
@@ -36,7 +34,7 @@ function UpgradeTier({ domain }: { domain: string | undefined }) {
         {price}&nbsp;ARIO&nbsp;
         <AlertCircle
           width={'16px'}
-          height={'16px'}
+          height={'16px'} 
           fill={'var(--text-white)'}
         />
         {priceInfo ? (
