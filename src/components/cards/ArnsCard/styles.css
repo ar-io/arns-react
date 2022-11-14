@@ -4,8 +4,9 @@
   align-items: flex-start;
   padding: 24px;
   row-gap: 30px;
-  width: 198px;
-  height: 198px;
+  width: 25%;
+  min-width: 180px;
+  min-height: 180px;
   background: var(--card-bg);
   box-shadow: 0px 0px 1px #0d0d0d, 0px 8px 16px rgba(13, 13, 13, 0.9);
   border-radius: 24px;
