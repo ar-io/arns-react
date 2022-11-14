@@ -1,10 +1,9 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
-import { useStateValue } from '../../../state/state.js';
+import { useStateValue } from '../../../state/state';
 import { ArNSDomain, ArNSMapping } from '../../../types';
 import { ArnsDefault as arnsDefaultImage } from '../../icons';
-import './styles.css';
 import './styles.css';
 
 function ArnsCard({ domain, id }: ArNSMapping) {
@@ -18,7 +17,7 @@ function ArnsCard({ domain, id }: ArNSMapping) {
 
   useEffect(() => {
     getAntDetailsFromName(domain);
-  }, [domain, id]);
+  }, [domain, id, gateway]);
 
   async function getAntDetailsFromName(domain: string) {
     const expiry = new Date().toDateString();
@@ -27,7 +26,7 @@ function ArnsCard({ domain, id }: ArNSMapping) {
       ...antDetails,
       domain,
       image,
-      expiry: expiry,
+      expiry,
     });
   }
 
@@ -43,10 +42,6 @@ function ArnsCard({ domain, id }: ArNSMapping) {
             ?.querySelector("meta[property='og:image']")
             ?.getAttribute('content');
 
-          //check if content is using relative paths
-          //console.log(doc?.querySelector("meta[property='og:url']"));
-
-          console.log(doc);
           return metaImage;
         });
 
@@ -61,7 +56,7 @@ function ArnsCard({ domain, id }: ArNSMapping) {
       }
       return metaImage;
     } catch (error) {
-      console.log(error);
+      console.debug(error);
       return arnsDefaultImage;
     }
   }
