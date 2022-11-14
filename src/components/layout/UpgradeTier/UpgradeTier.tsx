@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 
 import { NAME_PRICE_CALC, NAME_PRICE_INFO } from '../../../../types/constants';
+import { useStateValue } from '../../../state/state';
 import TierCard from '../../cards/TierCard/TierCard';
 import { AlertCircle } from '../../icons';
 import YearsCounter from '../../inputs/YearsCounter/YearsCounter';
 import './styles.css';
 
 function UpgradeTier({ domain }: { domain: string | undefined }) {
+  const [{ arnsSourceContract }] = useStateValue();
   // name is passed down from search bar to calculate price
   const [tier, setTier] = useState(1);
   const [price, setPrice] = useState(0);
@@ -14,8 +16,9 @@ function UpgradeTier({ domain }: { domain: string | undefined }) {
   const [priceInfo, setPriceInfo] = useState(false);
 
   useEffect(() => {
-    setPrice(NAME_PRICE_CALC({ domain, tier, years }));
-  }, [years, tier, domain]);
+    const fees = arnsSourceContract.fees;
+    setPrice(NAME_PRICE_CALC({ domain, tier, years, fees }));
+  }, [years, tier, domain, arnsSourceContract]);
 
   return (
     <div className="upgradeTier">

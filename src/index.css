@@ -171,4 +171,7 @@ b {
 .toolTip {
   position: relative;
   display: inline-block;
+  background: none;
+  border: none;
+  cursor: pointer;
 }

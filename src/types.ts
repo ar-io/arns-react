@@ -2,6 +2,7 @@ export type ArNSDomains = { [x: string]: ArweaveTransactionId };
 
 export type ArNSContractState = {
   records: ArNSDomains;
+  fees: { [x: number]: number };
 };
 
 export type ArNSMapping = {
