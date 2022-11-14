@@ -14,9 +14,6 @@ function FeaturedDomains(props: { domains: ArNSDomains }) {
   const [displayCount, setDisplayCount] = useState(DEFAULT_INCREMENT);
 
   function showMore(e: any) {
-    if (displayCount == MAX_COUNT) {
-      return;
-    }
     e.preventDefault();
     setDisplayCount(displayCount + DEFAULT_INCREMENT);
   }
@@ -31,7 +28,8 @@ function FeaturedDomains(props: { domains: ArNSDomains }) {
           return <ArnsCard domain={domain} id={domains[domain]} key={index} />;
         })}
       </div>
-      {displayCount < Object.keys(domains).length ? (
+      {displayCount < Object.keys(domains).length &&
+      displayCount < MAX_COUNT ? (
         <button className="link" onClick={showMore}>
           see more
         </button>

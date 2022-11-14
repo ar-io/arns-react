@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { LocalFileSystemDataProvider } from '../../services/arweave/LocalFilesystemDataProvider';
 import { useStateValue } from '../../state/state';
@@ -8,6 +8,7 @@ const ARNS_SOURCE_CONTRACT_ID = 'bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U';
 export default function useArNSContract() {
   // eslint-disable-next-line
   const [{}, dispatch] = useStateValue();
+  const [sendingContractState, setSendingContractState] = useState(false);
 
   useEffect(() => {
     dispatchNewContractState();
@@ -15,6 +16,10 @@ export default function useArNSContract() {
 
   async function dispatchNewContractState(): Promise<void> {
     try {
+      if (sendingContractState) {
+        return;
+      }
+      setSendingContractState(true);
       const localProvider = new LocalFileSystemDataProvider();
       const arnsContractState = await localProvider.getContractState(
         ARNS_SOURCE_CONTRACT_ID,
@@ -27,6 +32,8 @@ export default function useArNSContract() {
         type: 'setArnsContractState',
         payload: arnsContractState,
       });
+
+      setSendingContractState(false);
     } catch (error) {
       console.error(`Error in setting contract state.`, error);
     }
