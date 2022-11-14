@@ -1,4 +1,4 @@
-import { useEffect} from 'react';
+import { useEffect } from 'react';
 
 import { LocalFileSystemDataProvider } from '../../services/arweave/LocalFilesystemDataProvider';
 import { useStateValue } from '../../state/state';
@@ -11,7 +11,7 @@ export default function useArNSContract() {
 
   useEffect(() => {
     dispatchNewContractState();
-  }, []);// eslint-disable-line
+  }, []); // eslint-disable-line
 
   async function dispatchNewContractState(): Promise<void> {
     try {
