@@ -31,7 +31,7 @@ function YearsCounter({ setCount, count }: { setCount: any; count: number }) {
     setRegistration(
       `${date.toLocaleString('default', {
         month: 'long',
-      })} ${date.getDay()}, ${newYear}`,
+      })} ${date.getDate()}, ${newYear}`,
     );
   }
   return (
