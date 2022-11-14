@@ -13,7 +13,7 @@ function SearchBarFooter({
   return (
     <>
       {!searchResult?.domain ? (
-        <div className="text faded">
+        <div className="text faded center">
           {!isSearchValid ? (
             <div className="errorContainer">
               <span className="illegalChar">{defaultText}</span>
