@@ -8,8 +8,8 @@ function TierCard({ tier, setTier, thisTier }: TierCardProps) {
     <div className="tierCard">
       <div className="text bubbleSmall">Tier&nbsp;{thisTier}</div>
 
-      {TIER_DATA[thisTier].map((info: string) => (
-        <span className="text white bold">
+      {TIER_DATA[thisTier].map((info: string, index: number) => (
+        <span className="text white bold" key={index}>
           <CircleCheck
             width="16px"
             height={'16px'}
