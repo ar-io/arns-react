@@ -10,8 +10,8 @@ export type ArNSMapping = {
 };
 
 export type ArNSMetaData = {
-  image: string | undefined;
-  expiry: string;
+  image?: string;
+  expiry?: string;
 };
 
 export type ArNSDomain = ArNSMapping & ArNSMetaData;

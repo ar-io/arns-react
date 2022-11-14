@@ -9,6 +9,8 @@ function FeaturedDomains(props: { domains: ArNSDomains }) {
 
   // show three at a time by default
   const DEFAULT_INCREMENT = 3;
+  // how many rows of cards to display
+  const MAX_COUNT = DEFAULT_INCREMENT * 3;
   const [displayCount, setDisplayCount] = useState(DEFAULT_INCREMENT);
 
   function showMore(e: any) {
@@ -26,7 +28,8 @@ function FeaturedDomains(props: { domains: ArNSDomains }) {
           return <ArnsCard domain={domain} id={domains[domain]} key={index} />;
         })}
       </div>
-      {displayCount < Object.keys(domains).length ? (
+      {displayCount < Object.keys(domains).length &&
+      displayCount < MAX_COUNT ? (
         <button className="link" onClick={showMore}>
           see more
         </button>
