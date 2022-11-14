@@ -45,7 +45,7 @@ export type SearchBarFooterProps = {
   defaultText: string;
   searchResult?: ArNSDomain;
   isSearchValid?: boolean;
-  isAvailable?: Boolean;
+  isAvailable?: boolean;
 };
 
 export type ConnectWalletModalProps = {

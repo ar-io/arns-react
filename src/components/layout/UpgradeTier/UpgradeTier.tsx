@@ -25,7 +25,7 @@ function UpgradeTier({ domain }: { domain: string | undefined }) {
         <TierCard thisTier={2} setTier={setTier} tier={tier} />
         <TierCard thisTier={3} setTier={setTier} tier={tier} />
       </div>
-      <div
+      <button
         className="sectionHeader toolTip"
         onClick={() => {
           setPriceInfo(!priceInfo);
@@ -34,7 +34,7 @@ function UpgradeTier({ domain }: { domain: string | undefined }) {
         {price}&nbsp;ARIO&nbsp;
         <AlertCircle
           width={'16px'}
-          height={'16px'} 
+          height={'16px'}
           fill={'var(--text-white)'}
         />
         {priceInfo ? (
@@ -42,8 +42,9 @@ function UpgradeTier({ domain }: { domain: string | undefined }) {
             <span className="text bold black center">{NAME_PRICE_INFO}</span>
             {/**TODO: link to faq or about page */}
             <a
-              href=""
+              href="https://ar.io/"
               target="_blank"
+              rel="noreferrer"
               className="text faded underline bold center"
             >
               Need help choosing a tier?
@@ -52,8 +53,7 @@ function UpgradeTier({ domain }: { domain: string | undefined }) {
         ) : (
           <></>
         )}
-      </div>
-      <button className="buttonLarge">Connect Wallet to Proceed</button>
+      </button>
     </div>
   );
 }

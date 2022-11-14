@@ -21,7 +21,7 @@ function YearsCounter({ setCount, count }: { setCount: any; count: number }) {
     setCount(count + 1);
   }
   function changeYear() {
-    let date = new Date();
+    const date = new Date();
     if (count > 1) {
       setYears(`years`);
     } else {
