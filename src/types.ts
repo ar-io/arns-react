@@ -51,3 +51,8 @@ export type SearchBarFooterProps = {
 export type ConnectWalletModalProps = {
   setShowModal: any;
 };
+export type TierCardProps = {
+  tier: number;
+  setTier: any;
+  thisTier: number;
+};

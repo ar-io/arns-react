@@ -33,7 +33,7 @@ export const NAME_PRICES: { [x: number]: number } = {
   31: 100000,
   32: 100000,
 };
-export const TIER_DATA = {
+export const TIER_DATA: { [x: number]: string[] } = {
   1: [
     'Up to 100 Subdomains',
     'Available via all ArNS-enabled gateways',
