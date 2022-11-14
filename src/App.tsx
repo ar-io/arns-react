@@ -11,6 +11,7 @@ import { useArNSContract } from './hooks/';
 import './index.css';
 
 function App() {
+  // dispatches global state
   useArNSContract();
 
   const router = createBrowserRouter(

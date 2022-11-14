@@ -1,9 +1,10 @@
 .card {
   min-height: 250px;
   max-width: 75%;
+  height: fit-content;
   display: flex;
   background: #1f1f1f;
-  padding: 60px;
+  padding: 30px 60px;
   flex-direction: column;
   align-items: center;
   gap: 33px;

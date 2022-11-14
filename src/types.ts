@@ -1,11 +1,20 @@
+export type ArNSDomains = { [x: string]: ArweaveTransactionId };
+
 export type ArNSContractState = {
-  records: { [x: string]: ArweaveTransactionId };
+  records: ArNSDomains;
 };
 
-export type ArNSDomain = {
-  id: ArweaveTransactionId;
+export type ArNSMapping = {
   domain: string;
+  id: ArweaveTransactionId;
 };
+
+export type ArNSMetaData = {
+  image?: string;
+  expiry?: string;
+};
+
+export type ArNSDomain = ArNSMapping & ArNSMetaData;
 
 // TODO: match this to a regex
 export type ArweaveTransactionId = string;
@@ -36,10 +45,6 @@ export type SearchBarFooterProps = {
   defaultText: string;
   searchResult?: ArNSDomain;
   isSearchValid?: boolean;
-};
-
-export type AntCardProps = {
-  contract: ArNSDomain;
 };
 
 export type ConnectWalletModalProps = {

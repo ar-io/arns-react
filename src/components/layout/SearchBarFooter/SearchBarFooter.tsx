@@ -10,17 +10,19 @@ function SearchBarFooter({
   return (
     <>
       {!searchResult?.id ? (
-        <div className="text faded">
-          {!isSearchValid ? (
-            <div className="errorContainer">
-              <span className="illegalChar">{defaultText}</span>
-            </div>
-          ) : (
-            defaultText
-          )}
-        </div>
+        <>
+          <div className="text faded">
+            {!isSearchValid ? (
+              <div className="errorContainer">
+                <span className="illegalChar">{defaultText}</span>
+              </div>
+            ) : (
+              defaultText
+            )}
+          </div>
+        </>
       ) : (
-        <AntCard contract={searchResult} />
+        <AntCard domain={searchResult.domain} id={searchResult.id} />
       )}
     </>
   );

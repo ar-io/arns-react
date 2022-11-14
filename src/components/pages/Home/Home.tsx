@@ -6,12 +6,13 @@ import {
   isArNSDomainNameValid,
 } from '../../../utils/searchUtils';
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
+import { FeaturedDomains } from '../../layout';
 import { SearchBarFooter, SearchBarHeader } from '../../layout';
 import './styles.css';
 
 function Home() {
   const [{ arnsSourceContract }] = useStateValue();
-  const [records, setRecords] = useState({});
+  const [records, setRecords] = useState(arnsSourceContract.records);
 
   useEffect(() => {
     const records = arnsSourceContract.records;
@@ -39,6 +40,7 @@ function Home() {
           />
         }
       />
+      <FeaturedDomains domains={records} />
     </div>
   );
 }
