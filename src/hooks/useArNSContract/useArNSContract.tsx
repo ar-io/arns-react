@@ -8,20 +8,14 @@ const ARNS_SOURCE_CONTRACT_ID = 'bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U';
 export default function useArNSContract() {
   // eslint-disable-next-line
   const [{}, dispatch] = useStateValue();
-  const [sendingContractState, setSendingContractState] = useState(false);
 
   useEffect(() => {
     dispatchNewContractState();
-  });
+  }, []);
 
   async function dispatchNewContractState(): Promise<void> {
     try {
       const localProvider = new LocalFileSystemDataProvider();
-      if (sendingContractState) {
-        return;
-      }
-      setSendingContractState(true);
-
       const arnsContractState = await localProvider.getContractState(
         ARNS_SOURCE_CONTRACT_ID,
       );
@@ -33,11 +27,6 @@ export default function useArNSContract() {
         type: 'setArnsContractState',
         payload: arnsContractState,
       });
-
-      setTimeout(() => {
-        // short delay to prevent another dispatch
-        setSendingContractState(false);
-      }, 60000);
     } catch (error) {
       console.error(`Error in setting contract state.`, error);
     }
