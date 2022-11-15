@@ -1,15 +1,15 @@
 import { cleanup, render } from '@testing-library/react';
 import { BrowserRouter as Router } from 'react-router-dom';
 
-import NavGroupRight from '../NavGroupRight';
+import NavGroup from '../NavGroup';
 
-describe('NavGroupRight', () => {
+describe('NavGroup', () => {
   afterEach(cleanup);
 
-  test('render NavGroupRight', () => {
+  test('render NavGroup', () => {
     render(
       <Router>
-        <NavGroupRight />
+        <NavGroup />
       </Router>,
     );
   });

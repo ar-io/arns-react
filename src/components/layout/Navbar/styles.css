@@ -1,19 +1,20 @@
 .navBar {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
   align-items: center;
   width: 100%;
 }
-.navBarItemContainer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: fit-content;
-  height: fit-content;
-  column-gap: 1em;
-  color: var(--white);
-}
+
 .brandLogo {
   z-index: 1;
+  width: 90px;
+  height: 90px;
+}
+
+/* If the screen size is 600px wide or less, set the font-size of <div> to 30px */
+@media screen and (max-width: 600px) {
+  .brandLogo {
+    height: 45px;
+    width: 45px;
+  }
 }

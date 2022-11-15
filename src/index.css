@@ -3,7 +3,7 @@
   src: url('../assets/fonts/Rubik1/Rubik-Regular.ttf');
   font-weight: 100;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
@@ -11,7 +11,7 @@
   src: url('../assets/fonts/Rubik1/Rubik-Bold.ttf');
   font-weight: 100;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
 }
 :root {
   --bg-color: #1d1e1c;
@@ -45,6 +45,7 @@ b {
   font-family: 'Rubik-Bold';
   font-weight: 700;
 }
+
 .link {
   border: none;
   font-family: 'Rubik';
@@ -56,18 +57,52 @@ b {
   margin: auto;
   cursor: pointer;
 }
+
 .text {
   display: flex;
   font-size: 12px;
   max-width: 475px;
   text-decoration: none;
 }
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  gap: 2em;
+  align-items: center;
+}
+
+.flex-space-between {
+  justify-content: space-between;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+  gap: 2em;
+}
+
+.flex-right {
+  justify-content: flex-end;
+}
+
+.flex-left {
+  justify-content: flex-start;
+}
+
+.flex-center {
+  justify-content: center;
+}
+
 .left {
   text-align: left;
 }
+
 .right {
   text-align: right;
 }
+
 .center {
   text-align: center;
   justify-content: center;
@@ -77,6 +112,7 @@ b {
 .faded {
   color: var(--text-faded);
 }
+
 .white {
   color: var(--text-white);
 }
@@ -129,6 +165,7 @@ b {
   font-size: 18px;
   cursor: pointer;
 }
+
 .buttonLink {
   border: none;
   font-family: 'Rubik';
@@ -138,4 +175,16 @@ b {
   color: var(--text-white);
   background: none;
   cursor: pointer;
+}
+
+/* TOP LEVEL RESIZE RULES */
+@media screen and (max-width: 600px) {
+  .pageHeader {
+    font-size: 48px;
+    line-height: unset;
+  }
+  .sectionHeader {
+    font-size: 14px;
+    line-height: unset;
+  }
 }
