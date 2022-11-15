@@ -52,10 +52,10 @@ export type SearchBarFooterProps = {
 };
 
 export type ConnectWalletModalProps = {
-  setShowModal: any;
+  setShowModal: Dispatch<SetStateAction<boolean>>;
 };
 export type TierCardProps = {
-  tier?: number | string;
+  tier: number;
   setTier: Dispatch<SetStateAction<number>>;
   selectedTier: number;
 };

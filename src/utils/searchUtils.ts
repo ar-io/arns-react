@@ -30,36 +30,29 @@ export function calculateArNSNamePrice({
 }: {
   domain?: string;
   years: number;
-  selectedTier: number | string;
+  selectedTier: number;
   fees: { [x: number]: number };
 }) {
-  const thisTier = new Number(selectedTier).valueOf();
   try {
     if (years < 1) {
       throw Error('Minimum duration must be at least one year');
     }
-    if (thisTier < 1) {
-      throw Error('Minimum tier is 1');
+    if (selectedTier < 1) {
+      throw Error('Minimum selectedTier is 1');
     }
-    if (thisTier > 3) {
-      throw Error('Maximum tier is 3');
+    if (selectedTier > 3) {
+      throw Error('Maximum selectedTier is 3');
     }
     if (!domain) {
       throw Error('Domain is undefined');
     }
     if (!isArNSDomainNameValid({ name: domain })) {
-      throw Error('invalid name, failed name regex');
+      throw Error('Domain name is invalid');
     }
-    if (isArNSDomainNameValid({ name: domain }) && domain) {
-      let nameLength = domain.length;
-      if (nameLength > Object.keys(fees).length) {
-        nameLength = Object.keys(fees).length;
-      }
-      const namePrice = fees[nameLength];
-      const price = namePrice * years * thisTier;
-
-      return price;
-    }
+    const nameLength = Math.max(domain.length, Object.keys(fees).length);
+    const namePrice = fees[nameLength];
+    const price = namePrice * years * selectedTier;
+    return price;
   } catch (error) {
     console.error(error);
     return 0;
