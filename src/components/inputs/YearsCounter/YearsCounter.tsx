@@ -1,8 +1,18 @@
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 
+import {
+  MAX_LEASE_DURATION,
+  MIN_LEASE_DURATION,
+} from '../../../../types/constants';
 import './styles.css';
 
-function YearsCounter({ setCount, count }: { setCount: any; count: number }) {
+function YearsCounter({
+  setCount,
+  count,
+}: {
+  setCount: Dispatch<SetStateAction<number>>;
+  count: number;
+}) {
   const [years, setYears] = useState('year');
   const [registration, setRegistration] = useState('');
 
@@ -11,17 +21,18 @@ function YearsCounter({ setCount, count }: { setCount: any; count: number }) {
   }, [count]);
 
   function subtractYearsCount() {
-    if (count > 1) {
+    if (count > 1 && count > MIN_LEASE_DURATION) {
       setCount(count - 1);
     } else {
       return;
     }
   }
   function addYearsCount() {
-    if (count === 200) {
+    if (count < MAX_LEASE_DURATION) {
+      setCount(count + 1);
+    } else {
       return;
     }
-    setCount(count + 1);
   }
   function changeYear() {
     const date = new Date();

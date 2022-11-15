@@ -25,9 +25,9 @@ function UpgradeTier({ domain }: { domain?: string }) {
     <div className="upgradeTier">
       <YearsCounter setCount={setYears} count={years} />
       <div className="cardContainer">
-        {Object.keys(TIER_DATA).map((tier, index) => (
+        {Object.keys(TIER_DATA).map((tier, index: number) => (
           <TierCard
-            tier={tier}
+            tier={+tier}
             setTier={setSelectedTier}
             selectedTier={selectedTier}
             key={index}

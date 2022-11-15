@@ -19,3 +19,6 @@ export const TIER_DATA: { [x: number]: string[] } = {
 };
 export const NAME_PRICE_INFO =
   'Registration fees are determined by the character length of the domain, lease duration, and what tier you choose.';
+
+export const MAX_LEASE_DURATION = 200;
+export const MIN_LEASE_DURATION = 1;
