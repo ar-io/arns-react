@@ -1,4 +1,4 @@
-import { ARNS_NAME_REGEX } from '../../types/constants';
+import { ARNS_NAME_REGEX } from './constants';
 
 export function isArNSDomainNameValid({ name }: { name?: string }): boolean {
   // if name is not in the legal character range or chars, return undefined

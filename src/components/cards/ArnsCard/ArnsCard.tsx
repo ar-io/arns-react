@@ -12,7 +12,6 @@ function ArnsCard({ domain, id }: ArNSMapping) {
     domain,
     id,
     image: arnsDefaultImage,
-    expiry: '',
   });
 
   useEffect(() => {
@@ -20,13 +19,13 @@ function ArnsCard({ domain, id }: ArNSMapping) {
   }, [domain, id, gateway]);
 
   async function getAntDetailsFromName(domain: string) {
-    const expiry = new Date().toDateString();
+    const expiration = new Date('12/31/2023');
     const image = await getMetaImage();
     setAntDetails({
       ...antDetails,
       domain,
       image,
-      expiry,
+      expiration,
     });
   }
 
@@ -70,12 +69,14 @@ function ArnsCard({ domain, id }: ArNSMapping) {
       />
       <div className="arnsCardFooter">
         <a
-          className="text white bold"
+          className="text white bold external-link"
           target="_blank"
           href={`https://${antDetails.domain}.${gateway}`}
           rel="noreferrer"
         >{`${antDetails.domain}.${gateway}`}</a>
-        <span className="expiryText">Exp. {antDetails.expiry}</span>
+        <span className="expiryText">
+          Exp. {antDetails.expiration?.toDateString()}
+        </span>
       </div>
     </div>
   );
