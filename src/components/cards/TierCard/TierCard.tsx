@@ -1,5 +1,5 @@
-import { TIER_DATA } from '../../../../types/constants';
 import { TierCardProps } from '../../../types';
+import { TIER_DATA } from '../../../utils/constants';
 import { CircleCheck } from '../../icons';
 import './styles.css';
 

@@ -3,7 +3,7 @@ import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import {
   MAX_LEASE_DURATION,
   MIN_LEASE_DURATION,
-} from '../../../../types/constants';
+} from '../../../utils/constants';
 import './styles.css';
 
 function YearsCounter({

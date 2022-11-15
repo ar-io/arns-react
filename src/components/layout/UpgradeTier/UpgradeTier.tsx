@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
-import { NAME_PRICE_INFO, TIER_DATA } from '../../../../types/constants';
 import { useStateValue } from '../../../state/state';
+import { NAME_PRICE_INFO, TIER_DATA } from '../../../utils/constants';
 import { calculateArNSNamePrice } from '../../../utils/searchUtils';
 import TierCard from '../../cards/TierCard/TierCard';
 import { AlertCircle } from '../../icons';

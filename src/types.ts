@@ -14,7 +14,7 @@ export type ArNSMapping = {
 
 export type ArNSMetaData = {
   image?: string;
-  expiry?: string;
+  expiration?: Date;
 };
 
 export type ArNSDomain = ArNSMapping & ArNSMetaData;
