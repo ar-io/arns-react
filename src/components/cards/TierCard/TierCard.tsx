@@ -1,9 +1,17 @@
+import { useEffect, useState } from 'react';
+
 import { TIER_DATA } from '../../../../types/constants';
 import { TierCardProps } from '../../../types';
 import { CircleCheck } from '../../icons';
 import './styles.css';
 
-function TierCard({ tier, setTier, thisTier }: TierCardProps) {
+function TierCard({ tier, setTier, selectedTier }: TierCardProps) {
+  const [thisTier, setThisTier] = useState(new Number(tier).valueOf());
+
+  useEffect(() => {
+    setThisTier(new Number(tier).valueOf());
+  }, [tier, selectedTier]);
+
   return (
     <div className="tierCard">
       <div className="text bubbleSmall">Tier&nbsp;{thisTier}</div>
@@ -19,7 +27,7 @@ function TierCard({ tier, setTier, thisTier }: TierCardProps) {
         </span>
       ))}
 
-      {thisTier !== tier ? (
+      {selectedTier !== thisTier ? (
         <button className="selectButton" onClick={() => setTier(thisTier)}>
           Select
         </button>

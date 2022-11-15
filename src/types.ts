@@ -1,3 +1,5 @@
+import type { Dispatch, SetStateAction } from 'react';
+
 export type ArNSDomains = { [x: string]: ArweaveTransactionId };
 
 export type ArNSContractState = {
@@ -53,7 +55,7 @@ export type ConnectWalletModalProps = {
   setShowModal: any;
 };
 export type TierCardProps = {
-  tier: number;
-  setTier: any;
-  thisTier: number;
+  tier?: number | string;
+  setTier: Dispatch<SetStateAction<number>>;
+  selectedTier: number;
 };
