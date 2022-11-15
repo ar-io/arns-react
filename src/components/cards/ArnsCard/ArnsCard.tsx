@@ -69,7 +69,7 @@ function ArnsCard({ domain, id }: ArNSMapping) {
       />
       <div className="arnsCardFooter">
         <a
-          className="text white bold external-link"
+          className="text white bold"
           target="_blank"
           href={`https://${antDetails.domain}.${gateway}`}
           rel="noreferrer"
