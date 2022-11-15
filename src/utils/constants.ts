@@ -1,6 +1,9 @@
 export const ARNS_NAME_REGEX = new RegExp('^(?!-)[a-z0-9-s+]{1,32}(?<!-)$');
 
-// TODO: pull these from external source, ideally arns contract
+// TODO: don't default expirations anymore
+export const DEFAULT_EXPIRATION_DATE = new Date('12/31/2023');
+
+// TODO: this should live in the ArNS Source contract or elsewhere
 export const FEATURED_DOMAINS = [
   'arcode',
   'ardrive',
