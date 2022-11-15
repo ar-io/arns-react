@@ -1,7 +1,7 @@
 function Footer() {
   return (
     <div>
-      <div className="text faded">
+      <div className="text faded center">
         v{APP_VERSION}
         <br />
         <br />
