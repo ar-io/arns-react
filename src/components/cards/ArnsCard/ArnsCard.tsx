@@ -31,8 +31,9 @@ function ArnsCard({ domain, id }: ArNSMapping) {
 
   async function getMetaImage() {
     try {
+      const protocol = process.env.NODE_ENV == 'dev' ? 'http' : 'https';
       const metaImage = await axios
-        .get(`http://${domain}.${gateway}`)
+        .get(`${protocol}://${domain}.${gateway}`)
         .then((res) => res.data)
         .then((html) => {
           const parser = new DOMParser();
