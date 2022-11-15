@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 
 import { useStateValue } from '../../../state/state';
 import { ArNSDomain, ArNSMapping } from '../../../types';
+import { DEFAULT_EXPIRATION_DATE } from '../../../utils/constants';
 import { ArnsDefault as arnsDefaultImage } from '../../icons';
 import './styles.css';
 
@@ -12,6 +13,7 @@ function ArnsCard({ domain, id }: ArNSMapping) {
     domain,
     id,
     image: arnsDefaultImage,
+    expiration: DEFAULT_EXPIRATION_DATE,
   });
 
   useEffect(() => {
@@ -19,13 +21,11 @@ function ArnsCard({ domain, id }: ArNSMapping) {
   }, [domain, id, gateway]);
 
   async function getAntDetailsFromName(domain: string) {
-    const expiration = new Date('12/31/2023');
     const image = await getMetaImage();
     setAntDetails({
       ...antDetails,
       domain,
       image,
-      expiration,
     });
   }
 
