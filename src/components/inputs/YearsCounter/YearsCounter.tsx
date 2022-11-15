@@ -23,15 +23,11 @@ function YearsCounter({
   function subtractYearsCount() {
     if (count > 1 && count > MIN_LEASE_DURATION) {
       setCount(count - 1);
-    } else {
-      return;
     }
   }
   function addYearsCount() {
     if (count < MAX_LEASE_DURATION) {
       setCount(count + 1);
-    } else {
-      return;
     }
   }
   function changeYear() {
@@ -52,11 +48,19 @@ function YearsCounter({
     <div className="yearsCounterContainer">
       <p className="text white bold">Registration Period</p>
       <div className="yearsCounter">
-        <button className="counterButton" onClick={() => subtractYearsCount()}>
+        <button
+          className="counterButton"
+          disabled={count == MIN_LEASE_DURATION}
+          onClick={() => subtractYearsCount()}
+        >
           -
         </button>
         <p className="text bold">{`${count} ${years}`}</p>
-        <button className="counterButton" onClick={() => addYearsCount()}>
+        <button
+          className="counterButton"
+          disabled={count == MAX_LEASE_DURATION}
+          onClick={() => addYearsCount()}
+        >
           +
         </button>
       </div>
