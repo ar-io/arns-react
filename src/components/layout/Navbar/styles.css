@@ -16,4 +16,14 @@
 }
 .brandLogo {
   z-index: 1;
+  width: 90px;
+  height: 90px;
+}
+
+/* If the screen size is 600px wide or less, set the font-size of <div> to 30px */
+@media screen and (max-width: 600px) {
+  .brandLogo {
+    height: 45px;
+    width: 45px;
+  }
 }

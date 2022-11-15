@@ -5,7 +5,7 @@ function Footer() {
         v{APP_VERSION}
         <br />
         <br />
-        Copyright ar.io 2022
+        Copyright {new Date().getFullYear()}
       </div>
     </div>
   );
