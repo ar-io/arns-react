@@ -2,7 +2,7 @@ import {
     ArweaveWalletSource,
     ArweaveTransactionId,
     ArNSDomains
-} from '../../types'
+} from '../../../types'
 
 export class ArweaveWalletProvider implements ArweaveWalletSource {
 

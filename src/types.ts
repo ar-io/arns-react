@@ -19,38 +19,11 @@ export type ArNSDomain = ArNSMapping & ArNSMetaData;
 // TODO: match this to a regex
 export type ArweaveTransactionId = string;
 
-export type ANTContractState = {
-  balances: { [x: ArweaveTransactionId]: number };
-  evolve: boolean | undefined;
-  name: string;
-  owner: ArweaveTransactionId;
-  records: ArNSMapping;
-  ticker: string;
-};
 
-export interface ArweaveWalletSource {
-  getType(): string;
-  getAddress(): string;
-  getArBalance(): number;
-  getIOBalance(): number;
-  getANTS(): ArweaveTransactionId[];
-  getArNSNames(): ArNSDomains;
+
+export interface WalletUploadSource {
+  getWallet();
 }
-
-export type ArweaveWalletType = 'jwk' | 'signer';
-
-export type ArweaveWalletState = {
-  type: ArweaveWalletType; // JWK or signer
-  jwk?: string; // jwk file
-  address: ArweaveTransactionId; // public address of the wallet
-  balances: {
-    // respective balances of tokens
-    ar?: number;
-    io?: number;
-    ants?: ArweaveTransactionId[]; // array of ant contract addresses owned by wallet
-    arnsNames?: ArNSDomains; // records object of name:id values for owned names
-  };
-};
 
 export interface SmartweaveContractSource {
   getContractState(
