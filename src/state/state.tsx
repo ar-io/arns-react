@@ -6,14 +6,14 @@ import type { Action } from './reducer';
 export type GlobalState = {
   arnsSourceContract: ArNSContractState;
   gateway: string;
-  connectedWallet?: string;
+  wallet?: string;
   errors: Array<Error>;
 };
 
 const initialState: GlobalState = {
   arnsSourceContract: { records: {} },
   gateway: 'arweave.dev',
-  connectedWallet: undefined,
+  wallet: undefined,
   errors: [],
 };
 

@@ -28,7 +28,7 @@ export type ANTContractState = {
   ticker: string;
 };
 
-export interface ArweaveWallet {
+export interface ArweaveWalletSource {
   getType(): string;
   getAddress(): string;
   getArBalance(): number;
@@ -37,10 +37,12 @@ export interface ArweaveWallet {
   getArNSNames(): ArNSDomains;
 }
 
+export type ArweaveWalletType = 'jwk' | 'signer';
+
 export type ArweaveWalletState = {
-  type: string; // JWK or signer
+  type: ArweaveWalletType; // JWK or signer
   jwk?: string; // jwk file
-  address: string; // public address of the wallet
+  address: ArweaveTransactionId; // public address of the wallet
   balances: {
     // respective balances of tokens
     ar?: number;

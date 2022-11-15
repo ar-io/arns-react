@@ -1,10 +1,10 @@
 import {
-    ArweaveWallet,
+    ArweaveWalletSource,
     ArweaveTransactionId,
     ArNSDomains
 } from '../../types'
 
-export class ArweaveWalletProvider implements ArweaveWallet {
+export class ArweaveWalletProvider implements ArweaveWalletSource {
 
 constructor(jwk, arconnect){
   this.jwk = jwk,
