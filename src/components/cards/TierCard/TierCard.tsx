@@ -1,5 +1,3 @@
-import { useEffect, useState } from 'react';
-
 import { TIER_DATA } from '../../../../types/constants';
 import { TierCardProps } from '../../../types';
 import { CircleCheck } from '../../icons';
