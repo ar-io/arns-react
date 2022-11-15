@@ -1,32 +1,38 @@
 import { useEffect, useState } from 'react';
 
-import { NAME_PRICE_CALC, NAME_PRICE_INFO } from '../../../../types/constants';
+import { NAME_PRICE_INFO, TIER_DATA } from '../../../../types/constants';
 import { useStateValue } from '../../../state/state';
+import { calculateArNSNamePrice } from '../../../utils/searchUtils';
 import TierCard from '../../cards/TierCard/TierCard';
 import { AlertCircle } from '../../icons';
 import YearsCounter from '../../inputs/YearsCounter/YearsCounter';
 import './styles.css';
 
-function UpgradeTier({ domain }: { domain: string | undefined }) {
+function UpgradeTier({ domain }: { domain?: string }) {
   const [{ arnsSourceContract }] = useStateValue();
   // name is passed down from search bar to calculate price
-  const [tier, setTier] = useState(1);
-  const [price, setPrice] = useState(0);
+  const [selectedTier, setSelectedTier] = useState(1);
+  const [price, setPrice] = useState<number | undefined>(0);
   const [years, setYears] = useState(1);
   const [priceInfo, setPriceInfo] = useState(false);
 
   useEffect(() => {
     const fees = arnsSourceContract.fees;
-    setPrice(NAME_PRICE_CALC({ domain, tier, years, fees }));
-  }, [years, tier, domain, arnsSourceContract]);
+    setPrice(calculateArNSNamePrice({ domain, selectedTier, years, fees }));
+  }, [years, selectedTier, domain, arnsSourceContract]);
 
   return (
     <div className="upgradeTier">
       <YearsCounter setCount={setYears} count={years} />
       <div className="cardContainer">
-        <TierCard thisTier={1} setTier={setTier} tier={tier} />
-        <TierCard thisTier={2} setTier={setTier} tier={tier} />
-        <TierCard thisTier={3} setTier={setTier} tier={tier} />
+        {Object.keys(TIER_DATA).map((tier, index) => (
+          <TierCard
+            tier={tier}
+            setTier={setSelectedTier}
+            selectedTier={selectedTier}
+            key={index}
+          />
+        ))}
       </div>
       <button
         className="sectionHeader toolTip"

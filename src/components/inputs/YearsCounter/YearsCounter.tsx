@@ -10,14 +10,17 @@ function YearsCounter({ setCount, count }: { setCount: any; count: number }) {
     changeYear();
   }, [count]);
 
-  function subCount() {
+  function subtractYearsCount() {
     if (count > 1) {
       setCount(count - 1);
     } else {
       return;
     }
   }
-  function addCount() {
+  function addYearsCount() {
+    if (count === 200) {
+      return;
+    }
     setCount(count + 1);
   }
   function changeYear() {
@@ -38,11 +41,11 @@ function YearsCounter({ setCount, count }: { setCount: any; count: number }) {
     <div className="yearsCounterContainer">
       <p className="text white bold">Registration Period</p>
       <div className="yearsCounter">
-        <button className="counterButton" onClick={() => subCount()}>
+        <button className="counterButton" onClick={() => subtractYearsCount()}>
           -
         </button>
         <p className="text bold">{`${count} ${years}`}</p>
-        <button className="counterButton" onClick={() => addCount()}>
+        <button className="counterButton" onClick={() => addYearsCount()}>
           +
         </button>
       </div>
