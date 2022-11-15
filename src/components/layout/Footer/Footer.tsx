@@ -1,6 +1,6 @@
 function Footer() {
   return (
-    <div>
+    <div className="flex-row flex-center">
       <div className="text faded center">
         v{APP_VERSION}
         <br />

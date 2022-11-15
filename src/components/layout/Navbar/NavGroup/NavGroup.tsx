@@ -2,16 +2,9 @@ import ConnectButton from '../../../inputs/buttons/ConnectButton/ConnectButton';
 import NavBarLink from '../NavBarLink/NavBarLink';
 import './styles.css';
 
-const NavGroup = (props: { position?: string } = { position: 'left' }) => {
-  const { position } = props;
-  const justifyContent = position === 'left' ? 'flex-start' : 'flex-end';
+const NavGroup = () => {
   return (
-    <div
-      className="navGroup"
-      style={{
-        justifyContent: justifyContent,
-      }}
-    >
+    <div className="flex-row flex-right flex-padding">
       <NavBarLink path="/about" linkText="About" />
       <NavBarLink path="/faq" linkText="FAQs" />
       <ConnectButton />
