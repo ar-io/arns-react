@@ -3,16 +3,14 @@
   flex-direction: column;
   row-gap: 0.5em;
   width: 100%;
-  height: fit-content;
   justify-content: center;
   align-items: center;
 }
 .yearsCounter {
   display: flex;
   flex-direction: row;
-  width: 151px;
-  min-width: fit-content;
-  height: 26px;
+  width: 150px;
+  height: 30px;
   background: var(--text-white);
   border: 2.5px solid var(--bg-color);
   border-radius: 32.5px;
