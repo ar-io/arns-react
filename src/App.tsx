@@ -6,20 +6,24 @@ import {
 } from 'react-router-dom';
 
 import { Layout } from './components/layout';
-import { About, FAQ, Home } from './components/pages';
+import { About, FAQ, Home, Manage, NotFound } from './components/pages';
 import { useArNSContract } from './hooks/';
 import './index.css';
+import { useStateValue } from './state/state.js';
 
 function App() {
   // dispatches global state
   useArNSContract();
 
+  const [{ jwk }] = useStateValue();
+
   const router = createBrowserRouter(
     createRoutesFromElements(
-      <Route element={<Layout />}>
+      <Route element={<Layout />} errorElement={<NotFound />}>
         <Route index element={<Home />} />
         <Route path="about" element={<About />} />
         <Route path="faq" element={<FAQ />} />
+        {jwk ? <Route path="manage" element={<Manage />} /> : <></>}
       </Route>,
     ),
     {
