@@ -54,6 +54,7 @@ export type SearchBarFooterProps = {
 export type ConnectWalletModalProps = {
   setShowModal: Dispatch<SetStateAction<boolean>>;
 };
+
 export type TierCardProps = {
   tier: number;
   setTier: Dispatch<SetStateAction<number>>;

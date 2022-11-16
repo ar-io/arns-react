@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { ConnectWalletModalProps } from '../../../types';
 import {
@@ -9,21 +9,31 @@ import {
 } from '../../icons';
 import './styles.css';
 
-function ConnectWalletModal({
-  setShowModal,
-}: ConnectWalletModalProps): JSX.Element {
-  const [clickOut, setClickOut] = useState(false);
+function ConnectWalletModal(props: ConnectWalletModalProps): JSX.Element {
+  const { setShowModal } = props;
+  const modalRef = useRef(null);
+
+  useEffect(() => {
+    if (!modalRef || !modalRef.current) {
+      return;
+    }
+    // Bind the event listener
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      // Unbind the event listener on clean up
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [modalRef]);
+
+  function handleClickOutside(event: MouseEvent) {
+    if (modalRef.current && modalRef.current === event.target) {
+      setShowModal(false);
+    }
+  }
 
   return (
-    <button
-      className="modalContainer"
-      onClick={() => clickOut && setShowModal(false)}
-    >
-      <div
-        className="connectWalletModal"
-        onMouseLeave={() => setClickOut(true)}
-        onMouseEnter={() => setClickOut(false)}
-      >
+    <div className="modalContainer" ref={modalRef}>
+      <div className="connectWalletModal">
         <p
           className="sectionHeader"
           style={{ marginBottom: '1em', fontFamily: 'Rubik-Bold' }}
@@ -62,7 +72,7 @@ function ConnectWalletModal({
           </a>
         </span>
       </div>
-    </button>
+    </div>
   );
 }
 export default ConnectWalletModal;
