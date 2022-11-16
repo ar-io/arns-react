@@ -1,3 +1,4 @@
+import { ReactComponent as AccountIcon } from './Account.svg';
 import { ReactComponent as AlertCircle } from './AlertCircle.svg';
 import ArConnectIcon from './ArConnectIcon.png';
 import ArnsDefault from './ArnsDefault.png';
@@ -8,6 +9,7 @@ import { ReactComponent as SearchIcon } from './Search.svg';
 import UploadJsonKey from './UploadJsonKey.png';
 
 export {
+  AccountIcon,
   ArnsDefault,
   ArConnectIcon,
   ArweaveAppIcon,

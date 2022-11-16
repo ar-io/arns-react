@@ -1,6 +1,11 @@
 import { useEffect, useRef } from 'react';
 
-import { ConnectWalletModalProps } from '../../../types';
+import { JsonWalletConnector } from '../../../services/wallets/JsonWalletConnector';
+import { useStateValue } from '../../../state/state';
+import {
+  ArweaveWalletConnector,
+  ConnectWalletModalProps,
+} from '../../../types';
 import {
   ArConnectIcon,
   ArweaveAppIcon,
@@ -9,10 +14,11 @@ import {
 } from '../../icons';
 import './styles.css';
 
-function ConnectWalletModal(props: ConnectWalletModalProps): JSX.Element {
-  const { setShowModal } = props;
+function ConnectWalletModal({
+  setShowModal,
+}: ConnectWalletModalProps): JSX.Element {
   const modalRef = useRef(null);
-
+  const [{}, dispatch] = useStateValue(); // eslint-disable-line
   useEffect(() => {
     if (!modalRef || !modalRef.current) {
       return;
@@ -28,6 +34,19 @@ function ConnectWalletModal(props: ConnectWalletModalProps): JSX.Element {
   function handleClickOutside(event: MouseEvent) {
     if (modalRef.current && modalRef.current === event.target) {
       setShowModal(false);
+    }
+  }
+
+  async function setGlobalWallet(walletConnector: ArweaveWalletConnector) {
+    try {
+      const wallet = await walletConnector.connect();
+      // TODO: set wallet in local storage/securely cache
+      dispatch({
+        type: 'setJwk',
+        payload: wallet,
+      });
+    } catch (error: any) {
+      console.error(error);
     }
   }
 
@@ -48,10 +67,20 @@ function ConnectWalletModal(props: ConnectWalletModalProps): JSX.Element {
         >
           <CloseIcon width="30px" height={'30px'} fill="var(--text-white)" />
         </button>
-        <button className="walletConnectButton">
+        <div className="walletConnectButton">
           <img src={UploadJsonKey} alt="" width="47px" height="47px" />
           Import your JSON keyfile
-        </button>
+          <label className="span-all">
+            <input
+              className="hidden"
+              type="file"
+              onChange={(e) =>
+                e.target?.files?.length &&
+                setGlobalWallet(new JsonWalletConnector(e.target.files[0]))
+              }
+            />
+          </label>
+        </div>
         <button className="walletConnectButton">
           <img src={ArConnectIcon} alt="" width="47px" height="47px" />
           Connect via ArConnect
