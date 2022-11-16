@@ -18,11 +18,11 @@
 }
 .counterButton {
   display: flex;
-  width: 22px;
-  height: 22px;
+  width: 25px;
+  height: 25px;
+  border-radius: 25px;
+  border: none;
   background: var(--bg-color);
-  border: 1px solid var(--text-white);
-  border-radius: 27px;
   color: var(--text-white);
   justify-content: center;
   align-items: center;
