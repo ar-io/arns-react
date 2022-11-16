@@ -40,7 +40,7 @@ function UpgradeTier({ domain }: { domain?: string }) {
           setPriceInfo(!priceInfo);
         }}
       >
-        {price}&nbsp;ARIO&nbsp;
+        {price?.toLocaleString()}&nbsp;ARIO&nbsp;
         <AlertCircle
           width={'16px'}
           height={'16px'}
