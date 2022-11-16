@@ -7,7 +7,6 @@ import './styles.css';
 
 function NavBar() {
   const isMobile = useIsMobile();
-
   return (
     <div className="flex-row flex-space-between">
       <div className="flex-row flex-left">

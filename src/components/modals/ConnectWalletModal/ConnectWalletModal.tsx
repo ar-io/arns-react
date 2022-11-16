@@ -1,9 +1,11 @@
-import { JWKInterface } from 'arweave/node/lib/wallet';
 import { useState } from 'react';
 
-import { JsonWalletProvider } from '../../../services/arweave/wallets/JsonWalletProvider';
+import { JsonWalletConnector } from '../../../services/wallets/JsonWalletConnector';
 import { useStateValue } from '../../../state/state';
-import { ConnectWalletModalProps } from '../../../types';
+import {
+  ArweaveWalletConnector,
+  ConnectWalletModalProps,
+} from '../../../types';
 import {
   ArConnectIcon,
   ArweaveAppIcon,
@@ -16,29 +18,20 @@ function ConnectWalletModal({
   setShowModal,
 }: ConnectWalletModalProps): JSX.Element {
   const [clickOut, setClickOut] = useState(false);
+  const [{}, dispatch] = useStateValue(); // eslint-disable-line
 
-  const [{}, dispatch] = useStateValue();
-
-  async function uploadJwk(e: any) {
-    const provider = new JsonWalletProvider();
-    const jwk = await provider.getWallet(e);
-
-    console.log(jwk);
-
+  async function setGlobalWallet(walletConnector: ArweaveWalletConnector) {
     try {
-      if (!jwk) {
-        throw Error('invalid key');
-      }
-
+      const wallet = await walletConnector.connect();
+      // TODO: set wallet in local storage/securely cache
       dispatch({
         type: 'setJwk',
-        payload: jwk,
+        payload: wallet,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
+      // TODO: push error to global state and display error
     }
-
-    return setShowModal(false);
   }
 
   return (
@@ -72,7 +65,10 @@ function ConnectWalletModal({
             <input
               className="hidden"
               type="file"
-              onChange={(e) => uploadJwk(e)}
+              onChange={(e) =>
+                e.target?.files?.length &&
+                setGlobalWallet(new JsonWalletConnector(e.target.files[0]))
+              }
             />
           </label>
         </div>

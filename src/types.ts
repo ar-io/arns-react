@@ -36,6 +36,10 @@ export interface SmartweaveContractSource {
   ): Promise<ArNSContractState | undefined>;
 }
 
+export interface ArweaveWalletConnector {
+  connect(): Promise<JWKInterface>;
+}
+
 export type SearchBarProps = {
   successPredicate: (value: string | undefined) => boolean;
   validationPredicate: (value: string | undefined) => boolean;
@@ -62,6 +66,7 @@ export type SearchBarFooterProps = {
 export type ConnectWalletModalProps = {
   setShowModal: Dispatch<SetStateAction<boolean>>;
 };
+
 export type TierCardProps = {
   tier: number;
   setTier: Dispatch<SetStateAction<number>>;
