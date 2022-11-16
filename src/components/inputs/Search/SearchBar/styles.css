@@ -1,8 +1,8 @@
 .searchBar {
   display: flex;
   width: 75%;
-  max-width: 622px;
-  min-width: 350px;
+  max-width: 620px;
+  min-width: 325px;
   height: 65px;
   background-color: var(--text-white);
   border: 2px solid #e0e0e0;

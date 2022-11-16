@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 
 import { useStateValue } from '../../../state/state';
 import { ArNSDomain, ArNSMapping } from '../../../types';
+import { DEFAULT_EXPIRATION } from '../../../utils/constants';
 import { ArnsDefault as arnsDefaultImage } from '../../icons';
 import './styles.css';
 
@@ -12,7 +13,7 @@ function ArnsCard({ domain, id }: ArNSMapping) {
     domain,
     id,
     image: arnsDefaultImage,
-    expiry: '',
+    expiration: DEFAULT_EXPIRATION, // TODO: don't default
   });
 
   useEffect(() => {
@@ -20,20 +21,19 @@ function ArnsCard({ domain, id }: ArNSMapping) {
   }, [domain, id, gateway]);
 
   async function getAntDetailsFromName(domain: string) {
-    const expiry = new Date().toDateString();
     const image = await getMetaImage();
     setAntDetails({
       ...antDetails,
       domain,
       image,
-      expiry,
     });
   }
 
   async function getMetaImage() {
     try {
+      const protocol = process.env.NODE_ENV == 'dev' ? 'http' : 'https';
       const metaImage = await axios
-        .get(`http://${domain}.${gateway}`)
+        .get(`${protocol}://${domain}.${gateway}`)
         .then((res) => res.data)
         .then((html) => {
           const parser = new DOMParser();
@@ -70,12 +70,14 @@ function ArnsCard({ domain, id }: ArNSMapping) {
       />
       <div className="arnsCardFooter">
         <a
-          className="text white bold"
+          className="text white bold external-link"
           target="_blank"
           href={`https://${antDetails.domain}.${gateway}`}
           rel="noreferrer"
         >{`${antDetails.domain}.${gateway}`}</a>
-        <span className="expiryText">Exp. {antDetails.expiry}</span>
+        <span className="expiryText">
+          Exp. {antDetails.expiration?.toDateString()}
+        </span>
       </div>
     </div>
   );

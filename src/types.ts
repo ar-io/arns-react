@@ -1,7 +1,10 @@
+import type { Dispatch, SetStateAction } from 'react';
+
 export type ArNSDomains = { [x: string]: ArweaveTransactionId };
 
 export type ArNSContractState = {
   records: ArNSDomains;
+  fees: { [x: number]: number };
 };
 
 export type ArNSMapping = {
@@ -11,7 +14,7 @@ export type ArNSMapping = {
 
 export type ArNSMetaData = {
   image?: string;
-  expiry?: string;
+  expiration?: Date;
 };
 
 export type ArNSDomain = ArNSMapping & ArNSMetaData;
@@ -51,8 +54,14 @@ export type SearchBarFooterProps = {
   defaultText: string;
   searchResult?: ArNSDomain;
   isSearchValid?: boolean;
+  isAvailable?: boolean;
 };
 
 export type ConnectWalletModalProps = {
-  setShowModal: any;
+  setShowModal: Dispatch<SetStateAction<boolean>>;
+};
+export type TierCardProps = {
+  tier: number;
+  setTier: Dispatch<SetStateAction<number>>;
+  selectedTier: number;
 };

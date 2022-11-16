@@ -1,0 +1,46 @@
+.yearsCounterContainer {
+  display: flex;
+  flex-direction: column;
+  row-gap: 0.5em;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+.yearsCounter {
+  display: flex;
+  flex-direction: row;
+  width: 150px;
+  height: 30px;
+  background: var(--text-white);
+  border: 2.5px solid var(--bg-color);
+  border-radius: 32.5px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2px;
+}
+.counterButton {
+  display: flex;
+  width: 22px;
+  height: 22px;
+  background: var(--bg-color);
+  border: 1px solid var(--text-white);
+  border-radius: 27px;
+  color: var(--text-white);
+  justify-content: center;
+  align-items: center;
+  font-family: 'Rubik-Bold';
+  font-size: 18px;
+  font-weight: 600;
+}
+.counterButton:hover {
+  cursor: pointer;
+  border: 1px solid var(--bg-color);
+  font-weight: 900;
+}
+.counterText {
+  margin: 0;
+  padding: 0;
+  font-family: 'Rubik-Bold';
+  font-size: 18px;
+  font-weight: 600;
+}

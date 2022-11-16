@@ -1,11 +1,11 @@
 function Footer() {
   return (
-    <div>
-      <div className="text faded">
+    <div className="flex-row flex-center">
+      <div className="text faded center">
         v{APP_VERSION}
         <br />
         <br />
-        Copyright ar.io 2022
+        Copyright {new Date().getFullYear()}
       </div>
     </div>
   );

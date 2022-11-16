@@ -1,8 +1,5 @@
 .header {
-  display: flex;
-  flex-direction: row;
-  padding: 2em;
-  max-height: 10vh;
+  padding: 1em;
 }
 
 .body {
@@ -13,10 +10,5 @@
 }
 
 .footer {
-  display: flex;
-  flex-direction: row;
-  height: 5vh;
-  width: 100%;
-  align-items: center;
-  justify-content: center;
+  padding: 1em;
 }

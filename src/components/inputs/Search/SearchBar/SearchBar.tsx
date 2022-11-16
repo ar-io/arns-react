@@ -121,6 +121,7 @@ function SearchBar(props: SearchBarProps) {
       {React.cloneElement(footerElement, {
         ...props,
         isSearchValid,
+        isAvailable,
         searchResult: submittedName
           ? { id: searchResult, domain: submittedName }
           : undefined,
