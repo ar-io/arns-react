@@ -1,10 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 
 import ConnectWalletModal from '../../../modals/ConnectWalletModal/ConnectWalletModal';
 import './styles.css';
 
 function ConnectButton(): JSX.Element {
-  const modalRef = useRef(null);
   const [showModal, setShowModal] = useState(false);
 
   return (
@@ -15,9 +14,7 @@ function ConnectButton(): JSX.Element {
       >
         Connect
       </button>
-      {showModal && (
-        <ConnectWalletModal setShowModal={setShowModal} />
-      )}
+      {showModal && <ConnectWalletModal setShowModal={setShowModal} />}
     </>
   );
 }

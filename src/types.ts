@@ -1,5 +1,4 @@
 import type { Dispatch, SetStateAction } from 'react';
-import React from 'react';
 
 export type ArNSDomains = { [x: string]: ArweaveTransactionId };
 
@@ -53,7 +52,6 @@ export type SearchBarFooterProps = {
 };
 
 export type ConnectWalletModalProps = {
-  ref?: React.RefObject<unknown>;
   setShowModal: Dispatch<SetStateAction<boolean>>;
 };
 
