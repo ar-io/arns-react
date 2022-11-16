@@ -215,7 +215,7 @@ b {
   cursor: pointer;
 }
 .hidden {
-  visibility: collapse;
+  display: none;
 }
 .span-all {
   position: absolute;

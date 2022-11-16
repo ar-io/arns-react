@@ -1,5 +1,6 @@
 // export const ARNS_NAME_REGEX = new RegExp('^(?!-)[a-z0-9-s+]{1,32}(?<!-)$');
 export const ARNS_NAME_REGEX = new RegExp('^[a-z0-9-s+]{1,32}$');
+export const ARNS_TXID_REGEX = new RegExp('^[a-z0-9-s+]{43}$');
 
 // TODO: don't use
 export const DEFAULT_EXPIRATION = new Date('12/31/2023');

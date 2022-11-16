@@ -1,12 +1,9 @@
-import { bufferToString } from 'arweave/node/lib/utils';
-import { isString } from 'lodash';
+import { JWKInterface } from 'arweave/node/lib/wallet';
 import { useState } from 'react';
 
-import { arweave } from '../../../services/arweave/arweave';
 import { JsonWalletProvider } from '../../../services/arweave/wallets/JsonWalletProvider';
 import { useStateValue } from '../../../state/state';
 import { ConnectWalletModalProps } from '../../../types';
-import { ARNS_NAME_REGEX } from '../../../utils/constants';
 import {
   ArConnectIcon,
   ArweaveAppIcon,
@@ -23,42 +20,24 @@ function ConnectWalletModal({
   const [{}, dispatch] = useStateValue();
 
   async function uploadJwk(e: any) {
-    const key = e.target.files[0];
+    const provider = new JsonWalletProvider();
+    const jwk = await provider.getWallet(e);
+
+    console.log(jwk);
+
     try {
-      if (key.type !== 'application/json') {
-        throw Error('Invalid keyfile, must be a json file');
+      if (!jwk) {
+        throw Error('invalid key');
       }
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (!e.target?.result) {
-          throw Error('Couldnt read keyfile');
-        }
-        const str = e.target.result;
-        if (!isString(str)) {
-          return;
-        }
-        const json = JSON.parse(str);
-        arweave.wallets
-          .jwkToAddress(json)
-          .then((address) => {
-            dispatch({
-              type: 'setWalletAddress',
-              payload: address,
-            });
-          })
-          .catch((error) => {
-            throw Error(error);
-          });
-        dispatch({
-          type: 'setJwk',
-          payload: json,
-        });
-      };
-      reader.readAsText(e.target.files[0]);
+
+      dispatch({
+        type: 'setJwk',
+        payload: jwk,
+      });
     } catch (error) {
       console.error(error);
-      //todo set up an error alert for the user that is was not a valid keyfile
     }
+
     return setShowModal(false);
   }
 
