@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { JsonWalletConnector } from '../../../services/wallets/JsonWalletConnector';
 import { useStateValue } from '../../../state/state';
@@ -17,8 +17,25 @@ import './styles.css';
 function ConnectWalletModal({
   setShowModal,
 }: ConnectWalletModalProps): JSX.Element {
-  const [clickOut, setClickOut] = useState(false);
+  const modalRef = useRef(null);
   const [{}, dispatch] = useStateValue(); // eslint-disable-line
+  useEffect(() => {
+    if (!modalRef || !modalRef.current) {
+      return;
+    }
+    // Bind the event listener
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      // Unbind the event listener on clean up
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [modalRef]);
+
+  function handleClickOutside(event: MouseEvent) {
+    if (modalRef.current && modalRef.current === event.target) {
+      setShowModal(false);
+    }
+  }
 
   async function setGlobalWallet(walletConnector: ArweaveWalletConnector) {
     try {
@@ -30,20 +47,12 @@ function ConnectWalletModal({
       });
     } catch (error: any) {
       console.error(error);
-      // TODO: push error to global state and display error
     }
   }
 
   return (
-    <button
-      className="modalContainer"
-      onClick={() => clickOut && setShowModal(false)}
-    >
-      <div
-        className="connectWalletModal"
-        onMouseLeave={() => setClickOut(true)}
-        onMouseEnter={() => setClickOut(false)}
-      >
+    <div className="modalContainer" ref={modalRef}>
+      <div className="connectWalletModal">
         <p
           className="sectionHeader"
           style={{ marginBottom: '1em', fontFamily: 'Rubik-Bold' }}
@@ -92,7 +101,7 @@ function ConnectWalletModal({
           </a>
         </span>
       </div>
-    </button>
+    </div>
   );
 }
 export default ConnectWalletModal;

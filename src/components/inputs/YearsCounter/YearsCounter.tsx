@@ -47,22 +47,24 @@ function YearsCounter({
   return (
     <div className="yearsCounterContainer">
       <p className="text white bold">Registration Period</p>
-      <div className="yearsCounter">
-        <button
-          className="counterButton"
-          disabled={count == MIN_LEASE_DURATION}
-          onClick={() => subtractYearsCount()}
-        >
-          -
-        </button>
-        <p className="text bold">{`${count} ${years}`}</p>
-        <button
-          className="counterButton"
-          disabled={count == MAX_LEASE_DURATION}
-          onClick={() => addYearsCount()}
-        >
-          +
-        </button>
+      <div className="flex-row flex-center">
+        <div className="yearsCounter">
+          <button
+            className="counterButton"
+            disabled={count == MIN_LEASE_DURATION}
+            onClick={() => subtractYearsCount()}
+          >
+            -
+          </button>
+          <p className="text bold">{`${count} ${years}`}</p>
+          <button
+            className="counterButton"
+            disabled={count == MAX_LEASE_DURATION}
+            onClick={() => addYearsCount()}
+          >
+            +
+          </button>
+        </div>
       </div>
       <p className="text white bold">{`Lease end date: ${registration}`}</p>
     </div>

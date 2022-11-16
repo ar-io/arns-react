@@ -8,23 +8,21 @@
 }
 .yearsCounter {
   display: flex;
-  flex-direction: row;
-  width: 150px;
-  height: 30px;
+  min-width: 150px;
+  width: 15%;
   background: var(--text-white);
-  border: 2.5px solid var(--bg-color);
   border-radius: 32.5px;
   justify-content: space-between;
   align-items: center;
-  padding: 0 2px;
+  padding: 0 5px;
 }
 .counterButton {
   display: flex;
-  width: 22px;
-  height: 22px;
+  width: 25px;
+  height: 25px;
+  border-radius: 25px;
+  border: none;
   background: var(--bg-color);
-  border: 1px solid var(--text-white);
-  border-radius: 27px;
   color: var(--text-white);
   justify-content: center;
   align-items: center;
