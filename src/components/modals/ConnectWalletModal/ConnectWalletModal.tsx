@@ -1,9 +1,11 @@
-import { JWKInterface } from 'arweave/node/lib/wallet';
-import { useState } from 'react';
+import { useEffect, useRef } from 'react';
 
-import { JsonWalletProvider } from '../../../services/arweave/wallets/JsonWalletProvider';
+import { JsonWalletConnector } from '../../../services/wallets/JsonWalletConnector';
 import { useStateValue } from '../../../state/state';
-import { ConnectWalletModalProps } from '../../../types';
+import {
+  ArweaveWalletConnector,
+  ConnectWalletModalProps,
+} from '../../../types';
 import {
   ArConnectIcon,
   ArweaveAppIcon,
@@ -15,42 +17,42 @@ import './styles.css';
 function ConnectWalletModal({
   setShowModal,
 }: ConnectWalletModalProps): JSX.Element {
-  const [clickOut, setClickOut] = useState(false);
+  const modalRef = useRef(null);
+  const [{}, dispatch] = useStateValue(); // eslint-disable-line
+  useEffect(() => {
+    if (!modalRef || !modalRef.current) {
+      return;
+    }
+    // Bind the event listener
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      // Unbind the event listener on clean up
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [modalRef]);
 
-  const [{}, dispatch] = useStateValue();
+  function handleClickOutside(event: MouseEvent) {
+    if (modalRef.current && modalRef.current === event.target) {
+      setShowModal(false);
+    }
+  }
 
-  async function uploadJwk(e: any) {
-    const provider = new JsonWalletProvider();
-    const jwk = await provider.getWallet(e);
-
-    console.log(jwk);
-
+  async function setGlobalWallet(walletConnector: ArweaveWalletConnector) {
     try {
-      if (!jwk) {
-        throw Error('invalid key');
-      }
-
+      const wallet = await walletConnector.connect();
+      // TODO: set wallet in local storage/securely cache
       dispatch({
         type: 'setJwk',
-        payload: jwk,
+        payload: wallet,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
     }
-
-    return setShowModal(false);
   }
 
   return (
-    <button
-      className="modalContainer"
-      onClick={() => clickOut && setShowModal(false)}
-    >
-      <div
-        className="connectWalletModal"
-        onMouseLeave={() => setClickOut(true)}
-        onMouseEnter={() => setClickOut(false)}
-      >
+    <div className="modalContainer" ref={modalRef}>
+      <div className="connectWalletModal">
         <p
           className="sectionHeader"
           style={{ marginBottom: '1em', fontFamily: 'Rubik-Bold' }}
@@ -72,7 +74,10 @@ function ConnectWalletModal({
             <input
               className="hidden"
               type="file"
-              onChange={(e) => uploadJwk(e)}
+              onChange={(e) =>
+                e.target?.files?.length &&
+                setGlobalWallet(new JsonWalletConnector(e.target.files[0]))
+              }
             />
           </label>
         </div>
@@ -96,7 +101,7 @@ function ConnectWalletModal({
           </a>
         </span>
       </div>
-    </button>
+    </div>
   );
 }
 export default ConnectWalletModal;
