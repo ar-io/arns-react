@@ -9,7 +9,7 @@ import { Layout } from './components/layout';
 import { About, FAQ, Home, Manage, NotFound } from './components/pages';
 import { useArNSContract } from './hooks/';
 import './index.css';
-import { useStateValue } from './state/state.js';
+import { useStateValue } from './state/state';
 
 function App() {
   // dispatches global state
@@ -24,6 +24,7 @@ function App() {
         <Route path="about" element={<About />} />
         <Route path="faq" element={<FAQ />} />
         {jwk ? <Route path="manage" element={<Manage />} /> : <></>}
+        <Route path="*" element={<NotFound />} />
       </Route>,
     ),
     {
