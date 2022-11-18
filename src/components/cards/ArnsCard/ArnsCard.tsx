@@ -62,7 +62,7 @@ function ArnsCard({ domain, id }: ArNSMapping) {
   }
 
   return (
-    <div className="arnsCard">
+    <div className="arnsCard hover">
       <img
         className="arnsPreview"
         src={antDetails.image}

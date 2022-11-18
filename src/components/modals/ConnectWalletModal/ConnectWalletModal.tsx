@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 
+import { ArConnectWalletConnector } from '../../../services/wallets/ArConnectWalletConnector.js';
 import { JsonWalletConnector } from '../../../services/wallets/JsonWalletConnector';
 import { useStateValue } from '../../../state/state';
 import {
@@ -41,10 +42,13 @@ function ConnectWalletModal({
     try {
       const wallet = await walletConnector.connect();
       // TODO: set wallet in local storage/securely cache
-      dispatch({
-        type: 'setJwk',
-        payload: wallet,
-      });
+      if (walletConnector) {
+        dispatch({
+          type: 'setWallet',
+          payload: wallet,
+        });
+        localStorage.setItem('wallet-source', walletConnector.getSource());
+      }
     } catch (error: any) {
       console.error(error);
     }
@@ -67,7 +71,7 @@ function ConnectWalletModal({
         >
           <CloseIcon width="30px" height={'30px'} fill="var(--text-white)" />
         </button>
-        <div className="walletConnectButton">
+        <button className="walletConnectButton hover">
           <img src={UploadJsonKey} alt="" width="47px" height="47px" />
           Import your JSON keyfile
           <label className="span-all">
@@ -80,12 +84,15 @@ function ConnectWalletModal({
               }
             />
           </label>
-        </div>
-        <button className="walletConnectButton">
+        </button>
+        <button
+          className="walletConnectButton hover"
+          onClick={() => setGlobalWallet(new ArConnectWalletConnector())}
+        >
           <img src={ArConnectIcon} alt="" width="47px" height="47px" />
           Connect via ArConnect
         </button>
-        <button className="walletConnectButton">
+        <button className="walletConnectButton hover">
           <img src={ArweaveAppIcon} alt="" width="47px" height="47px" />
           Connect using Arweave.app
         </button>

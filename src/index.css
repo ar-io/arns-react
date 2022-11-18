@@ -54,7 +54,6 @@ b {
   text-decoration: underline;
   color: var(--text-white);
   background: none;
-  margin: auto;
   cursor: pointer;
 }
 
@@ -159,6 +158,12 @@ b {
   justify-content: center;
 }
 
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
 .buttonLarge {
   background-color: var(--bg-color);
   color: var(--text-white);
@@ -192,6 +197,7 @@ b {
   font-family: 'Rubik-Bold';
   padding: 5px 15px;
 }
+
 .infoBubble {
   display: flex;
   flex-direction: column;
@@ -205,6 +211,11 @@ b {
   left: 175px;
   top: -150px;
   gap: 10px;
+}
+
+.hover:hover {
+  transition: all 0.5s ease;
+  transform: scale(1.05);
 }
 
 .toolTip {
