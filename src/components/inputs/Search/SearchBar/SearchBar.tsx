@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-
+import { useStateValue } from '../../../../state/state';
+import ConnectWalletModal from '../../../modals/ConnectWalletModal/ConnectWalletModal';
 import { SearchBarProps } from '../../../../types';
-import { SearchIcon } from '../../../icons';
+import { SearchIcon, ArrowUpRight } from '../../../icons';
 import './styles.css';
 
 function SearchBar(props: SearchBarProps) {
@@ -14,6 +15,9 @@ function SearchBar(props: SearchBarProps) {
     values,
     setIsSearching
   } = props;
+
+  const [{walletAddress}, dispatch] = useStateValue()
+  const [showModal, setShowModal] = useState(false)
 
   const [isSearchValid, setIsSearchValid] = useState(true);
   const [showDefaultText, setShowDefaultText] = useState(true);
@@ -106,7 +110,7 @@ function SearchBar(props: SearchBarProps) {
           onKeyDown={(e) => e.key == 'Enter' && isSearchValid && onSubmit(e)}
           maxLength={32}
         />
-        <button
+        {!isAvailable ? <button
           className="searchButton"
           onClick={(e) => {
             onSubmit(e);
@@ -117,8 +121,20 @@ function SearchBar(props: SearchBarProps) {
             stroke="white"
             width="18.51"
             height="18.51"
-          />
-        </button>
+          /> 
+        </button> :<>
+        <span className='test faded bold' style={{marginRight:"18px"}}>Register</span>
+        <button className='accent roundButton' 
+        onClick={ !walletAddress ? () => setShowModal(true)
+          : ()=> console.log("register")
+      }>
+          <ArrowUpRight
+           fill="var(--text-black)"
+           stroke="var(--text-black)"
+           width="18.51"
+           height="18.51"/>
+        </button></>}
+        
       </div>
       {React.cloneElement(footerElement, {
         ...props,
@@ -128,6 +144,7 @@ function SearchBar(props: SearchBarProps) {
           ? { id: searchResult, domain: submittedName }
           : undefined,
       })}
+      {showModal ? <ConnectWalletModal setShowModal={setShowModal}/> : <></>}
     </>
   );
 }

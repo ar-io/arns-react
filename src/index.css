@@ -25,7 +25,7 @@
   --grey-white: #dfdfde;
   --error-red: #df1642;
   --success-green: #18a957;
-  --action-orange: #ffbb38;
+  --accent: #ffbb38;
   --modal-bg: #1d1e1cee;
 }
 
@@ -123,6 +123,24 @@ b {
 .black {
   color: var(--text-black);
 }
+.accent{
+  background-color: var(--accent);
+}
+.roundButton{
+  display: flex;
+  min-width: 50px !important;
+  min-height: 50px !important;
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 50px;
+  border: none;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+}
+.roundButton:hover{
+  box-shadow: 0px 0px 4px rgba(0, 0, 0);
+  cursor: pointer;
+}
 
 .page {
   display: flex;
@@ -183,6 +201,9 @@ b {
   background: none;
   cursor: pointer;
 }
+.roundButton{
+  border-radius: 1000px;
+}
 
 .bubbleSmall {
   display: flex;
@@ -221,6 +242,20 @@ b {
   position: absolute;
   width: 98%;
   height: 100%;
+  cursor: pointer;
+}
+.accentButton{
+  display: flex;
+  padding: .75em 2em;
+  font-size:18px;
+  font-family: 'Rubik-Bold';
+  font-weight: 800;
+  width: fit-content;
+  height: fit-content;
+  border: var(--bg-color) 2px solid;
+  border-radius: 10px;
+  background-color: var(--accent);
+  color: var(--text-black);
   cursor: pointer;
 }
 

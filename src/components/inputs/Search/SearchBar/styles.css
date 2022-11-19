@@ -8,6 +8,7 @@
   border: 2px solid #e0e0e0;
   border-radius: 100px;
   align-items: center;
+  padding-right: 9px;
 }
 .searchBar:hover {
   box-shadow: 0px 0px 4px 1px rgba(255, 255, 255, 0.72);
@@ -43,7 +44,6 @@
   border: none;
   justify-content: center;
   align-items: center;
-  margin-right: 9px;
   padding: 0;
 }
 .searchButton:hover {

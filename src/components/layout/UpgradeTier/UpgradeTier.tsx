@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-
+import ConnectWalletModal from '../../modals/ConnectWalletModal/ConnectWalletModal';
 import { useStateValue } from '../../../state/state';
 import { NAME_PRICE_INFO, TIER_DATA } from '../../../utils/constants';
 import { calculateArNSNamePrice } from '../../../utils/searchUtils';
@@ -9,6 +9,7 @@ import YearsCounter from '../../inputs/YearsCounter/YearsCounter';
 import './styles.css';
 
 function UpgradeTier({ domain }: { domain?: string }) {
+  const [showModal, setShowModal] = useState(false)
   const [{ arnsSourceContract, walletAddress }] = useStateValue();
   // name is passed down from search bar to calculate price
   const [selectedTier, setSelectedTier] = useState(1);
@@ -64,8 +65,9 @@ function UpgradeTier({ domain }: { domain?: string }) {
         )}
       </button>
       {
-       !walletAddress ? <button>Connect Wallet to proceed</button> 
-        : <button>Next</button>}
+       !walletAddress ? <button className='accentButton' onClick={()=> setShowModal(true)}>Connect Wallet to proceed</button> 
+        : <button className='accentButton'>Next</button>}
+        {showModal ? <ConnectWalletModal setShowModal={setShowModal}/> : <></>}
     </div>
   );
 }
