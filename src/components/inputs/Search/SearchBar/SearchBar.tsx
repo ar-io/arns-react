@@ -16,7 +16,7 @@ function SearchBar(props: SearchBarProps) {
     setIsSearching
   } = props;
 
-  const [{walletAddress}, dispatch] = useStateValue()
+  const [{walletAddress, jwk}, dispatch] = useStateValue()
   const [showModal, setShowModal] = useState(false)
 
   const [isSearchValid, setIsSearchValid] = useState(true);
@@ -110,7 +110,7 @@ function SearchBar(props: SearchBarProps) {
           onKeyDown={(e) => e.key == 'Enter' && isSearchValid && onSubmit(e)}
           maxLength={32}
         />
-        {!isAvailable ? <button
+        {!isAvailable || !submittedName ? <button
           className="searchButton"
           onClick={(e) => {
             onSubmit(e);
@@ -125,7 +125,7 @@ function SearchBar(props: SearchBarProps) {
         </button> :<>
         <span className='test faded bold' style={{marginRight:"18px"}}>Register</span>
         <button className='accent roundButton' 
-        onClick={ !walletAddress ? () => setShowModal(true)
+        onClick={ !walletAddress && !jwk ? () => setShowModal(true)
           : ()=> console.log("register")
       }>
           <ArrowUpRight

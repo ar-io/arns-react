@@ -10,7 +10,7 @@ import './styles.css';
 
 function UpgradeTier({ domain }: { domain?: string }) {
   const [showModal, setShowModal] = useState(false)
-  const [{ arnsSourceContract, walletAddress }] = useStateValue();
+  const [{ arnsSourceContract, walletAddress, jwk }] = useStateValue();
   // name is passed down from search bar to calculate price
   const [selectedTier, setSelectedTier] = useState(1);
   const [price, setPrice] = useState<number | undefined>(0);
@@ -65,7 +65,7 @@ function UpgradeTier({ domain }: { domain?: string }) {
         )}
       </button>
       {
-       !walletAddress ? <button className='accentButton' onClick={()=> setShowModal(true)}>Connect Wallet to proceed</button> 
+       !walletAddress && !jwk ? <button className='accentButton' onClick={()=> setShowModal(true)}>Connect Wallet to proceed</button> 
         : <button className='accentButton'>Next</button>}
         {showModal ? <ConnectWalletModal setShowModal={setShowModal}/> : <></>}
     </div>

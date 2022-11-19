@@ -5,10 +5,6 @@ export function isArNSDomainNameValid({ name }: { name?: string }): boolean {
 
   if (
     !name ||
-    name[0] === '-' ||
-    name[0] === '_' ||
-    name[name.length - 1] === '-' ||
-    name[name.length - 1] === '_' ||
     !ARNS_NAME_REGEX.test(name)
   ) {
     return false;

@@ -1,5 +1,5 @@
 // export const ARNS_NAME_REGEX = new RegExp('^(?!-)[a-z0-9-s+]{1,32}(?<!-)$');
-export const ARNS_NAME_REGEX = new RegExp('^[a-z0-9-s+]{1,32}$');
+export const ARNS_NAME_REGEX = new RegExp('(?![-_].*$)[a-z0-9-s+](?![-_].*$){1,32}$');
 export const ARNS_TXID_REGEX = new RegExp('^[a-z0-9-s+]{43}$');
 
 // TODO: don't use
