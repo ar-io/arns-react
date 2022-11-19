@@ -2,13 +2,11 @@ import { useEffect, useState } from 'react';
 
 import { useStateValue } from '../../../state/state';
 import { ArNSDomains } from '../../../types';
-import { FEATURED_DOMAINS } from '../../../utils/constants';
 import {
   isArNSDomainNameAvailable,
   isArNSDomainNameValid,
 } from '../../../utils/searchUtils';
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
-import { FeaturedDomains } from '../../layout';
 import { SearchBarFooter, SearchBarHeader } from '../../layout';
 import './styles.css';
 
@@ -17,18 +15,10 @@ function Home() {
   const [records, setRecords] = useState<ArNSDomains>(
     arnsSourceContract.records,
   );
-  const [featuredDomains, setFeaturedDomains] = useState<ArNSDomains>();
 
   useEffect(() => {
     const records = arnsSourceContract.records;
     setRecords(records);
-
-    const featuredDomains = Object.fromEntries(
-      Object.entries(records).filter(([domain]) => {
-        return FEATURED_DOMAINS.includes(domain);
-      }),
-    );
-    setFeaturedDomains(featuredDomains);
   }, [arnsSourceContract]);
 
   return (
@@ -52,7 +42,6 @@ function Home() {
           />
         }
       />
-      {featuredDomains ? <FeaturedDomains domains={featuredDomains} /> : <></>}
     </div>
   );
 }

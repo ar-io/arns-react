@@ -13,12 +13,41 @@ function YearsCounter({
   setCount: Dispatch<SetStateAction<number>>;
   count: number;
 }) {
-  const [years, setYears] = useState('year');
   const [registration, setRegistration] = useState('');
+  const [adding, setAdding] = useState(false);
+  const [subtracting, setSubtracting] = useState(false);
+  const [timer, setTimer] = useState(500);
+
 
   useEffect(() => {
     changeYear();
-  }, [count]);
+
+    if (!adding && !subtracting) {
+      setTimer(500);
+    }
+    if (adding) {
+      const addTimer = setTimeout(() => addYearsCount(), timer);
+      if (timer > 60 && timer < 500) {
+        addTimer;
+        setTimer(timer - 40);
+      }
+      if (timer === 500) {
+        setTimer(timer - 40);
+        addYearsCount();
+      }
+    }
+    if (subtracting) {
+      const subTimer = setTimeout(() => subtractYearsCount(), timer);
+      if (timer > 60 && timer < 500) {
+        subTimer;
+        setTimer(timer - 40);
+      }
+      if (timer === 500) {
+        setTimer(timer - 40);
+        subtractYearsCount();
+      }
+    }
+  }, [subtracting, adding, count]);
 
   function subtractYearsCount() {
     if (count > 1 && count > MIN_LEASE_DURATION) {
@@ -30,13 +59,25 @@ function YearsCounter({
       setCount(count + 1);
     }
   }
+
+  function updateYearsCount(e: any) {
+    const numberOnlyRegex = new RegExp('[0-9]$');
+
+    if (!numberOnlyRegex.test(e.target.value)) {
+      return;
+    } else {
+      if (e.target.value < MIN_LEASE_DURATION) {
+        return setCount(MIN_LEASE_DURATION);
+      }
+      if (e.target.value > MAX_LEASE_DURATION) {
+        return setCount(MAX_LEASE_DURATION);
+      }
+      return setCount(new Number(e.target.value).valueOf());
+    }
+  }
+
   function changeYear() {
     const date = new Date();
-    if (count > 1) {
-      setYears(`years`);
-    } else {
-      setYears(`year`);
-    }
     const newYear = date.getFullYear() + count;
     setRegistration(
       `${date.toLocaleString('default', {
@@ -46,21 +87,28 @@ function YearsCounter({
   }
   return (
     <div className="yearsCounterContainer">
-      <p className="text white bold">Registration Period</p>
+      <p className="text white bold">Registration Period (years)</p>
       <div className="flex-row flex-center">
         <div className="yearsCounter">
           <button
             className="counterButton"
-            disabled={count == MIN_LEASE_DURATION}
-            onClick={() => subtractYearsCount()}
+            onMouseDown={() => setSubtracting(true)}
+            onMouseUp={() => setSubtracting(false)}
+            onMouseLeave={() => setSubtracting(false)}
           >
             -
           </button>
-          <p className="text bold">{`${count} ${years}`}</p>
+          <input
+            className="counterInput text bold"
+            type="text"
+            value={count}
+            onChange={(e) => updateYearsCount(e)}
+          />
           <button
             className="counterButton"
-            disabled={count == MAX_LEASE_DURATION}
-            onClick={() => addYearsCount()}
+            onMouseDown={() => setAdding(true)}
+            onMouseUp={() => setAdding(false)}
+            onMouseLeave={() => setAdding(false)}
           >
             +
           </button>

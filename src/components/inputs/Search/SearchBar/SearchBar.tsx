@@ -106,8 +106,8 @@ function SearchBar(props: SearchBarProps) {
         />
         <button
           className="searchButton"
-          onClick={() => {
-            onSubmit(searchBarText);
+          onClick={(e) => {
+            onSubmit(e);
           }}
         >
           <SearchIcon

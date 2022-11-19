@@ -2,7 +2,15 @@ import { ARNS_NAME_REGEX } from './constants';
 
 export function isArNSDomainNameValid({ name }: { name?: string }): boolean {
   // if name is not in the legal character range or chars, return undefined
-  if (!name || !ARNS_NAME_REGEX.test(name)) {
+
+  if (
+    !name ||
+    name[0] === '-' ||
+    name[0] === '_' ||
+    name[name.length - 1] === '-' ||
+    name[name.length - 1] === '_' ||
+    !ARNS_NAME_REGEX.test(name)
+  ) {
     return false;
   }
   return true;
@@ -49,7 +57,7 @@ export function calculateArNSNamePrice({
     if (!isArNSDomainNameValid({ name: domain })) {
       throw Error('Domain name is invalid');
     }
-    const nameLength = Math.max(domain.length, Object.keys(fees).length);
+    const nameLength = Math.min(domain.length, Object.keys(fees).length);
     const namePrice = fees[nameLength];
     const price = namePrice * years * selectedTier;
     return price;

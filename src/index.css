@@ -219,8 +219,9 @@ b {
 }
 .span-all {
   position: absolute;
-  width: 100%;
+  width: 98%;
   height: 100%;
+  cursor: pointer;
 }
 
 /* TOP LEVEL RESIZE RULES */

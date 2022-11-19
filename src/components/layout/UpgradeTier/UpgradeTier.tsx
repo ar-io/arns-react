@@ -9,7 +9,7 @@ import YearsCounter from '../../inputs/YearsCounter/YearsCounter';
 import './styles.css';
 
 function UpgradeTier({ domain }: { domain?: string }) {
-  const [{ arnsSourceContract }] = useStateValue();
+  const [{ arnsSourceContract, walletAddress }] = useStateValue();
   // name is passed down from search bar to calculate price
   const [selectedTier, setSelectedTier] = useState(1);
   const [price, setPrice] = useState<number | undefined>(0);
@@ -63,6 +63,9 @@ function UpgradeTier({ domain }: { domain?: string }) {
           <></>
         )}
       </button>
+      {
+       !walletAddress ? <button>Connect Wallet to proceed</button> 
+        : <button>Next</button>}
     </div>
   );
 }
