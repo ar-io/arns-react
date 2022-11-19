@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 
 import { SearchBarProps } from '../../../../types';
 import { SearchIcon } from '../../../icons';
@@ -21,6 +21,7 @@ function SearchBar(props: SearchBarProps) {
   const [searchBarText, setSearchBarText] = useState<string | undefined>();
   const [submittedName, setSubmittedName] = useState<string | undefined>();
   const [searchResult, setSearchResult] = useState<string | undefined>();
+  const searchRef = useRef<null | HTMLDivElement>(null);
 
   function reset() {
     setSearchSubmitted(false);
@@ -57,6 +58,11 @@ function SearchBar(props: SearchBarProps) {
   function onSubmit(e: any) {
     e.preventDefault();
 
+    // center search bar on the page
+    if (searchRef.current) {
+      searchRef.current.scrollIntoView();
+    }
+
     // validate again, just in case
     const searchValid = validationPredicate(searchBarText);
     setIsSearchValid(searchValid);
@@ -87,6 +93,7 @@ function SearchBar(props: SearchBarProps) {
       })}
       <div
         className="searchBar"
+        ref={searchRef}
         style={
           isSearchValid
             ? !searchSubmitted || showDefaultText
