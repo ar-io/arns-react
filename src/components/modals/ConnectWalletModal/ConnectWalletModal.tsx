@@ -68,7 +68,7 @@ function ConnectWalletModal({
         >
           <CloseIcon width="30px" height={'30px'} fill="var(--text-white)" />
         </button>
-        <div className="walletConnectButton">
+        <button className="walletConnectButton">
           <UploadIcon
             width={'47px'}
             height={'47px'}
@@ -85,15 +85,15 @@ function ConnectWalletModal({
               }
             />
           </label>
-        </div>
-        <div className="walletConnectButton">
+        </button>
+        <button className="walletConnectButton">
           <img src={ArConnectIcon} alt="" width="47px" height="47px" />
           Connect via ArConnect
-        </div>
-        <div className="walletConnectButton">
+        </button>
+        <button className="walletConnectButton">
           <img src={ArweaveAppIcon} alt="" width="47px" height="47px" />
           Connect using Arweave.app
-        </div>
+        </button>
         <span className="bold text white" style={{ marginTop: '1em' }}>
           Don&apos;t have a wallet?&nbsp;
           <a
