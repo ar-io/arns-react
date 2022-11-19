@@ -16,38 +16,11 @@ function YearsCounter({
   const [registration, setRegistration] = useState('');
   const [adding, setAdding] = useState(false);
   const [subtracting, setSubtracting] = useState(false);
-  const [timer, setTimer] = useState(500);
-
 
   useEffect(() => {
     changeYear();
+  }, [count]);
 
-    if (!adding && !subtracting) {
-      setTimer(500);
-    }
-    if (adding) {
-      const addTimer = setTimeout(() => addYearsCount(), timer);
-      if (timer > 60 && timer < 500) {
-        addTimer;
-        setTimer(timer - 40);
-      }
-      if (timer === 500) {
-        setTimer(timer - 40);
-        addYearsCount();
-      }
-    }
-    if (subtracting) {
-      const subTimer = setTimeout(() => subtractYearsCount(), timer);
-      if (timer > 60 && timer < 500) {
-        subTimer;
-        setTimer(timer - 40);
-      }
-      if (timer === 500) {
-        setTimer(timer - 40);
-        subtractYearsCount();
-      }
-    }
-  }, [subtracting, adding, count]);
 
   function subtractYearsCount() {
     if (count > 1 && count > MIN_LEASE_DURATION) {
@@ -92,6 +65,7 @@ function YearsCounter({
         <div className="yearsCounter">
           <button
             className="counterButton"
+            onClick={()=> subtractYearsCount()}
             onMouseDown={() => setSubtracting(true)}
             onMouseUp={() => setSubtracting(false)}
             onMouseLeave={() => setSubtracting(false)}
@@ -106,6 +80,7 @@ function YearsCounter({
           />
           <button
             className="counterButton"
+            onClick={()=> addYearsCount()}
             onMouseDown={() => setAdding(true)}
             onMouseUp={() => setAdding(false)}
             onMouseLeave={() => setAdding(false)}

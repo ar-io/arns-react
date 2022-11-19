@@ -12,6 +12,7 @@ function SearchBar(props: SearchBarProps) {
     headerElement,
     footerElement,
     values,
+    setIsSearching
   } = props;
 
   const [isSearchValid, setIsSearchValid] = useState(true);
@@ -29,6 +30,7 @@ function SearchBar(props: SearchBarProps) {
     setShowDefaultText(true);
     setSearchResult(undefined);
     setSearchBarText(undefined);
+    setIsSearching(false)
     return;
   }
 
@@ -56,7 +58,7 @@ function SearchBar(props: SearchBarProps) {
 
   function onSubmit(e: any) {
     e.preventDefault();
-
+    setIsSearching(true)
     // validate again, just in case
     const searchValid = validationPredicate(searchBarText);
     setIsSearchValid(searchValid);

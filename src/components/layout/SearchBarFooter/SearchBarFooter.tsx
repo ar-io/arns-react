@@ -1,10 +1,5 @@
-import { useEffect, useState } from 'react';
-
-import { useStateValue } from '../../../state/state';
-import { ArNSDomains, SearchBarFooterProps } from '../../../types';
-import { FEATURED_DOMAINS } from '../../../utils/constants';
+import { SearchBarFooterProps } from '../../../types';
 import AntCard from '../../cards/AntCard/AntCard';
-import FeaturedDomains from '../FeaturedDomains/FeaturedDomains';
 import UpgradeTier from '../UpgradeTier/UpgradeTier';
 import './styles.css';
 
@@ -14,18 +9,7 @@ function SearchBarFooter({
   isSearchValid,
   isAvailable,
 }: SearchBarFooterProps): JSX.Element {
-  const [{ arnsSourceContract }] = useStateValue();
-  const [featuredDomains, setFeaturedDomains] = useState<ArNSDomains>();
 
-  useEffect(() => {
-    const records = arnsSourceContract.records;
-    const featuredDomains = Object.fromEntries(
-      Object.entries(records).filter(([domain]) => {
-        return FEATURED_DOMAINS.includes(domain);
-      }),
-    );
-    setFeaturedDomains(featuredDomains);
-  }, [arnsSourceContract]);
 
   return (
     <>
@@ -40,11 +24,7 @@ function SearchBarFooter({
               defaultText
             )}
           </div>
-          {featuredDomains ? (
-            <FeaturedDomains domains={featuredDomains} />
-          ) : (
-            <></>
-          )}
+          
         </>
       ) : isAvailable ? (
         <UpgradeTier domain={searchResult.domain} />

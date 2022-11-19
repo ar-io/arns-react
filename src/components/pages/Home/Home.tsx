@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-
+import FeaturedDomains from '../../layout/FeaturedDomains/FeaturedDomains';
+import { FEATURED_DOMAINS } from '../../../utils/constants';
 import { useStateValue } from '../../../state/state';
 import { ArNSDomains } from '../../../types';
 import {
@@ -15,16 +16,25 @@ function Home() {
   const [records, setRecords] = useState<ArNSDomains>(
     arnsSourceContract.records,
   );
+  const [featuredDomains, setFeaturedDomains] = useState<ArNSDomains>();
+  const [isSearching, setIsSearching] = useState(false)
 
   useEffect(() => {
-    const records = arnsSourceContract.records;
-    setRecords(records);
+    const newRecords = arnsSourceContract.records;
+    setRecords(newRecords)
+    const featuredDomains = Object.fromEntries(
+      Object.entries(newRecords).filter(([domain]) => {
+        return FEATURED_DOMAINS.includes(domain);
+      }),
+    );
+    setFeaturedDomains(featuredDomains);
   }, [arnsSourceContract]);
 
   return (
     <div className="page">
       <div className="pageHeader">Arweave Name System</div>
       <SearchBar
+        setIsSearching={setIsSearching}
         values={records}
         successPredicate={(value: string | undefined) =>
           isArNSDomainNameAvailable({ name: value, records })
@@ -42,6 +52,11 @@ function Home() {
           />
         }
       />
+      {featuredDomains && !isSearching ? (
+            <FeaturedDomains domains={featuredDomains} />
+          ) : (
+            <></>
+          )}
     </div>
   );
 }
