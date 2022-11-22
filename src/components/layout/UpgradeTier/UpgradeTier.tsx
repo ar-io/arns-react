@@ -72,7 +72,7 @@ function UpgradeTier({ domain }: { domain?: string }) {
         )}
       </button>
       {!walletAddress && !jwk ? (
-        <button className="accentButton" onClick={showConnectWallet}>
+        <button className="accentButton hover" onClick={showConnectWallet}>
           Connect Wallet to proceed
         </button>
       ) : (

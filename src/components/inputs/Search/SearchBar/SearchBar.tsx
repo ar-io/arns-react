@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 
 import { useStateValue } from '../../../../state/state';
 import { SearchBarProps } from '../../../../types';
@@ -24,6 +24,7 @@ function SearchBar(props: SearchBarProps) {
   const [searchBarText, setSearchBarText] = useState<string | undefined>();
   const [submittedName, setSubmittedName] = useState<string | undefined>();
   const [searchResult, setSearchResult] = useState<string | undefined>();
+  const searchRef = useRef<HTMLDivElement | null>(null);
 
   function reset() {
     setSearchSubmitted(false);
@@ -56,6 +57,13 @@ function SearchBar(props: SearchBarProps) {
 
     // valid name
     setSearchBarText(input);
+  }
+
+  function onFocus() {
+    // center search bar on the page
+    if (searchRef.current) {
+      searchRef.current.scrollIntoView();
+    }
   }
 
   function onSubmit(e: any) {
@@ -94,7 +102,7 @@ function SearchBar(props: SearchBarProps) {
   }
 
   return (
-    <>
+    <div className="flex-column flex-center" ref={searchRef}>
       {React.cloneElement(headerElement, {
         ...props,
         text: submittedName,
@@ -116,6 +124,7 @@ function SearchBar(props: SearchBarProps) {
           type="text"
           placeholder={showDefaultText ? placeholderText : 'try another name'}
           onChange={onHandleChange}
+          onFocus={onFocus}
           onKeyDown={(e) => e.key == 'Enter' && isSearchValid && onSubmit(e)}
           maxLength={32}
         />
@@ -157,7 +166,7 @@ function SearchBar(props: SearchBarProps) {
           ? { id: searchResult, domain: submittedName }
           : undefined,
       })}
-    </>
+    </div>
   );
 }
 

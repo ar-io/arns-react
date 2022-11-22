@@ -29,6 +29,10 @@
   --modal-bg: #1d1e1cee;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   display: flex;
   flex-direction: column;
@@ -78,6 +82,7 @@ b {
 
 .flex-column {
   display: flex;
+  width: 100%;
   flex-direction: column;
   gap: 2em;
 }
@@ -92,6 +97,16 @@ b {
 
 .flex-center {
   justify-content: center;
+  align-items: center;
+}
+
+.hover {
+  transition: all 0.5s ease;
+}
+
+.hover:hover {
+  transition: all 0.5s ease;
+  transform: scale(1.05);
 }
 
 .underline {
