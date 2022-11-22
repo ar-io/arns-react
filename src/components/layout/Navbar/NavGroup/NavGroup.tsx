@@ -1,5 +1,6 @@
 import useIsMobile from '../../../../hooks/useIsMobile/useIsMobile';
 import { useStateValue } from '../../../../state/state';
+import { ROUTES } from '../../../../utils/routes.js';
 import { AccountIcon } from '../../../icons';
 import ConnectButton from '../../../inputs/buttons/ConnectButton/ConnectButton';
 import NavBarLink from '../NavBarLink/NavBarLink';
@@ -7,32 +8,29 @@ import './styles.css';
 
 const NavGroup = () => {
   const isMobile = useIsMobile();
-  const [{ jwk }] = useStateValue();
+  const [{ walletAddress }] = useStateValue();
   return (
     <div className="flex-row flex-right flex-padding">
       {!isMobile ? (
         <>
-          <NavBarLink path="/about" linkText="About" />
-          <NavBarLink path="/faq" linkText="FAQs" />
+          {Object.entries(ROUTES).map(([key, value]) => {
+            if (!value.index && (!value.protected || walletAddress))
+              return (
+                <NavBarLink path={value.path} linkText={value.text} key={key} />
+              );
+          })}
         </>
       ) : (
         <></>
       )}
-      {!jwk ? (
+      {!walletAddress ? (
         <ConnectButton />
       ) : (
-        <>
-          {!isMobile ? (
-            <NavBarLink path="/manage" linkText="Manage Names" />
-          ) : (
-            <></>
-          )}
-          <AccountIcon
-            width={'24px'}
-            height={'24px'}
-            fill={'var(--text-white)'}
-          />
-        </>
+        <AccountIcon
+          width={'24px'}
+          height={'24px'}
+          fill={'var(--text-white)'}
+        />
       )}
     </div>
   );
