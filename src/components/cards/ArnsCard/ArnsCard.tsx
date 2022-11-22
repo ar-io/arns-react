@@ -20,7 +20,7 @@ function ArnsCard({ domain, id }: ArNSMapping) {
 
   useEffect(() => {
     getAntDetailsFromName(domain);
-  }, [domain, id, gateway]);
+  }, [domain, id, gateway, isMobile]);
 
   async function getAntDetailsFromName(domain: string) {
     const image = await getMetaImage();
@@ -43,15 +43,21 @@ function ArnsCard({ domain, id }: ArNSMapping) {
 
           if (isMobile) {
             const faviconPath = doc
-              ?.querySelector("link[type='image/x-icon']")
+              ?.querySelector('link[rel~="icon"]')
               ?.getAttribute('href');
+
+            // return if its a full url
+            if (faviconPath?.match(/^http(s):\/\//)) {
+              return faviconPath;
+            }
             return faviconPath
               ? `${protocol}://${domain}.${gateway}/${faviconPath}`
               : undefined;
+          } else {
+            return doc
+              ?.querySelector("meta[property='og:image']")
+              ?.getAttribute('content');
           }
-          return doc
-            ?.querySelector("meta[property='og:image']")
-            ?.getAttribute('content');
         });
 
       if (!metaImage) {
@@ -75,6 +81,7 @@ function ArnsCard({ domain, id }: ArNSMapping) {
       <img
         className="arnsPreview"
         src={antDetails.image}
+        key={antDetails.image}
         alt={`${domain}.${gateway}`}
       />
       <div className="arnsCardFooter">

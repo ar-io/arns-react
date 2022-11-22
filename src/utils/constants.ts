@@ -14,7 +14,6 @@ export const FEATURED_DOMAINS = [
   'blog',
   'connect',
   'permapages',
-  'permaweb',
   'pst',
   'sam',
   'search',
