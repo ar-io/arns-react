@@ -9,6 +9,7 @@ export type GlobalState = {
   gateway: string;
   walletAddress?: string;
   jwk?: JWKInterface;
+  connectWallet: boolean;
   errors: Array<Error>;
 };
 
@@ -17,6 +18,7 @@ const initialState: GlobalState = {
   gateway: 'arweave.dev',
   walletAddress: undefined,
   jwk: undefined,
+  connectWallet: false,
   errors: [],
 };
 

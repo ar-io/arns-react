@@ -1,20 +1,20 @@
-import { useState } from 'react';
-
-import ConnectWalletModal from '../../../modals/ConnectWalletModal/ConnectWalletModal';
+import { useStateValue } from '../../../../state/state.js';
 import './styles.css';
 
 function ConnectButton(): JSX.Element {
-  const [showModal, setShowModal] = useState(false);
+  const [{}, dispatch] = useStateValue(); // eslint-disable-line
 
+  function showConnectModal() {
+    dispatch({
+      type: 'setConnectWallet',
+      payload: true,
+    });
+  }
   return (
     <>
-      <button
-        className="connectButton"
-        onClick={() => setShowModal(!showModal)}
-      >
+      <button className="connectButton" onClick={showConnectModal}>
         Connect
       </button>
-      {showModal && <ConnectWalletModal setShowModal={setShowModal} />}
     </>
   );
 }

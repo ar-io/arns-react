@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
-import FeaturedDomains from '../../layout/FeaturedDomains/FeaturedDomains';
-import { FEATURED_DOMAINS } from '../../../utils/constants';
+
 import { useStateValue } from '../../../state/state';
 import { ArNSDomains } from '../../../types';
+import { FEATURED_DOMAINS } from '../../../utils/constants';
 import {
   isArNSDomainNameAvailable,
   isArNSDomainNameValid,
 } from '../../../utils/searchUtils';
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import { SearchBarFooter, SearchBarHeader } from '../../layout';
+import FeaturedDomains from '../../layout/FeaturedDomains/FeaturedDomains';
 import './styles.css';
 
 function Home() {
@@ -17,11 +18,11 @@ function Home() {
     arnsSourceContract.records,
   );
   const [featuredDomains, setFeaturedDomains] = useState<ArNSDomains>();
-  const [isSearching, setIsSearching] = useState(false)
+  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
     const newRecords = arnsSourceContract.records;
-    setRecords(newRecords)
+    setRecords(newRecords);
     const featuredDomains = Object.fromEntries(
       Object.entries(newRecords).filter(([domain]) => {
         return FEATURED_DOMAINS.includes(domain);
@@ -53,10 +54,10 @@ function Home() {
         }
       />
       {featuredDomains && !isSearching ? (
-            <FeaturedDomains domains={featuredDomains} />
-          ) : (
-            <></>
-          )}
+        <FeaturedDomains domains={featuredDomains} />
+      ) : (
+        <></>
+      )}
     </div>
   );
 }

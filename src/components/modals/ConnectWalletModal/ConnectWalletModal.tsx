@@ -1,11 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { MouseEventHandler, useRef } from 'react';
 
 import { JsonWalletConnector } from '../../../services/wallets/JsonWalletConnector';
 import { useStateValue } from '../../../state/state';
-import {
-  ArweaveWalletConnector,
-  ConnectWalletModalProps,
-} from '../../../types';
+import { ArweaveWalletConnector } from '../../../types';
 import {
   ArConnectIcon,
   ArweaveAppIcon,
@@ -14,28 +11,23 @@ import {
 } from '../../icons';
 import './styles.css';
 
-function ConnectWalletModal({
-  setShowModal,
-}: ConnectWalletModalProps): JSX.Element {
+function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
   const modalRef = useRef(null);
   const [{}, dispatch] = useStateValue(); // eslint-disable-line
 
-  useEffect(() => {
-    if (!modalRef || !modalRef.current) {
-      return;
+  function handleClickOutside(e: any) {
+    console.log(e);
+    if (modalRef.current && modalRef.current === e.target) {
+      closeModal();
     }
-    // Bind the event listener
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      // Unbind the event listener on clean up
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [modalRef]);
+    return;
+  }
 
-  function handleClickOutside(event: MouseEvent) {
-    if (modalRef.current && modalRef.current === event.target) {
-      setShowModal(false);
-    }
+  function closeModal() {
+    dispatch({
+      type: 'setConnectWallet',
+      payload: false,
+    });
   }
 
   async function setGlobalWallet(walletConnector: ArweaveWalletConnector) {
@@ -51,8 +43,9 @@ function ConnectWalletModal({
     }
   }
 
-  return (
-    <div className="modalContainer" ref={modalRef}>
+  return show ? (
+    // eslint-disable-next-line
+    <div className="modalContainer" ref={modalRef} onClick={handleClickOutside}>
       <div className="connectWalletModal">
         <p
           className="sectionHeader"
@@ -60,12 +53,7 @@ function ConnectWalletModal({
         >
           Connect with an Arweave wallet
         </p>
-        <button
-          className="modalCloseButton"
-          onClick={() => {
-            setShowModal(false);
-          }}
-        >
+        <button className="modalCloseButton" onClick={closeModal}>
           <CloseIcon width="30px" height={'30px'} fill="var(--text-white)" />
         </button>
         <button className="walletConnectButton">
@@ -107,6 +95,8 @@ function ConnectWalletModal({
         </span>
       </div>
     </div>
+  ) : (
+    <></>
   );
 }
 export default ConnectWalletModal;

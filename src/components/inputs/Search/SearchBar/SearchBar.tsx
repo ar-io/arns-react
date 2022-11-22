@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
+
 import { useStateValue } from '../../../../state/state';
-import ConnectWalletModal from '../../../modals/ConnectWalletModal/ConnectWalletModal';
 import { SearchBarProps } from '../../../../types';
-import { SearchIcon, ArrowUpRight } from '../../../icons';
+import { ArrowUpRight, SearchIcon } from '../../../icons';
 import './styles.css';
 
 function SearchBar(props: SearchBarProps) {
@@ -13,12 +13,10 @@ function SearchBar(props: SearchBarProps) {
     headerElement,
     footerElement,
     values,
-    setIsSearching
+    setIsSearching,
   } = props;
 
-  const [{walletAddress, jwk}, dispatch] = useStateValue()
-  const [showModal, setShowModal] = useState(false)
-
+  const [{ walletAddress }, dispatch] = useStateValue();
   const [isSearchValid, setIsSearchValid] = useState(true);
   const [showDefaultText, setShowDefaultText] = useState(true);
   const [isAvailable, setIsAvailable] = useState(false);
@@ -34,7 +32,7 @@ function SearchBar(props: SearchBarProps) {
     setShowDefaultText(true);
     setSearchResult(undefined);
     setSearchBarText(undefined);
-    setIsSearching(false)
+    setIsSearching(false);
     return;
   }
 
@@ -62,7 +60,7 @@ function SearchBar(props: SearchBarProps) {
 
   function onSubmit(e: any) {
     e.preventDefault();
-    setIsSearching(true)
+    setIsSearching(true);
     // validate again, just in case
     const searchValid = validationPredicate(searchBarText);
     setIsSearchValid(searchValid);
@@ -82,6 +80,17 @@ function SearchBar(props: SearchBarProps) {
       setSearchResult(values[name]);
       return;
     }
+  }
+
+  function handleNext() {
+    if (!walletAddress) {
+      dispatch({
+        type: 'setConnectWallet',
+        payload: true,
+      });
+      return;
+    }
+    return;
   }
 
   return (
@@ -110,31 +119,35 @@ function SearchBar(props: SearchBarProps) {
           onKeyDown={(e) => e.key == 'Enter' && isSearchValid && onSubmit(e)}
           maxLength={32}
         />
-        {!isAvailable || !submittedName ? <button
-          className="searchButton"
-          onClick={(e) => {
-            onSubmit(e);
-          }}
-        >
-          <SearchIcon
-            fill="#121212"
-            stroke="white"
-            width="18.51"
-            height="18.51"
-          /> 
-        </button> :<>
-        <span className='test faded bold' style={{marginRight:"18px"}}>Register</span>
-        <button className='accent roundButton' 
-        onClick={ !walletAddress && !jwk ? () => setShowModal(true)
-          : ()=> console.log("register")
-      }>
-          <ArrowUpRight
-           fill="var(--text-black)"
-           stroke="var(--text-black)"
-           width="18.51"
-           height="18.51"/>
-        </button></>}
-        
+        {!isAvailable || !submittedName ? (
+          <button
+            className="searchButton"
+            onClick={(e) => {
+              onSubmit(e);
+            }}
+          >
+            <SearchIcon
+              fill="#121212"
+              stroke="white"
+              width="18.51"
+              height="18.51"
+            />
+          </button>
+        ) : (
+          <>
+            <span className="test faded bold" style={{ marginRight: '18px' }}>
+              Register
+            </span>
+            <button className="accent roundButton" onClick={handleNext}>
+              <ArrowUpRight
+                fill="var(--text-black)"
+                stroke="var(--text-black)"
+                width="18.51"
+                height="18.51"
+              />
+            </button>
+          </>
+        )}
       </div>
       {React.cloneElement(footerElement, {
         ...props,
@@ -144,7 +157,6 @@ function SearchBar(props: SearchBarProps) {
           ? { id: searchResult, domain: submittedName }
           : undefined,
       })}
-      {showModal ? <ConnectWalletModal setShowModal={setShowModal}/> : <></>}
     </>
   );
 }

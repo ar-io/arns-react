@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import ConnectWalletModal from '../../modals/ConnectWalletModal/ConnectWalletModal';
+
 import { useStateValue } from '../../../state/state';
 import { NAME_PRICE_INFO, TIER_DATA } from '../../../utils/constants';
 import { calculateArNSNamePrice } from '../../../utils/searchUtils';
@@ -9,8 +9,8 @@ import YearsCounter from '../../inputs/YearsCounter/YearsCounter';
 import './styles.css';
 
 function UpgradeTier({ domain }: { domain?: string }) {
-  const [showModal, setShowModal] = useState(false)
-  const [{ arnsSourceContract, walletAddress, jwk }] = useStateValue();
+  const [{ arnsSourceContract, walletAddress, jwk }, dispatch] =
+    useStateValue();
   // name is passed down from search bar to calculate price
   const [selectedTier, setSelectedTier] = useState(1);
   const [price, setPrice] = useState<number | undefined>(0);
@@ -21,6 +21,13 @@ function UpgradeTier({ domain }: { domain?: string }) {
     const fees = arnsSourceContract.fees;
     setPrice(calculateArNSNamePrice({ domain, selectedTier, years, fees }));
   }, [years, selectedTier, domain, arnsSourceContract]);
+
+  function showConnectWallet() {
+    dispatch({
+      type: 'setConnectWallet',
+      payload: true,
+    });
+  }
 
   return (
     <div className="upgradeTier">
@@ -64,10 +71,13 @@ function UpgradeTier({ domain }: { domain?: string }) {
           <></>
         )}
       </button>
-      {
-       !walletAddress && !jwk ? <button className='accentButton' onClick={()=> setShowModal(true)}>Connect Wallet to proceed</button> 
-        : <button className='accentButton'>Next</button>}
-        {showModal ? <ConnectWalletModal setShowModal={setShowModal}/> : <></>}
+      {!walletAddress && !jwk ? (
+        <button className="accentButton" onClick={showConnectWallet}>
+          Connect Wallet to proceed
+        </button>
+      ) : (
+        <button className="accentButton">Next</button>
+      )}
     </div>
   );
 }

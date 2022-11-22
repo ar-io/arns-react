@@ -21,7 +21,6 @@ function YearsCounter({
     changeYear();
   }, [count]);
 
-
   function subtractYearsCount() {
     if (count > 1 && count > MIN_LEASE_DURATION) {
       setCount(count - 1);
@@ -65,7 +64,7 @@ function YearsCounter({
         <div className="yearsCounter">
           <button
             className="counterButton"
-            onClick={()=> subtractYearsCount()}
+            onClick={() => subtractYearsCount()}
             onMouseDown={() => setSubtracting(true)}
             onMouseUp={() => setSubtracting(false)}
             onMouseLeave={() => setSubtracting(false)}
@@ -80,7 +79,7 @@ function YearsCounter({
           />
           <button
             className="counterButton"
-            onClick={()=> addYearsCount()}
+            onClick={() => addYearsCount()}
             onMouseDown={() => setAdding(true)}
             onMouseUp={() => setAdding(false)}
             onMouseLeave={() => setAdding(false)}

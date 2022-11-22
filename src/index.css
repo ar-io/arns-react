@@ -54,7 +54,6 @@ b {
   text-decoration: underline;
   color: var(--text-white);
   background: none;
-  margin: auto;
   cursor: pointer;
 }
 
@@ -123,10 +122,10 @@ b {
 .black {
   color: var(--text-black);
 }
-.accent{
+.accent {
   background-color: var(--accent);
 }
-.roundButton{
+.roundButton {
   display: flex;
   min-width: 50px !important;
   min-height: 50px !important;
@@ -137,7 +136,7 @@ b {
   align-items: center;
   padding: 0;
 }
-.roundButton:hover{
+.roundButton:hover {
   box-shadow: 0px 0px 4px rgba(0, 0, 0);
   cursor: pointer;
 }
@@ -201,7 +200,7 @@ b {
   background: none;
   cursor: pointer;
 }
-.roundButton{
+.roundButton {
   border-radius: 1000px;
 }
 
@@ -244,10 +243,10 @@ b {
   height: 100%;
   cursor: pointer;
 }
-.accentButton{
+.accentButton {
   display: flex;
-  padding: .75em 2em;
-  font-size:18px;
+  padding: 0.75em 2em;
+  font-size: 18px;
   font-family: 'Rubik-Bold';
   font-weight: 800;
   width: fit-content;

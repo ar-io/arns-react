@@ -9,8 +9,6 @@ function SearchBarFooter({
   isSearchValid,
   isAvailable,
 }: SearchBarFooterProps): JSX.Element {
-
-
   return (
     <>
       {!searchResult?.domain ? (
@@ -24,7 +22,6 @@ function SearchBarFooter({
               defaultText
             )}
           </div>
-          
         </>
       ) : isAvailable ? (
         <UpgradeTier domain={searchResult.domain} />
