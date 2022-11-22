@@ -1,4 +1,4 @@
-import { MouseEventHandler, useRef } from 'react';
+import { useRef } from 'react';
 
 import { JsonWalletConnector } from '../../../services/wallets/JsonWalletConnector';
 import { useStateValue } from '../../../state/state';

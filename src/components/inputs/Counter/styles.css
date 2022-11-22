@@ -50,3 +50,13 @@
   outline: none;
   border: none;
 }
+
+input[type='number' i] {
+  padding: 0px;
+  -webkit-appearance: none;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}

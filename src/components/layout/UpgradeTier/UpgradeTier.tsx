@@ -5,7 +5,7 @@ import { NAME_PRICE_INFO, TIER_DATA } from '../../../utils/constants';
 import { calculateArNSNamePrice } from '../../../utils/searchUtils';
 import TierCard from '../../cards/TierCard/TierCard';
 import { AlertCircle } from '../../icons';
-import YearsCounter from '../../inputs/YearsCounter/YearsCounter';
+import YearsCounter from '../../inputs/Counter/Counter';
 import './styles.css';
 
 function UpgradeTier({ domain }: { domain?: string }) {
