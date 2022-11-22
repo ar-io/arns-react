@@ -173,6 +173,8 @@ b {
   font-weight: 1200;
   font-size: 72px;
   line-height: 85px;
+  width: 75%;
+  max-width: 850px;
   text-align: center;
   color: var(--text-bright-white);
   justify-content: center;

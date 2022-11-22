@@ -1,8 +1,16 @@
+.searchBarContainer {
+  display: flex;
+  flex-direction: column;
+  width: 75%;
+  max-width: 850px;
+  gap: 2em;
+}
+
 .searchBar {
   display: flex;
   width: 75%;
   max-width: 620px;
-  min-width: 325px;
+  min-width: 250px;
   height: 65px;
   background-color: var(--text-white);
   border: 2px solid #e0e0e0;
@@ -49,4 +57,10 @@
 .searchButton:hover {
   box-shadow: 0px 0px 4px rgba(0, 0, 0);
   cursor: pointer;
+}
+
+@media screen and (max-width: 600px) {
+  .searchBar input {
+    text-align: center;
+  }
 }

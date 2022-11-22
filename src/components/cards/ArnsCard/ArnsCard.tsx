@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
+import useIsMobile from '../../../hooks/useIsMobile/useIsMobile';
 import { useStateValue } from '../../../state/state';
 import { ArNSDomain, ArNSMapping } from '../../../types';
 import { DEFAULT_EXPIRATION } from '../../../utils/constants';
@@ -9,6 +10,7 @@ import './styles.css';
 
 function ArnsCard({ domain, id }: ArNSMapping) {
   const [{ gateway }] = useStateValue();
+  const isMobile = useIsMobile();
   const [antDetails, setAntDetails] = useState<ArNSDomain>({
     domain,
     id,
@@ -38,11 +40,18 @@ function ArnsCard({ domain, id }: ArNSMapping) {
         .then((html) => {
           const parser = new DOMParser();
           const doc = parser.parseFromString(html, 'text/html');
-          const metaImage = doc
+
+          if (isMobile) {
+            const faviconPath = doc
+              ?.querySelector("link[type='image/x-icon']")
+              ?.getAttribute('href');
+            return faviconPath
+              ? `${protocol}://${domain}.${gateway}/${faviconPath}`
+              : undefined;
+          }
+          return doc
             ?.querySelector("meta[property='og:image']")
             ?.getAttribute('content');
-
-          return metaImage;
         });
 
       if (!metaImage) {
