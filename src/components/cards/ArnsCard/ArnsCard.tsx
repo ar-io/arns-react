@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
+import { useIsMobile } from '../../../hooks';
 import { useStateValue } from '../../../state/state';
 import { ArNSDomain, ArNSMapping } from '../../../types';
 import { DEFAULT_EXPIRATION } from '../../../utils/constants';
@@ -9,6 +10,7 @@ import './styles.css';
 
 function ArnsCard({ domain, id }: ArNSMapping) {
   const [{ gateway }] = useStateValue();
+  const isMobile = useIsMobile();
   const [antDetails, setAntDetails] = useState<ArNSDomain>({
     domain,
     id,
@@ -18,7 +20,7 @@ function ArnsCard({ domain, id }: ArNSMapping) {
 
   useEffect(() => {
     getAntDetailsFromName(domain);
-  }, [domain, id, gateway]);
+  }, [domain, id, gateway, isMobile]);
 
   async function getAntDetailsFromName(domain: string) {
     const image = await getMetaImage();
@@ -38,11 +40,24 @@ function ArnsCard({ domain, id }: ArNSMapping) {
         .then((html) => {
           const parser = new DOMParser();
           const doc = parser.parseFromString(html, 'text/html');
-          const metaImage = doc
-            ?.querySelector("meta[property='og:image']")
-            ?.getAttribute('content');
 
-          return metaImage;
+          if (isMobile) {
+            const faviconPath = doc
+              ?.querySelector('link[rel~="icon"]')
+              ?.getAttribute('href');
+
+            // return if its a full url
+            if (faviconPath?.match(/^http(s):\/\//)) {
+              return faviconPath;
+            }
+            return faviconPath
+              ? `${protocol}://${domain}.${gateway}/${faviconPath}`
+              : undefined;
+          } else {
+            return doc
+              ?.querySelector("meta[property='og:image']")
+              ?.getAttribute('content');
+          }
         });
 
       if (!metaImage) {
@@ -62,10 +77,11 @@ function ArnsCard({ domain, id }: ArNSMapping) {
   }
 
   return (
-    <div className="arnsCard">
+    <div className="arnsCard hover">
       <img
         className="arnsPreview"
         src={antDetails.image}
+        key={antDetails.image}
         alt={`${domain}.${gateway}`}
       />
       <div className="arnsCardFooter">

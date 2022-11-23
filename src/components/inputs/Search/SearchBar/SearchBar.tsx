@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 
+import useIsMobile from '../../../../hooks/useIsMobile/useIsMobile';
+import { useStateValue } from '../../../../state/state';
 import { SearchBarProps } from '../../../../types';
-import { SearchIcon } from '../../../icons';
+import { ArrowUpRight, SearchIcon } from '../../../icons';
 import './styles.css';
 
 function SearchBar(props: SearchBarProps) {
@@ -12,8 +14,11 @@ function SearchBar(props: SearchBarProps) {
     headerElement,
     footerElement,
     values,
+    setIsSearching,
   } = props;
 
+  const [{ walletAddress }, dispatch] = useStateValue();
+  const isMobile = useIsMobile();
   const [isSearchValid, setIsSearchValid] = useState(true);
   const [showDefaultText, setShowDefaultText] = useState(true);
   const [isAvailable, setIsAvailable] = useState(false);
@@ -21,6 +26,7 @@ function SearchBar(props: SearchBarProps) {
   const [searchBarText, setSearchBarText] = useState<string | undefined>();
   const [submittedName, setSubmittedName] = useState<string | undefined>();
   const [searchResult, setSearchResult] = useState<string | undefined>();
+  const searchRef = useRef<HTMLDivElement | null>(null);
 
   function reset() {
     setSearchSubmitted(false);
@@ -29,6 +35,7 @@ function SearchBar(props: SearchBarProps) {
     setShowDefaultText(true);
     setSearchResult(undefined);
     setSearchBarText(undefined);
+    setIsSearching(false);
     return;
   }
 
@@ -54,9 +61,16 @@ function SearchBar(props: SearchBarProps) {
     setSearchBarText(input);
   }
 
+  function onFocus() {
+    // center search bar on the page
+    if (searchRef.current) {
+      searchRef.current.scrollIntoView();
+    }
+  }
+
   function onSubmit(e: any) {
     e.preventDefault();
-
+    setIsSearching(true);
     // validate again, just in case
     const searchValid = validationPredicate(searchBarText);
     setIsSearchValid(searchValid);
@@ -78,8 +92,19 @@ function SearchBar(props: SearchBarProps) {
     }
   }
 
+  function handleNext() {
+    if (!walletAddress) {
+      dispatch({
+        type: 'setConnectWallet',
+        payload: true,
+      });
+      return;
+    }
+    return;
+  }
+
   return (
-    <>
+    <div className="searchBarContainer flex-center" ref={searchRef}>
       {React.cloneElement(headerElement, {
         ...props,
         text: submittedName,
@@ -101,22 +126,49 @@ function SearchBar(props: SearchBarProps) {
           type="text"
           placeholder={showDefaultText ? placeholderText : 'try another name'}
           onChange={onHandleChange}
+          onFocus={onFocus}
           onKeyDown={(e) => e.key == 'Enter' && isSearchValid && onSubmit(e)}
           maxLength={32}
+          className="searchBarInput"
         />
-        <button
-          className="searchButton"
-          onClick={() => {
-            onSubmit(searchBarText);
-          }}
-        >
-          <SearchIcon
-            fill="#121212"
-            stroke="white"
-            width="18.51"
-            height="18.51"
-          />
-        </button>
+        {isMobile ? (
+          <></>
+        ) : (
+          <>
+            {!isAvailable || !submittedName ? (
+              <button
+                className="searchButton"
+                onClick={(e) => {
+                  onSubmit(e);
+                }}
+              >
+                <SearchIcon
+                  fill="#121212"
+                  stroke="white"
+                  width="18.51"
+                  height="18.51"
+                />
+              </button>
+            ) : (
+              <>
+                <span
+                  className="test faded bold"
+                  style={{ marginRight: '18px' }}
+                >
+                  Register
+                </span>
+                <button className="accent roundButton" onClick={handleNext}>
+                  <ArrowUpRight
+                    fill="var(--text-black)"
+                    stroke="var(--text-black)"
+                    width="18.51"
+                    height="18.51"
+                  />
+                </button>
+              </>
+            )}
+          </>
+        )}
       </div>
       {React.cloneElement(footerElement, {
         ...props,
@@ -126,7 +178,7 @@ function SearchBar(props: SearchBarProps) {
           ? { id: searchResult, domain: submittedName }
           : undefined,
       })}
-    </>
+    </div>
   );
 }
 

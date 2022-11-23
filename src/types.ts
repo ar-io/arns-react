@@ -43,6 +43,7 @@ export interface ArweaveWalletConnector {
 export type SearchBarProps = {
   successPredicate: (value: string | undefined) => boolean;
   validationPredicate: (value: string | undefined) => boolean;
+  setIsSearching: Dispatch<SetStateAction<boolean>>;
   placeholderText: string;
   headerElement: JSX.Element;
   footerElement: JSX.Element;

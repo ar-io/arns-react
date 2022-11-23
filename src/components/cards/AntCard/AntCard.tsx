@@ -78,7 +78,7 @@ function AntCard(props: ArNSMapping) {
   return (
     <>
       {antDetails ? (
-        <div className="card">
+        <div className="card hover">
           {/* // TODO: pull tier from ant contract details */}
           <span className="bubble">Tier 1</span>
           {Object.entries(antDetails).map(([key, value]) => {

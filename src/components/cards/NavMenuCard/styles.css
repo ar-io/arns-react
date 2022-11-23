@@ -1,0 +1,8 @@
+.menu {
+  position: absolute;
+  z-index: 10;
+  min-height: unset;
+  top: 75px;
+  min-width: unset;
+  align-items: flex-end;
+}
