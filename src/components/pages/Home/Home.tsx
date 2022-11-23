@@ -10,6 +10,7 @@ import {
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import { FeaturedDomains } from '../../layout';
 import { SearchBarFooter, SearchBarHeader } from '../../layout';
+import RegisterNameModal from '../../modals/RegisterNameModal/RegisterNameModal';
 import './styles.css';
 
 function Home() {
@@ -53,6 +54,7 @@ function Home() {
         }
       />
       {featuredDomains ? <FeaturedDomains domains={featuredDomains} /> : <></>}
+      <RegisterNameModal />
     </div>
   );
 }
