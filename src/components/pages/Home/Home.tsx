@@ -11,6 +11,7 @@ import {
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import { SearchBarFooter, SearchBarHeader } from '../../layout';
 import './styles.css';
+import RegisterNameModal from '../../modals/RegisterNameModal/RegisterNameModal';
 
 function Home() {
   const [{ arnsSourceContract }] = useStateValue();
@@ -58,6 +59,7 @@ function Home() {
       ) : (
         <></>
       )}
+        <RegisterNameModal />
     </div>
   );
 }

@@ -25,8 +25,12 @@
   --grey-white: #dfdfde;
   --error-red: #df1642;
   --success-green: #18a957;
-  --action-orange: #ffbb38;
+  --accent: #ffbb38;
   --modal-bg: #1d1e1cee;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -39,6 +43,11 @@ body {
 
 b {
   font-family: 'Rubik-Bold';
+}
+
+button {
+  background-color: transparent;
+  border: none;
 }
 
 .bold {
@@ -54,7 +63,6 @@ b {
   text-decoration: underline;
   color: var(--text-white);
   background: none;
-  margin: auto;
   cursor: pointer;
 }
 
@@ -68,10 +76,10 @@ b {
 .flex-row {
   display: flex;
   flex-direction: row;
+  width: 100%;
   gap: 2em;
   align-items: center;
 }
-
 
 .flex-space-between {
   justify-content: space-between;
@@ -79,11 +87,9 @@ b {
 
 .flex-column {
   display: flex;
+  width: 100%;
   flex-direction: column;
   gap: 2em;
-}
-.column{
-  flex-direction: column;
 }
 
 .flex-right {
@@ -96,6 +102,16 @@ b {
 
 .flex-center {
   justify-content: center;
+  align-items: center;
+}
+
+.hover {
+  transition: all 0.5s ease;
+}
+
+.hover:hover {
+  transition: all 0.5s ease;
+  transform: scale(1.05);
 }
 
 .underline {
@@ -126,6 +142,24 @@ b {
 .black {
   color: var(--text-black);
 }
+.accent {
+  background-color: var(--accent);
+}
+.roundButton {
+  display: flex;
+  min-width: 50px !important;
+  min-height: 50px !important;
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 50px;
+  border: none;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+}
+.roundButton:hover {
+  box-shadow: 0px 0px 4px rgba(0, 0, 0);
+  cursor: pointer;
+}
 
 .page {
   display: flex;
@@ -144,6 +178,8 @@ b {
   font-weight: 1200;
   font-size: 72px;
   line-height: 85px;
+  width: 75%;
+  max-width: 850px;
   text-align: center;
   color: var(--text-bright-white);
   justify-content: center;
@@ -186,6 +222,9 @@ b {
   background: none;
   cursor: pointer;
 }
+.roundButton {
+  border-radius: 1000px;
+}
 
 .bubbleSmall {
   display: flex;
@@ -222,50 +261,23 @@ b {
 }
 .span-all {
   position: absolute;
-  width: 100%;
+  width: 98%;
   height: 100%;
+  cursor: pointer;
 }
-.dataInput{
-  box-sizing: border-box;
+.accentButton {
   display: flex;
-  height: 45px;
-  width: 100%;
-  background: var(--text-white);
-  border: 2px solid #E0E0E0;
-  box-shadow: 0px 0px 4px rgba(255, 255, 255, 0.25);
-  border-radius: 6px;
-  margin: 0%;
-  padding: 0%;
-  outline: none;
-}
-.dataInput::placeholder{
-font-family: 'Rubik-Bold';
-font-weight: 500;
-font-size: 14px;
-color: var(--placeholder-text);
-}
-.dataDropdown{
-  box-sizing: border-box;
-  display: flex;
-  height: 45px;
-  width: 100%;
-  background: var(--text-white);
-  border: 2px solid #E0E0E0;
-  box-shadow: 0px 0px 4px rgba(255, 255, 255, 0.25);
-  border-radius: 6px;
-  margin: 0%;
-  padding: 0%;
-  outline: none;
-}
-.dataDropdown:{
-  border-bottom-left-radius: 0%;
-}
-.dataDropdown select option {
+  padding: 0.75em 2em;
+  font-size: 18px;
   font-family: 'Rubik-Bold';
-font-weight: 500;
-font-size: 14px;
-color: var(--text-black);
-padding: 1em;
+  font-weight: 800;
+  width: fit-content;
+  height: fit-content;
+  border: var(--bg-color) 2px solid;
+  border-radius: 10px;
+  background-color: var(--accent);
+  color: var(--text-black);
+  cursor: pointer;
 }
 
 /* TOP LEVEL RESIZE RULES */
