@@ -16,7 +16,6 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
   const [{}, dispatch] = useStateValue(); // eslint-disable-line
 
   function handleClickOutside(e: any) {
-    console.log(e);
     if (modalRef.current && modalRef.current === e.target) {
       closeModal();
     }

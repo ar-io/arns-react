@@ -45,6 +45,11 @@ b {
   font-family: 'Rubik-Bold';
 }
 
+button {
+  background-color: transparent;
+  border: none;
+}
+
 .bold {
   font-family: 'Rubik-Bold';
   font-weight: 700;
