@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { useStateValue } from '../../../state/state.js';
-import { ROUTES } from '../../../utils/routes.js';
-import ConnectButton from '../../inputs/buttons/ConnectButton/ConnectButton.js';
-import MenuButton from '../../inputs/buttons/MenuButton/MenuButton.js';
-import NavBarLink from '../../layout/Navbar/NavBarLink/NavBarLink.js';
+import { useStateValue } from '../../../state/state';
+import { ROUTES } from '../../../utils/routes';
+import ConnectButton from '../../inputs/buttons/ConnectButton/ConnectButton';
+import MenuButton from '../../inputs/buttons/MenuButton/MenuButton';
+import NavBarLink from '../../layout/Navbar/NavBarLink/NavBarLink';
 import './styles.css';
 
 function NavMenuCard() {

@@ -1,4 +1,4 @@
-import { useStateValue } from '../../../../state/state.js';
+import { useStateValue } from '../../../../state/state';
 import './styles.css';
 
 function ConnectButton(): JSX.Element {

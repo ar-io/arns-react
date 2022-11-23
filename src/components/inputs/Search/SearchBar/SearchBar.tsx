@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 
-import useIsMobile from '../../../../hooks/useIsMobile/useIsMobile.js';
+import useIsMobile from '../../../../hooks/useIsMobile/useIsMobile';
 import { useStateValue } from '../../../../state/state';
 import { SearchBarProps } from '../../../../types';
 import { ArrowUpRight, SearchIcon } from '../../../icons';

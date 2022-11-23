@@ -1,6 +1,6 @@
 import useIsMobile from '../../../../hooks/useIsMobile/useIsMobile';
 import { useStateValue } from '../../../../state/state';
-import { ROUTES } from '../../../../utils/routes.js';
+import { ROUTES } from '../../../../utils/routes';
 import NavMenuCard from '../../../cards/NavMenuCard/NavMenuCard';
 import { AccountIcon } from '../../../icons';
 import ConnectButton from '../../../inputs/buttons/ConnectButton/ConnectButton';

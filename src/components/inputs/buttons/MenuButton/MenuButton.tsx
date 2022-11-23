@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from 'react';
 
-import { MenuIcon } from '../../../icons/index.js';
+import { MenuIcon } from '../../../icons/index';
 import './styles.css';
 
 function MenuButton({

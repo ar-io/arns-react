@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 
-import useLongPress from '../../../hooks/useLongPress/useLongPress.js';
+import useLongPress from '../../../hooks/useLongPress/useLongPress';
 import {
   MAX_LEASE_DURATION,
   MIN_LEASE_DURATION,
