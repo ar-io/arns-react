@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useStateValue } from '../../../state/state';
 import { ArNSDomains } from '../../../types';
 import { FEATURED_DOMAINS } from '../../../utils/constants';
+import {FeaturedDomains} from '../../layout';
 import {
   isArNSDomainNameAvailable,
   isArNSDomainNameValid,
