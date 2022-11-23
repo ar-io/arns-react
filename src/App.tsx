@@ -6,14 +6,16 @@ import {
 } from 'react-router-dom';
 
 import { Layout } from './components/layout';
+import ConnectWalletModal from './components/modals/ConnectWalletModal/ConnectWalletModal';
 import { About, FAQ, Home, Manage, NotFound } from './components/pages';
-import { useArNSContract } from './hooks/';
+import { useArNSContract, useConnectWalletModal } from './hooks/';
 import './index.css';
 import { useStateValue } from './state/state';
 
 function App() {
   // dispatches global state
   useArNSContract();
+  const { showConnectModal } = useConnectWalletModal();
 
   const [{ jwk }] = useStateValue();
 
@@ -33,7 +35,12 @@ function App() {
     },
   );
 
-  return <RouterProvider router={router} />;
+  return (
+    <>
+      <RouterProvider router={router} />
+      <ConnectWalletModal show={showConnectModal} />
+    </>
+  );
 }
 
 export default App;

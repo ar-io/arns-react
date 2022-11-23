@@ -18,6 +18,11 @@ function FeaturedDomains(props: { domains: ArNSDomains }) {
     setDisplayCount(displayCount + DEFAULT_INCREMENT);
   }
 
+  function showLess(e: any) {
+    e.preventDefault();
+    setDisplayCount(DEFAULT_INCREMENT);
+  }
+
   return (
     <div className="featuredDomains">
       <span className="sectionHeader">Featured Domains</span>
@@ -28,14 +33,23 @@ function FeaturedDomains(props: { domains: ArNSDomains }) {
           return <ArnsCard domain={domain} id={domains[domain]} key={index} />;
         })}
       </div>
-      {displayCount < Object.keys(domains).length &&
-      displayCount < MAX_COUNT ? (
-        <button className="link" onClick={showMore}>
-          see more
-        </button>
-      ) : (
-        <></>
-      )}
+      <div className="flex-row flex-center">
+        {displayCount > DEFAULT_INCREMENT ? (
+          <button className="link flex-right" onClick={showLess}>
+            see less
+          </button>
+        ) : (
+          <></>
+        )}
+        {displayCount < Object.keys(domains).length &&
+        displayCount < MAX_COUNT ? (
+          <button className="link flex-left" onClick={showMore}>
+            see more
+          </button>
+        ) : (
+          <></>
+        )}
+      </div>
     </div>
   );
 }

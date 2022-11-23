@@ -4,8 +4,13 @@ export default function useIsMobile(): boolean {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    updateIsMobile();
     window.addEventListener('resize', updateIsMobile);
+
+    updateIsMobile();
+
+    return () => {
+      window.removeEventListener('resize', updateIsMobile);
+    };
   }, [isMobile]);
 
   function updateIsMobile(): void {

@@ -8,7 +8,7 @@ function NavBar() {
   return (
     <div className="flex-row flex-space-between">
       <div className="flex-row flex-left">
-        <Link to="/">
+        <Link className="hover" to="/">
           <img src={logo} className="brandLogo" alt="logo" />
         </Link>
       </div>

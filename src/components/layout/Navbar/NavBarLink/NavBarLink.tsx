@@ -9,7 +9,7 @@ type navBarLink = {
 
 function NavBarLink({ path, linkText }: navBarLink) {
   return (
-    <Link to={path} className="navBarLink">
+    <Link to={path} className="navBarLink hover">
       {linkText}
     </Link>
   );

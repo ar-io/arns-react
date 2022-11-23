@@ -1,13 +1,22 @@
+.searchBarContainer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1200px;
+  gap: 2em;
+}
+
 .searchBar {
   display: flex;
   width: 75%;
   max-width: 620px;
-  min-width: 325px;
+  min-width: 250px;
   height: 65px;
   background-color: var(--text-white);
   border: 2px solid #e0e0e0;
   border-radius: 100px;
   align-items: center;
+  padding-right: 9px;
 }
 .searchBar:hover {
   box-shadow: 0px 0px 4px 1px rgba(255, 255, 255, 0.72);
@@ -43,10 +52,15 @@
   border: none;
   justify-content: center;
   align-items: center;
-  margin-right: 9px;
   padding: 0;
 }
 .searchButton:hover {
   box-shadow: 0px 0px 4px rgba(0, 0, 0);
   cursor: pointer;
+}
+
+@media screen and (max-width: 600px) {
+  .searchBar input {
+    text-align: center;
+  }
 }

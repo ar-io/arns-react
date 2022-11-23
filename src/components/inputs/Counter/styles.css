@@ -14,14 +14,14 @@
   border-radius: 32.5px;
   justify-content: space-between;
   align-items: center;
-  padding: 0 5px;
+  padding: 5px;
 }
 .counterButton {
   display: flex;
   width: 25px;
   height: 25px;
-  border-radius: 25px;
-  border: none;
+  border-radius: 100px;
+  border: 1px solid var(--text-white);
   background: var(--bg-color);
   color: var(--text-white);
   justify-content: center;
@@ -41,4 +41,22 @@
   font-family: 'Rubik-Bold';
   font-size: 18px;
   font-weight: 600;
+}
+.counterInput {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  outline: none;
+  border: none;
+}
+
+input[type='number' i] {
+  padding: 0px;
+  -webkit-appearance: none;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
 }

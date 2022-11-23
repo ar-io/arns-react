@@ -7,7 +7,8 @@ export type Action =
   | { type: 'setWalletAddress'; payload: ArweaveTransactionId }
   | { type: 'setJwk'; payload: JWKInterface }
   | { type: 'setGateway'; payload: string }
-  | { type: 'setArnsContractState'; payload: ArNSContractState };
+  | { type: 'setArnsContractState'; payload: ArNSContractState }
+  | { type: 'setConnectWallet'; payload: boolean };
 
 export const reducer = (state: GlobalState, action: Action): GlobalState => {
   switch (action.type) {
@@ -20,6 +21,11 @@ export const reducer = (state: GlobalState, action: Action): GlobalState => {
       return {
         ...state,
         jwk: action.payload,
+      };
+    case 'setConnectWallet':
+      return {
+        ...state,
+        connectWallet: action.payload,
       };
     case 'setGateway':
       return {

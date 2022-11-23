@@ -1,6 +1,7 @@
 .upgradeTier {
   display: flex;
   flex-direction: column;
+  position: relative;
   row-gap: 2em;
   justify-content: center;
   align-items: center;
@@ -8,16 +9,4 @@
   max-width: 1100px;
   min-width: 250px;
   height: fit-content;
-}
-
-.cardContainer {
-  display: flex;
-  position: relative;
-  flex-direction: row;
-  width: 100%;
-  height: fit-content;
-  gap: 1em;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin: 0;
 }
