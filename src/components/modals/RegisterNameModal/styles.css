@@ -1,45 +1,44 @@
-.registerNameModal{
-    display: flex;  
-    flex-direction: column;
-max-width: 1000px;
-min-width: 320px;
-width: 80%;
-height: fit-content;
-margin: auto;
-padding: 2em 2em;
-gap: 2em;
-background: var(--card-bg);
-border: 1px solid #323232;
-border-radius: 32px;
+.registerNameModal {
+  display: flex;
+  flex-direction: column;
+  max-width: 1000px;
+  min-width: 320px;
+  width: 80%;
+  height: fit-content;
+  margin: auto;
+  padding: 2em 2em;
+  gap: 2em;
+  background: var(--card-bg);
+  border: 1px solid #323232;
+  border-radius: 32px;
 }
 
-.registerInputs{
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    width: 75%;
-    height: fit-content;
-    row-gap: 5px;
-    margin: 0;
-    padding: 0;
+.registerInputs {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: 75%;
+  height: fit-content;
+  row-gap: 5px;
+  margin: 0;
+  padding: 0;
 }
-.inputGroup{
-    box-sizing: border-box;
-    display: flex;
-    width: 100%;
-    height: fit-content;
-    gap: 5px;
-    margin: 0;
-    padding: 0;
-    overflow: visible;
+.inputGroup {
+  box-sizing: border-box;
+  display: flex;
+  width: 100%;
+  height: fit-content;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
 }
 
 @media screen and (max-width: 600px) {
-    .registerNameModal {
-      padding:.1em .5em
-    }
-    .registerInputs{
-        width:100%
-    }
- 
+  .registerNameModal {
+    padding: 0.1em 0.5em;
   }
+  .registerInputs {
+    width: 100%;
+  }
+}
