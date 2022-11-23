@@ -20,7 +20,7 @@ function FeaturedDomains(props: { domains: ArNSDomains }) {
 
   function showLess(e: any) {
     e.preventDefault();
-    setDisplayCount(displayCount - DEFAULT_INCREMENT);
+    setDisplayCount(DEFAULT_INCREMENT);
   }
 
   return (

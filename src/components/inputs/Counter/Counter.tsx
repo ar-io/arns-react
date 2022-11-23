@@ -1,19 +1,19 @@
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 
 import useLongPress from '../../../hooks/useLongPress/useLongPress';
-import {
-  MAX_LEASE_DURATION,
-  MIN_LEASE_DURATION,
-} from '../../../utils/constants';
 import './styles.css';
 
 function YearsCounter({
   setCount,
   count,
+  maxValue,
+  minValue,
   period = 'years',
 }: {
   setCount: Dispatch<SetStateAction<number>>;
   count: number;
+  maxValue: number;
+  minValue: number;
   period?: 'years' | 'days' | 'minutes';
 }) {
   const [registration, setRegistration] = useState('');
@@ -23,18 +23,14 @@ function YearsCounter({
     handleOnMouseUp: incHandleOnMouseUp,
     handleOnTouchEnd: incHandleOnTouchEnd,
     handleOnTouchStart: incHandleOnTouchStart,
-  } = useLongPress(() =>
-    count < MAX_LEASE_DURATION ? setCount(++count) : null,
-  );
+  } = useLongPress(() => (count < maxValue ? setCount(++count) : null));
   const {
     handleOnClick: decHandleOnClick,
     handleOnMouseDown: decHandleOnMouseDown,
     handleOnMouseUp: decHandleOnMouseUp,
     handleOnTouchEnd: decHandleOnTouchEnd,
     handleOnTouchStart: decHandleOnTouchStart,
-  } = useLongPress(() =>
-    count > MIN_LEASE_DURATION ? setCount(--count) : null,
-  );
+  } = useLongPress(() => (count > minValue ? setCount(--count) : null));
 
   useEffect(() => {
     changePeriod();
@@ -62,6 +58,22 @@ function YearsCounter({
     );
   }
 
+  function onChange(e: any) {
+    const value = +e.target.value;
+    if (value < minValue) {
+      setCount(minValue);
+      return;
+    }
+
+    if (value > maxValue) {
+      setCount(maxValue);
+      return;
+    }
+
+    setCount(value);
+    return;
+  }
+
   return (
     <div className="yearsCounterContainer">
       <p className="text white bold">Registration Period ({period})</p>
@@ -69,7 +81,7 @@ function YearsCounter({
         <div className="yearsCounter">
           <button
             className="counterButton"
-            disabled={count == MIN_LEASE_DURATION}
+            disabled={count == minValue}
             onClick={decHandleOnClick}
             onMouseDown={decHandleOnMouseDown}
             onMouseUp={decHandleOnMouseUp}
@@ -84,13 +96,11 @@ function YearsCounter({
             value={count}
             pattern={'/^[1-9]{1,3}$/'}
             onFocus={(e) => e.target.select()}
-            onChange={(e) =>
-              setCount(Math.max(MIN_LEASE_DURATION, +e.target.value))
-            }
+            onChange={onChange}
           />
           <button
             className="counterButton"
-            disabled={count == MAX_LEASE_DURATION}
+            disabled={count == maxValue}
             onClick={incHandleOnClick}
             onMouseDown={incHandleOnMouseDown}
             onMouseUp={incHandleOnMouseUp}

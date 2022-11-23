@@ -14,3 +14,12 @@
   flex-wrap: wrap;
   justify-content: center;
 }
+
+@media screen and (max-width: 600px) {
+  .featuredDomains {
+    width: 90%;
+  }
+  .cardContainer {
+    gap: 0.75em;
+  }
+}

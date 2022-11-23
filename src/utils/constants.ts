@@ -1,6 +1,6 @@
-// export const ARNS_NAME_REGEX = new RegExp('^(?!-)[a-z0-9-s+]{1,32}(?<!-)$');
+// note: lookahead/lookbehind regex's are not compatible with iOS browsers
 export const ARNS_NAME_REGEX = new RegExp(
-  '^[a-zA-Z0-9][a-zA-Z0-9-]{0,30}[a-zA-Z0-9]$',
+  '^([a-zA-Z0-9][a-zA-Z0-9-]{0,30}[a-zA-Z0-9]|[a-zA-Z0-9]{1})$',
 );
 export const ARNS_TXID_REGEX = new RegExp('^[a-z0-9-s+]{43}$');
 
