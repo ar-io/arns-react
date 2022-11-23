@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
-import useIsMobile from '../../../hooks/useIsMobile/useIsMobile';
+import { useIsMobile } from '../../../hooks';
 import { useStateValue } from '../../../state/state';
 import { ArNSDomain, ArNSMapping } from '../../../types';
 import { DEFAULT_EXPIRATION } from '../../../utils/constants';

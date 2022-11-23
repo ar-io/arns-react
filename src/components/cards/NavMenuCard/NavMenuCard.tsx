@@ -41,7 +41,7 @@ function NavMenuCard() {
     <>
       <MenuButton setShow={setShowMenu} show={showMenu} />
       {showMenu ? (
-        <div className="card" ref={menuRef}>
+        <div className="card menu" ref={menuRef}>
           {Object.entries(ROUTES).map(([key, route]) => {
             if (!route.index && (!route.protected || walletAddress))
               return (
