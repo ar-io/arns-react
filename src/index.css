@@ -308,6 +308,7 @@ button {
 }
 .dataDropdown {
   box-sizing: border-box;
+  position: relative;
   display: flex;
   width: 100%;
   height: 45px;

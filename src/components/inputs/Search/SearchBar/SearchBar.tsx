@@ -35,7 +35,10 @@ function SearchBar(props: SearchBarProps) {
     setShowDefaultText(true);
     setSearchResult(undefined);
     setSearchBarText(undefined);
-    setIsSearching(false);
+    if (setIsSearching) {
+      setIsSearching(false);
+    }
+
     return;
   }
 
@@ -70,7 +73,9 @@ function SearchBar(props: SearchBarProps) {
 
   function onSubmit(e: any) {
     e.preventDefault();
-    setIsSearching(true);
+    if (setIsSearching) {
+      setIsSearching(true);
+    }
     // validate again, just in case
     const searchValid = validationPredicate(searchBarText);
     setIsSearchValid(searchValid);
@@ -86,7 +91,7 @@ function SearchBar(props: SearchBarProps) {
     setSearchSubmitted(true);
     setIsAvailable(searchSuccess);
     setSearchResult(undefined);
-    if (!searchSuccess && name) {
+    if (!searchSuccess && name && values) {
       setSearchResult(values[name]);
       return;
     }
@@ -105,11 +110,15 @@ function SearchBar(props: SearchBarProps) {
 
   return (
     <div className="searchBarContainer flex-center" ref={searchRef}>
-      {React.cloneElement(headerElement, {
-        ...props,
-        text: submittedName,
-        isAvailable,
-      })}
+      {headerElement ? (
+        React.cloneElement(headerElement, {
+          ...props,
+          text: submittedName,
+          isAvailable,
+        })
+      ) : (
+        <></>
+      )}
       <div
         className="searchBar"
         style={
@@ -170,14 +179,18 @@ function SearchBar(props: SearchBarProps) {
           </>
         )}
       </div>
-      {React.cloneElement(footerElement, {
-        ...props,
-        isSearchValid,
-        isAvailable,
-        searchResult: submittedName
-          ? { id: searchResult, domain: submittedName }
-          : undefined,
-      })}
+      {footerElement ? (
+        React.cloneElement(footerElement, {
+          ...props,
+          isSearchValid,
+          isAvailable,
+          searchResult: submittedName
+            ? { id: searchResult, domain: submittedName }
+            : undefined,
+        })
+      ) : (
+        <></>
+      )}
     </div>
   );
 }

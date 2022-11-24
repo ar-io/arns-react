@@ -1,13 +1,21 @@
 import { useState } from 'react';
 
 import { DropdownProps } from '../../../types';
+import { ChevronDownIcon, ChevronUpIcon } from '../../icons';
 import './styles.css';
 
 function Dropdown(props: DropdownProps) {
-  const { options } = props;
+  const {
+    options,
+    showSelected,
+    showChevron,
+    selected,
+    setSelected,
+    headerElement,
+    footerElement,
+  } = props;
 
   const [showOptions, setShowOptions] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(0);
 
   return (
     <>
@@ -16,32 +24,68 @@ function Dropdown(props: DropdownProps) {
           className="dataDropdown center"
           onClick={() => setShowOptions(!showOptions)}
         >
-          {options[selectedOption]}
+          {options[selected]}
+          {showChevron ? (
+            <ChevronDownIcon
+              className="dropdownChevron"
+              fill="var(--text-black)"
+              width={'15'}
+              height={'15'}
+            />
+          ) : (
+            <></>
+          )}
         </div>
       ) : (
         <>
           <div className="dropdownOptions">
             <div
               className="dataDropdown selectedDropdownOption center"
+              style={{ borderBottom: 'none' }}
               onClick={() => setShowOptions(!showOptions)}
             >
-              {options[selectedOption]}
+              {showSelected ? options[selected] : <></>}
+              {showChevron ? (
+                <ChevronUpIcon
+                  className="dropdownChevron"
+                  fill="var(--text-black)"
+                  width={'15'}
+                  height={'15'}
+                />
+              ) : (
+                <></>
+              )}
             </div>
             <div className="activeDataDropdown">
+              {headerElement ? (
+                <div
+                  className="dataDropdown dropdownOption center"
+                  style={{
+                    border: 'none',
+                    height: 'fit-content',
+                    paddingBottom: '10px',
+                  }}
+                >
+                  {headerElement}
+                </div>
+              ) : (
+                <></>
+              )}
               {options.map((option, index) => {
-                if (index === selectedOption) {
+                if (index === selected) {
                   return;
                 }
                 if (
-                  index === options.length - 1 ||
-                  (selectedOption === options.length - 1 &&
-                    index === options.length - 2)
+                  (index === options.length - 1 && !footerElement) ||
+                  (selected === options.length - 1 &&
+                    index === options.length - 2 &&
+                    !footerElement)
                 ) {
                   return (
                     <div
                       className="dataDropdown lastDropdownOption center"
                       onClick={() => {
-                        setSelectedOption(index);
+                        setSelected(index);
                         setShowOptions(!showOptions);
                       }}
                     >
@@ -49,12 +93,12 @@ function Dropdown(props: DropdownProps) {
                     </div>
                   );
                 }
-                if (index !== selectedOption && index !== options.length) {
+                if (index !== selected && index !== options.length) {
                   return (
                     <div
                       className="dataDropdown dropdownOption center"
                       onClick={() => {
-                        setSelectedOption(index);
+                        setSelected(index);
                         setShowOptions(!showOptions);
                       }}
                     >
@@ -63,6 +107,13 @@ function Dropdown(props: DropdownProps) {
                   );
                 }
               })}
+              {footerElement ? (
+                <div className="dataDropdown lastDropdownOption center">
+                  {footerElement}
+                </div>
+              ) : (
+                <></>
+              )}
             </div>
           </div>
         </>

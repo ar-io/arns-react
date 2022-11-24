@@ -4,6 +4,8 @@ import ArConnectIcon from './ArConnectIcon.png';
 import ArnsDefault from './ArnsDefault.png';
 import { ReactComponent as ArrowUpRight } from './ArrowUpRight.svg';
 import ArweaveAppIcon from './ArweaveAppIcon.png';
+import { ReactComponent as ChevronDownIcon } from './ChevronDown.svg';
+import { ReactComponent as ChevronUpIcon } from './ChevronUp.svg';
 import { ReactComponent as CircleCheck } from './CircleCheck.svg';
 import { ReactComponent as CloseIcon } from './Close.svg';
 import { ReactComponent as MenuIcon } from './Menu.svg';
@@ -17,6 +19,8 @@ export {
   ArweaveAppIcon,
   ArrowUpRight,
   AlertCircle,
+  ChevronDownIcon,
+  ChevronUpIcon,
   CircleCheck,
   CloseIcon,
   MenuIcon,

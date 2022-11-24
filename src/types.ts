@@ -43,11 +43,11 @@ export interface ArweaveWalletConnector {
 export type SearchBarProps = {
   successPredicate: (value: string | undefined) => boolean;
   validationPredicate: (value: string | undefined) => boolean;
-  setIsSearching: Dispatch<SetStateAction<boolean>>;
-  placeholderText: string;
-  headerElement: JSX.Element;
-  footerElement: JSX.Element;
-  values: { [x: string]: string };
+  setIsSearching?: Dispatch<SetStateAction<boolean>>;
+  placeholderText?: string;
+  headerElement?: JSX.Element;
+  footerElement?: JSX.Element;
+  values?: { [x: string]: string };
 };
 
 export type SearchBarHeaderProps = {
@@ -76,4 +76,11 @@ export type TierCardProps = {
 
 export type DropdownProps = {
   options: Array<string>;
+  optionsFilter?: () => Array<string>; // optional filter to sort passed array of options
+  showSelected: boolean;
+  showChevron: boolean;
+  selected: number;
+  setSelected: Dispatch<SetStateAction<number>>;
+  headerElement?: JSX.Element;
+  footerElement?: JSX.Element;
 };

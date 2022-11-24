@@ -28,3 +28,9 @@
   border-bottom-right-radius: 0 !important;
   width: 100%;
 }
+.dropdownChevron {
+  box-sizing: border-box;
+  display: flex;
+  position: absolute;
+  right: 15px;
+}
