@@ -1,6 +1,6 @@
 import { ReactComponent as AccountIcon } from './Account.svg';
 import { ReactComponent as AlertCircle } from './AlertCircle.svg';
-import ArConnectIcon from './ArConnectIcon.png';
+import { ReactComponent as ArConnectIcon } from './ArConnect.svg';
 import ArnsDefault from './ArnsDefault.png';
 import { ReactComponent as ArrowUpRight } from './ArrowUpRight.svg';
 import ArweaveAppIcon from './ArweaveAppIcon.png';

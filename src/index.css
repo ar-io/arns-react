@@ -82,8 +82,8 @@ button {
 }
 
 .external-icon {
-  width: 6vmin;
-  height: 6vmin;
+  width: 2vw;
+  height: 2vw;
 }
 
 .text {
@@ -308,6 +308,11 @@ button {
 
   .text {
     font-size: 2.3vw;
+  }
+
+  .external-icon {
+    width: 6vw;
+    height: 6vw;
   }
 
   .sectionHeader {

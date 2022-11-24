@@ -79,7 +79,7 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
           </label>
         </button>
         <button className="walletConnectButton h2">
-          <img className="external-icon" src={ArConnectIcon} alt="arconnect" />
+          <ArConnectIcon className="external-icon" />
           Connect via ArConnect
         </button>
         <button className="walletConnectButton h2">
