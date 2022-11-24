@@ -64,12 +64,8 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
         <button className="modalCloseButton" onClick={closeModal}>
           <CloseIcon width="30px" height={'30px'} fill="var(--text-white)" />
         </button>
-        <button className="walletConnectButton">
-          <UploadIcon
-            width={'47px'}
-            height={'47px'}
-            fill={'var(--text-white)'}
-          />
+        <button className="walletConnectButton h2">
+          <UploadIcon className="external-icon" fill={'var(--text-white)'} />
           Import your JSON keyfile
           <label className="span-all">
             <input
@@ -82,15 +78,15 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
             />
           </label>
         </button>
-        <button className="walletConnectButton">
-          <img src={ArConnectIcon} alt="" width="47px" height="47px" />
+        <button className="walletConnectButton h2">
+          <img className="external-icon" src={ArConnectIcon} alt="arconnect" />
           Connect via ArConnect
         </button>
-        <button className="walletConnectButton">
-          <img src={ArweaveAppIcon} alt="" width="47px" height="47px" />
+        <button className="walletConnectButton h2">
+          <img className="external-icon" src={ArweaveAppIcon} alt="" />
           Connect using Arweave.app
         </button>
-        <span className="bold text white" style={{ marginTop: '1em' }}>
+        <span className="bold text white h2" style={{ marginTop: '1em' }}>
           Don&apos;t have a wallet?&nbsp;
           <a
             target="_blank"

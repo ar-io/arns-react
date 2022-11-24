@@ -33,7 +33,7 @@ function Home() {
 
   return (
     <div className="page">
-      <div className="pageHeader">Arweave Name System</div>
+      <div className="pageHeader h1">Arweave Name System</div>
       <SearchBar
         setIsSearching={setIsSearching}
         values={records}

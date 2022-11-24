@@ -66,13 +66,31 @@ button {
   cursor: pointer;
 }
 
-.text {
-  display: flex;
-  font-size: 12px;
-  max-width: 475px;
-  text-decoration: none;
+.h1 {
+  font-family: 'Rubik-Bold';
+  font-style: normal;
+  font-weight: 1200;
+  font-size: 3.5vw;
+  line-height: 85px;
 }
 
+.h2 {
+  font-weight: 500;
+  font-size: 1vw;
+  font-family: 'Rubik';
+  font-weight: 500;
+}
+
+.external-icon {
+  width: 6vmin;
+  height: 6vmin;
+}
+
+.text {
+  display: flex;
+  font-size: 0.75vw;
+  text-decoration: none;
+}
 .flex-row {
   display: flex;
   flex-direction: row;
@@ -145,6 +163,7 @@ button {
 .accent {
   background-color: var(--accent);
 }
+
 .roundButton {
   display: flex;
   min-width: 50px !important;
@@ -173,11 +192,6 @@ button {
 
 .pageHeader {
   display: flex;
-  font-family: 'Rubik-Bold';
-  font-style: normal;
-  font-weight: 1200;
-  font-size: 72px;
-  line-height: 85px;
   width: 75%;
   max-width: 850px;
   text-align: center;
@@ -282,10 +296,20 @@ button {
 
 /* TOP LEVEL RESIZE RULES */
 @media screen and (max-width: 600px) {
-  .pageHeader {
-    font-size: 48px;
+  /* all these are relative to their ratios above */
+  .h1 {
+    font-size: 10.5vw;
     line-height: unset;
   }
+
+  .h2 {
+    font-size: 3vw;
+  }
+
+  .text {
+    font-size: 2.3vw;
+  }
+
   .sectionHeader {
     font-size: 14px;
     line-height: unset;

@@ -13,7 +13,10 @@ function SearchBarFooter({
     <>
       {!searchResult?.domain ? (
         <>
-          <div className="text faded center">
+          <div
+            className="text faded center"
+            style={{ width: '75%', maxWidth: '475px' }}
+          >
             {!isSearchValid ? (
               <div className="errorContainer">
                 <span className="illegalChar">{defaultText}</span>
