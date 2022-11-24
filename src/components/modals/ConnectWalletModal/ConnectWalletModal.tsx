@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { JsonWalletConnector } from '../../../services/wallets/JsonWalletConnector';
 import { useStateValue } from '../../../state/state';
@@ -14,6 +14,15 @@ import './styles.css';
 function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
   const modalRef = useRef(null);
   const [{}, dispatch] = useStateValue(); // eslint-disable-line
+
+  useEffect(() => {
+    // disable scrolling when modal is in view
+    if (show) {
+      document.body.style.overflow = 'hidden';
+      return;
+    }
+    document.body.style.overflow = 'unset';
+  }, [show]);
 
   function handleClickOutside(e: any) {
     if (modalRef.current && modalRef.current === e.target) {
