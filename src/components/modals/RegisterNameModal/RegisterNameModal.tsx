@@ -1,3 +1,4 @@
+import Dropdown from '../../inputs/Dropdown/Dropdown';
 import UpgradeTier from '../../layout/UpgradeTier/UpgradeTier';
 import './styles.css';
 
@@ -10,17 +11,12 @@ function RegisterNameModal() {
 
       <div className="registerInputs center">
         <div className="inputGroup center column">
-          <select
-            className="dataDropdown center"
-            placeholder="I have an Arweave Name Token (ANT) I want to use"
-          >
-            <option className="dataInput center">
-              I have an Arweave Name Token (ANT) I want to use
-            </option>
-            <option className="dataInput center">
-              Create an Arweave Name Token (ANT) for me
-            </option>
-          </select>
+          <Dropdown
+            options={[
+              'Create an Arweave Name Token (ANT) for me',
+              'I have an Arweave Name Token (ANT) I want to use',
+            ]}
+          />
           <input
             className="dataInput center"
             type="text"
@@ -28,7 +24,7 @@ function RegisterNameModal() {
           />
         </div>
 
-        <div className="inputGroup center row">
+        <div className="inputGroup center">
           <input
             className="dataInput center"
             type="text"
@@ -44,7 +40,7 @@ function RegisterNameModal() {
             type="text"
             placeholder="Controller"
           />
-          <input className="dataInput center" type="text" placeholder="TTL" />
+          <Dropdown options={['700ms', '800ms', '900ms', '1000ms']} />
         </div>
       </div>
 

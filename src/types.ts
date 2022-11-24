@@ -73,3 +73,7 @@ export type TierCardProps = {
   setTier: Dispatch<SetStateAction<number>>;
   selectedTier: number;
 };
+
+export type DropdownProps = {
+  options: Array<string>;
+};

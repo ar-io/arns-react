@@ -3,15 +3,15 @@ import { useEffect, useState } from 'react';
 import { useStateValue } from '../../../state/state';
 import { ArNSDomains } from '../../../types';
 import { FEATURED_DOMAINS } from '../../../utils/constants';
-import {FeaturedDomains} from '../../layout';
 import {
   isArNSDomainNameAvailable,
   isArNSDomainNameValid,
 } from '../../../utils/searchUtils';
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
+import { FeaturedDomains } from '../../layout';
 import { SearchBarFooter, SearchBarHeader } from '../../layout';
-import './styles.css';
 import RegisterNameModal from '../../modals/RegisterNameModal/RegisterNameModal';
+import './styles.css';
 
 function Home() {
   const [{ arnsSourceContract }] = useStateValue();
@@ -59,7 +59,7 @@ function Home() {
       ) : (
         <></>
       )}
-        <RegisterNameModal />
+      <RegisterNameModal />
     </div>
   );
 }
