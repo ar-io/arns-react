@@ -70,27 +70,27 @@ button {
   font-family: 'Rubik-Bold';
   font-style: normal;
   font-weight: 1200;
-  font-size: 3.5vw;
   line-height: 85px;
+  font-size: clamp(36px, 3.5vw, 72px);
 }
 
 .h2 {
   font-weight: 500;
-  font-size: 1vw;
   font-family: 'Rubik';
-  font-weight: 500;
+  font-size: clamp(14px, 1vw, 24px);
 }
 
 .external-icon {
-  width: 2vw;
-  height: 2vw;
+  width: clamp(24px, 1.25vw, 48px);
+  height: clamp(24px, 1.25vw, 48px);
 }
 
 .text {
   display: flex;
-  font-size: 0.75vw;
+  font-size: clamp(12px, 0.75vw, 14px);
   text-decoration: none;
 }
+
 .flex-row {
   display: flex;
   flex-direction: row;
@@ -298,21 +298,7 @@ button {
 @media screen and (max-width: 600px) {
   /* all these are relative to their ratios above */
   .h1 {
-    font-size: 10.5vw;
     line-height: unset;
-  }
-
-  .h2 {
-    font-size: 3vw;
-  }
-
-  .text {
-    font-size: 2.3vw;
-  }
-
-  .external-icon {
-    width: 6vw;
-    height: 6vw;
   }
 
   .sectionHeader {
