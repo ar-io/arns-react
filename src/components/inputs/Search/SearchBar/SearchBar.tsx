@@ -14,6 +14,7 @@ function SearchBar(props: SearchBarProps) {
     headerElement,
     footerElement,
     values,
+    height,
     setIsSearching,
   } = props;
 
@@ -147,6 +148,7 @@ function SearchBar(props: SearchBarProps) {
             {!isAvailable || !submittedName ? (
               <button
                 className="searchButton"
+                style={{width:`${height}px`, height:`${height}px`}}
                 onClick={(e) => {
                   onSubmit(e);
                 }}

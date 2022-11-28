@@ -55,6 +55,7 @@ function RegisterNameModal() {
                     return true;
                   }}
                   placeholderText="Enter ANT Contract ID"
+                  height={30}
                 />
               }
               footerElement={

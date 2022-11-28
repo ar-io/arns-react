@@ -53,6 +53,7 @@ function Home() {
             }
           />
         }
+        height={45}
       />
       {featuredDomains && !isSearching ? (
         <FeaturedDomains domains={featuredDomains} />

@@ -48,6 +48,7 @@ export type SearchBarProps = {
   headerElement?: JSX.Element;
   footerElement?: JSX.Element;
   values?: { [x: string]: string };
+  height?: number;
 };
 
 export type SearchBarHeaderProps = {
