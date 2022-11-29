@@ -42,7 +42,7 @@ function RegisterNameModal() {
           ) : antFlow === 1 ? (
             <Dropdown
               showChevron={true}
-              showSelected={true}
+              showSelected={false}
               options={['ant one', 'ant two', 'ant one', 'ant two']}
               selected={antAddress}
               setSelected={setAntAddress}
