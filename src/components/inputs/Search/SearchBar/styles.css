@@ -10,6 +10,7 @@
 
 .searchBar {
   display: flex;
+  position: relative;
   width: 75%;
   max-width: 620px;
   min-width: 250px;
@@ -18,12 +19,14 @@
   border: 2px solid #e0e0e0;
   border-radius: 100px;
   align-items: center;
+  justify-content: space-between;
   padding: 9px;
 }
 .searchBar:hover {
   box-shadow: 0px 0px 4px 1px rgba(255, 255, 255, 0.72);
 }
 .searchBar input {
+  box-sizing: border-box;
   display: flex;
   width: 100%;
   border-radius: 100px;
@@ -46,15 +49,16 @@
 }
 .searchButton {
   display: flex;
-  min-width: 30px;
-  min-height: 30px;
+  position: absolute;
   background: var(--text-white);
   box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
-  border-radius: 500px;
+  border-radius: 1000px;
   border: none;
   justify-content: center;
   align-items: center;
   padding: 0;
+  margin: 0px;
+  right: 9px;
 }
 .searchButton:hover {
   box-shadow: 0px 0px 4px rgba(0, 0, 0);

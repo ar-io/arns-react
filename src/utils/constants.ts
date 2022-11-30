@@ -23,17 +23,17 @@ export const FEATURED_DOMAINS = [
 // TODO: pull from contract
 export const TIER_DATA: { [x: number]: string[] } = {
   1: [
-    'Up to 100 Subdomains',
+    'Up to 100 Undernames',
     'Available via all ArNS-enabled gateways',
     'Permanently stored on Arweave',
   ],
   2: [
-    'Up to 1,000 Subdomains',
+    'Up to 1,000 Undernames',
     'Available via all ArNS-enabled gateways',
     'Permanently stored on Arweave',
   ],
   3: [
-    'Up to 10,000 Subdomains',
+    'Up to 10,000 Undernames',
     'Available via all ArNS-enabled gateways',
     'Permanently stored on Arweave',
   ],

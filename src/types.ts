@@ -45,6 +45,7 @@ export type SearchBarProps = {
   successPredicate: (value: string | undefined) => boolean;
   validationPredicate: (value: string | undefined) => boolean;
   setIsSearching?: Dispatch<SetStateAction<boolean>>;
+  isSearching?: boolean;
   placeholderText?: string;
   headerElement?: JSX.Element;
   footerElement?: JSX.Element;
@@ -76,22 +77,56 @@ export type TierCardProps = {
 };
 
 export type DropdownProps = {
-  options: Array<string>;
+  options: { [x: string]: any };
   optionsFilter?: () => Array<string>; // optional filter to sort passed array of options
   showSelected: boolean;
   showChevron: boolean;
-  selected: number;
-  setSelected: Dispatch<SetStateAction<number>>;
+  selected: any;
+  setSelected: Dispatch<SetStateAction<any>>;
   headerElement?: JSX.Element;
   footerElement?: JSX.Element;
 };
 
-export type StateProviderProps = {
-  reducer: React.Reducer<
-    { [x: number | string]: any },
-    { type: string; payload: any }
-  >;
+export type RegistrationState = {
+  domain: string;
+  leaseDuration: number;
+  chosenTier: number;
+  nickname?: string;
+  ticker?: string;
+  controllers: Array<ArweaveTransactionId>;
+  ttl: number;
+  antID?: ArweaveTransactionId;
+  fee: { ar: number; io: number };
+  isRegistering: boolean;
+  isRegistered: boolean;
+  stage: number;
+  isFirstStage: boolean;
+  isLastStage: boolean;
+  errors?: Array<Error>;
+};
+
+export type RegistrationAction =
+  | { type: 'setDomainName'; payload: string }
+  | { type: 'setLeaseDuration'; payload: number }
+  | { type: 'setChosenTier'; payload: number }
+  | { type: 'setNickname'; payload: string }
+  | { type: 'setTicker'; payload: string }
+  | { type: 'setControllers'; payload: Array<ArweaveTransactionId> }
+  | { type: 'setTTL'; payload: number }
+  | { type: 'setAntID'; payload: ArweaveTransactionId }
+  | { type: 'setFee'; payload: { ar: number; io: number } }
+  | { type: 'setIsRegistering'; payload: boolean }
+  | { type: 'setIsRegistered'; payload: boolean }
+  | { type: 'setStage'; payload: number }
+  | { type: 'setIsFirstStage'; payload: boolean }
+  | { type: 'setIsLastStage'; payload: boolean }
+  | { type: 'setErrors'; payload: Array<Error> };
+
+export type RegistrationStateProviderProps = {
+  reducer: React.Reducer<RegistrationState, RegistrationAction>;
   children: React.ReactNode;
+  firstStage: any;
+  lastStage: any;
 };
 
 export type WorkflowProps = {

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import useIsMobile from '../../../../hooks/useIsMobile/useIsMobile';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
@@ -17,6 +17,7 @@ function SearchBar(props: SearchBarProps) {
     values,
     height,
     setIsSearching,
+    isSearching,
   } = props;
 
   const [{ walletAddress }, dispatchGlobalState] = useGlobalState();
@@ -30,6 +31,12 @@ function SearchBar(props: SearchBarProps) {
   const [submittedName, setSubmittedName] = useState<string | undefined>();
   const [searchResult, setSearchResult] = useState<string | undefined>();
   const searchRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (stage == 0 && !isSearching) {
+      reset();
+    }
+  }, [stage]);
 
   function reset() {
     setSearchSubmitted(false);
@@ -93,10 +100,10 @@ function SearchBar(props: SearchBarProps) {
     setSubmittedName(name);
     if (name) {
       dispatchRegisterState({
-      type:"setDomainName",
-      payload:name
-    })
-  }
+        type: 'setDomainName',
+        payload: name,
+      });
+    }
     setSearchSubmitted(true);
     setIsAvailable(searchSuccess);
     setSearchResult(undefined);
@@ -152,6 +159,7 @@ function SearchBar(props: SearchBarProps) {
           onKeyDown={(e) => e.key == 'Enter' && isSearchValid && onSubmit(e)}
           maxLength={32}
           className="searchBarInput"
+          style={height ? { height: `${height}px` } : {}}
         />
         {isMobile ? (
           <></>
@@ -160,7 +168,12 @@ function SearchBar(props: SearchBarProps) {
             {!isAvailable || !submittedName ? (
               <button
                 className="searchButton"
-                style={{ width: `${height}px`, height: `${height}px` }}
+                style={{
+                  width: `${height}px`,
+                  height: `${height}px`,
+                  maxWidth: `${height}px`,
+                  maxHeight: `${height}px`,
+                }}
                 onClick={(e) => {
                   onSubmit(e);
                 }}
@@ -168,8 +181,8 @@ function SearchBar(props: SearchBarProps) {
                 <SearchIcon
                   fill="#121212"
                   stroke="white"
-                  width="18.51"
-                  height="18.51"
+                  width={height ? `${height / 2.2}` : '18.51px'}
+                  height={height ? `${height / 2.2}` : '18.51px'}
                 />
               </button>
             ) : (

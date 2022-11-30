@@ -20,15 +20,42 @@ function UpgradeTier() {
   // name is passed down from search bar to calculate price
   const [priceInfo, setPriceInfo] = useState(false);
 
-  const [{fee, leaseDuration, chosenTier, domain}, dispatchRegisterState] = useRegistrationState()
+  const [
+    {
+      fee,
+      leaseDuration,
+      chosenTier,
+      domain,
+      stage,
+      isFirstStage,
+      isLastStage,
+    },
+    dispatchRegisterState,
+  ] = useRegistrationState();
+
+  function updateRegisterState({ key, value }: { key: any; value: any }) {
+    setTimeout(
+      () =>
+        dispatchRegisterState({
+          type: key,
+          payload: value,
+        }),
+      50,
+    );
+  }
 
   useEffect(() => {
     const fees = arnsSourceContract.fees;
-    const newFee = calculateArNSNamePrice({ domain, selectedTier:chosenTier, years:leaseDuration, fees });
+    const newFee = calculateArNSNamePrice({
+      domain,
+      selectedTier: chosenTier,
+      years: leaseDuration,
+      fees,
+    });
     dispatchRegisterState({
-      type:"setFee",
-      payload: {ar:fee.ar,io:newFee}
-    })
+      type: 'setFee',
+      payload: { ar: fee.ar, io: newFee },
+    });
   }, [leaseDuration, chosenTier, domain, arnsSourceContract]);
 
   function showConnectWallet() {
@@ -47,10 +74,7 @@ function UpgradeTier() {
       />
       <div className="cardContainer">
         {Object.keys(TIER_DATA).map((tier, index: number) => (
-          <TierCard
-            tier={+tier}
-            key={index}
-          />
+          <TierCard tier={+tier} key={index} />
         ))}
       </div>
       <button
@@ -87,7 +111,38 @@ function UpgradeTier() {
           Connect Wallet to proceed
         </button>
       ) : (
-        <button className="accentButton">Next</button>
+        <div className="flex-row center">
+          {stage !== 0 ? (
+            <button
+              className="hollowButton"
+              onClick={() =>
+                !isFirstStage
+                  ? dispatchRegisterState({
+                      type: 'setStage',
+                      payload: stage - 1,
+                    })
+                  : null
+              }
+            >
+              Back
+            </button>
+          ) : (
+            <></>
+          )}
+          <button
+            className="accentButton"
+            onClick={() =>
+              !isLastStage
+                ? dispatchRegisterState({
+                    type: 'setStage',
+                    payload: stage + 1,
+                  })
+                : null
+            }
+          >
+            Next
+          </button>
+        </div>
       )}
     </div>
   );

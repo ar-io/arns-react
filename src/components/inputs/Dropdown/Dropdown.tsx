@@ -24,7 +24,7 @@ function Dropdown(props: DropdownProps) {
           className="dataDropdown center"
           onClick={() => setShowOptions(!showOptions)}
         >
-          {options[selected]}
+          {selected}
           {showChevron ? (
             <ChevronDownIcon
               className="dropdownChevron"
@@ -44,7 +44,7 @@ function Dropdown(props: DropdownProps) {
               style={{ borderBottom: 'none' }}
               onClick={() => setShowOptions(!showOptions)}
             >
-              {showSelected ? options[selected] : <></>}
+              {showSelected ? selected : <></>}
               {showChevron ? (
                 <ChevronUpIcon
                   className="dropdownChevron"
@@ -71,7 +71,7 @@ function Dropdown(props: DropdownProps) {
               ) : (
                 <></>
               )}
-              {options.map((option, index) => {
+              {Object.entries(options).map(([key, value], index) => {
                 if (index === selected) {
                   return;
                 }
@@ -85,11 +85,11 @@ function Dropdown(props: DropdownProps) {
                     <div
                       className="dataDropdown lastDropdownOption center"
                       onClick={() => {
-                        setSelected(index);
+                        setSelected(value);
                         setShowOptions(!showOptions);
                       }}
                     >
-                      {option}
+                      {key}
                     </div>
                   );
                 }
@@ -98,11 +98,11 @@ function Dropdown(props: DropdownProps) {
                     <div
                       className="dataDropdown dropdownOption center"
                       onClick={() => {
-                        setSelected(index);
+                        setSelected(value);
                         setShowOptions(!showOptions);
                       }}
                     >
-                      {option}
+                      {key}
                     </div>
                   );
                 }

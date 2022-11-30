@@ -1,20 +1,5 @@
 import type { ArweaveTransactionId } from '../../types';
-import { RegistrationState } from '../contexts/RegistrationState';
-
-export type RegistrationAction =
-  | { type: 'setDomainName'; payload: string }
-  | { type: 'setLeaseDuration'; payload: number }
-  | { type: 'setChosenTier'; payload: number }
-  | { type: 'setNickname'; payload: string }
-  | { type: 'setTicker'; payload: string }
-  | { type: 'setControllers'; payload: Array<ArweaveTransactionId> }
-  | { type: 'setTTL'; payload: number }
-  | { type: 'setAntID'; payload: ArweaveTransactionId }
-  | { type: 'setFee'; payload: { ar: number; io: number } }
-  | { type: 'setIsRegistering'; payload: boolean }
-  | { type: 'setIsRegistered'; payload: boolean }
-  | { type: 'setStage'; payload: number }
-  | { type: 'setErrors'; payload: Array<Error> };
+import { RegistrationAction, RegistrationState } from '../../types';
 
 export const registrationReducer = (
   state: RegistrationState,
@@ -85,6 +70,16 @@ export const registrationReducer = (
       return {
         ...state,
         errors: action.payload,
+      };
+    case 'setIsFirstStage':
+      return {
+        ...state,
+        isFirstStage: action.payload,
+      };
+    case 'setIsLastStage':
+      return {
+        ...state,
+        isLastStage: action.payload,
       };
     default:
       return state;

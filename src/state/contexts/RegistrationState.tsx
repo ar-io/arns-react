@@ -1,24 +1,18 @@
-import React, { Dispatch, createContext, useContext, useReducer } from 'react';
+import React, {
+  Dispatch,
+  createContext,
+  useContext,
+  useEffect,
+  useReducer,
+} from 'react';
 
-import { ArweaveTransactionId } from '../../types';
-import { RegistrationAction } from '../reducers/RegistrationReducer';
+import {
+  ArweaveTransactionId,
+  RegistrationAction,
+  RegistrationState,
+  RegistrationStateProviderProps,
+} from '../../types';
 import { registrationReducer } from '../reducers/RegistrationReducer';
-
-export type RegistrationState = {
-  domain: string;
-  leaseDuration: number;
-  chosenTier: number;
-  nickname?: string;
-  ticker?: string;
-  controllers: Array<ArweaveTransactionId>;
-  ttl: number;
-  antID?: ArweaveTransactionId;
-  fee: { ar: number; io: number };
-  isRegistering: boolean;
-  isRegistered: boolean;
-  stage: number;
-  errors?: Array<Error>;
-};
 
 export const initialRegistrationState: RegistrationState = {
   domain: '',
@@ -30,6 +24,8 @@ export const initialRegistrationState: RegistrationState = {
   isRegistering: false,
   isRegistered: false,
   stage: 0,
+  isFirstStage: true,
+  isLastStage: false,
 };
 
 const RegistrationStateContext = createContext<
@@ -41,20 +37,42 @@ export const useRegistrationState = (): [
   Dispatch<RegistrationAction>,
 ] => useContext(RegistrationStateContext);
 
-type StateProviderProps = {
-  reducer: React.Reducer<RegistrationState, RegistrationAction>;
-  children: React.ReactNode;
-};
-
 /** Create provider to wrap app in */
 export default function RegistrationStateProvider({
   reducer,
   children,
-}: StateProviderProps): JSX.Element {
+  firstStage,
+  lastStage,
+}: RegistrationStateProviderProps): JSX.Element {
   const [state, dispatchRegisterState] = useReducer(
     registrationReducer,
     initialRegistrationState,
   );
+  useEffect(() => {
+    if (state.stage === lastStage) {
+      dispatchRegisterState({
+        type: 'setIsLastStage',
+        payload: true,
+      });
+    }
+    if (state.stage === firstStage) {
+      dispatchRegisterState({
+        type: 'setIsFirstStage',
+        payload: true,
+      });
+    }
+    if (state.stage !== lastStage && state.stage !== firstStage) {
+      dispatchRegisterState({
+        type: 'setIsLastStage',
+        payload: false,
+      });
+      dispatchRegisterState({
+        type: 'setIsFirstStage',
+        payload: false,
+      });
+    }
+  }, [state.stage]);
+
   return (
     <RegistrationStateContext.Provider value={[state, dispatchRegisterState]}>
       {children}

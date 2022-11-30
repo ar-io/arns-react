@@ -13,26 +13,46 @@ function YearsCounter({
   minValue: number;
   period?: 'years' | 'days' | 'minutes';
 }) {
-  const [{leaseDuration}, dispatchRegisterState] = useRegistrationState()
+  const [{ leaseDuration }, dispatchRegisterState] = useRegistrationState();
   const [registration, setRegistration] = useState('');
+  let initialcount = leaseDuration;
   const {
     handleOnClick: incHandleOnClick,
     handleOnMouseDown: incHandleOnMouseDown,
     handleOnMouseUp: incHandleOnMouseUp,
     handleOnTouchEnd: incHandleOnTouchEnd,
     handleOnTouchStart: incHandleOnTouchStart,
-  } = useLongPress(() => (leaseDuration < maxValue ? dispatchRegisterState({type:"setLeaseDuration", payload:leaseDuration+1}) : null));
+  } = useLongPress(() =>
+    leaseDuration < maxValue
+      ? updateRegisterState({ key: 'setLeaseDuration', value: ++initialcount })
+      : null,
+  );
   const {
     handleOnClick: decHandleOnClick,
     handleOnMouseDown: decHandleOnMouseDown,
     handleOnMouseUp: decHandleOnMouseUp,
     handleOnTouchEnd: decHandleOnTouchEnd,
     handleOnTouchStart: decHandleOnTouchStart,
-  } = useLongPress(() => (leaseDuration > minValue ? dispatchRegisterState({type:"setLeaseDuration", payload:leaseDuration-1}) : null));
+  } = useLongPress(() =>
+    leaseDuration > minValue
+      ? updateRegisterState({ key: 'setLeaseDuration', value: --initialcount })
+      : null,
+  );
 
   useEffect(() => {
     changePeriod();
   }, [leaseDuration]);
+
+  function updateRegisterState({ key, value }: { key: any; value: any }) {
+    setTimeout(
+      () =>
+        dispatchRegisterState({
+          type: key,
+          payload: value,
+        }),
+      50,
+    );
+  }
 
   function changePeriod() {
     const date = new Date();
@@ -59,16 +79,16 @@ function YearsCounter({
   function onChange(e: any) {
     const value = +e.target.value;
     if (value < minValue) {
-      dispatchRegisterState({type:"setLeaseDuration", payload:minValue});
+      dispatchRegisterState({ type: 'setLeaseDuration', payload: minValue });
       return;
     }
 
     if (value > maxValue) {
-      dispatchRegisterState({type:"setLeaseDuration", payload:maxValue});
+      dispatchRegisterState({ type: 'setLeaseDuration', payload: maxValue });
       return;
     }
 
-    dispatchRegisterState({type:"setLeaseDuration", payload:value});
+    dispatchRegisterState({ type: 'setLeaseDuration', payload: value });
     return;
   }
 
@@ -85,6 +105,7 @@ function YearsCounter({
             onMouseUp={decHandleOnMouseUp}
             onTouchStart={decHandleOnTouchStart}
             onTouchEnd={decHandleOnTouchEnd}
+            onMouseLeave={decHandleOnTouchEnd}
           >
             -
           </button>
@@ -104,6 +125,7 @@ function YearsCounter({
             onMouseUp={incHandleOnMouseUp}
             onTouchStart={incHandleOnTouchStart}
             onTouchEnd={incHandleOnTouchEnd}
+            onMouseLeave={incHandleOnTouchEnd}
           >
             +
           </button>

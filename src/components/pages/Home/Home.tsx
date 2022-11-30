@@ -9,6 +9,7 @@ import {
   isArNSDomainNameAvailable,
   isArNSDomainNameValid,
 } from '../../../utils/searchUtils';
+import { AntCard } from '../../cards';
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import { FeaturedDomains } from '../../layout';
 import { SearchBarFooter, SearchBarHeader } from '../../layout';
@@ -29,6 +30,7 @@ function Home() {
       component: (
         <SearchBar
           setIsSearching={setIsSearching}
+          isSearching={isSearching}
           values={records}
           successPredicate={(value: string | undefined) =>
             isArNSDomainNameAvailable({ name: value, records })
@@ -71,7 +73,11 @@ function Home() {
     <div className="page">
       <div className="pageHeader">Arweave Name System</div>
 
-      <RegistrationStateProvider reducer={registrationReducer}>
+      <RegistrationStateProvider
+        reducer={registrationReducer}
+        firstStage={0}
+        lastStage={4}
+      >
         <Workflow stages={registrationWorkflow} />
       </RegistrationStateProvider>
 
