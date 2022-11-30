@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { useStateValue } from '../../../state/state';
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
   MAX_LEASE_DURATION,
   MIN_LEASE_DURATION,
@@ -15,7 +15,7 @@ import './styles.css';
 
 function UpgradeTier({ domain }: { domain?: string }) {
   const [{ arnsSourceContract, walletAddress, jwk }, dispatch] =
-    useStateValue();
+    useGlobalState();
   // name is passed down from search bar to calculate price
   const [selectedTier, setSelectedTier] = useState(1);
   const [price, setPrice] = useState<number | undefined>(0);

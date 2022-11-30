@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { useStateValue } from '../../../state/state';
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ROUTES } from '../../../utils/routes';
 import ConnectButton from '../../inputs/buttons/ConnectButton/ConnectButton';
 import MenuButton from '../../inputs/buttons/MenuButton/MenuButton';
@@ -8,7 +8,7 @@ import NavBarLink from '../../layout/Navbar/NavBarLink/NavBarLink';
 import './styles.css';
 
 function NavMenuCard() {
-  const [{ walletAddress }] = useStateValue();
+  const [{ walletAddress }] = useGlobalState();
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 

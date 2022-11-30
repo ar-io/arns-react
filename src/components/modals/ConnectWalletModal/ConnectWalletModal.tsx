@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 
 import { JsonWalletConnector } from '../../../services/wallets/JsonWalletConnector';
-import { useStateValue } from '../../../state/state';
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ArweaveWalletConnector } from '../../../types';
 import {
   ArConnectIcon,
@@ -13,7 +13,7 @@ import './styles.css';
 
 function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
   const modalRef = useRef(null);
-  const [{}, dispatch] = useStateValue(); // eslint-disable-line
+  const [{}, dispatch] = useGlobalState(); // eslint-disable-line
 
   function handleClickOutside(e: any) {
     if (modalRef.current && modalRef.current === e.target) {

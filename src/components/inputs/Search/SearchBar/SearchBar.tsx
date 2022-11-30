@@ -1,7 +1,8 @@
 import React, { useRef, useState } from 'react';
 
 import useIsMobile from '../../../../hooks/useIsMobile/useIsMobile';
-import { useStateValue } from '../../../../state/state';
+import { useGlobalState } from '../../../../state/contexts/GlobalState';
+import { useRegistrationState } from '../../../../state/contexts/RegistrationState';
 import { SearchBarProps } from '../../../../types';
 import { ArrowUpRight, SearchIcon } from '../../../icons';
 import './styles.css';
@@ -18,7 +19,8 @@ function SearchBar(props: SearchBarProps) {
     setIsSearching,
   } = props;
 
-  const [{ walletAddress }, dispatch] = useStateValue();
+  const [{ walletAddress }, dispatchGlobalState] = useGlobalState();
+  const [{ stage }, dispatchRegisterState] = useRegistrationState();
   const isMobile = useIsMobile();
   const [isSearchValid, setIsSearchValid] = useState(true);
   const [showDefaultText, setShowDefaultText] = useState(true);
@@ -100,12 +102,16 @@ function SearchBar(props: SearchBarProps) {
 
   function handleNext() {
     if (!walletAddress) {
-      dispatch({
+      dispatchGlobalState({
         type: 'setConnectWallet',
         payload: true,
       });
       return;
     }
+    dispatchRegisterState({
+      type: 'setStage',
+      payload: stage + 1,
+    });
     return;
   }
 
@@ -148,7 +154,7 @@ function SearchBar(props: SearchBarProps) {
             {!isAvailable || !submittedName ? (
               <button
                 className="searchButton"
-                style={{width:`${height}px`, height:`${height}px`}}
+                style={{ width: `${height}px`, height: `${height}px` }}
                 onClick={(e) => {
                   onSubmit(e);
                 }}

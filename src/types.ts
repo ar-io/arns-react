@@ -1,5 +1,6 @@
 import type { JWKInterface } from 'arweave/node/lib/wallet';
 import type { Dispatch, SetStateAction } from 'react';
+import React from 'react';
 
 export type ArNSDomains = { [x: string]: ArweaveTransactionId };
 
@@ -49,6 +50,7 @@ export type SearchBarProps = {
   footerElement?: JSX.Element;
   values?: { [x: string]: string };
   height?: number;
+  nextStage?: Dispatch<void>;
 };
 
 export type SearchBarHeaderProps = {
@@ -84,4 +86,16 @@ export type DropdownProps = {
   setSelected: Dispatch<SetStateAction<number>>;
   headerElement?: JSX.Element;
   footerElement?: JSX.Element;
+};
+
+export type StateProviderProps = {
+  reducer: React.Reducer<
+    { [x: number | string]: any },
+    { type: string; payload: any }
+  >;
+  children: React.ReactNode;
+};
+
+export type WorkflowProps = {
+  stages: { [x: number]: { component: any } };
 };

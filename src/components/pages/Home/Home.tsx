@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
-import Workflow from '../../layout/Workflow/Workflow';
-import { useStateValue } from '../../../state/state';
+
+import { useGlobalState } from '../../../state/contexts/GlobalState';
+import RegistrationStateProvider from '../../../state/contexts/RegistrationState';
+import { registrationReducer } from '../../../state/reducers/RegistrationReducer';
 import { ArNSDomains } from '../../../types';
 import { FEATURED_DOMAINS } from '../../../utils/constants';
 import {
@@ -10,30 +12,22 @@ import {
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import { FeaturedDomains } from '../../layout';
 import { SearchBarFooter, SearchBarHeader } from '../../layout';
+import Workflow from '../../layout/Workflow/Workflow';
 import RegisterNameModal from '../../modals/RegisterNameModal/RegisterNameModal';
 import './styles.css';
 
 function Home() {
-  const [{ arnsSourceContract }] = useStateValue();
+  const [{ arnsSourceContract }] = useGlobalState();
   const [records, setRecords] = useState<ArNSDomains>(
     arnsSourceContract.records,
   );
   const [featuredDomains, setFeaturedDomains] = useState<ArNSDomains>();
   const [isSearching, setIsSearching] = useState(false);
-  const [registrationWorkflow, setRegistrationWorkflow] = useState({})
 
-  useEffect(() => {
-    const newRecords = arnsSourceContract.records;
-    setRecords(newRecords);
-    const featuredDomains = Object.fromEntries(
-      Object.entries(newRecords).filter(([domain]) => {
-        return FEATURED_DOMAINS.includes(domain);
-      }),
-    );
-    setFeaturedDomains(featuredDomains);
-    setRegistrationWorkflow({
-      0: {
-          component:<SearchBar
+  const initialRegistrationWorkflowState = {
+    0: {
+      component: (
+        <SearchBar
           setIsSearching={setIsSearching}
           values={records}
           successPredicate={(value: string | undefined) =>
@@ -53,23 +47,39 @@ function Home() {
           }
           height={45}
         />
-      }
-  })
+      ),
+    },
+    1: { component: <RegisterNameModal /> },
+  };
+
+  const [registrationWorkflow, setRegistrationWorkflow] = useState(
+    initialRegistrationWorkflowState,
+  );
+
+  useEffect(() => {
+    const newRecords = arnsSourceContract.records;
+    setRecords(newRecords);
+    const featuredDomains = Object.fromEntries(
+      Object.entries(newRecords).filter(([domain]) => {
+        return FEATURED_DOMAINS.includes(domain);
+      }),
+    );
+    setFeaturedDomains(featuredDomains);
   }, [arnsSourceContract]);
 
   return (
     <div className="page">
       <div className="pageHeader">Arweave Name System</div>
-      <Workflow 
-      comps={registrationWorkflow}
-      />
+
+      <RegistrationStateProvider reducer={registrationReducer}>
+        <Workflow stages={registrationWorkflow} />
+      </RegistrationStateProvider>
+
       {featuredDomains && !isSearching ? (
         <FeaturedDomains domains={featuredDomains} />
       ) : (
         <></>
       )}
-      <RegisterNameModal />
-    
     </div>
   );
 }

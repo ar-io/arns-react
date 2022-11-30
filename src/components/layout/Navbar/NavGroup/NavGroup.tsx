@@ -1,5 +1,5 @@
 import useIsMobile from '../../../../hooks/useIsMobile/useIsMobile';
-import { useStateValue } from '../../../../state/state';
+import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { ROUTES } from '../../../../utils/routes';
 import NavMenuCard from '../../../cards/NavMenuCard/NavMenuCard';
 import { AccountIcon } from '../../../icons';
@@ -9,7 +9,7 @@ import './styles.css';
 
 const NavGroup = () => {
   const isMobile = useIsMobile();
-  const [{ walletAddress }] = useStateValue();
+  const [{ walletAddress }] = useGlobalState();
 
   // TODO: show mobile menu on click
   return (

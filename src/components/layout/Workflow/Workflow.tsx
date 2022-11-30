@@ -1,35 +1,23 @@
-import {useState} from 'react'
-import { Outlet } from 'react-router-dom'
-import SearchBar from '../../inputs/Search/SearchBar/SearchBar'
-import RegisterNameModal from '../../modals/RegisterNameModal/RegisterNameModal'
+import { useEffect, useState } from 'react';
 
+import { useRegistrationState } from '../../../state/contexts/RegistrationState';
+import { WorkflowProps } from '../../../types';
 
+function Workflow(props: WorkflowProps) {
+  const { stages } = props;
+  const [{ stage }] = useRegistrationState();
+  const [currentComp, setCurrentComp] = useState(<></>);
 
-const initialStates =[
-    name,
-]
+  useEffect(() => {
+    Object.entries(stages).map(([key, value], index) => {
+      if (index === stage) {
+        console.log(stage);
+        return setCurrentComp(value.component);
+      }
+    });
+  }, [stage]);
 
-function Workflow ({comps}:{comps:{[x:number]:{component:any}}}){
-
-const [currentStep, setCurrentStep] = useState(0)
-const [newStates, setStates] = useState({
-    name: "",
-    ttlOptions:"",
-    nickname:"",
-    antId:"",
-})
-
-    return (
-        <>
-        
-         {Object.entries(comps).map(([key,value],index)=> {
-            if (value.component && index === currentStep){
-                return <>{value.component}</>
-            }
-            })}
-        </>
-       
-    )
+  return <>{currentComp}</>;
 }
 
-export default Workflow
+export default Workflow;

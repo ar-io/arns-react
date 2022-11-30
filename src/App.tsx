@@ -10,14 +10,14 @@ import ConnectWalletModal from './components/modals/ConnectWalletModal/ConnectWa
 import { About, FAQ, Home, Manage, NotFound } from './components/pages';
 import { useArNSContract, useConnectWalletModal } from './hooks/';
 import './index.css';
-import { useStateValue } from './state/state';
+import { useGlobalState } from './state/contexts/GlobalState';
 
 function App() {
   // dispatches global state
   useArNSContract();
   const { showConnectModal } = useConnectWalletModal();
 
-  const [{ jwk }] = useStateValue();
+  const [{ jwk }] = useGlobalState();
 
   const router = createBrowserRouter(
     createRoutesFromElements(
