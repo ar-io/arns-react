@@ -1,6 +1,9 @@
 import { useEffect, useRef } from 'react';
 
-import { JsonWalletConnector } from '../../../services/wallets/JsonWalletConnector';
+import {
+  ArConnectWalletConnector,
+  JsonWalletConnector,
+} from '../../../services/wallets';
 import { useStateValue } from '../../../state/state';
 import { ArweaveWalletConnector } from '../../../types';
 import {
@@ -40,11 +43,10 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
 
   async function setGlobalWallet(walletConnector: ArweaveWalletConnector) {
     try {
-      const wallet = await walletConnector.connect();
-      // TODO: set wallet in local storage/securely cache
+      await walletConnector.connect();
       dispatch({
-        type: 'setJwk',
-        payload: wallet,
+        type: 'setWalletAddress',
+        payload: await walletConnector.getWalletAddress(),
       });
     } catch (error: any) {
       console.error(error);
@@ -78,7 +80,10 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
             />
           </label>
         </button>
-        <button className="walletConnectButton h2">
+        <button
+          className="walletConnectButton h2"
+          onClick={() => setGlobalWallet(new ArConnectWalletConnector())}
+        >
           <ArConnectIcon className="external-icon" />
           Connect via ArConnect
         </button>

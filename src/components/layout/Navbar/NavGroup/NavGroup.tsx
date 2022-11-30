@@ -10,8 +10,6 @@ import './styles.css';
 const NavGroup = () => {
   const isMobile = useIsMobile();
   const [{ walletAddress }] = useStateValue();
-
-  // TODO: show mobile menu on click
   return (
     <div className="flex-row flex-right flex-padding">
       {!isMobile ? (

@@ -17,7 +17,7 @@ function App() {
   useArNSContract();
   const { showConnectModal } = useConnectWalletModal();
 
-  const [{ jwk }] = useStateValue();
+  const [{ walletAddress }] = useStateValue();
 
   const router = createBrowserRouter(
     createRoutesFromElements(
@@ -25,7 +25,7 @@ function App() {
         <Route index element={<Home />} />
         <Route path="about" element={<About />} />
         <Route path="faq" element={<FAQ />} />
-        {jwk ? <Route path="manage" element={<Manage />} /> : <></>}
+        {walletAddress ? <Route path="manage" element={<Manage />} /> : <></>}
         <Route path="*" element={<NotFound />} />
       </Route>,
     ),

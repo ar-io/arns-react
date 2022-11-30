@@ -14,8 +14,7 @@ import Counter from '../../inputs/Counter/Counter';
 import './styles.css';
 
 function UpgradeTier({ domain }: { domain?: string }) {
-  const [{ arnsSourceContract, walletAddress, jwk }, dispatch] =
-    useStateValue();
+  const [{ arnsSourceContract, walletAddress }, dispatch] = useStateValue();
   // name is passed down from search bar to calculate price
   const [selectedTier, setSelectedTier] = useState(1);
   const [price, setPrice] = useState<number | undefined>(0);
@@ -29,7 +28,7 @@ function UpgradeTier({ domain }: { domain?: string }) {
 
   function showConnectWallet() {
     dispatch({
-      type: 'setConnectWallet',
+      type: 'setShowConnectWallet',
       payload: true,
     });
   }
@@ -82,7 +81,7 @@ function UpgradeTier({ domain }: { domain?: string }) {
           <></>
         )}
       </button>
-      {!walletAddress && !jwk ? (
+      {!walletAddress ? (
         <button className="accentButton hover" onClick={showConnectWallet}>
           Connect Wallet to proceed
         </button>
