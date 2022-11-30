@@ -1,9 +1,11 @@
+import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { TierCardProps } from '../../../types';
 import { TIER_DATA } from '../../../utils/constants';
 import { CircleCheck } from '../../icons';
 import './styles.css';
 
-function TierCard({ tier, setTier, selectedTier }: TierCardProps) {
+function TierCard({tier}: TierCardProps) {
+  const [{chosenTier}, dispatchRegisterState] = useRegistrationState()
   return (
     <div className="tierCard hover">
       <div className="text bubbleSmall ">Tier&nbsp;{tier}</div>
@@ -19,8 +21,8 @@ function TierCard({ tier, setTier, selectedTier }: TierCardProps) {
         </span>
       ))}
 
-      {selectedTier !== tier ? (
-        <button className="selectButton" onClick={() => setTier(tier)}>
+      {chosenTier !== tier ? (
+        <button className="selectButton" onClick={() => dispatchRegisterState({type:"setChosenTier",payload:tier})}>
           Select
         </button>
       ) : (

@@ -1,21 +1,19 @@
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 
 import useLongPress from '../../../hooks/useLongPress/useLongPress';
+import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import './styles.css';
 
 function YearsCounter({
-  setCount,
-  count,
   maxValue,
   minValue,
   period = 'years',
 }: {
-  setCount: Dispatch<SetStateAction<number>>;
-  count: number;
   maxValue: number;
   minValue: number;
   period?: 'years' | 'days' | 'minutes';
 }) {
+  const [{leaseDuration}, dispatchRegisterState] = useRegistrationState()
   const [registration, setRegistration] = useState('');
   const {
     handleOnClick: incHandleOnClick,
@@ -23,30 +21,30 @@ function YearsCounter({
     handleOnMouseUp: incHandleOnMouseUp,
     handleOnTouchEnd: incHandleOnTouchEnd,
     handleOnTouchStart: incHandleOnTouchStart,
-  } = useLongPress(() => (count < maxValue ? setCount(++count) : null));
+  } = useLongPress(() => (leaseDuration < maxValue ? dispatchRegisterState({type:"setLeaseDuration", payload:leaseDuration+1}) : null));
   const {
     handleOnClick: decHandleOnClick,
     handleOnMouseDown: decHandleOnMouseDown,
     handleOnMouseUp: decHandleOnMouseUp,
     handleOnTouchEnd: decHandleOnTouchEnd,
     handleOnTouchStart: decHandleOnTouchStart,
-  } = useLongPress(() => (count > minValue ? setCount(--count) : null));
+  } = useLongPress(() => (leaseDuration > minValue ? dispatchRegisterState({type:"setLeaseDuration", payload:leaseDuration-1}) : null));
 
   useEffect(() => {
     changePeriod();
-  }, [count]);
+  }, [leaseDuration]);
 
   function changePeriod() {
     const date = new Date();
     switch (period) {
       case 'years':
-        date.setFullYear(date.getFullYear() + count);
+        date.setFullYear(date.getFullYear() + leaseDuration);
         break;
       case 'days':
-        date.setDate(date.getDate() + count);
+        date.setDate(date.getDate() + leaseDuration);
         break;
       case 'minutes':
-        date.setHours(date.getHours() + count);
+        date.setHours(date.getHours() + leaseDuration);
         break;
       default:
         break;
@@ -61,16 +59,16 @@ function YearsCounter({
   function onChange(e: any) {
     const value = +e.target.value;
     if (value < minValue) {
-      setCount(minValue);
+      dispatchRegisterState({type:"setLeaseDuration", payload:minValue});
       return;
     }
 
     if (value > maxValue) {
-      setCount(maxValue);
+      dispatchRegisterState({type:"setLeaseDuration", payload:maxValue});
       return;
     }
 
-    setCount(value);
+    dispatchRegisterState({type:"setLeaseDuration", payload:value});
     return;
   }
 
@@ -81,7 +79,7 @@ function YearsCounter({
         <div className="yearsCounter">
           <button
             className="counterButton"
-            disabled={count == minValue}
+            disabled={leaseDuration == minValue}
             onClick={decHandleOnClick}
             onMouseDown={decHandleOnMouseDown}
             onMouseUp={decHandleOnMouseUp}
@@ -93,14 +91,14 @@ function YearsCounter({
           <input
             className="counterInput text bold"
             type="number"
-            value={count}
+            value={leaseDuration}
             pattern={'/^[1-9]{1,3}$/'}
             onFocus={(e) => e.target.select()}
             onChange={onChange}
           />
           <button
             className="counterButton"
-            disabled={count == maxValue}
+            disabled={leaseDuration == maxValue}
             onClick={incHandleOnClick}
             onMouseDown={incHandleOnMouseDown}
             onMouseUp={incHandleOnMouseUp}

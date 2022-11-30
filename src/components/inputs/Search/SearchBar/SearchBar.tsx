@@ -91,6 +91,12 @@ function SearchBar(props: SearchBarProps) {
     const searchSuccess = successPredicate(name);
     setShowDefaultText(false);
     setSubmittedName(name);
+    if (name) {
+      dispatchRegisterState({
+      type:"setDomainName",
+      payload:name
+    })
+  }
     setSearchSubmitted(true);
     setIsAvailable(searchSuccess);
     setSearchResult(undefined);

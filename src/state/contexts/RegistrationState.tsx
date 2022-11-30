@@ -7,7 +7,7 @@ import { registrationReducer } from '../reducers/RegistrationReducer';
 export type RegistrationState = {
   domain: string;
   leaseDuration: number;
-  tier: number;
+  chosenTier: number;
   nickname?: string;
   ticker?: string;
   controllers: Array<ArweaveTransactionId>;
@@ -23,7 +23,7 @@ export type RegistrationState = {
 export const initialRegistrationState: RegistrationState = {
   domain: '',
   leaseDuration: 1,
-  tier: 1,
+  chosenTier: 1,
   controllers: [''],
   ttl: 100,
   fee: { ar: 0, io: 0 },

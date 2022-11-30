@@ -73,8 +73,6 @@ export type ConnectWalletModalProps = {
 
 export type TierCardProps = {
   tier: number;
-  setTier: Dispatch<SetStateAction<number>>;
-  selectedTier: number;
 };
 
 export type DropdownProps = {
