@@ -33,16 +33,6 @@ function UpgradeTier() {
     dispatchRegisterState,
   ] = useRegistrationState();
 
-  function updateRegisterState({ key, value }: { key: any; value: any }) {
-    setTimeout(
-      () =>
-        dispatchRegisterState({
-          type: key,
-          payload: value,
-        }),
-      50,
-    );
-  }
 
   useEffect(() => {
     const fees = arnsSourceContract.fees;
