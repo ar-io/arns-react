@@ -26,6 +26,7 @@ export const TIER_DATA: { [x: number]: string[] } = {
     'Up to 100 Undernames',
     'Available via all ArNS-enabled gateways',
     'Permanently stored on Arweave',
+    "3600s TTL"
   ],
   2: [
     'Up to 1,000 Undernames',
@@ -36,6 +37,7 @@ export const TIER_DATA: { [x: number]: string[] } = {
     'Up to 10,000 Undernames',
     'Available via all ArNS-enabled gateways',
     'Permanently stored on Arweave',
+    "900s TTL"
   ],
 };
 export const NAME_PRICE_INFO =

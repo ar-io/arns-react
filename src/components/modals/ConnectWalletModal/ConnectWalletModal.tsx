@@ -74,24 +74,23 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
           </label>
         </button>
         <button className="walletConnectButton">
-          <img src={ArConnectIcon} alt="" width="47px" height="47px" />
-          Connect via ArConnect
+        <ArConnectIcon
+            width={'47px'}
+            height={'47px'}
+            fill={'var(--text-white)'}
+          />          Connect via ArConnect
         </button>
         <button className="walletConnectButton">
           <img src={ArweaveAppIcon} alt="" width="47px" height="47px" />
-          Connect using Arweave.app
+            I need a wallet        
         </button>
-        <span className="bold text white" style={{ marginTop: '1em' }}>
-          Don&apos;t have a wallet?&nbsp;
-          <a
+          {/* <a
             target="_blank"
             href="https://ardrive.io/start"
-            style={{ color: 'inherit' }}
+            className="walletConnectButton"
             rel="noreferrer"
           >
-            &nbsp;Get one here
-          </a>
-        </span>
+          </a> */}
       </div>
     </div>
   ) : (
