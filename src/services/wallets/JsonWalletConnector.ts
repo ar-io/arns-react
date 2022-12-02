@@ -41,4 +41,9 @@ export class JsonWalletConnector implements ArweaveWalletConnector {
       throw error;
     }
   }
+
+  async getWalletAddress(): Promise<string> {
+    // TODO
+    throw Error('Not implemented.');
+  }
 }

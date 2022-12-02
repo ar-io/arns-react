@@ -23,21 +23,19 @@ export const FEATURED_DOMAINS = [
 // TODO: pull from contract
 export const TIER_DATA: { [x: number]: string[] } = {
   1: [
-    'Up to 100 Undernames',
+    'Up to 100 Subdomains',
     'Available via all ArNS-enabled gateways',
     'Permanently stored on Arweave',
-    "3600s TTL"
   ],
   2: [
-    'Up to 1,000 Undernames',
+    'Up to 1,000 Subdomains',
     'Available via all ArNS-enabled gateways',
     'Permanently stored on Arweave',
   ],
   3: [
-    'Up to 10,000 Undernames',
+    'Up to 10,000 Subdomains',
     'Available via all ArNS-enabled gateways',
     'Permanently stored on Arweave',
-    "900s TTL"
   ],
 };
 export const NAME_PRICE_INFO =
@@ -45,3 +43,16 @@ export const NAME_PRICE_INFO =
 
 export const MAX_LEASE_DURATION = 200;
 export const MIN_LEASE_DURATION = 1;
+
+export const WALLET_PERMISSIONS = [
+  'ACCESS_ADDRESS',
+  'ACCESS_PUBLIC_KEY',
+  'SIGN_TRANSACTION',
+  'ENCRYPT',
+  'DECRYPT',
+  'ACCESS_ARWEAVE_CONFIG',
+];
+
+export const APP_INFO = {
+  name: 'ArNS portal - ar.io',
+};
