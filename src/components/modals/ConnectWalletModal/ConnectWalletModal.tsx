@@ -1,6 +1,9 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
-import { JsonWalletConnector } from '../../../services/wallets/JsonWalletConnector';
+import {
+  ArConnectWalletConnector,
+  JsonWalletConnector,
+} from '../../../services/wallets';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ArweaveWalletConnector } from '../../../types';
 import {
@@ -13,7 +16,16 @@ import './styles.css';
 
 function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
   const modalRef = useRef(null);
-  const [{}, dispatch] = useGlobalState(); // eslint-disable-line
+  const [{}, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
+
+  useEffect(() => {
+    // disable scrolling when modal is in view
+    if (show) {
+      document.body.style.overflow = 'hidden';
+      return;
+    }
+    document.body.style.overflow = 'unset';
+  }, [show]);
 
   function handleClickOutside(e: any) {
     if (modalRef.current && modalRef.current === e.target) {
@@ -23,7 +35,7 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
   }
 
   function closeModal() {
-    dispatch({
+    dispatchGlobalState({
       type: 'setConnectWallet',
       payload: false,
     });
@@ -31,11 +43,10 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
 
   async function setGlobalWallet(walletConnector: ArweaveWalletConnector) {
     try {
-      const wallet = await walletConnector.connect();
-      // TODO: set wallet in local storage/securely cache
-      dispatch({
-        type: 'setJwk',
-        payload: wallet,
+      await walletConnector.connect();
+      dispatchGlobalState({
+        type: 'setWalletAddress',
+        payload: await walletConnector.getWalletAddress(),
       });
     } catch (error: any) {
       console.error(error);
@@ -55,12 +66,8 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
         <button className="modalCloseButton" onClick={closeModal}>
           <CloseIcon width="30px" height={'30px'} fill="var(--text-white)" />
         </button>
-        <button className="walletConnectButton">
-          <UploadIcon
-            width={'47px'}
-            height={'47px'}
-            fill={'var(--text-white)'}
-          />
+        <button className="walletConnectButton h2">
+          <UploadIcon className="external-icon" fill={'var(--text-white)'} width={"47px"} height={"47px"} />
           Import your JSON keyfile
           <label className="span-all">
             <input
@@ -73,24 +80,28 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
             />
           </label>
         </button>
-        <button className="walletConnectButton">
-        <ArConnectIcon
-            width={'47px'}
-            height={'47px'}
-            fill={'var(--text-white)'}
-          />          Connect via ArConnect
+        <button
+          className="walletConnectButton h2"
+          onClick={() => setGlobalWallet(new ArConnectWalletConnector())}
+        >
+          <ArConnectIcon className="external-icon" width={"47px"} height={"47px"} />
+          Connect via ArConnect
         </button>
-        <button className="walletConnectButton">
-          <img src={ArweaveAppIcon} alt="" width="47px" height="47px" />
-            I need a wallet        
+        <button className="walletConnectButton h2">
+          <img className="external-icon" src={ArweaveAppIcon} alt="" />
+          Connect using Arweave.app
         </button>
-          {/* <a
+        <span className="bold text white h2" style={{ marginTop: '1em' }}>
+          Don&apos;t have a wallet?&nbsp;
+          <a
             target="_blank"
             href="https://ardrive.io/start"
-            className="walletConnectButton"
+            style={{ color: 'inherit' }}
             rel="noreferrer"
           >
-          </a> */}
+            &nbsp;Get one here
+          </a>
+        </span>
       </div>
     </div>
   ) : (

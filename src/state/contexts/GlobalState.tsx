@@ -16,7 +16,7 @@ export type GlobalState = {
 const initialState: GlobalState = {
   arnsSourceContract: { records: {}, fees: {} },
   gateway: 'arweave.dev',
-  walletAddress: "undefined",
+  walletAddress: undefined,
   jwk: undefined,
   connectWallet: false,
   errors: [],
