@@ -148,6 +148,9 @@ button {
 .white {
   color: var(--text-white);
 }
+.whiteBackground {
+  background: var(--text-white);
+}
 .black {
   color: var(--text-black);
 }

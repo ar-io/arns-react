@@ -1,19 +1,23 @@
 import { Dispatch, SetStateAction } from 'react';
 
-import { MenuIcon } from '../../../icons/index';
 import './styles.css';
 
 function MenuButton({
   show,
   setShow,
+  icon,
 }: {
   show: boolean;
   setShow: Dispatch<SetStateAction<boolean>>;
+  icon: JSX.Element;
 }): JSX.Element {
   return (
     <>
-      <button onClick={() => setShow(!show)}>
-        <MenuIcon width={'24px'} height={'24px'} fill={'var(--text-white)'} />
+      <button
+        className={!show ? 'roundButton' : 'roundButton whiteBackground'}
+        onClick={() => setShow(!show)}
+      >
+        {icon}
       </button>
     </>
   );

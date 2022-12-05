@@ -16,16 +16,22 @@ import './styles.css';
 
 function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
   const modalRef = useRef(null);
-  const [{}, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
+  const [{ walletAddress }, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
 
   useEffect(() => {
     // disable scrolling when modal is in view
+    if (walletAddress) {
+      dispatchGlobalState({
+        type: 'setConnectWallet',
+        payload: false,
+      });
+    }
     if (show) {
       document.body.style.overflow = 'hidden';
       return;
     }
     document.body.style.overflow = 'unset';
-  }, [show]);
+  }, [show, walletAddress]);
 
   function handleClickOutside(e: any) {
     if (modalRef.current && modalRef.current === e.target) {
@@ -67,7 +73,12 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
           <CloseIcon width="30px" height={'30px'} fill="var(--text-white)" />
         </button>
         <button className="walletConnectButton h2">
-          <UploadIcon className="external-icon" fill={'var(--text-white)'} width={"47px"} height={"47px"} />
+          <UploadIcon
+            className="external-icon"
+            fill={'var(--text-white)'}
+            width={'47px'}
+            height={'47px'}
+          />
           Import your JSON keyfile
           <label className="span-all">
             <input
@@ -84,7 +95,11 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
           className="walletConnectButton h2"
           onClick={() => setGlobalWallet(new ArConnectWalletConnector())}
         >
-          <ArConnectIcon className="external-icon" width={"47px"} height={"47px"} />
+          <ArConnectIcon
+            className="external-icon"
+            width={'47px'}
+            height={'47px'}
+          />
           Connect via ArConnect
         </button>
         <button className="walletConnectButton h2">

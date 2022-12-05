@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ROUTES } from '../../../utils/routes';
+import { AccountIcon, MenuIcon } from '../../icons';
 import ConnectButton from '../../inputs/buttons/ConnectButton/ConnectButton';
 import MenuButton from '../../inputs/buttons/MenuButton/MenuButton';
 import NavBarLink from '../../layout/Navbar/NavBarLink/NavBarLink';
@@ -39,7 +40,25 @@ function NavMenuCard() {
 
   return (
     <>
-      <MenuButton setShow={setShowMenu} show={showMenu} />
+      <MenuButton
+        setShow={setShowMenu}
+        show={showMenu}
+        icon={
+          walletAddress ? (
+            <AccountIcon
+              width={'24px'}
+              height={'24px'}
+              fill={showMenu ? 'var(--text-black)' : 'var(--text-white)'}
+            />
+          ) : (
+            <MenuIcon
+              width={'24px'}
+              height={'24px'}
+              fill={showMenu ? 'var(--text-black)' : 'var(--text-white)'}
+            />
+          )
+        }
+      />
       {showMenu ? (
         <div className="card menu" ref={menuRef}>
           {Object.entries(ROUTES).map(([key, route]) => {

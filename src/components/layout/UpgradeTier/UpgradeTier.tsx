@@ -33,7 +33,6 @@ function UpgradeTier() {
     dispatchRegisterState,
   ] = useRegistrationState();
 
-
   useEffect(() => {
     const fees = arnsSourceContract.fees;
     const newFee = calculateArNSNamePrice({
