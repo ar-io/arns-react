@@ -21,6 +21,7 @@ export function isArNSDomainNameAvailable({
   if (!name || Object.keys(records).includes(name)) {
     return false;
   }
+  console.log(records);
   return true;
 }
 

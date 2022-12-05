@@ -13,6 +13,7 @@ import { AntCard } from '../../cards';
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import { FeaturedDomains } from '../../layout';
 import { SearchBarFooter, SearchBarHeader } from '../../layout';
+import ConfirmRegistration from '../../layout/ConfirmRegistration/ConfirmRegistration';
 import Workflow from '../../layout/Workflow/Workflow';
 import RegisterNameModal from '../../modals/RegisterNameModal/RegisterNameModal';
 import './styles.css';
@@ -54,7 +55,13 @@ function Home() {
     1: {
       component: <RegisterNameModal />,
       proceedCondition: () => {
-        return false;
+        return true;
+      },
+    },
+    2: {
+      component: <ConfirmRegistration />,
+      proceedCondition: () => {
+        return true;
       },
     },
   };
@@ -62,7 +69,6 @@ function Home() {
   const [registrationWorkflow, setRegistrationWorkflow] = useState(
     initialRegistrationWorkflowState,
   );
-
   useEffect(() => {
     const newRecords = arnsSourceContract.records;
     setRecords(newRecords);

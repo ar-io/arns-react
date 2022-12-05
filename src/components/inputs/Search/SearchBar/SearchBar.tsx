@@ -32,7 +32,7 @@ function SearchBar(props: SearchBarProps) {
   const searchRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (stage == 0 && !isSearching) {
+    if (stage == 0) {
       reset();
     }
   }, [stage]);
@@ -54,7 +54,7 @@ function SearchBar(props: SearchBarProps) {
 
   function onHandleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const input = e.target.value.trim().toLowerCase();
-    if (!input) {
+    if (input === '') {
       reset();
       return;
     }
@@ -62,8 +62,7 @@ function SearchBar(props: SearchBarProps) {
     // partially reset
     setSearchResult(undefined);
     setShowDefaultText(true);
-    //disabling the setSubmittedName for now to prevent upgradeTier from re-rendering during a name edit
-    //setSubmittedName(undefined);
+    setSubmittedName(undefined);
 
     const searchValid = validationPredicate(input);
     setIsSearchValid(searchValid);
@@ -71,7 +70,7 @@ function SearchBar(props: SearchBarProps) {
       return;
     }
 
-    // valid name
+    // valid
     setSearchBarText(input);
   }
 
@@ -98,17 +97,18 @@ function SearchBar(props: SearchBarProps) {
     // show updated states based on search result
     const name = searchBarText;
     const searchSuccess = successPredicate(name);
+    console.log(searchSuccess);
     setShowDefaultText(false);
     setSubmittedName(name);
+    setSearchSubmitted(true);
+    setIsAvailable(searchSuccess);
+    setSearchResult(undefined);
     if (name) {
       dispatchRegisterState({
         type: 'setDomainName',
         payload: name,
       });
     }
-    setSearchSubmitted(true);
-    setIsAvailable(searchSuccess);
-    setSearchResult(undefined);
     if (!searchSuccess && name && values) {
       setSearchResult(values[name]);
       return;
