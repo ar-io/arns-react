@@ -16,11 +16,10 @@ function SearchBar(props: SearchBarProps) {
     footerElement,
     values,
     height,
-    setIsSearching,
-    isSearching,
   } = props;
 
-  const [{ walletAddress }, dispatchGlobalState] = useGlobalState();
+  const [{ walletAddress, isSearching }, dispatchGlobalState] =
+    useGlobalState();
   const [{ stage }, dispatchRegisterState] = useRegistrationState();
   const isMobile = useIsMobile();
   const [isSearchValid, setIsSearchValid] = useState(true);
@@ -45,16 +44,17 @@ function SearchBar(props: SearchBarProps) {
     setShowDefaultText(true);
     setSearchResult(undefined);
     setSearchBarText(undefined);
-    if (setIsSearching) {
-      setIsSearching(false);
-    }
+    dispatchGlobalState({
+      type: 'setIsSearching',
+      payload: false,
+    });
 
     return;
   }
 
   function onHandleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const input = e.target.value.trim().toLowerCase();
-    if (input === '') {
+    if (!input) {
       reset();
       return;
     }
@@ -62,7 +62,8 @@ function SearchBar(props: SearchBarProps) {
     // partially reset
     setSearchResult(undefined);
     setShowDefaultText(true);
-    setSubmittedName(undefined);
+    //disabling the setSubmittedName for now to prevent upgradeTier from re-rendering during a name edit
+    //setSubmittedName(undefined);
 
     const searchValid = validationPredicate(input);
     setIsSearchValid(searchValid);
@@ -83,9 +84,10 @@ function SearchBar(props: SearchBarProps) {
 
   function onSubmit(e: any) {
     e.preventDefault();
-    if (setIsSearching) {
-      setIsSearching(true);
-    }
+    dispatchGlobalState({
+      type: 'setIsSearching',
+      payload: true,
+    });
     // validate again, just in case
     const searchValid = validationPredicate(searchBarText);
     setIsSearchValid(searchValid);

@@ -8,7 +8,9 @@ export type Action =
   | { type: 'setJwk'; payload: JWKInterface }
   | { type: 'setGateway'; payload: string }
   | { type: 'setArnsContractState'; payload: ArNSContractState }
-  | { type: 'setConnectWallet'; payload: boolean };
+  | { type: 'setConnectWallet'; payload: boolean }
+  | { type: 'setIsSearching'; payload: boolean }
+  | { type: 'setErrors'; payload: Array<Error> };
 
 export const reducer = (state: GlobalState, action: Action): GlobalState => {
   switch (action.type) {
@@ -36,6 +38,16 @@ export const reducer = (state: GlobalState, action: Action): GlobalState => {
       return {
         ...state,
         arnsSourceContract: action.payload,
+      };
+    case 'setIsSearching':
+      return {
+        ...state,
+        isSearching: action.payload,
+      };
+    case 'setErrors':
+      return {
+        ...state,
+        errors: action.payload,
       };
 
     default:

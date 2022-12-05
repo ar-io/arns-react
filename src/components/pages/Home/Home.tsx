@@ -18,19 +18,16 @@ import RegisterNameModal from '../../modals/RegisterNameModal/RegisterNameModal'
 import './styles.css';
 
 function Home() {
-  const [{ arnsSourceContract }] = useGlobalState();
+  const [{ arnsSourceContract, isSearching }] = useGlobalState();
   const [records, setRecords] = useState<ArNSDomains>(
     arnsSourceContract.records,
   );
   const [featuredDomains, setFeaturedDomains] = useState<ArNSDomains>();
-  const [isSearching, setIsSearching] = useState(false);
 
   const initialRegistrationWorkflowState = {
     0: {
       component: (
         <SearchBar
-          setIsSearching={setIsSearching}
-          isSearching={isSearching}
           values={records}
           successPredicate={(value: string | undefined) =>
             isArNSDomainNameAvailable({ name: value, records })

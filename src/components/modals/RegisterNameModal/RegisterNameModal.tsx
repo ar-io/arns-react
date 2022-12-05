@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import {
   isArNSDomainNameAvailable,
@@ -8,6 +9,7 @@ import {
 } from '../../../utils/searchUtils';
 import Dropdown from '../../inputs/Dropdown/Dropdown';
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
+import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
 import UpgradeTier from '../../layout/UpgradeTier/UpgradeTier';
 import './styles.css';
 
@@ -17,7 +19,18 @@ function RegisterNameModal() {
   );
   const [antAddress, setAntAddress] = useState(0);
   const [
-    { domain, ttl, nickname, ticker, controllers, antID, targetID },
+    {
+      fee,
+      leaseDuration,
+      chosenTier,
+      domain,
+      ttl,
+      targetID,
+      antID,
+      stage,
+      isFirstStage,
+      isLastStage,
+    },
     dispatchRegisterState,
   ] = useRegistrationState();
 
@@ -75,9 +88,9 @@ function RegisterNameModal() {
                 maxLength={43}
                 style={
                   targetID && isArweaveTransactionID(targetID)
-                    ? { border: '2px solid var(--success-green)' }
+                    ? { border: '4px solid var(--success-green)' }
                     : targetID && isArweaveTransactionID(targetID)
-                    ? { border: '2px solid var(--error-red)' }
+                    ? { border: '4px solid var(--error-red)' }
                     : {}
                 }
               />
@@ -116,6 +129,7 @@ function RegisterNameModal() {
               <></>
             )}
           </div>
+          {/**add a tag component for multiple controllers seperated by "," commas. In the future might have an address book. Possibly suggest other accounts from arconnect. */}
           <input
             className="dataInput center"
             type="text"

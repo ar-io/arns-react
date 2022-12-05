@@ -9,6 +9,8 @@ function WorkflowButtons({
   dispatch,
   showBack,
   showNext,
+  disableNext,
+  disableBack,
 }: {
   stage: number;
   isFirstStage: boolean;
@@ -16,6 +18,8 @@ function WorkflowButtons({
   dispatch: Dispatch<SetStateAction<any>>;
   showBack?: boolean;
   showNext?: boolean;
+  disableNext?: boolean;
+  disableBack?: boolean;
 }) {
   return (
     <>
@@ -23,6 +27,7 @@ function WorkflowButtons({
         {!isFirstStage && showBack ? (
           <button
             className="hollowButton"
+            disabled={disableBack}
             onClick={() =>
               !isFirstStage
                 ? dispatch({
@@ -40,6 +45,7 @@ function WorkflowButtons({
         {!isLastStage && showNext ? (
           <button
             className="accentButton"
+            disabled={disableNext}
             onClick={() =>
               !isLastStage
                 ? dispatch({

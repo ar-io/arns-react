@@ -12,27 +12,15 @@ import { calculateArNSNamePrice } from '../../../utils/searchUtils';
 import TierCard from '../../cards/TierCard/TierCard';
 import { AlertCircle } from '../../icons';
 import Counter from '../../inputs/Counter/Counter';
-import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
 import './styles.css';
 
 function UpgradeTier() {
-  const [{ arnsSourceContract, walletAddress, jwk }, dispatch] =
-    useGlobalState();
+  const [{ arnsSourceContract }, dispatch] = useGlobalState();
   // name is passed down from search bar to calculate price
   const [priceInfo, setPriceInfo] = useState(false);
 
-  const [
-    {
-      fee,
-      leaseDuration,
-      chosenTier,
-      domain,
-      stage,
-      isFirstStage,
-      isLastStage,
-    },
-    dispatchRegisterState,
-  ] = useRegistrationState();
+  const [{ fee, leaseDuration, chosenTier, domain }, dispatchRegisterState] =
+    useRegistrationState();
 
   useEffect(() => {
     const fees = arnsSourceContract.fees;
@@ -47,13 +35,6 @@ function UpgradeTier() {
       payload: { ar: fee.ar, io: newFee },
     });
   }, [leaseDuration, chosenTier, domain, arnsSourceContract]);
-
-  function showConnectWallet() {
-    dispatch({
-      type: 'setConnectWallet',
-      payload: true,
-    });
-  }
 
   return (
     <div className="upgradeTier">
@@ -96,20 +77,6 @@ function UpgradeTier() {
           <></>
         )}
       </button>
-      {!walletAddress && !jwk ? (
-        <button className="accentButton hover" onClick={showConnectWallet}>
-          Connect Wallet to proceed
-        </button>
-      ) : (
-        <WorkflowButtons
-          stage={stage}
-          isFirstStage={isFirstStage}
-          isLastStage={isLastStage}
-          dispatch={dispatchRegisterState}
-          showBack={true}
-          showNext={true}
-        />
-      )}
     </div>
   );
 }

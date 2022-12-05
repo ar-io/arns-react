@@ -10,6 +10,7 @@ export type GlobalState = {
   walletAddress?: string;
   jwk?: JWKInterface;
   connectWallet: boolean;
+  isSearching: boolean;
   errors: Array<Error>;
 };
 
@@ -19,6 +20,7 @@ const initialState: GlobalState = {
   walletAddress: undefined,
   jwk: undefined,
   connectWallet: false,
+  isSearching: false,
   errors: [],
 };
 

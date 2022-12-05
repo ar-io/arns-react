@@ -13,6 +13,7 @@ import {
   RegistrationStateProviderProps,
 } from '../../types';
 import { registrationReducer } from '../reducers/RegistrationReducer';
+import { useGlobalState } from './GlobalState';
 
 export const initialRegistrationState: RegistrationState = {
   domain: '',
@@ -49,7 +50,14 @@ export default function RegistrationStateProvider({
     registrationReducer,
     initialRegistrationState,
   );
+  const [{ isSearching }, dispatchGlobalState] = useGlobalState();
   useEffect(() => {
+    if (!isSearching) {
+      dispatchRegisterState({
+        type: 'setStage',
+        payload: 0,
+      });
+    }
     if (state.stage === lastStage) {
       dispatchRegisterState({
         type: 'setIsLastStage',
@@ -60,6 +68,10 @@ export default function RegistrationStateProvider({
       dispatchRegisterState({
         type: 'setIsFirstStage',
         payload: true,
+      });
+      dispatchGlobalState({
+        type: 'setIsSearching',
+        payload: false,
       });
     }
     if (state.stage !== lastStage && state.stage !== firstStage) {
