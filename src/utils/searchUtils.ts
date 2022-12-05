@@ -60,3 +60,15 @@ export function calculateArNSNamePrice({
     return 0;
   }
 }
+
+export function isArweaveTransactionID(id: string) {
+  if (!id) {
+    return false;
+  }
+  if (!ARNS_TXID_REGEX.test(id)) {
+    return false;
+  }
+  if (ARNS_TXID_REGEX.test(id)) {
+    return true;
+  }
+}

@@ -97,6 +97,7 @@ export type RegistrationState = {
   controllers: Array<ArweaveTransactionId>;
   ttl: number;
   antID?: ArweaveTransactionId;
+  targetID?: ArweaveTransactionId;
   fee: { ar: number; io: number };
   isRegistering: boolean;
   isRegistered: boolean;
@@ -115,6 +116,7 @@ export type RegistrationAction =
   | { type: 'setControllers'; payload: Array<ArweaveTransactionId> }
   | { type: 'setTTL'; payload: number }
   | { type: 'setAntID'; payload: ArweaveTransactionId }
+  | { type: 'setTargetID'; payload: ArweaveTransactionId }
   | { type: 'setFee'; payload: { ar: number; io: number } }
   | { type: 'setIsRegistering'; payload: boolean }
   | { type: 'setIsRegistered'; payload: boolean }

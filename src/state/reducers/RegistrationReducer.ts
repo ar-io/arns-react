@@ -46,6 +46,11 @@ export const registrationReducer = (
         ...state,
         antID: action.payload,
       };
+    case 'setTargetID':
+      return {
+        ...state,
+        targetID: action.payload,
+      };
     case 'setFee':
       return {
         ...state,

@@ -4,8 +4,8 @@ import { useRegistrationState } from '../../../state/contexts/RegistrationState'
 import {
   isArNSDomainNameAvailable,
   isArNSDomainNameValid,
+  isArweaveTransactionID,
 } from '../../../utils/searchUtils';
-import { AntCard } from '../../cards';
 import Dropdown from '../../inputs/Dropdown/Dropdown';
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import UpgradeTier from '../../layout/UpgradeTier/UpgradeTier';
@@ -17,7 +17,7 @@ function RegisterNameModal() {
   );
   const [antAddress, setAntAddress] = useState(0);
   const [
-    { domain, ttl, nickname, ticker, controllers, antID },
+    { domain, ttl, nickname, ticker, controllers, antID, targetID },
     dispatchRegisterState,
   ] = useRegistrationState();
 
@@ -30,6 +30,19 @@ function RegisterNameModal() {
         }),
       50,
     );
+  }
+
+  function handleTargetID(id: string) {
+    // todo: add some more advanced error handling and notifications to check if id is a dataID or a value transfer
+    if (isArweaveTransactionID(id)) {
+      updateRegisterState({ key: 'setTargetID', value: id });
+    }
+    if (!id) {
+      updateRegisterState({ key: 'setTargetID', value: undefined });
+    }
+    if (!isArweaveTransactionID(id)) {
+      updateRegisterState({ key: 'setTargetID', value: undefined });
+    }
   }
 
   return (
@@ -53,13 +66,21 @@ function RegisterNameModal() {
                   'I have an Arweave Name Token (ANT) I want to use',
               }}
             />
+            {/**TODO: add global error state to mark issues with the target id */}
             {antFlow === 'Create an Arweave Name Token (ANT) for me' ? (
-              <span
+              <input
                 className="dataInput center"
-                style={{ color: 'var(--placeholder-text)' }}
-              >
-                ANT Contract ID
-              </span>
+                placeholder="Target ID"
+                onChange={(e) => handleTargetID(e.target.value)}
+                maxLength={43}
+                style={
+                  targetID && isArweaveTransactionID(targetID)
+                    ? { border: '2px solid var(--success-green)' }
+                    : targetID && isArweaveTransactionID(targetID)
+                    ? { border: '2px solid var(--error-red)' }
+                    : {}
+                }
+              />
             ) : antFlow ===
               'I have an Arweave Name Token (ANT) I want to use' ? (
               <Dropdown
@@ -99,6 +120,8 @@ function RegisterNameModal() {
             className="dataInput center"
             type="text"
             placeholder="Controllers"
+            onChange={(e) => handleTargetID(e.target.value)}
+            maxLength={43}
           />
           <div className="inputGroup center">
             <input

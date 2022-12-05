@@ -21,6 +21,7 @@ export const initialRegistrationState: RegistrationState = {
   controllers: [''],
   ttl: 100,
   fee: { ar: 0, io: 0 },
+  targetID: undefined,
   isRegistering: false,
   isRegistered: false,
   stage: 0,

@@ -12,6 +12,7 @@ import { calculateArNSNamePrice } from '../../../utils/searchUtils';
 import TierCard from '../../cards/TierCard/TierCard';
 import { AlertCircle } from '../../icons';
 import Counter from '../../inputs/Counter/Counter';
+import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
 import './styles.css';
 
 function UpgradeTier() {
@@ -100,38 +101,14 @@ function UpgradeTier() {
           Connect Wallet to proceed
         </button>
       ) : (
-        <div className="flex-row center">
-          {stage !== 0 ? (
-            <button
-              className="hollowButton"
-              onClick={() =>
-                !isFirstStage
-                  ? dispatchRegisterState({
-                      type: 'setStage',
-                      payload: stage - 1,
-                    })
-                  : null
-              }
-            >
-              Back
-            </button>
-          ) : (
-            <></>
-          )}
-          <button
-            className="accentButton"
-            onClick={() =>
-              !isLastStage
-                ? dispatchRegisterState({
-                    type: 'setStage',
-                    payload: stage + 1,
-                  })
-                : null
-            }
-          >
-            Next
-          </button>
-        </div>
+        <WorkflowButtons
+          stage={stage}
+          isFirstStage={isFirstStage}
+          isLastStage={isLastStage}
+          dispatch={dispatchRegisterState}
+          showBack={true}
+          showNext={true}
+        />
       )}
     </div>
   );
