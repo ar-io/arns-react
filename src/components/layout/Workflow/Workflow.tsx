@@ -7,9 +7,12 @@ import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButton
 
 function Workflow(props: WorkflowProps) {
   const { stages } = props;
-  const [{ stage, isFirstStage, isLastStage, domain }, dispatchRegisterState] =
+  const [{ stage, isFirstStage, isLastStage }, dispatchRegisterState] =
     useRegistrationState();
-  const [currentComp, setCurrentComp] = useState(<></>);
+  const [currentComp, setCurrentComp] = useState<{
+    component: JSX.Element;
+    proceedCondition: () => boolean;
+  }>({ component: <></>, proceedCondition: () => false });
 
   const [{ walletAddress, jwk, isSearching }, dispatchGlobalState] =
     useGlobalState();
@@ -24,14 +27,15 @@ function Workflow(props: WorkflowProps) {
   useEffect(() => {
     Object.entries(stages).map(([key, value], index) => {
       if (index === stage) {
-        return setCurrentComp(value.component);
+        setCurrentComp(value);
+        return;
       }
     });
   }, [stage]);
 
   return (
     <>
-      {currentComp}
+      {currentComp.component}
       <>
         {!isSearching ? (
           <button className="accentButton hover">Take the quick Tour</button>
@@ -47,6 +51,7 @@ function Workflow(props: WorkflowProps) {
             dispatch={dispatchRegisterState}
             showBack={true}
             showNext={true}
+            disableNext={!currentComp.proceedCondition()}
           />
         )}
       </>

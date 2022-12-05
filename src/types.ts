@@ -133,5 +133,5 @@ export type RegistrationStateProviderProps = {
 };
 
 export type WorkflowProps = {
-  stages: { [x: number]: { component: any } };
+  stages: { [x: number]: { component: any; proceedCondition: () => boolean } };
 };

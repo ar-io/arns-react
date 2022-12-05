@@ -47,8 +47,16 @@ function Home() {
           height={45}
         />
       ),
+      proceedCondition: () => {
+        return true;
+      },
     },
-    1: { component: <RegisterNameModal /> },
+    1: {
+      component: <RegisterNameModal />,
+      proceedCondition: () => {
+        return false;
+      },
+    },
   };
 
   const [registrationWorkflow, setRegistrationWorkflow] = useState(
