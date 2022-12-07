@@ -34,9 +34,9 @@ function Workflow({ stages }: WorkflowProps) {
 
   return (
     <>
+      {/* eslint-disable-next-line */}
       {Object.entries(stages).map(([key, value], index) => {
         if (index === stage) {
-          value.component.key = key;
           return value.component;
         }
       })}
