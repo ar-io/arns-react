@@ -5,17 +5,24 @@ import { useRegistrationState } from '../../../state/contexts/RegistrationState'
 import { WorkflowProps } from '../../../types';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
 
-function Workflow(props: WorkflowProps) {
-  const { stages } = props;
+function Workflow({ stages }: WorkflowProps) {
   const [{ stage, isFirstStage, isLastStage }, dispatchRegisterState] =
     useRegistrationState();
-  const [currentComp, setCurrentComp] = useState<{
-    component: JSX.Element;
-    proceedCondition: () => boolean;
-  }>({ component: <></>, proceedCondition: () => false });
-
   const [{ walletAddress, jwk, isSearching }, dispatchGlobalState] =
     useGlobalState();
+
+  const [nextCondition, setNextCondition] = useState<boolean>(false);
+  const [backCondition, setBackCondition] = useState<boolean>(false);
+
+  useEffect(() => {
+    Object.entries(stages).map(([key, value], index) => {
+      if (index === stage) {
+        setNextCondition(value.nextCondition);
+        setBackCondition(value.backCondition);
+        return;
+      }
+    });
+  }, [stage, stages]);
 
   function showConnectWallet() {
     dispatchGlobalState({
@@ -24,18 +31,13 @@ function Workflow(props: WorkflowProps) {
     });
   }
 
-  useEffect(() => {
-    Object.entries(stages).map(([key, value], index) => {
-      if (index === stage) {
-        setCurrentComp(value);
-        return;
-      }
-    });
-  }, [stage]);
-
   return (
     <>
-      {currentComp.component}
+      {Object.entries(stages).map(([key, value], index) => {
+        if (index === stage) {
+          return value.component;
+        }
+      })}
       <>
         {!isSearching ? (
           <button className="accentButton hover">Take the quick Tour</button>
@@ -49,9 +51,8 @@ function Workflow(props: WorkflowProps) {
             isFirstStage={isFirstStage}
             isLastStage={isLastStage}
             dispatch={dispatchRegisterState}
-            showBack={true}
-            showNext={true}
-            disableNext={!currentComp.proceedCondition()}
+            showBack={backCondition}
+            showNext={nextCondition}
           />
         )}
       </>

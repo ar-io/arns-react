@@ -1,5 +1,6 @@
 import type { ArweaveTransactionId } from '../../types';
 import { RegistrationAction, RegistrationState } from '../../types';
+import { initialRegistrationState } from '../contexts/RegistrationState';
 
 export const registrationReducer = (
   state: RegistrationState,
@@ -86,6 +87,9 @@ export const registrationReducer = (
         ...state,
         isLastStage: action.payload,
       };
+    case 'reset':
+      return action.payload;
+
     default:
       return state;
   }

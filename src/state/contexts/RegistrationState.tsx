@@ -19,7 +19,7 @@ export const initialRegistrationState: RegistrationState = {
   domain: '',
   leaseDuration: 1,
   chosenTier: 1,
-  controllers: [''],
+  controllers: [],
   ttl: 100,
   fee: { ar: 0, io: 0 },
   targetID: undefined,
@@ -47,15 +47,15 @@ export default function RegistrationStateProvider({
   lastStage,
 }: RegistrationStateProviderProps): JSX.Element {
   const [state, dispatchRegisterState] = useReducer(
-    registrationReducer,
+    reducer,
     initialRegistrationState,
   );
   const [{ isSearching }, dispatchGlobalState] = useGlobalState();
   useEffect(() => {
     if (!isSearching) {
       dispatchRegisterState({
-        type: 'setStage',
-        payload: 0,
+        type: 'reset',
+        payload: initialRegistrationState,
       });
     }
     if (state.stage === lastStage) {
@@ -69,10 +69,6 @@ export default function RegistrationStateProvider({
         type: 'setIsFirstStage',
         payload: true,
       });
-      dispatchGlobalState({
-        type: 'setIsSearching',
-        payload: false,
-      });
     }
     if (state.stage !== lastStage && state.stage !== firstStage) {
       dispatchRegisterState({
@@ -84,7 +80,7 @@ export default function RegistrationStateProvider({
         payload: false,
       });
     }
-  }, [state.stage]);
+  }, [state.stage, isSearching]);
 
   return (
     <RegistrationStateContext.Provider value={[state, dispatchRegisterState]}>

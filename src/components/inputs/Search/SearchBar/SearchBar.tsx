@@ -18,8 +18,7 @@ function SearchBar(props: SearchBarProps) {
     height,
   } = props;
 
-  const [{ walletAddress, isSearching }, dispatchGlobalState] =
-    useGlobalState();
+  const [{ walletAddress }, dispatchGlobalState] = useGlobalState();
   const [{ stage }, dispatchRegisterState] = useRegistrationState();
   const isMobile = useIsMobile();
   const [isSearchValid, setIsSearchValid] = useState(true);
@@ -30,12 +29,6 @@ function SearchBar(props: SearchBarProps) {
   const [submittedName, setSubmittedName] = useState<string | undefined>();
   const [searchResult, setSearchResult] = useState<string | undefined>();
   const searchRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    if (stage == 0) {
-      reset();
-    }
-  }, [stage]);
 
   function reset() {
     setSearchSubmitted(false);
@@ -51,7 +44,11 @@ function SearchBar(props: SearchBarProps) {
 
     return;
   }
-
+  useEffect(() => {
+    if (!searchBarText) {
+      reset();
+    }
+  }, [searchBarText]);
   function onHandleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const input = e.target.value.trim().toLowerCase();
     if (input === '') {
@@ -62,7 +59,7 @@ function SearchBar(props: SearchBarProps) {
     // partially reset
     setSearchResult(undefined);
     setShowDefaultText(true);
-    setSubmittedName(undefined);
+    //setSubmittedName(undefined);
 
     const searchValid = validationPredicate(input);
     setIsSearchValid(searchValid);

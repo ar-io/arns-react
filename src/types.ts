@@ -123,7 +123,8 @@ export type RegistrationAction =
   | { type: 'setStage'; payload: number }
   | { type: 'setIsFirstStage'; payload: boolean }
   | { type: 'setIsLastStage'; payload: boolean }
-  | { type: 'setErrors'; payload: Array<Error> };
+  | { type: 'setErrors'; payload: Array<Error> }
+  | { type: 'reset'; payload: RegistrationState };
 
 export type RegistrationStateProviderProps = {
   reducer: React.Reducer<RegistrationState, RegistrationAction>;
@@ -133,5 +134,11 @@ export type RegistrationStateProviderProps = {
 };
 
 export type WorkflowProps = {
-  stages: { [x: number]: { component: any; proceedCondition: () => boolean } };
+  stages: {
+    [x: number]: {
+      component: JSX.Element;
+      nextCondition: boolean;
+      backCondition: boolean;
+    };
+  };
 };

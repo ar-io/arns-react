@@ -72,6 +72,12 @@ button {
   max-width: 475px;
   text-decoration: none;
 }
+.textLarge {
+  display: flex;
+  font-size: 24px;
+  max-width: 475px;
+  text-decoration: none;
+}
 
 .flex-row {
   display: flex;

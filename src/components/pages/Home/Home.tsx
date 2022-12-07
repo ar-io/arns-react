@@ -14,6 +14,7 @@ import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import { FeaturedDomains } from '../../layout';
 import { SearchBarFooter, SearchBarHeader } from '../../layout';
 import ConfirmRegistration from '../../layout/ConfirmRegistration/ConfirmRegistration';
+import SuccessfulRegistration from '../../layout/SuccessfulRegistration/SuccessfulRegistration';
 import Workflow from '../../layout/Workflow/Workflow';
 import RegisterNameModal from '../../modals/RegisterNameModal/RegisterNameModal';
 import './styles.css';
@@ -24,51 +25,8 @@ function Home() {
     arnsSourceContract.records,
   );
   const [featuredDomains, setFeaturedDomains] = useState<ArNSDomains>();
+  const [registrationWorkflow, setRegistrationWorkflow] = useState({});
 
-  const initialRegistrationWorkflowState = {
-    0: {
-      component: (
-        <SearchBar
-          values={records}
-          successPredicate={(value: string | undefined) =>
-            isArNSDomainNameAvailable({ name: value, records })
-          }
-          validationPredicate={(value: string | undefined) =>
-            isArNSDomainNameValid({ name: value })
-          }
-          placeholderText={'Enter a name'}
-          headerElement={<SearchBarHeader defaultText={'Find a domain name'} />}
-          footerElement={
-            <SearchBarFooter
-              defaultText={
-                'Names must be 1-32 characters. Dashes are permitted, but cannot be trailing characters and cannot be used in single character domains.'
-              }
-            />
-          }
-          height={45}
-        />
-      ),
-      proceedCondition: () => {
-        return true;
-      },
-    },
-    1: {
-      component: <RegisterNameModal />,
-      proceedCondition: () => {
-        return true;
-      },
-    },
-    2: {
-      component: <ConfirmRegistration />,
-      proceedCondition: () => {
-        return true;
-      },
-    },
-  };
-
-  const [registrationWorkflow, setRegistrationWorkflow] = useState(
-    initialRegistrationWorkflowState,
-  );
   useEffect(() => {
     const newRecords = arnsSourceContract.records;
     setRecords(newRecords);
@@ -78,16 +36,64 @@ function Home() {
       }),
     );
     setFeaturedDomains(featuredDomains);
-  }, [arnsSourceContract]);
+    setRegistrationWorkflow({
+      0: {
+        component: (
+          <SearchBar
+            values={records}
+            successPredicate={(value: string | undefined) =>
+              isArNSDomainNameAvailable({ name: value, records })
+            }
+            validationPredicate={(value: string | undefined) =>
+              isArNSDomainNameValid({ name: value })
+            }
+            placeholderText={'Enter a name'}
+            headerElement={
+              <SearchBarHeader defaultText={'Find a domain name'} />
+            }
+            footerElement={
+              <SearchBarFooter
+                defaultText={
+                  'Names must be 1-32 characters. Dashes are permitted, but cannot be trailing characters and cannot be used in single character domains.'
+                }
+              />
+            }
+            height={45}
+          />
+        ),
+        nextCondition: true,
+        backCondition: true,
+      },
+      1: {
+        component: <RegisterNameModal />,
+        nextCondition: true,
+        backCondition: true,
+      },
+      2: {
+        component: <ConfirmRegistration />,
+        nextCondition: false,
+        backCondition: true,
+      },
+      3: {
+        component: <SuccessfulRegistration />,
+        nextCondition: false,
+        backCondition: false,
+      },
+    });
+  }, [arnsSourceContract, isSearching]);
 
   return (
     <div className="page">
-      <div className="pageHeader">Arweave Name System</div>
+      {isSearching ? (
+        <></>
+      ) : (
+        <div className="pageHeader">Arweave Name System</div>
+      )}
 
       <RegistrationStateProvider
         reducer={registrationReducer}
         firstStage={0}
-        lastStage={4}
+        lastStage={3}
       >
         <Workflow stages={registrationWorkflow} />
       </RegistrationStateProvider>
