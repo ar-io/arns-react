@@ -20,7 +20,7 @@ function Dropdown(props: DropdownProps) {
   return (
     <>
       {!showOptions ? (
-        <div
+        <button
           className="dataDropdown center"
           onClick={() => setShowOptions(!showOptions)}
         >
@@ -35,11 +35,11 @@ function Dropdown(props: DropdownProps) {
           ) : (
             <></>
           )}
-        </div>
+        </button>
       ) : (
         <>
           <div className="dropdownOptions">
-            <div
+            <button
               className="dataDropdown selectedDropdownOption center"
               style={{ borderBottom: 'none' }}
               onClick={() => setShowOptions(!showOptions)}
@@ -55,7 +55,7 @@ function Dropdown(props: DropdownProps) {
               ) : (
                 <></>
               )}
-            </div>
+            </button>
             <div className="activeDataDropdown">
               {headerElement ? (
                 <div
@@ -82,7 +82,8 @@ function Dropdown(props: DropdownProps) {
                     !footerElement)
                 ) {
                   return (
-                    <div
+                    <button
+                      key={index}
                       className="dataDropdown lastDropdownOption center"
                       onClick={() => {
                         setSelected(value);
@@ -90,12 +91,13 @@ function Dropdown(props: DropdownProps) {
                       }}
                     >
                       {key}
-                    </div>
+                    </button>
                   );
                 }
                 if (index !== selected && index !== options.length) {
                   return (
-                    <div
+                    <button
+                      key={index}
                       className="dataDropdown dropdownOption center"
                       onClick={() => {
                         setSelected(value);
@@ -103,7 +105,7 @@ function Dropdown(props: DropdownProps) {
                       }}
                     >
                       {key}
-                    </div>
+                    </button>
                   );
                 }
               })}

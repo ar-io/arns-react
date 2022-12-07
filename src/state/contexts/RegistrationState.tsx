@@ -1,4 +1,4 @@
-import React, {
+import {
   Dispatch,
   createContext,
   useContext,
@@ -7,12 +7,10 @@ import React, {
 } from 'react';
 
 import {
-  ArweaveTransactionId,
   RegistrationAction,
   RegistrationState,
   RegistrationStateProviderProps,
 } from '../../types';
-import { registrationReducer } from '../reducers/RegistrationReducer';
 import { useGlobalState } from './GlobalState';
 
 export const initialRegistrationState: RegistrationState = {
@@ -50,7 +48,7 @@ export default function RegistrationStateProvider({
     reducer,
     initialRegistrationState,
   );
-  const [{ isSearching }, dispatchGlobalState] = useGlobalState();
+  const [{ isSearching }] = useGlobalState();
   useEffect(() => {
     if (!isSearching) {
       dispatchRegisterState({

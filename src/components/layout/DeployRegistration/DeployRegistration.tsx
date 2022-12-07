@@ -5,7 +5,7 @@ import { useRegistrationState } from '../../../state/contexts/RegistrationState'
 import { RegistrationProgress } from '../../inputs/progress';
 
 function DeployRegistration() {
-  const [{ domain, stage }, dispatchRegisterState] = useRegistrationState();
+  const [{ stage }, dispatchRegisterState] = useRegistrationState();
   const [deployStage, setDeployStage] = useState(1);
 
   const [pickDomain, setPickDomain] = useState('success');
@@ -17,6 +17,7 @@ function DeployRegistration() {
     setTimeout(() => {
       if (deployStage === 1) {
         setDeployStage(2);
+        setPickDomain('success');
         setCreateAnANT('pending');
         return;
       }

@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import useLongPress from '../../../hooks/useLongPress/useLongPress';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';

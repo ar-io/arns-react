@@ -1,15 +1,12 @@
 import { useState } from 'react';
 
-import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import {
-  isArNSDomainNameAvailable,
   isArNSDomainNameValid,
   isArweaveTransactionID,
 } from '../../../utils/searchUtils';
 import Dropdown from '../../inputs/Dropdown/Dropdown';
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
-import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
 import UpgradeTier from '../../layout/UpgradeTier/UpgradeTier';
 import './styles.css';
 
@@ -18,21 +15,8 @@ function RegisterNameModal() {
     'Create an Arweave Name Token (ANT) for me',
   );
   const [antAddress, setAntAddress] = useState(0);
-  const [
-    {
-      fee,
-      leaseDuration,
-      chosenTier,
-      domain,
-      ttl,
-      targetID,
-      antID,
-      stage,
-      isFirstStage,
-      isLastStage,
-    },
-    dispatchRegisterState,
-  ] = useRegistrationState();
+  const [{ domain, ttl, targetID }, dispatchRegisterState] =
+    useRegistrationState();
 
   function updateRegisterState({ key, value }: { key: any; value: any }) {
     setTimeout(
@@ -107,7 +91,7 @@ function RegisterNameModal() {
                     validationPredicate={(name) =>
                       isArNSDomainNameValid({ name })
                     }
-                    successPredicate={(name) => {
+                    successPredicate={() => {
                       return true;
                     }}
                     placeholderText="Enter ANT Contract ID"

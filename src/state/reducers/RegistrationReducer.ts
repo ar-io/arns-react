@@ -1,6 +1,4 @@
-import type { ArweaveTransactionId } from '../../types';
 import { RegistrationAction, RegistrationState } from '../../types';
-import { initialRegistrationState } from '../contexts/RegistrationState';
 
 export const registrationReducer = (
   state: RegistrationState,

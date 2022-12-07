@@ -51,7 +51,7 @@ function RegistrationProgress({
         {Object.entries(stages).map(([key, value], index) => {
           if (index === 0) {
             return (
-              <div className="progressStage">
+              <div className="progressStage" key={index}>
                 <div
                   className="nodeContainer"
                   style={isMobile ? { width: '75px' } : {}}
@@ -79,7 +79,7 @@ function RegistrationProgress({
           }
           if (index === Object.keys(stages).length - 1) {
             return (
-              <div className="progressStage">
+              <div className="progressStage" key={index}>
                 <div
                   className="nodeContainer"
                   style={isMobile ? { width: '75px' } : {}}
@@ -107,7 +107,7 @@ function RegistrationProgress({
           }
           if (index !== 0 && index !== Object.keys(stages).length - 1) {
             return (
-              <div className="progressStage">
+              <div className="progressStage" key={index}>
                 <div
                   className="nodeContainer"
                   style={isMobile ? { width: '75px' } : {}}

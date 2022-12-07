@@ -6,7 +6,8 @@ import NavGroup from './NavGroup/NavGroup';
 import './styles.css';
 
 function NavBar() {
-  const [{ isSearching }, dispatchGlobalState] = useGlobalState();
+  // eslint-disable-next-line
+  const [{}, dispatchGlobalState] = useGlobalState();
   return (
     <div className="flex-row flex-space-between">
       <div className="flex-row flex-left">

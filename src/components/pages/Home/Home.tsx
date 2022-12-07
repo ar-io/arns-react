@@ -9,9 +9,7 @@ import {
   isArNSDomainNameAvailable,
   isArNSDomainNameValid,
 } from '../../../utils/searchUtils';
-import { AntCard } from '../../cards';
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
-import RegistrationProgress from '../../inputs/progress/RegistrationProgress/RegistrationProgress';
 import { FeaturedDomains } from '../../layout';
 import { SearchBarFooter, SearchBarHeader } from '../../layout';
 import ConfirmRegistration from '../../layout/ConfirmRegistration/ConfirmRegistration';

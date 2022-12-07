@@ -1,4 +1,3 @@
-import { useRegistrationState } from '../state/contexts/RegistrationState';
 import { ARNS_NAME_REGEX, ARNS_TXID_REGEX } from './constants';
 
 export function isArNSDomainNameValid({ name }: { name?: string }): boolean {

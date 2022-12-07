@@ -15,7 +15,7 @@ import Counter from '../../inputs/Counter/Counter';
 import './styles.css';
 
 function UpgradeTier() {
-  const [{ arnsSourceContract }, dispatch] = useGlobalState();
+  const [{ arnsSourceContract }] = useGlobalState();
   // name is passed down from search bar to calculate price
   const [priceInfo, setPriceInfo] = useState(false);
 
