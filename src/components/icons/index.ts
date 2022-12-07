@@ -1,9 +1,12 @@
 import { ReactComponent as AccountIcon } from './Account.svg';
 import { ReactComponent as AlertCircle } from './AlertCircle.svg';
+import { ReactComponent as AlertOctagonIcon } from './AlertOctagon.svg';
+import { ReactComponent as AlertTriangleIcon } from './AlertTriangle.svg';
 import { ReactComponent as ArConnectIcon } from './ArConnectIcon.svg';
 import ArnsDefault from './ArnsDefault.png';
 import { ReactComponent as ArrowUpRight } from './ArrowUpRight.svg';
 import ArweaveAppIcon from './ArweaveAppIcon.png';
+import { ReactComponent as CheckmarkIcon } from './Checkmark.svg';
 import { ReactComponent as ChevronDownIcon } from './ChevronDown.svg';
 import { ReactComponent as ChevronUpIcon } from './ChevronUp.svg';
 import { ReactComponent as CircleCheck } from './CircleCheck.svg';
@@ -26,4 +29,7 @@ export {
   MenuIcon,
   SearchIcon,
   UploadIcon,
+  AlertTriangleIcon,
+  AlertOctagonIcon,
+  CheckmarkIcon,
 };

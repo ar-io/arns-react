@@ -11,9 +11,11 @@ import {
 } from '../../../utils/searchUtils';
 import { AntCard } from '../../cards';
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
+import RegistrationProgress from '../../inputs/progress/RegistrationProgress/RegistrationProgress';
 import { FeaturedDomains } from '../../layout';
 import { SearchBarFooter, SearchBarHeader } from '../../layout';
 import ConfirmRegistration from '../../layout/ConfirmRegistration/ConfirmRegistration';
+import DeployRegistration from '../../layout/DeployRegistration/DeployRegistration';
 import SuccessfulRegistration from '../../layout/SuccessfulRegistration/SuccessfulRegistration';
 import Workflow from '../../layout/Workflow/Workflow';
 import RegisterNameModal from '../../modals/RegisterNameModal/RegisterNameModal';
@@ -75,6 +77,11 @@ function Home() {
         backCondition: true,
       },
       3: {
+        component: <DeployRegistration />,
+        nextCondition: false,
+        backCondition: false,
+      },
+      4: {
         component: <SuccessfulRegistration />,
         nextCondition: false,
         backCondition: false,
@@ -93,7 +100,7 @@ function Home() {
       <RegistrationStateProvider
         reducer={registrationReducer}
         firstStage={0}
-        lastStage={3}
+        lastStage={4}
       >
         <Workflow stages={registrationWorkflow} />
       </RegistrationStateProvider>
