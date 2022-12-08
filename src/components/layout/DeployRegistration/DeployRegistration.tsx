@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 
 import logo from '../../../../assets/images/logo/looped-winston-white.gif';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
+import { FUN_FACTS } from '../../../utils/constants';
 import { RegistrationProgress } from '../../inputs/progress';
 
 function DeployRegistration() {
   const [{ stage }, dispatchRegisterState] = useRegistrationState();
   const [deployStage, setDeployStage] = useState(1);
+  const [fact, setFact] = useState(FUN_FACTS[0]);
 
   const [pickDomain, setPickDomain] = useState('success');
   const [createAnANT, setCreateAnANT] = useState('');
@@ -42,6 +44,12 @@ function DeployRegistration() {
     }, 7000);
   }, [deployStage]);
 
+  useEffect(() => {
+    setTimeout(() => {
+      setFact(FUN_FACTS[Math.floor(Math.random() * FUN_FACTS.length - 1)]);
+    }, 10000);
+  }, [fact]);
+
   return (
     <>
       <div className="flex-column center">
@@ -72,7 +80,7 @@ function DeployRegistration() {
             We are reserving your name. Please give us a few ~
           </span>
         </div>
-        <span className="text white center">Add Arweave facts here?</span>
+        <span className="textMedium white center">{fact}</span>
       </div>
     </>
   );
