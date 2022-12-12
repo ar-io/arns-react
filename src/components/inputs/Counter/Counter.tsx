@@ -44,6 +44,7 @@ function YearsCounter({
   }, [leaseDuration]);
 
   function updateRegisterState({ key, value }: { key: any; value: any }) {
+    // timeout to prevent jitter
     setTimeout(
       () =>
         dispatchRegisterState({
