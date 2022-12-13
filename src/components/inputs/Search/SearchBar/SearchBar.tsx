@@ -95,7 +95,7 @@ function SearchBar(props: SearchBarProps) {
   function handleNext() {
     if (!walletAddress) {
       dispatch({
-        type: 'setConnectWallet',
+        type: 'setShowConnectWallet',
         payload: true,
       });
       return;

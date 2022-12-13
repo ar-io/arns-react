@@ -1,4 +1,3 @@
-import type { JWKInterface } from 'arweave/node/lib/wallet';
 import type { Dispatch, SetStateAction } from 'react';
 
 export type ArNSDomains = { [x: string]: ArweaveTransactionId };
@@ -23,9 +22,6 @@ export type ArNSDomain = ArNSMapping & ArNSMetaData;
 // TODO: match this to a regex
 export type ArweaveTransactionId = string;
 
-export interface WalletUploadSource {
-  getWallet(e: any): JWKInterface | void;
-}
 export type JsonWalletProvider = {
   key: any;
 };
@@ -37,7 +33,8 @@ export interface SmartweaveContractSource {
 }
 
 export interface ArweaveWalletConnector {
-  connect(): Promise<JWKInterface | Window['arweaveWallet']>;
+  connect(): Promise<void>;
+  disconnect(): Promise<void>;
   getWalletAddress(): Promise<string>;
 }
 

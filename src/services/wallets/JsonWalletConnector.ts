@@ -3,13 +3,16 @@ import { isString } from 'lodash';
 
 import { ArweaveWalletConnector } from '../../types';
 
+// A lot to do here, r.e. security, we will likely move to a different approach.
 export class JsonWalletConnector implements ArweaveWalletConnector {
   private _walletFile;
+  private _wallet?: JWKInterface;
+
   constructor(file: any) {
     this._walletFile = file;
   }
 
-  async connect(): Promise<JWKInterface> {
+  async connect(): Promise<void> {
     try {
       if (this._walletFile.type !== 'application/json') {
         throw Error('Invalid wallet file, must be a json file');
@@ -35,15 +38,20 @@ export class JsonWalletConnector implements ArweaveWalletConnector {
       if (!jsonWallet) {
         throw Error('Failed to load JSON wallet.');
       }
-      return jsonWallet;
+      // TODO: we need encryption
+      this._wallet = jsonWallet;
     } catch (error) {
       console.error(error);
       throw error;
     }
   }
 
+  async disconnect(): Promise<void> {
+    this._wallet = undefined;
+    this._walletFile = undefined;
+  }
+
   async getWalletAddress(): Promise<string> {
-    // TODO
-    throw Error('Not implemented.');
+    throw Error('Not implemented!');
   }
 }

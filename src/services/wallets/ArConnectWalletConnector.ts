@@ -16,7 +16,7 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
     this._wallet = window.arweaveWallet;
   }
 
-  async connect() {
+  connect(): Promise<void> {
     // confirm they have the extension installed
     if (!window.arweaveWallet) {
       window.open('https://arconnect.io');
@@ -26,7 +26,11 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
     });
   }
 
-  async getWalletAddress(): Promise<string> {
+  disconnect(): Promise<void> {
+    return this._wallet.disconnect();
+  }
+
+  getWalletAddress(): Promise<string> {
     return this._wallet.getActiveAddress();
   }
 }

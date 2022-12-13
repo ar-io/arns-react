@@ -1,11 +1,13 @@
-import { JWKInterface } from 'arweave/node/lib/wallet';
-
-import type { ArNSContractState, ArweaveTransactionId } from '../types';
+import type {
+  ArNSContractState,
+  ArweaveTransactionId,
+  ArweaveWalletConnector,
+} from '../types';
 import { GlobalState } from './state';
 
 export type Action =
   | { type: 'setWalletAddress'; payload: ArweaveTransactionId }
-  | { type: 'setWallet'; payload: JWKInterface | Window['arweaveWallet'] }
+  | { type: 'setWallet'; payload: ArweaveWalletConnector }
   | { type: 'setGateway'; payload: string }
   | { type: 'setArnsContractState'; payload: ArNSContractState }
   | { type: 'setShowConnectWallet'; payload: boolean };

@@ -16,7 +16,7 @@ import './styles.css';
 
 function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
   const modalRef = useRef(null);
-  const [{}, dispatch] = useStateValue(); // eslint-disable-line
+  const [{ gateway }, dispatch] = useStateValue(); // eslint-disable-line
 
   useEffect(() => {
     // disable scrolling when modal is in view
@@ -36,7 +36,7 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
 
   function closeModal() {
     dispatch({
-      type: 'setConnectWallet',
+      type: 'setShowConnectWallet',
       payload: false,
     });
   }
@@ -47,6 +47,10 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
       dispatch({
         type: 'setWalletAddress',
         payload: await walletConnector.getWalletAddress(),
+      });
+      dispatch({
+        type: 'setWallet',
+        payload: walletConnector,
       });
     } catch (error: any) {
       console.error(error);
