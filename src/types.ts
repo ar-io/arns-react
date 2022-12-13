@@ -71,3 +71,14 @@ export type TierCardProps = {
   setTier: Dispatch<SetStateAction<number>>;
   selectedTier: number;
 };
+
+export type DropdownProps = {
+  options: { [x: string]: any };
+  optionsFilter?: () => Array<string>; // optional filter to sort passed array of options
+  showSelected: boolean;
+  showChevron: boolean;
+  selected: any;
+  setSelected: Dispatch<SetStateAction<any>>;
+  headerElement?: JSX.Element;
+  footerElement?: JSX.Element;
+};
