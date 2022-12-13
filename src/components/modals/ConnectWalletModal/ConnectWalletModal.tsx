@@ -1,6 +1,9 @@
 import { useEffect, useRef } from 'react';
 
-import { JsonWalletConnector } from '../../../services/wallets/JsonWalletConnector';
+import {
+  ArConnectWalletConnector,
+  JsonWalletConnector,
+} from '../../../services/wallets';
 import { useStateValue } from '../../../state/state';
 import { ArweaveWalletConnector } from '../../../types';
 import {
@@ -13,7 +16,7 @@ import './styles.css';
 
 function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
   const modalRef = useRef(null);
-  const [{}, dispatch] = useStateValue(); // eslint-disable-line
+  const [{ gateway }, dispatch] = useStateValue(); // eslint-disable-line
 
   useEffect(() => {
     // disable scrolling when modal is in view
@@ -33,18 +36,21 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
 
   function closeModal() {
     dispatch({
-      type: 'setConnectWallet',
+      type: 'setShowConnectWallet',
       payload: false,
     });
   }
 
   async function setGlobalWallet(walletConnector: ArweaveWalletConnector) {
     try {
-      const wallet = await walletConnector.connect();
-      // TODO: set wallet in local storage/securely cache
+      await walletConnector.connect();
       dispatch({
-        type: 'setJwk',
-        payload: wallet,
+        type: 'setWalletAddress',
+        payload: await walletConnector.getWalletAddress(),
+      });
+      dispatch({
+        type: 'setWallet',
+        payload: walletConnector,
       });
     } catch (error: any) {
       console.error(error);
@@ -78,7 +84,10 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
             />
           </label>
         </button>
-        <button className="walletConnectButton h2">
+        <button
+          className="walletConnectButton h2"
+          onClick={() => setGlobalWallet(new ArConnectWalletConnector())}
+        >
           <ArConnectIcon className="external-icon" />
           Connect via ArConnect
         </button>

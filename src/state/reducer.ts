@@ -1,14 +1,16 @@
-import { JWKInterface } from 'arweave/node/lib/wallet';
-
-import type { ArNSContractState, ArweaveTransactionId } from '../types';
+import type {
+  ArNSContractState,
+  ArweaveTransactionId,
+  ArweaveWalletConnector,
+} from '../types';
 import { GlobalState } from './state';
 
 export type Action =
   | { type: 'setWalletAddress'; payload: ArweaveTransactionId }
-  | { type: 'setJwk'; payload: JWKInterface }
+  | { type: 'setWallet'; payload: ArweaveWalletConnector }
   | { type: 'setGateway'; payload: string }
   | { type: 'setArnsContractState'; payload: ArNSContractState }
-  | { type: 'setConnectWallet'; payload: boolean };
+  | { type: 'setShowConnectWallet'; payload: boolean };
 
 export const reducer = (state: GlobalState, action: Action): GlobalState => {
   switch (action.type) {
@@ -17,15 +19,15 @@ export const reducer = (state: GlobalState, action: Action): GlobalState => {
         ...state,
         walletAddress: action.payload,
       };
-    case 'setJwk':
+    case 'setWallet':
       return {
         ...state,
-        jwk: action.payload,
+        wallet: action.payload,
       };
-    case 'setConnectWallet':
+    case 'setShowConnectWallet':
       return {
         ...state,
-        connectWallet: action.payload,
+        showConnectWallet: action.payload,
       };
     case 'setGateway':
       return {

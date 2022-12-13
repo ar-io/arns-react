@@ -4,11 +4,18 @@ import { useStateValue } from '../../state/state';
 
 export default function useConnectWalletModal() {
   // eslint-disable-next-line
-  const [{ connectWallet }] = useStateValue();
+  const [{ showConnectWallet, walletAddress }, dispatch] = useStateValue();
 
-  useEffect(() => {}, [connectWallet]); // eslint-disable-line
+  useEffect(() => {
+    if (walletAddress) {
+      dispatch({
+        type: 'setShowConnectWallet',
+        payload: false,
+      });
+    }
+  }, [showConnectWallet, walletAddress]);
 
   return {
-    showConnectModal: connectWallet,
+    showConnectModal: showConnectWallet,
   };
 }
