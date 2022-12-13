@@ -10,7 +10,8 @@ export type Action =
   | { type: 'setWallet'; payload: ArweaveWalletConnector }
   | { type: 'setGateway'; payload: string }
   | { type: 'setArnsContractState'; payload: ArNSContractState }
-  | { type: 'setShowConnectWallet'; payload: boolean };
+  | { type: 'setShowConnectWallet'; payload: boolean }
+  | { type: 'setIsSearching'; payload: boolean };
 
 export const reducer = (state: GlobalState, action: Action): GlobalState => {
   switch (action.type) {
@@ -28,6 +29,11 @@ export const reducer = (state: GlobalState, action: Action): GlobalState => {
       return {
         ...state,
         showConnectWallet: action.payload,
+      };
+    case 'setIsSearching':
+      return {
+        ...state,
+        isSearching: action.payload,
       };
     case 'setGateway':
       return {
