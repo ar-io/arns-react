@@ -1,26 +1,32 @@
-import { ArweaveWebWallet } from 'arweave-wallet-connector';
-
 import { ArweaveWalletConnector } from '../../types';
+
+const ARCONNECT_WALLET_PERMISSIONS = [
+  'ACCESS_ADDRESS',
+  'ACCESS_PUBLIC_KEY',
+  'SIGN_TRANSACTION',
+  'ENCRYPT',
+  'DECRYPT',
+  'ACCESS_ARWEAVE_CONFIG',
+];
 
 export class ArConnectWalletConnector implements ArweaveWalletConnector {
   private _wallet: any;
+
   constructor() {
-    this._wallet = new ArweaveWebWallet({
-      name: 'ArNS - ar.io',
-      logo: '../../public/vite.svg',
-    });
-    this._wallet.setUrl('arweave.app');
+    this._wallet = window.arweaveWallet;
   }
 
-  async connect(): Promise<Window['arweaveWallet']> {
+  async connect() {
     // confirm they have the extension installed
     if (!window.arweaveWallet) {
       window.open('https://arconnect.io');
     }
-    return this._wallet.connect();
+    return this._wallet.connect(ARCONNECT_WALLET_PERMISSIONS, {
+      name: 'ArNS - ar.io',
+    });
   }
 
   async getWalletAddress(): Promise<string> {
-    return window.arweaveWallet.getActiveAddress();
+    return this._wallet.getActiveAddress();
   }
 }

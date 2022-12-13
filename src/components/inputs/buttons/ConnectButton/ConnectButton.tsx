@@ -6,7 +6,7 @@ function ConnectButton(): JSX.Element {
 
   function showConnectModal() {
     dispatch({
-      type: 'setConnectWallet',
+      type: 'setShowConnectWallet',
       payload: true,
     });
   }
