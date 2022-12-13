@@ -30,7 +30,6 @@ function Home() {
     );
     setFeaturedDomains(featuredDomains);
   }, [arnsSourceContract]);
-
   return (
     <div className="page">
       <div className="pageHeader h1">Arweave Name System</div>
