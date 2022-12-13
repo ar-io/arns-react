@@ -7,6 +7,7 @@ import {
   isArNSDomainNameAvailable,
   isArNSDomainNameValid,
 } from '../../../utils/searchUtils';
+import Dropdown from '../../inputs/Dropdown/Dropdown';
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import { SearchBarFooter, SearchBarHeader } from '../../layout';
 import FeaturedDomains from '../../layout/FeaturedDomains/FeaturedDomains';
@@ -30,7 +31,7 @@ function Home() {
     );
     setFeaturedDomains(featuredDomains);
   }, [arnsSourceContract]);
-
+  const [selected, setSelected] = useState();
   return (
     <div className="page">
       <div className="pageHeader h1">Arweave Name System</div>
