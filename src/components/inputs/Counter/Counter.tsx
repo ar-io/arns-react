@@ -75,12 +75,12 @@ function YearsCounter({
   }
 
   return (
-    <div className="yearsCounterContainer">
+    <div className="counter-container">
       <p className="text white bold">Registration Period ({period})</p>
       <div className="flex-row flex-center">
-        <div className="yearsCounter">
+        <div className="counter">
           <button
-            className="counterButton"
+            className="counter-button"
             disabled={count == minValue}
             onClick={decHandleOnClick}
             onMouseDown={decHandleOnMouseDown}
@@ -91,7 +91,7 @@ function YearsCounter({
             -
           </button>
           <input
-            className="counterInput text bold"
+            className="counter=input text bold"
             type="number"
             value={count}
             pattern={'/^[1-9]{1,3}$/'}
@@ -99,7 +99,7 @@ function YearsCounter({
             onChange={onChange}
           />
           <button
-            className="counterButton"
+            className="counter-button"
             disabled={count == maxValue}
             onClick={incHandleOnClick}
             onMouseDown={incHandleOnMouseDown}

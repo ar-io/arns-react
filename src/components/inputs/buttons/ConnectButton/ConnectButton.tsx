@@ -1,8 +1,8 @@
-import { useStateValue } from '../../../../state/state';
+import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import './styles.css';
 
 function ConnectButton(): JSX.Element {
-  const [{}, dispatch] = useStateValue(); // eslint-disable-line
+  const [{}, dispatch] = useGlobalState(); // eslint-disable-line
 
   function showConnectModal() {
     dispatch({
@@ -12,7 +12,7 @@ function ConnectButton(): JSX.Element {
   }
   return (
     <>
-      <button className="connectButton" onClick={showConnectModal}>
+      <button className="connect-button" onClick={showConnectModal}>
         Connect
       </button>
     </>

@@ -12,10 +12,10 @@
   font-family: 'Rubik';
   height: fit-content;
 }
-.errorContainer {
+.error-container {
   display: flex;
   flex-direction: column;
 }
-.illegalChar {
+.illegal-char {
   color: var(--error-red);
 }

@@ -21,13 +21,13 @@ function Dropdown(props: DropdownProps) {
     <>
       {!showOptions ? (
         <button
-          className="dataDropdown center"
+          className="data-dropdown center"
           onClick={() => setShowOptions(!showOptions)}
         >
           {selected}
           {showChevron ? (
             <ChevronDownIcon
-              className="dropdownChevron"
+              className="dropdown-chevron"
               fill="var(--text-black)"
               width={'15'}
               height={'15'}
@@ -38,16 +38,16 @@ function Dropdown(props: DropdownProps) {
         </button>
       ) : (
         <>
-          <div className="dropdownOptions">
+          <div className="dropdown-options">
             <button
-              className="dataDropdown selectedDropdownOption center"
+              className="data-dropdown selected-dropdown-option center"
               style={{ borderBottom: 'none' }}
               onClick={() => setShowOptions(!showOptions)}
             >
               {showSelected ? selected : <></>}
               {showChevron ? (
                 <ChevronUpIcon
-                  className="dropdownChevron"
+                  className="dropdown-chevron"
                   fill="var(--text-black)"
                   width={'15'}
                   height={'15'}
@@ -56,10 +56,10 @@ function Dropdown(props: DropdownProps) {
                 <></>
               )}
             </button>
-            <div className="activeDataDropdown">
+            <div className="active-data-dropdown">
               {headerElement ? (
                 <div
-                  className="dataDropdown dropdownOption center"
+                  className="data-dropdown dropdown-option center"
                   style={{
                     border: 'none',
                     height: 'fit-content',
@@ -84,7 +84,7 @@ function Dropdown(props: DropdownProps) {
                   return (
                     <button
                       key={index}
-                      className="dataDropdown lastDropdownOption center"
+                      className="data-dropdown last-dropdown-option center"
                       onClick={() => {
                         setSelected(value);
                         setShowOptions(!showOptions);
@@ -98,7 +98,7 @@ function Dropdown(props: DropdownProps) {
                   return (
                     <button
                       key={index}
-                      className="dataDropdown dropdownOption center"
+                      className="data-dropdown dropdown-option center"
                       onClick={() => {
                         setSelected(value);
                         setShowOptions(!showOptions);
@@ -110,7 +110,7 @@ function Dropdown(props: DropdownProps) {
                 }
               })}
               {footerElement ? (
-                <div className="dataDropdown lastDropdownOption center">
+                <div className="data-dropdown last-dropdown-option center">
                   {footerElement}
                 </div>
               ) : (

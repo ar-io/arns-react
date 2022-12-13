@@ -1,4 +1,4 @@
-.connectButton {
+.connect-button {
   display: flex;
   position: relative;
   width: 90px;
@@ -20,7 +20,7 @@
   -o-transition: all 0.2s;
   transition: all 0.2s;
 }
-.connectButton:hover {
+.connect-button:hover {
   cursor: pointer;
   color: var(--text-black);
   background-color: var(--text-white);

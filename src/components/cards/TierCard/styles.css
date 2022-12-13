@@ -1,4 +1,4 @@
-.tierCard {
+.tier-card {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -11,7 +11,7 @@
   align-items: flex-start;
   overflow: visible;
 }
-.selectButton {
+.select-button {
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -26,7 +26,7 @@
   font-size: 12px;
   cursor: pointer;
 }
-.selectedButton {
+.selected-button {
   display: flex;
   flex-direction: row;
   justify-content: center;

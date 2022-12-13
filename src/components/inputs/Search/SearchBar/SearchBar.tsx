@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 
 import useIsMobile from '../../../../hooks/useIsMobile/useIsMobile';
-import { useStateValue } from '../../../../state/state';
+import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { SearchBarProps } from '../../../../types';
 import { ArrowUpRight, SearchIcon } from '../../../icons';
 import './styles.css';
@@ -17,7 +17,7 @@ function SearchBar(props: SearchBarProps) {
     setIsSearching,
   } = props;
 
-  const [{ walletAddress }, dispatch] = useStateValue();
+  const [{ walletAddress }, dispatch] = useGlobalState();
   const isMobile = useIsMobile();
   const [isSearchValid, setIsSearchValid] = useState(true);
   const [showDefaultText, setShowDefaultText] = useState(true);
@@ -104,14 +104,14 @@ function SearchBar(props: SearchBarProps) {
   }
 
   return (
-    <div className="searchBarContainer flex-center" ref={searchRef}>
+    <div className="searchbar-container flex-center" ref={searchRef}>
       {React.cloneElement(headerElement, {
         ...props,
         text: submittedName,
         isAvailable,
       })}
       <div
-        className="searchBar"
+        className="searchbar"
         style={
           isSearchValid
             ? !searchSubmitted || showDefaultText
@@ -129,7 +129,7 @@ function SearchBar(props: SearchBarProps) {
           onFocus={onFocus}
           onKeyDown={(e) => e.key == 'Enter' && isSearchValid && onSubmit(e)}
           maxLength={32}
-          className="searchBarInput"
+          className="searchbar-input"
         />
         {isMobile ? (
           <></>
@@ -137,7 +137,7 @@ function SearchBar(props: SearchBarProps) {
           <>
             {!isAvailable || !submittedName ? (
               <button
-                className="searchButton"
+                className="search-button"
                 onClick={(e) => {
                   onSubmit(e);
                 }}
@@ -157,7 +157,7 @@ function SearchBar(props: SearchBarProps) {
                 >
                   Register
                 </span>
-                <button className="accent roundButton" onClick={handleNext}>
+                <button className="accent round-button" onClick={handleNext}>
                   <ArrowUpRight
                     fill="var(--text-black)"
                     stroke="var(--text-black)"

@@ -1,11 +1,11 @@
-.navBar {
+.navbar {
   display: flex;
   flex-direction: row;
   align-items: center;
   width: 100%;
 }
 
-.brandLogo {
+.brand-logo {
   z-index: 1;
   width: 90px;
   height: 90px;
@@ -13,7 +13,7 @@
 
 /* If the screen size is 600px wide or less, set the font-size of <div> to 30px */
 @media screen and (max-width: 600px) {
-  .brandLogo {
+  .brand-logo {
     height: 45px;
     width: 45px;
   }

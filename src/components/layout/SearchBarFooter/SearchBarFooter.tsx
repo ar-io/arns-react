@@ -18,8 +18,8 @@ function SearchBarFooter({
             style={{ width: '75%', maxWidth: '475px' }}
           >
             {!isSearchValid ? (
-              <div className="errorContainer">
-                <span className="illegalChar">{defaultText}</span>
+              <div className="error-container">
+                <span className="illegal-char">{defaultText}</span>
               </div>
             ) : (
               defaultText
