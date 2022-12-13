@@ -2,14 +2,14 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../hooks';
-import { useStateValue } from '../../../state/state';
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ArNSDomain, ArNSMapping } from '../../../types';
 import { DEFAULT_EXPIRATION } from '../../../utils/constants';
 import { ArnsDefault as arnsDefaultImage } from '../../icons';
 import './styles.css';
 
 function ArnsCard({ domain, id }: ArNSMapping) {
-  const [{ gateway }] = useStateValue();
+  const [{ gateway }] = useGlobalState();
   const isMobile = useIsMobile();
   const [antDetails, setAntDetails] = useState<ArNSDomain>({
     domain,

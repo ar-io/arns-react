@@ -2,7 +2,8 @@
   position: absolute;
   z-index: 10;
   min-height: unset;
-  top: 75px;
+  top: 95px;
   min-width: unset;
   align-items: flex-end;
+  border-radius: 5px;
 }

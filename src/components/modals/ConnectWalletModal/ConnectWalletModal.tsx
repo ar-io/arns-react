@@ -4,7 +4,7 @@ import {
   ArConnectWalletConnector,
   JsonWalletConnector,
 } from '../../../services/wallets';
-import { useStateValue } from '../../../state/state';
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ArweaveWalletConnector } from '../../../types';
 import {
   ArConnectIcon,
@@ -16,7 +16,7 @@ import './styles.css';
 
 function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
   const modalRef = useRef(null);
-  const [{ gateway }, dispatch] = useStateValue(); // eslint-disable-line
+  const [{ gateway }, dispatch] = useGlobalState(); // eslint-disable-line
 
   useEffect(() => {
     // disable scrolling when modal is in view

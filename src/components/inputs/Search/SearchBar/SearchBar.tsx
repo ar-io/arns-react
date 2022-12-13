@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 
 import useIsMobile from '../../../../hooks/useIsMobile/useIsMobile';
-import { useStateValue } from '../../../../state/state';
+import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { SearchBarProps } from '../../../../types';
 import { ArrowUpRight, SearchIcon } from '../../../icons';
 import './styles.css';
@@ -17,7 +17,7 @@ function SearchBar(props: SearchBarProps) {
     setIsSearching,
   } = props;
 
-  const [{ walletAddress }, dispatch] = useStateValue();
+  const [{ walletAddress }, dispatch] = useGlobalState();
   const isMobile = useIsMobile();
   const [isSearchValid, setIsSearchValid] = useState(true);
   const [showDefaultText, setShowDefaultText] = useState(true);

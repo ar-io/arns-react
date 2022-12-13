@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { useStateValue } from '../../../state/state';
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ArNSDomains } from '../../../types';
 import { FEATURED_DOMAINS } from '../../../utils/constants';
 import {
@@ -13,7 +13,7 @@ import FeaturedDomains from '../../layout/FeaturedDomains/FeaturedDomains';
 import './styles.css';
 
 function Home() {
-  const [{ arnsSourceContract }] = useStateValue();
+  const [{ arnsSourceContract }] = useGlobalState();
   const [records, setRecords] = useState<ArNSDomains>(
     arnsSourceContract.records,
   );

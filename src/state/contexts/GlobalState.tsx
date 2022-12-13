@@ -1,7 +1,7 @@
 import React, { Dispatch, createContext, useContext, useReducer } from 'react';
 
-import type { ArNSContractState, ArweaveWalletConnector } from '../types';
-import type { Action } from './reducer';
+import type { ArNSContractState, ArweaveWalletConnector } from '../../types';
+import type { Action } from '../reducers/GlobalReducer';
 
 export type GlobalState = {
   arnsSourceContract: ArNSContractState;
@@ -26,7 +26,7 @@ const GlobalStateContext = createContext<[GlobalState, Dispatch<Action>]>([
   () => initialState,
 ]);
 
-export const useStateValue = (): [GlobalState, Dispatch<Action>] =>
+export const useGlobalState = (): [GlobalState, Dispatch<Action>] =>
   useContext(GlobalStateContext);
 
 type StateProviderProps = {

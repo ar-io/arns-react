@@ -1,15 +1,16 @@
 import useIsMobile from '../../../../hooks/useIsMobile/useIsMobile';
-import { useStateValue } from '../../../../state/state';
+import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { ROUTES } from '../../../../utils/routes';
 import NavMenuCard from '../../../cards/NavMenuCard/NavMenuCard';
-import { AccountIcon } from '../../../icons';
 import ConnectButton from '../../../inputs/buttons/ConnectButton/ConnectButton';
 import NavBarLink from '../NavBarLink/NavBarLink';
 import './styles.css';
 
 const NavGroup = () => {
   const isMobile = useIsMobile();
-  const [{ walletAddress }] = useStateValue();
+  const [{ walletAddress }] = useGlobalState();
+
+  // TODO: show mobile menu on click
   return (
     <div className="flex-row flex-right flex-padding">
       {!isMobile ? (
@@ -23,11 +24,9 @@ const NavGroup = () => {
           {!walletAddress ? (
             <ConnectButton />
           ) : (
-            <AccountIcon
-              width={'24px'}
-              height={'24px'}
-              fill={'var(--text-white)'}
-            />
+            <>
+              <NavMenuCard />
+            </>
           )}
         </>
       ) : (

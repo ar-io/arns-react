@@ -2,8 +2,8 @@ import type {
   ArNSContractState,
   ArweaveTransactionId,
   ArweaveWalletConnector,
-} from '../types';
-import { GlobalState } from './state';
+} from '../../types';
+import { GlobalState } from '../contexts/GlobalState';
 
 export type Action =
   | { type: 'setWalletAddress'; payload: ArweaveTransactionId }
