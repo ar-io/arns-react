@@ -10,6 +10,10 @@ export class JsonWalletConnector implements ArweaveWalletConnector {
   }
 
   async connect(): Promise<JWKInterface> {
+
+
+
+    
     try {
       if (this._walletFile.type !== 'application/json') {
         throw Error('Invalid wallet file, must be a json file');
