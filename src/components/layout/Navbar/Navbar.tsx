@@ -18,7 +18,7 @@ function NavBar() {
             dispatchGlobalState({ type: 'setIsSearching', payload: false })
           }
         >
-          <img src={logo} className="brandLogo" alt="logo" />
+          <img src={logo} className="brand-logo" alt="logo" />
         </Link>
       </div>
       <NavGroup />

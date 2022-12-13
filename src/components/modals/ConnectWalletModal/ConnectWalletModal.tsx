@@ -16,16 +16,22 @@ import './styles.css';
 
 function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
   const modalRef = useRef(null);
-  const [{ gateway }, dispatch] = useGlobalState(); // eslint-disable-line
+  const [{ walletAddress }, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
 
   useEffect(() => {
     // disable scrolling when modal is in view
+    if (walletAddress) {
+      dispatchGlobalState({
+        type: 'setShowConnectWallet',
+        payload: false,
+      });
+    }
     if (show) {
       document.body.style.overflow = 'hidden';
       return;
     }
     document.body.style.overflow = 'unset';
-  }, [show]);
+  }, [show, walletAddress]);
 
   function handleClickOutside(e: any) {
     if (modalRef.current && modalRef.current === e.target) {
@@ -35,7 +41,7 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
   }
 
   function closeModal() {
-    dispatch({
+    dispatchGlobalState({
       type: 'setShowConnectWallet',
       payload: false,
     });
@@ -44,13 +50,9 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
   async function setGlobalWallet(walletConnector: ArweaveWalletConnector) {
     try {
       await walletConnector.connect();
-      dispatch({
+      dispatchGlobalState({
         type: 'setWalletAddress',
         payload: await walletConnector.getWalletAddress(),
-      });
-      dispatch({
-        type: 'setWallet',
-        payload: walletConnector,
       });
     } catch (error: any) {
       console.error(error);
@@ -59,19 +61,28 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
 
   return show ? (
     // eslint-disable-next-line
-    <div className="modalContainer" ref={modalRef} onClick={handleClickOutside}>
-      <div className="connectWalletModal">
+    <div
+      className="modal-container"
+      ref={modalRef}
+      onClick={handleClickOutside}
+    >
+      <div className="connect-wallet-modal">
         <p
-          className="sectionHeader"
+          className="section-header"
           style={{ marginBottom: '1em', fontFamily: 'Rubik-Bold' }}
         >
           Connect with an Arweave wallet
         </p>
-        <button className="modalCloseButton" onClick={closeModal}>
+        <button className="modal-close-button" onClick={closeModal}>
           <CloseIcon width="30px" height={'30px'} fill="var(--text-white)" />
         </button>
-        <button className="walletConnectButton h2">
-          <UploadIcon className="external-icon" fill={'var(--text-white)'} />
+        <button className="wallet-connect-button h2">
+          <UploadIcon
+            className="external-icon"
+            fill={'var(--text-white)'}
+            width={'47px'}
+            height={'47px'}
+          />
           Import your JSON keyfile
           <label className="span-all">
             <input
@@ -85,27 +96,32 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
           </label>
         </button>
         <button
-          className="walletConnectButton h2"
+          className="wallet-connect-button h2"
           onClick={() => setGlobalWallet(new ArConnectWalletConnector())}
         >
-          <ArConnectIcon className="external-icon" />
+          <ArConnectIcon
+            className="external-icon"
+            width={'47px'}
+            height={'47px'}
+          />
           Connect via ArConnect
         </button>
-        <button className="walletConnectButton h2">
+        <button className="wallet-connect-button h2">
           <img className="external-icon" src={ArweaveAppIcon} alt="" />
-          Connect using Arweave.app
-        </button>
-        <span className="bold text white h2" style={{ marginTop: '1em' }}>
-          Don&apos;t have a wallet?&nbsp;
           <a
             target="_blank"
             href="https://ardrive.io/start"
-            style={{ color: 'inherit' }}
+            style={{
+              color: 'inherit',
+              paddingLeft: '65px',
+              textDecoration: 'none',
+            }}
             rel="noreferrer"
+            className="span-all flex-row left"
           >
-            &nbsp;Get one here
+            I need a wallet
           </a>
-        </span>
+        </button>
       </div>
     </div>
   ) : (

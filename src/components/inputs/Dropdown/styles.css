@@ -1,4 +1,4 @@
-.activeDataDropdown {
+.active-data-dropdown {
   display: flex;
   position: absolute;
   flex-direction: column;
@@ -9,26 +9,26 @@
   border: 6px;
   z-index: 10;
 }
-.dropdownOption {
+.dropdown-option {
   border-radius: 0 !important;
   cursor: pointer;
 }
-.dropdownOptions {
+.dropdown-options {
   position: relative;
   box-sizing: border-box;
   width: 100%;
 }
-.lastDropdownOption {
+.last-dropdown-option {
   border-top-left-radius: 0 !important;
   border-top-right-radius: 0 !important;
   cursor: pointer;
 }
-.selectedDropdownOption {
+.selected-dropdown-option {
   border-bottom-left-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
   width: 100%;
 }
-.dropdownChevron {
+.dropdown-chevron {
   box-sizing: border-box;
   display: flex;
   position: absolute;

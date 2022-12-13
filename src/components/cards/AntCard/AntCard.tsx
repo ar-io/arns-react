@@ -101,17 +101,17 @@ function AntCard(props: ArNSMapping) {
             <></>
           )}
           <div className="footer">
-            <button className="buttonLarge" onClick={handleClick}>
+            <button className="button-large" onClick={handleClick}>
               Upgrade Tier
             </button>
-            <button className="buttonLarge" onClick={handleClick}>
+            <button className="button-large" onClick={handleClick}>
               Extend Lease
             </button>
           </div>
         </div>
       ) : (
         // TODO: remove this holder when ant's have multiple data providers
-        <span className="sectionHeader">
+        <span className="section-header">
           Uh oh. That ANT is not available at the moment. Try another.
         </span>
       )}

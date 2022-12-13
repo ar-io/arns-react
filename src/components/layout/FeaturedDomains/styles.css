@@ -1,4 +1,4 @@
-.featuredDomains {
+.featured-domains {
   display: flex;
   flex-direction: column;
   width: 75%;
@@ -6,7 +6,7 @@
   gap: 2em;
 }
 
-.cardContainer {
+.card-container {
   display: flex;
   flex-direction: row;
   width: 100%;
@@ -16,10 +16,10 @@
 }
 
 @media screen and (max-width: 600px) {
-  .featuredDomains {
+  .featured-domains {
     width: 90%;
   }
-  .cardContainer {
+  .card-container {
     gap: 0.75em;
   }
 }

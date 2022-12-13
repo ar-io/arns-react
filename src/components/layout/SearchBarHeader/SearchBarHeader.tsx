@@ -10,13 +10,13 @@ function SearchBarHeader({
   return (
     <>
       {!text || isDefault ? (
-        <div className="sectionHeader">{defaultText}</div>
+        <div className="section-header">{defaultText}</div>
       ) : isAvailable ? (
-        <div className="sectionHeader">
+        <div className="section-header">
           {text}&nbsp;<span className="available">is available!</span>
         </div>
       ) : (
-        <div className="sectionHeader">
+        <div className="section-header">
           {text}&nbsp;
           <span className="unavailable">
             is already registered, try another name

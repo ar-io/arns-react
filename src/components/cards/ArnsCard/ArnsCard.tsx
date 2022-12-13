@@ -77,21 +77,21 @@ function ArnsCard({ domain, id }: ArNSMapping) {
   }
 
   return (
-    <div className="arnsCard hover">
+    <div className="arns-card hover">
       <img
-        className="arnsPreview"
+        className="arns-preview"
         src={antDetails.image}
         key={antDetails.image}
         alt={`${domain}.${gateway}`}
       />
-      <div className="arnsCardFooter">
+      <div className="arns-card-footer">
         <a
           className="text white bold external-link"
           target="_blank"
           href={`https://${antDetails.domain}.${gateway}`}
           rel="noreferrer"
         >{`${antDetails.domain}.${gateway}`}</a>
-        <span className="expiryText">
+        <span className="expiry-text">
           Exp. {antDetails.expiration?.toDateString()}
         </span>
       </div>

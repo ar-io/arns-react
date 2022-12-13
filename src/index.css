@@ -66,28 +66,22 @@ button {
   cursor: pointer;
 }
 
-.h1 {
-  font-family: 'Rubik-Bold';
-  font-style: normal;
-  font-weight: 1200;
-  line-height: 85px;
-  font-size: clamp(36px, 3.5vw, 72px);
-}
-
-.h2 {
-  font-weight: 500;
-  font-family: 'Rubik';
-  font-size: clamp(14px, 1vw, 24px);
-}
-
-.external-icon {
-  width: clamp(24px, 1.25vw, 48px);
-  height: clamp(24px, 1.25vw, 48px);
-}
-
 .text {
   display: flex;
-  font-size: clamp(12px, 0.75vw, 14px);
+  font-size: 12px;
+  max-width: 475px;
+  text-decoration: none;
+}
+.text-medium {
+  display: flex;
+  font-size: 18px;
+  max-width: 475px;
+  text-decoration: none;
+}
+.text-large {
+  display: flex;
+  font-size: 24px;
+  max-width: 475px;
   text-decoration: none;
 }
 
@@ -109,6 +103,9 @@ button {
   flex-direction: column;
   gap: 2em;
 }
+.column {
+  flex-direction: column;
+}
 
 .flex-right {
   justify-content: flex-end;
@@ -125,10 +122,16 @@ button {
 
 .hover {
   transition: all 0.5s ease;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
 }
 
 .hover:hover {
   transition: all 0.5s ease;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
   transform: scale(1.05);
 }
 
@@ -157,25 +160,27 @@ button {
 .white {
   color: var(--text-white);
 }
+.white-background {
+  background: var(--text-white);
+}
 .black {
   color: var(--text-black);
 }
 .accent {
   background-color: var(--accent);
 }
-
-.roundButton {
+.round-button {
   display: flex;
   min-width: 50px !important;
   min-height: 50px !important;
   box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
-  border-radius: 50px;
+  border-radius: 1000px;
   border: none;
   justify-content: center;
   align-items: center;
   padding: 0;
 }
-.roundButton:hover {
+.round-button:hover {
   box-shadow: 0px 0px 4px rgba(0, 0, 0);
   cursor: pointer;
 }
@@ -190,8 +195,13 @@ button {
   overflow: visible;
 }
 
-.pageHeader {
+.page-header {
   display: flex;
+  font-family: 'Rubik-Bold';
+  font-style: normal;
+  font-weight: 1200;
+  font-size: 72px;
+  line-height: 85px;
   width: 75%;
   max-width: 850px;
   text-align: center;
@@ -199,7 +209,7 @@ button {
   justify-content: center;
 }
 
-.sectionHeader {
+.section-header {
   display: flex;
   flex-wrap: wrap;
   font-family: 'Rubik-Bold';
@@ -212,7 +222,7 @@ button {
   justify-content: center;
 }
 
-.buttonLarge {
+.button-large {
   background-color: var(--bg-color);
   color: var(--text-white);
   border-radius: 6px;
@@ -226,7 +236,7 @@ button {
   cursor: pointer;
 }
 
-.buttonLink {
+.button-link {
   border: none;
   font-family: 'Rubik';
   font-size: 16px;
@@ -236,11 +246,8 @@ button {
   background: none;
   cursor: pointer;
 }
-.roundButton {
-  border-radius: 1000px;
-}
 
-.bubbleSmall {
+.bubble-small {
   display: flex;
   align-self: flex-start;
   border-radius: 1000px;
@@ -248,7 +255,7 @@ button {
   font-family: 'Rubik-Bold';
   padding: 5px 15px;
 }
-.infoBubble {
+.info-bubble {
   display: flex;
   flex-direction: column;
   position: absolute;
@@ -263,7 +270,7 @@ button {
   gap: 10px;
 }
 
-.toolTip {
+.tool-tip {
   position: relative;
   display: inline-block;
   background: none;
@@ -279,7 +286,7 @@ button {
   height: 100%;
   cursor: pointer;
 }
-.accentButton {
+.accent-button {
   display: flex;
   padding: 0.75em 2em;
   font-size: 18px;
@@ -293,7 +300,22 @@ button {
   color: var(--text-black);
   cursor: pointer;
 }
-.dataInput {
+.outline-button {
+  display: flex;
+  padding: 0.75em 2em;
+  font-size: 18px;
+  font-family: 'Rubik-Bold';
+  font-weight: 800;
+  width: fit-content;
+  height: fit-content;
+  border: var(--text-white) 1px solid;
+  border-radius: 10px;
+  background-color: none;
+  color: var(--text-white);
+  cursor: pointer;
+}
+
+.data-input {
   box-sizing: border-box;
   display: flex;
   width: 100%;
@@ -307,10 +329,10 @@ button {
   font-size: 12px;
   outline: none;
 }
-.dataInput::placeholder {
+.data-input::placeholder {
   color: var(--placeholder-text);
 }
-.dataDropdown {
+.data-dropdown {
   box-sizing: border-box;
   position: relative;
   display: flex;
@@ -330,12 +352,11 @@ button {
 
 /* TOP LEVEL RESIZE RULES */
 @media screen and (max-width: 600px) {
-  /* all these are relative to their ratios above */
-  .h1 {
+  .page-header {
+    font-size: 48px;
     line-height: unset;
   }
-
-  .sectionHeader {
+  .section-header {
     font-size: 14px;
     line-height: unset;
   }

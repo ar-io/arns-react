@@ -32,7 +32,7 @@ function Home() {
   }, [arnsSourceContract]);
   return (
     <div className="page">
-      <div className="pageHeader h1">Arweave Name System</div>
+      <div className="page-header h1">Arweave Name System</div>
       <SearchBar
         setIsSearching={setIsSearching}
         values={records}

@@ -1,7 +1,7 @@
 function FAQ() {
   return (
     <div className="page">
-      <div className="pageHeader h1">Manage</div>
+      <div className="page-header h1">Manage</div>
     </div>
   );
 }

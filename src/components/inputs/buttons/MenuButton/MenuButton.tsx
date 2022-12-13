@@ -14,7 +14,7 @@ function MenuButton({
   return (
     <>
       <button
-        className={!show ? 'roundButton' : 'roundButton whiteBackground'}
+        className={!show ? 'round-button' : 'round-button white-background'}
         onClick={() => setShow(!show)}
       >
         {icon}

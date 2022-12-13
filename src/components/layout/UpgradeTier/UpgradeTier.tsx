@@ -34,7 +34,7 @@ function UpgradeTier({ domain }: { domain?: string }) {
   }
 
   return (
-    <div className="upgradeTier">
+    <div className="upgrade-tier">
       <Counter
         setCount={setYears}
         count={years}
@@ -42,7 +42,7 @@ function UpgradeTier({ domain }: { domain?: string }) {
         minValue={MIN_LEASE_DURATION}
         maxValue={MAX_LEASE_DURATION}
       />
-      <div className="cardContainer">
+      <div className="card-container">
         {Object.keys(TIER_DATA).map((tier, index: number) => (
           <TierCard
             tier={+tier}
@@ -53,7 +53,7 @@ function UpgradeTier({ domain }: { domain?: string }) {
         ))}
       </div>
       <button
-        className="sectionHeader toolTip"
+        className="section-header tool-tip"
         onClick={() => {
           setPriceInfo(!priceInfo);
         }}
@@ -65,7 +65,7 @@ function UpgradeTier({ domain }: { domain?: string }) {
           fill={'var(--text-white)'}
         />
         {priceInfo ? (
-          <span className="infoBubble">
+          <span className="info-bubble">
             <span className="text bold black center">{NAME_PRICE_INFO}</span>
             {/**TODO: link to faq or about page */}
             <a
@@ -82,11 +82,11 @@ function UpgradeTier({ domain }: { domain?: string }) {
         )}
       </button>
       {!walletAddress ? (
-        <button className="accentButton hover" onClick={showConnectWallet}>
+        <button className="accent-button hover" onClick={showConnectWallet}>
           Connect Wallet to proceed
         </button>
       ) : (
-        <button className="accentButton">Next</button>
+        <button className="accent-button">Next</button>
       )}
     </div>
   );

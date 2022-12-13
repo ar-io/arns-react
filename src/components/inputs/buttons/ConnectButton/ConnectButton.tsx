@@ -12,7 +12,7 @@ function ConnectButton(): JSX.Element {
   }
   return (
     <>
-      <button className="connectButton" onClick={showConnectModal}>
+      <button className="connect-button" onClick={showConnectModal}>
         Connect
       </button>
     </>

@@ -1,4 +1,4 @@
-.modalContainer {
+.modal-container {
   position: fixed;
   display: flex;
   background-color: var(--modal-bg);
@@ -11,7 +11,7 @@
   z-index: 100;
 }
 
-.modalCloseButton {
+.modal-close-button {
   display: flex;
   position: absolute;
   top: 10px;
@@ -29,11 +29,11 @@
   -o-transition: all 0.2s;
   transition: all 0.2s;
 }
-.modalCloseButton:hover {
+.modal-close-button:hover {
   border: 2px solid var(--text-white);
 }
 
-.connectWalletModal {
+.connect-wallet-modal {
   position: fixed;
   display: flex;
   flex-direction: column;
@@ -43,14 +43,14 @@
   height: fit-content;
   background: var(--bg-color);
   box-shadow: 0px 0px 4px rgba(255, 255, 255, 0.25);
-  border-radius: 24px;
+  border-radius: 5px;
   padding: 40px;
   justify-content: center;
   align-items: center;
   row-gap: 1em;
   transition: all 0.5s ease;
 }
-.walletConnectButton {
+.wallet-connect-button {
   display: flex;
   position: relative;
   width: 100%;
@@ -58,8 +58,11 @@
   background-color: var(--bg-color);
   box-shadow: 0px 0px 4px rgba(255, 255, 255, 0.25);
   border: none;
-  border-radius: 24px;
+  border-radius: 5px;
   color: var(--text-white);
+  font-family: 'Rubik';
+  font-weight: 500;
+  font-size: 18px;
   justify-content: flex-start;
   align-items: center;
   padding: 0em 1em;
@@ -70,7 +73,7 @@
   -o-transition: all 0.5s;
   transition: all 0.5s;
 }
-.walletConnectButton:hover {
+.wallet-connect-button:hover {
   cursor: pointer;
   box-shadow: 0px 0px 4px rgba(255, 255, 255);
 }

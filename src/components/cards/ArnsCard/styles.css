@@ -1,4 +1,4 @@
-.arnsCard {
+.arns-card {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -12,7 +12,7 @@
   border-radius: 24px;
 }
 
-.arnsPreview {
+.arns-preview {
   display: flex;
   overflow: hidden;
   border-radius: 24px;
@@ -22,7 +22,7 @@
   height: 70%;
 }
 
-.expiryText {
+.expiry-text {
   font-family: 'Rubik';
   font-weight: 400;
   font-size: 8px;
@@ -31,7 +31,7 @@
 }
 
 @media screen and (max-width: 600px) {
-  .arnsCard {
+  .arns-card {
     flex-direction: row;
     height: 10%;
     width: 100%;
@@ -40,7 +40,7 @@
     padding: 16px;
   }
 
-  .arnsPreview {
+  .arns-preview {
     width: 30%;
     height: 50px;
     border-radius: 8px;

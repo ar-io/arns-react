@@ -24,9 +24,9 @@ function FeaturedDomains(props: { domains: ArNSDomains }) {
   }
 
   return (
-    <div className="featuredDomains">
-      <span className="sectionHeader">Featured Domains</span>
-      <div className="cardContainer">
+    <div className="featured-domains">
+      <span className="section-header">Featured Domains</span>
+      <div className="card-container">
         {Object.keys(domains).map((domain, index) => {
           if (index >= displayCount || index >= Object.keys(domains).length)
             return;
