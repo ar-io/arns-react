@@ -37,7 +37,8 @@ export interface SmartweaveContractSource {
 }
 
 export interface ArweaveWalletConnector {
-  connect(): Promise<JWKInterface>;
+  connect(): Promise<void>;
+  disconnect(): Promise<void>;
   getWalletAddress(): Promise<string>;
 }
 

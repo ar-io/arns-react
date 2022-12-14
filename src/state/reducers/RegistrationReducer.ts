@@ -12,7 +12,6 @@ export type RegistrationAction =
   | { type: 'setAntID'; payload: ArweaveTransactionId }
   | { type: 'setTargetID'; payload: ArweaveTransactionId }
   | { type: 'setFee'; payload: { ar: number; io: number } }
-  | { type: 'setIsRegistering'; payload: boolean }
   | { type: 'setIsRegistered'; payload: boolean }
   | { type: 'setStage'; payload: number }
   | { type: 'setIsFirstStage'; payload: boolean }
@@ -74,11 +73,6 @@ export const registrationReducer = (
       return {
         ...state,
         fee: action.payload,
-      };
-    case 'setIsRegistering':
-      return {
-        ...state,
-        isRegistering: action.payload,
       };
     case 'setIsRegistered':
       return {
