@@ -8,7 +8,7 @@ import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButton
 function Workflow({ stages }: WorkflowProps) {
   const [{ stage, isFirstStage, isLastStage }, dispatchRegisterState] =
     useRegistrationState();
-  const [{ walletAddress, jwk, isSearching }, dispatchGlobalState] =
+  const [{ walletAddress, isSearching }, dispatchGlobalState] =
     useGlobalState();
 
   const [nextCondition, setNextCondition] = useState<boolean>(false);
@@ -43,7 +43,7 @@ function Workflow({ stages }: WorkflowProps) {
       <>
         {!isSearching ? (
           <></>
-        ) : !walletAddress && !jwk ? (
+        ) : !walletAddress ? (
           <button className="accent-button hover" onClick={showConnectWallet}>
             Connect Wallet to proceed
           </button>
