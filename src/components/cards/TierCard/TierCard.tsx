@@ -4,13 +4,13 @@ import { TIER_DATA } from '../../../utils/constants';
 import { CircleCheck } from '../../icons';
 import './styles.css';
 
-function TierCard({ tier }: TierCardProps) {
-  const [{ chosenTier }, dispatchRegisterState] = useRegistrationState();
+function TierCard({ currentTier }: TierCardProps) {
+  const [{ tier }, dispatchRegisterState] = useRegistrationState();
   return (
-    <div className="tier-card hover">
-      <div className="text bubble-small ">Tier&nbsp;{tier}</div>
+    <div className="currentTier-card hover">
+      <div className="text bubble-small ">Tier&nbsp;{currentTier}</div>
 
-      {TIER_DATA[tier].map((info: string, index: number) => (
+      {TIER_DATA[currentTier].map((info: string, index: number) => (
         <span className="text white bold" key={index}>
           <CircleCheck
             width="16px"
@@ -21,11 +21,11 @@ function TierCard({ tier }: TierCardProps) {
         </span>
       ))}
 
-      {chosenTier !== tier ? (
+      {tier !== currentTier ? (
         <button
           className="select-button"
           onClick={() =>
-            dispatchRegisterState({ type: 'setChosenTier', payload: tier })
+            dispatchRegisterState({ type: 'setTier', payload: currentTier })
           }
         >
           Select

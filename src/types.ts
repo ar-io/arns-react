@@ -71,7 +71,7 @@ export type ConnectWalletModalProps = {
 };
 
 export type TierCardProps = {
-  tier: number;
+  currentTier: number;
 };
 
 export type DropdownProps = {
