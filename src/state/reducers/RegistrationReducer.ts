@@ -4,7 +4,7 @@ import { RegistrationState } from '../contexts/RegistrationState';
 export type RegistrationAction =
   | { type: 'setDomainName'; payload: string }
   | { type: 'setLeaseDuration'; payload: number }
-  | { type: 'setChosenTier'; payload: number }
+  | { type: 'setTier'; payload: number }
   | { type: 'setNickname'; payload: string }
   | { type: 'setTicker'; payload: string }
   | { type: 'setControllers'; payload: Array<ArweaveTransactionId> }
@@ -34,10 +34,10 @@ export const registrationReducer = (
         ...state,
         leaseDuration: action.payload,
       };
-    case 'setChosenTier':
+    case 'setTier':
       return {
         ...state,
-        chosenTier: action.payload,
+        tier: action.payload,
       };
     case 'setNickname':
       return {

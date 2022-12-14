@@ -1,13 +1,14 @@
 import { JWKInterface } from 'arweave/node/lib/wallet';
 import React, { Dispatch, createContext, useContext, useReducer } from 'react';
 
-import type { ArNSContractState } from '../../types';
+import type { ArNSContractState, ArweaveWalletConnector } from '../../types';
 import type { Action } from '../reducers/GlobalReducer';
 
 export type GlobalState = {
   arnsSourceContract: ArNSContractState;
   gateway: string;
   walletAddress?: string;
+  wallet?: ArweaveWalletConnector;
   jwk?: JWKInterface;
   showConnectWallet: boolean;
   isSearching: boolean;
@@ -20,6 +21,7 @@ const initialState: GlobalState = {
   walletAddress: undefined,
   jwk: undefined,
   showConnectWallet: false,
+  wallet: undefined,
   isSearching: false,
   errors: [],
 };

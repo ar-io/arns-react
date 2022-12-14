@@ -23,9 +23,6 @@ export type ArNSDomain = ArNSMapping & ArNSMetaData;
 // TODO: match this to a regex
 export type ArweaveTransactionId = string;
 
-export interface WalletUploadSource {
-  getWallet(e: any): JWKInterface | void;
-}
 export type JsonWalletProvider = {
   key: any;
 };

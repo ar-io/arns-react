@@ -6,7 +6,7 @@ import {
 } from '../../../icons';
 import './styles.css';
 
-function RegistrationProgress({
+function StepProgressBar({
   stages,
   stage,
 }: {
@@ -152,4 +152,4 @@ function RegistrationProgress({
   );
 }
 
-export default RegistrationProgress;
+export default StepProgressBar;

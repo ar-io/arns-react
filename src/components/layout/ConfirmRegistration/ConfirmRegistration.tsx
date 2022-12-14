@@ -11,7 +11,7 @@ function ConfirmRegistration() {
   const [
     {
       domain,
-      chosenTier,
+      tier,
       ticker,
       nickname,
       controllers,
@@ -30,10 +30,9 @@ function ConfirmRegistration() {
     <>
       <div className="register-name-modal center">
         <span className="section-header">Confirm Domain Registration</span>
+        {/**TODO modify AntCard to be used here */}
         <div className="card hover" style={{ gap: '1em', padding: '2em' }}>
-          <span className="bubble">{`Tier ${
-            chosenTier ? chosenTier : 'not set'
-          }`}</span>
+          <span className="bubble">{`Tier ${tier ? tier : 'not set'}`}</span>
           <span className="detail">
             Domain:&nbsp;<b>{domain}</b>
           </span>

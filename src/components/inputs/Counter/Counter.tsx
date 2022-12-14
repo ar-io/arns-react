@@ -13,6 +13,7 @@ function YearsCounter({
   minValue: number;
   period?: 'years' | 'days' | 'minutes';
 }) {
+  // TODO make this component generic; pass in count and setCount
   const [{ leaseDuration }, dispatchRegisterState] = useRegistrationState();
   const [registration, setRegistration] = useState('');
   let initialCount = leaseDuration;

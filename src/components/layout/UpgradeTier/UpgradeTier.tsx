@@ -19,14 +19,14 @@ function UpgradeTier() {
   // name is passed down from search bar to calculate price
   const [priceInfo, setPriceInfo] = useState(false);
 
-  const [{ fee, leaseDuration, chosenTier, domain }, dispatchRegisterState] =
+  const [{ fee, leaseDuration, tier, domain }, dispatchRegisterState] =
     useRegistrationState();
 
   useEffect(() => {
     const fees = arnsSourceContract.fees;
     const newFee = calculateArNSNamePrice({
       domain,
-      selectedTier: chosenTier,
+      selectedTier: tier,
       years: leaseDuration,
       fees,
     });
@@ -34,7 +34,7 @@ function UpgradeTier() {
       type: 'setFee',
       payload: { ar: fee.ar, io: newFee },
     });
-  }, [leaseDuration, chosenTier, domain, arnsSourceContract]);
+  }, [leaseDuration, tier, domain, arnsSourceContract]);
 
   return (
     <div className="upgrade-tier">

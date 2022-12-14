@@ -59,7 +59,6 @@ function SearchBar(props: SearchBarProps) {
     // partially reset
     setSearchResult(undefined);
     setShowDefaultText(true);
-    //setSubmittedName(undefined);
 
     const searchValid = validationPredicate(input);
     setIsSearchValid(searchValid);
@@ -94,7 +93,6 @@ function SearchBar(props: SearchBarProps) {
     // show updated states based on search result
     const name = searchBarText;
     const searchSuccess = successPredicate(name);
-    console.log(searchSuccess);
     setShowDefaultText(false);
     setSubmittedName(name);
     setSearchSubmitted(true);

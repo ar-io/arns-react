@@ -1,11 +1,12 @@
 import logo from '../../../../assets/images/logo/looped-winston-white.gif';
-import { RegistrationProgress } from '../../inputs/progress';
+import { StepProgressBar } from '../../inputs/progress';
 
 function DeployRegistration() {
   return (
     <>
       <div className="flex-column center">
-        <RegistrationProgress
+        {/**TODO add dependsOn to proceeding stages to check if previous stages were met */}
+        <StepProgressBar
           stages={{
             1: {
               title: 'Pick Domain',

@@ -46,9 +46,7 @@ function RegisterNameForm() {
     <>
       <div className="register-name-modal center">
         <div className="section-header">{domain} is available!</div>
-
         <div className="section-header">Register Domain</div>
-
         <div className="register-inputs center">
           <div className="input-group center column">
             <Dropdown
@@ -132,7 +130,6 @@ function RegisterNameForm() {
               type="text"
               placeholder="Ticker*"
             />
-
             <Dropdown
               showSelected={true}
               showChevron={true}
@@ -153,7 +150,6 @@ function RegisterNameForm() {
             />
           </div>
         </div>
-
         <UpgradeTier />
       </div>
     </>

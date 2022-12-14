@@ -20,7 +20,6 @@ export function isArNSDomainNameAvailable({
   if (!name || Object.keys(records).includes(name)) {
     return false;
   }
-  console.log(records);
   return true;
 }
 
@@ -68,7 +67,5 @@ export function isArweaveTransactionID(id: string) {
   if (!ARNS_TXID_REGEX.test(id)) {
     return false;
   }
-  if (ARNS_TXID_REGEX.test(id)) {
-    return true;
-  }
+  return true;
 }

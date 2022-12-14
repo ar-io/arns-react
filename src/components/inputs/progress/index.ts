@@ -1,3 +1,3 @@
-import RegistrationProgress from './RegistrationProgress/RegistrationProgress';
+import StepProgressBar from './StepProgressBar/StepProgressBar';
 
-export { RegistrationProgress };
+export { StepProgressBar };

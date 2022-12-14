@@ -13,7 +13,7 @@ import { useGlobalState } from './GlobalState';
 export type RegistrationState = {
   domain: string;
   leaseDuration: number;
-  chosenTier: number;
+  tier: number;
   nickname?: string;
   ticker?: string;
   controllers: Array<ArweaveTransactionId>;
@@ -38,7 +38,7 @@ export type RegistrationStateProviderProps = {
 export const initialRegistrationState: RegistrationState = {
   domain: '',
   leaseDuration: 1,
-  chosenTier: 1,
+  tier: 1,
   controllers: [],
   ttl: 100,
   fee: { ar: 0, io: 0 },
