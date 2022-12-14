@@ -1,4 +1,3 @@
-import type { JWKInterface } from 'arweave/node/lib/wallet';
 import type { Dispatch, SetStateAction } from 'react';
 
 export type ArNSDomains = { [x: string]: ArweaveTransactionId };
