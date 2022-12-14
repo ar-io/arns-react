@@ -21,7 +21,6 @@ export type RegistrationState = {
   antID?: ArweaveTransactionId;
   targetID?: ArweaveTransactionId;
   fee: { ar: number; io: number };
-  isRegistering: boolean;
   isRegistered: boolean;
   stage: number;
   isFirstStage: boolean;
@@ -44,7 +43,6 @@ export const initialRegistrationState: RegistrationState = {
   ttl: 100,
   fee: { ar: 0, io: 0 },
   targetID: undefined,
-  isRegistering: false,
   isRegistered: false,
   stage: 0,
   isFirstStage: true,
