@@ -115,7 +115,7 @@ function SearchBar(props: SearchBarProps) {
   function handleNext() {
     if (!walletAddress) {
       dispatchGlobalState({
-        type: 'setConnectWallet',
+        type: 'setShowConnectWallet',
         payload: true,
       });
       return;

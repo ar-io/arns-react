@@ -27,7 +27,7 @@ function SearchBarFooter({
           </div>
         </>
       ) : isAvailable ? (
-        <UpgradeTier domain={searchResult.domain} />
+        <UpgradeTier />
       ) : (
         <AntCard domain={searchResult?.domain} id={searchResult?.id} />
       )}
