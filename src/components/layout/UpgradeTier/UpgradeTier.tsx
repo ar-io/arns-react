@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import {
   MAX_LEASE_DURATION,
   MIN_LEASE_DURATION,
@@ -13,43 +14,38 @@ import { AlertCircle } from '../../icons';
 import Counter from '../../inputs/Counter/Counter';
 import './styles.css';
 
-function UpgradeTier({ domain }: { domain?: string }) {
-  const [{ arnsSourceContract, walletAddress }, dispatch] = useGlobalState();
+function UpgradeTier() {
+  const [{ arnsSourceContract }] = useGlobalState();
   // name is passed down from search bar to calculate price
-  const [selectedTier, setSelectedTier] = useState(1);
-  const [price, setPrice] = useState<number | undefined>(0);
-  const [years, setYears] = useState(MIN_LEASE_DURATION);
   const [priceInfo, setPriceInfo] = useState(false);
+
+  const [{ fee, leaseDuration, chosenTier, domain }, dispatchRegisterState] =
+    useRegistrationState();
 
   useEffect(() => {
     const fees = arnsSourceContract.fees;
-    setPrice(calculateArNSNamePrice({ domain, selectedTier, years, fees }));
-  }, [years, selectedTier, domain, arnsSourceContract]);
-
-  function showConnectWallet() {
-    dispatch({
-      type: 'setShowConnectWallet',
-      payload: true,
+    const newFee = calculateArNSNamePrice({
+      domain,
+      selectedTier: chosenTier,
+      years: leaseDuration,
+      fees,
     });
-  }
+    dispatchRegisterState({
+      type: 'setFee',
+      payload: { ar: fee.ar, io: newFee },
+    });
+  }, [leaseDuration, chosenTier, domain, arnsSourceContract]);
 
   return (
     <div className="upgrade-tier">
       <Counter
-        setCount={setYears}
-        count={years}
         period="years"
         minValue={MIN_LEASE_DURATION}
         maxValue={MAX_LEASE_DURATION}
       />
       <div className="card-container">
         {Object.keys(TIER_DATA).map((tier, index: number) => (
-          <TierCard
-            tier={+tier}
-            setTier={setSelectedTier}
-            selectedTier={selectedTier}
-            key={index}
-          />
+          <TierCard tier={+tier} key={index} />
         ))}
       </div>
       <button
@@ -58,7 +54,7 @@ function UpgradeTier({ domain }: { domain?: string }) {
           setPriceInfo(!priceInfo);
         }}
       >
-        {price?.toLocaleString()}&nbsp;ARIO&nbsp;
+        {fee.io?.toLocaleString()}&nbsp;ARIO&nbsp;
         <AlertCircle
           width={'16px'}
           height={'16px'}
@@ -81,13 +77,6 @@ function UpgradeTier({ domain }: { domain?: string }) {
           <></>
         )}
       </button>
-      {!walletAddress ? (
-        <button className="accent-button hover" onClick={showConnectWallet}>
-          Connect Wallet to proceed
-        </button>
-      ) : (
-        <button className="accent-button">Next</button>
-      )}
     </div>
   );
 }

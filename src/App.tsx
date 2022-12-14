@@ -17,7 +17,7 @@ function App() {
   useArNSContract();
   const { showConnectModal } = useConnectWalletModal();
 
-  const [{ walletAddress }] = useGlobalState();
+  const [{ walletAddress, showConnectWallet }] = useGlobalState();
 
   const router = createBrowserRouter(
     createRoutesFromElements(

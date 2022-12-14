@@ -1,17 +1,16 @@
-import type {
-  ArNSContractState,
-  ArweaveTransactionId,
-  ArweaveWalletConnector,
-} from '../../types';
+import { JWKInterface } from 'arweave/node/lib/wallet';
+
+import type { ArNSContractState, ArweaveTransactionId } from '../../types';
 import { GlobalState } from '../contexts/GlobalState';
 
 export type Action =
   | { type: 'setWalletAddress'; payload: ArweaveTransactionId }
-  | { type: 'setWallet'; payload: ArweaveWalletConnector }
+  | { type: 'setJwk'; payload: JWKInterface }
   | { type: 'setGateway'; payload: string }
   | { type: 'setArnsContractState'; payload: ArNSContractState }
   | { type: 'setShowConnectWallet'; payload: boolean }
-  | { type: 'setIsSearching'; payload: boolean };
+  | { type: 'setIsSearching'; payload: boolean }
+  | { type: 'setErrors'; payload: Array<Error> };
 
 export const reducer = (state: GlobalState, action: Action): GlobalState => {
   switch (action.type) {
@@ -20,20 +19,15 @@ export const reducer = (state: GlobalState, action: Action): GlobalState => {
         ...state,
         walletAddress: action.payload,
       };
-    case 'setWallet':
+    case 'setJwk':
       return {
         ...state,
-        wallet: action.payload,
+        jwk: action.payload,
       };
     case 'setShowConnectWallet':
       return {
         ...state,
         showConnectWallet: action.payload,
-      };
-    case 'setIsSearching':
-      return {
-        ...state,
-        isSearching: action.payload,
       };
     case 'setGateway':
       return {
@@ -44,6 +38,16 @@ export const reducer = (state: GlobalState, action: Action): GlobalState => {
       return {
         ...state,
         arnsSourceContract: action.payload,
+      };
+    case 'setIsSearching':
+      return {
+        ...state,
+        isSearching: action.payload,
+      };
+    case 'setErrors':
+      return {
+        ...state,
+        errors: action.payload,
       };
 
     default:

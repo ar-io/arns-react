@@ -1,4 +1,4 @@
-import { ARNS_NAME_REGEX } from './constants';
+import { ARNS_NAME_REGEX, ARNS_TXID_REGEX } from './constants';
 
 export function isArNSDomainNameValid({ name }: { name?: string }): boolean {
   // if name is not in the legal character range or chars, return undefined
@@ -20,6 +20,7 @@ export function isArNSDomainNameAvailable({
   if (!name || Object.keys(records).includes(name)) {
     return false;
   }
+  console.log(records);
   return true;
 }
 
@@ -57,5 +58,17 @@ export function calculateArNSNamePrice({
   } catch (error) {
     console.error(error);
     return 0;
+  }
+}
+
+export function isArweaveTransactionID(id: string) {
+  if (!id) {
+    return false;
+  }
+  if (!ARNS_TXID_REGEX.test(id)) {
+    return false;
+  }
+  if (ARNS_TXID_REGEX.test(id)) {
+    return true;
   }
 }
