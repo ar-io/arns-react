@@ -1,16 +1,7 @@
-import { useEffect, useState } from 'react';
-
 import logo from '../../../../assets/images/logo/looped-winston-white.gif';
-import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { RegistrationProgress } from '../../inputs/progress';
 
 function DeployRegistration() {
-  const [deployStage, setDeployStage] = useState(1);
-  const [pickDomain, setPickDomain] = useState('success');
-  const [createAnANT, setCreateAnANT] = useState('');
-  const [registerName, setRegisterName] = useState('');
-  const [complete, setComplete] = useState('');
-
   return (
     <>
       <div className="flex-column center">
@@ -18,22 +9,22 @@ function DeployRegistration() {
           stages={{
             1: {
               title: 'Pick Domain',
-              status: pickDomain,
+              status: '',
             },
             2: {
               title: 'Create an ANT',
-              status: createAnANT,
+              status: '',
             },
             3: {
               title: 'Register Name',
-              status: registerName,
+              status: '',
             },
             4: {
               title: 'Complete',
-              status: complete,
+              status: '',
             },
           }}
-          stage={deployStage}
+          stage={1}
         />
         <div className="flex-column center" style={{ gap: 0 }}>
           <img src={logo} alt="ar-io-logo" width={150} height={150} />

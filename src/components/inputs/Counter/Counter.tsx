@@ -1,4 +1,3 @@
-import { initial } from 'lodash';
 import { useEffect, useState } from 'react';
 
 import useLongPress from '../../../hooks/useLongPress/useLongPress';
