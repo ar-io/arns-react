@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
+import { ArweaveTransactionId } from '../../../types';
 import {
   isArNSDomainNameValid,
   isArweaveTransactionID,
@@ -14,32 +15,18 @@ function RegisterNameForm() {
   const [antFlow, setAntFlow] = useState(
     'Create an Arweave Name Token (ANT) for me',
   );
-  const [antAddress, setAntAddress] = useState(0);
+  const [antAddress, setAntAddress] = useState<ArweaveTransactionId>();
   const [{ domain, ttl, targetID }, dispatchRegisterState] =
     useRegistrationState();
 
-  function updateRegisterState({ key, value }: { key: any; value: any }) {
-    setTimeout(
-      () =>
-        dispatchRegisterState({
-          type: key,
-          payload: value,
-        }),
-      50,
-    );
-  }
-
-  function handleTargetID(id: string) {
+  function handleTargetID(e: any) {
+    const id = e.target.value.trim();
     // todo: add some more advanced error handling and notifications to check if id is a dataID or a value transfer
-    if (isArweaveTransactionID(id)) {
-      updateRegisterState({ key: 'setTargetID', value: id });
-    }
-    if (!id) {
-      updateRegisterState({ key: 'setTargetID', value: undefined });
-    }
-    if (!isArweaveTransactionID(id)) {
-      updateRegisterState({ key: 'setTargetID', value: undefined });
-    }
+    dispatchRegisterState({
+      type: 'setTargetID',
+      payload: id,
+    });
+    return;
   }
 
   return (
@@ -55,10 +42,8 @@ function RegisterNameForm() {
               selected={antFlow}
               setSelected={setAntFlow}
               options={{
-                'Create an Arweave Name Token (ANT) for me':
-                  'Create an Arweave Name Token (ANT) for me',
-                'I have an Arweave Name Token (ANT) I want to use':
-                  'I have an Arweave Name Token (ANT) I want to use',
+                create: 'Create an Arweave Name Token (ANT) for me',
+                useExisting: 'I have an Arweave Name Token (ANT) I want to use',
               }}
             />
             {/**TODO: add global error state to mark issues with the target id */}
@@ -66,13 +51,14 @@ function RegisterNameForm() {
               <input
                 className="data-input center"
                 placeholder="Target ID"
-                onChange={(e) => handleTargetID(e.target.value)}
+                value={targetID}
+                onChange={(e) => handleTargetID(e)}
                 maxLength={43}
                 style={
                   targetID && isArweaveTransactionID(targetID)
-                    ? { border: '4px solid var(--success-green)' }
-                    : targetID && isArweaveTransactionID(targetID)
-                    ? { border: '4px solid var(--error-red)' }
+                    ? { border: '2px solid var(--success-green)' }
+                    : targetID && !isArweaveTransactionID(targetID)
+                    ? { border: '2px solid var(--error-red)' }
                     : {}
                 }
               />
@@ -81,21 +67,15 @@ function RegisterNameForm() {
               <Dropdown
                 showChevron={true}
                 showSelected={false}
-                options={['ant one', 'ant two', 'ant three', 'ant four']}
+                options={{
+                  1: 'ant one',
+                  2: 'ant two',
+                  3: 'ant three',
+                  4: 'ant four',
+                }}
                 selected={antAddress}
                 setSelected={setAntAddress}
-                headerElement={
-                  <SearchBar
-                    validationPredicate={(name) =>
-                      isArNSDomainNameValid({ name })
-                    }
-                    successPredicate={() => {
-                      return true;
-                    }}
-                    placeholderText="Enter ANT Contract ID"
-                    height={30}
-                  />
-                }
+                headerElement={<></>}
                 footerElement={
                   <div
                     className="data-input last-dropdown-option center"
@@ -135,17 +115,17 @@ function RegisterNameForm() {
               showChevron={true}
               selected={ttl}
               setSelected={(value) =>
-                updateRegisterState({ key: 'setTTL', value })
+                dispatchRegisterState({ type: 'setTTL', payload: value })
               }
               options={{
-                '100s': 100,
-                '200s': 200,
-                '300s': 300,
-                '400s': 400,
-                '500s': 500,
-                '600s': 600,
-                '700s': 700,
-                '800s': 800,
+                '100secs': 100,
+                '200secs': 200,
+                '300secs': 300,
+                '400secs': 400,
+                '500secs': 500,
+                '600secs': 600,
+                '700secs': 700,
+                '800secs': 800,
               }}
             />
           </div>
