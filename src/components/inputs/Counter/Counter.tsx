@@ -91,7 +91,7 @@ function YearsCounter({
             -
           </button>
           <input
-            className="counter=input text bold"
+            className="counter-input text bold"
             type="number"
             value={count}
             pattern={'/^[1-9]{1,3}$/'}
