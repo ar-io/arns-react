@@ -19,6 +19,7 @@ export default function useArNSContract() {
       if (sendingContractState) {
         return;
       }
+
       setSendingContractState(true);
       const localProvider = new LocalFileSystemDataProvider();
       const arnsContractState = await localProvider.getContractState(
