@@ -47,7 +47,7 @@
   color: var(--placeholder-text);
   text-transform: none;
 }
-.searchbutton {
+.search-button {
   display: flex;
   position: absolute;
   background: var(--text-white);
@@ -60,7 +60,7 @@
   margin: 0px;
   right: 9px;
 }
-.searchbutton:hover {
+.search-button:hover {
   box-shadow: 0px 0px 4px rgba(0, 0, 0);
   cursor: pointer;
 }
