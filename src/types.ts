@@ -93,3 +93,10 @@ export type WorkflowProps = {
     };
   };
 };
+
+export interface ArweaveTransactionProvider {
+  createTransaction(): Promise<ArweaveTransactionId>;
+  // creates contract interaction
+  verifyTransaction(): Promise<boolean>;
+  // performs a dry run on contract to make sure its a doable transaction
+}
