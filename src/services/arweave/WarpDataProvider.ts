@@ -21,11 +21,9 @@ export class WarpDataProvider implements SmartweaveContractSource {
 
     const state = cachedValue.state;
 
-    const isValid = Object.keys(state).every((value) => {
-      return Object.keys(state).includes(value);
-    });
-
-    if (!isValid) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    if (!state.records || !state.fees) {
       throw Error(
         `ArNS contract does not contain required keys.${Object.keys(state)}`,
       );
