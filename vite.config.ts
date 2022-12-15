@@ -8,6 +8,13 @@ export default defineConfig({
   // TODO: remove this when no longer deploying to GH pages
   base: '/arns-react/',
   define: {
-    APP_VERSION: JSON.stringify(process.env.npm_package_version),
+    'process.env': process.env,
+    VITE_CONFIG: {
+      version: JSON.stringify(process.env.npm_package_version),
+    },
+  },
+  // required for warp-contracts
+  optimizeDeps: {
+    exclude: ['vm2'],
   },
 });
