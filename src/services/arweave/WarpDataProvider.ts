@@ -1,6 +1,6 @@
 import { Warp, WarpFactory } from 'warp-contracts';
 
-import { ArNSContractState, SmartweaveContractSource } from '../../types.js';
+import { ArNSContractState, SmartweaveContractSource } from '../../types';
 
 export class WarpDataProvider implements SmartweaveContractSource {
   private _warp: Warp;
@@ -19,11 +19,9 @@ export class WarpDataProvider implements SmartweaveContractSource {
       throw Error('Failed to fetch state from Warp.');
     }
 
-    const state = cachedValue.state;
+    const state = cachedValue.state as any;
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    if (!state.records || !state.fees) {
+    if (!state.records) {
       throw Error(
         `ArNS contract does not contain required keys.${Object.keys(state)}`,
       );

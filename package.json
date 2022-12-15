@@ -24,7 +24,7 @@
     "react-icons": "^4.6.0",
     "react-router-dom": "^6.4.2",
     "vite-plugin-package-version": "^1.0.2",
-    "warp-contracts": "^1.2.35"
+    "warp-contracts": "1.2.35"
   },
   "devDependencies": {
     "@babel/core": "^7.19.6",
@@ -42,6 +42,7 @@
     "@types/rimraf": "^3.0.2",
     "@typescript-eslint/eslint-plugin": "^5.42.1",
     "@vitejs/plugin-react": "^2.1.0",
+    "core-js": "^3.26.1",
     "eslint": "^8.27.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.26.0",

@@ -6,5 +6,7 @@ declare module '*.svg' {
   export default src;
 }
 
-/* VERSION */
-declare const APP_VERSION: string;
+/* VITE DEFINED ENV VARS */
+declare const VITE_CONFIG: {
+  version: string;
+};
