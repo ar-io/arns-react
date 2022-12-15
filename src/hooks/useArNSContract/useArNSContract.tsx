@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 
 import { LocalFileSystemDataProvider } from '../../services/arweave/LocalFilesystemDataProvider';
-import { WarpDataProvider } from '../../services/arweave/WarpDataProvider';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 
 const ARNS_SOURCE_CONTRACT_ID = 'bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U';
