@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { defaultDataProvider } from '../../services/arweave/index.js';
+import { defaultDataProvider } from '../../services/arweave';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 
 const ARNS_SOURCE_CONTRACT_ID = 'bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U';
