@@ -2,12 +2,8 @@ import { useState } from 'react';
 
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { ArweaveTransactionId } from '../../../types';
-import {
-  isArNSDomainNameValid,
-  isArweaveTransactionID,
-} from '../../../utils/searchUtils';
+import { isArweaveTransactionID } from '../../../utils/searchUtils';
 import Dropdown from '../../inputs/Dropdown/Dropdown';
-import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import UpgradeTier from '../UpgradeTier/UpgradeTier';
 import './styles.css';
 

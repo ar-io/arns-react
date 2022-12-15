@@ -68,7 +68,7 @@ function Dropdown(props: DropdownProps) {
             </button>
             <div className="active-data-dropdown">
               {header}
-              {/** eslint-ignore-next-line */}
+              {/* eslint-disable-next-line */}
               {Object.entries(options).map(([key, value], index) => {
                 if (index === selected) {
                   return;
