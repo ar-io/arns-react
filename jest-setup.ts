@@ -9,4 +9,6 @@ global.React = React;
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 // STUB OUR VITE DEFINED VARIABLES
-global.APP_VERSION = '0.0.0';
+global.VITE_CONFIG = {
+  version: '0.0.0',
+};

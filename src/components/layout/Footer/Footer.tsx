@@ -2,7 +2,7 @@ function Footer() {
   return (
     <div className="flex-row flex-center">
       <div className="text faded center">
-        v{APP_VERSION}
+        v{VITE_CONFIG.version}
         <br />
         <br />
         Copyright {new Date().getFullYear()}
