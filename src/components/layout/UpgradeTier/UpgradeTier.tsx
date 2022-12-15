@@ -45,7 +45,7 @@ function UpgradeTier() {
       />
       <div className="card-container">
         {Object.keys(TIER_DATA).map((tier, index: number) => (
-          <TierCard currentTier={+tier} key={index} />
+          <TierCard tierNumber={+tier} key={index} />
         ))}
       </div>
       <button
