@@ -2,8 +2,14 @@
   position: absolute;
   z-index: 10;
   min-height: unset;
-  top: 95px;
+  top: 100px;
   min-width: unset;
   align-items: flex-end;
   border-radius: 5px;
+}
+
+@media screen and (max-width: 600px) {
+  .menu {
+    top: 95px;
+  }
 }
