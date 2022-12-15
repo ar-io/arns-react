@@ -23,8 +23,7 @@
     "react-dom": "^18.2.0",
     "react-icons": "^4.6.0",
     "react-router-dom": "^6.4.2",
-    "vite-plugin-package-version": "^1.0.2",
-    "warp-contracts": "^1.2.35"
+    "vite-plugin-package-version": "^1.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.19.6",
