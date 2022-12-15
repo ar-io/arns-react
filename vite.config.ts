@@ -9,6 +9,7 @@ export default defineConfig({
   base: '/arns-react/',
   define: {
     APP_VERSION: JSON.stringify(process.env.npm_package_version),
+    'process.env': process.env,
   },
   // required for warp-contracts
   optimizeDeps: {
