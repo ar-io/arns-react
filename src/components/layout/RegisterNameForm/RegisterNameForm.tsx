@@ -113,7 +113,7 @@ function RegisterNameForm() {
             <Dropdown
               showSelected={true}
               showChevron={true}
-              selected={ttl}
+              selected={`${ttl}secs`}
               setSelected={(value) =>
                 dispatchRegisterState({ type: 'setTTL', payload: value })
               }
