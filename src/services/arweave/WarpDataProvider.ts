@@ -15,6 +15,8 @@ export class WarpDataProvider implements SmartweaveContractSource {
     const contract = this._warp.contract(contractId);
     const { cachedValue } = await contract.readState();
 
+    console.log(cachedValue);
+
     if (!cachedValue.state) {
       throw Error('Failed to fetch state from Warp.');
     }
@@ -23,7 +25,7 @@ export class WarpDataProvider implements SmartweaveContractSource {
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    if (!state.records || !state.fees) {
+    if (!state.records) {
       throw Error(
         `ArNS contract does not contain required keys.${Object.keys(state)}`,
       );

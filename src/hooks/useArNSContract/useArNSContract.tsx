@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
-import { WarpDataProvider } from '../../services/arweave/WarpDataProvider';
+import { defaultDataProvider } from '../../services/arweave/index.js';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 
 const ARNS_SOURCE_CONTRACT_ID = 'bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U';
@@ -22,11 +21,9 @@ export default function useArNSContract() {
       }
 
       setSendingContractState(true);
-      const compositeProvider = new ArweaveCompositeDataProvider([
-        new WarpDataProvider(),
-      ]);
+      const dataProvider = defaultDataProvider();
 
-      const arnsContractState = await compositeProvider.getContractState(
+      const arnsContractState = await dataProvider.getContractState(
         ARNS_SOURCE_CONTRACT_ID,
       );
       if (!arnsContractState) {

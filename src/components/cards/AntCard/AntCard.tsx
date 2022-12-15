@@ -1,7 +1,7 @@
 import { startCase } from 'lodash';
 import { useEffect, useState } from 'react';
 
-import { LocalFileSystemDataProvider } from '../../../services/arweave/LocalFilesystemDataProvider';
+import { defaultDataProvider } from '../../../services/arweave';
 import { ArNSMapping } from '../../../types';
 import './styles.css';
 
@@ -39,7 +39,7 @@ function AntCard(props: ArNSMapping) {
   const [limitDetails, setLimitDetails] = useState(true);
 
   useEffect(() => {
-    const dataProvider = new LocalFileSystemDataProvider();
+    const dataProvider = defaultDataProvider();
     dataProvider.getContractState(id).then((antContractState) => {
       if (!antContractState) {
         setAntDetails(undefined);
