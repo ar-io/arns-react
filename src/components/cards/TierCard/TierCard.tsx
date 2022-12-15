@@ -7,7 +7,7 @@ import './styles.css';
 function TierCard({ currentTier }: TierCardProps) {
   const [{ tier }, dispatchRegisterState] = useRegistrationState();
   return (
-    <div className="currentTier-card hover">
+    <div className="tier-card hover">
       <div className="text bubble-small ">Tier&nbsp;{currentTier}</div>
 
       {TIER_DATA[currentTier].map((info: string, index: number) => (
@@ -21,7 +21,7 @@ function TierCard({ currentTier }: TierCardProps) {
         </span>
       ))}
 
-      {tier !== currentTier ? (
+      {currentTier !== tier ? (
         <button
           className="select-button"
           onClick={() =>
