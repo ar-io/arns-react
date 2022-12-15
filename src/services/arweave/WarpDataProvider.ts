@@ -1,6 +1,6 @@
 import { Warp, WarpFactory } from 'warp-contracts';
 
-import { ArNSContractState, SmartweaveContractSource } from '../../types.js';
+import { ArNSContractState, SmartweaveContractSource } from '../../types';
 
 export class WarpDataProvider implements SmartweaveContractSource {
   private _warp: Warp;
