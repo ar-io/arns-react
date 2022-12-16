@@ -15,8 +15,7 @@ function Workflow({ stages }: WorkflowProps) {
   const [backCondition, setBackCondition] = useState<boolean>(false);
 
   useEffect(() => {
-    // eslint-disable-next-line
-    Object.entries(stages).map(([key, value], index) => {
+    Object.values(stages).map((value: any, index) => {
       if (index === stage) {
         setNextCondition(value.nextCondition);
         setBackCondition(value.backCondition);
