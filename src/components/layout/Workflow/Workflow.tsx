@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
@@ -37,11 +37,9 @@ function Workflow({ stages }: WorkflowProps) {
       {/* eslint-disable-next-line */}
       {Object.entries(stages).map(([key, value], index) => {
         if (index === stage) {
-          return (
-            <div className="flex-column center" key={index}>
-              {value.component}
-            </div>
-          );
+          return React.cloneElement(value.component, {
+            key,
+          });
         }
       })}
       <>
