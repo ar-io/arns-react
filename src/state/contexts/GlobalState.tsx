@@ -8,12 +8,14 @@ export type GlobalState = {
   gateway: string;
   walletAddress?: string;
   wallet?: ArweaveWalletConnector;
+  arnsContractId: string;
   showConnectWallet: boolean;
   isSearching: boolean;
   errors: Array<Error>;
 };
 
 const initialState: GlobalState = {
+  arnsContractId: 'bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U',
   arnsSourceContract: { records: {}, fees: {} },
   gateway: 'arweave.dev',
   walletAddress: undefined,
