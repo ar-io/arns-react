@@ -16,7 +16,7 @@ import './styles.css';
 
 function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
   const modalRef = useRef(null);
-  const [{ walletAddress }, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
+  const [{ walletAddress, arweave }, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
 
   useEffect(() => {
     // disable scrolling when modal is in view
@@ -53,6 +53,10 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
       dispatchGlobalState({
         type: 'setWalletAddress',
         payload: await walletConnector.getWalletAddress(),
+      });
+      dispatchGlobalState({
+        type: 'setWallet',
+        payload: walletConnector,
       });
     } catch (error: any) {
       console.error(error);
@@ -97,7 +101,7 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
         </button>
         <button
           className="wallet-connect-button h2"
-          onClick={() => setGlobalWallet(new ArConnectWalletConnector())}
+          onClick={() => setGlobalWallet(new ArConnectWalletConnector(arweave))}
         >
           <ArConnectIcon
             className="external-icon"
