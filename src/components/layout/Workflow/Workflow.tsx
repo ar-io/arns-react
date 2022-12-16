@@ -37,7 +37,11 @@ function Workflow({ stages }: WorkflowProps) {
       {/* eslint-disable-next-line */}
       {Object.entries(stages).map(([key, value], index) => {
         if (index === stage) {
-          return value.component;
+          return (
+            <div className="flex-column center" key={index}>
+              {value.component}
+            </div>
+          );
         }
       })}
       <>
