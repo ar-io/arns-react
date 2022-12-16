@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { useIsMobile } from '../../../hooks/index.js';
+import { useIsMobile } from '../../../hooks/index';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { ArweaveWalletConnector } from '../../../types.js';
+import { ArweaveWalletConnector } from '../../../types';
 import { ROUTES } from '../../../utils/routes';
 import { AccountIcon, MenuIcon } from '../../icons';
 import ConnectButton from '../../inputs/buttons/ConnectButton/ConnectButton';
@@ -111,21 +111,21 @@ function NavMenuCard() {
             <ConnectButton />
           ) : (
             <>
-              <span className="navbar-link">{`${walletAddress.slice(
+              <span className="navbar-link hover">{`${walletAddress.slice(
                 0,
                 3,
               )}...${walletAddress.slice(-3)}`}</span>
               {Object.entries(walletDetails).map(([key, value]) => {
                 return (
                   <span
-                    className="navbar-link"
+                    className="navbar-link hover"
                     key={key}
                   >{`${key}: ${value}`}</span>
                 );
               })}
               {
                 <button
-                  className="navbar-link"
+                  className="navbar-link hover"
                   onClick={logout}
                   style={{
                     cursor: 'pointer',

@@ -5,8 +5,8 @@
   top: 110px;
   min-width: unset;
   align-items: flex-start;
-  border-radius: 5px;
   padding: 40px;
+  min-width: 125px;
 }
 
 @media screen and (max-width: 600px) {
