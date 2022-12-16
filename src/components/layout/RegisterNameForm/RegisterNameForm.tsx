@@ -2,7 +2,6 @@ import { useState } from 'react';
 
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { ArweaveTransactionId } from '../../../types';
-import { ARNS_NAME_REGEX, ARNS_TXID_REGEX } from '../../../utils/constants';
 import { isArweaveTransactionID } from '../../../utils/searchUtils';
 import Dropdown from '../../inputs/Dropdown/Dropdown';
 import UpgradeTier from '../UpgradeTier/UpgradeTier';
