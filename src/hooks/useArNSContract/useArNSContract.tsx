@@ -27,9 +27,11 @@ export default function useArNSContract() {
 
       if (!arnsContractState.records || !arnsContractState.fees) {
         throw Error(
-          `ArNS contract is missing required keys: ${['fees', 'records'].filter(
-            (required) => Object.keys(arnsContractState).includes(required),
-          )}`,
+          `ArNS contract is missing required keys: ${['fees', 'records']
+            .filter(
+              (required) => !Object.keys(arnsContractState).includes(required),
+            )
+            .join(', ')}`,
         );
       }
 
