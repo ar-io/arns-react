@@ -36,7 +36,7 @@ function NavMenuCard() {
     const arBalance = await wallet.getWalletBalanceAR();
     const formattedBalance = Intl.NumberFormat('en-US', {
       notation: 'compact',
-      maximumFractionDigits: 3,
+      maximumFractionDigits: 2,
       compactDisplay: 'short',
     }).format(+arBalance);
     setWalletDetails({
@@ -120,8 +120,8 @@ function NavMenuCard() {
               <div className="flex-row flex-space-between">
                 <span className="navbar-link hover">{`${walletAddress.slice(
                   0,
-                  3,
-                )}...${walletAddress.slice(-3)}`}</span>
+                  6,
+                )}...${walletAddress.slice(-6)}`}</span>
                 {!walletCopied ? (
                   <CopyIcon
                     style={{
@@ -145,9 +145,12 @@ function NavMenuCard() {
               {Object.entries(walletDetails).map(([key, value]) => {
                 return (
                   <span
-                    className="navbar-link hover"
                     key={key}
-                  >{`${key}: ${value}`}</span>
+                    className="flex-row flex-space-between navbar-link hover"
+                  >
+                    <span>{key}</span>
+                    <span className="faded">{value as string}</span>
+                  </span>
                 );
               })}
               {
