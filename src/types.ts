@@ -36,6 +36,7 @@ export interface ArweaveWalletConnector {
   connect(): Promise<void>;
   disconnect(): Promise<void>;
   getWalletAddress(): Promise<string>;
+  getWalletBalanceAR(): Promise<string>;
 }
 
 export type SearchBarProps = {

@@ -1,9 +1,11 @@
+import Arweave from 'arweave';
 import React, { Dispatch, createContext, useContext, useReducer } from 'react';
 
 import type { ArNSContractState, ArweaveWalletConnector } from '../../types';
 import type { Action } from '../reducers/GlobalReducer';
 
 export type GlobalState = {
+  arweave: Arweave;
   arnsSourceContract: ArNSContractState;
   gateway: string;
   walletAddress?: string;
@@ -15,6 +17,9 @@ export type GlobalState = {
 };
 
 const initialState: GlobalState = {
+  arweave: new Arweave({
+    host: 'arweave.dev',
+  }),
   arnsContractId: 'bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U',
   arnsSourceContract: { records: {}, fees: {} },
   gateway: 'arweave.dev',

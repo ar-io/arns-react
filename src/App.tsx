@@ -8,13 +8,15 @@ import {
 import { Layout } from './components/layout';
 import ConnectWalletModal from './components/modals/ConnectWalletModal/ConnectWalletModal';
 import { About, FAQ, Home, Manage, NotFound } from './components/pages';
-import { useArNSContract, useConnectWalletModal } from './hooks/';
+import { useArNSContract, useArweave, useConnectWalletModal } from './hooks/';
 import './index.css';
 import { useGlobalState } from './state/contexts/GlobalState';
 
 function App() {
   // dispatches global state
   useArNSContract();
+  // setup arweave client
+  useArweave();
   const { showConnectModal } = useConnectWalletModal();
 
   const [{ walletAddress }] = useGlobalState();
