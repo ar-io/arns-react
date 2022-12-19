@@ -4,7 +4,7 @@ import { useIsMobile } from '../../../hooks/index';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ArweaveWalletConnector } from '../../../types';
 import { ROUTES } from '../../../utils/routes';
-import { AccountIcon, MenuIcon } from '../../icons';
+import { AccountIcon, CopyIcon, MenuIcon } from '../../icons';
 import ConnectButton from '../../inputs/buttons/ConnectButton/ConnectButton';
 import MenuButton from '../../inputs/buttons/MenuButton/MenuButton';
 import NavBarLink from '../../layout/Navbar/NavBarLink/NavBarLink';
@@ -14,6 +14,7 @@ function NavMenuCard() {
   const [{ walletAddress, wallet }, dispatchGlobalState] = useGlobalState();
   const [showMenu, setShowMenu] = useState(false);
   const [walletDetails, setWalletDetails] = useState({});
+  const [walletCopied, setWalletCopied] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   useEffect(() => {
@@ -33,7 +34,6 @@ function NavMenuCard() {
 
   async function fetchWalletDetails(wallet: ArweaveWalletConnector) {
     const arBalance = await wallet.getWalletBalanceAR();
-    console.log('AR balance', arBalance);
     setWalletDetails({
       AR: arBalance,
     });
@@ -44,11 +44,12 @@ function NavMenuCard() {
     if (
       menuRef.current &&
       e.target !== menuRef.current &&
-      menuRef.current.contains(e.target)
+      !menuRef.current.contains(e.target)
     ) {
       // slight jitter in case menu button is pushed to close
       setTimeout(() => {
         setShowMenu(false);
+        setWalletCopied(false);
       }, 100);
     }
   }
@@ -111,10 +112,31 @@ function NavMenuCard() {
             <ConnectButton />
           ) : (
             <>
-              <span className="navbar-link hover">{`${walletAddress.slice(
-                0,
-                3,
-              )}...${walletAddress.slice(-3)}`}</span>
+              <div className="flex-row flex-space-between">
+                <span className="navbar-link hover">{`${walletAddress.slice(
+                  0,
+                  3,
+                )}...${walletAddress.slice(-3)}`}</span>
+                {!walletCopied ? (
+                  <CopyIcon
+                    style={{
+                      height: '24px',
+                      width: '24px',
+                      fill: 'white',
+                      cursor: 'pointer',
+                    }}
+                    onClick={async () => {
+                      await navigator.clipboard.writeText(walletAddress);
+                      setWalletCopied(true);
+                      setTimeout(() => {
+                        setWalletCopied(false);
+                      }, 2000);
+                    }}
+                  />
+                ) : (
+                  <span style={{ color: 'white' }}>&#10004;</span>
+                )}
+              </div>
               {Object.entries(walletDetails).map(([key, value]) => {
                 return (
                   <span
