@@ -1,3 +1,6 @@
+import Arweave from 'arweave';
+import Ar from 'arweave/node/ar';
+
 import { ArweaveWalletConnector } from '../../types';
 
 const ARCONNECT_WALLET_PERMISSIONS = [
@@ -11,9 +14,12 @@ const ARCONNECT_WALLET_PERMISSIONS = [
 
 export class ArConnectWalletConnector implements ArweaveWalletConnector {
   private _wallet: any;
+  private _arweave: Arweave;
+  private _ar: Ar = new Ar();
 
-  constructor() {
+  constructor(arweave: Arweave) {
     this._wallet = window.arweaveWallet;
+    this._arweave = arweave;
   }
 
   connect(): Promise<void> {
@@ -32,5 +38,12 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
 
   getWalletAddress(): Promise<string> {
     return this._wallet.getActiveAddress();
+  }
+
+  async getWalletBalanceAR(): Promise<string> {
+    const winstonBalance = await this._arweave.wallets.getBalance(
+      await this.getWalletAddress(),
+    );
+    return this._ar.winstonToAr(winstonBalance);
   }
 }

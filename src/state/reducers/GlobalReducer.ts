@@ -1,20 +1,37 @@
-import type { ArNSContractState, ArweaveTransactionId } from '../../types';
+import Arweave from 'arweave';
+
+import type {
+  ArNSContractState,
+  ArweaveTransactionId,
+  ArweaveWalletConnector,
+} from '../../types';
 import { GlobalState } from '../contexts/GlobalState';
 
 export type Action =
-  | { type: 'setWalletAddress'; payload: ArweaveTransactionId }
+  | { type: 'setWalletAddress'; payload: ArweaveTransactionId | undefined }
+  | { type: 'setWallet'; payload: ArweaveWalletConnector | undefined }
   | { type: 'setGateway'; payload: string }
   | { type: 'setArnsContractState'; payload: ArNSContractState }
   | { type: 'setShowConnectWallet'; payload: boolean }
   | { type: 'setIsSearching'; payload: boolean }
-  | { type: 'setErrors'; payload: Array<Error> };
+  | { type: 'setArweave'; payload: Arweave };
 
 export const reducer = (state: GlobalState, action: Action): GlobalState => {
   switch (action.type) {
+    case 'setArweave':
+      return {
+        ...state,
+        arweave: action.payload,
+      };
     case 'setWalletAddress':
       return {
         ...state,
-        walletAddress: action.payload,
+        arweave: action.payload,
+      };
+    case 'setWallet':
+      return {
+        ...state,
+        wallet: action.payload,
       };
     case 'setShowConnectWallet':
       return {
