@@ -8,7 +8,7 @@ import './styles.css';
 
 const NavGroup = () => {
   const isMobile = useIsMobile();
-  const [{ walletAddress }] = useGlobalState();
+  const [{ wallet }] = useGlobalState();
 
   // TODO: show mobile menu on click
   return (
@@ -16,12 +16,12 @@ const NavGroup = () => {
       {!isMobile ? (
         <>
           {Object.entries(ROUTES).map(([key, value]) => {
-            if (!value.index && (!value.protected || walletAddress))
+            if (!value.index && (!value.protected || wallet))
               return (
                 <NavBarLink path={value.path} linkText={value.text} key={key} />
               );
           })}
-          {!walletAddress ? (
+          {!wallet ? (
             <ConnectButton />
           ) : (
             <>

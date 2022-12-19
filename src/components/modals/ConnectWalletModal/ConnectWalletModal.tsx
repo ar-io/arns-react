@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 
+import { useWalletAddress } from '../../../hooks';
 import {
   ArConnectWalletConnector,
   JsonWalletConnector,
@@ -16,7 +17,8 @@ import './styles.css';
 
 function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
   const modalRef = useRef(null);
-  const [{ walletAddress, arweave }, dispatchGlobalState] = useGlobalState();
+  const [{ wallet, arweave }, dispatchGlobalState] = useGlobalState();
+  const walletAddress = useWalletAddress();
 
   useEffect(() => {
     // disable scrolling when modal is in view
@@ -31,7 +33,7 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
       return;
     }
     document.body.style.overflow = 'unset';
-  }, [show, walletAddress]);
+  }, [show, wallet]);
 
   function handleClickOutside(e: any) {
     if (modalRef.current && modalRef.current === e.target) {
@@ -50,10 +52,6 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
   async function setGlobalWallet(walletConnector: ArweaveWalletConnector) {
     try {
       await walletConnector.connect();
-      dispatchGlobalState({
-        type: 'setWalletAddress',
-        payload: await walletConnector.getWalletAddress(),
-      });
       dispatchGlobalState({
         type: 'setWallet',
         payload: walletConnector,

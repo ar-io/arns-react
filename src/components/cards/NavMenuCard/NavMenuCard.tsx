@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { useIsMobile } from '../../../hooks/index';
+import { useIsMobile, useWalletAddress } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ArweaveWalletConnector } from '../../../types';
 import { ROUTES } from '../../../utils/routes';
@@ -11,12 +11,13 @@ import NavBarLink from '../../layout/Navbar/NavBarLink/NavBarLink';
 import './styles.css';
 
 function NavMenuCard() {
-  const [{ walletAddress, wallet }, dispatchGlobalState] = useGlobalState();
+  const [{ wallet }, dispatchGlobalState] = useGlobalState();
   const [showMenu, setShowMenu] = useState(false);
   const [walletDetails, setWalletDetails] = useState({});
   const [walletCopied, setWalletCopied] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
+  const walletAddress = useWalletAddress();
   useEffect(() => {
     if (!menuRef.current) {
       return;
@@ -24,7 +25,7 @@ function NavMenuCard() {
     document.addEventListener('mousedown', handleClickOutside);
 
     if (wallet) {
-      fetchWalletDetails(wallet!);
+      fetchWalletDetails(wallet);
     }
 
     return () => {
@@ -63,10 +64,6 @@ function NavMenuCard() {
     try {
       await wallet?.disconnect();
       // reset state
-      dispatchGlobalState({
-        type: 'setWalletAddress',
-        payload: undefined,
-      });
       dispatchGlobalState({
         type: 'setWallet',
         payload: undefined,

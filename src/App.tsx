@@ -19,7 +19,7 @@ function App() {
   useArweave();
   const { showConnectModal } = useConnectWalletModal();
 
-  const [{ walletAddress }] = useGlobalState();
+  const [{ wallet }] = useGlobalState();
 
   const router = createBrowserRouter(
     createRoutesFromElements(
@@ -27,7 +27,7 @@ function App() {
         <Route index element={<Home />} />
         <Route path="about" element={<About />} />
         <Route path="faq" element={<FAQ />} />
-        {walletAddress ? <Route path="manage" element={<Manage />} /> : <></>}
+        {wallet ? <Route path="manage" element={<Manage />} /> : <></>}
         <Route path="*" element={<NotFound />} />
       </Route>,
     ),

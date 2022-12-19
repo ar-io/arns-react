@@ -17,7 +17,7 @@ function SearchBar(props: SearchBarProps) {
     setIsSearching,
   } = props;
 
-  const [{ walletAddress }, dispatch] = useGlobalState();
+  const [{ wallet }, dispatch] = useGlobalState();
   const isMobile = useIsMobile();
   const [isSearchValid, setIsSearchValid] = useState(true);
   const [showDefaultText, setShowDefaultText] = useState(true);
