@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
+import { useWalletAddress } from '../../hooks';
 import { useGlobalState } from '../../state/contexts/GlobalState';
-import useWalletAddress from '../useWalletAddress/useWalletAddress.js';
 
 export default function useConnectWalletModal() {
   // eslint-disable-next-line

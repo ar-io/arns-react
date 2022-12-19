@@ -7,6 +7,7 @@ jest.mock('../hooks', () => ({
   useArNSContract: jest.fn(),
   useArweave: jest.fn(),
   useWalletAddress: jest.fn(),
+  useIsMobile: jest.fn(),
   useConnectWalletModal: jest.fn().mockReturnValue({ showConnectModal: false }),
 }));
 

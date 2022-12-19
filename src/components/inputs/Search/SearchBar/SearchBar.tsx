@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 
-import useIsMobile from '../../../../hooks/useIsMobile/useIsMobile';
+import { useIsMobile, useWalletAddress } from '../../../../hooks';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { SearchBarProps } from '../../../../types';
 import { ArrowUpRight, SearchIcon } from '../../../icons';
@@ -17,7 +17,8 @@ function SearchBar(props: SearchBarProps) {
     setIsSearching,
   } = props;
 
-  const [{ wallet }, dispatch] = useGlobalState();
+  const [{}, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
+  const walletAddress = useWalletAddress();
   const isMobile = useIsMobile();
   const [isSearchValid, setIsSearchValid] = useState(true);
   const [showDefaultText, setShowDefaultText] = useState(true);
@@ -94,7 +95,7 @@ function SearchBar(props: SearchBarProps) {
 
   function handleNext() {
     if (!walletAddress) {
-      dispatch({
+      dispatchGlobalState({
         type: 'setShowConnectWallet',
         payload: true,
       });
