@@ -34,6 +34,6 @@ jobs:
 
       - name: Send Slack Notification
         env:
-          SLACK_TITLE: New Deploy 🚀
+          SLACK_TITLE: New Deploy 🚀 - [PREVIEW](https://ar-io.github.io/arns-react/)
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
         uses: rtCamp/action-slack-notify@v2
