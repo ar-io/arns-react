@@ -34,8 +34,13 @@ function NavMenuCard() {
 
   async function fetchWalletDetails(wallet: ArweaveWalletConnector) {
     const arBalance = await wallet.getWalletBalanceAR();
+    const formattedBalance = Intl.NumberFormat('en-US', {
+      notation: 'compact',
+      maximumFractionDigits: 3,
+      compactDisplay: 'short',
+    }).format(+arBalance);
     setWalletDetails({
-      AR: arBalance,
+      AR: formattedBalance,
     });
   }
 
