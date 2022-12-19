@@ -13,12 +13,6 @@ jobs:
       - run: npm ci
       - run: npm run ${{ matrix.step }}
 
-      - name: Send Slack Notification
-        env:
-          SLACK_TITLE: Test
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-        uses: rtCamp/action-slack-notify@v2
-
   deploy-to-github:
     runs-on: ubuntu-latest
     needs: build
