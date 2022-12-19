@@ -16,7 +16,7 @@ import './styles.css';
 
 function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
   const modalRef = useRef(null);
-  const [{ walletAddress, arweave }, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
+  const [{ walletAddress, arweave }, dispatchGlobalState] = useGlobalState();
 
   useEffect(() => {
     // disable scrolling when modal is in view
