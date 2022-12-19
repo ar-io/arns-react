@@ -21,6 +21,7 @@ export default function useArweave() {
 
       const arweave = new Arweave({
         host: gateway,
+        protocol: 'https',
       });
       dispatch({
         type: 'setArweave',
