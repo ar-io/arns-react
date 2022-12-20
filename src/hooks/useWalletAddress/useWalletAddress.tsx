@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import { useGlobalState } from '../../state/contexts/GlobalState';
-import { ArweaveTransactionId } from '../../types.js';
+import { ArweaveTransactionId } from '../../types';
 
 export default function useWalletAddress(): {
   wallet: any;
@@ -18,6 +18,14 @@ export default function useWalletAddress(): {
         payload: address,
       });
     });
+
+    if (!wallet) {
+      // remove address if wallet gets cleared
+      dispatchGlobalState({
+        type: 'setWalletAddress',
+        payload: undefined,
+      });
+    }
 
     wallet?.getWalletAddress().then((address: string) => {
       dispatchGlobalState({

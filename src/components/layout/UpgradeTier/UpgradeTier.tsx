@@ -22,7 +22,7 @@ function UpgradeTier({ domain }: { domain?: string }) {
   const [years, setYears] = useState(MIN_LEASE_DURATION);
   const [priceInfo, setPriceInfo] = useState(false);
 
-  const walletAddress = useWalletAddress();
+  const { wallet, walletAddress } = useWalletAddress();
 
   useEffect(() => {
     const fees = arnsSourceContract.fees;
@@ -84,7 +84,7 @@ function UpgradeTier({ domain }: { domain?: string }) {
           <></>
         )}
       </button>
-      {!walletAddress ? (
+      {!walletAddress || !wallet ? (
         <button className="accent-button hover" onClick={showConnectWallet}>
           Connect Wallet to proceed
         </button>
