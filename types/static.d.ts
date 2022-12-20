@@ -5,8 +5,3 @@ declare module '*.svg' {
   const src: string;
   export default src;
 }
-
-/* VITE DEFINED ENV VARS */
-declare const VITE_CONFIG: {
-  version: string;
-};
