@@ -17,9 +17,8 @@ import './styles.css';
 
 function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
   const modalRef = useRef(null);
-  const [{ wallet, arweave }, dispatchGlobalState] = useGlobalState();
-  const walletAddress = useWalletAddress();
-
+  const [{ arweave }, dispatchGlobalState] = useGlobalState();
+  const { walletAddress } = useWalletAddress();
   useEffect(() => {
     // disable scrolling when modal is in view
     if (walletAddress) {
@@ -33,7 +32,7 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
       return;
     }
     document.body.style.overflow = 'unset';
-  }, [show, wallet]);
+  }, [show, walletAddress]);
 
   function handleClickOutside(e: any) {
     if (modalRef.current && modalRef.current === e.target) {

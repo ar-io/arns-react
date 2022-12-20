@@ -8,9 +8,13 @@ import {
 import { Layout } from './components/layout';
 import ConnectWalletModal from './components/modals/ConnectWalletModal/ConnectWalletModal';
 import { About, FAQ, Home, Manage, NotFound } from './components/pages';
-import { useArNSContract, useArweave, useConnectWalletModal } from './hooks/';
+import {
+  useArNSContract,
+  useArweave,
+  useConnectWalletModal,
+  useWalletAddress,
+} from './hooks/';
 import './index.css';
-import { useGlobalState } from './state/contexts/GlobalState';
 
 function App() {
   // dispatches global state
@@ -18,8 +22,7 @@ function App() {
   // setup arweave client
   useArweave();
   const { showConnectModal } = useConnectWalletModal();
-
-  const [{ wallet }] = useGlobalState();
+  const { wallet, walletAddress } = useWalletAddress();
 
   const router = createBrowserRouter(
     createRoutesFromElements(
@@ -27,7 +30,11 @@ function App() {
         <Route index element={<Home />} />
         <Route path="about" element={<About />} />
         <Route path="faq" element={<FAQ />} />
-        {wallet ? <Route path="manage" element={<Manage />} /> : <></>}
+        {wallet && walletAddress ? (
+          <Route path="manage" element={<Manage />} />
+        ) : (
+          <></>
+        )}
         <Route path="*" element={<NotFound />} />
       </Route>,
     ),

@@ -5,8 +5,8 @@ import { useGlobalState } from '../../state/contexts/GlobalState';
 
 export default function useConnectWalletModal() {
   // eslint-disable-next-line
-  const [{ showConnectWallet, wallet }, dispatch] = useGlobalState();
-  const walletAddress = useWalletAddress();
+  const [{ showConnectWallet }, dispatch] = useGlobalState();
+  const { walletAddress } = useWalletAddress();
 
   useEffect(() => {
     if (walletAddress) {

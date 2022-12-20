@@ -1,9 +1,14 @@
 import Arweave from 'arweave';
 
-import type { ArNSContractState, ArweaveWalletConnector } from '../../types';
+import type {
+  ArNSContractState,
+  ArweaveTransactionId,
+  ArweaveWalletConnector,
+} from '../../types';
 import { GlobalState } from '../contexts/GlobalState';
 
 export type Action =
+  | { type: 'setWalletAddress'; payload: ArweaveTransactionId | undefined }
   | { type: 'setWallet'; payload: ArweaveWalletConnector | undefined }
   | { type: 'setGateway'; payload: string }
   | { type: 'setArnsContractState'; payload: ArNSContractState }
@@ -17,6 +22,11 @@ export const reducer = (state: GlobalState, action: Action): GlobalState => {
       return {
         ...state,
         arweave: action.payload,
+      };
+    case 'setWalletAddress':
+      return {
+        ...state,
+        walletAddress: action.payload,
       };
     case 'setWallet':
       return {

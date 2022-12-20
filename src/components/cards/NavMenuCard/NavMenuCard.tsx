@@ -11,30 +11,32 @@ import NavBarLink from '../../layout/Navbar/NavBarLink/NavBarLink';
 import './styles.css';
 
 function NavMenuCard() {
-  const [{ wallet }, dispatchGlobalState] = useGlobalState();
+  const [{}, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
   const [showMenu, setShowMenu] = useState(false);
   const [walletDetails, setWalletDetails] = useState({});
   const [walletCopied, setWalletCopied] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
-  const walletAddress = useWalletAddress();
+  const { wallet, walletAddress } = useWalletAddress();
+
   useEffect(() => {
+    if (wallet) {
+      fetchWalletDetails(wallet);
+    }
+
     if (!menuRef.current) {
       return;
     }
     document.addEventListener('mousedown', handleClickOutside);
 
-    if (wallet) {
-      fetchWalletDetails(wallet);
-    }
-
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [menuRef, showMenu, wallet]);
+  }, [menuRef, showMenu, wallet, walletAddress]);
 
   async function fetchWalletDetails(wallet: ArweaveWalletConnector) {
     const arBalance = await wallet.getWalletBalanceAR();
+    console.log('Fetching wallet balance.');
     const formattedBalance = Intl.NumberFormat('en-US', {
       notation: 'compact',
       maximumFractionDigits: 2,
