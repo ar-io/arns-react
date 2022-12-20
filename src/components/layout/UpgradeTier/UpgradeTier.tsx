@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { useWalletAddress } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
   MAX_LEASE_DURATION,
@@ -14,12 +15,14 @@ import Counter from '../../inputs/Counter/Counter';
 import './styles.css';
 
 function UpgradeTier({ domain }: { domain?: string }) {
-  const [{ arnsSourceContract, walletAddress }, dispatch] = useGlobalState();
+  const [{ arnsSourceContract }, dispatch] = useGlobalState();
   // name is passed down from search bar to calculate price
   const [selectedTier, setSelectedTier] = useState(1);
   const [price, setPrice] = useState<number | undefined>(0);
   const [years, setYears] = useState(MIN_LEASE_DURATION);
   const [priceInfo, setPriceInfo] = useState(false);
+
+  const { wallet, walletAddress } = useWalletAddress();
 
   useEffect(() => {
     const fees = arnsSourceContract.fees;
@@ -81,7 +84,7 @@ function UpgradeTier({ domain }: { domain?: string }) {
           <></>
         )}
       </button>
-      {!walletAddress ? (
+      {!walletAddress || !wallet ? (
         <button className="accent-button hover" onClick={showConnectWallet}>
           Connect Wallet to proceed
         </button>

@@ -5,10 +5,9 @@ import { ArweaveWalletConnector } from '../../types';
 
 const ARCONNECT_WALLET_PERMISSIONS = [
   'ACCESS_ADDRESS',
+  'ACCESS_ALL_ADDRESSES',
   'ACCESS_PUBLIC_KEY',
   'SIGN_TRANSACTION',
-  'ENCRYPT',
-  'DECRYPT',
   'ACCESS_ARWEAVE_CONFIG',
 ];
 
