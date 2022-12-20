@@ -6,7 +6,9 @@ import App from '../App';
 jest.mock('../hooks', () => ({
   useArNSContract: jest.fn(),
   useArweave: jest.fn(),
-  useWalletAddress: jest.fn(),
+  useWalletAddress: jest
+    .fn()
+    .mockReturnValue({ wallet: undefined, walletAddress: undefined }),
   useIsMobile: jest.fn(),
   useConnectWalletModal: jest.fn().mockReturnValue({ showConnectModal: false }),
 }));

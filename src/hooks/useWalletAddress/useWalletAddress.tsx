@@ -1,8 +1,12 @@
 import { useEffect } from 'react';
 
 import { useGlobalState } from '../../state/contexts/GlobalState';
+import { ArweaveTransactionId } from '../../types.js';
 
-export default function useWalletAddress(): any {
+export default function useWalletAddress(): {
+  wallet: any;
+  walletAddress: ArweaveTransactionId | undefined;
+} {
   const [{ wallet, walletAddress }, dispatchGlobalState] = useGlobalState();
 
   useEffect(() => {
