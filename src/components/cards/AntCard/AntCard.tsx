@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 
 import { defaultDataProvider } from '../../../services/arweave';
 import { ArNSMapping } from '../../../types';
+import { Loader } from '../../layout';
 import './styles.css';
 
 const ANT_DETAIL_MAPPINGS: { [x: string]: string } = {
@@ -36,9 +37,11 @@ const DEFAULT_ATTRIBUTES = {
 function AntCard(props: ArNSMapping) {
   const { id, domain } = props;
   const [antDetails, setAntDetails] = useState<{ [x: string]: string }>();
+  const [isLoading, setIsLoading] = useState(false);
   const [limitDetails, setLimitDetails] = useState(true);
 
   useEffect(() => {
+    setIsLoading(true);
     const dataProvider = defaultDataProvider();
     dataProvider.getContractState(id).then((antContractState) => {
       if (!antContractState) {
@@ -62,6 +65,9 @@ function AntCard(props: ArNSMapping) {
         }, {});
       setLimitDetails(true);
       setAntDetails(replacedKeys);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 500);
     });
   }, [id, domain]);
 
@@ -77,7 +83,9 @@ function AntCard(props: ArNSMapping) {
 
   return (
     <>
-      {antDetails ? (
+      {isLoading ? (
+        <Loader size={50} />
+      ) : antDetails ? (
         <div className="card hover">
           {/* // TODO: pull tier from ant contract details */}
           <span className="bubble">Tier 1</span>
@@ -110,10 +118,7 @@ function AntCard(props: ArNSMapping) {
           </div>
         </div>
       ) : (
-        // TODO: remove this holder when ant's have multiple data providers
-        <span className="section-header">
-          Uh oh. That ANT is not available at the moment. Try another.
-        </span>
+        <span className="section-header">Uh oh. Something went wrong.</span>
       )}
     </>
   );

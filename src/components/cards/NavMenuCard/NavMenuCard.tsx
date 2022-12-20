@@ -7,13 +7,17 @@ import { ROUTES } from '../../../utils/routes';
 import { AccountIcon, CopyIcon, MenuIcon } from '../../icons';
 import ConnectButton from '../../inputs/buttons/ConnectButton/ConnectButton';
 import MenuButton from '../../inputs/buttons/MenuButton/MenuButton';
-import NavBarLink from '../../layout/Navbar/NavBarLink/NavBarLink';
+import { Loader, NavBarLink } from '../../layout';
 import './styles.css';
 
 function NavMenuCard() {
   const [{}, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
   const [showMenu, setShowMenu] = useState(false);
-  const [walletDetails, setWalletDetails] = useState({});
+  const [walletDetails, setWalletDetails] = useState<{
+    AR: number | undefined | string;
+  }>({
+    AR: undefined,
+  });
   const [walletCopied, setWalletCopied] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
@@ -21,6 +25,7 @@ function NavMenuCard() {
 
   useEffect(() => {
     if (wallet) {
+      resetWalletDetails();
       fetchWalletDetails(wallet);
     }
 
@@ -34,9 +39,14 @@ function NavMenuCard() {
     };
   }, [menuRef, showMenu, wallet, walletAddress]);
 
+  function resetWalletDetails() {
+    setWalletDetails({
+      AR: undefined,
+    });
+  }
+
   async function fetchWalletDetails(wallet: ArweaveWalletConnector) {
     const arBalance = await wallet.getWalletBalanceAR();
-    console.log('Fetching wallet balance.');
     const formattedBalance = Intl.NumberFormat('en-US', {
       notation: 'compact',
       maximumFractionDigits: 2,
@@ -148,7 +158,12 @@ function NavMenuCard() {
                     className="flex-row flex-space-between navbar-link hover"
                   >
                     <span>{key}</span>
-                    <span className="faded">{value as string}</span>
+                    {value ? (
+                      <span className="faded">{value}</span>
+                    ) : (
+                      // TODO: add error icon with hover for error details
+                      <Loader size={20} />
+                    )}
                   </span>
                 );
               })}
