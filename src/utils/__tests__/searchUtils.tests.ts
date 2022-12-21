@@ -5,8 +5,11 @@ describe('isArNSDomainNameValid', () => {
     '_',
     '.',
     'www',
+    ' ',
     '_leadingunderscore',
     'trailingunderscore_',
+    '-leadingdash',
+    'trailingdash-',
     'namewithcharacter.init',
     'name with space',
   ];
