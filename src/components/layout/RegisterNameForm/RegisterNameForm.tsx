@@ -1,28 +1,100 @@
 import { useState } from 'react';
 
+import { defaultDataProvider } from '../../../services/arweave';
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
-import { ArweaveTransactionId } from '../../../types';
-import { isArweaveTransactionID } from '../../../utils/searchUtils';
+import {
+  ARNS_TXID_ENTRY_REGEX,
+  ARNS_TXID_REGEX,
+} from '../../../utils/constants';
+import { isAntValid, tagsToObject } from '../../../utils/searchUtils';
 import Dropdown from '../../inputs/Dropdown/Dropdown';
 import UpgradeTier from '../UpgradeTier/UpgradeTier';
 import './styles.css';
 
 function RegisterNameForm() {
-  const [antFlow, setAntFlow] = useState(
-    'Create an Arweave Name Token (ANT) for me',
-  );
-  const [antAddress, setAntAddress] = useState<ArweaveTransactionId>();
-  const [{ domain, ttl, targetID }, dispatchRegisterState] =
+  const [{ domain, ttl, antID }, dispatchRegisterState] =
     useRegistrationState();
 
-  function handleTargetID(e: any) {
-    const id = e.target.value.trim();
-    // todo: add some more advanced error handling and notifications to check if id is a dataID or a value transfer
+  const [{ arnsSourceContract }] = useGlobalState();
+
+  const [isValidAnt, setIsValidAnt] = useState<boolean | undefined>(undefined);
+
+  function reset() {
+    setIsValidAnt(undefined);
     dispatchRegisterState({
-      type: 'setTargetID',
-      payload: id,
+      type: 'setAntID',
+      payload: undefined,
     });
-    return;
+    dispatchRegisterState({
+      type: 'setTTL',
+      payload: 100,
+    });
+  }
+
+  async function handleAntId(e: any) {
+    e.preventDefault();
+    const id = e.target.value.trim();
+
+    try {
+      if (id === '') {
+        reset();
+        return;
+      }
+      // if its a partial id set state and return
+      if (ARNS_TXID_ENTRY_REGEX.test(id) && !ARNS_TXID_REGEX.test(id)) {
+        setIsValidAnt(undefined);
+        dispatchRegisterState({
+          type: 'setAntID',
+          payload: id,
+        });
+        return;
+      }
+      // advanced checking for confirmations and if the contract is a valid ANT contract
+      if (!isAntValid(id, arnsSourceContract.approvedANTSourceCodeTxs)) {
+        throw Error('Ant is not valid');
+      }
+
+      const dataProvider = defaultDataProvider();
+      const state = await dataProvider.getContractState(id);
+      if (state == undefined) {
+        throw Error('ANT contract state is undefined');
+      }
+
+      const { controller, name, owner, ticker, records } = state;
+      console.log({ controller, name, owner, ticker, records });
+      dispatchRegisterState({
+        type: 'setAntID',
+        payload: id,
+      });
+      dispatchRegisterState({
+        type: 'setControllers',
+        payload: [controller],
+      });
+      dispatchRegisterState({
+        type: 'setNickname',
+        payload: name,
+      });
+      dispatchRegisterState({
+        type: 'setOwner',
+        payload: owner,
+      });
+      dispatchRegisterState({
+        type: 'setTicker',
+        payload: ticker,
+      });
+      dispatchRegisterState({
+        type: 'setTargetID',
+        payload: records['@'],
+      });
+      setIsValidAnt(true);
+
+      return;
+    } catch (Error) {
+      console.error(Error);
+      setIsValidAnt(false);
+      return;
+    }
   }
 
   return (
@@ -32,79 +104,23 @@ function RegisterNameForm() {
         <div className="section-header">Register Domain</div>
         <div className="register-inputs center">
           <div className="input-group center column">
-            <Dropdown
-              showSelected={true}
-              showChevron={true}
-              selected={antFlow}
-              setSelected={setAntFlow}
-              options={{
-                create: 'Create an Arweave Name Token (ANT) for me',
-                useExisting: 'I have an Arweave Name Token (ANT) I want to use',
-              }}
+            <input
+              className="data-input center"
+              type="text"
+              placeholder="Enter an ANT ID"
+              value={antID}
+              onChange={(e) => handleAntId(e)}
+              maxLength={43}
+              style={
+                isValidAnt && antID
+                  ? { border: 'solid 2px var(--success-green)' }
+                  : !isValidAnt && antID
+                  ? { border: 'solid 2px var(--error-red)' }
+                  : {}
+              }
             />
-            {/**TODO: add global error state to mark issues with the target id */}
-            {antFlow === 'Create an Arweave Name Token (ANT) for me' ? (
-              <input
-                className="data-input center"
-                placeholder="Target ID"
-                onChange={(e) => handleTargetID(e)}
-                maxLength={43}
-                style={
-                  targetID && isArweaveTransactionID(targetID)
-                    ? { border: '2px solid var(--success-green)' }
-                    : targetID && !isArweaveTransactionID(targetID)
-                    ? { border: '2px solid var(--error-red)' }
-                    : {}
-                }
-              />
-            ) : antFlow ===
-              'I have an Arweave Name Token (ANT) I want to use' ? (
-              <Dropdown
-                showChevron={true}
-                showSelected={false}
-                options={{
-                  1: 'ant one',
-                  2: 'ant two',
-                  3: 'ant three',
-                  4: 'ant four',
-                }}
-                selected={antAddress}
-                setSelected={setAntAddress}
-                headerElement={<></>}
-                footerElement={
-                  <div
-                    className="data-input last-dropdown-option center"
-                    style={{ background: 'var(--bg-color)' }}
-                  >
-                    <span className="text bold white center">
-                      See All Tokens
-                    </span>
-                  </div>
-                }
-              />
-            ) : (
-              <></>
-            )}
           </div>
-          {/**add a tag component for multiple controllers seperated by "," commas. In the future might have an address book. Possibly suggest other accounts from arconnect. */}
-          <input
-            className="data-input center"
-            type="text"
-            placeholder="Controllers"
-            onChange={(e) => handleTargetID(e.target.value)}
-            maxLength={43}
-          />
           <div className="input-group center">
-            <input
-              className="data-input center"
-              type="text"
-              placeholder="Nickname*"
-            />
-            <input
-              className="data-input center"
-              type="text"
-              placeholder="Ticker*"
-            />
             <Dropdown
               showSelected={true}
               showChevron={true}

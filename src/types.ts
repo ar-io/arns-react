@@ -1,10 +1,27 @@
 import type { Dispatch, SetStateAction } from 'react';
 
-export type ArNSDomains = { [x: string]: ArweaveTransactionId };
+export type ArNSDomains = { [x: string]: any };
 
 export type ArNSContractState = {
   records: ArNSDomains;
   fees: { [x: number]: number };
+  balances: { [x: ArweaveTransactionId]: number };
+  controller: ArweaveTransactionId;
+  evolve: boolean | undefined;
+  name: string;
+  owner: ArweaveTransactionId;
+  ticker: string;
+  approvedANTSourceCodeTxs: ArweaveTransactionId[];
+};
+
+export type ANTContractState = {
+  balances: { [x: ArweaveTransactionId]: number };
+  controller: ArweaveTransactionId;
+  evolve: boolean | undefined;
+  name: string;
+  owner: ArweaveTransactionId;
+  records: { [x: string]: ArweaveTransactionId };
+  ticker: string;
 };
 
 export type ArNSMapping = {
@@ -29,8 +46,17 @@ export type JsonWalletProvider = {
 export interface SmartweaveContractSource {
   getContractState(
     contractId: ArweaveTransactionId,
-  ): Promise<ArNSContractState | undefined>;
+  ): Promise<ArNSContractState | ANTContractState | undefined>;
+  writeTransaction(
+    payload: any,
+    dryWrite?: boolean,
+  ): Promise<ArweaveTransactionId | undefined>;
+  connect(): void;
 }
+// add writeTransaction: returns txid
+// add getTransactionStatus: returns confirmations, blockheight
+//
+//
 
 export interface ArweaveWalletConnector {
   connect(): Promise<void>;

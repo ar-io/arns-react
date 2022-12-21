@@ -13,12 +13,19 @@ function Workflow({ stages }: WorkflowProps) {
 
   const [nextCondition, setNextCondition] = useState<boolean>(false);
   const [backCondition, setBackCondition] = useState<boolean>(false);
+  const [onNext, setOnNext] = useState();
 
   useEffect(() => {
     Object.values(stages).map((value: any, index) => {
       if (index === stage) {
         setNextCondition(value.nextCondition);
         setBackCondition(value.backCondition);
+        if (value.onNext) {
+          setOnNext(value.onNext);
+        }
+        if (!value.onNext) {
+          setOnNext(undefined);
+        }
         return;
       }
     });
@@ -56,6 +63,7 @@ function Workflow({ stages }: WorkflowProps) {
             dispatch={dispatchRegisterState}
             showBack={backCondition}
             showNext={nextCondition}
+            onNext={onNext}
           />
         )}
       </>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { defaultDataProvider } from '../../../services/arweave';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { NAME_PRICE_INFO } from '../../../utils/constants';
@@ -7,7 +8,7 @@ import { AlertCircle } from '../../icons';
 import './styles.css';
 
 function ConfirmRegistration() {
-  const [{ walletAddress }] = useGlobalState();
+  const [{ walletAddress, arnsContractId }] = useGlobalState();
   const [
     {
       domain,
@@ -21,10 +22,24 @@ function ConfirmRegistration() {
       antID,
       fee,
       stage,
+      owner,
     },
     dispatchRegistrationState,
   ] = useRegistrationState();
   const [priceInfo, setPriceInfo] = useState(false);
+
+  async function buyArnsName() {
+    const dataProvider = defaultDataProvider();
+    await dataProvider.getContractState(arnsContractId);
+    dataProvider.connect();
+    await dataProvider.writeTransaction({
+      function: 'buyRecord',
+      name: domain,
+      contractTransactionId: antID,
+      years: leaseDuration,
+      tier: tier,
+    });
+  }
 
   return (
     <>
@@ -53,7 +68,7 @@ function ConfirmRegistration() {
             <b>{controllers.length ? controllers : 'not set'}</b>
           </span>
           <span className="detail">
-            Owner:&nbsp;<b>{walletAddress ? walletAddress : 'not set'}</b>
+            Owner:&nbsp;<b>{owner ? owner : 'not set'}</b>
           </span>
           <span className="detail">
             ttlSeconds:&nbsp;<b>{ttl ? ttl : 'not set'}</b>
@@ -101,12 +116,13 @@ function ConfirmRegistration() {
         </button>
         <button
           className="accent-button"
-          onClick={() =>
+          onClick={() => {
+            buyArnsName();
             dispatchRegistrationState({
               type: 'setStage',
               payload: stage + 1,
-            })
-          }
+            });
+          }}
         >
           Confirm
         </button>

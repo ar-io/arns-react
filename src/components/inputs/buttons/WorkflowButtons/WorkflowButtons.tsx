@@ -11,6 +11,7 @@ function WorkflowButtons({
   showNext,
   disableNext,
   disableBack,
+  onNext,
 }: {
   stage: number;
   isFirstStage: boolean;
@@ -20,6 +21,7 @@ function WorkflowButtons({
   showNext?: boolean;
   disableNext?: boolean;
   disableBack?: boolean;
+  onNext?: () => void;
 }) {
   return (
     <>

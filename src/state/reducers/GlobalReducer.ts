@@ -26,7 +26,7 @@ export const reducer = (state: GlobalState, action: Action): GlobalState => {
     case 'setWalletAddress':
       return {
         ...state,
-        arweave: action.payload,
+        walletAddress: action.payload,
       };
     case 'setWallet':
       return {
@@ -53,12 +53,6 @@ export const reducer = (state: GlobalState, action: Action): GlobalState => {
         ...state,
         isSearching: action.payload,
       };
-    case 'setErrors':
-      return {
-        ...state,
-        errors: action.payload,
-      };
-
     default:
       return state;
   }

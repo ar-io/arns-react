@@ -20,6 +20,7 @@ export type RegistrationState = {
   ttl: number;
   antID?: ArweaveTransactionId;
   targetID?: ArweaveTransactionId;
+  owner?: ArweaveTransactionId;
   fee: { ar: number; io: number };
   isRegistered: boolean;
   stage: number;
@@ -42,7 +43,7 @@ export const initialRegistrationState: RegistrationState = {
   controllers: [],
   ttl: 100,
   fee: { ar: 0, io: 0 },
-  targetID: undefined,
+  antID: undefined,
   isRegistered: false,
   stage: 0,
   isFirstStage: true,

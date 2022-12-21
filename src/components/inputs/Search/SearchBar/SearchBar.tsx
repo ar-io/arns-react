@@ -148,13 +148,15 @@ function SearchBar(props: SearchBarProps) {
             : { borderColor: 'var(--error-red)' }
         }
       >
+        {' '}
+        {/** TODO change max input to 32 once contract is updated */}
         <input
           type="text"
           placeholder={showDefaultText ? placeholderText : 'try another name'}
           onChange={onHandleChange}
           onFocus={onFocus}
           onKeyDown={(e) => e.key == 'Enter' && isSearchValid && onSubmit(e)}
-          maxLength={32}
+          maxLength={20}
           className="searchbar-input"
           style={height ? { height: `${height}px` } : {}}
         />

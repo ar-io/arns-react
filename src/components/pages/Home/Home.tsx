@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react';
 
+import { defaultDataProvider } from '../../../services/arweave';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import RegistrationStateProvider from '../../../state/contexts/RegistrationState';
 import { registrationReducer } from '../../../state/reducers/RegistrationReducer';
 import { ArNSDomains } from '../../../types';
 import { FEATURED_DOMAINS } from '../../../utils/constants';
 import {
+  isAntValid,
   isArNSDomainNameAvailable,
   isArNSDomainNameValid,
 } from '../../../utils/searchUtils';
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
-import { FeaturedDomains } from '../../layout';
+import { FeaturedDomains, RegisterNameForm } from '../../layout';
 import { SearchBarFooter, SearchBarHeader } from '../../layout';
 import ConfirmRegistration from '../../layout/ConfirmRegistration/ConfirmRegistration';
 import DeployRegistration from '../../layout/DeployRegistration/DeployRegistration';
@@ -65,9 +67,12 @@ function Home() {
         backCondition: true,
       },
       1: {
-        component: <RegisterNameModal />,
+        component: <RegisterNameForm />,
         nextCondition: true,
         backCondition: true,
+        onNext: (id: string) => {
+          const validation = isAntValid(id);
+        },
       },
       2: {
         component: <ConfirmRegistration />,
