@@ -3,7 +3,7 @@ import { ARNS_NAME_REGEX } from './constants';
 export function isArNSDomainNameValid({ name }: { name?: string }): boolean {
   // if name is not in the legal character range or chars, return undefined
 
-  if (!name || !ARNS_NAME_REGEX.test(name)) {
+  if (!name || !ARNS_NAME_REGEX.test(name) || name === 'www') {
     return false;
   }
   return true;

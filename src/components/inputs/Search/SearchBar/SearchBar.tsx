@@ -71,7 +71,6 @@ function SearchBar(props: SearchBarProps) {
 
   function onSubmit(e: any) {
     e.preventDefault();
-    setIsSearching(true);
     // TODO: validation may also be async, so return a promise that resolves to a boolean
     const searchValid = validationPredicate(searchBarText);
     setIsSearchValid(searchValid);
@@ -82,6 +81,7 @@ function SearchBar(props: SearchBarProps) {
     // show updated states based on search result
     const name = searchBarText;
     const searchSuccess = successPredicate(name);
+    setIsSearching(true);
     setShowDefaultText(false);
     setSubmittedName(name);
     setSearchSubmitted(true);
