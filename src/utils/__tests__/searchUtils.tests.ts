@@ -12,6 +12,7 @@ describe('isArNSDomainNameValid', () => {
     'trailingdash-',
     'namewithcharacter.init',
     'name with space',
+    'namelongerthanthirtytwocharacters',
   ];
 
   test.each(invalidNames)(
