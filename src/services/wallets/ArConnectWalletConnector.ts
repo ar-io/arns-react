@@ -1,9 +1,10 @@
+import { PermissionType } from 'arconnect';
 import Arweave from 'arweave';
 import Ar from 'arweave/node/ar';
 
 import { ArweaveWalletConnector } from '../../types';
 
-const ARCONNECT_WALLET_PERMISSIONS = [
+const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [
   'ACCESS_ADDRESS',
   'ACCESS_ALL_ADDRESSES',
   'ACCESS_PUBLIC_KEY',
@@ -11,7 +12,7 @@ const ARCONNECT_WALLET_PERMISSIONS = [
 ];
 
 export class ArConnectWalletConnector implements ArweaveWalletConnector {
-  private _wallet: any;
+  private _wallet: Window['arweaveWallet'];
   private _arweave: Arweave;
   private _ar: Ar = new Ar();
 
@@ -43,5 +44,60 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
       await this.getWalletAddress(),
     );
     return this._ar.winstonToAr(winstonBalance);
+  }
+
+  async getWalletANTs(
+    cursor?: string,
+  ): Promise<{ ids: string[]; cursor?: string }> {
+    const query = {
+      query: `
+      { 
+        transactions (
+          owners:["ZjmB2vEUlHlJ7-rgJkYP09N5IzLPhJyStVrK5u9dDEo"]
+          tags:[
+            {
+              name: "App-Name",
+              values: ["SmartWeaveAction"]
+            }
+          ]
+          sort: HEIGHT_DESC
+          ${cursor ? `after: ${cursor}` : ''}
+        ) {
+          pageInfo {
+            hasNextPage
+          }
+          edges {
+            cursor
+            node {
+              id
+              block {
+                height
+              }
+            }
+          }
+        }
+      }`,
+    };
+    const response = await this._arweave.api.post('/graphql', query);
+    const { data } = response.data;
+    const fetchedANTids: Set<string> = new Set();
+    let newCursor: string | undefined = undefined;
+    if (data?.transactions?.edges?.length) {
+      data.transactions.edges
+        .map((e: any) => ({
+          id: e.node.id,
+          cursor: e.cursor,
+        }))
+        .forEach((ant: { id: string; cursor: string }) => {
+          fetchedANTids.add(ant.id);
+          if (cursor) {
+            newCursor = ant.cursor;
+          }
+        });
+    }
+    return {
+      ids: [...fetchedANTids],
+      cursor: newCursor,
+    };
   }
 }

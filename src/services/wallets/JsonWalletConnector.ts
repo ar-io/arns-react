@@ -58,4 +58,15 @@ export class JsonWalletConnector implements ArweaveWalletConnector {
   async getWalletBalanceAR(): Promise<string> {
     throw Error('Not implemented!');
   }
+
+  async getWalletANTs(
+    cursor?: string | undefined, // eslint-disable-line
+    cachedANTs?: Set<string> | undefined, // eslint-disable-line
+  ): Promise<{
+    ids: string[];
+    cached: Set<string>;
+    cursor?: string | undefined;
+  }> {
+    throw Error('Not implemented yet!');
+  }
 }
