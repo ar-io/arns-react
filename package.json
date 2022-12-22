@@ -22,6 +22,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.6.0",
+    "react-loader-spinner": "^5.3.4",
     "react-router-dom": "^6.4.2",
     "vite-plugin-package-version": "^1.0.2",
     "warp-contracts": "1.2.35"

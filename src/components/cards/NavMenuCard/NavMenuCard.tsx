@@ -1,36 +1,49 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { useIsMobile } from '../../../hooks/index';
+import { useIsMobile, useWalletAddress } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ArweaveWalletConnector } from '../../../types';
 import { ROUTES } from '../../../utils/routes';
 import { AccountIcon, CopyIcon, MenuIcon } from '../../icons';
 import ConnectButton from '../../inputs/buttons/ConnectButton/ConnectButton';
 import MenuButton from '../../inputs/buttons/MenuButton/MenuButton';
-import NavBarLink from '../../layout/Navbar/NavBarLink/NavBarLink';
+import { Loader, NavBarLink } from '../../layout';
 import './styles.css';
 
 function NavMenuCard() {
-  const [{ walletAddress, wallet }, dispatchGlobalState] = useGlobalState();
+  const [{}, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
   const [showMenu, setShowMenu] = useState(false);
-  const [walletDetails, setWalletDetails] = useState({});
+  const [walletDetails, setWalletDetails] = useState<{
+    AR: number | undefined | string;
+  }>({
+    AR: undefined,
+  });
   const [walletCopied, setWalletCopied] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
+  const { wallet, walletAddress } = useWalletAddress();
+
   useEffect(() => {
+    if (wallet) {
+      resetWalletDetails();
+      fetchWalletDetails(wallet);
+    }
+
     if (!menuRef.current) {
       return;
     }
     document.addEventListener('mousedown', handleClickOutside);
 
-    if (wallet) {
-      fetchWalletDetails(wallet!);
-    }
-
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [menuRef, showMenu, wallet]);
+  }, [menuRef, showMenu, wallet, walletAddress]);
+
+  function resetWalletDetails() {
+    setWalletDetails({
+      AR: undefined,
+    });
+  }
 
   async function fetchWalletDetails(wallet: ArweaveWalletConnector) {
     const arBalance = await wallet.getWalletBalanceAR();
@@ -63,10 +76,6 @@ function NavMenuCard() {
     try {
       await wallet?.disconnect();
       // reset state
-      dispatchGlobalState({
-        type: 'setWalletAddress',
-        payload: undefined,
-      });
       dispatchGlobalState({
         type: 'setWallet',
         payload: undefined,
@@ -149,7 +158,12 @@ function NavMenuCard() {
                     className="flex-row flex-space-between navbar-link hover"
                   >
                     <span>{key}</span>
-                    <span className="faded">{value as string}</span>
+                    {value ? (
+                      <span className="faded">{value}</span>
+                    ) : (
+                      // TODO: add error icon with hover for error details
+                      <Loader size={20} />
+                    )}
                   </span>
                 );
               })}

@@ -1,10 +1,12 @@
 import { useEffect } from 'react';
 
+import { useWalletAddress } from '../../hooks';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 
 export default function useConnectWalletModal() {
   // eslint-disable-next-line
-  const [{ showConnectWallet, walletAddress }, dispatch] = useGlobalState();
+  const [{ showConnectWallet }, dispatch] = useGlobalState();
+  const { walletAddress } = useWalletAddress();
 
   useEffect(() => {
     if (walletAddress) {

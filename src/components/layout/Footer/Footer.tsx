@@ -2,10 +2,10 @@ function Footer() {
   return (
     <div className="flex-row flex-center">
       <div className="text faded center">
-        v{VITE_CONFIG.version}
+        v{process.env.npm_package_version}
         <br />
         <br />
-        Copyright {new Date().getFullYear()}
+        Copyright 2021 - {new Date().getFullYear()}
       </div>
     </div>
   );

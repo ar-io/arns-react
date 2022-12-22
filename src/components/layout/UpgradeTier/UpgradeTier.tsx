@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { useWalletAddress } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import {
@@ -18,7 +19,6 @@ function UpgradeTier() {
   const [{ arnsSourceContract }] = useGlobalState();
   // name is passed down from search bar to calculate price
   const [priceInfo, setPriceInfo] = useState(false);
-
   const [{ fee, leaseDuration, tier, domain }, dispatchRegisterState] =
     useRegistrationState();
 

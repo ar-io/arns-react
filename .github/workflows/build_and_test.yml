@@ -31,3 +31,9 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: dist
+
+      - name: Send Slack Notification
+        env:
+          SLACK_TITLE: New Deploy 🚀 - https://ar-io.github.io/arns-react/
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        uses: rtCamp/action-slack-notify@v2

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-import useIsMobile from '../../../../hooks/useIsMobile/useIsMobile';
+import { useIsMobile, useWalletAddress } from '../../../../hooks';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../../state/contexts/RegistrationState';
 import { SearchBarProps } from '../../../../types';
@@ -106,7 +106,6 @@ function SearchBar(props: SearchBarProps) {
     }
     if (!searchSuccess && name && values) {
       setSearchResult(values[name]);
-      return;
     }
   }
 

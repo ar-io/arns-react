@@ -19,6 +19,7 @@ export type GlobalState = {
 const initialState: GlobalState = {
   arweave: new Arweave({
     host: 'arweave.dev',
+    protocol: 'https',
   }),
   arnsContractId: 'bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U',
   arnsSourceContract: { records: {}, fees: {} },
