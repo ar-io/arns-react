@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 
-import { defaultDataProvider } from '../../../services/arweave';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import RegistrationStateProvider from '../../../state/contexts/RegistrationState';
 import { registrationReducer } from '../../../state/reducers/RegistrationReducer';
@@ -64,7 +63,7 @@ function Home() {
         ),
         nextCondition: true,
         backCondition: true,
-        onNext: (id: string) => true,
+        onNext: () => true,
       },
       1: {
         component: <RegisterNameForm />,
@@ -77,19 +76,19 @@ function Home() {
         component: <ConfirmRegistration />,
         nextCondition: false,
         backCondition: true,
-        onNext: (id: string) => true,
+        onNext: () => true,
       },
       3: {
         component: <DeployRegistration />,
         nextCondition: false,
         backCondition: false,
-        onNext: (id: string) => true,
+        onNext: () => true,
       },
       4: {
         component: <SuccessfulRegistration />,
         nextCondition: false,
         backCondition: false,
-        onNext: (id: string) => true,
+        onNext: () => true,
       },
     });
   }, [arnsSourceContract, isSearching]);

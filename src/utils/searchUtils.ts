@@ -122,7 +122,7 @@ export async function isAntValid(
       );
       if (keyResults.includes(false)) {
         const missingKeys = () => {
-          let keys = [];
+          const keys = [];
           for (let i = 0; i < keyResults.length; i++) {
             if (keyResults[i] === false) {
               keys.push(ANT_CONTRACT_STATE_KEYS[i]);

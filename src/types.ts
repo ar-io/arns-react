@@ -1,5 +1,4 @@
 import type { Dispatch, SetStateAction } from 'react';
-import { WriteInteractionResponse } from 'warp-contracts';
 
 export type ArNSDomains = { [x: string]: any };
 

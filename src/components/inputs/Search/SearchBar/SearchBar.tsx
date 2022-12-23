@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-import { useIsMobile, useWalletAddress } from '../../../../hooks';
+import { useIsMobile } from '../../../../hooks';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../../state/contexts/RegistrationState';
 import { SearchBarProps } from '../../../../types';

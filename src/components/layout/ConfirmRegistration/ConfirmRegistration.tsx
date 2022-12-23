@@ -1,14 +1,12 @@
 import { useState } from 'react';
 
 import { defaultDataProvider } from '../../../services/arweave';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { NAME_PRICE_INFO } from '../../../utils/constants';
 import { AlertCircle } from '../../icons';
 import './styles.css';
 
 function ConfirmRegistration() {
-  const [{ arnsContractId }] = useGlobalState();
   const [
     {
       domain,

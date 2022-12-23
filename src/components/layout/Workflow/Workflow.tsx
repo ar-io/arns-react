@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { WorkflowProps } from '../../../types';
-import { MAX_LEASE_DURATION } from '../../../utils/constants';
 import { isArNSDomainNameAvailable } from '../../../utils/searchUtils';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
 

@@ -28,7 +28,6 @@ export class ArweaveCompositeDataProvider implements SmartweaveContractSource {
 
   async writeTransaction(
     payload: any,
-    dryWrite: boolean = true,
   ): Promise<ArweaveTransactionId | undefined> {
     try {
       if (!payload) {
@@ -43,16 +42,6 @@ export class ArweaveCompositeDataProvider implements SmartweaveContractSource {
       }
       // todo validate bundlr response
       return result;
-    } catch (Error) {
-      console.error(Error);
-      return;
-    }
-  }
-  async connect(): Promise<void> {
-    try {
-      console.log(this.contractId);
-      await this._warp.contract(this.contractId).connect('use_wallet');
-      return;
     } catch (Error) {
       console.error(Error);
       return;

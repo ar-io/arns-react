@@ -1,4 +1,4 @@
-import { Warp, WarpFactory, WriteInteractionResponse } from 'warp-contracts';
+import { Warp, WarpFactory } from 'warp-contracts';
 
 import {
   ArNSContractState,
@@ -39,7 +39,6 @@ export class WarpDataProvider implements SmartweaveContractSource {
 
   async writeTransaction(
     payload: any,
-    dryWrite: boolean = true,
   ): Promise<ArweaveTransactionId | undefined> {
     try {
       const contract = this._warp
