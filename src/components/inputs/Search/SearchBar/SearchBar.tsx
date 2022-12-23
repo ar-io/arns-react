@@ -79,16 +79,17 @@ function SearchBar(props: SearchBarProps) {
 
   function onSubmit(e: any) {
     e.preventDefault();
-    dispatchGlobalState({
-      type: 'setIsSearching',
-      payload: true,
-    });
+
     // validate again, just in case
     const searchValid = validationPredicate(searchBarText);
     setIsSearchValid(searchValid);
     if (!searchValid) {
       return;
     }
+    dispatchGlobalState({
+      type: 'setIsSearching',
+      payload: true,
+    });
 
     // show updated states based on search result
     const name = searchBarText;

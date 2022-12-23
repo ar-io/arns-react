@@ -20,7 +20,7 @@ export type ANTContractState = {
   evolve: boolean | undefined;
   name: string;
   owner: ArweaveTransactionId;
-  records: { [x: string]: ArweaveTransactionId };
+  records: { '@': ArweaveTransactionId; [x: string]: ArweaveTransactionId };
   ticker: string;
 };
 
@@ -117,6 +117,7 @@ export type WorkflowProps = {
       component: JSX.Element;
       nextCondition: boolean;
       backCondition: boolean;
+      onNext: (id: string) => boolean;
     };
   };
 };

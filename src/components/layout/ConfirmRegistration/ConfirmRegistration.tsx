@@ -8,7 +8,7 @@ import { AlertCircle } from '../../icons';
 import './styles.css';
 
 function ConfirmRegistration() {
-  const [{ walletAddress, arnsContractId }] = useGlobalState();
+  const [{ arnsContractId }] = useGlobalState();
   const [
     {
       domain,
@@ -36,8 +36,6 @@ function ConfirmRegistration() {
       function: 'buyRecord',
       name: domain,
       contractTransactionId: antID,
-      years: leaseDuration,
-      tier: tier,
     });
   }
 
@@ -86,7 +84,7 @@ function ConfirmRegistration() {
           tokens) and the Arweave network fee (paid in AR).
         </span>
         <button
-          className="section-header toolTip"
+          className="section-header tool-tip"
           onClick={() => {
             setPriceInfo(!priceInfo);
           }}

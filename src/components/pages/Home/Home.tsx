@@ -16,7 +16,6 @@ import { FeaturedDomains, RegisterNameForm } from '../../layout';
 import { SearchBarFooter, SearchBarHeader } from '../../layout';
 import ConfirmRegistration from '../../layout/ConfirmRegistration/ConfirmRegistration';
 import DeployRegistration from '../../layout/DeployRegistration/DeployRegistration';
-import RegisterNameModal from '../../layout/RegisterNameForm/RegisterNameForm';
 import SuccessfulRegistration from '../../layout/SuccessfulRegistration/SuccessfulRegistration';
 import Workflow from '../../layout/Workflow/Workflow';
 import './styles.css';
@@ -65,29 +64,32 @@ function Home() {
         ),
         nextCondition: true,
         backCondition: true,
+        onNext: (id: string) => true,
       },
       1: {
         component: <RegisterNameForm />,
         nextCondition: true,
         backCondition: true,
-        onNext: (id: string) => {
-          const validation = isAntValid(id);
-        },
+        onNext: async (id: string) =>
+          await isAntValid(id, arnsSourceContract.approvedANTSourceCodeTxs),
       },
       2: {
         component: <ConfirmRegistration />,
         nextCondition: false,
         backCondition: true,
+        onNext: (id: string) => true,
       },
       3: {
         component: <DeployRegistration />,
         nextCondition: false,
         backCondition: false,
+        onNext: (id: string) => true,
       },
       4: {
         component: <SuccessfulRegistration />,
         nextCondition: false,
         backCondition: false,
+        onNext: (id: string) => true,
       },
     });
   }, [arnsSourceContract, isSearching]);

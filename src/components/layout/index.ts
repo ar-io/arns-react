@@ -17,11 +17,5 @@ export {
   NavGroup,
   SearchBarFooter,
   SearchBarHeader,
-};
-export {
-  FeaturedDomains,
-  Layout,
-  SearchBarFooter,
-  SearchBarHeader,
   RegisterNameForm,
 };

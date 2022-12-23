@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { defaultDataProvider } from '../../../services/arweave';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
@@ -7,8 +7,9 @@ import {
   ARNS_TXID_ENTRY_REGEX,
   ARNS_TXID_REGEX,
 } from '../../../utils/constants';
-import { isAntValid, tagsToObject } from '../../../utils/searchUtils';
+import { isAntValid, isArweaveTransactionID } from '../../../utils/searchUtils';
 import Dropdown from '../../inputs/Dropdown/Dropdown';
+import Loader from '../Loader/Loader';
 import UpgradeTier from '../UpgradeTier/UpgradeTier';
 import './styles.css';
 
@@ -17,14 +18,19 @@ function RegisterNameForm() {
     useRegistrationState();
 
   const [{ arnsSourceContract }] = useGlobalState();
-
   const [isValidAnt, setIsValidAnt] = useState<boolean | undefined>(undefined);
+  const [isValidating, setIsValidating] = useState(false);
+
+  useEffect(() => {
+    reset();
+  }, []);
 
   function reset() {
     setIsValidAnt(undefined);
+    setIsValidating(false);
     dispatchRegisterState({
       type: 'setAntID',
-      payload: undefined,
+      payload: '',
     });
     dispatchRegisterState({
       type: 'setTTL',
@@ -34,7 +40,12 @@ function RegisterNameForm() {
 
   async function handleAntId(e: any) {
     e.preventDefault();
+    setIsValidating(true);
     const id = e.target.value.trim();
+    if (!id) {
+      reset();
+      return;
+    }
 
     try {
       if (id === '') {
@@ -48,6 +59,7 @@ function RegisterNameForm() {
           type: 'setAntID',
           payload: id,
         });
+        setIsValidating(false);
         return;
       }
       // advanced checking for confirmations and if the contract is a valid ANT contract
@@ -83,16 +95,29 @@ function RegisterNameForm() {
         type: 'setTicker',
         payload: ticker,
       });
-      dispatchRegisterState({
-        type: 'setTargetID',
-        payload: records['@'],
-      });
+      // legacy targetID condition
+      if (records['@']) {
+        if (records['@'].transactionId) {
+          dispatchRegisterState({
+            type: 'setTargetID',
+            payload: records['@'].transactionId,
+          });
+        }
+        if (!records['@'].transactionId && isArweaveTransactionID(records['@']))
+          dispatchRegisterState({
+            type: 'setTargetID',
+            payload: records['@'],
+          });
+      }
+
       setIsValidAnt(true);
+      setIsValidating(false);
 
       return;
     } catch (Error) {
       console.error(Error);
       setIsValidAnt(false);
+      setIsValidating(false);
       return;
     }
   }
@@ -104,21 +129,28 @@ function RegisterNameForm() {
         <div className="section-header">Register Domain</div>
         <div className="register-inputs center">
           <div className="input-group center column">
-            <input
-              className="data-input center"
-              type="text"
-              placeholder="Enter an ANT ID"
-              value={antID}
-              onChange={(e) => handleAntId(e)}
-              maxLength={43}
-              style={
-                isValidAnt && antID
-                  ? { border: 'solid 2px var(--success-green)' }
-                  : !isValidAnt && antID
-                  ? { border: 'solid 2px var(--error-red)' }
-                  : {}
-              }
-            />
+            <div className="flex-row center tool-tip">
+              <input
+                className="data-input center"
+                type="text"
+                placeholder="Enter an ANT ID"
+                value={antID}
+                onChange={(e) => {
+                  handleAntId(e);
+                }}
+                maxLength={43}
+                style={
+                  isValidAnt && antID
+                    ? { border: 'solid 2px var(--success-green)' }
+                    : !isValidAnt && antID
+                    ? { border: 'solid 2px var(--error-red)' }
+                    : {}
+                }
+              />
+              <div className={'validation-spinner'}>
+                {isValidating ? <Loader size={25} color={'black'} /> : <></>}
+              </div>
+            </div>
           </div>
           <div className="input-group center">
             <Dropdown

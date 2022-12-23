@@ -33,6 +33,16 @@
   padding: 0;
   overflow: visible;
 }
+.validation-spinner {
+  display: flex;
+  position: absolute;
+  width: fit-content;
+  height: fit-content;
+  right: 6px;
+  top: 12.5%;
+  margin: auto;
+  z-index: 10;
+}
 
 @media screen and (max-width: 600px) {
   .register-name-modal {
