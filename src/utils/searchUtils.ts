@@ -95,7 +95,11 @@ export async function isAntValid(
       throw Error('Invalid WARP CONTRACT tags - missing Contract-Src tag');
     }
     if (
-      !approvedANTSourceCodeTxs.includes(contractTxnData.tags['Contract-Src'])
+      // stubbing new test ant source code transaction
+      ![
+        ...approvedANTSourceCodeTxs,
+        'XX6a-sLbbz6qcCDcB38pwUGNfiPhwsIMy-G9O3hpinI',
+      ].includes(contractTxnData.tags['Contract-Src'])
     ) {
       throw Error(`ANT is not using an approved source code contract, approved source codes are ${approvedANTSourceCodeTxs.map(
         (srcCodeID: string) => {
