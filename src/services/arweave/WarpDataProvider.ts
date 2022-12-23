@@ -34,7 +34,7 @@ export class WarpDataProvider implements SmartweaveContractSource {
       );
     }
 
-    return state as ArNSContractState;
+    return state;
   }
 
   async writeTransaction(
