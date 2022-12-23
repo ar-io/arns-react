@@ -15,7 +15,6 @@ export class ArweaveCompositeDataProvider implements SmartweaveContractSource {
   constructor(providers: SmartweaveContractSource[]) {
     this._providers = providers;
     this._warp = WarpFactory.forMainnet();
-    this.contractId = null;
   }
 
   async getContractState(
@@ -32,29 +31,21 @@ export class ArweaveCompositeDataProvider implements SmartweaveContractSource {
     dryWrite: boolean = true,
   ): Promise<ArweaveTransactionId | undefined> {
     try {
-      const contract = this._warp
-        .contract('bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U')
-        .connect('use_wallet');
-      console.log(contract);
       if (!payload) {
         throw Error(`interaction data is missing from payload: ${payload}`);
       }
-      const result = await contract.writeInteraction(payload);
+      const result = await Promise.any(
+        this._providers.map((provider) => provider.writeTransaction(payload)),
+      );
       // todo: check for dry write options on writeInteraction
-      console.log(result);
       if (!result) {
         throw Error('No result from write interation');
       }
-      const { bundlrResponse, originalTxId } = result;
-      console.log(bundlrResponse, originalTxId);
-      if (!originalTxId) {
-        throw Error('No transaction ID from write interaction');
-      }
-
       // todo validate bundlr response
-      return originalTxId;
+      return result;
     } catch (Error) {
       console.error(Error);
+      return;
     }
   }
   async connect(): Promise<void> {

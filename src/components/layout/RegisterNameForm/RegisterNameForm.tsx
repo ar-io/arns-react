@@ -62,19 +62,23 @@ function RegisterNameForm() {
         setIsValidating(false);
         return;
       }
+      dispatchRegisterState({
+        type: 'setAntID',
+        payload: id,
+      });
       // advanced checking for confirmations and if the contract is a valid ANT contract
       if (!isAntValid(id, arnsSourceContract.approvedANTSourceCodeTxs)) {
         throw Error('Ant is not valid');
       }
 
-      const dataProvider = defaultDataProvider();
+      const dataProvider = defaultDataProvider(id);
       const state = await dataProvider.getContractState(id);
       if (state == undefined) {
         throw Error('ANT contract state is undefined');
       }
 
       const { controller, name, owner, ticker, records } = state;
-      console.log({ controller, name, owner, ticker, records });
+      console.log(state);
       dispatchRegisterState({
         type: 'setAntID',
         payload: id,

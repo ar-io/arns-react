@@ -1,4 +1,4 @@
-import { Warp, WarpFactory } from 'warp-contracts';
+import { Warp, WarpFactory, WriteInteractionResponse } from 'warp-contracts';
 
 import {
   ArNSContractState,
@@ -10,9 +10,9 @@ export class WarpDataProvider implements SmartweaveContractSource {
   private _warp: Warp;
   contractId: any;
 
-  constructor() {
+  constructor(contractId: ArweaveTransactionId) {
     this._warp = WarpFactory.forMainnet();
-    this.contractId = null;
+    this.contractId = contractId;
   }
 
   async getContractState(
@@ -42,28 +42,21 @@ export class WarpDataProvider implements SmartweaveContractSource {
     dryWrite: boolean = true,
   ): Promise<ArweaveTransactionId | undefined> {
     try {
-      const contract = this._warp.contract(payload.contractTransactionId);
+      const contract = this._warp
+        .contract(this.contractId)
+        .connect('use_wallet');
       const result = await contract.writeInteraction(payload);
       // todo: check for dry write options on writeInteraction
       if (!result) {
         throw Error('No result from write interation');
       }
-      const { bundlrResponse, originalTxId } = result;
+      const { originalTxId } = result;
       if (!originalTxId) {
         throw Error('No transaction ID from write interaction');
       }
 
       // todo validate bundlr response
       return originalTxId;
-    } catch (Error) {
-      console.error(Error);
-    }
-  }
-  async connect(): Promise<void> {
-    try {
-      console.log(this.contractId);
-      await this._warp.contract(this.contractId).connect('use_wallet');
-      return;
     } catch (Error) {
       console.error(Error);
       return;

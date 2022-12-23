@@ -29,9 +29,10 @@ function ConfirmRegistration() {
   const [priceInfo, setPriceInfo] = useState(false);
 
   async function buyArnsName() {
-    const dataProvider = defaultDataProvider();
-    await dataProvider.getContractState(arnsContractId);
-    dataProvider.connect();
+    if (!antID) {
+      return;
+    }
+    const dataProvider = defaultDataProvider(antID);
     await dataProvider.writeTransaction({
       function: 'buyRecord',
       name: domain,

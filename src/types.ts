@@ -1,4 +1,5 @@
 import type { Dispatch, SetStateAction } from 'react';
+import { WriteInteractionResponse } from 'warp-contracts';
 
 export type ArNSDomains = { [x: string]: any };
 
@@ -51,12 +52,7 @@ export interface SmartweaveContractSource {
     payload: any,
     dryWrite?: boolean,
   ): Promise<ArweaveTransactionId | undefined>;
-  connect(): void;
 }
-// add writeTransaction: returns txid
-// add getTransactionStatus: returns confirmations, blockheight
-//
-//
 
 export interface ArweaveWalletConnector {
   connect(): Promise<void>;
