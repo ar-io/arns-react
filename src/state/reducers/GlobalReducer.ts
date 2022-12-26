@@ -38,11 +38,6 @@ export const reducer = (state: GlobalState, action: Action): GlobalState => {
         ...state,
         showConnectWallet: action.payload,
       };
-    case 'setIsSearching':
-      return {
-        ...state,
-        isSearching: action.payload,
-      };
     case 'setGateway':
       return {
         ...state,
@@ -53,7 +48,11 @@ export const reducer = (state: GlobalState, action: Action): GlobalState => {
         ...state,
         arnsSourceContract: action.payload,
       };
-
+    case 'setIsSearching':
+      return {
+        ...state,
+        isSearching: action.payload,
+      };
     default:
       return state;
   }

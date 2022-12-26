@@ -4,6 +4,7 @@ import Loader from './Loader/Loader';
 import NavBarLink from './Navbar/NavBarLink/NavBarLink';
 import NavGroup from './Navbar/NavGroup/NavGroup';
 import NavBar from './Navbar/Navbar';
+import RegisterNameForm from './RegisterNameForm/RegisterNameForm';
 import SearchBarFooter from './SearchBarFooter/SearchBarFooter';
 import SearchBarHeader from './SearchBarHeader/SearchBarHeader';
 
@@ -16,4 +17,5 @@ export {
   NavGroup,
   SearchBarFooter,
   SearchBarHeader,
+  RegisterNameForm,
 };

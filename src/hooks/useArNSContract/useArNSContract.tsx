@@ -18,7 +18,7 @@ export default function useArNSContract() {
       }
 
       setSendingContractState(true);
-      const dataProvider = defaultDataProvider();
+      const dataProvider = defaultDataProvider(arnsContractId);
 
       const arnsContractState = await dataProvider.getContractState(contractId);
       if (!arnsContractState) {

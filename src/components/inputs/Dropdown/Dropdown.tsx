@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { DropdownProps } from '../../../types';
 import { ChevronDownIcon, ChevronUpIcon } from '../../icons';
@@ -16,6 +16,16 @@ function Dropdown(props: DropdownProps) {
   } = props;
 
   const [showOptions, setShowOptions] = useState(false);
+  const [header, setHeader] = useState(<></>);
+
+  useEffect(() => {
+    if (headerElement) {
+      setHeader(headerElement);
+    }
+    if (!headerElement) {
+      setHeader(<></>);
+    }
+  }, []);
 
   return (
     <>
@@ -44,7 +54,7 @@ function Dropdown(props: DropdownProps) {
               style={{ borderBottom: 'none' }}
               onClick={() => setShowOptions(!showOptions)}
             >
-              {showSelected ? selected : <></>}
+              {showSelected && selected != undefined ? selected : <></>}
               {showChevron ? (
                 <ChevronUpIcon
                   className="dropdown-chevron"
@@ -57,20 +67,8 @@ function Dropdown(props: DropdownProps) {
               )}
             </button>
             <div className="active-data-dropdown">
-              {headerElement ? (
-                <div
-                  className="data-dropdown dropdown-option center"
-                  style={{
-                    border: 'none',
-                    height: 'fit-content',
-                    paddingBottom: '10px',
-                  }}
-                >
-                  {headerElement}
-                </div>
-              ) : (
-                <></>
-              )}
+              {header}
+              {/* eslint-disable-next-line */}
               {Object.entries(options).map(([key, value], index) => {
                 if (index === selected) {
                   return;
@@ -90,7 +88,7 @@ function Dropdown(props: DropdownProps) {
                         setShowOptions(!showOptions);
                       }}
                     >
-                      {key}
+                      {value}
                     </button>
                   );
                 }
@@ -104,7 +102,7 @@ function Dropdown(props: DropdownProps) {
                         setShowOptions(!showOptions);
                       }}
                     >
-                      {key}
+                      {value}
                     </button>
                   );
                 }

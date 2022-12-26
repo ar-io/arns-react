@@ -20,4 +20,10 @@ export class LocalFileSystemDataProvider implements SmartweaveContractSource {
     }
     return;
   }
+  async writeTransaction(
+    payload: any,
+  ): Promise<ArweaveTransactionId | undefined> {
+    const stub = JSON.stringify(payload);
+    return stub;
+  }
 }
