@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 
 import { defaultDataProvider } from '../../../services/arweave';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
@@ -22,7 +22,7 @@ function ManageAntModal({
   setShowModal: Dispatch<SetStateAction<boolean>>;
 }) {
   const [{ arnsSourceContract }] = useGlobalState();
-
+  const modalRef = useRef(null);
   const [contractState, setContractState] = useState<ANTContractState>();
   const [deploymentStatus, setDeploymentStatus] = useState({
     confirmations: 0,
@@ -37,6 +37,13 @@ function ManageAntModal({
     const names = getAssociatedNames();
     setAssociatedNames(names);
   }, [contractId]);
+
+  function handleClickOutside(e: any) {
+    if (modalRef.current && modalRef.current === e.target) {
+      setShowModal(false);
+    }
+    return;
+  }
 
   function getAssociatedNames() {
     const domains: string[] = [];
@@ -72,7 +79,12 @@ function ManageAntModal({
     setDeploymentStatus({ confirmations: confirmations, icon: icon() });
   }
   return (
-    <div className="modal-container" style={{ background: '#1E1E1E' }}>
+    <div
+      className="modal-container"
+      style={{ background: '#1E1E1E' }}
+      ref={modalRef}
+      onClick={handleClickOutside}
+    >
       <div className="flex-column" style={{ margin: '10%' }}>
         <div className="flex-row">
           <span

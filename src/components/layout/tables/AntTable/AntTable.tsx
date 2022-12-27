@@ -1,4 +1,3 @@
-import { table } from 'console';
 import { useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../../hooks';
@@ -37,6 +36,7 @@ function AntTable() {
       setLoading(false);
     });
   }, [pageRange]);
+  // todo: make each row item responsible for loading its state to improve UX
 
   async function updateTableItems() {
     const items = [];
