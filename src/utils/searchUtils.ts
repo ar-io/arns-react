@@ -159,3 +159,17 @@ export function tagsToObject(tags: Array<{ name: string; value: string }>) {
 
   return newTags;
 }
+
+export async function getAntConfirmations(id: ArweaveTransactionId) {
+  try {
+    const confirmations = await arweave.api
+      .get(`/tx/${id}/status`)
+      .then((res) => {
+        return res.data.number_of_confirmations;
+      });
+    return confirmations;
+  } catch (error) {
+    console.error(error);
+    return 0;
+  }
+}

@@ -55,7 +55,7 @@ export const MAX_LEASE_DURATION = 200;
 export const MIN_LEASE_DURATION = 1;
 
 export const TEST_ANT_BALANCE = [
-  '0Qpw-swrXbkrEaJdey1pnCnsD1aphWYVhf6BknhIrQw',
+  '6dUiTQKJCVD7c9icQhbbzfI-Le_hC4sXRDx1OQQ6jMI',
   '0Qpw-swrXbkrEaJdey1pnCnsD1aphWYVhf6BknhIrQw',
   '0Qpw-swrXbkrEaJdey1pnCnsD1aphWYVhf6BknhIrQw',
   '0Qpw-swrXbkrEaJdey1pnCnsD1aphWYVhf6BknhIrQw',

@@ -8,8 +8,8 @@ function RowItem({
   textColor,
 }: {
   col1: string;
-  col2: string;
-  col3: string;
+  col2: string | JSX.Element;
+  col3: string | JSX.Element;
   col4: JSX.Element;
   col5: JSX.Element;
   bgColor: string;

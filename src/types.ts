@@ -20,7 +20,12 @@ export type ANTContractState = {
   evolve: boolean | undefined;
   name: string;
   owner: ArweaveTransactionId;
-  records: { '@': ArweaveTransactionId; [x: string]: ArweaveTransactionId };
+  records: {
+    [x: string]: {
+      transactionId: ArweaveTransactionId;
+      ttlSeconds: string;
+    };
+  };
   ticker: string;
 };
 

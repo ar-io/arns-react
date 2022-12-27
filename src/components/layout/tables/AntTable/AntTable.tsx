@@ -1,15 +1,23 @@
 import { table } from 'console';
 import { useEffect, useState } from 'react';
 
+import { useIsMobile } from '../../../../hooks';
 import { defaultDataProvider } from '../../../../services/arweave';
 import { TEST_ANT_BALANCE } from '../../../../utils/constants';
+import { getAntConfirmations } from '../../../../utils/searchUtils';
 import {
+  AlertCircle,
+  AlertTriangleIcon,
   BookmarkIcon,
   BorderOuterIcon,
+  CircleCheck,
   FileCodeIcon,
   RefreshAlertIcon,
 } from '../../../icons';
 import Paginator from '../../../inputs/Paginator/Paginator';
+import CopyTextButton from '../../../inputs/buttons/CopyTextButton/CopyTextButton';
+import ManageAssetButtons from '../../../inputs/buttons/ManageAssetButtons/ManageAssetButtons';
+import Loader from '../../Loader/Loader';
 import RowItem from '../RowItem/RowItem';
 import './styles.css';
 
@@ -18,34 +26,89 @@ function AntTable() {
   const [maxItemCount, setMaxItemCount] = useState(10);
   const [tableItems, setTableItems] = useState([<></>]);
 
-  // useEffect(()=>{
+  const [loading, setLoading] = useState(false);
+  const isMobile = useIsMobile();
 
-  //     updateTableItems().then(items => setTableItems(items))
+  useEffect(() => {
+    setLoading(true);
+    setTableItems([<></>]);
+    updateTableItems().then((items) => {
+      setTableItems(items);
+      setLoading(false);
+    });
+  }, [pageRange]);
 
-  // },[])
-
-  // async function updateTableItems(){
-  //     const items = []
-  //     for(let i = pageRange[0]; i < pageRange[1]; i++){
-  //         const dataProvider = defaultDataProvider()
-  //         const state = await dataProvider.getContractState(TEST_ANT_BALANCE[i])
-  //         // todo: get status from arweave transaction manager instead of manual query here
-  //         // todo: get txID's from connected user balance and/or favorited assets
-
-  //         items.push(
-  //             <RowItem
-  //             col1={state?.nickname}
-  //             col2={TEST_ANT_BALANCE[i]}
-  //             col3={state?.records["@"].transationId}
-  //             col4={<span className='text white bold'>STATUS</span>}
-  //             col5={<></>}
-  //             bgColor={"#1E1E1E"}
-  //             textColor={"var(--text-white)"}
-  //             />
-  //         )
-  //     }
-  //     return items
-  // }
+  async function updateTableItems() {
+    const items = [];
+    for (let i = pageRange[0]; i < pageRange[1]; i++) {
+      const dataProvider = defaultDataProvider(TEST_ANT_BALANCE[i]);
+      const state = await dataProvider.getContractState(TEST_ANT_BALANCE[i]);
+      // todo: get status from arweave transaction manager instead of manual query here
+      // todo: get txID's from connected user balance and/or favorited assets
+      const confirmations = await getAntConfirmations(TEST_ANT_BALANCE[i]);
+      const icon = () => {
+        if (confirmations > 0 && confirmations < 50) {
+          return (
+            <AlertTriangleIcon width={20} height={20} fill={'var(--accent)'} />
+          );
+        }
+        if (confirmations > 49) {
+          return (
+            <CircleCheck width={20} height={20} fill={'var(--success-green)'} />
+          );
+        }
+        return (
+          <AlertCircle width={20} height={20} fill={'var(--text-faded)'} />
+        );
+      };
+      const name = () => {
+        if (state.name.length > 20) {
+          return `${state.name.slice(0, 10)}...${state.name.slice(-10)}`;
+        }
+        return state.name;
+      };
+      items.push(
+        <RowItem
+          col1={name()}
+          col2={
+            <CopyTextButton
+              displayText={`${TEST_ANT_BALANCE[i].slice(
+                0,
+                6,
+              )}...${TEST_ANT_BALANCE[i].slice(-6)}`}
+              copyText={TEST_ANT_BALANCE[i]}
+              size={24}
+            />
+          }
+          col3={
+            state.records['@'].transactionId ? (
+              <CopyTextButton
+                displayText={`${state.records['@'].transactionId.slice(
+                  0,
+                  6,
+                )}...${state.records['@'].transactionId.slice(-6)}`}
+                copyText={state.records['@'].transactionId}
+                size={24}
+              />
+            ) : (
+              'N/A'
+            )
+          }
+          col4={
+            <span className="text white bold center">
+              {icon()}&nbsp;{!isMobile ? `${confirmations} / 50` : <></>}
+            </span>
+          }
+          col5={
+            <ManageAssetButtons asset={TEST_ANT_BALANCE[i]} assetType={'ant'} />
+          }
+          bgColor={'#1E1E1E'}
+          textColor={'var(--text-white)'}
+        />,
+      );
+    }
+    return items;
+  }
 
   return (
     <div className="flex-column center">
@@ -86,11 +149,17 @@ function AntTable() {
             </td>
           </tr>
         </thead>
-        <tbody>{tableItems}</tbody>
+        <tbody
+          className="flex-column center"
+          style={{ gap: '.5em', minHeight: 200 }}
+        >
+          {tableItems ? tableItems : <></>}
+          {loading ? <Loader size={100} /> : <></>}
+        </tbody>
       </table>
       <Paginator
-        itemCount={50}
-        itemsPerPage={10}
+        itemCount={TEST_ANT_BALANCE.length}
+        itemsPerPage={maxItemCount}
         pageRange={pageRange}
         setPageRange={setPageRange}
       />

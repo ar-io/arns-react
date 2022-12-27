@@ -184,6 +184,18 @@ button {
   box-shadow: 0px 0px 4px rgba(0, 0, 0);
   cursor: pointer;
 }
+.modal-container {
+  position: fixed;
+  display: flex;
+  background-color: var(--modal-bg);
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 100;
+}
 
 .page {
   display: flex;
@@ -423,5 +435,27 @@ button {
   .section-header {
     font-size: 14px;
     line-height: unset;
+  }
+  .assets-table-item:nth-child(1) {
+    left: 10px;
+  }
+  .assets-table-item:nth-child(2) {
+    left: 45%;
+  }
+  .assets-table-item:nth-child(3) {
+    display: none;
+  }
+  .assets-table-item:nth-child(4) {
+    right: 10px;
+  }
+  .assets-table-item:nth-child(5) {
+    display: none;
+  }
+  .assets-table-item {
+    font-size: 10px;
+  }
+  .assets-see-more-button {
+    width: 40px;
+    height: 30px;
   }
 }

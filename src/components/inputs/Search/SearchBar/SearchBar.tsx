@@ -94,7 +94,6 @@ function SearchBar(props: SearchBarProps) {
     // show updated states based on search result
     const name = searchBarText;
     const searchSuccess = successPredicate(name);
-    setIsSearching(true);
     setShowDefaultText(false);
     setSubmittedName(name);
     setSearchSubmitted(true);
