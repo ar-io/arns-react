@@ -36,7 +36,7 @@ function AntTable() {
       setLoading(false);
     });
   }, [pageRange]);
-  // todo: make each row item responsible for loading its state to improve UX
+  // todo: make each row item responsible for loading its state to improve UX, we want to see the row items, and THEN the info they contain
 
   async function updateTableItems() {
     const items = [];
