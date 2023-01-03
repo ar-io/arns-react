@@ -79,8 +79,7 @@ function SearchBar(props: SearchBarProps) {
 
   function onSubmit(e: any) {
     e.preventDefault();
-
-    // validate again, just in case
+    // TODO: validation may also be async, so return a promise that resolves to a boolean
     const searchValid = validationPredicate(searchBarText);
     setIsSearchValid(searchValid);
     if (!searchValid) {
