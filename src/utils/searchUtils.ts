@@ -4,7 +4,7 @@ import { ArweaveTransactionId } from '../types';
 import {
   ANT_CONTRACT_STATE_KEYS,
   ARNS_NAME_REGEX,
-  ARNS_TXID_REGEX,
+  ARNS_TX_ID_REGEX,
 } from './constants';
 
 export function isArNSDomainNameValid({ name }: { name?: string }): boolean {
@@ -71,7 +71,7 @@ export function isArweaveTransactionID(id: string) {
   if (!id) {
     return false;
   }
-  if (!ARNS_TXID_REGEX.test(id)) {
+  if (!ARNS_TX_ID_REGEX.test(id)) {
     return false;
   }
   return true;
@@ -82,7 +82,7 @@ export async function isAntValid(
   approvedANTSourceCodeTxs: ArweaveTransactionId[],
 ): Promise<boolean> {
   try {
-    if (!ARNS_TXID_REGEX.test(id)) {
+    if (!ARNS_TX_ID_REGEX.test(id)) {
       throw Error('ANT ID Not a valid arweave transaction ID');
     }
     const contractTxnData = await arweave.api
@@ -111,7 +111,6 @@ export async function isAntValid(
 
     const dataProvider = defaultDataProvider();
     dataProvider.getContractState(id).then((antContractState) => {
-      console.log(antContractState);
       if (!antContractState) {
         throw Error(
           `${id} is not a valid ANT contract, you may only register a name to a valid ANT contract`,

@@ -32,6 +32,7 @@ export class ArweaveCompositeDataProvider implements SmartweaveContractSource {
 
     // Sequentially write - to avoid posting to multiple sources
     for (const provider of this._providers) {
+      // TODO: add error handling to wrap failed ones and try the next
       const result = await provider.writeTransaction(payload);
       if (result) {
         return result;
