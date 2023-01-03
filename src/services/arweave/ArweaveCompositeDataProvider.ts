@@ -1,5 +1,3 @@
-import { Warp, WarpFactory } from 'warp-contracts';
-
 import {
   ANTContractState,
   ArNSContractState,
@@ -9,12 +7,10 @@ import {
 
 export class ArweaveCompositeDataProvider implements SmartweaveContractSource {
   private _providers: SmartweaveContractSource[];
-  private _warp: Warp;
-  contractId: any;
+
   // TODO: implement strategy methods
   constructor(providers: SmartweaveContractSource[]) {
     this._providers = providers;
-    this._warp = WarpFactory.forMainnet();
   }
 
   async getContractState(
@@ -26,25 +22,20 @@ export class ArweaveCompositeDataProvider implements SmartweaveContractSource {
     );
   }
 
-  async writeTransaction(
-    payload: any,
-  ): Promise<ArweaveTransactionId | undefined> {
-    try {
-      if (!payload) {
-        throw Error(`interaction data is missing from payload: ${payload}`);
+  async writeTransaction(payload: {
+    [x: string]: any;
+    contractTransactionId: ArweaveTransactionId;
+  }): Promise<ArweaveTransactionId | undefined> {
+    if (!payload) {
+      throw Error('Payload cannot be empty.');
+    }
+
+    // Sequentially write - to avoid posting to multiple sources
+    for (const provider of this._providers) {
+      const result = await provider.writeTransaction(payload);
+      if (result) {
+        return result;
       }
-      const result = await Promise.any(
-        this._providers.map((provider) => provider.writeTransaction(payload)),
-      );
-      // todo: check for dry write options on writeInteraction
-      if (!result) {
-        throw Error('No result from write interation');
-      }
-      // todo validate bundlr response
-      return result;
-    } catch (Error) {
-      console.error(Error);
-      return;
     }
   }
 }

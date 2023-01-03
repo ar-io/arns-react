@@ -109,7 +109,7 @@ export async function isAntValid(
     and yours is ${contractTxnData.tags['Contract-Src']}`);
     }
 
-    const dataProvider = defaultDataProvider(id);
+    const dataProvider = defaultDataProvider();
     dataProvider.getContractState(id).then((antContractState) => {
       console.log(antContractState);
       if (!antContractState) {

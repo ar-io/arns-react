@@ -8,18 +8,15 @@ import {
 
 export class WarpDataProvider implements SmartweaveContractSource {
   private _warp: Warp;
-  contractId: any;
 
-  constructor(contractId: ArweaveTransactionId) {
+  constructor() {
     this._warp = WarpFactory.forMainnet();
-    this.contractId = contractId;
   }
 
   async getContractState(
     contractId: string,
   ): Promise<ArNSContractState | undefined> {
     const contract = this._warp.contract(contractId);
-    this.contractId = contractId;
     const { cachedValue } = await contract.readState();
 
     if (!cachedValue.state) {
@@ -28,26 +25,34 @@ export class WarpDataProvider implements SmartweaveContractSource {
 
     const state = cachedValue.state as any;
 
+    // TODO: move this validation to separate interface function
     if (!state.records) {
       throw Error(
-        `ArNS contract does not contain required keys.${Object.keys(state)}`,
+        `Smartweave contract does not contain required keys.${Object.keys(
+          state,
+        )}`,
       );
     }
 
     return state;
   }
 
-  async writeTransaction(
-    payload: any,
-  ): Promise<ArweaveTransactionId | undefined> {
+  async writeTransaction(payload: {
+    [x: string]: any;
+    contractTransactionId: ArweaveTransactionId;
+  }): Promise<ArweaveTransactionId | undefined> {
     try {
+      if (!payload) {
+        throw Error('Payload cannot be empty.');
+      }
+      const { contractTransactionId } = payload;
       const contract = this._warp
-        .contract(this.contractId)
+        .contract(contractTransactionId)
         .connect('use_wallet');
       const result = await contract.writeInteraction(payload);
       // todo: check for dry write options on writeInteraction
       if (!result) {
-        throw Error('No result from write interation');
+        throw Error('No result from write interaction');
       }
       const { originalTxId } = result;
       if (!originalTxId) {
@@ -56,9 +61,9 @@ export class WarpDataProvider implements SmartweaveContractSource {
 
       // todo validate bundlr response
       return originalTxId;
-    } catch (Error) {
-      console.error(Error);
-      return;
+    } catch (error) {
+      console.error('Failed to write TX to warp', error);
+      throw error;
     }
   }
 }

@@ -42,7 +42,7 @@ function AntCard(props: ArNSMapping) {
 
   useEffect(() => {
     setIsLoading(true);
-    const dataProvider = defaultDataProvider(id);
+    const dataProvider = defaultDataProvider();
     dataProvider.getContractState(id).then((antContractState) => {
       if (!antContractState) {
         setAntDetails(undefined);

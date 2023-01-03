@@ -71,7 +71,7 @@ function RegisterNameForm() {
         throw Error('Ant is not valid');
       }
 
-      const dataProvider = defaultDataProvider(id);
+      const dataProvider = defaultDataProvider();
       const state = await dataProvider.getContractState(id);
       if (state == undefined) {
         throw Error('ANT contract state is undefined');
