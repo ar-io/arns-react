@@ -21,4 +21,8 @@ describe('isArNSDomainNameValid', () => {
       expect(isArNSDomainNameValid({ name })).toEqual(false);
     },
   );
+
+  test('should return true if name is valid', () => {
+    expect(isArNSDomainNameValid({ name: 'arns' })).toBe(true);
+  });
 });
