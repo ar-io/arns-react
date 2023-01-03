@@ -4,13 +4,44 @@ import { ArweaveTransactionId } from '../types';
 import {
   ANT_CONTRACT_STATE_KEYS,
   ARNS_NAME_REGEX,
-  ARNS_TXID_REGEX,
+  ARNS_TX_ID_REGEX,
 } from './constants';
 
-export function isArNSDomainNameValid({ name }: { name?: string }): boolean {
-  // if name is not in the legal character range or chars, return undefined
+export function calculateArNSNamePrice({
+  domain,
+  years,
+  selectedTier,
+  fees,
+}: {
+  domain?: string;
+  years: number;
+  selectedTier: number;
+  fees: { [x: number]: number };
+}) {
+  if (years < 1) {
+    throw Error('Minimum duration must be at least one year');
+  }
+  if (selectedTier < 1) {
+    throw Error('Minimum selectedTier is 1');
+  }
+  if (selectedTier > 3) {
+    throw Error('Maximum selectedTier is 3');
+  }
+  if (!domain) {
+    throw Error('Domain is undefined');
+  }
+  if (!isArNSDomainNameValid({ name: domain })) {
+    throw Error('Domain name is invalid');
+  }
+  const nameLength = Math.min(domain.length, Object.keys(fees).length);
+  const namePrice = fees[nameLength];
+  const price = namePrice * years * selectedTier;
+  return price;
+}
 
-  if (!name || !ARNS_NAME_REGEX.test(name)) {
+export function isArNSDomainNameValid({ name }: { name?: string }): boolean {
+  console.log('here', name);
+  if (!name || !ARNS_NAME_REGEX.test(name) || name === 'www') {
     return false;
   }
   return true;
@@ -30,48 +61,11 @@ export function isArNSDomainNameAvailable({
   return true;
 }
 
-export function calculateArNSNamePrice({
-  domain,
-  years,
-  selectedTier,
-  fees,
-}: {
-  domain?: string;
-  years: number;
-  selectedTier: number;
-  fees: { [x: number]: number };
-}) {
-  try {
-    if (years < 1) {
-      throw Error('Minimum duration must be at least one year');
-    }
-    if (selectedTier < 1) {
-      throw Error('Minimum selectedTier is 1');
-    }
-    if (selectedTier > 3) {
-      throw Error('Maximum selectedTier is 3');
-    }
-    if (!domain) {
-      throw Error('Domain is undefined');
-    }
-    if (!isArNSDomainNameValid({ name: domain })) {
-      throw Error('Domain name is invalid');
-    }
-    const nameLength = Math.min(domain.length, Object.keys(fees).length);
-    const namePrice = fees[nameLength];
-    const price = namePrice * years * selectedTier;
-    return price;
-  } catch (error) {
-    console.error(error);
-    return 0;
-  }
-}
-
 export function isArweaveTransactionID(id: string) {
   if (!id) {
     return false;
   }
-  if (!ARNS_TXID_REGEX.test(id)) {
+  if (!ARNS_TX_ID_REGEX.test(id)) {
     return false;
   }
   return true;
@@ -82,7 +76,7 @@ export async function isAntValid(
   approvedANTSourceCodeTxs: ArweaveTransactionId[],
 ): Promise<boolean> {
   try {
-    if (!ARNS_TXID_REGEX.test(id)) {
+    if (!ARNS_TX_ID_REGEX.test(id)) {
       throw Error('ANT ID Not a valid arweave transaction ID');
     }
     const contractTxnData = await arweave.api
@@ -109,9 +103,8 @@ export async function isAntValid(
     and yours is ${contractTxnData.tags['Contract-Src']}`);
     }
 
-    const dataProvider = defaultDataProvider(id);
+    const dataProvider = defaultDataProvider();
     dataProvider.getContractState(id).then((antContractState) => {
-      console.log(antContractState);
       if (!antContractState) {
         throw Error(
           `${id} is not a valid ANT contract, you may only register a name to a valid ANT contract`,

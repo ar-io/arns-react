@@ -30,7 +30,7 @@ function ConfirmRegistration() {
     if (!antID) {
       return;
     }
-    const dataProvider = defaultDataProvider(antID);
+    const dataProvider = defaultDataProvider();
     await dataProvider.writeTransaction({
       function: 'buyRecord',
       name: domain,

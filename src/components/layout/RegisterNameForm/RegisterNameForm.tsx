@@ -4,8 +4,8 @@ import { defaultDataProvider } from '../../../services/arweave';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import {
-  ARNS_TXID_ENTRY_REGEX,
-  ARNS_TXID_REGEX,
+  ARNS_TX_ID_ENTRY_REGEX,
+  ARNS_TX_ID_REGEX,
 } from '../../../utils/constants';
 import { isAntValid, isArweaveTransactionID } from '../../../utils/searchUtils';
 import Dropdown from '../../inputs/Dropdown/Dropdown';
@@ -42,18 +42,14 @@ function RegisterNameForm() {
     e.preventDefault();
     setIsValidating(true);
     const id = e.target.value.trim();
-    if (!id) {
+    if (!id || !id.length) {
       reset();
       return;
     }
 
     try {
-      if (id === '') {
-        reset();
-        return;
-      }
       // if its a partial id set state and return
-      if (ARNS_TXID_ENTRY_REGEX.test(id) && !ARNS_TXID_REGEX.test(id)) {
+      if (ARNS_TX_ID_ENTRY_REGEX.test(id) && !ARNS_TX_ID_REGEX.test(id)) {
         setIsValidAnt(undefined);
         dispatchRegisterState({
           type: 'setAntID',
@@ -71,14 +67,13 @@ function RegisterNameForm() {
         throw Error('Ant is not valid');
       }
 
-      const dataProvider = defaultDataProvider(id);
+      const dataProvider = defaultDataProvider();
       const state = await dataProvider.getContractState(id);
       if (state == undefined) {
         throw Error('ANT contract state is undefined');
       }
 
       const { controller, name, owner, ticker, records } = state;
-      console.log(state);
       dispatchRegisterState({
         type: 'setAntID',
         payload: id,
@@ -118,8 +113,8 @@ function RegisterNameForm() {
       setIsValidating(false);
 
       return;
-    } catch (Error) {
-      console.error(Error);
+    } catch (error) {
+      console.error(error);
       setIsValidAnt(false);
       setIsValidating(false);
       return;
@@ -160,7 +155,7 @@ function RegisterNameForm() {
             <Dropdown
               showSelected={true}
               showChevron={true}
-              selected={`${ttl}secs`}
+              selected={`${ttl} seconds`}
               setSelected={(value) =>
                 dispatchRegisterState({ type: 'setTTL', payload: value })
               }

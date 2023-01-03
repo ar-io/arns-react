@@ -46,7 +46,10 @@ export type JsonWalletProvider = {
 export interface SmartweaveContractSource {
   getContractState(contractId: ArweaveTransactionId): Promise<any>;
   writeTransaction(
-    payload: any,
+    payload: {
+      [x: string]: any;
+      contractTransactionId: ArweaveTransactionId;
+    },
     dryWrite?: boolean,
   ): Promise<ArweaveTransactionId | undefined>;
 }
