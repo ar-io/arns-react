@@ -23,12 +23,17 @@
   height: 70%;
 }
 
+.arns-card-footer {
+  text-align: start;
+}
+
 .expiry-text {
   font-family: 'Rubik';
   font-weight: 400;
   font-size: 8px;
   line-height: 9px;
   color: var(--text-white);
+  text-align: start;
 }
 
 @media screen and (max-width: 600px) {
