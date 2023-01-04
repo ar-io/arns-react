@@ -34,7 +34,11 @@ function SuccessfulRegistration() {
 
         <ArnsCard domain={domain} id={resolvedTxID!} />
         <span>
-          <Link to={'/manage'} className="link hover">
+          <Link
+            to={'/manage'}
+            className="accent-button hover"
+            style={{ textDecoration: 'none' }}
+          >
             Manage Names
           </Link>
         </span>
