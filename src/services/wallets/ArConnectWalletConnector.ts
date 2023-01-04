@@ -49,7 +49,7 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
   async getWalletANTs(
     cursor?: string,
   ): Promise<{ ids: string[]; cursor?: string }> {
-    const query = {
+    const deployedContractQuery = {
       query: `
       { 
         transactions (
@@ -57,7 +57,7 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
           tags:[
             {
               name: "App-Name",
-              values: ["SmartWeaveAction"]
+              values: ["SmartWeaveContract"]
             }
           ]
           sort: HEIGHT_DESC
@@ -78,7 +78,42 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
         }
       }`,
     };
-    const response = await this._arweave.api.post('/graphql', query);
+    const transferedContractQuery = {
+      query: `
+      { 
+        transactions (
+          tags:[
+            {
+              name: "App-Name",
+              values: ["SmartWeaveAction"]
+            }
+            {
+              name:"Input",
+              values:[]
+            }
+          ]
+          sort: HEIGHT_DESC
+          ${cursor ? `after: ${cursor}` : ''}
+        ) {
+          pageInfo {
+            hasNextPage
+          }
+          edges {
+            cursor
+            node {
+              id
+              block {
+                height
+              }
+            }
+          }
+        }
+      }`,
+    };
+    const response = await this._arweave.api.post(
+      '/graphql',
+      deployedContractQuery,
+    );
     const { data } = response.data;
     const fetchedANTids: Set<string> = new Set();
     let newCursor: string | undefined = undefined;
