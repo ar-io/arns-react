@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Navigate } from 'react-router-dom';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import RegistrationStateProvider from '../../../state/contexts/RegistrationState';
@@ -14,18 +15,13 @@ import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import { FeaturedDomains, RegisterNameForm } from '../../layout';
 import { SearchBarFooter, SearchBarHeader } from '../../layout';
 import ConfirmRegistration from '../../layout/ConfirmRegistration/ConfirmRegistration';
-import DeployRegistration from '../../layout/DeployRegistration/DeployRegistration';
-import SuccessfulRegistration from '../../layout/SuccessfulRegistration/SuccessfulRegistration';
 import Workflow from '../../layout/Workflow/Workflow';
 import './styles.css';
 
 function Home() {
   const [{ arnsSourceContract, isSearching }] = useGlobalState();
-  const [records, setRecords] = useState<ArNSDomains>(
-    arnsSourceContract.records,
-  );
+  const [records, setRecords] = useState<ArNSDomains>();
   const [featuredDomains, setFeaturedDomains] = useState<ArNSDomains>();
-  const [registrationWorkflow, setRegistrationWorkflow] = useState({});
 
   useEffect(() => {
     const newRecords = arnsSourceContract.records;
@@ -36,61 +32,6 @@ function Home() {
       }),
     );
     setFeaturedDomains(featuredDomains);
-    setRegistrationWorkflow({
-      0: {
-        component: (
-          <SearchBar
-            values={records}
-            successPredicate={(value: string | undefined) =>
-              isArNSDomainNameAvailable({ name: value, records })
-            }
-            validationPredicate={(value: string | undefined) =>
-              isArNSDomainNameValid({ name: value })
-            }
-            placeholderText={'Enter a name'}
-            headerElement={
-              <SearchBarHeader defaultText={'Find a domain name'} />
-            }
-            footerElement={
-              <SearchBarFooter
-                defaultText={
-                  'Names must be 1-32 characters. Dashes are permitted, but cannot be trailing characters and cannot be used in single character domains.'
-                }
-              />
-            }
-            height={45}
-          />
-        ),
-        nextCondition: true,
-        backCondition: true,
-        onNext: () => true,
-      },
-      1: {
-        component: <RegisterNameForm />,
-        nextCondition: true,
-        backCondition: true,
-        onNext: async (id: string) =>
-          await isAntValid(id, arnsSourceContract.approvedANTSourceCodeTxs),
-      },
-      2: {
-        component: <ConfirmRegistration />,
-        nextCondition: false,
-        backCondition: true,
-        onNext: () => true,
-      },
-      3: {
-        component: <DeployRegistration />,
-        nextCondition: false,
-        backCondition: false,
-        onNext: () => true,
-      },
-      4: {
-        component: <SuccessfulRegistration />,
-        nextCondition: false,
-        backCondition: false,
-        onNext: () => true,
-      },
-    });
   }, [arnsSourceContract, isSearching]);
 
   return (
@@ -106,7 +47,58 @@ function Home() {
         firstStage={0}
         lastStage={4}
       >
-        <Workflow stages={registrationWorkflow} />
+        <Workflow
+          stages={{
+            0: {
+              component: (
+                <SearchBar
+                  values={records}
+                  successPredicate={(value: string | undefined) =>
+                    !!records &&
+                    isArNSDomainNameAvailable({ name: value, records })
+                  }
+                  validationPredicate={(value: string | undefined) =>
+                    isArNSDomainNameValid({ name: value })
+                  }
+                  placeholderText={'Enter a name'}
+                  headerElement={
+                    <SearchBarHeader defaultText={'Find a domain name'} />
+                  }
+                  footerElement={
+                    <SearchBarFooter
+                      defaultText={
+                        'Names must be 1-32 characters. Dashes are permitted, but cannot be trailing characters and cannot be used in single character domains.'
+                      }
+                    />
+                  }
+                  height={45}
+                />
+              ),
+              nextCondition: true,
+              backCondition: true,
+              onNext: async () => true,
+            },
+            1: {
+              component: <RegisterNameForm />,
+              nextCondition: true,
+              backCondition: true,
+              onNext: async (id: string) =>
+                await isAntValid(
+                  id,
+                  arnsSourceContract.approvedANTSourceCodeTxs,
+                ),
+            },
+            2: {
+              component: <ConfirmRegistration />,
+              nextCondition: false,
+              backCondition: true,
+              onNext: async () => true,
+            },
+            3: {
+              component: <Navigate to="/manage" />,
+            },
+          }}
+        />
       </RegistrationStateProvider>
 
       {featuredDomains && !isSearching ? (

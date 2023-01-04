@@ -1,0 +1,15 @@
+.fixed {
+  position: fixed;
+  z-index: 100;
+}
+
+.bottom {
+  bottom: 25px;
+  right: 25px;
+  height: fit-content;
+  padding: 0 20px;
+  max-height: 20vh;
+  overflow-y: scroll;
+  width: max(20vw, 150px) !important;
+  justify-content: flex-end;
+}

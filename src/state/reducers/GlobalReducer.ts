@@ -14,7 +14,9 @@ export type Action =
   | { type: 'setArnsContractState'; payload: ArNSContractState }
   | { type: 'setShowConnectWallet'; payload: boolean }
   | { type: 'setIsSearching'; payload: boolean }
-  | { type: 'setArweave'; payload: Arweave };
+  | { type: 'setArweave'; payload: Arweave }
+  | { type: 'pushNotification'; payload: string }
+  | { type: 'removeNotification'; payload: string };
 
 export const reducer = (state: GlobalState, action: Action): GlobalState => {
   switch (action.type) {
@@ -53,6 +55,18 @@ export const reducer = (state: GlobalState, action: Action): GlobalState => {
         ...state,
         isSearching: action.payload,
       };
+    case 'pushNotification': {
+      return {
+        ...state,
+        notifications: [action.payload].concat(state.notifications).slice(0, 5),
+      };
+    }
+    case 'removeNotification': {
+      return {
+        ...state,
+        notifications: state.notifications.filter((e) => e !== action.payload),
+      };
+    }
     default:
       return state;
   }

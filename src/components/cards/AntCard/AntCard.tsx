@@ -31,11 +31,11 @@ const PRIMARY_DETAILS: string[] = [
 const DEFAULT_ATTRIBUTES = {
   ttlSeconds: 60 * 60,
   leaseDuration: 'N/A',
-  subdomains: 'Up to 100',
+  maxSubdomains: 100,
 };
 
 function AntCard(props: ArNSMapping) {
-  const { id, domain } = props;
+  const { id, domain, compact, overrides, hover, enableActions } = props;
   const [antDetails, setAntDetails] = useState<{ [x: string]: string }>();
   const [isLoading, setIsLoading] = useState(false);
   const [limitDetails, setLimitDetails] = useState(true);
@@ -51,6 +51,11 @@ function AntCard(props: ArNSMapping) {
       const allAntDetails: { [x: string]: any } = {
         ...antContractState,
         ...DEFAULT_ATTRIBUTES,
+        // TODO: remove this when all ants have controllers
+        controllers: antContractState.controllers
+          ? antContractState.controllers.join(',')
+          : antContractState.owner,
+        ...overrides,
         id,
         domain,
       };
@@ -63,13 +68,13 @@ function AntCard(props: ArNSMapping) {
           obj[mapKeyToAttribute(key)] = allAntDetails[key];
           return obj;
         }, {});
-      setLimitDetails(true);
+      setLimitDetails(compact);
       setAntDetails(replacedKeys);
       setTimeout(() => {
         setIsLoading(false);
       }, 500);
     });
-  }, [id, domain]);
+  }, [id, domain, compact, enableActions, overrides]);
 
   function showMore(e: any) {
     e.preventDefault();
@@ -86,9 +91,11 @@ function AntCard(props: ArNSMapping) {
       {isLoading ? (
         <Loader size={50} />
       ) : antDetails ? (
-        <div className="card hover">
+        <div className={hover ? 'card hover' : 'card'}>
           {/* // TODO: pull tier from ant contract details */}
-          <span className="bubble">Tier 1</span>
+          <span className="bubble">
+            Tier {overrides.tier ?? antDetails.tier}
+          </span>
           {Object.entries(antDetails).map(([key, value]) => {
             if (!PRIMARY_DETAILS.includes(key) && limitDetails) {
               return;
@@ -108,14 +115,18 @@ function AntCard(props: ArNSMapping) {
           ) : (
             <></>
           )}
-          <div className="footer">
-            <button className="button-large" onClick={handleClick}>
-              Upgrade Tier
-            </button>
-            <button className="button-large" onClick={handleClick}>
-              Extend Lease
-            </button>
-          </div>
+          {enableActions ? (
+            <div className="footer">
+              <button className="button-large" onClick={handleClick}>
+                Upgrade Tier
+              </button>
+              <button className="button-large" onClick={handleClick}>
+                Extend Lease
+              </button>
+            </div>
+          ) : (
+            <></>
+          )}
         </div>
       ) : (
         <span className="section-header">Uh oh. Something went wrong.</span>

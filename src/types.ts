@@ -1,3 +1,4 @@
+import Arweave from 'arweave/node/common.js';
 import type { Dispatch, SetStateAction } from 'react';
 
 export type ArNSDomains = { [x: string]: any };
@@ -6,7 +7,7 @@ export type ArNSContractState = {
   records: ArNSDomains;
   fees: { [x: number]: number };
   balances: { [x: ArweaveTransactionId]: number };
-  controller: ArweaveTransactionId;
+  controllers: ArweaveTransactionId[];
   evolve: boolean | undefined;
   name: string;
   owner: ArweaveTransactionId;
@@ -14,19 +15,36 @@ export type ArNSContractState = {
   approvedANTSourceCodeTxs: ArweaveTransactionId[];
 };
 
+export type ANTContractDomainRecord = {
+  ttlSeconds: number;
+  maxSubdomains: number;
+  id: ArweaveTransactionId;
+};
+
+export type ANTContractRecordMapping =
+  | ArweaveTransactionId
+  | ANTContractDomainRecord;
+
 export type ANTContractState = {
   balances: { [x: ArweaveTransactionId]: number };
-  controller: ArweaveTransactionId;
   evolve: boolean | undefined;
   name: string;
   owner: ArweaveTransactionId;
-  records: { '@': ArweaveTransactionId; [x: string]: ArweaveTransactionId };
+  controllers: ArweaveTransactionId[];
+  records: {
+    '@': ANTContractRecordMapping;
+    [x: string]: ANTContractRecordMapping;
+  };
   ticker: string;
 };
 
 export type ArNSMapping = {
   domain: string;
   id: ArweaveTransactionId;
+  overrides?: any; // TODO;
+  compact: boolean;
+  enableActions?: boolean;
+  hover?: boolean;
 };
 
 export type ArNSMetaData = {
@@ -111,9 +129,9 @@ export type WorkflowProps = {
   stages: {
     [x: number]: {
       component: JSX.Element;
-      nextCondition: boolean;
-      backCondition: boolean;
-      onNext: (id: string) => boolean;
+      nextCondition?: boolean;
+      backCondition?: boolean;
+      onNext?: (id: string) => Promise<boolean>;
     };
   };
 };

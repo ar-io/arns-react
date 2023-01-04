@@ -13,7 +13,8 @@ export type GlobalState = {
   arnsContractId: string;
   showConnectWallet: boolean;
   isSearching: boolean;
-  errors: Array<Error>;
+  errors: Array<string>;
+  notifications: Array<string>;
 };
 
 const initialState: GlobalState = {
@@ -26,7 +27,7 @@ const initialState: GlobalState = {
     records: {},
     fees: {},
     balances: { '': 0 },
-    controller: '',
+    controllers: [],
     evolve: undefined,
     name: '',
     owner: '',
@@ -39,6 +40,9 @@ const initialState: GlobalState = {
   wallet: undefined,
   isSearching: false,
   errors: [],
+  notifications: [
+    'a fake long notification gh673M0Koh941OIITVXl9hKabRaYWABQUedZxW-swIA',
+  ],
 };
 
 const GlobalStateContext = createContext<[GlobalState, Dispatch<Action>]>([
