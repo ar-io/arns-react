@@ -10,13 +10,13 @@
   height: 200px;
   background: var(--card-bg);
   box-shadow: 0px 0px 1px #0d0d0d, 0px 8px 16px rgba(13, 13, 13, 0.9);
-  border-radius: 24px;
+  border-radius: var(--corner-radius);
 }
 
 .arns-preview {
   display: flex;
   overflow: hidden;
-  border-radius: 24px;
+  border-radius: var(--corner-radius);
   object-fit: cover;
   align-items: center;
   width: 100%;

@@ -22,7 +22,7 @@ function SuccessfulRegistration() {
             Transaction ID:&nbsp;
             <a
               className="link"
-              href={`https://viewblock/arwweave/${resolvedTxID}`}
+              href={`https://viewblock.io/arwweave/tx/${resolvedTxID}`}
             >
               <b>{resolvedTxID}</b>
             </a>
@@ -34,7 +34,11 @@ function SuccessfulRegistration() {
 
         <ArnsCard domain={domain} id={resolvedTxID!} />
         <span>
-          <Link to={'/manage'} className="link hover">
+          <Link
+            to={'/manage'}
+            className="accent-button hover"
+            style={{ textDecoration: 'none' }}
+          >
             Manage Names
           </Link>
         </span>

@@ -94,10 +94,10 @@ function Home() {
               showBackPredicate: () => true,
             },
             2: {
+              // this component manages buttons itself
               component: <ConfirmRegistration />,
               showNextPredicate: () => false,
-              showBackPredicate: () => true,
-              // TODO: override next action with Confirm text and callback
+              showBackPredicate: () => false,
             },
             3: {
               component: <SuccessfulRegistration />,
