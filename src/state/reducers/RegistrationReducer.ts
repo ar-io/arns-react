@@ -12,6 +12,7 @@ export type RegistrationAction =
   | { type: 'setAntID'; payload: ArweaveTransactionId | undefined }
   | { type: 'setTargetID'; payload: ArweaveTransactionId }
   | { type: 'setOwner'; payload: ArweaveTransactionId }
+  | { type: 'setResolvedTx'; payload: ArweaveTransactionId | undefined }
   | { type: 'setFee'; payload: { ar: number; io: number } }
   | { type: 'setIsRegistered'; payload: boolean }
   | { type: 'setStage'; payload: number }
@@ -74,6 +75,11 @@ export const registrationReducer = (
       return {
         ...state,
         owner: action.payload,
+      };
+    case 'setResolvedTx':
+      return {
+        ...state,
+        resolvedTxID: action.payload,
       };
     case 'setFee':
       return {

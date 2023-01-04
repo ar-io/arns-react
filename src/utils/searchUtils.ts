@@ -40,7 +40,6 @@ export function calculateArNSNamePrice({
 }
 
 export function isArNSDomainNameValid({ name }: { name?: string }): boolean {
-  console.log('here', name);
   if (!name || !ARNS_NAME_REGEX.test(name) || name === 'www') {
     return false;
   }

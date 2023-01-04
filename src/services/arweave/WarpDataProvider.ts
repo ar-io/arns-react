@@ -55,6 +55,7 @@ export class WarpDataProvider implements SmartweaveContractSource {
         throw Error('No result from write interaction');
       }
       const { originalTxId } = result;
+
       if (!originalTxId) {
         throw Error('No transaction ID from write interaction');
       }

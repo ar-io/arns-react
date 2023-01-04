@@ -1,12 +1,12 @@
+import { Link } from 'react-router-dom';
+
 import { useIsMobile } from '../../../hooks';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { ArnsCard } from '../../cards';
 import './styles.css';
 
 function SuccessfulRegistration() {
-  const [{ arnsSourceContract, walletAddress }] = useGlobalState();
-  const [{ domain }] = useRegistrationState();
+  const [{ domain, resolvedTxID }] = useRegistrationState();
   const isMobile = useIsMobile();
 
   return (
@@ -20,24 +20,23 @@ function SuccessfulRegistration() {
             style={!isMobile ? { maxWidth: 'none' } : {}}
           >
             Transaction ID:&nbsp;
-            <button className="link">
-              <b>
-                {!isMobile
-                  ? walletAddress
-                  : `${walletAddress?.slice(0, 5)} . . . ${walletAddress?.slice(
-                      -5,
-                    )}`}
-              </b>
-            </button>
+            <a
+              className="link"
+              href={`https://viewblock/arwweave/${resolvedTxID}`}
+            >
+              <b>{resolvedTxID}</b>
+            </a>
           </span>
           <span className="text faded center">
-            Will take at least 15 minutes for your transaction to be posted.
+            It will take at least 15 minutes for your transaction to be posted.
           </span>
         </div>
 
-        <ArnsCard domain={domain} id={arnsSourceContract.records[domain]} />
+        <ArnsCard domain={domain} id={resolvedTxID!} />
         <span>
-          <button className="link center">Manage Names</button>
+          <Link to={'/manage'} className="link hover">
+            Manage Names
+          </Link>
         </span>
       </div>
     </>
