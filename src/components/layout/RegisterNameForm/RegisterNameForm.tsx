@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
 
 import { defaultDataProvider } from '../../../services/arweave';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import {
   ARNS_TX_ID_ENTRY_REGEX,
   ARNS_TX_ID_REGEX,
 } from '../../../utils/constants';
-import { isAntValid, isArweaveTransactionID } from '../../../utils/searchUtils';
+import { isArweaveTransactionID } from '../../../utils/searchUtils';
 import Dropdown from '../../inputs/Dropdown/Dropdown';
 import Loader from '../Loader/Loader';
 import UpgradeTier from '../UpgradeTier/UpgradeTier';
@@ -17,7 +16,6 @@ function RegisterNameForm() {
   const [{ domain, ttl, antID }, dispatchRegisterState] =
     useRegistrationState();
 
-  const [{ arnsSourceContract }] = useGlobalState();
   const [isValidAnt, setIsValidAnt] = useState<boolean | undefined>(undefined);
   const [isValidating, setIsValidating] = useState(false);
 
@@ -30,7 +28,7 @@ function RegisterNameForm() {
     setIsValidating(false);
     dispatchRegisterState({
       type: 'setAntID',
-      payload: '',
+      payload: undefined,
     });
     dispatchRegisterState({
       type: 'setTTL',
@@ -62,10 +60,6 @@ function RegisterNameForm() {
         type: 'setAntID',
         payload: id,
       });
-      // advanced checking for confirmations and if the contract is a valid ANT contract
-      if (!isAntValid(id, arnsSourceContract.approvedANTSourceCodeTxs)) {
-        throw Error('Ant is not valid');
-      }
 
       const dataProvider = defaultDataProvider();
       const state = await dataProvider.getContractState(id);

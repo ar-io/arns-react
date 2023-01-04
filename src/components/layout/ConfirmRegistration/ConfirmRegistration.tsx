@@ -15,7 +15,7 @@ function ConfirmRegistration() {
     { domain, ttl, tier, leaseDuration, antID, fee, stage },
     dispatchRegistrationState,
   ] = useRegistrationState();
-  const [{ arnsSourceContract }, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
+  const [{ arnsSourceContract }] = useGlobalState(); // eslint-disable-line
   const [priceInfo, setPriceInfo] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
@@ -28,18 +28,12 @@ function ConfirmRegistration() {
     isAntValid(antID, arnsSourceContract.approvedANTSourceCodeTxs)
       .then((isValid) => {
         setIsConfirmed(isValid);
-        if (!isValid) {
-          setErrorMessage(
-            'Invalid ANT Source Code Contract. Please select a different ANT.',
-          );
-        }
       })
-      .catch((e) => {
+      .catch((e: Error) => {
         // TODO: push error notification
         console.error(e);
-        setErrorMessage(
-          'Failed to validate ANT Source Contract. Please try again.',
-        );
+        setIsConfirmed(false);
+        setErrorMessage(e.message);
       });
   }, [antID]);
 
@@ -136,18 +130,24 @@ function ConfirmRegistration() {
                 <></>
               )}
             </button>
-            <div className="flex-row center">
-              <button
-                className="outline-button"
-                onClick={() => {
-                  dispatchRegistrationState({
-                    type: 'setStage',
-                    payload: stage - 1,
-                  });
-                }}
-              >
-                Back
-              </button>
+          </>
+        ) : (
+          <span className="h2 error">{errorMessage}</span>
+        )}
+        {!isLoading ? (
+          <div className="flex-row center">
+            <button
+              className="outline-button"
+              onClick={() => {
+                dispatchRegistrationState({
+                  type: 'setStage',
+                  payload: stage - 1,
+                });
+              }}
+            >
+              Back
+            </button>
+            {isConfirmed ? (
               <button
                 className="accent-button"
                 disabled={!antID || !isConfirmed}
@@ -157,10 +157,12 @@ function ConfirmRegistration() {
               >
                 Confirm
               </button>
-            </div>
-          </>
+            ) : (
+              <></>
+            )}
+          </div>
         ) : (
-          <span className="h2 error">{errorMessage}</span>
+          <></>
         )}
       </div>
     </>
