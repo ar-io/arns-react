@@ -29,7 +29,12 @@ function SearchBarFooter({
       ) : isAvailable ? (
         <UpgradeTier />
       ) : (
-        <AntCard domain={searchResult?.domain} id={searchResult?.id} />
+        <AntCard
+          domain={searchResult?.domain}
+          id={searchResult?.id}
+          compact={true}
+          enableActions={true}
+        />
       )}
     </>
   );

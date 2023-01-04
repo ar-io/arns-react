@@ -69,20 +69,21 @@ button {
 .text {
   display: flex;
   font-size: 12px;
-  max-width: 475px;
   text-decoration: none;
 }
 .text-medium {
   display: flex;
   font-size: 18px;
-  max-width: 475px;
   text-decoration: none;
 }
 .text-large {
   display: flex;
   font-size: 24px;
-  max-width: 475px;
   text-decoration: none;
+}
+
+.error {
+  color: var(--error-red);
 }
 
 .flex-row {

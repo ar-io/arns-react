@@ -11,6 +11,7 @@ import { RegistrationAction } from '../reducers/RegistrationReducer';
 import { useGlobalState } from './GlobalState';
 
 export type RegistrationState = {
+  resolvedTxID?: string;
   domain: string;
   leaseDuration: number;
   tier: number;
@@ -37,6 +38,7 @@ export type RegistrationStateProviderProps = {
 };
 
 export const initialRegistrationState: RegistrationState = {
+  resolvedTxID: undefined,
   domain: '',
   leaseDuration: 1,
   tier: 1,

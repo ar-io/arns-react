@@ -14,6 +14,7 @@ export type GlobalState = {
   showConnectWallet: boolean;
   isSearching: boolean;
   errors: Array<Error>;
+  notifications: { id: string; text: string }[];
 };
 
 const initialState: GlobalState = {
@@ -26,7 +27,7 @@ const initialState: GlobalState = {
     records: {},
     fees: {},
     balances: { '': 0 },
-    controller: '',
+    controllers: [],
     evolve: undefined,
     name: '',
     owner: '',
@@ -39,6 +40,7 @@ const initialState: GlobalState = {
   wallet: undefined,
   isSearching: false,
   errors: [],
+  notifications: [],
 };
 
 const GlobalStateContext = createContext<[GlobalState, Dispatch<Action>]>([

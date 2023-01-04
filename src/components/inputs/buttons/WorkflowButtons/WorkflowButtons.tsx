@@ -7,11 +7,11 @@ function WorkflowButtons({
   isFirstStage,
   isLastStage,
   dispatch,
-  showBack,
-  showNext,
+  showBack = true,
+  showNext = true,
   disableNext,
   disableBack,
-  onNext,
+  handleNext,
 }: {
   stage: number;
   isFirstStage: boolean;
@@ -21,7 +21,7 @@ function WorkflowButtons({
   showNext?: boolean;
   disableNext?: boolean;
   disableBack?: boolean;
-  onNext: () => void;
+  handleNext: () => void;
 }) {
   return (
     <>
@@ -46,9 +46,11 @@ function WorkflowButtons({
         )}
         {!isLastStage && showNext ? (
           <button
-            className="accent-button"
+            className={
+              disableNext ? 'accent-button disabled-button' : 'accent-button'
+            }
             disabled={disableNext}
-            onClick={() => onNext()}
+            onClick={handleNext}
           >
             Next
           </button>
