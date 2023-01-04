@@ -6,6 +6,7 @@
   gap: 10px;
   width: 25%;
   min-width: 180px;
+  max-width: 250px;
   height: 200px;
   background: var(--card-bg);
   box-shadow: 0px 0px 1px #0d0d0d, 0px 8px 16px rgba(13, 13, 13, 0.9);

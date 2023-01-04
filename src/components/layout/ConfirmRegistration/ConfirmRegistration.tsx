@@ -55,9 +55,9 @@ function ConfirmRegistration() {
       contractTransactionId: antID,
     });
     if (pendingTXId) {
-      dispatchGlobalState({
-        type: 'pushNotification',
-        payload: `Successfully posted transaction: ${pendingTXId}`,
+      dispatchRegistrationState({
+        type: 'setResolvedTx',
+        payload: pendingTXId,
       });
       console.log(`Posted transaction: ${pendingTXId}`);
     }

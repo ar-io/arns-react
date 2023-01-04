@@ -16,6 +16,7 @@ import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import { FeaturedDomains, RegisterNameForm } from '../../layout';
 import { SearchBarFooter, SearchBarHeader } from '../../layout';
 import ConfirmRegistration from '../../layout/ConfirmRegistration/ConfirmRegistration';
+import SuccessfulRegistration from '../../layout/SuccessfulRegistration/SuccessfulRegistration';
 import Workflow from '../../layout/Workflow/Workflow';
 import './styles.css';
 
@@ -83,6 +84,7 @@ function Home() {
                   isArNSDomainNameValid({ name: domain })
                 );
               },
+              showBackPredicate: () => true,
             },
             1: {
               component: <RegisterNameForm />,
@@ -90,14 +92,18 @@ function Home() {
                 const { antID } = registrationState;
                 return !!antID && ARNS_TX_ID_REGEX.test(antID);
               },
+              showBackPredicate: () => true,
             },
             2: {
               component: <ConfirmRegistration />,
-              showNextPredicate: () => false, // only show confirm button
+              showNextPredicate: () => false,
+              showBackPredicate: () => true,
+              // TODO: override next action with Confirm text and callback
             },
             3: {
-              component: <Navigate to="/manage" />,
+              component: <SuccessfulRegistration />,
               showNextPredicate: () => false,
+              showBackPredicate: () => false,
             },
           }}
         />

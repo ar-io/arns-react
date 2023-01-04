@@ -129,7 +129,7 @@ export type WorkflowProps = {
     [x: number]: {
       component: JSX.Element;
       showNextPredicate: (state?: any) => boolean;
-      backCondition?: boolean;
+      showBackPredicate: () => boolean;
     };
   };
 };
