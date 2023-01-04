@@ -64,7 +64,7 @@ export class WarpDataProvider implements SmartweaveContractSource {
         throw Error('No response from bundlr for write interaction.');
       }
 
-      return bundlrResponse.id;
+      return originalTxId;
     } catch (error) {
       console.error('Failed to write TX to warp', error);
       throw error;
