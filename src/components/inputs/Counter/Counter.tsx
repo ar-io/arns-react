@@ -25,7 +25,7 @@ function YearsCounter({
     handleOnTouchStart: incHandleOnTouchStart,
   } = useLongPress(() =>
     initialCount < maxValue
-      ? updateRegisterState({ key: 'setLeaseDuration', value: initialCount++ })
+      ? updateRegisterState({ key: 'setLeaseDuration', value: ++initialCount })
       : null,
   );
   const {
