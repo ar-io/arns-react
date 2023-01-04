@@ -1,52 +1,72 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import useLongPress from '../../../hooks/useLongPress/useLongPress';
+import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import './styles.css';
 
 function YearsCounter({
-  setCount,
-  count,
   maxValue,
   minValue,
   period = 'years',
 }: {
-  setCount: Dispatch<SetStateAction<number>>;
-  count: number;
   maxValue: number;
   minValue: number;
   period?: 'years' | 'days' | 'minutes';
 }) {
+  // TODO make this component generic; pass in count and setCount
+  const [{ leaseDuration }, dispatchRegisterState] = useRegistrationState();
   const [registration, setRegistration] = useState('');
+  let initialCount = leaseDuration;
   const {
     handleOnClick: incHandleOnClick,
     handleOnMouseDown: incHandleOnMouseDown,
     handleOnMouseUp: incHandleOnMouseUp,
     handleOnTouchEnd: incHandleOnTouchEnd,
     handleOnTouchStart: incHandleOnTouchStart,
-  } = useLongPress(() => (count < maxValue ? setCount(++count) : null));
+  } = useLongPress(() =>
+    initialCount < maxValue
+      ? updateRegisterState({ key: 'setLeaseDuration', value: ++initialCount })
+      : null,
+  );
   const {
     handleOnClick: decHandleOnClick,
     handleOnMouseDown: decHandleOnMouseDown,
     handleOnMouseUp: decHandleOnMouseUp,
     handleOnTouchEnd: decHandleOnTouchEnd,
     handleOnTouchStart: decHandleOnTouchStart,
-  } = useLongPress(() => (count > minValue ? setCount(--count) : null));
+  } = useLongPress(() =>
+    initialCount > minValue
+      ? updateRegisterState({ key: 'setLeaseDuration', value: --initialCount })
+      : null,
+  );
 
   useEffect(() => {
     changePeriod();
-  }, [count]);
+  }, [leaseDuration]);
+
+  function updateRegisterState({ key, value }: { key: any; value: any }) {
+    // timeout to prevent jitter
+    setTimeout(
+      () =>
+        dispatchRegisterState({
+          type: key,
+          payload: value,
+        }),
+      50,
+    );
+  }
 
   function changePeriod() {
     const date = new Date();
     switch (period) {
       case 'years':
-        date.setFullYear(date.getFullYear() + count);
+        date.setFullYear(date.getFullYear() + leaseDuration);
         break;
       case 'days':
-        date.setDate(date.getDate() + count);
+        date.setDate(date.getDate() + leaseDuration);
         break;
       case 'minutes':
-        date.setHours(date.getHours() + count);
+        date.setHours(date.getHours() + leaseDuration);
         break;
       default:
         break;
@@ -61,51 +81,53 @@ function YearsCounter({
   function onChange(e: any) {
     const value = +e.target.value;
     if (value < minValue) {
-      setCount(minValue);
+      dispatchRegisterState({ type: 'setLeaseDuration', payload: minValue });
       return;
     }
 
     if (value > maxValue) {
-      setCount(maxValue);
+      dispatchRegisterState({ type: 'setLeaseDuration', payload: maxValue });
       return;
     }
 
-    setCount(value);
+    dispatchRegisterState({ type: 'setLeaseDuration', payload: value });
     return;
   }
 
   return (
-    <div className="counter-container">
+    <div className="years-counter-container">
       <p className="text white bold">Registration Period ({period})</p>
       <div className="flex-row flex-center">
-        <div className="counter">
+        <div className="years-counter">
           <button
             className="counter-button"
-            disabled={count == minValue}
+            disabled={leaseDuration == minValue}
             onClick={decHandleOnClick}
             onMouseDown={decHandleOnMouseDown}
             onMouseUp={decHandleOnMouseUp}
             onTouchStart={decHandleOnTouchStart}
             onTouchEnd={decHandleOnTouchEnd}
+            onMouseLeave={decHandleOnTouchEnd}
           >
             -
           </button>
           <input
             className="counter-input text bold"
             type="number"
-            value={count}
+            value={leaseDuration}
             pattern={'/^[1-9]{1,3}$/'}
             onFocus={(e) => e.target.select()}
             onChange={onChange}
           />
           <button
             className="counter-button"
-            disabled={count == maxValue}
+            disabled={leaseDuration == maxValue}
             onClick={incHandleOnClick}
             onMouseDown={incHandleOnMouseDown}
             onMouseUp={incHandleOnMouseUp}
             onTouchStart={incHandleOnTouchStart}
             onTouchEnd={incHandleOnTouchEnd}
+            onMouseLeave={incHandleOnTouchEnd}
           >
             +
           </button>

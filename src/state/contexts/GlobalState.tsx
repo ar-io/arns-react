@@ -23,7 +23,17 @@ const initialState: GlobalState = {
     protocol: 'https',
   }),
   arnsContractId: 'bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U',
-  arnsSourceContract: { records: {}, fees: {} },
+  arnsSourceContract: {
+    records: {},
+    fees: {},
+    balances: { '': 0 },
+    controllers: [],
+    evolve: undefined,
+    name: '',
+    owner: '',
+    ticker: '',
+    approvedANTSourceCodeTxs: [],
+  },
   gateway: 'arweave.dev',
   walletAddress: undefined,
   showConnectWallet: false,
@@ -51,9 +61,9 @@ export default function GlobalStateProvider({
   reducer,
   children,
 }: StateProviderProps): JSX.Element {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [state, dispatchGlobalState] = useReducer(reducer, initialState);
   return (
-    <GlobalStateContext.Provider value={[state, dispatch]}>
+    <GlobalStateContext.Provider value={[state, dispatchGlobalState]}>
       {children}
     </GlobalStateContext.Provider>
   );

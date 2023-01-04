@@ -6,7 +6,7 @@
   padding: 24px;
   background: #1f1f1f;
   box-shadow: 0px 0px 1px #0d0d0d, 0px 8px 16px rgba(13, 13, 13, 0.9);
-  border-radius: 24px;
+  border-radius: var(--corner-radius);
   justify-content: space-between;
   align-items: flex-start;
   overflow: visible;
@@ -20,7 +20,7 @@
   height: 40px;
   background: var(--text-white);
   border: 1px solid var(--text-white);
-  border-radius: 6px;
+  border-radius: var(--corner-radius);
   font-family: 'Rubik-Bold';
   font-weight: 700;
   font-size: 12px;
@@ -36,7 +36,7 @@
   color: var(--text-white);
   background: var(--bg-color);
   border: 1px solid var(--text-white);
-  border-radius: 6px;
+  border-radius: var(--corner-radius);
   font-family: 'Rubik-Bold';
   font-weight: 700;
   font-size: 12px;

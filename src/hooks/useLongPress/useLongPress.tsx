@@ -14,24 +14,20 @@ export default function useLongPress(action: () => void) {
 
   function handleOnClick() {
     if (isLongPress.current) {
-      console.log('Is long press - not continuing.');
       return;
     }
     action();
   }
 
   function handleOnMouseDown() {
-    console.log('handleOnMouseDown');
     startPressTimer();
   }
 
   function handleOnMouseUp() {
-    console.log('handleOnMouseUp');
     clearInterval(timerRef.current);
   }
 
   function handleOnTouchStart() {
-    console.log('handleOnTouchStart');
     startPressTimer();
   }
 

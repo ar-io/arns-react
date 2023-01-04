@@ -1,15 +1,49 @@
 import type { Dispatch, SetStateAction } from 'react';
 
-export type ArNSDomains = { [x: string]: ArweaveTransactionId };
+export type ArNSDomains = { [x: string]: any };
 
 export type ArNSContractState = {
   records: ArNSDomains;
   fees: { [x: number]: number };
+  balances: { [x: ArweaveTransactionId]: number };
+  controllers: ArweaveTransactionId[];
+  evolve: boolean | undefined;
+  name: string;
+  owner: ArweaveTransactionId;
+  ticker: string;
+  approvedANTSourceCodeTxs: ArweaveTransactionId[];
+};
+
+export type ANTContractDomainRecord = {
+  ttlSeconds: number;
+  maxSubdomains: number;
+  id: ArweaveTransactionId;
+};
+
+export type ANTContractRecordMapping =
+  | ArweaveTransactionId
+  | ANTContractDomainRecord;
+
+export type ANTContractState = {
+  balances: { [x: ArweaveTransactionId]: number };
+  evolve: boolean | undefined;
+  name: string;
+  owner: ArweaveTransactionId;
+  controllers: ArweaveTransactionId[];
+  records: {
+    '@': ANTContractRecordMapping;
+    [x: string]: ANTContractRecordMapping;
+  };
+  ticker: string;
 };
 
 export type ArNSMapping = {
   domain: string;
   id: ArweaveTransactionId;
+  overrides?: any; // TODO;
+  compact?: boolean;
+  enableActions?: boolean;
+  hover?: boolean;
 };
 
 export type ArNSMetaData = {
@@ -27,9 +61,14 @@ export type JsonWalletProvider = {
 };
 
 export interface SmartweaveContractSource {
-  getContractState(
-    contractId: ArweaveTransactionId,
-  ): Promise<ArNSContractState | undefined>;
+  getContractState(contractId: ArweaveTransactionId): Promise<any>;
+  writeTransaction(
+    payload: {
+      [x: string]: any;
+      contractTransactionId: ArweaveTransactionId;
+    },
+    dryWrite?: boolean,
+  ): Promise<ArweaveTransactionId | undefined>;
 }
 
 export interface ArweaveWalletConnector {
@@ -42,11 +81,14 @@ export interface ArweaveWalletConnector {
 export type SearchBarProps = {
   successPredicate: (value: string | undefined) => boolean;
   validationPredicate: (value: string | undefined) => boolean;
-  setIsSearching: Dispatch<SetStateAction<boolean>>;
-  placeholderText: string;
-  headerElement: JSX.Element;
-  footerElement: JSX.Element;
-  values: { [x: string]: string };
+  setIsSearching?: Dispatch<SetStateAction<boolean>>;
+  isSearching?: boolean;
+  placeholderText?: string;
+  headerElement?: JSX.Element;
+  footerElement?: JSX.Element;
+  values?: { [x: string]: string };
+  height?: number;
+  nextStage?: Dispatch<void>;
 };
 
 export type SearchBarHeaderProps = {
@@ -68,9 +110,7 @@ export type ConnectWalletModalProps = {
 };
 
 export type TierCardProps = {
-  tier: number;
-  setTier: Dispatch<SetStateAction<number>>;
-  selectedTier: number;
+  tierNumber: number;
 };
 
 export type DropdownProps = {
@@ -82,4 +122,14 @@ export type DropdownProps = {
   setSelected: Dispatch<SetStateAction<any>>;
   headerElement?: JSX.Element;
   footerElement?: JSX.Element;
+};
+
+export type WorkflowProps = {
+  stages: {
+    [x: number]: {
+      component: JSX.Element;
+      showNextPredicate: (state?: any) => boolean;
+      showBackPredicate: () => boolean;
+    };
+  };
 };

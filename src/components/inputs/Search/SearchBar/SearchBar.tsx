@@ -1,7 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
-import { useIsMobile, useWalletAddress } from '../../../../hooks';
+import { useIsMobile } from '../../../../hooks';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
+import { useRegistrationState } from '../../../../state/contexts/RegistrationState';
 import { SearchBarProps } from '../../../../types';
 import { ArrowUpRight, SearchIcon } from '../../../icons';
 import './styles.css';
@@ -14,11 +15,11 @@ function SearchBar(props: SearchBarProps) {
     headerElement,
     footerElement,
     values,
-    setIsSearching,
+    height,
   } = props;
 
-  const [{}, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
-  const walletAddress = useWalletAddress();
+  const [{ walletAddress }, dispatchGlobalState] = useGlobalState();
+  const [{ stage }, dispatchRegisterState] = useRegistrationState();
   const isMobile = useIsMobile();
   const [isSearchValid, setIsSearchValid] = useState(true);
   const [showDefaultText, setShowDefaultText] = useState(true);
@@ -36,10 +37,18 @@ function SearchBar(props: SearchBarProps) {
     setShowDefaultText(true);
     setSearchResult(undefined);
     setSearchBarText(undefined);
-    setIsSearching(false);
+    dispatchGlobalState({
+      type: 'setIsSearching',
+      payload: false,
+    });
+
     return;
   }
-
+  useEffect(() => {
+    if (!searchBarText) {
+      reset();
+    }
+  }, [searchBarText]);
   function onHandleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const input = e.target.value.trim().toLowerCase();
     if (input === '') {
@@ -50,7 +59,6 @@ function SearchBar(props: SearchBarProps) {
     // partially reset
     setSearchResult(undefined);
     setShowDefaultText(true);
-    setSubmittedName(undefined);
 
     const searchValid = validationPredicate(input);
     setIsSearchValid(searchValid);
@@ -58,7 +66,7 @@ function SearchBar(props: SearchBarProps) {
       return;
     }
 
-    // valid name
+    // valid
     setSearchBarText(input);
   }
 
@@ -77,17 +85,26 @@ function SearchBar(props: SearchBarProps) {
     if (!searchValid) {
       return;
     }
+    dispatchGlobalState({
+      type: 'setIsSearching',
+      payload: true,
+    });
 
     // show updated states based on search result
     const name = searchBarText;
     const searchSuccess = successPredicate(name);
-    setIsSearching(true);
     setShowDefaultText(false);
     setSubmittedName(name);
     setSearchSubmitted(true);
     setIsAvailable(searchSuccess);
     setSearchResult(undefined);
-    if (!searchSuccess && name) {
+    if (name) {
+      dispatchRegisterState({
+        type: 'setDomainName',
+        payload: name,
+      });
+    }
+    if (!searchSuccess && name && values) {
       setSearchResult(values[name]);
     }
   }
@@ -100,16 +117,24 @@ function SearchBar(props: SearchBarProps) {
       });
       return;
     }
+    dispatchRegisterState({
+      type: 'setStage',
+      payload: stage + 1,
+    });
     return;
   }
 
   return (
     <div className="searchbar-container flex-center" ref={searchRef}>
-      {React.cloneElement(headerElement, {
-        ...props,
-        text: submittedName,
-        isAvailable,
-      })}
+      {headerElement ? (
+        React.cloneElement(headerElement, {
+          ...props,
+          text: submittedName,
+          isAvailable,
+        })
+      ) : (
+        <></>
+      )}
       <div
         className="searchbar"
         style={
@@ -122,14 +147,17 @@ function SearchBar(props: SearchBarProps) {
             : { borderColor: 'var(--error-red)' }
         }
       >
+        {' '}
+        {/** TODO change max input to 32 once contract is updated */}
         <input
           type="text"
           placeholder={showDefaultText ? placeholderText : 'try another name'}
           onChange={onHandleChange}
           onFocus={onFocus}
           onKeyDown={(e) => e.key == 'Enter' && isSearchValid && onSubmit(e)}
-          maxLength={32}
+          maxLength={20}
           className="searchbar-input"
+          style={height ? { height: `${height}px` } : {}}
         />
         {isMobile ? (
           <></>
@@ -138,6 +166,12 @@ function SearchBar(props: SearchBarProps) {
             {!isAvailable || !submittedName ? (
               <button
                 className="search-button"
+                style={{
+                  width: `${height}px`,
+                  height: `${height}px`,
+                  maxWidth: `${height}px`,
+                  maxHeight: `${height}px`,
+                }}
                 onClick={(e) => {
                   onSubmit(e);
                 }}
@@ -145,8 +179,8 @@ function SearchBar(props: SearchBarProps) {
                 <SearchIcon
                   fill="#121212"
                   stroke="white"
-                  width="18.51"
-                  height="18.51"
+                  width={height ? `${height / 2.2}` : '18.51px'}
+                  height={height ? `${height / 2.2}` : '18.51px'}
                 />
               </button>
             ) : (
@@ -170,14 +204,18 @@ function SearchBar(props: SearchBarProps) {
           </>
         )}
       </div>
-      {React.cloneElement(footerElement, {
-        ...props,
-        isSearchValid,
-        isAvailable,
-        searchResult: submittedName
-          ? { id: searchResult, domain: submittedName }
-          : undefined,
-      })}
+      {footerElement ? (
+        React.cloneElement(footerElement, {
+          ...props,
+          isSearchValid,
+          isAvailable,
+          searchResult: submittedName
+            ? { id: searchResult, domain: submittedName }
+            : undefined,
+        })
+      ) : (
+        <></>
+      )}
     </div>
   );
 }

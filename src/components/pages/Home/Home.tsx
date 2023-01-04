@@ -1,24 +1,30 @@
 import { useEffect, useState } from 'react';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
+import RegistrationStateProvider, {
+  RegistrationState,
+} from '../../../state/contexts/RegistrationState';
+import { registrationReducer } from '../../../state/reducers/RegistrationReducer';
 import { ArNSDomains } from '../../../types';
-import { FEATURED_DOMAINS } from '../../../utils/constants';
+import { ARNS_TX_ID_REGEX, FEATURED_DOMAINS } from '../../../utils/constants';
 import {
   isArNSDomainNameAvailable,
   isArNSDomainNameValid,
 } from '../../../utils/searchUtils';
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
+import { FeaturedDomains, RegisterNameForm } from '../../layout';
 import { SearchBarFooter, SearchBarHeader } from '../../layout';
-import FeaturedDomains from '../../layout/FeaturedDomains/FeaturedDomains';
+import ConfirmRegistration from '../../layout/ConfirmRegistration/ConfirmRegistration';
+import SuccessfulRegistration from '../../layout/SuccessfulRegistration/SuccessfulRegistration';
+import Workflow from '../../layout/Workflow/Workflow';
 import './styles.css';
 
 function Home() {
-  const [{ arnsSourceContract }] = useGlobalState();
+  const [{ arnsSourceContract, isSearching }] = useGlobalState();
   const [records, setRecords] = useState<ArNSDomains>(
     arnsSourceContract.records,
   );
   const [featuredDomains, setFeaturedDomains] = useState<ArNSDomains>();
-  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
     const newRecords = arnsSourceContract.records;
@@ -29,29 +35,79 @@ function Home() {
       }),
     );
     setFeaturedDomains(featuredDomains);
-  }, [arnsSourceContract]);
+  }, [arnsSourceContract, isSearching]);
+
   return (
     <div className="page">
-      <div className="page-header h1">Arweave Name System</div>
-      <SearchBar
-        setIsSearching={setIsSearching}
-        values={records}
-        successPredicate={(value: string | undefined) =>
-          isArNSDomainNameAvailable({ name: value, records })
-        }
-        validationPredicate={(value: string | undefined) =>
-          isArNSDomainNameValid({ name: value })
-        }
-        placeholderText={'Enter a name'}
-        headerElement={<SearchBarHeader defaultText={'Find a domain name'} />}
-        footerElement={
-          <SearchBarFooter
-            defaultText={
-              'Names must be 1-32 characters. Dashes are permitted, but cannot be trailing characters and cannot be used in single character domains.'
-            }
-          />
-        }
-      />
+      {isSearching ? (
+        <></>
+      ) : (
+        <div className="page-header">Arweave Name System</div>
+      )}
+
+      <RegistrationStateProvider
+        reducer={registrationReducer}
+        firstStage={0}
+        lastStage={4}
+      >
+        <Workflow
+          stages={{
+            0: {
+              component: (
+                <SearchBar
+                  values={records}
+                  successPredicate={(value: string | undefined) =>
+                    isArNSDomainNameAvailable({ name: value, records })
+                  }
+                  validationPredicate={(value: string | undefined) =>
+                    isArNSDomainNameValid({ name: value })
+                  }
+                  placeholderText={'Enter a name'}
+                  headerElement={
+                    <SearchBarHeader defaultText={'Find a domain name'} />
+                  }
+                  footerElement={
+                    <SearchBarFooter
+                      defaultText={
+                        'Names must be 1-32 characters. Dashes are permitted, but cannot be trailing characters and cannot be used in single character domains.'
+                      }
+                    />
+                  }
+                  height={45}
+                />
+              ),
+              showNextPredicate: (registrationState: RegistrationState) => {
+                const { domain } = registrationState;
+                return (
+                  isArNSDomainNameAvailable({ name: domain, records }) &&
+                  isArNSDomainNameValid({ name: domain })
+                );
+              },
+              showBackPredicate: () => true,
+            },
+            1: {
+              component: <RegisterNameForm />,
+              showNextPredicate: (registrationState: RegistrationState) => {
+                const { antID } = registrationState;
+                return !!antID && ARNS_TX_ID_REGEX.test(antID);
+              },
+              showBackPredicate: () => true,
+            },
+            2: {
+              // this component manages buttons itself
+              component: <ConfirmRegistration />,
+              showNextPredicate: () => false,
+              showBackPredicate: () => false,
+            },
+            3: {
+              component: <SuccessfulRegistration />,
+              showNextPredicate: () => false,
+              showBackPredicate: () => false,
+            },
+          }}
+        />
+      </RegistrationStateProvider>
+
       {featuredDomains && !isSearching ? (
         <FeaturedDomains domains={featuredDomains} />
       ) : (
