@@ -6,8 +6,8 @@ import { useRegistrationState } from '../../../state/contexts/RegistrationState'
 import { NAME_PRICE_INFO } from '../../../utils/constants';
 import { isAntValid } from '../../../utils/searchUtils';
 import { AntCard } from '../../cards';
-import { AlertCircle } from '../../icons';
 import Loader from '../Loader/Loader';
+import { Tooltip } from '../Tooltip/Tooltip';
 import './styles.css';
 
 function ConfirmRegistration() {
@@ -15,9 +15,8 @@ function ConfirmRegistration() {
     { domain, ttl, tier, leaseDuration, antID, fee, stage },
     dispatchRegistrationState,
   ] = useRegistrationState();
-  const [{ arnsSourceContract }] = useGlobalState(); // eslint-disable-line
-  const [priceInfo, setPriceInfo] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [{ arnsSourceContract }] = useGlobalState();
+  const [isPostingTransaction, setIsPostingTransaction] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
 
@@ -38,7 +37,7 @@ function ConfirmRegistration() {
   }, [antID]);
 
   async function buyArnsName() {
-    setIsLoading(true);
+    setIsPostingTransaction(true);
     if (!antID) {
       return;
     }
@@ -56,7 +55,7 @@ function ConfirmRegistration() {
       console.log(`Posted transaction: ${pendingTXId}`);
     }
     setTimeout(() => {
-      setIsLoading(false);
+      setIsPostingTransaction(false);
       // TODO: write to local storage to store pending transactions
       dispatchRegistrationState({
         type: 'setStage',
@@ -68,7 +67,7 @@ function ConfirmRegistration() {
   return (
     <>
       <div className="register-name-modal center">
-        {!isLoading ? (
+        {!isPostingTransaction ? (
           <span className="text-large white">
             {domain}.arweave.net is available!
           </span>
@@ -76,7 +75,7 @@ function ConfirmRegistration() {
           <></>
         )}
         <div className="section-header">Confirm Domain Registration</div>
-        {isLoading ? (
+        {isPostingTransaction ? (
           <Loader size={80} />
         ) : isConfirmed ? (
           <>
@@ -99,42 +98,14 @@ function ConfirmRegistration() {
               You will sign two (2) transactions, a registration fee (paid in
               ARIO tokens) and the Arweave network fee (paid in AR).
             </span>
-            <button
-              className="section-header tool-tip"
-              onClick={() => {
-                setPriceInfo(!priceInfo);
-              }}
-            >
-              {fee.io?.toLocaleString()}&nbsp;ARIO&nbsp;
-              <AlertCircle
-                width={'16px'}
-                height={'16px'}
-                fill={'var(--text-white)'}
-              />
-              {priceInfo ? (
-                <span className="info-bubble">
-                  <span className="text bold black center">
-                    {NAME_PRICE_INFO}
-                  </span>
-                  {/**TODO: link to faq or about page */}
-                  <a
-                    href="https://ar.io/"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text faded underline bold center"
-                  >
-                    Need help choosing a tier?
-                  </a>
-                </span>
-              ) : (
-                <></>
-              )}
-            </button>
+            <Tooltip message={NAME_PRICE_INFO}>
+              <span>{fee.io?.toLocaleString()}&nbsp;ARIO&nbsp;</span>
+            </Tooltip>
           </>
         ) : (
           <span className="h2 error">{errorMessage}</span>
         )}
-        {!isLoading ? (
+        {!isPostingTransaction ? (
           <div className="flex-row center">
             <button
               className="outline-button"
