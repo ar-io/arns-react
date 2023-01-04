@@ -70,4 +70,12 @@ export class WarpDataProvider implements SmartweaveContractSource {
       throw error;
     }
   }
+
+  async getContractBalanceForWallet(
+    contractId: ArweaveTransactionId,
+    wallet: ArweaveTransactionId,
+  ) {
+    const state = await this.getContractState(contractId);
+    return state?.balances[wallet] ?? 0;
+  }
 }
