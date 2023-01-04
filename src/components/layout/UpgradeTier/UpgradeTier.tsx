@@ -89,7 +89,17 @@ function UpgradeTier({ domain }: { domain?: string }) {
           Connect Wallet to proceed
         </button>
       ) : (
-        <button className="accent-button">Next</button>
+        <button
+          className="accent-button"
+          onClick={() =>
+            dispatch({
+              type: 'pushNotification',
+              payload: 'This feature is coming soon!',
+            })
+          }
+        >
+          Next
+        </button>
       )}
     </div>
   );

@@ -1,4 +1,5 @@
 import Arweave from 'arweave';
+import { v4 as uuidv4 } from 'uuid';
 
 import type {
   ArNSContractState,
@@ -14,7 +15,9 @@ export type Action =
   | { type: 'setArnsContractState'; payload: ArNSContractState }
   | { type: 'setShowConnectWallet'; payload: boolean }
   | { type: 'setIsSearching'; payload: boolean }
-  | { type: 'setArweave'; payload: Arweave };
+  | { type: 'setArweave'; payload: Arweave }
+  | { type: 'pushNotification'; payload: string }
+  | { type: 'removeNotification'; payload: string };
 
 export const reducer = (state: GlobalState, action: Action): GlobalState => {
   switch (action.type) {
@@ -38,11 +41,6 @@ export const reducer = (state: GlobalState, action: Action): GlobalState => {
         ...state,
         showConnectWallet: action.payload,
       };
-    case 'setIsSearching':
-      return {
-        ...state,
-        isSearching: action.payload,
-      };
     case 'setGateway':
       return {
         ...state,
@@ -53,7 +51,30 @@ export const reducer = (state: GlobalState, action: Action): GlobalState => {
         ...state,
         arnsSourceContract: action.payload,
       };
-
+    case 'setIsSearching':
+      return {
+        ...state,
+        isSearching: action.payload,
+      };
+    case 'pushNotification': {
+      return {
+        ...state,
+        notifications: state.notifications.concat([
+          {
+            id: uuidv4(),
+            text: action.payload,
+          },
+        ]),
+      };
+    }
+    case 'removeNotification': {
+      return {
+        ...state,
+        notifications: state.notifications.filter(
+          (e: { id: string }) => e.id !== action.payload,
+        ),
+      };
+    }
     default:
       return state;
   }
