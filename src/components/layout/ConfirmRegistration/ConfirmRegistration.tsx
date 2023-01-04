@@ -74,7 +74,14 @@ function ConfirmRegistration() {
   return (
     <>
       <div className="register-name-modal center">
-        <span className="section-header">Confirm Domain Registration</span>
+        {!isLoading ? (
+          <span className="text-large white">
+            {domain}.arweave.net is available!
+          </span>
+        ) : (
+          <></>
+        )}
+        <div className="section-header">Confirm Domain Registration</div>
         {isLoading ? (
           <Loader size={80} />
         ) : isConfirmed ? (
@@ -129,15 +136,28 @@ function ConfirmRegistration() {
                 <></>
               )}
             </button>
-            <button
-              className="accent-button"
-              disabled={!antID || !isConfirmed}
-              onClick={() => {
-                buyArnsName();
-              }}
-            >
-              Confirm
-            </button>
+            <div className="flex-row center">
+              <button
+                className="outline-button"
+                onClick={() => {
+                  dispatchRegistrationState({
+                    type: 'setStage',
+                    payload: stage - 1,
+                  });
+                }}
+              >
+                Back
+              </button>
+              <button
+                className="accent-button"
+                disabled={!antID || !isConfirmed}
+                onClick={() => {
+                  buyArnsName();
+                }}
+              >
+                Confirm
+              </button>
+            </div>
           </>
         ) : (
           <span className="h2 error">{errorMessage}</span>

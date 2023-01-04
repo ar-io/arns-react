@@ -124,7 +124,9 @@ function RegisterNameForm() {
   return (
     <>
       <div className="register-name-modal center">
-        <div className="section-header">{domain} is available!</div>
+        <span className="text-large white">
+          {domain}.arweave.net is available!
+        </span>
         <div className="section-header">Register Domain</div>
         <div className="register-inputs center">
           <div className="input-group center column">
