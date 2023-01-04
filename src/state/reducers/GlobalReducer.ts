@@ -1,4 +1,5 @@
 import Arweave from 'arweave';
+import { v4 as uuidv4 } from 'uuid';
 
 import type {
   ArNSContractState,
@@ -58,13 +59,20 @@ export const reducer = (state: GlobalState, action: Action): GlobalState => {
     case 'pushNotification': {
       return {
         ...state,
-        notifications: [action.payload].concat(state.notifications).slice(0, 5),
+        notifications: state.notifications.concat([
+          {
+            id: uuidv4(),
+            text: action.payload,
+          },
+        ]),
       };
     }
     case 'removeNotification': {
       return {
         ...state,
-        notifications: state.notifications.filter((e) => e !== action.payload),
+        notifications: state.notifications.filter(
+          (e: { id: string }) => e.id !== action.payload,
+        ),
       };
     }
     default:

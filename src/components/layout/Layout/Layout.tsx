@@ -7,7 +7,7 @@ import { Notifications } from '../Notifications/Notifications';
 import './styles.css';
 
 function Layout() {
-  const [{ errors, notifications }] = useGlobalState();
+  const [{ notifications }] = useGlobalState();
 
   return (
     <>
@@ -16,7 +16,8 @@ function Layout() {
       </div>
       <div className="body">
         <Outlet />
-        <Notifications notifications={new Set([...errors, ...notifications])} />
+        {/* TODO: add errors here */}
+        <Notifications notifications={notifications} />
       </div>
       <div className="footer">
         <Footer />

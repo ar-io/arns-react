@@ -25,6 +25,7 @@
     "react-icons": "^4.6.0",
     "react-loader-spinner": "^5.3.4",
     "react-router-dom": "^6.4.2",
+    "uuid": "^9.0.0",
     "vite-plugin-package-version": "^1.0.2",
     "warp-contracts": "1.2.35"
   },
@@ -42,6 +43,7 @@
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
     "@types/rimraf": "^3.0.2",
+    "@types/uuid": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "^5.42.1",
     "@vitejs/plugin-react": "^2.1.0",
     "core-js": "^3.26.1",
