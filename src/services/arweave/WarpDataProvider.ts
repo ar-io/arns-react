@@ -37,18 +37,18 @@ export class WarpDataProvider implements SmartweaveContractSource {
     return state;
   }
 
-  async writeTransaction(payload: {
-    [x: string]: any;
-    contractTransactionId: ArweaveTransactionId;
-  }): Promise<ArweaveTransactionId | undefined> {
+  async writeTransaction(
+    contractId: ArweaveTransactionId,
+    payload: {
+      [x: string]: any;
+      contractTransactionId: ArweaveTransactionId;
+    },
+  ): Promise<ArweaveTransactionId | undefined> {
     try {
       if (!payload) {
         throw Error('Payload cannot be empty.');
       }
-      const { contractTransactionId } = payload;
-      const contract = this._warp
-        .contract(contractTransactionId)
-        .connect('use_wallet');
+      const contract = this._warp.contract(contractId).connect('use_wallet');
       const result = await contract.writeInteraction(payload);
       // todo: check for dry write options on writeInteraction
       if (!result) {

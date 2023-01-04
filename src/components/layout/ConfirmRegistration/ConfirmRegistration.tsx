@@ -15,7 +15,7 @@ function ConfirmRegistration() {
     { domain, ttl, tier, leaseDuration, antID, fee, stage },
     dispatchRegistrationState,
   ] = useRegistrationState();
-  const [{ arnsSourceContract }] = useGlobalState();
+  const [{ arnsSourceContract, arnsContractId }] = useGlobalState();
   const [isPostingTransaction, setIsPostingTransaction] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
@@ -42,7 +42,7 @@ function ConfirmRegistration() {
       return;
     }
     const dataProvider = defaultDataProvider();
-    const pendingTXId = await dataProvider.writeTransaction({
+    const pendingTXId = await dataProvider.writeTransaction(arnsContractId, {
       function: 'buyRecord',
       name: domain,
       contractTransactionId: antID,
