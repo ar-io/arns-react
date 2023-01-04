@@ -22,7 +22,7 @@ function SuccessfulRegistration() {
             Transaction ID:&nbsp;
             <a
               className="link"
-              href={`https://viewblock.io/arwweave/${resolvedTxID}`}
+              href={`https://viewblock.io/arwweave/tx/${resolvedTxID}`}
             >
               <b>{resolvedTxID}</b>
             </a>
