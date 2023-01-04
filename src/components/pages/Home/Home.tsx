@@ -7,7 +7,7 @@ import RegistrationStateProvider, {
 } from '../../../state/contexts/RegistrationState';
 import { registrationReducer } from '../../../state/reducers/RegistrationReducer';
 import { ArNSDomains } from '../../../types';
-import { FEATURED_DOMAINS } from '../../../utils/constants';
+import { ARNS_TX_ID_REGEX, FEATURED_DOMAINS } from '../../../utils/constants';
 import {
   isArNSDomainNameAvailable,
   isArNSDomainNameValid,
@@ -88,8 +88,7 @@ function Home() {
               component: <RegisterNameForm />,
               nextPredicate: (registrationState: RegistrationState) => {
                 const { antID } = registrationState;
-                // TODO: add validated of ANT source code contract
-                return !!antID;
+                return !!antID && ARNS_TX_ID_REGEX.test(antID);
               },
             },
             2: {

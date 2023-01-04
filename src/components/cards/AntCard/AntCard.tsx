@@ -43,38 +43,40 @@ function AntCard(props: ArNSMapping) {
   useEffect(() => {
     setIsLoading(true);
     const dataProvider = defaultDataProvider();
-    dataProvider.getContractState(id).then((antContractState) => {
-      if (!antContractState) {
-        setAntDetails(undefined);
-        return;
-      }
-      const allAntDetails: { [x: string]: any } = {
-        ...antContractState,
-        ...DEFAULT_ATTRIBUTES,
-        // TODO: remove this when all ants have controllers
-        controllers: antContractState.controllers
-          ? antContractState.controllers.join(',')
-          : antContractState.owner,
-        tier: antContractState.tier ? antContractState.tier : 1,
-        ...overrides,
-        id,
-        domain,
-      };
-      // TODO: consolidate this logic that sorts and updates key values
-      const replacedKeys = Object.keys(allAntDetails)
-        .sort()
-        .reduce((obj: any, key: string) => {
-          // TODO: flatten recursive objects like subdomains, filter out for now
-          if (typeof allAntDetails[key] === 'object') return obj;
-          obj[mapKeyToAttribute(key)] = allAntDetails[key];
-          return obj;
-        }, {});
-      setLimitDetails(compact ?? true);
-      setAntDetails(replacedKeys);
-      setTimeout(() => {
+    dataProvider
+      .getContractState(id)
+      .then((antContractState) => {
+        if (!antContractState) {
+          setAntDetails(undefined);
+          return;
+        }
+        const allAntDetails: { [x: string]: any } = {
+          ...antContractState,
+          ...DEFAULT_ATTRIBUTES,
+          // TODO: remove this when all ants have controllers
+          controllers: antContractState.controllers
+            ? antContractState.controllers.join(',')
+            : antContractState.owner,
+          tier: antContractState.tier ? antContractState.tier : 1,
+          ...overrides,
+          id,
+          domain,
+        };
+        // TODO: consolidate this logic that sorts and updates key values
+        const replacedKeys = Object.keys(allAntDetails)
+          .sort()
+          .reduce((obj: any, key: string) => {
+            // TODO: flatten recursive objects like subdomains, filter out for now
+            if (typeof allAntDetails[key] === 'object') return obj;
+            obj[mapKeyToAttribute(key)] = allAntDetails[key];
+            return obj;
+          }, {});
+        setLimitDetails(compact ?? true);
+        setAntDetails(replacedKeys);
+      })
+      .finally(() => {
         setIsLoading(false);
-      }, 500);
-    });
+      });
   }, [id, domain, compact, enableActions, overrides]);
 
   function showMore(e: any) {
@@ -90,7 +92,7 @@ function AntCard(props: ArNSMapping) {
   return (
     <>
       {isLoading ? (
-        <Loader size={50} />
+        <Loader size={80} />
       ) : antDetails ? (
         <div className={hover ? 'card hover' : 'card'}>
           <span className="bubble">Tier {antDetails.Tier}</span>
