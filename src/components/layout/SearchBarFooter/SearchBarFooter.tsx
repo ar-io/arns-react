@@ -33,6 +33,7 @@ function SearchBarFooter({
           domain={searchResult?.domain}
           id={searchResult?.id}
           compact={true}
+          enableActions={true}
         />
       )}
     </>

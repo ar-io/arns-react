@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 
-import { useGlobalState } from '../../../state/contexts/GlobalState.js';
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import Footer from '../Footer/Footer';
 import NavBar from '../Navbar/Navbar';
-import { Notifications } from '../Notifications/Notifcations.js';
+import { Notifications } from '../Notifications/Notifications';
 import './styles.css';
 
 function Layout() {

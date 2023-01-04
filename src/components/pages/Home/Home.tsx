@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import RegistrationStateProvider from '../../../state/contexts/RegistrationState';
+import RegistrationStateProvider, {
+  RegistrationState,
+} from '../../../state/contexts/RegistrationState';
 import { registrationReducer } from '../../../state/reducers/RegistrationReducer';
 import { ArNSDomains } from '../../../types';
 import { FEATURED_DOMAINS } from '../../../utils/constants';
 import {
-  isAntValid,
   isArNSDomainNameAvailable,
   isArNSDomainNameValid,
 } from '../../../utils/searchUtils';
@@ -20,7 +21,9 @@ import './styles.css';
 
 function Home() {
   const [{ arnsSourceContract, isSearching }] = useGlobalState();
-  const [records, setRecords] = useState<ArNSDomains>();
+  const [records, setRecords] = useState<ArNSDomains>(
+    arnsSourceContract.records,
+  );
   const [featuredDomains, setFeaturedDomains] = useState<ArNSDomains>();
 
   useEffect(() => {
@@ -54,7 +57,6 @@ function Home() {
                 <SearchBar
                   values={records}
                   successPredicate={(value: string | undefined) =>
-                    !!records &&
                     isArNSDomainNameAvailable({ name: value, records })
                   }
                   validationPredicate={(value: string | undefined) =>
@@ -74,28 +76,29 @@ function Home() {
                   height={45}
                 />
               ),
-              nextCondition: true,
-              backCondition: true,
-              onNext: async () => true,
+              nextPredicate: (registrationState: RegistrationState) => {
+                const { domain } = registrationState;
+                return (
+                  isArNSDomainNameAvailable({ name: domain, records }) &&
+                  isArNSDomainNameValid({ name: domain })
+                );
+              },
             },
             1: {
               component: <RegisterNameForm />,
-              nextCondition: true,
-              backCondition: true,
-              onNext: async (id: string) =>
-                await isAntValid(
-                  id,
-                  arnsSourceContract.approvedANTSourceCodeTxs,
-                ),
+              nextPredicate: (registrationState: RegistrationState) => {
+                const { antID } = registrationState;
+                // TODO: add validated of ANT source code contract
+                return !!antID;
+              },
             },
             2: {
               component: <ConfirmRegistration />,
-              nextCondition: false,
-              backCondition: true,
-              onNext: async () => true,
+              nextPredicate: () => false, // only show confirm button
             },
             3: {
               component: <Navigate to="/manage" />,
+              nextPredicate: () => false,
             },
           }}
         />

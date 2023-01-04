@@ -1,4 +1,3 @@
-import Arweave from 'arweave/node/common.js';
 import type { Dispatch, SetStateAction } from 'react';
 
 export type ArNSDomains = { [x: string]: any };
@@ -42,7 +41,7 @@ export type ArNSMapping = {
   domain: string;
   id: ArweaveTransactionId;
   overrides?: any; // TODO;
-  compact: boolean;
+  compact?: boolean;
   enableActions?: boolean;
   hover?: boolean;
 };
@@ -129,7 +128,7 @@ export type WorkflowProps = {
   stages: {
     [x: number]: {
       component: JSX.Element;
-      nextCondition?: boolean;
+      nextPredicate: (state?: any) => boolean;
       backCondition?: boolean;
       onNext?: (id: string) => Promise<boolean>;
     };

@@ -55,6 +55,7 @@ function AntCard(props: ArNSMapping) {
         controllers: antContractState.controllers
           ? antContractState.controllers.join(',')
           : antContractState.owner,
+        tier: antContractState.tier ? antContractState.tier : 1,
         ...overrides,
         id,
         domain,
@@ -68,7 +69,7 @@ function AntCard(props: ArNSMapping) {
           obj[mapKeyToAttribute(key)] = allAntDetails[key];
           return obj;
         }, {});
-      setLimitDetails(compact);
+      setLimitDetails(compact ?? true);
       setAntDetails(replacedKeys);
       setTimeout(() => {
         setIsLoading(false);
@@ -92,10 +93,7 @@ function AntCard(props: ArNSMapping) {
         <Loader size={50} />
       ) : antDetails ? (
         <div className={hover ? 'card hover' : 'card'}>
-          {/* // TODO: pull tier from ant contract details */}
-          <span className="bubble">
-            Tier {overrides.tier ?? antDetails.tier}
-          </span>
+          <span className="bubble">Tier {antDetails.Tier}</span>
           {Object.entries(antDetails).map(([key, value]) => {
             if (!PRIMARY_DETAILS.includes(key) && limitDetails) {
               return;
