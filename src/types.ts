@@ -128,9 +128,8 @@ export type WorkflowProps = {
   stages: {
     [x: number]: {
       component: JSX.Element;
-      nextPredicate: (state?: any) => boolean;
+      showNextPredicate: (state?: any) => boolean;
       backCondition?: boolean;
-      onNext?: (id: string) => Promise<boolean>;
     };
   };
 };

@@ -76,7 +76,7 @@ function Home() {
                   height={45}
                 />
               ),
-              nextPredicate: (registrationState: RegistrationState) => {
+              showNextPredicate: (registrationState: RegistrationState) => {
                 const { domain } = registrationState;
                 return (
                   isArNSDomainNameAvailable({ name: domain, records }) &&
@@ -86,18 +86,18 @@ function Home() {
             },
             1: {
               component: <RegisterNameForm />,
-              nextPredicate: (registrationState: RegistrationState) => {
+              showNextPredicate: (registrationState: RegistrationState) => {
                 const { antID } = registrationState;
                 return !!antID && ARNS_TX_ID_REGEX.test(antID);
               },
             },
             2: {
               component: <ConfirmRegistration />,
-              nextPredicate: () => false, // only show confirm button
+              showNextPredicate: () => false, // only show confirm button
             },
             3: {
               component: <Navigate to="/manage" />,
-              nextPredicate: () => false,
+              showNextPredicate: () => false,
             },
           }}
         />

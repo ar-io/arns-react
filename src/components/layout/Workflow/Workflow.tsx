@@ -51,7 +51,7 @@ function Workflow({ stages }: WorkflowProps) {
             isLastStage={isLastStage}
             dispatch={dispatchRegisterState}
             showBack={true}
-            showNext={stages[stage].nextPredicate(registrationState)}
+            showNext={stages[stage].showNextPredicate(registrationState)}
             handleNext={handleNext}
           />
         )}

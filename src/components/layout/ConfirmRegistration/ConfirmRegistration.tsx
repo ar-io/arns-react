@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { defaultDataProvider } from '../../../services/arweave';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { NAME_PRICE_INFO } from '../../../utils/constants';
+import { isAntValid } from '../../../utils/searchUtils';
 import { AntCard } from '../../cards';
 import { AlertCircle } from '../../icons';
 import Loader from '../Loader/Loader';
@@ -14,9 +15,33 @@ function ConfirmRegistration() {
     { domain, ttl, tier, leaseDuration, antID, fee, stage },
     dispatchRegistrationState,
   ] = useRegistrationState();
-  const [{}, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
+  const [{ arnsSourceContract }, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
   const [priceInfo, setPriceInfo] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isConfirmed, setIsConfirmed] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | undefined>();
+
+  useEffect(() => {
+    if (!antID) {
+      return;
+    }
+    isAntValid(antID, arnsSourceContract.approvedANTSourceCodeTxs)
+      .then((isValid) => {
+        setIsConfirmed(isValid);
+        if (!isValid) {
+          setErrorMessage(
+            'Invalid ANT Source Code Contract. Please select a different ANT.',
+          );
+        }
+      })
+      .catch((e) => {
+        // TODO: push error notification
+        console.error(e);
+        setErrorMessage(
+          'Failed to validate ANT Source Contract. Please try again.',
+        );
+      });
+  }, [antID]);
 
   async function buyArnsName() {
     setIsLoading(true);
@@ -52,7 +77,7 @@ function ConfirmRegistration() {
         <span className="section-header">Confirm Domain Registration</span>
         {isLoading ? (
           <Loader size={80} />
-        ) : (
+        ) : isConfirmed ? (
           <>
             <AntCard
               domain={domain}
@@ -104,10 +129,9 @@ function ConfirmRegistration() {
                 <></>
               )}
             </button>
-
             <button
               className="accent-button"
-              disabled={!antID}
+              disabled={!antID || !isConfirmed}
               onClick={() => {
                 buyArnsName();
               }}
@@ -115,6 +139,8 @@ function ConfirmRegistration() {
               Confirm
             </button>
           </>
+        ) : (
+          <span className="h2 error">{errorMessage}</span>
         )}
       </div>
     </>
