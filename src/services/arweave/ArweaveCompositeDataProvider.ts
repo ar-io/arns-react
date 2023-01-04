@@ -42,4 +42,15 @@ export class ArweaveCompositeDataProvider implements SmartweaveContractSource {
       }
     }
   }
+
+  async getContractBalanceForWallet(
+    contractId: string,
+    wallet: string,
+  ): Promise<number> {
+    return Promise.any(
+      this._providers.map((p) =>
+        p.getContractBalanceForWallet(contractId, wallet),
+      ),
+    );
+  }
 }

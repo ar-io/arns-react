@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { useIsMobile, useWalletAddress } from '../../../hooks';
+import { defaultDataProvider } from '../../../services/arweave/';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ArweaveWalletConnector } from '../../../types';
 import { ROUTES } from '../../../utils/routes';
@@ -11,12 +12,14 @@ import { Loader, NavBarLink } from '../../layout';
 import './styles.css';
 
 function NavMenuCard() {
-  const [{}, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
+  const [{ arnsContractId }, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
   const [showMenu, setShowMenu] = useState(false);
   const [walletDetails, setWalletDetails] = useState<{
     AR: number | undefined | string;
+    IO: number | undefined | string;
   }>({
     AR: undefined,
+    IO: undefined,
   });
   const [walletCopied, setWalletCopied] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -42,18 +45,28 @@ function NavMenuCard() {
   function resetWalletDetails() {
     setWalletDetails({
       AR: undefined,
+      IO: undefined,
     });
   }
 
   async function fetchWalletDetails(wallet: ArweaveWalletConnector) {
+    const dataProvider = defaultDataProvider();
+    const ioBalance = await dataProvider.getContractBalanceForWallet(
+      arnsContractId,
+      await wallet.getWalletAddress(),
+    );
     const arBalance = await wallet.getWalletBalanceAR();
-    const formattedBalance = Intl.NumberFormat('en-US', {
-      notation: 'compact',
-      maximumFractionDigits: 2,
-      compactDisplay: 'short',
-    }).format(+arBalance);
+    const [formattedBalance, formattedIOBalance] = [arBalance, ioBalance].map(
+      (balance: string | number) =>
+        Intl.NumberFormat('en-US', {
+          notation: 'compact',
+          maximumFractionDigits: 2,
+          compactDisplay: 'short',
+        }).format(+balance),
+    );
     setWalletDetails({
       AR: formattedBalance,
+      IO: formattedIOBalance,
     });
   }
 

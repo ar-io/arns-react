@@ -70,6 +70,10 @@ export interface SmartweaveContractSource {
     },
     dryWrite?: boolean,
   ): Promise<ArweaveTransactionId | undefined>;
+  getContractBalanceForWallet(
+    contractId: ArweaveTransactionId,
+    wallet: ArweaveTransactionId,
+  ): Promise<number>;
 }
 
 export interface ArweaveWalletConnector {
