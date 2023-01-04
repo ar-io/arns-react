@@ -27,6 +27,7 @@
   --success-green: #18a957;
   --accent: #ffbb38;
   --modal-bg: #1d1e1cee;
+  --corner-radius: 6px;
 }
 
 html {
@@ -226,7 +227,7 @@ button {
 .button-large {
   background-color: var(--bg-color);
   color: var(--text-white);
-  border-radius: 6px;
+  border-radius: var(--corner-radius);
   height: 45px;
   width: 150px;
   border: 2px solid var(--text-white);
@@ -324,7 +325,7 @@ button {
   background: #fafafa;
   border: 2px solid #e0e0e0;
   box-shadow: 0px 0px 4px rgba(255, 255, 255, 0.25);
-  border-radius: 6px;
+  border-radius: var(--corner-radius);
   font-family: 'Rubik-Bold';
   font-weight: 500;
   font-size: 12px;
@@ -344,7 +345,7 @@ button {
   border-left: none;
   border-right: none;
   box-shadow: 0px 0px 4px rgba(255, 255, 255, 0.25);
-  border-radius: 6px;
+  border-radius: var(--corner-radius);
   font-family: 'Rubik-Bold';
   font-weight: 500;
   font-size: 12px;
