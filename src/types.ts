@@ -1,4 +1,3 @@
-import Arweave from 'arweave/node/common.js';
 import type { Dispatch, SetStateAction } from 'react';
 
 export type ArNSDomains = { [x: string]: any };
