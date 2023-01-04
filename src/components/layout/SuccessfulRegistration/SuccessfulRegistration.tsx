@@ -22,7 +22,9 @@ function SuccessfulRegistration() {
             Transaction ID:&nbsp;
             <a
               className="link"
+              target="_blank"
               href={`https://sonar.warp.cc/#/app/interaction/${resolvedTxID}`}
+              rel="noreferrer"
             >
               <b>{resolvedTxID}</b>
             </a>
