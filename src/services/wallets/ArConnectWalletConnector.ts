@@ -49,6 +49,7 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
   async getWalletANTs(
     cursor?: string,
   ): Promise<{ ids: string[]; cursor?: string }> {
+    // get all contracts deployed by an account with valid ANT source code transactions
     const deployedContractQuery = {
       query: `
       { 
@@ -58,6 +59,15 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
             {
               name: "App-Name",
               values: ["SmartWeaveContract"]
+            },
+            {
+              name:"Contract-Src",
+              values:[
+                "7hL0La2KMapdJI6yIGnb4f4IjvhlGQyXnqpWc0i0d_w",
+                "cNr6JPVu3rEOwIbdnu3lVipz9pwY5Pps9mxHSW7Jdtk",
+                "JIIB01pRbNK2-UyNxwQK-6eknrjENMTpTvQmB8ZDzQg",
+                "PEI1efYrsX08HUwvc6y-h6TSpsNlo2r6_fWL2_GdwhY"
+              ]
             }
           ]
           sort: HEIGHT_DESC
@@ -78,6 +88,7 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
         }
       }`,
     };
+    // get all contracts transfered to an account
     const transferedContractQuery = {
       query: `
       { 
