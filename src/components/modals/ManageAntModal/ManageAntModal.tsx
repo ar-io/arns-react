@@ -1,4 +1,5 @@
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import { WarpFactory } from 'warp-contracts';
 
 import { defaultDataProvider } from '../../../services/arweave';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
@@ -77,6 +78,19 @@ function ManageAntModal({
       return <AlertCircle width={20} height={20} fill={'var(--text-faded)'} />;
     };
     setDeploymentStatus({ confirmations: confirmations, icon: icon() });
+  }
+
+  async function transfer() {
+    const warp = WarpFactory.forMainnet({}, true);
+    const contract = warp
+      .contract('t3E2BnNj6tfZ35zfn5uGstigRje01j8oQFb85RfKkCA')
+      .connect('use_wallet');
+    const result = await contract.writeInteraction({
+      function: 'transfer',
+      target: 'QGWqtJdLLgm2ehFWiiPzMaoFLD50CnGuzZIPEdoDRGQ',
+      qty: 1,
+    });
+    console.log(result);
   }
   return (
     <div
@@ -219,7 +233,14 @@ function ManageAntModal({
             col2={contractState?.owner ? contractState.owner : 'N/A'}
             col3=""
             col4={<></>}
-            col5={<button className="assets-manage-button">Transfer</button>}
+            col5={
+              <button
+                className="assets-manage-button"
+                onClick={() => transfer()}
+              >
+                Transfer
+              </button>
+            }
             bgColor={'#1E1E1E'}
             textColor={'var(--text-white)'}
           />
