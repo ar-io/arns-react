@@ -35,6 +35,7 @@ function Home() {
       }),
     );
     setFeaturedDomains(featuredDomains);
+    console.log('loading');
   }, [arnsSourceContract, isSearching]);
 
   return (
