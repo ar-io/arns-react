@@ -17,7 +17,7 @@
   height: fit-content;
   background-color: var(--text-white);
   border: 2px solid #e0e0e0;
-  border-radius: 100px;
+  border-radius: var(--corner-radius);
   align-items: center;
   justify-content: space-between;
   padding: 9px;

@@ -128,7 +128,7 @@ function RegisterNameForm() {
               <input
                 className="data-input center"
                 type="text"
-                placeholder="Enter an ANT ID"
+                placeholder="Enter an ANT Contract ID"
                 onChange={(e) => {
                   handleAntId(e);
                 }}

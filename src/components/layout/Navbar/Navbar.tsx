@@ -14,9 +14,9 @@ function NavBar() {
         <Link
           className="hover"
           to="/"
-          onClick={() =>
-            dispatchGlobalState({ type: 'setIsSearching', payload: false })
-          }
+          onClick={() => {
+            dispatchGlobalState({ type: 'setIsSearching', payload: false });
+          }}
         >
           <img src={logo} className="brand-logo" alt="logo" />
         </Link>
