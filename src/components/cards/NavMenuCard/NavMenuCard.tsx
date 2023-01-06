@@ -5,7 +5,7 @@ import { defaultDataProvider } from '../../../services/arweave/';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ArweaveWalletConnector } from '../../../types';
 import { ROUTES } from '../../../utils/routes';
-import { AccountIcon, CopyIcon, MenuIcon } from '../../icons';
+import { CopyIcon, MenuIcon } from '../../icons';
 import ConnectButton from '../../inputs/buttons/ConnectButton/ConnectButton';
 import MenuButton from '../../inputs/buttons/MenuButton/MenuButton';
 import { Loader, NavBarLink } from '../../layout';
@@ -103,22 +103,37 @@ function NavMenuCard() {
       <MenuButton
         setShow={setShowMenu}
         show={showMenu}
-        icon={
-          walletAddress ? (
-            <AccountIcon
-              width={'24px'}
-              height={'24px'}
-              fill={showMenu ? 'var(--text-black)' : 'var(--text-white)'}
+        style={{
+          padding: '10px 20px',
+        }}
+      >
+        {walletAddress ? (
+          <div className="flex-row" style={{ gap: '0.5em' }}>
+            <span
+              style={{
+                backgroundColor: '#5DC389',
+                height: '10px',
+                width: '10px',
+                borderRadius: '50%',
+                display: 'flex',
+              }}
             />
-          ) : (
-            <MenuIcon
-              width={'24px'}
-              height={'24px'}
-              fill={showMenu ? 'var(--text-black)' : 'var(--text-white)'}
-            />
-          )
-        }
-      />
+            <span
+              className="text"
+              style={{ display: 'flex' }}
+            >{`${walletAddress.slice(0, 3)}...${walletAddress.slice(
+              -3,
+            )}`}</span>
+          </div>
+        ) : (
+          <MenuIcon
+            width={'24px'}
+            height={'24px'}
+            fill={showMenu ? 'var(--text-black)' : 'var(--text-white)'}
+          />
+        )}
+      </MenuButton>
+
       {showMenu ? (
         <div className="card menu" ref={menuRef}>
           {isMobile ? (

@@ -5,19 +5,29 @@ import './styles.css';
 function MenuButton({
   show,
   setShow,
-  icon,
+  style,
+  children,
 }: {
   show: boolean;
+  style: any;
   setShow: Dispatch<SetStateAction<boolean>>;
-  icon: JSX.Element;
+  children: JSX.Element;
 }): JSX.Element {
   return (
     <>
       <button
-        className={!show ? 'round-button' : 'round-button white-background'}
+        className="outline-button hover"
+        style={
+          show
+            ? {
+                borderWidth: '2px',
+                ...style,
+              }
+            : style
+        }
         onClick={() => setShow(!show)}
       >
-        {icon}
+        {children}
       </button>
     </>
   );
