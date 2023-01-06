@@ -59,3 +59,8 @@ export function calculateArNSNamePrice({
     return 0;
   }
 }
+export function tagsToObject({ tags }: { tags: any }) {
+  const tagObject: { [x: string]: string } = {};
+  tags.map((tag: any) => (tagObject[tag.name] = tag.value));
+  return tagObject;
+}

@@ -2,7 +2,9 @@ import { PermissionType } from 'arconnect';
 import Arweave from 'arweave';
 import Ar from 'arweave/node/ar';
 
-import { ArweaveWalletConnector } from '../../types';
+import { ArweaveTransactionId, ArweaveWalletConnector } from '../../types';
+import { tagsToObject } from '../../utils/searchUtils';
+import { buildQuery } from '../arweave/arweave';
 
 const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [
   'ACCESS_ADDRESS',
@@ -47,31 +49,23 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
   }
 
   async getWalletANTs(
+    approvedSourceCodeTransactions: ArweaveTransactionId[],
     cursor?: string,
   ): Promise<{ ids: string[]; cursor?: string }> {
     // get all contracts deployed by an account with valid ANT source code transactions
+    const address = await this.getWalletAddress();
     const deployedContractQuery = {
       query: `
       { 
         transactions (
-          owners:["ZjmB2vEUlHlJ7-rgJkYP09N5IzLPhJyStVrK5u9dDEo"]
+          owners:["${address}"]
           tags:[
             {
-              name: "App-Name",
-              values: ["SmartWeaveContract"]
-            },
-            {
               name:"Contract-Src",
-              values:[
-                "7hL0La2KMapdJI6yIGnb4f4IjvhlGQyXnqpWc0i0d_w",
-                "cNr6JPVu3rEOwIbdnu3lVipz9pwY5Pps9mxHSW7Jdtk",
-                "JIIB01pRbNK2-UyNxwQK-6eknrjENMTpTvQmB8ZDzQg",
-                "PEI1efYrsX08HUwvc6y-h6TSpsNlo2r6_fWL2_GdwhY"
-              ]
+              values:${approvedSourceCodeTransactions}
             }
-          ]
-          sort: HEIGHT_DESC
-          ${cursor ? `after: ${cursor}` : ''}
+          ],
+          sort: HEIGHT_DESC,
         ) {
           pageInfo {
             hasNextPage
@@ -89,43 +83,47 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
       }`,
     };
     // get all contracts transfered to an account
-    const transferedContractQuery = {
-      query: `
-      { 
-        transactions (
-          tags:[
-            {
-              name: "App-Name",
-              values: ["SmartWeaveAction"]
-            }
-            {
-              name:"Input",
-              values:[]
-            }
-          ]
-          sort: HEIGHT_DESC
-          ${cursor ? `after: ${cursor}` : ''}
-        ) {
-          pageInfo {
-            hasNextPage
-          }
-          edges {
-            cursor
-            node {
-              id
-              block {
-                height
-              }
-            }
-          }
-        }
-      }`,
-    };
-    const response = await this._arweave.api.post(
+    // const transferredContractQuery = {
+    // query: `
+    // {
+    //   transactions (
+    //     tags:[
+    //       {
+    //         name: "App-Name",
+    //         values: ["SmartWeaveAction"]
+    //       },
+    //       {
+    //         name:"Input",
+    //         values:["{\"function\":\"transfer\",\"target\":\"KsUYFIGvpX9MCbhHvsHbPAnxLIMYpzifqNFtFSuuIHA\",\"qty\":1}"]
+    //       },
+    //       {
+    //         name:"Contract-Src",
+    //         values:[${approvedSourceCodeTransactions}]
+    //       }
+    //     ],
+    //     sort: HEIGHT_DESC,
+    //   ) {
+    //     pageInfo {
+    //       hasNextPage
+    //     }
+    //     edges {
+    //       cursor
+    //       node {
+    //         id
+    //         block {
+    //           height
+    //         }
+    //       }
+    //     }
+    //   }
+    // }`,
+    // };
+    const deployedResponse = await this._arweave.api.post(
       '/graphql',
       deployedContractQuery,
     );
-    const { data } = response.data;
+    console.log(deployedResponse);
+    const { data } = deployedResponse.data;
     const fetchedANTids: Set<string> = new Set();
     let newCursor: string | undefined = undefined;
     if (data?.transactions?.edges?.length) {
@@ -141,6 +139,24 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
           }
         });
     }
+
+    // const transferredResponse = await this._arweave.api.post(
+    //   '/graphql',
+    //   transferredContractQuery,
+    // );
+    // if (transferredResponse.data.data?.transactions?.edges?.length) {
+    //   transferredResponse.data.data.transactions.edges
+    //     .map((e: any) => ({
+    //       id: tagsToObject(e.node.tags)["Contract"],
+    //       cursor: e.cursor,
+    //     }))
+    //     .forEach((ant: { id: string; cursor: string }) => {
+    //       fetchedANTids.add(ant.id);
+    //       if (cursor) {
+    //         newCursor = ant.cursor;
+    //       }
+    //     });
+    // }
     return {
       ids: [...fetchedANTids],
       cursor: newCursor,

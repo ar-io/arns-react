@@ -5,6 +5,7 @@ export type ArNSDomains = { [x: string]: ArweaveTransactionId };
 export type ArNSContractState = {
   records: ArNSDomains;
   fees: { [x: number]: number };
+  approvedANTSourceCodeTxs: ArweaveTransactionId[];
 };
 
 export type ArNSMapping = {
@@ -37,7 +38,10 @@ export interface ArweaveWalletConnector {
   disconnect(): Promise<void>;
   getWalletAddress(): Promise<string>;
   getWalletBalanceAR(): Promise<string>;
-  getWalletANTs(cursor?: string): Promise<{ ids: string[]; cursor?: string }>;
+  getWalletANTs(
+    approvedSourceCodeTransactions: ArweaveTransactionId[],
+    cursor?: string,
+  ): Promise<{ ids: string[]; cursor?: string }>;
 }
 
 export type SearchBarProps = {

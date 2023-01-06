@@ -22,7 +22,7 @@ const initialState: GlobalState = {
     protocol: 'https',
   }),
   arnsContractId: 'bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U',
-  arnsSourceContract: { records: {}, fees: {} },
+  arnsSourceContract: { records: {}, fees: {}, approvedANTSourceCodeTxs: [] },
   gateway: 'arweave.dev',
   walletAddress: undefined,
   showConnectWallet: false,

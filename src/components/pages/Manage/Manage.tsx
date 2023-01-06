@@ -14,7 +14,7 @@ function Manage() {
     if (wallet) {
       setIsLoading(true);
       wallet
-        .getWalletANTs(cursor)
+        .getWalletANTs([], cursor)
         .then(({ ids, cursor }) => {
           setWalletANTs(ids);
           setCursor(cursor);
