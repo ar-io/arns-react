@@ -75,7 +75,7 @@ export async function isAntValid(
   approvedANTSourceCodeTxs: ArweaveTransactionId[],
 ): Promise<boolean> {
   if (!ARNS_TX_ID_REGEX.test(id)) {
-    throw Error('ANT ID Not a valid arweave transaction ID');
+    throw Error('ANT Contract ID is not a valid Arweave transaction.');
   }
   const contractTxnData = await arweave.api
     .post('/graphql', buildContractTxQuery(id))
