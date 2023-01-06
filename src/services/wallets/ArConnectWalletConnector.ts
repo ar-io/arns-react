@@ -2,9 +2,7 @@ import { PermissionType } from 'arconnect';
 import Arweave from 'arweave';
 import Ar from 'arweave/node/ar';
 
-import { ArweaveTransactionId, ArweaveWalletConnector } from '../../types';
-import { tagsToObject } from '../../utils/searchUtils';
-import { buildQuery } from '../arweave/arweave';
+import { ArweaveWalletConnector } from '../../types';
 
 const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [
   'ACCESS_ADDRESS',
@@ -49,7 +47,6 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
   }
 
   async getWalletANTs(
-    approvedSourceCodeTransactions: ArweaveTransactionId[],
     cursor?: string,
   ): Promise<{ ids: string[]; cursor?: string }> {
     // get all contracts deployed by an account with valid ANT source code transactions
@@ -62,7 +59,10 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
           tags:[
             {
               name:"Contract-Src",
-              values:${approvedSourceCodeTransactions}
+              values:["7hL0La2KMapdJI6yIGnb4f4IjvhlGQyXnqpWc0i0d_w",
+              "cNr6JPVu3rEOwIbdnu3lVipz9pwY5Pps9mxHSW7Jdtk",
+              "JIIB01pRbNK2-UyNxwQK-6eknrjENMTpTvQmB8ZDzQg",
+              "PEI1efYrsX08HUwvc6y-h6TSpsNlo2r6_fWL2_GdwhY"]
             }
           ],
           sort: HEIGHT_DESC,
