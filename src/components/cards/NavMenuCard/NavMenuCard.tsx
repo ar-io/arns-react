@@ -111,7 +111,7 @@ function NavMenuCard() {
           <div className="flex-row" style={{ gap: '0.5em' }}>
             <span
               style={{
-                backgroundColor: '#5DC389',
+                backgroundColor: 'var(--light-green)',
                 height: '10px',
                 width: '10px',
                 borderRadius: '50%',

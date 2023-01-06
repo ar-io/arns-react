@@ -1,9 +1,10 @@
+import { PermissionType } from 'arconnect';
 import Arweave from 'arweave';
 import Ar from 'arweave/node/ar';
 
 import { ArweaveWalletConnector } from '../../types';
 
-const ARCONNECT_WALLET_PERMISSIONS = [
+const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [
   'ACCESS_ADDRESS',
   'ACCESS_ALL_ADDRESSES',
   'ACCESS_PUBLIC_KEY',
@@ -11,7 +12,7 @@ const ARCONNECT_WALLET_PERMISSIONS = [
 ];
 
 export class ArConnectWalletConnector implements ArweaveWalletConnector {
-  private _wallet: any;
+  private _wallet: Window['arweaveWallet'];
   private _arweave: Arweave;
   private _ar: Ar = new Ar();
 
