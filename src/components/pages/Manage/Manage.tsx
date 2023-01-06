@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 
 import { useWalletAddress } from '../../../hooks';
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { CopyIcon } from '../../icons';
 import { Loader } from '../../layout';
 
 function Manage() {
+  const [{ arnsSourceContract }] = useGlobalState();
   const { walletAddress, wallet } = useWalletAddress();
   const [isLoading, setIsLoading] = useState(false);
   const [walletANTs, setWalletANTs] = useState<string[]>([]);
@@ -14,7 +16,7 @@ function Manage() {
     if (wallet) {
       setIsLoading(true);
       wallet
-        .getWalletANTs(cursor)
+        .getWalletANTs(arnsSourceContract.approvedANTSourceCodeTxs, cursor)
         .then(({ ids, cursor }) => {
           setWalletANTs(ids);
           setCursor(cursor);
@@ -27,6 +29,7 @@ function Manage() {
         });
     }
   }, [walletAddress]);
+
   return (
     <div className="page">
       {isLoading ? (
