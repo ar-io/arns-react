@@ -90,18 +90,14 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
       transactions (
         tags:[
           {
-            name: "App-Name",
-            values: ["SmartWeaveAction"]
-          },
-          {
             name:"Input",
-            values:["{\"function\":\"transfer\",\"target\":\"${
-              this.address
-            }\",\"qty\":1}"]
-          },
-          {
-            name:"Contract-Src",
-            values:${JSON.stringify(approvedSourceCodeTransactions)}
+            values:[${JSON.stringify(
+              JSON.stringify({
+                function: 'transfer',
+                target: this.address,
+                qty: 1,
+              }),
+            )}]
           }
         ],
         sort: HEIGHT_DESC,
@@ -113,6 +109,10 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
           cursor
           node {
             id
+            tags{
+              name
+              value
+            }
             block {
               height
             }
@@ -125,7 +125,6 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
       '/graphql',
       deployedContractQuery,
     );
-    console.log(deployedResponse);
     const { data } = deployedResponse.data;
     const fetchedANTids: Set<string> = new Set();
     let newCursor: string | undefined = undefined;
@@ -147,12 +146,13 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
       '/graphql',
       transferredContractQuery,
     );
+    console.log(transferredResponse.data.data.transactions.edges);
     if (transferredResponse.data.data?.transactions?.edges?.length) {
       transferredResponse.data.data.transactions.edges
-        .map((e: any) => ({
-          id: tagsToObject(e.node.tags)['Contract'],
-          cursor: e.cursor,
-        }))
+        .map((e: any) => {
+          const tags = tagsToObject({ tags: e.node.tags });
+          return { id: tags['Contract'], cursor: e.cursor };
+        })
         .forEach((ant: { id: string; cursor: string }) => {
           fetchedANTids.add(ant.id);
           if (cursor) {
