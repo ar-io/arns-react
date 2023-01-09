@@ -60,8 +60,9 @@ export class JsonWalletConnector implements ArweaveWalletConnector {
   }
 
   async getWalletANTs(
+    approvedSourceCodeTransactions: string[],
     cursor?: string | undefined, // eslint-disable-line
-    cachedANTs?: Set<string> | undefined, // eslint-disable-line
+    // cachedANTs?: Set<string> | undefined, // eslint-disable-line
   ): Promise<{
     ids: string[];
     cached: Set<string>;
