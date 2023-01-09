@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react';
 
+import { useWalletAddress } from '../../../hooks/index';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import RegistrationStateProvider, {
-  RegistrationState,
-} from '../../../state/contexts/RegistrationState';
-import { registrationReducer } from '../../../state/reducers/RegistrationReducer';
+import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { ArNSDomains } from '../../../types';
 import { ARNS_TX_ID_REGEX, FEATURED_DOMAINS } from '../../../utils/constants';
 import {
@@ -20,7 +18,10 @@ import Workflow from '../../layout/Workflow/Workflow';
 import './styles.css';
 
 function Home() {
-  const [{ arnsSourceContract, isSearching }] = useGlobalState();
+  const [{ arnsSourceContract }] = useGlobalState();
+  const { walletAddress } = useWalletAddress();
+  const [{ domain, antID, stage, isSearching }, dispatchRegisterState] =
+    useRegistrationState(); // eslint-disable-line
   const [records, setRecords] = useState<ArNSDomains>(
     arnsSourceContract.records,
   );
@@ -35,81 +36,125 @@ function Home() {
       }),
     );
     setFeaturedDomains(featuredDomains);
-    console.log('loading');
-  }, [arnsSourceContract, isSearching]);
+  }, [arnsSourceContract, domain, isSearching]);
 
   return (
     <div className="page">
-      {isSearching ? (
-        <></>
-      ) : (
-        <div className="page-header">Arweave Name System</div>
-      )}
+      {domain ? <></> : <div className="page-header">Arweave Name System</div>}
+      <Workflow
+        stage={stage}
+        onNext={() => {
+          dispatchRegisterState({
+            type: 'setStage',
+            payload: stage + 1,
+          });
+        }}
+        onBack={() => {
+          if (stage === 0) {
+            dispatchRegisterState({
+              type: 'reset',
+            });
+            return;
+          }
+          dispatchRegisterState({
+            type: 'setStage',
+            payload: stage - 1,
+          });
+        }}
+        stages={{
+          0: {
+            component: (
+              <SearchBar
+                values={records}
+                value={domain}
+                onSubmit={() => {
+                  dispatchRegisterState({
+                    type: 'setIsSearching',
+                    payload: true,
+                  });
+                }}
+                onChange={() => {
+                  dispatchRegisterState({
+                    type: 'setIsSearching',
+                    payload: false,
+                  });
+                  console.log('just set is earching', isSearching);
+                }}
+                onSuccess={(value: string) => {
+                  dispatchRegisterState({
+                    type: 'setDomainName',
+                    payload: value,
+                  });
+                  dispatchRegisterState({
+                    type: 'setAntID',
+                    payload: undefined,
+                  });
+                }}
+                onFailure={(name: string, result?: string) => {
+                  dispatchRegisterState({
+                    type: 'setDomainName',
+                    payload: name,
+                  });
+                  dispatchRegisterState({
+                    type: 'setAntID',
+                    payload: result,
+                  });
+                }}
+                successPredicate={(value: string | undefined) =>
+                  isArNSDomainNameAvailable({ name: value, records })
+                }
+                validationPredicate={(value: string | undefined) =>
+                  isArNSDomainNameValid({ name: value })
+                }
+                placeholderText={'Enter a name'}
+                headerElement={
+                  <SearchBarHeader defaultText={'Find a domain name'} />
+                }
+                footerElement={
+                  <SearchBarFooter
+                    searchTerm={domain}
+                    searchResult={domain ? records[domain] : undefined}
+                    defaultText="Names must be 1-32 characters. Dashes are permitted, but cannot be trailing characters and cannot be used in single character domains."
+                  />
+                }
+                height={45}
+              />
+            ),
+            disableNext: !isSearching,
+            showNextPredicate:
+              !!domain &&
+              isArNSDomainNameAvailable({ name: domain, records }) &&
+              isArNSDomainNameValid({ name: domain }),
+            showBackPredicate: !!domain,
+            requiresWallet: !!domain && !antID,
+          },
+          1: {
+            component: <RegisterNameForm />,
+            showNextPredicate: true,
+            showBackPredicate: true,
+            disableNext:
+              !antID || !ARNS_TX_ID_REGEX.test(antID) || !walletAddress,
+            requiresWallet: true,
+          },
+          2: {
+            // this component manages buttons itself
+            component: <ConfirmRegistration />,
+            showNextPredicate: false,
+            showBackPredicate: false,
+            disableNext: !!domain && !!antID && !walletAddress,
+            requiresWallet: true,
+          },
+          3: {
+            component: <SuccessfulRegistration />,
+            showNextPredicate: false,
+            showBackPredicate: false,
+            disableNext: true,
+            requiresWallet: true,
+          },
+        }}
+      />
 
-      <RegistrationStateProvider
-        reducer={registrationReducer}
-        firstStage={0}
-        lastStage={4}
-      >
-        <Workflow
-          stages={{
-            0: {
-              component: (
-                <SearchBar
-                  values={records}
-                  successPredicate={(value: string | undefined) =>
-                    isArNSDomainNameAvailable({ name: value, records })
-                  }
-                  validationPredicate={(value: string | undefined) =>
-                    isArNSDomainNameValid({ name: value })
-                  }
-                  placeholderText={'Enter a name'}
-                  headerElement={
-                    <SearchBarHeader defaultText={'Find a domain name'} />
-                  }
-                  footerElement={
-                    <SearchBarFooter
-                      defaultText={
-                        'Names must be 1-32 characters. Dashes are permitted, but cannot be trailing characters and cannot be used in single character domains.'
-                      }
-                    />
-                  }
-                  height={45}
-                />
-              ),
-              showNextPredicate: (registrationState: RegistrationState) => {
-                const { domain } = registrationState;
-                return (
-                  isArNSDomainNameAvailable({ name: domain, records }) &&
-                  isArNSDomainNameValid({ name: domain })
-                );
-              },
-              showBackPredicate: () => true,
-            },
-            1: {
-              component: <RegisterNameForm />,
-              showNextPredicate: (registrationState: RegistrationState) => {
-                const { antID } = registrationState;
-                return !!antID && ARNS_TX_ID_REGEX.test(antID);
-              },
-              showBackPredicate: () => true,
-            },
-            2: {
-              // this component manages buttons itself
-              component: <ConfirmRegistration />,
-              showNextPredicate: () => false,
-              showBackPredicate: () => false,
-            },
-            3: {
-              component: <SuccessfulRegistration />,
-              showNextPredicate: () => false,
-              showBackPredicate: () => false,
-            },
-          }}
-        />
-      </RegistrationStateProvider>
-
-      {featuredDomains && !isSearching ? (
+      {featuredDomains && !domain ? (
         <FeaturedDomains domains={featuredDomains} />
       ) : (
         <></>

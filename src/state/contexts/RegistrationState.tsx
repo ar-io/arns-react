@@ -1,18 +1,11 @@
-import {
-  Dispatch,
-  createContext,
-  useContext,
-  useEffect,
-  useReducer,
-} from 'react';
+import { Dispatch, createContext, useContext, useReducer } from 'react';
 
 import { ArweaveTransactionId } from '../../types';
 import { RegistrationAction } from '../reducers/RegistrationReducer';
-import { useGlobalState } from './GlobalState';
 
 export type RegistrationState = {
   resolvedTxID?: string;
-  domain: string;
+  domain?: string;
   leaseDuration: number;
   tier: number;
   nickname?: string;
@@ -25,21 +18,17 @@ export type RegistrationState = {
   fee: { ar: number; io: number };
   isRegistered: boolean;
   stage: number;
-  isFirstStage: boolean;
-  isLastStage: boolean;
-  errors?: Array<Error>;
+  isSearching: boolean;
 };
 
 export type RegistrationStateProviderProps = {
   reducer: React.Reducer<RegistrationState, RegistrationAction>;
   children: React.ReactNode;
-  firstStage: any;
-  lastStage: any;
 };
 
 export const initialRegistrationState: RegistrationState = {
   resolvedTxID: undefined,
-  domain: '',
+  domain: undefined,
   leaseDuration: 1,
   tier: 1,
   controllers: [],
@@ -48,8 +37,7 @@ export const initialRegistrationState: RegistrationState = {
   antID: undefined,
   isRegistered: false,
   stage: 0,
-  isFirstStage: true,
-  isLastStage: false,
+  isSearching: false,
 };
 
 const RegistrationStateContext = createContext<
@@ -65,44 +53,11 @@ export const useRegistrationState = (): [
 export default function RegistrationStateProvider({
   reducer,
   children,
-  firstStage,
-  lastStage,
 }: RegistrationStateProviderProps): JSX.Element {
   const [state, dispatchRegisterState] = useReducer(
     reducer,
     initialRegistrationState,
   );
-  const [{ isSearching }] = useGlobalState();
-  useEffect(() => {
-    if (!isSearching) {
-      dispatchRegisterState({
-        type: 'reset',
-        payload: initialRegistrationState,
-      });
-    }
-    if (state.stage === lastStage) {
-      dispatchRegisterState({
-        type: 'setIsLastStage',
-        payload: true,
-      });
-    }
-    if (state.stage === firstStage) {
-      dispatchRegisterState({
-        type: 'setIsFirstStage',
-        payload: true,
-      });
-    }
-    if (state.stage !== lastStage && state.stage !== firstStage) {
-      dispatchRegisterState({
-        type: 'setIsLastStage',
-        payload: false,
-      });
-      dispatchRegisterState({
-        type: 'setIsFirstStage',
-        payload: false,
-      });
-    }
-  }, [state.stage, isSearching]);
 
   return (
     <RegistrationStateContext.Provider value={[state, dispatchRegisterState]}>

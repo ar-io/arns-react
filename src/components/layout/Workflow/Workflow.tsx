@@ -1,24 +1,11 @@
 import React from 'react';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { WorkflowProps } from '../../../types';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
 
-function Workflow({ stages }: WorkflowProps) {
-  const [
-    { stage, isFirstStage, isLastStage, ...registrationState },
-    dispatchRegisterState,
-  ] = useRegistrationState();
-  const [{ walletAddress, isSearching }, dispatchGlobalState] =
-    useGlobalState();
-
-  function handleNext() {
-    dispatchRegisterState({
-      type: 'setStage',
-      payload: stage + 1,
-    });
-  }
+function Workflow({ stages, onNext, onBack, stage }: WorkflowProps) {
+  const [{ walletAddress }, dispatchGlobalState] = useGlobalState();
 
   function showConnectWallet() {
     dispatchGlobalState({
@@ -38,21 +25,17 @@ function Workflow({ stages }: WorkflowProps) {
         }
       })}
       <>
-        {!isSearching ? (
-          <></>
-        ) : !walletAddress ? (
+        {stages[stage].requiresWallet && !walletAddress ? (
           <button className="accent-button hover" onClick={showConnectWallet}>
             Connect Wallet to proceed
           </button>
         ) : (
           <WorkflowButtons
-            stage={stage}
-            isFirstStage={isFirstStage}
-            isLastStage={isLastStage}
-            dispatch={dispatchRegisterState}
-            showBack={stages[stage].showBackPredicate()}
-            showNext={stages[stage].showNextPredicate(registrationState)}
-            handleNext={handleNext}
+            showBack={stages[stage].showBackPredicate}
+            disableNext={stages[stage].disableNext}
+            showNext={stages[stage].showNextPredicate}
+            onNext={onNext}
+            onBack={onBack}
           />
         )}
       </>

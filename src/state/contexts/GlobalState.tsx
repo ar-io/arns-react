@@ -12,7 +12,6 @@ export type GlobalState = {
   wallet?: ArweaveWalletConnector;
   arnsContractId: string;
   showConnectWallet: boolean;
-  isSearching: boolean;
   errors: Array<Error>;
   notifications: { id: string; text: string }[];
 };
@@ -38,7 +37,6 @@ const initialState: GlobalState = {
   walletAddress: undefined,
   showConnectWallet: false,
   wallet: undefined,
-  isSearching: false,
   errors: [],
   notifications: [],
 };

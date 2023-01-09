@@ -21,16 +21,18 @@ function UpgradeTier() {
 
   useEffect(() => {
     const fees = arnsSourceContract.fees;
-    const newFee = calculateArNSNamePrice({
-      domain,
-      selectedTier: tier,
-      years: leaseDuration,
-      fees,
-    });
-    dispatchRegisterState({
-      type: 'setFee',
-      payload: { ar: fee.ar, io: newFee },
-    });
+    if (domain) {
+      const newFee = calculateArNSNamePrice({
+        domain,
+        selectedTier: tier,
+        years: leaseDuration,
+        fees,
+      });
+      dispatchRegisterState({
+        type: 'setFee',
+        payload: { ar: fee.ar, io: newFee },
+      });
+    }
   }, [leaseDuration, tier, domain, arnsSourceContract]);
 
   return (
