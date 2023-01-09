@@ -133,7 +133,7 @@ function RegisterNameForm() {
                 placeholder="Enter an ANT Contract ID"
                 onChange={(e) => handleAntId(e.target.value)}
                 maxLength={43}
-                value={antTxID}
+                value={antTxID ?? ''}
                 ref={inputRef}
                 style={
                   isValidAnt && antID
