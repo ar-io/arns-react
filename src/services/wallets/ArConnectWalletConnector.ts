@@ -3,8 +3,8 @@ import Arweave from 'arweave';
 import Ar from 'arweave/node/ar';
 
 import { ArweaveWalletConnector } from '../../types';
+import { deployedAntQuery, transferredToQuery } from '../../utils/constants';
 import { tagsToObject } from '../../utils/searchUtils';
-import { arweave } from '../arweave/arweave';
 
 const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [
   'ACCESS_ADDRESS',
@@ -17,31 +17,35 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
   private _wallet: Window['arweaveWallet'];
   private _arweave: Arweave;
   private _ar: Ar = new Ar();
-  address: string;
+  private _address?: string;
 
   constructor(arweave: Arweave) {
     this._wallet = window.arweaveWallet;
     this._arweave = arweave;
-    this.address = '';
-    this._wallet.getActiveAddress().then((address) => (this.address = address));
   }
 
-  connect(): Promise<void> {
+  async connect(): Promise<void> {
     // confirm they have the extension installed
     if (!window.arweaveWallet) {
       window.open('https://arconnect.io');
     }
-    return this._wallet.connect(ARCONNECT_WALLET_PERMISSIONS, {
+    await this._wallet.connect(ARCONNECT_WALLET_PERMISSIONS, {
       name: 'ArNS - ar.io',
     });
+    this._address = await this._wallet.getActiveAddress();
+    return;
   }
-
   disconnect(): Promise<void> {
     return this._wallet.disconnect();
   }
 
-  getWalletAddress(): Promise<string> {
-    return this._wallet.getActiveAddress();
+  async getWalletAddress(): Promise<string> {
+    if (!this._address) {
+      await this.connect();
+    }
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return this._address;
   }
 
   async getWalletBalanceAR(): Promise<string> {
@@ -55,82 +59,17 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
     approvedSourceCodeTransactions: string[],
     cursor?: string,
   ): Promise<{ ids: string[]; cursor?: string }> {
-    // get all contracts deployed by an account with valid ANT source code transactions
-    const deployedContractQuery = {
-      query: `
-      { 
-        transactions (
-          owners:["${this.address}"]
-          tags:[
-            {
-              name:"Contract-Src",
-              values:${JSON.stringify(approvedSourceCodeTransactions)}
-            }
-          ],
-          sort: HEIGHT_DESC,
-        ) {
-          pageInfo {
-            hasNextPage
-          }
-          edges {
-            cursor
-            node {
-              id
-              block {
-                height
-              }
-            }
-          }
-        }
-      }`,
-    };
-    // get all contracts transfered to an account
-    const transferredContractQuery = {
-      query: `
-    {
-      transactions (
-        tags:[
-          {
-            name:"Input",
-            values:[${JSON.stringify(
-              JSON.stringify({
-                function: 'transfer',
-                target: this.address,
-                qty: 1,
-              }),
-            )}]
-          }
-        ],
-        sort: HEIGHT_DESC,
-      ) {
-        pageInfo {
-          hasNextPage
-        }
-        edges {
-          cursor
-          node {
-            id
-            tags{
-              name
-              value
-            }
-            block {
-              height
-            }
-          }
-        }
-      }
-    }`,
-    };
-    const deployedResponse = await this._arweave.api.post(
-      '/graphql',
-      deployedContractQuery,
-    );
-    const { data } = deployedResponse.data;
+    const address = await this.getWalletAddress();
     const fetchedANTids: Set<string> = new Set();
     let newCursor: string | undefined = undefined;
-    if (data?.transactions?.edges?.length) {
-      data.transactions.edges
+
+    // get contracts deployed by user, filtering with src-codes to only get ANT contracts
+    const deployedResponse = await this._arweave.api.post(
+      '/graphql',
+      deployedAntQuery(address, approvedSourceCodeTransactions),
+    );
+    if (deployedResponse.data.data?.transactions?.edges?.length) {
+      deployedResponse.data.data.transactions.edges
         .map((e: any) => ({
           id: e.node.id,
           cursor: e.cursor,
@@ -143,23 +82,29 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
         });
     }
 
+    // get all contracts transferred to user, then validate they were ANT contracts by check contract txid
     const transferredResponse = await this._arweave.api.post(
       '/graphql',
-      transferredContractQuery,
+      transferredToQuery(address),
     );
-    console.log(transferredResponse.data.data.transactions.edges);
     if (transferredResponse.data.data?.transactions?.edges?.length) {
-      transferredResponse.data.data.transactions.edges
-        .map((e: any) => {
-          const tags = tagsToObject({ tags: e.node.tags });
+      const contractIds = transferredResponse.data.data.transactions.edges.map(
+        (e: any) => {
+          const tags = tagsToObject(e.node.tags);
           return { id: tags['Contract'], cursor: e.cursor };
-        })
-        .forEach((ant: { id: string; cursor: string; srcCode: string }) => {
+        },
+      );
+
+      //const validIds = contractIds.map((ant:{id: string; cursor: string;})=> ant)
+
+      contractIds.forEach(
+        (ant: { id: string; cursor: string; srcCode: string }) => {
           fetchedANTids.add(ant.id);
           if (cursor) {
             newCursor = ant.cursor;
           }
-        });
+        },
+      );
     }
     return {
       ids: [...fetchedANTids],
