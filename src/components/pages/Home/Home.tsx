@@ -75,8 +75,7 @@ function Home() {
                 }}
                 onChange={() => {
                   dispatchRegisterState({
-                    type: 'setIsSearching',
-                    payload: false,
+                    type: 'reset',
                   });
                 }}
                 onSuccess={(value: string) => {
