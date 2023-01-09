@@ -139,8 +139,8 @@ export type WorkflowProps = {
   stages: {
     [x: number]: {
       component: JSX.Element;
-      showNextPredicate: boolean;
-      showBackPredicate: boolean;
+      showNext: boolean;
+      showBack: boolean;
       disableNext: boolean;
       requiresWallet: boolean;
     };

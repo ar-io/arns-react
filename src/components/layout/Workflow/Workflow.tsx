@@ -31,9 +31,9 @@ function Workflow({ stages, onNext, onBack, stage }: WorkflowProps) {
           </button>
         ) : (
           <WorkflowButtons
-            showBack={stages[stage].showBackPredicate}
+            showBack={stages[stage].showBack}
             disableNext={stages[stage].disableNext}
-            showNext={stages[stage].showNextPredicate}
+            showNext={stages[stage].showNext}
             onNext={onNext}
             onBack={onBack}
           />

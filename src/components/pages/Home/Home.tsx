@@ -78,7 +78,6 @@ function Home() {
                     type: 'setIsSearching',
                     payload: false,
                   });
-                  console.log('just set is earching', isSearching);
                 }}
                 onSuccess={(value: string) => {
                   dispatchRegisterState({
@@ -121,17 +120,17 @@ function Home() {
               />
             ),
             disableNext: !isSearching,
-            showNextPredicate:
+            showNext:
               !!domain &&
               isArNSDomainNameAvailable({ name: domain, records }) &&
               isArNSDomainNameValid({ name: domain }),
-            showBackPredicate: !!domain,
+            showBack: !!domain,
             requiresWallet: !!domain && !antID,
           },
           1: {
             component: <RegisterNameForm />,
-            showNextPredicate: true,
-            showBackPredicate: true,
+            showNext: true,
+            showBack: true,
             disableNext:
               !antID || !ARNS_TX_ID_REGEX.test(antID) || !walletAddress,
             requiresWallet: true,
@@ -139,15 +138,15 @@ function Home() {
           2: {
             // this component manages buttons itself
             component: <ConfirmRegistration />,
-            showNextPredicate: false,
-            showBackPredicate: false,
+            showNext: false,
+            showBack: false,
             disableNext: !!domain && !!antID && !walletAddress,
             requiresWallet: true,
           },
           3: {
             component: <SuccessfulRegistration />,
-            showNextPredicate: false,
-            showBackPredicate: false,
+            showNext: false,
+            showBack: false,
             disableNext: true,
             requiresWallet: true,
           },
