@@ -4,6 +4,7 @@ import Ar from 'arweave/node/ar';
 
 import { ArweaveWalletConnector } from '../../types';
 import { tagsToObject } from '../../utils/searchUtils';
+import { arweave } from '../arweave/arweave';
 
 const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [
   'ACCESS_ADDRESS',
@@ -153,7 +154,7 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
           const tags = tagsToObject({ tags: e.node.tags });
           return { id: tags['Contract'], cursor: e.cursor };
         })
-        .forEach((ant: { id: string; cursor: string }) => {
+        .forEach((ant: { id: string; cursor: string; srcCode: string }) => {
           fetchedANTids.add(ant.id);
           if (cursor) {
             newCursor = ant.cursor;
