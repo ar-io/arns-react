@@ -147,7 +147,7 @@ function SearchBar(props: SearchBarProps) {
             }
           }}
           ref={inputRef}
-          value={searchBarText}
+          value={searchBarText ?? ''}
           maxLength={20}
           className="searchbar-input"
           style={height ? { height: `${height}px` } : {}}
