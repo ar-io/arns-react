@@ -173,7 +173,7 @@ function SearchBar(props: SearchBarProps) {
                   maxHeight: `${height}px`,
                 }}
                 onClick={(e) => {
-                  onSubmit(e);
+                  isSearchValid === true && onSubmit(e);
                 }}
               >
                 <SearchIcon
