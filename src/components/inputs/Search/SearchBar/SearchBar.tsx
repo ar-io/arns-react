@@ -67,11 +67,6 @@ function SearchBar(props: SearchBarProps) {
 
     const searchValid = validationPredicate(input);
     setIsSearchValid(searchValid);
-    if (!searchValid) {
-      return;
-    }
-
-    // valid
     setSearchBarText(input);
   }
 
