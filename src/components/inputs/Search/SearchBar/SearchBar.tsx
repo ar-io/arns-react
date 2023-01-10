@@ -183,7 +183,10 @@ function SearchBar(props: SearchBarProps) {
                 >
                   Register
                 </span>
-                <button className="accent" onClick={_onSubmitButton}>
+                <button
+                  className="accent icon-button"
+                  onClick={_onSubmitButton}
+                >
                   <ArrowUpRight
                     fill="var(--text-black)"
                     stroke="var(--text-black)"
