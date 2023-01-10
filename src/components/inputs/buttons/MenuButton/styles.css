@@ -1,0 +1,4 @@
+.highlight-button:focus {
+  border-width: 2px;
+  border-color: var(--text-bright-white);
+}

@@ -5,10 +5,11 @@ import { defaultDataProvider } from '../../../services/arweave/';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ArweaveWalletConnector } from '../../../types';
 import { ROUTES } from '../../../utils/routes';
-import { AccountIcon, CopyIcon, MenuIcon } from '../../icons';
+import { CopyIcon, MenuIcon } from '../../icons';
 import ConnectButton from '../../inputs/buttons/ConnectButton/ConnectButton';
 import MenuButton from '../../inputs/buttons/MenuButton/MenuButton';
 import { Loader, NavBarLink } from '../../layout';
+import { WalletAddress } from '../../layout/WalletAddress/WalletAddress';
 import './styles.css';
 
 function NavMenuCard() {
@@ -100,41 +101,20 @@ function NavMenuCard() {
 
   return (
     <>
-      <MenuButton
-        setShow={setShowMenu}
-        show={showMenu}
-        icon={
-          walletAddress ? (
-            <AccountIcon
-              width={'24px'}
-              height={'24px'}
-              fill={showMenu ? 'var(--text-black)' : 'var(--text-white)'}
-            />
-          ) : (
-            <MenuIcon
-              width={'24px'}
-              height={'24px'}
-              fill={showMenu ? 'var(--text-black)' : 'var(--text-white)'}
-            />
-          )
-        }
-      />
+      <MenuButton setShow={setShowMenu} show={showMenu}>
+        {walletAddress ? (
+          <WalletAddress />
+        ) : (
+          <MenuIcon
+            width={'24px'}
+            height={'24px'}
+            fill={showMenu ? 'var(--text-black)' : 'var(--text-white)'}
+          />
+        )}
+      </MenuButton>
+
       {showMenu ? (
         <div className="card menu" ref={menuRef}>
-          {isMobile ? (
-            Object.entries(ROUTES).map(([key, route]) => {
-              if (!route.index && (!route.protected || walletAddress))
-                return (
-                  <NavBarLink
-                    path={route.path}
-                    linkText={route.text}
-                    key={key}
-                  />
-                );
-            })
-          ) : (
-            <></>
-          )}
           {!walletAddress || !wallet ? (
             <ConnectButton />
           ) : (
@@ -180,6 +160,27 @@ function NavMenuCard() {
                   </span>
                 );
               })}
+              {isMobile
+                ? Object.entries(ROUTES).map(([key, route]) => {
+                    if (!route.index && (!route.protected || walletAddress))
+                      return (
+                        <NavBarLink
+                          path={route.path}
+                          linkText={route.text}
+                          key={key}
+                        />
+                      );
+                  })
+                : Object.entries(ROUTES).map(([key, route]) => {
+                    if (route.protected && walletAddress)
+                      return (
+                        <NavBarLink
+                          path={route.path}
+                          linkText={route.text}
+                          key={key}
+                        />
+                      );
+                  })}
               {
                 <button
                   className="navbar-link hover"

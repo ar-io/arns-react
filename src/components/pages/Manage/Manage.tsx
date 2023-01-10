@@ -1,4 +1,4 @@
-function FAQ() {
+function Manage() {
   return (
     <div className="page">
       <div className="page-header h1">Manage</div>
@@ -6,4 +6,4 @@ function FAQ() {
   );
 }
 
-export default FAQ;
+export default Manage;

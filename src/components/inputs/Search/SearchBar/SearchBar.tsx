@@ -183,10 +183,7 @@ function SearchBar(props: SearchBarProps) {
                 >
                   Register
                 </span>
-                <button
-                  className="accent round-button"
-                  onClick={_onSubmitButton}
-                >
+                <button className="accent" onClick={_onSubmitButton}>
                   <ArrowUpRight
                     fill="var(--text-black)"
                     stroke="var(--text-black)"

@@ -1,4 +1,4 @@
-import { About, FAQ, Home, Manage } from '../components/pages';
+import { About, Create, Home, Manage } from '../components/pages';
 
 export type Route = {
   text: string;
@@ -17,21 +17,21 @@ export const ROUTES = {
     index: true,
   },
   about: {
-    text: 'About',
-    path: '/about',
+    text: 'Info',
+    path: '/info',
     component: About,
     protected: false,
     index: false,
   },
-  faq: {
-    text: 'FAQ',
-    path: '/faq',
-    component: FAQ,
+  create: {
+    text: 'Create an ANT',
+    path: '/create',
+    component: Create,
     protected: false,
     index: false,
   },
   manage: {
-    text: 'Manage Names',
+    text: 'Manage',
     path: '/manage',
     component: Manage,
     protected: true,

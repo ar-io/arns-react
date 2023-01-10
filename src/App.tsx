@@ -7,7 +7,7 @@ import {
 
 import { Layout } from './components/layout';
 import ConnectWalletModal from './components/modals/ConnectWalletModal/ConnectWalletModal';
-import { About, FAQ, Home, Manage, NotFound } from './components/pages';
+import { About, Create, Home, Manage, NotFound } from './components/pages';
 import {
   useArNSContract,
   useArweave,
@@ -37,8 +37,8 @@ function App() {
             </RegistrationStateProvider>
           }
         />
-        <Route path="about" element={<About />} />
-        <Route path="faq" element={<FAQ />} />
+        <Route path="info" element={<About />} />
+        <Route path="Create" element={<Create />} />
         {wallet && walletAddress ? (
           <Route path="manage" element={<Manage />} />
         ) : (

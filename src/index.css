@@ -162,27 +162,24 @@ button {
 .white {
   color: var(--text-white);
 }
-.white-background {
-  background: var(--text-white);
-}
 .black {
   color: var(--text-black);
 }
 .accent {
   background-color: var(--accent);
 }
-.round-button {
+.icon-button {
   display: flex;
   min-width: 50px !important;
   min-height: 50px !important;
   box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
-  border-radius: 1000px;
+  border-radius: var(--corner-radius);
   border: none;
   justify-content: center;
   align-items: center;
   padding: 0;
 }
-.round-button:hover {
+.icon-button:hover {
   box-shadow: 0px 0px 4px rgba(0, 0, 0);
   cursor: pointer;
 }
@@ -252,7 +249,7 @@ button {
 .bubble-small {
   display: flex;
   align-self: flex-start;
-  border-radius: 1000px;
+  border-radius: var(--corner-radius);
   background-color: var(--text-white);
   font-family: 'Rubik-Bold';
   padding: 5px 15px;
