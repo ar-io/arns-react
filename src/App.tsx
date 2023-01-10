@@ -38,7 +38,7 @@ function App() {
           }
         />
         <Route path="info" element={<About />} />
-        <Route path="Create" element={<Create />} />
+        <Route path="create" element={<Create />} />
         {wallet && walletAddress ? (
           <Route path="manage" element={<Manage />} />
         ) : (
