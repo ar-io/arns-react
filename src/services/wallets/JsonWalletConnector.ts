@@ -1,15 +1,23 @@
+import Arweave from 'arweave';
+import Ar from 'arweave/node/ar';
 import { JWKInterface } from 'arweave/node/lib/wallet';
 import { isString } from 'lodash';
 
 import { ArweaveWalletConnector } from '../../types';
+import { deployedAntQuery } from '../../utils/constants';
+import { arweave } from '../arweave/arweave';
 
 // A lot to do here, r.e. security, we will likely move to a different approach.
 export class JsonWalletConnector implements ArweaveWalletConnector {
   private _walletFile;
   private _wallet?: JWKInterface;
+  private _arweave: Arweave;
+  private _ar: Ar = new Ar();
+  private _address?: string;
 
   constructor(file: any) {
     this._walletFile = file;
+    this._arweave = arweave;
   }
 
   async connect(): Promise<void> {
@@ -57,5 +65,36 @@ export class JsonWalletConnector implements ArweaveWalletConnector {
 
   async getWalletBalanceAR(): Promise<string> {
     throw Error('Not implemented!');
+  }
+  async getWalletANTs(
+    approvedSourceCodeTransactions: string[],
+    cursor?: string,
+  ): Promise<{ ids: string[]; cursor?: string }> {
+    const address = await this.getWalletAddress();
+    const fetchedANTids: Set<string> = new Set();
+    let newCursor: string | undefined = undefined;
+
+    // get contracts deployed by user, filtering with src-codes to only get ANT contracts
+    const deployedResponse = await this._arweave.api.post(
+      '/graphql',
+      deployedAntQuery(address, approvedSourceCodeTransactions, cursor),
+    );
+    if (deployedResponse.data.data?.transactions?.edges?.length) {
+      deployedResponse.data.data.transactions.edges
+        .map((e: any) => ({
+          id: e.node.id,
+          cursor: e.cursor,
+        }))
+        .forEach((ant: { id: string; cursor: string }) => {
+          fetchedANTids.add(ant.id);
+          if (ant.cursor) {
+            newCursor = ant.cursor;
+          }
+        });
+    }
+    return {
+      ids: [...fetchedANTids],
+      cursor: newCursor,
+    };
   }
 }
