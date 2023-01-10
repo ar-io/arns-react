@@ -53,3 +53,40 @@ export const NAME_PRICE_INFO =
 
 export const MAX_LEASE_DURATION = 200;
 export const MIN_LEASE_DURATION = 1;
+export const deployedAntQuery = (
+  address: string,
+  approvedSourceCodeTransactions: string[],
+  cursor?: string,
+) => {
+  const queryObject = {
+    query: `
+  { 
+    transactions (
+      owners:["${address}"]
+      tags:[
+        {
+          name:"Contract-Src",
+          values:${JSON.stringify(approvedSourceCodeTransactions)}
+        }
+      ],
+      sort: HEIGHT_DESC,
+      first: 100,
+      ${cursor ? `after: ${cursor}` : ''}
+    ) {
+      pageInfo {
+        hasNextPage
+      }
+      edges {
+        cursor
+        node {
+          id
+          block {
+            height
+          }
+        }
+      }
+    }
+  }`,
+  };
+  return queryObject;
+};
