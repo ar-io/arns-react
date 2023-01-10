@@ -10,7 +10,10 @@ describe('SearchBar', () => {
     const stub = jest.fn();
     render(
       <SearchBar
-        setIsSearching={stub}
+        onSubmit={stub}
+        onChange={stub}
+        onFailure={stub}
+        onSuccess={stub}
         successPredicate={stub}
         validationPredicate={stub}
         values={{}}

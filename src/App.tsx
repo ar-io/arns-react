@@ -15,6 +15,8 @@ import {
   useWalletAddress,
 } from './hooks/';
 import './index.css';
+import RegistrationStateProvider from './state/contexts/RegistrationState';
+import { registrationReducer } from './state/reducers/RegistrationReducer';
 
 function App() {
   // dispatches global state
@@ -27,7 +29,14 @@ function App() {
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route element={<Layout />} errorElement={<NotFound />}>
-        <Route index element={<Home />} />
+        <Route
+          index
+          element={
+            <RegistrationStateProvider reducer={registrationReducer}>
+              <Home />
+            </RegistrationStateProvider>
+          }
+        />
         <Route path="about" element={<About />} />
         <Route path="faq" element={<FAQ />} />
         {wallet && walletAddress ? (

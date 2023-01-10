@@ -80,7 +80,7 @@ function ConfirmRegistration() {
         ) : isConfirmed ? (
           <>
             <AntCard
-              domain={domain}
+              domain={domain ?? ''}
               id={antID ?? ''}
               compact={false}
               enableActions={false}

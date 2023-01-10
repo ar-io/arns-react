@@ -14,7 +14,6 @@ export type Action =
   | { type: 'setGateway'; payload: string }
   | { type: 'setArnsContractState'; payload: ArNSContractState }
   | { type: 'setShowConnectWallet'; payload: boolean }
-  | { type: 'setIsSearching'; payload: boolean }
   | { type: 'setArweave'; payload: Arweave }
   | { type: 'pushNotification'; payload: string }
   | { type: 'removeNotification'; payload: string };
@@ -50,11 +49,6 @@ export const reducer = (state: GlobalState, action: Action): GlobalState => {
       return {
         ...state,
         arnsSourceContract: action.payload,
-      };
-    case 'setIsSearching':
-      return {
-        ...state,
-        isSearching: action.payload,
       };
     case 'pushNotification': {
       return {

@@ -35,16 +35,22 @@ function SuccessfulRegistration() {
           </span>
         </div>
 
-        <ArnsCard domain={domain} id={resolvedTxID!} />
-        <span>
-          <Link
-            to={'/manage'}
-            className="accent-button hover"
-            style={{ textDecoration: 'none' }}
-          >
-            Manage Names
-          </Link>
-        </span>
+        {domain ? (
+          <>
+            <ArnsCard domain={domain} id={resolvedTxID!} />
+            <span>
+              <Link
+                to={'/manage'}
+                className="accent-button hover"
+                style={{ textDecoration: 'none' }}
+              >
+                Manage Names
+              </Link>
+            </span>
+          </>
+        ) : (
+          <></>
+        )}
       </div>
     </>
   );

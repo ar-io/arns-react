@@ -86,14 +86,16 @@ export interface ArweaveWalletConnector {
 export type SearchBarProps = {
   successPredicate: (value: string | undefined) => boolean;
   validationPredicate: (value: string | undefined) => boolean;
-  setIsSearching?: Dispatch<SetStateAction<boolean>>;
-  isSearching?: boolean;
+  onSuccess: (value: string, result?: string) => void;
+  onFailure: (value: string, result?: string) => void;
+  onChange: () => void;
+  onSubmit: (next?: boolean) => void;
   placeholderText?: string;
   headerElement?: JSX.Element;
   footerElement?: JSX.Element;
   values?: { [x: string]: string };
+  value?: string;
   height?: number;
-  nextStage?: Dispatch<void>;
 };
 
 export type SearchBarHeaderProps = {
@@ -105,9 +107,10 @@ export type SearchBarHeaderProps = {
 
 export type SearchBarFooterProps = {
   defaultText: string;
-  searchResult?: ArNSDomain;
   isSearchValid?: boolean;
   isAvailable?: boolean;
+  searchTerm?: string;
+  searchResult?: string;
 };
 
 export type ConnectWalletModalProps = {
@@ -130,11 +133,16 @@ export type DropdownProps = {
 };
 
 export type WorkflowProps = {
+  stage: number;
+  onNext: () => void;
+  onBack: () => void;
   stages: {
     [x: number]: {
       component: JSX.Element;
-      showNextPredicate: (state?: any) => boolean;
-      showBackPredicate: () => boolean;
+      showNext: boolean;
+      showBack: boolean;
+      disableNext: boolean;
+      requiresWallet: boolean;
     };
   };
 };
