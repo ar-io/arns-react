@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import { useIsMobile } from '../../../../hooks';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
-import { useRegistrationState } from '../../../../state/contexts/RegistrationState';
 import { SearchBarProps } from '../../../../types';
 import { ArrowUpRight, SearchIcon } from '../../../icons';
 import './styles.css';
@@ -11,45 +10,52 @@ function SearchBar(props: SearchBarProps) {
   const {
     successPredicate,
     validationPredicate,
+    onSuccess,
+    onSubmit,
+    onFailure,
+    onChange,
     placeholderText,
     headerElement,
     footerElement,
     values,
+    value,
     height,
   } = props;
 
   const [{ walletAddress }, dispatchGlobalState] = useGlobalState();
-  const [{ stage }, dispatchRegisterState] = useRegistrationState();
   const isMobile = useIsMobile();
   const [isSearchValid, setIsSearchValid] = useState(true);
   const [showDefaultText, setShowDefaultText] = useState(true);
   const [isAvailable, setIsAvailable] = useState(false);
   const [searchSubmitted, setSearchSubmitted] = useState(false);
-  const [searchBarText, setSearchBarText] = useState<string | undefined>();
-  const [submittedName, setSubmittedName] = useState<string | undefined>();
-  const [searchResult, setSearchResult] = useState<string | undefined>();
-  const searchRef = useRef<HTMLDivElement | null>(null);
+  const [searchBarText, setSearchBarText] = useState<string | undefined>(value);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   function reset() {
     setSearchSubmitted(false);
-    setSubmittedName(undefined);
     setIsSearchValid(true);
     setShowDefaultText(true);
-    setSearchResult(undefined);
     setSearchBarText(undefined);
-    dispatchGlobalState({
-      type: 'setIsSearching',
-      payload: false,
-    });
-
     return;
   }
   useEffect(() => {
     if (!searchBarText) {
       reset();
     }
+    _onFocus();
   }, [searchBarText]);
-  function onHandleChange(e: React.ChangeEvent<HTMLInputElement>) {
+
+  useEffect(() => {
+    if (value) {
+      setSearchBarText(value);
+      _onFocus();
+      _onSubmit();
+    }
+  }, [value]);
+
+  function _onChange(e: React.ChangeEvent<HTMLInputElement>) {
+    onChange();
+    setSearchSubmitted(false);
     const input = e.target.value.trim().toLowerCase();
     if (input === '') {
       reset();
@@ -57,79 +63,59 @@ function SearchBar(props: SearchBarProps) {
     }
 
     // partially reset
-    setSearchResult(undefined);
     setShowDefaultText(true);
 
     const searchValid = validationPredicate(input);
     setIsSearchValid(searchValid);
-    if (!searchValid) {
-      return;
-    }
-
-    // valid
     setSearchBarText(input);
   }
 
-  function onFocus() {
+  function _onFocus() {
     // center search bar on the page
-    if (searchRef.current) {
-      searchRef.current.scrollIntoView();
+    if (inputRef.current) {
+      inputRef.current.focus();
     }
   }
 
-  function onSubmit(e: any) {
-    e.preventDefault();
+  function _onSubmit(next = false) {
+    onSubmit(next);
     // TODO: validation may also be async, so return a promise that resolves to a boolean
     const searchValid = validationPredicate(searchBarText);
     setIsSearchValid(searchValid);
     if (!searchValid) {
       return;
     }
-    dispatchGlobalState({
-      type: 'setIsSearching',
-      payload: true,
-    });
 
-    // show updated states based on search result
-    const name = searchBarText;
-    const searchSuccess = successPredicate(name);
+    // // show updated states based on search result
+    const searchSuccess = successPredicate(searchBarText);
     setShowDefaultText(false);
-    setSubmittedName(name);
     setSearchSubmitted(true);
     setIsAvailable(searchSuccess);
-    setSearchResult(undefined);
-    if (name) {
-      dispatchRegisterState({
-        type: 'setDomainName',
-        payload: name,
-      });
-    }
-    if (!searchSuccess && name && values) {
-      setSearchResult(values[name]);
+    if (searchSuccess && searchBarText && values) {
+      // on additional functions passed in
+      onSuccess(searchBarText);
+    } else if (!searchSuccess && searchBarText && values) {
+      onFailure(searchBarText, values[searchBarText]);
     }
   }
 
-  function handleNext() {
+  function _onSubmitButton() {
     if (!walletAddress) {
       dispatchGlobalState({
         type: 'setShowConnectWallet',
         payload: true,
       });
-      return;
     }
-    dispatchRegisterState({
-      type: 'setStage',
-      payload: stage + 1,
-    });
-    return;
+
+    _onSubmit(true);
   }
 
   return (
-    <div className="searchbar-container flex-center" ref={searchRef}>
+    <div className="searchbar-container flex-center">
       {headerElement ? (
         React.cloneElement(headerElement, {
           ...props,
-          text: submittedName,
+          text: searchSubmitted ? searchBarText : undefined,
           isAvailable,
         })
       ) : (
@@ -152,9 +138,15 @@ function SearchBar(props: SearchBarProps) {
         <input
           type="text"
           placeholder={showDefaultText ? placeholderText : 'try another name'}
-          onChange={onHandleChange}
-          onFocus={onFocus}
-          onKeyDown={(e) => e.key == 'Enter' && isSearchValid && onSubmit(e)}
+          onChange={_onChange}
+          onFocus={_onFocus}
+          onKeyDown={(e) => {
+            if (e.key == 'Enter') {
+              _onSubmit();
+            }
+          }}
+          ref={inputRef}
+          value={searchBarText ?? ''}
           maxLength={20}
           className="searchbar-input"
           style={height ? { height: `${height}px` } : {}}
@@ -163,7 +155,7 @@ function SearchBar(props: SearchBarProps) {
           <></>
         ) : (
           <>
-            {!isAvailable || !submittedName ? (
+            {!isAvailable || !searchBarText || !searchSubmitted ? (
               <button
                 className="search-button"
                 style={{
@@ -172,8 +164,8 @@ function SearchBar(props: SearchBarProps) {
                   maxWidth: `${height}px`,
                   maxHeight: `${height}px`,
                 }}
-                onClick={(e) => {
-                  isSearchValid === true && onSubmit(e);
+                onClick={() => {
+                  isSearchValid && _onSubmit();
                 }}
               >
                 <SearchIcon
@@ -191,7 +183,10 @@ function SearchBar(props: SearchBarProps) {
                 >
                   Register
                 </span>
-                <button className="accent round-button" onClick={handleNext}>
+                <button
+                  className="accent round-button"
+                  onClick={_onSubmitButton}
+                >
                   <ArrowUpRight
                     fill="var(--text-black)"
                     stroke="var(--text-black)"
@@ -209,9 +204,6 @@ function SearchBar(props: SearchBarProps) {
           ...props,
           isSearchValid,
           isAvailable,
-          searchResult: submittedName
-            ? { id: searchResult, domain: submittedName }
-            : undefined,
         })
       ) : (
         <></>

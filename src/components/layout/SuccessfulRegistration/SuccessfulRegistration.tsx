@@ -30,20 +30,27 @@ function SuccessfulRegistration() {
             </a>
           </span>
           <span className="text faded center">
-            It will take at least 15 minutes for your transaction to be posted.
+            It will take at least 15 minutes for gateways to resolve this new
+            ArNS domain name.
           </span>
         </div>
 
-        <ArnsCard domain={domain} id={resolvedTxID!} />
-        <span>
-          <Link
-            to={'/manage'}
-            className="accent-button hover"
-            style={{ textDecoration: 'none' }}
-          >
-            Manage Names
-          </Link>
-        </span>
+        {domain ? (
+          <>
+            <ArnsCard domain={domain} id={resolvedTxID!} />
+            <span>
+              <Link
+                to={'/manage'}
+                className="accent-button hover"
+                style={{ textDecoration: 'none' }}
+              >
+                Manage Names
+              </Link>
+            </span>
+          </>
+        ) : (
+          <></>
+        )}
       </div>
     </>
   );

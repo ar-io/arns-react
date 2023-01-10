@@ -317,6 +317,10 @@ button {
   cursor: pointer;
 }
 
+.disabled-button {
+  opacity: 50%;
+}
+
 .data-input {
   box-sizing: border-box;
   display: flex;
