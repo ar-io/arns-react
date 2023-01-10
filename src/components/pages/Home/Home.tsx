@@ -67,11 +67,17 @@ function Home() {
               <SearchBar
                 values={records}
                 value={domain}
-                onSubmit={() => {
+                onSubmit={(next = false) => {
                   dispatchRegisterState({
                     type: 'setIsSearching',
                     payload: true,
                   });
+                  if (next) {
+                    dispatchRegisterState({
+                      type: 'setStage',
+                      payload: stage + 1,
+                    });
+                  }
                 }}
                 onChange={() => {
                   dispatchRegisterState({

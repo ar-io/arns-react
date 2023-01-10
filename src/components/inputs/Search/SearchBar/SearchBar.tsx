@@ -77,8 +77,8 @@ function SearchBar(props: SearchBarProps) {
     }
   }
 
-  function _onSubmit() {
-    onSubmit();
+  function _onSubmit(next = false) {
+    onSubmit(next);
     // TODO: validation may also be async, so return a promise that resolves to a boolean
     const searchValid = validationPredicate(searchBarText);
     setIsSearchValid(searchValid);
@@ -105,10 +105,9 @@ function SearchBar(props: SearchBarProps) {
         type: 'setShowConnectWallet',
         payload: true,
       });
-      return;
     }
 
-    _onSubmit();
+    _onSubmit(true);
   }
 
   return (
@@ -156,7 +155,7 @@ function SearchBar(props: SearchBarProps) {
           <></>
         ) : (
           <>
-            {!isAvailable || !searchBarText ? (
+            {!isAvailable || !searchBarText || !searchSubmitted ? (
               <button
                 className="search-button"
                 style={{

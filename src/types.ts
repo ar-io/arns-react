@@ -89,7 +89,7 @@ export type SearchBarProps = {
   onSuccess: (value: string, result?: string) => void;
   onFailure: (value: string, result?: string) => void;
   onChange: () => void;
-  onSubmit: () => void;
+  onSubmit: (next?: boolean) => void;
   placeholderText?: string;
   headerElement?: JSX.Element;
   footerElement?: JSX.Element;
