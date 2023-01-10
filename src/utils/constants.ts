@@ -48,6 +48,7 @@ export const MIN_LEASE_DURATION = 1;
 export const deployedAntQuery = (
   address: string,
   approvedSourceCodeTransactions: string[],
+  cursor?: string,
 ) => {
   const queryObject = {
     query: `
@@ -61,6 +62,8 @@ export const deployedAntQuery = (
         }
       ],
       sort: HEIGHT_DESC,
+      first: 100,
+      ${cursor ? `after: ${cursor}` : ''}
     ) {
       pageInfo {
         hasNextPage
@@ -76,47 +79,6 @@ export const deployedAntQuery = (
       }
     }
   }`,
-  };
-  return queryObject;
-};
-
-export const transferredToQuery = (address: string) => {
-  const queryObject = {
-    query: `
-{
-  transactions (
-    tags:[
-      {
-        name:"Input",
-        values:[${JSON.stringify(
-          JSON.stringify({
-            function: 'transfer',
-            target: address,
-            qty: 1,
-          }),
-        )}]
-      }
-    ],
-    sort: HEIGHT_DESC,
-  ) {
-    pageInfo {
-      hasNextPage
-    }
-    edges {
-      cursor
-      node {
-        id
-        tags{
-          name
-          value
-        }
-        block {
-          height
-        }
-      }
-    }
-  }
-}`,
   };
   return queryObject;
 };

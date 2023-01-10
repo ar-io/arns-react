@@ -3,8 +3,7 @@ import Arweave from 'arweave';
 import Ar from 'arweave/node/ar';
 
 import { ArweaveWalletConnector } from '../../types';
-import { deployedAntQuery, transferredToQuery } from '../../utils/constants';
-import { tagsToObject } from '../../utils/searchUtils';
+import { deployedAntQuery } from '../../utils/constants';
 
 const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [
   'ACCESS_ADDRESS',
@@ -66,7 +65,7 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
     // get contracts deployed by user, filtering with src-codes to only get ANT contracts
     const deployedResponse = await this._arweave.api.post(
       '/graphql',
-      deployedAntQuery(address, approvedSourceCodeTransactions),
+      deployedAntQuery(address, approvedSourceCodeTransactions, cursor),
     );
     if (deployedResponse.data.data?.transactions?.edges?.length) {
       deployedResponse.data.data.transactions.edges
@@ -76,35 +75,10 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
         }))
         .forEach((ant: { id: string; cursor: string }) => {
           fetchedANTids.add(ant.id);
-          if (cursor) {
+          if (ant.cursor) {
             newCursor = ant.cursor;
           }
         });
-    }
-
-    // get all contracts transferred to user, then validate they were ANT contracts by check contract txid
-    const transferredResponse = await this._arweave.api.post(
-      '/graphql',
-      transferredToQuery(address),
-    );
-    if (transferredResponse.data.data?.transactions?.edges?.length) {
-      const contractIds = transferredResponse.data.data.transactions.edges.map(
-        (e: any) => {
-          const tags = tagsToObject(e.node.tags);
-          return { id: tags['Contract'], cursor: e.cursor };
-        },
-      );
-
-      //const validIds = contractIds.map((ant:{id: string; cursor: string;})=> ant)
-
-      contractIds.forEach(
-        (ant: { id: string; cursor: string; srcCode: string }) => {
-          fetchedANTids.add(ant.id);
-          if (cursor) {
-            newCursor = ant.cursor;
-          }
-        },
-      );
     }
     return {
       ids: [...fetchedANTids],
