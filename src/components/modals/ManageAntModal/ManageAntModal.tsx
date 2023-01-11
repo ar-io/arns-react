@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
-import { WarpFactory } from 'warp-contracts';
+import { WarpFactory, defaultCacheOptions } from 'warp-contracts';
 
 import { defaultDataProvider } from '../../../services/arweave';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
@@ -83,7 +83,11 @@ function ManageAntModal({
   }
 
   async function transfer() {
-    const warp = WarpFactory.forMainnet({}, true);
+    const warp = WarpFactory.forMainnet(
+      { ...defaultCacheOptions },
+      true,
+      arweave,
+    );
     const contract = warp
       .contract('t3E2BnNj6tfZ35zfn5uGstigRje01j8oQFb85RfKkCA')
       .connect('use_wallet');
