@@ -3,12 +3,13 @@ import { About, Create, Home, Manage } from '../components/pages';
 export type Route = {
   text: string;
   path: string;
-  component: JSX.Element;
+  component: () => JSX.Element;
   protected: boolean;
+  icon?: any;
   index?: boolean;
 };
 
-export const ROUTES = {
+export const ROUTES: { [x: string]: Route } = {
   home: {
     path: '/',
     text: 'Home',
@@ -31,7 +32,7 @@ export const ROUTES = {
     index: false,
   },
   manage: {
-    text: 'Manage',
+    text: "My ANT's",
     path: '/manage',
     component: Manage,
     protected: true,

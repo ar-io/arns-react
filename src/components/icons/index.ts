@@ -12,6 +12,8 @@ import { ReactComponent as ChevronUpIcon } from './ChevronUp.svg';
 import { ReactComponent as CircleCheck } from './CircleCheck.svg';
 import { ReactComponent as CloseIcon } from './Close.svg';
 import { ReactComponent as CopyIcon } from './Copy.svg';
+import { ReactComponent as CubeIcon } from './Cube.svg';
+import { ReactComponent as LogoutIcon } from './Logout.svg';
 import { ReactComponent as MenuIcon } from './Menu.svg';
 import { ReactComponent as SearchIcon } from './Search.svg';
 import { ReactComponent as UploadIcon } from './Upload.svg';
@@ -28,6 +30,8 @@ export {
   CircleCheck,
   CloseIcon,
   CopyIcon,
+  CubeIcon,
+  LogoutIcon,
   MenuIcon,
   SearchIcon,
   UploadIcon,

@@ -22,6 +22,8 @@ function MenuButton({
         onClick={() => setShow(!show)}
         style={{
           padding: '10px',
+          borderRadius: 'var(--corner-radius)',
+          borderWidth: '2px',
         }}
       >
         {children}
