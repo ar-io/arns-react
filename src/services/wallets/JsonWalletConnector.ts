@@ -1,10 +1,7 @@
-import Arweave from 'arweave';
-import Ar from 'arweave/node/ar';
 import { JWKInterface } from 'arweave/node/lib/wallet';
 import { isString } from 'lodash';
 
 import { ArweaveWalletConnector } from '../../types';
-import { ArweaveGraphQL } from '../arweave/ArweaveGraphQL';
 
 // A lot to do here, r.e. security, we will likely move to a different approach.
 export class JsonWalletConnector implements ArweaveWalletConnector {
