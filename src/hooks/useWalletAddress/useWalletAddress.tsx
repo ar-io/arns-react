@@ -25,9 +25,10 @@ export default function useWalletAddress(): {
         type: 'setWalletAddress',
         payload: undefined,
       });
+      return;
     }
 
-    wallet?.getWalletAddress().then((address: string) => {
+    wallet.getWalletAddress().then((address: string) => {
       dispatchGlobalState({
         type: 'setWalletAddress',
         payload: address,

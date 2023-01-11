@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 
 import { useWalletAddress } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { ArweaveGraphQLAPI, ArweaveWalletConnector } from '../../../types.js';
 import { CopyIcon } from '../../icons';
 import { Loader } from '../../layout';
 
@@ -27,12 +26,14 @@ function Manage() {
   }, [wallet, walletAddress]);
 
   async function fetchAnts() {
-    return wallet
-      .getWalletANTs(arnsSourceContract.approvedANTSourceCodeTxs, cursor)
-      .then(({ ids, cursor }: { ids: string[]; cursor?: string }) => {
-        setWalletANTs(ids);
-        setCursor(cursor);
-      });
+    const { ids, cursor: newCursor } = await wallet.getWalletANTs(
+      arnsSourceContract.approvedANTSourceCodeTxs,
+      cursor,
+    );
+
+    // TODO: fetch other interactions and names
+    setWalletANTs(ids);
+    setCursor(newCursor);
   }
 
   return (
