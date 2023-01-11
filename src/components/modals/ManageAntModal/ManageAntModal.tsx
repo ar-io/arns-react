@@ -22,7 +22,7 @@ function ManageAntModal({
   contractId: ArweaveTransactionId;
   setShowModal: Dispatch<SetStateAction<boolean>>;
 }) {
-  const [{ arnsSourceContract }] = useGlobalState();
+  const [{ arnsSourceContract, arweave }] = useGlobalState();
   const modalRef = useRef(null);
   const [contractState, setContractState] = useState<ANTContractState>();
   const [deploymentStatus, setDeploymentStatus] = useState({
@@ -57,8 +57,10 @@ function ManageAntModal({
   }
 
   async function loadDetails() {
-    const dataProvider = defaultDataProvider(contractId);
-    const state = await dataProvider.getContractState(contractId);
+    const dataProvider = defaultDataProvider(arweave);
+    const state: ANTContractState = await dataProvider.getContractState(
+      contractId,
+    );
     if (!state) {
       setShowModal(false);
     }
@@ -200,7 +202,9 @@ function ManageAntModal({
           />
           <RowItem
             col1="Controller:"
-            col2={contractState?.controller ? contractState.controller : 'N/A'}
+            col2={
+              contractState?.controllers ? contractState.controllers : 'N/A'
+            }
             col3=""
             col4={<></>}
             col5={

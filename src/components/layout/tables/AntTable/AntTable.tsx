@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../../hooks';
 import { defaultDataProvider } from '../../../../services/arweave';
+import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { TEST_ANT_BALANCE } from '../../../../utils/constants';
 import { getAntConfirmations } from '../../../../utils/searchUtils';
 import {
@@ -21,6 +22,7 @@ import RowItem from '../RowItem/RowItem';
 import './styles.css';
 
 function AntTable() {
+  const [{ arweave }] = useGlobalState();
   const [pageRange, setPageRange] = useState<Array<number>>([0, 10]);
   const [maxItemCount, setMaxItemCount] = useState(10);
   const [tableItems, setTableItems] = useState([<></>]);
@@ -41,7 +43,7 @@ function AntTable() {
   async function updateTableItems() {
     const items = [];
     for (let i = pageRange[0]; i < pageRange[1]; i++) {
-      const dataProvider = defaultDataProvider(TEST_ANT_BALANCE[i]);
+      const dataProvider = defaultDataProvider(arweave);
       const state = await dataProvider.getContractState(TEST_ANT_BALANCE[i]);
       // todo: get status from arweave transaction manager instead of manual query here
       // todo: get txID's from connected user balance and/or favorited assets

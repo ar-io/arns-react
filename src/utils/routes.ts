@@ -34,7 +34,7 @@ export const ROUTES: { [x: string]: Route } = {
   manage: {
     text: "My ANT's",
     path: '/manage',
-    component: ManageAssets,
+    component: Manage,
     protected: true,
     index: false,
   },

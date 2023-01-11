@@ -17,12 +17,10 @@ export type ArNSContractState = {
 export type ANTContractDomainRecord = {
   ttlSeconds: number;
   maxSubdomains: number;
-  id: ArweaveTransactionId;
+  transactionId: ArweaveTransactionId;
 };
 
-export type ANTContractRecordMapping =
-  | ArweaveTransactionId
-  | ANTContractDomainRecord;
+export type ANTContractRecordMapping = ANTContractDomainRecord;
 
 export type ANTContractState = {
   balances: { [x: ArweaveTransactionId]: number };

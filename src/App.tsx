@@ -40,7 +40,7 @@ function App() {
         <Route path="info" element={<About />} />
         <Route path="create" element={<Create />} />
         {wallet && walletAddress ? (
-          <Route path="manage" element={<ManageAssets />} />
+          <Route path="manage" element={<Manage />} />
         ) : (
           <></>
         )}
