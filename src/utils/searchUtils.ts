@@ -1,5 +1,7 @@
+import Arweave from 'arweave/node/common';
+
 import { defaultDataProvider } from '../services/arweave';
-import { arweave, buildContractTxQuery } from '../services/arweave/arweave';
+import { buildContractTxQuery } from '../services/arweave/arweave';
 import { ArweaveTransactionId } from '../types';
 import {
   ANT_CONTRACT_STATE_KEYS,
@@ -73,6 +75,7 @@ export function isArweaveTransactionID(id: string) {
 export async function isAntValid(
   id: string,
   approvedANTSourceCodeTxs: ArweaveTransactionId[],
+  arweave: Arweave,
 ): Promise<boolean> {
   if (!ARNS_TX_ID_REGEX.test(id)) {
     throw Error('ANT Contract ID Not a valid arweave transaction ID');
@@ -101,7 +104,7 @@ export async function isAntValid(
     and yours is ${contractTxnData.tags['Contract-Src']}`);
   }
 
-  const dataProvider = defaultDataProvider();
+  const dataProvider = defaultDataProvider(arweave);
   dataProvider.getContractState(id).then((antContractState) => {
     if (!antContractState) {
       throw Error(

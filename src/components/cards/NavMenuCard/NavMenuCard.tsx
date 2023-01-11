@@ -14,7 +14,7 @@ import { WalletAddress } from '../../layout/WalletAddress/WalletAddress';
 import './styles.css';
 
 function NavMenuCard() {
-  const [{ arnsContractId }, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
+  const [{ arnsContractId, arweave }, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
   const [walletDetails, setWalletDetails] = useState<{
@@ -53,7 +53,7 @@ function NavMenuCard() {
   }
 
   async function fetchWalletDetails(wallet: ArweaveWalletConnector) {
-    const dataProvider = defaultDataProvider();
+    const dataProvider = defaultDataProvider(arweave);
     const ioBalance = await dataProvider.getContractBalanceForWallet(
       arnsContractId,
       await wallet.getWalletAddress(),

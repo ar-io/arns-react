@@ -1,4 +1,5 @@
-import { Warp, WarpFactory } from 'warp-contracts';
+import Arweave from 'arweave/node/common';
+import { Warp, WarpFactory, defaultCacheOptions } from 'warp-contracts';
 
 import {
   ArNSContractState,
@@ -9,8 +10,15 @@ import {
 export class WarpDataProvider implements SmartweaveContractSource {
   private _warp: Warp;
 
-  constructor() {
-    this._warp = WarpFactory.forMainnet();
+  constructor(arweave: Arweave) {
+    // using arweave gateway to stick to L1 only transactions
+    this._warp = WarpFactory.forMainnet(
+      {
+        ...defaultCacheOptions,
+      },
+      true,
+      arweave,
+    );
   }
 
   async getContractState(

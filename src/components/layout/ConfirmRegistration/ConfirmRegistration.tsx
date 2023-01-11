@@ -15,7 +15,7 @@ function ConfirmRegistration() {
     { domain, ttl, tier, leaseDuration, antID, fee, stage },
     dispatchRegistrationState,
   ] = useRegistrationState();
-  const [{ arnsSourceContract, arnsContractId }] = useGlobalState();
+  const [{ arnsSourceContract, arnsContractId, arweave }] = useGlobalState();
   const [isPostingTransaction, setIsPostingTransaction] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
@@ -24,7 +24,7 @@ function ConfirmRegistration() {
     if (!antID) {
       return;
     }
-    isAntValid(antID, arnsSourceContract.approvedANTSourceCodeTxs)
+    isAntValid(antID, arnsSourceContract.approvedANTSourceCodeTxs, arweave)
       .then((isValid) => {
         setIsConfirmed(isValid);
       })
@@ -41,7 +41,7 @@ function ConfirmRegistration() {
     if (!antID) {
       return;
     }
-    const dataProvider = defaultDataProvider();
+    const dataProvider = defaultDataProvider(arweave);
     const pendingTXId = await dataProvider.writeTransaction(arnsContractId, {
       function: 'buyRecord',
       name: domain,
