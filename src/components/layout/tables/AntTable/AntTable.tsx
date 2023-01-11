@@ -28,6 +28,7 @@ function AntTable({
 }) {
   const [{ arweave }] = useGlobalState();
   const [pageRange, setPageRange] = useState<Array<number>>([0, 10]);
+  // eslint-disable-next-line
   const [maxItemCount, setMaxItemCount] = useState(10);
   const [tableItems, setTableItems] = useState([<></>]);
 

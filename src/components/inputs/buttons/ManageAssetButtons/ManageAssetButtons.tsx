@@ -4,6 +4,7 @@ import { useIsMobile } from '../../../../hooks';
 import { ArweaveTransactionId } from '../../../../types';
 
 function ManageAssetButtons({
+  // eslint-disable-next-line
   asset,
   assetType,
 }: {

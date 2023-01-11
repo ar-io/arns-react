@@ -44,7 +44,6 @@ function Paginator({
     }
     return buttons;
   }
-  function generateStartButtons() {}
   function generateMiddleButtons() {
     // middle buttons render on-demand
     const buttons: JSX.Element[] = [];
@@ -83,8 +82,6 @@ function Paginator({
     }
     return buttons;
   }
-
-  function generateEndButtons() {}
 
   return (
     <>

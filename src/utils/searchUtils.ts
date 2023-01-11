@@ -1,7 +1,6 @@
 import Arweave from 'arweave/node/common';
 
 import { defaultDataProvider } from '../services/arweave';
-import { arweave } from '../services/arweave/arweave';
 import { buildContractTxQuery } from '../services/arweave/arweave';
 import { ArweaveTransactionId } from '../types';
 import {
