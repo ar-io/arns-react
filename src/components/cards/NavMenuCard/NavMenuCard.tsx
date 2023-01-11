@@ -1,25 +1,26 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { useIsMobile, useWalletAddress } from '../../../hooks';
 import { defaultDataProvider } from '../../../services/arweave/';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ArweaveWalletConnector } from '../../../types';
 import { ROUTES } from '../../../utils/routes';
-import { AccountIcon, CopyIcon, MenuIcon } from '../../icons';
+import { CopyIcon, LogoutIcon, MenuIcon } from '../../icons';
 import ConnectButton from '../../inputs/buttons/ConnectButton/ConnectButton';
 import MenuButton from '../../inputs/buttons/MenuButton/MenuButton';
 import { Loader, NavBarLink } from '../../layout';
+import { WalletAddress } from '../../layout/WalletAddress/WalletAddress';
 import './styles.css';
 
 function NavMenuCard() {
   const [{ arnsContractId }, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
   const [showMenu, setShowMenu] = useState(false);
   const [walletDetails, setWalletDetails] = useState<{
-    AR: number | undefined | string;
     IO: number | undefined | string;
+    AR: number | undefined | string;
   }>({
-    AR: undefined,
     IO: undefined,
+    AR: undefined,
   });
   const [walletCopied, setWalletCopied] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -65,8 +66,8 @@ function NavMenuCard() {
         }).format(+balance),
     );
     setWalletDetails({
-      AR: formattedBalance,
       IO: formattedIOBalance,
+      AR: formattedBalance,
     });
   }
 
@@ -100,41 +101,20 @@ function NavMenuCard() {
 
   return (
     <>
-      <MenuButton
-        setShow={setShowMenu}
-        show={showMenu}
-        icon={
-          walletAddress ? (
-            <AccountIcon
-              width={'24px'}
-              height={'24px'}
-              fill={showMenu ? 'var(--text-black)' : 'var(--text-white)'}
-            />
-          ) : (
-            <MenuIcon
-              width={'24px'}
-              height={'24px'}
-              fill={showMenu ? 'var(--text-black)' : 'var(--text-white)'}
-            />
-          )
-        }
-      />
+      <MenuButton setShow={setShowMenu} show={showMenu}>
+        {walletAddress ? (
+          <WalletAddress />
+        ) : (
+          <MenuIcon
+            width={'24px'}
+            height={'24px'}
+            fill={showMenu ? 'var(--text-black)' : 'var(--text-white)'}
+          />
+        )}
+      </MenuButton>
+
       {showMenu ? (
         <div className="card menu" ref={menuRef}>
-          {isMobile ? (
-            Object.entries(ROUTES).map(([key, route]) => {
-              if (!route.index && (!route.protected || walletAddress))
-                return (
-                  <NavBarLink
-                    path={route.path}
-                    linkText={route.text}
-                    key={key}
-                  />
-                );
-            })
-          ) : (
-            <></>
-          )}
           {!walletAddress || !wallet ? (
             <ConnectButton />
           ) : (
@@ -164,13 +144,35 @@ function NavMenuCard() {
                   <span style={{ color: 'white' }}>&#10004;</span>
                 )}
               </div>
+              {isMobile
+                ? Object.entries(ROUTES).map(([key, route]) => {
+                    if (!route.index && (!route.protected || walletAddress))
+                      return (
+                        <NavBarLink
+                          path={route.path}
+                          linkText={route.text}
+                          key={key}
+                        />
+                      );
+                  })
+                : Object.entries(ROUTES).map(([key, route]) => {
+                    if (route.protected && walletAddress)
+                      return (
+                        // TODO: add menu icons
+                        <NavBarLink
+                          path={route.path}
+                          linkText={route.text}
+                          key={key}
+                        />
+                      );
+                  })}
               {Object.entries(walletDetails).map(([key, value]) => {
                 return (
                   <span
                     key={key}
                     className="flex-row flex-space-between navbar-link hover"
                   >
-                    <span>{key}</span>
+                    <span>{key} Balance</span>
                     {value ? (
                       <span className="faded">{value}</span>
                     ) : (
@@ -182,14 +184,21 @@ function NavMenuCard() {
               })}
               {
                 <button
-                  className="navbar-link hover"
+                  className="navbar-link hover flex-row flex-space-between"
                   onClick={logout}
                   style={{
                     cursor: 'pointer',
                     padding: '0px',
                   }}
                 >
-                  Log Out
+                  <span className="flex">Log Out</span>
+                  <LogoutIcon
+                    style={{
+                      height: '24px',
+                      width: '24px',
+                      fill: 'var(--text-bright-white)',
+                    }}
+                  />
                 </button>
               }
             </>

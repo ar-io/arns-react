@@ -14,7 +14,7 @@ const NavGroup = () => {
       {!isMobile ? (
         <>
           {Object.entries(ROUTES).map(([key, value]) => {
-            if (!value.index && (!value.protected || (wallet && walletAddress)))
+            if (!value.index && !value.protected)
               return (
                 <NavBarLink path={value.path} linkText={value.text} key={key} />
               );
