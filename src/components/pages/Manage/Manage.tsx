@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { useWalletAddress } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { ArweaveGraphQLAPI, ArweaveWalletConnector } from '../../../types.js';
 import { CopyIcon } from '../../icons';
 import { Loader } from '../../layout';
 
@@ -15,12 +16,7 @@ function Manage() {
   useEffect(() => {
     if (wallet) {
       setIsLoading(true);
-      wallet
-        .getWalletANTs(arnsSourceContract.approvedANTSourceCodeTxs, cursor)
-        .then(({ ids, cursor }: { ids: string[]; cursor?: string }) => {
-          setWalletANTs(ids);
-          setCursor(cursor);
-        })
+      fetchAnts()
         .catch((error: Error) => {
           console.error(error);
         })
@@ -28,7 +24,16 @@ function Manage() {
           setIsLoading(false);
         });
     }
-  }, [walletAddress]);
+  }, [wallet, walletAddress]);
+
+  async function fetchAnts() {
+    return wallet
+      .getWalletANTs(arnsSourceContract.approvedANTSourceCodeTxs, cursor)
+      .then(({ ids, cursor }: { ids: string[]; cursor?: string }) => {
+        setWalletANTs(ids);
+        setCursor(cursor);
+      });
+  }
 
   return (
     <div className="page">
