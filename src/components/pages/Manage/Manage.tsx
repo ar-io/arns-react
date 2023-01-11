@@ -15,12 +15,7 @@ function Manage() {
   useEffect(() => {
     if (wallet) {
       setIsLoading(true);
-      wallet
-        .getWalletANTs(arnsSourceContract.approvedANTSourceCodeTxs, cursor)
-        .then(({ ids, cursor }: { ids: string[]; cursor?: string }) => {
-          setWalletANTs(ids);
-          setCursor(cursor);
-        })
+      fetchAnts()
         .catch((error: Error) => {
           console.error(error);
         })
@@ -28,7 +23,18 @@ function Manage() {
           setIsLoading(false);
         });
     }
-  }, [walletAddress]);
+  }, [wallet, walletAddress]);
+
+  async function fetchAnts() {
+    const { ids, cursor: newCursor } = await wallet.getWalletANTs(
+      arnsSourceContract.approvedANTSourceCodeTxs,
+      cursor,
+    );
+
+    // TODO: fetch other interactions and names
+    setWalletANTs(ids);
+    setCursor(newCursor);
+  }
 
   return (
     <div className="page">
