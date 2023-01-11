@@ -166,17 +166,28 @@ function NavMenuCard() {
                   <span style={{ color: 'white' }}>&#10004;</span>
                 )}
               </div>
-              {Object.entries(ROUTES).map(([key, route]) => {
-                if (!route.protected || walletAddress)
-                  return (
-                    // TODO: add menu icons
-                    <NavBarLink
-                      path={route.path}
-                      linkText={route.text}
-                      key={key}
-                    />
-                  );
-              })}
+              {isMobile
+                ? Object.entries(ROUTES).map(([key, route]) => {
+                    if (!route.index && (!route.protected || walletAddress))
+                      return (
+                        <NavBarLink
+                          path={route.path}
+                          linkText={route.text}
+                          key={key}
+                        />
+                      );
+                  })
+                : Object.entries(ROUTES).map(([key, route]) => {
+                    if (route.protected && walletAddress)
+                      return (
+                        // TODO: add menu icons
+                        <NavBarLink
+                          path={route.path}
+                          linkText={route.text}
+                          key={key}
+                        />
+                      );
+                  })}
               {Object.entries(walletDetails).map(([key, value]) => {
                 return (
                   <span
