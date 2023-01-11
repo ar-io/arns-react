@@ -18,13 +18,17 @@ export class ArConnectWalletConnector
   private _wallet: Window['arweaveWallet'];
   private _ar: Ar = new Ar();
   private _address?: string;
-  _arweave: Arweave;
   private _graphql: ArweaveGraphQL;
 
-  constructor(arweave: Arweave, graphql: ArweaveGraphQL) {
+  arweave: Arweave;
+
+  constructor(
+    arweave: Arweave,
+    graphql: ArweaveGraphQL = new ArweaveGraphQL(arweave),
+  ) {
     this._wallet = window.arweaveWallet;
     this._graphql = graphql;
-    this._arweave = arweave;
+    this.arweave = arweave;
   }
 
   async connect(): Promise<void> {
@@ -52,7 +56,7 @@ export class ArConnectWalletConnector
   }
 
   async getWalletBalanceAR(): Promise<string> {
-    const winstonBalance = await this._arweave.wallets.getBalance(
+    const winstonBalance = await this.arweave.wallets.getBalance(
       await this.getWalletAddress(),
     );
     return this._ar.winstonToAr(winstonBalance);

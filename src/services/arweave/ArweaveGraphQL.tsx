@@ -4,9 +4,9 @@ import { ArweaveGraphQLAPI } from '../../types';
 import { deployedAntQuery } from '../../utils/constants';
 
 export class ArweaveGraphQL implements ArweaveGraphQLAPI {
-  _arweave: Arweave;
+  arweave: Arweave;
   constructor(arweave: Arweave) {
-    this._arweave = arweave;
+    this.arweave = arweave;
   }
   async getWalletANTs(
     approvedSourceCodeTransactions: string[],
@@ -17,7 +17,7 @@ export class ArweaveGraphQL implements ArweaveGraphQLAPI {
     let newCursor: string | undefined = undefined;
 
     // get contracts deployed by user, filtering with src-codes to only get ANT contracts
-    const deployedResponse = await this._arweave.api.post(
+    const deployedResponse = await this.arweave.api.post(
       '/graphql',
       deployedAntQuery(address, approvedSourceCodeTransactions, cursor),
     );
