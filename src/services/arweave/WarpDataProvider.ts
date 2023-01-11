@@ -11,6 +11,7 @@ export class WarpDataProvider implements SmartweaveContractSource {
   private _warp: Warp;
 
   constructor(arweave: Arweave) {
+    // using arweave gateway to stick to L1 only transactions
     this._warp = WarpFactory.forMainnet(
       {
         ...defaultCacheOptions,
