@@ -101,22 +101,44 @@ function NavMenuCard() {
 
   return (
     <>
-      <MenuButton setShow={setShowMenu} show={showMenu}>
+      <MenuButton
+        setShow={setShowMenu}
+        show={showMenu}
+        className={walletAddress ? 'outline-button' : ''}
+        style={
+          walletAddress
+            ? {
+                borderRadius: 'var(--corner-radius',
+                borderWidth: '2px',
+                padding: '10px',
+              }
+            : {}
+        }
+      >
         {walletAddress ? (
           <WalletAddress />
         ) : (
-          <MenuIcon
-            width={'24px'}
-            height={'24px'}
-            fill={showMenu ? 'var(--text-black)' : 'var(--text-white)'}
-          />
+          <MenuIcon width={'24px'} height={'24px'} fill={'var(--text-white)'} />
         )}
       </MenuButton>
 
       {showMenu ? (
         <div className="card menu" ref={menuRef}>
           {!walletAddress || !wallet ? (
-            <ConnectButton />
+            <>
+              {Object.entries(ROUTES).map(([key, route]) => {
+                if (!route.protected)
+                  return (
+                    // TODO: add menu icons
+                    <NavBarLink
+                      path={route.path}
+                      linkText={route.text}
+                      key={key}
+                    />
+                  );
+              })}
+              <ConnectButton />
+            </>
           ) : (
             <>
               <div className="flex-row flex-space-between">
@@ -144,28 +166,17 @@ function NavMenuCard() {
                   <span style={{ color: 'white' }}>&#10004;</span>
                 )}
               </div>
-              {isMobile
-                ? Object.entries(ROUTES).map(([key, route]) => {
-                    if (!route.index && (!route.protected || walletAddress))
-                      return (
-                        <NavBarLink
-                          path={route.path}
-                          linkText={route.text}
-                          key={key}
-                        />
-                      );
-                  })
-                : Object.entries(ROUTES).map(([key, route]) => {
-                    if (route.protected && walletAddress)
-                      return (
-                        // TODO: add menu icons
-                        <NavBarLink
-                          path={route.path}
-                          linkText={route.text}
-                          key={key}
-                        />
-                      );
-                  })}
+              {Object.entries(ROUTES).map(([key, route]) => {
+                if (!route.protected || walletAddress)
+                  return (
+                    // TODO: add menu icons
+                    <NavBarLink
+                      path={route.path}
+                      linkText={route.text}
+                      key={key}
+                    />
+                  );
+              })}
               {Object.entries(walletDetails).map(([key, value]) => {
                 return (
                   <span
