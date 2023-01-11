@@ -36,16 +36,21 @@ export class ArConnectWalletConnector
     if (!window.arweaveWallet) {
       window.open('https://arconnect.io');
     }
-    return this._wallet.connect(ARCONNECT_WALLET_PERMISSIONS, {
-      name: 'ArNS - ar.io',
-    });
+
+    return this._wallet.connect(
+      ARCONNECT_WALLET_PERMISSIONS,
+      {
+        name: 'ArNS - ar.io',
+      },
+      // TODO: add arweave configs here
+    );
   }
 
   disconnect(): Promise<void> {
     return this._wallet.disconnect();
   }
 
-  async getWalletAddress(): Promise<string> {
+  getWalletAddress(): Promise<string> {
     return this._wallet.getActiveAddress();
   }
 
