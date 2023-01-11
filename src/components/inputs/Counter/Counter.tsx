@@ -100,7 +100,7 @@ function YearsCounter({
       <div className="flex-row flex-center">
         <div className="years-counter">
           <button
-            className="counter-button"
+            className="counter-button hover"
             disabled={leaseDuration == minValue}
             onClick={decHandleOnClick}
             onMouseDown={decHandleOnMouseDown}
@@ -120,7 +120,7 @@ function YearsCounter({
             onChange={onChange}
           />
           <button
-            className="counter-button"
+            className="counter-button hover"
             disabled={leaseDuration == maxValue}
             onClick={incHandleOnClick}
             onMouseDown={incHandleOnMouseDown}

@@ -136,8 +136,9 @@ function SearchBar(props: SearchBarProps) {
         {' '}
         {/** TODO change max input to 32 once contract is updated */}
         <input
-          type="text"
+          type="search"
           placeholder={showDefaultText ? placeholderText : 'try another name'}
+          enterKeyHint="search"
           onChange={_onChange}
           onFocus={_onFocus}
           onKeyDown={(e) => {
