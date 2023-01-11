@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { useIsMobile, useWalletAddress } from '../../../hooks';
 import { defaultDataProvider } from '../../../services/arweave/';
@@ -14,6 +15,7 @@ import './styles.css';
 
 function NavMenuCard() {
   const [{ arnsContractId, arweave }, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
+  const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
   const [walletDetails, setWalletDetails] = useState<{
     IO: number | undefined | string;
@@ -90,10 +92,12 @@ function NavMenuCard() {
     try {
       await wallet?.disconnect();
       // reset state
+      setShowMenu(false);
       dispatchGlobalState({
         type: 'setWallet',
         payload: undefined,
       });
+      navigate('/');
     } catch (error: any) {
       console.error(error);
     }
@@ -101,22 +105,47 @@ function NavMenuCard() {
 
   return (
     <>
-      <MenuButton setShow={setShowMenu} show={showMenu}>
+      <MenuButton
+        setShow={setShowMenu}
+        show={showMenu}
+        className={walletAddress ? 'outline-button' : ''}
+        style={
+          walletAddress
+            ? {
+                borderRadius: 'var(--corner-radius',
+                borderWidth: '2px',
+                padding: '10px',
+              }
+            : {}
+        }
+      >
         {walletAddress ? (
           <WalletAddress />
         ) : (
-          <MenuIcon
-            width={'24px'}
-            height={'24px'}
-            fill={showMenu ? 'var(--text-black)' : 'var(--text-white)'}
-          />
+          <MenuIcon width={'24px'} height={'24px'} fill={'var(--text-white)'} />
         )}
       </MenuButton>
 
       {showMenu ? (
         <div className="card menu" ref={menuRef}>
           {!walletAddress || !wallet ? (
-            <ConnectButton />
+            <>
+              {Object.entries(ROUTES).map(([key, route]) => {
+                if (!route.protected)
+                  return (
+                    // TODO: add menu icons
+                    <NavBarLink
+                      path={route.path}
+                      linkText={route.text}
+                      key={key}
+                      onClick={() => {
+                        setShowMenu(false);
+                      }}
+                    />
+                  );
+              })}
+              <ConnectButton />
+            </>
           ) : (
             <>
               <div className="flex-row flex-space-between">
@@ -152,6 +181,9 @@ function NavMenuCard() {
                           path={route.path}
                           linkText={route.text}
                           key={key}
+                          onClick={() => {
+                            setShowMenu(false);
+                          }}
                         />
                       );
                   })
@@ -163,6 +195,9 @@ function NavMenuCard() {
                           path={route.path}
                           linkText={route.text}
                           key={key}
+                          onClick={() => {
+                            setShowMenu(false);
+                          }}
                         />
                       );
                   })}
@@ -185,7 +220,7 @@ function NavMenuCard() {
               {
                 <button
                   className="navbar-link hover flex-row flex-space-between"
-                  onClick={logout}
+                  onClick={() => logout()}
                   style={{
                     cursor: 'pointer',
                     padding: '0px',
