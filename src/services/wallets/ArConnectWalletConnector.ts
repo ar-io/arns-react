@@ -3,7 +3,7 @@ import Arweave from 'arweave';
 import Ar from 'arweave/node/ar';
 
 import { ArweaveWalletConnector } from '../../types';
-import { deployedAntQuery } from '../../utils/constants';
+import { ArweaveGraphQL } from '../arweave/ArweaveGraphQL';
 
 const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [
   'ACCESS_ADDRESS',
@@ -12,14 +12,18 @@ const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [
   'SIGN_TRANSACTION',
 ];
 
-export class ArConnectWalletConnector implements ArweaveWalletConnector {
+export class ArConnectWalletConnector
+  implements ArweaveWalletConnector, ArweaveGraphQL
+{
   private _wallet: Window['arweaveWallet'];
-  private _arweave: Arweave;
   private _ar: Ar = new Ar();
   private _address?: string;
+  _arweave: Arweave;
+  private _graphql: ArweaveGraphQL;
 
-  constructor(arweave: Arweave) {
+  constructor(arweave: Arweave, graphql: ArweaveGraphQL) {
     this._wallet = window.arweaveWallet;
+    this._graphql = graphql;
     this._arweave = arweave;
   }
 
@@ -54,35 +58,13 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
     return this._ar.winstonToAr(winstonBalance);
   }
 
-  async getWalletANTs(
-    approvedSourceCodeTransactions: string[],
-    cursor?: string,
-  ): Promise<{ ids: string[]; cursor?: string }> {
+  async getWalletANTs(approvedANTSourceCodeTxs: string[], cursor?: string) {
     const address = await this.getWalletAddress();
-    const fetchedANTids: Set<string> = new Set();
-    let newCursor: string | undefined = undefined;
-
-    // get contracts deployed by user, filtering with src-codes to only get ANT contracts
-    const deployedResponse = await this._arweave.api.post(
-      '/graphql',
-      deployedAntQuery(address, approvedSourceCodeTransactions, cursor),
+    const result = await this._graphql.getWalletANTs(
+      approvedANTSourceCodeTxs,
+      address,
+      cursor,
     );
-    if (deployedResponse.data.data?.transactions?.edges?.length) {
-      deployedResponse.data.data.transactions.edges
-        .map((e: any) => ({
-          id: e.node.id,
-          cursor: e.cursor,
-        }))
-        .forEach((ant: { id: string; cursor: string }) => {
-          fetchedANTids.add(ant.id);
-          if (ant.cursor) {
-            newCursor = ant.cursor;
-          }
-        });
-    }
-    return {
-      ids: [...fetchedANTids],
-      cursor: newCursor,
-    };
+    return result;
   }
 }

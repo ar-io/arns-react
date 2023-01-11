@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import { useWalletAddress } from '../../../hooks';
+import { ArweaveGraphQL } from '../../../services/arweave/ArweaveGraphQL';
 import {
   ArConnectWalletConnector,
   JsonWalletConnector,
@@ -98,7 +99,10 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
         </button>
         <button
           className="wallet-connect-button h2"
-          onClick={() => setGlobalWallet(new ArConnectWalletConnector(arweave))}
+          onClick={() => {
+            const graphql = new ArweaveGraphQL(arweave);
+            setGlobalWallet(new ArConnectWalletConnector(arweave, graphql));
+          }}
         >
           <ArConnectIcon
             className="external-icon"
