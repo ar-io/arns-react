@@ -12,7 +12,7 @@ import './styles.css';
 function RegisterNameForm() {
   const [{ domain, ttl, antID }, dispatchRegisterState] =
     useRegistrationState();
-  const [{ arnsSourceContract }] = useGlobalState();
+  const [{ arnsSourceContract, arweave }] = useGlobalState();
 
   const [isValidAnt, setIsValidAnt] = useState<boolean | undefined>(undefined);
   const [isValidating, setIsValidating] = useState(false);
@@ -57,9 +57,13 @@ function RegisterNameForm() {
     }
 
     try {
-      await isAntValid(id, arnsSourceContract.approvedANTSourceCodeTxs);
+      await isAntValid(
+        id,
+        arnsSourceContract.approvedANTSourceCodeTxs,
+        arweave,
+      );
 
-      const dataProvider = defaultDataProvider();
+      const dataProvider = defaultDataProvider(arweave);
       const state = await dataProvider.getContractState(id);
       if (state == undefined) {
         throw Error('ANT contract state is undefined');
