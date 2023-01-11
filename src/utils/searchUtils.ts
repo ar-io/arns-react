@@ -1,6 +1,7 @@
 import Arweave from 'arweave/node/common';
 
 import { defaultDataProvider } from '../services/arweave';
+import { arweave } from '../services/arweave/arweave';
 import { buildContractTxQuery } from '../services/arweave/arweave';
 import { ArweaveTransactionId } from '../types';
 import {
@@ -154,7 +155,7 @@ export async function getAntConfirmations(id: ArweaveTransactionId) {
   try {
     const confirmations = await arweave.api
       .get(`/tx/${id}/status`)
-      .then((res) => {
+      .then((res: any) => {
         return res.data.number_of_confirmations;
       });
     return confirmations;
