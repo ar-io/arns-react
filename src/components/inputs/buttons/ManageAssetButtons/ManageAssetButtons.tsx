@@ -2,7 +2,6 @@ import { useState } from 'react';
 
 import { useIsMobile } from '../../../../hooks';
 import { ArweaveTransactionId } from '../../../../types';
-import ManageAntModal from '../../../modals/ManageAntModal/ManageAntModal';
 
 function ManageAssetButtons({
   asset,
@@ -32,7 +31,7 @@ function ManageAssetButtons({
       </div>
       {showModal ? (
         assetType == 'ant' ? (
-          <ManageAntModal contractId={asset} setShowModal={setShowModal} />
+          <></>
         ) : assetType == 'name' ? (
           <></>
         ) : (

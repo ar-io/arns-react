@@ -3,8 +3,6 @@ import { useEffect, useState } from 'react';
 import { useIsMobile } from '../../../../hooks';
 import { defaultDataProvider } from '../../../../services/arweave';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
-import { TEST_ANT_BALANCE } from '../../../../utils/constants';
-import { getAntConfirmations } from '../../../../utils/searchUtils';
 import {
   AlertCircle,
   AlertTriangleIcon,
@@ -21,7 +19,13 @@ import Loader from '../../Loader/Loader';
 import RowItem from '../RowItem/RowItem';
 import './styles.css';
 
-function AntTable() {
+function AntTable({
+  antIds,
+  isLoading,
+}: {
+  antIds: string[];
+  isLoading: boolean;
+}) {
   const [{ arweave }] = useGlobalState();
   const [pageRange, setPageRange] = useState<Array<number>>([0, 10]);
   const [maxItemCount, setMaxItemCount] = useState(10);
@@ -33,10 +37,11 @@ function AntTable() {
   useEffect(() => {
     setLoading(true);
     setTableItems([<></>]);
-    updateTableItems().then((items) => {
-      setTableItems(items);
-      setLoading(false);
-    });
+    updateTableItems()
+      .then((items) => {
+        setTableItems(items);
+      })
+      .finally(() => setLoading(false));
   }, [pageRange]);
   // todo: make each row item responsible for loading its state to improve UX, we want to see the row items, and THEN the info they contain
 
@@ -44,10 +49,10 @@ function AntTable() {
     const items = [];
     for (let i = pageRange[0]; i < pageRange[1]; i++) {
       const dataProvider = defaultDataProvider(arweave);
-      const state = await dataProvider.getContractState(TEST_ANT_BALANCE[i]);
+      const state = await dataProvider.getContractState(antIds[i]);
       // todo: get status from arweave transaction manager instead of manual query here
       // todo: get txID's from connected user balance and/or favorited assets
-      const confirmations = await getAntConfirmations(TEST_ANT_BALANCE[i]);
+      const confirmations = await dataProvider.getAntConfirmations(antIds[i]);
       const icon = () => {
         if (confirmations > 0 && confirmations < 50) {
           return (
@@ -71,19 +76,18 @@ function AntTable() {
       };
       items.push(
         <RowItem
-          col1={name()}
-          col2={
-            <CopyTextButton
-              displayText={`${TEST_ANT_BALANCE[i].slice(
-                0,
-                6,
-              )}...${TEST_ANT_BALANCE[i].slice(-6)}`}
-              copyText={TEST_ANT_BALANCE[i]}
-              size={24}
-            />
-          }
-          col3={
-            state.records['@'].transactionId ? (
+          details={{
+            1: name(),
+            2: (
+              <CopyTextButton
+                displayText={`${antIds[i].slice(0, 6)}...${antIds[i].slice(
+                  -6,
+                )}`}
+                copyText={antIds[i]}
+                size={24}
+              />
+            ),
+            3: state.records['@'].transactionId ? (
               <CopyTextButton
                 displayText={`${state.records['@'].transactionId.slice(
                   0,
@@ -94,16 +98,14 @@ function AntTable() {
               />
             ) : (
               'N/A'
-            )
-          }
-          col4={
-            <span className="text white bold center">
-              {icon()}&nbsp;{!isMobile ? `${confirmations} / 50` : <></>}
-            </span>
-          }
-          col5={
-            <ManageAssetButtons asset={TEST_ANT_BALANCE[i]} assetType={'ant'} />
-          }
+            ),
+            4: (
+              <span className="text white bold center">
+                {icon()}&nbsp;{!isMobile ? `${confirmations} / 50` : <></>}
+              </span>
+            ),
+            5: <ManageAssetButtons asset={antIds[i]} assetType={'ant'} />,
+          }}
           bgColor={'#1E1E1E'}
           textColor={'var(--text-white)'}
         />,
@@ -156,11 +158,11 @@ function AntTable() {
           style={{ gap: '.5em', minHeight: 200 }}
         >
           {tableItems ? tableItems : <></>}
-          {loading ? <Loader size={100} /> : <></>}
+          {loading || isLoading ? <Loader size={100} /> : <></>}
         </tbody>
       </table>
       <Paginator
-        itemCount={TEST_ANT_BALANCE.length}
+        itemCount={antIds?.length}
         itemsPerPage={maxItemCount}
         pageRange={pageRange}
         setPageRange={setPageRange}
