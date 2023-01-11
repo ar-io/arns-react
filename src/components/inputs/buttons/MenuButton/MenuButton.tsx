@@ -5,26 +5,24 @@ import './styles.css';
 function MenuButton({
   show,
   setShow,
+  className,
+  style,
   children,
 }: {
   show: boolean;
   setShow: Dispatch<SetStateAction<boolean>>;
+  className?: string;
+  style?: any;
   children?: JSX.Element;
 }): JSX.Element {
   return (
     <>
       <button
         className={
-          !show
-            ? 'outline-button hover'
-            : 'outline-button hover highlight-button'
+          show ? `hover highlight-button ${className}` : `hover ${className}`
         }
         onClick={() => setShow(!show)}
-        style={{
-          padding: '10px',
-          borderRadius: 'var(--corner-radius)',
-          borderWidth: '2px',
-        }}
+        style={style}
       >
         {children}
       </button>
