@@ -1,6 +1,7 @@
 import Arweave from 'arweave';
 import { v4 as uuidv4 } from 'uuid';
 
+import { ArweaveGraphQLAPI } from '../../types';
 import type {
   ArNSContractState,
   ArweaveTransactionId,
@@ -10,7 +11,10 @@ import { GlobalState } from '../contexts/GlobalState';
 
 export type Action =
   | { type: 'setWalletAddress'; payload: ArweaveTransactionId | undefined }
-  | { type: 'setWallet'; payload: ArweaveWalletConnector | undefined }
+  | {
+      type: 'setWallet';
+      payload: (ArweaveWalletConnector & ArweaveGraphQLAPI) | undefined;
+    }
   | { type: 'setGateway'; payload: string }
   | { type: 'setArnsContractState'; payload: ArNSContractState }
   | { type: 'setShowConnectWallet'; payload: boolean }

@@ -81,10 +81,6 @@ export interface ArweaveWalletConnector {
   disconnect(): Promise<void>;
   getWalletAddress(): Promise<string>;
   getWalletBalanceAR(): Promise<string>;
-  getWalletANTs(
-    approvedSourceCodeTransactions: string[],
-    cursor?: string,
-  ): Promise<{ ids: string[]; cursor?: string }>;
 }
 
 export interface ArweaveGraphQLAPI {
