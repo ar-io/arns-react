@@ -1,18 +1,10 @@
 import { useEffect, useRef } from 'react';
 
 import { useWalletAddress } from '../../../hooks';
-import {
-  ArConnectWalletConnector,
-  JsonWalletConnector,
-} from '../../../services/wallets';
+import { ArConnectWalletConnector } from '../../../services/wallets';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { ArweaveWalletConnector } from '../../../types';
-import {
-  ArConnectIcon,
-  ArweaveAppIcon,
-  CloseIcon,
-  UploadIcon,
-} from '../../icons';
+import { ArweaveGraphQLAPI, ArweaveWalletConnector } from '../../../types';
+import { ArConnectIcon, ArweaveAppIcon, CloseIcon } from '../../icons';
 import './styles.css';
 
 function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
@@ -48,7 +40,9 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
     });
   }
 
-  async function setGlobalWallet(walletConnector: ArweaveWalletConnector) {
+  async function setGlobalWallet(
+    walletConnector: ArweaveWalletConnector & ArweaveGraphQLAPI,
+  ) {
     try {
       await walletConnector.connect();
       dispatchGlobalState({
@@ -77,28 +71,12 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
         <button className="modal-close-button" onClick={closeModal}>
           <CloseIcon width="30px" height={'30px'} fill="var(--text-white)" />
         </button>
-        <button className="wallet-connect-button h2">
-          <UploadIcon
-            className="external-icon"
-            fill={'var(--text-white)'}
-            width={'47px'}
-            height={'47px'}
-          />
-          Import your JSON keyfile
-          <label className="span-all">
-            <input
-              className="hidden"
-              type="file"
-              onChange={(e) =>
-                e.target?.files?.length &&
-                setGlobalWallet(new JsonWalletConnector(e.target.files[0]))
-              }
-            />
-          </label>
-        </button>
+
         <button
           className="wallet-connect-button h2"
-          onClick={() => setGlobalWallet(new ArConnectWalletConnector(arweave))}
+          onClick={() => {
+            setGlobalWallet(new ArConnectWalletConnector(arweave));
+          }}
         >
           <ArConnectIcon
             className="external-icon"

@@ -1,6 +1,7 @@
 import Arweave from 'arweave';
 import React, { Dispatch, createContext, useContext, useReducer } from 'react';
 
+import { ArweaveGraphQLAPI } from '../../types';
 import type { ArNSContractState, ArweaveWalletConnector } from '../../types';
 import type { Action } from '../reducers/GlobalReducer';
 
@@ -9,7 +10,7 @@ export type GlobalState = {
   arnsSourceContract: ArNSContractState;
   gateway: string;
   walletAddress?: string;
-  wallet?: ArweaveWalletConnector;
+  wallet?: ArweaveWalletConnector & ArweaveGraphQLAPI;
   arnsContractId: string;
   showConnectWallet: boolean;
   errors: Array<Error>;

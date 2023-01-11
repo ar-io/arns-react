@@ -83,6 +83,14 @@ export interface ArweaveWalletConnector {
   getWalletBalanceAR(): Promise<string>;
 }
 
+export interface ArweaveGraphQLAPI {
+  getWalletANTs(
+    approvedSourceCodeTransactions: string[],
+    address: string,
+    cursor?: string,
+  ): Promise<{ ids: string[]; cursor?: string }>;
+}
+
 export type SearchBarProps = {
   successPredicate: (value: string | undefined) => boolean;
   validationPredicate: (value: string | undefined) => boolean;
