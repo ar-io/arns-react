@@ -4,7 +4,7 @@ import { defaultDataProvider } from '../../services/arweave';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 
 export default function useArNSContract() {
-  const [{ arnsContractId }, dispatch] = useGlobalState();
+  const [{ arnsContractId, arweave }, dispatch] = useGlobalState();
   const [sendingContractState, setSendingContractState] = useState(false);
 
   useEffect(() => {
@@ -18,7 +18,7 @@ export default function useArNSContract() {
       }
 
       setSendingContractState(true);
-      const dataProvider = defaultDataProvider();
+      const dataProvider = defaultDataProvider(arweave);
 
       const arnsContractState = await dataProvider.getContractState(contractId);
       if (!arnsContractState) {
