@@ -1,12 +1,12 @@
+import { Link } from 'react-router-dom';
+
 import { useIsMobile } from '../../../hooks';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { ArnsCard } from '../../cards';
 import './styles.css';
 
 function SuccessfulRegistration() {
-  const [{ arnsSourceContract, walletAddress }] = useGlobalState();
-  const [{ domain }] = useRegistrationState();
+  const [{ domain, resolvedTxID }] = useRegistrationState();
   const isMobile = useIsMobile();
 
   return (
@@ -20,25 +20,37 @@ function SuccessfulRegistration() {
             style={!isMobile ? { maxWidth: 'none' } : {}}
           >
             Transaction ID:&nbsp;
-            <button className="link">
-              <b>
-                {!isMobile
-                  ? walletAddress
-                  : `${walletAddress?.slice(0, 5)} . . . ${walletAddress?.slice(
-                      -5,
-                    )}`}
-              </b>
-            </button>
+            <a
+              className="link"
+              target="_blank"
+              href={`https://sonar.warp.cc/#/app/interaction/${resolvedTxID}`}
+              rel="noreferrer"
+            >
+              <b>{resolvedTxID}</b>
+            </a>
           </span>
           <span className="text faded center">
-            Will take at least 15 minutes for your transaction to be posted.
+            It will take at least 15 minutes for gateways to resolve this new
+            ArNS domain name.
           </span>
         </div>
 
-        <ArnsCard domain={domain} id={arnsSourceContract.records[domain]} />
-        <span>
-          <button className="link center">Manage Names</button>
-        </span>
+        {domain ? (
+          <>
+            <ArnsCard domain={domain} id={resolvedTxID!} />
+            <span>
+              <Link
+                to={'/manage'}
+                className="accent-button hover"
+                style={{ textDecoration: 'none' }}
+              >
+                Manage Names
+              </Link>
+            </span>
+          </>
+        ) : (
+          <></>
+        )}
       </div>
     </>
   );

@@ -1,5 +1,3 @@
-import { Warp, WarpFactory } from 'warp-contracts';
-
 import {
   ANTContractState,
   ArNSContractState,
@@ -9,12 +7,10 @@ import {
 
 export class ArweaveCompositeDataProvider implements SmartweaveContractSource {
   private _providers: SmartweaveContractSource[];
-  private _warp: Warp;
-  contractId: any;
+
   // TODO: implement strategy methods
   constructor(providers: SmartweaveContractSource[]) {
     this._providers = providers;
-    this._warp = WarpFactory.forMainnet();
   }
 
   async getContractState(
@@ -27,24 +23,34 @@ export class ArweaveCompositeDataProvider implements SmartweaveContractSource {
   }
 
   async writeTransaction(
-    payload: any,
+    contractId: ArweaveTransactionId,
+    payload: {
+      [x: string]: any;
+      contractTransactionId: ArweaveTransactionId;
+    },
   ): Promise<ArweaveTransactionId | undefined> {
-    try {
-      if (!payload) {
-        throw Error(`interaction data is missing from payload: ${payload}`);
-      }
-      const result = await Promise.any(
-        this._providers.map((provider) => provider.writeTransaction(payload)),
-      );
-      // todo: check for dry write options on writeInteraction
-      if (!result) {
-        throw Error('No result from write interation');
-      }
-      // todo validate bundlr response
-      return result;
-    } catch (Error) {
-      console.error(Error);
-      return;
+    if (!payload) {
+      throw Error('Payload cannot be empty.');
     }
+
+    // Sequentially write - to avoid posting to multiple sources
+    for (const provider of this._providers) {
+      // TODO: add error handling to wrap failed ones and try the next
+      const result = await provider.writeTransaction(contractId, payload);
+      if (result) {
+        return result;
+      }
+    }
+  }
+
+  async getContractBalanceForWallet(
+    contractId: string,
+    wallet: string,
+  ): Promise<number> {
+    return Promise.any(
+      this._providers.map((p) =>
+        p.getContractBalanceForWallet(contractId, wallet),
+      ),
+    );
   }
 }

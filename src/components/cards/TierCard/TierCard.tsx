@@ -8,7 +8,7 @@ function TierCard({ tierNumber }: TierCardProps) {
   const [{ tier }, dispatchRegisterState] = useRegistrationState();
   return (
     <div className="tier-card hover">
-      <div className="text bubble-small ">Tier&nbsp;{tierNumber}</div>
+      <div className="text bubble-small">Tier&nbsp;{tierNumber}</div>
 
       {TIER_DATA[tierNumber].map((info: string, index: number) => (
         <span className="text white bold" key={index}>

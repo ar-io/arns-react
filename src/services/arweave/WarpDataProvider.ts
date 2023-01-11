@@ -8,18 +8,15 @@ import {
 
 export class WarpDataProvider implements SmartweaveContractSource {
   private _warp: Warp;
-  contractId: any;
 
-  constructor(contractId: ArweaveTransactionId) {
+  constructor() {
     this._warp = WarpFactory.forMainnet();
-    this.contractId = contractId;
   }
 
   async getContractState(
     contractId: string,
   ): Promise<ArNSContractState | undefined> {
     const contract = this._warp.contract(contractId);
-    this.contractId = contractId;
     const { cachedValue } = await contract.readState();
 
     if (!cachedValue.state) {
@@ -28,9 +25,12 @@ export class WarpDataProvider implements SmartweaveContractSource {
 
     const state = cachedValue.state as any;
 
+    // TODO: move this validation to separate interface function
     if (!state.records) {
       throw Error(
-        `ArNS contract does not contain required keys.${Object.keys(state)}`,
+        `Smartweave contract does not contain required keys.${Object.keys(
+          state,
+        )}`,
       );
     }
 
@@ -38,27 +38,44 @@ export class WarpDataProvider implements SmartweaveContractSource {
   }
 
   async writeTransaction(
-    payload: any,
+    contractId: ArweaveTransactionId,
+    payload: {
+      [x: string]: any;
+      contractTransactionId: ArweaveTransactionId;
+    },
   ): Promise<ArweaveTransactionId | undefined> {
     try {
-      const contract = this._warp
-        .contract(this.contractId)
-        .connect('use_wallet');
+      if (!payload) {
+        throw Error('Payload cannot be empty.');
+      }
+      const contract = this._warp.contract(contractId).connect('use_wallet');
       const result = await contract.writeInteraction(payload);
       // todo: check for dry write options on writeInteraction
       if (!result) {
-        throw Error('No result from write interation');
+        throw Error('No result from write interaction');
       }
-      const { originalTxId } = result;
+      const { originalTxId, bundlrResponse } = result;
+
       if (!originalTxId) {
         throw Error('No transaction ID from write interaction');
       }
 
-      // todo validate bundlr response
+      if (!bundlrResponse) {
+        throw Error('No response from bundlr for write interaction.');
+      }
+
       return originalTxId;
-    } catch (Error) {
-      console.error(Error);
-      return;
+    } catch (error) {
+      console.error('Failed to write TX to warp', error);
+      throw error;
     }
+  }
+
+  async getContractBalanceForWallet(
+    contractId: ArweaveTransactionId,
+    wallet: ArweaveTransactionId,
+  ) {
+    const state = await this.getContractState(contractId);
+    return state?.balances[wallet] ?? 0;
   }
 }

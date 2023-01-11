@@ -4,7 +4,7 @@ import { CodeSandboxIcon, NotebookIcon } from '../../icons';
 import { AntTable, NameTable } from '../../layout/tables';
 import './styles.css';
 
-function ManageAssets() {
+function Manage() {
   const [tableType, setTableType] = useState('ant'); // ant or name
 
   return (
@@ -52,4 +52,4 @@ function ManageAssets() {
   );
 }
 
-export default ManageAssets;
+export default Manage;

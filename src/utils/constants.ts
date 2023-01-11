@@ -2,8 +2,8 @@
 export const ARNS_NAME_REGEX = new RegExp(
   '^([a-zA-Z0-9][a-zA-Z0-9-]{0,30}[a-zA-Z0-9]|[a-zA-Z0-9]{1})$',
 );
-export const ARNS_TXID_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{43}$');
-export const ARNS_TXID_ENTRY_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{1,43}$');
+export const ARNS_TX_ID_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{43}$');
+export const ARNS_TX_ID_ENTRY_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{1,43}$');
 
 export const ANT_CONTRACT_STATE_KEYS = [
   'balances',
@@ -53,6 +53,43 @@ export const NAME_PRICE_INFO =
 
 export const MAX_LEASE_DURATION = 200;
 export const MIN_LEASE_DURATION = 1;
+export const deployedAntQuery = (
+  address: string,
+  approvedSourceCodeTransactions: string[],
+  cursor?: string,
+) => {
+  const queryObject = {
+    query: `
+  { 
+    transactions (
+      owners:["${address}"]
+      tags:[
+        {
+          name:"Contract-Src",
+          values:${JSON.stringify(approvedSourceCodeTransactions)}
+        }
+      ],
+      sort: HEIGHT_DESC,
+      first: 100,
+      ${cursor ? `after: ${cursor}` : ''}
+    ) {
+      pageInfo {
+        hasNextPage
+      }
+      edges {
+        cursor
+        node {
+          id
+          block {
+            height
+          }
+        }
+      }
+    }
+  }`,
+  };
+  return queryObject;
+};
 
 export const TEST_ANT_BALANCE = [
   '6dUiTQKJCVD7c9icQhbbzfI-Le_hC4sXRDx1OQQ6jMI',

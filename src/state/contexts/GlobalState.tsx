@@ -1,6 +1,7 @@
 import Arweave from 'arweave';
 import React, { Dispatch, createContext, useContext, useReducer } from 'react';
 
+import { ArweaveGraphQLAPI } from '../../types';
 import type { ArNSContractState, ArweaveWalletConnector } from '../../types';
 import type { Action } from '../reducers/GlobalReducer';
 
@@ -9,11 +10,11 @@ export type GlobalState = {
   arnsSourceContract: ArNSContractState;
   gateway: string;
   walletAddress?: string;
-  wallet?: ArweaveWalletConnector;
+  wallet?: ArweaveWalletConnector & ArweaveGraphQLAPI;
   arnsContractId: string;
   showConnectWallet: boolean;
-  isSearching: boolean;
   errors: Array<Error>;
+  notifications: { id: string; text: string }[];
 };
 
 const initialState: GlobalState = {
@@ -26,7 +27,7 @@ const initialState: GlobalState = {
     records: {},
     fees: {},
     balances: { '': 0 },
-    controller: '',
+    controllers: [],
     evolve: undefined,
     name: '',
     owner: '',
@@ -37,8 +38,8 @@ const initialState: GlobalState = {
   walletAddress: undefined,
   showConnectWallet: false,
   wallet: undefined,
-  isSearching: false,
   errors: [],
+  notifications: [],
 };
 
 const GlobalStateContext = createContext<[GlobalState, Dispatch<Action>]>([

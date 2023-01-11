@@ -8,5 +8,13 @@
     "\\.svg": "<rootDir>/src/__tests__/__mocks__/svg.js"
   },
   "moduleDirectories": ["node_modules", "assets"],
-  "testPathIgnorePatterns": ["src/__tests__/__mocks__"]
+  "testPathIgnorePatterns": ["src/__tests__/__mocks__"],
+  "coverageThreshold": {
+    "global": {
+      "branches": 80,
+      "functions": 80,
+      "lines": 80
+    }
+  },
+  "verbose": true
 }

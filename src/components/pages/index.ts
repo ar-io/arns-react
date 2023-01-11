@@ -1,7 +1,7 @@
 import About from './About/About';
-import FAQ from './FAQ/FAQ';
+import Create from './Create/Create';
 import Home from './Home/Home';
-import ManageAssets from './ManageAssets/ManageAssets';
+import Manage from './Manage/Manage';
 import NotFound from './NotFound/NotFound';
 
-export { About, FAQ, Home, ManageAssets, NotFound };
+export { About, Create, Home, Manage, NotFound };

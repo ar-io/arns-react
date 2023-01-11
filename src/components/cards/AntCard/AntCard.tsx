@@ -31,45 +31,53 @@ const PRIMARY_DETAILS: string[] = [
 const DEFAULT_ATTRIBUTES = {
   ttlSeconds: 60 * 60,
   leaseDuration: 'N/A',
-  subdomains: 'Up to 100',
+  maxSubdomains: 100,
 };
 
 function AntCard(props: ArNSMapping) {
-  const { id, domain } = props;
+  const { id, domain, compact, overrides, hover, enableActions } = props;
   const [antDetails, setAntDetails] = useState<{ [x: string]: string }>();
   const [isLoading, setIsLoading] = useState(false);
   const [limitDetails, setLimitDetails] = useState(true);
 
   useEffect(() => {
     setIsLoading(true);
-    const dataProvider = defaultDataProvider(id);
-    dataProvider.getContractState(id).then((antContractState) => {
-      if (!antContractState) {
-        setAntDetails(undefined);
-        return;
-      }
-      const allAntDetails: { [x: string]: any } = {
-        ...antContractState,
-        ...DEFAULT_ATTRIBUTES,
-        id,
-        domain,
-      };
-      // TODO: consolidate this logic that sorts and updates key values
-      const replacedKeys = Object.keys(allAntDetails)
-        .sort()
-        .reduce((obj: any, key: string) => {
-          // TODO: flatten recursive objects like subdomains, filter out for now
-          if (typeof allAntDetails[key] === 'object') return obj;
-          obj[mapKeyToAttribute(key)] = allAntDetails[key];
-          return obj;
-        }, {});
-      setLimitDetails(true);
-      setAntDetails(replacedKeys);
-      setTimeout(() => {
+    const dataProvider = defaultDataProvider();
+    dataProvider
+      .getContractState(id)
+      .then((antContractState) => {
+        if (!antContractState) {
+          setAntDetails(undefined);
+          return;
+        }
+        const allAntDetails: { [x: string]: any } = {
+          ...antContractState,
+          ...DEFAULT_ATTRIBUTES,
+          // TODO: remove this when all ants have controllers
+          controllers: antContractState.controllers
+            ? antContractState.controllers.join(',')
+            : antContractState.owner,
+          tier: antContractState.tier ? antContractState.tier : 1,
+          ...overrides,
+          id,
+          domain,
+        };
+        // TODO: consolidate this logic that sorts and updates key values
+        const replacedKeys = Object.keys(allAntDetails)
+          .sort()
+          .reduce((obj: any, key: string) => {
+            // TODO: flatten recursive objects like subdomains, filter out for now
+            if (typeof allAntDetails[key] === 'object') return obj;
+            obj[mapKeyToAttribute(key)] = allAntDetails[key];
+            return obj;
+          }, {});
+        setLimitDetails(compact ?? true);
+        setAntDetails(replacedKeys);
+      })
+      .finally(() => {
         setIsLoading(false);
-      }, 500);
-    });
-  }, [id, domain]);
+      });
+  }, [id, domain, compact, enableActions, overrides]);
 
   function showMore(e: any) {
     e.preventDefault();
@@ -84,11 +92,10 @@ function AntCard(props: ArNSMapping) {
   return (
     <>
       {isLoading ? (
-        <Loader size={50} />
+        <Loader size={80} />
       ) : antDetails ? (
-        <div className="card hover">
-          {/* // TODO: pull tier from ant contract details */}
-          <span className="bubble">Tier 1</span>
+        <div className={hover ? 'card hover' : 'card'}>
+          <span className="bubble">Tier {antDetails.Tier}</span>
           {Object.entries(antDetails).map(([key, value]) => {
             if (!PRIMARY_DETAILS.includes(key) && limitDetails) {
               return;
@@ -108,14 +115,18 @@ function AntCard(props: ArNSMapping) {
           ) : (
             <></>
           )}
-          <div className="footer">
-            <button className="button-large" onClick={handleClick}>
-              Upgrade Tier
-            </button>
-            <button className="button-large" onClick={handleClick}>
-              Extend Lease
-            </button>
-          </div>
+          {enableActions ? (
+            <div className="footer">
+              <button className="button-large" onClick={handleClick}>
+                Upgrade Tier
+              </button>
+              <button className="button-large" onClick={handleClick}>
+                Extend Lease
+              </button>
+            </div>
+          ) : (
+            <></>
+          )}
         </div>
       ) : (
         <span className="section-header">Uh oh. Something went wrong.</span>

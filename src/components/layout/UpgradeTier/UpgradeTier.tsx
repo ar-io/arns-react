@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
@@ -10,29 +10,29 @@ import {
 } from '../../../utils/constants';
 import { calculateArNSNamePrice } from '../../../utils/searchUtils';
 import TierCard from '../../cards/TierCard/TierCard';
-import { AlertCircle } from '../../icons';
 import Counter from '../../inputs/Counter/Counter';
+import { Tooltip } from '../Tooltip/Tooltip';
 import './styles.css';
 
 function UpgradeTier() {
   const [{ arnsSourceContract }] = useGlobalState();
-  // name is passed down from search bar to calculate price
-  const [priceInfo, setPriceInfo] = useState(false);
   const [{ fee, leaseDuration, tier, domain }, dispatchRegisterState] =
     useRegistrationState();
 
   useEffect(() => {
     const fees = arnsSourceContract.fees;
-    const newFee = calculateArNSNamePrice({
-      domain,
-      selectedTier: tier,
-      years: leaseDuration,
-      fees,
-    });
-    dispatchRegisterState({
-      type: 'setFee',
-      payload: { ar: fee.ar, io: newFee },
-    });
+    if (domain) {
+      const newFee = calculateArNSNamePrice({
+        domain,
+        selectedTier: tier,
+        years: leaseDuration,
+        fees,
+      });
+      dispatchRegisterState({
+        type: 'setFee',
+        payload: { ar: fee.ar, io: newFee },
+      });
+    }
   }, [leaseDuration, tier, domain, arnsSourceContract]);
 
   return (
@@ -47,35 +47,9 @@ function UpgradeTier() {
           <TierCard tierNumber={+tier} key={index} />
         ))}
       </div>
-      <button
-        className="section-header tool-tip"
-        onClick={() => {
-          setPriceInfo(!priceInfo);
-        }}
-      >
-        {fee.io?.toLocaleString()}&nbsp;ARIO&nbsp;
-        <AlertCircle
-          width={'16px'}
-          height={'16px'}
-          fill={'var(--text-white)'}
-        />
-        {priceInfo ? (
-          <span className="info-bubble">
-            <span className="text bold black center">{NAME_PRICE_INFO}</span>
-            {/**TODO: link to faq or about page */}
-            <a
-              href="https://ar.io/"
-              target="_blank"
-              rel="noreferrer"
-              className="text faded underline bold center"
-            >
-              Need help choosing a tier?
-            </a>
-          </span>
-        ) : (
-          <></>
-        )}
-      </button>
+      <Tooltip message={NAME_PRICE_INFO}>
+        <span>{fee.io?.toLocaleString()}&nbsp;ARIO&nbsp;</span>
+      </Tooltip>{' '}
     </div>
   );
 }

@@ -5,12 +5,21 @@ import './styles.css';
 type navBarLink = {
   path: string;
   linkText: string;
+  children?: JSX.Element;
 };
 
-function NavBarLink({ path, linkText }: navBarLink) {
+function NavBarLink({ path, linkText, children }: navBarLink) {
   return (
-    <Link to={path} className="navbar-link hover">
+    <Link
+      to={path}
+      className={
+        children
+          ? 'flex-row flex-space-between navbar-link hover'
+          : 'navbar-link hover'
+      }
+    >
       {linkText}
+      {children}
     </Link>
   );
 }

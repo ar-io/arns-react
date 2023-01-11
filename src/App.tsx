@@ -7,7 +7,7 @@ import {
 
 import { Layout } from './components/layout';
 import ConnectWalletModal from './components/modals/ConnectWalletModal/ConnectWalletModal';
-import { About, FAQ, Home, ManageAssets, NotFound } from './components/pages';
+import { About, Create, Home, Manage, NotFound } from './components/pages';
 import {
   useArNSContract,
   useArweave,
@@ -15,6 +15,8 @@ import {
   useWalletAddress,
 } from './hooks/';
 import './index.css';
+import RegistrationStateProvider from './state/contexts/RegistrationState';
+import { registrationReducer } from './state/reducers/RegistrationReducer';
 
 function App() {
   // dispatches global state
@@ -27,9 +29,16 @@ function App() {
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route element={<Layout />} errorElement={<NotFound />}>
-        <Route index element={<Home />} />
-        <Route path="about" element={<About />} />
-        <Route path="faq" element={<FAQ />} />
+        <Route
+          index
+          element={
+            <RegistrationStateProvider reducer={registrationReducer}>
+              <Home />
+            </RegistrationStateProvider>
+          }
+        />
+        <Route path="info" element={<About />} />
+        <Route path="create" element={<Create />} />
         {wallet && walletAddress ? (
           <Route path="manage" element={<ManageAssets />} />
         ) : (

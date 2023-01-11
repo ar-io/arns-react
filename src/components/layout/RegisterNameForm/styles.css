@@ -8,9 +8,6 @@
   margin: auto;
   padding: 2em 2em;
   gap: 2em;
-  background: var(--card-bg);
-  border: 1px solid #323232;
-  border-radius: 32px;
 }
 
 .register-inputs {

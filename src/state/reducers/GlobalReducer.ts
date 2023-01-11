@@ -1,5 +1,7 @@
 import Arweave from 'arweave';
+import { v4 as uuidv4 } from 'uuid';
 
+import { ArweaveGraphQLAPI } from '../../types';
 import type {
   ArNSContractState,
   ArweaveTransactionId,
@@ -9,12 +11,16 @@ import { GlobalState } from '../contexts/GlobalState';
 
 export type Action =
   | { type: 'setWalletAddress'; payload: ArweaveTransactionId | undefined }
-  | { type: 'setWallet'; payload: ArweaveWalletConnector | undefined }
+  | {
+      type: 'setWallet';
+      payload: (ArweaveWalletConnector & ArweaveGraphQLAPI) | undefined;
+    }
   | { type: 'setGateway'; payload: string }
   | { type: 'setArnsContractState'; payload: ArNSContractState }
   | { type: 'setShowConnectWallet'; payload: boolean }
-  | { type: 'setIsSearching'; payload: boolean }
-  | { type: 'setArweave'; payload: Arweave };
+  | { type: 'setArweave'; payload: Arweave }
+  | { type: 'pushNotification'; payload: string }
+  | { type: 'removeNotification'; payload: string };
 
 export const reducer = (state: GlobalState, action: Action): GlobalState => {
   switch (action.type) {
@@ -48,11 +54,25 @@ export const reducer = (state: GlobalState, action: Action): GlobalState => {
         ...state,
         arnsSourceContract: action.payload,
       };
-    case 'setIsSearching':
+    case 'pushNotification': {
       return {
         ...state,
-        isSearching: action.payload,
+        notifications: state.notifications.concat([
+          {
+            id: uuidv4(),
+            text: action.payload,
+          },
+        ]),
       };
+    }
+    case 'removeNotification': {
+      return {
+        ...state,
+        notifications: state.notifications.filter(
+          (e: { id: string }) => e.id !== action.payload,
+        ),
+      };
+    }
     default:
       return state;
   }

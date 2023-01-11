@@ -5,13 +5,14 @@ import './styles.css';
 
 function SearchBarFooter({
   defaultText,
+  searchTerm,
   searchResult,
   isSearchValid,
   isAvailable,
 }: SearchBarFooterProps): JSX.Element {
   return (
     <>
-      {!searchResult?.domain ? (
+      {!searchTerm ? (
         <>
           <div
             className="text faded center"
@@ -26,10 +27,15 @@ function SearchBarFooter({
             )}
           </div>
         </>
-      ) : isAvailable ? (
-        <UpgradeTier />
+      ) : !isAvailable && searchResult && searchTerm ? (
+        <AntCard
+          domain={searchTerm}
+          id={searchResult}
+          compact={true}
+          enableActions={true}
+        />
       ) : (
-        <AntCard domain={searchResult?.domain} id={searchResult?.id} />
+        <UpgradeTier />
       )}
     </>
   );

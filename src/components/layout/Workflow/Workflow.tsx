@@ -1,67 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { WorkflowProps } from '../../../types';
-import { isArNSDomainNameAvailable } from '../../../utils/searchUtils';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
 
-function Workflow({ stages }: WorkflowProps) {
-  const [
-    { stage, isFirstStage, isLastStage, antID, domain, leaseDuration, tier },
-    dispatchRegisterState,
-  ] = useRegistrationState();
-  const [
-    { walletAddress, isSearching, arnsSourceContract },
-    dispatchGlobalState,
-  ] = useGlobalState();
-
-  const [nextCondition, setNextCondition] = useState<boolean>(false);
-  const [backCondition, setBackCondition] = useState<boolean>(false);
-  const [onNext, setOnNext] = useState<(id: string) => boolean>(() => true);
-
-  useEffect(() => {
-    Object.values(stages).map((value: any, index) => {
-      if (index === stage) {
-        setNextCondition(value.nextCondition);
-        setBackCondition(value.backCondition);
-        if (value.onNext) {
-          setOnNext(() => value.onNext);
-        }
-        if (!value.onNext) {
-          setOnNext(() => () => true);
-        }
-        return;
-      }
-    });
-  }, [stage, stages]);
-
-  async function handleNext() {
-    const isOnNext = () => {
-      if (domain && stage === 0) {
-        return isArNSDomainNameAvailable({
-          name: domain,
-          records: arnsSourceContract.records,
-        });
-      }
-
-      if (antID && domain && stage === 1) {
-        return onNext(antID);
-      }
-      if (antID && domain && tier && leaseDuration && stage === 2) {
-        return true;
-      }
-      return false;
-    };
-    if (!isLastStage && isOnNext()) {
-      dispatchRegisterState({
-        type: 'setStage',
-        payload: stage + 1,
-      });
-      return;
-    }
-    return;
-  }
+function Workflow({ stages, onNext, onBack, stage }: WorkflowProps) {
+  const [{ walletAddress }, dispatchGlobalState] = useGlobalState();
 
   function showConnectWallet() {
     dispatchGlobalState({
@@ -81,21 +25,17 @@ function Workflow({ stages }: WorkflowProps) {
         }
       })}
       <>
-        {!isSearching ? (
-          <></>
-        ) : !walletAddress ? (
+        {stages[stage].requiresWallet && !walletAddress ? (
           <button className="accent-button hover" onClick={showConnectWallet}>
             Connect Wallet to proceed
           </button>
         ) : (
           <WorkflowButtons
-            stage={stage}
-            isFirstStage={isFirstStage}
-            isLastStage={isLastStage}
-            dispatch={dispatchRegisterState}
-            showBack={backCondition}
-            showNext={nextCondition}
-            onNext={() => handleNext()}
+            showBack={stages[stage].showBack}
+            disableNext={stages[stage].disableNext}
+            showNext={stages[stage].showNext}
+            onNext={onNext}
+            onBack={onBack}
           />
         )}
       </>

@@ -1,12 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { defaultDataProvider } from '../../../services/arweave';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
-import {
-  ARNS_TXID_ENTRY_REGEX,
-  ARNS_TXID_REGEX,
-} from '../../../utils/constants';
 import { isAntValid, isArweaveTransactionID } from '../../../utils/searchUtils';
 import Dropdown from '../../inputs/Dropdown/Dropdown';
 import Loader from '../Loader/Loader';
@@ -16,21 +12,31 @@ import './styles.css';
 function RegisterNameForm() {
   const [{ domain, ttl, antID }, dispatchRegisterState] =
     useRegistrationState();
-
   const [{ arnsSourceContract }] = useGlobalState();
+
   const [isValidAnt, setIsValidAnt] = useState<boolean | undefined>(undefined);
   const [isValidating, setIsValidating] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [antTxID, setAntTXId] = useState(antID);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    reset();
+    if (!antID) {
+      reset();
+    }
+    if (inputRef.current) {
+      inputRef.current.focus();
+      handleAntId(antID);
+    }
   }, []);
 
   function reset() {
     setIsValidAnt(undefined);
     setIsValidating(false);
+    setValidationErrors([]);
     dispatchRegisterState({
       type: 'setAntID',
-      payload: '',
+      payload: undefined,
     });
     dispatchRegisterState({
       type: 'setTTL',
@@ -38,47 +44,32 @@ function RegisterNameForm() {
     });
   }
 
-  async function handleAntId(e: any) {
-    e.preventDefault();
-    setIsValidating(true);
-    const id = e.target.value.trim();
-    if (!id) {
+  async function handleAntId(id?: string) {
+    dispatchRegisterState({
+      type: 'setAntID',
+      payload: undefined,
+    });
+    setAntTXId(id);
+    setValidationErrors([]);
+    if (!id || !id.length) {
       reset();
       return;
     }
 
     try {
-      if (id === '') {
-        reset();
-        return;
-      }
-      // if its a partial id set state and return
-      if (ARNS_TXID_ENTRY_REGEX.test(id) && !ARNS_TXID_REGEX.test(id)) {
-        setIsValidAnt(undefined);
-        dispatchRegisterState({
-          type: 'setAntID',
-          payload: id,
-        });
-        setIsValidating(false);
-        return;
-      }
-      dispatchRegisterState({
-        type: 'setAntID',
-        payload: id,
-      });
-      // advanced checking for confirmations and if the contract is a valid ANT contract
-      if (!isAntValid(id, arnsSourceContract.approvedANTSourceCodeTxs)) {
-        throw Error('Ant is not valid');
-      }
+      await isAntValid(id, arnsSourceContract.approvedANTSourceCodeTxs);
 
-      const dataProvider = defaultDataProvider(id);
+      const dataProvider = defaultDataProvider();
       const state = await dataProvider.getContractState(id);
       if (state == undefined) {
         throw Error('ANT contract state is undefined');
       }
 
       const { controller, name, owner, ticker, records } = state;
-      console.log(state);
+      dispatchRegisterState({
+        type: 'setAntID',
+        payload: id,
+      });
       dispatchRegisterState({
         type: 'setAntID',
         payload: id,
@@ -118,10 +109,10 @@ function RegisterNameForm() {
       setIsValidating(false);
 
       return;
-    } catch (Error) {
-      console.error(Error);
+    } catch (error: any) {
       setIsValidAnt(false);
       setIsValidating(false);
+      setValidationErrors([error.message]);
       return;
     }
   }
@@ -129,7 +120,9 @@ function RegisterNameForm() {
   return (
     <>
       <div className="register-name-modal center">
-        <div className="section-header">{domain} is available!</div>
+        <span className="text-large white">
+          {domain}.arweave.net is available!
+        </span>
         <div className="section-header">Register Domain</div>
         <div className="register-inputs center">
           <div className="input-group center column">
@@ -137,12 +130,11 @@ function RegisterNameForm() {
               <input
                 className="data-input center"
                 type="text"
-                placeholder="Enter an ANT ID"
-                value={antID}
-                onChange={(e) => {
-                  handleAntId(e);
-                }}
+                placeholder="Enter an ANT Contract ID"
+                onChange={(e) => handleAntId(e.target.value)}
                 maxLength={43}
+                value={antTxID ?? ''}
+                ref={inputRef}
                 style={
                   isValidAnt && antID
                     ? { border: 'solid 2px var(--success-green)' }
@@ -160,7 +152,7 @@ function RegisterNameForm() {
             <Dropdown
               showSelected={true}
               showChevron={true}
-              selected={`${ttl}secs`}
+              selected={`${ttl} seconds`}
               setSelected={(value) =>
                 dispatchRegisterState({ type: 'setTTL', payload: value })
               }
@@ -176,6 +168,13 @@ function RegisterNameForm() {
               }}
             />
           </div>
+        </div>
+        <div className="flex-column center">
+          {validationErrors.map((e: string) => (
+            <span key={e} className="text error">
+              {e}
+            </span>
+          ))}
         </div>
         <UpgradeTier />
       </div>

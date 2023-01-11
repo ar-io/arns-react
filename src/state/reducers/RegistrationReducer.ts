@@ -1,8 +1,11 @@
 import { ArweaveTransactionId } from '../../types';
-import { RegistrationState } from '../contexts/RegistrationState';
+import {
+  RegistrationState,
+  initialRegistrationState,
+} from '../contexts/RegistrationState';
 
 export type RegistrationAction =
-  | { type: 'setDomainName'; payload: string }
+  | { type: 'setDomainName'; payload?: string }
   | { type: 'setLeaseDuration'; payload: number }
   | { type: 'setTier'; payload: number }
   | { type: 'setNickname'; payload: string }
@@ -12,19 +15,27 @@ export type RegistrationAction =
   | { type: 'setAntID'; payload: ArweaveTransactionId | undefined }
   | { type: 'setTargetID'; payload: ArweaveTransactionId }
   | { type: 'setOwner'; payload: ArweaveTransactionId }
+  | { type: 'setResolvedTx'; payload: ArweaveTransactionId | undefined }
   | { type: 'setFee'; payload: { ar: number; io: number } }
   | { type: 'setIsRegistered'; payload: boolean }
   | { type: 'setStage'; payload: number }
+  | { type: 'setIsSearching'; payload: boolean }
   | { type: 'setIsFirstStage'; payload: boolean }
   | { type: 'setIsLastStage'; payload: boolean }
   | { type: 'setErrors'; payload: Array<Error> }
-  | { type: 'reset'; payload: RegistrationState };
+  | { type: 'reset'; payload?: boolean };
 
 export const registrationReducer = (
   state: RegistrationState,
   action: RegistrationAction,
 ): RegistrationState => {
   switch (action.type) {
+    case 'setIsSearching': {
+      return {
+        ...state,
+        isSearching: action.payload,
+      };
+    }
     case 'setDomainName':
       return {
         ...state,
@@ -75,6 +86,11 @@ export const registrationReducer = (
         ...state,
         owner: action.payload,
       };
+    case 'setResolvedTx':
+      return {
+        ...state,
+        resolvedTxID: action.payload,
+      };
     case 'setFee':
       return {
         ...state,
@@ -90,24 +106,10 @@ export const registrationReducer = (
         ...state,
         stage: action.payload,
       };
-    case 'setErrors':
-      return {
-        ...state,
-        errors: action.payload,
-      };
-    case 'setIsFirstStage':
-      return {
-        ...state,
-        isFirstStage: action.payload,
-      };
-    case 'setIsLastStage':
-      return {
-        ...state,
-        isLastStage: action.payload,
-      };
     case 'reset':
-      return action.payload;
-
+      return {
+        ...initialRegistrationState,
+      };
     default:
       return state;
   }

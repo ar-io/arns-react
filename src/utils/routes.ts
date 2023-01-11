@@ -1,14 +1,15 @@
-import { About, FAQ, Home, ManageAssets } from '../components/pages';
+import { About, Create, Home, Manage } from '../components/pages';
 
 export type Route = {
   text: string;
   path: string;
-  component: JSX.Element;
+  component: () => JSX.Element;
   protected: boolean;
+  icon?: any;
   index?: boolean;
 };
 
-export const ROUTES = {
+export const ROUTES: { [x: string]: Route } = {
   home: {
     path: '/',
     text: 'Home',
@@ -17,21 +18,21 @@ export const ROUTES = {
     index: true,
   },
   about: {
-    text: 'About',
-    path: '/about',
+    text: 'Info',
+    path: '/info',
     component: About,
     protected: false,
     index: false,
   },
-  faq: {
-    text: 'FAQ',
-    path: '/faq',
-    component: FAQ,
+  create: {
+    text: 'Create an ANT',
+    path: '/create',
+    component: Create,
     protected: false,
     index: false,
   },
   manage: {
-    text: 'Manage Names',
+    text: "My ANT's",
     path: '/manage',
     component: ManageAssets,
     protected: true,

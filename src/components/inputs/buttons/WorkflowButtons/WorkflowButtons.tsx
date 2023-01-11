@@ -1,52 +1,39 @@
-import { Dispatch, SetStateAction } from 'react';
-
 import './styles.css';
 
 function WorkflowButtons({
-  stage,
-  isFirstStage,
-  isLastStage,
-  dispatch,
-  showBack,
-  showNext,
+  showBack = true,
+  showNext = true,
   disableNext,
   disableBack,
   onNext,
+  onBack,
 }: {
-  stage: number;
-  isFirstStage: boolean;
-  isLastStage: boolean;
-  dispatch: Dispatch<SetStateAction<any>>;
   showBack?: boolean;
   showNext?: boolean;
   disableNext?: boolean;
   disableBack?: boolean;
+  onBack: () => void;
   onNext: () => void;
 }) {
   return (
     <>
       <div className="flex-row center">
-        {!isFirstStage && showBack ? (
+        {showBack ? (
           <button
             className="outline-button"
             disabled={disableBack}
-            onClick={() =>
-              !isFirstStage
-                ? dispatch({
-                    type: 'setStage',
-                    payload: stage - 1,
-                  })
-                : null
-            }
+            onClick={() => onBack()}
           >
             Back
           </button>
         ) : (
           <></>
         )}
-        {!isLastStage && showNext ? (
+        {showNext ? (
           <button
-            className="accent-button"
+            className={
+              disableNext ? 'accent-button disabled-button' : 'accent-button'
+            }
             disabled={disableNext}
             onClick={() => onNext()}
           >

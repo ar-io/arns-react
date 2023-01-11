@@ -6,7 +6,7 @@ export type ArNSContractState = {
   records: ArNSDomains;
   fees: { [x: number]: number };
   balances: { [x: ArweaveTransactionId]: number };
-  controller: ArweaveTransactionId;
+  controllers: ArweaveTransactionId[];
   evolve: boolean | undefined;
   name: string;
   owner: ArweaveTransactionId;
@@ -14,17 +14,25 @@ export type ArNSContractState = {
   approvedANTSourceCodeTxs: ArweaveTransactionId[];
 };
 
+export type ANTContractDomainRecord = {
+  ttlSeconds: number;
+  maxSubdomains: number;
+  id: ArweaveTransactionId;
+};
+
+export type ANTContractRecordMapping =
+  | ArweaveTransactionId
+  | ANTContractDomainRecord;
+
 export type ANTContractState = {
   balances: { [x: ArweaveTransactionId]: number };
-  controller: ArweaveTransactionId;
   evolve: boolean | undefined;
   name: string;
   owner: ArweaveTransactionId;
+  controllers: ArweaveTransactionId[];
   records: {
-    [x: string]: {
-      transactionId: ArweaveTransactionId;
-      ttlSeconds: string;
-    };
+    '@': ANTContractRecordMapping;
+    [x: string]: ANTContractRecordMapping;
   };
   ticker: string;
 };
@@ -32,6 +40,10 @@ export type ANTContractState = {
 export type ArNSMapping = {
   domain: string;
   id: ArweaveTransactionId;
+  overrides?: any; // TODO;
+  compact?: boolean;
+  enableActions?: boolean;
+  hover?: boolean;
 };
 
 export type ArNSMetaData = {
@@ -51,9 +63,17 @@ export type JsonWalletProvider = {
 export interface SmartweaveContractSource {
   getContractState(contractId: ArweaveTransactionId): Promise<any>;
   writeTransaction(
-    payload: any,
+    contractId: ArweaveTransactionId,
+    payload: {
+      [x: string]: any;
+      contractTransactionId: ArweaveTransactionId;
+    },
     dryWrite?: boolean,
   ): Promise<ArweaveTransactionId | undefined>;
+  getContractBalanceForWallet(
+    contractId: ArweaveTransactionId,
+    wallet: ArweaveTransactionId,
+  ): Promise<number>;
 }
 
 export interface ArweaveWalletConnector {
@@ -63,17 +83,27 @@ export interface ArweaveWalletConnector {
   getWalletBalanceAR(): Promise<string>;
 }
 
+export interface ArweaveGraphQLAPI {
+  getWalletANTs(
+    approvedSourceCodeTransactions: string[],
+    address: string,
+    cursor?: string,
+  ): Promise<{ ids: string[]; cursor?: string }>;
+}
+
 export type SearchBarProps = {
   successPredicate: (value: string | undefined) => boolean;
   validationPredicate: (value: string | undefined) => boolean;
-  setIsSearching?: Dispatch<SetStateAction<boolean>>;
-  isSearching?: boolean;
+  onSuccess: (value: string, result?: string) => void;
+  onFailure: (value: string, result?: string) => void;
+  onChange: () => void;
+  onSubmit: (next?: boolean) => void;
   placeholderText?: string;
   headerElement?: JSX.Element;
   footerElement?: JSX.Element;
   values?: { [x: string]: string };
+  value?: string;
   height?: number;
-  nextStage?: Dispatch<void>;
 };
 
 export type SearchBarHeaderProps = {
@@ -85,9 +115,10 @@ export type SearchBarHeaderProps = {
 
 export type SearchBarFooterProps = {
   defaultText: string;
-  searchResult?: ArNSDomain;
   isSearchValid?: boolean;
   isAvailable?: boolean;
+  searchTerm?: string;
+  searchResult?: string;
 };
 
 export type ConnectWalletModalProps = {
@@ -110,12 +141,16 @@ export type DropdownProps = {
 };
 
 export type WorkflowProps = {
+  stage: number;
+  onNext: () => void;
+  onBack: () => void;
   stages: {
     [x: number]: {
       component: JSX.Element;
-      nextCondition: boolean;
-      backCondition: boolean;
-      onNext: (id: string) => boolean;
+      showNext: boolean;
+      showBack: boolean;
+      disableNext: boolean;
+      requiresWallet: boolean;
     };
   };
 };
