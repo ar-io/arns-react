@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { useIsMobile, useWalletAddress } from '../../../hooks';
 import { defaultDataProvider } from '../../../services/arweave/';
@@ -14,6 +15,7 @@ import './styles.css';
 
 function NavMenuCard() {
   const [{ arnsContractId }, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
+  const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
   const [walletDetails, setWalletDetails] = useState<{
     IO: number | undefined | string;
@@ -90,10 +92,12 @@ function NavMenuCard() {
     try {
       await wallet?.disconnect();
       // reset state
+      setShowMenu(false);
       dispatchGlobalState({
         type: 'setWallet',
         payload: undefined,
       });
+      navigate('/');
     } catch (error: any) {
       console.error(error);
     }
@@ -134,6 +138,9 @@ function NavMenuCard() {
                       path={route.path}
                       linkText={route.text}
                       key={key}
+                      onClick={() => {
+                        setShowMenu(false);
+                      }}
                     />
                   );
               })}
@@ -174,6 +181,9 @@ function NavMenuCard() {
                           path={route.path}
                           linkText={route.text}
                           key={key}
+                          onClick={() => {
+                            setShowMenu(false);
+                          }}
                         />
                       );
                   })
@@ -185,6 +195,9 @@ function NavMenuCard() {
                           path={route.path}
                           linkText={route.text}
                           key={key}
+                          onClick={() => {
+                            setShowMenu(false);
+                          }}
                         />
                       );
                   })}
@@ -207,7 +220,7 @@ function NavMenuCard() {
               {
                 <button
                   className="navbar-link hover flex-row flex-space-between"
-                  onClick={logout}
+                  onClick={() => logout()}
                   style={{
                     cursor: 'pointer',
                     padding: '0px',
