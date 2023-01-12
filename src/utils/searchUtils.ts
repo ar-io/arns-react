@@ -82,7 +82,7 @@ export async function isAntValid(
   }
   const contractTxnData = await arweave.api
     .post('/graphql', buildContractTxQuery(id))
-    .then((res) => {
+    .then((res: any) => {
       return res.data.data.transactions.edges[0].node;
     });
   contractTxnData.tags = tagsToObject(contractTxnData.tags);
@@ -132,7 +132,7 @@ export async function isAntValid(
   // check to make sure confirmations on ant meet requirements
   const confirmations = await arweave.api
     .get(`/tx/${id}/status`)
-    .then((res) => res.data.number_of_confirmations);
+    .then((res: any) => res.data.number_of_confirmations);
   if (!confirmations || confirmations < 50) {
     throw Error(
       `Your ANT contract does not have enough confirmations, you have to wait ${
