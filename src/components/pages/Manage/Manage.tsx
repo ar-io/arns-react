@@ -9,27 +9,27 @@ import {
   PriceTagIcon,
   RefreshAlertIcon,
 } from '../../icons';
-import { AntTable, NameTable } from '../../layout/tables';
+import { Loader } from '../../layout';
+import { AntTable } from '../../layout/tables';
 import './styles.css';
 
 function Manage() {
   const [{ arnsSourceContract }] = useGlobalState();
   const { walletAddress, wallet } = useWalletAddress();
 
-  const [tableType, setTableType] = useState('ant'); // ant or name
-
+  const [reload, setReload] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [walletANTs, setWalletANTs] = useState<string[]>([]);
-  const [cursor, setCursor] = useState<string | undefined>();
+  const [cursor] = useState<string | undefined>();
 
   useEffect(() => {
     if (wallet) {
       setIsLoading(true);
       wallet
         .getWalletANTs(arnsSourceContract.approvedANTSourceCodeTxs, cursor)
-        .then(({ ids, cursor }: { ids: string[]; cursor?: string }) => {
+        .then(({ ids }: { ids: string[]; cursor?: string }) => {
           setWalletANTs(ids);
-          setCursor(cursor);
+          // don't set cursor for now
         })
         .catch((error: Error) => {
           console.error(error);
@@ -38,7 +38,7 @@ function Manage() {
           setIsLoading(false);
         });
     }
-  }, [walletAddress]);
+  }, [walletAddress, reload]);
 
   return (
     <div className="page">
@@ -46,79 +46,18 @@ function Manage() {
         <div className="table-selector-group">
           <button
             className="table-selector text bold center"
-            onClick={() => setTableType('name')}
-            style={
-              tableType === 'name'
-                ? {
-                    borderColor: 'var(--text-white)',
-                    color: 'var(--text-white)',
-                    fill: 'var(--text-white)',
-                  }
-                : {}
-            }
-          >
-            <NotebookIcon width={'20px'} height="20px" />
-            Domains
-          </button>
-          <button
-            className="table-selector text bold center"
-            onClick={() => setTableType('ant')}
-            style={
-              tableType === 'ant'
-                ? {
-                    borderColor: 'var(--text-white)',
-                    color: 'var(--text-white)',
-                    fill: 'var(--text-white)',
-                  }
-                : {}
-            }
+            onClick={() => setReload(!reload)}
+            style={{
+              borderColor: 'var(--text-white)',
+              color: 'var(--text-white)',
+              fill: 'var(--text-white)',
+            }}
           >
             <CodeSandboxIcon width={'20px'} height="20px" />
             ANTs
           </button>
         </div>
-
-        {tableType === 'name' ? (
-          <NameTable
-            columns={{
-              Name: (
-                <LinkIcon
-                  width={'20px'}
-                  height={'30px'}
-                  fill={'var(--text-faded)'}
-                />
-              ),
-              Tier: (
-                <PriceTagIcon
-                  width={'20px'}
-                  height={'30px'}
-                  fill={'var(--text-faded)'}
-                />
-              ),
-              'Expiry Date': (
-                <CalendarTimeIcon
-                  width={'20px'}
-                  height={'30px'}
-                  fill={'var(--text-faded)'}
-                />
-              ),
-              Status: (
-                <RefreshAlertIcon
-                  width={'20px'}
-                  height={'30px'}
-                  fill={'var(--text-faded)'}
-                />
-              ),
-            }}
-          />
-        ) : (
-          <></>
-        )}
-        {tableType === 'ant' ? (
-          <AntTable antIds={walletANTs} isLoading={isLoading} />
-        ) : (
-          <></>
-        )}
+        {isLoading ? <Loader size={80} /> : <AntTable antIds={walletANTs} />}
       </div>
     </div>
   );
