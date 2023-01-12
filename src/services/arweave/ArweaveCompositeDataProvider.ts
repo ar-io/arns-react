@@ -1,5 +1,3 @@
-import Arweave from 'arweave/node/common';
-
 import {
   ANTContractState,
   ArNSContractState,
@@ -9,12 +7,10 @@ import {
 
 export class ArweaveCompositeDataProvider implements SmartweaveContractSource {
   private _providers: SmartweaveContractSource[];
-  arweave: Arweave;
 
   // TODO: implement strategy methods
-  constructor(providers: SmartweaveContractSource[], arweave: Arweave) {
+  constructor(providers: SmartweaveContractSource[]) {
     this._providers = providers;
-    this.arweave = arweave;
   }
 
   async getContractState(
@@ -58,17 +54,9 @@ export class ArweaveCompositeDataProvider implements SmartweaveContractSource {
     );
   }
 
-  async getAntConfirmations(id: ArweaveTransactionId) {
-    try {
-      const confirmations = await this.arweave.api
-        .get(`/tx/${id}/status`)
-        .then((res: any) => {
-          return res.data.number_of_confirmations;
-        });
-      return confirmations;
-    } catch (error) {
-      console.error(error);
-      return 0;
-    }
+  async getContractConfirmations(id: ArweaveTransactionId) {
+    return Promise.any(
+      this._providers.map((p) => p.getContractConfirmations(id)),
+    );
   }
 }

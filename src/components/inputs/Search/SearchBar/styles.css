@@ -64,6 +64,9 @@
   box-shadow: 0px 0px 4px rgba(0, 0, 0);
   cursor: pointer;
 }
+input[type='search']::-webkit-search-decoration {
+  display: none;
+}
 
 @media screen and (max-width: 600px) {
   .searchbar input {

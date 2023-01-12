@@ -64,14 +64,10 @@ export class WarpDataProvider implements SmartweaveContractSource {
       if (!result) {
         throw Error('No result from write interaction');
       }
-      const { originalTxId, bundlrResponse } = result;
+      const { originalTxId } = result;
 
       if (!originalTxId) {
         throw Error('No transaction ID from write interaction');
-      }
-
-      if (!bundlrResponse) {
-        throw Error('No response from bundlr for write interaction.');
       }
 
       return originalTxId;
@@ -89,7 +85,7 @@ export class WarpDataProvider implements SmartweaveContractSource {
     return state?.balances[wallet] ?? 0;
   }
 
-  async getAntConfirmations(id: ArweaveTransactionId) {
+  async getContractConfirmations(id: ArweaveTransactionId) {
     try {
       const confirmations = await this.arweave.api
         .get(`/tx/${id}/status`)

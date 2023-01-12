@@ -20,20 +20,15 @@
   display: flex;
   width: 25px;
   height: 25px;
-  border-radius: 100px;
-  border: 1px solid var(--text-white);
+  border-radius: 50%;
   background: var(--bg-color);
   color: var(--text-white);
   justify-content: center;
   align-items: center;
   font-family: 'Rubik-Bold';
-  font-size: 18px;
-  font-weight: 600;
 }
 .counter-button:hover {
   cursor: pointer;
-  border: 1px solid var(--bg-color);
-  font-weight: 900;
 }
 .counter-input {
   display: flex;
