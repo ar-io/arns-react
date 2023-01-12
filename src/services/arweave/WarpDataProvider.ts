@@ -64,14 +64,10 @@ export class WarpDataProvider implements SmartweaveContractSource {
       if (!result) {
         throw Error('No result from write interaction');
       }
-      const { originalTxId, bundlrResponse } = result;
+      const { originalTxId } = result;
 
       if (!originalTxId) {
         throw Error('No transaction ID from write interaction');
-      }
-
-      if (!bundlrResponse) {
-        throw Error('No response from bundlr for write interaction.');
       }
 
       return originalTxId;
