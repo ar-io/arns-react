@@ -109,6 +109,10 @@ button {
   flex-direction: column;
 }
 
+.flex {
+  display: flex;
+}
+
 .flex-right {
   justify-content: flex-end;
 }

@@ -7,4 +7,4 @@ import { WarpDataProvider } from './WarpDataProvider';
 export const defaultDataProvider = (
   arweave: Arweave,
 ): SmartweaveContractSource =>
-  new ArweaveCompositeDataProvider([new WarpDataProvider(arweave)], arweave);
+  new ArweaveCompositeDataProvider([new WarpDataProvider(arweave)]);

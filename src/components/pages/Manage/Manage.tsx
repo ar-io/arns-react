@@ -51,7 +51,13 @@ function Manage() {
             ANTs
           </button>
         </div>
-        {isLoading ? <Loader size={80} /> : <AntTable antIds={walletANTs} />}
+        {isLoading ? (
+          <div className="flex center" style={{ padding: '10%' }}>
+            <Loader size={80} />
+          </div>
+        ) : (
+          <AntTable antIds={walletANTs} />
+        )}
       </div>
     </div>
   );
