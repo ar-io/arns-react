@@ -1,21 +1,15 @@
 import { useEffect, useState } from 'react';
 
-import { useIsMobile } from '../../../../hooks';
 import { defaultDataProvider } from '../../../../services/arweave';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { ArweaveTransactionId } from '../../../../types.js';
 import {
-  AlertCircle,
-  AlertTriangleIcon,
   BookmarkIcon,
   BorderOuterIcon,
-  CircleCheck,
   FileCodeIcon,
   RefreshAlertIcon,
 } from '../../../icons';
-import Paginator from '../../../inputs/Paginator/Paginator';
 import CopyTextButton from '../../../inputs/buttons/CopyTextButton/CopyTextButton';
-import ManageAssetButtons from '../../../inputs/buttons/ManageAssetButtons/ManageAssetButtons';
 import Loader from '../../Loader/Loader';
 import RowItem from '../RowItem/RowItem';
 import './styles.css';
@@ -53,7 +47,7 @@ function AntTable({ antIds, reload }: { antIds: string[]; reload?: boolean }) {
       const fetchedItem = {
         domain: state.name,
         targetID: state.records['@'] ?? 'N/A',
-        confirmations: await dataProvider.getAntConfirmations(id),
+        confirmations: await dataProvider.getContractConfirmations(id),
       };
       updatedItems[id] = fetchedItem;
     }

@@ -2,13 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { useWalletAddress } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { CodeSandboxIcon, NotebookIcon } from '../../icons';
-import {
-  CalendarTimeIcon,
-  LinkIcon,
-  PriceTagIcon,
-  RefreshAlertIcon,
-} from '../../icons';
+import { CodeSandboxIcon } from '../../icons';
 import { Loader } from '../../layout';
 import { AntTable } from '../../layout/tables';
 import './styles.css';
