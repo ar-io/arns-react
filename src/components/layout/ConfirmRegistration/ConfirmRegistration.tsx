@@ -95,8 +95,7 @@ function ConfirmRegistration() {
               className="text faded underline"
               style={{ maxWidth: '475px' }}
             >
-              You will sign two (2) transactions, a registration fee (paid in
-              ARIO tokens) and the Arweave network fee (paid in AR).
+              You will sign a single transaction to register this domain.
             </span>
             <Tooltip message={NAME_PRICE_INFO}>
               <span>{fee.io?.toLocaleString()}&nbsp;ARIO&nbsp;</span>
