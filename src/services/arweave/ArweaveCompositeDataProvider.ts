@@ -9,12 +9,10 @@ import {
 
 export class ArweaveCompositeDataProvider implements SmartweaveContractSource {
   private _providers: SmartweaveContractSource[];
-  arweave: Arweave;
 
   // TODO: implement strategy methods
-  constructor(providers: SmartweaveContractSource[], arweave: Arweave) {
+  constructor(providers: SmartweaveContractSource[]) {
     this._providers = providers;
-    this.arweave = arweave;
   }
 
   async getContractState(

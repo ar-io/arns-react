@@ -86,7 +86,9 @@ button {
 .error {
   color: var(--error-red);
 }
-
+.flex {
+  display: flex;
+}
 .flex-row {
   display: flex;
   flex-direction: row;

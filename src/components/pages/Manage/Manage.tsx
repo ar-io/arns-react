@@ -32,7 +32,6 @@ function Manage() {
         .then(({ ids }: { ids: string[]; cursor?: string }) => {
           setWalletANTs(ids);
           setIsLoading(false);
-
           // don't set cursor for now
         })
         .catch((error: Error) => {
@@ -122,7 +121,7 @@ function Manage() {
         {tableType === 'ant' ? (
           isLoading ? (
             <div
-              className="flex-row center"
+              className="flex center"
               style={{ paddingTop: '10%', justifyContent: 'center' }}
             >
               <Loader size={80} />

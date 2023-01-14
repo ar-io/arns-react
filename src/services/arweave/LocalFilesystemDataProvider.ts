@@ -39,6 +39,10 @@ export class LocalFileSystemDataProvider implements SmartweaveContractSource {
     return state?.balances[wallet] ?? 0;
   }
   async getContractConfirmations(id: ArweaveTransactionId) {
+    const exists = this.getContractState(id);
+    if (!exists) {
+      return 0;
+    }
     return 50;
   }
 }

@@ -79,6 +79,12 @@ function AntTable({ antIds, reload }: { antIds: string[]; reload: boolean }) {
           {tableItems ? tableItems : <></>}
         </tbody>
       </table>
+      {/* <Paginator
+        itemCount={antIds?.length}
+        itemsPerPage={maxItemCount}
+        pageRange={pageRange}
+        setPageRange={setPageRange}
+      /> */}
     </div>
   );
 }
