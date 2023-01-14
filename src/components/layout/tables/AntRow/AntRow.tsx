@@ -26,7 +26,7 @@ function AntRow({
   // todo: implement error state for row items
   useEffect(() => {
     loadAntDetails();
-  }, [antId]);
+  }, [antId, isMobile]);
 
   async function loadAntDetails() {
     const dataProvider = defaultDataProvider(arweave);
