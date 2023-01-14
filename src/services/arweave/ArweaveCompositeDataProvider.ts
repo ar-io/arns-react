@@ -1,5 +1,3 @@
-import Arweave from 'arweave/node/common';
-
 import {
   ANTContractState,
   ArNSContractState,
