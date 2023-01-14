@@ -9,6 +9,7 @@ import {
   PriceTagIcon,
   RefreshAlertIcon,
 } from '../../icons';
+import { Loader } from '../../layout';
 import { AntTable, NameTable } from '../../layout/tables';
 import './styles.css';
 
@@ -20,31 +21,26 @@ function Manage() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [walletANTs, setWalletANTs] = useState<string[]>([]);
-  const [cursor, setCursor] = useState<string | undefined>();
+  const [cursor] = useState<string | undefined>();
+  const [reload, setReload] = useState(false);
 
   useEffect(() => {
     if (wallet) {
       setIsLoading(true);
-      fetchAnts()
+      wallet
+        .getWalletANTs(arnsSourceContract.approvedANTSourceCodeTxs, cursor)
+        .then(({ ids }: { ids: string[]; cursor?: string }) => {
+          setWalletANTs(ids);
+          setIsLoading(false);
+
+          // don't set cursor for now
+        })
         .catch((error: Error) => {
           console.error(error);
-        })
-        .finally(() => {
           setIsLoading(false);
         });
     }
-  }, [wallet, walletAddress]);
-
-  async function fetchAnts() {
-    const { ids, cursor: newCursor } = await wallet.getWalletANTs(
-      arnsSourceContract.approvedANTSourceCodeTxs,
-      cursor,
-    );
-
-    // TODO: fetch other interactions and names
-    setWalletANTs(ids);
-    setCursor(newCursor);
-  }
+  }, [walletAddress, reload]);
 
   return (
     <div className="page">
@@ -68,7 +64,10 @@ function Manage() {
           </button>
           <button
             className="table-selector text bold center"
-            onClick={() => setTableType('ant')}
+            onClick={() => {
+              setTableType('ant');
+              setReload(!reload);
+            }}
             style={
               tableType === 'ant'
                 ? {
@@ -121,7 +120,16 @@ function Manage() {
           <></>
         )}
         {tableType === 'ant' ? (
-          <AntTable antIds={walletANTs} isLoading={isLoading} />
+          isLoading ? (
+            <div
+              className="flex-row center"
+              style={{ paddingTop: '10%', justifyContent: 'center' }}
+            >
+              <Loader size={80} />
+            </div>
+          ) : (
+            <AntTable antIds={walletANTs} reload={reload} />
+          )
         ) : (
           <></>
         )}

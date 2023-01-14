@@ -58,17 +58,9 @@ export class ArweaveCompositeDataProvider implements SmartweaveContractSource {
     );
   }
 
-  async getAntConfirmations(id: ArweaveTransactionId) {
-    try {
-      const confirmations = await this.arweave.api
-        .get(`/tx/${id}/status`)
-        .then((res: any) => {
-          return res.data.number_of_confirmations;
-        });
-      return confirmations;
-    } catch (error) {
-      console.error(error);
-      return 0;
-    }
+  async getContractConfirmations(id: ArweaveTransactionId) {
+    return Promise.any(
+      this._providers.map((p) => p.getContractConfirmations(id)),
+    );
   }
 }

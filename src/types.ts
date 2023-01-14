@@ -72,7 +72,7 @@ export interface SmartweaveContractSource {
     contractId: ArweaveTransactionId,
     wallet: ArweaveTransactionId,
   ): Promise<number>;
-  getAntConfirmations(id: ArweaveTransactionId): Promise<number>;
+  getContractConfirmations(id: ArweaveTransactionId): Promise<number>;
 }
 
 export interface ArweaveWalletConnector {

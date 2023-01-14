@@ -38,17 +38,7 @@ export class LocalFileSystemDataProvider implements SmartweaveContractSource {
     const state = await this.getContractState(contractId);
     return state?.balances[wallet] ?? 0;
   }
-  async getAntConfirmations(id: ArweaveTransactionId) {
-    try {
-      const confirmations = await this.arweave.api
-        .get(`/tx/${id}/status`)
-        .then((res: any) => {
-          return res.data.number_of_confirmations;
-        });
-      return confirmations;
-    } catch (error) {
-      console.error(error);
-      return 0;
-    }
+  async getContractConfirmations(id: ArweaveTransactionId) {
+    return 50;
   }
 }

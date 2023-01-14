@@ -85,7 +85,7 @@ export class WarpDataProvider implements SmartweaveContractSource {
     return state?.balances[wallet] ?? 0;
   }
 
-  async getAntConfirmations(id: ArweaveTransactionId) {
+  async getContractConfirmations(id: ArweaveTransactionId) {
     try {
       const confirmations = await this.arweave.api
         .get(`/tx/${id}/status`)
