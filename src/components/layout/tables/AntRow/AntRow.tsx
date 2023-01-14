@@ -21,16 +21,28 @@ function AntRow({
   const [{ arweave }] = useGlobalState();
   // todo: fix bug with isMobile: initial value not updating on screen resize
   const isMobile = useIsMobile();
+  const [antState, setAntState] = useState<any>();
   const [antDetails, setAntDetails] = useState<{ [x: number]: any }>();
+  const dataProvider = defaultDataProvider(arweave);
 
-  // todo: implement error state for row items
+  // todo: implement error antState for row items
   useEffect(() => {
-    loadAntDetails();
-  }, [antId, isMobile]);
+    loadAntState();
+  }, [antId]);
+
+  useEffect(() => {
+    if (antState) {
+      loadAntDetails();
+    }
+  }, [antState, isMobile]);
+
+  async function loadAntState() {
+    const state = await dataProvider.getContractState(antId);
+    setAntState(state);
+    return;
+  }
 
   async function loadAntDetails() {
-    const dataProvider = defaultDataProvider(arweave);
-    const state = await dataProvider.getContractState(antId);
     // todo: get status from arweave transaction manager instead of manual query here
     // todo: get txID's from connected user balance and/or favorited assets
     const confirmations = await dataProvider.getContractConfirmations(antId);
@@ -49,18 +61,18 @@ function AntRow({
     };
 
     const name = () => {
-      if (state.name.length > 20) {
-        return `${state.name.slice(0, 10)}...${state.name.slice(-10)}`;
+      if (antState.name.length > 20) {
+        return `${antState.name.slice(0, 10)}...${antState.name.slice(-10)}`;
       }
-      return state.name;
+      return antState.name;
     };
     let transactionId = '';
-    if (state.records['@'].transactionId) {
-      transactionId = state.records['@'].transaction;
+    if (antState.records['@'].transactionId) {
+      transactionId = antState.records['@'].transaction;
     }
-    // todo: remove below for v1, this is a legacy format for ant record states.
-    if (typeof state.records['@'] === 'string') {
-      transactionId = state.records['@'];
+    // todo: remove below for v1, this is a legacy format for ant record antStates.
+    if (typeof antState.records['@'] === 'string') {
+      transactionId = antState.records['@'];
     }
     setAntDetails({
       1: name(),
