@@ -6,6 +6,8 @@ import {
 } from '../../types';
 
 export class ArweaveCompositeDataProvider implements SmartweaveContractSource {
+  // NOTE: this class should not have any logic for performing queries itself, but rather logic for getting results from
+  // an array of providers, using different strategies such as Promise.race or Promise.all.
   private _providers: SmartweaveContractSource[];
 
   // TODO: implement strategy methods
