@@ -26,7 +26,7 @@ function CopyTextButton({
   return (
     <>
       <button
-        className="button center tool-tip"
+        className="button center tool-tip hover"
         style={{ textAlign: 'center' }}
         onClick={async () => {
           await handleCopy();

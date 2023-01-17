@@ -415,6 +415,7 @@ button {
   justify-content: center;
   align-items: center;
   color: var(--text-white);
+  width: auto;
 }
 .assets-table-item:nth-child(1) {
   left: 50px;

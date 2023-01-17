@@ -158,3 +158,10 @@ export enum TABLE_TYPES {
   ANT = 'ant_table',
   NAME = 'name_table',
 }
+
+export enum ASSET_TYPES {
+  ANT = 'ant',
+  NAME = 'name',
+  UNDERNAME = 'undername',
+  COIN = 'coin',
+}
