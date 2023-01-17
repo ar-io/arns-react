@@ -1,4 +1,3 @@
-import Arweave from 'arweave/node/common';
 import axios from 'axios';
 
 import {
@@ -8,10 +7,7 @@ import {
 } from '../../types';
 
 export class LocalFileSystemDataProvider implements SmartweaveContractSource {
-  arweave: Arweave;
-  constructor(arweave: Arweave) {
-    this.arweave = arweave;
-  }
+  constructor() {}
   async getContractState(
     contractId: ArweaveTransactionId,
   ): Promise<ArNSContractState | undefined> {

@@ -153,3 +153,8 @@ export type WorkflowProps = {
     };
   };
 };
+
+export enum TABLE_TYPES {
+  ANT = 'ant_table',
+  NAME = 'name_table',
+}

@@ -2,22 +2,17 @@ import { useEffect, useState } from 'react';
 
 import { useWalletAddress } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { CodeSandboxIcon, NotebookIcon } from '../../icons';
-import {
-  CalendarTimeIcon,
-  LinkIcon,
-  PriceTagIcon,
-  RefreshAlertIcon,
-} from '../../icons';
+import { TABLE_TYPES } from '../../../types';
+import { CodeSandboxIcon } from '../../icons';
 import { Loader } from '../../layout';
-import { AntTable, NameTable } from '../../layout/tables';
+import { AntTable } from '../../layout/tables';
 import './styles.css';
 
 function Manage() {
   const [{ arnsSourceContract }] = useGlobalState();
   const { walletAddress, wallet } = useWalletAddress();
 
-  const [tableType, setTableType] = useState('ant'); // ant or name
+  const [tableType, setTableType] = useState(TABLE_TYPES.ANT); // ant_table or name_table
 
   const [isLoading, setIsLoading] = useState(false);
   const [walletANTs, setWalletANTs] = useState<string[]>([]);
@@ -31,9 +26,9 @@ function Manage() {
         .getWalletANTs(arnsSourceContract.approvedANTSourceCodeTxs, cursor)
         .then(({ ids }: { ids: string[]; cursor?: string }) => {
           setWalletANTs(ids);
-          setIsLoading(false);
           // don't set cursor for now
         })
+        .finally(() => setIsLoading(false))
         .catch((error: Error) => {
           console.error(error);
           setIsLoading(false);
@@ -47,28 +42,12 @@ function Manage() {
         <div className="table-selector-group">
           <button
             className="table-selector text bold center"
-            onClick={() => setTableType('name')}
-            style={
-              tableType === 'name'
-                ? {
-                    borderColor: 'var(--text-white)',
-                    color: 'var(--text-white)',
-                    fill: 'var(--text-white)',
-                  }
-                : {}
-            }
-          >
-            <NotebookIcon width={'20px'} height="20px" />
-            Domains
-          </button>
-          <button
-            className="table-selector text bold center"
             onClick={() => {
-              setTableType('ant');
+              setTableType(TABLE_TYPES.ANT);
               setReload(!reload);
             }}
             style={
-              tableType === 'ant'
+              tableType === TABLE_TYPES.ANT
                 ? {
                     borderColor: 'var(--text-white)',
                     color: 'var(--text-white)',
@@ -82,43 +61,7 @@ function Manage() {
           </button>
         </div>
 
-        {tableType === 'name' ? (
-          <NameTable
-            columns={{
-              Name: (
-                <LinkIcon
-                  width={'20px'}
-                  height={'30px'}
-                  fill={'var(--text-faded)'}
-                />
-              ),
-              Tier: (
-                <PriceTagIcon
-                  width={'20px'}
-                  height={'30px'}
-                  fill={'var(--text-faded)'}
-                />
-              ),
-              'Expiry Date': (
-                <CalendarTimeIcon
-                  width={'20px'}
-                  height={'30px'}
-                  fill={'var(--text-faded)'}
-                />
-              ),
-              Status: (
-                <RefreshAlertIcon
-                  width={'20px'}
-                  height={'30px'}
-                  fill={'var(--text-faded)'}
-                />
-              ),
-            }}
-          />
-        ) : (
-          <></>
-        )}
-        {tableType === 'ant' ? (
+        {tableType === TABLE_TYPES.ANT ? (
           isLoading ? (
             <div
               className="flex center"
