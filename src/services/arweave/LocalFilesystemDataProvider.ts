@@ -7,7 +7,6 @@ import {
 } from '../../types';
 
 export class LocalFileSystemDataProvider implements SmartweaveContractSource {
-  constructor() {}
   async getContractState(
     contractId: ArweaveTransactionId,
   ): Promise<ArNSContractState | undefined> {
