@@ -17,12 +17,10 @@ export type ArNSContractState = {
 export type ANTContractDomainRecord = {
   ttlSeconds: number;
   maxSubdomains: number;
-  id: ArweaveTransactionId;
+  transactionId: ArweaveTransactionId;
 };
 
-export type ANTContractRecordMapping =
-  | ArweaveTransactionId
-  | ANTContractDomainRecord;
+export type ANTContractRecordMapping = ANTContractDomainRecord;
 
 export type ANTContractState = {
   balances: { [x: ArweaveTransactionId]: number };
@@ -74,6 +72,7 @@ export interface SmartweaveContractSource {
     contractId: ArweaveTransactionId,
     wallet: ArweaveTransactionId,
   ): Promise<number>;
+  getContractConfirmations(id: ArweaveTransactionId): Promise<number>;
 }
 
 export interface ArweaveWalletConnector {
@@ -154,3 +153,15 @@ export type WorkflowProps = {
     };
   };
 };
+
+export enum TABLE_TYPES {
+  ANT = 'ant_table',
+  NAME = 'name_table',
+}
+
+export enum ASSET_TYPES {
+  ANT = 'ant',
+  NAME = 'name',
+  UNDERNAME = 'undername',
+  COIN = 'coin',
+}

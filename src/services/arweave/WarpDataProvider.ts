@@ -9,6 +9,7 @@ import {
 
 export class WarpDataProvider implements SmartweaveContractSource {
   private _warp: Warp;
+  arweave: Arweave;
 
   constructor(arweave: Arweave) {
     // using arweave gateway to stick to L1 only transactions
@@ -19,6 +20,7 @@ export class WarpDataProvider implements SmartweaveContractSource {
       true,
       arweave,
     );
+    this.arweave = arweave;
   }
 
   async getContractState(
@@ -81,5 +83,19 @@ export class WarpDataProvider implements SmartweaveContractSource {
   ) {
     const state = await this.getContractState(contractId);
     return state?.balances[wallet] ?? 0;
+  }
+
+  async getContractConfirmations(id: ArweaveTransactionId) {
+    try {
+      const confirmations = await this.arweave.api
+        .get(`/tx/${id}/status`)
+        .then((res: any) => {
+          return res.data.number_of_confirmations;
+        });
+      return confirmations;
+    } catch (error) {
+      console.error(error);
+      return 0;
+    }
   }
 }

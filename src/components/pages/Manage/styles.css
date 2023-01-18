@@ -1,0 +1,16 @@
+.table-selector {
+  display: flex;
+  flex-direction: column;
+  color: var(--text-faded);
+  fill: var(--text-faded);
+  border-bottom: 2px solid var(--text-faded);
+  width: 120px;
+  height: 60px;
+  align-items: flex-start;
+  row-gap: 7px;
+  cursor: pointer;
+}
+.table-selector-group {
+  display: flex;
+  flex-direction: row;
+}

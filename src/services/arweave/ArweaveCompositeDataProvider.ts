@@ -6,6 +6,8 @@ import {
 } from '../../types';
 
 export class ArweaveCompositeDataProvider implements SmartweaveContractSource {
+  // NOTE: this class should not have any logic for performing queries itself, but rather logic for getting results from
+  // an array of providers, using different strategies such as Promise.race or Promise.all.
   private _providers: SmartweaveContractSource[];
 
   // TODO: implement strategy methods
@@ -51,6 +53,12 @@ export class ArweaveCompositeDataProvider implements SmartweaveContractSource {
       this._providers.map((p) =>
         p.getContractBalanceForWallet(contractId, wallet),
       ),
+    );
+  }
+
+  async getContractConfirmations(id: ArweaveTransactionId) {
+    return Promise.any(
+      this._providers.map((p) => p.getContractConfirmations(id)),
     );
   }
 }
