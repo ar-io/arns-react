@@ -23,34 +23,36 @@ function AntRow({
   const [antState, setAntState] = useState<any>();
   // row details
   const [targetId, setTargetId] = useState<string>();
+  const [confirmations, setConfirmations] = useState<number>(0);
 
   const dataProvider = defaultDataProvider(arweave);
 
   // todo: implement error antState for row items
   useEffect(() => {
-    loadAntState();
+    loadAntConfirmations(antId).catch((e) =>
+      console.error('Failed to fetch confirmations', e),
+    );
+    loadAntState(antId).catch((e) =>
+      console.error('Failed to fetch confirmations', e),
+    );
   }, [antId]);
 
-  useEffect(() => {
-    if (antState) {
-      getTargetId();
-    }
-  }, [antState]);
-
-  async function loadAntState() {
-    const state = await dataProvider.getContractState(antId);
+  async function loadAntState(id: string) {
+    const state = await dataProvider.getContractState(id);
     setAntState(state);
+    if (state.records['@'].transactionId) {
+      setTargetId(antState.records['@'].transactionId);
+    }
+    // todo: remove below for v1, this is a legacy format for ant record antStates.
+    if (typeof state.records['@'] === 'string') {
+      setTargetId(state.records['@']);
+    }
     return;
   }
 
-  function getTargetId() {
-    if (antState.records['@'].transactionId) {
-      setTargetId(antState.records['@'].transaction);
-    }
-    // todo: remove below for v1, this is a legacy format for ant record antStates.
-    if (typeof antState.records['@'] === 'string') {
-      setTargetId(antState.records['@']);
-    }
+  async function loadAntConfirmations(id: string) {
+    const confirmations = await dataProvider.getContractConfirmations(id);
+    setConfirmations(confirmations);
   }
 
   return (
@@ -129,7 +131,7 @@ function AntRow({
             className="assets-table-item"
             style={textColor ? { color: textColor } : {}}
           >
-            <TransactionStatus id={antId} />
+            <TransactionStatus confirmations={confirmations} />
           </td>
           <td
             className="assets-table-item"

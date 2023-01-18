@@ -20,6 +20,8 @@ function Manage() {
   const [reload, setReload] = useState(false);
 
   useEffect(() => {
+    // todo: move this to a seperate function to manage error state and poll for new ants to concat them to the state.
+    // todo: load imported ants and names first
     if (wallet) {
       setIsLoading(true);
       wallet
