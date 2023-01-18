@@ -111,7 +111,6 @@ function RegisterNameForm() {
 
       setIsValidAnt(true);
       setIsValidating(false);
-
       return;
     } catch (error: any) {
       setIsValidAnt(false);
