@@ -36,7 +36,15 @@ function AntRow({
       console.error('Failed to fetch ANT Contract', e),
     );
   }, [antId]);
-
+  // update confirmations once per minute
+  useEffect(() => {
+    const confirmationsInterval = setInterval(() => {
+      loadAntConfirmations(antId).catch((e) =>
+        console.error('Failed to fetch confirmations', e),
+      );
+    }, 30000);
+    return () => clearInterval(confirmationsInterval);
+  }, []);
   async function loadAntState(id: string) {
     const state = await dataProvider.getContractState(id);
     setAntState(state);
