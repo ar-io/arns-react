@@ -72,7 +72,7 @@ function Manage() {
               <Loader size={80} />
             </div>
           ) : (
-            <AntTable antIds={walletANTs} reload={reload} />
+            <AntTable antIds={walletANTs} />
           )
         ) : (
           <></>

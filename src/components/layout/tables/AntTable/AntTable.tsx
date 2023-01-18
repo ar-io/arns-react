@@ -9,30 +9,7 @@ import {
 import AntRow from '../AntRow/AntRow';
 import './styles.css';
 
-function AntTable({ antIds, reload }: { antIds: string[]; reload: boolean }) {
-  // eslint-disable-next-line
-  const [tableItems, setTableItems] = useState([<></>]);
-
-  useEffect(() => {
-    updateTableItems()
-      .then((items) => setTableItems(items))
-      .catch((err: Error) => console.error(err));
-  }, [antIds, reload]);
-
-  async function updateTableItems() {
-    const items = [];
-    for (const id of antIds) {
-      items.push(
-        <AntRow
-          antId={id}
-          bgColor={'#1E1E1E'}
-          textColor={'var(--text-white)'}
-        />,
-      );
-    }
-    return items;
-  }
-
+function AntTable({ antIds }: { antIds: string[] }) {
   return (
     <div className="flex-column center">
       <table className="assets-table">
@@ -76,7 +53,13 @@ function AntTable({ antIds, reload }: { antIds: string[]; reload: boolean }) {
           className="flex-column center"
           style={{ gap: '.5em', minHeight: 200 }}
         >
-          {tableItems ? tableItems : <></>}
+          {antIds.map((id) => (
+            <AntRow
+              antId={id}
+              bgColor={'#1E1E1E'}
+              textColor={'var(--text-white)'}
+            />
+          ))}
         </tbody>
       </table>
       {/* <Paginator
