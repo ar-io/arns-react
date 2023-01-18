@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { useIsMobile } from '../../../../hooks';
 import {
   BookmarkIcon,
@@ -59,13 +61,16 @@ function AntTable({ antIds }: { antIds: string[] }) {
           className="flex-column center"
           style={{ gap: '.5em', minHeight: 200 }}
         >
-          {antIds.map((id) => (
-            <AntRow
-              antId={id}
-              bgColor={'#1E1E1E'}
-              textColor={'var(--text-white)'}
-            />
-          ))}
+          {antIds.map((id, index) =>
+            React.cloneElement(
+              <AntRow
+                antId={id}
+                bgColor={'#1E1E1E'}
+                textColor={'var(--text-white)'}
+              />,
+              { key: index },
+            ),
+          )}
         </tbody>
       </table>
       {/* <Paginator
