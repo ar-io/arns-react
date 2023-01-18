@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react';
-
+import { useIsMobile } from '../../../../hooks';
 import {
   BookmarkIcon,
   BorderOuterIcon,
@@ -10,6 +9,8 @@ import AntRow from '../AntRow/AntRow';
 import './styles.css';
 
 function AntTable({ antIds }: { antIds: string[] }) {
+  const isMobile = useIsMobile();
+
   return (
     <div className="flex-column center">
       <table className="assets-table">
@@ -23,7 +24,7 @@ function AntTable({ antIds }: { antIds: string[] }) {
                 fill={'var(--text-faded)'}
               />
             </td>
-            <td className="assets-table-item">
+            <td className="assets-table-item center">
               Contract ID&nbsp;
               <FileCodeIcon
                 width={'20px'}
@@ -31,15 +32,19 @@ function AntTable({ antIds }: { antIds: string[] }) {
                 fill={'var(--text-faded)'}
               />
             </td>
-            <td className="assets-table-item">
-              Target ID&nbsp;
-              <BorderOuterIcon
-                width={'20px'}
-                height={'30px'}
-                fill={'var(--text-faded)'}
-              />
-            </td>
-            <td className="assets-table-item">
+            {isMobile ? (
+              <></>
+            ) : (
+              <td className="assets-table-item center">
+                Target ID&nbsp;
+                <BorderOuterIcon
+                  width={'20px'}
+                  height={'30px'}
+                  fill={'var(--text-faded)'}
+                />
+              </td>
+            )}
+            <td className="assets-table-item center">
               Status&nbsp;
               <RefreshAlertIcon
                 width={'20px'}
@@ -47,6 +52,7 @@ function AntTable({ antIds }: { antIds: string[] }) {
                 fill={'var(--text-faded)'}
               />
             </td>
+            {isMobile ? <></> : <td className="assets-table-item"></td>}
           </tr>
         </thead>
         <tbody

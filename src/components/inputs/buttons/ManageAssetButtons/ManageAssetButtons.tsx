@@ -16,7 +16,10 @@ function ManageAssetButtons({
 
   return (
     <>
-      <div className="flex-row center" style={{ gap: '.5em' }}>
+      <div
+        className="flex-row center"
+        style={{ gap: '.5em', width: 'fit-content' }}
+      >
         <button
           className="assets-see-more-button center hover"
           onClick={() => setShowModal(true)}

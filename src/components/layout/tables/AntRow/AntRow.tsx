@@ -33,7 +33,7 @@ function AntRow({
       console.error('Failed to fetch confirmations', e),
     );
     loadAntState(antId).catch((e) =>
-      console.error('Failed to fetch confirmations', e),
+      console.error('Failed to fetch ANT Contract', e),
     );
   }, [antId]);
 
@@ -84,7 +84,7 @@ function AntRow({
             )}
           </td>
           <td
-            className="assets-table-item"
+            className="assets-table-item center"
             style={textColor ? { color: textColor } : {}}
           >
             {isMobile ? (
@@ -101,20 +101,14 @@ function AntRow({
               />
             )}
           </td>
-          <td
-            className="assets-table-item"
-            style={textColor ? { color: textColor } : {}}
-          >
-            {targetId ? (
-              isMobile ? (
-                <CopyTextButton
-                  displayText={`${targetId.slice(0, 2)}...${targetId.slice(
-                    -2,
-                  )}`}
-                  copyText={targetId}
-                  size={24}
-                />
-              ) : (
+          {isMobile ? (
+            <></>
+          ) : (
+            <td
+              className="assets-table-item center"
+              style={textColor ? { color: textColor } : {}}
+            >
+              {targetId ? (
                 <CopyTextButton
                   displayText={`${targetId.slice(0, 6)}...${targetId.slice(
                     -6,
@@ -122,23 +116,27 @@ function AntRow({
                   copyText={targetId}
                   size={24}
                 />
-              )
-            ) : (
-              <Loader size={30} />
-            )}
-          </td>
+              ) : (
+                <Loader size={30} />
+              )}
+            </td>
+          )}
           <td
-            className="assets-table-item"
+            className="assets-table-item center"
             style={textColor ? { color: textColor } : {}}
           >
             <TransactionStatus confirmations={confirmations} />
           </td>
-          <td
-            className="assets-table-item"
-            style={textColor ? { color: textColor } : {}}
-          >
-            <ManageAssetButtons asset={antId} assetType={ASSET_TYPES.ANT} />
-          </td>
+          {isMobile ? (
+            <></>
+          ) : (
+            <td
+              className="assets-table-item flex-right"
+              style={textColor ? { color: textColor } : {}}
+            >
+              <ManageAssetButtons asset={antId} assetType={ASSET_TYPES.ANT} />
+            </td>
+          )}
         </>
       </tr>
     </>
