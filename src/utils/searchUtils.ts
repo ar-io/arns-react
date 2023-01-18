@@ -1,4 +1,4 @@
-import Arweave from 'arweave/node/common';
+import Arweave from 'arweave';
 
 import { defaultDataProvider } from '../services/arweave';
 import { buildContractTxQuery } from '../services/arweave/arweave';
@@ -83,10 +83,14 @@ export async function isAntValid(
   const contractTxnData = await arweave.api
     .post('/graphql', buildContractTxQuery(id))
     .then((res: any) => {
-      return res.data.data.transactions.edges[0].node;
+      return res.data.data?.transactions?.edges[0]?.node;
     });
-  contractTxnData.tags = tagsToObject(contractTxnData.tags);
-  if (!contractTxnData.tags['Contract-Src']) {
+  if (!contractTxnData) {
+    throw Error('ANT Contract ID not found.');
+  }
+  const { tags: b64Tags } = contractTxnData;
+  const decodedTags = tagsToObject(b64Tags);
+  if (!decodedTags['Contract-Src']) {
     throw Error('Invalid WARP CONTRACT tags - missing Contract-Src tag');
   }
   if (
@@ -94,21 +98,21 @@ export async function isAntValid(
     ![
       ...approvedANTSourceCodeTxs,
       'XX6a-sLbbz6qcCDcB38pwUGNfiPhwsIMy-G9O3hpinI',
-    ].includes(contractTxnData.tags['Contract-Src'])
+    ].includes(decodedTags['Contract-Src'])
   ) {
     throw Error(`ANT is not using an approved source code contract, approved source codes are ${approvedANTSourceCodeTxs.map(
       (srcCodeID: string) => {
         return `${srcCodeID} `;
       },
     )}
-    and yours is ${contractTxnData.tags['Contract-Src']}`);
+    and yours is ${decodedTags['Contract-Src']}.`);
   }
 
   const dataProvider = defaultDataProvider(arweave);
   dataProvider.getContractState(id).then((antContractState) => {
     if (!antContractState) {
       throw Error(
-        `${id} is not a valid ANT contract, you may only register a name to a valid ANT contract`,
+        `${id} is not a valid ANT contract, you may only register a name to a valid ANT contract.`,
       );
     }
     const keyResults = ANT_CONTRACT_STATE_KEYS.map((key) =>
