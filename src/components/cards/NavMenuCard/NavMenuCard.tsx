@@ -6,8 +6,9 @@ import { defaultDataProvider } from '../../../services/arweave/';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ArweaveWalletConnector } from '../../../types';
 import { ROUTES } from '../../../utils/routes';
-import { CopyIcon, LogoutIcon, MenuIcon } from '../../icons';
+import { LogoutIcon, MenuIcon } from '../../icons';
 import ConnectButton from '../../inputs/buttons/ConnectButton/ConnectButton';
+import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
 import MenuButton from '../../inputs/buttons/MenuButton/MenuButton';
 import { Loader, NavBarLink } from '../../layout';
 import { WalletAddress } from '../../layout/WalletAddress/WalletAddress';
@@ -24,7 +25,6 @@ function NavMenuCard() {
     IO: undefined,
     AR: undefined,
   });
-  const [walletCopied, setWalletCopied] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const { wallet, walletAddress } = useWalletAddress();
@@ -83,7 +83,6 @@ function NavMenuCard() {
       // slight jitter in case menu button is pushed to close
       setTimeout(() => {
         setShowMenu(false);
-        setWalletCopied(false);
       }, 100);
     }
   }
@@ -148,31 +147,21 @@ function NavMenuCard() {
             </>
           ) : (
             <>
-              <div className="flex-row flex-space-between">
-                <span className="navbar-link hover">{`${walletAddress.slice(
+              <CopyTextButton
+                displayText={`${walletAddress.slice(
                   0,
-                  6,
-                )}...${walletAddress.slice(-6)}`}</span>
-                {!walletCopied ? (
-                  <CopyIcon
-                    style={{
-                      height: '24px',
-                      width: '24px',
-                      fill: 'white',
-                      cursor: 'pointer',
-                    }}
-                    onClick={async () => {
-                      await navigator.clipboard.writeText(walletAddress);
-                      setWalletCopied(true);
-                      setTimeout(() => {
-                        setWalletCopied(false);
-                      }, 2000);
-                    }}
-                  />
-                ) : (
-                  <span style={{ color: 'white' }}>&#10004;</span>
-                )}
-              </div>
+                  isMobile ? 2 : 4,
+                )}...${walletAddress.slice(isMobile ? -2 : -4)}`}
+                copyText={walletAddress}
+                size={24}
+                wrapperStyle={{
+                  fontWeight: 600,
+                  fontFamily: 'Rubik-Bold',
+                  width: '100%',
+                  padding: 0,
+                }}
+                position="relative"
+              />
               {isMobile
                 ? Object.entries(ROUTES).map(([key, route]) => {
                     if (!route.index && (!route.protected || walletAddress))

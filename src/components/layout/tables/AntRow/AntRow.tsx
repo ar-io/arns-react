@@ -92,12 +92,20 @@ function AntRow({
                 displayText={`${antId.slice(0, 2)}...${antId.slice(-2)}`}
                 copyText={antId}
                 size={24}
+                wrapperStyle={{
+                  justifyContent: 'center',
+                  textColor: 'var(--bright-white)',
+                }}
               />
             ) : (
               <CopyTextButton
                 displayText={`${antId.slice(0, 6)}...${antId.slice(-6)}`}
                 copyText={antId}
                 size={24}
+                wrapperStyle={{
+                  justifyContent: 'center',
+                  textColor,
+                }}
               />
             )}
           </td>
@@ -115,6 +123,10 @@ function AntRow({
                   )}`}
                   copyText={targetId}
                   size={24}
+                  wrapperStyle={{
+                    justifyContent: 'center',
+                    textColor,
+                  }}
                 />
               ) : (
                 <Loader size={30} />

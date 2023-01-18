@@ -6,10 +6,14 @@ function CopyTextButton({
   displayText,
   copyText,
   size,
+  wrapperStyle = {},
+  position = 'absolute',
 }: {
   displayText: string;
   copyText: string;
   size: number;
+  wrapperStyle?: any;
+  position?: 'static' | 'relative' | 'absolute' | 'sticky' | 'fixed';
 }) {
   const [textCopied, setTextCopied] = useState<boolean>(false);
 
@@ -24,28 +28,26 @@ function CopyTextButton({
   }
 
   return (
-    <>
+    <div className="flex" style={{ position, ...wrapperStyle }}>
       <button
-        className="button center tool-tip hover"
-        style={{ textAlign: 'center' }}
+        className="flex flex-space-between button hover"
+        style={wrapperStyle}
         onClick={async () => {
           await handleCopy();
         }}
       >
-        <span className="link bold center">
-          {displayText}&nbsp;
-          <CopyIcon height={size} width={size} fill="white" />
-        </span>
+        <span className="flex white center">{displayText}&nbsp;</span>
+        <CopyIcon className="flex" height={size} width={size} fill="white" />
       </button>
       {textCopied ? (
         <div
-          className="bubble-small center black"
+          className="bubble-small text center black"
           style={{
             position: 'absolute',
-            left: '50%',
-            top: '2em',
-            borderRadius: '6px',
-            zIndex: '10',
+            top: '100%',
+            right: '0px',
+            borderRadius: 'var(--corner-radius)',
+            zIndex: '100',
           }}
         >
           Copied!
@@ -53,7 +55,7 @@ function CopyTextButton({
       ) : (
         <></>
       )}
-    </>
+    </div>
   );
 }
 
