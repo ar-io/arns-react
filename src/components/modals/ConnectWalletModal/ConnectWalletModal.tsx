@@ -3,13 +3,13 @@ import { useEffect, useRef } from 'react';
 import { useWalletAddress } from '../../../hooks';
 import { ArConnectWalletConnector } from '../../../services/wallets';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { ArweaveGraphQLAPI, ArweaveWalletConnector } from '../../../types';
+import { ArweaveWalletConnector } from '../../../types';
 import { ArConnectIcon, ArweaveAppIcon, CloseIcon } from '../../icons';
 import './styles.css';
 
 function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
   const modalRef = useRef(null);
-  const [{ arweave }, dispatchGlobalState] = useGlobalState();
+  const [{}, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
   const { wallet, walletAddress } = useWalletAddress();
   useEffect(() => {
     // disable scrolling when modal is in view
@@ -40,9 +40,7 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
     });
   }
 
-  async function setGlobalWallet(
-    walletConnector: ArweaveWalletConnector & ArweaveGraphQLAPI,
-  ) {
+  async function setGlobalWallet(walletConnector: ArweaveWalletConnector) {
     try {
       await walletConnector.connect();
       dispatchGlobalState({
@@ -75,7 +73,7 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
         <button
           className="wallet-connect-button h2"
           onClick={() => {
-            setGlobalWallet(new ArConnectWalletConnector(arweave));
+            setGlobalWallet(new ArConnectWalletConnector());
           }}
         >
           <ArConnectIcon

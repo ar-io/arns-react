@@ -1,64 +1,82 @@
 import {
   ANTContractState,
   ArNSContractState,
+  ArweaveDataProvider,
   ArweaveTransactionId,
-  SmartweaveContractSource,
+  SmartweaveDataProvider,
 } from '../../types';
 
-export class ArweaveCompositeDataProvider implements SmartweaveContractSource {
+export class ArweaveCompositeDataProvider
+  implements SmartweaveDataProvider, ArweaveDataProvider
+{
   // NOTE: this class should not have any logic for performing queries itself, but rather logic for getting results from
   // an array of providers, using different strategies such as Promise.race or Promise.all.
-  private _providers: SmartweaveContractSource[];
+  private _warpProvider: SmartweaveDataProvider;
+  private _arweaveProvider: ArweaveDataProvider;
 
   // TODO: implement strategy methods
-  constructor(providers: SmartweaveContractSource[]) {
-    this._providers = providers;
+  constructor(
+    warpProviders: SmartweaveDataProvider,
+    arweaveProviders: ArweaveDataProvider,
+  ) {
+    this._warpProvider = warpProviders;
+    this._arweaveProvider = arweaveProviders;
+  }
+
+  async getWalletBalance(id: string): Promise<number> {
+    return this._arweaveProvider.getWalletBalance(id);
   }
 
   async getContractState(
-    contractId: string,
+    id: string,
   ): Promise<ArNSContractState | ANTContractState | undefined> {
-    // TODO: implement strategy, for now just pull first success
-    return Promise.any(
-      this._providers.map((p) => p.getContractState(contractId)),
-    );
+    return this._warpProvider.getContractState(id);
   }
 
   async writeTransaction(
-    contractId: ArweaveTransactionId,
+    id: ArweaveTransactionId,
     payload: {
       [x: string]: any;
       contractTransactionId: ArweaveTransactionId;
     },
   ): Promise<ArweaveTransactionId | undefined> {
-    if (!payload) {
-      throw Error('Payload cannot be empty.');
-    }
-
-    // Sequentially write - to avoid posting to multiple sources
-    for (const provider of this._providers) {
-      // TODO: add error handling to wrap failed ones and try the next
-      const result = await provider.writeTransaction(contractId, payload);
-      if (result) {
-        return result;
-      }
-    }
+    return await this._warpProvider.writeTransaction(id, payload);
   }
 
   async getContractBalanceForWallet(
-    contractId: string,
-    wallet: string,
+    id: string,
+    wallet: ArweaveTransactionId,
   ): Promise<number> {
-    return Promise.any(
-      this._providers.map((p) =>
-        p.getContractBalanceForWallet(contractId, wallet),
-      ),
+    return this._warpProvider.getContractBalanceForWallet(id, wallet);
+  }
+
+  async getContractsForWallet(
+    approvedSourceCodeTransactions: string[],
+    address: string,
+    cursor?: string | undefined,
+  ): Promise<{ ids: string[]; cursor?: string | undefined }> {
+    return this._arweaveProvider.getContractsForWallet(
+      approvedSourceCodeTransactions,
+      address,
+      cursor,
     );
   }
 
-  async getContractConfirmations(id: ArweaveTransactionId) {
-    return Promise.any(
-      this._providers.map((p) => p.getContractConfirmations(id)),
-    );
+  async getTransactionStatus(id: ArweaveTransactionId) {
+    return this._arweaveProvider.getTransactionStatus(id);
+  }
+
+  async getTransactionTags(id: string): Promise<{ [x: string]: string }> {
+    return this._arweaveProvider.getTransactionTags(id);
+  }
+
+  async validateTransactionTags(params: {
+    id: ArweaveTransactionId;
+    numberOfConfirmations?: number;
+    requiredTags?: {
+      [x: string]: string[]; // allowed values
+    };
+  }) {
+    return this._arweaveProvider.validateTransactionTags(params);
   }
 }

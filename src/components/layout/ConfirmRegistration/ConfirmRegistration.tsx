@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react';
 
-import { defaultDataProvider } from '../../../services/arweave';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { NAME_PRICE_INFO } from '../../../utils/constants';
-import { isAntValid } from '../../../utils/searchUtils';
 import { AntCard } from '../../cards';
 import Loader from '../Loader/Loader';
 import { Tooltip } from '../Tooltip/Tooltip';
@@ -15,7 +13,8 @@ function ConfirmRegistration() {
     { domain, ttl, tier, leaseDuration, antID, fee, stage },
     dispatchRegistrationState,
   ] = useRegistrationState();
-  const [{ arnsSourceContract, arnsContractId, arweave }] = useGlobalState();
+  const [{ arnsSourceContract, arnsContractId, arweaveDataProvider }] =
+    useGlobalState();
   const [isPostingTransaction, setIsPostingTransaction] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
@@ -24,9 +23,15 @@ function ConfirmRegistration() {
     if (!antID) {
       return;
     }
-    isAntValid(antID, arnsSourceContract.approvedANTSourceCodeTxs, arweave)
-      .then((isValid) => {
-        setIsConfirmed(isValid);
+    arweaveDataProvider
+      .validateTransactionTags({
+        id: antID,
+        requiredTags: {
+          'Contract-Src': arnsSourceContract.approvedANTSourceCodeTxs,
+        },
+      })
+      .then(() => {
+        setIsConfirmed(true);
       })
       .catch((e: Error) => {
         // TODO: push error notification
@@ -34,19 +39,21 @@ function ConfirmRegistration() {
         setIsConfirmed(false);
         setErrorMessage(e.message);
       });
-  }, [antID]);
+  }, [antID, arnsContractId]);
 
   async function buyArnsName() {
     setIsPostingTransaction(true);
     if (!antID) {
       return;
     }
-    const dataProvider = defaultDataProvider(arweave);
-    const pendingTXId = await dataProvider.writeTransaction(arnsContractId, {
-      function: 'buyRecord',
-      name: domain,
-      contractTransactionId: antID,
-    });
+    const pendingTXId = await arweaveDataProvider.writeTransaction(
+      arnsContractId,
+      {
+        function: 'buyRecord',
+        name: domain,
+        contractTransactionId: antID,
+      },
+    );
     if (pendingTXId) {
       dispatchRegistrationState({
         type: 'setResolvedTx',

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../../hooks';
-import { defaultDataProvider } from '../../../../services/arweave';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { ASSET_TYPES, ArweaveTransactionId } from '../../../../types';
 import CopyTextButton from '../../../inputs/buttons/CopyTextButton/CopyTextButton';
@@ -18,14 +17,12 @@ function AntRow({
   bgColor: string;
   textColor: string;
 }) {
-  const [{ arweave }] = useGlobalState();
+  const [{ arweaveDataProvider }] = useGlobalState();
   const isMobile = useIsMobile();
   const [antState, setAntState] = useState<any>();
   // row details
   const [targetId, setTargetId] = useState<string>();
   const [confirmations, setConfirmations] = useState<number>(0);
-
-  const dataProvider = defaultDataProvider(arweave);
 
   // todo: implement error antState for row items
   useEffect(() => {
@@ -38,7 +35,7 @@ function AntRow({
   }, [antId]);
 
   async function loadAntState(id: string) {
-    const state = await dataProvider.getContractState(id);
+    const state = await arweaveDataProvider.getContractState(id);
     setAntState(state);
     if (state.records['@'].transactionId) {
       setTargetId(antState.records['@'].transactionId);
@@ -51,7 +48,7 @@ function AntRow({
   }
 
   async function loadAntConfirmations(id: string) {
-    const confirmations = await dataProvider.getContractConfirmations(id);
+    const confirmations = await arweaveDataProvider.getTransactionStatus(id);
     setConfirmations(confirmations);
   }
 

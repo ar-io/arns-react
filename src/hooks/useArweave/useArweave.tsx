@@ -1,6 +1,9 @@
 import Arweave from 'arweave';
 import { useEffect, useState } from 'react';
 
+import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
+import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
+import { WarpDataProvider } from '../../services/arweave/WarpDataProvider';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 
 export default function useArweave() {
@@ -23,12 +26,17 @@ export default function useArweave() {
         host: gateway,
         protocol: 'https',
       });
+
+      const arweaveDataProvider = new ArweaveCompositeDataProvider(
+        new WarpDataProvider(arweave),
+        new SimpleArweaveDataProvider(arweave),
+      );
+
       dispatch({
-        type: 'setArweave',
-        payload: arweave,
+        type: 'setArweaveDataProvider',
+        payload: arweaveDataProvider,
       });
 
-      // TODO: update existing wallet connector when arweave client changes
       setSendingArweaveState(false);
     } catch (error) {
       console.error(`Error in setting arweave client.`, error);

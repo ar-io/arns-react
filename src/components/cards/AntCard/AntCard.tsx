@@ -1,7 +1,6 @@
 import { startCase } from 'lodash';
 import { useEffect, useState } from 'react';
 
-import { defaultDataProvider } from '../../../services/arweave';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ArNSMapping } from '../../../types';
 import { Loader } from '../../layout';
@@ -36,7 +35,7 @@ const DEFAULT_ATTRIBUTES = {
 };
 
 function AntCard(props: ArNSMapping) {
-  const [{ arweave }] = useGlobalState();
+  const [{ arweaveDataProvider }] = useGlobalState();
   const { id, domain, compact, overrides, hover, enableActions } = props;
   const [antDetails, setAntDetails] = useState<{ [x: string]: string }>();
   const [isLoading, setIsLoading] = useState(false);
@@ -44,8 +43,7 @@ function AntCard(props: ArNSMapping) {
 
   useEffect(() => {
     setIsLoading(true);
-    const dataProvider = defaultDataProvider(arweave);
-    dataProvider
+    arweaveDataProvider
       .getContractState(id)
       .then((antContractState) => {
         if (!antContractState) {

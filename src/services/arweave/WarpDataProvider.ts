@@ -4,12 +4,11 @@ import { Warp, WarpFactory, defaultCacheOptions } from 'warp-contracts';
 import {
   ArNSContractState,
   ArweaveTransactionId,
-  SmartweaveContractSource,
+  SmartweaveDataProvider,
 } from '../../types';
 
-export class WarpDataProvider implements SmartweaveContractSource {
+export class WarpDataProvider implements SmartweaveDataProvider {
   private _warp: Warp;
-  arweave: Arweave;
 
   constructor(arweave: Arweave) {
     // using arweave gateway to stick to L1 only transactions
@@ -20,13 +19,12 @@ export class WarpDataProvider implements SmartweaveContractSource {
       true,
       arweave,
     );
-    this.arweave = arweave;
   }
 
   async getContractState(
-    contractId: string,
+    id: ArweaveTransactionId,
   ): Promise<ArNSContractState | undefined> {
-    const contract = this._warp.contract(contractId);
+    const contract = this._warp.contract(id);
     const { cachedValue } = await contract.readState();
 
     if (!cachedValue.state) {
@@ -48,7 +46,7 @@ export class WarpDataProvider implements SmartweaveContractSource {
   }
 
   async writeTransaction(
-    contractId: ArweaveTransactionId,
+    id: ArweaveTransactionId,
     payload: {
       [x: string]: any;
       contractTransactionId: ArweaveTransactionId;
@@ -58,7 +56,7 @@ export class WarpDataProvider implements SmartweaveContractSource {
       if (!payload) {
         throw Error('Payload cannot be empty.');
       }
-      const contract = this._warp.contract(contractId).connect('use_wallet');
+      const contract = this._warp.contract(id).connect('use_wallet');
       const result = await contract.writeInteraction(payload);
       // todo: check for dry write options on writeInteraction
       if (!result) {
@@ -78,24 +76,10 @@ export class WarpDataProvider implements SmartweaveContractSource {
   }
 
   async getContractBalanceForWallet(
-    contractId: ArweaveTransactionId,
+    id: ArweaveTransactionId,
     wallet: ArweaveTransactionId,
   ) {
-    const state = await this.getContractState(contractId);
+    const state = await this.getContractState(id);
     return state?.balances[wallet] ?? 0;
-  }
-
-  async getContractConfirmations(id: ArweaveTransactionId) {
-    try {
-      const confirmations = await this.arweave.api
-        .get(`/tx/${id}/status`)
-        .then((res: any) => {
-          return res.data.number_of_confirmations;
-        });
-      return confirmations;
-    } catch (error) {
-      console.error(error);
-      return 0;
-    }
   }
 }

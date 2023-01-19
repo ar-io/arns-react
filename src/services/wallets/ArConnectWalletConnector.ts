@@ -1,9 +1,6 @@
 import { PermissionType } from 'arconnect';
-import Arweave from 'arweave';
-import Ar from 'arweave/node/ar';
 
 import { ArweaveTransactionId, ArweaveWalletConnector } from '../../types';
-import { ArweaveGraphQL } from '../arweave/ArweaveGraphQL';
 
 const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [
   'ACCESS_ADDRESS',
@@ -12,23 +9,11 @@ const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [
   'SIGN_TRANSACTION',
 ];
 
-export class ArConnectWalletConnector
-  implements ArweaveWalletConnector, ArweaveGraphQL
-{
+export class ArConnectWalletConnector implements ArweaveWalletConnector {
   private _wallet: Window['arweaveWallet'];
-  private _ar: Ar = new Ar();
-  private _address?: ArweaveTransactionId;
-  private _graphql: ArweaveGraphQL;
 
-  arweave: Arweave;
-
-  constructor(
-    arweave: Arweave,
-    graphql: ArweaveGraphQL = new ArweaveGraphQL(arweave),
-  ) {
+  constructor() {
     this._wallet = window.arweaveWallet;
-    this._graphql = graphql;
-    this.arweave = arweave;
   }
 
   connect(): Promise<void> {
@@ -50,28 +35,7 @@ export class ArConnectWalletConnector
     return this._wallet.disconnect();
   }
 
-  getWalletAddress(): Promise<string> {
+  getWalletAddress(): Promise<ArweaveTransactionId> {
     return this._wallet.getActiveAddress();
-  }
-
-  async getWalletBalanceAR(): Promise<string> {
-    const winstonBalance = await this.arweave.wallets.getBalance(
-      await this.getWalletAddress(),
-    );
-    return this._ar.winstonToAr(winstonBalance);
-  }
-
-  async getWalletANTs(approvedANTSourceCodeTxs: string[], cursor?: string) {
-    // TODO: why do we need to call a promise before fetching the address
-    const addresses = await this._wallet.getAllAddresses();
-    const currentAddress = await this.getWalletAddress();
-    if (!addresses.includes(currentAddress)) {
-      throw Error('Wallet address is invalid');
-    }
-    return this._graphql.getWalletANTs(
-      approvedANTSourceCodeTxs,
-      currentAddress,
-      cursor,
-    );
   }
 }

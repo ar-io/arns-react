@@ -9,8 +9,8 @@ import { AntTable } from '../../layout/tables';
 import './styles.css';
 
 function Manage() {
-  const [{ arnsSourceContract }] = useGlobalState();
-  const { walletAddress, wallet } = useWalletAddress();
+  const [{ arnsSourceContract, arweaveDataProvider }] = useGlobalState();
+  const { walletAddress } = useWalletAddress();
 
   const [tableType, setTableType] = useState(TABLE_TYPES.ANT); // ant_table or name_table
 
@@ -22,10 +22,14 @@ function Manage() {
   useEffect(() => {
     // todo: move this to a seperate function to manage error state and poll for new ants to concat them to the state.
     // todo: load imported ants and names first
-    if (wallet) {
+    if (walletAddress) {
       setIsLoading(true);
-      wallet
-        .getWalletANTs(arnsSourceContract.approvedANTSourceCodeTxs, cursor)
+      arweaveDataProvider
+        .getContractsForWallet(
+          arnsSourceContract.approvedANTSourceCodeTxs,
+          walletAddress,
+          cursor,
+        )
         .then(({ ids }: { ids: string[]; cursor?: string }) => {
           setWalletANTs(ids);
           // don't set cursor for now

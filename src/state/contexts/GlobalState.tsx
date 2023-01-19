@@ -1,16 +1,28 @@
 import Arweave from 'arweave';
 import React, { Dispatch, createContext, useContext, useReducer } from 'react';
 
-import { ArweaveGraphQLAPI } from '../../types';
-import type { ArNSContractState, ArweaveWalletConnector } from '../../types';
+import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
+import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
+import { WarpDataProvider } from '../../services/arweave/WarpDataProvider';
+import type {
+  ArNSContractState,
+  ArweaveDataProvider,
+  ArweaveWalletConnector,
+  SmartweaveDataProvider,
+} from '../../types';
 import type { Action } from '../reducers/GlobalReducer';
 
+const defaultArweave = new Arweave({
+  host: 'arweave.dev',
+  protocol: 'https',
+});
+
 export type GlobalState = {
-  arweave: Arweave;
+  arweaveDataProvider: ArweaveDataProvider & SmartweaveDataProvider;
   arnsSourceContract: ArNSContractState;
   gateway: string;
   walletAddress?: string;
-  wallet?: ArweaveWalletConnector & ArweaveGraphQLAPI;
+  wallet?: ArweaveWalletConnector;
   arnsContractId: string;
   showConnectWallet: boolean;
   errors: Array<Error>;
@@ -18,10 +30,10 @@ export type GlobalState = {
 };
 
 const initialState: GlobalState = {
-  arweave: new Arweave({
-    host: 'arweave.dev',
-    protocol: 'https',
-  }),
+  arweaveDataProvider: new ArweaveCompositeDataProvider(
+    new WarpDataProvider(defaultArweave),
+    new SimpleArweaveDataProvider(defaultArweave),
+  ),
   arnsContractId: 'bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U',
   arnsSourceContract: {
     records: {},
