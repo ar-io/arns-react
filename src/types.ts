@@ -58,10 +58,10 @@ export type JsonWalletProvider = {
   key: any;
 };
 
-export interface SmartweaveContractSource {
-  getContractState(contractId: ArweaveTransactionId): Promise<any>;
+export interface SmartweaveDataProvider {
+  getContractState(id: ArweaveTransactionId): Promise<any>;
   writeTransaction(
-    contractId: ArweaveTransactionId,
+    id: ArweaveTransactionId,
     payload: {
       [x: string]: any;
       contractTransactionId: ArweaveTransactionId;
@@ -69,25 +69,35 @@ export interface SmartweaveContractSource {
     dryWrite?: boolean,
   ): Promise<ArweaveTransactionId | undefined>;
   getContractBalanceForWallet(
-    contractId: ArweaveTransactionId,
+    id: ArweaveTransactionId,
     wallet: ArweaveTransactionId,
   ): Promise<number>;
-  getContractConfirmations(id: ArweaveTransactionId): Promise<number>;
 }
 
 export interface ArweaveWalletConnector {
   connect(): Promise<void>;
   disconnect(): Promise<void>;
   getWalletAddress(): Promise<string>;
-  getWalletBalanceAR(): Promise<string>;
 }
 
-export interface ArweaveGraphQLAPI {
-  getWalletANTs(
+export interface ArweaveDataProvider {
+  getTransactionStatus(id: ArweaveTransactionId): Promise<number>;
+  getTransactionTags(
+    id: ArweaveTransactionId,
+  ): Promise<{ [x: string]: string }>;
+  validateTransactionTags(params: {
+    id: ArweaveTransactionId;
+    numberOfConfirmations?: number;
+    requiredTags?: {
+      [x: string]: string[]; // allowed values
+    };
+  }): Promise<void>;
+  getContractsForWallet(
     approvedSourceCodeTransactions: string[],
     address: string,
     cursor?: string,
   ): Promise<{ ids: string[]; cursor?: string }>;
+  getWalletBalance(id: ArweaveTransactionId): Promise<number>;
 }
 
 export type SearchBarProps = {

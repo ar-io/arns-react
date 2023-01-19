@@ -1,10 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useIsMobile, useWalletAddress } from '../../../hooks';
-import { defaultDataProvider } from '../../../services/arweave/';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { ArweaveWalletConnector } from '../../../types';
+import { ArweaveTransactionId } from '../../../types';
 import { ROUTES } from '../../../utils/routes';
 import { LogoutIcon, MenuIcon } from '../../icons';
 import ConnectButton from '../../inputs/buttons/ConnectButton/ConnectButton';
@@ -15,7 +14,8 @@ import { WalletAddress } from '../../layout/WalletAddress/WalletAddress';
 import './styles.css';
 
 function NavMenuCard() {
-  const [{ arnsContractId, arweave }, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
+  const [{ arnsContractId, arweaveDataProvider }, dispatchGlobalState] =
+    useGlobalState(); // eslint-disable-line
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
   const [walletDetails, setWalletDetails] = useState<{
@@ -30,9 +30,9 @@ function NavMenuCard() {
   const { wallet, walletAddress } = useWalletAddress();
 
   useEffect(() => {
-    if (wallet) {
+    if (walletAddress) {
       resetWalletDetails();
-      fetchWalletDetails(wallet);
+      fetchWalletDetails(walletAddress);
     }
 
     if (!menuRef.current) {
@@ -52,13 +52,12 @@ function NavMenuCard() {
     });
   }
 
-  async function fetchWalletDetails(wallet: ArweaveWalletConnector) {
-    const dataProvider = defaultDataProvider(arweave);
-    const ioBalance = await dataProvider.getContractBalanceForWallet(
+  async function fetchWalletDetails(walletAddress: ArweaveTransactionId) {
+    const ioBalance = await arweaveDataProvider.getContractBalanceForWallet(
       arnsContractId,
-      await wallet.getWalletAddress(),
+      walletAddress,
     );
-    const arBalance = await wallet.getWalletBalanceAR();
+    const arBalance = await arweaveDataProvider.getWalletBalance(walletAddress);
     const [formattedBalance, formattedIOBalance] = [arBalance, ioBalance].map(
       (balance: string | number) =>
         Intl.NumberFormat('en-US', {

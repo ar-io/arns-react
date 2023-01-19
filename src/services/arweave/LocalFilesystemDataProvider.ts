@@ -3,15 +3,15 @@ import axios from 'axios';
 import {
   ArNSContractState,
   ArweaveTransactionId,
-  SmartweaveContractSource,
+  SmartweaveDataProvider,
 } from '../../types';
 
-export class LocalFileSystemDataProvider implements SmartweaveContractSource {
+export class LocalFileSystemDataProvider implements SmartweaveDataProvider {
   async getContractState(
-    contractId: ArweaveTransactionId,
+    id: ArweaveTransactionId,
   ): Promise<ArNSContractState | undefined> {
     try {
-      const localFile = `data/contracts/${contractId}.json`;
+      const localFile = `data/contracts/${id}.json`;
       const { data } = await axios.get(localFile);
       const arnsContractState = data as ArNSContractState;
       return arnsContractState;
@@ -27,10 +27,10 @@ export class LocalFileSystemDataProvider implements SmartweaveContractSource {
     return stub;
   }
   async getContractBalanceForWallet(
-    contractId: ArweaveTransactionId,
+    id: ArweaveTransactionId,
     wallet: ArweaveTransactionId,
   ) {
-    const state = await this.getContractState(contractId);
+    const state = await this.getContractState(id);
     return state?.balances[wallet] ?? 0;
   }
   async getContractConfirmations(id: ArweaveTransactionId) {

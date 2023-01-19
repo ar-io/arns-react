@@ -1,7 +1,6 @@
-import Arweave from 'arweave';
 import { v4 as uuidv4 } from 'uuid';
 
-import { ArweaveGraphQLAPI } from '../../types';
+import { ArweaveDataProvider, SmartweaveDataProvider } from '../../types';
 import type {
   ArNSContractState,
   ArweaveTransactionId,
@@ -13,21 +12,24 @@ export type Action =
   | { type: 'setWalletAddress'; payload: ArweaveTransactionId | undefined }
   | {
       type: 'setWallet';
-      payload: (ArweaveWalletConnector & ArweaveGraphQLAPI) | undefined;
+      payload: ArweaveWalletConnector | undefined;
     }
   | { type: 'setGateway'; payload: string }
   | { type: 'setArnsContractState'; payload: ArNSContractState }
   | { type: 'setShowConnectWallet'; payload: boolean }
-  | { type: 'setArweave'; payload: Arweave }
+  | {
+      type: 'setArweaveDataProvider';
+      payload: ArweaveDataProvider & SmartweaveDataProvider;
+    }
   | { type: 'pushNotification'; payload: string }
   | { type: 'removeNotification'; payload: string };
 
 export const reducer = (state: GlobalState, action: Action): GlobalState => {
   switch (action.type) {
-    case 'setArweave':
+    case 'setArweaveDataProvider':
       return {
         ...state,
-        arweave: action.payload,
+        arweaveDataProvider: action.payload,
       };
     case 'setWalletAddress':
       return {

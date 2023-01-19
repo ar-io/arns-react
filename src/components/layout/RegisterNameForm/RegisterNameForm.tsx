@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { defaultDataProvider } from '../../../services/arweave';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
-import { isAntValid, isArweaveTransactionID } from '../../../utils/searchUtils';
+import { ArweaveTransactionId } from '../../../types';
+import { isArweaveTransactionID } from '../../../utils/searchUtils';
 import Dropdown from '../../inputs/Dropdown/Dropdown';
 import Loader from '../Loader/Loader';
 import UpgradeTier from '../UpgradeTier/UpgradeTier';
@@ -12,7 +12,7 @@ import './styles.css';
 function RegisterNameForm() {
   const [{ domain, ttl, antID }, dispatchRegisterState] =
     useRegistrationState();
-  const [{ arnsSourceContract, arweave }] = useGlobalState();
+  const [{ arnsSourceContract, arweaveDataProvider }] = useGlobalState();
 
   const [isValidAnt, setIsValidAnt] = useState<boolean | undefined>(undefined);
   const [isValidating, setIsValidating] = useState(false);
@@ -44,11 +44,8 @@ function RegisterNameForm() {
     });
   }
 
-  async function handleAntId(id?: string) {
-    dispatchRegisterState({
-      type: 'setAntID',
-      payload: undefined,
-    });
+  async function handleAntId(id?: ArweaveTransactionId) {
+    setIsValidating(true);
     setAntTXId(id);
     setValidationErrors([]);
     if (!id || !id.length) {
@@ -57,23 +54,18 @@ function RegisterNameForm() {
     }
 
     try {
-      await isAntValid(
+      await arweaveDataProvider.validateTransactionTags({
         id,
-        arnsSourceContract.approvedANTSourceCodeTxs,
-        arweave,
-      );
-
-      const dataProvider = defaultDataProvider(arweave);
-      const state = await dataProvider.getContractState(id);
+        requiredTags: {
+          'Contract-Src': arnsSourceContract.approvedANTSourceCodeTxs,
+        },
+      });
+      const state = await arweaveDataProvider.getContractState(id);
       if (state == undefined) {
         throw Error('ANT contract state is undefined');
       }
 
       const { controller, name, owner, ticker, records } = state;
-      dispatchRegisterState({
-        type: 'setAntID',
-        payload: id,
-      });
       dispatchRegisterState({
         type: 'setAntID',
         payload: id,
@@ -110,13 +102,15 @@ function RegisterNameForm() {
       }
 
       setIsValidAnt(true);
-      setIsValidating(false);
-      return;
     } catch (error: any) {
+      dispatchRegisterState({
+        type: 'setAntID',
+        payload: undefined,
+      });
       setIsValidAnt(false);
-      setIsValidating(false);
       setValidationErrors([error.message]);
-      return;
+    } finally {
+      setIsValidating(false);
     }
   }
 
@@ -139,9 +133,9 @@ function RegisterNameForm() {
                 value={antTxID ?? ''}
                 ref={inputRef}
                 style={
-                  isValidAnt && antID
+                  isValidAnt && antTxID
                     ? { border: 'solid 2px var(--success-green)' }
-                    : !isValidAnt && antID
+                    : !isValidAnt && antTxID && !isValidating
                     ? { border: 'solid 2px var(--error-red)' }
                     : {}
                 }

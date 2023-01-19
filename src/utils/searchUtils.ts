@@ -1,13 +1,5 @@
-import Arweave from 'arweave';
-
-import { defaultDataProvider } from '../services/arweave';
-import { buildContractTxQuery } from '../services/arweave/arweave';
-import { ArweaveTransactionId } from '../types';
-import {
-  ANT_CONTRACT_STATE_KEYS,
-  ARNS_NAME_REGEX,
-  ARNS_TX_ID_REGEX,
-} from './constants';
+import { ARNS_NAME_REGEX, ARNS_TX_ID_REGEX } from './constants';
+import { fromB64Url } from './encodings';
 
 export function calculateArNSNamePrice({
   domain,
@@ -72,84 +64,12 @@ export function isArweaveTransactionID(id: string) {
   return true;
 }
 
-export async function isAntValid(
-  id: string,
-  approvedANTSourceCodeTxs: ArweaveTransactionId[],
-  arweave: Arweave,
-): Promise<boolean> {
-  if (!ARNS_TX_ID_REGEX.test(id)) {
-    throw Error('ANT Contract ID Not a valid arweave transaction ID');
-  }
-  const contractTxnData = await arweave.api
-    .post('/graphql', buildContractTxQuery(id))
-    .then((res: any) => {
-      return res.data.data?.transactions?.edges[0]?.node;
-    });
-  if (!contractTxnData) {
-    throw Error('ANT Contract ID not found.');
-  }
-  const { tags: b64Tags } = contractTxnData;
-  const decodedTags = tagsToObject(b64Tags);
-  if (!decodedTags['Contract-Src']) {
-    throw Error('Invalid WARP CONTRACT tags - missing Contract-Src tag');
-  }
-  if (
-    // stubbing new test ant source code transaction
-    ![
-      ...approvedANTSourceCodeTxs,
-      'XX6a-sLbbz6qcCDcB38pwUGNfiPhwsIMy-G9O3hpinI',
-    ].includes(decodedTags['Contract-Src'])
-  ) {
-    throw Error(`ANT is not using an approved source code contract, approved source codes are ${approvedANTSourceCodeTxs.map(
-      (srcCodeID: string) => {
-        return `${srcCodeID} `;
-      },
-    )}
-    and yours is ${decodedTags['Contract-Src']}.`);
-  }
-
-  const dataProvider = defaultDataProvider(arweave);
-  dataProvider.getContractState(id).then((antContractState) => {
-    if (!antContractState) {
-      throw Error(
-        `${id} is not a valid ANT contract, you may only register a name to a valid ANT contract.`,
-      );
-    }
-    const keyResults = ANT_CONTRACT_STATE_KEYS.map((key) =>
-      Object.keys(antContractState).includes(key),
-    );
-    if (keyResults.includes(false)) {
-      const missingKeys = () => {
-        const keys = [];
-        for (let i = 0; i < keyResults.length; i++) {
-          if (keyResults[i] === false) {
-            keys.push(ANT_CONTRACT_STATE_KEYS[i]);
-          }
-        }
-        return keys;
-      };
-      throw Error(
-        `${id} is not a valid ANT contract, the state key(s) "${missingKeys()}" are missing. Update the ANT contract to include these keys in order to make it a valid contract.`,
-      );
-    }
-  });
-  // check to make sure confirmations on ant meet requirements
-  const confirmations = await arweave.api
-    .get(`/tx/${id}/status`)
-    .then((res: any) => res.data.number_of_confirmations);
-  if (!confirmations || confirmations < 50) {
-    throw Error(
-      `Your ANT contract does not have enough confirmations, you have to wait ${
-        50 - +confirmations
-      } more confirmations.`,
-    );
-  }
-  return true;
-}
-
 export function tagsToObject(tags: Array<{ name: string; value: string }>) {
-  const newTags: { [x: string]: string } = {};
-  tags.map((tag) => (newTags[tag.name] = tag.value));
-
-  return newTags;
+  return tags.reduce(
+    (newTags, tag) => ({
+      ...newTags,
+      [fromB64Url(tag.name)]: fromB64Url(tag.value),
+    }),
+    {},
+  );
 }

@@ -21,8 +21,9 @@ import { registrationReducer } from './state/reducers/RegistrationReducer';
 function App() {
   // dispatches global state
   useArNSContract();
-  // setup arweave client
+  // setup default arweave data provider
   useArweave();
+
   const { showConnectModal } = useConnectWalletModal();
   const { wallet, walletAddress } = useWalletAddress();
 
