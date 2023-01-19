@@ -13,7 +13,7 @@ import type {
 import type { Action } from '../reducers/GlobalReducer';
 
 const defaultArweave = new Arweave({
-  host: 'arweave.dev',
+  host: 'arweave.net',
   protocol: 'https',
 });
 
@@ -46,7 +46,7 @@ const initialState: GlobalState = {
     ticker: '',
     approvedANTSourceCodeTxs: [],
   },
-  gateway: 'arweave.dev',
+  gateway: 'arweave.net',
   walletAddress: undefined,
   showConnectWallet: false,
   wallet: undefined,
