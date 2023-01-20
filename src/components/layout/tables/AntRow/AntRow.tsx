@@ -33,7 +33,7 @@ function AntRow({
       console.error('Failed to fetch ANT Contract', e),
     );
   }, [antId]);
-  // update confirmations once per minute
+  // update confirmations once every 30 seconds
   useEffect(() => {
     const confirmationsInterval = setInterval(() => {
       loadAntConfirmations(antId).catch((e) =>
