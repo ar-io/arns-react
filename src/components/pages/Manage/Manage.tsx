@@ -76,7 +76,7 @@ function Manage() {
               <Loader size={80} />
             </div>
           ) : (
-            <AntTable antIds={walletANTs} />
+            <AntTable antIds={walletANTs} refresh={() => setReload(!reload)} />
           )
         ) : (
           <></>
