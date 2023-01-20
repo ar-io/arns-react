@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 
 import { useIsMobile } from '../../../../hooks';
 import { ASSET_TYPES, ArweaveTransactionId } from '../../../../types';
@@ -7,11 +7,12 @@ function ManageAssetButtons({
   // eslint-disable-next-line
   asset,
   assetType,
+  setShowModal,
 }: {
   asset: ArweaveTransactionId | string;
   assetType: ASSET_TYPES;
+  setShowModal: Dispatch<SetStateAction<boolean>>;
 }) {
-  const [showModal, setShowModal] = useState(false);
   const isMobile = useIsMobile();
 
   return (
@@ -20,30 +21,21 @@ function ManageAssetButtons({
         className="flex-row center"
         style={{ gap: '.5em', width: 'fit-content' }}
       >
-        <button
-          className="assets-see-more-button center hover"
-          onClick={() => setShowModal(true)}
-        >
+        <button className="assets-see-more-button center hover">
           See More
         </button>
 
         {!isMobile ? (
-          <button className="assets-manage-button center hover">Manage</button>
+          <button
+            className="assets-manage-button center hover"
+            onClick={() => setShowModal(true)}
+          >
+            Manage
+          </button>
         ) : (
           <></>
         )}
       </div>
-      {showModal ? (
-        assetType == ASSET_TYPES.ANT ? (
-          <></>
-        ) : assetType == ASSET_TYPES.NAME ? (
-          <></>
-        ) : (
-          <></>
-        )
-      ) : (
-        <></>
-      )}
     </>
   );
 }

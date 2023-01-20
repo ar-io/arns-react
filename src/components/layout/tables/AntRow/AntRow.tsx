@@ -5,6 +5,7 @@ import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { ASSET_TYPES, ArweaveTransactionId } from '../../../../types';
 import CopyTextButton from '../../../inputs/buttons/CopyTextButton/CopyTextButton';
 import ManageAssetButtons from '../../../inputs/buttons/ManageAssetButtons/ManageAssetButtons';
+import ManageAntModal from '../../../modals/ManageAntModal/ManageAntModal';
 import Loader from '../../Loader/Loader';
 import TransactionStatus from '../../TransactionStatus/TransactionStatus';
 
@@ -19,6 +20,8 @@ function AntRow({
 }) {
   const [{ arweaveDataProvider }] = useGlobalState();
   const isMobile = useIsMobile();
+  const [showManageModal, setShowManageModal] = useState(false);
+
   const [antState, setAntState] = useState<any>();
   // row details
   const [targetId, setTargetId] = useState<string>();
@@ -64,6 +67,7 @@ function AntRow({
               }
             : {}
         }
+        onClick={isMobile ? () => setShowManageModal(true) : () => {}}
       >
         <>
           <td
@@ -143,11 +147,26 @@ function AntRow({
               className="assets-table-item flex-right"
               style={textColor ? { color: textColor } : {}}
             >
-              <ManageAssetButtons asset={antId} assetType={ASSET_TYPES.ANT} />
+              <ManageAssetButtons
+                asset={antId}
+                assetType={ASSET_TYPES.ANT}
+                setShowModal={setShowManageModal}
+              />
             </td>
           )}
         </>
       </tr>
+      {showManageModal ? (
+        <ManageAntModal
+          setShowModal={setShowManageModal}
+          state={antState}
+          contractId={antId}
+          targetId={targetId}
+          confirmations={confirmations}
+        />
+      ) : (
+        <></>
+      )}
     </>
   );
 }
