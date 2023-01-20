@@ -99,6 +99,7 @@ function AntRow({
                 size={24}
                 wrapperStyle={{
                   justifyContent: 'center',
+                  alignItems: 'center',
                   textColor: 'var(--bright-white)',
                 }}
               />
@@ -109,6 +110,7 @@ function AntRow({
                 size={24}
                 wrapperStyle={{
                   justifyContent: 'center',
+                  alignItems: 'center',
                   textColor,
                 }}
               />
@@ -130,6 +132,7 @@ function AntRow({
                   size={24}
                   wrapperStyle={{
                     justifyContent: 'center',
+                    alignItems: 'center',
                     textColor,
                   }}
                 />
