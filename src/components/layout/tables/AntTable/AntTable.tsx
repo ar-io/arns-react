@@ -81,7 +81,7 @@ function AntTable({
           className="flex-column center"
           style={{ width: '100%', height: '100%', padding: '2em' }}
         >
-          <span className="text-large white bold">No ANT's found.</span>
+          <span className="text-large white bold">No ANT&apos;s found.</span>
           <button className="outline-button hover" onClick={() => refresh()}>
             Refresh
           </button>
