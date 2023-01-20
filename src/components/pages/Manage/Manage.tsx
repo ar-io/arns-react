@@ -43,8 +43,8 @@ function Manage() {
   }, [walletAddress, reload]);
 
   return (
-    <div className="page" style={{ paddingTop: '0' }}>
-      <div className="flex-column" style={{ gap: '1em' }}>
+    <div className="page">
+      <div className="flex-column">
         <div className="table-selector-group">
           <button
             className="table-selector text bold center"
