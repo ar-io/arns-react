@@ -23,6 +23,7 @@ function AntRow({
   // row details
   const [targetId, setTargetId] = useState<string>();
   const [confirmations, setConfirmations] = useState<number>(0);
+  const DEFAULT_ROW_REFRESH_MS = 30000; // 30 seconds;
 
   // todo: implement error antState for row items
   useEffect(() => {
@@ -33,6 +34,16 @@ function AntRow({
       console.error('Failed to fetch ANT Contract', e),
     );
   }, [antId]);
+
+  // update confirmations once every 30 seconds
+  useEffect(() => {
+    const confirmationsInterval = setInterval(() => {
+      loadAntConfirmations(antId).catch((e) =>
+        console.error('Failed to fetch confirmations', e),
+      );
+    }, DEFAULT_ROW_REFRESH_MS);
+    return () => clearInterval(confirmationsInterval);
+  }, []);
 
   async function loadAntState(id: string) {
     const state = await arweaveDataProvider.getContractState(id);
@@ -91,6 +102,7 @@ function AntRow({
                 size={24}
                 wrapperStyle={{
                   justifyContent: 'center',
+                  alignItems: 'center',
                   textColor: 'var(--bright-white)',
                 }}
               />
@@ -101,6 +113,7 @@ function AntRow({
                 size={24}
                 wrapperStyle={{
                   justifyContent: 'center',
+                  alignItems: 'center',
                   textColor,
                 }}
               />
@@ -122,6 +135,7 @@ function AntRow({
                   size={24}
                   wrapperStyle={{
                     justifyContent: 'center',
+                    alignItems: 'center',
                     textColor,
                   }}
                 />
