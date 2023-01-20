@@ -1,17 +1,16 @@
-import { Dispatch, SetStateAction } from 'react';
-
 import { useIsMobile } from '../../../../hooks';
 import { ASSET_TYPES, ArweaveTransactionId } from '../../../../types';
 
 function ManageAssetButtons({
   // eslint-disable-next-line
   asset,
+  // eslint-disable-next-line
   assetType,
   setShowModal,
 }: {
   asset: ArweaveTransactionId | string;
   assetType: ASSET_TYPES;
-  setShowModal: Dispatch<SetStateAction<boolean>>;
+  setShowModal: (show: boolean) => void;
 }) {
   const isMobile = useIsMobile();
 

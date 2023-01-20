@@ -1,16 +1,9 @@
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { useIsMobile } from '../../../hooks';
-import { ArweaveCompositeDataProvider } from '../../../services/arweave/ArweaveCompositeDataProvider';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ANTContractState, ArweaveTransactionId } from '../../../types';
-import {
-  AlertCircle,
-  AlertTriangleIcon,
-  CircleCheck,
-  NotebookIcon,
-  PencilIcon,
-} from '../../icons';
+import { NotebookIcon, PencilIcon } from '../../icons';
 import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
 import TransactionStatus from '../../layout/TransactionStatus/TransactionStatus';
 import RowItem from '../../layout/tables/RowItem/RowItem';
@@ -23,7 +16,7 @@ function ManageAntModal({
   targetId,
 }: {
   contractId: ArweaveTransactionId;
-  setShowModal: Dispatch<SetStateAction<boolean>>;
+  setShowModal: (show: boolean) => void;
   state: ANTContractState;
   confirmations: number;
   targetId?: string;
@@ -57,6 +50,7 @@ function ManageAntModal({
   }
 
   return (
+    // eslint-disable-next-line
     <div
       className="modal-container"
       style={{ background: '#1E1E1E' }}
@@ -109,7 +103,10 @@ function ManageAntModal({
           <RowItem
             details={[
               'Status:',
-              <TransactionStatus confirmations={confirmations} />,
+              <TransactionStatus
+                key={`${contractId}-confirmations`}
+                confirmations={confirmations}
+              />,
             ]}
             bgColor={'#1E1E1E'}
             textColor={'var(--text-white)'}
@@ -120,7 +117,13 @@ function ManageAntModal({
               associatedNames
                 ? associatedNames.map((name) => (
                     <>
-                      <span className="assets-manage-button">{name}</span>&nbsp;
+                      <span
+                        className="assets-manage-button"
+                        key={`${contractId}-name`}
+                      >
+                        {name}
+                      </span>
+                      &nbsp;
                     </>
                   ))
                 : 'N/A',
@@ -132,7 +135,10 @@ function ManageAntModal({
             details={[
               'Nickname:',
               state?.name ? state.name : 'N/A',
-              <button className="button">
+              <button
+                className="button"
+                key={`${contractId}-nickname-edit-button`}
+              >
                 <PencilIcon width={20} height={20} fill="var(--text-white)" />
               </button>,
             ]}
@@ -143,7 +149,10 @@ function ManageAntModal({
             details={[
               'Ticker:',
               state?.ticker ? state.ticker : 'N/A',
-              <button className="button">
+              <button
+                className="button"
+                key={`${contractId}-ticker-edit-button`}
+              >
                 <PencilIcon width={20} height={20} fill="var(--text-white)" />
               </button>,
             ]}
@@ -154,7 +163,10 @@ function ManageAntModal({
             details={[
               'Target ID:',
               targetId ? targetId : 'N/A',
-              <button className="button">
+              <button
+                className="button"
+                key={`${contractId}-targetId-edit-button`}
+              >
                 <PencilIcon width={20} height={20} fill="var(--text-white)" />
               </button>,
             ]}
@@ -167,7 +179,7 @@ function ManageAntModal({
               state?.records['@'].ttlSeconds
                 ? state.records['@'].ttlSeconds
                 : 'N/A',
-              <button className="button">
+              <button className="button" key={`${contractId}-ttl-edit-button`}>
                 <PencilIcon width={20} height={20} fill="var(--text-white)" />
               </button>,
             ]}
@@ -178,7 +190,10 @@ function ManageAntModal({
             details={[
               'Controller:',
               state?.controllers ? state.controllers : 'N/A',
-              <button className="button">
+              <button
+                className="button"
+                key={`${contractId}-controller-edit-button`}
+              >
                 <PencilIcon width={20} height={20} fill="var(--text-white)" />
               </button>,
             ]}
@@ -191,7 +206,7 @@ function ManageAntModal({
               state?.records
                 ? `${Object.keys(state.records).length - 1} / 100`
                 : 'N/A',
-              <button className="button">
+              <button className="button" key={`${contractId}-records-button`}>
                 <PencilIcon width={20} height={20} fill="var(--text-white)" />
               </button>,
             ]}
@@ -202,7 +217,12 @@ function ManageAntModal({
             details={[
               'Owner:',
               state?.owner ? state.owner : 'N/A',
-              <button className="assets-manage-button">Transfer</button>,
+              <button
+                className="assets-manage-button"
+                key={`${contractId}-transfer-button`}
+              >
+                Transfer
+              </button>,
             ]}
             bgColor={'#1E1E1E'}
             textColor={'var(--text-white)'}

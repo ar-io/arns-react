@@ -65,6 +65,9 @@ function AntRow({
     const confirmations = await arweaveDataProvider.getTransactionStatus(id);
     setConfirmations(confirmations);
   }
+  function setShowModal(show: boolean) {
+    setShowManageModal(show);
+  }
 
   return (
     <>
@@ -78,7 +81,13 @@ function AntRow({
               }
             : {}
         }
-        onClick={isMobile ? () => setShowManageModal(true) : () => {}}
+        onClick={
+          isMobile
+            ? () => setShowManageModal(true)
+            : () => {
+                return;
+              }
+        }
       >
         <>
           <td
@@ -164,7 +173,7 @@ function AntRow({
               <ManageAssetButtons
                 asset={antId}
                 assetType={ASSET_TYPES.ANT}
-                setShowModal={setShowManageModal}
+                setShowModal={setShowModal}
               />
             </td>
           )}
@@ -172,7 +181,7 @@ function AntRow({
       </tr>
       {showManageModal ? (
         <ManageAntModal
-          setShowModal={setShowManageModal}
+          setShowModal={setShowModal}
           state={antState}
           contractId={antId}
           targetId={targetId}
