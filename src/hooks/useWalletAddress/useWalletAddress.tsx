@@ -23,7 +23,7 @@ export default function useWalletAddress(): {
             // all good, update state
             dispatchGlobalState({
               type: 'setWalletAddress',
-              payload: address,
+              payload: new ArweaveTransactionID(address),
             });
           })
           .catch((error: Error) => {

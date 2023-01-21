@@ -126,7 +126,7 @@ export type SearchBarFooterProps = {
   isSearchValid?: boolean;
   isAvailable?: boolean;
   searchTerm?: string;
-  searchResult?: string;
+  searchResult?: ArweaveTransactionID;
 };
 
 export type ConnectWalletModalProps = {

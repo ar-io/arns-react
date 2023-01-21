@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { stubTransactionID } from '../../../../types/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { NAME_PRICE_INFO } from '../../../utils/constants';
@@ -88,7 +89,7 @@ function ConfirmRegistration() {
           <>
             <AntCard
               domain={domain ?? ''}
-              id={antID ?? ''}
+              id={antID ? antID : stubTransactionID}
               compact={false}
               enableActions={false}
               overrides={{
