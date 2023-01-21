@@ -1,11 +1,11 @@
-import { ArweaveTransactionId } from '../../types';
+import { ArweaveTransactionID } from '../../../types/ArweaveTransactionID';
 
-export const buildContractTxQuery = (id: ArweaveTransactionId) => {
+export const buildContractTxQuery = (id: ArweaveTransactionID) => {
   const queryObject = {
     query: `{
     transactions(first: 100, sort: HEIGHT_DESC,
       tags: [],
-    ids:["${id}"]) {
+    ids:["${id.toString()}"]) {
       edges {
         node {
           id

@@ -1,3 +1,4 @@
+import { ArweaveTransactionID } from '../../../../../types/ArweaveTransactionID';
 import { useIsMobile } from '../../../../hooks';
 import {
   BookmarkIcon,
@@ -12,7 +13,7 @@ function AntTable({
   antIds,
   refresh,
 }: {
-  antIds: string[];
+  antIds: ArweaveTransactionID[];
   refresh: () => void;
 }) {
   const isMobile = useIsMobile();

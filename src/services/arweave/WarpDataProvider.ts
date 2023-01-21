@@ -1,11 +1,8 @@
 import Arweave from 'arweave/node/common';
 import { Warp, WarpFactory, defaultCacheOptions } from 'warp-contracts';
 
-import {
-  ArNSContractState,
-  ArweaveTransactionId,
-  SmartweaveDataProvider,
-} from '../../types';
+import { ArweaveTransactionID } from '../../../types/ArweaveTransactionID';
+import { ArNSContractState, SmartweaveDataProvider } from '../../types';
 
 export class WarpDataProvider implements SmartweaveDataProvider {
   private _warp: Warp;
@@ -22,9 +19,9 @@ export class WarpDataProvider implements SmartweaveDataProvider {
   }
 
   async getContractState(
-    id: ArweaveTransactionId,
+    id: ArweaveTransactionID,
   ): Promise<ArNSContractState | undefined> {
-    const contract = this._warp.contract(id);
+    const contract = this._warp.contract(id.toString());
     const { cachedValue } = await contract.readState();
 
     if (!cachedValue.state) {
@@ -46,17 +43,17 @@ export class WarpDataProvider implements SmartweaveDataProvider {
   }
 
   async writeTransaction(
-    id: ArweaveTransactionId,
+    id: ArweaveTransactionID,
     payload: {
       [x: string]: any;
-      contractTransactionId: ArweaveTransactionId;
+      contractTransactionId: ArweaveTransactionID;
     },
-  ): Promise<ArweaveTransactionId | undefined> {
+  ): Promise<ArweaveTransactionID | undefined> {
     try {
       if (!payload) {
         throw Error('Payload cannot be empty.');
       }
-      const contract = this._warp.contract(id).connect('use_wallet');
+      const contract = this._warp.contract(id.toString()).connect('use_wallet');
       const result = await contract.writeInteraction(payload);
       // todo: check for dry write options on writeInteraction
       if (!result) {
@@ -68,7 +65,7 @@ export class WarpDataProvider implements SmartweaveDataProvider {
         throw Error('No transaction ID from write interaction');
       }
 
-      return originalTxId;
+      return new ArweaveTransactionID(originalTxId);
     } catch (error) {
       console.error('Failed to write TX to warp', error);
       throw error;
@@ -76,10 +73,10 @@ export class WarpDataProvider implements SmartweaveDataProvider {
   }
 
   async getContractBalanceForWallet(
-    id: ArweaveTransactionId,
-    wallet: ArweaveTransactionId,
+    id: ArweaveTransactionID,
+    wallet: ArweaveTransactionID,
   ) {
     const state = await this.getContractState(id);
-    return state?.balances[wallet] ?? 0;
+    return state?.balances[wallet.toString()] ?? 0;
   }
 }

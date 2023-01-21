@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { ArweaveTransactionID } from '../../../../types/ArweaveTransactionID';
 import { useWalletAddress } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { TABLE_TYPES } from '../../../types';
@@ -15,7 +16,7 @@ function Manage() {
   const [tableType, setTableType] = useState(TABLE_TYPES.ANT); // ant_table or name_table
 
   const [isLoading, setIsLoading] = useState(false);
-  const [walletANTs, setWalletANTs] = useState<string[]>([]);
+  const [walletANTs, setWalletANTs] = useState<ArweaveTransactionID[]>([]);
   const [cursor] = useState<string | undefined>();
   const [reload, setReload] = useState(false);
 
@@ -30,7 +31,7 @@ function Manage() {
           walletAddress,
           cursor,
         )
-        .then(({ ids }: { ids: string[]; cursor?: string }) => {
+        .then(({ ids }: { ids: ArweaveTransactionID[]; cursor?: string }) => {
           setWalletANTs(ids);
           // don't set cursor for now
         })

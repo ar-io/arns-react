@@ -1,3 +1,5 @@
+import { ArweaveTransactionID } from '../../types/ArweaveTransactionID';
+
 // note: lookahead/lookbehind regex's are not compatible with iOS browsers
 export const ARNS_NAME_REGEX = new RegExp(
   '^([a-zA-Z0-9][a-zA-Z0-9-]{0,30}[a-zA-Z0-9]|[a-zA-Z0-9]{1})$',
@@ -54,8 +56,8 @@ export const NAME_PRICE_INFO =
 export const MAX_LEASE_DURATION = 200;
 export const MIN_LEASE_DURATION = 1;
 export const approvedContractsForWalletQuery = (
-  address: string,
-  approvedSourceCodeTransactions: string[],
+  address: ArweaveTransactionID,
+  approvedSourceCodeTransactions: ArweaveTransactionID[],
   cursor?: string,
 ) => {
   const queryObject = {
