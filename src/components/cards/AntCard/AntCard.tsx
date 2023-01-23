@@ -1,8 +1,11 @@
 import { startCase } from 'lodash';
 import { useEffect, useState } from 'react';
 
+import { useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ArNSMapping } from '../../../types';
+import { isArweaveTransactionID } from '../../../utils/searchUtils';
+import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
 import { Loader } from '../../layout';
 import './styles.css';
 
@@ -11,6 +14,7 @@ const ANT_DETAIL_MAPPINGS: { [x: string]: string } = {
   id: 'ANT Contract ID',
   leaseDuration: 'Lease Duration',
   ttlSeconds: 'TTL Seconds',
+  controller: 'Controllers',
 };
 
 function mapKeyToAttribute(key: string) {
@@ -35,6 +39,7 @@ const DEFAULT_ATTRIBUTES = {
 };
 
 function AntCard(props: ArNSMapping) {
+  const isMobile = useIsMobile();
   const [{ arweaveDataProvider }] = useGlobalState();
   const { id, domain, compact, overrides, hover, enableActions } = props;
   const [antDetails, setAntDetails] = useState<{ [x: string]: string }>();
@@ -100,7 +105,25 @@ function AntCard(props: ArNSMapping) {
             if (!PRIMARY_DETAILS.includes(key) && limitDetails) {
               return;
             }
-            return (
+            return isArweaveTransactionID(value) ? (
+              <span className="detail flex" key={key}>
+                {key}:&nbsp;
+                <CopyTextButton
+                  displayText={
+                    isMobile
+                      ? `${value.slice(0, 2)}...${value.slice(-2)}`
+                      : value
+                  }
+                  copyText={value}
+                  size={24}
+                  wrapperStyle={{
+                    fontFamily: 'Rubik-Bold',
+                    padding: '0px',
+                  }}
+                  position={'relative'}
+                />
+              </span>
+            ) : (
               <span className="detail" key={key}>
                 {key}:&nbsp;<b>{value}</b>
               </span>
@@ -108,7 +131,7 @@ function AntCard(props: ArNSMapping) {
           })}
           {limitDetails ? (
             <span className="detail">
-              <button className="link left" onClick={showMore}>
+              <button className="link" onClick={showMore}>
                 more details
               </button>
             </span>
@@ -117,10 +140,10 @@ function AntCard(props: ArNSMapping) {
           )}
           {enableActions ? (
             <div className="footer">
-              <button className="button-large" onClick={handleClick}>
+              <button className="outline-button" onClick={handleClick}>
                 Upgrade Tier
               </button>
-              <button className="button-large" onClick={handleClick}>
+              <button className="outline-button" onClick={handleClick}>
                 Extend Lease
               </button>
             </div>
