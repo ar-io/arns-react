@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { ArweaveTransactionID } from '../../../../types/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
-import { ArweaveTransactionId } from '../../../types';
-import { isArweaveTransactionID } from '../../../utils/searchUtils';
 import Dropdown from '../../inputs/Dropdown/Dropdown';
 import Loader from '../Loader/Loader';
 import UpgradeTier from '../UpgradeTier/UpgradeTier';
@@ -17,7 +16,7 @@ function RegisterNameForm() {
   const [isValidAnt, setIsValidAnt] = useState<boolean | undefined>(undefined);
   const [isValidating, setIsValidating] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
-  const [antTxID, setAntTXId] = useState(antID);
+  const [antTxID, setAntTXId] = useState(antID?.toString());
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -26,7 +25,7 @@ function RegisterNameForm() {
     }
     if (inputRef.current) {
       inputRef.current.focus();
-      handleAntId(antID);
+      handleAntId(antID?.toString());
     }
   }, []);
 
@@ -34,6 +33,7 @@ function RegisterNameForm() {
     setIsValidAnt(undefined);
     setIsValidating(false);
     setValidationErrors([]);
+    setAntTXId('');
     dispatchRegisterState({
       type: 'setAntID',
       payload: undefined,
@@ -44,35 +44,39 @@ function RegisterNameForm() {
     });
   }
 
-  async function handleAntId(id?: ArweaveTransactionId) {
+  async function handleAntId(id?: string) {
     setIsValidating(true);
-    setAntTXId(id);
     setValidationErrors([]);
     if (!id || !id.length) {
       reset();
       return;
     }
+    if (id && id?.length < 44) {
+      setAntTXId(id);
+    }
 
     try {
+      dispatchRegisterState({
+        type: 'setAntID',
+        payload: new ArweaveTransactionID(id),
+      });
       await arweaveDataProvider.validateTransactionTags({
-        id,
+        id: new ArweaveTransactionID(id),
         requiredTags: {
           'Contract-Src': arnsSourceContract.approvedANTSourceCodeTxs,
         },
       });
-      const state = await arweaveDataProvider.getContractState(id);
+      const state = await arweaveDataProvider.getContractState(
+        new ArweaveTransactionID(id),
+      );
       if (state == undefined) {
         throw Error('ANT contract state is undefined');
       }
 
       const { controller, name, owner, ticker, records } = state;
       dispatchRegisterState({
-        type: 'setAntID',
-        payload: id,
-      });
-      dispatchRegisterState({
         type: 'setControllers',
-        payload: [controller],
+        payload: [new ArweaveTransactionID(controller)],
       });
       dispatchRegisterState({
         type: 'setNickname',
@@ -91,13 +95,13 @@ function RegisterNameForm() {
         if (records['@'].transactionId) {
           dispatchRegisterState({
             type: 'setTargetID',
-            payload: records['@'].transactionId,
+            payload: new ArweaveTransactionID(records['@'].transactionId),
           });
         }
-        if (!records['@'].transactionId && isArweaveTransactionID(records['@']))
+        if (!records['@'].transactionId)
           dispatchRegisterState({
             type: 'setTargetID',
-            payload: records['@'],
+            payload: new ArweaveTransactionID(records['@']),
           });
       }
 
@@ -109,6 +113,7 @@ function RegisterNameForm() {
       });
       setIsValidAnt(false);
       setValidationErrors([error.message]);
+      console.error(error);
     } finally {
       setIsValidating(false);
     }

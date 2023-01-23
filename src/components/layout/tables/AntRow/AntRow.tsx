@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 
+import { ArweaveTransactionID } from '../../../../../types/ArweaveTransactionID';
 import { useIsMobile } from '../../../../hooks';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
-import { ASSET_TYPES, ArweaveTransactionId } from '../../../../types';
+import { ASSET_TYPES } from '../../../../types';
 import CopyTextButton from '../../../inputs/buttons/CopyTextButton/CopyTextButton';
 import ManageAssetButtons from '../../../inputs/buttons/ManageAssetButtons/ManageAssetButtons';
 import ManageAntModal from '../../../modals/ManageAntModal/ManageAntModal';
@@ -14,7 +15,7 @@ function AntRow({
   bgColor,
   textColor,
 }: {
-  antId: ArweaveTransactionId;
+  antId: ArweaveTransactionID;
   bgColor: string;
   textColor: string;
 }) {
@@ -48,7 +49,7 @@ function AntRow({
     return () => clearInterval(confirmationsInterval);
   }, []);
 
-  async function loadAntState(id: string) {
+  async function loadAntState(id: ArweaveTransactionID) {
     const state = await arweaveDataProvider.getContractState(id);
     setAntState(state);
     if (state.records['@'].transactionId) {
@@ -61,7 +62,7 @@ function AntRow({
     return;
   }
 
-  async function loadAntConfirmations(id: string) {
+  async function loadAntConfirmations(id: ArweaveTransactionID) {
     const confirmations = await arweaveDataProvider.getTransactionStatus(id);
     setConfirmations(confirmations);
   }
@@ -110,8 +111,10 @@ function AntRow({
           >
             {isMobile ? (
               <CopyTextButton
-                displayText={`${antId.slice(0, 2)}...${antId.slice(-2)}`}
-                copyText={antId}
+                displayText={`${antId.toString().slice(0, 2)}...${antId
+                  .toString()
+                  .slice(-2)}`}
+                copyText={antId.toString()}
                 size={24}
                 wrapperStyle={{
                   justifyContent: 'center',
@@ -121,8 +124,10 @@ function AntRow({
               />
             ) : (
               <CopyTextButton
-                displayText={`${antId.slice(0, 6)}...${antId.slice(-6)}`}
-                copyText={antId}
+                displayText={`${antId.toString().slice(0, 6)}...${antId
+                  .toString()
+                  .slice(-6)}`}
+                copyText={antId.toString()}
                 size={24}
                 wrapperStyle={{
                   justifyContent: 'center',

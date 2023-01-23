@@ -2,11 +2,9 @@
 import Arweave from 'arweave/node';
 import Ar from 'arweave/node/ar';
 
-import { ArweaveDataProvider, ArweaveTransactionId } from '../../types';
-import {
-  ARNS_TX_ID_REGEX,
-  approvedContractsForWalletQuery,
-} from '../../utils/constants';
+import { ArweaveTransactionID } from '../../../types/ArweaveTransactionID';
+import { ArweaveDataProvider } from '../../types';
+import { approvedContractsForWalletQuery } from '../../utils/constants';
 import { tagsToObject } from '../../utils/searchUtils';
 
 export class SimpleArweaveDataProvider implements ArweaveDataProvider {
@@ -17,12 +15,14 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
     this._arweave = arweave;
   }
 
-  async getWalletBalance(id: string): Promise<number> {
-    const winstonBalance = await this._arweave.wallets.getBalance(id);
+  async getWalletBalance(id: ArweaveTransactionID): Promise<number> {
+    const winstonBalance = await this._arweave.wallets.getBalance(
+      id.toString(),
+    );
     return +this._ar.winstonToAr(winstonBalance);
   }
 
-  async getTransactionStatus(id: ArweaveTransactionId) {
+  async getTransactionStatus(id: ArweaveTransactionID) {
     try {
       const confirmations = await this._arweave.api
         .get(`/tx/${id}/status`)
@@ -36,21 +36,31 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
     }
   }
 
-  async getTransactionTags(id: string): Promise<{ [x: string]: string }> {
-    const { data: tags } = await this._arweave.api.get(`/tx/${id}/tags`);
+  async getTransactionTags(
+    id: ArweaveTransactionID,
+  ): Promise<{ [x: string]: string }> {
+    const { data: tags } = await this._arweave.api.get(
+      `/tx/${id.toString()}/tags`,
+    );
     const decodedTags = tagsToObject(tags);
     return decodedTags;
   }
 
   async getContractsForWallet(
-    approvedSourceCodeTransactions: ArweaveTransactionId[],
-    address: ArweaveTransactionId,
-    cursor = undefined,
-  ): Promise<{ ids: string[]; cursor?: string }> {
-    const fetchedANTids: Set<string> = new Set();
+    approvedSourceCodeTransactions: ArweaveTransactionID[],
+    address: ArweaveTransactionID,
+    cursor: string | undefined,
+  ): Promise<{
+    ids: ArweaveTransactionID[];
+    isLastPage: boolean;
+    cursor?: string;
+  }> {
+    const fetchedANTids: Set<ArweaveTransactionID> = new Set();
     let newCursor: string | undefined = undefined;
+    let isLastPage = false;
 
     // get contracts deployed by user, filtering with src-codes to only get ANT contracts
+
     const deployedResponse = await this._arweave.api.post(
       '/graphql',
       approvedContractsForWalletQuery(
@@ -62,24 +72,35 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
     if (deployedResponse.data.data?.transactions?.edges?.length) {
       deployedResponse.data.data.transactions.edges
         .map((e: any) => ({
-          id: e.node.id,
+          id: new ArweaveTransactionID(e.node.id),
           cursor: e.cursor,
+          isLastPage: !e.pageInfo?.hasNextPage,
         }))
-        .forEach((ant: { id: string; cursor: string }) => {
-          fetchedANTids.add(ant.id);
-          if (ant.cursor) {
-            newCursor = ant.cursor;
-          }
-        });
+        .forEach(
+          (ant: {
+            id: ArweaveTransactionID;
+            cursor: string;
+            isLastPage: boolean;
+          }) => {
+            fetchedANTids.add(ant.id);
+            if (ant.cursor) {
+              newCursor = ant.cursor;
+            }
+            if (ant.isLastPage) {
+              isLastPage = ant.isLastPage;
+            }
+          },
+        );
     }
     return {
       ids: [...fetchedANTids],
       cursor: newCursor,
+      isLastPage: isLastPage,
     };
   }
 
-  async getTransactionHeaders(id: ArweaveTransactionId): Promise<any> {
-    return this._arweave.api.get(`/tx/${id}`);
+  async getTransactionHeaders(id: ArweaveTransactionID): Promise<any> {
+    return this._arweave.api.get(`/tx/${id.toString()}`);
   }
 
   async validateTransactionTags({
@@ -87,14 +108,10 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
     numberOfConfirmations = 50,
     requiredTags = {},
   }: {
-    id: string;
+    id: ArweaveTransactionID;
     numberOfConfirmations?: number;
     requiredTags?: { [x: string]: string[] };
   }): Promise<void> {
-    if (!ARNS_TX_ID_REGEX.test(id)) {
-      throw Error('Contract ID Not a valid Arweave transaction ID');
-    }
-
     // validate tx exists, their may be better ways to do this
     const { status } = await this.getTransactionHeaders(id);
     if (status !== 200) {

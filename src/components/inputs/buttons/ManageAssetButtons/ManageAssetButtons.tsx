@@ -1,5 +1,8 @@
+import { useState } from 'react';
+
+import { ArweaveTransactionID } from '../../../../../types/ArweaveTransactionID';
 import { useIsMobile } from '../../../../hooks';
-import { ASSET_TYPES, ArweaveTransactionId } from '../../../../types';
+import { ASSET_TYPES } from '../../../../types';
 
 function ManageAssetButtons({
   // eslint-disable-next-line
@@ -8,7 +11,7 @@ function ManageAssetButtons({
   assetType,
   setShowModal,
 }: {
-  asset: ArweaveTransactionId | string;
+  asset: ArweaveTransactionID | string;
   assetType: ASSET_TYPES;
   setShowModal: (show: boolean) => void;
 }) {

@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { ArweaveTransactionID } from '../../../../types/ArweaveTransactionID';
 import { useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { ANTContractState, ArweaveTransactionId } from '../../../types';
+import { ANTContractState } from '../../../types';
 import { NotebookIcon, PencilIcon } from '../../icons';
 import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
 import TransactionStatus from '../../layout/TransactionStatus/TransactionStatus';
@@ -15,7 +16,7 @@ function ManageAntModal({
   confirmations,
   targetId,
 }: {
-  contractId: ArweaveTransactionId;
+  contractId: ArweaveTransactionID;
   setShowModal: (show: boolean) => void;
   state: ANTContractState;
   confirmations: number;
@@ -71,10 +72,10 @@ function ManageAntModal({
             <span>
               {isMobile ? (
                 <CopyTextButton
-                  displayText={`${contractId.slice(0, 10)}...${contractId.slice(
-                    -10,
-                  )}`}
-                  copyText={contractId}
+                  displayText={`${contractId
+                    .toString()
+                    .slice(0, 10)}...${contractId.toString().slice(-10)}`}
+                  copyText={contractId.toString()}
                   size={24}
                   wrapperStyle={{
                     display: 'flex',
@@ -85,8 +86,8 @@ function ManageAntModal({
                 />
               ) : (
                 <CopyTextButton
-                  displayText={contractId}
-                  copyText={contractId}
+                  displayText={contractId.toString()}
+                  copyText={contractId.toString()}
                   size={24}
                   wrapperStyle={{
                     display: 'flex',
@@ -113,7 +114,7 @@ function ManageAntModal({
           />
           <RowItem
             details={[
-              `Associated Names: ${associatedNames.length}`,
+              `Associated Names ${associatedNames.length}:`,
               associatedNames
                 ? associatedNames.map((name) => (
                     <>

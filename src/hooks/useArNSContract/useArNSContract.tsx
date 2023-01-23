@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { ArweaveTransactionID } from '../../../types/ArweaveTransactionID';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 
 export default function useArNSContract() {
@@ -10,7 +11,9 @@ export default function useArNSContract() {
     dispatchNewContractState(arnsContractId);
   }, [arnsContractId, arweaveDataProvider]);
 
-  async function dispatchNewContractState(contractId: string): Promise<void> {
+  async function dispatchNewContractState(
+    contractId: ArweaveTransactionID,
+  ): Promise<void> {
     try {
       if (sendingContractState) {
         return;

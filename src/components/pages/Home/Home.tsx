@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { ArweaveTransactionID } from '../../../../types/ArweaveTransactionID';
 import { useWalletAddress } from '../../../hooks/index';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
@@ -101,7 +102,9 @@ function Home() {
                   });
                   dispatchRegisterState({
                     type: 'setAntID',
-                    payload: result,
+                    payload: result
+                      ? new ArweaveTransactionID(result)
+                      : undefined,
                   });
                 }}
                 successPredicate={(value: string | undefined) =>
@@ -137,7 +140,9 @@ function Home() {
             showNext: true,
             showBack: true,
             disableNext:
-              !antID || !ARNS_TX_ID_REGEX.test(antID) || !walletAddress,
+              !antID ||
+              !ARNS_TX_ID_REGEX.test(antID.toString()) ||
+              !walletAddress,
             requiresWallet: true,
           },
           2: {

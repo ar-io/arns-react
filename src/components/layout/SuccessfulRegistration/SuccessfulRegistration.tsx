@@ -23,10 +23,10 @@ function SuccessfulRegistration() {
                 wordBreak: 'break-word',
               }}
               target="_blank"
-              href={`https://sonar.warp.cc/#/app/interaction/${resolvedTxID}`}
+              href={`https://sonar.warp.cc/#/app/interaction/${resolvedTxID?.toString()}`}
               rel="noreferrer"
             >
-              <b className="center">{resolvedTxID}</b>
+              <b className="center">{resolvedTxID?.toString()}</b>
             </a>
           </span>
           <span className="flex text faded center">

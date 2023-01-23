@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { ArweaveTransactionID } from '../../../../types/ArweaveTransactionID';
 import { useIsMobile, useWalletAddress } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { ArweaveTransactionId } from '../../../types';
 import { ROUTES } from '../../../utils/routes';
 import { LogoutIcon, MenuIcon } from '../../icons';
 import ConnectButton from '../../inputs/buttons/ConnectButton/ConnectButton';
@@ -52,7 +52,7 @@ function NavMenuCard() {
     });
   }
 
-  async function fetchWalletDetails(walletAddress: ArweaveTransactionId) {
+  async function fetchWalletDetails(walletAddress: ArweaveTransactionID) {
     const ioBalance = await arweaveDataProvider.getContractBalanceForWallet(
       arnsContractId,
       walletAddress,
@@ -147,11 +147,12 @@ function NavMenuCard() {
           ) : (
             <>
               <CopyTextButton
-                displayText={`${walletAddress.slice(
-                  0,
-                  isMobile ? 2 : 4,
-                )}...${walletAddress.slice(isMobile ? -2 : -4)}`}
-                copyText={walletAddress}
+                displayText={`${walletAddress
+                  .toString()
+                  .slice(0, isMobile ? 2 : 4)}...${walletAddress
+                  .toString()
+                  .slice(isMobile ? -2 : -4)}`}
+                copyText={walletAddress.toString()}
                 size={24}
                 wrapperStyle={{
                   fontWeight: 600,

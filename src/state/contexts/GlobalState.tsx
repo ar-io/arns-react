@@ -1,6 +1,7 @@
 import Arweave from 'arweave';
 import React, { Dispatch, createContext, useContext, useReducer } from 'react';
 
+import { ArweaveTransactionID } from '../../../types/ArweaveTransactionID';
 import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
 import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
 import { WarpDataProvider } from '../../services/arweave/WarpDataProvider';
@@ -21,9 +22,9 @@ export type GlobalState = {
   arweaveDataProvider: ArweaveDataProvider & SmartweaveDataProvider;
   arnsSourceContract: ArNSContractState;
   gateway: string;
-  walletAddress?: string;
+  walletAddress?: ArweaveTransactionID;
   wallet?: ArweaveWalletConnector;
-  arnsContractId: string;
+  arnsContractId: ArweaveTransactionID;
   showConnectWallet: boolean;
   errors: Array<Error>;
   notifications: { id: string; text: string }[];
@@ -34,7 +35,9 @@ const initialState: GlobalState = {
     new WarpDataProvider(defaultArweave),
     new SimpleArweaveDataProvider(defaultArweave),
   ),
-  arnsContractId: 'bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U',
+  arnsContractId: new ArweaveTransactionID(
+    'bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U',
+  ),
   arnsSourceContract: {
     records: {},
     fees: {},
@@ -42,7 +45,7 @@ const initialState: GlobalState = {
     controllers: [],
     evolve: undefined,
     name: '',
-    owner: '',
+    owner: undefined,
     ticker: '',
     approvedANTSourceCodeTxs: [],
   },

@@ -1,6 +1,7 @@
 import { JWKInterface } from 'arweave/node/lib/wallet';
 import { isString } from 'lodash';
 
+import { ArweaveTransactionID } from '../../../types/ArweaveTransactionID';
 import { ArweaveWalletConnector } from '../../types';
 
 // A lot to do here, r.e. security, we will likely move to a different approach.
@@ -51,7 +52,7 @@ export class JsonWalletConnector implements ArweaveWalletConnector {
     this._walletFile = undefined;
   }
 
-  async getWalletAddress(): Promise<string> {
+  async getWalletAddress(): Promise<ArweaveTransactionID> {
     throw Error('Not implemented!');
   }
 }

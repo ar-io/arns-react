@@ -1,17 +1,14 @@
 import axios from 'axios';
 
-import {
-  ArNSContractState,
-  ArweaveTransactionId,
-  SmartweaveDataProvider,
-} from '../../types';
+import { ArweaveTransactionID } from '../../../types/ArweaveTransactionID';
+import { ArNSContractState, SmartweaveDataProvider } from '../../types';
 
 export class LocalFileSystemDataProvider implements SmartweaveDataProvider {
   async getContractState(
-    id: ArweaveTransactionId,
+    id: ArweaveTransactionID,
   ): Promise<ArNSContractState | undefined> {
     try {
-      const localFile = `data/contracts/${id}.json`;
+      const localFile = `data/contracts/${id.toString()}.json`;
       const { data } = await axios.get(localFile);
       const arnsContractState = data as ArNSContractState;
       return arnsContractState;
@@ -22,18 +19,18 @@ export class LocalFileSystemDataProvider implements SmartweaveDataProvider {
   }
   async writeTransaction(
     payload: any,
-  ): Promise<ArweaveTransactionId | undefined> {
+  ): Promise<ArweaveTransactionID | undefined> {
     const stub = JSON.stringify(payload);
-    return stub;
+    return new ArweaveTransactionID(stub);
   }
   async getContractBalanceForWallet(
-    id: ArweaveTransactionId,
-    wallet: ArweaveTransactionId,
+    id: ArweaveTransactionID,
+    wallet: ArweaveTransactionID,
   ) {
     const state = await this.getContractState(id);
-    return state?.balances[wallet] ?? 0;
+    return state?.balances[wallet.toString()] ?? 0;
   }
-  async getContractConfirmations(id: ArweaveTransactionId) {
+  async getContractConfirmations(id: ArweaveTransactionID) {
     const exists = this.getContractState(id);
     if (!exists) {
       return 0;

@@ -1,33 +1,35 @@
 import type { Dispatch, SetStateAction } from 'react';
 
+import { ArweaveTransactionID } from '../types/ArweaveTransactionID';
+
 export type ArNSDomains = { [x: string]: any };
 
 export type ArNSContractState = {
   records: ArNSDomains;
   fees: { [x: number]: number };
-  balances: { [x: ArweaveTransactionId]: number };
-  controllers: ArweaveTransactionId[];
+  balances: { [x: string]: number };
+  controllers: ArweaveTransactionID[];
   evolve: boolean | undefined;
   name: string;
-  owner: ArweaveTransactionId;
+  owner?: ArweaveTransactionID;
   ticker: string;
-  approvedANTSourceCodeTxs: ArweaveTransactionId[];
+  approvedANTSourceCodeTxs: ArweaveTransactionID[];
 };
 
 export type ANTContractDomainRecord = {
   ttlSeconds: number;
   maxSubdomains: number;
-  transactionId: ArweaveTransactionId;
+  transactionId: ArweaveTransactionID;
 };
 
 export type ANTContractRecordMapping = ANTContractDomainRecord;
 
 export type ANTContractState = {
-  balances: { [x: ArweaveTransactionId]: number };
+  balances: { [x: string]: number };
   evolve: boolean | undefined;
   name: string;
-  owner: ArweaveTransactionId;
-  controllers: ArweaveTransactionId[];
+  owner: ArweaveTransactionID;
+  controllers: ArweaveTransactionID[];
   records: {
     '@': ANTContractRecordMapping;
     [x: string]: ANTContractRecordMapping;
@@ -37,7 +39,7 @@ export type ANTContractState = {
 
 export type ArNSMapping = {
   domain: string;
-  id: ArweaveTransactionId;
+  id: ArweaveTransactionID;
   overrides?: any; // TODO;
   compact?: boolean;
   enableActions?: boolean;
@@ -51,53 +53,50 @@ export type ArNSMetaData = {
 
 export type ArNSDomain = ArNSMapping & ArNSMetaData;
 
-// TODO: match this to a regex
-export type ArweaveTransactionId = string;
-
 export type JsonWalletProvider = {
   key: any;
 };
 
 export interface SmartweaveDataProvider {
-  getContractState(id: ArweaveTransactionId): Promise<any>;
+  getContractState(id: ArweaveTransactionID): Promise<any>;
   writeTransaction(
-    id: ArweaveTransactionId,
+    id: ArweaveTransactionID,
     payload: {
       [x: string]: any;
-      contractTransactionId: ArweaveTransactionId;
+      contractTransactionId: ArweaveTransactionID;
     },
     dryWrite?: boolean,
-  ): Promise<ArweaveTransactionId | undefined>;
+  ): Promise<ArweaveTransactionID | undefined>;
   getContractBalanceForWallet(
-    id: ArweaveTransactionId,
-    wallet: ArweaveTransactionId,
+    id: ArweaveTransactionID,
+    wallet: ArweaveTransactionID,
   ): Promise<number>;
 }
 
 export interface ArweaveWalletConnector {
   connect(): Promise<void>;
   disconnect(): Promise<void>;
-  getWalletAddress(): Promise<string>;
+  getWalletAddress(): Promise<ArweaveTransactionID>;
 }
 
 export interface ArweaveDataProvider {
-  getTransactionStatus(id: ArweaveTransactionId): Promise<number>;
+  getTransactionStatus(id: ArweaveTransactionID): Promise<number>;
   getTransactionTags(
-    id: ArweaveTransactionId,
+    id: ArweaveTransactionID,
   ): Promise<{ [x: string]: string }>;
   validateTransactionTags(params: {
-    id: ArweaveTransactionId;
+    id: ArweaveTransactionID;
     numberOfConfirmations?: number;
     requiredTags?: {
-      [x: string]: string[]; // allowed values
+      [x: string]: string[] | ArweaveTransactionID[]; // allowed values
     };
   }): Promise<void>;
   getContractsForWallet(
-    approvedSourceCodeTransactions: string[],
-    address: string,
+    approvedSourceCodeTransactions: ArweaveTransactionID[],
+    address: ArweaveTransactionID,
     cursor?: string,
-  ): Promise<{ ids: string[]; cursor?: string }>;
-  getWalletBalance(id: ArweaveTransactionId): Promise<number>;
+  ): Promise<{ ids: ArweaveTransactionID[]; cursor?: string }>;
+  getWalletBalance(id: ArweaveTransactionID): Promise<number>;
 }
 
 export type SearchBarProps = {
@@ -127,7 +126,7 @@ export type SearchBarFooterProps = {
   isSearchValid?: boolean;
   isAvailable?: boolean;
   searchTerm?: string;
-  searchResult?: string;
+  searchResult?: ArweaveTransactionID;
 };
 
 export type ConnectWalletModalProps = {
