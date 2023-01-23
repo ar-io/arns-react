@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 
-import { stubTransactionID } from '../../../../types/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
-import { NAME_PRICE_INFO } from '../../../utils/constants';
+import { NAME_PRICE_INFO, stubTransactionID } from '../../../utils/constants';
 import { AntCard } from '../../cards';
 import Loader from '../Loader/Loader';
 import { Tooltip } from '../Tooltip/Tooltip';

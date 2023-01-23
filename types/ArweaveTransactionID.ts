@@ -34,11 +34,3 @@ export class ArweaveTransactionID implements Equatable<ArweaveTransactionID> {
     return this.toString();
   }
 }
-
-export function TxID(transactionId: string): ArweaveTransactionID {
-  return new ArweaveTransactionID(transactionId);
-}
-
-export const stubTransactionID = TxID(
-  '0000000000000000000000000000000000000000000',
-);
