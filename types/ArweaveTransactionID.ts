@@ -22,15 +22,7 @@ export class ArweaveTransactionID implements Equatable<ArweaveTransactionID> {
     return this.transactionId;
   }
 
-  valueOf(): string {
-    return this.transactionId;
-  }
-
   equals(entityId: ArweaveTransactionID): boolean {
     return this.transactionId === entityId.transactionId;
-  }
-
-  toJSON(): string {
-    return this.toString();
   }
 }
