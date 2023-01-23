@@ -1,14 +1,15 @@
 import { useState } from 'react';
 
+import { ArweaveTransactionID } from '../../../../../types/ArweaveTransactionID';
 import { useIsMobile } from '../../../../hooks';
-import { ASSET_TYPES, ArweaveTransactionId } from '../../../../types';
+import { ASSET_TYPES } from '../../../../types';
 
 function ManageAssetButtons({
   // eslint-disable-next-line
   asset,
   assetType,
 }: {
-  asset: ArweaveTransactionId | string;
+  asset: ArweaveTransactionID | string;
   assetType: ASSET_TYPES;
 }) {
   const [showModal, setShowModal] = useState(false);

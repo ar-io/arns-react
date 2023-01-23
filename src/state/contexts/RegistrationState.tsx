@@ -1,20 +1,20 @@
 import { Dispatch, createContext, useContext, useReducer } from 'react';
 
-import { ArweaveTransactionId } from '../../types';
+import { ArweaveTransactionID } from '../../../types/ArweaveTransactionID';
 import { RegistrationAction } from '../reducers/RegistrationReducer';
 
 export type RegistrationState = {
-  resolvedTxID?: string;
+  resolvedTxID?: ArweaveTransactionID;
   domain?: string;
   leaseDuration: number;
   tier: number;
   nickname?: string;
   ticker?: string;
-  controllers: Array<ArweaveTransactionId>;
+  controllers: Array<ArweaveTransactionID>;
   ttl: number;
-  antID?: ArweaveTransactionId;
-  targetID?: ArweaveTransactionId;
-  owner?: ArweaveTransactionId;
+  antID?: ArweaveTransactionID;
+  targetID?: ArweaveTransactionID;
+  owner?: ArweaveTransactionID;
   fee: { ar: number; io: number };
   isRegistered: boolean;
   stage: number;

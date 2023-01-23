@@ -1,4 +1,4 @@
-import { ArweaveTransactionId } from '../../types';
+import { ArweaveTransactionID } from '../../../types/ArweaveTransactionID';
 import {
   RegistrationState,
   initialRegistrationState,
@@ -10,12 +10,12 @@ export type RegistrationAction =
   | { type: 'setTier'; payload: number }
   | { type: 'setNickname'; payload: string }
   | { type: 'setTicker'; payload: string }
-  | { type: 'setControllers'; payload: Array<ArweaveTransactionId> }
+  | { type: 'setControllers'; payload: Array<ArweaveTransactionID> }
   | { type: 'setTTL'; payload: number }
-  | { type: 'setAntID'; payload: ArweaveTransactionId | undefined }
-  | { type: 'setTargetID'; payload: ArweaveTransactionId }
-  | { type: 'setOwner'; payload: ArweaveTransactionId }
-  | { type: 'setResolvedTx'; payload: ArweaveTransactionId | undefined }
+  | { type: 'setAntID'; payload: ArweaveTransactionID | undefined }
+  | { type: 'setTargetID'; payload: ArweaveTransactionID }
+  | { type: 'setOwner'; payload: ArweaveTransactionID }
+  | { type: 'setResolvedTx'; payload: ArweaveTransactionID | undefined }
   | { type: 'setFee'; payload: { ar: number; io: number } }
   | { type: 'setIsRegistered'; payload: boolean }
   | { type: 'setStage'; payload: number }

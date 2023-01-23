@@ -1,8 +1,8 @@
+import { ArweaveTransactionID } from '../../../types/ArweaveTransactionID';
 import {
   ANTContractState,
   ArNSContractState,
   ArweaveDataProvider,
-  ArweaveTransactionId,
   SmartweaveDataProvider,
 } from '../../types';
 
@@ -23,38 +23,38 @@ export class ArweaveCompositeDataProvider
     this._arweaveProvider = arweaveProviders;
   }
 
-  async getWalletBalance(id: string): Promise<number> {
+  async getWalletBalance(id: ArweaveTransactionID): Promise<number> {
     return this._arweaveProvider.getWalletBalance(id);
   }
 
   async getContractState(
-    id: string,
+    id: ArweaveTransactionID,
   ): Promise<ArNSContractState | ANTContractState | undefined> {
     return this._warpProvider.getContractState(id);
   }
 
   async writeTransaction(
-    id: ArweaveTransactionId,
+    id: ArweaveTransactionID,
     payload: {
       [x: string]: any;
-      contractTransactionId: ArweaveTransactionId;
+      contractTransactionId: ArweaveTransactionID;
     },
-  ): Promise<ArweaveTransactionId | undefined> {
+  ): Promise<ArweaveTransactionID | undefined> {
     return await this._warpProvider.writeTransaction(id, payload);
   }
 
   async getContractBalanceForWallet(
-    id: string,
-    wallet: ArweaveTransactionId,
+    id: ArweaveTransactionID,
+    wallet: ArweaveTransactionID,
   ): Promise<number> {
     return this._warpProvider.getContractBalanceForWallet(id, wallet);
   }
 
   async getContractsForWallet(
-    approvedSourceCodeTransactions: string[],
-    address: string,
+    approvedSourceCodeTransactions: ArweaveTransactionID[],
+    address: ArweaveTransactionID,
     cursor?: string | undefined,
-  ): Promise<{ ids: string[]; cursor?: string | undefined }> {
+  ): Promise<{ ids: ArweaveTransactionID[]; cursor?: string | undefined }> {
     return this._arweaveProvider.getContractsForWallet(
       approvedSourceCodeTransactions,
       address,
@@ -62,16 +62,18 @@ export class ArweaveCompositeDataProvider
     );
   }
 
-  async getTransactionStatus(id: ArweaveTransactionId) {
+  async getTransactionStatus(id: ArweaveTransactionID) {
     return this._arweaveProvider.getTransactionStatus(id);
   }
 
-  async getTransactionTags(id: string): Promise<{ [x: string]: string }> {
+  async getTransactionTags(
+    id: ArweaveTransactionID,
+  ): Promise<{ [x: string]: string }> {
     return this._arweaveProvider.getTransactionTags(id);
   }
 
   async validateTransactionTags(params: {
-    id: ArweaveTransactionId;
+    id: ArweaveTransactionID;
     numberOfConfirmations?: number;
     requiredTags?: {
       [x: string]: string[]; // allowed values

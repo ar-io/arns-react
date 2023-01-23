@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
 
+import { ArweaveTransactionID } from '../../../types/ArweaveTransactionID';
 import { useGlobalState } from '../../state/contexts/GlobalState';
-import { ArweaveTransactionId } from '../../types';
 
 export default function useWalletAddress(): {
   wallet: any;
-  walletAddress: ArweaveTransactionId | undefined;
+  walletAddress: ArweaveTransactionID | undefined;
 } {
   const [{ wallet, walletAddress }, dispatchGlobalState] = useGlobalState();
 
@@ -17,13 +17,13 @@ export default function useWalletAddress(): {
         wallet
           .getWalletAddress()
           .then((addr) => {
-            if (addr !== address) {
+            if (addr.toString() !== address.toString()) {
               throw Error('Wallets are mismatched!');
             }
             // all good, update state
             dispatchGlobalState({
               type: 'setWalletAddress',
-              payload: address,
+              payload: new ArweaveTransactionID(address),
             });
           })
           .catch((error: Error) => {
@@ -51,7 +51,7 @@ export default function useWalletAddress(): {
 
     wallet
       .getWalletAddress()
-      .then((address: string) => {
+      .then((address: ArweaveTransactionID) => {
         dispatchGlobalState({
           type: 'setWalletAddress',
           payload: address,

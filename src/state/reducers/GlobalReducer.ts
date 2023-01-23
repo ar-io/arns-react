@@ -1,15 +1,16 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import { ArweaveDataProvider, SmartweaveDataProvider } from '../../types';
+import { ArweaveTransactionID } from '../../../types/ArweaveTransactionID';
 import type {
   ArNSContractState,
-  ArweaveTransactionId,
+  ArweaveDataProvider,
   ArweaveWalletConnector,
+  SmartweaveDataProvider,
 } from '../../types';
 import { GlobalState } from '../contexts/GlobalState';
 
 export type Action =
-  | { type: 'setWalletAddress'; payload: ArweaveTransactionId | undefined }
+  | { type: 'setWalletAddress'; payload: ArweaveTransactionID | undefined }
   | {
       type: 'setWallet';
       payload: ArweaveWalletConnector | undefined;
