@@ -1,5 +1,5 @@
-import { ArweaveTransactionID } from '../../../../../types/ArweaveTransactionID';
 import { useIsMobile } from '../../../../hooks';
+import { ArweaveTransactionID } from '../../../../types';
 import {
   BookmarkIcon,
   BorderOuterIcon,

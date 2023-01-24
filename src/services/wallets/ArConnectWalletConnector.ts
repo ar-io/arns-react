@@ -1,6 +1,6 @@
 import { PermissionType } from 'arconnect';
 
-import { ArweaveTransactionID } from '../../../types/ArweaveTransactionID';
+import { ArweaveTransactionID } from '../../types';
 import { ArweaveWalletConnector } from '../../types';
 
 const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [

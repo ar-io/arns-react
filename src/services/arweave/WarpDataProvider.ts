@@ -1,7 +1,7 @@
 import Arweave from 'arweave/node/common';
 import { Warp, WarpFactory, defaultCacheOptions } from 'warp-contracts';
 
-import { ArweaveTransactionID } from '../../../types/ArweaveTransactionID';
+import { ArweaveTransactionID } from '../../types';
 import { ArNSContractState, SmartweaveDataProvider } from '../../types';
 
 export class WarpDataProvider implements SmartweaveDataProvider {

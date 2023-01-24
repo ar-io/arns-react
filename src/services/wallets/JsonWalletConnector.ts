@@ -1,7 +1,7 @@
 import { JWKInterface } from 'arweave/node/lib/wallet';
 import { isString } from 'lodash';
 
-import { ArweaveTransactionID } from '../../../types/ArweaveTransactionID';
+import { ArweaveTransactionID } from '../../types';
 import { ArweaveWalletConnector } from '../../types';
 
 // A lot to do here, r.e. security, we will likely move to a different approach.

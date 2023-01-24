@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
-import { ArweaveTransactionID } from '../../../../../types/ArweaveTransactionID';
 import { useIsMobile } from '../../../../hooks';
+import { ArweaveTransactionID } from '../../../../types';
 import { ASSET_TYPES } from '../../../../types';
 
 function ManageAssetButtons({

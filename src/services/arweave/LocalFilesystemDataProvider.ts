@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { ArweaveTransactionID } from '../../../types/ArweaveTransactionID';
+import { ArweaveTransactionID } from '../../types';
 import { ArNSContractState, SmartweaveDataProvider } from '../../types';
 
 export class LocalFileSystemDataProvider implements SmartweaveDataProvider {

@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { ArweaveTransactionID } from '../../../../types/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
+import { ArweaveTransactionID } from '../../../types';
 import Dropdown from '../../inputs/Dropdown/Dropdown';
 import Loader from '../Loader/Loader';
 import UpgradeTier from '../UpgradeTier/UpgradeTier';
