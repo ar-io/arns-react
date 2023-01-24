@@ -1,6 +1,3 @@
-
-import { useState } from 'react';
-
 import { useIsMobile } from '../../../../hooks';
 import { ArweaveTransactionID } from '../../../../types';
 import { ASSET_TYPES } from '../../../../types';

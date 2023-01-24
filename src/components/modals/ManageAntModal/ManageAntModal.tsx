@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-import { ArweaveTransactionID } from '../../../../types/ArweaveTransactionID';
 import { useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { ArweaveTransactionID } from '../../../types';
 import { ANTContractState } from '../../../types';
 import { NotebookIcon, PencilIcon } from '../../icons';
 import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
