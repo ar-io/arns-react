@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { ArweaveTransactionID } from '../../../../types/ArweaveTransactionID';
 import { useIsMobile } from '../../../hooks';
@@ -53,10 +53,16 @@ function ManageAntModal({
   }
 
   function setDetails() {
-    setAntDetails([
+    const details = [
       [
-        <td className="assets-table-item">Status:</td>,
-        <td className="assets-table-item" style={{ flex: 4 }}>
+        <td className="assets-table-item" key={`${contractId}-data`}>
+          Status:
+        </td>,
+        <td
+          className="assets-table-item"
+          style={{ flex: 4 }}
+          key={`${contractId}-data`}
+        >
           <TransactionStatus
             key={`${contractId}-confirmations`}
             confirmations={confirmations}
@@ -64,10 +70,14 @@ function ManageAntModal({
         </td>,
       ],
       [
-        <td className="assets-table-item">
+        <td className="assets-table-item" key={`${contractId}-data`}>
           {`Associated Names (${associatedNames.length}) :`}
         </td>,
-        <td className="assets-table-item" style={{ flex: 4 }}>
+        <td
+          className="assets-table-item"
+          style={{ flex: 4 }}
+          key={`${contractId}-data`}
+        >
           {associatedNames
             ? associatedNames.map((name) => (
                 <>
@@ -84,8 +94,14 @@ function ManageAntModal({
         </td>,
       ],
       [
-        <td className="assets-table-item">Nickname:</td>,
-        <td className="assets-table-item" style={{ flex: 4 }}>
+        <td className="assets-table-item" key={`${contractId}-data`}>
+          Nickname:
+        </td>,
+        <td
+          className="assets-table-item"
+          style={{ flex: 4 }}
+          key={`${contractId}-data`}
+        >
           {state?.name ? state.name : 'N/A'}
         </td>,
         <button className="button" key={`${contractId}-nickname-edit-button`}>
@@ -93,8 +109,14 @@ function ManageAntModal({
         </button>,
       ],
       [
-        <td className="assets-table-item">Ticker:</td>,
-        <td className="assets-table-item" style={{ flex: 4 }}>
+        <td className="assets-table-item" key={`${contractId}-data`}>
+          Ticker:
+        </td>,
+        <td
+          className="assets-table-item"
+          style={{ flex: 4 }}
+          key={`${contractId}-data`}
+        >
           {state?.ticker ? state.ticker : 'N/A'}
         </td>,
         <button className="button" key={`${contractId}-ticker-edit-button`}>
@@ -102,8 +124,14 @@ function ManageAntModal({
         </button>,
       ],
       [
-        <td className="assets-table-item">Target ID:</td>,
-        <td className="assets-table-item" style={{ flex: 4 }}>
+        <td className="assets-table-item" key={`${contractId}-data`}>
+          Target ID:
+        </td>,
+        <td
+          className="assets-table-item"
+          style={{ flex: 4 }}
+          key={`${contractId}-data`}
+        >
           {targetId ? targetId : 'N/A'}
         </td>,
         <button className="button" key={`${contractId}-targetId-edit-button`}>
@@ -111,8 +139,14 @@ function ManageAntModal({
         </button>,
       ],
       [
-        <td className="assets-table-item">ttlSeconds:</td>,
-        <td className="assets-table-item" style={{ flex: 4 }}>
+        <td className="assets-table-item" key={`${contractId}-data`}>
+          ttlSeconds:
+        </td>,
+        <td
+          className="assets-table-item"
+          style={{ flex: 4 }}
+          key={`${contractId}-data`}
+        >
           {state?.records['@'].ttlSeconds
             ? state.records['@'].ttlSeconds
             : 'N/A'}
@@ -122,8 +156,14 @@ function ManageAntModal({
         </button>,
       ],
       [
-        <td className="assets-table-item">Controller:</td>,
-        <td className="assets-table-item" style={{ flex: 4 }}>
+        <td className="assets-table-item" key={`${contractId}-data`}>
+          Controller:
+        </td>,
+        <td
+          className="assets-table-item"
+          style={{ flex: 4 }}
+          key={`${contractId}-data`}
+        >
           {state?.controllers ? state.controllers.toString() : 'N/A'}
         </td>,
         <button className="button" key={`${contractId}-controller-edit-button`}>
@@ -131,8 +171,14 @@ function ManageAntModal({
         </button>,
       ],
       [
-        <td className="assets-table-item">Undernames:</td>,
-        <td className="assets-table-item" style={{ flex: 4 }}>
+        <td className="assets-table-item" key={`${contractId}-data`}>
+          Undernames:
+        </td>,
+        <td
+          className="assets-table-item"
+          style={{ flex: 4 }}
+          key={`${contractId}-data`}
+        >
           {state?.records
             ? `${Object.keys(state.records).length - 1} / 100`
             : 'N/A'}
@@ -142,8 +188,14 @@ function ManageAntModal({
         </button>,
       ],
       [
-        <td className="assets-table-item">Owner:</td>,
-        <td className="assets-table-item" style={{ flex: 4 }}>
+        <td className="assets-table-item" key={`${contractId}-data`}>
+          Owner:
+        </td>,
+        <td
+          className="assets-table-item"
+          style={{ flex: 4 }}
+          key={`${contractId}-data`}
+        >
           {state?.owner ? state.owner.toString() : 'N/A'}
         </td>,
         <button
@@ -153,7 +205,8 @@ function ManageAntModal({
           Transfer
         </button>,
       ],
-    ]);
+    ];
+    setAntDetails(details);
   }
 
   return (
@@ -207,8 +260,9 @@ function ManageAntModal({
           </span>
         </div>
         <table className="assets-table">
-          {antDetails?.map((rowDetails) => (
+          {antDetails?.map((rowDetails, index) => (
             <RowItem
+              key={index}
               details={rowDetails}
               bgColor={'#1E1E1E'}
               textColor={'var(--text-white)'}
