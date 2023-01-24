@@ -7,7 +7,6 @@
   padding: 30px 60px;
   flex-direction: column;
   align-items: center;
-  gap: 33px;
   min-width: 250px;
   box-shadow: 0px 0px 1px #0d0d0d, 0px 8px 16px rgba(13, 13, 13, 0.9);
   border-radius: var(--corner-radius);
@@ -16,7 +15,7 @@
 .detail {
   color: var(--text-white);
   align-self: flex-start;
-  word-break: break-all;
+  padding: 10px;
 }
 
 .bubble {

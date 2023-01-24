@@ -101,55 +101,65 @@ function AntCard(props: ArNSMapping) {
       ) : antDetails ? (
         <div className={hover ? 'card hover' : 'card'}>
           <span className="bubble">Tier {antDetails.Tier}</span>
-          {Object.entries(antDetails).map(([key, value]) => {
-            if (!PRIMARY_DETAILS.includes(key) && limitDetails) {
-              return;
-            }
-            return isArweaveTransactionID(value) ? (
-              <span className="detail flex" key={key}>
-                {key}:&nbsp;
-                <CopyTextButton
-                  displayText={
-                    isMobile
-                      ? `${value.slice(0, 2)}...${value.slice(-2)}`
-                      : value
-                  }
-                  copyText={value}
-                  size={24}
-                  wrapperStyle={{
-                    fontFamily: 'Rubik-Bold',
-                    padding: '0px',
-                  }}
-                  position={'relative'}
-                />
-              </span>
+          <table style={{ borderSpacing: '0em 1em', padding: '0px' }}>
+            <tbody>
+              {Object.entries(antDetails).map(([key, value]) => {
+                if (!PRIMARY_DETAILS.includes(key) && limitDetails) {
+                  return;
+                }
+                return (
+                  <tr key={key} style={{ height: '25px' }}>
+                    <td className="detail left">{key}:</td>
+                    <td className="detail bold left">
+                      {isArweaveTransactionID(value) ? (
+                        <CopyTextButton
+                          displayText={
+                            isMobile
+                              ? `${value.slice(0, 2)}...${value.slice(-2)}`
+                              : value
+                          }
+                          copyText={value}
+                          size={24}
+                          wrapperStyle={{
+                            padding: '0px',
+                            fontFamily: 'Rubik-Bold',
+                          }}
+                          position={'relative'}
+                        />
+                      ) : (
+                        value
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+              {limitDetails ? (
+                <tr>
+                  <td className="detail">
+                    <button className="link" onClick={showMore}>
+                      more details
+                    </button>
+                  </td>
+                </tr>
+              ) : (
+                <></>
+              )}
+            </tbody>
+          </table>
+          <tfoot>
+            {enableActions ? (
+              <div className="footer">
+                <button className="outline-button" onClick={handleClick}>
+                  Upgrade Tier
+                </button>
+                <button className="outline-button" onClick={handleClick}>
+                  Extend Lease
+                </button>
+              </div>
             ) : (
-              <span className="detail" key={key}>
-                {key}:&nbsp;<b>{value}</b>
-              </span>
-            );
-          })}
-          {limitDetails ? (
-            <span className="detail">
-              <button className="link" onClick={showMore}>
-                more details
-              </button>
-            </span>
-          ) : (
-            <></>
-          )}
-          {enableActions ? (
-            <div className="footer">
-              <button className="outline-button" onClick={handleClick}>
-                Upgrade Tier
-              </button>
-              <button className="outline-button" onClick={handleClick}>
-                Extend Lease
-              </button>
-            </div>
-          ) : (
-            <></>
-          )}
+              <></>
+            )}
+          </tfoot>
         </div>
       ) : (
         <span className="section-header">Uh oh. Something went wrong.</span>
