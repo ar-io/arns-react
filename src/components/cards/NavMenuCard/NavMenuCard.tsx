@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { ArweaveTransactionID } from '../../../../types/ArweaveTransactionID';
 import { useIsMobile, useWalletAddress } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { ArweaveTransactionID } from '../../../types';
 import { ROUTES } from '../../../utils/routes';
 import { LogoutIcon, MenuIcon } from '../../icons';
 import ConnectButton from '../../inputs/buttons/ConnectButton/ConnectButton';

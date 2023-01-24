@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 
-import { ArweaveTransactionID } from '../../../../types/ArweaveTransactionID';
 import { useWalletAddress } from '../../../hooks/index';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
+import { ArweaveTransactionID } from '../../../types';
 import { ArNSDomains } from '../../../types';
 import { ARNS_TX_ID_REGEX, FEATURED_DOMAINS } from '../../../utils/constants';
 import {

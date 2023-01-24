@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 
-import { ArweaveTransactionID } from '../../../../types/ArweaveTransactionID';
 import { useWalletAddress } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { ArweaveTransactionID } from '../../../types';
 import { TABLE_TYPES } from '../../../types';
 import { CodeSandboxIcon } from '../../icons';
 import { Loader } from '../../layout';

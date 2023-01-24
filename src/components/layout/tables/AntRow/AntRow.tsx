@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 
-import { ArweaveTransactionID } from '../../../../../types/ArweaveTransactionID';
 import { useIsMobile } from '../../../../hooks';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
+import { ArweaveTransactionID } from '../../../../types';
 import { ASSET_TYPES } from '../../../../types';
 import CopyTextButton from '../../../inputs/buttons/CopyTextButton/CopyTextButton';
 import ManageAssetButtons from '../../../inputs/buttons/ManageAssetButtons/ManageAssetButtons';

@@ -1,6 +1,6 @@
 import { Dispatch, createContext, useContext, useReducer } from 'react';
 
-import { ArweaveTransactionID } from '../../../types/ArweaveTransactionID';
+import { ArweaveTransactionID } from '../../types';
 import { RegistrationAction } from '../reducers/RegistrationReducer';
 
 export type RegistrationState = {
