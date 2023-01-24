@@ -174,10 +174,9 @@ export enum ASSET_TYPES {
   UNDERNAME = 'undername',
   COIN = 'coin',
 }
-
 export class ArweaveTransactionID implements Equatable<ArweaveTransactionID> {
   constructor(private readonly transactionId: string) {
-    if (!transactionId.match(ARNS_TX_ID_REGEX)) {
+    if (!ARNS_TX_ID_REGEX.test(transactionId)) {
       throw new Error(
         'Transaction ID should be a 43-character, alphanumeric string potentially including "-" and "_" characters.',
       );

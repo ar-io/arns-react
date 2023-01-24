@@ -32,6 +32,7 @@ const PRIMARY_DETAILS: string[] = [
   'ticker',
   'nickname',
 ].map((i) => mapKeyToAttribute(i));
+
 const DEFAULT_ATTRIBUTES = {
   ttlSeconds: 60 * 60,
   leaseDuration: 'N/A',
@@ -65,7 +66,7 @@ function AntCard(props: ArNSMapping) {
               : antContractState.owner,
             tier: antContractState.tier ? antContractState.tier : 1,
             ...overrides,
-            id,
+            id: id.toString(),
             domain,
           };
           // TODO: consolidate this logic that sorts and updates key values
