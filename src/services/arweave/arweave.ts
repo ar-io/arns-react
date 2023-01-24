@@ -1,4 +1,4 @@
-import { ArweaveTransactionID } from '../../../types/ArweaveTransactionID';
+import { ArweaveTransactionID } from '../../types';
 
 export const buildContractTxQuery = (id: ArweaveTransactionID) => {
   const queryObject = {

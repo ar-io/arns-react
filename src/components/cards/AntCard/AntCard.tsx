@@ -32,6 +32,7 @@ const PRIMARY_DETAILS: string[] = [
   'ticker',
   'nickname',
 ].map((i) => mapKeyToAttribute(i));
+
 const DEFAULT_ATTRIBUTES = {
   ttlSeconds: 60 * 60,
   leaseDuration: 'N/A',
@@ -47,41 +48,43 @@ function AntCard(props: ArNSMapping) {
   const [limitDetails, setLimitDetails] = useState(true);
 
   useEffect(() => {
-    setIsLoading(true);
-    arweaveDataProvider
-      .getContractState(id)
-      .then((antContractState) => {
-        if (!antContractState) {
-          setAntDetails(undefined);
-          return;
-        }
-        const allAntDetails: { [x: string]: any } = {
-          ...antContractState,
-          ...DEFAULT_ATTRIBUTES,
-          // TODO: remove this when all ants have controllers
-          controllers: antContractState.controllers
-            ? antContractState.controllers.join(',')
-            : antContractState.owner,
-          tier: antContractState.tier ? antContractState.tier : 1,
-          ...overrides,
-          id,
-          domain,
-        };
-        // TODO: consolidate this logic that sorts and updates key values
-        const replacedKeys = Object.keys(allAntDetails)
-          .sort()
-          .reduce((obj: any, key: string) => {
-            // TODO: flatten recursive objects like subdomains, filter out for now
-            if (typeof allAntDetails[key] === 'object') return obj;
-            obj[mapKeyToAttribute(key)] = allAntDetails[key];
-            return obj;
-          }, {});
-        setLimitDetails(compact ?? true);
-        setAntDetails(replacedKeys);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+    if (id) {
+      setIsLoading(true);
+      arweaveDataProvider
+        .getContractState(id)
+        .then((antContractState) => {
+          if (!antContractState) {
+            setAntDetails(undefined);
+            return;
+          }
+          const allAntDetails: { [x: string]: any } = {
+            ...antContractState,
+            ...DEFAULT_ATTRIBUTES,
+            // TODO: remove this when all ants have controllers
+            controllers: antContractState.controllers
+              ? antContractState.controllers.join(',')
+              : antContractState.owner,
+            tier: antContractState.tier ? antContractState.tier : 1,
+            ...overrides,
+            id: id.toString(),
+            domain,
+          };
+          // TODO: consolidate this logic that sorts and updates key values
+          const replacedKeys = Object.keys(allAntDetails)
+            .sort()
+            .reduce((obj: any, key: string) => {
+              // TODO: flatten recursive objects like subdomains, filter out for now
+              if (typeof allAntDetails[key] === 'object') return obj;
+              obj[mapKeyToAttribute(key)] = allAntDetails[key];
+              return obj;
+            }, {});
+          setLimitDetails(compact ?? true);
+          setAntDetails(replacedKeys);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
   }, [id, domain, compact, enableActions, overrides]);
 
   function showMore(e: any) {

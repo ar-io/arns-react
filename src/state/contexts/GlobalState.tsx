@@ -1,10 +1,10 @@
 import Arweave from 'arweave';
 import React, { Dispatch, createContext, useContext, useReducer } from 'react';
 
-import { ArweaveTransactionID } from '../../../types/ArweaveTransactionID';
 import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
 import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
 import { WarpDataProvider } from '../../services/arweave/WarpDataProvider';
+import { ArweaveTransactionID } from '../../types';
 import type {
   ArNSContractState,
   ArweaveDataProvider,

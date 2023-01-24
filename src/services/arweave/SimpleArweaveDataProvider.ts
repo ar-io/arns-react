@@ -2,7 +2,7 @@
 import Arweave from 'arweave/node';
 import Ar from 'arweave/node/ar';
 
-import { ArweaveTransactionID } from '../../../types/ArweaveTransactionID';
+import { ArweaveTransactionID } from '../../types';
 import { ArweaveDataProvider } from '../../types';
 import { approvedContractsForWalletQuery } from '../../utils/constants';
 import { tagsToObject } from '../../utils/searchUtils';
