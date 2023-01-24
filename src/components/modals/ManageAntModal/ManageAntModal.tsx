@@ -24,14 +24,16 @@ function ManageAntModal({
 }) {
   const [{ arnsSourceContract }] = useGlobalState();
   const modalRef = useRef(null);
-  const [associatedNames, setAssociatedNames] = useState<Array<string>>([]);
+  const [associatedNames, setAssociatedNames] = useState<string[]>([]);
+  const [antDetails, setAntDetails] = useState<any[]>();
   const isMobile = useIsMobile();
   // todo: manage asset modal writes asset modifications to contract. It will auto detect if the asset is an ANT, name, or undername.
   // if the asset is a name, it will write modifications to the registry. If its an undername, it will write mods to the ant. If its an ant, it will write mods to the ant.
 
   useEffect(() => {
     setAssociatedNames(getAssociatedNames());
-  }, [contractId, state]);
+    setDetails();
+  }, [contractId, state, targetId, confirmations]);
 
   function handleClickOutside(e: any) {
     if (modalRef.current && modalRef.current === e.target) {
@@ -43,11 +45,115 @@ function ManageAntModal({
   function getAssociatedNames() {
     const domains: string[] = [];
     Object.entries(arnsSourceContract.records).map(([name, id]) => {
-      if (id === contractId) {
+      if (id === contractId.toString()) {
         domains.push(name);
       }
     });
     return domains;
+  }
+
+  function setDetails() {
+    setAntDetails([
+      [
+        <td className="assets-table-item">Status:</td>,
+        <td className="assets-table-item" style={{ flex: 4 }}>
+          <TransactionStatus
+            key={`${contractId}-confirmations`}
+            confirmations={confirmations}
+          />
+        </td>,
+      ],
+      [
+        <td className="assets-table-item">
+          {`Associated Names (${associatedNames.length}) :`}
+        </td>,
+        <td className="assets-table-item" style={{ flex: 4 }}>
+          {associatedNames
+            ? associatedNames.map((name) => (
+                <>
+                  <span
+                    className="assets-manage-button"
+                    key={`${contractId}-name`}
+                  >
+                    {name}
+                  </span>
+                  &nbsp;
+                </>
+              ))
+            : 'N/A'}
+        </td>,
+      ],
+      [
+        <td className="assets-table-item">Nickname:</td>,
+        <td className="assets-table-item" style={{ flex: 4 }}>
+          {state?.name ? state.name : 'N/A'}
+        </td>,
+        <button className="button" key={`${contractId}-nickname-edit-button`}>
+          <PencilIcon width={20} height={20} fill="var(--text-white)" />
+        </button>,
+      ],
+      [
+        <td className="assets-table-item">Ticker:</td>,
+        <td className="assets-table-item" style={{ flex: 4 }}>
+          {state?.ticker ? state.ticker : 'N/A'}
+        </td>,
+        <button className="button" key={`${contractId}-ticker-edit-button`}>
+          <PencilIcon width={20} height={20} fill="var(--text-white)" />
+        </button>,
+      ],
+      [
+        <td className="assets-table-item">Target ID:</td>,
+        <td className="assets-table-item" style={{ flex: 4 }}>
+          {targetId ? targetId : 'N/A'}
+        </td>,
+        <button className="button" key={`${contractId}-targetId-edit-button`}>
+          <PencilIcon width={20} height={20} fill="var(--text-white)" />
+        </button>,
+      ],
+      [
+        <td className="assets-table-item">ttlSeconds:</td>,
+        <td className="assets-table-item" style={{ flex: 4 }}>
+          {state?.records['@'].ttlSeconds
+            ? state.records['@'].ttlSeconds
+            : 'N/A'}
+        </td>,
+        <button className="button" key={`${contractId}-ttl-edit-button`}>
+          <PencilIcon width={20} height={20} fill="var(--text-white)" />
+        </button>,
+      ],
+      [
+        <td className="assets-table-item">Controller:</td>,
+        <td className="assets-table-item" style={{ flex: 4 }}>
+          {state?.controllers ? state.controllers.toString() : 'N/A'}
+        </td>,
+        <button className="button" key={`${contractId}-controller-edit-button`}>
+          <PencilIcon width={20} height={20} fill="var(--text-white)" />
+        </button>,
+      ],
+      [
+        <td className="assets-table-item">Undernames:</td>,
+        <td className="assets-table-item" style={{ flex: 4 }}>
+          {state?.records
+            ? `${Object.keys(state.records).length - 1} / 100`
+            : 'N/A'}
+        </td>,
+        <button className="button" key={`${contractId}-records-button`}>
+          <PencilIcon width={20} height={20} fill="var(--text-white)" />
+        </button>,
+      ],
+      [
+        <td className="assets-table-item">Owner:</td>,
+        <td className="assets-table-item" style={{ flex: 4 }}>
+          {state?.owner ? state.owner.toString() : 'N/A'}
+        </td>,
+        <button
+          className="assets-manage-button"
+          key={`${contractId}-transfer-button`}
+        >
+          Transfer
+        </button>,
+      ],
+    ]);
   }
 
   return (
@@ -59,17 +165,17 @@ function ManageAntModal({
       onClick={handleClickOutside}
     >
       <div className="flex-column" style={{ margin: '10%' }}>
-        <div className="flex flex-row">
-          <span
-            className="flex section-header"
-            style={{
-              justifyContent: 'flex-start',
-              width: '100%',
-            }}
-          >
+        <div
+          className="flex"
+          style={{
+            justifyContent: 'flex-start',
+            width: '100%',
+          }}
+        >
+          <span className="flex bold text-medium white">
             <NotebookIcon width={25} height={25} fill={'var(--text-white)'} />
             &nbsp;Manage ANT:&nbsp;
-            <span>
+            <span className="flex">
               {isMobile ? (
                 <CopyTextButton
                   displayText={`${contractId
@@ -101,133 +207,13 @@ function ManageAntModal({
           </span>
         </div>
         <table className="assets-table">
-          <RowItem
-            details={[
-              'Status:',
-              <TransactionStatus
-                key={`${contractId}-confirmations`}
-                confirmations={confirmations}
-              />,
-            ]}
-            bgColor={'#1E1E1E'}
-            textColor={'var(--text-white)'}
-          />
-          <RowItem
-            details={[
-              `Associated Names ${associatedNames.length}:`,
-              associatedNames
-                ? associatedNames.map((name) => (
-                    <>
-                      <span
-                        className="assets-manage-button"
-                        key={`${contractId}-name`}
-                      >
-                        {name}
-                      </span>
-                      &nbsp;
-                    </>
-                  ))
-                : 'N/A',
-            ]}
-            bgColor={'#1E1E1E'}
-            textColor={'var(--text-white)'}
-          />
-          <RowItem
-            details={[
-              'Nickname:',
-              state?.name ? state.name : 'N/A',
-              <button
-                className="button"
-                key={`${contractId}-nickname-edit-button`}
-              >
-                <PencilIcon width={20} height={20} fill="var(--text-white)" />
-              </button>,
-            ]}
-            bgColor={'#1E1E1E'}
-            textColor={'var(--text-white)'}
-          />
-          <RowItem
-            details={[
-              'Ticker:',
-              state?.ticker ? state.ticker : 'N/A',
-              <button
-                className="button"
-                key={`${contractId}-ticker-edit-button`}
-              >
-                <PencilIcon width={20} height={20} fill="var(--text-white)" />
-              </button>,
-            ]}
-            bgColor={'#1E1E1E'}
-            textColor={'var(--text-white)'}
-          />
-          <RowItem
-            details={[
-              'Target ID:',
-              targetId ? targetId : 'N/A',
-              <button
-                className="button"
-                key={`${contractId}-targetId-edit-button`}
-              >
-                <PencilIcon width={20} height={20} fill="var(--text-white)" />
-              </button>,
-            ]}
-            bgColor={'#1E1E1E'}
-            textColor={'var(--text-white)'}
-          />
-          <RowItem
-            details={[
-              'ttlSeconds:',
-              state?.records['@'].ttlSeconds
-                ? state.records['@'].ttlSeconds
-                : 'N/A',
-              <button className="button" key={`${contractId}-ttl-edit-button`}>
-                <PencilIcon width={20} height={20} fill="var(--text-white)" />
-              </button>,
-            ]}
-            bgColor={'#1E1E1E'}
-            textColor={'var(--text-white)'}
-          />
-          <RowItem
-            details={[
-              'Controller:',
-              state?.controllers ? state.controllers : 'N/A',
-              <button
-                className="button"
-                key={`${contractId}-controller-edit-button`}
-              >
-                <PencilIcon width={20} height={20} fill="var(--text-white)" />
-              </button>,
-            ]}
-            bgColor={'#1E1E1E'}
-            textColor={'var(--text-white)'}
-          />
-          <RowItem
-            details={[
-              'Undernames:',
-              state?.records
-                ? `${Object.keys(state.records).length - 1} / 100`
-                : 'N/A',
-              <button className="button" key={`${contractId}-records-button`}>
-                <PencilIcon width={20} height={20} fill="var(--text-white)" />
-              </button>,
-            ]}
-            bgColor={'#1E1E1E'}
-            textColor={'var(--text-white)'}
-          />
-          <RowItem
-            details={[
-              'Owner:',
-              state?.owner ? state.owner : 'N/A',
-              <button
-                className="assets-manage-button"
-                key={`${contractId}-transfer-button`}
-              >
-                Transfer
-              </button>,
-            ]}
-            bgColor={'#1E1E1E'}
-            textColor={'var(--text-white)'}
-          />
+          {antDetails?.map((rowDetails) => (
+            <RowItem
+              details={rowDetails}
+              bgColor={'#1E1E1E'}
+              textColor={'var(--text-white)'}
+            />
+          ))}
         </table>
       </div>
     </div>
