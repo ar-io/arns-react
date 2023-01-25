@@ -4,6 +4,7 @@ import { useIsMobile } from '../../../../hooks';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { ArweaveTransactionID } from '../../../../types';
 import { ASSET_TYPES } from '../../../../types';
+import { RefreshAlertIcon } from '../../../icons';
 import CopyTextButton from '../../../inputs/buttons/CopyTextButton/CopyTextButton';
 import ManageAssetButtons from '../../../inputs/buttons/ManageAssetButtons/ManageAssetButtons';
 import ManageAntModal from '../../../modals/ManageAntModal/ManageAntModal';
@@ -26,46 +27,69 @@ function AntRow({
   const [antState, setAntState] = useState<any>();
   // row details
   const [targetId, setTargetId] = useState<string>();
-  const [confirmations, setConfirmations] = useState<number>(0);
+  const [confirmations, setConfirmations] = useState<number>();
+  const [errors, setErrors] = useState<{
+    ant: Error | undefined;
+    confirmations: Error | undefined;
+  }>({
+    ant: undefined,
+    confirmations: undefined,
+  });
   const DEFAULT_ROW_REFRESH_MS = 30000; // 30 seconds;
 
   // todo: implement error antState for row items
   useEffect(() => {
-    loadAntConfirmations(antId).catch((e) =>
-      console.error('Failed to fetch confirmations', e),
-    );
-    loadAntState(antId).catch((e) =>
-      console.error('Failed to fetch ANT Contract', e),
-    );
-  }, [antId]);
-
-  // update confirmations once every 30 seconds
-  useEffect(() => {
+    loadAntState(antId);
+    loadAntConfirmations(antId);
+    // update confirmations once every 30 seconds
     const confirmationsInterval = setInterval(() => {
-      loadAntConfirmations(antId).catch((e) =>
-        console.error('Failed to fetch confirmations', e),
-      );
+      loadAntConfirmations(antId);
     }, DEFAULT_ROW_REFRESH_MS);
     return () => clearInterval(confirmationsInterval);
-  }, []);
+  }, [antId]);
 
   async function loadAntState(id: ArweaveTransactionID) {
-    const state = await arweaveDataProvider.getContractState(id);
-    setAntState(state);
-    if (state.records['@'].transactionId) {
-      setTargetId(antState.records['@'].transactionId);
+    setErrors({
+      ...errors,
+      ant: undefined,
+    });
+    try {
+      const state = await arweaveDataProvider.getContractState(id);
+      setAntState(state);
+      if (state.records['@'].transactionId) {
+        setTargetId(antState.records['@'].transactionId);
+      }
+      // todo: remove below for v1, this is a legacy format for ant record antStates.
+      if (typeof state.records['@'] === 'string') {
+        setTargetId(state.records['@']);
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch ANT Contract State.');
+      setErrors({
+        ...errors,
+        ant: error,
+      });
     }
-    // todo: remove below for v1, this is a legacy format for ant record antStates.
-    if (typeof state.records['@'] === 'string') {
-      setTargetId(state.records['@']);
-    }
-    return;
   }
 
   async function loadAntConfirmations(id: ArweaveTransactionID) {
-    const confirmations = await arweaveDataProvider.getTransactionStatus(id);
-    setConfirmations(confirmations);
+    setErrors({
+      ...errors,
+      confirmations: undefined,
+    });
+    try {
+      const confirmations = await arweaveDataProvider.getTransactionStatus(id);
+      console.log('FETCHED CONFIRMATIONS', confirmations);
+      setConfirmations(confirmations);
+    } catch (error: any) {
+      console.error('Failed to fetch confirmations.');
+      setErrors({
+        ...errors,
+        confirmations: error,
+      });
+    }
   }
+
   function setShowModal(show: boolean) {
     setShowManageModal(show);
   }
@@ -101,6 +125,22 @@ function AntRow({
               ) : (
                 antState.name
               )
+            ) : errors.ant ? (
+              <button
+                style={{ cursor: 'pointer' }}
+                onClick={() => {
+                  loadAntState(antId);
+                }}
+              >
+                <RefreshAlertIcon
+                  style={{
+                    width: '24px',
+                    height: '24px',
+                    stroke: 'red',
+                    fill: 'red',
+                  }}
+                />
+              </button>
             ) : (
               <Loader size={30} />
             )}
@@ -146,6 +186,22 @@ function AntRow({
                     textColor,
                   }}
                 />
+              ) : errors.ant ? (
+                <button
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => {
+                    loadAntState(antId);
+                  }}
+                >
+                  <RefreshAlertIcon
+                    style={{
+                      width: '24px',
+                      height: '24px',
+                      stroke: 'red',
+                      fill: 'red',
+                    }}
+                  />
+                </button>
               ) : (
                 <Loader size={30} />
               )}
@@ -155,7 +211,27 @@ function AntRow({
             className="assets-table-item center"
             style={textColor ? { color: textColor } : {}}
           >
-            <TransactionStatus confirmations={confirmations} />
+            {confirmations ? (
+              <TransactionStatus confirmations={confirmations} />
+            ) : errors.confirmations ? (
+              <button
+                style={{ cursor: 'pointer' }}
+                onClick={() => {
+                  loadAntConfirmations(antId);
+                }}
+              >
+                <RefreshAlertIcon
+                  style={{
+                    width: '24px',
+                    height: '24px',
+                    stroke: 'red',
+                    fill: 'red',
+                  }}
+                />
+              </button>
+            ) : (
+              <Loader size={24} />
+            )}
           </td>
           {isMobile ? (
             <></>

@@ -23,17 +23,12 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
   }
 
   async getTransactionStatus(id: ArweaveTransactionID) {
-    try {
-      const confirmations = await this._arweave.api
-        .get(`/tx/${id}/status`)
-        .then((res: any) => {
-          return res.data.number_of_confirmations;
-        });
-      return confirmations;
-    } catch (error) {
-      console.error(error);
-      return 0;
-    }
+    const confirmations = await this._arweave.api
+      .get(`/tx/${id}/status`)
+      .then((res: any) => {
+        return res.data.number_of_confirmations;
+      });
+    return confirmations;
   }
 
   async getTransactionTags(

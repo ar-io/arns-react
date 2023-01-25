@@ -30,14 +30,22 @@ function CopyTextButton({
   return (
     <div className="flex" style={{ position, ...wrapperStyle }}>
       <button
-        className="flex flex-space-between button hover"
-        style={wrapperStyle}
+        className="flex flex-space-between button"
+        style={{
+          ...wrapperStyle,
+        }}
         onClick={async () => {
           await handleCopy();
         }}
       >
         <span className="flex white center">{displayText}&nbsp;</span>
-        <CopyIcon className="flex" height={size} width={size} fill="white" />
+        <CopyIcon
+          className="flex"
+          height={size}
+          width={size}
+          fill="white"
+          style={{ cursor: 'pointer' }}
+        />
       </button>
       {textCopied ? (
         <div

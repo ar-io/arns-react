@@ -1,6 +1,5 @@
 import { useIsMobile } from '../../../hooks';
 import { AlertCircle, AlertTriangleIcon, CircleCheck } from '../../icons';
-import Loader from '../Loader/Loader';
 
 function TransactionStatus({
   confirmations,
@@ -24,7 +23,7 @@ function TransactionStatus({
           <CircleCheck width={20} height={20} fill={'var(--success-green)'} />
         );
       default:
-        return <Loader size={30} />;
+        return <></>;
     }
   }
   return (
