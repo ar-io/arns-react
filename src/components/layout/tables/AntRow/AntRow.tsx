@@ -109,33 +109,22 @@ function AntRow({
             className="assets-table-item center"
             style={textColor ? { color: textColor } : {}}
           >
-            {isMobile ? (
-              <CopyTextButton
-                displayText={`${antId.toString().slice(0, 2)}...${antId
-                  .toString()
-                  .slice(-2)}`}
-                copyText={antId.toString()}
-                size={24}
-                wrapperStyle={{
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  textColor: 'var(--bright-white)',
-                }}
-              />
-            ) : (
-              <CopyTextButton
-                displayText={`${antId.toString().slice(0, 6)}...${antId
-                  .toString()
-                  .slice(-6)}`}
-                copyText={antId.toString()}
-                size={24}
-                wrapperStyle={{
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  textColor,
-                }}
-              />
-            )}
+            <CopyTextButton
+              displayText={
+                isMobile
+                  ? `${antId.toString().slice(0, 6)}...${antId
+                      .toString()
+                      .slice(-6)}`
+                  : antId.toString()
+              }
+              copyText={antId.toString()}
+              size={24}
+              wrapperStyle={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                textColor: 'var(--bright-white)',
+              }}
+            />
           </td>
           {isMobile ? (
             <></>

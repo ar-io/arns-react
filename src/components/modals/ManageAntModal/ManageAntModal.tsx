@@ -24,14 +24,12 @@ function ManageAntModal({
 }) {
   const [{ arnsSourceContract }] = useGlobalState();
   const modalRef = useRef(null);
-  const [associatedNames, setAssociatedNames] = useState<string[]>([]);
   const [antDetails, setAntDetails] = useState<any[]>();
   const isMobile = useIsMobile();
   // todo: manage asset modal writes asset modifications to contract. It will auto detect if the asset is an ANT, name, or undername.
   // if the asset is a name, it will write modifications to the registry. If its an undername, it will write mods to the ant. If its an ant, it will write mods to the ant.
 
   useEffect(() => {
-    setAssociatedNames(getAssociatedNames());
     setDetails();
   }, [contractId, state, targetId, confirmations]);
 
@@ -42,17 +40,16 @@ function ManageAntModal({
     return;
   }
 
-  function getAssociatedNames() {
-    const domains: string[] = [];
-    Object.entries(arnsSourceContract.records).map(([name, id]) => {
-      if (id === contractId.toString()) {
-        domains.push(name);
-      }
-    });
-    return domains;
+  function getAssociatedNames(txId: ArweaveTransactionID) {
+    return Object.entries(arnsSourceContract.records)
+      .map(([name, id]) => {
+        if (id === txId.toString()) return name;
+      })
+      .filter((n) => !!n);
   }
 
   function setDetails() {
+    const names = getAssociatedNames(contractId);
     const details = [
       [
         <td className="assets-table-item" key={`${contractId}-data`}>
@@ -71,15 +68,15 @@ function ManageAntModal({
       ],
       [
         <td className="assets-table-item" key={`${contractId}-data`}>
-          {`Associated Names (${associatedNames.length}) :`}
+          {`Associated Names (${names?.length}) :`}
         </td>,
         <td
           className="assets-table-item"
           style={{ flex: 4 }}
           key={`${contractId}-data`}
         >
-          {associatedNames
-            ? associatedNames.map((name) => (
+          {names
+            ? names.map((name) => (
                 <>
                   <span
                     className="assets-manage-button"
@@ -229,33 +226,23 @@ function ManageAntModal({
             <NotebookIcon width={25} height={25} fill={'var(--text-white)'} />
             &nbsp;Manage ANT:&nbsp;
             <span className="flex">
-              {isMobile ? (
-                <CopyTextButton
-                  displayText={`${contractId
-                    .toString()
-                    .slice(0, 10)}...${contractId.toString().slice(-10)}`}
-                  copyText={contractId.toString()}
-                  size={24}
-                  wrapperStyle={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    textColor: 'var(--bright-white)',
-                  }}
-                />
-              ) : (
-                <CopyTextButton
-                  displayText={contractId.toString()}
-                  copyText={contractId.toString()}
-                  size={24}
-                  wrapperStyle={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    textColor: 'var(--bright-white)',
-                  }}
-                />
-              )}
+              <CopyTextButton
+                displayText={
+                  isMobile
+                    ? `${contractId.toString().slice(0, 10)}...${contractId
+                        .toString()
+                        .slice(-10)}`
+                    : contractId.toString()
+                }
+                copyText={contractId.toString()}
+                size={24}
+                wrapperStyle={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  textColor: 'var(--bright-white)',
+                }}
+              />
             </span>
           </span>
         </div>
