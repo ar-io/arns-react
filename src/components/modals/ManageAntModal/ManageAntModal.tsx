@@ -75,19 +75,7 @@ function ManageAntModal({
           style={{ flex: 4 }}
           key={`${contractId}-data`}
         >
-          {names
-            ? names.map((name) => (
-                <>
-                  <span
-                    className="assets-manage-button"
-                    key={`${contractId}-name`}
-                  >
-                    {name}
-                  </span>
-                  &nbsp;
-                </>
-              ))
-            : 'N/A'}
+          {names ? names.map((name) => name).join(', ') : 'N/A'}
         </td>,
       ],
       [
