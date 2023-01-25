@@ -445,3 +445,40 @@ button {
     height: 30px;
   }
 }
+
+.table-header {
+  border-radius: var(--corner-radius);
+  height: 50px;
+  background-color: #323232;
+}
+
+.table-row {
+  height: 50px;
+  padding: 5px;
+  text-overflow: ellipsis;
+  border-spacing: 0 15px;
+  margin: 10px 0px;
+}
+
+.rc-table-content > table {
+  width: '100%' !important;
+  border-collapse: collapse;
+}
+
+.rc-table-header > table {
+  border-collapse: collapse;
+  width: 100%;
+  border-spacing: 20px 0;
+}
+
+.rc-table-body > table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.rc-table-thead {
+  border-radius: var(--corner-radius);
+  height: 50px;
+  background-color: #323232;
+  padding: 10px;
+}

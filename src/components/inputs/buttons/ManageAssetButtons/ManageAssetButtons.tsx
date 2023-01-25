@@ -17,17 +17,12 @@ function ManageAssetButtons({
 
   return (
     <>
-      <div
-        className="flex-row center"
-        style={{ gap: '.5em', width: 'fit-content' }}
-      >
-        <button className="assets-see-more-button center hover">
-          See More
-        </button>
+      <div className="flex-row center" style={{ gap: '0.5em' }}>
+        <button className="assets-see-more-button">See More</button>
 
         {!isMobile ? (
           <button
-            className="assets-manage-button center hover"
+            className="assets-manage-button"
             onClick={() => setShowModal(true)}
           >
             Manage
