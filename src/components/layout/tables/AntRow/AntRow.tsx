@@ -79,7 +79,6 @@ function AntRow({
     });
     try {
       const confirmations = await arweaveDataProvider.getTransactionStatus(id);
-      console.log('FETCHED CONFIRMATIONS', confirmations);
       setConfirmations(confirmations);
     } catch (error: any) {
       console.error('Failed to fetch confirmations.');
@@ -120,11 +119,7 @@ function AntRow({
             style={textColor ? { color: textColor } : {}}
           >
             {antState?.name ? (
-              antState.name.length > 20 ? (
-                `${antState.name.slice(0, 10)}...${antState.name.slice(-10)}`
-              ) : (
-                antState.name
-              )
+              antState.name
             ) : errors.ant ? (
               <button
                 style={{ cursor: 'pointer' }}
@@ -136,8 +131,7 @@ function AntRow({
                   style={{
                     width: '24px',
                     height: '24px',
-                    stroke: 'red',
-                    fill: 'red',
+                    fill: 'var(-error-red)',
                   }}
                 />
               </button>
@@ -150,17 +144,14 @@ function AntRow({
             style={textColor ? { color: textColor } : {}}
           >
             <CopyTextButton
-              displayText={
-                isMobile
-                  ? `${antId.toString().slice(0, 6)}...${antId
-                      .toString()
-                      .slice(-6)}`
-                  : antId.toString()
-              }
+              displayText={`${antId
+                .toString()
+                .slice(0, isMobile ? 2 : 6)}...${antId
+                .toString()
+                .slice(isMobile ? -2 : -6)}`}
               copyText={antId.toString()}
               size={24}
               wrapperStyle={{
-                justifyContent: 'center',
                 alignItems: 'center',
                 textColor: 'var(--bright-white)',
               }}
@@ -181,8 +172,7 @@ function AntRow({
                   copyText={targetId}
                   size={24}
                   wrapperStyle={{
-                    justifyContent: 'center',
-                    alignItems: 'center',
+                    justifyContent: 'flex-start',
                     textColor,
                   }}
                 />
@@ -197,8 +187,7 @@ function AntRow({
                     style={{
                       width: '24px',
                       height: '24px',
-                      stroke: 'red',
-                      fill: 'red',
+                      fill: 'var(-error-red)',
                     }}
                   />
                 </button>
@@ -224,8 +213,7 @@ function AntRow({
                   style={{
                     width: '24px',
                     height: '24px',
-                    stroke: 'red',
-                    fill: 'red',
+                    fill: 'var(-error-red)',
                   }}
                 />
               </button>
@@ -249,7 +237,7 @@ function AntRow({
           )}
         </>
       </tr>
-      {showManageModal ? (
+      {showManageModal && confirmations ? (
         <ManageAntModal
           setShowModal={setShowModal}
           state={antState}

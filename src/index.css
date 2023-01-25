@@ -2,7 +2,7 @@
   font-family: 'Rubik';
   src: url('../assets/fonts/Rubik1/Rubik-Regular.ttf');
   font-weight: 100;
-  font-style: normal;
+  font-style: monospace;
   font-display: block;
 }
 
@@ -10,7 +10,7 @@
   font-family: 'Rubik-Bold';
   src: url('../assets/fonts/Rubik1/Rubik-Bold.ttf');
   font-weight: 100;
-  font-style: normal;
+  font-style: monospace;
   font-display: block;
 }
 :root {
@@ -421,6 +421,7 @@ button {
   align-items: center;
   color: var(--text-white);
   flex: 1;
+  height: 50px;
 }
 
 /* TOP LEVEL RESIZE RULES */
