@@ -75,7 +75,7 @@ function ManageAntModal({
           style={{ flex: 4 }}
           key={`${contractId}-data`}
         >
-          {names ? names.map((name) => name).join(', ') : 'N/A'}
+          {names?.length ? names.map((name) => name).join(', ') : 'N/A'}
         </td>,
       ],
       [
