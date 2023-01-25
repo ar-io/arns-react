@@ -149,7 +149,9 @@ function ManageAntModal({
           style={{ flex: 4 }}
           key={`${contractId}-data`}
         >
-          {state?.controllers ? state.controllers.toString() : 'N/A'}
+          {state?.controllers
+            ? state.controllers.toString()
+            : state.owner.toString()}
         </td>,
         <button className="button" key={`${contractId}-controller-edit-button`}>
           <PencilIcon width={20} height={20} fill="var(--text-white)" />
