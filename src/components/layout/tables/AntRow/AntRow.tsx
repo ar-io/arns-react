@@ -6,6 +6,7 @@ import { ArweaveTransactionID } from '../../../../types';
 import { ASSET_TYPES } from '../../../../types';
 import CopyTextButton from '../../../inputs/buttons/CopyTextButton/CopyTextButton';
 import ManageAssetButtons from '../../../inputs/buttons/ManageAssetButtons/ManageAssetButtons';
+import ManageAntModal from '../../../modals/ManageAntModal/ManageAntModal';
 import Loader from '../../Loader/Loader';
 import TransactionStatus from '../../TransactionStatus/TransactionStatus';
 
@@ -20,6 +21,8 @@ function AntRow({
 }) {
   const [{ arweaveDataProvider }] = useGlobalState();
   const isMobile = useIsMobile();
+  const [showManageModal, setShowManageModal] = useState(false);
+
   const [antState, setAntState] = useState<any>();
   // row details
   const [targetId, setTargetId] = useState<string>();
@@ -63,6 +66,9 @@ function AntRow({
     const confirmations = await arweaveDataProvider.getTransactionStatus(id);
     setConfirmations(confirmations);
   }
+  function setShowModal(show: boolean) {
+    setShowManageModal(show);
+  }
 
   return (
     <>
@@ -75,6 +81,13 @@ function AntRow({
                 color: textColor,
               }
             : {}
+        }
+        onClick={
+          isMobile
+            ? () => setShowManageModal(true)
+            : () => {
+                return;
+              }
         }
       >
         <>
@@ -96,33 +109,22 @@ function AntRow({
             className="assets-table-item center"
             style={textColor ? { color: textColor } : {}}
           >
-            {isMobile ? (
-              <CopyTextButton
-                displayText={`${antId.toString().slice(0, 2)}...${antId
-                  .toString()
-                  .slice(-2)}`}
-                copyText={antId.toString()}
-                size={24}
-                wrapperStyle={{
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  textColor: 'var(--bright-white)',
-                }}
-              />
-            ) : (
-              <CopyTextButton
-                displayText={`${antId.toString().slice(0, 6)}...${antId
-                  .toString()
-                  .slice(-6)}`}
-                copyText={antId.toString()}
-                size={24}
-                wrapperStyle={{
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  textColor,
-                }}
-              />
-            )}
+            <CopyTextButton
+              displayText={
+                isMobile
+                  ? `${antId.toString().slice(0, 6)}...${antId
+                      .toString()
+                      .slice(-6)}`
+                  : antId.toString()
+              }
+              copyText={antId.toString()}
+              size={24}
+              wrapperStyle={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                textColor: 'var(--bright-white)',
+              }}
+            />
           </td>
           {isMobile ? (
             <></>
@@ -162,11 +164,26 @@ function AntRow({
               className="assets-table-item flex-right"
               style={textColor ? { color: textColor } : {}}
             >
-              <ManageAssetButtons asset={antId} assetType={ASSET_TYPES.ANT} />
+              <ManageAssetButtons
+                asset={antId}
+                assetType={ASSET_TYPES.ANT}
+                setShowModal={setShowModal}
+              />
             </td>
           )}
         </>
       </tr>
+      {showManageModal ? (
+        <ManageAntModal
+          setShowModal={setShowModal}
+          state={antState}
+          contractId={antId}
+          targetId={targetId}
+          confirmations={confirmations}
+        />
+      ) : (
+        <></>
+      )}
     </>
   );
 }

@@ -420,9 +420,9 @@ button {
   display: flex;
   align-items: center;
   color: var(--text-white);
-  overflow: hidden;
   flex: 1;
 }
+
 /* TOP LEVEL RESIZE RULES */
 @media screen and (max-width: 600px) {
   .page-header {
