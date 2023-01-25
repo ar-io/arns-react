@@ -125,7 +125,7 @@ function ManageAntModal({
       ],
       [
         <td className="assets-table-item" key={`${contractId}-data`}>
-          ttlSeconds:
+          TTL Seconds:
         </td>,
         <td
           className="assets-table-item"
