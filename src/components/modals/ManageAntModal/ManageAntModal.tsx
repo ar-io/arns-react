@@ -12,15 +12,35 @@ import { NotebookIcon, PencilIcon } from '../../icons';
 import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
 import TransactionStatus from '../../layout/TransactionStatus/TransactionStatus';
 
-enum EDITABLE_FIELDS {
-  NAME = 'name',
-  TICKER = 'ticker',
-  TARGET = 'targetID',
-  TTL = 'ttlSeconds',
-  CONTROLLER = 'controller',
-}
+// enum EDITABLE_FIELDS {
+//   NAME = 'name',
+//   TICKER = 'ticker',
+//   TARGET = 'targetID',
+//   TTL = 'ttlSeconds',
+//   CONTROLLER = 'controller',
+// }
 
-const ACTIONABLE_FIELDS = {
+const EDITABLE_FIELDS = [
+  'name',
+  'ticker',
+  'targetID',
+  'ttlSeconds',
+  'controller',
+];
+
+type ManageAntRow = {
+  attribute: string;
+  value: string;
+  action: any;
+  key: number;
+};
+
+const ACTIONABLE_FIELDS: {
+  [x: string]: {
+    fn: () => void;
+    title: string;
+  };
+} = {
   owner: {
     fn: () => alert('this feature is coming soon...'),
     title: 'Transfer',
@@ -83,8 +103,8 @@ function ManageAntModal({
     const names = getAssociatedNames(id);
     //  eslint-disable-next-line
     const { state, key, ...otherDetails } = antDetails;
-    const consolidatedDetails = {
-      status: antDetails.status ?? 'N/A',
+    const consolidatedDetails: ManageAntRow & any = {
+      status: antDetails.status ?? 0,
       associatedNames: !names.length ? 'N/A' : names.join(', '),
       name: antDetails.name ?? 'N/A',
       ticker: state.ticker ?? 'N/A',
@@ -99,19 +119,10 @@ function ManageAntModal({
     };
 
     const rows = Object.keys(consolidatedDetails).reduce(
-      (
-        details: {
-          attribute: string;
-          value: string;
-          action: any;
-          key: number;
-        }[],
-        attribute: string,
-        index: number,
-      ) => {
+      (details: ManageAntRow[], attribute: string, index: number) => {
         const detail = {
           attribute,
-          value: consolidatedDetails[attribute],
+          value: consolidatedDetails[attribute as keyof ManageAntRow],
           action: Object.values(EDITABLE_FIELDS).includes(attribute) ? (
             <button onClick={() => setEditingField(attribute)}>
               <PencilIcon
