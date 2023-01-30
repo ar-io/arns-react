@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../../hooks';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
-import { ArweaveTransactionID } from '../../../../types';
+import { ArNSContractState, ArweaveTransactionID } from '../../../../types';
 import { ASSET_TYPES } from '../../../../types';
 import { RefreshAlertIcon } from '../../../icons';
 import CopyTextButton from '../../../inputs/buttons/CopyTextButton/CopyTextButton';
@@ -240,10 +240,15 @@ function AntRow({
       {showManageModal && confirmations ? (
         <ManageAntModal
           setShowModal={setShowModal}
-          state={antState}
+          antDetails={{
+            id: antId.toString(),
+            name: antState.name,
+            target: targetId ?? 'N/A',
+            status: +confirmations,
+            key: 0,
+            state: antState as ArNSContractState,
+          }}
           contractId={antId}
-          targetId={targetId}
-          confirmations={confirmations}
         />
       ) : (
         <></>

@@ -3,8 +3,10 @@ import { AlertCircle, AlertTriangleIcon, CircleCheck } from '../../icons';
 
 function TransactionStatus({
   confirmations,
+  wrapperStyle,
 }: {
   confirmations: number;
+  wrapperStyle?: any;
 }): JSX.Element {
   const isMobile = useIsMobile();
 
@@ -27,7 +29,10 @@ function TransactionStatus({
     }
   }
   return (
-    <span className="text white bold center">
+    <span
+      className="text white bold"
+      style={{ alignItems: 'center', ...wrapperStyle }}
+    >
       {getStatusIcon(confirmations)}&nbsp;
       {!isMobile ? `${confirmations} / 50` : <></>}
     </span>
