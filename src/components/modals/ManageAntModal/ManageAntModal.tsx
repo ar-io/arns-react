@@ -12,14 +12,6 @@ import { NotebookIcon, PencilIcon } from '../../icons';
 import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
 import TransactionStatus from '../../layout/TransactionStatus/TransactionStatus';
 
-// enum EDITABLE_FIELDS {
-//   NAME = 'name',
-//   TICKER = 'ticker',
-//   TARGET = 'targetID',
-//   TTL = 'ttlSeconds',
-//   CONTROLLER = 'controller',
-// }
-
 const EDITABLE_FIELDS = [
   'name',
   'ticker',
@@ -31,6 +23,7 @@ const EDITABLE_FIELDS = [
 type ManageAntRow = {
   attribute: string;
   value: string;
+  editable: boolean;
   action: any;
   key: number;
 };
@@ -67,6 +60,7 @@ function ManageAntModal({
   const modalRef = useRef(null);
   const isMobile = useIsMobile();
   const [editingField, setEditingField] = useState<string>();
+  const [modifiedValue, setModifiedValue] = useState<string>();
   const [rows, setRows] = useState<
     {
       attribute: string;
@@ -123,28 +117,8 @@ function ManageAntModal({
         const detail = {
           attribute,
           value: consolidatedDetails[attribute as keyof ManageAntRow],
-          action: Object.values(EDITABLE_FIELDS).includes(attribute) ? (
-            <button onClick={() => setEditingField(attribute)}>
-              <PencilIcon
-                style={{ width: '24', height: '24', fill: 'white' }}
-              />
-            </button>
-          ) : ACTIONABLE_FIELDS[attribute] ? (
-            <button
-              onClick={
-                ACTIONABLE_FIELDS[attribute].fn ??
-                (() => alert('not implemented'))
-              }
-              className="accent-button"
-              style={{
-                fontSize: '14px',
-              }}
-            >
-              {ACTIONABLE_FIELDS[attribute].title}
-            </button>
-          ) : (
-            <></>
-          ),
+          editable: EDITABLE_FIELDS.includes(attribute),
+          action: ACTIONABLE_FIELDS[attribute],
           key: index,
         };
         details.push(detail);
@@ -219,7 +193,7 @@ function ManageAntModal({
               key: 'value',
               align: 'left',
               width: '80%',
-              className: 'white detail',
+              className: 'white',
               render: (value: string | number, row: any) => {
                 if (row.attribute === 'status')
                   return (
@@ -228,7 +202,7 @@ function ManageAntModal({
                       <TransactionStatus confirmations={+value} />
                     </>
                   );
-                if (Object.values(EDITABLE_FIELDS).includes(row.attribute))
+                if (row.editable)
                   return (
                     <>
                       {/* TODO: add label for mobile view */}
@@ -250,7 +224,12 @@ function ManageAntModal({
                           display: 'block',
                         }}
                         disabled={editingField !== row.attribute}
-                        value={value}
+                        value={
+                          editingField !== row.attribute ? value : modifiedValue
+                        }
+                        onChange={(e) =>
+                          setModifiedValue(e.target.value.trim())
+                        }
                       />
                     </>
                   );
@@ -266,10 +245,43 @@ function ManageAntModal({
               className: 'white',
               render: (value: any, row: any) => {
                 //TODO: if it's got an action attached, show it
-                if (row.action) {
-                  return value;
+                if (row.editable) {
+                  return (
+                    <>
+                      {editingField !== row.attribute ? (
+                        <button onClick={() => setEditingField(row.attribute)}>
+                          <PencilIcon
+                            style={{ width: '24', height: '24', fill: 'white' }}
+                          />
+                        </button>
+                      ) : (
+                        <button
+                          className="assets-manage-button"
+                          onClick={() => {
+                            alert(
+                              `Writing contract interaction...${modifiedValue}`,
+                            );
+                            // TODO: write contract interaction
+                            setEditingField(undefined);
+                          }}
+                        >
+                          Save
+                        </button>
+                      )}
+                    </>
+                  );
                 }
-                return;
+                if (row.action) {
+                  return (
+                    <button
+                      onClick={row.action.fn}
+                      className="assets-manage-button"
+                    >
+                      {row.action.title}
+                    </button>
+                  );
+                }
+                return value;
               },
             },
           ]}
