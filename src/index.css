@@ -450,10 +450,6 @@ button {
   border-spacing: 0px 10px;
 }
 
-.rc-table-header > table {
-  width: 100%;
-}
-
 .rc-table-tbody > tr > td {
   border: 1px solid #323232;
   border-width: 1px 0px;
