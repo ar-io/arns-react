@@ -174,7 +174,9 @@ function ManageAntModal({
         </div>
         <Table
           showHeader={false}
-          rowClassName={'table-row'}
+          onRow={(row) => ({
+            className: row.attribute === editingField ? 'active-row' : '',
+          })}
           columns={[
             {
               title: '',
@@ -257,6 +259,10 @@ function ManageAntModal({
                       ) : (
                         <button
                           className="assets-manage-button"
+                          style={{
+                            backgroundColor: 'var(--accent)',
+                            borderColor: 'var(--accent)',
+                          }}
                           onClick={() => {
                             alert(
                               `Writing contract interaction...${modifiedValue}`,
