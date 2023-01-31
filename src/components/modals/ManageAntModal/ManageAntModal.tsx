@@ -9,7 +9,6 @@ import {
   mapKeyToAttribute,
 } from '../../cards/AntCard/AntCard';
 import { NotebookIcon, PencilIcon } from '../../icons';
-import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
 import TransactionStatus from '../../layout/TransactionStatus/TransactionStatus';
 
 const EDITABLE_FIELDS = [
