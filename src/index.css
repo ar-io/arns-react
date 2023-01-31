@@ -461,6 +461,11 @@ button {
   font-size: 16px;
 }
 
+.rc-table-tbody > tr > td > input:focus {
+  outline: 2px solid #E0E0E0;
+  border-radius: 2px;
+}
+
 .rc-table-tbody > .active-row {
   background-color: #757575;
 }
