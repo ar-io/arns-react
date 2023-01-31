@@ -150,26 +150,7 @@ function ManageAntModal({
         >
           <span className="flex bold text-medium white">
             <NotebookIcon width={25} height={25} fill={'var(--text-white)'} />
-            &nbsp;Manage ANT:&nbsp;
-            <span className="flex">
-              <CopyTextButton
-                displayText={
-                  isMobile
-                    ? `${contractId.toString().slice(0, 10)}...${contractId
-                        .toString()
-                        .slice(-10)}`
-                    : contractId.toString()
-                }
-                copyText={contractId.toString()}
-                size={24}
-                wrapperStyle={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  textColor: 'var(--bright-white)',
-                }}
-              />
-            </span>
+            Manage ANT
           </span>
         </div>
         <Table
