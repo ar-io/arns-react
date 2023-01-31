@@ -192,6 +192,7 @@ function ManageAntModal({
                         id={row.attribute}
                         style={{
                           width: '80%',
+                          fontSize: '16px',
                           background:
                             editingField === row.attribute
                               ? 'white'
