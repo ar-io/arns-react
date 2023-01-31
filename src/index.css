@@ -462,7 +462,7 @@ button {
 }
 
 .rc-table-tbody > tr > td > input:focus {
-  outline: 2px solid #E0E0E0;
+  outline: 1px solid #e0e0e0;
   border-radius: 2px;
 }
 

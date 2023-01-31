@@ -197,7 +197,11 @@ function ManageAntModal({
                             editingField === row.attribute
                               ? 'white'
                               : 'transparent',
-                          border: 'none',
+                          border:
+                            editingField === row.attribute
+                              ? '2px solid #E0E0E0'
+                              : 'none',
+                          borderRadius: '2px',
                           color:
                             editingField === row.attribute ? 'black' : 'white',
                           padding:
