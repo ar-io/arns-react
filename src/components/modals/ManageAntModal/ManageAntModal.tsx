@@ -1,37 +1,81 @@
+import Table from 'rc-table';
 import { useEffect, useRef, useState } from 'react';
 
 import { useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { ArweaveTransactionID } from '../../../types';
-import { ANTContractState } from '../../../types';
+import { ArNSContractState, ArweaveTransactionID } from '../../../types';
+import {
+  DEFAULT_ATTRIBUTES,
+  mapKeyToAttribute,
+} from '../../cards/AntCard/AntCard';
 import { NotebookIcon, PencilIcon } from '../../icons';
-import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
 import TransactionStatus from '../../layout/TransactionStatus/TransactionStatus';
-import RowItem from '../../layout/tables/RowItem/RowItem';
+
+const EDITABLE_FIELDS = [
+  'name',
+  'ticker',
+  'targetID',
+  'ttlSeconds',
+  'controller',
+];
+
+type ManageAntRow = {
+  attribute: string;
+  value: string;
+  editable: boolean;
+  action: any;
+  key: number;
+};
+
+const ACTIONABLE_FIELDS: {
+  [x: string]: {
+    fn: () => void;
+    title: string;
+  };
+} = {
+  owner: {
+    fn: () => alert('this feature is coming soon...'),
+    title: 'Transfer',
+  },
+};
 
 function ManageAntModal({
   contractId,
   setShowModal,
-  state,
-  confirmations,
-  targetId,
+  antDetails,
 }: {
   contractId: ArweaveTransactionID;
   setShowModal: (show: boolean) => void;
-  state: ANTContractState;
-  confirmations: number;
-  targetId?: string;
+  antDetails: {
+    name: string;
+    id: string;
+    target: string;
+    status: number;
+    key: number;
+    state: ArNSContractState;
+  };
 }) {
   const [{ arnsSourceContract }] = useGlobalState();
   const modalRef = useRef(null);
-  const [antDetails, setAntDetails] = useState<any[]>();
   const isMobile = useIsMobile();
+  const [editingField, setEditingField] = useState<string>();
+  const [modifiedValue, setModifiedValue] = useState<string>();
+  const [rows, setRows] = useState<
+    {
+      attribute: string;
+      value: any;
+      action: any;
+      key: number;
+    }[]
+  >([]);
   // todo: manage asset modal writes asset modifications to contract. It will auto detect if the asset is an ANT, name, or undername.
   // if the asset is a name, it will write modifications to the registry. If its an undername, it will write mods to the ant. If its an ant, it will write mods to the ant.
 
   useEffect(() => {
-    setDetails();
-  }, [contractId, state, targetId, confirmations]);
+    setDetails(contractId);
+  }, [contractId, antDetails]);
+
+  // TODO: add use effect to track edited value of a field
 
   function handleClickOutside(e: any) {
     if (modalRef.current && modalRef.current === e.target) {
@@ -48,152 +92,40 @@ function ManageAntModal({
       .filter((n) => !!n);
   }
 
-  function setDetails() {
-    const names = getAssociatedNames(contractId);
-    const details = [
-      [
-        <td className="assets-table-item" key={`${contractId}-data`}>
-          Status:
-        </td>,
-        <td
-          className="assets-table-item"
-          style={{ flex: 4 }}
-          key={`${contractId}-data`}
-        >
-          <TransactionStatus
-            key={`${contractId}-confirmations`}
-            confirmations={confirmations}
-          />
-        </td>,
-      ],
-      [
-        <td className="assets-table-item" key={`${contractId}-data`}>
-          {`Associated Names (${names?.length}) :`}
-        </td>,
-        <td
-          className="assets-table-item"
-          style={{ flex: 4 }}
-          key={`${contractId}-data`}
-        >
-          {names?.length ? names.map((name) => name).join(', ') : 'N/A'}
-        </td>,
-      ],
-      [
-        <td className="assets-table-item" key={`${contractId}-data`}>
-          Nickname:
-        </td>,
-        <td
-          className="assets-table-item"
-          style={{ flex: 4 }}
-          key={`${contractId}-data`}
-        >
-          {state?.name ? state.name : 'N/A'}
-        </td>,
-        <button className="button" key={`${contractId}-nickname-edit-button`}>
-          <PencilIcon width={20} height={20} fill="var(--text-white)" />
-        </button>,
-      ],
-      [
-        <td className="assets-table-item" key={`${contractId}-data`}>
-          Ticker:
-        </td>,
-        <td
-          className="assets-table-item"
-          style={{ flex: 4 }}
-          key={`${contractId}-data`}
-        >
-          {state?.ticker ? state.ticker : 'N/A'}
-        </td>,
-        <button className="button" key={`${contractId}-ticker-edit-button`}>
-          <PencilIcon width={20} height={20} fill="var(--text-white)" />
-        </button>,
-      ],
-      [
-        <td className="assets-table-item" key={`${contractId}-data`}>
-          Target ID:
-        </td>,
-        <td
-          className="assets-table-item"
-          style={{ flex: 4 }}
-          key={`${contractId}-data`}
-        >
-          {targetId ? targetId : 'N/A'}
-        </td>,
-        <button className="button" key={`${contractId}-targetId-edit-button`}>
-          <PencilIcon width={20} height={20} fill="var(--text-white)" />
-        </button>,
-      ],
-      [
-        <td className="assets-table-item" key={`${contractId}-data`}>
-          TTL Seconds:
-        </td>,
-        <td
-          className="assets-table-item"
-          style={{ flex: 4 }}
-          key={`${contractId}-data`}
-        >
-          {state?.records['@'].ttlSeconds
-            ? state.records['@'].ttlSeconds
-            : 'N/A'}
-        </td>,
-        <button className="button" key={`${contractId}-ttl-edit-button`}>
-          <PencilIcon width={20} height={20} fill="var(--text-white)" />
-        </button>,
-      ],
-      [
-        <td className="assets-table-item" key={`${contractId}-data`}>
-          Controller:
-        </td>,
-        <td
-          className="assets-table-item"
-          style={{ flex: 4 }}
-          key={`${contractId}-data`}
-        >
-          {state?.controllers
-            ? state.controllers.toString()
-            : state.owner.toString()}
-        </td>,
-        <button className="button" key={`${contractId}-controller-edit-button`}>
-          <PencilIcon width={20} height={20} fill="var(--text-white)" />
-        </button>,
-      ],
-      [
-        <td className="assets-table-item" key={`${contractId}-data`}>
-          Undernames:
-        </td>,
-        <td
-          className="assets-table-item"
-          style={{ flex: 4 }}
-          key={`${contractId}-data`}
-        >
-          {state?.records
-            ? `${Object.keys(state.records).length - 1} / 100`
-            : 'N/A'}
-        </td>,
-        <button className="button" key={`${contractId}-records-button`}>
-          <PencilIcon width={20} height={20} fill="var(--text-white)" />
-        </button>,
-      ],
-      [
-        <td className="assets-table-item" key={`${contractId}-data`}>
-          Owner:
-        </td>,
-        <td
-          className="assets-table-item"
-          style={{ flex: 4 }}
-          key={`${contractId}-data`}
-        >
-          {state?.owner ? state.owner.toString() : 'N/A'}
-        </td>,
-        <button
-          className="assets-manage-button"
-          key={`${contractId}-transfer-button`}
-        >
-          Transfer
-        </button>,
-      ],
-    ];
-    setAntDetails(details);
+  function setDetails(id: ArweaveTransactionID) {
+    const names = getAssociatedNames(id);
+    //  eslint-disable-next-line
+    const { state, key, ...otherDetails } = antDetails;
+    const consolidatedDetails: ManageAntRow & any = {
+      status: antDetails.status ?? 0,
+      associatedNames: !names.length ? 'N/A' : names.join(', '),
+      name: antDetails.name ?? 'N/A',
+      ticker: state.ticker ?? 'N/A',
+      targetID: otherDetails.target ?? 'N/A',
+      ttlSeconds: DEFAULT_ATTRIBUTES.ttlSeconds.toString(),
+      controller:
+        antDetails.state.controllers?.join(', ') ??
+        antDetails.state.owner?.toString() ??
+        'N/A',
+      undernames: `${names.length} / ${DEFAULT_ATTRIBUTES.maxSubdomains}`,
+      owner: antDetails.state.owner?.toString() ?? 'N/A',
+    };
+
+    const rows = Object.keys(consolidatedDetails).reduce(
+      (details: ManageAntRow[], attribute: string, index: number) => {
+        const detail = {
+          attribute,
+          value: consolidatedDetails[attribute as keyof ManageAntRow],
+          editable: EDITABLE_FIELDS.includes(attribute),
+          action: ACTIONABLE_FIELDS[attribute],
+          key: index,
+        };
+        details.push(detail);
+        return details;
+      },
+      [],
+    );
+    setRows(rows);
   }
 
   return (
@@ -204,7 +136,10 @@ function ManageAntModal({
       ref={modalRef}
       onClick={handleClickOutside}
     >
-      <div className="flex-column" style={{ margin: '10%' }}>
+      <div
+        className="flex-column"
+        style={{ margin: '10%', minWidth: '350px', gap: '0.5em' }}
+      >
         <div
           className="flex"
           style={{
@@ -214,38 +149,142 @@ function ManageAntModal({
         >
           <span className="flex bold text-medium white">
             <NotebookIcon width={25} height={25} fill={'var(--text-white)'} />
-            &nbsp;Manage ANT:&nbsp;
-            <span className="flex">
-              <CopyTextButton
-                displayText={
-                  isMobile
-                    ? `${contractId.toString().slice(0, 10)}...${contractId
-                        .toString()
-                        .slice(-10)}`
-                    : contractId.toString()
-                }
-                copyText={contractId.toString()}
-                size={24}
-                wrapperStyle={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  textColor: 'var(--bright-white)',
-                }}
-              />
-            </span>
+            Manage ANT
           </span>
         </div>
-        <table className="assets-table">
-          {antDetails?.map((rowDetails, index) => (
-            <RowItem
-              key={index}
-              details={rowDetails}
-              bgColor={'#1E1E1E'}
-              textColor={'var(--text-white)'}
-            />
-          ))}
-        </table>
+        <Table
+          showHeader={false}
+          onRow={(row) => ({
+            className: row.attribute === editingField ? 'active-row' : '',
+          })}
+          scroll={{ x: true }}
+          columns={[
+            {
+              title: '',
+              dataIndex: 'attribute',
+              key: 'attribute',
+              align: 'left',
+              width: isMobile ? '0px' : '30%',
+              className: 'white',
+              render: (value: string) => {
+                return `${mapKeyToAttribute(value)}:`;
+              },
+            },
+            {
+              title: '',
+              dataIndex: 'value',
+              key: 'value',
+              align: 'left',
+              width: '80%',
+              className: 'white',
+              render: (value: string | number, row: any) => {
+                if (row.attribute === 'status')
+                  return (
+                    <>
+                      {/* TODO: add label for mobile view */}
+                      <TransactionStatus confirmations={+value} />
+                    </>
+                  );
+                if (row.editable)
+                  return (
+                    <>
+                      {/* TODO: add label for mobile view */}
+                      <input
+                        id={row.attribute}
+                        style={{
+                          width: '80%',
+                          fontSize: '16px',
+                          background:
+                            editingField === row.attribute
+                              ? 'white'
+                              : 'transparent',
+                          border:
+                            editingField === row.attribute
+                              ? '2px solid #E0E0E0'
+                              : 'none',
+                          borderRadius: '2px',
+                          color:
+                            editingField === row.attribute ? 'black' : 'white',
+                          padding:
+                            editingField === row.attribute
+                              ? '10px '
+                              : '10px 0px',
+                          display: 'block',
+                        }}
+                        disabled={editingField !== row.attribute}
+                        value={
+                          editingField !== row.attribute ? value : modifiedValue
+                        }
+                        onChange={(e) =>
+                          setModifiedValue(e.target.value.trim())
+                        }
+                      />
+                    </>
+                  );
+                return value;
+              },
+            },
+            {
+              title: '',
+              dataIndex: 'action',
+              key: 'action',
+              width: '10%',
+              align: 'right',
+              className: 'white',
+              render: (value: any, row: any) => {
+                //TODO: if it's got an action attached, show it
+                if (row.editable) {
+                  return (
+                    <>
+                      {editingField !== row.attribute ? (
+                        <button
+                          onClick={() => {
+                            setEditingField(row.attribute);
+                            setModifiedValue(row.value);
+                          }}
+                        >
+                          <PencilIcon
+                            style={{ width: '24', height: '24', fill: 'white' }}
+                          />
+                        </button>
+                      ) : (
+                        <button
+                          className="assets-manage-button"
+                          style={{
+                            backgroundColor: 'var(--accent)',
+                            borderColor: 'var(--accent)',
+                          }}
+                          onClick={() => {
+                            alert(
+                              `Writing contract interaction...${modifiedValue}`,
+                            );
+                            // TODO: write contract interaction
+                            setEditingField(undefined);
+                            setModifiedValue(undefined);
+                          }}
+                        >
+                          Save
+                        </button>
+                      )}
+                    </>
+                  );
+                }
+                if (row.action) {
+                  return (
+                    <button
+                      onClick={row.action.fn}
+                      className="assets-manage-button"
+                    >
+                      {row.action.title}
+                    </button>
+                  );
+                }
+                return value;
+              },
+            },
+          ]}
+          data={rows}
+        />
       </div>
     </div>
   );

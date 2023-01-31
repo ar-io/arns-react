@@ -9,7 +9,7 @@ import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
 import { Loader } from '../../layout';
 import './styles.css';
 
-const ANT_DETAIL_MAPPINGS: { [x: string]: string } = {
+export const ANT_DETAIL_MAPPINGS: { [x: string]: string } = {
   name: 'Nickname',
   id: 'ANT Contract ID',
   leaseDuration: 'Lease Duration',
@@ -17,14 +17,14 @@ const ANT_DETAIL_MAPPINGS: { [x: string]: string } = {
   controller: 'Controllers',
 };
 
-function mapKeyToAttribute(key: string) {
+export function mapKeyToAttribute(key: string) {
   if (ANT_DETAIL_MAPPINGS[key]) {
     return ANT_DETAIL_MAPPINGS[key];
   }
   return startCase(key);
 }
 
-const PRIMARY_DETAILS: string[] = [
+export const PRIMARY_DETAILS: string[] = [
   'id',
   'domain',
   'owner',
@@ -33,7 +33,7 @@ const PRIMARY_DETAILS: string[] = [
   'nickname',
 ].map((i) => mapKeyToAttribute(i));
 
-const DEFAULT_ATTRIBUTES = {
+export const DEFAULT_ATTRIBUTES = {
   ttlSeconds: 60 * 60,
   leaseDuration: 'N/A',
   maxSubdomains: 100,

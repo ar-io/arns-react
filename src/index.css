@@ -445,3 +445,39 @@ button {
     height: 30px;
   }
 }
+
+.rc-table-content > table {
+  border-spacing: 0px 10px;
+}
+
+.rc-table-tbody > tr {
+  height: 50px;
+}
+
+.rc-table-tbody > tr > td {
+  border: 1px solid #323232;
+  border-width: 1px 0px;
+  padding: 10px 15px 10px 50px;
+  font-size: 16px;
+}
+
+.rc-table-tbody > tr > td > input:focus {
+  outline: 1px solid #e0e0e0;
+  border-radius: 2px;
+}
+
+.rc-table-tbody > .active-row {
+  background-color: #757575;
+}
+
+.rc-table-tbody > tr > td:first-child {
+  border-left: 1px solid #323232;
+  border-top-left-radius: var(--corner-radius);
+  border-bottom-left-radius: var(--corner-radius);
+}
+
+.rc-table-tbody > tr > td:last-child {
+  border-right: 1px solid #323232;
+  border-top-right-radius: var(--corner-radius);
+  border-bottom-right-radius: var(--corner-radius);
+}

@@ -8,27 +8,25 @@ function ManageAssetButtons({
   // eslint-disable-next-line
   assetType,
   setShowModal,
+  disabled = true,
 }: {
   asset: ArweaveTransactionID | string;
   assetType: ASSET_TYPES;
   setShowModal: (show: boolean) => void;
+  disabled: boolean;
 }) {
   const isMobile = useIsMobile();
 
   return (
     <>
-      <div
-        className="flex-row center"
-        style={{ gap: '.5em', width: 'fit-content' }}
-      >
-        <button className="assets-see-more-button center hover">
-          See More
-        </button>
+      <div className="flex-row center" style={{ gap: '0.5em' }}>
+        <button className="assets-see-more-button">See More</button>
 
         {!isMobile ? (
           <button
-            className="assets-manage-button center hover"
+            className="assets-manage-button"
             onClick={() => setShowModal(true)}
+            disabled={disabled}
           >
             Manage
           </button>

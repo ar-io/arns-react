@@ -31,9 +31,7 @@ function CopyTextButton({
     <div className="flex" style={{ position, ...wrapperStyle }}>
       <button
         className="flex flex-space-between button"
-        style={{
-          ...wrapperStyle,
-        }}
+        style={{ ...wrapperStyle, cursor: 'pointer' }}
         onClick={async () => {
           await handleCopy();
         }}
