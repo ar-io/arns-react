@@ -232,7 +232,12 @@ function ManageAntModal({
                   return (
                     <>
                       {editingField !== row.attribute ? (
-                        <button onClick={() => setEditingField(row.attribute)}>
+                        <button
+                          onClick={() => {
+                            setEditingField(row.attribute);
+                            setModifiedValue(row.value);
+                          }}
+                        >
                           <PencilIcon
                             style={{ width: '24', height: '24', fill: 'white' }}
                           />
@@ -250,6 +255,7 @@ function ManageAntModal({
                             );
                             // TODO: write contract interaction
                             setEditingField(undefined);
+                            setModifiedValue(undefined);
                           }}
                         >
                           Save
