@@ -232,6 +232,7 @@ function AntRow({
                 asset={antId}
                 assetType={ASSET_TYPES.ANT}
                 setShowModal={setShowModal}
+                disabled={!antState && !confirmations}
               />
             </td>
           )}
