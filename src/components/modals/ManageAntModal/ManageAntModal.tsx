@@ -157,6 +157,7 @@ function ManageAntModal({
           onRow={(row) => ({
             className: row.attribute === editingField ? 'active-row' : '',
           })}
+          scroll={{ x: true }}
           columns={[
             {
               title: '',
