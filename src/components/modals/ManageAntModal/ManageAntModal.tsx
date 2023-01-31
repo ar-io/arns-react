@@ -138,7 +138,7 @@ function ManageAntModal({
     >
       <div
         className="flex-column"
-        style={{ margin: '10%', width: '50%', minWidth: '350px', gap: '0.5em' }}
+        style={{ margin: '10%', minWidth: '350px', gap: '0.5em' }}
       >
         <div
           className="flex"
