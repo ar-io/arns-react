@@ -3,7 +3,15 @@ import { useEffect, useRef, useState } from 'react';
 
 import { useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
+<<<<<<< HEAD
 import { ArNSContractState, ArweaveTransactionID } from '../../../types';
+=======
+import {
+  AntMetadata,
+  ArweaveTransactionID,
+  ManageAntRow,
+} from '../../../types';
+>>>>>>> 974d277 (feat: update Manage page to use react-table)
 import {
   DEFAULT_ATTRIBUTES,
   mapKeyToAttribute,
@@ -19,6 +27,7 @@ const EDITABLE_FIELDS = [
   'controller',
 ];
 
+<<<<<<< HEAD
 type ManageAntRow = {
   attribute: string;
   value: string;
@@ -27,6 +36,8 @@ type ManageAntRow = {
   key: number;
 };
 
+=======
+>>>>>>> 974d277 (feat: update Manage page to use react-table)
 const ACTIONABLE_FIELDS: {
   [x: string]: {
     fn: () => void;
@@ -46,6 +57,7 @@ function ManageAntModal({
 }: {
   contractId: ArweaveTransactionID;
   setShowModal: (show: boolean) => void;
+<<<<<<< HEAD
   antDetails: {
     name: string;
     id: string;
@@ -54,12 +66,16 @@ function ManageAntModal({
     key: number;
     state: ArNSContractState;
   };
+=======
+  antDetails: AntMetadata;
+>>>>>>> 974d277 (feat: update Manage page to use react-table)
 }) {
   const [{ arnsSourceContract }] = useGlobalState();
   const modalRef = useRef(null);
   const isMobile = useIsMobile();
   const [editingField, setEditingField] = useState<string>();
   const [modifiedValue, setModifiedValue] = useState<string>();
+<<<<<<< HEAD
   const [rows, setRows] = useState<
     {
       attribute: string;
@@ -68,6 +84,9 @@ function ManageAntModal({
       key: number;
     }[]
   >([]);
+=======
+  const [rows, setRows] = useState<ManageAntRow[]>([]);
+>>>>>>> 974d277 (feat: update Manage page to use react-table)
   // todo: manage asset modal writes asset modifications to contract. It will auto detect if the asset is an ANT, name, or undername.
   // if the asset is a name, it will write modifications to the registry. If its an undername, it will write mods to the ant. If its an ant, it will write mods to the ant.
 

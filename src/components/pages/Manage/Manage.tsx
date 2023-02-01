@@ -3,13 +3,13 @@ import { useEffect, useState } from 'react';
 
 import { useIsMobile, useWalletAddress } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { ASSET_TYPES, ArweaveTransactionID } from '../../../types';
+import { ASSET_TYPES, AntMetadata, ArweaveTransactionID } from '../../../types';
 import { TABLE_TYPES } from '../../../types';
-import { CodeSandboxIcon } from '../../icons';
-import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
+import { CodeSandboxIcon, NotebookIcon } from '../../icons';
 import ManageAssetButtons from '../../inputs/buttons/ManageAssetButtons/ManageAssetButtons';
 import { Loader } from '../../layout';
 import TransactionStatus from '../../layout/TransactionStatus/TransactionStatus';
+import ManageAntModal from '../../modals/ManageAntModal/ManageAntModal.js';
 import './styles.css';
 
 function Manage() {
@@ -18,19 +18,12 @@ function Manage() {
 
   const [tableType, setTableType] = useState(TABLE_TYPES.ANT); // ant_table or name_table
   const [sortAscending, setSortOrder] = useState(true);
+  const [selectedRow, setSelectedRow] = useState<number>(-1);
   const isMobile = useIsMobile();
   const [isLoading, setIsLoading] = useState(false);
   const [cursor] = useState<string | undefined>();
   const [reload, setReload] = useState(false);
-  const [rows, setRows] = useState<
-    {
-      name: string;
-      id: string;
-      target: string;
-      status: number;
-      key: number;
-    }[]
-  >([]);
+  const [rows, setRows] = useState<AntMetadata[]>([]);
 
   useEffect(() => {
     // todo: move this to a separate function to manage error state and poll for new ants to concat them to the state.
@@ -48,18 +41,13 @@ function Manage() {
       cursor,
     );
     // TODO: make this row a type
-    const fetchedRows: {
-      name: string;
-      id: string;
-      target: string;
-      status: number;
-      key: number;
-    }[] = [];
+    const fetchedRows: AntMetadata[] = [];
     for (const [index, id] of ids.entries()) {
       const [contractState, confirmations] = await Promise.all([
         arweaveDataProvider.getContractState(id),
         arweaveDataProvider.getTransactionStatus(id),
       ]);
+      // TODO: add error messages and reload state to row
       const rowData = {
         name: contractState.name ?? 'N/A',
         id: id.toString(),
@@ -67,6 +55,7 @@ function Manage() {
           contractState.records['@']?.transactionId ??
           contractState.records['@'],
         status: confirmations ?? 0,
+        state: contractState,
         key: index,
       };
       fetchedRows.push(rowData);
@@ -111,14 +100,24 @@ function Manage() {
             </div>
           ) : (
             <Table
-              rowClassName={'table-row'}
+              emptyText={'Uh oh, nothing was found.'}
               columns={[
                 {
-                  title: 'Nickname',
+                  title: (
+                    <span className="flex-row pointer" style={{ gap: '0.5em' }}>
+                      <span>Nickname</span>
+                      <NotebookIcon
+                        width={24}
+                        height={24}
+                        fill={'var(--text-faded)'}
+                      />
+                      {/* TODO: show short arrows */}
+                    </span>
+                  ),
                   dataIndex: 'name',
                   key: 'name',
                   align: 'left',
-                  width: '10%',
+                  width: '25%',
                   className: 'white',
                   ellipsis: true,
                   onHeaderCell: () => {
@@ -138,27 +137,29 @@ function Manage() {
                   },
                 },
                 {
-                  title: 'Contract ID',
+                  title: (
+                    <span
+                      className="flex-row center pointer"
+                      style={{ gap: '0.5em' }}
+                    >
+                      <span>Contract ID</span>
+                      <NotebookIcon
+                        width={24}
+                        height={24}
+                        fill={'var(--text-faded)'}
+                      />
+                    </span>
+                  ),
                   dataIndex: 'id',
                   key: 'id',
                   align: 'center',
-                  width: '35%',
+                  width: '25%',
                   className: 'white',
                   ellipsis: true,
-                  render: (val) => (
-                    <CopyTextButton
-                      displayText={`${val.slice(
-                        0,
-                        isMobile ? 2 : 6,
-                      )}...${val.slice(isMobile ? -2 : -6)}`}
-                      copyText={val}
-                      size={24}
-                      wrapperStyle={{
-                        position: 'unset',
-                        justifyContent: 'center',
-                      }}
-                    />
-                  ),
+                  render: (val) =>
+                    `${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
+                      isMobile ? -2 : -6,
+                    )}`,
                   onHeaderCell: () => {
                     return {
                       onClick: () => {
@@ -175,26 +176,28 @@ function Manage() {
                   },
                 },
                 {
-                  title: 'Target ID',
+                  title: (
+                    <span
+                      className="flex-row center pointer"
+                      style={{ gap: '0.5em' }}
+                    >
+                      <span>Target ID</span>
+                      <NotebookIcon
+                        width={24}
+                        height={24}
+                        fill={'var(--text-faded)'}
+                      />
+                    </span>
+                  ),
                   dataIndex: 'target',
                   key: 'target',
                   align: 'center',
-                  width: '35%',
+                  width: '25%',
                   className: 'white',
-                  render: (val) => (
-                    <CopyTextButton
-                      displayText={`${val.slice(
-                        0,
-                        isMobile ? 2 : 6,
-                      )}...${val.slice(isMobile ? -2 : -6)}`}
-                      copyText={val}
-                      size={24}
-                      wrapperStyle={{
-                        position: 'unset',
-                        justifyContent: 'center',
-                      }}
-                    />
-                  ),
+                  render: (val) =>
+                    `${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
+                      isMobile ? -2 : -6,
+                    )}`,
                   onHeaderCell: () => {
                     return {
                       onClick: () => {
@@ -211,13 +214,32 @@ function Manage() {
                   },
                 },
                 {
-                  title: 'Status',
+                  title: (
+                    <span
+                      className="flex-row center pointer"
+                      style={{ gap: '0.5em' }}
+                    >
+                      <span>Status</span>
+                      <NotebookIcon
+                        width={24}
+                        height={24}
+                        fill={'var(--text-faded)'}
+                      />
+                    </span>
+                  ),
                   dataIndex: 'status',
                   key: 'status',
                   align: 'center',
-                  width: '10%',
+                  width: '25%',
                   className: 'white',
-                  render: (val) => <TransactionStatus confirmations={val} />,
+                  render: (val) => (
+                    <TransactionStatus
+                      confirmations={val}
+                      wrapperStyle={{
+                        justifyContent: 'center',
+                      }}
+                    />
+                  ),
                   onHeaderCell: () => {
                     return {
                       onClick: () => {
@@ -235,10 +257,10 @@ function Manage() {
                 },
                 {
                   title: '',
-                  render: (val) => (
+                  render: (val: any, row: AntMetadata, index: number) => (
                     <ManageAssetButtons
                       asset={val.id}
-                      setShowModal={() => alert('hello!')}
+                      setShowModal={() => setSelectedRow(index)}
                       assetType={ASSET_TYPES.ANT}
                     />
                   ),
@@ -247,14 +269,21 @@ function Manage() {
                 },
               ]}
               data={rows}
-              showHeader={true}
-              scroll={{ y: 300 }}
             />
           )
         ) : (
           <></>
         )}
       </div>
+      {selectedRow >= 0 ? (
+        <ManageAntModal
+          setShowModal={() => setSelectedRow(-1)}
+          antDetails={rows[selectedRow]}
+          contractId={new ArweaveTransactionID(rows[selectedRow].id)}
+        />
+      ) : (
+        <></>
+      )}
     </div>
   );
 }
