@@ -5,7 +5,7 @@ import { useIsMobile, useWalletAddress } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ASSET_TYPES, AntMetadata, ArweaveTransactionID } from '../../../types';
 import { TABLE_TYPES } from '../../../types';
-import { CodeSandboxIcon, NotebookIcon } from '../../icons';
+import { ChevronUpIcon, CodeSandboxIcon, NotebookIcon } from '../../icons';
 import ManageAssetButtons from '../../inputs/buttons/ManageAssetButtons/ManageAssetButtons';
 import { Loader } from '../../layout';
 import TransactionStatus from '../../layout/TransactionStatus/TransactionStatus';
@@ -18,6 +18,7 @@ function Manage() {
 
   const [tableType, setTableType] = useState(TABLE_TYPES.ANT); // ant_table or name_table
   const [sortAscending, setSortOrder] = useState(true);
+  const [sortField, setSortField] = useState<keyof AntMetadata>('name');
   const [selectedRow, setSelectedRow] = useState<number>(-1);
   const isMobile = useIsMobile();
   const modalRef = useRef(null);
@@ -121,10 +122,21 @@ function Manage() {
                   columns={[
                     {
                       title: (
-                        <span
-                          className="flex-row pointer"
+                        <button
+                          className="flex-row pointer white"
                           style={{ gap: '0.5em' }}
+                          onClick={() => setSortField('name')}
                         >
+                          <ChevronUpIcon
+                            width={10}
+                            height={10}
+                            fill={'var(--text-faded)'}
+                            style={
+                              sortField === 'name' && !sortAscending
+                                ? { transform: 'rotate(180deg)' }
+                                : {}
+                            }
+                          />
                           <span>Nickname</span>
                           <NotebookIcon
                             width={24}
@@ -132,7 +144,7 @@ function Manage() {
                             fill={'var(--text-faded)'}
                           />
                           {/* TODO: show short arrows */}
-                        </span>
+                        </button>
                       ),
                       dataIndex: 'name',
                       key: 'name',
@@ -158,17 +170,28 @@ function Manage() {
                     },
                     {
                       title: (
-                        <span
-                          className="flex-row center pointer"
+                        <button
+                          className="flex-row pointer white center"
                           style={{ gap: '0.5em' }}
+                          onClick={() => setSortField('id')}
                         >
+                          <ChevronUpIcon
+                            width={10}
+                            height={10}
+                            fill={'var(--text-faded)'}
+                            style={
+                              sortField === 'id' && !sortAscending
+                                ? { transform: 'rotate(180deg)' }
+                                : {}
+                            }
+                          />
                           <span>Contract ID</span>
                           <NotebookIcon
                             width={24}
                             height={24}
                             fill={'var(--text-faded)'}
                           />
-                        </span>
+                        </button>
                       ),
                       dataIndex: 'id',
                       key: 'id',
@@ -197,17 +220,28 @@ function Manage() {
                     },
                     {
                       title: (
-                        <span
-                          className="flex-row center pointer"
+                        <button
+                          className="flex-row pointer white center"
                           style={{ gap: '0.5em' }}
+                          onClick={() => setSortField('target')}
                         >
+                          <ChevronUpIcon
+                            width={10}
+                            height={10}
+                            fill={'var(--text-faded)'}
+                            style={
+                              sortField === 'target' && !sortAscending
+                                ? { transform: 'rotate(180deg)' }
+                                : {}
+                            }
+                          />
                           <span>Target ID</span>
                           <NotebookIcon
                             width={24}
                             height={24}
                             fill={'var(--text-faded)'}
                           />
-                        </span>
+                        </button>
                       ),
                       dataIndex: 'target',
                       key: 'target',
@@ -235,17 +269,28 @@ function Manage() {
                     },
                     {
                       title: (
-                        <span
-                          className="flex-row center pointer"
+                        <button
+                          className="flex-row pointer white center"
                           style={{ gap: '0.5em' }}
+                          onClick={() => setSortField('status')}
                         >
+                          <ChevronUpIcon
+                            width={10}
+                            height={10}
+                            fill={'var(--text-faded)'}
+                            style={
+                              sortField === 'status' && !sortAscending
+                                ? { transform: 'rotate(180deg)' }
+                                : {}
+                            }
+                          />
                           <span>Status</span>
                           <NotebookIcon
                             width={24}
                             height={24}
                             fill={'var(--text-faded)'}
                           />
-                        </span>
+                        </button>
                       ),
                       dataIndex: 'status',
                       key: 'status',
