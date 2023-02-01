@@ -486,6 +486,12 @@ button {
   border-bottom-right-radius: var(--corner-radius);
 }
 
+.rc-table-thead > tr > td:last-child {
+  border-right: 1px solid #323232;
+  border-top-right-radius: var(--corner-radius);
+  border-bottom-right-radius: var(--corner-radius);
+}
+
 .rc-table-tbody > tr > td {
   border: 1px solid #323232;
   border-width: 1px 0px;
