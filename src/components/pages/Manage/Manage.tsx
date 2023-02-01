@@ -118,6 +118,7 @@ function Manage() {
               ) : (
                 <Table
                   emptyText={'Uh oh, nothing was found.'}
+                  scroll={{ x: true }}
                   columns={[
                     {
                       title: (

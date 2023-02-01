@@ -39,6 +39,7 @@ body {
   flex-direction: column;
   background-color: var(--bg-color);
   font-family: 'Rubik';
+  overflow: scroll;
 }
 
 b {
@@ -211,7 +212,6 @@ button {
   padding: 2% 10%;
   height: fit-content;
   align-items: center;
-  width: '100%';
 }
 
 .page-header {
