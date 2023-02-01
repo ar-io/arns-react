@@ -48,10 +48,6 @@ function App() {
         <Route path="*" element={<NotFound />} />
       </Route>,
     ),
-    {
-      // TODO: remove this when we're no longer deploying to github pages
-      basename: process.env.NODE_ENV !== 'test' ? '/arns-react/' : '/',
-    },
   );
 
   return (
