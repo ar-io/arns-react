@@ -1,5 +1,5 @@
 import Table from 'rc-table';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { useIsMobile, useWalletAddress } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
@@ -20,6 +20,7 @@ function Manage() {
   const [sortAscending, setSortOrder] = useState(true);
   const [selectedRow, setSelectedRow] = useState<number>(-1);
   const isMobile = useIsMobile();
+  const modalRef = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
   const [cursor] = useState<string | undefined>();
   const [reload, setReload] = useState(false);
@@ -65,225 +66,238 @@ function Manage() {
     setRows(fetchedRows);
   }
 
-  return (
-    <div className="page">
-      <div className="flex-column">
-        <div className="table-selector-group">
-          <button
-            className="table-selector text bold center"
-            onClick={() => {
-              setTableType(TABLE_TYPES.ANT);
-              setReload(!reload);
-            }}
-            style={
-              tableType === TABLE_TYPES.ANT
-                ? {
-                    borderColor: 'var(--text-white)',
-                    color: 'var(--text-white)',
-                    fill: 'var(--text-white)',
-                  }
-                : {}
-            }
-          >
-            <CodeSandboxIcon width={'20px'} height="20px" />
-            ANTs
-          </button>
-        </div>
+  function handleClickOutside(e: any) {
+    console.log(e);
+    if (modalRef.current && modalRef.current === e.target) {
+      setSelectedRow(-1);
+    }
+    return;
+  }
 
-        {tableType === TABLE_TYPES.ANT ? (
-          isLoading ? (
-            <div
-              className="flex center"
-              style={{ paddingTop: '10%', justifyContent: 'center' }}
-            >
-              <Loader size={80} />
-            </div>
-          ) : (
-            <Table
-              emptyText={'Uh oh, nothing was found.'}
-              columns={[
-                {
-                  title: (
-                    <span className="flex-row pointer" style={{ gap: '0.5em' }}>
-                      <span>Nickname</span>
-                      <NotebookIcon
-                        width={24}
-                        height={24}
-                        fill={'var(--text-faded)'}
-                      />
-                      {/* TODO: show short arrows */}
-                    </span>
-                  ),
-                  dataIndex: 'name',
-                  key: 'name',
-                  align: 'left',
-                  width: '25%',
-                  className: 'white',
-                  ellipsis: true,
-                  onHeaderCell: () => {
-                    return {
-                      onClick: () => {
-                        rows.sort((a, b) =>
-                          // by default we sort by name
-                          !sortAscending
-                            ? a.name.localeCompare(b.name)
-                            : b.name.localeCompare(a.name),
-                        );
-                        // forces update of rows
-                        setRows([...rows]);
-                        setSortOrder(!sortAscending);
-                      },
-                    };
-                  },
-                },
-                {
-                  title: (
-                    <span
-                      className="flex-row center pointer"
-                      style={{ gap: '0.5em' }}
-                    >
-                      <span>Contract ID</span>
-                      <NotebookIcon
-                        width={24}
-                        height={24}
-                        fill={'var(--text-faded)'}
-                      />
-                    </span>
-                  ),
-                  dataIndex: 'id',
-                  key: 'id',
-                  align: 'center',
-                  width: '25%',
-                  className: 'white',
-                  ellipsis: true,
-                  render: (val) =>
-                    `${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
-                      isMobile ? -2 : -6,
-                    )}`,
-                  onHeaderCell: () => {
-                    return {
-                      onClick: () => {
-                        rows.sort((a, b) =>
-                          sortAscending
-                            ? a.id.localeCompare(b.id)
-                            : b.id.localeCompare(a.id),
-                        );
-                        // forces update of rows
-                        setRows([...rows]);
-                        setSortOrder(!sortAscending);
-                      },
-                    };
-                  },
-                },
-                {
-                  title: (
-                    <span
-                      className="flex-row center pointer"
-                      style={{ gap: '0.5em' }}
-                    >
-                      <span>Target ID</span>
-                      <NotebookIcon
-                        width={24}
-                        height={24}
-                        fill={'var(--text-faded)'}
-                      />
-                    </span>
-                  ),
-                  dataIndex: 'target',
-                  key: 'target',
-                  align: 'center',
-                  width: '25%',
-                  className: 'white',
-                  render: (val) =>
-                    `${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
-                      isMobile ? -2 : -6,
-                    )}`,
-                  onHeaderCell: () => {
-                    return {
-                      onClick: () => {
-                        rows.sort((a, b) =>
-                          sortAscending
-                            ? a.target.localeCompare(b.target)
-                            : b.target.localeCompare(a.target),
-                        );
-                        // forces update of rows
-                        setRows([...rows]);
-                        setSortOrder(!sortAscending);
-                      },
-                    };
-                  },
-                },
-                {
-                  title: (
-                    <span
-                      className="flex-row center pointer"
-                      style={{ gap: '0.5em' }}
-                    >
-                      <span>Status</span>
-                      <NotebookIcon
-                        width={24}
-                        height={24}
-                        fill={'var(--text-faded)'}
-                      />
-                    </span>
-                  ),
-                  dataIndex: 'status',
-                  key: 'status',
-                  align: 'center',
-                  width: '25%',
-                  className: 'white',
-                  render: (val) => (
-                    <TransactionStatus
-                      confirmations={val}
-                      wrapperStyle={{
-                        justifyContent: 'center',
-                      }}
-                    />
-                  ),
-                  onHeaderCell: () => {
-                    return {
-                      onClick: () => {
-                        rows.sort((a, b) =>
-                          sortAscending
-                            ? a.status - b.status
-                            : b.status - a.status,
-                        );
-                        // forces update of rows
-                        setRows([...rows]);
-                        setSortOrder(!sortAscending);
-                      },
-                    };
-                  },
-                },
-                {
-                  title: '',
-                  render: (val: any, row: AntMetadata, index: number) => (
-                    <ManageAssetButtons
-                      asset={val.id}
-                      setShowModal={() => setSelectedRow(index)}
-                      assetType={ASSET_TYPES.ANT}
-                    />
-                  ),
-                  align: 'right',
-                  width: '10%',
-                },
-              ]}
-              data={rows}
-            />
-          )
+  return (
+    // eslint-disable-next-line
+    <div className="page" ref={modalRef} onClick={handleClickOutside}>
+      <div className="flex-column">
+        {selectedRow >= 0 ? (
+          <ManageAntModal
+            closeModal={() => setSelectedRow(-1)}
+            antDetails={rows[selectedRow]}
+            contractId={new ArweaveTransactionID(rows[selectedRow].id)}
+          />
         ) : (
-          <></>
+          <>
+            {' '}
+            <div className="table-selector-group">
+              <button
+                className="table-selector text bold center"
+                onClick={() => {
+                  setTableType(TABLE_TYPES.ANT);
+                  setReload(!reload);
+                }}
+                style={
+                  tableType === TABLE_TYPES.ANT
+                    ? {
+                        borderColor: 'var(--text-white)',
+                        color: 'var(--text-white)',
+                        fill: 'var(--text-white)',
+                      }
+                    : {}
+                }
+              >
+                <CodeSandboxIcon width={'20px'} height="20px" />
+                ANTs
+              </button>
+            </div>
+            {tableType === TABLE_TYPES.ANT ? (
+              isLoading ? (
+                <div
+                  className="flex center"
+                  style={{ paddingTop: '10%', justifyContent: 'center' }}
+                >
+                  <Loader size={80} />
+                </div>
+              ) : (
+                <Table
+                  emptyText={'Uh oh, nothing was found.'}
+                  columns={[
+                    {
+                      title: (
+                        <span
+                          className="flex-row pointer"
+                          style={{ gap: '0.5em' }}
+                        >
+                          <span>Nickname</span>
+                          <NotebookIcon
+                            width={24}
+                            height={24}
+                            fill={'var(--text-faded)'}
+                          />
+                          {/* TODO: show short arrows */}
+                        </span>
+                      ),
+                      dataIndex: 'name',
+                      key: 'name',
+                      align: 'left',
+                      width: '25%',
+                      className: 'white',
+                      ellipsis: true,
+                      onHeaderCell: () => {
+                        return {
+                          onClick: () => {
+                            rows.sort((a, b) =>
+                              // by default we sort by name
+                              !sortAscending
+                                ? a.name.localeCompare(b.name)
+                                : b.name.localeCompare(a.name),
+                            );
+                            // forces update of rows
+                            setRows([...rows]);
+                            setSortOrder(!sortAscending);
+                          },
+                        };
+                      },
+                    },
+                    {
+                      title: (
+                        <span
+                          className="flex-row center pointer"
+                          style={{ gap: '0.5em' }}
+                        >
+                          <span>Contract ID</span>
+                          <NotebookIcon
+                            width={24}
+                            height={24}
+                            fill={'var(--text-faded)'}
+                          />
+                        </span>
+                      ),
+                      dataIndex: 'id',
+                      key: 'id',
+                      align: 'center',
+                      width: '25%',
+                      className: 'white',
+                      ellipsis: true,
+                      render: (val) =>
+                        `${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
+                          isMobile ? -2 : -6,
+                        )}`,
+                      onHeaderCell: () => {
+                        return {
+                          onClick: () => {
+                            rows.sort((a, b) =>
+                              sortAscending
+                                ? a.id.localeCompare(b.id)
+                                : b.id.localeCompare(a.id),
+                            );
+                            // forces update of rows
+                            setRows([...rows]);
+                            setSortOrder(!sortAscending);
+                          },
+                        };
+                      },
+                    },
+                    {
+                      title: (
+                        <span
+                          className="flex-row center pointer"
+                          style={{ gap: '0.5em' }}
+                        >
+                          <span>Target ID</span>
+                          <NotebookIcon
+                            width={24}
+                            height={24}
+                            fill={'var(--text-faded)'}
+                          />
+                        </span>
+                      ),
+                      dataIndex: 'target',
+                      key: 'target',
+                      align: 'center',
+                      width: '25%',
+                      className: 'white',
+                      render: (val) =>
+                        `${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
+                          isMobile ? -2 : -6,
+                        )}`,
+                      onHeaderCell: () => {
+                        return {
+                          onClick: () => {
+                            rows.sort((a, b) =>
+                              sortAscending
+                                ? a.target.localeCompare(b.target)
+                                : b.target.localeCompare(a.target),
+                            );
+                            // forces update of rows
+                            setRows([...rows]);
+                            setSortOrder(!sortAscending);
+                          },
+                        };
+                      },
+                    },
+                    {
+                      title: (
+                        <span
+                          className="flex-row center pointer"
+                          style={{ gap: '0.5em' }}
+                        >
+                          <span>Status</span>
+                          <NotebookIcon
+                            width={24}
+                            height={24}
+                            fill={'var(--text-faded)'}
+                          />
+                        </span>
+                      ),
+                      dataIndex: 'status',
+                      key: 'status',
+                      align: 'center',
+                      width: '25%',
+                      className: 'white',
+                      render: (val) => (
+                        <TransactionStatus
+                          confirmations={val}
+                          wrapperStyle={{
+                            justifyContent: 'center',
+                          }}
+                        />
+                      ),
+                      onHeaderCell: () => {
+                        return {
+                          onClick: () => {
+                            rows.sort((a, b) =>
+                              sortAscending
+                                ? a.status - b.status
+                                : b.status - a.status,
+                            );
+                            // forces update of rows
+                            setRows([...rows]);
+                            setSortOrder(!sortAscending);
+                          },
+                        };
+                      },
+                    },
+                    {
+                      title: '',
+                      render: (val: any, row: AntMetadata, index: number) => (
+                        <ManageAssetButtons
+                          asset={val.id}
+                          setShowModal={() => setSelectedRow(index)}
+                          assetType={ASSET_TYPES.ANT}
+                        />
+                      ),
+                      align: 'right',
+                      width: '10%',
+                    },
+                  ]}
+                  data={rows}
+                />
+              )
+            ) : (
+              <></>
+            )}
+          </>
         )}
       </div>
-      {selectedRow >= 0 ? (
-        <ManageAntModal
-          setShowModal={() => setSelectedRow(-1)}
-          antDetails={rows[selectedRow]}
-          contractId={new ArweaveTransactionID(rows[selectedRow].id)}
-        />
-      ) : (
-        <></>
-      )}
     </div>
   );
 }
