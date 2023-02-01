@@ -9,7 +9,7 @@ import { CodeSandboxIcon, NotebookIcon } from '../../icons';
 import ManageAssetButtons from '../../inputs/buttons/ManageAssetButtons/ManageAssetButtons';
 import { Loader } from '../../layout';
 import TransactionStatus from '../../layout/TransactionStatus/TransactionStatus';
-import ManageAntModal from '../../modals/ManageAntModal/ManageAntModal.js';
+import ManageAntModal from '../../modals/ManageAntModal/ManageAntModal';
 import './styles.css';
 
 function Manage() {
@@ -86,7 +86,6 @@ function Manage() {
           />
         ) : (
           <>
-            {' '}
             <div className="table-selector-group">
               <button
                 className="table-selector text bold center"
@@ -283,6 +282,7 @@ function Manage() {
                           asset={val.id}
                           setShowModal={() => setSelectedRow(index)}
                           assetType={ASSET_TYPES.ANT}
+                          disabled={!row.state || !row.status}
                         />
                       ),
                       align: 'right',
