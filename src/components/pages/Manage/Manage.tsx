@@ -5,7 +5,14 @@ import { useIsMobile, useWalletAddress } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ASSET_TYPES, AntMetadata, ArweaveTransactionID } from '../../../types';
 import { TABLE_TYPES } from '../../../types';
-import { ChevronUpIcon, CodeSandboxIcon, NotebookIcon } from '../../icons';
+import {
+  ChevronUpIcon,
+  CodeSandboxIcon,
+  FileCodeIcon,
+  NotebookIcon,
+  RefreshAlertIcon,
+  TargetIcon,
+} from '../../icons';
 import ManageAssetButtons from '../../inputs/buttons/ManageAssetButtons/ManageAssetButtons';
 import { Loader } from '../../layout';
 import TransactionStatus from '../../layout/TransactionStatus/TransactionStatus';
@@ -186,7 +193,7 @@ function Manage() {
                             }
                           />
                           <span>Contract ID</span>
-                          <NotebookIcon
+                          <FileCodeIcon
                             width={24}
                             height={24}
                             fill={'var(--text-faded)'}
@@ -236,7 +243,7 @@ function Manage() {
                             }
                           />
                           <span>Target ID</span>
-                          <NotebookIcon
+                          <TargetIcon
                             width={24}
                             height={24}
                             fill={'var(--text-faded)'}
@@ -285,7 +292,7 @@ function Manage() {
                             }
                           />
                           <span>Status</span>
-                          <NotebookIcon
+                          <RefreshAlertIcon
                             width={24}
                             height={24}
                             fill={'var(--text-faded)'}
