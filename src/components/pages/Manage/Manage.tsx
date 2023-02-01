@@ -67,7 +67,6 @@ function Manage() {
   }
 
   function handleClickOutside(e: any) {
-    console.log(e);
     if (modalRef.current && modalRef.current === e.target) {
       setSelectedRow(-1);
     }
