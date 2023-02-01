@@ -37,9 +37,9 @@ html {
 body {
   display: flex;
   flex-direction: column;
-  padding: none;
   background-color: var(--bg-color);
   font-family: 'Rubik';
+  overflow: scroll;
 }
 
 b {
@@ -66,6 +66,10 @@ button {
   background: none;
   cursor: pointer;
   padding: 0px;
+}
+
+.pointer {
+  cursor: pointer;
 }
 
 .text {
@@ -205,11 +209,9 @@ button {
 .page {
   display: flex;
   flex-direction: column;
-  padding: 2% 5%;
+  padding: 2% 10%;
   height: fit-content;
-  row-gap: 2em;
   align-items: center;
-  overflow: visible;
 }
 
 .page-header {
@@ -450,8 +452,44 @@ button {
   border-spacing: 0px 10px;
 }
 
+.rc-table-body > table {
+  border-spacing: 0px 10px;
+}
+
 .rc-table-tbody > tr {
   height: 50px;
+}
+
+.rc-table-thead {
+  background-color: #323232;
+  border-width: 1px 0px;
+  border-radius: var(--corner-radius);
+  font-size: 16px;
+  font-weight: 800;
+  height: 50px;
+}
+
+.rc-table-thead > tr > th {
+  padding: 10px 15px 10px 50px;
+  font-size: 16px;
+}
+
+.rc-table-thead > tr > th:first-child {
+  border-left: 1px solid #323232;
+  border-top-left-radius: var(--corner-radius);
+  border-bottom-left-radius: var(--corner-radius);
+}
+
+.rc-table-thead > tr > th:last-child {
+  border-right: 1px solid #323232;
+  border-top-right-radius: var(--corner-radius);
+  border-bottom-right-radius: var(--corner-radius);
+}
+
+.rc-table-thead > tr > td:last-child {
+  border-right: 1px solid #323232;
+  border-top-right-radius: var(--corner-radius);
+  border-bottom-right-radius: var(--corner-radius);
 }
 
 .rc-table-tbody > tr > td {

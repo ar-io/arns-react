@@ -203,3 +203,21 @@ export class ArweaveTransactionID implements Equatable<ArweaveTransactionID> {
 export interface Equatable<T> {
   equals(other: T): boolean;
 }
+
+export type AntMetadata = {
+  name: string;
+  id: string;
+  target: string;
+  status: number;
+  state: ArNSContractState;
+  error?: string;
+  key: number;
+};
+
+export type ManageAntRow = {
+  attribute: string;
+  value: string;
+  editable: boolean;
+  action: any;
+  key: number;
+};
