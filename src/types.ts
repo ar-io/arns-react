@@ -167,6 +167,10 @@ export enum TABLE_TYPES {
   ANT = 'ant_table',
   NAME = 'name_table',
 }
+export enum TRANSACTION_TYPES {
+  REGISTRY = 'Arns Registry',
+  ANT = 'Arweave Name Token',
+}
 
 export enum ASSET_TYPES {
   ANT = 'ant',
@@ -174,6 +178,17 @@ export enum ASSET_TYPES {
   UNDERNAME = 'undername',
   COIN = 'coin',
 }
+
+export enum ANT_INTERACTION_TYPES {
+  SET_CONTROLLER = 'Edit Controller',
+  SET_TICKER = 'Edit Ticker',
+  SET_NAME = 'Edit Name',
+  SET_RECORD = 'Edit Record',
+  REMOVE_RECORD = 'Delete Record',
+  TRANSFER = 'Transfer',
+  BALANCE = 'Balance',
+}
+
 export class ArweaveTransactionID implements Equatable<ArweaveTransactionID> {
   constructor(private readonly transactionId: string) {
     if (!ARNS_TX_ID_REGEX.test(transactionId)) {

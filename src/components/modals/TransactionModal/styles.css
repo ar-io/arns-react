@@ -1,0 +1,19 @@
+.accept-terms,
+.accept-terms:before {
+  width: 15px;
+  height: 15px;
+  background: var(--bg-color);
+  border: solid 2px white;
+  border-radius: 2px;
+  appearance: none;
+  position: relative;
+}
+
+.accept-terms:checked:after {
+  content: '\2714';
+  font-size: 20px;
+  position: absolute;
+  top: -12px;
+  left: 0px;
+  color: white;
+}

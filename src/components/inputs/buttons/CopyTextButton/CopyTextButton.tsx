@@ -36,7 +36,9 @@ function CopyTextButton({
           await handleCopy();
         }}
       >
-        <span className="flex white center">{displayText}&nbsp;</span>
+        <span className="flex white center" style={{ fontSize: 'inherit' }}>
+          {displayText}&nbsp;
+        </span>
         <CopyIcon
           className="flex"
           height={size}
