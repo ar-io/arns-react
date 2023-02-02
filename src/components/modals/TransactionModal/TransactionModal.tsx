@@ -175,29 +175,28 @@ function TransactionModal({
               ) : (
                 <></>
               )}
-
-              <span
-                className="flex flex-row text white"
-                style={{
-                  gap: 10,
-                  alignItems: 'center',
-                }}
-              >
-                <input
-                  type="checkbox"
-                  className="accept-terms"
-                  checked={accepted}
-                  onClick={() => setAccepted(!accepted)}
-                />
-                I understand that this action cannot be undone.
-              </span>
             </div>
           ) : (
             <></>
           )}
 
           {/** abstract the modal functions as much as possible.  */}
-          <div className="flex flex-row center" style={{ width: '90%' }}>
+          <div className="flex flex-column center" style={{ width: '90%' }}>
+            <span
+              className="flex flex-row text white"
+              style={{
+                gap: 10,
+                alignItems: 'center',
+              }}
+            >
+              <input
+                type="checkbox"
+                className="accept-terms"
+                checked={accepted}
+                onClick={() => setAccepted(!accepted)}
+              />
+              I understand that this action cannot be undone.
+            </span>
             <button
               className="accent-button center"
               disabled={!accepted}
