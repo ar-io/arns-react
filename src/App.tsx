@@ -1,7 +1,7 @@
 import {
   Route,
   RouterProvider,
-  createBrowserRouter,
+  createHashRouter,
   createRoutesFromElements,
 } from 'react-router-dom';
 
@@ -27,7 +27,7 @@ function App() {
   const { showConnectModal } = useConnectWalletModal();
   const { wallet, walletAddress } = useWalletAddress();
 
-  const router = createBrowserRouter(
+  const router = createHashRouter(
     createRoutesFromElements(
       <Route element={<Layout />} errorElement={<NotFound />}>
         <Route
@@ -48,10 +48,6 @@ function App() {
         <Route path="*" element={<NotFound />} />
       </Route>,
     ),
-    {
-      // TODO: remove this when we're no longer deploying to github pages
-      basename: process.env.NODE_ENV !== 'test' ? '/arns-react/' : '/',
-    },
   );
 
   return (
