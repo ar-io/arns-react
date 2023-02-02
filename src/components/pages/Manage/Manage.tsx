@@ -194,7 +194,7 @@ function Manage() {
                             height={10}
                             fill={'var(--text-faded)'}
                             style={
-                              sortField === 'name' && !sortAscending
+                              sortField === 'role' && !sortAscending
                                 ? { transform: 'rotate(180deg)' }
                                 : {}
                             }
