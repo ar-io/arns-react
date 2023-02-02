@@ -64,8 +64,8 @@ function Manage() {
         role:
           contractState.owner.toString() === walletAddress?.toString()
             ? 'Owner'
-            : contractState.controllers[0].toString() ===
-              walletAddress?.toString()
+            : contractState.controller === walletAddress?.toString() ||
+              contractState.controllers?.includes(walletAddress?.toString())
             ? 'Controller'
             : 'N/A',
         target:
