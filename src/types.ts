@@ -210,7 +210,7 @@ export type AntMetadata = {
   target: string;
   role: string;
   status: number;
-  state: ArNSContractState | ANTContractState | undefined;
+  state: ArNSContractState;
   error?: string;
   key: number;
 };

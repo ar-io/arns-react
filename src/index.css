@@ -519,3 +519,8 @@ button {
   border-top-right-radius: var(--corner-radius);
   border-bottom-right-radius: var(--corner-radius);
 }
+
+.rc-table-placeholder {
+  color: white;
+  text-align: center;
+}

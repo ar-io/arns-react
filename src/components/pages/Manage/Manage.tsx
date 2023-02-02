@@ -59,12 +59,12 @@ function Manage() {
       ]);
       // TODO: add error messages and reload state to row
       const rowData = {
-        name: contractState?.name ?? 'N/A',
+        name: contractState.name ?? 'N/A',
         id: id.toString(),
         role:
-          contractState?.owner.toString() === walletAddress?.toString()
+          contractState.owner.toString() === walletAddress?.toString()
             ? 'Owner'
-            : contractState?.controllers[0].toString() ===
+            : contractState.controllers[0].toString() ===
               walletAddress?.toString()
             ? 'Controller'
             : 'N/A',
@@ -217,7 +217,6 @@ function Manage() {
                         return {
                           onClick: () => {
                             rows.sort((a, b) =>
-                              // by default we sort by name
                               !sortAscending
                                 ? a.name.localeCompare(b.role)
                                 : b.name.localeCompare(a.role),
