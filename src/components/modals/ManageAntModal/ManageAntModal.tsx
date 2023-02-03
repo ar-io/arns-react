@@ -75,15 +75,15 @@ function ManageAntModal({
       status: antDetails.status ?? 0,
       associatedNames: !names.length ? 'N/A' : names.join(', '),
       name: antDetails.name ?? 'N/A',
-      ticker: state.ticker ?? 'N/A',
+      ticker: state?.ticker ?? 'N/A',
       targetID: otherDetails.target ?? 'N/A',
       ttlSeconds: DEFAULT_ATTRIBUTES.ttlSeconds.toString(),
       controller:
-        antDetails.state.controllers?.join(', ') ??
-        antDetails.state.owner?.toString() ??
+        antDetails.state?.controllers?.join(', ') ??
+        antDetails.state?.owner?.toString() ??
         'N/A',
       undernames: `${names.length} / ${DEFAULT_ATTRIBUTES.maxSubdomains}`,
-      owner: antDetails.state.owner?.toString() ?? 'N/A',
+      owner: antDetails.state?.owner?.toString() ?? 'N/A',
     };
 
     const rows = Object.keys(consolidatedDetails).reduce(

@@ -11,7 +11,7 @@ export type ArNSContractState = {
   controllers: ArweaveTransactionID[];
   evolve: boolean | undefined;
   name: string;
-  owner?: ArweaveTransactionID;
+  owner: ArweaveTransactionID | undefined;
   ticker: string;
   approvedANTSourceCodeTxs: ArweaveTransactionID[];
 };
@@ -224,6 +224,7 @@ export type AntMetadata = {
   name: string;
   id: string;
   target: string;
+  role: string;
   status: number;
   state: ArNSContractState;
   error?: string;

@@ -6,6 +6,7 @@ import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ASSET_TYPES, AntMetadata, ArweaveTransactionID } from '../../../types';
 import { TABLE_TYPES } from '../../../types';
 import {
+  BookmarkIcon,
   ChevronUpIcon,
   CodeSandboxIcon,
   FileCodeIcon,
@@ -60,9 +61,16 @@ function Manage() {
       const rowData = {
         name: contractState.name ?? 'N/A',
         id: id.toString(),
+        role:
+          contractState.owner.toString() === walletAddress?.toString()
+            ? 'Owner'
+            : contractState.controller === walletAddress?.toString() ||
+              contractState.controllers?.includes(walletAddress?.toString())
+            ? 'Controller'
+            : 'N/A',
         target:
-          contractState.records['@']?.transactionId ??
-          contractState.records['@'],
+          contractState?.records['@']?.transactionId ??
+          contractState?.records['@'],
         status: confirmations ?? 0,
         state: contractState,
         key: index,
@@ -150,13 +158,12 @@ function Manage() {
                             height={24}
                             fill={'var(--text-faded)'}
                           />
-                          {/* TODO: show short arrows */}
                         </button>
                       ),
                       dataIndex: 'name',
                       key: 'name',
                       align: 'left',
-                      width: '25%',
+                      width: '18%',
                       className: 'white',
                       ellipsis: true,
                       onHeaderCell: () => {
@@ -167,6 +174,52 @@ function Manage() {
                               !sortAscending
                                 ? a.name.localeCompare(b.name)
                                 : b.name.localeCompare(a.name),
+                            );
+                            // forces update of rows
+                            setRows([...rows]);
+                            setSortOrder(!sortAscending);
+                          },
+                        };
+                      },
+                    },
+                    {
+                      title: (
+                        <button
+                          className="flex-row pointer white center"
+                          style={{ gap: '0.5em' }}
+                          onClick={() => setSortField('role')}
+                        >
+                          <ChevronUpIcon
+                            width={10}
+                            height={10}
+                            fill={'var(--text-faded)'}
+                            style={
+                              sortField === 'role' && !sortAscending
+                                ? { transform: 'rotate(180deg)' }
+                                : {}
+                            }
+                          />
+                          <span>Role</span>
+                          <BookmarkIcon
+                            width={24}
+                            height={24}
+                            fill={'var(--text-faded)'}
+                          />
+                        </button>
+                      ),
+                      dataIndex: 'role',
+                      key: 'role',
+                      align: 'center',
+                      width: '18%',
+                      className: 'white',
+                      ellipsis: true,
+                      onHeaderCell: () => {
+                        return {
+                          onClick: () => {
+                            rows.sort((a, b) =>
+                              !sortAscending
+                                ? a.name.localeCompare(b.role)
+                                : b.name.localeCompare(a.role),
                             );
                             // forces update of rows
                             setRows([...rows]);
@@ -203,7 +256,7 @@ function Manage() {
                       dataIndex: 'id',
                       key: 'id',
                       align: 'center',
-                      width: '25%',
+                      width: '18%',
                       className: 'white',
                       ellipsis: true,
                       render: (val) =>
@@ -253,7 +306,7 @@ function Manage() {
                       dataIndex: 'target',
                       key: 'target',
                       align: 'center',
-                      width: '25%',
+                      width: '18%',
                       className: 'white',
                       render: (val) =>
                         `${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
@@ -302,7 +355,7 @@ function Manage() {
                       dataIndex: 'status',
                       key: 'status',
                       align: 'center',
-                      width: '25%',
+                      width: '18%',
                       className: 'white',
                       render: (val) => (
                         <TransactionStatus
