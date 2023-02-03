@@ -1,27 +1,23 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
-import { useArweave, useIsMobile, useWalletAddress } from '../../../hooks';
-import { ArweaveCompositeDataProvider } from '../../../services/arweave/ArweaveCompositeDataProvider';
+import { useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
-  ANTContractState,
   ANT_INTERACTION_TYPES,
-  ASSET_TYPES,
   AntMetadata,
   ArweaveTransactionID,
   TRANSACTION_TYPES,
 } from '../../../types';
 import { AlertTriangleIcon, CloseIcon } from '../../icons';
-import Dropdown from '../../inputs/Dropdown/Dropdown';
 import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
 import './styles.css';
 
 function TransactionModal({
-  transactionType,
+  transactionType, // todo: add other tx types (ex edit ant, IO token management)
   interactionType,
   contractId,
-  showAdvanced = false,
-  updateSmartweaveFavorites = false,
+  showAdvanced = false, // todo: implement advanced settings
+  updateSmartweaveFavorites = false, // todo: implement smartweave favorites
   state,
   showModal,
 }: {
@@ -37,21 +33,15 @@ function TransactionModal({
   showModal: () => void;
 }) {
   // const [{preferences}] = useArweaveTransactionState() // arweave transaction provider states
-  const [{ arnsSourceContract, arnsContractId, arweaveDataProvider }] =
-    useGlobalState();
-  const { wallet, walletAddress } = useWalletAddress();
+  const [{ arnsSourceContract }] = useGlobalState();
   const isMobile = useIsMobile();
-  const [addreses, setAddresses] = useState<{ [x: string]: string }>();
   const [accepted, setAccepted] = useState<boolean>(false);
 
-  useEffect(() => {
-    getAddresses();
-  }, []);
-
-  async function getAddresses() {
-    const addreses = await window.arweaveWallet.getWalletNames();
-    setAddresses(addreses);
-  }
+  // todo: add "transfer to another account" dropdown
+  // async function getAddresses() {
+  //   const addreses = await window.arweaveWallet.getWalletNames();
+  //   setAddresses(addreses);
+  // }
 
   function getAssociatedNames(txId: ArweaveTransactionID) {
     return Object.entries(arnsSourceContract.records)
@@ -211,6 +201,7 @@ function TransactionModal({
           </div>
         </div>
       </div>
+      {/* Show confirmation overlay */}
     </>
   );
 }
