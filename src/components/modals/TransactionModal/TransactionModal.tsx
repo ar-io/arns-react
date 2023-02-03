@@ -203,7 +203,7 @@ function TransactionModal({
               style={
                 accepted
                   ? { width: '100%' }
-                  : { backgroundColor: 'var(--text-faded)' }
+                  : { width: '100%', backgroundColor: 'var(--text-faded)' }
               }
             >
               Next

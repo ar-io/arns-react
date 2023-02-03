@@ -80,6 +80,7 @@ export interface ArweaveWalletConnector {
 }
 
 export interface ArweaveDataProvider {
+  // add isAddress method
   getTransactionStatus(id: ArweaveTransactionID): Promise<number>;
   getTransactionTags(
     id: ArweaveTransactionID,

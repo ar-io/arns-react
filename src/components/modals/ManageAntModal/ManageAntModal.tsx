@@ -50,7 +50,7 @@ function ManageAntModal({
     };
   } = {
     owner: {
-      fn: () => setTransact(!transact),
+      fn: () => setTransact(true),
       title: 'Transfer',
     },
   };
