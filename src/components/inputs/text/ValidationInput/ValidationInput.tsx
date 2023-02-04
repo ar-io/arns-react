@@ -53,25 +53,21 @@ function ValidationInput({
           case 'success': {
             return (
               <>
-                <Tooltip
-                  key={index}
-                  message={'Success!'}
-                  children={[
-                    <span className="flex flex-row text flex-left white bold">
-                      <CircleCheck
-                        width={20}
-                        height={20}
-                        fill={'var(--success-green)'}
-                      />
-                      {title}
-                      <AlertCircle
-                        width={'16px'}
-                        height={'16px'}
-                        fill={'var(--text-white)'}
-                      />
-                    </span>,
-                  ]}
-                />
+                <Tooltip key={index} message={'Success!'}>
+                  <span className="flex flex-row text flex-left white bold">
+                    <CircleCheck
+                      width={20}
+                      height={20}
+                      fill={'var(--success-green)'}
+                    />
+                    {title}
+                    <AlertCircle
+                      width={'16px'}
+                      height={'16px'}
+                      fill={'var(--text-white)'}
+                    />
+                  </span>
+                </Tooltip>
               </>
             );
           }
@@ -79,25 +75,21 @@ function ValidationInput({
           case 'error': {
             return (
               <>
-                <Tooltip
-                  key={index}
-                  message={results[0].error.message}
-                  children={[
-                    <span className="flex flex-row text flex-left white bold">
-                      <AlertCircle
-                        width={20}
-                        height={20}
-                        fill={'var(--error-red)'}
-                      />
-                      {Object.keys(validationItem)}
-                      <AlertCircle
-                        width={'16px'}
-                        height={'16px'}
-                        fill={'var(--text-white)'}
-                      />
-                    </span>,
-                  ]}
-                />
+                <Tooltip key={index} message={results[0].error.message}>
+                  <span className="flex flex-row text flex-left white bold">
+                    <AlertCircle
+                      width={20}
+                      height={20}
+                      fill={'var(--error-red)'}
+                    />
+                    {Object.keys(validationItem)}
+                    <AlertCircle
+                      width={'16px'}
+                      height={'16px'}
+                      fill={'var(--text-white)'}
+                    />
+                  </span>
+                </Tooltip>
               </>
             );
           }
@@ -105,25 +97,21 @@ function ValidationInput({
           case 'warning': {
             return (
               <>
-                <Tooltip
-                  key={index}
-                  message={results[0].error.message}
-                  children={[
-                    <span className="flex flex-row text flex-left white bold">
-                      <AlertTriangleIcon
-                        width={20}
-                        height={20}
-                        fill={'var(--accent)'}
-                      />
-                      {Object.keys(validationItem)}
-                      <AlertCircle
-                        width={'16px'}
-                        height={'16px'}
-                        fill={'var(--text-white)'}
-                      />
-                    </span>,
-                  ]}
-                />
+                <Tooltip key={index} message={results[0].error.message}>
+                  <span className="flex flex-row text flex-left white bold">
+                    <AlertTriangleIcon
+                      width={20}
+                      height={20}
+                      fill={'var(--accent)'}
+                    />
+                    {Object.keys(validationItem)}
+                    <AlertCircle
+                      width={'16px'}
+                      height={'16px'}
+                      fill={'var(--text-white)'}
+                    />
+                  </span>
+                </Tooltip>
               </>
             );
           }
@@ -131,21 +119,17 @@ function ValidationInput({
           case 'loading': {
             return (
               <>
-                <Tooltip
-                  key={index}
-                  message={'Validating...'}
-                  children={[
-                    <span className="flex flex-row text flex-left white bold">
-                      <Loader size={15} />
-                      {Object.keys(validationItem)}
-                      <AlertCircle
-                        width={'16px'}
-                        height={'16px'}
-                        fill={'var(--text-white)'}
-                      />
-                    </span>,
-                  ]}
-                />
+                <Tooltip key={index} message={'Validating...'}>
+                  <span className="flex flex-row text flex-left white bold">
+                    <Loader size={15} />
+                    {Object.keys(validationItem)}
+                    <AlertCircle
+                      width={'16px'}
+                      height={'16px'}
+                      fill={'var(--text-white)'}
+                    />
+                  </span>
+                </Tooltip>
               </>
             );
           }
@@ -153,28 +137,24 @@ function ValidationInput({
           case undefined: {
             return (
               <>
-                <Tooltip
-                  key={index}
-                  message={'Awaiting Validation...'}
-                  children={[
-                    <span
-                      className="flex flex-row text flex-left white bold"
-                      style={{ width: '100%' }}
-                    >
-                      <AlertOctagonIcon
-                        width={'20px'}
-                        height={'20px'}
-                        fill={'var(--text-faded)'}
-                      />
-                      {Object.keys(validationItem)}
-                      <AlertCircle
-                        width={'16px'}
-                        height={'16px'}
-                        fill={'var(--text-white)'}
-                      />
-                    </span>,
-                  ]}
-                />
+                <Tooltip key={index} message={'Awaiting Validation...'}>
+                  <span
+                    className="flex flex-row text flex-left white bold"
+                    style={{ width: '100%' }}
+                  >
+                    <AlertOctagonIcon
+                      width={'20px'}
+                      height={'20px'}
+                      fill={'var(--text-faded)'}
+                    />
+                    {Object.keys(validationItem)}
+                    <AlertCircle
+                      width={'16px'}
+                      height={'16px'}
+                      fill={'var(--text-white)'}
+                    />
+                  </span>
+                </Tooltip>
               </>
             );
           }

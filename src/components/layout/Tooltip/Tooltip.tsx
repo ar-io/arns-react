@@ -7,7 +7,7 @@ export function Tooltip({
   children,
 }: {
   message: string;
-  children: JSX.Element[];
+  children: JSX.Element;
 }) {
   const [showToolTip, setShowToolTip] = useState(false);
 
