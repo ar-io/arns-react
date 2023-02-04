@@ -47,7 +47,7 @@ function UpgradeTier() {
           <TierCard tierNumber={+tier} key={index} />
         ))}
       </div>
-      <Tooltip message={[<>{NAME_PRICE_INFO}</>]}>
+      <Tooltip message={NAME_PRICE_INFO}>
         <span>{fee.io?.toLocaleString()}&nbsp;ARIO&nbsp;</span>
       </Tooltip>{' '}
     </div>
