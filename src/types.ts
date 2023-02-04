@@ -222,3 +222,11 @@ export type ManageAntRow = {
   action: any;
   key: number;
 };
+
+export enum VALIDATION_INPUT_TYPES {
+  ARWEAVE_ID = 'Arweave Transaction ID',
+  ARWEAVE_ADDRESS = 'Arweave Address',
+  ARNS_NAME = 'Arns Name',
+  UNDERNAME = 'Undername',
+  ANT_CONTRACT_ID = 'ANT Contract ID',
+}

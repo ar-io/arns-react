@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
-import { ArweaveTransactionID } from '../../../types';
+import { ArweaveTransactionID, VALIDATION_INPUT_TYPES } from '../../../types';
 import Dropdown from '../../inputs/Dropdown/Dropdown';
+import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import Loader from '../Loader/Loader';
 import UpgradeTier from '../UpgradeTier/UpgradeTier';
 import './styles.css';
@@ -135,21 +136,28 @@ function RegisterNameForm() {
         <div className="register-inputs center">
           <div className="input-group center column">
             <div className="flex-row center tool-tip">
-              <input
-                className="data-input center"
-                type="text"
-                placeholder="Enter an ANT Contract ID"
-                onChange={(e) => handleAntId(e.target.value)}
-                maxLength={43}
+              <ValidationInput
                 value={antTxID ?? ''}
-                ref={inputRef}
-                style={
+                setValue={(e) => handleAntId(e)}
+                setIsValid={(validity: boolean) =>
+                  console.log(
+                    'stubbed validity setting - update to ANT contract ID input',
+                    validity,
+                  )
+                }
+                inputType={VALIDATION_INPUT_TYPES.ARWEAVE_ID}
+                wrapperClassName={'flex flex-column center'}
+                wrapperCustomStyle={{ gap: '1em' }}
+                inputClassName={'data-input center'}
+                inputCustomStyle={
                   isValidAnt && antTxID
                     ? { border: 'solid 2px var(--success-green)' }
                     : !isValidAnt && antTxID && !isValidating
                     ? { border: 'solid 2px var(--error-red)' }
                     : {}
                 }
+                placeholder={'Enter an ANT Contract ID Validation Input'}
+                showValidationChecklist={true}
               />
               <div className={'validation-spinner'}>
                 {isValidating ? <Loader size={25} color={'black'} /> : <></>}

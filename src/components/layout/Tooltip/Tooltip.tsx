@@ -7,18 +7,17 @@ export function Tooltip({
   children,
 }: {
   message: string;
-  children: JSX.Element;
+  children: JSX.Element[];
 }) {
   const [showToolTip, setShowToolTip] = useState(false);
 
   return (
     // eslint-disable-next-line
     <div
-      className="section-header tool-tip"
+      className="flex flex-column tool-tip"
       onClick={() => setShowToolTip(!showToolTip)}
     >
       {children}
-      <AlertCircle width={'16px'} height={'16px'} fill={'var(--text-white)'} />
       {showToolTip ? (
         <div className="info-bubble">
           <span className="text bold black center">{message}</span>
