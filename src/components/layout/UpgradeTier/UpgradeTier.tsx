@@ -48,7 +48,12 @@ function UpgradeTier() {
         ))}
       </div>
       <Tooltip message={NAME_PRICE_INFO}>
-        <span>{fee.io?.toLocaleString()}&nbsp;ARIO&nbsp;</span>
+        <span
+          className="flex center flex-row white text-small bold"
+          style={{ paddingBottom: '1em' }}
+        >
+          {fee.io?.toLocaleString()}&nbsp;ARIO&nbsp;
+        </span>
       </Tooltip>{' '}
     </div>
   );
