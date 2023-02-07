@@ -1,7 +1,5 @@
 import { useState } from 'react';
 
-import { AlertCircle } from '../../icons';
-
 export function Tooltip({
   message,
   children,

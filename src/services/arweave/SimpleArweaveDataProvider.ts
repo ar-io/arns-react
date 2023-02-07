@@ -146,7 +146,7 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
     }
   }
   async validateArweaveId(id: string): Promise<ValidationObject> {
-    let validatedIdObject = { name: '', status: false, error: '' };
+    const validatedIdObject = { name: '', status: false, error: '' };
     validatedIdObject.name = 'Valid Arweave ID';
     try {
       new ArweaveTransactionID(id);
@@ -162,7 +162,7 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
     id: string,
     approvedANTSourceCodeTxs: string[],
   ): Promise<ValidationObject> {
-    let validatedIdObject = { name: '', status: false, error: '' };
+    const validatedIdObject = { name: '', status: false, error: '' };
     validatedIdObject.name = 'Valid Arweave Name Token';
     try {
       await this.validateTransactionTags({

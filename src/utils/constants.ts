@@ -1,9 +1,4 @@
-import {
-  ArweaveTransactionID,
-  VALIDATION_INPUT_TYPES,
-  ValidationObject,
-} from '../types';
-import { isArweaveTransactionID } from './searchUtils';
+import { ArweaveTransactionID } from '../types';
 
 // note: lookahead/lookbehind regex's are not compatible with iOS browsers
 export const ARNS_NAME_REGEX = new RegExp(

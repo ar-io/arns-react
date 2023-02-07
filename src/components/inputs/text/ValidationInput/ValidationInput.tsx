@@ -31,11 +31,12 @@ function ValidationInput({
   setIsValid: (validity: boolean) => void;
   validationPredicate: ((id: string) => Promise<ValidationObject>)[];
 }) {
-  const [validationResults, setValdidationResults] = useState<any>();
+  const [validationResults, setValdidationResults] =
+    useState<ValidationObject[]>();
 
   async function validationExecutor(id: string) {
     setValue(id);
-    let validationResult: Promise<ValidationObject>[] = [];
+    const validationResult: Promise<ValidationObject>[] = [];
     validationPredicate.forEach((predicate) => {
       validationResult.push(predicate(id));
     });
