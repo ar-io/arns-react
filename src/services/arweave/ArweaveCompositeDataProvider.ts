@@ -5,7 +5,6 @@ import {
   ArweaveDataProvider,
   SmartweaveDataProvider,
 } from '../../types';
-import { VALIDATION_OBJECT } from '../../utils/constants';
 
 export class ArweaveCompositeDataProvider
   implements SmartweaveDataProvider, ArweaveDataProvider
