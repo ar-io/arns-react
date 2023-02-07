@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
-import { ArweaveTransactionID, VALIDATION_INPUT_TYPES } from '../../../types';
+import { ArweaveTransactionID } from '../../../types';
 import Dropdown from '../../inputs/Dropdown/Dropdown';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import Loader from '../Loader/Loader';
@@ -138,14 +138,13 @@ function RegisterNameForm() {
             <div className="flex-row center tool-tip">
               <ValidationInput
                 value={antTxID ?? ''}
-                setValue={(e) => handleAntId(e)}
+                setValue={(e: string) => handleAntId(e)}
                 setIsValid={(validity: boolean) =>
                   console.log(
                     'stubbed validity setting - update to ANT contract ID input',
                     validity,
                   )
                 }
-                inputType={VALIDATION_INPUT_TYPES.ARWEAVE_ID}
                 wrapperClassName={'flex flex-column center'}
                 wrapperCustomStyle={{ gap: '1em' }}
                 inputClassName={'data-input center'}
@@ -158,6 +157,14 @@ function RegisterNameForm() {
                 }
                 placeholder={'Enter an ANT Contract ID Validation Input'}
                 showValidationChecklist={true}
+                validationPredicate={[
+                  (id: string) => arweaveDataProvider.validateArweaveId(id),
+                  (id: string) =>
+                    arweaveDataProvider.validateAntContractId(
+                      id,
+                      arnsSourceContract.approvedANTSourceCodeTxs,
+                    ),
+                ]} // functions to use to validate
               />
               <div className={'validation-spinner'}>
                 {isValidating ? <Loader size={25} color={'black'} /> : <></>}

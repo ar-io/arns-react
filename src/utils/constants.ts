@@ -1,4 +1,9 @@
-import { ArweaveTransactionID } from '../types';
+import {
+  ArweaveTransactionID,
+  VALIDATION_INPUT_TYPES,
+  ValidationObject,
+} from '../types';
+import { isArweaveTransactionID } from './searchUtils';
 
 // note: lookahead/lookbehind regex's are not compatible with iOS browsers
 export const ARNS_NAME_REGEX = new RegExp(
@@ -91,4 +96,18 @@ export const approvedContractsForWalletQuery = (
   }`,
   };
   return queryObject;
+};
+
+export const VALIDATION_INPUT_PRESETS = {
+  // [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: isArweaveTransactionID,
+  // todo: add these presets
+  //[VALIDATION_INPUT_TYPES.ANT_CONTRACT_ID]: isValidAntId,
+  //[VALIDATION_INPUT_TYPES.ARNS_NAME]: isValidArnsName,
+  //[VALIDATION_INPUT_TYPES.ARWEAVE_ADDRESS]: isArweaveAddress,
+  //[VALIDATION_INPUT_TYPES.UNDERNAME]: isValidUndername,
+};
+export const VALIDATION_OBJECT: ValidationObject = {
+  name: 'N/A',
+  status: false,
+  error: 'N/A',
 };

@@ -13,7 +13,7 @@ export type ArNSContractState = {
   name: string;
   owner: ArweaveTransactionID | undefined;
   ticker: string;
-  approvedANTSourceCodeTxs: ArweaveTransactionID[];
+  approvedANTSourceCodeTxs: string[];
 };
 
 export type ANTContractDomainRecord = {
@@ -91,6 +91,11 @@ export interface ArweaveDataProvider {
       [x: string]: string[] | ArweaveTransactionID[]; // allowed values
     };
   }): Promise<void>;
+  validateArweaveId(id: string): Promise<ValidationObject>;
+  validateAntContractId(
+    id: string,
+    approvedANTSourceCodeTxs: string[],
+  ): Promise<ValidationObject>;
   getContractsForWallet(
     approvedSourceCodeTransactions: ArweaveTransactionID[],
     address: ArweaveTransactionID,
@@ -230,3 +235,9 @@ export enum VALIDATION_INPUT_TYPES {
   UNDERNAME = 'Undername',
   ANT_CONTRACT_ID = 'ANT Contract ID',
 }
+
+export type ValidationObject = {
+  name: string;
+  status: boolean;
+  error: string;
+};

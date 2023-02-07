@@ -2,9 +2,16 @@
 import Arweave from 'arweave/node';
 import Ar from 'arweave/node/ar';
 
-import { ArweaveTransactionID } from '../../types';
-import { ArweaveDataProvider } from '../../types';
-import { approvedContractsForWalletQuery } from '../../utils/constants';
+import {
+  ArNSContractState,
+  ArweaveDataProvider,
+  ArweaveTransactionID,
+  ValidationObject,
+} from '../../types';
+import {
+  VALIDATION_OBJECT,
+  approvedContractsForWalletQuery,
+} from '../../utils/constants';
 import { tagsToObject } from '../../utils/searchUtils';
 
 export class SimpleArweaveDataProvider implements ArweaveDataProvider {
@@ -109,8 +116,8 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
   }): Promise<void> {
     // validate tx exists, their may be better ways to do this
     const { status } = await this.getTransactionHeaders(id);
-    if (status !== 200) {
-      throw Error('Contract ID not found. Try again.');
+    if (!status.ok) {
+      throw Error(`Contract ID not found. Try again. Status: ${status}`);
     }
 
     // validate confirmations
@@ -139,6 +146,40 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
         }
         throw Error(`Contract is missing required tag: ${requiredTag}`);
       });
+    }
+  }
+  async validateArweaveId(id: string): Promise<ValidationObject> {
+    let validatedIdObject = VALIDATION_OBJECT;
+    validatedIdObject.name = 'Is Valid Arweave ID';
+    try {
+      new ArweaveTransactionID(id);
+      validatedIdObject.status = true;
+      return validatedIdObject;
+    } catch (error: any) {
+      validatedIdObject.status = false;
+      validatedIdObject.error = error.message ? error.message : error;
+      return validatedIdObject;
+    }
+  }
+  async validateAntContractId(
+    id: string,
+    approvedANTSourceCodeTxs: string[],
+  ): Promise<ValidationObject> {
+    let validatedIdObject = VALIDATION_OBJECT;
+    validatedIdObject.name = 'Is Valid Arweave Name Token';
+    try {
+      this.validateTransactionTags({
+        id: new ArweaveTransactionID(id),
+        requiredTags: {
+          'Contract-Src': approvedANTSourceCodeTxs,
+        },
+      });
+      validatedIdObject.status = true;
+      return validatedIdObject;
+    } catch (error: any) {
+      validatedIdObject.status = false;
+      validatedIdObject.error = error.message ? error.message : error;
+      return validatedIdObject;
     }
   }
 }

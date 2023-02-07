@@ -1,10 +1,11 @@
-import { ArweaveTransactionID } from '../../types';
+import { ArweaveTransactionID, ValidationObject } from '../../types';
 import {
   ANTContractState,
   ArNSContractState,
   ArweaveDataProvider,
   SmartweaveDataProvider,
 } from '../../types';
+import { VALIDATION_OBJECT } from '../../utils/constants';
 
 export class ArweaveCompositeDataProvider
   implements SmartweaveDataProvider, ArweaveDataProvider
@@ -80,5 +81,17 @@ export class ArweaveCompositeDataProvider
     };
   }) {
     return this._arweaveProvider.validateTransactionTags(params);
+  }
+  async validateArweaveId(id: string): Promise<ValidationObject> {
+    return this._arweaveProvider.validateArweaveId(id);
+  }
+  async validateAntContractId(
+    id: string,
+    approvedANTSourceCodeTxs: string[],
+  ): Promise<ValidationObject> {
+    return this._arweaveProvider.validateAntContractId(
+      id,
+      approvedANTSourceCodeTxs,
+    );
   }
 }
