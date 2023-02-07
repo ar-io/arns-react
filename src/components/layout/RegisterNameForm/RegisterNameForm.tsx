@@ -165,6 +165,7 @@ function RegisterNameForm() {
                       arnsSourceContract.approvedANTSourceCodeTxs,
                     ),
                 ]} // functions to use to validate
+                maxLength={43}
               />
               <div className={'validation-spinner'}>
                 {isValidating ? <Loader size={25} color={'black'} /> : <></>}

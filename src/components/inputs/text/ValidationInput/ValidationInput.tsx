@@ -1,11 +1,6 @@
 import { useState } from 'react';
 
-import { VALIDATION_INPUT_TYPES, ValidationObject } from '../../../../types';
-import {
-  ARNS_TX_ID_REGEX,
-  VALIDATION_INPUT_PRESETS,
-  VALIDATION_OBJECT,
-} from '../../../../utils/constants';
+import { ValidationObject } from '../../../../types';
 import ValidationList from '../../../cards/ValidationList/ValidationList';
 
 function ValidationInput({
@@ -16,6 +11,7 @@ function ValidationInput({
   inputCustomStyle,
   placeholder,
   disabled,
+  maxLength,
   value,
   setValue,
   setIsValid,
@@ -25,6 +21,7 @@ function ValidationInput({
   wrapperCustomStyle?: any;
   showValidationChecklist?: boolean;
   placeholder?: string;
+  maxLength?: number;
 
   inputClassName?: string;
   inputCustomStyle?: any;
@@ -32,18 +29,19 @@ function ValidationInput({
   value: string;
   setValue: (text: string) => void;
   setIsValid: (validity: boolean) => void;
-  validationPredicate: ((id: string) => Promise<ValidationObject>)[]; // todo validation object array
+  validationPredicate: ((id: string) => Promise<ValidationObject>)[];
 }) {
-  const [validationResults, setValdidationResults] =
-    useState<ValidationObject[]>();
+  const [validationResults, setValdidationResults] = useState<any>();
+
   async function validationExecutor(id: string) {
-    const validationResults = await Promise.all(
-      validationPredicate.map((predicate) => predicate(id)),
-    );
-    console.log(validationResults);
-    setValdidationResults(validationResults);
     setValue(id);
-    setIsValid(validationResults.every((value) => value.status == true));
+    let validationResult: Promise<ValidationObject>[] = [];
+    validationPredicate.forEach((predicate) => {
+      validationResult.push(predicate(id));
+    });
+    const results = await Promise.all(validationResult);
+    setValdidationResults(results);
+    setIsValid(results.every((value) => value.status == true));
   }
 
   return (
@@ -55,8 +53,7 @@ function ValidationInput({
         <input
           type="text"
           className={inputClassName}
-          maxLength={43}
-          pattern={ARNS_TX_ID_REGEX.source}
+          maxLength={maxLength ? maxLength : undefined}
           placeholder={placeholder ? placeholder : ''}
           value={value}
           onChange={(e) => validationExecutor(e.target.value)}

@@ -69,11 +69,13 @@ export const approvedContractsForWalletQuery = (
     query: `
   { 
     transactions (
-      owners:["${address}"]
+      owners:["${address.toString()}"]
       tags:[
         {
           name:"Contract-Src",
-          values:${JSON.stringify(approvedSourceCodeTransactions)}
+          values:${JSON.stringify(
+            approvedSourceCodeTransactions.map((id) => id.toString()),
+          )}
         }
       ],
       sort: HEIGHT_DESC,
@@ -96,18 +98,4 @@ export const approvedContractsForWalletQuery = (
   }`,
   };
   return queryObject;
-};
-
-export const VALIDATION_INPUT_PRESETS = {
-  // [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: isArweaveTransactionID,
-  // todo: add these presets
-  //[VALIDATION_INPUT_TYPES.ANT_CONTRACT_ID]: isValidAntId,
-  //[VALIDATION_INPUT_TYPES.ARNS_NAME]: isValidArnsName,
-  //[VALIDATION_INPUT_TYPES.ARWEAVE_ADDRESS]: isArweaveAddress,
-  //[VALIDATION_INPUT_TYPES.UNDERNAME]: isValidUndername,
-};
-export const VALIDATION_OBJECT: ValidationObject = {
-  name: 'N/A',
-  status: false,
-  error: 'N/A',
 };

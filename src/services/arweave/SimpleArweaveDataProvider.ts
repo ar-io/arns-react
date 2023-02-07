@@ -3,15 +3,11 @@ import Arweave from 'arweave/node';
 import Ar from 'arweave/node/ar';
 
 import {
-  ArNSContractState,
   ArweaveDataProvider,
   ArweaveTransactionID,
   ValidationObject,
 } from '../../types';
-import {
-  VALIDATION_OBJECT,
-  approvedContractsForWalletQuery,
-} from '../../utils/constants';
+import { approvedContractsForWalletQuery } from '../../utils/constants';
 import { tagsToObject } from '../../utils/searchUtils';
 
 export class SimpleArweaveDataProvider implements ArweaveDataProvider {
@@ -115,6 +111,7 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
     requiredTags?: { [x: string]: string[] };
   }): Promise<void> {
     // validate tx exists, their may be better ways to do this
+    // todo: implement http code error proccesor/handler
     const { status } = await this.getTransactionHeaders(id);
     if (!status.ok) {
       throw Error(`Contract ID not found. Try again. Status: ${status}`);
@@ -149,8 +146,8 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
     }
   }
   async validateArweaveId(id: string): Promise<ValidationObject> {
-    let validatedIdObject = VALIDATION_OBJECT;
-    validatedIdObject.name = 'Is Valid Arweave ID';
+    let validatedIdObject = { name: '', status: false, error: '' };
+    validatedIdObject.name = 'Valid Arweave ID';
     try {
       new ArweaveTransactionID(id);
       validatedIdObject.status = true;
@@ -165,10 +162,10 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
     id: string,
     approvedANTSourceCodeTxs: string[],
   ): Promise<ValidationObject> {
-    let validatedIdObject = VALIDATION_OBJECT;
-    validatedIdObject.name = 'Is Valid Arweave Name Token';
+    let validatedIdObject = { name: '', status: false, error: '' };
+    validatedIdObject.name = 'Valid Arweave Name Token';
     try {
-      this.validateTransactionTags({
+      await this.validateTransactionTags({
         id: new ArweaveTransactionID(id),
         requiredTags: {
           'Contract-Src': approvedANTSourceCodeTxs,
