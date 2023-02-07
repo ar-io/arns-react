@@ -11,7 +11,7 @@ function Dropdown(props: DropdownProps) {
     showChevron,
     selected,
     setSelected,
-    headerElement,
+    headerElement = <></>,
     footerElement,
   } = props;
 
@@ -21,9 +21,6 @@ function Dropdown(props: DropdownProps) {
   useEffect(() => {
     if (headerElement) {
       setHeader(headerElement);
-    }
-    if (!headerElement) {
-      setHeader(<></>);
     }
   }, []);
 
