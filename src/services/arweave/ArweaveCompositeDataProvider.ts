@@ -1,4 +1,4 @@
-import { ArweaveTransactionID, ValidationObject } from '../../types';
+import { ArweaveTransactionID } from '../../types';
 import {
   ANTContractState,
   ArNSContractState,

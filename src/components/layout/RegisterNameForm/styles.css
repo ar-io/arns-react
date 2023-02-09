@@ -2,11 +2,10 @@
   display: flex;
   flex-direction: column;
   max-width: 1000px;
-  min-width: 320px;
+  min-width: 300px;
   width: 80%;
   height: fit-content;
   margin: auto;
-  padding: 2em 2em;
   gap: 2em;
 }
 
@@ -14,11 +13,9 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  width: 75%;
+  width: 100%;
   height: fit-content;
   row-gap: 5px;
-  margin: 0;
-  padding: 0;
 }
 .input-group {
   box-sizing: border-box;
@@ -33,7 +30,7 @@
 
 @media screen and (max-width: 600px) {
   .register-name-modal {
-    padding: 0.1em 0.5em;
+    padding: unset;
   }
   .register-inputs {
     width: 100%;

@@ -5,7 +5,6 @@ import { useRegistrationState } from '../../../state/contexts/RegistrationState'
 import { ArweaveTransactionID } from '../../../types';
 import Dropdown from '../../inputs/Dropdown/Dropdown';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
-import Loader from '../Loader/Loader';
 import UpgradeTier from '../UpgradeTier/UpgradeTier';
 import './styles.css';
 
@@ -111,8 +110,8 @@ function RegisterNameForm() {
 
   return (
     <>
-      <div className="register-name-modal center">
-        <span className="text-large white">
+      <div className="register-name-modal">
+        <span className="text-large white center">
           {domain}.arweave.net is available!
         </span>
         <div className="section-header">Register Domain</div>

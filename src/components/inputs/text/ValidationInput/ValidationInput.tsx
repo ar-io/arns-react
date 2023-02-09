@@ -61,7 +61,7 @@ function ValidationInput({
     <>
       <div
         className={wrapperClassName ? wrapperClassName : ''}
-        style={{ ...wrapperCustomStyle }}
+        style={{ ...wrapperCustomStyle, position: 'relative' }}
       >
         <input
           type="text"
