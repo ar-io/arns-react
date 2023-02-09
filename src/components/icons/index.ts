@@ -21,6 +21,7 @@ import { ReactComponent as CodeSandboxIcon } from './CodeSandbox.svg';
 import { ReactComponent as CopyIcon } from './Copy.svg';
 import { ReactComponent as CubeIcon } from './Cube.svg';
 import { ReactComponent as FileCodeIcon } from './FileCode.svg';
+import { ReactComponent as InfoIcon } from './Info.svg';
 import { ReactComponent as LinkIcon } from './Link.svg';
 import { ReactComponent as LogoutIcon } from './Logout.svg';
 import { ReactComponent as MenuIcon } from './Menu.svg';
@@ -55,6 +56,7 @@ export {
   CopyIcon,
   CubeIcon,
   FileCodeIcon,
+  InfoIcon,
   LinkIcon,
   LogoutIcon,
   MenuIcon,

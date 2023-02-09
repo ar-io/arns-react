@@ -47,14 +47,14 @@ function UpgradeTier() {
           <TierCard tierNumber={+tier} key={index} />
         ))}
       </div>
-      <Tooltip message={NAME_PRICE_INFO}>
-        <span
-          className="flex center flex-row white text-small bold"
-          style={{ paddingBottom: '1em' }}
-        >
-          {fee.io?.toLocaleString()}&nbsp;ARIO&nbsp;
-        </span>
-      </Tooltip>{' '}
+      <div className="flex flex-column center" style={{ gap: '0.2em' }}>
+        <Tooltip message={NAME_PRICE_INFO}>
+          <span className="text-large white bold center">
+            {fee.io?.toLocaleString()}&nbsp;IO&nbsp;
+          </span>
+        </Tooltip>
+        <span className="text faded">Estimated Price</span>
+      </div>
     </div>
   );
 }
