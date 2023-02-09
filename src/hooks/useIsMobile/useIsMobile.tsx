@@ -14,7 +14,6 @@ export default function useIsMobile(): boolean {
   }, [isMobile]);
 
   function updateIsMobile(): void {
-    console.log('upating....', isMobile);
     setIsMobile(window.outerWidth < 600);
   }
 
