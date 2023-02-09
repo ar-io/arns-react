@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
-import { ArweaveTransactionID } from '../../../types';
+import { ArweaveTransactionID, VALIDATION_INPUT_TYPES } from '../../../types';
 import Dropdown from '../../inputs/Dropdown/Dropdown';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import UpgradeTier from '../UpgradeTier/UpgradeTier';
@@ -134,15 +134,16 @@ function RegisterNameForm() {
               placeholder={'Enter an ANT Contract ID Validation Input'}
               showValidationChecklist={true}
               validationPredicates={{
-                'Is valid Arweave Transaction (TX) ID': (id: string) =>
+                [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: (id: string) =>
                   arweaveDataProvider.validateArweaveId(id),
-                'Is a valid Arweave Name Token (ANT)': (id: string) =>
+                [VALIDATION_INPUT_TYPES.ANT_CONTRACT_ID]: (id: string) =>
                   arweaveDataProvider.validateAntContractId(
                     id,
                     arnsSourceContract.approvedANTSourceCodeTxs,
                   ),
-                'Has sufficient confirmations (50+)': (id: string) =>
-                  arweaveDataProvider.validateConfirmations(id),
+                [VALIDATION_INPUT_TYPES.TRANSACTION_CONFIRMATIONS]: (
+                  id: string,
+                ) => arweaveDataProvider.validateConfirmations(id),
               }} // functions to use to validate
               maxLength={43}
             />

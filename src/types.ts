@@ -230,11 +230,12 @@ export type ManageAntRow = {
 };
 
 export enum VALIDATION_INPUT_TYPES {
-  ARWEAVE_ID = 'Arweave Transaction ID',
+  ARWEAVE_ID = 'Is valid Arweave Transaction (TX) ID',
   ARWEAVE_ADDRESS = 'Arweave Address',
   ARNS_NAME = 'Arns Name',
   UNDERNAME = 'Undername',
-  ANT_CONTRACT_ID = 'ANT Contract ID',
+  ANT_CONTRACT_ID = 'Is a valid Arweave Name Token (ANT)',
+  TRANSACTION_CONFIRMATIONS = 'Is a valid Arweave Name Token (ANT)',
 }
 
 export type ValidationObject = {
