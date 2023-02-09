@@ -235,7 +235,7 @@ export enum VALIDATION_INPUT_TYPES {
   ARNS_NAME = 'Arns Name',
   UNDERNAME = 'Undername',
   ANT_CONTRACT_ID = 'Is a valid Arweave Name Token (ANT)',
-  TRANSACTION_CONFIRMATIONS = 'Is a valid Arweave Name Token (ANT)',
+  TRANSACTION_CONFIRMATIONS = 'Has sufficient confirmations (50+)',
 }
 
 export type ValidationObject = {
