@@ -64,11 +64,13 @@ export const approvedContractsForWalletQuery = (
     query: `
   { 
     transactions (
-      owners:["${address}"]
+      owners:["${address.toString()}"]
       tags:[
         {
           name:"Contract-Src",
-          values:${JSON.stringify(approvedSourceCodeTransactions)}
+          values:${JSON.stringify(
+            approvedSourceCodeTransactions.map((id) => id.toString()),
+          )}
         }
       ],
       sort: HEIGHT_DESC,

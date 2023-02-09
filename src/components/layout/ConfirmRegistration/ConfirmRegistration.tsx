@@ -104,9 +104,12 @@ function ConfirmRegistration() {
             >
               You will sign a single transaction to register this domain.
             </span>
-            <Tooltip message={NAME_PRICE_INFO}>
-              <span>{fee.io?.toLocaleString()}&nbsp;ARIO&nbsp;</span>
-            </Tooltip>
+            <div className="flex flex-column center" style={{ gap: '0.2em' }}>
+              <Tooltip message={NAME_PRICE_INFO}>
+                <span>{fee.io?.toLocaleString()}&nbsp;IO&nbsp;</span>
+              </Tooltip>
+              <span className="text faded">Estimated Price</span>
+            </div>
           </>
         ) : (
           <span className="h2 error">{errorMessage}</span>

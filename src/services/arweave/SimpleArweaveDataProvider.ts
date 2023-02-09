@@ -2,8 +2,11 @@
 import Arweave from 'arweave/node';
 import Ar from 'arweave/node/ar';
 
-import { ArweaveTransactionID } from '../../types';
-import { ArweaveDataProvider } from '../../types';
+import {
+  ArweaveDataProvider,
+  ArweaveTransactionID,
+  ValidationObject,
+} from '../../types';
 import { approvedContractsForWalletQuery } from '../../utils/constants';
 import { tagsToObject } from '../../utils/searchUtils';
 
@@ -100,7 +103,7 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
 
   async validateTransactionTags({
     id,
-    numberOfConfirmations = 50,
+    numberOfConfirmations,
     requiredTags = {},
   }: {
     id: ArweaveTransactionID;
@@ -108,9 +111,10 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
     requiredTags?: { [x: string]: string[] };
   }): Promise<void> {
     // validate tx exists, their may be better ways to do this
+    // todo: implement http code error proccesor/handler
     const { status } = await this.getTransactionHeaders(id);
     if (status !== 200) {
-      throw Error('Contract ID not found. Try again.');
+      throw Error(`Contract ID not found. Try again. Status: ${status}`);
     }
 
     // validate confirmations
@@ -140,5 +144,34 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
         throw Error(`Contract is missing required tag: ${requiredTag}`);
       });
     }
+  }
+  async validateArweaveId(id: string): Promise<ArweaveTransactionID> {
+    return new Promise((resolve, reject) => {
+      try {
+        const txid = new ArweaveTransactionID(id);
+        resolve(txid);
+      } catch (error: any) {
+        reject(error);
+      }
+    });
+  }
+  async validateConfirmations(id: string): Promise<void> {
+    const txid = new ArweaveTransactionID(id);
+    return this.validateTransactionTags({
+      id: txid,
+      numberOfConfirmations: 50,
+    });
+  }
+
+  async validateAntContractId(
+    id: string,
+    approvedANTSourceCodeTxs: string[],
+  ): Promise<void> {
+    return this.validateTransactionTags({
+      id: new ArweaveTransactionID(id),
+      requiredTags: {
+        'Contract-Src': approvedANTSourceCodeTxs,
+      },
+    });
   }
 }
