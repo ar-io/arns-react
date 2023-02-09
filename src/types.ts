@@ -85,17 +85,15 @@ export interface ArweaveDataProvider {
     id: ArweaveTransactionID,
   ): Promise<{ [x: string]: string }>;
   validateTransactionTags(params: {
-    id: ArweaveTransactionID;
-    numberOfConfirmations?: number;
+    id: string;
     requiredTags?: {
       [x: string]: string[] | ArweaveTransactionID[]; // allowed values
     };
   }): Promise<void>;
   validateArweaveId(id: string): Promise<ArweaveTransactionID>;
-  validateConfirmations(id: string): Promise<void>;
-  validateAntContractId(
+  validateConfirmations(
     id: string,
-    approvedANTSourceCodeTxs: string[],
+    numberOfConfirmations?: number,
   ): Promise<void>;
   getContractsForWallet(
     approvedSourceCodeTransactions: ArweaveTransactionID[],
@@ -235,7 +233,8 @@ export enum VALIDATION_INPUT_TYPES {
   ARNS_NAME = 'Arns Name',
   UNDERNAME = 'Undername',
   ANT_CONTRACT_ID = 'Is a valid Arweave Name Token (ANT)',
-  TRANSACTION_CONFIRMATIONS = 'Has sufficient confirmations (50+)',
+  // unfortunately we cannot use computed values in enums, so be careful if we ever modify this number
+  TRANSACTION_CONFIRMATIONS = `Has sufficient confirmations (50+)`,
 }
 
 export type ValidationObject = {

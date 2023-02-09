@@ -23,9 +23,10 @@ function ConfirmRegistration() {
     if (!antID) {
       return;
     }
+    // TODO: probably no longer necessary since we do the validations before rendering this component
     arweaveDataProvider
       .validateTransactionTags({
-        id: antID,
+        id: antID.toString(),
         requiredTags: {
           'Contract-Src': arnsSourceContract.approvedANTSourceCodeTxs,
         },

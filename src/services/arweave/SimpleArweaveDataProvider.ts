@@ -2,12 +2,11 @@
 import Arweave from 'arweave/node';
 import Ar from 'arweave/node/ar';
 
+import { ArweaveDataProvider, ArweaveTransactionID } from '../../types';
 import {
-  ArweaveDataProvider,
-  ArweaveTransactionID,
-  ValidationObject,
-} from '../../types';
-import { approvedContractsForWalletQuery } from '../../utils/constants';
+  RECOMMENDED_TRANSACTION_CONFIRMATIONS,
+  approvedContractsForWalletQuery,
+} from '../../utils/constants';
 import { tagsToObject } from '../../utils/searchUtils';
 
 export class SimpleArweaveDataProvider implements ArweaveDataProvider {
@@ -103,33 +102,21 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
 
   async validateTransactionTags({
     id,
-    numberOfConfirmations,
     requiredTags = {},
   }: {
-    id: ArweaveTransactionID;
-    numberOfConfirmations?: number;
+    id: string;
     requiredTags?: { [x: string]: string[] };
   }): Promise<void> {
     // validate tx exists, their may be better ways to do this
-    // todo: implement http code error proccesor/handler
-    const { status } = await this.getTransactionHeaders(id);
+    const txID = await this.validateArweaveId(id);
+    const { status } = await this.getTransactionHeaders(txID);
     if (status !== 200) {
       throw Error(`Contract ID not found. Try again. Status: ${status}`);
     }
 
-    // validate confirmations
-    if (numberOfConfirmations && numberOfConfirmations > 0) {
-      const confirmations = await this.getTransactionStatus(id);
-      if (confirmations < numberOfConfirmations) {
-        throw Error(
-          `Contract ID does not have required number of confirmations. Current confirmations: ${confirmations}. Required number of confirmations: ${numberOfConfirmations}.`,
-        );
-      }
-    }
-
     // validate tags
     if (requiredTags) {
-      const tags = await this.getTransactionTags(id);
+      const tags = await this.getTransactionTags(txID);
       // check that all required tags exist, and their values are allowed
       Object.entries(requiredTags).map(([requiredTag, allowedValues]) => {
         if (Object.keys(tags).includes(requiredTag)) {
@@ -148,30 +135,27 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
   async validateArweaveId(id: string): Promise<ArweaveTransactionID> {
     return new Promise((resolve, reject) => {
       try {
-        const txid = new ArweaveTransactionID(id);
-        resolve(txid);
+        const txId = new ArweaveTransactionID(id);
+        resolve(txId);
       } catch (error: any) {
         reject(error);
       }
     });
   }
-  async validateConfirmations(id: string): Promise<void> {
-    const txid = new ArweaveTransactionID(id);
-    return this.validateTransactionTags({
-      id: txid,
-      numberOfConfirmations: 50,
-    });
-  }
 
-  async validateAntContractId(
+  async validateConfirmations(
     id: string,
-    approvedANTSourceCodeTxs: string[],
+    numberOfConfirmations = RECOMMENDED_TRANSACTION_CONFIRMATIONS,
   ): Promise<void> {
-    return this.validateTransactionTags({
-      id: new ArweaveTransactionID(id),
-      requiredTags: {
-        'Contract-Src': approvedANTSourceCodeTxs,
-      },
-    });
+    const txId = await this.validateArweaveId(id);
+    // validate confirmations
+    if (numberOfConfirmations > 0) {
+      const confirmations = await this.getTransactionStatus(txId);
+      if (confirmations < numberOfConfirmations) {
+        throw Error(
+          `Contract ID does not have required number of confirmations. Current confirmations: ${confirmations}. Required number of confirmations: ${numberOfConfirmations}.`,
+        );
+      }
+    }
   }
 }

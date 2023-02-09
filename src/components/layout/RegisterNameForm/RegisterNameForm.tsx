@@ -137,14 +137,17 @@ function RegisterNameForm() {
                 [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: (id: string) =>
                   arweaveDataProvider.validateArweaveId(id),
                 [VALIDATION_INPUT_TYPES.ANT_CONTRACT_ID]: (id: string) =>
-                  arweaveDataProvider.validateAntContractId(
+                  arweaveDataProvider.validateTransactionTags({
                     id,
-                    arnsSourceContract.approvedANTSourceCodeTxs,
-                  ),
+                    requiredTags: {
+                      'Contract-Src':
+                        arnsSourceContract.approvedANTSourceCodeTxs,
+                    },
+                  }),
                 [VALIDATION_INPUT_TYPES.TRANSACTION_CONFIRMATIONS]: (
                   id: string,
                 ) => arweaveDataProvider.validateConfirmations(id),
-              }} // functions to use to validate
+              }}
               maxLength={43}
             />
           </div>
