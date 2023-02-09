@@ -15,6 +15,7 @@ import { ReactComponent as ChevronLeftIcon } from './ChevronLeft.svg';
 import { ReactComponent as ChevronRightIcon } from './ChevronRight.svg';
 import { ReactComponent as ChevronUpIcon } from './ChevronUp.svg';
 import { ReactComponent as CircleCheck } from './CircleCheck.svg';
+import { ReactComponent as CircleXIcon } from './CircleX.svg';
 import { ReactComponent as CloseIcon } from './Close.svg';
 import { ReactComponent as CodeSandboxIcon } from './CodeSandbox.svg';
 import { ReactComponent as CopyIcon } from './Copy.svg';
@@ -64,4 +65,5 @@ export {
   SearchIcon,
   TargetIcon,
   UploadIcon,
+  CircleXIcon,
 };

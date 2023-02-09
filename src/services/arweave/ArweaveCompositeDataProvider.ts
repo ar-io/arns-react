@@ -81,13 +81,16 @@ export class ArweaveCompositeDataProvider
   }) {
     return this._arweaveProvider.validateTransactionTags(params);
   }
-  async validateArweaveId(id: string): Promise<ValidationObject> {
+  async validateArweaveId(id: string): Promise<ArweaveTransactionID> {
     return this._arweaveProvider.validateArweaveId(id);
+  }
+  async validateConfirmations(id: string): Promise<void> {
+    return this._arweaveProvider.validateConfirmations(id);
   }
   async validateAntContractId(
     id: string,
     approvedANTSourceCodeTxs: string[],
-  ): Promise<ValidationObject> {
+  ): Promise<void> {
     return this._arweaveProvider.validateAntContractId(
       id,
       approvedANTSourceCodeTxs,

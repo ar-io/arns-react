@@ -157,14 +157,17 @@ function RegisterNameForm() {
                 }
                 placeholder={'Enter an ANT Contract ID Validation Input'}
                 showValidationChecklist={true}
-                validationPredicate={[
-                  (id: string) => arweaveDataProvider.validateArweaveId(id),
-                  (id: string) =>
+                validationPredicates={{
+                  'Is valid Arweave Transaction (TX) ID': (id: string) =>
+                    arweaveDataProvider.validateArweaveId(id),
+                  'Is a valid Arweave Name Token (ANT)': (id: string) =>
                     arweaveDataProvider.validateAntContractId(
                       id,
                       arnsSourceContract.approvedANTSourceCodeTxs,
                     ),
-                ]} // functions to use to validate
+                  'Has sufficient confirmations (50+)': (id: string) =>
+                    arweaveDataProvider.validateConfirmations(id),
+                }} // functions to use to validate
                 maxLength={43}
               />
               <div className={'validation-spinner'}>

@@ -15,7 +15,7 @@ function ValidationInput({
   value,
   setValue,
   setIsValid,
-  validationPredicate,
+  validationPredicates,
 }: {
   wrapperClassName?: string;
   wrapperCustomStyle?: any;
@@ -29,20 +29,33 @@ function ValidationInput({
   value: string;
   setValue: (text: string) => void;
   setIsValid: (validity: boolean) => void;
-  validationPredicate: ((id: string) => Promise<ValidationObject>)[];
+  validationPredicates: { [x: string]: (value: string) => Promise<any> };
 }) {
   const [validationResults, setValdidationResults] =
     useState<ValidationObject[]>();
 
   async function validationExecutor(id: string) {
     setValue(id);
-    const validationResult: Promise<ValidationObject>[] = [];
-    validationPredicate.forEach((predicate) => {
-      validationResult.push(predicate(id));
-    });
-    const results = await Promise.all(validationResult);
-    setValdidationResults(results);
-    setIsValid(results.every((value) => value.status == true));
+
+    const validations = Object.values(validationPredicates).map((predicate) =>
+      predicate(id),
+    );
+
+    const results = await Promise.allSettled(validations);
+    console.log(results);
+
+    const validationResults: ValidationObject[] = results.map(
+      (result: PromiseFulfilledResult<any> | PromiseRejectedResult, index) => {
+        return {
+          name: Object.keys(validationPredicates)[index],
+          status: result.status !== 'rejected',
+          error: result.status === 'rejected' ? result?.reason : undefined,
+        };
+      },
+    );
+
+    setValdidationResults(validationResults);
+    setIsValid(validationResults.every((value) => value.status === true));
   }
 
   return (

@@ -103,7 +103,7 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
 
   async validateTransactionTags({
     id,
-    numberOfConfirmations = 50,
+    numberOfConfirmations,
     requiredTags = {},
   }: {
     id: ArweaveTransactionID;
@@ -113,7 +113,7 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
     // validate tx exists, their may be better ways to do this
     // todo: implement http code error proccesor/handler
     const { status } = await this.getTransactionHeaders(id);
-    if (!status.ok) {
+    if (status !== 200) {
       throw Error(`Contract ID not found. Try again. Status: ${status}`);
     }
 
@@ -145,38 +145,33 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
       });
     }
   }
-  async validateArweaveId(id: string): Promise<ValidationObject> {
-    const validatedIdObject = { name: '', status: false, error: '' };
-    validatedIdObject.name = 'Valid Arweave ID';
-    try {
-      new ArweaveTransactionID(id);
-      validatedIdObject.status = true;
-      return validatedIdObject;
-    } catch (error: any) {
-      validatedIdObject.status = false;
-      validatedIdObject.error = error.message ? error.message : error;
-      return validatedIdObject;
-    }
+  async validateArweaveId(id: string): Promise<ArweaveTransactionID> {
+    return new Promise((resolve, reject) => {
+      try {
+        const txid = new ArweaveTransactionID(id);
+        resolve(txid);
+      } catch (error: any) {
+        reject(error);
+      }
+    });
   }
+  async validateConfirmations(id: string): Promise<void> {
+    const txid = new ArweaveTransactionID(id);
+    return this.validateTransactionTags({
+      id: txid,
+      numberOfConfirmations: 50,
+    });
+  }
+
   async validateAntContractId(
     id: string,
     approvedANTSourceCodeTxs: string[],
-  ): Promise<ValidationObject> {
-    const validatedIdObject = { name: '', status: false, error: '' };
-    validatedIdObject.name = 'Valid Arweave Name Token';
-    try {
-      await this.validateTransactionTags({
-        id: new ArweaveTransactionID(id),
-        requiredTags: {
-          'Contract-Src': approvedANTSourceCodeTxs,
-        },
-      });
-      validatedIdObject.status = true;
-      return validatedIdObject;
-    } catch (error: any) {
-      validatedIdObject.status = false;
-      validatedIdObject.error = error.message ? error.message : error;
-      return validatedIdObject;
-    }
+  ): Promise<void> {
+    return this.validateTransactionTags({
+      id: new ArweaveTransactionID(id),
+      requiredTags: {
+        'Contract-Src': approvedANTSourceCodeTxs,
+      },
+    });
   }
 }

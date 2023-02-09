@@ -91,11 +91,12 @@ export interface ArweaveDataProvider {
       [x: string]: string[] | ArweaveTransactionID[]; // allowed values
     };
   }): Promise<void>;
-  validateArweaveId(id: string): Promise<ValidationObject>;
+  validateArweaveId(id: string): Promise<ArweaveTransactionID>;
+  validateConfirmations(id: string): Promise<void>;
   validateAntContractId(
     id: string,
     approvedANTSourceCodeTxs: string[],
-  ): Promise<ValidationObject>;
+  ): Promise<void>;
   getContractsForWallet(
     approvedSourceCodeTransactions: ArweaveTransactionID[],
     address: ArweaveTransactionID,
@@ -239,5 +240,5 @@ export enum VALIDATION_INPUT_TYPES {
 export type ValidationObject = {
   name: string;
   status: boolean;
-  error: string;
+  error?: string | undefined;
 };
