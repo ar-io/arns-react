@@ -27,6 +27,7 @@ import { ReactComponent as LogoutIcon } from './Logout.svg';
 import { ReactComponent as MenuIcon } from './Menu.svg';
 import { ReactComponent as NotebookIcon } from './Notebook.svg';
 import { ReactComponent as PencilIcon } from './Pencil.svg';
+import { ReactComponent as PersonIcon } from './Person.svg';
 import { ReactComponent as PriceTagIcon } from './PriceTag.svg';
 import { ReactComponent as RefreshAlertIcon } from './RefreshAlert.svg';
 import { ReactComponent as SearchIcon } from './Search.svg';
@@ -64,6 +65,7 @@ export {
   MenuIcon,
   NotebookIcon,
   PencilIcon,
+  PersonIcon,
   PriceTagIcon,
   RefreshAlertIcon,
   SearchIcon,
