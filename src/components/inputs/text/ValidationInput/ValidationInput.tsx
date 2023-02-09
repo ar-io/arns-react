@@ -31,7 +31,7 @@ function ValidationInput({
   setIsValid: (validity: boolean) => void;
   validationPredicates: { [x: string]: (value: string) => Promise<any> };
 }) {
-  const [validationResults, setValdidationResults] =
+  const [validationResults, setValidationResults] =
     useState<ValidationObject[]>();
 
   async function validationExecutor(id: string) {
@@ -42,7 +42,6 @@ function ValidationInput({
     );
 
     const results = await Promise.allSettled(validations);
-    console.log(results);
 
     const validationResults: ValidationObject[] = results.map(
       (result: PromiseFulfilledResult<any> | PromiseRejectedResult, index) => {
@@ -54,7 +53,7 @@ function ValidationInput({
       },
     );
 
-    setValdidationResults(validationResults);
+    setValidationResults(validationResults);
     setIsValid(validationResults.every((value) => value.status === true));
   }
 
@@ -62,7 +61,7 @@ function ValidationInput({
     <>
       <div
         className={wrapperClassName ? wrapperClassName : ''}
-        style={wrapperCustomStyle ? { ...wrapperCustomStyle } : {}}
+        style={{ ...wrapperCustomStyle }}
       >
         <input
           type="text"
@@ -72,7 +71,7 @@ function ValidationInput({
           value={value}
           onChange={(e) => validationExecutor(e.target.value)}
           disabled={disabled ? disabled : false}
-          style={inputCustomStyle ? { ...inputCustomStyle } : {}}
+          style={{ ...inputCustomStyle }}
         />
 
         {showValidationChecklist && validationResults ? (

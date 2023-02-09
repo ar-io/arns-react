@@ -6,10 +6,8 @@ function ValidationList({ validations }: { validations: ValidationObject[] }) {
     <>
       {/* WIP: waiting on final design from lucas */}
       <div
-        className="flex flex-column card flex-start"
+        className="flex flex-row"
         style={{
-          padding: '1em',
-          justifyContent: 'flex-start',
           height: 'fit-content',
           width: 'fit-content',
           minHeight: '0',
@@ -17,8 +15,8 @@ function ValidationList({ validations }: { validations: ValidationObject[] }) {
           gap: '1em',
         }}
       >
-        {validations?.map((validationItem: ValidationObject) => (
-          <span className="flex flex-row text flex-left white bold">
+        {validations?.map((validationItem: ValidationObject, index: number) => (
+          <span key={index} className="flex center text white bold">
             {validationItem.status ? (
               <CircleCheck
                 width={20}
