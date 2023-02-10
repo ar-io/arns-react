@@ -2,9 +2,16 @@
 import Arweave from 'arweave/node';
 import Ar from 'arweave/node/ar';
 
-import { ArweaveTransactionID } from '../../types';
-import { ArweaveDataProvider } from '../../types';
-import { approvedContractsForWalletQuery } from '../../utils/constants';
+import {
+  ArweaveDataProvider,
+  ArweaveTransactionID,
+  TransactionHeaders,
+  TransactionTag,
+} from '../../types';
+import {
+  RECOMMENDED_TRANSACTION_CONFIRMATIONS,
+  approvedContractsForWalletQuery,
+} from '../../utils/constants';
 import { tagsToObject } from '../../utils/searchUtils';
 
 export class SimpleArweaveDataProvider implements ArweaveDataProvider {
@@ -23,20 +30,18 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
   }
 
   async getTransactionStatus(id: ArweaveTransactionID) {
-    const confirmations = await this._arweave.api
-      .get(`/tx/${id}/status`)
-      .then((res: any) => {
-        return res.data.number_of_confirmations;
-      });
-    return confirmations;
+    const { status, data } = await this._arweave.api.get(`/tx/${id}/status`);
+    if (status !== 200) {
+      throw Error('Failed fetch confirmations for transaction id.');
+    }
+    return +data.number_of_confirmations;
   }
 
   async getTransactionTags(
     id: ArweaveTransactionID,
   ): Promise<{ [x: string]: string }> {
-    const { data: tags } = await this._arweave.api.get(
-      `/tx/${id.toString()}/tags`,
-    );
+    const { data: tags }: { data: TransactionTag[] } =
+      await this._arweave.api.get(`/tx/${id.toString()}/tags`);
     const decodedTags = tagsToObject(tags);
     return decodedTags;
   }
@@ -94,38 +99,32 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
     };
   }
 
-  async getTransactionHeaders(id: ArweaveTransactionID): Promise<any> {
-    return this._arweave.api.get(`/tx/${id.toString()}`);
+  async getTransactionHeaders(
+    id: ArweaveTransactionID,
+  ): Promise<TransactionHeaders> {
+    const {
+      status,
+      data: headers,
+    }: { status: number; data: TransactionHeaders } =
+      await this._arweave.api.get(`/tx/${id.toString()}`);
+    if (status !== 200) {
+      throw Error(`Transaction ID not found. Try again. Status: ${status}`);
+    }
+    return headers;
   }
 
   async validateTransactionTags({
     id,
-    numberOfConfirmations = 50,
     requiredTags = {},
   }: {
-    id: ArweaveTransactionID;
-    numberOfConfirmations?: number;
+    id: string;
     requiredTags?: { [x: string]: string[] };
   }): Promise<void> {
-    // validate tx exists, their may be better ways to do this
-    const { status } = await this.getTransactionHeaders(id);
-    if (status !== 200) {
-      throw Error('Contract ID not found. Try again.');
-    }
-
-    // validate confirmations
-    if (numberOfConfirmations && numberOfConfirmations > 0) {
-      const confirmations = await this.getTransactionStatus(id);
-      if (confirmations < numberOfConfirmations) {
-        throw Error(
-          `Contract ID does not have required number of confirmations. Current confirmations: ${confirmations}. Required number of confirmations: ${numberOfConfirmations}.`,
-        );
-      }
-    }
+    const txID = await this.validateArweaveId(id);
 
     // validate tags
     if (requiredTags) {
-      const tags = await this.getTransactionTags(id);
+      const tags = await this.getTransactionTags(txID);
       // check that all required tags exist, and their values are allowed
       Object.entries(requiredTags).map(([requiredTag, allowedValues]) => {
         if (Object.keys(tags).includes(requiredTag)) {
@@ -139,6 +138,36 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
         }
         throw Error(`Contract is missing required tag: ${requiredTag}`);
       });
+    }
+  }
+  async validateArweaveId(id: string): Promise<ArweaveTransactionID> {
+    // a simple promise that throws on a poorly formatted transaction id
+    const txID: ArweaveTransactionID = await new Promise((resolve, reject) => {
+      try {
+        const txId = new ArweaveTransactionID(id);
+        resolve(txId);
+      } catch (error: any) {
+        reject(error);
+      }
+    });
+    // fetch the headers to confirm transaction actually exists
+    await this.getTransactionHeaders(txID);
+    return txID;
+  }
+
+  async validateConfirmations(
+    id: string,
+    numberOfConfirmations = RECOMMENDED_TRANSACTION_CONFIRMATIONS,
+  ): Promise<void> {
+    const txId = await this.validateArweaveId(id);
+    // validate confirmations
+    if (numberOfConfirmations > 0) {
+      const confirmations = await this.getTransactionStatus(txId);
+      if (confirmations < numberOfConfirmations) {
+        throw Error(
+          `Contract ID does not have required number of confirmations. Current confirmations: ${confirmations}. Required number of confirmations: ${numberOfConfirmations}.`,
+        );
+      }
     }
   }
 }

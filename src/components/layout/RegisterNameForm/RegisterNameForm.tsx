@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
-import { ArweaveTransactionID } from '../../../types';
+import { ArweaveTransactionID, VALIDATION_INPUT_TYPES } from '../../../types';
 import Dropdown from '../../inputs/Dropdown/Dropdown';
-import Loader from '../Loader/Loader';
+import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import UpgradeTier from '../UpgradeTier/UpgradeTier';
 import './styles.css';
 
@@ -14,8 +14,6 @@ function RegisterNameForm() {
   const [{ arnsSourceContract, arweaveDataProvider }] = useGlobalState();
 
   const [isValidAnt, setIsValidAnt] = useState<boolean | undefined>(undefined);
-  const [isValidating, setIsValidating] = useState(false);
-  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [antTxID, setAntTXId] = useState<string | undefined>(antID?.toString());
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -32,8 +30,6 @@ function RegisterNameForm() {
 
   function reset() {
     setIsValidAnt(undefined);
-    setIsValidating(false);
-    setValidationErrors([]);
     setAntTXId('');
     dispatchRegisterState({
       type: 'setAntID',
@@ -46,9 +42,6 @@ function RegisterNameForm() {
   }
 
   async function handleAntId(id?: string) {
-    setIsValidating(true);
-    setValidationErrors([]);
-
     if (!id || !id.length) {
       reset();
       return;
@@ -63,19 +56,13 @@ function RegisterNameForm() {
         type: 'setAntID',
         payload: txId,
       });
-      await arweaveDataProvider.validateTransactionTags({
-        id: txId,
-        requiredTags: {
-          'Contract-Src': arnsSourceContract.approvedANTSourceCodeTxs,
-        },
-      });
+
       const state = await arweaveDataProvider.getContractState(txId);
       if (state == undefined) {
         throw Error('ANT contract state is undefined');
       }
 
       const { controller, name, owner, ticker, records } = state;
-      console.log(controller);
       dispatchRegisterState({
         type: 'setControllers',
         payload: [
@@ -117,44 +104,52 @@ function RegisterNameForm() {
         type: 'setAntID',
         payload: undefined,
       });
-      setIsValidAnt(false);
-      setValidationErrors([error.message]);
       console.error(error);
-    } finally {
-      setIsValidating(false);
     }
   }
 
   return (
     <>
-      <div className="register-name-modal center">
-        <span className="text-large white">
+      <div className="register-name-modal">
+        <span className="text-large white center">
           {domain}.arweave.net is available!
         </span>
         <div className="section-header">Register Domain</div>
         <div className="register-inputs center">
           <div className="input-group center column">
-            <div className="flex-row center tool-tip">
-              <input
-                className="data-input center"
-                type="text"
-                placeholder="Enter an ANT Contract ID"
-                onChange={(e) => handleAntId(e.target.value)}
-                maxLength={43}
-                value={antTxID ?? ''}
-                ref={inputRef}
-                style={
-                  isValidAnt && antTxID
-                    ? { border: 'solid 2px var(--success-green)' }
-                    : !isValidAnt && antTxID && !isValidating
-                    ? { border: 'solid 2px var(--error-red)' }
-                    : {}
-                }
-              />
-              <div className={'validation-spinner'}>
-                {isValidating ? <Loader size={25} color={'black'} /> : <></>}
-              </div>
-            </div>
+            <ValidationInput
+              value={antTxID ?? ''}
+              setValue={(e: string) => handleAntId(e)}
+              setIsValid={(isValid: boolean) => setIsValidAnt(isValid)}
+              wrapperClassName={'flex flex-column center'}
+              wrapperCustomStyle={{ gap: '0.5em' }}
+              inputClassName={'data-input center'}
+              inputCustomStyle={
+                isValidAnt && antTxID
+                  ? { border: 'solid 2px var(--success-green)' }
+                  : !isValidAnt && antTxID
+                  ? { border: 'solid 2px var(--error-red)' }
+                  : {}
+              }
+              placeholder={'Enter an ANT Contract ID Validation Input'}
+              showValidationChecklist={true}
+              validationPredicates={{
+                [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: (id: string) =>
+                  arweaveDataProvider.validateArweaveId(id),
+                [VALIDATION_INPUT_TYPES.ANT_CONTRACT_ID]: (id: string) =>
+                  arweaveDataProvider.validateTransactionTags({
+                    id,
+                    requiredTags: {
+                      'Contract-Src':
+                        arnsSourceContract.approvedANTSourceCodeTxs,
+                    },
+                  }),
+                [VALIDATION_INPUT_TYPES.TRANSACTION_CONFIRMATIONS]: (
+                  id: string,
+                ) => arweaveDataProvider.validateConfirmations(id),
+              }}
+              maxLength={43}
+            />
           </div>
           <div className="input-group center">
             <Dropdown
@@ -176,13 +171,6 @@ function RegisterNameForm() {
               }}
             />
           </div>
-        </div>
-        <div className="flex-column center">
-          {validationErrors.map((e: string) => (
-            <span key={e} className="text error">
-              {e}
-            </span>
-          ))}
         </div>
         <UpgradeTier />
       </div>

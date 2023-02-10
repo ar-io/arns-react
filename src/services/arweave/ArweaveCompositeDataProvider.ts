@@ -73,12 +73,20 @@ export class ArweaveCompositeDataProvider
   }
 
   async validateTransactionTags(params: {
-    id: ArweaveTransactionID;
+    id: string;
     numberOfConfirmations?: number;
     requiredTags?: {
       [x: string]: string[]; // allowed values
     };
   }) {
     return this._arweaveProvider.validateTransactionTags(params);
+  }
+
+  async validateArweaveId(id: string): Promise<ArweaveTransactionID> {
+    return this._arweaveProvider.validateArweaveId(id);
+  }
+
+  async validateConfirmations(id: string): Promise<void> {
+    return this._arweaveProvider.validateConfirmations(id);
   }
 }

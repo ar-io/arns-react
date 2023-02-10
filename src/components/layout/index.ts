@@ -7,6 +7,7 @@ import NavBar from './Navbar/Navbar';
 import RegisterNameForm from './RegisterNameForm/RegisterNameForm';
 import SearchBarFooter from './SearchBarFooter/SearchBarFooter';
 import SearchBarHeader from './SearchBarHeader/SearchBarHeader';
+import { Tooltip } from './Tooltip/Tooltip';
 
 export {
   FeaturedDomains,
@@ -18,4 +19,5 @@ export {
   SearchBarFooter,
   SearchBarHeader,
   RegisterNameForm,
+  Tooltip,
 };
