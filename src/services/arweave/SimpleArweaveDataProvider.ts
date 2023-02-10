@@ -102,9 +102,11 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
   async getTransactionHeaders(
     id: ArweaveTransactionID,
   ): Promise<TransactionHeaders> {
-    const { status, data: headers } = await this._arweave.api.get(
-      `/tx/${id.toString()}`,
-    );
+    const {
+      status,
+      data: headers,
+    }: { status: number; data: TransactionHeaders } =
+      await this._arweave.api.get(`/tx/${id.toString()}`);
     if (status !== 200) {
       throw Error(`Transaction ID not found. Try again. Status: ${status}`);
     }
