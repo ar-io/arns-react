@@ -31,7 +31,7 @@ function TransactionModal({
   contractId?: ArweaveTransactionID; // contract ID if asset type is a contract interaction
   showModal: () => void;
 }) {
-  const [{ arnsSourceContract, arweaveDataProvider }] = useGlobalState();
+  const [{ arnsSourceContract }] = useGlobalState();
   const isMobile = useIsMobile();
   const [accepted, setAccepted] = useState<boolean>(false);
   const [toAddress, setToAddress] = useState<string>('');
