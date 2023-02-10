@@ -4,6 +4,25 @@ import { ARNS_TX_ID_REGEX } from './utils/constants';
 
 export type ArNSDomains = { [x: string]: any };
 
+export type TransactionHeaders = {
+  id: string;
+  signature: string;
+  format: number;
+  last_tx: string;
+  owner: string;
+  target: string;
+  quantity: string;
+  reward: string;
+  data_size: string;
+  data_root: string;
+  tags: TransactionTag[];
+};
+
+export type TransactionTag = {
+  name: string;
+  value: string;
+};
+
 export type ArNSContractState = {
   records: ArNSDomains;
   fees: { [x: number]: number };
