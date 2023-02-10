@@ -19,23 +19,18 @@ function TransactionModal({
   transactionType, // todo: add other tx types (ex edit ant, IO token management)
   interactionType,
   contractId,
-  showAdvanced = false, // todo: implement advanced settings
-  updateSmartweaveFavorites = false, // todo: implement smartweave favorites
+  // todo: implement advanced settings
+  // todo: implement smartweave favorites
   state,
   showModal,
 }: {
   // main control for how the modal is build
   transactionType: TRANSACTION_TYPES;
   interactionType?: ANT_INTERACTION_TYPES;
-  //
   state?: AntMetadata;
-  //
   contractId?: ArweaveTransactionID; // contract ID if asset type is a contract interaction
-  showAdvanced?: boolean; // allow advanced settings ( data uploading, custom tags, ar transfer)
-  updateSmartweaveFavorites?: boolean; // saves smartweave asset to Smartweave Favorites contract
   showModal: () => void;
 }) {
-  // const [{preferences}] = useArweaveTransactionState() // arweave transaction provider states
   const [{ arnsSourceContract, arweaveDataProvider }] = useGlobalState();
   const isMobile = useIsMobile();
   const [accepted, setAccepted] = useState<boolean>(false);
@@ -43,10 +38,6 @@ function TransactionModal({
   const [isValidAddress, setIsValidAddress] = useState<boolean>(false);
 
   // todo: add "transfer to another account" dropdown
-  // async function getAddresses() {
-  //   const addreses = await window.arweaveWallet.getWalletNames();
-  //   setAddresses(addreses);
-  // }
 
   function getAssociatedNames(txId: ArweaveTransactionID) {
     return Object.entries(arnsSourceContract.records)
@@ -96,7 +87,8 @@ function TransactionModal({
             }}
           >
             <span className="text-medium white bold">
-              {interactionType}&nbsp;:&nbsp;{state?.state.ticker}
+              {transactionType}({interactionType})&nbsp;:&nbsp;
+              {state?.state.ticker}
             </span>
             <span className="flex faded text" style={{ alignItems: 'center' }}>
               Contract ID:&nbsp;
@@ -134,10 +126,7 @@ function TransactionModal({
                 gap: '1em',
               }}
             >
-              {/*                        todo: show 'transfer between accounts' option     
-                         {addreses ? <span className="flex flex-column white text">{Object.entries(addreses).map(([address, name])=> <span>{`${name} : ${address}`}</span>)}</span> : <></>}
-
-                         */}
+              {/* todo: show 'transfer between accounts' option */}
 
               <ValidationInput
                 inputClassName="data-input center"

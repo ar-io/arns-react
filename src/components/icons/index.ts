@@ -69,4 +69,5 @@ export {
   TargetIcon,
   UploadIcon,
   CircleXIcon,
+  SettingsIcon,
 };
