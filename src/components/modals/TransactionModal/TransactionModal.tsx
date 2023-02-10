@@ -7,9 +7,12 @@ import {
   AntMetadata,
   ArweaveTransactionID,
   TRANSACTION_TYPES,
+  VALIDATION_INPUT_TYPES,
 } from '../../../types';
+import { isArweaveTransactionID } from '../../../utils/searchUtils';
 import { AlertTriangleIcon, CloseIcon } from '../../icons';
 import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
+import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import './styles.css';
 
 function TransactionModal({
@@ -33,9 +36,11 @@ function TransactionModal({
   showModal: () => void;
 }) {
   // const [{preferences}] = useArweaveTransactionState() // arweave transaction provider states
-  const [{ arnsSourceContract }] = useGlobalState();
+  const [{ arnsSourceContract, arweaveDataProvider }] = useGlobalState();
   const isMobile = useIsMobile();
   const [accepted, setAccepted] = useState<boolean>(false);
+  const [toAddress, setToAddress] = useState<string>('');
+  const [isValidAddress, setIsValidAddress] = useState<boolean>(false);
 
   // todo: add "transfer to another account" dropdown
   // async function getAddresses() {
@@ -133,10 +138,38 @@ function TransactionModal({
                          {addreses ? <span className="flex flex-column white text">{Object.entries(addreses).map(([address, name])=> <span>{`${name} : ${address}`}</span>)}</span> : <></>}
 
                          */}
-              <input
-                className="data-input center"
-                type="text"
+
+              <ValidationInput
+                inputClassName="data-input center"
+                inputCustomStyle={
+                  isValidAddress && toAddress
+                    ? {
+                        border: '2px solid var(--success-green)',
+                      }
+                    : !isValidAddress && toAddress
+                    ? {
+                        border: '2px solid var(--error-red)',
+                      }
+                    : !isValidAddress && !toAddress && {}
+                }
+                wrapperClassName="flex flex-column center"
                 placeholder="Enter recipients address"
+                maxLength={43}
+                value={toAddress}
+                setValue={setToAddress}
+                setIsValid={(validity: boolean) => setIsValidAddress(validity)}
+                showValidationChecklist={true}
+                validationPredicates={{
+                  [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: (id: string) =>
+                    new Promise((resolve, reject) => {
+                      const validation = isArweaveTransactionID(id);
+                      if (validation === true) {
+                        resolve(validation);
+                      } else {
+                        reject(validation);
+                      }
+                    }),
+                }}
               />
               {getAssociatedNames(contractId!).length ? (
                 <span
@@ -189,9 +222,9 @@ function TransactionModal({
             </span>
             <button
               className="accent-button center"
-              disabled={!accepted}
+              disabled={!accepted && isValidAddress}
               style={
-                accepted
+                accepted && isValidAddress
                   ? { width: '100%' }
                   : { width: '100%', backgroundColor: 'var(--text-faded)' }
               }
