@@ -192,8 +192,9 @@ export enum TABLE_TYPES {
   NAME = 'name_table',
 }
 export enum TRANSACTION_TYPES {
-  REGISTRY = 'Arns Registry',
+  REGISTRY = 'ArNS Registry',
   ANT = 'Arweave Name Token',
+  TRANSFER = 'Transfer',
 }
 
 export enum ASSET_TYPES {

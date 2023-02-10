@@ -46,12 +46,12 @@ function ManageAntModal({
   const ACTIONABLE_FIELDS: {
     [x: string]: {
       fn: () => void;
-      title: string;
+      title: TRANSACTION_TYPES;
     };
   } = {
     owner: {
       fn: () => setTransact(true),
-      title: 'Transfer',
+      title: TRANSACTION_TYPES.TRANSFER,
     },
   };
 
