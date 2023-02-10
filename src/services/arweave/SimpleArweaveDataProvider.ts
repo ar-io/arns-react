@@ -141,8 +141,8 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
     }
   }
   async validateArweaveId(id: string): Promise<ArweaveTransactionID> {
-    // todo: we should change this to a promise that checks for the existing of the tx id instead of just constructing a promise that rejects on class creation
-    return new Promise((resolve, reject) => {
+    // a simple promise that throws on a poorly formatted transaction id
+    const txID: ArweaveTransactionID = await new Promise((resolve, reject) => {
       try {
         const txId = new ArweaveTransactionID(id);
         resolve(txId);
@@ -150,6 +150,9 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
         reject(error);
       }
     });
+    // fetch the headers to confirm transaction actually exists
+    await this.getTransactionHeaders(txID);
+    return txID;
   }
 
   async validateConfirmations(
