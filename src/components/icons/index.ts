@@ -52,6 +52,7 @@ export {
   ChevronRightIcon,
   ChevronUpIcon,
   CircleCheck,
+  CircleXIcon,
   CodeSandboxIcon,
   CloseIcon,
   CopyIcon,
@@ -66,8 +67,7 @@ export {
   PriceTagIcon,
   RefreshAlertIcon,
   SearchIcon,
+  SettingsIcon,
   TargetIcon,
   UploadIcon,
-  CircleXIcon,
-  SettingsIcon,
 };

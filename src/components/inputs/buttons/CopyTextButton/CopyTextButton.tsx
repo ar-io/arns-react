@@ -11,7 +11,7 @@ function CopyTextButton({
 }: {
   displayText: string;
   copyText: string;
-  size: number;
+  size: number | string;
   wrapperStyle?: any;
   position?: 'static' | 'relative' | 'absolute' | 'sticky' | 'fixed';
 }) {
@@ -41,10 +41,10 @@ function CopyTextButton({
         </span>
         <CopyIcon
           className="flex"
-          height={size}
-          width={size}
+          height={25}
+          width={25}
           fill="white"
-          style={{ cursor: 'pointer' }}
+          style={{ cursor: 'pointer', scale: size }}
         />
       </button>
       {textCopied ? (

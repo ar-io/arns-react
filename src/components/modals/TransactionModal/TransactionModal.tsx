@@ -24,7 +24,7 @@ function TransactionModal({
   state,
   showModal,
 }: {
-  // main control for how the modal is build
+  // main control for how the modal is built
   transactionType: TRANSACTION_TYPES;
   interactionType?: ANT_INTERACTION_TYPES;
   state?: AntMetadata;
@@ -86,22 +86,31 @@ function TransactionModal({
               position: 'relative',
             }}
           >
-            <span className="text-medium white bold">
+            <span
+              className="text-medium white bold"
+              style={{
+                textShadow: '2px 2px 2px rgb(0,0,0)',
+              }}
+            >
               {transactionType}({interactionType})&nbsp;:&nbsp;
               {state?.state.ticker}
             </span>
-            <span className="flex faded text" style={{ alignItems: 'center' }}>
+            <span
+              className="flex faded text"
+              style={{ alignItems: 'center', fontSize: '8px' }}
+            >
               Contract ID:&nbsp;
               <CopyTextButton
                 copyText={contractId ? contractId.toString() : ''}
                 displayText={`${contractId!
                   .toString()
-                  .slice(0, isMobile ? 6 : 15)}...${contractId!
-                  .toString()
-                  .slice(isMobile ? -6 : -15)}`}
-                size={25}
+                  .slice(0, isMobile ? 6 : 0)}${
+                  isMobile ? '...' : ''
+                }${contractId!.toString().slice(isMobile ? -6 : 0)}`}
+                size={'70%'}
                 wrapperStyle={{
                   fontStyle: 'bold',
+                  fontSize: '8px',
                   justifyContent: 'center',
                   alignItems: 'center',
                 }}
@@ -141,7 +150,13 @@ function TransactionModal({
                       }
                     : !isValidAddress && !toAddress && {}
                 }
+                validationListStyle={{
+                  gap: isMobile ? '0.5em' : '1em',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
                 wrapperClassName="flex flex-column center"
+                wrapperCustomStyle={{ gap: isMobile ? '0.5em' : '1em' }}
                 placeholder="Enter recipients address"
                 maxLength={43}
                 value={toAddress}

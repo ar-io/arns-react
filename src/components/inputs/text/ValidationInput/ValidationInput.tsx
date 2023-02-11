@@ -6,6 +6,7 @@ import ValidationList from '../../../cards/ValidationList/ValidationList';
 function ValidationInput({
   wrapperClassName,
   wrapperCustomStyle,
+  validationListStyle,
   showValidationChecklist,
   inputClassName,
   inputCustomStyle,
@@ -25,6 +26,7 @@ function ValidationInput({
 
   inputClassName?: string;
   inputCustomStyle?: any;
+  validationListStyle?: any;
   disabled?: boolean; // disables input
   value: string;
   setValue: (text: string) => void;
@@ -61,7 +63,7 @@ function ValidationInput({
     <>
       <div
         className={wrapperClassName ? wrapperClassName : ''}
-        style={{ ...wrapperCustomStyle, position: 'relative' }}
+        style={{ ...wrapperCustomStyle }}
       >
         <input
           type="text"
@@ -75,7 +77,10 @@ function ValidationInput({
         />
 
         {showValidationChecklist && validationResults ? (
-          <ValidationList validations={validationResults} />
+          <ValidationList
+            validations={validationResults}
+            customStyle={{ ...validationListStyle }}
+          />
         ) : (
           <></>
         )}

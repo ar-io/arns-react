@@ -2,25 +2,29 @@ import { useIsMobile } from '../../../hooks/';
 import { ValidationObject } from '../../../types';
 import { CircleCheck, CircleXIcon } from '../../icons';
 
-function ValidationList({ validations }: { validations: ValidationObject[] }) {
+function ValidationList({
+  validations,
+  customStyle,
+}: {
+  validations: ValidationObject[];
+  customStyle?: any;
+}) {
   const isMobile = useIsMobile();
   return (
     <>
       {/* WIP: waiting on final design from lucas */}
       <div
         className={!isMobile ? 'flex flex-column' : 'flex flex-column center'}
-        style={{
-          gap: isMobile ? '0.5em' : '1em',
-          position: !isMobile ? 'absolute' : 'unset',
-          left: !isMobile ? '103%' : 'unset',
-          paddingTop: !isMobile ? '7%' : 'unset',
-        }}
+        style={{ ...customStyle }}
       >
         {validations?.map((validationItem: ValidationObject, index: number) => (
           <span
             key={index}
             className="flex flex-left text white"
-            style={{ gap: '2px', alignItems: 'center' }}
+            style={{
+              gap: '1em',
+              alignItems: 'center',
+            }}
           >
             {validationItem.status ? (
               <CircleCheck
