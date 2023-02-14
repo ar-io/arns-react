@@ -9,7 +9,6 @@ import {
   TRANSACTION_TYPES,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
-import { isArweaveTransactionID } from '../../../utils/searchUtils';
 import { AlertTriangleIcon, CloseIcon } from '../../icons';
 import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
