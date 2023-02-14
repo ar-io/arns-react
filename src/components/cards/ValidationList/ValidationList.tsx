@@ -4,10 +4,10 @@ import { CircleCheck, CircleXIcon } from '../../icons';
 
 function ValidationList({
   validations,
-  customStyle,
+  wrapperCustomStyle,
 }: {
   validations: ValidationObject[];
-  customStyle?: any;
+  wrapperCustomStyle?: any;
 }) {
   const isMobile = useIsMobile();
   return (
@@ -15,7 +15,7 @@ function ValidationList({
       {/* WIP: waiting on final design from lucas */}
       <div
         className={!isMobile ? 'flex flex-column' : 'flex flex-column center'}
-        style={{ ...customStyle }}
+        style={{ ...wrapperCustomStyle }}
       >
         {validations?.map((validationItem: ValidationObject, index: number) => (
           <span

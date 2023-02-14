@@ -79,7 +79,7 @@ function ValidationInput({
         {showValidationChecklist && validationResults ? (
           <ValidationList
             validations={validationResults}
-            customStyle={{ ...validationListStyle }}
+            wrapperCustomStyle={{ ...validationListStyle }}
           />
         ) : (
           <></>
