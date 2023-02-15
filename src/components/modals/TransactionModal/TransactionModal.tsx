@@ -46,19 +46,6 @@ function TransactionModal({
       .filter((n) => !!n);
   }
 
-  function transfer({
-    contractId,
-    recipient,
-  }: {
-    contractId: ArweaveTransactionID;
-    recipient: ArweaveTransactionID;
-  }) {
-    try {
-    } catch (error: any) {
-      console.error(error);
-    }
-  }
-
   return (
     <>
       <div
