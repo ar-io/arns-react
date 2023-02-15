@@ -91,12 +91,12 @@ function TransactionModal({
                 textShadow: '2px 2px 2px rgb(0,0,0)',
               }}
             >
-              {transactionType}({interactionType})&nbsp;:&nbsp;
+              {transactionType}&nbsp;({interactionType})&nbsp;:&nbsp;
               {state?.state.ticker}
             </span>
             <span
               className="flex faded text"
-              style={{ alignItems: 'center', fontSize: '8px' }}
+              style={{ alignItems: 'center', fontSize: '1.2em' }}
             >
               Contract ID:&nbsp;
               <CopyTextButton
@@ -109,7 +109,7 @@ function TransactionModal({
                 size={'70%'}
                 wrapperStyle={{
                   fontStyle: 'bold',
-                  fontSize: '1vw',
+                  fontSize: '1.2em',
                   justifyContent: 'center',
                   alignItems: 'center',
                 }}
