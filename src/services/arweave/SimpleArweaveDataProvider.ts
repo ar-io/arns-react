@@ -145,7 +145,7 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
   }
   async validateArweaveId(id: string): Promise<ArweaveTransactionID> {
     // a simple promise that throws on a poorly formatted transaction id
-    const txID: ArweaveTransactionID = await new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       try {
         const txId = new ArweaveTransactionID(id);
         resolve(txId);
@@ -153,7 +153,6 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
         reject(error);
       }
     });
-    return txID;
   }
 
   async validateConfirmations(

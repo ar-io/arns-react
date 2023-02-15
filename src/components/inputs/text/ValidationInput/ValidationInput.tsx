@@ -45,6 +45,8 @@ function ValidationInput({
 
     const results = await Promise.allSettled(validations);
 
+    console.log(results);
+
     const validationResults: ValidationObject[] = results.map(
       (result: PromiseFulfilledResult<any> | PromiseRejectedResult, index) => {
         return {
