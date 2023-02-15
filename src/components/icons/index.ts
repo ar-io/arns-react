@@ -30,6 +30,7 @@ import { ReactComponent as PencilIcon } from './Pencil.svg';
 import { ReactComponent as PriceTagIcon } from './PriceTag.svg';
 import { ReactComponent as RefreshAlertIcon } from './RefreshAlert.svg';
 import { ReactComponent as SearchIcon } from './Search.svg';
+import { ReactComponent as SettingsIcon } from './Settings.svg';
 import { ReactComponent as TargetIcon } from './Target.svg';
 import { ReactComponent as UploadIcon } from './Upload.svg';
 
@@ -51,6 +52,7 @@ export {
   ChevronRightIcon,
   ChevronUpIcon,
   CircleCheck,
+  CircleXIcon,
   CodeSandboxIcon,
   CloseIcon,
   CopyIcon,
@@ -65,7 +67,7 @@ export {
   PriceTagIcon,
   RefreshAlertIcon,
   SearchIcon,
+  SettingsIcon,
   TargetIcon,
   UploadIcon,
-  CircleXIcon,
 };

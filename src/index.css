@@ -375,6 +375,7 @@ button {
   font-weight: 500;
   font-size: 12px;
   outline: none;
+  color: 'unset';
 }
 .data-input::placeholder {
   color: var(--placeholder-text);
