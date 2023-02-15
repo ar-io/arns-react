@@ -91,7 +91,7 @@ function TransactionModal({
                 textShadow: '2px 2px 2px rgb(0,0,0)',
               }}
             >
-              {transactionType}({interactionType})&nbsp;:&nbsp;
+              {transactionType}&nbsp;({interactionType})&nbsp;:&nbsp;
               {state?.state.ticker}
             </span>
             <span
