@@ -122,6 +122,9 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
   }): Promise<void> {
     const txID = await this.validateArweaveId(id);
 
+    // fetch the headers to confirm transaction actually exists
+    await this.getTransactionHeaders(txID);
+
     // validate tags
     if (requiredTags) {
       const tags = await this.getTransactionTags(txID);
@@ -150,8 +153,6 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
         reject(error);
       }
     });
-    // fetch the headers to confirm transaction actually exists
-    await this.getTransactionHeaders(txID);
     return txID;
   }
 
@@ -160,6 +161,10 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
     numberOfConfirmations = RECOMMENDED_TRANSACTION_CONFIRMATIONS,
   ): Promise<void> {
     const txId = await this.validateArweaveId(id);
+
+    // fetch the headers to confirm transaction actually exists
+    await this.getTransactionHeaders(txId);
+
     // validate confirmations
     if (numberOfConfirmations > 0) {
       const confirmations = await this.getTransactionStatus(txId);
