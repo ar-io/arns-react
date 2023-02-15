@@ -91,7 +91,7 @@ function TransactionModal({
                 textShadow: '2px 2px 2px rgb(0,0,0)',
               }}
             >
-              {transactionType}({interactionType})&nbsp;:&nbsp;
+              {transactionType}&nbsp;({interactionType})&nbsp;:&nbsp;
               {state?.state.ticker}
             </span>
             <span
@@ -109,7 +109,7 @@ function TransactionModal({
                 size={'70%'}
                 wrapperStyle={{
                   fontStyle: 'bold',
-                  fontSize: '1vw',
+                  fontSize: '1.2em',
                   justifyContent: 'center',
                   alignItems: 'center',
                 }}
