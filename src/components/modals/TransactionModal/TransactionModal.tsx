@@ -46,6 +46,19 @@ function TransactionModal({
       .filter((n) => !!n);
   }
 
+  function transfer({
+    contractId,
+    recipient,
+  }: {
+    contractId: ArweaveTransactionID;
+    recipient: ArweaveTransactionID;
+  }) {
+    try {
+    } catch (error: any) {
+      console.error(error);
+    }
+  }
+
   return (
     <>
       <div
@@ -91,7 +104,7 @@ function TransactionModal({
                 textShadow: '2px 2px 2px rgb(0,0,0)',
               }}
             >
-              {transactionType}&nbsp;({interactionType})&nbsp;:&nbsp;
+              {transactionType}({interactionType})&nbsp;:&nbsp;
               {state?.state.ticker}
             </span>
             <span
@@ -109,7 +122,7 @@ function TransactionModal({
                 size={'70%'}
                 wrapperStyle={{
                   fontStyle: 'bold',
-                  fontSize: '8px',
+                  fontSize: '1vw',
                   justifyContent: 'center',
                   alignItems: 'center',
                 }}
