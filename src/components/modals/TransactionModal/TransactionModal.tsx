@@ -96,7 +96,7 @@ function TransactionModal({
             </span>
             <span
               className="flex faded text"
-              style={{ alignItems: 'center', fontSize: '8px' }}
+              style={{ alignItems: 'center', fontSize: '1.2em' }}
             >
               Contract ID:&nbsp;
               <CopyTextButton
