@@ -17,7 +17,7 @@ function WorkflowButtons({
 }) {
   return (
     <>
-      <div className="flex-row center">
+      <div className="flex-row center" style={{ padding: '2em' }}>
         {showBack ? (
           <button
             className="outline-button"

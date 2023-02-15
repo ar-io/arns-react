@@ -4,6 +4,25 @@ import { ARNS_TX_ID_REGEX } from './utils/constants';
 
 export type ArNSDomains = { [x: string]: any };
 
+export type TransactionHeaders = {
+  id: string;
+  signature: string;
+  format: number;
+  last_tx: string;
+  owner: string;
+  target: string;
+  quantity: string;
+  reward: string;
+  data_size: string;
+  data_root: string;
+  tags: TransactionTag[];
+};
+
+export type TransactionTag = {
+  name: string;
+  value: string;
+};
+
 export type ArNSContractState = {
   records: ArNSDomains;
   fees: { [x: number]: number };
@@ -13,7 +32,7 @@ export type ArNSContractState = {
   name: string;
   owner: ArweaveTransactionID | undefined;
   ticker: string;
-  approvedANTSourceCodeTxs: ArweaveTransactionID[];
+  approvedANTSourceCodeTxs: string[];
 };
 
 export type ANTContractDomainRecord = {
@@ -85,12 +104,16 @@ export interface ArweaveDataProvider {
     id: ArweaveTransactionID,
   ): Promise<{ [x: string]: string }>;
   validateTransactionTags(params: {
-    id: ArweaveTransactionID;
-    numberOfConfirmations?: number;
+    id: string;
     requiredTags?: {
       [x: string]: string[] | ArweaveTransactionID[]; // allowed values
     };
   }): Promise<void>;
+  validateArweaveId(id: string): Promise<ArweaveTransactionID>;
+  validateConfirmations(
+    id: string,
+    numberOfConfirmations?: number,
+  ): Promise<void>;
   getContractsForWallet(
     approvedSourceCodeTransactions: ArweaveTransactionID[],
     address: ArweaveTransactionID,
@@ -221,4 +244,20 @@ export type ManageAntRow = {
   editable: boolean;
   action: any;
   key: number;
+};
+
+export enum VALIDATION_INPUT_TYPES {
+  ARWEAVE_ID = 'Is valid Arweave Transaction (TX) ID',
+  ARWEAVE_ADDRESS = 'Arweave Address',
+  ARNS_NAME = 'Arns Name',
+  UNDERNAME = 'Undername',
+  ANT_CONTRACT_ID = 'Is a valid Arweave Name Token (ANT)',
+  // unfortunately we cannot use computed values in enums, so be careful if we ever modify this number
+  TRANSACTION_CONFIRMATIONS = `Has sufficient confirmations (50+)`,
+}
+
+export type ValidationObject = {
+  name: string;
+  status: boolean;
+  error?: string | undefined;
 };

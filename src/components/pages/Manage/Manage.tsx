@@ -46,7 +46,9 @@ function Manage() {
 
   async function fetchAntRows(address: ArweaveTransactionID) {
     const { ids } = await arweaveDataProvider.getContractsForWallet(
-      arnsSourceContract.approvedANTSourceCodeTxs,
+      arnsSourceContract.approvedANTSourceCodeTxs.map(
+        (txid: string) => new ArweaveTransactionID(txid),
+      ),
       address,
       cursor,
     );
