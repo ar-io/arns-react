@@ -1,3 +1,4 @@
+import { CubeIcon } from '../components/icons';
 import { About, Create, Home, Manage } from '../components/pages';
 
 export type Route = {
@@ -5,7 +6,7 @@ export type Route = {
   path: string;
   component: () => JSX.Element;
   protected: boolean;
-  icon?: any;
+  icon?: React.FC<React.SVGProps<SVGSVGElement>>;
   index?: boolean;
 };
 
@@ -32,7 +33,8 @@ export const ROUTES: { [x: string]: Route } = {
     index: false,
   },
   manage: {
-    text: "My ANT's",
+    text: 'Manage Assets',
+    icon: CubeIcon,
     path: '/manage',
     component: Manage,
     protected: true,

@@ -47,8 +47,8 @@ function NavMenuCard() {
 
   function resetWalletDetails() {
     setWalletDetails({
-      AR: undefined,
       IO: undefined,
+      AR: undefined,
     });
   }
 
@@ -179,7 +179,6 @@ function NavMenuCard() {
                 : Object.entries(ROUTES).map(([key, route]) => {
                     if (route.protected && walletAddress)
                       return (
-                        // TODO: add menu icons
                         <NavBarLink
                           path={route.path}
                           linkText={route.text}
@@ -187,7 +186,19 @@ function NavMenuCard() {
                           onClick={() => {
                             setShowMenu(false);
                           }}
-                        />
+                        >
+                          <>
+                            {route.icon ? (
+                              route.icon({
+                                height: 24,
+                                width: 24,
+                                fill: 'var(--text-white)',
+                              })
+                            ) : (
+                              <></>
+                            )}
+                          </>
+                        </NavBarLink>
                       );
                   })}
               {Object.entries(walletDetails).map(([key, value]) => {
