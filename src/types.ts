@@ -86,14 +86,6 @@ export interface SmartweaveDataProvider {
     },
     dryWrite?: boolean,
   ): Promise<ArweaveTransactionID | undefined>;
-  transferOwnership({
-    assetId,
-    recipient,
-  }: // takes in asset to be transfered, and the recipient of the asset
-  {
-    assetId: ArweaveTransactionID;
-    recipient: ArweaveTransactionID;
-  }): Promise<ArweaveTransactionID>;
   getContractBalanceForWallet(
     id: ArweaveTransactionID,
     wallet: ArweaveTransactionID,
