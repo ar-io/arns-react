@@ -79,12 +79,12 @@ function Manage() {
           key: index,
         };
         fetchedRows.push(rowData);
-
+      } catch (error) {
+        console.error(error);
+      } finally {
         // sort by name by default
         fetchedRows.sort((a, b) => a.name.localeCompare(b.name));
         setRows(fetchedRows);
-      } catch (error) {
-        console.error(error);
       }
     }
   }
