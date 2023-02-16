@@ -1,4 +1,3 @@
-import { TransactionTag } from '../types.js';
 import { ARNS_NAME_REGEX, ARNS_TX_ID_REGEX } from './constants';
 import { fromB64Url } from './encodings';
 
