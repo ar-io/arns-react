@@ -107,7 +107,9 @@ function ConfirmRegistration() {
             </span>
             <div className="flex flex-column center" style={{ gap: '0.2em' }}>
               <Tooltip message={NAME_PRICE_INFO}>
-                <span>{fee.io?.toLocaleString()}&nbsp;IO&nbsp;</span>
+                <span className="white bold text-small">
+                  {fee.io?.toLocaleString()}&nbsp;IO&nbsp;
+                </span>
               </Tooltip>
               <span className="text faded">Estimated Price</span>
             </div>
