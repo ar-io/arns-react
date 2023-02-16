@@ -55,33 +55,38 @@ function Manage() {
     // TODO: make this row a type
     const fetchedRows: AntMetadata[] = [];
     for (const [index, id] of ids.entries()) {
-      const [contractState, confirmations] = await Promise.all([
-        arweaveDataProvider.getContractState(id),
-        arweaveDataProvider.getTransactionStatus(id),
-      ]);
-      // TODO: add error messages and reload state to row
-      const rowData = {
-        name: contractState.name ?? 'N/A',
-        id: id.toString(),
-        role:
-          contractState.owner.toString() === walletAddress?.toString()
-            ? 'Owner'
-            : contractState.controller === walletAddress?.toString() ||
-              contractState.controllers?.includes(walletAddress?.toString())
-            ? 'Controller'
-            : 'N/A',
-        target:
-          contractState?.records['@']?.transactionId ??
-          contractState?.records['@'],
-        status: confirmations ?? 0,
-        state: contractState,
-        key: index,
-      };
-      fetchedRows.push(rowData);
+      try {
+        const [contractState, confirmations] = await Promise.all([
+          arweaveDataProvider.getContractState(id),
+          arweaveDataProvider.getTransactionStatus(id),
+        ]);
+        // TODO: add error messages and reload state to row
+        const rowData = {
+          name: contractState.name ?? 'N/A',
+          id: id.toString(),
+          role:
+            contractState.owner.toString() === walletAddress?.toString()
+              ? 'Owner'
+              : contractState.controller === walletAddress?.toString() ||
+                contractState.controllers?.includes(walletAddress?.toString())
+              ? 'Controller'
+              : 'N/A',
+          target:
+            contractState?.records['@']?.transactionId ??
+            contractState?.records['@'],
+          status: confirmations ?? 0,
+          state: contractState,
+          key: index,
+        };
+        fetchedRows.push(rowData);
+
+        // sort by name by default
+        fetchedRows.sort((a, b) => a.name.localeCompare(b.name));
+        setRows(fetchedRows);
+      } catch (error) {
+        console.error(error);
+      }
     }
-    // sort by name by default
-    fetchedRows.sort((a, b) => a.name.localeCompare(b.name));
-    setRows(fetchedRows);
   }
 
   function handleClickOutside(e: any) {
