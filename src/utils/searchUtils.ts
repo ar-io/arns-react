@@ -65,7 +65,9 @@ export function isArweaveTransactionID(id: string) {
   return true;
 }
 
-export function tagsToObject(tags: TransactionTag[]): { [x: string]: string } {
+export function tagsToObject(tags: { name: string; value: string }[]): {
+  [x: string]: string;
+} {
   return tags.reduce(
     (newTags, tag) => ({
       ...newTags,

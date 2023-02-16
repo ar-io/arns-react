@@ -86,6 +86,14 @@ export interface SmartweaveDataProvider {
     },
     dryWrite?: boolean,
   ): Promise<ArweaveTransactionID | undefined>;
+  transferOwnership({
+    assetId,
+    recipient,
+  }: // takes in asset to be transfered, and the recipient of the asset
+  {
+    assetId: ArweaveTransactionID;
+    recipient: ArweaveTransactionID;
+  }): Promise<ArweaveTransactionID>;
   getContractBalanceForWallet(
     id: ArweaveTransactionID,
     wallet: ArweaveTransactionID,
@@ -196,6 +204,11 @@ export enum TRANSACTION_TYPES {
   ANT = 'Arweave Name Token',
   TRANSFER = 'Transfer',
 }
+
+export type TransferPayload = {
+  function: 'transfer';
+  target: string;
+};
 
 export enum ASSET_TYPES {
   ANT = 'ant',
