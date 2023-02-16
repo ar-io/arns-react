@@ -82,7 +82,7 @@ export interface SmartweaveDataProvider {
     id: ArweaveTransactionID,
     payload: {
       [x: string]: any;
-      contractTransactionId: ArweaveTransactionID;
+      contractTransactionId: string;
     },
     dryWrite?: boolean,
   ): Promise<ArweaveTransactionID | undefined>;

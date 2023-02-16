@@ -46,7 +46,7 @@ export class WarpDataProvider implements SmartweaveDataProvider {
     id: ArweaveTransactionID,
     payload: {
       [x: string]: any;
-      contractTransactionId: ArweaveTransactionID;
+      contractTransactionId: string;
     },
   ): Promise<ArweaveTransactionID | undefined> {
     try {
@@ -54,6 +54,42 @@ export class WarpDataProvider implements SmartweaveDataProvider {
         throw Error('Payload cannot be empty.');
       }
       const contract = this._warp.contract(id.toString()).connect('use_wallet');
+      const result = await contract.writeInteraction(payload);
+      // todo: check for dry write options on writeInteraction
+      if (!result) {
+        throw Error('No result from write interaction');
+      }
+      const { originalTxId } = result;
+
+      if (!originalTxId) {
+        throw Error('No transaction ID from write interaction');
+      }
+
+      return new ArweaveTransactionID(originalTxId);
+    } catch (error) {
+      console.error('Failed to write TX to warp', error);
+      throw error;
+    }
+  }
+
+  async transferOwnership({
+    assetId,
+    recipient,
+  }: {
+    assetId: ArweaveTransactionID;
+    recipient: ArweaveTransactionID;
+  }): Promise<ArweaveTransactionID> {
+    const payload = {
+      function: 'transfer',
+      target: recipient.toString(),
+    };
+    try {
+      if (!payload) {
+        throw Error('Payload cannot be empty.');
+      }
+      const contract = this._warp
+        .contract(assetId.toString())
+        .connect('use_wallet');
       const result = await contract.writeInteraction(payload);
       // todo: check for dry write options on writeInteraction
       if (!result) {
