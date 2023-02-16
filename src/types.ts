@@ -197,6 +197,11 @@ export enum TRANSACTION_TYPES {
   TRANSFER = 'Transfer',
 }
 
+export type TransferPayload = {
+  function: 'transfer';
+  target: string;
+};
+
 export enum ASSET_TYPES {
   ANT = 'ant',
   NAME = 'name',
