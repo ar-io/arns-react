@@ -22,21 +22,24 @@ function Manage() {
 
   useEffect(() => {
     // todo: move this to a separate function to manage error state and poll for new ants to concat them to the state.
-    // todo: load imported ants and names first
     if (walletAddress) {
       fetchWalletAnts(walletAddress);
     }
   }, [walletAddress?.toString()]);
 
   async function fetchWalletAnts(address: ArweaveTransactionID) {
-    const { ids } = await arweaveDataProvider.getContractsForWallet(
-      arnsSourceContract.approvedANTSourceCodeTxs.map(
-        (txid: string) => new ArweaveTransactionID(txid),
-      ),
-      address,
-      cursor,
-    );
-    setAntIDs(ids);
+    try {
+      const { ids } = await arweaveDataProvider.getContractsForWallet(
+        arnsSourceContract.approvedANTSourceCodeTxs.map(
+          (txid: string) => new ArweaveTransactionID(txid),
+        ),
+        address,
+        cursor,
+      );
+      setAntIDs(ids);
+    } catch (error: any) {
+      console.error(error);
+    }
   }
 
   function handleClickOutside(e: any) {
@@ -63,7 +66,7 @@ function Manage() {
                 className="table-selector text bold center"
                 onClick={() => {
                   setTableType(TABLE_TYPES.ANT);
-                  fetchWalletAnts(walletAddress!);
+                  walletAddress && fetchWalletAnts(walletAddress);
                 }}
                 style={
                   tableType === TABLE_TYPES.ANT
