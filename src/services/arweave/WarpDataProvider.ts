@@ -46,7 +46,7 @@ export class WarpDataProvider implements SmartweaveDataProvider {
     id: ArweaveTransactionID,
     payload: {
       [x: string]: any;
-      contractTransactionId: ArweaveTransactionID;
+      contractTransactionId: string;
     },
   ): Promise<ArweaveTransactionID | undefined> {
     try {

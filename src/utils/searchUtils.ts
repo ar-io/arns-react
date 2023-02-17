@@ -1,4 +1,4 @@
-import { TransactionTag } from '../types.js';
+import { TransactionTag } from '../types';
 import { ARNS_NAME_REGEX, ARNS_TX_ID_REGEX } from './constants';
 import { fromB64Url } from './encodings';
 
@@ -65,7 +65,9 @@ export function isArweaveTransactionID(id: string) {
   return true;
 }
 
-export function tagsToObject(tags: TransactionTag[]): { [x: string]: string } {
+export function tagsToObject(tags: TransactionTag[]): {
+  [x: string]: string;
+} {
   return tags.reduce(
     (newTags, tag) => ({
       ...newTags,

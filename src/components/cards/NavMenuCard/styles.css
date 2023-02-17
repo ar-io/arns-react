@@ -3,10 +3,8 @@
   z-index: 10;
   min-height: unset;
   top: 110px;
-  min-width: unset;
   align-items: flex-start;
   padding: 40px;
-  min-width: 125px;
   gap: 25px;
 }
 

@@ -82,7 +82,7 @@ export interface SmartweaveDataProvider {
     id: ArweaveTransactionID,
     payload: {
       [x: string]: any;
-      contractTransactionId: ArweaveTransactionID;
+      contractTransactionId: string;
     },
     dryWrite?: boolean,
   ): Promise<ArweaveTransactionID | undefined>;
@@ -99,6 +99,7 @@ export interface ArweaveWalletConnector {
 }
 
 export interface ArweaveDataProvider {
+  // add isAddress method
   getTransactionStatus(id: ArweaveTransactionID): Promise<number>;
   getTransactionTags(
     id: ArweaveTransactionID,
@@ -190,6 +191,11 @@ export enum TABLE_TYPES {
   ANT = 'ant_table',
   NAME = 'name_table',
 }
+export enum TRANSACTION_TYPES {
+  REGISTRY = 'ArNS Registry',
+  ANT = 'Arweave Name Token',
+  TRANSFER = 'Transfer',
+}
 
 export enum ASSET_TYPES {
   ANT = 'ant',
@@ -197,6 +203,17 @@ export enum ASSET_TYPES {
   UNDERNAME = 'undername',
   COIN = 'coin',
 }
+
+export enum ANT_INTERACTION_TYPES {
+  SET_CONTROLLER = 'Edit Controller',
+  SET_TICKER = 'Edit Ticker',
+  SET_NAME = 'Edit Name',
+  SET_RECORD = 'Edit Record',
+  REMOVE_RECORD = 'Delete Record',
+  TRANSFER = 'Transfer',
+  BALANCE = 'Balance',
+}
+
 export class ArweaveTransactionID implements Equatable<ArweaveTransactionID> {
   constructor(private readonly transactionId: string) {
     if (!ARNS_TX_ID_REGEX.test(transactionId)) {

@@ -40,9 +40,10 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
   async getTransactionTags(
     id: ArweaveTransactionID,
   ): Promise<{ [x: string]: string }> {
-    const { data: tags }: { data: TransactionTag[] } =
-      await this._arweave.api.get(`/tx/${id.toString()}/tags`);
-    const decodedTags = tagsToObject(tags);
+    const { data: tags } = await this._arweave.api.get(
+      `/tx/${id.toString()}/tags`,
+    );
+    const decodedTags = tagsToObject(JSON.parse(tags));
     return decodedTags;
   }
 
@@ -122,6 +123,9 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
   }): Promise<void> {
     const txID = await this.validateArweaveId(id);
 
+    // fetch the headers to confirm transaction actually exists
+    await this.getTransactionHeaders(txID);
+
     // validate tags
     if (requiredTags) {
       const tags = await this.getTransactionTags(txID);
@@ -142,7 +146,7 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
   }
   async validateArweaveId(id: string): Promise<ArweaveTransactionID> {
     // a simple promise that throws on a poorly formatted transaction id
-    const txID: ArweaveTransactionID = await new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       try {
         const txId = new ArweaveTransactionID(id);
         resolve(txId);
@@ -150,9 +154,6 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
         reject(error);
       }
     });
-    // fetch the headers to confirm transaction actually exists
-    await this.getTransactionHeaders(txID);
-    return txID;
   }
 
   async validateConfirmations(
@@ -160,6 +161,10 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
     numberOfConfirmations = RECOMMENDED_TRANSACTION_CONFIRMATIONS,
   ): Promise<void> {
     const txId = await this.validateArweaveId(id);
+
+    // fetch the headers to confirm transaction actually exists
+    await this.getTransactionHeaders(txId);
+
     // validate confirmations
     if (numberOfConfirmations > 0) {
       const confirmations = await this.getTransactionStatus(txId);

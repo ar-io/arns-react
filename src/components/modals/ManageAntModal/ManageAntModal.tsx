@@ -4,9 +4,11 @@ import { useEffect, useState } from 'react';
 import { useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
+  ANT_INTERACTION_TYPES,
   AntMetadata,
   ArweaveTransactionID,
   ManageAntRow,
+  TRANSACTION_TYPES,
 } from '../../../types';
 import {
   DEFAULT_ATTRIBUTES,
@@ -14,6 +16,7 @@ import {
 } from '../../cards/AntCard/AntCard';
 import { CloseIcon, NotebookIcon, PencilIcon } from '../../icons';
 import TransactionStatus from '../../layout/TransactionStatus/TransactionStatus';
+import TransactionModal from '../TransactionModal/TransactionModal';
 
 const EDITABLE_FIELDS = [
   'name',
@@ -22,18 +25,6 @@ const EDITABLE_FIELDS = [
   'ttlSeconds',
   'controller',
 ];
-
-const ACTIONABLE_FIELDS: {
-  [x: string]: {
-    fn: () => void;
-    title: string;
-  };
-} = {
-  owner: {
-    fn: () => alert('this feature is coming soon...'),
-    title: 'Transfer',
-  },
-};
 
 function ManageAntModal({
   contractId,
@@ -49,8 +40,20 @@ function ManageAntModal({
   const [editingField, setEditingField] = useState<string>();
   const [modifiedValue, setModifiedValue] = useState<string>();
   const [rows, setRows] = useState<ManageAntRow[]>([]);
+  const [transact, setTransact] = useState<boolean>(false);
   // todo: manage asset modal writes asset modifications to contract. It will auto detect if the asset is an ANT, name, or undername.
   // if the asset is a name, it will write modifications to the registry. If its an undername, it will write mods to the ant. If its an ant, it will write mods to the ant.
+  const ACTIONABLE_FIELDS: {
+    [x: string]: {
+      fn: () => void;
+      title: TRANSACTION_TYPES;
+    };
+  } = {
+    owner: {
+      fn: () => setTransact(true),
+      title: TRANSACTION_TYPES.TRANSFER,
+    },
+  };
 
   useEffect(() => {
     setDetails(contractId);
@@ -246,6 +249,19 @@ function ManageAntModal({
         ]}
         data={rows}
       />
+      {transact ? (
+        <TransactionModal
+          contractId={contractId}
+          transactionType={TRANSACTION_TYPES.ANT}
+          interactionType={ANT_INTERACTION_TYPES.TRANSFER}
+          state={antDetails}
+          showModal={() => {
+            setTransact(!transact);
+          }}
+        />
+      ) : (
+        <></>
+      )}
     </div>
   );
 }
