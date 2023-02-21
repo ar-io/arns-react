@@ -1,9 +1,13 @@
 import Table from 'rc-table';
 import { useEffect, useState } from 'react';
 
-import { useIsMobile, useWalletAddress } from '../../../hooks/index';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { ASSET_TYPES, AntMetadata, ArweaveTransactionID } from '../../../types';
+import { useIsMobile, useWalletAddress } from '../../../../hooks/index';
+import { useGlobalState } from '../../../../state/contexts/GlobalState';
+import {
+  ASSET_TYPES,
+  AntMetadata,
+  ArweaveTransactionID,
+} from '../../../../types';
 import {
   BookmarkIcon,
   ChevronUpIcon,
@@ -11,10 +15,10 @@ import {
   NotebookIcon,
   RefreshAlertIcon,
   TargetIcon,
-} from '../../icons/index';
-import ManageAssetButtons from '../../inputs/buttons/ManageAssetButtons/ManageAssetButtons';
-import Loader from '../Loader/Loader';
-import TransactionStatus from '../TransactionStatus/TransactionStatus';
+} from '../../../icons/index';
+import ManageAssetButtons from '../../../inputs/buttons/ManageAssetButtons/ManageAssetButtons';
+import Loader from '../../Loader/Loader';
+import TransactionStatus from '../../TransactionStatus/TransactionStatus';
 
 export function AntTable({
   ids,
@@ -316,10 +320,10 @@ export function AntTable({
         },
         {
           title: '',
-          render: (val: any, row: AntMetadata, index: number) => (
+          render: (val: any, row: AntMetadata) => (
             <ManageAssetButtons
               asset={val.id}
-              setShowModal={() => setSelectedRow(rows[index])}
+              setShowModal={() => setSelectedRow(row)}
               assetType={ASSET_TYPES.ANT}
               disabled={!row.state || !row.status}
             />

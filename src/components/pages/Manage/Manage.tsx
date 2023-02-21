@@ -5,7 +5,7 @@ import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { AntMetadata, ArweaveTransactionID } from '../../../types';
 import { TABLE_TYPES } from '../../../types';
 import { CodeSandboxIcon } from '../../icons';
-import { AntTable } from '../../layout/Tables/AntTable';
+import { AntTable } from '../../layout/Tables/AntTable/AntTable';
 import ManageAntModal from '../../modals/ManageAntModal/ManageAntModal';
 import './styles.css';
 
@@ -31,7 +31,7 @@ function Manage() {
     try {
       const { ids } = await arweaveDataProvider.getContractsForWallet(
         arnsSourceContract.approvedANTSourceCodeTxs.map(
-          (txid: string) => new ArweaveTransactionID(txid),
+          (id: string) => new ArweaveTransactionID(id),
         ),
         address,
         cursor,
