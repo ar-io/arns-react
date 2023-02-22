@@ -522,6 +522,13 @@ button {
   text-align: center;
 }
 
+.rc-table-cell-ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+}
+
 /* pagination classes */
 [class*='ant-pagination-'] {
   color: var(--text-bright-white) !important;
