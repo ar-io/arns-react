@@ -3,14 +3,18 @@
   flex-direction: column;
   color: var(--text-faded);
   fill: var(--text-faded);
-  border-bottom: 2px solid var(--text-faded);
   width: 120px;
   height: 60px;
   align-items: flex-start;
   row-gap: 7px;
   cursor: pointer;
+  box-sizing: border-box;
 }
 .table-selector-group {
   display: flex;
   flex-direction: row;
+  border: var(--text-faded) 2px solid;
+  border-radius: 8px;
+  width: fit-content;
+  position: relative;
 }

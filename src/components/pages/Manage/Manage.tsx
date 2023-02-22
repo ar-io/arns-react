@@ -152,10 +152,15 @@ function Manage() {
                       tableType === t
                         ? {
                             borderColor: 'var(--text-white)',
+                            color: 'var(--text-black)',
+                            fill: 'var(--text-black)',
+                            backgroundColor: 'var(--text-white)',
+                            borderRadius: 'var(--corner-radius)',
+                          }
+                        : {
                             color: 'var(--text-white)',
                             fill: 'var(--text-white)',
                           }
-                        : {}
                     }
                   >
                     {t === TABLE_TYPES.NAME ? (
