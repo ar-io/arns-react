@@ -17,7 +17,7 @@ function Manage() {
   const [{ arnsSourceContract, arweaveDataProvider }] = useGlobalState();
   const { walletAddress } = useWalletAddress();
 
-  const [tableType, setTableType] = useState<string>(TABLE_TYPES.ANT); // ant_table or name_table
+  const [tableType, setTableType] = useState<string>(TABLE_TYPES.NAME);
 
   const modalRef = useRef(null);
   const [cursor] = useState<string | undefined>();
