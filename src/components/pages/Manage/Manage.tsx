@@ -44,6 +44,7 @@ function Manage() {
   const [tableLoading, setTableLoading] = useState(true);
   const [tableColumns, setTableColumns] = useState<any[]>();
   const [tablePage, setTablePage] = useState<number>(1);
+  const [lastUpdated, setLastedUpdated] = useState<number>(Date.now());
 
   useEffect(() => {
     // todo: move this to a separate function to manage error state and poll for new ants to concat them to the state.
@@ -104,6 +105,7 @@ function Manage() {
         cursor,
       );
       setAntIDs(ids);
+      setLastedUpdated(Date.now());
     } catch (error: any) {
       console.error(error);
     }
@@ -140,7 +142,11 @@ function Manage() {
                     className="table-selector text bold center"
                     onClick={() => {
                       setTableType(t);
-                      walletAddress && fetchWalletAnts(walletAddress);
+                      setTablePage(1);
+                      // TODO: update this to a specific block height, currently set to ~2 mins
+                      if (lastUpdated < Date.now() - 120_000 && walletAddress) {
+                        fetchWalletAnts(walletAddress);
+                      }
                     }}
                     style={
                       tableType === t
