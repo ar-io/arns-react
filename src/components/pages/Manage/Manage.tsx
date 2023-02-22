@@ -183,7 +183,7 @@ function Manage() {
                   onChange={updatePage}
                   current={tablePage}
                   total={tableData.length}
-                  rootClassName="flex center"
+                  rootClassName="center"
                 />
               </>
             )}
