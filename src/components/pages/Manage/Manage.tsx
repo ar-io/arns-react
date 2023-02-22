@@ -3,13 +3,13 @@ import Table from 'rc-table';
 import React, { useEffect, useRef, useState } from 'react';
 
 import { useWalletAddress } from '../../../hooks';
-import useWalletANTs from '../../../hooks/useWalletANTs/useWalletANTs.js';
-import useWalletDomains from '../../../hooks/useWalletDomains/useWalletDomains.js';
+import useWalletANTs from '../../../hooks/useWalletANTs/useWalletANTs';
+import useWalletDomains from '../../../hooks/useWalletDomains/useWalletDomains';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { AntMetadata, ArweaveTransactionID } from '../../../types';
 import { TABLE_TYPES } from '../../../types';
 import { CodeSandboxIcon } from '../../icons';
-import { Loader } from '../../layout/index.js';
+import { Loader } from '../../layout/index';
 import ManageAntModal from '../../modals/ManageAntModal/ManageAntModal';
 import './styles.css';
 

@@ -11,7 +11,7 @@ import {
 import TransactionStatus from '../../components/layout/TransactionStatus/TransactionStatus';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { ArNSTableRow, ArweaveTransactionID } from '../../types';
-import { DEFAULT_EXPIRATION } from '../../utils/constants.js';
+import { DEFAULT_EXPIRATION } from '../../utils/constants';
 import useWalletAddress from '../useWalletAddress/useWalletAddress';
 
 export default function useWalletDomains(ids: ArweaveTransactionID[]) {
