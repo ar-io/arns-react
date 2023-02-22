@@ -28,7 +28,7 @@
     "plugin:jsx-a11y/recommended",
     "plugin:prettier/recommended" // Make this the last element so prettier config overrides other formatting rules
   ],
-  "plugins": ["jest-formatting", "simple-import-sort", "import"],
+  "plugins": ["jest-formatting", "simple-import-sort", "import", "react-hooks"],
   "rules": {
     "prettier/prettier": ["error", {}, { "usePrettierrc": true }], // Use our .prettierrc file as source
     "react/react-in-jsx-scope": "off",

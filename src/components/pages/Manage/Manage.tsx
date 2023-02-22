@@ -1,22 +1,15 @@
+import { Pagination } from 'antd';
 import Table from 'rc-table';
 import { useEffect, useRef, useState } from 'react';
 
-import { useIsMobile, useWalletAddress } from '../../../hooks';
+import { useWalletAddress } from '../../../hooks';
+import useWalletANTs from '../../../hooks/useWalletANTs/useWalletANTs';
+import useWalletDomains from '../../../hooks/useWalletDomains/useWalletDomains';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { ASSET_TYPES, AntMetadata, ArweaveTransactionID } from '../../../types';
+import { AntMetadata, ArweaveTransactionID } from '../../../types';
 import { TABLE_TYPES } from '../../../types';
-import {
-  BookmarkIcon,
-  ChevronUpIcon,
-  CodeSandboxIcon,
-  FileCodeIcon,
-  NotebookIcon,
-  RefreshAlertIcon,
-  TargetIcon,
-} from '../../icons';
-import ManageAssetButtons from '../../inputs/buttons/ManageAssetButtons/ManageAssetButtons';
-import { Loader } from '../../layout';
-import TransactionStatus from '../../layout/TransactionStatus/TransactionStatus';
+import { CodeSandboxIcon } from '../../icons';
+import { Loader } from '../../layout/index';
 import ManageAntModal from '../../modals/ManageAntModal/ManageAntModal';
 import './styles.css';
 
@@ -24,388 +17,175 @@ function Manage() {
   const [{ arnsSourceContract, arweaveDataProvider }] = useGlobalState();
   const { walletAddress } = useWalletAddress();
 
-  const [tableType, setTableType] = useState(TABLE_TYPES.ANT); // ant_table or name_table
-  const [sortAscending, setSortOrder] = useState(true);
-  const [sortField, setSortField] = useState<keyof AntMetadata>('name');
-  const [selectedRow, setSelectedRow] = useState<number>(-1);
-  const isMobile = useIsMobile();
+  const [tableType, setTableType] = useState<string>(TABLE_TYPES.NAME);
+
   const modalRef = useRef(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [cursor] = useState<string | undefined>();
-  const [reload, setReload] = useState(false);
-  const [rows, setRows] = useState<AntMetadata[]>([]);
+  const [antIds, setAntIDs] = useState<ArweaveTransactionID[]>([]);
+  const [selectedRow, setSelectedRow] = useState<AntMetadata>();
+  const {
+    isLoading: antTableLoading,
+    columns: antColumns,
+    rows: antRows,
+    selectedRow: selectedAntRow,
+    sortAscending: antSortAscending,
+    sortField: antSortField,
+  } = useWalletANTs(antIds);
+  const {
+    isLoading: domainTableLoading,
+    columns: domainColumns,
+    rows: domainRows,
+    sortAscending: domainSortAscending,
+    sortField: domainSortField,
+  } = useWalletDomains(antIds);
+
+  const [tableData, setTableData] = useState<any[]>([]);
+  const [filteredTableData, setFilteredTableData] = useState<any[]>([]);
+  const [tableLoading, setTableLoading] = useState(true);
+  const [tableColumns, setTableColumns] = useState<any[]>();
+  const [tablePage, setTablePage] = useState<number>(1);
+  const [lastUpdated, setLastedUpdated] = useState<number>(Date.now());
 
   useEffect(() => {
     // todo: move this to a separate function to manage error state and poll for new ants to concat them to the state.
-    // todo: load imported ants and names first
     if (walletAddress) {
-      setIsLoading(true);
-      fetchAntRows(walletAddress).finally(() => setIsLoading(false));
+      fetchWalletAnts(walletAddress);
     }
-  }, [walletAddress, reload]);
+  }, [walletAddress?.toString()]);
 
-  async function fetchAntRows(address: ArweaveTransactionID) {
-    const { ids } = await arweaveDataProvider.getContractsForWallet(
-      arnsSourceContract.approvedANTSourceCodeTxs.map(
-        (txid: string) => new ArweaveTransactionID(txid),
-      ),
-      address,
-      cursor,
-    );
-    // TODO: make this row a type
-    const fetchedRows: AntMetadata[] = [];
-    for (const [index, id] of ids.entries()) {
-      try {
-        const [contractState, confirmations] = await Promise.all([
-          arweaveDataProvider.getContractState(id),
-          arweaveDataProvider.getTransactionStatus(id),
-        ]);
-        // TODO: add error messages and reload state to row
-        const rowData = {
-          name: contractState.name ?? 'N/A',
-          id: id.toString(),
-          role:
-            contractState.owner.toString() === walletAddress?.toString()
-              ? 'Owner'
-              : contractState.controller === walletAddress?.toString() ||
-                contractState.controllers?.includes(walletAddress?.toString())
-              ? 'Controller'
-              : 'N/A',
-          target:
-            contractState?.records['@']?.transactionId ??
-            contractState?.records['@'],
-          status: confirmations ?? 0,
-          state: contractState,
-          key: index,
-        };
-        fetchedRows.push(rowData);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        // sort by name by default
-        fetchedRows.sort((a, b) => a.name.localeCompare(b.name));
-        setRows(fetchedRows);
-      }
+  useEffect(() => {
+    const baseIndex = Math.max((tablePage - 1) * 10, 0);
+    const endIndex = tablePage * 10;
+    const filteredData = tableData.slice(baseIndex, endIndex);
+    setFilteredTableData(filteredData);
+  }, [tablePage]);
+
+  useEffect(() => {
+    if (tableType === TABLE_TYPES.ANT) {
+      setTableLoading(antTableLoading);
+      setTableData(antRows);
+      setTableColumns(antColumns);
+      const baseIndex = Math.max((tablePage - 1) * 10, 0);
+      const endIndex = tablePage * 10;
+      const filteredData = antRows.slice(baseIndex, endIndex);
+      setFilteredTableData(filteredData);
+    }
+  }, [tableType, antSortAscending, antSortField, antRows, antTableLoading]);
+
+  useEffect(() => {
+    if (tableType === TABLE_TYPES.NAME) {
+      setTableLoading(domainTableLoading);
+      setTableData(domainRows);
+      setTableColumns(domainColumns);
+      const baseIndex = Math.max((tablePage - 1) * 10, 0);
+      const endIndex = tablePage * 10;
+      const filteredData = domainRows.slice(baseIndex, endIndex);
+      setFilteredTableData(filteredData);
+    }
+  }, [
+    tableType,
+    domainSortAscending,
+    domainSortField,
+    domainTableLoading,
+    domainRows,
+    antTableLoading,
+  ]);
+
+  useEffect(() => {
+    setSelectedRow(selectedAntRow);
+  }, [selectedAntRow]);
+
+  async function fetchWalletAnts(address: ArweaveTransactionID) {
+    try {
+      const { ids } = await arweaveDataProvider.getContractsForWallet(
+        arnsSourceContract.approvedANTSourceCodeTxs.map(
+          (id: string) => new ArweaveTransactionID(id),
+        ),
+        address,
+        cursor,
+      );
+      setAntIDs(ids);
+      setLastedUpdated(Date.now());
+    } catch (error: any) {
+      console.error(error);
     }
   }
 
   function handleClickOutside(e: any) {
     if (modalRef.current && modalRef.current === e.target) {
-      setSelectedRow(-1);
+      setSelectedRow(undefined);
     }
     return;
+  }
+
+  function updatePage(page: number) {
+    setTablePage(page);
   }
 
   return (
     // eslint-disable-next-line
     <div className="page" ref={modalRef} onClick={handleClickOutside}>
       <div className="flex-column">
-        {selectedRow >= 0 ? (
+        {selectedRow ? (
           <ManageAntModal
-            closeModal={() => setSelectedRow(-1)}
-            antDetails={rows[selectedRow]}
-            contractId={new ArweaveTransactionID(rows[selectedRow].id)}
+            closeModal={() => setSelectedRow(undefined)}
+            antDetails={selectedRow}
+            contractId={new ArweaveTransactionID(selectedRow.id)}
           />
         ) : (
           <>
             <div className="table-selector-group">
-              <button
-                className="table-selector text bold center"
-                onClick={() => {
-                  setTableType(TABLE_TYPES.ANT);
-                  setReload(!reload);
-                }}
-                style={
-                  tableType === TABLE_TYPES.ANT
-                    ? {
-                        borderColor: 'var(--text-white)',
-                        color: 'var(--text-white)',
-                        fill: 'var(--text-white)',
+              {[TABLE_TYPES.NAME, TABLE_TYPES.ANT].map(
+                (t: string, index: number) => (
+                  <button
+                    key={index}
+                    className="table-selector text bold center"
+                    onClick={() => {
+                      setTableType(t);
+                      setTablePage(1);
+                      // TODO: update this to a specific block height, currently set to ~2 mins
+                      if (lastUpdated < Date.now() - 120_000 && walletAddress) {
+                        fetchWalletAnts(walletAddress);
                       }
-                    : {}
-                }
-              >
-                <CodeSandboxIcon width={'20px'} height="20px" />
-                ANTs
-              </button>
+                    }}
+                    style={
+                      tableType === t
+                        ? {
+                            borderColor: 'var(--text-white)',
+                            color: 'var(--text-white)',
+                            fill: 'var(--text-white)',
+                          }
+                        : {}
+                    }
+                  >
+                    <CodeSandboxIcon width={'20px'} height="20px" />
+                    {t}
+                  </button>
+                ),
+              )}
             </div>
-            {tableType === TABLE_TYPES.ANT ? (
-              isLoading ? (
-                <div
-                  className="flex center"
-                  style={{ paddingTop: '10%', justifyContent: 'center' }}
-                >
-                  <Loader size={80} />
-                </div>
-              ) : (
-                <Table
-                  emptyText={'Uh oh, nothing was found.'}
-                  scroll={{ x: true }}
-                  columns={[
-                    {
-                      title: (
-                        <button
-                          className="flex-row pointer white"
-                          style={{ gap: '0.5em' }}
-                          onClick={() => setSortField('name')}
-                        >
-                          <ChevronUpIcon
-                            width={10}
-                            height={10}
-                            fill={'var(--text-faded)'}
-                            style={
-                              sortField === 'name' && !sortAscending
-                                ? { transform: 'rotate(180deg)' }
-                                : {}
-                            }
-                          />
-                          <span>Nickname</span>
-                          <NotebookIcon
-                            width={24}
-                            height={24}
-                            fill={'var(--text-faded)'}
-                          />
-                        </button>
-                      ),
-                      dataIndex: 'name',
-                      key: 'name',
-                      align: 'left',
-                      width: '18%',
-                      className: 'white',
-                      ellipsis: true,
-                      onHeaderCell: () => {
-                        return {
-                          onClick: () => {
-                            rows.sort((a, b) =>
-                              // by default we sort by name
-                              !sortAscending
-                                ? a.name.localeCompare(b.name)
-                                : b.name.localeCompare(a.name),
-                            );
-                            // forces update of rows
-                            setRows([...rows]);
-                            setSortOrder(!sortAscending);
-                          },
-                        };
-                      },
-                    },
-                    {
-                      title: (
-                        <button
-                          className="flex-row pointer white center"
-                          style={{ gap: '0.5em' }}
-                          onClick={() => setSortField('role')}
-                        >
-                          <ChevronUpIcon
-                            width={10}
-                            height={10}
-                            fill={'var(--text-faded)'}
-                            style={
-                              sortField === 'role' && !sortAscending
-                                ? { transform: 'rotate(180deg)' }
-                                : {}
-                            }
-                          />
-                          <span>Role</span>
-                          <BookmarkIcon
-                            width={24}
-                            height={24}
-                            fill={'var(--text-faded)'}
-                          />
-                        </button>
-                      ),
-                      dataIndex: 'role',
-                      key: 'role',
-                      align: 'center',
-                      width: '18%',
-                      className: 'white',
-                      ellipsis: true,
-                      onHeaderCell: () => {
-                        return {
-                          onClick: () => {
-                            rows.sort((a, b) =>
-                              !sortAscending
-                                ? a.name.localeCompare(b.role)
-                                : b.name.localeCompare(a.role),
-                            );
-                            // forces update of rows
-                            setRows([...rows]);
-                            setSortOrder(!sortAscending);
-                          },
-                        };
-                      },
-                    },
-                    {
-                      title: (
-                        <button
-                          className="flex-row pointer white center"
-                          style={{ gap: '0.5em' }}
-                          onClick={() => setSortField('id')}
-                        >
-                          <ChevronUpIcon
-                            width={10}
-                            height={10}
-                            fill={'var(--text-faded)'}
-                            style={
-                              sortField === 'id' && !sortAscending
-                                ? { transform: 'rotate(180deg)' }
-                                : {}
-                            }
-                          />
-                          <span>Contract ID</span>
-                          <FileCodeIcon
-                            width={24}
-                            height={24}
-                            fill={'var(--text-faded)'}
-                          />
-                        </button>
-                      ),
-                      dataIndex: 'id',
-                      key: 'id',
-                      align: 'center',
-                      width: '18%',
-                      className: 'white',
-                      ellipsis: true,
-                      render: (val) =>
-                        `${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
-                          isMobile ? -2 : -6,
-                        )}`,
-                      onHeaderCell: () => {
-                        return {
-                          onClick: () => {
-                            rows.sort((a, b) =>
-                              sortAscending
-                                ? a.id.localeCompare(b.id)
-                                : b.id.localeCompare(a.id),
-                            );
-                            // forces update of rows
-                            setRows([...rows]);
-                            setSortOrder(!sortAscending);
-                          },
-                        };
-                      },
-                    },
-                    {
-                      title: (
-                        <button
-                          className="flex-row pointer white center"
-                          style={{ gap: '0.5em' }}
-                          onClick={() => setSortField('target')}
-                        >
-                          <ChevronUpIcon
-                            width={10}
-                            height={10}
-                            fill={'var(--text-faded)'}
-                            style={
-                              sortField === 'target' && !sortAscending
-                                ? { transform: 'rotate(180deg)' }
-                                : {}
-                            }
-                          />
-                          <span>Target ID</span>
-                          <TargetIcon
-                            width={24}
-                            height={24}
-                            fill={'var(--text-faded)'}
-                          />
-                        </button>
-                      ),
-                      dataIndex: 'target',
-                      key: 'target',
-                      align: 'center',
-                      width: '18%',
-                      className: 'white',
-                      render: (val) =>
-                        `${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
-                          isMobile ? -2 : -6,
-                        )}`,
-                      onHeaderCell: () => {
-                        return {
-                          onClick: () => {
-                            rows.sort((a, b) =>
-                              sortAscending
-                                ? a.target.localeCompare(b.target)
-                                : b.target.localeCompare(a.target),
-                            );
-                            // forces update of rows
-                            setRows([...rows]);
-                            setSortOrder(!sortAscending);
-                          },
-                        };
-                      },
-                    },
-                    {
-                      title: (
-                        <button
-                          className="flex-row pointer white center"
-                          style={{ gap: '0.5em' }}
-                          onClick={() => setSortField('status')}
-                        >
-                          <ChevronUpIcon
-                            width={10}
-                            height={10}
-                            fill={'var(--text-faded)'}
-                            style={
-                              sortField === 'status' && !sortAscending
-                                ? { transform: 'rotate(180deg)' }
-                                : {}
-                            }
-                          />
-                          <span>Status</span>
-                          <RefreshAlertIcon
-                            width={24}
-                            height={24}
-                            fill={'var(--text-faded)'}
-                          />
-                        </button>
-                      ),
-                      dataIndex: 'status',
-                      key: 'status',
-                      align: 'center',
-                      width: '18%',
-                      className: 'white',
-                      render: (val) => (
-                        <TransactionStatus
-                          confirmations={val}
-                          wrapperStyle={{
-                            justifyContent: 'center',
-                          }}
-                        />
-                      ),
-                      onHeaderCell: () => {
-                        return {
-                          onClick: () => {
-                            rows.sort((a, b) =>
-                              sortAscending
-                                ? a.status - b.status
-                                : b.status - a.status,
-                            );
-                            // forces update of rows
-                            setRows([...rows]);
-                            setSortOrder(!sortAscending);
-                          },
-                        };
-                      },
-                    },
-                    {
-                      title: '',
-                      render: (val: any, row: AntMetadata, index: number) => (
-                        <ManageAssetButtons
-                          asset={val.id}
-                          setShowModal={() => setSelectedRow(index)}
-                          assetType={ASSET_TYPES.ANT}
-                          disabled={!row.state || !row.status}
-                        />
-                      ),
-                      align: 'right',
-                      width: '10%',
-                    },
-                  ]}
-                  data={rows}
-                />
-              )
+            {tableLoading ? (
+              <div
+                className="flex center"
+                style={{ paddingTop: '10%', justifyContent: 'center' }}
+              >
+                <Loader size={80} />
+              </div>
             ) : (
-              <></>
+              <>
+                <Table
+                  scroll={{ x: true }}
+                  columns={tableColumns}
+                  data={filteredTableData}
+                />
+                <Pagination
+                  pageSize={10}
+                  onChange={updatePage}
+                  current={tablePage}
+                  total={tableData.length}
+                  rootClassName="center"
+                />
+              </>
             )}
           </>
         )}
