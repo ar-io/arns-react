@@ -109,8 +109,8 @@ export default function useWalletANTs(ids: ArweaveTransactionID[]) {
             onClick: () => {
               rows.sort((a: AntMetadata, b: AntMetadata) =>
                 !sortAscending
-                  ? a.name.localeCompare(b.role)
-                  : b.name.localeCompare(a.role),
+                  ? a.role.localeCompare(b.role)
+                  : b.role.localeCompare(a.role),
               );
               // forces update of rows
               setRows([...rows]);
