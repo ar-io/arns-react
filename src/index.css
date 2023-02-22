@@ -451,6 +451,7 @@ button {
 
 .rc-table-content > table {
   border-spacing: 0px 10px;
+  width: 100%;
 }
 
 .rc-table-body > table {
@@ -524,4 +525,24 @@ button {
 .rc-table-placeholder {
   color: white;
   text-align: center;
+}
+
+/* pagination classes */
+[class*='ant-pagination-'] {
+  color: var(--text-bright-white) !important;
+}
+
+.ant-pagination-item {
+  border-radius: 2px !important;
+  border-color: var(--text-bright-white) !important;
+  background-color: transparent !important;
+  color: white !important;
+}
+
+.ant-pagination-item > a {
+  color: white !important;
+}
+
+.ant-pagination-item-active > a {
+  background-color: var(--text-faded) !important;
 }

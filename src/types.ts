@@ -188,8 +188,8 @@ export type WorkflowProps = {
 };
 
 export enum TABLE_TYPES {
-  ANT = 'ant_table',
-  NAME = 'name_table',
+  ANT = "ANT's",
+  NAME = 'Names',
 }
 export enum TRANSACTION_TYPES {
   REGISTRY = 'ArNS Registry',
@@ -243,6 +243,16 @@ export class ArweaveTransactionID implements Equatable<ArweaveTransactionID> {
 export interface Equatable<T> {
   equals(other: T): boolean;
 }
+
+export type ArNSTableRow = {
+  name: string;
+  role: string;
+  id: string;
+  tier: number;
+  expiration: Date;
+  status: number;
+  key: string | number;
+};
 
 export type AntMetadata = {
   name: string;
