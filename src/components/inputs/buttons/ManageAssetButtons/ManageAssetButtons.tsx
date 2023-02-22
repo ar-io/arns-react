@@ -20,8 +20,7 @@ function ManageAssetButtons({
   return (
     <>
       <div className="flex-row center" style={{ gap: '0.5em' }}>
-        <button className="assets-see-more-button">See More</button>
-
+        <button className="assets-see-more-button">Undernames</button>
         {!isMobile ? (
           <button
             className="assets-manage-button"

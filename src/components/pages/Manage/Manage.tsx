@@ -1,6 +1,6 @@
 import { Pagination } from 'antd';
 import Table from 'rc-table';
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { useWalletAddress } from '../../../hooks';
 import useWalletANTs from '../../../hooks/useWalletANTs/useWalletANTs';
@@ -173,7 +173,11 @@ function Manage() {
               </div>
             ) : (
               <>
-                <Table columns={tableColumns} data={filteredTableData} />
+                <Table
+                  scroll={{ x: true }}
+                  columns={tableColumns}
+                  data={filteredTableData}
+                />
                 <Pagination
                   pageSize={10}
                   onChange={updatePage}
