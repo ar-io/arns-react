@@ -8,7 +8,7 @@ import useWalletDomains from '../../../hooks/useWalletDomains/useWalletDomains';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { AntMetadata, ArweaveTransactionID } from '../../../types';
 import { TABLE_TYPES } from '../../../types';
-import { CodeSandboxIcon } from '../../icons';
+import { CodeSandboxIcon, NotebookIcon } from '../../icons';
 import { Loader } from '../../layout/index';
 import ManageAntModal from '../../modals/ManageAntModal/ManageAntModal';
 import './styles.css';
@@ -152,13 +152,22 @@ function Manage() {
                       tableType === t
                         ? {
                             borderColor: 'var(--text-white)',
+                            color: 'var(--text-black)',
+                            fill: 'var(--text-black)',
+                            backgroundColor: 'var(--text-white)',
+                            borderRadius: 'var(--corner-radius)',
+                          }
+                        : {
                             color: 'var(--text-white)',
                             fill: 'var(--text-white)',
                           }
-                        : {}
                     }
                   >
-                    <CodeSandboxIcon width={'20px'} height="20px" />
+                    {t === TABLE_TYPES.NAME ? (
+                      <NotebookIcon width={'20px'} height="20px" />
+                    ) : (
+                      <CodeSandboxIcon width={'20px'} height="20px" />
+                    )}
                     {t}
                   </button>
                 ),
