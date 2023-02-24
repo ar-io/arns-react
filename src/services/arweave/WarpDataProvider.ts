@@ -147,7 +147,7 @@ export class WarpDataProvider implements SmartweaveDataProvider {
           `Combined size of tags (${tagSize} bytes) and state (${stateSize} bytes) too large for tag space, must be under ${SMARTWEAVE_MAX_TAG_SPACE} bytes. Reduce the tags or use a different state deployment method.`,
         );
       }
-      let deploymentPayload: {
+      const deploymentPayload: {
         wallet: ArWallet;
         initState: string;
         srcTxId: string;
@@ -174,7 +174,7 @@ export class WarpDataProvider implements SmartweaveDataProvider {
       if (stateType === 'DATA') {
         deploymentPayload.initState = JSON.stringify(initialState);
       }
-      const { contractTxId, srcTxId } = await this._warp.deployFromSourceTx(
+      const { contractTxId } = await this._warp.deployFromSourceTx(
         { ...deploymentPayload },
         true,
       );
