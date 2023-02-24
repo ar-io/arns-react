@@ -175,7 +175,7 @@ export class WarpDataProvider implements SmartweaveDataProvider {
         deploymentPayload.initState = JSON.stringify(initialState);
       }
       const { contractTxId } = await this._warp.deployFromSourceTx(
-        { ...deploymentPayload },
+        deploymentPayload,
         true,
       );
 
