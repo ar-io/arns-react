@@ -1,4 +1,4 @@
-import { ArweaveTransactionID } from '../../types';
+import { ArweaveTransactionID, TransactionTag } from '../../types';
 import {
   ANTContractJSON,
   ArNSContractState,
@@ -88,5 +88,24 @@ export class ArweaveCompositeDataProvider
 
   async validateConfirmations(id: string): Promise<void> {
     return this._arweaveProvider.validateConfirmations(id);
+  }
+
+  async deployContract({
+    srcCodeTransactionId,
+    initialState,
+    stateType,
+    tags,
+  }: {
+    srcCodeTransactionId: ArweaveTransactionID;
+    initialState: ArweaveTransactionID | ANTContractJSON;
+    stateType: 'TXID' | 'TAG' | 'DATA';
+    tags: TransactionTag[];
+  }): Promise<string | undefined> {
+    return await this._warpProvider.deployContract({
+      srcCodeTransactionId,
+      initialState,
+      stateType,
+      tags,
+    });
   }
 }
