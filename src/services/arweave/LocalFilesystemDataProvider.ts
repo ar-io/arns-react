@@ -1,7 +1,12 @@
 import axios from 'axios';
 
 import { ArweaveTransactionID } from '../../types';
-import { ArNSContractState, SmartweaveDataProvider } from '../../types';
+import {
+  ANTContractState,
+  ArNSContractState,
+  SmartweaveDataProvider,
+  TransactionTag,
+} from '../../types';
 
 export class LocalFileSystemDataProvider implements SmartweaveDataProvider {
   async getContractState(
@@ -36,5 +41,23 @@ export class LocalFileSystemDataProvider implements SmartweaveDataProvider {
       return 0;
     }
     return 50;
+  }
+  async deployContract({
+    srcCodeTransactionId,
+    initialState,
+    stateType,
+    tags,
+  }: {
+    srcCodeTransactionId: ArweaveTransactionID;
+    initialState: ArweaveTransactionID | ANTContractState;
+    stateType: 'TXID' | 'TAG' | 'DATA';
+    tags: TransactionTag[];
+  }): Promise<string | undefined> {
+    return JSON.stringify([
+      srcCodeTransactionId,
+      initialState,
+      stateType,
+      tags,
+    ]);
   }
 }
