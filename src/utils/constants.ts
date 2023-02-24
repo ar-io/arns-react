@@ -94,3 +94,5 @@ export const approvedContractsForWalletQuery = (
   };
   return queryObject;
 };
+
+export const SMARTWEAVE_MAX_TAG_SPACE = 2048 - 250; // minimum tag size of smartweave tags from warp is 239, rounded it for wiggle room
