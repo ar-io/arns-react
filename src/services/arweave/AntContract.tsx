@@ -46,6 +46,10 @@ export class AntContractProvider {
     this.loadState(antId);
   }
 
+  getCurrentState() {
+    return this.state;
+  }
+
   /**
    * loadState
    * @param contractId @type {ArweaveTransactionID | undefined} -
@@ -91,11 +95,7 @@ export class AntContractProvider {
     }
   }
 
-  getCurrentState() {
-    return this.state;
-  }
-
-  setOwner(id: ArweaveTransactionID) {
+  async setOwner(id: ArweaveTransactionID, update?: boolean) {
     try {
       if (!this.state) {
         throw new Error(
@@ -107,6 +107,17 @@ export class AntContractProvider {
       }
       this.state.owner = id.toString();
       this.state.balances = { ...this.state.balances, [id.toString()]: 1 };
+      if (update === true && this.antId) {
+        const payload = {
+          function: 'transfer',
+          target: id.toString(),
+        };
+        const txid = await this._provider.writeTransaction(this.antId, payload);
+        if (!txid) {
+          throw new Error(`Failed to transfer ANT token`);
+        }
+        return txid;
+      }
       return;
     } catch (error) {
       console.error(error);
@@ -114,7 +125,7 @@ export class AntContractProvider {
     }
   }
 
-  setController(id: ArweaveTransactionID, update?: boolean) {
+  async setController(id: ArweaveTransactionID, update?: boolean) {
     try {
       if (!this.state) {
         throw new Error(
@@ -125,13 +136,24 @@ export class AntContractProvider {
         throw new Error(`type of id <${id}> is not a valid id.`);
       }
       this.state.controllers = [...this.state.controllers, id.toString()];
+      if (update === true && this.antId) {
+        const payload = {
+          function: 'setController',
+          target: id.toString(),
+        };
+        const txid = await this._provider.writeTransaction(this.antId, payload);
+        if (!txid) {
+          throw new Error('Failed to add controller to contract');
+        }
+        return txid;
+      }
       return;
     } catch (error) {
       console.error(error);
       return;
     }
   }
-  setTargetId(id: ArweaveTransactionID) {
+  async setTargetId(id: ArweaveTransactionID, update?: boolean) {
     try {
       if (!this.state) {
         throw new Error(
@@ -142,24 +164,44 @@ export class AntContractProvider {
         throw new Error(`type of id <${id}> is not a valid id.`);
       }
       this.state.records['@'].transactionId = id.toString();
+      if (update === true && this.antId) {
+        const payload = {
+          function: 'setRecord',
+          transactionId: id.toString(),
+          subDomain: '@',
+        };
+        const txid = await this._provider.writeTransaction(this.antId, payload);
+        if (!txid) {
+          throw new Error('Failed to write target ID to contract');
+        }
+        return txid;
+      }
       return;
     } catch (error) {
       console.error(error);
       return;
     }
   }
-
-  setUndername({
+  /**
+   *
+   * @param name - undername to update
+   * @param targetId - target of the new or edited undername
+   * @param maxSubdomains - tier based. Uses prexisting count if exists, else uses supplied.
+   * @returns
+   */
+  async setUndername({
     // allows user to set an undername with just default values, or edited values
     name,
-    targetId = '',
-    maxSubdomains = 100,
-    ttl = 1800,
+    targetId,
+    maxSubdomains,
+    ttl,
+    update,
   }: {
     name: string;
     targetId: ArweaveTransactionID | string;
-    maxSubdomains: number;
-    ttl: number;
+    maxSubdomains?: number;
+    ttl?: number;
+    update?: boolean;
   }) {
     try {
       if (!this.state) {
@@ -168,16 +210,46 @@ export class AntContractProvider {
         );
       }
       if (!targetId) {
-        throw new Error(`type of id <${targetId}> is not a valid id.`);
+        throw new Error(`type of id <${typeof targetId}> is not a valid id.`);
       }
       this.state.records = {
         ...this.state.records,
         [name]: {
-          ttlSeconds: ttl,
-          maxSubdomains: maxSubdomains,
+          ttlSeconds: ttl
+            ? ttl
+            : this.state.records[name].ttlSeconds
+            ? this.state.records[name].ttlSeconds
+            : 1800,
+          maxSubdomains: maxSubdomains
+            ? maxSubdomains
+            : this.state.records[name].maxSubdomains
+            ? this.state.records[name].maxSubdomains
+            : 100,
           transactionId: targetId.toString(),
         },
       };
+      if (update === true && this.antId) {
+        const payload = {
+          function: 'setRecord',
+          subDomain: name,
+          target: targetId.toString(),
+          ttlSeconds: ttl
+            ? ttl
+            : this.state.records[name].ttlSeconds
+            ? this.state.records[name].ttlSeconds
+            : 1800,
+          maxSubdomains: maxSubdomains
+            ? maxSubdomains
+            : this.state.records[name].maxSubdomains
+            ? this.state.records[name].maxSubdomains
+            : 100,
+        };
+        const txid = await this._provider.writeTransaction(this.antId, payload);
+        if (!txid) {
+          throw new Error('Failed to write undername to contract');
+        }
+        return txid;
+      }
       return;
     } catch (error) {
       console.error(error);
@@ -188,7 +260,7 @@ export class AntContractProvider {
    * @param name {string} name - undername to remove from ANT state
    * @returns void - Function alters instance state and returns void.
    */
-  removeUndername(name: string) {
+  async removeUndername(name: string, update?: boolean) {
     try {
       if (!this.state) {
         throw new Error(
@@ -199,6 +271,17 @@ export class AntContractProvider {
         throw new Error(`type of id <${name}> is not a valid id.`);
       }
       delete this.state?.records[name];
+      if (update === true && this.antId) {
+        const payload = {
+          function: 'setRecord',
+          subDomain: name,
+        };
+        const txid = await this._provider.writeTransaction(this.antId, payload);
+        if (!txid) {
+          throw new Error('Failed to remove undername from contract');
+        }
+        return txid;
+      }
       return;
     } catch (error) {
       console.error(error);

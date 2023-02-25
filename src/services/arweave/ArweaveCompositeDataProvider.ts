@@ -36,8 +36,8 @@ export class ArweaveCompositeDataProvider
   async writeTransaction(
     id: ArweaveTransactionID,
     payload: {
+      function: string;
       [x: string]: any;
-      contractTransactionId: string;
     },
   ): Promise<ArweaveTransactionID | undefined> {
     return await this._warpProvider.writeTransaction(id, payload);

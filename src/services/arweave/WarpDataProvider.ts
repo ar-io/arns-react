@@ -56,8 +56,8 @@ export class WarpDataProvider implements SmartweaveDataProvider {
   async writeTransaction(
     id: ArweaveTransactionID,
     payload: {
+      function: string;
       [x: string]: any;
-      contractTransactionId: string;
     },
   ): Promise<ArweaveTransactionID | undefined> {
     try {
