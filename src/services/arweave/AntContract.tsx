@@ -5,19 +5,19 @@ import {
   SmartweaveDataProvider,
 } from '../../types';
 
-export class AntContractProvider {
+export class AntContract {
   private _provider: SmartweaveDataProvider & ArweaveDataProvider;
   state?: ANTContractState = undefined;
   antId;
   walletAddress: ArweaveTransactionID;
   newAntState: ANTContractState;
   /**
-      ​ * AntContractProvider
-      ​ * @param walletAddress - @type {ArweaveTransactionID} - connected wallet address
-      ​ * @param provider -  @type {ArweaveCompositeDataProvider}
-      ​ * @param antId - @type {ArweaveTransactionID | undefined} - 
-       * ANT ID to use for loading a pre-existing ANT's contract state. If left undefined, default new ANT state is loaded
-      ​ */
+   * AntContractProvider
+   * @param walletAddress - @type {ArweaveTransactionID} - connected wallet address
+   * @param provider -  @type {ArweaveCompositeDataProvider}
+   * @param antId - @type {ArweaveTransactionID | undefined} -
+   * ANT ID to use for loading a pre-existing ANT's contract state. If left undefined, default new ANT state is loaded
+   */
   constructor(
     walletAddress: ArweaveTransactionID,
     provider: SmartweaveDataProvider & ArweaveDataProvider,
