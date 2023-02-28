@@ -48,7 +48,7 @@ export type ANTContractState = {
   evolve: boolean | undefined;
   name: string;
   owner: string;
-  controllers: string[];
+  controller: string;
   records: {
     '@': ANTContractRecordMapping;
     [x: string]: ANTContractRecordMapping;

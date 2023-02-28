@@ -11,7 +11,7 @@ export const DEFAULT_ANT_CONTRACT_STATE: ANTContractState = {
   name: '',
   ticker: '',
   owner: '',
-  controllers: [],
+  controller: '',
   records: {
     '@': {
       transactionId: '',
@@ -240,12 +240,12 @@ export class AntContractState {
   set balances(balances: { [x: string]: number }) {
     this.contract.balances = balances;
   }
-  get controllers() {
-    return this.contract.controllers;
+  get controller() {
+    return this.contract.controller;
   }
-  set controllers(controllers: string[]) {
+  set controller(controller: string) {
     // any validations we want to do on the controller
-    this.contract.controllers = controllers;
+    this.contract.controller = controller;
   }
   get evolve() {
     return this.contract.evolve;
