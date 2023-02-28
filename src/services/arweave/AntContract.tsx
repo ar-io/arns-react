@@ -247,12 +247,7 @@ export class AntContractState {
     // any validations we want to do on the controller
     this.contract.controller = controller;
   }
-  get evolve() {
-    return this.contract.evolve;
-  }
-  set evolve(evolve: boolean | undefined) {
-    this.contract.evolve = evolve;
-  }
+
   get state() {
     return this.contract;
   }
