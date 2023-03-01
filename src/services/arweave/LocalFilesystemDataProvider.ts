@@ -45,19 +45,12 @@ export class LocalFileSystemDataProvider implements SmartweaveDataProvider {
   async deployContract({
     srcCodeTransactionId,
     initialState,
-    stateType,
     tags,
   }: {
     srcCodeTransactionId: ArweaveTransactionID;
     initialState: ArweaveTransactionID | ANTContractJSON;
-    stateType: 'TXID' | 'TAG' | 'DATA';
     tags: TransactionTag[];
-  }): Promise<string | undefined> {
-    return JSON.stringify([
-      srcCodeTransactionId,
-      initialState,
-      stateType,
-      tags,
-    ]);
+  }): Promise<string> {
+    return JSON.stringify([srcCodeTransactionId, initialState, tags]);
   }
 }
