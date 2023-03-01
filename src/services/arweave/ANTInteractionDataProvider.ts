@@ -7,24 +7,25 @@ import { ANTContract } from './AntContract';
 
 export class ANTInteractionProvider implements ANTInteractionProvider {
   private _provider: SmartweaveDataProvider & ArweaveDataProvider;
-  contract?: ANTContract;
-  antId?: string;
+  contract: ANTContract;
+  antId: ArweaveTransactionID;
 
   constructor(
     contract: ANTContract,
     provider: SmartweaveDataProvider & ArweaveDataProvider,
   ) {
-    (this.contract = contract), (this.antId = contract.antId);
+    if (!contract.id) {
+      throw Error(
+        'Not allowed to use ANTInteractionProvider without a valid ANT ID.',
+      );
+    }
+    this.contract = contract;
+    this.antId = contract.id;
     this._provider = provider;
   }
 
   async setOwner(id: ArweaveTransactionID) {
     try {
-      if (!this.antId) {
-        throw new Error(
-          `Cannot set state items when id is not loaded. Current id: ${this.antId}`,
-        );
-      }
       if (!id) {
         throw new Error(`type of id <${id}> is not a  valid id.`);
       }
@@ -33,10 +34,7 @@ export class ANTInteractionProvider implements ANTInteractionProvider {
         function: 'transfer',
         target: id.toString(),
       };
-      const txId = await this._provider.writeTransaction(
-        new ArweaveTransactionID(this.antId),
-        payload,
-      );
+      const txId = await this._provider.writeTransaction(this.antId, payload);
       if (!txId) {
         throw new Error(`Failed to transfer ANT token`);
       }
@@ -49,18 +47,11 @@ export class ANTInteractionProvider implements ANTInteractionProvider {
 
   async setController(id: ArweaveTransactionID) {
     try {
-      if (typeof this.antId !== 'string') {
-        throw new Error('No Contract id Defined');
-      }
-
       const payload = {
         function: 'setController',
         target: id.toString(),
       };
-      const txId = await this._provider.writeTransaction(
-        new ArweaveTransactionID(this.antId),
-        payload,
-      );
+      const txId = await this._provider.writeTransaction(this.antId, payload);
       if (!txId) {
         throw new Error('Failed to add controller to contract');
       }
@@ -72,9 +63,6 @@ export class ANTInteractionProvider implements ANTInteractionProvider {
   }
   async setTargetId(id: ArweaveTransactionID) {
     try {
-      if (typeof this.antId !== 'string') {
-        throw new Error('No Contract id Defined');
-      }
       if (!id) {
         throw new Error(`type of id <${id}> is not a valid id.`);
       }
@@ -84,10 +72,7 @@ export class ANTInteractionProvider implements ANTInteractionProvider {
         transactionId: id.toString(),
         subDomain: '@',
       };
-      const txId = await this._provider.writeTransaction(
-        new ArweaveTransactionID(this.antId),
-        payload,
-      );
+      const txId = await this._provider.writeTransaction(this.antId, payload);
       if (!txId) {
         throw new Error('Failed to write target ID to contract');
       }
@@ -111,12 +96,6 @@ export class ANTInteractionProvider implements ANTInteractionProvider {
     ttl?: number;
   }) {
     try {
-      if (typeof this.antId !== 'string') {
-        throw new Error('No Contract id Defined');
-      }
-      if (!this.contract) {
-        throw new Error('No Contract is Defined');
-      }
       if (!targetId) {
         throw new Error(`type of id <${typeof targetId}> is not a valid id.`);
       }
@@ -136,10 +115,7 @@ export class ANTInteractionProvider implements ANTInteractionProvider {
           ? this.contract.state.records[name].maxSubdomains
           : 100,
       };
-      const txId = await this._provider.writeTransaction(
-        new ArweaveTransactionID(this.antId),
-        payload,
-      );
+      const txId = await this._provider.writeTransaction(this.antId, payload);
       if (!txId) {
         throw new Error('Failed to write undername change to ANT');
       }
@@ -152,9 +128,6 @@ export class ANTInteractionProvider implements ANTInteractionProvider {
 
   async removeUndername(name: string) {
     try {
-      if (typeof this.antId !== 'string') {
-        throw new Error('No Contract id Defined');
-      }
       if (!name) {
         throw new Error(`type of id <${name}> is not a valid id.`);
       }
@@ -163,10 +136,7 @@ export class ANTInteractionProvider implements ANTInteractionProvider {
         function: 'setRecord',
         subDomain: name,
       };
-      const txId = await this._provider.writeTransaction(
-        new ArweaveTransactionID(this.antId),
-        payload,
-      );
+      const txId = await this._provider.writeTransaction(this.antId, payload);
       if (!txId) {
         throw new Error('Failed to remove undername from contract');
       }
