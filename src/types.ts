@@ -93,14 +93,12 @@ export interface SmartweaveDataProvider {
   deployContract({
     srcCodeTransactionId,
     initialState,
-    stateType, // 'TXID', 'TAG', 'DATA' - configures how to apply the state to the transaction
     tags,
   }: {
     srcCodeTransactionId: ArweaveTransactionID;
     initialState: ANTContractJSON | ArweaveTransactionID;
-    stateType: 'TXID' | 'TAG' | 'DATA';
     tags: TransactionTag[];
-  }): Promise<string | undefined>;
+  }): Promise<string>;
 }
 
 export interface ArweaveWalletConnector {

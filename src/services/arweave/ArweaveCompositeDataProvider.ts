@@ -93,18 +93,15 @@ export class ArweaveCompositeDataProvider
   async deployContract({
     srcCodeTransactionId,
     initialState,
-    stateType,
     tags,
   }: {
     srcCodeTransactionId: ArweaveTransactionID;
     initialState: ArweaveTransactionID | ANTContractJSON;
-    stateType: 'TXID' | 'TAG' | 'DATA';
     tags: TransactionTag[];
-  }): Promise<string | undefined> {
+  }): Promise<string> {
     return await this._warpProvider.deployContract({
       srcCodeTransactionId,
       initialState,
-      stateType,
       tags,
     });
   }
