@@ -1,19 +1,12 @@
-import {
-  ArweaveDataProvider,
-  ArweaveTransactionID,
-  SmartweaveDataProvider,
-} from '../../types';
+import { ArweaveTransactionID, SmartweaveDataProvider } from '../../types';
 import { ANTContract } from './AntContract';
 
 export class ANTInteractionProvider implements ANTInteractionProvider {
-  private _provider: SmartweaveDataProvider & ArweaveDataProvider;
+  private _provider: SmartweaveDataProvider;
   contract: ANTContract;
   antId: ArweaveTransactionID;
 
-  constructor(
-    contract: ANTContract,
-    provider: SmartweaveDataProvider & ArweaveDataProvider,
-  ) {
+  constructor(contract: ANTContract, provider: SmartweaveDataProvider) {
     if (!contract.id) {
       throw Error(
         'Not allowed to use ANTInteractionProvider without a valid ANT ID.',
