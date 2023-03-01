@@ -1,4 +1,4 @@
-import { ArweaveTransactionID } from '../types';
+import { ANTContractJSON, ArweaveTransactionID } from '../types';
 
 // note: lookahead/lookbehind regex's are not compatible with iOS browsers
 export const ARNS_NAME_REGEX = new RegExp(
@@ -93,4 +93,22 @@ export const approvedContractsForWalletQuery = (
   }`,
   };
   return queryObject;
+};
+
+export const SMARTWEAVE_MAX_TAG_SPACE = 2048 - 250; // minimum tag size of smartweave tags from warp is 239, rounded it for wiggle room
+
+export const DEFAULT_ANT_CONTRACT_STATE: ANTContractJSON = {
+  balances: {},
+  evolve: undefined,
+  name: '',
+  ticker: '',
+  owner: '',
+  controller: '',
+  records: {
+    '@': {
+      transactionId: '',
+      ttlSeconds: 1800,
+      maxSubdomains: 100,
+    },
+  },
 };

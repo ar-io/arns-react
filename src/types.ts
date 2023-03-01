@@ -38,17 +38,17 @@ export type ArNSContractState = {
 export type ANTContractDomainRecord = {
   ttlSeconds: number;
   maxSubdomains: number;
-  transactionId: ArweaveTransactionID;
+  transactionId: ArweaveTransactionID | string;
 };
 
 export type ANTContractRecordMapping = ANTContractDomainRecord;
 
-export type ANTContractState = {
+export type ANTContractJSON = {
   balances: { [x: string]: number };
   evolve: boolean | undefined;
   name: string;
-  owner: ArweaveTransactionID;
-  controllers: ArweaveTransactionID[];
+  owner: string;
+  controller: string;
   records: {
     '@': ANTContractRecordMapping;
     [x: string]: ANTContractRecordMapping;
@@ -81,8 +81,8 @@ export interface SmartweaveDataProvider {
   writeTransaction(
     id: ArweaveTransactionID,
     payload: {
+      function: string;
       [x: string]: any;
-      contractTransactionId: string;
     },
     dryWrite?: boolean,
   ): Promise<ArweaveTransactionID | undefined>;
@@ -121,6 +121,14 @@ export interface ArweaveDataProvider {
     cursor?: string,
   ): Promise<{ ids: ArweaveTransactionID[]; cursor?: string }>;
   getWalletBalance(id: ArweaveTransactionID): Promise<number>;
+}
+
+export interface AntInteractionProvider {
+  setOwner(id: ArweaveTransactionID): Promise<string>;
+  setController(id: ArweaveTransactionID): Promise<string>;
+  setTargetId(id: ArweaveTransactionID): Promise<string>;
+  setUndername(name: string): Promise<string>;
+  removeUndername(name: string): Promise<string>;
 }
 
 export type SearchBarProps = {
