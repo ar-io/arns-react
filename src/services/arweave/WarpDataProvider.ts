@@ -13,7 +13,7 @@ import {
 } from '../../types';
 import { ArNSContractState, SmartweaveDataProvider } from '../../types';
 import { SMARTWEAVE_MAX_TAG_SPACE } from '../../utils/constants';
-import { byteSize, isArweaveTransactionID } from '../../utils/searchUtils';
+import { byteSize } from '../../utils/searchUtils';
 
 export class WarpDataProvider implements SmartweaveDataProvider {
   private _warp: Warp;
