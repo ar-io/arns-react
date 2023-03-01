@@ -1,6 +1,6 @@
 import { ArweaveTransactionID, TransactionTag } from '../../types';
 import {
-  ANTContractState,
+  ANTContractJSON,
   ArNSContractState,
   ArweaveDataProvider,
   SmartweaveDataProvider,
@@ -29,7 +29,7 @@ export class ArweaveCompositeDataProvider
 
   async getContractState(
     id: ArweaveTransactionID,
-  ): Promise<ArNSContractState | ANTContractState | undefined> {
+  ): Promise<ArNSContractState | ANTContractJSON | undefined> {
     return this._warpProvider.getContractState(id);
   }
 
@@ -97,7 +97,7 @@ export class ArweaveCompositeDataProvider
     tags,
   }: {
     srcCodeTransactionId: ArweaveTransactionID;
-    initialState: ArweaveTransactionID | ANTContractState;
+    initialState: ArweaveTransactionID | ANTContractJSON;
     stateType: 'TXID' | 'TAG' | 'DATA';
     tags: TransactionTag[];
   }): Promise<string | undefined> {

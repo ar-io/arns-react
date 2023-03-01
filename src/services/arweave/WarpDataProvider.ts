@@ -7,7 +7,7 @@ import {
 } from 'warp-contracts';
 
 import {
-  ANTContractState,
+  ANTContractJSON,
   ArweaveTransactionID,
   TransactionTag,
 } from '../../types';
@@ -99,7 +99,7 @@ export class WarpDataProvider implements SmartweaveDataProvider {
   /**
    *
    * @param srcCodeTransactionId - ArweaveTransactionId of the source code used to deploy contract
-   * @param initialState - typeof ANTContractState or ArweaveTransactionID - depending on the stateType chosen, either the json initial state of the contract to deploy, or the on-chain states TXID
+   * @param initialState - typeof ANTContractJSON or ArweaveTransactionID - depending on the stateType chosen, either the json initial state of the contract to deploy, or the on-chain states TXID
    * @param stateType - type of 'TXID' | 'TAG' | 'DATA' - TXID indicates use of a prexisting state on-chain, TAG and DATA use json states locally. DATA puts the state in the data key of the transaction, TAG puts the state in the tag.
    * @returns
    */
@@ -110,7 +110,7 @@ export class WarpDataProvider implements SmartweaveDataProvider {
     tags = [],
   }: {
     srcCodeTransactionId: ArweaveTransactionID;
-    initialState: ANTContractState | ArweaveTransactionID;
+    initialState: ANTContractJSON | ArweaveTransactionID;
     stateType: 'TXID' | 'TAG' | 'DATA';
     tags: TransactionTag[];
   }): Promise<string | undefined> {

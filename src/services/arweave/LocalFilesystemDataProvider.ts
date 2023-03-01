@@ -2,7 +2,7 @@ import axios from 'axios';
 
 import { ArweaveTransactionID } from '../../types';
 import {
-  ANTContractState,
+  ANTContractJSON,
   ArNSContractState,
   SmartweaveDataProvider,
   TransactionTag,
@@ -49,7 +49,7 @@ export class LocalFileSystemDataProvider implements SmartweaveDataProvider {
     tags,
   }: {
     srcCodeTransactionId: ArweaveTransactionID;
-    initialState: ArweaveTransactionID | ANTContractState;
+    initialState: ArweaveTransactionID | ANTContractJSON;
     stateType: 'TXID' | 'TAG' | 'DATA';
     tags: TransactionTag[];
   }): Promise<string | undefined> {
