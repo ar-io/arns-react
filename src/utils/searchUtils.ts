@@ -76,3 +76,7 @@ export function tagsToObject(tags: TransactionTag[]): {
     {},
   );
 }
+
+export function byteSize(data: string): number {
+  return Buffer.byteLength(data);
+}

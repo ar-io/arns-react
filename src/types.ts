@@ -90,6 +90,15 @@ export interface SmartweaveDataProvider {
     id: ArweaveTransactionID,
     wallet: ArweaveTransactionID,
   ): Promise<number>;
+  deployContract({
+    srcCodeTransactionId,
+    initialState,
+    tags,
+  }: {
+    srcCodeTransactionId: ArweaveTransactionID;
+    initialState: ANTContractJSON | ArweaveTransactionID;
+    tags: TransactionTag[];
+  }): Promise<string>;
 }
 
 export interface ArweaveWalletConnector {
