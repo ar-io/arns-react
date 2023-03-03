@@ -36,9 +36,9 @@ export type ArNSContractState = {
 };
 
 export type ANTContractDomainRecord = {
-  ttlSeconds: number;
-  maxSubdomains: number;
-  transactionId: ArweaveTransactionID | string;
+  ttlSeconds?: number;
+  maxSubdomains?: number;
+  transactionId?: ArweaveTransactionID | string;
 };
 
 export type ANTContractRecordMapping = ANTContractDomainRecord;

@@ -1,0 +1,118 @@
+import { useEffect, useState } from 'react';
+
+import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { useRegistrationState } from '../../../state/contexts/RegistrationState';
+import { ANTContractJSON } from '../../../types';
+import { NAME_PRICE_INFO } from '../../../utils/constants';
+import { AntCard } from '../../cards';
+import Loader from '../Loader/Loader';
+import { Tooltip } from '../Tooltip/Tooltip';
+import './styles.css';
+
+function ConfirmAntCreation(state: ANTContractJSON) {
+  const [{ arnsSourceContract, arnsContractId, arweaveDataProvider }] =
+    useGlobalState();
+  const [isPostingTransaction, setIsPostingTransaction] = useState(false);
+  const [isConfirmed, setIsConfirmed] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | undefined>();
+
+  async function deployAnt() {
+    setIsPostingTransaction(true);
+    if (!state) {
+      return;
+    }
+    const pendingTXId = await arweaveDataProvider.deployContract();
+    if (pendingTXId) {
+      dispatchRegistrationState({
+        type: 'setResolvedTx',
+        payload: pendingTXId,
+      });
+      console.log(`Posted transaction: ${pendingTXId}`);
+    }
+    setTimeout(() => {
+      setIsPostingTransaction(false);
+      // TODO: write to local storage to store pending transactions
+    }, 500);
+  }
+
+  return (
+    <>
+      <div className="register-name-modal center">
+        {!isPostingTransaction ? (
+          <span className="text-large white">
+            {domain}.arweave.net is available!
+          </span>
+        ) : (
+          <></>
+        )}
+        <div className="section-header">Confirm Domain Registration</div>
+        {isPostingTransaction ? (
+          <Loader size={80} />
+        ) : isConfirmed ? (
+          <>
+            <AntCard
+              domain={domain ?? ''}
+              id={antID ? antID : undefined}
+              compact={false}
+              enableActions={false}
+              overrides={{
+                tier,
+                ttlSeconds: ttl,
+                maxSubdomains: 100,
+                leaseDuration: `${leaseDuration} year`,
+              }}
+            />
+            <span
+              className="text faded underline"
+              style={{ maxWidth: '475px' }}
+            >
+              You will sign a single transaction to register this domain.
+            </span>
+            <div className="flex flex-column center" style={{ gap: '0.2em' }}>
+              <Tooltip message={NAME_PRICE_INFO}>
+                <span className="white bold text-small">
+                  {fee.io?.toLocaleString()}&nbsp;IO&nbsp;
+                </span>
+              </Tooltip>
+              <span className="text faded">Estimated Price</span>
+            </div>
+          </>
+        ) : (
+          <span className="h2 error">{errorMessage}</span>
+        )}
+        {!isPostingTransaction ? (
+          <div className="flex-row center">
+            <button
+              className="outline-button"
+              onClick={() => {
+                dispatchRegistrationState({
+                  type: 'setStage',
+                  payload: stage - 1,
+                });
+              }}
+            >
+              Back
+            </button>
+            {isConfirmed ? (
+              <button
+                className="accent-button"
+                disabled={!antID || !isConfirmed}
+                onClick={() => {
+                  buyArnsName();
+                }}
+              >
+                Confirm
+              </button>
+            ) : (
+              <></>
+            )}
+          </div>
+        ) : (
+          <></>
+        )}
+      </div>
+    </>
+  );
+}
+
+export default ConfirmAntCreation;

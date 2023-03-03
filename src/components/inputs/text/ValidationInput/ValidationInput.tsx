@@ -9,6 +9,7 @@ function ValidationInput({
   validationListStyle,
   showValidationChecklist,
   inputClassName,
+  inputId,
   inputCustomStyle,
   placeholder,
   disabled,
@@ -23,12 +24,12 @@ function ValidationInput({
   showValidationChecklist?: boolean;
   placeholder?: string;
   maxLength?: number;
-
+  inputId?: string;
   inputClassName?: string;
   inputCustomStyle?: any;
   validationListStyle?: any;
   disabled?: boolean; // disables input
-  value: string;
+  value: string | number | undefined;
   setValue: (text: string) => void;
   setIsValid: (validity: boolean) => void;
   validationPredicates: { [x: string]: (value: string) => Promise<any> };
@@ -68,6 +69,7 @@ function ValidationInput({
         style={{ ...wrapperCustomStyle }}
       >
         <input
+          id={inputId ? inputId : ''}
           type="text"
           className={inputClassName}
           maxLength={maxLength ? maxLength : undefined}
