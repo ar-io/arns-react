@@ -96,8 +96,8 @@ export class ArweaveCompositeDataProvider
     tags,
   }: {
     srcCodeTransactionId: ArweaveTransactionID;
-    initialState: ArweaveTransactionID | ANTContractJSON;
-    tags: TransactionTag[];
+    initialState: ANTContractJSON;
+    tags?: TransactionTag[];
   }): Promise<string> {
     return await this._warpProvider.deployContract({
       srcCodeTransactionId,
