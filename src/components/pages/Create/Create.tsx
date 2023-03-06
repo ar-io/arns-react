@@ -16,7 +16,9 @@ import {
 } from '../../cards/AntCard/AntCard';
 import { CloseIcon, NotebookIcon, PencilIcon } from '../../icons';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
+import ConfirmAntCreation from '../../layout/ConfirmAntCreation/ConfirmAntCreation';
 import ConfirmRegistration from '../../layout/ConfirmRegistration/ConfirmRegistration';
+import DeployTransaction from '../../layout/DeployTransaction/DeployTransaction';
 import Workflow from '../../layout/Workflow/Workflow';
 
 function Create() {
@@ -352,7 +354,14 @@ function Create() {
             1: {
               component: (
                 <>
-                  <ConfirmRegistration />
+                  <ConfirmAntCreation state={ant.state} />
+                </>
+              ),
+            },
+            2: {
+              component: (
+                <>
+                  <DeployTransaction />
                 </>
               ),
             },

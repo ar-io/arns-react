@@ -1,10 +1,31 @@
 import React from 'react';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { WorkflowProps } from '../../../types';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
 
-function Workflow({ stages, onNext, onBack, stage }: WorkflowProps) {
+function Workflow({
+  stages,
+  onNext,
+  onBack,
+  stage,
+}: {
+  stage: number;
+  onNext: () => void;
+  onBack: () => void;
+  stages: {
+    [x: number]: {
+      component: JSX.Element;
+      showNext?: boolean;
+      showBack?: boolean;
+      disableNext?: boolean;
+      requiresWallet?: boolean;
+      customNextStyle?: any;
+      customBackStyle?: any;
+      backText?: string;
+      nextText?: string;
+    };
+  };
+}) {
   const [{ walletAddress }, dispatchGlobalState] = useGlobalState();
 
   function showConnectWallet() {
@@ -38,6 +59,18 @@ function Workflow({ stages, onNext, onBack, stage }: WorkflowProps) {
             showNext={stages[stage].showNext}
             onNext={onNext}
             onBack={onBack}
+            customNextStyle={
+              stages[stage].customNextStyle ? stages[stage].customNextStyle : {}
+            }
+            customBackStyle={
+              stages[stage].customBackStyle ? stages[stage].customBackStyle : {}
+            }
+            backText={
+              stages[stage].backText ? stages[stage].backText : undefined
+            }
+            nextText={
+              stages[stage].nextText ? stages[stage].nextText : undefined
+            }
           />
         )}
       </>

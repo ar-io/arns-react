@@ -42,12 +42,35 @@ export const DEFAULT_ATTRIBUTES = {
 function AntCard(props: ArNSMapping) {
   const isMobile = useIsMobile();
   const [{ arweaveDataProvider }] = useGlobalState();
-  const { id, domain, compact, overrides, hover, enableActions } = props;
+  const { state, id, domain, compact, overrides, hover, enableActions } = props;
   const [antDetails, setAntDetails] = useState<{ [x: string]: string }>();
   const [isLoading, setIsLoading] = useState(false);
   const [limitDetails, setLimitDetails] = useState(true);
 
   useEffect(() => {
+    if (state) {
+      setIsLoading(true);
+      const allAntDetails: { [x: string]: any } = {
+        ...state,
+        ...DEFAULT_ATTRIBUTES,
+        // TODO: remove this when all ants have controllers
+        controller: state.controller ? state.controller : state.owner,
+        tier: 1,
+        ...overrides,
+      };
+      // TODO: consolidate this logic that sorts and updates key values
+      const replacedKeys = Object.keys(allAntDetails)
+        .sort()
+        .reduce((obj: any, key: string) => {
+          // TODO: flatten recursive objects like subdomains, filter out for now
+          if (typeof allAntDetails[key] === 'object') return obj;
+          obj[mapKeyToAttribute(key)] = allAntDetails[key];
+          return obj;
+        }, {});
+      setLimitDetails(compact ?? true);
+      setAntDetails(replacedKeys);
+      setIsLoading(false);
+    }
     if (id) {
       setIsLoading(true);
       arweaveDataProvider
@@ -57,6 +80,7 @@ function AntCard(props: ArNSMapping) {
             setAntDetails(undefined);
             return;
           }
+
           const allAntDetails: { [x: string]: any } = {
             ...antContractState,
             ...DEFAULT_ATTRIBUTES,
@@ -104,16 +128,18 @@ function AntCard(props: ArNSMapping) {
       ) : antDetails ? (
         <div className={hover ? 'card hover' : 'card'}>
           <span className="bubble">Tier {antDetails.Tier}</span>
-          <table style={{ borderSpacing: '0em 1em', padding: '0px' }}>
+          <table style={{ borderSpacing: '0em 0.5em', padding: '0px' }}>
             <tbody>
               {Object.entries(antDetails).map(([key, value]) => {
                 if (!PRIMARY_DETAILS.includes(key) && limitDetails) {
                   return;
                 }
                 return (
-                  <tr key={key} style={{ height: '25px' }}>
-                    <td className="detail left">{key}:</td>
-                    <td className="detail bold left">
+                  <tr key={key} style={{ height: '20px' }}>
+                    <td className="detail left" style={{ padding: '5px' }}>
+                      {key}:
+                    </td>
+                    <td className="detail bold left" style={{ padding: '5px' }}>
                       {isArweaveTransactionID(value) ? (
                         <CopyTextButton
                           displayText={

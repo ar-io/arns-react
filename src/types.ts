@@ -59,6 +59,7 @@ export type ANTContractJSON = {
 export type ArNSMapping = {
   domain: string;
   id?: ArweaveTransactionID;
+  state?: ANTContractJSON;
   overrides?: any; // TODO;
   compact?: boolean;
   enableActions?: boolean;
@@ -96,8 +97,8 @@ export interface SmartweaveDataProvider {
     tags,
   }: {
     srcCodeTransactionId: ArweaveTransactionID;
-    initialState: ANTContractJSON | ArweaveTransactionID;
-    tags: TransactionTag[];
+    initialState: ANTContractJSON;
+    tags?: TransactionTag[];
   }): Promise<string>;
 }
 
@@ -187,21 +188,6 @@ export type DropdownProps = {
   setSelected: Dispatch<SetStateAction<any>>;
   headerElement?: JSX.Element;
   footerElement?: JSX.Element;
-};
-
-export type WorkflowProps = {
-  stage: number;
-  onNext: () => void;
-  onBack: () => void;
-  stages: {
-    [x: number]: {
-      component: JSX.Element;
-      showNext: boolean;
-      showBack: boolean;
-      disableNext: boolean;
-      requiresWallet: boolean;
-    };
-  };
 };
 
 export enum TABLE_TYPES {
