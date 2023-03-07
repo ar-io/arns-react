@@ -142,6 +142,18 @@ function NavMenuCard() {
                     />
                   );
               })}
+              <NavBarLink
+                path={''}
+                linkText={'Create'}
+                key={'create-ant-nav-button'}
+                onClick={() => {
+                  dispatchGlobalState({
+                    type: 'setShowCreateAnt',
+                    payload: true,
+                  });
+                  setShowMenu(false);
+                }}
+              />
               <ConnectButton />
             </>
           ) : (

@@ -95,7 +95,9 @@ export const approvedContractsForWalletQuery = (
   return queryObject;
 };
 
-export const SMARTWEAVE_MAX_TAG_SPACE = 2048 - 250; // minimum tag size of smartweave tags from warp is 239, rounded it for wiggle room
+export const SMARTWEAVE_TAG_SIZE = 250; // required tag size in bytes
+
+export const SMARTWEAVE_MAX_TAG_SPACE = 2048 - SMARTWEAVE_TAG_SIZE; // minimum tag size of smartweave tags from warp is 239, rounded it for wiggle room
 
 export const DEFAULT_ANT_CONTRACT_STATE: ANTContractJSON = {
   balances: {},

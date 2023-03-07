@@ -25,13 +25,6 @@ export const ROUTES: { [x: string]: Route } = {
     protected: false,
     index: false,
   },
-  create: {
-    text: 'Create an ANT',
-    path: '/create',
-    component: Create,
-    protected: false,
-    index: false,
-  },
   manage: {
     text: 'Manage Assets',
     icon: CubeIcon,

@@ -1,4 +1,5 @@
 import { useIsMobile, useWalletAddress } from '../../../../hooks';
+import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { ROUTES } from '../../../../utils/routes';
 import NavMenuCard from '../../../cards/NavMenuCard/NavMenuCard';
 import ConnectButton from '../../../inputs/buttons/ConnectButton/ConnectButton';
@@ -8,6 +9,7 @@ import './styles.css';
 const NavGroup = () => {
   const isMobile = useIsMobile();
   const { wallet, walletAddress } = useWalletAddress();
+  const [{}, dispatchGlobalState] = useGlobalState();
 
   return (
     <div className="flex-row flex-right flex-padding">
@@ -19,6 +21,17 @@ const NavGroup = () => {
                 <NavBarLink path={value.path} linkText={value.text} key={key} />
               );
           })}
+          <NavBarLink
+            path={''}
+            linkText={'Create'}
+            key={'create-ant-nav-button'}
+            onClick={() =>
+              dispatchGlobalState({
+                type: 'setShowCreateAnt',
+                payload: true,
+              })
+            }
+          />
           {!wallet || !walletAddress ? (
             <ConnectButton />
           ) : (

@@ -6,8 +6,8 @@ import {
 } from 'react-router-dom';
 
 import { Layout } from './components/layout';
-import ConnectWalletModal from './components/modals/ConnectWalletModal/ConnectWalletModal';
-import { About, Create, Home, Manage, NotFound } from './components/pages';
+import { ConnectWalletModal, CreateAntModal } from './components/modals';
+import { About, Home, Manage, NotFound } from './components/pages';
 import {
   useArNSContract,
   useArweave,
@@ -15,6 +15,7 @@ import {
   useWalletAddress,
 } from './hooks/';
 import './index.css';
+import { useGlobalState } from './state/contexts/GlobalState';
 import RegistrationStateProvider from './state/contexts/RegistrationState';
 import { registrationReducer } from './state/reducers/RegistrationReducer';
 
@@ -39,7 +40,6 @@ function App() {
           }
         />
         <Route path="info" element={<About />} />
-        <Route path="create" element={<Create />} />
         {wallet && walletAddress ? (
           <Route path="manage" element={<Manage />} />
         ) : (
@@ -54,6 +54,7 @@ function App() {
     <>
       <RouterProvider router={router} />
       <ConnectWalletModal show={showConnectModal} />
+      <CreateAntModal />
     </>
   );
 }
