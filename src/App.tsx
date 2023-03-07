@@ -15,7 +15,6 @@ import {
   useWalletAddress,
 } from './hooks/';
 import './index.css';
-import { useGlobalState } from './state/contexts/GlobalState';
 import RegistrationStateProvider from './state/contexts/RegistrationState';
 import { registrationReducer } from './state/reducers/RegistrationReducer';
 

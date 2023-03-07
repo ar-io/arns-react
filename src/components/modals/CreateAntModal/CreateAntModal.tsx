@@ -167,6 +167,7 @@ function CreateAntModal() {
               0: {
                 showNext: true,
                 showBack: true,
+                backText: 'Cancel',
                 component: (
                   <>
                     <div className="flex flex-row text-large white bold center">

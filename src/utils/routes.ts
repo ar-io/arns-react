@@ -1,5 +1,5 @@
 import { CubeIcon } from '../components/icons';
-import { About, Create, Home, Manage } from '../components/pages';
+import { About, Home, Manage } from '../components/pages';
 
 export type Route = {
   text: string;
