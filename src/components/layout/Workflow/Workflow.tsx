@@ -6,7 +6,7 @@ import { StepProgressBar } from '../progress';
 
 export type WorkflowProps = {
   stage: number;
-  steps: { [x: number]: { title: string; status: string } };
+  steps?: { [x: number]: { title: string; status: string } };
   onNext: () => void;
   onBack: () => void;
   footer?: JSX.Element[];
@@ -54,7 +54,11 @@ function Workflow({
           return (
             <>
               {value.header}
-              <StepProgressBar stage={stage + 1} stages={steps ?? {}} />
+              {steps ? (
+                <StepProgressBar stage={stage + 1} stages={steps} />
+              ) : (
+                <></>
+              )}
               {React.cloneElement(value.component, {
                 key,
               })}
