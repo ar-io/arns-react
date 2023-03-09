@@ -9,7 +9,8 @@ import './styles.css';
 const NavGroup = () => {
   const isMobile = useIsMobile();
   const { wallet, walletAddress } = useWalletAddress();
-  const [{}, dispatchGlobalState] = useGlobalState(); //es-lint ignore line
+
+  const [{}, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
 
   return (
     <div className="flex-row flex-right flex-padding">
