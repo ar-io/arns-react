@@ -88,7 +88,7 @@ function AntCard(props: ArNSMapping) {
             controllers: antContractState.controllers
               ? antContractState.controllers.join(',')
               : antContractState.owner,
-            tier: antContractState.tier ? antContractState.tier : 1,
+            tier: antContractState.tier ?? 1,
             ...overrides,
             id: id.toString(),
             domain,
@@ -127,7 +127,11 @@ function AntCard(props: ArNSMapping) {
         <Loader size={80} />
       ) : antDetails ? (
         <div className={hover ? 'card hover' : 'card'}>
-          <span className="bubble">Tier {antDetails.Tier}</span>
+          {overrides.showTier === false ? (
+            <></>
+          ) : (
+            <span className="bubble">Tier {antDetails.Tier}</span>
+          )}
           <table style={{ borderSpacing: '0em 0.5em', padding: '0px' }}>
             <tbody>
               {Object.entries(antDetails).map(([key, value]) => {

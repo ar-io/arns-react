@@ -9,7 +9,7 @@ import './styles.css';
 const NavGroup = () => {
   const isMobile = useIsMobile();
   const { wallet, walletAddress } = useWalletAddress();
-  const [{}, dispatchGlobalState] = useGlobalState();
+  const [{}, dispatchGlobalState] = useGlobalState(); //es-lint ignore line
 
   return (
     <div className="flex-row flex-right flex-padding">
@@ -21,15 +21,28 @@ const NavGroup = () => {
                 <NavBarLink path={value.path} linkText={value.text} key={key} />
               );
           })}
+
           <NavBarLink
             path={''}
             linkText={'Create'}
             key={'create-ant-nav-button'}
-            onClick={() =>
-              dispatchGlobalState({
-                type: 'setShowCreateAnt',
-                payload: true,
-              })
+            onClick={
+              walletAddress
+                ? () =>
+                    dispatchGlobalState({
+                      type: 'setShowCreateAnt',
+                      payload: true,
+                    })
+                : () => {
+                    dispatchGlobalState({
+                      type: 'setShowCreateAnt',
+                      payload: true,
+                    });
+                    dispatchGlobalState({
+                      type: 'setShowConnectWallet',
+                      payload: true,
+                    });
+                  }
             }
           />
           {!wallet || !walletAddress ? (

@@ -69,14 +69,14 @@ function ValidationInput({
         style={{ ...wrapperCustomStyle }}
       >
         <input
-          id={inputId ? inputId : ''}
+          id={inputId ?? ''}
           type="text"
           className={inputClassName}
-          maxLength={maxLength ? maxLength : undefined}
-          placeholder={placeholder ? placeholder : ''}
+          maxLength={maxLength ?? undefined}
+          placeholder={placeholder ?? ''}
           value={value}
           onChange={(e) => validationExecutor(e.target.value)}
-          disabled={disabled ? disabled : false}
+          disabled={disabled ?? false}
           style={{ ...inputCustomStyle }}
         />
 

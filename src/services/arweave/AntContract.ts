@@ -1,11 +1,9 @@
 import {
   ANTContractDomainRecord,
   ANTContractJSON,
-  ANTContractRecordMapping,
   ArweaveTransactionID,
 } from '../../types';
 import { DEFAULT_ANT_CONTRACT_STATE } from '../../utils/constants';
-import { isArweaveTransactionID } from '../../utils/searchUtils';
 
 /**
  * TODOS:

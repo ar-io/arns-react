@@ -5,7 +5,8 @@ import { useIsMobile, useWalletAddress } from '../../../hooks';
 import { ANTContract } from '../../../services/arweave/AntContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
-  AntInteractionProvider,
+  ANTContractJSON,
+  ArweaveTransactionID,
   ManageAntRow,
   TRANSACTION_TYPES,
   VALIDATION_INPUT_TYPES,
@@ -14,29 +15,66 @@ import {
   DEFAULT_ATTRIBUTES,
   mapKeyToAttribute,
 } from '../../cards/AntCard/AntCard';
-import { CloseIcon, NotebookIcon, PencilIcon } from '../../icons';
+import { PencilIcon } from '../../icons';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import ConfirmAntCreation from '../../layout/ConfirmAntCreation/ConfirmAntCreation';
-import ConfirmRegistration from '../../layout/ConfirmRegistration/ConfirmRegistration';
 import DeployTransaction from '../../layout/DeployTransaction/DeployTransaction';
-import SuccessfulRegistration from '../../layout/SuccessfulRegistration/SuccessfulRegistration';
+import TransactionSuccess from '../../layout/TransactionSuccess/TransactionSuccess';
 import Workflow from '../../layout/Workflow/Workflow';
 
-function CreateAntModal() {
+function CreateAntModal({ show }: { show: boolean }) {
   const isMobile = useIsMobile();
-  const [{ arweaveDataProvider, showCreateAnt }, dispatchGlobalState] =
-    useGlobalState();
+  const [{ arweaveDataProvider }, dispatchGlobalState] = useGlobalState();
   const { walletAddress } = useWalletAddress();
 
-  const [ant, setAnt] = useState<ANTContract>(new ANTContract());
+  const [ant] = useState<ANTContract>(new ANTContract());
   const [stateValid, setStateValid] = useState(true);
 
   const [rows, setRows] = useState<[]>([]);
   const [editingField, setEditingField] = useState<string>();
   const [modifiedValue, setModifiedValue] = useState<string | number>();
 
-  const [workflowStage, setWorkflowStage] = useState(0);
+  const [workflowStage, setWorkflowStage] = useState<number>(0);
 
+  const [antContractId, setAntContractId] = useState<
+    ArweaveTransactionID | undefined
+  >();
+  const [isPostingTransaction, setIsPostingTransaction] = useState(false);
+  const [isConfirmed] = useState(true);
+
+  const steps = {
+    1: {
+      title: 'Set ANT Details',
+      status:
+        workflowStage + 1 === 1
+          ? 'pending'
+          : workflowStage + 1 > 1
+          ? 'success'
+          : '',
+    },
+    2: {
+      title: 'Confirm ANT',
+      status:
+        workflowStage + 1 === 2
+          ? 'pending'
+          : workflowStage + 1 > 2
+          ? 'success'
+          : '',
+    },
+    3: {
+      title: 'Deploy ANT',
+      status:
+        workflowStage + 1 === 3
+          ? 'pending'
+          : workflowStage + 1 > 3
+          ? 'success'
+          : '',
+    },
+    4: {
+      title: 'Manage ANT',
+      status: workflowStage + 1 === 4 ? 'success' : '',
+    },
+  };
   const EDITABLE_FIELDS = [
     'name',
     'ticker',
@@ -66,10 +104,9 @@ function CreateAntModal() {
       if (!ant.controller) {
         ant.controller = walletAddress.toString();
       }
-
       setDetails();
     }
-  }, [walletAddress, ant]);
+  }, [walletAddress, ant, workflowStage]);
 
   function setDetails() {
     //  eslint-disable-next-line
@@ -141,9 +178,36 @@ function CreateAntModal() {
     }
   }
 
+  async function deployAnt(state: ANTContractJSON) {
+    try {
+      setIsPostingTransaction(true);
+      if (!state) {
+        throw new Error('No state provided, cannot deploy ANT contract');
+      }
+      // perform checks, try/catch
+      const pendingTXId = await arweaveDataProvider.deployContract({
+        srcCodeTransactionId: new ArweaveTransactionID(
+          'PEI1efYrsX08HUwvc6y-h6TSpsNlo2r6_fWL2_GdwhY',
+        ),
+        initialState: state,
+      });
+      if (!pendingTXId) {
+        throw new Error('Failed to deploy ANT contract');
+      }
+      setAntContractId(new ArweaveTransactionID(pendingTXId));
+      setIsPostingTransaction(false);
+      console.log(pendingTXId);
+
+      return pendingTXId;
+    } catch (error) {
+      console.error(error);
+      setIsPostingTransaction(false);
+    }
+  }
+
   return (
     <>
-      {showCreateAnt ? (
+      {show ? (
         <div
           className="modal-container flex flex-column center"
           style={{
@@ -153,26 +217,72 @@ function CreateAntModal() {
         >
           <Workflow
             stage={workflowStage}
-            onNext={() => setWorkflowStage(workflowStage + 1)}
-            onBack={
-              workflowStage === 0
-                ? () =>
-                    dispatchGlobalState({
-                      type: 'setShowCreateAnt',
-                      payload: false,
-                    })
-                : () => setWorkflowStage(workflowStage - 1)
-            }
+            onNext={() => {
+              switch (workflowStage) {
+                case 0:
+                  setWorkflowStage(workflowStage + 1);
+                  break;
+                case 1:
+                  {
+                    if (ant.state) {
+                      setWorkflowStage(workflowStage + 1);
+                      deployAnt(ant.state)
+                        .then(() => {
+                          setWorkflowStage(workflowStage + 2);
+                          steps['3'].status = 'fail';
+                        })
+                        .catch(() => {
+                          setWorkflowStage(workflowStage + 2);
+                          steps['3'].status = 'fail';
+                        });
+                    }
+                    if (!ant.state) {
+                      return;
+                    }
+                  }
+                  break;
+                default:
+                  return;
+              }
+            }}
+            onBack={() => {
+              switch (workflowStage) {
+                case 0:
+                  dispatchGlobalState({
+                    type: 'setShowCreateAnt',
+                    payload: false,
+                  });
+                  break;
+                default:
+                  setWorkflowStage(workflowStage - 1);
+                  break;
+              }
+            }}
+            steps={steps}
             stages={{
               0: {
                 showNext: true,
                 showBack: true,
                 backText: 'Cancel',
-                component: (
+                customBackStyle: {
+                  height: '40px',
+                  width: '150px',
+                  padding: '5px 10px',
+                },
+                customNextStyle: {
+                  height: '40px',
+                  width: '150px',
+                  padding: '5px 10px',
+                },
+                header: (
                   <>
                     <div className="flex flex-row text-large white bold center">
                       Create an ANT
                     </div>
+                  </>
+                ),
+                component: (
+                  <>
                     <div
                       className="flex flex-column card center"
                       style={
@@ -183,11 +293,14 @@ function CreateAntModal() {
                               position: 'relative',
                             }
                           : {
-                              width: '75%',
-                              height: '50%',
+                              width: 'fit-content',
+                              height: 'fit-content',
+                              minWidth: '50%',
+                              minHeight: '20%',
                               maxHeight: '638px',
                               maxWidth: '1000px',
                               position: 'relative',
+                              padding: '.5em 2em',
                             }
                       }
                     >
@@ -209,7 +322,7 @@ function CreateAntModal() {
                               key: 'attribute',
                               align: 'left',
                               width: isMobile ? '0px' : '30%',
-                              className: 'white',
+                              className: 'white small-row',
                               render: (value: string) => {
                                 return `${mapKeyToAttribute(value)}:`;
                               },
@@ -368,6 +481,27 @@ function CreateAntModal() {
                 ),
               },
               1: {
+                nextText: 'Confirm',
+                customBackStyle: {
+                  height: '40px',
+                  width: '150px',
+                  padding: '5px 10px',
+                },
+                customNextStyle: {
+                  height: '40px',
+                  width: '150px',
+                  padding: '5px 10px',
+                  backgroundColor: !ant.state
+                    ? 'var(--text-faded)'
+                    : 'var(--accent)',
+                },
+                header: (
+                  <>
+                    <div className="flex flex-row text-large white bold center">
+                      Confirm Domain Registration
+                    </div>
+                  </>
+                ),
                 component: (
                   <>
                     <ConfirmAntCreation state={ant.state} />
@@ -375,16 +509,47 @@ function CreateAntModal() {
                 ),
               },
               2: {
+                showBack: false,
+                showNext: false,
+                header: (
+                  <>
+                    {' '}
+                    <span className="flex flex-row text-large white bold center">
+                      {isPostingTransaction
+                        ? 'Deploying...'
+                        : 'Awaiting transaction confirmation...'}
+                    </span>
+                  </>
+                ),
                 component: (
                   <>
-                    <DeployTransaction />
+                    <DeployTransaction
+                      isPostingTransaction={isPostingTransaction}
+                      isConfirmed={isConfirmed}
+                    />
                   </>
                 ),
               },
               3: {
+                showBack: false,
+                showNext: false,
+                header: (
+                  <>
+                    <span className="flex flex-row text-large white bold center">
+                      ANT successfully created!
+                    </span>
+                  </>
+                ),
                 component: (
                   <>
-                    <SuccessfulRegistration />
+                    <TransactionSuccess
+                      transactionId={
+                        antContractId
+                          ? new ArweaveTransactionID(antContractId.toString())
+                          : undefined
+                      }
+                      state={ant.state}
+                    />
                   </>
                 ),
               },

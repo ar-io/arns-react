@@ -1,38 +1,33 @@
 import logo from '../../../../assets/images/logo/looped-winston-white.gif';
-import { StepProgressBar } from '../../layout/progress';
+import { useIsMobile } from '../../../hooks';
 
-function DeployTransaction({}: {}) {
+function DeployTransaction() {
+  const isMobile = useIsMobile();
   return (
     <>
       <div className="flex-column center">
-        {/**TODO add dependsOn to proceeding stages to check if previous stages were met */}
-        {/* status is implied per stage, can predicate this */}
-        <StepProgressBar
-          stages={{
-            1: {
-              title: 'Pick Domain',
-              status: '',
-            },
-            2: {
-              title: 'Create an ANT',
-              status: '',
-            },
-            3: {
-              title: 'Register Name',
-              status: '',
-            },
-            4: {
-              title: 'Complete',
-              status: '',
-            },
+        <div
+          className="flex flex-column card center"
+          style={{
+            width: isMobile ? '90%' : '50%',
           }}
-          stage={1}
-        />
-        <div className="flex-column center" style={{ gap: 0 }}>
-          <img src={logo} alt="ar-io-logo" width={150} height={150} />
-          <span className="text faded center">
-            We are reserving your name. Please give us a few ~
-          </span>
+        >
+          {/**TODO add dependsOn to proceeding stages to check if previous stages were met */}
+          {/* status is implied per stage, can predicate this */}
+
+          <div className="flex-column center" style={{ gap: 0 }}>
+            <img src={logo} alt="ar-io-logo" width={150} height={150} />
+            <span className="flex flex-column center" style={{ gap: '10px' }}>
+              <span className="text-small bold faded center">
+                Did you know:
+              </span>
+              {/* TODO : replace with random fun fact selector */}
+              <span className="text-small faded center">
+                Sam Williams has never been able to get his hands on a Dragon
+                Turtle, despite his best efforts?
+              </span>
+            </span>
+          </div>
         </div>
       </div>
     </>

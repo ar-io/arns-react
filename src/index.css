@@ -492,8 +492,13 @@ button {
 .rc-table-tbody > tr > td {
   border: 1px solid #323232;
   border-width: 1px 0px;
-  padding: 10px 15px 10px 50px;
+  padding: 0px 15px 0px 50px;
   font-size: 16px;
+}
+.small-row {
+  max-height: 25px !important;
+  padding-top: 5px !important;
+  padding-bottom: 5px !important;
 }
 
 .rc-table-tbody > tr > td > input:focus {

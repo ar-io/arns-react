@@ -3,8 +3,8 @@ import './styles.css';
 function WorkflowButtons({
   showBack = true,
   showNext = true,
-  customNextStyle,
-  customBackStyle,
+  customNextStyle = {},
+  customBackStyle = {},
   backText = 'Back',
   nextText = 'Next',
   disableNext,
@@ -25,11 +25,11 @@ function WorkflowButtons({
 }) {
   return (
     <>
-      <div className="flex-row center" style={{ padding: '2em' }}>
+      <div className="flex-row center" style={{ padding: '0' }}>
         {showBack ? (
           <button
-            className="outline-button"
-            style={customBackStyle}
+            className="outline-button center"
+            style={{ ...customBackStyle }}
             disabled={disableBack}
             onClick={() => onBack()}
           >
@@ -41,7 +41,9 @@ function WorkflowButtons({
         {showNext ? (
           <button
             className={
-              disableNext ? 'accent-button disabled-button' : 'accent-button'
+              disableNext
+                ? 'accent-button disabled-button center'
+                : 'accent-button center'
             }
             style={customNextStyle}
             disabled={disableNext}

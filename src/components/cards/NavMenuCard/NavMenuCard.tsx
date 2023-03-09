@@ -146,13 +146,24 @@ function NavMenuCard() {
                 path={''}
                 linkText={'Create'}
                 key={'create-ant-nav-button'}
-                onClick={() => {
-                  dispatchGlobalState({
-                    type: 'setShowCreateAnt',
-                    payload: true,
-                  });
-                  setShowMenu(false);
-                }}
+                onClick={
+                  walletAddress
+                    ? () =>
+                        dispatchGlobalState({
+                          type: 'setShowCreateAnt',
+                          payload: true,
+                        })
+                    : () => {
+                        dispatchGlobalState({
+                          type: 'setShowCreateAnt',
+                          payload: true,
+                        });
+                        dispatchGlobalState({
+                          type: 'setShowConnectWallet',
+                          payload: true,
+                        });
+                      }
+                }
               />
               <ConnectButton />
             </>
@@ -174,8 +185,9 @@ function NavMenuCard() {
                 }}
                 position="relative"
               />
-              {isMobile
-                ? Object.entries(ROUTES).map(([key, route]) => {
+              {isMobile ? (
+                <>
+                  {Object.entries(ROUTES).map(([key, route]) => {
                     if (!route.index && (!route.protected || walletAddress))
                       return (
                         <NavBarLink
@@ -187,32 +199,51 @@ function NavMenuCard() {
                           }}
                         />
                       );
-                  })
-                : Object.entries(ROUTES).map(([key, route]) => {
-                    if (route.protected && walletAddress)
-                      return (
-                        <NavBarLink
-                          path={route.path}
-                          linkText={route.text}
-                          key={key}
-                          onClick={() => {
-                            setShowMenu(false);
-                          }}
-                        >
-                          <>
-                            {route.icon ? (
-                              route.icon({
-                                height: 24,
-                                width: 24,
-                                fill: 'var(--text-white)',
-                              })
-                            ) : (
-                              <></>
-                            )}
-                          </>
-                        </NavBarLink>
-                      );
                   })}
+                  <NavBarLink
+                    path={''}
+                    linkText={'Create'}
+                    key={'create-ant-nav-button'}
+                    onClick={
+                      walletAddress
+                        ? () => {
+                            dispatchGlobalState({
+                              type: 'setShowCreateAnt',
+                              payload: true,
+                            });
+                            setShowMenu(false);
+                          }
+                        : () => alert('Must be connected to create ant token')
+                    }
+                  />
+                </>
+              ) : (
+                Object.entries(ROUTES).map(([key, route]) => {
+                  if (route.protected && walletAddress)
+                    return (
+                      <NavBarLink
+                        path={route.path}
+                        linkText={route.text}
+                        key={key}
+                        onClick={() => {
+                          setShowMenu(false);
+                        }}
+                      >
+                        <>
+                          {route.icon ? (
+                            route.icon({
+                              height: 24,
+                              width: 24,
+                              fill: 'var(--text-white)',
+                            })
+                          ) : (
+                            <></>
+                          )}
+                        </>
+                      </NavBarLink>
+                    );
+                })
+              )}
               {Object.entries(walletDetails).map(([key, value]) => {
                 return (
                   <span

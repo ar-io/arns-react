@@ -12,6 +12,7 @@ import {
   useArNSContract,
   useArweave,
   useConnectWalletModal,
+  useCreateAntModal,
   useWalletAddress,
 } from './hooks/';
 import './index.css';
@@ -25,6 +26,8 @@ function App() {
   useArweave();
 
   const { showConnectModal } = useConnectWalletModal();
+  const { showCreateAntModal } = useCreateAntModal();
+
   const { wallet, walletAddress } = useWalletAddress();
 
   const router = createHashRouter(
@@ -53,7 +56,8 @@ function App() {
     <>
       <RouterProvider router={router} />
       <ConnectWalletModal show={showConnectModal} />
-      <CreateAntModal />
+      {/* change to hook for display management */}
+      {walletAddress ? <CreateAntModal show={showCreateAntModal} /> : <></>}
     </>
   );
 }

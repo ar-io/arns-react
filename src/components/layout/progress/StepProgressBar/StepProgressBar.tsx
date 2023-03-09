@@ -59,7 +59,17 @@ function StepProgressBar({
                   <span className="line" style={{ background: 'none' }}></span>
                   <span
                     className="progress-stage-circle"
-                    style={{ background: handleColor(value.status) }}
+                    style={
+                      stage !== +key
+                        ? { background: handleColor(value.status) }
+                        : {
+                            background: handleColor(value.status),
+                            border: '3px solid white',
+                            boxShadow: `0px 0px 0px 2px ${handleColor(
+                              value.status,
+                            )}`,
+                          }
+                    }
                   >
                     {handleIcon(value.status) ? handleIcon(value.status) : key}
                   </span>
@@ -90,7 +100,17 @@ function StepProgressBar({
                   ></span>
                   <span
                     className="progress-stage-circle"
-                    style={{ background: handleColor(value.status) }}
+                    style={
+                      stage !== +key
+                        ? { background: handleColor(value.status) }
+                        : {
+                            background: handleColor(value.status),
+                            border: '3px solid white',
+                            boxShadow: `0px 0px 0px 2px ${handleColor(
+                              value.status,
+                            )}`,
+                          }
+                    }
                   >
                     {handleIcon(value.status) ? handleIcon(value.status) : key}
                   </span>

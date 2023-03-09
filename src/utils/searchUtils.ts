@@ -1,3 +1,5 @@
+import { Buffer } from 'buffer';
+
 import { TransactionTag } from '../types';
 import { ARNS_NAME_REGEX, ARNS_TX_ID_REGEX } from './constants';
 import { fromB64Url } from './encodings';
