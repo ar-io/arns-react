@@ -11,10 +11,7 @@ import {
   TRANSACTION_TYPES,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
-import {
-  DEFAULT_ATTRIBUTES,
-  mapKeyToAttribute,
-} from '../../cards/AntCard/AntCard';
+import { mapKeyToAttribute } from '../../cards/AntCard/AntCard';
 import { PencilIcon } from '../../icons';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import ConfirmAntCreation from '../../layout/ConfirmAntCreation/ConfirmAntCreation';
@@ -40,7 +37,6 @@ function CreateAntModal({ show }: { show: boolean }) {
     ArweaveTransactionID | undefined
   >();
   const [isPostingTransaction, setIsPostingTransaction] = useState(false);
-  const [isConfirmed] = useState(true);
 
   const steps = {
     1: {
