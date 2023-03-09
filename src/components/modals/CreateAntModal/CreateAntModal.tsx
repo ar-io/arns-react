@@ -523,10 +523,7 @@ function CreateAntModal({ show }: { show: boolean }) {
                 ),
                 component: (
                   <>
-                    <DeployTransaction
-                      isPostingTransaction={isPostingTransaction}
-                      isConfirmed={isConfirmed}
-                    />
+                    <DeployTransaction />
                   </>
                 ),
               },
