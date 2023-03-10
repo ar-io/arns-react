@@ -23,10 +23,8 @@ const NavGroup = () => {
               );
           })}
 
-          <NavBarLink
-            path={''}
-            linkText={'Create'}
-            key={'create-ant-nav-button'}
+          <button
+            className="button text-medium bold white"
             onClick={
               walletAddress
                 ? () =>
@@ -45,7 +43,9 @@ const NavGroup = () => {
                     });
                   }
             }
-          />
+          >
+            Create
+          </button>
           {!wallet || !walletAddress ? (
             <ConnectButton />
           ) : (

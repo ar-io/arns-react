@@ -21,11 +21,7 @@ function DeployTransaction() {
               <span className="text-small bold faded center">
                 Did you know:
               </span>
-              {/* TODO : replace with random fun fact selector */}
-              <span className="text-small faded center">
-                Sam Williams has never been able to get his hands on a Dragon
-                Turtle, despite his best efforts?
-              </span>
+              {/* TODO : add random fun fact selector */}
             </span>
           </div>
         </div>

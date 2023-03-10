@@ -57,7 +57,9 @@ function App() {
       <RouterProvider router={router} />
       <ConnectWalletModal show={showConnectModal} />
       {/* change to hook for display management */}
-      {walletAddress ? <CreateAntModal show={showCreateAntModal} /> : <></>}
+      <CreateAntModal
+        show={showCreateAntModal && walletAddress !== undefined}
+      />
     </>
   );
 }

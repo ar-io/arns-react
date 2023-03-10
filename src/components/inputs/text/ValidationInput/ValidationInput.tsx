@@ -4,15 +4,15 @@ import { ValidationObject } from '../../../../types';
 import ValidationList from '../../../cards/ValidationList/ValidationList';
 
 function ValidationInput({
-  wrapperClassName,
+  wrapperClassName = '',
   wrapperCustomStyle,
   validationListStyle,
   showValidationChecklist,
-  inputClassName,
-  inputId,
+  inputClassName = '',
+  inputId = '',
   inputCustomStyle,
-  placeholder,
-  disabled,
+  placeholder = '',
+  disabled = false,
   maxLength,
   value,
   setValue,
@@ -64,19 +64,16 @@ function ValidationInput({
 
   return (
     <>
-      <div
-        className={wrapperClassName ? wrapperClassName : ''}
-        style={{ ...wrapperCustomStyle }}
-      >
+      <div className={wrapperClassName} style={{ ...wrapperCustomStyle }}>
         <input
-          id={inputId ?? ''}
+          id={inputId}
           type="text"
           className={inputClassName}
-          maxLength={maxLength ?? undefined}
-          placeholder={placeholder ?? ''}
+          maxLength={maxLength}
+          placeholder={placeholder}
           value={value}
           onChange={(e) => validationExecutor(e.target.value)}
-          disabled={disabled ?? false}
+          disabled={disabled}
           style={{ ...inputCustomStyle }}
         />
 

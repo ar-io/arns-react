@@ -55,7 +55,6 @@ export class ANTContract {
     return this.contract.records;
   }
   set records(records: { [x: string]: ANTContractDomainRecord }) {
-    //records example: {'@': {transactionId:"7waR8v4STuwPnTck1zFVkQqJh5K9q9Zik4Y5-5dV7nk"}} - can leave the other properties undefined, will autoset
     for (const [
       domain,
       { transactionId, maxSubdomains, ttlSeconds },

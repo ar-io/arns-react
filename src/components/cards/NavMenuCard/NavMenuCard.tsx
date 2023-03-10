@@ -206,14 +206,21 @@ function NavMenuCard() {
                     key={'create-ant-nav-button'}
                     onClick={
                       walletAddress
-                        ? () => {
+                        ? () =>
+                            dispatchGlobalState({
+                              type: 'setShowCreateAnt',
+                              payload: true,
+                            })
+                        : () => {
                             dispatchGlobalState({
                               type: 'setShowCreateAnt',
                               payload: true,
                             });
-                            setShowMenu(false);
+                            dispatchGlobalState({
+                              type: 'setShowConnectWallet',
+                              payload: true,
+                            });
                           }
-                        : () => alert('Must be connected to create ant token')
                     }
                   />
                 </>

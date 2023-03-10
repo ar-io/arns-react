@@ -12,7 +12,7 @@ import {
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import { mapKeyToAttribute } from '../../cards/AntCard/AntCard';
-import { PencilIcon } from '../../icons';
+import { CloseIcon, PencilIcon } from '../../icons';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import ConfirmAntCreation from '../../layout/ConfirmAntCreation/ConfirmAntCreation';
 import DeployTransaction from '../../layout/DeployTransaction/DeployTransaction';
@@ -211,6 +211,23 @@ function CreateAntModal({ show }: { show: boolean }) {
             height: '100%',
           }}
         >
+          <button
+            className="icon-button"
+            style={{
+              position: 'absolute',
+              top: '2em',
+              right: '2em',
+              borderRadius: '100%',
+            }}
+            onClick={() =>
+              dispatchGlobalState({
+                type: 'setShowCreateAnt',
+                payload: false,
+              })
+            }
+          >
+            <CloseIcon width={30} height={30} fill={'var(--text-white'} />
+          </button>
           <Workflow
             stage={workflowStage}
             onNext={() => {

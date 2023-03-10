@@ -37,13 +37,16 @@ function TransactionSuccess({
               leaseDuration: `N/A`,
             }}
           />
-          <div className="flex flex-row center" style={{ gap: '1em' }}>
+          <div
+            className="flex flex-row center"
+            style={{ gap: '1em', maxWidth: '782px' }}
+          >
             <div
               className="flex flex-column center card"
               style={{
                 minWidth: '175px',
                 minHeight: '100px',
-                width: '100%',
+                flex: 1,
                 padding: '0px',
                 gap: '.5em',
                 textDecoration: 'none',
@@ -60,6 +63,7 @@ function TransactionSuccess({
             </div>
 
             <a
+              className="link"
               href={`https://sonar.warp.cc/#/app/contract/${transactionId.toString()}`}
               rel="noreferrer"
               target={'_blank'}
@@ -69,7 +73,7 @@ function TransactionSuccess({
                 style={{
                   minWidth: '175px',
                   minHeight: '100px',
-                  width: '100%',
+                  flex: 1,
                   padding: '0px',
                   gap: '.5em',
                   textDecoration: 'none',
@@ -94,7 +98,7 @@ function TransactionSuccess({
               style={{
                 minWidth: '175px',
                 minHeight: '100px',
-                width: '100%',
+                flex: 1,
                 padding: '0px',
                 gap: '.5em',
                 textDecoration: 'none',
@@ -111,12 +115,12 @@ function TransactionSuccess({
             <div
               className="flex flex-column center card"
               style={{
-                width: '175px',
-                height: '100px',
-                minHeight: '50px',
-                minWidth: '50px',
+                minWidth: '175px',
+                minHeight: '100px',
+                flex: 1,
                 padding: '0px',
                 gap: '.5em',
+                textDecoration: 'none',
               }}
             >
               <ArrowUpRight
