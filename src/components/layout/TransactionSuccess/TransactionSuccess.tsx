@@ -40,31 +40,31 @@ function TransactionSuccess({
             }}
           />
           <div className="flex flex-row center" style={{ gap: '1em' }}>
-            <Link to="">
-              <div
-                className="flex flex-column center card"
-                style={{
-                  minWidth: '175px',
-                  minHeight: '100px',
-                  width: '100%',
-                  padding: '0px',
-                  gap: '.5em',
-                  textDecoration: 'none',
-                }}
-              >
-                <ArrowUpRight
-                  width={'30px'}
-                  height={'30px'}
-                  fill={'var(--text-white)'}
-                />
-                <span className="flex text-small faded center">
-                  Register a Name
-                </span>
-              </div>
-            </Link>
+            <div
+              className="flex flex-column center card"
+              style={{
+                minWidth: '175px',
+                minHeight: '100px',
+                width: '100%',
+                padding: '0px',
+                gap: '.5em',
+                textDecoration: 'none',
+              }}
+            >
+              <ArrowUpRight
+                width={'30px'}
+                height={'30px'}
+                fill={'var(--text-white)'}
+              />
+              <span className="flex text-small faded center">
+                Register a Name
+              </span>
+            </div>
 
-            <Link
-              to={`https://sonar.warp.cc/#/app/contract/${transactionId.toString()}`}
+            <a
+              href={`https://sonar.warp.cc/#/app/contract/${transactionId.toString()}`}
+              rel="noreferrer"
+              target={'_blank'}
             >
               <div
                 className="flex flex-column center card"
@@ -89,33 +89,26 @@ function TransactionSuccess({
                   View on Sonar
                 </span>
               </div>
-            </Link>
-
-            <a
-              className="link"
-              target="_blank"
-              rel="noreferrer"
-              href={`#/manage`}
-            >
-              <div
-                className="flex flex-column center card"
-                style={{
-                  minWidth: '175px',
-                  minHeight: '100px',
-                  width: '100%',
-                  padding: '0px',
-                  gap: '.5em',
-                  textDecoration: 'none',
-                }}
-              >
-                <ArrowUpRight
-                  width={'30px'}
-                  height={'30px'}
-                  fill={'var(--text-white)'}
-                />
-                <span className="flex text-small faded center">Manage ANT</span>
-              </div>
             </a>
+
+            <div
+              className="flex flex-column center card"
+              style={{
+                minWidth: '175px',
+                minHeight: '100px',
+                width: '100%',
+                padding: '0px',
+                gap: '.5em',
+                textDecoration: 'none',
+              }}
+            >
+              <ArrowUpRight
+                width={'30px'}
+                height={'30px'}
+                fill={'var(--text-white)'}
+              />
+              <span className="flex text-small faded center">Manage ANT</span>
+            </div>
 
             <div
               className="flex flex-column center card"
