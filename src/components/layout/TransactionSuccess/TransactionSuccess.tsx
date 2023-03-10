@@ -1,5 +1,3 @@
-import { Link } from 'react-router-dom';
-
 import { ANTContractJSON, ArweaveTransactionID } from '../../../types';
 import { AntCard } from '../../cards';
 import { ArrowUpRight } from '../../icons';
