@@ -17,12 +17,8 @@ function DeployTransaction() {
 
           <div className="flex-column center" style={{ gap: 0 }}>
             <img src={logo} alt="ar-io-logo" width={150} height={150} />
-            <span className="flex flex-column center" style={{ gap: '10px' }}>
-              <span className="text-small bold faded center">
-                Did you know:
-              </span>
-              {/* TODO : add random fun fact selector */}
-            </span>
+
+            {/* TODO : add random fun fact selector */}
           </div>
         </div>
       </div>

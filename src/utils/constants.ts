@@ -117,3 +117,7 @@ export const DEFAULT_ANT_CONTRACT_STATE: ANTContractJSON = {
     },
   },
 };
+
+export const WARP_CONTRACT_BASE_URL = 'https://sonar.warp.cc/#/app/contract/';
+export const WARP_INTERACTION_BASE_URL =
+  'https://sonar.warp.cc/#/app/interaction/';
