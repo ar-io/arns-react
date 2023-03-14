@@ -6,7 +6,6 @@ import ArPrice from '../ArPrice/ArPrice';
 import { Tooltip } from '../Tooltip/Tooltip';
 
 function ConfirmAntCreation({ state }: { state: ANTContractJSON }) {
-  const [{ arweaveDataProvider }] = useGlobalState();
   return (
     <div className="register-name-modal center">
       <AntCard
