@@ -1,6 +1,7 @@
 import { ANTContractJSON } from '../../../types';
 import { NAME_PRICE_INFO } from '../../../utils/constants';
 import { AntCard } from '../../cards';
+import ArPrice from '../ArPrice/ArPrice';
 import { Tooltip } from '../Tooltip/Tooltip';
 
 function ConfirmAntCreation({ state }: { state: ANTContractJSON }) {
@@ -31,7 +32,10 @@ function ConfirmAntCreation({ state }: { state: ANTContractJSON }) {
       </span>
       <div className="flex flex-column center" style={{ gap: '0.2em' }}>
         <Tooltip message={NAME_PRICE_INFO}>
-          <span className="white bold text-small">{0}&nbsp;AR&nbsp;</span>
+          <span className="white bold text-small">
+            <ArPrice data={state} />
+            &nbsp;AR&nbsp;
+          </span>
         </Tooltip>
         <span className="text faded">Estimated Price</span>
       </div>

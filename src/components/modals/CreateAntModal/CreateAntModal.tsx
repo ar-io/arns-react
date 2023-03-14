@@ -105,6 +105,11 @@ function CreateAntModal({ show }: { show: boolean }) {
     if (!show) {
       reset();
     }
+    if (show) {
+      document.body.style.overflow = 'hidden';
+      return;
+    }
+    document.body.style.overflow = 'unset';
   }, [show]);
   useEffect(() => {
     if (walletAddress) {
@@ -220,10 +225,7 @@ function CreateAntModal({ show }: { show: boolean }) {
       {show ? (
         <div
           className="modal-container flex flex-column center"
-          style={{
-            boxSizing: 'border-box',
-            height: '100%',
-          }}
+          style={{ overflow: 'none' }}
         >
           <button
             className="icon-button"

@@ -1,4 +1,3 @@
-import { all } from 'axios';
 import { startCase } from 'lodash';
 import { useEffect, useState } from 'react';
 

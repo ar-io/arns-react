@@ -133,6 +133,7 @@ export interface ArweaveDataProvider {
     cursor?: string,
   ): Promise<{ ids: ArweaveTransactionID[]; cursor?: string }>;
   getWalletBalance(id: ArweaveTransactionID): Promise<number>;
+  arPrice(data: any): Promise<number>;
 }
 
 export interface AntInteractionProvider {
