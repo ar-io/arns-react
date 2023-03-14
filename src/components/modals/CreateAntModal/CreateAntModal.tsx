@@ -26,7 +26,6 @@ function CreateAntModal({ show }: { show: boolean }) {
   const { walletAddress } = useWalletAddress();
 
   const [ant, setAnt] = useState<ANTContract>(new ANTContract());
-  const [stateValid, setStateValid] = useState(true);
 
   const [rows, setRows] = useState<[]>([]);
   const [editingField, setEditingField] = useState<string>();
@@ -98,7 +97,6 @@ function CreateAntModal({ show }: { show: boolean }) {
     setAnt(new ANTContract());
     setIsPostingTransaction(false);
     setAntContractId(undefined);
-    setStateValid(true);
   }
   // reset useEffect must be first, else wont reset
   useEffect(() => {
@@ -369,7 +367,7 @@ function CreateAntModal({ show }: { show: boolean }) {
                               key: 'value',
                               align: 'left',
                               width: '80%',
-                              className: 'white',
+                              className: `white`,
                               render: (value: string | number, row: any) => {
                                 if (row.editable)
                                   return (
@@ -384,14 +382,7 @@ function CreateAntModal({ show }: { show: boolean }) {
                                             editingField === row.attribute
                                               ? 'white'
                                               : 'transparent',
-                                          border:
-                                            stateValid &&
-                                            editingField === row.attribute
-                                              ? 'solid 2px var(--success-green)'
-                                              : !stateValid &&
-                                                editingField === row.attribute
-                                              ? 'solid 2px var(--error-red)'
-                                              : 'none',
+                                          border: 'none',
                                           borderRadius: '2px',
                                           color:
                                             editingField === row.attribute
@@ -441,9 +432,9 @@ function CreateAntModal({ show }: { show: boolean }) {
                                               }
                                         }
                                         maxLength={43}
-                                        setIsValid={(b: boolean) =>
-                                          setStateValid(b)
-                                        }
+                                        setIsValid={(b: boolean) => {
+                                          row.isValid = b;
+                                        }}
                                       />
                                     </>
                                   );

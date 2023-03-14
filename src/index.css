@@ -175,6 +175,12 @@ button {
 .black {
   color: var(--text-black);
 }
+.border-red {
+  border-color: var(--error-red);
+}
+.border-green {
+  border-color: var(--success-green);
+}
 .accent {
   background-color: var(--accent);
 }
