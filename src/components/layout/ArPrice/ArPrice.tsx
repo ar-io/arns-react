@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { byteSize } from '../../../utils/searchUtils';
 
 function ArPrice({ data }: { data: any }) {
   const [{ arweaveDataProvider }] = useGlobalState();
@@ -11,7 +12,9 @@ function ArPrice({ data }: { data: any }) {
   }, [data]);
 
   async function getPrice() {
-    const result = await arweaveDataProvider.arPrice(data);
+    const result = await arweaveDataProvider.arPrice(
+      byteSize(JSON.stringify(data)),
+    );
     setPrice(result);
   }
 

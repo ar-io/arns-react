@@ -206,7 +206,7 @@ export enum TRANSACTION_TYPES {
 export enum ASSET_TYPES {
   ANT = 'ANT',
   NAME = 'ArNS Name',
-  UNDERNAME = 'Under_Name',
+  UNDERNAME = 'Undername',
   COIN = 'coin',
 }
 

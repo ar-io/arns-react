@@ -142,29 +142,17 @@ function NavMenuCard() {
                     />
                   );
               })}
-              <NavBarLink
-                path={''}
-                linkText={'Create'}
-                key={'create-ant-nav-button'}
-                onClick={
-                  walletAddress
-                    ? () =>
-                        dispatchGlobalState({
-                          type: 'setShowCreateAnt',
-                          payload: true,
-                        })
-                    : () => {
-                        dispatchGlobalState({
-                          type: 'setShowCreateAnt',
-                          payload: true,
-                        });
-                        dispatchGlobalState({
-                          type: 'setShowConnectWallet',
-                          payload: true,
-                        });
-                      }
+              <button
+                className="button text-medium bold white"
+                onClick={() =>
+                  dispatchGlobalState({
+                    type: 'setShowCreateAnt',
+                    payload: true,
+                  })
                 }
-              />
+              >
+                Create
+              </button>
               <ConnectButton />
             </>
           ) : (

@@ -176,10 +176,9 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
     }
   }
 
-  async arPrice(data: any): Promise<number> {
+  async arPrice(dataSize: number): Promise<number> {
     try {
-      const size = byteSize(JSON.stringify(data));
-      const result = await this._arweave.api.get(`/price/${size}`);
+      const result = await this._arweave.api.get(`/price/${dataSize}`);
       console.log(result);
       return +this._arweave.ar.winstonToAr(result.data, { formatted: true });
     } catch (error) {
