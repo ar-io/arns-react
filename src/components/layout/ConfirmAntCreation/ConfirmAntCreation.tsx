@@ -1,3 +1,4 @@
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ANTContractJSON } from '../../../types';
 import { NAME_PRICE_INFO } from '../../../utils/constants';
 import { AntCard } from '../../cards';
@@ -5,6 +6,7 @@ import ArPrice from '../ArPrice/ArPrice';
 import { Tooltip } from '../Tooltip/Tooltip';
 
 function ConfirmAntCreation({ state }: { state: ANTContractJSON }) {
+  const [{ arweaveDataProvider }] = useGlobalState();
   return (
     <div className="register-name-modal center">
       <AntCard
