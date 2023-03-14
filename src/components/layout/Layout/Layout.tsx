@@ -32,7 +32,6 @@ function Layout() {
         <Footer />
       </div>
       <ConnectWalletModal show={showConnectModal} />
-      {/* change to hook for display management */}
       <CreateAntModal
         show={showCreateAntModal && walletAddress !== undefined}
       />

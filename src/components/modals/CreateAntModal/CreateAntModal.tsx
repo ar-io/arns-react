@@ -11,7 +11,10 @@ import {
   TRANSACTION_TYPES,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
-import { STUB_ARWEAVE_TXID } from '../../../utils/constants';
+import {
+  DEFAULT_ANT_SOURCE_CODE_TX,
+  STUB_ARWEAVE_TXID,
+} from '../../../utils/constants';
 import { mapKeyToAttribute } from '../../cards/AntCard/AntCard';
 import { CloseIcon, PencilIcon } from '../../icons';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
@@ -200,7 +203,7 @@ function CreateAntModal({ show }: { show: boolean }) {
       // perform checks, try/catch
       const pendingTXId = await arweaveDataProvider.deployContract({
         srcCodeTransactionId: new ArweaveTransactionID(
-          'PEI1efYrsX08HUwvc6y-h6TSpsNlo2r6_fWL2_GdwhY',
+          DEFAULT_ANT_SOURCE_CODE_TX,
         ),
         initialState: state,
       });

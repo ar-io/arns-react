@@ -1,5 +1,6 @@
 import { ANTContractJSON } from '../../../types';
 import { NAME_PRICE_INFO } from '../../../utils/constants';
+import { byteSize } from '../../../utils/searchUtils';
 import { AntCard } from '../../cards';
 import ArPrice from '../ArPrice/ArPrice';
 import { Tooltip } from '../Tooltip/Tooltip';
@@ -21,7 +22,6 @@ function ConfirmAntCreation({ state }: { state: ANTContractJSON }) {
           'tier',
           'evolve',
           'maxSubdomains',
-          'ttlSeconds',
           'id',
           'domain',
           'leaseDuration',
@@ -33,7 +33,7 @@ function ConfirmAntCreation({ state }: { state: ANTContractJSON }) {
       <div className="flex flex-column center" style={{ gap: '0.2em' }}>
         <Tooltip message={NAME_PRICE_INFO}>
           <span className="white bold text-small">
-            <ArPrice data={state} />
+            <ArPrice dataSize={byteSize(JSON.stringify(state))} />
             &nbsp;AR&nbsp;
           </span>
         </Tooltip>

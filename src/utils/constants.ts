@@ -7,6 +7,8 @@ export const ARNS_NAME_REGEX = new RegExp(
 export const ARNS_TX_ID_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{43}$');
 export const ARNS_TX_ID_ENTRY_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{1,43}$');
 export const STUB_ARWEAVE_TXID = '2yHmORN-N12hM1B2f9-JPMpOfa59qhpsExFCzImrD30'; // arns spec pdf
+export const DEFAULT_ANT_SOURCE_CODE_TX =
+  'PEI1efYrsX08HUwvc6y-h6TSpsNlo2r6_fWL2_GdwhY';
 export const RECOMMENDED_TRANSACTION_CONFIRMATIONS = 50;
 export const ANT_CONTRACT_STATE_KEYS = [
   'balances',

@@ -133,7 +133,7 @@ export interface ArweaveDataProvider {
     cursor?: string,
   ): Promise<{ ids: ArweaveTransactionID[]; cursor?: string }>;
   getWalletBalance(id: ArweaveTransactionID): Promise<number>;
-  arPrice(data: any): Promise<number>;
+  getArPrice(data: number): Promise<number>;
 }
 
 export interface AntInteractionProvider {
@@ -206,7 +206,7 @@ export enum TRANSACTION_TYPES {
 export enum ASSET_TYPES {
   ANT = 'ANT',
   NAME = 'ArNS Name',
-  UNDERNAME = 'Under_Name',
+  UNDERNAME = 'Undername',
   COIN = 'coin',
 }
 

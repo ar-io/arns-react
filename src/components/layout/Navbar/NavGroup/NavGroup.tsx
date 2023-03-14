@@ -25,23 +25,11 @@ const NavGroup = () => {
 
           <button
             className="button text-medium bold white"
-            onClick={
-              walletAddress
-                ? () =>
-                    dispatchGlobalState({
-                      type: 'setShowCreateAnt',
-                      payload: true,
-                    })
-                : () => {
-                    dispatchGlobalState({
-                      type: 'setShowCreateAnt',
-                      payload: true,
-                    });
-                    dispatchGlobalState({
-                      type: 'setShowConnectWallet',
-                      payload: true,
-                    });
-                  }
+            onClick={() =>
+              dispatchGlobalState({
+                type: 'setShowCreateAnt',
+                payload: true,
+              })
             }
           >
             Create

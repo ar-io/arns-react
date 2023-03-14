@@ -41,7 +41,6 @@ function TransactionSuccess({
               'tier',
               'evolve',
               'maxSubdomains',
-              'ttlSeconds',
               'domain',
               'leaseDuration',
             ]}
