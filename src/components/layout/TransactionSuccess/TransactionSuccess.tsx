@@ -1,4 +1,8 @@
+import { Link } from 'react-router-dom';
+
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ANTContractJSON, ArweaveTransactionID } from '../../../types';
+import { STUB_ARWEAVE_TXID } from '../../../utils/constants';
 import { AntCard } from '../../cards';
 import { ArrowUpRight } from '../../icons';
 
@@ -12,14 +16,14 @@ export enum transaction_types {
 }
 
 function TransactionSuccess({
-  transactionId = new ArweaveTransactionID(
-    '-------default-arweave-transaction-id------',
-  ),
+  transactionId = new ArweaveTransactionID(STUB_ARWEAVE_TXID),
   state,
 }: {
   transactionId?: ArweaveTransactionID;
   state: ANTContractJSON;
 }) {
+  const [_, dispatchGlobalState] = useGlobalState();
+
   return (
     <>
       <div className="flex-column center" style={{ gap: '3em' }}>
@@ -41,32 +45,45 @@ function TransactionSuccess({
             className="flex flex-row center"
             style={{ gap: '1em', maxWidth: '782px' }}
           >
-            <div
-              className="flex flex-column center card"
-              style={{
-                minWidth: '175px',
-                minHeight: '100px',
-                flex: 1,
-                padding: '0px',
-                gap: '.5em',
-                textDecoration: 'none',
-              }}
-            >
-              <ArrowUpRight
-                width={'30px'}
-                height={'30px'}
-                fill={'var(--text-white)'}
-              />
-              <span className="flex text-small faded center">
-                Register a Name
-              </span>
-            </div>
-
-            <a
+            <Link
+              to="/"
               className="link"
-              href={`https://sonar.warp.cc/#/app/contract/${transactionId.toString()}`}
+              style={{ textDecoration: 'none' }}
+              onClick={() =>
+                dispatchGlobalState({
+                  type: 'setShowCreateAnt',
+                  payload: false,
+                })
+              }
+            >
+              <div
+                className="flex flex-column center card"
+                style={{
+                  minWidth: '175px',
+                  minHeight: '100px',
+                  flex: 1,
+                  padding: '0px',
+                  gap: '.5em',
+                  textDecoration: 'none',
+                }}
+              >
+                <ArrowUpRight
+                  width={'30px'}
+                  height={'30px'}
+                  fill={'var(--text-white)'}
+                />
+                <span className="flex text-small faded center">
+                  Register a Name
+                </span>
+              </div>
+            </Link>
+
+            <Link
               rel="noreferrer"
               target={'_blank'}
+              to={`https://sonar.warp.cc/#/app/contract/${transactionId.toString()}`}
+              className="link"
+              style={{ textDecoration: 'none' }}
             >
               <div
                 className="flex flex-column center card"
@@ -91,47 +108,71 @@ function TransactionSuccess({
                   View on Sonar
                 </span>
               </div>
-            </a>
+            </Link>
 
-            <div
-              className="flex flex-column center card"
-              style={{
-                minWidth: '175px',
-                minHeight: '100px',
-                flex: 1,
-                padding: '0px',
-                gap: '.5em',
-                textDecoration: 'none',
-              }}
+            <Link
+              to="/manage"
+              className="link"
+              style={{ textDecoration: 'none' }}
+              onClick={() =>
+                dispatchGlobalState({
+                  type: 'setShowCreateAnt',
+                  payload: false,
+                })
+              }
             >
-              <ArrowUpRight
-                width={'30px'}
-                height={'30px'}
-                fill={'var(--text-white)'}
-              />
-              <span className="flex text-small faded center">Manage ANT</span>
-            </div>
+              <div
+                className="flex flex-column center card"
+                style={{
+                  minWidth: '175px',
+                  minHeight: '100px',
+                  flex: 1,
+                  padding: '0px',
+                  gap: '.5em',
+                  textDecoration: 'none',
+                }}
+              >
+                <ArrowUpRight
+                  width={'30px'}
+                  height={'30px'}
+                  fill={'var(--text-white)'}
+                />
+                <span className="flex text-small faded center">Manage ANT</span>
+              </div>
+            </Link>
 
-            <div
-              className="flex flex-column center card"
-              style={{
-                minWidth: '175px',
-                minHeight: '100px',
-                flex: 1,
-                padding: '0px',
-                gap: '.5em',
-                textDecoration: 'none',
-              }}
+            <Link
+              to="/manage"
+              className="link"
+              style={{ textDecoration: 'none' }}
+              onClick={() =>
+                dispatchGlobalState({
+                  type: 'setShowCreateAnt',
+                  payload: false,
+                })
+              }
             >
-              <ArrowUpRight
-                width={'30px'}
-                height={'30px'}
-                fill={'var(--text-white)'}
-              />
-              <span className="flex text-small faded center">
-                Add Undernames
-              </span>
-            </div>
+              <div
+                className="flex flex-column center card"
+                style={{
+                  minWidth: '175px',
+                  minHeight: '100px',
+                  flex: 1,
+                  padding: '0px',
+                  gap: '.5em',
+                  textDecoration: 'none',
+                }}
+              >
+                <ArrowUpRight
+                  width={'30px'}
+                  height={'30px'}
+                  fill={'var(--text-white)'}
+                />
+                <span className="flex text-small faded center">
+                  Add Undernames
+                </span>
+              </div>
+            </Link>
           </div>
         </div>
       </div>

@@ -6,15 +6,8 @@ import {
 } from 'react-router-dom';
 
 import { Layout } from './components/layout';
-import { ConnectWalletModal, CreateAntModal } from './components/modals';
 import { About, Home, Manage, NotFound } from './components/pages';
-import {
-  useArNSContract,
-  useArweave,
-  useConnectWalletModal,
-  useCreateAntModal,
-  useWalletAddress,
-} from './hooks/';
+import { useArNSContract, useArweave, useWalletAddress } from './hooks/';
 import './index.css';
 import RegistrationStateProvider from './state/contexts/RegistrationState';
 import { registrationReducer } from './state/reducers/RegistrationReducer';
@@ -24,9 +17,6 @@ function App() {
   useArNSContract();
   // setup default arweave data provider
   useArweave();
-
-  const { showConnectModal } = useConnectWalletModal();
-  const { showCreateAntModal } = useCreateAntModal();
 
   const { wallet, walletAddress } = useWalletAddress();
 
@@ -55,11 +45,6 @@ function App() {
   return (
     <>
       <RouterProvider router={router} />
-      <ConnectWalletModal show={showConnectModal} />
-      {/* change to hook for display management */}
-      <CreateAntModal
-        show={showCreateAntModal && walletAddress !== undefined}
-      />
     </>
   );
 }
