@@ -1,4 +1,3 @@
-import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ANTContractJSON } from '../../../types';
 import { NAME_PRICE_INFO } from '../../../utils/constants';
 import { AntCard } from '../../cards';
