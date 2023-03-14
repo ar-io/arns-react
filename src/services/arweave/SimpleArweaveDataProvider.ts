@@ -12,7 +12,7 @@ import {
   RECOMMENDED_TRANSACTION_CONFIRMATIONS,
   approvedContractsForWalletQuery,
 } from '../../utils/constants';
-import { tagsToObject } from '../../utils/searchUtils';
+import { byteSize, tagsToObject } from '../../utils/searchUtils';
 
 export class SimpleArweaveDataProvider implements ArweaveDataProvider {
   private _arweave: Arweave;
@@ -173,6 +173,18 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
           `Contract ID does not have required number of confirmations. Current confirmations: ${confirmations}. Required number of confirmations: ${numberOfConfirmations}.`,
         );
       }
+    }
+  }
+
+  async arPrice(data: any): Promise<number> {
+    try {
+      const size = byteSize(JSON.stringify(data));
+      const result = await this._arweave.api.get(`/price/${size}`);
+      console.log(result);
+      return +this._arweave.ar.winstonToAr(result.data, { formatted: true });
+    } catch (error) {
+      console.error(error);
+      return 0;
     }
   }
 }
