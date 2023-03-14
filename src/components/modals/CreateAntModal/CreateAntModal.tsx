@@ -216,6 +216,8 @@ function CreateAntModal({ show }: { show: boolean }) {
         throw new Error('Failed to deploy ANT contract');
       }
       setAntContractId(new ArweaveTransactionID(pendingTXId));
+      setIsPostingTransaction(false);
+      console.log(pendingTXId);
 
       return pendingTXId;
     } catch (error) {
