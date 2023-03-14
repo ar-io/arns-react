@@ -249,17 +249,17 @@ function CreateAntModal({ show }: { show: boolean }) {
               switch (workflowStage) {
                 case 0:
                   setWorkflowStage(workflowStage + 1);
+                  if (!ant.records['@'].transactionId) {
+                    ant.records = {
+                      ...ant.records,
+                      '@': { transactionId: STUB_ARWEAVE_TXID },
+                    };
+                  }
                   break;
                 case 1:
                   {
                     if (ant.state) {
                       setWorkflowStage(workflowStage + 1);
-                      if (!ant.records['@'].transactionId) {
-                        ant.records = {
-                          ...ant.records,
-                          '@': { transactionId: STUB_ARWEAVE_TXID },
-                        };
-                      }
                       deployAnt(ant.state)
                         .then(() => {
                           setWorkflowStage(workflowStage + 2);
@@ -532,7 +532,7 @@ function CreateAntModal({ show }: { show: boolean }) {
                 header: (
                   <>
                     <div className="flex flex-row text-large white bold center">
-                      Confirm Domain Registration
+                      Confirm ANT Creation
                     </div>
                   </>
                 ),

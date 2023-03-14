@@ -32,14 +32,19 @@ function TransactionSuccess({
             domain={''}
             id={transactionId}
             state={state}
-            compact={true}
+            compact={false}
             enableActions={false}
             overrides={{
-              tier: 1,
-              ttlSeconds: state.records['@'].ttlSeconds,
-              maxSubdomains: state.records['@'].maxSubdomains,
-              leaseDuration: `N/A`,
+              targetId: state.records['@'].transactionId,
             }}
+            disabledKeys={[
+              'tier',
+              'evolve',
+              'maxSubdomains',
+              'ttlSeconds',
+              'domain',
+              'leaseDuration',
+            ]}
           />
           <div
             className="flex flex-row center"

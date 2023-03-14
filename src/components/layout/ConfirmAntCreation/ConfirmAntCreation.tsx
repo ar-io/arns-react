@@ -10,14 +10,21 @@ function ConfirmAntCreation({ state }: { state: ANTContractJSON }) {
         domain={''}
         id={undefined}
         state={state}
-        compact={true}
+        compact={false}
         enableActions={false}
+        showTier={false}
         overrides={{
-          tier: 1,
-          ttlSeconds: state.records['@'].ttlSeconds,
-          maxSubdomains: state.records['@'].maxSubdomains,
-          leaseDuration: `N/A`,
+          targetId: state.records['@'].transactionId,
         }}
+        disabledKeys={[
+          'tier',
+          'evolve',
+          'maxSubdomains',
+          'ttlSeconds',
+          'id',
+          'domain',
+          'leaseDuration',
+        ]}
       />
       <span className="text faded underline" style={{ maxWidth: '475px' }}>
         You will sign a single transaction to deploy this ANT.

@@ -61,9 +61,11 @@ export type ArNSMapping = {
   id?: ArweaveTransactionID;
   state?: ANTContractJSON;
   overrides?: any; // TODO;
+  disabledKeys?: string[]; // TODO;
   compact?: boolean;
   enableActions?: boolean;
   hover?: boolean;
+  showTier?: boolean;
 };
 
 export type ArNSMetaData = {
