@@ -34,7 +34,7 @@ function ConfirmAntCreation({ state }: { state: ANTContractJSON }) {
         <Tooltip message={NAME_PRICE_INFO}>
           <span className="white bold text-small">
             <ArPrice dataSize={byteSize(JSON.stringify(state))} />
-            &nbsp;AR&nbsp;
+            &nbsp;
           </span>
         </Tooltip>
         <span className="text faded">Estimated Price</span>

@@ -15,7 +15,7 @@ function ArPrice({ dataSize }: { dataSize: number }) {
     setPrice(result);
   }
 
-  return <>{price}</>;
+  return <>{`${price} AR`}</>;
 }
 
 export default ArPrice;
