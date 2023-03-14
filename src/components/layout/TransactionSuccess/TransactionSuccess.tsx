@@ -2,14 +2,17 @@ import { Link } from 'react-router-dom';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ANTContractJSON, ArweaveTransactionID } from '../../../types';
-import { STUB_ARWEAVE_TXID } from '../../../utils/constants';
+import {
+  STUB_ARWEAVE_TXID,
+  WARP_CONTRACT_BASE_URL,
+} from '../../../utils/constants';
 import { AntCard } from '../../cards';
 import { ArrowUpRight } from '../../icons';
 
 export enum transaction_types {
   TRANSFER_ANT = 'Transfer ANT Token',
   EDIT_ANT = 'Edit ANT Token',
-  CREATE_UNDERNAME = 'Create Under_Name',
+  CREATE_UNDERNAME = 'Create Undername',
   CREATE_ANT = 'Create ANT Token',
   TRANSFER_IO = 'Transfer IO Token',
   BUY_ARNS_NAME = 'Buy ArNS Name',
@@ -85,7 +88,7 @@ function TransactionSuccess({
             <Link
               rel="noreferrer"
               target={'_blank'}
-              to={`https://sonar.warp.cc/#/app/contract/${transactionId.toString()}`}
+              to={`${WARP_CONTRACT_BASE_URL}${transactionId.toString()}`}
               className="link"
               style={{ textDecoration: 'none' }}
             >
