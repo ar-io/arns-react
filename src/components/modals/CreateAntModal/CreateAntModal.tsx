@@ -429,16 +429,7 @@ function CreateAntModal({ show }: { show: boolean }) {
                                                       id,
                                                     ),
                                               }
-                                            : {
-                                                [VALIDATION_INPUT_TYPES.UNDERNAME]:
-                                                  (value: string) => {
-                                                    return new Promise(
-                                                      (resolve) => {
-                                                        resolve(value);
-                                                      },
-                                                    );
-                                                  },
-                                              }
+                                            : {}
                                         }
                                         maxLength={43}
                                         setIsValid={(b: boolean) => {
