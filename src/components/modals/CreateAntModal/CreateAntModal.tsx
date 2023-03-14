@@ -11,6 +11,7 @@ import {
   TRANSACTION_TYPES,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
+import { STUB_ARWEAVE_TXID } from '../../../utils/constants';
 import { mapKeyToAttribute } from '../../cards/AntCard/AntCard';
 import { CloseIcon, PencilIcon } from '../../icons';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
@@ -24,7 +25,7 @@ function CreateAntModal({ show }: { show: boolean }) {
   const [{ arweaveDataProvider }, dispatchGlobalState] = useGlobalState();
   const { walletAddress } = useWalletAddress();
 
-  const [ant] = useState<ANTContract>(new ANTContract());
+  const [ant, setAnt] = useState<ANTContract>(new ANTContract());
   const [stateValid, setStateValid] = useState(true);
 
   const [rows, setRows] = useState<[]>([]);
@@ -92,6 +93,19 @@ function CreateAntModal({ show }: { show: boolean }) {
     },
   };
 
+  function reset() {
+    setWorkflowStage(0);
+    setAnt(new ANTContract());
+    setIsPostingTransaction(false);
+    setAntContractId(undefined);
+    setStateValid(true);
+  }
+  // reset useEffect must be first, else wont reset
+  useEffect(() => {
+    if (!show) {
+      reset();
+    }
+  }, [show]);
   useEffect(() => {
     if (walletAddress) {
       if (!ant.owner) {
@@ -219,12 +233,13 @@ function CreateAntModal({ show }: { show: boolean }) {
               right: '2em',
               borderRadius: '100%',
             }}
-            onClick={() =>
+            onClick={() => {
+              reset();
               dispatchGlobalState({
                 type: 'setShowCreateAnt',
                 payload: false,
-              })
-            }
+              });
+            }}
           >
             <CloseIcon width={30} height={30} fill={'var(--text-white'} />
           </button>
@@ -239,6 +254,12 @@ function CreateAntModal({ show }: { show: boolean }) {
                   {
                     if (ant.state) {
                       setWorkflowStage(workflowStage + 1);
+                      if (!ant.records['@'].transactionId) {
+                        ant.records = {
+                          ...ant.records,
+                          '@': { transactionId: STUB_ARWEAVE_TXID },
+                        };
+                      }
                       deployAnt(ant.state)
                         .then(() => {
                           setWorkflowStage(workflowStage + 2);

@@ -1,5 +1,11 @@
 import { Outlet } from 'react-router-dom';
 
+import { ConnectWalletModal, CreateAntModal } from '../../../components/modals';
+import {
+  useConnectWalletModal,
+  useCreateAntModal,
+  useWalletAddress,
+} from '../../../hooks/';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import Footer from '../Footer/Footer';
 import NavBar from '../Navbar/Navbar';
@@ -8,6 +14,9 @@ import './styles.css';
 
 function Layout() {
   const [{ notifications }] = useGlobalState();
+  const { showConnectModal } = useConnectWalletModal();
+  const { showCreateAntModal } = useCreateAntModal();
+  const { walletAddress } = useWalletAddress();
 
   return (
     <>
@@ -22,6 +31,11 @@ function Layout() {
       <div className="footer">
         <Footer />
       </div>
+      <ConnectWalletModal show={showConnectModal} />
+      {/* change to hook for display management */}
+      <CreateAntModal
+        show={showCreateAntModal && walletAddress !== undefined}
+      />
     </>
   );
 }
