@@ -51,7 +51,7 @@ function AntCard(props: ArNSMapping) {
     hover,
     enableActions,
     disabledKeys,
-    showTier,
+    showTier = true,
   } = props;
   const [antDetails, setAntDetails] = useState<{ [x: string]: string }>();
   const [isLoading, setIsLoading] = useState(false);
@@ -164,15 +164,15 @@ function AntCard(props: ArNSMapping) {
                           wrapperStyle={{
                             padding: '0px',
                             fontFamily: 'Rubik-Bold',
-                            justifyContent: 'center',
+                            justifyContent: 'flex-start',
                             alignItems: 'center',
                           }}
                           position={'relative'}
                         />
-                      ) : value.length ? (
+                      ) : value ? (
                         value
                       ) : (
-                        'N/A'
+                        <span>N/A</span>
                       )}
                     </td>
                   </tr>
@@ -191,9 +191,15 @@ function AntCard(props: ArNSMapping) {
               )}
             </tbody>
           </table>
-          <tfoot>
+          <div
+            className="flex flex-center"
+            style={{ display: 'flex', width: '100%' }}
+          >
             {enableActions ? (
-              <div className="footer">
+              <div
+                className="footer flex flex-center"
+                style={{ width: '100%' }}
+              >
                 <button className="outline-button" onClick={handleClick}>
                   Upgrade Tier
                 </button>
@@ -204,7 +210,7 @@ function AntCard(props: ArNSMapping) {
             ) : (
               <></>
             )}
-          </tfoot>
+          </div>
         </div>
       ) : (
         <span className="section-header">Uh oh. Something went wrong.</span>

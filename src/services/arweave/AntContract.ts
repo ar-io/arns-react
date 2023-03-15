@@ -19,9 +19,9 @@ export class ANTContract {
   constructor(state?: ANTContractJSON, id?: ArweaveTransactionID) {
     this.id = id;
     if (state) {
-      this.contract = state;
+      this.contract = { ...state };
     } else {
-      this.contract = DEFAULT_ANT_CONTRACT_STATE;
+      this.contract = { ...DEFAULT_ANT_CONTRACT_STATE };
     }
   }
   get owner() {

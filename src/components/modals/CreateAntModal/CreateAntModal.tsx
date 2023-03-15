@@ -103,9 +103,7 @@ function CreateAntModal({ show }: { show: boolean }) {
   }
   // reset useEffect must be first, else wont reset
   useEffect(() => {
-    if (!show) {
-      reset();
-    }
+    reset();
     if (show) {
       document.body.style.overflow = 'hidden';
       return;
