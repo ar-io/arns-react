@@ -24,7 +24,7 @@ const NavGroup = () => {
           })}
 
           <button
-            className="button text-medium bold white"
+            className="button text-medium bold white hover"
             onClick={() =>
               dispatchGlobalState({
                 type: 'setShowCreateAnt',

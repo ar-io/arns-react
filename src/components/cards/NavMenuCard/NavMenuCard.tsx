@@ -143,7 +143,8 @@ function NavMenuCard() {
                   );
               })}
               <button
-                className="button text-medium bold white"
+                className="button text-medium bold white hover"
+                style={{ padding: '0' }}
                 onClick={() =>
                   dispatchGlobalState({
                     type: 'setShowCreateAnt',
@@ -189,7 +190,8 @@ function NavMenuCard() {
                       );
                   })}
                   <button
-                    className="button text-medium bold white"
+                    className="button text-medium bold white hover"
+                    style={{ padding: '0' }}
                     onClick={() =>
                       dispatchGlobalState({
                         type: 'setShowCreateAnt',
