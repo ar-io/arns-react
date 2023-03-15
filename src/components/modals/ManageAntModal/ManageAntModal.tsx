@@ -122,7 +122,7 @@ function ManageAntModal({
       </div>
       <Table
         showHeader={false}
-        onRow={(row) => ({
+        onRow={(row: ManageAntRow) => ({
           className: row.attribute === editingField ? 'active-row' : '',
         })}
         scroll={{ x: true }}

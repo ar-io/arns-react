@@ -1,10 +1,39 @@
 import React from 'react';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { WorkflowProps } from '../../../types';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
+import { StepProgressBar } from '../progress';
 
-function Workflow({ stages, onNext, onBack, stage }: WorkflowProps) {
+export type WorkflowProps = {
+  stage: number;
+  steps?: { [x: number]: { title: string; status: string } };
+  onNext: () => void;
+  onBack: () => void;
+  footer?: JSX.Element[];
+  stages: {
+    [x: number]: {
+      header?: JSX.Element;
+      component: JSX.Element;
+      showNext?: boolean;
+      showBack?: boolean;
+      disableNext?: boolean;
+      requiresWallet?: boolean;
+      customNextStyle?: any;
+      customBackStyle?: any;
+      backText?: string;
+      nextText?: string;
+    };
+  };
+};
+
+function Workflow({
+  stages,
+  steps,
+  onNext,
+  onBack,
+  stage,
+  footer,
+}: WorkflowProps) {
   const [{ walletAddress }, dispatchGlobalState] = useGlobalState();
 
   function showConnectWallet() {
@@ -15,17 +44,30 @@ function Workflow({ stages, onNext, onBack, stage }: WorkflowProps) {
   }
 
   return (
-    <>
+    <div
+      className="flex flex-column center"
+      style={{ gap: '20px', width: '100%' }}
+    >
       {/* eslint-disable-next-line */}
       {Object.entries(stages).map(([key, value], index) => {
         if (index === stage) {
-          return React.cloneElement(value.component, {
-            key,
-          });
+          return (
+            <>
+              {value.header}
+              {steps ? (
+                <StepProgressBar stage={stage + 1} stages={steps} />
+              ) : (
+                <></>
+              )}
+              {React.cloneElement(value.component, {
+                key,
+              })}
+            </>
+          );
         }
       })}
       <>
-        {stages[stage].requiresWallet && !walletAddress ? (
+        {stages[stage]?.requiresWallet && !walletAddress ? (
           <div className="flex flex-row center" style={{ padding: '2em' }}>
             <button className="accent-button hover" onClick={showConnectWallet}>
               Connect Wallet to proceed
@@ -38,10 +80,15 @@ function Workflow({ stages, onNext, onBack, stage }: WorkflowProps) {
             showNext={stages[stage].showNext}
             onNext={onNext}
             onBack={onBack}
+            customNextStyle={stages[stage].customNextStyle}
+            customBackStyle={stages[stage].customBackStyle}
+            backText={stages[stage].backText}
+            nextText={stages[stage].nextText}
           />
         )}
+        {footer ?? <></>}
       </>
-    </>
+    </div>
   );
 }
 

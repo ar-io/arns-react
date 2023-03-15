@@ -103,8 +103,8 @@ export class WarpDataProvider implements SmartweaveDataProvider {
     tags = [],
   }: {
     srcCodeTransactionId: ArweaveTransactionID;
-    initialState: ANTContractJSON | ArweaveTransactionID;
-    tags: TransactionTag[];
+    initialState: ANTContractJSON;
+    tags?: TransactionTag[];
   }): Promise<string> {
     const tagSize = byteSize(JSON.stringify(tags));
 

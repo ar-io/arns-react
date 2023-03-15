@@ -18,6 +18,7 @@ export type Action =
   | { type: 'setGateway'; payload: string }
   | { type: 'setArnsContractState'; payload: ArNSContractState }
   | { type: 'setShowConnectWallet'; payload: boolean }
+  | { type: 'setShowCreateAnt'; payload: boolean }
   | {
       type: 'setArweaveDataProvider';
       payload: ArweaveDataProvider & SmartweaveDataProvider;
@@ -46,6 +47,11 @@ export const reducer = (state: GlobalState, action: Action): GlobalState => {
       return {
         ...state,
         showConnectWallet: action.payload,
+      };
+    case 'setShowCreateAnt':
+      return {
+        ...state,
+        showCreateAnt: action.payload,
       };
     case 'setGateway':
       return {

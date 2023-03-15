@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { ArNSMapping } from '../../../types';
+import { ANTContractJSON, ArNSMapping } from '../../../types';
 import { isArweaveTransactionID } from '../../../utils/searchUtils';
 import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
 import { Loader } from '../../layout';
@@ -42,50 +42,82 @@ export const DEFAULT_ATTRIBUTES = {
 function AntCard(props: ArNSMapping) {
   const isMobile = useIsMobile();
   const [{ arweaveDataProvider }] = useGlobalState();
-  const { id, domain, compact, overrides, hover, enableActions } = props;
+  const {
+    state,
+    id,
+    domain,
+    compact,
+    overrides,
+    hover,
+    enableActions,
+    disabledKeys,
+    showTier = true,
+  } = props;
   const [antDetails, setAntDetails] = useState<{ [x: string]: string }>();
   const [isLoading, setIsLoading] = useState(false);
   const [limitDetails, setLimitDetails] = useState(true);
 
   useEffect(() => {
-    if (id) {
-      setIsLoading(true);
-      arweaveDataProvider
-        .getContractState(id)
-        .then((antContractState) => {
-          if (!antContractState) {
-            setAntDetails(undefined);
-            return;
-          }
-          const allAntDetails: { [x: string]: any } = {
-            ...antContractState,
-            ...DEFAULT_ATTRIBUTES,
-            // TODO: remove this when all ants have controllers
-            controllers: antContractState.controllers
-              ? antContractState.controllers.join(',')
-              : antContractState.owner,
-            tier: antContractState.tier ? antContractState.tier : 1,
-            ...overrides,
-            id: id.toString(),
-            domain,
-          };
-          // TODO: consolidate this logic that sorts and updates key values
-          const replacedKeys = Object.keys(allAntDetails)
-            .sort()
-            .reduce((obj: any, key: string) => {
-              // TODO: flatten recursive objects like subdomains, filter out for now
-              if (typeof allAntDetails[key] === 'object') return obj;
-              obj[mapKeyToAttribute(key)] = allAntDetails[key];
-              return obj;
-            }, {});
-          setLimitDetails(compact ?? true);
-          setAntDetails(replacedKeys);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    }
+    setDetails({ state });
   }, [id, domain, compact, enableActions, overrides]);
+
+  async function setDetails({ state }: { state?: ANTContractJSON }) {
+    try {
+      setIsLoading(true);
+      let antContractState = undefined;
+      if (state) {
+        antContractState = state;
+      }
+      if (id && !state) {
+        antContractState = await arweaveDataProvider.getContractState(id);
+      }
+      if (!antContractState) {
+        throw new Error(
+          'No state passed and unable to generate ANT contract state',
+        );
+      }
+
+      const allAntDetails: { [x: string]: any } = {
+        ...antContractState,
+        ...DEFAULT_ATTRIBUTES,
+        // TODO: remove this when all ants have controllers
+        controllers: antContractState.controllers
+          ? antContractState.controllers.join(',')
+          : antContractState.owner,
+        tier: antContractState.tier ?? 1,
+        ...overrides,
+        id: id?.toString() ?? 'N/A',
+        domain,
+      };
+      // eslint-disable-next-line
+      const filteredAntDetails = Object.keys(allAntDetails).reduce(
+        (obj: any, key: string) => {
+          if (!disabledKeys?.includes(key)) {
+            if (typeof allAntDetails[key] === 'object') return obj;
+            obj[key] = allAntDetails[key];
+          }
+          return obj;
+        },
+        {},
+      );
+      // TODO: consolidate this logic that sorts and updates key values
+      const replacedKeys = Object.keys(filteredAntDetails)
+        .sort()
+        .reduce((obj: any, key: string) => {
+          // TODO: flatten recursive objects like subdomains, filter out for now
+          if (typeof allAntDetails[key] === 'object') return obj;
+          obj[mapKeyToAttribute(key)] = allAntDetails[key];
+          return obj;
+        }, {});
+      setLimitDetails(compact ?? true);
+      setAntDetails(replacedKeys);
+    } catch (error) {
+      console.error(error);
+      setAntDetails(undefined);
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   function showMore(e: any) {
     e.preventDefault();
@@ -103,17 +135,23 @@ function AntCard(props: ArNSMapping) {
         <Loader size={80} />
       ) : antDetails ? (
         <div className={hover ? 'card hover' : 'card'}>
-          <span className="bubble">Tier {antDetails.Tier}</span>
-          <table style={{ borderSpacing: '0em 1em', padding: '0px' }}>
+          {!showTier ? (
+            <></>
+          ) : (
+            <span className="bubble">Tier {antDetails.tier}</span>
+          )}
+          <table style={{ borderSpacing: '0em 0.5em', padding: '0px' }}>
             <tbody>
               {Object.entries(antDetails).map(([key, value]) => {
                 if (!PRIMARY_DETAILS.includes(key) && limitDetails) {
                   return;
                 }
                 return (
-                  <tr key={key} style={{ height: '25px' }}>
-                    <td className="detail left">{key}:</td>
-                    <td className="detail bold left">
+                  <tr key={key} style={{ height: '20px' }}>
+                    <td className="detail left" style={{ padding: '5px' }}>
+                      {key}:
+                    </td>
+                    <td className="detail bold left" style={{ padding: '5px' }}>
                       {isArweaveTransactionID(value) ? (
                         <CopyTextButton
                           displayText={
@@ -126,11 +164,15 @@ function AntCard(props: ArNSMapping) {
                           wrapperStyle={{
                             padding: '0px',
                             fontFamily: 'Rubik-Bold',
+                            justifyContent: 'flex-start',
+                            alignItems: 'center',
                           }}
                           position={'relative'}
                         />
-                      ) : (
+                      ) : value ? (
                         value
+                      ) : (
+                        <span>N/A</span>
                       )}
                     </td>
                   </tr>
@@ -149,9 +191,15 @@ function AntCard(props: ArNSMapping) {
               )}
             </tbody>
           </table>
-          <tfoot>
+          <div
+            className="flex flex-center"
+            style={{ display: 'flex', width: '100%' }}
+          >
             {enableActions ? (
-              <div className="footer">
+              <div
+                className="footer flex flex-center"
+                style={{ width: '100%' }}
+              >
                 <button className="outline-button" onClick={handleClick}>
                   Upgrade Tier
                 </button>
@@ -162,7 +210,7 @@ function AntCard(props: ArNSMapping) {
             ) : (
               <></>
             )}
-          </tfoot>
+          </div>
         </div>
       ) : (
         <span className="section-header">Uh oh. Something went wrong.</span>

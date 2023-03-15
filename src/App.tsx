@@ -6,14 +6,8 @@ import {
 } from 'react-router-dom';
 
 import { Layout } from './components/layout';
-import ConnectWalletModal from './components/modals/ConnectWalletModal/ConnectWalletModal';
-import { About, Create, Home, Manage, NotFound } from './components/pages';
-import {
-  useArNSContract,
-  useArweave,
-  useConnectWalletModal,
-  useWalletAddress,
-} from './hooks/';
+import { About, Home, Manage, NotFound } from './components/pages';
+import { useArNSContract, useArweave, useWalletAddress } from './hooks/';
 import './index.css';
 import RegistrationStateProvider from './state/contexts/RegistrationState';
 import { registrationReducer } from './state/reducers/RegistrationReducer';
@@ -24,7 +18,6 @@ function App() {
   // setup default arweave data provider
   useArweave();
 
-  const { showConnectModal } = useConnectWalletModal();
   const { wallet, walletAddress } = useWalletAddress();
 
   const router = createHashRouter(
@@ -39,7 +32,6 @@ function App() {
           }
         />
         <Route path="info" element={<About />} />
-        <Route path="create" element={<Create />} />
         {wallet && walletAddress ? (
           <Route path="manage" element={<Manage />} />
         ) : (
@@ -53,7 +45,6 @@ function App() {
   return (
     <>
       <RouterProvider router={router} />
-      <ConnectWalletModal show={showConnectModal} />
     </>
   );
 }

@@ -48,8 +48,8 @@ export class LocalFileSystemDataProvider implements SmartweaveDataProvider {
     tags,
   }: {
     srcCodeTransactionId: ArweaveTransactionID;
-    initialState: ArweaveTransactionID | ANTContractJSON;
-    tags: TransactionTag[];
+    initialState: ANTContractJSON;
+    tags?: TransactionTag[];
   }): Promise<string> {
     return JSON.stringify([srcCodeTransactionId, initialState, tags]);
   }

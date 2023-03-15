@@ -142,6 +142,18 @@ function NavMenuCard() {
                     />
                   );
               })}
+              <button
+                className="button text-medium bold white hover"
+                style={{ padding: '0' }}
+                onClick={() =>
+                  dispatchGlobalState({
+                    type: 'setShowCreateAnt',
+                    payload: true,
+                  })
+                }
+              >
+                Create
+              </button>
               <ConnectButton />
             </>
           ) : (
@@ -162,8 +174,9 @@ function NavMenuCard() {
                 }}
                 position="relative"
               />
-              {isMobile
-                ? Object.entries(ROUTES).map(([key, route]) => {
+              {isMobile ? (
+                <>
+                  {Object.entries(ROUTES).map(([key, route]) => {
                     if (!route.index && (!route.protected || walletAddress))
                       return (
                         <NavBarLink
@@ -175,32 +188,47 @@ function NavMenuCard() {
                           }}
                         />
                       );
-                  })
-                : Object.entries(ROUTES).map(([key, route]) => {
-                    if (route.protected && walletAddress)
-                      return (
-                        <NavBarLink
-                          path={route.path}
-                          linkText={route.text}
-                          key={key}
-                          onClick={() => {
-                            setShowMenu(false);
-                          }}
-                        >
-                          <>
-                            {route.icon ? (
-                              route.icon({
-                                height: 24,
-                                width: 24,
-                                fill: 'var(--text-white)',
-                              })
-                            ) : (
-                              <></>
-                            )}
-                          </>
-                        </NavBarLink>
-                      );
                   })}
+                  <button
+                    className="button text-medium bold white hover"
+                    style={{ padding: '0' }}
+                    onClick={() =>
+                      dispatchGlobalState({
+                        type: 'setShowCreateAnt',
+                        payload: true,
+                      })
+                    }
+                  >
+                    Create
+                  </button>
+                </>
+              ) : (
+                Object.entries(ROUTES).map(([key, route]) => {
+                  if (route.protected && walletAddress)
+                    return (
+                      <NavBarLink
+                        path={route.path}
+                        linkText={route.text}
+                        key={key}
+                        onClick={() => {
+                          setShowMenu(false);
+                        }}
+                      >
+                        <>
+                          {route.icon ? (
+                            route.icon({
+                              height: 24,
+                              width: 24,
+                              fill: 'var(--text-white)',
+                            })
+                          ) : (
+                            <></>
+                          )}
+                        </>
+                      </NavBarLink>
+                    );
+                })
+              )}
               {Object.entries(walletDetails).map(([key, value]) => {
                 return (
                   <span

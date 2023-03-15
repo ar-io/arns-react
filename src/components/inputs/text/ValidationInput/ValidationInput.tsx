@@ -4,14 +4,15 @@ import { ValidationObject } from '../../../../types';
 import ValidationList from '../../../cards/ValidationList/ValidationList';
 
 function ValidationInput({
-  wrapperClassName,
+  wrapperClassName = '',
   wrapperCustomStyle,
   validationListStyle,
   showValidationChecklist,
-  inputClassName,
+  inputClassName = '',
+  inputId = '',
   inputCustomStyle,
-  placeholder,
-  disabled,
+  placeholder = '',
+  disabled = false,
   maxLength,
   value,
   setValue,
@@ -23,12 +24,12 @@ function ValidationInput({
   showValidationChecklist?: boolean;
   placeholder?: string;
   maxLength?: number;
-
+  inputId?: string;
   inputClassName?: string;
   inputCustomStyle?: any;
   validationListStyle?: any;
   disabled?: boolean; // disables input
-  value: string;
+  value: string | number | undefined;
   setValue: (text: string) => void;
   setIsValid: (validity: boolean) => void;
   validationPredicates: { [x: string]: (value: string) => Promise<any> };
@@ -63,18 +64,16 @@ function ValidationInput({
 
   return (
     <>
-      <div
-        className={wrapperClassName ? wrapperClassName : ''}
-        style={{ ...wrapperCustomStyle }}
-      >
+      <div className={wrapperClassName} style={{ ...wrapperCustomStyle }}>
         <input
+          id={inputId}
           type="text"
           className={inputClassName}
-          maxLength={maxLength ? maxLength : undefined}
-          placeholder={placeholder ? placeholder : ''}
+          maxLength={maxLength}
+          placeholder={placeholder}
           value={value}
           onChange={(e) => validationExecutor(e.target.value)}
-          disabled={disabled ? disabled : false}
+          disabled={disabled}
           style={{ ...inputCustomStyle }}
         />
 

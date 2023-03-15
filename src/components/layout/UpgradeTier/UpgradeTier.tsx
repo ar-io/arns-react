@@ -6,11 +6,13 @@ import {
   MAX_LEASE_DURATION,
   MIN_LEASE_DURATION,
   NAME_PRICE_INFO,
+  SMARTWEAVE_TAG_SIZE,
   TIER_DATA,
 } from '../../../utils/constants';
 import { calculateArNSNamePrice } from '../../../utils/searchUtils';
 import TierCard from '../../cards/TierCard/TierCard';
 import Counter from '../../inputs/Counter/Counter';
+import ArPrice from '../ArPrice/ArPrice';
 import { Tooltip } from '../Tooltip/Tooltip';
 import './styles.css';
 
@@ -50,7 +52,8 @@ function UpgradeTier() {
       <div className="flex flex-column center" style={{ gap: '0.2em' }}>
         <Tooltip message={NAME_PRICE_INFO}>
           <span className="text-large white bold center">
-            {fee.io?.toLocaleString()}&nbsp;IO&nbsp;
+            {fee.io?.toLocaleString()}&nbsp;IO&nbsp;+&nbsp;
+            <ArPrice dataSize={SMARTWEAVE_TAG_SIZE} />
           </span>
         </Tooltip>
         <span className="text faded">Estimated Price</span>

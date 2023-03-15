@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
-import { NAME_PRICE_INFO } from '../../../utils/constants';
+import { NAME_PRICE_INFO, SMARTWEAVE_TAG_SIZE } from '../../../utils/constants';
 import { AntCard } from '../../cards';
+import ArPrice from '../ArPrice/ArPrice';
 import Loader from '../Loader/Loader';
 import { Tooltip } from '../Tooltip/Tooltip';
 import './styles.css';
@@ -108,7 +109,8 @@ function ConfirmRegistration() {
             <div className="flex flex-column center" style={{ gap: '0.2em' }}>
               <Tooltip message={NAME_PRICE_INFO}>
                 <span className="white bold text-small">
-                  {fee.io?.toLocaleString()}&nbsp;IO&nbsp;
+                  {fee.io?.toLocaleString()}&nbsp;IO&nbsp;+&nbsp;
+                  <ArPrice dataSize={SMARTWEAVE_TAG_SIZE} />
                 </span>
               </Tooltip>
               <span className="text faded">Estimated Price</span>

@@ -36,9 +36,9 @@ export type ArNSContractState = {
 };
 
 export type ANTContractDomainRecord = {
-  ttlSeconds: number;
-  maxSubdomains: number;
-  transactionId: ArweaveTransactionID | string;
+  ttlSeconds?: number;
+  maxSubdomains?: number;
+  transactionId?: ArweaveTransactionID | string;
 };
 
 export type ANTContractRecordMapping = ANTContractDomainRecord;
@@ -59,10 +59,13 @@ export type ANTContractJSON = {
 export type ArNSMapping = {
   domain: string;
   id?: ArweaveTransactionID;
+  state?: ANTContractJSON;
   overrides?: any; // TODO;
+  disabledKeys?: string[]; // TODO;
   compact?: boolean;
   enableActions?: boolean;
   hover?: boolean;
+  showTier?: boolean;
 };
 
 export type ArNSMetaData = {
@@ -96,8 +99,8 @@ export interface SmartweaveDataProvider {
     tags,
   }: {
     srcCodeTransactionId: ArweaveTransactionID;
-    initialState: ANTContractJSON | ArweaveTransactionID;
-    tags: TransactionTag[];
+    initialState: ANTContractJSON;
+    tags?: TransactionTag[];
   }): Promise<string>;
 }
 
@@ -130,6 +133,7 @@ export interface ArweaveDataProvider {
     cursor?: string,
   ): Promise<{ ids: ArweaveTransactionID[]; cursor?: string }>;
   getWalletBalance(id: ArweaveTransactionID): Promise<number>;
+  getArPrice(data: number): Promise<number>;
 }
 
 export interface AntInteractionProvider {
@@ -189,21 +193,6 @@ export type DropdownProps = {
   footerElement?: JSX.Element;
 };
 
-export type WorkflowProps = {
-  stage: number;
-  onNext: () => void;
-  onBack: () => void;
-  stages: {
-    [x: number]: {
-      component: JSX.Element;
-      showNext: boolean;
-      showBack: boolean;
-      disableNext: boolean;
-      requiresWallet: boolean;
-    };
-  };
-};
-
 export enum TABLE_TYPES {
   ANT = "ANT's",
   NAME = 'Names',
@@ -215,9 +204,9 @@ export enum TRANSACTION_TYPES {
 }
 
 export enum ASSET_TYPES {
-  ANT = 'ant',
-  NAME = 'name',
-  UNDERNAME = 'undername',
+  ANT = 'ANT',
+  NAME = 'ArNS Name',
+  UNDERNAME = 'Undername',
   COIN = 'coin',
 }
 

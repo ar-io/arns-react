@@ -17,7 +17,7 @@
     "pre-commit": "lint-staged"
   },
   "dependencies": {
-    "antd": "^5.2.2",
+    "antd": "5.2.1",
     "arconnect": "^0.4.2",
     "arweave": "^1.12.7",
     "axios": "^1.1.3",

@@ -6,6 +6,9 @@ export const ARNS_NAME_REGEX = new RegExp(
 );
 export const ARNS_TX_ID_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{43}$');
 export const ARNS_TX_ID_ENTRY_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{1,43}$');
+export const STUB_ARWEAVE_TXID = '2yHmORN-N12hM1B2f9-JPMpOfa59qhpsExFCzImrD30'; // arns spec pdf
+export const DEFAULT_ANT_SOURCE_CODE_TX =
+  'PEI1efYrsX08HUwvc6y-h6TSpsNlo2r6_fWL2_GdwhY';
 export const RECOMMENDED_TRANSACTION_CONFIRMATIONS = 50;
 export const ANT_CONTRACT_STATE_KEYS = [
   'balances',
@@ -95,7 +98,9 @@ export const approvedContractsForWalletQuery = (
   return queryObject;
 };
 
-export const SMARTWEAVE_MAX_TAG_SPACE = 2048 - 250; // minimum tag size of smartweave tags from warp is 239, rounded it for wiggle room
+export const SMARTWEAVE_TAG_SIZE = 250; // required tag size in bytes
+
+export const SMARTWEAVE_MAX_TAG_SPACE = 2048 - SMARTWEAVE_TAG_SIZE; // minimum tag size of smartweave tags from warp is 239, rounded it for wiggle room
 
 export const DEFAULT_ANT_CONTRACT_STATE: ANTContractJSON = {
   balances: {},
@@ -112,3 +117,7 @@ export const DEFAULT_ANT_CONTRACT_STATE: ANTContractJSON = {
     },
   },
 };
+
+export const WARP_CONTRACT_BASE_URL = 'https://sonar.warp.cc/#/app/contract/';
+export const WARP_INTERACTION_BASE_URL =
+  'https://sonar.warp.cc/#/app/interaction/';

@@ -193,6 +193,7 @@ function Manage() {
                   current={tablePage}
                   total={tableData.length}
                   rootClassName="center"
+                  defaultCurrent={1}
                 />
               </>
             )}

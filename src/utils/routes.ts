@@ -1,5 +1,5 @@
 import { CubeIcon } from '../components/icons';
-import { About, Create, Home, Manage } from '../components/pages';
+import { About, Home, Manage } from '../components/pages';
 
 export type Route = {
   text: string;
@@ -22,13 +22,6 @@ export const ROUTES: { [x: string]: Route } = {
     text: 'Info',
     path: '/info',
     component: About,
-    protected: false,
-    index: false,
-  },
-  create: {
-    text: 'Create an ANT',
-    path: '/create',
-    component: Create,
     protected: false,
     index: false,
   },
