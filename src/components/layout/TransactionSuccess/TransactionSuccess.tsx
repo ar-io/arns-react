@@ -33,12 +33,14 @@ function TransactionSuccess({
         <div className="flex-column center" style={{ gap: '2em' }}>
           <AntCard
             domain={''}
+            showTier={false}
             id={transactionId}
             state={state}
             compact={false}
             enableActions={false}
             overrides={{
               targetId: state.records['@'].transactionId,
+              ttlSeconds: state.records['@'].ttlSeconds,
             }}
             disabledKeys={[
               'tier',

@@ -17,6 +17,7 @@ function ConfirmAntCreation({ state }: { state: ANTContractJSON }) {
         showTier={false}
         overrides={{
           targetId: state.records['@'].transactionId,
+          ttlSeconds: state.records['@'].ttlSeconds,
         }}
         disabledKeys={[
           'tier',
