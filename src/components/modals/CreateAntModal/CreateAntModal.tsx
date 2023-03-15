@@ -12,7 +12,6 @@ import {
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import {
-  DEFAULT_ANT_CONTRACT_STATE,
   DEFAULT_ANT_SOURCE_CODE_TX,
   STUB_ARWEAVE_TXID,
 } from '../../../utils/constants';
