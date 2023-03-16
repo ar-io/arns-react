@@ -69,7 +69,6 @@ function ValidationInput({
     <>
       <div className={wrapperClassName} style={{ ...wrapperCustomStyle }}>
         <input
-          autoFocus={true}
           id={inputId}
           type="text"
           className={inputClassName}

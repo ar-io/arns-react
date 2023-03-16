@@ -383,6 +383,7 @@ function CreateAntModal({ show }: { show: boolean }) {
                                   return (
                                     <>
                                       {/* TODO: add label for mobile view */}
+                                      {/* eslint-disable-next-line */}
                                       <label
                                         onClick={() => {
                                           setEditingField(row.attribute);
