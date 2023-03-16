@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { ValidationObject } from '../../../../types';
 import ValidationList from '../../../cards/ValidationList/ValidationList';
@@ -37,6 +37,11 @@ function ValidationInput({
   const [validationResults, setValidationResults] =
     useState<ValidationObject[]>();
 
+  useEffect(() => {
+    const inputEle = document.getElementById(inputId);
+    inputEle?.focus();
+  }, [disabled]);
+
   async function validationExecutor(id: string) {
     setValue(id);
 
@@ -45,8 +50,6 @@ function ValidationInput({
     );
 
     const results = await Promise.allSettled(validations);
-
-    console.log(results);
 
     const validationResults: ValidationObject[] = results.map(
       (result: PromiseFulfilledResult<any> | PromiseRejectedResult, index) => {
@@ -66,6 +69,7 @@ function ValidationInput({
     <>
       <div className={wrapperClassName} style={{ ...wrapperCustomStyle }}>
         <input
+          autoFocus={true}
           id={inputId}
           type="text"
           className={inputClassName}
