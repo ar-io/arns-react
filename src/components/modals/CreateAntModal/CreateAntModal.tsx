@@ -139,6 +139,7 @@ function CreateAntModal({ show }: { show: boolean }) {
         const detail = {
           attribute,
           value: consolidatedDetails[attribute],
+          isValid: undefined,
           editable: EDITABLE_FIELDS.includes(attribute),
           action: ACTIONABLE_FIELDS[attribute],
           key: index,
@@ -345,15 +346,15 @@ function CreateAntModal({ show }: { show: boolean }) {
                             }
                       }
                     >
-                      {/* todo: implement validation input */}
                       <div className="flex flex-column">
                         <Table
                           showHeader={false}
                           onRow={(row: ManageAntRow) => ({
                             className:
                               row.attribute === editingField
-                                ? 'active-row'
+                                ? 'border-green active-row'
                                 : '',
+                            style: { border: 'red solid 2px' },
                           })}
                           scroll={{ x: true }}
                           columns={[
@@ -381,6 +382,27 @@ function CreateAntModal({ show }: { show: boolean }) {
                                     <>
                                       {/* TODO: add label for mobile view */}
                                       <ValidationInput
+                                        showValidationChecklist={
+                                          (editingField === row.attribute &&
+                                            row.attribute === 'owner') ||
+                                          (editingField === row.attribute &&
+                                            row.attribute === 'controller') ||
+                                          (editingField === row.attribute &&
+                                            row.attribute === 'targetID')
+                                        }
+                                        validationListStyle={{
+                                          margin: '10px',
+                                          position: 'absolute',
+                                          minWidth: '0px',
+                                          minHeight: '50px',
+                                          width: '400px',
+                                          padding: '2px',
+                                          background: 'var(--modal-bg)',
+                                          justifyContent: 'center',
+                                          alignItems: 'center',
+                                          border: 'solid 1px var(--text-faded)',
+                                          borderRadius: 'var(--corner-radius)',
+                                        }}
                                         inputId={row.attribute}
                                         inputCustomStyle={{
                                           width: '90%',

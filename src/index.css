@@ -177,10 +177,10 @@ button {
   color: var(--text-black);
 }
 .border-red {
-  border-color: var(--error-red);
+  border: solid 3px var(--error-red) !important;
 }
 .border-green {
-  border-color: var(--success-green);
+  border: solid 3px var(--success-green);
 }
 .accent {
   background-color: var(--accent);
