@@ -18,6 +18,7 @@ function ValidationInput({
   setValue,
   setIsValid,
   validationPredicates,
+  onClick,
 }: {
   wrapperClassName?: string;
   wrapperCustomStyle?: any;
@@ -33,6 +34,7 @@ function ValidationInput({
   setValue: (text: string) => void;
   setIsValid: (validity: boolean) => void;
   validationPredicates: { [x: string]: (value: string) => Promise<any> };
+  onClick?: () => void;
 }) {
   const [validationResults, setValidationResults] =
     useState<ValidationObject[]>();
@@ -67,7 +69,12 @@ function ValidationInput({
 
   return (
     <>
-      <div className={wrapperClassName} style={{ ...wrapperCustomStyle }}>
+      {/* eslint-disable-next-line */}
+      <div
+        className={wrapperClassName}
+        style={{ ...wrapperCustomStyle }}
+        onClick={onClick ? () => onClick() : undefined}
+      >
         <input
           id={inputId}
           type="text"

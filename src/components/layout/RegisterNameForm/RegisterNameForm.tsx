@@ -73,6 +73,7 @@ function RegisterNameForm() {
             : new ArweaveTransactionID(owner),
         ],
       });
+      // update to use ANTContract
       dispatchRegisterState({
         type: 'setNickname',
         payload: name,

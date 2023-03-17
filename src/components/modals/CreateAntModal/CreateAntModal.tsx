@@ -383,68 +383,64 @@ function CreateAntModal({ show }: { show: boolean }) {
                                   return (
                                     <>
                                       {/* TODO: add label for mobile view */}
-                                      {/* eslint-disable-next-line */}
-                                      <label
+                                      <ValidationInput
+                                        inputId={row.attribute + 'input'}
                                         onClick={() => {
                                           setEditingField(row.attribute);
                                           setModifiedValue(row.value);
                                         }}
-                                      >
-                                        <ValidationInput
-                                          inputId={row.attribute + 'input'}
-                                          inputCustomStyle={{
-                                            width: '90%',
-                                            fontSize: '16px',
-                                            background:
-                                              editingField === row.attribute
-                                                ? 'white'
-                                                : 'transparent',
-                                            border: 'none',
-                                            borderRadius: '2px',
-                                            color:
-                                              editingField === row.attribute
-                                                ? 'black'
-                                                : 'white',
-                                            padding:
-                                              editingField === row.attribute
-                                                ? '10px '
-                                                : '10px 0px',
-                                            display: 'block',
-                                          }}
-                                          disabled={
-                                            editingField !== row.attribute
-                                          }
-                                          placeholder={`Enter a ${mapKeyToAttribute(
-                                            row.attribute,
-                                          )}`}
-                                          value={
-                                            editingField !== row.attribute
-                                              ? row.value
-                                              : modifiedValue
-                                          }
-                                          setValue={(e) => {
-                                            setModifiedValue(e);
-                                            row.value = e;
-                                          }}
-                                          validationPredicates={
-                                            row.attribute === 'owner' ||
-                                            row.attribute === 'controller' ||
-                                            row.attribute === 'targetID'
-                                              ? {
-                                                  [VALIDATION_INPUT_TYPES.ARWEAVE_ID]:
-                                                    (id: string) =>
-                                                      arweaveDataProvider.validateArweaveId(
-                                                        id,
-                                                      ),
-                                                }
-                                              : {}
-                                          }
-                                          maxLength={43}
-                                          setIsValid={(b: boolean) => {
-                                            row.isValid = b;
-                                          }}
-                                        />
-                                      </label>
+                                        inputCustomStyle={{
+                                          width: '90%',
+                                          fontSize: '16px',
+                                          background:
+                                            editingField === row.attribute
+                                              ? 'white'
+                                              : 'transparent',
+                                          border: 'none',
+                                          borderRadius: '2px',
+                                          color:
+                                            editingField === row.attribute
+                                              ? 'black'
+                                              : 'white',
+                                          padding:
+                                            editingField === row.attribute
+                                              ? '10px '
+                                              : '10px 0px',
+                                          display: 'block',
+                                        }}
+                                        disabled={
+                                          editingField !== row.attribute
+                                        }
+                                        placeholder={`Enter a ${mapKeyToAttribute(
+                                          row.attribute,
+                                        )}`}
+                                        value={
+                                          editingField !== row.attribute
+                                            ? row.value
+                                            : modifiedValue
+                                        }
+                                        setValue={(e) => {
+                                          setModifiedValue(e);
+                                          row.value = e;
+                                        }}
+                                        validationPredicates={
+                                          row.attribute === 'owner' ||
+                                          row.attribute === 'controller' ||
+                                          row.attribute === 'targetID'
+                                            ? {
+                                                [VALIDATION_INPUT_TYPES.ARWEAVE_ID]:
+                                                  (id: string) =>
+                                                    arweaveDataProvider.validateArweaveId(
+                                                      id,
+                                                    ),
+                                              }
+                                            : {}
+                                        }
+                                        maxLength={43}
+                                        setIsValid={(b: boolean) => {
+                                          row.isValid = b;
+                                        }}
+                                      />
                                     </>
                                   );
                                 return value;
