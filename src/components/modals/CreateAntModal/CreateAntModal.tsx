@@ -100,6 +100,7 @@ function CreateAntModal({ show }: { show: boolean }) {
     setAnt(new ANTContract());
     setIsPostingTransaction(false);
     setAntContractId(undefined);
+    setDetails();
   }
   // reset useEffect must be first, else wont reset
   useEffect(() => {
@@ -349,13 +350,14 @@ function CreateAntModal({ show }: { show: boolean }) {
                       <div className="flex flex-column">
                         <Table
                           showHeader={false}
-                          onRow={(row: ManageAntRow) => ({
-                            className:
-                              row.attribute === editingField
-                                ? 'border-green active-row'
-                                : '',
-                            style: { border: 'red solid 2px' },
-                          })}
+                          onRow={(row: ManageAntRow) => {
+                            return {
+                              className:
+                                row.attribute === editingField
+                                  ? 'active-row'
+                                  : '',
+                            };
+                          }}
                           scroll={{ x: true }}
                           columns={[
                             {
@@ -403,7 +405,11 @@ function CreateAntModal({ show }: { show: boolean }) {
                                           border: 'solid 1px var(--text-faded)',
                                           borderRadius: 'var(--corner-radius)',
                                         }}
-                                        inputId={row.attribute}
+                                        inputId={row.attribute + 'input'}
+                                        onClick={() => {
+                                          setEditingField(row.attribute);
+                                          setModifiedValue(row.value);
+                                        }}
                                         inputCustomStyle={{
                                           width: '90%',
                                           fontSize: '16px',
@@ -452,9 +458,6 @@ function CreateAntModal({ show }: { show: boolean }) {
                                             : {}
                                         }
                                         maxLength={43}
-                                        setIsValid={(b: boolean) => {
-                                          row.isValid = b;
-                                        }}
                                       />
                                     </>
                                   );
