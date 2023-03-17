@@ -59,7 +59,7 @@ export default function useWalletANTs(ids: ArweaveTransactionID[]) {
         key: 'name',
         align: 'left',
         width: '18%',
-        className: 'white',
+        className: 'icon-padding white',
         ellipsis: true,
         onHeaderCell: () => {
           return {

@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { ArweaveTransactionID, VALIDATION_INPUT_TYPES } from '../../../types';
@@ -10,7 +9,6 @@ import UpgradeTier from '../UpgradeTier/UpgradeTier';
 import './styles.css';
 
 function RegisterNameForm() {
-  const isMobile = useIsMobile();
   const [{ domain, ttl, antID }, dispatchRegisterState] =
     useRegistrationState();
   const [{ arnsSourceContract, arweaveDataProvider }] = useGlobalState();
@@ -73,6 +71,7 @@ function RegisterNameForm() {
             : new ArweaveTransactionID(owner),
         ],
       });
+      // update to use ANTContract
       dispatchRegisterState({
         type: 'setNickname',
         payload: name,
@@ -124,23 +123,17 @@ function RegisterNameForm() {
               setValue={(e: string) => handleAntId(e)}
               setIsValid={(isValid: boolean) => setIsValidAnt(isValid)}
               wrapperClassName={'flex flex-column center'}
-              wrapperCustomStyle={{ gap: '0.5em', position: 'relative' }}
-              validationListStyle={{
-                gap: isMobile ? '0.5em' : '1em',
-                position: !isMobile ? 'absolute' : 'unset',
-                left: !isMobile ? '103%' : 'unset',
-                paddingTop: !isMobile ? '7%' : 'unset',
-              }}
+              wrapperCustomStyle={{ gap: '0.5em', boxSizing: 'border-box' }}
+              showValidationIcon={true}
               inputClassName={'data-input center'}
               inputCustomStyle={
                 isValidAnt && antTxID
-                  ? { border: 'solid 2px var(--success-green)' }
+                  ? { border: 'solid 2px var(--success-green)', width: '100%' }
                   : !isValidAnt && antTxID
-                  ? { border: 'solid 2px var(--error-red)' }
+                  ? { border: 'solid 2px var(--error-red)', width: '100%' }
                   : {}
               }
               placeholder={'Enter an ANT Contract ID Validation Input'}
-              showValidationChecklist={true}
               validationPredicates={{
                 [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: (id: string) =>
                   arweaveDataProvider.validateArweaveId(id),

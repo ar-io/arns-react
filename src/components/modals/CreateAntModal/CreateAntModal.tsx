@@ -100,6 +100,7 @@ function CreateAntModal({ show }: { show: boolean }) {
     setAnt(new ANTContract());
     setIsPostingTransaction(false);
     setAntContractId(undefined);
+    setDetails();
   }
   // reset useEffect must be first, else wont reset
   useEffect(() => {
@@ -335,9 +336,9 @@ function CreateAntModal({ show }: { show: boolean }) {
                               position: 'relative',
                             }
                           : {
-                              width: 'fit-content',
+                              width: '50%',
                               height: 'fit-content',
-                              minWidth: '50%',
+                              minWidth: '675px',
                               minHeight: '20%',
                               maxHeight: '638px',
                               maxWidth: '1000px',
@@ -349,13 +350,14 @@ function CreateAntModal({ show }: { show: boolean }) {
                       <div className="flex flex-column">
                         <Table
                           showHeader={false}
-                          onRow={(row: ManageAntRow) => ({
-                            className:
-                              row.attribute === editingField
-                                ? 'border-green active-row'
-                                : '',
-                            style: { border: 'red solid 2px' },
-                          })}
+                          onRow={(row: ManageAntRow) => {
+                            return {
+                              className:
+                                row.attribute === editingField
+                                  ? 'active-row'
+                                  : '',
+                            };
+                          }}
                           scroll={{ x: true }}
                           columns={[
                             {
@@ -363,7 +365,7 @@ function CreateAntModal({ show }: { show: boolean }) {
                               dataIndex: 'attribute',
                               key: 'attribute',
                               align: 'left',
-                              width: isMobile ? '0px' : '30%',
+                              width: isMobile ? '0px' : '50px',
                               className: 'white small-row',
                               render: (value: string) => {
                                 return `${mapKeyToAttribute(value)}:`;
@@ -374,7 +376,7 @@ function CreateAntModal({ show }: { show: boolean }) {
                               dataIndex: 'value',
                               key: 'value',
                               align: 'left',
-                              width: '80%',
+                              width: 'fit-content',
                               className: `white`,
                               render: (value: string | number, row: any) => {
                                 if (row.editable)
@@ -382,37 +384,28 @@ function CreateAntModal({ show }: { show: boolean }) {
                                     <>
                                       {/* TODO: add label for mobile view */}
                                       <ValidationInput
-                                        showValidationChecklist={
-                                          (editingField === row.attribute &&
-                                            row.attribute === 'owner') ||
-                                          (editingField === row.attribute &&
-                                            row.attribute === 'controller') ||
-                                          (editingField === row.attribute &&
-                                            row.attribute === 'targetID')
-                                        }
-                                        validationListStyle={{
-                                          margin: '10px',
-                                          position: 'absolute',
-                                          minWidth: '0px',
-                                          minHeight: '50px',
-                                          width: '400px',
-                                          padding: '2px',
-                                          background: 'var(--modal-bg)',
-                                          justifyContent: 'center',
-                                          alignItems: 'center',
-                                          border: 'solid 1px var(--text-faded)',
-                                          borderRadius: 'var(--corner-radius)',
+                                        showValidationIcon={true}
+                                        showValidationOutline={true}
+                                        inputId={row.attribute + '-input'}
+                                        onClick={() => {
+                                          setEditingField(row.attribute);
+                                          setModifiedValue(row.value);
                                         }}
-                                        inputId={row.attribute}
+                                        wrapperCustomStyle={{
+                                          minWidth: 'max-content',
+                                        }}
+                                        inputClassName={'flex'}
                                         inputCustomStyle={{
-                                          width: '90%',
+                                          width: '100%',
+                                          border: 'none',
+                                          overflow: 'hidden',
                                           fontSize: '16px',
+                                          outline: 'none',
+                                          borderRadius: 'var(--corner-radius)',
                                           background:
                                             editingField === row.attribute
                                               ? 'white'
                                               : 'transparent',
-                                          border: 'none',
-                                          borderRadius: '2px',
                                           color:
                                             editingField === row.attribute
                                               ? 'black'
@@ -421,7 +414,8 @@ function CreateAntModal({ show }: { show: boolean }) {
                                             editingField === row.attribute
                                               ? '10px '
                                               : '10px 0px',
-                                          display: 'block',
+                                          paddingRight: '40px',
+                                          display: 'flex',
                                         }}
                                         disabled={
                                           editingField !== row.attribute
@@ -452,9 +446,6 @@ function CreateAntModal({ show }: { show: boolean }) {
                                             : {}
                                         }
                                         maxLength={43}
-                                        setIsValid={(b: boolean) => {
-                                          row.isValid = b;
-                                        }}
                                       />
                                     </>
                                   );

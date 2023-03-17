@@ -50,6 +50,11 @@ button {
   background-color: transparent;
   border: none;
 }
+input[type='text']:disabled {
+  padding-right: 40px;
+  width: '100%';
+  overflow: ellipse;
+}
 
 .bold {
   font-family: 'Rubik-Bold';
@@ -499,8 +504,11 @@ button {
 .rc-table-tbody > tr > td {
   border: 1px solid #323232;
   border-width: 1px 0px;
-  padding: 0px 15px 0px 50px;
+  padding: 0px 15px;
   font-size: 16px;
+}
+.icon-padding {
+  padding: 0px 15px 0px 50px !important;
 }
 .small-row {
   max-height: 25px !important;

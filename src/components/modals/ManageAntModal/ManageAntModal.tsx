@@ -133,7 +133,7 @@ function ManageAntModal({
             key: 'attribute',
             align: 'left',
             width: isMobile ? '0px' : '30%',
-            className: 'white',
+            className: 'icon-padding white',
             render: (value: string) => {
               return `${mapKeyToAttribute(value)}:`;
             },

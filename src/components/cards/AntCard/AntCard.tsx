@@ -134,7 +134,10 @@ function AntCard(props: ArNSMapping) {
       {isLoading ? (
         <Loader size={80} />
       ) : antDetails ? (
-        <div className={hover ? 'card hover' : 'card'}>
+        <div
+          className={hover ? 'card hover' : 'card'}
+          style={{ padding: '30px 30px' }}
+        >
           {!showTier ? (
             <></>
           ) : (
