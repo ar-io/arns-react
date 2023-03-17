@@ -437,9 +437,6 @@ function CreateAntModal({ show }: { show: boolean }) {
                                             : {}
                                         }
                                         maxLength={43}
-                                        setIsValid={(b: boolean) => {
-                                          row.isValid = b;
-                                        }}
                                       />
                                     </>
                                   );

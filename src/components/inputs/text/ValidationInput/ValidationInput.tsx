@@ -32,7 +32,7 @@ function ValidationInput({
   disabled?: boolean; // disables input
   value: string | number | undefined;
   setValue: (text: string) => void;
-  setIsValid: (validity: boolean) => void;
+  setIsValid?: (validity: boolean) => void;
   validationPredicates: { [x: string]: (value: string) => Promise<any> };
   onClick?: () => void;
 }) {
@@ -64,7 +64,9 @@ function ValidationInput({
     );
 
     setValidationResults(validationResults);
-    setIsValid(validationResults.every((value) => value.status === true));
+    if (setIsValid) {
+      setIsValid(validationResults.every((value) => value.status === true));
+    }
   }
 
   return (
