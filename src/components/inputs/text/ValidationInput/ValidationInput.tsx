@@ -50,6 +50,11 @@ function ValidationInput({
   minNumber?: number;
   maxNumber?: number;
 }) {
+  useEffect(() => {
+    if (value) {
+      validationExecutor(value.toString());
+    }
+  }, [value]);
   const [validationResults, setValidationResults] =
     useState<ValidationObject[]>();
 

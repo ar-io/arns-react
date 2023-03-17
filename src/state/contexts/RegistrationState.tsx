@@ -10,12 +10,6 @@ export type RegistrationState = {
   leaseDuration: number;
   tier: number;
   antContract?: ANTContract;
-  nickname?: string;
-  ticker?: string;
-  controllers: Array<ArweaveTransactionID>;
-  ttl: number;
-  targetID?: ArweaveTransactionID;
-  owner?: ArweaveTransactionID;
   antID?: ArweaveTransactionID;
   fee: { ar: number; io: number };
   isRegistered: boolean;
@@ -34,8 +28,6 @@ export const initialRegistrationState: RegistrationState = {
   leaseDuration: 1,
   antContract: new ANTContract(),
   tier: 1,
-  controllers: [],
-  ttl: 100,
   fee: { ar: 0, io: 0 },
   antID: undefined,
   isRegistered: false,
