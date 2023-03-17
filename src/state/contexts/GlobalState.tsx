@@ -11,6 +11,7 @@ import type {
   ArweaveWalletConnector,
   SmartweaveDataProvider,
 } from '../../types';
+import { ARNS_REGISTRY_ID } from '../../utils/constants';
 import type { Action } from '../reducers/GlobalReducer';
 
 const defaultArweave = new Arweave({
@@ -36,9 +37,7 @@ const initialState: GlobalState = {
     new WarpDataProvider(defaultArweave),
     new SimpleArweaveDataProvider(defaultArweave),
   ),
-  arnsContractId: new ArweaveTransactionID(
-    'bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U',
-  ),
+  arnsContractId: new ArweaveTransactionID(ARNS_REGISTRY_ID),
   arnsSourceContract: {
     records: {},
     fees: {},

@@ -53,4 +53,16 @@ export class LocalFileSystemDataProvider implements SmartweaveDataProvider {
   }): Promise<string> {
     return JSON.stringify([srcCodeTransactionId, initialState, tags]);
   }
+
+  async registerAtomicName({
+    srcCodeTransactionId,
+    initialState,
+    domain,
+  }: {
+    srcCodeTransactionId: ArweaveTransactionID;
+    initialState: ANTContractJSON;
+    domain: string;
+  }): Promise<string | undefined> {
+    return JSON.stringify([srcCodeTransactionId, initialState, domain]);
+  }
 }

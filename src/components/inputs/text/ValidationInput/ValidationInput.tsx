@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { ValidationObject } from '../../../../types';
 import ValidationList from '../../../cards/ValidationList/ValidationList';
@@ -34,6 +34,11 @@ function ValidationInput({
   setIsValid: (validity: boolean) => void;
   validationPredicates: { [x: string]: (value: string) => Promise<any> };
 }) {
+  useEffect(() => {
+    if (value) {
+      validationExecutor(value.toString());
+    }
+  }, [value]);
   const [validationResults, setValidationResults] =
     useState<ValidationObject[]>();
 

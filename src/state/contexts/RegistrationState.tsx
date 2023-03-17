@@ -1,5 +1,6 @@
 import { Dispatch, createContext, useContext, useReducer } from 'react';
 
+import { ANTContract } from '../../services/arweave/AntContract';
 import { ArweaveTransactionID } from '../../types';
 import { RegistrationAction } from '../reducers/RegistrationReducer';
 
@@ -8,13 +9,8 @@ export type RegistrationState = {
   domain?: string;
   leaseDuration: number;
   tier: number;
-  nickname?: string;
-  ticker?: string;
-  controllers: Array<ArweaveTransactionID>;
-  ttl: number;
+  antContract?: ANTContract;
   antID?: ArweaveTransactionID;
-  targetID?: ArweaveTransactionID;
-  owner?: ArweaveTransactionID;
   fee: { ar: number; io: number };
   isRegistered: boolean;
   stage: number;
@@ -31,8 +27,7 @@ export const initialRegistrationState: RegistrationState = {
   domain: undefined,
   leaseDuration: 1,
   tier: 1,
-  controllers: [],
-  ttl: 100,
+  antContract: new ANTContract(),
   fee: { ar: 0, io: 0 },
   antID: undefined,
   isRegistered: false,

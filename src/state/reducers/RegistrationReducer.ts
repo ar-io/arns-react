@@ -1,3 +1,4 @@
+import { ANTContract } from '../../services/arweave/AntContract';
 import { ArweaveTransactionID } from '../../types';
 import {
   RegistrationState,
@@ -8,13 +9,8 @@ export type RegistrationAction =
   | { type: 'setDomainName'; payload?: string }
   | { type: 'setLeaseDuration'; payload: number }
   | { type: 'setTier'; payload: number }
-  | { type: 'setNickname'; payload: string }
-  | { type: 'setTicker'; payload: string }
-  | { type: 'setControllers'; payload: Array<ArweaveTransactionID> }
-  | { type: 'setTTL'; payload: number }
   | { type: 'setAntID'; payload: ArweaveTransactionID | undefined }
-  | { type: 'setTargetID'; payload: ArweaveTransactionID }
-  | { type: 'setOwner'; payload: ArweaveTransactionID }
+  | { type: 'setAntContract'; payload: ANTContract }
   | { type: 'setResolvedTx'; payload: ArweaveTransactionID | undefined }
   | { type: 'setFee'; payload: { ar: number; io: number } }
   | { type: 'setIsRegistered'; payload: boolean }
@@ -51,40 +47,15 @@ export const registrationReducer = (
         ...state,
         tier: action.payload,
       };
-    case 'setNickname':
-      return {
-        ...state,
-        nickname: action.payload,
-      };
-    case 'setTicker':
-      return {
-        ...state,
-        ticker: action.payload,
-      };
-    case 'setControllers':
-      return {
-        ...state,
-        controllers: action.payload,
-      };
-    case 'setTTL':
-      return {
-        ...state,
-        ttl: action.payload,
-      };
     case 'setAntID':
       return {
         ...state,
         antID: action.payload,
       };
-    case 'setTargetID':
+    case 'setAntContract':
       return {
         ...state,
-        targetID: action.payload,
-      };
-    case 'setOwner':
-      return {
-        ...state,
-        owner: action.payload,
+        antContract: action.payload,
       };
     case 'setResolvedTx':
       return {

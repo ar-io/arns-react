@@ -2,7 +2,12 @@ import { useEffect, useState } from 'react';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
-import { NAME_PRICE_INFO, SMARTWEAVE_TAG_SIZE } from '../../../utils/constants';
+import { ANTContractJSON, ArweaveTransactionID } from '../../../types';
+import {
+  DEFAULT_ANT_SOURCE_CODE_TX,
+  NAME_PRICE_INFO,
+  SMARTWEAVE_TAG_SIZE,
+} from '../../../utils/constants';
 import { AntCard } from '../../cards';
 import ArPrice from '../ArPrice/ArPrice';
 import Loader from '../Loader/Loader';
@@ -11,55 +16,41 @@ import './styles.css';
 
 function ConfirmRegistration() {
   const [
-    { domain, ttl, tier, leaseDuration, antID, fee, stage },
+    { domain, antContract, tier, leaseDuration, antID, fee, stage },
     dispatchRegistrationState,
   ] = useRegistrationState();
-  const [{ arnsSourceContract, arnsContractId, arweaveDataProvider }] =
-    useGlobalState();
+  const [{ arnsContractId, arweaveDataProvider }] = useGlobalState();
   const [isPostingTransaction, setIsPostingTransaction] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
 
-  useEffect(() => {
-    if (!antID) {
-      return;
-    }
-    // TODO: probably no longer necessary since we do the validations before rendering this component
-    arweaveDataProvider
-      .validateTransactionTags({
-        id: antID.toString(),
-        requiredTags: {
-          'Contract-Src': arnsSourceContract.approvedANTSourceCodeTxs,
-        },
-      })
-      .then(() => {
-        setIsConfirmed(true);
-      })
-      .catch((e: Error) => {
-        // TODO: push error notification
-        console.error(e);
-        setIsConfirmed(false);
-        setErrorMessage(e.message);
-      });
-  }, [antID, arnsContractId]);
-
   async function buyArnsName() {
     setIsPostingTransaction(true);
-    if (!antID) {
-      return;
+
+    if (!antContract) {
+      throw Error('No ant contract state present');
     }
-    const pendingTXId = await arweaveDataProvider.writeTransaction(
-      arnsContractId,
-      {
-        function: 'buyRecord',
-        name: domain,
-        contractTransactionId: antID.toString(),
-      },
-    );
+    if (!domain) {
+      throw new Error('No domain provided for registration');
+    }
+
+    const pendingTXId = antID
+      ? await arweaveDataProvider.writeTransaction(arnsContractId, {
+          function: 'buyRecord',
+          name: domain,
+          contractTransactionId: antID.toString(),
+        })
+      : await arweaveDataProvider.registerAtomicName({
+          srcCodeTransactionId: new ArweaveTransactionID(
+            DEFAULT_ANT_SOURCE_CODE_TX,
+          ),
+          initialState: antContract.state,
+          domain,
+        });
     if (pendingTXId) {
       dispatchRegistrationState({
         type: 'setResolvedTx',
-        payload: pendingTXId,
+        payload: new ArweaveTransactionID(pendingTXId.toString()),
       });
       console.log(`Posted transaction: ${pendingTXId}`);
     }
@@ -90,12 +81,13 @@ function ConfirmRegistration() {
           <>
             <AntCard
               domain={domain ?? ''}
-              id={antID ? antID : undefined}
+              id={antID ?? undefined}
+              state={antContract?.state ?? undefined}
               compact={false}
               enableActions={false}
               overrides={{
                 tier,
-                ttlSeconds: ttl,
+                ttlSeconds: antContract?.records['@'].ttlSeconds,
                 maxSubdomains: 100,
                 leaseDuration: `${leaseDuration} year`,
               }}

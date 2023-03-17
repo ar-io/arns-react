@@ -1,5 +1,6 @@
 import { ANTContractJSON, ArweaveTransactionID } from '../types';
 
+export const ARNS_REGISTRY_ID = 'bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U';
 // note: lookahead/lookbehind regex's are not compatible with iOS browsers
 export const ARNS_NAME_REGEX = new RegExp(
   '^([a-zA-Z0-9][a-zA-Z0-9-]{0,30}[a-zA-Z0-9]|[a-zA-Z0-9]{1})$',
@@ -121,3 +122,24 @@ export const DEFAULT_ANT_CONTRACT_STATE: ANTContractJSON = {
 export const WARP_CONTRACT_BASE_URL = 'https://sonar.warp.cc/#/app/contract/';
 export const WARP_INTERACTION_BASE_URL =
   'https://sonar.warp.cc/#/app/interaction/';
+
+export const atomicRegistrionTags = [
+  {
+    name: 'App-Name',
+    value: 'SmartWeaveAction',
+  },
+  {
+    name: 'Contract',
+    value: ARNS_REGISTRY_ID,
+  },
+  {
+    name: 'Input',
+    value: JSON.stringify({
+      function: 'buyRecord',
+      name: 'ans-contract-view',
+      contractTransactionId: 'atomic',
+      years: 1,
+      tier: 1,
+    }),
+  },
+];

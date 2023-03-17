@@ -102,6 +102,15 @@ export interface SmartweaveDataProvider {
     initialState: ANTContractJSON;
     tags?: TransactionTag[];
   }): Promise<string>;
+  registerAtomicName({
+    srcCodeTransactionId,
+    initialState,
+    domain,
+  }: {
+    srcCodeTransactionId: ArweaveTransactionID;
+    initialState: ANTContractJSON;
+    domain: string;
+  }): Promise<string | undefined>;
 }
 
 export interface ArweaveWalletConnector {
