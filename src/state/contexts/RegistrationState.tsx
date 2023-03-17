@@ -10,14 +10,12 @@ export type RegistrationState = {
   leaseDuration: number;
   tier: number;
   antContract?: ANTContract;
-  // following 6 keys replaced by single antContract object
   nickname?: string;
   ticker?: string;
   controllers: Array<ArweaveTransactionID>;
   ttl: number;
   targetID?: ArweaveTransactionID;
   owner?: ArweaveTransactionID;
-  //
   antID?: ArweaveTransactionID;
   fee: { ar: number; io: number };
   isRegistered: boolean;

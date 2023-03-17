@@ -18,7 +18,9 @@ function ValidationInput({
   setValue,
   setIsValid,
   validationPredicates,
-  onClick,
+  onClick = () => {
+    return;
+  },
 }: {
   wrapperClassName?: string;
   wrapperCustomStyle?: any;
