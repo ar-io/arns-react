@@ -62,7 +62,8 @@ export class ANTContract {
       this.contract.records[domain] = {
         transactionId: transactionId
           ? transactionId.toString()
-          : this.contract.records[domain].transactionId
+          : this.contract.records[domain].transactionId?.toString() &&
+            this.contract.records[domain].transactionId!.toString().length > 1
           ? this.contract.records[domain].transactionId?.toString()
           : '',
         maxSubdomains: maxSubdomains
@@ -90,11 +91,7 @@ export class ANTContract {
   set controller(controller: string) {
     // any validations we want to do on the controller
     try {
-      if (!controller) {
-        throw new Error('No ID provided');
-      }
-      const txId = new ArweaveTransactionID(controller);
-      this.contract.controller = txId.toString();
+      this.contract.controller = controller ?? '';
       this.contract.balances[controller] = 1;
     } catch (error) {
       console.log(error);
