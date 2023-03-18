@@ -1,14 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { useIsMobile } from '../../../hooks';
+import { useIsMobile, useWalletAddress } from '../../../hooks';
 import { ANTContract } from '../../../services/arweave/AntContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
-import {
-  ANTContractJSON,
-  ArweaveTransactionID,
-  VALIDATION_INPUT_TYPES,
-} from '../../../types';
+import { ArweaveTransactionID, VALIDATION_INPUT_TYPES } from '../../../types';
 import Dropdown from '../../inputs/Dropdown/Dropdown';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import UpgradeTier from '../UpgradeTier/UpgradeTier';
@@ -19,6 +15,7 @@ function RegisterNameForm() {
   const [{ domain, antID, antContract }, dispatchRegisterState] =
     useRegistrationState();
   const [{ arnsSourceContract, arweaveDataProvider }] = useGlobalState();
+  const { walletAddress } = useWalletAddress();
 
   const [isValidAnt, setIsValidAnt] = useState<boolean | undefined>(undefined);
   enum REGISTRATION_TYPES {
@@ -30,9 +27,10 @@ function RegisterNameForm() {
     'use-existing': [REGISTRATION_TYPES.USE_EXISTING],
   };
   const [registrationType, setRegistrationType] = useState(
-    REGISTRATION_TYPES.CREATE,
+    REGISTRATION_TYPES.USE_EXISTING,
   );
   const [antTxID, setAntTXId] = useState<string | undefined>(antID?.toString());
+  const [ant, setAnt] = useState<ANTContract>(new ANTContract());
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -42,22 +40,31 @@ function RegisterNameForm() {
     }
     if (inputRef.current) {
       inputRef.current.focus();
-      handleAntId(...antID.toString());
+      handleAntId(antTxID?.toString());
     }
   }, []);
   useEffect(() => {
-    if (!antID) {
-      return;
+    if (walletAddress && registrationType === REGISTRATION_TYPES.CREATE) {
+      if (!ant.owner) {
+        ant.owner = walletAddress.toString();
+      }
+      if (!ant.controller) {
+        ant.controller = walletAddress.toString();
+      }
     }
-    handleAntId(antID.toString());
-  }, [registrationType]);
+  }, [walletAddress, ant]);
 
   function reset() {
     setIsValidAnt(undefined);
     setAntTXId('');
+    setAnt(new ANTContract());
     dispatchRegisterState({
       type: 'setAntID',
       payload: undefined,
+    });
+    dispatchRegisterState({
+      type: 'setAntContract',
+      payload: new ANTContract(),
     });
   }
 
@@ -68,9 +75,13 @@ function RegisterNameForm() {
     }
     if (id && id.length < 44) {
       setAntTXId(id);
+      setAnt(new ANTContract());
     }
 
     try {
+      if (registrationType === REGISTRATION_TYPES.CREATE) {
+        throw new Error('Wrong registration type');
+      }
       const txId = new ArweaveTransactionID(id);
       dispatchRegisterState({
         type: 'setAntID',
@@ -81,7 +92,7 @@ function RegisterNameForm() {
       if (state == undefined) {
         throw Error('ANT contract state is undefined');
       }
-
+      setAnt(new ANTContract(state));
       dispatchRegisterState({
         type: 'setAntContract',
         payload: new ANTContract(state),
@@ -97,6 +108,49 @@ function RegisterNameForm() {
     }
   }
 
+  function handleStateChange({ value, key }: { value: string; key: string }) {
+    try {
+      if (!ant) {
+        throw new Error('ANT Contract is undefined');
+      }
+
+      switch (key) {
+        case 'name':
+          ant.name = value.toString() ?? '';
+          break;
+        case 'ticker':
+          ant.ticker = value.toString();
+          break;
+        case 'owner':
+          ant.owner = value.toString();
+          break;
+        case 'controller':
+          ant.controller = value.toString();
+          break;
+        case 'targetID':
+          ant.records = {
+            '@': {
+              transactionId: value.toString(),
+            },
+          };
+          break;
+        case 'ttlSeconds':
+          ant.records = {
+            '@': {
+              ttlSeconds: +value,
+            },
+          };
+          break;
+        default:
+          throw new Error('Editing field not supported');
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setAnt(new ANTContract(ant.state));
+    }
+  }
+
   return (
     <>
       <div className="register-name-modal">
@@ -104,8 +158,8 @@ function RegisterNameForm() {
           {domain}.arweave.net is available!
         </span>
         <div className="section-header">Register Domain</div>
-        <div className="register-inputs center" style={{ gap: '0' }}>
-          <div className="input-group center column">
+        <div className="register-inputs center" style={{ gap: '5px' }}>
+          <div className="input-group center column" style={{ padding: '0px' }}>
             <Dropdown
               showSelected={true}
               showChevron={true}
@@ -159,11 +213,90 @@ function RegisterNameForm() {
               }
               maxLength={43}
             />
+            <ValidationInput
+              disabled={registrationType !== REGISTRATION_TYPES.CREATE}
+              showValidationChecklist={true}
+              validationListStyle={{
+                gap: isMobile ? '0.5em' : '1em',
+                position: !isMobile ? 'absolute' : 'unset',
+                left: !isMobile ? '103%' : 'unset',
+                paddingTop: !isMobile ? '7%' : 'unset',
+              }}
+              value={ant!.controller}
+              setValue={(e: string) =>
+                handleStateChange({ value: e, key: 'controller' })
+              }
+              setIsValid={(isValid: boolean) => setIsValidAnt(isValid)}
+              wrapperClassName={'flex flex-column center'}
+              wrapperCustomStyle={{ gap: '0.5em', position: 'relative' }}
+              inputClassName={'data-input center'}
+              inputCustomStyle={{
+                background:
+                  registrationType == REGISTRATION_TYPES.CREATE
+                    ? 'white'
+                    : 'transparent',
+                color:
+                  registrationType == REGISTRATION_TYPES.CREATE
+                    ? 'black'
+                    : 'white',
+              }}
+              placeholder={'Controller'}
+              validationPredicates={{
+                [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: (id: string) =>
+                  arweaveDataProvider.validateArweaveId(id),
+              }}
+              maxLength={43}
+            />
           </div>
+
           <div className="input-group center">
-            <input className="data-input center" />
-            <input className="data-input center" />
-            <input className="data-input center" />
+            <ValidationInput
+              disabled={registrationType !== REGISTRATION_TYPES.CREATE}
+              value={ant!.name}
+              setValue={(e: string) =>
+                handleStateChange({ value: e, key: 'name' })
+              }
+              setIsValid={(isValid: boolean) => setIsValidAnt(isValid)}
+              wrapperClassName={'flex flex-column center'}
+              wrapperCustomStyle={{ gap: '0.5em', position: 'relative' }}
+              inputClassName={'data-input center'}
+              inputCustomStyle={{
+                background:
+                  registrationType == REGISTRATION_TYPES.CREATE
+                    ? 'white'
+                    : 'transparent',
+                color:
+                  registrationType == REGISTRATION_TYPES.CREATE
+                    ? 'black'
+                    : 'white',
+              }}
+              placeholder={'Nickname'}
+              validationPredicates={{}}
+            />
+            <ValidationInput
+              value={ant!.ticker}
+              disabled={registrationType !== REGISTRATION_TYPES.CREATE}
+              setValue={(e: string) =>
+                handleStateChange({ value: e, key: 'ticker' })
+              }
+              setIsValid={(isValid: boolean) => setIsValidAnt(isValid)}
+              wrapperClassName={'flex flex-column center'}
+              wrapperCustomStyle={{ gap: '0.5em', position: 'relative' }}
+              inputClassName={'data-input center'}
+              inputCustomStyle={{
+                background:
+                  registrationType == REGISTRATION_TYPES.CREATE
+                    ? 'white'
+                    : 'transparent',
+                color:
+                  registrationType == REGISTRATION_TYPES.CREATE
+                    ? 'black'
+                    : 'white',
+              }}
+              placeholder={'Ticker'}
+              validationPredicates={{}}
+            />
+
             <Dropdown
               showSelected={true}
               showChevron={true}

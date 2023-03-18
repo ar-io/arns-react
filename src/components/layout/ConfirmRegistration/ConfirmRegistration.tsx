@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
-import { ANTContractJSON, ArweaveTransactionID } from '../../../types';
+import { ArweaveTransactionID } from '../../../types';
 import {
   DEFAULT_ANT_SOURCE_CODE_TX,
   NAME_PRICE_INFO,
@@ -21,8 +21,8 @@ function ConfirmRegistration() {
   ] = useRegistrationState();
   const [{ arnsContractId, arweaveDataProvider }] = useGlobalState();
   const [isPostingTransaction, setIsPostingTransaction] = useState(false);
-  const [isConfirmed, setIsConfirmed] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | undefined>();
+  const [isConfirmed] = useState(false);
+  const [errorMessage] = useState<string | undefined>();
 
   async function buyArnsName() {
     setIsPostingTransaction(true);

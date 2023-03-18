@@ -109,7 +109,6 @@ function CreateAntModal() {
     setAnt(new ANTContract());
     setIsPostingTransaction(false);
     setAntContractId(undefined);
-    setDetails();
   }
   // reset useEffect must be first, else wont reset
   useEffect(() => {
