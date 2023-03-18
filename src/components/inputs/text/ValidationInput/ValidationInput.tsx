@@ -129,7 +129,7 @@ function ValidationInput({
             onMouseLeave={() => setOpenTooltip(false)}
           >
             <Tooltip
-              open={openTooltip && validationResults!.length > 0}
+              open={openTooltip && validationResults !== undefined}
               placement="right"
               autoAdjustOverflow={true}
               title={
@@ -139,7 +139,7 @@ function ValidationInput({
                 />
               }
             >
-              {validationResults!.length &&
+              {validationResults &&
               showValidationIcon &&
               valid !== undefined &&
               value ? (
