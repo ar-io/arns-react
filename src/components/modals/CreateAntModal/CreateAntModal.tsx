@@ -100,6 +100,7 @@ function CreateAntModal({ show }: { show: boolean }) {
     setAnt(new ANTContract());
     setIsPostingTransaction(false);
     setAntContractId(undefined);
+    setDetails();
   }
   // reset useEffect must be first, else wont reset
   useEffect(() => {
@@ -349,12 +350,14 @@ function CreateAntModal({ show }: { show: boolean }) {
                       <div className="flex flex-column">
                         <Table
                           showHeader={false}
-                          onRow={(row: ManageAntRow) => ({
-                            className:
-                              row.attribute === editingField
-                                ? 'active-row'
-                                : '',
-                          })}
+                          onRow={(row: ManageAntRow) => {
+                            return {
+                              className:
+                                row.attribute === editingField
+                                  ? 'active-row'
+                                  : '',
+                            };
+                          }}
                           scroll={{ x: true }}
                           columns={[
                             {
@@ -381,7 +384,11 @@ function CreateAntModal({ show }: { show: boolean }) {
                                     <>
                                       {/* TODO: add label for mobile view */}
                                       <ValidationInput
-                                        inputId={row.attribute}
+                                        inputId={row.attribute + 'input'}
+                                        onClick={() => {
+                                          setEditingField(row.attribute);
+                                          setModifiedValue(row.value);
+                                        }}
                                         inputCustomStyle={{
                                           width: '90%',
                                           fontSize: '16px',
@@ -430,9 +437,6 @@ function CreateAntModal({ show }: { show: boolean }) {
                                             : {}
                                         }
                                         maxLength={43}
-                                        setIsValid={(b: boolean) => {
-                                          row.isValid = b;
-                                        }}
                                       />
                                     </>
                                   );

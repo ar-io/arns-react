@@ -18,6 +18,9 @@ function ValidationInput({
   setValue,
   setIsValid,
   validationPredicates,
+  onClick = () => {
+    return;
+  },
 }: {
   wrapperClassName?: string;
   wrapperCustomStyle?: any;
@@ -31,8 +34,9 @@ function ValidationInput({
   disabled?: boolean; // disables input
   value: string | number | undefined;
   setValue: (text: string) => void;
-  setIsValid: (validity: boolean) => void;
+  setIsValid?: (validity: boolean) => void;
   validationPredicates: { [x: string]: (value: string) => Promise<any> };
+  onClick?: () => void;
 }) {
   useEffect(() => {
     if (value) {
@@ -42,6 +46,11 @@ function ValidationInput({
   const [validationResults, setValidationResults] =
     useState<ValidationObject[]>();
 
+  useEffect(() => {
+    const inputEle = document.getElementById(inputId);
+    inputEle?.focus();
+  }, [disabled]);
+
   async function validationExecutor(id: string) {
     setValue(id);
 
@@ -50,8 +59,6 @@ function ValidationInput({
     );
 
     const results = await Promise.allSettled(validations);
-
-    console.log(results);
 
     const validationResults: ValidationObject[] = results.map(
       (result: PromiseFulfilledResult<any> | PromiseRejectedResult, index) => {
@@ -64,12 +71,19 @@ function ValidationInput({
     );
 
     setValidationResults(validationResults);
-    setIsValid(validationResults.every((value) => value.status === true));
+    if (setIsValid) {
+      setIsValid(validationResults.every((value) => value.status === true));
+    }
   }
 
   return (
     <>
-      <div className={wrapperClassName} style={{ ...wrapperCustomStyle }}>
+      {/* eslint-disable-next-line */}
+      <div
+        className={wrapperClassName}
+        style={{ ...wrapperCustomStyle }}
+        onClick={onClick ? () => onClick() : undefined}
+      >
         <input
           id={inputId}
           type="text"
