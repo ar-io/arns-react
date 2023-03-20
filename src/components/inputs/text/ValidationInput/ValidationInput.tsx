@@ -20,7 +20,7 @@ function ValidationInput({
   maxLength,
   value,
   setValue,
-  setIsValid,
+  validityCallback,
   validationPredicates,
   onClick = () => {
     return;
@@ -40,7 +40,7 @@ function ValidationInput({
   disabled?: boolean; // disables input
   value: string | number | undefined;
   setValue: (text: string) => void;
-  setIsValid?: (validity: boolean) => void;
+  validityCallback?: (validity: boolean) => void;
   validationPredicates: { [x: string]: (value: string) => Promise<any> };
   onClick?: () => void;
 }) {
@@ -80,8 +80,8 @@ function ValidationInput({
     setValidationResults(validationResults);
     const validity = validationResults.every((value) => value.status === true);
     setValid(validity);
-    if (setIsValid) {
-      setIsValid(validity);
+    if (validityCallback) {
+      validityCallback(validity);
     }
   }
 

@@ -157,7 +157,9 @@ function TransactionModal({
                 maxLength={43}
                 value={toAddress}
                 setValue={setToAddress}
-                setIsValid={(validity: boolean) => setIsValidAddress(validity)}
+                validityCallback={(validity: boolean) =>
+                  setIsValidAddress(validity)
+                }
                 showValidationChecklist={true}
                 validationPredicates={{
                   [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: (id: string) =>

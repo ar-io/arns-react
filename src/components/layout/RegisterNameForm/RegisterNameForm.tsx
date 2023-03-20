@@ -121,7 +121,7 @@ function RegisterNameForm() {
             <ValidationInput
               value={antTxID ?? ''}
               setValue={(e: string) => handleAntId(e)}
-              setIsValid={(isValid: boolean) => setIsValidAnt(isValid)}
+              validityCallback={(isValid: boolean) => setIsValidAnt(isValid)}
               wrapperClassName={'flex flex-column center'}
               wrapperCustomStyle={{ gap: '0.5em', boxSizing: 'border-box' }}
               showValidationIcon={true}
