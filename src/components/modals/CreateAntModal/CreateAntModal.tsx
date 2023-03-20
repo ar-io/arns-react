@@ -387,6 +387,13 @@ function CreateAntModal({ show }: { show: boolean }) {
                                         showValidationIcon={true}
                                         showValidationOutline={true}
                                         inputId={row.attribute + '-input'}
+                                        inputType={
+                                          row.attribute === 'ttlSeconds'
+                                            ? 'number'
+                                            : undefined
+                                        }
+                                        minNumber={100}
+                                        maxNumber={1000000}
                                         onClick={() => {
                                           setEditingField(row.attribute);
                                           setModifiedValue(row.value);

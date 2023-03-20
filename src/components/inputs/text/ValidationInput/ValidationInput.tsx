@@ -25,6 +25,9 @@ function ValidationInput({
   onClick = () => {
     return;
   },
+  inputType = 'text',
+  minNumber,
+  maxNumber,
 }: {
   wrapperClassName?: string;
   wrapperCustomStyle?: any;
@@ -43,6 +46,9 @@ function ValidationInput({
   validityCallback?: (validity: boolean) => void;
   validationPredicates: { [x: string]: (value: string) => Promise<any> };
   onClick?: () => void;
+  inputType?: string;
+  minNumber?: number;
+  maxNumber?: number;
 }) {
   const [validationResults, setValidationResults] =
     useState<ValidationObject[]>();
@@ -97,7 +103,9 @@ function ValidationInput({
         <div className="flex" style={{ width: '100%', position: 'relative' }}>
           <input
             id={inputId}
-            type="text"
+            type={inputType}
+            min={inputType === 'number' ? minNumber : undefined}
+            max={inputType === 'number' ? maxNumber : undefined}
             className={inputClassName}
             maxLength={maxLength}
             placeholder={placeholder}
