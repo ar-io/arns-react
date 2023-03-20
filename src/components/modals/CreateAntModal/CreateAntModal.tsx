@@ -365,7 +365,7 @@ function CreateAntModal({ show }: { show: boolean }) {
                               dataIndex: 'attribute',
                               key: 'attribute',
                               align: 'left',
-                              width: isMobile ? '0px' : '50px',
+                              width: isMobile ? '0px' : '20%',
                               className: 'white small-row',
                               render: (value: string) => {
                                 return `${mapKeyToAttribute(value)}:`;
