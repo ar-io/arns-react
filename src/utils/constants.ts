@@ -123,23 +123,25 @@ export const WARP_CONTRACT_BASE_URL = 'https://sonar.warp.cc/#/app/contract/';
 export const WARP_INTERACTION_BASE_URL =
   'https://sonar.warp.cc/#/app/interaction/';
 
-export const atomicRegistrionTags = [
+export const SMARTWEAVE_INTERACTION_TAGS = [
   {
     name: 'App-Name',
     value: 'SmartWeaveAction',
   },
   {
     name: 'Contract',
-    value: ARNS_REGISTRY_ID,
+    value: ARNS_REGISTRY_ID, // arns registry by default
   },
   {
     name: 'Input',
-    value: JSON.stringify({
-      function: 'buyRecord',
-      name: 'ans-contract-view',
-      contractTransactionId: 'atomic',
-      years: 1,
-      tier: 1,
-    }),
+    value: '',
   },
 ];
+
+export const ATOMIC_REGISTRATION_INPUT = {
+  function: 'buyRecord',
+  name: 'domain',
+  contractTransactionId: 'atomic',
+  years: 1,
+  tier: 1,
+};

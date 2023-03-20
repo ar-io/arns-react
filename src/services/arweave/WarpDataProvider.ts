@@ -14,6 +14,8 @@ import {
 import { ArNSContractState, SmartweaveDataProvider } from '../../types';
 import {
   ARNS_REGISTRY_ID,
+  ATOMIC_REGISTRATION_INPUT,
+  SMARTWEAVE_INTERACTION_TAGS,
   SMARTWEAVE_MAX_TAG_SPACE,
 } from '../../utils/constants';
 import { byteSize } from '../../utils/searchUtils';
@@ -162,24 +164,10 @@ export class WarpDataProvider implements SmartweaveDataProvider {
       if (!domain) {
         throw new Error('No domain provided');
       }
-      const tags = [
-        {
-          name: 'App-Name',
-          value: 'SmartWeaveAction',
-        },
-        {
-          name: 'Contract',
-          value: ARNS_REGISTRY_ID,
-        },
-        {
-          name: 'Input',
-          value: JSON.stringify({
-            function: 'buyRecord',
-            name: domain,
-            contractTransactionId: 'atomic',
-          }),
-        },
-      ];
+      const tags = [...SMARTWEAVE_INTERACTION_TAGS];
+      const input = { ...ATOMIC_REGISTRATION_INPUT };
+      input.name = domain;
+      tags[2].value = JSON.stringify(input);
       const result = await this.deployContract({
         srcCodeTransactionId,
         initialState,
