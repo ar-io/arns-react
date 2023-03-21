@@ -50,21 +50,18 @@ function Workflow({
       className="flex flex-column center"
       style={isMobile ? {} : { gap: '20px', width: '100%' }}
     >
-      {/* eslint-disable-next-line */}
       {Object.entries(stages).map(([key, value], index) => {
         if (index === stage) {
           return (
-            <>
+            <div key={key}>
               {value.header}
               {steps ? (
                 <StepProgressBar stage={stage + 1} stages={steps} />
               ) : (
                 <></>
               )}
-              {React.cloneElement(value.component, {
-                key,
-              })}
-            </>
+              {value.component}
+            </div>
           );
         }
       })}
