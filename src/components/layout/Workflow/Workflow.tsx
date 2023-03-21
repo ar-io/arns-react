@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
 import { StepProgressBar } from '../progress';
@@ -35,6 +36,7 @@ function Workflow({
   footer,
 }: WorkflowProps) {
   const [{ walletAddress }, dispatchGlobalState] = useGlobalState();
+  const isMobile = useIsMobile();
 
   function showConnectWallet() {
     dispatchGlobalState({
@@ -46,7 +48,7 @@ function Workflow({
   return (
     <div
       className="flex flex-column center"
-      style={{ gap: '20px', width: '100%' }}
+      style={isMobile ? {} : { gap: '20px', width: '100%' }}
     >
       {/* eslint-disable-next-line */}
       {Object.entries(stages).map(([key, value], index) => {

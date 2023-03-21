@@ -177,21 +177,16 @@ function RegisterNameForm() {
                   ? handleStateChange({ value: e, key: 'targetID' })
                   : ''
               }
-              setIsValid={(isValid: boolean) => setIsValidAnt(isValid)}
+              validityCallback={(isValid: boolean) => setIsValidAnt(isValid)}
               wrapperClassName={'flex flex-column center'}
-              wrapperCustomStyle={{ gap: '0.5em', position: 'relative' }}
-              validationListStyle={{
-                gap: isMobile ? '0.5em' : '1em',
-                position: !isMobile ? 'absolute' : 'unset',
-                left: !isMobile ? '103%' : 'unset',
-                paddingTop: !isMobile ? '7%' : 'unset',
-              }}
+              wrapperCustomStyle={{ gap: '0.5em', boxSizing: 'border-box' }}
+              showValidationIcon={true}
               inputClassName={'data-input center'}
               inputCustomStyle={
                 isValidAnt && antTxID
-                  ? { border: 'solid 2px var(--success-green)' }
+                  ? { border: 'solid 2px var(--success-green)', width: '100%' }
                   : !isValidAnt && antTxID
-                  ? { border: 'solid 2px var(--error-red)' }
+                  ? { border: 'solid 2px var(--error-red)', width: '100%' }
                   : {}
               }
               placeholder={
@@ -237,7 +232,7 @@ function RegisterNameForm() {
               setValue={(e: string) =>
                 handleStateChange({ value: e, key: 'controller' })
               }
-              setIsValid={(isValid: boolean) => setIsValidAnt(isValid)}
+              validityCallback={(isValid: boolean) => setIsValidAnt(isValid)}
               wrapperClassName={'flex flex-column center'}
               wrapperCustomStyle={{ gap: '0.5em', position: 'relative' }}
               inputClassName={'data-input center'}
@@ -267,7 +262,7 @@ function RegisterNameForm() {
               setValue={(e: string) =>
                 handleStateChange({ value: e, key: 'name' })
               }
-              setIsValid={(isValid: boolean) => setIsValidAnt(isValid)}
+              validityCallback={(isValid: boolean) => setIsValidAnt(isValid)}
               wrapperClassName={'flex flex-column center'}
               wrapperCustomStyle={{ gap: '0.5em', position: 'relative' }}
               inputClassName={'data-input center'}
@@ -290,7 +285,7 @@ function RegisterNameForm() {
               setValue={(e: string) =>
                 handleStateChange({ value: e, key: 'ticker' })
               }
-              setIsValid={(isValid: boolean) => setIsValidAnt(isValid)}
+              validityCallback={(isValid: boolean) => setIsValidAnt(isValid)}
               wrapperClassName={'flex flex-column center'}
               wrapperCustomStyle={{ gap: '0.5em', position: 'relative' }}
               inputClassName={'data-input center'}

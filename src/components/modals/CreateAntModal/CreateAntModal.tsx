@@ -364,7 +364,7 @@ function CreateAntModal({ show }: { show: boolean }) {
                               dataIndex: 'attribute',
                               key: 'attribute',
                               align: 'left',
-                              width: isMobile ? '0px' : '50px',
+                              width: isMobile ? '0px' : '20%',
                               className: 'white small-row',
                               render: (value: string) => {
                                 return `${mapKeyToAttribute(value)}:`;
@@ -383,7 +383,16 @@ function CreateAntModal({ show }: { show: boolean }) {
                                     <>
                                       {/* TODO: add label for mobile view */}
                                       <ValidationInput
+                                        showValidationIcon={true}
+                                        showValidationOutline={true}
                                         inputId={row.attribute + '-input'}
+                                        inputType={
+                                          row.attribute === 'ttlSeconds'
+                                            ? 'number'
+                                            : undefined
+                                        }
+                                        minNumber={100}
+                                        maxNumber={1000000}
                                         onClick={() => {
                                           setEditingField(row.attribute);
                                           setModifiedValue(row.value);

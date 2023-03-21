@@ -9,16 +9,20 @@ export default function useCreateAntModal() {
 
   useEffect(() => {
     if (!walletAddress && showCreateAnt) {
+      console.log(1);
       dispatch({
         type: 'setShowConnectWallet',
         payload: true,
       });
     }
-    if (!walletAddress && !showConnectWallet) {
+
+    if (!walletAddress && !showCreateAnt) {
+      console.log(2);
       dispatch({
-        type: 'setShowCreateAnt',
+        type: 'setShowConnectWallet',
         payload: false,
       });
+      return;
     }
   }, [walletAddress, showCreateAnt, showConnectWallet]);
 

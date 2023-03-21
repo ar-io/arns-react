@@ -58,7 +58,7 @@ export default function useWalletDomains(ids: ArweaveTransactionID[]) {
         key: 'name',
         align: 'left',
         width: '18%',
-        className: 'white',
+        className: 'icon-padding white',
         ellipsis: true,
         render: (name: string) => (
           <a
