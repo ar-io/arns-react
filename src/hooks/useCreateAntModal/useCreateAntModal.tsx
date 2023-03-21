@@ -8,21 +8,20 @@ export default function useCreateAntModal() {
   const { walletAddress } = useWalletAddress();
 
   useEffect(() => {
+    // require a wallet to be connected
     if (!walletAddress && showCreateAnt) {
-      console.log(1);
       dispatch({
         type: 'setShowConnectWallet',
         payload: true,
       });
     }
 
-    if (!walletAddress && !showCreateAnt) {
-      console.log(2);
+    // if the user cancels out of connecting wallet, reset show create ant
+    if (!walletAddress && !showConnectWallet) {
       dispatch({
-        type: 'setShowConnectWallet',
+        type: 'setShowCreateAnt',
         payload: false,
       });
-      return;
     }
   }, [walletAddress, showCreateAnt, showConnectWallet]);
 
