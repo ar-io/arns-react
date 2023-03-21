@@ -20,7 +20,7 @@ export default function useWalletANTs(ids: ArweaveTransactionID[]) {
   const [{ arweaveDataProvider }] = useGlobalState();
   const { walletAddress } = useWalletAddress();
   const [sortAscending, setSortOrder] = useState(true);
-  const [sortField, setSortField] = useState<keyof AntMetadata>('name');
+  const [sortField, setSortField] = useState<keyof AntMetadata>('status');
   const [selectedRow, setSelectedRow] = useState<AntMetadata>();
   const [rows, setRows] = useState<AntMetadata[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -307,8 +307,8 @@ export default function useWalletANTs(ids: ArweaveTransactionID[]) {
       } catch (error) {
         console.error(error);
       } finally {
-        // sort by name by default
-        fetchedRows.sort((a, b) => a.name.localeCompare(b.name));
+        // sort by confirmation count (ASC) by default
+        fetchedRows.sort((a, b) => a.status - b.status);
         setRows(fetchedRows);
       }
     }
