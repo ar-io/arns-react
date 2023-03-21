@@ -186,6 +186,9 @@ function Manage() {
                       ? 'outline-button center disabled-button'
                       : 'outline-button center'
                   }
+                  style={{
+                    padding: '0.75em',
+                  }}
                   onClick={() =>
                     walletAddress && fetchWalletAnts(walletAddress)
                   }
