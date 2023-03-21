@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router';
 
 import { useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
@@ -35,14 +36,12 @@ function Workflow({
   stage,
   footer,
 }: WorkflowProps) {
-  const [{ walletAddress }, dispatchGlobalState] = useGlobalState();
+  const [{ walletAddress }] = useGlobalState();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
 
   function showConnectWallet() {
-    dispatchGlobalState({
-      type: 'setShowConnectWallet',
-      payload: true,
-    });
+    navigate('/connect');
   }
 
   return (
