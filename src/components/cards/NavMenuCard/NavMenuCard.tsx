@@ -95,9 +95,10 @@ function NavMenuCard() {
         type: 'setWallet',
         payload: undefined,
       });
-      navigate('/');
     } catch (error: any) {
       console.error(error);
+    } finally {
+      navigate('/');
     }
   }
 

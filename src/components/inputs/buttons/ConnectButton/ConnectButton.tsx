@@ -1,21 +1,16 @@
-import { useGlobalState } from '../../../../state/contexts/GlobalState';
+import { Link } from 'react-router-dom';
+
 import './styles.css';
 
 function ConnectButton(): JSX.Element {
-  const [{}, dispatch] = useGlobalState(); // eslint-disable-line
-
-  function showConnectModal() {
-    dispatch({
-      type: 'setShowConnectWallet',
-      payload: true,
-    });
-  }
   return (
-    <>
-      <button className="connect-button" onClick={showConnectModal}>
-        Connect
-      </button>
-    </>
+    <Link
+      className="connect-button"
+      style={{ textDecoration: 'none' }}
+      to="connect"
+    >
+      Connect
+    </Link>
   );
 }
 

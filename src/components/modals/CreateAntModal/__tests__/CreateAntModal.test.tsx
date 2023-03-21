@@ -6,6 +6,6 @@ describe('Create', () => {
   afterEach(cleanup);
 
   test('render Create', () => {
-    render(<CreateAntModal show={true} />);
+    render(<CreateAntModal />);
   });
 });
