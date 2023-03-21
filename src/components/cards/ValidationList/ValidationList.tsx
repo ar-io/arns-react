@@ -15,7 +15,7 @@ function ValidationList({
       {/* WIP: waiting on final design from lucas */}
       <div
         className={!isMobile ? 'flex flex-column' : 'flex flex-column center'}
-        style={{ ...wrapperCustomStyle }}
+        style={{ ...wrapperCustomStyle, zIndex: '1001' }}
       >
         {validations?.map((validationItem: ValidationObject, index: number) => (
           <span
