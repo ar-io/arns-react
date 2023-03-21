@@ -6,10 +6,7 @@ import {
 } from 'react-router-dom';
 
 import { Layout } from './components/layout';
-import {
-  ConnectWalletModal,
-  CreateAntModal,
-} from './components/modals/index.js';
+import { ConnectWalletModal, CreateAntModal } from './components/modals';
 import { About, Home, Manage, NotFound } from './components/pages';
 import { useArNSContract, useArweave, useWalletAddress } from './hooks/';
 import './index.css';
