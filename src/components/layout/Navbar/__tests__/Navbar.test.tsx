@@ -1,5 +1,5 @@
 import { cleanup, render } from '@testing-library/react';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { HashRouter as Router } from 'react-router-dom';
 
 import Navbar from '../Navbar';
 

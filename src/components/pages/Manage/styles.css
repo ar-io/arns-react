@@ -13,8 +13,8 @@
 .table-selector-group {
   display: flex;
   flex-direction: row;
-  border: var(--text-faded) 2px solid;
-  border-radius: 8px;
+  border: var(--text-faded) 1px solid;
+  border-radius: 10px;
   width: fit-content;
   position: relative;
 }
