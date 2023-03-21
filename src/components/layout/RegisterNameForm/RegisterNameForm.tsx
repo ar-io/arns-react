@@ -23,26 +23,19 @@ function RegisterNameForm() {
     USE_EXISTING = 'Use existing Arweave Name Token (ANT)',
   }
   const registrationOptions = {
-    create: [REGISTRATION_TYPES.CREATE],
-    'use-existing': [REGISTRATION_TYPES.USE_EXISTING],
+    create: REGISTRATION_TYPES.CREATE,
+    'use-existing': REGISTRATION_TYPES.USE_EXISTING,
   };
   const [registrationType, setRegistrationType] = useState(
     REGISTRATION_TYPES.USE_EXISTING,
   );
   const [antTxID, setAntTXId] = useState<string | undefined>(antID?.toString());
   const [ant, setAnt] = useState<ANTContract>(new ANTContract());
-  const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (!antID) {
-      reset();
-      return;
-    }
-    if (inputRef.current) {
-      inputRef.current.focus();
-      handleAntId(antTxID?.toString());
-    }
-  }, []);
+    reset();
+  }, [registrationType]);
+
   useEffect(() => {
     if (walletAddress && registrationType === REGISTRATION_TYPES.CREATE) {
       if (!ant.owner) {
@@ -51,8 +44,9 @@ function RegisterNameForm() {
       if (!ant.controller) {
         ant.controller = walletAddress.toString();
       }
+      setAnt(new ANTContract(ant.state));
     }
-  }, [walletAddress, ant]);
+  }, [walletAddress, ant, registrationType]);
 
   function reset() {
     setIsValidAnt(undefined);
@@ -108,7 +102,7 @@ function RegisterNameForm() {
     }
   }
 
-  function handleStateChange({ value, key }: { value: string; key: string }) {
+  function handleStateChange({ value, key }: { value?: string; key: string }) {
     try {
       if (!ant) {
         throw new Error('ANT Contract is undefined');
@@ -116,28 +110,28 @@ function RegisterNameForm() {
 
       switch (key) {
         case 'name':
-          ant.name = value.toString() ?? '';
+          ant.name = value?.toString() ?? '';
           break;
         case 'ticker':
-          ant.ticker = value.toString();
+          ant.ticker = value?.toString() ?? '';
           break;
         case 'owner':
-          ant.owner = value.toString();
+          ant.owner = value?.toString() ?? '';
           break;
         case 'controller':
-          ant.controller = value.toString();
+          ant.controller = value?.toString() ?? '';
           break;
         case 'targetID':
           ant.records = {
             '@': {
-              transactionId: value.toString(),
+              transactionId: value?.toString() ?? '',
             },
           };
           break;
         case 'ttlSeconds':
           ant.records = {
             '@': {
-              ttlSeconds: +value,
+              ttlSeconds: value ? +value : 0, // couldnt use ??
             },
           };
           break;
@@ -172,12 +166,16 @@ function RegisterNameForm() {
               value={
                 registrationType === REGISTRATION_TYPES.USE_EXISTING
                   ? antTxID
-                  : ant.records['@'].transactionId?.toString()
+                  : registrationType === REGISTRATION_TYPES.CREATE
+                  ? ant.records['@'].transactionId?.toString()
+                  : ''
               }
               setValue={(e: string) =>
                 registrationType === REGISTRATION_TYPES.USE_EXISTING
                   ? handleAntId(e)
-                  : handleStateChange({ value: e, key: 'targetID' })
+                  : registrationType === REGISTRATION_TYPES.CREATE
+                  ? handleStateChange({ value: e, key: 'targetID' })
+                  : ''
               }
               setIsValid={(isValid: boolean) => setIsValidAnt(isValid)}
               wrapperClassName={'flex flex-column center'}
@@ -262,7 +260,7 @@ function RegisterNameForm() {
             />
           </div>
 
-          <div className="input-group center">
+          <div className="input-group center" style={{ padding: 0 }}>
             <ValidationInput
               disabled={registrationType !== REGISTRATION_TYPES.CREATE}
               value={ant!.name}
