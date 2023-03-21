@@ -233,7 +233,7 @@ function NavMenuCard() {
                 return (
                   <span
                     key={key}
-                    className="flex-row flex-space-between navbar-link hover"
+                    className="flex-row flex-space-between navbar-link"
                   >
                     <span>{key} Balance</span>
                     {value ? (
