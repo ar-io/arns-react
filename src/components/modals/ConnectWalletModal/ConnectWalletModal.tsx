@@ -20,6 +20,9 @@ function ConnectWalletModal(): JSX.Element {
       closeModal();
     }
     document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'scroll';
+    };
   }, [wallet, walletAddress]);
 
   function handleClickOutside(e: any) {
