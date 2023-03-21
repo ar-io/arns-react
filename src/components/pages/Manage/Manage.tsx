@@ -2,13 +2,13 @@ import { Pagination } from 'antd';
 import Table from 'rc-table';
 import { useEffect, useRef, useState } from 'react';
 
-import { useWalletAddress } from '../../../hooks';
+import { useIsMobile, useWalletAddress } from '../../../hooks';
 import useWalletANTs from '../../../hooks/useWalletANTs/useWalletANTs';
 import useWalletDomains from '../../../hooks/useWalletDomains/useWalletDomains';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { AntMetadata, ArweaveTransactionID } from '../../../types';
 import { TABLE_TYPES } from '../../../types';
-import { CodeSandboxIcon, NotebookIcon } from '../../icons';
+import { CodeSandboxIcon, NotebookIcon, RefreshIcon } from '../../icons';
 import { Loader } from '../../layout/index';
 import ManageAntModal from '../../modals/ManageAntModal/ManageAntModal';
 import './styles.css';
@@ -16,6 +16,7 @@ import './styles.css';
 function Manage() {
   const [{ arnsSourceContract, arweaveDataProvider }] = useGlobalState();
   const { walletAddress } = useWalletAddress();
+  const isMobile = useIsMobile();
 
   const [tableType, setTableType] = useState<string>(TABLE_TYPES.NAME);
 
@@ -134,44 +135,74 @@ function Manage() {
           />
         ) : (
           <>
-            <div className="table-selector-group">
-              {[TABLE_TYPES.NAME, TABLE_TYPES.ANT].map(
-                (t: string, index: number) => (
-                  <button
-                    key={index}
-                    className="table-selector text bold center"
-                    onClick={() => {
-                      setTableType(t);
-                      setTablePage(1);
-                      // TODO: update this to a specific block height, currently set to ~2 mins
-                      if (lastUpdated < Date.now() - 120_000 && walletAddress) {
-                        fetchWalletAnts(walletAddress);
+            <div className="flex flex-justify-between">
+              <div className="table-selector-group">
+                {[TABLE_TYPES.NAME, TABLE_TYPES.ANT].map(
+                  (t: string, index: number) => (
+                    <button
+                      key={index}
+                      className="table-selector text bold center"
+                      onClick={() => {
+                        setTableType(t);
+                        setTablePage(1);
+                        // TODO: update this to a specific block height, currently set to ~2 mins
+                        if (
+                          lastUpdated < Date.now() - 120_000 &&
+                          walletAddress
+                        ) {
+                          fetchWalletAnts(walletAddress);
+                        }
+                      }}
+                      style={
+                        tableType === t
+                          ? {
+                              borderColor: 'var(--text-white)',
+                              color: 'var(--text-black)',
+                              fill: 'var(--text-black)',
+                              backgroundColor: 'var(--text-white)',
+                              borderRadius: 'var(--corner-radius)',
+                            }
+                          : {
+                              color: 'var(--text-white)',
+                              fill: 'var(--text-white)',
+                            }
                       }
-                    }}
-                    style={
-                      tableType === t
-                        ? {
-                            borderColor: 'var(--text-white)',
-                            color: 'var(--text-black)',
-                            fill: 'var(--text-black)',
-                            backgroundColor: 'var(--text-white)',
-                            borderRadius: 'var(--corner-radius)',
-                          }
-                        : {
-                            color: 'var(--text-white)',
-                            fill: 'var(--text-white)',
-                          }
-                    }
-                  >
-                    {t === TABLE_TYPES.NAME ? (
-                      <NotebookIcon width={'20px'} height="20px" />
-                    ) : (
-                      <CodeSandboxIcon width={'20px'} height="20px" />
-                    )}
-                    {t}
-                  </button>
-                ),
-              )}
+                    >
+                      {t === TABLE_TYPES.NAME ? (
+                        <NotebookIcon width={'20px'} height="20px" />
+                      ) : (
+                        <CodeSandboxIcon width={'20px'} height="20px" />
+                      )}
+                      {t}
+                    </button>
+                  ),
+                )}
+              </div>
+              <div className="flex flex-row flex-right">
+                <button
+                  disabled={antTableLoading}
+                  className={
+                    antTableLoading
+                      ? 'outline-button center disabled-button'
+                      : 'outline-button center'
+                  }
+                  onClick={() =>
+                    walletAddress && fetchWalletAnts(walletAddress)
+                  }
+                >
+                  <RefreshIcon height={20} width={20} fill="white" />
+                  {isMobile ? (
+                    <></>
+                  ) : (
+                    <span
+                      className="text white"
+                      style={{ fontSize: '16px', padding: '0 0.2em' }}
+                    >
+                      Refresh
+                    </span>
+                  )}
+                </button>
+              </div>
             </div>
             {tableLoading ? (
               <div
