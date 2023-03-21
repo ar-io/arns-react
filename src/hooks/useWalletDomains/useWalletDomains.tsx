@@ -268,7 +268,14 @@ export default function useWalletDomains(ids: ArweaveTransactionID[]) {
       },
       {
         title: '',
-        render: () => <></>,
+        render: () => (
+          <button
+            className="white center"
+            onClick={() => alert('coming soon!')}
+          >
+            &#x2022;&#x2022;&#x2022;
+          </button>
+        ),
         align: 'right',
         width: '10%',
       },
