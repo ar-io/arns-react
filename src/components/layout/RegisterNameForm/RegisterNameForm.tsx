@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useIsMobile, useWalletAddress } from '../../../hooks';
 import { ANTContract } from '../../../services/arweave/AntContract';
@@ -163,6 +163,8 @@ function RegisterNameForm() {
             />
 
             <ValidationInput
+              showValidationIcon={true}
+              showValidationOutline={true}
               value={
                 registrationType === REGISTRATION_TYPES.USE_EXISTING
                   ? antTxID
@@ -180,7 +182,6 @@ function RegisterNameForm() {
               validityCallback={(isValid: boolean) => setIsValidAnt(isValid)}
               wrapperClassName={'flex flex-column center'}
               wrapperCustomStyle={{ gap: '0.5em', boxSizing: 'border-box' }}
-              showValidationIcon={true}
               inputClassName={'data-input center'}
               inputCustomStyle={
                 isValidAnt && antTxID
@@ -194,7 +195,6 @@ function RegisterNameForm() {
                   ? 'Enter a Contract ID, nickname, or ticker'
                   : 'Enter a Target ID'
               }
-              showValidationChecklist={true}
               validationPredicates={
                 registrationType == REGISTRATION_TYPES.USE_EXISTING
                   ? {
@@ -221,13 +221,8 @@ function RegisterNameForm() {
             />
             <ValidationInput
               disabled={registrationType !== REGISTRATION_TYPES.CREATE}
-              showValidationChecklist={true}
-              validationListStyle={{
-                gap: isMobile ? '0.5em' : '1em',
-                position: !isMobile ? 'absolute' : 'unset',
-                left: !isMobile ? '103%' : 'unset',
-                paddingTop: !isMobile ? '7%' : 'unset',
-              }}
+              showValidationIcon={true}
+              showValidationOutline={true}
               value={ant!.controller}
               setValue={(e: string) =>
                 handleStateChange({ value: e, key: 'controller' })
@@ -257,6 +252,8 @@ function RegisterNameForm() {
 
           <div className="input-group center" style={{ padding: 0 }}>
             <ValidationInput
+              showValidationIcon={true}
+              showValidationOutline={true}
               disabled={registrationType !== REGISTRATION_TYPES.CREATE}
               value={ant!.name}
               setValue={(e: string) =>
@@ -280,6 +277,8 @@ function RegisterNameForm() {
               validationPredicates={{}}
             />
             <ValidationInput
+              showValidationIcon={true}
+              showValidationOutline={true}
               value={ant!.ticker}
               disabled={registrationType !== REGISTRATION_TYPES.CREATE}
               setValue={(e: string) =>
@@ -306,7 +305,7 @@ function RegisterNameForm() {
             <Dropdown
               showSelected={true}
               showChevron={true}
-              selected={`${antContract?.records['@'].ttlSeconds} seconds`}
+              selected={`${antContract?.records['@']?.ttlSeconds} seconds`}
               setSelected={(value) =>
                 antContract
                   ? (antContract.records = { '@': { ttlSeconds: value } })
