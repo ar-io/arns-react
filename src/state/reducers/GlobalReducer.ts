@@ -43,16 +43,6 @@ export const reducer = (state: GlobalState, action: Action): GlobalState => {
         ...state,
         wallet: action.payload,
       };
-    case 'setShowConnectWallet':
-      return {
-        ...state,
-        showConnectWallet: action.payload,
-      };
-    case 'setShowCreateAnt':
-      return {
-        ...state,
-        showCreateAnt: action.payload,
-      };
     case 'setGateway':
       return {
         ...state,

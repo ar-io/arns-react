@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 import { useIsMobile, useWalletAddress } from '../../../../hooks';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { ROUTES } from '../../../../utils/routes';
@@ -23,17 +25,9 @@ const NavGroup = () => {
               );
           })}
 
-          <button
-            className="button text-medium bold white hover"
-            onClick={() =>
-              dispatchGlobalState({
-                type: 'setShowCreateAnt',
-                payload: true,
-              })
-            }
-          >
+          <Link to="create" className="button text-medium bold white hover">
             Create
-          </button>
+          </Link>
           {!wallet || !walletAddress ? (
             <ConnectButton />
           ) : (

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router';
 
 import { useWalletAddress } from '../../../hooks';
 import { ArConnectWalletConnector } from '../../../services/wallets';
@@ -7,24 +8,19 @@ import { ArweaveWalletConnector } from '../../../types';
 import { ArConnectIcon, ArweaveAppIcon, CloseIcon } from '../../icons';
 import './styles.css';
 
-function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
+function ConnectWalletModal(): JSX.Element {
   const modalRef = useRef(null);
   const [{}, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
   const { wallet, walletAddress } = useWalletAddress();
+  const navigate = useNavigate();
+
   useEffect(() => {
     // disable scrolling when modal is in view
     if (wallet && walletAddress) {
-      dispatchGlobalState({
-        type: 'setShowConnectWallet',
-        payload: false,
-      });
+      closeModal();
     }
-    if (show) {
-      document.body.style.overflow = 'hidden';
-      return;
-    }
-    document.body.style.overflow = 'unset';
-  }, [show, wallet, walletAddress]);
+    document.body.style.overflow = 'hidden';
+  }, [wallet, walletAddress]);
 
   function handleClickOutside(e: any) {
     if (modalRef.current && modalRef.current === e.target) {
@@ -34,10 +30,8 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
   }
 
   function closeModal() {
-    dispatchGlobalState({
-      type: 'setShowConnectWallet',
-      payload: false,
-    });
+    // TODO; add a location.state.from to redirect back to a preferred location
+    navigate(-1);
   }
 
   async function setGlobalWallet(walletConnector: ArweaveWalletConnector) {
@@ -52,7 +46,7 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
     }
   }
 
-  return show ? (
+  return (
     // eslint-disable-next-line
     <div
       className="modal-container"
@@ -101,8 +95,6 @@ function ConnectWalletModal({ show }: { show: boolean }): JSX.Element {
         </button>
       </div>
     </div>
-  ) : (
-    <></>
   );
 }
 export default ConnectWalletModal;

@@ -1,5 +1,6 @@
 import Table from 'rc-table';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
 
 import { useIsMobile, useWalletAddress } from '../../../hooks';
 import { ANTContract } from '../../../services/arweave/AntContract';
@@ -23,10 +24,18 @@ import DeployTransaction from '../../layout/DeployTransaction/DeployTransaction'
 import TransactionSuccess from '../../layout/TransactionSuccess/TransactionSuccess';
 import Workflow from '../../layout/Workflow/Workflow';
 
-function CreateAntModal({ show }: { show: boolean }) {
+function CreateAntModal() {
   const isMobile = useIsMobile();
-  const [{ arweaveDataProvider }, dispatchGlobalState] = useGlobalState();
+  const [{ arweaveDataProvider }] = useGlobalState();
   const { walletAddress } = useWalletAddress();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!walletAddress) {
+      // TODO: use previous location instead
+      navigate('/connect', { replace: true });
+    }
+  }, [walletAddress]);
 
   const [ant, setAnt] = useState<ANTContract>(new ANTContract());
 
@@ -105,12 +114,9 @@ function CreateAntModal({ show }: { show: boolean }) {
   // reset useEffect must be first, else wont reset
   useEffect(() => {
     reset();
-    if (show) {
-      document.body.style.overflow = 'hidden';
-      return;
-    }
-    document.body.style.overflow = 'unset';
-  }, [show]);
+    document.body.style.overflow = 'hidden';
+  }, []);
+
   useEffect(() => {
     if (walletAddress) {
       if (!ant.owner) {
@@ -229,379 +235,369 @@ function CreateAntModal({ show }: { show: boolean }) {
 
   return (
     <>
-      {show ? (
-        <div
-          className="modal-container flex flex-column center"
-          style={{ overflow: 'none' }}
+      (
+      <div
+        className="modal-container flex flex-column center"
+        style={{ overflow: 'none' }}
+      >
+        <button
+          className="icon-button"
+          style={{
+            position: 'absolute',
+            top: '2em',
+            right: '2em',
+            borderRadius: '100%',
+          }}
+          onClick={() => {
+            reset();
+            navigate(-1);
+          }}
         >
-          <button
-            className="icon-button"
-            style={{
-              position: 'absolute',
-              top: '2em',
-              right: '2em',
-              borderRadius: '100%',
-            }}
-            onClick={() => {
-              reset();
-              dispatchGlobalState({
-                type: 'setShowCreateAnt',
-                payload: false,
-              });
-            }}
-          >
-            <CloseIcon width={30} height={30} fill={'var(--text-white'} />
-          </button>
-          <Workflow
-            stage={workflowStage}
-            onNext={() => {
-              switch (workflowStage) {
-                case 0:
-                  setWorkflowStage(workflowStage + 1);
-                  if (!ant.records['@'].transactionId) {
-                    ant.records = {
-                      ...ant.records,
-                      '@': { transactionId: STUB_ARWEAVE_TXID },
-                    };
+          <CloseIcon width={30} height={30} fill={'var(--text-white'} />
+        </button>
+        <Workflow
+          stage={workflowStage}
+          onNext={() => {
+            switch (workflowStage) {
+              case 0:
+                setWorkflowStage(workflowStage + 1);
+                if (!ant.records['@'].transactionId) {
+                  ant.records = {
+                    ...ant.records,
+                    '@': { transactionId: STUB_ARWEAVE_TXID },
+                  };
+                }
+                break;
+              case 1:
+                {
+                  if (ant.state) {
+                    setWorkflowStage(workflowStage + 1);
+                    deployAnt(ant.state)
+                      .then(() => {
+                        setWorkflowStage(workflowStage + 2);
+                        steps['3'].status = 'fail';
+                      })
+                      .catch(() => {
+                        setWorkflowStage(workflowStage + 2);
+                        steps['3'].status = 'fail';
+                      });
                   }
-                  break;
-                case 1:
-                  {
-                    if (ant.state) {
-                      setWorkflowStage(workflowStage + 1);
-                      deployAnt(ant.state)
-                        .then(() => {
-                          setWorkflowStage(workflowStage + 2);
-                          steps['3'].status = 'fail';
-                        })
-                        .catch(() => {
-                          setWorkflowStage(workflowStage + 2);
-                          steps['3'].status = 'fail';
-                        });
-                    }
-                    if (!ant.state) {
-                      return;
-                    }
+                  if (!ant.state) {
+                    return;
                   }
-                  break;
-                default:
-                  return;
-              }
-            }}
-            onBack={() => {
-              switch (workflowStage) {
-                case 0:
-                  dispatchGlobalState({
-                    type: 'setShowCreateAnt',
-                    payload: false,
-                  });
-                  break;
-                default:
-                  setWorkflowStage(workflowStage - 1);
-                  break;
-              }
-            }}
-            steps={steps}
-            stages={{
-              0: {
-                showNext: true,
-                showBack: true,
-                backText: 'Cancel',
-                customBackStyle: {
-                  height: '40px',
-                  width: '150px',
-                  padding: '5px 10px',
-                },
-                customNextStyle: {
-                  height: '40px',
-                  width: '150px',
-                  padding: '5px 10px',
-                },
-                header: (
-                  <>
-                    <div className="flex flex-row text-large white bold center">
-                      Create an ANT
-                    </div>
-                  </>
-                ),
-                component: (
-                  <>
-                    <div
-                      className="flex flex-column card center"
-                      style={
-                        isMobile
-                          ? {
-                              width: '95%',
-                              height: '75%',
-                              position: 'relative',
-                            }
-                          : {
-                              width: '50%',
-                              height: 'fit-content',
-                              minWidth: '675px',
-                              minHeight: '20%',
-                              maxHeight: '638px',
-                              maxWidth: '1000px',
-                              position: 'relative',
-                              padding: '.5em 2em',
-                            }
-                      }
-                    >
-                      <div className="flex flex-column">
-                        <Table
-                          showHeader={false}
-                          onRow={(row: ManageAntRow) => {
-                            return {
-                              className:
-                                row.attribute === editingField
-                                  ? 'active-row'
-                                  : '',
-                            };
-                          }}
-                          scroll={{ x: true }}
-                          columns={[
-                            {
-                              title: '',
-                              dataIndex: 'attribute',
-                              key: 'attribute',
-                              align: 'left',
-                              width: isMobile ? '0px' : '20%',
-                              className: 'white small-row',
-                              render: (value: string) => {
-                                return `${mapKeyToAttribute(value)}:`;
-                              },
+                }
+                break;
+              default:
+                return;
+            }
+          }}
+          onBack={() => {
+            switch (workflowStage) {
+              case 0:
+                navigate(-1);
+                break;
+              default:
+                setWorkflowStage(workflowStage - 1);
+                break;
+            }
+          }}
+          steps={steps}
+          stages={{
+            0: {
+              showNext: true,
+              showBack: true,
+              backText: 'Cancel',
+              customBackStyle: {
+                height: '40px',
+                width: '150px',
+                padding: '5px 10px',
+              },
+              customNextStyle: {
+                height: '40px',
+                width: '150px',
+                padding: '5px 10px',
+              },
+              header: (
+                <>
+                  <div className="flex flex-row text-large white bold center">
+                    Create an ANT
+                  </div>
+                </>
+              ),
+              component: (
+                <>
+                  <div
+                    className="flex flex-column card center"
+                    style={
+                      isMobile
+                        ? {
+                            width: '95%',
+                            height: '75%',
+                            position: 'relative',
+                          }
+                        : {
+                            width: '50%',
+                            height: 'fit-content',
+                            minWidth: '675px',
+                            minHeight: '20%',
+                            maxHeight: '638px',
+                            maxWidth: '1000px',
+                            position: 'relative',
+                            padding: '.5em 2em',
+                          }
+                    }
+                  >
+                    <div className="flex flex-column">
+                      <Table
+                        showHeader={false}
+                        onRow={(row: ManageAntRow) => {
+                          return {
+                            className:
+                              row.attribute === editingField
+                                ? 'active-row'
+                                : '',
+                          };
+                        }}
+                        scroll={{ x: true }}
+                        columns={[
+                          {
+                            title: '',
+                            dataIndex: 'attribute',
+                            key: 'attribute',
+                            align: 'left',
+                            width: isMobile ? '0px' : '20%',
+                            className: 'white small-row',
+                            render: (value: string) => {
+                              return `${mapKeyToAttribute(value)}:`;
                             },
-                            {
-                              title: '',
-                              dataIndex: 'value',
-                              key: 'value',
-                              align: 'left',
-                              width: 'fit-content',
-                              className: `white`,
-                              render: (value: string | number, row: any) => {
-                                if (row.editable)
-                                  return (
-                                    <>
-                                      {/* TODO: add label for mobile view */}
-                                      <ValidationInput
-                                        showValidationIcon={true}
-                                        showValidationOutline={true}
-                                        inputId={row.attribute + '-input'}
-                                        inputType={
-                                          row.attribute === 'ttlSeconds'
-                                            ? 'number'
-                                            : undefined
-                                        }
-                                        minNumber={100}
-                                        maxNumber={1000000}
+                          },
+                          {
+                            title: '',
+                            dataIndex: 'value',
+                            key: 'value',
+                            align: 'left',
+                            width: 'fit-content',
+                            className: `white`,
+                            render: (value: string | number, row: any) => {
+                              if (row.editable)
+                                return (
+                                  <>
+                                    {/* TODO: add label for mobile view */}
+                                    <ValidationInput
+                                      showValidationIcon={true}
+                                      showValidationOutline={true}
+                                      inputId={row.attribute + '-input'}
+                                      inputType={
+                                        row.attribute === 'ttlSeconds'
+                                          ? 'number'
+                                          : undefined
+                                      }
+                                      minNumber={100}
+                                      maxNumber={1000000}
+                                      onClick={() => {
+                                        setEditingField(row.attribute);
+                                        setModifiedValue(row.value);
+                                      }}
+                                      wrapperCustomStyle={{
+                                        minWidth: 'max-content',
+                                      }}
+                                      inputClassName={'flex'}
+                                      inputCustomStyle={{
+                                        width: '100%',
+                                        border: 'none',
+                                        overflow: 'hidden',
+                                        fontSize: '16px',
+                                        outline: 'none',
+                                        borderRadius: 'var(--corner-radius)',
+                                        background:
+                                          editingField === row.attribute
+                                            ? 'white'
+                                            : 'transparent',
+                                        color:
+                                          editingField === row.attribute
+                                            ? 'black'
+                                            : 'white',
+                                        padding:
+                                          editingField === row.attribute
+                                            ? '10px '
+                                            : '10px 0px',
+                                        paddingRight: '40px',
+                                        display: 'flex',
+                                      }}
+                                      disabled={editingField !== row.attribute}
+                                      placeholder={`Enter a ${mapKeyToAttribute(
+                                        row.attribute,
+                                      )}`}
+                                      value={
+                                        editingField !== row.attribute
+                                          ? row.value
+                                          : modifiedValue
+                                      }
+                                      setValue={(e) => {
+                                        setModifiedValue(e);
+                                        row.value = e;
+                                      }}
+                                      validationPredicates={
+                                        row.attribute === 'owner' ||
+                                        row.attribute === 'controller' ||
+                                        row.attribute === 'targetID'
+                                          ? {
+                                              [VALIDATION_INPUT_TYPES.ARWEAVE_ID]:
+                                                (id: string) =>
+                                                  arweaveDataProvider.validateArweaveId(
+                                                    id,
+                                                  ),
+                                            }
+                                          : {}
+                                      }
+                                      maxLength={43}
+                                    />
+                                  </>
+                                );
+                              return value;
+                            },
+                          },
+                          {
+                            title: '',
+                            dataIndex: 'action',
+                            key: 'action',
+                            width: '10%',
+                            align: 'right',
+                            className: 'white',
+                            render: (value: any, row: any) => {
+                              //TODO: if it's got an action attached, show it
+                              if (row.editable) {
+                                return (
+                                  <>
+                                    {editingField !== row.attribute ? (
+                                      <button
                                         onClick={() => {
                                           setEditingField(row.attribute);
                                           setModifiedValue(row.value);
                                         }}
-                                        wrapperCustomStyle={{
-                                          minWidth: 'max-content',
-                                        }}
-                                        inputClassName={'flex'}
-                                        inputCustomStyle={{
-                                          width: '100%',
-                                          border: 'none',
-                                          overflow: 'hidden',
-                                          fontSize: '16px',
-                                          outline: 'none',
-                                          borderRadius: 'var(--corner-radius)',
-                                          background:
-                                            editingField === row.attribute
-                                              ? 'white'
-                                              : 'transparent',
-                                          color:
-                                            editingField === row.attribute
-                                              ? 'black'
-                                              : 'white',
-                                          padding:
-                                            editingField === row.attribute
-                                              ? '10px '
-                                              : '10px 0px',
-                                          paddingRight: '40px',
-                                          display: 'flex',
-                                        }}
-                                        disabled={
-                                          editingField !== row.attribute
-                                        }
-                                        placeholder={`Enter a ${mapKeyToAttribute(
-                                          row.attribute,
-                                        )}`}
-                                        value={
-                                          editingField !== row.attribute
-                                            ? row.value
-                                            : modifiedValue
-                                        }
-                                        setValue={(e) => {
-                                          setModifiedValue(e);
-                                          row.value = e;
-                                        }}
-                                        validationPredicates={
-                                          row.attribute === 'owner' ||
-                                          row.attribute === 'controller' ||
-                                          row.attribute === 'targetID'
-                                            ? {
-                                                [VALIDATION_INPUT_TYPES.ARWEAVE_ID]:
-                                                  (id: string) =>
-                                                    arweaveDataProvider.validateArweaveId(
-                                                      id,
-                                                    ),
-                                              }
-                                            : {}
-                                        }
-                                        maxLength={43}
-                                      />
-                                    </>
-                                  );
-                                return value;
-                              },
-                            },
-                            {
-                              title: '',
-                              dataIndex: 'action',
-                              key: 'action',
-                              width: '10%',
-                              align: 'right',
-                              className: 'white',
-                              render: (value: any, row: any) => {
-                                //TODO: if it's got an action attached, show it
-                                if (row.editable) {
-                                  return (
-                                    <>
-                                      {editingField !== row.attribute ? (
-                                        <button
-                                          onClick={() => {
-                                            setEditingField(row.attribute);
-                                            setModifiedValue(row.value);
-                                          }}
-                                        >
-                                          <PencilIcon
-                                            style={{
-                                              width: '24',
-                                              height: '24',
-                                              fill: 'white',
-                                            }}
-                                          />
-                                        </button>
-                                      ) : (
-                                        <button
-                                          className="assets-manage-button"
+                                      >
+                                        <PencilIcon
                                           style={{
-                                            backgroundColor: 'var(--accent)',
-                                            borderColor: 'var(--accent)',
+                                            width: '24',
+                                            height: '24',
+                                            fill: 'white',
                                           }}
-                                          onClick={() => {
-                                            handleStateChange();
-                                          }}
-                                        >
-                                          Save
-                                        </button>
-                                      )}
-                                    </>
-                                  );
-                                }
-                                if (row.action) {
-                                  return (
-                                    <button
-                                      onClick={row.action.fn}
-                                      className="assets-manage-button"
-                                    >
-                                      {row.action.title}
-                                    </button>
-                                  );
-                                }
-                                return value;
-                              },
+                                        />
+                                      </button>
+                                    ) : (
+                                      <button
+                                        className="assets-manage-button"
+                                        style={{
+                                          backgroundColor: 'var(--accent)',
+                                          borderColor: 'var(--accent)',
+                                        }}
+                                        onClick={() => {
+                                          handleStateChange();
+                                        }}
+                                      >
+                                        Save
+                                      </button>
+                                    )}
+                                  </>
+                                );
+                              }
+                              if (row.action) {
+                                return (
+                                  <button
+                                    onClick={row.action.fn}
+                                    className="assets-manage-button"
+                                  >
+                                    {row.action.title}
+                                  </button>
+                                );
+                              }
+                              return value;
                             },
-                          ]}
-                          data={rows}
-                        />
-                      </div>
-                      {/* card div end */}
+                          },
+                        ]}
+                        data={rows}
+                      />
                     </div>
-                  </>
-                ),
+                    {/* card div end */}
+                  </div>
+                </>
+              ),
+            },
+            1: {
+              nextText: 'Confirm',
+              customBackStyle: {
+                height: '40px',
+                width: '150px',
+                padding: '5px 10px',
               },
-              1: {
-                nextText: 'Confirm',
-                customBackStyle: {
-                  height: '40px',
-                  width: '150px',
-                  padding: '5px 10px',
-                },
-                customNextStyle: {
-                  height: '40px',
-                  width: '150px',
-                  padding: '5px 10px',
-                  backgroundColor: !ant.state
-                    ? 'var(--text-faded)'
-                    : 'var(--accent)',
-                },
-                header: (
-                  <>
-                    <div className="flex flex-row text-large white bold center">
-                      Confirm ANT Creation
-                    </div>
-                  </>
-                ),
-                component: (
-                  <>
-                    <ConfirmAntCreation state={ant.state} />
-                  </>
-                ),
+              customNextStyle: {
+                height: '40px',
+                width: '150px',
+                padding: '5px 10px',
+                backgroundColor: !ant.state
+                  ? 'var(--text-faded)'
+                  : 'var(--accent)',
               },
-              2: {
-                showBack: false,
-                showNext: false,
-                header: (
-                  <>
-                    {' '}
-                    <span className="flex flex-row text-large white bold center">
-                      {isPostingTransaction
-                        ? 'Deploying...'
-                        : 'Awaiting transaction confirmation...'}
-                    </span>
-                  </>
-                ),
-                component: (
-                  <>
-                    <DeployTransaction />
-                  </>
-                ),
-              },
-              3: {
-                showBack: false,
-                showNext: false,
-                header: (
-                  <>
-                    <span className="flex flex-row text-large white bold center">
-                      ANT successfully created!
-                    </span>
-                  </>
-                ),
-                component: (
-                  <>
-                    <TransactionSuccess
-                      transactionId={
-                        antContractId
-                          ? new ArweaveTransactionID(antContractId.toString())
-                          : undefined
-                      }
-                      state={ant.state}
-                    />
-                  </>
-                ),
-              },
-            }}
-          />
-          {/* workflow end */}
-        </div>
-      ) : (
-        <></>
-      )}
+              header: (
+                <>
+                  <div className="flex flex-row text-large white bold center">
+                    Confirm ANT Creation
+                  </div>
+                </>
+              ),
+              component: (
+                <>
+                  <ConfirmAntCreation state={ant.state} />
+                </>
+              ),
+            },
+            2: {
+              showBack: false,
+              showNext: false,
+              header: (
+                <>
+                  {' '}
+                  <span className="flex flex-row text-large white bold center">
+                    {isPostingTransaction
+                      ? 'Deploying...'
+                      : 'Awaiting transaction confirmation...'}
+                  </span>
+                </>
+              ),
+              component: (
+                <>
+                  <DeployTransaction />
+                </>
+              ),
+            },
+            3: {
+              showBack: false,
+              showNext: false,
+              header: (
+                <>
+                  <span className="flex flex-row text-large white bold center">
+                    ANT successfully created!
+                  </span>
+                </>
+              ),
+              component: (
+                <>
+                  <TransactionSuccess
+                    transactionId={
+                      antContractId
+                        ? new ArweaveTransactionID(antContractId.toString())
+                        : undefined
+                    }
+                    state={ant.state}
+                  />
+                </>
+              ),
+            },
+          }}
+        />
+        {/* workflow end */}
+      </div>
+      )
     </>
   );
 }

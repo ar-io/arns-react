@@ -10,8 +10,6 @@ jest.mock('../hooks', () => ({
     .fn()
     .mockReturnValue({ wallet: undefined, walletAddress: undefined }),
   useIsMobile: jest.fn(),
-  useConnectWalletModal: jest.fn().mockReturnValue({ showConnectModal: false }),
-  useCreateAntModal: jest.fn().mockReturnValue({ showCreateAnt: false }),
 }));
 
 describe('App', () => {
