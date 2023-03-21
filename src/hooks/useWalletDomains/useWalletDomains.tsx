@@ -19,7 +19,7 @@ export default function useWalletDomains(ids: ArweaveTransactionID[]) {
     useGlobalState();
   const { walletAddress } = useWalletAddress();
   const [sortAscending, setSortOrder] = useState(true);
-  const [sortField, setSortField] = useState<keyof ArNSTableRow>('name');
+  const [sortField, setSortField] = useState<keyof ArNSTableRow>('status');
   const [selectedRow, setSelectedRow] = useState<ArNSTableRow>(); // eslint-disable-line
   const [rows, setRows] = useState<ArNSTableRow[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -324,8 +324,8 @@ export default function useWalletDomains(ids: ArweaveTransactionID[]) {
       } catch (error) {
         console.error(error);
       } finally {
-        // sort by name by default
-        fetchedRows.sort((a, b) => a.name.localeCompare(b.name));
+        // sort by confirmations by default
+        fetchedRows.sort((a, b) => a.status - b.status);
         setRows(fetchedRows);
       }
     }
