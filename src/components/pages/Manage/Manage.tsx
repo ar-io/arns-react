@@ -49,6 +49,7 @@ function Manage() {
   const [tableColumns, setTableColumns] = useState<any[]>();
   const [tablePage, setTablePage] = useState<number>(1);
   const [lastUpdated, setLastedUpdated] = useState<number>(Date.now());
+  const [error, setError] = useState();
 
   useEffect(() => {
     // todo: move this to a separate function to manage error state and poll for new ants to concat them to the state.
@@ -117,6 +118,7 @@ function Manage() {
 
   async function fetchWalletAnts(address: ArweaveTransactionID) {
     try {
+      setError(undefined);
       const { ids } = await arweaveDataProvider.getContractsForWallet(
         arnsSourceContract.approvedANTSourceCodeTxs.map(
           (id: string) => new ArweaveTransactionID(id),
@@ -128,6 +130,8 @@ function Manage() {
       setLastedUpdated(Date.now());
     } catch (error: any) {
       console.error(error);
+      // TODO: emit error message to error listener
+      setError(error.message);
     }
   }
 
@@ -226,12 +230,18 @@ function Manage() {
                 </button>
               </div>
             </div>
-            {tableLoading ? (
+            {tableLoading && !error ? (
               <div
                 className="flex center"
                 style={{ paddingTop: '10%', justifyContent: 'center' }}
               >
-                <Loader percent={percent} />
+                <Loader
+                  message={
+                    !percent
+                      ? `Querying for wallet contracts...${antIds.length} found`
+                      : `Validating contracts...${Math.round(percent)}%`
+                  }
+                />
               </div>
             ) : (
               <>
