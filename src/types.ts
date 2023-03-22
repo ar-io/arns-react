@@ -303,3 +303,7 @@ export type ValidationObject = {
   status: boolean;
   error?: string | undefined;
 };
+export enum REGISTRATION_TYPES {
+  CREATE = 'Create an Arweave Name Token (ANT) for me',
+  USE_EXISTING = 'Use existing Arweave Name Token (ANT)',
+}

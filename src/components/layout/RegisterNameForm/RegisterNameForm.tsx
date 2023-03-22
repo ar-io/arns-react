@@ -4,39 +4,41 @@ import { useIsMobile, useWalletAddress } from '../../../hooks';
 import { ANTContract } from '../../../services/arweave/AntContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
-import { ArweaveTransactionID, VALIDATION_INPUT_TYPES } from '../../../types';
+import {
+  ArweaveTransactionID,
+  REGISTRATION_TYPES,
+  VALIDATION_INPUT_TYPES,
+} from '../../../types';
 import Dropdown from '../../inputs/Dropdown/Dropdown';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import UpgradeTier from '../UpgradeTier/UpgradeTier';
 import './styles.css';
 
+0;
 function RegisterNameForm() {
-  const isMobile = useIsMobile();
-  const [{ domain, antID, antContract }, dispatchRegisterState] =
-    useRegistrationState();
+  const isMobile = useIsMobile(); // eslint-disable-line
+  const [
+    { domain, antID, antContract, registrationType },
+    dispatchRegisterState,
+  ] = useRegistrationState();
   const [{ arnsSourceContract, arweaveDataProvider }] = useGlobalState();
   const { walletAddress } = useWalletAddress();
 
   const [isValidAnt, setIsValidAnt] = useState<boolean | undefined>(undefined);
-  enum REGISTRATION_TYPES {
-    CREATE = 'Create an Arweave Name Token (ANT) for me',
-    USE_EXISTING = 'Use existing Arweave Name Token (ANT)',
-  }
+
   const registrationOptions = {
     create: REGISTRATION_TYPES.CREATE,
     'use-existing': REGISTRATION_TYPES.USE_EXISTING,
   };
-  const [registrationType, setRegistrationType] = useState(
-    REGISTRATION_TYPES.USE_EXISTING,
-  );
+
   const [antTxID, setAntTXId] = useState<string | undefined>(antID?.toString());
   const [ant, setAnt] = useState<ANTContract>(new ANTContract());
 
   useEffect(() => {
     reset();
-  }, [registrationType]);
-
-  useEffect(() => {
+    if (registrationType === REGISTRATION_TYPES.USE_EXISTING) {
+      handleAntId(antID?.toString());
+    }
     if (walletAddress && registrationType === REGISTRATION_TYPES.CREATE) {
       if (!ant.owner) {
         ant.owner = walletAddress.toString();
@@ -45,8 +47,12 @@ function RegisterNameForm() {
         ant.controller = walletAddress.toString();
       }
       setAnt(new ANTContract(ant.state));
+      dispatchRegisterState({
+        type: 'setAntContract',
+        payload: new ANTContract(ant.state),
+      });
     }
-  }, [walletAddress, ant, registrationType]);
+  }, [registrationType]);
 
   function reset() {
     setIsValidAnt(undefined);
@@ -142,6 +148,10 @@ function RegisterNameForm() {
       console.error(error);
     } finally {
       setAnt(new ANTContract(ant.state));
+      dispatchRegisterState({
+        type: 'setAntContract',
+        payload: new ANTContract(ant.state),
+      });
     }
   }
 
@@ -159,7 +169,12 @@ function RegisterNameForm() {
               showChevron={true}
               options={registrationOptions}
               selected={registrationType}
-              setSelected={(selection) => setRegistrationType(selection)}
+              setSelected={(selection) =>
+                dispatchRegisterState({
+                  type: 'setRegistrationType',
+                  payload: selection,
+                })
+              }
             />
 
             <ValidationInput

@@ -3,9 +3,13 @@ import { useEffect, useState } from 'react';
 import { useWalletAddress } from '../../../hooks/index';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
-import { ArweaveTransactionID } from '../../../types';
+import { ArweaveTransactionID, REGISTRATION_TYPES } from '../../../types';
 import { ArNSDomains } from '../../../types';
-import { ARNS_TX_ID_REGEX, FEATURED_DOMAINS } from '../../../utils/constants';
+import {
+  ARNS_TX_ID_REGEX,
+  DEFAULT_ANT_SOURCE_CODE_TX,
+  FEATURED_DOMAINS,
+} from '../../../utils/constants';
 import {
   isArNSDomainNameAvailable,
   isArNSDomainNameValid,
@@ -14,19 +18,24 @@ import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import { FeaturedDomains, RegisterNameForm } from '../../layout';
 import { SearchBarFooter, SearchBarHeader } from '../../layout';
 import ConfirmRegistration from '../../layout/ConfirmRegistration/ConfirmRegistration';
+import DeployTransaction from '../../layout/DeployTransaction/DeployTransaction';
 import SuccessfulRegistration from '../../layout/SuccessfulRegistration/SuccessfulRegistration';
 import Workflow from '../../layout/Workflow/Workflow';
 import './styles.css';
 
 function Home() {
-  const [{ arnsSourceContract }] = useGlobalState();
+  const [{ arnsSourceContract, arweaveDataProvider, arnsContractId }] =
+    useGlobalState();
   const { walletAddress } = useWalletAddress();
-  const [{ domain, antID, stage, isSearching }, dispatchRegisterState] =
-    useRegistrationState(); // eslint-disable-line
+  const [
+    { domain, antID, stage, isSearching, antContract, registrationType },
+    dispatchRegisterState,
+  ] = useRegistrationState(); // eslint-disable-line
   const [records, setRecords] = useState<ArNSDomains>(
     arnsSourceContract.records,
   );
   const [featuredDomains, setFeaturedDomains] = useState<ArNSDomains>();
+  const [isPostingTransaction, setIsPostingTransaction] = useState(false); // eslint-disable-line
 
   useEffect(() => {
     const newRecords = arnsSourceContract.records;
@@ -39,16 +48,71 @@ function Home() {
     setFeaturedDomains(featuredDomains);
   }, [arnsSourceContract, domain, isSearching]);
 
+  async function registerArnsName() {
+    try {
+      setIsPostingTransaction(true);
+
+      if (!antContract) {
+        throw Error('No ant contract state present');
+      }
+      if (!domain) {
+        throw new Error('No domain provided for registration');
+      }
+      dispatchRegisterState({
+        type: 'setStage',
+        payload: stage + 1,
+      });
+      const pendingTXId =
+        antID && registrationType === REGISTRATION_TYPES.USE_EXISTING
+          ? await arweaveDataProvider.writeTransaction(arnsContractId, {
+              function: 'buyRecord',
+              name: domain,
+              contractTransactionId: antID.toString(),
+            })
+          : await arweaveDataProvider.registerAtomicName({
+              srcCodeTransactionId: new ArweaveTransactionID(
+                DEFAULT_ANT_SOURCE_CODE_TX,
+              ),
+              initialState: antContract.state,
+              domain,
+            });
+      if (pendingTXId) {
+        dispatchRegisterState({
+          type: 'setResolvedTx',
+          payload: new ArweaveTransactionID(pendingTXId.toString()),
+        });
+        console.log(`Posted transaction: ${pendingTXId}`);
+        dispatchRegisterState({
+          type: 'setStage',
+          payload: stage + 2,
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsPostingTransaction(false);
+    }
+    // TODO: write to local storage to store pending transactions
+  }
+
   return (
     <div className="page">
       {domain ? <></> : <div className="page-header">Arweave Name System</div>}
       <Workflow
         stage={stage}
         onNext={() => {
-          dispatchRegisterState({
-            type: 'setStage',
-            payload: stage + 1,
-          });
+          switch (stage) {
+            case 2:
+              {
+                registerArnsName();
+              }
+              break;
+            default:
+              dispatchRegisterState({
+                type: 'setStage',
+                payload: stage + 1,
+              });
+          }
         }}
         onBack={() => {
           if (stage === 0) {
@@ -140,20 +204,30 @@ function Home() {
             showNext: true,
             showBack: true,
             disableNext:
-              !antID ||
-              !ARNS_TX_ID_REGEX.test(antID.toString()) ||
-              !walletAddress,
+              registrationType === REGISTRATION_TYPES.USE_EXISTING
+                ? !antID ||
+                  !ARNS_TX_ID_REGEX.test(antID!.toString()) ||
+                  !walletAddress
+                : false,
             requiresWallet: true,
           },
           2: {
             // this component manages buttons itself
             component: <ConfirmRegistration />,
-            showNext: false,
-            showBack: false,
+            showNext: true,
+            showBack: true,
+            nextText: 'Confirm',
             disableNext: !!domain && !!antID && !walletAddress,
             requiresWallet: true,
           },
           3: {
+            component: <DeployTransaction />,
+            showNext: false,
+            showBack: false,
+            disableNext: true,
+            requiresWallet: true,
+          },
+          4: {
             component: <SuccessfulRegistration />,
             showNext: false,
             showBack: false,

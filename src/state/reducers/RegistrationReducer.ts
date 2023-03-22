@@ -1,5 +1,5 @@
 import { ANTContract } from '../../services/arweave/AntContract';
-import { ArweaveTransactionID } from '../../types';
+import { ArweaveTransactionID, REGISTRATION_TYPES } from '../../types';
 import {
   RegistrationState,
   initialRegistrationState,
@@ -8,6 +8,7 @@ import {
 export type RegistrationAction =
   | { type: 'setDomainName'; payload?: string }
   | { type: 'setLeaseDuration'; payload: number }
+  | { type: 'setRegistrationType'; payload: REGISTRATION_TYPES }
   | { type: 'setTier'; payload: number }
   | { type: 'setAntID'; payload: ArweaveTransactionID | undefined }
   | { type: 'setAntContract'; payload: ANTContract }
@@ -41,6 +42,11 @@ export const registrationReducer = (
       return {
         ...state,
         leaseDuration: action.payload,
+      };
+    case 'setRegistrationType':
+      return {
+        ...state,
+        registrationType: action.payload,
       };
     case 'setTier':
       return {

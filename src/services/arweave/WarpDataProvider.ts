@@ -13,7 +13,6 @@ import {
 } from '../../types';
 import { ArNSContractState, SmartweaveDataProvider } from '../../types';
 import {
-  ARNS_REGISTRY_ID,
   ATOMIC_REGISTRATION_INPUT,
   SMARTWEAVE_INTERACTION_TAGS,
   SMARTWEAVE_MAX_TAG_SPACE,

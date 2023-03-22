@@ -1,10 +1,11 @@
 import { Dispatch, createContext, useContext, useReducer } from 'react';
 
 import { ANTContract } from '../../services/arweave/AntContract';
-import { ArweaveTransactionID } from '../../types';
+import { ArweaveTransactionID, REGISTRATION_TYPES } from '../../types';
 import { RegistrationAction } from '../reducers/RegistrationReducer';
 
 export type RegistrationState = {
+  registrationType: REGISTRATION_TYPES;
   resolvedTxID?: ArweaveTransactionID;
   domain?: string;
   leaseDuration: number;
@@ -23,6 +24,7 @@ export type RegistrationStateProviderProps = {
 };
 
 export const initialRegistrationState: RegistrationState = {
+  registrationType: REGISTRATION_TYPES.USE_EXISTING,
   resolvedTxID: undefined,
   domain: undefined,
   leaseDuration: 1,
