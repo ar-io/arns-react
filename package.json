@@ -6,7 +6,7 @@
   "scripts": {
     "build": "npm run clean && tsc && vite build",
     "clean": "rimraf dist",
-    "dev": "NODE_ENV=dev vite",
+    "dev": "NODE_ENV=prod vite",
     "format": "prettier --write .",
     "lint:fix": "eslint --fix .",
     "lint:check": "eslint .",
@@ -28,7 +28,6 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.6.0",
-    "react-loader-spinner": "^5.3.4",
     "react-router-dom": "^6.4.2",
     "uuid": "^9.0.0",
     "vite-plugin-node-polyfills": "^0.7.0",
