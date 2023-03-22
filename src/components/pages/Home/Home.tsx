@@ -99,6 +99,32 @@ function Home() {
     <div className="page">
       {domain ? <></> : <div className="page-header">Arweave Name System</div>}
       <Workflow
+        steps={
+          stage !== 0
+            ? {
+                1: {
+                  title: 'Find a Domain',
+                  status: 'success',
+                },
+                2: {
+                  title: `Register ${domain}`,
+                  status: 'pending',
+                },
+                3: {
+                  title: 'Confirm Registration',
+                  status: '',
+                },
+                4: {
+                  title: 'Deploy Transaction',
+                  status: '',
+                },
+                5: {
+                  title: 'Success',
+                  status: '',
+                },
+              }
+            : {}
+        }
         stage={stage}
         onNext={() => {
           switch (stage) {
@@ -200,6 +226,13 @@ function Home() {
             requiresWallet: !!domain && !antID,
           },
           1: {
+            header: (
+              <>
+                <div className="flex flex-row text-large white bold center">
+                  Register Domain
+                </div>
+              </>
+            ),
             component: <RegisterNameForm />,
             showNext: true,
             showBack: true,
@@ -214,6 +247,11 @@ function Home() {
           2: {
             // this component manages buttons itself
             component: <ConfirmRegistration />,
+            header: (
+              <div className="flex flex-row text-large white bold center">
+                Confirm Domain Registration
+              </div>
+            ),
             showNext: true,
             showBack: true,
             nextText: 'Confirm',

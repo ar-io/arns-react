@@ -158,10 +158,6 @@ function RegisterNameForm() {
   return (
     <>
       <div className="register-name-modal">
-        <span className="text-large white center">
-          {domain}.arweave.net is available!
-        </span>
-        <div className="section-header">Register Domain</div>
         <div className="register-inputs center" style={{ gap: '5px' }}>
           <div className="input-group center column" style={{ padding: '0px' }}>
             <Dropdown

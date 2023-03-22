@@ -13,10 +13,6 @@ function ConfirmRegistration() {
   return (
     <>
       <div className="register-name-modal center">
-        <span className="text-large white">
-          {domain}.arweave.net is available!
-        </span>
-        <div className="section-header">Confirm Domain Registration</div>
         <AntCard
           domain={domain ?? ''}
           id={antID ?? undefined}

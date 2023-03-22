@@ -47,14 +47,16 @@ function StepProgressBar({
   }
   return (
     <>
-      <div className="flex-row center" style={{ gap: '0' }}>
+      <div className="flex-row flex-center" style={{ gap: '0' }}>
         {Object.entries(stages).map(([key, value], index) => {
           if (index === 0) {
             return (
               <div className="progress-stage" key={index}>
                 <div
                   className="node-container"
-                  style={isMobile ? { width: '75px' } : {}}
+                  style={
+                    isMobile ? { width: '75px' } : { position: 'relative' }
+                  }
                 >
                   <span className="line" style={{ background: 'none' }}></span>
                   <span
@@ -77,13 +79,22 @@ function StepProgressBar({
                     className="line"
                     style={{ background: handleColor(value.status) }}
                   ></span>
+                  <span
+                    className="text-medium white center"
+                    style={
+                      isMobile
+                        ? { fontSize: '12px' }
+                        : {
+                            wordWrap: 'normal',
+                            width: '110px',
+                            position: 'absolute',
+                            top: '100%',
+                          }
+                    }
+                  >
+                    {value.title}
+                  </span>
                 </div>
-                <span
-                  className="text-medium white center"
-                  style={isMobile ? { fontSize: '12px' } : {}}
-                >
-                  {value.title}
-                </span>
               </div>
             );
           }
@@ -92,7 +103,9 @@ function StepProgressBar({
               <div className="progress-stage" key={index}>
                 <div
                   className="node-container"
-                  style={isMobile ? { width: '75px' } : {}}
+                  style={
+                    isMobile ? { width: '75px' } : { position: 'relative' }
+                  }
                 >
                   <span
                     className="line"
@@ -115,22 +128,37 @@ function StepProgressBar({
                     {handleIcon(value.status) ? handleIcon(value.status) : key}
                   </span>
                   <span className="line" style={{ background: 'none' }}></span>
+                  <span
+                    className="text-medium white center"
+                    style={
+                      isMobile
+                        ? { fontSize: '12px' }
+                        : {
+                            wordWrap: 'normal',
+                            width: '110px',
+                            position: 'absolute',
+                            top: '100%',
+                          }
+                    }
+                  >
+                    {value.title}
+                  </span>
                 </div>
-                <span
-                  className="text-medium white center"
-                  style={isMobile ? { fontSize: '12px' } : {}}
-                >
-                  {value.title}
-                </span>
               </div>
             );
           }
           if (index !== 0 && index !== Object.keys(stages).length - 1) {
             return (
-              <div className="progress-stage" key={index}>
+              <div
+                className="progress-stage"
+                key={index}
+                style={{ position: 'relative' }}
+              >
                 <div
                   className="node-container"
-                  style={isMobile ? { width: '75px' } : {}}
+                  style={
+                    isMobile ? { width: '75px' } : { position: 'relative' }
+                  }
                 >
                   <span
                     className="line"
@@ -156,13 +184,22 @@ function StepProgressBar({
                     className="line"
                     style={{ background: handleColor(value.status) }}
                   ></span>
+                  <span
+                    className="text-medium flex white flex-center"
+                    style={
+                      isMobile
+                        ? { fontSize: '12px' }
+                        : {
+                            wordWrap: 'normal',
+                            width: '110px',
+                            position: 'absolute',
+                            top: '100%',
+                          }
+                    }
+                  >
+                    {value.title}
+                  </span>
                 </div>
-                <span
-                  className="text-medium white center"
-                  style={isMobile ? { fontSize: '12px' } : {}}
-                >
-                  {value.title}
-                </span>
               </div>
             );
           }
