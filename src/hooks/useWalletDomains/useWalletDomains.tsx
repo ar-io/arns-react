@@ -23,6 +23,7 @@ export default function useWalletDomains(ids: ArweaveTransactionID[]) {
   const [selectedRow, setSelectedRow] = useState<ArNSTableRow>(); // eslint-disable-line
   const [rows, setRows] = useState<ArNSTableRow[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [percent, setPercentLoaded] = useState<number | undefined>();
 
   useEffect(() => {
     if (ids.length) {
@@ -268,7 +269,14 @@ export default function useWalletDomains(ids: ArweaveTransactionID[]) {
       },
       {
         title: '',
-        render: () => <></>,
+        render: () => (
+          <button
+            className="white center"
+            onClick={() => alert('coming soon!')}
+          >
+            &#x2022;&#x2022;&#x2022;
+          </button>
+        ),
         align: 'right',
         width: '10%',
       },
@@ -279,7 +287,7 @@ export default function useWalletDomains(ids: ArweaveTransactionID[]) {
     const { records } = arnsSourceContract;
 
     const fetchedRows: ArNSTableRow[] = [];
-    for (const txId of ids.values()) {
+    for (const [index, txId] of ids.entries()) {
       try {
         const associatedNames: {
           name: string;
@@ -326,6 +334,7 @@ export default function useWalletDomains(ids: ArweaveTransactionID[]) {
       } finally {
         // sort by confirmations by default
         fetchedRows.sort((a, b) => a.status - b.status);
+        setPercentLoaded(((index + 1) / ids.length) * 100);
         setRows(fetchedRows);
       }
     }
@@ -333,6 +342,7 @@ export default function useWalletDomains(ids: ArweaveTransactionID[]) {
 
   return {
     isLoading,
+    percent,
     columns: generateTableColumns(),
     rows,
     sortField,
