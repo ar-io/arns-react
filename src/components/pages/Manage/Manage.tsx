@@ -24,8 +24,10 @@ function Manage() {
   const [cursor] = useState<string | undefined>();
   const [antIds, setAntIDs] = useState<ArweaveTransactionID[]>([]);
   const [selectedRow, setSelectedRow] = useState<AntMetadata>();
+  const [percent, setPercentLoaded] = useState<number | undefined>();
   const {
     isLoading: antTableLoading,
+    percent: percentANTsLoaded,
     columns: antColumns,
     rows: antRows,
     selectedRow: selectedAntRow,
@@ -34,6 +36,7 @@ function Manage() {
   } = useWalletANTs(antIds);
   const {
     isLoading: domainTableLoading,
+    percent: percentDomainsLoaded,
     columns: domainColumns,
     rows: domainRows,
     sortAscending: domainSortAscending,
@@ -66,18 +69,27 @@ function Manage() {
       setTableLoading(antTableLoading);
       setTableData(antRows);
       setTableColumns(antColumns);
+      setPercentLoaded(percentANTsLoaded);
       const baseIndex = Math.max((tablePage - 1) * 10, 0);
       const endIndex = tablePage * 10;
       const filteredData = antRows.slice(baseIndex, endIndex);
       setFilteredTableData(filteredData);
     }
-  }, [tableType, antSortAscending, antSortField, antRows, antTableLoading]);
+  }, [
+    tableType,
+    antSortAscending,
+    antSortField,
+    antRows,
+    antTableLoading,
+    percentANTsLoaded,
+  ]);
 
   useEffect(() => {
     if (tableType === TABLE_TYPES.NAME) {
       setTableLoading(domainTableLoading);
       setTableData(domainRows);
       setTableColumns(domainColumns);
+      setPercentLoaded(percentDomainsLoaded);
       const baseIndex = Math.max((tablePage - 1) * 10, 0);
       const endIndex = tablePage * 10;
       const filteredData = domainRows.slice(baseIndex, endIndex);
@@ -90,11 +102,18 @@ function Manage() {
     domainTableLoading,
     domainRows,
     antTableLoading,
+    percentDomainsLoaded,
   ]);
 
   useEffect(() => {
     setSelectedRow(selectedAntRow);
   }, [selectedAntRow]);
+
+  useEffect(() => {
+    if (percent === 100) {
+      setPercentLoaded(undefined);
+    }
+  }, [percent]);
 
   async function fetchWalletAnts(address: ArweaveTransactionID) {
     try {
@@ -212,7 +231,7 @@ function Manage() {
                 className="flex center"
                 style={{ paddingTop: '10%', justifyContent: 'center' }}
               >
-                <Loader size={80} />
+                <Loader percent={percent} />
               </div>
             ) : (
               <>
