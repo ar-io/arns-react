@@ -1,22 +1,20 @@
-import { Oval } from 'react-loader-spinner';
+import { LoadingOutlined } from '@ant-design/icons';
+import { Spin } from 'antd';
 
 export default function Loader({
-  size,
-  color,
+  size = 80,
+  color = 'white',
+  percent = undefined,
 }: {
-  size: number;
+  size?: number;
   color?: string;
+  percent?: number;
 }) {
   return (
-    // TODO: this is a simple loading component - eventually replace with one that matches the design system
-    <Oval
-      height={size}
-      width={size}
-      color={color ? color : 'white'}
-      visible={true}
-      secondaryColor="transparent"
-      strokeWidth={3}
-      strokeWidthSecondary={3}
+    <Spin
+      tip={percent ? `${Math.round(percent)}%` : undefined}
+      style={{ fontSize: '18px', color: color }}
+      indicator={<LoadingOutlined style={{ fontSize: size, margin: '15px' }} />}
     />
   );
 }

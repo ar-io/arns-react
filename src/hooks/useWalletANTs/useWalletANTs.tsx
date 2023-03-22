@@ -24,6 +24,7 @@ export default function useWalletANTs(ids: ArweaveTransactionID[]) {
   const [selectedRow, setSelectedRow] = useState<AntMetadata>();
   const [rows, setRows] = useState<AntMetadata[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [percent, setPercentLoaded] = useState<number | undefined>();
 
   useEffect(() => {
     if (ids.length) {
@@ -309,6 +310,7 @@ export default function useWalletANTs(ids: ArweaveTransactionID[]) {
       } finally {
         // sort by confirmation count (ASC) by default
         fetchedRows.sort((a, b) => a.status - b.status);
+        setPercentLoaded(((index + 1) / ids.length) * 100);
         setRows(fetchedRows);
       }
     }
@@ -316,6 +318,7 @@ export default function useWalletANTs(ids: ArweaveTransactionID[]) {
 
   return {
     isLoading,
+    percent,
     columns: generateTableColumns(),
     rows,
     sortField,
