@@ -24,7 +24,7 @@ function Home() {
     useRegistrationState();
   const [records, setRecords] = useState<{ [x: string]: string }>(
     Object.keys(arnsSourceContract.records).reduce(
-      (allRecords: { [x: string]: string }, domain: string) => ({
+      (allRecords, domain: string) => ({
         ...allRecords,
         domain: arnsSourceContract.records[domain].contractTxId,
       }),
@@ -36,8 +36,10 @@ function Home() {
   }>();
 
   useEffect(() => {
-    const newRecords = Object.keys(arnsSourceContract.records).reduce(
-      (allRecords: { [x: string]: string }, domain: string) => ({
+    const newRecords: { [x: string]: string } = Object.keys(
+      arnsSourceContract.records,
+    ).reduce(
+      (allRecords, domain: string) => ({
         ...allRecords,
         domain: records[domain],
       }),
