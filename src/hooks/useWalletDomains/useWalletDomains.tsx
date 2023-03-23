@@ -10,8 +10,11 @@ import {
 } from '../../components/icons/index';
 import TransactionStatus from '../../components/layout/TransactionStatus/TransactionStatus';
 import { useGlobalState } from '../../state/contexts/GlobalState';
-import { ArNSTableRow, ArweaveTransactionID } from '../../types';
-import { DEFAULT_EXPIRATION } from '../../utils/constants';
+import {
+  ArNSRecordEntry,
+  ArNSTableRow,
+  ArweaveTransactionID,
+} from '../../types';
 import useWalletAddress from '../useWalletAddress/useWalletAddress';
 
 export default function useWalletDomains(ids: ArweaveTransactionID[]) {
@@ -110,8 +113,8 @@ export default function useWalletDomains(ids: ArweaveTransactionID[]) {
         ),
         dataIndex: 'role',
         key: 'role',
-        align: 'center',
         width: '18%',
+        align: 'center',
         className: 'white',
         ellipsis: true,
         onHeaderCell: () => {
@@ -152,16 +155,16 @@ export default function useWalletDomains(ids: ArweaveTransactionID[]) {
         ),
         dataIndex: 'tier',
         key: 'tier',
-        align: 'center',
         width: '18%',
         className: 'white',
+        align: 'center',
         ellipsis: true,
-        render: (tier: number) => `Tier ${tier}`,
+        render: (tier: number | string) => `Tier ${tier}`,
         onHeaderCell: () => {
           return {
             onClick: () => {
               rows.sort((a: ArNSTableRow, b: ArNSTableRow) =>
-                sortAscending ? a.tier - b.tier : b.tier - a.tier,
+                sortAscending ? +a.tier - +b.tier : +b.tier - +a.tier,
               );
               // forces update of rows
               setRows([...rows]);
@@ -289,25 +292,13 @@ export default function useWalletDomains(ids: ArweaveTransactionID[]) {
     const fetchedRows: ArNSTableRow[] = [];
     for (const [index, txId] of ids.entries()) {
       try {
-        const associatedNames: {
-          name: string;
-          expiration: Date;
-          tier: number;
-        }[] = Object.entries(records)
-          .map(([name, id]) => {
-            if (id === txId.toString()) {
-              return {
-                name,
-                expiration: records[name]?.expiration ?? DEFAULT_EXPIRATION,
-                tier: records[name]?.tier ?? 1,
-              };
-            }
-          })
-          .filter((n) => !!n) as {
-          name: string;
-          expiration: Date;
-          tier: number;
-        }[];
+        const associatedNames: (ArNSRecordEntry & { name: string })[] =
+          Object.entries(records)
+            .map(([name, recordEntry]: [string, ArNSRecordEntry]) => ({
+              ...recordEntry,
+              name,
+            }))
+            .filter((n) => !!n) as (ArNSRecordEntry & { name: string })[];
         const [contractState, confirmations] = await Promise.all([
           arweaveDataProvider.getContractState(txId),
           arweaveDataProvider.getTransactionStatus(txId),
@@ -323,9 +314,13 @@ export default function useWalletDomains(ids: ArweaveTransactionID[]) {
                 contractState.controllers?.includes(walletAddress?.toString())
               ? 'Controller'
               : 'N/A',
-          expiration: domain.expiration,
+          expiration: new Date(domain.endTimestamp),
           status: confirmations ?? 0,
-          tier: 1,
+          tier:
+            Object.keys(arnsSourceContract.tiers.current).find(
+              (k: string) =>
+                arnsSourceContract.tiers.current[k] === domain.tier,
+            ) ?? 1,
           key: `${domain.name}-${txId.toString()}`,
         }));
         fetchedRows.push(...rowData);

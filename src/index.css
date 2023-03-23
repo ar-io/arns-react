@@ -479,7 +479,6 @@ input[type='text']:disabled {
 }
 
 .rc-table-thead > tr > th {
-  padding: 10px 15px 10px 50px;
   font-size: 16px;
 }
 
