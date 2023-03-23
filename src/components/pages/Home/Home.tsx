@@ -4,7 +4,6 @@ import { useWalletAddress } from '../../../hooks/index';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { ArweaveTransactionID, REGISTRATION_TYPES } from '../../../types';
-import { ArNSDomains } from '../../../types';
 import {
   ARNS_TX_ID_REGEX,
   DEFAULT_ANT_SOURCE_CODE_TX,
@@ -27,8 +26,19 @@ function Home() {
   const [{ arnsSourceContract, arweaveDataProvider, arnsContractId }] =
     useGlobalState();
   const { walletAddress } = useWalletAddress();
-  const [{ domain, antID, stage, isSearching }, dispatchRegisterState] =
-    useRegistrationState();
+  const [
+    {
+      domain,
+      antID,
+      stage,
+      isSearching,
+      antContract,
+      registrationType,
+      tier,
+      leaseDuration,
+    },
+    dispatchRegisterState,
+  ] = useRegistrationState();
   const [records, setRecords] = useState<{ [x: string]: string }>(
     Object.keys(arnsSourceContract.records).reduce(
       (allRecords, domain: string) => ({
@@ -42,7 +52,6 @@ function Home() {
     [x: string]: string;
   }>();
   const [isPostingTransaction, setIsPostingTransaction] = useState(false); // eslint-disable-line
-
 
   useEffect(() => {
     const newRecords: { [x: string]: string } = Object.keys(
@@ -62,7 +71,7 @@ function Home() {
       }),
     );
     setFeaturedDomains(featuredDomains);
-  }, [arnsSourceContract.records, domain, isSearching]);
+  }, [arnsSourceContract, domain, isSearching]);
 
   async function registerArnsName() {
     try {
@@ -83,7 +92,9 @@ function Home() {
           ? await arweaveDataProvider.writeTransaction(arnsContractId, {
               function: 'buyRecord',
               name: domain,
-              contractTransactionId: antID.toString(),
+              contractTxId: antID.toString(),
+              tierNumber: tier,
+              years: leaseDuration,
             })
           : await arweaveDataProvider.registerAtomicName({
               srcCodeTransactionId: new ArweaveTransactionID(
@@ -116,7 +127,7 @@ function Home() {
       {domain ? <></> : <div className="page-header">Arweave Name System</div>}
       <Workflow
         steps={
-          stage !== 0
+          stage > 0
             ? {
                 1: {
                   title: 'Find a Domain',
@@ -124,19 +135,34 @@ function Home() {
                 },
                 2: {
                   title: `Register ${domain}`,
-                  status: 'pending',
+                  status:
+                    stage + 1 === 2
+                      ? 'pending'
+                      : stage + 1 > 2
+                      ? 'success'
+                      : '',
                 },
                 3: {
                   title: 'Confirm Registration',
-                  status: '',
+                  status:
+                    stage + 1 === 3
+                      ? 'pending'
+                      : stage + 1 > 3
+                      ? 'success'
+                      : '',
                 },
                 4: {
                   title: 'Deploy Transaction',
-                  status: '',
+                  status:
+                    stage + 1 === 4
+                      ? 'pending'
+                      : stage + 1 > 4
+                      ? 'success'
+                      : '',
                 },
                 5: {
                   title: 'Success',
-                  status: '',
+                  status: stage + 1 === 5 ? 'success' : '',
                 },
               }
             : {}

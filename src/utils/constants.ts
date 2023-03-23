@@ -141,7 +141,7 @@ export const SMARTWEAVE_INTERACTION_TAGS = [
 export const ATOMIC_REGISTRATION_INPUT = {
   function: 'buyRecord',
   name: 'domain',
-  contractTransactionId: 'atomic',
+  contractTxId: 'atomic',
   years: 1,
-  tier: 1,
+  tierNumber: 1,
 };

@@ -10,23 +10,31 @@ function ConfirmRegistration() {
   const [
     { domain, antContract, tier, leaseDuration, antID, fee, registrationType },
   ] = useRegistrationState();
- 
+
   return (
     <>
       <div className="register-name-modal center">
         <AntCard
           domain={domain ?? ''}
-          id={antID ?? undefined}
-          state={antContract?.state ?? undefined}
+          id={
+            registrationType === REGISTRATION_TYPES.USE_EXISTING
+              ? antID
+              : undefined
+          }
+          state={
+            registrationType === REGISTRATION_TYPES.CREATE
+              ? antContract?.state
+              : undefined
+          }
           compact={false}
           enableActions={false}
           disabledKeys={
             registrationType !== REGISTRATION_TYPES.USE_EXISTING
-              ? ['evolve', 'id']
-              : []
+              ? ['evolve', 'id', 'tier']
+              : ['tier']
           }
           overrides={{
-            tier,
+            tier: tier,
             ttlSeconds: antContract?.records['@'].ttlSeconds,
             maxSubdomains: 100,
             leaseDuration: `${leaseDuration} Year`,

@@ -141,7 +141,9 @@ function AntCard(props: ArNSMapping) {
           {!showTier ? (
             <></>
           ) : (
-            <span className="bubble">Tier {antDetails.tier}</span>
+            <span className="bubble">
+              Tier {antDetails[mapKeyToAttribute('tier')]}
+            </span>
           )}
           <table style={{ borderSpacing: '0em 0.5em', padding: '0px' }}>
             <tbody>

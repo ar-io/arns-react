@@ -1,6 +1,7 @@
+import { Tooltip } from 'antd';
 import { useEffect, useState } from 'react';
 
-import { useIsMobile, useWalletAddress } from '../../../hooks';
+import { useWalletAddress } from '../../../hooks';
 import { ANTContract } from '../../../services/arweave/AntContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
@@ -9,23 +10,25 @@ import {
   REGISTRATION_TYPES,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
-import Dropdown from '../../inputs/Dropdown/Dropdown';
+import { NAME_PRICE_INFO, SMARTWEAVE_TAG_SIZE } from '../../../utils/constants';
+import { byteSize } from '../../../utils/searchUtils';
+import { CodeSandboxIcon, NotebookIcon } from '../../icons';
+import YearsCounter from '../../inputs/Counter/Counter';
+// import Dropdown from '../../inputs/Dropdown/Dropdown';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
-import UpgradeTier from '../UpgradeTier/UpgradeTier';
+import ArPrice from '../ArPrice/ArPrice';
 import './styles.css';
 
 0;
 function RegisterNameForm() {
-  const isMobile = useIsMobile(); // eslint-disable-line
-  const [
-    { domain, antID, antContract, registrationType },
-    dispatchRegisterState,
-  ] = useRegistrationState();
+  const [{ antID, antContract, registrationType, fee }, dispatchRegisterState] =
+    useRegistrationState();
   const [{ arnsSourceContract, arweaveDataProvider }] = useGlobalState();
   const { walletAddress } = useWalletAddress();
 
   const [isValidAnt, setIsValidAnt] = useState<boolean | undefined>(undefined);
 
+  // eslint-disable-next-line
   const registrationOptions = {
     create: REGISTRATION_TYPES.CREATE,
     'use-existing': REGISTRATION_TYPES.USE_EXISTING,
@@ -157,10 +160,101 @@ function RegisterNameForm() {
 
   return (
     <>
-      <div className="register-name-modal">
+      <div
+        className="card register-name-modal"
+        style={{
+          padding: '75px 1em',
+          margin: 0,
+          maxWidth: '700px',
+          position: 'relative',
+          border: 'solid 4px var(--accent)',
+          borderStyle: 'groove',
+          borderRadius: '15px',
+        }}
+      >
+        <div
+          className="flex flex-row flex-center"
+          style={{
+            width: '100%',
+            position: 'absolute',
+            top: 0,
+          }}
+        >
+          <div
+            className="table-selector-group"
+            style={{
+              width: '100%',
+              borderBottomRightRadius: 0,
+              borderBottomLeftRadius: 0,
+            }}
+          >
+            <button
+              key={REGISTRATION_TYPES.CREATE}
+              className="table-selector text bold center"
+              onClick={() => {
+                dispatchRegisterState({
+                  type: 'setRegistrationType',
+                  payload: REGISTRATION_TYPES.CREATE,
+                });
+              }}
+              style={
+                registrationType === REGISTRATION_TYPES.CREATE
+                  ? {
+                      borderColor: 'var(--text-white)',
+                      color: 'var(--text-black)',
+                      fill: 'var(--text-black)',
+                      backgroundColor: 'var(--text-white)',
+                      borderRadius: 'var(--corner-radius)',
+                      width: '100%',
+                      borderBottomRightRadius: '0px',
+                      borderBottomLeftRadius: '0px',
+                    }
+                  : {
+                      color: 'var(--text-white)',
+                      fill: 'var(--text-white)',
+                      width: '100%',
+                    }
+              }
+            >
+              <NotebookIcon width={'20px'} height="20px" />
+              {REGISTRATION_TYPES.CREATE}
+            </button>
+            <button
+              key={REGISTRATION_TYPES.USE_EXISTING}
+              className="table-selector text bold center"
+              onClick={() => {
+                dispatchRegisterState({
+                  type: 'setRegistrationType',
+                  payload: REGISTRATION_TYPES.USE_EXISTING,
+                });
+              }}
+              style={
+                registrationType === REGISTRATION_TYPES.USE_EXISTING
+                  ? {
+                      borderColor: 'var(--text-white)',
+                      color: 'var(--text-black)',
+                      fill: 'var(--text-black)',
+                      backgroundColor: 'var(--text-white)',
+                      borderRadius: 'var(--corner-radius)',
+                      width: '100%',
+                      borderBottomRightRadius: '0px',
+                      borderBottomLeftRadius: '0px',
+                    }
+                  : {
+                      color: 'var(--text-white)',
+                      fill: 'var(--text-white)',
+                      width: '100%',
+                    }
+              }
+            >
+              <CodeSandboxIcon width={'20px'} height="20px" />
+              {REGISTRATION_TYPES.USE_EXISTING}
+            </button>
+          </div>
+        </div>
         <div className="register-inputs center" style={{ gap: '5px' }}>
           <div className="input-group center column" style={{ padding: '0px' }}>
-            <Dropdown
+            {/* <Dropdown
               showSelected={true}
               showChevron={true}
               options={registrationOptions}
@@ -171,7 +265,7 @@ function RegisterNameForm() {
                   payload: selection,
                 })
               }
-            />
+            /> */}
 
             <ValidationInput
               showValidationIcon={true}
@@ -243,6 +337,22 @@ function RegisterNameForm() {
               wrapperCustomStyle={{ gap: '0.5em', position: 'relative' }}
               inputClassName={'data-input center'}
               inputCustomStyle={{
+                borderTop:
+                  registrationType == REGISTRATION_TYPES.USE_EXISTING
+                    ? 'none'
+                    : '',
+                borderLeft:
+                  registrationType == REGISTRATION_TYPES.USE_EXISTING
+                    ? 'none'
+                    : '',
+                borderRight:
+                  registrationType == REGISTRATION_TYPES.USE_EXISTING
+                    ? 'none'
+                    : '',
+                boxShadow:
+                  registrationType == REGISTRATION_TYPES.USE_EXISTING
+                    ? 'none'
+                    : '',
                 background:
                   registrationType == REGISTRATION_TYPES.CREATE
                     ? 'white'
@@ -275,6 +385,22 @@ function RegisterNameForm() {
               wrapperCustomStyle={{ gap: '0.5em', position: 'relative' }}
               inputClassName={'data-input center'}
               inputCustomStyle={{
+                borderTop:
+                  registrationType === REGISTRATION_TYPES.USE_EXISTING
+                    ? 'none'
+                    : '',
+                borderLeft:
+                  registrationType == REGISTRATION_TYPES.USE_EXISTING
+                    ? 'none'
+                    : '',
+                borderRight:
+                  registrationType == REGISTRATION_TYPES.USE_EXISTING
+                    ? 'none'
+                    : '',
+                boxShadow:
+                  registrationType == REGISTRATION_TYPES.USE_EXISTING
+                    ? 'none'
+                    : '',
                 background:
                   registrationType == REGISTRATION_TYPES.CREATE
                     ? 'white'
@@ -300,6 +426,22 @@ function RegisterNameForm() {
               wrapperCustomStyle={{ gap: '0.5em', position: 'relative' }}
               inputClassName={'data-input center'}
               inputCustomStyle={{
+                borderTop:
+                  registrationType == REGISTRATION_TYPES.USE_EXISTING
+                    ? 'none'
+                    : '',
+                borderLeft:
+                  registrationType == REGISTRATION_TYPES.USE_EXISTING
+                    ? 'none'
+                    : '',
+                borderRight:
+                  registrationType == REGISTRATION_TYPES.USE_EXISTING
+                    ? 'none'
+                    : '',
+                boxShadow:
+                  registrationType == REGISTRATION_TYPES.USE_EXISTING
+                    ? 'none'
+                    : '',
                 background:
                   registrationType == REGISTRATION_TYPES.CREATE
                     ? 'white'
@@ -313,13 +455,13 @@ function RegisterNameForm() {
               validationPredicates={{}}
             />
 
-            <Dropdown
+            {/* <Dropdown
               showSelected={true}
               showChevron={true}
               selected={`${antContract?.records['@']?.ttlSeconds} seconds`}
-              setSelected={(value) =>
+              setSelected={(value) => 
                 antContract
-                  ? (antContract.records = { '@': { ttlSeconds: value } })
+                  ? handleStateChange({ value: value, key: 'ttlSeconds' })
                   : undefined
               }
               options={{
@@ -332,10 +474,29 @@ function RegisterNameForm() {
                 '700secs': 700,
                 '800secs': 800,
               }}
-            />
+            /> */}
           </div>
         </div>
-        <UpgradeTier />
+        <YearsCounter minValue={1} maxValue={3} period={'years'} />
+        <div className="flex flex-column center" style={{ gap: '0.5em' }}>
+          <Tooltip
+            title={NAME_PRICE_INFO}
+            placement="right"
+            autoAdjustOverflow={true}
+          >
+            <span className="white bold text-small">
+              {fee.io?.toLocaleString()}&nbsp;IO&nbsp;+&nbsp;
+              <ArPrice
+                dataSize={
+                  registrationType === REGISTRATION_TYPES.CREATE
+                    ? byteSize(JSON.stringify(antContract?.state))
+                    : SMARTWEAVE_TAG_SIZE
+                }
+              />
+            </span>
+            <span className="text faded center">Estimated Price</span>
+          </Tooltip>
+        </div>
       </div>
     </>
   );

@@ -55,7 +55,9 @@ function StepProgressBar({
                 <div
                   className="node-container"
                   style={
-                    isMobile ? { width: '75px' } : { position: 'relative' }
+                    isMobile
+                      ? { width: '75px', position: 'relative' }
+                      : { position: 'relative' }
                   }
                 >
                   <span className="line" style={{ background: 'none' }}></span>
@@ -83,7 +85,13 @@ function StepProgressBar({
                     className="text-medium white center"
                     style={
                       isMobile
-                        ? { fontSize: '12px' }
+                        ? {
+                            fontSize: '12px',
+                            wordWrap: 'normal',
+                            width: '70px',
+                            position: 'absolute',
+                            top: '100%',
+                          }
                         : {
                             wordWrap: 'normal',
                             width: '110px',
@@ -104,7 +112,9 @@ function StepProgressBar({
                 <div
                   className="node-container"
                   style={
-                    isMobile ? { width: '75px' } : { position: 'relative' }
+                    isMobile
+                      ? { width: '75px', position: 'relative' }
+                      : { position: 'relative' }
                   }
                 >
                   <span
@@ -132,7 +142,13 @@ function StepProgressBar({
                     className="text-medium white center"
                     style={
                       isMobile
-                        ? { fontSize: '12px' }
+                        ? {
+                            fontSize: '12px',
+                            wordWrap: 'normal',
+                            width: '70px',
+                            position: 'absolute',
+                            top: '100%',
+                          }
                         : {
                             wordWrap: 'normal',
                             width: '110px',
@@ -157,7 +173,9 @@ function StepProgressBar({
                 <div
                   className="node-container"
                   style={
-                    isMobile ? { width: '75px' } : { position: 'relative' }
+                    isMobile
+                      ? { width: '75px', position: 'relative' }
+                      : { position: 'relative' }
                   }
                 >
                   <span
@@ -188,7 +206,13 @@ function StepProgressBar({
                     className="text-medium flex white flex-center"
                     style={
                       isMobile
-                        ? { fontSize: '12px' }
+                        ? {
+                            fontSize: '12px',
+                            wordWrap: 'normal',
+                            width: '70px',
+                            position: 'absolute',
+                            top: '100%',
+                          }
                         : {
                             wordWrap: 'normal',
                             width: '110px',
