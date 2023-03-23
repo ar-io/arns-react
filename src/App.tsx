@@ -19,8 +19,6 @@ function App() {
   // setup default arweave data provider
   useArweave();
 
-  const { wallet, walletAddress } = useWalletAddress();
-
   const router = createHashRouter(
     createRoutesFromElements(
       <Route element={<Layout />} errorElement={<NotFound />}>
