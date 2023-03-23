@@ -26,7 +26,7 @@ function Home() {
     Object.keys(arnsSourceContract.records).reduce(
       (allRecords, domain: string) => ({
         ...allRecords,
-        domain: arnsSourceContract.records[domain].contractTxId,
+        [domain]: arnsSourceContract.records[domain].contractTxId,
       }),
       {},
     ),
@@ -41,13 +41,15 @@ function Home() {
     ).reduce(
       (allRecords, domain: string) => ({
         ...allRecords,
-        domain: records[domain],
+        [domain]: arnsSourceContract.records[domain].contractTxId,
       }),
       {},
     );
-    setRecords(newRecords);
+    setRecords(records);
+    console.log(newRecords);
     const featuredDomains = Object.fromEntries(
       Object.entries(newRecords).filter(([domain]) => {
+        console.log(newRecords);
         return FEATURED_DOMAINS.includes(domain);
       }),
     );
