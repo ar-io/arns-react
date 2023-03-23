@@ -203,7 +203,7 @@ export default function useWalletDomains(ids: ArweaveTransactionID[]) {
         align: 'center',
         width: '18%',
         className: 'white',
-        render: (val: Date) => `${val?.toLocaleDateString()}`,
+        render: (val: Date) => `${val.toLocaleDateString()}`,
         onHeaderCell: () => {
           return {
             onClick: () => {
@@ -314,7 +314,7 @@ export default function useWalletDomains(ids: ArweaveTransactionID[]) {
                 contractState.controllers?.includes(walletAddress?.toString())
               ? 'Controller'
               : 'N/A',
-          expiration: new Date(domain.endTimestamp),
+          expiration: new Date(domain.endTimestamp * 1000),
           status: confirmations ?? 0,
           tier:
             Object.keys(arnsSourceContract.tiers.current).find(
