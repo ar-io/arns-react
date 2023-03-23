@@ -1,5 +1,5 @@
 import { Tooltip } from 'antd';
-import { useEffect, useState } from 'react';
+
 
 import { useIsMobile, useWalletAddress } from '../../../hooks';
 import { ANTContract } from '../../../services/arweave/AntContract';

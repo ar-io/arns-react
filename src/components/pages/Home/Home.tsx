@@ -123,6 +123,53 @@ function Home() {
     // TODO: write to local storage to store pending transactions
   }
 
+  async function registerArnsName() {
+    try {
+      setIsPostingTransaction(true);
+
+      if (!antContract) {
+        throw Error('No ant contract state present');
+      }
+      if (!domain) {
+        throw new Error('No domain provided for registration');
+      }
+      dispatchRegisterState({
+        type: 'setStage',
+        payload: stage + 1,
+      });
+      const pendingTXId =
+        antID && registrationType === REGISTRATION_TYPES.USE_EXISTING
+          ? await arweaveDataProvider.writeTransaction(arnsContractId, {
+              function: 'buyRecord',
+              name: domain,
+              contractTransactionId: antID.toString(),
+            })
+          : await arweaveDataProvider.registerAtomicName({
+              srcCodeTransactionId: new ArweaveTransactionID(
+                DEFAULT_ANT_SOURCE_CODE_TX,
+              ),
+              initialState: antContract.state,
+              domain,
+            });
+      if (pendingTXId) {
+        dispatchRegisterState({
+          type: 'setResolvedTx',
+          payload: new ArweaveTransactionID(pendingTXId.toString()),
+        });
+        console.log(`Posted transaction: ${pendingTXId}`);
+        dispatchRegisterState({
+          type: 'setStage',
+          payload: stage + 2,
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsPostingTransaction(false);
+    }
+    // TODO: write to local storage to store pending transactions
+  }
+
   return (
     <div className="page">
       {domain ? <></> : <div className="page-header">Arweave Name System</div>}
