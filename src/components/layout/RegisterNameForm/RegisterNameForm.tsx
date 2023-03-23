@@ -1,7 +1,7 @@
 import { Tooltip } from 'antd';
+import { useEffect, useState } from 'react';
 
-
-import { useIsMobile, useWalletAddress } from '../../../hooks';
+import { useWalletAddress } from '../../../hooks';
 import { ANTContract } from '../../../services/arweave/AntContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
@@ -14,23 +14,21 @@ import { NAME_PRICE_INFO, SMARTWEAVE_TAG_SIZE } from '../../../utils/constants';
 import { byteSize } from '../../../utils/searchUtils';
 import { CodeSandboxIcon, NotebookIcon } from '../../icons';
 import YearsCounter from '../../inputs/Counter/Counter';
-import Dropdown from '../../inputs/Dropdown/Dropdown';
+// import Dropdown from '../../inputs/Dropdown/Dropdown';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import ArPrice from '../ArPrice/ArPrice';
 import './styles.css';
 
 0;
 function RegisterNameForm() {
-  const isMobile = useIsMobile(); // eslint-disable-line
-  const [
-    { domain, antID, antContract, registrationType, fee, tier },
-    dispatchRegisterState,
-  ] = useRegistrationState();
+  const [{ antID, antContract, registrationType, fee }, dispatchRegisterState] =
+    useRegistrationState();
   const [{ arnsSourceContract, arweaveDataProvider }] = useGlobalState();
   const { walletAddress } = useWalletAddress();
 
   const [isValidAnt, setIsValidAnt] = useState<boolean | undefined>(undefined);
 
+  // eslint-disable-next-line
   const registrationOptions = {
     create: REGISTRATION_TYPES.CREATE,
     'use-existing': REGISTRATION_TYPES.USE_EXISTING,
