@@ -42,6 +42,7 @@ function CreateAntModal() {
   const [rows, setRows] = useState<[]>([]);
   const [editingField, setEditingField] = useState<string>();
   const [modifiedValue, setModifiedValue] = useState<string | number>();
+  const [prevValue, setPreviousValue] = useState();
 
   const [workflowStage, setWorkflowStage] = useState<number>(0);
 
@@ -198,11 +199,9 @@ function CreateAntModal() {
         default:
           throw new Error('Editing field not supported');
       }
-
-      setEditingField(undefined);
-      setModifiedValue(undefined);
     } catch (error) {
       console.error(error);
+    } finally {
       setEditingField(undefined);
       setModifiedValue(undefined);
     }
@@ -226,8 +225,6 @@ function CreateAntModal() {
       }
       setAntContractId(new ArweaveTransactionID(pendingTXId));
       setIsPostingTransaction(false);
-      console.log(pendingTXId);
-
       return pendingTXId;
     } catch (error) {
       console.error(error);
@@ -263,8 +260,6 @@ function CreateAntModal() {
           onNext={() => {
             switch (workflowStage) {
               case 0:
-                // save any pending values
-                handleStateChange();
                 setWorkflowStage(workflowStage + 1);
                 if (!ant.records['@'].transactionId) {
                   ant.records = {
@@ -341,7 +336,7 @@ function CreateAntModal() {
                             position: 'relative',
                           }
                         : {
-                            width: '50%',
+                            width: '40%',
                             height: 'fit-content',
                             minWidth: '675px',
                             minHeight: '20%',
@@ -381,7 +376,7 @@ function CreateAntModal() {
                             dataIndex: 'value',
                             key: 'value',
                             align: 'left',
-                            width: 'fit-content',
+                            width: '50%',
                             className: `white`,
                             render: (value: string | number, row: any) => {
                               if (row.editable)
@@ -399,11 +394,9 @@ function CreateAntModal() {
                                       }
                                       minNumber={100}
                                       maxNumber={1000000}
-                                      onClick={() => {
-                                        handleStateChange();
-                                        setEditingField(row.attribute);
-                                        setModifiedValue(row.value ?? '');
-                                      }}
+                                      onClick={() =>
+                                        setEditingField(row.attribute)
+                                      }
                                       wrapperCustomStyle={{
                                         minWidth: 'max-content',
                                       }}
@@ -433,7 +426,11 @@ function CreateAntModal() {
                                       placeholder={`Enter a ${mapKeyToAttribute(
                                         row.attribute,
                                       )}`}
-                                      value={row.value}
+                                      value={
+                                        editingField === row.attribute
+                                          ? modifiedValue
+                                          : row.value
+                                      }
                                       setValue={(e) => {
                                         setModifiedValue(e);
                                         row.value = e;
@@ -462,7 +459,6 @@ function CreateAntModal() {
                             title: '',
                             dataIndex: 'action',
                             key: 'action',
-                            width: '10%',
                             align: 'right',
                             className: 'white',
                             render: (value: any, row: any) => {
@@ -474,7 +470,6 @@ function CreateAntModal() {
                                       <button
                                         onClick={() => {
                                           setEditingField(row.attribute);
-                                          setModifiedValue(row.value);
                                         }}
                                       >
                                         <PencilIcon
@@ -486,18 +481,37 @@ function CreateAntModal() {
                                         />
                                       </button>
                                     ) : (
-                                      <button
-                                        className="assets-manage-button"
-                                        style={{
-                                          backgroundColor: 'var(--accent)',
-                                          borderColor: 'var(--accent)',
-                                        }}
-                                        onClick={() => {
-                                          handleStateChange();
-                                        }}
+                                      <div
+                                        className="flex flex-row flex-right"
+                                        style={{ gap: '0.5em', padding: '0px' }}
                                       >
-                                        Save
-                                      </button>
+                                        <button
+                                          className="flex center assets-manage-button"
+                                          style={{
+                                            backgroundColor: 'transparent',
+                                            color: 'white',
+                                          }}
+                                          onClick={() => {
+                                            setModifiedValue(undefined);
+                                            setEditingField(undefined);
+                                            row.value = prevValue;
+                                          }}
+                                        >
+                                          Cancel
+                                        </button>
+                                        <button
+                                          className="flex center assets-manage-button"
+                                          style={{
+                                            backgroundColor: 'var(--accent)',
+                                            borderColor: 'var(--accent)',
+                                          }}
+                                          onClick={() => {
+                                            handleStateChange();
+                                          }}
+                                        >
+                                          Save
+                                        </button>
+                                      </div>
                                     )}
                                   </>
                                 );

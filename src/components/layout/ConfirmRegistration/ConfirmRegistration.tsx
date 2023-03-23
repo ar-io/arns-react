@@ -53,7 +53,7 @@ function ConfirmRegistration() {
       {
         function: 'buyRecord',
         name: domain,
-        contractTransactionId: antID.toString(),
+        contractTxId: antID.toString(),
       },
     );
     if (pendingTXId) {
