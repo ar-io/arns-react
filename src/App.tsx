@@ -5,7 +5,7 @@ import {
   createRoutesFromElements,
 } from 'react-router-dom';
 
-import { Layout } from './components/layout';
+import { Layout, ProtectedRoute } from './components/layout';
 import { ConnectWalletModal, CreateAntModal } from './components/modals';
 import { About, Home, Manage, NotFound } from './components/pages';
 import { useArNSContract, useArweave, useWalletAddress } from './hooks/';
@@ -35,11 +35,14 @@ function App() {
         <Route path="info" element={<About />} />
         <Route path="connect" element={<ConnectWalletModal />} />
         <Route path="create" element={<CreateAntModal />} />
-        {wallet && walletAddress ? (
-          <Route path="manage" element={<Manage />} />
-        ) : (
-          <></>
-        )}
+        <Route
+          path="manage"
+          element={
+            <ProtectedRoute>
+              <Manage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<NotFound />} />
       </Route>,
     ),
