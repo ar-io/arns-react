@@ -43,6 +43,10 @@ const initialState: GlobalState = {
     balances: { '': 0 },
     controllers: [],
     evolve: undefined,
+    tiers: {
+      history: [],
+      current: {},
+    },
     name: '',
     owner: undefined,
     ticker: '',

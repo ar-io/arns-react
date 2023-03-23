@@ -1,10 +1,10 @@
 import { useState } from 'react';
 
-import { ArNSDomains } from '../../../types';
+import { ArweaveTransactionID } from '../../../types';
 import { ArnsCard } from '../../cards';
 import './styles.css';
 
-function FeaturedDomains(props: { domains: ArNSDomains }) {
+function FeaturedDomains(props: { domains: { [x: string]: string } }) {
   const { domains } = props;
 
   // show three at a time by default
@@ -30,7 +30,13 @@ function FeaturedDomains(props: { domains: ArNSDomains }) {
         {Object.keys(domains).map((domain, index) => {
           if (index >= displayCount || index >= Object.keys(domains).length)
             return;
-          return <ArnsCard domain={domain} id={domains[domain]} key={index} />;
+          return (
+            <ArnsCard
+              domain={domain}
+              id={new ArweaveTransactionID(domains[domain])}
+              key={index}
+            />
+          );
         })}
       </div>
       <div className="flex-row flex-center">

@@ -4,7 +4,6 @@ import { useWalletAddress } from '../../../hooks/index';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { ArweaveTransactionID } from '../../../types';
-import { ArNSDomains } from '../../../types';
 import { ARNS_TX_ID_REGEX, FEATURED_DOMAINS } from '../../../utils/constants';
 import {
   isArNSDomainNameAvailable,
@@ -22,14 +21,28 @@ function Home() {
   const [{ arnsSourceContract }] = useGlobalState();
   const { walletAddress } = useWalletAddress();
   const [{ domain, antID, stage, isSearching }, dispatchRegisterState] =
-    useRegistrationState(); // eslint-disable-line
-  const [records, setRecords] = useState<ArNSDomains>(
-    arnsSourceContract.records,
+    useRegistrationState();
+  const [records, setRecords] = useState<{ [x: string]: string }>(
+    Object.keys(arnsSourceContract.records).reduce(
+      (allRecords: { [x: string]: string }, domain: string) => ({
+        ...allRecords,
+        domain: arnsSourceContract.records[domain].contractTxId,
+      }),
+      {},
+    ),
   );
-  const [featuredDomains, setFeaturedDomains] = useState<ArNSDomains>();
+  const [featuredDomains, setFeaturedDomains] = useState<{
+    [x: string]: string;
+  }>();
 
   useEffect(() => {
-    const newRecords = arnsSourceContract.records;
+    const newRecords = Object.keys(arnsSourceContract.records).reduce(
+      (allRecords: { [x: string]: string }, domain: string) => ({
+        ...allRecords,
+        domain: records[domain],
+      }),
+      {},
+    );
     setRecords(newRecords);
     const featuredDomains = Object.fromEntries(
       Object.entries(newRecords).filter(([domain]) => {
@@ -120,7 +133,11 @@ function Home() {
                 footerElement={
                   <SearchBarFooter
                     searchTerm={domain}
-                    searchResult={domain ? records[domain] : undefined}
+                    searchResult={
+                      domain
+                        ? new ArweaveTransactionID(records[domain])
+                        : undefined
+                    }
                     defaultText="Names must be 1-32 characters. Dashes are permitted, but cannot be trailing characters and cannot be used in single character domains."
                   />
                 }
