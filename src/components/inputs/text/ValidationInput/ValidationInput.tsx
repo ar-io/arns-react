@@ -22,9 +22,7 @@ function ValidationInput({
   setValue,
   validityCallback,
   validationPredicates,
-  onClick = () => {
-    return;
-  },
+  onClick = () => ({}),
   inputType = 'text',
   minNumber,
   maxNumber,

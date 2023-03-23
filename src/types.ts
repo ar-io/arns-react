@@ -2,7 +2,13 @@ import type { Dispatch, SetStateAction } from 'react';
 
 import { ARNS_TX_ID_REGEX } from './utils/constants';
 
-export type ArNSDomains = { [x: string]: any };
+export type ArNSRecordEntry = {
+  contractTxId: string;
+  tier: string;
+  endTimestamp: number;
+};
+
+export type ArNSDomains = { [x: string]: ArNSRecordEntry };
 
 export type TransactionHeaders = {
   id: string;
@@ -26,6 +32,18 @@ export type TransactionTag = {
 export type ArNSContractState = {
   records: ArNSDomains;
   fees: { [x: number]: number };
+  tiers: {
+    current: {
+      [x: number]: string;
+    };
+    history: {
+      id: string;
+      fee: number;
+      settings: {
+        maxUndernames: number;
+      };
+    }[];
+  };
   balances: { [x: string]: number };
   controllers: ArweaveTransactionID[];
   evolve: boolean | undefined;
@@ -263,7 +281,7 @@ export type ArNSTableRow = {
   name: string;
   role: string;
   id: string;
-  tier: number;
+  tier: number | string;
   expiration: Date;
   status: number;
   key: string | number;

@@ -10,6 +10,7 @@ function ConfirmRegistration() {
   const [
     { domain, antContract, tier, leaseDuration, antID, fee, registrationType },
   ] = useRegistrationState();
+ 
   return (
     <>
       <div className="register-name-modal center">

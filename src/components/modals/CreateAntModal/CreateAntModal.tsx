@@ -262,6 +262,8 @@ function CreateAntModal() {
           onNext={() => {
             switch (workflowStage) {
               case 0:
+                // save any pending values
+                handleStateChange();
                 setWorkflowStage(workflowStage + 1);
                 if (!ant.records['@'].transactionId) {
                   ant.records = {
@@ -397,8 +399,9 @@ function CreateAntModal() {
                                       minNumber={100}
                                       maxNumber={1000000}
                                       onClick={() => {
+                                        handleStateChange();
                                         setEditingField(row.attribute);
-                                        setModifiedValue(row.value);
+                                        setModifiedValue(row.value ?? '');
                                       }}
                                       wrapperCustomStyle={{
                                         minWidth: 'max-content',
@@ -423,18 +426,13 @@ function CreateAntModal() {
                                           editingField === row.attribute
                                             ? '10px '
                                             : '10px 0px',
-                                        paddingRight: '40px',
                                         display: 'flex',
                                       }}
                                       disabled={editingField !== row.attribute}
                                       placeholder={`Enter a ${mapKeyToAttribute(
                                         row.attribute,
                                       )}`}
-                                      value={
-                                        editingField !== row.attribute
-                                          ? row.value
-                                          : modifiedValue
-                                      }
+                                      value={row.value}
                                       setValue={(e) => {
                                         setModifiedValue(e);
                                         row.value = e;

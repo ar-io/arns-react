@@ -4,17 +4,23 @@ import { Spin } from 'antd';
 export default function Loader({
   size = 80,
   color = 'white',
-  percent = undefined,
+  message = undefined,
+  wrapperStyle = {},
 }: {
   size?: number;
   color?: string;
-  percent?: number;
+  message?: string;
+  wrapperStyle?: any;
 }) {
   return (
     <Spin
-      tip={percent ? `${Math.round(percent)}%` : undefined}
+      tip={message}
       style={{ fontSize: '18px', color: color }}
-      indicator={<LoadingOutlined style={{ fontSize: size, margin: '15px' }} />}
+      indicator={
+        <LoadingOutlined
+          style={{ fontSize: size, margin: '15px', ...wrapperStyle }}
+        />
+      }
     />
   );
 }
