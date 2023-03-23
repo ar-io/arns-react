@@ -23,7 +23,6 @@ function ValidationInput({
   validityCallback,
   validationPredicates,
   onClick = () => ({}),
-  onEnter = () => ({}),
   inputType = 'text',
   minNumber,
   maxNumber,
@@ -45,7 +44,6 @@ function ValidationInput({
   validityCallback?: (validity: boolean) => void;
   validationPredicates: { [x: string]: (value: string) => Promise<any> };
   onClick?: () => void;
-  onEnter?: () => void;
   inputType?: string;
   minNumber?: number;
   maxNumber?: number;
@@ -111,7 +109,6 @@ function ValidationInput({
             placeholder={placeholder}
             value={value}
             onChange={(e) => validationExecutor(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && onEnter()}
             disabled={disabled}
             style={
               showValidationOutline && valid !== undefined && value && !disabled

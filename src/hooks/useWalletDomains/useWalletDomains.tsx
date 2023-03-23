@@ -294,10 +294,14 @@ export default function useWalletDomains(ids: ArweaveTransactionID[]) {
       try {
         const associatedNames: (ArNSRecordEntry & { name: string })[] =
           Object.entries(records)
-            .map(([name, recordEntry]: [string, ArNSRecordEntry]) => ({
-              ...recordEntry,
-              name,
-            }))
+            .map(([name, recordEntry]: [string, ArNSRecordEntry]) => {
+              if (recordEntry.contractTxId === txId.toString()) {
+                return {
+                  ...recordEntry,
+                  name,
+                };
+              }
+            })
             .filter((n) => !!n) as (ArNSRecordEntry & { name: string })[];
         const [contractState, confirmations] = await Promise.all([
           arweaveDataProvider.getContractState(txId),
