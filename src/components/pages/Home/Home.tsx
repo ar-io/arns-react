@@ -137,7 +137,7 @@ function Home() {
                   <SearchBarFooter
                     searchTerm={domain}
                     searchResult={
-                      domain
+                      domain && records[domain]
                         ? new ArweaveTransactionID(records[domain])
                         : undefined
                     }
