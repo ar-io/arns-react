@@ -47,18 +47,24 @@ function Workflow({
   return (
     <div
       className="flex flex-column center"
-      style={isMobile ? {} : { gap: '20px', width: '100%' }}
+      style={isMobile ? {} : { gap: '2em', width: '100%' }}
     >
       {Object.entries(stages).map(([key, value], index) => {
         if (index === stage) {
           return (
-            <div className="flex flex-column center" key={key}>
-              {value.header}
-              {steps ? (
-                <StepProgressBar stage={stage + 1} stages={steps} />
-              ) : (
-                <></>
-              )}
+            <div
+              className="flex flex-column center"
+              key={key}
+              style={isMobile ? {} : { gap: '5em' }}
+            >
+              <div className="flex flex-column center">
+                {value.header}
+                {steps ? (
+                  <StepProgressBar stage={stage + 1} stages={steps} />
+                ) : (
+                  <></>
+                )}
+              </div>
               {value.component}
             </div>
           );
