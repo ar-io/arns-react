@@ -8,7 +8,7 @@ import {
 import { Layout, ProtectedRoute } from './components/layout';
 import { ConnectWalletModal, CreateAntModal } from './components/modals';
 import { About, Home, Manage, NotFound } from './components/pages';
-import { useArNSContract, useArweave, useWalletAddress } from './hooks/';
+import { useArNSContract, useArweave } from './hooks/';
 import './index.css';
 import RegistrationStateProvider from './state/contexts/RegistrationState';
 import { registrationReducer } from './state/reducers/RegistrationReducer';
