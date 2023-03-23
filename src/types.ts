@@ -36,15 +36,13 @@ export type ArNSContractState = {
     current: {
       [x: number]: string;
     };
-    history: [
-      {
-        id: string;
-        fee: number;
-        settings: {
-          maxUndernames: number;
-        };
-      },
-    ];
+    history: {
+      id: string;
+      fee: number;
+      settings: {
+        maxUndernames: number;
+      };
+    }[];
   };
   balances: { [x: string]: number };
   controllers: ArweaveTransactionID[];

@@ -5,6 +5,7 @@ import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
   ANT_INTERACTION_TYPES,
   AntMetadata,
+  ArNSRecordEntry,
   ArweaveTransactionID,
   TRANSACTION_TYPES,
   VALIDATION_INPUT_TYPES,
@@ -40,8 +41,8 @@ function TransactionModal({
 
   function getAssociatedNames(txId: ArweaveTransactionID) {
     return Object.entries(arnsSourceContract.records)
-      .map(([name, id]) => {
-        if (id === txId.toString()) return name;
+      .map(([name, recordEntry]: [string, ArNSRecordEntry]) => {
+        if (recordEntry.contractTxId === txId.toString()) return name;
       })
       .filter((n) => !!n);
   }
