@@ -45,8 +45,7 @@ function Home() {
       }),
       {},
     );
-    setRecords(records);
-    console.log(newRecords);
+    setRecords(newRecords);
     const featuredDomains = Object.fromEntries(
       Object.entries(newRecords).filter(([domain]) => {
         console.log(newRecords);
@@ -54,7 +53,7 @@ function Home() {
       }),
     );
     setFeaturedDomains(featuredDomains);
-  }, [arnsSourceContract, domain, isSearching]);
+  }, [arnsSourceContract.records, domain, isSearching]);
 
   return (
     <div className="page">
