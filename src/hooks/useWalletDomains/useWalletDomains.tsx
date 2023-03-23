@@ -319,7 +319,7 @@ export default function useWalletDomains(ids: ArweaveTransactionID[]) {
           tier:
             Object.keys(arnsSourceContract.tiers.current).find(
               (k: string) =>
-                arnsSourceContract.tiers.current[k] === domain.tier,
+                arnsSourceContract.tiers.current[+k] === domain.tier,
             ) ?? 1,
           key: `${domain.name}-${txId.toString()}`,
         }));
