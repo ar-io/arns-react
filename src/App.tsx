@@ -32,7 +32,14 @@ function App() {
         />
         <Route path="info" element={<About />} />
         <Route path="connect" element={<ConnectWalletModal />} />
-        <Route path="create" element={<CreateAntModal />} />
+        <Route
+          path="create"
+          element={
+            <ProtectedRoute>
+              <CreateAntModal />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="manage"
           element={
