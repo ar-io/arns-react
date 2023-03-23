@@ -22,15 +22,7 @@ function Home() {
   const { walletAddress } = useWalletAddress();
   const [{ domain, antID, stage, isSearching }, dispatchRegisterState] =
     useRegistrationState();
-  const [records, setRecords] = useState<{ [x: string]: string }>(
-    Object.keys(arnsSourceContract.records).reduce(
-      (allRecords, domain: string) => ({
-        ...allRecords,
-        [domain]: arnsSourceContract.records[domain].contractTxId,
-      }),
-      {},
-    ),
-  );
+  const [records, setRecords] = useState<{ [x: string]: string }>({});
   const [featuredDomains, setFeaturedDomains] = useState<{
     [x: string]: string;
   }>();
