@@ -12,7 +12,11 @@ import {
   TransactionTag,
 } from '../../types';
 import { ArNSContractState, SmartweaveDataProvider } from '../../types';
-import { SMARTWEAVE_MAX_TAG_SPACE } from '../../utils/constants';
+import {
+  ATOMIC_REGISTRATION_INPUT,
+  SMARTWEAVE_INTERACTION_TAGS,
+  SMARTWEAVE_MAX_TAG_SPACE,
+} from '../../utils/constants';
 import { byteSize } from '../../utils/searchUtils';
 
 export class WarpDataProvider implements SmartweaveDataProvider {
@@ -144,6 +148,36 @@ export class WarpDataProvider implements SmartweaveDataProvider {
     } catch (error: any) {
       console.error(error);
       return error;
+    }
+  }
+  async registerAtomicName({
+    srcCodeTransactionId,
+    initialState,
+    domain,
+  }: {
+    srcCodeTransactionId: ArweaveTransactionID;
+    initialState: ANTContractJSON;
+    domain: string;
+  }): Promise<string | undefined> {
+    try {
+      if (!domain) {
+        throw new Error('No domain provided');
+      }
+      const tags = [...SMARTWEAVE_INTERACTION_TAGS];
+      const input = { ...ATOMIC_REGISTRATION_INPUT };
+      input.name = domain;
+      tags[2].value = JSON.stringify(input);
+      const result = await this.deployContract({
+        srcCodeTransactionId,
+        initialState,
+        tags,
+      });
+      if (!result) {
+        throw new Error();
+      }
+      return result;
+    } catch (error) {
+      console.error(error);
     }
   }
 }

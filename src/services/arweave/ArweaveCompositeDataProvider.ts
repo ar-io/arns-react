@@ -105,6 +105,21 @@ export class ArweaveCompositeDataProvider
       tags,
     });
   }
+  async registerAtomicName({
+    srcCodeTransactionId,
+    initialState,
+    domain,
+  }: {
+    srcCodeTransactionId: ArweaveTransactionID;
+    initialState: ANTContractJSON;
+    domain: string;
+  }): Promise<string | undefined> {
+    return this._warpProvider.registerAtomicName({
+      srcCodeTransactionId,
+      initialState,
+      domain,
+    });
+  }
   async getArPrice(data: number): Promise<number> {
     return await this._arweaveProvider.getArPrice(data);
   }
