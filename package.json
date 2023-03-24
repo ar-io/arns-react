@@ -17,6 +17,8 @@
     "pre-commit": "lint-staged"
   },
   "dependencies": {
+    "@sentry/react": "^7.45.0",
+    "@sentry/tracing": "^7.45.0",
     "antd": "5.2.1",
     "arconnect": "^0.4.2",
     "arweave": "^1.12.7",
