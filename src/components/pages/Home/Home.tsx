@@ -22,15 +22,7 @@ function Home() {
   const { walletAddress } = useWalletAddress();
   const [{ domain, antID, stage, isSearching }, dispatchRegisterState] =
     useRegistrationState();
-  const [records, setRecords] = useState<{ [x: string]: string }>(
-    Object.keys(arnsSourceContract.records).reduce(
-      (allRecords, domain: string) => ({
-        ...allRecords,
-        [domain]: arnsSourceContract.records[domain].contractTxId,
-      }),
-      {},
-    ),
-  );
+
   const [featuredDomains, setFeaturedDomains] = useState<{
     [x: string]: string;
   }>();
@@ -45,10 +37,8 @@ function Home() {
       }),
       {},
     );
-    setRecords(newRecords);
     const featuredDomains = Object.fromEntries(
       Object.entries(newRecords).filter(([domain]) => {
-        console.log(newRecords);
         return FEATURED_DOMAINS.includes(domain);
       }),
     );
@@ -82,7 +72,7 @@ function Home() {
           0: {
             component: (
               <SearchBar
-                values={records}
+                values={arnsSourceContract.records}
                 value={domain}
                 onSubmit={(next = false) => {
                   dispatchRegisterState({
@@ -124,7 +114,10 @@ function Home() {
                   });
                 }}
                 successPredicate={(value: string | undefined) =>
-                  isArNSDomainNameAvailable({ name: value, records })
+                  isArNSDomainNameAvailable({
+                    name: value,
+                    records: arnsSourceContract?.records ?? {},
+                  })
                 }
                 validationPredicate={(value: string | undefined) =>
                   isArNSDomainNameValid({ name: value })
@@ -137,8 +130,10 @@ function Home() {
                   <SearchBarFooter
                     searchTerm={domain}
                     searchResult={
-                      domain
-                        ? new ArweaveTransactionID(records[domain])
+                      domain && arnsSourceContract.records[domain]
+                        ? new ArweaveTransactionID(
+                            arnsSourceContract.records[domain].contractTxId,
+                          )
                         : undefined
                     }
                     defaultText="Names must be 1-32 characters. Dashes are permitted, but cannot be trailing characters and cannot be used in single character domains."
@@ -150,7 +145,10 @@ function Home() {
             disableNext: !isSearching,
             showNext:
               !!domain &&
-              isArNSDomainNameAvailable({ name: domain, records }) &&
+              isArNSDomainNameAvailable({
+                name: domain,
+                records: arnsSourceContract.records,
+              }) &&
               isArNSDomainNameValid({ name: domain }),
             showBack: !!domain,
             requiresWallet: !!domain && !antID,

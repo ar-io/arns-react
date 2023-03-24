@@ -2,9 +2,21 @@ import { isArNSDomainNameAvailable } from '../searchUtils';
 
 describe('isArNSDomainNameAvailable', () => {
   const records = {
-    'domain-0': 'fake-tx-id-0',
-    'domain-1': 'fake-tx-id-1',
-    'domain-2': 'fake-tx-id-2',
+    'domain-0': {
+      contractTxId: 'fake-tx-id-0',
+      tier: 'a27dbfe4-6992-4276-91fb-5b97ae8c3ffa',
+      endTimestamp: 0,
+    },
+    'domain-1': {
+      contractTxId: 'fake-tx-id-0',
+      tier: 'a27dbfe4-6992-4276-91fb-5b97ae8c3ffa',
+      endTimestamp: 0,
+    },
+    'domain-2': {
+      contractTxId: 'fake-tx-id-0',
+      tier: 'a27dbfe4-6992-4276-91fb-5b97ae8c3ffa',
+      endTimestamp: 0,
+    },
   };
 
   test('it should return false if name is in records', () => {

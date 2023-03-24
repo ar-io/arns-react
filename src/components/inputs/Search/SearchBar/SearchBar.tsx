@@ -95,7 +95,7 @@ function SearchBar(props: SearchBarProps) {
       // on additional functions passed in
       onSuccess(searchBarText);
     } else if (!searchSuccess && searchBarText && values) {
-      onFailure(searchBarText, values[searchBarText]);
+      onFailure(searchBarText, values[searchBarText].contractTxId);
     }
   }
 

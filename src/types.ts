@@ -172,7 +172,7 @@ export type SearchBarProps = {
   placeholderText?: string;
   headerElement?: JSX.Element;
   footerElement?: JSX.Element;
-  values?: { [x: string]: string };
+  values?: { [x: string]: ArNSRecordEntry };
   value?: string;
   height?: number;
 };

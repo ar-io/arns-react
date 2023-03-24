@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer';
 
-import { TransactionTag } from '../types';
+import { ArNSRecordEntry, TransactionTag } from '../types';
 import { ARNS_NAME_REGEX, ARNS_TX_ID_REGEX } from './constants';
 import { fromB64Url } from './encodings';
 
@@ -48,7 +48,7 @@ export function isArNSDomainNameAvailable({
   records,
 }: {
   name?: string;
-  records: Record<string, any>;
+  records: { [x: string]: ArNSRecordEntry };
 }): boolean {
   //if registered return false
   if (!name || Object.keys(records).includes(name)) {
