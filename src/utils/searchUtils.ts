@@ -51,7 +51,7 @@ export function isArNSDomainNameAvailable({
   records: { [x: string]: ArNSRecordEntry };
 }): boolean {
   //if registered return false
-  if (!name || Object.keys(records).includes(name)) {
+  if (!name || records[name]) {
     return false;
   }
   return true;
