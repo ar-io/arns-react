@@ -1,6 +1,7 @@
 import Arweave from 'arweave/node/common';
 import {
   ArWallet,
+  LoggerFactory,
   Warp,
   WarpFactory,
   defaultCacheOptions,
@@ -18,6 +19,8 @@ import {
   SMARTWEAVE_MAX_TAG_SPACE,
 } from '../../utils/constants';
 import { byteSize } from '../../utils/searchUtils';
+
+LoggerFactory.INST.logLevel('error');
 
 export class WarpDataProvider implements SmartweaveDataProvider {
   private _warp: Warp;

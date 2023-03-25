@@ -25,15 +25,13 @@ jobs:
         run: |
           npm ci
           npm run build
+        env:
+          VITE_SENTRY_DSN_PUBLIC_KEY: ${{ secrets.SENTRY_DSN_PUBLIC_KEY }}
+          VITE_SENTRY_DSN_PROJECT_URI: ${{ secrets.SENTRY_DSN_PROJECT_URI }}
+          VITE_SENTRY_DSN_PROJECT_ID: ${{ secrets.SENTRY_DSN_PROJECT_ID }}
 
       - name: Deploy 🚀
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: dist
-
-      - name: Send Slack Notification
-        env:
-          SLACK_TITLE: New Deploy 🚀 - https://ar-io.github.io/arns-react/
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-        uses: rtCamp/action-slack-notify@v2
