@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   Route,
   RouterProvider,
@@ -55,7 +56,9 @@ function App() {
 
   return (
     <>
-      <RouterProvider router={router} />
+      <React.Suspense>
+        <RouterProvider router={router} />
+      </React.Suspense>
     </>
   );
 }

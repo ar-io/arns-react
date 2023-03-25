@@ -22,7 +22,8 @@ function SearchBar(props: SearchBarProps) {
     height,
   } = props;
 
-  const [{ walletAddress }, dispatchGlobalState] = useGlobalState();
+  const [{ walletAddress, arnsSourceContract }, dispatchGlobalState] =
+    useGlobalState();
   const isMobile = useIsMobile();
   const [isSearchValid, setIsSearchValid] = useState(true);
   const [showDefaultText, setShowDefaultText] = useState(true);

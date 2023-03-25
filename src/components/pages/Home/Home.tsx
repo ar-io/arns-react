@@ -3,7 +3,11 @@ import { useEffect, useState } from 'react';
 import { useWalletAddress } from '../../../hooks/index';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
-import { ArweaveTransactionID, REGISTRATION_TYPES } from '../../../types';
+import {
+  ArNSRecordEntry,
+  ArweaveTransactionID,
+  REGISTRATION_TYPES,
+} from '../../../types';
 import {
   ARNS_TX_ID_REGEX,
   DEFAULT_ANT_SOURCE_CODE_TX,
@@ -43,6 +47,7 @@ function Home() {
   const [featuredDomains, setFeaturedDomains] = useState<{
     [x: string]: string;
   }>();
+  const [records, setRecords] = useState<{ [x: string]: ArNSRecordEntry }>({});
   const [isPostingTransaction, setIsPostingTransaction] = useState(false); // eslint-disable-line
 
   useEffect(() => {
@@ -55,13 +60,14 @@ function Home() {
       }),
       {},
     );
+    setRecords(arnsSourceContract.records);
     const featuredDomains = Object.fromEntries(
       Object.entries(newRecords).filter(([domain]) => {
         return FEATURED_DOMAINS.includes(domain);
       }),
     );
     setFeaturedDomains(featuredDomains);
-  }, [arnsSourceContract, domain, isSearching]);
+  }, [arnsSourceContract.records, domain, isSearching]);
 
   async function registerArnsName() {
     try {
@@ -188,7 +194,7 @@ function Home() {
           0: {
             component: (
               <SearchBar
-                values={arnsSourceContract.records}
+                values={records}
                 value={domain}
                 onSubmit={(next = false) => {
                   dispatchRegisterState({
@@ -232,7 +238,7 @@ function Home() {
                 successPredicate={(value: string | undefined) =>
                   isArNSDomainNameAvailable({
                     name: value,
-                    records: arnsSourceContract?.records ?? {},
+                    records,
                   })
                 }
                 validationPredicate={(value: string | undefined) =>
