@@ -14,6 +14,7 @@ function SearchBar(props: SearchBarProps) {
     onSubmit,
     onFailure,
     onChange,
+    disabled = false,
     placeholderText,
     headerElement,
     footerElement,
@@ -137,6 +138,7 @@ function SearchBar(props: SearchBarProps) {
         {/** TODO change max input to 32 once contract is updated */}
         <input
           type="search"
+          disabled={disabled}
           placeholder={showDefaultText ? placeholderText : 'try another name'}
           enterKeyHint="search"
           onChange={_onChange}
