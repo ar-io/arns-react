@@ -26,6 +26,7 @@ export type GlobalState = {
   wallet?: ArweaveWalletConnector;
   arnsContractId: ArweaveTransactionID;
   errors: Array<Error>;
+  lastFetchedAnts?: number;
   notifications: { id: string; text: string }[];
 };
 
@@ -55,6 +56,7 @@ const initialState: GlobalState = {
   gateway: 'arweave.net',
   walletAddress: undefined,
   wallet: undefined,
+  lastFetchedAnts: undefined,
   errors: [],
   notifications: [],
 };
