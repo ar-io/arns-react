@@ -1,6 +1,7 @@
 import { Pagination } from 'antd';
 import Table from 'rc-table';
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { useIsMobile, useWalletAddress } from '../../../hooks';
 import useWalletANTs from '../../../hooks/useWalletANTs/useWalletANTs';
@@ -10,15 +11,17 @@ import { AntMetadata, ArweaveTransactionID } from '../../../types';
 import { TABLE_TYPES } from '../../../types';
 import { CodeSandboxIcon, NotebookIcon, RefreshIcon } from '../../icons';
 import { Loader } from '../../layout/index';
-import ManageAntModal from '../../modals/ManageAntModal/ManageAntModal';
 import './styles.css';
 
 function Manage() {
-  const [{ arnsSourceContract, arweaveDataProvider }] = useGlobalState();
+  const [
+    { arnsSourceContract, arweaveDataProvider, lastFetchedAnts },
+    dispatchGlobalState,
+  ] = useGlobalState();
   const { walletAddress } = useWalletAddress();
   const isMobile = useIsMobile();
-
-  const [tableType, setTableType] = useState<string>(TABLE_TYPES.NAME);
+  const navigate = useNavigate();
+  const { path } = useParams();
 
   const modalRef = useRef(null);
   const [cursor] = useState<string | undefined>();
@@ -48,12 +51,20 @@ function Manage() {
   const [tableLoading, setTableLoading] = useState(true);
   const [tableColumns, setTableColumns] = useState<any[]>();
   const [tablePage, setTablePage] = useState<number>(1);
-  const [lastUpdated, setLastedUpdated] = useState<number>(Date.now());
   const [error, setError] = useState();
 
   useEffect(() => {
+    if (!path) {
+      navigate('names');
+    }
+  }, [path]);
+
+  useEffect(() => {
     // todo: move this to a separate function to manage error state and poll for new ants to concat them to the state.
-    if (walletAddress) {
+    if (
+      walletAddress &&
+      (!lastFetchedAnts || Date.now() - lastFetchedAnts >= 50_000)
+    ) {
       fetchWalletAnts(walletAddress);
     }
   }, [walletAddress?.toString()]);
@@ -66,27 +77,29 @@ function Manage() {
   }, [tablePage]);
 
   useEffect(() => {
-    if (tableType === TABLE_TYPES.ANT) {
+    if (path === 'ants') {
       setTableLoading(antTableLoading);
       setTableData(antRows);
       setTableColumns(antColumns);
       setPercentLoaded(percentANTsLoaded);
+      setSelectedRow(selectedAntRow);
       const baseIndex = Math.max((tablePage - 1) * 10, 0);
       const endIndex = tablePage * 10;
       const filteredData = antRows.slice(baseIndex, endIndex);
       setFilteredTableData(filteredData);
     }
   }, [
-    tableType,
+    path,
     antSortAscending,
     antSortField,
     antRows,
+    selectedAntRow,
     antTableLoading,
     percentANTsLoaded,
   ]);
 
   useEffect(() => {
-    if (tableType === TABLE_TYPES.NAME) {
+    if (path === 'names') {
       setTableLoading(domainTableLoading);
       setTableData(domainRows);
       setTableColumns(domainColumns);
@@ -97,7 +110,7 @@ function Manage() {
       setFilteredTableData(filteredData);
     }
   }, [
-    tableType,
+    path,
     domainSortAscending,
     domainSortField,
     domainTableLoading,
@@ -107,8 +120,10 @@ function Manage() {
   ]);
 
   useEffect(() => {
-    setSelectedRow(selectedAntRow);
-  }, [selectedAntRow]);
+    if (selectedRow) {
+      navigate(selectedRow.id);
+    }
+  }, [selectedRow]);
 
   useEffect(() => {
     if (percent === 100) {
@@ -127,7 +142,10 @@ function Manage() {
         cursor,
       );
       setAntIDs(ids);
-      setLastedUpdated(Date.now());
+      dispatchGlobalState({
+        type: 'lastFetchedAnts',
+        payload: Date.now(),
+      });
     } catch (error: any) {
       console.error(error);
       // TODO: emit error message to error listener
@@ -150,116 +168,94 @@ function Manage() {
     // eslint-disable-next-line
     <div className="page" ref={modalRef} onClick={handleClickOutside}>
       <div className="flex-column">
-        {selectedRow ? (
-          <ManageAntModal
-            closeModal={() => setSelectedRow(undefined)}
-            antDetails={selectedRow}
-            contractId={new ArweaveTransactionID(selectedRow.id)}
-          />
+        <div className="flex flex-justify-between">
+          <div className="table-selector-group">
+            {['names', 'ants'].map((t: string, index: number) => (
+              <button
+                key={index}
+                className="table-selector text bold center"
+                onClick={() => {
+                  navigate(`/manage/${t}`);
+                }}
+                style={
+                  path === t
+                    ? {
+                        borderColor: 'var(--text-white)',
+                        color: 'var(--text-black)',
+                        fill: 'var(--text-black)',
+                        backgroundColor: 'var(--text-white)',
+                        borderRadius: 'var(--corner-radius)',
+                      }
+                    : {
+                        color: 'var(--text-white)',
+                        fill: 'var(--text-white)',
+                      }
+                }
+              >
+                {t === TABLE_TYPES.NAME ? (
+                  <NotebookIcon width={'20px'} height="20px" />
+                ) : (
+                  <CodeSandboxIcon width={'20px'} height="20px" />
+                )}
+                {t}
+              </button>
+            ))}
+          </div>
+          <div className="flex flex-row flex-right">
+            <button
+              disabled={antTableLoading}
+              className={
+                antTableLoading
+                  ? 'outline-button center disabled-button'
+                  : 'outline-button center'
+              }
+              style={{
+                padding: '0.75em',
+              }}
+              onClick={() => walletAddress && fetchWalletAnts(walletAddress)}
+            >
+              <RefreshIcon height={20} width={20} fill="white" />
+              {isMobile ? (
+                <></>
+              ) : (
+                <span
+                  className="text white"
+                  style={{ fontSize: '16px', padding: '0 0.2em' }}
+                >
+                  Refresh
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
+        {tableLoading && !error ? (
+          <div
+            className="flex center"
+            style={{ paddingTop: '10%', justifyContent: 'center' }}
+          >
+            <Loader
+              message={
+                !percent
+                  ? `Querying for wallet contracts...${antIds.length} found`
+                  : `Validating contracts...${Math.round(percent)}%`
+              }
+            />
+          </div>
         ) : (
           <>
-            <div className="flex flex-justify-between">
-              <div className="table-selector-group">
-                {[TABLE_TYPES.NAME, TABLE_TYPES.ANT].map(
-                  (t: string, index: number) => (
-                    <button
-                      key={index}
-                      className="table-selector text bold center"
-                      onClick={() => {
-                        setTableType(t);
-                        setTablePage(1);
-                        // TODO: update this to a specific block height, currently set to ~2 mins
-                        if (
-                          lastUpdated < Date.now() - 120_000 &&
-                          walletAddress
-                        ) {
-                          fetchWalletAnts(walletAddress);
-                        }
-                      }}
-                      style={
-                        tableType === t
-                          ? {
-                              borderColor: 'var(--text-white)',
-                              color: 'var(--text-black)',
-                              fill: 'var(--text-black)',
-                              backgroundColor: 'var(--text-white)',
-                              borderRadius: 'var(--corner-radius)',
-                            }
-                          : {
-                              color: 'var(--text-white)',
-                              fill: 'var(--text-white)',
-                            }
-                      }
-                    >
-                      {t === TABLE_TYPES.NAME ? (
-                        <NotebookIcon width={'20px'} height="20px" />
-                      ) : (
-                        <CodeSandboxIcon width={'20px'} height="20px" />
-                      )}
-                      {t}
-                    </button>
-                  ),
-                )}
-              </div>
-              <div className="flex flex-row flex-right">
-                <button
-                  disabled={antTableLoading}
-                  className={
-                    antTableLoading
-                      ? 'outline-button center disabled-button'
-                      : 'outline-button center'
-                  }
-                  style={{
-                    padding: '0.75em',
-                  }}
-                  onClick={() =>
-                    walletAddress && fetchWalletAnts(walletAddress)
-                  }
-                >
-                  <RefreshIcon height={20} width={20} fill="white" />
-                  {isMobile ? (
-                    <></>
-                  ) : (
-                    <span
-                      className="text white"
-                      style={{ fontSize: '16px', padding: '0 0.2em' }}
-                    >
-                      Refresh
-                    </span>
-                  )}
-                </button>
-              </div>
-            </div>
-            {tableLoading && !error ? (
-              <div
-                className="flex center"
-                style={{ paddingTop: '10%', justifyContent: 'center' }}
-              >
-                <Loader
-                  message={
-                    !percent
-                      ? `Querying for wallet contracts...${antIds.length} found`
-                      : `Validating contracts...${Math.round(percent)}%`
-                  }
-                />
-              </div>
-            ) : (
-              <>
-                <Table
-                  scroll={{ x: true }}
-                  columns={tableColumns}
-                  data={filteredTableData}
-                />
-                <Pagination
-                  pageSize={10}
-                  onChange={updatePage}
-                  current={tablePage}
-                  total={tableData.length}
-                  rootClassName="center"
-                  defaultCurrent={1}
-                />
-              </>
-            )}
+            <Table
+              scroll={{ x: true }}
+              columns={tableColumns}
+              data={filteredTableData}
+            />
+            <Pagination
+              pageSize={10}
+              onChange={updatePage}
+              current={tablePage}
+              total={tableData.length}
+              rootClassName="center"
+              defaultCurrent={1}
+            />
           </>
         )}
       </div>

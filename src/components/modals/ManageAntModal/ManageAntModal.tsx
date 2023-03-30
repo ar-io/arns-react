@@ -1,15 +1,13 @@
 import Table from 'rc-table';
 import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
-  ANT_INTERACTION_TYPES,
-  AntMetadata,
   ArNSRecordEntry,
   ArweaveTransactionID,
   ManageAntRow,
-  TRANSACTION_TYPES,
 } from '../../../types';
 import {
   DEFAULT_ATTRIBUTES,
@@ -17,7 +15,6 @@ import {
 } from '../../cards/AntCard/AntCard';
 import { CloseIcon, NotebookIcon, PencilIcon } from '../../icons';
 import TransactionStatus from '../../layout/TransactionStatus/TransactionStatus';
-import TransactionModal from '../TransactionModal/TransactionModal';
 
 const EDITABLE_FIELDS = [
   'name',
@@ -27,38 +24,27 @@ const EDITABLE_FIELDS = [
   'controller',
 ];
 
-function ManageAntModal({
-  contractId,
-  antDetails,
-  closeModal,
-}: {
-  contractId: ArweaveTransactionID;
-  antDetails: AntMetadata;
-  closeModal?: () => void;
-}) {
-  const [{ arnsSourceContract }] = useGlobalState();
+function ManageAntModal() {
+  const { id } = useParams();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
+
+  const [{ arnsSourceContract, arweaveDataProvider }] = useGlobalState();
   const [editingField, setEditingField] = useState<string>();
   const [modifiedValue, setModifiedValue] = useState<string>();
   const [rows, setRows] = useState<ManageAntRow[]>([]);
-  const [transact, setTransact] = useState<boolean>(false);
-  // todo: manage asset modal writes asset modifications to contract. It will auto detect if the asset is an ANT, name, or undername.
-  // if the asset is a name, it will write modifications to the registry. If its an undername, it will write mods to the ant. If its an ant, it will write mods to the ant.
-  const ACTIONABLE_FIELDS: {
-    [x: string]: {
-      fn: () => void;
-      title: TRANSACTION_TYPES;
-    };
-  } = {
-    owner: {
-      fn: () => setTransact(true),
-      title: TRANSACTION_TYPES.TRANSFER,
-    },
-  };
 
   useEffect(() => {
-    setDetails(contractId);
-  }, [contractId, antDetails]);
+    try {
+      if (!id) {
+        throw Error('No id provided.');
+      }
+      const txId = new ArweaveTransactionID(id);
+      fetchAntDetails(txId);
+    } catch (error) {
+      navigate('/manage');
+    }
+  }, [id]);
 
   function getAssociatedNames(txId: ArweaveTransactionID) {
     return Object.entries(arnsSourceContract.records)
@@ -68,23 +54,27 @@ function ManageAntModal({
       .filter((n) => !!n);
   }
 
-  function setDetails(id: ArweaveTransactionID) {
-    const names = getAssociatedNames(id);
-    //  eslint-disable-next-line
-    const { state, key, ...otherDetails } = antDetails;
+  async function fetchAntDetails(txId: ArweaveTransactionID) {
+    const names = getAssociatedNames(txId);
+    const [contractState, confirmations] = await Promise.all([
+      arweaveDataProvider.getContractState(txId),
+      arweaveDataProvider.getTransactionStatus(txId),
+    ]);
+    console.log(contractState);
+    // TODO: add error messages and reload state to row
     const consolidatedDetails: ManageAntRow & any = {
-      status: antDetails.status ?? 0,
+      status: confirmations ?? 0,
       associatedNames: !names.length ? 'N/A' : names.join(', '),
-      name: antDetails.name ?? 'N/A',
-      ticker: state?.ticker ?? 'N/A',
-      targetID: otherDetails.target ?? 'N/A',
+      name: contractState.name ?? 'N/A',
+      ticker: contractState.ticker ?? 'N/A',
+      targetID: contractState.target ?? 'N/A',
       ttlSeconds: DEFAULT_ATTRIBUTES.ttlSeconds.toString(),
       controller:
-        antDetails.state?.controllers?.join(', ') ??
-        antDetails.state?.owner?.toString() ??
+        contractState.controllers?.join(', ') ??
+        contractState.owner?.toString() ??
         'N/A',
       undernames: `${names.length} / ${DEFAULT_ATTRIBUTES.maxSubdomains}`,
-      owner: antDetails.state?.owner?.toString() ?? 'N/A',
+      owner: contractState.owner?.toString() ?? 'N/A',
     };
 
     const rows = Object.keys(consolidatedDetails).reduce(
@@ -93,7 +83,7 @@ function ManageAntModal({
           attribute,
           value: consolidatedDetails[attribute as keyof ManageAntRow],
           editable: EDITABLE_FIELDS.includes(attribute),
-          action: ACTIONABLE_FIELDS[attribute],
+          action: () => alert('not implemented'), // navigate to transaction route with details
           key: index,
         };
         details.push(detail);
@@ -115,9 +105,9 @@ function ManageAntModal({
       >
         <span className="flex bold text-medium white">
           <NotebookIcon width={25} height={25} fill={'var(--text-white)'} />
-          Manage ANT
+          Manage ANT / {id}
         </span>
-        <button className="flex pointer" onClick={closeModal}>
+        <button className="flex pointer" onClick={() => navigate('/manage')}>
           <CloseIcon width="30px" height={'30px'} fill="var(--text-white)" />
         </button>
       </div>
@@ -250,19 +240,6 @@ function ManageAntModal({
         ]}
         data={rows}
       />
-      {transact ? (
-        <TransactionModal
-          contractId={contractId}
-          transactionType={TRANSACTION_TYPES.ANT}
-          interactionType={ANT_INTERACTION_TYPES.TRANSFER}
-          state={antDetails}
-          showModal={() => {
-            setTransact(!transact);
-          }}
-        />
-      ) : (
-        <></>
-      )}
     </div>
   );
 }
