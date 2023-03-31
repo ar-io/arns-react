@@ -400,7 +400,7 @@ function CreateAntModal() {
                                         width:
                                           editingField != row.attribute
                                             ? '175%'
-                                            : '100%',
+                                            : '125%',
                                         minWidth: '200px',
                                       }}
                                       inputClassName={'flex'}
