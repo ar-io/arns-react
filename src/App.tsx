@@ -27,14 +27,7 @@ function App() {
   const router = createHashRouter(
     createRoutesFromElements(
       <Route element={<Layout />} errorElement={<NotFound />}>
-        <Route
-          index
-          element={
-            <RegistrationStateProvider reducer={registrationReducer}>
-              <Home />
-            </RegistrationStateProvider>
-          }
-        />
+        <Route index element={<Home />} />
         <Route path="info" element={<About />} />
         <Route path="connect" element={<ConnectWalletModal />} />
         <Route
