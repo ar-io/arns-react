@@ -15,8 +15,6 @@ import {
 import { About, Home, Manage, NotFound } from './components/pages';
 import { useArNSContract, useArweave } from './hooks/';
 import './index.css';
-import RegistrationStateProvider from './state/contexts/RegistrationState';
-import { registrationReducer } from './state/reducers/RegistrationReducer';
 
 function App() {
   // dispatches global state
