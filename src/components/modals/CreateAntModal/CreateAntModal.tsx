@@ -335,7 +335,7 @@ function CreateAntModal() {
                             position: 'relative',
                           }
                         : {
-                            width: '30%',
+                            width: '40%',
                             height: 'fit-content',
                             minWidth: '675px',
                             minHeight: '20%',
@@ -364,7 +364,7 @@ function CreateAntModal() {
                             dataIndex: 'attribute',
                             key: 'attribute',
                             align: 'left',
-                            width: isMobile ? '0px' : '10%',
+                            width: isMobile ? '0px' : '20%',
                             className: 'white small-row',
                             render: (value: string) => {
                               return `${mapKeyToAttribute(value)}:`;
@@ -376,6 +376,7 @@ function CreateAntModal() {
                             key: 'value',
                             align: 'left',
                             className: `white`,
+                            width: '40%',
                             render: (value: string | number, row: any) => {
                               if (row.editable)
                                 return (
@@ -392,11 +393,15 @@ function CreateAntModal() {
                                       }
                                       minNumber={100}
                                       maxNumber={1000000}
-                                      onClick={() =>
-                                        setEditingField(row.attribute)
-                                      }
+                                      onClick={() => {
+                                        setEditingField(row.attribute);
+                                      }}
                                       wrapperCustomStyle={{
-                                        minWidth: 'max-content',
+                                        width:
+                                          editingField != row.attribute
+                                            ? '175%'
+                                            : '100%',
+                                        minWidth: '200px',
                                       }}
                                       inputClassName={'flex'}
                                       inputCustomStyle={{
@@ -416,7 +421,7 @@ function CreateAntModal() {
                                             : 'white',
                                         padding:
                                           editingField === row.attribute
-                                            ? '10px '
+                                            ? '10px 40px 10px 10px'
                                             : '10px 0px',
                                         display: 'flex',
                                       }}
@@ -430,8 +435,9 @@ function CreateAntModal() {
                                           : row.value
                                       }
                                       setValue={(e) => {
-                                        setModifiedValue(e);
-                                        row.value = e;
+                                        if (row.attribute === editingField) {
+                                          setModifiedValue(e);
+                                        }
                                       }}
                                       validationPredicates={
                                         row.attribute === 'owner' ||
@@ -458,7 +464,7 @@ function CreateAntModal() {
                             dataIndex: 'action',
                             key: 'action',
                             align: 'right',
-                            width: 'fit-content',
+                            width: '40%',
                             className: 'white',
                             render: (value: any, row: any) => {
                               //TODO: if it's got an action attached, show it
@@ -468,6 +474,7 @@ function CreateAntModal() {
                                     {editingField !== row.attribute ? (
                                       <button
                                         onClick={() => {
+                                          setModifiedValue(undefined);
                                           setEditingField(row.attribute);
                                         }}
                                       >
@@ -504,6 +511,7 @@ function CreateAntModal() {
                                             borderColor: 'var(--accent)',
                                           }}
                                           onClick={() => {
+                                            row.value = modifiedValue;
                                             handleStateChange();
                                           }}
                                         >
