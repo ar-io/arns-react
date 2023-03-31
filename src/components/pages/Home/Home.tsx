@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import { useWalletAddress } from '../../../hooks/index';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
@@ -18,6 +19,7 @@ import Workflow from '../../layout/Workflow/Workflow';
 import './styles.css';
 
 function Home() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [{ arnsSourceContract }] = useGlobalState();
   const { walletAddress } = useWalletAddress();
   const [{ domain, antID, stage, isSearching }, dispatchRegisterState] =
@@ -26,6 +28,27 @@ function Home() {
   const [featuredDomains, setFeaturedDomains] = useState<{
     [x: string]: string;
   }>();
+
+  useEffect(() => {
+    if (domain) {
+      const serializeSearchParams: Record<string, string> = {
+        search: domain,
+      };
+      setSearchParams(serializeSearchParams);
+      return;
+    }
+  }, [domain]);
+
+  useEffect(() => {
+    const searchDomain = searchParams.get('search');
+    if (searchDomain && searchDomain !== domain) {
+      dispatchRegisterState({
+        type: 'setDomainName',
+        payload: searchDomain,
+      });
+      return;
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (Object.keys(arnsSourceContract.records).length) {
@@ -61,6 +84,7 @@ function Home() {
             }}
             onBack={() => {
               if (stage === 0) {
+                setSearchParams();
                 dispatchRegisterState({
                   type: 'reset',
                 });

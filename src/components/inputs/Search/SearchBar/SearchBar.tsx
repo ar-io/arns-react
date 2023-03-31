@@ -51,7 +51,9 @@ function SearchBar(props: SearchBarProps) {
       setSearchBarText(value);
       _onFocus();
       _onSubmit();
+      return;
     }
+    setSearchBarText(undefined);
   }, [value]);
 
   function _onChange(e: React.ChangeEvent<HTMLInputElement>) {
