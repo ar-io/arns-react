@@ -56,23 +56,29 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path=":id"
-              element={
-                <ProtectedRoute>
-                  <ManageAntModal />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path=":name"
-              element={
-                <ProtectedRoute>
-                  <div>Manage name page</div>
-                </ProtectedRoute>
-              }
-            />
           </Route>
+          <Route
+            path="ants/:id"
+            element={
+              <ProtectedRoute>
+                <ManageAntModal />
+              </ProtectedRoute>
+            }
+          />
+          {/* TODO: create manage name modal and add here */}
+          <Route
+            path="names/:name"
+            element={
+              <ProtectedRoute>
+                <div
+                  className="text-large white center"
+                  style={{ margin: '15% 0%' }}
+                >
+                  Manage Name Modal Coming soon!
+                </div>
+              </ProtectedRoute>
+            }
+          />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Route>,
