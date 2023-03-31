@@ -1,4 +1,4 @@
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import logo from '../../../../assets/images/logo/winston-white.gif';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
