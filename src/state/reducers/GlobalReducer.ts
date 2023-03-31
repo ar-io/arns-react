@@ -19,7 +19,6 @@ export type Action =
   | { type: 'setArnsContractState'; payload: ArNSContractState }
   | { type: 'setShowConnectWallet'; payload: boolean }
   | { type: 'setShowCreateAnt'; payload: boolean }
-  | { type: 'lastFetchedAnts'; payload: number }
   | {
       type: 'setArweaveDataProvider';
       payload: ArweaveDataProvider & SmartweaveDataProvider;
@@ -53,11 +52,6 @@ export const reducer = (state: GlobalState, action: Action): GlobalState => {
       return {
         ...state,
         arnsSourceContract: action.payload,
-      };
-    case 'lastFetchedAnts':
-      return {
-        ...state,
-        lastFetchedAnts: action.payload,
       };
     case 'pushNotification': {
       return {

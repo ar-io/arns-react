@@ -24,6 +24,19 @@ const EDITABLE_FIELDS = [
   'controller',
 ];
 
+const ACTION_FIELDS: {
+  [x: string]: {
+    title: string;
+    action?: () => void;
+  };
+} = {
+  owner: {
+    title: 'Transfer',
+    // todo: navigate to /transfer route
+    action: () => alert('hello'),
+  },
+};
+
 function ManageAntModal() {
   const { id } = useParams();
   const isMobile = useIsMobile();
@@ -60,7 +73,6 @@ function ManageAntModal() {
       arweaveDataProvider.getContractState(txId),
       arweaveDataProvider.getTransactionStatus(txId),
     ]);
-    console.log(contractState);
     // TODO: add error messages and reload state to row
     const consolidatedDetails: ManageAntRow & any = {
       status: confirmations ?? 0,
@@ -83,7 +95,7 @@ function ManageAntModal() {
           attribute,
           value: consolidatedDetails[attribute as keyof ManageAntRow],
           editable: EDITABLE_FIELDS.includes(attribute),
-          action: () => alert('not implemented'), // navigate to transaction route with details
+          action: ACTION_FIELDS[attribute]?.action ?? undefined, // navigate to transaction route with details
           key: index,
         };
         details.push(detail);
@@ -95,7 +107,6 @@ function ManageAntModal() {
   }
 
   return (
-    // eslint-disable-next-line
     <div style={{ padding: '5%', minWidth: '350px', gap: '0.5em' }}>
       <div
         className="flex-row flex-space-between"
@@ -107,7 +118,8 @@ function ManageAntModal() {
           <NotebookIcon width={25} height={25} fill={'var(--text-white)'} />
           Manage ANT / {id}
         </span>
-        <button className="flex pointer" onClick={() => navigate('/manage')}>
+        {/* TODO: make sure the table doesn't refresh if no actions were saved/written */}
+        <button className="flex pointer" onClick={() => navigate(-1)}>
           <CloseIcon width="30px" height={'30px'} fill="var(--text-white)" />
         </button>
       </div>

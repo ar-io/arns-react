@@ -7,17 +7,14 @@ import { useIsMobile, useWalletAddress } from '../../../hooks';
 import useWalletANTs from '../../../hooks/useWalletANTs/useWalletANTs';
 import useWalletDomains from '../../../hooks/useWalletDomains/useWalletDomains';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { AntMetadata, ArweaveTransactionID } from '../../../types';
+import { AntMetadata, ArweaveTransactionID, ManageTable } from '../../../types';
 import { TABLE_TYPES } from '../../../types';
 import { CodeSandboxIcon, NotebookIcon, RefreshIcon } from '../../icons';
 import { Loader } from '../../layout/index';
 import './styles.css';
 
 function Manage() {
-  const [
-    { arnsSourceContract, arweaveDataProvider, lastFetchedAnts },
-    dispatchGlobalState,
-  ] = useGlobalState();
+  const [{ arnsSourceContract, arweaveDataProvider }] = useGlobalState();
   const { walletAddress } = useWalletAddress();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
@@ -61,10 +58,7 @@ function Manage() {
 
   useEffect(() => {
     // todo: move this to a separate function to manage error state and poll for new ants to concat them to the state.
-    if (
-      walletAddress &&
-      (!lastFetchedAnts || Date.now() - lastFetchedAnts >= 50_000)
-    ) {
+    if (walletAddress) {
       fetchWalletAnts(walletAddress);
     }
   }, [walletAddress?.toString()]);
@@ -141,11 +135,8 @@ function Manage() {
         address,
         cursor,
       );
+      // TODO: store ants in global state and create a hook that fetches them at certain times
       setAntIDs(ids);
-      dispatchGlobalState({
-        type: 'lastFetchedAnts',
-        payload: Date.now(),
-      });
     } catch (error: any) {
       console.error(error);
       // TODO: emit error message to error listener
@@ -170,7 +161,7 @@ function Manage() {
       <div className="flex-column">
         <div className="flex flex-justify-between">
           <div className="table-selector-group">
-            {['names', 'ants'].map((t: string, index: number) => (
+            {Object.keys(TABLE_TYPES).map((t: string, index: number) => (
               <button
                 key={index}
                 className="table-selector text bold center"
@@ -192,12 +183,12 @@ function Manage() {
                       }
                 }
               >
-                {t === TABLE_TYPES.NAME ? (
+                {t === 'names' ? (
                   <NotebookIcon width={'20px'} height="20px" />
                 ) : (
                   <CodeSandboxIcon width={'20px'} height="20px" />
                 )}
-                {t}
+                {TABLE_TYPES[t as ManageTable]}
               </button>
             ))}
           </div>
