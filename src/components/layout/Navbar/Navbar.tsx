@@ -1,4 +1,4 @@
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 import logo from '../../../../assets/images/logo/winston-white.gif';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
@@ -13,8 +13,9 @@ function NavBar() {
   return (
     <div className="flex-row flex-space-between">
       <div className="flex-row flex-left">
-        <button
+        <Link
           className="hover"
+          to="/"
           onClick={() => {
             setSearchParams();
             dispatchRegisterState({ type: 'reset' });
@@ -22,7 +23,7 @@ function NavBar() {
           }}
         >
           <img src={logo} className="brand-logo" alt="logo" />
-        </button>
+        </Link>
       </div>
       <NavGroup />
     </div>
