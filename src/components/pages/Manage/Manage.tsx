@@ -8,7 +8,7 @@ import useWalletANTs from '../../../hooks/useWalletANTs/useWalletANTs';
 import useWalletDomains from '../../../hooks/useWalletDomains/useWalletDomains';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { AntMetadata, ArweaveTransactionID, ManageTable } from '../../../types';
-import { TABLE_TYPES } from '../../../types';
+import { MANAGE_TABLE_NAMES } from '../../../types';
 import { CodeSandboxIcon, NotebookIcon, RefreshIcon } from '../../icons';
 import { Loader } from '../../layout/index';
 import './styles.css';
@@ -161,7 +161,7 @@ function Manage() {
       <div className="flex-column">
         <div className="flex flex-justify-between">
           <div className="table-selector-group">
-            {Object.keys(TABLE_TYPES).map((t: string, index: number) => (
+            {Object.keys(MANAGE_TABLE_NAMES).map((t: string, index: number) => (
               <button
                 key={index}
                 className="table-selector text bold center"
@@ -188,7 +188,7 @@ function Manage() {
                 ) : (
                   <CodeSandboxIcon width={'20px'} height="20px" />
                 )}
-                {TABLE_TYPES[t as ManageTable]}
+                {MANAGE_TABLE_NAMES[t as ManageTable]}
               </button>
             ))}
           </div>

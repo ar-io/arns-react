@@ -214,7 +214,7 @@ export type DropdownProps = {
 
 export type ManageTable = 'ants' | 'names';
 
-export const TABLE_TYPES: Record<ManageTable, string> = {
+export const MANAGE_TABLE_NAMES: Record<ManageTable, string> = {
   names: 'Names',
   ants: "ANT's",
 };
