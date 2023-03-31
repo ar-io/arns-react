@@ -212,10 +212,13 @@ export type DropdownProps = {
   footerElement?: JSX.Element;
 };
 
-export enum TABLE_TYPES {
-  ANT = "ANT's",
-  NAME = 'Names',
-}
+export type ManageTable = 'ants' | 'names';
+
+export const TABLE_TYPES: Record<ManageTable, string> = {
+  names: 'Names',
+  ants: "ANT's",
+};
+
 export enum TRANSACTION_TYPES {
   REGISTRY = 'ArNS Registry',
   ANT = 'Arweave Name Token',
