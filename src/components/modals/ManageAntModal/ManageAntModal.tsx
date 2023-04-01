@@ -1,3 +1,4 @@
+import { Tooltip } from 'antd';
 import Table from 'rc-table';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -8,12 +9,13 @@ import {
   ArNSRecordEntry,
   ArweaveTransactionID,
   ManageAntRow,
+  TRANSACTION_TYPES,
 } from '../../../types';
 import {
   DEFAULT_ATTRIBUTES,
   mapKeyToAttribute,
 } from '../../cards/AntCard/AntCard';
-import { CloseIcon, NotebookIcon, PencilIcon } from '../../icons';
+import { ArrowLeft, CloseIcon, NotebookIcon, PencilIcon } from '../../icons';
 import TransactionStatus from '../../layout/TransactionStatus/TransactionStatus';
 
 const EDITABLE_FIELDS = [
@@ -27,13 +29,13 @@ const EDITABLE_FIELDS = [
 const ACTION_FIELDS: {
   [x: string]: {
     title: string;
-    action?: () => void;
+    fn?: () => void;
   };
 } = {
   owner: {
-    title: 'Transfer',
+    title: TRANSACTION_TYPES.TRANSFER,
     // todo: navigate to /transfer route
-    action: () => alert('hello'),
+    fn: () => alert('coming soon!'),
   },
 };
 
@@ -43,6 +45,7 @@ function ManageAntModal() {
   const navigate = useNavigate();
 
   const [{ arnsSourceContract, arweaveDataProvider }] = useGlobalState();
+  const [antName, setAntName] = useState<string>();
   const [editingField, setEditingField] = useState<string>();
   const [modifiedValue, setModifiedValue] = useState<string>();
   const [rows, setRows] = useState<ManageAntRow[]>([]);
@@ -95,7 +98,7 @@ function ManageAntModal() {
           attribute,
           value: consolidatedDetails[attribute as keyof ManageAntRow],
           editable: EDITABLE_FIELDS.includes(attribute),
-          action: ACTION_FIELDS[attribute]?.action ?? undefined, // navigate to transaction route with details
+          action: ACTION_FIELDS[attribute] ?? undefined, // navigate to transaction route with details
           key: index,
         };
         details.push(detail);
@@ -103,6 +106,7 @@ function ManageAntModal() {
       },
       [],
     );
+    setAntName(contractState.name ?? id);
     setRows(rows);
   }
 
@@ -114,9 +118,29 @@ function ManageAntModal() {
           width: '100%',
         }}
       >
-        <span className="flex bold text-medium white">
-          <NotebookIcon width={25} height={25} fill={'var(--text-white)'} />
-          Manage ANT / {id}
+        <span className="flex center white text-large bold">
+          <button
+            className="faded text-large bold underline link center"
+            onClick={() => navigate(-1)}
+          >
+            <ArrowLeft
+              width={30}
+              height={20}
+              viewBox={'0 0 20 20'}
+              fill={'var(--text-white)'}
+            />
+            Manage ANTs
+          </button>
+          <Tooltip
+            placement="right"
+            title={id}
+            showArrow={true}
+            overlayStyle={{
+              maxWidth: 'fit-content',
+            }}
+          >
+            <span>&nbsp;/&nbsp;{antName}</span>
+          </Tooltip>
         </span>
         {/* TODO: make sure the table doesn't refresh if no actions were saved/written */}
         <button className="flex pointer" onClick={() => navigate(-1)}>
