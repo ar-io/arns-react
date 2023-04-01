@@ -62,13 +62,7 @@ input[type='text']:disabled {
 }
 
 .link {
-  border: none;
-  font-family: 'Rubik';
-  font-size: 16px;
-  font-weight: 500;
   text-decoration: underline;
-  color: var(--text-white);
-  background: none;
   cursor: pointer;
   padding: 0px;
 }

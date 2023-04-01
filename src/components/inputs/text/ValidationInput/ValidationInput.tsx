@@ -1,5 +1,5 @@
 import { Tooltip } from 'antd';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { ValidationObject } from '../../../../types';
 import ValidationList from '../../../cards/ValidationList/ValidationList';
