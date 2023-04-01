@@ -15,7 +15,7 @@ import {
   DEFAULT_ATTRIBUTES,
   mapKeyToAttribute,
 } from '../../cards/AntCard/AntCard';
-import { ArrowLeft, CloseIcon, NotebookIcon, PencilIcon } from '../../icons';
+import { ArrowLeft, CloseIcon, PencilIcon } from '../../icons';
 import TransactionStatus from '../../layout/TransactionStatus/TransactionStatus';
 
 const EDITABLE_FIELDS = [

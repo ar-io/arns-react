@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import {
   CalendarTimeIcon,
   ChevronUpIcon,
+  ExternalLinkIcon,
   LinkIcon,
   PersonIcon,
   PriceTagIcon,
@@ -72,6 +73,12 @@ export default function useWalletDomains(ids: ArweaveTransactionID[]) {
             rel="noreferrer"
           >
             {name}
+            <ExternalLinkIcon
+              height={20}
+              width={20}
+              viewBox={'0 -3 5 20'}
+              fill={'var(--text-white)'}
+            />
           </a>
         ),
         onHeaderCell: () => {
