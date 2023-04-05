@@ -1,4 +1,10 @@
-import { ArweaveTransactionID, TransactionTag } from '../../types';
+import {
+  AntInteraction,
+  ArweaveTransactionID,
+  ContractType,
+  RegistryInteraction,
+  TransactionTag,
+} from '../../types';
 import {
   ANTContractJSON,
   ArNSContractState,
@@ -103,6 +109,21 @@ export class ArweaveCompositeDataProvider
       srcCodeTransactionId,
       initialState,
       tags,
+    });
+  }
+  async handleTransactionExecution({
+    contractType,
+    interactionType,
+    transactionData,
+  }: {
+    contractType: ContractType;
+    interactionType: AntInteraction | RegistryInteraction;
+    transactionData: any;
+  }): Promise<string | undefined> {
+    return await this._warpProvider.handleTransactionExecution({
+      contractType,
+      interactionType,
+      transactionData,
     });
   }
   async getArPrice(data: number): Promise<number> {

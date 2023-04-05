@@ -99,6 +99,15 @@ export type JsonWalletProvider = {
 
 export interface SmartweaveDataProvider {
   getContractState(id: ArweaveTransactionID): Promise<any>;
+  handleTransactionExecution({
+    contractType,
+    interactionType,
+    transactionData,
+  }: {
+    contractType: ContractType;
+    interactionType: AntInteraction | RegistryInteraction;
+    transactionData: any;
+  }): Promise<string | undefined>;
   writeTransaction(
     id: ArweaveTransactionID,
     payload: {
@@ -225,11 +234,23 @@ export enum TRANSACTION_TYPES {
   TRANSFER = 'Transfer',
 }
 
+export enum CONTRACT_TYPES {
+  REGISTRY = 'ArNS Registry',
+  ANT = 'Arweave Name Token',
+}
+
 export enum ASSET_TYPES {
   ANT = 'ANT',
   NAME = 'ArNS Name',
   UNDERNAME = 'Undername',
   COIN = 'coin',
+}
+export enum REGISTRY_INTERACTION_TYPES {
+  BUY_RECORD = 'Buy ArNS Name', //permabuy
+  EXTEND_LEASE = 'Extend Lease',
+  UPGRADE_TIER = 'Upgrade Tier',
+  TRANSFER = 'Transfer IO Tokens',
+  BALANCE = 'Balance',
 }
 
 export enum ANT_INTERACTION_TYPES {
@@ -240,7 +261,58 @@ export enum ANT_INTERACTION_TYPES {
   REMOVE_RECORD = 'Delete Record',
   TRANSFER = 'Transfer',
   BALANCE = 'Balance',
+  CREATE = 'Create Arweave Name Token',
 }
+
+export type ContractType = (typeof CONTRACT_TYPES)[keyof typeof CONTRACT_TYPES];
+export type AntInteraction =
+  (typeof ANT_INTERACTION_TYPES)[keyof typeof ANT_INTERACTION_TYPES];
+export type RegistryInteraction =
+  (typeof REGISTRY_INTERACTION_TYPES)[keyof typeof REGISTRY_INTERACTION_TYPES];
+
+// TODO: discuss bellow setup with dylan
+//export const TRANSACTION_DATA_KEYS = new Map<ContractType, AntInteraction | RegistryInteraction>()
+
+export const TRANSACTION_DATA_KEYS: {
+  // specifying interaction types to the correct contract type, to ensure clarity and to prevent crossover of interaction types
+  [CONTRACT_TYPES.ANT]: { [K in AntInteraction]: string[] };
+  [CONTRACT_TYPES.REGISTRY]: { [K in RegistryInteraction]: string[] };
+  /**
+   NOTE: benefit of this setup, is that if a new type is added to an enum like ANT_INTERACTION_TYPES, 
+   then an error will occur here, since every key of the type is required to be defined here.
+   */
+} = {
+  [CONTRACT_TYPES.REGISTRY]: {
+    [REGISTRY_INTERACTION_TYPES.BUY_RECORD]: [
+      'name',
+      'contractTxId',
+      'years',
+      'tierNumber',
+    ],
+    [REGISTRY_INTERACTION_TYPES.EXTEND_LEASE]: ['name', 'years'],
+    [REGISTRY_INTERACTION_TYPES.UPGRADE_TIER]: ['name', 'tierNumber'],
+    [REGISTRY_INTERACTION_TYPES.TRANSFER]: ['target', 'qty'], // transfer io tokens
+    [REGISTRY_INTERACTION_TYPES.BALANCE]: ['target'],
+  },
+  [CONTRACT_TYPES.ANT]: {
+    [ANT_INTERACTION_TYPES.SET_TICKER]: ['ticker'],
+    [ANT_INTERACTION_TYPES.SET_CONTROLLER]: ['target'],
+    [ANT_INTERACTION_TYPES.SET_NAME]: ['name'],
+    [ANT_INTERACTION_TYPES.SET_RECORD]: [
+      'subDomain',
+      'transactionId',
+      'ttlSeconds',
+    ],
+    [ANT_INTERACTION_TYPES.REMOVE_RECORD]: ['subDomain'],
+    [ANT_INTERACTION_TYPES.TRANSFER]: ['target'],
+    [ANT_INTERACTION_TYPES.BALANCE]: ['target'],
+    [ANT_INTERACTION_TYPES.CREATE]: [
+      'srcCodeTransactionId',
+      'initialState',
+      'tags',
+    ],
+  },
+};
 
 export class ArweaveTransactionID implements Equatable<ArweaveTransactionID> {
   constructor(private readonly transactionId: string) {

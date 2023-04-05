@@ -8,7 +8,9 @@ import {
   TransactionTag,
 } from '../../types';
 
-export class LocalFileSystemDataProvider implements SmartweaveDataProvider {
+export class LocalFileSystemDataProvider
+  implements Partial<SmartweaveDataProvider>
+{
   async getContractState(
     id: ArweaveTransactionID,
   ): Promise<ArNSContractState | undefined> {
