@@ -99,15 +99,7 @@ export type JsonWalletProvider = {
 
 export interface SmartweaveDataProvider {
   getContractState(id: ArweaveTransactionID): Promise<any>;
-  handleTransactionExecution({
-    contractType,
-    interactionType,
-    transactionData,
-  }: {
-    contractType: ContractType;
-    interactionType: AntInteraction | RegistryInteraction;
-    transactionData: any;
-  }): Promise<string | undefined>;
+
   writeTransaction(
     id: ArweaveTransactionID,
     payload: {
@@ -269,6 +261,13 @@ export type AntInteraction =
   (typeof ANT_INTERACTION_TYPES)[keyof typeof ANT_INTERACTION_TYPES];
 export type RegistryInteraction =
   (typeof REGISTRY_INTERACTION_TYPES)[keyof typeof REGISTRY_INTERACTION_TYPES];
+
+export type TransactionData = {
+  [x: string]: any;
+} & {
+  assetId: string;
+  function: string;
+};
 
 // TODO: discuss bellow setup with dylan
 //export const TRANSACTION_DATA_KEYS = new Map<ContractType, AntInteraction | RegistryInteraction>()
