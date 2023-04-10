@@ -270,9 +270,6 @@ export type AntInteraction =
 export type RegistryInteraction =
   (typeof REGISTRY_INTERACTION_TYPES)[keyof typeof REGISTRY_INTERACTION_TYPES];
 
-// TODO: discuss bellow setup with dylan
-//export const TRANSACTION_DATA_KEYS = new Map<ContractType, AntInteraction | RegistryInteraction>()
-
 export const TRANSACTION_DATA_KEYS: {
   // specifying interaction types to the correct contract type, to ensure clarity and to prevent crossover of interaction types
   [CONTRACT_TYPES.ANT]: { [K in AntInteraction]: string[] };
