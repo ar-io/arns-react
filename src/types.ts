@@ -99,15 +99,7 @@ export type JsonWalletProvider = {
 
 export interface SmartweaveDataProvider {
   getContractState(id: ArweaveTransactionID): Promise<any>;
-  handleTransactionExecution({
-    contractType,
-    interactionType,
-    transactionData,
-  }: {
-    contractType: ContractType;
-    interactionType: AntInteraction | RegistryInteraction;
-    transactionData: any;
-  }): Promise<string | undefined>;
+
   writeTransaction(
     id: ArweaveTransactionID,
     payload: {
@@ -253,6 +245,58 @@ export enum REGISTRY_INTERACTION_TYPES {
   BALANCE = 'Balance',
 }
 
+// registry transaction payload types
+export type BuyRecordPayload = {
+  name: string;
+  contractTxId: string;
+  years: number;
+  tierNumber: number;
+};
+
+export type ExtendLeasePayload = {
+  name: string;
+  years: number;
+};
+
+export type UpgradeTierPayload = {
+  name: string;
+  tierNumber: number;
+};
+
+export type TransferIOPayload = {
+  target: string;
+  qty: number;
+};
+//end registry transaction payload types
+
+//ant transaction payload types
+export type SetTickerPayload = {
+  ticker: string;
+};
+export type SetControllerPayload = {
+  target: string;
+};
+export type SetNamePayload = {
+  name: string;
+};
+export type SetRecordPayload = {
+  subDomain: string;
+  transactionId: string;
+  ttlSeconds: number;
+};
+export type RemoveRecordPayload = {
+  subDomain: string;
+};
+export type TransferAntPayload = {
+  target: string;
+};
+export type CreateAntPayload = {
+  srcCodeTransactionId: string;
+  initialState: ANTContractJSON;
+  tags?: TransactionTag[];
+};
+// end ant transaction payload types
+
 export enum ANT_INTERACTION_TYPES {
   SET_CONTROLLER = 'Edit Controller',
   SET_TICKER = 'Edit Ticker',
@@ -269,6 +313,22 @@ export type AntInteraction =
   (typeof ANT_INTERACTION_TYPES)[keyof typeof ANT_INTERACTION_TYPES];
 export type RegistryInteraction =
   (typeof REGISTRY_INTERACTION_TYPES)[keyof typeof REGISTRY_INTERACTION_TYPES];
+
+export type TransactionData =
+  | ({
+      assetId: string;
+      function: string;
+    } & BuyRecordPayload)
+  | ExtendLeasePayload
+  | UpgradeTierPayload
+  | TransferIOPayload
+  | SetTickerPayload
+  | SetControllerPayload
+  | SetNamePayload
+  | SetRecordPayload
+  | RemoveRecordPayload
+  | TransferAntPayload
+  | CreateAntPayload;
 
 // TODO: discuss bellow setup with dylan
 //export const TRANSACTION_DATA_KEYS = new Map<ContractType, AntInteraction | RegistryInteraction>()

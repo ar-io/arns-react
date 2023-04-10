@@ -6,6 +6,8 @@ export const ARNS_NAME_REGEX = new RegExp(
 );
 export const ARNS_TX_ID_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{43}$');
 export const ARNS_TX_ID_ENTRY_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{1,43}$');
+export const ARNS_REGISTRY_ADDRESS =
+  'bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U';
 export const STUB_ARWEAVE_TXID = '2yHmORN-N12hM1B2f9-JPMpOfa59qhpsExFCzImrD30'; // arns spec pdf
 export const DEFAULT_ANT_SOURCE_CODE_TX =
   'PEI1efYrsX08HUwvc6y-h6TSpsNlo2r6_fWL2_GdwhY';
