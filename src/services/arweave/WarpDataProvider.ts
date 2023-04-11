@@ -12,16 +12,7 @@ import {
   ArweaveTransactionID,
   TransactionTag,
 } from '../../types';
-import {
-  ANT_INTERACTION_TYPES,
-  AntInteraction,
-  ArNSContractState,
-  CONTRACT_TYPES,
-  ContractType,
-  REGISTRY_INTERACTION_TYPES,
-  RegistryInteraction,
-  SmartweaveDataProvider,
-} from '../../types';
+import { ArNSContractState, SmartweaveDataProvider } from '../../types';
 import { SMARTWEAVE_MAX_TAG_SPACE } from '../../utils/constants';
 import { byteSize } from '../../utils/searchUtils';
 
@@ -156,89 +147,6 @@ export class WarpDataProvider implements SmartweaveDataProvider {
     } catch (error: any) {
       console.error(error);
       return error;
-    }
-  }
-
-  async handleTransactionExecution({
-    contractType,
-    interactionType,
-    transactionData,
-  }: {
-    contractType: ContractType;
-    interactionType: AntInteraction | RegistryInteraction;
-    transactionData: any;
-  }): Promise<string | undefined> {
-    try {
-      switch (contractType) {
-        case CONTRACT_TYPES.REGISTRY: {
-          switch (interactionType) {
-            case REGISTRY_INTERACTION_TYPES.BUY_RECORD:
-              {
-                try {
-                  // TODO: implement a function to validate transaction data by interaction type thats takes in interactionType, contractType, and transactionData
-                  if (!transactionData.assetId) {
-                    throw new Error(
-                      'Registry address is required to deploy name purchase',
-                    );
-                  }
-                  const { assetId, ...payload } = transactionData;
-                  const txid = await this.writeTransaction(
-                    new ArweaveTransactionID(assetId),
-                    {
-                      function: 'buyRecord',
-                      ...payload,
-                    },
-                  );
-                  if (!txid) {
-                    throw new Error('failed to deploy transaction');
-                  }
-                  return txid?.toString();
-                } catch (error: any) {
-                  throw new Error(error);
-                }
-              }
-              break;
-            default:
-              throw new Error('Interaction type is invalid.');
-          }
-        }
-        case CONTRACT_TYPES.ANT:
-          {
-            switch (interactionType) {
-              case ANT_INTERACTION_TYPES.TRANSFER: {
-                try {
-                  if (!transactionData.assetId) {
-                    throw new Error(
-                      'No ant id provided, need ant id to write interaction',
-                    );
-                  }
-                  const { assetId, ...payload } = transactionData;
-                  const txid = await this.writeTransaction(
-                    new ArweaveTransactionID(assetId),
-                    {
-                      function: 'transfer',
-                      ...payload,
-                    },
-                  );
-                  if (!txid) {
-                    throw new Error('Unable to deploy transaction');
-                  }
-                  return txid.toString();
-                } catch (error: any) {
-                  throw new Error(error);
-                }
-              }
-
-              default:
-                throw new Error('Interaction type is not configured');
-            }
-          }
-          break;
-        default:
-          throw new Error('Invalid contract type');
-      }
-    } catch (error) {
-      console.error(error);
     }
   }
 }

@@ -1,11 +1,20 @@
-import { AntInteraction, ContractType, RegistryInteraction } from '../../types';
+import {
+  AntInteraction,
+  ContractType,
+  RegistryInteraction,
+  TransactionData,
+} from '../../types';
 import {
   TransactionState,
   initialTransactionState,
 } from '../contexts/TransactionState';
 
 export type TransactionAction =
-  | { type: 'setTransactionData'; payload: any }
+  | {
+      type: 'setWorkflowStage';
+      payload: 'pending' | 'confirmed' | 'deployed' | 'successful' | 'failed';
+    }
+  | { type: 'setTransactionData'; payload: TransactionData }
   | { type: 'setContractType'; payload: ContractType }
   | {
       type: 'setInteractionType';
@@ -18,6 +27,12 @@ export const registrationReducer = (
   action: TransactionAction,
 ): TransactionState => {
   switch (action.type) {
+    case 'setWorkflowStage': {
+      return {
+        ...state,
+        workflowStage: action.payload,
+      };
+    }
     case 'setTransactionData': {
       return {
         ...state,
