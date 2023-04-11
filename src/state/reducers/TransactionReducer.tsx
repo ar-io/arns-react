@@ -1,12 +1,20 @@
-import { AntInteraction, ContractType, RegistryInteraction } from '../../types';
+import {
+  AntInteraction,
+  ContractType,
+  RegistryInteraction,
+  TransactionData,
+} from '../../types';
 import {
   TransactionState,
   initialTransactionState,
 } from '../contexts/TransactionState';
 
 export type TransactionAction =
-  | { type: 'setWorkflowStage'; payload: 'confirm' | 'deploy' | 'complete' }
-  | { type: 'setTransactionData'; payload: any }
+  | {
+      type: 'setWorkflowStage';
+      payload: 'pending' | 'confirmed' | 'deployed' | 'successful' | 'failed';
+    }
+  | { type: 'setTransactionData'; payload: TransactionData }
   | { type: 'setContractType'; payload: ContractType }
   | {
       type: 'setInteractionType';

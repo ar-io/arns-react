@@ -6,14 +6,16 @@ import {
   ContractType,
   REGISTRY_INTERACTION_TYPES,
   RegistryInteraction,
+  TransactionData,
 } from '../../types';
+import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
 import { TransactionAction } from '../reducers/TransactionReducer';
 
 export type TransactionState = {
-  transactionData: { [x: string]: any }; // data that will be used to perform the transaction.
+  transactionData: TransactionData; // data that will be used to perform the transaction.
   contractType: ContractType;
   interactionType: AntInteraction | RegistryInteraction;
-  workflowStage: 'confirm' | 'deploy' | 'complete';
+  workflowStage: 'pending' | 'confirmed' | 'deployed' | 'successful' | 'failed';
 };
 
 export type TransactionStateProviderProps = {
@@ -22,10 +24,14 @@ export type TransactionStateProviderProps = {
 };
 
 export const initialTransactionState: TransactionState = {
-  transactionData: {},
+  transactionData: {
+    assetId: ARNS_REGISTRY_ADDRESS,
+    function: 'buyRecord',
+    name: 'arweave',
+  },
   contractType: CONTRACT_TYPES.REGISTRY,
   interactionType: REGISTRY_INTERACTION_TYPES.BUY_RECORD,
-  workflowStage: 'confirm', // confirm deploy complete
+  workflowStage: 'pending', // confirm deploy complete
 };
 
 const TransactionStateContext = createContext<
