@@ -1,10 +1,4 @@
-import {
-  Dispatch,
-  createContext,
-  useContext,
-  useEffect,
-  useReducer,
-} from 'react';
+import { Dispatch, createContext, useContext, useReducer } from 'react';
 
 import {
   AntInteraction,
@@ -19,7 +13,7 @@ export type TransactionState = {
   transactionData: { [x: string]: any }; // data that will be used to perform the transaction.
   contractType: ContractType;
   interactionType: AntInteraction | RegistryInteraction;
-  workflowStage: number;
+  workflowStage: 'confirm' | 'deploy' | 'complete';
 };
 
 export type TransactionStateProviderProps = {
@@ -31,7 +25,7 @@ export const initialTransactionState: TransactionState = {
   transactionData: {},
   contractType: CONTRACT_TYPES.REGISTRY,
   interactionType: REGISTRY_INTERACTION_TYPES.BUY_RECORD,
-  workflowStage: 1,
+  workflowStage: 'confirm', // confirm deploy complete
 };
 
 const TransactionStateContext = createContext<
@@ -53,13 +47,11 @@ export default function TransactionStateProvider({
     initialTransactionState,
   );
 
-  useEffect(() => {
-    /**
-     * TODO: cache workflows in case connection lost, gives ability to continue interrupted workflows. To cache, simply add state as the value under a timestamp key.
-     * TODO: prompt user if they want to continue a workflow, if no, clear workflow from cache
-     * const cachedWorkflows =  window.localStorage.getItem("transactionWorkflows")
-     */
-  }, [state]);
+  /**
+   * TODO: cache workflows in case connection lost, gives ability to continue interrupted workflows. To cache, simply add state as the value under a timestamp key.
+   * TODO: prompt user if they want to continue a workflow, if no, clear workflow from cache
+   * const cachedWorkflows =  window.localStorage.getItem("transactionWorkflows")
+   */
 
   return (
     <TransactionStateContext.Provider value={[state, dispatchTransactionState]}>
