@@ -12,7 +12,7 @@ import {
   CreateAntModal,
   ManageAntModal, // ManageAntModal,
 } from './components/modals';
-import { About, Home, Manage, NotFound } from './components/pages';
+import { About, Home, Manage, NotFound, Transaction } from './components/pages';
 import { useArNSContract, useArweave } from './hooks/';
 import './index.css';
 
@@ -71,6 +71,15 @@ function App() {
             }
           />
         </Route>
+        ,
+        <Route
+          path="transaction"
+          element={
+            <ProtectedRoute>
+              <Transaction />
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<NotFound />} />
       </Route>,
     ),

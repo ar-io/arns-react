@@ -1,5 +1,5 @@
 import { CubeIcon } from '../components/icons';
-import { About, Home, Manage } from '../components/pages';
+import { About, Home, Manage, Transaction } from '../components/pages';
 
 export type Route = {
   text: string;
@@ -30,6 +30,14 @@ export const ROUTES: { [x: string]: Route } = {
     icon: CubeIcon,
     path: '/manage',
     component: Manage,
+    protected: true,
+    index: false,
+  },
+  transaction: {
+    text: 'Transaction',
+    icon: CubeIcon,
+    path: '/transaction',
+    component: Transaction,
     protected: true,
     index: false,
   },
