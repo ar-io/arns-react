@@ -105,6 +105,7 @@ export class ArweaveCompositeDataProvider
       tags,
     });
   }
+
   async getArPrice(data: number): Promise<number> {
     return await this._arweaveProvider.getArPrice(data);
   }
