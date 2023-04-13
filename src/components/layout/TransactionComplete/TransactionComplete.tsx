@@ -18,12 +18,12 @@ export enum transaction_types {
   BUY_ARNS_NAME = 'Buy ArNS Name',
 }
 
-function TransactionSuccess({
+function TransactionComplete({
   transactionId = new ArweaveTransactionID(STUB_ARWEAVE_TXID),
   state,
 }: {
   transactionId?: ArweaveTransactionID;
-  state: ANTContractJSON;
+  state?: ANTContractJSON; // for create ant cases
 }) {
   const [{}, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
 
@@ -31,16 +31,17 @@ function TransactionSuccess({
     <>
       <div className="flex-column center" style={{ gap: '3em' }}>
         <div className="flex-column center" style={{ gap: '2em' }}>
+          {/* TODO: configure error or fail states */}
           <AntCard
             domain={''}
             showTier={false}
             id={transactionId}
-            state={state}
+            state={state ?? undefined}
             compact={false}
             enableActions={false}
             overrides={{
-              targetId: state.records['@'].transactionId,
-              ttlSeconds: state.records['@'].ttlSeconds,
+              targetId: state?.records['@'].transactionId,
+              ttlSeconds: state?.records['@'].ttlSeconds,
             }}
             disabledKeys={[
               'tier',
@@ -189,4 +190,4 @@ function TransactionSuccess({
   );
 }
 
-export default TransactionSuccess;
+export default TransactionComplete;

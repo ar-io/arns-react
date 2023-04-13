@@ -1,63 +1,85 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-import { useIsMobile, useWalletAddress } from '../../../hooks';
+import {
+  useIsMobile,
+  useTransactionData,
+  useWalletAddress,
+} from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { STUB_ARWEAVE_TXID } from '../../../utils/constants';
+import { useTransactionState } from '../../../state/contexts/TransactionState';
+import {
+  ANT_INTERACTION_TYPES,
+  AntInteraction,
+  CONTRACT_TYPES,
+  ContractType,
+  REGISTRY_INTERACTION_TYPES,
+  RegistryInteraction,
+} from '../../../types';
+import {
+  ARNS_REGISTRY_ADDRESS,
+  STUB_ARWEAVE_TXID,
+} from '../../../utils/constants';
+import { Loader } from '../../layout';
 import TransactionWorkflow from '../../layout/TransactionWorkflow/TransactionWorkflow';
-
-const DEFAULT_WORKFLOW_CONFIG = {
-  contractType: 'ANT',
-  interactionType: 'TRANSFER',
-  transactionData: { target: undefined },
-};
 
 function Transaction() {
   const [{}, dispatchGlobalState] = useGlobalState();
-  const [searchParams, setSearchParams] = useSearchParams();
   const isMobile = useIsMobile();
   const { walletAddress } = useWalletAddress();
-  const [workflowConfig, setWorkflowConfig] = useState<{
-    contractType: string;
-    interactionType: string;
-    transactionData: any;
-  }>(DEFAULT_WORKFLOW_CONFIG);
-
-  // TODO: parse url params to configure component
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [
+    { contractType, interactionType, transactionData, error, workflowStage },
+    dispatchTransactionState,
+  ] = useTransactionState();
+  const { URLContractType, URLInteractionType, URLTransactionData } =
+    useTransactionData();
 
   useEffect(() => {
-    setConfig();
-  }, [window.location]);
-
-  function setConfig() {
-    try {
-      const contractType = searchParams.get('contractType');
-      const interactionType = searchParams.get('interactionType');
-      const transactionData = searchParams.get('transactionData');
-
-      if (!contractType || !interactionType || !transactionData) {
-        throw new Error(
-          'unable to set transaction config, undefined config data',
-        );
-      }
-
-      setWorkflowConfig({ contractType, interactionType, transactionData });
-    } catch (error) {
-      console.error(error);
+    if (URLTransactionData !== transactionData) {
+      dispatchTransactionState({
+        type: 'setTransactionData',
+        payload: URLTransactionData,
+      });
     }
+    if (URLContractType !== contractType) {
+      dispatchTransactionState({
+        type: 'setContractType',
+        payload: URLContractType as ContractType,
+      });
+    }
+    if (URLInteractionType !== interactionType) {
+      dispatchTransactionState({
+        type: 'setInteractionType',
+        payload: URLInteractionType as AntInteraction | RegistryInteraction,
+      });
+    }
+  }, []);
+
+  if (!transactionData.contractTxId) {
+    return (
+      <div
+        className="page flex-column flex-center"
+        style={{ height: '100%', width: '100%', boxSizing: 'border-box' }}
+      >
+        <div className="flex flex-row text-large white bold center">
+          Loading Transaction Details
+        </div>
+        <Loader size={200} />
+      </div>
+    );
   }
 
   return (
     <>
       <div className="page">
-        <span className="section-header">transaction</span>
         <TransactionWorkflow
-          contractType={workflowConfig.contractType}
-          interactionType={workflowConfig.interactionType}
-          transactionData={workflowConfig.transactionData}
+          contractType={contractType}
+          interactionType={interactionType}
+          transactionData={transactionData}
+          workflowStage={workflowStage}
         />
       </div>
-      {/* TODO: render transaction workflow component based on parse url params */}
     </>
   );
 }

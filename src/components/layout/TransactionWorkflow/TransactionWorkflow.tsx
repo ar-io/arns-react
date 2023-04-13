@@ -1,97 +1,145 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { useIsMobile, useWalletAddress } from '../../../hooks';
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ANT_INTERACTION_TYPES,
   AntInteraction,
+  ArweaveTransactionID,
   CONTRACT_TYPES,
   ContractType,
   REGISTRY_INTERACTION_TYPES,
   RegistryInteraction,
-  TRANSACTION_DATA_KEYS,
+  TransactionData,
 } from '../../../types';
-import Workflow from '../Workflow/Workflow';
+import { AntCard } from '../../cards';
+import DeployTransaction from '../DeployTransaction/DeployTransaction';
+import TransactionComplete from '../TransactionComplete/TransactionComplete';
+import Workflow, { WorkflowStage } from '../Workflow/Workflow';
 
 function TransactionWorkflow({
-  children,
   contractType,
   interactionType,
+  //transactionData,
+  workflowStage,
 }: {
-  children: React.ReactNode; // stage one
   contractType: ContractType;
   interactionType: AntInteraction | RegistryInteraction;
-  onSubmit: () => void; // transaction executor?
+  transactionData: Partial<TransactionData>;
+  workflowStage: 'pending' | 'confirmed' | 'successful' | 'failed';
 }) {
-  const isMobile = useIsMobile();
-  const [{ transactionData, workflowStage }, dispatch] = useTransactionState();
-  const { walletAddress } = useWalletAddress();
+  const [{ deployedTransactionId, transactionData }, dispatchTransactionState] =
+    useTransactionState();
+  const { assetId, functionName, tags, ...payload } = transactionData;
+  const [{ arweaveDataProvider }] = useGlobalState();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const [steps, setSteps] = useState<{
+    [x: number]: { title: string; status: string };
+  }>({});
+  const [stages, setStages] = useState<{ [x: string]: WorkflowStage }>({
+    pending: {
+      component: <AntCard domain={''} compact={false} enableActions={false} />,
+    },
+    confirmed: {
+      component: <DeployTransaction />,
+      showNext: false,
+      showBack: false,
+    },
+    successful: {
+      component: <TransactionComplete />,
+      showNext: false,
+      showBack: false,
+    },
+    failed: {
+      component: <TransactionComplete />,
+      showNext: false,
+      showBack: false,
+    },
+  });
 
-  const [steps, setSteps] = useState({});
-  const [stages, setStages] = useState({});
-
-  useEffect(() => {}, [contractType]);
+  useEffect(() => {
+    const newSteps = getStepsByTransactionType({
+      contractType,
+      interactionType,
+    });
+    const newStages = getStagesByTransactionType({
+      contractType,
+      interactionType,
+    });
+    if (newSteps) setSteps(newSteps);
+    if (newStages) setStages(newStages);
+    if (workflowStage === 'confirmed' && deployedTransactionId) {
+      dispatchTransactionState({
+        type: 'setWorkflowStage',
+        payload: 'successful',
+      });
+    }
+  }, [workflowStage, deployedTransactionId, transactionData]);
 
   async function handleStage(direction: string) {
     try {
       switch (direction) {
         case 'next':
           switch (workflowStage) {
-            case 1: {
-              try {
-                if (!transactionData) {
-                  throw new Error(`Transaction data is undefined`);
-                }
-                if (!contractType) {
-                  throw new Error(`Transaction type is undifined.`);
-                }
+            case 'pending': {
+              dispatchTransactionState({
+                type: 'setWorkflowStage',
+                payload: 'confirmed',
+              });
+              const originalTxId = await arweaveDataProvider.writeTransaction(
+                new ArweaveTransactionID(assetId!),
+                {
+                  function: functionName!,
+                  payload,
+                },
+              );
+              if (originalTxId) {
+                dispatchTransactionState({
+                  type: 'setDeployedTransactionId',
+                  payload: originalTxId,
+                });
 
-                if (
-                  //Object.keys(transactionData) !==
-                  // TRANSACTION_DATA_KEYS[contractType][interactionType]
-                  true
-                ) {
-                  throw new Error(
-                    `Structure of transaction data not compatible with the set transaction type. Data: ${transactionData}, transaction type: ${contractType}`,
-                  );
-                }
-              } catch (error) {
-                console.error(error);
+                setSearchParams({
+                  ...searchParams,
+                  deployedTransactionId: originalTxId.toString(),
+                });
               }
+              return originalTxId;
+            }
+            case 'confirmed': {
+              // deployment section, no next
               return;
             }
-            case 2: {
+            case 'successful': {
+              // completed section, no next
               return;
             }
-            case 3: {
-              return;
-            }
-            case 4: {
+            case 'failed': {
+              // completed section, no next
               return;
             }
             default:
-              throw new Error(
-                `Invalid workflow stage (${workflowStage}), workflow stage must be a number between 1 and 4`,
-              );
+              throw new Error(`Invalid workflow stage (${workflowStage})`);
           }
         case 'back':
           switch (workflowStage) {
-            case 1: {
+            case 'pending': {
+              navigate(-1);
               return;
             }
-            case 2: {
+            case 'confirmed': {
               return;
             }
-            case 3: {
+            case 'successful': {
               return;
             }
-            case 4: {
+            case 'failed': {
               return;
             }
             default:
-              throw new Error(
-                `Invalid workflow stage (${workflowStage}), workflow stage must be a number between 1 and 4`,
-              );
+              throw new Error(`Invalid workflow stage (${workflowStage})`);
           }
         default:
           throw new Error(
@@ -100,13 +148,17 @@ function TransactionWorkflow({
       }
     } catch (error) {
       console.error(error);
+      dispatchTransactionState({
+        type: 'setError',
+        payload: error,
+      });
     }
   }
   function getStepsByTransactionType({
     contractType,
     interactionType,
   }: {
-    contractType: CONTRACT_TYPES;
+    contractType: ContractType;
     interactionType: AntInteraction | RegistryInteraction;
   }): { [x: string]: { title: string; status: string } } {
     try {
@@ -220,14 +272,51 @@ function TransactionWorkflow({
   }: {
     contractType: ContractType;
     interactionType: AntInteraction | RegistryInteraction;
-  }) {
+  }): { [x: string]: WorkflowStage } | undefined {
     try {
       switch (contractType) {
         case CONTRACT_TYPES.ANT: {
           switch (interactionType) {
-            case ANT_INTERACTION_TYPES.BALANCE: {
+            case ANT_INTERACTION_TYPES.CREATE: {
+              return {
+                pending: {
+                  component: (
+                    <AntCard
+                      domain={''}
+                      id={new ArweaveTransactionID(assetId ?? '')}
+                      compact={false}
+                      enableActions={false}
+                    />
+                  ),
+                },
+                confirmed: {
+                  component: <DeployTransaction />,
+                  showNext: false,
+                  showBack: false,
+                },
+                successful: {
+                  component: (
+                    <TransactionComplete
+                      transactionId={deployedTransactionId}
+                      state={transactionData.initialState}
+                    />
+                  ),
+                  showNext: false,
+                  showBack: false,
+                },
+                failed: {
+                  component: (
+                    <TransactionComplete
+                      transactionId={deployedTransactionId}
+                      state={transactionData.initialState}
+                    />
+                  ),
+                  showNext: false,
+                  showBack: false,
+                },
+              };
             }
-
+            // TODO: implement other ANT interactions
             default:
               throw new Error('Interaction type is undefined');
           }
@@ -235,21 +324,68 @@ function TransactionWorkflow({
 
         case CONTRACT_TYPES.REGISTRY: {
           switch (interactionType) {
-            case REGISTRY_INTERACTION_TYPES.TRANSFER: {
-              // return {
-              //         header?: JSX.Element | undefined;
-              //         component: JSX.Element;
-              //         showNext?: boolean | undefined;
-              //         showBack?: boolean | undefined;
-              //         disableNext?: boolean | undefined;
-              //         requiresWallet?: boolean | undefined;
-              //         customNextStyle?: any;
-              //         customBackStyle?: any;
-              //         backText?: string | undefined;
-              //         nextText?: string | undefined;
-              // }
+            case REGISTRY_INTERACTION_TYPES.BUY_RECORD: {
+              return {
+                pending: {
+                  component: (
+                    <AntCard
+                      domain={payload.name!}
+                      id={new ArweaveTransactionID(payload.contractTxId ?? '')}
+                      compact={false}
+                      enableActions={false}
+                    />
+                  ),
+                  header: (
+                    <>
+                      <div className="flex flex-row text-large white bold center">
+                        Confirm Name Purchase
+                      </div>
+                    </>
+                  ),
+                },
+                confirmed: {
+                  component: <DeployTransaction />,
+                  showNext: false,
+                  showBack: false,
+                  header: (
+                    <>
+                      <div className="flex flex-row text-large white bold center">
+                        Deploy Name Purchase
+                      </div>
+                    </>
+                  ),
+                },
+                successful: {
+                  component: (
+                    <TransactionComplete
+                      transactionId={deployedTransactionId}
+                      state={transactionData.initialState}
+                    />
+                  ),
+                  showNext: false,
+                  showBack: false,
+                  header: (
+                    <>
+                      <div className="flex flex-row text-large white bold center">
+                        <span className="text-large white center">
+                          <b>{payload.name}</b>.arweave.net is yours!
+                        </span>
+                      </div>
+                    </>
+                  ),
+                },
+                failed: {
+                  component: (
+                    <TransactionComplete
+                      transactionId={deployedTransactionId}
+                    />
+                  ),
+                  showNext: false,
+                  showBack: false,
+                },
+              };
             }
-
+            // TODO implement other registry interactions
             default:
               throw new Error('Interaction type is undefined');
           }
@@ -258,7 +394,9 @@ function TransactionWorkflow({
         default:
           throw new Error('Contract type is undefined');
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return (
@@ -267,9 +405,9 @@ function TransactionWorkflow({
         onNext={() => handleStage('next')}
         onBack={() => handleStage('back')}
         stage={workflowStage}
+        steps={steps}
         stages={stages}
       />
-      {children}
     </>
   );
 }

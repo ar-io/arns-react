@@ -314,21 +314,40 @@ export type AntInteraction =
 export type RegistryInteraction =
   (typeof REGISTRY_INTERACTION_TYPES)[keyof typeof REGISTRY_INTERACTION_TYPES];
 
-export type TransactionData =
-  | ({
-      assetId: string;
-      function: string;
-    } & BuyRecordPayload)
-  | ExtendLeasePayload
-  | UpgradeTierPayload
-  | TransferIOPayload
-  | SetTickerPayload
-  | SetControllerPayload
-  | SetNamePayload
-  | SetRecordPayload
-  | RemoveRecordPayload
-  | TransferAntPayload
-  | CreateAntPayload;
+export const transactionDataKeys = [
+  'assetId',
+  'functionName',
+  'deployedTransactionId',
+  'name',
+  'contractTxId',
+  'years',
+  'tierNumber',
+  'target',
+  'qty',
+  'ticker',
+  'subDomain',
+  'transactionId',
+  'ttlSeconds',
+  'srcCodeTransactionId',
+  'initialState',
+  'tags',
+];
+
+export type TransactionData = {
+  assetId: string;
+  functionName: string;
+  deployedTransactionId?: ArweaveTransactionID;
+} & BuyRecordPayload &
+  ExtendLeasePayload &
+  UpgradeTierPayload &
+  TransferIOPayload &
+  SetTickerPayload &
+  SetControllerPayload &
+  SetNamePayload &
+  SetRecordPayload &
+  RemoveRecordPayload &
+  TransferAntPayload &
+  CreateAntPayload;
 
 // TODO: discuss bellow setup with dylan
 //export const TRANSACTION_DATA_KEYS = new Map<ContractType, AntInteraction | RegistryInteraction>()

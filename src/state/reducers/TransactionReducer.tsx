@@ -1,5 +1,6 @@
 import {
   AntInteraction,
+  ArweaveTransactionID,
   ContractType,
   RegistryInteraction,
   TransactionData,
@@ -12,17 +13,22 @@ import {
 export type TransactionAction =
   | {
       type: 'setWorkflowStage';
-      payload: 'pending' | 'confirmed' | 'deployed' | 'successful' | 'failed';
+      payload: 'pending' | 'confirmed' | 'successful' | 'failed';
     }
-  | { type: 'setTransactionData'; payload: TransactionData }
+  | { type: 'setTransactionData'; payload: Partial<TransactionData> }
+  | { type: 'setDeployedTransactionId'; payload: ArweaveTransactionID }
   | { type: 'setContractType'; payload: ContractType }
   | {
       type: 'setInteractionType';
       payload: AntInteraction | RegistryInteraction;
     }
+  | {
+      type: 'setError';
+      payload: any;
+    }
   | { type: 'reset' };
 
-export const registrationReducer = (
+export const transactionReducer = (
   state: TransactionState,
   action: TransactionAction,
 ): TransactionState => {
@@ -39,6 +45,12 @@ export const registrationReducer = (
         transactionData: action.payload,
       };
     }
+    case 'setDeployedTransactionId': {
+      return {
+        ...state,
+        deployedTransactionId: action.payload,
+      };
+    }
     case 'setContractType': {
       return {
         ...state,
@@ -46,6 +58,12 @@ export const registrationReducer = (
       };
     }
     case 'setInteractionType': {
+      return {
+        ...state,
+        interactionType: action.payload,
+      };
+    }
+    case 'setError': {
       return {
         ...state,
         interactionType: action.payload,

@@ -15,6 +15,8 @@ import {
 import { About, Home, Manage, NotFound, Transaction } from './components/pages';
 import { useArNSContract, useArweave } from './hooks/';
 import './index.css';
+import TransactionStateProvider from './state/contexts/TransactionState';
+import { transactionReducer } from './state/reducers/TransactionReducer';
 
 function App() {
   // dispatches global state
@@ -76,7 +78,9 @@ function App() {
           path="transaction"
           element={
             <ProtectedRoute>
-              <Transaction />
+              <TransactionStateProvider reducer={transactionReducer}>
+                <Transaction />
+              </TransactionStateProvider>
             </ProtectedRoute>
           }
         />

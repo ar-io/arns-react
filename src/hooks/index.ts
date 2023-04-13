@@ -1,6 +1,13 @@
 import useArNSContract from './useArNSContract/useArNSContract';
 import useArweave from './useArweave/useArweave';
 import useIsMobile from './useIsMobile/useIsMobile';
+import useTransactionData from './useTransactionData/useTransactionData';
 import useWalletAddress from './useWalletAddress/useWalletAddress';
 
-export { useArNSContract, useArweave, useIsMobile, useWalletAddress };
+export {
+  useArNSContract,
+  useArweave,
+  useIsMobile,
+  useWalletAddress,
+  useTransactionData,
+};

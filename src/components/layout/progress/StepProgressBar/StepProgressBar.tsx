@@ -54,7 +54,7 @@ function StepProgressBar({
               <div className="progress-stage" key={index}>
                 <div
                   className="node-container"
-                  style={isMobile ? { width: '75px' } : {}}
+                  style={isMobile ? { width: '75px' } : { width: '100%' }}
                 >
                   <span className="line" style={{ background: 'none' }}></span>
                   <span
@@ -80,7 +80,11 @@ function StepProgressBar({
                 </div>
                 <span
                   className="text-medium white center"
-                  style={isMobile ? { fontSize: '12px' } : {}}
+                  style={
+                    isMobile
+                      ? { fontSize: '12px' }
+                      : { width: '75%', margin: 'auto' }
+                  }
                 >
                   {value.title}
                 </span>
@@ -92,7 +96,7 @@ function StepProgressBar({
               <div className="progress-stage" key={index}>
                 <div
                   className="node-container"
-                  style={isMobile ? { width: '75px' } : {}}
+                  style={isMobile ? { width: '75px' } : { width: '100%' }}
                 >
                   <span
                     className="line"
@@ -118,7 +122,11 @@ function StepProgressBar({
                 </div>
                 <span
                   className="text-medium white center"
-                  style={isMobile ? { fontSize: '12px' } : {}}
+                  style={
+                    isMobile
+                      ? { fontSize: '12px' }
+                      : { width: '75%', margin: 'auto' }
+                  }
                 >
                   {value.title}
                 </span>
@@ -130,7 +138,7 @@ function StepProgressBar({
               <div className="progress-stage" key={index}>
                 <div
                   className="node-container"
-                  style={isMobile ? { width: '75px' } : {}}
+                  style={isMobile ? { width: '75px' } : { width: '100%' }}
                 >
                   <span
                     className="line"
@@ -159,7 +167,11 @@ function StepProgressBar({
                 </div>
                 <span
                   className="text-medium white center"
-                  style={isMobile ? { fontSize: '12px' } : {}}
+                  style={
+                    isMobile
+                      ? { fontSize: '12px' }
+                      : { width: '75%', margin: 'auto' }
+                  }
                 >
                   {value.title}
                 </span>

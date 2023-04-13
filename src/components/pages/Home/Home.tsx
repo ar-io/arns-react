@@ -1,11 +1,23 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import {
+  createSearchParams,
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom';
 
 import { useWalletAddress } from '../../../hooks/index';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
-import { ArweaveTransactionID } from '../../../types';
-import { ARNS_TX_ID_REGEX, FEATURED_DOMAINS } from '../../../utils/constants';
+import {
+  ArweaveTransactionID,
+  CONTRACT_TYPES,
+  REGISTRY_INTERACTION_TYPES,
+} from '../../../types';
+import {
+  ARNS_REGISTRY_ADDRESS,
+  ARNS_TX_ID_REGEX,
+  FEATURED_DOMAINS,
+} from '../../../utils/constants';
 import {
   isArNSDomainNameAvailable,
   isArNSDomainNameValid,
@@ -20,6 +32,7 @@ import './styles.css';
 
 function Home() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [{ arnsSourceContract }] = useGlobalState();
   const { walletAddress } = useWalletAddress();
   const [{ domain, antID, stage, isSearching }, dispatchRegisterState] =
@@ -75,8 +88,21 @@ function Home() {
       ) : (
         <>
           <Workflow
-            stage={stage}
+            stage={stage.toString()}
             onNext={() => {
+              if (stage == 1) {
+                const searchParameters = createSearchParams({
+                  name: domain!,
+                  contractTxId: antID!.toString(),
+                  years: '1',
+                  tierNumber: '1',
+                  contractType: CONTRACT_TYPES.REGISTRY,
+                  interactionType: REGISTRY_INTERACTION_TYPES.BUY_RECORD,
+                  assetId: ARNS_REGISTRY_ADDRESS,
+                  functionName: 'buyRecord',
+                });
+                navigate(`/transaction?${searchParameters}`);
+              }
               dispatchRegisterState({
                 type: 'setStage',
                 payload: stage + 1,

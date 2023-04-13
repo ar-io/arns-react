@@ -21,7 +21,7 @@ import { CloseIcon, PencilIcon } from '../../icons';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import ConfirmAntCreation from '../../layout/ConfirmAntCreation/ConfirmAntCreation';
 import DeployTransaction from '../../layout/DeployTransaction/DeployTransaction';
-import TransactionSuccess from '../../layout/TransactionSuccess/TransactionSuccess';
+import TransactionSuccess from '../../layout/TransactionComplete/TransactionComplete';
 import Workflow from '../../layout/Workflow/Workflow';
 
 function CreateAntModal() {
@@ -255,7 +255,7 @@ function CreateAntModal() {
           <CloseIcon width={30} height={30} fill={'var(--text-white'} />
         </button>
         <Workflow
-          stage={workflowStage}
+          stage={workflowStage.toString()}
           onNext={() => {
             switch (workflowStage) {
               case 0:
