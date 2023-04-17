@@ -14,37 +14,32 @@ export class JsonWalletConnector implements ArweaveWalletConnector {
   }
 
   async connect(): Promise<void> {
-    try {
-      if (this._walletFile.type !== 'application/json') {
-        throw Error('Invalid wallet file, must be a json file');
-      }
-      const jsonWallet: JWKInterface = await new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          if (!e.target?.result) {
-            throw Error('Cannot read keyfile');
-          }
-          const str = e.target.result;
-          if (!isString(str)) {
-            return;
-          }
-          const json = JSON.parse(str);
-          // resolve when it's done
-          resolve(json);
-        };
-        // start the read
-        reader.readAsText(this._walletFile);
-      });
-
-      if (!jsonWallet) {
-        throw Error('Failed to load JSON wallet.');
-      }
-      // TODO: we need encryption
-      this._wallet = jsonWallet;
-    } catch (error) {
-      console.error(error);
-      throw error;
+    if (this._walletFile.type !== 'application/json') {
+      throw Error('Invalid wallet file, must be a json file');
     }
+    const jsonWallet: JWKInterface = await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (!e.target?.result) {
+          throw Error('Cannot read keyfile');
+        }
+        const str = e.target.result;
+        if (!isString(str)) {
+          return;
+        }
+        const json = JSON.parse(str);
+        // resolve when it's done
+        resolve(json);
+      };
+      // start the read
+      reader.readAsText(this._walletFile);
+    });
+
+    if (!jsonWallet) {
+      throw Error('Failed to load JSON wallet.');
+    }
+    // TODO: we need encryption
+    this._wallet = jsonWallet;
   }
 
   async disconnect(): Promise<void> {

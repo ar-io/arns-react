@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useIsMobile, useWalletAddress } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ArweaveTransactionID } from '../../../types';
+import eventEmitter from '../../../utils/events';
 import { ROUTES } from '../../../utils/routes';
 import { LogoutIcon, MenuIcon } from '../../icons';
 import ConnectButton from '../../inputs/buttons/ConnectButton/ConnectButton';
@@ -96,7 +97,7 @@ function NavMenuCard() {
         payload: undefined,
       });
     } catch (error: any) {
-      console.error(error);
+      eventEmitter.emit('error', error);
     } finally {
       navigate('/');
     }

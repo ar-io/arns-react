@@ -29,7 +29,7 @@ export type TransactionTag = {
   value: string;
 };
 
-export type ArNSContractState = {
+export type ArNSContractJSON = {
   records: ArNSDomains;
   fees: { [x: number]: number };
   tiers: {
@@ -98,7 +98,9 @@ export type JsonWalletProvider = {
 };
 
 export interface SmartweaveDataProvider {
-  getContractState(id: ArweaveTransactionID): Promise<any>;
+  getContractState<T extends ArNSContractJSON | ANTContractJSON>(
+    id: ArweaveTransactionID,
+  ): Promise<T>;
 
   writeTransaction(
     id: ArweaveTransactionID,
@@ -420,7 +422,7 @@ export type AntMetadata = {
   target: string;
   role: string;
   status: number;
-  state: ArNSContractState;
+  state: ArNSContractJSON;
   error?: string;
   key: number;
 };

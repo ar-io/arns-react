@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { ArweaveTransactionID } from '../../types';
+import eventEmitter from '../../utils/events';
 
 export default function useWalletAddress(): {
   wallet: any;
@@ -27,7 +28,6 @@ export default function useWalletAddress(): {
             });
           })
           .catch((error: Error) => {
-            console.error(error);
             dispatchGlobalState({
               type: 'setWalletAddress',
               payload: undefined,
@@ -36,6 +36,7 @@ export default function useWalletAddress(): {
               type: 'setShowConnectWallet',
               payload: true,
             });
+            eventEmitter.emit('error', error);
           });
       }
     });
@@ -58,7 +59,6 @@ export default function useWalletAddress(): {
         });
       })
       .catch((error: Error) => {
-        console.error(error);
         dispatchGlobalState({
           type: 'setWalletAddress',
           payload: undefined,
@@ -67,6 +67,7 @@ export default function useWalletAddress(): {
           type: 'setShowConnectWallet',
           payload: true,
         });
+        eventEmitter.emit('error', error);
       });
   }, [wallet]); // eslint-disable-line
 

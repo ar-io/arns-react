@@ -6,11 +6,13 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
+  ANTContractJSON,
   ArNSRecordEntry,
   ArweaveTransactionID,
   ManageAntRow,
   TRANSACTION_TYPES,
 } from '../../../types';
+import eventEmitter from '../../../utils/events';
 import {
   DEFAULT_ATTRIBUTES,
   mapKeyToAttribute,
@@ -58,6 +60,7 @@ function ManageAntModal() {
       const txId = new ArweaveTransactionID(id);
       fetchAntDetails(txId);
     } catch (error) {
+      eventEmitter.emit('error', error);
       navigate('/manage');
     }
   }, [id]);
@@ -73,7 +76,7 @@ function ManageAntModal() {
   async function fetchAntDetails(txId: ArweaveTransactionID) {
     const names = getAssociatedNames(txId);
     const [contractState, confirmations] = await Promise.all([
-      arweaveDataProvider.getContractState(txId),
+      arweaveDataProvider.getContractState<ANTContractJSON>(txId),
       arweaveDataProvider.getTransactionStatus(txId),
     ]);
     // TODO: add error messages and reload state to row

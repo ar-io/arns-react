@@ -12,7 +12,7 @@ import {
   ArweaveTransactionID,
   TransactionTag,
 } from '../../types';
-import { ArNSContractState, SmartweaveDataProvider } from '../../types';
+import { ArNSContractJSON, SmartweaveDataProvider } from '../../types';
 import { SMARTWEAVE_MAX_TAG_SPACE } from '../../utils/constants';
 import { byteSize } from '../../utils/searchUtils';
 
@@ -32,9 +32,9 @@ export class WarpDataProvider implements SmartweaveDataProvider {
     );
   }
 
-  async getContractState(
+  async getContractState<T extends ArNSContractJSON | ANTContractJSON>(
     id: ArweaveTransactionID,
-  ): Promise<ArNSContractState | undefined> {
+  ): Promise<T> {
     const contract = this._warp.contract(id.toString());
     const { cachedValue } = await contract.readState();
 
@@ -42,7 +42,7 @@ export class WarpDataProvider implements SmartweaveDataProvider {
       throw Error('Failed to fetch state from Warp.');
     }
 
-    const state = cachedValue.state as any;
+    const state = cachedValue.state as T;
 
     // TODO: move this validation to separate interface function
     if (!state.records) {

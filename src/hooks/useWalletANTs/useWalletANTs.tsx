@@ -11,7 +11,13 @@ import {
 import ManageAssetButtons from '../../components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
 import TransactionStatus from '../../components/layout/TransactionStatus/TransactionStatus';
 import { useGlobalState } from '../../state/contexts/GlobalState';
-import { ASSET_TYPES, AntMetadata, ArweaveTransactionID } from '../../types';
+import {
+  ANTContractJSON,
+  ASSET_TYPES,
+  AntMetadata,
+  ArweaveTransactionID,
+} from '../../types';
+import eventEmitter from '../../utils/events';
 import useIsMobile from '../useIsMobile/useIsMobile';
 import useWalletAddress from '../useWalletAddress/useWalletAddress';
 
@@ -283,7 +289,7 @@ export default function useWalletANTs(ids: ArweaveTransactionID[]) {
     for (const [index, id] of ids.entries()) {
       try {
         const [contractState, confirmations] = await Promise.all([
-          arweaveDataProvider.getContractState(id),
+          arweaveDataProvider.getContractState<ANTContractJSON>(id),
           arweaveDataProvider.getTransactionStatus(id),
         ]);
         // TODO: add error messages and reload state to row
@@ -293,8 +299,7 @@ export default function useWalletANTs(ids: ArweaveTransactionID[]) {
           role:
             contractState.owner.toString() === walletAddress?.toString()
               ? 'Owner'
-              : contractState.controller === walletAddress?.toString() ||
-                contractState.controllers?.includes(walletAddress?.toString())
+              : contractState.controller === walletAddress?.toString()
               ? 'Controller'
               : 'N/A',
           target:
@@ -306,7 +311,7 @@ export default function useWalletANTs(ids: ArweaveTransactionID[]) {
         };
         fetchedRows.push(rowData);
       } catch (error) {
-        console.error(error);
+        eventEmitter.emit('error', error);
       } finally {
         // sort by confirmation count (ASC) by default
         fetchedRows.sort((a, b) => a.status - b.status);
