@@ -6,10 +6,10 @@ import './index.css';
 import GlobalStateProvider from './state/contexts/GlobalState';
 import RegistrationStateProvider from './state/contexts/RegistrationState.js';
 import { reducer, registrationReducer } from './state/reducers';
-import setupSentry from './utils/sentry';
+// setup sentry
+import sentry from './utils/sentry';
 
-// Setup sentry monitoring
-setupSentry();
+// eslint-disable-line
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>

@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { ArweaveTransactionID } from '../../types';
 import type {
-  ArNSContractState,
+  ArNSContractJSON,
   ArweaveDataProvider,
   ArweaveWalletConnector,
   SmartweaveDataProvider,
@@ -16,7 +16,7 @@ export type Action =
       payload: ArweaveWalletConnector | undefined;
     }
   | { type: 'setGateway'; payload: string }
-  | { type: 'setArnsContractState'; payload: ArNSContractState }
+  | { type: 'setArnsContractState'; payload: ArNSContractJSON }
   | { type: 'setShowConnectWallet'; payload: boolean }
   | { type: 'setShowCreateAnt'; payload: boolean }
   | {

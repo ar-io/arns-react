@@ -71,7 +71,6 @@ function ArnsCard({ domain, id }: ArNSMapping) {
       }
       return metaImage;
     } catch (error) {
-      console.debug(error);
       return arnsDefaultImage;
     }
   }

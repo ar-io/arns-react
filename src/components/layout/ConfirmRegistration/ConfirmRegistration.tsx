@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { NAME_PRICE_INFO, SMARTWEAVE_TAG_SIZE } from '../../../utils/constants';
+import eventEmitter from '../../../utils/events';
 import { AntCard } from '../../cards';
 import ArPrice from '../ArPrice/ArPrice';
 import Loader from '../Loader/Loader';
@@ -18,8 +19,6 @@ function ConfirmRegistration() {
     useGlobalState();
   const [isPostingTransaction, setIsPostingTransaction] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | undefined>();
-
   useEffect(() => {
     if (!antID) {
       return;
@@ -35,42 +34,43 @@ function ConfirmRegistration() {
       .then(() => {
         setIsConfirmed(true);
       })
-      .catch((e: Error) => {
-        // TODO: push error notification
-        console.error(e);
+      .catch((error: Error) => {
+        eventEmitter.emit('error', error);
         setIsConfirmed(false);
-        setErrorMessage(e.message);
       });
   }, [antID, arnsContractId]);
 
   async function buyArnsName() {
-    setIsPostingTransaction(true);
-    if (!antID) {
-      return;
-    }
-    const pendingTXId = await arweaveDataProvider.writeTransaction(
-      arnsContractId,
-      {
-        function: 'buyRecord',
-        name: domain,
-        contractTxId: antID.toString(),
-      },
-    );
-    if (pendingTXId) {
-      dispatchRegistrationState({
-        type: 'setResolvedTx',
-        payload: pendingTXId,
-      });
-      console.log(`Posted transaction: ${pendingTXId}`);
-    }
-    setTimeout(() => {
-      setIsPostingTransaction(false);
+    try {
+      setIsPostingTransaction(true);
+      if (!antID) {
+        return;
+      }
+      const pendingTXId = await arweaveDataProvider.writeTransaction(
+        arnsContractId,
+        {
+          function: 'buyRecord',
+          name: domain,
+          contractTxId: antID.toString(),
+        },
+      );
+      if (pendingTXId) {
+        dispatchRegistrationState({
+          type: 'setResolvedTx',
+          payload: pendingTXId,
+        });
+        console.log(`Posted transaction: ${pendingTXId}`);
+      }
       // TODO: write to local storage to store pending transactions
       dispatchRegistrationState({
         type: 'setStage',
         payload: stage + 1,
       });
-    }, 500);
+    } catch (error: any) {
+      eventEmitter.emit('error', error);
+    } finally {
+      setIsPostingTransaction(false);
+    }
   }
 
   return (
@@ -117,7 +117,7 @@ function ConfirmRegistration() {
             </div>
           </>
         ) : (
-          <span className="h2 error">{errorMessage}</span>
+          <span className="h2 error">Something went wrong!</span>
         )}
         {!isPostingTransaction ? (
           <div className="flex-row center">

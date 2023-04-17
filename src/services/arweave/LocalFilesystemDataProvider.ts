@@ -3,7 +3,7 @@ import axios from 'axios';
 import { ArweaveTransactionID } from '../../types';
 import {
   ANTContractJSON,
-  ArNSContractState,
+  ArNSContractJSON,
   SmartweaveDataProvider,
   TransactionTag,
 } from '../../types';
@@ -11,19 +11,15 @@ import {
 export class LocalFileSystemDataProvider
   implements Partial<SmartweaveDataProvider>
 {
-  async getContractState(
+  async getContractState<T extends ArNSContractJSON | ANTContractJSON>(
     id: ArweaveTransactionID,
-  ): Promise<ArNSContractState | undefined> {
-    try {
-      const localFile = `data/contracts/${id.toString()}.json`;
-      const { data } = await axios.get(localFile);
-      const arnsContractState = data as ArNSContractState;
-      return arnsContractState;
-    } catch (err) {
-      console.error('Unable to load contract state.');
-    }
-    return;
+  ): Promise<T> {
+    const localFile = `data/contracts/${id.toString()}.json`;
+    const { data } = await axios.get(localFile);
+    const arnsContractState = data as T;
+    return arnsContractState;
   }
+
   async writeTransaction(
     payload: any,
   ): Promise<ArweaveTransactionID | undefined> {

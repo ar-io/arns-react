@@ -9,6 +9,7 @@ import useWalletDomains from '../../../hooks/useWalletDomains/useWalletDomains';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { AntMetadata, ArweaveTransactionID, ManageTable } from '../../../types';
 import { MANAGE_TABLE_NAMES } from '../../../types';
+import eventEmitter from '../../../utils/events';
 import { CodeSandboxIcon, NotebookIcon, RefreshIcon } from '../../icons';
 import { Loader } from '../../layout/index';
 import './styles.css';
@@ -48,7 +49,6 @@ function Manage() {
   const [tableLoading, setTableLoading] = useState(true);
   const [tableColumns, setTableColumns] = useState<any[]>();
   const [tablePage, setTablePage] = useState<number>(1);
-  const [error, setError] = useState();
 
   useEffect(() => {
     if (!path) {
@@ -138,9 +138,9 @@ function Manage() {
       // TODO: store ants in global state and create a hook that fetches them at certain times
       setAntIDs(ids);
     } catch (error: any) {
-      console.error(error);
-      // TODO: emit error message to error listener
-      setError(error.message);
+      eventEmitter.emit('error', error);
+    } finally {
+      setTableLoading(false);
     }
   }
 
@@ -219,7 +219,7 @@ function Manage() {
             </button>
           </div>
         </div>
-        {tableLoading && !error ? (
+        {tableLoading ? (
           <div
             className="flex center"
             style={{ paddingTop: '10%', justifyContent: 'center' }}

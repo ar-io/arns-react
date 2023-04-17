@@ -2,7 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
-import { ArweaveTransactionID, VALIDATION_INPUT_TYPES } from '../../../types';
+import {
+  ANTContractJSON,
+  ArweaveTransactionID,
+  VALIDATION_INPUT_TYPES,
+} from '../../../types';
 import Dropdown from '../../inputs/Dropdown/Dropdown';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import UpgradeTier from '../UpgradeTier/UpgradeTier';
@@ -57,7 +61,9 @@ function RegisterNameForm() {
         payload: txId,
       });
 
-      const state = await arweaveDataProvider.getContractState(txId);
+      const state = await arweaveDataProvider.getContractState<ANTContractJSON>(
+        txId,
+      );
       if (state == undefined) {
         throw Error('ANT contract state is undefined');
       }
@@ -105,7 +111,7 @@ function RegisterNameForm() {
         type: 'setAntID',
         payload: undefined,
       });
-      console.error(error);
+      // don't emit here, since we have the validation
     }
   }
 
