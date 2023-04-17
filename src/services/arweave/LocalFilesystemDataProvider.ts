@@ -11,12 +11,12 @@ import {
 export class LocalFileSystemDataProvider
   implements Partial<SmartweaveDataProvider>
 {
-  async getContractState<T extends ArNSContractJSON | ANTContractJSON>(
+  async getContractState(
     id: ArweaveTransactionID,
-  ): Promise<T> {
+  ): Promise<ArNSContractJSON | ANTContractJSON | undefined> {
     const localFile = `data/contracts/${id.toString()}.json`;
     const { data } = await axios.get(localFile);
-    const arnsContractState = data as T;
+    const arnsContractState = data as any;
     return arnsContractState;
   }
 

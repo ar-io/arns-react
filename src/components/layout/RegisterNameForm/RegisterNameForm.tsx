@@ -2,11 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
-import {
-  ANTContractJSON,
-  ArweaveTransactionID,
-  VALIDATION_INPUT_TYPES,
-} from '../../../types';
+import { ArweaveTransactionID, VALIDATION_INPUT_TYPES } from '../../../types';
 import Dropdown from '../../inputs/Dropdown/Dropdown';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import UpgradeTier from '../UpgradeTier/UpgradeTier';

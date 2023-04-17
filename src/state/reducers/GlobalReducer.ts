@@ -1,5 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
-
 import { ArweaveTransactionID } from '../../types';
 import type {
   ArNSContractJSON,
@@ -22,9 +20,7 @@ export type Action =
   | {
       type: 'setArweaveDataProvider';
       payload: ArweaveDataProvider & SmartweaveDataProvider;
-    }
-  | { type: 'pushNotification'; payload: string }
-  | { type: 'removeNotification'; payload: string };
+    };
 
 export const reducer = (state: GlobalState, action: Action): GlobalState => {
   switch (action.type) {
@@ -53,25 +49,6 @@ export const reducer = (state: GlobalState, action: Action): GlobalState => {
         ...state,
         arnsSourceContract: action.payload,
       };
-    case 'pushNotification': {
-      return {
-        ...state,
-        notifications: state.notifications.concat([
-          {
-            id: uuidv4(),
-            text: action.payload,
-          },
-        ]),
-      };
-    }
-    case 'removeNotification': {
-      return {
-        ...state,
-        notifications: state.notifications.filter(
-          (e: { id: string }) => e.id !== action.payload,
-        ),
-      };
-    }
     default:
       return state;
   }
