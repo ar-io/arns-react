@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';

@@ -1,35 +1,18 @@
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useEffect } from 'react';
 
-import {
-  useIsMobile,
-  useTransactionData,
-  useWalletAddress,
-} from '../../../hooks';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { useTransactionData } from '../../../hooks';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
-  ANT_INTERACTION_TYPES,
   AntInteraction,
-  CONTRACT_TYPES,
   ContractType,
-  REGISTRY_INTERACTION_TYPES,
   RegistryInteraction,
 } from '../../../types';
-import {
-  ARNS_REGISTRY_ADDRESS,
-  STUB_ARWEAVE_TXID,
-} from '../../../utils/constants';
 import { Loader } from '../../layout';
 import TransactionWorkflow from '../../layout/TransactionWorkflow/TransactionWorkflow';
 
 function Transaction() {
-  const [{}, dispatchGlobalState] = useGlobalState();
-  const isMobile = useIsMobile();
-  const { walletAddress } = useWalletAddress();
-  const [searchParams, setSearchParams] = useSearchParams();
   const [
-    { contractType, interactionType, transactionData, error, workflowStage },
+    { contractType, interactionType, transactionData, workflowStage },
     dispatchTransactionState,
   ] = useTransactionState();
   const { URLContractType, URLInteractionType, URLTransactionData } =

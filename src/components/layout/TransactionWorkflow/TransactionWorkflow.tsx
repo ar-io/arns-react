@@ -21,7 +21,7 @@ import Workflow, { WorkflowStage } from '../Workflow/Workflow';
 function TransactionWorkflow({
   contractType,
   interactionType,
-  //transactionData,
+  transactionData,
   workflowStage,
 }: {
   contractType: ContractType;
@@ -29,9 +29,9 @@ function TransactionWorkflow({
   transactionData: Partial<TransactionData>;
   workflowStage: 'pending' | 'confirmed' | 'successful' | 'failed';
 }) {
-  const [{ deployedTransactionId, transactionData }, dispatchTransactionState] =
+  const [{ deployedTransactionId }, dispatchTransactionState] =
     useTransactionState();
-  const { assetId, functionName, tags, ...payload } = transactionData;
+  const { assetId, functionName, ...payload } = transactionData;
   const [{ arweaveDataProvider }] = useGlobalState();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
