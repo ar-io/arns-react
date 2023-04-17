@@ -2,7 +2,6 @@ import Arweave from 'arweave';
 import { useEffect, useState } from 'react';
 
 import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
-import { PDNSContractCache } from '../../services/arweave/ContractCache';
 import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
 import { WarpDataProvider } from '../../services/arweave/WarpDataProvider';
 import { useGlobalState } from '../../state/contexts/GlobalState';
@@ -31,7 +30,6 @@ export default function useArweave() {
 
       const arweaveDataProvider = new ArweaveCompositeDataProvider(
         new WarpDataProvider(arweave),
-        new PDNSContractCache('http://localhost:3000'),
         new SimpleArweaveDataProvider(arweave),
       );
 

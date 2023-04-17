@@ -32,9 +32,9 @@ export class WarpDataProvider implements SmartweaveDataProvider {
     );
   }
 
-  async getContractState<T extends ArNSContractJSON | ANTContractJSON>(
+  async getContractState(
     id: ArweaveTransactionID,
-  ): Promise<T> {
+  ): Promise<ANTContractJSON | ArNSContractJSON | undefined> {
     const contract = this._warp.contract(id.toString());
     const { cachedValue } = await contract.readState();
 
@@ -42,7 +42,7 @@ export class WarpDataProvider implements SmartweaveDataProvider {
       throw Error('Failed to fetch state from Warp.');
     }
 
-    const state = cachedValue.state as T;
+    const state = cachedValue.state as any;
 
     // TODO: move this validation to separate interface function
     if (!state.records) {

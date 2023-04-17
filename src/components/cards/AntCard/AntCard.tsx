@@ -70,8 +70,7 @@ function AntCard(props: ArNSMapping) {
         antContractState = state;
       }
       if (id && !state) {
-        antContractState =
-          await arweaveDataProvider.getContractState<ANTContractJSON>(id);
+        antContractState = await arweaveDataProvider.getContractState(id);
       }
       if (!antContractState) {
         throw new Error(

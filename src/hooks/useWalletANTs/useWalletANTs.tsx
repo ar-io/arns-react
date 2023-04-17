@@ -11,12 +11,7 @@ import {
 import ManageAssetButtons from '../../components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
 import TransactionStatus from '../../components/layout/TransactionStatus/TransactionStatus';
 import { useGlobalState } from '../../state/contexts/GlobalState';
-import {
-  ANTContractJSON,
-  ASSET_TYPES,
-  AntMetadata,
-  ArweaveTransactionID,
-} from '../../types';
+import { ASSET_TYPES, AntMetadata, ArweaveTransactionID } from '../../types';
 import eventEmitter from '../../utils/events';
 import useIsMobile from '../useIsMobile/useIsMobile';
 import useWalletAddress from '../useWalletAddress/useWalletAddress';
@@ -289,7 +284,7 @@ export default function useWalletANTs(ids: ArweaveTransactionID[]) {
     for (const [index, id] of ids.entries()) {
       try {
         const [contractState, confirmations] = await Promise.all([
-          arweaveDataProvider.getContractState<ANTContractJSON>(id),
+          arweaveDataProvider.getContractState(id),
           arweaveDataProvider.getTransactionStatus(id),
         ]);
         // TODO: add error messages and reload state to row
@@ -303,8 +298,9 @@ export default function useWalletANTs(ids: ArweaveTransactionID[]) {
               ? 'Controller'
               : 'N/A',
           target:
-            contractState?.records['@']?.transactionId ??
-            contractState?.records['@'],
+            typeof contractState.records['@'] === 'string'
+              ? contractState.records['@']
+              : contractState.records['@'].transactionId,
           status: confirmations ?? 0,
           state: contractState,
           key: index,

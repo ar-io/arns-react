@@ -185,6 +185,7 @@ function CreateAntModal() {
         case 'targetID':
           ant.records = {
             '@': {
+              ...ant.records['@'],
               transactionId: modifiedValue.toString(),
             },
           };
@@ -192,6 +193,7 @@ function CreateAntModal() {
         case 'ttlSeconds':
           ant.records = {
             '@': {
+              ...ant.records['@'],
               ttlSeconds: +modifiedValue,
             },
           };
@@ -264,7 +266,11 @@ function CreateAntModal() {
                 if (!ant.records['@'].transactionId) {
                   ant.records = {
                     ...ant.records,
-                    '@': { transactionId: STUB_ARWEAVE_TXID },
+                    '@': {
+                      transactionId: STUB_ARWEAVE_TXID,
+                      ttlSeconds: undefined,
+                      maxSubdomains: undefined,
+                    },
                   };
                 }
                 break;

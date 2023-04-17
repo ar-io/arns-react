@@ -61,9 +61,7 @@ function RegisterNameForm() {
         payload: txId,
       });
 
-      const state = await arweaveDataProvider.getContractState<ANTContractJSON>(
-        txId,
-      );
+      const state = await arweaveDataProvider.getContractState(txId);
       if (state == undefined) {
         throw Error('ANT contract state is undefined');
       }
