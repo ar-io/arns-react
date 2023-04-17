@@ -6,7 +6,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
-  ANTContractJSON,
   ArNSRecordEntry,
   ArweaveTransactionID,
   ManageAntRow,
@@ -76,7 +75,7 @@ function ManageAntModal() {
   async function fetchAntDetails(txId: ArweaveTransactionID) {
     const names = getAssociatedNames(txId);
     const [contractState, confirmations] = await Promise.all([
-      arweaveDataProvider.getContractState<ANTContractJSON>(txId),
+      arweaveDataProvider.getContractState(txId),
       arweaveDataProvider.getTransactionStatus(txId),
     ]);
     // TODO: add error messages and reload state to row

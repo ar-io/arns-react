@@ -127,7 +127,6 @@ function Manage() {
 
   async function fetchWalletAnts(address: ArweaveTransactionID) {
     try {
-      setError(undefined);
       const { ids } = await arweaveDataProvider.getContractsForWallet(
         arnsSourceContract.approvedANTSourceCodeTxs.map(
           (id: string) => new ArweaveTransactionID(id),

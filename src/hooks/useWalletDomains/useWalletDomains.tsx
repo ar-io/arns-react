@@ -12,7 +12,6 @@ import {
 import TransactionStatus from '../../components/layout/TransactionStatus/TransactionStatus';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import {
-  ANTContractJSON,
   ArNSRecordEntry,
   ArNSTableRow,
   ArweaveTransactionID,
@@ -313,7 +312,7 @@ export default function useWalletDomains(ids: ArweaveTransactionID[]) {
             })
             .filter((n) => !!n) as (ArNSRecordEntry & { name: string })[];
         const [contractState, confirmations] = await Promise.all([
-          arweaveDataProvider.getContractState<ANTContractJSON>(txId),
+          arweaveDataProvider.getContractState(txId),
           arweaveDataProvider.getTransactionStatus(txId),
         ]);
         // TODO: add error messages and reload state to row
