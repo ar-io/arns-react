@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ANTContractJSON, ArNSMapping } from '../../../types';
+import eventEmitter from '../../../utils/events';
 import { isArweaveTransactionID } from '../../../utils/searchUtils';
 import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
 import { Loader } from '../../layout';
@@ -84,7 +85,7 @@ function AntCard(props: ArNSMapping) {
         controllers: antContractState.controllers
           ? antContractState.controllers.join(',')
           : antContractState.owner,
-        tier: antContractState.tier ?? 1,
+        tier: 1,
         ...overrides,
         id: id?.toString() ?? 'N/A',
         domain,
@@ -112,7 +113,7 @@ function AntCard(props: ArNSMapping) {
       setLimitDetails(compact ?? true);
       setAntDetails(replacedKeys);
     } catch (error) {
-      console.error(error);
+      eventEmitter.emit('error', error);
       setAntDetails(undefined);
     } finally {
       setIsLoading(false);

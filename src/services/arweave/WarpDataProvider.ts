@@ -12,7 +12,7 @@ import {
   ArweaveTransactionID,
   TransactionTag,
 } from '../../types';
-import { ArNSContractState, SmartweaveDataProvider } from '../../types';
+import { ArNSContractJSON, SmartweaveDataProvider } from '../../types';
 import { SMARTWEAVE_MAX_TAG_SPACE } from '../../utils/constants';
 import { byteSize } from '../../utils/searchUtils';
 
@@ -34,7 +34,7 @@ export class WarpDataProvider implements SmartweaveDataProvider {
 
   async getContractState(
     id: ArweaveTransactionID,
-  ): Promise<ArNSContractState | undefined> {
+  ): Promise<ANTContractJSON | ArNSContractJSON | undefined> {
     const contract = this._warp.contract(id.toString());
     const { cachedValue } = await contract.readState();
 

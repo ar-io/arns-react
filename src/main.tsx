@@ -8,10 +8,8 @@ import RegistrationStateProvider from './state/contexts/RegistrationState.js';
 import TransactionStateProvider from './state/contexts/TransactionState';
 import { reducer, registrationReducer } from './state/reducers';
 import { transactionReducer } from './state/reducers/TransactionReducer';
-import setupSentry from './utils/sentry';
-
-// Setup sentry monitoring
-setupSentry();
+// setup sentry
+import './utils/sentry';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>

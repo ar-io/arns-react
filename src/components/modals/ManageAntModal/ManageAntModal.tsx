@@ -11,6 +11,7 @@ import {
   ManageAntRow,
   TRANSACTION_TYPES,
 } from '../../../types';
+import eventEmitter from '../../../utils/events';
 import {
   DEFAULT_ATTRIBUTES,
   mapKeyToAttribute,
@@ -58,6 +59,7 @@ function ManageAntModal() {
       const txId = new ArweaveTransactionID(id);
       fetchAntDetails(txId);
     } catch (error) {
+      eventEmitter.emit('error', error);
       navigate('/manage');
     }
   }, [id]);

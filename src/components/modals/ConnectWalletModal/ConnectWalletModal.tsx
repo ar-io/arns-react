@@ -5,6 +5,7 @@ import { useWalletAddress } from '../../../hooks';
 import { ArConnectWalletConnector } from '../../../services/wallets';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ArweaveWalletConnector } from '../../../types';
+import eventEmitter from '../../../utils/events';
 import { ArConnectIcon, ArweaveAppIcon, CloseIcon } from '../../icons';
 import './styles.css';
 
@@ -45,7 +46,7 @@ function ConnectWalletModal(): JSX.Element {
         payload: walletConnector,
       });
     } catch (error: any) {
-      console.error(error);
+      eventEmitter.emit('error', error);
     }
   }
 

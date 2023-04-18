@@ -29,7 +29,7 @@ export type TransactionTag = {
   value: string;
 };
 
-export type ArNSContractState = {
+export type ArNSContractJSON = {
   records: ArNSDomains;
   fees: { [x: number]: number };
   tiers: {
@@ -54,12 +54,10 @@ export type ArNSContractState = {
 };
 
 export type ANTContractDomainRecord = {
-  ttlSeconds?: number;
-  maxSubdomains?: number;
-  transactionId?: ArweaveTransactionID | string;
+  ttlSeconds: number | undefined;
+  maxSubdomains: number | undefined;
+  transactionId: string | undefined;
 };
-
-export type ANTContractRecordMapping = ANTContractDomainRecord;
 
 export type ANTContractJSON = {
   balances: { [x: string]: number };
@@ -68,8 +66,8 @@ export type ANTContractJSON = {
   owner: string;
   controller: string;
   records: {
-    '@': ANTContractRecordMapping;
-    [x: string]: ANTContractRecordMapping;
+    '@': ANTContractDomainRecord;
+    [x: string]: ANTContractDomainRecord;
   };
   ticker: string;
 };
@@ -439,7 +437,7 @@ export type AntMetadata = {
   target: string;
   role: string;
   status: number;
-  state: ArNSContractState;
+  state: ANTContractJSON;
   error?: string;
   key: number;
 };

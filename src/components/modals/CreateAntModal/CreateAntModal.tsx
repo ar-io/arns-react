@@ -16,6 +16,7 @@ import {
   DEFAULT_ANT_SOURCE_CODE_TX,
   STUB_ARWEAVE_TXID,
 } from '../../../utils/constants';
+import eventEmitter from '../../../utils/events';
 import { mapKeyToAttribute } from '../../cards/AntCard/AntCard';
 import { CloseIcon, PencilIcon } from '../../icons';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
@@ -184,6 +185,7 @@ function CreateAntModal() {
         case 'targetID':
           ant.records = {
             '@': {
+              ...ant.records['@'],
               transactionId: modifiedValue.toString(),
             },
           };
@@ -191,6 +193,7 @@ function CreateAntModal() {
         case 'ttlSeconds':
           ant.records = {
             '@': {
+              ...ant.records['@'],
               ttlSeconds: +modifiedValue,
             },
           };
@@ -199,7 +202,7 @@ function CreateAntModal() {
           throw new Error('Editing field not supported');
       }
     } catch (error) {
-      console.error(error);
+      eventEmitter.emit('error', error);
     } finally {
       setEditingField(undefined);
       setModifiedValue(undefined);
@@ -226,7 +229,7 @@ function CreateAntModal() {
       setIsPostingTransaction(false);
       return pendingTXId;
     } catch (error) {
-      console.error(error);
+      eventEmitter.emit('error', error);
     } finally {
       setIsPostingTransaction(false);
     }
@@ -263,7 +266,11 @@ function CreateAntModal() {
                 if (!ant.records['@'].transactionId) {
                   ant.records = {
                     ...ant.records,
-                    '@': { transactionId: STUB_ARWEAVE_TXID },
+                    '@': {
+                      transactionId: STUB_ARWEAVE_TXID,
+                      ttlSeconds: undefined,
+                      maxSubdomains: undefined,
+                    },
                   };
                 }
                 break;

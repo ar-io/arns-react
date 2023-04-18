@@ -5,6 +5,7 @@ import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveComp
 import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
 import { WarpDataProvider } from '../../services/arweave/WarpDataProvider';
 import { useGlobalState } from '../../state/contexts/GlobalState';
+import eventEmitter from '../../utils/events';
 
 export default function useArweave() {
   const [{ gateway }, dispatch] = useGlobalState();
@@ -39,7 +40,7 @@ export default function useArweave() {
 
       setSendingArweaveState(false);
     } catch (error) {
-      console.error(`Error in setting arweave client.`, error);
+      eventEmitter.emit('error', error);
     }
   }
   return;

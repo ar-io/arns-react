@@ -105,7 +105,7 @@ function RegisterNameForm() {
         type: 'setAntID',
         payload: undefined,
       });
-      console.error(error);
+      // don't emit here, since we have the validation
     }
   }
 

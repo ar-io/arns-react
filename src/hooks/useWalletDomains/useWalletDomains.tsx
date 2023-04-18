@@ -16,6 +16,7 @@ import {
   ArNSTableRow,
   ArweaveTransactionID,
 } from '../../types';
+import eventEmitter from '../../utils/events';
 import useWalletAddress from '../useWalletAddress/useWalletAddress';
 
 export default function useWalletDomains(ids: ArweaveTransactionID[]) {
@@ -321,8 +322,7 @@ export default function useWalletDomains(ids: ArweaveTransactionID[]) {
           role:
             contractState.owner.toString() === walletAddress?.toString()
               ? 'Owner'
-              : contractState.controller === walletAddress?.toString() ||
-                contractState.controllers?.includes(walletAddress?.toString())
+              : contractState.controller === walletAddress?.toString()
               ? 'Controller'
               : 'N/A',
           expiration: new Date(domain.endTimestamp * 1000),
@@ -336,7 +336,7 @@ export default function useWalletDomains(ids: ArweaveTransactionID[]) {
         }));
         fetchedRows.push(...rowData);
       } catch (error) {
-        console.error(error);
+        eventEmitter.emit('error', error);
       } finally {
         // sort by confirmations by default
         fetchedRows.sort((a, b) => a.status - b.status);

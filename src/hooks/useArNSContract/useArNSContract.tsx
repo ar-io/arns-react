@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { ArweaveTransactionID } from '../../types';
+import eventEmitter from '../../utils/events';
 
 export default function useArNSContract() {
   const [{ arnsContractId, arweaveDataProvider }, dispatch] = useGlobalState();
@@ -44,8 +45,8 @@ export default function useArNSContract() {
       });
 
       setSendingContractState(false);
-    } catch (error) {
-      console.error(`Error in setting contract state.`, error);
+    } catch (error: any) {
+      eventEmitter.emit('error', error);
     }
   }
   return;
