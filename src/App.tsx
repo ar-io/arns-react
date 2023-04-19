@@ -13,14 +13,12 @@ import {
   ManageAntModal, // ManageAntModal,
 } from './components/modals';
 import { About, Home, Manage, NotFound, Transaction } from './components/pages';
-import { useArNSContract, useArweaveCompositeProvider } from './hooks/';
+import { useArNSContract } from './hooks/';
 import './index.css';
 
 function App() {
   // dispatches global state
   useArNSContract();
-  // setup default arweave data provider
-  useArweaveCompositeProvider();
 
   const router = createHashRouter(
     createRoutesFromElements(

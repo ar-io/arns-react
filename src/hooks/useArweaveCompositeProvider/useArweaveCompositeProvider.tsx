@@ -2,7 +2,7 @@ import Arweave from 'arweave';
 import { useEffect, useState } from 'react';
 
 import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
-import { PDNSContractCache } from '../../services/arweave/PDNSContractCache.js';
+import { PDNSContractCache } from '../../services/arweave/PDNSContractCache';
 import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
 import { WarpDataProvider } from '../../services/arweave/WarpDataProvider';
 import { useGlobalState } from '../../state/contexts/GlobalState';

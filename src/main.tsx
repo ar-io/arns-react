@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 import GlobalStateProvider from './state/contexts/GlobalState';
-import RegistrationStateProvider from './state/contexts/RegistrationState.js';
+import RegistrationStateProvider from './state/contexts/RegistrationState';
 import { reducer, registrationReducer } from './state/reducers';
 // setup sentry
 import './utils/sentry';

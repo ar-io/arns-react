@@ -1,5 +1,5 @@
 import { ANTContractJSON } from '../../../types';
-import { NAME_PRICE_INFO } from '../../../utils/constants';
+import { DEFAULT_TTL_SECONDS, NAME_PRICE_INFO } from '../../../utils/constants';
 import { byteSize } from '../../../utils/searchUtils';
 import { AntCard } from '../../cards';
 import ArPrice from '../ArPrice/ArPrice';
@@ -16,8 +16,14 @@ function ConfirmAntCreation({ state }: { state: ANTContractJSON }) {
         enableActions={false}
         showTier={false}
         overrides={{
-          targetId: state.records['@'].transactionId,
-          ttlSeconds: state.records['@'].ttlSeconds,
+          targetId:
+            typeof state.records['@'] == 'string'
+              ? state.records['@']
+              : state.records['@'].transactionId,
+          ttlSeconds:
+            typeof state.records['@'] == 'string'
+              ? DEFAULT_TTL_SECONDS
+              : state.records['@'].ttlSeconds,
         }}
         disabledKeys={[
           'tier',

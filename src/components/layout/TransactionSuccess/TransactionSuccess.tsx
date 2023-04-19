@@ -39,8 +39,14 @@ function TransactionSuccess({
             compact={false}
             enableActions={false}
             overrides={{
-              targetId: state.records['@'].transactionId,
-              ttlSeconds: state.records['@'].ttlSeconds,
+              targetId:
+                typeof state.records['@'] == 'string'
+                  ? state.records['@']
+                  : state.records['@'].transactionId,
+              ttlSeconds:
+                typeof state.records['@'] == 'string'
+                  ? state.records['@']
+                  : state.records['@'].transactionId,
             }}
             disabledKeys={[
               'tier',

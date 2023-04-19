@@ -56,9 +56,15 @@ export class ANTContract {
     this.contract.ticker = ticker;
   }
 
-  // TODO: make only ANTContractDomainRecord
-  get records(): { [x: string]: string | ANTContractDomainRecord } {
-    return this.contract.records;
+  // TODO: this should be refactored when we are ready to not support ants that do not comply with the new ANT spec
+  get records(): { [x: string]: ANTContractDomainRecord } {
+    return Object.keys(this.contract.records).reduce(
+      (records, r) => ({
+        ...records,
+        [r]: this.getRecord(r),
+      }),
+      {},
+    );
   }
   set records(records: { [x: string]: ANTContractDomainRecord }) {
     for (const [
@@ -68,32 +74,26 @@ export class ANTContract {
       this.contract.records[domain] = {
         transactionId: transactionId
           ? transactionId.toString()
-          : this.contract.records[domain].transactionId
-          ? this.contract.records[domain].transactionId?.toString()
-          : '',
+          : this.getRecord(domain).transactionId.toString(),
         maxUndernames: maxUndernames
           ? maxUndernames
-          : this.contract.records[domain].maxUndernames
-          ? this.contract.records[domain].maxUndernames
-          : 100,
+          : this.getRecord(domain).maxUndernames,
         ttlSeconds: ttlSeconds
           ? ttlSeconds
-          : this.contract.records[domain].ttlSeconds
-          ? this.contract.records[domain].ttlSeconds
-          : 1800,
+          : this.getRecord(domain).maxUndernames,
       };
     }
   }
 
   getRecord(name: string): ANTContractDomainRecord {
-    if (typeof this.records[name] == 'string') {
+    if (typeof this.contract.records[name] == 'string') {
       return {
         ttlSeconds: DEFAULT_TTL_SECONDS,
-        transactionId: (this.records[name] as string) ?? '',
+        transactionId: (this.contract.records[name] as string) ?? '',
         maxUndernames: DEFAULT_MAX_UNDERNAMES,
       };
     }
-    return this.records[name] as ANTContractDomainRecord;
+    return this.contract.records[name] as ANTContractDomainRecord;
   }
 
   get balances() {

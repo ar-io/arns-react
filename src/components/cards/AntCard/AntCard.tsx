@@ -2,7 +2,7 @@ import { startCase } from 'lodash';
 import { useEffect, useState } from 'react';
 
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
-import { useGlobalState } from '../../../state/contexts/GlobalState.js';
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ANTContractJSON, ArNSMapping } from '../../../types';
 import eventEmitter from '../../../utils/events';
 import { isArweaveTransactionID } from '../../../utils/searchUtils';
@@ -51,7 +51,7 @@ function AntCard(props: ArNSMapping) {
   } = props;
   const [{ arnsSourceContract }] = useGlobalState();
   const [antDetails, setAntDetails] = useState<{ [x: string]: string }>();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [limitDetails, setLimitDetails] = useState(true);
 
   useEffect(() => {
@@ -77,9 +77,11 @@ function AntCard(props: ArNSMapping) {
 
       const tiers = arnsSourceContract.tiers;
 
-      const tierDetails = tiers.history.find(
-        (tier) => tier.id === arnsSourceContract.records[domain].tier,
-      );
+      const tierDetails = arnsSourceContract.records[domain]
+        ? tiers.history.find(
+            (tier) => tier.id === arnsSourceContract.records[domain].tier,
+          )
+        : undefined;
 
       const tierNumber = Object.keys(tiers.current).find(
         (key: string) => tiers.current[+key] === tierDetails?.id,

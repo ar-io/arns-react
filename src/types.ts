@@ -54,8 +54,8 @@ export type ArNSContractJSON = {
 };
 
 export type ANTContractDomainRecord = {
-  ttlSeconds: number | undefined;
-  maxUndernames: number | undefined;
+  ttlSeconds: number;
+  maxUndernames: number;
   transactionId: string;
 };
 
@@ -67,8 +67,8 @@ export type ANTContractJSON = {
   controller: string;
   controllers?: string[];
   records: {
-    '@': ANTContractDomainRecord;
-    [x: string]: ANTContractDomainRecord;
+    '@': string | ANTContractDomainRecord;
+    [x: string]: string | ANTContractDomainRecord;
   };
   ticker: string;
 };

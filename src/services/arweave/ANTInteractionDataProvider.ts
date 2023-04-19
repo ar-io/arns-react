@@ -103,16 +103,10 @@ export class ANTInteractionProvider implements ANTInteractionProvider {
         function: 'setRecord',
         subDomain: name,
         target: targetId.toString(),
-        ttlSeconds: ttl
-          ? ttl
-          : this.contract.state.records[name].ttlSeconds
-          ? this.contract.state.records[name].ttlSeconds
-          : 1800,
+        ttlSeconds: ttl ? ttl : this.contract.getRecord(name).ttlSeconds,
         maxSubdomains: maxSubdomains
           ? maxSubdomains
-          : this.contract.state.records[name].maxSubdomains
-          ? this.contract.state.records[name].maxSubdomains
-          : 100,
+          : this.contract.getRecord(name).maxUndernames,
       };
       const txId = await this._provider.writeTransaction(this.antId, payload);
       if (!txId) {
