@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router';
 import { useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
+import Loader from '../Loader/Loader';
 import { StepProgressBar } from '../progress';
 
 export type WorkflowStage = {
@@ -25,7 +26,7 @@ export type WorkflowProps = {
   onNext: () => void;
   onBack: () => void;
   footer?: JSX.Element[];
-  stages: {
+  stages?: {
     [x: string]: WorkflowStage;
   };
 };
@@ -44,6 +45,10 @@ function Workflow({
 
   function showConnectWallet() {
     navigate('/connect');
+  }
+
+  if (!stages) {
+    return <Loader size={200} />;
   }
 
   return (

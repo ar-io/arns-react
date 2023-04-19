@@ -6,6 +6,7 @@ import {
   AntInteraction,
   ContractType,
   RegistryInteraction,
+  TransactionData,
 } from '../../../types';
 import { Loader } from '../../layout';
 import TransactionWorkflow from '../../layout/TransactionWorkflow/TransactionWorkflow';
@@ -22,7 +23,7 @@ function Transaction() {
     if (URLTransactionData !== transactionData) {
       dispatchTransactionState({
         type: 'setTransactionData',
-        payload: URLTransactionData,
+        payload: URLTransactionData as TransactionData,
       });
     }
     if (URLContractType !== contractType) {
@@ -37,7 +38,7 @@ function Transaction() {
         payload: URLInteractionType as AntInteraction | RegistryInteraction,
       });
     }
-  }, []);
+  }, [URLContractType, URLInteractionType, URLTransactionData]);
 
   if (!transactionData.contractTxId) {
     return (

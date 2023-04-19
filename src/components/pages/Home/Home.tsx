@@ -92,14 +92,10 @@ function Home() {
             onNext={() => {
               if (stage == 1) {
                 const searchParameters = createSearchParams({
-                  name: domain!,
-                  contractTxId: antID!.toString(),
-                  years: '1',
-                  tierNumber: '1',
+                  data: [domain!, antID!.toString(), '1', '1'],
                   contractType: CONTRACT_TYPES.REGISTRY,
                   interactionType: REGISTRY_INTERACTION_TYPES.BUY_RECORD,
                   assetId: ARNS_REGISTRY_ADDRESS,
-                  functionName: 'buyRecord',
                 });
                 navigate(`/transaction?${searchParameters}`);
               }

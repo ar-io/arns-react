@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
@@ -18,6 +18,12 @@ import DeployTransaction from '../DeployTransaction/DeployTransaction';
 import TransactionComplete from '../TransactionComplete/TransactionComplete';
 import Workflow, { WorkflowStage } from '../Workflow/Workflow';
 
+export enum TRANSACTION_WORKFLOW_STATUS {
+  PENDING = 'pending',
+  CONFIRMED = 'confirmed',
+  SUCCESSFUL = 'successful',
+  FAILED = 'failed',
+}
 function TransactionWorkflow({
   contractType,
   interactionType,
@@ -27,53 +33,46 @@ function TransactionWorkflow({
   contractType: ContractType;
   interactionType: AntInteraction | RegistryInteraction;
   transactionData: Partial<TransactionData>;
-  workflowStage: 'pending' | 'confirmed' | 'successful' | 'failed';
+  workflowStage: TRANSACTION_WORKFLOW_STATUS;
 }) {
   const [{ deployedTransactionId }, dispatchTransactionState] =
     useTransactionState();
   const { assetId, functionName, ...payload } = transactionData;
   const [{ arweaveDataProvider }] = useGlobalState();
-  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [steps, setSteps] = useState<{
-    [x: number]: { title: string; status: string };
-  }>({});
-  const [stages, setStages] = useState<{ [x: string]: WorkflowStage }>({
-    pending: {
-      component: <AntCard domain={''} compact={false} enableActions={false} />,
-    },
-    confirmed: {
-      component: <DeployTransaction />,
-      showNext: false,
-      showBack: false,
-    },
-    successful: {
-      component: <TransactionComplete />,
-      showNext: false,
-      showBack: false,
-    },
-    failed: {
-      component: <TransactionComplete />,
-      showNext: false,
-      showBack: false,
-    },
-  });
-
-  useEffect(() => {
-    const newSteps = getStepsByTransactionType({
+  const [steps, setSteps] = useState<
+    | {
+        [x: number]: { title: string; status: string };
+      }
+    | undefined
+  >(() =>
+    getStepsByTransactionType({
       contractType,
       interactionType,
-    });
+    }),
+  );
+  const [stages, setStages] = useState<
+    { [x: string]: WorkflowStage } | undefined
+  >(() =>
+    getStagesByTransactionType({
+      contractType,
+      interactionType,
+    }),
+  );
+
+  useEffect(() => {
     const newStages = getStagesByTransactionType({
       contractType,
       interactionType,
     });
-    if (newSteps) setSteps(newSteps);
     if (newStages) setStages(newStages);
-    if (workflowStage === 'confirmed' && deployedTransactionId) {
+    if (
+      workflowStage === TRANSACTION_WORKFLOW_STATUS.CONFIRMED &&
+      deployedTransactionId
+    ) {
       dispatchTransactionState({
         type: 'setWorkflowStage',
-        payload: 'successful',
+        payload: TRANSACTION_WORKFLOW_STATUS.SUCCESSFUL,
       });
     }
   }, [workflowStage, deployedTransactionId, transactionData]);
@@ -83,10 +82,17 @@ function TransactionWorkflow({
       switch (direction) {
         case 'next':
           switch (workflowStage) {
-            case 'pending': {
+            case TRANSACTION_WORKFLOW_STATUS.PENDING: {
+              const newSteps = getStepsByTransactionType({
+                contractType,
+                interactionType,
+              });
+              newSteps['1'].status = 'success';
+              newSteps['2'].status = 'pending';
+              setSteps(newSteps);
               dispatchTransactionState({
                 type: 'setWorkflowStage',
-                payload: 'confirmed',
+                payload: TRANSACTION_WORKFLOW_STATUS.CONFIRMED,
               });
               const originalTxId = await arweaveDataProvider.writeTransaction(
                 new ArweaveTransactionID(assetId!),
@@ -100,42 +106,21 @@ function TransactionWorkflow({
                   type: 'setDeployedTransactionId',
                   payload: originalTxId,
                 });
-
-                setSearchParams({
-                  ...searchParams,
-                  deployedTransactionId: originalTxId.toString(),
-                });
               }
+              newSteps['2'].status = 'success';
+              newSteps['3'].status = 'success';
+              setSteps(newSteps);
+
               return originalTxId;
             }
-            case 'confirmed': {
-              // deployment section, no next
-              return;
-            }
-            case 'successful': {
-              // completed section, no next
-              return;
-            }
-            case 'failed': {
-              // completed section, no next
-              return;
-            }
+
             default:
               throw new Error(`Invalid workflow stage (${workflowStage})`);
           }
         case 'back':
           switch (workflowStage) {
-            case 'pending': {
+            case TRANSACTION_WORKFLOW_STATUS.PENDING: {
               navigate(-1);
-              return;
-            }
-            case 'confirmed': {
-              return;
-            }
-            case 'successful': {
-              return;
-            }
-            case 'failed': {
               return;
             }
             default:
@@ -148,10 +133,6 @@ function TransactionWorkflow({
       }
     } catch (error) {
       console.error(error);
-      dispatchTransactionState({
-        type: 'setError',
-        payload: error,
-      });
     }
   }
   function getStepsByTransactionType({
@@ -167,35 +148,30 @@ function TransactionWorkflow({
           switch (interactionType) {
             case REGISTRY_INTERACTION_TYPES.BUY_RECORD: {
               return {
-                1: { title: 'Choose a Domain', status: 'success' },
-                2: { title: 'Registration Details', status: 'pending' },
-                3: { title: 'Confirm Registration', status: '' },
-                4: { title: 'Deploy Registration', status: '' },
-                5: { title: 'Complete', status: '' },
+                1: { title: 'Confirm Registration', status: 'pending' },
+                2: { title: 'Deploy Registration', status: '' },
+                3: { title: 'Complete', status: '' },
               };
             }
             case REGISTRY_INTERACTION_TYPES.EXTEND_LEASE: {
               return {
-                1: { title: 'Lease Details', status: 'pending' },
-                2: { title: 'Confirm Extension', status: '' },
-                3: { title: 'Deploy Extension', status: '' },
-                4: { title: 'Complete', status: '' },
+                1: { title: 'Confirm Extension', status: 'pending' },
+                2: { title: 'Deploy Extension', status: '' },
+                3: { title: 'Complete', status: '' },
               };
             }
             case REGISTRY_INTERACTION_TYPES.TRANSFER: {
               return {
-                1: { title: 'Set Reciepient', status: 'pending' },
-                2: { title: 'Confirm IO Transfer', status: '' },
-                3: { title: 'Deploy Transfer', status: '' },
-                4: { title: 'Complete', status: '' },
+                1: { title: 'Confirm IO Transfer', status: 'pending' },
+                2: { title: 'Deploy Transfer', status: '' },
+                3: { title: 'Complete', status: '' },
               };
             }
             case REGISTRY_INTERACTION_TYPES.UPGRADE_TIER: {
               return {
-                1: { title: 'Choose a Tier', status: 'pending' },
-                2: { title: 'Confirm Tier', status: '' },
-                3: { title: 'Deploy Tier Upgrade', status: '' },
-                4: { title: 'Complete', status: '' },
+                1: { title: 'Confirm Tier', status: 'pending' },
+                2: { title: 'Deploy Tier Upgrade', status: '' },
+                3: { title: 'Complete', status: '' },
               };
             }
             default:
@@ -205,50 +181,44 @@ function TransactionWorkflow({
           switch (interactionType) {
             case ANT_INTERACTION_TYPES.REMOVE_RECORD: {
               return {
-                1: { title: 'Choose Undername', status: 'success' },
-                2: { title: 'Confirm Removal', status: 'pending' },
-                3: { title: 'Deploy Removal', status: '' },
-                4: { title: 'Complete', status: '' },
+                1: { title: 'Confirm Removal', status: 'pending' },
+                2: { title: 'Deploy Removal', status: '' },
+                3: { title: 'Complete', status: '' },
               };
             }
             case ANT_INTERACTION_TYPES.SET_CONTROLLER: {
               return {
-                1: { title: 'Enter a Controller', status: 'success' },
-                2: { title: 'Confirm Controller', status: 'pending' },
-                3: { title: 'Deploy Controller', status: '' },
-                4: { title: 'Complete', status: '' },
+                1: { title: 'Confirm Controller', status: 'pending' },
+                2: { title: 'Deploy Controller', status: '' },
+                3: { title: 'Complete', status: '' },
               };
             }
             case ANT_INTERACTION_TYPES.SET_NAME: {
               return {
-                1: { title: 'Enter a Name', status: 'success' },
-                2: { title: 'Confirm ANT Name', status: 'pending' },
-                3: { title: 'Deploy Name Change', status: '' },
-                4: { title: 'Complete', status: '' },
+                1: { title: 'Confirm ANT Name', status: 'pending' },
+                2: { title: 'Deploy Name Change', status: '' },
+                3: { title: 'Complete', status: '' },
               };
             }
             case ANT_INTERACTION_TYPES.SET_RECORD: {
               return {
-                1: { title: 'Enter Undername Details', status: 'success' },
-                2: { title: 'Confirm Undername Details', status: 'pending' },
-                3: { title: 'Deploy Undername', status: '' },
-                4: { title: 'Complete', status: '' },
+                1: { title: 'Confirm Undername Details', status: 'pending' },
+                2: { title: 'Deploy Undername', status: '' },
+                3: { title: 'Complete', status: '' },
               };
             }
             case ANT_INTERACTION_TYPES.SET_TICKER: {
               return {
-                1: { title: 'Enter a Ticker', status: 'success' },
-                2: { title: 'Confirm Ticker', status: 'pending' },
-                3: { title: 'Deploy Ticker Change', status: '' },
-                4: { title: 'Complete', status: '' },
+                1: { title: 'Confirm Ticker', status: 'pending' },
+                2: { title: 'Deploy Ticker Change', status: '' },
+                3: { title: 'Complete', status: '' },
               };
             }
             case ANT_INTERACTION_TYPES.TRANSFER: {
               return {
-                1: { title: 'Enter Reciepient', status: 'success' },
-                2: { title: 'Confirm Transfer', status: 'pending' },
-                3: { title: 'Deploy Transfer', status: '' },
-                4: { title: 'Complete', status: '' },
+                1: { title: 'Confirm Transfer', status: 'pending' },
+                2: { title: 'Deploy Transfer', status: '' },
+                3: { title: 'Complete', status: '' },
               };
             }
             default:
@@ -266,6 +236,7 @@ function TransactionWorkflow({
       return {};
     }
   }
+
   function getStagesByTransactionType({
     contractType,
     interactionType,
@@ -359,7 +330,9 @@ function TransactionWorkflow({
                   component: (
                     <TransactionComplete
                       transactionId={deployedTransactionId}
-                      state={transactionData.initialState}
+                      antId={
+                        new ArweaveTransactionID(transactionData.contractTxId!)
+                      }
                     />
                   ),
                   showNext: false,
@@ -378,6 +351,9 @@ function TransactionWorkflow({
                   component: (
                     <TransactionComplete
                       transactionId={deployedTransactionId}
+                      antId={
+                        new ArweaveTransactionID(transactionData.contractTxId!)
+                      }
                     />
                   ),
                   showNext: false,

@@ -21,9 +21,11 @@ export enum transaction_types {
 function TransactionComplete({
   transactionId = new ArweaveTransactionID(STUB_ARWEAVE_TXID),
   state,
+  antId,
 }: {
   transactionId?: ArweaveTransactionID;
   state?: ANTContractJSON; // for create ant cases
+  antId?: ArweaveTransactionID;
 }) {
   const [{}, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
 
@@ -35,21 +37,10 @@ function TransactionComplete({
           <AntCard
             domain={''}
             showTier={false}
-            id={transactionId}
-            state={state ?? undefined}
+            id={antId}
             compact={false}
             enableActions={false}
-            overrides={{
-              targetId: state?.records['@'].transactionId,
-              ttlSeconds: state?.records['@'].ttlSeconds,
-            }}
-            disabledKeys={[
-              'tier',
-              'evolve',
-              'maxSubdomains',
-              'domain',
-              'leaseDuration',
-            ]}
+            state={state}
           />
           <div
             className="flex flex-row center"

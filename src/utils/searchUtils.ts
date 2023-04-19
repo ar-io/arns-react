@@ -1,6 +1,16 @@
 import { Buffer } from 'buffer';
 
-import { ArNSRecordEntry, TransactionTag } from '../types';
+import {
+  ANT_INTERACTION_TYPES,
+  AntInteraction,
+  ArNSRecordEntry,
+  CONTRACT_TYPES,
+  ContractType,
+  REGISTRY_INTERACTION_TYPES,
+  RegistryInteraction,
+  TRANSACTION_DATA_KEYS,
+  TransactionTag,
+} from '../types';
 import { ARNS_NAME_REGEX, ARNS_TX_ID_REGEX } from './constants';
 import { fromB64Url } from './encodings';
 
@@ -65,6 +75,142 @@ export function isArweaveTransactionID(id: string) {
     return false;
   }
   return true;
+}
+
+export function isAntInteraction(x: any): x is AntInteraction {
+  return Object.values(ANT_INTERACTION_TYPES).includes(x);
+}
+
+export function isRegistryInteraction(x: any): x is RegistryInteraction {
+  return Object.values(REGISTRY_INTERACTION_TYPES).includes(x);
+}
+
+export function isContractType(x: any): x is ContractType {
+  return Object.values(CONTRACT_TYPES).includes(x);
+}
+
+export function isInteractionCompatible({
+  contractType,
+  interactionType,
+  functionName,
+}: {
+  contractType: ContractType;
+  interactionType: AntInteraction | RegistryInteraction;
+  functionName: string;
+}) {
+  try {
+    if (
+      (contractType === CONTRACT_TYPES.ANT &&
+        !isAntInteraction(interactionType)) ||
+      (contractType === CONTRACT_TYPES.REGISTRY &&
+        !isRegistryInteraction(interactionType))
+    ) {
+      throw new Error(
+        `contract type of ${contractType} and interaction type of ${interactionType} are not compatible`,
+      );
+    }
+    if (
+      contractType === CONTRACT_TYPES.ANT &&
+      isAntInteraction(interactionType)
+    ) {
+      if (
+        TRANSACTION_DATA_KEYS[contractType][interactionType].functionName !==
+        functionName
+      ) {
+        throw new Error(
+          `function name of ${functionName} is not compatible with contract type ${contractType} and interaction type ${interactionType}`,
+        );
+      }
+    }
+    if (
+      contractType === CONTRACT_TYPES.REGISTRY &&
+      isRegistryInteraction(interactionType)
+    ) {
+      if (
+        TRANSACTION_DATA_KEYS[contractType][interactionType].functionName !==
+        functionName
+      ) {
+        throw new Error(
+          `function name of ${functionName} is not compatible with contract type ${contractType} and interaction type ${interactionType}`,
+        );
+      }
+    }
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+export function getTransactionPayloadByInteractionType(
+  contractType: ContractType,
+  interactionType: AntInteraction | RegistryInteraction,
+  data: string | string[],
+) {
+  try {
+    const payload: { [x: string]: any } = {};
+    const txData = typeof data === 'string' ? [data] : [...data];
+
+    if (
+      contractType == CONTRACT_TYPES.ANT &&
+      isAntInteraction(interactionType)
+    ) {
+      if (
+        !isInteractionCompatible({
+          contractType,
+          interactionType,
+          functionName:
+            TRANSACTION_DATA_KEYS[contractType][interactionType].functionName,
+        })
+      ) {
+        throw new Error(`Interaction is not compatible`);
+      }
+      payload.functionName =
+        TRANSACTION_DATA_KEYS[contractType][interactionType].functionName;
+      TRANSACTION_DATA_KEYS[contractType][interactionType].keys.forEach(
+        (key: string, index) => {
+          if (!txData[index]) {
+            throw new Error(
+              `Missing key (${key}) from transaction data in the url. This may be due to the order of the data, the current order is [${txData}], the correct order is [${TRANSACTION_DATA_KEYS[contractType][interactionType].keys}]`,
+            );
+          }
+          payload[key] = txData[index];
+        },
+      );
+    }
+
+    if (
+      contractType == CONTRACT_TYPES.REGISTRY &&
+      isRegistryInteraction(interactionType)
+    ) {
+      if (
+        !isInteractionCompatible({
+          contractType,
+          interactionType,
+          functionName:
+            TRANSACTION_DATA_KEYS[contractType][interactionType].functionName,
+        })
+      ) {
+        throw new Error(`Interaction is not compatible`);
+      }
+      payload.functionName =
+        TRANSACTION_DATA_KEYS[contractType][interactionType].functionName;
+      TRANSACTION_DATA_KEYS[contractType][interactionType].keys.forEach(
+        (key, index) => {
+          if (!txData[index]) {
+            // if missing transaction data from the url, throw an error
+            throw new Error(
+              `Missing key (${key}) from transaction data in the url. This may be due to the order of the data, the current order is [${txData}], the correct order is [${TRANSACTION_DATA_KEYS[contractType][interactionType].keys}]`,
+            );
+          }
+          payload[key] = txData[index];
+        },
+      );
+    }
+
+    return payload;
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 export function tagsToObject(tags: TransactionTag[]): {

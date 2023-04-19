@@ -243,6 +243,12 @@ export enum REGISTRY_INTERACTION_TYPES {
   BALANCE = 'Balance',
 }
 
+export type TransactionDataBasePayload = {
+  assetId: string;
+  functionName: string;
+  deployedTransactionId?: ArweaveTransactionID;
+};
+
 // registry transaction payload types
 export type BuyRecordPayload = {
   name: string;
@@ -307,12 +313,13 @@ export enum ANT_INTERACTION_TYPES {
 }
 
 export type ContractType = (typeof CONTRACT_TYPES)[keyof typeof CONTRACT_TYPES];
+
 export type AntInteraction =
   (typeof ANT_INTERACTION_TYPES)[keyof typeof ANT_INTERACTION_TYPES];
 export type RegistryInteraction =
   (typeof REGISTRY_INTERACTION_TYPES)[keyof typeof REGISTRY_INTERACTION_TYPES];
 
-export const transactionDataKeys = [
+export const ALL_TRANSACTION_DATA_KEYS = [
   'assetId',
   'functionName',
   'deployedTransactionId',
@@ -331,6 +338,23 @@ export const transactionDataKeys = [
   'tags',
 ];
 
+export type TransactionDataPayload<Payload> = {
+  [Property in keyof Payload]: Payload[Property];
+} & TransactionDataBasePayload;
+
+// export type TransactionData = TransactionDataPayload<
+//   | BuyRecordPayload
+//   | ExtendLeasePayload
+//   | UpgradeTierPayload
+//   | TransferIOPayload
+//   | SetTickerPayload
+//   | SetControllerPayload
+//   | SetNamePayload
+//   | SetRecordPayload
+//   | RemoveRecordPayload
+//   | TransferAntPayload
+//   | CreateAntPayload
+// >;
 export type TransactionData = {
   assetId: string;
   functionName: string;
@@ -347,47 +371,76 @@ export type TransactionData = {
   TransferAntPayload &
   CreateAntPayload;
 
-// TODO: discuss bellow setup with dylan
-//export const TRANSACTION_DATA_KEYS = new Map<ContractType, AntInteraction | RegistryInteraction>()
+export type TransactionDataConfig = { functionName: string; keys: string[] };
 
 export const TRANSACTION_DATA_KEYS: {
   // specifying interaction types to the correct contract type, to ensure clarity and to prevent crossover of interaction types
-  [CONTRACT_TYPES.ANT]: { [K in AntInteraction]: string[] };
-  [CONTRACT_TYPES.REGISTRY]: { [K in RegistryInteraction]: string[] };
+  [CONTRACT_TYPES.ANT]: {
+    [K in AntInteraction]: TransactionDataConfig;
+  };
+  [CONTRACT_TYPES.REGISTRY]: {
+    [K in RegistryInteraction]: TransactionDataConfig;
+  };
   /**
    NOTE: benefit of this setup, is that if a new type is added to an enum like ANT_INTERACTION_TYPES, 
    then an error will occur here, since every key of the type is required to be defined here.
    */
 } = {
   [CONTRACT_TYPES.REGISTRY]: {
-    [REGISTRY_INTERACTION_TYPES.BUY_RECORD]: [
-      'name',
-      'contractTxId',
-      'years',
-      'tierNumber',
-    ],
-    [REGISTRY_INTERACTION_TYPES.EXTEND_LEASE]: ['name', 'years'],
-    [REGISTRY_INTERACTION_TYPES.UPGRADE_TIER]: ['name', 'tierNumber'],
-    [REGISTRY_INTERACTION_TYPES.TRANSFER]: ['target', 'qty'], // transfer io tokens
-    [REGISTRY_INTERACTION_TYPES.BALANCE]: ['target'],
+    [REGISTRY_INTERACTION_TYPES.BUY_RECORD]: {
+      functionName: 'buyRecord',
+      keys: ['name', 'contractTxId', 'years', 'tierNumber'],
+    },
+    [REGISTRY_INTERACTION_TYPES.EXTEND_LEASE]: {
+      functionName: 'extendLease',
+      keys: ['name', 'years'],
+    },
+    [REGISTRY_INTERACTION_TYPES.UPGRADE_TIER]: {
+      functionName: 'upgradeTier',
+      keys: ['name', 'tierNumber'],
+    },
+    [REGISTRY_INTERACTION_TYPES.TRANSFER]: {
+      functionName: 'transfer',
+      keys: ['target', 'qty'],
+    }, // transfer io tokens
+    [REGISTRY_INTERACTION_TYPES.BALANCE]: {
+      functionName: 'getBalance',
+      keys: ['target'],
+    },
   },
   [CONTRACT_TYPES.ANT]: {
-    [ANT_INTERACTION_TYPES.SET_TICKER]: ['ticker'],
-    [ANT_INTERACTION_TYPES.SET_CONTROLLER]: ['target'],
-    [ANT_INTERACTION_TYPES.SET_NAME]: ['name'],
-    [ANT_INTERACTION_TYPES.SET_RECORD]: [
-      'subDomain',
-      'transactionId',
-      'ttlSeconds',
-    ],
-    [ANT_INTERACTION_TYPES.REMOVE_RECORD]: ['subDomain'],
-    [ANT_INTERACTION_TYPES.TRANSFER]: ['target'],
-    [ANT_INTERACTION_TYPES.BALANCE]: ['target'],
-    [ANT_INTERACTION_TYPES.CREATE]: [
-      'srcCodeTransactionId',
-      'initialState',
-      'tags',
-    ],
+    [ANT_INTERACTION_TYPES.SET_TICKER]: {
+      functionName: 'setTicker',
+      keys: ['ticker'],
+    },
+    [ANT_INTERACTION_TYPES.SET_CONTROLLER]: {
+      functionName: 'setController',
+      keys: ['target'],
+    },
+    [ANT_INTERACTION_TYPES.SET_NAME]: {
+      functionName: 'setName',
+      keys: ['name'],
+    },
+    [ANT_INTERACTION_TYPES.SET_RECORD]: {
+      functionName: 'setRecord',
+      keys: ['subDomain', 'transactionId', 'ttlSeconds'],
+    },
+    [ANT_INTERACTION_TYPES.REMOVE_RECORD]: {
+      functionName: 'removeRecord',
+      keys: ['subDomain'],
+    },
+    [ANT_INTERACTION_TYPES.TRANSFER]: {
+      functionName: 'transfer',
+      keys: ['target'],
+    },
+    [ANT_INTERACTION_TYPES.BALANCE]: {
+      functionName: 'balance',
+      keys: ['target'],
+    },
+    [ANT_INTERACTION_TYPES.CREATE]: {
+      functionName: '',
+      keys: ['srcCodeTransactionId', 'initialState', 'tags'],
+    },
   },
 };
 
