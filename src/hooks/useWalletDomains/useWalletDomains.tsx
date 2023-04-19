@@ -10,18 +10,19 @@ import {
   RefreshAlertIcon,
 } from '../../components/icons/index';
 import TransactionStatus from '../../components/layout/TransactionStatus/TransactionStatus';
+import { useArweaveCompositeProvider, useWalletAddress } from '../../hooks';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import {
+  ANTContractJSON,
   ArNSRecordEntry,
   ArNSTableRow,
   ArweaveTransactionID,
 } from '../../types';
 import eventEmitter from '../../utils/events';
-import useWalletAddress from '../useWalletAddress/useWalletAddress';
 
-export default function useWalletDomains(ids: ArweaveTransactionID[]) {
-  const [{ gateway, arweaveDataProvider, arnsSourceContract }] =
-    useGlobalState();
+export function useWalletDomains(ids: ArweaveTransactionID[]) {
+  const [{ gateway, arnsSourceContract }] = useGlobalState();
+  const arweaveDataProvider = useArweaveCompositeProvider();
   const { walletAddress } = useWalletAddress();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] = useState<keyof ArNSTableRow>('status');
@@ -312,7 +313,7 @@ export default function useWalletDomains(ids: ArweaveTransactionID[]) {
             })
             .filter((n) => !!n) as (ArNSRecordEntry & { name: string })[];
         const [contractState, confirmations] = await Promise.all([
-          arweaveDataProvider.getContractState(txId),
+          arweaveDataProvider.getContractState<ANTContractJSON>(txId),
           arweaveDataProvider.getTransactionStatus(txId),
         ]);
         // TODO: add error messages and reload state to row

@@ -1,8 +1,8 @@
 import { startCase } from 'lodash';
 import { useEffect, useState } from 'react';
 
-import { useIsMobile } from '../../../hooks';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
+import { useGlobalState } from '../../../state/contexts/GlobalState.js';
 import { ANTContractJSON, ArNSMapping } from '../../../types';
 import eventEmitter from '../../../utils/events';
 import { isArweaveTransactionID } from '../../../utils/searchUtils';
@@ -13,7 +13,8 @@ import './styles.css';
 export const ANT_DETAIL_MAPPINGS: { [x: string]: string } = {
   name: 'Nickname',
   id: 'ANT Contract ID',
-  leaseDuration: 'Lease Duration',
+  expiration: 'Lease Expiration',
+  maxUndernames: 'Max Undernames',
   ttlSeconds: 'TTL Seconds',
   controller: 'Controllers',
 };
@@ -34,15 +35,9 @@ export const PRIMARY_DETAILS: string[] = [
   'nickname',
 ].map((i) => mapKeyToAttribute(i));
 
-export const DEFAULT_ATTRIBUTES = {
-  ttlSeconds: 60 * 60,
-  leaseDuration: 'N/A',
-  maxSubdomains: 100,
-};
-
 function AntCard(props: ArNSMapping) {
   const isMobile = useIsMobile();
-  const [{ arweaveDataProvider }] = useGlobalState();
+  const arweaveDataProvider = useArweaveCompositeProvider();
   const {
     state,
     id,
@@ -54,6 +49,7 @@ function AntCard(props: ArNSMapping) {
     disabledKeys,
     showTier = true,
   } = props;
+  const [{ arnsSourceContract }] = useGlobalState();
   const [antDetails, setAntDetails] = useState<{ [x: string]: string }>();
   const [isLoading, setIsLoading] = useState(false);
   const [limitDetails, setLimitDetails] = useState(true);
@@ -70,7 +66,8 @@ function AntCard(props: ArNSMapping) {
         antContractState = state;
       }
       if (id && !state) {
-        antContractState = await arweaveDataProvider.getContractState(id);
+        antContractState =
+          await arweaveDataProvider.getContractState<ANTContractJSON>(id);
       }
       if (!antContractState) {
         throw new Error(
@@ -78,19 +75,29 @@ function AntCard(props: ArNSMapping) {
         );
       }
 
+      const tiers = arnsSourceContract.tiers;
+
+      const tierDetails = tiers.history.find(
+        (tier) => tier.id === arnsSourceContract.records[domain].tier,
+      );
+
+      const tierNumber = Object.keys(tiers.current).find(
+        (key: string) => tiers.current[+key] === tierDetails?.id,
+      );
+
       const allAntDetails: { [x: string]: any } = {
         ...antContractState,
-        ...DEFAULT_ATTRIBUTES,
         // TODO: remove this when all ants have controllers
         controllers: antContractState.controllers
           ? antContractState.controllers.join(',')
           : antContractState.owner,
-        tier: 1,
+        tier: tierNumber,
+        maxUndernames: tierDetails?.settings.maxUndernames ?? 100,
         ...overrides,
         id: id?.toString() ?? 'N/A',
         domain,
       };
-      // eslint-disable-next-line
+
       const filteredAntDetails = Object.keys(allAntDetails).reduce(
         (obj: any, key: string) => {
           if (!disabledKeys?.includes(key)) {

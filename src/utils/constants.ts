@@ -12,6 +12,8 @@ export const STUB_ARWEAVE_TXID = '2yHmORN-N12hM1B2f9-JPMpOfa59qhpsExFCzImrD30'; 
 export const DEFAULT_ANT_SOURCE_CODE_TX =
   'PEI1efYrsX08HUwvc6y-h6TSpsNlo2r6_fWL2_GdwhY';
 export const RECOMMENDED_TRANSACTION_CONFIRMATIONS = 50;
+export const DEFAULT_TTL_SECONDS = 3600;
+export const DEFAULT_MAX_UNDERNAMES = 100;
 export const ANT_CONTRACT_STATE_KEYS = [
   'balances',
   'evolve',
@@ -114,8 +116,8 @@ export const DEFAULT_ANT_CONTRACT_STATE: ANTContractJSON = {
   records: {
     '@': {
       transactionId: '',
-      ttlSeconds: 1800,
-      maxSubdomains: 100,
+      ttlSeconds: DEFAULT_TTL_SECONDS,
+      maxUndernames: DEFAULT_MAX_UNDERNAMES,
     },
   },
 };

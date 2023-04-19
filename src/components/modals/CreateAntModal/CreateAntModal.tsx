@@ -2,9 +2,12 @@ import Table from 'rc-table';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
-import { useIsMobile, useWalletAddress } from '../../../hooks';
+import {
+  useArweaveCompositeProvider,
+  useIsMobile,
+  useWalletAddress,
+} from '../../../hooks';
 import { ANTContract } from '../../../services/arweave/AntContract';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
   ANTContractJSON,
   ArweaveTransactionID,
@@ -12,10 +15,7 @@ import {
   TRANSACTION_TYPES,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
-import {
-  DEFAULT_ANT_SOURCE_CODE_TX,
-  STUB_ARWEAVE_TXID,
-} from '../../../utils/constants';
+import { DEFAULT_ANT_SOURCE_CODE_TX } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { mapKeyToAttribute } from '../../cards/AntCard/AntCard';
 import { CloseIcon, PencilIcon } from '../../icons';
@@ -27,7 +27,7 @@ import Workflow from '../../layout/Workflow/Workflow';
 
 function CreateAntModal() {
   const isMobile = useIsMobile();
-  const [{ arweaveDataProvider }] = useGlobalState();
+  const arweaveDataProvider = useArweaveCompositeProvider();
   const { walletAddress } = useWalletAddress();
   const navigate = useNavigate();
 
@@ -134,13 +134,11 @@ function CreateAntModal() {
   }, [walletAddress, ant, workflowStage]);
 
   function setDetails() {
-    //  eslint-disable-next-line
-
     const consolidatedDetails: any = {
       name: ant.name,
       ticker: ant.ticker,
-      targetID: ant.records['@'].transactionId,
-      ttlSeconds: ant.records['@'].ttlSeconds?.toString(),
+      targetID: ant.getRecord('@').transactionId,
+      ttlSeconds: ant.getRecord('@').ttlSeconds,
       controller: ant.controller,
       owner: ant.owner,
     };
@@ -185,7 +183,7 @@ function CreateAntModal() {
         case 'targetID':
           ant.records = {
             '@': {
-              ...ant.records['@'],
+              ...ant.getRecord('@'),
               transactionId: modifiedValue.toString(),
             },
           };
@@ -193,7 +191,7 @@ function CreateAntModal() {
         case 'ttlSeconds':
           ant.records = {
             '@': {
-              ...ant.records['@'],
+              ...ant.getRecord('@'),
               ttlSeconds: +modifiedValue,
             },
           };
@@ -263,16 +261,6 @@ function CreateAntModal() {
             switch (workflowStage) {
               case 0:
                 setWorkflowStage(workflowStage + 1);
-                if (!ant.records['@'].transactionId) {
-                  ant.records = {
-                    ...ant.records,
-                    '@': {
-                      transactionId: STUB_ARWEAVE_TXID,
-                      ttlSeconds: undefined,
-                      maxSubdomains: undefined,
-                    },
-                  };
-                }
                 break;
               case 1:
                 {

@@ -10,15 +10,22 @@ import {
 } from '../../components/icons/index';
 import ManageAssetButtons from '../../components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
 import TransactionStatus from '../../components/layout/TransactionStatus/TransactionStatus';
-import { useGlobalState } from '../../state/contexts/GlobalState';
-import { ASSET_TYPES, AntMetadata, ArweaveTransactionID } from '../../types';
+import {
+  useArweaveCompositeProvider,
+  useIsMobile,
+  useWalletAddress,
+} from '../../hooks';
+import {
+  ANTContractJSON,
+  ASSET_TYPES,
+  AntMetadata,
+  ArweaveTransactionID,
+} from '../../types';
 import eventEmitter from '../../utils/events';
-import useIsMobile from '../useIsMobile/useIsMobile';
-import useWalletAddress from '../useWalletAddress/useWalletAddress';
 
-export default function useWalletANTs(ids: ArweaveTransactionID[]) {
+export function useWalletANTs(ids: ArweaveTransactionID[]) {
   const isMobile = useIsMobile();
-  const [{ arweaveDataProvider }] = useGlobalState();
+  const arweaveDataProvider = useArweaveCompositeProvider();
   const { walletAddress } = useWalletAddress();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] = useState<keyof AntMetadata>('status');
@@ -284,7 +291,7 @@ export default function useWalletANTs(ids: ArweaveTransactionID[]) {
     for (const [index, id] of ids.entries()) {
       try {
         const [contractState, confirmations] = await Promise.all([
-          arweaveDataProvider.getContractState(id),
+          arweaveDataProvider.getContractState<ANTContractJSON>(id),
           arweaveDataProvider.getTransactionStatus(id),
         ]);
         // TODO: add error messages and reload state to row
@@ -297,10 +304,9 @@ export default function useWalletANTs(ids: ArweaveTransactionID[]) {
               : contractState.controller === walletAddress?.toString()
               ? 'Controller'
               : 'N/A',
-          target:
-            typeof contractState.records['@'] === 'string'
-              ? contractState.records['@']
-              : contractState.records['@'].transactionId,
+          target: (typeof contractState.records['@'] === 'string'
+            ? contractState.records['@']
+            : contractState.records['@'].transactionId) as string,
           status: confirmations ?? 0,
           state: contractState,
           key: index,

@@ -3,19 +3,18 @@ import Table from 'rc-table';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { useIsMobile } from '../../../hooks';
+import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
+import { ANTContract } from '../../../services/arweave/AntContract.js';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
+  ANTContractJSON,
   ArNSRecordEntry,
   ArweaveTransactionID,
   ManageAntRow,
   TRANSACTION_TYPES,
 } from '../../../types';
 import eventEmitter from '../../../utils/events';
-import {
-  DEFAULT_ATTRIBUTES,
-  mapKeyToAttribute,
-} from '../../cards/AntCard/AntCard';
+import { mapKeyToAttribute } from '../../cards/AntCard/AntCard';
 import { ArrowLeft, CloseIcon, PencilIcon } from '../../icons';
 import TransactionStatus from '../../layout/TransactionStatus/TransactionStatus';
 
@@ -44,8 +43,8 @@ function ManageAntModal() {
   const { id } = useParams();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-
-  const [{ arnsSourceContract, arweaveDataProvider }] = useGlobalState();
+  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [{ arnsSourceContract }] = useGlobalState();
   const [antName, setAntName] = useState<string>();
   const [editingField, setEditingField] = useState<string>();
   const [modifiedValue, setModifiedValue] = useState<string>();
@@ -75,22 +74,29 @@ function ManageAntModal() {
   async function fetchAntDetails(txId: ArweaveTransactionID) {
     const names = getAssociatedNames(txId);
     const [contractState, confirmations] = await Promise.all([
-      arweaveDataProvider.getContractState(txId),
+      arweaveDataProvider.getContractState<ANTContractJSON>(txId),
       arweaveDataProvider.getTransactionStatus(txId),
     ]);
+    const ant = new ANTContract(contractState);
+    const record = Object.values(arnsSourceContract.records).find(
+      (r) => r.contractTxId === txId.toString(),
+    );
+    const tier = arnsSourceContract.tiers.history.find(
+      (t) => t.id === record?.tier,
+    );
     // TODO: add error messages and reload state to row
     const consolidatedDetails: ManageAntRow & any = {
       status: confirmations ?? 0,
       associatedNames: !names.length ? 'N/A' : names.join(', '),
-      name: contractState.name ?? 'N/A',
-      ticker: contractState.ticker ?? 'N/A',
-      targetID: contractState.target ?? 'N/A',
-      ttlSeconds: DEFAULT_ATTRIBUTES.ttlSeconds.toString(),
+      name: ant.name ?? 'N/A',
+      ticker: ant.ticker ?? 'N/A',
+      targetID: ant.getRecord('@').transactionId ?? 'N/A',
+      ttlSeconds: ant.getRecord('@').ttlSeconds,
       controller:
         contractState.controllers?.join(', ') ??
         contractState.owner?.toString() ??
         'N/A',
-      undernames: `${names.length} / ${DEFAULT_ATTRIBUTES.maxSubdomains}`,
+      undernames: `${names.length} / ${tier?.settings.maxUndernames ?? 100}`,
       owner: contractState.owner?.toString() ?? 'N/A',
     };
 

@@ -3,7 +3,11 @@ import {
   ANTContractJSON,
   ArweaveTransactionID,
 } from '../../types';
-import { DEFAULT_ANT_CONTRACT_STATE } from '../../utils/constants';
+import {
+  DEFAULT_ANT_CONTRACT_STATE,
+  DEFAULT_MAX_UNDERNAMES,
+  DEFAULT_TTL_SECONDS,
+} from '../../utils/constants';
 
 /**
  * TODOS:
@@ -51,13 +55,15 @@ export class ANTContract {
   set ticker(ticker: string) {
     this.contract.ticker = ticker;
   }
-  get records() {
+
+  // TODO: make only ANTContractDomainRecord
+  get records(): { [x: string]: string | ANTContractDomainRecord } {
     return this.contract.records;
   }
   set records(records: { [x: string]: ANTContractDomainRecord }) {
     for (const [
       domain,
-      { transactionId, maxSubdomains, ttlSeconds },
+      { transactionId, maxUndernames, ttlSeconds },
     ] of Object.entries(records)) {
       this.contract.records[domain] = {
         transactionId: transactionId
@@ -65,10 +71,10 @@ export class ANTContract {
           : this.contract.records[domain].transactionId
           ? this.contract.records[domain].transactionId?.toString()
           : '',
-        maxSubdomains: maxSubdomains
-          ? maxSubdomains
-          : this.contract.records[domain].maxSubdomains
-          ? this.contract.records[domain].maxSubdomains
+        maxUndernames: maxUndernames
+          ? maxUndernames
+          : this.contract.records[domain].maxUndernames
+          ? this.contract.records[domain].maxUndernames
           : 100,
         ttlSeconds: ttlSeconds
           ? ttlSeconds
@@ -78,6 +84,18 @@ export class ANTContract {
       };
     }
   }
+
+  getRecord(name: string): ANTContractDomainRecord {
+    if (typeof this.records[name] == 'string') {
+      return {
+        ttlSeconds: DEFAULT_TTL_SECONDS,
+        transactionId: (this.records[name] as string) ?? '',
+        maxUndernames: DEFAULT_MAX_UNDERNAMES,
+      };
+    }
+    return this.records[name] as ANTContractDomainRecord;
+  }
+
   get balances() {
     return this.contract.balances;
   }

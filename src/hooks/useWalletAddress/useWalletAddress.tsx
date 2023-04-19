@@ -4,7 +4,7 @@ import { useGlobalState } from '../../state/contexts/GlobalState';
 import { ArweaveTransactionID } from '../../types';
 import eventEmitter from '../../utils/events';
 
-export default function useWalletAddress(): {
+export function useWalletAddress(): {
   wallet: any;
   walletAddress: ArweaveTransactionID | undefined;
 } {

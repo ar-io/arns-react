@@ -10,15 +10,21 @@ import {
 import {
   ANTContractJSON,
   ArweaveTransactionID,
+  SmartweaveContractCache,
   TransactionTag,
 } from '../../types';
-import { ArNSContractJSON, SmartweaveDataProvider } from '../../types';
+import {
+  ArNSContractJSON,
+  SmartweaveContractInteractionProvider,
+} from '../../types';
 import { SMARTWEAVE_MAX_TAG_SPACE } from '../../utils/constants';
 import { byteSize } from '../../utils/searchUtils';
 
 LoggerFactory.INST.logLevel('error');
 
-export class WarpDataProvider implements SmartweaveDataProvider {
+export class WarpDataProvider
+  implements SmartweaveContractInteractionProvider, SmartweaveContractCache
+{
   private _warp: Warp;
 
   constructor(arweave: Arweave) {
@@ -32,9 +38,9 @@ export class WarpDataProvider implements SmartweaveDataProvider {
     );
   }
 
-  async getContractState(
+  async getContractState<T extends ANTContractJSON | ArNSContractJSON>(
     id: ArweaveTransactionID,
-  ): Promise<ANTContractJSON | ArNSContractJSON | undefined> {
+  ): Promise<T> {
     const contract = this._warp.contract(id.toString());
     const { cachedValue } = await contract.readState();
 
@@ -42,18 +48,7 @@ export class WarpDataProvider implements SmartweaveDataProvider {
       throw Error('Failed to fetch state from Warp.');
     }
 
-    const state = cachedValue.state as any;
-
-    // TODO: move this validation to separate interface function
-    if (!state.records) {
-      throw Error(
-        `Smartweave contract does not contain required keys.${Object.keys(
-          state,
-        )}`,
-      );
-    }
-
-    return state;
+    return cachedValue.state as T;
   }
 
   async writeTransaction(
@@ -63,33 +58,28 @@ export class WarpDataProvider implements SmartweaveDataProvider {
       [x: string]: any;
     },
   ): Promise<ArweaveTransactionID | undefined> {
-    try {
-      const payloadSize = byteSize(JSON.stringify(payload));
-      if (!payload) {
-        throw Error('Payload cannot be empty.');
-      }
-      if (payloadSize > SMARTWEAVE_MAX_TAG_SPACE) {
-        throw new Error(
-          'Payload too large for tag space, reduce the size of the data in payload.',
-        );
-      }
-      const contract = this._warp.contract(id.toString()).connect('use_wallet');
-      const result = await contract.writeInteraction(payload);
-      // TODO: check for dry write options on writeInteraction
-      if (!result) {
-        throw Error('No result from write interaction');
-      }
-      const { originalTxId } = result;
-
-      if (!originalTxId) {
-        throw Error('No transaction ID from write interaction');
-      }
-
-      return new ArweaveTransactionID(originalTxId);
-    } catch (error) {
-      console.error('Failed to write TX to warp', error);
-      throw error;
+    const payloadSize = byteSize(JSON.stringify(payload));
+    if (!payload) {
+      throw Error('Payload cannot be empty.');
     }
+    if (payloadSize > SMARTWEAVE_MAX_TAG_SPACE) {
+      throw new Error(
+        'Payload too large for tag space, reduce the size of the data in payload.',
+      );
+    }
+    const contract = this._warp.contract(id.toString()).connect('use_wallet');
+    const result = await contract.writeInteraction(payload);
+    // TODO: check for dry write options on writeInteraction
+    if (!result) {
+      throw Error('No result from write interaction');
+    }
+    const { originalTxId } = result;
+
+    if (!originalTxId) {
+      throw Error('No transaction ID from write interaction');
+    }
+
+    return new ArweaveTransactionID(originalTxId);
   }
 
   async getContractBalanceForWallet(
@@ -111,42 +101,37 @@ export class WarpDataProvider implements SmartweaveDataProvider {
   }): Promise<string> {
     const tagSize = byteSize(JSON.stringify(tags));
 
-    try {
-      if (!initialState) {
-        throw new Error('Must have an initial state to deploy a contract');
-      }
-
-      if (tagSize > SMARTWEAVE_MAX_TAG_SPACE) {
-        throw new Error(
-          `tags too large for tag space, must be under ${SMARTWEAVE_MAX_TAG_SPACE} bytes.`,
-        );
-      }
-
-      const deploymentPayload: {
-        wallet: ArWallet;
-        initState: string;
-        srcTxId: string;
-        tags: TransactionTag[];
-      } = {
-        wallet: 'use_wallet',
-        initState: JSON.stringify(initialState),
-        srcTxId: srcCodeTransactionId.toString(),
-        tags: tags,
-      };
-
-      const { contractTxId } = await this._warp.deployFromSourceTx(
-        deploymentPayload,
-        true,
-      );
-
-      if (!contractTxId) {
-        throw new Error('Deploy failed.');
-      }
-
-      return contractTxId;
-    } catch (error: any) {
-      console.error(error);
-      return error;
+    if (!initialState) {
+      throw new Error('Must have an initial state to deploy a contract');
     }
+
+    if (tagSize > SMARTWEAVE_MAX_TAG_SPACE) {
+      throw new Error(
+        `tags too large for tag space, must be under ${SMARTWEAVE_MAX_TAG_SPACE} bytes.`,
+      );
+    }
+
+    const deploymentPayload: {
+      wallet: ArWallet;
+      initState: string;
+      srcTxId: string;
+      tags: TransactionTag[];
+    } = {
+      wallet: 'use_wallet',
+      initState: JSON.stringify(initialState),
+      srcTxId: srcCodeTransactionId.toString(),
+      tags: tags,
+    };
+
+    const { contractTxId } = await this._warp.deployFromSourceTx(
+      deploymentPayload,
+      true,
+    );
+
+    if (!contractTxId) {
+      throw new Error('Deploy failed.');
+    }
+
+    return contractTxId;
   }
 }

@@ -1,12 +1,18 @@
-import { ArweaveTransactionID, SmartweaveDataProvider } from '../../types';
+import {
+  ArweaveTransactionID,
+  SmartweaveContractInteractionProvider,
+} from '../../types';
 import { ANTContract } from './AntContract';
 
 export class ANTInteractionProvider implements ANTInteractionProvider {
-  private _provider: SmartweaveDataProvider;
+  private _provider: SmartweaveContractInteractionProvider;
   contract: ANTContract;
   antId: ArweaveTransactionID;
 
-  constructor(contract: ANTContract, provider: SmartweaveDataProvider) {
+  constructor(
+    contract: ANTContract,
+    provider: SmartweaveContractInteractionProvider,
+  ) {
     if (!contract.id) {
       throw Error(
         'Not allowed to use ANTInteractionProvider without a valid ANT ID.',
@@ -50,8 +56,8 @@ export class ANTInteractionProvider implements ANTInteractionProvider {
       }
       return txId;
     } catch (error) {
-      console.error(error);
-      return;
+      console.debug(error);
+      throw error;
     }
   }
   async setTargetId(id: ArweaveTransactionID) {
@@ -71,8 +77,8 @@ export class ANTInteractionProvider implements ANTInteractionProvider {
       }
       return txId;
     } catch (error) {
-      console.error(error);
-      return;
+      console.debug(error);
+      throw error;
     }
   }
 
@@ -114,8 +120,8 @@ export class ANTInteractionProvider implements ANTInteractionProvider {
       }
       return txId;
     } catch (error) {
-      console.error(error);
-      return;
+      console.debug(error);
+      throw error;
     }
   }
 
@@ -135,8 +141,8 @@ export class ANTInteractionProvider implements ANTInteractionProvider {
       }
       return txId;
     } catch (error) {
-      console.error(error);
-      return;
+      console.debug(error);
+      throw error;
     }
   }
 }
