@@ -260,7 +260,7 @@ export function getSearchParam<T extends { [K in keyof T]: T[K] }>(
 export type ValidSearchParams = 'contractType' | 'interactionType';
 
 // Utility type to extract only the keys of an enum with string values
-type EnumKey<T> = {
+type EnumValue<T> = {
   [K in keyof T]: T[K] extends string ? K : never;
 }[keyof T];
 
@@ -268,14 +268,15 @@ type EnumKey<T> = {
 function getEnumValue<T extends { [K in keyof T]: T[K] }>(
   enumType: T,
   value?: string,
-): EnumKey<T> | null {
+): EnumValue<T> | null {
   const enumKeys = Object.keys(enumType).filter((key) =>
     isNaN(Number(key)),
-  ) as EnumKey<T>[];
+  ) as EnumValue<T>[];
 
   for (const key of enumKeys) {
-    if (enumType[key] === value) {
-      return key;
+    const valueInEnum = enumType[key];
+    if (valueInEnum === value) {
+      return valueInEnum;
     }
   }
 
