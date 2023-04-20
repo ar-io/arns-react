@@ -1,60 +1,15 @@
-import { useEffect } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
 
 import { useTransactionData } from '../../../hooks';
-import { useTransactionState } from '../../../state/contexts/TransactionState';
-import {
-  AntInteraction,
-  ContractType,
-  RegistryInteraction,
-  TransactionData,
-} from '../../../types';
-import { Loader } from '../../layout';
 import TransactionWorkflow from '../../layout/TransactionWorkflow/TransactionWorkflow';
 
 function Transaction() {
-  const [
-    { contractType, interactionType, transactionData, workflowStage },
-    dispatchTransactionState,
-  ] = useTransactionState();
-  const { URLContractType, URLInteractionType, URLTransactionData } =
+  const { transactionData, contractType, interactionType, workflowStage } =
     useTransactionData();
+  const from = useLocation().state;
 
-  useEffect(() => {
-    if (URLTransactionData !== transactionData) {
-      dispatchTransactionState({
-        type: 'setTransactionData',
-        payload: URLTransactionData as TransactionData,
-      });
-    }
-    if (URLContractType !== contractType) {
-      dispatchTransactionState({
-        type: 'setContractType',
-        payload: URLContractType as ContractType,
-      });
-    }
-    if (URLInteractionType !== interactionType) {
-      dispatchTransactionState({
-        type: 'setInteractionType',
-        payload: URLInteractionType as AntInteraction | RegistryInteraction,
-      });
-    }
-  }, [URLContractType, URLInteractionType, URLTransactionData]);
-
-  if (
-    !transactionData ||
-    Object.keys(transactionData).includes('contractTxId')
-  ) {
-    return (
-      <div
-        className="page flex-column flex-center"
-        style={{ height: '100%', width: '100%', boxSizing: 'border-box' }}
-      >
-        <div className="flex flex-row text-large white bold center">
-          Loading Transaction Details
-        </div>
-        <Loader size={200} />
-      </div>
-    );
+  if (!transactionData) {
+    return <Navigate to={from ?? '/'} />;
   }
 
   return (
