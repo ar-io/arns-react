@@ -2,12 +2,10 @@ import { Dispatch, createContext, useContext, useReducer } from 'react';
 
 import { TRANSACTION_WORKFLOW_STATUS } from '../../components/layout/TransactionWorkflow/TransactionWorkflow';
 import {
-  AntInteraction,
   ArweaveTransactionID,
   CONTRACT_TYPES,
-  ContractType,
-  REGISTRY_INTERACTION_TYPES,
-  RegistryInteraction,
+  INTERACTION_TYPES,
+  InteractionTypeName,
   TransactionData,
 } from '../../types';
 import {
@@ -19,8 +17,8 @@ import { TransactionAction } from '../reducers/TransactionReducer';
 export type TransactionState = {
   deployedTransactionId?: ArweaveTransactionID;
   transactionData: Partial<TransactionData>; // data that will be used to perform the transaction.
-  contractType: ContractType;
-  interactionType: AntInteraction | RegistryInteraction;
+  contractType: CONTRACT_TYPES;
+  interactionType: InteractionTypeName;
   workflowStage: TRANSACTION_WORKFLOW_STATUS;
 };
 
@@ -39,7 +37,7 @@ export const initialTransactionState: TransactionState = {
     tierNumber: 1,
   },
   contractType: CONTRACT_TYPES.REGISTRY,
-  interactionType: REGISTRY_INTERACTION_TYPES.BUY_RECORD,
+  interactionType: INTERACTION_TYPES.BUY_RECORD,
   workflowStage: TRANSACTION_WORKFLOW_STATUS.PENDING, // confirm deploy complete,
 };
 

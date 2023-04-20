@@ -1,9 +1,8 @@
 import { TRANSACTION_WORKFLOW_STATUS } from '../../components/layout/TransactionWorkflow/TransactionWorkflow';
 import {
-  AntInteraction,
   ArweaveTransactionID,
-  ContractType,
-  RegistryInteraction,
+  CONTRACT_TYPES,
+  InteractionTypeName,
   TransactionData,
 } from '../../types';
 import {
@@ -18,10 +17,10 @@ export type TransactionAction =
     }
   | { type: 'setTransactionData'; payload: TransactionData }
   | { type: 'setDeployedTransactionId'; payload: ArweaveTransactionID }
-  | { type: 'setContractType'; payload: ContractType }
+  | { type: 'setContractType'; payload: CONTRACT_TYPES }
   | {
       type: 'setInteractionType';
-      payload: AntInteraction | RegistryInteraction;
+      payload: InteractionTypeName;
     }
   | { type: 'reset' };
 

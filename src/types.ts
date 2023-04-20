@@ -236,14 +236,58 @@ export enum ASSET_TYPES {
   UNDERNAME = 'Undername',
   COIN = 'coin',
 }
-export enum REGISTRY_INTERACTION_TYPES {
-  BUY_RECORD = 'Buy ArNS Name', //permabuy
+
+export enum INTERACTION_TYPES {
+  // Registry interaction types
+  BUY_RECORD = 'Buy ArNS Name',
   EXTEND_LEASE = 'Extend Lease',
   UPGRADE_TIER = 'Upgrade Tier',
-  TRANSFER = 'Transfer IO Tokens',
+
+  // ANT interaction types
+  SET_CONTROLLER = 'Edit Controller',
+  SET_TICKER = 'Edit Ticker',
+  SET_NAME = 'Edit Name',
+  SET_RECORD = 'Edit Record',
+  REMOVE_RECORD = 'Delete Record',
+  CREATE = 'Create Arweave Name Token',
+
+  // Common interaction types
+  TRANSFER = 'Transfer',
   BALANCE = 'Balance',
   UNKNOWN = 'Unknown',
 }
+
+const commonInteractionTypeNames = [
+  INTERACTION_TYPES.TRANSFER,
+  INTERACTION_TYPES.BALANCE,
+] as const;
+const unknownInteractionTypeName = INTERACTION_TYPES.UNKNOWN as const;
+export const antInteractionTypeNames = [
+  ...commonInteractionTypeNames,
+  INTERACTION_TYPES.SET_CONTROLLER,
+  INTERACTION_TYPES.SET_TICKER,
+  INTERACTION_TYPES.SET_NAME,
+  INTERACTION_TYPES.SET_RECORD,
+  INTERACTION_TYPES.REMOVE_RECORD,
+  INTERACTION_TYPES.CREATE,
+] as const;
+export const registryInteractionTypeNames = [
+  ...commonInteractionTypeNames,
+  INTERACTION_TYPES.BUY_RECORD,
+  INTERACTION_TYPES.EXTEND_LEASE,
+  INTERACTION_TYPES.UPGRADE_TIER,
+] as const;
+
+export type AntInteractionTypeName = (typeof antInteractionTypeNames)[number];
+export type RegistryInteractionTypeName =
+  (typeof registryInteractionTypeNames)[number];
+export type UnknownInteractionTypeName = typeof unknownInteractionTypeName;
+export type ValidInteractionTypeName =
+  | AntInteractionTypeName
+  | RegistryInteractionTypeName;
+export type InteractionTypeName =
+  | ValidInteractionTypeName
+  | UnknownInteractionTypeName;
 
 export type TransactionDataBasePayload = {
   assetId: string;
@@ -303,24 +347,7 @@ export type CreateAntPayload = {
 };
 // end ant transaction payload types
 
-export enum ANT_INTERACTION_TYPES {
-  SET_CONTROLLER = 'Edit Controller',
-  SET_TICKER = 'Edit Ticker',
-  SET_NAME = 'Edit Name',
-  SET_RECORD = 'Edit Record',
-  REMOVE_RECORD = 'Delete Record',
-  TRANSFER = 'Transfer',
-  BALANCE = 'Balance',
-  CREATE = 'Create Arweave Name Token',
-  UNKNOWN = 'Unknown',
-}
-
-export type ContractType = (typeof CONTRACT_TYPES)[keyof typeof CONTRACT_TYPES];
-
-export type AntInteraction =
-  (typeof ANT_INTERACTION_TYPES)[keyof typeof ANT_INTERACTION_TYPES];
-export type RegistryInteraction =
-  (typeof REGISTRY_INTERACTION_TYPES)[keyof typeof REGISTRY_INTERACTION_TYPES];
+export type ValidContractType = 'ANT' | 'REGISTRY';
 
 export const ALL_TRANSACTION_DATA_KEYS = [
   'assetId',
@@ -345,19 +372,6 @@ export type TransactionDataPayload<Payload> = {
   [Property in keyof Payload]: Payload[Property];
 } & TransactionDataBasePayload;
 
-// export type TransactionData = TransactionDataPayload<
-//   | BuyRecordPayload
-//   | ExtendLeasePayload
-//   | UpgradeTierPayload
-//   | TransferIOPayload
-//   | SetTickerPayload
-//   | SetControllerPayload
-//   | SetNamePayload
-//   | SetRecordPayload
-//   | RemoveRecordPayload
-//   | TransferAntPayload
-//   | CreateAntPayload
-// >;
 export type TransactionData = {
   assetId: string;
   functionName: string;
@@ -379,10 +393,10 @@ export type TransactionDataConfig = { functionName: string; keys: string[] };
 export const TRANSACTION_DATA_KEYS: {
   // specifying interaction types to the correct contract type, to ensure clarity and to prevent crossover of interaction types
   [CONTRACT_TYPES.ANT]: {
-    [K in Exclude<AntInteraction, 'Unknown'>]: TransactionDataConfig;
+    [K in AntInteractionTypeName]: TransactionDataConfig;
   };
   [CONTRACT_TYPES.REGISTRY]: {
-    [K in Exclude<RegistryInteraction, 'Unknown'>]: TransactionDataConfig;
+    [K in RegistryInteractionTypeName]: TransactionDataConfig;
   };
   /**
    NOTE: benefit of this setup, is that if a new type is added to an enum like ANT_INTERACTION_TYPES, 
@@ -390,57 +404,57 @@ export const TRANSACTION_DATA_KEYS: {
    */
 } = {
   [CONTRACT_TYPES.REGISTRY]: {
-    [REGISTRY_INTERACTION_TYPES.BUY_RECORD]: {
+    [INTERACTION_TYPES.BUY_RECORD]: {
       functionName: 'buyRecord',
       keys: ['name', 'contractTxId', 'years', 'tierNumber'],
     },
-    [REGISTRY_INTERACTION_TYPES.EXTEND_LEASE]: {
+    [INTERACTION_TYPES.EXTEND_LEASE]: {
       functionName: 'extendLease',
       keys: ['name', 'years'],
     },
-    [REGISTRY_INTERACTION_TYPES.UPGRADE_TIER]: {
+    [INTERACTION_TYPES.UPGRADE_TIER]: {
       functionName: 'upgradeTier',
       keys: ['name', 'tierNumber'],
     },
-    [REGISTRY_INTERACTION_TYPES.TRANSFER]: {
+    [INTERACTION_TYPES.TRANSFER]: {
       functionName: 'transfer',
       keys: ['target', 'qty'],
     }, // transfer io tokens
-    [REGISTRY_INTERACTION_TYPES.BALANCE]: {
+    [INTERACTION_TYPES.BALANCE]: {
       functionName: 'getBalance',
       keys: ['target'],
     },
   },
   [CONTRACT_TYPES.ANT]: {
-    [ANT_INTERACTION_TYPES.SET_TICKER]: {
+    [INTERACTION_TYPES.SET_TICKER]: {
       functionName: 'setTicker',
       keys: ['ticker'],
     },
-    [ANT_INTERACTION_TYPES.SET_CONTROLLER]: {
+    [INTERACTION_TYPES.SET_CONTROLLER]: {
       functionName: 'setController',
       keys: ['target'],
     },
-    [ANT_INTERACTION_TYPES.SET_NAME]: {
+    [INTERACTION_TYPES.SET_NAME]: {
       functionName: 'setName',
       keys: ['name'],
     },
-    [ANT_INTERACTION_TYPES.SET_RECORD]: {
+    [INTERACTION_TYPES.SET_RECORD]: {
       functionName: 'setRecord',
       keys: ['subDomain', 'transactionId', 'ttlSeconds'],
     },
-    [ANT_INTERACTION_TYPES.REMOVE_RECORD]: {
+    [INTERACTION_TYPES.REMOVE_RECORD]: {
       functionName: 'removeRecord',
       keys: ['subDomain'],
     },
-    [ANT_INTERACTION_TYPES.TRANSFER]: {
+    [INTERACTION_TYPES.TRANSFER]: {
       functionName: 'transfer',
       keys: ['target'],
     },
-    [ANT_INTERACTION_TYPES.BALANCE]: {
+    [INTERACTION_TYPES.BALANCE]: {
       functionName: 'balance',
       keys: ['target'],
     },
-    [ANT_INTERACTION_TYPES.CREATE]: {
+    [INTERACTION_TYPES.CREATE]: {
       functionName: '',
       keys: ['srcCodeTransactionId', 'initialState', 'tags'],
     },

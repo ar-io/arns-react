@@ -2,14 +2,18 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import {
-  ANT_INTERACTION_TYPES,
-  AntInteraction,
+  AntInteractionTypeName,
   CONTRACT_TYPES,
-  ContractType,
-  REGISTRY_INTERACTION_TYPES,
-  RegistryInteraction,
+  INTERACTION_TYPES,
+  InteractionTypeName,
+  RegistryInteractionTypeName,
 } from '../../types';
-import { getTransactionPayloadByInteractionType } from '../../utils/searchUtils';
+import {
+  getSearchParam,
+  getTransactionPayloadByInteractionType,
+  isAntInteraction,
+  isRegistryInteraction,
+} from '../../utils/searchUtils';
 
 function useTransactionData() {
   const [searchParams] = useSearchParams();
@@ -19,45 +23,39 @@ function useTransactionData() {
   const [URLAssetId, setURLAssetId] = useState<string>(
     () => searchParams.get('assetId') ?? '',
   );
-  const [URLContractType, setURLContractType] = useState<ContractType>(() => {
-    const contractType = searchParams.get('contractType') ?? '';
-    const upperCaseContractType = contractType.toUpperCase();
-    if (Object.keys(CONTRACT_TYPES).includes(upperCaseContractType)) {
-      const k = upperCaseContractType as keyof typeof CONTRACT_TYPES;
-      return CONTRACT_TYPES[k];
-    } else {
-      return CONTRACT_TYPES.UNKNOWN;
-    }
+  const [URLContractType, setURLContractType] = useState<CONTRACT_TYPES>(() => {
+    return getSearchParam<CONTRACT_TYPES>(searchParams, 'contractType');
   });
-  const [URLInteractionType, setURLInteractionType] = useState<
-    AntInteraction | RegistryInteraction
-  >(() => {
-    const interactionType = searchParams.get('interactionType') ?? '';
-    const upperCaseInteractionType = interactionType.toUpperCase();
-    if (Object.keys(ANT_INTERACTION_TYPES).includes(upperCaseInteractionType)) {
-      const k = upperCaseInteractionType as keyof typeof ANT_INTERACTION_TYPES;
-      return ANT_INTERACTION_TYPES[k];
-    } else if (
-      Object.keys(REGISTRY_INTERACTION_TYPES).includes(upperCaseInteractionType)
-    ) {
-      const k =
-        upperCaseInteractionType as keyof typeof REGISTRY_INTERACTION_TYPES;
-      return REGISTRY_INTERACTION_TYPES[k];
-    } else {
-      return ANT_INTERACTION_TYPES.UNKNOWN;
-    }
-  });
+  const [URLInteractionType, setURLInteractionType] =
+    useState<InteractionTypeName>(() => {
+      const interactionType = getSearchParam<INTERACTION_TYPES>(
+        searchParams,
+        'interactionType',
+      );
+
+      if (isAntInteraction(interactionType)) {
+        return interactionType as AntInteractionTypeName;
+      } else if (isRegistryInteraction(interactionType)) {
+        return interactionType as RegistryInteractionTypeName;
+      } else {
+        return INTERACTION_TYPES.UNKNOWN;
+      }
+    });
 
   useEffect(() => {
     const newURLAssetId = searchParams.get('assetId');
-    const newURLContractType = searchParams.get('contractType');
-    const newURLInteractionType = searchParams.get('interactionType');
+    const newURLContractType = getSearchParam<CONTRACT_TYPES>(
+      searchParams,
+      'contractType',
+    );
+    const newURLInteractionType = getSearchParam<InteractionTypeName>(
+      searchParams,
+      'interactionType',
+    );
     const newURLTransactionData = searchParams.getAll('data');
     setURLAssetId(newURLAssetId!);
-    setURLContractType(newURLContractType as ContractType);
-    setURLInteractionType(
-      newURLInteractionType as AntInteraction | RegistryInteraction,
-    );
+    setURLContractType(newURLContractType);
+    setURLInteractionType(newURLInteractionType);
 
     if (newURLTransactionData) {
       const payload = getTransactionPayloadByInteractionType(

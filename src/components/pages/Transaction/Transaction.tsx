@@ -3,10 +3,9 @@ import { useEffect } from 'react';
 import { useTransactionData } from '../../../hooks';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
-  AntInteraction,
-  ContractType,
-  RegistryInteraction,
+  CONTRACT_TYPES,
   TransactionData,
+  ValidInteractionTypeName,
 } from '../../../types';
 import { Loader } from '../../layout';
 import TransactionWorkflow from '../../layout/TransactionWorkflow/TransactionWorkflow';
@@ -29,13 +28,13 @@ function Transaction() {
     if (URLContractType !== contractType) {
       dispatchTransactionState({
         type: 'setContractType',
-        payload: URLContractType as ContractType,
+        payload: URLContractType as CONTRACT_TYPES,
       });
     }
     if (URLInteractionType !== interactionType) {
       dispatchTransactionState({
         type: 'setInteractionType',
-        payload: URLInteractionType as AntInteraction | RegistryInteraction,
+        payload: URLInteractionType as ValidInteractionTypeName,
       });
     }
   }, [URLContractType, URLInteractionType, URLTransactionData]);

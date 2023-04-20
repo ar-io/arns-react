@@ -1,15 +1,16 @@
 import { Buffer } from 'buffer';
 
 import {
-  ANT_INTERACTION_TYPES,
-  AntInteraction,
+  AntInteractionTypeName,
   ArNSRecordEntry,
   CONTRACT_TYPES,
-  ContractType,
-  REGISTRY_INTERACTION_TYPES,
-  RegistryInteraction,
+  INTERACTION_TYPES,
+  InteractionTypeName,
+  RegistryInteractionTypeName,
   TRANSACTION_DATA_KEYS,
   TransactionTag,
+  antInteractionTypeNames,
+  registryInteractionTypeNames,
 } from '../types';
 import { ARNS_NAME_REGEX, ARNS_TX_ID_REGEX } from './constants';
 import { fromB64Url } from './encodings';
@@ -77,15 +78,17 @@ export function isArweaveTransactionID(id: string) {
   return true;
 }
 
-export function isAntInteraction(x: any): x is AntInteraction {
-  return Object.values(ANT_INTERACTION_TYPES).includes(x);
+export function isAntInteraction(x: any): x is AntInteractionTypeName {
+  return antInteractionTypeNames.includes(x);
 }
 
-export function isRegistryInteraction(x: any): x is RegistryInteraction {
-  return Object.values(REGISTRY_INTERACTION_TYPES).includes(x);
+export function isRegistryInteraction(
+  x: any,
+): x is RegistryInteractionTypeName {
+  return registryInteractionTypeNames.includes(x);
 }
 
-export function isContractType(x: any): x is ContractType {
+export function isContractType(x: any): x is CONTRACT_TYPES {
   return Object.values(CONTRACT_TYPES).includes(x);
 }
 
@@ -94,23 +97,11 @@ export function isInteractionCompatible({
   interactionType,
   functionName,
 }: {
-  contractType: ContractType;
-  interactionType: AntInteraction | RegistryInteraction;
+  contractType: CONTRACT_TYPES;
+  interactionType: InteractionTypeName;
   functionName: string;
 }) {
   try {
-    if (contractType === CONTRACT_TYPES.UNKNOWN) {
-      throw new Error(`contract type of ${contractType} is not compatible`);
-    }
-    if (
-      interactionType === ANT_INTERACTION_TYPES.UNKNOWN ||
-      interactionType === REGISTRY_INTERACTION_TYPES.UNKNOWN
-    ) {
-      throw new Error(
-        `interaction type of ${interactionType} is not compatible`,
-      );
-    }
-
     if (
       (contractType === CONTRACT_TYPES.ANT &&
         !isAntInteraction(interactionType)) ||
@@ -125,8 +116,9 @@ export function isInteractionCompatible({
       contractType === CONTRACT_TYPES.ANT &&
       isAntInteraction(interactionType)
     ) {
+      const interactionAsAnt = interactionType as AntInteractionTypeName;
       if (
-        TRANSACTION_DATA_KEYS[contractType][interactionType].functionName !==
+        TRANSACTION_DATA_KEYS[contractType][interactionAsAnt].functionName !==
         functionName
       ) {
         throw new Error(
@@ -154,23 +146,11 @@ export function isInteractionCompatible({
 }
 
 export function getTransactionPayloadByInteractionType(
-  contractType: ContractType,
-  interactionType: AntInteraction | RegistryInteraction,
+  contractType: CONTRACT_TYPES,
+  interactionType: InteractionTypeName,
   data: string | string[],
 ) {
   try {
-    if (contractType === CONTRACT_TYPES.UNKNOWN) {
-      throw new Error(`contract type of ${contractType} is not compatible`);
-    }
-    if (
-      interactionType === ANT_INTERACTION_TYPES.UNKNOWN ||
-      interactionType === REGISTRY_INTERACTION_TYPES.UNKNOWN
-    ) {
-      throw new Error(
-        `interaction type of ${interactionType} is not compatible`,
-      );
-    }
-
     const payload: { [x: string]: any } = {};
     const txData = typeof data === 'string' ? [data] : [...data];
 
@@ -251,4 +231,53 @@ export function tagsToObject(tags: TransactionTag[]): {
 
 export function byteSize(data: string): number {
   return Buffer.byteLength(data);
+}
+
+export function getSearchParam<T extends { [K in keyof T]: T[K] }>(
+  searchParams: URLSearchParams,
+  name: ValidSearchParams,
+): T {
+  const value = searchParams.get(name) ?? undefined;
+  switch (name) {
+    case 'contractType': {
+      const maybeEnumValue = getEnumValue(CONTRACT_TYPES, value);
+      const enumKey = (maybeEnumValue ??
+        INTERACTION_TYPES.UNKNOWN) as T[keyof T];
+      return CONTRACT_TYPES[enumKey];
+    }
+    case 'interactionType': {
+      const maybeEnumValue = getEnumValue(INTERACTION_TYPES, value);
+      const enumValue = (maybeEnumValue ??
+        INTERACTION_TYPES.UNKNOWN) as T[keyof T];
+      return enumValue;
+    }
+    default: {
+      throw new Error(`Invalid search param name: ${name}`);
+    }
+  }
+}
+
+export type ValidSearchParams = 'contractType' | 'interactionType';
+
+// Utility type to extract only the keys of an enum with string values
+type EnumKey<T> = {
+  [K in keyof T]: T[K] extends string ? K : never;
+}[keyof T];
+
+// Generic function to map string value to a specific enum
+function getEnumValue<T extends { [K in keyof T]: T[K] }>(
+  enumType: T,
+  value?: string,
+): EnumKey<T> | null {
+  const enumKeys = Object.keys(enumType).filter((key) =>
+    isNaN(Number(key)),
+  ) as EnumKey<T>[];
+
+  for (const key of enumKeys) {
+    if (enumType[key] === value) {
+      return key;
+    }
+  }
+
+  return null;
 }

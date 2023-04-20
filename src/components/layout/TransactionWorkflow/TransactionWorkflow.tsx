@@ -4,13 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
-  ANT_INTERACTION_TYPES,
-  AntInteraction,
   ArweaveTransactionID,
   CONTRACT_TYPES,
-  ContractType,
-  REGISTRY_INTERACTION_TYPES,
-  RegistryInteraction,
+  INTERACTION_TYPES,
+  InteractionTypeName,
   TransactionData,
 } from '../../../types';
 import { AntCard } from '../../cards';
@@ -30,8 +27,8 @@ function TransactionWorkflow({
   transactionData,
   workflowStage,
 }: {
-  contractType: ContractType;
-  interactionType: AntInteraction | RegistryInteraction;
+  contractType: CONTRACT_TYPES;
+  interactionType: InteractionTypeName;
   transactionData: Partial<TransactionData>;
   workflowStage: TRANSACTION_WORKFLOW_STATUS;
 }) {
@@ -139,35 +136,35 @@ function TransactionWorkflow({
     contractType,
     interactionType,
   }: {
-    contractType: ContractType;
-    interactionType: AntInteraction | RegistryInteraction;
+    contractType: CONTRACT_TYPES;
+    interactionType: InteractionTypeName;
   }): { [x: string]: { title: string; status: string } } {
     try {
       switch (contractType) {
         case CONTRACT_TYPES.REGISTRY:
           switch (interactionType) {
-            case REGISTRY_INTERACTION_TYPES.BUY_RECORD: {
+            case INTERACTION_TYPES.BUY_RECORD: {
               return {
                 1: { title: 'Confirm Registration', status: 'pending' },
                 2: { title: 'Deploy Registration', status: '' },
                 3: { title: 'Complete', status: '' },
               };
             }
-            case REGISTRY_INTERACTION_TYPES.EXTEND_LEASE: {
+            case INTERACTION_TYPES.EXTEND_LEASE: {
               return {
                 1: { title: 'Confirm Extension', status: 'pending' },
                 2: { title: 'Deploy Extension', status: '' },
                 3: { title: 'Complete', status: '' },
               };
             }
-            case REGISTRY_INTERACTION_TYPES.TRANSFER: {
+            case INTERACTION_TYPES.TRANSFER: {
               return {
                 1: { title: 'Confirm IO Transfer', status: 'pending' },
                 2: { title: 'Deploy Transfer', status: '' },
                 3: { title: 'Complete', status: '' },
               };
             }
-            case REGISTRY_INTERACTION_TYPES.UPGRADE_TIER: {
+            case INTERACTION_TYPES.UPGRADE_TIER: {
               return {
                 1: { title: 'Confirm Tier', status: 'pending' },
                 2: { title: 'Deploy Tier Upgrade', status: '' },
@@ -179,42 +176,42 @@ function TransactionWorkflow({
           }
         case CONTRACT_TYPES.ANT:
           switch (interactionType) {
-            case ANT_INTERACTION_TYPES.REMOVE_RECORD: {
+            case INTERACTION_TYPES.REMOVE_RECORD: {
               return {
                 1: { title: 'Confirm Removal', status: 'pending' },
                 2: { title: 'Deploy Removal', status: '' },
                 3: { title: 'Complete', status: '' },
               };
             }
-            case ANT_INTERACTION_TYPES.SET_CONTROLLER: {
+            case INTERACTION_TYPES.SET_CONTROLLER: {
               return {
                 1: { title: 'Confirm Controller', status: 'pending' },
                 2: { title: 'Deploy Controller', status: '' },
                 3: { title: 'Complete', status: '' },
               };
             }
-            case ANT_INTERACTION_TYPES.SET_NAME: {
+            case INTERACTION_TYPES.SET_NAME: {
               return {
                 1: { title: 'Confirm ANT Name', status: 'pending' },
                 2: { title: 'Deploy Name Change', status: '' },
                 3: { title: 'Complete', status: '' },
               };
             }
-            case ANT_INTERACTION_TYPES.SET_RECORD: {
+            case INTERACTION_TYPES.SET_RECORD: {
               return {
                 1: { title: 'Confirm Undername Details', status: 'pending' },
                 2: { title: 'Deploy Undername', status: '' },
                 3: { title: 'Complete', status: '' },
               };
             }
-            case ANT_INTERACTION_TYPES.SET_TICKER: {
+            case INTERACTION_TYPES.SET_TICKER: {
               return {
                 1: { title: 'Confirm Ticker', status: 'pending' },
                 2: { title: 'Deploy Ticker Change', status: '' },
                 3: { title: 'Complete', status: '' },
               };
             }
-            case ANT_INTERACTION_TYPES.TRANSFER: {
+            case INTERACTION_TYPES.TRANSFER: {
               return {
                 1: { title: 'Confirm Transfer', status: 'pending' },
                 2: { title: 'Deploy Transfer', status: '' },
@@ -241,14 +238,14 @@ function TransactionWorkflow({
     contractType,
     interactionType,
   }: {
-    contractType: ContractType;
-    interactionType: AntInteraction | RegistryInteraction;
+    contractType: CONTRACT_TYPES;
+    interactionType: InteractionTypeName;
   }): { [x: string]: WorkflowStage } | undefined {
     try {
       switch (contractType) {
         case CONTRACT_TYPES.ANT: {
           switch (interactionType) {
-            case ANT_INTERACTION_TYPES.CREATE: {
+            case INTERACTION_TYPES.CREATE: {
               return {
                 pending: {
                   component: (
@@ -295,7 +292,7 @@ function TransactionWorkflow({
 
         case CONTRACT_TYPES.REGISTRY: {
           switch (interactionType) {
-            case REGISTRY_INTERACTION_TYPES.BUY_RECORD: {
+            case INTERACTION_TYPES.BUY_RECORD: {
               return {
                 pending: {
                   component: (

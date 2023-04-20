@@ -3,12 +3,13 @@ import { useState } from 'react';
 import { useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
-  ANT_INTERACTION_TYPES,
   AntMetadata,
   ArNSRecordEntry,
   ArweaveTransactionID,
+  INTERACTION_TYPES,
   TRANSACTION_TYPES,
   VALIDATION_INPUT_TYPES,
+  ValidInteractionTypeName,
 } from '../../../types';
 import { AlertTriangleIcon, CloseIcon } from '../../icons';
 import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
@@ -26,7 +27,7 @@ function TransactionModal({
 }: {
   // main control for how the modal is built
   transactionType: TRANSACTION_TYPES;
-  interactionType?: ANT_INTERACTION_TYPES;
+  interactionType?: ValidInteractionTypeName;
   state?: AntMetadata;
   contractId?: ArweaveTransactionID; // contract ID if asset type is a contract interaction
   showModal: () => void;
@@ -123,7 +124,7 @@ function TransactionModal({
             </button>
           </div>
           {/** modal body - condition render edit or transfer */}
-          {interactionType === ANT_INTERACTION_TYPES.TRANSFER ? (
+          {interactionType === INTERACTION_TYPES.TRANSFER ? (
             <div
               className="flex flex-column"
               style={{

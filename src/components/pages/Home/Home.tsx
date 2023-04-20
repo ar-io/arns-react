@@ -11,7 +11,7 @@ import { useRegistrationState } from '../../../state/contexts/RegistrationState'
 import {
   ArweaveTransactionID,
   CONTRACT_TYPES,
-  REGISTRY_INTERACTION_TYPES,
+  INTERACTION_TYPES,
 } from '../../../types';
 import {
   ARNS_REGISTRY_ADDRESS,
@@ -94,7 +94,7 @@ function Home() {
                 const searchParameters = createSearchParams({
                   data: [domain!, antID!.toString(), '1', '1'],
                   contractType: CONTRACT_TYPES.REGISTRY,
-                  interactionType: REGISTRY_INTERACTION_TYPES.BUY_RECORD,
+                  interactionType: INTERACTION_TYPES.BUY_RECORD,
                   assetId: ARNS_REGISTRY_ADDRESS,
                 });
                 navigate(`/transaction?${searchParameters}`);
