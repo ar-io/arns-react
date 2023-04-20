@@ -1,7 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-import { AntInteraction, ContractType, RegistryInteraction } from '../../types';
+import {
+  ANT_INTERACTION_TYPES,
+  AntInteraction,
+  CONTRACT_TYPES,
+  ContractType,
+  REGISTRY_INTERACTION_TYPES,
+  RegistryInteraction,
+} from '../../types';
 import { getTransactionPayloadByInteractionType } from '../../utils/searchUtils';
 
 function useTransactionData() {
@@ -12,18 +19,34 @@ function useTransactionData() {
   const [URLAssetId, setURLAssetId] = useState<string>(
     () => searchParams.get('assetId') ?? '',
   );
-  const [URLContractType, setURLContractType] = useState<ContractType>(
-    () =>
-      (searchParams.get('contractType') as ContractType) ??
-      ('' as ContractType),
-  );
+  const [URLContractType, setURLContractType] = useState<ContractType>(() => {
+    const contractType = searchParams.get('contractType') ?? '';
+    const upperCaseContractType = contractType.toUpperCase();
+    if (Object.keys(CONTRACT_TYPES).includes(upperCaseContractType)) {
+      const k = upperCaseContractType as keyof typeof CONTRACT_TYPES;
+      return CONTRACT_TYPES[k];
+    } else {
+      return CONTRACT_TYPES.UNKNOWN;
+    }
+  });
   const [URLInteractionType, setURLInteractionType] = useState<
     AntInteraction | RegistryInteraction
-  >(
-    (searchParams.get('interactionType') as
-      | AntInteraction
-      | RegistryInteraction) ?? ('' as AntInteraction | RegistryInteraction),
-  );
+  >(() => {
+    const interactionType = searchParams.get('interactionType') ?? '';
+    const upperCaseInteractionType = interactionType.toUpperCase();
+    if (Object.keys(ANT_INTERACTION_TYPES).includes(upperCaseInteractionType)) {
+      const k = upperCaseInteractionType as keyof typeof ANT_INTERACTION_TYPES;
+      return ANT_INTERACTION_TYPES[k];
+    } else if (
+      Object.keys(REGISTRY_INTERACTION_TYPES).includes(upperCaseInteractionType)
+    ) {
+      const k =
+        upperCaseInteractionType as keyof typeof REGISTRY_INTERACTION_TYPES;
+      return REGISTRY_INTERACTION_TYPES[k];
+    } else {
+      return ANT_INTERACTION_TYPES.UNKNOWN;
+    }
+  });
 
   useEffect(() => {
     const newURLAssetId = searchParams.get('assetId');

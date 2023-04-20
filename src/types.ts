@@ -227,6 +227,7 @@ export enum TRANSACTION_TYPES {
 export enum CONTRACT_TYPES {
   REGISTRY = 'ArNS Registry',
   ANT = 'Arweave Name Token',
+  UNKNOWN = 'Unknown',
 }
 
 export enum ASSET_TYPES {
@@ -241,6 +242,7 @@ export enum REGISTRY_INTERACTION_TYPES {
   UPGRADE_TIER = 'Upgrade Tier',
   TRANSFER = 'Transfer IO Tokens',
   BALANCE = 'Balance',
+  UNKNOWN = 'Unknown',
 }
 
 export type TransactionDataBasePayload = {
@@ -310,6 +312,7 @@ export enum ANT_INTERACTION_TYPES {
   TRANSFER = 'Transfer',
   BALANCE = 'Balance',
   CREATE = 'Create Arweave Name Token',
+  UNKNOWN = 'Unknown',
 }
 
 export type ContractType = (typeof CONTRACT_TYPES)[keyof typeof CONTRACT_TYPES];
@@ -376,10 +379,10 @@ export type TransactionDataConfig = { functionName: string; keys: string[] };
 export const TRANSACTION_DATA_KEYS: {
   // specifying interaction types to the correct contract type, to ensure clarity and to prevent crossover of interaction types
   [CONTRACT_TYPES.ANT]: {
-    [K in AntInteraction]: TransactionDataConfig;
+    [K in Exclude<AntInteraction, 'Unknown'>]: TransactionDataConfig;
   };
   [CONTRACT_TYPES.REGISTRY]: {
-    [K in RegistryInteraction]: TransactionDataConfig;
+    [K in Exclude<RegistryInteraction, 'Unknown'>]: TransactionDataConfig;
   };
   /**
    NOTE: benefit of this setup, is that if a new type is added to an enum like ANT_INTERACTION_TYPES, 
