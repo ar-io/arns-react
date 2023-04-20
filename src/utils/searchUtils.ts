@@ -9,6 +9,7 @@ import {
   REGISTRY_INTERACTION_TYPES,
   RegistryInteraction,
   TRANSACTION_DATA_KEYS,
+  TransactionDataPayload,
   TransactionTag,
 } from '../types';
 import { ARNS_NAME_REGEX, ARNS_TX_ID_REGEX } from './constants';
@@ -87,6 +88,12 @@ export function isRegistryInteraction(x: any): x is RegistryInteraction {
 
 export function isContractType(x: any): x is ContractType {
   return Object.values(CONTRACT_TYPES).includes(x);
+}
+
+export function isObjectOfTransactionPayloadType<
+  T extends TransactionDataPayload,
+>(x: Record<string, unknown>, requiredKeys: string[]): x is T {
+  return requiredKeys.every((k) => Object.keys(x).includes(k));
 }
 
 export function isInteractionCompatible({

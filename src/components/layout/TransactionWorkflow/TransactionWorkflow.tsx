@@ -13,9 +13,10 @@ import {
   CreateAntPayload,
   REGISTRY_INTERACTION_TYPES,
   RegistryInteraction,
+  TRANSACTION_DATA_KEYS,
   TransactionData,
-  TransactionDataPayload,
 } from '../../../types';
+import { isObjectOfTransactionPayloadType } from '../../../utils/searchUtils';
 import { AntCard } from '../../cards';
 import DeployTransaction from '../DeployTransaction/DeployTransaction';
 import TransactionComplete from '../TransactionComplete/TransactionComplete';
@@ -28,17 +29,6 @@ export enum TRANSACTION_WORKFLOW_STATUS {
   FAILED = 'failed',
 }
 
-function payloadIsOfType<T extends TransactionDataPayload>(
-  payload: TransactionDataPayload,
-): payload is T {
-  try {
-    // eslint-disable-next-line
-    const typedPayload = payload as T;
-    return true;
-  } catch {
-    return false;
-  }
-}
 function TransactionWorkflow({
   contractType,
   interactionType,
@@ -264,8 +254,13 @@ function TransactionWorkflow({
         case CONTRACT_TYPES.ANT: {
           switch (interactionType) {
             case ANT_INTERACTION_TYPES.CREATE: {
-              // TODO: casting is dangerous, introduce helper function or library to protect against run time errors
-              const createAntPayload = payload as CreateAntPayload;
+              if (
+                !isObjectOfTransactionPayloadType<CreateAntPayload>(
+                  payload,
+                  TRANSACTION_DATA_KEYS[contractType][interactionType].keys,
+                )
+              )
+                throw Error('Payload is not valid.');
               return {
                 pending: {
                   component: (
@@ -286,7 +281,7 @@ function TransactionWorkflow({
                   component: (
                     <TransactionComplete
                       transactionId={deployedTransactionId}
-                      state={createAntPayload.initialState}
+                      state={payload.initialState}
                     />
                   ),
                   showNext: false,
@@ -296,7 +291,7 @@ function TransactionWorkflow({
                   component: (
                     <TransactionComplete
                       transactionId={deployedTransactionId}
-                      state={createAntPayload.initialState}
+                      state={payload.initialState}
                     />
                   ),
                   showNext: false,
@@ -313,16 +308,19 @@ function TransactionWorkflow({
         case CONTRACT_TYPES.REGISTRY: {
           switch (interactionType) {
             case REGISTRY_INTERACTION_TYPES.BUY_RECORD: {
-              // TODO: casting is dangerous, introduce helper function or library to protect against run time errors
-              const buyRecordPayload = payload as BuyRecordPayload;
+              if (
+                !isObjectOfTransactionPayloadType<BuyRecordPayload>(
+                  payload,
+                  TRANSACTION_DATA_KEYS[contractType][interactionType].keys,
+                )
+              )
+                throw Error('Payload is not valid.');
               return {
                 pending: {
                   component: (
                     <AntCard
-                      domain={buyRecordPayload.name}
-                      id={
-                        new ArweaveTransactionID(buyRecordPayload.contractTxId)
-                      }
+                      domain={payload.name}
+                      id={new ArweaveTransactionID(payload.contractTxId)}
                       compact={false}
                       enableActions={false}
                     />
@@ -351,9 +349,7 @@ function TransactionWorkflow({
                   component: (
                     <TransactionComplete
                       transactionId={deployedTransactionId}
-                      antId={
-                        new ArweaveTransactionID(buyRecordPayload.contractTxId)
-                      }
+                      antId={new ArweaveTransactionID(payload.contractTxId)}
                     />
                   ),
                   showNext: false,
@@ -362,7 +358,7 @@ function TransactionWorkflow({
                     <>
                       <div className="flex flex-row text-large white bold center">
                         <span className="text-large white center">
-                          <b>{buyRecordPayload.name}</b>.arweave.net is yours!
+                          <b>{payload.name}</b>.arweave.net is yours!
                         </span>
                       </div>
                     </>
@@ -372,9 +368,7 @@ function TransactionWorkflow({
                   component: (
                     <TransactionComplete
                       transactionId={deployedTransactionId}
-                      antId={
-                        new ArweaveTransactionID(buyRecordPayload.contractTxId)
-                      }
+                      antId={new ArweaveTransactionID(payload.contractTxId)}
                     />
                   ),
                   showNext: false,

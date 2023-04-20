@@ -41,7 +41,7 @@ function Transaction() {
   }, [URLContractType, URLInteractionType, URLTransactionData]);
 
   if (
-    !transactionData &&
+    !transactionData ||
     Object.keys(transactionData).includes('contractTxId')
   ) {
     return (
