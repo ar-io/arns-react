@@ -228,7 +228,7 @@ function TransactionWorkflow({
           }
         default:
           throw new Error(
-            `Invalid TRANSACTIO TYPE {${contractType}}, Only registry or ant types may be provided as a transaction type`,
+            `Invalid TRANSACTION TYPE {${contractType}}, Only registry or ant types may be provided as a transaction type`,
           );
       }
     } catch (error) {
