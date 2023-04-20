@@ -7,11 +7,14 @@ import {
   ANT_INTERACTION_TYPES,
   AntInteraction,
   ArweaveTransactionID,
+  BuyRecordPayload,
   CONTRACT_TYPES,
   ContractType,
+  CreateAntPayload,
   REGISTRY_INTERACTION_TYPES,
   RegistryInteraction,
   TransactionData,
+  TransactionDataPayload,
 } from '../../../types';
 import { AntCard } from '../../cards';
 import DeployTransaction from '../DeployTransaction/DeployTransaction';
@@ -24,6 +27,18 @@ export enum TRANSACTION_WORKFLOW_STATUS {
   SUCCESSFUL = 'successful',
   FAILED = 'failed',
 }
+
+function payloadIsOfType<T extends TransactionDataPayload>(
+  payload: TransactionDataPayload,
+): payload is T {
+  try {
+    // eslint-disable-next-line
+    const typedPayload = payload as T;
+    return true;
+  } catch {
+    return false;
+  }
+}
 function TransactionWorkflow({
   contractType,
   interactionType,
@@ -32,13 +47,13 @@ function TransactionWorkflow({
 }: {
   contractType: ContractType;
   interactionType: AntInteraction | RegistryInteraction;
-  transactionData: Partial<TransactionData>;
+  transactionData: TransactionData;
   workflowStage: TRANSACTION_WORKFLOW_STATUS;
 }) {
   const [{ deployedTransactionId }, dispatchTransactionState] =
     useTransactionState();
-  const { assetId, functionName, ...payload } = transactionData;
   const [{ arweaveDataProvider }] = useGlobalState();
+  const { assetId, functionName, ...payload } = transactionData;
   const navigate = useNavigate();
   const [steps, setSteps] = useState<
     | {
@@ -95,9 +110,9 @@ function TransactionWorkflow({
                 payload: TRANSACTION_WORKFLOW_STATUS.CONFIRMED,
               });
               const originalTxId = await arweaveDataProvider.writeTransaction(
-                new ArweaveTransactionID(assetId!),
+                new ArweaveTransactionID(assetId),
                 {
-                  function: functionName!,
+                  function: functionName,
                   payload,
                 },
               );
@@ -228,7 +243,7 @@ function TransactionWorkflow({
           }
         default:
           throw new Error(
-            `Invalid TRANSACTIO TYPE {${contractType}}, Only registry or ant types may be provided as a transaction type`,
+            `Invalid transaction type: {${contractType}}, Only registry or ant types may be provided as a transaction type`,
           );
       }
     } catch (error) {
@@ -249,12 +264,14 @@ function TransactionWorkflow({
         case CONTRACT_TYPES.ANT: {
           switch (interactionType) {
             case ANT_INTERACTION_TYPES.CREATE: {
+              // TODO: casting is dangerous, introduce helper function or library to protect against run time errors
+              const createAntPayload = payload as CreateAntPayload;
               return {
                 pending: {
                   component: (
                     <AntCard
                       domain={''}
-                      id={new ArweaveTransactionID(assetId ?? '')}
+                      id={new ArweaveTransactionID(assetId)}
                       compact={false}
                       enableActions={false}
                     />
@@ -269,7 +286,7 @@ function TransactionWorkflow({
                   component: (
                     <TransactionComplete
                       transactionId={deployedTransactionId}
-                      state={transactionData.initialState}
+                      state={createAntPayload.initialState}
                     />
                   ),
                   showNext: false,
@@ -279,7 +296,7 @@ function TransactionWorkflow({
                   component: (
                     <TransactionComplete
                       transactionId={deployedTransactionId}
-                      state={transactionData.initialState}
+                      state={createAntPayload.initialState}
                     />
                   ),
                   showNext: false,
@@ -296,12 +313,16 @@ function TransactionWorkflow({
         case CONTRACT_TYPES.REGISTRY: {
           switch (interactionType) {
             case REGISTRY_INTERACTION_TYPES.BUY_RECORD: {
+              // TODO: casting is dangerous, introduce helper function or library to protect against run time errors
+              const buyRecordPayload = payload as BuyRecordPayload;
               return {
                 pending: {
                   component: (
                     <AntCard
-                      domain={payload.name!}
-                      id={new ArweaveTransactionID(payload.contractTxId ?? '')}
+                      domain={buyRecordPayload.name}
+                      id={
+                        new ArweaveTransactionID(buyRecordPayload.contractTxId)
+                      }
                       compact={false}
                       enableActions={false}
                     />
@@ -331,7 +352,7 @@ function TransactionWorkflow({
                     <TransactionComplete
                       transactionId={deployedTransactionId}
                       antId={
-                        new ArweaveTransactionID(transactionData.contractTxId!)
+                        new ArweaveTransactionID(buyRecordPayload.contractTxId)
                       }
                     />
                   ),
@@ -341,7 +362,7 @@ function TransactionWorkflow({
                     <>
                       <div className="flex flex-row text-large white bold center">
                         <span className="text-large white center">
-                          <b>{payload.name}</b>.arweave.net is yours!
+                          <b>{buyRecordPayload.name}</b>.arweave.net is yours!
                         </span>
                       </div>
                     </>
@@ -352,7 +373,7 @@ function TransactionWorkflow({
                     <TransactionComplete
                       transactionId={deployedTransactionId}
                       antId={
-                        new ArweaveTransactionID(transactionData.contractTxId!)
+                        new ArweaveTransactionID(buyRecordPayload.contractTxId)
                       }
                     />
                   ),

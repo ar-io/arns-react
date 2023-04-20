@@ -40,7 +40,10 @@ function Transaction() {
     }
   }, [URLContractType, URLInteractionType, URLTransactionData]);
 
-  if (!transactionData.contractTxId) {
+  if (
+    !transactionData &&
+    Object.keys(transactionData).includes('contractTxId')
+  ) {
     return (
       <div
         className="page flex-column flex-center"
