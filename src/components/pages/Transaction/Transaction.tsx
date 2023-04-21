@@ -1,12 +1,24 @@
+import { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 
 import { useTransactionData } from '../../../hooks';
-import TransactionWorkflow from '../../layout/TransactionWorkflow/TransactionWorkflow';
+import { useTransactionState } from '../../../state/contexts/TransactionState';
+import TransactionWorkflow, {
+  TRANSACTION_WORKFLOW_STATUS,
+} from '../../layout/TransactionWorkflow/TransactionWorkflow';
 
 function Transaction() {
   const { transactionData, contractType, interactionType, workflowStage } =
     useTransactionData();
   const from = useLocation().state;
+  const [{}, dispatchTransactionState] = useTransactionState(); // eslint-disable-line
+
+  useEffect(() => {
+    dispatchTransactionState({
+      type: 'setWorkflowStage',
+      payload: TRANSACTION_WORKFLOW_STATUS.PENDING,
+    });
+  }, []);
 
   if (!transactionData) {
     return <Navigate to={from ?? '/'} />;

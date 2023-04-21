@@ -47,7 +47,7 @@ function StepProgressBar({
   }
   return (
     <>
-      <div className="flex-row center" style={{ gap: '0' }}>
+      <div className="flex-row center" style={{ gap: '0', maxWidth: '710px' }}>
         {Object.entries(stages).map(([key, value], index) => {
           if (index === 0) {
             return (
