@@ -13,8 +13,7 @@ export default defineConfig({
       protocolImports: true,
     }),
   ],
-  // TODO: remove this when no longer deploying to GH pages
-  base: '/arns-react/',
+  base: '/',
   define: {
     'process.env': process.env,
     VITE_CONFIG: {
