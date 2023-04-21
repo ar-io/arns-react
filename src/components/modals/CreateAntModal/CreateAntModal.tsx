@@ -15,10 +15,7 @@ import {
   TransactionData,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
-import {
-  DEFAULT_ANT_SOURCE_CODE_TX,
-  STUB_ARWEAVE_TXID,
-} from '../../../utils/constants';
+import { DEFAULT_ANT_SOURCE_CODE_TX } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { mapKeyToAttribute } from '../../cards/AntCard/AntCard';
 import { CloseIcon, PencilIcon } from '../../icons';
@@ -137,8 +134,6 @@ function CreateAntModal() {
   }, [walletAddress, ant, workflowStage]);
 
   function setDetails() {
-    //  eslint-disable-next-line
-
     const consolidatedDetails: any = {
       name: ant.name,
       ticker: ant.ticker,
@@ -153,7 +148,7 @@ function CreateAntModal() {
         const detail = {
           attribute,
           value: consolidatedDetails[attribute],
-          isValid: undefined,
+          isValid: true,
           editable: EDITABLE_FIELDS.includes(attribute),
           action: ACTIONABLE_FIELDS[attribute],
           key: index,
@@ -266,16 +261,6 @@ function CreateAntModal() {
             switch (workflowStage) {
               case 0:
                 setWorkflowStage(workflowStage + 1);
-                if (!ant.records['@'].transactionId) {
-                  ant.records = {
-                    ...ant.records,
-                    '@': {
-                      transactionId: STUB_ARWEAVE_TXID,
-                      ttlSeconds: undefined,
-                      maxSubdomains: undefined,
-                    },
-                  };
-                }
                 break;
               case 1:
                 {
@@ -405,6 +390,7 @@ function CreateAntModal() {
                                       maxNumber={1000000}
                                       onClick={() => {
                                         setEditingField(row.attribute);
+                                        setModifiedValue(value);
                                       }}
                                       wrapperCustomStyle={{
                                         width:
@@ -449,10 +435,14 @@ function CreateAntModal() {
                                           setModifiedValue(e);
                                         }
                                       }}
+                                      validityCallback={(valid: boolean) => {
+                                        row.isValid = valid;
+                                      }}
                                       validationPredicates={
-                                        row.attribute === 'owner' ||
-                                        row.attribute === 'controller' ||
-                                        row.attribute === 'targetID'
+                                        modifiedValue &&
+                                        (row.attribute === 'owner' ||
+                                          row.attribute === 'controller' ||
+                                          row.attribute === 'targetID')
                                           ? {
                                               [VALIDATION_INPUT_TYPES.ARWEAVE_ID]:
                                                 (id: string) =>
@@ -521,8 +511,10 @@ function CreateAntModal() {
                                             borderColor: 'var(--accent)',
                                           }}
                                           onClick={() => {
-                                            row.value = modifiedValue;
-                                            handleStateChange();
+                                            if (!modifiedValue || row.isValid) {
+                                              row.value = modifiedValue;
+                                              handleStateChange();
+                                            }
                                           }}
                                         >
                                           Save
