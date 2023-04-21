@@ -5,12 +5,18 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import { useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ArNSRecordEntry,
   ArweaveTransactionID,
+  CONTRACT_TYPES,
   ManageAntRow,
   TRANSACTION_TYPES,
 } from '../../../types';
+import {
+  getInteractionTypeFromField,
+  getTransactionPayloadByInteractionType,
+} from '../../../utils';
 import eventEmitter from '../../../utils/events';
 import {
   DEFAULT_ATTRIBUTES,
@@ -46,6 +52,7 @@ function ManageAntModal() {
   const navigate = useNavigate();
 
   const [{ arnsSourceContract, arweaveDataProvider }] = useGlobalState();
+  const [{}, dispatchTransactionState] = useTransactionState(); // eslint-disable-line
   const [antName, setAntName] = useState<string>();
   const [editingField, setEditingField] = useState<string>();
   const [modifiedValue, setModifiedValue] = useState<string>();
@@ -102,6 +109,7 @@ function ManageAntModal() {
           editable: EDITABLE_FIELDS.includes(attribute),
           action: ACTION_FIELDS[attribute] ?? undefined, // navigate to transaction route with details
           key: index,
+          interactionType: getInteractionTypeFromField(attribute),
         };
         details.push(detail);
         return details;
@@ -252,13 +260,33 @@ function ManageAntModal() {
                             borderColor: 'var(--accent)',
                           }}
                           onClick={() => {
-                            alert(
-                              `Writing contract interaction...${modifiedValue}`,
-                            );
-                            // TODO: write contract interaction
+                            const payload =
+                              getTransactionPayloadByInteractionType(
+                                CONTRACT_TYPES.ANT,
+                                row.interactionType,
+                                modifiedValue!,
+                              );
 
-                            setEditingField(undefined);
-                            setModifiedValue(undefined);
+                            if (payload && row.interactionType) {
+                            const { assetId, functionName, ...data } = payload; // eslint-disable-line
+                              dispatchTransactionState({
+                                type: 'setContractType',
+                                payload: CONTRACT_TYPES.ANT,
+                              });
+                              dispatchTransactionState({
+                                type: 'setInteractionType',
+                                payload: row.interactionType,
+                              });
+                              dispatchTransactionState({
+                                type: 'setTransactionData',
+                                payload: {
+                                  assetId: id!,
+                                  functionName,
+                                  ...data,
+                                },
+                              });
+                              navigate(`/transaction`, { state: '/' });
+                            }
                           }}
                         >
                           Save
