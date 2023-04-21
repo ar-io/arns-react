@@ -62,11 +62,11 @@ function ValidationInput({
     }
   }, [disabled]);
 
-  async function validationExecutor(id: string) {
-    setValue(id);
+  async function validationExecutor(newValue: string) {
+    setValue(newValue);
 
     const validations = Object.values(validationPredicates).map((predicate) =>
-      predicate(id),
+      predicate(newValue),
     );
 
     const results = await Promise.allSettled(validations);
