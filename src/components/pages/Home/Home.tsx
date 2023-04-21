@@ -1,15 +1,13 @@
 import { useEffect, useState } from 'react';
-import {
-  createSearchParams,
-  useNavigate,
-  useSearchParams,
-} from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { useWalletAddress } from '../../../hooks/index';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
+import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ArweaveTransactionID,
+  BuyRecordPayload,
   CONTRACT_TYPES,
   REGISTRY_INTERACTION_TYPES,
 } from '../../../types';
@@ -31,6 +29,7 @@ import Workflow from '../../layout/Workflow/Workflow';
 import './styles.css';
 
 function Home() {
+  const [, dispatchTransactionState] = useTransactionState();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [{ arnsSourceContract }] = useGlobalState();
@@ -91,13 +90,32 @@ function Home() {
             stage={stage.toString()}
             onNext={() => {
               if (stage == 1) {
-                const searchParameters = createSearchParams({
-                  data: [domain!, antID!.toString(), '1', '1'],
-                  contractType: CONTRACT_TYPES.REGISTRY,
-                  interactionType: REGISTRY_INTERACTION_TYPES.BUY_RECORD,
-                  assetId: ARNS_REGISTRY_ADDRESS,
+                const buyRecordPayload: BuyRecordPayload = {
+                  name: domain!,
+                  contractTxId: antID!.toString(),
+                  tierNumber: 1,
+                  years: 1,
+                };
+                dispatchTransactionState({
+                  type: 'setTransactionData',
+                  payload: {
+                    assetId: ARNS_REGISTRY_ADDRESS,
+                    functionName: 'buyRecord',
+                    ...buyRecordPayload,
+                  },
                 });
-                navigate(`/transaction?${searchParameters}`);
+                dispatchTransactionState({
+                  type: 'setContractType',
+                  payload: CONTRACT_TYPES.REGISTRY,
+                });
+                dispatchTransactionState({
+                  type: 'setInteractionType',
+                  payload: REGISTRY_INTERACTION_TYPES.BUY_RECORD,
+                });
+                // navigate to the transaction page, which will load the updated state of the transaction context
+                navigate('/transaction', {
+                  state: '/',
+                });
               }
               dispatchRegisterState({
                 type: 'setStage',

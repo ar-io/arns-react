@@ -338,38 +338,21 @@ export const ALL_TRANSACTION_DATA_KEYS = [
   'tags',
 ];
 
-export type TransactionDataPayload<Payload> = {
-  [Property in keyof Payload]: Payload[Property];
-} & TransactionDataBasePayload;
+export type TransactionDataPayload =
+  | BuyRecordPayload
+  | ExtendLeasePayload
+  | UpgradeTierPayload
+  | TransferIOPayload
+  | SetTickerPayload
+  | SetControllerPayload
+  | SetNamePayload
+  | SetRecordPayload
+  | RemoveRecordPayload
+  | TransferAntPayload
+  | CreateAntPayload;
 
-// export type TransactionData = TransactionDataPayload<
-//   | BuyRecordPayload
-//   | ExtendLeasePayload
-//   | UpgradeTierPayload
-//   | TransferIOPayload
-//   | SetTickerPayload
-//   | SetControllerPayload
-//   | SetNamePayload
-//   | SetRecordPayload
-//   | RemoveRecordPayload
-//   | TransferAntPayload
-//   | CreateAntPayload
-// >;
-export type TransactionData = {
-  assetId: string;
-  functionName: string;
-  deployedTransactionId?: ArweaveTransactionID;
-} & BuyRecordPayload &
-  ExtendLeasePayload &
-  UpgradeTierPayload &
-  TransferIOPayload &
-  SetTickerPayload &
-  SetControllerPayload &
-  SetNamePayload &
-  SetRecordPayload &
-  RemoveRecordPayload &
-  TransferAntPayload &
-  CreateAntPayload;
+export type TransactionData = TransactionDataBasePayload &
+  TransactionDataPayload;
 
 export type TransactionDataConfig = { functionName: string; keys: string[] };
 

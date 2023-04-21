@@ -10,15 +10,11 @@ import {
   RegistryInteraction,
   TransactionData,
 } from '../../types';
-import {
-  ARNS_REGISTRY_ADDRESS,
-  STUB_ARWEAVE_TXID,
-} from '../../utils/constants';
 import { TransactionAction } from '../reducers/TransactionReducer';
 
 export type TransactionState = {
   deployedTransactionId?: ArweaveTransactionID;
-  transactionData: Partial<TransactionData>; // data that will be used to perform the transaction.
+  transactionData: TransactionData | undefined; // data that will be used to perform the transaction.
   contractType: ContractType;
   interactionType: AntInteraction | RegistryInteraction;
   workflowStage: TRANSACTION_WORKFLOW_STATUS;
@@ -30,14 +26,7 @@ export type TransactionStateProviderProps = {
 };
 
 export const initialTransactionState: TransactionState = {
-  transactionData: {
-    assetId: ARNS_REGISTRY_ADDRESS,
-    functionName: 'buyRecord',
-    name: 'arweave',
-    contractTxId: STUB_ARWEAVE_TXID,
-    years: 1,
-    tierNumber: 1,
-  },
+  transactionData: undefined,
   contractType: CONTRACT_TYPES.REGISTRY,
   interactionType: REGISTRY_INTERACTION_TYPES.BUY_RECORD,
   workflowStage: TRANSACTION_WORKFLOW_STATUS.PENDING, // confirm deploy complete,

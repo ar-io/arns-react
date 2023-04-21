@@ -7,12 +7,16 @@ import {
   ANT_INTERACTION_TYPES,
   AntInteraction,
   ArweaveTransactionID,
+  BuyRecordPayload,
   CONTRACT_TYPES,
   ContractType,
+  CreateAntPayload,
   REGISTRY_INTERACTION_TYPES,
   RegistryInteraction,
+  TRANSACTION_DATA_KEYS,
   TransactionData,
 } from '../../../types';
+import { isObjectOfTransactionPayloadType } from '../../../utils/searchUtils';
 import { AntCard } from '../../cards';
 import DeployTransaction from '../DeployTransaction/DeployTransaction';
 import TransactionComplete from '../TransactionComplete/TransactionComplete';
@@ -24,6 +28,7 @@ export enum TRANSACTION_WORKFLOW_STATUS {
   SUCCESSFUL = 'successful',
   FAILED = 'failed',
 }
+
 function TransactionWorkflow({
   contractType,
   interactionType,
@@ -32,13 +37,13 @@ function TransactionWorkflow({
 }: {
   contractType: ContractType;
   interactionType: AntInteraction | RegistryInteraction;
-  transactionData: Partial<TransactionData>;
+  transactionData: TransactionData;
   workflowStage: TRANSACTION_WORKFLOW_STATUS;
 }) {
   const [{ deployedTransactionId }, dispatchTransactionState] =
     useTransactionState();
-  const { assetId, functionName, ...payload } = transactionData;
   const [{ arweaveDataProvider }] = useGlobalState();
+  const { assetId, functionName, ...payload } = transactionData;
   const navigate = useNavigate();
   const [steps, setSteps] = useState<
     | {
@@ -95,9 +100,9 @@ function TransactionWorkflow({
                 payload: TRANSACTION_WORKFLOW_STATUS.CONFIRMED,
               });
               const originalTxId = await arweaveDataProvider.writeTransaction(
-                new ArweaveTransactionID(assetId!),
+                new ArweaveTransactionID(assetId),
                 {
-                  function: functionName!,
+                  function: functionName,
                   payload,
                 },
               );
@@ -228,7 +233,7 @@ function TransactionWorkflow({
           }
         default:
           throw new Error(
-            `Invalid TRANSACTION TYPE {${contractType}}, Only registry or ant types may be provided as a transaction type`,
+            `Invalid transaction type: {${contractType}}, Only registry or ant types may be provided as a transaction type`,
           );
       }
     } catch (error) {
@@ -249,12 +254,19 @@ function TransactionWorkflow({
         case CONTRACT_TYPES.ANT: {
           switch (interactionType) {
             case ANT_INTERACTION_TYPES.CREATE: {
+              if (
+                !isObjectOfTransactionPayloadType<CreateAntPayload>(
+                  payload,
+                  TRANSACTION_DATA_KEYS[contractType][interactionType].keys,
+                )
+              )
+                throw Error('Payload is not valid.');
               return {
                 pending: {
                   component: (
                     <AntCard
                       domain={''}
-                      id={new ArweaveTransactionID(assetId ?? '')}
+                      id={new ArweaveTransactionID(assetId)}
                       compact={false}
                       enableActions={false}
                     />
@@ -269,7 +281,7 @@ function TransactionWorkflow({
                   component: (
                     <TransactionComplete
                       transactionId={deployedTransactionId}
-                      state={transactionData.initialState}
+                      state={payload.initialState}
                     />
                   ),
                   showNext: false,
@@ -279,7 +291,7 @@ function TransactionWorkflow({
                   component: (
                     <TransactionComplete
                       transactionId={deployedTransactionId}
-                      state={transactionData.initialState}
+                      state={payload.initialState}
                     />
                   ),
                   showNext: false,
@@ -296,12 +308,19 @@ function TransactionWorkflow({
         case CONTRACT_TYPES.REGISTRY: {
           switch (interactionType) {
             case REGISTRY_INTERACTION_TYPES.BUY_RECORD: {
+              if (
+                !isObjectOfTransactionPayloadType<BuyRecordPayload>(
+                  payload,
+                  TRANSACTION_DATA_KEYS[contractType][interactionType].keys,
+                )
+              )
+                throw Error('Payload is not valid.');
               return {
                 pending: {
                   component: (
                     <AntCard
-                      domain={payload.name!}
-                      id={new ArweaveTransactionID(payload.contractTxId ?? '')}
+                      domain={payload.name}
+                      id={new ArweaveTransactionID(payload.contractTxId)}
                       compact={false}
                       enableActions={false}
                     />
@@ -330,9 +349,7 @@ function TransactionWorkflow({
                   component: (
                     <TransactionComplete
                       transactionId={deployedTransactionId}
-                      antId={
-                        new ArweaveTransactionID(transactionData.contractTxId!)
-                      }
+                      antId={new ArweaveTransactionID(payload.contractTxId)}
                     />
                   ),
                   showNext: false,
@@ -351,9 +368,7 @@ function TransactionWorkflow({
                   component: (
                     <TransactionComplete
                       transactionId={deployedTransactionId}
-                      antId={
-                        new ArweaveTransactionID(transactionData.contractTxId!)
-                      }
+                      antId={new ArweaveTransactionID(payload.contractTxId)}
                     />
                   ),
                   showNext: false,
