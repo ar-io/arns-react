@@ -106,6 +106,18 @@ export function isInteractionCompatible({
   functionName: string;
 }) {
   try {
+    if (contractType === CONTRACT_TYPES.UNKNOWN) {
+      throw new Error(`contract type of ${contractType} is not compatible`);
+    }
+    if (
+      interactionType === ANT_INTERACTION_TYPES.UNKNOWN ||
+      interactionType === REGISTRY_INTERACTION_TYPES.UNKNOWN
+    ) {
+      throw new Error(
+        `interaction type of ${interactionType} is not compatible`,
+      );
+    }
+
     if (
       (contractType === CONTRACT_TYPES.ANT &&
         !isAntInteraction(interactionType)) ||
@@ -154,6 +166,18 @@ export function getTransactionPayloadByInteractionType(
   data: string | string[],
 ) {
   try {
+    if (contractType === CONTRACT_TYPES.UNKNOWN) {
+      throw new Error(`contract type of ${contractType} is not compatible`);
+    }
+    if (
+      interactionType === ANT_INTERACTION_TYPES.UNKNOWN ||
+      interactionType === REGISTRY_INTERACTION_TYPES.UNKNOWN
+    ) {
+      throw new Error(
+        `interaction type of ${interactionType} is not compatible`,
+      );
+    }
+
     const payload: { [x: string]: any } = {};
     const txData = typeof data === 'string' ? [data] : [...data];
 
