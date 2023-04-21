@@ -78,40 +78,44 @@ function TransactionComplete({
               </div>
             </Link>
 
-            <Link
-              rel="noreferrer"
-              target={'_blank'}
-              to={`${WARP_CONTRACT_BASE_URL}${transactionId.toString()}`}
-              className="link"
-              style={{ textDecoration: 'none' }}
-            >
-              <div
-                className="flex flex-column center card"
-                style={{
-                  minWidth: '175px',
-                  minHeight: '100px',
-                  flex: 1,
-                  padding: '0px',
-                  gap: '.5em',
-                  textDecoration: 'none',
-                }}
+            {transactionId ? (
+              <Link
+                rel="noreferrer"
+                target={'_blank'}
+                to={`${WARP_CONTRACT_BASE_URL}${transactionId.toString()}`}
+                className="link"
+                style={{ textDecoration: 'none' }}
               >
-                <ArrowUpRight
-                  width={'30px'}
-                  height={'30px'}
-                  fill={'var(--text-white)'}
-                />
-                <span
-                  className="flex text-small faded center"
-                  style={{ textDecorationLine: 'none' }}
+                <div
+                  className="flex flex-column center card"
+                  style={{
+                    minWidth: '175px',
+                    minHeight: '100px',
+                    flex: 1,
+                    padding: '0px',
+                    gap: '.5em',
+                    textDecoration: 'none',
+                  }}
                 >
-                  View on Sonar
-                </span>
-              </div>
-            </Link>
+                  <ArrowUpRight
+                    width={'30px'}
+                    height={'30px'}
+                    fill={'var(--text-white)'}
+                  />
+                  <span
+                    className="flex text-small faded center"
+                    style={{ textDecorationLine: 'none' }}
+                  >
+                    View on Sonar
+                  </span>
+                </div>
+              </Link>
+            ) : (
+              <></>
+            )}
 
             <Link
-              to="/manage"
+              to="/manage/ants"
               className="link"
               style={{ textDecoration: 'none' }}
               onClick={() =>
@@ -142,7 +146,7 @@ function TransactionComplete({
             </Link>
 
             <Link
-              to="/manage"
+              to="/manage/names"
               className="link"
               style={{ textDecoration: 'none' }}
               onClick={() =>

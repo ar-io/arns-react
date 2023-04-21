@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { useArweaveCompositeProvider } from '../../../hooks';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ANT_INTERACTION_TYPES,
@@ -42,7 +42,7 @@ function TransactionWorkflow({
 }) {
   const [{ deployedTransactionId }, dispatchTransactionState] =
     useTransactionState();
-  const [{ arweaveDataProvider }] = useGlobalState();
+  const arweaveDataProvider = useArweaveCompositeProvider();
   const { assetId, functionName, ...payload } = transactionData;
   const navigate = useNavigate();
   const [steps, setSteps] = useState<

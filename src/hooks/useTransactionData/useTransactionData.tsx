@@ -8,7 +8,7 @@ import {
 
 import { useTransactionState } from '../../state/contexts/TransactionState';
 
-function useTransactionData() {
+export function useTransactionData() {
   const navigate = useNavigate();
   const [, setSearchParams] = useSearchParams();
   const from = useLocation().state;

@@ -5,3 +5,4 @@ export * from './useLongPress/useLongPress';
 export * from './useWalletAddress/useWalletAddress';
 export * from './useWalletDomains/useWalletDomains';
 export * from './useWalletANTs/useWalletANTs';
+export * from './useTransactionData/useTransactionData';

@@ -1,3 +1,4 @@
+import { ANTContract } from '../../services/arweave/AntContract';
 import {
   ANT_INTERACTION_TYPES,
   AntInteraction,
@@ -205,14 +206,15 @@ export function getArNSMappingByInteractionType(
       switch (interactionType) {
         case ANT_INTERACTION_TYPES.CREATE: {
           const data = transactionData as CreateAntPayload;
+          const ant = new ANTContract(data.initialState);
           mapping = {
             domain: '',
             showTier: false,
             compact: false,
             state: data.initialState,
             overrides: {
-              targetId: data.initialState.records['@'].transactionId,
-              ttlSeconds: data.initialState.records['@'].ttlSeconds,
+              targetId: ant.getRecord('@').transactionId,
+              ttlSeconds: ant.getRecord('@').ttlSeconds,
             },
             disabledKeys: [
               'tier',
