@@ -103,7 +103,7 @@ function TransactionWorkflow({
                 new ArweaveTransactionID(assetId),
                 {
                   function: functionName,
-                  payload,
+                  ...payload,
                 },
               );
               if (originalTxId) {
