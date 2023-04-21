@@ -75,7 +75,7 @@ function ConfirmRegistration() {
 
   return (
     <>
-      <div className="register-name-modal center">
+      <div className="flex-flex-column center">
         {!isPostingTransaction ? (
           <span className="text-large white">
             {domain}.arweave.net is available!

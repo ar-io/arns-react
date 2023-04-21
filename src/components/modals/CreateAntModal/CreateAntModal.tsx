@@ -239,12 +239,8 @@ function CreateAntModal() {
   }
 
   return (
-    <>
-      (
-      <div
-        className="modal-container flex flex-column center"
-        style={{ overflow: 'none' }}
-      >
+    <div className="page" style={{ overflow: 'none' }}>
+      <div className="flex" style={{ width: '50%' }}>
         <button
           className="icon-button"
           style={{
@@ -313,6 +309,11 @@ function CreateAntModal() {
           steps={steps}
           stages={{
             0: {
+              showNext: true,
+              showBack: true,
+              component: <DeployTransaction />,
+            },
+            10: {
               showNext: true,
               showBack: true,
               backText: 'Cancel',
@@ -499,7 +500,10 @@ function CreateAntModal() {
                                     ) : (
                                       <div
                                         className="flex flex-right"
-                                        style={{ gap: '0.5em', padding: '0px' }}
+                                        style={{
+                                          gap: '0.5em',
+                                          padding: '0px',
+                                        }}
                                       >
                                         <button
                                           className="flex center assets-manage-button"
@@ -586,20 +590,13 @@ function CreateAntModal() {
               showBack: false,
               showNext: false,
               header: (
-                <>
-                  {' '}
-                  <span className="flex flex-row text-large white bold center">
-                    {isPostingTransaction
-                      ? 'Deploying...'
-                      : 'Awaiting transaction confirmation...'}
-                  </span>
-                </>
+                <span className="flex flex-row text-large white bold center">
+                  {isPostingTransaction
+                    ? 'Deploying...'
+                    : 'Awaiting transaction confirmation...'}
+                </span>
               ),
-              component: (
-                <>
-                  <DeployTransaction />
-                </>
-              ),
+              component: <DeployTransaction />,
             },
             3: {
               showBack: false,
@@ -636,7 +633,7 @@ function CreateAntModal() {
         {/* workflow end */}
       </div>
       )
-    </>
+    </div>
   );
 }
 

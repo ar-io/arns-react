@@ -59,7 +59,7 @@ function Workflow({
       {Object.entries(stages).map(([key, value], index) => {
         if (key === stage) {
           return (
-            <div className="flex flex-column center" key={key}>
+            <>
               {value.header}
               {steps ? (
                 <StepProgressBar stage={index + 1} stages={steps} />
@@ -67,7 +67,7 @@ function Workflow({
                 <></>
               )}
               {value.component}
-            </div>
+            </>
           );
         }
       })}

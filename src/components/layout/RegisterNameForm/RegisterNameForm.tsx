@@ -111,7 +111,7 @@ function RegisterNameForm() {
 
   return (
     <>
-      <div className="register-name-modal">
+      <div className="card">
         <span className="text-large white center">
           {domain}.arweave.net is available!
         </span>

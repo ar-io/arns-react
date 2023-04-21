@@ -52,11 +52,7 @@ function ConnectWalletModal(): JSX.Element {
 
   return (
     // eslint-disable-next-line
-    <div
-      className="modal-container"
-      ref={modalRef}
-      onClick={handleClickOutside}
-    >
+    <div className="page" ref={modalRef} onClick={handleClickOutside}>
       <div className="connect-wallet-modal">
         <p
           className="section-header"

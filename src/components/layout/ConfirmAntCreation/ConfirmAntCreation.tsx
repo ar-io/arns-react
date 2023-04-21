@@ -7,7 +7,7 @@ import { Tooltip } from '../Tooltip/Tooltip';
 
 function ConfirmAntCreation({ state }: { state: ANTContractJSON }) {
   return (
-    <div className="register-name-modal center">
+    <div className="card center">
       <AntCard
         domain={''}
         id={undefined}

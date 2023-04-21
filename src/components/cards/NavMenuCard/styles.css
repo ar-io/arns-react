@@ -6,10 +6,12 @@
   align-items: flex-start;
   padding: 40px;
   gap: 25px;
+  max-width: 30%;
 }
 
 @media screen and (max-width: 600px) {
   .menu {
     top: 95px;
+    max-width: 50%;
   }
 }
