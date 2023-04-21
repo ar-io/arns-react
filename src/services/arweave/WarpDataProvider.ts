@@ -13,8 +13,8 @@ import {
   TransactionTag,
 } from '../../types';
 import { ArNSContractJSON, SmartweaveDataProvider } from '../../types';
+import { byteSize } from '../../utils';
 import { SMARTWEAVE_MAX_TAG_SPACE } from '../../utils/constants';
-import { byteSize } from '../../utils/searchUtils';
 
 LoggerFactory.INST.logLevel('error');
 

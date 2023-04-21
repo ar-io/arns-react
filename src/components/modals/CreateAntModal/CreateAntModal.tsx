@@ -7,9 +7,12 @@ import { ANTContract } from '../../../services/arweave/AntContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
   ANTContractJSON,
+  ANT_INTERACTION_TYPES,
   ArweaveTransactionID,
+  CONTRACT_TYPES,
   ManageAntRow,
   TRANSACTION_TYPES,
+  TransactionData,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import {
@@ -22,7 +25,7 @@ import { CloseIcon, PencilIcon } from '../../icons';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import ConfirmAntCreation from '../../layout/ConfirmAntCreation/ConfirmAntCreation';
 import DeployTransaction from '../../layout/DeployTransaction/DeployTransaction';
-import TransactionSuccess from '../../layout/TransactionComplete/TransactionComplete';
+import TransactionComplete from '../../layout/TransactionComplete/TransactionComplete';
 import Workflow from '../../layout/Workflow/Workflow';
 
 function CreateAntModal() {
@@ -610,13 +613,20 @@ function CreateAntModal() {
               ),
               component: (
                 <>
-                  <TransactionSuccess
+                  <TransactionComplete
                     transactionId={
                       antContractId
                         ? new ArweaveTransactionID(antContractId.toString())
                         : undefined
                     }
-                    state={ant.state}
+                    contractType={CONTRACT_TYPES.ANT}
+                    interactionType={ANT_INTERACTION_TYPES.CREATE}
+                    transactionData={
+                      {
+                        initialState: ant.state,
+                        srcCodeTransactionId: DEFAULT_ANT_SOURCE_CODE_TX,
+                      } as TransactionData
+                    }
                   />
                 </>
               ),

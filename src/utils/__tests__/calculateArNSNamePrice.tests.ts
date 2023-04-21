@@ -1,4 +1,4 @@
-import { calculateArNSNamePrice } from '../searchUtils';
+import { calculateArNSNamePrice } from '../searchUtils/searchUtils';
 
 describe('calculateArNSNamePrice', () => {
   const fees = {

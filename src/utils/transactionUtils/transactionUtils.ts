@@ -1,72 +1,19 @@
-import { Buffer } from 'buffer';
-
 import {
   ANT_INTERACTION_TYPES,
   AntInteraction,
-  ArNSRecordEntry,
+  ArNSMapping,
+  ArweaveTransactionID,
+  BuyRecordPayload,
   CONTRACT_TYPES,
   ContractType,
+  CreateAntPayload,
   REGISTRY_INTERACTION_TYPES,
   RegistryInteraction,
   TRANSACTION_DATA_KEYS,
+  TransactionData,
   TransactionDataPayload,
-  TransactionTag,
-} from '../types';
-import { ARNS_NAME_REGEX, ARNS_TX_ID_REGEX } from './constants';
-import { fromB64Url } from './encodings';
-
-export function calculateArNSNamePrice({
-  domain,
-  years,
-  selectedTier,
-  fees,
-}: {
-  domain?: string;
-  years: number;
-  selectedTier: number;
-  fees: { [x: number]: number };
-}) {
-  if (years < 1) {
-    throw Error('Minimum duration must be at least one year');
-  }
-  if (selectedTier < 1) {
-    throw Error('Minimum selectedTier is 1');
-  }
-  if (selectedTier > 3) {
-    throw Error('Maximum selectedTier is 3');
-  }
-  if (!domain) {
-    throw Error('Domain is undefined');
-  }
-  if (!isArNSDomainNameValid({ name: domain })) {
-    throw Error('Domain name is invalid');
-  }
-  const nameLength = Math.min(domain.length, Object.keys(fees).length);
-  const namePrice = fees[nameLength];
-  const price = namePrice * years * selectedTier;
-  return price;
-}
-
-export function isArNSDomainNameValid({ name }: { name?: string }): boolean {
-  if (!name || !ARNS_NAME_REGEX.test(name) || name === 'www') {
-    return false;
-  }
-  return true;
-}
-
-export function isArNSDomainNameAvailable({
-  name,
-  records,
-}: {
-  name?: string;
-  records: { [x: string]: ArNSRecordEntry };
-}): boolean {
-  //if registered return false
-  if (!name || records[name]) {
-    return false;
-  }
-  return true;
-}
+} from '../../types';
+import { ARNS_TX_ID_REGEX } from '../constants';
 
 export function isArweaveTransactionID(id: string) {
   if (!id) {
@@ -220,18 +167,65 @@ export function getTransactionPayloadByInteractionType(
   }
 }
 
-export function tagsToObject(tags: TransactionTag[]): {
-  [x: string]: string;
-} {
-  return tags.reduce(
-    (newTags, tag) => ({
-      ...newTags,
-      [fromB64Url(tag.name)]: fromB64Url(tag.value),
-    }),
-    {},
-  );
-}
+export function getArNSMappingByInteractionType(
+  // can be used to generate AntCard props: <AntCard {...props = getArNSMappingByInteractionType()} />
+  {
+    contractType,
+    interactionType,
+    transactionData,
+  }: {
+    contractType: ContractType;
+    interactionType: AntInteraction | RegistryInteraction;
+    transactionData: TransactionData;
+  },
+): ArNSMapping {
+  let mapping: ArNSMapping = { domain: '' };
 
-export function byteSize(data: string): number {
-  return Buffer.byteLength(data);
+  switch (contractType) {
+    case CONTRACT_TYPES.REGISTRY:
+      {
+        switch (interactionType) {
+          case REGISTRY_INTERACTION_TYPES.BUY_RECORD: {
+            const data = transactionData as BuyRecordPayload;
+            mapping = {
+              domain: data.name,
+              id: new ArweaveTransactionID(data.contractTxId),
+              overrides: {
+                tier: data.tierNumber,
+                maxSubdomains: 100, // TODO get subdomain count from contract
+                leaseDuration: data.years,
+              },
+            };
+            break;
+          }
+        }
+      }
+      break;
+    case CONTRACT_TYPES.ANT: {
+      switch (interactionType) {
+        case ANT_INTERACTION_TYPES.CREATE: {
+          const data = transactionData as CreateAntPayload;
+          mapping = {
+            domain: '',
+            showTier: false,
+            compact: false,
+            state: data.initialState,
+            overrides: {
+              targetId: data.initialState.records['@'].transactionId,
+              ttlSeconds: data.initialState.records['@'].ttlSeconds,
+            },
+            disabledKeys: [
+              'tier',
+              'evolve',
+              'maxSubdomains',
+              'id',
+              'domain',
+              'leaseDuration',
+            ],
+          };
+        }
+      }
+    }
+  }
+  return mapping;
 }

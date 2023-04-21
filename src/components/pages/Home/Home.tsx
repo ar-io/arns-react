@@ -19,7 +19,7 @@ import {
 import {
   isArNSDomainNameAvailable,
   isArNSDomainNameValid,
-} from '../../../utils/searchUtils';
+} from '../../../utils/searchUtils/searchUtils';
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import { FeaturedDomains, Loader, RegisterNameForm } from '../../layout';
 import { SearchBarFooter, SearchBarHeader } from '../../layout';

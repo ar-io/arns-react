@@ -16,7 +16,7 @@ import {
   TRANSACTION_DATA_KEYS,
   TransactionData,
 } from '../../../types';
-import { isObjectOfTransactionPayloadType } from '../../../utils/searchUtils';
+import { isObjectOfTransactionPayloadType } from '../../../utils';
 import { AntCard } from '../../cards';
 import DeployTransaction from '../DeployTransaction/DeployTransaction';
 import TransactionComplete from '../TransactionComplete/TransactionComplete';
@@ -281,7 +281,9 @@ function TransactionWorkflow({
                   component: (
                     <TransactionComplete
                       transactionId={deployedTransactionId}
-                      state={payload.initialState}
+                      contractType={contractType}
+                      interactionType={interactionType}
+                      transactionData={transactionData}
                     />
                   ),
                   showNext: false,
@@ -291,7 +293,9 @@ function TransactionWorkflow({
                   component: (
                     <TransactionComplete
                       transactionId={deployedTransactionId}
-                      state={payload.initialState}
+                      contractType={contractType}
+                      interactionType={interactionType}
+                      transactionData={transactionData}
                     />
                   ),
                   showNext: false,
@@ -349,7 +353,9 @@ function TransactionWorkflow({
                   component: (
                     <TransactionComplete
                       transactionId={deployedTransactionId}
-                      antId={new ArweaveTransactionID(payload.contractTxId)}
+                      contractType={contractType}
+                      interactionType={interactionType}
+                      transactionData={transactionData}
                     />
                   ),
                   showNext: false,
@@ -368,7 +374,9 @@ function TransactionWorkflow({
                   component: (
                     <TransactionComplete
                       transactionId={deployedTransactionId}
-                      antId={new ArweaveTransactionID(payload.contractTxId)}
+                      contractType={contractType}
+                      interactionType={interactionType}
+                      transactionData={transactionData}
                     />
                   ),
                   showNext: false,

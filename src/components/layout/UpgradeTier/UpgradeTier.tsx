@@ -9,7 +9,7 @@ import {
   SMARTWEAVE_TAG_SIZE,
   TIER_DATA,
 } from '../../../utils/constants';
-import { calculateArNSNamePrice } from '../../../utils/searchUtils';
+import { calculateArNSNamePrice } from '../../../utils/searchUtils/searchUtils';
 import TierCard from '../../cards/TierCard/TierCard';
 import Counter from '../../inputs/Counter/Counter';
 import ArPrice from '../ArPrice/ArPrice';
