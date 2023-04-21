@@ -306,6 +306,8 @@ export enum ANT_INTERACTION_TYPES {
   SET_TICKER = 'Edit Ticker',
   SET_NAME = 'Edit Name',
   SET_RECORD = 'Edit Record',
+  SET_TTL_SECONDS = 'Set TTL',
+  SET_TARGET_ID = 'Set Target ID',
   REMOVE_RECORD = 'Delete Record',
   TRANSFER = 'Transfer',
   BALANCE = 'Balance',
@@ -392,6 +394,14 @@ export const TRANSACTION_DATA_KEYS: {
     },
   },
   [CONTRACT_TYPES.ANT]: {
+    [ANT_INTERACTION_TYPES.SET_TTL_SECONDS]: {
+      functionName: 'setRecord',
+      keys: ['ttlSeconds'],
+    },
+    [ANT_INTERACTION_TYPES.SET_TARGET_ID]: {
+      functionName: 'setRecord',
+      keys: ['transactionId'],
+    },
     [ANT_INTERACTION_TYPES.SET_TICKER]: {
       functionName: 'setTicker',
       keys: ['ticker'],
@@ -484,6 +494,7 @@ export type ManageAntRow = {
   editable: boolean;
   action: any;
   key: number;
+  interactionType?: AntInteraction | RegistryInteraction;
 };
 
 export enum VALIDATION_INPUT_TYPES {
