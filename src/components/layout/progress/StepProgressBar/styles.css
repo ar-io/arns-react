@@ -28,3 +28,7 @@
   background-color: var(--text-faded);
   color: #444444;
 }
+.progress-stage {
+  flex: 1;
+  height: 75px;
+}

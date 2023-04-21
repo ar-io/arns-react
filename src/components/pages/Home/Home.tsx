@@ -1,15 +1,25 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { useWalletAddress } from '../../../hooks/index';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
-import { ArweaveTransactionID } from '../../../types';
-import { ARNS_TX_ID_REGEX, FEATURED_DOMAINS } from '../../../utils/constants';
+import { useTransactionState } from '../../../state/contexts/TransactionState';
+import {
+  ArweaveTransactionID,
+  BuyRecordPayload,
+  CONTRACT_TYPES,
+  REGISTRY_INTERACTION_TYPES,
+} from '../../../types';
+import {
+  ARNS_REGISTRY_ADDRESS,
+  ARNS_TX_ID_REGEX,
+  FEATURED_DOMAINS,
+} from '../../../utils/constants';
 import {
   isArNSDomainNameAvailable,
   isArNSDomainNameValid,
-} from '../../../utils/searchUtils';
+} from '../../../utils/searchUtils/searchUtils';
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import { FeaturedDomains, Loader, RegisterNameForm } from '../../layout';
 import { SearchBarFooter, SearchBarHeader } from '../../layout';
@@ -19,7 +29,9 @@ import Workflow from '../../layout/Workflow/Workflow';
 import './styles.css';
 
 function Home() {
+  const [, dispatchTransactionState] = useTransactionState();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [{ arnsSourceContract }] = useGlobalState();
   const { walletAddress } = useWalletAddress();
   const [{ domain, antID, stage, isSearching }, dispatchRegisterState] =
@@ -75,8 +87,36 @@ function Home() {
       ) : (
         <>
           <Workflow
-            stage={stage}
+            stage={stage.toString()}
             onNext={() => {
+              if (stage == 1) {
+                const buyRecordPayload: BuyRecordPayload = {
+                  name: domain!,
+                  contractTxId: antID!.toString(),
+                  tierNumber: 1,
+                  years: 1,
+                };
+                dispatchTransactionState({
+                  type: 'setTransactionData',
+                  payload: {
+                    assetId: ARNS_REGISTRY_ADDRESS,
+                    functionName: 'buyRecord',
+                    ...buyRecordPayload,
+                  },
+                });
+                dispatchTransactionState({
+                  type: 'setContractType',
+                  payload: CONTRACT_TYPES.REGISTRY,
+                });
+                dispatchTransactionState({
+                  type: 'setInteractionType',
+                  payload: REGISTRY_INTERACTION_TYPES.BUY_RECORD,
+                });
+                // navigate to the transaction page, which will load the updated state of the transaction context
+                navigate('/transaction', {
+                  state: '/',
+                });
+              }
               dispatchRegisterState({
                 type: 'setStage',
                 payload: stage + 1,

@@ -1,4 +1,4 @@
-import { isArNSDomainNameValid } from '../searchUtils';
+import { isArNSDomainNameValid } from '../searchUtils/searchUtils';
 
 describe('isArNSDomainNameValid', () => {
   const invalidNames = [

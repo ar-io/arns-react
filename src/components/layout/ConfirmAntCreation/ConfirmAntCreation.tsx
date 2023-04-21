@@ -1,6 +1,6 @@
 import { ANTContractJSON } from '../../../types';
+import { byteSize } from '../../../utils';
 import { NAME_PRICE_INFO } from '../../../utils/constants';
-import { byteSize } from '../../../utils/searchUtils';
 import { AntCard } from '../../cards';
 import ArPrice from '../ArPrice/ArPrice';
 import { Tooltip } from '../Tooltip/Tooltip';

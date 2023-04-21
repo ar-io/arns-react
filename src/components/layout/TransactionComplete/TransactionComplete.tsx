@@ -1,55 +1,49 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { ANTContractJSON, ArweaveTransactionID } from '../../../types';
+import {
+  AntInteraction,
+  ArNSMapping,
+  ArweaveTransactionID,
+  ContractType,
+  RegistryInteraction,
+  TransactionData,
+} from '../../../types';
 import {
   STUB_ARWEAVE_TXID,
   WARP_CONTRACT_BASE_URL,
 } from '../../../utils/constants';
+import { getArNSMappingByInteractionType } from '../../../utils/transactionUtils/transactionUtils';
 import { AntCard } from '../../cards';
 import { ArrowUpRight } from '../../icons';
 
-export enum transaction_types {
-  TRANSFER_ANT = 'Transfer ANT Token',
-  EDIT_ANT = 'Edit ANT Token',
-  CREATE_UNDERNAME = 'Create Undername',
-  CREATE_ANT = 'Create ANT Token',
-  TRANSFER_IO = 'Transfer IO Token',
-  BUY_ARNS_NAME = 'Buy ArNS Name',
-}
-
-function TransactionSuccess({
+function TransactionComplete({
   transactionId = new ArweaveTransactionID(STUB_ARWEAVE_TXID),
-  state,
+  contractType,
+  interactionType,
+  transactionData,
 }: {
   transactionId?: ArweaveTransactionID;
-  state: ANTContractJSON;
+  contractType: ContractType;
+  interactionType: AntInteraction | RegistryInteraction;
+  transactionData: TransactionData;
 }) {
   const [{}, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
+  const [antCardProps] = useState<ArNSMapping>(() =>
+    getArNSMappingByInteractionType({
+      contractType,
+      interactionType,
+      transactionData,
+    }),
+  );
 
   return (
     <>
       <div className="flex-column center" style={{ gap: '3em' }}>
         <div className="flex-column center" style={{ gap: '2em' }}>
-          <AntCard
-            domain={''}
-            showTier={false}
-            id={transactionId}
-            state={state}
-            compact={false}
-            enableActions={false}
-            overrides={{
-              targetId: state.records['@'].transactionId,
-              ttlSeconds: state.records['@'].ttlSeconds,
-            }}
-            disabledKeys={[
-              'tier',
-              'evolve',
-              'maxSubdomains',
-              'domain',
-              'leaseDuration',
-            ]}
-          />
+          {/* TODO: configure error or fail states */}
+          <AntCard {...antCardProps} />
           <div
             className="flex flex-row center"
             style={{ gap: '1em', maxWidth: '782px' }}
@@ -189,4 +183,4 @@ function TransactionSuccess({
   );
 }
 
-export default TransactionSuccess;
+export default TransactionComplete;

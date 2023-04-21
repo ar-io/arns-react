@@ -1,21 +1,23 @@
 import { Dispatch, createContext, useContext, useReducer } from 'react';
 
+import { TRANSACTION_WORKFLOW_STATUS } from '../../components/layout/TransactionWorkflow/TransactionWorkflow';
 import {
   AntInteraction,
+  ArweaveTransactionID,
   CONTRACT_TYPES,
   ContractType,
   REGISTRY_INTERACTION_TYPES,
   RegistryInteraction,
   TransactionData,
 } from '../../types';
-import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
 import { TransactionAction } from '../reducers/TransactionReducer';
 
 export type TransactionState = {
-  transactionData: TransactionData; // data that will be used to perform the transaction.
+  deployedTransactionId?: ArweaveTransactionID;
+  transactionData: TransactionData | undefined; // data that will be used to perform the transaction.
   contractType: ContractType;
   interactionType: AntInteraction | RegistryInteraction;
-  workflowStage: 'pending' | 'confirmed' | 'deployed' | 'successful' | 'failed';
+  workflowStage: TRANSACTION_WORKFLOW_STATUS;
 };
 
 export type TransactionStateProviderProps = {
@@ -24,14 +26,10 @@ export type TransactionStateProviderProps = {
 };
 
 export const initialTransactionState: TransactionState = {
-  transactionData: {
-    assetId: ARNS_REGISTRY_ADDRESS,
-    function: 'buyRecord',
-    name: 'arweave',
-  },
+  transactionData: undefined,
   contractType: CONTRACT_TYPES.REGISTRY,
   interactionType: REGISTRY_INTERACTION_TYPES.BUY_RECORD,
-  workflowStage: 'pending', // confirm deploy complete
+  workflowStage: TRANSACTION_WORKFLOW_STATUS.PENDING, // confirm deploy complete,
 };
 
 const TransactionStateContext = createContext<
