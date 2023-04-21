@@ -14,11 +14,13 @@ function Transaction() {
   const [{}, dispatchTransactionState] = useTransactionState(); // eslint-disable-line
 
   useEffect(() => {
-    dispatchTransactionState({
-      type: 'setWorkflowStage',
-      payload: TRANSACTION_WORKFLOW_STATUS.PENDING,
-    });
-  }, []);
+    if (from) {
+      dispatchTransactionState({
+        type: 'setWorkflowStage',
+        payload: TRANSACTION_WORKFLOW_STATUS.PENDING,
+      });
+    }
+  }, [from]);
 
   if (!transactionData) {
     return <Navigate to={from ?? '/'} />;
