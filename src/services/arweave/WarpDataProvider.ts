@@ -9,16 +9,14 @@ import {
 
 import {
   ANTContractJSON,
+  ArNSContractJSON,
   ArweaveTransactionID,
   SmartweaveContractCache,
+  SmartweaveContractInteractionProvider,
   TransactionTag,
 } from '../../types';
-import {
-  ArNSContractJSON,
-  SmartweaveContractInteractionProvider,
-} from '../../types';
+import { byteSize } from '../../utils';
 import { SMARTWEAVE_MAX_TAG_SPACE } from '../../utils/constants';
-import { byteSize } from '../../utils/searchUtils';
 
 LoggerFactory.INST.logLevel('error');
 

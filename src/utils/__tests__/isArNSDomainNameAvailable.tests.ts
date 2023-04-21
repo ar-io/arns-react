@@ -1,4 +1,4 @@
-import { isArNSDomainNameAvailable } from '../searchUtils';
+import { isArNSDomainNameAvailable } from '../searchUtils/searchUtils';
 
 describe('isArNSDomainNameAvailable', () => {
   const records = {

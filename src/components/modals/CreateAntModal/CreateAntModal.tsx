@@ -10,9 +10,12 @@ import {
 import { ANTContract } from '../../../services/arweave/AntContract';
 import {
   ANTContractJSON,
+  ANT_INTERACTION_TYPES,
   ArweaveTransactionID,
+  CONTRACT_TYPES,
   ManageAntRow,
   TRANSACTION_TYPES,
+  TransactionData,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import { DEFAULT_ANT_SOURCE_CODE_TX } from '../../../utils/constants';
@@ -22,7 +25,7 @@ import { CloseIcon, PencilIcon } from '../../icons';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import ConfirmAntCreation from '../../layout/ConfirmAntCreation/ConfirmAntCreation';
 import DeployTransaction from '../../layout/DeployTransaction/DeployTransaction';
-import TransactionSuccess from '../../layout/TransactionSuccess/TransactionSuccess';
+import TransactionComplete from '../../layout/TransactionComplete/TransactionComplete';
 import Workflow from '../../layout/Workflow/Workflow';
 
 function CreateAntModal() {
@@ -256,7 +259,7 @@ function CreateAntModal() {
           <CloseIcon width={30} height={30} fill={'var(--text-white'} />
         </button>
         <Workflow
-          stage={workflowStage}
+          stage={workflowStage.toString()}
           onNext={() => {
             switch (workflowStage) {
               case 0:
@@ -598,13 +601,20 @@ function CreateAntModal() {
               ),
               component: (
                 <>
-                  <TransactionSuccess
+                  <TransactionComplete
                     transactionId={
                       antContractId
                         ? new ArweaveTransactionID(antContractId.toString())
                         : undefined
                     }
-                    state={ant.state}
+                    contractType={CONTRACT_TYPES.ANT}
+                    interactionType={ANT_INTERACTION_TYPES.CREATE}
+                    transactionData={
+                      {
+                        initialState: ant.state,
+                        srcCodeTransactionId: DEFAULT_ANT_SOURCE_CODE_TX,
+                      } as TransactionData
+                    }
                   />
                 </>
               ),

@@ -1,5 +1,7 @@
+import { TRANSACTION_WORKFLOW_STATUS } from '../../components/layout/TransactionWorkflow/TransactionWorkflow';
 import {
   AntInteraction,
+  ArweaveTransactionID,
   ContractType,
   RegistryInteraction,
   TransactionData,
@@ -12,9 +14,10 @@ import {
 export type TransactionAction =
   | {
       type: 'setWorkflowStage';
-      payload: 'pending' | 'confirmed' | 'deployed' | 'successful' | 'failed';
+      payload: TRANSACTION_WORKFLOW_STATUS;
     }
   | { type: 'setTransactionData'; payload: TransactionData }
+  | { type: 'setDeployedTransactionId'; payload: ArweaveTransactionID }
   | { type: 'setContractType'; payload: ContractType }
   | {
       type: 'setInteractionType';
@@ -22,7 +25,7 @@ export type TransactionAction =
     }
   | { type: 'reset' };
 
-export const registrationReducer = (
+export const transactionReducer = (
   state: TransactionState,
   action: TransactionAction,
 ): TransactionState => {
@@ -39,6 +42,12 @@ export const registrationReducer = (
         transactionData: action.payload,
       };
     }
+    case 'setDeployedTransactionId': {
+      return {
+        ...state,
+        deployedTransactionId: action.payload,
+      };
+    }
     case 'setContractType': {
       return {
         ...state,
@@ -51,7 +60,6 @@ export const registrationReducer = (
         interactionType: action.payload,
       };
     }
-
     case 'reset': {
       return {
         ...initialTransactionState,

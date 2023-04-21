@@ -1,8 +1,5 @@
-import { Buffer } from 'buffer';
-
-import { ArNSRecordEntry, TransactionTag } from '../types';
-import { ARNS_NAME_REGEX, ARNS_TX_ID_REGEX } from './constants';
-import { fromB64Url } from './encodings';
+import { ArNSRecordEntry } from '../../types';
+import { ARNS_NAME_REGEX } from '../constants';
 
 export function calculateArNSNamePrice({
   domain,
@@ -55,30 +52,4 @@ export function isArNSDomainNameAvailable({
     return false;
   }
   return true;
-}
-
-export function isArweaveTransactionID(id: string) {
-  if (!id) {
-    return false;
-  }
-  if (!ARNS_TX_ID_REGEX.test(id)) {
-    return false;
-  }
-  return true;
-}
-
-export function tagsToObject(tags: TransactionTag[]): {
-  [x: string]: string;
-} {
-  return tags.reduce(
-    (newTags, tag) => ({
-      ...newTags,
-      [fromB64Url(tag.name)]: fromB64Url(tag.value),
-    }),
-    {},
-  );
-}
-
-export function byteSize(data: string): number {
-  return Buffer.byteLength(data);
 }

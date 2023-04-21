@@ -258,6 +258,7 @@ function ManageAntModal() {
                             `Writing contract interaction...${modifiedValue}`,
                           );
                           // TODO: write contract interaction
+
                           setEditingField(undefined);
                           setModifiedValue(undefined);
                         }}
