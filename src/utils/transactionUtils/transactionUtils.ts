@@ -210,15 +210,28 @@ export function getArNSMappingByInteractionType(
       switch (interactionType) {
         case ANT_INTERACTION_TYPES.CREATE:
           {
-            const data = transactionData as CreateAntPayload;
+            if (
+              !isObjectOfTransactionPayloadType<CreateAntPayload>(
+                transactionData,
+                TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][
+                  ANT_INTERACTION_TYPES.CREATE
+                ].keys,
+              )
+            ) {
+              throw new Error(
+                'transaction data not of correct payload type <CreateAntPayload>',
+              );
+            }
             mapping = {
               domain: '',
               showTier: false,
               compact: false,
-              state: data.initialState,
+              state: transactionData.initialState,
               overrides: {
-                targetId: data.initialState.records['@'].transactionId,
-                ttlSeconds: data.initialState.records['@'].ttlSeconds,
+                targetId:
+                  transactionData.initialState.records['@'].transactionId,
+                ttlSeconds:
+                  transactionData.initialState.records['@'].ttlSeconds,
               },
               disabledKeys: [
                 'tier',
@@ -232,14 +245,25 @@ export function getArNSMappingByInteractionType(
           }
           break;
         case ANT_INTERACTION_TYPES.SET_NAME: {
-          const data = transactionData as SetNamePayload;
+          if (
+            !isObjectOfTransactionPayloadType<SetNamePayload>(
+              transactionData,
+              TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][
+                ANT_INTERACTION_TYPES.SET_NAME
+              ].keys,
+            )
+          ) {
+            throw new Error(
+              'transaction data not of correct payload type <SetNamePayload>',
+            );
+          }
           mapping = {
             domain: '',
             showTier: false,
             compact: false,
             id: new ArweaveTransactionID(transactionData.assetId),
             overrides: {
-              nickname: data.name,
+              nickname: transactionData.name,
             },
             disabledKeys: [
               'evolve',
@@ -256,12 +280,14 @@ export function getArNSMappingByInteractionType(
   return mapping;
 }
 
-export function getInteractionTypeFromField(field: string) {
-  switch (field) {
-    case 'name':
-      return ANT_INTERACTION_TYPES.SET_NAME;
+export const FieldToInteractionMap: {
+  [x: string]: AntInteraction;
+} = {
+  name: ANT_INTERACTION_TYPES.SET_NAME,
+  // TODO: add other interactions
+};
 
-    default:
-      return undefined;
-  }
+export function getInteractionTypeFromField(field: string) {
+  // TODO: add contract specification and more interaction fields
+  return FieldToInteractionMap[field];
 }
