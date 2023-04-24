@@ -264,7 +264,6 @@ function ManageAntModal() {
                                 row.interactionType,
                                 modifiedValue!,
                               );
-
                             if (payload && row.interactionType && id) {
                               // eslint-disable-next-line
                               const { assetId, functionName, ...data } =

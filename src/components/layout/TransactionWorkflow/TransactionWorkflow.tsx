@@ -263,6 +263,7 @@ function TransactionWorkflow({
       switch (contractType) {
         case CONTRACT_TYPES.ANT: {
           switch (interactionType) {
+            case ANT_INTERACTION_TYPES.SET_TICKER:
             case ANT_INTERACTION_TYPES.SET_NAME: {
               return {
                 pending: {

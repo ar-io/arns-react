@@ -25,7 +25,6 @@ function Transaction() {
   if (!transactionData) {
     return <Navigate to={from ?? '/'} />;
   }
-
   return (
     <>
       <div className="page">
