@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 
-export default function useLongPress(action: () => void) {
+export function useLongPress(action: () => void) {
   const timerRef = useRef<NodeJS.Timeout | undefined>();
   const isLongPress = useRef<boolean>();
 

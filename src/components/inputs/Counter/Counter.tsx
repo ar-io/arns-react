@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import useLongPress from '../../../hooks/useLongPress/useLongPress';
+import { useLongPress } from '../../../hooks';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import './styles.css';
 

@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { useArweaveCompositeProvider } from '../../../hooks';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ANT_INTERACTION_TYPES,
   AntInteraction,
-  ArNSMapping,
   ArweaveTransactionID,
   BuyRecordPayload,
   CONTRACT_TYPES,
@@ -45,16 +44,9 @@ function TransactionWorkflow({
 }) {
   const [{ deployedTransactionId }, dispatchTransactionState] =
     useTransactionState();
-  const [{ arweaveDataProvider }] = useGlobalState();
+  const arweaveDataProvider = useArweaveCompositeProvider();
   const { assetId, functionName, ...payload } = transactionData;
   const navigate = useNavigate();
-  const [antProps] = useState<ArNSMapping>(() =>
-    getArNSMappingByInteractionType({
-      contractType,
-      interactionType,
-      transactionData,
-    }),
-  );
   const [steps, setSteps] = useState<
     | {
         [x: number]: { title: string; status: string };
@@ -260,6 +252,15 @@ function TransactionWorkflow({
     interactionType: AntInteraction | RegistryInteraction;
   }): { [x: string]: WorkflowStage } | undefined {
     try {
+      const antProps = getArNSMappingByInteractionType({
+        contractType,
+        interactionType,
+        transactionData,
+      });
+
+      if (!antProps) {
+        throw Error('Unable to get ANT properties.');
+      }
       switch (contractType) {
         case CONTRACT_TYPES.ANT: {
           switch (interactionType) {

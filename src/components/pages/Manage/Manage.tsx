@@ -3,9 +3,13 @@ import Table from 'rc-table';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { useIsMobile, useWalletAddress } from '../../../hooks';
-import useWalletANTs from '../../../hooks/useWalletANTs/useWalletANTs';
-import useWalletDomains from '../../../hooks/useWalletDomains/useWalletDomains';
+import {
+  useArweaveCompositeProvider,
+  useIsMobile,
+  useWalletANTs,
+  useWalletAddress,
+  useWalletDomains,
+} from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { AntMetadata, ArweaveTransactionID, ManageTable } from '../../../types';
 import { MANAGE_TABLE_NAMES } from '../../../types';
@@ -15,7 +19,8 @@ import { Loader } from '../../layout/index';
 import './styles.css';
 
 function Manage() {
-  const [{ arnsSourceContract, arweaveDataProvider }] = useGlobalState();
+  const [{ arnsSourceContract }] = useGlobalState();
+  const arweaveDataProvider = useArweaveCompositeProvider();
   const { walletAddress } = useWalletAddress();
   const isMobile = useIsMobile();
   const navigate = useNavigate();

@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react';
 
+import { useArweaveCompositeProvider } from '../../hooks';
 import { useGlobalState } from '../../state/contexts/GlobalState';
-import { ArweaveTransactionID } from '../../types';
+import { ArNSContractJSON, ArweaveTransactionID } from '../../types';
 import eventEmitter from '../../utils/events';
 
-export default function useArNSContract() {
-  const [{ arnsContractId, arweaveDataProvider }, dispatch] = useGlobalState();
+export function useArNSContract() {
+  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [{ arnsContractId }, dispatch] = useGlobalState();
   const [sendingContractState, setSendingContractState] = useState(false);
 
   useEffect(() => {
     dispatchNewContractState(arnsContractId);
-  }, [arnsContractId, arweaveDataProvider]);
+  }, [arnsContractId]);
 
   async function dispatchNewContractState(
     contractId: ArweaveTransactionID,
@@ -22,9 +24,10 @@ export default function useArNSContract() {
 
       setSendingContractState(true);
 
-      const arnsContractState = await arweaveDataProvider.getContractState(
-        contractId,
-      );
+      const arnsContractState =
+        await arweaveDataProvider.getContractState<ArNSContractJSON>(
+          contractId,
+        );
       if (!arnsContractState) {
         throw Error('ArNS contract state is empty');
       }

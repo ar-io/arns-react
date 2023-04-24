@@ -54,9 +54,9 @@ export type ArNSContractJSON = {
 };
 
 export type ANTContractDomainRecord = {
-  ttlSeconds: number | undefined;
-  maxSubdomains: number | undefined;
-  transactionId: string | undefined;
+  ttlSeconds: number;
+  maxUndernames: number;
+  transactionId: string;
 };
 
 export type ANTContractJSON = {
@@ -65,9 +65,10 @@ export type ANTContractJSON = {
   name: string;
   owner: string;
   controller: string;
+  controllers?: string[];
   records: {
-    '@': ANTContractDomainRecord;
-    [x: string]: ANTContractDomainRecord;
+    '@': string | ANTContractDomainRecord;
+    [x: string]: string | ANTContractDomainRecord;
   };
   ticker: string;
 };
@@ -95,9 +96,17 @@ export type JsonWalletProvider = {
   key: any;
 };
 
-export interface SmartweaveDataProvider {
-  getContractState(id: ArweaveTransactionID): Promise<any>;
+export interface SmartweaveContractCache {
+  getContractState<T extends ANTContractJSON | ArNSContractJSON>(
+    id: ArweaveTransactionID,
+  ): Promise<T>;
+  getContractBalanceForWallet(
+    id: ArweaveTransactionID,
+    wallet: ArweaveTransactionID,
+  ): Promise<number>;
+}
 
+export interface SmartweaveContractInteractionProvider {
   writeTransaction(
     id: ArweaveTransactionID,
     payload: {
@@ -106,10 +115,6 @@ export interface SmartweaveDataProvider {
     },
     dryWrite?: boolean,
   ): Promise<ArweaveTransactionID | undefined>;
-  getContractBalanceForWallet(
-    id: ArweaveTransactionID,
-    wallet: ArweaveTransactionID,
-  ): Promise<number>;
   deployContract({
     srcCodeTransactionId,
     initialState,

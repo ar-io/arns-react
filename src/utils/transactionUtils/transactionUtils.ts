@@ -1,3 +1,4 @@
+import { ANTContract } from '../../services/arweave/AntContract';
 import {
   ANT_INTERACTION_TYPES,
   AntInteraction,
@@ -183,25 +184,33 @@ export function getArNSMappingByInteractionType(
     interactionType: AntInteraction | RegistryInteraction;
     transactionData: TransactionData;
   },
-): ArNSMapping {
-  let mapping: ArNSMapping = { domain: '' };
-
+): ArNSMapping | undefined {
   switch (contractType) {
     case CONTRACT_TYPES.REGISTRY:
       {
         switch (interactionType) {
           case REGISTRY_INTERACTION_TYPES.BUY_RECORD: {
-            const data = transactionData as BuyRecordPayload;
-            mapping = {
-              domain: data.name,
-              id: new ArweaveTransactionID(data.contractTxId),
+            if (
+              !isObjectOfTransactionPayloadType<BuyRecordPayload>(
+                transactionData,
+                TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][
+                  ANT_INTERACTION_TYPES.CREATE
+                ].keys,
+              )
+            ) {
+              throw new Error(
+                'transaction data not of correct payload type <CreateAntPayload>',
+              );
+            }
+            return {
+              domain: transactionData.name,
+              id: new ArweaveTransactionID(transactionData.contractTxId),
               overrides: {
-                tier: data.tierNumber,
+                tier: transactionData.tierNumber,
                 maxSubdomains: 100, // TODO get subdomain count from contract
-                leaseDuration: data.years,
+                leaseDuration: transactionData.years,
               },
             };
-            break;
           }
         }
       }
@@ -222,16 +231,15 @@ export function getArNSMappingByInteractionType(
                 'transaction data not of correct payload type <CreateAntPayload>',
               );
             }
-            mapping = {
+            const ant = new ANTContract(transactionData.initialState);
+            return {
               domain: '',
               showTier: false,
               compact: false,
-              state: transactionData.initialState,
+              state: ant.state,
               overrides: {
-                targetId:
-                  transactionData.initialState.records['@'].transactionId,
-                ttlSeconds:
-                  transactionData.initialState.records['@'].ttlSeconds,
+                targetId: ant.getRecord('@').transactionId,
+                ttlSeconds: ant.getRecord('@').ttlSeconds,
               },
               disabledKeys: [
                 'tier',
@@ -257,7 +265,7 @@ export function getArNSMappingByInteractionType(
               'transaction data not of correct payload type <SetNamePayload>',
             );
           }
-          mapping = {
+          return {
             domain: '',
             showTier: false,
             compact: false,
@@ -277,7 +285,6 @@ export function getArNSMappingByInteractionType(
       }
     }
   }
-  return mapping;
 }
 
 export const FieldToInteractionMap: {

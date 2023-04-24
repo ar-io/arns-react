@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 
-import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { useArweaveCompositeProvider } from '../../../hooks';
 
 function ArPrice({ dataSize }: { dataSize: number }) {
-  const [{ arweaveDataProvider }] = useGlobalState();
+  const arweaveDataProvider = useArweaveCompositeProvider();
 
   const [price, setPrice] = useState(0);
   useEffect(() => {

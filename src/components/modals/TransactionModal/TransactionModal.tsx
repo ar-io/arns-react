@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { useIsMobile } from '../../../hooks';
+import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
   ANT_INTERACTION_TYPES,
@@ -31,7 +31,8 @@ function TransactionModal({
   contractId?: ArweaveTransactionID; // contract ID if asset type is a contract interaction
   showModal: () => void;
 }) {
-  const [{ arnsSourceContract, arweaveDataProvider }] = useGlobalState();
+  const [{ arnsSourceContract }] = useGlobalState();
+  const arweaveDataProvider = useArweaveCompositeProvider();
   const isMobile = useIsMobile();
   const [accepted, setAccepted] = useState<boolean>(false);
   const [toAddress, setToAddress] = useState<string>('');

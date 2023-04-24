@@ -2,9 +2,12 @@ import Table from 'rc-table';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
-import { useIsMobile, useWalletAddress } from '../../../hooks';
+import {
+  useArweaveCompositeProvider,
+  useIsMobile,
+  useWalletAddress,
+} from '../../../hooks';
 import { ANTContract } from '../../../services/arweave/AntContract';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
   ANTContractJSON,
   ANT_INTERACTION_TYPES,
@@ -27,7 +30,7 @@ import Workflow from '../../layout/Workflow/Workflow';
 
 function CreateAntModal() {
   const isMobile = useIsMobile();
-  const [{ arweaveDataProvider }] = useGlobalState();
+  const arweaveDataProvider = useArweaveCompositeProvider();
   const { walletAddress } = useWalletAddress();
   const navigate = useNavigate();
 
@@ -137,8 +140,8 @@ function CreateAntModal() {
     const consolidatedDetails: any = {
       name: ant.name,
       ticker: ant.ticker,
-      targetID: ant.records['@'].transactionId,
-      ttlSeconds: ant.records['@'].ttlSeconds?.toString(),
+      targetID: ant.getRecord('@').transactionId,
+      ttlSeconds: ant.getRecord('@').ttlSeconds,
       controller: ant.controller,
       owner: ant.owner,
     };
@@ -183,7 +186,7 @@ function CreateAntModal() {
         case 'targetID':
           ant.records = {
             '@': {
-              ...ant.records['@'],
+              ...ant.getRecord('@'),
               transactionId: modifiedValue.toString(),
             },
           };
@@ -191,7 +194,7 @@ function CreateAntModal() {
         case 'ttlSeconds':
           ant.records = {
             '@': {
-              ...ant.records['@'],
+              ...ant.getRecord('@'),
               ttlSeconds: +modifiedValue,
             },
           };

@@ -1,8 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { useArweaveCompositeProvider } from '../../../hooks';
+import { ANTContract } from '../../../services/arweave/AntContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
-import { ArweaveTransactionID, VALIDATION_INPUT_TYPES } from '../../../types';
+import {
+  ANTContractJSON,
+  ArweaveTransactionID,
+  VALIDATION_INPUT_TYPES,
+} from '../../../types';
 import Dropdown from '../../inputs/Dropdown/Dropdown';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import UpgradeTier from '../UpgradeTier/UpgradeTier';
@@ -11,7 +17,8 @@ import './styles.css';
 function RegisterNameForm() {
   const [{ domain, ttl, antID }, dispatchRegisterState] =
     useRegistrationState();
-  const [{ arnsSourceContract, arweaveDataProvider }] = useGlobalState();
+  const [{ arnsSourceContract }] = useGlobalState();
+  const arweaveDataProvider = useArweaveCompositeProvider();
 
   const [isValidAnt, setIsValidAnt] = useState<boolean | undefined>(undefined);
   const [antTxID, setAntTXId] = useState<string | undefined>(antID?.toString());
@@ -57,47 +64,41 @@ function RegisterNameForm() {
         payload: txId,
       });
 
-      const state = await arweaveDataProvider.getContractState(txId);
+      const state = await arweaveDataProvider.getContractState<ANTContractJSON>(
+        txId,
+      );
       if (state == undefined) {
         throw Error('ANT contract state is undefined');
       }
 
-      const { controller, name, owner, ticker, records } = state;
+      const ant = new ANTContract(state);
       dispatchRegisterState({
         type: 'setControllers',
         payload: [
-          controller
-            ? new ArweaveTransactionID(controller)
-            : new ArweaveTransactionID(owner),
+          ant.controller
+            ? new ArweaveTransactionID(ant.controller)
+            : new ArweaveTransactionID(ant.owner),
         ],
       });
       // update to use ANTContract
       dispatchRegisterState({
         type: 'setNickname',
-        payload: name,
+        payload: ant.name,
       });
       dispatchRegisterState({
         type: 'setOwner',
-        payload: new ArweaveTransactionID(owner),
+        payload: new ArweaveTransactionID(ant.owner),
       });
       dispatchRegisterState({
         type: 'setTicker',
-        payload: ticker,
+        payload: ant.ticker,
       });
       // legacy targetID condition
-      if (records['@']) {
-        if (records['@'].transactionId) {
-          dispatchRegisterState({
-            type: 'setTargetID',
-            payload: new ArweaveTransactionID(records['@'].transactionId),
-          });
-        }
-        if (!records['@'].transactionId)
-          dispatchRegisterState({
-            type: 'setTargetID',
-            payload: new ArweaveTransactionID(records['@']),
-          });
-      }
+
+      dispatchRegisterState({
+        type: 'setTargetID',
+        payload: new ArweaveTransactionID(ant.getRecord('@').transactionId),
+      });
 
       setIsValidAnt(true);
     } catch (error: any) {
