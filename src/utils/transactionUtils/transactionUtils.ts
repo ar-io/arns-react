@@ -187,6 +187,7 @@ export function getArNSMappingByInteractionType(
     transactionData: TransactionData;
   },
 ): ArNSMapping | undefined {
+  let mapping: ArNSMapping = { domain: '' };
   switch (contractType) {
     case CONTRACT_TYPES.REGISTRY:
       {
@@ -323,6 +324,7 @@ export function getArNSMappingByInteractionType(
       }
     }
   }
+  return mapping;
 }
 
 export const FieldToInteractionMap: {
