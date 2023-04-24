@@ -187,7 +187,6 @@ export function getArNSMappingByInteractionType(
     transactionData: TransactionData;
   },
 ): ArNSMapping | undefined {
-  let mapping: ArNSMapping = { domain: '' };
   switch (contractType) {
     case CONTRACT_TYPES.REGISTRY:
       {
@@ -205,7 +204,7 @@ export function getArNSMappingByInteractionType(
                 'transaction data not of correct payload type <BuyRecordPayload>',
               );
             }
-            mapping = {
+            return {
               domain: transactionData.name,
               id: new ArweaveTransactionID(transactionData.contractTxId),
               overrides: {
@@ -220,41 +219,39 @@ export function getArNSMappingByInteractionType(
       break;
     case CONTRACT_TYPES.ANT: {
       switch (interactionType) {
-        case ANT_INTERACTION_TYPES.CREATE:
-          {
-            if (
-              !isObjectOfTransactionPayloadType<CreateAntPayload>(
-                transactionData,
-                TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][
-                  ANT_INTERACTION_TYPES.CREATE
-                ].keys,
-              )
-            ) {
-              throw new Error(
-                'transaction data not of correct payload type <CreateAntPayload>',
-              );
-            }
-            const ant = new ANTContract(transactionData.initialState);
-            return {
-              domain: '',
-              showTier: false,
-              compact: false,
-              state: ant.state,
-              overrides: {
-                targetId: ant.getRecord('@').transactionId,
-                ttlSeconds: ant.getRecord('@').ttlSeconds,
-              },
-              disabledKeys: [
-                'tier',
-                'evolve',
-                'maxSubdomains',
-                'id',
-                'domain',
-                'leaseDuration',
-              ],
-            };
+        case ANT_INTERACTION_TYPES.CREATE: {
+          if (
+            !isObjectOfTransactionPayloadType<CreateAntPayload>(
+              transactionData,
+              TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][
+                ANT_INTERACTION_TYPES.CREATE
+              ].keys,
+            )
+          ) {
+            throw new Error(
+              'transaction data not of correct payload type <CreateAntPayload>',
+            );
           }
-          break;
+          const ant = new ANTContract(transactionData.initialState);
+          return {
+            domain: '',
+            showTier: false,
+            compact: false,
+            state: ant.state,
+            overrides: {
+              targetId: ant.getRecord('@').transactionId,
+              ttlSeconds: ant.getRecord('@').ttlSeconds,
+            },
+            disabledKeys: [
+              'tier',
+              'evolve',
+              'maxSubdomains',
+              'id',
+              'domain',
+              'leaseDuration',
+            ],
+          };
+        }
         case ANT_INTERACTION_TYPES.SET_NAME:
           {
             if (
@@ -269,7 +266,7 @@ export function getArNSMappingByInteractionType(
                 'transaction data not of correct payload type <SetNamePayload>',
               );
             }
-            mapping = {
+            return {
               domain: '',
               showTier: false,
               compact: false,
@@ -287,44 +284,41 @@ export function getArNSMappingByInteractionType(
             };
           }
           break;
-        case ANT_INTERACTION_TYPES.SET_TICKER:
-          {
-            if (
-              !isObjectOfTransactionPayloadType<SetTickerPayload>(
+        case ANT_INTERACTION_TYPES.SET_TICKER: {
+          if (
+            !isObjectOfTransactionPayloadType<SetTickerPayload>(
+              transactionData,
+              TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][
+                ANT_INTERACTION_TYPES.SET_TICKER
+              ].keys,
+            )
+          ) {
+            throw new Error(
+              `transaction data not of correct payload type <SetTickerPayload> keys: ${Object.keys(
                 transactionData,
-                TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][
-                  ANT_INTERACTION_TYPES.SET_TICKER
-                ].keys,
-              )
-            ) {
-              throw new Error(
-                `transaction data not of correct payload type <SetTickerPayload> keys: ${Object.keys(
-                  transactionData,
-                )}`,
-              );
-            }
-            mapping = {
-              domain: '',
-              showTier: false,
-              compact: false,
-              id: new ArweaveTransactionID(transactionData.assetId),
-              overrides: {
-                ticker: transactionData.ticker,
-              },
-              disabledKeys: [
-                'evolve',
-                'maxSubdomains',
-                'domain',
-                'leaseDuration',
-                'ttlSeconds',
-              ],
-            };
+              )}`,
+            );
           }
-          break;
+          return {
+            domain: '',
+            showTier: false,
+            compact: false,
+            id: new ArweaveTransactionID(transactionData.assetId),
+            overrides: {
+              ticker: transactionData.ticker,
+            },
+            disabledKeys: [
+              'evolve',
+              'maxSubdomains',
+              'domain',
+              'leaseDuration',
+              'ttlSeconds',
+            ],
+          };
+        }
       }
     }
   }
-  return mapping;
 }
 
 export const FieldToInteractionMap: {
