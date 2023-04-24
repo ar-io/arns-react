@@ -49,15 +49,9 @@ function TransactionComplete({
             style={{ gap: '1em', maxWidth: '782px' }}
           >
             <Link
-              to="/"
+              to="/create"
               className="link"
               style={{ textDecoration: 'none' }}
-              onClick={() =>
-                dispatchGlobalState({
-                  type: 'setShowCreateAnt',
-                  payload: false,
-                })
-              }
             >
               <div
                 className="flex flex-column center card"
@@ -114,15 +108,9 @@ function TransactionComplete({
             </Link>
 
             <Link
-              to="/manage"
+              to={`/manage/ants/${transactionData.assetId}`}
               className="link"
               style={{ textDecoration: 'none' }}
-              onClick={() =>
-                dispatchGlobalState({
-                  type: 'setShowCreateAnt',
-                  payload: false,
-                })
-              }
             >
               <div
                 className="flex flex-column center card"
@@ -145,15 +133,10 @@ function TransactionComplete({
             </Link>
 
             <Link
-              to="/manage"
+              // TODO: update to route to undernames
+              to={`/manage/ants/${transactionData.assetId}`}
               className="link"
               style={{ textDecoration: 'none' }}
-              onClick={() =>
-                dispatchGlobalState({
-                  type: 'setShowCreateAnt',
-                  payload: false,
-                })
-              }
             >
               <div
                 className="flex flex-column center card"
