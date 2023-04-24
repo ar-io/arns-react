@@ -9,12 +9,7 @@ export type Action =
       payload: ArweaveWalletConnector | undefined;
     }
   | { type: 'setGateway'; payload: string }
-  | { type: 'setArnsContractState'; payload: ArNSContractJSON }
-  | { type: 'setShowConnectWallet'; payload: boolean }
-  | {
-      type: 'setArweaveDataProvider';
-      payload: ArweaveDataProvider & SmartweaveDataProvider;
-    };
+  | { type: 'setArnsContractState'; payload: ArNSContractJSON };
 
 export const reducer = (state: GlobalState, action: Action): GlobalState => {
   switch (action.type) {

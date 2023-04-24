@@ -184,25 +184,33 @@ export function getArNSMappingByInteractionType(
     interactionType: AntInteraction | RegistryInteraction;
     transactionData: TransactionData;
   },
-): ArNSMapping {
-  let mapping: ArNSMapping = { domain: '' };
-
+): ArNSMapping | undefined {
   switch (contractType) {
     case CONTRACT_TYPES.REGISTRY:
       {
         switch (interactionType) {
           case REGISTRY_INTERACTION_TYPES.BUY_RECORD: {
-            const data = transactionData as BuyRecordPayload;
-            mapping = {
-              domain: data.name,
-              id: new ArweaveTransactionID(data.contractTxId),
+            if (
+              !isObjectOfTransactionPayloadType<BuyRecordPayload>(
+                transactionData,
+                TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][
+                  ANT_INTERACTION_TYPES.CREATE
+                ].keys,
+              )
+            ) {
+              throw new Error(
+                'transaction data not of correct payload type <CreateAntPayload>',
+              );
+            }
+            return {
+              domain: transactionData.name,
+              id: new ArweaveTransactionID(transactionData.contractTxId),
               overrides: {
-                tier: data.tierNumber,
+                tier: transactionData.tierNumber,
                 maxSubdomains: 100, // TODO get subdomain count from contract
-                leaseDuration: data.years,
+                leaseDuration: transactionData.years,
               },
             };
-            break;
           }
         }
       }
@@ -224,7 +232,7 @@ export function getArNSMappingByInteractionType(
               );
             }
             const ant = new ANTContract(transactionData.initialState);
-            mapping = {
+            return {
               domain: '',
               showTier: false,
               compact: false,
@@ -257,14 +265,13 @@ export function getArNSMappingByInteractionType(
               'transaction data not of correct payload type <SetNamePayload>',
             );
           }
-          const ant = new ANTContract(transactionData.initialState);
-          mapping = {
+          return {
             domain: '',
             showTier: false,
             compact: false,
-            id: new ArweaveTransactionID(ant.assetId),
+            id: new ArweaveTransactionID(transactionData.assetId),
             overrides: {
-              nickname: ant.name,
+              nickname: transactionData.name,
             },
             disabledKeys: [
               'evolve',
@@ -278,7 +285,6 @@ export function getArNSMappingByInteractionType(
       }
     }
   }
-  return mapping;
 }
 
 export const FieldToInteractionMap: {
