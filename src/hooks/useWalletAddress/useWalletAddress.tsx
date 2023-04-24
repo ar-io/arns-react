@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { ArweaveTransactionID } from '../../types';
@@ -8,6 +9,7 @@ export function useWalletAddress(): {
   wallet: any;
   walletAddress: ArweaveTransactionID | undefined;
 } {
+  const navigate = useNavigate();
   const [{ wallet, walletAddress }, dispatchGlobalState] = useGlobalState();
 
   useEffect(() => {
@@ -32,10 +34,7 @@ export function useWalletAddress(): {
               type: 'setWalletAddress',
               payload: undefined,
             });
-            dispatchGlobalState({
-              type: 'setShowConnectWallet',
-              payload: true,
-            });
+            navigate('/connect');
             eventEmitter.emit('error', error);
           });
       }
@@ -63,13 +62,10 @@ export function useWalletAddress(): {
           type: 'setWalletAddress',
           payload: undefined,
         });
-        dispatchGlobalState({
-          type: 'setShowConnectWallet',
-          payload: true,
-        });
         eventEmitter.emit('error', error);
+        navigate('/connect');
       });
-  }, [wallet]); // eslint-disable-line
+  }, [wallet]);
 
   return {
     walletAddress,
