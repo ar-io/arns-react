@@ -132,7 +132,7 @@ function ManageAntModal() {
         <span className="flex white text-large bold">
           <button
             className="faded text-large bold underline link center"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/manage/ants')}
           >
             <ArrowLeft
               width={30}
@@ -156,7 +156,7 @@ function ManageAntModal() {
         {/* TODO: make sure the table doesn't refresh if no actions were saved/written */}
         <button
           className="flex flex-right pointer"
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/manage/ants')}
         >
           <CloseIcon width="30px" height={'30px'} fill="var(--text-white)" />
         </button>
