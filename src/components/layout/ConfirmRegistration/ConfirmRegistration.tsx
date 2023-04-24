@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { useArweaveCompositeProvider } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { NAME_PRICE_INFO, SMARTWEAVE_TAG_SIZE } from '../../../utils/constants';
@@ -15,8 +16,8 @@ function ConfirmRegistration() {
     { domain, ttl, tier, leaseDuration, antID, fee, stage },
     dispatchRegistrationState,
   ] = useRegistrationState();
-  const [{ arnsSourceContract, arnsContractId, arweaveDataProvider }] =
-    useGlobalState();
+  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [{ arnsSourceContract, arnsContractId }] = useGlobalState();
   const [isPostingTransaction, setIsPostingTransaction] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
   useEffect(() => {

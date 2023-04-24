@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { useWalletAddress } from '../../../hooks/index';
+import { useWalletAddress } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
@@ -114,7 +114,8 @@ function Home() {
                 });
                 // navigate to the transaction page, which will load the updated state of the transaction context
                 navigate('/transaction', {
-                  state: '/',
+                  state: `/?search=${domain}`,
+                  replace: true,
                 });
               }
               dispatchRegisterState({

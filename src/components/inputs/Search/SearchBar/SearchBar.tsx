@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { useIsMobile } from '../../../../hooks';
-import { useGlobalState } from '../../../../state/contexts/GlobalState';
+import { useIsMobile, useWalletAddress } from '../../../../hooks';
 import { SearchBarProps } from '../../../../types';
 import { ArrowUpRight, SearchIcon } from '../../../icons';
 import './styles.css';
@@ -22,8 +22,8 @@ function SearchBar(props: SearchBarProps) {
     value,
     height,
   } = props;
-
-  const [{ walletAddress }, dispatchGlobalState] = useGlobalState();
+  const navigate = useNavigate();
+  const { walletAddress } = useWalletAddress();
   const isMobile = useIsMobile();
   const [isSearchValid, setIsSearchValid] = useState(true);
   const [showDefaultText, setShowDefaultText] = useState(true);
@@ -103,10 +103,9 @@ function SearchBar(props: SearchBarProps) {
   }
 
   function _onSubmitButton() {
-    if (!walletAddress) {
-      dispatchGlobalState({
-        type: 'setShowConnectWallet',
-        payload: true,
+    if (!walletAddress?.toString()) {
+      navigate('/connect', {
+        state: `/?search=${searchBarText}`,
       });
     }
 

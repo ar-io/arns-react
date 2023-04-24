@@ -1,3 +1,6 @@
+import { useEffect, useState } from 'react';
+
+import { ANTContract } from '../../../services/arweave/AntContract';
 import { ANTContractJSON } from '../../../types';
 import { byteSize } from '../../../utils';
 import { NAME_PRICE_INFO } from '../../../utils/constants';
@@ -6,6 +9,15 @@ import ArPrice from '../ArPrice/ArPrice';
 import { Tooltip } from '../Tooltip/Tooltip';
 
 function ConfirmAntCreation({ state }: { state: ANTContractJSON }) {
+  const [ant, setAnt] = useState<ANTContract>();
+  useEffect(() => {
+    setAnt(new ANTContract(state));
+  }, [state]);
+
+  if (!ant) {
+    return <div>Something went wrong. Try again</div>;
+  }
+
   return (
     <div className="register-name-modal center">
       <AntCard
@@ -16,8 +28,8 @@ function ConfirmAntCreation({ state }: { state: ANTContractJSON }) {
         enableActions={false}
         showTier={false}
         overrides={{
-          targetId: state.records['@'].transactionId,
-          ttlSeconds: state.records['@'].ttlSeconds,
+          targetId: ant.getRecord('@').transactionId,
+          ttlSeconds: ant.getRecord('@').ttlSeconds,
         }}
         disabledKeys={[
           'tier',

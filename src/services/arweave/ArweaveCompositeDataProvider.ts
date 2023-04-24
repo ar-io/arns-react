@@ -1,36 +1,46 @@
-import { ArweaveTransactionID, TransactionTag } from '../../types';
 import {
   ANTContractJSON,
   ArNSContractJSON,
   ArweaveDataProvider,
-  SmartweaveDataProvider,
+  ArweaveTransactionID,
+  SmartweaveContractCache,
+  SmartweaveContractInteractionProvider,
+  TransactionTag,
 } from '../../types';
 
 export class ArweaveCompositeDataProvider
-  implements SmartweaveDataProvider, ArweaveDataProvider
+  implements
+    SmartweaveContractInteractionProvider,
+    SmartweaveContractCache,
+    ArweaveDataProvider
 {
   // NOTE: this class should not have any logic for performing queries itself, but rather logic for getting results from
   // an array of providers, using different strategies such as Promise.race or Promise.all.
-  private _warpProvider: SmartweaveDataProvider;
+  private _interactionProvider: SmartweaveContractInteractionProvider;
+  private _contractProviders: SmartweaveContractCache[];
   private _arweaveProvider: ArweaveDataProvider;
 
   // TODO: implement strategy methods
   constructor(
-    warpProviders: SmartweaveDataProvider,
-    arweaveProviders: ArweaveDataProvider,
+    arweaveProvider: ArweaveDataProvider,
+    interactionProvider: SmartweaveContractInteractionProvider,
+    contractProviders: SmartweaveContractCache[],
   ) {
-    this._warpProvider = warpProviders;
-    this._arweaveProvider = arweaveProviders;
+    this._contractProviders = contractProviders;
+    this._interactionProvider = interactionProvider;
+    this._arweaveProvider = arweaveProvider;
   }
 
   async getWalletBalance(id: ArweaveTransactionID): Promise<number> {
     return this._arweaveProvider.getWalletBalance(id);
   }
 
-  async getContractState(
+  async getContractState<T extends ArNSContractJSON | ANTContractJSON>(
     id: ArweaveTransactionID,
-  ): Promise<ArNSContractJSON | ANTContractJSON | undefined> {
-    return this._warpProvider.getContractState(id);
+  ): Promise<T> {
+    return Promise.any(
+      this._contractProviders.map((p) => p.getContractState<T>(id)),
+    );
   }
 
   async writeTransaction(
@@ -40,14 +50,18 @@ export class ArweaveCompositeDataProvider
       [x: string]: any;
     },
   ): Promise<ArweaveTransactionID | undefined> {
-    return await this._warpProvider.writeTransaction(id, payload);
+    return await this._interactionProvider.writeTransaction(id, payload);
   }
 
   async getContractBalanceForWallet(
     id: ArweaveTransactionID,
     wallet: ArweaveTransactionID,
   ): Promise<number> {
-    return this._warpProvider.getContractBalanceForWallet(id, wallet);
+    return Promise.any(
+      this._contractProviders.map((p) =>
+        p.getContractBalanceForWallet(id, wallet),
+      ),
+    );
   }
 
   async getContractsForWallet(
@@ -99,7 +113,7 @@ export class ArweaveCompositeDataProvider
     initialState: ANTContractJSON;
     tags?: TransactionTag[];
   }): Promise<string> {
-    return await this._warpProvider.deployContract({
+    return await this._interactionProvider.deployContract({
       srcCodeTransactionId,
       initialState,
       tags,

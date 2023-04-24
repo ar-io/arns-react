@@ -4,22 +4,21 @@ import { ArweaveTransactionID } from '../../types';
 import {
   ANTContractJSON,
   ArNSContractJSON,
-  SmartweaveDataProvider,
+  SmartweaveContractInteractionProvider,
   TransactionTag,
 } from '../../types';
 
 export class LocalFileSystemDataProvider
-  implements Partial<SmartweaveDataProvider>
+  implements Partial<SmartweaveContractInteractionProvider>
 {
-  async getContractState(
+  async getContractState<T extends ArNSContractJSON | ANTContractJSON>(
     id: ArweaveTransactionID,
-  ): Promise<ArNSContractJSON | ANTContractJSON | undefined> {
+  ): Promise<T> {
     const localFile = `data/contracts/${id.toString()}.json`;
     const { data } = await axios.get(localFile);
-    const arnsContractState = data as any;
+    const arnsContractState = data as T;
     return arnsContractState;
   }
-
   async writeTransaction(
     payload: any,
   ): Promise<ArweaveTransactionID | undefined> {

@@ -1,3 +1,4 @@
+import { ANTContract } from '../../services/arweave/AntContract';
 import {
   ANT_INTERACTION_TYPES,
   AntInteraction,
@@ -185,9 +186,7 @@ export function getArNSMappingByInteractionType(
     interactionType: AntInteraction | RegistryInteraction;
     transactionData: TransactionData;
   },
-): ArNSMapping {
-  let mapping: ArNSMapping = { domain: '' };
-
+): ArNSMapping | undefined {
   switch (contractType) {
     case CONTRACT_TYPES.REGISTRY:
       {
@@ -214,7 +213,6 @@ export function getArNSMappingByInteractionType(
                 leaseDuration: transactionData.years,
               },
             };
-            break;
           }
         }
       }
@@ -235,16 +233,15 @@ export function getArNSMappingByInteractionType(
                 'transaction data not of correct payload type <CreateAntPayload>',
               );
             }
-            mapping = {
+            const ant = new ANTContract(transactionData.initialState);
+            return {
               domain: '',
               showTier: false,
               compact: false,
-              state: transactionData.initialState,
+              state: ant.state,
               overrides: {
-                targetId:
-                  transactionData.initialState.records['@'].transactionId,
-                ttlSeconds:
-                  transactionData.initialState.records['@'].ttlSeconds,
+                targetId: ant.getRecord('@').transactionId,
+                ttlSeconds: ant.getRecord('@').ttlSeconds,
               },
               disabledKeys: [
                 'tier',
@@ -326,7 +323,6 @@ export function getArNSMappingByInteractionType(
       }
     }
   }
-  return mapping;
 }
 
 export const FieldToInteractionMap: {

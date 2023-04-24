@@ -13,6 +13,8 @@ export const STUB_ARWEAVE_TXID = '2yHmORN-N12hM1B2f9-JPMpOfa59qhpsExFCzImrD30'; 
 export const DEFAULT_ANT_SOURCE_CODE_TX =
   'PEI1efYrsX08HUwvc6y-h6TSpsNlo2r6_fWL2_GdwhY';
 export const RECOMMENDED_TRANSACTION_CONFIRMATIONS = 50;
+export const DEFAULT_TTL_SECONDS = 3600;
+export const DEFAULT_MAX_UNDERNAMES = 100;
 export const ANT_CONTRACT_STATE_KEYS = [
   'balances',
   'evolve',
@@ -41,17 +43,17 @@ export const FEATURED_DOMAINS = [
 // TODO: pull from contract
 export const TIER_DATA: { [x: number]: string[] } = {
   1: [
-    'Up to 100 Subdomains',
+    'Up to 100 Undernames',
     'Available via all ArNS-enabled gateways',
     'Permanently stored on Arweave',
   ],
   2: [
-    'Up to 1,000 Subdomains',
+    'Up to 1,000 Undernames',
     'Available via all ArNS-enabled gateways',
     'Permanently stored on Arweave',
   ],
   3: [
-    'Up to 10,000 Subdomains',
+    'Up to 10,000 Undernames',
     'Available via all ArNS-enabled gateways',
     'Permanently stored on Arweave',
   ],
@@ -115,8 +117,8 @@ export const DEFAULT_ANT_CONTRACT_STATE: ANTContractJSON = {
   records: {
     '@': {
       transactionId: '',
-      ttlSeconds: 1800,
-      maxSubdomains: 100,
+      ttlSeconds: DEFAULT_TTL_SECONDS,
+      maxUndernames: DEFAULT_MAX_UNDERNAMES,
     },
   },
 };

@@ -40,10 +40,10 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
   async getTransactionTags(
     id: ArweaveTransactionID,
   ): Promise<{ [x: string]: string }> {
-    const { data: tags } = await this._arweave.api.get(
+    const { data: encodedTags } = await this._arweave.api.get(
       `/tx/${id.toString()}/tags`,
     );
-    const decodedTags = tagsToObject(JSON.parse(tags));
+    const decodedTags = tagsToObject(JSON.parse(encodedTags));
     return decodedTags;
   }
 

@@ -11,7 +11,7 @@ function Transaction() {
   const { transactionData, contractType, interactionType, workflowStage } =
     useTransactionData();
   const from = useLocation().state;
-  const [{}, dispatchTransactionState] = useTransactionState(); // eslint-disable-line
+  const [, dispatchTransactionState] = useTransactionState();
 
   useEffect(() => {
     if (from) {

@@ -1,12 +1,18 @@
-import { ArweaveTransactionID, SmartweaveDataProvider } from '../../types';
+import {
+  ArweaveTransactionID,
+  SmartweaveContractInteractionProvider,
+} from '../../types';
 import { ANTContract } from './AntContract';
 
 export class ANTInteractionProvider implements ANTInteractionProvider {
-  private _provider: SmartweaveDataProvider;
+  private _provider: SmartweaveContractInteractionProvider;
   contract: ANTContract;
   antId: ArweaveTransactionID;
 
-  constructor(contract: ANTContract, provider: SmartweaveDataProvider) {
+  constructor(
+    contract: ANTContract,
+    provider: SmartweaveContractInteractionProvider,
+  ) {
     if (!contract.id) {
       throw Error(
         'Not allowed to use ANTInteractionProvider without a valid ANT ID.',
@@ -50,8 +56,8 @@ export class ANTInteractionProvider implements ANTInteractionProvider {
       }
       return txId;
     } catch (error) {
-      console.error(error);
-      return;
+      console.debug(error);
+      throw error;
     }
   }
   async setTargetId(id: ArweaveTransactionID) {
@@ -71,8 +77,8 @@ export class ANTInteractionProvider implements ANTInteractionProvider {
       }
       return txId;
     } catch (error) {
-      console.error(error);
-      return;
+      console.debug(error);
+      throw error;
     }
   }
 
@@ -97,16 +103,10 @@ export class ANTInteractionProvider implements ANTInteractionProvider {
         function: 'setRecord',
         subDomain: name,
         target: targetId.toString(),
-        ttlSeconds: ttl
-          ? ttl
-          : this.contract.state.records[name].ttlSeconds
-          ? this.contract.state.records[name].ttlSeconds
-          : 1800,
+        ttlSeconds: ttl ? ttl : this.contract.getRecord(name).ttlSeconds,
         maxSubdomains: maxSubdomains
           ? maxSubdomains
-          : this.contract.state.records[name].maxSubdomains
-          ? this.contract.state.records[name].maxSubdomains
-          : 100,
+          : this.contract.getRecord(name).maxUndernames,
       };
       const txId = await this._provider.writeTransaction(this.antId, payload);
       if (!txId) {
@@ -114,8 +114,8 @@ export class ANTInteractionProvider implements ANTInteractionProvider {
       }
       return txId;
     } catch (error) {
-      console.error(error);
-      return;
+      console.debug(error);
+      throw error;
     }
   }
 
@@ -135,8 +135,8 @@ export class ANTInteractionProvider implements ANTInteractionProvider {
       }
       return txId;
     } catch (error) {
-      console.error(error);
-      return;
+      console.debug(error);
+      throw error;
     }
   }
 }

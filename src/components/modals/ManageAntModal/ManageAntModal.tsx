@@ -3,10 +3,12 @@ import Table from 'rc-table';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { useIsMobile } from '../../../hooks';
+import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
+import { ANTContract } from '../../../services/arweave/AntContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
+  ANTContractJSON,
   ArNSRecordEntry,
   ArweaveTransactionID,
   CONTRACT_TYPES,
@@ -18,10 +20,7 @@ import {
   getTransactionPayloadByInteractionType,
 } from '../../../utils';
 import eventEmitter from '../../../utils/events';
-import {
-  DEFAULT_ATTRIBUTES,
-  mapKeyToAttribute,
-} from '../../cards/AntCard/AntCard';
+import { mapKeyToAttribute } from '../../cards/AntCard/AntCard';
 import { ArrowLeft, CloseIcon, PencilIcon } from '../../icons';
 import TransactionStatus from '../../layout/TransactionStatus/TransactionStatus';
 
@@ -50,8 +49,8 @@ function ManageAntModal() {
   const { id } = useParams();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-
-  const [{ arnsSourceContract, arweaveDataProvider }] = useGlobalState();
+  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [{ arnsSourceContract }] = useGlobalState();
   const [{}, dispatchTransactionState] = useTransactionState(); // eslint-disable-line
   const [antName, setAntName] = useState<string>();
   const [editingField, setEditingField] = useState<string>();
@@ -82,22 +81,29 @@ function ManageAntModal() {
   async function fetchAntDetails(txId: ArweaveTransactionID) {
     const names = getAssociatedNames(txId);
     const [contractState, confirmations] = await Promise.all([
-      arweaveDataProvider.getContractState(txId),
+      arweaveDataProvider.getContractState<ANTContractJSON>(txId),
       arweaveDataProvider.getTransactionStatus(txId),
     ]);
+    const ant = new ANTContract(contractState);
+    const record = Object.values(arnsSourceContract.records).find(
+      (r) => r.contractTxId === txId.toString(),
+    );
+    const tier = arnsSourceContract.tiers.history.find(
+      (t) => t.id === record?.tier,
+    );
     // TODO: add error messages and reload state to row
     const consolidatedDetails: ManageAntRow & any = {
       status: confirmations ?? 0,
       associatedNames: !names.length ? 'N/A' : names.join(', '),
-      name: contractState.name ?? 'N/A',
-      ticker: contractState.ticker ?? 'N/A',
-      targetID: contractState.target ?? 'N/A',
-      ttlSeconds: DEFAULT_ATTRIBUTES.ttlSeconds.toString(),
+      name: ant.name ?? 'N/A',
+      ticker: ant.ticker ?? 'N/A',
+      targetID: ant.getRecord('@').transactionId ?? 'N/A',
+      ttlSeconds: ant.getRecord('@').ttlSeconds,
       controller:
         contractState.controllers?.join(', ') ??
         contractState.owner?.toString() ??
         'N/A',
-      undernames: `${names.length} / ${DEFAULT_ATTRIBUTES.maxSubdomains}`,
+      undernames: `${names.length} / ${tier?.settings.maxUndernames ?? 100}`,
       owner: contractState.owner?.toString() ?? 'N/A',
     };
 
@@ -126,7 +132,7 @@ function ManageAntModal() {
         <span className="flex white text-large bold">
           <button
             className="faded text-large bold underline link center"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/manage/ants')}
           >
             <ArrowLeft
               width={30}
@@ -150,7 +156,7 @@ function ManageAntModal() {
         {/* TODO: make sure the table doesn't refresh if no actions were saved/written */}
         <button
           className="flex flex-right pointer"
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/manage/ants')}
         >
           <CloseIcon width="30px" height={'30px'} fill="var(--text-white)" />
         </button>
