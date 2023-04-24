@@ -220,9 +220,7 @@ function ManageAntModal() {
                         value={
                           editingField !== row.attribute ? value : modifiedValue
                         }
-                        onChange={(e) =>
-                          setModifiedValue(e.target.value.trim())
-                        }
+                        onChange={(e) => setModifiedValue(e.target.value)}
                       />
                     </>
                   );
@@ -267,8 +265,10 @@ function ManageAntModal() {
                                 modifiedValue!,
                               );
 
-                            if (payload && row.interactionType) {
-                            const { assetId, functionName, ...data } = payload; // eslint-disable-line
+                            if (payload && row.interactionType && id) {
+                              // eslint-disable-next-line
+                              const { assetId, functionName, ...data } =
+                                payload;
                               dispatchTransactionState({
                                 type: 'setContractType',
                                 payload: CONTRACT_TYPES.ANT,
@@ -280,12 +280,14 @@ function ManageAntModal() {
                               dispatchTransactionState({
                                 type: 'setTransactionData',
                                 payload: {
-                                  assetId: id!,
+                                  assetId: id,
                                   functionName,
                                   ...data,
                                 },
                               });
-                              navigate(`/transaction`, { state: '/' });
+                              navigate(`/transaction`, {
+                                state: `/manage/ants/${id}`,
+                              });
                             }
                           }}
                         >
