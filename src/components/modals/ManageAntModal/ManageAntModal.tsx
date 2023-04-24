@@ -6,13 +6,19 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
 import { ANTContract } from '../../../services/arweave/AntContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ANTContractJSON,
   ArNSRecordEntry,
   ArweaveTransactionID,
+  CONTRACT_TYPES,
   ManageAntRow,
   TRANSACTION_TYPES,
 } from '../../../types';
+import {
+  getInteractionTypeFromField,
+  getTransactionPayloadByInteractionType,
+} from '../../../utils';
 import eventEmitter from '../../../utils/events';
 import { mapKeyToAttribute } from '../../cards/AntCard/AntCard';
 import { ArrowLeft, CloseIcon, PencilIcon } from '../../icons';
@@ -45,6 +51,7 @@ function ManageAntModal() {
   const navigate = useNavigate();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const [{ arnsSourceContract }] = useGlobalState();
+  const [{}, dispatchTransactionState] = useTransactionState(); // eslint-disable-line
   const [antName, setAntName] = useState<string>();
   const [editingField, setEditingField] = useState<string>();
   const [modifiedValue, setModifiedValue] = useState<string>();
@@ -108,6 +115,7 @@ function ManageAntModal() {
           editable: EDITABLE_FIELDS.includes(attribute),
           action: ACTION_FIELDS[attribute] ?? undefined, // navigate to transaction route with details
           key: index,
+          interactionType: getInteractionTypeFromField(attribute),
         };
         details.push(detail);
         return details;
@@ -119,14 +127,9 @@ function ManageAntModal() {
   }
 
   return (
-    <div style={{ padding: '5%', minWidth: '350px', gap: '0.5em' }}>
-      <div
-        className="flex-row flex-space-between"
-        style={{
-          width: '100%',
-        }}
-      >
-        <span className="flex center white text-large bold">
+    <div className="page">
+      <div className="flex-row flex-space-between">
+        <span className="flex white text-large bold">
           <button
             className="faded text-large bold underline link center"
             onClick={() => navigate(-1)}
@@ -151,140 +154,172 @@ function ManageAntModal() {
           </Tooltip>
         </span>
         {/* TODO: make sure the table doesn't refresh if no actions were saved/written */}
-        <button className="flex pointer" onClick={() => navigate(-1)}>
+        <button
+          className="flex flex-right pointer"
+          onClick={() => navigate(-1)}
+        >
           <CloseIcon width="30px" height={'30px'} fill="var(--text-white)" />
         </button>
       </div>
-      <Table
-        showHeader={false}
-        onRow={(row: ManageAntRow) => ({
-          className: row.attribute === editingField ? 'active-row' : '',
-        })}
-        scroll={{ x: true }}
-        columns={[
-          {
-            title: '',
-            dataIndex: 'attribute',
-            key: 'attribute',
-            align: 'left',
-            width: isMobile ? '0px' : '30%',
-            className: 'icon-padding white',
-            render: (value: string) => {
-              return `${mapKeyToAttribute(value)}:`;
+      <div className="flex-row">
+        <Table
+          showHeader={false}
+          style={{ width: '100%' }}
+          onRow={(row: ManageAntRow) => ({
+            className: row.attribute === editingField ? 'active-row' : '',
+          })}
+          scroll={{ x: true }}
+          columns={[
+            {
+              title: '',
+              dataIndex: 'attribute',
+              key: 'attribute',
+              align: 'left',
+              width: isMobile ? '0px' : '30%',
+              className: 'icon-padding white',
+              render: (value: string) => {
+                return `${mapKeyToAttribute(value)}:`;
+              },
             },
-          },
-          {
-            title: '',
-            dataIndex: 'value',
-            key: 'value',
-            align: 'left',
-            width: '80%',
-            className: 'white',
-            render: (value: string | number, row: any) => {
-              if (row.attribute === 'status')
-                return (
-                  <>
-                    {/* TODO: add label for mobile view */}
-                    <TransactionStatus confirmations={+value} />
-                  </>
-                );
-              if (row.editable)
-                return (
-                  <>
-                    {/* TODO: add label for mobile view */}
-                    <input
-                      id={row.attribute}
-                      style={{
-                        width: '80%',
-                        fontSize: '16px',
-                        background:
-                          editingField === row.attribute
-                            ? 'white'
-                            : 'transparent',
-                        border:
-                          editingField === row.attribute
-                            ? '2px solid #E0E0E0'
-                            : 'none',
-                        borderRadius: '2px',
-                        color:
-                          editingField === row.attribute ? 'black' : 'white',
-                        padding:
-                          editingField === row.attribute ? '10px ' : '10px 0px',
-                        display: 'block',
-                      }}
-                      disabled={editingField !== row.attribute}
-                      value={
-                        editingField !== row.attribute ? value : modifiedValue
-                      }
-                      onChange={(e) => setModifiedValue(e.target.value.trim())}
-                    />
-                  </>
-                );
-              return value;
-            },
-          },
-          {
-            title: '',
-            dataIndex: 'action',
-            key: 'action',
-            width: '10%',
-            align: 'right',
-            className: 'white',
-            render: (value: any, row: any) => {
-              //TODO: if it's got an action attached, show it
-              if (row.editable) {
-                return (
-                  <>
-                    {editingField !== row.attribute ? (
-                      <button
-                        onClick={() => {
-                          setEditingField(row.attribute);
-                          setModifiedValue(row.value);
-                        }}
-                      >
-                        <PencilIcon
-                          style={{ width: '24', height: '24', fill: 'white' }}
-                        />
-                      </button>
-                    ) : (
-                      <button
-                        className="assets-manage-button"
+            {
+              title: '',
+              dataIndex: 'value',
+              key: 'value',
+              align: 'left',
+              width: '80%',
+              className: 'white',
+              render: (value: string | number, row: any) => {
+                if (row.attribute === 'status')
+                  return (
+                    <>
+                      {/* TODO: add label for mobile view */}
+                      <TransactionStatus confirmations={+value} />
+                    </>
+                  );
+                if (row.editable)
+                  return (
+                    <>
+                      {/* TODO: add label for mobile view */}
+                      <input
+                        id={row.attribute}
                         style={{
-                          backgroundColor: 'var(--accent)',
-                          borderColor: 'var(--accent)',
+                          width: '80%',
+                          fontSize: '16px',
+                          background:
+                            editingField === row.attribute
+                              ? 'white'
+                              : 'transparent',
+                          border:
+                            editingField === row.attribute
+                              ? '2px solid #E0E0E0'
+                              : 'none',
+                          borderRadius: '2px',
+                          color:
+                            editingField === row.attribute ? 'black' : 'white',
+                          padding:
+                            editingField === row.attribute
+                              ? '10px '
+                              : '10px 0px',
+                          display: 'block',
                         }}
-                        onClick={() => {
-                          alert(
-                            `Writing contract interaction...${modifiedValue}`,
-                          );
-                          // TODO: write contract interaction
-
-                          setEditingField(undefined);
-                          setModifiedValue(undefined);
-                        }}
-                      >
-                        Save
-                      </button>
-                    )}
-                  </>
-                );
-              }
-              if (row.action) {
-                return (
-                  <button
-                    onClick={row.action.fn}
-                    className="assets-manage-button"
-                  >
-                    {row.action.title}
-                  </button>
-                );
-              }
-              return value;
+                        disabled={editingField !== row.attribute}
+                        value={
+                          editingField !== row.attribute ? value : modifiedValue
+                        }
+                        onChange={(e) => setModifiedValue(e.target.value)}
+                      />
+                    </>
+                  );
+                return value;
+              },
             },
-          },
-        ]}
-        data={rows}
-      />
+            {
+              title: '',
+              dataIndex: 'action',
+              key: 'action',
+              width: '10%',
+              align: 'right',
+              className: 'white',
+              render: (value: any, row: any) => {
+                //TODO: if it's got an action attached, show it
+                if (row.editable) {
+                  return (
+                    <>
+                      {editingField !== row.attribute ? (
+                        <button
+                          onClick={() => {
+                            setEditingField(row.attribute);
+                            setModifiedValue(row.value);
+                          }}
+                        >
+                          <PencilIcon
+                            style={{ width: '24', height: '24', fill: 'white' }}
+                          />
+                        </button>
+                      ) : (
+                        <button
+                          className="assets-manage-button"
+                          style={{
+                            backgroundColor: 'var(--accent)',
+                            borderColor: 'var(--accent)',
+                          }}
+                          onClick={() => {
+                            const payload =
+                              getTransactionPayloadByInteractionType(
+                                CONTRACT_TYPES.ANT,
+                                row.interactionType,
+                                modifiedValue!,
+                              );
+
+                            if (payload && row.interactionType && id) {
+                              // eslint-disable-next-line
+                              const { assetId, functionName, ...data } =
+                                payload;
+                              dispatchTransactionState({
+                                type: 'setContractType',
+                                payload: CONTRACT_TYPES.ANT,
+                              });
+                              dispatchTransactionState({
+                                type: 'setInteractionType',
+                                payload: row.interactionType,
+                              });
+                              dispatchTransactionState({
+                                type: 'setTransactionData',
+                                payload: {
+                                  assetId: id,
+                                  functionName,
+                                  ...data,
+                                },
+                              });
+                              navigate(`/transaction`, {
+                                state: `/manage/ants/${id}`,
+                              });
+                            }
+                          }}
+                        >
+                          Save
+                        </button>
+                      )}
+                    </>
+                  );
+                }
+                if (row.action) {
+                  return (
+                    <button
+                      onClick={row.action.fn}
+                      className="assets-manage-button"
+                    >
+                      {row.action.title}
+                    </button>
+                  );
+                }
+                return value;
+              },
+            },
+          ]}
+          data={rows}
+        />
+      </div>
     </div>
   );
 }

@@ -151,7 +151,7 @@ function CreateAntModal() {
         const detail = {
           attribute,
           value: consolidatedDetails[attribute],
-          isValid: undefined,
+          isValid: true,
           editable: EDITABLE_FIELDS.includes(attribute),
           action: ACTIONABLE_FIELDS[attribute],
           key: index,
@@ -393,6 +393,7 @@ function CreateAntModal() {
                                       maxNumber={1000000}
                                       onClick={() => {
                                         setEditingField(row.attribute);
+                                        setModifiedValue(value);
                                       }}
                                       wrapperCustomStyle={{
                                         width:
@@ -437,10 +438,14 @@ function CreateAntModal() {
                                           setModifiedValue(e);
                                         }
                                       }}
+                                      validityCallback={(valid: boolean) => {
+                                        row.isValid = valid;
+                                      }}
                                       validationPredicates={
-                                        row.attribute === 'owner' ||
-                                        row.attribute === 'controller' ||
-                                        row.attribute === 'targetID'
+                                        modifiedValue &&
+                                        (row.attribute === 'owner' ||
+                                          row.attribute === 'controller' ||
+                                          row.attribute === 'targetID')
                                           ? {
                                               [VALIDATION_INPUT_TYPES.ARWEAVE_ID]:
                                                 (id: string) =>
@@ -509,8 +514,10 @@ function CreateAntModal() {
                                             borderColor: 'var(--accent)',
                                           }}
                                           onClick={() => {
-                                            row.value = modifiedValue;
-                                            handleStateChange();
+                                            if (!modifiedValue || row.isValid) {
+                                              row.value = modifiedValue;
+                                              handleStateChange();
+                                            }
                                           }}
                                         >
                                           Save

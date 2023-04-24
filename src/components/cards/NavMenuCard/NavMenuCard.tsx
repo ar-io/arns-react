@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import {
   useArweaveCompositeProvider,
@@ -148,18 +148,13 @@ function NavMenuCard() {
                     />
                   );
               })}
-              <button
+              <Link
+                to="/create"
                 className="button text-medium bold white hover"
                 style={{ padding: '0' }}
-                onClick={() =>
-                  dispatchGlobalState({
-                    type: 'setShowCreateAnt',
-                    payload: true,
-                  })
-                }
               >
                 Create
-              </button>
+              </Link>
               <ConnectButton />
             </>
           ) : (
@@ -195,18 +190,13 @@ function NavMenuCard() {
                         />
                       );
                   })}
-                  <button
+                  <Link
+                    to="/create"
                     className="button text-medium bold white hover"
                     style={{ padding: '0' }}
-                    onClick={() =>
-                      dispatchGlobalState({
-                        type: 'setShowCreateAnt',
-                        payload: true,
-                      })
-                    }
                   >
                     Create
-                  </button>
+                  </Link>
                 </>
               ) : (
                 Object.entries(ROUTES).map(([key, route]) => {

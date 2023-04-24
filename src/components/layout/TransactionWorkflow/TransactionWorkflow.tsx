@@ -6,17 +6,20 @@ import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ANT_INTERACTION_TYPES,
   AntInteraction,
+  ArNSMapping,
   ArweaveTransactionID,
   BuyRecordPayload,
   CONTRACT_TYPES,
   ContractType,
-  CreateAntPayload,
   REGISTRY_INTERACTION_TYPES,
   RegistryInteraction,
   TRANSACTION_DATA_KEYS,
   TransactionData,
 } from '../../../types';
-import { isObjectOfTransactionPayloadType } from '../../../utils';
+import {
+  getArNSMappingByInteractionType,
+  isObjectOfTransactionPayloadType,
+} from '../../../utils';
 import { AntCard } from '../../cards';
 import DeployTransaction from '../DeployTransaction/DeployTransaction';
 import TransactionComplete from '../TransactionComplete/TransactionComplete';
@@ -45,6 +48,13 @@ function TransactionWorkflow({
   const arweaveDataProvider = useArweaveCompositeProvider();
   const { assetId, functionName, ...payload } = transactionData;
   const navigate = useNavigate();
+  const [antProps] = useState<ArNSMapping>(() =>
+    getArNSMappingByInteractionType({
+      contractType,
+      interactionType,
+      transactionData,
+    }),
+  );
   const [steps, setSteps] = useState<
     | {
         [x: number]: { title: string; status: string };
@@ -253,24 +263,10 @@ function TransactionWorkflow({
       switch (contractType) {
         case CONTRACT_TYPES.ANT: {
           switch (interactionType) {
-            case ANT_INTERACTION_TYPES.CREATE: {
-              if (
-                !isObjectOfTransactionPayloadType<CreateAntPayload>(
-                  payload,
-                  TRANSACTION_DATA_KEYS[contractType][interactionType].keys,
-                )
-              )
-                throw Error('Payload is not valid.');
+            case ANT_INTERACTION_TYPES.SET_NAME: {
               return {
                 pending: {
-                  component: (
-                    <AntCard
-                      domain={''}
-                      id={new ArweaveTransactionID(assetId)}
-                      compact={false}
-                      enableActions={false}
-                    />
-                  ),
+                  component: <AntCard {...antProps} />,
                 },
                 confirmed: {
                   component: <DeployTransaction />,
@@ -303,7 +299,6 @@ function TransactionWorkflow({
                 },
               };
             }
-            // TODO: implement other ANT interactions
             default:
               throw new Error('Interaction type is undefined');
           }
@@ -321,14 +316,7 @@ function TransactionWorkflow({
                 throw Error('Payload is not valid.');
               return {
                 pending: {
-                  component: (
-                    <AntCard
-                      domain={payload.name}
-                      id={new ArweaveTransactionID(payload.contractTxId)}
-                      compact={false}
-                      enableActions={false}
-                    />
-                  ),
+                  component: <AntCard {...antProps} />,
                   header: (
                     <>
                       <div className="flex flex-row text-large white bold center">

@@ -10,6 +10,7 @@ import {
   CreateAntPayload,
   REGISTRY_INTERACTION_TYPES,
   RegistryInteraction,
+  SetNamePayload,
   TRANSACTION_DATA_KEYS,
   TransactionData,
   TransactionDataPayload,
@@ -100,9 +101,9 @@ export function getTransactionPayloadByInteractionType(
   contractType: ContractType,
   interactionType: AntInteraction | RegistryInteraction,
   data: string | string[],
-) {
+): TransactionData | undefined {
   try {
-    const payload: { [x: string]: any } = {};
+    const payload: any = {};
     const txData = typeof data === 'string' ? [data] : [...data];
 
     if (
@@ -121,16 +122,20 @@ export function getTransactionPayloadByInteractionType(
       }
       payload.functionName =
         TRANSACTION_DATA_KEYS[contractType][interactionType].functionName;
-      TRANSACTION_DATA_KEYS[contractType][interactionType].keys.forEach(
-        (key: string, index) => {
-          if (!txData[index]) {
-            throw new Error(
-              `Missing key (${key}) from transaction data in the url. This may be due to the order of the data, the current order is [${txData}], the correct order is [${TRANSACTION_DATA_KEYS[contractType][interactionType].keys}]`,
-            );
-          }
-          payload[key] = txData[index];
-        },
-      );
+      switch (interactionType) {
+        case ANT_INTERACTION_TYPES.SET_NAME: {
+          TRANSACTION_DATA_KEYS[contractType][interactionType].keys.forEach(
+            (key: string, index) => {
+              if (!txData[index]) {
+                throw new Error(
+                  `Missing key (${key}) from transaction data in the url. This may be due to the order of the data, the current order is [${txData}], the correct order is [${TRANSACTION_DATA_KEYS[contractType][interactionType].keys}]`,
+                );
+              }
+              payload[key] = txData[index];
+            },
+          );
+        }
+      }
     }
 
     if (
@@ -204,25 +209,69 @@ export function getArNSMappingByInteractionType(
       break;
     case CONTRACT_TYPES.ANT: {
       switch (interactionType) {
-        case ANT_INTERACTION_TYPES.CREATE: {
-          const data = transactionData as CreateAntPayload;
-          const ant = new ANTContract(data.initialState);
+        case ANT_INTERACTION_TYPES.CREATE:
+          {
+            if (
+              !isObjectOfTransactionPayloadType<CreateAntPayload>(
+                transactionData,
+                TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][
+                  ANT_INTERACTION_TYPES.CREATE
+                ].keys,
+              )
+            ) {
+              throw new Error(
+                'transaction data not of correct payload type <CreateAntPayload>',
+              );
+            }
+            const ant = new ANTContract(transactionData.initialState);
+            mapping = {
+              domain: '',
+              showTier: false,
+              compact: false,
+              state: ant.state,
+              overrides: {
+                targetId: ant.getRecord('@').transactionId,
+                ttlSeconds: ant.getRecord('@').ttlSeconds,
+              },
+              disabledKeys: [
+                'tier',
+                'evolve',
+                'maxSubdomains',
+                'id',
+                'domain',
+                'leaseDuration',
+              ],
+            };
+          }
+          break;
+        case ANT_INTERACTION_TYPES.SET_NAME: {
+          if (
+            !isObjectOfTransactionPayloadType<SetNamePayload>(
+              transactionData,
+              TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][
+                ANT_INTERACTION_TYPES.SET_NAME
+              ].keys,
+            )
+          ) {
+            throw new Error(
+              'transaction data not of correct payload type <SetNamePayload>',
+            );
+          }
+          const ant = new ANTContract(transactionData.initialState);
           mapping = {
             domain: '',
             showTier: false,
             compact: false,
-            state: data.initialState,
+            id: new ArweaveTransactionID(ant.assetId),
             overrides: {
-              targetId: ant.getRecord('@').transactionId,
-              ttlSeconds: ant.getRecord('@').ttlSeconds,
+              nickname: ant.name,
             },
             disabledKeys: [
-              'tier',
               'evolve',
               'maxSubdomains',
-              'id',
               'domain',
               'leaseDuration',
+              'ttlSeconds',
             ],
           };
         }
@@ -230,4 +279,16 @@ export function getArNSMappingByInteractionType(
     }
   }
   return mapping;
+}
+
+export const FieldToInteractionMap: {
+  [x: string]: AntInteraction;
+} = {
+  name: ANT_INTERACTION_TYPES.SET_NAME,
+  // TODO: add other interactions
+};
+
+export function getInteractionTypeFromField(field: string) {
+  // TODO: add contract specification and more interaction fields
+  return FieldToInteractionMap[field];
 }

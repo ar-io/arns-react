@@ -489,6 +489,7 @@ export type ManageAntRow = {
   editable: boolean;
   action: any;
   key: number;
+  interactionType?: AntInteraction | RegistryInteraction;
 };
 
 export enum VALIDATION_INPUT_TYPES {
