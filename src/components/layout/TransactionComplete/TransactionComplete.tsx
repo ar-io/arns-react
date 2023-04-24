@@ -1,16 +1,14 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
-import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
   AntInteraction,
-  ArNSMapping,
   ArweaveTransactionID,
   ContractType,
   RegistryInteraction,
   TransactionData,
 } from '../../../types';
 import { WARP_CONTRACT_BASE_URL } from '../../../utils/constants';
+import eventEmitter from '../../../utils/events';
 import { getArNSMappingByInteractionType } from '../../../utils/transactionUtils/transactionUtils';
 import { AntCard } from '../../cards';
 import { ArrowUpRight } from '../../icons';
@@ -26,21 +24,25 @@ function TransactionComplete({
   interactionType: AntInteraction | RegistryInteraction;
   transactionData: TransactionData;
 }) {
-  const [{}, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
-  const [antCardProps] = useState<ArNSMapping>(() =>
-    getArNSMappingByInteractionType({
-      contractType,
-      interactionType,
-      transactionData,
-    }),
-  );
+  const navigate = useNavigate();
+  const antProps = getArNSMappingByInteractionType({
+    contractType,
+    interactionType,
+    transactionData,
+  });
+
+  if (!antProps) {
+    eventEmitter.emit('error', new Error('Unable to set ANT properties.'));
+    navigate(-1);
+    return <></>;
+  }
 
   return (
     <>
       <div className="flex-column center" style={{ gap: '3em' }}>
         <div className="flex-column center" style={{ gap: '2em' }}>
           {/* TODO: configure error or fail states */}
-          <AntCard {...antCardProps} />
+          <AntCard {...antProps} />
           <div
             className="flex flex-row center"
             style={{ gap: '1em', maxWidth: '782px' }}
