@@ -228,6 +228,13 @@ function TransactionWorkflow({
                 3: { title: 'Complete', status: '' },
               };
             }
+            case ANT_INTERACTION_TYPES.SET_TARGET_ID: {
+              return {
+                1: { title: 'Confirm Target ID', status: 'pending' },
+                2: { title: 'Deploy Target ID Change', status: '' },
+                3: { title: 'Complete', status: '' },
+              };
+            }
             default:
               throw new Error(
                 `Invalid workflow stage (${workflowStage}), workflow stage must be a number between 1 and 4`,
@@ -264,6 +271,7 @@ function TransactionWorkflow({
       switch (contractType) {
         case CONTRACT_TYPES.ANT: {
           switch (interactionType) {
+            case ANT_INTERACTION_TYPES.SET_TARGET_ID:
             case ANT_INTERACTION_TYPES.SET_TICKER:
             case ANT_INTERACTION_TYPES.SET_NAME: {
               return {

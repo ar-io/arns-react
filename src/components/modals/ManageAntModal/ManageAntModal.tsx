@@ -14,6 +14,7 @@ import {
   CONTRACT_TYPES,
   ManageAntRow,
   TRANSACTION_TYPES,
+  VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import {
   getInteractionTypeFromField,
@@ -22,6 +23,7 @@ import {
 import eventEmitter from '../../../utils/events';
 import { mapKeyToAttribute } from '../../cards/AntCard/AntCard';
 import { ArrowLeft, CloseIcon, PencilIcon } from '../../icons';
+import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import TransactionStatus from '../../layout/TransactionStatus/TransactionStatus';
 
 const EDITABLE_FIELDS = [
@@ -54,7 +56,7 @@ function ManageAntModal() {
   const [{}, dispatchTransactionState] = useTransactionState(); // eslint-disable-line
   const [antName, setAntName] = useState<string>();
   const [editingField, setEditingField] = useState<string>();
-  const [modifiedValue, setModifiedValue] = useState<string>();
+  const [modifiedValue, setModifiedValue] = useState<string | number>();
   const [rows, setRows] = useState<ManageAntRow[]>([]);
 
   useEffect(() => {
@@ -200,33 +202,70 @@ function ManageAntModal() {
                   return (
                     <>
                       {/* TODO: add label for mobile view */}
-                      <input
-                        id={row.attribute}
-                        style={{
-                          width: '80%',
+
+                      <ValidationInput
+                        showValidationIcon={true}
+                        showValidationOutline={true}
+                        inputId={row.attribute + '-input'}
+                        inputType={
+                          row.attribute === 'ttlSeconds' ? 'number' : undefined
+                        }
+                        minNumber={100}
+                        maxNumber={1000000}
+                        onClick={() => {
+                          setEditingField(row.attribute);
+                          setModifiedValue(value);
+                        }}
+                        inputClassName={'flex'}
+                        inputCustomStyle={{
+                          width: '100%',
+                          border: 'none',
+                          overflow: 'hidden',
                           fontSize: '16px',
+                          outline: 'none',
+                          borderRadius: 'var(--corner-radius)',
                           background:
                             editingField === row.attribute
                               ? 'white'
                               : 'transparent',
-                          border:
-                            editingField === row.attribute
-                              ? '2px solid #E0E0E0'
-                              : 'none',
-                          borderRadius: '2px',
                           color:
                             editingField === row.attribute ? 'black' : 'white',
                           padding:
                             editingField === row.attribute
-                              ? '10px '
+                              ? '10px 40px 10px 10px'
                               : '10px 0px',
-                          display: 'block',
+                          display: 'flex',
                         }}
                         disabled={editingField !== row.attribute}
+                        placeholder={`Enter a ${mapKeyToAttribute(
+                          row.attribute,
+                        )}`}
                         value={
-                          editingField !== row.attribute ? value : modifiedValue
+                          editingField === row.attribute
+                            ? modifiedValue
+                            : row.value
                         }
-                        onChange={(e) => setModifiedValue(e.target.value)}
+                        setValue={(e) => {
+                          if (row.attribute === editingField) {
+                            setModifiedValue(e);
+                          }
+                        }}
+                        validityCallback={(valid: boolean) => {
+                          row.isValid = valid;
+                        }}
+                        validationPredicates={
+                          modifiedValue &&
+                          (row.attribute === 'owner' ||
+                            row.attribute === 'controller' ||
+                            row.attribute === 'targetID')
+                            ? {
+                                [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: (
+                                  id: string,
+                                ) => arweaveDataProvider.validateArweaveId(id),
+                              }
+                            : {}
+                        }
+                        maxLength={43}
                       />
                     </>
                   );
@@ -268,7 +307,7 @@ function ManageAntModal() {
                               getTransactionPayloadByInteractionType(
                                 CONTRACT_TYPES.ANT,
                                 row.interactionType,
-                                modifiedValue!,
+                                modifiedValue!.toString(),
                               );
                             if (payload && row.interactionType && id) {
                               // eslint-disable-next-line

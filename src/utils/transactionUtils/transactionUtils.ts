@@ -11,6 +11,7 @@ import {
   REGISTRY_INTERACTION_TYPES,
   RegistryInteraction,
   SetNamePayload,
+  SetRecordPayload,
   SetTickerPayload,
   TRANSACTION_DATA_KEYS,
   TransactionData,
@@ -125,18 +126,28 @@ export function getTransactionPayloadByInteractionType(
         TRANSACTION_DATA_KEYS[contractType][interactionType].functionName;
       switch (interactionType) {
         case ANT_INTERACTION_TYPES.SET_TICKER:
-        case ANT_INTERACTION_TYPES.SET_NAME: {
-          TRANSACTION_DATA_KEYS[contractType][interactionType].keys.forEach(
-            (key: string, index) => {
-              if (!txData[index]) {
-                throw new Error(
-                  `Missing key (${key}) from transaction data in the url. This may be due to the order of the data, the current order is [${txData}], the correct order is [${TRANSACTION_DATA_KEYS[contractType][interactionType].keys}]`,
-                );
-              }
-              payload[key] = txData[index];
-            },
-          );
-        }
+        case ANT_INTERACTION_TYPES.SET_NAME:
+          {
+            TRANSACTION_DATA_KEYS[contractType][interactionType].keys.forEach(
+              (key: string, index) => {
+                if (!txData[index]) {
+                  throw new Error(
+                    `Missing key (${key}) from transaction data in the url. This may be due to the order of the data, the current order is [${txData}], the correct order is [${TRANSACTION_DATA_KEYS[contractType][interactionType].keys}]`,
+                  );
+                }
+                payload[key] = txData[index];
+              },
+            );
+          }
+          break;
+        case ANT_INTERACTION_TYPES.SET_TARGET_ID:
+          {
+            payload[
+              TRANSACTION_DATA_KEYS[contractType][interactionType].keys[0]
+            ] = txData[0];
+            payload.subDomain = '@';
+          }
+          break;
       }
     }
 
@@ -316,6 +327,39 @@ export function getArNSMappingByInteractionType(
             ],
           };
         }
+        case ANT_INTERACTION_TYPES.SET_TARGET_ID: {
+          if (
+            !isObjectOfTransactionPayloadType<SetRecordPayload>(
+              transactionData,
+              TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][
+                ANT_INTERACTION_TYPES.SET_TARGET_ID
+              ].keys,
+            )
+          ) {
+            throw new Error(
+              `transaction data not of correct payload type <SetRecordPayload> keys: ${Object.keys(
+                transactionData,
+              )}`,
+            );
+          }
+          return {
+            domain: '',
+            showTier: false,
+            compact: false,
+            id: new ArweaveTransactionID(transactionData.assetId),
+            overrides: {
+              targetId: transactionData.transactionId,
+            },
+            disabledKeys: [
+              'evolve',
+              'maxSubdomains',
+              'domain',
+              'leaseDuration',
+              'ttlSeconds',
+              'tier',
+            ],
+          };
+        }
       }
     }
   }
@@ -326,6 +370,7 @@ export const FieldToInteractionMap: {
 } = {
   name: ANT_INTERACTION_TYPES.SET_NAME,
   ticker: ANT_INTERACTION_TYPES.SET_TICKER,
+  targetID: ANT_INTERACTION_TYPES.SET_TARGET_ID,
   // TODO: add other interactions
 };
 
