@@ -114,7 +114,8 @@ function Home() {
                 });
                 // navigate to the transaction page, which will load the updated state of the transaction context
                 navigate('/transaction', {
-                  state: '/',
+                  state: `/?search=${domain}`,
+                  replace: true,
                 });
               }
               dispatchRegisterState({

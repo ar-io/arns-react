@@ -193,13 +193,13 @@ export function getArNSMappingByInteractionType(
             if (
               !isObjectOfTransactionPayloadType<BuyRecordPayload>(
                 transactionData,
-                TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][
-                  ANT_INTERACTION_TYPES.CREATE
+                TRANSACTION_DATA_KEYS[CONTRACT_TYPES.REGISTRY][
+                  REGISTRY_INTERACTION_TYPES.BUY_RECORD
                 ].keys,
               )
             ) {
               throw new Error(
-                'transaction data not of correct payload type <CreateAntPayload>',
+                'transaction data not of correct payload type <BuyRecordPayload>',
               );
             }
             return {
