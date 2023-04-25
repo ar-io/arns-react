@@ -62,7 +62,7 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
 
     // get contracts deployed by user, filtering with src-codes to only get ANT contracts
 
-    const deployedResponse = await this._arweave.api.post(
+    const { status, ...deployedResponse } = await this._arweave.api.post(
       '/graphql',
       approvedContractsForWalletQuery(
         address,
@@ -70,6 +70,12 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
         cursor,
       ),
     );
+
+    if (status !== 200) {
+      throw Error(
+        `Failed to fetch contracts for wallet. Status code: ${status}`,
+      );
+    }
     if (deployedResponse.data.data?.transactions?.edges?.length) {
       deployedResponse.data.data.transactions.edges
         .map((e: any) => ({
