@@ -102,9 +102,14 @@ export function isInteractionCompatible({
 export function getTransactionPayloadByInteractionType(
   contractType: ContractType,
   interactionType: AntInteraction | RegistryInteraction,
-  data: string | string[],
+  data?: string | string[],
 ): TransactionData | undefined {
   try {
+    if (!data) {
+      throw new Error(
+        'No data provided, data is required to build the payload',
+      );
+    }
     const payload: any = {};
     const txData = typeof data === 'string' ? [data] : [...data];
 

@@ -307,7 +307,7 @@ function ManageAntModal() {
                               getTransactionPayloadByInteractionType(
                                 CONTRACT_TYPES.ANT,
                                 row.interactionType,
-                                modifiedValue!.toString(),
+                                modifiedValue?.toString(),
                               );
                             if (payload && row.interactionType && id) {
                               // eslint-disable-next-line
