@@ -147,9 +147,16 @@ export function getTransactionPayloadByInteractionType(
           break;
         case ANT_INTERACTION_TYPES.SET_TARGET_ID:
           {
-            payload[
-              TRANSACTION_DATA_KEYS[contractType][interactionType].keys[0]
-            ] = txData[0];
+            TRANSACTION_DATA_KEYS[contractType][interactionType].keys.forEach(
+              (key: string, index) => {
+                if (!txData[index]) {
+                  throw new Error(
+                    `Missing key (${key}) from transaction data in the url. This may be due to the order of the data, the current order is [${txData}], the correct order is [${TRANSACTION_DATA_KEYS[contractType][interactionType].keys}]`,
+                  );
+                }
+                payload[key] = txData[index];
+              },
+            );
             payload.subDomain = '@';
           }
           break;
