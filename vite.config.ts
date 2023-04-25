@@ -1,3 +1,4 @@
+import { sentryVitePlugin } from '@sentry/vite-plugin';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
@@ -12,6 +13,22 @@ export default defineConfig({
       // Whether to polyfill `node:` protocol imports.
       protocolImports: true,
     }),
+
+    ...(process.env.VITE_NODE_ENV === 'develop'
+      ? [
+          sentryVitePlugin({
+            org: process.env.VITE_SENTRY_ORG,
+            project: process.env.VITE_SENTRY_PROJECT,
+            ignore: ['node_modules', 'vite.config.ts'],
+            authToken: process.env.VITE_SENTRY_AUTH_TOKEN,
+            // TODO: enable when generating source maps
+            // sourcemaps: {
+            //   assets: './dist/**',
+            // },
+            release: process.env.VITE_SENTRY_RELEASE,
+          }),
+        ]
+      : []),
   ],
   base: '/',
   define: {
