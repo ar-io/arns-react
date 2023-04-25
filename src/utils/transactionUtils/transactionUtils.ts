@@ -345,70 +345,65 @@ export function mapTransactionDataKeyToPayload(
   data: string[],
 ): TransactionData | undefined {
   const payload: any = {};
-  try {
-    if (isRegistryInteraction(interactionType)) {
-      if (
-        !isInteractionCompatible({
-          contractType,
-          interactionType,
-          functionName:
-            TRANSACTION_DATA_KEYS[CONTRACT_TYPES.REGISTRY][interactionType]
-              .functionName,
-        })
-      ) {
-        throw new Error(`Interaction is not compatible`);
-      }
-      payload.functionName =
-        TRANSACTION_DATA_KEYS[CONTRACT_TYPES.REGISTRY][
-          interactionType
-        ].functionName;
+
+  if (isRegistryInteraction(interactionType)) {
+    if (
+      !isInteractionCompatible({
+        contractType,
+        interactionType,
+        functionName:
+          TRANSACTION_DATA_KEYS[CONTRACT_TYPES.REGISTRY][interactionType]
+            .functionName,
+      })
+    ) {
+      throw new Error(`Interaction is not compatible`);
+    }
+    payload.functionName =
       TRANSACTION_DATA_KEYS[CONTRACT_TYPES.REGISTRY][
         interactionType
-      ].keys.forEach((key, index) => {
+      ].functionName;
+    TRANSACTION_DATA_KEYS[CONTRACT_TYPES.REGISTRY][
+      interactionType
+    ].keys.forEach((key, index) => {
+      if (!data[index]) {
+        // if missing transaction data from the url, throw an error
+        throw new Error(
+          `Missing key (${key}) from transaction data in the url. This may be due to the order of the data, the current order is [${data}], the correct order is [${
+            TRANSACTION_DATA_KEYS[CONTRACT_TYPES.REGISTRY][interactionType].keys
+          }]`,
+        );
+      }
+      payload[key] = data[index];
+    });
+    return payload;
+  }
+  if (isAntInteraction(interactionType)) {
+    if (
+      !isInteractionCompatible({
+        contractType,
+        interactionType,
+        functionName:
+          TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][interactionType]
+            .functionName,
+      })
+    ) {
+      throw new Error(`Interaction is not compatible`);
+    }
+    payload.functionName =
+      TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][interactionType].functionName;
+    TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][interactionType].keys.forEach(
+      (key, index) => {
         if (!data[index]) {
           // if missing transaction data from the url, throw an error
           throw new Error(
             `Missing key (${key}) from transaction data in the url. This may be due to the order of the data, the current order is [${data}], the correct order is [${
-              TRANSACTION_DATA_KEYS[CONTRACT_TYPES.REGISTRY][interactionType]
-                .keys
+              TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][interactionType].keys
             }]`,
           );
         }
         payload[key] = data[index];
-      });
-      return payload;
-    }
-    if (isAntInteraction(interactionType)) {
-      if (
-        !isInteractionCompatible({
-          contractType,
-          interactionType,
-          functionName:
-            TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][interactionType]
-              .functionName,
-        })
-      ) {
-        throw new Error(`Interaction is not compatible`);
-      }
-      payload.functionName =
-        TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][interactionType].functionName;
-      TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][interactionType].keys.forEach(
-        (key, index) => {
-          if (!data[index]) {
-            // if missing transaction data from the url, throw an error
-            throw new Error(
-              `Missing key (${key}) from transaction data in the url. This may be due to the order of the data, the current order is [${data}], the correct order is [${
-                TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][interactionType].keys
-              }]`,
-            );
-          }
-          payload[key] = data[index];
-        },
-      );
-      return payload;
-    }
-  } catch (error: any) {
-    console.log(error);
-    throw new Error(error);
+      },
+    );
+    return payload;
   }
 }
