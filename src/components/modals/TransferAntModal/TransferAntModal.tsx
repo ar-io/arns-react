@@ -19,7 +19,7 @@ import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import { Loader } from '../../layout';
 import './styles.css';
 
-function TransactionModal({
+function TransferAntModal({
   antId,
   showModal,
 }: {
@@ -29,7 +29,7 @@ function TransactionModal({
 }) {
   const [{ arnsSourceContract }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
-  const [{}, dispatchTransactionState] = useTransactionState();
+  const [{}, dispatchTransactionState] = useTransactionState(); // eslint-disable-line
   const isMobile = useIsMobile();
   const [accepted, setAccepted] = useState<boolean>(false);
   const [toAddress, setToAddress] = useState<string>('');
@@ -267,4 +267,4 @@ function TransactionModal({
   );
 }
 
-export default TransactionModal;
+export default TransferAntModal;
