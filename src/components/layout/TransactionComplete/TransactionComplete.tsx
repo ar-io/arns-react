@@ -1,16 +1,16 @@
 import { Link, useNavigate } from 'react-router-dom';
 
 import {
-  AntInteraction,
   ArweaveTransactionID,
   ContractType,
+  PDNTInteraction,
   RegistryInteraction,
   TransactionData,
 } from '../../../types';
 import { WARP_CONTRACT_BASE_URL } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
-import { getArNSMappingByInteractionType } from '../../../utils/transactionUtils/transactionUtils';
-import { AntCard } from '../../cards';
+import { getPDNSMappingByInteractionType } from '../../../utils/transactionUtils/transactionUtils';
+import { PDNTCard } from '../../cards';
 import { ArrowUpRight } from '../../icons';
 
 function TransactionComplete({
@@ -21,18 +21,24 @@ function TransactionComplete({
 }: {
   transactionId?: ArweaveTransactionID;
   contractType: ContractType;
-  interactionType: AntInteraction | RegistryInteraction;
-  transactionData: TransactionData;
+  interactionType: PDNTInteraction | RegistryInteraction;
+  transactionData?: TransactionData;
 }) {
   const navigate = useNavigate();
-  const antProps = getArNSMappingByInteractionType({
+
+  if (!transactionData) {
+    eventEmitter.emit('error', new Error('Unable to set PDNT properties.'));
+    navigate(-1);
+    return <></>;
+  }
+  const pdntProps = getPDNSMappingByInteractionType({
     contractType,
     interactionType,
     transactionData,
   });
 
-  if (!antProps) {
-    eventEmitter.emit('error', new Error('Unable to set ANT properties.'));
+  if (!pdntProps) {
+    eventEmitter.emit('error', new Error('Unable to set PDNT properties.'));
     navigate(-1);
     return <></>;
   }
@@ -42,7 +48,7 @@ function TransactionComplete({
       <div className="flex-column center" style={{ gap: '3em' }}>
         <div className="flex-column center" style={{ gap: '2em' }}>
           {/* TODO: configure error or fail states */}
-          <AntCard {...antProps} />
+          <PDNTCard {...pdntProps} />
           <div
             className="flex flex-row center"
             style={{ gap: '1em', maxWidth: '782px' }}
@@ -111,7 +117,7 @@ function TransactionComplete({
             )}
 
             <Link
-              to={`/manage/ants/${transactionData.assetId}`}
+              to={`/manage/pdnts/${transactionData.assetId}`}
               className="link"
               style={{ textDecoration: 'none' }}
             >
@@ -131,13 +137,15 @@ function TransactionComplete({
                   height={'30px'}
                   fill={'var(--text-white)'}
                 />
-                <span className="flex text-small faded center">Manage ANT</span>
+                <span className="flex text-small faded center">
+                  Manage PDNT
+                </span>
               </div>
             </Link>
 
             <Link
               // TODO: update to route to undernames
-              to={`/manage/ants/${transactionData.assetId}`}
+              to={`/manage/pdnts/${transactionData.assetId}`}
               className="link"
               style={{ textDecoration: 'none' }}
             >

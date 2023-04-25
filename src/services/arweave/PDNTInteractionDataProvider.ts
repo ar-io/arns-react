@@ -2,24 +2,24 @@ import {
   ArweaveTransactionID,
   SmartweaveContractInteractionProvider,
 } from '../../types';
-import { ANTContract } from './AntContract';
+import { PDNTContract } from './PDNTContract';
 
-export class ANTInteractionProvider implements ANTInteractionProvider {
+export class PDNTInteractionProvider implements PDNTInteractionProvider {
   private _provider: SmartweaveContractInteractionProvider;
-  contract: ANTContract;
-  antId: ArweaveTransactionID;
+  contract: PDNTContract;
+  pdntId: ArweaveTransactionID;
 
   constructor(
-    contract: ANTContract,
+    contract: PDNTContract,
     provider: SmartweaveContractInteractionProvider,
   ) {
     if (!contract.id) {
       throw Error(
-        'Not allowed to use ANTInteractionProvider without a valid ANT ID.',
+        'Not allowed to use PDNTInteractionProvider without a valid PDNT ID.',
       );
     }
     this.contract = contract;
-    this.antId = contract.id;
+    this.pdntId = contract.id;
     this._provider = provider;
   }
 
@@ -33,9 +33,9 @@ export class ANTInteractionProvider implements ANTInteractionProvider {
         function: 'transfer',
         target: id.toString(),
       };
-      const txId = await this._provider.writeTransaction(this.antId, payload);
+      const txId = await this._provider.writeTransaction(this.pdntId, payload);
       if (!txId) {
-        throw new Error(`Failed to transfer ANT token`);
+        throw new Error(`Failed to transfer PDNT token`);
       }
       return txId;
     } catch (error) {
@@ -50,7 +50,7 @@ export class ANTInteractionProvider implements ANTInteractionProvider {
         function: 'setController',
         target: id.toString(),
       };
-      const txId = await this._provider.writeTransaction(this.antId, payload);
+      const txId = await this._provider.writeTransaction(this.pdntId, payload);
       if (!txId) {
         throw new Error('Failed to add controller to contract');
       }
@@ -71,7 +71,7 @@ export class ANTInteractionProvider implements ANTInteractionProvider {
         transactionId: id.toString(),
         subDomain: '@',
       };
-      const txId = await this._provider.writeTransaction(this.antId, payload);
+      const txId = await this._provider.writeTransaction(this.pdntId, payload);
       if (!txId) {
         throw new Error('Failed to write target ID to contract');
       }
@@ -108,9 +108,9 @@ export class ANTInteractionProvider implements ANTInteractionProvider {
           ? maxSubdomains
           : this.contract.getRecord(name).maxUndernames,
       };
-      const txId = await this._provider.writeTransaction(this.antId, payload);
+      const txId = await this._provider.writeTransaction(this.pdntId, payload);
       if (!txId) {
-        throw new Error('Failed to write undername change to ANT');
+        throw new Error('Failed to write undername change to PDNT');
       }
       return txId;
     } catch (error) {
@@ -129,7 +129,7 @@ export class ANTInteractionProvider implements ANTInteractionProvider {
         function: 'setRecord',
         subDomain: name,
       };
-      const txId = await this._provider.writeTransaction(this.antId, payload);
+      const txId = await this._provider.writeTransaction(this.pdntId, payload);
       if (!txId) {
         throw new Error('Failed to remove undername from contract');
       }

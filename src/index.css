@@ -543,21 +543,21 @@ input[type='text']:disabled {
 }
 
 /* pagination classes */
-[class*='ant-pagination-'] {
+[class*='pdnt-pagination-'] {
   color: var(--text-bright-white) !important;
 }
 
-.ant-pagination-item {
+.pdnt-pagination-item {
   border-radius: 2px !important;
   border-color: var(--text-bright-white) !important;
   background-color: transparent !important;
+  color: white !importpdnt;
+}
+
+.pdnt-pagination-item > a {
   color: white !important;
 }
 
-.ant-pagination-item > a {
-  color: white !important;
-}
-
-.ant-pagination-item-active > a {
+.pdnt-pagination-item-active > a {
   background-color: var(--text-faded) !important;
 }

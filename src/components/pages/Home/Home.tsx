@@ -12,13 +12,13 @@ import {
   REGISTRY_INTERACTION_TYPES,
 } from '../../../types';
 import {
-  ARNS_REGISTRY_ADDRESS,
-  ARNS_TX_ID_REGEX,
   FEATURED_DOMAINS,
+  PDNS_REGISTRY_ADDRESS,
+  PDNS_TX_ID_REGEX,
 } from '../../../utils/constants';
 import {
-  isArNSDomainNameAvailable,
-  isArNSDomainNameValid,
+  isPDNSDomainNameAvailable,
+  isPDNSDomainNameValid,
 } from '../../../utils/searchUtils/searchUtils';
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import { FeaturedDomains, Loader, RegisterNameForm } from '../../layout';
@@ -32,9 +32,9 @@ function Home() {
   const [, dispatchTransactionState] = useTransactionState();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [{ arnsSourceContract }] = useGlobalState();
+  const [{ pdnsSourceContract }] = useGlobalState();
   const { walletAddress } = useWalletAddress();
-  const [{ domain, antID, stage, isSearching }, dispatchRegisterState] =
+  const [{ domain, pdntID, stage, isSearching }, dispatchRegisterState] =
     useRegistrationState();
 
   const [featuredDomains, setFeaturedDomains] = useState<{
@@ -63,26 +63,26 @@ function Home() {
   }, [searchParams]);
 
   useEffect(() => {
-    if (Object.keys(arnsSourceContract.records).length) {
+    if (Object.keys(pdnsSourceContract.records).length) {
       const featuredDomains = Object.fromEntries(
         FEATURED_DOMAINS.map((domain: string) =>
-          arnsSourceContract.records[domain].contractTxId
-            ? [domain, arnsSourceContract.records[domain].contractTxId]
+          pdnsSourceContract.records[domain]?.contractTxId
+            ? [domain, pdnsSourceContract.records[domain]?.contractTxId]
             : [],
         ).filter((n) => n.length),
       );
       setFeaturedDomains(featuredDomains);
     }
-  }, [arnsSourceContract.records]);
+  }, [pdnsSourceContract.records]);
 
   return (
     <div className="page">
       {domain ? <></> : <div className="page-header">Arweave Name System</div>}
-      {!Object.keys(arnsSourceContract.records).length ? (
+      {!Object.keys(pdnsSourceContract.records).length ? (
         <Loader
           size={80}
           wrapperStyle={{ margin: '75px' }}
-          message="Loading ArNS Registry Contract..."
+          message="Loading PDNS Registry Contract..."
         />
       ) : (
         <>
@@ -92,14 +92,14 @@ function Home() {
               if (stage == 1) {
                 const buyRecordPayload: BuyRecordPayload = {
                   name: domain!,
-                  contractTxId: antID!.toString(),
+                  contractTxId: pdntID!.toString(),
                   tierNumber: 1,
                   years: 1,
                 };
                 dispatchTransactionState({
                   type: 'setTransactionData',
                   payload: {
-                    assetId: ARNS_REGISTRY_ADDRESS,
+                    assetId: PDNS_REGISTRY_ADDRESS,
                     functionName: 'buyRecord',
                     ...buyRecordPayload,
                   },
@@ -140,7 +140,7 @@ function Home() {
               0: {
                 component: (
                   <SearchBar
-                    values={arnsSourceContract.records}
+                    values={pdnsSourceContract.records}
                     value={domain}
                     onSubmit={(next = false) => {
                       dispatchRegisterState({
@@ -165,7 +165,7 @@ function Home() {
                         payload: value,
                       });
                       dispatchRegisterState({
-                        type: 'setAntID',
+                        type: 'setPDNTID',
                         payload: undefined,
                       });
                     }}
@@ -175,20 +175,20 @@ function Home() {
                         payload: name,
                       });
                       dispatchRegisterState({
-                        type: 'setAntID',
+                        type: 'setPDNTID',
                         payload: result
                           ? new ArweaveTransactionID(result)
                           : undefined,
                       });
                     }}
                     successPredicate={(value: string | undefined) =>
-                      isArNSDomainNameAvailable({
+                      isPDNSDomainNameAvailable({
                         name: value,
-                        records: arnsSourceContract?.records ?? {},
+                        records: pdnsSourceContract?.records ?? {},
                       })
                     }
                     validationPredicate={(value: string | undefined) =>
-                      isArNSDomainNameValid({ name: value })
+                      isPDNSDomainNameValid({ name: value })
                     }
                     placeholderText={'Enter a name'}
                     headerElement={
@@ -198,9 +198,9 @@ function Home() {
                       <SearchBarFooter
                         searchTerm={domain}
                         searchResult={
-                          domain && arnsSourceContract.records[domain]
+                          domain && pdnsSourceContract.records[domain]
                             ? new ArweaveTransactionID(
-                                arnsSourceContract.records[domain].contractTxId,
+                                pdnsSourceContract.records[domain].contractTxId,
                               )
                             : undefined
                         }
@@ -213,21 +213,21 @@ function Home() {
                 disableNext: !isSearching,
                 showNext:
                   !!domain &&
-                  isArNSDomainNameAvailable({
+                  isPDNSDomainNameAvailable({
                     name: domain,
-                    records: arnsSourceContract.records,
+                    records: pdnsSourceContract.records,
                   }) &&
-                  isArNSDomainNameValid({ name: domain }),
+                  isPDNSDomainNameValid({ name: domain }),
                 showBack: !!domain,
-                requiresWallet: !!domain && !antID,
+                requiresWallet: !!domain && !pdntID,
               },
               1: {
                 component: <RegisterNameForm />,
                 showNext: true,
                 showBack: true,
                 disableNext:
-                  !antID ||
-                  !ARNS_TX_ID_REGEX.test(antID.toString()) ||
+                  !pdntID ||
+                  !PDNS_TX_ID_REGEX.test(pdntID.toString()) ||
                   !walletAddress,
                 requiresWallet: true,
               },
@@ -236,7 +236,7 @@ function Home() {
                 component: <ConfirmRegistration />,
                 showNext: false,
                 showBack: false,
-                disableNext: !!domain && !!antID && !walletAddress,
+                disableNext: !!domain && !!pdntID && !walletAddress,
                 requiresWallet: true,
               },
               3: {

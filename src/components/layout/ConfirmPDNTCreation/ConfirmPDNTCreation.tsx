@@ -1,26 +1,26 @@
 import { useEffect, useState } from 'react';
 
-import { ANTContract } from '../../../services/arweave/AntContract';
-import { ANTContractJSON } from '../../../types';
+import { PDNTContract } from '../../../services/arweave/PDNTContract';
+import { PDNTContractJSON } from '../../../types';
 import { byteSize } from '../../../utils';
 import { NAME_PRICE_INFO } from '../../../utils/constants';
-import { AntCard } from '../../cards';
+import { PDNTCard } from '../../cards';
 import ArPrice from '../ArPrice/ArPrice';
 import { Tooltip } from '../Tooltip/Tooltip';
 
-function ConfirmAntCreation({ state }: { state: ANTContractJSON }) {
-  const [ant, setAnt] = useState<ANTContract>();
+function ConfirmPDNTCreation({ state }: { state: PDNTContractJSON }) {
+  const [pdnt, setPDNT] = useState<PDNTContract>();
   useEffect(() => {
-    setAnt(new ANTContract(state));
+    setPDNT(new PDNTContract(state));
   }, [state]);
 
-  if (!ant) {
+  if (!pdnt) {
     return <div>Something went wrong. Try again</div>;
   }
 
   return (
     <div className="register-name-modal center">
-      <AntCard
+      <PDNTCard
         domain={''}
         id={undefined}
         state={state}
@@ -28,8 +28,8 @@ function ConfirmAntCreation({ state }: { state: ANTContractJSON }) {
         enableActions={false}
         showTier={false}
         overrides={{
-          targetId: ant.getRecord('@').transactionId,
-          ttlSeconds: ant.getRecord('@').ttlSeconds,
+          targetId: pdnt.getRecord('@').transactionId,
+          ttlSeconds: pdnt.getRecord('@').ttlSeconds,
         }}
         disabledKeys={[
           'tier',
@@ -41,7 +41,7 @@ function ConfirmAntCreation({ state }: { state: ANTContractJSON }) {
         ]}
       />
       <span className="text faded underline" style={{ maxWidth: '475px' }}>
-        You will sign a single transaction to deploy this ANT.
+        You will sign a single transaction to deploy this PDNT.
       </span>
       <div className="flex flex-column center" style={{ gap: '0.2em' }}>
         <Tooltip message={NAME_PRICE_INFO}>
@@ -56,4 +56,4 @@ function ConfirmAntCreation({ state }: { state: ANTContractJSON }) {
   );
 }
 
-export default ConfirmAntCreation;
+export default ConfirmPDNTCreation;

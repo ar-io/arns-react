@@ -1,14 +1,14 @@
 import type { Dispatch, SetStateAction } from 'react';
 
-import { ARNS_TX_ID_REGEX } from './utils/constants';
+import { PDNS_TX_ID_REGEX } from './utils/constants';
 
-export type ArNSRecordEntry = {
+export type PDNSRecordEntry = {
   contractTxId: string;
   tier: string;
   endTimestamp: number;
 };
 
-export type ArNSDomains = { [x: string]: ArNSRecordEntry };
+export type PDNSDomains = { [x: string]: PDNSRecordEntry };
 
 export type TransactionHeaders = {
   id: string;
@@ -29,8 +29,8 @@ export type TransactionTag = {
   value: string;
 };
 
-export type ArNSContractJSON = {
-  records: ArNSDomains;
+export type PDNSContractJSON = {
+  records: PDNSDomains;
   fees: { [x: number]: number };
   tiers: {
     current: {
@@ -53,13 +53,13 @@ export type ArNSContractJSON = {
   approvedANTSourceCodeTxs: string[];
 };
 
-export type ANTContractDomainRecord = {
+export type PDNTContractDomainRecord = {
   ttlSeconds: number;
   maxUndernames: number;
   transactionId: string;
 };
 
-export type ANTContractJSON = {
+export type PDNTContractJSON = {
   balances: { [x: string]: number };
   evolve: boolean | undefined;
   name: string;
@@ -67,16 +67,16 @@ export type ANTContractJSON = {
   controller: string;
   controllers?: string[];
   records: {
-    '@': string | ANTContractDomainRecord;
-    [x: string]: string | ANTContractDomainRecord;
+    '@': string | PDNTContractDomainRecord;
+    [x: string]: string | PDNTContractDomainRecord;
   };
   ticker: string;
 };
 
-export type ArNSMapping = {
+export type PDNSMapping = {
   domain: string;
   id?: ArweaveTransactionID;
-  state?: ANTContractJSON;
+  state?: PDNTContractJSON;
   overrides?: any; // TODO;
   disabledKeys?: string[]; // TODO;
   compact?: boolean;
@@ -85,19 +85,19 @@ export type ArNSMapping = {
   showTier?: boolean;
 };
 
-export type ArNSMetaData = {
+export type PDNSMetaData = {
   image?: string;
   expiration?: Date;
 };
 
-export type ArNSDomain = ArNSMapping & ArNSMetaData;
+export type PDNSDomain = PDNSMapping & PDNSMetaData;
 
 export type JsonWalletProvider = {
   key: any;
 };
 
 export interface SmartweaveContractCache {
-  getContractState<T extends ANTContractJSON | ArNSContractJSON>(
+  getContractState<T extends PDNTContractJSON | PDNSContractJSON>(
     id: ArweaveTransactionID,
   ): Promise<T>;
   getContractBalanceForWallet(
@@ -121,7 +121,7 @@ export interface SmartweaveContractInteractionProvider {
     tags,
   }: {
     srcCodeTransactionId: ArweaveTransactionID;
-    initialState: ANTContractJSON;
+    initialState: PDNTContractJSON;
     tags?: TransactionTag[];
   }): Promise<string>;
 }
@@ -158,7 +158,7 @@ export interface ArweaveDataProvider {
   getArPrice(data: number): Promise<number>;
 }
 
-export interface AntInteractionProvider {
+export interface PDNTInteractionProvider {
   setOwner(id: ArweaveTransactionID): Promise<string>;
   setController(id: ArweaveTransactionID): Promise<string>;
   setTargetId(id: ArweaveTransactionID): Promise<string>;
@@ -177,7 +177,7 @@ export type SearchBarProps = {
   placeholderText?: string;
   headerElement?: JSX.Element;
   footerElement?: JSX.Element;
-  values?: { [x: string]: ArNSRecordEntry };
+  values?: { [x: string]: PDNSRecordEntry };
   value?: string;
   height?: number;
 };
@@ -216,32 +216,32 @@ export type DropdownProps = {
   footerElement?: JSX.Element;
 };
 
-export type ManageTable = 'ants' | 'names';
+export type ManageTable = 'pdnts' | 'names';
 
 export const MANAGE_TABLE_NAMES: Record<ManageTable, string> = {
   names: 'Names',
-  ants: "ANT's",
+  pdnts: "PDNT's",
 };
 
 export enum TRANSACTION_TYPES {
-  REGISTRY = 'ArNS Registry',
-  ANT = 'Arweave Name Token',
+  REGISTRY = 'PDNS Registry',
+  PDNT = 'Arweave Name Token',
   TRANSFER = 'Transfer',
 }
 
 export enum CONTRACT_TYPES {
-  REGISTRY = 'ArNS Registry',
-  ANT = 'Arweave Name Token',
+  REGISTRY = 'PDNS Registry',
+  PDNT = 'Arweave Name Token',
 }
 
 export enum ASSET_TYPES {
-  ANT = 'ANT',
-  NAME = 'ArNS Name',
+  PDNT = 'PDNT',
+  NAME = 'PDNS Name',
   UNDERNAME = 'Undername',
   COIN = 'coin',
 }
 export enum REGISTRY_INTERACTION_TYPES {
-  BUY_RECORD = 'Buy ArNS Name', //permabuy
+  BUY_RECORD = 'Buy PDNS Name', //permabuy
   EXTEND_LEASE = 'Extend Lease',
   UPGRADE_TIER = 'Upgrade Tier',
   TRANSFER = 'Transfer IO Tokens',
@@ -249,8 +249,8 @@ export enum REGISTRY_INTERACTION_TYPES {
 }
 
 export type TransactionDataBasePayload = {
-  assetId: string;
-  functionName: string;
+  assetId?: string;
+  functionName?: string;
   deployedTransactionId?: ArweaveTransactionID;
 };
 
@@ -278,7 +278,7 @@ export type TransferIOPayload = {
 };
 //end registry transaction payload types
 
-//ant transaction payload types
+//pdnt transaction payload types
 export type SetTickerPayload = {
   ticker: string;
 };
@@ -296,17 +296,17 @@ export type SetRecordPayload = {
 export type RemoveRecordPayload = {
   subDomain: string;
 };
-export type TransferAntPayload = {
+export type TransferPDNTPayload = {
   target: string;
 };
-export type CreateAntPayload = {
+export type CreatePDNTPayload = {
   srcCodeTransactionId: string;
-  initialState: ANTContractJSON;
+  initialState: PDNTContractJSON;
   tags?: TransactionTag[];
 };
-// end ant transaction payload types
+// end pdnt transaction payload types
 
-export enum ANT_INTERACTION_TYPES {
+export enum PDNT_INTERACTION_TYPES {
   SET_CONTROLLER = 'Edit Controller',
   SET_TICKER = 'Edit Ticker',
   SET_NAME = 'Edit Name',
@@ -320,8 +320,8 @@ export enum ANT_INTERACTION_TYPES {
 
 export type ContractType = (typeof CONTRACT_TYPES)[keyof typeof CONTRACT_TYPES];
 
-export type AntInteraction =
-  (typeof ANT_INTERACTION_TYPES)[keyof typeof ANT_INTERACTION_TYPES];
+export type PDNTInteraction =
+  (typeof PDNT_INTERACTION_TYPES)[keyof typeof PDNT_INTERACTION_TYPES];
 export type RegistryInteraction =
   (typeof REGISTRY_INTERACTION_TYPES)[keyof typeof REGISTRY_INTERACTION_TYPES];
 
@@ -354,8 +354,8 @@ export type TransactionDataPayload =
   | SetNamePayload
   | SetRecordPayload
   | RemoveRecordPayload
-  | TransferAntPayload
-  | CreateAntPayload;
+  | TransferPDNTPayload
+  | CreatePDNTPayload;
 
 export type TransactionData = TransactionDataBasePayload &
   TransactionDataPayload;
@@ -364,14 +364,14 @@ export type TransactionDataConfig = { functionName: string; keys: string[] };
 
 export const TRANSACTION_DATA_KEYS: {
   // specifying interaction types to the correct contract type, to ensure clarity and to prevent crossover of interaction types
-  [CONTRACT_TYPES.ANT]: {
-    [K in AntInteraction]: TransactionDataConfig;
+  [CONTRACT_TYPES.PDNT]: {
+    [K in PDNTInteraction]: TransactionDataConfig;
   };
   [CONTRACT_TYPES.REGISTRY]: {
     [K in RegistryInteraction]: TransactionDataConfig;
   };
   /**
-   NOTE: benefit of this setup, is that if a new type is added to an enum like ANT_INTERACTION_TYPES, 
+   NOTE: benefit of this setup, is that if a new type is added to an enum like PDNT_INTERACTION_TYPES, 
    then an error will occur here, since every key of the type is required to be defined here.
    */
 } = {
@@ -397,40 +397,40 @@ export const TRANSACTION_DATA_KEYS: {
       keys: ['target'],
     },
   },
-  [CONTRACT_TYPES.ANT]: {
-    [ANT_INTERACTION_TYPES.SET_TARGET_ID]: {
+  [CONTRACT_TYPES.PDNT]: {
+    [PDNT_INTERACTION_TYPES.SET_TARGET_ID]: {
       functionName: 'setRecord',
       keys: ['transactionId'],
     },
-    [ANT_INTERACTION_TYPES.SET_TICKER]: {
+    [PDNT_INTERACTION_TYPES.SET_TICKER]: {
       functionName: 'setTicker',
       keys: ['ticker'],
     },
-    [ANT_INTERACTION_TYPES.SET_CONTROLLER]: {
+    [PDNT_INTERACTION_TYPES.SET_CONTROLLER]: {
       functionName: 'setController',
       keys: ['target'],
     },
-    [ANT_INTERACTION_TYPES.SET_NAME]: {
+    [PDNT_INTERACTION_TYPES.SET_NAME]: {
       functionName: 'setName',
       keys: ['name'],
     },
-    [ANT_INTERACTION_TYPES.SET_RECORD]: {
+    [PDNT_INTERACTION_TYPES.SET_RECORD]: {
       functionName: 'setRecord',
       keys: ['subDomain', 'transactionId', 'ttlSeconds'],
     },
-    [ANT_INTERACTION_TYPES.REMOVE_RECORD]: {
+    [PDNT_INTERACTION_TYPES.REMOVE_RECORD]: {
       functionName: 'removeRecord',
       keys: ['subDomain'],
     },
-    [ANT_INTERACTION_TYPES.TRANSFER]: {
+    [PDNT_INTERACTION_TYPES.TRANSFER]: {
       functionName: 'transfer',
       keys: ['target'],
     },
-    [ANT_INTERACTION_TYPES.BALANCE]: {
+    [PDNT_INTERACTION_TYPES.BALANCE]: {
       functionName: 'balance',
       keys: ['target'],
     },
-    [ANT_INTERACTION_TYPES.CREATE]: {
+    [PDNT_INTERACTION_TYPES.CREATE]: {
       functionName: '',
       keys: ['srcCodeTransactionId', 'initialState', 'tags'],
     },
@@ -439,7 +439,7 @@ export const TRANSACTION_DATA_KEYS: {
 
 export class ArweaveTransactionID implements Equatable<ArweaveTransactionID> {
   constructor(private readonly transactionId: string) {
-    if (!ARNS_TX_ID_REGEX.test(transactionId)) {
+    if (!PDNS_TX_ID_REGEX.test(transactionId)) {
       throw new Error(
         'Transaction ID should be a 43-character, alphanumeric string potentially including "-" and "_" characters.',
       );
@@ -467,7 +467,7 @@ export interface Equatable<T> {
   equals(other: T): boolean;
 }
 
-export type ArNSTableRow = {
+export type PDNSTableRow = {
   name: string;
   role: string;
   id: string;
@@ -477,32 +477,32 @@ export type ArNSTableRow = {
   key: string | number;
 };
 
-export type AntMetadata = {
+export type PDNTMetadata = {
   name: string;
   id: string;
   target: string;
   role: string;
   status: number;
-  state: ANTContractJSON;
+  state: PDNTContractJSON;
   error?: string;
   key: number;
 };
 
-export type ManageAntRow = {
+export type ManagePDNTRow = {
   attribute: string;
   value: string;
   editable: boolean;
   action: any;
   key: number;
-  interactionType?: AntInteraction | RegistryInteraction;
+  interactionType?: PDNTInteraction | RegistryInteraction;
 };
 
 export enum VALIDATION_INPUT_TYPES {
   ARWEAVE_ID = 'Is valid Arweave Transaction (TX) ID',
   ARWEAVE_ADDRESS = 'Arweave Address',
-  ARNS_NAME = 'Arns Name',
+  PDNS_NAME = 'PDNS Name',
   UNDERNAME = 'Undername',
-  ANT_CONTRACT_ID = 'Is a valid Arweave Name Token (ANT)',
+  PDNT_CONTRACT_ID = 'Is a valid Arweave Name Token (PDNT)',
   // unfortunately we cannot use computed values in enums, so be careful if we ever modify this number
   TRANSACTION_CONFIRMATIONS = `Has sufficient confirmations (50+)`,
 }

@@ -2,10 +2,10 @@ import { Dispatch, createContext, useContext, useReducer } from 'react';
 
 import { TRANSACTION_WORKFLOW_STATUS } from '../../components/layout/TransactionWorkflow/TransactionWorkflow';
 import {
-  AntInteraction,
   ArweaveTransactionID,
   CONTRACT_TYPES,
   ContractType,
+  PDNTInteraction,
   REGISTRY_INTERACTION_TYPES,
   RegistryInteraction,
   TransactionData,
@@ -16,7 +16,7 @@ export type TransactionState = {
   deployedTransactionId?: ArweaveTransactionID;
   transactionData: TransactionData | undefined; // data that will be used to perform the transaction.
   contractType: ContractType;
-  interactionType: AntInteraction | RegistryInteraction;
+  interactionType: PDNTInteraction | RegistryInteraction;
   workflowStage: TRANSACTION_WORKFLOW_STATUS;
 };
 
@@ -53,7 +53,7 @@ export default function TransactionStateProvider({
 
   /**
    * TODO: cache workflows in case connection lost, gives ability to continue interrupted workflows. To cache, simply add state as the value under a timestamp key.
-   * TODO: prompt user if they want to continue a workflow, if no, clear workflow from cache
+   * TODO: prompt user if they wpdnt to continue a workflow, if no, clear workflow from cache
    * const cachedWorkflows =  window.localStorage.getItem("transactionWorkflows")
    */
 

@@ -1,6 +1,6 @@
-import { isArNSDomainNameAvailable } from '../searchUtils/searchUtils';
+import { isPDNSDomainNameAvailable } from '../searchUtils/searchUtils';
 
-describe('isArNSDomainNameAvailable', () => {
+describe('isPDNSDomainNameAvailable', () => {
   const records = {
     'domain-0': {
       contractTxId: 'fake-tx-id-0',
@@ -20,19 +20,19 @@ describe('isArNSDomainNameAvailable', () => {
   };
 
   test('it should return false if name is in records', () => {
-    expect(isArNSDomainNameAvailable({ name: 'domain-0', records })).toEqual(
+    expect(isPDNSDomainNameAvailable({ name: 'domain-0', records })).toEqual(
       false,
     );
   });
 
   test('it should return true if name is not in records', () => {
-    expect(isArNSDomainNameAvailable({ name: 'available', records })).toEqual(
+    expect(isPDNSDomainNameAvailable({ name: 'available', records })).toEqual(
       true,
     );
   });
 
   test('it should return false if name is undefined', () => {
-    expect(isArNSDomainNameAvailable({ name: undefined, records })).toEqual(
+    expect(isPDNSDomainNameAvailable({ name: undefined, records })).toEqual(
       false,
     );
   });

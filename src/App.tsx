@@ -9,16 +9,16 @@ import {
 import { Layout, ProtectedRoute } from './components/layout';
 import {
   ConnectWalletModal,
-  CreateAntModal,
-  ManageAntModal, // ManageAntModal,
+  CreatePDNTModal,
+  ManagePDNTModal, // ManagePDNTModal,
 } from './components/modals';
 import { About, Home, Manage, NotFound, Transaction } from './components/pages';
-import { useArNSContract } from './hooks/';
+import { usePDNSContract } from './hooks/';
 import './index.css';
 
 function App() {
   // dispatches global state
-  useArNSContract();
+  usePDNSContract();
 
   const router = createHashRouter(
     createRoutesFromElements(
@@ -30,7 +30,7 @@ function App() {
           path="create"
           element={
             <ProtectedRoute>
-              <CreateAntModal />
+              <CreatePDNTModal />
             </ProtectedRoute>
           }
         />
@@ -47,10 +47,10 @@ function App() {
             />
           </Route>
           <Route
-            path="ants/:id"
+            path="pdnts/:id"
             element={
               <ProtectedRoute>
-                <ManageAntModal />
+                <ManagePDNTModal />
               </ProtectedRoute>
             }
           />

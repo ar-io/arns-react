@@ -8,9 +8,9 @@ import {
 } from 'warp-contracts';
 
 import {
-  ANTContractJSON,
-  ArNSContractJSON,
   ArweaveTransactionID,
+  PDNSContractJSON,
+  PDNTContractJSON,
   SmartweaveContractCache,
   SmartweaveContractInteractionProvider,
   TransactionTag,
@@ -36,7 +36,7 @@ export class WarpDataProvider
     );
   }
 
-  async getContractState<T extends ANTContractJSON | ArNSContractJSON>(
+  async getContractState<T extends PDNTContractJSON | PDNSContractJSON>(
     id: ArweaveTransactionID,
   ): Promise<T> {
     const contract = this._warp.contract(id.toString());
@@ -94,7 +94,7 @@ export class WarpDataProvider
     tags = [],
   }: {
     srcCodeTransactionId: ArweaveTransactionID;
-    initialState: ANTContractJSON;
+    initialState: PDNTContractJSON;
     tags?: TransactionTag[];
   }): Promise<string> {
     const tagSize = byteSize(JSON.stringify(tags));

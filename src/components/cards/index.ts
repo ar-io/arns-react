@@ -1,5 +1,5 @@
-import AntCard from './AntCard/AntCard';
-import ArnsCard from './ArnsCard/ArnsCard';
+import PDNSCard from './PDNSCard/PDNSCard';
+import PDNTCard from './PDNTCard/PDNTCard';
 import TierCard from './TierCard/TierCard';
 
-export { ArnsCard, AntCard, TierCard };
+export { PDNSCard, PDNTCard, TierCard };

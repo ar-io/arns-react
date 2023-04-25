@@ -20,7 +20,7 @@ import './styles.css';
 
 function NavMenuCard() {
   const arweaveDataProvider = useArweaveCompositeProvider();
-  const [{ arnsContractId }, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
+  const [{ pdnsContractId }, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
   const [walletDetails, setWalletDetails] = useState<{
@@ -59,7 +59,7 @@ function NavMenuCard() {
 
   async function fetchWalletDetails(walletAddress: ArweaveTransactionID) {
     const ioBalance = await arweaveDataProvider.getContractBalanceForWallet(
-      arnsContractId,
+      pdnsContractId,
       walletAddress,
     );
     const arBalance = await arweaveDataProvider.getWalletBalance(walletAddress);

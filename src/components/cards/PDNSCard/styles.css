@@ -1,4 +1,4 @@
-.arns-card {
+.pdns-card {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -13,7 +13,7 @@
   border-radius: var(--corner-radius);
 }
 
-.arns-preview {
+.pdns-preview {
   display: flex;
   overflow: hidden;
   border-radius: var(--corner-radius);
@@ -23,7 +23,7 @@
   height: 70%;
 }
 
-.arns-card-footer {
+.pdns-card-footer {
   text-align: start;
 }
 
@@ -37,7 +37,7 @@
 }
 
 @media screen and (max-width: 600px) {
-  .arns-card {
+  .pdns-card {
     flex-direction: row;
     height: 10%;
     width: 100%;
@@ -46,7 +46,7 @@
     padding: 16px;
   }
 
-  .arns-preview {
+  .pdns-preview {
     width: 30%;
     height: 50px;
     border-radius: 8px;

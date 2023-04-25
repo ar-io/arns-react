@@ -3,29 +3,29 @@ import { useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { ArNSDomain, ArNSMapping } from '../../../types';
+import { PDNSDomain, PDNSMapping } from '../../../types';
 import { DEFAULT_EXPIRATION } from '../../../utils/constants';
-import { ArnsDefault as arnsDefaultImage } from '../../icons';
+import { PDNSDefault as pdnsDefaultImage } from '../../icons';
 import './styles.css';
 
-function ArnsCard({ domain, id }: ArNSMapping) {
+function PDNSCard({ domain, id }: PDNSMapping) {
   const [{ gateway }] = useGlobalState();
   const isMobile = useIsMobile();
-  const [antDetails, setAntDetails] = useState<ArNSDomain>({
+  const [pdntDetails, setPDNTDetails] = useState<PDNSDomain>({
     domain,
     id,
-    image: arnsDefaultImage,
+    image: pdnsDefaultImage,
     expiration: DEFAULT_EXPIRATION, // TODO: don't default
   });
 
   useEffect(() => {
-    getAntDetailsFromName(domain);
+    getPDNTDetailsFromName(domain);
   }, [domain, id, gateway, isMobile]);
 
-  async function getAntDetailsFromName(domain: string) {
+  async function getPDNTDetailsFromName(domain: string) {
     const image = await getMetaImage();
-    setAntDetails({
-      ...antDetails,
+    setPDNTDetails({
+      ...pdntDetails,
       domain,
       image,
     });
@@ -71,31 +71,31 @@ function ArnsCard({ domain, id }: ArNSMapping) {
       }
       return metaImage;
     } catch (error) {
-      return arnsDefaultImage;
+      return pdnsDefaultImage;
     }
   }
 
   return (
-    <div className="arns-card hover">
+    <div className="pdns-card hover">
       <img
-        className="arns-preview"
-        src={antDetails.image}
-        key={antDetails.image}
+        className="pdns-preview"
+        src={pdntDetails.image}
+        key={pdntDetails.image}
         alt={`${domain}.${gateway}`}
       />
-      <div className="arns-card-footer">
+      <div className="pdns-card-footer">
         <a
           className="text white bold external-link"
           target="_blank"
-          href={`https://${antDetails.domain}.${gateway}`}
+          href={`https://${pdntDetails.domain}.${gateway}`}
           rel="noreferrer"
-        >{`${antDetails.domain}.${gateway}`}</a>
+        >{`${pdntDetails.domain}.${gateway}`}</a>
         <span className="expiry-text">
-          Exp. {antDetails.expiration?.toDateString()}
+          Exp. {pdntDetails.expiration?.toDateString()}
         </span>
       </div>
     </div>
   );
 }
 
-export default ArnsCard;
+export default PDNSCard;

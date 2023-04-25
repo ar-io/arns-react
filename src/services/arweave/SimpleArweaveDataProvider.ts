@@ -56,11 +56,11 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
     isLastPage: boolean;
     cursor?: string;
   }> {
-    const fetchedANTids: Set<ArweaveTransactionID> = new Set();
+    const fetchedPDNTids: Set<ArweaveTransactionID> = new Set();
     let newCursor: string | undefined = undefined;
     let isLastPage = false;
 
-    // get contracts deployed by user, filtering with src-codes to only get ANT contracts
+    // get contracts deployed by user, filtering with src-codes to only get PDNT contracts
 
     const deployedResponse = await this._arweave.api.post(
       '/graphql',
@@ -78,23 +78,23 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
           isLastPage: !e.pageInfo?.hasNextPage,
         }))
         .forEach(
-          (ant: {
+          (pdnt: {
             id: ArweaveTransactionID;
             cursor: string;
             isLastPage: boolean;
           }) => {
-            fetchedANTids.add(ant.id);
-            if (ant.cursor) {
-              newCursor = ant.cursor;
+            fetchedPDNTids.add(pdnt.id);
+            if (pdnt.cursor) {
+              newCursor = pdnt.cursor;
             }
-            if (ant.isLastPage) {
-              isLastPage = ant.isLastPage;
+            if (pdnt.isLastPage) {
+              isLastPage = pdnt.isLastPage;
             }
           },
         );
     }
     return {
-      ids: [...fetchedANTids],
+      ids: [...fetchedPDNTids],
       cursor: newCursor,
       isLastPage: isLastPage,
     };

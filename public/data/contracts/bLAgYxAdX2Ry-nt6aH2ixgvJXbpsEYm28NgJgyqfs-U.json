@@ -594,7 +594,7 @@
     "flightacting": "QQRylU6jNEFqcD1RNc9FJL3SfAH_d7KTstlduJdPR4Y",
     "flighta": "52gHw88xz0pPUAMD9AOucsT0CSOs8iswY0oxDtVOcaE",
     "dtfiedler": "gh673M0Koh941OIITVXl9hKabRaYWABQUedZxW-swIA",
-    "arns": "a7PyzCoEf6MxV05styCX8rpsZoMDigZVe2DR0Cmy3vs",
+    "pdns": "a7PyzCoEf6MxV05styCX8rpsZoMDigZVe2DR0Cmy3vs",
     "steven": "jf_xnDSssdKybCXlzIzRz81qX-DRIElSRVjXQXvt-cY",
     "david": "rgvZ-iXgItapTbq3GrLQnqx64YMsFrTzF5-fmU79LVQ",
     "ario": "xu8iShWHPgT1CM82n7Vs4rr_03q7Bf7PLqNIUYBLgVY",
@@ -1078,5 +1078,5 @@
     "heygonfttest": "JPZcjkc0nwbDc9DI42PhCAZXM7xwroZrf9XxpUg-S14",
     "hidayath": "otV2LcpNvhlq7AZOpmcAVEJxYWJfklG0lIZbLdUplCY"
   },
-  "ticker": "ARNS-TEST"
+  "ticker": "PDNS-TEST"
 }
