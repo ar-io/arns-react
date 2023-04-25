@@ -132,6 +132,7 @@ function Manage() {
 
   async function fetchWalletAnts(address: ArweaveTransactionID) {
     try {
+      setTableLoading(true);
       const { ids } = await arweaveDataProvider.getContractsForWallet(
         arnsSourceContract.approvedANTSourceCodeTxs.map(
           (id: string) => new ArweaveTransactionID(id),
@@ -139,12 +140,14 @@ function Manage() {
         address,
         cursor,
       );
-      // TODO: store ants in global state and create a hook that fetches them at certain times
       setAntIDs(ids);
     } catch (error: any) {
       eventEmitter.emit('error', error);
     } finally {
-      setTableLoading(false);
+      // prevent jitter
+      setTimeout(() => {
+        setTableLoading(false);
+      }, 500);
     }
   }
 
@@ -198,9 +201,9 @@ function Manage() {
           </div>
           <div className="flex flex-row flex-right">
             <button
-              disabled={antTableLoading}
+              disabled={tableLoading}
               className={
-                antTableLoading
+                tableLoading
                   ? 'outline-button center disabled-button'
                   : 'outline-button center'
               }
