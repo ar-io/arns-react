@@ -10,6 +10,7 @@ import {
   CreateAntPayload,
   REGISTRY_INTERACTION_TYPES,
   RegistryInteraction,
+  SetControllerPayload,
   SetNamePayload,
   SetRecordPayload,
   SetTickerPayload,
@@ -277,6 +278,40 @@ export function getArNSMappingByInteractionType(
             ],
           };
         }
+        case ANT_INTERACTION_TYPES.SET_CONTROLLER:
+          {
+            if (
+              !isObjectOfTransactionPayloadType<SetControllerPayload>(
+                transactionData,
+                TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][
+                  ANT_INTERACTION_TYPES.SET_CONTROLLER
+                ].keys,
+              )
+            ) {
+              throw new Error(
+                `transaction data not of correct payload type <SetControllerPayload> keys: ${Object.keys(
+                  transactionData,
+                )}`,
+              );
+            }
+            return {
+              domain: '',
+              showTier: false,
+              compact: false,
+              id: new ArweaveTransactionID(transactionData.assetId),
+              overrides: {
+                controller: transactionData.target,
+              },
+              disabledKeys: [
+                'evolve',
+                'maxSubdomains',
+                'domain',
+                'leaseDuration',
+                'ttlSeconds',
+              ],
+            };
+          }
+          break;
         case ANT_INTERACTION_TYPES.SET_TARGET_ID: {
           if (
             !isObjectOfTransactionPayloadType<SetRecordPayload>(
@@ -321,6 +356,7 @@ export const FieldToInteractionMap: {
   name: ANT_INTERACTION_TYPES.SET_NAME,
   ticker: ANT_INTERACTION_TYPES.SET_TICKER,
   targetID: ANT_INTERACTION_TYPES.SET_TARGET_ID,
+  controller: ANT_INTERACTION_TYPES.SET_CONTROLLER,
   // TODO: add other interactions
 };
 

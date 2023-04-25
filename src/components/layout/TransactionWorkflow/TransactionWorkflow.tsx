@@ -273,6 +273,7 @@ function TransactionWorkflow({
           switch (interactionType) {
             case ANT_INTERACTION_TYPES.SET_TARGET_ID:
             case ANT_INTERACTION_TYPES.SET_TICKER:
+            case ANT_INTERACTION_TYPES.SET_CONTROLLER:
             case ANT_INTERACTION_TYPES.SET_NAME: {
               return {
                 pending: {
