@@ -1,8 +1,9 @@
+import * as Sentry from '@sentry/react';
 import {
   Navigate,
   Route,
   RouterProvider,
-  createHashRouter,
+  createBrowserRouter,
   createRoutesFromElements,
 } from 'react-router-dom';
 
@@ -16,11 +17,14 @@ import { About, Home, Manage, NotFound, Transaction } from './components/pages';
 import { useArNSContract } from './hooks/';
 import './index.css';
 
+const sentryCreateBrowserRouter =
+  Sentry.wrapCreateBrowserRouter(createBrowserRouter);
+
 function App() {
   // dispatches global state
   useArNSContract();
 
-  const router = createHashRouter(
+  const router = sentryCreateBrowserRouter(
     createRoutesFromElements(
       <Route element={<Layout />} errorElement={<NotFound />}>
         <Route index element={<Home />} />
