@@ -1,7 +1,7 @@
 import { Tooltip } from 'antd';
 import Table from 'rc-table';
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
 import { ANTContract } from '../../../services/arweave/AntContract';
@@ -103,7 +103,9 @@ function ManageAntModal() {
         contractState.controllers?.join(', ') ??
         contractState.owner?.toString() ??
         'N/A',
-      undernames: `${names.length} / ${tier?.settings.maxUndernames ?? 100}`,
+      undernames: `${Object.keys(contractState.records).length - 1} / ${
+        tier?.settings.maxUndernames ?? 100
+      }`,
       owner: contractState.owner?.toString() ?? 'N/A',
     };
 
@@ -196,6 +198,13 @@ function ManageAntModal() {
                       <TransactionStatus confirmations={+value} />
                     </>
                   );
+                if (row.attribute === 'undernames') {
+                  return (
+                    <Link to={'undernames'} class={'link'}>
+                      {value}
+                    </Link>
+                  );
+                }
                 if (row.editable)
                   return (
                     <>

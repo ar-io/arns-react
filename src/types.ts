@@ -492,6 +492,23 @@ export type ManageAntRow = {
   interactionType?: AntInteraction | RegistryInteraction;
 };
 
+export type UndernameMetadata = {
+  name: string;
+  targetID: string;
+  ttlSeconds: string;
+  status: number;
+  error?: string;
+  key: string;
+};
+
+export type ManageUndernameRow = {
+  attribute: string;
+  value: string;
+  editable: boolean;
+  action: any;
+  key: number;
+};
+
 export enum VALIDATION_INPUT_TYPES {
   ARWEAVE_ID = 'Is valid Arweave Transaction (TX) ID',
   ARWEAVE_ADDRESS = 'Arweave Address',

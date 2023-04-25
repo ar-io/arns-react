@@ -1,4 +1,5 @@
 import { CubeIcon } from '../components/icons';
+import Undernames from '../components/layout/Undernames/Undernames';
 import { About, Home, Manage, Transaction } from '../components/pages';
 
 export type Route = {
@@ -38,6 +39,14 @@ export const ROUTES: { [x: string]: Route } = {
     icon: CubeIcon,
     path: '/transaction',
     component: Transaction,
+    protected: true,
+    index: false,
+  },
+  undernames: {
+    text: 'Undernames',
+    icon: CubeIcon,
+    path: '/manage/ant/:id/undernames',
+    component: Undernames,
     protected: true,
     index: false,
   },

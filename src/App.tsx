@@ -7,6 +7,7 @@ import {
 } from 'react-router-dom';
 
 import { Layout, ProtectedRoute } from './components/layout';
+import Undernames from './components/layout/Undernames/Undernames';
 import {
   ConnectWalletModal,
   CreateAntModal,
@@ -51,6 +52,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <ManageAntModal />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="ants/:id/undernames"
+            element={
+              <ProtectedRoute>
+                <Undernames />
               </ProtectedRoute>
             }
           />
