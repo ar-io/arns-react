@@ -427,7 +427,7 @@ export const TRANSACTION_DATA_KEYS: {
     },
     [ANT_INTERACTION_TYPES.CREATE]: {
       functionName: '',
-      keys: ['srcCodeTransactionId', 'initialState', 'tags'],
+      keys: ['srcCodeTransactionId', 'initialState'],
     },
   },
 };
