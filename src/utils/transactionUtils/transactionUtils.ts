@@ -17,6 +17,7 @@ import {
   TRANSACTION_DATA_KEYS,
   TransactionData,
   TransactionDataPayload,
+  TransferAntPayload,
 } from '../../types';
 import { ARNS_TX_ID_REGEX } from '../constants';
 
@@ -345,6 +346,40 @@ export function getArNSMappingByInteractionType(
             ],
           };
         }
+        case ANT_INTERACTION_TYPES.TRANSFER:
+          {
+            if (
+              !isObjectOfTransactionPayloadType<TransferAntPayload>(
+                transactionData,
+                TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][
+                  ANT_INTERACTION_TYPES.TRANSFER
+                ].keys,
+              )
+            ) {
+              throw new Error(
+                `transaction data not of correct payload type <TransferAntPayload> keys: ${Object.keys(
+                  transactionData,
+                )}`,
+              );
+            }
+            return {
+              domain: '',
+              showTier: false,
+              compact: false,
+              id: new ArweaveTransactionID(transactionData.assetId),
+              overrides: {
+                owner: transactionData.target,
+              },
+              disabledKeys: [
+                'evolve',
+                'maxSubdomains',
+                'domain',
+                'leaseDuration',
+                'ttlSeconds',
+              ],
+            };
+          }
+          break;
       }
     }
   }
@@ -357,6 +392,7 @@ export const FieldToInteractionMap: {
   ticker: ANT_INTERACTION_TYPES.SET_TICKER,
   targetID: ANT_INTERACTION_TYPES.SET_TARGET_ID,
   controller: ANT_INTERACTION_TYPES.SET_CONTROLLER,
+  owner: ANT_INTERACTION_TYPES.TRANSFER,
   // TODO: add other interactions
 };
 
