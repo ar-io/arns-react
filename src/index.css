@@ -453,6 +453,7 @@ input[type='text']:disabled {
 
 .rc-table-content > table {
   border-spacing: 0px 10px;
+  width: 100%;
 }
 
 .rc-table-body > table {
