@@ -43,7 +43,28 @@ export function isContractType(x: any): x is ContractType {
 
 export function isObjectOfTransactionPayloadType<
   T extends TransactionDataPayload,
->(x: Record<string, unknown>, requiredKeys: string[]): x is T {
+>(
+  x: Record<string, unknown>,
+  requiredKeys: string[],
+  overrides?: string[],
+): x is T {
+  if (!requiredKeys.length) {
+    throw new Error('No keys were given for validation');
+  }
+  if (overrides) {
+    const keys: string[] = [];
+
+    requiredKeys.forEach((key) => {
+      if (overrides.includes(key)) {
+        return;
+      }
+      keys.push(key);
+    });
+    if (!keys.length || !requiredKeys.length) {
+      throw new Error('No keys were given for validation');
+    }
+    return keys.every((k) => Object.keys(x).includes(k));
+  }
   return requiredKeys.every((k) => Object.keys(x).includes(k));
 }
 
@@ -134,6 +155,7 @@ export function getTransactionPayloadByInteractionType(
                 TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][
                   ANT_INTERACTION_TYPES.SET_RECORD
                 ].keys,
+                ['ttlSeconds'],
               )
             ) {
               throw Error(
