@@ -290,9 +290,10 @@ export type SetNamePayload = {
 };
 export type SetRecordPayload = {
   subDomain: string;
-  transactionId: string;
-  ttlSeconds?: number;
 };
+export type SetTargetIDPayload = {
+  transactionId: string;
+} & SetRecordPayload;
 export type RemoveRecordPayload = {
   subDomain: string;
 };
