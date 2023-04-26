@@ -31,7 +31,7 @@ const initialState: GlobalState = {
     ticker: '',
     approvedANTSourceCodeTxs: [],
   },
-  gateway: 'arweave.net',
+  gateway: 'ar-io.dev',
   walletAddress: undefined,
   wallet: undefined,
 };
