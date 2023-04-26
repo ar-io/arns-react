@@ -111,11 +111,14 @@ export function getTransactionPayloadByInteractionType(
       );
     }
     const txData = typeof data === 'string' ? [data] : [...data];
-    const payload = mapTransactionDataKeyToPayload(
+    let payload = mapTransactionDataKeyToPayload(
       contractType,
       interactionType,
       txData,
     );
+    if (!payload) {
+      throw new Error('payload is undefined');
+    }
     // overrides
     if (
       contractType == CONTRACT_TYPES.ANT &&
@@ -124,9 +127,10 @@ export function getTransactionPayloadByInteractionType(
       switch (interactionType) {
         case ANT_INTERACTION_TYPES.SET_TARGET_ID:
           {
+            const data = { ...payload, subDomain: '@' };
             if (
               !isObjectOfTransactionPayloadType<SetRecordPayload>(
-                payload!,
+                data,
                 TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][
                   ANT_INTERACTION_TYPES.SET_RECORD
                 ].keys,
@@ -136,7 +140,7 @@ export function getTransactionPayloadByInteractionType(
                 'transaction data not of correct payload type <SetRecordPayload>',
               );
             }
-            payload.subDomain = '@';
+            payload = { ...data };
           }
           break;
       }
