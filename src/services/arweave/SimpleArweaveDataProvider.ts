@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import Arweave from 'arweave/node';
 import Ar from 'arweave/node/ar';
 
@@ -6,7 +5,6 @@ import {
   ArweaveDataProvider,
   ArweaveTransactionID,
   TransactionHeaders,
-  TransactionTag,
 } from '../../types';
 import { tagsToObject } from '../../utils';
 import {
