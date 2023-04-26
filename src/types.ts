@@ -293,11 +293,9 @@ export type SetNamePayload = {
 
 export type SetRecordPayload = {
   subDomain: string;
-};
-
-export type SetTargetIDPayload = {
   transactionId: string;
-} & SetRecordPayload;
+  ttlSeconds: number;
+};
 
 export type RemoveRecordPayload = {
   subDomain: string;
@@ -408,7 +406,7 @@ export const TRANSACTION_DATA_KEYS: {
   [CONTRACT_TYPES.ANT]: {
     [ANT_INTERACTION_TYPES.SET_TARGET_ID]: {
       functionName: 'setRecord',
-      keys: ['transactionId'],
+      keys: ['subDomain', 'transactionId', 'ttlSeconds'],
     },
     [ANT_INTERACTION_TYPES.SET_TICKER]: {
       functionName: 'setTicker',

@@ -11,7 +11,7 @@ import {
   REGISTRY_INTERACTION_TYPES,
   RegistryInteraction,
   SetNamePayload,
-  SetTargetIDPayload,
+  SetRecordPayload,
   SetTickerPayload,
   TRANSACTION_DATA_KEYS,
   TransactionData,
@@ -99,57 +99,6 @@ export function isInteractionCompatible({
     return true;
   } catch (error) {
     return false;
-  }
-}
-
-export function getTransactionPayloadByInteractionType(
-  contractType: ContractType,
-  interactionType: AntInteraction | RegistryInteraction,
-  data?: string | string[],
-): TransactionData | undefined {
-  try {
-    if (!data) {
-      throw new Error(
-        'No data provided, data is required to build the payload',
-      );
-    }
-    const txData = typeof data === 'string' ? [data] : [...data];
-    const payload = mapTransactionDataKeyToPayload(
-      contractType,
-      interactionType,
-      txData,
-    );
-    if (!payload) {
-      throw new Error('payload is undefined');
-    }
-    // overrides
-    if (
-      contractType == CONTRACT_TYPES.ANT &&
-      isAntInteraction(interactionType)
-    ) {
-      switch (interactionType) {
-        case ANT_INTERACTION_TYPES.SET_TARGET_ID: {
-          const data = { ...payload, subDomain: '@' };
-          if (
-            !isObjectOfTransactionPayloadType<SetTargetIDPayload>(
-              data,
-              TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][
-                ANT_INTERACTION_TYPES.SET_TARGET_ID
-              ].keys,
-            )
-          ) {
-            throw Error(
-              'transaction data not of correct payload type <SetRecordPayload>',
-            );
-          }
-          return { ...data };
-        }
-      }
-    }
-
-    return payload;
-  } catch (error) {
-    console.error(error);
   }
 }
 
@@ -294,7 +243,7 @@ export function getArNSMappingByInteractionType(
         }
         case ANT_INTERACTION_TYPES.SET_TARGET_ID: {
           if (
-            !isObjectOfTransactionPayloadType<SetTargetIDPayload>(
+            !isObjectOfTransactionPayloadType<SetRecordPayload>(
               transactionData,
               TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][
                 ANT_INTERACTION_TYPES.SET_TARGET_ID
@@ -347,10 +296,14 @@ export function getInteractionTypeFromField(field: string) {
 export function mapTransactionDataKeyToPayload(
   contractType: ContractType,
   interactionType: AntInteraction | RegistryInteraction,
-  data: string[],
+  data: string | string[],
 ): TransactionData | undefined {
+  const txData = typeof data === 'string' ? [data] : [...data];
   const payload: any = {};
   // TODO refactor this util and types to be more generic... currently we are implementing dependent on each type, change to not have to do that. Check Mati's types.
+  if (!data) {
+    throw new Error('No data provided, data is required to build the payload');
+  }
   if (isRegistryInteraction(interactionType)) {
     if (
       !isInteractionCompatible({
@@ -370,15 +323,15 @@ export function mapTransactionDataKeyToPayload(
     TRANSACTION_DATA_KEYS[CONTRACT_TYPES.REGISTRY][
       interactionType
     ].keys.forEach((key, index) => {
-      if (!data[index]) {
+      if (!txData[index]) {
         // if missing transaction data from the url, throw an error
         throw new Error(
-          `Missing key (${key}) from transaction data in the url. This may be due to the order of the data, the current order is [${data}], the correct order is [${
+          `Missing key (${key}) from transaction data in the url. This may be due to the order of the data, the current order is [${txData}], the correct order is [${
             TRANSACTION_DATA_KEYS[CONTRACT_TYPES.REGISTRY][interactionType].keys
           }]`,
         );
       }
-      payload[key] = data[index];
+      payload[key] = txData[index];
     });
     return payload;
   }
@@ -398,15 +351,15 @@ export function mapTransactionDataKeyToPayload(
       TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][interactionType].functionName;
     TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][interactionType].keys.forEach(
       (key, index) => {
-        if (!data[index]) {
+        if (!txData[index]) {
           // if missing transaction data from the url, throw an error
           throw new Error(
-            `Missing key (${key}) from transaction data in the url. This may be due to the order of the data, the current order is [${data}], the correct order is [${
+            `Missing key (${key}) from transaction data in the url. This may be due to the order of the data, the current order is [${txData}], the correct order is [${
               TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][interactionType].keys
             }]`,
           );
         }
-        payload[key] = data[index];
+        payload[key] = txData[index];
       },
     );
     return payload;

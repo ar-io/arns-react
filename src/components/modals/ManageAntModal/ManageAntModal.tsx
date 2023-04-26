@@ -9,6 +9,7 @@ import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ANTContractJSON,
+  ANT_INTERACTION_TYPES,
   ArNSRecordEntry,
   ArweaveTransactionID,
   CONTRACT_TYPES,
@@ -18,7 +19,7 @@ import {
 } from '../../../types';
 import {
   getInteractionTypeFromField,
-  getTransactionPayloadByInteractionType,
+  mapTransactionDataKeyToPayload,
 } from '../../../utils';
 import eventEmitter from '../../../utils/events';
 import { mapKeyToAttribute } from '../../cards/AntCard/AntCard';
@@ -54,6 +55,7 @@ function ManageAntModal() {
   const arweaveDataProvider = useArweaveCompositeProvider();
   const [{ arnsSourceContract }] = useGlobalState();
   const [{}, dispatchTransactionState] = useTransactionState(); // eslint-disable-line
+  const [antState, setAntState] = useState<ANTContract>();
   const [antName, setAntName] = useState<string>();
   const [editingField, setEditingField] = useState<string>();
   const [modifiedValue, setModifiedValue] = useState<string | number>();
@@ -87,6 +89,7 @@ function ManageAntModal() {
       arweaveDataProvider.getTransactionStatus(txId),
     ]);
     const ant = new ANTContract(contractState);
+    setAntState(ant);
     const record = Object.values(arnsSourceContract.records).find(
       (r) => r.contractTxId === txId.toString(),
     );
@@ -303,12 +306,27 @@ function ManageAntModal() {
                             borderColor: 'var(--accent)',
                           }}
                           onClick={() => {
+                            // TODO update when ant source code is updated to not overwrite existing info
                             const payload =
-                              getTransactionPayloadByInteractionType(
-                                CONTRACT_TYPES.ANT,
-                                row.interactionType,
-                                modifiedValue?.toString(),
-                              );
+                              row.interactionType ===
+                              ANT_INTERACTION_TYPES.SET_TARGET_ID
+                                ? mapTransactionDataKeyToPayload(
+                                    CONTRACT_TYPES.ANT,
+                                    row.interactionType,
+                                    [
+                                      '@',
+                                      modifiedValue!.toString(),
+                                      antState!.records[
+                                        '@'
+                                      ].ttlSeconds.toString(),
+                                    ],
+                                  )
+                                : mapTransactionDataKeyToPayload(
+                                    CONTRACT_TYPES.ANT,
+                                    row.interactionType,
+                                    modifiedValue!.toString(),
+                                  );
+
                             if (payload && row.interactionType && id) {
                               // eslint-disable-next-line
                               const { assetId, functionName, ...data } =
