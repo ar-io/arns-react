@@ -282,24 +282,31 @@ export type TransferIOPayload = {
 export type SetTickerPayload = {
   ticker: string;
 };
+
 export type SetControllerPayload = {
   target: string;
 };
+
 export type SetNamePayload = {
   name: string;
 };
+
 export type SetRecordPayload = {
   subDomain: string;
 };
+
 export type SetTargetIDPayload = {
   transactionId: string;
 } & SetRecordPayload;
+
 export type RemoveRecordPayload = {
   subDomain: string;
 };
+
 export type TransferAntPayload = {
   target: string;
 };
+
 export type CreateAntPayload = {
   srcCodeTransactionId: string;
   initialState: ANTContractJSON;
