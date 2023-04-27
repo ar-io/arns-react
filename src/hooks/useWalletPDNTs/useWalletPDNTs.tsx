@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { useArweaveCompositeProvider, useIsMobile, useWalletAddress } from '..';
 import {
   BookmarkIcon,
   ChevronUpIcon,
@@ -11,33 +12,28 @@ import {
 import ManageAssetButtons from '../../components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
 import TransactionStatus from '../../components/layout/TransactionStatus/TransactionStatus';
 import {
-  useArweaveCompositeProvider,
-  useIsMobile,
-  useWalletAddress,
-} from '../../hooks';
-import {
-  ANTContractJSON,
   ASSET_TYPES,
-  AntMetadata,
   ArweaveTransactionID,
+  PDNTContractJSON,
+  PdntMetadata,
 } from '../../types';
 import eventEmitter from '../../utils/events';
 
-export function useWalletANTs(ids: ArweaveTransactionID[]) {
+export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
   const isMobile = useIsMobile();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const { walletAddress } = useWalletAddress();
   const [sortAscending, setSortOrder] = useState(true);
-  const [sortField, setSortField] = useState<keyof AntMetadata>('status');
-  const [selectedRow, setSelectedRow] = useState<AntMetadata>();
-  const [rows, setRows] = useState<AntMetadata[]>([]);
+  const [sortField, setSortField] = useState<keyof PdntMetadata>('status');
+  const [selectedRow, setSelectedRow] = useState<PdntMetadata>();
+  const [rows, setRows] = useState<PdntMetadata[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [percent, setPercentLoaded] = useState<number | undefined>();
 
   useEffect(() => {
     if (ids.length) {
       setIsLoading(true);
-      fetchAntRows(ids).finally(() => setIsLoading(false));
+      fetchPdntRows(ids).finally(() => setIsLoading(false));
     }
   }, [ids]);
 
@@ -73,7 +69,7 @@ export function useWalletANTs(ids: ArweaveTransactionID[]) {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              rows.sort((a: AntMetadata, b: AntMetadata) =>
+              rows.sort((a: PdntMetadata, b: PdntMetadata) =>
                 // by default we sort by name
                 !sortAscending
                   ? a.name.localeCompare(b.name)
@@ -116,7 +112,7 @@ export function useWalletANTs(ids: ArweaveTransactionID[]) {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              rows.sort((a: AntMetadata, b: AntMetadata) =>
+              rows.sort((a: PdntMetadata, b: PdntMetadata) =>
                 !sortAscending
                   ? a.role.localeCompare(b.role)
                   : b.role.localeCompare(a.role),
@@ -162,7 +158,7 @@ export function useWalletANTs(ids: ArweaveTransactionID[]) {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              rows.sort((a: AntMetadata, b: AntMetadata) =>
+              rows.sort((a: PdntMetadata, b: PdntMetadata) =>
                 sortAscending
                   ? a.id.localeCompare(b.id)
                   : b.id.localeCompare(a.id),
@@ -272,11 +268,11 @@ export function useWalletANTs(ids: ArweaveTransactionID[]) {
       },
       {
         title: '',
-        render: (val: any, row: AntMetadata) => (
+        render: (val: any, row: PdntMetadata) => (
           <ManageAssetButtons
             asset={val.id}
             setShowModal={() => setSelectedRow(row)}
-            assetType={ASSET_TYPES.ANT}
+            assetType={ASSET_TYPES.PDNT}
             disabled={!row.state || !row.status}
           />
         ),
@@ -286,12 +282,12 @@ export function useWalletANTs(ids: ArweaveTransactionID[]) {
     ];
   }
 
-  async function fetchAntRows(ids: ArweaveTransactionID[]) {
-    const fetchedRows: AntMetadata[] = [];
+  async function fetchPdntRows(ids: ArweaveTransactionID[]) {
+    const fetchedRows: PdntMetadata[] = [];
     for (const [index, id] of ids.entries()) {
       try {
         const [contractState, confirmations] = await Promise.all([
-          arweaveDataProvider.getContractState<ANTContractJSON>(id),
+          arweaveDataProvider.getContractState<PDNTContractJSON>(id),
           arweaveDataProvider.getTransactionStatus(id),
         ]);
         // TODO: add error messages and reload state to row

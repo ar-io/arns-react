@@ -1,8 +1,8 @@
 import { TRANSACTION_WORKFLOW_STATUS } from '../../components/layout/TransactionWorkflow/TransactionWorkflow';
 import {
-  AntInteraction,
   ArweaveTransactionID,
   ContractType,
+  PdntInteraction,
   RegistryInteraction,
   TransactionData,
 } from '../../types';
@@ -21,7 +21,7 @@ export type TransactionAction =
   | { type: 'setContractType'; payload: ContractType }
   | {
       type: 'setInteractionType';
-      payload: AntInteraction | RegistryInteraction;
+      payload: PdntInteraction | RegistryInteraction;
     }
   | { type: 'reset' };
 

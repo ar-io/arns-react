@@ -1,7 +1,7 @@
-import { ArNSRecordEntry } from '../../types';
-import { ARNS_NAME_REGEX } from '../constants';
+import { PdnsRecordEntry } from '../../types';
+import { PDNS_NAME_REGEX } from '../constants';
 
-export function calculateArNSNamePrice({
+export function calculatePdnsNamePrice({
   domain,
   years,
   selectedTier,
@@ -24,7 +24,7 @@ export function calculateArNSNamePrice({
   if (!domain) {
     throw Error('Domain is undefined');
   }
-  if (!isArNSDomainNameValid({ name: domain })) {
+  if (!isPdnsDomainNameValid({ name: domain })) {
     throw Error('Domain name is invalid');
   }
   const nameLength = Math.min(domain.length, Object.keys(fees).length);
@@ -33,19 +33,19 @@ export function calculateArNSNamePrice({
   return price;
 }
 
-export function isArNSDomainNameValid({ name }: { name?: string }): boolean {
-  if (!name || !ARNS_NAME_REGEX.test(name) || name === 'www') {
+export function isPdnsDomainNameValid({ name }: { name?: string }): boolean {
+  if (!name || !PDNS_NAME_REGEX.test(name) || name === 'www') {
     return false;
   }
   return true;
 }
 
-export function isArNSDomainNameAvailable({
+export function isPdnsDomainNameAvailable({
   name,
   records,
 }: {
   name?: string;
-  records: { [x: string]: ArNSRecordEntry };
+  records: { [x: string]: PdnsRecordEntry };
 }): boolean {
   //if registered return false
   if (!name || records[name]) {

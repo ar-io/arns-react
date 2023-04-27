@@ -4,22 +4,22 @@ import { useNavigate } from 'react-router-dom';
 import { useArweaveCompositeProvider } from '../../../hooks';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
-  ANT_INTERACTION_TYPES,
-  AntInteraction,
   ArweaveTransactionID,
   BuyRecordPayload,
   CONTRACT_TYPES,
   ContractType,
+  PDNT_INTERACTION_TYPES,
+  PdntInteraction,
   REGISTRY_INTERACTION_TYPES,
   RegistryInteraction,
   TRANSACTION_DATA_KEYS,
   TransactionData,
 } from '../../../types';
 import {
-  getArNSMappingByInteractionType,
+  getPdnsMappingByInteractionType,
   isObjectOfTransactionPayloadType,
 } from '../../../utils';
-import { AntCard } from '../../cards';
+import { PdntCard } from '../../cards';
 import DeployTransaction from '../DeployTransaction/DeployTransaction';
 import TransactionComplete from '../TransactionComplete/TransactionComplete';
 import Workflow, { WorkflowStage } from '../Workflow/Workflow';
@@ -38,7 +38,7 @@ function TransactionWorkflow({
   workflowStage,
 }: {
   contractType: ContractType;
-  interactionType: AntInteraction | RegistryInteraction;
+  interactionType: PdntInteraction | RegistryInteraction;
   transactionData: TransactionData;
   workflowStage: TRANSACTION_WORKFLOW_STATUS;
 }) {
@@ -147,7 +147,7 @@ function TransactionWorkflow({
     interactionType,
   }: {
     contractType: ContractType;
-    interactionType: AntInteraction | RegistryInteraction;
+    interactionType: PdntInteraction | RegistryInteraction;
   }): { [x: string]: { title: string; status: string } } {
     try {
       switch (contractType) {
@@ -184,51 +184,51 @@ function TransactionWorkflow({
             default:
               throw new Error(`Invalid interaction type (${interactionType})`);
           }
-        case CONTRACT_TYPES.ANT:
+        case CONTRACT_TYPES.PDNT:
           switch (interactionType) {
-            case ANT_INTERACTION_TYPES.REMOVE_RECORD: {
+            case PDNT_INTERACTION_TYPES.REMOVE_RECORD: {
               return {
                 1: { title: 'Confirm Removal', status: 'pending' },
                 2: { title: 'Deploy Removal', status: '' },
                 3: { title: 'Complete', status: '' },
               };
             }
-            case ANT_INTERACTION_TYPES.SET_CONTROLLER: {
+            case PDNT_INTERACTION_TYPES.SET_CONTROLLER: {
               return {
                 1: { title: 'Confirm Controller', status: 'pending' },
                 2: { title: 'Deploy Controller', status: '' },
                 3: { title: 'Complete', status: '' },
               };
             }
-            case ANT_INTERACTION_TYPES.SET_NAME: {
+            case PDNT_INTERACTION_TYPES.SET_NAME: {
               return {
-                1: { title: 'Confirm ANT Name', status: 'pending' },
+                1: { title: 'Confirm PDNT Name', status: 'pending' },
                 2: { title: 'Deploy Name Change', status: '' },
                 3: { title: 'Complete', status: '' },
               };
             }
-            case ANT_INTERACTION_TYPES.SET_RECORD: {
+            case PDNT_INTERACTION_TYPES.SET_RECORD: {
               return {
                 1: { title: 'Confirm Undername Details', status: 'pending' },
                 2: { title: 'Deploy Undername', status: '' },
                 3: { title: 'Complete', status: '' },
               };
             }
-            case ANT_INTERACTION_TYPES.SET_TICKER: {
+            case PDNT_INTERACTION_TYPES.SET_TICKER: {
               return {
                 1: { title: 'Confirm Ticker', status: 'pending' },
                 2: { title: 'Deploy Ticker Change', status: '' },
                 3: { title: 'Complete', status: '' },
               };
             }
-            case ANT_INTERACTION_TYPES.TRANSFER: {
+            case PDNT_INTERACTION_TYPES.TRANSFER: {
               return {
                 1: { title: 'Confirm Transfer', status: 'pending' },
                 2: { title: 'Deploy Transfer', status: '' },
                 3: { title: 'Complete', status: '' },
               };
             }
-            case ANT_INTERACTION_TYPES.SET_TARGET_ID: {
+            case PDNT_INTERACTION_TYPES.SET_TARGET_ID: {
               return {
                 1: { title: 'Confirm Target ID', status: 'pending' },
                 2: { title: 'Deploy Target ID Change', status: '' },
@@ -242,7 +242,7 @@ function TransactionWorkflow({
           }
         default:
           throw new Error(
-            `Invalid transaction type: {${contractType}}, Only registry or ant types may be provided as a transaction type`,
+            `Invalid transaction type: {${contractType}}, Only registry or pdnt types may be provided as a transaction type`,
           );
       }
     } catch (error) {
@@ -256,27 +256,27 @@ function TransactionWorkflow({
     interactionType,
   }: {
     contractType: ContractType;
-    interactionType: AntInteraction | RegistryInteraction;
+    interactionType: PdntInteraction | RegistryInteraction;
   }): { [x: string]: WorkflowStage } | undefined {
     try {
-      const antProps = getArNSMappingByInteractionType({
+      const pdntProps = getPdnsMappingByInteractionType({
         contractType,
         interactionType,
         transactionData,
       });
 
-      if (!antProps) {
-        throw Error('Unable to get ANT properties.');
+      if (!pdntProps) {
+        throw Error('Unable to get PDNT properties.');
       }
       switch (contractType) {
-        case CONTRACT_TYPES.ANT: {
+        case CONTRACT_TYPES.PDNT: {
           switch (interactionType) {
-            case ANT_INTERACTION_TYPES.SET_TARGET_ID:
-            case ANT_INTERACTION_TYPES.SET_TICKER:
-            case ANT_INTERACTION_TYPES.SET_NAME: {
+            case PDNT_INTERACTION_TYPES.SET_TARGET_ID:
+            case PDNT_INTERACTION_TYPES.SET_TICKER:
+            case PDNT_INTERACTION_TYPES.SET_NAME: {
               return {
                 pending: {
-                  component: <AntCard {...antProps} />,
+                  component: <PdntCard {...pdntProps} />,
                 },
                 confirmed: {
                   component: <DeployTransaction />,
@@ -326,7 +326,7 @@ function TransactionWorkflow({
                 throw Error('Payload is not valid.');
               return {
                 pending: {
-                  component: <AntCard {...antProps} />,
+                  component: <PdntCard {...pdntProps} />,
                   header: (
                     <>
                       <div className="flex flex-row text-large white bold center">

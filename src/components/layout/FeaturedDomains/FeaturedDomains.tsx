@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { ArweaveTransactionID } from '../../../types';
-import { ArnsCard } from '../../cards';
+import { PdnsCard } from '../../cards';
 import './styles.css';
 
 function FeaturedDomains(props: { domains: { [x: string]: string } }) {
@@ -31,7 +31,7 @@ function FeaturedDomains(props: { domains: { [x: string]: string } }) {
           if (index >= displayCount || index >= Object.keys(domains).length)
             return;
           return (
-            <ArnsCard
+            <PdnsCard
               domain={domain}
               id={new ArweaveTransactionID(domains[domain])}
               key={index}

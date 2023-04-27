@@ -2,10 +2,10 @@ import { Dispatch, createContext, useContext, useReducer } from 'react';
 
 import { TRANSACTION_WORKFLOW_STATUS } from '../../components/layout/TransactionWorkflow/TransactionWorkflow';
 import {
-  AntInteraction,
   ArweaveTransactionID,
   CONTRACT_TYPES,
   ContractType,
+  PdntInteraction,
   REGISTRY_INTERACTION_TYPES,
   RegistryInteraction,
   TransactionData,
@@ -16,7 +16,7 @@ export type TransactionState = {
   deployedTransactionId?: ArweaveTransactionID;
   transactionData: TransactionData | undefined; // data that will be used to perform the transaction.
   contractType: ContractType;
-  interactionType: AntInteraction | RegistryInteraction;
+  interactionType: PdntInteraction | RegistryInteraction;
   workflowStage: TRANSACTION_WORKFLOW_STATUS;
 };
 

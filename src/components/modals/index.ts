@@ -1,6 +1,11 @@
 import ConnectWalletModal from './ConnectWalletModal/ConnectWalletModal';
-import CreateAntModal from './CreateAntModal/CreateAntModal';
-import ManageAntModal from './ManageAntModal/ManageAntModal';
+import CreatePdntModal from './CreatePdntModal/CreatePdntModal';
+import ManagePdntModal from './ManagePdntModal/ManagePdntModal';
 import TransactionModal from './TransactionModal/TransactionModal';
 
-export { CreateAntModal, ConnectWalletModal, ManageAntModal, TransactionModal };
+export {
+  CreatePdntModal,
+  ConnectWalletModal,
+  ManagePdntModal,
+  TransactionModal,
+};

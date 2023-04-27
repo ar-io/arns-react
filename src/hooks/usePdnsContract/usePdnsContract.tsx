@@ -1,18 +1,18 @@
 import { useEffect, useState } from 'react';
 
-import { useArweaveCompositeProvider } from '../../hooks';
 import { useGlobalState } from '../../state/contexts/GlobalState';
-import { ArNSContractJSON, ArweaveTransactionID } from '../../types';
+import { ArweaveTransactionID, PdnsContractJSON } from '../../types';
 import eventEmitter from '../../utils/events';
+import { useArweaveCompositeProvider } from '../useArweaveCompositeProvider/useArweaveCompositeProvider';
 
-export function useArNSContract() {
+export function usePdnsContract() {
   const arweaveDataProvider = useArweaveCompositeProvider();
-  const [{ arnsContractId }, dispatch] = useGlobalState();
+  const [{ pdnsContractId }, dispatch] = useGlobalState();
   const [sendingContractState, setSendingContractState] = useState(false);
 
   useEffect(() => {
-    dispatchNewContractState(arnsContractId);
-  }, [arnsContractId]);
+    dispatchNewContractState(pdnsContractId);
+  }, [pdnsContractId]);
 
   async function dispatchNewContractState(
     contractId: ArweaveTransactionID,
@@ -24,27 +24,27 @@ export function useArNSContract() {
 
       setSendingContractState(true);
 
-      const arnsContractState =
-        await arweaveDataProvider.getContractState<ArNSContractJSON>(
+      const pdnsContractState =
+        await arweaveDataProvider.getContractState<PdnsContractJSON>(
           contractId,
         );
-      if (!arnsContractState) {
-        throw Error('ArNS contract state is empty');
+      if (!pdnsContractState) {
+        throw Error('Pdns contract state is empty');
       }
 
-      if (!arnsContractState.records || !arnsContractState.fees) {
+      if (!pdnsContractState.records || !pdnsContractState.fees) {
         throw Error(
-          `ArNS contract is missing required keys: ${['fees', 'records']
+          `Pdns contract is missing required keys: ${['fees', 'records']
             .filter(
-              (required) => !Object.keys(arnsContractState).includes(required),
+              (required) => !Object.keys(pdnsContractState).includes(required),
             )
             .join(', ')}`,
         );
       }
 
       dispatch({
-        type: 'setArnsContractState',
-        payload: arnsContractState,
+        type: 'setPdnsContractState',
+        payload: pdnsContractState,
       });
 
       setSendingContractState(false);

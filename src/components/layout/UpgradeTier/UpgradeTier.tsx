@@ -9,7 +9,7 @@ import {
   SMARTWEAVE_TAG_SIZE,
   TIER_DATA,
 } from '../../../utils/constants';
-import { calculateArNSNamePrice } from '../../../utils/searchUtils/searchUtils';
+import { calculatePdnsNamePrice } from '../../../utils/searchUtils/searchUtils';
 import TierCard from '../../cards/TierCard/TierCard';
 import Counter from '../../inputs/Counter/Counter';
 import ArPrice from '../ArPrice/ArPrice';
@@ -17,14 +17,14 @@ import { Tooltip } from '../Tooltip/Tooltip';
 import './styles.css';
 
 function UpgradeTier() {
-  const [{ arnsSourceContract }] = useGlobalState();
+  const [{ pdnsSourceContract }] = useGlobalState();
   const [{ fee, leaseDuration, tier, domain }, dispatchRegisterState] =
     useRegistrationState();
 
   useEffect(() => {
-    const fees = arnsSourceContract.fees;
+    const fees = pdnsSourceContract.fees;
     if (domain) {
-      const newFee = calculateArNSNamePrice({
+      const newFee = calculatePdnsNamePrice({
         domain,
         selectedTier: tier,
         years: leaseDuration,
@@ -35,7 +35,7 @@ function UpgradeTier() {
         payload: { ar: fee.ar, io: newFee },
       });
     }
-  }, [leaseDuration, tier, domain, arnsSourceContract]);
+  }, [leaseDuration, tier, domain, pdnsSourceContract]);
 
   return (
     <div className="upgrade-tier">

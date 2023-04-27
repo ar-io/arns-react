@@ -1,6 +1,6 @@
-import { isArNSDomainNameValid } from '../searchUtils/searchUtils';
+import { isPdnsDomainNameValid } from '../searchUtils/searchUtils';
 
-describe('isArNSDomainNameValid', () => {
+describe('isPdnsDomainNameValid', () => {
   const invalidNames = [
     '_',
     '.',
@@ -18,11 +18,11 @@ describe('isArNSDomainNameValid', () => {
   test.each(invalidNames)(
     'should return false on invalid name: %p',
     (name: string) => {
-      expect(isArNSDomainNameValid({ name })).toEqual(false);
+      expect(isPdnsDomainNameValid({ name })).toEqual(false);
     },
   );
 
   test('should return true if name is valid', () => {
-    expect(isArNSDomainNameValid({ name: 'arns' })).toBe(true);
+    expect(isPdnsDomainNameValid({ name: 'pdns' })).toBe(true);
   });
 });

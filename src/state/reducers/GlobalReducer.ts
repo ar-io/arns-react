@@ -1,5 +1,5 @@
 import { ArweaveTransactionID } from '../../types';
-import { ArNSContractJSON, ArweaveWalletConnector } from '../../types';
+import { ArweaveWalletConnector, PdnsContractJSON } from '../../types';
 import { GlobalState } from '../contexts/GlobalState';
 
 export type Action =
@@ -9,7 +9,7 @@ export type Action =
       payload: ArweaveWalletConnector | undefined;
     }
   | { type: 'setGateway'; payload: string }
-  | { type: 'setArnsContractState'; payload: ArNSContractJSON };
+  | { type: 'setPdnsContractState'; payload: PdnsContractJSON };
 
 export const reducer = (state: GlobalState, action: Action): GlobalState => {
   switch (action.type) {
@@ -28,10 +28,10 @@ export const reducer = (state: GlobalState, action: Action): GlobalState => {
         ...state,
         gateway: action.payload,
       };
-    case 'setArnsContractState':
+    case 'setPdnsContractState':
       return {
         ...state,
-        arnsSourceContract: action.payload,
+        pdnsSourceContract: action.payload,
       };
     default:
       return state;

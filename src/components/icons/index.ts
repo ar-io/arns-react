@@ -3,7 +3,6 @@ import { ReactComponent as AlertCircle } from './AlertCircle.svg';
 import { ReactComponent as AlertOctagonIcon } from './AlertOctagon.svg';
 import { ReactComponent as AlertTriangleIcon } from './AlertTriangle.svg';
 import { ReactComponent as ArConnectIcon } from './ArConnectIcon.svg';
-import ArnsDefault from './ArnsDefault.png';
 import { ReactComponent as ArrowLeft } from './ArrowLeft.svg';
 import { ReactComponent as ArrowUpRight } from './ArrowUpRight.svg';
 import ArweaveAppIcon from './ArweaveAppIcon.png';
@@ -28,6 +27,7 @@ import { ReactComponent as LinkIcon } from './Link.svg';
 import { ReactComponent as LogoutIcon } from './Logout.svg';
 import { ReactComponent as MenuIcon } from './Menu.svg';
 import { ReactComponent as NotebookIcon } from './Notebook.svg';
+import PdnsDefault from './PdnsDefault.png';
 import { ReactComponent as PencilIcon } from './Pencil.svg';
 import { ReactComponent as PersonIcon } from './Person.svg';
 import { ReactComponent as PriceTagIcon } from './PriceTag.svg';
@@ -43,7 +43,7 @@ export {
   AlertOctagonIcon,
   AlertTriangleIcon,
   ArConnectIcon,
-  ArnsDefault,
+  PdnsDefault,
   ArrowLeft,
   ArweaveAppIcon,
   ArrowUpRight,

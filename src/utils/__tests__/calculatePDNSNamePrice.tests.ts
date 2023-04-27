@@ -1,13 +1,13 @@
-import { calculateArNSNamePrice } from '../searchUtils/searchUtils';
+import { calculatePdnsNamePrice } from '../searchUtils/searchUtils';
 
-describe('calculateArNSNamePrice', () => {
+describe('calculatePdnsNamePrice', () => {
   const fees = {
     1: 100,
   };
 
   test('should throw an error if years is less than one', () => {
     expect(() => {
-      calculateArNSNamePrice({
+      calculatePdnsNamePrice({
         domain: 'a',
         years: 0,
         selectedTier: 1,
@@ -18,7 +18,7 @@ describe('calculateArNSNamePrice', () => {
 
   test('should throw an error if selectedTier is less than one', () => {
     expect(() => {
-      calculateArNSNamePrice({
+      calculatePdnsNamePrice({
         domain: 'a',
         years: 1,
         selectedTier: 0,
@@ -29,7 +29,7 @@ describe('calculateArNSNamePrice', () => {
 
   test('should throw an error if selectedTier is greater than 3', () => {
     expect(() => {
-      calculateArNSNamePrice({
+      calculatePdnsNamePrice({
         domain: 'a',
         years: 1,
         selectedTier: 4,
@@ -40,7 +40,7 @@ describe('calculateArNSNamePrice', () => {
 
   test('should throw on an invalid name', () => {
     expect(() => {
-      calculateArNSNamePrice({
+      calculatePdnsNamePrice({
         domain: 'www',
         years: 1,
         selectedTier: 1,
@@ -57,6 +57,6 @@ describe('calculateArNSNamePrice', () => {
       fees,
     };
     const expectedPrice = details.years * details.selectedTier * fees[1];
-    expect(calculateArNSNamePrice(details)).toEqual(expectedPrice);
+    expect(calculatePdnsNamePrice(details)).toEqual(expectedPrice);
   });
 });

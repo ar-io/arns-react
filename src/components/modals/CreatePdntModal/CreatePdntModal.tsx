@@ -7,28 +7,28 @@ import {
   useIsMobile,
   useWalletAddress,
 } from '../../../hooks';
-import { ANTContract } from '../../../services/arweave/AntContract';
+import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import {
-  ANTContractJSON,
-  ANT_INTERACTION_TYPES,
   ArweaveTransactionID,
   CONTRACT_TYPES,
-  ManageAntRow,
+  ManagePdntRow,
+  PDNTContractJSON,
+  PDNT_INTERACTION_TYPES,
   TRANSACTION_TYPES,
   TransactionData,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
-import { DEFAULT_ANT_SOURCE_CODE_TX } from '../../../utils/constants';
+import { DEFAULT_PDNT_SOURCE_CODE_TX } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
-import { mapKeyToAttribute } from '../../cards/AntCard/AntCard';
+import { mapKeyToAttribute } from '../../cards/PdntCard/PdntCard';
 import { CloseIcon, PencilIcon } from '../../icons';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
-import ConfirmAntCreation from '../../layout/ConfirmAntCreation/ConfirmAntCreation';
+import ConfirmPdntCreation from '../../layout/ConfirmPdntCreation/ConfirmPdntCreation';
 import DeployTransaction from '../../layout/DeployTransaction/DeployTransaction';
 import TransactionComplete from '../../layout/TransactionComplete/TransactionComplete';
 import Workflow from '../../layout/Workflow/Workflow';
 
-function CreateAntModal() {
+function CreatePdntModal() {
   const isMobile = useIsMobile();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const { walletAddress } = useWalletAddress();
@@ -41,7 +41,7 @@ function CreateAntModal() {
     }
   }, [walletAddress]);
 
-  const [ant, setAnt] = useState<ANTContract>(new ANTContract());
+  const [pdnt, setPdnt] = useState<PDNTContract>(new PDNTContract());
 
   const [rows, setRows] = useState<[]>([]);
   const [editingField, setEditingField] = useState<string>();
@@ -49,14 +49,14 @@ function CreateAntModal() {
 
   const [workflowStage, setWorkflowStage] = useState<number>(0);
 
-  const [antContractId, setAntContractId] = useState<
+  const [pdntContractId, setPdntContractId] = useState<
     ArweaveTransactionID | undefined
   >();
   const [isPostingTransaction, setIsPostingTransaction] = useState(false);
 
   const steps = {
     1: {
-      title: 'Set ANT Details',
+      title: 'Set PDNT Details',
       status:
         workflowStage + 1 === 1
           ? 'pending'
@@ -65,7 +65,7 @@ function CreateAntModal() {
           : '',
     },
     2: {
-      title: 'Confirm ANT',
+      title: 'Confirm PDNT',
       status:
         workflowStage + 1 === 2
           ? 'pending'
@@ -74,7 +74,7 @@ function CreateAntModal() {
           : '',
     },
     3: {
-      title: 'Deploy ANT',
+      title: 'Deploy PDNT',
       status:
         workflowStage + 1 === 3
           ? 'pending'
@@ -83,7 +83,7 @@ function CreateAntModal() {
           : '',
     },
     4: {
-      title: 'Manage ANT',
+      title: 'Manage PDNT',
       status: workflowStage + 1 === 4 ? 'success' : '',
     },
   };
@@ -103,16 +103,16 @@ function CreateAntModal() {
     };
   } = {
     owner: {
-      fn: () => (ant.owner = JSON.stringify(modifiedValue)),
-      title: TRANSACTION_TYPES.ANT,
+      fn: () => (pdnt.owner = JSON.stringify(modifiedValue)),
+      title: TRANSACTION_TYPES.PDNT,
     },
   };
 
   function reset() {
     setWorkflowStage(0);
-    setAnt(new ANTContract());
+    setPdnt(new PDNTContract());
     setIsPostingTransaction(false);
-    setAntContractId(undefined);
+    setPdntContractId(undefined);
     setDetails();
   }
   // reset useEffect must be first, else wont reset
@@ -126,24 +126,24 @@ function CreateAntModal() {
 
   useEffect(() => {
     if (walletAddress) {
-      if (!ant.owner) {
-        ant.owner = walletAddress.toString();
+      if (!pdnt.owner) {
+        pdnt.owner = walletAddress.toString();
       }
-      if (!ant.controller) {
-        ant.controller = walletAddress.toString();
+      if (!pdnt.controller) {
+        pdnt.controller = walletAddress.toString();
       }
       setDetails();
     }
-  }, [walletAddress, ant, workflowStage]);
+  }, [walletAddress, pdnt, workflowStage]);
 
   function setDetails() {
     const consolidatedDetails: any = {
-      name: ant.name,
-      ticker: ant.ticker,
-      targetID: ant.getRecord('@').transactionId,
-      ttlSeconds: ant.getRecord('@').ttlSeconds,
-      controller: ant.controller,
-      owner: ant.owner,
+      name: pdnt.name,
+      ticker: pdnt.ticker,
+      targetID: pdnt.getRecord('@').transactionId,
+      ttlSeconds: pdnt.getRecord('@').ttlSeconds,
+      controller: pdnt.controller,
+      owner: pdnt.owner,
     };
 
     const rows = Object.keys(consolidatedDetails).reduce(
@@ -172,29 +172,29 @@ function CreateAntModal() {
 
       switch (editingField) {
         case 'name':
-          ant.name = modifiedValue.toString();
+          pdnt.name = modifiedValue.toString();
           break;
         case 'ticker':
-          ant.ticker = modifiedValue.toString();
+          pdnt.ticker = modifiedValue.toString();
           break;
         case 'owner':
-          ant.owner = modifiedValue.toString();
+          pdnt.owner = modifiedValue.toString();
           break;
         case 'controller':
-          ant.controller = modifiedValue.toString();
+          pdnt.controller = modifiedValue.toString();
           break;
         case 'targetID':
-          ant.records = {
+          pdnt.records = {
             '@': {
-              ...ant.getRecord('@'),
+              ...pdnt.getRecord('@'),
               transactionId: modifiedValue.toString(),
             },
           };
           break;
         case 'ttlSeconds':
-          ant.records = {
+          pdnt.records = {
             '@': {
-              ...ant.getRecord('@'),
+              ...pdnt.getRecord('@'),
               ttlSeconds: +modifiedValue,
             },
           };
@@ -210,23 +210,23 @@ function CreateAntModal() {
     }
   }
 
-  async function deployAnt(state: ANTContractJSON) {
+  async function deployPdnt(state: PDNTContractJSON) {
     try {
       setIsPostingTransaction(true);
       if (!state) {
-        throw new Error('No state provided, cannot deploy ANT contract');
+        throw new Error('No state provided, cannot deploy PDNT contract');
       }
       // perform checks, try/catch
       const pendingTXId = await arweaveDataProvider.deployContract({
         srcCodeTransactionId: new ArweaveTransactionID(
-          DEFAULT_ANT_SOURCE_CODE_TX,
+          DEFAULT_PDNT_SOURCE_CODE_TX,
         ),
         initialState: state,
       });
       if (!pendingTXId) {
-        throw new Error('Failed to deploy ANT contract');
+        throw new Error('Failed to deploy PDNT contract');
       }
-      setAntContractId(new ArweaveTransactionID(pendingTXId));
+      setPdntContractId(new ArweaveTransactionID(pendingTXId));
       setIsPostingTransaction(false);
       return pendingTXId;
     } catch (error) {
@@ -267,9 +267,9 @@ function CreateAntModal() {
                 break;
               case 1:
                 {
-                  if (ant.state) {
+                  if (pdnt.state) {
                     setWorkflowStage(workflowStage + 1);
-                    deployAnt(ant.state)
+                    deployPdnt(pdnt.state)
                       .then(() => {
                         setWorkflowStage(workflowStage + 2);
                         steps['3'].status = 'fail';
@@ -279,7 +279,7 @@ function CreateAntModal() {
                         steps['3'].status = 'fail';
                       });
                   }
-                  if (!ant.state) {
+                  if (!pdnt.state) {
                     return;
                   }
                 }
@@ -317,7 +317,7 @@ function CreateAntModal() {
               header: (
                 <>
                   <div className="flex flex-row text-large white bold center">
-                    Create an ANT
+                    Create an PDNT
                   </div>
                 </>
               ),
@@ -347,7 +347,7 @@ function CreateAntModal() {
                     <div className="flex flex-column">
                       <Table
                         showHeader={false}
-                        onRow={(row: ManageAntRow) => {
+                        onRow={(row: ManagePdntRow) => {
                           return {
                             className:
                               row.attribute === editingField
@@ -560,20 +560,20 @@ function CreateAntModal() {
                 height: '40px',
                 width: '150px',
                 padding: '5px 10px',
-                backgroundColor: !ant.state
+                backgroundColor: !pdnt.state
                   ? 'var(--text-faded)'
                   : 'var(--accent)',
               },
               header: (
                 <>
                   <div className="flex flex-row text-large white bold center">
-                    Confirm ANT Creation
+                    Confirm PDNT Creation
                   </div>
                 </>
               ),
               component: (
                 <>
-                  <ConfirmAntCreation state={ant.state} />
+                  <ConfirmPdntCreation state={pdnt.state} />
                 </>
               ),
             },
@@ -602,7 +602,7 @@ function CreateAntModal() {
               header: (
                 <>
                   <span className="flex flex-row text-large white bold center">
-                    ANT successfully created!
+                    PDNT successfully created!
                   </span>
                 </>
               ),
@@ -610,16 +610,16 @@ function CreateAntModal() {
                 <>
                   <TransactionComplete
                     transactionId={
-                      antContractId
-                        ? new ArweaveTransactionID(antContractId.toString())
+                      pdntContractId
+                        ? new ArweaveTransactionID(pdntContractId.toString())
                         : undefined
                     }
-                    contractType={CONTRACT_TYPES.ANT}
-                    interactionType={ANT_INTERACTION_TYPES.CREATE}
+                    contractType={CONTRACT_TYPES.PDNT}
+                    interactionType={PDNT_INTERACTION_TYPES.CREATE}
                     transactionData={
                       {
-                        initialState: ant.state,
-                        srcCodeTransactionId: DEFAULT_ANT_SOURCE_CODE_TX,
+                        initialState: pdnt.state,
+                        srcCodeTransactionId: DEFAULT_PDNT_SOURCE_CODE_TX,
                       } as TransactionData
                     }
                   />
@@ -635,4 +635,4 @@ function CreateAntModal() {
   );
 }
 
-export default CreateAntModal;
+export default CreatePdntModal;
