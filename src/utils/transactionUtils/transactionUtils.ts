@@ -1,13 +1,13 @@
-import { ANTContract } from '../../services/arweave/AntContract';
+import { PDNTContract } from '../../services/arweave/PDNTContract';
 import {
-  ANT_INTERACTION_TYPES,
-  AntInteraction,
-  ArNSMapping,
   ArweaveTransactionID,
   BuyRecordPayload,
   CONTRACT_TYPES,
   ContractType,
-  CreateAntPayload,
+  CreatePDNTPayload,
+  PDNSMapping,
+  PDNTInteraction,
+  PDNT_INTERACTION_TYPES,
   REGISTRY_INTERACTION_TYPES,
   RegistryInteraction,
   SetNamePayload,
@@ -17,20 +17,20 @@ import {
   TransactionData,
   TransactionDataPayload,
 } from '../../types';
-import { ARNS_TX_ID_REGEX } from '../constants';
+import { PDNS_TX_ID_REGEX } from '../constants';
 
 export function isArweaveTransactionID(id: string) {
   if (!id) {
     return false;
   }
-  if (!ARNS_TX_ID_REGEX.test(id)) {
+  if (!PDNS_TX_ID_REGEX.test(id)) {
     return false;
   }
   return true;
 }
 
-export function isAntInteraction(x: any): x is AntInteraction {
-  return Object.values(ANT_INTERACTION_TYPES).includes(x);
+export function isPDNTInteraction(x: any): x is PDNTInteraction {
+  return Object.values(PDNT_INTERACTION_TYPES).includes(x);
 }
 
 export function isRegistryInteraction(x: any): x is RegistryInteraction {
@@ -56,13 +56,13 @@ export function isInteractionCompatible({
   functionName,
 }: {
   contractType: ContractType;
-  interactionType: AntInteraction | RegistryInteraction;
+  interactionType: PDNTInteraction | RegistryInteraction;
   functionName: string;
 }) {
   try {
     if (
-      (contractType === CONTRACT_TYPES.ANT &&
-        !isAntInteraction(interactionType)) ||
+      (contractType === CONTRACT_TYPES.PDNT &&
+        !isPDNTInteraction(interactionType)) ||
       (contractType === CONTRACT_TYPES.REGISTRY &&
         !isRegistryInteraction(interactionType))
     ) {
@@ -71,8 +71,8 @@ export function isInteractionCompatible({
       );
     }
     if (
-      contractType === CONTRACT_TYPES.ANT &&
-      isAntInteraction(interactionType)
+      contractType === CONTRACT_TYPES.PDNT &&
+      isPDNTInteraction(interactionType)
     ) {
       if (
         TRANSACTION_DATA_KEYS[contractType][interactionType].functionName !==
@@ -102,18 +102,18 @@ export function isInteractionCompatible({
   }
 }
 
-export function getArNSMappingByInteractionType(
-  // can be used to generate AntCard props: <AntCard {...props = getArNSMappingByInteractionType()} />
+export function getPDNSMappingByInteractionType(
+  // can be used to generate PDNTCard props: <PDNTCard {...props = getPDNSMappingByInteractionType()} />
   {
     contractType,
     interactionType,
     transactionData,
   }: {
     contractType: ContractType;
-    interactionType: AntInteraction | RegistryInteraction;
+    interactionType: PDNTInteraction | RegistryInteraction;
     transactionData: TransactionData;
   },
-): ArNSMapping | undefined {
+): PDNSMapping | undefined {
   switch (contractType) {
     case CONTRACT_TYPES.REGISTRY:
       {
@@ -144,30 +144,30 @@ export function getArNSMappingByInteractionType(
         }
       }
       break;
-    case CONTRACT_TYPES.ANT: {
+    case CONTRACT_TYPES.PDNT: {
       switch (interactionType) {
-        case ANT_INTERACTION_TYPES.CREATE: {
+        case PDNT_INTERACTION_TYPES.CREATE: {
           if (
-            !isObjectOfTransactionPayloadType<CreateAntPayload>(
+            !isObjectOfTransactionPayloadType<CreatePDNTPayload>(
               transactionData,
-              TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][
-                ANT_INTERACTION_TYPES.CREATE
+              TRANSACTION_DATA_KEYS[CONTRACT_TYPES.PDNT][
+                PDNT_INTERACTION_TYPES.CREATE
               ].keys,
             )
           ) {
             throw new Error(
-              'transaction data not of correct payload type <CreateAntPayload>',
+              'transaction data not of correct payload type <CreatePDNTPayload>',
             );
           }
-          const ant = new ANTContract(transactionData.initialState);
+          const pdnt = new PDNTContract(transactionData.initialState);
           return {
             domain: '',
             showTier: false,
             compact: false,
-            state: ant.state,
+            state: pdnt.state,
             overrides: {
-              targetId: ant.getRecord('@').transactionId,
-              ttlSeconds: ant.getRecord('@').ttlSeconds,
+              targetId: pdnt.getRecord('@').transactionId,
+              ttlSeconds: pdnt.getRecord('@').ttlSeconds,
             },
             disabledKeys: [
               'tier',
@@ -179,12 +179,12 @@ export function getArNSMappingByInteractionType(
             ],
           };
         }
-        case ANT_INTERACTION_TYPES.SET_NAME: {
+        case PDNT_INTERACTION_TYPES.SET_NAME: {
           if (
             !isObjectOfTransactionPayloadType<SetNamePayload>(
               transactionData,
-              TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][
-                ANT_INTERACTION_TYPES.SET_NAME
+              TRANSACTION_DATA_KEYS[CONTRACT_TYPES.PDNT][
+                PDNT_INTERACTION_TYPES.SET_NAME
               ].keys,
             )
           ) {
@@ -209,12 +209,12 @@ export function getArNSMappingByInteractionType(
             ],
           };
         }
-        case ANT_INTERACTION_TYPES.SET_TICKER: {
+        case PDNT_INTERACTION_TYPES.SET_TICKER: {
           if (
             !isObjectOfTransactionPayloadType<SetTickerPayload>(
               transactionData,
-              TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][
-                ANT_INTERACTION_TYPES.SET_TICKER
+              TRANSACTION_DATA_KEYS[CONTRACT_TYPES.PDNT][
+                PDNT_INTERACTION_TYPES.SET_TICKER
               ].keys,
             )
           ) {
@@ -241,12 +241,12 @@ export function getArNSMappingByInteractionType(
             ],
           };
         }
-        case ANT_INTERACTION_TYPES.SET_TARGET_ID: {
+        case PDNT_INTERACTION_TYPES.SET_TARGET_ID: {
           if (
             !isObjectOfTransactionPayloadType<SetRecordPayload>(
               transactionData,
-              TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][
-                ANT_INTERACTION_TYPES.SET_TARGET_ID
+              TRANSACTION_DATA_KEYS[CONTRACT_TYPES.PDNT][
+                PDNT_INTERACTION_TYPES.SET_TARGET_ID
               ].keys,
             )
           ) {
@@ -280,11 +280,11 @@ export function getArNSMappingByInteractionType(
 }
 
 export const FieldToInteractionMap: {
-  [x: string]: AntInteraction;
+  [x: string]: PDNTInteraction;
 } = {
-  name: ANT_INTERACTION_TYPES.SET_NAME,
-  ticker: ANT_INTERACTION_TYPES.SET_TICKER,
-  targetID: ANT_INTERACTION_TYPES.SET_TARGET_ID,
+  name: PDNT_INTERACTION_TYPES.SET_NAME,
+  ticker: PDNT_INTERACTION_TYPES.SET_TICKER,
+  targetID: PDNT_INTERACTION_TYPES.SET_TARGET_ID,
   // TODO: add other interactions
 };
 
@@ -295,7 +295,7 @@ export function getInteractionTypeFromField(field: string) {
 
 export function mapTransactionDataKeyToPayload(
   contractType: ContractType,
-  interactionType: AntInteraction | RegistryInteraction,
+  interactionType: PDNTInteraction | RegistryInteraction,
   data: string | number | Array<string | number>,
 ): TransactionData | undefined {
   const txData = typeof data === 'object' ? [...data] : [data];
@@ -335,27 +335,27 @@ export function mapTransactionDataKeyToPayload(
     });
     return payload;
   }
-  if (isAntInteraction(interactionType)) {
+  if (isPDNTInteraction(interactionType)) {
     if (
       !isInteractionCompatible({
         contractType,
         interactionType,
         functionName:
-          TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][interactionType]
+          TRANSACTION_DATA_KEYS[CONTRACT_TYPES.PDNT][interactionType]
             .functionName,
       })
     ) {
       throw new Error(`Interaction is not compatible`);
     }
     payload.functionName =
-      TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][interactionType].functionName;
-    TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][interactionType].keys.forEach(
+      TRANSACTION_DATA_KEYS[CONTRACT_TYPES.PDNT][interactionType].functionName;
+    TRANSACTION_DATA_KEYS[CONTRACT_TYPES.PDNT][interactionType].keys.forEach(
       (key, index) => {
         if (!txData[index]) {
           // if missing transaction data from the url, throw an error
           throw new Error(
             `Missing key (${key}) from transaction data in the url. This may be due to the order of the data, the current order is [${txData}], the correct order is [${
-              TRANSACTION_DATA_KEYS[CONTRACT_TYPES.ANT][interactionType].keys
+              TRANSACTION_DATA_KEYS[CONTRACT_TYPES.PDNT][interactionType].keys
             }]`,
           );
         }

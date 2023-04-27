@@ -4,16 +4,16 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
-import { ANTContract } from '../../../services/arweave/AntContract';
+import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
-  ANTContractJSON,
-  ANT_INTERACTION_TYPES,
-  ArNSRecordEntry,
   ArweaveTransactionID,
   CONTRACT_TYPES,
-  ManageAntRow,
+  ManagePDNTRow,
+  PDNSRecordEntry,
+  PDNTContractJSON,
+  PDNT_INTERACTION_TYPES,
   TRANSACTION_TYPES,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
@@ -22,7 +22,7 @@ import {
   mapTransactionDataKeyToPayload,
 } from '../../../utils';
 import eventEmitter from '../../../utils/events';
-import { mapKeyToAttribute } from '../../cards/AntCard/AntCard';
+import { mapKeyToAttribute } from '../../cards/PDNTCard/PDNTCard';
 import { ArrowLeft, CloseIcon, PencilIcon } from '../../icons';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import TransactionStatus from '../../layout/TransactionStatus/TransactionStatus';
@@ -48,18 +48,18 @@ const ACTION_FIELDS: {
   },
 };
 
-function ManageAntModal() {
+function ManagePDNTModal() {
   const { id } = useParams();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const arweaveDataProvider = useArweaveCompositeProvider();
-  const [{ arnsSourceContract }] = useGlobalState();
+  const [{ pdnsSourceContract }] = useGlobalState();
   const [{}, dispatchTransactionState] = useTransactionState(); // eslint-disable-line
-  const [antState, setAntState] = useState<ANTContract>();
-  const [antName, setAntName] = useState<string>();
+  const [pdntState, setPDNTState] = useState<PDNTContract>();
+  const [pdntName, setPDNTName] = useState<string>();
   const [editingField, setEditingField] = useState<string>();
   const [modifiedValue, setModifiedValue] = useState<string | number>();
-  const [rows, setRows] = useState<ManageAntRow[]>([]);
+  const [rows, setRows] = useState<ManagePDNTRow[]>([]);
 
   useEffect(() => {
     try {
@@ -67,7 +67,7 @@ function ManageAntModal() {
         throw Error('No id provided.');
       }
       const txId = new ArweaveTransactionID(id);
-      fetchAntDetails(txId);
+      fetchPDNTDetails(txId);
     } catch (error) {
       eventEmitter.emit('error', error);
       navigate('/manage');
@@ -75,35 +75,35 @@ function ManageAntModal() {
   }, [id]);
 
   function getAssociatedNames(txId: ArweaveTransactionID) {
-    return Object.entries(arnsSourceContract.records)
-      .map(([name, recordEntry]: [string, ArNSRecordEntry]) => {
+    return Object.entries(pdnsSourceContract.records)
+      .map(([name, recordEntry]: [string, PDNSRecordEntry]) => {
         if (recordEntry.contractTxId === txId.toString()) return name;
       })
       .filter((n) => !!n);
   }
 
-  async function fetchAntDetails(txId: ArweaveTransactionID) {
+  async function fetchPDNTDetails(txId: ArweaveTransactionID) {
     const names = getAssociatedNames(txId);
     const [contractState, confirmations] = await Promise.all([
-      arweaveDataProvider.getContractState<ANTContractJSON>(txId),
+      arweaveDataProvider.getContractState<PDNTContractJSON>(txId),
       arweaveDataProvider.getTransactionStatus(txId),
     ]);
-    const ant = new ANTContract(contractState);
-    setAntState(ant);
-    const record = Object.values(arnsSourceContract.records).find(
+    const pdnt = new PDNTContract(contractState);
+    setPDNTState(pdnt);
+    const record = Object.values(pdnsSourceContract.records).find(
       (r) => r.contractTxId === txId.toString(),
     );
-    const tier = arnsSourceContract.tiers.history.find(
+    const tier = pdnsSourceContract.tiers.history.find(
       (t) => t.id === record?.tier,
     );
     // TODO: add error messages and reload state to row
-    const consolidatedDetails: ManageAntRow & any = {
+    const consolidatedDetails: ManagePDNTRow & any = {
       status: confirmations ?? 0,
       associatedNames: !names.length ? 'N/A' : names.join(', '),
-      name: ant.name ?? 'N/A',
-      ticker: ant.ticker ?? 'N/A',
-      targetID: ant.getRecord('@').transactionId ?? 'N/A',
-      ttlSeconds: ant.getRecord('@').ttlSeconds,
+      name: pdnt.name ?? 'N/A',
+      ticker: pdnt.ticker ?? 'N/A',
+      targetID: pdnt.getRecord('@')?.transactionId ?? 'N/A',
+      ttlSeconds: pdnt.getRecord('@')?.ttlSeconds,
       controller:
         contractState.controllers?.join(', ') ??
         contractState.owner?.toString() ??
@@ -113,10 +113,10 @@ function ManageAntModal() {
     };
 
     const rows = Object.keys(consolidatedDetails).reduce(
-      (details: ManageAntRow[], attribute: string, index: number) => {
+      (details: ManagePDNTRow[], attribute: string, index: number) => {
         const detail = {
           attribute,
-          value: consolidatedDetails[attribute as keyof ManageAntRow],
+          value: consolidatedDetails[attribute as keyof ManagePDNTRow],
           editable: EDITABLE_FIELDS.includes(attribute),
           action: ACTION_FIELDS[attribute] ?? undefined, // navigate to transaction route with details
           key: index,
@@ -127,7 +127,7 @@ function ManageAntModal() {
       },
       [],
     );
-    setAntName(contractState.name ?? id);
+    setPDNTName(contractState.name ?? id);
     setRows(rows);
   }
 
@@ -137,7 +137,7 @@ function ManageAntModal() {
         <span className="flex white text-large bold">
           <button
             className="faded text-large bold underline link center"
-            onClick={() => navigate('/manage/ants')}
+            onClick={() => navigate('/manage/pdnts')}
           >
             <ArrowLeft
               width={30}
@@ -145,7 +145,7 @@ function ManageAntModal() {
               viewBox={'0 0 20 20'}
               fill={'var(--text-white)'}
             />
-            Manage ANTs
+            Manage PDNTs
           </button>
           <Tooltip
             placement="right"
@@ -155,13 +155,13 @@ function ManageAntModal() {
               maxWidth: 'fit-content',
             }}
           >
-            <span>&nbsp;/&nbsp;{antName}</span>
+            <span>&nbsp;/&nbsp;{pdntName}</span>
           </Tooltip>
         </span>
         {/* TODO: make sure the table doesn't refresh if no actions were saved/written */}
         <button
           className="flex flex-right pointer"
-          onClick={() => navigate('/manage/ants')}
+          onClick={() => navigate('/manage/pdnts')}
         >
           <CloseIcon width="30px" height={'30px'} fill="var(--text-white)" />
         </button>
@@ -170,7 +170,7 @@ function ManageAntModal() {
         <Table
           showHeader={false}
           style={{ width: '100%' }}
-          onRow={(row: ManageAntRow) => ({
+          onRow={(row: ManagePDNTRow) => ({
             className: row.attribute === editingField ? 'active-row' : '',
           })}
           scroll={{ x: true }}
@@ -306,21 +306,21 @@ function ManageAntModal() {
                             borderColor: 'var(--accent)',
                           }}
                           onClick={() => {
-                            // TODO update when ant source code is updated to not overwrite existing info
+                            // TODO update when pdnt source code is updated to not overwrite existing info
                             const payload =
                               row.interactionType ===
-                              ANT_INTERACTION_TYPES.SET_TARGET_ID
+                              PDNT_INTERACTION_TYPES.SET_TARGET_ID
                                 ? mapTransactionDataKeyToPayload(
-                                    CONTRACT_TYPES.ANT,
+                                    CONTRACT_TYPES.PDNT,
                                     row.interactionType,
                                     [
                                       '@',
                                       modifiedValue!.toString(),
-                                      antState!.records['@'].ttlSeconds,
+                                      pdntState!.records['@'].ttlSeconds,
                                     ],
                                   )
                                 : mapTransactionDataKeyToPayload(
-                                    CONTRACT_TYPES.ANT,
+                                    CONTRACT_TYPES.PDNT,
                                     row.interactionType,
                                     modifiedValue!.toString(),
                                   );
@@ -331,7 +331,7 @@ function ManageAntModal() {
                                 payload;
                               dispatchTransactionState({
                                 type: 'setContractType',
-                                payload: CONTRACT_TYPES.ANT,
+                                payload: CONTRACT_TYPES.PDNT,
                               });
                               dispatchTransactionState({
                                 type: 'setInteractionType',
@@ -346,7 +346,7 @@ function ManageAntModal() {
                                 },
                               });
                               navigate(`/transaction`, {
-                                state: `/manage/ants/${id}`,
+                                state: `/manage/pdnts/${id}`,
                               });
                             }
                           }}
@@ -378,4 +378,4 @@ function ManageAntModal() {
   );
 }
 
-export default ManageAntModal;
+export default ManagePDNTModal;

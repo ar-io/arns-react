@@ -26,7 +26,7 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
     return this._wallet.connect(
       ARCONNECT_WALLET_PERMISSIONS,
       {
-        name: 'ArNS - ar.io',
+        name: 'PDNS - ar.io',
       },
       // TODO: add arweave configs here
     );

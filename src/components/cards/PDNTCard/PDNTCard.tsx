@@ -3,16 +3,16 @@ import { useEffect, useState } from 'react';
 
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { ANTContractJSON, ArNSMapping } from '../../../types';
+import { PDNSMapping, PDNTContractJSON } from '../../../types';
 import { isArweaveTransactionID } from '../../../utils';
 import eventEmitter from '../../../utils/events';
 import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
 import { Loader } from '../../layout';
 import './styles.css';
 
-export const ANT_DETAIL_MAPPINGS: { [x: string]: string } = {
+export const PDNT_DETAIL_MAPPINGS: { [x: string]: string } = {
   name: 'Nickname',
-  id: 'ANT Contract ID',
+  id: 'PDNT Contract ID',
   expiration: 'Lease Expiration',
   maxUndernames: 'Max Undernames',
   ttlSeconds: 'TTL Seconds',
@@ -20,8 +20,8 @@ export const ANT_DETAIL_MAPPINGS: { [x: string]: string } = {
 };
 
 export function mapKeyToAttribute(key: string) {
-  if (ANT_DETAIL_MAPPINGS[key]) {
-    return ANT_DETAIL_MAPPINGS[key];
+  if (PDNT_DETAIL_MAPPINGS[key]) {
+    return PDNT_DETAIL_MAPPINGS[key];
   }
   return startCase(key);
 }
@@ -35,7 +35,7 @@ export const PRIMARY_DETAILS: string[] = [
   'nickname',
 ].map((i) => mapKeyToAttribute(i));
 
-function AntCard(props: ArNSMapping) {
+function PDNTCard(props: PDNSMapping) {
   const isMobile = useIsMobile();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const {
@@ -49,8 +49,8 @@ function AntCard(props: ArNSMapping) {
     disabledKeys,
     showTier = true,
   } = props;
-  const [{ arnsSourceContract }] = useGlobalState();
-  const [antDetails, setAntDetails] = useState<{ [x: string]: string }>();
+  const [{ pdnsSourceContract }] = useGlobalState();
+  const [pdntDetails, setPDNTDetails] = useState<{ [x: string]: string }>();
   const [isLoading, setIsLoading] = useState(true);
   const [limitDetails, setLimitDetails] = useState(true);
 
@@ -58,28 +58,28 @@ function AntCard(props: ArNSMapping) {
     setDetails({ state });
   }, [id, domain, compact, enableActions, overrides]);
 
-  async function setDetails({ state }: { state?: ANTContractJSON }) {
+  async function setDetails({ state }: { state?: PDNTContractJSON }) {
     try {
       setIsLoading(true);
-      let antContractState = undefined;
+      let pdntContractState = undefined;
       if (state) {
-        antContractState = state;
+        pdntContractState = state;
       }
       if (id && !state) {
-        antContractState =
-          await arweaveDataProvider.getContractState<ANTContractJSON>(id);
+        pdntContractState =
+          await arweaveDataProvider.getContractState<PDNTContractJSON>(id);
       }
-      if (!antContractState) {
+      if (!pdntContractState) {
         throw new Error(
-          'No state passed and unable to generate ANT contract state',
+          'No state passed and unable to generate PDNT contract state',
         );
       }
 
-      const tiers = arnsSourceContract.tiers;
+      const tiers = pdnsSourceContract.tiers;
 
-      const tierDetails = arnsSourceContract.records[domain]
+      const tierDetails = pdnsSourceContract.records[domain]
         ? tiers.history.find(
-            (tier) => tier.id === arnsSourceContract.records[domain].tier,
+            (tier) => tier.id === pdnsSourceContract.records[domain].tier,
           )
         : undefined;
 
@@ -87,12 +87,12 @@ function AntCard(props: ArNSMapping) {
         (key: string) => tiers.current[+key] === tierDetails?.id,
       );
 
-      const allAntDetails: { [x: string]: any } = {
-        ...antContractState,
-        // TODO: remove this when all ants have controllers
-        controllers: antContractState.controllers
-          ? antContractState.controllers.join(',')
-          : antContractState.owner,
+      const allPDNTDetails: { [x: string]: any } = {
+        ...pdntContractState,
+        // TODO: remove this when all pdnts have controllers
+        controllers: pdntContractState.controllers
+          ? pdntContractState.controllers.join(',')
+          : pdntContractState.owner,
         tier: tierNumber,
         maxUndernames: tierDetails?.settings.maxUndernames ?? 100,
         ...overrides,
@@ -100,30 +100,30 @@ function AntCard(props: ArNSMapping) {
         domain,
       };
 
-      const filteredAntDetails = Object.keys(allAntDetails).reduce(
+      const filteredPDNTDetails = Object.keys(allPDNTDetails).reduce(
         (obj: any, key: string) => {
           if (!disabledKeys?.includes(key)) {
-            if (typeof allAntDetails[key] === 'object') return obj;
-            obj[key] = allAntDetails[key];
+            if (typeof allPDNTDetails[key] === 'object') return obj;
+            obj[key] = allPDNTDetails[key];
           }
           return obj;
         },
         {},
       );
       // TODO: consolidate this logic that sorts and updates key values
-      const replacedKeys = Object.keys(filteredAntDetails)
+      const replacedKeys = Object.keys(filteredPDNTDetails)
         .sort()
         .reduce((obj: any, key: string) => {
           // TODO: flatten recursive objects like subdomains, filter out for now
-          if (typeof allAntDetails[key] === 'object') return obj;
-          obj[mapKeyToAttribute(key)] = allAntDetails[key];
+          if (typeof allPDNTDetails[key] === 'object') return obj;
+          obj[mapKeyToAttribute(key)] = allPDNTDetails[key];
           return obj;
         }, {});
       setLimitDetails(compact ?? true);
-      setAntDetails(replacedKeys);
+      setPDNTDetails(replacedKeys);
     } catch (error) {
       eventEmitter.emit('error', error);
-      setAntDetails(undefined);
+      setPDNTDetails(undefined);
     } finally {
       setIsLoading(false);
     }
@@ -143,7 +143,7 @@ function AntCard(props: ArNSMapping) {
     <>
       {isLoading ? (
         <Loader size={80} />
-      ) : antDetails ? (
+      ) : pdntDetails ? (
         <div
           className={hover ? 'card hover' : 'card'}
           style={{ padding: '30px 30px' }}
@@ -151,11 +151,11 @@ function AntCard(props: ArNSMapping) {
           {!showTier ? (
             <></>
           ) : (
-            <span className="bubble">Tier {antDetails.tier}</span>
+            <span className="bubble">Tier {pdntDetails.tier}</span>
           )}
           <table style={{ borderSpacing: '0em 0.5em', padding: '0px' }}>
             <tbody>
-              {Object.entries(antDetails).map(([key, value]) => {
+              {Object.entries(pdntDetails).map(([key, value]) => {
                 if (!PRIMARY_DETAILS.includes(key) && limitDetails) {
                   return;
                 }
@@ -232,4 +232,4 @@ function AntCard(props: ArNSMapping) {
   );
 }
 
-export default AntCard;
+export default PDNTCard;
