@@ -81,7 +81,6 @@ function Manage() {
 
   useEffect(() => {
     if (path === 'pdnts') {
-      setTableLoading(pdntTableLoading);
       setTableData(pdntRows);
       setTableColumns(pdntColumns);
       setPercentLoaded(percentPDNTsLoaded);
@@ -103,7 +102,6 @@ function Manage() {
 
   useEffect(() => {
     if (path === 'names') {
-      setTableLoading(domainTableLoading);
       setTableData(domainRows);
       setTableColumns(domainColumns);
       setPercentLoaded(percentDomainsLoaded);
@@ -121,6 +119,10 @@ function Manage() {
     pdntTableLoading,
     percentDomainsLoaded,
   ]);
+
+  useEffect(() => {
+    setTableLoading(domainTableLoading || pdntTableLoading);
+  }, [domainTableLoading, pdntTableLoading]);
 
   useEffect(() => {
     if (selectedRow) {
@@ -147,11 +149,7 @@ function Manage() {
       setPDNTIDs(ids);
     } catch (error: any) {
       eventEmitter.emit('error', error);
-    } finally {
-      // prevent jitter
-      setTimeout(() => {
-        setTableLoading(false);
-      }, 500);
+      setTableLoading(false);
     }
   }
 
@@ -246,7 +244,7 @@ function Manage() {
         ) : (
           <>
             <Table
-              scroll={{ x: true }}
+              scroll={pdntIds.length ? { x: true } : {}}
               columns={tableColumns}
               data={filteredTableData}
             />
