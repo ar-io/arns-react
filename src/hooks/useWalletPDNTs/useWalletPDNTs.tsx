@@ -27,7 +27,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
   const [sortField, setSortField] = useState<keyof PDNTMetadata>('status');
   const [selectedRow, setSelectedRow] = useState<PDNTMetadata>();
   const [rows, setRows] = useState<PDNTMetadata[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [percent, setPercentLoaded] = useState<number | undefined>();
 
   useEffect(() => {
@@ -314,10 +314,10 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
         eventEmitter.emit('error', error);
       } finally {
         setPercentLoaded(((index + 1) / ids.length) * 100);
-        setRows(fetchedRows);
-        setIsLoading(false);
       }
     }
+    setRows(fetchedRows);
+    setIsLoading(false);
   }
 
   return {
