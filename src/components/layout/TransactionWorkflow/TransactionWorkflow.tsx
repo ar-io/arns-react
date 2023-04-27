@@ -86,10 +86,10 @@ function TransactionWorkflow({
         case 'next':
           switch (workflowStage) {
             case TRANSACTION_WORKFLOW_STATUS.PENDING: {
-              const newSteps = getStepsByTransactionType({
-                contractType,
-                interactionType,
-              });
+              const newSteps = getTransactionWorkflowSteps(interactionType);
+              if (!newSteps) {
+                throw new Error('Transaction steps is undefined');
+              }
               newSteps['1'].status = 'success';
               newSteps['2'].status = 'pending';
               setSteps(newSteps);
