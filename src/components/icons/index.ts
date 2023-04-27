@@ -27,7 +27,7 @@ import { ReactComponent as LinkIcon } from './Link.svg';
 import { ReactComponent as LogoutIcon } from './Logout.svg';
 import { ReactComponent as MenuIcon } from './Menu.svg';
 import { ReactComponent as NotebookIcon } from './Notebook.svg';
-import PdnsDefault from './PdnsDefault.png';
+import PDNSDefault from './PDNSDefault.png';
 import { ReactComponent as PencilIcon } from './Pencil.svg';
 import { ReactComponent as PersonIcon } from './Person.svg';
 import { ReactComponent as PriceTagIcon } from './PriceTag.svg';
@@ -43,7 +43,7 @@ export {
   AlertOctagonIcon,
   AlertTriangleIcon,
   ArConnectIcon,
-  PdnsDefault,
+  PDNSDefault,
   ArrowLeft,
   ArweaveAppIcon,
   ArrowUpRight,

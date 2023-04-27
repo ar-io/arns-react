@@ -1,11 +1,11 @@
 import React, { Dispatch, createContext, useContext, useReducer } from 'react';
 
 import { ArweaveTransactionID } from '../../types';
-import type { ArweaveWalletConnector, PdnsContractJSON } from '../../types';
+import type { ArweaveWalletConnector, PDNSContractJSON } from '../../types';
 import type { Action } from '../reducers/GlobalReducer';
 
 export type GlobalState = {
-  pdnsSourceContract: PdnsContractJSON;
+  pdnsSourceContract: PDNSContractJSON;
   gateway: string;
   walletAddress?: ArweaveTransactionID;
   wallet?: ArweaveWalletConnector;
@@ -29,7 +29,7 @@ const initialState: GlobalState = {
     name: '',
     owner: undefined,
     ticker: '',
-    approvedPDNTSourceCodeTxs: [],
+    approvedANTSourceCodeTxs: [],
   },
   gateway: 'arweave.net',
   walletAddress: undefined,

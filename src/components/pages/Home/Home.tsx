@@ -17,8 +17,8 @@ import {
   PDNS_TX_ID_REGEX,
 } from '../../../utils/constants';
 import {
-  isPdnsDomainNameAvailable,
-  isPdnsDomainNameValid,
+  isPDNSDomainNameAvailable,
+  isPDNSDomainNameValid,
 } from '../../../utils/searchUtils/searchUtils';
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import { FeaturedDomains, Loader, RegisterNameForm } from '../../layout';
@@ -66,7 +66,7 @@ function Home() {
     if (Object.keys(pdnsSourceContract.records).length) {
       const featuredDomains = Object.fromEntries(
         FEATURED_DOMAINS.map((domain: string) =>
-          pdnsSourceContract.records[domain].contractTxId
+          pdnsSourceContract.records[domain]?.contractTxId
             ? [domain, pdnsSourceContract.records[domain].contractTxId]
             : [],
         ).filter((n) => n.length),
@@ -82,7 +82,7 @@ function Home() {
         <Loader
           size={80}
           wrapperStyle={{ margin: '75px' }}
-          message="Loading Pdns Registry Contract..."
+          message="Loading PDNS Registry Contract..."
         />
       ) : (
         <>
@@ -165,7 +165,7 @@ function Home() {
                         payload: value,
                       });
                       dispatchRegisterState({
-                        type: 'setPdntID',
+                        type: 'setPDNTID',
                         payload: undefined,
                       });
                     }}
@@ -175,20 +175,20 @@ function Home() {
                         payload: name,
                       });
                       dispatchRegisterState({
-                        type: 'setPdntID',
+                        type: 'setPDNTID',
                         payload: result
                           ? new ArweaveTransactionID(result)
                           : undefined,
                       });
                     }}
                     successPredicate={(value: string | undefined) =>
-                      isPdnsDomainNameAvailable({
+                      isPDNSDomainNameAvailable({
                         name: value,
                         records: pdnsSourceContract?.records ?? {},
                       })
                     }
                     validationPredicate={(value: string | undefined) =>
-                      isPdnsDomainNameValid({ name: value })
+                      isPDNSDomainNameValid({ name: value })
                     }
                     placeholderText={'Enter a name'}
                     headerElement={
@@ -213,11 +213,11 @@ function Home() {
                 disableNext: !isSearching,
                 showNext:
                   !!domain &&
-                  isPdnsDomainNameAvailable({
+                  isPDNSDomainNameAvailable({
                     name: domain,
                     records: pdnsSourceContract.records,
                   }) &&
-                  isPdnsDomainNameValid({ name: domain }),
+                  isPDNSDomainNameValid({ name: domain }),
                 showBack: !!domain,
                 requiresWallet: !!domain && !pdntID,
               },

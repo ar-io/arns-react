@@ -11,7 +11,7 @@ import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import {
   ArweaveTransactionID,
   CONTRACT_TYPES,
-  ManagePdntRow,
+  ManagePDNTRow,
   PDNTContractJSON,
   PDNT_INTERACTION_TYPES,
   TRANSACTION_TYPES,
@@ -20,15 +20,15 @@ import {
 } from '../../../types';
 import { DEFAULT_PDNT_SOURCE_CODE_TX } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
-import { mapKeyToAttribute } from '../../cards/PdntCard/PdntCard';
+import { mapKeyToAttribute } from '../../cards/PDNTCard/PDNTCard';
 import { CloseIcon, PencilIcon } from '../../icons';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
-import ConfirmPdntCreation from '../../layout/ConfirmPdntCreation/ConfirmPdntCreation';
+import ConfirmPDNTCreation from '../../layout/ConfirmPDNTCreation/ConfirmPDNTCreation';
 import DeployTransaction from '../../layout/DeployTransaction/DeployTransaction';
 import TransactionComplete from '../../layout/TransactionComplete/TransactionComplete';
 import Workflow from '../../layout/Workflow/Workflow';
 
-function CreatePdntModal() {
+function CreatePDNTModal() {
   const isMobile = useIsMobile();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const { walletAddress } = useWalletAddress();
@@ -41,7 +41,7 @@ function CreatePdntModal() {
     }
   }, [walletAddress]);
 
-  const [pdnt, setPdnt] = useState<PDNTContract>(new PDNTContract());
+  const [pdnt, setPDNT] = useState<PDNTContract>(new PDNTContract());
 
   const [rows, setRows] = useState<[]>([]);
   const [editingField, setEditingField] = useState<string>();
@@ -49,7 +49,7 @@ function CreatePdntModal() {
 
   const [workflowStage, setWorkflowStage] = useState<number>(0);
 
-  const [pdntContractId, setPdntContractId] = useState<
+  const [pdntContractId, setPDNTContractId] = useState<
     ArweaveTransactionID | undefined
   >();
   const [isPostingTransaction, setIsPostingTransaction] = useState(false);
@@ -110,9 +110,9 @@ function CreatePdntModal() {
 
   function reset() {
     setWorkflowStage(0);
-    setPdnt(new PDNTContract());
+    setPDNT(new PDNTContract());
     setIsPostingTransaction(false);
-    setPdntContractId(undefined);
+    setPDNTContractId(undefined);
     setDetails();
   }
   // reset useEffect must be first, else wont reset
@@ -210,7 +210,7 @@ function CreatePdntModal() {
     }
   }
 
-  async function deployPdnt(state: PDNTContractJSON) {
+  async function deployPDNT(state: PDNTContractJSON) {
     try {
       setIsPostingTransaction(true);
       if (!state) {
@@ -226,7 +226,7 @@ function CreatePdntModal() {
       if (!pendingTXId) {
         throw new Error('Failed to deploy PDNT contract');
       }
-      setPdntContractId(new ArweaveTransactionID(pendingTXId));
+      setPDNTContractId(new ArweaveTransactionID(pendingTXId));
       setIsPostingTransaction(false);
       return pendingTXId;
     } catch (error) {
@@ -269,7 +269,7 @@ function CreatePdntModal() {
                 {
                   if (pdnt.state) {
                     setWorkflowStage(workflowStage + 1);
-                    deployPdnt(pdnt.state)
+                    deployPDNT(pdnt.state)
                       .then(() => {
                         setWorkflowStage(workflowStage + 2);
                         steps['3'].status = 'fail';
@@ -347,7 +347,7 @@ function CreatePdntModal() {
                     <div className="flex flex-column">
                       <Table
                         showHeader={false}
-                        onRow={(row: ManagePdntRow) => {
+                        onRow={(row: ManagePDNTRow) => {
                           return {
                             className:
                               row.attribute === editingField
@@ -573,7 +573,7 @@ function CreatePdntModal() {
               ),
               component: (
                 <>
-                  <ConfirmPdntCreation state={pdnt.state} />
+                  <ConfirmPDNTCreation state={pdnt.state} />
                 </>
               ),
             },
@@ -635,4 +635,4 @@ function CreatePdntModal() {
   );
 }
 
-export default CreatePdntModal;
+export default CreatePDNTModal;

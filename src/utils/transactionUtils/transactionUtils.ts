@@ -4,10 +4,10 @@ import {
   BuyRecordPayload,
   CONTRACT_TYPES,
   ContractType,
-  CreatePdntPayload,
+  CreatePDNTPayload,
+  PDNSMapping,
+  PDNTInteraction,
   PDNT_INTERACTION_TYPES,
-  PdnsMapping,
-  PdntInteraction,
   REGISTRY_INTERACTION_TYPES,
   RegistryInteraction,
   SetNamePayload,
@@ -29,7 +29,7 @@ export function isArweaveTransactionID(id: string) {
   return true;
 }
 
-export function isPdntInteraction(x: any): x is PdntInteraction {
+export function isPDNTInteraction(x: any): x is PDNTInteraction {
   return Object.values(PDNT_INTERACTION_TYPES).includes(x);
 }
 
@@ -56,13 +56,13 @@ export function isInteractionCompatible({
   functionName,
 }: {
   contractType: ContractType;
-  interactionType: PdntInteraction | RegistryInteraction;
+  interactionType: PDNTInteraction | RegistryInteraction;
   functionName: string;
 }) {
   try {
     if (
       (contractType === CONTRACT_TYPES.PDNT &&
-        !isPdntInteraction(interactionType)) ||
+        !isPDNTInteraction(interactionType)) ||
       (contractType === CONTRACT_TYPES.REGISTRY &&
         !isRegistryInteraction(interactionType))
     ) {
@@ -72,7 +72,7 @@ export function isInteractionCompatible({
     }
     if (
       contractType === CONTRACT_TYPES.PDNT &&
-      isPdntInteraction(interactionType)
+      isPDNTInteraction(interactionType)
     ) {
       if (
         TRANSACTION_DATA_KEYS[contractType][interactionType].functionName !==
@@ -102,18 +102,18 @@ export function isInteractionCompatible({
   }
 }
 
-export function getPdnsMappingByInteractionType(
-  // can be used to generate PdntCard props: <PdntCard {...props = getPdnsMappingByInteractionType()} />
+export function getPDNSMappingByInteractionType(
+  // can be used to generate PDNTCard props: <PDNTCard {...props = getPDNSMappingByInteractionType()} />
   {
     contractType,
     interactionType,
     transactionData,
   }: {
     contractType: ContractType;
-    interactionType: PdntInteraction | RegistryInteraction;
+    interactionType: PDNTInteraction | RegistryInteraction;
     transactionData: TransactionData;
   },
-): PdnsMapping | undefined {
+): PDNSMapping | undefined {
   switch (contractType) {
     case CONTRACT_TYPES.REGISTRY:
       {
@@ -148,7 +148,7 @@ export function getPdnsMappingByInteractionType(
       switch (interactionType) {
         case PDNT_INTERACTION_TYPES.CREATE: {
           if (
-            !isObjectOfTransactionPayloadType<CreatePdntPayload>(
+            !isObjectOfTransactionPayloadType<CreatePDNTPayload>(
               transactionData,
               TRANSACTION_DATA_KEYS[CONTRACT_TYPES.PDNT][
                 PDNT_INTERACTION_TYPES.CREATE
@@ -156,7 +156,7 @@ export function getPdnsMappingByInteractionType(
             )
           ) {
             throw new Error(
-              'transaction data not of correct payload type <CreatePdntPayload>',
+              'transaction data not of correct payload type <CreatePDNTPayload>',
             );
           }
           const pdnt = new PDNTContract(transactionData.initialState);
@@ -280,7 +280,7 @@ export function getPdnsMappingByInteractionType(
 }
 
 export const FieldToInteractionMap: {
-  [x: string]: PdntInteraction;
+  [x: string]: PDNTInteraction;
 } = {
   name: PDNT_INTERACTION_TYPES.SET_NAME,
   ticker: PDNT_INTERACTION_TYPES.SET_TICKER,
@@ -295,7 +295,7 @@ export function getInteractionTypeFromField(field: string) {
 
 export function mapTransactionDataKeyToPayload(
   contractType: ContractType,
-  interactionType: PdntInteraction | RegistryInteraction,
+  interactionType: PDNTInteraction | RegistryInteraction,
   data: string | number | Array<string | number>,
 ): TransactionData | undefined {
   const txData = typeof data === 'object' ? [...data] : [data];
@@ -335,7 +335,7 @@ export function mapTransactionDataKeyToPayload(
     });
     return payload;
   }
-  if (isPdntInteraction(interactionType)) {
+  if (isPDNTInteraction(interactionType)) {
     if (
       !isInteractionCompatible({
         contractType,

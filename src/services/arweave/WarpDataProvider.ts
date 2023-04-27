@@ -9,8 +9,8 @@ import {
 
 import {
   ArweaveTransactionID,
+  PDNSContractJSON,
   PDNTContractJSON,
-  PdnsContractJSON,
   SmartweaveContractCache,
   SmartweaveContractInteractionProvider,
   TransactionTag,
@@ -36,7 +36,7 @@ export class WarpDataProvider
     );
   }
 
-  async getContractState<T extends PDNTContractJSON | PdnsContractJSON>(
+  async getContractState<T extends PDNTContractJSON | PDNSContractJSON>(
     id: ArweaveTransactionID,
   ): Promise<T> {
     const contract = this._warp.contract(id.toString());

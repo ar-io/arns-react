@@ -1,8 +1,8 @@
 import {
   ArweaveDataProvider,
   ArweaveTransactionID,
+  PDNSContractJSON,
   PDNTContractJSON,
-  PdnsContractJSON,
   SmartweaveContractCache,
   SmartweaveContractInteractionProvider,
   TransactionTag,
@@ -35,7 +35,7 @@ export class ArweaveCompositeDataProvider
     return this._arweaveProvider.getWalletBalance(id);
   }
 
-  async getContractState<T extends PdnsContractJSON | PDNTContractJSON>(
+  async getContractState<T extends PDNSContractJSON | PDNTContractJSON>(
     id: ArweaveTransactionID,
   ): Promise<T> {
     return Promise.any(

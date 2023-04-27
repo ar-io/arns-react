@@ -1,5 +1,5 @@
 import { SearchBarFooterProps } from '../../../types';
-import PdntCard from '../../cards/PdntCard/PdntCard';
+import PDNTCard from '../../cards/PDNTCard/PDNTCard';
 import UpgradeTier from '../UpgradeTier/UpgradeTier';
 import './styles.css';
 
@@ -28,7 +28,7 @@ function SearchBarFooter({
           </div>
         </>
       ) : !isAvailable && searchResult && searchTerm ? (
-        <PdntCard
+        <PDNTCard
           domain={searchTerm}
           id={searchResult}
           compact={true}

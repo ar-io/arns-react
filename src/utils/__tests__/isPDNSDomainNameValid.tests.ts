@@ -1,6 +1,6 @@
-import { isPdnsDomainNameValid } from '../searchUtils/searchUtils';
+import { isPDNSDomainNameValid } from '../searchUtils/searchUtils';
 
-describe('isPdnsDomainNameValid', () => {
+describe('isPDNSDomainNameValid', () => {
   const invalidNames = [
     '_',
     '.',
@@ -18,11 +18,11 @@ describe('isPdnsDomainNameValid', () => {
   test.each(invalidNames)(
     'should return false on invalid name: %p',
     (name: string) => {
-      expect(isPdnsDomainNameValid({ name })).toEqual(false);
+      expect(isPDNSDomainNameValid({ name })).toEqual(false);
     },
   );
 
   test('should return true if name is valid', () => {
-    expect(isPdnsDomainNameValid({ name: 'pdns' })).toBe(true);
+    expect(isPDNSDomainNameValid({ name: 'pdns' })).toBe(true);
   });
 });

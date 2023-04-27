@@ -1,7 +1,7 @@
 import {
   ArweaveTransactionID,
+  PDNSContractJSON,
   PDNTContractJSON,
-  PdnsContractJSON,
   SmartweaveContractCache,
 } from '../../types';
 
@@ -12,7 +12,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
     this._url = url;
   }
 
-  async getContractState<T extends PDNTContractJSON | PdnsContractJSON>(
+  async getContractState<T extends PDNTContractJSON | PDNSContractJSON>(
     id: ArweaveTransactionID,
   ): Promise<T> {
     const res = await fetch(`${this._url}/contract/${id.toString()}`);
@@ -21,7 +21,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
   }
 
   async getContractBalanceForWallet<
-    T extends PDNTContractJSON | PdnsContractJSON,
+    T extends PDNTContractJSON | PDNSContractJSON,
   >(id: ArweaveTransactionID, wallet: ArweaveTransactionID): Promise<number> {
     const state = await this.getContractState<T>(id);
     return state?.balances[wallet.toString()] ?? 0;

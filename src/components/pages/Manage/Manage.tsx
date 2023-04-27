@@ -14,7 +14,7 @@ import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
   ArweaveTransactionID,
   ManageTable,
-  PdntMetadata,
+  PDNTMetadata,
 } from '../../../types';
 import { MANAGE_TABLE_NAMES } from '../../../types';
 import eventEmitter from '../../../utils/events';
@@ -32,15 +32,15 @@ function Manage() {
 
   const modalRef = useRef(null);
   const [cursor] = useState<string | undefined>();
-  const [pdntIds, setPdntIDs] = useState<ArweaveTransactionID[]>([]);
-  const [selectedRow, setSelectedRow] = useState<PdntMetadata>();
+  const [pdntIds, setPDNTIDs] = useState<ArweaveTransactionID[]>([]);
+  const [selectedRow, setSelectedRow] = useState<PDNTMetadata>();
   const [percent, setPercentLoaded] = useState<number | undefined>();
   const {
     isLoading: pdntTableLoading,
     percent: percentPDNTsLoaded,
     columns: pdntColumns,
     rows: pdntRows,
-    selectedRow: selectedPdntRow,
+    selectedRow: selectedPDNTRow,
     sortAscending: pdntSortAscending,
     sortField: pdntSortField,
   } = useWalletPDNTs(pdntIds);
@@ -68,7 +68,7 @@ function Manage() {
   useEffect(() => {
     // todo: move this to a separate function to manage error state and poll for new pdnts to concat them to the state.
     if (walletAddress) {
-      fetchWalletPdnts(walletAddress);
+      fetchWalletPDNTs(walletAddress);
     }
   }, [walletAddress?.toString()]);
 
@@ -85,7 +85,7 @@ function Manage() {
       setTableData(pdntRows);
       setTableColumns(pdntColumns);
       setPercentLoaded(percentPDNTsLoaded);
-      setSelectedRow(selectedPdntRow);
+      setSelectedRow(selectedPDNTRow);
       const baseIndex = Math.max((tablePage - 1) * 10, 0);
       const endIndex = tablePage * 10;
       const filteredData = pdntRows.slice(baseIndex, endIndex);
@@ -96,7 +96,7 @@ function Manage() {
     pdntSortAscending,
     pdntSortField,
     pdntRows,
-    selectedPdntRow,
+    selectedPDNTRow,
     pdntTableLoading,
     percentPDNTsLoaded,
   ]);
@@ -134,17 +134,17 @@ function Manage() {
     }
   }, [percent]);
 
-  async function fetchWalletPdnts(address: ArweaveTransactionID) {
+  async function fetchWalletPDNTs(address: ArweaveTransactionID) {
     try {
       setTableLoading(true);
       const { ids } = await arweaveDataProvider.getContractsForWallet(
-        pdnsSourceContract.approvedPDNTSourceCodeTxs.map(
+        pdnsSourceContract.approvedANTSourceCodeTxs.map(
           (id: string) => new ArweaveTransactionID(id),
         ),
         address,
         cursor,
       );
-      setPdntIDs(ids);
+      setPDNTIDs(ids);
     } catch (error: any) {
       eventEmitter.emit('error', error);
     } finally {
@@ -214,7 +214,7 @@ function Manage() {
               style={{
                 padding: '0.75em',
               }}
-              onClick={() => walletAddress && fetchWalletPdnts(walletAddress)}
+              onClick={() => walletAddress && fetchWalletPDNTs(walletAddress)}
             >
               <RefreshIcon height={20} width={20} fill="white" />
               {isMobile ? (

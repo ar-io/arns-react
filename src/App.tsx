@@ -10,11 +10,11 @@ import {
 import { Layout, ProtectedRoute } from './components/layout';
 import {
   ConnectWalletModal,
-  CreatePdntModal,
-  ManagePdntModal, // ManagePdntModal,
+  CreatePDNTModal,
+  ManagePDNTModal, // ManagePDNTModal,
 } from './components/modals';
 import { About, Home, Manage, NotFound, Transaction } from './components/pages';
-import { usePdnsContract } from './hooks/';
+import { usePDNSContract } from './hooks/';
 import './index.css';
 
 const sentryCreateBrowserRouter =
@@ -22,7 +22,7 @@ const sentryCreateBrowserRouter =
 
 function App() {
   // dispatches global state
-  usePdnsContract();
+  usePDNSContract();
 
   const router = sentryCreateBrowserRouter(
     createRoutesFromElements(
@@ -34,7 +34,7 @@ function App() {
           path="create"
           element={
             <ProtectedRoute>
-              <CreatePdntModal />
+              <CreatePDNTModal />
             </ProtectedRoute>
           }
         />
@@ -54,7 +54,7 @@ function App() {
             path="pdnts/:id"
             element={
               <ProtectedRoute>
-                <ManagePdntModal />
+                <ManagePDNTModal />
               </ProtectedRoute>
             }
           />

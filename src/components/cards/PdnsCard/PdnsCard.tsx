@@ -3,15 +3,15 @@ import { useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { PdnsDomain, PdnsMapping } from '../../../types';
+import { PDNSDomain, PDNSMapping } from '../../../types';
 import { DEFAULT_EXPIRATION } from '../../../utils/constants';
-import { PdnsDefault as pdnsDefaultImage } from '../../icons';
+import { PDNSDefault as pdnsDefaultImage } from '../../icons';
 import './styles.css';
 
-function PdnsCard({ domain, id }: PdnsMapping) {
+function PDNSCard({ domain, id }: PDNSMapping) {
   const [{ gateway }] = useGlobalState();
   const isMobile = useIsMobile();
-  const [pdntDetails, setPdntDetails] = useState<PdnsDomain>({
+  const [pdntDetails, setPDNTDetails] = useState<PDNSDomain>({
     domain,
     id,
     image: pdnsDefaultImage,
@@ -19,12 +19,12 @@ function PdnsCard({ domain, id }: PdnsMapping) {
   });
 
   useEffect(() => {
-    getPdntDetailsFromName(domain);
+    getPDNTDetailsFromName(domain);
   }, [domain, id, gateway, isMobile]);
 
-  async function getPdntDetailsFromName(domain: string) {
+  async function getPDNTDetailsFromName(domain: string) {
     const image = await getMetaImage();
-    setPdntDetails({
+    setPDNTDetails({
       ...pdntDetails,
       domain,
       image,
@@ -98,4 +98,4 @@ function PdnsCard({ domain, id }: PdnsMapping) {
   );
 }
 
-export default PdnsCard;
+export default PDNSCard;

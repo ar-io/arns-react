@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
-import { PdnsCard } from '../../cards';
+import { PDNSCard } from '../../cards';
 import './styles.css';
 
 function SuccessfulRegistration() {
@@ -31,13 +31,13 @@ function SuccessfulRegistration() {
           </span>
           <span className="flex text faded center">
             It will take at least 15 minutes for gateways to resolve this new
-            Pdns domain name.
+            PDNS domain name.
           </span>
         </div>
 
         {domain ? (
           <>
-            <PdnsCard domain={domain} id={resolvedTxID!} />
+            <PDNSCard domain={domain} id={resolvedTxID!} />
             <span>
               <Link
                 to={'/manage'}

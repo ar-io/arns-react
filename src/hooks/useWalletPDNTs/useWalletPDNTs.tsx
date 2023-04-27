@@ -15,7 +15,7 @@ import {
   ASSET_TYPES,
   ArweaveTransactionID,
   PDNTContractJSON,
-  PdntMetadata,
+  PDNTMetadata,
 } from '../../types';
 import eventEmitter from '../../utils/events';
 
@@ -24,16 +24,16 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
   const arweaveDataProvider = useArweaveCompositeProvider();
   const { walletAddress } = useWalletAddress();
   const [sortAscending, setSortOrder] = useState(true);
-  const [sortField, setSortField] = useState<keyof PdntMetadata>('status');
-  const [selectedRow, setSelectedRow] = useState<PdntMetadata>();
-  const [rows, setRows] = useState<PdntMetadata[]>([]);
+  const [sortField, setSortField] = useState<keyof PDNTMetadata>('status');
+  const [selectedRow, setSelectedRow] = useState<PDNTMetadata>();
+  const [rows, setRows] = useState<PDNTMetadata[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [percent, setPercentLoaded] = useState<number | undefined>();
 
   useEffect(() => {
     if (ids.length) {
       setIsLoading(true);
-      fetchPdntRows(ids).finally(() => setIsLoading(false));
+      fetchPDNTRows(ids).finally(() => setIsLoading(false));
     }
   }, [ids]);
 
@@ -69,7 +69,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              rows.sort((a: PdntMetadata, b: PdntMetadata) =>
+              rows.sort((a: PDNTMetadata, b: PDNTMetadata) =>
                 // by default we sort by name
                 !sortAscending
                   ? a.name.localeCompare(b.name)
@@ -112,7 +112,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              rows.sort((a: PdntMetadata, b: PdntMetadata) =>
+              rows.sort((a: PDNTMetadata, b: PDNTMetadata) =>
                 !sortAscending
                   ? a.role.localeCompare(b.role)
                   : b.role.localeCompare(a.role),
@@ -158,7 +158,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              rows.sort((a: PdntMetadata, b: PdntMetadata) =>
+              rows.sort((a: PDNTMetadata, b: PDNTMetadata) =>
                 sortAscending
                   ? a.id.localeCompare(b.id)
                   : b.id.localeCompare(a.id),
@@ -268,7 +268,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
       },
       {
         title: '',
-        render: (val: any, row: PdntMetadata) => (
+        render: (val: any, row: PDNTMetadata) => (
           <ManageAssetButtons
             asset={val.id}
             setShowModal={() => setSelectedRow(row)}
@@ -282,8 +282,8 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
     ];
   }
 
-  async function fetchPdntRows(ids: ArweaveTransactionID[]) {
-    const fetchedRows: PdntMetadata[] = [];
+  async function fetchPDNTRows(ids: ArweaveTransactionID[]) {
+    const fetchedRows: PDNTMetadata[] = [];
     for (const [index, id] of ids.entries()) {
       try {
         const [contractState, confirmations] = await Promise.all([

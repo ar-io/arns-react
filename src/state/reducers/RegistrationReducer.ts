@@ -12,7 +12,7 @@ export type RegistrationAction =
   | { type: 'setTicker'; payload: string }
   | { type: 'setControllers'; payload: Array<ArweaveTransactionID> }
   | { type: 'setTTL'; payload: number }
-  | { type: 'setPdntID'; payload: ArweaveTransactionID | undefined }
+  | { type: 'setPDNTID'; payload: ArweaveTransactionID | undefined }
   | { type: 'setTargetID'; payload: ArweaveTransactionID }
   | { type: 'setOwner'; payload: ArweaveTransactionID }
   | { type: 'setResolvedTx'; payload: ArweaveTransactionID | undefined }
@@ -71,7 +71,7 @@ export const registrationReducer = (
         ...state,
         ttl: action.payload,
       };
-    case 'setPdntID':
+    case 'setPDNTID':
       return {
         ...state,
         pdntID: action.payload,
