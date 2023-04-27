@@ -1,5 +1,5 @@
-import PdnsCard from './PdnsCard/PdnsCard';
-import PdntCard from './PdntCard/PdntCard';
+import PDNSCard from './PDNSCard/PDNSCard';
+import PDNTCard from './PDNTCard/PDNTCard';
 import TierCard from './TierCard/TierCard';
 
-export { PdnsCard, PdntCard, TierCard };
+export { PDNSCard, PDNTCard, TierCard };

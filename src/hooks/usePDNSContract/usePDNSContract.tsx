@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 
 import { useGlobalState } from '../../state/contexts/GlobalState';
-import { ArweaveTransactionID, PdnsContractJSON } from '../../types';
+import { ArweaveTransactionID, PDNSContractJSON } from '../../types';
 import eventEmitter from '../../utils/events';
 import { useArweaveCompositeProvider } from '../useArweaveCompositeProvider/useArweaveCompositeProvider';
 
-export function usePdnsContract() {
+export function usePDNSContract() {
   const arweaveDataProvider = useArweaveCompositeProvider();
   const [{ pdnsContractId }, dispatch] = useGlobalState();
   const [sendingContractState, setSendingContractState] = useState(false);
@@ -25,16 +25,16 @@ export function usePdnsContract() {
       setSendingContractState(true);
 
       const pdnsContractState =
-        await arweaveDataProvider.getContractState<PdnsContractJSON>(
+        await arweaveDataProvider.getContractState<PDNSContractJSON>(
           contractId,
         );
       if (!pdnsContractState) {
-        throw Error('Pdns contract state is empty');
+        throw Error('PDNS contract state is empty');
       }
 
       if (!pdnsContractState.records || !pdnsContractState.fees) {
         throw Error(
-          `Pdns contract is missing required keys: ${['fees', 'records']
+          `PDNS contract is missing required keys: ${['fees', 'records']
             .filter(
               (required) => !Object.keys(pdnsContractState).includes(required),
             )
@@ -43,7 +43,7 @@ export function usePdnsContract() {
       }
 
       dispatch({
-        type: 'setPdnsContractState',
+        type: 'setPDNSContractState',
         payload: pdnsContractState,
       });
 

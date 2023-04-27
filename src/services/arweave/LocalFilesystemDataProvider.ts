@@ -2,8 +2,8 @@ import axios from 'axios';
 
 import { ArweaveTransactionID } from '../../types';
 import {
+  PDNSContractJSON,
   PDNTContractJSON,
-  PdnsContractJSON,
   SmartweaveContractInteractionProvider,
   TransactionTag,
 } from '../../types';
@@ -11,7 +11,7 @@ import {
 export class LocalFileSystemDataProvider
   implements Partial<SmartweaveContractInteractionProvider>
 {
-  async getContractState<T extends PdnsContractJSON | PDNTContractJSON>(
+  async getContractState<T extends PDNSContractJSON | PDNTContractJSON>(
     id: ArweaveTransactionID,
   ): Promise<T> {
     const localFile = `data/contracts/${id.toString()}.json`;

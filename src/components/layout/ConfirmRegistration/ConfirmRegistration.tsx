@@ -5,7 +5,7 @@ import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { NAME_PRICE_INFO, SMARTWEAVE_TAG_SIZE } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
-import { PdntCard } from '../../cards';
+import { PDNTCard } from '../../cards';
 import ArPrice from '../ArPrice/ArPrice';
 import Loader from '../Loader/Loader';
 import { Tooltip } from '../Tooltip/Tooltip';
@@ -29,7 +29,7 @@ function ConfirmRegistration() {
       .validateTransactionTags({
         id: pdntID.toString(),
         requiredTags: {
-          'Contract-Src': pdnsSourceContract.approvedPDNTSourceCodeTxs,
+          'Contract-Src': pdnsSourceContract.approvedANTSourceCodeTxs,
         },
       })
       .then(() => {
@@ -41,7 +41,7 @@ function ConfirmRegistration() {
       });
   }, [pdntID, pdnsContractId]);
 
-  async function buyPdnsName() {
+  async function buyPDNSName() {
     try {
       setIsPostingTransaction(true);
       if (!pdntID) {
@@ -89,7 +89,7 @@ function ConfirmRegistration() {
           <Loader size={80} />
         ) : isConfirmed ? (
           <>
-            <PdntCard
+            <PDNTCard
               domain={domain ?? ''}
               id={pdntID ? pdntID : undefined}
               compact={false}
@@ -138,7 +138,7 @@ function ConfirmRegistration() {
                 className="accent-button"
                 disabled={!pdntID || !isConfirmed}
                 onClick={() => {
-                  buyPdnsName();
+                  buyPDNSName();
                 }}
               >
                 Confirm

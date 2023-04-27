@@ -9,7 +9,7 @@ import {
   SMARTWEAVE_TAG_SIZE,
   TIER_DATA,
 } from '../../../utils/constants';
-import { calculatePdnsNamePrice } from '../../../utils/searchUtils/searchUtils';
+import { calculatePDNSNamePrice } from '../../../utils/searchUtils/searchUtils';
 import TierCard from '../../cards/TierCard/TierCard';
 import Counter from '../../inputs/Counter/Counter';
 import ArPrice from '../ArPrice/ArPrice';
@@ -24,7 +24,7 @@ function UpgradeTier() {
   useEffect(() => {
     const fees = pdnsSourceContract.fees;
     if (domain) {
-      const newFee = calculatePdnsNamePrice({
+      const newFee = calculatePDNSNamePrice({
         domain,
         selectedTier: tier,
         years: leaseDuration,

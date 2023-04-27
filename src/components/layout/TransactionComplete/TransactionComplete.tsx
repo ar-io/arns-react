@@ -3,14 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   ArweaveTransactionID,
   ContractType,
-  PdntInteraction,
+  PDNTInteraction,
   RegistryInteraction,
   TransactionData,
 } from '../../../types';
 import { WARP_CONTRACT_BASE_URL } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
-import { getPdnsMappingByInteractionType } from '../../../utils/transactionUtils/transactionUtils';
-import { PdntCard } from '../../cards';
+import { getPDNSMappingByInteractionType } from '../../../utils/transactionUtils/transactionUtils';
+import { PDNTCard } from '../../cards';
 import { ArrowUpRight } from '../../icons';
 
 function TransactionComplete({
@@ -21,11 +21,11 @@ function TransactionComplete({
 }: {
   transactionId?: ArweaveTransactionID;
   contractType: ContractType;
-  interactionType: PdntInteraction | RegistryInteraction;
+  interactionType: PDNTInteraction | RegistryInteraction;
   transactionData: TransactionData;
 }) {
   const navigate = useNavigate();
-  const pdntProps = getPdnsMappingByInteractionType({
+  const pdntProps = getPDNSMappingByInteractionType({
     contractType,
     interactionType,
     transactionData,
@@ -42,7 +42,7 @@ function TransactionComplete({
       <div className="flex-column center" style={{ gap: '3em' }}>
         <div className="flex-column center" style={{ gap: '2em' }}>
           {/* TODO: configure error or fail states */}
-          <PdntCard {...pdntProps} />
+          <PDNTCard {...pdntProps} />
           <div
             className="flex flex-row center"
             style={{ gap: '1em', maxWidth: '782px' }}

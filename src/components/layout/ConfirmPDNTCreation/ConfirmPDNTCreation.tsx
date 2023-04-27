@@ -4,14 +4,14 @@ import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { PDNTContractJSON } from '../../../types';
 import { byteSize } from '../../../utils';
 import { NAME_PRICE_INFO } from '../../../utils/constants';
-import { PdntCard } from '../../cards';
+import { PDNTCard } from '../../cards';
 import ArPrice from '../ArPrice/ArPrice';
 import { Tooltip } from '../Tooltip/Tooltip';
 
-function ConfirmPdntCreation({ state }: { state: PDNTContractJSON }) {
-  const [pdnt, setPdnt] = useState<PDNTContract>();
+function ConfirmPDNTCreation({ state }: { state: PDNTContractJSON }) {
+  const [pdnt, setPDNT] = useState<PDNTContract>();
   useEffect(() => {
-    setPdnt(new PDNTContract(state));
+    setPDNT(new PDNTContract(state));
   }, [state]);
 
   if (!pdnt) {
@@ -20,7 +20,7 @@ function ConfirmPdntCreation({ state }: { state: PDNTContractJSON }) {
 
   return (
     <div className="register-name-modal center">
-      <PdntCard
+      <PDNTCard
         domain={''}
         id={undefined}
         state={state}
@@ -56,4 +56,4 @@ function ConfirmPdntCreation({ state }: { state: PDNTContractJSON }) {
   );
 }
 
-export default ConfirmPdntCreation;
+export default ConfirmPDNTCreation;

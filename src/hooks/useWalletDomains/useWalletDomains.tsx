@@ -14,9 +14,9 @@ import { useArweaveCompositeProvider, useWalletAddress } from '../../hooks';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import {
   ArweaveTransactionID,
+  PDNSRecordEntry,
+  PDNSTableRow,
   PDNTContractJSON,
-  PdnsRecordEntry,
-  PdnsTableRow,
 } from '../../types';
 import eventEmitter from '../../utils/events';
 
@@ -25,16 +25,16 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
   const arweaveDataProvider = useArweaveCompositeProvider();
   const { walletAddress } = useWalletAddress();
   const [sortAscending, setSortOrder] = useState(true);
-  const [sortField, setSortField] = useState<keyof PdnsTableRow>('status');
-  const [selectedRow, setSelectedRow] = useState<PdnsTableRow>(); // eslint-disable-line
-  const [rows, setRows] = useState<PdnsTableRow[]>([]);
+  const [sortField, setSortField] = useState<keyof PDNSTableRow>('status');
+  const [selectedRow, setSelectedRow] = useState<PDNSTableRow>(); // eslint-disable-line
+  const [rows, setRows] = useState<PDNSTableRow[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [percent, setPercentLoaded] = useState<number | undefined>();
 
   useEffect(() => {
     if (ids.length) {
       setIsLoading(true);
-      fetchPdntRows(ids).finally(() => setIsLoading(false));
+      fetchPDNTRows(ids).finally(() => setIsLoading(false));
     }
   }, [ids]);
 
@@ -86,7 +86,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              rows.sort((a: PdnsTableRow, b: PdnsTableRow) =>
+              rows.sort((a: PDNSTableRow, b: PDNSTableRow) =>
                 // by default we sort by name
                 !sortAscending
                   ? a.name.localeCompare(b.name)
@@ -129,7 +129,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              rows.sort((a: PdnsTableRow, b: PdnsTableRow) =>
+              rows.sort((a: PDNSTableRow, b: PDNSTableRow) =>
                 !sortAscending
                   ? a.role.localeCompare(b.role)
                   : b.role.localeCompare(a.role),
@@ -172,7 +172,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              rows.sort((a: PdnsTableRow, b: PdnsTableRow) =>
+              rows.sort((a: PDNSTableRow, b: PDNSTableRow) =>
                 sortAscending ? +a.tier - +b.tier : +b.tier - +a.tier,
               );
               // forces update of rows
@@ -216,7 +216,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              rows.sort((a: PdnsTableRow, b: PdnsTableRow) =>
+              rows.sort((a: PDNSTableRow, b: PDNSTableRow) =>
                 sortAscending
                   ? a.expiration.getTime() - b.expiration.getTime()
                   : b.expiration.getTime() - a.expiration.getTime(),
@@ -295,15 +295,15 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
     ];
   }
 
-  async function fetchPdntRows(ids: ArweaveTransactionID[]) {
+  async function fetchPDNTRows(ids: ArweaveTransactionID[]) {
     const { records } = pdnsSourceContract;
 
-    const fetchedRows: PdnsTableRow[] = [];
+    const fetchedRows: PDNSTableRow[] = [];
     for (const [index, txId] of ids.entries()) {
       try {
-        const associatedNames: (PdnsRecordEntry & { name: string })[] =
+        const associatedNames: (PDNSRecordEntry & { name: string })[] =
           Object.entries(records)
-            .map(([name, recordEntry]: [string, PdnsRecordEntry]) => {
+            .map(([name, recordEntry]: [string, PDNSRecordEntry]) => {
               if (recordEntry.contractTxId === txId.toString()) {
                 return {
                   ...recordEntry,
@@ -311,7 +311,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
                 };
               }
             })
-            .filter((n) => !!n) as (PdnsRecordEntry & { name: string })[];
+            .filter((n) => !!n) as (PDNSRecordEntry & { name: string })[];
         const [contractState, confirmations] = await Promise.all([
           arweaveDataProvider.getContractState<PDNTContractJSON>(txId),
           arweaveDataProvider.getTransactionStatus(txId),

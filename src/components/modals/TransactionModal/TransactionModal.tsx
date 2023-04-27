@@ -4,9 +4,9 @@ import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
   ArweaveTransactionID,
+  PDNSRecordEntry,
+  PDNTMetadata,
   PDNT_INTERACTION_TYPES,
-  PdnsRecordEntry,
-  PdntMetadata,
   TRANSACTION_TYPES,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
@@ -27,7 +27,7 @@ function TransactionModal({
   // main control for how the modal is built
   transactionType: TRANSACTION_TYPES;
   interactionType?: PDNT_INTERACTION_TYPES;
-  state?: PdntMetadata;
+  state?: PDNTMetadata;
   contractId?: ArweaveTransactionID; // contract ID if asset type is a contract interaction
   showModal: () => void;
 }) {
@@ -42,7 +42,7 @@ function TransactionModal({
 
   function getAssociatedNames(txId: ArweaveTransactionID) {
     return Object.entries(pdnsSourceContract.records)
-      .map(([name, recordEntry]: [string, PdnsRecordEntry]) => {
+      .map(([name, recordEntry]: [string, PDNSRecordEntry]) => {
         if (recordEntry.contractTxId === txId.toString()) return name;
       })
       .filter((n) => !!n);

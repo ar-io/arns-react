@@ -1,7 +1,7 @@
-import { PdnsRecordEntry } from '../../types';
+import { PDNSRecordEntry } from '../../types';
 import { PDNS_NAME_REGEX } from '../constants';
 
-export function calculatePdnsNamePrice({
+export function calculatePDNSNamePrice({
   domain,
   years,
   selectedTier,
@@ -24,7 +24,7 @@ export function calculatePdnsNamePrice({
   if (!domain) {
     throw Error('Domain is undefined');
   }
-  if (!isPdnsDomainNameValid({ name: domain })) {
+  if (!isPDNSDomainNameValid({ name: domain })) {
     throw Error('Domain name is invalid');
   }
   const nameLength = Math.min(domain.length, Object.keys(fees).length);
@@ -33,19 +33,19 @@ export function calculatePdnsNamePrice({
   return price;
 }
 
-export function isPdnsDomainNameValid({ name }: { name?: string }): boolean {
+export function isPDNSDomainNameValid({ name }: { name?: string }): boolean {
   if (!name || !PDNS_NAME_REGEX.test(name) || name === 'www') {
     return false;
   }
   return true;
 }
 
-export function isPdnsDomainNameAvailable({
+export function isPDNSDomainNameAvailable({
   name,
   records,
 }: {
   name?: string;
-  records: { [x: string]: PdnsRecordEntry };
+  records: { [x: string]: PDNSRecordEntry };
 }): boolean {
   //if registered return false
   if (!name || records[name]) {

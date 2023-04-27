@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { PDNTContractJSON, PdnsMapping } from '../../../types';
+import { PDNSMapping, PDNTContractJSON } from '../../../types';
 import { isArweaveTransactionID } from '../../../utils';
 import eventEmitter from '../../../utils/events';
 import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
@@ -35,7 +35,7 @@ export const PRIMARY_DETAILS: string[] = [
   'nickname',
 ].map((i) => mapKeyToAttribute(i));
 
-function PdntCard(props: PdnsMapping) {
+function PDNTCard(props: PDNSMapping) {
   const isMobile = useIsMobile();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const {
@@ -50,7 +50,7 @@ function PdntCard(props: PdnsMapping) {
     showTier = true,
   } = props;
   const [{ pdnsSourceContract }] = useGlobalState();
-  const [pdntDetails, setPdntDetails] = useState<{ [x: string]: string }>();
+  const [pdntDetails, setPDNTDetails] = useState<{ [x: string]: string }>();
   const [isLoading, setIsLoading] = useState(true);
   const [limitDetails, setLimitDetails] = useState(true);
 
@@ -87,7 +87,7 @@ function PdntCard(props: PdnsMapping) {
         (key: string) => tiers.current[+key] === tierDetails?.id,
       );
 
-      const allPdntDetails: { [x: string]: any } = {
+      const allPDNTDetails: { [x: string]: any } = {
         ...pdntContractState,
         // TODO: remove this when all pdnts have controllers
         controllers: pdntContractState.controllers
@@ -100,30 +100,30 @@ function PdntCard(props: PdnsMapping) {
         domain,
       };
 
-      const filteredPdntDetails = Object.keys(allPdntDetails).reduce(
+      const filteredPDNTDetails = Object.keys(allPDNTDetails).reduce(
         (obj: any, key: string) => {
           if (!disabledKeys?.includes(key)) {
-            if (typeof allPdntDetails[key] === 'object') return obj;
-            obj[key] = allPdntDetails[key];
+            if (typeof allPDNTDetails[key] === 'object') return obj;
+            obj[key] = allPDNTDetails[key];
           }
           return obj;
         },
         {},
       );
       // TODO: consolidate this logic that sorts and updates key values
-      const replacedKeys = Object.keys(filteredPdntDetails)
+      const replacedKeys = Object.keys(filteredPDNTDetails)
         .sort()
         .reduce((obj: any, key: string) => {
           // TODO: flatten recursive objects like subdomains, filter out for now
-          if (typeof allPdntDetails[key] === 'object') return obj;
-          obj[mapKeyToAttribute(key)] = allPdntDetails[key];
+          if (typeof allPDNTDetails[key] === 'object') return obj;
+          obj[mapKeyToAttribute(key)] = allPDNTDetails[key];
           return obj;
         }, {});
       setLimitDetails(compact ?? true);
-      setPdntDetails(replacedKeys);
+      setPDNTDetails(replacedKeys);
     } catch (error) {
       eventEmitter.emit('error', error);
-      setPdntDetails(undefined);
+      setPDNTDetails(undefined);
     } finally {
       setIsLoading(false);
     }
@@ -232,4 +232,4 @@ function PdntCard(props: PdnsMapping) {
   );
 }
 
-export default PdntCard;
+export default PDNTCard;

@@ -2,13 +2,13 @@ import type { Dispatch, SetStateAction } from 'react';
 
 import { PDNS_TX_ID_REGEX } from './utils/constants';
 
-export type PdnsRecordEntry = {
+export type PDNSRecordEntry = {
   contractTxId: string;
   tier: string;
   endTimestamp: number;
 };
 
-export type PdnsDomains = { [x: string]: PdnsRecordEntry };
+export type PDNSDomains = { [x: string]: PDNSRecordEntry };
 
 export type TransactionHeaders = {
   id: string;
@@ -29,8 +29,8 @@ export type TransactionTag = {
   value: string;
 };
 
-export type PdnsContractJSON = {
-  records: PdnsDomains;
+export type PDNSContractJSON = {
+  records: PDNSDomains;
   fees: { [x: number]: number };
   tiers: {
     current: {
@@ -50,7 +50,7 @@ export type PdnsContractJSON = {
   name: string;
   owner: ArweaveTransactionID | undefined;
   ticker: string;
-  approvedPDNTSourceCodeTxs: string[];
+  approvedANTSourceCodeTxs: string[];
 };
 
 export type PDNTContractDomainRecord = {
@@ -73,7 +73,7 @@ export type PDNTContractJSON = {
   ticker: string;
 };
 
-export type PdnsMapping = {
+export type PDNSMapping = {
   domain: string;
   id?: ArweaveTransactionID;
   state?: PDNTContractJSON;
@@ -85,19 +85,19 @@ export type PdnsMapping = {
   showTier?: boolean;
 };
 
-export type PdnsMetaData = {
+export type PDNSMetaData = {
   image?: string;
   expiration?: Date;
 };
 
-export type PdnsDomain = PdnsMapping & PdnsMetaData;
+export type PDNSDomain = PDNSMapping & PDNSMetaData;
 
 export type JsonWalletProvider = {
   key: any;
 };
 
 export interface SmartweaveContractCache {
-  getContractState<T extends PDNTContractJSON | PdnsContractJSON>(
+  getContractState<T extends PDNTContractJSON | PDNSContractJSON>(
     id: ArweaveTransactionID,
   ): Promise<T>;
   getContractBalanceForWallet(
@@ -158,7 +158,7 @@ export interface ArweaveDataProvider {
   getArPrice(data: number): Promise<number>;
 }
 
-export interface PdntInteractionProvider {
+export interface PDNTInteractionProvider {
   setOwner(id: ArweaveTransactionID): Promise<string>;
   setController(id: ArweaveTransactionID): Promise<string>;
   setTargetId(id: ArweaveTransactionID): Promise<string>;
@@ -177,7 +177,7 @@ export type SearchBarProps = {
   placeholderText?: string;
   headerElement?: JSX.Element;
   footerElement?: JSX.Element;
-  values?: { [x: string]: PdnsRecordEntry };
+  values?: { [x: string]: PDNSRecordEntry };
   value?: string;
   height?: number;
 };
@@ -224,24 +224,24 @@ export const MANAGE_TABLE_NAMES: Record<ManageTable, string> = {
 };
 
 export enum TRANSACTION_TYPES {
-  REGISTRY = 'Pdns Registry',
+  REGISTRY = 'PDNS Registry',
   PDNT = 'Arweave Name Token',
   TRANSFER = 'Transfer',
 }
 
 export enum CONTRACT_TYPES {
-  REGISTRY = 'Pdns Registry',
+  REGISTRY = 'PDNS Registry',
   PDNT = 'Arweave Name Token',
 }
 
 export enum ASSET_TYPES {
   PDNT = 'PDNT',
-  NAME = 'Pdns Name',
+  NAME = 'PDNS Name',
   UNDERNAME = 'Undername',
   COIN = 'coin',
 }
 export enum REGISTRY_INTERACTION_TYPES {
-  BUY_RECORD = 'Buy Pdns Name', //permabuy
+  BUY_RECORD = 'Buy PDNS Name', //permabuy
   EXTEND_LEASE = 'Extend Lease',
   UPGRADE_TIER = 'Upgrade Tier',
   TRANSFER = 'Transfer IO Tokens',
@@ -301,11 +301,11 @@ export type RemoveRecordPayload = {
   subDomain: string;
 };
 
-export type TransferPdntPayload = {
+export type TransferPDNTPayload = {
   target: string;
 };
 
-export type CreatePdntPayload = {
+export type CreatePDNTPayload = {
   srcCodeTransactionId: string;
   initialState: PDNTContractJSON;
   tags?: TransactionTag[];
@@ -326,7 +326,7 @@ export enum PDNT_INTERACTION_TYPES {
 
 export type ContractType = (typeof CONTRACT_TYPES)[keyof typeof CONTRACT_TYPES];
 
-export type PdntInteraction =
+export type PDNTInteraction =
   (typeof PDNT_INTERACTION_TYPES)[keyof typeof PDNT_INTERACTION_TYPES];
 export type RegistryInteraction =
   (typeof REGISTRY_INTERACTION_TYPES)[keyof typeof REGISTRY_INTERACTION_TYPES];
@@ -360,8 +360,8 @@ export type TransactionDataPayload =
   | SetNamePayload
   | SetRecordPayload
   | RemoveRecordPayload
-  | TransferPdntPayload
-  | CreatePdntPayload;
+  | TransferPDNTPayload
+  | CreatePDNTPayload;
 
 export type TransactionData = TransactionDataBasePayload &
   TransactionDataPayload;
@@ -371,7 +371,7 @@ export type TransactionDataConfig = { functionName: string; keys: string[] };
 export const TRANSACTION_DATA_KEYS: {
   // specifying interaction types to the correct contract type, to ensure clarity and to prevent crossover of interaction types
   [CONTRACT_TYPES.PDNT]: {
-    [K in PdntInteraction]: TransactionDataConfig;
+    [K in PDNTInteraction]: TransactionDataConfig;
   };
   [CONTRACT_TYPES.REGISTRY]: {
     [K in RegistryInteraction]: TransactionDataConfig;
@@ -473,7 +473,7 @@ export interface Equatable<T> {
   equals(other: T): boolean;
 }
 
-export type PdnsTableRow = {
+export type PDNSTableRow = {
   name: string;
   role: string;
   id: string;
@@ -483,7 +483,7 @@ export type PdnsTableRow = {
   key: string | number;
 };
 
-export type PdntMetadata = {
+export type PDNTMetadata = {
   name: string;
   id: string;
   target: string;
@@ -494,19 +494,19 @@ export type PdntMetadata = {
   key: number;
 };
 
-export type ManagePdntRow = {
+export type ManagePDNTRow = {
   attribute: string;
   value: string;
   editable: boolean;
   action: any;
   key: number;
-  interactionType?: PdntInteraction | RegistryInteraction;
+  interactionType?: PDNTInteraction | RegistryInteraction;
 };
 
 export enum VALIDATION_INPUT_TYPES {
   ARWEAVE_ID = 'Is valid Arweave Transaction (TX) ID',
   ARWEAVE_ADDRESS = 'Arweave Address',
-  PDNS_NAME = 'Pdns Name',
+  PDNS_NAME = 'PDNS Name',
   UNDERNAME = 'Undername',
   PDNT_CONTRACT_ID = 'Is a valid Arweave Name Token (PDNT)',
   // unfortunately we cannot use computed values in enums, so be careful if we ever modify this number

@@ -20,10 +20,10 @@ function RegisterNameForm() {
   const [{ pdnsSourceContract }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
 
-  const [isValidPdnt, setIsValidPdnt] = useState<boolean | undefined>(
+  const [isValidPDNT, setIsValidPDNT] = useState<boolean | undefined>(
     undefined,
   );
-  const [pdntTxID, setPdntTXId] = useState<string | undefined>(
+  const [pdntTxID, setPDNTTXId] = useState<string | undefined>(
     pdntID?.toString(),
   );
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -35,15 +35,15 @@ function RegisterNameForm() {
     }
     if (inputRef.current) {
       inputRef.current.focus();
-      handlePdntId(pdntID.toString());
+      handlePDNTId(pdntID.toString());
     }
   }, []);
 
   function reset() {
-    setIsValidPdnt(undefined);
-    setPdntTXId('');
+    setIsValidPDNT(undefined);
+    setPDNTTXId('');
     dispatchRegisterState({
-      type: 'setPdntID',
+      type: 'setPDNTID',
       payload: undefined,
     });
     dispatchRegisterState({
@@ -52,19 +52,19 @@ function RegisterNameForm() {
     });
   }
 
-  async function handlePdntId(id?: string) {
+  async function handlePDNTId(id?: string) {
     if (!id || !id.length) {
       reset();
       return;
     }
     if (id && id.length < 44) {
-      setPdntTXId(id);
+      setPDNTTXId(id);
     }
 
     try {
       const txId = new ArweaveTransactionID(id);
       dispatchRegisterState({
-        type: 'setPdntID',
+        type: 'setPDNTID',
         payload: txId,
       });
 
@@ -103,10 +103,10 @@ function RegisterNameForm() {
         payload: new ArweaveTransactionID(pdnt.getRecord('@').transactionId),
       });
 
-      setIsValidPdnt(true);
+      setIsValidPDNT(true);
     } catch (error: any) {
       dispatchRegisterState({
-        type: 'setPdntID',
+        type: 'setPDNTID',
         payload: undefined,
       });
       // don't emit here, since we have the validation
@@ -124,16 +124,16 @@ function RegisterNameForm() {
           <div className="input-group center column">
             <ValidationInput
               value={pdntTxID ?? ''}
-              setValue={(e: string) => handlePdntId(e)}
-              validityCallback={(isValid: boolean) => setIsValidPdnt(isValid)}
+              setValue={(e: string) => handlePDNTId(e)}
+              validityCallback={(isValid: boolean) => setIsValidPDNT(isValid)}
               wrapperClassName={'flex flex-column center'}
               wrapperCustomStyle={{ gap: '0.5em', boxSizing: 'border-box' }}
               showValidationIcon={true}
               inputClassName={'data-input center'}
               inputCustomStyle={
-                isValidPdnt && pdntTxID
+                isValidPDNT && pdntTxID
                   ? { border: 'solid 2px var(--success-green)', width: '100%' }
-                  : !isValidPdnt && pdntTxID
+                  : !isValidPDNT && pdntTxID
                   ? { border: 'solid 2px var(--error-red)', width: '100%' }
                   : {}
               }
@@ -146,7 +146,7 @@ function RegisterNameForm() {
                     id,
                     requiredTags: {
                       'Contract-Src':
-                        pdnsSourceContract.approvedPDNTSourceCodeTxs,
+                        pdnsSourceContract.approvedANTSourceCodeTxs,
                     },
                   }),
                 [VALIDATION_INPUT_TYPES.TRANSACTION_CONFIRMATIONS]: (

@@ -8,18 +8,18 @@ import {
   BuyRecordPayload,
   CONTRACT_TYPES,
   ContractType,
+  PDNTInteraction,
   PDNT_INTERACTION_TYPES,
-  PdntInteraction,
   REGISTRY_INTERACTION_TYPES,
   RegistryInteraction,
   TRANSACTION_DATA_KEYS,
   TransactionData,
 } from '../../../types';
 import {
-  getPdnsMappingByInteractionType,
+  getPDNSMappingByInteractionType,
   isObjectOfTransactionPayloadType,
 } from '../../../utils';
-import { PdntCard } from '../../cards';
+import { PDNTCard } from '../../cards';
 import DeployTransaction from '../DeployTransaction/DeployTransaction';
 import TransactionComplete from '../TransactionComplete/TransactionComplete';
 import Workflow, { WorkflowStage } from '../Workflow/Workflow';
@@ -38,7 +38,7 @@ function TransactionWorkflow({
   workflowStage,
 }: {
   contractType: ContractType;
-  interactionType: PdntInteraction | RegistryInteraction;
+  interactionType: PDNTInteraction | RegistryInteraction;
   transactionData: TransactionData;
   workflowStage: TRANSACTION_WORKFLOW_STATUS;
 }) {
@@ -147,7 +147,7 @@ function TransactionWorkflow({
     interactionType,
   }: {
     contractType: ContractType;
-    interactionType: PdntInteraction | RegistryInteraction;
+    interactionType: PDNTInteraction | RegistryInteraction;
   }): { [x: string]: { title: string; status: string } } {
     try {
       switch (contractType) {
@@ -256,10 +256,10 @@ function TransactionWorkflow({
     interactionType,
   }: {
     contractType: ContractType;
-    interactionType: PdntInteraction | RegistryInteraction;
+    interactionType: PDNTInteraction | RegistryInteraction;
   }): { [x: string]: WorkflowStage } | undefined {
     try {
-      const pdntProps = getPdnsMappingByInteractionType({
+      const pdntProps = getPDNSMappingByInteractionType({
         contractType,
         interactionType,
         transactionData,
@@ -276,7 +276,7 @@ function TransactionWorkflow({
             case PDNT_INTERACTION_TYPES.SET_NAME: {
               return {
                 pending: {
-                  component: <PdntCard {...pdntProps} />,
+                  component: <PDNTCard {...pdntProps} />,
                 },
                 confirmed: {
                   component: <DeployTransaction />,
@@ -326,7 +326,7 @@ function TransactionWorkflow({
                 throw Error('Payload is not valid.');
               return {
                 pending: {
-                  component: <PdntCard {...pdntProps} />,
+                  component: <PDNTCard {...pdntProps} />,
                   header: (
                     <>
                       <div className="flex flex-row text-large white bold center">

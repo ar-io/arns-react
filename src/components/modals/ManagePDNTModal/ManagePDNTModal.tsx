@@ -10,10 +10,10 @@ import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ArweaveTransactionID,
   CONTRACT_TYPES,
-  ManagePdntRow,
+  ManagePDNTRow,
+  PDNSRecordEntry,
   PDNTContractJSON,
   PDNT_INTERACTION_TYPES,
-  PdnsRecordEntry,
   TRANSACTION_TYPES,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
@@ -22,7 +22,7 @@ import {
   mapTransactionDataKeyToPayload,
 } from '../../../utils';
 import eventEmitter from '../../../utils/events';
-import { mapKeyToAttribute } from '../../cards/PdntCard/PdntCard';
+import { mapKeyToAttribute } from '../../cards/PDNTCard/PDNTCard';
 import { ArrowLeft, CloseIcon, PencilIcon } from '../../icons';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import TransactionStatus from '../../layout/TransactionStatus/TransactionStatus';
@@ -48,18 +48,18 @@ const ACTION_FIELDS: {
   },
 };
 
-function ManagePdntModal() {
+function ManagePDNTModal() {
   const { id } = useParams();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const [{ pdnsSourceContract }] = useGlobalState();
   const [{}, dispatchTransactionState] = useTransactionState(); // eslint-disable-line
-  const [pdntState, setPdntState] = useState<PDNTContract>();
-  const [pdntName, setPdntName] = useState<string>();
+  const [pdntState, setPDNTState] = useState<PDNTContract>();
+  const [pdntName, setPDNTName] = useState<string>();
   const [editingField, setEditingField] = useState<string>();
   const [modifiedValue, setModifiedValue] = useState<string | number>();
-  const [rows, setRows] = useState<ManagePdntRow[]>([]);
+  const [rows, setRows] = useState<ManagePDNTRow[]>([]);
 
   useEffect(() => {
     try {
@@ -67,7 +67,7 @@ function ManagePdntModal() {
         throw Error('No id provided.');
       }
       const txId = new ArweaveTransactionID(id);
-      fetchPdntDetails(txId);
+      fetchPDNTDetails(txId);
     } catch (error) {
       eventEmitter.emit('error', error);
       navigate('/manage');
@@ -76,20 +76,20 @@ function ManagePdntModal() {
 
   function getAssociatedNames(txId: ArweaveTransactionID) {
     return Object.entries(pdnsSourceContract.records)
-      .map(([name, recordEntry]: [string, PdnsRecordEntry]) => {
+      .map(([name, recordEntry]: [string, PDNSRecordEntry]) => {
         if (recordEntry.contractTxId === txId.toString()) return name;
       })
       .filter((n) => !!n);
   }
 
-  async function fetchPdntDetails(txId: ArweaveTransactionID) {
+  async function fetchPDNTDetails(txId: ArweaveTransactionID) {
     const names = getAssociatedNames(txId);
     const [contractState, confirmations] = await Promise.all([
       arweaveDataProvider.getContractState<PDNTContractJSON>(txId),
       arweaveDataProvider.getTransactionStatus(txId),
     ]);
     const pdnt = new PDNTContract(contractState);
-    setPdntState(pdnt);
+    setPDNTState(pdnt);
     const record = Object.values(pdnsSourceContract.records).find(
       (r) => r.contractTxId === txId.toString(),
     );
@@ -97,13 +97,13 @@ function ManagePdntModal() {
       (t) => t.id === record?.tier,
     );
     // TODO: add error messages and reload state to row
-    const consolidatedDetails: ManagePdntRow & any = {
+    const consolidatedDetails: ManagePDNTRow & any = {
       status: confirmations ?? 0,
       associatedNames: !names.length ? 'N/A' : names.join(', '),
       name: pdnt.name ?? 'N/A',
       ticker: pdnt.ticker ?? 'N/A',
-      targetID: pdnt.getRecord('@').transactionId ?? 'N/A',
-      ttlSeconds: pdnt.getRecord('@').ttlSeconds,
+      targetID: pdnt.getRecord('@')?.transactionId ?? 'N/A',
+      ttlSeconds: pdnt.getRecord('@')?.ttlSeconds,
       controller:
         contractState.controllers?.join(', ') ??
         contractState.owner?.toString() ??
@@ -113,10 +113,10 @@ function ManagePdntModal() {
     };
 
     const rows = Object.keys(consolidatedDetails).reduce(
-      (details: ManagePdntRow[], attribute: string, index: number) => {
+      (details: ManagePDNTRow[], attribute: string, index: number) => {
         const detail = {
           attribute,
-          value: consolidatedDetails[attribute as keyof ManagePdntRow],
+          value: consolidatedDetails[attribute as keyof ManagePDNTRow],
           editable: EDITABLE_FIELDS.includes(attribute),
           action: ACTION_FIELDS[attribute] ?? undefined, // navigate to transaction route with details
           key: index,
@@ -127,7 +127,7 @@ function ManagePdntModal() {
       },
       [],
     );
-    setPdntName(contractState.name ?? id);
+    setPDNTName(contractState.name ?? id);
     setRows(rows);
   }
 
@@ -170,7 +170,7 @@ function ManagePdntModal() {
         <Table
           showHeader={false}
           style={{ width: '100%' }}
-          onRow={(row: ManagePdntRow) => ({
+          onRow={(row: ManagePDNTRow) => ({
             className: row.attribute === editingField ? 'active-row' : '',
           })}
           scroll={{ x: true }}
@@ -378,4 +378,4 @@ function ManagePdntModal() {
   );
 }
 
-export default ManagePdntModal;
+export default ManagePDNTModal;
