@@ -296,9 +296,9 @@ export function getInteractionTypeFromField(field: string) {
 export function mapTransactionDataKeyToPayload(
   contractType: ContractType,
   interactionType: AntInteraction | RegistryInteraction,
-  data: string | string[],
+  data: string | number | Array<string | number>,
 ): TransactionData | undefined {
-  const txData = typeof data === 'string' ? [data] : [...data];
+  const txData = typeof data === 'object' ? [...data] : [data];
   const payload: any = {};
   // TODO refactor this util and types to be more generic... currently we are implementing dependent on each type, change to not have to do that. Check Mati's types.
   if (!data) {

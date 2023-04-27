@@ -316,9 +316,7 @@ function ManageAntModal() {
                                     [
                                       '@',
                                       modifiedValue!.toString(),
-                                      antState!.records[
-                                        '@'
-                                      ].ttlSeconds.toString(),
+                                      antState!.records['@'].ttlSeconds,
                                     ],
                                   )
                                 : mapTransactionDataKeyToPayload(
