@@ -26,15 +26,15 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
   const { walletAddress } = useWalletAddress();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] = useState<keyof ArNSTableRow>('status');
-  const [selectedRow, setSelectedRow] = useState<ArNSTableRow>(); // eslint-disable-line
+  const [selectedRow] = useState<ArNSTableRow>();
   const [rows, setRows] = useState<ArNSTableRow[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [percent, setPercentLoaded] = useState<number | undefined>();
 
   useEffect(() => {
     if (ids.length) {
       setIsLoading(true);
-      fetchAntRows(ids).finally(() => setIsLoading(false));
+      fetchAntRows(ids);
     }
   }, [ids]);
 
@@ -336,13 +336,14 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
           key: `${domain.name}-${txId.toString()}`,
         }));
         fetchedRows.push(...rowData);
+        // sort by confirmations by default
+        fetchedRows.sort((a, b) => a.status - b.status);
       } catch (error) {
         eventEmitter.emit('error', error);
       } finally {
-        // sort by confirmations by default
-        fetchedRows.sort((a, b) => a.status - b.status);
         setPercentLoaded(((index + 1) / ids.length) * 100);
         setRows(fetchedRows);
+        setIsLoading(false);
       }
     }
   }

@@ -143,11 +143,7 @@ function Manage() {
       setAntIDs(ids);
     } catch (error: any) {
       eventEmitter.emit('error', error);
-    } finally {
-      // prevent jitter
-      setTimeout(() => {
-        setTableLoading(false);
-      }, 500);
+      setTableLoading(false);
     }
   }
 
@@ -242,7 +238,7 @@ function Manage() {
         ) : (
           <>
             <Table
-              scroll={{ x: true }}
+              scroll={antIds.length ? { x: true } : {}}
               columns={tableColumns}
               data={filteredTableData}
             />

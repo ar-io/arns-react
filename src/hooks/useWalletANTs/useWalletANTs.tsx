@@ -31,13 +31,12 @@ export function useWalletANTs(ids: ArweaveTransactionID[]) {
   const [sortField, setSortField] = useState<keyof AntMetadata>('status');
   const [selectedRow, setSelectedRow] = useState<AntMetadata>();
   const [rows, setRows] = useState<AntMetadata[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [percent, setPercentLoaded] = useState<number | undefined>();
 
   useEffect(() => {
     if (ids.length) {
-      setIsLoading(true);
-      fetchAntRows(ids).finally(() => setIsLoading(false));
+      fetchAntRows(ids);
     }
   }, [ids]);
 
@@ -289,6 +288,7 @@ export function useWalletANTs(ids: ArweaveTransactionID[]) {
   async function fetchAntRows(ids: ArweaveTransactionID[]) {
     const fetchedRows: AntMetadata[] = [];
     for (const [index, id] of ids.entries()) {
+      setIsLoading(true);
       try {
         const [contractState, confirmations] = await Promise.all([
           arweaveDataProvider.getContractState<ANTContractJSON>(id),
@@ -312,13 +312,14 @@ export function useWalletANTs(ids: ArweaveTransactionID[]) {
           key: index,
         };
         fetchedRows.push(rowData);
+        // sort by confirmation count (ASC) by default
+        fetchedRows.sort((a, b) => a.status - b.status);
       } catch (error) {
         eventEmitter.emit('error', error);
       } finally {
-        // sort by confirmation count (ASC) by default
-        fetchedRows.sort((a, b) => a.status - b.status);
         setPercentLoaded(((index + 1) / ids.length) * 100);
         setRows(fetchedRows);
+        setIsLoading(false);
       }
     }
   }
