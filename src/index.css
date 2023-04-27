@@ -543,21 +543,21 @@ input[type='text']:disabled {
 }
 
 /* pagination classes */
-[class*='pdnt-pagination-'] {
+[class*='ant-pagination-'] {
   color: var(--text-bright-white) !important;
 }
 
-.pdnt-pagination-item {
+.ant-pagination-item {
   border-radius: 2px !important;
   border-color: var(--text-bright-white) !important;
   background-color: transparent !important;
   color: white !important;
 }
 
-.pdnt-pagination-item > a {
+.ant-pagination-item > a {
   color: white !important;
 }
 
-.pdnt-pagination-item-active > a {
+.ant-pagination-item-active > a {
   background-color: var(--text-faded) !important;
 }
