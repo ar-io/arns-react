@@ -5,7 +5,7 @@ import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { NAME_PRICE_INFO, SMARTWEAVE_TAG_SIZE } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
-import { AntCard } from '../../cards';
+import { PDNTCard } from '../../cards';
 import ArPrice from '../ArPrice/ArPrice';
 import Loader from '../Loader/Loader';
 import { Tooltip } from '../Tooltip/Tooltip';
@@ -13,23 +13,23 @@ import './styles.css';
 
 function ConfirmRegistration() {
   const [
-    { domain, ttl, tier, leaseDuration, antID, fee, stage },
+    { domain, ttl, tier, leaseDuration, pdntID, fee, stage },
     dispatchRegistrationState,
   ] = useRegistrationState();
   const arweaveDataProvider = useArweaveCompositeProvider();
-  const [{ arnsSourceContract, arnsContractId }] = useGlobalState();
+  const [{ pdnsSourceContract, pdnsContractId }] = useGlobalState();
   const [isPostingTransaction, setIsPostingTransaction] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
   useEffect(() => {
-    if (!antID) {
+    if (!pdntID) {
       return;
     }
     // TODO: probably no longer necessary since we do the validations before rendering this component
     arweaveDataProvider
       .validateTransactionTags({
-        id: antID.toString(),
+        id: pdntID.toString(),
         requiredTags: {
-          'Contract-Src': arnsSourceContract.approvedANTSourceCodeTxs,
+          'Contract-Src': pdnsSourceContract.approvedANTSourceCodeTxs,
         },
       })
       .then(() => {
@@ -39,20 +39,20 @@ function ConfirmRegistration() {
         eventEmitter.emit('error', error);
         setIsConfirmed(false);
       });
-  }, [antID, arnsContractId]);
+  }, [pdntID, pdnsContractId]);
 
-  async function buyArnsName() {
+  async function buyPDNSName() {
     try {
       setIsPostingTransaction(true);
-      if (!antID) {
+      if (!pdntID) {
         return;
       }
       const pendingTXId = await arweaveDataProvider.writeTransaction(
-        arnsContractId,
+        pdnsContractId,
         {
           function: 'buyRecord',
           name: domain,
-          contractTxId: antID.toString(),
+          contractTxId: pdntID.toString(),
         },
       );
       if (pendingTXId) {
@@ -89,9 +89,9 @@ function ConfirmRegistration() {
           <Loader size={80} />
         ) : isConfirmed ? (
           <>
-            <AntCard
+            <PDNTCard
               domain={domain ?? ''}
-              id={antID ? antID : undefined}
+              id={pdntID ? pdntID : undefined}
               compact={false}
               enableActions={false}
               overrides={{
@@ -136,9 +136,9 @@ function ConfirmRegistration() {
             {isConfirmed ? (
               <button
                 className="accent-button"
-                disabled={!antID || !isConfirmed}
+                disabled={!pdntID || !isConfirmed}
                 onClick={() => {
-                  buyArnsName();
+                  buyPDNSName();
                 }}
               >
                 Confirm

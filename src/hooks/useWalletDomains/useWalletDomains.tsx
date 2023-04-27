@@ -13,28 +13,27 @@ import TransactionStatus from '../../components/layout/TransactionStatus/Transac
 import { useArweaveCompositeProvider, useWalletAddress } from '../../hooks';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import {
-  ANTContractJSON,
-  ArNSRecordEntry,
-  ArNSTableRow,
   ArweaveTransactionID,
+  PDNSRecordEntry,
+  PDNSTableRow,
+  PDNTContractJSON,
 } from '../../types';
 import eventEmitter from '../../utils/events';
 
 export function useWalletDomains(ids: ArweaveTransactionID[]) {
-  const [{ gateway, arnsSourceContract }] = useGlobalState();
+  const [{ gateway, pdnsSourceContract }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const { walletAddress } = useWalletAddress();
   const [sortAscending, setSortOrder] = useState(true);
-  const [sortField, setSortField] = useState<keyof ArNSTableRow>('status');
-  const [selectedRow] = useState<ArNSTableRow>();
-  const [rows, setRows] = useState<ArNSTableRow[]>([]);
+  const [sortField, setSortField] = useState<keyof PDNSTableRow>('status');
+  const [selectedRow] = useState<PDNSTableRow>();
+  const [rows, setRows] = useState<PDNSTableRow[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [percent, setPercentLoaded] = useState<number | undefined>();
 
   useEffect(() => {
     if (ids.length) {
-      setIsLoading(true);
-      fetchAntRows(ids);
+      fetchPDNTRows(ids);
     }
   }, [ids]);
 
@@ -86,7 +85,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              rows.sort((a: ArNSTableRow, b: ArNSTableRow) =>
+              rows.sort((a: PDNSTableRow, b: PDNSTableRow) =>
                 // by default we sort by name
                 !sortAscending
                   ? a.name.localeCompare(b.name)
@@ -129,7 +128,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              rows.sort((a: ArNSTableRow, b: ArNSTableRow) =>
+              rows.sort((a: PDNSTableRow, b: PDNSTableRow) =>
                 !sortAscending
                   ? a.role.localeCompare(b.role)
                   : b.role.localeCompare(a.role),
@@ -172,7 +171,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              rows.sort((a: ArNSTableRow, b: ArNSTableRow) =>
+              rows.sort((a: PDNSTableRow, b: PDNSTableRow) =>
                 sortAscending ? +a.tier - +b.tier : +b.tier - +a.tier,
               );
               // forces update of rows
@@ -216,7 +215,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              rows.sort((a: ArNSTableRow, b: ArNSTableRow) =>
+              rows.sort((a: PDNSTableRow, b: PDNSTableRow) =>
                 sortAscending
                   ? a.expiration.getTime() - b.expiration.getTime()
                   : b.expiration.getTime() - a.expiration.getTime(),
@@ -295,15 +294,15 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
     ];
   }
 
-  async function fetchAntRows(ids: ArweaveTransactionID[]) {
-    const { records } = arnsSourceContract;
-
-    const fetchedRows: ArNSTableRow[] = [];
+  async function fetchPDNTRows(ids: ArweaveTransactionID[]) {
+    const { records } = pdnsSourceContract;
+    const fetchedRows: PDNSTableRow[] = [];
+    setIsLoading(true);
     for (const [index, txId] of ids.entries()) {
       try {
-        const associatedNames: (ArNSRecordEntry & { name: string })[] =
+        const associatedNames: (PDNSRecordEntry & { name: string })[] =
           Object.entries(records)
-            .map(([name, recordEntry]: [string, ArNSRecordEntry]) => {
+            .map(([name, recordEntry]: [string, PDNSRecordEntry]) => {
               if (recordEntry.contractTxId === txId.toString()) {
                 return {
                   ...recordEntry,
@@ -311,9 +310,9 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
                 };
               }
             })
-            .filter((n) => !!n) as (ArNSRecordEntry & { name: string })[];
+            .filter((n) => !!n) as (PDNSRecordEntry & { name: string })[];
         const [contractState, confirmations] = await Promise.all([
-          arweaveDataProvider.getContractState<ANTContractJSON>(txId),
+          arweaveDataProvider.getContractState<PDNTContractJSON>(txId),
           arweaveDataProvider.getTransactionStatus(txId),
         ]);
         // TODO: add error messages and reload state to row
@@ -329,9 +328,9 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
           expiration: new Date(domain.endTimestamp * 1000),
           status: confirmations ?? 0,
           tier:
-            Object.keys(arnsSourceContract.tiers.current).find(
+            Object.keys(pdnsSourceContract.tiers.current).find(
               (k: string) =>
-                arnsSourceContract.tiers.current[+k] === domain.tier,
+                pdnsSourceContract.tiers.current[+k] === domain.tier,
             ) ?? 1,
           key: `${domain.name}-${txId.toString()}`,
         }));

@@ -1,11 +1,11 @@
 import {
-  ANTContractDomainRecord,
-  ANTContractJSON,
   ArweaveTransactionID,
+  PDNTContractDomainRecord,
+  PDNTContractJSON,
 } from '../../types';
 import {
-  DEFAULT_ANT_CONTRACT_STATE,
   DEFAULT_MAX_UNDERNAMES,
+  DEFAULT_PDNT_CONTRACT_STATE,
   DEFAULT_TTL_SECONDS,
 } from '../../utils/constants';
 
@@ -15,17 +15,17 @@ import {
  * - add validations and checks on setters
  * - include additional attributes like evolve to getters/setters
  */
-export class ANTContract {
+export class PDNTContract {
   id?: ArweaveTransactionID;
-  contract: ANTContractJSON;
-  // todo: add last updated - lastUpdated: Map<keyof AntContract, number> = new Map();
+  contract: PDNTContractJSON;
+  // todo: add last updated - lastUpdated: Map<keyof PDNTContract, number> = new Map();
 
-  constructor(state?: ANTContractJSON, id?: ArweaveTransactionID) {
+  constructor(state?: PDNTContractJSON, id?: ArweaveTransactionID) {
     this.id = id;
     if (state) {
       this.contract = { ...state };
     } else {
-      this.contract = { ...DEFAULT_ANT_CONTRACT_STATE };
+      this.contract = { ...DEFAULT_PDNT_CONTRACT_STATE };
     }
   }
   get owner() {
@@ -56,8 +56,8 @@ export class ANTContract {
     this.contract.ticker = ticker;
   }
 
-  // TODO: this should be refactored when we are ready to not support ants that do not comply with the new ANT spec
-  get records(): { [x: string]: ANTContractDomainRecord } {
+  // TODO: this should be refactored when we are ready to not support pdnts that do not comply with the new PDNT spec
+  get records(): { [x: string]: PDNTContractDomainRecord } {
     return Object.keys(this.contract.records).reduce(
       (records, r) => ({
         ...records,
@@ -66,7 +66,7 @@ export class ANTContract {
       {},
     );
   }
-  set records(records: { [x: string]: ANTContractDomainRecord }) {
+  set records(records: { [x: string]: PDNTContractDomainRecord }) {
     for (const [
       domain,
       { transactionId, maxUndernames, ttlSeconds },
@@ -85,7 +85,7 @@ export class ANTContract {
     }
   }
 
-  getRecord(name: string): ANTContractDomainRecord {
+  getRecord(name: string): PDNTContractDomainRecord {
     if (typeof this.contract.records[name] == 'string') {
       return {
         ttlSeconds: DEFAULT_TTL_SECONDS,
@@ -93,7 +93,7 @@ export class ANTContract {
         maxUndernames: DEFAULT_MAX_UNDERNAMES,
       };
     }
-    return this.contract.records[name] as ANTContractDomainRecord;
+    return this.contract.records[name] as PDNTContractDomainRecord;
   }
 
   get balances() {
@@ -122,7 +122,7 @@ export class ANTContract {
   get state() {
     return this.contract;
   }
-  get antId(): string | undefined {
-    return this.antId?.toString();
+  get pdntId(): string | undefined {
+    return this.pdntId?.toString();
   }
 }

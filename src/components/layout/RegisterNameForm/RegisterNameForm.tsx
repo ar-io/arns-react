@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { useArweaveCompositeProvider } from '../../../hooks';
-import { ANTContract } from '../../../services/arweave/AntContract';
+import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import {
-  ANTContractJSON,
   ArweaveTransactionID,
+  PDNTContractJSON,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import Dropdown from '../../inputs/Dropdown/Dropdown';
@@ -15,31 +15,35 @@ import UpgradeTier from '../UpgradeTier/UpgradeTier';
 import './styles.css';
 
 function RegisterNameForm() {
-  const [{ domain, ttl, antID }, dispatchRegisterState] =
+  const [{ domain, ttl, pdntID }, dispatchRegisterState] =
     useRegistrationState();
-  const [{ arnsSourceContract }] = useGlobalState();
+  const [{ pdnsSourceContract }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
 
-  const [isValidAnt, setIsValidAnt] = useState<boolean | undefined>(undefined);
-  const [antTxID, setAntTXId] = useState<string | undefined>(antID?.toString());
+  const [isValidPDNT, setIsValidPDNT] = useState<boolean | undefined>(
+    undefined,
+  );
+  const [pdntTxID, setPDNTTXId] = useState<string | undefined>(
+    pdntID?.toString(),
+  );
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (!antID) {
+    if (!pdntID) {
       reset();
       return;
     }
     if (inputRef.current) {
       inputRef.current.focus();
-      handleAntId(antID.toString());
+      handlePDNTId(pdntID.toString());
     }
   }, []);
 
   function reset() {
-    setIsValidAnt(undefined);
-    setAntTXId('');
+    setIsValidPDNT(undefined);
+    setPDNTTXId('');
     dispatchRegisterState({
-      type: 'setAntID',
+      type: 'setPDNTID',
       payload: undefined,
     });
     dispatchRegisterState({
@@ -48,62 +52,61 @@ function RegisterNameForm() {
     });
   }
 
-  async function handleAntId(id?: string) {
+  async function handlePDNTId(id?: string) {
     if (!id || !id.length) {
       reset();
       return;
     }
     if (id && id.length < 44) {
-      setAntTXId(id);
+      setPDNTTXId(id);
     }
 
     try {
       const txId = new ArweaveTransactionID(id);
       dispatchRegisterState({
-        type: 'setAntID',
+        type: 'setPDNTID',
         payload: txId,
       });
 
-      const state = await arweaveDataProvider.getContractState<ANTContractJSON>(
-        txId,
-      );
+      const state =
+        await arweaveDataProvider.getContractState<PDNTContractJSON>(txId);
       if (state == undefined) {
-        throw Error('ANT contract state is undefined');
+        throw Error('PDNT contract state is undefined');
       }
 
-      const ant = new ANTContract(state);
+      const pdnt = new PDNTContract(state);
       dispatchRegisterState({
         type: 'setControllers',
         payload: [
-          ant.controller
-            ? new ArweaveTransactionID(ant.controller)
-            : new ArweaveTransactionID(ant.owner),
+          pdnt.controller
+            ? new ArweaveTransactionID(pdnt.controller)
+            : new ArweaveTransactionID(pdnt.owner),
         ],
       });
-      // update to use ANTContract
+      // update to use PDNTContract
       dispatchRegisterState({
         type: 'setNickname',
-        payload: ant.name,
+        payload: pdnt.name,
       });
       dispatchRegisterState({
         type: 'setOwner',
-        payload: new ArweaveTransactionID(ant.owner),
+        payload: new ArweaveTransactionID(pdnt.owner),
       });
       dispatchRegisterState({
         type: 'setTicker',
-        payload: ant.ticker,
+        payload: pdnt.ticker,
       });
       // legacy targetID condition
 
       dispatchRegisterState({
         type: 'setTargetID',
-        payload: new ArweaveTransactionID(ant.getRecord('@').transactionId),
+        payload: new ArweaveTransactionID(pdnt.getRecord('@').transactionId),
       });
 
-      setIsValidAnt(true);
+      setIsValidPDNT(true);
     } catch (error: any) {
       dispatchRegisterState({
-        type: 'setAntID',
+        type: 'setPDNTID',
         payload: undefined,
       });
       // don't emit here, since we have the validation
@@ -120,30 +123,30 @@ function RegisterNameForm() {
         <div className="register-inputs center">
           <div className="input-group center column">
             <ValidationInput
-              value={antTxID ?? ''}
-              setValue={(e: string) => handleAntId(e)}
-              validityCallback={(isValid: boolean) => setIsValidAnt(isValid)}
+              value={pdntTxID ?? ''}
+              setValue={(e: string) => handlePDNTId(e)}
+              validityCallback={(isValid: boolean) => setIsValidPDNT(isValid)}
               wrapperClassName={'flex flex-column center'}
               wrapperCustomStyle={{ gap: '0.5em', boxSizing: 'border-box' }}
               showValidationIcon={true}
               inputClassName={'data-input center'}
               inputCustomStyle={
-                isValidAnt && antTxID
+                isValidPDNT && pdntTxID
                   ? { border: 'solid 2px var(--success-green)', width: '100%' }
-                  : !isValidAnt && antTxID
+                  : !isValidPDNT && pdntTxID
                   ? { border: 'solid 2px var(--error-red)', width: '100%' }
                   : {}
               }
-              placeholder={'Enter an ANT Contract ID Validation Input'}
+              placeholder={'Enter an PDNT Contract ID Validation Input'}
               validationPredicates={{
                 [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: (id: string) =>
                   arweaveDataProvider.validateArweaveId(id),
-                [VALIDATION_INPUT_TYPES.ANT_CONTRACT_ID]: (id: string) =>
+                [VALIDATION_INPUT_TYPES.PDNT_CONTRACT_ID]: (id: string) =>
                   arweaveDataProvider.validateTransactionTags({
                     id,
                     requiredTags: {
                       'Contract-Src':
-                        arnsSourceContract.approvedANTSourceCodeTxs,
+                        pdnsSourceContract.approvedANTSourceCodeTxs,
                     },
                   }),
                 [VALIDATION_INPUT_TYPES.TRANSACTION_CONFIRMATIONS]: (

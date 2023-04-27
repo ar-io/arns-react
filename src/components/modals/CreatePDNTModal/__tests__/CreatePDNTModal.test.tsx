@@ -1,7 +1,7 @@
 import { act, cleanup, render } from '@testing-library/react';
 import { HashRouter as Router } from 'react-router-dom';
 
-import CreateAntModal from '../CreateAntModal';
+import CreatePDNTModal from '../CreatePDNTModal';
 
 describe('Create', () => {
   afterEach(cleanup);
@@ -10,7 +10,7 @@ describe('Create', () => {
     await act(async () =>
       render(
         <Router>
-          <CreateAntModal />
+          <CreatePDNTModal />
         </Router>,
       ),
     );

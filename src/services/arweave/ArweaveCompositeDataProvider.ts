@@ -1,8 +1,8 @@
 import {
-  ANTContractJSON,
-  ArNSContractJSON,
   ArweaveDataProvider,
   ArweaveTransactionID,
+  PDNSContractJSON,
+  PDNTContractJSON,
   SmartweaveContractCache,
   SmartweaveContractInteractionProvider,
   TransactionTag,
@@ -35,7 +35,7 @@ export class ArweaveCompositeDataProvider
     return this._arweaveProvider.getWalletBalance(id);
   }
 
-  async getContractState<T extends ArNSContractJSON | ANTContractJSON>(
+  async getContractState<T extends PDNSContractJSON | PDNTContractJSON>(
     id: ArweaveTransactionID,
   ): Promise<T> {
     return Promise.any(
@@ -110,7 +110,7 @@ export class ArweaveCompositeDataProvider
     tags,
   }: {
     srcCodeTransactionId: ArweaveTransactionID;
-    initialState: ANTContractJSON;
+    initialState: PDNTContractJSON;
     tags?: TransactionTag[];
   }): Promise<string> {
     return await this._interactionProvider.deployContract({
