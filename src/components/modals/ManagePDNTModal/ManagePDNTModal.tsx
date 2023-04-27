@@ -21,6 +21,7 @@ import {
   getInteractionTypeFromField,
   mapTransactionDataKeyToPayload,
 } from '../../../utils';
+import { STUB_ARWEAVE_TXID } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { mapKeyToAttribute } from '../../cards/PDNTCard/PDNTCard';
 import { ArrowLeft, CloseIcon, PencilIcon } from '../../icons';
@@ -317,6 +318,20 @@ function ManagePDNTModal() {
                                       '@',
                                       modifiedValue!.toString(),
                                       pdntState!.records['@'].ttlSeconds,
+                                    ],
+                                  )
+                                : row.interactionType ===
+                                  PDNT_INTERACTION_TYPES.SET_TTL_SECONDS
+                                ? mapTransactionDataKeyToPayload(
+                                    CONTRACT_TYPES.PDNT,
+                                    row.interactionType,
+                                    [
+                                      '@',
+                                      pdntState!.records['@'].transactionId
+                                        .length
+                                        ? pdntState!.records['@'].transactionId
+                                        : STUB_ARWEAVE_TXID,
+                                      modifiedValue!,
                                     ],
                                   )
                                 : mapTransactionDataKeyToPayload(

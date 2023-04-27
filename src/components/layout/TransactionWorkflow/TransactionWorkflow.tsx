@@ -235,6 +235,13 @@ function TransactionWorkflow({
                 3: { title: 'Complete', status: '' },
               };
             }
+            case PDNT_INTERACTION_TYPES.SET_TTL_SECONDS: {
+              return {
+                1: { title: 'Confirm TTL Seconds', status: 'pending' },
+                2: { title: 'Deploy TTL Seconds Change', status: '' },
+                3: { title: 'Complete', status: '' },
+              };
+            }
             default:
               throw new Error(
                 `Invalid workflow stage (${workflowStage}), workflow stage must be a number between 1 and 4`,
@@ -271,6 +278,7 @@ function TransactionWorkflow({
       switch (contractType) {
         case CONTRACT_TYPES.PDNT: {
           switch (interactionType) {
+            case PDNT_INTERACTION_TYPES.SET_TTL_SECONDS:
             case PDNT_INTERACTION_TYPES.SET_TARGET_ID:
             case PDNT_INTERACTION_TYPES.SET_TICKER:
             case PDNT_INTERACTION_TYPES.SET_NAME: {

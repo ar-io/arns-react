@@ -274,6 +274,38 @@ export function getPDNSMappingByInteractionType(
             ],
           };
         }
+        case PDNT_INTERACTION_TYPES.SET_TTL_SECONDS: {
+          if (
+            !isObjectOfTransactionPayloadType<SetRecordPayload>(
+              transactionData,
+              TRANSACTION_DATA_KEYS[CONTRACT_TYPES.PDNT][
+                PDNT_INTERACTION_TYPES.SET_TTL_SECONDS
+              ].keys,
+            )
+          ) {
+            throw new Error(
+              `transaction data not of correct payload type <SetRecordPayload> keys: ${Object.keys(
+                transactionData,
+              )}`,
+            );
+          }
+          return {
+            domain: '',
+            showTier: false,
+            compact: false,
+            id: new ArweaveTransactionID(transactionData.assetId),
+            overrides: {
+              ttlSeconds: transactionData.ttlSeconds,
+            },
+            disabledKeys: [
+              'evolve',
+              'maxSubdomains',
+              'domain',
+              'leaseDuration',
+              'tier',
+            ],
+          };
+        }
       }
     }
   }
@@ -285,6 +317,7 @@ export const FieldToInteractionMap: {
   name: PDNT_INTERACTION_TYPES.SET_NAME,
   ticker: PDNT_INTERACTION_TYPES.SET_TICKER,
   targetID: PDNT_INTERACTION_TYPES.SET_TARGET_ID,
+  ttlSeconds: PDNT_INTERACTION_TYPES.SET_TTL_SECONDS,
   // TODO: add other interactions
 };
 
