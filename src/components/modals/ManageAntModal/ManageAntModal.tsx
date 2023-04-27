@@ -9,19 +9,22 @@ import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ANTContractJSON,
+  ANT_INTERACTION_TYPES,
   ArNSRecordEntry,
   ArweaveTransactionID,
   CONTRACT_TYPES,
   ManageAntRow,
   TRANSACTION_TYPES,
+  VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import {
   getInteractionTypeFromField,
-  getTransactionPayloadByInteractionType,
+  mapTransactionDataKeyToPayload,
 } from '../../../utils';
 import eventEmitter from '../../../utils/events';
 import { mapKeyToAttribute } from '../../cards/AntCard/AntCard';
 import { ArrowLeft, CloseIcon, PencilIcon } from '../../icons';
+import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import TransactionStatus from '../../layout/TransactionStatus/TransactionStatus';
 
 const EDITABLE_FIELDS = [
@@ -52,9 +55,10 @@ function ManageAntModal() {
   const arweaveDataProvider = useArweaveCompositeProvider();
   const [{ arnsSourceContract }] = useGlobalState();
   const [{}, dispatchTransactionState] = useTransactionState(); // eslint-disable-line
+  const [antState, setAntState] = useState<ANTContract>();
   const [antName, setAntName] = useState<string>();
   const [editingField, setEditingField] = useState<string>();
-  const [modifiedValue, setModifiedValue] = useState<string>();
+  const [modifiedValue, setModifiedValue] = useState<string | number>();
   const [rows, setRows] = useState<ManageAntRow[]>([]);
 
   useEffect(() => {
@@ -85,6 +89,7 @@ function ManageAntModal() {
       arweaveDataProvider.getTransactionStatus(txId),
     ]);
     const ant = new ANTContract(contractState);
+    setAntState(ant);
     const record = Object.values(arnsSourceContract.records).find(
       (r) => r.contractTxId === txId.toString(),
     );
@@ -200,33 +205,70 @@ function ManageAntModal() {
                   return (
                     <>
                       {/* TODO: add label for mobile view */}
-                      <input
-                        id={row.attribute}
-                        style={{
-                          width: '80%',
+
+                      <ValidationInput
+                        showValidationIcon={true}
+                        showValidationOutline={true}
+                        inputId={row.attribute + '-input'}
+                        inputType={
+                          row.attribute === 'ttlSeconds' ? 'number' : undefined
+                        }
+                        minNumber={100}
+                        maxNumber={1000000}
+                        onClick={() => {
+                          setEditingField(row.attribute);
+                          setModifiedValue(value);
+                        }}
+                        inputClassName={'flex'}
+                        inputCustomStyle={{
+                          width: '100%',
+                          border: 'none',
+                          overflow: 'hidden',
                           fontSize: '16px',
+                          outline: 'none',
+                          borderRadius: 'var(--corner-radius)',
                           background:
                             editingField === row.attribute
                               ? 'white'
                               : 'transparent',
-                          border:
-                            editingField === row.attribute
-                              ? '2px solid #E0E0E0'
-                              : 'none',
-                          borderRadius: '2px',
                           color:
                             editingField === row.attribute ? 'black' : 'white',
                           padding:
                             editingField === row.attribute
-                              ? '10px '
+                              ? '10px 40px 10px 10px'
                               : '10px 0px',
-                          display: 'block',
+                          display: 'flex',
                         }}
                         disabled={editingField !== row.attribute}
+                        placeholder={`Enter a ${mapKeyToAttribute(
+                          row.attribute,
+                        )}`}
                         value={
-                          editingField !== row.attribute ? value : modifiedValue
+                          editingField === row.attribute
+                            ? modifiedValue
+                            : row.value
                         }
-                        onChange={(e) => setModifiedValue(e.target.value)}
+                        setValue={(e) => {
+                          if (row.attribute === editingField) {
+                            setModifiedValue(e);
+                          }
+                        }}
+                        validityCallback={(valid: boolean) => {
+                          row.isValid = valid;
+                        }}
+                        validationPredicates={
+                          modifiedValue &&
+                          (row.attribute === 'owner' ||
+                            row.attribute === 'controller' ||
+                            row.attribute === 'targetID')
+                            ? {
+                                [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: (
+                                  id: string,
+                                ) => arweaveDataProvider.validateArweaveId(id),
+                              }
+                            : {}
+                        }
+                        maxLength={43}
                       />
                     </>
                   );
@@ -264,12 +306,25 @@ function ManageAntModal() {
                             borderColor: 'var(--accent)',
                           }}
                           onClick={() => {
+                            // TODO update when ant source code is updated to not overwrite existing info
                             const payload =
-                              getTransactionPayloadByInteractionType(
-                                CONTRACT_TYPES.ANT,
-                                row.interactionType,
-                                modifiedValue!,
-                              );
+                              row.interactionType ===
+                              ANT_INTERACTION_TYPES.SET_TARGET_ID
+                                ? mapTransactionDataKeyToPayload(
+                                    CONTRACT_TYPES.ANT,
+                                    row.interactionType,
+                                    [
+                                      '@',
+                                      modifiedValue!.toString(),
+                                      antState!.records['@'].ttlSeconds,
+                                    ],
+                                  )
+                                : mapTransactionDataKeyToPayload(
+                                    CONTRACT_TYPES.ANT,
+                                    row.interactionType,
+                                    modifiedValue!.toString(),
+                                  );
+
                             if (payload && row.interactionType && id) {
                               // eslint-disable-next-line
                               const { assetId, functionName, ...data } =

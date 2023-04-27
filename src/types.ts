@@ -282,23 +282,29 @@ export type TransferIOPayload = {
 export type SetTickerPayload = {
   ticker: string;
 };
+
 export type SetControllerPayload = {
   target: string;
 };
+
 export type SetNamePayload = {
   name: string;
 };
+
 export type SetRecordPayload = {
   subDomain: string;
   transactionId: string;
   ttlSeconds: number;
 };
+
 export type RemoveRecordPayload = {
   subDomain: string;
 };
+
 export type TransferAntPayload = {
   target: string;
 };
+
 export type CreateAntPayload = {
   srcCodeTransactionId: string;
   initialState: ANTContractJSON;
@@ -311,6 +317,7 @@ export enum ANT_INTERACTION_TYPES {
   SET_TICKER = 'Edit Ticker',
   SET_NAME = 'Edit Name',
   SET_RECORD = 'Edit Record',
+  SET_TARGET_ID = 'Set Target ID',
   REMOVE_RECORD = 'Delete Record',
   TRANSFER = 'Transfer',
   BALANCE = 'Balance',
@@ -397,6 +404,10 @@ export const TRANSACTION_DATA_KEYS: {
     },
   },
   [CONTRACT_TYPES.ANT]: {
+    [ANT_INTERACTION_TYPES.SET_TARGET_ID]: {
+      functionName: 'setRecord',
+      keys: ['subDomain', 'transactionId', 'ttlSeconds'],
+    },
     [ANT_INTERACTION_TYPES.SET_TICKER]: {
       functionName: 'setTicker',
       keys: ['ticker'],
