@@ -326,6 +326,19 @@ export function getInteractionTypeFromField(field: string) {
   return FieldToInteractionMap[field];
 }
 
+export function getTransactionWorkflowSteps(
+  interactionType: PDNTInteraction | RegistryInteraction,
+) {
+  if (isRegistryInteraction(interactionType)) {
+    return TRANSACTION_DATA_KEYS[CONTRACT_TYPES.REGISTRY][interactionType]
+      .transactionWorkflowSteps;
+  }
+  if (isPDNTInteraction(interactionType)) {
+    return TRANSACTION_DATA_KEYS[CONTRACT_TYPES.PDNT][interactionType]
+      .transactionWorkflowSteps;
+  }
+}
+
 export function mapTransactionDataKeyToPayload(
   contractType: ContractType,
   interactionType: PDNTInteraction | RegistryInteraction,

@@ -367,7 +367,11 @@ export type TransactionDataPayload =
 export type TransactionData = TransactionDataBasePayload &
   TransactionDataPayload;
 
-export type TransactionDataConfig = { functionName: string; keys: string[] };
+export type TransactionDataConfig = {
+  functionName: string;
+  keys: string[];
+  transactionWorkflowSteps: { [x: string]: { title: string; status: string } };
+};
 
 export const TRANSACTION_DATA_KEYS: {
   // specifying interaction types to the correct contract type, to ensure clarity and to prevent crossover of interaction types
@@ -386,64 +390,139 @@ export const TRANSACTION_DATA_KEYS: {
     [REGISTRY_INTERACTION_TYPES.BUY_RECORD]: {
       functionName: 'buyRecord',
       keys: ['name', 'contractTxId', 'years', 'tierNumber'],
+      transactionWorkflowSteps: {
+        1: { title: 'Confirm Registration', status: 'pending' },
+        2: { title: 'Deploy Registration', status: '' },
+        3: { title: 'Complete', status: '' },
+      },
     },
     [REGISTRY_INTERACTION_TYPES.EXTEND_LEASE]: {
       functionName: 'extendLease',
       keys: ['name', 'years'],
+      transactionWorkflowSteps: {
+        1: { title: 'Confirm Extension', status: 'pending' },
+        2: { title: 'Deploy Extension', status: '' },
+        3: { title: 'Complete', status: '' },
+      },
     },
     [REGISTRY_INTERACTION_TYPES.UPGRADE_TIER]: {
       functionName: 'upgradeTier',
       keys: ['name', 'tierNumber'],
+      transactionWorkflowSteps: {
+        1: { title: 'Confirm Tier', status: 'pending' },
+        2: { title: 'Deploy Tier Upgrade', status: '' },
+        3: { title: 'Complete', status: '' },
+      },
     },
     [REGISTRY_INTERACTION_TYPES.TRANSFER]: {
       functionName: 'transfer',
       keys: ['target', 'qty'],
+      transactionWorkflowSteps: {
+        1: { title: 'Confirm IO Transfer', status: 'pending' },
+        2: { title: 'Deploy Transfer', status: '' },
+        3: { title: 'Complete', status: '' },
+      },
     }, // transfer io tokens
     [REGISTRY_INTERACTION_TYPES.BALANCE]: {
       functionName: 'getBalance',
       keys: ['target'],
+      transactionWorkflowSteps: {
+        1: { title: '', status: 'pending' },
+        2: { title: '', status: '' },
+        3: { title: '', status: '' },
+      },
     },
   },
   [CONTRACT_TYPES.PDNT]: {
     [PDNT_INTERACTION_TYPES.SET_TTL_SECONDS]: {
       functionName: 'setRecord',
       keys: ['subDomain', 'transactionId', 'ttlSeconds'],
+      transactionWorkflowSteps: {
+        1: { title: 'Confirm TTL Seconds', status: 'pending' },
+        2: { title: 'Deploy TTL Seconds Change', status: '' },
+        3: { title: 'Complete', status: '' },
+      },
     },
     [PDNT_INTERACTION_TYPES.SET_TARGET_ID]: {
       functionName: 'setRecord',
       keys: ['subDomain', 'transactionId', 'ttlSeconds'],
+      transactionWorkflowSteps: {
+        1: { title: 'Confirm Target ID', status: 'pending' },
+        2: { title: 'Deploy Target ID Change', status: '' },
+        3: { title: 'Complete', status: '' },
+      },
     },
     [PDNT_INTERACTION_TYPES.SET_TICKER]: {
       functionName: 'setTicker',
       keys: ['ticker'],
+      transactionWorkflowSteps: {
+        1: { title: 'Confirm Ticker', status: 'pending' },
+        2: { title: 'Deploy Ticker Change', status: '' },
+        3: { title: 'Complete', status: '' },
+      },
     },
     [PDNT_INTERACTION_TYPES.SET_CONTROLLER]: {
       functionName: 'setController',
       keys: ['target'],
+      transactionWorkflowSteps: {
+        1: { title: 'Confirm Controller', status: 'pending' },
+        2: { title: 'Deploy Controller', status: '' },
+        3: { title: 'Complete', status: '' },
+      },
     },
     [PDNT_INTERACTION_TYPES.SET_NAME]: {
       functionName: 'setName',
       keys: ['name'],
+      transactionWorkflowSteps: {
+        1: { title: 'Confirm PDNT Name', status: 'pending' },
+        2: { title: 'Deploy Name Change', status: '' },
+        3: { title: 'Complete', status: '' },
+      },
     },
     [PDNT_INTERACTION_TYPES.SET_RECORD]: {
       functionName: 'setRecord',
       keys: ['subDomain', 'transactionId', 'ttlSeconds'],
+      transactionWorkflowSteps: {
+        1: { title: 'Confirm Undername Details', status: 'pending' },
+        2: { title: 'Deploy Undername', status: '' },
+        3: { title: 'Complete', status: '' },
+      },
     },
     [PDNT_INTERACTION_TYPES.REMOVE_RECORD]: {
       functionName: 'removeRecord',
       keys: ['subDomain'],
+      transactionWorkflowSteps: {
+        1: { title: 'Confirm Removal', status: 'pending' },
+        2: { title: 'Deploy Removal', status: '' },
+        3: { title: 'Complete', status: '' },
+      },
     },
     [PDNT_INTERACTION_TYPES.TRANSFER]: {
       functionName: 'transfer',
       keys: ['target'],
+      transactionWorkflowSteps: {
+        1: { title: 'Confirm Transfer', status: 'pending' },
+        2: { title: 'Deploy Transfer', status: '' },
+        3: { title: 'Complete', status: '' },
+      },
     },
     [PDNT_INTERACTION_TYPES.BALANCE]: {
       functionName: 'balance',
       keys: ['target'],
+      transactionWorkflowSteps: {
+        1: { title: '', status: 'pending' },
+        2: { title: '', status: '' },
+        3: { title: '', status: '' },
+      },
     },
     [PDNT_INTERACTION_TYPES.CREATE]: {
       functionName: '',
       keys: ['srcCodeTransactionId', 'initialState'],
+      transactionWorkflowSteps: {
+        1: { title: 'Confirm PDNT Creation', status: 'pending' },
+        2: { title: 'Deploy PDNT', status: '' },
+        3: { title: 'Completed PDNT Creation', status: '' },
+      },
     },
   },
 };

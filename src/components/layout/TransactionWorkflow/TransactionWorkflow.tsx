@@ -17,6 +17,7 @@ import {
 } from '../../../types';
 import {
   getPDNSMappingByInteractionType,
+  getTransactionWorkflowSteps,
   isObjectOfTransactionPayloadType,
 } from '../../../utils';
 import { PDNTCard } from '../../cards';
@@ -52,12 +53,7 @@ function TransactionWorkflow({
         [x: number]: { title: string; status: string };
       }
     | undefined
-  >(() =>
-    getStepsByTransactionType({
-      contractType,
-      interactionType,
-    }),
-  );
+  >(() => getTransactionWorkflowSteps(interactionType));
   const [stages, setStages] = useState<
     { [x: string]: WorkflowStage } | undefined
   >(() =>
@@ -140,121 +136,6 @@ function TransactionWorkflow({
       }
     } catch (error) {
       console.error(error);
-    }
-  }
-  function getStepsByTransactionType({
-    contractType,
-    interactionType,
-  }: {
-    contractType: ContractType;
-    interactionType: PDNTInteraction | RegistryInteraction;
-  }): { [x: string]: { title: string; status: string } } {
-    try {
-      switch (contractType) {
-        case CONTRACT_TYPES.REGISTRY:
-          switch (interactionType) {
-            case REGISTRY_INTERACTION_TYPES.BUY_RECORD: {
-              return {
-                1: { title: 'Confirm Registration', status: 'pending' },
-                2: { title: 'Deploy Registration', status: '' },
-                3: { title: 'Complete', status: '' },
-              };
-            }
-            case REGISTRY_INTERACTION_TYPES.EXTEND_LEASE: {
-              return {
-                1: { title: 'Confirm Extension', status: 'pending' },
-                2: { title: 'Deploy Extension', status: '' },
-                3: { title: 'Complete', status: '' },
-              };
-            }
-            case REGISTRY_INTERACTION_TYPES.TRANSFER: {
-              return {
-                1: { title: 'Confirm IO Transfer', status: 'pending' },
-                2: { title: 'Deploy Transfer', status: '' },
-                3: { title: 'Complete', status: '' },
-              };
-            }
-            case REGISTRY_INTERACTION_TYPES.UPGRADE_TIER: {
-              return {
-                1: { title: 'Confirm Tier', status: 'pending' },
-                2: { title: 'Deploy Tier Upgrade', status: '' },
-                3: { title: 'Complete', status: '' },
-              };
-            }
-            default:
-              throw new Error(`Invalid interaction type (${interactionType})`);
-          }
-        case CONTRACT_TYPES.PDNT:
-          switch (interactionType) {
-            case PDNT_INTERACTION_TYPES.REMOVE_RECORD: {
-              return {
-                1: { title: 'Confirm Removal', status: 'pending' },
-                2: { title: 'Deploy Removal', status: '' },
-                3: { title: 'Complete', status: '' },
-              };
-            }
-            case PDNT_INTERACTION_TYPES.SET_CONTROLLER: {
-              return {
-                1: { title: 'Confirm Controller', status: 'pending' },
-                2: { title: 'Deploy Controller', status: '' },
-                3: { title: 'Complete', status: '' },
-              };
-            }
-            case PDNT_INTERACTION_TYPES.SET_NAME: {
-              return {
-                1: { title: 'Confirm PDNT Name', status: 'pending' },
-                2: { title: 'Deploy Name Change', status: '' },
-                3: { title: 'Complete', status: '' },
-              };
-            }
-            case PDNT_INTERACTION_TYPES.SET_RECORD: {
-              return {
-                1: { title: 'Confirm Undername Details', status: 'pending' },
-                2: { title: 'Deploy Undername', status: '' },
-                3: { title: 'Complete', status: '' },
-              };
-            }
-            case PDNT_INTERACTION_TYPES.SET_TICKER: {
-              return {
-                1: { title: 'Confirm Ticker', status: 'pending' },
-                2: { title: 'Deploy Ticker Change', status: '' },
-                3: { title: 'Complete', status: '' },
-              };
-            }
-            case PDNT_INTERACTION_TYPES.TRANSFER: {
-              return {
-                1: { title: 'Confirm Transfer', status: 'pending' },
-                2: { title: 'Deploy Transfer', status: '' },
-                3: { title: 'Complete', status: '' },
-              };
-            }
-            case PDNT_INTERACTION_TYPES.SET_TARGET_ID: {
-              return {
-                1: { title: 'Confirm Target ID', status: 'pending' },
-                2: { title: 'Deploy Target ID Change', status: '' },
-                3: { title: 'Complete', status: '' },
-              };
-            }
-            case PDNT_INTERACTION_TYPES.SET_TTL_SECONDS: {
-              return {
-                1: { title: 'Confirm TTL Seconds', status: 'pending' },
-                2: { title: 'Deploy TTL Seconds Change', status: '' },
-                3: { title: 'Complete', status: '' },
-              };
-            }
-            default:
-              throw new Error(
-                `Invalid workflow stage (${workflowStage}), workflow stage must be a number between 1 and 4`,
-              );
-          }
-        default:
-          throw new Error(
-            `Invalid transaction type: {${contractType}}, Only registry or pdnt types may be provided as a transaction type`,
-          );
-      }
-    } catch (error) {
-      console.log(error);
-      return {};
     }
   }
 
