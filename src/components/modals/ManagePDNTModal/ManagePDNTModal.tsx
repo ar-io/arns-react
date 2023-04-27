@@ -171,7 +171,7 @@ function ManagePDNTModal() {
           <CloseIcon width="30px" height={'30px'} fill="var(--text-white)" />
         </button>
       </div>
-      <div className="flex-row">
+      <div className="flex-row center">
         {loading ? (
           <div className="flex" style={{ padding: '10%' }}>
             <Loader size={80} />
