@@ -379,7 +379,7 @@ export enum PDNT_INTERACTION_TYPES {
   SET_NAME = 'Edit Name',
   SET_RECORD = 'Edit Record',
   SET_TARGET_ID = 'Set Target ID',
-  SET_TTL_SECONDS = ' Set TTL Seconds',
+  SET_TTL_SECONDS = 'Set TTL Seconds',
   REMOVE_RECORD = 'Delete Record',
   TRANSFER = 'Transfer',
   BALANCE = 'Balance',
