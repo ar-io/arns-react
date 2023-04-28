@@ -52,18 +52,6 @@ function ManagePDNTModal() {
     'controller',
   ];
 
-  const ACTION_FIELDS: {
-    [x: string]: {
-      title: string;
-      fn?: () => void;
-    };
-  } = {
-    owner: {
-      title: INTERACTION_TYPES.TRANSFER,
-      fn: () => setShowTransferPDNTModal(true),
-    },
-  };
-
   useEffect(() => {
     if (!id) {
       navigate('/manage/pdnts');
@@ -119,7 +107,6 @@ function ManagePDNTModal() {
             attribute,
             value: consolidatedDetails[attribute as keyof ManagePDNTRow],
             editable: EDITABLE_FIELDS.includes(attribute),
-            action: ACTION_FIELDS[attribute] ?? undefined, // navigate to transaction route with details
             key: index,
             interactionType: getInteractionTypeFromField(attribute),
           };
@@ -133,7 +120,7 @@ function ManagePDNTModal() {
       setLoading(false);
     } catch (error) {
       eventEmitter.emit('error', error);
-      navigate('/manage/ants');
+      navigate('/manage/pdnts');
     }
   }
 
@@ -384,13 +371,13 @@ function ManagePDNTModal() {
                         </>
                       );
                     }
-                    if (row.action) {
+                    if (row.attribute == 'owner') {
                       return (
                         <button
-                          onClick={row.action.fn}
+                          onClick={() => setShowTransferPDNTModal(true)}
                           className="assets-manage-button"
                         >
-                          {row.action.title}
+                          Transfer
                         </button>
                       );
                     }

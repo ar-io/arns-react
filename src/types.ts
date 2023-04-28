@@ -479,7 +479,6 @@ export type ManagePDNTRow = {
   attribute: string;
   value: string;
   editable: boolean;
-  action: any;
   key: number;
   interactionType?: ValidInteractionType;
 };

@@ -34,6 +34,9 @@ function TransferPDNTModal({
   const [toAddress, setToAddress] = useState<string>('');
   const [isValidAddress, setIsValidAddress] = useState<boolean>(false);
   const [state, setState] = useState<PDNTContractJSON>();
+  const [associatedNames] = useState(() =>
+    getAssociatedNames(pdntId, pdnsSourceContract.records),
+  );
   const navigate = useNavigate();
 
   // TODO: add "transfer to another account" dropdown
@@ -47,7 +50,7 @@ function TransferPDNTModal({
   if (!state) {
     return (
       <div className="modal-container">
-        <Loader size={200} />
+        <Loader size={80} />
       </div>
     );
   }
@@ -169,7 +172,7 @@ function TransferPDNTModal({
                   arweaveDataProvider.validateArweaveId(id),
               }}
             />
-            {getAssociatedNames(pdntId!, pdnsSourceContract.records).length ? (
+            {associatedNames.length ? (
               <span
                 className="flex flex-row"
                 style={{
@@ -186,14 +189,9 @@ function TransferPDNTModal({
                   className="text faded"
                   style={{ textAlign: 'left', width: '90%' }}
                 >
-                  This ANT has{' '}
-                  {`${
-                    getAssociatedNames(pdntId!, pdnsSourceContract.records)
-                      .length
-                  } name(s)`}{' '}
-                  that are associated with it. By transferring this ANT, you
+                  {`This ANT has ${associatedNames.length} name(s) that are associated with it. By transferring this ANT, you
                   will also be transferring control of those names to the new
-                  ANT holder.
+                  ANT holder.`}
                 </span>
               </span>
             ) : (
@@ -242,7 +240,9 @@ function TransferPDNTModal({
                       assetId: pdntId.toString()!,
                     },
                   });
-                  navigate(`/transaction`, { state: '/' });
+                  navigate(`/transaction`, {
+                    state: `/manage/pdnts/${pdntId.toString()}`,
+                  });
                 }
               }}
             >
