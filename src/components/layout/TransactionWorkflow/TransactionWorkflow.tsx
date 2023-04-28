@@ -207,6 +207,13 @@ function TransactionWorkflow({
         };
       }
       case INTERACTION_TYPES.BUY_RECORD: {
+        if (
+          !isObjectOfTransactionPayloadType<BuyRecordPayload>(
+            payload,
+            TRANSACTION_DATA_KEYS[interactionType].keys,
+          )
+        )
+          throw Error('Payload is not valid.');
         return {
           pending: {
             component: <PDNTCard {...pdntProps} />,
