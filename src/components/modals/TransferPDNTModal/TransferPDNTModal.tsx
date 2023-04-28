@@ -238,9 +238,8 @@ function TransferPDNTModal({
                   dispatchTransactionState({
                     type: 'setTransactionData',
                     payload: {
+                      ...payload,
                       assetId: pdntId.toString()!,
-                      functionName,
-                      ...data,
                     },
                   });
                   navigate(`/transaction`, { state: '/' });
