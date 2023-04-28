@@ -20,7 +20,7 @@ import {
   getInteractionTypeFromField,
   mapTransactionDataKeyToPayload,
 } from '../../../utils';
-import { STUB_ARWEAVE_TXID } from '../../../utils/constants.js';
+import { STUB_ARWEAVE_TXID } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { mapKeyToAttribute } from '../../cards/PDNTCard/PDNTCard';
 import { ArrowLeft, CloseIcon, PencilIcon } from '../../icons';
