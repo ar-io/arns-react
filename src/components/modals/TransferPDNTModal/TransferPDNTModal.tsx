@@ -231,7 +231,6 @@ function TransferPDNTModal({
                 );
 
                 if (payload) {
-                  const { assetId, functionName, ...data } = payload; // eslint-disable-line
                   dispatchTransactionState({
                     type: 'setInteractionType',
                     payload: INTERACTION_TYPES.TRANSFER,
