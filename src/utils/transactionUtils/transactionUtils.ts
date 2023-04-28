@@ -7,7 +7,9 @@ import {
   CreatePDNTPayload,
   ExcludedValidInteractionType,
   INTERACTION_TYPES,
+  PDNSDomains,
   PDNSMapping,
+  PDNSRecordEntry,
   PDNTContractJSON,
   SetNamePayload,
   SetRecordPayload,
@@ -15,6 +17,7 @@ import {
   TransactionData,
   TransactionDataConfig,
   TransactionDataPayload,
+  TransferPDNTPayload,
   ValidInteractionType,
 } from '../../types';
 import { PDNS_TX_ID_REGEX } from '../constants';
@@ -368,6 +371,29 @@ export function getPDNSMappingByInteractionType(
         ],
       };
     }
+    case INTERACTION_TYPES.TRANSFER: {
+      if (
+        !isObjectOfTransactionPayloadType<TransferPDNTPayload>(
+          transactionData,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.TRANSFER].keys,
+        )
+      ) {
+        throw new Error(
+          `transaction data not of correct payload type <TransferPDNTPayload> keys: ${Object.keys(
+            transactionData,
+          )}`,
+        );
+      }
+      return {
+        domain: '',
+        showTier: false,
+        compact: false,
+        id: new ArweaveTransactionID(transactionData.assetId),
+        overrides: {
+          'New Owner': transactionData.target,
+        },
+      };
+    }
   }
 }
 
@@ -378,6 +404,7 @@ export const FieldToInteractionMap: {
   ticker: INTERACTION_TYPES.SET_TICKER,
   targetID: INTERACTION_TYPES.SET_TARGET_ID,
   ttlSeconds: INTERACTION_TYPES.SET_TTL_SECONDS,
+  owner: INTERACTION_TYPES.TRANSFER,
   // TODO: add other interactions
 };
 
@@ -437,4 +464,15 @@ export function getLinkId(
     return transactionData.deployedTransactionId?.toString() ?? '';
   }
   return transactionData.assetId.toString();
+}
+
+export function getAssociatedNames(
+  txId: ArweaveTransactionID,
+  records: PDNSDomains,
+) {
+  return Object.entries(records)
+    .map(([name, recordEntry]: [string, PDNSRecordEntry]) => {
+      if (recordEntry.contractTxId === txId.toString()) return name;
+    })
+    .filter((n) => !!n);
 }

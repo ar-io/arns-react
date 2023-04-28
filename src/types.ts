@@ -364,6 +364,7 @@ export type RemoveRecordPayload = {
 
 export type TransferPDNTPayload = {
   target: string;
+  qty: number;
 };
 
 export type CreatePDNTPayload = {

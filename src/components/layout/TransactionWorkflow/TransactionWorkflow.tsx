@@ -166,6 +166,7 @@ function TransactionWorkflow({
       throw Error('Unable to get PDNT properties.');
     }
     switch (interactionType) {
+      case INTERACTION_TYPES.TRANSFER:
       case INTERACTION_TYPES.CREATE:
       case INTERACTION_TYPES.SET_TTL_SECONDS:
       case INTERACTION_TYPES.SET_TARGET_ID:
@@ -205,13 +206,6 @@ function TransactionWorkflow({
         };
       }
       case INTERACTION_TYPES.BUY_RECORD: {
-        if (
-          !isObjectOfTransactionPayloadType<BuyRecordPayload>(
-            payload,
-            TRANSACTION_DATA_KEYS[interactionType].keys,
-          )
-        )
-          throw Error('Payload is not valid.');
         return {
           pending: {
             component: <PDNTCard {...pdntProps} />,
