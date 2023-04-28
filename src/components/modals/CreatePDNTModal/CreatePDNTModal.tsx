@@ -10,10 +10,9 @@ import {
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import {
   ArweaveTransactionID,
-  CONTRACT_TYPES,
+  INTERACTION_TYPES,
   ManagePDNTRow,
   PDNTContractJSON,
-  PDNT_INTERACTION_TYPES,
   TRANSACTION_TYPES,
   TransactionData,
   VALIDATION_INPUT_TYPES,
@@ -614,8 +613,7 @@ function CreatePDNTModal() {
                         ? new ArweaveTransactionID(pdntContractId.toString())
                         : undefined
                     }
-                    contractType={CONTRACT_TYPES.PDNT}
-                    interactionType={PDNT_INTERACTION_TYPES.CREATE}
+                    interactionType={INTERACTION_TYPES.CREATE}
                     transactionData={
                       {
                         initialState: pdnt.state,

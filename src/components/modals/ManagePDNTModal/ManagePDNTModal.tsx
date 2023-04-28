@@ -9,11 +9,10 @@ import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ArweaveTransactionID,
-  CONTRACT_TYPES,
+  INTERACTION_TYPES,
   ManagePDNTRow,
   PDNSRecordEntry,
   PDNTContractJSON,
-  PDNT_INTERACTION_TYPES,
   TRANSACTION_TYPES,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
@@ -21,6 +20,7 @@ import {
   getInteractionTypeFromField,
   mapTransactionDataKeyToPayload,
 } from '../../../utils';
+import { STUB_ARWEAVE_TXID } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { mapKeyToAttribute } from '../../cards/PDNTCard/PDNTCard';
 import { ArrowLeft, CloseIcon, PencilIcon } from '../../icons';
@@ -325,12 +325,11 @@ function ManagePDNTModal() {
                               borderColor: 'var(--accent)',
                             }}
                             onClick={() => {
-                              // TODO update when pdnt source code is updated to not overwrite existing info
+                              // TODO: make this more clear, we should be updating only the value that matters and not overwriting anything
                               const payload =
                                 row.interactionType ===
-                                PDNT_INTERACTION_TYPES.SET_TARGET_ID
+                                INTERACTION_TYPES.SET_TARGET_ID
                                   ? mapTransactionDataKeyToPayload(
-                                      CONTRACT_TYPES.PDNT,
                                       row.interactionType,
                                       [
                                         '@',
@@ -338,32 +337,39 @@ function ManagePDNTModal() {
                                         pdntState!.records['@'].ttlSeconds,
                                       ],
                                     )
+                                  : row.interactionType ===
+                                    INTERACTION_TYPES.SET_TTL_SECONDS
+                                  ? mapTransactionDataKeyToPayload(
+                                      row.interactionType,
+                                      [
+                                        '@',
+                                        pdntState!.records['@'].transactionId
+                                          .length
+                                          ? pdntState!.records['@']
+                                              .transactionId
+                                          : STUB_ARWEAVE_TXID,
+                                        modifiedValue!,
+                                      ],
+                                    )
                                   : mapTransactionDataKeyToPayload(
-                                      CONTRACT_TYPES.PDNT,
                                       row.interactionType,
                                       modifiedValue!.toString(),
                                     );
 
                               if (payload && row.interactionType && id) {
-                                // eslint-disable-next-line
-                                const { assetId, functionName, ...data } =
-                                  payload;
-                                dispatchTransactionState({
-                                  type: 'setContractType',
-                                  payload: CONTRACT_TYPES.PDNT,
-                                });
+                                const transactionData = {
+                                  ...payload,
+                                  assetId: id,
+                                };
                                 dispatchTransactionState({
                                   type: 'setInteractionType',
                                   payload: row.interactionType,
                                 });
                                 dispatchTransactionState({
                                   type: 'setTransactionData',
-                                  payload: {
-                                    assetId: id,
-                                    functionName,
-                                    ...data,
-                                  },
+                                  payload: transactionData,
                                 });
+
                                 navigate(`/transaction`, {
                                   state: `/manage/pdnts/${id}`,
                                 });

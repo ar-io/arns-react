@@ -6,17 +6,15 @@ import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ArweaveTransactionID,
   BuyRecordPayload,
-  CONTRACT_TYPES,
-  ContractType,
-  PDNTInteraction,
-  PDNT_INTERACTION_TYPES,
-  REGISTRY_INTERACTION_TYPES,
-  RegistryInteraction,
-  TRANSACTION_DATA_KEYS,
+  ExcludedValidInteractionType,
+  INTERACTION_TYPES,
   TransactionData,
+  ValidInteractionType,
 } from '../../../types';
 import {
+  TRANSACTION_DATA_KEYS,
   getPDNSMappingByInteractionType,
+  getWorkflowStepsForInteraction,
   isObjectOfTransactionPayloadType,
 } from '../../../utils';
 import eventEmitter from '../../../utils/events';
@@ -33,13 +31,11 @@ export enum TRANSACTION_WORKFLOW_STATUS {
 }
 
 function TransactionWorkflow({
-  contractType,
   interactionType,
   transactionData,
   workflowStage,
 }: {
-  contractType: ContractType;
-  interactionType: PDNTInteraction | RegistryInteraction;
+  interactionType: ExcludedValidInteractionType;
   transactionData: TransactionData;
   workflowStage: TRANSACTION_WORKFLOW_STATUS;
 }) {
@@ -53,24 +49,17 @@ function TransactionWorkflow({
         [x: number]: { title: string; status: string };
       }
     | undefined
-  >(() =>
-    getStepsByTransactionType({
-      contractType,
-      interactionType,
-    }),
-  );
+  >(() => getWorkflowStepsForInteraction(interactionType));
   const [stages, setStages] = useState<
     { [x: string]: WorkflowStage } | undefined
   >(() =>
     getStagesByTransactionType({
-      contractType,
       interactionType,
     }),
   );
 
   useEffect(() => {
     const newStages = getStagesByTransactionType({
-      contractType,
       interactionType,
     });
     if (newStages) setStages(newStages);
@@ -91,10 +80,7 @@ function TransactionWorkflow({
         case 'next':
           switch (workflowStage) {
             case TRANSACTION_WORKFLOW_STATUS.PENDING: {
-              const newSteps = getStepsByTransactionType({
-                contractType,
-                interactionType,
-              });
+              const newSteps = getWorkflowStepsForInteraction(interactionType);
               newSteps['1'].status = 'success';
               newSteps['2'].status = 'pending';
               setSteps(newSteps);
@@ -147,257 +133,124 @@ function TransactionWorkflow({
       });
     }
   }
-  function getStepsByTransactionType({
-    contractType,
-    interactionType,
-  }: {
-    contractType: ContractType;
-    interactionType: PDNTInteraction | RegistryInteraction;
-  }): { [x: string]: { title: string; status: string } } {
-    try {
-      switch (contractType) {
-        case CONTRACT_TYPES.REGISTRY:
-          switch (interactionType) {
-            case REGISTRY_INTERACTION_TYPES.BUY_RECORD: {
-              return {
-                1: { title: 'Confirm Registration', status: 'pending' },
-                2: { title: 'Deploy Registration', status: '' },
-                3: { title: 'Complete', status: '' },
-              };
-            }
-            case REGISTRY_INTERACTION_TYPES.EXTEND_LEASE: {
-              return {
-                1: { title: 'Confirm Extension', status: 'pending' },
-                2: { title: 'Deploy Extension', status: '' },
-                3: { title: 'Complete', status: '' },
-              };
-            }
-            case REGISTRY_INTERACTION_TYPES.TRANSFER: {
-              return {
-                1: { title: 'Confirm IO Transfer', status: 'pending' },
-                2: { title: 'Deploy Transfer', status: '' },
-                3: { title: 'Complete', status: '' },
-              };
-            }
-            case REGISTRY_INTERACTION_TYPES.UPGRADE_TIER: {
-              return {
-                1: { title: 'Confirm Tier', status: 'pending' },
-                2: { title: 'Deploy Tier Upgrade', status: '' },
-                3: { title: 'Complete', status: '' },
-              };
-            }
-            default:
-              throw new Error(`Invalid interaction type (${interactionType})`);
-          }
-        case CONTRACT_TYPES.PDNT:
-          switch (interactionType) {
-            case PDNT_INTERACTION_TYPES.REMOVE_RECORD: {
-              return {
-                1: { title: 'Confirm Removal', status: 'pending' },
-                2: { title: 'Deploy Removal', status: '' },
-                3: { title: 'Complete', status: '' },
-              };
-            }
-            case PDNT_INTERACTION_TYPES.SET_CONTROLLER: {
-              return {
-                1: { title: 'Confirm Controller', status: 'pending' },
-                2: { title: 'Deploy Controller', status: '' },
-                3: { title: 'Complete', status: '' },
-              };
-            }
-            case PDNT_INTERACTION_TYPES.SET_NAME: {
-              return {
-                1: { title: 'Confirm PDNT Name', status: 'pending' },
-                2: { title: 'Deploy Name Change', status: '' },
-                3: { title: 'Complete', status: '' },
-              };
-            }
-            case PDNT_INTERACTION_TYPES.SET_RECORD: {
-              return {
-                1: { title: 'Confirm Undername Details', status: 'pending' },
-                2: { title: 'Deploy Undername', status: '' },
-                3: { title: 'Complete', status: '' },
-              };
-            }
-            case PDNT_INTERACTION_TYPES.SET_TICKER: {
-              return {
-                1: { title: 'Confirm Ticker', status: 'pending' },
-                2: { title: 'Deploy Ticker Change', status: '' },
-                3: { title: 'Complete', status: '' },
-              };
-            }
-            case PDNT_INTERACTION_TYPES.TRANSFER: {
-              return {
-                1: { title: 'Confirm Transfer', status: 'pending' },
-                2: { title: 'Deploy Transfer', status: '' },
-                3: { title: 'Complete', status: '' },
-              };
-            }
-            case PDNT_INTERACTION_TYPES.SET_TARGET_ID: {
-              return {
-                1: { title: 'Confirm Target ID', status: 'pending' },
-                2: { title: 'Deploy Target ID Change', status: '' },
-                3: { title: 'Complete', status: '' },
-              };
-            }
-            default:
-              throw new Error(
-                `Invalid workflow stage (${workflowStage}), workflow stage must be a number between 1 and 4`,
-              );
-          }
-        default:
-          throw new Error(
-            `Invalid transaction type: {${contractType}}, Only registry or pdnt types may be provided as a transaction type`,
-          );
-      }
-    } catch (error) {
-      console.log(error);
-      return {};
-    }
-  }
-
   function getStagesByTransactionType({
-    contractType,
     interactionType,
   }: {
-    contractType: ContractType;
-    interactionType: PDNTInteraction | RegistryInteraction;
+    interactionType: ValidInteractionType;
   }): { [x: string]: WorkflowStage } | undefined {
-    try {
-      const pdntProps = getPDNSMappingByInteractionType({
-        contractType,
-        interactionType,
-        transactionData,
-      });
+    const pdntProps = getPDNSMappingByInteractionType({
+      interactionType,
+      transactionData,
+    });
 
-      if (!pdntProps) {
-        throw Error('Unable to get PDNT properties.');
+    if (!pdntProps) {
+      throw Error('Unable to get PDNT properties.');
+    }
+    switch (interactionType) {
+      case INTERACTION_TYPES.SET_TTL_SECONDS:
+      case INTERACTION_TYPES.SET_TARGET_ID:
+      case INTERACTION_TYPES.SET_TICKER:
+      case INTERACTION_TYPES.SET_NAME: {
+        return {
+          pending: {
+            component: <PDNTCard {...pdntProps} />,
+          },
+          confirmed: {
+            component: <DeployTransaction />,
+            showNext: false,
+            showBack: false,
+          },
+          successful: {
+            component: (
+              <TransactionComplete
+                transactionId={deployedTransactionId}
+                interactionType={interactionType}
+                transactionData={transactionData}
+              />
+            ),
+            showNext: false,
+            showBack: false,
+          },
+          failed: {
+            component: (
+              <TransactionComplete
+                transactionId={deployedTransactionId}
+                interactionType={interactionType}
+                transactionData={transactionData}
+              />
+            ),
+            showNext: false,
+            showBack: false,
+          },
+        };
       }
-      switch (contractType) {
-        case CONTRACT_TYPES.PDNT: {
-          switch (interactionType) {
-            case PDNT_INTERACTION_TYPES.SET_TARGET_ID:
-            case PDNT_INTERACTION_TYPES.SET_TICKER:
-            case PDNT_INTERACTION_TYPES.SET_NAME: {
-              return {
-                pending: {
-                  component: <PDNTCard {...pdntProps} />,
-                },
-                confirmed: {
-                  component: <DeployTransaction />,
-                  showNext: false,
-                  showBack: false,
-                },
-                successful: {
-                  component: (
-                    <TransactionComplete
-                      transactionId={deployedTransactionId}
-                      contractType={contractType}
-                      interactionType={interactionType}
-                      transactionData={transactionData}
-                    />
-                  ),
-                  showNext: false,
-                  showBack: false,
-                },
-                failed: {
-                  component: (
-                    <TransactionComplete
-                      transactionId={deployedTransactionId}
-                      contractType={contractType}
-                      interactionType={interactionType}
-                      transactionData={transactionData}
-                    />
-                  ),
-                  showNext: false,
-                  showBack: false,
-                },
-              };
-            }
-            default:
-              throw new Error('Interaction type is undefined');
-          }
-        }
-
-        case CONTRACT_TYPES.REGISTRY: {
-          switch (interactionType) {
-            case REGISTRY_INTERACTION_TYPES.BUY_RECORD: {
-              if (
-                !isObjectOfTransactionPayloadType<BuyRecordPayload>(
-                  payload,
-                  TRANSACTION_DATA_KEYS[contractType][interactionType].keys,
-                )
-              )
-                throw Error('Payload is not valid.');
-              return {
-                pending: {
-                  component: <PDNTCard {...pdntProps} />,
-                  header: (
-                    <>
-                      <div className="flex flex-row text-large white bold center">
-                        Confirm Name Purchase
-                      </div>
-                    </>
-                  ),
-                },
-                confirmed: {
-                  component: <DeployTransaction />,
-                  showNext: false,
-                  showBack: false,
-                  header: (
-                    <>
-                      <div className="flex flex-row text-large white bold center">
-                        Deploy Name Purchase
-                      </div>
-                    </>
-                  ),
-                },
-                successful: {
-                  component: (
-                    <TransactionComplete
-                      transactionId={deployedTransactionId}
-                      contractType={contractType}
-                      interactionType={interactionType}
-                      transactionData={transactionData}
-                    />
-                  ),
-                  showNext: false,
-                  showBack: false,
-                  header: (
-                    <>
-                      <div className="flex flex-row text-large white bold center">
-                        <span className="text-large white center">
-                          <b>{payload.name}</b>.arweave.net is yours!
-                        </span>
-                      </div>
-                    </>
-                  ),
-                },
-                failed: {
-                  component: (
-                    <TransactionComplete
-                      transactionId={deployedTransactionId}
-                      contractType={contractType}
-                      interactionType={interactionType}
-                      transactionData={transactionData}
-                    />
-                  ),
-                  showNext: false,
-                  showBack: false,
-                },
-              };
-            }
-            // TODO implement other registry interactions
-            default:
-              throw new Error('Interaction type is undefined');
-          }
-        }
-
-        default:
-          throw new Error('Contract type is undefined');
+      case INTERACTION_TYPES.BUY_RECORD: {
+        if (
+          !isObjectOfTransactionPayloadType<BuyRecordPayload>(
+            payload,
+            TRANSACTION_DATA_KEYS[interactionType].keys,
+          )
+        )
+          throw Error('Payload is not valid.');
+        return {
+          pending: {
+            component: <PDNTCard {...pdntProps} />,
+            header: (
+              <>
+                <div className="flex flex-row text-large white bold center">
+                  Confirm Name Purchase
+                </div>
+              </>
+            ),
+          },
+          confirmed: {
+            component: <DeployTransaction />,
+            showNext: false,
+            showBack: false,
+            header: (
+              <>
+                <div className="flex flex-row text-large white bold center">
+                  Deploy Name Purchase
+                </div>
+              </>
+            ),
+          },
+          successful: {
+            component: (
+              <TransactionComplete
+                transactionId={deployedTransactionId}
+                interactionType={interactionType}
+                transactionData={transactionData}
+              />
+            ),
+            showNext: false,
+            showBack: false,
+            header: (
+              <>
+                <div className="flex flex-row text-large white bold center">
+                  <span className="text-large white center">
+                    <b>{payload.name}</b>.arweave.net is yours!
+                  </span>
+                </div>
+              </>
+            ),
+          },
+          failed: {
+            component: (
+              <TransactionComplete
+                transactionId={deployedTransactionId}
+                interactionType={interactionType}
+                transactionData={transactionData}
+              />
+            ),
+            showNext: false,
+            showBack: false,
+          },
+        };
       }
-    } catch (error) {
-      console.error(error);
+      // TODO implement other registry interactions
+      default:
+        throw new Error('Interaction type is undefined');
     }
   }
 

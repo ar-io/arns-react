@@ -8,7 +8,7 @@ import TransactionWorkflow, {
 } from '../../layout/TransactionWorkflow/TransactionWorkflow';
 
 function Transaction() {
-  const { transactionData, contractType, interactionType, workflowStage } =
+  const { transactionData, interactionType, workflowStage } =
     useTransactionData();
   const from = useLocation().state;
   const [, dispatchTransactionState] = useTransactionState();
@@ -29,7 +29,6 @@ function Transaction() {
     <>
       <div className="page">
         <TransactionWorkflow
-          contractType={contractType}
           interactionType={interactionType}
           transactionData={transactionData}
           workflowStage={workflowStage}

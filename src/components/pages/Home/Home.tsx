@@ -8,8 +8,7 @@ import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ArweaveTransactionID,
   BuyRecordPayload,
-  CONTRACT_TYPES,
-  REGISTRY_INTERACTION_TYPES,
+  INTERACTION_TYPES,
 } from '../../../types';
 import {
   FEATURED_DOMAINS,
@@ -105,12 +104,8 @@ function Home() {
                   },
                 });
                 dispatchTransactionState({
-                  type: 'setContractType',
-                  payload: CONTRACT_TYPES.REGISTRY,
-                });
-                dispatchTransactionState({
                   type: 'setInteractionType',
-                  payload: REGISTRY_INTERACTION_TYPES.BUY_RECORD,
+                  payload: INTERACTION_TYPES.BUY_RECORD,
                 });
                 // navigate to the transaction page, which will load the updated state of the transaction context
                 navigate('/transaction', {

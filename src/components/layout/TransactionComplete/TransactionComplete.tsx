@@ -2,10 +2,8 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import {
   ArweaveTransactionID,
-  ContractType,
-  PDNTInteraction,
-  RegistryInteraction,
   TransactionData,
+  ValidInteractionType,
 } from '../../../types';
 import { WARP_CONTRACT_BASE_URL } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
@@ -15,18 +13,15 @@ import { ArrowUpRight } from '../../icons';
 
 function TransactionComplete({
   transactionId,
-  contractType,
   interactionType,
   transactionData,
 }: {
   transactionId?: ArweaveTransactionID;
-  contractType: ContractType;
-  interactionType: PDNTInteraction | RegistryInteraction;
+  interactionType: ValidInteractionType;
   transactionData: TransactionData;
 }) {
   const navigate = useNavigate();
   const pdntProps = getPDNSMappingByInteractionType({
-    contractType,
     interactionType,
     transactionData,
   });
