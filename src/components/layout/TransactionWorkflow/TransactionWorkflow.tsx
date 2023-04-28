@@ -166,6 +166,7 @@ function TransactionWorkflow({
       throw Error('Unable to get PDNT properties.');
     }
     switch (interactionType) {
+      case INTERACTION_TYPES.SET_CONTROLLER:
       case INTERACTION_TYPES.TRANSFER:
       case INTERACTION_TYPES.CREATE:
       case INTERACTION_TYPES.SET_TTL_SECONDS:
