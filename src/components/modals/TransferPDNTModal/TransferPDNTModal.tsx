@@ -28,7 +28,7 @@ function TransferPDNTModal({
 }) {
   const [{ pdnsSourceContract }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
-  const [{}, dispatchTransactionState] = useTransactionState(); // eslint-disable-line
+  const [, dispatchTransactionState] = useTransactionState();
   const isMobile = useIsMobile();
   const [accepted, setAccepted] = useState<boolean>(false);
   const [toAddress, setToAddress] = useState<string>('');
