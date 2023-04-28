@@ -65,7 +65,7 @@ function ManagePDNTModal() {
 
   useEffect(() => {
     if (!id) {
-      navigate('/manage/ants');
+      navigate('/manage/pdnts');
       return;
     }
     const txId = new ArweaveTransactionID(id);

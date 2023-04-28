@@ -6,6 +6,7 @@ import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ArweaveTransactionID,
   BuyRecordPayload,
+  CreatePDNTPayload,
   ExcludedValidInteractionType,
   INTERACTION_TYPES,
   TransactionData,
@@ -44,12 +45,9 @@ function TransactionWorkflow({
   const arweaveDataProvider = useArweaveCompositeProvider();
   const { assetId, functionName, ...payload } = transactionData;
   const navigate = useNavigate();
-  const [steps, setSteps] = useState<
-    | {
-        [x: number]: { title: string; status: string };
-      }
-    | undefined
-  >(() => getWorkflowStepsForInteraction(interactionType));
+  const [steps] = useState(() =>
+    getWorkflowStepsForInteraction(interactionType),
+  );
   const [stages, setStages] = useState<
     { [x: string]: WorkflowStage } | undefined
   >(() =>
@@ -80,30 +78,40 @@ function TransactionWorkflow({
         case 'next':
           switch (workflowStage) {
             case TRANSACTION_WORKFLOW_STATUS.PENDING: {
-              const newSteps = getWorkflowStepsForInteraction(interactionType);
-              newSteps['1'].status = 'success';
-              newSteps['2'].status = 'pending';
-              setSteps(newSteps);
+              steps['1'].status = 'success';
+              steps['2'].status = 'pending';
               dispatchTransactionState({
                 type: 'setWorkflowStage',
                 payload: TRANSACTION_WORKFLOW_STATUS.CONFIRMED,
               });
-              const originalTxId = await arweaveDataProvider.writeTransaction(
-                new ArweaveTransactionID(assetId),
-                {
-                  function: functionName,
-                  ...payload,
-                },
-              );
+              const originalTxId =
+                interactionType === INTERACTION_TYPES.CREATE &&
+                isObjectOfTransactionPayloadType<CreatePDNTPayload>(
+                  payload,
+                  TRANSACTION_DATA_KEYS[INTERACTION_TYPES.CREATE].keys,
+                )
+                  ? await arweaveDataProvider.deployContract({
+                      srcCodeTransactionId: new ArweaveTransactionID(
+                        payload.srcCodeTransactionId,
+                      ),
+                      initialState: payload.initialState,
+                      tags: payload?.tags,
+                    })
+                  : await arweaveDataProvider.writeTransaction(
+                      new ArweaveTransactionID(assetId),
+                      {
+                        function: functionName,
+                        ...payload,
+                      },
+                    );
               if (originalTxId) {
                 dispatchTransactionState({
                   type: 'setDeployedTransactionId',
-                  payload: originalTxId,
+                  payload: new ArweaveTransactionID(originalTxId.toString()),
                 });
               }
-              newSteps['2'].status = 'success';
-              newSteps['3'].status = 'success';
-              setSteps(newSteps);
+              steps['2'].status = 'success';
+              steps['3'].status = 'success';
 
               return originalTxId;
             }
@@ -126,6 +134,7 @@ function TransactionWorkflow({
           );
       }
     } catch (error) {
+      console.error(error);
       eventEmitter.emit('error', error);
       dispatchTransactionState({
         type: 'setWorkflowStage',
@@ -147,6 +156,7 @@ function TransactionWorkflow({
       throw Error('Unable to get PDNT properties.');
     }
     switch (interactionType) {
+      case INTERACTION_TYPES.CREATE:
       case INTERACTION_TYPES.SET_TTL_SECONDS:
       case INTERACTION_TYPES.SET_TARGET_ID:
       case INTERACTION_TYPES.SET_TICKER:

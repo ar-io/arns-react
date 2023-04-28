@@ -8,28 +8,25 @@ import {
   useWalletAddress,
 } from '../../../hooks';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
+import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
-  ArweaveTransactionID,
   INTERACTION_TYPES,
   ManagePDNTRow,
-  PDNTContractJSON,
   TRANSACTION_TYPES,
-  TransactionData,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
+import { mapTransactionDataKeyToPayload } from '../../../utils';
 import { DEFAULT_PDNT_SOURCE_CODE_TX } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { mapKeyToAttribute } from '../../cards/PDNTCard/PDNTCard';
 import { CloseIcon, PencilIcon } from '../../icons';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
-import ConfirmPDNTCreation from '../../layout/ConfirmPDNTCreation/ConfirmPDNTCreation';
-import DeployTransaction from '../../layout/DeployTransaction/DeployTransaction';
-import TransactionComplete from '../../layout/TransactionComplete/TransactionComplete';
 import Workflow from '../../layout/Workflow/Workflow';
 
 function CreatePDNTModal() {
   const isMobile = useIsMobile();
   const arweaveDataProvider = useArweaveCompositeProvider();
+  const [{}, dispatchTransactionState] = useTransactionState(); // eslint-disable-line
   const { walletAddress } = useWalletAddress();
   const navigate = useNavigate();
 
@@ -46,46 +43,6 @@ function CreatePDNTModal() {
   const [editingField, setEditingField] = useState<string>();
   const [modifiedValue, setModifiedValue] = useState<string | number>();
 
-  const [workflowStage, setWorkflowStage] = useState<number>(0);
-
-  const [pdntContractId, setPDNTContractId] = useState<
-    ArweaveTransactionID | undefined
-  >();
-  const [isPostingTransaction, setIsPostingTransaction] = useState(false);
-
-  const steps = {
-    1: {
-      title: 'Set PDNT Details',
-      status:
-        workflowStage + 1 === 1
-          ? 'pending'
-          : workflowStage + 1 > 1
-          ? 'success'
-          : '',
-    },
-    2: {
-      title: 'Confirm PDNT',
-      status:
-        workflowStage + 1 === 2
-          ? 'pending'
-          : workflowStage + 1 > 2
-          ? 'success'
-          : '',
-    },
-    3: {
-      title: 'Deploy PDNT',
-      status:
-        workflowStage + 1 === 3
-          ? 'pending'
-          : workflowStage + 1 > 3
-          ? 'success'
-          : '',
-    },
-    4: {
-      title: 'Manage PDNT',
-      status: workflowStage + 1 === 4 ? 'success' : '',
-    },
-  };
   const EDITABLE_FIELDS = [
     'name',
     'ticker',
@@ -108,10 +65,7 @@ function CreatePDNTModal() {
   };
 
   function reset() {
-    setWorkflowStage(0);
     setPDNT(new PDNTContract());
-    setIsPostingTransaction(false);
-    setPDNTContractId(undefined);
     setDetails();
   }
   // reset useEffect must be first, else wont reset
@@ -133,7 +87,7 @@ function CreatePDNTModal() {
       }
       setDetails();
     }
-  }, [walletAddress, pdnt, workflowStage]);
+  }, [walletAddress, pdnt]);
 
   function setDetails() {
     const consolidatedDetails: any = {
@@ -209,32 +163,6 @@ function CreatePDNTModal() {
     }
   }
 
-  async function deployPDNT(state: PDNTContractJSON) {
-    try {
-      setIsPostingTransaction(true);
-      if (!state) {
-        throw new Error('No state provided, cannot deploy PDNT contract');
-      }
-      // perform checks, try/catch
-      const pendingTXId = await arweaveDataProvider.deployContract({
-        srcCodeTransactionId: new ArweaveTransactionID(
-          DEFAULT_PDNT_SOURCE_CODE_TX,
-        ),
-        initialState: state,
-      });
-      if (!pendingTXId) {
-        throw new Error('Failed to deploy PDNT contract');
-      }
-      setPDNTContractId(new ArweaveTransactionID(pendingTXId));
-      setIsPostingTransaction(false);
-      return pendingTXId;
-    } catch (error) {
-      eventEmitter.emit('error', error);
-    } finally {
-      setIsPostingTransaction(false);
-    }
-  }
-
   return (
     <>
       (
@@ -258,46 +186,46 @@ function CreatePDNTModal() {
           <CloseIcon width={30} height={30} fill={'var(--text-white'} />
         </button>
         <Workflow
-          stage={workflowStage.toString()}
+          stage={'0'}
           onNext={() => {
-            switch (workflowStage) {
-              case 0:
-                setWorkflowStage(workflowStage + 1);
-                break;
-              case 1:
-                {
-                  if (pdnt.state) {
-                    setWorkflowStage(workflowStage + 1);
-                    deployPDNT(pdnt.state)
-                      .then(() => {
-                        setWorkflowStage(workflowStage + 2);
-                        steps['3'].status = 'fail';
-                      })
-                      .catch(() => {
-                        setWorkflowStage(workflowStage + 2);
-                        steps['3'].status = 'fail';
-                      });
-                  }
-                  if (!pdnt.state) {
-                    return;
-                  }
-                }
-                break;
-              default:
-                return;
+            const payload = mapTransactionDataKeyToPayload(
+              INTERACTION_TYPES.CREATE,
+              [DEFAULT_PDNT_SOURCE_CODE_TX, pdnt.state],
+            );
+            if (payload) {
+              dispatchTransactionState({
+                type: 'setInteractionType',
+                payload: INTERACTION_TYPES.CREATE,
+              });
+              dispatchTransactionState({
+                type: 'setTransactionData',
+                payload: payload,
+              });
+
+              navigate(`/transaction`, {
+                state: `/create`,
+              });
             }
           }}
-          onBack={() => {
-            switch (workflowStage) {
-              case 0:
-                navigate(-1);
-                break;
-              default:
-                setWorkflowStage(workflowStage - 1);
-                break;
-            }
+          onBack={() => navigate(-1)}
+          steps={{
+            1: {
+              title: 'Set PDNT Details',
+              status: 'pending',
+            },
+            2: {
+              title: 'Confirm PDNT',
+              status: '',
+            },
+            3: {
+              title: 'Deploy PDNT',
+              status: '',
+            },
+            4: {
+              title: 'Manage PDNT',
+              status: '',
+            },
           }}
-          steps={steps}
           stages={{
             0: {
               showNext: true,
@@ -545,82 +473,6 @@ function CreatePDNTModal() {
                     </div>
                     {/* card div end */}
                   </div>
-                </>
-              ),
-            },
-            1: {
-              nextText: 'Confirm',
-              customBackStyle: {
-                height: '40px',
-                width: '150px',
-                padding: '5px 10px',
-              },
-              customNextStyle: {
-                height: '40px',
-                width: '150px',
-                padding: '5px 10px',
-                backgroundColor: !pdnt.state
-                  ? 'var(--text-faded)'
-                  : 'var(--accent)',
-              },
-              header: (
-                <>
-                  <div className="flex flex-row text-large white bold center">
-                    Confirm PDNT Creation
-                  </div>
-                </>
-              ),
-              component: (
-                <>
-                  <ConfirmPDNTCreation state={pdnt.state} />
-                </>
-              ),
-            },
-            2: {
-              showBack: false,
-              showNext: false,
-              header: (
-                <>
-                  {' '}
-                  <span className="flex flex-row text-large white bold center">
-                    {isPostingTransaction
-                      ? 'Deploying...'
-                      : 'Awaiting transaction confirmation...'}
-                  </span>
-                </>
-              ),
-              component: (
-                <>
-                  <DeployTransaction />
-                </>
-              ),
-            },
-            3: {
-              showBack: false,
-              showNext: false,
-              header: (
-                <>
-                  <span className="flex flex-row text-large white bold center">
-                    PDNT successfully created!
-                  </span>
-                </>
-              ),
-              component: (
-                <>
-                  <TransactionComplete
-                    transactionId={
-                      pdntContractId
-                        ? new ArweaveTransactionID(pdntContractId.toString())
-                        : undefined
-                    }
-                    interactionType={INTERACTION_TYPES.CREATE}
-                    transactionData={
-                      {
-                        initialState: pdnt.state,
-                        srcCodeTransactionId: DEFAULT_PDNT_SOURCE_CODE_TX,
-                      } as TransactionData
-                    }
-                  />
                 </>
               ),
             },

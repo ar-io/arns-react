@@ -306,7 +306,7 @@ export type InteractionTypeName =
   | UnknownInteractionTypeName;
 export type ExcludedValidInteractionType = Exclude<
   ValidInteractionType,
-  INTERACTION_TYPES.BALANCE | INTERACTION_TYPES.CREATE
+  INTERACTION_TYPES.BALANCE
 >;
 
 export type TransactionDataBasePayload = {
