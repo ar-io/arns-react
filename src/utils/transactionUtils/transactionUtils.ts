@@ -8,6 +8,7 @@ import {
   ExcludedValidInteractionType,
   INTERACTION_TYPES,
   PDNSMapping,
+  PDNTContractJSON,
   SetNamePayload,
   SetRecordPayload,
   SetTickerPayload,
@@ -106,6 +107,24 @@ export const WorkflowStepsForInteractions: Record<
     2: { title: 'Deploy TTL Seconds Change', status: '' },
     3: { title: 'Complete', status: '' },
   },
+  [INTERACTION_TYPES.CREATE]: {
+    0: {
+      title: 'Set PDNT Details',
+      status: 'success',
+    },
+    1: {
+      title: 'Confirm PDNT',
+      status: 'pending',
+    },
+    2: {
+      title: 'Deploy PDNT',
+      status: '',
+    },
+    3: {
+      title: 'Complete',
+      status: '',
+    },
+  },
 };
 
 export const TRANSACTION_DATA_KEYS: Record<
@@ -174,7 +193,7 @@ export const getWorkflowStepsForInteraction = (
     status: string;
   };
 } => {
-  return WorkflowStepsForInteractions[interaction];
+  return structuredClone(WorkflowStepsForInteractions[interaction]);
 };
 
 export function getPDNSMappingByInteractionType(
@@ -225,20 +244,9 @@ export function getPDNSMappingByInteractionType(
       return {
         domain: '',
         showTier: false,
-        compact: false,
+        compact: true,
         state: pdnt.state,
-        overrides: {
-          targetId: pdnt.getRecord('@').transactionId,
-          ttlSeconds: pdnt.getRecord('@').ttlSeconds,
-        },
-        disabledKeys: [
-          'tier',
-          'evolve',
-          'maxSubdomains',
-          'id',
-          'domain',
-          'leaseDuration',
-        ],
+        disabledKeys: ['domain', 'evolve', 'id', 'tier'],
       };
     }
     case INTERACTION_TYPES.SET_NAME: {
@@ -380,9 +388,9 @@ export function getInteractionTypeFromField(field: string) {
 
 export function mapTransactionDataKeyToPayload(
   interactionType: ValidInteractionType,
-  data: string | number | Array<string | number>,
+  data: string | number | Array<string | number | PDNTContractJSON>,
 ): TransactionData | undefined {
-  const txData = typeof data === 'object' ? [...data] : [data];
+  const txData = typeof data === 'object' ? data : [data];
   if (!data) {
     throw new Error('No data provided, data is required to build the payload');
   }
@@ -404,4 +412,29 @@ export function mapTransactionDataKeyToPayload(
     ...payload,
     functionName: TRANSACTION_DATA_KEYS[interactionType].functionName,
   };
+}
+
+export function getLinkId(
+  interactionType: ValidInteractionType,
+  transactionData: TransactionData,
+): string {
+  if (
+    interactionType === INTERACTION_TYPES.BUY_RECORD &&
+    isObjectOfTransactionPayloadType<BuyRecordPayload>(
+      transactionData,
+      TRANSACTION_DATA_KEYS[INTERACTION_TYPES.BUY_RECORD].keys,
+    )
+  ) {
+    return transactionData.contractTxId.toString() ?? '';
+  }
+  if (
+    interactionType === INTERACTION_TYPES.CREATE &&
+    isObjectOfTransactionPayloadType<CreatePDNTPayload>(
+      transactionData,
+      TRANSACTION_DATA_KEYS[INTERACTION_TYPES.CREATE].keys,
+    )
+  ) {
+    return transactionData.deployedTransactionId?.toString() ?? '';
+  }
+  return transactionData.assetId.toString();
 }
