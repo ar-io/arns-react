@@ -17,6 +17,7 @@ import {
   getWorkflowStepsForInteraction,
   isObjectOfTransactionPayloadType,
 } from '../../../utils';
+import eventEmitter from '../../../utils/events';
 import { PDNTCard } from '../../cards';
 import DeployTransaction from '../DeployTransaction/DeployTransaction';
 import TransactionComplete from '../TransactionComplete/TransactionComplete';
@@ -125,7 +126,11 @@ function TransactionWorkflow({
           );
       }
     } catch (error) {
-      console.error(error);
+      eventEmitter.emit('error', error);
+      dispatchTransactionState({
+        type: 'setWorkflowStage',
+        payload: TRANSACTION_WORKFLOW_STATUS.PENDING,
+      });
     }
   }
   function getStagesByTransactionType({

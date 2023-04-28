@@ -26,15 +26,14 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
   const { walletAddress } = useWalletAddress();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] = useState<keyof PDNSTableRow>('status');
-  const [selectedRow, setSelectedRow] = useState<PDNSTableRow>(); // eslint-disable-line
+  const [selectedRow] = useState<PDNSTableRow>();
   const [rows, setRows] = useState<PDNSTableRow[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [percent, setPercentLoaded] = useState<number | undefined>();
 
   useEffect(() => {
     if (ids.length) {
-      setIsLoading(true);
-      fetchPDNTRows(ids).finally(() => setIsLoading(false));
+      fetchPDNTRows(ids);
     }
   }, [ids]);
 
@@ -297,8 +296,8 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
 
   async function fetchPDNTRows(ids: ArweaveTransactionID[]) {
     const { records } = pdnsSourceContract;
-
     const fetchedRows: PDNSTableRow[] = [];
+    setIsLoading(true);
     for (const [index, txId] of ids.entries()) {
       try {
         const associatedNames: (PDNSRecordEntry & { name: string })[] =
@@ -336,15 +335,16 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
           key: `${domain.name}-${txId.toString()}`,
         }));
         fetchedRows.push(...rowData);
+        // sort by confirmations by default
+        fetchedRows.sort((a, b) => a.status - b.status);
       } catch (error) {
         eventEmitter.emit('error', error);
       } finally {
-        // sort by confirmations by default
-        fetchedRows.sort((a, b) => a.status - b.status);
         setPercentLoaded(((index + 1) / ids.length) * 100);
-        setRows(fetchedRows);
       }
     }
+    setRows(fetchedRows);
+    setIsLoading(false);
   }
 
   return {

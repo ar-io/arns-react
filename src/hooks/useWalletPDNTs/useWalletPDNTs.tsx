@@ -32,8 +32,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
 
   useEffect(() => {
     if (ids.length) {
-      setIsLoading(true);
-      fetchPDNTRows(ids).finally(() => setIsLoading(false));
+      fetchPDNTRows(ids);
     }
   }, [ids]);
 
@@ -284,6 +283,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
 
   async function fetchPDNTRows(ids: ArweaveTransactionID[]) {
     const fetchedRows: PDNTMetadata[] = [];
+    setIsLoading(true);
     for (const [index, id] of ids.entries()) {
       try {
         const [contractState, confirmations] = await Promise.all([
@@ -308,15 +308,16 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
           key: index,
         };
         fetchedRows.push(rowData);
+        // sort by confirmation count (ASC) by default
+        fetchedRows.sort((a, b) => a.status - b.status);
       } catch (error) {
         eventEmitter.emit('error', error);
       } finally {
-        // sort by confirmation count (ASC) by default
-        fetchedRows.sort((a, b) => a.status - b.status);
         setPercentLoaded(((index + 1) / ids.length) * 100);
-        setRows(fetchedRows);
       }
     }
+    setRows(fetchedRows);
+    setIsLoading(false);
   }
 
   return {
