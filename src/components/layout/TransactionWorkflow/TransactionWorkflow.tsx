@@ -72,6 +72,41 @@ function TransactionWorkflow({
     }
   }, [workflowStage, deployedTransactionId, transactionData]);
 
+  async function deployTransaction() {
+    try {
+      const originalTxId =
+        interactionType === INTERACTION_TYPES.CREATE &&
+        isObjectOfTransactionPayloadType<CreatePDNTPayload>(
+          payload,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.CREATE].keys,
+        )
+          ? await arweaveDataProvider.deployContract({
+              srcCodeTransactionId: new ArweaveTransactionID(
+                payload.srcCodeTransactionId,
+              ),
+              initialState: payload.initialState,
+              tags: payload?.tags,
+            })
+          : await arweaveDataProvider.writeTransaction(
+              new ArweaveTransactionID(assetId),
+              {
+                function: functionName,
+                ...payload,
+              },
+            );
+      if (originalTxId) {
+        dispatchTransactionState({
+          type: 'setDeployedTransactionId',
+          payload: new ArweaveTransactionID(originalTxId.toString()),
+        });
+      }
+      return originalTxId;
+    } catch (error: any) {
+      console.error(error);
+      throw new Error(error);
+    }
+  }
+
   async function handleStage(direction: string) {
     try {
       switch (direction) {
@@ -84,32 +119,7 @@ function TransactionWorkflow({
                 type: 'setWorkflowStage',
                 payload: TRANSACTION_WORKFLOW_STATUS.CONFIRMED,
               });
-              const originalTxId =
-                interactionType === INTERACTION_TYPES.CREATE &&
-                isObjectOfTransactionPayloadType<CreatePDNTPayload>(
-                  payload,
-                  TRANSACTION_DATA_KEYS[INTERACTION_TYPES.CREATE].keys,
-                )
-                  ? await arweaveDataProvider.deployContract({
-                      srcCodeTransactionId: new ArweaveTransactionID(
-                        payload.srcCodeTransactionId,
-                      ),
-                      initialState: payload.initialState,
-                      tags: payload?.tags,
-                    })
-                  : await arweaveDataProvider.writeTransaction(
-                      new ArweaveTransactionID(assetId),
-                      {
-                        function: functionName,
-                        ...payload,
-                      },
-                    );
-              if (originalTxId) {
-                dispatchTransactionState({
-                  type: 'setDeployedTransactionId',
-                  payload: new ArweaveTransactionID(originalTxId.toString()),
-                });
-              }
+              const originalTxId = deployTransaction();
               steps['2'].status = 'success';
               steps['3'].status = 'success';
 

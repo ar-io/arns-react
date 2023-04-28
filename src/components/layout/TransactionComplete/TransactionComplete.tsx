@@ -80,7 +80,7 @@ function TransactionComplete({
                   ? WARP_CONTRACT_BASE_URL
                   : WARP_INTERACTION_BASE_URL
               }
-                ${transactionId?.toString()}`}
+                ${transactionId?.toString()}`.trim()}
               className="link"
               style={{ textDecoration: 'none' }}
             >

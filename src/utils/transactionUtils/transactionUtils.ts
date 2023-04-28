@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 import { PDNTContract } from '../../services/arweave/PDNTContract';
 import {
   ArweaveTransactionID,
@@ -195,7 +193,7 @@ export const getWorkflowStepsForInteraction = (
     status: string;
   };
 } => {
-  return _.cloneDeep(WorkflowStepsForInteractions[interaction]);
+  return structuredClone(WorkflowStepsForInteractions[interaction]);
 };
 
 export function getPDNSMappingByInteractionType(
@@ -438,5 +436,5 @@ export function getLinkId(
   ) {
     return transactionData.deployedTransactionId?.toString() ?? '';
   }
-  return transactionData.assetId.toString() ?? '';
+  return transactionData.assetId.toString();
 }
