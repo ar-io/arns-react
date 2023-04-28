@@ -240,13 +240,74 @@ export enum ASSET_TYPES {
   UNDERNAME = 'Undername',
   COIN = 'coin',
 }
-export enum REGISTRY_INTERACTION_TYPES {
-  BUY_RECORD = 'Buy PDNS Name', //permabuy
+export enum INTERACTION_TYPES {
+  // Registry interaction types
+  BUY_RECORD = 'Buy PDNS Name',
   EXTEND_LEASE = 'Extend Lease',
   UPGRADE_TIER = 'Upgrade Tier',
-  TRANSFER = 'Transfer IO Tokens',
+
+  // ANT interaction types
+  SET_CONTROLLER = 'Edit Controller',
+  SET_TICKER = 'Edit Ticker',
+  SET_NAME = 'Edit Name',
+  SET_TTL_SECONDS = 'Edit TTL Seconds',
+  SET_TARGET_ID = 'Edit Target ID',
+  SET_RECORD = 'Edit Record',
+  REMOVE_RECORD = 'Delete Record',
+  CREATE = 'Create Permaweb Name Token',
+
+  // Common interaction types
+  TRANSFER = 'Transfer',
   BALANCE = 'Balance',
+  UNKNOWN = 'Unknown',
 }
+
+const commonInteractionTypeNames = [
+  INTERACTION_TYPES.TRANSFER,
+  INTERACTION_TYPES.BALANCE,
+] as const;
+const unknownInteractionType = INTERACTION_TYPES.UNKNOWN as const;
+export const pdntInteractionTypes = [
+  ...commonInteractionTypeNames,
+  INTERACTION_TYPES.SET_CONTROLLER,
+  INTERACTION_TYPES.SET_TICKER,
+  INTERACTION_TYPES.SET_NAME,
+  INTERACTION_TYPES.SET_TTL_SECONDS,
+  INTERACTION_TYPES.SET_TARGET_ID,
+  INTERACTION_TYPES.SET_RECORD,
+  INTERACTION_TYPES.REMOVE_RECORD,
+  INTERACTION_TYPES.CREATE,
+] as const;
+export const registryInteractionTypes = [
+  ...commonInteractionTypeNames,
+  INTERACTION_TYPES.BUY_RECORD,
+  INTERACTION_TYPES.EXTEND_LEASE,
+  INTERACTION_TYPES.UPGRADE_TIER,
+] as const;
+
+export const interactionTypeNames = [
+  ...pdntInteractionTypes,
+  ...registryInteractionTypes,
+] as const;
+export const contractTypeNames = [
+  CONTRACT_TYPES.REGISTRY,
+  CONTRACT_TYPES.PDNT,
+] as const;
+export type ContractTypes = (typeof contractTypeNames)[number];
+export type InteractionTypes = (typeof interactionTypeNames)[number];
+export type PDNTInteractionType = (typeof pdntInteractionTypes)[number];
+export type RegistryInteractionType = (typeof registryInteractionTypes)[number];
+export type UnknownInteractionTypeName = typeof unknownInteractionType;
+export type ValidInteractionType =
+  | PDNTInteractionType
+  | RegistryInteractionType;
+export type InteractionTypeName =
+  | ValidInteractionType
+  | UnknownInteractionTypeName;
+export type ExcludedValidInteractionType = Exclude<
+  ValidInteractionType,
+  INTERACTION_TYPES.BALANCE | INTERACTION_TYPES.CREATE
+>;
 
 export type TransactionDataBasePayload = {
   assetId: string;
@@ -325,13 +386,6 @@ export enum PDNT_INTERACTION_TYPES {
   CREATE = 'Create Arweave Name Token',
 }
 
-export type ContractType = (typeof CONTRACT_TYPES)[keyof typeof CONTRACT_TYPES];
-
-export type PDNTInteraction =
-  (typeof PDNT_INTERACTION_TYPES)[keyof typeof PDNT_INTERACTION_TYPES];
-export type RegistryInteraction =
-  (typeof REGISTRY_INTERACTION_TYPES)[keyof typeof REGISTRY_INTERACTION_TYPES];
-
 export const ALL_TRANSACTION_DATA_KEYS = [
   'assetId',
   'functionName',
@@ -368,85 +422,6 @@ export type TransactionData = TransactionDataBasePayload &
   TransactionDataPayload;
 
 export type TransactionDataConfig = { functionName: string; keys: string[] };
-
-export const TRANSACTION_DATA_KEYS: {
-  // specifying interaction types to the correct contract type, to ensure clarity and to prevent crossover of interaction types
-  [CONTRACT_TYPES.PDNT]: {
-    [K in PDNTInteraction]: TransactionDataConfig;
-  };
-  [CONTRACT_TYPES.REGISTRY]: {
-    [K in RegistryInteraction]: TransactionDataConfig;
-  };
-  /**
-   NOTE: benefit of this setup, is that if a new type is added to an enum like PDNT_INTERACTION_TYPES, 
-   then an error will occur here, since every key of the type is required to be defined here.
-   */
-} = {
-  [CONTRACT_TYPES.REGISTRY]: {
-    [REGISTRY_INTERACTION_TYPES.BUY_RECORD]: {
-      functionName: 'buyRecord',
-      keys: ['name', 'contractTxId', 'years', 'tierNumber'],
-    },
-    [REGISTRY_INTERACTION_TYPES.EXTEND_LEASE]: {
-      functionName: 'extendLease',
-      keys: ['name', 'years'],
-    },
-    [REGISTRY_INTERACTION_TYPES.UPGRADE_TIER]: {
-      functionName: 'upgradeTier',
-      keys: ['name', 'tierNumber'],
-    },
-    [REGISTRY_INTERACTION_TYPES.TRANSFER]: {
-      functionName: 'transfer',
-      keys: ['target', 'qty'],
-    }, // transfer io tokens
-    [REGISTRY_INTERACTION_TYPES.BALANCE]: {
-      functionName: 'getBalance',
-      keys: ['target'],
-    },
-  },
-  [CONTRACT_TYPES.PDNT]: {
-    [PDNT_INTERACTION_TYPES.SET_TTL_SECONDS]: {
-      functionName: 'setRecord',
-      keys: ['subDomain', 'transactionId', 'ttlSeconds'],
-    },
-    [PDNT_INTERACTION_TYPES.SET_TARGET_ID]: {
-      functionName: 'setRecord',
-      keys: ['subDomain', 'transactionId', 'ttlSeconds'],
-    },
-    [PDNT_INTERACTION_TYPES.SET_TICKER]: {
-      functionName: 'setTicker',
-      keys: ['ticker'],
-    },
-    [PDNT_INTERACTION_TYPES.SET_CONTROLLER]: {
-      functionName: 'setController',
-      keys: ['target'],
-    },
-    [PDNT_INTERACTION_TYPES.SET_NAME]: {
-      functionName: 'setName',
-      keys: ['name'],
-    },
-    [PDNT_INTERACTION_TYPES.SET_RECORD]: {
-      functionName: 'setRecord',
-      keys: ['subDomain', 'transactionId', 'ttlSeconds'],
-    },
-    [PDNT_INTERACTION_TYPES.REMOVE_RECORD]: {
-      functionName: 'removeRecord',
-      keys: ['subDomain'],
-    },
-    [PDNT_INTERACTION_TYPES.TRANSFER]: {
-      functionName: 'transfer',
-      keys: ['target'],
-    },
-    [PDNT_INTERACTION_TYPES.BALANCE]: {
-      functionName: 'balance',
-      keys: ['target'],
-    },
-    [PDNT_INTERACTION_TYPES.CREATE]: {
-      functionName: '',
-      keys: ['srcCodeTransactionId', 'initialState'],
-    },
-  },
-};
 
 export class ArweaveTransactionID implements Equatable<ArweaveTransactionID> {
   constructor(private readonly transactionId: string) {
@@ -505,7 +480,7 @@ export type ManagePDNTRow = {
   editable: boolean;
   action: any;
   key: number;
-  interactionType?: PDNTInteraction | RegistryInteraction;
+  interactionType?: ValidInteractionType;
 };
 
 export enum VALIDATION_INPUT_TYPES {

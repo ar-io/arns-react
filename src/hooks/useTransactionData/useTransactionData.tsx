@@ -13,7 +13,7 @@ export function useTransactionData() {
   const [, setSearchParams] = useSearchParams();
   const from = useLocation().state;
 
-  const [{ transactionData, contractType, interactionType, workflowStage }] =
+  const [{ transactionData, interactionType, workflowStage }] =
     useTransactionState();
 
   /**
@@ -31,17 +31,15 @@ export function useTransactionData() {
     const updatedSearchParams = createSearchParams({
       // TODO: sanitize these values
       ...(transactionData as any),
-      contractType,
       interactionType,
       workflowStage,
     });
 
     setSearchParams(updatedSearchParams);
-  }, [transactionData, contractType, interactionType, workflowStage]);
+  }, [transactionData, interactionType, workflowStage]);
 
   return {
     transactionData,
-    contractType,
     interactionType,
     workflowStage,
   };

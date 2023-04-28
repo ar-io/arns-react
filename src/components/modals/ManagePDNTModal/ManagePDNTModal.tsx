@@ -9,7 +9,6 @@ import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ArweaveTransactionID,
-  CONTRACT_TYPES,
   ManagePDNTRow,
   PDNSRecordEntry,
   PDNTContractJSON,
@@ -307,12 +306,11 @@ function ManagePDNTModal() {
                             borderColor: 'var(--accent)',
                           }}
                           onClick={() => {
-                            // TODO update when pdnt source code is updated to not overwrite existing info
+                            // TODO: make this more clear, we should be updating only the value that matters and not overwriting anything
                             const payload =
                               row.interactionType ===
                               PDNT_INTERACTION_TYPES.SET_TARGET_ID
                                 ? mapTransactionDataKeyToPayload(
-                                    CONTRACT_TYPES.PDNT,
                                     row.interactionType,
                                     [
                                       '@',
@@ -323,7 +321,6 @@ function ManagePDNTModal() {
                                 : row.interactionType ===
                                   PDNT_INTERACTION_TYPES.SET_TTL_SECONDS
                                 ? mapTransactionDataKeyToPayload(
-                                    CONTRACT_TYPES.PDNT,
                                     row.interactionType,
                                     [
                                       '@',
@@ -335,31 +332,24 @@ function ManagePDNTModal() {
                                     ],
                                   )
                                 : mapTransactionDataKeyToPayload(
-                                    CONTRACT_TYPES.PDNT,
                                     row.interactionType,
                                     modifiedValue!.toString(),
                                   );
 
                             if (payload && row.interactionType && id) {
-                              // eslint-disable-next-line
-                              const { assetId, functionName, ...data } =
-                                payload;
-                              dispatchTransactionState({
-                                type: 'setContractType',
-                                payload: CONTRACT_TYPES.PDNT,
-                              });
+                              const transactionData = {
+                                ...payload,
+                                assetId: id,
+                              };
                               dispatchTransactionState({
                                 type: 'setInteractionType',
                                 payload: row.interactionType,
                               });
                               dispatchTransactionState({
                                 type: 'setTransactionData',
-                                payload: {
-                                  assetId: id,
-                                  functionName,
-                                  ...data,
-                                },
+                                payload: transactionData,
                               });
+
                               navigate(`/transaction`, {
                                 state: `/manage/pdnts/${id}`,
                               });
