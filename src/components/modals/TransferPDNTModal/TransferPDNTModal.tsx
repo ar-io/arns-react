@@ -104,53 +104,27 @@ function TransferPDNTModal({
                 gap: 0,
               }}
             >
-              Transfer&nbsp;{state.name.length ? state.name : 'PDNT:'}&nbsp;
-              {state.ticker.length ? (
-                `(${state.ticker})`
-              ) : (
-                <CopyTextButton
-                  copyText={pdntId ? pdntId.toString() : ''}
-                  displayText={`(${pdntId!
-                    .toString()
-                    .slice(0, isMobile ? 6 : 0)}${
-                    isMobile ? '...' : ''
-                  }${pdntId!.toString().slice(isMobile ? -6 : 0)})`}
-                  size={'70%'}
-                  wrapperStyle={{
-                    fontFamily: 'Rubik-Bold',
-                    fontSize: '12px',
-                    alignItems: 'center',
-                  }}
-                  position="relative"
-                />
-              )}
+              Transfer&nbsp;{state.name.length ? state.name : ''}&nbsp;
+              {state.ticker.length ? `(${state.ticker})` : ''}
             </span>
-            {state.ticker.length ? (
-              <span
-                className="flex faded text"
-                style={{ alignItems: 'center' }}
-              >
-                Contract ID:&nbsp;
-                <CopyTextButton
-                  copyText={pdntId ? pdntId.toString() : ''}
-                  displayText={`${pdntId!
-                    .toString()
-                    .slice(0, isMobile ? 6 : 0)}${
-                    isMobile ? '...' : ''
-                  }${pdntId!.toString().slice(isMobile ? -6 : 0)}`}
-                  size={'70%'}
-                  wrapperStyle={{
-                    fontFamily: 'Rubik-Bold',
-                    fontSize: '10px',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
-                  position="relative"
-                />
-              </span>
-            ) : (
-              <></>
-            )}
+
+            <span className="flex faded text" style={{ alignItems: 'center' }}>
+              Contract ID:&nbsp;
+              <CopyTextButton
+                copyText={pdntId.toString()}
+                displayText={`${pdntId.toString().slice(0, isMobile ? 6 : 0)}${
+                  isMobile ? '...' : ''
+                }${pdntId.toString().slice(isMobile ? -6 : 0)}`}
+                size={'70%'}
+                wrapperStyle={{
+                  fontFamily: 'Rubik-Bold',
+                  fontSize: '10px',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+                position="relative"
+              />
+            </span>
           </div>
           {/** modal body - condition render edit or transfer */}
 

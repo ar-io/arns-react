@@ -20,7 +20,6 @@ function ArPrice({ dataSize }: { dataSize: number }) {
       setPrice(result);
     } catch (error: any) {
       eventEmitter.emit(error);
-      console.error(error);
       setPrice(0);
     }
   }
