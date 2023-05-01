@@ -14,10 +14,12 @@ import {
   getAssociatedNames,
   mapTransactionDataKeyToPayload,
 } from '../../../utils';
-import { AlertTriangleIcon, CloseIcon } from '../../icons';
+import { SMARTWEAVE_TAG_SIZE } from '../../../utils/constants';
+import { AlertTriangleIcon } from '../../icons';
 import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import { Loader } from '../../layout';
+import ArPrice from '../../layout/ArPrice/ArPrice';
 
 function TransferPDNTModal({
   pdntId,
@@ -73,21 +75,23 @@ function TransferPDNTModal({
                   padding: 0,
                   boxSizing: 'border-box',
                   gap: '1em',
+                  position: 'relative',
+                  paddingBottom: 15,
                 }
               : {
-                  width: 400,
+                  width: 420,
                   minHeight: 200,
                   padding: 0,
-                  paddingBottom: 15,
+                  paddingBottom: 75,
                   gap: '1em',
+                  position: 'relative',
                 }
           }
         >
           <div
             className="flex flex-column flex-space-between"
             style={{
-              borderBottom: '2px rgb(0,0,0,.2) solid',
-              padding: 15,
+              padding: '15px 0px 0px 15px',
               boxSizing: 'border-box',
               marginTop: 5,
               gap: '.5em',
@@ -95,37 +99,58 @@ function TransferPDNTModal({
             }}
           >
             <span
-              className="text-small white bold"
+              className="text-small white bold flex flex-column"
               style={{
-                textShadow: '2px 2px 2px rgb(0,0,0)',
+                gap: 0,
               }}
             >
-              Transfer ANT:&nbsp;{state.ticker ?? state.name}
+              Transfer&nbsp;{state.name.length ? state.name : 'PDNT:'}&nbsp;
+              {state.ticker.length ? (
+                `(${state.ticker})`
+              ) : (
+                <CopyTextButton
+                  copyText={pdntId ? pdntId.toString() : ''}
+                  displayText={`(${pdntId!
+                    .toString()
+                    .slice(0, isMobile ? 6 : 0)}${
+                    isMobile ? '...' : ''
+                  }${pdntId!.toString().slice(isMobile ? -6 : 0)})`}
+                  size={'70%'}
+                  wrapperStyle={{
+                    fontFamily: 'Rubik-Bold',
+                    fontSize: '12px',
+                    alignItems: 'center',
+                  }}
+                  position="relative"
+                />
+              )}
             </span>
-            <span className="flex faded text center">
-              Contract ID:&nbsp;
-              <CopyTextButton
-                copyText={pdntId ? pdntId.toString() : ''}
-                displayText={`${pdntId!.toString().slice(0, isMobile ? 6 : 0)}${
-                  isMobile ? '...' : ''
-                }${pdntId!.toString().slice(isMobile ? -6 : 0)}`}
-                size={'70%'}
-                wrapperStyle={{
-                  fontStyle: 'bold',
-                  fontSize: '10px',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-                position="relative"
-              />
-            </span>
-            <button className="modal-close-button" onClick={() => showModal()}>
-              <CloseIcon
-                width="20px"
-                height={'20px'}
-                fill="var(--text-white)"
-              />
-            </button>
+            {state.ticker.length ? (
+              <span
+                className="flex faded text"
+                style={{ alignItems: 'center' }}
+              >
+                Contract ID:&nbsp;
+                <CopyTextButton
+                  copyText={pdntId ? pdntId.toString() : ''}
+                  displayText={`${pdntId!
+                    .toString()
+                    .slice(0, isMobile ? 6 : 0)}${
+                    isMobile ? '...' : ''
+                  }${pdntId!.toString().slice(isMobile ? -6 : 0)}`}
+                  size={'70%'}
+                  wrapperStyle={{
+                    fontFamily: 'Rubik-Bold',
+                    fontSize: '10px',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                  position="relative"
+                />
+              </span>
+            ) : (
+              <></>
+            )}
           </div>
           {/** modal body - condition render edit or transfer */}
 
@@ -141,24 +166,9 @@ function TransferPDNTModal({
 
             <ValidationInput
               inputClassName="data-input center"
-              inputCustomStyle={
-                isValidAddress && toAddress
-                  ? {
-                      border: '2px solid var(--success-green)',
-                    }
-                  : !isValidAddress && toAddress
-                  ? {
-                      border: '2px solid var(--error-red)',
-                    }
-                  : !isValidAddress && !toAddress && {}
-              }
-              validationListStyle={{
-                gap: isMobile ? '0.5em' : '1em',
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-              wrapperClassName="flex flex-column center"
-              wrapperCustomStyle={{ gap: isMobile ? '0.5em' : '1em' }}
+              inputCustomStyle={{ paddingRight: '30px' }}
+              showValidationIcon={true}
+              showValidationOutline={true}
               placeholder="Enter recipients address"
               maxLength={43}
               value={toAddress}
@@ -166,7 +176,6 @@ function TransferPDNTModal({
               validityCallback={(validity: boolean) =>
                 setIsValidAddress(validity)
               }
-              showValidationChecklist={true}
               validationPredicates={{
                 [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: (id: string) =>
                   arweaveDataProvider.validateArweaveId(id),
@@ -214,40 +223,82 @@ function TransferPDNTModal({
               />
               I understand that this action cannot be undone.
             </span>
-            <button
-              className="accent-button center"
-              disabled={!accepted && isValidAddress}
-              style={
-                accepted && isValidAddress
-                  ? { width: '100%' }
-                  : { width: '100%', backgroundColor: 'var(--text-faded)' }
-              }
-              onClick={() => {
-                const payload = mapTransactionDataKeyToPayload(
-                  INTERACTION_TYPES.TRANSFER,
-                  [toAddress.toString()!, 1],
-                );
 
-                if (payload) {
-                  dispatchTransactionState({
-                    type: 'setInteractionType',
-                    payload: INTERACTION_TYPES.TRANSFER,
-                  });
-                  dispatchTransactionState({
-                    type: 'setTransactionData',
-                    payload: {
-                      ...payload,
-                      assetId: pdntId.toString()!,
-                    },
-                  });
-                  navigate(`/transaction`, {
-                    state: `/manage/pdnts/${pdntId.toString()}`,
-                  });
-                }
+            <div
+              className="flex flex-row flex-space-between"
+              style={{
+                position: 'absolute',
+                width: '100%',
+                borderTop: '2px #323232 solid',
+                boxSizing: 'border-box',
+                padding: '15px',
+                bottom: 0,
               }}
             >
-              Next
-            </button>
+              {/* Footer */}
+              {/* Price / error */}
+              {/* TODO add address validation (check an id is an arweave address or transaction) */}
+              <div
+                className="text white flex flex-column left"
+                style={{ gap: 0 }}
+              >
+                <span>This transaction will cost</span>
+                <ArPrice dataSize={SMARTWEAVE_TAG_SIZE} />
+              </div>
+
+              {/* buttontainer */}
+              <div
+                className="flex flex-row"
+                style={{ gap: '5px', width: 'fit-content' }}
+              >
+                <button
+                  className="outline-button center"
+                  style={{ width: '65px', height: '30px', fontSize: '12px' }}
+                  onClick={() => showModal()}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="accent-button center flex flex-row"
+                  disabled={!accepted && isValidAddress}
+                  style={
+                    accepted && isValidAddress
+                      ? { width: '65px', height: '30px', fontSize: '12px' }
+                      : {
+                          width: '65px',
+                          height: '30px',
+                          fontSize: '12px',
+                          backgroundColor: 'var(--text-faded)',
+                        }
+                  }
+                  onClick={() => {
+                    const payload = mapTransactionDataKeyToPayload(
+                      INTERACTION_TYPES.TRANSFER,
+                      [toAddress.toString()!, 1],
+                    );
+
+                    if (payload) {
+                      dispatchTransactionState({
+                        type: 'setInteractionType',
+                        payload: INTERACTION_TYPES.TRANSFER,
+                      });
+                      dispatchTransactionState({
+                        type: 'setTransactionData',
+                        payload: {
+                          ...payload,
+                          assetId: pdntId.toString()!,
+                        },
+                      });
+                      navigate(`/transaction`, {
+                        state: `/manage/pdnts/${pdntId.toString()}`,
+                      });
+                    }
+                  }}
+                >
+                  Next
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
