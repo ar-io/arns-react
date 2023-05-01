@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { useArweaveCompositeProvider } from '../../../hooks';
+import eventEmitter from '../../../utils/events';
 
 function ArPrice({ dataSize }: { dataSize: number }) {
   const arweaveDataProvider = useArweaveCompositeProvider();
@@ -12,7 +13,16 @@ function ArPrice({ dataSize }: { dataSize: number }) {
 
   async function getPrice() {
     const result = await arweaveDataProvider.getArPrice(dataSize);
-    setPrice(result);
+    try {
+      if (!result) {
+        throw new Error('Could not get price on gas fee');
+      }
+      setPrice(result);
+    } catch (error: any) {
+      eventEmitter.emit(error);
+      console.error(error);
+      setPrice(0);
+    }
   }
 
   return <>{`${price} AR`}</>;
