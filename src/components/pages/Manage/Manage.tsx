@@ -31,7 +31,6 @@ function Manage() {
   const { path } = useParams();
 
   const modalRef = useRef(null);
-  const [cursor] = useState<string | undefined>();
   const [pdntIds, setPDNTIDs] = useState<ArweaveTransactionID[]>([]);
   const [selectedRow, setSelectedRow] = useState<PDNTMetadata>();
   const [percent, setPercentLoaded] = useState<number | undefined>();
@@ -139,12 +138,12 @@ function Manage() {
   async function fetchWalletPDNTs(address: ArweaveTransactionID) {
     try {
       setTableLoading(true);
+      // TODO: fetch approved source code TX id's from cache, then pass here
       const { ids } = await arweaveDataProvider.getContractsForWallet(
         pdnsSourceContract.approvedANTSourceCodeTxs.map(
           (id: string) => new ArweaveTransactionID(id),
         ),
         address,
-        cursor,
       );
       setPDNTIDs(ids);
     } catch (error: any) {

@@ -31,8 +31,8 @@ export class ArweaveCompositeDataProvider
     this._arweaveProvider = arweaveProvider;
   }
 
-  async getWalletBalance(id: ArweaveTransactionID): Promise<number> {
-    return this._arweaveProvider.getWalletBalance(id);
+  async getArBalance(wallet: ArweaveTransactionID): Promise<number> {
+    return this._arweaveProvider.getArBalance(wallet);
   }
 
   async getContractState<T extends PDNSContractJSON | PDNTContractJSON>(
@@ -65,14 +65,13 @@ export class ArweaveCompositeDataProvider
   }
 
   async getContractsForWallet(
-    approvedSourceCodeTransactions: ArweaveTransactionID[],
-    address: ArweaveTransactionID,
-    cursor?: string | undefined,
-  ): Promise<{ ids: ArweaveTransactionID[]; cursor?: string | undefined }> {
-    return this._arweaveProvider.getContractsForWallet(
-      approvedSourceCodeTransactions,
-      address,
-      cursor,
+    sourceCodeTxIds: ArweaveTransactionID[],
+    wallet: ArweaveTransactionID,
+  ): Promise<{ ids: ArweaveTransactionID[] }> {
+    return Promise.any(
+      this._contractProviders.map((p) =>
+        p.getContractsForWallet(sourceCodeTxIds, wallet),
+      ),
     );
   }
 
