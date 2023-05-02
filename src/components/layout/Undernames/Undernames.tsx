@@ -21,14 +21,7 @@ function Undernames() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { id } = useParams();
-  if (!id) {
-    eventEmitter.emit('error', new Error('Missing PDNT transaction ID.'));
-    navigate('/manage/pdnts');
-    return;
-  }
-  const [pdntId, setPDNTId] = useState<ArweaveTransactionID>(
-    new ArweaveTransactionID(id),
-  );
+  const [pdntId, setPDNTId] = useState<ArweaveTransactionID>();
   const [pdntState, setPDNTState] = useState<PDNTContractJSON>();
   // TODO implement data editing
   const [selectedRow, setSelectedRow] = useState<UndernameMetadata>(); // eslint-disable-line
@@ -52,6 +45,11 @@ function Undernames() {
   const [tablePage, setTablePage] = useState<number>(1);
 
   useEffect(() => {
+    if (!id) {
+      eventEmitter.emit('error', new Error('Missing PDNT transaction ID.'));
+      navigate('/manage/pdnts');
+      return;
+    }
     setPDNTId(new ArweaveTransactionID(id));
     arweaveDataProvider
       .getContractState<PDNTContractJSON>(new ArweaveTransactionID(id))
@@ -59,6 +57,11 @@ function Undernames() {
   }, [id]);
 
   useEffect(() => {
+    if (!id) {
+      eventEmitter.emit('error', new Error('Missing PDNT transaction ID.'));
+      navigate('/manage/pdnts');
+      return;
+    }
     if (isArweaveTransactionID(id)) {
       setTableLoading(undernameTableLoading);
       setTableData(undernameRows);

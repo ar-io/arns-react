@@ -18,7 +18,7 @@ import {
 } from '../../types';
 import eventEmitter from '../../utils/events';
 
-export function useUndernames(id: ArweaveTransactionID) {
+export function useUndernames(id?: ArweaveTransactionID) {
   const isMobile = useIsMobile();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const [sortAscending, setSortOrder] = useState(true);
@@ -29,6 +29,9 @@ export function useUndernames(id: ArweaveTransactionID) {
   const [percent, setPercentLoaded] = useState<number>(0);
 
   useEffect(() => {
+    if (!id) {
+      return;
+    }
     fetchUndernameRows(id);
   }, [id]);
 
