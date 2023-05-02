@@ -141,6 +141,7 @@ function NavMenuCard() {
                     <NavBarLink
                       path={route.path}
                       linkText={route.text}
+                      target={route.external ? '_blank' : '_self'}
                       key={key}
                       onClick={() => {
                         setShowMenu(false);
@@ -183,6 +184,7 @@ function NavMenuCard() {
                         <NavBarLink
                           path={route.path}
                           linkText={route.text}
+                          target={route.external ? '_blank' : '_self'}
                           key={key}
                           onClick={() => {
                             setShowMenu(false);

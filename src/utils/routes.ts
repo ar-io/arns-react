@@ -6,6 +6,7 @@ export type Route = {
   path: string;
   component: (() => JSX.Element) | undefined;
   protected: boolean;
+  external?: boolean;
   icon?: React.FC<React.SVGProps<SVGSVGElement>>;
   index?: boolean;
 };
@@ -24,6 +25,7 @@ export const ROUTES: { [x: string]: Route } = {
     component: undefined,
     protected: false,
     index: false,
+    external: true,
   },
   manage: {
     text: 'Manage Assets',
