@@ -76,7 +76,11 @@ function Home() {
 
   return (
     <div className="page">
-      {domain ? <></> : <div className="page-header">Arweave Name System</div>}
+      {domain ? (
+        <></>
+      ) : (
+        <div className="page-header">Permaweb Domain Name System</div>
+      )}
       {!Object.keys(pdnsSourceContract.records).length ? (
         <Loader
           size={80}
@@ -187,7 +191,9 @@ function Home() {
                     }
                     placeholderText={'Enter a name'}
                     headerElement={
-                      <SearchBarHeader defaultText={'Find a domain name'} />
+                      <SearchBarHeader
+                        defaultText={'Search for a permaweb name'}
+                      />
                     }
                     footerElement={
                       <SearchBarFooter
