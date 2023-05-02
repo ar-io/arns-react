@@ -364,6 +364,7 @@ export type RemoveRecordPayload = {
 
 export type TransferPDNTPayload = {
   target: string;
+  qty: number;
 };
 
 export type CreatePDNTPayload = {
@@ -478,7 +479,6 @@ export type ManagePDNTRow = {
   attribute: string;
   value: string;
   editable: boolean;
-  action: any;
   key: number;
   interactionType?: ValidInteractionType;
 };

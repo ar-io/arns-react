@@ -9,8 +9,12 @@ import {
   CreatePDNTPayload,
   ExcludedValidInteractionType,
   INTERACTION_TYPES,
+  PDNTInteractionType,
+  RegistryInteractionType,
   TransactionData,
   ValidInteractionType,
+  pdntInteractionTypes,
+  registryInteractionTypes,
 } from '../../../types';
 import {
   TRANSACTION_DATA_KEYS,
@@ -165,54 +169,51 @@ function TransactionWorkflow({
     if (!pdntProps) {
       throw Error('Unable to get PDNT properties.');
     }
-    switch (interactionType) {
-      case INTERACTION_TYPES.SET_CONTROLLER:
-      case INTERACTION_TYPES.CREATE:
-      case INTERACTION_TYPES.SET_TTL_SECONDS:
-      case INTERACTION_TYPES.SET_TARGET_ID:
-      case INTERACTION_TYPES.SET_TICKER:
-      case INTERACTION_TYPES.SET_NAME: {
-        return {
-          pending: {
-            component: <PDNTCard {...pdntProps} />,
-          },
-          confirmed: {
-            component: <DeployTransaction />,
-            showNext: false,
-            showBack: false,
-          },
-          successful: {
-            component: (
-              <TransactionComplete
-                transactionId={deployedTransactionId}
-                interactionType={interactionType}
-                transactionData={transactionData}
-              />
-            ),
-            showNext: false,
-            showBack: false,
-          },
-          failed: {
-            component: (
-              <TransactionComplete
-                transactionId={deployedTransactionId}
-                interactionType={interactionType}
-                transactionData={transactionData}
-              />
-            ),
-            showNext: false,
-            showBack: false,
-          },
-        };
-      }
-      case INTERACTION_TYPES.BUY_RECORD: {
-        if (
-          !isObjectOfTransactionPayloadType<BuyRecordPayload>(
-            payload,
-            TRANSACTION_DATA_KEYS[interactionType].keys,
-          )
+    if (pdntInteractionTypes.includes(interactionType as PDNTInteractionType)) {
+      return {
+        pending: {
+          component: <PDNTCard {...pdntProps} />,
+        },
+        confirmed: {
+          component: <DeployTransaction />,
+          showNext: false,
+          showBack: false,
+        },
+        successful: {
+          component: (
+            <TransactionComplete
+              transactionId={deployedTransactionId}
+              interactionType={interactionType}
+              transactionData={transactionData}
+            />
+          ),
+          showNext: false,
+          showBack: false,
+        },
+        failed: {
+          component: (
+            <TransactionComplete
+              transactionId={deployedTransactionId}
+              interactionType={interactionType}
+              transactionData={transactionData}
+            />
+          ),
+          showNext: false,
+          showBack: false,
+        },
+      };
+    }
+    if (
+      registryInteractionTypes.includes(
+        interactionType as RegistryInteractionType,
+      )
+    ) {
+      if (
+        isObjectOfTransactionPayloadType<BuyRecordPayload>(
+          payload,
+          TRANSACTION_DATA_KEYS[interactionType].keys,
         )
-          throw Error('Payload is not valid.');
+      ) {
         return {
           pending: {
             component: <PDNTCard {...pdntProps} />,
@@ -269,10 +270,8 @@ function TransactionWorkflow({
           },
         };
       }
-      // TODO implement other registry interactions
-      default:
-        throw new Error('Interaction type is undefined');
     }
+    // TODO implement other registry interactions
   }
 
   return (

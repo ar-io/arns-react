@@ -336,6 +336,7 @@ input[type='text']:disabled {
   cursor: pointer;
 }
 .accent-button {
+  box-sizing: border-box;
   display: flex;
   padding: 0.75em 2em;
   font-size: 18px;
@@ -343,13 +344,13 @@ input[type='text']:disabled {
   font-weight: 800;
   width: fit-content;
   height: fit-content;
-  border: var(--bg-color) 2px solid;
-  border-radius: 10px;
+  border-radius: var(--corner-radius);
   background-color: var(--accent);
   color: var(--text-black);
   cursor: pointer;
 }
 .outline-button {
+  box-sizing: border-box;
   display: flex;
   padding: 0.75em 2em;
   font-size: 18px;
@@ -358,7 +359,7 @@ input[type='text']:disabled {
   width: fit-content;
   height: fit-content;
   border: var(--text-white) 1px solid;
-  border-radius: 10px;
+  border-radius: var(--corner-radius);
   background-color: none;
   color: var(--text-white);
   cursor: pointer;
