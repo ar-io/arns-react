@@ -21,13 +21,18 @@ function Undernames() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { id } = useParams();
+  if (!id) {
+    eventEmitter.emit('error', new Error('Missing PDNT transaction ID.'));
+    navigate('/manage/pdnts');
+    return;
+  }
   const [pdntId, setPDNTId] = useState<ArweaveTransactionID>(
-    new ArweaveTransactionID(id!),
+    new ArweaveTransactionID(id),
   );
   const [pdntState, setPDNTState] = useState<PDNTContractJSON>();
   // TODO implement data editing
   const [selectedRow, setSelectedRow] = useState<UndernameMetadata>(); // eslint-disable-line
-  const [percent, setPercentLoaded] = useState<number | undefined>();
+  const [percent, setPercentLoaded] = useState<number>(0);
   const {
     isLoading: undernameTableLoading,
     percent: percentUndernamesLoaded,
@@ -47,10 +52,6 @@ function Undernames() {
   const [tablePage, setTablePage] = useState<number>(1);
 
   useEffect(() => {
-    if (!id) {
-      navigate(-1);
-      throw new Error('Cannot load Undernames, no PDNT ID was found');
-    }
     setPDNTId(new ArweaveTransactionID(id));
     arweaveDataProvider
       .getContractState<PDNTContractJSON>(new ArweaveTransactionID(id))
@@ -58,7 +59,7 @@ function Undernames() {
   }, [id]);
 
   useEffect(() => {
-    if (id && isArweaveTransactionID(id)) {
+    if (isArweaveTransactionID(id)) {
       setTableLoading(undernameTableLoading);
       setTableData(undernameRows);
       setTableColumns(undernameColumns);
@@ -114,7 +115,7 @@ function Undernames() {
                   <button
                     className="faded text-medium bold underline link center"
                     onClick={() =>
-                      navigate(`/manage/pdnts/${pdntId.toString()}`)
+                      navigate(`/manage/pdnts/${pdntId?.toString()}`)
                     }
                   >
                     {pdntState?.name.length ? pdntState.name : '[PDNT]'}
@@ -158,7 +159,7 @@ function Undernames() {
               style={{ paddingTop: '10%', justifyContent: 'center' }}
             >
               <Loader
-                message={`Loading undernames... ${Math.round(percent!)}%`}
+                message={`Loading undernames... ${Math.round(percent)}%`}
               />
             </div>
           ) : (

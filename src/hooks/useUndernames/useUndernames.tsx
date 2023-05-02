@@ -26,7 +26,7 @@ export function useUndernames(id: ArweaveTransactionID) {
   const [selectedRow, setSelectedRow] = useState<UndernameMetadata>(); // eslint-disable-line
   const [rows, setRows] = useState<UndernameMetadata[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [percent, setPercentLoaded] = useState<number | undefined>();
+  const [percent, setPercentLoaded] = useState<number>(0);
 
   useEffect(() => {
     fetchUndernameRows(id);
@@ -242,9 +242,9 @@ export function useUndernames(id: ArweaveTransactionID) {
         setPercentLoaded(
           ((undernames.indexOf([name, record]) + 1) / undernames.length) * 100,
         );
-        setRows(fetchedRows);
       }
     }
+    setRows(fetchedRows);
     setIsLoading(false);
   }
 
