@@ -12,9 +12,9 @@ import {
   UndernameMetadata,
 } from '../../../types';
 import { isArweaveTransactionID } from '../../../utils';
+import eventEmitter from '../../../utils/events';
 import { ArrowLeft } from '../../icons';
 import Loader from '../Loader/Loader';
-import eventEmitter from '../../../utils/events';
 
 function Undernames() {
   const arweaveDataProvider = useArweaveCompositeProvider();
@@ -49,7 +49,7 @@ function Undernames() {
   useEffect(() => {
     if (!id) {
       navigate(-1);
-      eventEmitter.emit(new Error("Cannot load Undernames, no PDNT ID was found"))
+      throw new Error('Cannot load Undernames, no PDNT ID was found');
     }
     setPDNTId(new ArweaveTransactionID(id));
     arweaveDataProvider

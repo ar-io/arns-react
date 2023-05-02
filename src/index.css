@@ -224,11 +224,11 @@ input[type='text']:disabled {
   display: flex;
   font-family: 'Rubik-Bold';
   font-style: normal;
-  font-size: 72px;
-  line-height: 85px;
-  padding-top: 3%;
-  width: 75%;
-  max-width: 850px;
+  font-size: 60px;
+  line-height: 60px;
+  padding: 3% 0% 3%;
+  width: 80%;
+  max-width: 1000px;
   text-align: center;
   color: var(--text-bright-white);
   justify-content: center;
