@@ -8,12 +8,13 @@ import {
 } from 'react-router-dom';
 
 import { Layout, ProtectedRoute } from './components/layout';
+import Redirect from './components/layout/Redirect/Redirect';
 import {
   ConnectWalletModal,
   CreatePDNTModal,
-  ManagePDNTModal, // ManagePDNTModal,
+  ManagePDNTModal,
 } from './components/modals';
-import { About, Home, Manage, NotFound, Transaction } from './components/pages';
+import { Home, Manage, NotFound, Transaction } from './components/pages';
 import { usePDNSContract } from './hooks/';
 import './index.css';
 
@@ -28,7 +29,7 @@ function App() {
     createRoutesFromElements(
       <Route element={<Layout />} errorElement={<NotFound />}>
         <Route index element={<Home />} />
-        <Route path="info" element={<About />} />
+        <Route path="info" element={<Redirect url="https://ar.io/arns" />} />
         <Route path="connect" element={<ConnectWalletModal />} />
         <Route
           path="create"
