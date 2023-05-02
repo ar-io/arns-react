@@ -92,10 +92,10 @@ function Undernames() {
       <div className="page">
         <div className="flex-column">
           <div className="flex flex-justify-between">
-            <div className="flex flex-row text-medium white bold">
-              <span className="flex faded text-medium bold">
+            <div className="flex flex-row text-large white bold">
+              <span className="flex faded text-large bold">
                 <button
-                  className="faded text-medium bold underline link center"
+                  className="faded text-large bold underline link center"
                   onClick={() => navigate('/manage/pdnts')}
                 >
                   <ArrowLeft
@@ -116,7 +116,7 @@ function Undernames() {
                   }}
                 >
                   <button
-                    className="faded text-medium bold underline link center"
+                    className="faded text-large bold underline link center"
                     onClick={() =>
                       navigate(`/manage/pdnts/${pdntId?.toString()}`)
                     }
@@ -125,35 +125,39 @@ function Undernames() {
                   </button>
                 </Tooltip>
                 &nbsp;/&nbsp;
-                <span className="text-medium white">Manage Undernames</span>
+                <span className="text-large white">Manage Undernames</span>
               </span>
             </div>
             {/* TODO add table breadcrumb */}
             <div className="flex flex-row flex-right">
-              <button
-                disabled={undernameTableLoading}
-                className={
-                  undernameTableLoading
-                    ? 'outline-button center disabled-button'
-                    : 'outline-button center'
-                }
-                style={{
-                  padding: '0.75em',
-                }}
-                onClick={() => alert('implement add undername functionality')}
-              >
-                {/* TODO get undername logo from figma */}
-                {isMobile ? (
-                  <></>
-                ) : (
-                  <span
-                    className="text white"
-                    style={{ fontSize: '16px', padding: '0 0.2em' }}
-                  >
-                    Add Undername
-                  </span>
-                )}
-              </button>
+              {filteredTableData.length ? (
+                <button
+                  disabled={undernameTableLoading}
+                  className={
+                    undernameTableLoading
+                      ? 'outline-button center disabled-button'
+                      : 'outline-button center'
+                  }
+                  style={{
+                    padding: '0.75em',
+                  }}
+                  onClick={() => alert('implement add undername functionality')}
+                >
+                  {/* TODO get undername logo from figma */}
+                  {isMobile ? (
+                    <></>
+                  ) : (
+                    <span
+                      className="text white"
+                      style={{ fontSize: '16px', padding: '0 0.2em' }}
+                    >
+                      Add Undername
+                    </span>
+                  )}
+                </button>
+              ) : (
+                <></>
+              )}
             </div>
           </div>
           {tableLoading ? (
@@ -167,19 +171,58 @@ function Undernames() {
             </div>
           ) : (
             <>
-              <Table
-                scroll={{ x: true }}
-                columns={tableColumns}
-                data={filteredTableData}
-              />
-              <Pagination
-                pageSize={10}
-                onChange={updatePage}
-                current={tablePage}
-                total={tableData.length}
-                rootClassName="center"
-                defaultCurrent={1}
-              />
+              {filteredTableData.length ? (
+                <>
+                  <Table
+                    scroll={{ x: true }}
+                    columns={tableColumns}
+                    data={filteredTableData}
+                  />
+                  <Pagination
+                    pageSize={10}
+                    onChange={updatePage}
+                    current={tablePage}
+                    total={tableData.length}
+                    rootClassName="center"
+                    defaultCurrent={1}
+                  />
+                </>
+              ) : (
+                <div
+                  className="flex flex-column flex-center"
+                  style={{ marginTop: '100px' }}
+                >
+                  <span className="text-large white bold center">
+                    No Undernames present on PDNT
+                  </span>
+                  <button
+                    disabled={undernameTableLoading}
+                    className={
+                      undernameTableLoading
+                        ? 'outline-button center disabled-button'
+                        : 'outline-button center'
+                    }
+                    style={{
+                      padding: '0.75em',
+                    }}
+                    onClick={() =>
+                      alert('implement add undername functionality')
+                    }
+                  >
+                    {/* TODO get undername logo from figma */}
+                    {isMobile ? (
+                      <></>
+                    ) : (
+                      <span
+                        className="text white"
+                        style={{ fontSize: '16px', padding: '0 0.2em' }}
+                      >
+                        Add Undername
+                      </span>
+                    )}
+                  </button>
+                </div>
+              )}
             </>
           )}
         </div>

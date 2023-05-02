@@ -221,10 +221,11 @@ export function useUndernames(id?: ArweaveTransactionID) {
       arweaveDataProvider.getTransactionStatus(id),
     ]);
 
-    const undernames = Object.entries(contractState.records);
+    const undernames = Object.entries(contractState.records).filter(
+      ([key]) => key !== '@',
+    );
     for (const [name, record] of undernames) {
       try {
-        // TODO: add error messages and reload state to row
         const rowData = {
           name: name,
           targetID: (typeof record === 'string'
