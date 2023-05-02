@@ -17,7 +17,7 @@ function ConfirmRegistration() {
     dispatchRegistrationState,
   ] = useRegistrationState();
   const arweaveDataProvider = useArweaveCompositeProvider();
-  const [{ pdnsSourceContract, pdnsContractId }] = useGlobalState();
+  const [{ pdnsSourceContract, pdnsContractId, gateway }] = useGlobalState();
   const [isPostingTransaction, setIsPostingTransaction] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
   useEffect(() => {
@@ -79,7 +79,7 @@ function ConfirmRegistration() {
       <div className="register-name-modal center">
         {!isPostingTransaction ? (
           <span className="text-large white">
-            {domain}.arweave.net is available!
+            {domain}.{gateway} is available!
           </span>
         ) : (
           <></>

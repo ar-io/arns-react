@@ -17,7 +17,7 @@ import './styles.css';
 function RegisterNameForm() {
   const [{ domain, ttl, pdntID }, dispatchRegisterState] =
     useRegistrationState();
-  const [{ pdnsSourceContract }] = useGlobalState();
+  const [{ gateway, pdnsSourceContract }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
 
   const [isValidPDNT, setIsValidPDNT] = useState<boolean | undefined>(
@@ -117,7 +117,7 @@ function RegisterNameForm() {
     <>
       <div className="register-name-modal">
         <span className="text-large white center">
-          {domain}.arweave.net is available!
+          {domain}.{gateway} is available!
         </span>
         <div className="section-header">Register Domain</div>
         <div className="register-inputs center">
