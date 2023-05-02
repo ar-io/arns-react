@@ -11,7 +11,7 @@ import eventEmitter from '../../utils/events';
 // TODO: make this an environment variable
 const PDNS_SERVICE_API = 'https://dev.pdns.app';
 const DEFAULT_ARWEAVE = new Arweave({
-  host: 'arweave.net',
+  host: 'ar-io.dev',
   protocol: 'https',
 });
 const defaultWarp = new WarpDataProvider(DEFAULT_ARWEAVE);

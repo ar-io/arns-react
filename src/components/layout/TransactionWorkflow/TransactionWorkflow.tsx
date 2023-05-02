@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useArweaveCompositeProvider } from '../../../hooks';
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ArweaveTransactionID,
@@ -44,6 +45,7 @@ function TransactionWorkflow({
   transactionData: TransactionData;
   workflowStage: TRANSACTION_WORKFLOW_STATUS;
 }) {
+  const [{ gateway }] = useGlobalState();
   const [{ deployedTransactionId }, dispatchTransactionState] =
     useTransactionState();
   const arweaveDataProvider = useArweaveCompositeProvider();
@@ -251,7 +253,7 @@ function TransactionWorkflow({
               <>
                 <div className="flex flex-row text-large white bold center">
                   <span className="text-large white center">
-                    <b>{payload.name}</b>.arweave.net is yours!
+                    <b>{payload.name}</b>.{gateway} is yours!
                   </span>
                 </div>
               </>
