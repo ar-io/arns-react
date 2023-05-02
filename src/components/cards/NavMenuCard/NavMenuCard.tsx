@@ -62,7 +62,7 @@ function NavMenuCard() {
       pdnsContractId,
       walletAddress,
     );
-    const arBalance = await arweaveDataProvider.getWalletBalance(walletAddress);
+    const arBalance = await arweaveDataProvider.getArBalance(walletAddress);
     const [formattedBalance, formattedIOBalance] = [arBalance, ioBalance].map(
       (balance: string | number) =>
         Intl.NumberFormat('en-US', {

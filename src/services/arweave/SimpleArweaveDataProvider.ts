@@ -22,9 +22,9 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
     this._arweave = arweave;
   }
 
-  async getWalletBalance(id: ArweaveTransactionID): Promise<number> {
+  async getArBalance(wallet: ArweaveTransactionID): Promise<number> {
     const winstonBalance = await this._arweave.wallets.getBalance(
-      id.toString(),
+      wallet.toString(),
     );
     return +this._ar.winstonToAr(winstonBalance);
   }
@@ -45,65 +45,6 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
     );
     const decodedTags = tagsToObject(JSON.parse(encodedTags));
     return decodedTags;
-  }
-
-  async getContractsForWallet(
-    approvedSourceCodeTransactions: ArweaveTransactionID[],
-    address: ArweaveTransactionID,
-    cursor: string | undefined,
-  ): Promise<{
-    ids: ArweaveTransactionID[];
-    isLastPage: boolean;
-    cursor?: string;
-  }> {
-    const fetchedPDNTids: Set<ArweaveTransactionID> = new Set();
-    let newCursor: string | undefined = undefined;
-    let isLastPage = false;
-
-    // get contracts deployed by user, filtering with src-codes to only get PDNT contracts
-
-    const { status, ...deployedResponse } = await this._arweave.api.post(
-      '/graphql',
-      approvedContractsForWalletQuery(
-        address,
-        approvedSourceCodeTransactions,
-        cursor,
-      ),
-    );
-
-    if (status !== 200) {
-      throw Error(
-        `Failed to fetch contracts for wallet. Status code: ${status}`,
-      );
-    }
-    if (deployedResponse.data.data?.transactions?.edges?.length) {
-      deployedResponse.data.data.transactions.edges
-        .map((e: any) => ({
-          id: new ArweaveTransactionID(e.node.id),
-          cursor: e.cursor,
-          isLastPage: !e.pageInfo?.hasNextPage,
-        }))
-        .forEach(
-          (pdnt: {
-            id: ArweaveTransactionID;
-            cursor: string;
-            isLastPage: boolean;
-          }) => {
-            fetchedPDNTids.add(pdnt.id);
-            if (pdnt.cursor) {
-              newCursor = pdnt.cursor;
-            }
-            if (pdnt.isLastPage) {
-              isLastPage = pdnt.isLastPage;
-            }
-          },
-        );
-    }
-    return {
-      ids: [...fetchedPDNTids],
-      cursor: newCursor,
-      isLastPage: isLastPage,
-    };
   }
 
   async getTransactionHeaders(

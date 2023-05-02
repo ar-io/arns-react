@@ -1,4 +1,8 @@
-import { ArweaveTransactionID, PDNTContractJSON } from '../types';
+import {
+  ArweaveTransactionID,
+  PDNSContractJSON,
+  PDNTContractJSON,
+} from '../types';
 
 // note: lookahead/lookbehind regex's are not compatible with iOS browsers
 export const PDNS_NAME_REGEX = new RegExp(
@@ -121,6 +125,21 @@ export const DEFAULT_PDNT_CONTRACT_STATE: PDNTContractJSON = {
       maxUndernames: DEFAULT_MAX_UNDERNAMES,
     },
   },
+};
+export const DEFAULT_PDNS_REGISTRY_STATE: PDNSContractJSON = {
+  records: {},
+  fees: {},
+  balances: { '': 0 },
+  controllers: [],
+  evolve: undefined,
+  tiers: {
+    history: [],
+    current: {},
+  },
+  name: '',
+  owner: undefined,
+  ticker: '',
+  approvedANTSourceCodeTxs: [],
 };
 
 export const WARP_CONTRACT_BASE_URL = 'https://sonar.warp.cc/#/app/contract/';
