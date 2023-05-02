@@ -9,6 +9,7 @@ import {
 
 import { Layout, ProtectedRoute } from './components/layout';
 import Redirect from './components/layout/Redirect/Redirect';
+import Undernames from './components/layout/Undernames/Undernames';
 import {
   ConnectWalletModal,
   CreatePDNTModal,
@@ -56,6 +57,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <ManagePDNTModal />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="pdnts/:id/undernames"
+            element={
+              <ProtectedRoute>
+                <Undernames />
               </ProtectedRoute>
             }
           />

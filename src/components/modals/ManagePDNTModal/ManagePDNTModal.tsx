@@ -1,7 +1,7 @@
 import { Tooltip } from 'antd';
 import Table from 'rc-table';
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
@@ -97,7 +97,9 @@ function ManagePDNTModal() {
           contractState.controllers?.join(', ') ??
           contractState.owner?.toString() ??
           'N/A',
-        undernames: `${names.length} / ${tier?.settings.maxUndernames ?? 100}`,
+        undernames: `${Object.keys(contractState.records).length - 1} / ${
+          tier?.settings.maxUndernames ?? 100
+        }`,
         owner: contractState.owner?.toString() ?? 'N/A',
       };
 
@@ -149,7 +151,7 @@ function ManagePDNTModal() {
                 maxWidth: 'fit-content',
               }}
             >
-              <span>&nbsp;/&nbsp;{pdntName}</span>
+              <span>&nbsp;/&nbsp;{pdntName?.length ? pdntName : '[PDNT]'}</span>
             </Tooltip>
           </span>
           {/* TODO: make sure the table doesn't refresh if no actions were saved/written */}
@@ -200,6 +202,13 @@ function ManagePDNTModal() {
                           <TransactionStatus confirmations={+value} />
                         </>
                       );
+                    if (row.attribute === 'undernames') {
+                      return (
+                        <Link to={'undernames'} className={'link'}>
+                          {value}
+                        </Link>
+                      );
+                    }
                     if (row.editable)
                       return (
                         <>

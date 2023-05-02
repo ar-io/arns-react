@@ -484,6 +484,15 @@ export type ManagePDNTRow = {
   interactionType?: ValidInteractionType;
 };
 
+export type UndernameMetadata = {
+  name: string;
+  targetID: string;
+  ttlSeconds: string;
+  status: number;
+  error?: string;
+  key: string;
+};
+
 export enum VALIDATION_INPUT_TYPES {
   ARWEAVE_ID = 'Is valid Arweave Transaction (TX) ID',
   ARWEAVE_ADDRESS = 'Arweave Address',
