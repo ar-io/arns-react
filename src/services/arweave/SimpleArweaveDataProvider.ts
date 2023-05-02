@@ -7,10 +7,7 @@ import {
   TransactionHeaders,
 } from '../../types';
 import { tagsToObject } from '../../utils';
-import {
-  RECOMMENDED_TRANSACTION_CONFIRMATIONS,
-  approvedContractsForWalletQuery,
-} from '../../utils/constants';
+import { RECOMMENDED_TRANSACTION_CONFIRMATIONS } from '../../utils/constants';
 
 export class SimpleArweaveDataProvider implements ArweaveDataProvider {
   private _arweave: Arweave;
