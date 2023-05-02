@@ -1,5 +1,6 @@
 import { Pagination, Tooltip } from 'antd';
 import Table from 'rc-table';
+import { ColumnType } from 'rc-table/lib/interface';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -13,6 +14,7 @@ import {
 import { isArweaveTransactionID } from '../../../utils';
 import { ArrowLeft } from '../../icons';
 import Loader from '../Loader/Loader';
+import eventEmitter from '../../../utils/events';
 
 function Undernames() {
   const arweaveDataProvider = useArweaveCompositeProvider();
@@ -35,19 +37,24 @@ function Undernames() {
     sortAscending: undernameSortAscending,
     sortField: undernameSortField,
   } = useUndernames(pdntId);
-  const [tableData, setTableData] = useState<any[]>([]);
-  const [filteredTableData, setFilteredTableData] = useState<any[]>([]);
+  const [tableData, setTableData] = useState<UndernameMetadata[]>([]);
+  const [filteredTableData, setFilteredTableData] = useState<
+    UndernameMetadata[]
+  >([]);
   const [tableLoading, setTableLoading] = useState(true);
-  const [tableColumns, setTableColumns] = useState<any[]>();
+  const [tableColumns, setTableColumns] =
+    useState<ColumnType<UndernameMetadata>[]>();
   const [tablePage, setTablePage] = useState<number>(1);
 
   useEffect(() => {
-    if (id && isArweaveTransactionID(id)) {
-      setPDNTId(new ArweaveTransactionID(id));
+    if (!id) {
+      navigate(-1);
+      eventEmitter.emit(new Error("Cannot load Undernames, no PDNT ID was found"))
     }
+    setPDNTId(new ArweaveTransactionID(id));
     arweaveDataProvider
-      .getContractState(new ArweaveTransactionID(id!))
-      .then((res) => setPDNTState(res as PDNTContractJSON));
+      .getContractState<PDNTContractJSON>(new ArweaveTransactionID(id))
+      .then((state) => setPDNTState(state));
   }, [id]);
 
   useEffect(() => {
@@ -151,7 +158,7 @@ function Undernames() {
               style={{ paddingTop: '10%', justifyContent: 'center' }}
             >
               <Loader
-                message={`Loading undernames...${Math.round(percent!)}%`}
+                message={`Loading undernames... ${Math.round(percent!)}%`}
               />
             </div>
           ) : (

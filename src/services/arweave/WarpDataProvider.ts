@@ -132,4 +132,13 @@ export class WarpDataProvider
 
     return contractTxId;
   }
+
+  /* eslint-disable */
+  async getContractsForWallet(
+    sourceCodeTxIds: ArweaveTransactionID[],
+    address: ArweaveTransactionID,
+  ): Promise<{ ids: ArweaveTransactionID[] }> {
+    throw Error('Not implemented!');
+  }
+  /* eslint-enable */
 }

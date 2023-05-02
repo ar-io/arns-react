@@ -1,3 +1,4 @@
+import { ColumnType } from 'rc-table/lib/interface';
 import { useEffect, useState } from 'react';
 
 import { useArweaveCompositeProvider, useIsMobile } from '..';
@@ -28,13 +29,10 @@ export function useUndernames(id: ArweaveTransactionID) {
   const [percent, setPercentLoaded] = useState<number | undefined>();
 
   useEffect(() => {
-    if (id) {
-      setIsLoading(true);
-      fetchUndernameRows(id).finally(() => setIsLoading(false));
-    }
+    fetchUndernameRows(id);
   }, [id]);
 
-  function generateTableColumns(): any[] {
+  function generateTableColumns(): ColumnType<UndernameMetadata>[] {
     return [
       {
         title: (
@@ -130,7 +128,7 @@ export function useUndernames(id: ArweaveTransactionID) {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              rows.sort((a, b) =>
+              rows.sort((a: any, b: any) =>
                 sortAscending
                   ? a.targetID.localeCompare(b.targetID)
                   : b.targetID.localeCompare(a.targetID),
@@ -176,7 +174,7 @@ export function useUndernames(id: ArweaveTransactionID) {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              rows.sort((a, b) =>
+              rows.sort((a: any, b: any) =>
                 sortAscending
                   ? a.ttlSeconds.localeCompare(b.ttlSeconds)
                   : b.ttlSeconds.localeCompare(a.ttlSeconds),
@@ -213,6 +211,7 @@ export function useUndernames(id: ArweaveTransactionID) {
   }
 
   async function fetchUndernameRows(id: ArweaveTransactionID) {
+    setIsLoading(true);
     const fetchedRows: UndernameMetadata[] = [];
     const [contractState, confirmations] = await Promise.all([
       arweaveDataProvider.getContractState<PDNTContractJSON>(id),
@@ -234,18 +233,19 @@ export function useUndernames(id: ArweaveTransactionID) {
           status: confirmations ?? 0,
           key: name,
         };
+        // sort by confirmation count (ASC) by default
+        fetchedRows.sort((a, b) => a.status - b.status);
         fetchedRows.push(rowData);
       } catch (error) {
         eventEmitter.emit('error', error);
       } finally {
-        // sort by confirmation count (ASC) by default
-        fetchedRows.sort((a, b) => a.status - b.status);
         setPercentLoaded(
           ((undernames.indexOf([name, record]) + 1) / undernames.length) * 100,
         );
         setRows(fetchedRows);
       }
     }
+    setIsLoading(false);
   }
 
   return {

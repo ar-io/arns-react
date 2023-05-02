@@ -73,6 +73,8 @@ export type PDNTContractJSON = {
   ticker: string;
 };
 
+export type PDNTContractFields = keyof PDNTContractJSON;
+
 export type PDNSMapping = {
   domain: string;
   id?: ArweaveTransactionID;
@@ -104,6 +106,10 @@ export interface SmartweaveContractCache {
     id: ArweaveTransactionID,
     wallet: ArweaveTransactionID,
   ): Promise<number>;
+  getContractsForWallet(
+    sourceCodeTxIds: ArweaveTransactionID[],
+    address: ArweaveTransactionID,
+  ): Promise<{ ids: ArweaveTransactionID[] }>;
 }
 
 export interface SmartweaveContractInteractionProvider {
@@ -149,12 +155,7 @@ export interface ArweaveDataProvider {
     id: string,
     numberOfConfirmations?: number,
   ): Promise<void>;
-  getContractsForWallet(
-    approvedSourceCodeTransactions: ArweaveTransactionID[],
-    address: ArweaveTransactionID,
-    cursor?: string,
-  ): Promise<{ ids: ArweaveTransactionID[]; cursor?: string }>;
-  getWalletBalance(id: ArweaveTransactionID): Promise<number>;
+  getArBalance(wallet: ArweaveTransactionID): Promise<number>;
   getArPrice(data: number): Promise<number>;
 }
 
@@ -490,14 +491,6 @@ export type UndernameMetadata = {
   status: number;
   error?: string;
   key: string;
-};
-
-export type ManageUndernameRow = {
-  attribute: string;
-  value: string;
-  editable: boolean;
-  action: any;
-  key: number;
 };
 
 export enum VALIDATION_INPUT_TYPES {

@@ -104,7 +104,8 @@ function TransferPDNTModal({
                 gap: 0,
               }}
             >
-              Transfer ANT:&nbsp;{state.ticker ?? state.name}
+              Transfer&nbsp;{state.name.length ? state.name : ''}&nbsp;
+              {state.ticker.length ? `(${state.ticker})` : ''}
             </span>
 
             <span className="flex faded text" style={{ alignItems: 'center' }}>
