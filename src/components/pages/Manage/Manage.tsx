@@ -254,6 +254,7 @@ function Manage() {
               total={tableData.length}
               rootClassName="center"
               defaultCurrent={1}
+              showSizeChanger={false}
             />
           </>
         )}
