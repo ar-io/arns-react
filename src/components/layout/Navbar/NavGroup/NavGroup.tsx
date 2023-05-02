@@ -21,7 +21,12 @@ const NavGroup = () => {
           {Object.entries(ROUTES).map(([key, value]) => {
             if (!value.index && !value.protected)
               return (
-                <NavBarLink path={value.path} linkText={value.text} key={key} />
+                <NavBarLink
+                  path={value.path}
+                  linkText={value.text}
+                  target={value.external ? '_blank' : '_self'}
+                  key={key}
+                />
               );
           })}
 
