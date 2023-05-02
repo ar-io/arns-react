@@ -79,7 +79,7 @@ function TransferPDNTModal({
                   paddingBottom: 15,
                 }
               : {
-                  width: 400,
+                  width: 420,
                   minHeight: 200,
                   padding: 0,
                   paddingBottom: 75,
@@ -99,23 +99,24 @@ function TransferPDNTModal({
             }}
           >
             <span
-              className="text-small white bold"
+              className="text-small white bold flex flex-column"
               style={{
-                textShadow: '2px 2px 2px rgb(0,0,0)',
+                gap: 0,
               }}
             >
-              Transfer&nbsp;{state.name ?? 'PDNT:'}&nbsp;({state.ticker})
+              Transfer ANT:&nbsp;{state.ticker ?? state.name}
             </span>
-            <span className="flex faded text center">
+
+            <span className="flex faded text" style={{ alignItems: 'center' }}>
               Contract ID:&nbsp;
               <CopyTextButton
-                copyText={pdntId ? pdntId.toString() : ''}
-                displayText={`${pdntId!.toString().slice(0, isMobile ? 6 : 0)}${
+                copyText={pdntId.toString()}
+                displayText={`${pdntId.toString().slice(0, isMobile ? 6 : 0)}${
                   isMobile ? '...' : ''
-                }${pdntId!.toString().slice(isMobile ? -6 : 0)}`}
+                }${pdntId.toString().slice(isMobile ? -6 : 0)}`}
                 size={'70%'}
                 wrapperStyle={{
-                  fontStyle: 'bold',
+                  fontFamily: 'Rubik-Bold',
                   fontSize: '10px',
                   justifyContent: 'center',
                   alignItems: 'center',
@@ -138,18 +139,9 @@ function TransferPDNTModal({
 
             <ValidationInput
               inputClassName="data-input center"
-              inputCustomStyle={
-                isValidAddress && toAddress
-                  ? {
-                      border: '2px solid var(--success-green)',
-                    }
-                  : !isValidAddress && toAddress
-                  ? {
-                      border: '2px solid var(--error-red)',
-                    }
-                  : !isValidAddress && !toAddress && {}
-              }
+              inputCustomStyle={{ paddingRight: '30px' }}
               showValidationIcon={true}
+              showValidationOutline={true}
               placeholder="Enter recipients address"
               maxLength={43}
               value={toAddress}
