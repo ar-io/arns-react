@@ -26,7 +26,7 @@ export class WarpDataProvider
   private _warp: Warp;
 
   constructor(arweave: Arweave) {
-    // using arweave gateway to stick to L1 only transactions
+    // using ar.io gateway and stick to L1 only transactions
     this._warp = WarpFactory.forMainnet(
       {
         ...defaultCacheOptions,
@@ -66,7 +66,9 @@ export class WarpDataProvider
       );
     }
     const contract = this._warp.contract(id.toString()).connect('use_wallet');
-    const result = await contract.writeInteraction(payload);
+    const result = await contract.writeInteraction(payload, {
+      disableBundling: true,
+    });
     // TODO: check for dry write options on writeInteraction
     if (!result) {
       throw Error('No result from write interaction');
@@ -123,7 +125,7 @@ export class WarpDataProvider
 
     const { contractTxId } = await this._warp.deployFromSourceTx(
       deploymentPayload,
-      true,
+      true, // disable bundling
     );
 
     if (!contractTxId) {
