@@ -244,7 +244,7 @@ function CreatePDNTModal() {
               header: (
                 <>
                   <div className="flex flex-row text-large white bold center">
-                    Create an PDNT
+                    Create a PDNT
                   </div>
                 </>
               ),

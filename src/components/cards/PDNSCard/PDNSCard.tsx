@@ -1,12 +1,15 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import { useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { PDNSDomain, PDNSMapping } from '../../../types';
 import { DEFAULT_EXPIRATION } from '../../../utils/constants';
-import { PDNSDefault as pdnsDefaultImage } from '../../icons';
+import { ExternalLinkIcon, PDNSDefault as pdnsDefaultImage } from '../../icons';
 import './styles.css';
+
+const protocol = 'https';
 
 function PDNSCard({ domain, id }: PDNSMapping) {
   const [{ gateway }] = useGlobalState();
@@ -33,11 +36,10 @@ function PDNSCard({ domain, id }: PDNSMapping) {
 
   async function getMetaImage() {
     try {
-      const protocol = process.env.NODE_ENV == 'dev' ? 'http' : 'https';
       const metaImage = await axios
         .get(`${protocol}://${domain}.${gateway}`)
         .then((res) => res.data)
-        .then((html) => {
+        .then(async (html) => {
           const parser = new DOMParser();
           const doc = parser.parseFromString(html, 'text/html');
 
@@ -54,20 +56,28 @@ function PDNSCard({ domain, id }: PDNSMapping) {
               ? `${protocol}://${domain}.${gateway}/${faviconPath}`
               : undefined;
           } else {
-            return doc
+            const imagePath = doc
               ?.querySelector("meta[property='og:image']")
               ?.getAttribute('content');
+
+            if (imagePath?.match(/^http(s):\/\//)) {
+              return imagePath;
+            }
+            if (imagePath && (imagePath[0] === '.' || imagePath[0] === '/')) {
+              const relativePath = imagePath.slice(
+                imagePath[0] === '.' ? 2 : 1,
+              );
+              const fullImageURL = `${protocol}://${domain}.${gateway}/${relativePath}`;
+              const { status } = await axios.get(fullImageURL);
+              if (status === 200) {
+                return fullImageURL;
+              }
+            }
           }
         });
 
       if (!metaImage) {
         throw Error(`Failed to fetch meta tag for ${domain}.${gateway}.`);
-      }
-      //todo:
-      //if relative file path detected, change url to query properly
-      //add path modification for relative link/permaweb app (arweave manifest)
-      if (metaImage[0] == '.') {
-        throw Error('Relative path detected, cant get image');
       }
       return metaImage;
     } catch (error) {
@@ -76,25 +86,39 @@ function PDNSCard({ domain, id }: PDNSMapping) {
   }
 
   return (
-    <div className="pdns-card hover">
+    <Link
+      target="_blank"
+      to={`${protocol}://${domain}.${gateway}`}
+      className="pdns-card hover"
+      rel="noreferrer"
+    >
       <img
         className="pdns-preview"
         src={pdntDetails.image}
         key={pdntDetails.image}
         alt={`${domain}.${gateway}`}
       />
-      <div className="pdns-card-footer">
-        <a
-          className="text white bold external-link"
-          target="_blank"
-          href={`https://${pdntDetails.domain}.${gateway}`}
-          rel="noreferrer"
-        >{`${pdntDetails.domain}.${gateway}`}</a>
-        <span className="expiry-text">
-          Exp. {pdntDetails.expiration?.toDateString()}
+      <div className="flex flex-column" style={{ gap: 3 }}>
+        <div className="flex flex-row flex-space-between">
+          <span className="flex text white bold external-link">{`${pdntDetails.domain}.${gateway}`}</span>
+          <span className="flex"></span>
+          <ExternalLinkIcon
+            height={25}
+            width={25}
+            viewBox={'0 -3 5 20'}
+            fill={'var(--text-white)'}
+          />
+        </div>
+        <span className="text-small white">
+          Exp.{' '}
+          {new Intl.DateTimeFormat('en-US', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+          }).format(pdntDetails.expiration)}
         </span>
       </div>
-    </div>
+    </Link>
   );
 }
 

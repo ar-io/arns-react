@@ -185,6 +185,7 @@ function Undernames() {
                     total={tableData.length}
                     rootClassName="center"
                     defaultCurrent={1}
+                    showSizeChanger={false}
                   />
                 </>
               ) : (
