@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import { useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
@@ -85,9 +86,9 @@ function PDNSCard({ domain, id }: PDNSMapping) {
   }
 
   return (
-    <a
+    <Link
       target="_blank"
-      href={`${protocol}://${domain}.${gateway}`}
+      to={`${protocol}://${domain}.${gateway}`}
       className="pdns-card hover"
       rel="noreferrer"
     >
@@ -117,7 +118,7 @@ function PDNSCard({ domain, id }: PDNSMapping) {
           }).format(pdntDetails.expiration)}
         </span>
       </div>
-    </a>
+    </Link>
   );
 }
 
