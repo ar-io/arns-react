@@ -12,7 +12,6 @@ import {
 import ManageAssetButtons from '../../components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
 import TransactionStatus from '../../components/layout/TransactionStatus/TransactionStatus';
 import {
-  ASSET_TYPES,
   ArweaveTransactionID,
   PDNTContractJSON,
   PDNTMetadata,
@@ -25,7 +24,6 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
   const { walletAddress } = useWalletAddress();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] = useState<keyof PDNTMetadata>('status');
-  const [selectedRow, setSelectedRow] = useState<PDNTMetadata>();
   const [rows, setRows] = useState<PDNTMetadata[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [percent, setPercentLoaded] = useState<number | undefined>();
@@ -269,9 +267,8 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
         title: '',
         render: (val: any, row: PDNTMetadata) => (
           <ManageAssetButtons
-            asset={val.id}
-            setShowModal={() => setSelectedRow(row)}
-            assetType={ASSET_TYPES.PDNT}
+            id={val.id}
+            assetType="pdnts"
             disabled={!row.state || !row.status}
           />
         ),
@@ -327,6 +324,5 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
     rows,
     sortField,
     sortAscending,
-    selectedRow,
   };
 }

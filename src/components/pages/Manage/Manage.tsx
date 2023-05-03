@@ -11,11 +11,7 @@ import {
   useWalletPDNTs,
 } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import {
-  ArweaveTransactionID,
-  ManageTable,
-  PDNTMetadata,
-} from '../../../types';
+import { ArweaveTransactionID, ManageTable } from '../../../types';
 import { MANAGE_TABLE_NAMES } from '../../../types';
 import eventEmitter from '../../../utils/events';
 import { CodeSandboxIcon, NotebookIcon, RefreshIcon } from '../../icons';
@@ -32,14 +28,12 @@ function Manage() {
 
   const modalRef = useRef(null);
   const [pdntIds, setPDNTIDs] = useState<ArweaveTransactionID[]>([]);
-  const [selectedRow, setSelectedRow] = useState<PDNTMetadata>();
   const [percent, setPercentLoaded] = useState<number | undefined>();
   const {
     isLoading: pdntTableLoading,
     percent: percentPDNTsLoaded,
     columns: pdntColumns,
     rows: pdntRows,
-    selectedRow: selectedPDNTRow,
     sortAscending: pdntSortAscending,
     sortField: pdntSortField,
   } = useWalletPDNTs(pdntIds);
@@ -83,7 +77,6 @@ function Manage() {
       setTableData(pdntRows);
       setTableColumns(pdntColumns);
       setPercentLoaded(percentPDNTsLoaded);
-      setSelectedRow(selectedPDNTRow);
       const baseIndex = Math.max((tablePage - 1) * 10, 0);
       const endIndex = tablePage * 10;
       const filteredData = pdntRows.slice(baseIndex, endIndex);
@@ -94,7 +87,6 @@ function Manage() {
     pdntSortAscending,
     pdntSortField,
     pdntRows,
-    selectedPDNTRow,
     pdntTableLoading,
     percentPDNTsLoaded,
   ]);
@@ -124,12 +116,6 @@ function Manage() {
   }, [domainTableLoading, pdntTableLoading]);
 
   useEffect(() => {
-    if (selectedRow) {
-      navigate(selectedRow.id);
-    }
-  }, [selectedRow]);
-
-  useEffect(() => {
     if (percent === 100) {
       setPercentLoaded(undefined);
     }
@@ -152,20 +138,12 @@ function Manage() {
     }
   }
 
-  function handleClickOutside(e: any) {
-    if (modalRef.current && modalRef.current === e.target) {
-      setSelectedRow(undefined);
-    }
-    return;
-  }
-
   function updatePage(page: number) {
     setTablePage(page);
   }
 
   return (
-    // eslint-disable-next-line
-    <div className="page" ref={modalRef} onClick={handleClickOutside}>
+    <div className="page" ref={modalRef}>
       <div className="flex-column">
         <div className="flex flex-justify-between">
           <div className="table-selector-group">
