@@ -10,10 +10,16 @@ import {
   ArweaveTransactionID,
   PDNTContractJSON,
   UndernameMetadata,
+  UndernameTableInteractionTypes,
+  VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import { isArweaveTransactionID } from '../../../utils';
+import { SMARTWEAVE_TAG_SIZE } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
-import { ArrowLeft } from '../../icons';
+import { ArrowLeft, TrashIcon } from '../../icons';
+import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
+import DialogModal from '../../modals/DialogModal/DialogModal';
+import ArPrice from '../ArPrice/ArPrice';
 import Loader from '../Loader/Loader';
 
 function Undernames() {
@@ -24,7 +30,9 @@ function Undernames() {
   const [pdntId, setPDNTId] = useState<ArweaveTransactionID>();
   const [pdntState, setPDNTState] = useState<PDNTContractJSON>();
   // TODO implement data editing
-  const [selectedRow, setSelectedRow] = useState<UndernameMetadata>(); // eslint-disable-line
+  const [selectedRow, setSelectedRow] = useState<
+    UndernameMetadata | undefined
+  >();
   const [percent, setPercentLoaded] = useState<number>(0);
   const {
     isLoading: undernameTableLoading,
@@ -34,6 +42,7 @@ function Undernames() {
     selectedRow: selectedUndernameRow,
     sortAscending: undernameSortAscending,
     sortField: undernameSortField,
+    action: undernameAction,
   } = useUndernames(pdntId);
   const [tableData, setTableData] = useState<UndernameMetadata[]>([]);
   const [filteredTableData, setFilteredTableData] = useState<
@@ -43,6 +52,14 @@ function Undernames() {
   const [tableColumns, setTableColumns] =
     useState<ColumnType<UndernameMetadata>[]>();
   const [tablePage, setTablePage] = useState<number>(1);
+
+  // modal state
+  const [action, setAction] = useState<
+    UndernameTableInteractionTypes | undefined
+  >();
+  const [undername, setUndername] = useState<string>();
+  const [targetID, setTargetID] = useState<string>();
+  const [ttl, setTTL] = useState<number>();
 
   useEffect(() => {
     if (!id) {
@@ -63,6 +80,7 @@ function Undernames() {
       return;
     }
     if (isArweaveTransactionID(id)) {
+      setAction(undernameAction);
       setTableLoading(undernameTableLoading);
       setTableData(undernameRows);
       setTableColumns(undernameColumns);
@@ -81,6 +99,7 @@ function Undernames() {
     selectedUndernameRow,
     undernameTableLoading,
     percentUndernamesLoaded,
+    undernameAction,
   ]);
 
   function updatePage(page: number) {
@@ -142,7 +161,7 @@ function Undernames() {
                   style={{
                     padding: '0.75em',
                   }}
-                  onClick={() => alert('implement add undername functionality')}
+                  onClick={() => setAction('create')}
                 >
                   {/* TODO get undername logo from figma */}
                   {isMobile ? (
@@ -207,9 +226,7 @@ function Undernames() {
                     style={{
                       padding: '0.75em',
                     }}
-                    onClick={() =>
-                      alert('implement add undername functionality')
-                    }
+                    onClick={() => setAction('create')}
                   >
                     {/* TODO get undername logo from figma */}
                     {isMobile ? (
@@ -229,6 +246,126 @@ function Undernames() {
           )}
         </div>
       </div>
+      {action ? (
+        <div className="modal-container">
+          <DialogModal
+            title={
+              action === 'create'
+                ? 'Create Undername'
+                : action === 'edit'
+                ? `Edit ${selectedRow?.name}`
+                : action === 'remove'
+                ? `Remove ${selectedRow?.name}`
+                : ''
+            }
+            onCancel={() => {
+              setUndername(undefined);
+              setTargetID(undefined);
+              setTTL(undefined);
+              setAction(undefined);
+            }}
+            body={
+              <>
+                {action === 'create' ? (
+                  <ValidationInput
+                    inputClassName="data-input"
+                    showValidationIcon={false}
+                    showValidationOutline={true}
+                    minNumber={100}
+                    maxNumber={1000000}
+                    wrapperCustomStyle={{
+                      width: '100%',
+                      border: 'none',
+                      overflow: 'hidden',
+                      fontSize: '16px',
+                      outline: 'none',
+                      borderRadius: 'var(--corner-radius)',
+                      boxSizing: 'border-box',
+                    }}
+                    placeholder={`Enter an Undername`}
+                    value={undername}
+                    setValue={(e) => {
+                      setUndername(e);
+                    }}
+                    validationPredicates={{}}
+                  />
+                ) : (
+                  <></>
+                )}
+                {action === 'create' || action === 'edit' ? (
+                  <>
+                    <ValidationInput
+                      inputClassName="data-input"
+                      showValidationIcon={true}
+                      showValidationOutline={true}
+                      minNumber={100}
+                      maxNumber={1000000}
+                      wrapperCustomStyle={{
+                        width: '100%',
+                        border: 'none',
+                        overflow: 'hidden',
+                        fontSize: '16px',
+                        outline: 'none',
+                        borderRadius: 'var(--corner-radius)',
+                        boxSizing: 'border-box',
+                      }}
+                      inputCustomStyle={{ paddingRight: '30px' }}
+                      placeholder={`Enter a Target ID`}
+                      value={targetID}
+                      setValue={(e) => {
+                        setTargetID(e);
+                      }}
+                      validationPredicates={{
+                        [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: (id: string) =>
+                          arweaveDataProvider.validateArweaveId(id),
+                      }}
+                      maxLength={43}
+                    />
+                    <ValidationInput
+                      inputClassName="data-input"
+                      showValidationIcon={false}
+                      showValidationOutline={true}
+                      inputType={'number'}
+                      minNumber={100}
+                      maxNumber={1000000}
+                      wrapperCustomStyle={{
+                        width: '100%',
+                        border: 'none',
+                        overflow: 'hidden',
+                        fontSize: '16px',
+                        outline: 'none',
+                        borderRadius: 'var(--corner-radius)',
+                        display: 'flex',
+                      }}
+                      placeholder={`Enter TTL Seconds`}
+                      value={ttl}
+                      setValue={(e) => {
+                        e ? setTTL(+e) : setTTL(undefined);
+                      }}
+                      validationPredicates={{}}
+                    />
+                  </>
+                ) : (
+                  <div
+                    className="flex flex-row flex-center"
+                    style={{ marginTop: '30px' }}
+                  >
+                    <TrashIcon width={75} height={75} fill="white" />
+                  </div>
+                )}
+              </>
+            }
+            showClose={false}
+            footer={
+              <span className="text white bold">
+                <ArPrice dataSize={SMARTWEAVE_TAG_SIZE} />
+              </span>
+            }
+          />
+        </div>
+      ) : (
+        <></>
+      )}
     </>
   );
 }

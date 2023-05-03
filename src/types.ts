@@ -262,7 +262,9 @@ export enum INTERACTION_TYPES {
   BALANCE = 'Balance',
   UNKNOWN = 'Unknown',
 }
-
+const undernameTableInteractions = ['create', 'remove', 'edit'] as const;
+export type UndernameTableInteractionTypes =
+  (typeof undernameTableInteractions)[number];
 const commonInteractionTypeNames = [
   INTERACTION_TYPES.TRANSFER,
   INTERACTION_TYPES.BALANCE,
