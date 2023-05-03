@@ -77,6 +77,12 @@ input[type='text']:disabled {
   text-decoration: none;
   word-break: break-word;
 }
+.text-small {
+  display: flex;
+  font-size: 8px;
+  text-decoration: none;
+  word-break: break-word;
+}
 .text-medium {
   display: flex;
   font-size: 18px;
