@@ -121,14 +121,15 @@ function Undernames() {
                       navigate(`/manage/pdnts/${pdntId?.toString()}`)
                     }
                   >
-                    {pdntState?.name.length ? pdntState.name : '[PDNT]'}
+                    {pdntState?.name.length
+                      ? pdntState.name
+                      : `${id?.slice(0, 4)}...${id?.slice(-4)}`}
                   </button>
                 </Tooltip>
                 &nbsp;/&nbsp;
                 <span className="text-large white">Manage Undernames</span>
               </span>
             </div>
-            {/* TODO add table breadcrumb */}
             <div className="flex flex-row flex-right">
               {filteredTableData.length ? (
                 <button
@@ -185,6 +186,7 @@ function Undernames() {
                     total={tableData.length}
                     rootClassName="center"
                     defaultCurrent={1}
+                    showSizeChanger={false}
                   />
                 </>
               ) : (
