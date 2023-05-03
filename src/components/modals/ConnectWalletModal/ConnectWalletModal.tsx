@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 
 import { useWalletAddress } from '../../../hooks';
 import { ArConnectWalletConnector } from '../../../services/wallets';
@@ -11,9 +11,10 @@ import './styles.css';
 
 function ConnectWalletModal(): JSX.Element {
   const modalRef = useRef(null);
-  const [{}, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
+  const [, dispatchGlobalState] = useGlobalState();
   const { wallet, walletAddress } = useWalletAddress();
   const navigate = useNavigate();
+  const { state } = useLocation();
 
   useEffect(() => {
     // disable scrolling when modal is in view
@@ -34,8 +35,12 @@ function ConnectWalletModal(): JSX.Element {
   }
 
   function closeModal() {
-    // TODO; add a location.state.from to redirect back to a preferred location
-    navigate(-1);
+    if (!walletAddress) {
+      navigate(state?.from ?? '/');
+      return;
+    }
+
+    navigate(state?.to ?? '/');
   }
 
   async function setGlobalWallet(walletConnector: ArweaveWalletConnector) {

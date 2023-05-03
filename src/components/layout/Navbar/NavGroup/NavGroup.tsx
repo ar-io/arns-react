@@ -1,7 +1,6 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 import { useIsMobile, useWalletAddress } from '../../../../hooks';
-import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { ROUTES } from '../../../../utils/routes';
 import NavMenuCard from '../../../cards/NavMenuCard/NavMenuCard';
 import ConnectButton from '../../../inputs/buttons/ConnectButton/ConnectButton';
@@ -11,8 +10,7 @@ import './styles.css';
 const NavGroup = () => {
   const isMobile = useIsMobile();
   const { wallet, walletAddress } = useWalletAddress();
-
-  const [{}, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
+  const location = useLocation();
 
   return (
     <div className="flex-row flex-right flex-padding">
@@ -30,7 +28,11 @@ const NavGroup = () => {
               );
           })}
 
-          <Link to="create" className="button text-medium bold white hover">
+          <Link
+            to="create"
+            state={{ from: location.pathname }}
+            className="button text-medium bold white hover"
+          >
             Create
           </Link>
           {!wallet || !walletAddress ? (
