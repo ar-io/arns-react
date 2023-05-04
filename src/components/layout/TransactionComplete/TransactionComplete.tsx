@@ -144,7 +144,7 @@ function TransactionComplete({
               to={`/manage/pdnts/${getLinkId(interactionType, {
                 ...transactionData,
                 deployedTransactionId: transactionId,
-              })}`}
+              })}/undernames`}
               className="link"
               style={{ textDecoration: 'none' }}
             >
