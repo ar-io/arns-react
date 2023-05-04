@@ -103,6 +103,14 @@ function Undernames() {
     undernameAction,
   ]);
 
+  function resetActionModal() {
+    setUndername(undefined);
+    setTargetID(undefined);
+    setTTL(undefined);
+    setAction(undefined);
+    setSelectedRow(undefined);
+  }
+
   function updatePage(page: number) {
     setTablePage(page);
   }
@@ -260,10 +268,7 @@ function Undernames() {
                 : ''
             }
             onCancel={() => {
-              setUndername(undefined);
-              setTargetID(undefined);
-              setTTL(undefined);
-              setAction(undefined);
+              resetActionModal();
             }}
             body={
               <>
