@@ -316,7 +316,7 @@ export function getPDNSMappingByInteractionType(
       if (
         !isObjectOfTransactionPayloadType<RemoveRecordPayload>(
           transactionData,
-          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.SET_TARGET_ID].keys,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.REMOVE_RECORD].keys,
         )
       ) {
         throw new Error(
