@@ -311,6 +311,38 @@ export function getPDNSMappingByInteractionType(
         ],
       };
     }
+    case INTERACTION_TYPES.SET_RECORD: {
+      if (
+        !isObjectOfTransactionPayloadType<SetRecordPayload>(
+          transactionData,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.SET_TARGET_ID].keys,
+        )
+      ) {
+        throw new Error(
+          `transaction data not of correct payload type <SetRecordPayload> keys: ${Object.keys(
+            transactionData,
+          )}`,
+        );
+      }
+      return {
+        domain: '',
+        showTier: false,
+        compact: false,
+        id: new ArweaveTransactionID(transactionData.assetId),
+        overrides: {
+          undername: transactionData.subDomain,
+          targetId: transactionData.transactionId,
+          ttlSeconds: transactionData.ttlSeconds,
+        },
+        disabledKeys: [
+          'evolve',
+          'maxSubdomains',
+          'domain',
+          'leaseDuration',
+          'tier',
+        ],
+      };
+    }
     case INTERACTION_TYPES.SET_TARGET_ID: {
       if (
         !isObjectOfTransactionPayloadType<SetRecordPayload>(
