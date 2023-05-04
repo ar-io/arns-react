@@ -9,6 +9,7 @@ import { useUndernames } from '../../../hooks/useUndernames/useUndernames';
 import {
   ArweaveTransactionID,
   PDNTContractJSON,
+  UNDERNAME_TABLE_ACTIONS,
   UndernameMetadata,
   UndernameTableInteractionTypes,
   VALIDATION_INPUT_TYPES,
@@ -161,7 +162,7 @@ function Undernames() {
                   style={{
                     padding: '0.75em',
                   }}
-                  onClick={() => setAction('create')}
+                  onClick={() => setAction(UNDERNAME_TABLE_ACTIONS.CREATE)}
                 >
                   {/* TODO get undername logo from figma */}
                   {isMobile ? (
@@ -226,7 +227,7 @@ function Undernames() {
                     style={{
                       padding: '0.75em',
                     }}
-                    onClick={() => setAction('create')}
+                    onClick={() => setAction(UNDERNAME_TABLE_ACTIONS.CREATE)}
                   >
                     {/* TODO get undername logo from figma */}
                     {isMobile ? (
@@ -250,11 +251,11 @@ function Undernames() {
         <div className="modal-container">
           <DialogModal
             title={
-              action === 'create'
+              action === UNDERNAME_TABLE_ACTIONS.CREATE
                 ? 'Create Undername'
-                : action === 'edit'
+                : action === UNDERNAME_TABLE_ACTIONS.EDIT
                 ? `Edit ${selectedRow?.name}`
-                : action === 'remove'
+                : action === UNDERNAME_TABLE_ACTIONS.REMOVE
                 ? `Remove ${selectedRow?.name}`
                 : ''
             }
@@ -266,7 +267,7 @@ function Undernames() {
             }}
             body={
               <>
-                {action === 'create' ? (
+                {action === UNDERNAME_TABLE_ACTIONS.CREATE ? (
                   <ValidationInput
                     inputClassName="data-input"
                     showValidationIcon={false}
@@ -292,7 +293,8 @@ function Undernames() {
                 ) : (
                   <></>
                 )}
-                {action === 'create' || action === 'edit' ? (
+                {action === UNDERNAME_TABLE_ACTIONS.CREATE ||
+                action === UNDERNAME_TABLE_ACTIONS.EDIT ? (
                   <>
                     <ValidationInput
                       inputClassName="data-input"

@@ -14,6 +14,7 @@ import CopyTextButton from '../../components/inputs/buttons/CopyTextButton/CopyT
 import {
   ArweaveTransactionID,
   PDNTContractJSON,
+  UNDERNAME_TABLE_ACTIONS,
   UndernameMetadata,
   UndernameTableInteractionTypes,
 } from '../../types';
@@ -201,7 +202,7 @@ export function useUndernames(id?: ArweaveTransactionID) {
               className="button hover"
               onClick={() => {
                 setSelectedRow(row);
-                setAction('edit');
+                setAction(UNDERNAME_TABLE_ACTIONS.EDIT);
               }}
             >
               <PencilIcon width={25} height={25} fill={'var(--text-white)'} />
@@ -210,7 +211,7 @@ export function useUndernames(id?: ArweaveTransactionID) {
               className="button hover"
               onClick={() => {
                 setSelectedRow(row);
-                setAction('remove');
+                setAction(UNDERNAME_TABLE_ACTIONS.REMOVE);
               }}
             >
               <TrashIcon width={25} height={25} fill={'var(--text-white)'} />
