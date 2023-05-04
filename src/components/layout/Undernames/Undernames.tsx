@@ -198,6 +198,44 @@ function Undernames() {
             if (
               !isObjectOfTransactionPayloadType<RemoveRecordPayload>(
                 payload,
+                TRANSACTION_DATA_KEYS[INTERACTION_TYPES.REMOVE_RECORD].keys,
+              )
+            ) {
+              throw new Error('Mismatching payload and interation type!');
+            }
+            dispatchTransactionState({
+              type: 'setInteractionType',
+              payload: INTERACTION_TYPES.REMOVE_RECORD,
+            });
+            dispatchTransactionState({
+              type: 'setTransactionData',
+              payload: { ...payload, assetId: id },
+            });
+            navigate('/transaction', {
+              state: `/manage/pdnts/${id}/undernames`,
+            });
+          }
+          break;
+        case UNDERNAME_TABLE_ACTIONS.EDIT:
+          {
+            if (!selectedRow?.name) {
+              throw new Error('Cannot find undername');
+            }
+
+            const payload = mapTransactionDataKeyToPayload(
+              INTERACTION_TYPES.SET_RECORD,
+              [
+                selectedRow.name,
+                targetID ?? selectedRow.targetID ?? STUB_ARWEAVE_TXID,
+                ttl ?? selectedRow.ttlSeconds ?? 3600,
+              ],
+            );
+            if (!payload) {
+              throw new Error('Unable to generate transaction payload!');
+            }
+            if (
+              !isObjectOfTransactionPayloadType<SetRecordPayload>(
+                payload,
                 TRANSACTION_DATA_KEYS[INTERACTION_TYPES.SET_RECORD].keys,
               )
             ) {
