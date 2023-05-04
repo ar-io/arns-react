@@ -11,6 +11,7 @@ import {
   ArweaveTransactionID,
   INTERACTION_TYPES,
   PDNTContractJSON,
+  RemoveRecordPayload,
   SetRecordPayload,
   UNDERNAME_TABLE_ACTIONS,
   UndernameMetadata,
@@ -180,7 +181,40 @@ function Undernames() {
               state: `/manage/pdnts/${id}/undernames`,
             });
           }
+          break;
+        case UNDERNAME_TABLE_ACTIONS.REMOVE:
+          {
+            if (!selectedRow?.name) {
+              throw new Error('Cannot find undername');
+            }
 
+            const payload = mapTransactionDataKeyToPayload(
+              INTERACTION_TYPES.REMOVE_RECORD,
+              [selectedRow.name],
+            );
+            if (!payload) {
+              throw new Error('Unable to generate transaction payload!');
+            }
+            if (
+              !isObjectOfTransactionPayloadType<RemoveRecordPayload>(
+                payload,
+                TRANSACTION_DATA_KEYS[INTERACTION_TYPES.REMOVE_RECORD].keys,
+              )
+            ) {
+              throw new Error('Mismatching payload and interation type!');
+            }
+            dispatchTransactionState({
+              type: 'setInteractionType',
+              payload: INTERACTION_TYPES.REMOVE_RECORD,
+            });
+            dispatchTransactionState({
+              type: 'setTransactionData',
+              payload: { ...payload, assetId: id },
+            });
+            navigate('/transaction', {
+              state: `/manage/pdnts/${id}/undernames`,
+            });
+          }
           break;
 
         default:
