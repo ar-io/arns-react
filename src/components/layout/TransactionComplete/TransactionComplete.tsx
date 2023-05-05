@@ -66,7 +66,7 @@ function TransactionComplete({
                   height={'30px'}
                   fill={'var(--text-white)'}
                 />
-                <span className="flex text-small faded center">
+                <span className="flex text-medium faded center">
                   Register a Name
                 </span>
               </div>
@@ -101,7 +101,7 @@ function TransactionComplete({
                   fill={'var(--text-white)'}
                 />
                 <span
-                  className="flex text-small faded center"
+                  className="flex text-medium faded center"
                   style={{ textDecorationLine: 'none' }}
                 >
                   View on Sonar
@@ -133,7 +133,7 @@ function TransactionComplete({
                   height={'30px'}
                   fill={'var(--text-white)'}
                 />
-                <span className="flex text-small faded center">
+                <span className="flex text-medium faded center">
                   Manage PDNT
                 </span>
               </div>
@@ -164,7 +164,7 @@ function TransactionComplete({
                   height={'30px'}
                   fill={'var(--text-white)'}
                 />
-                <span className="flex text-small faded center">
+                <span className="flex text-medium faded center">
                   Add Undernames
                 </span>
               </div>
