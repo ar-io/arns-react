@@ -1,5 +1,8 @@
-import { ColumnType } from 'rc-table/lib/interface';
-import { useEffect, useState } from 'react';
+import { InputRef } from 'antd';
+import { ColumnType } from 'antd/es/table';
+import { FilterConfirmProps } from 'antd/es/table/interface';
+import { useEffect, useRef, useState } from 'react';
+import Highlighter from 'react-highlight-words';
 
 import { useArweaveCompositeProvider, useIsMobile } from '..';
 import {
@@ -7,10 +10,12 @@ import {
   ChevronUpIcon,
   NotebookIcon,
   PencilIcon,
+  SearchIcon,
   TargetIcon,
   TrashIcon,
 } from '../../components/icons/index';
 import CopyTextButton from '../../components/inputs/buttons/CopyTextButton/CopyTextButton';
+import ValidationInput from '../../components/inputs/text/ValidationInput/ValidationInput';
 import {
   ArweaveTransactionID,
   PDNTContractJSON,
@@ -32,6 +37,9 @@ export function useUndernames(id?: ArweaveTransactionID) {
   const [action, setAction] = useState<
     UndernameTableInteractionTypes | undefined
   >();
+  const [searchText, setSearchText] = useState('');
+  const [searchedColumn, setSearchedColumn] = useState('');
+  const searchInput = useRef<InputRef>(null);
 
   useEffect(() => {
     if (!id) {
@@ -40,9 +48,132 @@ export function useUndernames(id?: ArweaveTransactionID) {
     fetchUndernameRows(id);
   }, [id]);
 
+  type DataIndex = keyof UndernameMetadata;
+  const handleSearch = (
+    selectedKeys: string[],
+    confirm: (param?: FilterConfirmProps) => void,
+    dataIndex: DataIndex,
+  ) => {
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex.toString());
+    confirm();
+  };
+
+  const handleReset = (clearFilters: () => void) => {
+    clearFilters();
+    setSearchText('');
+  };
+
+  const getColumnSearchProps = (
+    dataIndex: DataIndex,
+  ): ColumnType<UndernameMetadata> => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+      close,
+    }) => (
+      <div
+        className="card flex flex-column"
+        style={{ padding: '15px', gap: 15, minHeight: 0 }}
+        onKeyDown={(e) => e.stopPropagation()}
+      >
+        <div className="flex flex-row flex-center" style={{ gap: 0 }}>
+          <ValidationInput
+            ref={searchInput}
+            placeholder={`Search ${dataIndex.toString()}`}
+            value={selectedKeys[0]}
+            setValue={(e) => setSelectedKeys(e ? [e] : [])}
+            onPressEnter={() =>
+              handleSearch(selectedKeys as string[], confirm, dataIndex)
+            }
+            inputCustomStyle={{ height: 30, width: '100%' }}
+            inputClassName="data-input"
+            wrapperCustomStyle={{ width: '100%' }}
+            validationPredicates={{}}
+          />
+          <button
+            className="button center hover"
+            onClick={() =>
+              handleSearch(selectedKeys as string[], confirm, dataIndex)
+            }
+            style={{ width: 'fit-content' }}
+          >
+            <SearchIcon width={20} height={20} fill={'var(--text-faded)'} />
+          </button>
+        </div>
+
+        <div className="flex flex-column" style={{ gap: 10 }}>
+          <button
+            className="accent-button center"
+            onClick={() => clearFilters && handleReset(clearFilters)}
+            style={{ height: '30px', width: '100%' }}
+          >
+            Reset
+          </button>
+          <button
+            className="outline-button center"
+            style={{ height: '30px', width: '100%' }}
+            onClick={() => {
+              confirm({ closeDropdown: false });
+              setSearchText((selectedKeys as string[])[0]);
+              setSearchedColumn(dataIndex.toString());
+            }}
+          >
+            Filter
+          </button>
+          <button
+            className="outline-button center"
+            style={{ height: '30px', width: '100%' }}
+            onClick={() => {
+              close();
+            }}
+          >
+            close
+          </button>
+        </div>
+      </div>
+    ),
+    filterIcon: (filtered: boolean) => (
+      <SearchIcon
+        width={20}
+        height={20}
+        fill={filtered ? 'var(--accent)' : 'var(--text-faded)'}
+      />
+    ),
+    onFilter: (value, record) => {
+      const res = record[dataIndex]
+        ?.toString()
+        .toLowerCase()
+        .includes((value as string).toLowerCase());
+      if (!res) {
+        return false;
+      }
+      return res;
+    },
+    onFilterDropdownOpenChange: (visible) => {
+      if (visible) {
+        setTimeout(() => searchInput.current?.select(), 100);
+      }
+    },
+    render: (text) =>
+      searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{ backgroundColor: '#ffc069', padding: 0 }}
+          searchWords={[searchText]}
+          autoEscape
+          textToHighlight={text ? text.toString() : ''}
+        />
+      ) : (
+        text
+      ),
+  });
+
   function generateTableColumns(): ColumnType<UndernameMetadata>[] {
     return [
       {
+        ...getColumnSearchProps('name'),
         title: (
           <button
             className="flex-row pointer white"
@@ -86,6 +217,7 @@ export function useUndernames(id?: ArweaveTransactionID) {
         },
       },
       {
+        ...getColumnSearchProps('targetID'),
         title: (
           <button
             className="flex-row pointer white center"
@@ -149,6 +281,8 @@ export function useUndernames(id?: ArweaveTransactionID) {
         },
       },
       {
+        onFilter: (value, record) =>
+          record.ttlSeconds.startsWith(value.toString()),
         title: (
           <button
             className="flex-row pointer white center"
@@ -272,5 +406,6 @@ export function useUndernames(id?: ArweaveTransactionID) {
     sortAscending,
     selectedRow,
     action,
+    searchText,
   };
 }

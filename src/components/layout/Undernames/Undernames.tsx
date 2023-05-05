@@ -1,6 +1,5 @@
-import { Pagination, Tooltip } from 'antd';
-import { Table } from 'antd';
-import { ColumnType } from 'rc-table/lib/interface';
+import { Pagination, Table, TableProps, Tooltip } from 'antd';
+import { ColumnType } from 'antd/es/table';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -59,6 +58,7 @@ function Undernames() {
     sortAscending: undernameSortAscending,
     sortField: undernameSortField,
     action: undernameAction,
+    searchText: searchText,
   } = useUndernames(pdntId);
   const [tableData, setTableData] = useState<UndernameMetadata[]>([]);
   const [filteredTableData, setFilteredTableData] = useState<
@@ -116,6 +116,7 @@ function Undernames() {
     undernameTableLoading,
     percentUndernamesLoaded,
     undernameAction,
+    searchText,
   ]);
 
   function resetActionModal() {
@@ -267,6 +268,15 @@ function Undernames() {
     setTablePage(page);
   }
 
+  const onTableChange: TableProps<UndernameMetadata>['onChange'] = (
+    pagination,
+    filters,
+    sorter,
+    extra,
+  ) => {
+    console.log('params', pagination, filters, sorter, extra);
+  };
+
   return (
     <>
       <div className="page">
@@ -355,6 +365,9 @@ function Undernames() {
               {filteredTableData.length ? (
                 <>
                   <Table
+                    onChange={(pagination, filters, sorter, extra) =>
+                      onTableChange(pagination, filters, sorter, extra)
+                    }
                     bordered={false}
                     scroll={{ x: true }}
                     columns={tableColumns}

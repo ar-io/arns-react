@@ -1,11 +1,12 @@
 import { Tooltip } from 'antd';
-import { useEffect, useState } from 'react';
+import { Ref, useEffect, useState } from 'react';
 
 import { ValidationObject } from '../../../../types';
 import ValidationList from '../../../cards/ValidationList/ValidationList';
 import { CircleCheck, CircleXIcon } from '../../../icons';
 
 function ValidationInput({
+  ref,
   wrapperClassName = '',
   wrapperCustomStyle,
   validationListStyle,
@@ -26,7 +27,9 @@ function ValidationInput({
   inputType = 'text',
   minNumber,
   maxNumber,
+  onPressEnter,
 }: {
+  ref?: Ref<any>;
   wrapperClassName?: string;
   wrapperCustomStyle?: any;
   showValidationChecklist?: boolean;
@@ -47,6 +50,7 @@ function ValidationInput({
   inputType?: string;
   minNumber?: number;
   maxNumber?: number;
+  onPressEnter?: () => void;
 }) {
   const [validationResults, setValidationResults] =
     useState<ValidationObject[]>();
@@ -100,6 +104,10 @@ function ValidationInput({
       >
         <div className="flex" style={{ width: '100%', position: 'relative' }}>
           <input
+            ref={ref}
+            onKeyDown={(e) =>
+              e.key === 'Enter' && onPressEnter ? onPressEnter() : null
+            }
             id={inputId}
             type={inputType}
             min={inputType === 'number' ? minNumber : undefined}
