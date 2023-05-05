@@ -297,9 +297,13 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
               : contractState.controller === walletAddress?.toString()
               ? 'Controller'
               : 'N/A',
-          target: (typeof contractState.records['@'] === 'string'
+          target: (contractState.records['@'] &&
+          typeof contractState.records['@'] === 'string'
             ? contractState.records['@']
-            : contractState.records['@'].transactionId) as string,
+            : typeof contractState.records['@'] === 'object' &&
+              contractState.records['@'].transactionId
+            ? contractState.records['@'].transactionId
+            : 'N/A') as string,
           status: confirmations ?? 0,
           state: contractState,
           key: index,
