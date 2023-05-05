@@ -9,6 +9,7 @@ import { useUndernames } from '../../../hooks/useUndernames/useUndernames';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ArweaveTransactionID,
+  CreateOrEditUndernameInteraction,
   INTERACTION_TYPES,
   PDNTContractJSON,
   RemoveRecordPayload,
@@ -17,6 +18,7 @@ import {
   UndernameMetadata,
   UndernameTableInteractionTypes,
   VALIDATION_INPUT_TYPES,
+  createOrUpdateUndernameInteractions,
 } from '../../../types';
 import {
   TRANSACTION_DATA_KEYS,
@@ -229,6 +231,19 @@ function Undernames() {
     setTablePage(page);
   }
 
+  function getActionModalTitle(): string {
+    switch (action) {
+      case UNDERNAME_TABLE_ACTIONS.CREATE:
+        return 'Create Undername';
+      case UNDERNAME_TABLE_ACTIONS.EDIT:
+        return `Edit ${selectedRow?.name}`;
+      case UNDERNAME_TABLE_ACTIONS.REMOVE:
+        return `Remove ${selectedRow?.name}`;
+      default:
+        return '';
+    }
+  }
+
   return (
     <>
       <div className="page">
@@ -372,15 +387,7 @@ function Undernames() {
       {action ? (
         <div className="modal-container">
           <DialogModal
-            title={
-              action === UNDERNAME_TABLE_ACTIONS.CREATE
-                ? 'Create Undername'
-                : action === UNDERNAME_TABLE_ACTIONS.EDIT
-                ? `Edit ${selectedRow?.name}`
-                : action === UNDERNAME_TABLE_ACTIONS.REMOVE
-                ? `Remove ${selectedRow?.name}`
-                : ''
-            }
+            title={getActionModalTitle()}
             onNext={() => handleOnNext()}
             onCancel={() => {
               resetActionModal();
@@ -413,8 +420,9 @@ function Undernames() {
                 ) : (
                   <></>
                 )}
-                {action === UNDERNAME_TABLE_ACTIONS.CREATE ||
-                action === UNDERNAME_TABLE_ACTIONS.EDIT ? (
+                {createOrUpdateUndernameInteractions.includes(
+                  action as CreateOrEditUndernameInteraction,
+                ) ? (
                   <>
                     <ValidationInput
                       inputClassName="data-input"
@@ -479,9 +487,13 @@ function Undernames() {
             }
             showClose={false}
             footer={
-              <span className="text white bold">
-                <ArPrice dataSize={SMARTWEAVE_TAG_SIZE} />
-              </span>
+              <div className="flex flex-column" style={{ gap: 0 }}>
+                {' '}
+                <span className="text white">This transaction will cost</span>
+                <span className="text white">
+                  <ArPrice dataSize={SMARTWEAVE_TAG_SIZE} />
+                </span>
+              </div>
             }
           />
         </div>

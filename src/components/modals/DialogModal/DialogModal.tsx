@@ -91,7 +91,7 @@ function DialogModal({
             justifyContent: footer ? 'space-between' : 'flex-end',
             alignItems: 'center',
             borderTop: '2px solid #323232',
-            padding: '15px 30px',
+            padding: '15px 20px',
             boxSizing: 'border-box',
             height: '75px',
             position: 'absolute',

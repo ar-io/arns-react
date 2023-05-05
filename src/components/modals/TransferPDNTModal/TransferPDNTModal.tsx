@@ -99,7 +99,7 @@ function TransferPDNTModal({
             }}
           >
             <span
-              className="text-small white bold flex flex-column"
+              className="text-medium white bold flex flex-column"
               style={{
                 gap: 0,
               }}
