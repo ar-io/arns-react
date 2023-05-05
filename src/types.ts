@@ -263,6 +263,36 @@ export enum INTERACTION_TYPES {
   UNKNOWN = 'Unknown',
 }
 
+export enum UNDERNAME_TABLE_ACTIONS {
+  CREATE = 'Create',
+  REMOVE = 'Remove',
+  EDIT = 'Edit',
+}
+const undernameTableInteractions = [
+  UNDERNAME_TABLE_ACTIONS.CREATE,
+  UNDERNAME_TABLE_ACTIONS.REMOVE,
+  UNDERNAME_TABLE_ACTIONS.EDIT,
+] as const;
+export type UndernameTableInteractionTypes =
+  (typeof undernameTableInteractions)[number];
+
+export const createOrUpdateUndernameInteractions = [
+  UNDERNAME_TABLE_ACTIONS.CREATE,
+  UNDERNAME_TABLE_ACTIONS.EDIT,
+] as const;
+export const destructiveUndernameInteractions = [
+  UNDERNAME_TABLE_ACTIONS.REMOVE,
+] as const;
+export const allUndernameInteractions = [
+  ...createOrUpdateUndernameInteractions,
+  ...destructiveUndernameInteractions,
+] as const;
+
+export type CreateOrEditUndernameInteraction = Exclude<
+  UndernameTableInteractionTypes,
+  UNDERNAME_TABLE_ACTIONS.REMOVE
+>;
+
 const commonInteractionTypeNames = [
   INTERACTION_TYPES.TRANSFER,
   INTERACTION_TYPES.BALANCE,

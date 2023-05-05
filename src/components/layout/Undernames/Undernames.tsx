@@ -8,12 +8,21 @@ import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
 import { useUndernames } from '../../../hooks/useUndernames/useUndernames';
 import {
   ArweaveTransactionID,
+  CreateOrEditUndernameInteraction,
   PDNTContractJSON,
+  UNDERNAME_TABLE_ACTIONS,
   UndernameMetadata,
+  UndernameTableInteractionTypes,
+  VALIDATION_INPUT_TYPES,
+  createOrUpdateUndernameInteractions,
 } from '../../../types';
 import { isArweaveTransactionID } from '../../../utils';
+import { SMARTWEAVE_TAG_SIZE } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
-import { ArrowLeft } from '../../icons';
+import { ArrowLeft, TrashIcon } from '../../icons';
+import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
+import DialogModal from '../../modals/DialogModal/DialogModal';
+import ArPrice from '../ArPrice/ArPrice';
 import Loader from '../Loader/Loader';
 
 function Undernames() {
@@ -24,7 +33,9 @@ function Undernames() {
   const [pdntId, setPDNTId] = useState<ArweaveTransactionID>();
   const [pdntState, setPDNTState] = useState<PDNTContractJSON>();
   // TODO implement data editing
-  const [selectedRow, setSelectedRow] = useState<UndernameMetadata>(); // eslint-disable-line
+  const [selectedRow, setSelectedRow] = useState<
+    UndernameMetadata | undefined
+  >();
   const [percent, setPercentLoaded] = useState<number>(0);
   const {
     isLoading: undernameTableLoading,
@@ -34,6 +45,7 @@ function Undernames() {
     selectedRow: selectedUndernameRow,
     sortAscending: undernameSortAscending,
     sortField: undernameSortField,
+    action: undernameAction,
   } = useUndernames(pdntId);
   const [tableData, setTableData] = useState<UndernameMetadata[]>([]);
   const [filteredTableData, setFilteredTableData] = useState<
@@ -43,6 +55,14 @@ function Undernames() {
   const [tableColumns, setTableColumns] =
     useState<ColumnType<UndernameMetadata>[]>();
   const [tablePage, setTablePage] = useState<number>(1);
+
+  // modal state
+  const [action, setAction] = useState<
+    UndernameTableInteractionTypes | undefined
+  >();
+  const [undername, setUndername] = useState<string>();
+  const [targetID, setTargetID] = useState<string>();
+  const [ttl, setTTL] = useState<number>();
 
   useEffect(() => {
     if (!id) {
@@ -63,6 +83,7 @@ function Undernames() {
       return;
     }
     if (isArweaveTransactionID(id)) {
+      setAction(undernameAction);
       setTableLoading(undernameTableLoading);
       setTableData(undernameRows);
       setTableColumns(undernameColumns);
@@ -81,10 +102,32 @@ function Undernames() {
     selectedUndernameRow,
     undernameTableLoading,
     percentUndernamesLoaded,
+    undernameAction,
   ]);
+
+  function resetActionModal() {
+    setUndername(undefined);
+    setTargetID(undefined);
+    setTTL(undefined);
+    setAction(undefined);
+    setSelectedRow(undefined);
+  }
 
   function updatePage(page: number) {
     setTablePage(page);
+  }
+
+  function getActionModalTitle(): string {
+    switch (action) {
+      case UNDERNAME_TABLE_ACTIONS.CREATE:
+        return 'Create Undername';
+      case UNDERNAME_TABLE_ACTIONS.EDIT:
+        return `Edit ${selectedRow?.name}`;
+      case UNDERNAME_TABLE_ACTIONS.REMOVE:
+        return `Remove ${selectedRow?.name}`;
+      default:
+        return '';
+    }
   }
 
   return (
@@ -142,7 +185,7 @@ function Undernames() {
                   style={{
                     padding: '0.75em',
                   }}
-                  onClick={() => alert('implement add undername functionality')}
+                  onClick={() => setAction(UNDERNAME_TABLE_ACTIONS.CREATE)}
                 >
                   {/* TODO get undername logo from figma */}
                   {isMobile ? (
@@ -207,9 +250,7 @@ function Undernames() {
                     style={{
                       padding: '0.75em',
                     }}
-                    onClick={() =>
-                      alert('implement add undername functionality')
-                    }
+                    onClick={() => setAction(UNDERNAME_TABLE_ACTIONS.CREATE)}
                   >
                     {/* TODO get undername logo from figma */}
                     {isMobile ? (
@@ -229,6 +270,121 @@ function Undernames() {
           )}
         </div>
       </div>
+      {action ? (
+        <div className="modal-container">
+          <DialogModal
+            title={getActionModalTitle()}
+            onCancel={() => {
+              resetActionModal();
+            }}
+            body={
+              <>
+                {action === UNDERNAME_TABLE_ACTIONS.CREATE ? (
+                  <ValidationInput
+                    inputClassName="data-input"
+                    showValidationIcon={false}
+                    showValidationOutline={true}
+                    minNumber={100}
+                    maxNumber={1000000}
+                    wrapperCustomStyle={{
+                      width: '100%',
+                      border: 'none',
+                      overflow: 'hidden',
+                      fontSize: '16px',
+                      outline: 'none',
+                      borderRadius: 'var(--corner-radius)',
+                      boxSizing: 'border-box',
+                    }}
+                    placeholder={`Enter an Undername`}
+                    value={undername}
+                    setValue={(e) => {
+                      setUndername(e);
+                    }}
+                    validationPredicates={{}}
+                  />
+                ) : (
+                  <></>
+                )}
+                {createOrUpdateUndernameInteractions.includes(
+                  action as CreateOrEditUndernameInteraction,
+                ) ? (
+                  <>
+                    <ValidationInput
+                      inputClassName="data-input"
+                      showValidationIcon={true}
+                      showValidationOutline={true}
+                      minNumber={100}
+                      maxNumber={1000000}
+                      wrapperCustomStyle={{
+                        width: '100%',
+                        border: 'none',
+                        overflow: 'hidden',
+                        fontSize: '16px',
+                        outline: 'none',
+                        borderRadius: 'var(--corner-radius)',
+                        boxSizing: 'border-box',
+                      }}
+                      inputCustomStyle={{ paddingRight: '30px' }}
+                      placeholder={`Enter a Target ID`}
+                      value={targetID}
+                      setValue={(e) => {
+                        setTargetID(e);
+                      }}
+                      validationPredicates={{
+                        [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: (id: string) =>
+                          arweaveDataProvider.validateArweaveId(id),
+                      }}
+                      maxLength={43}
+                    />
+                    <ValidationInput
+                      inputClassName="data-input"
+                      showValidationIcon={false}
+                      showValidationOutline={true}
+                      inputType={'number'}
+                      minNumber={100}
+                      maxNumber={1000000}
+                      wrapperCustomStyle={{
+                        width: '100%',
+                        border: 'none',
+                        overflow: 'hidden',
+                        fontSize: '16px',
+                        outline: 'none',
+                        borderRadius: 'var(--corner-radius)',
+                        display: 'flex',
+                      }}
+                      placeholder={`Enter TTL Seconds`}
+                      value={ttl}
+                      setValue={(e) => {
+                        e ? setTTL(+e) : setTTL(undefined);
+                      }}
+                      validationPredicates={{}}
+                    />
+                  </>
+                ) : (
+                  <div
+                    className="flex flex-row flex-center"
+                    style={{ marginTop: '30px' }}
+                  >
+                    <TrashIcon width={75} height={75} fill="white" />
+                  </div>
+                )}
+              </>
+            }
+            showClose={false}
+            footer={
+              <div className="flex flex-column" style={{ gap: 0 }}>
+                {' '}
+                <span className="text white">This transaction will cost</span>
+                <span className="text white">
+                  <ArPrice dataSize={SMARTWEAVE_TAG_SIZE} />
+                </span>
+              </div>
+            }
+          />
+        </div>
+      ) : (
+        <></>
+      )}
     </>
   );
 }

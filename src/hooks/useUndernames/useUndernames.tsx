@@ -14,7 +14,9 @@ import CopyTextButton from '../../components/inputs/buttons/CopyTextButton/CopyT
 import {
   ArweaveTransactionID,
   PDNTContractJSON,
+  UNDERNAME_TABLE_ACTIONS,
   UndernameMetadata,
+  UndernameTableInteractionTypes,
 } from '../../types';
 import eventEmitter from '../../utils/events';
 
@@ -23,10 +25,13 @@ export function useUndernames(id?: ArweaveTransactionID) {
   const arweaveDataProvider = useArweaveCompositeProvider();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] = useState<keyof UndernameMetadata>('status');
-  const [selectedRow, setSelectedRow] = useState<UndernameMetadata>(); // eslint-disable-line
+  const [selectedRow, setSelectedRow] = useState<UndernameMetadata>();
   const [rows, setRows] = useState<UndernameMetadata[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [percent, setPercentLoaded] = useState<number>(0);
+  const [action, setAction] = useState<
+    UndernameTableInteractionTypes | undefined
+  >();
 
   useEffect(() => {
     if (!id) {
@@ -191,17 +196,23 @@ export function useUndernames(id?: ArweaveTransactionID) {
       },
       {
         title: '',
-        render: () => (
+        render: (row) => (
           <div className="flex flex-row flex-center" style={{ gap: '1em' }}>
             <button
-              className="button"
-              onClick={() => alert('Edit undername coming soon...')}
+              className="button hover"
+              onClick={() => {
+                setSelectedRow(row);
+                setAction(UNDERNAME_TABLE_ACTIONS.EDIT);
+              }}
             >
               <PencilIcon width={25} height={25} fill={'var(--text-white)'} />
             </button>
             <button
-              className="button"
-              onClick={() => alert('Edit undername coming soon...')}
+              className="button hover"
+              onClick={() => {
+                setSelectedRow(row);
+                setAction(UNDERNAME_TABLE_ACTIONS.REMOVE);
+              }}
             >
               <TrashIcon width={25} height={25} fill={'var(--text-white)'} />
             </button>
@@ -260,5 +271,6 @@ export function useUndernames(id?: ArweaveTransactionID) {
     sortField,
     sortAscending,
     selectedRow,
+    action,
   };
 }
