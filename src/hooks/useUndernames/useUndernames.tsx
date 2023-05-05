@@ -77,7 +77,6 @@ export function useUndernames(id?: ArweaveTransactionID) {
       <div
         className="card flex flex-column"
         style={{ padding: '15px', gap: 15, minHeight: 0 }}
-        onKeyDown={(e) => e.stopPropagation()}
       >
         <div className="flex flex-row flex-center" style={{ gap: 0 }}>
           <ValidationInput
