@@ -354,6 +354,7 @@ function Undernames() {
         <div className="modal-container">
           <DialogModal
             title={getActionModalTitle()}
+            onNext={() => handleOnNext()}
             onCancel={() => {
               resetActionModal();
             }}
