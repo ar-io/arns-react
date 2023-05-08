@@ -531,6 +531,7 @@ export enum VALIDATION_INPUT_TYPES {
   PDNT_CONTRACT_ID = 'Is a valid Arweave Name Token (PDNT)',
   // unfortunately we cannot use computed values in enums, so be careful if we ever modify this number
   TRANSACTION_CONFIRMATIONS = `Has sufficient confirmations (50+)`,
+  VALID_TTL = `Minimum ttl allowed is 900 and Maximum ttl allowed is 2,592,000`,
 }
 
 export type ValidationObject = {

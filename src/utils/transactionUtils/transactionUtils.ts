@@ -22,7 +22,11 @@ import {
   TransferPDNTPayload,
   ValidInteractionType,
 } from '../../types';
-import { PDNS_TX_ID_REGEX } from '../constants';
+import {
+  MAX_TTL_SECONDS,
+  MIN_TTL_SECONDS,
+  PDNS_TX_ID_REGEX,
+} from '../constants';
 
 export function isArweaveTransactionID(id: string) {
   if (!id) {
@@ -571,4 +575,16 @@ export function getAssociatedNames(
       if (recordEntry.contractTxId === txId.toString()) return name;
     })
     .filter((n) => !!n);
+}
+export function validateTTLSeconds(ttl: number) {
+  if (ttl < MIN_TTL_SECONDS) {
+    throw new Error(
+      `${ttl} is less than the minimum ttlSeconds requirement of ${MIN_TTL_SECONDS}`,
+    );
+  }
+  if (ttl > MAX_TTL_SECONDS) {
+    throw new Error(
+      `${ttl} is more than the maximum ttlSeconds requirement of ${MAX_TTL_SECONDS}`,
+    );
+  }
 }
