@@ -1,4 +1,3 @@
-import { Tooltip } from 'antd';
 import { useEffect, useState } from 'react';
 
 import { useArweaveCompositeProvider, useIsMobile, useWalletAddress } from '..';
@@ -151,7 +150,9 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
         className: 'white',
         ellipsis: true,
         render: (val: string) =>
-          val.length == 43 ? (
+          val === 'N/A' ? (
+            val
+          ) : (
             <>
               <CopyTextButton
                 copyText={val}
@@ -167,8 +168,6 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
                 }}
               />
             </>
-          ) : (
-            val
           ),
 
         onHeaderCell: () => {
@@ -213,32 +212,24 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
         width: '18%',
         className: 'white',
         render: (val: string) =>
-          val.length == 43 ? (
-            <Tooltip
-              placement={'top'}
-              title={val}
-              overlayStyle={{
-                maxWidth: 'fit-content',
-              }}
-            >
-              <>
-                <CopyTextButton
-                  copyText={val}
-                  displayText={`${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
-                    isMobile ? -2 : -6,
-                  )}`}
-                  size={'70%'}
-                  position="relative"
-                  wrapperStyle={{
-                    alignItems: 'center',
-                    margin: 'auto',
-                    fontSize: '16px',
-                  }}
-                />
-              </>
-            </Tooltip>
-          ) : (
+          val === 'N/A' ? (
             val
+          ) : (
+            <>
+              <CopyTextButton
+                copyText={val}
+                displayText={`${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
+                  isMobile ? -2 : -6,
+                )}`}
+                size={'70%'}
+                position="relative"
+                wrapperStyle={{
+                  alignItems: 'center',
+                  margin: 'auto',
+                  fontSize: '16px',
+                }}
+              />
+            </>
           ),
 
         onHeaderCell: () => {
