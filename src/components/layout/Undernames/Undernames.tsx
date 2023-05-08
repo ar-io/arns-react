@@ -222,25 +222,32 @@ function Undernames() {
             if (!selectedRow?.name) {
               throw new Error('Cannot find undername');
             }
+            if (!targetID && !ttl) {
+              throw new Error('No changes supplied for undername change');
+            }
 
             const payload = mapTransactionDataKeyToPayload(
-              INTERACTION_TYPES.REMOVE_RECORD,
-              [selectedRow.name],
+              INTERACTION_TYPES.SET_RECORD,
+              [
+                selectedRow.name,
+                targetID ?? selectedRow.targetID ?? STUB_ARWEAVE_TXID,
+                ttl ?? selectedRow.ttlSeconds ?? 3600,
+              ],
             );
             if (!payload) {
               throw new Error('Unable to generate transaction payload!');
             }
             if (
-              !isObjectOfTransactionPayloadType<RemoveRecordPayload>(
+              !isObjectOfTransactionPayloadType<SetRecordPayload>(
                 payload,
-                TRANSACTION_DATA_KEYS[INTERACTION_TYPES.REMOVE_RECORD].keys,
+                TRANSACTION_DATA_KEYS[INTERACTION_TYPES.SET_RECORD].keys,
               )
             ) {
               throw new Error('Mismatching payload and interation type!');
             }
             dispatchTransactionState({
               type: 'setInteractionType',
-              payload: INTERACTION_TYPES.REMOVE_RECORD,
+              payload: INTERACTION_TYPES.SET_RECORD,
             });
             dispatchTransactionState({
               type: 'setTransactionData',
