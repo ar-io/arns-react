@@ -272,5 +272,7 @@ export function useUndernames(id?: ArweaveTransactionID) {
     sortAscending,
     selectedRow,
     action,
+    setAction: (action: UNDERNAME_TABLE_ACTIONS | undefined) =>
+      setAction(action),
   };
 }

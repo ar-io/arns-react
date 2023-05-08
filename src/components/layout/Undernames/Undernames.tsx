@@ -16,7 +16,6 @@ import {
   SetRecordPayload,
   UNDERNAME_TABLE_ACTIONS,
   UndernameMetadata,
-  UndernameTableInteractionTypes,
   VALIDATION_INPUT_TYPES,
   createOrUpdateUndernameInteractions,
 } from '../../../types';
@@ -60,7 +59,8 @@ function Undernames() {
     selectedRow: selectedUndernameRow,
     sortAscending: undernameSortAscending,
     sortField: undernameSortField,
-    action: undernameAction,
+    action,
+    setAction,
   } = useUndernames(pdntId);
   const [tableData, setTableData] = useState<UndernameMetadata[]>([]);
   const [filteredTableData, setFilteredTableData] = useState<
@@ -73,9 +73,6 @@ function Undernames() {
 
   // modal state
   const [confirmations, setConfirmations] = useState(0);
-  const [action, setAction] = useState<
-    UndernameTableInteractionTypes | undefined
-  >();
   const [undername, setUndername] = useState<string>();
   const [targetID, setTargetID] = useState<string>();
   const [ttl, setTTL] = useState<number>();
@@ -103,7 +100,6 @@ function Undernames() {
       return;
     }
     if (isArweaveTransactionID(id)) {
-      setAction(undernameAction);
       setTableLoading(undernameTableLoading);
       setTableData(undernameRows);
       setTableColumns(undernameColumns);
@@ -122,7 +118,7 @@ function Undernames() {
     selectedUndernameRow,
     undernameTableLoading,
     percentUndernamesLoaded,
-    undernameAction,
+    action,
   ]);
 
   function resetActionModal() {
