@@ -72,6 +72,7 @@ function Undernames() {
   const [tablePage, setTablePage] = useState<number>(1);
 
   // modal state
+  const [confirmations, setConfirmations] = useState(0);
   const [action, setAction] = useState<
     UndernameTableInteractionTypes | undefined
   >();
@@ -89,6 +90,10 @@ function Undernames() {
     arweaveDataProvider
       .getContractState<PDNTContractJSON>(new ArweaveTransactionID(id))
       .then((state) => setPDNTState(state));
+
+    arweaveDataProvider
+      .getTransactionStatus(new ArweaveTransactionID(id))
+      .then((res) => setConfirmations(res));
   }, [id]);
 
   useEffect(() => {
@@ -127,17 +132,15 @@ function Undernames() {
     setAction(undefined);
     setSelectedRow(undefined);
   }
-  async function handleOnNext() {
+  function handleOnNext() {
     try {
       if (!id) {
         throw new Error('No PDNT ID found, unable to perform transaction.');
       }
-      const confirmations = await arweaveDataProvider.getTransactionStatus(
-        new ArweaveTransactionID(id),
-      );
-      if (confirmations < 1) {
+
+      if (confirmations < 15) {
         throw new Error(
-          'PDNT must have a minimum of 1 confirmation before editing, this protects against editing contracts lost due to block reorgs.',
+          'PDNT must have a minimum of 15 confirmations before editing, this protects against editing contracts lost due to block reorgs.',
         );
       }
       switch (action) {
@@ -410,6 +413,7 @@ function Undernames() {
                       borderRadius: 'var(--corner-radius)',
                       boxSizing: 'border-box',
                     }}
+                    inputCustomStyle={{ paddingLeft: '15px' }}
                     placeholder={`Enter an Undername`}
                     value={undername}
                     setValue={(e) => {
@@ -439,7 +443,10 @@ function Undernames() {
                         borderRadius: 'var(--corner-radius)',
                         boxSizing: 'border-box',
                       }}
-                      inputCustomStyle={{ paddingRight: '30px' }}
+                      inputCustomStyle={{
+                        paddingLeft: '15px',
+                        paddingRight: '30px',
+                      }}
                       placeholder={`Enter a Target ID`}
                       value={targetID}
                       setValue={(e) => {
@@ -467,6 +474,7 @@ function Undernames() {
                         borderRadius: 'var(--corner-radius)',
                         display: 'flex',
                       }}
+                      inputCustomStyle={{ paddingLeft: '15px' }}
                       placeholder={`Enter TTL Seconds`}
                       value={ttl}
                       setValue={(e) => {
