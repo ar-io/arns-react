@@ -109,7 +109,7 @@ function ConfirmRegistration() {
             </span>
             <div className="flex flex-column center" style={{ gap: '0.2em' }}>
               <Tooltip message={NAME_PRICE_INFO}>
-                <span className="white bold text-small">
+                <span className="white bold text-medium">
                   {fee.io?.toLocaleString()}&nbsp;IO&nbsp;+&nbsp;
                   <ArPrice dataSize={SMARTWEAVE_TAG_SIZE} />
                 </span>

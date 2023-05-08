@@ -9,14 +9,15 @@ import { useUndernames } from '../../../hooks/useUndernames/useUndernames';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ArweaveTransactionID,
+  CreateOrEditUndernameInteraction,
   INTERACTION_TYPES,
   PDNTContractJSON,
   RemoveRecordPayload,
   SetRecordPayload,
   UNDERNAME_TABLE_ACTIONS,
   UndernameMetadata,
-  UndernameTableInteractionTypes,
   VALIDATION_INPUT_TYPES,
+  createOrUpdateUndernameInteractions,
 } from '../../../types';
 import {
   TRANSACTION_DATA_KEYS,
@@ -58,7 +59,8 @@ function Undernames() {
     selectedRow: selectedUndernameRow,
     sortAscending: undernameSortAscending,
     sortField: undernameSortField,
-    action: undernameAction,
+    action,
+    setAction,
   } = useUndernames(pdntId);
   const [tableData, setTableData] = useState<UndernameMetadata[]>([]);
   const [filteredTableData, setFilteredTableData] = useState<
@@ -70,9 +72,7 @@ function Undernames() {
   const [tablePage, setTablePage] = useState<number>(1);
 
   // modal state
-  const [action, setAction] = useState<
-    UndernameTableInteractionTypes | undefined
-  >();
+  const [confirmations, setConfirmations] = useState(0);
   const [undername, setUndername] = useState<string>();
   const [targetID, setTargetID] = useState<string>();
   const [ttl, setTTL] = useState<number>();
@@ -87,6 +87,10 @@ function Undernames() {
     arweaveDataProvider
       .getContractState<PDNTContractJSON>(new ArweaveTransactionID(id))
       .then((state) => setPDNTState(state));
+
+    arweaveDataProvider
+      .getTransactionStatus(new ArweaveTransactionID(id))
+      .then((res) => setConfirmations(res));
   }, [id]);
 
   useEffect(() => {
@@ -96,7 +100,6 @@ function Undernames() {
       return;
     }
     if (isArweaveTransactionID(id)) {
-      setAction(undernameAction);
       setTableLoading(undernameTableLoading);
       setTableData(undernameRows);
       setTableColumns(undernameColumns);
@@ -115,7 +118,7 @@ function Undernames() {
     selectedUndernameRow,
     undernameTableLoading,
     percentUndernamesLoaded,
-    undernameAction,
+    action,
   ]);
 
   function resetActionModal() {
@@ -125,17 +128,15 @@ function Undernames() {
     setAction(undefined);
     setSelectedRow(undefined);
   }
-  async function handleOnNext() {
+  function handleOnNext() {
     try {
       if (!id) {
         throw new Error('No PDNT ID found, unable to perform transaction.');
       }
-      const confirmations = await arweaveDataProvider.getTransactionStatus(
-        new ArweaveTransactionID(id),
-      );
-      if (confirmations < 1) {
+
+      if (confirmations < 15) {
         throw new Error(
-          'PDNT must have a minimum of 1 confirmation before editing, this protects against editing contracts lost due to block reorgs.',
+          'PDNT must have a minimum of 15 confirmations before editing, this protects against editing contracts lost due to block reorgs.',
         );
       }
       switch (action) {
@@ -223,27 +224,23 @@ function Undernames() {
             }
 
             const payload = mapTransactionDataKeyToPayload(
-              INTERACTION_TYPES.SET_RECORD,
-              [
-                selectedRow.name,
-                targetID ?? selectedRow.targetID ?? STUB_ARWEAVE_TXID,
-                ttl ?? selectedRow.ttlSeconds ?? 3600,
-              ],
+              INTERACTION_TYPES.REMOVE_RECORD,
+              [selectedRow.name],
             );
             if (!payload) {
               throw new Error('Unable to generate transaction payload!');
             }
             if (
-              !isObjectOfTransactionPayloadType<SetRecordPayload>(
+              !isObjectOfTransactionPayloadType<RemoveRecordPayload>(
                 payload,
-                TRANSACTION_DATA_KEYS[INTERACTION_TYPES.SET_RECORD].keys,
+                TRANSACTION_DATA_KEYS[INTERACTION_TYPES.REMOVE_RECORD].keys,
               )
             ) {
               throw new Error('Mismatching payload and interation type!');
             }
             dispatchTransactionState({
               type: 'setInteractionType',
-              payload: INTERACTION_TYPES.SET_RECORD,
+              payload: INTERACTION_TYPES.REMOVE_RECORD,
             });
             dispatchTransactionState({
               type: 'setTransactionData',
@@ -265,6 +262,19 @@ function Undernames() {
 
   function updatePage(page: number) {
     setTablePage(page);
+  }
+
+  function getActionModalTitle(): string {
+    switch (action) {
+      case UNDERNAME_TABLE_ACTIONS.CREATE:
+        return 'Create Undername';
+      case UNDERNAME_TABLE_ACTIONS.EDIT:
+        return `Edit ${selectedRow?.name}`;
+      case UNDERNAME_TABLE_ACTIONS.REMOVE:
+        return `Remove ${selectedRow?.name}`;
+      default:
+        return '';
+    }
   }
 
   return (
@@ -410,15 +420,7 @@ function Undernames() {
       {action ? (
         <div className="modal-container">
           <DialogModal
-            title={
-              action === UNDERNAME_TABLE_ACTIONS.CREATE
-                ? 'Create Undername'
-                : action === UNDERNAME_TABLE_ACTIONS.EDIT
-                ? `Edit ${selectedRow?.name}`
-                : action === UNDERNAME_TABLE_ACTIONS.REMOVE
-                ? `Remove ${selectedRow?.name}`
-                : ''
-            }
+            title={getActionModalTitle()}
             onNext={() => handleOnNext()}
             onCancel={() => {
               resetActionModal();
@@ -441,6 +443,7 @@ function Undernames() {
                       borderRadius: 'var(--corner-radius)',
                       boxSizing: 'border-box',
                     }}
+                    inputCustomStyle={{ paddingLeft: '15px' }}
                     placeholder={`Enter an Undername`}
                     value={undername}
                     setValue={(e) => {
@@ -451,8 +454,9 @@ function Undernames() {
                 ) : (
                   <></>
                 )}
-                {action === UNDERNAME_TABLE_ACTIONS.CREATE ||
-                action === UNDERNAME_TABLE_ACTIONS.EDIT ? (
+                {createOrUpdateUndernameInteractions.includes(
+                  action as CreateOrEditUndernameInteraction,
+                ) ? (
                   <>
                     <ValidationInput
                       inputClassName="data-input"
@@ -469,7 +473,10 @@ function Undernames() {
                         borderRadius: 'var(--corner-radius)',
                         boxSizing: 'border-box',
                       }}
-                      inputCustomStyle={{ paddingRight: '30px' }}
+                      inputCustomStyle={{
+                        paddingLeft: '15px',
+                        paddingRight: '30px',
+                      }}
                       placeholder={`Enter a Target ID`}
                       value={targetID}
                       setValue={(e) => {
@@ -497,6 +504,7 @@ function Undernames() {
                         borderRadius: 'var(--corner-radius)',
                         display: 'flex',
                       }}
+                      inputCustomStyle={{ paddingLeft: '15px' }}
                       placeholder={`Enter TTL Seconds`}
                       value={ttl}
                       setValue={(e) => {
@@ -517,9 +525,13 @@ function Undernames() {
             }
             showClose={false}
             footer={
-              <span className="text white bold">
-                <ArPrice dataSize={SMARTWEAVE_TAG_SIZE} />
-              </span>
+              <div className="flex flex-column" style={{ gap: 0 }}>
+                {' '}
+                <span className="text white">This transaction will cost</span>
+                <span className="text white">
+                  <ArPrice dataSize={SMARTWEAVE_TAG_SIZE} />
+                </span>
+              </div>
             }
           />
         </div>
