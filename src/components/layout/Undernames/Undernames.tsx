@@ -6,18 +6,31 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
 import { useUndernames } from '../../../hooks/useUndernames/useUndernames';
+import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ArweaveTransactionID,
   CreateOrEditUndernameInteraction,
+  INTERACTION_TYPES,
   PDNTContractJSON,
+  SetRecordPayload,
   UNDERNAME_TABLE_ACTIONS,
   UndernameMetadata,
   UndernameTableInteractionTypes,
   VALIDATION_INPUT_TYPES,
   createOrUpdateUndernameInteractions,
 } from '../../../types';
-import { isArweaveTransactionID } from '../../../utils';
-import { SMARTWEAVE_TAG_SIZE } from '../../../utils/constants';
+import {
+  TRANSACTION_DATA_KEYS,
+  byteSize,
+  isArweaveTransactionID,
+  isObjectOfTransactionPayloadType,
+  mapTransactionDataKeyToPayload,
+} from '../../../utils';
+import {
+  SMARTWEAVE_MAX_TAG_SPACE,
+  SMARTWEAVE_TAG_SIZE,
+  STUB_ARWEAVE_TXID,
+} from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { ArrowLeft, TrashIcon } from '../../icons';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
@@ -27,6 +40,7 @@ import Loader from '../Loader/Loader';
 
 function Undernames() {
   const arweaveDataProvider = useArweaveCompositeProvider();
+  const [, dispatchTransactionState] = useTransactionState();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { id } = useParams();
@@ -57,6 +71,7 @@ function Undernames() {
   const [tablePage, setTablePage] = useState<number>(1);
 
   // modal state
+  const [confirmations, setConfirmations] = useState(0);
   const [action, setAction] = useState<
     UndernameTableInteractionTypes | undefined
   >();
@@ -74,6 +89,10 @@ function Undernames() {
     arweaveDataProvider
       .getContractState<PDNTContractJSON>(new ArweaveTransactionID(id))
       .then((state) => setPDNTState(state));
+
+    arweaveDataProvider
+      .getTransactionStatus(new ArweaveTransactionID(id))
+      .then((res) => setConfirmations(res));
   }, [id]);
 
   useEffect(() => {
@@ -111,6 +130,70 @@ function Undernames() {
     setTTL(undefined);
     setAction(undefined);
     setSelectedRow(undefined);
+  }
+  function handleOnNext() {
+    try {
+      if (!id) {
+        throw new Error('No PDNT ID found, unable to perform transaction.');
+      }
+
+      if (confirmations < 15) {
+        throw new Error(
+          'PDNT must have a minimum of 15 confirmations before editing, this protects against editing contracts lost due to block reorgs.',
+        );
+      }
+      switch (action) {
+        case UNDERNAME_TABLE_ACTIONS.CREATE:
+          {
+            if (!undername) {
+              throw new Error('Must enter an undername to create an undername');
+            }
+            if (undername === '@') {
+              throw new Error(
+                "Sorry, you cannot create the an undername called '@' as that is reserved for the record of the PDNS name.",
+              );
+            }
+            if (SMARTWEAVE_MAX_TAG_SPACE < byteSize(undername)) {
+              throw new Error(
+                'Undername too large, please reduce in length to allow it to fit in the transaction tags.',
+              );
+            }
+            const payload = mapTransactionDataKeyToPayload(
+              INTERACTION_TYPES.SET_RECORD,
+              [undername, targetID ?? STUB_ARWEAVE_TXID, ttl ?? 3600],
+            );
+            if (!payload) {
+              throw new Error('Unable to generate transaction payload!');
+            }
+            if (
+              !isObjectOfTransactionPayloadType<SetRecordPayload>(
+                payload,
+                TRANSACTION_DATA_KEYS[INTERACTION_TYPES.SET_RECORD].keys,
+              )
+            ) {
+              throw new Error('Mismatching payload and interation type!');
+            }
+            dispatchTransactionState({
+              type: 'setInteractionType',
+              payload: INTERACTION_TYPES.SET_RECORD,
+            });
+            dispatchTransactionState({
+              type: 'setTransactionData',
+              payload: { ...payload, assetId: id },
+            });
+            navigate('/transaction', {
+              state: `/manage/pdnts/${id}/undernames`,
+            });
+          }
+
+          break;
+
+        default:
+          break;
+      }
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    }
   }
 
   function updatePage(page: number) {
@@ -274,6 +357,7 @@ function Undernames() {
         <div className="modal-container">
           <DialogModal
             title={getActionModalTitle()}
+            onNext={() => handleOnNext()}
             onCancel={() => {
               resetActionModal();
             }}
