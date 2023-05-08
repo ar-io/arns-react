@@ -40,13 +40,7 @@ function CopyTextButton({
         <span className="flex white center" style={{ fontSize: 'inherit' }}>
           {displayText}&nbsp;
         </span>
-        <CopyIcon
-          className="flex"
-          height={25}
-          width={25}
-          fill="white"
-          style={{ cursor: 'pointer', scale: size }}
-        />
+
         <Tooltip
           open={textCopied}
           title={'Copied!'}
@@ -58,7 +52,15 @@ function CopyTextButton({
             fontFamily: 'Rubik-Bold',
             backgroundColor: 'var(--text-white)',
           }}
-        />
+        >
+          <CopyIcon
+            className="flex"
+            height={25}
+            width={25}
+            fill="white"
+            style={{ cursor: 'pointer', scale: size }}
+          />
+        </Tooltip>
       </button>
     </div>
   );
