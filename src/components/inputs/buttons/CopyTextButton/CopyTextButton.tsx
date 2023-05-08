@@ -47,20 +47,19 @@ function CopyTextButton({
           fill="white"
           style={{ cursor: 'pointer', scale: size }}
         />
+        <Tooltip
+          open={textCopied}
+          title={'Copied!'}
+          placement="right"
+          autoAdjustOverflow={true}
+          arrow={false}
+          overlayInnerStyle={{
+            color: 'var(--text-black)',
+            fontFamily: 'Rubik-Bold',
+            backgroundColor: 'var(--text-white)',
+          }}
+        />
       </button>
-
-      <Tooltip
-        open={textCopied}
-        title={'Copied!'}
-        placement="right"
-        autoAdjustOverflow={true}
-        arrow={false}
-        overlayInnerStyle={{
-          color: 'var(--text-black)',
-          fontFamily: 'Rubik-Bold',
-          backgroundColor: 'var(--text-white)',
-        }}
-      />
     </div>
   );
 }
