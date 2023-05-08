@@ -576,7 +576,7 @@ export function getAssociatedNames(
     })
     .filter((n) => !!n);
 }
-export async function validateTTLSeconds(ttl: number): Promise<void> {
+export function validateTTLSeconds(ttl: number) {
   if (ttl < MIN_TTL_SECONDS) {
     throw new Error(
       `${ttl} is less than the minimum ttlSeconds requirement of ${MIN_TTL_SECONDS}`,

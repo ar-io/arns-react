@@ -565,7 +565,14 @@ function Undernames() {
                       validityCallback={(isValid) => setChangesValid(isValid)}
                       validationPredicates={{
                         [VALIDATION_INPUT_TYPES.VALID_TTL]: (ttlSeconds) =>
-                          validateTTLSeconds(+ttlSeconds),
+                          new Promise((resolve, reject) => {
+                            try {
+                              validateTTLSeconds(+ttlSeconds);
+                              resolve(undefined);
+                            } catch (error) {
+                              reject(error);
+                            }
+                          }),
                       }}
                     />
                   </>
