@@ -256,16 +256,7 @@ function Undernames() {
               throw new Error('No changes supplied for undername change');
             }
             if (ttl) {
-              if (ttl < MIN_TTL_SECONDS) {
-                throw new Error(
-                  `${ttl} is less than the minimum ttlSeconds requirement of ${MIN_TTL_SECONDS}`,
-                );
-              }
-              if (ttl > MAX_TTL_SECONDS) {
-                throw new Error(
-                  `${ttl} is more than the maximum ttlSeconds requirement of ${MAX_TTL_SECONDS}`,
-                );
-              }
+              validateTTLSeconds(+ttl);
             }
 
             const payload = mapTransactionDataKeyToPayload(
