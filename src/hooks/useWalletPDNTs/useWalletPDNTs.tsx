@@ -9,6 +9,7 @@ import {
   RefreshAlertIcon,
   TargetIcon,
 } from '../../components/icons/index';
+import CopyTextButton from '../../components/inputs/buttons/CopyTextButton/CopyTextButton';
 import ManageAssetButtons from '../../components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
 import TransactionStatus from '../../components/layout/TransactionStatus/TransactionStatus';
 import {
@@ -149,9 +150,24 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
         className: 'white',
         ellipsis: true,
         render: (val: string) =>
-          `${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
-            isMobile ? -2 : -6,
-          )}`,
+          val === 'N/A' ? (
+            val
+          ) : (
+            <CopyTextButton
+              copyText={val}
+              displayText={`${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
+                isMobile ? -2 : -6,
+              )}`}
+              size={'70%'}
+              position="relative"
+              wrapperStyle={{
+                alignItems: 'center',
+                margin: 'auto',
+                fontSize: '16px',
+              }}
+            />
+          ),
+
         onHeaderCell: () => {
           return {
             onClick: () => {
@@ -194,9 +210,24 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
         width: '18%',
         className: 'white',
         render: (val: string) =>
-          `${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
-            isMobile ? -2 : -6,
-          )}`,
+          val === 'N/A' ? (
+            val
+          ) : (
+            <CopyTextButton
+              copyText={val}
+              displayText={`${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
+                isMobile ? -2 : -6,
+              )}`}
+              size={'70%'}
+              position="relative"
+              wrapperStyle={{
+                alignItems: 'center',
+                margin: 'auto',
+                fontSize: '16px',
+              }}
+            />
+          ),
+
         onHeaderCell: () => {
           return {
             onClick: () => {
@@ -297,9 +328,13 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
               : contractState.controller === walletAddress?.toString()
               ? 'Controller'
               : 'N/A',
-          target: (typeof contractState.records['@'] === 'string'
+          target: (contractState.records['@'] &&
+          typeof contractState.records['@'] === 'string'
             ? contractState.records['@']
-            : contractState.records['@'].transactionId) as string,
+            : typeof contractState.records['@'] === 'object' &&
+              contractState.records['@'].transactionId
+            ? contractState.records['@'].transactionId
+            : 'N/A') as string,
           status: confirmations ?? 0,
           state: contractState,
           key: index,

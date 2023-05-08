@@ -1,3 +1,4 @@
+import { Tooltip } from 'antd';
 import { useState } from 'react';
 
 import { CopyIcon } from '../../../icons';
@@ -39,30 +40,28 @@ function CopyTextButton({
         <span className="flex white center" style={{ fontSize: 'inherit' }}>
           {displayText}&nbsp;
         </span>
-        <CopyIcon
-          className="flex"
-          height={25}
-          width={25}
-          fill="white"
-          style={{ cursor: 'pointer', scale: size }}
-        />
-      </button>
-      {textCopied ? (
-        <div
-          className="bubble-small text center black"
-          style={{
-            position: 'absolute',
-            top: '100%',
-            right: '0px',
-            borderRadius: 'var(--corner-radius)',
-            zIndex: '100',
+
+        <Tooltip
+          open={textCopied}
+          title={'Copied!'}
+          placement="right"
+          autoAdjustOverflow={true}
+          arrow={false}
+          overlayInnerStyle={{
+            color: 'var(--text-black)',
+            fontFamily: 'Rubik-Bold',
+            backgroundColor: 'var(--text-white)',
           }}
         >
-          Copied!
-        </div>
-      ) : (
-        <></>
-      )}
+          <CopyIcon
+            className="flex"
+            height={25}
+            width={25}
+            fill="white"
+            style={{ cursor: 'pointer', scale: size }}
+          />
+        </Tooltip>
+      </button>
     </div>
   );
 }

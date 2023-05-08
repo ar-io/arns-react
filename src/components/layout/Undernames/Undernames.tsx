@@ -379,6 +379,7 @@ function Undernames() {
                       borderRadius: 'var(--corner-radius)',
                       boxSizing: 'border-box',
                     }}
+                    inputCustomStyle={{ paddingLeft: '15px' }}
                     placeholder={`Enter an Undername`}
                     value={undername}
                     setValue={(e) => {
@@ -408,7 +409,10 @@ function Undernames() {
                         borderRadius: 'var(--corner-radius)',
                         boxSizing: 'border-box',
                       }}
-                      inputCustomStyle={{ paddingRight: '30px' }}
+                      inputCustomStyle={{
+                        paddingLeft: '15px',
+                        paddingRight: '30px',
+                      }}
                       placeholder={`Enter a Target ID`}
                       value={targetID}
                       setValue={(e) => {
@@ -436,6 +440,7 @@ function Undernames() {
                         borderRadius: 'var(--corner-radius)',
                         display: 'flex',
                       }}
+                      inputCustomStyle={{ paddingLeft: '15px' }}
                       placeholder={`Enter TTL Seconds`}
                       value={ttl}
                       setValue={(e) => {
