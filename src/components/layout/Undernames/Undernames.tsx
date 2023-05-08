@@ -9,14 +9,15 @@ import { useUndernames } from '../../../hooks/useUndernames/useUndernames';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ArweaveTransactionID,
+  CreateOrEditUndernameInteraction,
   INTERACTION_TYPES,
   PDNTContractJSON,
   RemoveRecordPayload,
   SetRecordPayload,
   UNDERNAME_TABLE_ACTIONS,
   UndernameMetadata,
-  UndernameTableInteractionTypes,
   VALIDATION_INPUT_TYPES,
+  createOrUpdateUndernameInteractions,
 } from '../../../types';
 import {
   TRANSACTION_DATA_KEYS,
@@ -24,8 +25,12 @@ import {
   isArweaveTransactionID,
   isObjectOfTransactionPayloadType,
   mapTransactionDataKeyToPayload,
+  validateTTLSeconds,
 } from '../../../utils';
 import {
+  MAX_TTL_SECONDS,
+  MIN_SAFE_EDIT_CONFIRMATIONS,
+  MIN_TTL_SECONDS,
   SMARTWEAVE_MAX_TAG_SPACE,
   SMARTWEAVE_TAG_SIZE,
   STUB_ARWEAVE_TXID,
@@ -58,7 +63,8 @@ function Undernames() {
     selectedRow: selectedUndernameRow,
     sortAscending: undernameSortAscending,
     sortField: undernameSortField,
-    action: undernameAction,
+    action,
+    setAction,
   } = useUndernames(pdntId);
   const [tableData, setTableData] = useState<UndernameMetadata[]>([]);
   const [filteredTableData, setFilteredTableData] = useState<
@@ -70,12 +76,11 @@ function Undernames() {
   const [tablePage, setTablePage] = useState<number>(1);
 
   // modal state
-  const [action, setAction] = useState<
-    UndernameTableInteractionTypes | undefined
-  >();
+  const [confirmations, setConfirmations] = useState(0);
   const [undername, setUndername] = useState<string>();
   const [targetID, setTargetID] = useState<string>();
   const [ttl, setTTL] = useState<number>();
+  const [changesValid, setChangesValid] = useState<boolean>();
 
   useEffect(() => {
     if (!id) {
@@ -87,6 +92,10 @@ function Undernames() {
     arweaveDataProvider
       .getContractState<PDNTContractJSON>(new ArweaveTransactionID(id))
       .then((state) => setPDNTState(state));
+
+    arweaveDataProvider
+      .getTransactionStatus(new ArweaveTransactionID(id))
+      .then((res) => setConfirmations(res));
   }, [id]);
 
   useEffect(() => {
@@ -96,7 +105,6 @@ function Undernames() {
       return;
     }
     if (isArweaveTransactionID(id)) {
-      setAction(undernameAction);
       setTableLoading(undernameTableLoading);
       setTableData(undernameRows);
       setTableColumns(undernameColumns);
@@ -115,7 +123,7 @@ function Undernames() {
     selectedUndernameRow,
     undernameTableLoading,
     percentUndernamesLoaded,
-    undernameAction,
+    action,
   ]);
 
   function resetActionModal() {
@@ -124,29 +132,42 @@ function Undernames() {
     setTTL(undefined);
     setAction(undefined);
     setSelectedRow(undefined);
+    setChangesValid(undefined);
   }
-  async function handleOnNext() {
+  function handleOnNext() {
     try {
+      if (!pdntState) {
+        throw new Error(
+          'There was an issue loading the contract, unable to make changes',
+        );
+      }
       if (!id) {
         throw new Error('No PDNT ID found, unable to perform transaction.');
       }
-      const confirmations = await arweaveDataProvider.getTransactionStatus(
-        new ArweaveTransactionID(id),
-      );
-      if (confirmations < 1) {
+
+      if (confirmations < MIN_SAFE_EDIT_CONFIRMATIONS) {
         throw new Error(
-          'PDNT must have a minimum of 1 confirmation before editing, this protects against editing contracts lost due to block reorgs.',
+          `PDNT must have a minimum of 15 ${MIN_SAFE_EDIT_CONFIRMATIONS} before editing, this protects against editing contracts lost due to block reorgs.`,
         );
       }
       switch (action) {
         case UNDERNAME_TABLE_ACTIONS.CREATE:
           {
             if (!undername) {
-              throw new Error('Must enter an undername to create an undername');
+              throw new Error(
+                'Must enter an undername to create an undername.',
+              );
             }
             if (undername === '@') {
+              // prevent overwritting the @ record
               throw new Error(
                 "Sorry, you cannot create the an undername called '@' as that is reserved for the record of the PDNS name.",
+              );
+            }
+            if (Object.keys(pdntState.records).includes(undername)) {
+              // dont overwrite an undername
+              throw new Error(
+                `${undername} already exists, please choose another name.`,
               );
             }
             if (SMARTWEAVE_MAX_TAG_SPACE < byteSize(undername)) {
@@ -156,7 +177,11 @@ function Undernames() {
             }
             const payload = mapTransactionDataKeyToPayload(
               INTERACTION_TYPES.SET_RECORD,
-              [undername, targetID ?? STUB_ARWEAVE_TXID, ttl ?? 3600],
+              [
+                undername,
+                targetID ?? STUB_ARWEAVE_TXID,
+                ttl ?? MIN_TTL_SECONDS,
+              ],
             );
             if (!payload) {
               throw new Error('Unable to generate transaction payload!');
@@ -168,6 +193,9 @@ function Undernames() {
               )
             ) {
               throw new Error('Mismatching payload and interation type!');
+            }
+            if (!changesValid) {
+              throw new Error('Changes not valid, fix errors to continue');
             }
             dispatchTransactionState({
               type: 'setInteractionType',
@@ -203,6 +231,9 @@ function Undernames() {
             ) {
               throw new Error('Mismatching payload and interation type!');
             }
+            if (!changesValid) {
+              throw new Error('Changes not valid, fix errors to continue');
+            }
             dispatchTransactionState({
               type: 'setInteractionType',
               payload: INTERACTION_TYPES.REMOVE_RECORD,
@@ -221,13 +252,19 @@ function Undernames() {
             if (!selectedRow?.name) {
               throw new Error('Cannot find undername');
             }
+            if (!targetID && !ttl) {
+              throw new Error('No changes supplied for undername change');
+            }
+            if (ttl) {
+              validateTTLSeconds(+ttl);
+            }
 
             const payload = mapTransactionDataKeyToPayload(
               INTERACTION_TYPES.SET_RECORD,
               [
                 selectedRow.name,
                 targetID ?? selectedRow.targetID ?? STUB_ARWEAVE_TXID,
-                ttl ?? selectedRow.ttlSeconds ?? 3600,
+                ttl ?? selectedRow.ttlSeconds ?? MIN_TTL_SECONDS,
               ],
             );
             if (!payload) {
@@ -240,6 +277,9 @@ function Undernames() {
               )
             ) {
               throw new Error('Mismatching payload and interation type!');
+            }
+            if (!changesValid) {
+              throw new Error('Changes not valid, fix errors to continue');
             }
             dispatchTransactionState({
               type: 'setInteractionType',
@@ -265,6 +305,19 @@ function Undernames() {
 
   function updatePage(page: number) {
     setTablePage(page);
+  }
+
+  function getActionModalTitle(): string {
+    switch (action) {
+      case UNDERNAME_TABLE_ACTIONS.CREATE:
+        return 'Create Undername';
+      case UNDERNAME_TABLE_ACTIONS.EDIT:
+        return `Edit ${selectedRow?.name}`;
+      case UNDERNAME_TABLE_ACTIONS.REMOVE:
+        return `Remove ${selectedRow?.name}`;
+      default:
+        return '';
+    }
   }
 
   return (
@@ -412,15 +465,7 @@ function Undernames() {
       {action ? (
         <div className="modal-container">
           <DialogModal
-            title={
-              action === UNDERNAME_TABLE_ACTIONS.CREATE
-                ? 'Create Undername'
-                : action === UNDERNAME_TABLE_ACTIONS.EDIT
-                ? `Edit ${selectedRow?.name}`
-                : action === UNDERNAME_TABLE_ACTIONS.REMOVE
-                ? `Remove ${selectedRow?.name}`
-                : ''
-            }
+            title={getActionModalTitle()}
             onNext={() => handleOnNext()}
             onCancel={() => {
               resetActionModal();
@@ -443,25 +488,26 @@ function Undernames() {
                       borderRadius: 'var(--corner-radius)',
                       boxSizing: 'border-box',
                     }}
+                    inputCustomStyle={{ paddingLeft: '15px' }}
                     placeholder={`Enter an Undername`}
                     value={undername}
                     setValue={(e) => {
                       setUndername(e);
                     }}
+                    validityCallback={(isValid) => setChangesValid(isValid)}
                     validationPredicates={{}}
                   />
                 ) : (
                   <></>
                 )}
-                {action === UNDERNAME_TABLE_ACTIONS.CREATE ||
-                action === UNDERNAME_TABLE_ACTIONS.EDIT ? (
+                {createOrUpdateUndernameInteractions.includes(
+                  action as CreateOrEditUndernameInteraction,
+                ) ? (
                   <>
                     <ValidationInput
                       inputClassName="data-input"
                       showValidationIcon={true}
                       showValidationOutline={true}
-                      minNumber={100}
-                      maxNumber={1000000}
                       wrapperCustomStyle={{
                         width: '100%',
                         border: 'none',
@@ -471,7 +517,10 @@ function Undernames() {
                         borderRadius: 'var(--corner-radius)',
                         boxSizing: 'border-box',
                       }}
-                      inputCustomStyle={{ paddingRight: '30px' }}
+                      inputCustomStyle={{
+                        paddingLeft: '15px',
+                        paddingRight: '30px',
+                      }}
                       placeholder={`Enter a Target ID`}
                       value={targetID}
                       setValue={(e) => {
@@ -481,15 +530,16 @@ function Undernames() {
                         [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: (id: string) =>
                           arweaveDataProvider.validateArweaveId(id),
                       }}
+                      validityCallback={(isValid) => setChangesValid(isValid)}
                       maxLength={43}
                     />
                     <ValidationInput
                       inputClassName="data-input"
-                      showValidationIcon={false}
+                      showValidationIcon={true}
                       showValidationOutline={true}
                       inputType={'number'}
-                      minNumber={100}
-                      maxNumber={1000000}
+                      minNumber={MIN_TTL_SECONDS}
+                      maxNumber={MAX_TTL_SECONDS}
                       wrapperCustomStyle={{
                         width: '100%',
                         border: 'none',
@@ -499,12 +549,24 @@ function Undernames() {
                         borderRadius: 'var(--corner-radius)',
                         display: 'flex',
                       }}
+                      inputCustomStyle={{ paddingLeft: '15px' }}
                       placeholder={`Enter TTL Seconds`}
                       value={ttl}
                       setValue={(e) => {
                         e ? setTTL(+e) : setTTL(undefined);
                       }}
-                      validationPredicates={{}}
+                      validityCallback={(isValid) => setChangesValid(isValid)}
+                      validationPredicates={{
+                        [VALIDATION_INPUT_TYPES.VALID_TTL]: (ttlSeconds) =>
+                          new Promise((resolve, reject) => {
+                            try {
+                              validateTTLSeconds(+ttlSeconds);
+                              resolve(undefined);
+                            } catch (error) {
+                              reject(error);
+                            }
+                          }),
+                      }}
                     />
                   </>
                 ) : (
@@ -519,9 +581,13 @@ function Undernames() {
             }
             showClose={false}
             footer={
-              <span className="text white bold">
-                <ArPrice dataSize={SMARTWEAVE_TAG_SIZE} />
-              </span>
+              <div className="flex flex-column" style={{ gap: 0 }}>
+                {' '}
+                <span className="text white">This transaction will cost</span>
+                <span className="text white">
+                  <ArPrice dataSize={SMARTWEAVE_TAG_SIZE} />
+                </span>
+              </div>
             }
           />
         </div>

@@ -276,6 +276,23 @@ const undernameTableInteractions = [
 export type UndernameTableInteractionTypes =
   (typeof undernameTableInteractions)[number];
 
+export const createOrUpdateUndernameInteractions = [
+  UNDERNAME_TABLE_ACTIONS.CREATE,
+  UNDERNAME_TABLE_ACTIONS.EDIT,
+] as const;
+export const destructiveUndernameInteractions = [
+  UNDERNAME_TABLE_ACTIONS.REMOVE,
+] as const;
+export const allUndernameInteractions = [
+  ...createOrUpdateUndernameInteractions,
+  ...destructiveUndernameInteractions,
+] as const;
+
+export type CreateOrEditUndernameInteraction = Exclude<
+  UndernameTableInteractionTypes,
+  UNDERNAME_TABLE_ACTIONS.REMOVE
+>;
+
 const commonInteractionTypeNames = [
   INTERACTION_TYPES.TRANSFER,
   INTERACTION_TYPES.BALANCE,
@@ -514,6 +531,7 @@ export enum VALIDATION_INPUT_TYPES {
   PDNT_CONTRACT_ID = 'Is a valid Arweave Name Token (PDNT)',
   // unfortunately we cannot use computed values in enums, so be careful if we ever modify this number
   TRANSACTION_CONFIRMATIONS = `Has sufficient confirmations (50+)`,
+  VALID_TTL = `Minimum ttl allowed is 900 and Maximum ttl allowed is 2,592,000`,
 }
 
 export type ValidationObject = {

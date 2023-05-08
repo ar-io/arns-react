@@ -66,7 +66,7 @@ function TransactionComplete({
                   height={'30px'}
                   fill={'var(--text-white)'}
                 />
-                <span className="flex text-small faded center">
+                <span className="flex text-medium faded center">
                   Register a Name
                 </span>
               </div>
@@ -75,12 +75,11 @@ function TransactionComplete({
             <Link
               rel="noreferrer"
               target={'_blank'}
-              to={`${
+              to={
                 interactionType === INTERACTION_TYPES.CREATE
                   ? WARP_CONTRACT_BASE_URL
-                  : WARP_INTERACTION_BASE_URL
+                  : WARP_INTERACTION_BASE_URL + transactionId?.toString()
               }
-                ${transactionId?.toString()}`.trim()}
               className="link"
               style={{ textDecoration: 'none' }}
             >
@@ -101,7 +100,7 @@ function TransactionComplete({
                   fill={'var(--text-white)'}
                 />
                 <span
-                  className="flex text-small faded center"
+                  className="flex text-medium faded center"
                   style={{ textDecorationLine: 'none' }}
                 >
                   View on Sonar
@@ -113,7 +112,7 @@ function TransactionComplete({
               to={`/manage/pdnts/${getLinkId(interactionType, {
                 ...transactionData,
                 deployedTransactionId: transactionId,
-              })}`}
+              }).trim()}`}
               className="link"
               style={{ textDecoration: 'none' }}
             >
@@ -133,7 +132,7 @@ function TransactionComplete({
                   height={'30px'}
                   fill={'var(--text-white)'}
                 />
-                <span className="flex text-small faded center">
+                <span className="flex text-medium faded center">
                   Manage PDNT
                 </span>
               </div>
@@ -144,7 +143,7 @@ function TransactionComplete({
               to={`/manage/pdnts/${getLinkId(interactionType, {
                 ...transactionData,
                 deployedTransactionId: transactionId,
-              })}/undernames`}
+              }).trim()}/undernames`}
               className="link"
               style={{ textDecoration: 'none' }}
             >
@@ -164,7 +163,7 @@ function TransactionComplete({
                   height={'30px'}
                   fill={'var(--text-white)'}
                 />
-                <span className="flex text-small faded center">
+                <span className="flex text-medium faded center">
                   Add Undernames
                 </span>
               </div>

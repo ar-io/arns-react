@@ -151,7 +151,7 @@ function ManagePDNTModal() {
                 maxWidth: 'fit-content',
               }}
             >
-              <span>&nbsp;/&nbsp;{pdntName?.length ? pdntName : '[PDNT]'}</span>
+              <span>&nbsp;/&nbsp;{pdntName?.length ? pdntName : id}</span>
             </Tooltip>
           </span>
           {/* TODO: make sure the table doesn't refresh if no actions were saved/written */}

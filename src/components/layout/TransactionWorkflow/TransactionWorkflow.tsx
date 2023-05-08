@@ -78,86 +78,76 @@ function TransactionWorkflow({
     }
   }, [workflowStage, deployedTransactionId, transactionData]);
 
-  async function deployTransaction() {
-    try {
-      const originalTxId =
-        interactionType === INTERACTION_TYPES.CREATE &&
-        isObjectOfTransactionPayloadType<CreatePDNTPayload>(
-          payload,
-          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.CREATE].keys,
-        )
-          ? await arweaveDataProvider.deployContract({
-              srcCodeTransactionId: new ArweaveTransactionID(
-                payload.srcCodeTransactionId,
-              ),
-              initialState: payload.initialState,
-              tags: payload?.tags,
-            })
-          : await arweaveDataProvider.writeTransaction(
-              new ArweaveTransactionID(assetId),
-              {
-                function: functionName,
-                ...payload,
-              },
-            );
-      if (originalTxId) {
-        dispatchTransactionState({
-          type: 'setDeployedTransactionId',
-          payload: new ArweaveTransactionID(originalTxId.toString()),
-        });
-      }
-      return originalTxId;
-    } catch (error: any) {
-      console.error(error);
-      throw new Error(error);
+  async function deployTransaction(): Promise<string> {
+    let originalTxId: string | undefined = undefined;
+    if (
+      interactionType === INTERACTION_TYPES.CREATE &&
+      isObjectOfTransactionPayloadType<CreatePDNTPayload>(
+        payload,
+        TRANSACTION_DATA_KEYS[INTERACTION_TYPES.CREATE].keys,
+      )
+    ) {
+      originalTxId = await arweaveDataProvider.deployContract({
+        srcCodeTransactionId: new ArweaveTransactionID(
+          payload.srcCodeTransactionId,
+        ),
+        initialState: payload.initialState,
+        tags: payload?.tags,
+      });
+    } else {
+      const writeInteractionId = await arweaveDataProvider.writeTransaction(
+        new ArweaveTransactionID(assetId),
+        {
+          function: functionName,
+          ...payload,
+        },
+      );
+      originalTxId = writeInteractionId?.toString();
     }
+    if (!originalTxId) {
+      throw Error('Unable to create transaction');
+    }
+    return originalTxId;
+  }
+
+  function resetToPending() {
+    steps['1'].status = 'pending';
+    steps['2'].status = '';
+    steps['3'].status = '';
+    dispatchTransactionState({
+      type: 'setWorkflowStage',
+      payload: TRANSACTION_WORKFLOW_STATUS.PENDING,
+    });
   }
 
   async function handleStage(direction: string) {
     try {
-      switch (direction) {
-        case 'next':
-          switch (workflowStage) {
-            case TRANSACTION_WORKFLOW_STATUS.PENDING: {
-              steps['1'].status = 'success';
-              steps['2'].status = 'pending';
-              dispatchTransactionState({
-                type: 'setWorkflowStage',
-                payload: TRANSACTION_WORKFLOW_STATUS.CONFIRMED,
-              });
-              const originalTxId = deployTransaction();
-              steps['2'].status = 'success';
-              steps['3'].status = 'success';
-
-              return originalTxId;
-            }
-
-            default:
-              throw new Error(`Invalid workflow stage (${workflowStage})`);
-          }
-        case 'back':
-          switch (workflowStage) {
-            case TRANSACTION_WORKFLOW_STATUS.PENDING: {
-              navigate(-1);
-              return;
-            }
-            default:
-              throw new Error(`Invalid workflow stage (${workflowStage})`);
-          }
-        default:
-          throw new Error(
-            `Invalid direction {${direction}}, Only next or back may be provided as directions`,
-          );
+      if (direction === 'next' && TRANSACTION_WORKFLOW_STATUS.PENDING) {
+        steps['1'].status = 'success';
+        steps['2'].status = 'pending';
+        dispatchTransactionState({
+          type: 'setWorkflowStage',
+          payload: TRANSACTION_WORKFLOW_STATUS.CONFIRMED,
+        });
+        const txId = await deployTransaction();
+        dispatchTransactionState({
+          type: 'setDeployedTransactionId',
+          payload: new ArweaveTransactionID(txId),
+        });
+        steps['2'].status = 'success';
+        steps['3'].status = 'success';
+        return;
+      }
+      if (direction === 'back' && TRANSACTION_WORKFLOW_STATUS.PENDING) {
+        navigate(-1); // TODO: this should replace so our history
+        return;
       }
     } catch (error) {
-      console.error(error);
       eventEmitter.emit('error', error);
-      dispatchTransactionState({
-        type: 'setWorkflowStage',
-        payload: TRANSACTION_WORKFLOW_STATUS.PENDING,
-      });
+      resetToPending();
     }
   }
+
   function getStagesByTransactionType({
     interactionType,
   }: {
