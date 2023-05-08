@@ -12,10 +12,10 @@ import {
   CreateOrEditUndernameInteraction,
   INTERACTION_TYPES,
   PDNTContractJSON,
+  RemoveRecordPayload,
   SetRecordPayload,
   UNDERNAME_TABLE_ACTIONS,
   UndernameMetadata,
-  UndernameTableInteractionTypes,
   VALIDATION_INPUT_TYPES,
   createOrUpdateUndernameInteractions,
 } from '../../../types';
@@ -59,7 +59,8 @@ function Undernames() {
     selectedRow: selectedUndernameRow,
     sortAscending: undernameSortAscending,
     sortField: undernameSortField,
-    action: undernameAction,
+    action,
+    setAction,
   } = useUndernames(pdntId);
   const [tableData, setTableData] = useState<UndernameMetadata[]>([]);
   const [filteredTableData, setFilteredTableData] = useState<
@@ -72,9 +73,6 @@ function Undernames() {
 
   // modal state
   const [confirmations, setConfirmations] = useState(0);
-  const [action, setAction] = useState<
-    UndernameTableInteractionTypes | undefined
-  >();
   const [undername, setUndername] = useState<string>();
   const [targetID, setTargetID] = useState<string>();
   const [ttl, setTTL] = useState<number>();
@@ -102,7 +100,6 @@ function Undernames() {
       return;
     }
     if (isArweaveTransactionID(id)) {
-      setAction(undernameAction);
       setTableLoading(undernameTableLoading);
       setTableData(undernameRows);
       setTableColumns(undernameColumns);
@@ -121,7 +118,7 @@ function Undernames() {
     selectedUndernameRow,
     undernameTableLoading,
     percentUndernamesLoaded,
-    undernameAction,
+    action,
   ]);
 
   function resetActionModal() {
@@ -185,7 +182,40 @@ function Undernames() {
               state: `/manage/pdnts/${id}/undernames`,
             });
           }
+          break;
+        case UNDERNAME_TABLE_ACTIONS.REMOVE:
+          {
+            if (!selectedRow?.name) {
+              throw new Error('Cannot find undername');
+            }
 
+            const payload = mapTransactionDataKeyToPayload(
+              INTERACTION_TYPES.REMOVE_RECORD,
+              [selectedRow.name],
+            );
+            if (!payload) {
+              throw new Error('Unable to generate transaction payload!');
+            }
+            if (
+              !isObjectOfTransactionPayloadType<RemoveRecordPayload>(
+                payload,
+                TRANSACTION_DATA_KEYS[INTERACTION_TYPES.REMOVE_RECORD].keys,
+              )
+            ) {
+              throw new Error('Mismatching payload and interation type!');
+            }
+            dispatchTransactionState({
+              type: 'setInteractionType',
+              payload: INTERACTION_TYPES.REMOVE_RECORD,
+            });
+            dispatchTransactionState({
+              type: 'setTransactionData',
+              payload: { ...payload, assetId: id },
+            });
+            navigate('/transaction', {
+              state: `/manage/pdnts/${id}/undernames`,
+            });
+          }
           break;
 
         default:

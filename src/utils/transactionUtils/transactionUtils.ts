@@ -11,6 +11,7 @@ import {
   PDNSMapping,
   PDNSRecordEntry,
   PDNTContractJSON,
+  RemoveRecordPayload,
   SetControllerPayload,
   SetNamePayload,
   SetRecordPayload,
@@ -308,6 +309,36 @@ export function getPDNSMappingByInteractionType(
           'domain',
           'leaseDuration',
           'ttlSeconds',
+        ],
+      };
+    }
+    case INTERACTION_TYPES.REMOVE_RECORD: {
+      if (
+        !isObjectOfTransactionPayloadType<RemoveRecordPayload>(
+          transactionData,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.REMOVE_RECORD].keys,
+        )
+      ) {
+        throw new Error(
+          `transaction data not of correct payload type <SetRecordPayload> keys: ${Object.keys(
+            transactionData,
+          )}`,
+        );
+      }
+      return {
+        domain: '',
+        showTier: false,
+        compact: false,
+        id: new ArweaveTransactionID(transactionData.assetId),
+        overrides: {
+          undername: transactionData.subDomain,
+        },
+        disabledKeys: [
+          'evolve',
+          'maxSubdomains',
+          'domain',
+          'leaseDuration',
+          'tier',
         ],
       };
     }
