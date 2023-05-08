@@ -75,12 +75,11 @@ function TransactionComplete({
             <Link
               rel="noreferrer"
               target={'_blank'}
-              to={`${
+              to={
                 interactionType === INTERACTION_TYPES.CREATE
                   ? WARP_CONTRACT_BASE_URL
-                  : WARP_INTERACTION_BASE_URL
+                  : WARP_INTERACTION_BASE_URL + transactionId?.toString()
               }
-                ${transactionId?.toString()}`.trim()}
               className="link"
               style={{ textDecoration: 'none' }}
             >
@@ -113,7 +112,7 @@ function TransactionComplete({
               to={`/manage/pdnts/${getLinkId(interactionType, {
                 ...transactionData,
                 deployedTransactionId: transactionId,
-              })}`}
+              }).trim()}`}
               className="link"
               style={{ textDecoration: 'none' }}
             >
@@ -144,7 +143,7 @@ function TransactionComplete({
               to={`/manage/pdnts/${getLinkId(interactionType, {
                 ...transactionData,
                 deployedTransactionId: transactionId,
-              })}/undernames`}
+              }).trim()}/undernames`}
               className="link"
               style={{ textDecoration: 'none' }}
             >
