@@ -102,9 +102,6 @@ export class ArweaveCompositeDataProvider
   async validateConfirmations(id: string): Promise<void> {
     return this._arweaveProvider.validateConfirmations(id);
   }
-  async validateTTLSeconds(ttl: number): Promise<void> {
-    return this._arweaveProvider.validateTTLSeconds(ttl);
-  }
 
   async deployContract({
     srcCodeTransactionId,

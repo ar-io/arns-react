@@ -155,7 +155,6 @@ export interface ArweaveDataProvider {
     id: string,
     numberOfConfirmations?: number,
   ): Promise<void>;
-  validateTTLSeconds(ttl: number): Promise<void>;
   getArBalance(wallet: ArweaveTransactionID): Promise<number>;
   getArPrice(data: number): Promise<number>;
 }

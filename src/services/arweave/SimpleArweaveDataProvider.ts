@@ -7,11 +7,7 @@ import {
   TransactionHeaders,
 } from '../../types';
 import { tagsToObject } from '../../utils';
-import {
-  MAX_TTL_SECONDS,
-  MIN_TTL_SECONDS,
-  RECOMMENDED_TRANSACTION_CONFIRMATIONS,
-} from '../../utils/constants';
+import { RECOMMENDED_TRANSACTION_CONFIRMATIONS } from '../../utils/constants';
 
 export class SimpleArweaveDataProvider implements ArweaveDataProvider {
   private _arweave: Arweave;
@@ -119,19 +115,6 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
           `Contract ID does not have required number of confirmations. Current confirmations: ${confirmations}. Required number of confirmations: ${numberOfConfirmations}.`,
         );
       }
-    }
-  }
-
-  async validateTTLSeconds(ttl: number): Promise<void> {
-    if (ttl < MIN_TTL_SECONDS) {
-      throw new Error(
-        `${ttl} is less than the minimum ttlSeconds requirement of ${MIN_TTL_SECONDS}`,
-      );
-    }
-    if (ttl > MAX_TTL_SECONDS) {
-      throw new Error(
-        `${ttl} is more than the maximum ttlSeconds requirement of ${MAX_TTL_SECONDS}`,
-      );
     }
   }
 

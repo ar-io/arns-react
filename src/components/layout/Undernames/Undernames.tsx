@@ -25,6 +25,7 @@ import {
   isArweaveTransactionID,
   isObjectOfTransactionPayloadType,
   mapTransactionDataKeyToPayload,
+  validateTTLSeconds,
 } from '../../../utils';
 import {
   MAX_TTL_SECONDS,
@@ -564,7 +565,7 @@ function Undernames() {
                       validityCallback={(isValid) => setChangesValid(isValid)}
                       validationPredicates={{
                         [VALIDATION_INPUT_TYPES.VALID_TTL]: (ttlSeconds) =>
-                          arweaveDataProvider.validateTTLSeconds(+ttlSeconds),
+                          validateTTLSeconds(+ttlSeconds),
                       }}
                     />
                   </>
