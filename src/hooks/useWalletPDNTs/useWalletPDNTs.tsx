@@ -153,21 +153,19 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
           val === 'N/A' ? (
             val
           ) : (
-            <>
-              <CopyTextButton
-                copyText={val}
-                displayText={`${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
-                  isMobile ? -2 : -6,
-                )}`}
-                size={'70%'}
-                position="relative"
-                wrapperStyle={{
-                  alignItems: 'center',
-                  margin: 'auto',
-                  fontSize: '16px',
-                }}
-              />
-            </>
+            <CopyTextButton
+              copyText={val}
+              displayText={`${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
+                isMobile ? -2 : -6,
+              )}`}
+              size={'70%'}
+              position="relative"
+              wrapperStyle={{
+                alignItems: 'center',
+                margin: 'auto',
+                fontSize: '16px',
+              }}
+            />
           ),
 
         onHeaderCell: () => {
@@ -215,21 +213,19 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
           val === 'N/A' ? (
             val
           ) : (
-            <>
-              <CopyTextButton
-                copyText={val}
-                displayText={`${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
-                  isMobile ? -2 : -6,
-                )}`}
-                size={'70%'}
-                position="relative"
-                wrapperStyle={{
-                  alignItems: 'center',
-                  margin: 'auto',
-                  fontSize: '16px',
-                }}
-              />
-            </>
+            <CopyTextButton
+              copyText={val}
+              displayText={`${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
+                isMobile ? -2 : -6,
+              )}`}
+              size={'70%'}
+              position="relative"
+              wrapperStyle={{
+                alignItems: 'center',
+                margin: 'auto',
+                fontSize: '16px',
+              }}
+            />
           ),
 
         onHeaderCell: () => {
