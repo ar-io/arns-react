@@ -6,6 +6,7 @@ import {
   WarpFactory,
   defaultCacheOptions,
 } from 'warp-contracts';
+import { DeployPlugin } from 'warp-contracts-plugin-deploy';
 
 import {
   ArweaveTransactionID,
@@ -33,7 +34,7 @@ export class WarpDataProvider
       },
       true,
       arweave,
-    );
+    ).use(new DeployPlugin());
   }
 
   async getContractState<T extends PDNTContractJSON | PDNSContractJSON>(
