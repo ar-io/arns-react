@@ -1,4 +1,4 @@
-import { Pagination, Tooltip } from 'antd';
+import { ConfigProvider, Pagination, Tooltip, theme } from 'antd';
 import { Table } from 'antd';
 import { ColumnType } from 'rc-table/lib/interface';
 import { useEffect, useState } from 'react';
@@ -408,12 +408,14 @@ function Undernames() {
               {filteredTableData.length ? (
                 <>
                   <Table
+                    rowClassName={'assets-table-row'}
                     bordered={false}
                     scroll={{ x: true }}
                     columns={tableColumns}
                     dataSource={filteredTableData}
                     pagination={false}
                   />
+
                   <Pagination
                     pageSize={10}
                     onChange={updatePage}

@@ -410,34 +410,16 @@ input[type='text']:disabled {
   font-size: 12px;
   cursor: pointer;
 }
-.assets-table {
-  display: flex;
-  flex-direction: column;
-  row-gap: 0.5em;
-  width: 100%;
+
+.assets-table-row {
+  background-color: var(--bg-color);
+}
+th[class~='assets-table-header'] {
+  background-color: #323232 !important;
 }
 
-.assets-table-header {
-  box-sizing: border-box;
-  display: flex;
-  position: relative;
-  flex-direction: row;
-  height: 50px;
-  width: 100%;
-  border: 1px solid #323232;
-  border-radius: var(--corner-radius);
-  padding-left: 50px;
-  padding-right: 10px;
-  background-color: #323232;
-  align-items: center;
-  justify-content: space-between;
-}
-.assets-table-item {
-  display: flex;
-  align-items: center;
-  color: var(--text-white);
-  flex: 1;
-  height: 50px;
+thead > tr > td[class~='assets-table-header'] {
+  background-color: #323232 !important;
 }
 
 .ant-table-content > table {
@@ -469,12 +451,12 @@ input[type='text']:disabled {
 
 .ant-table-thead > tr > th {
   font-size: 16px;
-  background-color: #323232 !important;
+  background-color: #323232;
   border-bottom: 1px solid #323232 !important;
 }
 .ant-table-thead > tr > td {
   font-size: 16px;
-  background-color: #323232 !important;
+  background-color: #323232;
   border-bottom: 1px solid #323232 !important;
 }
 

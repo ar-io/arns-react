@@ -67,7 +67,7 @@ export function useUndernames(id?: ArweaveTransactionID) {
         key: 'name',
         align: 'left',
         width: '18%',
-        className: 'icon-padding white',
+        className: 'icon-padding white assets-table-header',
         ellipsis: true,
         onHeaderCell: () => {
           return {
@@ -110,7 +110,7 @@ export function useUndernames(id?: ArweaveTransactionID) {
         key: 'targetID',
         align: 'center',
         width: '18%',
-        className: 'white',
+        className: 'white assets-table-header',
         render: (val: string) =>
           val ? (
             <div
@@ -177,7 +177,7 @@ export function useUndernames(id?: ArweaveTransactionID) {
         key: 'ttlSeconds',
         align: 'center',
         width: '18%',
-        className: 'white',
+        className: 'white assets-table-header',
         render: (val: string) => val,
         onHeaderCell: () => {
           return {
@@ -196,6 +196,7 @@ export function useUndernames(id?: ArweaveTransactionID) {
       },
       {
         title: '',
+        className: 'assets-table-header',
         render: (row) => (
           <div className="flex flex-row flex-center" style={{ gap: '1em' }}>
             <button
