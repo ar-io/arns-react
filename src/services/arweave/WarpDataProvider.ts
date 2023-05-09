@@ -31,7 +31,7 @@ export class WarpDataProvider
       {
         ...defaultCacheOptions,
       },
-      false,
+      true,
       arweave,
     );
   }

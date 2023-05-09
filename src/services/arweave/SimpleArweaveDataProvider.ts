@@ -38,7 +38,7 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
     const { data: encodedTags } = await this._arweave.api.get(
       `/tx/${id.toString()}/tags`,
     );
-    const decodedTags = tagsToObject(JSON.parse(encodedTags));
+    const decodedTags = tagsToObject(encodedTags);
     return decodedTags;
   }
 
