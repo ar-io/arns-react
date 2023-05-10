@@ -24,62 +24,47 @@ export class PDNTInteractionProvider implements PDNTInteractionProvider {
   }
 
   async setOwner(id: ArweaveTransactionID) {
-    try {
-      if (!id) {
-        throw new Error(`type of id <${id}> is not a  valid id.`);
-      }
-
-      const payload = {
-        function: 'transfer',
-        target: id.toString(),
-      };
-      const txId = await this._provider.writeTransaction(this.pdntId, payload);
-      if (!txId) {
-        throw new Error(`Failed to transfer PDNT token`);
-      }
-      return txId;
-    } catch (error) {
-      console.error(error);
-      return;
+    if (!id) {
+      throw new Error(`type of id <${id}> is not a  valid id.`);
     }
+
+    const payload = {
+      function: 'transfer',
+      target: id.toString(),
+    };
+    const txId = await this._provider.writeTransaction(this.pdntId, payload);
+    if (!txId) {
+      throw new Error(`Failed to transfer PDNT token`);
+    }
+    return txId;
   }
 
   async setController(id: ArweaveTransactionID) {
-    try {
-      const payload = {
-        function: 'setController',
-        target: id.toString(),
-      };
-      const txId = await this._provider.writeTransaction(this.pdntId, payload);
-      if (!txId) {
-        throw new Error('Failed to add controller to contract');
-      }
-      return txId;
-    } catch (error) {
-      console.debug(error);
-      throw error;
+    const payload = {
+      function: 'setController',
+      target: id.toString(),
+    };
+    const txId = await this._provider.writeTransaction(this.pdntId, payload);
+    if (!txId) {
+      throw new Error('Failed to add controller to contract');
     }
+    return txId;
   }
   async setTargetId(id: ArweaveTransactionID) {
-    try {
-      if (!id) {
-        throw new Error(`type of id <${id}> is not a valid id.`);
-      }
-
-      const payload = {
-        function: 'setRecord',
-        transactionId: id.toString(),
-        subDomain: '@',
-      };
-      const txId = await this._provider.writeTransaction(this.pdntId, payload);
-      if (!txId) {
-        throw new Error('Failed to write target ID to contract');
-      }
-      return txId;
-    } catch (error) {
-      console.debug(error);
-      throw error;
+    if (!id) {
+      throw new Error(`type of id <${id}> is not a valid id.`);
     }
+
+    const payload = {
+      function: 'setRecord',
+      transactionId: id.toString(),
+      subDomain: '@',
+    };
+    const txId = await this._provider.writeTransaction(this.pdntId, payload);
+    if (!txId) {
+      throw new Error('Failed to write target ID to contract');
+    }
+    return txId;
   }
 
   async setUndername({
@@ -94,49 +79,39 @@ export class PDNTInteractionProvider implements PDNTInteractionProvider {
     maxSubdomains?: number;
     ttl?: number;
   }) {
-    try {
-      if (!targetId) {
-        throw new Error(`type of id <${typeof targetId}> is not a valid id.`);
-      }
-
-      const payload = {
-        function: 'setRecord',
-        subDomain: name,
-        target: targetId.toString(),
-        ttlSeconds: ttl ? ttl : this.contract.getRecord(name).ttlSeconds,
-        maxSubdomains: maxSubdomains
-          ? maxSubdomains
-          : this.contract.getRecord(name).maxUndernames,
-      };
-      const txId = await this._provider.writeTransaction(this.pdntId, payload);
-      if (!txId) {
-        throw new Error('Failed to write undername change to PDNT');
-      }
-      return txId;
-    } catch (error) {
-      console.debug(error);
-      throw error;
+    if (!targetId) {
+      throw new Error(`type of id <${typeof targetId}> is not a valid id.`);
     }
+
+    const payload = {
+      function: 'setRecord',
+      subDomain: name,
+      target: targetId.toString(),
+      ttlSeconds: ttl ? ttl : this.contract.getRecord(name).ttlSeconds,
+      maxSubdomains: maxSubdomains
+        ? maxSubdomains
+        : this.contract.getRecord(name).maxUndernames,
+    };
+    const txId = await this._provider.writeTransaction(this.pdntId, payload);
+    if (!txId) {
+      throw new Error('Failed to write undername change to PDNT');
+    }
+    return txId;
   }
 
   async removeUndername(name: string) {
-    try {
-      if (!name) {
-        throw new Error(`type of id <${name}> is not a valid id.`);
-      }
-
-      const payload = {
-        function: 'setRecord',
-        subDomain: name,
-      };
-      const txId = await this._provider.writeTransaction(this.pdntId, payload);
-      if (!txId) {
-        throw new Error('Failed to remove undername from contract');
-      }
-      return txId;
-    } catch (error) {
-      console.debug(error);
-      throw error;
+    if (!name) {
+      throw new Error(`type of id <${name}> is not a valid id.`);
     }
+
+    const payload = {
+      function: 'setRecord',
+      subDomain: name,
+    };
+    const txId = await this._provider.writeTransaction(this.pdntId, payload);
+    if (!txId) {
+      throw new Error('Failed to remove undername from contract');
+    }
+    return txId;
   }
 }
