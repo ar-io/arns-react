@@ -155,6 +155,7 @@ export interface ArweaveDataProvider {
     id: string,
     numberOfConfirmations?: number,
   ): Promise<void>;
+  validateArweaveAddress(address: string): Promise<undefined | boolean>;
   getArBalance(wallet: ArweaveTransactionID): Promise<number>;
   getArPrice(data: number): Promise<number>;
 }
@@ -525,7 +526,7 @@ export type UndernameMetadata = {
 
 export enum VALIDATION_INPUT_TYPES {
   ARWEAVE_ID = 'Is valid Arweave Transaction (TX) ID',
-  ARWEAVE_ADDRESS = 'Arweave Address',
+  ARWEAVE_ADDRESS = 'Is Valid Arweave Address',
   PDNS_NAME = 'PDNS Name',
   UNDERNAME = 'Undername',
   PDNT_CONTRACT_ID = 'Is a valid Arweave Name Token (PDNT)',

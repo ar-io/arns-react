@@ -1,13 +1,18 @@
 import Arweave from 'arweave/node';
 import Ar from 'arweave/node/ar';
+import { has } from 'lodash';
 
 import {
   ArweaveDataProvider,
   ArweaveTransactionID,
   TransactionHeaders,
+  TransactionTag,
 } from '../../types';
 import { tagsToObject } from '../../utils';
-import { RECOMMENDED_TRANSACTION_CONFIRMATIONS } from '../../utils/constants';
+import {
+  RECOMMENDED_TRANSACTION_CONFIRMATIONS,
+  transactionByOwnerQuery,
+} from '../../utils/constants';
 
 export class SimpleArweaveDataProvider implements ArweaveDataProvider {
   private _arweave: Arweave;
@@ -96,6 +101,54 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
         reject(error);
       }
     });
+  }
+
+  async validateArweaveAddress(address: string): Promise<undefined | boolean> {
+    const targetAddress = new ArweaveTransactionID(address);
+    const transaction = await this._arweave.api
+      .get(`/tx/${targetAddress.toString()}`)
+      .then((res: any) => (res.status === 200 ? res : false));
+
+    if (transaction) {
+      const tags = tagsToObject(transaction.data.tags);
+      console.log(transaction);
+      const isContract = Object.values(tags).includes('SmartWeaveContract');
+      if (isContract) {
+        throw new Error(
+          `Provided address (${targetAddress.toString()}) is a SmartWeave Contract.`,
+        );
+      }
+      throw new Error(
+        `Provided address (${targetAddress.toString()} is a transaction ID and not a Smartweave Contract or an address.`,
+      );
+    }
+
+    const balance = await this._arweave.api
+      .get(`/wallet/${targetAddress.toString()}/balance`)
+      .then((res: any) => (res.status === 200 ? res.data > 0 : false));
+
+    if (balance) {
+      return true;
+    }
+
+    if (!balance) {
+      // test address : ceN9pWPt4IdPWj6ujt_CCuOOHGLpKu0MMrpu9a0fJNM
+      // must be connected to a gateway that fetches l2 to perform this check
+      const hasTransactions = await this._arweave.api
+        .post(`/graphql`, transactionByOwnerQuery(targetAddress))
+        .then((res: any) =>
+          res.status === 200 ? res.data.data.transactions.edges : false,
+        );
+      console.log(hasTransactions);
+      if (!hasTransactions || !hasTransactions.length) {
+        throw new Error(
+          `Unable to verify address - this may mean the provided address (${targetAddress.toString()}) exists and has no transactions.`,
+        );
+      }
+      if (hasTransactions) {
+        return true;
+      }
+    }
   }
 
   async validateConfirmations(

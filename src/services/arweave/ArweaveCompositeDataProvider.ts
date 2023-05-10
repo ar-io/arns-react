@@ -103,6 +103,10 @@ export class ArweaveCompositeDataProvider
     return this._arweaveProvider.validateConfirmations(id);
   }
 
+  async validateArweaveAddress(address: string): Promise<undefined | boolean> {
+    return this._arweaveProvider.validateArweaveAddress(address);
+  }
+
   async deployContract({
     srcCodeTransactionId,
     initialState,
