@@ -410,8 +410,8 @@ function CreatePDNTModal() {
                                       >
                                         <PencilIcon
                                           style={{
-                                            width: '24',
-                                            height: '24',
+                                            width: '24px',
+                                            height: '24px',
                                             fill: 'white',
                                           }}
                                         />

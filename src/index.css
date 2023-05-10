@@ -55,6 +55,15 @@ input[type='text']:disabled {
   width: '100%';
   overflow: ellipse;
 }
+input[type=number]:disabled:-webkit-outer-spin-button,
+input[type=number]:disabled:-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number]:disabled {
+    -moz-appearance:textfield;
+}
 
 .bold {
   font-family: 'Rubik-Bold';
@@ -569,3 +578,4 @@ input[type='text']:disabled {
 .ant-pagination-item-active > a {
   background-color: var(--text-faded) !important;
 }
+
