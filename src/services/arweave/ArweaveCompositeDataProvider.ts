@@ -104,15 +104,18 @@ export class ArweaveCompositeDataProvider
   }
 
   async deployContract({
+    walletAddress,
     srcCodeTransactionId,
     initialState,
     tags,
   }: {
+    walletAddress: ArweaveTransactionID;
     srcCodeTransactionId: ArweaveTransactionID;
     initialState: PDNTContractJSON;
     tags?: TransactionTag[];
   }): Promise<string> {
     return await this._interactionProvider.deployContract({
+      walletAddress,
       srcCodeTransactionId,
       initialState,
       tags,
@@ -121,5 +124,9 @@ export class ArweaveCompositeDataProvider
 
   async getArPrice(data: number): Promise<number> {
     return await this._arweaveProvider.getArPrice(data);
+  }
+
+  async getCurrentBlockHeight(): Promise<number> {
+    return await this._arweaveProvider.getCurrentBlockHeight();
   }
 }

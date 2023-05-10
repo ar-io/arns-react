@@ -45,7 +45,7 @@ function TransactionWorkflow({
   transactionData: TransactionData;
   workflowStage: TRANSACTION_WORKFLOW_STATUS;
 }) {
-  const [{ gateway }] = useGlobalState();
+  const [{ gateway, walletAddress }] = useGlobalState();
   const [{ deployedTransactionId }, dispatchTransactionState] =
     useTransactionState();
   const arweaveDataProvider = useArweaveCompositeProvider();
@@ -80,6 +80,9 @@ function TransactionWorkflow({
 
   async function deployTransaction(): Promise<string> {
     let originalTxId: string | undefined = undefined;
+    if (!walletAddress) {
+      throw Error('No wallet connected.');
+    }
     if (
       interactionType === INTERACTION_TYPES.CREATE &&
       isObjectOfTransactionPayloadType<CreatePDNTPayload>(
@@ -88,6 +91,7 @@ function TransactionWorkflow({
       )
     ) {
       originalTxId = await arweaveDataProvider.deployContract({
+        walletAddress,
         srcCodeTransactionId: new ArweaveTransactionID(
           payload.srcCodeTransactionId,
         ),
@@ -95,13 +99,14 @@ function TransactionWorkflow({
         tags: payload?.tags,
       });
     } else {
-      const writeInteractionId = await arweaveDataProvider.writeTransaction(
-        new ArweaveTransactionID(assetId),
-        {
+      const writeInteractionId = await arweaveDataProvider.writeTransaction({
+        walletAddress,
+        contractTxId: new ArweaveTransactionID(assetId),
+        payload: {
           function: functionName,
           ...payload,
         },
-      );
+      });
       originalTxId = writeInteractionId?.toString();
     }
     if (!originalTxId) {
