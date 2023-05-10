@@ -422,6 +422,10 @@ thead > tr > td[class~='assets-table-header'] {
   background-color: #323232 !important;
 }
 
+.ant-table-cell-row-hover {
+  background-color: var(--bg-color) !important;
+}
+
 .ant-table-content > table {
   border-spacing: 0px 10px;
   width: 100%;

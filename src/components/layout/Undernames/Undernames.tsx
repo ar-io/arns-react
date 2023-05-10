@@ -1,4 +1,4 @@
-import { ConfigProvider, Pagination, Tooltip, theme } from 'antd';
+import { Pagination, Tooltip } from 'antd';
 import { Table } from 'antd';
 import { ColumnType } from 'rc-table/lib/interface';
 import { useEffect, useState } from 'react';
