@@ -1,12 +1,10 @@
 import Arweave from 'arweave/node';
 import Ar from 'arweave/node/ar';
-import { has } from 'lodash';
 
 import {
   ArweaveDataProvider,
   ArweaveTransactionID,
   TransactionHeaders,
-  TransactionTag,
 } from '../../types';
 import { tagsToObject } from '../../utils';
 import {

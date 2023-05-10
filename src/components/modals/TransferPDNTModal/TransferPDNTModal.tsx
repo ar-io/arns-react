@@ -37,7 +37,6 @@ function TransferPDNTModal({
   const isMobile = useIsMobile();
   const [accepted, setAccepted] = useState<boolean>(false);
   const [toAddress, setToAddress] = useState<string>('');
-  const [isValidAddress, setIsValidAddress] = useState<boolean>(false);
   const [validatingAddress, setValidatingAddress] = useState(false);
   const [addressError, setAddressError] = useState<Error>();
   const [state, setState] = useState<PDNTContractJSON>();
@@ -172,9 +171,7 @@ function TransferPDNTModal({
               maxLength={43}
               value={toAddress}
               setValue={setToAddress}
-              validityCallback={(validity: boolean) =>
-                setIsValidAddress(validity)
-              }
+              validityCallback={(validity: boolean) => validity}
               validationPredicates={{
                 [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: (id: string) =>
                   arweaveDataProvider.validateArweaveId(id),
