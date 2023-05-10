@@ -1,5 +1,5 @@
 import { Pagination, Tooltip } from 'antd';
-import Table from 'rc-table';
+import { Table } from 'antd';
 import { ColumnType } from 'rc-table/lib/interface';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -408,10 +408,14 @@ function Undernames() {
               {filteredTableData.length ? (
                 <>
                   <Table
+                    rowClassName={'assets-table-row'}
+                    bordered={false}
                     scroll={{ x: true }}
                     columns={tableColumns}
-                    data={filteredTableData}
+                    dataSource={filteredTableData}
+                    pagination={false}
                   />
+
                   <Pagination
                     pageSize={10}
                     onChange={updatePage}
