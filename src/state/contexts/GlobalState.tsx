@@ -11,6 +11,7 @@ export type GlobalState = {
   walletAddress?: ArweaveTransactionID;
   wallet?: ArweaveWalletConnector;
   pdnsContractId: ArweaveTransactionID;
+  height: number;
 };
 
 const initialState: GlobalState = {
@@ -21,6 +22,7 @@ const initialState: GlobalState = {
   gateway: 'arweave.net',
   walletAddress: undefined,
   wallet: undefined,
+  height: -1,
 };
 
 const GlobalStateContext = createContext<[GlobalState, Dispatch<Action>]>([
