@@ -1,6 +1,6 @@
 import Table from 'rc-table';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 
 import {
   useArweaveCompositeProvider,
@@ -29,10 +29,10 @@ function CreatePDNTModal() {
   const [{}, dispatchTransactionState] = useTransactionState(); // eslint-disable-line
   const { walletAddress } = useWalletAddress();
   const navigate = useNavigate();
+  const { state } = useLocation();
 
   useEffect(() => {
     if (!walletAddress) {
-      // TODO: use previous location instead
       navigate('/connect', { replace: true });
     }
   }, [walletAddress]);
@@ -163,6 +163,11 @@ function CreatePDNTModal() {
     }
   }
 
+  function closeModal() {
+    reset();
+    navigate(state?.from ?? '/');
+  }
+
   return (
     <>
       (
@@ -179,8 +184,7 @@ function CreatePDNTModal() {
             borderRadius: '100%',
           }}
           onClick={() => {
-            reset();
-            navigate(-1);
+            closeModal();
           }}
         >
           <CloseIcon width={30} height={30} fill={'var(--text-white'} />
