@@ -16,7 +16,6 @@ import {
   mapTransactionDataKeyToPayload,
 } from '../../../utils';
 import { SMARTWEAVE_TAG_SIZE } from '../../../utils/constants';
-import eventEmitter from '../../../utils/events';
 import { AlertTriangleIcon } from '../../icons';
 import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
@@ -37,8 +36,6 @@ function TransferPDNTModal({
   const [accepted, setAccepted] = useState<boolean>(false);
   const [toAddress, setToAddress] = useState<string>('');
   const [isValidAddress, setIsValidAddress] = useState(false);
-  const [validatingAddress, setValidatingAddress] = useState(false);
-  const [addressError, setAddressError] = useState<Error>();
   const [state, setState] = useState<PDNTContractJSON>();
   const [associatedNames] = useState(() =>
     getAssociatedNames(pdntId, pdnsSourceContract.records),
@@ -52,26 +49,6 @@ function TransferPDNTModal({
       .getContractState(pdntId)
       .then((res) => setState(res as PDNTContractJSON));
   }, [pdntId]);
-
-  useEffect(() => {
-    setAddressError(undefined);
-    if (toAddress.length < 43) {
-      return;
-    }
-    verifyAddress(toAddress);
-  }, [toAddress]);
-
-  async function verifyAddress(address: string) {
-    try {
-      setValidatingAddress(true);
-      await arweaveDataProvider.validateArweaveAddress(address);
-    } catch (error: any) {
-      setAddressError(error);
-      eventEmitter.emit('error', error);
-    } finally {
-      setValidatingAddress(false);
-    }
-  }
 
   if (!state) {
     return (
@@ -98,9 +75,10 @@ function TransferPDNTModal({
                   height: '95%',
                   padding: 0,
                   boxSizing: 'border-box',
-                  gap: '1em',
+                  gap: '10px',
                   position: 'relative',
                   paddingBottom: 85,
+                  justifyContent: 'space-between',
                 }
               : {
                   width: 420,
@@ -212,57 +190,26 @@ function TransferPDNTModal({
             ) : (
               <></>
             )}
-            {validatingAddress ? (
-              <Loader
-                size={80}
-                message={'Validating address, please wait...'}
-              />
-            ) : addressError ? (
-              <span
-                className="flex flex-row"
-                style={{
-                  gap: 10,
-                  alignItems: 'flex-start',
-                }}
-              >
-                <AlertTriangleIcon
-                  width={20}
-                  height={20}
-                  fill={'var(--accent)'}
-                />
-                <span
-                  className="text faded"
-                  style={{ textAlign: 'left', width: '90%' }}
-                >
-                  {addressError.message}
-                </span>
-              </span>
-            ) : (
-              <></>
-            )}
           </div>
-          <div className="flex flex-column center" style={{ width: '90%' }}>
-            {validatingAddress ? (
-              <></>
-            ) : (
-              <span
-                className="flex flex-row text white"
-                style={{
-                  gap: 10,
-                  alignItems: 'center',
-                }}
-              >
-                <input
-                  type="checkbox"
-                  className="accept-terms"
-                  checked={accepted}
-                  onClick={() => setAccepted(!accepted)}
-                />
-                {addressError
-                  ? 'I understand that the above address is not a verified arweave address, and that this action cannot be undone.'
-                  : 'I understand that this action cannot be undone.'}
-              </span>
-            )}
+          <div
+            className="flex flex-column center"
+            style={{ width: '90%', gap: 0 }}
+          >
+            <span
+              className="flex flex-row text white"
+              style={{
+                gap: 10,
+                alignItems: 'center',
+              }}
+            >
+              <input
+                type="checkbox"
+                className="accept-terms"
+                checked={accepted}
+                onClick={() => setAccepted(!accepted)}
+              />
+              I understand that this action cannot be undone.
+            </span>
 
             <div
               className="flex flex-row flex-space-between"

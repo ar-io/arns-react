@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { ValidationObject } from '../../../../types';
 import ValidationList from '../../../cards/ValidationList/ValidationList';
 import { AlertTriangleIcon, CircleCheck, CircleXIcon } from '../../../icons';
+import { Loader } from '../../../layout';
 
 function ValidationInput({
   wrapperClassName = '',
@@ -57,6 +58,7 @@ function ValidationInput({
   const [validationResults, setValidationResults] =
     useState<ValidationObject[]>();
 
+  const [validating, setValidating] = useState(false);
   const [valid, setValid] = useState<undefined | boolean>(undefined);
   const [warning, setWarning] = useState(false);
   const [openTooltip, setOpenTooltip] = useState(false);
@@ -70,6 +72,7 @@ function ValidationInput({
   }, [disabled]);
 
   async function validationExecutor(newValue: string) {
+    setValidating(true);
     setValue(newValue);
 
     const validations = Object.values(validationPredicates).map((predicate) =>
@@ -109,6 +112,7 @@ function ValidationInput({
     if (validityCallback) {
       validityCallback(validity);
     }
+    setValidating(false);
   }
 
   return (
@@ -172,7 +176,17 @@ function ValidationInput({
               showValidationIcon &&
               valid !== undefined &&
               value ? (
-                warning ? (
+                validating ? (
+                  <Loader
+                    size={20}
+                    color="var(--text-black)"
+                    wrapperStyle={{
+                      top: -12,
+                      left: -40,
+                      position: 'absolute',
+                    }}
+                  />
+                ) : warning ? (
                   <AlertTriangleIcon
                     width={20}
                     height={20}
