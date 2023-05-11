@@ -99,6 +99,7 @@ export class WarpDataProvider
       id: originalTxId,
       contractTxId: contractTxId.toString(),
       payload,
+      type: 'interaction',
     });
 
     return new ArweaveTransactionID(originalTxId);
@@ -159,7 +160,9 @@ export class WarpDataProvider
     // TODO: emit event on successfully transaction
     this._cache.set(walletAddress.toString(), {
       contractTxId,
-      deploymentPayload,
+      id: contractTxId,
+      payload: deploymentPayload,
+      type: 'deploy',
     });
 
     return contractTxId;
