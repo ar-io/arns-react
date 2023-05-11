@@ -17,7 +17,8 @@ function ConfirmRegistration() {
     dispatchRegistrationState,
   ] = useRegistrationState();
   const arweaveDataProvider = useArweaveCompositeProvider();
-  const [{ pdnsSourceContract, pdnsContractId, gateway }] = useGlobalState();
+  const [{ pdnsSourceContract, pdnsContractId, gateway, walletAddress }] =
+    useGlobalState();
   const [isPostingTransaction, setIsPostingTransaction] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
   useEffect(() => {
@@ -44,23 +45,23 @@ function ConfirmRegistration() {
   async function buyPDNSName() {
     try {
       setIsPostingTransaction(true);
-      if (!pdntID) {
+      if (!pdntID || !walletAddress) {
         return;
       }
-      const pendingTXId = await arweaveDataProvider.writeTransaction(
-        pdnsContractId,
-        {
+      const pendingTXId = await arweaveDataProvider.writeTransaction({
+        walletAddress,
+        contractTxId: pdnsContractId,
+        payload: {
           function: 'buyRecord',
           name: domain,
           contractTxId: pdntID.toString(),
         },
-      );
+      });
       if (pendingTXId) {
         dispatchRegistrationState({
           type: 'setResolvedTx',
           payload: pendingTXId,
         });
-        console.log(`Posted transaction: ${pendingTXId}`);
       }
       // TODO: write to local storage to store pending transactions
       dispatchRegistrationState({

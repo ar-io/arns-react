@@ -128,4 +128,8 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
       return 0;
     }
   }
+
+  async getCurrentBlockHeight(): Promise<number> {
+    return (await this._arweave.blocks.getCurrent()).height;
+  }
 }
