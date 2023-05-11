@@ -13,7 +13,6 @@ import {
 } from '../../../types';
 import {
   getAssociatedNames,
-  isArweaveTransactionID,
   mapTransactionDataKeyToPayload,
 } from '../../../utils';
 import { SMARTWEAVE_TAG_SIZE } from '../../../utils/constants';
@@ -37,6 +36,7 @@ function TransferPDNTModal({
   const isMobile = useIsMobile();
   const [accepted, setAccepted] = useState<boolean>(false);
   const [toAddress, setToAddress] = useState<string>('');
+  const [isValidAddress, setIsValidAddress] = useState(false);
   const [validatingAddress, setValidatingAddress] = useState(false);
   const [addressError, setAddressError] = useState<Error>();
   const [state, setState] = useState<PDNTContractJSON>();
@@ -171,7 +171,9 @@ function TransferPDNTModal({
               maxLength={43}
               value={toAddress}
               setValue={setToAddress}
-              validityCallback={(validity: boolean) => validity}
+              validityCallback={(validity: boolean) =>
+                setIsValidAddress(validity)
+              }
               validationPredicates={{
                 [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
                   fn: (id: string) => arweaveDataProvider.validateArweaveId(id),
@@ -296,8 +298,7 @@ function TransferPDNTModal({
                 >
                   Cancel
                 </button>
-                {(accepted && !isArweaveTransactionID(toAddress)) ||
-                !accepted ? (
+                {(accepted && !isValidAddress) || !accepted ? (
                   <Tooltip
                     title={
                       !accepted
@@ -306,19 +307,17 @@ function TransferPDNTModal({
                     }
                     placement="bottom"
                   >
-                    <>
-                      <button
-                        className="accent-button center flex flex-row"
-                        style={{
-                          width: '65px',
-                          height: '30px',
-                          fontSize: '12px',
-                          backgroundColor: 'var(--text-faded)',
-                        }}
-                      >
-                        Next
-                      </button>
-                    </>
+                    <button
+                      className="accent-button center flex flex-row"
+                      style={{
+                        width: '65px',
+                        height: '30px',
+                        fontSize: '12px',
+                        backgroundColor: 'var(--text-faded)',
+                      }}
+                    >
+                      Next
+                    </button>
                   </Tooltip>
                 ) : (
                   <button
@@ -339,7 +338,7 @@ function TransferPDNTModal({
                           type: 'setTransactionData',
                           payload: {
                             ...payload,
-                            assetId: pdntId.toString()!,
+                            assetId: pdntId.toString(),
                           },
                         });
                         navigate(`/transaction`, {

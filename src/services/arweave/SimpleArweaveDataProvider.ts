@@ -103,12 +103,29 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
 
   async validateArweaveAddress(address: string): Promise<undefined | boolean> {
     const targetAddress = new ArweaveTransactionID(address);
-    const transaction = await this._arweave.api
+
+    const txPromise = this._arweave.api
       .get(`/tx/${targetAddress.toString()}`)
       .then((res: any) => (res.status === 200 ? res : false));
 
-    if (transaction) {
-      const tags = tagsToObject(transaction.data.tags);
+    const balancePromise = this._arweave.api
+      .get(`/wallet/${targetAddress.toString()}/balance`)
+      .then((res: any) => (res.status === 200 ? res.data > 0 : false));
+
+    const gqlPromise = this._arweave.api
+      .post(`/graphql`, transactionByOwnerQuery(targetAddress))
+      .then((res: any) =>
+        res.status === 200 ? res.data.data.transactions.edges : false,
+      );
+
+    const [isTransaction, balance, hasTransactions] = await Promise.all([
+      txPromise,
+      balancePromise,
+      gqlPromise,
+    ]);
+
+    if (isTransaction) {
+      const tags = tagsToObject(isTransaction.data.tags);
       const isContract = Object.values(tags).includes('SmartWeaveContract');
       if (isContract) {
         throw new Error(
@@ -119,23 +136,12 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
         `Provided address (${targetAddress.toString()} is a transaction ID and not a Smartweave Contract or an address.`,
       );
     }
-
-    const balance = await this._arweave.api
-      .get(`/wallet/${targetAddress.toString()}/balance`)
-      .then((res: any) => (res.status === 200 ? res.data > 0 : false));
-
     if (balance) {
       return true;
     }
-
     if (!balance) {
       // test address : ceN9pWPt4IdPWj6ujt_CCuOOHGLpKu0MMrpu9a0fJNM
       // must be connected to a gateway that fetches l2 to perform this check
-      const hasTransactions = await this._arweave.api
-        .post(`/graphql`, transactionByOwnerQuery(targetAddress))
-        .then((res: any) =>
-          res.status === 200 ? res.data.data.transactions.edges : false,
-        );
       if (!hasTransactions || !hasTransactions.length) {
         throw new Error(
           `Unable to verify address - this may mean the provided address (${targetAddress.toString()}) exists and has no transactions.`,

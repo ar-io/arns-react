@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 
 import { ValidationObject } from '../../../../types';
 import ValidationList from '../../../cards/ValidationList/ValidationList';
-import { CircleCheck, CircleXIcon } from '../../../icons';
+import { AlertTriangleIcon, CircleCheck, CircleXIcon } from '../../../icons';
 
 function ValidationInput({
   wrapperClassName = '',
@@ -58,6 +58,7 @@ function ValidationInput({
     useState<ValidationObject[]>();
 
   const [valid, setValid] = useState<undefined | boolean>(undefined);
+  const [warning, setWarning] = useState(false);
   const [openTooltip, setOpenTooltip] = useState(false);
 
   useEffect(() => {
@@ -96,13 +97,14 @@ function ValidationInput({
         validationPredicates[Object.keys(validationPredicates)[index]]
           .required === false
       ) {
-        console.log(
-          validationPredicates[Object.keys(validationPredicates)[index]],
-        );
+        setWarning(true);
         return true;
       }
       return value.status === true;
     });
+    if (warning) {
+      setWarning(!validationResults.every((value) => value.status === true));
+    }
     setValid(validity);
     if (validityCallback) {
       validityCallback(validity);
@@ -134,10 +136,11 @@ function ValidationInput({
               showValidationOutline && valid !== undefined && value && !disabled
                 ? {
                     ...inputCustomStyle,
-                    border:
-                      valid === true
-                        ? '2px solid var(--success-green)'
-                        : '2px solid var(--error-red)',
+                    border: warning
+                      ? '2px solid var(--accent)'
+                      : valid === true
+                      ? '2px solid var(--success-green)'
+                      : '2px solid var(--error-red)',
                   }
                 : { ...inputCustomStyle }
             }
@@ -169,7 +172,13 @@ function ValidationInput({
               showValidationIcon &&
               valid !== undefined &&
               value ? (
-                valid === true ? (
+                warning ? (
+                  <AlertTriangleIcon
+                    width={20}
+                    height={20}
+                    fill={'var(--accent)'}
+                  />
+                ) : valid === true ? (
                   <CircleCheck
                     width={20}
                     height={20}
