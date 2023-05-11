@@ -19,6 +19,7 @@ import { Loader } from '../../layout/index';
 import './styles.css';
 
 function Manage() {
+  // TODO convert to antd tables and use search/filter
   const [{ pdnsSourceContract }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const { walletAddress } = useWalletAddress();
