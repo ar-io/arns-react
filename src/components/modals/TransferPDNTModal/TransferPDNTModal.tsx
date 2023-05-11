@@ -173,10 +173,16 @@ function TransferPDNTModal({
               setValue={setToAddress}
               validityCallback={(validity: boolean) => validity}
               validationPredicates={{
-                [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: (id: string) =>
-                  arweaveDataProvider.validateArweaveId(id),
-                [VALIDATION_INPUT_TYPES.ARWEAVE_ADDRESS]: (id: string) =>
-                  arweaveDataProvider.validateArweaveAddress(id),
+                [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
+                  fn: (id: string) => arweaveDataProvider.validateArweaveId(id),
+                },
+                [VALIDATION_INPUT_TYPES.ARWEAVE_ADDRESS]: {
+                  fn: (id: string) =>
+                    arweaveDataProvider.validateArweaveAddress(id),
+                  required: false,
+                  message:
+                    'The provided address seems to be a valid Arweave address...',
+                },
               }}
             />
             {associatedNames.length ? (
@@ -321,7 +327,7 @@ function TransferPDNTModal({
                     onClick={() => {
                       const payload = mapTransactionDataKeyToPayload(
                         INTERACTION_TYPES.TRANSFER,
-                        [toAddress.toString(), 1],
+                        [toAddress?.toString(), 1],
                       );
 
                       if (payload) {

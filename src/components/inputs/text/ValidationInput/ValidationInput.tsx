@@ -42,7 +42,13 @@ function ValidationInput({
   value: string | number | undefined;
   setValue: (text: string) => void;
   validityCallback?: (validity: boolean) => void;
-  validationPredicates: { [x: string]: (value: string) => Promise<any> };
+  validationPredicates: {
+    [x: string]: {
+      fn: (value: string) => Promise<any>;
+      required?: boolean;
+      message?: string;
+    };
+  };
   onClick?: () => void;
   inputType?: string;
   minNumber?: number;
@@ -66,7 +72,7 @@ function ValidationInput({
     setValue(newValue);
 
     const validations = Object.values(validationPredicates).map((predicate) =>
-      predicate(newValue),
+      predicate.fn(newValue),
     );
 
     const results = await Promise.allSettled(validations);
@@ -75,6 +81,9 @@ function ValidationInput({
       (result: PromiseFulfilledResult<any> | PromiseRejectedResult, index) => {
         return {
           name: Object.keys(validationPredicates)[index],
+          message:
+            validationPredicates[Object.keys(validationPredicates)[index]]
+              .message,
           status: result.status !== 'rejected',
           error: result.status === 'rejected' ? result?.reason : undefined,
         };
@@ -82,7 +91,18 @@ function ValidationInput({
     );
 
     setValidationResults(validationResults);
-    const validity = validationResults.every((value) => value.status === true);
+    const validity = validationResults.every((value, index) => {
+      if (
+        validationPredicates[Object.keys(validationPredicates)[index]]
+          .required === false
+      ) {
+        console.log(
+          validationPredicates[Object.keys(validationPredicates)[index]],
+        );
+        return true;
+      }
+      return value.status === true;
+    });
     setValid(validity);
     if (validityCallback) {
       validityCallback(validity);

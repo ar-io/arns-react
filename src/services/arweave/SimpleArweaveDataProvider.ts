@@ -109,7 +109,6 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
 
     if (transaction) {
       const tags = tagsToObject(transaction.data.tags);
-      console.log(transaction);
       const isContract = Object.values(tags).includes('SmartWeaveContract');
       if (isContract) {
         throw new Error(
@@ -137,7 +136,6 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
         .then((res: any) =>
           res.status === 200 ? res.data.data.transactions.edges : false,
         );
-      console.log(hasTransactions);
       if (!hasTransactions || !hasTransactions.length) {
         throw new Error(
           `Unable to verify address - this may mean the provided address (${targetAddress.toString()}) exists and has no transactions.`,

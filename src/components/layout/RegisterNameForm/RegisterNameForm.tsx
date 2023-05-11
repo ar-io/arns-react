@@ -139,19 +139,23 @@ function RegisterNameForm() {
               }
               placeholder={'Enter an PDNT Contract ID Validation Input'}
               validationPredicates={{
-                [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: (id: string) =>
-                  arweaveDataProvider.validateArweaveId(id),
-                [VALIDATION_INPUT_TYPES.PDNT_CONTRACT_ID]: (id: string) =>
-                  arweaveDataProvider.validateTransactionTags({
-                    id,
-                    requiredTags: {
-                      'Contract-Src':
-                        pdnsSourceContract.approvedANTSourceCodeTxs,
-                    },
-                  }),
-                [VALIDATION_INPUT_TYPES.TRANSACTION_CONFIRMATIONS]: (
-                  id: string,
-                ) => arweaveDataProvider.validateConfirmations(id),
+                [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
+                  fn: (id: string) => arweaveDataProvider.validateArweaveId(id),
+                },
+                [VALIDATION_INPUT_TYPES.PDNT_CONTRACT_ID]: {
+                  fn: (id: string) =>
+                    arweaveDataProvider.validateTransactionTags({
+                      id,
+                      requiredTags: {
+                        'Contract-Src':
+                          pdnsSourceContract.approvedANTSourceCodeTxs,
+                      },
+                    }),
+                },
+                [VALIDATION_INPUT_TYPES.TRANSACTION_CONFIRMATIONS]: {
+                  fn: (id: string) =>
+                    arweaveDataProvider.validateConfirmations(id),
+                },
               }}
               maxLength={43}
             />

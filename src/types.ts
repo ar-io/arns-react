@@ -537,6 +537,7 @@ export enum VALIDATION_INPUT_TYPES {
 
 export type ValidationObject = {
   name: string;
+  message?: string;
   status: boolean;
   error?: string | undefined;
 };

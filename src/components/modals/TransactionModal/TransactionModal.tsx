@@ -164,8 +164,10 @@ function TransactionModal({
                 }
                 showValidationChecklist={true}
                 validationPredicates={{
-                  [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: (id: string) =>
-                    arweaveDataProvider.validateArweaveId(id),
+                  [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
+                    fn: (id: string) =>
+                      arweaveDataProvider.validateArweaveId(id),
+                  },
                 }}
               />
               {getAssociatedNames(contractId!).length ? (
