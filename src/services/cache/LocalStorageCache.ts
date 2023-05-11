@@ -1,3 +1,5 @@
+import { isArray } from 'lodash';
+
 import { TransactionCache } from '../../types';
 
 export class LocalStorageCache implements TransactionCache {
@@ -18,18 +20,19 @@ export class LocalStorageCache implements TransactionCache {
   }
 
   // default to use arrays for now, and just push items to a given key
-  set(key: string, payload: any): void {
+  set(key: string, value: any): void {
     const currentCache = this.get(key);
-    return window.localStorage.setItem(
-      key,
-      JSON.stringify([
+    if (isArray(currentCache)) {
+      const updatedArr = [
         {
-          ...payload,
+          ...value,
           timestamp: Date.now(),
         },
-        currentCache,
-      ]),
-    );
+        ...currentCache,
+      ];
+      return window.localStorage.setItem(key, JSON.stringify(updatedArr));
+    }
+    return window.localStorage.setItem(key, JSON.stringify(value));
   }
 
   del(key: string): void {
