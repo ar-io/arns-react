@@ -144,7 +144,7 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
       // must be connected to a gateway that fetches l2 to perform this check
       if (!hasTransactions || !hasTransactions.length) {
         throw new Error(
-          `Unable to verify address - this may mean the provided address (${targetAddress.toString()}) exists and has no transactions.`,
+          `Unable to verify this is an arweave address. Please double check before proceeding.`,
         );
       }
       if (hasTransactions) {
