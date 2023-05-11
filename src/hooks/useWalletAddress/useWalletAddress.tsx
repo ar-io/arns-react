@@ -13,6 +13,14 @@ export function useWalletAddress(): {
   const [{ wallet, walletAddress }, dispatchGlobalState] = useGlobalState();
 
   useEffect(() => {
+    window.addEventListener('gatewaySwitch', (e: any) => {
+      console.log(e);
+      const config = e.detail.config;
+      dispatchGlobalState({
+        type: 'setGateway',
+        payload: config.host ?? undefined,
+      });
+    });
     // add a listener for wallet changes in arconnect
     window.addEventListener('walletSwitch', (e) => {
       const address = e.detail.address;

@@ -18,6 +18,7 @@ import {
 import { Home, Manage, NotFound, Transaction } from './components/pages';
 import { usePDNSContract } from './hooks/';
 import './index.css';
+import { useGlobalState } from './state/contexts/GlobalState';
 
 const sentryCreateBrowserRouter =
   Sentry.wrapCreateBrowserRouter(createBrowserRouter);
@@ -25,6 +26,7 @@ const sentryCreateBrowserRouter =
 function App() {
   // dispatches global state
   usePDNSContract();
+  const [{}, dispatchGlobalState] = useGlobalState();
 
   const router = sentryCreateBrowserRouter(
     createRoutesFromElements(
