@@ -43,14 +43,24 @@ export class ArweaveCompositeDataProvider
     );
   }
 
-  async writeTransaction(
-    id: ArweaveTransactionID,
+  async writeTransaction({
+    walletAddress,
+    contractTxId,
+    payload,
+  }: {
+    walletAddress: ArweaveTransactionID;
+    contractTxId: ArweaveTransactionID;
     payload: {
       function: string;
       [x: string]: any;
-    },
-  ): Promise<ArweaveTransactionID | undefined> {
-    return await this._interactionProvider.writeTransaction(id, payload);
+    };
+    dryWrite?: boolean;
+  }): Promise<ArweaveTransactionID | undefined> {
+    return await this._interactionProvider.writeTransaction({
+      walletAddress,
+      contractTxId,
+      payload,
+    });
   }
 
   async getContractBalanceForWallet(
