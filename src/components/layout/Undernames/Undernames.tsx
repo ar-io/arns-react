@@ -147,7 +147,7 @@ function Undernames() {
 
       if (confirmations < MIN_SAFE_EDIT_CONFIRMATIONS) {
         throw new Error(
-          `PDNT must have a minimum of 15 ${MIN_SAFE_EDIT_CONFIRMATIONS} before editing, this protects against editing contracts lost due to block reorgs.`,
+          `PDNT must have a minimum of ${MIN_SAFE_EDIT_CONFIRMATIONS} confirmations before editing.`,
         );
       }
       switch (action) {

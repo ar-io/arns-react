@@ -113,19 +113,27 @@ export interface SmartweaveContractCache {
 }
 
 export interface SmartweaveContractInteractionProvider {
-  writeTransaction(
-    id: ArweaveTransactionID,
+  writeTransaction({
+    walletAddress,
+    contractTxId,
+    payload,
+    dryWrite,
+  }: {
+    walletAddress: ArweaveTransactionID;
+    contractTxId: ArweaveTransactionID;
     payload: {
       function: string;
       [x: string]: any;
-    },
-    dryWrite?: boolean,
-  ): Promise<ArweaveTransactionID | undefined>;
+    };
+    dryWrite?: boolean;
+  }): Promise<ArweaveTransactionID | undefined>;
   deployContract({
+    walletAddress,
     srcCodeTransactionId,
     initialState,
     tags,
   }: {
+    walletAddress: ArweaveTransactionID;
     srcCodeTransactionId: ArweaveTransactionID;
     initialState: PDNTContractJSON;
     tags?: TransactionTag[];
@@ -136,6 +144,12 @@ export interface ArweaveWalletConnector {
   connect(): Promise<void>;
   disconnect(): Promise<void>;
   getWalletAddress(): Promise<ArweaveTransactionID>;
+}
+
+export interface TransactionCache {
+  set(key: string, payload: any): void;
+  get(key: string): any;
+  del(key: string): void;
 }
 
 export interface ArweaveDataProvider {
@@ -158,6 +172,7 @@ export interface ArweaveDataProvider {
   validateArweaveAddress(address: string): Promise<undefined | boolean>;
   getArBalance(wallet: ArweaveTransactionID): Promise<number>;
   getArPrice(data: number): Promise<number>;
+  getCurrentBlockHeight(): Promise<number>;
 }
 
 export interface PDNTInteractionProvider {

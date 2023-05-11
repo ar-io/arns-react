@@ -43,14 +43,24 @@ export class ArweaveCompositeDataProvider
     );
   }
 
-  async writeTransaction(
-    id: ArweaveTransactionID,
+  async writeTransaction({
+    walletAddress,
+    contractTxId,
+    payload,
+  }: {
+    walletAddress: ArweaveTransactionID;
+    contractTxId: ArweaveTransactionID;
     payload: {
       function: string;
       [x: string]: any;
-    },
-  ): Promise<ArweaveTransactionID | undefined> {
-    return await this._interactionProvider.writeTransaction(id, payload);
+    };
+    dryWrite?: boolean;
+  }): Promise<ArweaveTransactionID | undefined> {
+    return await this._interactionProvider.writeTransaction({
+      walletAddress,
+      contractTxId,
+      payload,
+    });
   }
 
   async getContractBalanceForWallet(
@@ -108,15 +118,18 @@ export class ArweaveCompositeDataProvider
   }
 
   async deployContract({
+    walletAddress,
     srcCodeTransactionId,
     initialState,
     tags,
   }: {
+    walletAddress: ArweaveTransactionID;
     srcCodeTransactionId: ArweaveTransactionID;
     initialState: PDNTContractJSON;
     tags?: TransactionTag[];
   }): Promise<string> {
     return await this._interactionProvider.deployContract({
+      walletAddress,
       srcCodeTransactionId,
       initialState,
       tags,
@@ -125,5 +138,9 @@ export class ArweaveCompositeDataProvider
 
   async getArPrice(data: number): Promise<number> {
     return await this._arweaveProvider.getArPrice(data);
+  }
+
+  async getCurrentBlockHeight(): Promise<number> {
+    return await this._arweaveProvider.getCurrentBlockHeight();
   }
 }
