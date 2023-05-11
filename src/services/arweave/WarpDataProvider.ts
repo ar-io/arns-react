@@ -19,7 +19,7 @@ import {
 } from '../../types';
 import { byteSize } from '../../utils';
 import { SMARTWEAVE_MAX_TAG_SPACE } from '../../utils/constants';
-import { LocalStorageCache } from '../cache/LocalCache';
+import { LocalStorageCache } from '../cache/LocalStorageCache';
 
 LoggerFactory.INST.logLevel('error');
 
