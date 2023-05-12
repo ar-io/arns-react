@@ -136,9 +136,7 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
         `Provided address (${targetAddress.toString()} is a transaction ID and not a Smartweave Contract or an address.`,
       );
     }
-    if (balance) {
-      return true;
-    }
+
     if (!balance) {
       // test address : ceN9pWPt4IdPWj6ujt_CCuOOHGLpKu0MMrpu9a0fJNM
       // must be connected to a gateway that fetches l2 to perform this check
