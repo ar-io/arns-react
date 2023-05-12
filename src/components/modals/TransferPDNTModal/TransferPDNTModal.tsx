@@ -160,8 +160,6 @@ function TransferPDNTModal({
                   fn: (id: string) =>
                     arweaveDataProvider.validateArweaveAddress(id),
                   required: false,
-                  message:
-                    'The provided address seems to be a valid Arweave address...',
                 },
               }}
             />
@@ -285,11 +283,11 @@ function TransferPDNTModal({
                           type: 'setTransactionData',
                           payload: {
                             ...payload,
-                            assetId: pdntId.toString(),
+                            assetId: pdntId?.toString(),
                           },
                         });
                         navigate(`/transaction`, {
-                          state: `/manage/pdnts/${pdntId.toString()}`,
+                          state: `/manage/pdnts/${pdntId?.toString()}`,
                         });
                       }
                     }}

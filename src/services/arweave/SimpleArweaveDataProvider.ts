@@ -1,5 +1,6 @@
 import Arweave from 'arweave/node';
 import Ar from 'arweave/node/ar';
+import { ResponseWithData } from 'arweave/node/lib/api';
 
 import {
   ArweaveDataProvider,
@@ -102,52 +103,55 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
   }
 
   async validateArweaveAddress(address: string): Promise<undefined | boolean> {
-    const targetAddress = new ArweaveTransactionID(address);
+    try {
+      const targetAddress = new ArweaveTransactionID(address);
 
-    const txPromise = this._arweave.api
-      .get(`/tx/${targetAddress.toString()}`)
-      .then((res: any) => (res.status === 200 ? res : false));
-
-    const balancePromise = this._arweave.api
-      .get(`/wallet/${targetAddress.toString()}/balance`)
-      .then((res: any) => (res.status === 200 ? res.data > 0 : false));
-
-    const gqlPromise = this._arweave.api
-      .post(`/graphql`, transactionByOwnerQuery(targetAddress))
-      .then((res: any) =>
-        res.status === 200 ? res.data.data.transactions.edges : false,
-      );
-
-    const [isTransaction, balance, hasTransactions] = await Promise.all([
-      txPromise,
-      balancePromise,
-      gqlPromise,
-    ]);
-
-    if (isTransaction) {
-      const tags = tagsToObject(isTransaction.data.tags);
-      const isContract = Object.values(tags).includes('SmartWeaveContract');
-      if (isContract) {
-        throw new Error(
-          `Provided address (${targetAddress.toString()}) is a SmartWeave Contract.`,
+      const txPromise = this._arweave.api
+        .get(`/tx/${targetAddress.toString()}`)
+        .then((res: ResponseWithData<TransactionHeaders>) =>
+          res.status === 200 ? res.data : undefined,
         );
-      }
-      throw new Error(
-        `Provided address (${targetAddress.toString()} is a transaction ID and not a Smartweave Contract or an address.`,
-      );
-    }
 
-    if (!balance) {
-      // test address : ceN9pWPt4IdPWj6ujt_CCuOOHGLpKu0MMrpu9a0fJNM
-      // must be connected to a gateway that fetches l2 to perform this check
-      if (!hasTransactions || !hasTransactions.length) {
-        throw new Error(
-          `Unable to verify this is an arweave address. Please double check before proceeding.`,
+      const balancePromise = this._arweave.api
+        .get(`/wallet/${targetAddress.toString()}/balance`)
+        .then((res: ResponseWithData<number>) =>
+          res.status === 200 ? res.data > 0 : undefined,
         );
-      }
-      if (hasTransactions) {
+
+      const gqlPromise = this._arweave.api
+        .post(`/graphql`, transactionByOwnerQuery(targetAddress))
+        .then((res: ResponseWithData<any>) =>
+          res.status === 200 ? res.data.data.transactions.edges : [],
+        );
+
+      const [isTransaction, balance, hasTransactions] = await Promise.all([
+        txPromise,
+        balancePromise,
+        gqlPromise,
+      ]);
+
+      if (hasTransactions.length || balance) {
         return true;
       }
+
+      if (isTransaction) {
+        const tags = tagsToObject(isTransaction.tags);
+
+        const isContract = Object.values(tags).includes('SmartWeaveContract');
+
+        throw new Error(
+          `Provided address (${targetAddress.toString()} is a ${
+            isContract ? 'Smartweave Contract' : 'transaction ID'
+          }.`,
+        );
+      }
+      // test address : ceN9pWPt4IdPWj6ujt_CCuOOHGLpKu0MMrpu9a0fJNM
+      // must be connected to a gateway that fetches L2 to perform this check
+      if (!hasTransactions || !hasTransactions.length) {
+        throw new Error(`Address has no transactions`);
+      }
+    } catch (error) {
+      throw new Error(`Unable to verify this is an arweave address.`);
     }
   }
 

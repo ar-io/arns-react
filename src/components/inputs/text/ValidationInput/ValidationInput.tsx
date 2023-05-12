@@ -47,7 +47,6 @@ function ValidationInput({
     [x: string]: {
       fn: (value: string) => Promise<any>;
       required?: boolean;
-      message?: string;
     };
   };
   onClick?: () => void;
@@ -85,9 +84,6 @@ function ValidationInput({
       (result: PromiseFulfilledResult<any> | PromiseRejectedResult, index) => {
         return {
           name: Object.keys(validationPredicates)[index],
-          message:
-            validationPredicates[Object.keys(validationPredicates)[index]]
-              .message,
           status: result.status !== 'rejected',
           error: result.status === 'rejected' ? result?.reason : undefined,
         };

@@ -45,16 +45,19 @@ function ValidationList({
               )}
               {validationItem.name}
             </span>
-            <span
-              className="flex faded center"
-              style={{
-                gap: '15px',
-                alignItems: 'center',
-              }}
-            >
-              {validationItem.error?.toString() ??
-                validationItem.message?.toString()}
-            </span>
+            {validationItem.error ? (
+              <span
+                className="flex faded center"
+                style={{
+                  gap: '15px',
+                  alignItems: 'center',
+                }}
+              >
+                {validationItem.error.toString()}
+              </span>
+            ) : (
+              <></>
+            )}
           </span>
         ))}
       </div>
