@@ -1,5 +1,5 @@
 import { Tooltip } from 'antd';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { ValidationObject } from '../../../../types';
 import ValidationList from '../../../cards/ValidationList/ValidationList';
@@ -53,10 +53,10 @@ function ValidationInput({
 
   const [valid, setValid] = useState<undefined | boolean>(undefined);
   const [openTooltip, setOpenTooltip] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const inputEle = document.getElementById(inputId);
-    inputEle?.focus();
+    inputRef.current?.focus();
     if (value) {
       validationExecutor(value.toString());
     }
@@ -99,7 +99,9 @@ function ValidationInput({
         onClick={onClick ? () => onClick() : undefined}
       >
         <div className="flex" style={{ width: '100%', position: 'relative' }}>
+          {' '}
           <input
+            ref={inputRef}
             id={inputId}
             type={inputType}
             min={inputType === 'number' ? minNumber : undefined}

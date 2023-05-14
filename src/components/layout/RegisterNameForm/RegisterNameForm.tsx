@@ -9,15 +9,14 @@ import {
   PDNTContractJSON,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
-import Dropdown from '../../inputs/Dropdown/Dropdown';
-import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
-import UpgradeTier from '../UpgradeTier/UpgradeTier';
+import NameTokenSelector from '../../inputs/text/NameTokenSelector/NameTokenSelector';
+import Loader from '../Loader/Loader';
 import './styles.css';
 
 function RegisterNameForm() {
   const [{ domain, ttl, pdntID }, dispatchRegisterState] =
     useRegistrationState();
-  const [{ gateway, pdnsSourceContract }] = useGlobalState();
+  const [{ gateway, pdnsSourceContract, walletAddress }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
 
   const [isValidPDNT, setIsValidPDNT] = useState<boolean | undefined>(
@@ -113,6 +112,10 @@ function RegisterNameForm() {
     }
   }
 
+  if (!walletAddress) {
+    return <Loader size={80} />;
+  }
+
   return (
     <>
       <div className="register-name-modal">
@@ -122,62 +125,12 @@ function RegisterNameForm() {
         <div className="section-header">Register Domain</div>
         <div className="register-inputs center">
           <div className="input-group center column">
-            <ValidationInput
-              value={pdntTxID ?? ''}
-              setValue={(e: string) => handlePDNTId(e)}
-              validityCallback={(isValid: boolean) => setIsValidPDNT(isValid)}
-              wrapperClassName={'flex flex-column center'}
-              wrapperCustomStyle={{ gap: '0.5em', boxSizing: 'border-box' }}
-              showValidationIcon={true}
-              inputClassName={'data-input center'}
-              inputCustomStyle={
-                isValidPDNT && pdntTxID
-                  ? { border: 'solid 2px var(--success-green)', width: '100%' }
-                  : !isValidPDNT && pdntTxID
-                  ? { border: 'solid 2px var(--error-red)', width: '100%' }
-                  : {}
-              }
-              placeholder={'Enter an PDNT Contract ID Validation Input'}
-              validationPredicates={{
-                [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: (id: string) =>
-                  arweaveDataProvider.validateArweaveId(id),
-                [VALIDATION_INPUT_TYPES.PDNT_CONTRACT_ID]: (id: string) =>
-                  arweaveDataProvider.validateTransactionTags({
-                    id,
-                    requiredTags: {
-                      'Contract-Src':
-                        pdnsSourceContract.approvedANTSourceCodeTxs,
-                    },
-                  }),
-                [VALIDATION_INPUT_TYPES.TRANSACTION_CONFIRMATIONS]: (
-                  id: string,
-                ) => arweaveDataProvider.validateConfirmations(id),
-              }}
-              maxLength={43}
-            />
-          </div>
-          <div className="input-group center">
-            <Dropdown
-              showSelected={true}
-              showChevron={true}
-              selected={`${ttl} seconds`}
-              setSelected={(value) =>
-                dispatchRegisterState({ type: 'setTTL', payload: value })
-              }
-              options={{
-                '100secs': 100,
-                '200secs': 200,
-                '300secs': 300,
-                '400secs': 400,
-                '500secs': 500,
-                '600secs': 600,
-                '700secs': 700,
-                '800secs': 800,
-              }}
+            <NameTokenSelector
+              walletAddress={walletAddress}
+              selectedTokenCallback={(id) => handlePDNTId(id.toString())}
             />
           </div>
         </div>
-        <UpgradeTier />
       </div>
     </>
   );

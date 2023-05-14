@@ -14,7 +14,7 @@
   font-display: block;
 }
 :root {
-  --bg-color: #1d1e1c;
+  --bg-color: #171717;
   --card-bg: #1f1f1f;
   --text-black: #121212;
   --text-faded: #9e9e9e;
@@ -418,6 +418,29 @@ input[type='number']:disabled {
   font-weight: 500;
   font-size: 12px;
   cursor: pointer;
+}
+.custom-next-pagination {
+  display: 'flex';
+  justify-content: space-between;
+  width: 100%;
+}
+.custom-next-pagination > ul > li {
+  display: none !important;
+}
+.custom-next-pagination > ul > li:first-child {
+  display: flex !important;
+}
+.custom-next-pagination > ul > li:last-child {
+  display: flex !important;
+}
+.custom-next-pagination > ul {
+  display: inherit !important;
+  justify-content: inherit !important;
+  width: inherit !important;
+}
+.custom-next-pagination > ul::after,
+ul::before {
+  display: none;
 }
 
 .assets-table-row {
