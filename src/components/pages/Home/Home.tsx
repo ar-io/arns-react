@@ -22,8 +22,6 @@ import {
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import { FeaturedDomains, Loader, RegisterNameForm } from '../../layout';
 import { SearchBarFooter, SearchBarHeader } from '../../layout';
-import ConfirmRegistration from '../../layout/ConfirmRegistration/ConfirmRegistration';
-import SuccessfulRegistration from '../../layout/SuccessfulRegistration/SuccessfulRegistration';
 import Workflow from '../../layout/Workflow/Workflow';
 import './styles.css';
 
@@ -76,11 +74,12 @@ function Home() {
 
   return (
     <div className="page">
-      {domain ? (
-        <></>
-      ) : (
+      {stage < 1 ? (
         <div className="page-header">Permaweb Domain Name System</div>
+      ) : (
+        <></>
       )}
+
       {!Object.keys(pdnsSourceContract.records).length ? (
         <Loader
           size={80}
@@ -116,6 +115,10 @@ function Home() {
                   state: `/?search=${domain}`,
                   replace: true,
                 });
+                dispatchRegisterState({
+                  type: 'reset',
+                });
+                return;
               }
               dispatchRegisterState({
                 type: 'setStage',
@@ -212,14 +215,8 @@ function Home() {
                   />
                 ),
                 disableNext: !isSearching,
-                showNext:
-                  !!domain &&
-                  isPDNSDomainNameAvailable({
-                    name: domain,
-                    records: pdnsSourceContract.records,
-                  }) &&
-                  isPDNSDomainNameValid({ name: domain }),
-                showBack: !!domain,
+                showNext: false,
+                showBack: false,
                 requiresWallet: !!domain && !pdntID,
               },
               1: {
@@ -232,24 +229,9 @@ function Home() {
                   !walletAddress,
                 requiresWallet: true,
               },
-              2: {
-                // this component manages buttons itself
-                component: <ConfirmRegistration />,
-                showNext: false,
-                showBack: false,
-                disableNext: !!domain && !!pdntID && !walletAddress,
-                requiresWallet: true,
-              },
-              3: {
-                component: <SuccessfulRegistration />,
-                showNext: false,
-                showBack: false,
-                disableNext: true,
-                requiresWallet: true,
-              },
             }}
           />
-          {featuredDomains && !domain ? (
+          {featuredDomains && !pdntID && stage < 1 ? (
             <FeaturedDomains domains={featuredDomains} />
           ) : (
             <></>

@@ -71,7 +71,9 @@ function Workflow({
         }
       })}
       <>
-        {stages[stage]?.requiresWallet && !walletAddress ? (
+        {stages[stage]?.requiresWallet &&
+        !walletAddress &&
+        stages[stage]?.showNext ? (
           <div className="flex flex-row center" style={{ padding: '2em' }}>
             <button className="accent-button hover" onClick={showConnectWallet}>
               Connect Wallet to proceed

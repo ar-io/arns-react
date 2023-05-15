@@ -1,6 +1,5 @@
 import { SearchBarFooterProps } from '../../../types';
 import PDNTCard from '../../cards/PDNTCard/PDNTCard';
-import UpgradeTier from '../UpgradeTier/UpgradeTier';
 import './styles.css';
 
 function SearchBarFooter({
@@ -12,22 +11,21 @@ function SearchBarFooter({
 }: SearchBarFooterProps): JSX.Element {
   return (
     <>
-      {!searchTerm ? (
-        <>
-          <div
-            className="text faded center"
-            style={{ width: '75%', maxWidth: '475px' }}
-          >
-            {!isSearchValid ? (
-              <div className="error-container">
-                <span className="illegal-char">{defaultText}</span>
-              </div>
-            ) : (
-              defaultText
-            )}
-          </div>
-        </>
-      ) : !isAvailable && searchResult && searchTerm ? (
+      <>
+        <div
+          className="text faded center"
+          style={{ width: '75%', maxWidth: '475px' }}
+        >
+          {!isSearchValid ? (
+            <div className="error-container">
+              <span className="illegal-char">{defaultText}</span>
+            </div>
+          ) : (
+            defaultText
+          )}
+        </div>
+      </>
+      {!isAvailable && searchResult && searchTerm ? (
         <PDNTCard
           domain={searchTerm}
           id={searchResult}
@@ -35,7 +33,7 @@ function SearchBarFooter({
           enableActions={true}
         />
       ) : (
-        <UpgradeTier />
+        <></>
       )}
     </>
   );

@@ -240,9 +240,8 @@ export const MANAGE_TABLE_NAMES: Record<ManageTable, string> = {
 };
 
 export enum TRANSACTION_TYPES {
-  REGISTRY = 'PDNS Registry',
-  PDNT = 'Arweave Name Token',
-  TRANSFER = 'Transfer',
+  LEASE = 'Lease',
+  BUY = 'Buy',
 }
 
 export enum CONTRACT_TYPES {

@@ -96,7 +96,10 @@ function YearsCounter({
 
   return (
     <div className="years-counter-container">
-      <p className="text white bold">Registration Period ({period})</p>
+      <span className="text-medium white bold center">
+        Registration Period ({period})
+      </span>
+      <span className="text-medium faded bold center">{`Until ${registration}`}</span>
       <div className="flex-row flex-center">
         <div className="years-counter">
           <button
@@ -133,7 +136,6 @@ function YearsCounter({
           </button>
         </div>
       </div>
-      <p className="text white bold">{`Lease end date: ${registration}`}</p>
     </div>
   );
 }

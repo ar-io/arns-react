@@ -16,7 +16,6 @@ import {
   CircleCheck,
   CirclePlus,
   CircleXIcon,
-  InfoIcon,
 } from '../../../icons';
 import { Loader } from '../../../layout';
 import ValidationInput from '../ValidationInput/ValidationInput';
@@ -26,7 +25,7 @@ function NameTokenSelector({
   selectedTokenCallback,
 }: {
   walletAddress: ArweaveTransactionID;
-  selectedTokenCallback: (id: ArweaveTransactionID) => void;
+  selectedTokenCallback: (id: ArweaveTransactionID | undefined) => void;
 }) {
   const arweaveDataProvider = useArweaveCompositeProvider();
   const [{ pdnsSourceContract }] = useGlobalState();
@@ -52,6 +51,12 @@ function NameTokenSelector({
   const listRef = useRef<HTMLDivElement>(null);
   const [listPage, setListPage] = useState<number>(1);
   const listItemCount = 5;
+
+  useEffect(() => {
+    selectedTokenCallback(
+      selectedToken ? new ArweaveTransactionID(selectedToken.id) : undefined,
+    );
+  }, [selectedToken]);
 
   useEffect(() => {
     getTokenList(walletAddress);
@@ -199,22 +204,26 @@ function NameTokenSelector({
     }
   }
 
-  function handleSetToken(
-    props: { id: string; name: string; ticker: string } | undefined,
-  ) {
+  function handleSetToken({
+    id,
+    name,
+    ticker,
+  }: {
+    id?: string;
+    name?: string;
+    ticker?: string;
+  }) {
     setSearchText('');
     setFilteredTokens(undefined);
 
-    if (props === undefined) {
-      console.log('no props', props);
+    if (id === undefined) {
       if (selectedToken === undefined) {
-        console.log('no token');
         setSearchActive(false);
       }
       return;
     }
-    setSelectedToken({ ...props });
-    selectedTokenCallback(new ArweaveTransactionID(props.id));
+    setSelectedToken({ id, name: name ?? '', ticker: ticker ?? '' });
+    selectedTokenCallback(new ArweaveTransactionID(id));
     setSearchActive(false);
     setListPage(1);
   }
@@ -399,6 +408,17 @@ function NameTokenSelector({
             ) : (
               <Tooltip
                 placement={'right'}
+                autoAdjustOverflow={true}
+                arrow={false}
+                overlayInnerStyle={{
+                  width: '190px',
+                  color: 'var(--text-black)',
+                  textAlign: 'center',
+                  fontFamily: 'Rubik-Bold',
+                  fontSize: '14px',
+                  backgroundColor: 'var(--text-white)',
+                  padding: '15px',
+                }}
                 title={
                   'You can import an ANT by entering its contract ID, or search for one of your own by name, ticker, owner, or controller status, as well is its own contract ID'
                 }
@@ -424,8 +444,10 @@ function NameTokenSelector({
               backgroundColor: 'var(--card-bg)',
               boxSizing: 'border-box',
               padding: '15px',
-              marginTop: '52px',
+              top: '53px',
               borderTop: 'none',
+              position: 'absolute',
+              zIndex: 10,
             }}
           >
             {searchText && !filteredTokens?.length ? (
@@ -445,13 +467,14 @@ function NameTokenSelector({
                   Math.max((listPage - 1) * listItemCount, 0),
                   listPage * listItemCount,
                 )
-                .map((token) => {
+                .map((token, index) => {
                   if (!token) {
                     return;
                   }
 
                   return (
                     <button
+                      key={index}
                       className="flex button left white hover"
                       style={{
                         alignItems: 'flex-start',
@@ -477,7 +500,7 @@ function NameTokenSelector({
                   Math.max((listPage - 1) * listItemCount, 0),
                   listPage * listItemCount,
                 )
-                .map((token) => {
+                .map((token, index) => {
                   if (!token) {
                     return;
                   }
@@ -486,6 +509,7 @@ function NameTokenSelector({
 
                   return (
                     <button
+                      key={index}
                       className="flex button left white hover"
                       style={{
                         alignItems: 'flex-start',
