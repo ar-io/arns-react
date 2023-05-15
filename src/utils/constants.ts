@@ -64,8 +64,12 @@ export const TIER_DATA: { [x: number]: string[] } = {
 };
 export const NAME_PRICE_INFO =
   'Registration fees are determined by the character length of the domain, lease duration, and what tier you choose.';
-export const PERMABUY_INFO =
-  'Buying this name indefinitely will initiate a public dutch auction. You will be confirming a bid at the floor price of 32,234,345 IO. Over a 2 week period, the price of this name will start at 10 times your floor bid, and reduce to the initial bid at which point you will win the name. At any time in the price arc, you can also buy it now for that price.';
+export const permabuyInfo = (
+  floor: number,
+  multiplier: number,
+  auctionPeriod: number,
+) =>
+  `Buying this name indefinitely will initiate a public dutch auction. You will be confirming a bid at the floor price of ${floor} IO. Over a ${auctionPeriod} week period, the price of this name will start at ${multiplier} times your floor bid, and reduce to the initial bid at which point you will win the name. At any time in the price arc, you can also buy it now for that price.`;
 export const MAX_TTL_SECONDS = 2_592_000;
 export const MIN_TTL_SECONDS = 900;
 export const MIN_SAFE_EDIT_CONFIRMATIONS = 15;

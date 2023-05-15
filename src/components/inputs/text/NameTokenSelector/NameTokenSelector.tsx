@@ -118,7 +118,7 @@ function NameTokenSelector({
             .validateTransactionTags({
               id: id.toString(),
               requiredTags: {
-                'Contract-Src': pdnsSourceContract.approvedANTSourceCodeTxs,
+                'App-Name': ['SmartWeaveContract'],
               },
             })
             .catch(() => {
@@ -135,8 +135,9 @@ function NameTokenSelector({
       const contracts: [ArweaveTransactionID, PDNTContractJSON][] =
         await Promise.all(
           ids.map(async (id) => {
-            const state = await arweaveDataProvider.getContractState(id);
-            return [id, state as PDNTContractJSON];
+            const state =
+              await arweaveDataProvider.getContractState<PDNTContractJSON>(id);
+            return [id, state];
           }),
         );
       if (!contracts) {
@@ -557,7 +558,7 @@ function NameTokenSelector({
                 defaultPageSize={listItemCount}
               />
             </div>
-            {tokens && Object.keys(tokens).length > 5 ? (
+            {tokens ? (
               <div
                 className="flex flex-row flex-center faded"
                 style={{

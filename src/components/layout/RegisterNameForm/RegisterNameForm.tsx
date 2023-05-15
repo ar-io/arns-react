@@ -15,8 +15,8 @@ import {
   MAX_LEASE_DURATION,
   MIN_LEASE_DURATION,
   NAME_PRICE_INFO,
-  PERMABUY_INFO,
   SMARTWEAVE_TAG_SIZE,
+  permabuyInfo,
 } from '../../../utils/constants';
 import { InfoIcon } from '../../icons';
 import YearsCounter from '../../inputs/Counter/Counter';
@@ -248,7 +248,7 @@ function RegisterNameForm() {
                     className="flex flex-column white flex-center"
                     style={{ width: '75%', fontSize: '16px', gap: '1em' }}
                   >
-                    {PERMABUY_INFO}
+                    {permabuyInfo(fee.io, 10, 2)}
                     <br />
                     <a
                       href="https://ar.io/arns/"

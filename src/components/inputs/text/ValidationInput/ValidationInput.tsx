@@ -118,7 +118,6 @@ function ValidationInput({
         onClick={onClick ? () => onClick() : undefined}
       >
         <div className="flex" style={{ width: '100%', position: 'relative' }}>
-          {' '}
           <input
             ref={inputRef}
             id={inputId}
