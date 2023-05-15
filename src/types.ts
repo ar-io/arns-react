@@ -169,6 +169,7 @@ export interface ArweaveDataProvider {
     id: string,
     numberOfConfirmations?: number,
   ): Promise<void>;
+  validateArweaveAddress(address: string): Promise<undefined | boolean>;
   getArBalance(wallet: ArweaveTransactionID): Promise<number>;
   getArPrice(data: number): Promise<number>;
   getCurrentBlockHeight(): Promise<number>;
@@ -538,14 +539,14 @@ export type UndernameMetadata = {
 };
 
 export enum VALIDATION_INPUT_TYPES {
-  ARWEAVE_ID = 'Is valid Arweave Transaction (TX) ID',
-  ARWEAVE_ADDRESS = 'Arweave Address',
-  PDNS_NAME = 'PDNS Name',
-  UNDERNAME = 'Undername',
-  PDNT_CONTRACT_ID = 'Is a valid Arweave Name Token (PDNT)',
+  ARWEAVE_ID = 'Is valid Arweave Transaction (TX) ID.',
+  ARWEAVE_ADDRESS = 'Is likely an Arweave wallet address.',
+  PDNS_NAME = 'PDNS Name.',
+  UNDERNAME = 'Undername.',
+  PDNT_CONTRACT_ID = 'Is a valid Arweave Name Token (PDNT).',
   // unfortunately we cannot use computed values in enums, so be careful if we ever modify this number
-  TRANSACTION_CONFIRMATIONS = `Has sufficient confirmations (50+)`,
-  VALID_TTL = `Minimum ttl allowed is 900 and Maximum ttl allowed is 2,592,000`,
+  TRANSACTION_CONFIRMATIONS = `Has sufficient confirmations (50+).`,
+  VALID_TTL = `Minimum ttl allowed is 900 and Maximum ttl allowed is 2,592,000.`,
 }
 
 export type ValidationObject = {

@@ -1,5 +1,6 @@
 import Arweave from 'arweave/node';
 import Ar from 'arweave/node/ar';
+import { ResponseWithData } from 'arweave/node/lib/api';
 
 import {
   ArweaveDataProvider,
@@ -7,7 +8,10 @@ import {
   TransactionHeaders,
 } from '../../types';
 import { tagsToObject } from '../../utils';
-import { RECOMMENDED_TRANSACTION_CONFIRMATIONS } from '../../utils/constants';
+import {
+  RECOMMENDED_TRANSACTION_CONFIRMATIONS,
+  transactionByOwnerQuery,
+} from '../../utils/constants';
 
 export class SimpleArweaveDataProvider implements ArweaveDataProvider {
   private _arweave: Arweave;
@@ -96,6 +100,59 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
         reject(error);
       }
     });
+  }
+
+  async validateArweaveAddress(address: string): Promise<undefined | boolean> {
+    try {
+      const targetAddress = new ArweaveTransactionID(address);
+
+      const txPromise = this._arweave.api
+        .get(`/tx/${targetAddress.toString()}`)
+        .then((res: ResponseWithData<TransactionHeaders>) =>
+          res.status === 200 ? res.data : undefined,
+        );
+
+      const balancePromise = this._arweave.api
+        .get(`/wallet/${targetAddress.toString()}/balance`)
+        .then((res: ResponseWithData<number>) =>
+          res.status === 200 ? res.data > 0 : undefined,
+        );
+
+      const gqlPromise = this._arweave.api
+        .post(`/graphql`, transactionByOwnerQuery(targetAddress))
+        .then((res: ResponseWithData<any>) =>
+          res.status === 200 ? res.data.data.transactions.edges : [],
+        );
+
+      const [isTransaction, balance, hasTransactions] = await Promise.all([
+        txPromise,
+        balancePromise,
+        gqlPromise,
+      ]);
+
+      if (hasTransactions.length || balance) {
+        return true;
+      }
+
+      if (isTransaction) {
+        const tags = tagsToObject(isTransaction.tags);
+
+        const isContract = Object.values(tags).includes('SmartWeaveContract');
+
+        throw new Error(
+          `Provided address (${targetAddress.toString()} is a ${
+            isContract ? 'Smartweave Contract' : 'transaction ID'
+          }.`,
+        );
+      }
+      // test address : ceN9pWPt4IdPWj6ujt_CCuOOHGLpKu0MMrpu9a0fJNM
+      // must be connected to a gateway that fetches L2 to perform this check
+      if (!hasTransactions || !hasTransactions.length) {
+        throw new Error(`Address has no transactions`);
+      }
+    } catch (error) {
+      throw new Error(`Unable to verify this is an arweave address.`);
+    }
   }
 
   async validateConfirmations(

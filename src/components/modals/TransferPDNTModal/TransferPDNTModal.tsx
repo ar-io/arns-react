@@ -1,3 +1,4 @@
+import { Tooltip } from 'antd';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -34,7 +35,7 @@ function TransferPDNTModal({
   const isMobile = useIsMobile();
   const [accepted, setAccepted] = useState<boolean>(false);
   const [toAddress, setToAddress] = useState<string>('');
-  const [isValidAddress, setIsValidAddress] = useState<boolean>(false);
+  const [isValidAddress, setIsValidAddress] = useState(false);
   const [state, setState] = useState<PDNTContractJSON>();
   const [associatedNames] = useState(() =>
     getAssociatedNames(pdntId, pdnsSourceContract.records),
@@ -74,9 +75,10 @@ function TransferPDNTModal({
                   height: '95%',
                   padding: 0,
                   boxSizing: 'border-box',
-                  gap: '1em',
+                  gap: '10px',
                   position: 'relative',
-                  paddingBottom: 15,
+                  paddingBottom: 85,
+                  justifyContent: 'space-between',
                 }
               : {
                   width: 420,
@@ -151,8 +153,14 @@ function TransferPDNTModal({
                 setIsValidAddress(validity)
               }
               validationPredicates={{
-                [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: (id: string) =>
-                  arweaveDataProvider.validateArweaveId(id),
+                [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
+                  fn: (id: string) => arweaveDataProvider.validateArweaveId(id),
+                },
+                [VALIDATION_INPUT_TYPES.ARWEAVE_ADDRESS]: {
+                  fn: (id: string) =>
+                    arweaveDataProvider.validateArweaveAddress(id),
+                  required: false,
+                },
               }}
             />
             {associatedNames.length ? (
@@ -181,7 +189,10 @@ function TransferPDNTModal({
               <></>
             )}
           </div>
-          <div className="flex flex-column center" style={{ width: '90%' }}>
+          <div
+            className="flex flex-column center"
+            style={{ width: '90%', gap: 0 }}
+          >
             <span
               className="flex flex-row text white"
               style={{
@@ -232,45 +243,58 @@ function TransferPDNTModal({
                 >
                   Cancel
                 </button>
-                <button
-                  className="accent-button center flex flex-row"
-                  disabled={!accepted && isValidAddress}
-                  style={
-                    accepted && isValidAddress
-                      ? { width: '65px', height: '30px', fontSize: '12px' }
-                      : {
-                          width: '65px',
-                          height: '30px',
-                          fontSize: '12px',
-                          backgroundColor: 'var(--text-faded)',
-                        }
-                  }
-                  onClick={() => {
-                    const payload = mapTransactionDataKeyToPayload(
-                      INTERACTION_TYPES.TRANSFER,
-                      [toAddress.toString()!, 1],
-                    );
-
-                    if (payload) {
-                      dispatchTransactionState({
-                        type: 'setInteractionType',
-                        payload: INTERACTION_TYPES.TRANSFER,
-                      });
-                      dispatchTransactionState({
-                        type: 'setTransactionData',
-                        payload: {
-                          ...payload,
-                          assetId: pdntId.toString()!,
-                        },
-                      });
-                      navigate(`/transaction`, {
-                        state: `/manage/pdnts/${pdntId.toString()}`,
-                      });
+                {(accepted && !isValidAddress) || !accepted ? (
+                  <Tooltip
+                    title={
+                      !accepted
+                        ? 'Must accept to continue'
+                        : 'Not a valid address format, fix errors to continue'
                     }
-                  }}
-                >
-                  Next
-                </button>
+                    placement="bottom"
+                  >
+                    <button
+                      className="accent-button center flex flex-row"
+                      style={{
+                        width: '65px',
+                        height: '30px',
+                        fontSize: '12px',
+                        backgroundColor: 'var(--text-faded)',
+                      }}
+                    >
+                      Next
+                    </button>
+                  </Tooltip>
+                ) : (
+                  <button
+                    className="accent-button center flex flex-row"
+                    style={{ width: '65px', height: '30px', fontSize: '12px' }}
+                    onClick={() => {
+                      const payload = mapTransactionDataKeyToPayload(
+                        INTERACTION_TYPES.TRANSFER,
+                        [toAddress?.toString(), 1],
+                      );
+
+                      if (payload) {
+                        dispatchTransactionState({
+                          type: 'setInteractionType',
+                          payload: INTERACTION_TYPES.TRANSFER,
+                        });
+                        dispatchTransactionState({
+                          type: 'setTransactionData',
+                          payload: {
+                            ...payload,
+                            assetId: pdntId?.toString(),
+                          },
+                        });
+                        navigate(`/transaction`, {
+                          state: `/manage/pdnts/${pdntId?.toString()}`,
+                        });
+                      }
+                    }}
+                  >
+                    Next
+                  </button>
+                )}
               </div>
             </div>
           </div>

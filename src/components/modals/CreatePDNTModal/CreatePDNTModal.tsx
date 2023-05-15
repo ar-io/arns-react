@@ -379,10 +379,12 @@ function CreatePDNTModal() {
                                           row.attribute === 'targetID')
                                           ? {
                                               [VALIDATION_INPUT_TYPES.ARWEAVE_ID]:
-                                                (id: string) =>
-                                                  arweaveDataProvider.validateArweaveId(
-                                                    id,
-                                                  ),
+                                                {
+                                                  fn: (id: string) =>
+                                                    arweaveDataProvider.validateArweaveId(
+                                                      id,
+                                                    ),
+                                                },
                                             }
                                           : {}
                                       }

@@ -3,7 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 
 import { ValidationObject } from '../../../../types';
 import ValidationList from '../../../cards/ValidationList/ValidationList';
-import { CircleCheck, CircleXIcon } from '../../../icons';
+import { AlertTriangleIcon, CircleCheck, CircleXIcon } from '../../../icons';
+import { Loader } from '../../../layout';
 
 function ValidationInput({
   wrapperClassName = '',
@@ -42,7 +43,12 @@ function ValidationInput({
   value: string | number | undefined;
   setValue: (text: string) => void;
   validityCallback?: (validity: boolean) => void;
-  validationPredicates: { [x: string]: (value: string) => Promise<any> };
+  validationPredicates: {
+    [x: string]: {
+      fn: (value: string) => Promise<any>;
+      required?: boolean;
+    };
+  };
   onClick?: () => void;
   inputType?: string;
   minNumber?: number;
@@ -51,7 +57,9 @@ function ValidationInput({
   const [validationResults, setValidationResults] =
     useState<ValidationObject[]>();
 
+  const [validating, setValidating] = useState(false);
   const [valid, setValid] = useState<undefined | boolean>(undefined);
+  const [warning, setWarning] = useState(false);
   const [openTooltip, setOpenTooltip] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -63,10 +71,11 @@ function ValidationInput({
   }, [disabled]);
 
   async function validationExecutor(newValue: string) {
+    setValidating(true);
     setValue(newValue);
 
     const validations = Object.values(validationPredicates).map((predicate) =>
-      predicate(newValue),
+      predicate.fn(newValue),
     );
 
     const results = await Promise.allSettled(validations);
@@ -82,11 +91,24 @@ function ValidationInput({
     );
 
     setValidationResults(validationResults);
-    const validity = validationResults.every((value) => value.status === true);
+    const validity = validationResults.every((value, index) => {
+      if (
+        validationPredicates[Object.keys(validationPredicates)[index]]
+          .required === false
+      ) {
+        setWarning(true);
+        return true;
+      }
+      return value.status === true;
+    });
+    if (warning) {
+      setWarning(!validationResults.every((value) => value.status === true));
+    }
     setValid(validity);
     if (validityCallback) {
       validityCallback(validity);
     }
+    setValidating(false);
   }
 
   return (
@@ -116,10 +138,11 @@ function ValidationInput({
               showValidationOutline && valid !== undefined && value && !disabled
                 ? {
                     ...inputCustomStyle,
-                    border:
-                      valid === true
-                        ? '2px solid var(--success-green)'
-                        : '2px solid var(--error-red)',
+                    border: warning
+                      ? '2px solid var(--accent)'
+                      : valid === true
+                      ? '2px solid var(--success-green)'
+                      : '2px solid var(--error-red)',
                   }
                 : { ...inputCustomStyle }
             }
@@ -151,7 +174,23 @@ function ValidationInput({
               showValidationIcon &&
               valid !== undefined &&
               value ? (
-                valid === true ? (
+                validating ? (
+                  <Loader
+                    size={20}
+                    color="var(--text-black)"
+                    wrapperStyle={{
+                      top: -12,
+                      left: -40,
+                      position: 'absolute',
+                    }}
+                  />
+                ) : warning ? (
+                  <AlertTriangleIcon
+                    width={20}
+                    height={20}
+                    fill={'var(--accent)'}
+                  />
+                ) : valid === true ? (
                   <CircleCheck
                     width={20}
                     height={20}
