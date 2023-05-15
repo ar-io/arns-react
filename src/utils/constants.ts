@@ -108,6 +108,32 @@ export const approvedContractsForWalletQuery = (
   };
   return queryObject;
 };
+export const transactionByOwnerQuery = (address: ArweaveTransactionID) => {
+  const queryObject = {
+    query: `
+  { 
+    transactions (
+      owners:["${address.toString()}"]
+      sort: HEIGHT_DESC,
+      first: 1,
+    ) {
+      pageInfo {
+        hasNextPage
+      }
+      edges {
+        cursor
+        node {
+          id
+          block {
+            height
+          }
+        }
+      }
+    }
+  }`,
+  };
+  return queryObject;
+};
 
 export const SMARTWEAVE_TAG_SIZE = 250; // required tag size in bytes
 

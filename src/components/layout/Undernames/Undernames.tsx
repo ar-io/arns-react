@@ -529,8 +529,10 @@ function Undernames() {
                         setTargetID(e);
                       }}
                       validationPredicates={{
-                        [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: (id: string) =>
-                          arweaveDataProvider.validateArweaveId(id),
+                        [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
+                          fn: (id: string) =>
+                            arweaveDataProvider.validateArweaveId(id),
+                        },
                       }}
                       validityCallback={(isValid) => setChangesValid(isValid)}
                       maxLength={43}
@@ -559,15 +561,17 @@ function Undernames() {
                       }}
                       validityCallback={(isValid) => setChangesValid(isValid)}
                       validationPredicates={{
-                        [VALIDATION_INPUT_TYPES.VALID_TTL]: (ttlSeconds) =>
-                          new Promise((resolve, reject) => {
-                            try {
-                              validateTTLSeconds(+ttlSeconds);
-                              resolve(undefined);
-                            } catch (error) {
-                              reject(error);
-                            }
-                          }),
+                        [VALIDATION_INPUT_TYPES.VALID_TTL]: {
+                          fn: (ttlSeconds) =>
+                            new Promise((resolve, reject) => {
+                              try {
+                                validateTTLSeconds(+ttlSeconds);
+                                resolve(undefined);
+                              } catch (error) {
+                                reject(error);
+                              }
+                            }),
+                        },
                       }}
                     />
                   </>
