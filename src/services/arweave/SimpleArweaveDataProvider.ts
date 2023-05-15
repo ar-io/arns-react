@@ -102,7 +102,7 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
     });
   }
 
-  async validateArweaveAddress(address: string): Promise<undefined | boolean> {
+  async validateArweaveAddress(address: string): Promise<boolean> {
     try {
       const targetAddress = new ArweaveTransactionID(address);
 
@@ -150,6 +150,7 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
       if (!hasTransactions || !hasTransactions.length) {
         throw new Error(`Address has no transactions`);
       }
+      return true;
     } catch (error) {
       throw new Error(`Unable to verify this is an arweave address.`);
     }

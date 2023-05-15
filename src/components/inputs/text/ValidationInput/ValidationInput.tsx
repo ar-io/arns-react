@@ -101,9 +101,6 @@ function ValidationInput({
       }
       return value.status === true;
     });
-    if (warning) {
-      setWarning(!validationResults.every((value) => value.status === true));
-    }
     setValid(validity);
     if (validityCallback) {
       validityCallback(validity);
