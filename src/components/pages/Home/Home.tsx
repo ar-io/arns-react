@@ -22,6 +22,7 @@ import {
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import { FeaturedDomains, Loader, RegisterNameForm } from '../../layout';
 import { SearchBarFooter, SearchBarHeader } from '../../layout';
+import AuctionChart from '../../layout/AuctionChart/AuctionChart';
 import Workflow from '../../layout/Workflow/Workflow';
 import './styles.css';
 
@@ -236,6 +237,7 @@ function Home() {
           ) : (
             <></>
           )}
+          <AuctionChart leaseDuration={1} name="blah" />
         </>
       )}
     </div>
