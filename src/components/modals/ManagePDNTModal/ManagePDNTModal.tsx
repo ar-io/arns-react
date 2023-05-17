@@ -15,10 +15,9 @@ import {
   PDNTContractJSON,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
-import { ContractInteraction } from '../../../types';
 import {
-  getAttributesFromInteractionFunction,
   getInteractionTypeFromField,
+  getPendingInteractionsRowsForContract,
   mapTransactionDataKeyToPayload,
 } from '../../../utils';
 import { STUB_ARWEAVE_TXID } from '../../../utils/constants';
@@ -77,41 +76,6 @@ function ManagePDNTModal() {
       .filter((n) => !!n);
   }
 
-  function getPendingInteractionsForContract(
-    pendingContractInteractions: ContractInteraction[],
-    existingValues: any,
-  ): {
-    attribute: string;
-    value: string;
-    id: string;
-    valid: boolean | undefined;
-  }[] {
-    // find all pending interactions for the contract, find relevant ones related to row attributes
-    const pendingTxRowData = [];
-    for (const i of pendingContractInteractions) {
-      const attributes = getAttributesFromInteractionFunction(
-        i.payload.function,
-      );
-      // TODO: this is not pretty, and could be avoided if we rework the ANT contract to allow `setTTL` and `setTransaction` rather than all of them
-      // relying only on setRecord.
-      for (const attribute of attributes) {
-        const nonConfirmedTx = {
-          attribute,
-          value: i.payload[attribute],
-          id: i.id,
-          valid: i.valid,
-        };
-        if (
-          existingValues[attribute] &&
-          existingValues[attribute] !== nonConfirmedTx.value
-        ) {
-          pendingTxRowData.push(nonConfirmedTx);
-        }
-      }
-    }
-    return pendingTxRowData;
-  }
-
   async function fetchPDNTDetails(
     address: ArweaveTransactionID,
     contractTxId: ArweaveTransactionID,
@@ -155,7 +119,7 @@ function ManagePDNTModal() {
       };
 
       // get pending tx details
-      const pendingTxs = getPendingInteractionsForContract(
+      const pendingTxs = getPendingInteractionsRowsForContract(
         pendingContractInteractions,
         consolidatedDetails,
       );
@@ -197,12 +161,7 @@ function ManagePDNTModal() {
 
   return (
     <>
-      <div
-        className="page"
-        style={{
-          padding: '2% 20%',
-        }}
-      >
+      <div className="page">
         <div className="flex-row flex-space-between">
           <span className="flex white text-large bold">
             <button

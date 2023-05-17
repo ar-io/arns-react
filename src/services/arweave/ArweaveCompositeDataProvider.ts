@@ -65,12 +65,12 @@ export class ArweaveCompositeDataProvider
   }
 
   async getContractBalanceForWallet(
-    id: ArweaveTransactionID,
+    contractTxId: ArweaveTransactionID,
     wallet: ArweaveTransactionID,
   ): Promise<number> {
     return Promise.any(
       this._contractProviders.map((p) =>
-        p.getContractBalanceForWallet(id, wallet),
+        p.getContractBalanceForWallet(contractTxId, wallet),
       ),
     );
   }
@@ -153,12 +153,12 @@ export class ArweaveCompositeDataProvider
   }
 
   async getPendingContractInteractions(
-    id: ArweaveTransactionID,
+    contractTxId: ArweaveTransactionID,
     key: string,
   ): Promise<ContractInteraction[]> {
     return Promise.any(
       this._contractProviders.map((p) =>
-        p.getPendingContractInteractions(id, key),
+        p.getPendingContractInteractions(contractTxId, key),
       ),
     );
   }

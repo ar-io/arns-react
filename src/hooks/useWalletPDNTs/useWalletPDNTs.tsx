@@ -1,9 +1,13 @@
+import { Tooltip } from 'antd';
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import { useArweaveCompositeProvider, useIsMobile, useWalletAddress } from '..';
 import {
   BookmarkIcon,
   ChevronUpIcon,
+  CirclePending,
+  ExternalLinkIcon,
   FileCodeIcon,
   NotebookIcon,
   RefreshAlertIcon,
@@ -18,6 +22,7 @@ import {
   PDNTContractJSON,
   PDNTMetadata,
 } from '../../types';
+import { getPendingInteractionsRowsForContract } from '../../utils';
 import eventEmitter from '../../utils/events';
 
 export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
@@ -31,13 +36,51 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
   const [percent, setPercentLoaded] = useState<number | undefined>();
 
   useEffect(() => {
-    if (ids.length) {
-      fetchPDNTRows(ids);
+    if (ids.length && walletAddress) {
+      fetchPDNTRows(ids, walletAddress);
     }
   }, [ids]);
 
   function generateTableColumns(): any[] {
     return [
+      {
+        title: '',
+        dataIndex: 'hasPending',
+        key: 'hasPending',
+        align: 'left',
+        width: '2%',
+        className: 'white',
+        render: (hasPending: boolean, row: any) => {
+          if (hasPending) {
+            return (
+              <Tooltip
+                placement="right"
+                title={
+                  <Link
+                    className="link white text underline"
+                    to={`https://viewblock.io/arweave/contract/${row.id}?type=all`}
+                    target="_blank"
+                  >
+                    This contract has pending transactions.
+                    <ExternalLinkIcon
+                      height={12}
+                      width={12}
+                      fill={'var(--text-white)'}
+                    />
+                  </Link>
+                }
+                showArrow={true}
+                overlayStyle={{
+                  maxWidth: 'fit-content',
+                }}
+              >
+                <CirclePending height={20} width={20} fill={'var(--accent)'} />
+              </Tooltip>
+            );
+          }
+          return <></>;
+        },
+      },
       {
         title: (
           <button
@@ -63,7 +106,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
         key: 'name',
         align: 'left',
         width: '18%',
-        className: 'white icon-padding',
+        className: 'white',
         ellipsis: true,
         onHeaderCell: () => {
           return {
@@ -310,15 +353,23 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
     ];
   }
 
-  async function fetchPDNTRows(ids: ArweaveTransactionID[]) {
+  async function fetchPDNTRows(
+    ids: ArweaveTransactionID[],
+    address: ArweaveTransactionID,
+  ) {
     const fetchedRows: PDNTMetadata[] = [];
     setIsLoading(true);
     for (const [index, contractTxId] of ids.entries()) {
       try {
-        const [contractState, confirmations] = await Promise.all([
-          arweaveDataProvider.getContractState<PDNTContractJSON>(contractTxId),
-          arweaveDataProvider.getTransactionStatus(contractTxId),
-        ]);
+        const [contractState, confirmations, pendingContractInteractions] =
+          await Promise.all([
+            arweaveDataProvider.getContractState<PDNTContractJSON>(contractTxId),
+            arweaveDataProvider.getTransactionStatus(contractTxId),
+            arweaveDataProvider.getPendingContractInteractions(
+              contractTxId,
+              address.toString(),
+            ),
+          ]);
 
         if (!contractState) {
           throw Error(`Failed to load contract: ${contractTxId.toString()}`);
@@ -347,7 +398,26 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
           state: contractState,
           key: index,
         };
-        fetchedRows.push(rowData);
+        const pendingTxsForContract = getPendingInteractionsRowsForContract(
+          pendingContractInteractions,
+          rowData,
+        );
+
+        const pendingInteractions = pendingTxsForContract.reduce(
+          (pendingValues, i) => ({
+            ...pendingValues,
+            [i.attribute]: i.value,
+          }),
+          {},
+        );
+
+        const updatedRowData = {
+          ...rowData,
+          ...pendingInteractions,
+          hasPending: pendingTxsForContract.length,
+        };
+
+        fetchedRows.push(updatedRowData);
         // sort by confirmation count (ASC) by default
         fetchedRows.sort((a, b) => a.status - b.status);
       } catch (error) {

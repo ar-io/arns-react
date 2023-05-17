@@ -113,7 +113,7 @@ export interface SmartweaveContractCache {
     contractTxId: ArweaveTransactionID,
   ): Promise<ContractInteraction[]>;
   getPendingContractInteractions(
-    id: ArweaveTransactionID,
+    contractTxId: ArweaveTransactionID,
     key: string,
   ): Promise<ContractInteraction[]>;
 }
