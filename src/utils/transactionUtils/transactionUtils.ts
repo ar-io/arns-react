@@ -530,12 +530,11 @@ export const FieldToInteractionMap: {
 };
 
 export function getInteractionTypeFromField(field: string) {
-  // TODO: add contract specification and more interaction fields
   return FieldToInteractionMap[field]?.title;
 }
 
 export function getInteractionFunctionFromField(field: string) {
-  return FieldToInteractionMap[field].function;
+  return FieldToInteractionMap[field]?.function;
 }
 
 export function getAttributesFromInteractionFunction(f: string) {
