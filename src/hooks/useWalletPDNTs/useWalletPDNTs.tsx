@@ -388,9 +388,9 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
           name: contract.name ?? 'N/A',
           id: contractTxId.toString(),
           role:
-            contractState.owner.toString() === walletAddress?.toString()
+            contract.owner === walletAddress?.toString()
               ? 'Owner'
-              : contractState.controller === walletAddress?.toString()
+              : contract.controller === walletAddress?.toString()
               ? 'Controller'
               : 'N/A',
           target: target ?? 'N/A',
@@ -398,11 +398,14 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
           state: contractState,
           key: index,
         };
+
+        // get any pending transactions for various attributes
         const pendingTxsForContract = getPendingInteractionsRowsForContract(
           pendingContractInteractions,
           rowData,
         );
 
+        // replace the values with pending ones until the interaction is confirmed
         const pendingInteractions = pendingTxsForContract.reduce(
           (pendingValues, i) => ({
             ...pendingValues,

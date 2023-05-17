@@ -92,30 +92,26 @@ function ManagePDNTModal() {
             address.toString(),
           ),
         ]);
-      const pdnt = new PDNTContract(contractState);
+      const contract = new PDNTContract(contractState);
       const record = Object.values(pdnsSourceContract.records).find(
         (r) => r.contractTxId === contractTxId.toString(),
       );
       const tier = pdnsSourceContract.tiers.history.find(
         (t) => t.id === record?.tier,
       );
-
       // TODO: add error messages and reload state to row
       const consolidatedDetails: any = {
         status: confirmations ?? 0,
         associatedNames: !names.length ? 'N/A' : names.join(', '),
-        name: pdnt.name ?? 'N/A',
-        ticker: pdnt.ticker ?? 'N/A',
-        targetID: pdnt.getRecord('@')?.transactionId ?? 'N/A',
-        ttlSeconds: pdnt.getRecord('@')?.ttlSeconds,
-        controller:
-          contractState.controllers?.join(', ') ??
-          contractState.owner?.toString() ??
-          'N/A',
-        undernames: `${Object.keys(contractState.records).length - 1} / ${
+        name: contract.name ?? 'N/A',
+        ticker: contract.ticker ?? 'N/A',
+        targetID: contract.getRecord('@')?.transactionId ?? 'N/A',
+        ttlSeconds: contract.getRecord('@')?.ttlSeconds,
+        controller: contract.controller ?? 'N/A',
+        undernames: `${Object.keys(contract.records).length - 1} / ${
           tier?.settings.maxUndernames ?? 100
         }`,
-        owner: contractState.owner?.toString() ?? 'N/A',
+        owner: contract.owner ?? 'N/A',
       };
 
       // get pending tx details
@@ -149,7 +145,7 @@ function ManagePDNTModal() {
         [],
       );
 
-      setPDNTState(pdnt);
+      setPDNTState(contract);
       setPDNTName(contractState.name ?? id);
       setRows(rows);
       setLoading(false);
