@@ -10,6 +10,7 @@ import { DeployPlugin } from 'warp-contracts-plugin-deploy';
 
 import {
   ArweaveTransactionID,
+  ContractInteraction,
   PDNSContractJSON,
   PDNTContractJSON,
   SmartweaveContractCache,
@@ -95,7 +96,7 @@ export class WarpDataProvider
       throw Error('No transaction ID from write interaction');
     }
 
-    this._cache.set(walletAddress.toString(), {
+    this._cache.push(walletAddress.toString(), {
       id: originalTxId,
       contractTxId: contractTxId.toString(),
       payload,
@@ -158,7 +159,7 @@ export class WarpDataProvider
     }
 
     // TODO: emit event on successfully transaction
-    this._cache.set(walletAddress.toString(), {
+    this._cache.push(walletAddress.toString(), {
       contractTxId,
       id: contractTxId,
       payload: deploymentPayload,
@@ -173,6 +174,12 @@ export class WarpDataProvider
     sourceCodeTxIds: ArweaveTransactionID[],
     address: ArweaveTransactionID,
   ): Promise<{ ids: ArweaveTransactionID[] }> {
+    throw Error('Not implemented!');
+  }
+
+  async getContractInteractions(
+    id: ArweaveTransactionID,
+  ): Promise<ContractInteraction[]> {
     throw Error('Not implemented!');
   }
   /* eslint-enable */
