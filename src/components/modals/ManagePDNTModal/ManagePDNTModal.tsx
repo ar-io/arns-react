@@ -15,14 +15,22 @@ import {
   PDNTContractJSON,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
+import { ContractInteraction } from '../../../types';
 import {
+  getAttributesFromInteractionFunction,
   getInteractionTypeFromField,
   mapTransactionDataKeyToPayload,
 } from '../../../utils';
 import { STUB_ARWEAVE_TXID } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { mapKeyToAttribute } from '../../cards/PDNTCard/PDNTCard';
-import { ArrowLeft, CloseIcon, PencilIcon } from '../../icons';
+import {
+  ArrowLeft,
+  CirclePending,
+  CloseIcon,
+  ExternalLinkIcon,
+  PencilIcon,
+} from '../../icons';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import { Loader } from '../../layout';
 import TransactionStatus from '../../layout/TransactionStatus/TransactionStatus';
@@ -33,8 +41,8 @@ function ManagePDNTModal() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const arweaveDataProvider = useArweaveCompositeProvider();
-  const [{ pdnsSourceContract }] = useGlobalState();
-  const [{}, dispatchTransactionState] = useTransactionState(); // eslint-disable-line
+  const [{ walletAddress, pdnsSourceContract }] = useGlobalState();
+  const [, dispatchTransactionState] = useTransactionState();
   const [pdntState, setPDNTState] = useState<PDNTContract>();
   const [pdntName, setPDNTName] = useState<string>();
   const [editingField, setEditingField] = useState<string>();
@@ -53,12 +61,12 @@ function ManagePDNTModal() {
   ];
 
   useEffect(() => {
-    if (!id) {
+    if (!id || !walletAddress) {
       navigate('/manage/pdnts');
       return;
     }
     const txId = new ArweaveTransactionID(id);
-    fetchPDNTDetails(txId);
+    fetchPDNTDetails(walletAddress, txId);
   }, [id]);
 
   function getAssociatedNames(txId: ArweaveTransactionID) {
@@ -69,24 +77,66 @@ function ManagePDNTModal() {
       .filter((n) => !!n);
   }
 
-  async function fetchPDNTDetails(txId: ArweaveTransactionID) {
+  function getPendingInteractionsForContract(
+    pendingContractInteractions: ContractInteraction[],
+    existingValues: any,
+  ): {
+    attribute: string;
+    value: string;
+    id: string;
+    valid: boolean | undefined;
+  }[] {
+    // no indexed transactions, return all in cache relevant to the contract id
+    // indexed transactions, find them
+    const pendingTxRowData = [];
+    for (const i of pendingContractInteractions) {
+      const attributes = getAttributesFromInteractionFunction(
+        i.payload.function,
+      );
+      for (const attribute of attributes) {
+        const nonConfirmedTx = {
+          attribute: attribute,
+          value: i.payload[attribute],
+          id: i.id,
+          valid: i.valid,
+        };
+        if (
+          existingValues[attribute] &&
+          existingValues[attribute] !== nonConfirmedTx.value
+        ) {
+          pendingTxRowData.push(nonConfirmedTx);
+        }
+      }
+    }
+    return pendingTxRowData;
+  }
+
+  async function fetchPDNTDetails(
+    address: ArweaveTransactionID,
+    contractTxId: ArweaveTransactionID,
+  ) {
     try {
       setLoading(true);
-      const names = getAssociatedNames(txId);
-      const [contractState, confirmations] = await Promise.all([
-        arweaveDataProvider.getContractState<PDNTContractJSON>(txId),
-        arweaveDataProvider.getTransactionStatus(txId),
-      ]);
+      const names = getAssociatedNames(contractTxId);
+      const [contractState, confirmations, pendingContractInteractions] =
+        await Promise.all([
+          arweaveDataProvider.getContractState<PDNTContractJSON>(contractTxId),
+          arweaveDataProvider.getTransactionStatus(contractTxId),
+          arweaveDataProvider.getPendingContractInteractions(
+            contractTxId,
+            address.toString(),
+          ),
+        ]);
       const pdnt = new PDNTContract(contractState);
-      setPDNTState(pdnt);
       const record = Object.values(pdnsSourceContract.records).find(
-        (r) => r.contractTxId === txId.toString(),
+        (r) => r.contractTxId === contractTxId.toString(),
       );
       const tier = pdnsSourceContract.tiers.history.find(
         (t) => t.id === record?.tier,
       );
+
       // TODO: add error messages and reload state to row
-      const consolidatedDetails: ManagePDNTRow & any = {
+      const consolidatedDetails: any = {
         status: confirmations ?? 0,
         associatedNames: !names.length ? 'N/A' : names.join(', '),
         name: pdnt.name ?? 'N/A',
@@ -103,20 +153,38 @@ function ManagePDNTModal() {
         owner: contractState.owner?.toString() ?? 'N/A',
       };
 
+      // get pending tx details
+      const pendingTxs = getPendingInteractionsForContract(
+        pendingContractInteractions,
+        consolidatedDetails,
+      );
+
       const rows = Object.keys(consolidatedDetails).reduce(
         (details: ManagePDNTRow[], attribute: string, index: number) => {
+          const existingValue =
+            consolidatedDetails[attribute as keyof ManagePDNTRow];
+          const pendingInteraction = pendingTxs.find(
+            (i) => i.attribute === attribute,
+          );
+          const value = pendingInteraction
+            ? pendingInteraction.value
+            : existingValue;
           const detail = {
             attribute,
-            value: consolidatedDetails[attribute as keyof ManagePDNTRow],
-            editable: EDITABLE_FIELDS.includes(attribute),
+            value,
+            editable:
+              EDITABLE_FIELDS.includes(attribute) && !pendingInteraction,
             key: index,
             interactionType: getInteractionTypeFromField(attribute),
+            pendingInteraction,
           };
           details.push(detail);
           return details;
         },
         [],
       );
+
+      setPDNTState(pdnt);
       setPDNTName(contractState.name ?? id);
       setRows(rows);
       setLoading(false);
@@ -178,10 +246,56 @@ function ManagePDNTModal() {
               columns={[
                 {
                   title: '',
+                  dataIndex: 'pendingInteraction',
+                  key: 'pendingInteraction',
+                  align: 'left',
+                  width: isMobile ? '0px' : '3%',
+                  className: 'icon-padding white',
+                  render: (interaction: {
+                    value: string;
+                    valid: boolean;
+                    id: string;
+                  }) => {
+                    if (interaction) {
+                      return (
+                        <Tooltip
+                          placement="right"
+                          title={
+                            <Link
+                              className="link white text underline"
+                              to={`https://viewblock.io/arweave/tx/${interaction.id}`}
+                              target="_blank"
+                            >
+                              There is a transaction pending for this field.
+                              <ExternalLinkIcon
+                                height={12}
+                                width={12}
+                                fill={'var(--text-white)'}
+                              />
+                            </Link>
+                          }
+                          showArrow={true}
+                          overlayStyle={{
+                            maxWidth: 'fit-content',
+                          }}
+                        >
+                          <CirclePending
+                            height={20}
+                            width={20}
+                            fill={'var(--accent)'}
+                          />
+                        </Tooltip>
+                      );
+                    }
+                    return <></>;
+                  },
+                },
+                {
+                  title: '',
                   dataIndex: 'attribute',
                   key: 'attribute',
                   align: 'left',
-                  width: isMobile ? '0px' : '30%',
+                  width: isMobile ? '0px' : '25%',
                   className: 'icon-padding white',
                   render: (value: string) => {
                     return `${mapKeyToAttribute(value)}:`;
@@ -192,16 +306,11 @@ function ManagePDNTModal() {
                   dataIndex: 'value',
                   key: 'value',
                   align: 'left',
-                  width: '80%',
+                  width: '70%',
                   className: 'white',
                   render: (value: string | number, row: any) => {
                     if (row.attribute === 'status')
-                      return (
-                        <>
-                          {/* TODO: add label for mobile view */}
-                          <TransactionStatus confirmations={+value} />
-                        </>
-                      );
+                      return <TransactionStatus confirmations={+value} />;
                     if (row.attribute === 'undernames') {
                       return (
                         <Link to={'undernames'} className={'link'}>
@@ -294,7 +403,7 @@ function ManagePDNTModal() {
                   title: '',
                   dataIndex: 'action',
                   key: 'action',
-                  width: '10%',
+                  width: '5%',
                   align: 'right',
                   className: 'white',
                   render: (value: any, row: any) => {
@@ -401,10 +510,10 @@ function ManagePDNTModal() {
           )}
         </div>
       </div>
-      {showTransferPDNTModal ? (
+      {showTransferPDNTModal && id ? (
         <TransferPDNTModal
           showModal={() => setShowTransferPDNTModal(false)}
-          pdntId={new ArweaveTransactionID(id!)}
+          pdntId={new ArweaveTransactionID(id)}
         />
       ) : (
         <></>

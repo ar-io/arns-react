@@ -151,4 +151,15 @@ export class ArweaveCompositeDataProvider
       ),
     );
   }
+
+  async getPendingContractInteractions(
+    id: ArweaveTransactionID,
+    key: string,
+  ): Promise<ContractInteraction[]> {
+    return Promise.any(
+      this._contractProviders.map((p) =>
+        p.getPendingContractInteractions(id, key),
+      ),
+    );
+  }
 }

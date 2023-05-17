@@ -497,20 +497,55 @@ export function getPDNSMappingByInteractionType(
 }
 
 export const FieldToInteractionMap: {
-  [x: string]: ValidInteractionType;
+  [x: string]: {
+    title: ValidInteractionType;
+    function: string;
+  };
 } = {
-  name: INTERACTION_TYPES.SET_NAME,
-  ticker: INTERACTION_TYPES.SET_TICKER,
-  targetID: INTERACTION_TYPES.SET_TARGET_ID,
-  ttlSeconds: INTERACTION_TYPES.SET_TTL_SECONDS,
-  controller: INTERACTION_TYPES.SET_CONTROLLER,
-  owner: INTERACTION_TYPES.TRANSFER,
+  name: {
+    title: INTERACTION_TYPES.SET_NAME,
+    function: 'setName',
+  },
+  ticker: {
+    title: INTERACTION_TYPES.SET_TICKER,
+    function: 'setTicker',
+  },
+  targetID: {
+    title: INTERACTION_TYPES.SET_TARGET_ID,
+    function: 'setRecord',
+  },
+  ttlSeconds: {
+    title: INTERACTION_TYPES.SET_TTL_SECONDS,
+    function: 'setRecord',
+  },
+  controller: {
+    title: INTERACTION_TYPES.SET_CONTROLLER,
+    function: 'setController',
+  },
+  owner: {
+    title: INTERACTION_TYPES.TRANSFER,
+    function: 'transfer',
+  },
   // TODO: add other interactions
 };
 
 export function getInteractionTypeFromField(field: string) {
   // TODO: add contract specification and more interaction fields
-  return FieldToInteractionMap[field];
+  return FieldToInteractionMap[field]?.title;
+}
+
+export function getInteractionFunctionFromField(field: string) {
+  return FieldToInteractionMap[field].function;
+}
+
+export function getAttributesFromInteractionFunction(f: string) {
+  const attributes: string[] = [];
+  for (const key in FieldToInteractionMap) {
+    if (getInteractionFunctionFromField(key) === f) {
+      attributes.push(key);
+    }
+  }
+  return attributes;
 }
 
 export function mapTransactionDataKeyToPayload(

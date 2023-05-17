@@ -112,6 +112,10 @@ export interface SmartweaveContractCache {
   getContractInteractions(
     contractTxId: ArweaveTransactionID,
   ): Promise<ContractInteraction[]>;
+  getPendingContractInteractions(
+    id: ArweaveTransactionID,
+    key: string,
+  ): Promise<ContractInteraction[]>;
 }
 
 export interface SmartweaveContractInteractionProvider {
@@ -562,7 +566,10 @@ export type ValidationObject = {
 export type ContractInteraction = {
   contractTxId: string;
   id: string;
-  payload: string;
+  payload: {
+    function: string;
+    [x: string]: string;
+  };
   valid?: boolean;
   [x: string]: any;
 };

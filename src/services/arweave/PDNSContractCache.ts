@@ -1,16 +1,22 @@
+import { isArray } from 'lodash';
+
 import {
   ArweaveTransactionID,
   ContractInteraction,
   PDNSContractJSON,
   PDNTContractJSON,
   SmartweaveContractCache,
+  TransactionCache,
 } from '../../types';
+import { LocalStorageCache } from '../cache/LocalStorageCache';
 
 export class PDNSContractCache implements SmartweaveContractCache {
   private _url: string;
+  private _cache: TransactionCache;
 
-  constructor(url: string) {
+  constructor(url: string, cache: TransactionCache = new LocalStorageCache()) {
     this._url = url;
+    this._cache = cache;
   }
 
   async getContractState<T extends PDNTContractJSON | PDNSContractJSON>(
@@ -54,5 +60,28 @@ export class PDNSContractCache implements SmartweaveContractCache {
     );
     const { interactions } = await res.json();
     return interactions;
+  }
+
+  async getPendingContractInteractions(
+    id: ArweaveTransactionID,
+    key: string,
+  ): Promise<ContractInteraction[]> {
+    const cachedContractInteractions = this._cache.get(key);
+
+    if (
+      !isArray(cachedContractInteractions) ||
+      !cachedContractInteractions.length
+    ) {
+      return [];
+    }
+
+    const gqlIndexedInteractions = await this.getContractInteractions(id);
+    const pendingInteractions = cachedContractInteractions.filter(
+      (i) =>
+        !gqlIndexedInteractions.find(
+          (gqlInteraction: ContractInteraction) => gqlInteraction.id === i.id,
+        ),
+    );
+    return pendingInteractions;
   }
 }
