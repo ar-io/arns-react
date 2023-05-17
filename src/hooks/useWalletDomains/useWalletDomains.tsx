@@ -11,6 +11,7 @@ import {
 } from '../../components/icons/index';
 import TransactionStatus from '../../components/layout/TransactionStatus/TransactionStatus';
 import { useArweaveCompositeProvider, useWalletAddress } from '../../hooks';
+import { PDNTContract } from '../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import {
   ArweaveTransactionID,
@@ -298,12 +299,12 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
     const { records } = pdnsSourceContract;
     const fetchedRows: PDNSTableRow[] = [];
     setIsLoading(true);
-    for (const [index, txId] of ids.entries()) {
+    for (const [index, contractTxId] of ids.entries()) {
       try {
         const associatedNames: (PDNSRecordEntry & { name: string })[] =
           Object.entries(records)
             .map(([name, recordEntry]: [string, PDNSRecordEntry]) => {
-              if (recordEntry.contractTxId === txId.toString()) {
+              if (recordEntry.contractTxId === contractTxId.toString()) {
                 return {
                   ...recordEntry,
                   name,
@@ -312,15 +313,22 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
             })
             .filter((n) => !!n) as (PDNSRecordEntry & { name: string })[];
         const [contractState, confirmations] = await Promise.all([
-          arweaveDataProvider.getContractState<PDNTContractJSON>(txId),
-          arweaveDataProvider.getTransactionStatus(txId),
+          arweaveDataProvider.getContractState<PDNTContractJSON>(contractTxId),
+          arweaveDataProvider.getTransactionStatus(contractTxId),
         ]);
+
+        if (!contractState) {
+          throw Error(`Failed to load contract: ${contractTxId.toString()}`);
+        }
+
+        const contract = new PDNTContract(contractState, contractTxId);
+
         // TODO: add error messages and reload state to row
         const rowData = associatedNames.map((domain) => ({
           name: domain.name,
-          id: txId.toString(),
+          id: contractTxId.toString(),
           role:
-            contractState.owner.toString() === walletAddress?.toString()
+            contract.owner === walletAddress?.toString()
               ? 'Owner'
               : contractState.controller === walletAddress?.toString()
               ? 'Controller'
@@ -332,7 +340,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
               (k: string) =>
                 pdnsSourceContract.tiers.current[+k] === domain.tier,
             ) ?? 1,
-          key: `${domain.name}-${txId.toString()}`,
+          key: `${domain.name}-${contractTxId.toString()}`,
         }));
         fetchedRows.push(...rowData);
         // sort by confirmations by default
