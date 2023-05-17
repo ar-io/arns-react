@@ -110,6 +110,9 @@ export interface SmartweaveContractCache {
     sourceCodeTxIds: ArweaveTransactionID[],
     address: ArweaveTransactionID,
   ): Promise<{ ids: ArweaveTransactionID[] }>;
+  getContractInteractions(
+    id: ArweaveTransactionID,
+  ): Promise<ContractInteraction[]>;
 }
 
 export interface SmartweaveContractInteractionProvider {
@@ -147,9 +150,10 @@ export interface ArweaveWalletConnector {
 }
 
 export interface TransactionCache {
-  set(key: string, payload: any): void;
+  set(key: string, value: any): void;
   get(key: string): any;
   del(key: string): void;
+  push(key: string, value: any): void;
 }
 
 export interface ArweaveDataProvider {
@@ -554,4 +558,12 @@ export type ValidationObject = {
   name: string;
   status: boolean;
   error?: string | undefined;
+};
+
+export type ContractInteraction = {
+  contractTxId: string;
+  id: string;
+  payload: string;
+  valid?: boolean;
+  [x: string]: any;
 };

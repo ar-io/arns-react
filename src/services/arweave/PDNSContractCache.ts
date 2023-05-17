@@ -1,5 +1,6 @@
 import {
   ArweaveTransactionID,
+  ContractInteraction,
   PDNSContractJSON,
   PDNTContractJSON,
   SmartweaveContractCache,
@@ -51,5 +52,15 @@ export class PDNSContractCache implements SmartweaveContractCache {
     return {
       ids: contractIds.map((id: string) => new ArweaveTransactionID(id)),
     };
+  }
+
+  async getContractInteractions(
+    contractTxId: ArweaveTransactionID,
+  ): Promise<ContractInteraction[]> {
+    const res = await fetch(
+      `${this._url}/contract/${contractTxId.toString()}/interactions`,
+    );
+    const { interactions } = await res.json();
+    return interactions;
   }
 }
