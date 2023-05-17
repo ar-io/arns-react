@@ -197,7 +197,12 @@ function ManagePDNTModal() {
 
   return (
     <>
-      <div className="page">
+      <div
+        className="page"
+        style={{
+          padding: '2% 20%',
+        }}
+      >
         <div className="flex-row flex-space-between">
           <span className="flex white text-large bold">
             <button
@@ -250,8 +255,8 @@ function ManagePDNTModal() {
                   dataIndex: 'pendingInteraction',
                   key: 'pendingInteraction',
                   align: 'left',
-                  width: isMobile ? '0px' : '3%',
-                  className: 'icon-padding white',
+                  width: '2%',
+                  className: 'white',
                   render: (interaction: {
                     value: string;
                     valid: boolean;
@@ -267,7 +272,8 @@ function ManagePDNTModal() {
                               to={`https://viewblock.io/arweave/tx/${interaction.id}`}
                               target="_blank"
                             >
-                              There is a transaction pending for this field.
+                              There is a pending transaction modifying this
+                              field.
                               <ExternalLinkIcon
                                 height={12}
                                 width={12}
@@ -296,8 +302,8 @@ function ManagePDNTModal() {
                   dataIndex: 'attribute',
                   key: 'attribute',
                   align: 'left',
-                  width: isMobile ? '0px' : '25%',
-                  className: 'icon-padding white',
+                  width: isMobile ? '0px' : '20%',
+                  className: 'white',
                   render: (value: string) => {
                     return `${mapKeyToAttribute(value)}:`;
                   },
@@ -325,7 +331,9 @@ function ManagePDNTModal() {
                           {/* TODO: add label for mobile view */}
 
                           <ValidationInput
-                            showValidationIcon={true}
+                            showValidationIcon={
+                              row.attribute == editingField && !!modifiedValue
+                            }
                             showValidationOutline={true}
                             inputId={row.attribute + '-input'}
                             inputType={
@@ -404,7 +412,7 @@ function ManagePDNTModal() {
                   title: '',
                   dataIndex: 'action',
                   key: 'action',
-                  width: '5%',
+                  width: '10%',
                   align: 'right',
                   className: 'white',
                   render: (value: any, row: any) => {

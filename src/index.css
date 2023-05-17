@@ -275,6 +275,7 @@ input[type='number']:disabled {
   font-size: 18px;
   cursor: pointer;
 }
+
 .assets-see-more-button {
   background-color: none;
   color: var(--text-white);

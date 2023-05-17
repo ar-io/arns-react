@@ -63,7 +63,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
         key: 'name',
         align: 'left',
         width: '18%',
-        className: 'icon-padding white',
+        className: 'white icon-padding',
         ellipsis: true,
         onHeaderCell: () => {
           return {
