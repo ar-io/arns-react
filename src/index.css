@@ -383,6 +383,7 @@ input[type='number']:disabled {
 
 .disabled-button {
   opacity: 50%;
+  pointer-events: none;
 }
 
 .data-input {

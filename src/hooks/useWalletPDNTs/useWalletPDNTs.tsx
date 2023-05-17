@@ -363,7 +363,9 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
       try {
         const [contractState, confirmations, pendingContractInteractions] =
           await Promise.all([
-            arweaveDataProvider.getContractState<PDNTContractJSON>(contractTxId),
+            arweaveDataProvider.getContractState<PDNTContractJSON>(
+              contractTxId,
+            ),
             arweaveDataProvider.getTransactionStatus(contractTxId),
             arweaveDataProvider.getPendingContractInteractions(
               contractTxId,
@@ -394,6 +396,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
               ? 'Controller'
               : 'N/A',
           target: target ?? 'N/A',
+          ttlSeconds: contract.getRecord('@')?.ttlSeconds,
           status: confirmations ?? 0,
           state: contractState,
           key: index,

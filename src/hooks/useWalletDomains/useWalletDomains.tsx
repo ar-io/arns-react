@@ -330,7 +330,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
           role:
             contract.owner === walletAddress?.toString()
               ? 'Owner'
-              : contractState?.controller === walletAddress?.toString()
+              : contractState.controller === walletAddress?.toString()
               ? 'Controller'
               : 'N/A',
           expiration: new Date(domain.endTimestamp * 1000),
