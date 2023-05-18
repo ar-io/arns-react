@@ -1,6 +1,7 @@
 import {
   ArweaveDataProvider,
   ArweaveTransactionID,
+  ContractInteraction,
   PDNSContractJSON,
   PDNTContractJSON,
   SmartweaveContractCache,
@@ -142,5 +143,13 @@ export class ArweaveCompositeDataProvider
 
   async getCurrentBlockHeight(): Promise<number> {
     return await this._arweaveProvider.getCurrentBlockHeight();
+  }
+
+  async getContractInteractions(
+    id: ArweaveTransactionID,
+  ): Promise<ContractInteraction[]> {
+    return Promise.any(
+      this._contractProviders.map((p) => p.getContractInteractions(id)),
+    );
   }
 }

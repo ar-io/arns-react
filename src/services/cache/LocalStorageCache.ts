@@ -20,7 +20,7 @@ export class LocalStorageCache implements TransactionCache {
   }
 
   // default to use arrays for now, and just push items to a given key
-  set(key: string, value: any): void {
+  push(key: string, value: any): void {
     const currentCache = this.get(key);
     if (isArray(currentCache)) {
       const updatedArr = [
@@ -37,5 +37,9 @@ export class LocalStorageCache implements TransactionCache {
 
   del(key: string): void {
     return window.localStorage.removeItem(key);
+  }
+
+  set(key: string, value: any) {
+    return window.localStorage.setItem(key, JSON.stringify(value));
   }
 }
