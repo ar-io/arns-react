@@ -58,8 +58,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
                 title={
                   <Link
                     className="link white text underline"
-                    to={`https://viewblock.io/arweave/contract/${row.id}?type=all`}
-                    target="_blank"
+                    to={`/manage/pdnts/${row.id}`}
                   >
                     This contract has pending transactions.
                     <ExternalLinkIcon
