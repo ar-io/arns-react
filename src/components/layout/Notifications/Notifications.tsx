@@ -7,7 +7,9 @@ import eventEmitter from '../../../utils/events';
 type NotificationType = 'success' | 'info' | 'warning' | 'error';
 
 export default function Notifications() {
-  const [api, contextHolder] = notification.useNotification();
+  const [api, contextHolder] = notification.useNotification({
+    maxCount: 3,
+  });
 
   function handleError(error: Error) {
     const sentryID = Sentry.captureException(error);
