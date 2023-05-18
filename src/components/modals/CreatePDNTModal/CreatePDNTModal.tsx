@@ -16,7 +16,12 @@ import {
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import { mapTransactionDataKeyToPayload } from '../../../utils';
-import { DEFAULT_PDNT_SOURCE_CODE_TX } from '../../../utils/constants';
+import {
+  DEFAULT_MAX_UNDERNAMES,
+  DEFAULT_PDNT_SOURCE_CODE_TX,
+  DEFAULT_TTL_SECONDS,
+  STUB_ARWEAVE_TXID,
+} from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { mapKeyToAttribute } from '../../cards/PDNTCard/PDNTCard';
 import { CloseIcon, PencilIcon } from '../../icons';
@@ -93,8 +98,8 @@ function CreatePDNTModal() {
     const consolidatedDetails: any = {
       name: pdnt.name,
       ticker: pdnt.ticker,
-      targetID: pdnt.getRecord('@').transactionId,
-      ttlSeconds: pdnt.getRecord('@').ttlSeconds,
+      targetID: pdnt.getRecord('@')?.transactionId ?? '',
+      ttlSeconds: pdnt.getRecord('@')?.ttlSeconds ?? DEFAULT_TTL_SECONDS,
       controller: pdnt.controller,
       owner: pdnt.owner,
     };
@@ -139,7 +144,10 @@ function CreatePDNTModal() {
         case 'targetID':
           pdnt.records = {
             '@': {
-              ...pdnt.getRecord('@'),
+              maxUndernames:
+                pdnt.getRecord('@')?.maxUndernames ?? DEFAULT_MAX_UNDERNAMES,
+              ttlSeconds:
+                pdnt.getRecord('@')?.ttlSeconds ?? DEFAULT_TTL_SECONDS,
               transactionId: modifiedValue.toString(),
             },
           };
@@ -147,7 +155,10 @@ function CreatePDNTModal() {
         case 'ttlSeconds':
           pdnt.records = {
             '@': {
-              ...pdnt.getRecord('@'),
+              maxUndernames:
+                pdnt.getRecord('@')?.maxUndernames ?? DEFAULT_MAX_UNDERNAMES,
+              transactionId:
+                pdnt.getRecord('@')?.transactionId ?? STUB_ARWEAVE_TXID,
               ttlSeconds: +modifiedValue,
             },
           };

@@ -100,10 +100,10 @@ export type JsonWalletProvider = {
 
 export interface SmartweaveContractCache {
   getContractState<T extends PDNTContractJSON | PDNSContractJSON>(
-    id: ArweaveTransactionID,
+    contractTxId: ArweaveTransactionID,
   ): Promise<T>;
   getContractBalanceForWallet(
-    id: ArweaveTransactionID,
+    contractTxId: ArweaveTransactionID,
     wallet: ArweaveTransactionID,
   ): Promise<number>;
   getContractsForWallet(
@@ -111,7 +111,7 @@ export interface SmartweaveContractCache {
     address: ArweaveTransactionID,
   ): Promise<{ ids: ArweaveTransactionID[] }>;
   getContractInteractions(
-    id: ArweaveTransactionID,
+    contractTxId: ArweaveTransactionID,
   ): Promise<ContractInteraction[]>;
 }
 

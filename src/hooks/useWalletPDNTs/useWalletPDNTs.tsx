@@ -12,6 +12,7 @@ import {
 import CopyTextButton from '../../components/inputs/buttons/CopyTextButton/CopyTextButton';
 import ManageAssetButtons from '../../components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
 import TransactionStatus from '../../components/layout/TransactionStatus/TransactionStatus';
+import { PDNTContract } from '../../services/arweave/PDNTContract';
 import {
   ArweaveTransactionID,
   PDNTContractJSON,
@@ -312,29 +313,36 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
   async function fetchPDNTRows(ids: ArweaveTransactionID[]) {
     const fetchedRows: PDNTMetadata[] = [];
     setIsLoading(true);
-    for (const [index, id] of ids.entries()) {
+    for (const [index, contractTxId] of ids.entries()) {
       try {
         const [contractState, confirmations] = await Promise.all([
-          arweaveDataProvider.getContractState<PDNTContractJSON>(id),
-          arweaveDataProvider.getTransactionStatus(id),
+          arweaveDataProvider.getContractState<PDNTContractJSON>(contractTxId),
+          arweaveDataProvider.getTransactionStatus(contractTxId),
         ]);
+
+        if (!contractState) {
+          throw Error(`Failed to load contract: ${contractTxId.toString()}`);
+        }
+
+        const contract = new PDNTContract(contractState, contractTxId);
+
+        const target =
+          contract.getRecord('@') &&
+          contract.getRecord('@')?.transactionId !== ''
+            ? contract.getRecord('@')?.transactionId
+            : undefined;
+
         // TODO: add error messages and reload state to row
         const rowData = {
-          name: contractState.name ?? 'N/A',
-          id: id.toString(),
+          name: contract.name ?? 'N/A',
+          id: contractTxId.toString(),
           role:
             contractState.owner.toString() === walletAddress?.toString()
               ? 'Owner'
               : contractState.controller === walletAddress?.toString()
               ? 'Controller'
               : 'N/A',
-          target: (contractState.records['@'] &&
-          typeof contractState.records['@'] === 'string'
-            ? contractState.records['@']
-            : typeof contractState.records['@'] === 'object' &&
-              contractState.records['@'].transactionId
-            ? contractState.records['@'].transactionId
-            : 'N/A') as string,
+          target: target ?? 'N/A',
           status: confirmations ?? 0,
           state: contractState,
           key: index,

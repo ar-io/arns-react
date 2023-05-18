@@ -37,10 +37,10 @@ export class ArweaveCompositeDataProvider
   }
 
   async getContractState<T extends PDNSContractJSON | PDNTContractJSON>(
-    id: ArweaveTransactionID,
+    contractTxId: ArweaveTransactionID,
   ): Promise<T> {
     return Promise.any(
-      this._contractProviders.map((p) => p.getContractState<T>(id)),
+      this._contractProviders.map((p) => p.getContractState<T>(contractTxId)),
     );
   }
 
@@ -146,10 +146,12 @@ export class ArweaveCompositeDataProvider
   }
 
   async getContractInteractions(
-    id: ArweaveTransactionID,
+    contractTxId: ArweaveTransactionID,
   ): Promise<ContractInteraction[]> {
     return Promise.any(
-      this._contractProviders.map((p) => p.getContractInteractions(id)),
+      this._contractProviders.map((p) =>
+        p.getContractInteractions(contractTxId),
+      ),
     );
   }
 }

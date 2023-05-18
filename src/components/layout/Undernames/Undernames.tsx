@@ -231,9 +231,7 @@ function Undernames() {
             ) {
               throw new Error('Mismatching payload and interation type!');
             }
-            if (!changesValid) {
-              throw new Error('Changes not valid, fix errors to continue');
-            }
+            // don't check validity - there are no inputs
             dispatchTransactionState({
               type: 'setInteractionType',
               payload: INTERACTION_TYPES.REMOVE_RECORD,

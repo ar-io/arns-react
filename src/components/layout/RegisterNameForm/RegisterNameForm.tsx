@@ -120,7 +120,9 @@ function RegisterNameForm() {
 
       dispatchRegisterState({
         type: 'setTargetID',
-        payload: new ArweaveTransactionID(pdnt.getRecord('@').transactionId),
+        payload: new ArweaveTransactionID(
+          pdnt.getRecord('@')?.transactionId ?? '',
+        ),
       });
     } catch (error: any) {
       dispatchRegisterState({
