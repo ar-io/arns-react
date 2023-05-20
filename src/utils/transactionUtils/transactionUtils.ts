@@ -588,3 +588,28 @@ export function validateTTLSeconds(ttl: number) {
     );
   }
 }
+
+export function calculateMinimumAuctionBid({
+  startHeight,
+  initialPrice,
+  floorPrice,
+  currentBlockHeight,
+  decayInterval,
+  decayRate,
+}: {
+  startHeight: number;
+  initialPrice: number;
+  floorPrice: number;
+  currentBlockHeight: number;
+  decayInterval: number;
+  decayRate: number;
+}): number {
+  const blockIntervalsPassed = Math.floor(
+    (currentBlockHeight - startHeight) / decayInterval,
+  );
+  const dutchAuctionBid =
+    initialPrice * Math.pow(1 - decayRate, blockIntervalsPassed);
+
+  const minimumBid = Math.max(floorPrice, dutchAuctionBid);
+  return minimumBid;
+}

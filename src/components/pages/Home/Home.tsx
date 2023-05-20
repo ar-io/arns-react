@@ -81,7 +81,7 @@ function Home() {
         <></>
       )}
 
-      {!Object.keys(pdnsSourceContract.records).length ? (
+      {1 > 2 ? (
         <Loader
           size={80}
           wrapperStyle={{ margin: '75px' }}
@@ -237,7 +237,15 @@ function Home() {
           ) : (
             <></>
           )}
-          <AuctionChart leaseDuration={1} name="blah" />
+          <AuctionChart
+            startHeight={61}
+            currentBlockHeight={962}
+            decayInterval={60}
+            decayRate={0.0535}
+            initialPrice={100_000 * 100}
+            floorPrice={100_000}
+            auctionDuration={5040}
+          />
         </>
       )}
     </div>
