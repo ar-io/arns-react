@@ -1,4 +1,4 @@
-import Countdown from 'antd/es/statistic/Countdown';
+import Countdown from 'antd/lib/statistic/Countdown';
 import {
   CategoryScale,
   Chart as ChartJS,
@@ -11,10 +11,11 @@ import {
 } from 'chart.js';
 import annotationPlugin from 'chartjs-plugin-annotation';
 import { CSSProperties, useEffect, useRef, useState } from 'react';
-import { Line } from 'react-chartjs-2';
+import { Chart } from 'react-chartjs-2';
 import { ChartJSOrUndefined } from 'react-chartjs-2/dist/types';
 
 import { calculateMinimumAuctionBid } from '../../../utils';
+import eventEmitter from '../../../utils/events';
 import Loader from '../Loader/Loader';
 
 function AuctionChart({
@@ -57,7 +58,7 @@ function AuctionChart({
     annotationPlugin,
   );
 
-  const chartRef = useRef<ChartJSOrUndefined<'line', number[], string>>(null);
+  const chartRef = useRef<ChartJS>(null);
 
   const [timeUntilUpdate, setTimeUntilUpdate] = useState<number>(0);
   const [prices, setPrices] = useState<number[]>([]);
@@ -86,47 +87,51 @@ function AuctionChart({
     );
   }, [currentBlockHeight]);
 
+  // TODO: remove this useEffect and triggerCurrentPriceTooltip, replace with annotation label conditionaly rendered by showCurrentPrice ( see todo below for more details )
   useEffect(() => {
     triggerCurrentPriceTooltip();
   }, [chartRef.current, showCurrentPrice, prices]);
 
   function triggerCurrentPriceTooltip() {
-    const chart = chartRef.current;
-    if (!chart) {
-      return;
-    }
-    const data = chart.getDatasetMeta(0).data as PointElement[];
-    const point = data.find((point: PointElement) =>
-      point.parsed.y === currentPrice ? point : undefined,
-    );
-    if (!point) {
-      return;
-    }
+    try {
+      if (!showCurrentPrice) {
+        return;
+      }
+      const chart = chartRef.current;
+      if (!chart) {
+        throw new Error('Chart ref not found');
+      }
+      const data = chart.getDatasetMeta(0).data as PointElement[];
+      const point = data.find((point: PointElement) =>
+        point.parsed.y === currentPrice ? point : undefined,
+      );
+      if (!point) {
+        throw new Error('Current price point element not found');
+      }
 
-    const tooltip = chart.tooltip;
-    if (!tooltip) {
-      return;
+      const tooltip = chart.tooltip;
+      if (!tooltip) {
+        throw new Error('Tooltip not found');
+      }
+
+      tooltip.setActiveElements(
+        [
+          {
+            datasetIndex: 0,
+            index: point.parsed.x,
+          },
+          {
+            datasetIndex: 0,
+            index: point.parsed.x,
+          },
+        ],
+        { x: point.x, y: point.y },
+      );
+
+      chart.update();
+    } catch (error) {
+      eventEmitter.emit('error', error);
     }
-
-    if (tooltip.getActiveElements().length > 0) {
-      tooltip.setActiveElements([], { x: point.x, y: point.y });
-    }
-
-    tooltip.setActiveElements(
-      [
-        {
-          datasetIndex: 0,
-          index: point.parsed.x,
-        },
-        {
-          datasetIndex: 0,
-          index: point.parsed.x,
-        },
-      ],
-      { x: point.x, y: point.y },
-    );
-
-    chart.update();
   }
 
   function getDeadline(block: number) {
@@ -164,30 +169,12 @@ function AuctionChart({
     return newPrices;
   };
 
-  const data = {
-    labels,
-    datasets: [
-      {
-        tension: 0.314,
-        label: 'prices',
-        data: prices,
-        borderWidth: 1.5,
-        borderColor: 'white',
-        backgroundColor: 'white',
-        segment: {
-          borderColor: 'white',
-          borderDash: (ctx: any) =>
-            ctx.p0.parsed.y > currentPrice ? undefined : [3, 3],
-        },
-        spanGaps: true,
-        pointHoverRadius: 7,
-        pointRadius: 0,
-      },
-    ],
-  };
-
-  if (!prices) {
-    return <Loader size={80} />;
+  if (!prices || !labels) {
+    return (
+      <>
+        <Loader size={80} />
+      </>
+    );
   }
 
   return (
@@ -215,10 +202,11 @@ function AuctionChart({
             ...chartStyle,
           }}
         >
-          <Line
+          <Chart
+            type="line"
             ref={chartRef}
-            onMouseEnter={() => setShowCurrentPrice(false)}
-            onMouseOut={() => setShowCurrentPrice(true)}
+            onMouseLeave={() => setShowCurrentPrice(true)}
+            onMouseOver={() => setShowCurrentPrice(false)}
             options={{
               clip: false,
               layout: {
@@ -261,6 +249,7 @@ function AuctionChart({
                   backgroundColor: 'transparent',
                   titleFont: {
                     size: 14,
+                    weight: '400',
                   },
                   titleColor: '#7D7D85',
                   mode: 'nearest',
@@ -283,6 +272,24 @@ function AuctionChart({
                       radius: 7,
                       display: showCurrentPrice,
                     },
+                    // TODO: switch to this for currentPrice tooltip, need to fix bug when price is near end of chart (currently breaks chart)
+                    // label1: {
+                    //   type: 'label',
+                    //   xValue: prices.indexOf(currentPrice),
+                    //   yValue: currentPrice,
+                    //   backgroundColor: 'transparent',
+                    //   content: [Math.round(currentPrice).toLocaleString()],
+                    //   font: {
+                    //     size: 14,
+                    //     weight:"400"
+                    //   },
+                    //   color:'#7D7D85',
+                    //   padding:{
+                    //     left: (prices.indexOf(currentPrice) < (prices.length / 2)) ? 50 : -50,
+                    //     bottom:60
+                    //   },
+                    //   display: showCurrentPrice,
+                    // },
                   },
                 },
                 legend: {
@@ -293,7 +300,27 @@ function AuctionChart({
                 },
               },
             }}
-            data={data}
+            data={{
+              labels,
+              datasets: [
+                {
+                  tension: 0.314,
+                  label: 'prices',
+                  data: prices,
+                  borderWidth: 1.5,
+                  borderColor: 'white',
+                  backgroundColor: 'white',
+                  segment: {
+                    borderColor: 'white',
+                    borderDash: (ctx: any) =>
+                      ctx.p0.parsed.y > currentPrice ? undefined : [3, 3],
+                  },
+                  spanGaps: true,
+                  pointHoverRadius: 7,
+                  pointRadius: 0,
+                },
+              ],
+            }}
           />
         </div>
         <span

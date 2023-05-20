@@ -239,7 +239,7 @@ function Home() {
           )}
           <AuctionChart
             startHeight={61}
-            currentBlockHeight={962}
+            currentBlockHeight={4930}
             decayInterval={60}
             decayRate={0.0535}
             initialPrice={100_000 * 100}

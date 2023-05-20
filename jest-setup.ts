@@ -8,3 +8,6 @@ import { TextDecoder, TextEncoder } from 'util';
 global.React = React;
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
+jest.mock('react-chartjs-2', () => ({
+  Chart: () => null,
+}));
