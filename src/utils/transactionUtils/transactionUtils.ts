@@ -640,15 +640,17 @@ export function getPendingInteractionsRowsForContract(
     // TODO: this is not pretty, and could be avoided if we rework the ANT contract to allow `setTTL` and `setTransaction` rather than all of them
     // relying only on setRecord.
     for (const attribute of attributes) {
+      // TODO: change targetID to be transactionId
+      const attr = attribute === 'targetID' ? 'transactionId' : attribute;
       const nonConfirmedTx = {
         attribute,
-        value: i.payload[attribute],
+        value: i.payload[attr],
         id: i.id,
         valid: i.valid,
       };
       if (
-        existingValues[attribute] &&
-        existingValues[attribute] !== nonConfirmedTx.value
+        existingValues[attr] &&
+        existingValues[attr] !== nonConfirmedTx.value
       ) {
         pendingTxRowData.push(nonConfirmedTx);
       }
