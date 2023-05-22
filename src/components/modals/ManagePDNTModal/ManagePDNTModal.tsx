@@ -13,6 +13,7 @@ import {
   ManagePDNTRow,
   PDNSRecordEntry,
   PDNTContractJSON,
+  PDNTDetails,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import {
@@ -20,7 +21,11 @@ import {
   getPendingInteractionsRowsForContract,
   mapTransactionDataKeyToPayload,
 } from '../../../utils';
-import { STUB_ARWEAVE_TXID } from '../../../utils/constants';
+import {
+  DEFAULT_MAX_UNDERNAMES,
+  DEFAULT_TTL_SECONDS,
+  STUB_ARWEAVE_TXID,
+} from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { mapKeyToAttribute } from '../../cards/PDNTCard/PDNTCard';
 import {
@@ -99,17 +104,17 @@ function ManagePDNTModal() {
       const tier = pdnsSourceContract.tiers.history.find(
         (t) => t.id === record?.tier,
       );
-      // TODO: add error messages and reload state to row
-      const consolidatedDetails: any = {
+
+      const consolidatedDetails: PDNTDetails = {
         status: confirmations ?? 0,
         associatedNames: !names.length ? 'N/A' : names.join(', '),
         name: contract.name ?? 'N/A',
         ticker: contract.ticker ?? 'N/A',
         targetID: contract.getRecord('@')?.transactionId ?? 'N/A',
-        ttlSeconds: contract.getRecord('@')?.ttlSeconds,
+        ttlSeconds: contract.getRecord('@')?.ttlSeconds ?? DEFAULT_TTL_SECONDS,
         controller: contract.controller ?? 'N/A',
         undernames: `${Object.keys(contract.records).length - 1} / ${
-          tier?.settings.maxUndernames ?? 100
+          tier?.settings.maxUndernames ?? DEFAULT_MAX_UNDERNAMES
         }`,
         owner: contract.owner ?? 'N/A',
       };
@@ -123,7 +128,7 @@ function ManagePDNTModal() {
       const rows = Object.keys(consolidatedDetails).reduce(
         (details: ManagePDNTRow[], attribute: string, index: number) => {
           const existingValue =
-            consolidatedDetails[attribute as keyof ManagePDNTRow];
+            consolidatedDetails[attribute as keyof PDNTDetails];
           const pendingInteraction = pendingTxs.find(
             (i) => i.attribute === attribute,
           );

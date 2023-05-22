@@ -531,10 +531,22 @@ export type PDNTMetadata = {
 
 export type ManagePDNTRow = {
   attribute: string;
-  value: string;
+  value: string | number;
   editable: boolean;
   key: number;
   interactionType?: ValidInteractionType;
+};
+
+export type PDNTDetails = {
+  status: number;
+  associatedNames: string;
+  name: string;
+  ticker: string;
+  targetID: string;
+  ttlSeconds: number;
+  controller: string;
+  undernames: string;
+  owner: string;
 };
 
 export type UndernameMetadata = {
