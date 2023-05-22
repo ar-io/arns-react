@@ -648,10 +648,7 @@ export function getPendingInteractionsRowsForContract(
         id: i.id,
         valid: i.valid,
       };
-      if (
-        existingValues[attr] &&
-        existingValues[attr] !== nonConfirmedTx.value
-      ) {
+      if (existingValues[attr] !== nonConfirmedTx.value) {
         pendingTxRowData.push(nonConfirmedTx);
       }
     }
