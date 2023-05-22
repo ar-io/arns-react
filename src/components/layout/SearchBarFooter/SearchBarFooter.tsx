@@ -10,32 +10,23 @@ function SearchBarFooter({
   isAvailable,
 }: SearchBarFooterProps): JSX.Element {
   return (
-    <>
-      <>
-        <div
-          className="text faded center"
-          style={{ width: '75%', maxWidth: '475px' }}
-        >
-          {!isSearchValid ? (
-            <div className="error-container">
-              <span className="illegal-char">{defaultText}</span>
-            </div>
-          ) : (
-            defaultText
-          )}
-        </div>
-      </>
+    <div className="flex flex-column" style={{ marginTop: 60 }}>
       {!isAvailable && searchResult && searchTerm ? (
-        <PDNTCard
-          domain={searchTerm}
-          id={searchResult}
-          compact={true}
-          enableActions={true}
-        />
+        <>
+          <span className="flex flex-row white text-medium flex-left">
+            Ownership Details:
+          </span>
+          <PDNTCard
+            domain={searchTerm}
+            id={searchResult}
+            compact={true}
+            enableActions={true}
+          />
+        </>
       ) : (
         <></>
       )}
-    </>
+    </div>
   );
 }
 export default SearchBarFooter;

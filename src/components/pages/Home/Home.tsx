@@ -75,7 +75,12 @@ function Home() {
   return (
     <div className="page">
       {stage < 1 ? (
-        <div className="page-header">Permaweb Domain Name System</div>
+        <div
+          className="white"
+          style={{ fontSize: 57, padding: 56, fontWeight: 500 }}
+        >
+          Arweave Name System
+        </div>
       ) : (
         <></>
       )}
@@ -87,7 +92,10 @@ function Home() {
           message="Loading PDNS Registry Contract..."
         />
       ) : (
-        <>
+        <div
+          className="flex flex-column flex-center"
+          style={{ width: 'fit-content', gap: 0 }}
+        >
           <Workflow
             stage={stage.toString()}
             onNext={() => {
@@ -192,11 +200,9 @@ function Home() {
                     validationPredicate={(value: string | undefined) =>
                       isPDNSDomainNameValid({ name: value })
                     }
-                    placeholderText={'Enter a name'}
+                    placeholderText={'Search for a name'}
                     headerElement={
-                      <SearchBarHeader
-                        defaultText={'Search for a permaweb name'}
-                      />
+                      <SearchBarHeader defaultText={'Find a name'} />
                     }
                     footerElement={
                       <SearchBarFooter
@@ -211,7 +217,7 @@ function Home() {
                         defaultText="Names must be 1-32 characters. Dashes are permitted, but cannot be trailing characters and cannot be used in single character domains."
                       />
                     }
-                    height={45}
+                    height={65}
                   />
                 ),
                 disableNext: !isSearching,
@@ -236,7 +242,7 @@ function Home() {
           ) : (
             <></>
           )}
-        </>
+        </div>
       )}
     </div>
   );

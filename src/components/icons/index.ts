@@ -21,6 +21,7 @@ import { ReactComponent as CloseIcon } from './Close.svg';
 import { ReactComponent as CodeSandboxIcon } from './CodeSandbox.svg';
 import { ReactComponent as CopyIcon } from './Copy.svg';
 import { ReactComponent as CubeIcon } from './Cube.svg';
+import { ReactComponent as SunIcon } from './EvaSun.svg';
 import { ReactComponent as ExternalLinkIcon } from './ExternalLink.svg';
 import { ReactComponent as FileCodeIcon } from './FileCode.svg';
 import { ReactComponent as InfoIcon } from './Info.svg';
@@ -82,4 +83,5 @@ export {
   TargetIcon,
   TrashIcon,
   UploadIcon,
+  SunIcon,
 };

@@ -23,8 +23,9 @@ function ValidationList({
             className="flex flex-column flex-left text white"
             style={{
               gap: '0px',
-              alignItems: 'flext-start',
+              alignItems: 'flex-start',
               justifyContent: 'flex-start',
+              width: 'fit-content',
             }}
           >
             <span

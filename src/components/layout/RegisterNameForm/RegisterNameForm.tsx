@@ -1,3 +1,4 @@
+import { CheckCircleFilled } from '@ant-design/icons';
 import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
@@ -139,75 +140,136 @@ function RegisterNameForm() {
     <>
       <div
         className="flex flex-column flex-center"
-        style={{ maxWidth: '900px', padding: 0, margin: '50px', marginTop: 0 }}
+        style={{
+          maxWidth: '900px',
+          minWidth: 750,
+          width: '100%',
+          padding: 0,
+          margin: '50px',
+          marginTop: 0,
+          gap: 60,
+          boxSizing: 'border-box',
+        }}
       >
-        <span className="text-large white center bold">
-          {domain}.{gateway} is available!
-        </span>
-        <StepProgressBar
-          stages={{
-            1: { title: 'Pick Name', status: 'success' },
-            2: { title: 'Purchase Type', status: 'pending' },
-            3: { title: 'Confirm Bid', status: '' },
+        <div
+          className="flex flex-row flex-center"
+          style={{
+            paddingBottom: 40,
+            borderBottom: 'solid 1px var(--text-faded)',
           }}
-          stage={2}
-        />
+        >
+          <StepProgressBar
+            stages={[
+              { title: 'Choose', description: 'Pick a name', status: 'finish' },
+              {
+                title: 'Configure',
+                description: 'Registration Period',
+                status: 'process',
+              },
+              {
+                title: 'Confirm',
+                description: 'Confirm transaction',
+                status: 'wait',
+              },
+            ]}
+            stage={1}
+          />
+        </div>
+
+        <span
+          className="text-medium white center"
+          style={{ fontWeight: 500, fontSize: 23 }}
+        >
+          <span style={{ color: 'var(--success-green)' }}>{domain}</span>
+          &nbsp;is available!&nbsp;
+          <CheckCircleFilled
+            style={{ fontSize: 20, color: 'var(--success-green)' }}
+          />
+        </span>
         <div className="flex flex-column flex-center">
           <div
             className="flex flex-column flex-center"
             style={{
               width: '100%',
               height: 'fit-content',
-              gap: 0,
+              gap: '25px',
             }}
           >
             <div
               className="flex flex-row flex-space-between"
-              style={{ gap: '5px' }}
+              style={{ gap: '25px' }}
             >
               <button
                 className="flex flex-row center text-medium bold pointer"
                 onClick={() => setTransactionType(TRANSACTION_TYPES.LEASE)}
                 style={{
+                  position: 'relative',
                   background:
                     transactionType === TRANSACTION_TYPES.LEASE
                       ? 'var(--text-white)'
-                      : 'var(--card-bg)',
+                      : '',
                   color:
                     transactionType === TRANSACTION_TYPES.LEASE
                       ? 'var(--text-black)'
                       : 'var(--text-white)',
                   border: 'solid 1px var(--text-white)',
-                  borderRadius: 0,
-                  borderTopLeftRadius: 3,
-                  borderTopRightRadius: 3,
-                  padding: '5px',
+                  borderRadius: 'var(--corner-radius)',
+                  height: '56px',
                   borderBottomWidth: '0.5px',
                 }}
               >
                 {TRANSACTION_TYPES.LEASE}
+                {transactionType === TRANSACTION_TYPES.LEASE ? (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      bottom: -6,
+                      left: '50%',
+                      transform: 'rotate(45deg)',
+                      width: 11,
+                      height: 11,
+                      background: 'var(--text-white)',
+                    }}
+                  ></div>
+                ) : (
+                  <></>
+                )}
               </button>
               <button
                 className="flex flex-row center text-medium bold pointer"
                 style={{
+                  position: 'relative',
                   background:
                     transactionType === TRANSACTION_TYPES.BUY
                       ? 'var(--text-white)'
-                      : 'var(--card-bg)',
+                      : '',
                   color:
                     transactionType === TRANSACTION_TYPES.BUY
                       ? 'var(--text-black)'
                       : 'var(--text-white)',
                   border: 'solid 1px var(--text-white)',
-                  borderRadius: 0,
-                  borderTopLeftRadius: 3,
-                  borderTopRightRadius: 3,
-                  padding: '5px',
+                  borderRadius: 'var(--corner-radius)',
+                  height: '56px',
                   borderBottomWidth: '0.5px',
                 }}
                 onClick={() => setTransactionType(TRANSACTION_TYPES.BUY)}
               >
                 {TRANSACTION_TYPES.BUY}
+                {transactionType === TRANSACTION_TYPES.BUY ? (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      bottom: -6,
+                      left: '50%',
+                      transform: 'rotate(45deg)',
+                      width: 11,
+                      height: 11,
+                      background: 'var(--text-white)',
+                    }}
+                  ></div>
+                ) : (
+                  <></>
+                )}
               </button>
             </div>
 
@@ -215,15 +277,13 @@ function RegisterNameForm() {
               className="flex flex-column flex-center card"
               style={{
                 width: '100%',
-                height: '300px',
+                minHeight: 0,
+                height: 'fit-content',
                 maxWidth: 'unset',
-                padding: '2em',
+                padding: '35px',
                 boxSizing: 'border-box',
-                border: 'solid 1px var(--text-white)',
                 borderTopWidth: '0.2px',
-                borderTopLeftRadius: 0,
-                borderTopRightRadius: 0,
-                borderRadius: '3px',
+                borderRadius: 'var(--corner-radius)',
                 justifyContent: 'flex-start',
               }}
             >
@@ -236,30 +296,12 @@ function RegisterNameForm() {
               ) : transactionType === TRANSACTION_TYPES.BUY ? (
                 <div
                   className="flex flex-column flex-center"
-                  style={{ gap: '1.5em' }}
+                  style={{ gap: '1em' }}
                 >
-                  <span className="text-medium white bold center">
-                    Registration Period (years)
+                  <span className="text-medium faded center">
+                    Registration Period
                   </span>
-                  <span className="text-medium faded bold center">
-                    Indefinite
-                  </span>
-                  <span
-                    className="flex flex-column white flex-center"
-                    style={{ width: '75%', fontSize: '16px', gap: '1em' }}
-                  >
-                    {permabuyInfo(fee.io, 10, 2)}
-                    <br />
-                    <a
-                      href="https://ar.io/arns/"
-                      rel="noreferrer"
-                      target="_blank"
-                      className="flex link underline flex-center"
-                      style={{ margin: 'auto' }}
-                    >
-                      Learn more about how this works.
-                    </a>
-                  </span>
+                  <span className="text-medium white center">Permanent</span>
                 </div>
               ) : (
                 <></>
@@ -271,46 +313,63 @@ function RegisterNameForm() {
               walletAddress={walletAddress}
               selectedTokenCallback={(id) => handlePDNTId(id?.toString())}
             />
-            <div className="flex flex-column center" style={{ gap: '0.2em' }}>
-              <Tooltip
-                placement="right"
-                autoAdjustOverflow={true}
-                arrow={true}
-                trigger={'hover'}
-                overlayInnerStyle={{
-                  width: '190px',
-                  color: 'var(--text-black)',
-                  textAlign: 'center',
-                  fontFamily: 'Rubik-Bold',
-                  fontSize: '14px',
-                  backgroundColor: 'var(--text-white)',
-                  padding: '15px',
+            <div
+              className="flex flex-row"
+              style={{
+                borderBottom: 'solid 1px var(--text-faded)',
+                padding: '20px 0px',
+                justifyContent: 'flex-end',
+                alignItems: 'flex-start',
+              }}
+            >
+              <span className="text white">Cost:</span>
+              <div
+                className="flex flex-column"
+                style={{
+                  gap: '0.2em',
+                  alignItems: 'flex-end',
+                  width: 'fit-content',
                 }}
-                title={
-                  <span className="flex flex-column" style={{ gap: '15px' }}>
-                    {NAME_PRICE_INFO}
-                    <a
-                      href="https://ar.io/arns/"
-                      rel="noreferrer"
-                      target="_blank"
-                      className="link center faded underline bold"
-                      style={{ fontSize: '12px' }}
-                    >
-                      Need help choosing a tier?
-                    </a>
-                  </span>
-                }
               >
-                <span
-                  className="flex flex-row text-large white bold"
-                  style={{ gap: '5px', width: 'fit-content' }}
+                <Tooltip
+                  placement="right"
+                  autoAdjustOverflow={true}
+                  arrow={true}
+                  trigger={'hover'}
+                  overlayInnerStyle={{
+                    width: '190px',
+                    color: 'var(--text-black)',
+                    textAlign: 'center',
+                    fontFamily: 'Rubik-Bold',
+                    fontSize: '14px',
+                    backgroundColor: 'var(--text-white)',
+                    padding: '15px',
+                  }}
+                  title={
+                    <span className="flex flex-column" style={{ gap: '15px' }}>
+                      {NAME_PRICE_INFO}
+                      <a
+                        href="https://ar.io/arns/"
+                        rel="noreferrer"
+                        target="_blank"
+                        className="link center faded underline bold"
+                        style={{ fontSize: '12px' }}
+                      >
+                        Need help choosing a tier?
+                      </a>
+                    </span>
+                  }
                 >
-                  {fee.io?.toLocaleString()}&nbsp;IO&nbsp;+&nbsp;
-                  <ArPrice dataSize={SMARTWEAVE_TAG_SIZE} />
-                  <InfoIcon width={'15px'} height={'15px'} fill="white" />
-                </span>
-              </Tooltip>
-              <span className="text faded">Estimated Price</span>
+                  <span
+                    className="flex flex-row text white flex-right"
+                    style={{ gap: '5px', width: 'fit-content' }}
+                  >
+                    {fee.io?.toLocaleString()}&nbsp;IO&nbsp;+&nbsp;
+                    <ArPrice dataSize={SMARTWEAVE_TAG_SIZE} />
+                  </span>
+                </Tooltip>
+                <span className="text faded">(Approximately 0 USD)</span>
+              </div>
             </div>
           </div>
         </div>

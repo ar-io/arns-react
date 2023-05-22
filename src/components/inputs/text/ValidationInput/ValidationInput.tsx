@@ -27,6 +27,7 @@ function ValidationInput({
   inputType = 'text',
   minNumber,
   maxNumber,
+  onPressEnter,
 }: {
   wrapperClassName?: string;
   wrapperCustomStyle?: any;
@@ -53,6 +54,7 @@ function ValidationInput({
   inputType?: string;
   minNumber?: number;
   maxNumber?: number;
+  onPressEnter?: () => void;
 }) {
   const [validationResults, setValidationResults] =
     useState<ValidationObject[]>();
@@ -120,6 +122,10 @@ function ValidationInput({
         <div className="flex" style={{ width: '100%', position: 'relative' }}>
           <input
             ref={inputRef}
+            onKeyDown={(e) =>
+              e.key === 'Enter' && onPressEnter ? onPressEnter() : null
+            }
+            enterKeyHint={inputType === 'search' ? inputType : 'enter'}
             id={inputId}
             type={inputType}
             min={inputType === 'number' ? minNumber : undefined}

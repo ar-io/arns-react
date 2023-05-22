@@ -6,7 +6,7 @@
   color: var(--text-white);
   background: var(--bg-color);
   border: 2px solid var(--text-white);
-  border-radius: 32.5px;
+  border-radius: var(--corner-radius);
   justify-content: center;
   align-items: center;
   font-family: 'Rubik';

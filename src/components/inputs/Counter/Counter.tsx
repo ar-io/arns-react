@@ -78,29 +78,12 @@ function YearsCounter({
     );
   }
 
-  function onChange(e: any) {
-    const value = +e.target.value;
-    if (value < minValue) {
-      dispatchRegisterState({ type: 'setLeaseDuration', payload: minValue });
-      return;
-    }
-
-    if (value > maxValue) {
-      dispatchRegisterState({ type: 'setLeaseDuration', payload: maxValue });
-      return;
-    }
-
-    dispatchRegisterState({ type: 'setLeaseDuration', payload: value });
-    return;
-  }
-
   return (
     <div className="years-counter-container">
-      <span className="text-medium white bold center">
-        Registration Period ({period})
+      <span className="text-medium white center" style={{ fontSize: 16 }}>
+        Registration Period (between 1-5 years)
       </span>
-      <span className="text-medium faded bold center">{`Until ${registration}`}</span>
-      <div className="flex-row flex-center">
+      <div className="flex-column flex-center">
         <div className="years-counter">
           <button
             className="counter-button hover"
@@ -112,16 +95,23 @@ function YearsCounter({
             onTouchEnd={decHandleOnTouchEnd}
             onMouseLeave={decHandleOnTouchEnd}
           >
-            -
+            <span
+              style={{ height: '2px', background: 'white', width: '18px' }}
+            ></span>
           </button>
-          <input
-            className="counter-input text bold"
-            type="number"
-            value={leaseDuration}
-            pattern={'/^[1-9]{1,3}$/'}
-            onFocus={(e) => e.target.select()}
-            onChange={onChange}
-          />
+          <div
+            className="flex flex-column flex-center"
+            style={{ width: 'fit-content', gap: 20, paddingBottom: '10px' }}
+          >
+            <span
+              className="text-large white center"
+              style={{ fontWeight: 500 }}
+            >{`${leaseDuration} year${leaseDuration > 1 ? 's' : ''}`}</span>
+            <span
+              className="text faded center"
+              style={{ fontSize: '14px' }}
+            >{`Until ${registration}`}</span>
+          </div>
           <button
             className="counter-button hover"
             disabled={leaseDuration == maxValue}

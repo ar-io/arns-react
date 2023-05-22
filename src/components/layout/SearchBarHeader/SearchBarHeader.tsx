@@ -1,3 +1,5 @@
+import { ArrowDownOutlined, CheckCircleFilled } from '@ant-design/icons';
+
 import { SearchBarHeaderProps } from '../../../types';
 import './styles.css';
 
@@ -10,18 +12,31 @@ function SearchBarHeader({
   return (
     <>
       {!text || isDefault ? (
-        <div className="section-header">{defaultText}</div>
+        <div
+          className="flex flex-column flex-center text-medium white"
+          style={{ gap: '5px' }}
+        >
+          {defaultText} <ArrowDownOutlined />
+        </div>
       ) : isAvailable ? (
-        <div className="section-header">
-          {text}&nbsp;<span className="available">is available!</span>
-        </div>
+        <span
+          className="text-medium white center"
+          style={{ fontWeight: 500, fontSize: 23 }}
+        >
+          <span style={{ color: 'var(--success-green)' }}>{text}</span>&nbsp;is
+          available!&nbsp;
+          <CheckCircleFilled
+            style={{ fontSize: 20, color: 'var(--success-green)' }}
+          />
+        </span>
       ) : (
-        <div className="section-header">
-          {text}&nbsp;
-          <span className="unavailable">
-            is already registered, try another name
-          </span>
-        </div>
+        <span
+          className="text-medium white center"
+          style={{ fontWeight: 500, fontSize: 23 }}
+        >
+          <span className="unavailable">{text}&nbsp;</span>
+          is already registered, try another name
+        </span>
       )}
     </>
   );

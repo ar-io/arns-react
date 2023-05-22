@@ -9,7 +9,13 @@ function NavBar() {
   const [, dispatchRegisterState] = useRegistrationState();
 
   return (
-    <div className="flex-row flex-space-between">
+    <div
+      className="flex-row flex-space-between"
+      style={{
+        boxSizing: 'border-box',
+        padding: '0px 10%',
+      }}
+    >
       <div className="flex-row flex-left">
         <Link
           className="hover"

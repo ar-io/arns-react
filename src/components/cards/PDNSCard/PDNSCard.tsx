@@ -98,9 +98,17 @@ function PDNSCard({ domain, id }: PDNSMapping) {
         key={pdntDetails.image}
         alt={`${domain}.${gateway}`}
       />
-      <div className="flex flex-column link" style={{ gap: 3 }}>
+      <div
+        className="flex flex-column link"
+        style={{
+          gap: 3,
+          padding: 10,
+          boxSizing: 'border-box',
+          textDecoration: 'unset',
+        }}
+      >
         <div className="flex flex-row flex-space-between">
-          <span className="flex text white bold external-link">{`${pdntDetails.domain}.${gateway}`}</span>
+          <span className="flex text white bold">{`${pdntDetails.domain}.${gateway}`}</span>
           <ExternalLinkIcon
             height={25}
             width={25}

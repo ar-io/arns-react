@@ -14,20 +14,20 @@
   font-display: block;
 }
 :root {
-  --bg-color: #171717;
-  --card-bg: #1f1f1f;
+  --bg-color: #131314;
+  --card-bg: #222224;
   --text-black: #121212;
-  --text-faded: #9e9e9e;
+  --text-faded: #7d7d85;
   --text-section-header: #d1d1d1;
   --text-white: #fafafa;
   --text-bright-white: #ffffff;
-  --placeholder-text: #d1d1d1;
+  --placeholder-text: #7d7d85;
   --grey-white: #dfdfde;
-  --error-red: #df1642;
-  --success-green: #18a957;
+  --error-red: #ef6461;
+  --success-green: #44af69;
   --accent: #ffbb38;
   --modal-bg: rgba(23, 23, 23, 0.95);
-  --corner-radius: 6px;
+  --corner-radius: 4px;
 }
 
 html {
@@ -40,6 +40,7 @@ body {
   background-color: var(--bg-color);
   font-family: 'Rubik';
   overflow: scroll;
+  margin: 0;
 }
 
 b {
@@ -74,6 +75,18 @@ input[type='number']:disabled {
   text-decoration: underline;
   cursor: pointer;
   padding: 0px;
+}
+a:link {
+  text-decoration: none;
+}
+a:visited {
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: none;
+}
+a:active {
+  text-decoration: none;
 }
 
 .pointer {
@@ -217,7 +230,8 @@ input[type='number']:disabled {
 .modal-container {
   position: fixed;
   display: flex;
-  background-color: var(--modal-bg);
+  background: rgba(10, 10, 10, 0.8);
+  backdrop-filter: blur(5px);
   justify-content: center;
   align-items: center;
   width: 100%;

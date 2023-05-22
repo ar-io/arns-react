@@ -1,3 +1,4 @@
+import { StepProps } from 'antd';
 import { useNavigate } from 'react-router';
 
 import { useIsMobile } from '../../../hooks';
@@ -21,7 +22,7 @@ export type WorkflowStage = {
 
 export type WorkflowProps = {
   stage: string;
-  steps?: { [x: number]: { title: string; status: string } };
+  steps?: StepProps[];
   onNext: () => void;
   onBack: () => void;
   footer?: JSX.Element[];
@@ -53,18 +54,28 @@ function Workflow({
   return (
     <div
       className="flex flex-column center"
-      style={isMobile ? {} : { gap: '20px', width: '100%' }}
+      style={isMobile ? {} : { gap: 0, width: '100%', boxSizing: 'border-box' }}
     >
       {Object.entries(stages).map(([key, value], index) => {
         if (key === stage) {
           return (
             <div className="flex flex-column center" key={key}>
-              {value.header}
               {steps ? (
-                <StepProgressBar stage={index + 1} stages={steps} />
+                <div
+                  className="flex flex-row flex-center"
+                  style={{
+                    paddingBottom: 40,
+                    borderBottom: value.header
+                      ? 'solid 1px var(--text-faded)'
+                      : '',
+                  }}
+                >
+                  <StepProgressBar stage={index} stages={steps} />
+                </div>
               ) : (
                 <></>
               )}
+              {value.header}
               {value.component}
             </div>
           );

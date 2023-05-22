@@ -51,7 +51,7 @@ function TransactionWorkflow({
   const arweaveDataProvider = useArweaveCompositeProvider();
   const { assetId, functionName, ...payload } = transactionData;
   const navigate = useNavigate();
-  const [steps] = useState(() =>
+  const [steps, setSteps] = useState(() =>
     getWorkflowStepsForInteraction(interactionType),
   );
   const [stages, setStages] = useState<
@@ -116,9 +116,9 @@ function TransactionWorkflow({
   }
 
   function resetToPending() {
-    steps['1'].status = 'pending';
-    steps['2'].status = '';
-    steps['3'].status = '';
+    steps[0].status = 'process';
+    steps[1].status = 'wait';
+    steps[2].status = 'wait';
     dispatchTransactionState({
       type: 'setWorkflowStage',
       payload: TRANSACTION_WORKFLOW_STATUS.PENDING,
@@ -128,8 +128,9 @@ function TransactionWorkflow({
   async function handleStage(direction: string) {
     try {
       if (direction === 'next' && TRANSACTION_WORKFLOW_STATUS.PENDING) {
-        steps['1'].status = 'success';
-        steps['2'].status = 'pending';
+        steps[0].status = 'finish';
+        steps[1].status = 'process';
+
         dispatchTransactionState({
           type: 'setWorkflowStage',
           payload: TRANSACTION_WORKFLOW_STATUS.CONFIRMED,
@@ -139,8 +140,10 @@ function TransactionWorkflow({
           type: 'setDeployedTransactionId',
           payload: new ArweaveTransactionID(txId),
         });
-        steps['2'].status = 'success';
-        steps['3'].status = 'success';
+        steps[1].status = 'finish';
+        steps[2].status = 'finish';
+        setSteps(steps);
+
         return;
       }
       if (direction === 'back' && TRANSACTION_WORKFLOW_STATUS.PENDING) {
