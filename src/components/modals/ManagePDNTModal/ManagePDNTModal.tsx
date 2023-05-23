@@ -98,6 +98,12 @@ function ManagePDNTModal() {
           ),
         ]);
       const contract = new PDNTContract(contractState);
+
+      // simple check that it is ANT shaped contract
+      if (!contract.isValid()) {
+        throw Error('Invalid ANT contract');
+      }
+
       const record = Object.values(pdnsSourceContract.records).find(
         (r) => r.contractTxId === contractTxId.toString(),
       );
