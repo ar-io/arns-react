@@ -501,6 +501,7 @@ export const FieldToInteractionMap: {
   [x: string]: {
     title: ValidInteractionType;
     function: string;
+    name?: string;
   };
 } = {
   name: {
@@ -514,6 +515,7 @@ export const FieldToInteractionMap: {
   targetID: {
     title: INTERACTION_TYPES.SET_TARGET_ID,
     function: 'setRecord',
+    name: 'transactionId',
   },
   ttlSeconds: {
     title: INTERACTION_TYPES.SET_TTL_SECONDS,
@@ -522,10 +524,12 @@ export const FieldToInteractionMap: {
   controller: {
     title: INTERACTION_TYPES.SET_CONTROLLER,
     function: 'setController',
+    name: 'target',
   },
   owner: {
     title: INTERACTION_TYPES.TRANSFER,
     function: 'transfer',
+    name: 'target',
   },
   // TODO: add other interactions
 };
@@ -536,6 +540,10 @@ export function getInteractionTypeFromField(field: string) {
 
 export function getInteractionFunctionFromField(field: string) {
   return FieldToInteractionMap[field]?.function;
+}
+
+export function getInteractionAttributeNameFromField(field: string) {
+  return FieldToInteractionMap[field]?.name ?? field;
 }
 
 export function getAttributesFromInteractionFunction(f: string) {
@@ -640,15 +648,15 @@ export function getPendingInteractionsRowsForContract(
     // TODO: this is not pretty, and could be avoided if we rework the ANT contract to allow `setTTL` and `setTransaction` rather than all of them
     // relying only on setRecord.
     for (const attribute of attributes) {
-      // TODO: change targetID to be transactionId
-      const attr = attribute === 'targetID' ? 'transactionId' : attribute;
+      // the payload value may be different then the attribute name
+      const payloadAttribute = getInteractionAttributeNameFromField(attribute);
       const nonConfirmedTx = {
         attribute,
-        value: i.payload[attr],
+        value: i.payload[payloadAttribute],
         id: i.id,
         valid: i.valid,
       };
-      if (existingValues[attr] !== nonConfirmedTx.value) {
+      if (existingValues[attribute] !== nonConfirmedTx.value) {
         pendingTxRowData.push(nonConfirmedTx);
       }
     }
