@@ -379,7 +379,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
         const contract = new PDNTContract(contractState, contractTxId);
 
         // simple check that it is ANT shaped contract
-        if (!contract.records || !contract.getRecord('@')) {
+        if (!contract.isValid()) {
           continue;
         }
 

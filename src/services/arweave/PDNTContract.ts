@@ -18,7 +18,6 @@ import {
 export class PDNTContract {
   id?: ArweaveTransactionID;
   contract: PDNTContractJSON;
-  // todo: add last updated - lastUpdated: Map<keyof PDNTContract, number> = new Map();
 
   constructor(state?: PDNTContractJSON, id?: ArweaveTransactionID) {
     this.id = id;
@@ -125,5 +124,9 @@ export class PDNTContract {
   }
   get pdntId(): string | undefined {
     return this.pdntId?.toString();
+  }
+
+  isValid(): boolean {
+    return this.contract && this.records && !!this.getRecord('@');
   }
 }

@@ -100,7 +100,7 @@ function ManagePDNTModal() {
       const contract = new PDNTContract(contractState);
 
       // simple check that it is ANT shaped contract
-      if (!contract.records || !contract.getRecord('@')) {
+      if (!contract.isValid()) {
         throw Error('Invalid ANT contract');
       }
 
