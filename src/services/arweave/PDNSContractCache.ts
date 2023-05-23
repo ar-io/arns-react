@@ -1,16 +1,22 @@
+import { isArray } from 'lodash';
+
 import {
   ArweaveTransactionID,
   ContractInteraction,
   PDNSContractJSON,
   PDNTContractJSON,
   SmartweaveContractCache,
+  TransactionCache,
 } from '../../types';
+import { LocalStorageCache } from '../cache/LocalStorageCache';
 
 export class PDNSContractCache implements SmartweaveContractCache {
   private _url: string;
+  private _cache: TransactionCache;
 
-  constructor(url: string) {
+  constructor(url: string, cache: TransactionCache = new LocalStorageCache()) {
     this._url = url;
+    this._cache = cache;
   }
 
   async getContractState<T extends PDNTContractJSON | PDNSContractJSON>(
@@ -54,5 +60,34 @@ export class PDNSContractCache implements SmartweaveContractCache {
     );
     const { interactions } = await res.json();
     return interactions;
+  }
+
+  async getPendingContractInteractions(
+    contractTxId: ArweaveTransactionID,
+    key: string,
+  ): Promise<ContractInteraction[]> {
+    const cachedInteractions = this._cache.get(key);
+
+    if (!isArray(cachedInteractions) || !cachedInteractions.length) {
+      return [];
+    }
+
+    const gqlIndexedInteractions = await this.getContractInteractions(
+      contractTxId,
+    );
+    const pendingInteractions = cachedInteractions.filter(
+      (i) =>
+        !gqlIndexedInteractions.find(
+          (gqlInteraction: ContractInteraction) => gqlInteraction.id === i.id,
+        ),
+    );
+
+    // update the cache to remove indexed transactions for
+    this._cache.set(key, pendingInteractions);
+
+    // return only the ones relevant to the specified contract
+    return pendingInteractions.filter(
+      (i) => i.contractTxId === contractTxId.toString(),
+    );
   }
 }
