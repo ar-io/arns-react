@@ -89,6 +89,8 @@ function Undernames() {
       return;
     }
     setPDNTId(new ArweaveTransactionID(id));
+
+    // TODO: move this to function and wrap in Promise.all so they trigger concurrently
     arweaveDataProvider
       .getContractState<PDNTContractJSON>(new ArweaveTransactionID(id))
       .then((state) => setPDNTState(state));

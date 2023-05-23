@@ -323,6 +323,11 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
 
         const contract = new PDNTContract(contractState, contractTxId);
 
+        // simple check that it is ANT shaped contract
+        if (!contract.records || !contract.getRecord('@')) {
+          continue;
+        }
+
         // TODO: add error messages and reload state to row
         const rowData = associatedNames.map((domain) => ({
           name: domain.name,
