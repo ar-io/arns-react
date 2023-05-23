@@ -231,14 +231,14 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
           <button
             className="flex-row pointer white center"
             style={{ gap: '0.5em' }}
-            onClick={() => setSortField('target')}
+            onClick={() => setSortField('targetID')}
           >
             <ChevronUpIcon
               width={10}
               height={10}
               fill={'var(--text-faded)'}
               style={
-                sortField === 'target' && !sortAscending
+                sortField === 'targetID' && !sortAscending
                   ? { transform: 'rotate(180deg)' }
                   : {}
               }
@@ -247,8 +247,8 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
             <TargetIcon width={24} height={24} fill={'var(--text-faded)'} />
           </button>
         ),
-        dataIndex: 'target',
-        key: 'target',
+        dataIndex: 'targetID',
+        key: 'targetID',
         align: 'center',
         width: '18%',
         className: 'white',
@@ -276,8 +276,8 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
             onClick: () => {
               rows.sort((a, b) =>
                 sortAscending
-                  ? a.target.localeCompare(b.target)
-                  : b.target.localeCompare(a.target),
+                  ? a.targetID.localeCompare(b.targetID)
+                  : b.targetID.localeCompare(a.targetID),
               );
               // forces update of rows
               setRows([...rows]);
@@ -394,7 +394,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
               : contract.controller === walletAddress?.toString()
               ? 'Controller'
               : 'N/A',
-          target: target ?? 'N/A',
+          targetID: target ?? 'N/A',
           ttlSeconds: contract.getRecord('@')?.ttlSeconds,
           status: confirmations ?? 0,
           state: contractState,

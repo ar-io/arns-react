@@ -521,7 +521,7 @@ export type PDNSTableRow = {
 export type PDNTMetadata = {
   name: string;
   id: string;
-  target: string;
+  targetID: string;
   role: string;
   status: number;
   state: PDNTContractJSON;
