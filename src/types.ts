@@ -100,16 +100,22 @@ export type JsonWalletProvider = {
 
 export interface SmartweaveContractCache {
   getContractState<T extends PDNTContractJSON | PDNSContractJSON>(
-    id: ArweaveTransactionID,
+    contractTxId: ArweaveTransactionID,
   ): Promise<T>;
   getContractBalanceForWallet(
-    id: ArweaveTransactionID,
+    contractTxId: ArweaveTransactionID,
     wallet: ArweaveTransactionID,
   ): Promise<number>;
   getContractsForWallet(
-    sourceCodeTxIds: ArweaveTransactionID[],
     address: ArweaveTransactionID,
   ): Promise<{ ids: ArweaveTransactionID[] }>;
+  getContractInteractions(
+    contractTxId: ArweaveTransactionID,
+  ): Promise<ContractInteraction[]>;
+  getPendingContractInteractions(
+    contractTxId: ArweaveTransactionID,
+    key: string,
+  ): Promise<ContractInteraction[]>;
 }
 
 export interface SmartweaveContractInteractionProvider {
@@ -147,9 +153,10 @@ export interface ArweaveWalletConnector {
 }
 
 export interface TransactionCache {
-  set(key: string, payload: any): void;
+  set(key: string, value: any): void;
   get(key: string): any;
   del(key: string): void;
+  push(key: string, value: any): void;
 }
 
 export interface ArweaveDataProvider {
@@ -523,10 +530,22 @@ export type PDNTMetadata = {
 
 export type ManagePDNTRow = {
   attribute: string;
-  value: string;
+  value: string | number;
   editable: boolean;
   key: number;
   interactionType?: ValidInteractionType;
+};
+
+export type PDNTDetails = {
+  status: number;
+  associatedNames: string;
+  name: string;
+  ticker: string;
+  targetID: string;
+  ttlSeconds: number;
+  controller: string;
+  undernames: string;
+  owner: string;
 };
 
 export type UndernameMetadata = {
@@ -553,4 +572,15 @@ export type ValidationObject = {
   name: string;
   status: boolean;
   error?: string | undefined;
+};
+
+export type ContractInteraction = {
+  contractTxId: string;
+  id: string;
+  payload: {
+    function: string;
+    [x: string]: string;
+  };
+  valid?: boolean;
+  [x: string]: any;
 };

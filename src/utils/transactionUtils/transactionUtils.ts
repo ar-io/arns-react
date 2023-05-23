@@ -5,6 +5,7 @@ import {
   ArweaveTransactionID,
   BuyRecordPayload,
   CONTRACT_TYPES,
+  ContractInteraction,
   ContractTypes,
   CreatePDNTPayload,
   ExcludedValidInteractionType,
@@ -470,20 +471,62 @@ export function getPDNSMappingByInteractionType(
 }
 
 export const FieldToInteractionMap: {
-  [x: string]: ValidInteractionType;
+  [x: string]: {
+    title: ValidInteractionType;
+    function: string;
+    name?: string;
+  };
 } = {
-  name: INTERACTION_TYPES.SET_NAME,
-  ticker: INTERACTION_TYPES.SET_TICKER,
-  targetID: INTERACTION_TYPES.SET_TARGET_ID,
-  ttlSeconds: INTERACTION_TYPES.SET_TTL_SECONDS,
-  controller: INTERACTION_TYPES.SET_CONTROLLER,
-  owner: INTERACTION_TYPES.TRANSFER,
+  name: {
+    title: INTERACTION_TYPES.SET_NAME,
+    function: 'setName',
+  },
+  ticker: {
+    title: INTERACTION_TYPES.SET_TICKER,
+    function: 'setTicker',
+  },
+  targetID: {
+    title: INTERACTION_TYPES.SET_TARGET_ID,
+    function: 'setRecord',
+    name: 'transactionId',
+  },
+  ttlSeconds: {
+    title: INTERACTION_TYPES.SET_TTL_SECONDS,
+    function: 'setRecord',
+  },
+  controller: {
+    title: INTERACTION_TYPES.SET_CONTROLLER,
+    function: 'setController',
+    name: 'target',
+  },
+  owner: {
+    title: INTERACTION_TYPES.TRANSFER,
+    function: 'transfer',
+    name: 'target',
+  },
   // TODO: add other interactions
 };
 
 export function getInteractionTypeFromField(field: string) {
-  // TODO: add contract specification and more interaction fields
-  return FieldToInteractionMap[field];
+  return FieldToInteractionMap[field]?.title;
+}
+
+export function getInteractionFunctionFromField(field: string) {
+  return FieldToInteractionMap[field]?.function;
+}
+
+export function getInteractionAttributeNameFromField(field: string) {
+  return FieldToInteractionMap[field]?.name ?? field;
+}
+
+export function getAttributesFromInteractionFunction(f: string) {
+  const attributes: string[] = [];
+  for (const key in FieldToInteractionMap) {
+    if (getInteractionFunctionFromField(key) === f) {
+      attributes.push(key);
+    }
+  }
+  return attributes;
 }
 
 export function mapTransactionDataKeyToPayload(
@@ -560,4 +603,36 @@ export function validateTTLSeconds(ttl: number) {
       `${ttl} is more than the maximum ttlSeconds requirement of ${MAX_TTL_SECONDS}`,
     );
   }
+}
+
+export function getPendingInteractionsRowsForContract(
+  pendingContractInteractions: ContractInteraction[],
+  existingValues: any,
+): {
+  attribute: string;
+  value: string;
+  id: string;
+  valid: boolean | undefined;
+}[] {
+  // find all pending interactions for the contract, find relevant ones related to row attributes
+  const pendingTxRowData = [];
+  for (const i of pendingContractInteractions) {
+    const attributes = getAttributesFromInteractionFunction(i.payload.function);
+    // TODO: this is not pretty, and could be avoided if we rework the ANT contract to allow `setTTL` and `setTransaction` rather than all of them
+    // relying only on setRecord.
+    for (const attribute of attributes) {
+      // the payload value may be different then the attribute name
+      const payloadAttribute = getInteractionAttributeNameFromField(attribute);
+      const nonConfirmedTx = {
+        attribute,
+        value: i.payload[payloadAttribute],
+        id: i.id,
+        valid: i.valid,
+      };
+      if (existingValues[attribute] !== nonConfirmedTx.value) {
+        pendingTxRowData.push(nonConfirmedTx);
+      }
+    }
+  }
+  return pendingTxRowData;
 }

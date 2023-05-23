@@ -20,7 +20,12 @@ function ManageAssetButtons({
     <>
       <div className="flex-row center" style={{ gap: '0.5em' }}>
         <button
-          className="assets-see-more-button"
+          className={
+            disabled
+              ? 'assets-see-more-button disabled-button'
+              : 'assets-see-more-button'
+          }
+          disabled={disabled}
           onClick={() =>
             navigate(`/manage/${assetType}/${id.toString()}/undernames`)
           }
@@ -29,7 +34,11 @@ function ManageAssetButtons({
         </button>
         {!isMobile ? (
           <button
-            className="assets-manage-button"
+            className={
+              disabled
+                ? 'assets-manage-button disabled-button'
+                : 'assets-manage-button'
+            }
             onClick={() => navigate(`/manage/${assetType}/${id.toString()}`)}
             disabled={disabled}
           >

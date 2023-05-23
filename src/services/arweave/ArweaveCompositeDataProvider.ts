@@ -1,6 +1,7 @@
 import {
   ArweaveDataProvider,
   ArweaveTransactionID,
+  ContractInteraction,
   PDNSContractJSON,
   PDNTContractJSON,
   SmartweaveContractCache,
@@ -36,10 +37,10 @@ export class ArweaveCompositeDataProvider
   }
 
   async getContractState<T extends PDNSContractJSON | PDNTContractJSON>(
-    id: ArweaveTransactionID,
+    contractTxId: ArweaveTransactionID,
   ): Promise<T> {
     return Promise.any(
-      this._contractProviders.map((p) => p.getContractState<T>(id)),
+      this._contractProviders.map((p) => p.getContractState<T>(contractTxId)),
     );
   }
 
@@ -64,24 +65,21 @@ export class ArweaveCompositeDataProvider
   }
 
   async getContractBalanceForWallet(
-    id: ArweaveTransactionID,
+    contractTxId: ArweaveTransactionID,
     wallet: ArweaveTransactionID,
   ): Promise<number> {
     return Promise.any(
       this._contractProviders.map((p) =>
-        p.getContractBalanceForWallet(id, wallet),
+        p.getContractBalanceForWallet(contractTxId, wallet),
       ),
     );
   }
 
   async getContractsForWallet(
-    sourceCodeTxIds: ArweaveTransactionID[],
     wallet: ArweaveTransactionID,
   ): Promise<{ ids: ArweaveTransactionID[] }> {
     return Promise.any(
-      this._contractProviders.map((p) =>
-        p.getContractsForWallet(sourceCodeTxIds, wallet),
-      ),
+      this._contractProviders.map((p) => p.getContractsForWallet(wallet)),
     );
   }
 
@@ -142,5 +140,26 @@ export class ArweaveCompositeDataProvider
 
   async getCurrentBlockHeight(): Promise<number> {
     return await this._arweaveProvider.getCurrentBlockHeight();
+  }
+
+  async getContractInteractions(
+    contractTxId: ArweaveTransactionID,
+  ): Promise<ContractInteraction[]> {
+    return Promise.any(
+      this._contractProviders.map((p) =>
+        p.getContractInteractions(contractTxId),
+      ),
+    );
+  }
+
+  async getPendingContractInteractions(
+    contractTxId: ArweaveTransactionID,
+    key: string,
+  ): Promise<ContractInteraction[]> {
+    return Promise.any(
+      this._contractProviders.map((p) =>
+        p.getPendingContractInteractions(contractTxId, key),
+      ),
+    );
   }
 }

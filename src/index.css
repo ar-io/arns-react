@@ -289,6 +289,7 @@ a:active {
   font-size: 18px;
   cursor: pointer;
 }
+
 .assets-see-more-button {
   background-color: none;
   color: var(--text-white);
@@ -396,6 +397,7 @@ a:active {
 
 .disabled-button {
   opacity: 50%;
+  pointer-events: none;
 }
 
 .data-input {
