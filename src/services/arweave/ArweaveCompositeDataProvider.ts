@@ -76,13 +76,10 @@ export class ArweaveCompositeDataProvider
   }
 
   async getContractsForWallet(
-    sourceCodeTxIds: ArweaveTransactionID[],
     wallet: ArweaveTransactionID,
   ): Promise<{ ids: ArweaveTransactionID[] }> {
     return Promise.any(
-      this._contractProviders.map((p) =>
-        p.getContractsForWallet(sourceCodeTxIds, wallet),
-      ),
+      this._contractProviders.map((p) => p.getContractsForWallet(wallet)),
     );
   }
 

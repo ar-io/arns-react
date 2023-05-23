@@ -35,20 +35,10 @@ export class PDNSContractCache implements SmartweaveContractCache {
   }
 
   async getContractsForWallet(
-    sourceCodeTxIds: ArweaveTransactionID[],
     address: ArweaveTransactionID,
   ): Promise<{ ids: ArweaveTransactionID[] }> {
     const res = await fetch(
       `${this._url}/wallet/${address.toString()}/contracts`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          sourceCodeTxIds: sourceCodeTxIds.map((s) => s.toString()),
-        }),
-      },
     );
     const { contractIds } = await res.json();
     return {
