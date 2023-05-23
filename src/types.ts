@@ -107,7 +107,6 @@ export interface SmartweaveContractCache {
     wallet: ArweaveTransactionID,
   ): Promise<number>;
   getContractsForWallet(
-    sourceCodeTxIds: ArweaveTransactionID[],
     address: ArweaveTransactionID,
   ): Promise<{ ids: ArweaveTransactionID[] }>;
   getContractInteractions(

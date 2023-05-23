@@ -10,7 +10,6 @@ import {
   useWalletDomains,
   useWalletPDNTs,
 } from '../../../hooks';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ArweaveTransactionID, ManageTable } from '../../../types';
 import { MANAGE_TABLE_NAMES } from '../../../types';
 import eventEmitter from '../../../utils/events';
@@ -19,7 +18,6 @@ import { Loader } from '../../layout/index';
 import './styles.css';
 
 function Manage() {
-  const [{ pdnsSourceContract }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const { walletAddress } = useWalletAddress();
   const isMobile = useIsMobile();
@@ -125,12 +123,7 @@ function Manage() {
     try {
       setTableLoading(true);
       // TODO: fetch approved source code TX id's from cache, then pass here
-      const { ids } = await arweaveDataProvider.getContractsForWallet(
-        pdnsSourceContract.approvedANTSourceCodeTxs.map(
-          (id: string) => new ArweaveTransactionID(id),
-        ),
-        address,
-      );
+      const { ids } = await arweaveDataProvider.getContractsForWallet(address);
       setPDNTIDs(ids);
     } catch (error: any) {
       eventEmitter.emit('error', error);

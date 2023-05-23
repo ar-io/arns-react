@@ -171,7 +171,6 @@ export class WarpDataProvider
 
   /* eslint-disable */
   async getContractsForWallet(
-    sourceCodeTxIds: ArweaveTransactionID[],
     address: ArweaveTransactionID,
   ): Promise<{ ids: ArweaveTransactionID[] }> {
     throw Error('Not implemented!');
@@ -181,6 +180,13 @@ export class WarpDataProvider
     id: ArweaveTransactionID,
   ): Promise<ContractInteraction[]> {
     throw Error('Not implemented!');
+  }
+
+  async getPendingContractInteractions(
+    id: ArweaveTransactionID,
+    key: string,
+  ): Promise<ContractInteraction[]> {
+    throw Error('Not implemented');
   }
   /* eslint-enable */
 }
