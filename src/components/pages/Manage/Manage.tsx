@@ -122,8 +122,10 @@ function Manage() {
   async function fetchWalletPDNTs(address: ArweaveTransactionID) {
     try {
       setTableLoading(true);
-      // TODO: fetch approved source code TX id's from cache, then pass here
-      const { ids } = await arweaveDataProvider.getContractsForWallet(address);
+      const { ids } = await arweaveDataProvider.getContractsForWallet(
+        address,
+        'ant', // only fetches contracts that have a state that matches ant spec
+      );
       setPDNTIDs(ids);
     } catch (error: any) {
       eventEmitter.emit('error', error);

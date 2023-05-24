@@ -108,6 +108,7 @@ export interface SmartweaveContractCache {
   ): Promise<number>;
   getContractsForWallet(
     address: ArweaveTransactionID,
+    type?: 'ant', // TODO: we may broaden this for other contract types
   ): Promise<{ ids: ArweaveTransactionID[] }>;
   getContractInteractions(
     contractTxId: ArweaveTransactionID,
