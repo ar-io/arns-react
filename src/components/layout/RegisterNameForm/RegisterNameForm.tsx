@@ -82,6 +82,17 @@ function RegisterNameForm() {
       }
 
       const pdnt = new PDNTContract(state);
+
+      if (!pdnt.isValid()) {
+        throw Error('PDNT contract state does not match required schema.');
+      }
+
+      const atRecord = pdnt.getRecord('@');
+      const targetTxId =
+        atRecord && atRecord.transactionId
+          ? new ArweaveTransactionID(atRecord.transactionId)
+          : undefined;
+
       dispatchRegisterState({
         type: 'setControllers',
         payload: [
@@ -103,7 +114,6 @@ function RegisterNameForm() {
         type: 'setTicker',
         payload: pdnt.ticker,
       });
-      // legacy targetID condition
 
       dispatchRegisterState({
         type: 'setTargetID',
