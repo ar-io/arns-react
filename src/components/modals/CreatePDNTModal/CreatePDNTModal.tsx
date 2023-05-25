@@ -13,7 +13,6 @@ import {
   CONTRACT_TYPES,
   INTERACTION_TYPES,
   ManagePDNTRow,
-  TRANSACTION_TYPES,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import { mapTransactionDataKeyToPayload } from '../../../utils';

@@ -1,5 +1,5 @@
-import { Pagination, PaginationProps, Tooltip } from 'antd';
-import { useEffect, useRef, useState } from 'react';
+import { Tooltip } from 'antd';
+import { useState } from 'react';
 
 import { useArweaveCompositeProvider } from '../../../../hooks';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
@@ -23,7 +23,6 @@ function NameTokenSelector({
   const [{ pdnsSourceContract }] = useGlobalState();
 
   const [searchText, setSearchText] = useState<string>();
-  const [loading, setLoading] = useState(false);
   const [selectedNameToken, setSelectedNameToken] = useState<
     { id: string; name: string; ticker: string } | undefined
   >(undefined);
@@ -165,7 +164,7 @@ function NameTokenSelector({
               wordBreak: 'keep-all',
             }}
           >
-            {loading || searching ? (
+            {searching ? (
               <Loader size={20} color="var(--text-white)" />
             ) : searchText && validImport === false ? (
               <></>

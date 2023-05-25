@@ -1,6 +1,6 @@
 import { CheckCircleFilled } from '@ant-design/icons';
 import { Tooltip } from 'antd';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useArweaveCompositeProvider } from '../../../hooks';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
@@ -10,7 +10,6 @@ import {
   ArweaveTransactionID,
   PDNTContractJSON,
   TRANSACTION_TYPES,
-  VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import { calculatePDNSNamePrice } from '../../../utils';
 import {
@@ -27,7 +26,7 @@ import StepProgressBar from '../progress/Steps/Steps';
 import './styles.css';
 
 function RegisterNameForm() {
-  const [{ domain, pdntID, fee, leaseDuration, tier }, dispatchRegisterState] =
+  const [{ domain, fee, leaseDuration, tier }, dispatchRegisterState] =
     useRegistrationState();
   const [{ pdnsSourceContract, walletAddress }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
@@ -35,18 +34,6 @@ function RegisterNameForm() {
   const [transactionType, setTransactionType] = useState(
     TRANSACTION_TYPES.LEASE,
   ); // lease or buy
-
-  const inputRef = useRef<HTMLInputElement | null>(null);
-
-  useEffect(() => {
-    if (!pdntID) {
-      return;
-    }
-    if (inputRef.current) {
-      inputRef.current.focus();
-      handlePDNTId(pdntID.toString());
-    }
-  }, []);
 
   useEffect(() => {
     const fees = pdnsSourceContract.fees;
@@ -80,53 +67,16 @@ function RegisterNameForm() {
       if (state == undefined) {
         throw Error('PDNT contract state is undefined');
       }
-
       const pdnt = new PDNTContract(state);
 
       if (!pdnt.isValid()) {
         throw Error('PDNT contract state does not match required schema.');
       }
-
-      const atRecord = pdnt.getRecord('@');
-      const targetTxId =
-        atRecord && atRecord.transactionId
-          ? new ArweaveTransactionID(atRecord.transactionId)
-          : undefined;
-
-      dispatchRegisterState({
-        type: 'setControllers',
-        payload: [
-          pdnt.controller
-            ? new ArweaveTransactionID(pdnt.controller)
-            : new ArweaveTransactionID(pdnt.owner),
-        ],
-      });
-      // TODO: update to use PDNTContract
-      dispatchRegisterState({
-        type: 'setNickname',
-        payload: pdnt.name,
-      });
-      dispatchRegisterState({
-        type: 'setOwner',
-        payload: new ArweaveTransactionID(pdnt.owner),
-      });
-      dispatchRegisterState({
-        type: 'setTicker',
-        payload: pdnt.ticker,
-      });
-
-      dispatchRegisterState({
-        type: 'setTargetID',
-        payload: new ArweaveTransactionID(
-          pdnt.getRecord('@')?.transactionId ?? '',
-        ),
-      });
     } catch (error: any) {
       dispatchRegisterState({
         type: 'setPDNTID',
         payload: undefined,
       });
-      // don't emit here, since we have the validation
     }
   }
 
