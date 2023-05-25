@@ -17,7 +17,7 @@ import './styles.css';
 function RegisterNameForm() {
   const [{ domain, ttl, pdntID }, dispatchRegisterState] =
     useRegistrationState();
-  const [{ gateway, pdnsSourceContract }] = useGlobalState();
+  const [{ gateway }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
 
   const [isValidPDNT, setIsValidPDNT] = useState<boolean | undefined>(
@@ -75,6 +75,17 @@ function RegisterNameForm() {
       }
 
       const pdnt = new PDNTContract(state);
+
+      if (!pdnt.isValid()) {
+        throw Error('PDNT contract state does not match required schema.');
+      }
+
+      const atRecord = pdnt.getRecord('@');
+      const targetTxId =
+        atRecord && atRecord.transactionId
+          ? new ArweaveTransactionID(atRecord.transactionId)
+          : undefined;
+
       dispatchRegisterState({
         type: 'setControllers',
         payload: [
@@ -96,15 +107,15 @@ function RegisterNameForm() {
         type: 'setTicker',
         payload: pdnt.ticker,
       });
-      // legacy targetID condition
 
-      dispatchRegisterState({
-        type: 'setTargetID',
-        payload: new ArweaveTransactionID(
-          pdnt.getRecord('@')?.transactionId ?? '',
-        ),
-      });
+      if (targetTxId) {
+        dispatchRegisterState({
+          type: 'setTargetID',
+          payload: targetTxId,
+        });
+      }
 
+      console.log('here');
       setIsValidPDNT(true);
     } catch (error: any) {
       dispatchRegisterState({
@@ -145,14 +156,19 @@ function RegisterNameForm() {
                   fn: (id: string) => arweaveDataProvider.validateArweaveId(id),
                 },
                 [VALIDATION_INPUT_TYPES.PDNT_CONTRACT_ID]: {
-                  fn: (id: string) =>
-                    arweaveDataProvider.validateTransactionTags({
-                      id,
-                      requiredTags: {
-                        'Contract-Src':
-                          pdnsSourceContract.approvedANTSourceCodeTxs,
-                      },
-                    }),
+                  fn: async (id: string) => {
+                    const txId = new ArweaveTransactionID(id);
+                    const state =
+                      await arweaveDataProvider.getContractState<PDNTContractJSON>(
+                        txId,
+                      );
+                    const contract = new PDNTContract(state, txId);
+                    return new Promise((resolve, reject) =>
+                      contract.isValid()
+                        ? resolve(id)
+                        : reject('PDNT contract has invalid schema'),
+                    );
+                  },
                 },
                 [VALIDATION_INPUT_TYPES.TRANSACTION_CONFIRMATIONS]: {
                   fn: (id: string) =>
