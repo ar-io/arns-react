@@ -31,7 +31,7 @@ function RegisterNameForm() {
   const [{ pdnsSourceContract, walletAddress }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
 
-  const [transactionType, setTransactionType] = useState(
+  const [transactionType, setTransactionType] = useState<TRANSACTION_TYPES>(
     TRANSACTION_TYPES.LEASE,
   ); // lease or buy
 

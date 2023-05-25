@@ -2,6 +2,7 @@ import { Tooltip } from 'antd';
 import { useState } from 'react';
 
 import { useArweaveCompositeProvider } from '../../../../hooks';
+import { PDNTContract } from '../../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import {
   ArweaveTransactionID,
@@ -45,16 +46,19 @@ function NameTokenSelector({
         return;
       }
       selectedTokenCallback(new ArweaveTransactionID(id));
-      const tokenState = (await arweaveDataProvider.getContractState(
-        new ArweaveTransactionID(id),
-      )) as PDNTContractJSON;
-      if (!tokenState) {
-        throw new Error('Unable to retrieve state for ANT token');
+      const state =
+        await arweaveDataProvider.getContractState<PDNTContractJSON>(
+          new ArweaveTransactionID(id),
+        );
+      const contract = new PDNTContract(state, new ArweaveTransactionID(id));
+
+      if (!contract.isValid()) {
+        throw Error('Contract does not match required schema');
       }
       setSelectedNameToken({
         id,
-        name: tokenState?.name ?? '',
-        ticker: tokenState.ticker ?? '',
+        name: contract.name,
+        ticker: contract.ticker,
       });
       setValidImport(true);
       setSearchText('');
@@ -68,150 +72,146 @@ function NameTokenSelector({
   }
 
   return (
-    <>
+    <div
+      className="flex flex-column"
+      style={{
+        position: 'relative',
+        height: 'fit-content',
+        maxHeight: '400px',
+      }}
+    >
+      {/* input wrapper */}
       <div
-        className="flex flex-column"
+        className="flex flex-row flex-space-between"
         style={{
-          position: 'relative',
-          height: 'fit-content',
-          maxHeight: '400px',
+          alignItems: 'center',
+          gap: '1em',
+          height: '53px',
+          width: '100%',
+          border: searchActive ? `0.5px solid var(--text-white)` : 'none',
+          borderRadius: '3px',
+          boxShadow: searchActive
+            ? '0px 0px 4px 1px rgba(255, 255, 255, 0.25)'
+            : 'none',
+          backgroundColor: 'var(--card-bg)',
+          boxSizing: 'border-box',
+          position: 'absolute',
+          top: 0,
+          padding: 10,
         }}
       >
-        {/* input wrapper */}
-        <div
-          className="flex flex-row flex-space-between"
-          style={{
-            alignItems: 'center',
-            gap: '1em',
-            height: '53px',
+        {!selectedNameToken ? (
+          <button
+            className="button center hover"
+            style={{ width: 'fit-content' }}
+            onClick={() => setSearchActive(true)}
+          >
+            <CirclePlus width={30} height={30} fill={'var(--text-white)'} />
+          </button>
+        ) : (
+          <CircleCheck width={30} height={30} fill={'var(--text-white)'} />
+        )}
+        <ValidationInput
+          onClick={() => setSearchActive(true)}
+          showValidationIcon={true}
+          setValue={(v) => handlePDNTId(v)}
+          value={searchText}
+          placeholder={
+            selectedNameToken
+              ? `${selectedNameToken?.name} (${selectedNameToken?.id})`
+              : 'Add an Arweave Name Token (ANT)'
+          }
+          validationPredicates={{
+            [VALIDATION_INPUT_TYPES.PDNT_CONTRACT_ID]: {
+              fn: (id: string) =>
+                arweaveDataProvider.validateTransactionTags({
+                  id,
+                  requiredTags: {
+                    'Contract-Src': pdnsSourceContract.approvedANTSourceCodeTxs,
+                  },
+                }),
+            },
+            [VALIDATION_INPUT_TYPES.TRANSACTION_CONFIRMATIONS]: {
+              fn: (id: string) => arweaveDataProvider.validateConfirmations(id),
+            },
+          }}
+          validityCallback={(validity) => validity}
+          wrapperCustomStyle={{
             width: '100%',
-            border: searchActive ? `0.5px solid var(--text-white)` : 'none',
+            hieght: '50px',
             borderRadius: '3px',
-            boxShadow: searchActive
-              ? '0px 0px 4px 1px rgba(255, 255, 255, 0.25)'
-              : 'none',
             backgroundColor: 'var(--card-bg)',
             boxSizing: 'border-box',
-            position: 'absolute',
-            top: 0,
-            padding: 10,
+          }}
+          inputClassName="data-input white"
+          inputCustomStyle={{
+            justifyContent: 'flex-start',
+            backgroundColor: 'var(--card-bg)',
+            border: 'none',
+            boxSizing: 'border-box',
+            fontFamily: 'Rubik',
+            fontSize: '16px',
+            boxShadow: 'none',
+          }}
+          maxLength={43}
+        />
+        <span
+          className={`flex flex-row text faded flex-center ${
+            selectedNameToken ? 'bold' : ''
+          } hover`}
+          style={{
+            width: 'fit-content',
+            height: 'fit-content',
+            wordBreak: 'keep-all',
           }}
         >
-          {!selectedNameToken ? (
+          {searching ? (
+            <Loader size={20} color="var(--text-white)" />
+          ) : searchText && validImport === false ? (
+            <></>
+          ) : selectedNameToken ? (
             <button
-              className="button center hover"
-              style={{ width: 'fit-content' }}
-              onClick={() => setSearchActive(true)}
+              className="button flex flex-row center faded hover bold"
+              style={{
+                gap: '1em',
+                border: '1px solid var(--text-faded)',
+                borderRadius: '50px',
+                padding: '3px 5px',
+              }}
+              onClick={() => setSelectedNameToken(undefined)}
             >
-              <CirclePlus width={30} height={30} fill={'var(--text-white)'} />
+              Remove
+              <CircleXIcon
+                width={'20px'}
+                height={'20px'}
+                fill={'var(--text-faded)'}
+              />
             </button>
           ) : (
-            <CircleCheck width={30} height={30} fill={'var(--text-white)'} />
+            <Tooltip
+              placement={'right'}
+              autoAdjustOverflow={true}
+              arrow={false}
+              overlayInnerStyle={{
+                width: '190px',
+                color: 'var(--text-black)',
+                textAlign: 'center',
+                fontFamily: 'Rubik-Bold',
+                fontSize: '14px',
+                backgroundColor: 'var(--text-white)',
+                padding: '15px',
+              }}
+              title={
+                'You can import an ANT by entering its contract ID, or search for one of your own by name, ticker, owner, or controller status, as well is its own contract ID'
+              }
+            >
+              Optional
+            </Tooltip>
           )}
-          <ValidationInput
-            onClick={() => setSearchActive(true)}
-            showValidationIcon={true}
-            setValue={(v) => handlePDNTId(v)}
-            value={searchText}
-            placeholder={
-              selectedNameToken
-                ? `${selectedNameToken?.name} (${selectedNameToken?.id})`
-                : 'Add an Arweave Name Token (ANT)'
-            }
-            validationPredicates={{
-              [VALIDATION_INPUT_TYPES.PDNT_CONTRACT_ID]: {
-                fn: (id: string) =>
-                  arweaveDataProvider.validateTransactionTags({
-                    id,
-                    requiredTags: {
-                      'Contract-Src':
-                        pdnsSourceContract.approvedANTSourceCodeTxs,
-                    },
-                  }),
-              },
-              [VALIDATION_INPUT_TYPES.TRANSACTION_CONFIRMATIONS]: {
-                fn: (id: string) =>
-                  arweaveDataProvider.validateConfirmations(id),
-              },
-            }}
-            validityCallback={(validity) => validity}
-            wrapperCustomStyle={{
-              width: '100%',
-              hieght: '50px',
-              borderRadius: '3px',
-              backgroundColor: 'var(--card-bg)',
-              boxSizing: 'border-box',
-            }}
-            inputClassName="data-input white"
-            inputCustomStyle={{
-              justifyContent: 'flex-start',
-              backgroundColor: 'var(--card-bg)',
-              border: 'none',
-              boxSizing: 'border-box',
-              fontFamily: 'Rubik',
-              fontSize: '16px',
-              boxShadow: 'none',
-            }}
-            maxLength={43}
-          />
-          <span
-            className={`flex flex-row text faded flex-center ${
-              selectedNameToken ? 'bold' : ''
-            } hover`}
-            style={{
-              width: 'fit-content',
-              height: 'fit-content',
-              wordBreak: 'keep-all',
-            }}
-          >
-            {searching ? (
-              <Loader size={20} color="var(--text-white)" />
-            ) : searchText && validImport === false ? (
-              <></>
-            ) : selectedNameToken ? (
-              <button
-                className="button flex flex-row center faded hover bold"
-                style={{
-                  gap: '1em',
-                  border: '1px solid var(--text-faded)',
-                  borderRadius: '50px',
-                  padding: '3px 5px',
-                }}
-                onClick={() => setSelectedNameToken(undefined)}
-              >
-                Remove
-                <CircleXIcon
-                  width={'20px'}
-                  height={'20px'}
-                  fill={'var(--text-faded)'}
-                />
-              </button>
-            ) : (
-              <Tooltip
-                placement={'right'}
-                autoAdjustOverflow={true}
-                arrow={false}
-                overlayInnerStyle={{
-                  width: '190px',
-                  color: 'var(--text-black)',
-                  textAlign: 'center',
-                  fontFamily: 'Rubik-Bold',
-                  fontSize: '14px',
-                  backgroundColor: 'var(--text-white)',
-                  padding: '15px',
-                }}
-                title={
-                  'You can import an ANT by entering its contract ID, or search for one of your own by name, ticker, owner, or controller status, as well is its own contract ID'
-                }
-              >
-                Optional
-              </Tooltip>
-            )}
-          </span>
-        </div>
-        {/* TODO: selector dropdown */}
+        </span>
       </div>
-    </>
+      {/* TODO: selector dropdown */}
+    </div>
   );
 }
 
