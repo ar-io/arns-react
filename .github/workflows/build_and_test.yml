@@ -36,6 +36,7 @@ jobs:
           VITE_SENTRY_DSN_PUBLIC_KEY: ${{ secrets.SENTRY_DSN_PUBLIC_KEY }}
           VITE_SENTRY_DSN_PROJECT_URI: ${{ secrets.SENTRY_DSN_PROJECT_URI }}
           VITE_SENTRY_DSN_PROJECT_ID: ${{ secrets.SENTRY_DSN_PROJECT_ID }}
+          VITE_GITHUB_HASH: ${{ github.sha }}
 
       - name: Add CNAME Record
         run: |
