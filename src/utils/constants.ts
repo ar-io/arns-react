@@ -67,7 +67,7 @@ export const NAME_PRICE_INFO =
 export const MAX_TTL_SECONDS = 2_592_000;
 export const MIN_TTL_SECONDS = 900;
 export const MIN_SAFE_EDIT_CONFIRMATIONS = 15;
-export const MAX_LEASE_DURATION = 200;
+export const MAX_LEASE_DURATION = 5;
 export const MIN_LEASE_DURATION = 1;
 export const approvedContractsForWalletQuery = (
   address: ArweaveTransactionID,

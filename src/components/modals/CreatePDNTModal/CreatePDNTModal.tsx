@@ -10,6 +10,7 @@ import {
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
+  CONTRACT_TYPES,
   INTERACTION_TYPES,
   ManagePDNTRow,
   TRANSACTION_TYPES,
@@ -60,12 +61,12 @@ function CreatePDNTModal() {
   const ACTIONABLE_FIELDS: {
     [x: string]: {
       fn: () => void;
-      title: TRANSACTION_TYPES;
+      title: CONTRACT_TYPES;
     };
   } = {
     owner: {
       fn: () => (pdnt.owner = JSON.stringify(modifiedValue)),
-      title: TRANSACTION_TYPES.PDNT,
+      title: CONTRACT_TYPES.PDNT,
     },
   };
 
