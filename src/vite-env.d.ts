@@ -7,6 +7,7 @@ interface ImportMetaEnv {
   readonly VITE_SENTRY_DSN_PROJECT_URI: string;
   readonly VITE_SENTRY_DSN_PROJECT_ID: string;
   readonly VITE_ENVIRONMENT: string;
+  readonly VITE_GITHUB_HASH: string;
 }
 
 interface ImportMeta {
