@@ -3,13 +3,11 @@ import { useState } from 'react';
 
 import { useArweaveCompositeProvider } from '../../../../hooks';
 import { PDNTContract } from '../../../../services/arweave/PDNTContract';
-import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import {
   ArweaveTransactionID,
   PDNTContractJSON,
   VALIDATION_INPUT_TYPES,
 } from '../../../../types';
-import { isArweaveTransactionID } from '../../../../utils';
 import eventEmitter from '../../../../utils/events';
 import { CircleCheck, CirclePlus, CircleXIcon } from '../../../icons';
 import { Loader } from '../../../layout';
@@ -21,7 +19,6 @@ function NameTokenSelector({
   selectedTokenCallback: (id: ArweaveTransactionID | undefined) => void;
 }) {
   const arweaveDataProvider = useArweaveCompositeProvider();
-  const [{ pdnsSourceContract }] = useGlobalState();
 
   const [searchText, setSearchText] = useState<string>();
   const [selectedNameToken, setSelectedNameToken] = useState<
@@ -42,15 +39,11 @@ function NameTokenSelector({
       }
 
       setSearchText(id);
-      if (!isArweaveTransactionID(id)) {
-        return;
-      }
-      selectedTokenCallback(new ArweaveTransactionID(id));
+      const txid = new ArweaveTransactionID(id);
+      selectedTokenCallback(txid);
       const state =
-        await arweaveDataProvider.getContractState<PDNTContractJSON>(
-          new ArweaveTransactionID(id),
-        );
-      const contract = new PDNTContract(state, new ArweaveTransactionID(id));
+        await arweaveDataProvider.getContractState<PDNTContractJSON>(txid);
+      const contract = new PDNTContract(state, txid);
 
       if (!contract.isValid()) {
         throw Error('Contract does not match required schema');
@@ -82,18 +75,15 @@ function NameTokenSelector({
     >
       {/* input wrapper */}
       <div
-        className="flex flex-row flex-space-between"
+        className="flex flex-row flex-space-between card-bg radius"
         style={{
           alignItems: 'center',
           gap: '1em',
           height: '53px',
-          width: '100%',
           border: searchActive ? `0.5px solid var(--text-white)` : 'none',
-          borderRadius: '3px',
           boxShadow: searchActive
             ? '0px 0px 4px 1px rgba(255, 255, 255, 0.25)'
             : 'none',
-          backgroundColor: 'var(--card-bg)',
           boxSizing: 'border-box',
           position: 'absolute',
           top: 0,
@@ -127,7 +117,7 @@ function NameTokenSelector({
                 arweaveDataProvider.validateTransactionTags({
                   id,
                   requiredTags: {
-                    'Contract-Src': pdnsSourceContract.approvedANTSourceCodeTxs,
+                    'App-Name': ['SmartWeaveContract'],
                   },
                 }),
             },
@@ -136,14 +126,13 @@ function NameTokenSelector({
             },
           }}
           validityCallback={(validity) => validity}
+          wrapperClassName="card-bg radius flex"
           wrapperCustomStyle={{
-            width: '100%',
             hieght: '50px',
-            borderRadius: '3px',
-            backgroundColor: 'var(--card-bg)',
             boxSizing: 'border-box',
+            width: '100%',
           }}
-          inputClassName="data-input white"
+          inputClassName="data-input white card-bg"
           inputCustomStyle={{
             justifyContent: 'flex-start',
             backgroundColor: 'var(--card-bg)',

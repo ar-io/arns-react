@@ -180,6 +180,13 @@ input[type='number']:disabled {
   align-items: center;
 }
 
+.card-bg {
+  background-color: var(--card-bg);
+}
+.radius {
+  border-radius: var(--corner-radius);
+}
+
 .faded {
   color: var(--text-faded);
 }
