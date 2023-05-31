@@ -7,7 +7,7 @@
   "scripts": {
     "build": "npm run clean && tsc && vite build",
     "clean": "rimraf dist",
-    "dev": "VITE_GITHUB_HASH=local NODE_ENV=prod vite",
+    "dev": "NODE_ENV=prod VITE_GITHUB_HASH=local vite",
     "format": "prettier --write .",
     "lint:fix": "eslint --fix .",
     "lint:check": "eslint .",
