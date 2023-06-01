@@ -14,20 +14,20 @@
   font-display: block;
 }
 :root {
-  --bg-color: #1d1e1c;
-  --card-bg: #1f1f1f;
+  --bg-color: #131314;
+  --card-bg: #222224;
   --text-black: #121212;
-  --text-faded: #9e9e9e;
+  --text-faded: #7d7d85;
   --text-section-header: #d1d1d1;
   --text-white: #fafafa;
   --text-bright-white: #ffffff;
-  --placeholder-text: #d1d1d1;
+  --placeholder-text: #7d7d85;
   --grey-white: #dfdfde;
-  --error-red: #df1642;
-  --success-green: #18a957;
+  --error-red: #ef6461;
+  --success-green: #44af69;
   --accent: #ffbb38;
-  --modal-bg: #1d1e1cfa;
-  --corner-radius: 6px;
+  --modal-bg: rgba(23, 23, 23, 0.95);
+  --corner-radius: 4px;
 }
 
 html {
@@ -40,6 +40,7 @@ body {
   background-color: var(--bg-color);
   font-family: 'Rubik';
   overflow: scroll;
+  margin: 0;
 }
 
 b {

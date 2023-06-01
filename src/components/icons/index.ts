@@ -8,6 +8,7 @@ import { ReactComponent as ArrowUpRight } from './ArrowUpRight.svg';
 import ArweaveAppIcon from './ArweaveAppIcon.png';
 import { ReactComponent as BookmarkIcon } from './Bookmark.svg';
 import { ReactComponent as BorderOuterIcon } from './BorderOuter.svg';
+import { ReactComponent as BrandLogo } from './BrandLogo.svg';
 import { ReactComponent as CalendarTimeIcon } from './CalendarTime.svg';
 import { ReactComponent as CheckmarkIcon } from './Checkmark.svg';
 import { ReactComponent as ChevronDownIcon } from './ChevronDown.svg';
@@ -22,6 +23,7 @@ import { ReactComponent as CloseIcon } from './Close.svg';
 import { ReactComponent as CodeSandboxIcon } from './CodeSandbox.svg';
 import { ReactComponent as CopyIcon } from './Copy.svg';
 import { ReactComponent as CubeIcon } from './Cube.svg';
+import { ReactComponent as SunIcon } from './EvaSun.svg';
 import { ReactComponent as ExternalLinkIcon } from './ExternalLink.svg';
 import { ReactComponent as FileCodeIcon } from './FileCode.svg';
 import { ReactComponent as InfoIcon } from './Info.svg';
@@ -53,6 +55,7 @@ export {
   AlertCircle,
   BookmarkIcon,
   BorderOuterIcon,
+  BrandLogo,
   CalendarTimeIcon,
   CheckmarkIcon,
   ChevronDownIcon,
@@ -81,6 +84,7 @@ export {
   RefreshAlertIcon,
   SearchIcon,
   SettingsIcon,
+  SunIcon,
   TargetIcon,
   TrashIcon,
   UploadIcon,
