@@ -198,6 +198,26 @@ function Manage() {
                 </span>
               )}
             </button>
+
+            <button
+              disabled={tableLoading}
+              className={
+                tableLoading
+                  ? 'outline-button center disabled-button'
+                  : 'outline-button center'
+              }
+              style={{
+                padding: '0.75em',
+              }}
+              onClick={() => navigate('/create')}
+            >
+              <span
+                className="text white"
+                style={{ fontSize: '16px', padding: '0 0.2em' }}
+              >
+                Create ANT
+              </span>
+            </button>
           </div>
         </div>
         {tableLoading ? (

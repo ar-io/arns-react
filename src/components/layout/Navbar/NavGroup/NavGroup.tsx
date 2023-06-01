@@ -29,19 +29,13 @@ const NavGroup = () => {
           })}
 
           <Link
-            to="create"
+            to="auctions"
             state={{ from: location.pathname }}
             className="button text-medium bold white hover"
           >
-            Create
+            Live Auctions
           </Link>
-          {!wallet || !walletAddress ? (
-            <ConnectButton />
-          ) : (
-            <>
-              <NavMenuCard />
-            </>
-          )}
+          {!wallet || !walletAddress ? <ConnectButton /> : <NavMenuCard />}
         </>
       ) : (
         <NavMenuCard />

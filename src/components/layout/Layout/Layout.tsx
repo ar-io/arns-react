@@ -8,7 +8,14 @@ import './styles.css';
 function Layout() {
   return (
     <>
-      <div className="header">
+      <div
+        className="flex flex-row"
+        style={{
+          backgroundColor: 'var(--card-bg)',
+          boxSizing: 'border-box',
+          margin: '0px',
+        }}
+      >
         <NavBar />
       </div>
       <div className="body">
@@ -16,7 +23,12 @@ function Layout() {
         {/* TODO: add errors here */}
         <Notifications />
       </div>
-      <div className="footer">
+      <div
+        className="flex flex-row"
+        style={{
+          boxSizing: 'border-box',
+        }}
+      >
         <Footer />
       </div>
     </>

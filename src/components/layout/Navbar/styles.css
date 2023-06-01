@@ -9,6 +9,7 @@
   z-index: 1;
   width: 90px;
   height: 90px;
+  background-color: var(--bg-color);
 }
 
 /* If the screen size is 600px wide or less, set the font-size of <div> to 30px */
