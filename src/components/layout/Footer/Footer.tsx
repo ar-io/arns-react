@@ -42,7 +42,8 @@ function Footer() {
         className="flex flex-row flex-right text faded center"
         style={{ width: 'fit-content', wordBreak: 'keep-all' }}
       >
-        v{process.env.npm_package_version}
+        v{process.env.npm_package_version}-
+        {process.env.VITE_GITHUB_HASH?.slice(0, 6)}
       </span>
 
       <div className="flex flex-row flex-right">
