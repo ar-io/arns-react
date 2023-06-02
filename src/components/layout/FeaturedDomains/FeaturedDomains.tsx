@@ -24,9 +24,17 @@ function FeaturedDomains(props: { domains: { [x: string]: string } }) {
   }
 
   return (
-    <div className="featured-domains">
-      <span className="section-header">Featured Domains</span>
-      <div className="card-container">
+    <div className="featured-domains flex-center">
+      <span
+        className="text-medium center faded"
+        style={{
+          letterSpacing: '0.3em',
+          fontWeight: 500,
+        }}
+      >
+        FEATURED DOMAINS
+      </span>
+      <div className="card-container flex-center">
         {Object.keys(domains).map((domain, index) => {
           if (index >= displayCount || index >= Object.keys(domains).length)
             return;
@@ -41,16 +49,34 @@ function FeaturedDomains(props: { domains: { [x: string]: string } }) {
       </div>
       <div className="flex-row flex-center">
         {displayCount > DEFAULT_INCREMENT ? (
-          <button className="link flex-right" onClick={showLess}>
-            see less
+          <button
+            className="flex flex-row button flex-center faded text-medium bold pointer"
+            onClick={showLess}
+            style={{
+              border: '1px solid var(--text-faded)',
+              borderRadius: 'var(--corner-radius)',
+              height: 40,
+              fontSize: '14px',
+            }}
+          >
+            View Less
           </button>
         ) : (
           <></>
         )}
         {displayCount < Object.keys(domains).length &&
         displayCount < MAX_COUNT ? (
-          <button className="link flex-left" onClick={showMore}>
-            see more
+          <button
+            className="flex flex-row button flex-center faded text-medium bold pointer"
+            onClick={showMore}
+            style={{
+              border: '1px solid var(--text-faded)',
+              borderRadius: 'var(--corner-radius)',
+              height: 40,
+              fontSize: '14px',
+            }}
+          >
+            View More
           </button>
         ) : (
           <></>
