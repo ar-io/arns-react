@@ -14,10 +14,7 @@ function SearchBarFooter({
     <>
       {!searchTerm ? (
         <>
-          <div
-            className="text faded center"
-            style={{ width: '75%', maxWidth: '475px' }}
-          >
+          <div className="text faded center" style={{ width: '100%' }}>
             {!isSearchValid ? (
               <div className="error-container">
                 <span className="illegal-char">{defaultText}</span>

@@ -27,7 +27,10 @@ function Transaction() {
   }
   return (
     <>
-      <div className="page">
+      <div
+        className="page flex flex-column center"
+        style={{ width: '100%', maxWidth: 776, margin: 'auto' }}
+      >
         <TransactionWorkflow
           interactionType={interactionType}
           transactionData={transactionData}
