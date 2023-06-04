@@ -25,12 +25,17 @@ function SearchBarFooter({
           </div>
         </>
       ) : !isAvailable && searchResult && searchTerm ? (
-        <PDNTCard
-          domain={searchTerm}
-          id={searchResult}
-          compact={true}
-          enableActions={true}
-        />
+        <>
+          <span className="flex flex-row white text-medium flex-left">
+            Ownership Details:
+          </span>
+          <PDNTCard
+            domain={searchTerm}
+            id={searchResult}
+            compact={true}
+            enableActions={true}
+          />
+        </>
       ) : (
         <UpgradeTier />
       )}
