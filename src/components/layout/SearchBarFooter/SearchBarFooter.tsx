@@ -14,10 +14,7 @@ function SearchBarFooter({
     <>
       {!searchTerm ? (
         <>
-          <div
-            className="text faded center"
-            style={{ width: '75%', maxWidth: '475px' }}
-          >
+          <div className="text faded center" style={{ width: '100%' }}>
             {!isSearchValid ? (
               <div className="error-container">
                 <span className="illegal-char">{defaultText}</span>
@@ -28,12 +25,17 @@ function SearchBarFooter({
           </div>
         </>
       ) : !isAvailable && searchResult && searchTerm ? (
-        <PDNTCard
-          domain={searchTerm}
-          id={searchResult}
-          compact={true}
-          enableActions={true}
-        />
+        <>
+          <span className="flex flex-row white text-medium flex-left">
+            Ownership Details:
+          </span>
+          <PDNTCard
+            domain={searchTerm}
+            id={searchResult}
+            compact={true}
+            enableActions={true}
+          />
+        </>
       ) : (
         <UpgradeTier />
       )}

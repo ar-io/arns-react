@@ -88,7 +88,7 @@ function Home() {
           message="Loading PDNS Registry Contract..."
         />
       ) : (
-        <>
+        <div className="flex flex-column flex-center" style={{ gap: 0 }}>
           <Workflow
             stage={stage.toString()}
             onNext={() => {
@@ -254,7 +254,7 @@ function Home() {
           ) : (
             <></>
           )}
-        </>
+        </div>
       )}
     </div>
   );

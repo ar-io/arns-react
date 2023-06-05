@@ -113,7 +113,7 @@ function SearchBar(props: SearchBarProps) {
   }
 
   return (
-    <div className="searchbar-container flex-center">
+    <div className="searchbar-container flex-center" style={{ maxWidth: 787 }}>
       {headerElement ? (
         React.cloneElement(headerElement, {
           ...props,
