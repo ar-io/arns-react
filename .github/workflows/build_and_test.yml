@@ -37,6 +37,8 @@ jobs:
           VITE_SENTRY_DSN_PROJECT_URI: ${{ secrets.SENTRY_DSN_PROJECT_URI }}
           VITE_SENTRY_DSN_PROJECT_ID: ${{ secrets.SENTRY_DSN_PROJECT_ID }}
           VITE_GITHUB_HASH: ${{ github.sha }}
+          VITE_ARWEAVE_HOST: ${{ vars.ARWEAVE_HOST }}
+          VITE_ARNS_SERVICE_API: ${{ vars.ARNS_SERVICE_API }}
 
       - name: Add CNAME Record
         run: |
