@@ -215,8 +215,6 @@ export type SearchBarHeaderProps = {
 };
 
 export type SearchBarFooterProps = {
-  defaultText: string;
-  isSearchValid?: boolean;
   isAvailable?: boolean;
   searchTerm?: string;
   searchResult?: ArweaveTransactionID;

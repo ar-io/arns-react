@@ -22,8 +22,6 @@ import {
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import { FeaturedDomains, Loader, RegisterNameForm } from '../../layout';
 import { SearchBarFooter, SearchBarHeader } from '../../layout';
-import ConfirmRegistration from '../../layout/ConfirmRegistration/ConfirmRegistration';
-import SuccessfulRegistration from '../../layout/SuccessfulRegistration/SuccessfulRegistration';
 import Workflow from '../../layout/Workflow/Workflow';
 import './styles.css';
 
@@ -76,11 +74,17 @@ function Home() {
 
   return (
     <div className="page">
-      {domain ? (
-        <></>
+      {stage < 1 ? (
+        <div
+          className="white"
+          style={{ fontSize: 57, padding: 56, fontWeight: 500 }}
+        >
+          Arweave Name System
+        </div>
       ) : (
-        <div className="page-header">Permaweb Domain Name System</div>
+        <></>
       )}
+
       {!Object.keys(pdnsSourceContract.records).length ? (
         <Loader
           size={80}
@@ -88,7 +92,10 @@ function Home() {
           message="Loading PDNS Registry Contract..."
         />
       ) : (
-        <div className="flex flex-column flex-center" style={{ gap: 0 }}>
+        <div
+          className="flex flex-column flex-center"
+          style={{ width: 'fit-content', gap: 0 }}
+        >
           <Workflow
             stage={stage.toString()}
             onNext={() => {
@@ -116,6 +123,10 @@ function Home() {
                   state: `/?search=${domain}`,
                   replace: true,
                 });
+                dispatchRegisterState({
+                  type: 'reset',
+                });
+                return;
               }
               dispatchRegisterState({
                 type: 'setStage',
@@ -189,11 +200,9 @@ function Home() {
                     validationPredicate={(value: string | undefined) =>
                       isPDNSDomainNameValid({ name: value })
                     }
-                    placeholderText={'Enter a name'}
+                    placeholderText={'Search for a name'}
                     headerElement={
-                      <SearchBarHeader
-                        defaultText={'Search for a permaweb name'}
-                      />
+                      <SearchBarHeader defaultText={'Find a name'} />
                     }
                     footerElement={
                       <SearchBarFooter
@@ -205,21 +214,14 @@ function Home() {
                               )
                             : undefined
                         }
-                        defaultText="Names must be 1-32 characters. Dashes are permitted, but cannot be trailing characters and cannot be used in single character domains."
                       />
                     }
-                    height={45}
+                    height={65}
                   />
                 ),
                 disableNext: !isSearching,
-                showNext:
-                  !!domain &&
-                  isPDNSDomainNameAvailable({
-                    name: domain,
-                    records: pdnsSourceContract.records,
-                  }) &&
-                  isPDNSDomainNameValid({ name: domain }),
-                showBack: !!domain,
+                showNext: false,
+                showBack: false,
                 requiresWallet: !!domain && !pdntID,
               },
               1: {
@@ -232,24 +234,9 @@ function Home() {
                   !walletAddress,
                 requiresWallet: true,
               },
-              2: {
-                // this component manages buttons itself
-                component: <ConfirmRegistration />,
-                showNext: false,
-                showBack: false,
-                disableNext: !!domain && !!pdntID && !walletAddress,
-                requiresWallet: true,
-              },
-              3: {
-                component: <SuccessfulRegistration />,
-                showNext: false,
-                showBack: false,
-                disableNext: true,
-                requiresWallet: true,
-              },
             }}
           />
-          {featuredDomains && !domain ? (
+          {featuredDomains && !pdntID && stage < 1 ? (
             <FeaturedDomains domains={featuredDomains} />
           ) : (
             <></>

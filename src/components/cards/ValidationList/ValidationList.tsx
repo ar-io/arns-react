@@ -5,9 +5,13 @@ import { CircleCheck, CircleXIcon } from '../../icons';
 function ValidationList({
   validations,
   wrapperCustomStyle,
+  customErrorIcon,
+  customSuccessIcon,
 }: {
   validations: ValidationObject[];
   wrapperCustomStyle?: any;
+  customErrorIcon?: JSX.Element;
+  customSuccessIcon?: JSX.Element;
 }) {
   const isMobile = useIsMobile();
   return (
@@ -23,8 +27,10 @@ function ValidationList({
             className="flex flex-column flex-left text white"
             style={{
               gap: '0px',
-              alignItems: 'flext-start',
+              alignItems: 'flex-start',
               justifyContent: 'flex-start',
+              width: 'fit-content',
+              color: 'inherit',
             }}
           >
             <span
@@ -32,17 +38,24 @@ function ValidationList({
               style={{
                 gap: '15px',
                 alignItems: 'center',
+                color: 'inherit',
               }}
             >
-              {validationItem.status ? (
-                <CircleCheck
-                  width={20}
-                  height={20}
-                  fill={'var(--success-green)'}
-                />
-              ) : (
-                <CircleXIcon width={20} height={20} fill={'var(--error-red)'} />
-              )}
+              {validationItem.status
+                ? customSuccessIcon ?? (
+                    <CircleCheck
+                      width={20}
+                      height={20}
+                      fill={'var(--success-green)'}
+                    />
+                  )
+                : customErrorIcon ?? (
+                    <CircleXIcon
+                      width={20}
+                      height={20}
+                      fill={'var(--error-red)'}
+                    />
+                  )}
               {validationItem.name}
             </span>
             {validationItem.error ? (
