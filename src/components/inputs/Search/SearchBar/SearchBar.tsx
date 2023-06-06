@@ -106,6 +106,21 @@ function SearchBar(props: SearchBarProps) {
     _onSubmit(true);
   }
 
+  const handleSearchbarBorderStyle = () => {
+    if (searchBarText) {
+      if (searchSubmitted) {
+        if (isAvailable) {
+          return { borderColor: 'var(--success-green)' };
+        } else {
+          return { borderColor: 'var(--error-red)' };
+        }
+      }
+      return { borderColor: 'white', marginBottom: 30 };
+    } else {
+      return { borderColor: '', marginBottom: 30 };
+    }
+  };
+
   return (
     <div className="searchbar-container flex-center" style={{ maxWidth: 787 }}>
       {headerElement ? (
@@ -118,20 +133,7 @@ function SearchBar(props: SearchBarProps) {
         <></>
       )}
 
-      <div
-        className="searchbar"
-        style={
-          !searchBarText
-            ? { borderColor: '', marginBottom: 30 }
-            : isSearchValid
-            ? !searchSubmitted
-              ? { borderColor: 'white', marginBottom: 30 }
-              : isAvailable
-              ? { borderColor: 'var(--success-green)' }
-              : { borderColor: 'var(--error-red)' }
-            : { borderColor: 'var(--error-red)' }
-        }
-      >
+      <div className="searchbar" style={handleSearchbarBorderStyle()}>
         {' '}
         {/** TODO change max input to 32 once contract is updated */}
         <ValidationInput
