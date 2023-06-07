@@ -1,6 +1,9 @@
-name: Build and Test
+name: Staging deploy
 
-on: [push]
+on:
+  push:
+    branches:
+      - develop
 
 jobs:
   build:
