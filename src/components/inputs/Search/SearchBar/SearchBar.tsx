@@ -228,10 +228,6 @@ function SearchBar(props: SearchBarProps) {
           className="accent-button center"
           onClick={_onSubmitButton}
           style={{
-            width: 130,
-            height: 50,
-            fontSize: 14,
-            padding: 0,
             marginTop: 30,
           }}
         >
