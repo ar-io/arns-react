@@ -1,9 +1,9 @@
-name: Staging deploy
+name: PR deploy
 
 on:
-  push:
-    branches:
-      - develop
+  pull_request:
+    branches-ignore:
+      - main
 
 jobs:
   build:
@@ -16,10 +16,9 @@ jobs:
       - run: npm ci
       - run: npm run ${{ matrix.step }}
 
-  deploy-to-github:
+  deploy-to-firebase:
     runs-on: ubuntu-latest
     needs: build
-    if: ${{ github.ref == 'refs/heads/develop' }}
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v3
@@ -43,13 +42,10 @@ jobs:
           VITE_ARWEAVE_HOST: ${{ vars.ARWEAVE_HOST }}
           VITE_ARNS_SERVICE_API: ${{ vars.ARNS_SERVICE_API }}
 
-      - name: Add CNAME Record
-        run: |
-          echo ${{ vars.DOMAIN_NAME }} > dist/CNAME
-          cp ./404.html ./dist
-
+      # Disribute to Firebase
       - name: Deploy 🚀
-        uses: peaceiris/actions-gh-pages@v3
+        uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: dist
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_CI_SERVICE_ACCOUNT }}'
+          expires: 14d

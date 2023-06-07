@@ -8,6 +8,8 @@ interface ImportMetaEnv {
   readonly VITE_SENTRY_DSN_PROJECT_ID: string;
   readonly VITE_ENVIRONMENT: string;
   readonly VITE_GITHUB_HASH: string;
+  readonly VITE_ARWEAVE_HOST: string;
+  readonly VITE_ARNS_SERVICE_API: string;
 }
 
 interface ImportMeta {
