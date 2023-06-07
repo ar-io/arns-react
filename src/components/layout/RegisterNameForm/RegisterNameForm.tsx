@@ -258,7 +258,14 @@ function RegisterNameForm() {
 
         <div className="flex flex-column" style={{ gap: '75px' }}>
           <NameTokenSelector
-            selectedTokenCallback={(id) => handlePDNTId(id?.toString())}
+            selectedTokenCallback={(id) =>
+              id
+                ? handlePDNTId(id?.toString())
+                : dispatchRegisterState({
+                    type: 'setPDNTID',
+                    payload: undefined,
+                  })
+            }
           />
           <div
             className="flex flex-row"
