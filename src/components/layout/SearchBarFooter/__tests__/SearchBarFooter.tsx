@@ -1,11 +1,11 @@
 import { cleanup, render } from '@testing-library/react';
 
-import SearchBarHeader from '../SearchBarFooter';
+import SearchBarFooter from '../SearchBarFooter';
 
 describe('SearchBarHeader', () => {
   afterEach(cleanup);
 
   test('render SearchBarHeader', () => {
-    render(<SearchBarHeader defaultText="Example header" />);
+    render(<SearchBarFooter />);
   });
 });
