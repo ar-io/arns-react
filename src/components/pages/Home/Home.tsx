@@ -233,6 +233,7 @@ function Home() {
                   !PDNS_TX_ID_REGEX.test(pdntID.toString()) ||
                   !walletAddress,
                 requiresWallet: true,
+                customNextStyle: { width: 130 },
               },
             }}
           />

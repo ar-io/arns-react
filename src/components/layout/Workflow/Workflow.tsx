@@ -1,7 +1,4 @@
-import { useNavigate } from 'react-router';
-
 import { useIsMobile } from '../../../hooks';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
 import Loader from '../Loader/Loader';
 import { StepProgressBar } from '../progress';
@@ -38,13 +35,7 @@ function Workflow({
   stage,
   footer,
 }: WorkflowProps) {
-  const [{ walletAddress }] = useGlobalState();
   const isMobile = useIsMobile();
-  const navigate = useNavigate();
-
-  function showConnectWallet() {
-    navigate('/connect');
-  }
 
   if (!stages) {
     return <Loader size={200} />;
@@ -70,28 +61,20 @@ function Workflow({
           );
         }
       })}
-      <>
-        {stages[stage]?.requiresWallet && !walletAddress ? (
-          <div className="flex flex-row center" style={{ padding: '2em' }}>
-            <button className="accent-button hover" onClick={showConnectWallet}>
-              Connect Wallet to proceed
-            </button>
-          </div>
-        ) : (
-          <WorkflowButtons
-            showBack={stages[stage].showBack}
-            disableNext={stages[stage].disableNext}
-            showNext={stages[stage].showNext}
-            onNext={onNext}
-            onBack={onBack}
-            customNextStyle={stages[stage].customNextStyle}
-            customBackStyle={stages[stage].customBackStyle}
-            backText={stages[stage].backText}
-            nextText={stages[stage].nextText}
-          />
-        )}
-        {footer ?? <></>}
-      </>
+
+      <WorkflowButtons
+        showBack={stages[stage].showBack}
+        disableNext={stages[stage].disableNext}
+        showNext={stages[stage].showNext}
+        onNext={onNext}
+        onBack={onBack}
+        customNextStyle={stages[stage].customNextStyle}
+        customBackStyle={stages[stage].customBackStyle}
+        backText={stages[stage].backText}
+        nextText={stages[stage].nextText}
+      />
+
+      {footer ?? <></>}
     </div>
   );
 }
