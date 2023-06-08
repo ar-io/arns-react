@@ -109,7 +109,7 @@ function NameTokenSelector({
       const fetchedIds = await arweaveDataProvider.getContractsForWallet(
         address,
       );
-      if (!fetchedIds.ids) {
+      if (!fetchedIds.ids.length) {
         throw new Error(
           'Unable to find any Name Tokens for the provided address',
         );
