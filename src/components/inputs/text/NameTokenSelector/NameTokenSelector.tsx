@@ -2,6 +2,7 @@ import { Pagination, PaginationProps, Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
 import { useArweaveCompositeProvider } from '../../../../hooks';
+import { PDNTContract } from '../../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import {
   ArweaveTransactionID,
@@ -15,6 +16,13 @@ import { Loader } from '../../../layout';
 import ValidationInput from '../ValidationInput/ValidationInput';
 import './styles.css';
 
+type NameTokenDetails = {
+  [x: string]: Pick<
+    PDNTContractJSON,
+    'name' | 'ticker' | 'owner' | 'controller'
+  > & { names?: string[] };
+};
+
 function NameTokenSelector({
   selectedTokenCallback,
 }: {
@@ -24,12 +32,7 @@ function NameTokenSelector({
   const [{ pdnsSourceContract, walletAddress }] = useGlobalState();
 
   const [searchText, setSearchText] = useState<string>();
-  const [tokens, setTokens] = useState<{
-    [x: string]: Pick<
-      PDNTContractJSON,
-      'name' | 'ticker' | 'owner' | 'controller'
-    > & { names?: string[] };
-  }>();
+  const [tokens, setTokens] = useState<NameTokenDetails>();
   const [loading, setLoading] = useState(false);
   const [filteredTokens, setFilteredTokens] =
     useState<
@@ -112,59 +115,64 @@ function NameTokenSelector({
         );
       }
       if (imports) {
-        imports.map((id) =>
-          arweaveDataProvider
-            .validateTransactionTags({
-              id: id.toString(),
-              requiredTags: {
-                'App-Name': ['SmartWeaveContract'],
-              },
-            })
-            .catch(() => {
-              if (searchText) {
-                setValidImport(false);
-              }
-              throw new Error('Invalid ANT Contract.');
-            }),
-        );
-        setValidImport(true);
+        imports.map((id) => {
+          arweaveDataProvider.validateTransactionTags({
+            id: id.toString(),
+            requiredTags: {
+              'App-Name': ['SmartWeaveContract'],
+            },
+          });
+          const validState = arweaveDataProvider
+            .getContractState<PDNTContractJSON>(id)
+            .then((state) => new PDNTContract(state).isValid());
+
+          if (!validState) {
+            throw new Error('Invalid ANT Contract.');
+          }
+          setValidImport(true);
+        });
       }
       const ids = fetchedIds.ids.concat(imports ?? []);
 
-      const contracts: [ArweaveTransactionID, PDNTContractJSON][] =
-        await Promise.all(
-          ids.map(async (id) => {
-            const state =
-              await arweaveDataProvider.getContractState<PDNTContractJSON>(id);
-            return [id, state];
-          }),
-        );
+      const contracts: Array<
+        [ArweaveTransactionID, PDNTContractJSON] | undefined
+      > = await Promise.all(
+        ids.map(async (id) => {
+          const state =
+            await arweaveDataProvider.getContractState<PDNTContractJSON>(id);
+          if (!new PDNTContract(state).isValid()) {
+            return;
+          }
+          return [id, state];
+        }),
+      );
       if (!contracts) {
         throw new Error('Unable to get details for Name Tokens');
       }
-      const newTokens: {
-        [x: string]: Pick<
-          PDNTContractJSON,
-          'name' | 'ticker' | 'owner' | 'controller'
-        > & { names?: string[] };
-      } = contracts.reduce((result, contract) => {
-        const [id, state] = contract;
-        const { owner, controller, name, ticker } = state;
-        const associatedNames = getAssociatedNames(
-          id,
-          pdnsSourceContract.records,
-        );
-        return {
-          ...result,
-          [id.toString()]: {
-            owner,
-            controller,
-            name,
-            ticker,
-            names: associatedNames,
-          },
-        };
-      }, {});
+      const newTokens: NameTokenDetails = contracts.reduce(
+        (result, contract) => {
+          if (!contract) {
+            return { ...result };
+          }
+          const [id, state] = contract;
+          const { owner, controller, name, ticker } = state;
+          const associatedNames = getAssociatedNames(
+            id,
+            pdnsSourceContract.records,
+          );
+          return {
+            ...result,
+            [id.toString()]: {
+              owner,
+              controller,
+              name,
+              ticker,
+              names: associatedNames,
+            },
+          };
+        },
+        {},
+      );
       setTokens(newTokens);
       if (imports && newTokens) {
         const details = newTokens[imports[0].toString()];
