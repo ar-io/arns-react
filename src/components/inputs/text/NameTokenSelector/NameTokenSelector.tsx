@@ -55,6 +55,7 @@ function NameTokenSelector({
     selectedTokenCallback(
       selectedToken ? new ArweaveTransactionID(selectedToken.id) : undefined,
     );
+    setListPage(1);
   }, [selectedToken]);
 
   useEffect(() => {
@@ -63,14 +64,6 @@ function NameTokenSelector({
     }
     getTokenList(walletAddress);
   }, [walletAddress]);
-
-  useEffect(() => {
-    // token import update
-    if (searchText) {
-      handleTokenSearch(searchText);
-      setListPage(1);
-    }
-  }, [tokens]);
 
   useEffect(() => {
     if (!listRef.current) {
@@ -114,19 +107,20 @@ function NameTokenSelector({
           'Unable to find any Name Tokens for the provided address',
         );
       }
-      if (imports) {
-        imports.map((id) => {
+      if (imports?.length) {
+        imports.map(async (id) => {
           arweaveDataProvider.validateTransactionTags({
             id: id.toString(),
             requiredTags: {
               'App-Name': ['SmartWeaveContract'],
             },
           });
-          const validState = arweaveDataProvider
-            .getContractState<PDNTContractJSON>(id)
-            .then((state) => new PDNTContract(state).isValid());
-
+          const validState =
+            await arweaveDataProvider.getContractState<PDNTContractJSON>(id);
           if (!validState) {
+            throw new Error('Unable to get contract state');
+          }
+          if (!new PDNTContract(validState).isValid()) {
             throw new Error('Invalid ANT Contract.');
           }
           setValidImport(true);
@@ -140,13 +134,16 @@ function NameTokenSelector({
         ids.map(async (id) => {
           const state =
             await arweaveDataProvider.getContractState<PDNTContractJSON>(id);
+          if (!state) {
+            return;
+          }
           if (!new PDNTContract(state).isValid()) {
             return;
           }
           return [id, state];
         }),
       );
-      if (!contracts) {
+      if (!contracts.length) {
         throw new Error('Unable to get details for Name Tokens');
       }
       const newTokens: NameTokenDetails = contracts.reduce(
@@ -174,7 +171,7 @@ function NameTokenSelector({
         {},
       );
       setTokens(newTokens);
-      if (imports && newTokens) {
+      if (imports) {
         const details = newTokens[imports[0].toString()];
         setSelectedToken({
           name: details?.name,
@@ -197,6 +194,7 @@ function NameTokenSelector({
       if (!query) {
         setSearchText('');
         setSelectedToken(undefined);
+        return;
       }
       setSearchText(query);
 
@@ -204,23 +202,21 @@ function NameTokenSelector({
         throw new Error('No Name Tokens Found');
       }
       const filteredResults = Object.keys(tokens)
-        .map((id) => {
+        .filter((id) => {
           const { owner, controller, name, ticker } = tokens[id];
-          const queryResult = [owner, controller, name, ticker, id].map(
+          const queryResult = [owner, controller, name, ticker, id].some(
             (term) =>
-              term
-                ? term
-                    .toString()
-                    .toLocaleLowerCase()
-                    .includes(query.toLocaleLowerCase())
-                : false,
+              term &&
+              term.toString().toLowerCase().includes(query.toLowerCase()),
           );
-          if (queryResult.includes(true)) {
-            return { id: id, name: name ?? '', ticker: ticker ?? '' };
-          }
+          return queryResult;
+        })
+        .map((id) => {
+          const { name, ticker } = tokens[id];
+          return { id, name: name ?? '', ticker: ticker ?? '' };
         })
         .filter((n) => n !== undefined);
-      if (!filteredResults) {
+      if (!filteredResults.length) {
         throw new Error('No ANT tokens found for that search');
       }
 
@@ -475,7 +471,7 @@ function NameTokenSelector({
                       className="name-token-item pointer"
                       onClick={() => {
                         handleSetToken({
-                          id: token?.id,
+                          id: token.id,
                           name: token.name ?? '',
                           ticker: token.ticker ?? '',
                         });
@@ -537,7 +533,7 @@ function NameTokenSelector({
             >
               <Pagination
                 total={
-                  tokens && !filteredTokens
+                  Object.keys(tokens).length && !filteredTokens
                     ? Object.keys(tokens).length
                     : filteredTokens
                     ? filteredTokens.length

@@ -51,10 +51,7 @@ function RegisterNameForm() {
     }
   }, [leaseDuration, tier, domain, pdnsSourceContract]);
 
-  async function handlePDNTId(id?: string) {
-    if (!id || !id.length) {
-      return;
-    }
+  async function handlePDNTId(id: string) {
     try {
       const txId = new ArweaveTransactionID(id);
       dispatchRegisterState({
@@ -260,7 +257,7 @@ function RegisterNameForm() {
           <NameTokenSelector
             selectedTokenCallback={(id) =>
               id
-                ? handlePDNTId(id?.toString())
+                ? handlePDNTId(id.toString())
                 : dispatchRegisterState({
                     type: 'setPDNTID',
                     payload: undefined,
