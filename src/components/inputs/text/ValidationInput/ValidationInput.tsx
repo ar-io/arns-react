@@ -11,6 +11,7 @@ function ValidationInput({
   wrapperCustomStyle,
   validationListStyle,
   showValidationChecklist = false,
+  showValidationsDefault = false,
   showValidationOutline = false,
   showValidationIcon = false,
   inputClassName = '',
@@ -28,10 +29,12 @@ function ValidationInput({
   minNumber,
   maxNumber,
   onPressEnter,
+  customValidationIcons,
 }: {
   wrapperClassName?: string;
   wrapperCustomStyle?: any;
   showValidationChecklist?: boolean;
+  showValidationsDefault?: boolean;
   showValidationOutline?: boolean;
   showValidationIcon?: boolean;
   placeholder?: string;
@@ -55,6 +58,7 @@ function ValidationInput({
   minNumber?: number;
   maxNumber?: number;
   onPressEnter?: () => void;
+  customValidationIcons?: { error?: JSX.Element; success?: JSX.Element };
 }) {
   const [validationResults, setValidationResults] =
     useState<ValidationObject[]>();
@@ -67,9 +71,8 @@ function ValidationInput({
 
   useEffect(() => {
     inputRef.current?.focus();
-    if (value) {
-      validationExecutor(value.toString());
-    }
+
+    validationExecutor(value?.toString() ?? '');
   }, [disabled]);
 
   async function validationExecutor(newValue: string) {
@@ -211,10 +214,13 @@ function ValidationInput({
             </Tooltip>
           </div>
         </div>
-        {showValidationChecklist && validationResults ? (
+        {(showValidationChecklist && validationResults) ||
+        showValidationsDefault ? (
           <ValidationList
-            validations={validationResults}
+            validations={validationResults ?? []}
             wrapperCustomStyle={{ ...validationListStyle }}
+            customErrorIcon={customValidationIcons?.error}
+            customSuccessIcon={customValidationIcons?.success}
           />
         ) : (
           <></>

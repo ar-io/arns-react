@@ -1,19 +1,27 @@
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 
+import { useIsMobile } from '../../../hooks';
 import { BrandLogo, SunIcon } from '../../icons';
 
 function Footer() {
+  const isMobile = useIsMobile();
   return (
     <div
-      className="flex-row flex-space-between"
+      className={`${
+        !isMobile ? 'flex-row flex-space-between' : 'flex-column flex-center'
+      }`}
       style={{
         borderTop: '1px solid #292A2B',
         padding: '30px 100px',
         boxSizing: 'border-box',
       }}
     >
-      <div className="flex flex-row flex-left">
+      <div
+        className={`${
+          !isMobile ? 'flex-row flex-left' : 'flex-column flex-center'
+        } flex`}
+      >
         <BrandLogo width={'30px'} height={'30px'} fill={'var(--text-faded)'} />
         <span className="text faded center">
           Copyright &copy; 2023 ArNS, All rights reserved

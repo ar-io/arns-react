@@ -76,6 +76,18 @@ input[type='number']:disabled {
   cursor: pointer;
   padding: 0px;
 }
+a:link {
+  text-decoration: none;
+}
+a:visited {
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: none;
+}
+a:active {
+  text-decoration: none;
+}
 
 .pointer {
   cursor: pointer;
@@ -362,11 +374,11 @@ input[type='number']:disabled {
 .accent-button {
   box-sizing: border-box;
   display: flex;
-  padding: 0.75em 2em;
-  font-size: 18px;
+  padding: 15px;
+  font-size: 14px;
   font-family: 'Rubik-Bold';
-  font-weight: 800;
-  width: fit-content;
+  font-weight: 500;
+  width: 130px;
   height: fit-content;
   border-radius: var(--corner-radius);
   background-color: var(--accent);
@@ -376,11 +388,11 @@ input[type='number']:disabled {
 .outline-button {
   box-sizing: border-box;
   display: flex;
-  padding: 0.75em 2em;
-  font-size: 18px;
+  padding: 15px;
+  font-size: 14px;
   font-family: 'Rubik-Bold';
-  font-weight: 800;
-  width: fit-content;
+  font-weight: 500;
+  width: 130px;
   height: fit-content;
   border: var(--text-white) 1px solid;
   border-radius: var(--corner-radius);

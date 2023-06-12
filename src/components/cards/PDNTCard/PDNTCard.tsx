@@ -1,3 +1,4 @@
+import { Descriptions } from 'antd';
 import { startCase } from 'lodash';
 import { useEffect, useState } from 'react';
 
@@ -47,7 +48,7 @@ function PDNTCard(props: PDNSMapping) {
     hover,
     enableActions,
     disabledKeys,
-    showTier = true,
+    showTier = false,
   } = props;
   const [{ pdnsSourceContract }] = useGlobalState();
   const [pdntDetails, setPDNTDetails] = useState<{ [x: string]: string }>();
@@ -131,12 +132,12 @@ function PDNTCard(props: PDNSMapping) {
 
   function showMore(e: any) {
     e.preventDefault();
-    setLimitDetails(false);
+    setLimitDetails(!limitDetails);
   }
 
   // TODO: update this logic
   function handleClick() {
-    console.log('Coming soon!');
+    alert('Coming soon!');
   }
 
   return (
@@ -144,85 +145,134 @@ function PDNTCard(props: PDNSMapping) {
       {isLoading ? (
         <Loader size={80} />
       ) : pdntDetails ? (
-        <div
-          className={hover ? 'card hover' : 'card'}
-          style={{ padding: '30px 30px' }}
-        >
+        <div className={hover ? 'flex flex-column hover' : 'flex flex-column'}>
           {!showTier ? (
             <></>
           ) : (
             <span className="bubble">Tier {pdntDetails.tier}</span>
           )}
-          <table style={{ borderSpacing: '0em 0.5em', padding: '0px' }}>
-            <tbody>
+          <div className="flex flex-center" style={{ width: '100%' }}>
+            <Descriptions
+              bordered
+              colon
+              column={1}
+              className="flex"
+              style={{ width: '100%' }}
+            >
               {Object.entries(pdntDetails).map(([key, value]) => {
                 if (!PRIMARY_DETAILS.includes(key) && limitDetails) {
                   return;
                 }
                 return (
-                  <tr key={key} style={{ height: '20px' }}>
-                    <td className="detail left" style={{ padding: '5px' }}>
-                      {key}:
-                    </td>
-                    <td className="detail bold left" style={{ padding: '5px' }}>
-                      {isArweaveTransactionID(value) ? (
-                        <CopyTextButton
-                          displayText={
-                            isMobile
-                              ? `${value.slice(0, 2)}...${value.slice(-2)}`
-                              : value
-                          }
-                          copyText={value}
-                          size={24}
-                          wrapperStyle={{
-                            padding: '0px',
-                            fontFamily: 'Rubik-Bold',
-                            justifyContent: 'flex-start',
-                            alignItems: 'center',
-                          }}
-                          position={'relative'}
-                        />
-                      ) : value ? (
-                        value
-                      ) : (
-                        <span>N/A</span>
-                      )}
-                    </td>
-                  </tr>
+                  <Descriptions.Item
+                    key={key}
+                    label={`${key}:`}
+                    labelStyle={{
+                      width: 'fit-content',
+                      color: 'var(--text-faded)',
+                      border: 'solid 1px #292A2B',
+                      borderLeft: 'none',
+                      borderRight: 'none',
+                    }}
+                    contentStyle={{
+                      width: 'fit-content',
+                      minWidth: '200px',
+                      maxWidth: '600px',
+                      color: 'white',
+                      border: 'solid 1px #292A2B',
+                      borderLeft: 'none',
+                      borderRight: 'none',
+                      textAlign: 'left',
+                    }}
+                  >
+                    {isArweaveTransactionID(value) ? (
+                      <CopyTextButton
+                        displayText={
+                          isMobile
+                            ? `${value.slice(0, 2)}...${value.slice(-2)}`
+                            : value
+                        }
+                        copyText={value}
+                        size={24}
+                        wrapperStyle={{
+                          padding: '0px',
+                          fontFamily: 'Rubik',
+                          justifyContent: 'flex-start',
+                          alignItems: 'center',
+                        }}
+                        position={'relative'}
+                      />
+                    ) : value ? (
+                      value
+                    ) : (
+                      <span>N/A</span>
+                    )}
+                  </Descriptions.Item>
                 );
               })}
-              {limitDetails ? (
-                <tr>
-                  <td className="detail">
-                    <button className="link" onClick={showMore}>
-                      more details
-                    </button>
-                  </td>
-                </tr>
+            </Descriptions>
+          </div>
+
+          <div
+            className={`flex flex-space-between`}
+            style={{ display: 'flex', width: '100%', boxSizing: 'border-box' }}
+          >
+            <div>
+              {compact ? (
+                limitDetails ? (
+                  <button
+                    className="outline-button center faded"
+                    onClick={showMore}
+                    style={{
+                      borderColor: 'var(--text-faded)',
+                      padding: 0,
+                      fontSize: '15px',
+                      width: 120,
+                      height: 50,
+                      color: 'var(--text-faded)',
+                    }}
+                  >
+                    View More
+                  </button>
+                ) : (
+                  <button
+                    className="outline-button center faded"
+                    onClick={showMore}
+                    style={{
+                      borderColor: 'var(--text-faded)',
+                      padding: 0,
+                      fontSize: '15px',
+                      width: 120,
+                      height: 50,
+                      color: 'var(--text-faded)',
+                    }}
+                  >
+                    View Less
+                  </button>
+                )
               ) : (
                 <></>
               )}
-            </tbody>
-          </table>
-          <div
-            className="flex flex-center"
-            style={{ display: 'flex', width: '100%' }}
-          >
-            {enableActions ? (
-              <div
-                className="footer flex flex-center"
-                style={{ width: '100%' }}
-              >
-                <button className="outline-button" onClick={handleClick}>
-                  Upgrade Tier
+            </div>
+
+            <div className="flex flex-center">
+              {enableActions ? (
+                <button
+                  className="accent-button center "
+                  onClick={handleClick}
+                  style={{
+                    padding: 0,
+                    fontSize: '15px',
+                    width: 120,
+                    height: 50,
+                  }}
+                >
+                  Upgrade
                 </button>
-                <button className="outline-button" onClick={handleClick}>
-                  Extend Lease
-                </button>
-              </div>
-            ) : (
-              <></>
-            )}
+              ) : (
+                <></>
+              )}
+            </div>
           </div>
         </div>
       ) : (
