@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
-import { useIsMobile, useWalletAddress } from '../../../hooks';
+import {
+  useArweaveCompositeProvider,
+  useIsMobile,
+  useWalletAddress,
+} from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ArweaveTransactionID } from '../../../types';
 import eventEmitter from '../../../utils/events';
@@ -15,8 +19,8 @@ import { WalletAddress } from '../../layout/WalletAddress/WalletAddress';
 import './styles.css';
 
 function NavMenuCard() {
-  const [{ arnsContractId, arweaveDataProvider }, dispatchGlobalState] =
-    useGlobalState(); // eslint-disable-line
+  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [{ pdnsContractId }, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
   const [walletDetails, setWalletDetails] = useState<{
@@ -55,10 +59,10 @@ function NavMenuCard() {
 
   async function fetchWalletDetails(walletAddress: ArweaveTransactionID) {
     const ioBalance = await arweaveDataProvider.getContractBalanceForWallet(
-      arnsContractId,
+      pdnsContractId,
       walletAddress,
     );
-    const arBalance = await arweaveDataProvider.getWalletBalance(walletAddress);
+    const arBalance = await arweaveDataProvider.getArBalance(walletAddress);
     const [formattedBalance, formattedIOBalance] = [arBalance, ioBalance].map(
       (balance: string | number) =>
         Intl.NumberFormat('en-US', {
@@ -137,6 +141,7 @@ function NavMenuCard() {
                     <NavBarLink
                       path={route.path}
                       linkText={route.text}
+                      target={route.external ? '_blank' : '_self'}
                       key={key}
                       onClick={() => {
                         setShowMenu(false);
@@ -144,18 +149,13 @@ function NavMenuCard() {
                     />
                   );
               })}
-              <button
+              <Link
+                to="/create"
                 className="button text-medium bold white hover"
                 style={{ padding: '0' }}
-                onClick={() =>
-                  dispatchGlobalState({
-                    type: 'setShowCreateAnt',
-                    payload: true,
-                  })
-                }
               >
                 Create
-              </button>
+              </Link>
               <ConnectButton />
             </>
           ) : (
@@ -184,6 +184,7 @@ function NavMenuCard() {
                         <NavBarLink
                           path={route.path}
                           linkText={route.text}
+                          target={route.external ? '_blank' : '_self'}
                           key={key}
                           onClick={() => {
                             setShowMenu(false);
@@ -191,18 +192,13 @@ function NavMenuCard() {
                         />
                       );
                   })}
-                  <button
+                  <Link
+                    to="/create"
                     className="button text-medium bold white hover"
                     style={{ padding: '0' }}
-                    onClick={() =>
-                      dispatchGlobalState({
-                        type: 'setShowCreateAnt',
-                        payload: true,
-                      })
-                    }
                   >
                     Create
-                  </button>
+                  </Link>
                 </>
               ) : (
                 Object.entries(ROUTES).map(([key, route]) => {

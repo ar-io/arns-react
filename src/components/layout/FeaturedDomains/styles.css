@@ -1,18 +1,18 @@
 .featured-domains {
   display: flex;
   flex-direction: column;
-  width: 75%;
-  max-width: 850px;
-  gap: 2em;
+  width: fit-content;
+  max-width: 787px;
+  gap: 1em;
 }
 
 .card-container {
   display: flex;
   flex-direction: row;
-  width: 100%;
+  width: fit-content;
   gap: 1em;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: space-between;
 }
 
 @media screen and (max-width: 600px) {

@@ -1,15 +1,17 @@
 import { Tooltip } from 'antd';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { ValidationObject } from '../../../../types';
 import ValidationList from '../../../cards/ValidationList/ValidationList';
-import { CircleCheck, CircleXIcon } from '../../../icons';
+import { AlertTriangleIcon, CircleCheck, CircleXIcon } from '../../../icons';
+import { Loader } from '../../../layout';
 
 function ValidationInput({
   wrapperClassName = '',
   wrapperCustomStyle,
   validationListStyle,
   showValidationChecklist = false,
+  showValidationsDefault = false,
   showValidationOutline = false,
   showValidationIcon = false,
   inputClassName = '',
@@ -26,10 +28,13 @@ function ValidationInput({
   inputType = 'text',
   minNumber,
   maxNumber,
+  onPressEnter,
+  customValidationIcons,
 }: {
   wrapperClassName?: string;
   wrapperCustomStyle?: any;
   showValidationChecklist?: boolean;
+  showValidationsDefault?: boolean;
   showValidationOutline?: boolean;
   showValidationIcon?: boolean;
   placeholder?: string;
@@ -42,31 +47,40 @@ function ValidationInput({
   value: string | number | undefined;
   setValue: (text: string) => void;
   validityCallback?: (validity: boolean) => void;
-  validationPredicates: { [x: string]: (value: string) => Promise<any> };
+  validationPredicates: {
+    [x: string]: {
+      fn: (value: string) => Promise<any>;
+      required?: boolean;
+    };
+  };
   onClick?: () => void;
   inputType?: string;
   minNumber?: number;
   maxNumber?: number;
+  onPressEnter?: () => void;
+  customValidationIcons?: { error?: JSX.Element; success?: JSX.Element };
 }) {
   const [validationResults, setValidationResults] =
     useState<ValidationObject[]>();
 
+  const [validating, setValidating] = useState(false);
   const [valid, setValid] = useState<undefined | boolean>(undefined);
+  const [warning, setWarning] = useState(false);
   const [openTooltip, setOpenTooltip] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const inputEle = document.getElementById(inputId);
-    inputEle?.focus();
-    if (value) {
-      validationExecutor(value.toString());
-    }
+    inputRef.current?.focus();
+
+    validationExecutor(value?.toString() ?? '');
   }, [disabled]);
 
-  async function validationExecutor(id: string) {
-    setValue(id);
+  async function validationExecutor(newValue: string) {
+    setValidating(true);
+    setValue(newValue);
 
     const validations = Object.values(validationPredicates).map((predicate) =>
-      predicate(id),
+      predicate.fn(newValue),
     );
 
     const results = await Promise.allSettled(validations);
@@ -82,11 +96,21 @@ function ValidationInput({
     );
 
     setValidationResults(validationResults);
-    const validity = validationResults.every((value) => value.status === true);
+    const validity = validationResults.every((value, index) => {
+      if (
+        validationPredicates[Object.keys(validationPredicates)[index]]
+          .required === false
+      ) {
+        setWarning(true);
+        return true;
+      }
+      return value.status === true;
+    });
     setValid(validity);
     if (validityCallback) {
       validityCallback(validity);
     }
+    setValidating(false);
   }
 
   return (
@@ -100,6 +124,11 @@ function ValidationInput({
       >
         <div className="flex" style={{ width: '100%', position: 'relative' }}>
           <input
+            ref={inputRef}
+            onKeyDown={(e) =>
+              e.key === 'Enter' && onPressEnter ? onPressEnter() : null
+            }
+            enterKeyHint={inputType === 'search' ? inputType : 'enter'}
             id={inputId}
             type={inputType}
             min={inputType === 'number' ? minNumber : undefined}
@@ -114,10 +143,11 @@ function ValidationInput({
               showValidationOutline && valid !== undefined && value && !disabled
                 ? {
                     ...inputCustomStyle,
-                    border:
-                      valid === true
-                        ? '2px solid var(--success-green)'
-                        : '2px solid var(--error-red)',
+                    border: warning
+                      ? '2px solid var(--accent)'
+                      : valid === true
+                      ? '2px solid var(--success-green)'
+                      : '2px solid var(--error-red)',
                   }
                 : { ...inputCustomStyle }
             }
@@ -149,7 +179,23 @@ function ValidationInput({
               showValidationIcon &&
               valid !== undefined &&
               value ? (
-                valid === true ? (
+                validating ? (
+                  <Loader
+                    size={20}
+                    color="var(--text-black)"
+                    wrapperStyle={{
+                      top: -12,
+                      left: -40,
+                      position: 'absolute',
+                    }}
+                  />
+                ) : warning ? (
+                  <AlertTriangleIcon
+                    width={20}
+                    height={20}
+                    fill={'var(--accent)'}
+                  />
+                ) : valid === true ? (
                   <CircleCheck
                     width={20}
                     height={20}
@@ -168,10 +214,13 @@ function ValidationInput({
             </Tooltip>
           </div>
         </div>
-        {showValidationChecklist && validationResults ? (
+        {(showValidationChecklist && validationResults) ||
+        showValidationsDefault ? (
           <ValidationList
-            validations={validationResults}
+            validations={validationResults ?? []}
             wrapperCustomStyle={{ ...validationListStyle }}
+            customErrorIcon={customValidationIcons?.error}
+            customSuccessIcon={customValidationIcons?.success}
           />
         ) : (
           <></>

@@ -1,38 +1,42 @@
+import * as Sentry from '@sentry/react';
 import {
   Navigate,
   Route,
   RouterProvider,
-  createHashRouter,
+  createBrowserRouter,
   createRoutesFromElements,
 } from 'react-router-dom';
 
 import { Layout, ProtectedRoute } from './components/layout';
+import Redirect from './components/layout/Redirect/Redirect';
+import Undernames from './components/layout/Undernames/Undernames';
 import {
   ConnectWalletModal,
-  CreateAntModal,
-  ManageAntModal, // ManageAntModal,
+  CreatePDNTModal,
+  ManagePDNTModal,
 } from './components/modals';
-import { About, Home, Manage, NotFound, Transaction } from './components/pages';
-import { useArNSContract, useArweave } from './hooks/';
+import { Home, Manage, NotFound, Transaction } from './components/pages';
+import { usePDNSContract } from './hooks/';
 import './index.css';
+
+const sentryCreateBrowserRouter =
+  Sentry.wrapCreateBrowserRouter(createBrowserRouter);
 
 function App() {
   // dispatches global state
-  useArNSContract();
-  // setup default arweave data provider
-  useArweave();
+  usePDNSContract();
 
-  const router = createHashRouter(
+  const router = sentryCreateBrowserRouter(
     createRoutesFromElements(
       <Route element={<Layout />} errorElement={<NotFound />}>
         <Route index element={<Home />} />
-        <Route path="info" element={<About />} />
+        <Route path="info" element={<Redirect url="https://ar.io/arns" />} />
         <Route path="connect" element={<ConnectWalletModal />} />
         <Route
           path="create"
           element={
             <ProtectedRoute>
-              <CreateAntModal />
+              <CreatePDNTModal />
             </ProtectedRoute>
           }
         />
@@ -49,10 +53,18 @@ function App() {
             />
           </Route>
           <Route
-            path="ants/:id"
+            path="pdnts/:id"
             element={
               <ProtectedRoute>
-                <ManageAntModal />
+                <ManagePDNTModal />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="pdnts/:id/undernames"
+            element={
+              <ProtectedRoute>
+                <Undernames />
               </ProtectedRoute>
             }
           />

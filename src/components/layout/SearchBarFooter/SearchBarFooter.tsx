@@ -1,43 +1,30 @@
 import { SearchBarFooterProps } from '../../../types';
-import AntCard from '../../cards/AntCard/AntCard';
-import UpgradeTier from '../UpgradeTier/UpgradeTier';
+import PDNTCard from '../../cards/PDNTCard/PDNTCard';
 import './styles.css';
 
 function SearchBarFooter({
-  defaultText,
   searchTerm,
   searchResult,
-  isSearchValid,
   isAvailable,
 }: SearchBarFooterProps): JSX.Element {
   return (
-    <>
-      {!searchTerm ? (
+    <div className="flex flex-column" style={{ marginTop: 60 }}>
+      {!isAvailable && searchResult && searchTerm ? (
         <>
-          <div
-            className="text faded center"
-            style={{ width: '75%', maxWidth: '475px' }}
-          >
-            {!isSearchValid ? (
-              <div className="error-container">
-                <span className="illegal-char">{defaultText}</span>
-              </div>
-            ) : (
-              defaultText
-            )}
-          </div>
+          <span className="flex flex-row white text-medium flex-left">
+            Ownership Details:
+          </span>
+          <PDNTCard
+            domain={searchTerm}
+            id={searchResult}
+            compact={true}
+            enableActions={true}
+          />
         </>
-      ) : !isAvailable && searchResult && searchTerm ? (
-        <AntCard
-          domain={searchTerm}
-          id={searchResult}
-          compact={true}
-          enableActions={true}
-        />
       ) : (
-        <UpgradeTier />
+        <></>
       )}
-    </>
+    </div>
   );
 }
 export default SearchBarFooter;

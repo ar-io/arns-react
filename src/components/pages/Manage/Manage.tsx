@@ -3,11 +3,14 @@ import Table from 'rc-table';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { useIsMobile, useWalletAddress } from '../../../hooks';
-import useWalletANTs from '../../../hooks/useWalletANTs/useWalletANTs';
-import useWalletDomains from '../../../hooks/useWalletDomains/useWalletDomains';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { AntMetadata, ArweaveTransactionID, ManageTable } from '../../../types';
+import {
+  useArweaveCompositeProvider,
+  useIsMobile,
+  useWalletAddress,
+  useWalletDomains,
+  useWalletPDNTs,
+} from '../../../hooks';
+import { ArweaveTransactionID, ManageTable } from '../../../types';
 import { MANAGE_TABLE_NAMES } from '../../../types';
 import eventEmitter from '../../../utils/events';
 import { CodeSandboxIcon, NotebookIcon, RefreshIcon } from '../../icons';
@@ -15,26 +18,23 @@ import { Loader } from '../../layout/index';
 import './styles.css';
 
 function Manage() {
-  const [{ arnsSourceContract, arweaveDataProvider }] = useGlobalState();
+  const arweaveDataProvider = useArweaveCompositeProvider();
   const { walletAddress } = useWalletAddress();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { path } = useParams();
 
   const modalRef = useRef(null);
-  const [cursor] = useState<string | undefined>();
-  const [antIds, setAntIDs] = useState<ArweaveTransactionID[]>([]);
-  const [selectedRow, setSelectedRow] = useState<AntMetadata>();
+  const [pdntIds, setPDNTIDs] = useState<ArweaveTransactionID[]>([]);
   const [percent, setPercentLoaded] = useState<number | undefined>();
   const {
-    isLoading: antTableLoading,
-    percent: percentANTsLoaded,
-    columns: antColumns,
-    rows: antRows,
-    selectedRow: selectedAntRow,
-    sortAscending: antSortAscending,
-    sortField: antSortField,
-  } = useWalletANTs(antIds);
+    isLoading: pdntTableLoading,
+    percent: percentPDNTsLoaded,
+    columns: pdntColumns,
+    rows: pdntRows,
+    sortAscending: pdntSortAscending,
+    sortField: pdntSortField,
+  } = useWalletPDNTs(pdntIds);
   const {
     isLoading: domainTableLoading,
     percent: percentDomainsLoaded,
@@ -42,7 +42,7 @@ function Manage() {
     rows: domainRows,
     sortAscending: domainSortAscending,
     sortField: domainSortField,
-  } = useWalletDomains(antIds);
+  } = useWalletDomains(pdntIds);
 
   const [tableData, setTableData] = useState<any[]>([]);
   const [filteredTableData, setFilteredTableData] = useState<any[]>([]);
@@ -57,9 +57,9 @@ function Manage() {
   }, [path]);
 
   useEffect(() => {
-    // todo: move this to a separate function to manage error state and poll for new ants to concat them to the state.
+    // todo: move this to a separate function to manage error state and poll for new pdnts to concat them to the state.
     if (walletAddress) {
-      fetchWalletAnts(walletAddress);
+      fetchWalletPDNTs(walletAddress);
     }
   }, [walletAddress?.toString()]);
 
@@ -71,30 +71,26 @@ function Manage() {
   }, [tablePage]);
 
   useEffect(() => {
-    if (path === 'ants') {
-      setTableLoading(antTableLoading);
-      setTableData(antRows);
-      setTableColumns(antColumns);
-      setPercentLoaded(percentANTsLoaded);
-      setSelectedRow(selectedAntRow);
+    if (path === 'pdnts') {
+      setTableData(pdntRows);
+      setTableColumns(pdntColumns);
+      setPercentLoaded(percentPDNTsLoaded);
       const baseIndex = Math.max((tablePage - 1) * 10, 0);
       const endIndex = tablePage * 10;
-      const filteredData = antRows.slice(baseIndex, endIndex);
+      const filteredData = pdntRows.slice(baseIndex, endIndex);
       setFilteredTableData(filteredData);
     }
   }, [
     path,
-    antSortAscending,
-    antSortField,
-    antRows,
-    selectedAntRow,
-    antTableLoading,
-    percentANTsLoaded,
+    pdntSortAscending,
+    pdntSortField,
+    pdntRows,
+    pdntTableLoading,
+    percentPDNTsLoaded,
   ]);
 
   useEffect(() => {
     if (path === 'names') {
-      setTableLoading(domainTableLoading);
       setTableData(domainRows);
       setTableColumns(domainColumns);
       setPercentLoaded(percentDomainsLoaded);
@@ -109,15 +105,13 @@ function Manage() {
     domainSortField,
     domainTableLoading,
     domainRows,
-    antTableLoading,
+    pdntTableLoading,
     percentDomainsLoaded,
   ]);
 
   useEffect(() => {
-    if (selectedRow) {
-      navigate(selectedRow.id);
-    }
-  }, [selectedRow]);
+    setTableLoading(domainTableLoading || pdntTableLoading);
+  }, [domainTableLoading, pdntTableLoading]);
 
   useEffect(() => {
     if (percent === 100) {
@@ -125,29 +119,18 @@ function Manage() {
     }
   }, [percent]);
 
-  async function fetchWalletAnts(address: ArweaveTransactionID) {
+  async function fetchWalletPDNTs(address: ArweaveTransactionID) {
     try {
+      setTableLoading(true);
       const { ids } = await arweaveDataProvider.getContractsForWallet(
-        arnsSourceContract.approvedANTSourceCodeTxs.map(
-          (id: string) => new ArweaveTransactionID(id),
-        ),
         address,
-        cursor,
+        'ant', // only fetches contracts that have a state that matches ant spec
       );
-      // TODO: store ants in global state and create a hook that fetches them at certain times
-      setAntIDs(ids);
+      setPDNTIDs(ids);
     } catch (error: any) {
       eventEmitter.emit('error', error);
-    } finally {
       setTableLoading(false);
     }
-  }
-
-  function handleClickOutside(e: any) {
-    if (modalRef.current && modalRef.current === e.target) {
-      setSelectedRow(undefined);
-    }
-    return;
   }
 
   function updatePage(page: number) {
@@ -155,8 +138,7 @@ function Manage() {
   }
 
   return (
-    // eslint-disable-next-line
-    <div className="page" ref={modalRef} onClick={handleClickOutside}>
+    <div className="page" ref={modalRef}>
       <div className="flex-column">
         <div className="flex flex-justify-between">
           <div className="table-selector-group">
@@ -193,16 +175,16 @@ function Manage() {
           </div>
           <div className="flex flex-row flex-right">
             <button
-              disabled={antTableLoading}
+              disabled={tableLoading}
               className={
-                antTableLoading
+                tableLoading
                   ? 'outline-button center disabled-button'
                   : 'outline-button center'
               }
               style={{
                 padding: '0.75em',
               }}
-              onClick={() => walletAddress && fetchWalletAnts(walletAddress)}
+              onClick={() => walletAddress && fetchWalletPDNTs(walletAddress)}
             >
               <RefreshIcon height={20} width={20} fill="white" />
               {isMobile ? (
@@ -216,6 +198,26 @@ function Manage() {
                 </span>
               )}
             </button>
+
+            <button
+              disabled={tableLoading}
+              className={
+                tableLoading
+                  ? 'outline-button center disabled-button'
+                  : 'outline-button center'
+              }
+              style={{
+                padding: '0.75em',
+              }}
+              onClick={() => navigate('/create')}
+            >
+              <span
+                className="text white"
+                style={{ fontSize: '16px', padding: '0 0.2em' }}
+              >
+                Create ANT
+              </span>
+            </button>
           </div>
         </div>
         {tableLoading ? (
@@ -226,7 +228,7 @@ function Manage() {
             <Loader
               message={
                 !percent
-                  ? `Querying for wallet contracts...${antIds.length} found`
+                  ? `Querying for wallet contracts...${pdntIds.length} found`
                   : `Validating contracts...${Math.round(percent)}%`
               }
             />
@@ -234,7 +236,7 @@ function Manage() {
         ) : (
           <>
             <Table
-              scroll={{ x: true }}
+              scroll={pdntIds.length ? { x: true } : {}}
               columns={tableColumns}
               data={filteredTableData}
             />
@@ -245,6 +247,7 @@ function Manage() {
               total={tableData.length}
               rootClassName="center"
               defaultCurrent={1}
+              showSizeChanger={false}
             />
           </>
         )}
