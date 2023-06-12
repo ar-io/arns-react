@@ -1,17 +1,16 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import Arweave from 'arweave/node';
 import Ar from 'arweave/node/ar';
+import { ResponseWithData } from 'arweave/node/lib/api';
 
 import {
   ArweaveDataProvider,
   ArweaveTransactionID,
   TransactionHeaders,
-  TransactionTag,
 } from '../../types';
 import { tagsToObject } from '../../utils';
 import {
   RECOMMENDED_TRANSACTION_CONFIRMATIONS,
-  approvedContractsForWalletQuery,
+  transactionByOwnerQuery,
 } from '../../utils/constants';
 
 export class SimpleArweaveDataProvider implements ArweaveDataProvider {
@@ -22,9 +21,9 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
     this._arweave = arweave;
   }
 
-  async getWalletBalance(id: ArweaveTransactionID): Promise<number> {
+  async getArBalance(wallet: ArweaveTransactionID): Promise<number> {
     const winstonBalance = await this._arweave.wallets.getBalance(
-      id.toString(),
+      wallet.toString(),
     );
     return +this._ar.winstonToAr(winstonBalance);
   }
@@ -40,64 +39,11 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
   async getTransactionTags(
     id: ArweaveTransactionID,
   ): Promise<{ [x: string]: string }> {
-    const { data: tags } = await this._arweave.api.get(
+    const { data: encodedTags } = await this._arweave.api.get(
       `/tx/${id.toString()}/tags`,
     );
-    const decodedTags = tagsToObject(JSON.parse(tags));
+    const decodedTags = tagsToObject(encodedTags);
     return decodedTags;
-  }
-
-  async getContractsForWallet(
-    approvedSourceCodeTransactions: ArweaveTransactionID[],
-    address: ArweaveTransactionID,
-    cursor: string | undefined,
-  ): Promise<{
-    ids: ArweaveTransactionID[];
-    isLastPage: boolean;
-    cursor?: string;
-  }> {
-    const fetchedANTids: Set<ArweaveTransactionID> = new Set();
-    let newCursor: string | undefined = undefined;
-    let isLastPage = false;
-
-    // get contracts deployed by user, filtering with src-codes to only get ANT contracts
-
-    const deployedResponse = await this._arweave.api.post(
-      '/graphql',
-      approvedContractsForWalletQuery(
-        address,
-        approvedSourceCodeTransactions,
-        cursor,
-      ),
-    );
-    if (deployedResponse.data.data?.transactions?.edges?.length) {
-      deployedResponse.data.data.transactions.edges
-        .map((e: any) => ({
-          id: new ArweaveTransactionID(e.node.id),
-          cursor: e.cursor,
-          isLastPage: !e.pageInfo?.hasNextPage,
-        }))
-        .forEach(
-          (ant: {
-            id: ArweaveTransactionID;
-            cursor: string;
-            isLastPage: boolean;
-          }) => {
-            fetchedANTids.add(ant.id);
-            if (ant.cursor) {
-              newCursor = ant.cursor;
-            }
-            if (ant.isLastPage) {
-              isLastPage = ant.isLastPage;
-            }
-          },
-        );
-    }
-    return {
-      ids: [...fetchedANTids],
-      cursor: newCursor,
-      isLastPage: isLastPage,
-    };
   }
 
   async getTransactionHeaders(
@@ -156,6 +102,60 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
     });
   }
 
+  async validateArweaveAddress(address: string): Promise<boolean> {
+    try {
+      const targetAddress = new ArweaveTransactionID(address);
+
+      const txPromise = this._arweave.api
+        .get(`/tx/${targetAddress.toString()}`)
+        .then((res: ResponseWithData<TransactionHeaders>) =>
+          res.status === 200 ? res.data : undefined,
+        );
+
+      const balancePromise = this._arweave.api
+        .get(`/wallet/${targetAddress.toString()}/balance`)
+        .then((res: ResponseWithData<number>) =>
+          res.status === 200 ? res.data > 0 : undefined,
+        );
+
+      const gqlPromise = this._arweave.api
+        .post(`/graphql`, transactionByOwnerQuery(targetAddress))
+        .then((res: ResponseWithData<any>) =>
+          res.status === 200 ? res.data.data.transactions.edges : [],
+        );
+
+      const [isTransaction, balance, hasTransactions] = await Promise.all([
+        txPromise,
+        balancePromise,
+        gqlPromise,
+      ]);
+
+      if (hasTransactions.length || balance) {
+        return true;
+      }
+
+      if (isTransaction) {
+        const tags = tagsToObject(isTransaction.tags);
+
+        const isContract = Object.values(tags).includes('SmartWeaveContract');
+
+        throw new Error(
+          `Provided address (${targetAddress.toString()} is a ${
+            isContract ? 'Smartweave Contract' : 'transaction ID'
+          }.`,
+        );
+      }
+      // test address : ceN9pWPt4IdPWj6ujt_CCuOOHGLpKu0MMrpu9a0fJNM
+      // must be connected to a gateway that fetches L2 to perform this check
+      if (!hasTransactions || !hasTransactions.length) {
+        throw new Error(`Address has no transactions`);
+      }
+      return true;
+    } catch (error) {
+      throw new Error(`Unable to verify this is an arweave address.`);
+    }
+  }
+
   async validateConfirmations(
     id: string,
     numberOfConfirmations = RECOMMENDED_TRANSACTION_CONFIRMATIONS,
@@ -185,5 +185,9 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
       console.error(error);
       return 0;
     }
+  }
+
+  async getCurrentBlockHeight(): Promise<number> {
+    return (await this._arweave.blocks.getCurrent()).height;
   }
 }

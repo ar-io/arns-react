@@ -1,11 +1,12 @@
 import { CubeIcon } from '../components/icons';
-import { About, Home, Manage, Transaction } from '../components/pages';
+import { Home, Manage } from '../components/pages';
 
 export type Route = {
   text: string;
   path: string;
-  component: () => JSX.Element;
+  component: (() => JSX.Element) | undefined;
   protected: boolean;
+  external?: boolean;
   icon?: React.FC<React.SVGProps<SVGSVGElement>>;
   index?: boolean;
 };
@@ -20,24 +21,17 @@ export const ROUTES: { [x: string]: Route } = {
   },
   about: {
     text: 'Info',
-    path: '/info',
-    component: About,
+    path: 'https://ar.io/arns',
+    component: undefined,
     protected: false,
     index: false,
+    external: true,
   },
   manage: {
     text: 'Manage Assets',
     icon: CubeIcon,
     path: '/manage',
     component: Manage,
-    protected: true,
-    index: false,
-  },
-  transaction: {
-    text: 'Transaction',
-    icon: CubeIcon,
-    path: '/transaction',
-    component: Transaction,
     protected: true,
     index: false,
   },

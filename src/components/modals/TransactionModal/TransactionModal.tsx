@@ -1,12 +1,12 @@
 import { useState } from 'react';
 
-import { useIsMobile } from '../../../hooks';
+import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
-  ANT_INTERACTION_TYPES,
-  AntMetadata,
-  ArNSRecordEntry,
   ArweaveTransactionID,
+  PDNSRecordEntry,
+  PDNTMetadata,
+  PDNT_INTERACTION_TYPES,
   TRANSACTION_TYPES,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
@@ -16,7 +16,7 @@ import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import './styles.css';
 
 function TransactionModal({
-  transactionType, // todo: add other tx types (ex edit ant, IO token management)
+  transactionType, // todo: add other tx types (ex edit pdnt, IO token management)
   interactionType,
   contractId,
   // todo: implement advanced settings
@@ -26,12 +26,13 @@ function TransactionModal({
 }: {
   // main control for how the modal is built
   transactionType: TRANSACTION_TYPES;
-  interactionType?: ANT_INTERACTION_TYPES;
-  state?: AntMetadata;
+  interactionType?: PDNT_INTERACTION_TYPES;
+  state?: PDNTMetadata;
   contractId?: ArweaveTransactionID; // contract ID if asset type is a contract interaction
   showModal: () => void;
 }) {
-  const [{ arnsSourceContract, arweaveDataProvider }] = useGlobalState();
+  const [{ pdnsSourceContract }] = useGlobalState();
+  const arweaveDataProvider = useArweaveCompositeProvider();
   const isMobile = useIsMobile();
   const [accepted, setAccepted] = useState<boolean>(false);
   const [toAddress, setToAddress] = useState<string>('');
@@ -40,8 +41,8 @@ function TransactionModal({
   // todo: add "transfer to another account" dropdown
 
   function getAssociatedNames(txId: ArweaveTransactionID) {
-    return Object.entries(arnsSourceContract.records)
-      .map(([name, recordEntry]: [string, ArNSRecordEntry]) => {
+    return Object.entries(pdnsSourceContract.records)
+      .map(([name, recordEntry]: [string, PDNSRecordEntry]) => {
         if (recordEntry.contractTxId === txId.toString()) return name;
       })
       .filter((n) => !!n);
@@ -123,7 +124,7 @@ function TransactionModal({
             </button>
           </div>
           {/** modal body - condition render edit or transfer */}
-          {interactionType === ANT_INTERACTION_TYPES.TRANSFER ? (
+          {interactionType === PDNT_INTERACTION_TYPES.TRANSFER ? (
             <div
               className="flex flex-column"
               style={{
@@ -163,8 +164,10 @@ function TransactionModal({
                 }
                 showValidationChecklist={true}
                 validationPredicates={{
-                  [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: (id: string) =>
-                    arweaveDataProvider.validateArweaveId(id),
+                  [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
+                    fn: (id: string) =>
+                      arweaveDataProvider.validateArweaveId(id),
+                  },
                 }}
               />
               {getAssociatedNames(contractId!).length ? (
@@ -184,10 +187,10 @@ function TransactionModal({
                     className="text faded"
                     style={{ textAlign: 'left', width: '90%' }}
                   >
-                    This ANT has{' '}
+                    This PDNT has{' '}
                     {`${getAssociatedNames(contractId!).length} name(s)`} that
-                    are associated with it. By transferring this ANT, you will
-                    also be transferring control of those names to the new ANT
+                    are associated with it. By transferring this PDNT, you will
+                    also be transferring control of those names to the new PDNT
                     holder.
                   </span>
                 </span>

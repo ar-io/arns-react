@@ -1,17 +1,18 @@
 import { Link } from 'react-router-dom';
 
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
-import { ArnsCard } from '../../cards';
+import { PDNSCard } from '../../cards';
 import './styles.css';
 
 function SuccessfulRegistration() {
   const [{ domain, resolvedTxID }] = useRegistrationState();
-
+  const [{ gateway }] = useGlobalState();
   return (
     <>
       <div className="flex-column center" style={{ gap: '3em' }}>
         <span className="text-large white center">
-          <b>{domain}</b>.arweave.net is yours!
+          <b>{domain}</b>.{gateway} is yours!
         </span>
 
         <div className="flex-column center" style={{ gap: '1em' }}>
@@ -31,13 +32,13 @@ function SuccessfulRegistration() {
           </span>
           <span className="flex text faded center">
             It will take at least 15 minutes for gateways to resolve this new
-            ArNS domain name.
+            PDNS domain name.
           </span>
         </div>
 
         {domain ? (
           <>
-            <ArnsCard domain={domain} id={resolvedTxID!} />
+            <PDNSCard domain={domain} id={resolvedTxID!} />
             <span>
               <Link
                 to={'/manage'}

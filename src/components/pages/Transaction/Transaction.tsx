@@ -8,10 +8,10 @@ import TransactionWorkflow, {
 } from '../../layout/TransactionWorkflow/TransactionWorkflow';
 
 function Transaction() {
-  const { transactionData, contractType, interactionType, workflowStage } =
+  const { transactionData, interactionType, workflowStage } =
     useTransactionData();
   const from = useLocation().state;
-  const [{}, dispatchTransactionState] = useTransactionState(); // eslint-disable-line
+  const [, dispatchTransactionState] = useTransactionState();
 
   useEffect(() => {
     if (from) {
@@ -25,12 +25,13 @@ function Transaction() {
   if (!transactionData) {
     return <Navigate to={from ?? '/'} />;
   }
-
   return (
     <>
-      <div className="page">
+      <div
+        className="page flex flex-column center"
+        style={{ width: '100%', maxWidth: 776, margin: 'auto' }}
+      >
         <TransactionWorkflow
-          contractType={contractType}
           interactionType={interactionType}
           transactionData={transactionData}
           workflowStage={workflowStage}

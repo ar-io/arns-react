@@ -1,181 +1,326 @@
-import { useEffect, useRef, useState } from 'react';
+import { CheckCircleFilled } from '@ant-design/icons';
+import { Tooltip } from 'antd';
+import { useEffect, useState } from 'react';
 
+import { useArweaveCompositeProvider } from '../../../hooks';
+import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
-import { ArweaveTransactionID, VALIDATION_INPUT_TYPES } from '../../../types';
-import Dropdown from '../../inputs/Dropdown/Dropdown';
-import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
-import UpgradeTier from '../UpgradeTier/UpgradeTier';
+import {
+  ArweaveTransactionID,
+  PDNTContractJSON,
+  TRANSACTION_TYPES,
+} from '../../../types';
+import { calculatePDNSNamePrice } from '../../../utils';
+import {
+  MAX_LEASE_DURATION,
+  MIN_LEASE_DURATION,
+  NAME_PRICE_INFO,
+  SMARTWEAVE_TAG_SIZE,
+} from '../../../utils/constants';
+import YearsCounter from '../../inputs/Counter/Counter';
+import NameTokenSelector from '../../inputs/text/NameTokenSelector/NameTokenSelector';
+import ArPrice from '../ArPrice/ArPrice';
+import Loader from '../Loader/Loader';
+import StepProgressBar from '../progress/Steps/Steps';
 import './styles.css';
 
 function RegisterNameForm() {
-  const [{ domain, ttl, antID }, dispatchRegisterState] =
+  const [{ domain, fee, leaseDuration, tier }, dispatchRegisterState] =
     useRegistrationState();
-  const [{ arnsSourceContract, arweaveDataProvider }] = useGlobalState();
+  const [{ pdnsSourceContract, walletAddress }] = useGlobalState();
+  const arweaveDataProvider = useArweaveCompositeProvider();
 
-  const [isValidAnt, setIsValidAnt] = useState<boolean | undefined>(undefined);
-  const [antTxID, setAntTXId] = useState<string | undefined>(antID?.toString());
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [transactionType, setTransactionType] = useState<TRANSACTION_TYPES>(
+    TRANSACTION_TYPES.LEASE,
+  ); // lease or buy
 
   useEffect(() => {
-    if (!antID) {
-      reset();
-      return;
+    const fees = pdnsSourceContract.fees;
+    if (domain) {
+      const newFee = calculatePDNSNamePrice({
+        domain,
+        selectedTier: tier,
+        years: leaseDuration,
+        fees,
+      });
+      dispatchRegisterState({
+        type: 'setFee',
+        payload: { ar: fee.ar, io: newFee },
+      });
     }
-    if (inputRef.current) {
-      inputRef.current.focus();
-      handleAntId(antID.toString());
-    }
-  }, []);
+  }, [leaseDuration, tier, domain, pdnsSourceContract]);
 
-  function reset() {
-    setIsValidAnt(undefined);
-    setAntTXId('');
-    dispatchRegisterState({
-      type: 'setAntID',
-      payload: undefined,
-    });
-    dispatchRegisterState({
-      type: 'setTTL',
-      payload: 100,
-    });
-  }
-
-  async function handleAntId(id?: string) {
+  async function handlePDNTId(id?: string) {
     if (!id || !id.length) {
-      reset();
       return;
     }
-    if (id && id.length < 44) {
-      setAntTXId(id);
-    }
-
     try {
       const txId = new ArweaveTransactionID(id);
       dispatchRegisterState({
-        type: 'setAntID',
+        type: 'setPDNTID',
         payload: txId,
       });
 
-      const state = await arweaveDataProvider.getContractState(txId);
+      const state =
+        await arweaveDataProvider.getContractState<PDNTContractJSON>(txId);
       if (state == undefined) {
-        throw Error('ANT contract state is undefined');
+        throw Error('PDNT contract state is undefined');
       }
+      const pdnt = new PDNTContract(state);
 
-      const { controller, name, owner, ticker, records } = state;
-      dispatchRegisterState({
-        type: 'setControllers',
-        payload: [
-          controller
-            ? new ArweaveTransactionID(controller)
-            : new ArweaveTransactionID(owner),
-        ],
-      });
-      // update to use ANTContract
-      dispatchRegisterState({
-        type: 'setNickname',
-        payload: name,
-      });
-      dispatchRegisterState({
-        type: 'setOwner',
-        payload: new ArweaveTransactionID(owner),
-      });
-      dispatchRegisterState({
-        type: 'setTicker',
-        payload: ticker,
-      });
-      // legacy targetID condition
-      if (records['@']) {
-        if (records['@'].transactionId) {
-          dispatchRegisterState({
-            type: 'setTargetID',
-            payload: new ArweaveTransactionID(records['@'].transactionId),
-          });
-        }
-        if (!records['@'].transactionId)
-          dispatchRegisterState({
-            type: 'setTargetID',
-            payload: new ArweaveTransactionID(records['@']),
-          });
+      if (!pdnt.isValid()) {
+        throw Error('PDNT contract state does not match required schema.');
       }
-
-      setIsValidAnt(true);
     } catch (error: any) {
       dispatchRegisterState({
-        type: 'setAntID',
+        type: 'setPDNTID',
         payload: undefined,
       });
-      // don't emit here, since we have the validation
     }
   }
 
+  if (!walletAddress) {
+    return <Loader size={80} />;
+  }
+
   return (
-    <>
-      <div className="register-name-modal">
-        <span className="text-large white center">
-          {domain}.arweave.net is available!
-        </span>
-        <div className="section-header">Register Domain</div>
-        <div className="register-inputs center">
-          <div className="input-group center column">
-            <ValidationInput
-              value={antTxID ?? ''}
-              setValue={(e: string) => handleAntId(e)}
-              validityCallback={(isValid: boolean) => setIsValidAnt(isValid)}
-              wrapperClassName={'flex flex-column center'}
-              wrapperCustomStyle={{ gap: '0.5em', boxSizing: 'border-box' }}
-              showValidationIcon={true}
-              inputClassName={'data-input center'}
-              inputCustomStyle={
-                isValidAnt && antTxID
-                  ? { border: 'solid 2px var(--success-green)', width: '100%' }
-                  : !isValidAnt && antTxID
-                  ? { border: 'solid 2px var(--error-red)', width: '100%' }
-                  : {}
-              }
-              placeholder={'Enter an ANT Contract ID Validation Input'}
-              validationPredicates={{
-                [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: (id: string) =>
-                  arweaveDataProvider.validateArweaveId(id),
-                [VALIDATION_INPUT_TYPES.ANT_CONTRACT_ID]: (id: string) =>
-                  arweaveDataProvider.validateTransactionTags({
-                    id,
-                    requiredTags: {
-                      'Contract-Src':
-                        arnsSourceContract.approvedANTSourceCodeTxs,
-                    },
-                  }),
-                [VALIDATION_INPUT_TYPES.TRANSACTION_CONFIRMATIONS]: (
-                  id: string,
-                ) => arweaveDataProvider.validateConfirmations(id),
+    <div
+      className="flex flex-column flex-center"
+      style={{
+        maxWidth: '900px',
+        minWidth: 750,
+        width: '100%',
+        padding: 0,
+        margin: '50px',
+        marginTop: 0,
+        gap: 60,
+        boxSizing: 'border-box',
+      }}
+    >
+      <div
+        className="flex flex-row flex-center"
+        style={{
+          paddingBottom: 40,
+          borderBottom: 'solid 1px var(--text-faded)',
+        }}
+      >
+        <StepProgressBar
+          stages={[
+            { title: 'Choose', description: 'Pick a name', status: 'finish' },
+            {
+              title: 'Configure',
+              description: 'Registration Period',
+              status: 'process',
+            },
+            {
+              title: 'Confirm',
+              description: 'Review transaction',
+              status: 'wait',
+            },
+          ]}
+          stage={1}
+        />
+      </div>
+
+      <span
+        className="text-medium white center"
+        style={{ fontWeight: 500, fontSize: 23 }}
+      >
+        <span style={{ color: 'var(--success-green)' }}>{domain}</span>
+        &nbsp;is available!&nbsp;
+        <CheckCircleFilled
+          style={{ fontSize: 20, color: 'var(--success-green)' }}
+        />
+      </span>
+      <div className="flex flex-column flex-center">
+        <div
+          className="flex flex-column flex-center"
+          style={{
+            width: '100%',
+            height: 'fit-content',
+            gap: '25px',
+          }}
+        >
+          <div
+            className="flex flex-row flex-space-between"
+            style={{ gap: '25px' }}
+          >
+            <button
+              className="flex flex-row center text-medium bold pointer"
+              onClick={() => setTransactionType(TRANSACTION_TYPES.LEASE)}
+              style={{
+                position: 'relative',
+                background:
+                  transactionType === TRANSACTION_TYPES.LEASE
+                    ? 'var(--text-white)'
+                    : '',
+                color:
+                  transactionType === TRANSACTION_TYPES.LEASE
+                    ? 'var(--text-black)'
+                    : 'var(--text-white)',
+                border: 'solid 1px var(--text-white)',
+                borderRadius: 'var(--corner-radius)',
+                height: '56px',
+                borderBottomWidth: '0.5px',
               }}
-              maxLength={43}
-            />
+            >
+              {TRANSACTION_TYPES.LEASE}
+              {transactionType === TRANSACTION_TYPES.LEASE ? (
+                <div
+                  style={{
+                    position: 'absolute',
+                    bottom: -6,
+                    left: '50%',
+                    transform: 'rotate(45deg)',
+                    width: 11,
+                    height: 11,
+                    background: 'var(--text-white)',
+                  }}
+                ></div>
+              ) : (
+                <></>
+              )}
+            </button>
+            <button
+              className="flex flex-row center text-medium bold pointer"
+              style={{
+                position: 'relative',
+                background:
+                  transactionType === TRANSACTION_TYPES.BUY
+                    ? 'var(--text-white)'
+                    : '',
+                color:
+                  transactionType === TRANSACTION_TYPES.BUY
+                    ? 'var(--text-black)'
+                    : 'var(--text-white)',
+                border: 'solid 1px var(--text-white)',
+                borderRadius: 'var(--corner-radius)',
+                height: '56px',
+                borderBottomWidth: '0.5px',
+              }}
+              onClick={() => setTransactionType(TRANSACTION_TYPES.BUY)}
+            >
+              {TRANSACTION_TYPES.BUY}
+              {transactionType === TRANSACTION_TYPES.BUY ? (
+                <div
+                  style={{
+                    position: 'absolute',
+                    bottom: -6,
+                    left: '50%',
+                    transform: 'rotate(45deg)',
+                    width: 11,
+                    height: 11,
+                    background: 'var(--text-white)',
+                  }}
+                ></div>
+              ) : (
+                <></>
+              )}
+            </button>
           </div>
-          <div className="input-group center">
-            <Dropdown
-              showSelected={true}
-              showChevron={true}
-              selected={`${ttl} seconds`}
-              setSelected={(value) =>
-                dispatchRegisterState({ type: 'setTTL', payload: value })
-              }
-              options={{
-                '100secs': 100,
-                '200secs': 200,
-                '300secs': 300,
-                '400secs': 400,
-                '500secs': 500,
-                '600secs': 600,
-                '700secs': 700,
-                '800secs': 800,
-              }}
-            />
+
+          <div
+            className="flex flex-column flex-center card"
+            style={{
+              width: '100%',
+              minHeight: 0,
+              height: 'fit-content',
+              maxWidth: 'unset',
+              padding: '35px',
+              boxSizing: 'border-box',
+              borderTopWidth: '0.2px',
+              borderRadius: 'var(--corner-radius)',
+              justifyContent: 'flex-start',
+            }}
+          >
+            {transactionType === TRANSACTION_TYPES.LEASE ? (
+              <YearsCounter
+                period="years"
+                minValue={MIN_LEASE_DURATION}
+                maxValue={MAX_LEASE_DURATION}
+              />
+            ) : transactionType === TRANSACTION_TYPES.BUY ? (
+              <div
+                className="flex flex-column flex-center"
+                style={{ gap: '1em' }}
+              >
+                <span className="text-medium faded center">
+                  Registration Period
+                </span>
+                <span className="text-medium white center">Permanent</span>
+              </div>
+            ) : (
+              <></>
+            )}
           </div>
         </div>
-        <UpgradeTier />
+
+        <div className="flex flex-column" style={{ gap: '75px' }}>
+          <NameTokenSelector
+            selectedTokenCallback={(id) => handlePDNTId(id?.toString())}
+          />
+          <div
+            className="flex flex-row"
+            style={{
+              borderBottom: 'solid 1px var(--text-faded)',
+              padding: '20px 0px',
+              justifyContent: 'flex-end',
+              alignItems: 'flex-start',
+            }}
+          >
+            <span className="text white">Cost:</span>
+            <div
+              className="flex flex-column"
+              style={{
+                gap: '0.2em',
+                alignItems: 'flex-end',
+                width: 'fit-content',
+              }}
+            >
+              <Tooltip
+                placement="right"
+                autoAdjustOverflow={true}
+                arrow={true}
+                trigger={'hover'}
+                overlayInnerStyle={{
+                  width: '190px',
+                  color: 'var(--text-black)',
+                  textAlign: 'center',
+                  fontFamily: 'Rubik-Bold',
+                  fontSize: '14px',
+                  backgroundColor: 'var(--text-white)',
+                  padding: '15px',
+                }}
+                title={
+                  <span className="flex flex-column" style={{ gap: '15px' }}>
+                    {NAME_PRICE_INFO}
+                    <a
+                      href="https://ar.io/arns/"
+                      rel="noreferrer"
+                      target="_blank"
+                      className="link center faded underline bold"
+                      style={{ fontSize: '12px' }}
+                    >
+                      Need help choosing a tier?
+                    </a>
+                  </span>
+                }
+              >
+                <span
+                  className="flex flex-row text white flex-right"
+                  style={{ gap: '5px', width: 'fit-content' }}
+                >
+                  {fee.io?.toLocaleString()}&nbsp;IO&nbsp;+&nbsp;
+                  <ArPrice dataSize={SMARTWEAVE_TAG_SIZE} />
+                </span>
+              </Tooltip>
+              <span className="text faded">(Approximately 0 USD)</span>
+            </div>
+          </div>
+        </div>
       </div>
-    </>
+    </div>
   );
 }
 

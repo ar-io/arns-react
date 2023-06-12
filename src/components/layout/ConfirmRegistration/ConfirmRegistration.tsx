@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 
+import { useArweaveCompositeProvider } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { NAME_PRICE_INFO, SMARTWEAVE_TAG_SIZE } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
-import { AntCard } from '../../cards';
+import { PDNTCard } from '../../cards';
 import ArPrice from '../ArPrice/ArPrice';
 import Loader from '../Loader/Loader';
 import { Tooltip } from '../Tooltip/Tooltip';
@@ -12,23 +13,24 @@ import './styles.css';
 
 function ConfirmRegistration() {
   const [
-    { domain, ttl, tier, leaseDuration, antID, fee, stage },
+    { domain, ttl, tier, leaseDuration, pdntID, fee, stage },
     dispatchRegistrationState,
   ] = useRegistrationState();
-  const [{ arnsSourceContract, arnsContractId, arweaveDataProvider }] =
+  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [{ pdnsSourceContract, pdnsContractId, gateway, walletAddress }] =
     useGlobalState();
   const [isPostingTransaction, setIsPostingTransaction] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
   useEffect(() => {
-    if (!antID) {
+    if (!pdntID) {
       return;
     }
     // TODO: probably no longer necessary since we do the validations before rendering this component
     arweaveDataProvider
       .validateTransactionTags({
-        id: antID.toString(),
+        id: pdntID.toString(),
         requiredTags: {
-          'Contract-Src': arnsSourceContract.approvedANTSourceCodeTxs,
+          'Contract-Src': pdnsSourceContract.approvedANTSourceCodeTxs,
         },
       })
       .then(() => {
@@ -38,28 +40,28 @@ function ConfirmRegistration() {
         eventEmitter.emit('error', error);
         setIsConfirmed(false);
       });
-  }, [antID, arnsContractId]);
+  }, [pdntID, pdnsContractId]);
 
-  async function buyArnsName() {
+  async function buyPDNSName() {
     try {
       setIsPostingTransaction(true);
-      if (!antID) {
+      if (!pdntID || !walletAddress) {
         return;
       }
-      const pendingTXId = await arweaveDataProvider.writeTransaction(
-        arnsContractId,
-        {
+      const pendingTXId = await arweaveDataProvider.writeTransaction({
+        walletAddress,
+        contractTxId: pdnsContractId,
+        payload: {
           function: 'buyRecord',
           name: domain,
-          contractTxId: antID.toString(),
+          contractTxId: pdntID.toString(),
         },
-      );
+      });
       if (pendingTXId) {
         dispatchRegistrationState({
           type: 'setResolvedTx',
           payload: pendingTXId,
         });
-        console.log(`Posted transaction: ${pendingTXId}`);
       }
       // TODO: write to local storage to store pending transactions
       dispatchRegistrationState({
@@ -78,7 +80,7 @@ function ConfirmRegistration() {
       <div className="register-name-modal center">
         {!isPostingTransaction ? (
           <span className="text-large white">
-            {domain}.arweave.net is available!
+            {domain}.{gateway} is available!
           </span>
         ) : (
           <></>
@@ -88,9 +90,9 @@ function ConfirmRegistration() {
           <Loader size={80} />
         ) : isConfirmed ? (
           <>
-            <AntCard
+            <PDNTCard
               domain={domain ?? ''}
-              id={antID ? antID : undefined}
+              id={pdntID ? pdntID : undefined}
               compact={false}
               enableActions={false}
               overrides={{
@@ -108,7 +110,7 @@ function ConfirmRegistration() {
             </span>
             <div className="flex flex-column center" style={{ gap: '0.2em' }}>
               <Tooltip message={NAME_PRICE_INFO}>
-                <span className="white bold text-small">
+                <span className="white bold text-medium">
                   {fee.io?.toLocaleString()}&nbsp;IO&nbsp;+&nbsp;
                   <ArPrice dataSize={SMARTWEAVE_TAG_SIZE} />
                 </span>
@@ -135,9 +137,9 @@ function ConfirmRegistration() {
             {isConfirmed ? (
               <button
                 className="accent-button"
-                disabled={!antID || !isConfirmed}
+                disabled={!pdntID || !isConfirmed}
                 onClick={() => {
-                  buyArnsName();
+                  buyPDNSName();
                 }}
               >
                 Confirm

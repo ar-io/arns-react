@@ -1,55 +1,23 @@
-import Arweave from 'arweave';
 import React, { Dispatch, createContext, useContext, useReducer } from 'react';
 
-import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
-import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
-import { WarpDataProvider } from '../../services/arweave/WarpDataProvider';
 import { ArweaveTransactionID } from '../../types';
-import type {
-  ArNSContractJSON,
-  ArweaveDataProvider,
-  ArweaveWalletConnector,
-  SmartweaveDataProvider,
-} from '../../types';
+import type { ArweaveWalletConnector, PDNSContractJSON } from '../../types';
+import { DEFAULT_PDNS_REGISTRY_STATE } from '../../utils/constants';
 import type { Action } from '../reducers/GlobalReducer';
 
-const defaultArweave = new Arweave({
-  host: 'arweave.net',
-  protocol: 'https',
-});
-
 export type GlobalState = {
-  arweaveDataProvider: ArweaveDataProvider & SmartweaveDataProvider;
-  arnsSourceContract: ArNSContractJSON;
+  pdnsSourceContract: PDNSContractJSON;
   gateway: string;
   walletAddress?: ArweaveTransactionID;
   wallet?: ArweaveWalletConnector;
-  arnsContractId: ArweaveTransactionID;
+  pdnsContractId: ArweaveTransactionID;
 };
 
 const initialState: GlobalState = {
-  arweaveDataProvider: new ArweaveCompositeDataProvider(
-    new WarpDataProvider(defaultArweave),
-    new SimpleArweaveDataProvider(defaultArweave),
-  ),
-  arnsContractId: new ArweaveTransactionID(
+  pdnsContractId: new ArweaveTransactionID(
     'bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U',
   ),
-  arnsSourceContract: {
-    records: {},
-    fees: {},
-    balances: { '': 0 },
-    controllers: [],
-    evolve: undefined,
-    tiers: {
-      history: [],
-      current: {},
-    },
-    name: '',
-    owner: undefined,
-    ticker: '',
-    approvedANTSourceCodeTxs: [],
-  },
+  pdnsSourceContract: DEFAULT_PDNS_REGISTRY_STATE,
   gateway: 'arweave.net',
   walletAddress: undefined,
   wallet: undefined,
