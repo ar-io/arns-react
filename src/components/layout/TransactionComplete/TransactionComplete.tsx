@@ -2,31 +2,28 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import {
   ArweaveTransactionID,
-  ContractType,
-  PDNTInteraction,
-  RegistryInteraction,
   TransactionData,
+  ValidInteractionType,
 } from '../../../types';
-import { WARP_CONTRACT_BASE_URL } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
-import { getPDNSMappingByInteractionType } from '../../../utils/transactionUtils/transactionUtils';
+import {
+  getLinkId,
+  getPDNSMappingByInteractionType,
+} from '../../../utils/transactionUtils/transactionUtils';
 import { PDNTCard } from '../../cards';
 import { ArrowUpRight } from '../../icons';
 
 function TransactionComplete({
   transactionId,
-  contractType,
   interactionType,
   transactionData,
 }: {
   transactionId?: ArweaveTransactionID;
-  contractType: ContractType;
-  interactionType: PDNTInteraction | RegistryInteraction;
+  interactionType: ValidInteractionType;
   transactionData: TransactionData;
 }) {
   const navigate = useNavigate();
   const pdntProps = getPDNSMappingByInteractionType({
-    contractType,
     interactionType,
     transactionData,
   });
@@ -39,19 +36,22 @@ function TransactionComplete({
 
   return (
     <>
-      <div className="flex-column center" style={{ gap: '3em' }}>
+      <div
+        className="flex-column center"
+        style={{ gap: '3em', width: '700px' }}
+      >
         <div className="flex-column center" style={{ gap: '2em' }}>
           {/* TODO: configure error or fail states */}
           <PDNTCard {...pdntProps} />
           <div
             className="flex flex-row center"
-            style={{ gap: '1em', maxWidth: '782px' }}
+            style={{
+              maxWidth: '75%',
+              justifyContent: 'space-evenly',
+              boxSizing: 'border-box',
+            }}
           >
-            <Link
-              to="/create"
-              className="link"
-              style={{ textDecoration: 'none' }}
-            >
+            <Link to="/" className="link" style={{ textDecoration: 'none' }}>
               <div
                 className="flex flex-column center card"
                 style={{
@@ -68,50 +68,17 @@ function TransactionComplete({
                   height={'30px'}
                   fill={'var(--text-white)'}
                 />
-                <span className="flex text-small faded center">
+                <span className="flex text-medium faded center">
                   Register a Name
                 </span>
               </div>
             </Link>
 
-            {transactionId ? (
-              <Link
-                rel="noreferrer"
-                target={'_blank'}
-                to={`${WARP_CONTRACT_BASE_URL}${transactionId.toString()}`}
-                className="link"
-                style={{ textDecoration: 'none' }}
-              >
-                <div
-                  className="flex flex-column center card"
-                  style={{
-                    minWidth: '175px',
-                    minHeight: '100px',
-                    flex: 1,
-                    padding: '0px',
-                    gap: '.5em',
-                    textDecoration: 'none',
-                  }}
-                >
-                  <ArrowUpRight
-                    width={'30px'}
-                    height={'30px'}
-                    fill={'var(--text-white)'}
-                  />
-                  <span
-                    className="flex text-small faded center"
-                    style={{ textDecorationLine: 'none' }}
-                  >
-                    View on Sonar
-                  </span>
-                </div>
-              </Link>
-            ) : (
-              <></>
-            )}
-
             <Link
-              to={`/manage/pdnts/${transactionData.assetId}`}
+              to={`/manage/pdnts/${getLinkId(interactionType, {
+                ...transactionData,
+                deployedTransactionId: transactionId,
+              }).trim()}`}
               className="link"
               style={{ textDecoration: 'none' }}
             >
@@ -131,7 +98,7 @@ function TransactionComplete({
                   height={'30px'}
                   fill={'var(--text-white)'}
                 />
-                <span className="flex text-small faded center">
+                <span className="flex text-medium faded center">
                   Manage PDNT
                 </span>
               </div>
@@ -139,7 +106,10 @@ function TransactionComplete({
 
             <Link
               // TODO: update to route to undernames
-              to={`/manage/pdnts/${transactionData.assetId}`}
+              to={`/manage/pdnts/${getLinkId(interactionType, {
+                ...transactionData,
+                deployedTransactionId: transactionId,
+              }).trim()}/undernames`}
               className="link"
               style={{ textDecoration: 'none' }}
             >
@@ -159,7 +129,7 @@ function TransactionComplete({
                   height={'30px'}
                   fill={'var(--text-white)'}
                 />
-                <span className="flex text-small faded center">
+                <span className="flex text-medium faded center">
                   Add Undernames
                 </span>
               </div>

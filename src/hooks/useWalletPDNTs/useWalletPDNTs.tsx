@@ -1,22 +1,28 @@
+import { Tooltip } from 'antd';
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import { useArweaveCompositeProvider, useIsMobile, useWalletAddress } from '..';
 import {
   BookmarkIcon,
   ChevronUpIcon,
+  CirclePending,
+  ExternalLinkIcon,
   FileCodeIcon,
   NotebookIcon,
   RefreshAlertIcon,
   TargetIcon,
 } from '../../components/icons/index';
+import CopyTextButton from '../../components/inputs/buttons/CopyTextButton/CopyTextButton';
 import ManageAssetButtons from '../../components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
 import TransactionStatus from '../../components/layout/TransactionStatus/TransactionStatus';
+import { PDNTContract } from '../../services/arweave/PDNTContract';
 import {
-  ASSET_TYPES,
   ArweaveTransactionID,
   PDNTContractJSON,
   PDNTMetadata,
 } from '../../types';
+import { getPendingInteractionsRowsForContract } from '../../utils';
 import eventEmitter from '../../utils/events';
 
 export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
@@ -25,19 +31,55 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
   const { walletAddress } = useWalletAddress();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] = useState<keyof PDNTMetadata>('status');
-  const [selectedRow, setSelectedRow] = useState<PDNTMetadata>();
   const [rows, setRows] = useState<PDNTMetadata[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [percent, setPercentLoaded] = useState<number | undefined>();
 
   useEffect(() => {
-    if (ids.length) {
-      fetchPDNTRows(ids);
+    if (ids.length && walletAddress) {
+      fetchPDNTRows(ids, walletAddress);
     }
   }, [ids]);
 
   function generateTableColumns(): any[] {
     return [
+      {
+        title: '',
+        dataIndex: 'hasPending',
+        key: 'hasPending',
+        align: 'left',
+        width: '2%',
+        className: 'white',
+        render: (hasPending: boolean, row: any) => {
+          if (hasPending) {
+            return (
+              <Tooltip
+                placement="right"
+                title={
+                  <Link
+                    className="link white text underline"
+                    to={`/manage/pdnts/${row.id}`}
+                  >
+                    This contract has pending transactions.
+                    <ExternalLinkIcon
+                      height={12}
+                      width={12}
+                      fill={'var(--text-white)'}
+                    />
+                  </Link>
+                }
+                showArrow={true}
+                overlayStyle={{
+                  maxWidth: 'fit-content',
+                }}
+              >
+                <CirclePending height={20} width={20} fill={'var(--accent)'} />
+              </Tooltip>
+            );
+          }
+          return <></>;
+        },
+      },
       {
         title: (
           <button
@@ -63,7 +105,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
         key: 'name',
         align: 'left',
         width: '18%',
-        className: 'icon-padding white',
+        className: 'white',
         ellipsis: true,
         onHeaderCell: () => {
           return {
@@ -151,9 +193,24 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
         className: 'white',
         ellipsis: true,
         render: (val: string) =>
-          `${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
-            isMobile ? -2 : -6,
-          )}`,
+          val === 'N/A' ? (
+            val
+          ) : (
+            <CopyTextButton
+              copyText={val}
+              displayText={`${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
+                isMobile ? -2 : -6,
+              )}`}
+              size={'70%'}
+              position="relative"
+              wrapperStyle={{
+                alignItems: 'center',
+                margin: 'auto',
+                fontSize: '16px',
+              }}
+            />
+          ),
+
         onHeaderCell: () => {
           return {
             onClick: () => {
@@ -174,14 +231,14 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
           <button
             className="flex-row pointer white center"
             style={{ gap: '0.5em' }}
-            onClick={() => setSortField('target')}
+            onClick={() => setSortField('targetID')}
           >
             <ChevronUpIcon
               width={10}
               height={10}
               fill={'var(--text-faded)'}
               style={
-                sortField === 'target' && !sortAscending
+                sortField === 'targetID' && !sortAscending
                   ? { transform: 'rotate(180deg)' }
                   : {}
               }
@@ -190,22 +247,37 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
             <TargetIcon width={24} height={24} fill={'var(--text-faded)'} />
           </button>
         ),
-        dataIndex: 'target',
-        key: 'target',
+        dataIndex: 'targetID',
+        key: 'targetID',
         align: 'center',
         width: '18%',
         className: 'white',
         render: (val: string) =>
-          `${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
-            isMobile ? -2 : -6,
-          )}`,
+          val === 'N/A' ? (
+            val
+          ) : (
+            <CopyTextButton
+              copyText={val}
+              displayText={`${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
+                isMobile ? -2 : -6,
+              )}`}
+              size={'70%'}
+              position="relative"
+              wrapperStyle={{
+                alignItems: 'center',
+                margin: 'auto',
+                fontSize: '16px',
+              }}
+            />
+          ),
+
         onHeaderCell: () => {
           return {
             onClick: () => {
               rows.sort((a, b) =>
                 sortAscending
-                  ? a.target.localeCompare(b.target)
-                  : b.target.localeCompare(a.target),
+                  ? a.targetID.localeCompare(b.targetID)
+                  : b.targetID.localeCompare(a.targetID),
               );
               // forces update of rows
               setRows([...rows]);
@@ -269,9 +341,8 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
         title: '',
         render: (val: any, row: PDNTMetadata) => (
           <ManageAssetButtons
-            asset={val.id}
-            setShowModal={() => setSelectedRow(row)}
-            assetType={ASSET_TYPES.PDNT}
+            id={val.id}
+            assetType="pdnts"
             disabled={!row.state || !row.status}
           />
         ),
@@ -281,33 +352,82 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
     ];
   }
 
-  async function fetchPDNTRows(ids: ArweaveTransactionID[]) {
+  async function fetchPDNTRows(
+    ids: ArweaveTransactionID[],
+    address: ArweaveTransactionID,
+  ) {
     const fetchedRows: PDNTMetadata[] = [];
     setIsLoading(true);
-    for (const [index, id] of ids.entries()) {
+    for (const [index, contractTxId] of ids.entries()) {
       try {
-        const [contractState, confirmations] = await Promise.all([
-          arweaveDataProvider.getContractState<PDNTContractJSON>(id),
-          arweaveDataProvider.getTransactionStatus(id),
-        ]);
+        const [contractState, confirmations, pendingContractInteractions] =
+          await Promise.all([
+            arweaveDataProvider.getContractState<PDNTContractJSON>(
+              contractTxId,
+            ),
+            arweaveDataProvider.getTransactionStatus(contractTxId),
+            arweaveDataProvider.getPendingContractInteractions(
+              contractTxId,
+              address.toString(),
+            ),
+          ]);
+
+        if (!contractState) {
+          throw Error(`Failed to load contract: ${contractTxId.toString()}`);
+        }
+
+        const contract = new PDNTContract(contractState, contractTxId);
+
+        // simple check that it is ANT shaped contract
+        if (!contract.isValid()) {
+          continue;
+        }
+
+        const target =
+          contract.getRecord('@') &&
+          contract.getRecord('@')?.transactionId !== ''
+            ? contract.getRecord('@')?.transactionId
+            : undefined;
+
         // TODO: add error messages and reload state to row
         const rowData = {
-          name: contractState.name ?? 'N/A',
-          id: id.toString(),
+          name: contract.name ?? 'N/A',
+          id: contractTxId.toString(),
           role:
-            contractState.owner.toString() === walletAddress?.toString()
+            contract.owner === walletAddress?.toString()
               ? 'Owner'
-              : contractState.controller === walletAddress?.toString()
+              : contract.controller === walletAddress?.toString()
               ? 'Controller'
               : 'N/A',
-          target: (typeof contractState.records['@'] === 'string'
-            ? contractState.records['@']
-            : contractState.records['@'].transactionId) as string,
+          targetID: target ?? 'N/A',
+          ttlSeconds: contract.getRecord('@')?.ttlSeconds,
           status: confirmations ?? 0,
           state: contractState,
           key: index,
         };
-        fetchedRows.push(rowData);
+
+        // get any pending transactions for various attributes
+        const pendingTxsForContract = getPendingInteractionsRowsForContract(
+          pendingContractInteractions,
+          rowData,
+        );
+
+        // replace the values with pending ones until the interaction is confirmed
+        const pendingInteractions = pendingTxsForContract.reduce(
+          (pendingValues, i) => ({
+            ...pendingValues,
+            [i.attribute]: i.value,
+          }),
+          {},
+        );
+
+        const updatedRowData = {
+          ...rowData,
+          ...pendingInteractions,
+          hasPending: pendingTxsForContract.length,
+        };
+
+        fetchedRows.push(updatedRowData);
         // sort by confirmation count (ASC) by default
         fetchedRows.sort((a, b) => a.status - b.status);
       } catch (error) {
@@ -327,6 +447,5 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
     rows,
     sortField,
     sortAscending,
-    selectedRow,
   };
 }

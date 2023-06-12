@@ -62,7 +62,7 @@ function NavMenuCard() {
       pdnsContractId,
       walletAddress,
     );
-    const arBalance = await arweaveDataProvider.getWalletBalance(walletAddress);
+    const arBalance = await arweaveDataProvider.getArBalance(walletAddress);
     const [formattedBalance, formattedIOBalance] = [arBalance, ioBalance].map(
       (balance: string | number) =>
         Intl.NumberFormat('en-US', {
@@ -141,6 +141,7 @@ function NavMenuCard() {
                     <NavBarLink
                       path={route.path}
                       linkText={route.text}
+                      target={route.external ? '_blank' : '_self'}
                       key={key}
                       onClick={() => {
                         setShowMenu(false);
@@ -183,6 +184,7 @@ function NavMenuCard() {
                         <NavBarLink
                           path={route.path}
                           linkText={route.text}
+                          target={route.external ? '_blank' : '_self'}
                           key={key}
                           onClick={() => {
                             setShowMenu(false);

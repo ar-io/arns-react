@@ -4,9 +4,9 @@
   width: 90px;
   height: 30px;
   color: var(--text-white);
-  background: var(--bg-color);
+  background: var(--card-bg);
   border: 2px solid var(--text-white);
-  border-radius: 32.5px;
+  border-radius: var(--corner-radius);
   justify-content: center;
   align-items: center;
   font-family: 'Rubik';

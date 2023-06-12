@@ -17,7 +17,8 @@ function ConfirmRegistration() {
     dispatchRegistrationState,
   ] = useRegistrationState();
   const arweaveDataProvider = useArweaveCompositeProvider();
-  const [{ pdnsSourceContract, pdnsContractId }] = useGlobalState();
+  const [{ pdnsSourceContract, pdnsContractId, gateway, walletAddress }] =
+    useGlobalState();
   const [isPostingTransaction, setIsPostingTransaction] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
   useEffect(() => {
@@ -44,23 +45,23 @@ function ConfirmRegistration() {
   async function buyPDNSName() {
     try {
       setIsPostingTransaction(true);
-      if (!pdntID) {
+      if (!pdntID || !walletAddress) {
         return;
       }
-      const pendingTXId = await arweaveDataProvider.writeTransaction(
-        pdnsContractId,
-        {
+      const pendingTXId = await arweaveDataProvider.writeTransaction({
+        walletAddress,
+        contractTxId: pdnsContractId,
+        payload: {
           function: 'buyRecord',
           name: domain,
           contractTxId: pdntID.toString(),
         },
-      );
+      });
       if (pendingTXId) {
         dispatchRegistrationState({
           type: 'setResolvedTx',
           payload: pendingTXId,
         });
-        console.log(`Posted transaction: ${pendingTXId}`);
       }
       // TODO: write to local storage to store pending transactions
       dispatchRegistrationState({
@@ -79,7 +80,7 @@ function ConfirmRegistration() {
       <div className="register-name-modal center">
         {!isPostingTransaction ? (
           <span className="text-large white">
-            {domain}.arweave.net is available!
+            {domain}.{gateway} is available!
           </span>
         ) : (
           <></>
@@ -109,7 +110,7 @@ function ConfirmRegistration() {
             </span>
             <div className="flex flex-column center" style={{ gap: '0.2em' }}>
               <Tooltip message={NAME_PRICE_INFO}>
-                <span className="white bold text-small">
+                <span className="white bold text-medium">
                   {fee.io?.toLocaleString()}&nbsp;IO&nbsp;+&nbsp;
                   <ArPrice dataSize={SMARTWEAVE_TAG_SIZE} />
                 </span>

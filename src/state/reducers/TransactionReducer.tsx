@@ -1,9 +1,7 @@
 import { TRANSACTION_WORKFLOW_STATUS } from '../../components/layout/TransactionWorkflow/TransactionWorkflow';
 import {
   ArweaveTransactionID,
-  ContractType,
-  PDNTInteraction,
-  RegistryInteraction,
+  ExcludedValidInteractionType,
   TransactionData,
 } from '../../types';
 import {
@@ -18,10 +16,9 @@ export type TransactionAction =
     }
   | { type: 'setTransactionData'; payload: TransactionData }
   | { type: 'setDeployedTransactionId'; payload: ArweaveTransactionID }
-  | { type: 'setContractType'; payload: ContractType }
   | {
       type: 'setInteractionType';
-      payload: PDNTInteraction | RegistryInteraction;
+      payload: ExcludedValidInteractionType;
     }
   | { type: 'reset' };
 
@@ -46,12 +43,6 @@ export const transactionReducer = (
       return {
         ...state,
         deployedTransactionId: action.payload,
-      };
-    }
-    case 'setContractType': {
-      return {
-        ...state,
-        contractType: action.payload,
       };
     }
     case 'setInteractionType': {

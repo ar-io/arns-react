@@ -6,17 +6,21 @@ import {
   WarpFactory,
   defaultCacheOptions,
 } from 'warp-contracts';
+import { DeployPlugin } from 'warp-contracts-plugin-deploy';
 
 import {
   ArweaveTransactionID,
+  ContractInteraction,
   PDNSContractJSON,
   PDNTContractJSON,
   SmartweaveContractCache,
   SmartweaveContractInteractionProvider,
+  TransactionCache,
   TransactionTag,
 } from '../../types';
 import { byteSize } from '../../utils';
 import { SMARTWEAVE_MAX_TAG_SPACE } from '../../utils/constants';
+import { LocalStorageCache } from '../cache/LocalStorageCache';
 
 LoggerFactory.INST.logLevel('error');
 
@@ -24,16 +28,21 @@ export class WarpDataProvider
   implements SmartweaveContractInteractionProvider, SmartweaveContractCache
 {
   private _warp: Warp;
+  private _cache: TransactionCache;
 
-  constructor(arweave: Arweave) {
-    // using arweave gateway to stick to L1 only transactions
+  constructor(
+    arweave: Arweave,
+    cache: TransactionCache = new LocalStorageCache(),
+  ) {
+    // using ar.io gateway and stick to L1 only transactions
     this._warp = WarpFactory.forMainnet(
       {
         ...defaultCacheOptions,
       },
       true,
       arweave,
-    );
+    ).use(new DeployPlugin());
+    this._cache = cache;
   }
 
   async getContractState<T extends PDNTContractJSON | PDNSContractJSON>(
@@ -49,13 +58,19 @@ export class WarpDataProvider
     return cachedValue.state as T;
   }
 
-  async writeTransaction(
-    id: ArweaveTransactionID,
+  async writeTransaction({
+    walletAddress,
+    contractTxId,
+    payload,
+  }: {
+    walletAddress: ArweaveTransactionID;
+    contractTxId: ArweaveTransactionID;
     payload: {
       function: string;
       [x: string]: any;
-    },
-  ): Promise<ArweaveTransactionID | undefined> {
+    };
+    dryWrite?: boolean;
+  }): Promise<ArweaveTransactionID | undefined> {
     const payloadSize = byteSize(JSON.stringify(payload));
     if (!payload) {
       throw Error('Payload cannot be empty.');
@@ -65,8 +80,12 @@ export class WarpDataProvider
         'Payload too large for tag space, reduce the size of the data in payload.',
       );
     }
-    const contract = this._warp.contract(id.toString()).connect('use_wallet');
-    const result = await contract.writeInteraction(payload);
+    const contract = this._warp
+      .contract(contractTxId.toString())
+      .connect('use_wallet');
+    const result = await contract.writeInteraction(payload, {
+      disableBundling: true,
+    });
     // TODO: check for dry write options on writeInteraction
     if (!result) {
       throw Error('No result from write interaction');
@@ -76,6 +95,13 @@ export class WarpDataProvider
     if (!originalTxId) {
       throw Error('No transaction ID from write interaction');
     }
+
+    this._cache.push(walletAddress.toString(), {
+      id: originalTxId,
+      contractTxId: contractTxId.toString(),
+      payload,
+      type: 'interaction',
+    });
 
     return new ArweaveTransactionID(originalTxId);
   }
@@ -89,10 +115,12 @@ export class WarpDataProvider
   }
 
   async deployContract({
+    walletAddress,
     srcCodeTransactionId,
     initialState,
     tags = [],
   }: {
+    walletAddress: ArweaveTransactionID;
     srcCodeTransactionId: ArweaveTransactionID;
     initialState: PDNTContractJSON;
     tags?: TransactionTag[];
@@ -123,13 +151,42 @@ export class WarpDataProvider
 
     const { contractTxId } = await this._warp.deployFromSourceTx(
       deploymentPayload,
-      true,
+      true, // disable bundling
     );
 
     if (!contractTxId) {
       throw new Error('Deploy failed.');
     }
 
+    // TODO: emit event on successfully transaction
+    this._cache.push(walletAddress.toString(), {
+      contractTxId,
+      id: contractTxId,
+      payload: deploymentPayload,
+      type: 'deploy',
+    });
+
     return contractTxId;
   }
+
+  /* eslint-disable */
+  async getContractsForWallet(
+    address: ArweaveTransactionID,
+  ): Promise<{ ids: ArweaveTransactionID[] }> {
+    throw Error('Not implemented!');
+  }
+
+  async getContractInteractions(
+    id: ArweaveTransactionID,
+  ): Promise<ContractInteraction[]> {
+    throw Error('Not implemented!');
+  }
+
+  async getPendingContractInteractions(
+    id: ArweaveTransactionID,
+    key: string,
+  ): Promise<ContractInteraction[]> {
+    throw Error('Not implemented');
+  }
+  /* eslint-enable */
 }

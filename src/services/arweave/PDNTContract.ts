@@ -18,7 +18,6 @@ import {
 export class PDNTContract {
   id?: ArweaveTransactionID;
   contract: PDNTContractJSON;
-  // todo: add last updated - lastUpdated: Map<keyof PDNTContract, number> = new Map();
 
   constructor(state?: PDNTContractJSON, id?: ArweaveTransactionID) {
     this.id = id;
@@ -73,23 +72,24 @@ export class PDNTContract {
     ] of Object.entries(records)) {
       this.contract.records[domain] = {
         transactionId: transactionId
-          ? transactionId.toString()
-          : this.getRecord(domain).transactionId.toString(),
+          ? transactionId
+          : this.getRecord(domain)?.transactionId ?? '',
         maxUndernames: maxUndernames
           ? maxUndernames
-          : this.getRecord(domain).maxUndernames,
+          : this.getRecord(domain)?.maxUndernames ?? DEFAULT_MAX_UNDERNAMES,
         ttlSeconds: ttlSeconds
           ? ttlSeconds
-          : this.getRecord(domain).maxUndernames,
+          : this.getRecord(domain)?.ttlSeconds ?? DEFAULT_TTL_SECONDS,
       };
     }
   }
 
-  getRecord(name: string): PDNTContractDomainRecord {
+  getRecord(name: string): PDNTContractDomainRecord | undefined {
+    if (!this.contract.records[name]) return undefined;
     if (typeof this.contract.records[name] == 'string') {
       return {
         ttlSeconds: DEFAULT_TTL_SECONDS,
-        transactionId: (this.contract.records[name] as string) ?? '',
+        transactionId: this.contract.records[name] as string,
         maxUndernames: DEFAULT_MAX_UNDERNAMES,
       };
     }
@@ -124,5 +124,9 @@ export class PDNTContract {
   }
   get pdntId(): string | undefined {
     return this.pdntId?.toString();
+  }
+
+  isValid(): boolean {
+    return this.contract && this.records && !!this.getRecord('@');
   }
 }

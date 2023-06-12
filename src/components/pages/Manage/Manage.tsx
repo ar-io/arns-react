@@ -10,12 +10,7 @@ import {
   useWalletDomains,
   useWalletPDNTs,
 } from '../../../hooks';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
-import {
-  ArweaveTransactionID,
-  ManageTable,
-  PDNTMetadata,
-} from '../../../types';
+import { ArweaveTransactionID, ManageTable } from '../../../types';
 import { MANAGE_TABLE_NAMES } from '../../../types';
 import eventEmitter from '../../../utils/events';
 import { CodeSandboxIcon, NotebookIcon, RefreshIcon } from '../../icons';
@@ -23,7 +18,6 @@ import { Loader } from '../../layout/index';
 import './styles.css';
 
 function Manage() {
-  const [{ pdnsSourceContract }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const { walletAddress } = useWalletAddress();
   const isMobile = useIsMobile();
@@ -31,16 +25,13 @@ function Manage() {
   const { path } = useParams();
 
   const modalRef = useRef(null);
-  const [cursor] = useState<string | undefined>();
   const [pdntIds, setPDNTIDs] = useState<ArweaveTransactionID[]>([]);
-  const [selectedRow, setSelectedRow] = useState<PDNTMetadata>();
   const [percent, setPercentLoaded] = useState<number | undefined>();
   const {
     isLoading: pdntTableLoading,
     percent: percentPDNTsLoaded,
     columns: pdntColumns,
     rows: pdntRows,
-    selectedRow: selectedPDNTRow,
     sortAscending: pdntSortAscending,
     sortField: pdntSortField,
   } = useWalletPDNTs(pdntIds);
@@ -84,7 +75,6 @@ function Manage() {
       setTableData(pdntRows);
       setTableColumns(pdntColumns);
       setPercentLoaded(percentPDNTsLoaded);
-      setSelectedRow(selectedPDNTRow);
       const baseIndex = Math.max((tablePage - 1) * 10, 0);
       const endIndex = tablePage * 10;
       const filteredData = pdntRows.slice(baseIndex, endIndex);
@@ -95,7 +85,6 @@ function Manage() {
     pdntSortAscending,
     pdntSortField,
     pdntRows,
-    selectedPDNTRow,
     pdntTableLoading,
     percentPDNTsLoaded,
   ]);
@@ -125,12 +114,6 @@ function Manage() {
   }, [domainTableLoading, pdntTableLoading]);
 
   useEffect(() => {
-    if (selectedRow) {
-      navigate(selectedRow.id);
-    }
-  }, [selectedRow]);
-
-  useEffect(() => {
     if (percent === 100) {
       setPercentLoaded(undefined);
     }
@@ -140,11 +123,8 @@ function Manage() {
     try {
       setTableLoading(true);
       const { ids } = await arweaveDataProvider.getContractsForWallet(
-        pdnsSourceContract.approvedANTSourceCodeTxs.map(
-          (id: string) => new ArweaveTransactionID(id),
-        ),
         address,
-        cursor,
+        'ant', // only fetches contracts that have a state that matches ant spec
       );
       setPDNTIDs(ids);
     } catch (error: any) {
@@ -153,20 +133,12 @@ function Manage() {
     }
   }
 
-  function handleClickOutside(e: any) {
-    if (modalRef.current && modalRef.current === e.target) {
-      setSelectedRow(undefined);
-    }
-    return;
-  }
-
   function updatePage(page: number) {
     setTablePage(page);
   }
 
   return (
-    // eslint-disable-next-line
-    <div className="page" ref={modalRef} onClick={handleClickOutside}>
+    <div className="page" ref={modalRef}>
       <div className="flex-column">
         <div className="flex flex-justify-between">
           <div className="table-selector-group">
@@ -226,6 +198,26 @@ function Manage() {
                 </span>
               )}
             </button>
+
+            <button
+              disabled={tableLoading}
+              className={
+                tableLoading
+                  ? 'outline-button center disabled-button'
+                  : 'outline-button center'
+              }
+              style={{
+                padding: '0.75em',
+              }}
+              onClick={() => navigate('/create')}
+            >
+              <span
+                className="text white"
+                style={{ fontSize: '16px', padding: '0 0.2em' }}
+              >
+                Create ANT
+              </span>
+            </button>
           </div>
         </div>
         {tableLoading ? (
@@ -255,6 +247,7 @@ function Manage() {
               total={tableData.length}
               rootClassName="center"
               defaultCurrent={1}
+              showSizeChanger={false}
             />
           </>
         )}

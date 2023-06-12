@@ -1,9 +1,15 @@
+import { CheckCircleFilled } from '@ant-design/icons';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useIsMobile, useWalletAddress } from '../../../../hooks';
 import { SearchBarProps } from '../../../../types';
-import { ArrowUpRight, SearchIcon } from '../../../icons';
+import {
+  ALPHA_NUMERIC_REGEX,
+  PDNS_NAME_REGEX_PARTIAL,
+} from '../../../../utils/constants';
+import { SearchIcon } from '../../../icons';
+import ValidationInput from '../../text/ValidationInput/ValidationInput';
 import './styles.css';
 
 function SearchBar(props: SearchBarProps) {
@@ -26,7 +32,6 @@ function SearchBar(props: SearchBarProps) {
   const { walletAddress } = useWalletAddress();
   const isMobile = useIsMobile();
   const [isSearchValid, setIsSearchValid] = useState(true);
-  const [showDefaultText, setShowDefaultText] = useState(true);
   const [isAvailable, setIsAvailable] = useState(false);
   const [searchSubmitted, setSearchSubmitted] = useState(false);
   const [searchBarText, setSearchBarText] = useState<string | undefined>(value);
@@ -35,7 +40,6 @@ function SearchBar(props: SearchBarProps) {
   function reset() {
     setSearchSubmitted(false);
     setIsSearchValid(true);
-    setShowDefaultText(true);
     setSearchBarText(undefined);
     return;
   }
@@ -53,24 +57,15 @@ function SearchBar(props: SearchBarProps) {
       _onSubmit();
       return;
     }
-    setSearchBarText(undefined);
   }, [value]);
 
-  function _onChange(e: React.ChangeEvent<HTMLInputElement>) {
-    onChange();
+  function _onChange(e: string) {
     setSearchSubmitted(false);
-    const input = e.target.value.trim().toLowerCase();
-    if (input === '') {
-      reset();
-      return;
-    }
-
-    // partially reset
-    setShowDefaultText(true);
-
+    const input = e.trim().toLowerCase();
     const searchValid = validationPredicate(input);
     setIsSearchValid(searchValid);
     setSearchBarText(input);
+    onChange();
   }
 
   function _onFocus() {
@@ -91,7 +86,6 @@ function SearchBar(props: SearchBarProps) {
 
     // // show updated states based on search result
     const searchSuccess = successPredicate(searchBarText);
-    setShowDefaultText(false);
     setSearchSubmitted(true);
     setIsAvailable(searchSuccess);
     if (searchSuccess && searchBarText && values) {
@@ -112,8 +106,23 @@ function SearchBar(props: SearchBarProps) {
     _onSubmit(true);
   }
 
+  const handleSearchbarBorderStyle = () => {
+    if (searchBarText) {
+      if (searchSubmitted) {
+        if (isAvailable) {
+          return { borderColor: 'var(--success-green)' };
+        } else {
+          return { borderColor: 'var(--error-red)' };
+        }
+      }
+      return { borderColor: 'white', marginBottom: 30 };
+    } else {
+      return { borderColor: '', marginBottom: 30 };
+    }
+  };
+
   return (
-    <div className="searchbar-container flex-center">
+    <div className="searchbar-container flex-center" style={{ maxWidth: 787 }}>
       {headerElement ? (
         React.cloneElement(headerElement, {
           ...props,
@@ -123,86 +132,110 @@ function SearchBar(props: SearchBarProps) {
       ) : (
         <></>
       )}
-      <div
-        className="searchbar"
-        style={
-          isSearchValid
-            ? !searchSubmitted || showDefaultText
-              ? { borderColor: '' }
-              : isAvailable
-              ? { borderColor: 'var(--success-green)' }
-              : { borderColor: 'var(--error-red)' }
-            : { borderColor: 'var(--error-red)' }
-        }
-      >
+
+      <div className="searchbar" style={handleSearchbarBorderStyle()}>
         {' '}
         {/** TODO change max input to 32 once contract is updated */}
-        <input
-          type="search"
+        <ValidationInput
+          inputType="search"
+          onPressEnter={() => _onSubmit()}
           disabled={disabled}
-          placeholder={showDefaultText ? placeholderText : 'try another name'}
-          enterKeyHint="search"
-          onChange={_onChange}
-          onFocus={_onFocus}
-          onKeyDown={(e) => {
-            if (e.key == 'Enter') {
-              _onSubmit();
-            }
+          placeholder={placeholderText}
+          value={searchBarText}
+          setValue={(v) => _onChange(v)}
+          onClick={() => _onFocus()}
+          maxLength={32}
+          inputCustomStyle={{ height }}
+          wrapperCustomStyle={{
+            height,
+            width: '100%',
           }}
-          ref={inputRef}
-          value={searchBarText ?? ''}
-          maxLength={20}
-          className="searchbar-input"
-          style={height ? { height: `${height}px` } : {}}
+          showValidationChecklist={!isMobile}
+          showValidationsDefault={true}
+          validationListStyle={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            marginTop: '15px',
+            gap: 15,
+            color: searchBarText ? 'var(--text-white)' : 'var(--text-faded)',
+          }}
+          validationPredicates={{
+            'Min. 1 character': {
+              fn: (query: string) =>
+                new Promise((resolve, reject) =>
+                  !query || !query.length ? reject() : resolve(true),
+                ),
+            },
+            'Max. 32 characters': {
+              fn: (query: string) =>
+                new Promise((resolve, reject) =>
+                  query.length && query.length <= 32 ? resolve(true) : reject(),
+                ),
+            },
+            'No special characters': {
+              fn: (query: string) =>
+                new Promise((resolve, reject) =>
+                  query.length && PDNS_NAME_REGEX_PARTIAL.test(query)
+                    ? resolve(true)
+                    : reject(),
+                ),
+            },
+            'Dashes cannot be leading or trailing': {
+              fn: (query: string) =>
+                new Promise((resolve, reject) =>
+                  query.length &&
+                  ALPHA_NUMERIC_REGEX.test(query[0]) &&
+                  ALPHA_NUMERIC_REGEX.test(query[query.length - 1])
+                    ? resolve(true)
+                    : reject(),
+                ),
+            },
+          }}
+          customValidationIcons={{
+            error: (
+              <CheckCircleFilled
+                style={{ fontSize: 16, color: 'var(--text-faded)' }}
+              />
+            ),
+            success: (
+              <CheckCircleFilled
+                style={{ fontSize: 16, color: 'var(--success-green)' }}
+              />
+            ),
+          }}
         />
         {isMobile ? (
           <></>
         ) : (
-          <>
-            {!isAvailable || !searchBarText || !searchSubmitted ? (
-              <button
-                className="search-button"
-                style={{
-                  width: `${height}px`,
-                  height: `${height}px`,
-                  maxWidth: `${height}px`,
-                  maxHeight: `${height}px`,
-                }}
-                onClick={() => {
-                  isSearchValid && _onSubmit();
-                }}
-              >
-                <SearchIcon
-                  fill="#121212"
-                  stroke="white"
-                  width={height ? `${height / 2.2}` : '18.51px'}
-                  height={height ? `${height / 2.2}` : '18.51px'}
-                />
-              </button>
-            ) : (
-              <>
-                <span
-                  className="test faded bold"
-                  style={{ marginRight: '18px' }}
-                >
-                  Register
-                </span>
-                <button
-                  className="accent icon-button"
-                  onClick={_onSubmitButton}
-                >
-                  <ArrowUpRight
-                    fill="var(--text-black)"
-                    stroke="var(--text-black)"
-                    width="18.51"
-                    height="18.51"
-                  />
-                </button>
-              </>
-            )}
-          </>
+          <button
+            className="button pointer"
+            style={{
+              width: `${height}px`,
+              height: `${height}px`,
+              borderLeft: '1px solid #38393B',
+            }}
+            onClick={() => {
+              isSearchValid && _onSubmit();
+            }}
+          >
+            <SearchIcon fill="white" width={18} height={18} />
+          </button>
         )}
       </div>
+      {searchSubmitted && isAvailable ? (
+        <button
+          className="accent-button center"
+          onClick={_onSubmitButton}
+          style={{
+            marginTop: 30,
+          }}
+        >
+          Register Now
+        </button>
+      ) : (
+        <></>
+      )}
       {footerElement ? (
         React.cloneElement(footerElement, {
           ...props,

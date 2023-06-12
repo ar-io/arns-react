@@ -1,6 +1,7 @@
 import {
   ArweaveDataProvider,
   ArweaveTransactionID,
+  ContractInteraction,
   PDNSContractJSON,
   PDNTContractJSON,
   SmartweaveContractCache,
@@ -31,48 +32,55 @@ export class ArweaveCompositeDataProvider
     this._arweaveProvider = arweaveProvider;
   }
 
-  async getWalletBalance(id: ArweaveTransactionID): Promise<number> {
-    return this._arweaveProvider.getWalletBalance(id);
+  async getArBalance(wallet: ArweaveTransactionID): Promise<number> {
+    return this._arweaveProvider.getArBalance(wallet);
   }
 
   async getContractState<T extends PDNSContractJSON | PDNTContractJSON>(
-    id: ArweaveTransactionID,
+    contractTxId: ArweaveTransactionID,
   ): Promise<T> {
     return Promise.any(
-      this._contractProviders.map((p) => p.getContractState<T>(id)),
+      this._contractProviders.map((p) => p.getContractState<T>(contractTxId)),
     );
   }
 
-  async writeTransaction(
-    id: ArweaveTransactionID,
+  async writeTransaction({
+    walletAddress,
+    contractTxId,
+    payload,
+  }: {
+    walletAddress: ArweaveTransactionID;
+    contractTxId: ArweaveTransactionID;
     payload: {
       function: string;
       [x: string]: any;
-    },
-  ): Promise<ArweaveTransactionID | undefined> {
-    return await this._interactionProvider.writeTransaction(id, payload);
+    };
+    dryWrite?: boolean;
+  }): Promise<ArweaveTransactionID | undefined> {
+    return await this._interactionProvider.writeTransaction({
+      walletAddress,
+      contractTxId,
+      payload,
+    });
   }
 
   async getContractBalanceForWallet(
-    id: ArweaveTransactionID,
+    contractTxId: ArweaveTransactionID,
     wallet: ArweaveTransactionID,
   ): Promise<number> {
     return Promise.any(
       this._contractProviders.map((p) =>
-        p.getContractBalanceForWallet(id, wallet),
+        p.getContractBalanceForWallet(contractTxId, wallet),
       ),
     );
   }
 
   async getContractsForWallet(
-    approvedSourceCodeTransactions: ArweaveTransactionID[],
-    address: ArweaveTransactionID,
-    cursor?: string | undefined,
-  ): Promise<{ ids: ArweaveTransactionID[]; cursor?: string | undefined }> {
-    return this._arweaveProvider.getContractsForWallet(
-      approvedSourceCodeTransactions,
-      address,
-      cursor,
+    wallet: ArweaveTransactionID,
+    type?: 'ant',
+  ): Promise<{ ids: ArweaveTransactionID[] }> {
+    return Promise.any(
+      this._contractProviders.map((p) => p.getContractsForWallet(wallet, type)),
     );
   }
 
@@ -104,16 +112,23 @@ export class ArweaveCompositeDataProvider
     return this._arweaveProvider.validateConfirmations(id);
   }
 
+  async validateArweaveAddress(address: string): Promise<undefined | boolean> {
+    return this._arweaveProvider.validateArweaveAddress(address);
+  }
+
   async deployContract({
+    walletAddress,
     srcCodeTransactionId,
     initialState,
     tags,
   }: {
+    walletAddress: ArweaveTransactionID;
     srcCodeTransactionId: ArweaveTransactionID;
     initialState: PDNTContractJSON;
     tags?: TransactionTag[];
   }): Promise<string> {
     return await this._interactionProvider.deployContract({
+      walletAddress,
       srcCodeTransactionId,
       initialState,
       tags,
@@ -122,5 +137,30 @@ export class ArweaveCompositeDataProvider
 
   async getArPrice(data: number): Promise<number> {
     return await this._arweaveProvider.getArPrice(data);
+  }
+
+  async getCurrentBlockHeight(): Promise<number> {
+    return await this._arweaveProvider.getCurrentBlockHeight();
+  }
+
+  async getContractInteractions(
+    contractTxId: ArweaveTransactionID,
+  ): Promise<ContractInteraction[]> {
+    return Promise.any(
+      this._contractProviders.map((p) =>
+        p.getContractInteractions(contractTxId),
+      ),
+    );
+  }
+
+  async getPendingContractInteractions(
+    contractTxId: ArweaveTransactionID,
+    key: string,
+  ): Promise<ContractInteraction[]> {
+    return Promise.any(
+      this._contractProviders.map((p) =>
+        p.getPendingContractInteractions(contractTxId, key),
+      ),
+    );
   }
 }

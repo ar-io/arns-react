@@ -1,9 +1,15 @@
-import { ArweaveTransactionID, PDNTContractJSON } from '../types';
+import {
+  ArweaveTransactionID,
+  PDNSContractJSON,
+  PDNTContractJSON,
+} from '../types';
 
 // note: lookahead/lookbehind regex's are not compatible with iOS browsers
 export const PDNS_NAME_REGEX = new RegExp(
   '^([a-zA-Z0-9][a-zA-Z0-9-]{0,30}[a-zA-Z0-9]|[a-zA-Z0-9]{1})$',
 );
+export const PDNS_NAME_REGEX_PARTIAL = new RegExp('^([a-zA-Z0-9-]{0,32})$');
+export const ALPHA_NUMERIC_REGEX = new RegExp('^[a-zA-Z0-9]$');
 export const PDNS_TX_ID_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{43}$');
 export const PDNS_TX_ID_ENTRY_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{1,43}$');
 export const PDNS_REGISTRY_ADDRESS =
@@ -60,8 +66,10 @@ export const TIER_DATA: { [x: number]: string[] } = {
 };
 export const NAME_PRICE_INFO =
   'Registration fees are determined by the character length of the domain, lease duration, and what tier you choose.';
-
-export const MAX_LEASE_DURATION = 200;
+export const MAX_TTL_SECONDS = 2_592_000;
+export const MIN_TTL_SECONDS = 900;
+export const MIN_SAFE_EDIT_CONFIRMATIONS = 15;
+export const MAX_LEASE_DURATION = 5;
 export const MIN_LEASE_DURATION = 1;
 export const approvedContractsForWalletQuery = (
   address: ArweaveTransactionID,
@@ -102,6 +110,32 @@ export const approvedContractsForWalletQuery = (
   };
   return queryObject;
 };
+export const transactionByOwnerQuery = (address: ArweaveTransactionID) => {
+  const queryObject = {
+    query: `
+  { 
+    transactions (
+      owners:["${address.toString()}"]
+      sort: HEIGHT_DESC,
+      first: 1,
+    ) {
+      pageInfo {
+        hasNextPage
+      }
+      edges {
+        cursor
+        node {
+          id
+          block {
+            height
+          }
+        }
+      }
+    }
+  }`,
+  };
+  return queryObject;
+};
 
 export const SMARTWEAVE_TAG_SIZE = 250; // required tag size in bytes
 
@@ -121,6 +155,21 @@ export const DEFAULT_PDNT_CONTRACT_STATE: PDNTContractJSON = {
       maxUndernames: DEFAULT_MAX_UNDERNAMES,
     },
   },
+};
+export const DEFAULT_PDNS_REGISTRY_STATE: PDNSContractJSON = {
+  records: {},
+  fees: {},
+  balances: { '': 0 },
+  controllers: [],
+  evolve: undefined,
+  tiers: {
+    history: [],
+    current: {},
+  },
+  name: '',
+  owner: undefined,
+  ticker: '',
+  approvedANTSourceCodeTxs: [],
 };
 
 export const WARP_CONTRACT_BASE_URL = 'https://sonar.warp.cc/#/app/contract/';

@@ -6,6 +6,10 @@ import svgr from 'vite-plugin-svgr';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  build: {
+    // dev only source maps for now
+    sourcemap: process.env.VITE_NODE_ENV === 'develop',
+  },
   plugins: [
     svgr(),
     react(),
@@ -22,9 +26,9 @@ export default defineConfig({
             ignore: ['node_modules', 'vite.config.ts'],
             authToken: process.env.VITE_SENTRY_AUTH_TOKEN,
             // TODO: enable when generating source maps
-            // sourcemaps: {
-            //   assets: './dist/**',
-            // },
+            sourcemaps: {
+              assets: './dist/**',
+            },
             release: process.env.VITE_SENTRY_RELEASE,
           }),
         ]
