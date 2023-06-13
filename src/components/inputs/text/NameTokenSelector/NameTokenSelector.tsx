@@ -109,7 +109,7 @@ function NameTokenSelector({
       }
       if (imports?.length) {
         imports.map(async (id) => {
-          arweaveDataProvider.validateTransactionTags({
+          await arweaveDataProvider.validateTransactionTags({
             id: id.toString(),
             requiredTags: {
               'App-Name': ['SmartWeaveContract'],
@@ -239,19 +239,21 @@ function NameTokenSelector({
     name?: string;
     ticker?: string;
   }) {
-    setSearchText('');
-    setFilteredTokens(undefined);
+    try {
+      setSearchText('');
+      setFilteredTokens(undefined);
 
-    if (id === undefined) {
-      if (selectedToken === undefined) {
-        setSearchActive(false);
+      if (id === undefined) {
+        return;
       }
-      return;
+      setSelectedToken({ id, name: name ?? '', ticker: ticker ?? '' });
+      selectedTokenCallback(new ArweaveTransactionID(id));
+      setListPage(1);
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    } finally {
+      setSearchActive(false);
     }
-    setSelectedToken({ id, name: name ?? '', ticker: ticker ?? '' });
-    selectedTokenCallback(new ArweaveTransactionID(id));
-    setSearchActive(false);
-    setListPage(1);
   }
 
   const customPreviousAndNextButtons: PaginationProps['itemRender'] = (
@@ -286,274 +288,270 @@ function NameTokenSelector({
   }
 
   return (
-    <>
+    <div
+      ref={listRef}
+      className="flex flex-column radius"
+      style={{
+        position: 'relative',
+        height: 'fit-content',
+        maxHeight: '400px',
+        border: `1px solid var(--text-white)`,
+        gap: 0,
+      }}
+    >
+      {/* input wrapper */}
       <div
-        ref={listRef}
-        className="flex flex-column radius"
-        style={{
-          position: 'relative',
-          height: 'fit-content',
-          maxHeight: '400px',
-          border: `1px solid var(--text-white)`,
-          gap: 0,
-        }}
+        className="name-token-input-wrapper"
+        style={{ borderBottom: '1px solid var(--text-faded)' }}
       >
-        {/* input wrapper */}
-        <div
-          className="name-token-input-wrapper"
-          style={{ borderBottom: '1px solid var(--text-faded)' }}
+        <button
+          className="button center hover"
+          style={{ width: 'fit-content' }}
+          onClick={() => setSearchActive(true)}
         >
-          <button
-            className="button center hover"
-            style={{ width: 'fit-content' }}
-            onClick={() => setSearchActive(true)}
-          >
-            <CirclePlus width={30} height={30} fill={'var(--text-white)'} />
-          </button>
+          <CirclePlus width={30} height={30} fill={'var(--text-white)'} />
+        </button>
 
-          <ValidationInput
-            onClick={() => setSearchActive(true)}
-            showValidationIcon={validImport !== undefined}
-            setValue={(v) => handleTokenSearch(v)}
-            value={searchText}
-            placeholder={
-              selectedToken
-                ? selectedToken.name.length
-                  ? selectedToken.name
-                  : selectedToken.id
-                : 'Add an Arweave Name Token (ANT)'
-            }
-            validationPredicates={{
-              [VALIDATION_INPUT_TYPES.PDNT_CONTRACT_ID]: {
-                fn: (id: string) =>
-                  arweaveDataProvider.validateTransactionTags({
-                    id,
-                    requiredTags: {
-                      'Contract-Src':
-                        pdnsSourceContract.approvedANTSourceCodeTxs,
-                    },
-                  }),
-              },
-              [VALIDATION_INPUT_TYPES.TRANSACTION_CONFIRMATIONS]: {
-                fn: (id: string) =>
-                  arweaveDataProvider.validateConfirmations(id),
-              },
-            }}
-            validityCallback={(validity) => validity}
-            wrapperCustomStyle={{
-              width: '100%',
-              hieght: '45px',
-              borderRadius: '0px',
-              backgroundColor: 'var(--card-bg)',
-              boxSizing: 'border-box',
-            }}
-            inputClassName={`white ${
-              selectedToken ? 'name-token-input-selected' : 'name-token-input'
-            }`}
-          />
-          <span
-            className={`flex flex-row text faded flex-center ${
-              selectedToken ? 'bold' : ''
-            } hover`}
-            style={{
-              width: 'fit-content',
-              height: 'fit-content',
-              wordBreak: 'keep-all',
-            }}
-          >
-            {loading || searching ? (
-              <Loader size={20} color="var(--text-white)" />
-            ) : searchText && validImport === false ? (
-              <></>
-            ) : searchText &&
-              isArweaveTransactionID(searchText) &&
-              !Object.keys(tokens ?? []).includes(searchText) ? (
-              <button
-                className="button flex flex-row center faded bold hover"
-                style={{
-                  gap: '1em',
-                  border: '2px solid var(--text-faded)',
-                  borderRadius: '50px',
-                  height: '25px',
-                }}
-                onClick={() => {
-                  getTokenList(walletAddress, [
-                    new ArweaveTransactionID(searchText),
-                  ]);
-                }}
-              >
-                Import
-              </button>
-            ) : selectedToken ? (
-              <button
-                className="button flex flex-row center faded bold hover pointer"
-                style={{
-                  gap: '1em',
-                  border: '2px solid var(--text-faded)',
-                  borderRadius: '50px',
-                  height: '25px',
-                }}
-                onClick={() => {
-                  setSelectedToken(undefined);
-                  selectedTokenCallback(undefined);
-                }}
-              >
-                <CloseIcon
-                  width={'16px'}
-                  height={'16px'}
-                  fill={'var(--text-faded)'}
-                />
-                Remove
-              </button>
-            ) : (
-              <Tooltip
-                placement={'right'}
-                autoAdjustOverflow={true}
-                arrow={false}
-                overlayInnerStyle={{
-                  width: '190px',
-                  color: 'var(--text-black)',
-                  textAlign: 'center',
-                  fontFamily: 'Rubik-Bold',
-                  fontSize: '14px',
-                  backgroundColor: 'var(--text-white)',
-                  padding: '15px',
-                }}
-                title={
-                  'You can import an ANT by entering its contract ID, or search for one of your own by name, ticker, owner, or controller status, as well is its own contract ID'
-                }
-              >
-                Optional
-              </Tooltip>
-            )}
-          </span>
-        </div>
-        {/* selector dropdown */}
-        {tokens && searchActive ? (
-          <div
-            className="flex flex-column"
-            style={{
-              alignItems: 'flex-start',
-              justifyContent: 'flex-start',
-              gap: 0,
-              height: 'fit-content',
-              width: '100%',
-              backgroundColor: 'var(--card-bg)',
-              boxSizing: 'border-box',
-              zIndex: 10,
-            }}
-          >
-            {searchText && !filteredTokens?.length ? (
-              <span
-                className="text-large center"
-                style={{
-                  color: '#444547',
-                  margin: 'auto',
-                  height: '50px',
-                }}
-              >
-                No Results
-              </span>
-            ) : filteredTokens ? (
-              filteredTokens
-                .slice(
-                  Math.max((listPage - 1) * listItemCount, 0),
-                  listPage * listItemCount,
-                )
-                .map((token, index) => {
-                  if (!token) {
-                    return;
-                  }
-
-                  return (
-                    <button
-                      key={index}
-                      className="name-token-item pointer"
-                      onClick={() => {
-                        handleSetToken({
-                          id: token.id,
-                          name: token.name ?? '',
-                          ticker: token.ticker ?? '',
-                        });
-                      }}
-                    >
-                      {token.name && token.ticker
-                        ? `${token.name} (${token.ticker}) - ${token.id}`
-                        : token.id}
-                    </button>
-                  );
-                })
-            ) : (
-              Object.entries(tokens)
-                .slice(
-                  Math.max((listPage - 1) * listItemCount, 0),
-                  listPage * listItemCount,
-                )
-                .map((token, index) => {
-                  if (!token) {
-                    return;
-                  }
-                  const [id, details] = token;
-                  const { name, ticker, names } = details;
-
-                  return (
-                    <button
-                      key={index}
-                      className="name-token-item pointer"
-                      onClick={() => {
-                        handleSetToken({
-                          id,
-                          name: name ?? '',
-                          ticker: ticker ?? '',
-                        });
-                      }}
-                    >
-                      {name && ticker ? `${name} (${ticker}) - ${id}` : id}
-                      {names?.length ? (
-                        <HamburgerOutlineIcon
-                          width={20}
-                          height={20}
-                          fill="var(--text-faded)"
-                        />
-                      ) : (
-                        <></>
-                      )}
-                    </button>
-                  );
-                })
-            )}
-            <div
-              className="custom-next-pagination flex flex-column"
+        <ValidationInput
+          onClick={() => setSearchActive(true)}
+          showValidationIcon={validImport !== undefined}
+          setValue={(v) => handleTokenSearch(v)}
+          value={searchText}
+          placeholder={
+            selectedToken
+              ? selectedToken.name.length
+                ? selectedToken.name
+                : selectedToken.id
+              : 'Add an Arweave Name Token (ANT)'
+          }
+          validationPredicates={{
+            [VALIDATION_INPUT_TYPES.PDNT_CONTRACT_ID]: {
+              fn: (id: string) =>
+                arweaveDataProvider.validateTransactionTags({
+                  id,
+                  requiredTags: {
+                    'Contract-Src': pdnsSourceContract.approvedANTSourceCodeTxs,
+                  },
+                }),
+            },
+            [VALIDATION_INPUT_TYPES.TRANSACTION_CONFIRMATIONS]: {
+              fn: (id: string) => arweaveDataProvider.validateConfirmations(id),
+            },
+          }}
+          validityCallback={(validity) => validity}
+          wrapperCustomStyle={{
+            width: '100%',
+            hieght: '45px',
+            borderRadius: '0px',
+            backgroundColor: 'var(--card-bg)',
+            boxSizing: 'border-box',
+          }}
+          inputClassName={`white ${
+            selectedToken ? 'name-token-input-selected' : 'name-token-input'
+          }`}
+        />
+        <span
+          className={`flex flex-row text faded flex-center ${
+            selectedToken ? 'bold' : ''
+          } hover`}
+          style={{
+            width: 'fit-content',
+            height: 'fit-content',
+            wordBreak: 'keep-all',
+          }}
+        >
+          {loading || searching ? (
+            <Loader size={20} color="var(--text-white)" />
+          ) : searchText && validImport === false ? (
+            <></>
+          ) : searchText &&
+            isArweaveTransactionID(searchText) &&
+            !Object.keys(tokens ?? []).includes(searchText) ? (
+            <button
+              className="button flex flex-row center faded bold hover"
               style={{
-                padding: '10px 25px',
-                boxSizing: 'border-box',
-                width: '100%',
-                justifyContent: 'flex-start',
+                gap: '1em',
+                border: '2px solid var(--text-faded)',
+                borderRadius: '50px',
+                height: '25px',
+              }}
+              onClick={() => {
+                getTokenList(walletAddress, [
+                  new ArweaveTransactionID(searchText),
+                ]);
               }}
             >
-              <Pagination
-                total={
-                  Object.keys(tokens).length && !filteredTokens
-                    ? Object.keys(tokens).length
-                    : filteredTokens
-                    ? filteredTokens.length
-                    : 0
-                }
-                itemRender={customPreviousAndNextButtons}
-                showPrevNextJumpers={true}
-                showSizeChanger={false}
-                showQuickJumper={false}
-                onChange={updatePage}
-                current={listPage}
-                defaultPageSize={listItemCount}
+              Import
+            </button>
+          ) : selectedToken ? (
+            <button
+              className="button flex flex-row center faded bold hover pointer"
+              style={{
+                gap: '1em',
+                border: '2px solid var(--text-faded)',
+                borderRadius: '50px',
+                height: '25px',
+              }}
+              onClick={() => {
+                setSelectedToken(undefined);
+                selectedTokenCallback(undefined);
+              }}
+            >
+              <CloseIcon
+                width={'16px'}
+                height={'16px'}
+                fill={'var(--text-faded)'}
               />
-            </div>
-          </div>
-        ) : (
-          <></>
-        )}
+              Remove
+            </button>
+          ) : (
+            <Tooltip
+              placement={'right'}
+              autoAdjustOverflow={true}
+              arrow={false}
+              overlayInnerStyle={{
+                width: '190px',
+                color: 'var(--text-black)',
+                textAlign: 'center',
+                fontFamily: 'Rubik-Bold',
+                fontSize: '14px',
+                backgroundColor: 'var(--text-white)',
+                padding: '15px',
+              }}
+              title={
+                'You can import an ANT by entering its contract ID, or search for one of your own by name, ticker, owner, or controller status, as well is its own contract ID'
+              }
+            >
+              Optional
+            </Tooltip>
+          )}
+        </span>
       </div>
-    </>
+      {/* selector dropdown */}
+      {tokens && searchActive ? (
+        <div
+          className="flex flex-column"
+          style={{
+            alignItems: 'flex-start',
+            justifyContent: 'flex-start',
+            gap: 0,
+            height: 'fit-content',
+            width: '100%',
+            backgroundColor: 'var(--card-bg)',
+            boxSizing: 'border-box',
+            zIndex: 10,
+          }}
+        >
+          {searchText && !filteredTokens?.length ? (
+            <span
+              className="text-large center"
+              style={{
+                color: '#444547',
+                margin: 'auto',
+                height: '50px',
+              }}
+            >
+              No Results
+            </span>
+          ) : filteredTokens ? (
+            filteredTokens
+              .slice(
+                Math.max((listPage - 1) * listItemCount, 0),
+                listPage * listItemCount,
+              )
+              .map((token, index) => {
+                if (!token) {
+                  return;
+                }
+
+                return (
+                  <button
+                    key={index}
+                    className="name-token-item pointer"
+                    onClick={() => {
+                      handleSetToken({
+                        id: token.id,
+                        name: token.name ?? '',
+                        ticker: token.ticker ?? '',
+                      });
+                    }}
+                  >
+                    {token.name && token.ticker
+                      ? `${token.name} (${token.ticker}) - ${token.id}`
+                      : token.id}
+                  </button>
+                );
+              })
+          ) : (
+            Object.entries(tokens)
+              .slice(
+                Math.max((listPage - 1) * listItemCount, 0),
+                listPage * listItemCount,
+              )
+              .map((token, index) => {
+                if (!token) {
+                  return;
+                }
+                const [id, details] = token;
+                const { name, ticker, names } = details;
+
+                return (
+                  <button
+                    key={index}
+                    className="name-token-item pointer"
+                    onClick={() => {
+                      handleSetToken({
+                        id,
+                        name: name ?? '',
+                        ticker: ticker ?? '',
+                      });
+                    }}
+                  >
+                    {name && ticker ? `${name} (${ticker}) - ${id}` : id}
+                    {names?.length ? (
+                      <HamburgerOutlineIcon
+                        width={20}
+                        height={20}
+                        fill="var(--text-faded)"
+                      />
+                    ) : (
+                      <></>
+                    )}
+                  </button>
+                );
+              })
+          )}
+          <div
+            className="custom-next-pagination flex flex-column"
+            style={{
+              padding: '10px 25px',
+              boxSizing: 'border-box',
+              width: '100%',
+              justifyContent: 'flex-start',
+            }}
+          >
+            <Pagination
+              total={
+                Object.keys(tokens).length && !filteredTokens
+                  ? Object.keys(tokens).length
+                  : filteredTokens
+                  ? filteredTokens.length
+                  : 0
+              }
+              itemRender={customPreviousAndNextButtons}
+              showPrevNextJumpers={true}
+              showSizeChanger={false}
+              showQuickJumper={false}
+              onChange={updatePage}
+              current={listPage}
+              defaultPageSize={listItemCount}
+            />
+          </div>
+        </div>
+      ) : (
+        <></>
+      )}
+    </div>
   );
 }
 
