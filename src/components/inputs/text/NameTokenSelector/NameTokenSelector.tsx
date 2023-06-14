@@ -215,7 +215,7 @@ function NameTokenSelector({
           const { name, ticker } = tokens[id];
           return { id, name: name ?? '', ticker: ticker ?? '' };
         })
-        .filter((n) => n !== undefined);
+        .filter((n) => !!n);
       if (!filteredResults.length) {
         throw new Error('No ANT tokens found for that search');
       }
@@ -325,12 +325,12 @@ function NameTokenSelector({
               : 'Add an Arweave Name Token (ANT)'
           }
           validationPredicates={{
-            [VALIDATION_INPUT_TYPES.PDNT_CONTRACT_ID]: {
+            [VALIDATION_INPUT_TYPES.SMARTWEAVE_CONTRACT]: {
               fn: (id: string) =>
                 arweaveDataProvider.validateTransactionTags({
                   id,
                   requiredTags: {
-                    'Contract-Src': pdnsSourceContract.approvedANTSourceCodeTxs,
+                    'App-Name': ['SmartWeaveContract'],
                   },
                 }),
             },
