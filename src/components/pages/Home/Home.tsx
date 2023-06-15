@@ -13,7 +13,6 @@ import {
 import {
   FEATURED_DOMAINS,
   PDNS_REGISTRY_ADDRESS,
-  PDNS_TX_ID_REGEX,
 } from '../../../utils/constants';
 import {
   isPDNSDomainNameAvailable,
@@ -102,7 +101,7 @@ function Home() {
               if (stage == 1) {
                 const buyRecordPayload: BuyRecordPayload = {
                   name: domain!,
-                  contractTxId: pdntID!.toString(),
+                  contractTxId: pdntID ? pdntID.toString() : 'atomic',
                   tierNumber: 1,
                   years: 1,
                 };
@@ -228,10 +227,7 @@ function Home() {
                 component: <RegisterNameForm />,
                 showNext: true,
                 showBack: true,
-                disableNext:
-                  !pdntID ||
-                  !PDNS_TX_ID_REGEX.test(pdntID.toString()) ||
-                  !walletAddress,
+                disableNext: !walletAddress,
                 requiresWallet: true,
                 customNextStyle: { width: 130 },
               },

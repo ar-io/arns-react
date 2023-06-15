@@ -175,3 +175,26 @@ export const DEFAULT_PDNS_REGISTRY_STATE: PDNSContractJSON = {
 export const WARP_CONTRACT_BASE_URL = 'https://sonar.warp.cc/#/app/contract/';
 export const WARP_INTERACTION_BASE_URL =
   'https://sonar.warp.cc/#/app/interaction/';
+
+export const SMARTWEAVE_INTERACTION_TAGS = [
+  {
+    name: 'App-Name',
+    value: 'SmartWeaveAction',
+  },
+  {
+    name: 'Contract',
+    value: '',
+  },
+  {
+    name: 'Input',
+    value: '',
+  },
+];
+
+export const ATOMIC_REGISTRATION_INPUT = {
+  function: 'buyRecord',
+  name: '',
+  contractTxId: 'atomic',
+  years: 1,
+  tierNumber: 1,
+};

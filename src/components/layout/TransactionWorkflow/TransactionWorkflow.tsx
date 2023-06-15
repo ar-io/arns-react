@@ -23,6 +23,7 @@ import {
   getWorkflowStepsForInteraction,
   isObjectOfTransactionPayloadType,
 } from '../../../utils';
+import { DEFAULT_PDNT_SOURCE_CODE_TX } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { PDNTCard } from '../../cards';
 import DeployTransaction from '../DeployTransaction/DeployTransaction';
@@ -45,7 +46,7 @@ function TransactionWorkflow({
   transactionData: TransactionData;
   workflowStage: TRANSACTION_WORKFLOW_STATUS;
 }) {
-  const [{ gateway, walletAddress }] = useGlobalState();
+  const [{ gateway, walletAddress, pdnsContractId }] = useGlobalState();
   const [{ deployedTransactionId }, dispatchTransactionState] =
     useTransactionState();
   const arweaveDataProvider = useArweaveCompositeProvider();
@@ -98,6 +99,26 @@ function TransactionWorkflow({
         initialState: payload.initialState,
         tags: payload?.tags,
       });
+    } else if (
+      interactionType === INTERACTION_TYPES.BUY_RECORD &&
+      isObjectOfTransactionPayloadType<BuyRecordPayload>(
+        payload,
+        TRANSACTION_DATA_KEYS[INTERACTION_TYPES.BUY_RECORD].keys,
+      ) &&
+      payload.contractTxId === 'atomic' &&
+      payload.state
+    ) {
+      const writeInteractionId = await arweaveDataProvider.registerAtomicName({
+        walletAddress,
+        registryId: pdnsContractId,
+        srcCodeTransactionId: new ArweaveTransactionID(
+          DEFAULT_PDNT_SOURCE_CODE_TX,
+        ),
+        initialState: payload.state,
+        domain: payload.name,
+      });
+
+      originalTxId = writeInteractionId?.toString();
     } else {
       const writeInteractionId = await arweaveDataProvider.writeTransaction({
         walletAddress,
