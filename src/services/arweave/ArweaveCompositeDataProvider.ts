@@ -141,12 +141,14 @@ export class ArweaveCompositeDataProvider
     srcCodeTransactionId,
     initialState,
     domain,
+    file,
   }: {
     walletAddress: ArweaveTransactionID;
     registryId: ArweaveTransactionID;
     srcCodeTransactionId: ArweaveTransactionID;
     initialState: PDNTContractJSON;
     domain: string;
+    file?: File;
   }): Promise<string | undefined> {
     return await this._interactionProvider.registerAtomicName({
       walletAddress,
@@ -154,6 +156,7 @@ export class ArweaveCompositeDataProvider
       srcCodeTransactionId,
       initialState,
       domain,
+      file,
     });
   }
 
@@ -184,5 +187,12 @@ export class ArweaveCompositeDataProvider
         p.getPendingContractInteractions(contractTxId, key),
       ),
     );
+  }
+
+  async getRecord(
+    record: string,
+    contractId: ArweaveTransactionID,
+  ): Promise<PDNTContractJSON | undefined> {
+    return this._interactionProvider.getRecord(record, contractId);
   }
 }

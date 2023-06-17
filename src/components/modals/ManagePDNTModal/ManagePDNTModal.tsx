@@ -116,7 +116,13 @@ function ManagePDNTModal() {
         associatedNames: !names.length ? 'N/A' : names.join(', '),
         name: contract.name ?? 'N/A',
         ticker: contract.ticker ?? 'N/A',
-        targetID: contract.getRecord('@')?.transactionId ?? 'N/A',
+        targetID: await arweaveDataProvider
+          .getRecord('@', contractTxId)
+          .then((res) =>
+            typeof res?.records['@'] === 'object'
+              ? res?.records['@']?.transactionId
+              : 'N/A',
+          ),
         ttlSeconds: contract.getRecord('@')?.ttlSeconds ?? DEFAULT_TTL_SECONDS,
         controller: contract.controller ?? 'N/A',
         undernames: `${Object.keys(contract.records).length - 1} / ${

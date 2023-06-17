@@ -14,6 +14,7 @@ export type TransactionState = {
   transactionData: TransactionData | undefined; // data that will be used to perform the transaction.
   interactionType: ExcludedValidInteractionType;
   workflowStage: TRANSACTION_WORKFLOW_STATUS;
+  atomicAsset?: File;
 };
 
 export type TransactionStateProviderProps = {

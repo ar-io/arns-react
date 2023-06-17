@@ -9,7 +9,7 @@ import { useGlobalState } from '../../state/contexts/GlobalState';
 import eventEmitter from '../../utils/events';
 
 const PDNS_SERVICE_API =
-  process.env.VITE_ARNS_SERVICE_API ?? 'https://dev.pdns.app';
+  process.env.VITE_ARNS_SERVICE_API ?? 'http://dev.pdns.app';
 const ARWEAVE_HOST = process.env.VITE_ARWEAVE_HOST ?? 'arweave.net';
 const DEFAULT_ARWEAVE = new Arweave({
   host: ARWEAVE_HOST,

@@ -20,6 +20,7 @@ export type TransactionAction =
       type: 'setInteractionType';
       payload: ExcludedValidInteractionType;
     }
+  | { type: 'setAtomicAsset'; payload: File | undefined }
   | { type: 'reset' };
 
 export const transactionReducer = (
@@ -49,6 +50,12 @@ export const transactionReducer = (
       return {
         ...state,
         interactionType: action.payload,
+      };
+    }
+    case 'setAtomicAsset': {
+      return {
+        ...state,
+        atomicAsset: action.payload,
       };
     }
     case 'reset': {

@@ -18,6 +18,8 @@ export const STUB_PDNT_ID = '6dUiTQKJCVD7c9icQhbbzfI-Le_hC4sXRDx1OQQ6jMI';
 export const STUB_ARWEAVE_TXID = '2yHmORN-N12hM1B2f9-JPMpOfa59qhpsExFCzImrD30'; // pdns spec pdf
 export const DEFAULT_PDNT_SOURCE_CODE_TX =
   'PEI1efYrsX08HUwvc6y-h6TSpsNlo2r6_fWL2_GdwhY';
+export const ATOMIC_PDNT_SOURCE_CODE_TX =
+  'jFT8ITVK8JCMxCl8jMo3U2b5DGne8gAv8KeC3XaWb2Q';
 export const RECOMMENDED_TRANSACTION_CONFIRMATIONS = 50;
 export const DEFAULT_TTL_SECONDS = 3600;
 export const DEFAULT_MAX_UNDERNAMES = 100;
@@ -150,7 +152,7 @@ export const DEFAULT_PDNT_CONTRACT_STATE: PDNTContractJSON = {
   controller: '',
   records: {
     '@': {
-      transactionId: '',
+      transactionId: 'atomic',
       ttlSeconds: DEFAULT_TTL_SECONDS,
       maxUndernames: DEFAULT_MAX_UNDERNAMES,
     },

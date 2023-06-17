@@ -157,7 +157,12 @@ export interface SmartweaveContractInteractionProvider {
     srcCodeTransactionId: ArweaveTransactionID;
     initialState: PDNTContractJSON;
     domain: string;
+    file?: File;
   }): Promise<string | undefined>;
+  getRecord(
+    record: string,
+    contractId: ArweaveTransactionID,
+  ): Promise<PDNTContractJSON | undefined>;
 }
 
 export interface ArweaveWalletConnector {

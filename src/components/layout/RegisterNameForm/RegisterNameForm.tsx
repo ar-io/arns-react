@@ -6,6 +6,7 @@ import { useArweaveCompositeProvider } from '../../../hooks';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
+import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ArweaveTransactionID,
   PDNTContractJSON,
@@ -19,6 +20,7 @@ import {
   SMARTWEAVE_TAG_SIZE,
 } from '../../../utils/constants';
 import YearsCounter from '../../inputs/Counter/Counter';
+import FileUpload from '../../inputs/FileUpload/FileUpload';
 import NameTokenSelector from '../../inputs/text/NameTokenSelector/NameTokenSelector';
 import ArPrice from '../ArPrice/ArPrice';
 import Loader from '../Loader/Loader';
@@ -28,6 +30,7 @@ import './styles.css';
 function RegisterNameForm() {
   const [{ domain, fee, leaseDuration, tier }, dispatchRegisterState] =
     useRegistrationState();
+  const [, dispatchTransactionState] = useTransactionState();
   const [{ pdnsSourceContract, walletAddress }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
 
@@ -255,7 +258,15 @@ function RegisterNameForm() {
             )}
           </div>
         </div>
-
+        <FileUpload
+          fileCallback={(file: File) => {
+            console.log({ file });
+            dispatchTransactionState({
+              type: 'setAtomicAsset',
+              payload: file,
+            });
+          }}
+        />
         <div className="flex flex-column" style={{ gap: '75px' }}>
           <NameTokenSelector
             selectedTokenCallback={(id) => handlePDNTId(id?.toString())}

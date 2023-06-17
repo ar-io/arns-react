@@ -123,11 +123,13 @@ export class WarpDataProvider
     srcCodeTransactionId,
     initialState,
     tags = [],
+    data,
   }: {
     walletAddress: ArweaveTransactionID;
     srcCodeTransactionId: ArweaveTransactionID;
     initialState: PDNTContractJSON;
     tags?: TransactionTag[];
+    data?: { 'Content-Type': string; body: string | Uint8Array };
   }): Promise<string> {
     const tagSize = byteSize(JSON.stringify(tags));
 
@@ -146,12 +148,15 @@ export class WarpDataProvider
       initState: string;
       srcTxId: string;
       tags: TransactionTag[];
+      data?: { 'Content-Type': string; body: string | Uint8Array } | undefined;
     } = {
       wallet: 'use_wallet',
       initState: JSON.stringify(initialState),
       srcTxId: srcCodeTransactionId.toString(),
       tags: tags,
+      data,
     };
+    console.log(deploymentPayload);
 
     const { contractTxId } = await this._warp.deployFromSourceTx(
       deploymentPayload,
@@ -197,12 +202,14 @@ export class WarpDataProvider
     srcCodeTransactionId,
     initialState,
     domain,
+    file,
   }: {
     walletAddress: ArweaveTransactionID;
     registryId: ArweaveTransactionID;
     srcCodeTransactionId: ArweaveTransactionID;
     initialState: PDNTContractJSON;
     domain: string;
+    file?: File;
   }): Promise<string | undefined> {
     try {
       if (!domain) {
@@ -213,12 +220,23 @@ export class WarpDataProvider
       input.name = domain;
       tags[1].value = registryId.toString();
       tags[2].value = JSON.stringify(input);
+      const buffer = await file?.arrayBuffer();
+      const fileArray = buffer ? new Uint8Array(buffer) : undefined;
+
+      console.log({ file, buffer, fileArray });
 
       const result = await this.deployContract({
         walletAddress,
         srcCodeTransactionId,
         initialState,
         tags,
+        data:
+          !file || !fileArray
+            ? undefined
+            : {
+                'Content-Type': file.type,
+                body: fileArray,
+              },
       });
       if (!result) {
         throw new Error('Could not deploy atomic contract');
@@ -249,4 +267,16 @@ export class WarpDataProvider
     throw Error('Not implemented');
   }
   /* eslint-enable */
+
+  async getRecord(
+    record: string,
+    contractId: ArweaveTransactionID,
+  ): Promise<PDNTContractJSON | undefined> {
+    const result = await this._warp.contract(contractId.toString()).viewState({
+      function: 'getRecord',
+      record,
+    });
+    console.log(result);
+    return result.state as PDNTContractJSON;
+  }
 }

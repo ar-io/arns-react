@@ -23,7 +23,7 @@ import {
   getWorkflowStepsForInteraction,
   isObjectOfTransactionPayloadType,
 } from '../../../utils';
-import { DEFAULT_PDNT_SOURCE_CODE_TX } from '../../../utils/constants';
+import { ATOMIC_PDNT_SOURCE_CODE_TX } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { PDNTCard } from '../../cards';
 import DeployTransaction from '../DeployTransaction/DeployTransaction';
@@ -47,7 +47,7 @@ function TransactionWorkflow({
   workflowStage: TRANSACTION_WORKFLOW_STATUS;
 }) {
   const [{ gateway, walletAddress, pdnsContractId }] = useGlobalState();
-  const [{ deployedTransactionId }, dispatchTransactionState] =
+  const [{ deployedTransactionId, atomicAsset }, dispatchTransactionState] =
     useTransactionState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const { assetId, functionName, ...payload } = transactionData;
@@ -62,7 +62,7 @@ function TransactionWorkflow({
       interactionType,
     }),
   );
-
+  console.log({ atomicAsset });
   useEffect(() => {
     const newStages = getStagesByTransactionType({
       interactionType,
@@ -112,10 +112,11 @@ function TransactionWorkflow({
         walletAddress,
         registryId: pdnsContractId,
         srcCodeTransactionId: new ArweaveTransactionID(
-          DEFAULT_PDNT_SOURCE_CODE_TX,
+          ATOMIC_PDNT_SOURCE_CODE_TX,
         ),
         initialState: payload.state,
         domain: payload.name,
+        file: atomicAsset,
       });
 
       originalTxId = writeInteractionId?.toString();
