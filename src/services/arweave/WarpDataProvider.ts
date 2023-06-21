@@ -208,8 +208,7 @@ export class WarpDataProvider
         throw new Error('No domain provided');
       }
 
-      const input = { ...ATOMIC_REGISTRATION_INPUT };
-      input.name = domain;
+      const input = { ...ATOMIC_REGISTRATION_INPUT, name: domain };
       const tags = buildSmartweaveInteractionTags({
         contractId: registryId,
         input,

@@ -700,5 +700,5 @@ export function buildSmartweaveInteractionTags({
       value: JSON.stringify(input),
     },
   ];
-  return tags as TransactionTag[];
+  return tags;
 }

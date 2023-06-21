@@ -610,10 +610,11 @@ export type SmartWeaveActionTags = [
   },
   {
     name: 'Contract';
-    value?: string;
+    value: string;
   },
   {
     name: 'Input';
-    value?: string;
+    value: string;
   },
-];
+] &
+  TransactionTag[];
