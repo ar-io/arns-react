@@ -87,13 +87,20 @@ function TransactionWorkflow({
     if (!walletAddress) {
       throw Error('No wallet connected.');
     }
-    if (
+
+    const validCreateInteraction =
       interactionType === INTERACTION_TYPES.CREATE &&
       isObjectOfTransactionPayloadType<CreatePDNTPayload>(
         payload,
         TRANSACTION_DATA_KEYS[INTERACTION_TYPES.CREATE].keys,
-      )
-    ) {
+      );
+    const validBuyRecordInteraction =
+      interactionType === INTERACTION_TYPES.BUY_RECORD &&
+      isObjectOfTransactionPayloadType<BuyRecordPayload>(
+        payload,
+        TRANSACTION_DATA_KEYS[INTERACTION_TYPES.BUY_RECORD].keys,
+      );
+    if (validCreateInteraction) {
       originalTxId = await arweaveDataProvider.deployContract({
         walletAddress,
         srcCodeTransactionId: new ArweaveTransactionID(
@@ -103,11 +110,7 @@ function TransactionWorkflow({
         tags: payload?.tags,
       });
     } else if (
-      interactionType === INTERACTION_TYPES.BUY_RECORD &&
-      isObjectOfTransactionPayloadType<BuyRecordPayload>(
-        payload,
-        TRANSACTION_DATA_KEYS[INTERACTION_TYPES.BUY_RECORD].keys,
-      ) &&
+      validBuyRecordInteraction &&
       payload.contractTxId === ATOMIC_FLAG &&
       payload.state
     ) {
