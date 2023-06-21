@@ -18,6 +18,7 @@ import {
   generateAtomicState,
   isObjectOfTransactionPayloadType,
 } from '../../utils';
+import { ATOMIC_FLAG } from '../../utils/constants';
 
 export function useTransactionData() {
   const navigate = useNavigate();
@@ -57,7 +58,7 @@ export function useTransactionData() {
         transactionData,
         TRANSACTION_DATA_KEYS[INTERACTION_TYPES.BUY_RECORD].keys,
       ) &&
-      transactionData.contractTxId === 'atomic'
+      transactionData.contractTxId === ATOMIC_FLAG
     ) {
       setData({
         ...transactionData,

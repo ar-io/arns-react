@@ -27,6 +27,7 @@ import {
   ValidInteractionType,
 } from '../../types';
 import {
+  ATOMIC_FLAG,
   DEFAULT_PDNT_CONTRACT_STATE,
   MAX_TTL_SECONDS,
   MIN_TTL_SECONDS,
@@ -232,7 +233,10 @@ export function getPDNSMappingByInteractionType(
           'transaction data not of correct payload type <BuyRecordPayload>',
         );
       }
-      if (transactionData.contractTxId === 'atomic' && !transactionData.state) {
+      if (
+        transactionData.contractTxId === ATOMIC_FLAG &&
+        !transactionData.state
+      ) {
         throw new Error(
           'Atomic transaction detected but no state present, add the state to continue.',
         );
@@ -240,7 +244,7 @@ export function getPDNSMappingByInteractionType(
       return {
         domain: transactionData.name,
         id:
-          transactionData.contractTxId === 'atomic'
+          transactionData.contractTxId === ATOMIC_FLAG
             ? transactionData.deployedTransactionId ?? undefined
             : new ArweaveTransactionID(transactionData.contractTxId),
         state: transactionData.state ?? undefined,
@@ -590,7 +594,7 @@ export function getLinkId(
       TRANSACTION_DATA_KEYS[INTERACTION_TYPES.BUY_RECORD].keys,
     )
   ) {
-    return transactionData.contractTxId === 'atomic' &&
+    return transactionData.contractTxId === ATOMIC_FLAG &&
       transactionData.deployedTransactionId
       ? transactionData.deployedTransactionId.toString()
       : transactionData.contractTxId.toString();

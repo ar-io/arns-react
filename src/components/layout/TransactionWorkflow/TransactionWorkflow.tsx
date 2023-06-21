@@ -23,7 +23,10 @@ import {
   getWorkflowStepsForInteraction,
   isObjectOfTransactionPayloadType,
 } from '../../../utils';
-import { DEFAULT_PDNT_SOURCE_CODE_TX } from '../../../utils/constants';
+import {
+  ATOMIC_FLAG,
+  DEFAULT_PDNT_SOURCE_CODE_TX,
+} from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { PDNTCard } from '../../cards';
 import DeployTransaction from '../DeployTransaction/DeployTransaction';
@@ -105,7 +108,7 @@ function TransactionWorkflow({
         payload,
         TRANSACTION_DATA_KEYS[INTERACTION_TYPES.BUY_RECORD].keys,
       ) &&
-      payload.contractTxId === 'atomic' &&
+      payload.contractTxId === ATOMIC_FLAG &&
       payload.state
     ) {
       const writeInteractionId = await arweaveDataProvider.registerAtomicName({

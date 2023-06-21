@@ -11,6 +11,7 @@ import {
   INTERACTION_TYPES,
 } from '../../../types';
 import {
+  ATOMIC_FLAG,
   FEATURED_DOMAINS,
   PDNS_REGISTRY_ADDRESS,
 } from '../../../utils/constants';
@@ -101,7 +102,7 @@ function Home() {
               if (stage == 1) {
                 const buyRecordPayload: BuyRecordPayload = {
                   name: domain!,
-                  contractTxId: pdntID ? pdntID.toString() : 'atomic',
+                  contractTxId: pdntID ? pdntID.toString() : ATOMIC_FLAG,
                   tierNumber: 1,
                   years: 1,
                 };
