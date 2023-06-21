@@ -17,9 +17,12 @@ import {
   SetNamePayload,
   SetRecordPayload,
   SetTickerPayload,
+  SmartWeaveActionInput,
+  SmartWeaveActionTags,
   TransactionData,
   TransactionDataConfig,
   TransactionDataPayload,
+  TransactionTag,
   TransferPDNTPayload,
   ValidInteractionType,
 } from '../../types';
@@ -670,4 +673,28 @@ export function generateAtomicState(
     controller: walletAddress.toString(),
     balances: { [walletAddress.toString()]: 1 },
   };
+}
+
+export function buildSmartweaveInteractionTags({
+  contractId,
+  input,
+}: {
+  contractId: ArweaveTransactionID;
+  input: SmartWeaveActionInput;
+}): TransactionTag[] {
+  const tags: SmartWeaveActionTags = [
+    {
+      name: 'App-Name',
+      value: 'SmartWeaveAction',
+    },
+    {
+      name: 'Contract',
+      value: contractId.toString(),
+    },
+    {
+      name: 'Input',
+      value: JSON.stringify(input),
+    },
+  ];
+  return tags as TransactionTag[];
 }

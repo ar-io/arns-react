@@ -597,3 +597,23 @@ export type ContractInteraction = {
   valid?: boolean;
   [x: string]: any;
 };
+
+export type SmartWeaveActionInput = {
+  function: string;
+  [x: string]: any;
+};
+
+export type SmartWeaveActionTags = [
+  {
+    name: 'App-Name';
+    value: 'SmartWeaveAction';
+  },
+  {
+    name: 'Contract';
+    value?: string;
+  },
+  {
+    name: 'Input';
+    value?: string;
+  },
+];

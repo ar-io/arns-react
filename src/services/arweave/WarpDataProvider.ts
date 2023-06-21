@@ -18,10 +18,9 @@ import {
   TransactionCache,
   TransactionTag,
 } from '../../types';
-import { byteSize } from '../../utils';
+import { buildSmartweaveInteractionTags, byteSize } from '../../utils';
 import {
   ATOMIC_REGISTRATION_INPUT,
-  SMARTWEAVE_INTERACTION_TAGS,
   SMARTWEAVE_MAX_TAG_SPACE,
 } from '../../utils/constants';
 import { LocalStorageCache } from '../cache/LocalStorageCache';
@@ -208,11 +207,13 @@ export class WarpDataProvider
       if (!domain) {
         throw new Error('No domain provided');
       }
-      const tags = [...SMARTWEAVE_INTERACTION_TAGS];
+
       const input = { ...ATOMIC_REGISTRATION_INPUT };
       input.name = domain;
-      tags[1].value = registryId.toString();
-      tags[2].value = JSON.stringify(input);
+      const tags = buildSmartweaveInteractionTags({
+        contractId: registryId,
+        input,
+      });
 
       const result = await this.deployContract({
         walletAddress,

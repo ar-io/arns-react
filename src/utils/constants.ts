@@ -2,6 +2,7 @@ import {
   ArweaveTransactionID,
   PDNSContractJSON,
   PDNTContractJSON,
+  SmartWeaveActionTags,
 } from '../types';
 
 // note: lookahead/lookbehind regex's are not compatible with iOS browsers
@@ -176,25 +177,27 @@ export const WARP_CONTRACT_BASE_URL = 'https://sonar.warp.cc/#/app/contract/';
 export const WARP_INTERACTION_BASE_URL =
   'https://sonar.warp.cc/#/app/interaction/';
 
-export const SMARTWEAVE_INTERACTION_TAGS = [
+export const SMARTWEAVE_INTERACTION_TAGS: SmartWeaveActionTags = [
   {
     name: 'App-Name',
     value: 'SmartWeaveAction',
   },
   {
     name: 'Contract',
-    value: '',
+    value: undefined,
   },
   {
     name: 'Input',
-    value: '',
+    value: undefined,
   },
 ];
+
+export const ATOMIC_FLAG = 'atomic';
 
 export const ATOMIC_REGISTRATION_INPUT = {
   function: 'buyRecord',
   name: '',
-  contractTxId: 'atomic',
+  contractTxId: ATOMIC_FLAG,
   years: 1,
   tierNumber: 1,
 };
