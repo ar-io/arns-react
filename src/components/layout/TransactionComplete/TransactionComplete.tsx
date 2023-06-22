@@ -1,5 +1,8 @@
-import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
+import { useTransactionData } from '../../../hooks';
+import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ArweaveTransactionID,
   TransactionData,
@@ -23,10 +26,18 @@ function TransactionComplete({
   transactionData: TransactionData;
 }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [, dispatchTransactionState] = useTransactionState();
   const pdntProps = getPDNSMappingByInteractionType({
     interactionType,
     transactionData,
   });
+
+  // useEffect(() => {
+  //  dispatchTransactionState({
+  //   type:"reset"
+  //  })
+  // }, [location.pathname]);
 
   if (!pdntProps) {
     eventEmitter.emit('error', new Error('Unable to set PDNT properties.'));

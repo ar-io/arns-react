@@ -130,10 +130,7 @@ function TransactionWorkflow({
       if (direction === 'next' && TRANSACTION_WORKFLOW_STATUS.PENDING) {
         steps[0].status = 'finish';
         steps[1].status = 'process';
-        dispatchTransactionState({
-          type: 'setWorkflowStage',
-          payload: TRANSACTION_WORKFLOW_STATUS.SUCCESSFUL,
-        });
+
         const txId = await deployTransaction();
         dispatchTransactionState({
           type: 'setDeployedTransactionId',
@@ -141,6 +138,11 @@ function TransactionWorkflow({
         });
         steps[1].status = 'finish';
         steps[2].status = 'finish';
+        dispatchTransactionState({
+          type: 'setWorkflowStage',
+          payload: TRANSACTION_WORKFLOW_STATUS.SUCCESSFUL,
+        });
+
         setSteps(undefined);
         return;
       }
