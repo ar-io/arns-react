@@ -63,7 +63,14 @@ function TransactionComplete({
           />
         </div>
         {/* TODO: configure error or fail states */}
-        <PDNTCard {...pdntProps} />
+        <PDNTCard
+          {...pdntProps}
+          overrides={{
+            ...pdntProps.overrides,
+            deployedTransactionId: transactionId?.toString(),
+          }}
+          compact={false}
+        />
       </div>
     </div>
   );

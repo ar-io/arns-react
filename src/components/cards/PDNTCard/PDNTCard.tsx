@@ -1,12 +1,14 @@
 import { Descriptions } from 'antd';
 import { startCase } from 'lodash';
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { PDNSMapping, PDNTContractJSON } from '../../../types';
-import { isArweaveTransactionID } from '../../../utils';
+import { getLinkId, isArweaveTransactionID } from '../../../utils';
 import eventEmitter from '../../../utils/events';
+import { ExternalLinkIcon, ExternalLinkOutlined } from '../../icons';
 import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
 import { Loader } from '../../layout';
 import './styles.css';
@@ -18,6 +20,7 @@ export const PDNT_DETAIL_MAPPINGS: { [x: string]: string } = {
   maxUndernames: 'Max Undernames',
   ttlSeconds: 'TTL Seconds',
   controller: 'Controllers',
+  deployedTransactionId: 'Transaction ID',
 };
 
 export function mapKeyToAttribute(key: string) {
@@ -185,7 +188,22 @@ function PDNTCard(props: PDNSMapping) {
                       textAlign: 'left',
                     }}
                   >
-                    {isArweaveTransactionID(value) ? (
+                    {key === 'Transaction ID' ? (
+                      <Link
+                        to={`https://viewblock.io/arweave/tx/${value}`}
+                        rel="noreferrer"
+                        target="_blank"
+                        className="link hover"
+                        style={{ textDecoration: 'underline' }}
+                      >
+                        {value}&nbsp;
+                        <ExternalLinkIcon
+                          width={'20px'}
+                          height={'20px'}
+                          fill="var(--text-white)"
+                        />
+                      </Link>
+                    ) : isArweaveTransactionID(value) ? (
                       <CopyTextButton
                         displayText={
                           isMobile
