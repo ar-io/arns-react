@@ -145,7 +145,7 @@ function NameTokenSelector({
           maxLength={43}
         />
         <span
-          className={`flex flex-row text faded flex-center ${
+          className={`flex flex-row text grey flex-center ${
             selectedNameToken ? 'bold' : ''
           } hover`}
           style={{
@@ -160,10 +160,10 @@ function NameTokenSelector({
             <></>
           ) : selectedNameToken ? (
             <button
-              className="button flex flex-row center faded hover bold"
+              className="button flex flex-row center grey hover bold"
               style={{
                 gap: '1em',
-                border: '1px solid var(--text-faded)',
+                border: '1px solid var(--text-grey)',
                 borderRadius: '50px',
                 padding: '3px 5px',
               }}
@@ -173,7 +173,7 @@ function NameTokenSelector({
               <CircleXIcon
                 width={'20px'}
                 height={'20px'}
-                fill={'var(--text-faded)'}
+                fill={'var(--text-grey)'}
               />
             </button>
           ) : (

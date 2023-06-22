@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import {
   ArweaveTransactionID,
@@ -11,7 +11,7 @@ import {
   getPDNSMappingByInteractionType,
 } from '../../../utils/transactionUtils/transactionUtils';
 import { PDNTCard } from '../../cards';
-import { ArrowUpRight } from '../../icons';
+import ActionCard from './ActionCard';
 
 function TransactionComplete({
   transactionId,
@@ -35,109 +35,37 @@ function TransactionComplete({
   }
 
   return (
-    <>
-      <div
-        className="flex-column center"
-        style={{ gap: '3em', width: '700px' }}
-      >
-        <div className="flex-column center" style={{ gap: '2em' }}>
-          {/* TODO: configure error or fail states */}
-          <PDNTCard {...pdntProps} />
-          <div
-            className="flex flex-row center"
-            style={{
-              maxWidth: '75%',
-              justifyContent: 'space-evenly',
-              boxSizing: 'border-box',
-            }}
-          >
-            <Link to="/" className="link" style={{ textDecoration: 'none' }}>
-              <div
-                className="flex flex-column center card"
-                style={{
-                  minWidth: '175px',
-                  minHeight: '100px',
-                  flex: 1,
-                  padding: '0px',
-                  gap: '.5em',
-                  textDecoration: 'none',
-                }}
-              >
-                <ArrowUpRight
-                  width={'30px'}
-                  height={'30px'}
-                  fill={'var(--text-white)'}
-                />
-                <span className="flex text-medium faded center">
-                  Register a Name
-                </span>
-              </div>
-            </Link>
+    <div className="flex-column center" style={{ gap: '3em', width: '700px' }}>
+      <div className="flex-column center">
+        <div
+          className="flex flex-row center"
+          style={{
+            justifyContent: 'space-between',
+            boxSizing: 'border-box',
+          }}
+        >
+          <ActionCard to={'/'} body={'Register a Name'} />
 
-            <Link
-              to={`/manage/pdnts/${getLinkId(interactionType, {
-                ...transactionData,
-                deployedTransactionId: transactionId,
-              }).trim()}`}
-              className="link"
-              style={{ textDecoration: 'none' }}
-            >
-              <div
-                className="flex flex-column center card"
-                style={{
-                  minWidth: '175px',
-                  minHeight: '100px',
-                  flex: 1,
-                  padding: '0px',
-                  gap: '.5em',
-                  textDecoration: 'none',
-                }}
-              >
-                <ArrowUpRight
-                  width={'30px'}
-                  height={'30px'}
-                  fill={'var(--text-white)'}
-                />
-                <span className="flex text-medium faded center">
-                  Manage PDNT
-                </span>
-              </div>
-            </Link>
+          <ActionCard
+            to={`/manage/pdnts/${getLinkId(interactionType, {
+              ...transactionData,
+              deployedTransactionId: transactionId,
+            }).trim()}`}
+            body={' Manage PDNT'}
+          />
 
-            <Link
-              // TODO: update to route to undernames
-              to={`/manage/pdnts/${getLinkId(interactionType, {
-                ...transactionData,
-                deployedTransactionId: transactionId,
-              }).trim()}/undernames`}
-              className="link"
-              style={{ textDecoration: 'none' }}
-            >
-              <div
-                className="flex flex-column center card"
-                style={{
-                  minWidth: '175px',
-                  minHeight: '100px',
-                  flex: 1,
-                  padding: '0px',
-                  gap: '.5em',
-                  textDecoration: 'none',
-                }}
-              >
-                <ArrowUpRight
-                  width={'30px'}
-                  height={'30px'}
-                  fill={'var(--text-white)'}
-                />
-                <span className="flex text-medium faded center">
-                  Add Undernames
-                </span>
-              </div>
-            </Link>
-          </div>
+          <ActionCard
+            to={`/manage/pdnts/${getLinkId(interactionType, {
+              ...transactionData,
+              deployedTransactionId: transactionId,
+            }).trim()}/undernames`}
+            body={'Add Undernames'}
+          />
         </div>
+        {/* TODO: configure error or fail states */}
+        <PDNTCard {...pdntProps} />
       </div>
-    </>
+    </div>
   );
 }
 

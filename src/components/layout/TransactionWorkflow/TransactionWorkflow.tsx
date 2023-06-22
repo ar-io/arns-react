@@ -1,3 +1,5 @@
+import { CheckCircleFilled } from '@ant-design/icons';
+import { StepProps } from 'antd';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -19,19 +21,20 @@ import {
 } from '../../../types';
 import {
   TRANSACTION_DATA_KEYS,
+  calculatePDNSNamePrice,
   getPDNSMappingByInteractionType,
   getWorkflowStepsForInteraction,
   isObjectOfTransactionPayloadType,
 } from '../../../utils';
 import eventEmitter from '../../../utils/events';
 import { PDNTCard } from '../../cards';
-import DeployTransaction from '../DeployTransaction/DeployTransaction';
+import { InfoIcon } from '../../icons';
 import TransactionComplete from '../TransactionComplete/TransactionComplete';
+import TransactionCost from '../TransactionCost/TransactionCost';
 import Workflow, { WorkflowStage } from '../Workflow/Workflow';
 
 export enum TRANSACTION_WORKFLOW_STATUS {
   PENDING = 'pending',
-  CONFIRMED = 'confirmed',
   SUCCESSFUL = 'successful',
   FAILED = 'failed',
 }
@@ -45,13 +48,13 @@ function TransactionWorkflow({
   transactionData: TransactionData;
   workflowStage: TRANSACTION_WORKFLOW_STATUS;
 }) {
-  const [{ gateway, walletAddress }] = useGlobalState();
+  const [{ walletAddress, pdnsSourceContract }] = useGlobalState();
   const [{ deployedTransactionId }, dispatchTransactionState] =
     useTransactionState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const { assetId, functionName, ...payload } = transactionData;
   const navigate = useNavigate();
-  const [steps] = useState(() =>
+  const [steps, setSteps] = useState<StepProps[] | undefined>(() =>
     getWorkflowStepsForInteraction(interactionType),
   );
   const [stages, setStages] = useState<
@@ -67,15 +70,6 @@ function TransactionWorkflow({
       interactionType,
     });
     if (newStages) setStages(newStages);
-    if (
-      workflowStage === TRANSACTION_WORKFLOW_STATUS.CONFIRMED &&
-      deployedTransactionId
-    ) {
-      dispatchTransactionState({
-        type: 'setWorkflowStage',
-        payload: TRANSACTION_WORKFLOW_STATUS.SUCCESSFUL,
-      });
-    }
   }, [workflowStage, deployedTransactionId, transactionData]);
 
   async function deployTransaction(): Promise<string> {
@@ -116,9 +110,12 @@ function TransactionWorkflow({
   }
 
   function resetToPending() {
-    steps['1'].status = 'pending';
-    steps['2'].status = '';
-    steps['3'].status = '';
+    if (!steps) {
+      return;
+    }
+    steps[0].status = 'process';
+    steps[1].status = 'wait';
+    steps[2].status = 'wait';
     dispatchTransactionState({
       type: 'setWorkflowStage',
       payload: TRANSACTION_WORKFLOW_STATUS.PENDING,
@@ -127,20 +124,24 @@ function TransactionWorkflow({
 
   async function handleStage(direction: string) {
     try {
+      if (!steps) {
+        throw new Error('No steps found');
+      }
       if (direction === 'next' && TRANSACTION_WORKFLOW_STATUS.PENDING) {
-        steps['1'].status = 'success';
-        steps['2'].status = 'pending';
+        steps[0].status = 'finish';
+        steps[1].status = 'process';
         dispatchTransactionState({
           type: 'setWorkflowStage',
-          payload: TRANSACTION_WORKFLOW_STATUS.CONFIRMED,
+          payload: TRANSACTION_WORKFLOW_STATUS.SUCCESSFUL,
         });
         const txId = await deployTransaction();
         dispatchTransactionState({
           type: 'setDeployedTransactionId',
           payload: new ArweaveTransactionID(txId),
         });
-        steps['2'].status = 'success';
-        steps['3'].status = 'success';
+        steps[1].status = 'finish';
+        steps[2].status = 'finish';
+        setSteps(undefined);
         return;
       }
       if (direction === 'back' && TRANSACTION_WORKFLOW_STATUS.PENDING) {
@@ -169,12 +170,14 @@ function TransactionWorkflow({
     if (pdntInteractionTypes.includes(interactionType as PDNTInteractionType)) {
       return {
         pending: {
-          component: <PDNTCard {...pdntProps} />,
-        },
-        confirmed: {
-          component: <DeployTransaction />,
-          showNext: false,
-          showBack: false,
+          component: (
+            <>
+              <PDNTCard {...pdntProps} />
+              <TransactionCost />
+            </>
+          ),
+          header: `Review your ${interactionType} action`,
+          nextText: 'Proceed to Wallet',
         },
         successful: {
           component: (
@@ -186,6 +189,26 @@ function TransactionWorkflow({
           ),
           showNext: false,
           showBack: false,
+          header: (
+            <div
+              className="flex flex-row center radius"
+              style={{
+                width: '700px',
+                height: '90px',
+                background: '#213027',
+                border: '1px solid #44AF69',
+                fontSize: '18px',
+                marginBottom: '2em',
+              }}
+            >
+              <span className="white center">
+                <CheckCircleFilled
+                  style={{ fontSize: 18, color: 'var(--success-green)' }}
+                />
+                &nbsp;<b>{interactionType}</b>&nbsp;success!
+              </span>
+            </div>
+          ),
         },
         failed: {
           component: (
@@ -213,26 +236,43 @@ function TransactionWorkflow({
       ) {
         return {
           pending: {
-            component: <PDNTCard {...pdntProps} />,
-            header: (
+            component: (
               <>
-                <div className="flex flex-row text-large white bold center">
-                  Confirm Name Purchase
-                </div>
+                <PDNTCard {...pdntProps} />
+                <TransactionCost
+                  fee={{
+                    io:
+                      calculatePDNSNamePrice({
+                        domain: payload.name,
+                        years: payload.years,
+                        selectedTier: 1,
+                        fees: pdnsSourceContract.fees,
+                      }) ?? 0,
+                  }}
+                  info={
+                    <div
+                      className="flex flex-row flex-left"
+                      style={{ gap: '10px', maxWidth: '50%' }}
+                    >
+                      <InfoIcon
+                        width={'20px'}
+                        height={'20px'}
+                        fill="var(--text-grey)"
+                      />
+                      <span
+                        className="flex flex-column flex-left grey text"
+                        style={{ textAlign: 'left' }}
+                      >
+                        This includes a registration fee (paid in IO tokens) and
+                        the Arweave network fee (paid in AR tokens).
+                      </span>
+                    </div>
+                  }
+                />
               </>
             ),
-          },
-          confirmed: {
-            component: <DeployTransaction />,
-            showNext: false,
-            showBack: false,
-            header: (
-              <>
-                <div className="flex flex-row text-large white bold center">
-                  Deploy Name Purchase
-                </div>
-              </>
-            ),
+            header: `Review your Purchase`,
+            nextText: 'Proceed to Wallet',
           },
           successful: {
             component: (
@@ -245,13 +285,24 @@ function TransactionWorkflow({
             showNext: false,
             showBack: false,
             header: (
-              <>
-                <div className="flex flex-row text-large white bold center">
-                  <span className="text-large white center">
-                    <b>{payload.name}</b>.{gateway} is yours!
-                  </span>
-                </div>
-              </>
+              <div
+                className="flex flex-row center radius"
+                style={{
+                  width: '700px',
+                  height: '90px',
+                  background: '#213027',
+                  border: '1px solid #44AF69',
+                  fontSize: '18px',
+                  marginBottom: '2em',
+                }}
+              >
+                <span className="white center">
+                  <CheckCircleFilled
+                    style={{ fontSize: 18, color: 'var(--success-green)' }}
+                  />
+                  &nbsp;<b>{payload.name}</b>&nbsp;is yours!
+                </span>
+              </div>
             ),
           },
           failed: {
@@ -277,7 +328,11 @@ function TransactionWorkflow({
         onNext={() => handleStage('next')}
         onBack={() => handleStage('back')}
         stage={workflowStage}
-        steps={steps}
+        steps={
+          workflowStage == TRANSACTION_WORKFLOW_STATUS.SUCCESSFUL
+            ? undefined
+            : steps
+        }
         stages={stages}
       />
     </>

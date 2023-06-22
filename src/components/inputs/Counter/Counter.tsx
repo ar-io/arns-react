@@ -108,7 +108,7 @@ function YearsCounter({
               style={{ fontWeight: 500 }}
             >{`${leaseDuration} year${leaseDuration > 1 ? 's' : ''}`}</span>
             <span
-              className="text faded center"
+              className="text grey center"
               style={{ fontSize: '14px' }}
             >{`Until ${registration}`}</span>
           </div>

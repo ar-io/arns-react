@@ -158,7 +158,7 @@ function SearchBar(props: SearchBarProps) {
             justifyContent: 'space-between',
             marginTop: '15px',
             gap: 15,
-            color: searchBarText ? 'var(--text-white)' : 'var(--text-faded)',
+            color: searchBarText ? 'var(--text-white)' : 'var(--text-grey)',
           }}
           validationPredicates={{
             'Min. 1 character': {
@@ -195,7 +195,7 @@ function SearchBar(props: SearchBarProps) {
           customValidationIcons={{
             error: (
               <CheckCircleFilled
-                style={{ fontSize: 16, color: 'var(--text-faded)' }}
+                style={{ fontSize: 16, color: 'var(--text-grey)' }}
               />
             ),
             success: (

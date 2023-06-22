@@ -67,10 +67,10 @@ function FeaturedDomains(props: { domains: { [x: string]: string } }) {
         {displayCount < Object.keys(domains).length &&
         displayCount < MAX_COUNT ? (
           <button
-            className="flex flex-row button flex-center faded text-medium bold pointer"
+            className="flex flex-row button flex-center grey text-medium bold pointer"
             onClick={showMore}
             style={{
-              border: '1px solid var(--text-faded)',
+              border: '1px solid var(--text-grey)',
               borderRadius: 'var(--corner-radius)',
               height: 40,
               fontSize: '14px',

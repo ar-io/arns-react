@@ -326,9 +326,9 @@ function Undernames() {
         <div className="flex-column">
           <div className="flex flex-justify-between">
             <div className="flex flex-row text-large white bold">
-              <span className="flex faded text-large bold">
+              <span className="flex grey text-large bold">
                 <button
-                  className="faded text-large bold underline link center"
+                  className="grey text-large bold underline link center"
                   onClick={() => navigate('/manage/pdnts')}
                 >
                   <ArrowLeft
@@ -349,7 +349,7 @@ function Undernames() {
                   }}
                 >
                   <button
-                    className="faded text-large bold underline link center"
+                    className="grey text-large bold underline link center"
                     onClick={() =>
                       navigate(`/manage/pdnts/${pdntId?.toString()}`)
                     }

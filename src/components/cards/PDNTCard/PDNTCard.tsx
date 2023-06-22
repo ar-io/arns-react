@@ -169,8 +169,8 @@ function PDNTCard(props: PDNSMapping) {
                     label={`${key}:`}
                     labelStyle={{
                       width: 'fit-content',
-                      color: 'var(--text-faded)',
-                      border: 'solid 1px #292A2B',
+                      color: 'var(--text-grey)',
+                      border: 'solid 1px var(--text-faded)',
                       borderLeft: 'none',
                       borderRight: 'none',
                     }}
@@ -179,7 +179,7 @@ function PDNTCard(props: PDNSMapping) {
                       minWidth: '200px',
                       maxWidth: '600px',
                       color: 'white',
-                      border: 'solid 1px #292A2B',
+                      border: 'solid 1px var(--text-faded)',
                       borderLeft: 'none',
                       borderRight: 'none',
                       textAlign: 'left',

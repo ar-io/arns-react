@@ -1,5 +1,4 @@
 import { CheckCircleFilled } from '@ant-design/icons';
-import { Tooltip } from 'antd';
 import { useEffect, useState } from 'react';
 
 import { useArweaveCompositeProvider } from '../../../hooks';
@@ -15,13 +14,11 @@ import { calculatePDNSNamePrice } from '../../../utils';
 import {
   MAX_LEASE_DURATION,
   MIN_LEASE_DURATION,
-  NAME_PRICE_INFO,
-  SMARTWEAVE_TAG_SIZE,
 } from '../../../utils/constants';
 import YearsCounter from '../../inputs/Counter/Counter';
 import NameTokenSelector from '../../inputs/text/NameTokenSelector/NameTokenSelector';
-import ArPrice from '../ArPrice/ArPrice';
 import Loader from '../Loader/Loader';
+import TransactionCost from '../TransactionCost/TransactionCost';
 import StepProgressBar from '../progress/Steps/Steps';
 import './styles.css';
 
@@ -260,64 +257,8 @@ function RegisterNameForm() {
           <NameTokenSelector
             selectedTokenCallback={(id) => handlePDNTId(id?.toString())}
           />
-          <div
-            className="flex flex-row"
-            style={{
-              borderBottom: 'solid 1px var(--text-faded)',
-              padding: '20px 0px',
-              justifyContent: 'flex-end',
-              alignItems: 'flex-start',
-            }}
-          >
-            <span className="text white">Cost:</span>
-            <div
-              className="flex flex-column"
-              style={{
-                gap: '0.2em',
-                alignItems: 'flex-end',
-                width: 'fit-content',
-              }}
-            >
-              <Tooltip
-                placement="right"
-                autoAdjustOverflow={true}
-                arrow={true}
-                trigger={'hover'}
-                overlayInnerStyle={{
-                  width: '190px',
-                  color: 'var(--text-black)',
-                  textAlign: 'center',
-                  fontFamily: 'Rubik-Bold',
-                  fontSize: '14px',
-                  backgroundColor: 'var(--text-white)',
-                  padding: '15px',
-                }}
-                title={
-                  <span className="flex flex-column" style={{ gap: '15px' }}>
-                    {NAME_PRICE_INFO}
-                    <a
-                      href="https://ar.io/arns/"
-                      rel="noreferrer"
-                      target="_blank"
-                      className="link center faded underline bold"
-                      style={{ fontSize: '12px' }}
-                    >
-                      Need help choosing a tier?
-                    </a>
-                  </span>
-                }
-              >
-                <span
-                  className="flex flex-row text white flex-right"
-                  style={{ gap: '5px', width: 'fit-content' }}
-                >
-                  {fee.io?.toLocaleString()}&nbsp;IO&nbsp;+&nbsp;
-                  <ArPrice dataSize={SMARTWEAVE_TAG_SIZE} />
-                </span>
-              </Tooltip>
-              <span className="text faded">(Approximately 0 USD)</span>
-            </div>
-          </div>
+
+          <TransactionCost fee={fee} />
         </div>
       </div>
     </div>

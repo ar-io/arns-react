@@ -1,3 +1,5 @@
+import { StepProps } from 'antd';
+
 import { PDNTContract } from '../../services/arweave/PDNTContract';
 import {
   ArweaveTransactionID,
@@ -54,87 +56,85 @@ export function isObjectOfTransactionPayloadType<
 
 export const WorkflowStepsForInteractions: Record<
   ExcludedValidInteractionType,
-  Record<
-    number,
-    {
-      title: string;
-      status: string;
-    }
-  >
+  StepProps[]
 > = {
-  [INTERACTION_TYPES.BUY_RECORD]: {
-    1: { title: 'Confirm Registration', status: 'pending' },
-    2: { title: 'Deploy Registration', status: '' },
-    3: { title: 'Complete', status: '' },
-  },
-  [INTERACTION_TYPES.EXTEND_LEASE]: {
-    1: { title: 'Confirm Extension', status: 'pending' },
-    2: { title: 'Deploy Extension', status: '' },
-    3: { title: 'Complete', status: '' },
-  },
-  [INTERACTION_TYPES.UPGRADE_TIER]: {
-    1: { title: 'Confirm Tier', status: 'pending' },
-    2: { title: 'Deploy Tier Upgrade', status: '' },
-    3: { title: 'Complete', status: '' },
-  },
-  [INTERACTION_TYPES.REMOVE_RECORD]: {
-    1: { title: 'Confirm Removal', status: 'pending' },
-    2: { title: 'Deploy Removal', status: '' },
-    3: { title: 'Complete', status: '' },
-  },
-  [INTERACTION_TYPES.SET_CONTROLLER]: {
-    1: { title: 'Confirm Controller', status: 'pending' },
-    2: { title: 'Deploy Controller', status: '' },
-    3: { title: 'Complete', status: '' },
-  },
-  [INTERACTION_TYPES.SET_NAME]: {
-    1: { title: 'Confirm PDNT Name', status: 'pending' },
-    2: { title: 'Deploy Name Change', status: '' },
-    3: { title: 'Complete', status: '' },
-  },
-  [INTERACTION_TYPES.SET_RECORD]: {
-    1: { title: 'Confirm Undername Details', status: 'pending' },
-    2: { title: 'Deploy Undername', status: '' },
-    3: { title: 'Complete', status: '' },
-  },
-  [INTERACTION_TYPES.SET_TICKER]: {
-    1: { title: 'Confirm Ticker', status: 'pending' },
-    2: { title: 'Deploy Ticker Change', status: '' },
-    3: { title: 'Complete', status: '' },
-  },
-  [INTERACTION_TYPES.TRANSFER]: {
-    1: { title: 'Confirm Transfer', status: 'pending' },
-    2: { title: 'Deploy Transfer', status: '' },
-    3: { title: 'Complete', status: '' },
-  },
-  [INTERACTION_TYPES.SET_TARGET_ID]: {
-    1: { title: 'Confirm Target ID', status: 'pending' },
-    2: { title: 'Deploy Target ID Change', status: '' },
-    3: { title: 'Complete', status: '' },
-  },
-  [INTERACTION_TYPES.SET_TTL_SECONDS]: {
-    1: { title: 'Confirm TTL Seconds', status: 'pending' },
-    2: { title: 'Deploy TTL Seconds Change', status: '' },
-    3: { title: 'Complete', status: '' },
-  },
-  [INTERACTION_TYPES.CREATE]: {
-    0: {
+  [INTERACTION_TYPES.BUY_RECORD]: [
+    { title: 'Choose', description: 'Pick a name', status: 'finish' },
+    {
+      title: 'Configure',
+      description: 'Registration Period',
+      status: 'finish',
+    },
+    { title: 'Confirm', description: 'Review Transaction', status: 'process' },
+  ],
+  [INTERACTION_TYPES.EXTEND_LEASE]: [
+    { title: 'Confirm Extension', status: 'process' },
+    { title: 'Deploy Extension', status: 'wait' },
+    { title: 'Complete', status: 'wait' },
+  ],
+  [INTERACTION_TYPES.UPGRADE_TIER]: [
+    { title: 'Confirm Tier', status: 'process' },
+    { title: 'Deploy Tier Upgrade', status: 'wait' },
+    { title: 'Complete', status: 'wait' },
+  ],
+  [INTERACTION_TYPES.REMOVE_RECORD]: [
+    { title: 'Confirm Removal', status: 'process' },
+    { title: 'Deploy Removal', status: 'wait' },
+    { title: 'Complete', status: 'wait' },
+  ],
+  [INTERACTION_TYPES.SET_CONTROLLER]: [
+    { title: 'Confirm Controller', status: 'process' },
+    { title: 'Deploy Controller', status: 'wait' },
+    { title: 'Complete', status: 'wait' },
+  ],
+  [INTERACTION_TYPES.SET_NAME]: [
+    { title: 'Confirm PDNT Name', status: 'process' },
+    { title: 'Deploy Name Change', status: 'wait' },
+    { title: 'Complete', status: 'wait' },
+  ],
+  [INTERACTION_TYPES.SET_RECORD]: [
+    { title: 'Confirm Undername Details', status: 'process' },
+    { title: 'Deploy Undername', status: 'wait' },
+    { title: 'Complete', status: 'wait' },
+  ],
+  [INTERACTION_TYPES.SET_TICKER]: [
+    { title: 'Confirm Ticker', status: 'process' },
+    { title: 'Deploy Ticker Change', status: 'wait' },
+    { title: 'Complete', status: 'wait' },
+  ],
+  [INTERACTION_TYPES.TRANSFER]: [
+    { title: 'Confirm Transfer', status: 'process' },
+    { title: 'Deploy Transfer', status: 'wait' },
+    { title: 'Complete', status: 'wait' },
+  ],
+  [INTERACTION_TYPES.SET_TARGET_ID]: [
+    { title: 'Confirm Target ID', status: 'process' },
+    { title: 'Deploy Target ID Change', status: 'wait' },
+    { title: 'Complete', status: 'wait' },
+  ],
+  [INTERACTION_TYPES.SET_TTL_SECONDS]: [
+    { title: 'Confirm TTL Seconds', status: 'process' },
+    { title: 'Deploy TTL Seconds Change', status: 'wait' },
+    { title: 'Complete', status: 'wait' },
+  ],
+  [INTERACTION_TYPES.CREATE]: [
+    {
       title: 'Set PDNT Details',
-      status: 'success',
+      status: 'finish',
     },
-    1: {
+    {
       title: 'Confirm PDNT',
-      status: 'pending',
+      status: 'process',
     },
-    2: {
+    {
       title: 'Deploy PDNT',
-      status: '',
+      status: 'wait',
     },
-    3: {
+    {
       title: 'Complete',
-      status: '',
+      status: 'wait',
     },
-  },
+  ],
 };
 
 export const TRANSACTION_DATA_KEYS: Record<
@@ -197,12 +197,7 @@ export const TRANSACTION_DATA_KEYS: Record<
 
 export const getWorkflowStepsForInteraction = (
   interaction: ExcludedValidInteractionType,
-): {
-  [x: number]: {
-    title: string;
-    status: string;
-  };
-} => {
+): StepProps[] => {
   return structuredClone(WorkflowStepsForInteractions[interaction]);
 };
 

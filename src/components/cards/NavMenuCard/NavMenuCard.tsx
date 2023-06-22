@@ -235,7 +235,7 @@ function NavMenuCard() {
                   >
                     <span>{key} Balance</span>
                     {value ? (
-                      <span className="faded">{value}</span>
+                      <span className="grey">{value}</span>
                     ) : (
                       // TODO: add error icon with hover for error details
                       <Loader size={20} wrapperStyle={{ margin: '0px' }} />

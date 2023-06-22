@@ -110,7 +110,7 @@ function TransferPDNTModal({
               {state.ticker.length ? `(${state.ticker})` : ''}
             </span>
 
-            <span className="flex faded text" style={{ alignItems: 'center' }}>
+            <span className="flex grey text" style={{ alignItems: 'center' }}>
               Contract ID:&nbsp;
               <CopyTextButton
                 copyText={pdntId.toString()}
@@ -177,7 +177,7 @@ function TransferPDNTModal({
                   fill={'var(--accent)'}
                 />
                 <span
-                  className="text faded"
+                  className="text grey"
                   style={{ textAlign: 'left', width: '90%' }}
                 >
                   {`This ANT has ${associatedNames.length} name(s) that are associated with it. By transferring this ANT, you
@@ -258,7 +258,7 @@ function TransferPDNTModal({
                         width: '65px',
                         height: '30px',
                         fontSize: '12px',
-                        backgroundColor: 'var(--text-faded)',
+                        backgroundColor: 'var(--text-grey)',
                       }}
                     >
                       Next
