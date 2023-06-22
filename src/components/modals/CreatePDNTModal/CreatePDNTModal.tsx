@@ -223,24 +223,24 @@ function CreatePDNTModal() {
             }
           }}
           onBack={() => navigate(-1)}
-          steps={{
-            1: {
+          steps={[
+            {
               title: 'Set PDNT Details',
-              status: 'pending',
+              status: 'process',
             },
-            2: {
+            {
               title: 'Confirm PDNT',
-              status: '',
+              status: 'wait',
             },
-            3: {
+            {
               title: 'Deploy PDNT',
-              status: '',
+              status: 'wait',
             },
-            4: {
+            {
               title: 'Manage PDNT',
-              status: '',
+              status: 'wait',
             },
-          }}
+          ]}
           stages={{
             0: {
               showNext: true,
