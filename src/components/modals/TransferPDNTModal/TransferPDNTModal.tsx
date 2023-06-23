@@ -287,7 +287,7 @@ function TransferPDNTModal({
                           },
                         });
                         navigate(`/transaction`, {
-                          state: `/manage/pdnts/${pdntId?.toString()}`,
+                          state: `/manage/ants/${pdntId?.toString()}`,
                         });
                       }
                     }}

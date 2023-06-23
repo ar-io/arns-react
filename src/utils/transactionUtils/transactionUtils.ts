@@ -88,7 +88,7 @@ export const WorkflowStepsForInteractions: Record<
     { title: 'Complete', status: 'wait' },
   ],
   [INTERACTION_TYPES.SET_NAME]: [
-    { title: 'Confirm PDNT Name', status: 'process' },
+    { title: 'Confirm ANT Name', status: 'process' },
     { title: 'Deploy Name Change', status: 'wait' },
     { title: 'Complete', status: 'wait' },
   ],
@@ -119,15 +119,15 @@ export const WorkflowStepsForInteractions: Record<
   ],
   [INTERACTION_TYPES.CREATE]: [
     {
-      title: 'Set PDNT Details',
+      title: 'Set ANT Details',
       status: 'finish',
     },
     {
-      title: 'Confirm PDNT',
+      title: 'Confirm ANT',
       status: 'process',
     },
     {
-      title: 'Deploy PDNT',
+      title: 'Deploy ANT',
       status: 'wait',
     },
     {

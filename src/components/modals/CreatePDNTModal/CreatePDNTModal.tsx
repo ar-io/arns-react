@@ -226,19 +226,19 @@ function CreatePDNTModal() {
             onBack={() => navigate(-1)}
             steps={[
               {
-                title: 'Set PDNT Details',
+                title: 'Set ANT Details',
                 status: 'process',
               },
               {
-                title: 'Confirm PDNT',
+                title: 'Confirm ANT',
                 status: 'wait',
               },
               {
-                title: 'Deploy PDNT',
+                title: 'Deploy ANT',
                 status: 'wait',
               },
               {
-                title: 'Manage PDNT',
+                title: 'Manage ANT',
                 status: 'wait',
               },
             ]}
@@ -260,7 +260,7 @@ function CreatePDNTModal() {
                 header: (
                   <>
                     <div className="flex flex-row text-large white bold center">
-                      Create a PDNT
+                      Create an ANT
                     </div>
                   </>
                 ),

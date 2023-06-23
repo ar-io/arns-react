@@ -342,7 +342,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
         render: (val: any, row: PDNTMetadata) => (
           <ManageAssetButtons
             id={val.id}
-            assetType="pdnts"
+            assetType="ants"
             disabled={!row.state || !row.status}
           />
         ),

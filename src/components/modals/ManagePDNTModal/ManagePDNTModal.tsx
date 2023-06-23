@@ -67,7 +67,7 @@ function ManagePDNTModal() {
 
   useEffect(() => {
     if (!id || !walletAddress) {
-      navigate('/manage/pdnts');
+      navigate('/manage/ants');
       return;
     }
     const txId = new ArweaveTransactionID(id);
@@ -163,7 +163,7 @@ function ManagePDNTModal() {
       setLoading(false);
     } catch (error) {
       eventEmitter.emit('error', error);
-      navigate('/manage/pdnts', { state: location.pathname });
+      navigate('/manage/ants', { state: location.pathname });
     }
   }
 
@@ -173,8 +173,8 @@ function ManagePDNTModal() {
         <div className="flex-row flex-space-between">
           <span className="flex white text-large bold">
             <button
-              className="grey text-large bold underline link center"
-              onClick={() => navigate('/manage/pdnts')}
+              className="faded text-large bold underline link center"
+              onClick={() => navigate('/manage/ants')}
             >
               <ArrowLeft
                 width={30}
@@ -182,7 +182,7 @@ function ManagePDNTModal() {
                 viewBox={'0 0 20 20'}
                 fill={'var(--text-white)'}
               />
-              Manage PDNTs
+              Manage ANTs
             </button>
             <Tooltip
               placement="right"
@@ -198,7 +198,7 @@ function ManagePDNTModal() {
           {/* TODO: make sure the table doesn't refresh if no actions were saved/written */}
           <button
             className="flex flex-right pointer"
-            onClick={() => navigate('/manage/pdnts')}
+            onClick={() => navigate('/manage/ants')}
           >
             <CloseIcon width="30px" height={'30px'} fill="var(--text-white)" />
           </button>
@@ -456,7 +456,7 @@ function ManagePDNTModal() {
                                   });
 
                                   navigate(`/transaction`, {
-                                    state: `/manage/pdnts/${id}`,
+                                    state: `/manage/ants/${id}`,
                                   });
                                 }
                               }}

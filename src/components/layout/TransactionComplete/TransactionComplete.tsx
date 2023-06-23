@@ -29,7 +29,7 @@ function TransactionComplete({
   });
 
   if (!pdntProps) {
-    eventEmitter.emit('error', new Error('Unable to set PDNT properties.'));
+    eventEmitter.emit('error', new Error('Unable to set ANT properties.'));
     navigate(-1);
     return <></>;
   }
@@ -47,15 +47,15 @@ function TransactionComplete({
           <ActionCard to={'/'} body={'Register a Name'} />
 
           <ActionCard
-            to={`/manage/pdnts/${getLinkId(interactionType, {
+            to={`/manage/ants/${getLinkId(interactionType, {
               ...transactionData,
               deployedTransactionId: transactionId,
             }).trim()}`}
-            body={' Manage PDNT'}
+            body={' Manage ANT'}
           />
 
           <ActionCard
-            to={`/manage/pdnts/${getLinkId(interactionType, {
+            to={`/manage/ants/${getLinkId(interactionType, {
               ...transactionData,
               deployedTransactionId: transactionId,
             }).trim()}/undernames`}
