@@ -32,7 +32,7 @@ function SuccessfulRegistration() {
           </span>
           <span className="flex text faded center">
             It will take at least 15 minutes for gateways to resolve this new
-            PDNS domain name.
+            ARNS domain name.
           </span>
         </div>
 

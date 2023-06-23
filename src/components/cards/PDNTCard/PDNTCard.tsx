@@ -13,7 +13,7 @@ import './styles.css';
 
 export const PDNT_DETAIL_MAPPINGS: { [x: string]: string } = {
   name: 'Nickname',
-  id: 'PDNT Contract ID',
+  id: 'ANT Contract ID',
   expiration: 'Lease Expiration',
   maxUndernames: 'Max Undernames',
   ttlSeconds: 'TTL Seconds',
@@ -72,7 +72,7 @@ function PDNTCard(props: PDNSMapping) {
       }
       if (!pdntContractState) {
         throw new Error(
-          'No state passed and unable to generate PDNT contract state',
+          'No state passed and unable to generate ANT contract state',
         );
       }
 

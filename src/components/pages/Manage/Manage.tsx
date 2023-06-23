@@ -71,7 +71,7 @@ function Manage() {
   }, [tablePage]);
 
   useEffect(() => {
-    if (path === 'pdnts') {
+    if (path === 'ants') {
       setTableData(pdntRows);
       setTableColumns(pdntColumns);
       setPercentLoaded(percentPDNTsLoaded);
