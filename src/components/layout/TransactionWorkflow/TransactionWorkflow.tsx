@@ -207,7 +207,8 @@ function TransactionWorkflow({
                 <CheckCircleFilled
                   style={{ fontSize: 18, color: 'var(--success-green)' }}
                 />
-                &nbsp;<b>{interactionType}</b>&nbsp;success!
+                &nbsp;
+                <b>{interactionType}</b> success!
               </span>
             </div>
           ),
@@ -302,7 +303,7 @@ function TransactionWorkflow({
                   <CheckCircleFilled
                     style={{ fontSize: 18, color: 'var(--success-green)' }}
                   />
-                  &nbsp;<b>{payload.name}</b>&nbsp;is yours!
+                  &nbsp;<b>{payload.name}</b> is yours!
                 </span>
               </div>
             ),
@@ -331,7 +332,7 @@ function TransactionWorkflow({
         onBack={() => handleStage('back')}
         stage={workflowStage}
         steps={
-          workflowStage == TRANSACTION_WORKFLOW_STATUS.SUCCESSFUL
+          workflowStage === TRANSACTION_WORKFLOW_STATUS.SUCCESSFUL
             ? undefined
             : steps
         }

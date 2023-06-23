@@ -186,316 +186,326 @@ function CreatePDNTModal() {
         className="modal-container flex flex-column center"
         style={{ overflow: 'none' }}
       >
-        <button
-          className="icon-button"
-          style={{
-            position: 'absolute',
-            top: '2em',
-            right: '2em',
-            borderRadius: '100%',
-          }}
-          onClick={() => {
-            closeModal();
-          }}
-        >
-          <CloseIcon width={30} height={30} fill={'var(--text-white'} />
-        </button>
-        <Workflow
-          stage={'0'}
-          onNext={() => {
-            const payload = mapTransactionDataKeyToPayload(
-              INTERACTION_TYPES.CREATE,
-              [DEFAULT_PDNT_SOURCE_CODE_TX, pdnt.state],
-            );
-            if (payload) {
-              dispatchTransactionState({
-                type: 'setInteractionType',
-                payload: INTERACTION_TYPES.CREATE,
-              });
-              dispatchTransactionState({
-                type: 'setTransactionData',
-                payload: payload,
-              });
+        <div className="flex flex-column" style={{ width: 'fit-content' }}>
+          <button
+            className="icon-button"
+            style={{
+              position: 'absolute',
+              top: '2em',
+              right: '2em',
+              borderRadius: '100%',
+            }}
+            onClick={() => {
+              closeModal();
+            }}
+          >
+            <CloseIcon width={30} height={30} fill={'var(--text-white'} />
+          </button>
+          <Workflow
+            stage={'0'}
+            onNext={() => {
+              const payload = mapTransactionDataKeyToPayload(
+                INTERACTION_TYPES.CREATE,
+                [DEFAULT_PDNT_SOURCE_CODE_TX, pdnt.state],
+              );
+              if (payload) {
+                dispatchTransactionState({
+                  type: 'setInteractionType',
+                  payload: INTERACTION_TYPES.CREATE,
+                });
+                dispatchTransactionState({
+                  type: 'setTransactionData',
+                  payload: payload,
+                });
 
-              navigate(`/transaction`, {
-                state: `/create`,
-              });
-            }
-          }}
-          onBack={() => navigate(-1)}
-          steps={[
-            {
-              title: 'Set PDNT Details',
-              status: 'process',
-            },
-            {
-              title: 'Confirm PDNT',
-              status: 'wait',
-            },
-            {
-              title: 'Deploy PDNT',
-              status: 'wait',
-            },
-            {
-              title: 'Manage PDNT',
-              status: 'wait',
-            },
-          ]}
-          stages={{
-            0: {
-              showNext: true,
-              showBack: true,
-              backText: 'Cancel',
-              customBackStyle: {
-                height: '40px',
-                width: '150px',
-                padding: '5px 10px',
+                navigate(`/transaction`, {
+                  state: `/create`,
+                });
+              }
+            }}
+            onBack={() => navigate(-1)}
+            steps={[
+              {
+                title: 'Set PDNT Details',
+                status: 'process',
               },
-              customNextStyle: {
-                height: '40px',
-                width: '150px',
-                padding: '5px 10px',
+              {
+                title: 'Confirm PDNT',
+                status: 'wait',
               },
-              header: (
-                <>
-                  <div className="flex flex-row text-large white bold center">
-                    Create a PDNT
-                  </div>
-                </>
-              ),
-              component: (
-                <>
-                  <div
-                    className="flex flex-column card center"
-                    style={
-                      isMobile
-                        ? {
-                            width: '95%',
-                            height: '75%',
-                            position: 'relative',
-                          }
-                        : {
-                            width: '40%',
-                            height: 'fit-content',
-                            minWidth: '675px',
-                            minHeight: '20%',
-                            maxHeight: '638px',
-                            maxWidth: '1000px',
-                            position: 'relative',
-                            padding: '.5em 2em',
-                          }
-                    }
-                  >
-                    <div className="flex flex-column">
-                      <Table
-                        showHeader={false}
-                        onRow={(row: ManagePDNTRow) => {
-                          return {
-                            className:
-                              row.attribute === editingField
-                                ? 'active-row'
-                                : '',
-                          };
-                        }}
-                        scroll={{ x: true }}
-                        columns={[
-                          {
-                            title: '',
-                            dataIndex: 'attribute',
-                            key: 'attribute',
-                            align: 'left',
-                            width: isMobile ? '0px' : '20%',
-                            className: 'white small-row',
-                            render: (value: string) => {
-                              return `${mapKeyToAttribute(value)}:`;
+              {
+                title: 'Deploy PDNT',
+                status: 'wait',
+              },
+              {
+                title: 'Manage PDNT',
+                status: 'wait',
+              },
+            ]}
+            stages={{
+              0: {
+                showNext: true,
+                showBack: true,
+                backText: 'Cancel',
+                customBackStyle: {
+                  height: '40px',
+                  width: '150px',
+                  padding: '5px 10px',
+                },
+                customNextStyle: {
+                  height: '40px',
+                  width: '150px',
+                  padding: '5px 10px',
+                },
+                header: (
+                  <>
+                    <div className="flex flex-row text-large white bold center">
+                      Create a PDNT
+                    </div>
+                  </>
+                ),
+                component: (
+                  <>
+                    <div
+                      className="flex flex-column card center"
+                      style={
+                        isMobile
+                          ? {
+                              width: '95%',
+                              height: '75%',
+                              position: 'relative',
+                            }
+                          : {
+                              width: '40%',
+                              height: 'fit-content',
+                              minWidth: '675px',
+                              minHeight: '20%',
+                              maxHeight: '638px',
+                              maxWidth: '1000px',
+                              position: 'relative',
+                              padding: '.5em 2em',
+                            }
+                      }
+                    >
+                      <div className="flex flex-column">
+                        <Table
+                          showHeader={false}
+                          onRow={(row: ManagePDNTRow) => {
+                            return {
+                              className:
+                                row.attribute === editingField
+                                  ? 'active-row'
+                                  : '',
+                            };
+                          }}
+                          scroll={{ x: true }}
+                          columns={[
+                            {
+                              title: '',
+                              dataIndex: 'attribute',
+                              key: 'attribute',
+                              align: 'left',
+                              width: isMobile ? '0px' : '20%',
+                              className: 'white small-row',
+                              render: (value: string) => {
+                                return `${mapKeyToAttribute(value)}:`;
+                              },
                             },
-                          },
-                          {
-                            title: '',
-                            dataIndex: 'value',
-                            key: 'value',
-                            align: 'left',
-                            className: `white`,
-                            width: '40%',
-                            render: (value: string | number, row: any) => {
-                              if (row.editable)
-                                return (
-                                  <>
-                                    {/* TODO: add label for mobile view */}
-                                    <ValidationInput
-                                      showValidationIcon={true}
-                                      showValidationOutline={true}
-                                      inputId={row.attribute + '-input'}
-                                      inputType={
-                                        row.attribute === 'ttlSeconds'
-                                          ? 'number'
-                                          : undefined
-                                      }
-                                      minNumber={100}
-                                      maxNumber={1000000}
-                                      onClick={() => {
-                                        setEditingField(row.attribute);
-                                        setModifiedValue(value);
-                                      }}
-                                      wrapperCustomStyle={{
-                                        width:
-                                          editingField != row.attribute
-                                            ? '175%'
-                                            : '125%',
-                                        minWidth: '200px',
-                                      }}
-                                      inputClassName={'flex'}
-                                      inputCustomStyle={{
-                                        width: '100%',
-                                        border: 'none',
-                                        overflow: 'hidden',
-                                        fontSize: '16px',
-                                        outline: 'none',
-                                        borderRadius: 'var(--corner-radius)',
-                                        background:
-                                          editingField === row.attribute
-                                            ? 'white'
-                                            : 'transparent',
-                                        color:
-                                          editingField === row.attribute
-                                            ? 'black'
-                                            : 'white',
-                                        padding:
-                                          editingField === row.attribute
-                                            ? '10px 40px 10px 10px'
-                                            : '10px 0px',
-                                        display: 'flex',
-                                      }}
-                                      disabled={editingField !== row.attribute}
-                                      placeholder={`Enter a ${mapKeyToAttribute(
-                                        row.attribute,
-                                      )}`}
-                                      value={
-                                        editingField === row.attribute
-                                          ? modifiedValue
-                                          : row.value
-                                      }
-                                      setValue={(e) => {
-                                        if (row.attribute === editingField) {
-                                          setModifiedValue(e);
+                            {
+                              title: '',
+                              dataIndex: 'value',
+                              key: 'value',
+                              align: 'left',
+                              className: `white`,
+                              width: '40%',
+                              render: (value: string | number, row: any) => {
+                                if (row.editable)
+                                  return (
+                                    <>
+                                      {/* TODO: add label for mobile view */}
+                                      <ValidationInput
+                                        showValidationIcon={true}
+                                        showValidationOutline={true}
+                                        inputId={row.attribute + '-input'}
+                                        inputType={
+                                          row.attribute === 'ttlSeconds'
+                                            ? 'number'
+                                            : undefined
                                         }
-                                      }}
-                                      validityCallback={(valid: boolean) => {
-                                        row.isValid = valid;
-                                      }}
-                                      validationPredicates={
-                                        modifiedValue &&
-                                        (row.attribute === 'owner' ||
-                                          row.attribute === 'controller' ||
-                                          row.attribute === 'targetID')
-                                          ? {
-                                              [VALIDATION_INPUT_TYPES.ARWEAVE_ID]:
-                                                {
-                                                  fn: (id: string) =>
-                                                    arweaveDataProvider.validateArweaveId(
-                                                      id,
-                                                    ),
-                                                },
-                                            }
-                                          : {}
-                                      }
-                                      maxLength={43}
-                                    />
-                                  </>
-                                );
-                              return value;
-                            },
-                          },
-                          {
-                            title: '',
-                            dataIndex: 'action',
-                            key: 'action',
-                            align: 'right',
-                            width: '40%',
-                            className: 'white',
-                            render: (value: any, row: any) => {
-                              //TODO: if it's got an action attached, show it
-                              if (row.editable) {
-                                return (
-                                  <>
-                                    {editingField !== row.attribute ? (
-                                      <button
+                                        minNumber={100}
+                                        maxNumber={1000000}
                                         onClick={() => {
-                                          setModifiedValue(undefined);
                                           setEditingField(row.attribute);
+                                          setModifiedValue(value);
                                         }}
-                                      >
-                                        <PencilIcon
-                                          style={{
-                                            width: '24px',
-                                            height: '24px',
-                                            fill: 'white',
-                                          }}
-                                        />
-                                      </button>
-                                    ) : (
-                                      <div
-                                        className="flex flex-right"
-                                        style={{ gap: '0.5em', padding: '0px' }}
-                                      >
+                                        wrapperCustomStyle={{
+                                          width:
+                                            editingField != row.attribute
+                                              ? '175%'
+                                              : '125%',
+                                          minWidth: '200px',
+                                        }}
+                                        inputClassName={'flex'}
+                                        inputCustomStyle={{
+                                          width: '100%',
+                                          border: 'none',
+                                          overflow: 'hidden',
+                                          fontSize: '16px',
+                                          outline: 'none',
+                                          borderRadius: 'var(--corner-radius)',
+                                          background:
+                                            editingField === row.attribute
+                                              ? 'white'
+                                              : 'transparent',
+                                          color:
+                                            editingField === row.attribute
+                                              ? 'black'
+                                              : 'white',
+                                          padding:
+                                            editingField === row.attribute
+                                              ? '10px 40px 10px 10px'
+                                              : '10px 0px',
+                                          display: 'flex',
+                                        }}
+                                        disabled={
+                                          editingField !== row.attribute
+                                        }
+                                        placeholder={`Enter a ${mapKeyToAttribute(
+                                          row.attribute,
+                                        )}`}
+                                        value={
+                                          editingField === row.attribute
+                                            ? modifiedValue
+                                            : row.value
+                                        }
+                                        setValue={(e) => {
+                                          if (row.attribute === editingField) {
+                                            setModifiedValue(e);
+                                          }
+                                        }}
+                                        validityCallback={(valid: boolean) => {
+                                          row.isValid = valid;
+                                        }}
+                                        validationPredicates={
+                                          modifiedValue &&
+                                          (row.attribute === 'owner' ||
+                                            row.attribute === 'controller' ||
+                                            row.attribute === 'targetID')
+                                            ? {
+                                                [VALIDATION_INPUT_TYPES.ARWEAVE_ID]:
+                                                  {
+                                                    fn: (id: string) =>
+                                                      arweaveDataProvider.validateArweaveId(
+                                                        id,
+                                                      ),
+                                                  },
+                                              }
+                                            : {}
+                                        }
+                                        maxLength={43}
+                                      />
+                                    </>
+                                  );
+                                return value;
+                              },
+                            },
+                            {
+                              title: '',
+                              dataIndex: 'action',
+                              key: 'action',
+                              align: 'right',
+                              width: '40%',
+                              className: 'white',
+                              render: (value: any, row: any) => {
+                                //TODO: if it's got an action attached, show it
+                                if (row.editable) {
+                                  return (
+                                    <>
+                                      {editingField !== row.attribute ? (
                                         <button
-                                          className="flex center assets-manage-button"
-                                          style={{
-                                            backgroundColor: 'transparent',
-                                            color: 'white',
-                                          }}
                                           onClick={() => {
                                             setModifiedValue(undefined);
-                                            setEditingField(undefined);
+                                            setEditingField(row.attribute);
                                           }}
                                         >
-                                          Cancel
+                                          <PencilIcon
+                                            style={{
+                                              width: '24px',
+                                              height: '24px',
+                                              fill: 'white',
+                                            }}
+                                          />
                                         </button>
-                                        <button
-                                          className="flex center assets-manage-button"
+                                      ) : (
+                                        <div
+                                          className="flex flex-right"
                                           style={{
-                                            backgroundColor: 'var(--accent)',
-                                            borderColor: 'var(--accent)',
-                                          }}
-                                          onClick={() => {
-                                            if (!modifiedValue || row.isValid) {
-                                              row.value = modifiedValue;
-                                              handleStateChange();
-                                            }
+                                            gap: '0.5em',
+                                            padding: '0px',
                                           }}
                                         >
-                                          Save
-                                        </button>
-                                      </div>
-                                    )}
-                                  </>
-                                );
-                              }
-                              if (row.action) {
-                                return (
-                                  <button
-                                    onClick={row.action.fn}
-                                    className="assets-manage-button"
-                                  >
-                                    {row.action.title}
-                                  </button>
-                                );
-                              }
-                              return value;
+                                          <button
+                                            className="flex center assets-manage-button"
+                                            style={{
+                                              backgroundColor: 'transparent',
+                                              color: 'white',
+                                            }}
+                                            onClick={() => {
+                                              setModifiedValue(undefined);
+                                              setEditingField(undefined);
+                                            }}
+                                          >
+                                            Cancel
+                                          </button>
+                                          <button
+                                            className="flex center assets-manage-button"
+                                            style={{
+                                              backgroundColor: 'var(--accent)',
+                                              borderColor: 'var(--accent)',
+                                            }}
+                                            onClick={() => {
+                                              if (
+                                                !modifiedValue ||
+                                                row.isValid
+                                              ) {
+                                                row.value = modifiedValue;
+                                                handleStateChange();
+                                              }
+                                            }}
+                                          >
+                                            Save
+                                          </button>
+                                        </div>
+                                      )}
+                                    </>
+                                  );
+                                }
+                                if (row.action) {
+                                  return (
+                                    <button
+                                      onClick={row.action.fn}
+                                      className="assets-manage-button"
+                                    >
+                                      {row.action.title}
+                                    </button>
+                                  );
+                                }
+                                return value;
+                              },
                             },
-                          },
-                        ]}
-                        data={rows}
-                      />
+                          ]}
+                          data={rows}
+                        />
+                      </div>
+                      {/* card div end */}
                     </div>
-                    {/* card div end */}
-                  </div>
-                </>
-              ),
-            },
-          }}
-        />
-        {/* workflow end */}
+                  </>
+                ),
+              },
+            }}
+          />
+          {/* workflow end */}
+        </div>
       </div>
       )
     </>

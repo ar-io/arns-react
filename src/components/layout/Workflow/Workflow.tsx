@@ -64,7 +64,7 @@ function Workflow({
                 <></>
               )}
               {value.header ? (
-                typeof value.header == 'string' ? (
+                typeof value.header === 'string' ? (
                   <div
                     className="flex flex-row text-large white bold center"
                     style={{
