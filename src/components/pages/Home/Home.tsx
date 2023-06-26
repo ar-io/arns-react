@@ -31,8 +31,10 @@ function Home() {
   const navigate = useNavigate();
   const [{ pdnsSourceContract }] = useGlobalState();
   const { walletAddress } = useWalletAddress();
-  const [{ domain, pdntID, stage, isSearching }, dispatchRegisterState] =
-    useRegistrationState();
+  const [
+    { domain, pdntID, stage, isSearching, registrationType },
+    dispatchRegisterState,
+  ] = useRegistrationState();
 
   const [featuredDomains, setFeaturedDomains] = useState<{
     [x: string]: string;
@@ -105,6 +107,7 @@ function Home() {
                   contractTxId: pdntID!.toString(),
                   tierNumber: 1,
                   years: 1,
+                  type: registrationType,
                 };
                 dispatchTransactionState({
                   type: 'setTransactionData',

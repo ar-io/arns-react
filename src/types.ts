@@ -247,8 +247,8 @@ export const MANAGE_TABLE_NAMES: Record<ManageTable, string> = {
 };
 
 export enum TRANSACTION_TYPES {
-  LEASE = 'Lease',
-  BUY = 'Buy',
+  LEASE = 'lease',
+  BUY = 'permabuy',
 }
 
 export enum CONTRACT_TYPES {
@@ -267,6 +267,7 @@ export enum INTERACTION_TYPES {
   BUY_RECORD = 'Buy ARNS Name',
   EXTEND_LEASE = 'Extend Lease',
   UPGRADE_TIER = 'Upgrade Tier',
+  SUBMIT_AUCTION_BID = 'Submit Bid',
 
   // ANT interaction types
   SET_CONTROLLER = 'Edit Controller',
@@ -335,6 +336,7 @@ export const registryInteractionTypes = [
   INTERACTION_TYPES.BUY_RECORD,
   INTERACTION_TYPES.EXTEND_LEASE,
   INTERACTION_TYPES.UPGRADE_TIER,
+  INTERACTION_TYPES.SUBMIT_AUCTION_BID,
 ] as const;
 
 export const interactionTypeNames = [
@@ -373,6 +375,17 @@ export type BuyRecordPayload = {
   contractTxId: string;
   years: number;
   tierNumber: number;
+  type?: 'lease' | 'permabuy';
+  auction?: boolean;
+  qty?: number; // only used when bidding on a pre-existing auction
+};
+
+export type SubmitAuctionBidPayload = {
+  name: string;
+  contractTxId: string;
+  type?: 'lease' | 'permabuy';
+  auction?: boolean;
+  qty?: number; // only used when bidding on a pre-existing auction
 };
 
 export type ExtendLeasePayload = {
@@ -456,6 +469,8 @@ export const ALL_TRANSACTION_DATA_KEYS = [
   'srcCodeTransactionId',
   'initialState',
   'tags',
+  'type',
+  'auction',
 ];
 
 export type TransactionDataPayload =

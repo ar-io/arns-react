@@ -23,21 +23,19 @@ import StepProgressBar from '../progress/Steps/Steps';
 import './styles.css';
 
 function RegisterNameForm() {
-  const [{ domain, fee, leaseDuration, tier }, dispatchRegisterState] =
-    useRegistrationState();
+  const [
+    { domain, fee, leaseDuration, registrationType },
+    dispatchRegisterState,
+  ] = useRegistrationState();
   const [{ pdnsSourceContract, walletAddress }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
-
-  const [transactionType, setTransactionType] = useState<TRANSACTION_TYPES>(
-    TRANSACTION_TYPES.LEASE,
-  ); // lease or buy
 
   useEffect(() => {
     const fees = pdnsSourceContract.fees;
     if (domain) {
       const newFee = calculatePDNSNamePrice({
         domain,
-        selectedTier: tier,
+        selectedTier: 1,
         years: leaseDuration,
         fees,
       });
@@ -46,7 +44,7 @@ function RegisterNameForm() {
         payload: { ar: fee.ar, io: newFee },
       });
     }
-  }, [leaseDuration, tier, domain, pdnsSourceContract]);
+  }, [leaseDuration, domain, pdnsSourceContract, registrationType]);
 
   async function handlePDNTId(id?: string) {
     if (!id || !id.length) {
@@ -62,12 +60,12 @@ function RegisterNameForm() {
       const state =
         await arweaveDataProvider.getContractState<PDNTContractJSON>(txId);
       if (state == undefined) {
-        throw Error('PDNT contract state is undefined');
+        throw Error('ANT contract state is undefined');
       }
       const pdnt = new PDNTContract(state);
 
       if (!pdnt.isValid()) {
-        throw Error('PDNT contract state does not match required schema.');
+        throw Error('ANT contract state does not match required schema.');
       }
     } catch (error: any) {
       dispatchRegisterState({
@@ -145,15 +143,20 @@ function RegisterNameForm() {
           >
             <button
               className="flex flex-row center text-medium bold pointer"
-              onClick={() => setTransactionType(TRANSACTION_TYPES.LEASE)}
+              onClick={() =>
+                dispatchRegisterState({
+                  type: 'setRegistrationType',
+                  payload: TRANSACTION_TYPES.LEASE,
+                })
+              }
               style={{
                 position: 'relative',
                 background:
-                  transactionType === TRANSACTION_TYPES.LEASE
+                  registrationType === TRANSACTION_TYPES.LEASE
                     ? 'var(--text-white)'
                     : '',
                 color:
-                  transactionType === TRANSACTION_TYPES.LEASE
+                  registrationType === TRANSACTION_TYPES.LEASE
                     ? 'var(--text-black)'
                     : 'var(--text-white)',
                 border: 'solid 1px var(--text-white)',
@@ -162,8 +165,8 @@ function RegisterNameForm() {
                 borderBottomWidth: '0.5px',
               }}
             >
-              {TRANSACTION_TYPES.LEASE}
-              {transactionType === TRANSACTION_TYPES.LEASE ? (
+              Lease
+              {registrationType === TRANSACTION_TYPES.LEASE ? (
                 <div
                   style={{
                     position: 'absolute',
@@ -184,11 +187,11 @@ function RegisterNameForm() {
               style={{
                 position: 'relative',
                 background:
-                  transactionType === TRANSACTION_TYPES.BUY
+                  registrationType === TRANSACTION_TYPES.BUY
                     ? 'var(--text-white)'
                     : '',
                 color:
-                  transactionType === TRANSACTION_TYPES.BUY
+                  registrationType === TRANSACTION_TYPES.BUY
                     ? 'var(--text-black)'
                     : 'var(--text-white)',
                 border: 'solid 1px var(--text-white)',
@@ -196,10 +199,15 @@ function RegisterNameForm() {
                 height: '56px',
                 borderBottomWidth: '0.5px',
               }}
-              onClick={() => setTransactionType(TRANSACTION_TYPES.BUY)}
+              onClick={() =>
+                dispatchRegisterState({
+                  type: 'setRegistrationType',
+                  payload: TRANSACTION_TYPES.BUY,
+                })
+              }
             >
-              {TRANSACTION_TYPES.BUY}
-              {transactionType === TRANSACTION_TYPES.BUY ? (
+              Buy
+              {registrationType === TRANSACTION_TYPES.BUY ? (
                 <div
                   style={{
                     position: 'absolute',
@@ -231,18 +239,18 @@ function RegisterNameForm() {
               justifyContent: 'flex-start',
             }}
           >
-            {transactionType === TRANSACTION_TYPES.LEASE ? (
+            {registrationType === TRANSACTION_TYPES.LEASE ? (
               <YearsCounter
                 period="years"
                 minValue={MIN_LEASE_DURATION}
                 maxValue={MAX_LEASE_DURATION}
               />
-            ) : transactionType === TRANSACTION_TYPES.BUY ? (
+            ) : registrationType === TRANSACTION_TYPES.BUY ? (
               <div
                 className="flex flex-column flex-center"
                 style={{ gap: '1em' }}
               >
-                <span className="text-medium faded center">
+                <span className="text-medium grey center">
                   Registration Period
                 </span>
                 <span className="text-medium white center">Permanent</span>

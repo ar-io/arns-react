@@ -72,6 +72,30 @@ function TransactionWorkflow({
     if (newStages) setStages(newStages);
   }, [workflowStage, deployedTransactionId, transactionData]);
 
+  async function handleBuyRecord() {
+    try {
+      if (!walletAddress) {
+        throw Error('No wallet connected.');
+      }
+
+      const writeInteractionId = await arweaveDataProvider.writeTransaction({
+        walletAddress,
+        contractTxId: new ArweaveTransactionID(assetId),
+        payload: {
+          function: functionName,
+          ...payload,
+        },
+      });
+
+      if (!writeInteractionId) {
+        throw Error('Unable to create transaction');
+      }
+      return writeInteractionId;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   async function deployTransaction(): Promise<string> {
     let originalTxId: string | undefined = undefined;
     if (!walletAddress) {

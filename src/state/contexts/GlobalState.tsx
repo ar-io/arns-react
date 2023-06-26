@@ -15,7 +15,7 @@ export type GlobalState = {
 
 const initialState: GlobalState = {
   pdnsContractId: new ArweaveTransactionID(
-    'bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U',
+    'GfrHPxXyfuxNNdGvzHl_5HFX711jZsG3OE8qmG-UqlY',
   ),
   pdnsSourceContract: DEFAULT_PDNS_REGISTRY_STATE,
   gateway: 'arweave.net',
