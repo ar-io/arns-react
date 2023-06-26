@@ -388,6 +388,7 @@ export type BuyRecordPayload = {
   contractTxId: string;
   years: number;
   tierNumber: number;
+  state?: PDNTContractJSON;
   type?: 'lease' | 'permabuy';
   auction?: boolean;
   qty?: number; // only used when bidding on a pre-existing auction
