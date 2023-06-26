@@ -19,13 +19,18 @@ import {
   SetNamePayload,
   SetRecordPayload,
   SetTickerPayload,
+  SmartWeaveActionInput,
+  SmartWeaveActionTags,
   TransactionData,
   TransactionDataConfig,
   TransactionDataPayload,
+  TransactionTag,
   TransferPDNTPayload,
   ValidInteractionType,
 } from '../../types';
 import {
+  ATOMIC_FLAG,
+  DEFAULT_PDNT_CONTRACT_STATE,
   MAX_TTL_SECONDS,
   MIN_TTL_SECONDS,
   PDNS_TX_ID_REGEX,
@@ -223,9 +228,21 @@ export function getPDNSMappingByInteractionType(
           'transaction data not of correct payload type <BuyRecordPayload>',
         );
       }
+      if (
+        transactionData.contractTxId === ATOMIC_FLAG &&
+        !transactionData.state
+      ) {
+        throw new Error(
+          'Atomic transaction detected but no state present, add the state to continue.',
+        );
+      }
       return {
         domain: transactionData.name,
-        id: new ArweaveTransactionID(transactionData.contractTxId),
+        id:
+          transactionData.contractTxId === ATOMIC_FLAG
+            ? transactionData.deployedTransactionId ?? undefined
+            : new ArweaveTransactionID(transactionData.contractTxId),
+        state: transactionData.state ?? undefined,
         overrides: {
           tier: transactionData.tierNumber,
           maxSubdomains: 100, // TODO get subdomain count from contract
@@ -572,7 +589,10 @@ export function getLinkId(
       TRANSACTION_DATA_KEYS[INTERACTION_TYPES.BUY_RECORD].keys,
     )
   ) {
-    return transactionData.contractTxId.toString() ?? '';
+    return transactionData.contractTxId === ATOMIC_FLAG &&
+      transactionData.deployedTransactionId
+      ? transactionData.deployedTransactionId.toString()
+      : transactionData.contractTxId.toString();
   }
   if (
     interactionType === INTERACTION_TYPES.CREATE &&
@@ -639,4 +659,41 @@ export function getPendingInteractionsRowsForContract(
     }
   }
   return pendingTxRowData;
+}
+export function generateAtomicState(
+  domain: string,
+  walletAddress: ArweaveTransactionID,
+): PDNTContractJSON {
+  return {
+    ...DEFAULT_PDNT_CONTRACT_STATE,
+    name: `ANT-${domain.toUpperCase()}`,
+    ticker: 'ANT',
+    owner: walletAddress.toString(),
+    controller: walletAddress.toString(),
+    balances: { [walletAddress.toString()]: 1 },
+  };
+}
+
+export function buildSmartweaveInteractionTags({
+  contractId,
+  input,
+}: {
+  contractId: ArweaveTransactionID;
+  input: SmartWeaveActionInput;
+}): TransactionTag[] {
+  const tags: SmartWeaveActionTags = [
+    {
+      name: 'App-Name',
+      value: 'SmartWeaveAction',
+    },
+    {
+      name: 'Contract',
+      value: contractId.toString(),
+    },
+    {
+      name: 'Input',
+      value: JSON.stringify(input),
+    },
+  ];
+  return tags;
 }
