@@ -27,6 +27,7 @@ import { ReactComponent as SunIcon } from './EvaSun.svg';
 import { ReactComponent as ExternalLinkIcon } from './ExternalLink.svg';
 import { ReactComponent as ExternalLinkOutlined } from './ExternalLinkOutlined.svg';
 import { ReactComponent as FileCodeIcon } from './FileCode.svg';
+import { ReactComponent as HamburgerOutlineIcon } from './HamburgerOutline.svg';
 import { ReactComponent as InfoIcon } from './Info.svg';
 import { ReactComponent as LinkIcon } from './Link.svg';
 import { ReactComponent as LogoutIcon } from './Logout.svg';
@@ -74,6 +75,7 @@ export {
   ExternalLinkIcon,
   ExternalLinkOutlined,
   FileCodeIcon,
+  HamburgerOutlineIcon,
   InfoIcon,
   LinkIcon,
   LogoutIcon,
