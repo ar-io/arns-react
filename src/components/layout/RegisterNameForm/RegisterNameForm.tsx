@@ -1,5 +1,6 @@
 import { CheckCircleFilled } from '@ant-design/icons';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 import { useArweaveCompositeProvider } from '../../../hooks';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
@@ -10,11 +11,12 @@ import {
   PDNTContractJSON,
   TRANSACTION_TYPES,
 } from '../../../types';
-import { calculatePDNSNamePrice } from '../../../utils';
+import { calculateFloorPrice, isDomainAuctionable } from '../../../utils';
 import {
   MAX_LEASE_DURATION,
   MIN_LEASE_DURATION,
 } from '../../../utils/constants';
+import { InfoIcon } from '../../icons';
 import YearsCounter from '../../inputs/Counter/Counter';
 import NameTokenSelector from '../../inputs/text/NameTokenSelector/NameTokenSelector';
 import Loader from '../Loader/Loader';
@@ -31,13 +33,15 @@ function RegisterNameForm() {
   const arweaveDataProvider = useArweaveCompositeProvider();
 
   useEffect(() => {
-    const fees = pdnsSourceContract.fees;
-    if (domain) {
-      const newFee = calculatePDNSNamePrice({
+    if (domain && pdnsSourceContract.settings.auctions) {
+      const newFee = calculateFloorPrice({
         domain,
-        selectedTier: 1,
+        registrationType,
+        tiers: pdnsSourceContract.tiers.history,
+        tier: pdnsSourceContract.tiers.current[0],
         years: leaseDuration,
-        fees,
+        auctionSettings: pdnsSourceContract.settings.auctions,
+        fees: pdnsSourceContract.fees,
       });
       dispatchRegisterState({
         type: 'setFee',
@@ -81,7 +85,7 @@ function RegisterNameForm() {
       className="flex flex-column flex-center"
       style={{
         maxWidth: '900px',
-        minWidth: 750,
+        minWidth: '750px',
         width: '100%',
         padding: 0,
         margin: '50px',
@@ -256,9 +260,54 @@ function RegisterNameForm() {
               <></>
             )}
           </div>
+          {domain &&
+          pdnsSourceContract.settings.auctions &&
+          isDomainAuctionable({
+            domain,
+            registrationType,
+            reservedList: Object.keys(pdnsSourceContract.reserved),
+          }) ? (
+            <div
+              className="flex flex-row warning-container"
+              style={{
+                gap: '1em',
+                justifyContent: 'flex-start',
+                alignItems: 'flex-start',
+                boxSizing: 'border-box',
+                position: 'relative',
+                paddingLeft: '40px',
+              }}
+            >
+              <InfoIcon
+                width={'20px'}
+                height={'20px'}
+                fill="var(--accent)"
+                style={{ position: 'absolute', top: '20px', left: '12.5px' }}
+              />
+              <span className="flex flex-column" style={{ textAlign: 'left' }}>
+                Choosing to lease this reserved name will initiate a public
+                dutch auction. You will be submitting a bid at the floor price
+                of {fee.io.toLocaleString()} IO. Over a 2 week period, the price
+                of this name will start at 10 times your floor bid, and
+                gradually reduce to your initial bid, at which point you will
+                win the name. At any time during the auction period you can
+                instantly lease it for that price, and if another person does
+                you will lose the auction and have your initial bid returned.
+                <Link
+                  to="http://ar.io/arns"
+                  className="link"
+                  style={{ textDecoration: 'underline', color: 'inherit' }}
+                >
+                  Learn more about how auctions work.
+                </Link>
+              </span>
+            </div>
+          ) : (
+            <></>
+          )}
         </div>
 
-        <div className="flex flex-column" style={{ gap: '75px' }}>
+        <div className="flex flex-column" style={{ gap: '2em' }}>
           <NameTokenSelector
             selectedTokenCallback={(id) =>
               id

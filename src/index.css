@@ -223,6 +223,15 @@ a:active {
 .accent {
   background-color: var(--accent);
 }
+
+.warning-container {
+  background: #29251d;
+  border: 1px solid #755922;
+  border-radius: var(--corner-radius);
+  color: #9c8251;
+  padding: 20px;
+}
+
 .icon-button {
   display: flex;
   min-width: 50px !important;

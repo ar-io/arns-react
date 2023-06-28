@@ -6,6 +6,7 @@ import {
   PDNTContractJSON,
   SmartweaveContractCache,
   SmartweaveContractInteractionProvider,
+  TRANSACTION_TYPES,
   TransactionTag,
 } from '../../types';
 
@@ -141,12 +142,18 @@ export class ArweaveCompositeDataProvider
     srcCodeTransactionId,
     initialState,
     domain,
+    type,
+    years,
+    reservedList,
   }: {
     walletAddress: ArweaveTransactionID;
     registryId: ArweaveTransactionID;
     srcCodeTransactionId: ArweaveTransactionID;
     initialState: PDNTContractJSON;
     domain: string;
+    type: TRANSACTION_TYPES;
+    years?: number;
+    reservedList: string[];
   }): Promise<string | undefined> {
     return await this._interactionProvider.registerAtomicName({
       walletAddress,
@@ -154,6 +161,9 @@ export class ArweaveCompositeDataProvider
       srcCodeTransactionId,
       initialState,
       domain,
+      type,
+      years,
+      reservedList,
     });
   }
 

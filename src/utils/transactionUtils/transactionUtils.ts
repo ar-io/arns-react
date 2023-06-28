@@ -1,4 +1,5 @@
 import { StepProps } from 'antd';
+import { inRange } from 'lodash';
 
 import { PDNTContract } from '../../services/arweave/PDNTContract';
 import {
@@ -21,6 +22,8 @@ import {
   SetTickerPayload,
   SmartWeaveActionInput,
   SmartWeaveActionTags,
+  SubmitAuctionBidPayload,
+  TRANSACTION_TYPES,
   TransactionData,
   TransactionDataConfig,
   TransactionDataPayload,
@@ -34,6 +37,7 @@ import {
   MAX_TTL_SECONDS,
   MIN_TTL_SECONDS,
   PDNS_TX_ID_REGEX,
+  RESERVED_NAME_LENGTH,
 } from '../constants';
 
 export function isArweaveTransactionID(id: string) {
@@ -64,6 +68,15 @@ export const WorkflowStepsForInteractions: Record<
   StepProps[]
 > = {
   [INTERACTION_TYPES.BUY_RECORD]: [
+    { title: 'Choose', description: 'Pick a name', status: 'finish' },
+    {
+      title: 'Configure',
+      description: 'Registration Period',
+      status: 'finish',
+    },
+    { title: 'Confirm', description: 'Review Transaction', status: 'process' },
+  ],
+  [INTERACTION_TYPES.SUBMIT_AUCTION_BID]: [
     { title: 'Choose', description: 'Pick a name', status: 'finish' },
     {
       title: 'Configure',
@@ -148,7 +161,11 @@ export const TRANSACTION_DATA_KEYS: Record<
 > = {
   [INTERACTION_TYPES.BUY_RECORD]: {
     functionName: 'buyRecord',
-    keys: ['name', 'contractTxId', 'years', 'tierNumber'],
+    keys: ['name', 'contractTxId', 'auction', 'tier'],
+  },
+  [INTERACTION_TYPES.SUBMIT_AUCTION_BID]: {
+    functionName: 'submitAuctionBid',
+    keys: ['name', 'contractTxId'],
   },
   [INTERACTION_TYPES.EXTEND_LEASE]: {
     functionName: 'extendLease',
@@ -244,9 +261,41 @@ export function getPDNSMappingByInteractionType(
             : new ArweaveTransactionID(transactionData.contractTxId),
         state: transactionData.state ?? undefined,
         overrides: {
-          tier: transactionData.tierNumber,
+          tier: transactionData.tier,
           maxSubdomains: 100, // TODO get subdomain count from contract
           leaseDuration: transactionData.years,
+        },
+      };
+    }
+
+    case INTERACTION_TYPES.SUBMIT_AUCTION_BID: {
+      if (
+        !isObjectOfTransactionPayloadType<SubmitAuctionBidPayload>(
+          transactionData,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.SUBMIT_AUCTION_BID].keys,
+        )
+      ) {
+        throw new Error(
+          'transaction data not of correct payload type <SubmitAuctionBidPayload>',
+        );
+      }
+      if (
+        transactionData.contractTxId === ATOMIC_FLAG &&
+        !transactionData.state
+      ) {
+        throw new Error(
+          'Atomic transaction detected but no state present, add the state to continue.',
+        );
+      }
+      return {
+        domain: transactionData.name,
+        id:
+          transactionData.contractTxId === ATOMIC_FLAG
+            ? transactionData.deployedTransactionId ?? undefined
+            : new ArweaveTransactionID(transactionData.contractTxId),
+        state: transactionData.state ?? undefined,
+        overrides: {
+          maxSubdomains: 100, // TODO get subdomain count from contract
         },
       };
     }
@@ -696,4 +745,26 @@ export function buildSmartweaveInteractionTags({
     },
   ];
   return tags;
+}
+
+export function isDomainAuctionable({
+  // https://ardrive.atlassian.net/wiki/spaces/ENGINEERIN/pages/706543688/PDNS+Auction+System+-+Technical+Requirements#Requirements
+  domain,
+  registrationType,
+  reservedList,
+}: {
+  domain: string;
+  registrationType: TRANSACTION_TYPES;
+  reservedList: string[];
+}): boolean {
+  if (
+    domain.length <= RESERVED_NAME_LENGTH || // if under 5 characters, auctionable
+    (inRange(domain.length, RESERVED_NAME_LENGTH + 1, 12) &&
+      registrationType === TRANSACTION_TYPES.BUY) || // if permabuying a name between 5 and 11 chars, auctionable
+    reservedList.includes(domain) // all premium names are auctionable
+  ) {
+    return true;
+  }
+
+  return false;
 }

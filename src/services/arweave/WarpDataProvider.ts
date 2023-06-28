@@ -15,12 +15,18 @@ import {
   PDNTContractJSON,
   SmartweaveContractCache,
   SmartweaveContractInteractionProvider,
+  TRANSACTION_TYPES,
   TransactionCache,
   TransactionTag,
 } from '../../types';
-import { buildSmartweaveInteractionTags, byteSize } from '../../utils';
+import {
+  buildSmartweaveInteractionTags,
+  byteSize,
+  isDomainAuctionable,
+} from '../../utils';
 import {
   ATOMIC_REGISTRATION_INPUT,
+  PDNS_REGISTRY_ADDRESS,
   SMARTWEAVE_MAX_TAG_SPACE,
 } from '../../utils/constants';
 import { LocalStorageCache } from '../cache/LocalStorageCache';
@@ -65,6 +71,7 @@ export class WarpDataProvider
     walletAddress,
     contractTxId,
     payload,
+    dryWrite = true,
   }: {
     walletAddress: ArweaveTransactionID;
     contractTxId: ArweaveTransactionID;
@@ -83,9 +90,39 @@ export class WarpDataProvider
         'Payload too large for tag space, reduce the size of the data in payload.',
       );
     }
-    const contract = this._warp
+
+    const contract = this._warp // eval options were required due to change in manifest. This is causing an issue where it is causing a delay for returning the txid due to the `waitForConfirmation` option. This should be removed from the eval manifest if we dont want to make the user wait.
       .contract(contractTxId.toString())
+      .setEvaluationOptions(
+        contractTxId.toString() === PDNS_REGISTRY_ADDRESS
+          ? {
+              waitForConfirmation: true,
+              internalWrites: true,
+              updateCacheForEachInteraction: true,
+              unsafeClient: 'skip',
+              maxCallDepth: 3,
+            }
+          : {},
+      )
       .connect('use_wallet');
+    if (dryWrite) {
+      const dryWriteResults = await contract.dryWrite(
+        payload,
+        walletAddress.toString(),
+      );
+
+      if (dryWriteResults.originalValidity?.valid === false) {
+        throw new Error(
+          `Contract interaction detected to be invalid: ${
+            dryWriteResults?.originalErrorMessages
+              ? Object.entries(dryWriteResults?.originalErrorMessages)
+                  .map(([name, errorMessage]) => `${name}: ${errorMessage}`)
+                  .join(',')
+              : dryWriteResults.errorMessage
+          }`,
+        );
+      }
+    }
     const result = await contract.writeInteraction(payload, {
       disableBundling: true,
     });
@@ -196,37 +233,77 @@ export class WarpDataProvider
     srcCodeTransactionId,
     initialState,
     domain,
+    type,
+    years,
+    reservedList,
   }: {
     walletAddress: ArweaveTransactionID;
     registryId: ArweaveTransactionID;
     srcCodeTransactionId: ArweaveTransactionID;
     initialState: PDNTContractJSON;
     domain: string;
+    type: TRANSACTION_TYPES;
+    years?: number;
+    reservedList: string[];
   }): Promise<string | undefined> {
-    try {
-      if (!domain) {
-        throw new Error('No domain provided');
-      }
-
-      const input = { ...ATOMIC_REGISTRATION_INPUT, name: domain };
-      const tags = buildSmartweaveInteractionTags({
-        contractId: registryId,
-        input,
-      });
-
-      const result = await this.deployContract({
-        walletAddress,
-        srcCodeTransactionId,
-        initialState,
-        tags,
-      });
-      if (!result) {
-        throw new Error('Could not deploy atomic contract');
-      }
-      return result;
-    } catch (error) {
-      console.error(error);
+    if (!domain) {
+      throw new Error('No domain provided');
     }
+
+    const input = {
+      ...ATOMIC_REGISTRATION_INPUT,
+      name: domain,
+      type,
+      years,
+      auction: isDomainAuctionable({
+        domain,
+        registrationType: type,
+        reservedList,
+      }),
+    };
+    const tags = buildSmartweaveInteractionTags({
+      contractId: registryId,
+      input,
+    });
+
+    const contract = this._warp // eval options were required due to change in manifest. This is causing an issue where it is causing a delay for returning the txid due to the `waitForConfirmation` option. This should be removed from the eval manifest if we dont want to make the user wait.
+      .contract(PDNS_REGISTRY_ADDRESS)
+      .setEvaluationOptions({
+        waitForConfirmation: true,
+        internalWrites: true,
+        updateCacheForEachInteraction: true,
+        unsafeClient: 'skip',
+        maxCallDepth: 3,
+      })
+      .connect('use_wallet');
+    // because we are manually constructing the tags, we want to verify them immediately and always
+    const dryWriteResults = await contract.dryWrite(
+      input,
+      walletAddress.toString(),
+    );
+
+    if (dryWriteResults.originalValidity?.valid === false) {
+      throw new Error(
+        `Contract interaction detected to be invalid: ${
+          dryWriteResults?.originalErrorMessages
+            ? Object.entries(dryWriteResults?.originalErrorMessages)
+                .map(([name, errorMessage]) => `${name}: ${errorMessage}`)
+                .join(',')
+            : dryWriteResults.errorMessage
+        }`,
+      );
+    }
+
+    const result = await this.deployContract({
+      walletAddress,
+      srcCodeTransactionId,
+      initialState,
+      tags,
+    });
+    if (!result) {
+      throw new Error('Could not deploy atomic contract');
+    }
+    return result;
   }
 
   /* eslint-disable */

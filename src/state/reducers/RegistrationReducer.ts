@@ -5,7 +5,7 @@ import {
 } from '../contexts/RegistrationState';
 
 export type RegistrationAction =
-  | { type: 'setDomainName'; payload?: string }
+  | { type: 'setDomainName'; payload: string }
   | { type: 'setRegistrationType'; payload: TRANSACTION_TYPES }
   | { type: 'setLeaseDuration'; payload: number }
   | { type: 'setPDNTID'; payload: ArweaveTransactionID | undefined }

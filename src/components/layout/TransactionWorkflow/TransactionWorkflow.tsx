@@ -21,7 +21,7 @@ import {
 } from '../../../types';
 import {
   TRANSACTION_DATA_KEYS,
-  calculatePDNSNamePrice,
+  calculateFloorPrice,
   getPDNSMappingByInteractionType,
   getWorkflowStepsForInteraction,
   isObjectOfTransactionPayloadType,
@@ -77,88 +77,74 @@ function TransactionWorkflow({
     if (newStages) setStages(newStages);
   }, [workflowStage, deployedTransactionId, transactionData]);
 
-  async function handleBuyRecord() {
+  async function deployTransaction(): Promise<string | undefined> {
     try {
+      let originalTxId: string | undefined = undefined;
       if (!walletAddress) {
         throw Error('No wallet connected.');
       }
 
-      const writeInteractionId = await arweaveDataProvider.writeTransaction({
-        walletAddress,
-        contractTxId: new ArweaveTransactionID(assetId),
-        payload: {
-          function: functionName,
-          ...payload,
-        },
-      });
+      const validCreateInteraction =
+        interactionType === INTERACTION_TYPES.CREATE &&
+        isObjectOfTransactionPayloadType<CreatePDNTPayload>(
+          payload,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.CREATE].keys,
+        );
+      const validBuyRecordInteraction =
+        interactionType === INTERACTION_TYPES.BUY_RECORD &&
+        isObjectOfTransactionPayloadType<BuyRecordPayload>(
+          payload,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.BUY_RECORD].keys,
+        );
+      if (validCreateInteraction) {
+        originalTxId = await arweaveDataProvider.deployContract({
+          walletAddress,
+          srcCodeTransactionId: new ArweaveTransactionID(
+            payload.srcCodeTransactionId,
+          ),
+          initialState: payload.initialState,
+          tags: payload?.tags,
+        });
+      } else if (
+        validBuyRecordInteraction &&
+        payload.contractTxId === ATOMIC_FLAG &&
+        payload.state
+      ) {
+        const writeInteractionId = await arweaveDataProvider.registerAtomicName(
+          {
+            walletAddress,
+            registryId: pdnsContractId,
+            srcCodeTransactionId: new ArweaveTransactionID(
+              DEFAULT_PDNT_SOURCE_CODE_TX,
+            ),
+            initialState: payload.state,
+            domain: payload.name,
+            reservedList: Object.keys(pdnsSourceContract.reserved),
+            type: payload.type,
+            years: payload.years,
+          },
+        );
 
-      if (!writeInteractionId) {
+        originalTxId = writeInteractionId?.toString();
+      } else {
+        const writeInteractionId = await arweaveDataProvider.writeTransaction({
+          walletAddress,
+          contractTxId: new ArweaveTransactionID(assetId),
+          dryWrite: true,
+          payload: {
+            function: functionName,
+            ...payload,
+          },
+        });
+        originalTxId = writeInteractionId?.toString();
+      }
+      if (!originalTxId) {
         throw Error('Unable to create transaction');
       }
-      return writeInteractionId;
+      return originalTxId;
     } catch (error) {
-      console.error(error);
+      eventEmitter.emit('error', error);
     }
-  }
-
-  async function deployTransaction(): Promise<string> {
-    let originalTxId: string | undefined = undefined;
-    if (!walletAddress) {
-      throw Error('No wallet connected.');
-    }
-
-    const validCreateInteraction =
-      interactionType === INTERACTION_TYPES.CREATE &&
-      isObjectOfTransactionPayloadType<CreatePDNTPayload>(
-        payload,
-        TRANSACTION_DATA_KEYS[INTERACTION_TYPES.CREATE].keys,
-      );
-    const validBuyRecordInteraction =
-      interactionType === INTERACTION_TYPES.BUY_RECORD &&
-      isObjectOfTransactionPayloadType<BuyRecordPayload>(
-        payload,
-        TRANSACTION_DATA_KEYS[INTERACTION_TYPES.BUY_RECORD].keys,
-      );
-    if (validCreateInteraction) {
-      originalTxId = await arweaveDataProvider.deployContract({
-        walletAddress,
-        srcCodeTransactionId: new ArweaveTransactionID(
-          payload.srcCodeTransactionId,
-        ),
-        initialState: payload.initialState,
-        tags: payload?.tags,
-      });
-    } else if (
-      validBuyRecordInteraction &&
-      payload.contractTxId === ATOMIC_FLAG &&
-      payload.state
-    ) {
-      const writeInteractionId = await arweaveDataProvider.registerAtomicName({
-        walletAddress,
-        registryId: pdnsContractId,
-        srcCodeTransactionId: new ArweaveTransactionID(
-          DEFAULT_PDNT_SOURCE_CODE_TX,
-        ),
-        initialState: payload.state,
-        domain: payload.name,
-      });
-
-      originalTxId = writeInteractionId?.toString();
-    } else {
-      const writeInteractionId = await arweaveDataProvider.writeTransaction({
-        walletAddress,
-        contractTxId: new ArweaveTransactionID(assetId),
-        payload: {
-          function: functionName,
-          ...payload,
-        },
-      });
-      originalTxId = writeInteractionId?.toString();
-    }
-    if (!originalTxId) {
-      throw Error('Unable to create transaction');
-    }
-    return originalTxId;
   }
 
   function resetToPending() {
@@ -184,6 +170,9 @@ function TransactionWorkflow({
         steps[1].status = 'process';
 
         const txId = await deployTransaction();
+        if (!txId) {
+          throw new Error(`Failed to deploy transaction`);
+        }
         dispatchTransactionState({
           type: 'setDeployedTransactionId',
           payload: new ArweaveTransactionID(txId),
@@ -287,7 +276,8 @@ function TransactionWorkflow({
         isObjectOfTransactionPayloadType<BuyRecordPayload>(
           payload,
           TRANSACTION_DATA_KEYS[interactionType].keys,
-        )
+        ) &&
+        pdnsSourceContract.settings.auctions
       ) {
         return {
           pending: {
@@ -297,10 +287,13 @@ function TransactionWorkflow({
                 <TransactionCost
                   fee={{
                     io:
-                      calculatePDNSNamePrice({
+                      calculateFloorPrice({
                         domain: payload.name,
+                        registrationType: payload.type,
+                        tiers: pdnsSourceContract.tiers.history,
+                        tier: pdnsSourceContract.tiers.current[0],
                         years: payload.years,
-                        selectedTier: 1,
+                        auctionSettings: pdnsSourceContract.settings.auctions,
                         fees: pdnsSourceContract.fees,
                       }) ?? 0,
                   }}
@@ -326,7 +319,7 @@ function TransactionWorkflow({
                 />
               </>
             ),
-            header: `Review your Purchase`,
+            header: `Review your ${payload.auction ? 'Auction' : 'Purchase'}`,
             nextText: 'Proceed to Wallet',
           },
           successful: {

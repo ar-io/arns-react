@@ -2,6 +2,7 @@
 // @ts-nocheck
 import '@testing-library/jest-dom';
 import 'core-js';
+import 'jest-location-mock';
 import matchMediaMock from 'match-media-mock';
 import React from 'react';
 import { TextDecoder, TextEncoder } from 'util';

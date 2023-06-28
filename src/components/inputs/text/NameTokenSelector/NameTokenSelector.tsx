@@ -11,12 +11,7 @@ import {
 } from '../../../../types';
 import { getAssociatedNames, isArweaveTransactionID } from '../../../../utils';
 import eventEmitter from '../../../../utils/events';
-import {
-  CirclePlus,
-  CircleXIcon,
-  CloseIcon,
-  HamburgerOutlineIcon,
-} from '../../../icons';
+import { CirclePlus, CloseIcon, HamburgerOutlineIcon } from '../../../icons';
 import { Loader } from '../../../layout';
 import ValidationInput from '../ValidationInput/ValidationInput';
 import './styles.css';

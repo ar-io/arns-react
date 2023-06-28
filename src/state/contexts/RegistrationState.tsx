@@ -1,11 +1,7 @@
 import { Dispatch, createContext, useContext, useReducer } from 'react';
 
 import { PDNTContract } from '../../services/arweave/PDNTContract';
-import {
-  ArweaveTransactionID,
-  BuyRecordPayload,
-  TRANSACTION_TYPES,
-} from '../../types';
+import { ArweaveTransactionID, TRANSACTION_TYPES } from '../../types';
 import { RegistrationAction } from '../reducers/RegistrationReducer';
 
 export type RegistrationState = {

@@ -13,7 +13,7 @@ export const ALPHA_NUMERIC_REGEX = new RegExp('^[a-zA-Z0-9]$');
 export const PDNS_TX_ID_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{43}$');
 export const PDNS_TX_ID_ENTRY_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{1,43}$');
 export const PDNS_REGISTRY_ADDRESS =
-  'bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U';
+  'GfrHPxXyfuxNNdGvzHl_5HFX711jZsG3OE8qmG-UqlY';
 export const STUB_PDNT_ID = '6dUiTQKJCVD7c9icQhbbzfI-Le_hC4sXRDx1OQQ6jMI';
 export const STUB_ARWEAVE_TXID = '2yHmORN-N12hM1B2f9-JPMpOfa59qhpsExFCzImrD30'; // pdns spec pdf
 export const DEFAULT_PDNT_SOURCE_CODE_TX =
@@ -71,6 +71,12 @@ export const MIN_TTL_SECONDS = 900;
 export const MIN_SAFE_EDIT_CONFIRMATIONS = 15;
 export const MAX_LEASE_DURATION = 5;
 export const MIN_LEASE_DURATION = 1;
+export const RESERVED_NAME_LENGTH = 4; // names must be greater than 4 characters, in contract this is MINIMUM_ALLOWED_NAME_LENGTH = 5
+export const MAX_ARNS_NAME_LENGTH = 32;
+export const SECONDS_IN_GRACE_PERIOD = 1814400;
+export const ANNUAL_PERCENTAGE_FEE = 0.1;
+export const PERMABUY_LEASE_FEE_LENGTH = 10;
+
 export const approvedContractsForWalletQuery = (
   address: ArweaveTransactionID,
   approvedSourceCodeTransactions: ArweaveTransactionID[],
@@ -164,8 +170,10 @@ export const DEFAULT_PDNS_REGISTRY_STATE: PDNSContractJSON = {
   evolve: undefined,
   tiers: {
     history: [],
-    current: {},
+    current: [],
   },
+  reserved: {},
+  settings: {},
   name: '',
   owner: undefined,
   ticker: '',
@@ -182,6 +190,4 @@ export const ATOMIC_REGISTRATION_INPUT = {
   function: 'buyRecord',
   name: '',
   contractTxId: ATOMIC_FLAG,
-  years: 1,
-  tierNumber: 1,
 };
