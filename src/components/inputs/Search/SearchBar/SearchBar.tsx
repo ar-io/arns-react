@@ -3,10 +3,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useIsMobile, useWalletAddress } from '../../../../hooks';
+import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { SearchBarProps } from '../../../../types';
 import {
   ALPHA_NUMERIC_REGEX,
   PDNS_NAME_REGEX_PARTIAL,
+  RESERVED_NAME_LENGTH,
 } from '../../../../utils/constants';
 import { SearchIcon } from '../../../icons';
 import ValidationInput from '../../text/ValidationInput/ValidationInput';
@@ -29,6 +31,7 @@ function SearchBar(props: SearchBarProps) {
     height,
   } = props;
   const navigate = useNavigate();
+  const [{ pdnsSourceContract }] = useGlobalState();
   const { walletAddress } = useWalletAddress();
   const isMobile = useIsMobile();
   const [isSearchValid, setIsSearchValid] = useState(true);
@@ -84,7 +87,7 @@ function SearchBar(props: SearchBarProps) {
       return;
     }
 
-    // // show updated states based on search result
+    // show updated states based on search result
     const searchSuccess = successPredicate(searchBarText);
     setSearchSubmitted(true);
     setIsAvailable(searchSuccess);
@@ -134,7 +137,6 @@ function SearchBar(props: SearchBarProps) {
       )}
 
       <div className="searchbar" style={handleSearchbarBorderStyle()}>
-        {' '}
         {/** TODO change max input to 32 once contract is updated */}
         <ValidationInput
           inputType="search"
@@ -223,7 +225,10 @@ function SearchBar(props: SearchBarProps) {
           </button>
         )}
       </div>
-      {searchSubmitted && isAvailable ? (
+      {searchSubmitted &&
+      isAvailable &&
+      !Object.keys(pdnsSourceContract.reserved).includes(searchBarText!) &&
+      !(searchBarText!.length <= RESERVED_NAME_LENGTH) ? (
         <button
           className="accent-button center"
           onClick={_onSubmitButton}

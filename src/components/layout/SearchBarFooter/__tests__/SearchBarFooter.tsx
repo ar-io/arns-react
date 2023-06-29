@@ -6,6 +6,6 @@ describe('SearchBarHeader', () => {
   afterEach(cleanup);
 
   test('render SearchBarHeader', () => {
-    render(<SearchBarFooter />);
+    render(<SearchBarFooter reservedList={[]} />);
   });
 });

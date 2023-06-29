@@ -15,6 +15,7 @@ import {
   ATOMIC_FLAG,
   FEATURED_DOMAINS,
   PDNS_REGISTRY_ADDRESS,
+  RESERVED_NAME_LENGTH,
 } from '../../../utils/constants';
 import {
   isPDNSDomainNameAvailable,
@@ -217,10 +218,22 @@ function Home() {
                     }
                     placeholderText={'Search for a name'}
                     headerElement={
-                      <SearchBarHeader defaultText={'Find a name'} />
+                      <SearchBarHeader
+                        defaultText={'Find a name'}
+                        reservedList={
+                          pdnsSourceContract.reserved
+                            ? Object.keys(pdnsSourceContract.reserved)
+                            : []
+                        }
+                      />
                     }
                     footerElement={
                       <SearchBarFooter
+                        reservedList={
+                          pdnsSourceContract.reserved
+                            ? Object.keys(pdnsSourceContract.reserved)
+                            : []
+                        }
                         searchTerm={domain}
                         searchResult={
                           domain && pdnsSourceContract.records[domain]
@@ -249,7 +262,11 @@ function Home() {
               },
             }}
           />
-          {featuredDomains && !pdntID && stage < 1 ? (
+          {featuredDomains &&
+          !pdntID &&
+          stage < 1 &&
+          !Object.keys(pdnsSourceContract.reserved).includes(domain!) &&
+          !(domain && domain.length <= RESERVED_NAME_LENGTH) ? (
             <FeaturedDomains domains={featuredDomains} />
           ) : (
             <></>

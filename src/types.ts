@@ -264,12 +264,14 @@ export type SearchBarProps = {
 
 export type SearchBarHeaderProps = {
   defaultText: string;
+  reservedList: string[];
   isAvailable?: boolean;
   isDefault?: boolean;
   text?: string;
 };
 
 export type SearchBarFooterProps = {
+  reservedList: string[];
   isAvailable?: boolean;
   searchTerm?: string;
   searchResult?: ArweaveTransactionID;
@@ -637,6 +639,7 @@ export enum VALIDATION_INPUT_TYPES {
   // unfortunately we cannot use computed values in enums, so be careful if we ever modify this number
   TRANSACTION_CONFIRMATIONS = `Has sufficient confirmations (50+).`,
   VALID_TTL = `Minimum ttl allowed is 900 and Maximum ttl allowed is 2,592,000.`,
+  EMAIL = `Is a valid email`,
 }
 
 export type ValidationObject = {
