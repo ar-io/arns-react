@@ -1,3 +1,6 @@
+import emojiRegex from 'emoji-regex';
+import { asciiToUnicode, unicodeToAscii } from 'puny-coder';
+
 import { PDNSRecordEntry } from '../../types';
 import { PDNS_NAME_REGEX } from '../constants';
 
@@ -34,7 +37,13 @@ export function calculatePDNSNamePrice({
 }
 
 export function isPDNSDomainNameValid({ name }: { name?: string }): boolean {
-  if (!name || !PDNS_NAME_REGEX.test(name) || name === 'www') {
+  if (
+    !name ||
+    !PDNS_NAME_REGEX.test(
+      emojiRegex().test(name) ? encodeDomainToASCII(name) : name,
+    ) ||
+    name === 'www'
+  ) {
     return false;
   }
   return true;
@@ -52,4 +61,15 @@ export function isPDNSDomainNameAvailable({
     return false;
   }
   return true;
+}
+
+export function encodeDomainToASCII(domain: string): string {
+  const decodedDomain = unicodeToAscii(domain);
+
+  return decodedDomain;
+}
+export function decodeDomainToASCII(domain: string): string {
+  const decodedDomain = asciiToUnicode(domain);
+
+  return decodedDomain;
 }

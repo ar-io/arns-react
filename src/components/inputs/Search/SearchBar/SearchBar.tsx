@@ -4,10 +4,8 @@ import { useNavigate } from 'react-router-dom';
 
 import { useIsMobile, useWalletAddress } from '../../../../hooks';
 import { SearchBarProps } from '../../../../types';
-import {
-  ALPHA_NUMERIC_REGEX,
-  PDNS_NAME_REGEX_PARTIAL,
-} from '../../../../utils/constants';
+import { encodeDomainToASCII } from '../../../../utils';
+import { PDNS_NAME_REGEX_PARTIAL } from '../../../../utils/constants';
 import { SearchIcon } from '../../../icons';
 import ValidationInput from '../../text/ValidationInput/ValidationInput';
 import './styles.css';
@@ -60,8 +58,9 @@ function SearchBar(props: SearchBarProps) {
   }, [value]);
 
   function _onChange(e: string) {
+    encodeDomainToASCII(e);
     setSearchSubmitted(false);
-    const input = e.trim().toLowerCase();
+    const input = e.trim();
     const searchValid = validationPredicate(input);
     setIsSearchValid(searchValid);
     setSearchBarText(input);
@@ -78,6 +77,7 @@ function SearchBar(props: SearchBarProps) {
   function _onSubmit(next = false) {
     onSubmit(next);
     // TODO: validation may also be async, so return a promise that resolves to a boolean
+
     const searchValid = validationPredicate(searchBarText);
     setIsSearchValid(searchValid);
     if (!searchValid) {
@@ -92,7 +92,10 @@ function SearchBar(props: SearchBarProps) {
       // on additional functions passed in
       onSuccess(searchBarText);
     } else if (!searchSuccess && searchBarText && values) {
-      onFailure(searchBarText, values[searchBarText].contractTxId);
+      onFailure(
+        searchBarText,
+        values[encodeDomainToASCII(searchBarText)].contractTxId,
+      );
     }
   }
 
@@ -134,15 +137,14 @@ function SearchBar(props: SearchBarProps) {
       )}
 
       <div className="searchbar" style={handleSearchbarBorderStyle()}>
-        {' '}
-        {/** TODO change max input to 32 once contract is updated */}
         <ValidationInput
+          pattern={PDNS_NAME_REGEX_PARTIAL}
           inputType="search"
           onPressEnter={() => _onSubmit()}
           disabled={disabled}
           placeholder={placeholderText}
-          value={searchBarText}
-          setValue={(v) => _onChange(v)}
+          value={searchBarText?.trim()}
+          setValue={(v) => _onChange(v.trim())}
           onClick={() => _onFocus()}
           maxLength={32}
           inputCustomStyle={{ height }}
@@ -164,19 +166,27 @@ function SearchBar(props: SearchBarProps) {
             'Min. 1 character': {
               fn: (query: string) =>
                 new Promise((resolve, reject) =>
-                  !query || !query.length ? reject() : resolve(true),
+                  !query.trim() || !query.trim().length
+                    ? reject()
+                    : resolve(true),
                 ),
             },
             'Max. 32 characters': {
               fn: (query: string) =>
                 new Promise((resolve, reject) =>
-                  query.length && query.length <= 32 ? resolve(true) : reject(),
+                  query.trim().length &&
+                  encodeDomainToASCII(query.trim()).length <= 32
+                    ? resolve(true)
+                    : reject(),
                 ),
             },
             'No special characters': {
               fn: (query: string) =>
                 new Promise((resolve, reject) =>
-                  query.length && PDNS_NAME_REGEX_PARTIAL.test(query)
+                  query.trim().length &&
+                  PDNS_NAME_REGEX_PARTIAL.test(
+                    encodeDomainToASCII(query.trim()),
+                  )
                     ? resolve(true)
                     : reject(),
                 ),
@@ -184,9 +194,11 @@ function SearchBar(props: SearchBarProps) {
             'Dashes cannot be leading or trailing': {
               fn: (query: string) =>
                 new Promise((resolve, reject) =>
-                  query.length &&
-                  ALPHA_NUMERIC_REGEX.test(query[0]) &&
-                  ALPHA_NUMERIC_REGEX.test(query[query.length - 1])
+                  query.trim().length &&
+                  encodeDomainToASCII(query.trim()).charAt(0) !== '-' &&
+                  encodeDomainToASCII(query.trim()).charAt(
+                    query.trim().length - 1,
+                  ) !== '-'
                     ? resolve(true)
                     : reject(),
                 ),

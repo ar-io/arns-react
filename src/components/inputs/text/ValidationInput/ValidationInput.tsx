@@ -7,6 +7,7 @@ import { AlertTriangleIcon, CircleCheck, CircleXIcon } from '../../../icons';
 import { Loader } from '../../../layout';
 
 function ValidationInput({
+  pattern,
   wrapperClassName = '',
   wrapperCustomStyle,
   validationListStyle,
@@ -31,6 +32,7 @@ function ValidationInput({
   onPressEnter,
   customValidationIcons,
 }: {
+  pattern?: RegExp;
   wrapperClassName?: string;
   wrapperCustomStyle?: any;
   showValidationChecklist?: boolean;
@@ -137,7 +139,11 @@ function ValidationInput({
             maxLength={maxLength}
             placeholder={placeholder}
             value={value}
-            onChange={(e) => validationExecutor(e.target.value)}
+            onChange={(e) =>
+              validationExecutor(
+                pattern ? e.target.value.replace(/\s/g, '') : e.target.value,
+              )
+            }
             disabled={disabled}
             style={
               showValidationOutline && valid !== undefined && value && !disabled
@@ -151,6 +157,7 @@ function ValidationInput({
                   }
                 : { ...inputCustomStyle }
             }
+            pattern={pattern?.source}
           />
           <div
             style={{
