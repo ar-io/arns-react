@@ -229,6 +229,11 @@ function Home() {
                     }
                     footerElement={
                       <SearchBarFooter
+                        auction={
+                          domain
+                            ? pdnsSourceContract?.auctions?.[domain]
+                            : undefined
+                        }
                         reservedList={
                           pdnsSourceContract.reserved
                             ? Object.keys(pdnsSourceContract.reserved)
@@ -266,7 +271,8 @@ function Home() {
           !pdntID &&
           stage < 1 &&
           !Object.keys(pdnsSourceContract.reserved).includes(domain!) &&
-          !(domain && domain.length <= RESERVED_NAME_LENGTH) ? (
+          !(domain && domain.length <= RESERVED_NAME_LENGTH) &&
+          !(domain && pdnsSourceContract.auctions?.[domain]) ? (
             <FeaturedDomains domains={featuredDomains} />
           ) : (
             <></>

@@ -1,5 +1,6 @@
 import { ArrowDownOutlined, CheckCircleFilled } from '@ant-design/icons';
 
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { SearchBarHeaderProps } from '../../../types';
 import { RESERVED_NAME_LENGTH } from '../../../utils/constants';
 import './styles.css';
@@ -10,6 +11,21 @@ function SearchBarHeader({
   text,
   reservedList,
 }: SearchBarHeaderProps): JSX.Element {
+  const [{ pdnsSourceContract }] = useGlobalState();
+
+  // unavailable condition
+  if (text && pdnsSourceContract?.auctions?.[text]) {
+    return (
+      <span
+        className="text-medium white center"
+        style={{ fontWeight: 500, fontSize: 23 }}
+      >
+        <span className="in-auction">{text}&nbsp;</span>
+        is currently in auction.
+      </span>
+    );
+  }
+
   // unavailable condition
   if (text && !isAvailable) {
     return (

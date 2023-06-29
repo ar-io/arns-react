@@ -112,6 +112,9 @@ function SearchBar(props: SearchBarProps) {
   const handleSearchbarBorderStyle = () => {
     if (searchBarText) {
       if (searchSubmitted) {
+        if (pdnsSourceContract?.auctions?.[searchBarText]) {
+          return { borderColor: 'var(--accent)' };
+        }
         if (isAvailable) {
           return { borderColor: 'var(--success-green)' };
         } else {
