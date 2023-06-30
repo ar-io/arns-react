@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { useIsMobile, useWalletAddress } from '../../../../hooks';
+import useIsFocused from '../../../../hooks/useIsFocused/useIsFocused';
 import { SearchBarProps } from '../../../../types';
 import { encodeDomainToASCII } from '../../../../utils';
 import { PDNS_NAME_REGEX_PARTIAL } from '../../../../utils/constants';
@@ -34,8 +35,8 @@ function SearchBar(props: SearchBarProps) {
   const [searchSubmitted, setSearchSubmitted] = useState(false);
   const [searchBarText, setSearchBarText] = useState<string | undefined>(value);
   const [searchParams, setSearchParams] = useSearchParams();
-  const [searchbarBorder, setSearchbarBorder] = useState<any>({});
   const inputRef = useRef<HTMLDivElement | null>(null);
+  const isSearchbarFocused = useIsFocused('searchbar-input-id');
 
   function reset() {
     setSearchSubmitted(false);
@@ -52,25 +53,16 @@ function SearchBar(props: SearchBarProps) {
       const serializeSearchParams: Record<string, string> = {};
       setSearchParams(serializeSearchParams);
     }
-
-    _onFocus();
   }, [searchBarText]);
 
   useEffect(() => {
     if (value) {
       setSearchBarText(value);
-      _onFocus();
+
       _onSubmit();
       return;
     }
   }, [value]);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      setSearchbarBorder(handleSearchbarBorderStyle());
-    }
-    console.log('active');
-  }, [inputRef]);
 
   function _onChange(e: string) {
     encodeDomainToASCII(e);
@@ -80,13 +72,6 @@ function SearchBar(props: SearchBarProps) {
     setIsSearchValid(searchValid);
     setSearchBarText(input);
     onChange();
-  }
-
-  function _onFocus() {
-    // center search bar on the page
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
   }
 
   function _onSubmit(next = false) {
@@ -128,19 +113,17 @@ function SearchBar(props: SearchBarProps) {
     if (searchBarText) {
       if (searchSubmitted) {
         if (isAvailable) {
-          return { borderColor: 'var(--success-green)' };
+          return { border: '2px solid var(--success-green)' };
         } else {
-          return { borderColor: 'var(--error-red)' };
+          return { border: '2px solid var(--error-red)' };
         }
       }
-      return { borderColor: 'white', marginBottom: 30 };
+      return { border: '2px solid white', marginBottom: 30 };
     } else {
-      if (
-        document.querySelector('searchbar-input') === document.activeElement
-      ) {
+      if (isSearchbarFocused) {
         return { border: 'var(--text-white) solid 2px', marginBottom: 30 };
       }
-      return { borderColor: '', marginBottom: 30 };
+      return { border: '', marginBottom: 30 };
     }
   };
 
@@ -156,9 +139,14 @@ function SearchBar(props: SearchBarProps) {
         <></>
       )}
 
-      <div className="searchbar" style={searchbarBorder} ref={inputRef}>
+      <div
+        className="searchbar"
+        style={handleSearchbarBorderStyle()}
+        ref={inputRef}
+      >
         <ValidationInput
           inputClassName="searchbar-input"
+          inputId="searchbar-input-id"
           pattern={PDNS_NAME_REGEX_PARTIAL}
           inputType="search"
           onPressEnter={() => _onSubmit()}
@@ -166,7 +154,7 @@ function SearchBar(props: SearchBarProps) {
           placeholder={placeholderText}
           value={searchBarText?.trim()}
           setValue={(v) => _onChange(v.trim())}
-          onClick={() => _onFocus()}
+          onClick={() => inputRef?.current?.focus()}
           maxLength={32}
           inputCustomStyle={{ height }}
           wrapperCustomStyle={{
