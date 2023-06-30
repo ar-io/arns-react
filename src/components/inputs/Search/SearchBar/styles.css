@@ -21,24 +21,25 @@
   justify-content: space-between;
   box-sizing: border-box;
 }
-.searchbar:hover {
-  box-shadow: 0px 0px 4px 1px rgba(255, 255, 255, 0.72);
-}
-.searchbar input {
-  box-sizing: border-box;
+
+.searchbar-input {
   display: flex;
   width: 100%;
-  border-radius: 100px;
-  font-size: 16px;
-  font-weight: 400;
+  height: 100%;
+  padding: 0.5em 1em;
   border: none;
-  outline: none;
-  padding-left: 26px;
-  padding-right: 26px;
-  background-color: var(--card-bg);
+  border-radius: var(--corner-radius);
+  background-color: transparent;
   color: var(--text-white);
-  text-transform: lowercase;
+  font-family: 'Rubik';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 19px;
+  text-transform: none;
+  outline: none;
 }
+
 .searchbar input::placeholder {
   font-family: 'Rubik';
   font-style: normal;

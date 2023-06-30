@@ -36,7 +36,7 @@ function ValidationList({
             <span
               className="flex"
               style={{
-                gap: '15px',
+                gap: '12px',
                 alignItems: 'center',
                 color: 'inherit',
               }}

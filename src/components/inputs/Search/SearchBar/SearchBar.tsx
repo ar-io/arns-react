@@ -34,7 +34,8 @@ function SearchBar(props: SearchBarProps) {
   const [searchSubmitted, setSearchSubmitted] = useState(false);
   const [searchBarText, setSearchBarText] = useState<string | undefined>(value);
   const [searchParams, setSearchParams] = useSearchParams();
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [searchbarBorder, setSearchbarBorder] = useState<any>({});
+  const inputRef = useRef<HTMLDivElement | null>(null);
 
   function reset() {
     setSearchSubmitted(false);
@@ -63,6 +64,13 @@ function SearchBar(props: SearchBarProps) {
       return;
     }
   }, [value]);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      setSearchbarBorder(handleSearchbarBorderStyle());
+    }
+    console.log('active');
+  }, [inputRef]);
 
   function _onChange(e: string) {
     encodeDomainToASCII(e);
@@ -127,6 +135,11 @@ function SearchBar(props: SearchBarProps) {
       }
       return { borderColor: 'white', marginBottom: 30 };
     } else {
+      if (
+        document.querySelector('searchbar-input') === document.activeElement
+      ) {
+        return { border: 'var(--text-white) solid 2px', marginBottom: 30 };
+      }
       return { borderColor: '', marginBottom: 30 };
     }
   };
@@ -143,8 +156,9 @@ function SearchBar(props: SearchBarProps) {
         <></>
       )}
 
-      <div className="searchbar" style={handleSearchbarBorderStyle()}>
+      <div className="searchbar" style={searchbarBorder} ref={inputRef}>
         <ValidationInput
+          inputClassName="searchbar-input"
           pattern={PDNS_NAME_REGEX_PARTIAL}
           inputType="search"
           onPressEnter={() => _onSubmit()}
@@ -166,7 +180,7 @@ function SearchBar(props: SearchBarProps) {
             flexDirection: 'row',
             justifyContent: 'space-between',
             marginTop: '15px',
-            gap: 15,
+            gap: 8,
             color: searchBarText ? 'var(--text-white)' : 'var(--text-faded)',
           }}
           validationPredicates={{

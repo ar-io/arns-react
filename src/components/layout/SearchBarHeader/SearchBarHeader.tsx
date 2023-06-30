@@ -27,9 +27,13 @@ function SearchBarHeader({
           <span style={{ color: 'var(--success-green)' }}>
             {decodeDomainToASCII(text)}
           </span>
-          &nbsp;is available!&nbsp;
+          &nbsp;is available!
           <CheckCircleFilled
-            style={{ fontSize: 20, color: 'var(--success-green)' }}
+            style={{
+              fontSize: 20,
+              color: 'var(--success-green)',
+              marginLeft: '20px',
+            }}
           />
         </span>
       ) : (
