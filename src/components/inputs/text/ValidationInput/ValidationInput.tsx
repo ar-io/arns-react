@@ -75,7 +75,7 @@ function ValidationInput({
     inputRef.current?.focus();
 
     validationExecutor(value?.toString() ?? '');
-  }, [disabled]);
+  }, [disabled, value]);
 
   async function validationExecutor(newValue: string) {
     setValidating(true);

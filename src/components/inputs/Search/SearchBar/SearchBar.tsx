@@ -41,7 +41,7 @@ function SearchBar(props: SearchBarProps) {
   function reset() {
     setSearchSubmitted(false);
     setIsSearchValid(true);
-    setSearchBarText(undefined);
+    setSearchBarText('');
     return;
   }
   useEffect(() => {
@@ -65,13 +65,19 @@ function SearchBar(props: SearchBarProps) {
   }, [value]);
 
   function _onChange(e: string) {
-    encodeDomainToASCII(e);
     setSearchSubmitted(false);
-    const input = e.trim();
+    const input = encodeDomainToASCII(e.trim());
     const searchValid = validationPredicate(input);
     setIsSearchValid(searchValid);
     setSearchBarText(input);
     onChange();
+  }
+
+  function _onFocus() {
+    // center search bar on the page
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
   }
 
   function _onSubmit(next = false) {
@@ -141,7 +147,11 @@ function SearchBar(props: SearchBarProps) {
 
       <div
         className="searchbar"
-        style={handleSearchbarBorderStyle()}
+        style={{
+          ...handleSearchbarBorderStyle(),
+          width: '100%',
+          position: 'relative',
+        }}
         ref={inputRef}
       >
         <ValidationInput
@@ -154,7 +164,7 @@ function SearchBar(props: SearchBarProps) {
           placeholder={placeholderText}
           value={searchBarText?.trim()}
           setValue={(v) => _onChange(v.trim())}
-          onClick={() => inputRef?.current?.focus()}
+          onClick={() => _onFocus()}
           maxLength={32}
           inputCustomStyle={{ height }}
           wrapperCustomStyle={{
@@ -226,6 +236,23 @@ function SearchBar(props: SearchBarProps) {
             ),
           }}
         />
+        {!isAvailable && searchBarText && searchSubmitted ? (
+          <button
+            className="link bold text flex-center"
+            style={{
+              color: 'var(--text-faded)',
+              width: 'fit-content',
+              position: 'absolute',
+              right: '75px',
+              height: '100%',
+            }}
+            onClick={() => reset()}
+          >
+            Clear
+          </button>
+        ) : (
+          <></>
+        )}
         {isMobile ? (
           <></>
         ) : (
