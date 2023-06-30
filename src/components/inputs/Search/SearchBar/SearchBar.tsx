@@ -1,6 +1,6 @@
 import { CheckCircleFilled } from '@ant-design/icons';
 import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { useIsMobile, useWalletAddress } from '../../../../hooks';
 import { SearchBarProps } from '../../../../types';
@@ -33,6 +33,7 @@ function SearchBar(props: SearchBarProps) {
   const [isAvailable, setIsAvailable] = useState(false);
   const [searchSubmitted, setSearchSubmitted] = useState(false);
   const [searchBarText, setSearchBarText] = useState<string | undefined>(value);
+  const [searchParams, setSearchParams] = useSearchParams();
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   function reset() {
@@ -45,6 +46,12 @@ function SearchBar(props: SearchBarProps) {
     if (!searchBarText) {
       reset();
     }
+    if (searchParams.get('search') !== searchBarText) {
+      // clear search params on new search
+      const serializeSearchParams: Record<string, string> = {};
+      setSearchParams(serializeSearchParams);
+    }
+
     _onFocus();
   }, [searchBarText]);
 
