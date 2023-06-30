@@ -64,16 +64,17 @@ function Home() {
 
   useEffect(() => {
     if (Object.keys(pdnsSourceContract.records).length) {
-      const featuredDomains = Object.fromEntries(
+      const newFeaturedDomains = Object.fromEntries(
         FEATURED_DOMAINS.map((domain: string) =>
           pdnsSourceContract.records[domain]?.contractTxId
             ? [domain, pdnsSourceContract.records[domain].contractTxId]
             : [],
         ).filter((n) => n.length),
       );
-      setFeaturedDomains(featuredDomains);
+
+      setFeaturedDomains(newFeaturedDomains);
     }
-  }, [pdnsSourceContract.records]);
+  }, [pdnsSourceContract]);
 
   return (
     <div className="page">

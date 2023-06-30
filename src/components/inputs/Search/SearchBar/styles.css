@@ -37,7 +37,6 @@
   padding-right: 26px;
   background-color: var(--card-bg);
   color: var(--text-white);
-  text-transform: lowercase;
 }
 .searchbar input::placeholder {
   font-family: 'Rubik';

@@ -67,8 +67,13 @@ function PDNTCard(props: PDNSMapping) {
         pdntContractState = state;
       }
       if (id && !state) {
-        pdntContractState =
-          await arweaveDataProvider.getContractState<PDNTContractJSON>(id);
+        pdntContractState = await arweaveDataProvider
+          .getContractState<PDNTContractJSON>(id)
+          .catch(() => {
+            throw new Error(
+              `Unable to fetch ANT contract state for "${domain}": ${id}`,
+            );
+          });
       }
       if (!pdntContractState) {
         throw new Error(
