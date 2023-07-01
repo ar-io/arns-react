@@ -259,19 +259,48 @@ function AuctionChart({
               },
               plugins: {
                 tooltip: {
-                  backgroundColor: 'transparent',
+                  backgroundColor: '#38393B',
                   titleFont: {
-                    size: 14,
+                    size: 12,
                     weight: '400',
                   },
-                  titleColor: '#7D7D85',
+                  footerFont: {
+                    size: 12, // footer font size in px
+                    style: 'normal', // footer font style
+                    weight: '700', // footer font weight
+                  },
+                  titleAlign: 'center',
+                  footerAlign: 'center',
+                  footerColor: '#FAFAFA',
+                  titleColor: '#FAFAFA80',
                   mode: 'nearest',
-                  xAlign: 'left',
+                  xAlign: 'center',
                   yAlign: 'bottom',
-                  caretPadding: 5,
+                  caretPadding: 15,
+                  padding: 14,
                   callbacks: {
-                    title: (data) =>
-                      Math.round(data[0].parsed.y).toLocaleString() ?? '',
+                    title: (data) => {
+                      const block = +data[0].label;
+                      const blockDiff =
+                        block > currentBlockHeight
+                          ? block - currentBlockHeight
+                          : currentBlockHeight - block;
+                      const timeDifferenceMs = blockDiff * 120000;
+                      const time = new Date(
+                        block > currentBlockHeight
+                          ? Date.now() + timeDifferenceMs
+                          : Date.now() - timeDifferenceMs,
+                      );
+                      const formattedDate = new Intl.DateTimeFormat('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      }).format(time);
+                      return formattedDate ?? '';
+                    },
+                    footer: (data) =>
+                      `${Math.round(data[0].parsed.y).toLocaleString()} IO` ??
+                      '',
                     label: () => '',
                   },
                 },
@@ -325,7 +354,7 @@ function AuctionChart({
           <span>Premium</span>
           {showUpdateCountdown ? (
             <span
-              className="faded flex flex-row flex-center"
+              className="grey flex flex-row flex-center"
               style={{ gap: 0, height: 'fit-content' }}
             >
               Next price update:&nbsp;
@@ -333,7 +362,7 @@ function AuctionChart({
                 value={timeUntilUpdate}
                 valueStyle={{
                   fontSize: '15px',
-                  color: 'var(--text-faded)',
+                  color: 'var(--text-grey)',
                   paddingBottom: 2,
                 }}
                 format="H:mm:ss"
