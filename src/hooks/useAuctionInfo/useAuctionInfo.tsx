@@ -1,113 +1,173 @@
+import { update } from 'lodash';
 import { useEffect, useState } from 'react';
 
 import { useGlobalState } from '../../state/contexts/GlobalState';
-import { Auction, AuctionSettings } from '../../types';
-import { calculateMinimumAuctionBid } from '../../utils';
+import { Auction, AuctionSettings, TRANSACTION_TYPES } from '../../types';
+import {
+  calculateMinimumAuctionBid,
+  generateAuction,
+  isDomainAuctionable,
+  updatePrices,
+} from '../../utils';
 import eventEmitter from '../../utils/events';
 import { useArweaveCompositeProvider } from '../useArweaveCompositeProvider/useArweaveCompositeProvider';
 
-function useAuctionInfo(domain: string) {
-  const [{ pdnsSourceContract, blockHieght }, dispatchGlobalState] =
-    useGlobalState();
+/**
+ *
+ * @param domain this hook is used to get the auction information for a given domain - if a live auction exists,
+ * it will return the auction information, otherwise, it will generate the information based on the
+ * current auction settings from the registry contract
+ * @param registrationType
+ * @param leaseDuration
+ *
+ */
+
+function useAuctionInfo(
+  domain: string,
+  registrationType?: TRANSACTION_TYPES,
+  leaseDuration?: number,
+) {
+  const [
+    { pdnsSourceContract, blockHieght, walletAddress, gateway },
+    dispatchGlobalState,
+  ] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
-  const [auctionSettings, setAuctionSettings] = useState<
-    AuctionSettings | undefined
-  >();
-  const [auction, setAuction] = useState<Auction | undefined>();
+  const [auctionSettings, setAuctionSettings] = useState<AuctionSettings>();
+  const [auction, setAuction] = useState<Auction>();
   const [price, setPrice] = useState<number>(0);
-  const [prices, setPrices] = useState<{ [X: string]: number }>({});
+  const [prices, setPrices] = useState<{ [X: string]: number }>();
+  const [isLiveAuction, setIsLiveAuction] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!domain || !blockHieght) {
-      arweaveDataProvider
-        .getCurrentBlockHeight()
-        .then((newBlockHieght: number) => {
-          dispatchGlobalState({
-            type: 'setBlockHieght',
-            payload: newBlockHieght,
-          });
-        })
-        .catch((error) => eventEmitter.emit('error', error));
-      return;
-    }
-
-    if (pdnsSourceContract?.auctions) {
-      const auction = pdnsSourceContract?.auctions[domain];
-      if (!auction) {
-        console.error('error', new Error(`No auction for ${domain} found.`));
+    try {
+      if (!domain) {
+        console.debug(
+          'No domain provided to useAuctionInfo hook. To calculate auction prices a domain is required.',
+        );
         return;
       }
-      setAuction(auction);
-    }
-    if (auction && pdnsSourceContract?.settings?.auctions?.history) {
-      const auctionSettings =
-        pdnsSourceContract?.settings?.auctions?.history.find(
-          (a: AuctionSettings) => a.id === auction?.auctionSettingsId,
-        );
-      setAuctionSettings(auctionSettings);
-    }
-    if (auction && auctionSettings && blockHieght) {
-      const { startHeight, startPrice: initialPrice, floorPrice } = auction;
-      const { decayInterval, decayRate, auctionDuration } = auctionSettings;
-      const currentBlockHeight = blockHieght;
-      const minAuctionBid = calculateMinimumAuctionBid({
-        startHeight,
-        initialPrice,
-        floorPrice,
-        currentBlockHeight,
-        decayInterval,
-        decayRate,
-      });
-      setPrice(minAuctionBid);
 
-      const pricesMap = updatePrices(
-        startHeight,
-        initialPrice,
-        floorPrice,
-        decayInterval,
-        decayRate,
-        auctionDuration,
-      );
-      setPrices(pricesMap);
+      if (!blockHieght) {
+        arweaveDataProvider
+          .getCurrentBlockHeight()
+          .then((b: number) => {
+            dispatchGlobalState({
+              type: 'setBlockHieght',
+              payload: b,
+            });
+          })
+          .catch(() => {
+            throw new Error(
+              `Error getting block height from ${gateway}, unable to calculate auction prices.`,
+            );
+          });
+        return;
+      }
+
+      if (pdnsSourceContract?.auctions) {
+        const foundAuction = pdnsSourceContract?.auctions[domain];
+        const foundAuctionSettings =
+          pdnsSourceContract?.settings?.auctions?.history.find(
+            (a: AuctionSettings) => a.id === foundAuction.auctionSettingsId,
+          );
+        if (foundAuction) {
+          setAuction(foundAuction);
+          setAuctionSettings(foundAuctionSettings);
+          setIsLiveAuction(true);
+          return;
+        } else {
+          if (pdnsSourceContract.settings.auctions) {
+            if (!registrationType) {
+              throw new Error(
+                `No registration type provided, unable to generate auction prices.`,
+              );
+            }
+            if (
+              !isDomainAuctionable({
+                domain,
+                registrationType,
+                reservedList: Object.keys(pdnsSourceContract.reserved),
+              })
+            ) {
+              throw new Error(`${domain} is not an auctionable domain.`);
+            }
+            if (!walletAddress) {
+              throw new Error(
+                `No wallet connected, unable to generate auction prices.`,
+              );
+            }
+
+            const [newAuction, newAuctionSettings] = generateAuction({
+              domain,
+              registrationType,
+              years: leaseDuration ?? 1,
+              auctionSettings: pdnsSourceContract.settings.auctions,
+              tierSettings: pdnsSourceContract.tiers,
+              fees: pdnsSourceContract.fees,
+              currentBlockHeight: blockHieght,
+              walletAddress,
+            }); // sets contract id as atomic by default
+            setAuction(newAuction);
+            setAuctionSettings(newAuctionSettings);
+            setIsLiveAuction(false);
+          }
+        }
+        // if auction found, set live auction
+        setIsLiveAuction(true);
+        setAuction(foundAuction);
+      }
+    } catch (error) {
+      eventEmitter.emit('error', error);
     }
   }, [
-    auction,
     blockHieght,
-    pdnsSourceContract?.settings?.auctions?.history,
     pdnsSourceContract?.auctions,
+    pdnsSourceContract?.settings?.auctions,
     domain,
   ]);
 
-  function updatePrices(
-    _startHeight: number,
-    _initialPrice: number,
-    _floorPrice: number,
-    _decayInterval: number,
-    _decayRate: number,
-    _auctionDuration: number,
-  ): { [X: string]: number } {
-    const expiredHieght = _startHeight + _auctionDuration;
-    let currentHeight = _startHeight;
-    const newPrices: { [X: string]: number } = {};
-    while (currentHeight < expiredHieght) {
-      const blockPrice = calculateMinimumAuctionBid({
-        startHeight: _startHeight,
-        initialPrice: _initialPrice,
-        floorPrice: _floorPrice,
-        currentBlockHeight: currentHeight,
-        decayInterval: _decayInterval,
-        decayRate: _decayRate,
+  useEffect(() => {
+    if (auction && pdnsSourceContract?.settings?.auctions?.history) {
+      const foundAuctionSettings =
+        pdnsSourceContract?.settings?.auctions?.history.find(
+          (a: AuctionSettings) => a.id === auction.auctionSettingsId,
+        );
+
+      setAuctionSettings(foundAuctionSettings);
+    }
+  }, [auction, pdnsSourceContract?.settings?.auctions?.history]);
+
+  useEffect(() => {
+    if (auction && auctionSettings && blockHieght) {
+      const calculatedPrice = calculateMinimumAuctionBid({
+        startHeight: auction.startHeight,
+        initialPrice: auction.startPrice,
+        floorPrice: auction.floorPrice,
+        currentBlockHeight: blockHieght,
+        decayInterval: auctionSettings.decayInterval,
+        decayRate: auctionSettings.decayRate,
       });
 
-      newPrices[currentHeight.toString()] = blockPrice;
-      currentHeight = currentHeight + _decayInterval;
+      setPrice(calculatedPrice);
+      const newPrices = updatePrices({
+        startHeight: auction.startHeight,
+        initialPrice: auction.startPrice,
+        auctionDuration: auctionSettings.auctionDuration,
+        floorPrice: auction.floorPrice,
+        decayInterval: auctionSettings.decayInterval,
+        decayRate: auctionSettings.decayRate,
+      });
+      setPrices(newPrices);
     }
+  }, [auction, auctionSettings, blockHieght]);
 
-    newPrices[expiredHieght.toString()] = _floorPrice;
-    return newPrices;
-  }
-
-  return { minimumAuctionBid: price, prices, auction, auctionSettings };
+  return {
+    minimumAuctionBid: price,
+    isLiveAuction,
+    auction,
+    auctionSettings,
+    prices,
+  };
 }
 
 export default useAuctionInfo;

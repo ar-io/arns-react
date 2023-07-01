@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 import { useArweaveCompositeProvider } from '../../../hooks';
+import useAuctionInfo from '../../../hooks/useAuctionInfo/useAuctionInfo';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
@@ -31,24 +32,34 @@ function RegisterNameForm() {
   ] = useRegistrationState();
   const [{ pdnsSourceContract, walletAddress }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
+  const { minimumAuctionBid, auction, isLiveAuction } = useAuctionInfo(
+    domain!,
+    registrationType,
+    leaseDuration,
+  );
 
   useEffect(() => {
     if (domain && pdnsSourceContract.settings.auctions) {
-      const newFee = calculateFloorPrice({
-        domain,
-        registrationType,
-        tiers: pdnsSourceContract.tiers.history,
-        tier: pdnsSourceContract.tiers.current[0],
-        years: leaseDuration,
-        auctionSettings: pdnsSourceContract.settings.auctions,
-        fees: pdnsSourceContract.fees,
-      });
+      const newFee = minimumAuctionBid;
       dispatchRegisterState({
         type: 'setFee',
         payload: { ar: fee.ar, io: newFee },
       });
     }
-  }, [leaseDuration, domain, pdnsSourceContract, registrationType]);
+    if (isLiveAuction && auction) {
+      dispatchRegisterState({
+        type: 'setRegistrationType',
+        payload: auction.type as TRANSACTION_TYPES,
+      });
+    }
+  }, [
+    leaseDuration,
+    domain,
+    pdnsSourceContract,
+    registrationType,
+    minimumAuctionBid,
+    auction,
+  ]);
 
   async function handlePDNTId(id: string) {
     try {
@@ -144,6 +155,9 @@ function RegisterNameForm() {
           >
             <button
               className="flex flex-row center text-medium bold pointer"
+              disabled={
+                isLiveAuction && registrationType === TRANSACTION_TYPES.BUY
+              }
               onClick={() =>
                 dispatchRegisterState({
                   type: 'setRegistrationType',
@@ -185,6 +199,9 @@ function RegisterNameForm() {
             </button>
             <button
               className="flex flex-row center text-medium bold pointer"
+              disabled={
+                isLiveAuction && registrationType === TRANSACTION_TYPES.LEASE
+              }
               style={{
                 position: 'relative',
                 background:
@@ -260,13 +277,7 @@ function RegisterNameForm() {
               <></>
             )}
           </div>
-          {domain &&
-          pdnsSourceContract.settings.auctions &&
-          isDomainAuctionable({
-            domain,
-            registrationType,
-            reservedList: Object.keys(pdnsSourceContract.reserved),
-          }) ? (
+          {domain && pdnsSourceContract.settings.auctions && !isLiveAuction ? (
             <div
               className="flex flex-row warning-container"
               style={{
