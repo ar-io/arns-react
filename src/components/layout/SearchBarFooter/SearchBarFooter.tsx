@@ -11,23 +11,13 @@ function SearchBarFooter({
   searchResult,
   isAvailable,
   reservedList,
-  auction,
+  isAuction,
 }: SearchBarFooterProps): JSX.Element {
-  const [{ pdnsSourceContract }] = useGlobalState();
-
-  const auctionSettings = pdnsSourceContract?.settings?.auctions?.history.find(
-    (a: AuctionSettings) => a.id === auction?.auctionSettingsId,
-  );
-  if (auction && auctionSettings) {
+  if (isAuction && searchTerm) {
     return (
-      <>
-        <AuctionChart
-          startHeight={auction.startHeight}
-          auctionSettings={auctionSettings}
-          initialPrice={auction.startPrice}
-          floorPrice={auction.floorPrice}
-        />
-      </>
+      <div className="flex flex-row">
+        <AuctionChart domain={searchTerm} showAuctionExplainer={true} />
+      </div>
     );
   }
 

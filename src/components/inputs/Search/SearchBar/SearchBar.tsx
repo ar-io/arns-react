@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useIsMobile, useWalletAddress } from '../../../../hooks';
+import useAuctionInfo from '../../../../hooks/useAuctionInfo/useAuctionInfo';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { SearchBarProps } from '../../../../types';
 import {
@@ -38,6 +39,7 @@ function SearchBar(props: SearchBarProps) {
   const [isAvailable, setIsAvailable] = useState(false);
   const [searchSubmitted, setSearchSubmitted] = useState(false);
   const [searchBarText, setSearchBarText] = useState<string | undefined>(value);
+  const { minimumAuctionBid } = useAuctionInfo(value!);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   function reset() {
@@ -63,6 +65,7 @@ function SearchBar(props: SearchBarProps) {
   }, [value]);
 
   function _onChange(e: string) {
+    console.log(minimumAuctionBid);
     setSearchSubmitted(false);
     const input = e.trim().toLowerCase();
     const searchValid = validationPredicate(input);
@@ -232,15 +235,53 @@ function SearchBar(props: SearchBarProps) {
       isAvailable &&
       !Object.keys(pdnsSourceContract.reserved).includes(searchBarText!) &&
       !(searchBarText!.length <= RESERVED_NAME_LENGTH) ? (
-        <button
-          className="accent-button center"
-          onClick={_onSubmitButton}
+        <div
+          className={`flex flex-row ${
+            minimumAuctionBid ? 'flex-space-between' : 'flex-center'
+          }`}
           style={{
-            marginTop: 30,
+            alignItems: 'center',
+            marginTop: 90,
+            boxSizing: 'border-box',
           }}
         >
-          Register Now
-        </button>
+          {minimumAuctionBid ? (
+            <div
+              className="flex flex-column"
+              style={{
+                gap: '8px',
+                justifyContent: 'center',
+                width: 'fit-content',
+              }}
+            >
+              <span
+                className="white left"
+                style={{ fontSize: '16px', width: 'fit-content' }}
+              >
+                Current auction price for instant buy:{' '}
+                {Math.round(minimumAuctionBid ?? 0).toLocaleString()} IO
+              </span>
+              <span
+                className="grey left"
+                style={{ fontSize: '13px', width: 'fit-content' }}
+              >
+                Started by:{' '}
+                {pdnsSourceContract?.auctions?.[searchBarText!].initiator}
+              </span>
+            </div>
+          ) : (
+            <></>
+          )}
+          <button
+            className="accent-button center"
+            onClick={_onSubmitButton}
+            style={{
+              marginTop: minimumAuctionBid ? 0 : 30,
+            }}
+          >
+            Register Now
+          </button>
+        </div>
       ) : (
         <></>
       )}
