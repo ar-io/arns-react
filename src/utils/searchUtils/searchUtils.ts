@@ -196,10 +196,6 @@ export function calculatePDNSNamePrice({
   fees,
   tiers,
   type,
-  reservedList,
-  currentBlockHeight,
-  auctionSettings,
-  auction,
 }: {
   domain: string;
   years: number;
@@ -207,10 +203,7 @@ export function calculatePDNSNamePrice({
   tiers: Tier[];
   fees: { [x: number]: number };
   type: TRANSACTION_TYPES;
-  reservedList: string[];
   currentBlockHeight: number;
-  auctionSettings?: { current: string; history: AuctionSettings[] };
-  auction?: Auction;
 }) {
   if (!domain || !isPDNSDomainNameValid({ name: domain })) {
     throw Error('Domain name is invalid');
@@ -234,43 +227,6 @@ export function calculatePDNSNamePrice({
     type === TRANSACTION_TYPES.LEASE
       ? calculateTotalRegistrationFee(domain, fees, selectedTier, years)
       : calculatePermabuyFee(domain, fees, selectedTier);
-  if (
-    isDomainAuctionable({
-      domain,
-      registrationType: type,
-      reservedList,
-    })
-  ) {
-    const currentAuctionSettings = auctionSettings?.history.find(
-      (a) =>
-        a.id ===
-        (auction ? auction.auctionSettingsId : auctionSettings.current),
-    );
-
-    if (!currentAuctionSettings) {
-      throw new Error(
-        `Auction settings not found for the current auction: ${
-          { auction } ?? { current: auctionSettings?.current }
-        }.`,
-      );
-    }
-
-    const { floorPriceMultiplier, startPriceMultiplier } =
-      currentAuctionSettings;
-
-    return calculateMinimumAuctionBid({
-      startHeight: auction ? auction.startHeight : currentBlockHeight,
-      initialPrice: auction
-        ? auction.startPrice
-        : registrationFee * startPriceMultiplier,
-      floorPrice: auction
-        ? auction.floorPrice
-        : registrationFee * floorPriceMultiplier,
-      currentBlockHeight,
-      decayInterval: currentAuctionSettings.decayInterval,
-      decayRate: currentAuctionSettings.decayRate,
-    });
-  }
 
   return registrationFee;
 }

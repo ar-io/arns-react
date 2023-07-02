@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useIsMobile, useWalletAddress } from '../../../../hooks';
 import useAuctionInfo from '../../../../hooks/useAuctionInfo/useAuctionInfo';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
+import { useRegistrationState } from '../../../../state/contexts/RegistrationState';
 import { SearchBarProps } from '../../../../types';
 import {
   ALPHA_NUMERIC_REGEX,
@@ -33,13 +34,14 @@ function SearchBar(props: SearchBarProps) {
   } = props;
   const navigate = useNavigate();
   const [{ pdnsSourceContract }] = useGlobalState();
+  const [, dispatchRegisterState] = useRegistrationState();
   const { walletAddress } = useWalletAddress();
   const isMobile = useIsMobile();
   const [isSearchValid, setIsSearchValid] = useState(true);
   const [isAvailable, setIsAvailable] = useState(false);
   const [searchSubmitted, setSearchSubmitted] = useState(false);
   const [searchBarText, setSearchBarText] = useState<string | undefined>(value);
-  const { minimumAuctionBid } = useAuctionInfo(value!);
+  const { minimumAuctionBid, auction } = useAuctionInfo(value!);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   function reset() {
@@ -65,7 +67,6 @@ function SearchBar(props: SearchBarProps) {
   }, [value]);
 
   function _onChange(e: string) {
-    console.log(minimumAuctionBid);
     setSearchSubmitted(false);
     const input = e.trim().toLowerCase();
     const searchValid = validationPredicate(input);
@@ -97,6 +98,12 @@ function SearchBar(props: SearchBarProps) {
     if (searchSuccess && searchBarText && values) {
       // on additional functions passed in
       onSuccess(searchBarText);
+      if (auction?.type) {
+        dispatchRegisterState({
+          type: 'setRegistrationType',
+          payload: auction.type,
+        });
+      }
     } else if (!searchSuccess && searchBarText && values) {
       onFailure(searchBarText, values[searchBarText].contractTxId);
     }
@@ -266,7 +273,7 @@ function SearchBar(props: SearchBarProps) {
                 style={{ fontSize: '13px', width: 'fit-content' }}
               >
                 Started by:{' '}
-                {pdnsSourceContract?.auctions?.[searchBarText!].initiator}
+                {pdnsSourceContract?.auctions?.[searchBarText!]?.initiator}
               </span>
             </div>
           ) : (

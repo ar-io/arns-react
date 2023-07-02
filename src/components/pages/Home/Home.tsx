@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { useWalletAddress } from '../../../hooks';
+import useAuctionInfo from '../../../hooks/useAuctionInfo/useAuctionInfo';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
@@ -37,6 +38,11 @@ function Home() {
     { domain, pdntID, stage, isSearching, registrationType, leaseDuration },
     dispatchRegisterState,
   ] = useRegistrationState();
+  const { isLiveAuction, auction } = useAuctionInfo(
+    domain!,
+    registrationType,
+    leaseDuration,
+  );
 
   const [featuredDomains, setFeaturedDomains] = useState<{
     [x: string]: string;
