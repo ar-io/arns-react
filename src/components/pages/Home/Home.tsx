@@ -215,9 +215,14 @@ function Home() {
                       <SearchBarFooter
                         searchTerm={domain}
                         searchResult={
-                          domain && pdnsSourceContract.records[domain]
+                          domain &&
+                          pdnsSourceContract.records[
+                            encodeDomainToASCII(domain)
+                          ]
                             ? new ArweaveTransactionID(
-                                pdnsSourceContract.records[domain].contractTxId,
+                                pdnsSourceContract.records[
+                                  encodeDomainToASCII(domain)
+                                ].contractTxId,
                               )
                             : undefined
                         }

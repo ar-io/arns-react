@@ -66,8 +66,8 @@ function SearchBar(props: SearchBarProps) {
 
   function _onChange(e: string) {
     setSearchSubmitted(false);
-    const input = encodeDomainToASCII(e.trim());
-    const searchValid = validationPredicate(input);
+    const input = e.trim();
+    const searchValid = validationPredicate(encodeDomainToASCII(input));
     setIsSearchValid(searchValid);
     setSearchBarText(input);
     onChange();
@@ -214,10 +214,8 @@ function SearchBar(props: SearchBarProps) {
               fn: (query: string) =>
                 new Promise((resolve, reject) =>
                   query.trim().length &&
-                  encodeDomainToASCII(query.trim()).charAt(0) !== '-' &&
-                  encodeDomainToASCII(query.trim()).charAt(
-                    query.trim().length - 1,
-                  ) !== '-'
+                  !encodeDomainToASCII(query.trim()).startsWith('-') &&
+                  !encodeDomainToASCII(query.trim()).endsWith('-')
                     ? resolve(true)
                     : reject(),
                 ),
