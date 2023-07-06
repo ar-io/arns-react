@@ -53,7 +53,7 @@ function App() {
             />
           </Route>
           <Route
-            path="pdnts/:id"
+            path="ants/:id"
             element={
               <ProtectedRoute>
                 <ManagePDNTModal />
@@ -61,7 +61,7 @@ function App() {
             }
           />
           <Route
-            path="pdnts/:id/undernames"
+            path="ants/:id/undernames"
             element={
               <ProtectedRoute>
                 <Undernames />
