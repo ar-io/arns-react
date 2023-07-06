@@ -33,7 +33,7 @@ function SearchBar(props: SearchBarProps) {
   const [isSearchValid, setIsSearchValid] = useState(true);
   const [isAvailable, setIsAvailable] = useState(false);
   const [searchSubmitted, setSearchSubmitted] = useState(false);
-  const [searchBarText, setSearchBarText] = useState<string | undefined>(value);
+  const [searchBarText, setSearchBarText] = useState<string>(value);
   const [searchParams, setSearchParams] = useSearchParams();
   const inputRef = useRef<HTMLDivElement | null>(null);
   const isSearchbarFocused = useIsFocused('searchbar-input-id');
