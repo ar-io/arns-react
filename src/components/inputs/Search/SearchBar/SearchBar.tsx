@@ -158,6 +158,7 @@ function SearchBar(props: SearchBarProps) {
           inputClassName="searchbar-input"
           inputId="searchbar-input-id"
           pattern={PDNS_NAME_REGEX_PARTIAL}
+          maxLength={32}
           inputType="search"
           onPressEnter={() => _onSubmit()}
           disabled={disabled}
@@ -165,7 +166,6 @@ function SearchBar(props: SearchBarProps) {
           value={searchBarText?.trim()}
           setValue={(v) => _onChange(v.trim())}
           onClick={() => _onFocus()}
-          maxLength={32}
           inputCustomStyle={{ height }}
           wrapperCustomStyle={{
             height,

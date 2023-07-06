@@ -22,7 +22,7 @@ function SearchBarHeader({
       ) : isAvailable ? (
         <span
           className="text-medium white center"
-          style={{ fontWeight: 500, fontSize: 23 }}
+          style={{ fontWeight: 500, fontSize: 23, flexWrap: 'wrap' }}
         >
           <span style={{ color: 'var(--success-green)' }}>
             {decodeDomainToASCII(text)}

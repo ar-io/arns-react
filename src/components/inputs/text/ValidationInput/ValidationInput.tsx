@@ -1,7 +1,8 @@
 import { Tooltip } from 'antd';
-import { useEffect, useRef, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 
 import { ValidationObject } from '../../../../types';
+import { encodeDomainToASCII } from '../../../../utils';
 import ValidationList from '../../../cards/ValidationList/ValidationList';
 import { AlertTriangleIcon, CircleCheck, CircleXIcon } from '../../../icons';
 import { Loader } from '../../../layout';
@@ -77,7 +78,21 @@ function ValidationInput({
     validationExecutor(value?.toString() ?? '');
   }, [disabled, value]);
 
-  async function validationExecutor(newValue: string) {
+  async function validationExecutor(e: ChangeEvent<HTMLInputElement> | string) {
+    let newValue = '';
+
+    if (typeof e === 'object') {
+      e.preventDefault();
+      newValue = e.target.value;
+    } else if (typeof e === 'string') {
+      newValue = e;
+    }
+
+    // <input> tag considers emojis as 2 characters in length, so we need to encode the string to ASCII to get the correct length manually
+    if (maxLength && encodeDomainToASCII(newValue.trim()).length > maxLength) {
+      return;
+    }
+
     setValidating(true);
     setValue(newValue);
 
@@ -136,14 +151,9 @@ function ValidationInput({
             min={inputType === 'number' ? minNumber : undefined}
             max={inputType === 'number' ? maxNumber : undefined}
             className={inputClassName}
-            maxLength={maxLength}
             placeholder={placeholder}
             value={value}
-            onChange={(e) =>
-              validationExecutor(
-                pattern ? e.target.value.replace(/\s/g, '') : e.target.value,
-              )
-            }
+            onChange={(e) => validationExecutor(e)}
             disabled={disabled}
             style={
               showValidationOutline && valid !== undefined && value && !disabled
