@@ -29,7 +29,7 @@ function TransactionComplete({
   });
 
   if (!pdntProps) {
-    eventEmitter.emit('error', new Error('Unable to set PDNT properties.'));
+    eventEmitter.emit('error', new Error('Unable to set ANT properties.'));
     navigate(-1);
     return <></>;
   }
@@ -75,7 +75,7 @@ function TransactionComplete({
             </Link>
 
             <Link
-              to={`/manage/pdnts/${getLinkId(interactionType, {
+              to={`/manage/ants/${getLinkId(interactionType, {
                 ...transactionData,
                 deployedTransactionId: transactionId,
               }).trim()}`}
@@ -99,14 +99,14 @@ function TransactionComplete({
                   fill={'var(--text-white)'}
                 />
                 <span className="flex text-medium faded center">
-                  Manage PDNT
+                  Manage ANT
                 </span>
               </div>
             </Link>
 
             <Link
               // TODO: update to route to undernames
-              to={`/manage/pdnts/${getLinkId(interactionType, {
+              to={`/manage/ants/${getLinkId(interactionType, {
                 ...transactionData,
                 deployedTransactionId: transactionId,
               }).trim()}/undernames`}

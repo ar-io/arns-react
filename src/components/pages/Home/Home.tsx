@@ -89,7 +89,7 @@ function Home() {
         <Loader
           size={80}
           wrapperStyle={{ margin: '75px' }}
-          message="Loading PDNS Registry Contract..."
+          message="Loading ARNS Registry Contract..."
         />
       ) : (
         <div

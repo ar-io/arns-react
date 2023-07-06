@@ -85,7 +85,7 @@ function Undernames() {
   useEffect(() => {
     if (!id) {
       eventEmitter.emit('error', new Error('Missing PDNT transaction ID.'));
-      navigate('/manage/pdnts');
+      navigate('/manage/ants');
       return;
     }
     setPDNTId(new ArweaveTransactionID(id));
@@ -102,8 +102,8 @@ function Undernames() {
 
   useEffect(() => {
     if (!id) {
-      eventEmitter.emit('error', new Error('Missing PDNT transaction ID.'));
-      navigate('/manage/pdnts');
+      eventEmitter.emit('error', new Error('Missing ANT transaction ID.'));
+      navigate('/manage/ants');
       return;
     }
     if (isArweaveTransactionID(id)) {
@@ -144,12 +144,12 @@ function Undernames() {
         );
       }
       if (!id) {
-        throw new Error('No PDNT ID found, unable to perform transaction.');
+        throw new Error('No ANT ID found, unable to perform transaction.');
       }
 
       if (confirmations < MIN_SAFE_EDIT_CONFIRMATIONS) {
         throw new Error(
-          `PDNT must have a minimum of ${MIN_SAFE_EDIT_CONFIRMATIONS} confirmations before editing.`,
+          `ANT must have a minimum of ${MIN_SAFE_EDIT_CONFIRMATIONS} confirmations before editing.`,
         );
       }
       switch (action) {
@@ -163,7 +163,7 @@ function Undernames() {
             if (undername === '@') {
               // prevent overwritting the @ record
               throw new Error(
-                "Sorry, you cannot create the an undername called '@' as that is reserved for the record of the PDNS name.",
+                "Sorry, you cannot create the an undername called '@' as that is reserved for the record of the ARNS name.",
               );
             }
             if (Object.keys(pdntState.records).includes(undername)) {
@@ -208,7 +208,7 @@ function Undernames() {
               payload: { ...payload, assetId: id },
             });
             navigate('/transaction', {
-              state: `/manage/pdnts/${id}/undernames`,
+              state: `/manage/ants/${id}/undernames`,
             });
           }
           break;
@@ -243,7 +243,7 @@ function Undernames() {
               payload: { ...payload, assetId: id },
             });
             navigate('/transaction', {
-              state: `/manage/pdnts/${id}/undernames`,
+              state: `/manage/ants/${id}/undernames`,
             });
           }
           break;
@@ -290,7 +290,7 @@ function Undernames() {
               payload: { ...payload, assetId: id },
             });
             navigate('/transaction', {
-              state: `/manage/pdnts/${id}/undernames`,
+              state: `/manage/ants/${id}/undernames`,
             });
           }
           break;
@@ -329,7 +329,7 @@ function Undernames() {
               <span className="flex faded text-large bold">
                 <button
                   className="faded text-large bold underline link center"
-                  onClick={() => navigate('/manage/pdnts')}
+                  onClick={() => navigate('/manage/ants')}
                 >
                   <ArrowLeft
                     width={30}
@@ -337,7 +337,7 @@ function Undernames() {
                     viewBox={'0 0 20 20'}
                     fill={'var(--text-white)'}
                   />
-                  Manage PDNTs
+                  Manage ANTs
                 </button>
                 &nbsp;/&nbsp;
                 <Tooltip
@@ -351,7 +351,7 @@ function Undernames() {
                   <button
                     className="faded text-large bold underline link center"
                     onClick={() =>
-                      navigate(`/manage/pdnts/${pdntId?.toString()}`)
+                      navigate(`/manage/ants/${pdntId?.toString()}`)
                     }
                   >
                     {pdntState?.name.length
@@ -432,7 +432,7 @@ function Undernames() {
                   style={{ marginTop: '100px' }}
                 >
                   <span className="text-large white bold center">
-                    No Undernames present on PDNT
+                    No Undernames present on ANT
                   </span>
                   <button
                     disabled={undernameTableLoading}
