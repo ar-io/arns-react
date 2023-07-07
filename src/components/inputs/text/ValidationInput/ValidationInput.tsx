@@ -2,7 +2,6 @@ import { Tooltip } from 'antd';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 
 import { ValidationObject } from '../../../../types';
-import { encodeDomainToASCII } from '../../../../utils';
 import ValidationList from '../../../cards/ValidationList/ValidationList';
 import { AlertTriangleIcon, CircleCheck, CircleXIcon } from '../../../icons';
 import { Loader } from '../../../layout';

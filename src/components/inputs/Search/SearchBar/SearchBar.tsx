@@ -191,16 +191,16 @@ function SearchBar(props: SearchBarProps) {
           }}
           validationPredicates={{
             'Min. 1 character': {
-              fn: validateMinASCIILength,
+              fn: (query) => validateMinASCIILength(query, 1),
             },
             'Max. 32 characters': {
-              fn: validateMaxASCIILength,
+              fn: (query) => validateMaxASCIILength(query, 32),
             },
             'No special characters': {
-              fn: validateNoSpecialCharacters,
+              fn: (query) => validateNoSpecialCharacters(query),
             },
             'Dashes cannot be leading or trailing': {
-              fn: validateNoLeadingOrTrailingDashes,
+              fn: (query) => validateNoLeadingOrTrailingDashes(query),
             },
           }}
           customValidationIcons={{

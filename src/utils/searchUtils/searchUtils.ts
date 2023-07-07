@@ -77,13 +77,12 @@ export function decodeDomainToASCII(domain: string): string {
 /**
  * Validates that the query meets the minimum length requirement.
  * @param {string} query - The query to validate.
- * @param {number} minLength - The minimum length required.
  * @throws {Error} Throws an error if the query does not meet the minimum length requirement.
  * @returns {Promise<void>} A promise that resolves if the query meets the minimum length requirement.
  */
 export async function validateMinASCIILength(
   query: string,
-  minLength: number = 1,
+  minLength = 1,
 ): Promise<void> {
   if (!query.trim() || query.trim().length < minLength) {
     throw new Error(`Query must be at least ${minLength} characters`);
@@ -93,13 +92,12 @@ export async function validateMinASCIILength(
 /**
  * Validates that the query does not exceed the maximum length.
  * @param {string} query - The query to validate.
- * @param {number} maxLength - The maximum length allowed.
  * @throws {Error} Throws an error if the query exceeds the maximum length.
  * @returns {Promise<void>} A promise that resolves if the query does not exceed the maximum length.
  */
 export async function validateMaxASCIILength(
   query: string,
-  maxLength: number = Infinity,
+  maxLength = Infinity,
 ): Promise<void> {
   if (
     !query ||
