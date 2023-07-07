@@ -41,7 +41,7 @@ function ValidationInput({
   showValidationOutline?: boolean;
   showValidationIcon?: boolean;
   placeholder?: string;
-  maxLength?: number;
+  maxLength?: number | ((length: string) => boolean);
   inputId?: string;
   inputClassName?: string;
   inputCustomStyle?: any;
@@ -88,11 +88,21 @@ function ValidationInput({
       newValue = e;
     }
 
-    // <input> tag considers emojis as 2 characters in length, so we need to encode the string to ASCII to get the correct length manually
-    if (maxLength && encodeDomainToASCII(newValue.trim()).length > maxLength) {
-      return;
+    // if maxLength is a callback function, we need to pass the value to it and check if it returns true
+    if (maxLength) {
+      switch (typeof maxLength) {
+        case 'number':
+          if (newValue.trim().length > maxLength) {
+            return;
+          }
+          break;
+        case 'function':
+          if (!maxLength(newValue.trim())) {
+            return;
+          }
+          break;
+      }
     }
-
     setValidating(true);
     setValue(newValue);
 

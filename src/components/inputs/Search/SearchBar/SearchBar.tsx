@@ -158,7 +158,8 @@ function SearchBar(props: SearchBarProps) {
           inputClassName="searchbar-input"
           inputId="searchbar-input-id"
           pattern={PDNS_NAME_REGEX_PARTIAL}
-          maxLength={32}
+          // <input> tag considers emojis as 2 characters in length, so we need to encode the string to ASCII to get the correct length manually
+          maxLength={(v) => !(encodeDomainToASCII(v.trim()).length > 32)}
           inputType="search"
           onPressEnter={() => _onSubmit()}
           disabled={disabled}
