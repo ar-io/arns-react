@@ -2,7 +2,7 @@ import emojiRegex from 'emoji-regex';
 import { asciiToUnicode, unicodeToAscii } from 'puny-coder';
 
 import { PDNSRecordEntry } from '../../types';
-import { PDNS_NAME_REGEX } from '../constants';
+import { PDNS_NAME_REGEX, PDNS_NAME_REGEX_PARTIAL } from '../constants';
 
 export function calculatePDNSNamePrice({
   domain,
@@ -72,4 +72,78 @@ export function decodeDomainToASCII(domain: string): string {
   const decodedDomain = asciiToUnicode(domain);
 
   return decodedDomain;
+}
+
+/**
+ * Validates that the query meets the minimum length requirement.
+ * @param {string} query - The query to validate.
+ * @param {number} minLength - The minimum length required.
+ * @throws {Error} Throws an error if the query does not meet the minimum length requirement.
+ * @returns {Promise<void>} A promise that resolves if the query meets the minimum length requirement.
+ */
+export async function validateMinASCIILength(
+  query: string,
+  minLength: number = 1,
+): Promise<void> {
+  if (!query.trim() || query.trim().length < minLength) {
+    throw new Error(`Query must be at least ${minLength} characters`);
+  }
+}
+
+/**
+ * Validates that the query does not exceed the maximum length.
+ * @param {string} query - The query to validate.
+ * @param {number} maxLength - The maximum length allowed.
+ * @throws {Error} Throws an error if the query exceeds the maximum length.
+ * @returns {Promise<void>} A promise that resolves if the query does not exceed the maximum length.
+ */
+export async function validateMaxASCIILength(
+  query: string,
+  maxLength: number = Infinity,
+): Promise<void> {
+  if (
+    !query ||
+    (query.trim().length &&
+      encodeDomainToASCII(query.trim()).length > maxLength)
+  ) {
+    throw new Error(`Query cannot exceed ${maxLength} characters`);
+  }
+}
+
+/**
+ * Validates that the query does not contain any special characters.
+ * @param {string} query - The query to validate.
+ * @throws {Error} Throws an error if the query contains special characters.
+ * @returns {Promise<void>} A promise that resolves if the query does not contain special characters.
+ */
+export async function validateNoSpecialCharacters(
+  query?: string,
+): Promise<void> {
+  if (
+    !query ||
+    (query.trim().length &&
+      !PDNS_NAME_REGEX_PARTIAL.test(encodeDomainToASCII(query.trim())))
+  ) {
+    throw new Error('Query cannot contain special characters');
+  }
+}
+
+/**
+ * Validates that the query does not have leading or trailing dashes.
+ * @param {string} query - The query to validate.
+ * @throws {Error} Throws an error if the query has leading or trailing dashes.
+ * @returns {Promise<void>} A promise that resolves if the query does not have leading or trailing dashes.
+ */
+export async function validateNoLeadingOrTrailingDashes(
+  query?: string,
+): Promise<void> {
+  if (!query) {
+    throw new Error('Query is undefined');
+  } else if (
+    query.trim().length &&
+    (encodeDomainToASCII(query.trim()).startsWith('-') ||
+      encodeDomainToASCII(query.trim()).endsWith('-'))
+  ) {
+    throw new Error('Query cannot have leading or trailing dashes');
+  }
 }

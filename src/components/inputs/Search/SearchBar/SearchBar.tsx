@@ -5,7 +5,13 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useIsMobile, useWalletAddress } from '../../../../hooks';
 import useIsFocused from '../../../../hooks/useIsFocused/useIsFocused';
 import { SearchBarProps } from '../../../../types';
-import { encodeDomainToASCII } from '../../../../utils';
+import {
+  encodeDomainToASCII,
+  validateMaxASCIILength,
+  validateMinASCIILength,
+  validateNoLeadingOrTrailingDashes,
+  validateNoSpecialCharacters,
+} from '../../../../utils';
 import { PDNS_NAME_REGEX_PARTIAL } from '../../../../utils/constants';
 import { SearchIcon } from '../../../icons';
 import ValidationInput from '../../text/ValidationInput/ValidationInput';
@@ -173,6 +179,7 @@ function SearchBar(props: SearchBarProps) {
             width: '100%',
           }}
           showValidationChecklist={!isMobile}
+          showValidationErrors={false}
           showValidationsDefault={true}
           validationListStyle={{
             display: 'flex',
@@ -184,42 +191,16 @@ function SearchBar(props: SearchBarProps) {
           }}
           validationPredicates={{
             'Min. 1 character': {
-              fn: (query: string) =>
-                new Promise((resolve, reject) =>
-                  !query.trim() || !query.trim().length
-                    ? reject()
-                    : resolve(true),
-                ),
+              fn: validateMinASCIILength,
             },
             'Max. 32 characters': {
-              fn: (query: string) =>
-                new Promise((resolve, reject) =>
-                  query.trim().length &&
-                  encodeDomainToASCII(query.trim()).length <= 32
-                    ? resolve(true)
-                    : reject(),
-                ),
+              fn: validateMaxASCIILength,
             },
             'No special characters': {
-              fn: (query: string) =>
-                new Promise((resolve, reject) =>
-                  query.trim().length &&
-                  PDNS_NAME_REGEX_PARTIAL.test(
-                    encodeDomainToASCII(query.trim()),
-                  )
-                    ? resolve(true)
-                    : reject(),
-                ),
+              fn: validateNoSpecialCharacters,
             },
             'Dashes cannot be leading or trailing': {
-              fn: (query: string) =>
-                new Promise((resolve, reject) =>
-                  query.trim().length &&
-                  !encodeDomainToASCII(query.trim()).startsWith('-') &&
-                  !encodeDomainToASCII(query.trim()).endsWith('-')
-                    ? resolve(true)
-                    : reject(),
-                ),
+              fn: validateNoLeadingOrTrailingDashes,
             },
           }}
           customValidationIcons={{

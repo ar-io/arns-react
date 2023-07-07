@@ -16,6 +16,7 @@ function ValidationInput({
   showValidationsDefault = false,
   showValidationOutline = false,
   showValidationIcon = false,
+  showValidationErrors = false,
   inputClassName = '',
   inputId = '',
   inputCustomStyle,
@@ -39,6 +40,7 @@ function ValidationInput({
   showValidationChecklist?: boolean;
   showValidationsDefault?: boolean;
   showValidationOutline?: boolean;
+  showValidationErrors?: boolean;
   showValidationIcon?: boolean;
   placeholder?: string;
   maxLength?: number | ((length: string) => boolean);
@@ -117,7 +119,10 @@ function ValidationInput({
         return {
           name: Object.keys(validationPredicates)[index],
           status: result.status !== 'rejected',
-          error: result.status === 'rejected' ? result?.reason : undefined,
+          error:
+            result.status === 'rejected' && showValidationErrors
+              ? result?.reason
+              : undefined,
         };
       },
     );
