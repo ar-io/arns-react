@@ -367,7 +367,24 @@ function ManagePDNTModal() {
                                   }
                                 : {}
                             }
-                            maxLength={43}
+                            maxLength={(length) => {
+                              if (
+                                row.attribute === 'name' ||
+                                row.attribute === 'ticker'
+                              ) {
+                                return length.length <= 1798;
+                              }
+                              if (row.attribute === 'ttlSeconds') {
+                                return length.length <= 7;
+                              }
+                              if (
+                                row.attribute === 'targetID' ||
+                                row.attribute === 'controller'
+                              ) {
+                                return length.length <= 43;
+                              }
+                              return false;
+                            }}
                           />
                         </>
                       );
