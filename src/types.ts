@@ -203,7 +203,7 @@ export type SearchBarProps = {
   headerElement?: JSX.Element;
   footerElement?: JSX.Element;
   values?: { [x: string]: PDNSRecordEntry };
-  value?: string;
+  value: string;
   height?: number;
 };
 

@@ -1,5 +1,5 @@
 import { Tooltip } from 'antd';
-import { useEffect, useRef, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 
 import { ValidationObject } from '../../../../types';
 import ValidationList from '../../../cards/ValidationList/ValidationList';
@@ -7,6 +7,7 @@ import { AlertTriangleIcon, CircleCheck, CircleXIcon } from '../../../icons';
 import { Loader } from '../../../layout';
 
 function ValidationInput({
+  pattern,
   wrapperClassName = '',
   wrapperCustomStyle,
   validationListStyle,
@@ -14,6 +15,7 @@ function ValidationInput({
   showValidationsDefault = false,
   showValidationOutline = false,
   showValidationIcon = false,
+  showValidationErrors = false,
   inputClassName = '',
   inputId = '',
   inputCustomStyle,
@@ -31,14 +33,16 @@ function ValidationInput({
   onPressEnter,
   customValidationIcons,
 }: {
+  pattern?: RegExp;
   wrapperClassName?: string;
   wrapperCustomStyle?: any;
   showValidationChecklist?: boolean;
   showValidationsDefault?: boolean;
   showValidationOutline?: boolean;
+  showValidationErrors?: boolean;
   showValidationIcon?: boolean;
   placeholder?: string;
-  maxLength?: number;
+  maxLength?: number | ((length: string) => boolean);
   inputId?: string;
   inputClassName?: string;
   inputCustomStyle?: any;
@@ -73,9 +77,33 @@ function ValidationInput({
     inputRef.current?.focus();
 
     validationExecutor(value?.toString() ?? '');
-  }, [disabled]);
+  }, [disabled, value]);
 
-  async function validationExecutor(newValue: string) {
+  async function validationExecutor(e: ChangeEvent<HTMLInputElement> | string) {
+    let newValue = '';
+
+    if (typeof e === 'object') {
+      e.preventDefault();
+      newValue = e.target.value;
+    } else if (typeof e === 'string') {
+      newValue = e;
+    }
+
+    // if maxLength is a callback function, we need to pass the value to it and check if it returns true
+    if (maxLength) {
+      switch (typeof maxLength) {
+        case 'number':
+          if (newValue.trim().length > maxLength) {
+            return;
+          }
+          break;
+        case 'function':
+          if (!maxLength(newValue.trim())) {
+            return;
+          }
+          break;
+      }
+    }
     setValidating(true);
     setValue(newValue);
 
@@ -90,7 +118,10 @@ function ValidationInput({
         return {
           name: Object.keys(validationPredicates)[index],
           status: result.status !== 'rejected',
-          error: result.status === 'rejected' ? result?.reason : undefined,
+          error:
+            result.status === 'rejected' && showValidationErrors
+              ? result?.reason
+              : undefined,
         };
       },
     );
@@ -134,10 +165,9 @@ function ValidationInput({
             min={inputType === 'number' ? minNumber : undefined}
             max={inputType === 'number' ? maxNumber : undefined}
             className={inputClassName}
-            maxLength={maxLength}
             placeholder={placeholder}
             value={value}
-            onChange={(e) => validationExecutor(e.target.value)}
+            onChange={(e) => validationExecutor(e)}
             disabled={disabled}
             style={
               showValidationOutline && valid !== undefined && value && !disabled
@@ -151,6 +181,7 @@ function ValidationInput({
                   }
                 : { ...inputCustomStyle }
             }
+            pattern={pattern?.source}
           />
           <div
             style={{

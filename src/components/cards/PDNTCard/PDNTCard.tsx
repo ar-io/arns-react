@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { PDNSMapping, PDNTContractJSON } from '../../../types';
-import { isArweaveTransactionID } from '../../../utils';
+import { decodeDomainToASCII, isArweaveTransactionID } from '../../../utils';
 import eventEmitter from '../../../utils/events';
 import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
 import { Loader } from '../../layout';
@@ -67,8 +67,13 @@ function PDNTCard(props: PDNSMapping) {
         pdntContractState = state;
       }
       if (id && !state) {
-        pdntContractState =
-          await arweaveDataProvider.getContractState<PDNTContractJSON>(id);
+        pdntContractState = await arweaveDataProvider
+          .getContractState<PDNTContractJSON>(id)
+          .catch(() => {
+            throw new Error(
+              `Unable to fetch ANT contract state for "${domain}": ${id}`,
+            );
+          });
       }
       if (!pdntContractState) {
         throw new Error(
@@ -98,7 +103,7 @@ function PDNTCard(props: PDNSMapping) {
         maxUndernames: tierDetails?.settings.maxUndernames ?? 100,
         ...overrides,
         id: id?.toString() ?? 'N/A',
-        domain,
+        domain: decodeDomainToASCII(domain),
       };
 
       const filteredPDNTDetails = Object.keys(allPDNTDetails).reduce(
