@@ -8,6 +8,7 @@ import { Loader } from '../../../layout';
 
 function ValidationInput({
   pattern,
+  catchInvalidInput = false,
   wrapperClassName = '',
   wrapperCustomStyle,
   validationListStyle,
@@ -34,6 +35,7 @@ function ValidationInput({
   customValidationIcons,
 }: {
   pattern?: RegExp;
+  catchInvalidInput?: boolean;
   wrapperClassName?: string;
   wrapperCustomStyle?: any;
   showValidationChecklist?: boolean;
@@ -53,7 +55,7 @@ function ValidationInput({
   validityCallback?: (validity: boolean) => void;
   validationPredicates: {
     [x: string]: {
-      fn: (value: string) => Promise<any>;
+      fn: (value: any) => Promise<any>;
       required?: boolean;
     };
   };
@@ -89,6 +91,13 @@ function ValidationInput({
       newValue = e;
     }
 
+    if (!newValue.length) {
+      setValid(undefined);
+      setValidationResults([]);
+      setValue(newValue);
+      return;
+    }
+
     // if maxLength is a callback function, we need to pass the value to it and check if it returns true
     if (maxLength) {
       switch (typeof maxLength) {
@@ -102,6 +111,11 @@ function ValidationInput({
             return;
           }
           break;
+      }
+    }
+    if (pattern && catchInvalidInput) {
+      if (!pattern.test(newValue)) {
+        return;
       }
     }
     setValidating(true);
@@ -155,6 +169,7 @@ function ValidationInput({
       >
         <div className="flex" style={{ width: '100%', position: 'relative' }}>
           <input
+            spellCheck={false}
             ref={inputRef}
             onKeyDown={(e) =>
               e.key === 'Enter' && onPressEnter ? onPressEnter() : null
