@@ -76,7 +76,6 @@ export class WarpDataProvider
       throw Error('Payload cannot be empty.');
     }
     if (payloadSize > SMARTWEAVE_MAX_TAG_SPACE) {
-      console.log('payloadSize', payloadSize, JSON.stringify(payload));
       throw new Error(
         'Payload too large for tag space, reduce the size of the data in payload.',
       );
