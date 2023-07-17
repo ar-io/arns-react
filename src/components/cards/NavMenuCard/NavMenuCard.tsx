@@ -1,3 +1,4 @@
+import { size } from 'lodash';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -167,12 +168,13 @@ function NavMenuCard() {
                   .toString()
                   .slice(isMobile ? -2 : -4)}`}
                 copyText={walletAddress.toString()}
-                size={24}
+                size={20}
                 wrapperStyle={{
                   fontWeight: 600,
                   fontFamily: 'Rubik-Bold',
                   width: '100%',
                   padding: 0,
+                  fill: 'var(--text-white)',
                 }}
                 position="relative"
               />
