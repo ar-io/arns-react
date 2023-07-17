@@ -25,9 +25,10 @@
   --grey-white: #dfdfde;
   --error-red: #ef6461;
   --success-green: #44af69;
-  --accent: #ffbb38;
+  --accent: #ffb938;
   --modal-bg: rgba(23, 23, 23, 0.95);
   --corner-radius: 4px;
+  --shadow: 0px 0px 4px rgba(0, 0, 0);
 }
 
 html {

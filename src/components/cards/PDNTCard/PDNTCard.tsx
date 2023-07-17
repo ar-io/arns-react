@@ -190,12 +190,13 @@ function PDNTCard(props: PDNSMapping) {
                             : value
                         }
                         copyText={value}
-                        size={24}
+                        size={15}
                         wrapperStyle={{
                           padding: '0px',
                           fontFamily: 'Rubik',
                           justifyContent: 'flex-start',
                           alignItems: 'center',
+                          fill: 'var(--text-faded)',
                         }}
                         position={'relative'}
                       />
