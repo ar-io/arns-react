@@ -84,7 +84,6 @@ export type PDNSMapping = {
   compact?: boolean;
   enableActions?: boolean;
   hover?: boolean;
-  showTier?: boolean;
 };
 
 export type PDNSMetaData = {
