@@ -386,8 +386,8 @@ function NameTokenSelector({
             <button
               className="button flex flex-row center faded bold hover pointer"
               style={{
-                gap: '1em',
-                border: '2px solid var(--text-faded)',
+                gap: '5px',
+                border: '1px solid var(--text-faded)',
                 borderRadius: '50px',
                 height: '25px',
               }}
