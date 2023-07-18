@@ -475,7 +475,7 @@ function NameTokenSelector({
                       });
                     }}
                   >
-                    {token.name && token.ticker
+                    {token.name?.slice(0,150) && token.ticker
                       ? `${token.name} (${token.ticker}) - ${token.id}`
                       : token.id}
                   </button>
@@ -506,7 +506,7 @@ function NameTokenSelector({
                       });
                     }}
                   >
-                    {name && ticker ? `${name} (${ticker}) - ${id}` : id}
+                    {name && ticker ? `${name.slice(0,20)} ${name.length > 20 ? '...' : ''} (${ticker}) - ${id}` : id}
                     {names?.length ? (
                       <HamburgerOutlineIcon
                         width={20}
