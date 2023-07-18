@@ -534,22 +534,26 @@ function NameTokenSelector({
               justifyContent: 'flex-start',
             }}
           >
-            <Pagination
-              total={
-                Object.keys(tokens).length && !filteredTokens
-                  ? Object.keys(tokens).length
-                  : filteredTokens
-                  ? filteredTokens.length
-                  : 0
-              }
-              itemRender={customPreviousAndNextButtons}
-              showPrevNextJumpers={true}
-              showSizeChanger={false}
-              showQuickJumper={false}
-              onChange={updatePage}
-              current={listPage}
-              defaultPageSize={listItemCount}
-            />
+            {tokens.length || filteredTokens?.length || !searchText ? (
+              <Pagination
+                total={
+                  Object.keys(tokens).length && !filteredTokens
+                    ? Object.keys(tokens).length
+                    : filteredTokens
+                    ? filteredTokens.length
+                    : 0
+                }
+                itemRender={customPreviousAndNextButtons}
+                showPrevNextJumpers={true}
+                showSizeChanger={false}
+                showQuickJumper={false}
+                onChange={updatePage}
+                current={listPage}
+                defaultPageSize={listItemCount}
+              />
+            ) : (
+              <></>
+            )}{' '}
           </div>
         </div>
       ) : (
