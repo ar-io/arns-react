@@ -201,12 +201,13 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
               displayText={`${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
                 isMobile ? -2 : -6,
               )}`}
-              size={'70%'}
+              size={16}
               position="relative"
               wrapperStyle={{
                 alignItems: 'center',
                 margin: 'auto',
                 fontSize: '16px',
+                fill: 'var(--text-faded)',
               }}
             />
           ),
@@ -261,12 +262,13 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
               displayText={`${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
                 isMobile ? -2 : -6,
               )}`}
-              size={'70%'}
+              size={16}
               position="relative"
               wrapperStyle={{
                 alignItems: 'center',
                 margin: 'auto',
                 fontSize: '16px',
+                fill: 'var(--text-faded)',
               }}
             />
           ),
@@ -342,7 +344,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
         render: (val: any, row: PDNTMetadata) => (
           <ManageAssetButtons
             id={val.id}
-            assetType="pdnts"
+            assetType="ants"
             disabled={!row.state || !row.status}
           />
         ),

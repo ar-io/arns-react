@@ -84,7 +84,6 @@ export type PDNSMapping = {
   compact?: boolean;
   enableActions?: boolean;
   hover?: boolean;
-  showTier?: boolean;
 };
 
 export type PDNSMetaData = {
@@ -203,7 +202,7 @@ export type SearchBarProps = {
   headerElement?: JSX.Element;
   footerElement?: JSX.Element;
   values?: { [x: string]: PDNSRecordEntry };
-  value?: string;
+  value: string;
   height?: number;
 };
 
@@ -239,11 +238,11 @@ export type DropdownProps = {
   footerElement?: JSX.Element;
 };
 
-export type ManageTable = 'pdnts' | 'names';
+export type ManageTable = 'ants' | 'names';
 
 export const MANAGE_TABLE_NAMES: Record<ManageTable, string> = {
   names: 'Names',
-  pdnts: "PDNT's",
+  ants: "ANT's",
 };
 
 export enum TRANSACTION_TYPES {
@@ -252,19 +251,19 @@ export enum TRANSACTION_TYPES {
 }
 
 export enum CONTRACT_TYPES {
-  REGISTRY = 'PDNS Registry',
+  REGISTRY = 'ARNS Registry',
   PDNT = 'Arweave Name Token',
 }
 
 export enum ASSET_TYPES {
-  PDNT = 'PDNT',
-  NAME = 'PDNS Name',
+  PDNT = 'ANT',
+  NAME = 'ARNS Name',
   UNDERNAME = 'Undername',
   COIN = 'coin',
 }
 export enum INTERACTION_TYPES {
   // Registry interaction types
-  BUY_RECORD = 'Buy PDNS Name',
+  BUY_RECORD = 'Buy ARNS Name',
   EXTEND_LEASE = 'Extend Lease',
   UPGRADE_TIER = 'Upgrade Tier',
 
@@ -276,7 +275,7 @@ export enum INTERACTION_TYPES {
   SET_TARGET_ID = 'Edit Target ID',
   SET_RECORD = 'Edit Record',
   REMOVE_RECORD = 'Delete Record',
-  CREATE = 'Create Permaweb Name Token',
+  CREATE = 'Create Arweave Name Token',
 
   // Common interaction types
   TRANSFER = 'Transfer',
@@ -532,7 +531,8 @@ export type ManagePDNTRow = {
   value: string | number;
   editable: boolean;
   key: number;
-  interactionType?: ValidInteractionType;
+  interactionType?: ExcludedValidInteractionType;
+  isValid?: boolean;
 };
 
 export type PDNTDetails = {
@@ -559,13 +559,14 @@ export type UndernameMetadata = {
 export enum VALIDATION_INPUT_TYPES {
   ARWEAVE_ID = 'Is valid Arweave Transaction (TX) ID.',
   ARWEAVE_ADDRESS = 'Is likely an Arweave wallet address.',
-  PDNS_NAME = 'PDNS Name.',
+  PDNS_NAME = 'ARNS Name.',
   UNDERNAME = 'Undername.',
   PDNT_CONTRACT_ID = 'Is a valid Arweave Name Token (PDNT).',
   // unfortunately we cannot use computed values in enums, so be careful if we ever modify this number
   TRANSACTION_CONFIRMATIONS = `Has sufficient confirmations (50+).`,
   VALID_TTL = `Minimum ttl allowed is 900 and Maximum ttl allowed is 2,592,000.`,
   SMARTWEAVE_CONTRACT = `Is a SmartWeave Contract`,
+  VALID_ANT_NAME = `ANT name or ticker must be equal or less than 1798 characters.`,
 }
 
 export type ValidationObject = {

@@ -29,12 +29,12 @@ export function usePDNSContract() {
           contractId,
         );
       if (!pdnsContractState) {
-        throw Error('PDNS contract state is empty');
+        throw Error('ARNS contract state is empty');
       }
 
       if (!pdnsContractState.records || !pdnsContractState.fees) {
         throw Error(
-          `PDNS contract is missing required keys: ${['fees', 'records']
+          `ARNS contract is missing required keys: ${['fees', 'records']
             .filter(
               (required) => !Object.keys(pdnsContractState).includes(required),
             )

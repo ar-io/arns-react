@@ -27,6 +27,7 @@ import {
   MAX_TTL_SECONDS,
   MIN_TTL_SECONDS,
   PDNS_TX_ID_REGEX,
+  TTL_SECONDS_REGEX,
 } from '../constants';
 
 export function isArweaveTransactionID(id: string) {
@@ -88,7 +89,7 @@ export const WorkflowStepsForInteractions: Record<
     3: { title: 'Complete', status: '' },
   },
   [INTERACTION_TYPES.SET_NAME]: {
-    1: { title: 'Confirm PDNT Name', status: 'pending' },
+    1: { title: 'Confirm ANT Name', status: 'pending' },
     2: { title: 'Deploy Name Change', status: '' },
     3: { title: 'Complete', status: '' },
   },
@@ -119,15 +120,15 @@ export const WorkflowStepsForInteractions: Record<
   },
   [INTERACTION_TYPES.CREATE]: {
     0: {
-      title: 'Set PDNT Details',
+      title: 'Set ANT Details',
       status: 'success',
     },
     1: {
-      title: 'Confirm PDNT',
+      title: 'Confirm ANT',
       status: 'pending',
     },
     2: {
-      title: 'Deploy PDNT',
+      title: 'Deploy ANT',
       status: '',
     },
     3: {
@@ -481,7 +482,7 @@ export function getPDNSMappingByInteractionType(
 
 export const FieldToInteractionMap: {
   [x: string]: {
-    title: ValidInteractionType;
+    title: ExcludedValidInteractionType;
     function: string;
     name?: string;
   };
@@ -601,7 +602,7 @@ export function getAssociatedNames(
     })
     .filter((n) => !!n);
 }
-export function validateTTLSeconds(ttl: number) {
+export async function validateTTLSeconds(ttl: number): Promise<void> {
   if (ttl < MIN_TTL_SECONDS) {
     throw new Error(
       `${ttl} is less than the minimum ttlSeconds requirement of ${MIN_TTL_SECONDS}`,
@@ -611,6 +612,9 @@ export function validateTTLSeconds(ttl: number) {
     throw new Error(
       `${ttl} is more than the maximum ttlSeconds requirement of ${MAX_TTL_SECONDS}`,
     );
+  }
+  if (!TTL_SECONDS_REGEX.test(ttl.toString())) {
+    throw new Error(`${ttl} is not a valid ttlSeconds value`);
   }
 }
 
