@@ -223,7 +223,6 @@ function NameTokenSelector({
       setFilteredTokens(filteredResults);
     } catch (error) {
       setFilteredTokens(undefined);
-      eventEmitter.emit('error', error);
     } finally {
       setSearching(false);
       setListPage(1);
