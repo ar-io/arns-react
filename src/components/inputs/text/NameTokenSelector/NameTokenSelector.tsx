@@ -313,8 +313,9 @@ function NameTokenSelector({
         <ValidationInput
           onClick={() => setSearchActive(true)}
           showValidationIcon={validImport !== undefined}
-          setValue={(v) => handleTokenSearch(v)}
+          setValue={(v) => handleTokenSearch(v.length >= 1700 ? v.trim() : v)}
           value={searchText}
+          maxLength={1700}
           placeholder={
             selectedToken
               ? selectedToken.name.length
