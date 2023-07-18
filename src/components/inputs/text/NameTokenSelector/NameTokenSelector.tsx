@@ -193,7 +193,6 @@ function NameTokenSelector({
       setValidImport(undefined);
       if (!query) {
         setSearchText('');
-        setSelectedToken(undefined);
         return;
       }
       setSearchText(query);
@@ -243,7 +242,7 @@ function NameTokenSelector({
       setFilteredTokens(undefined);
 
       if (id === undefined) {
-        return;
+        throw new Error(`No ID provided for ${name ?? ticker ?? ''}`);
       }
       setSelectedToken({ id, name: name ?? '', ticker: ticker ?? '' });
       selectedTokenCallback(new ArweaveTransactionID(id));
@@ -475,8 +474,10 @@ function NameTokenSelector({
                       });
                     }}
                   >
-                    {token.name?.slice(0,150) && token.ticker
-                      ? `${token.name} (${token.ticker}) - ${token.id}`
+                    {token.name && token.ticker
+                      ? `${token.name.slice(0, 20)} (${token.ticker}) - ${
+                          token.id
+                        }`
                       : token.id}
                   </button>
                 );
@@ -506,7 +507,11 @@ function NameTokenSelector({
                       });
                     }}
                   >
-                    {name && ticker ? `${name.slice(0,20)} ${name.length > 20 ? '...' : ''} (${ticker}) - ${id}` : id}
+                    {name && ticker
+                      ? `${name.slice(0, 20)} ${
+                          name.length > 20 ? '...' : ''
+                        } (${ticker}) - ${id}`
+                      : id}
                     {names?.length ? (
                       <HamburgerOutlineIcon
                         width={20}
