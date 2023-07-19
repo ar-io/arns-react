@@ -1,0 +1,99 @@
+.custom-next-pagination {
+  display: 'flex';
+  justify-content: space-between;
+  width: 100%;
+}
+.custom-next-pagination > ul > li {
+  display: flex !important;
+  width: fit-content !important;
+  line-height: unset !important;
+  min-width: 32 !important;
+  height: fit-content !important;
+  width: fit-content !important;
+  border: none !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+.custom-next-pagination > ul > li:first-child {
+  display: none !important;
+}
+.custom-next-pagination > ul > li:last-child {
+  display: none !important;
+}
+.custom-next-pagination > ul {
+  display: inherit !important;
+  justify-content: inherit !important;
+  width: inherit !important;
+}
+.custom-next-pagination > ul::after,
+ul::before {
+  display: none;
+}
+
+.name-token-item {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--text-faded);
+  width: 100%;
+  box-sizing: border-box;
+  height: 45px;
+  color: var(--text-white);
+  font-size: 13px;
+  font-weight: 400;
+  padding-left: 15px;
+}
+.name-token-item:hover {
+  background-color: #2b2b2e;
+}
+
+.name-token-input-wrapper {
+  display: flex;
+  gap: 1em;
+  height: 53px;
+  width: 100%;
+  border-radius: var(--corner-radius);
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  top: 0;
+  padding: 10px;
+  background-color: var(--card-bg);
+}
+.name-token-input {
+  box-sizing: border-box;
+  display: flex;
+  width: 100%;
+  height: 45px;
+  justify-content: flex-start;
+  background: var(--card-bg);
+  border-radius: var(--corner-radius);
+  font-family: 'Rubik';
+  font-weight: 500;
+  font-size: 16px;
+  outline: none;
+  color: 'unset';
+  border: none;
+}
+.name-token-input::placeholder {
+  color: var(--placeholder-text);
+}
+.name-token-input-selected {
+  box-sizing: border-box;
+  display: flex;
+  width: 100%;
+  height: 45px;
+  justify-content: flex-start;
+  background: var(--card-bg);
+  border-radius: var(--corner-radius);
+  font-family: 'Rubik';
+  font-weight: 500;
+  font-size: 16px;
+  outline: none;
+  color: 'unset';
+  border: none;
+}
+.name-token-input-selected::placeholder {
+  color: white;
+}

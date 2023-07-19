@@ -8,7 +8,7 @@ import {
 export const PDNS_NAME_REGEX = new RegExp(
   '^([a-zA-Z0-9][a-zA-Z0-9-]{0,30}[a-zA-Z0-9]|[a-zA-Z0-9]{1})$',
 );
-export const PDNS_NAME_REGEX_PARTIAL = new RegExp('^([a-zA-Z0-9-]{0,32})$');
+export const PDNS_NAME_REGEX_PARTIAL = new RegExp(`^[a-zA-Z0-9-]{0,32}$`);
 export const ALPHA_NUMERIC_REGEX = new RegExp('^[a-zA-Z0-9]$');
 export const PDNS_TX_ID_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{43}$');
 export const PDNS_TX_ID_ENTRY_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{1,43}$');
