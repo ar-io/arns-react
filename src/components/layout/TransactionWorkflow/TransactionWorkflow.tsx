@@ -22,6 +22,7 @@ import {
 import {
   TRANSACTION_DATA_KEYS,
   calculatePDNSNamePrice,
+  decodeDomainToASCII,
   getPDNSMappingByInteractionType,
   getWorkflowStepsForInteraction,
   isObjectOfTransactionPayloadType,
@@ -303,7 +304,7 @@ function TransactionWorkflow({
                   <CheckCircleFilled
                     style={{ fontSize: 18, color: 'var(--success-green)' }}
                   />
-                  &nbsp;<b>{payload.name}</b> is yours!
+                  &nbsp;<b>{decodeDomainToASCII(payload.name)}</b> is yours!
                 </span>
               </div>
             ),

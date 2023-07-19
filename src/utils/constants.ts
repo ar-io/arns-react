@@ -8,10 +8,12 @@ import {
 export const PDNS_NAME_REGEX = new RegExp(
   '^([a-zA-Z0-9][a-zA-Z0-9-]{0,30}[a-zA-Z0-9]|[a-zA-Z0-9]{1})$',
 );
-export const PDNS_NAME_REGEX_PARTIAL = new RegExp('^([a-zA-Z0-9-]{0,32})$');
+export const PDNS_NAME_REGEX_PARTIAL = new RegExp(`^[a-zA-Z0-9-]{0,32}$`);
 export const ALPHA_NUMERIC_REGEX = new RegExp('^[a-zA-Z0-9]$');
 export const PDNS_TX_ID_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{43}$');
 export const PDNS_TX_ID_ENTRY_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{1,43}$');
+export const TTL_SECONDS_REGEX = new RegExp('^[0-9]{3,7}$');
+export const TTL_SECONDS_ENTRY_REGEX = new RegExp('^[0-9]{1,7}$');
 export const PDNS_REGISTRY_ADDRESS =
   'bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U';
 export const STUB_PDNT_ID = '6dUiTQKJCVD7c9icQhbbzfI-Le_hC4sXRDx1OQQ6jMI';
@@ -140,6 +142,7 @@ export const transactionByOwnerQuery = (address: ArweaveTransactionID) => {
 export const SMARTWEAVE_TAG_SIZE = 250; // required tag size in bytes
 
 export const SMARTWEAVE_MAX_TAG_SPACE = 2048 - SMARTWEAVE_TAG_SIZE; // minimum tag size of smartweave tags from warp is 239, rounded it for wiggle room
+export const SMARTWEAVE_MAX_INPUT_SIZE = 1700;
 
 export const DEFAULT_PDNT_CONTRACT_STATE: PDNTContractJSON = {
   balances: {},

@@ -46,14 +46,11 @@ function RegisterNameForm() {
         payload: { ar: fee.ar, io: newFee },
       });
     }
-  }, [leaseDuration, tier, domain, pdnsSourceContract]);
+  }, [leaseDuration, tier, domain]);
 
-  async function handlePDNTId(id?: string) {
-    if (!id || !id.length) {
-      return;
-    }
+  async function handlePDNTId(id: string) {
     try {
-      const txId = new ArweaveTransactionID(id);
+      const txId = new ArweaveTransactionID(id.toString());
       dispatchRegisterState({
         type: 'setPDNTID',
         payload: txId,
@@ -64,16 +61,13 @@ function RegisterNameForm() {
       if (state == undefined) {
         throw Error('PDNT contract state is undefined');
       }
-      const pdnt = new PDNTContract(state);
+      const pdnt = new PDNTContract(state, txId);
 
       if (!pdnt.isValid()) {
         throw Error('PDNT contract state does not match required schema.');
       }
     } catch (error: any) {
-      dispatchRegisterState({
-        type: 'setPDNTID',
-        payload: undefined,
-      });
+      console.error(error);
     }
   }
 
@@ -255,7 +249,14 @@ function RegisterNameForm() {
 
         <div className="flex flex-column" style={{ gap: '75px' }}>
           <NameTokenSelector
-            selectedTokenCallback={(id) => handlePDNTId(id?.toString())}
+            selectedTokenCallback={(id) =>
+              id
+                ? handlePDNTId(id.toString())
+                : dispatchRegisterState({
+                    type: 'setPDNTID',
+                    payload: undefined,
+                  })
+            }
           />
 
           <TransactionCost fee={fee} />

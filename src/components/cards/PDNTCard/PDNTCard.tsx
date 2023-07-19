@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { PDNSMapping, PDNTContractJSON } from '../../../types';
-import { isArweaveTransactionID } from '../../../utils';
+import { decodeDomainToASCII, isArweaveTransactionID } from '../../../utils';
 import eventEmitter from '../../../utils/events';
 import { ExternalLinkIcon } from '../../icons';
 import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
@@ -51,7 +51,6 @@ function PDNTCard(props: PDNSMapping) {
     hover,
     enableActions,
     disabledKeys,
-    showTier = false,
   } = props;
   const [{ pdnsSourceContract }] = useGlobalState();
   const [pdntDetails, setPDNTDetails] = useState<{ [x: string]: string }>();
@@ -70,8 +69,13 @@ function PDNTCard(props: PDNSMapping) {
         pdntContractState = state;
       }
       if (id && !state) {
-        pdntContractState =
-          await arweaveDataProvider.getContractState<PDNTContractJSON>(id);
+        pdntContractState = await arweaveDataProvider
+          .getContractState<PDNTContractJSON>(id)
+          .catch(() => {
+            throw new Error(
+              `Unable to fetch ANT contract state for "${domain}": ${id}`,
+            );
+          });
       }
       if (!pdntContractState) {
         throw new Error(
@@ -101,7 +105,7 @@ function PDNTCard(props: PDNSMapping) {
         maxUndernames: tierDetails?.settings.maxUndernames ?? 100,
         ...overrides,
         id: id?.toString() ?? 'N/A',
-        domain,
+        domain: decodeDomainToASCII(domain),
       };
 
       const filteredPDNTDetails = Object.keys(allPDNTDetails).reduce(
@@ -138,22 +142,15 @@ function PDNTCard(props: PDNSMapping) {
     setLimitDetails(!limitDetails);
   }
 
-  // TODO: update this logic
-  function handleClick() {
-    alert('Coming soon!');
-  }
-
   return (
     <>
       {isLoading ? (
         <Loader size={80} />
       ) : pdntDetails ? (
-        <div className={hover ? 'flex flex-column hover' : 'flex flex-column'}>
-          {!showTier ? (
-            <></>
-          ) : (
-            <span className="bubble">Tier {pdntDetails.tier}</span>
-          )}
+        <div
+          className={hover ? 'flex flex-column hover' : 'flex flex-column'}
+          style={{ gap: '20px' }}
+        >
           <div className="flex flex-center" style={{ width: '100%' }}>
             <Descriptions
               bordered
@@ -211,12 +208,13 @@ function PDNTCard(props: PDNSMapping) {
                             : value
                         }
                         copyText={value}
-                        size={24}
+                        size={15}
                         wrapperStyle={{
                           padding: '0px',
                           fontFamily: 'Rubik',
                           justifyContent: 'flex-start',
                           alignItems: 'center',
+                          fill: 'var(--text-faded)',
                         }}
                         position={'relative'}
                       />
@@ -235,62 +233,24 @@ function PDNTCard(props: PDNSMapping) {
             className={`flex flex-space-between`}
             style={{ display: 'flex', width: '100%', boxSizing: 'border-box' }}
           >
-            <div>
-              {compact ? (
-                limitDetails ? (
-                  <button
-                    className="outline-button center faded"
-                    onClick={showMore}
-                    style={{
-                      borderColor: 'var(--text-faded)',
-                      padding: 0,
-                      fontSize: '15px',
-                      width: 120,
-                      height: 50,
-                      color: 'var(--text-faded)',
-                    }}
-                  >
-                    View More
-                  </button>
-                ) : (
-                  <button
-                    className="outline-button center faded"
-                    onClick={showMore}
-                    style={{
-                      borderColor: 'var(--text-faded)',
-                      padding: 0,
-                      fontSize: '15px',
-                      width: 120,
-                      height: 50,
-                      color: 'var(--text-faded)',
-                    }}
-                  >
-                    View Less
-                  </button>
-                )
-              ) : (
-                <></>
-              )}
-            </div>
-
-            <div className="flex flex-center">
-              {enableActions ? (
-                <button
-                  className="accent-button center "
-                  onClick={handleClick}
-                  style={{
-                    padding: 0,
-                    fontSize: '15px',
-                    width: 120,
-                    height: 50,
-                  }}
-                >
-                  Upgrade
-                </button>
-              ) : (
-                <></>
-              )}
-            </div>
+            {compact ? (
+              <button
+                className="outline-button center faded"
+                onClick={showMore}
+                style={{
+                  borderColor: '#38393b',
+                  padding: 0,
+                  fontSize: '15px',
+                  width: '100%',
+                  height: 50,
+                  color: 'var(--text-faded)',
+                }}
+              >
+                {limitDetails ? 'View More' : 'View Less'}
+              </button>
+            ) : (
+              <></>
+            )}
           </div>
         </div>
       ) : (
