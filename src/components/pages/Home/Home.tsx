@@ -213,15 +213,15 @@ function Home() {
                     }
                     footerElement={
                       <SearchBarFooter
-                        searchTerm={domain}
+                        searchTerm={domain.toLowerCase()}
                         searchResult={
                           domain &&
                           pdnsSourceContract.records[
-                            encodeDomainToASCII(domain)
+                            encodeDomainToASCII(domain.toLowerCase())
                           ]
                             ? new ArweaveTransactionID(
                                 pdnsSourceContract.records[
-                                  encodeDomainToASCII(domain)
+                                  encodeDomainToASCII(domain.toLowerCase())
                                 ].contractTxId,
                               )
                             : undefined

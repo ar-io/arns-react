@@ -106,7 +106,7 @@ function SearchBar(props: SearchBarProps) {
     } else if (!searchSuccess && searchBarText && values) {
       onFailure(
         searchBarText,
-        values[encodeDomainToASCII(searchBarText)].contractTxId,
+        values[encodeDomainToASCII(searchBarText.toLowerCase())].contractTxId,
       );
     }
   }
