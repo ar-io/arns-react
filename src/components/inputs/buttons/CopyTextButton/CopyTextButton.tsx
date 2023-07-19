@@ -2,6 +2,7 @@ import { Tooltip } from 'antd';
 import { useState } from 'react';
 
 import { CopyIcon } from '../../../icons';
+import './styles.css';
 
 function CopyTextButton({
   displayText,
@@ -25,14 +26,14 @@ function CopyTextButton({
     }
     setTimeout(() => {
       setTextCopied(false);
-    }, 2000);
+    }, 500);
   }
 
   return (
     <div className="flex" style={{ position, ...wrapperStyle }}>
       <button
         className="flex flex-space-between button"
-        style={{ ...wrapperStyle, cursor: 'pointer' }}
+        style={{ ...wrapperStyle, cursor: 'pointer', gap: '8px' }}
         onClick={async () => {
           await handleCopy();
         }}
@@ -47,17 +48,24 @@ function CopyTextButton({
           placement="right"
           autoAdjustOverflow={true}
           arrow={false}
+          overlayClassName="copy-tooltip"
           overlayInnerStyle={{
             color: 'var(--text-black)',
+            boxShadow: 'var(--shadow)',
             fontFamily: 'Rubik-Bold',
             backgroundColor: 'var(--text-white)',
+            fontSize: '10px',
+            display: 'flex',
+            justifyContent: 'center',
+            borderRadius: 'var(--corner-radius)',
+            padding: '4px 8px',
           }}
         >
           <CopyIcon
             className="flex"
-            height={25}
-            width={25}
-            fill="white"
+            height={size ?? 15}
+            width={size ?? 15}
+            fill={'inherit'}
             style={{ cursor: 'pointer', scale: size }}
           />
         </Tooltip>

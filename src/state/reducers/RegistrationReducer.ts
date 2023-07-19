@@ -5,7 +5,7 @@ import {
 } from '../contexts/RegistrationState';
 
 export type RegistrationAction =
-  | { type: 'setDomainName'; payload?: string }
+  | { type: 'setDomainName'; payload: string }
   | { type: 'setLeaseDuration'; payload: number }
   | { type: 'setTier'; payload: number }
   | { type: 'setNickname'; payload: string }

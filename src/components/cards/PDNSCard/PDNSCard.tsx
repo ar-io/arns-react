@@ -23,7 +23,7 @@ function PDNSCard({ domain, id }: PDNSMapping) {
 
   useEffect(() => {
     getPDNTDetailsFromName(domain);
-  }, [domain, id, gateway, isMobile]);
+  }, [isMobile]);
 
   async function getPDNTDetailsFromName(domain: string) {
     const image = await getMetaImage();

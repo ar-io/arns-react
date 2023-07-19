@@ -19,6 +19,7 @@ import {
 } from '../../../types';
 import {
   TRANSACTION_DATA_KEYS,
+  decodeDomainToASCII,
   getPDNSMappingByInteractionType,
   getWorkflowStepsForInteraction,
   isObjectOfTransactionPayloadType,
@@ -275,7 +276,8 @@ function TransactionWorkflow({
               <>
                 <div className="flex flex-row text-large white bold center">
                   <span className="text-large white center">
-                    <b>{payload.name}</b>.{gateway} is yours!
+                    <b>{decodeDomainToASCII(payload.name)}</b>.{gateway} is
+                    yours!
                   </span>
                 </div>
               </>

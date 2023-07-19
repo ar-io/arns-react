@@ -84,7 +84,6 @@ export type PDNSMapping = {
   compact?: boolean;
   enableActions?: boolean;
   hover?: boolean;
-  showTier?: boolean;
 };
 
 export type PDNSMetaData = {
@@ -216,7 +215,7 @@ export type SearchBarProps = {
   headerElement?: JSX.Element;
   footerElement?: JSX.Element;
   values?: { [x: string]: PDNSRecordEntry };
-  value?: string;
+  value: string;
   height?: number;
 };
 
@@ -546,7 +545,8 @@ export type ManagePDNTRow = {
   value: string | number;
   editable: boolean;
   key: number;
-  interactionType?: ValidInteractionType;
+  interactionType?: ExcludedValidInteractionType;
+  isValid?: boolean;
 };
 
 export type PDNTDetails = {
@@ -579,6 +579,7 @@ export enum VALIDATION_INPUT_TYPES {
   // unfortunately we cannot use computed values in enums, so be careful if we ever modify this number
   TRANSACTION_CONFIRMATIONS = `Has sufficient confirmations (50+).`,
   VALID_TTL = `Minimum ttl allowed is 900 and Maximum ttl allowed is 2,592,000.`,
+  VALID_ANT_NAME = `ANT name or ticker must be equal or less than 1798 characters.`,
 }
 
 export type ValidationObject = {
