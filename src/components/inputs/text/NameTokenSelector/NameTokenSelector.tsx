@@ -10,6 +10,7 @@ import {
   VALIDATION_INPUT_TYPES,
 } from '../../../../types';
 import { getAssociatedNames, isArweaveTransactionID } from '../../../../utils';
+import { SMARTWEAVE_MAX_INPUT_SIZE } from '../../../../utils/constants';
 import eventEmitter from '../../../../utils/events';
 import { CirclePlus, CloseIcon, HamburgerOutlineIcon } from '../../../icons';
 import { Loader } from '../../../layout';
@@ -313,9 +314,13 @@ function NameTokenSelector({
         <ValidationInput
           onClick={() => setSearchActive(true)}
           showValidationIcon={validImport !== undefined}
-          setValue={(v) => handleTokenSearch(v.length >= 1700 ? v.trim() : v)}
+          setValue={(v) =>
+            handleTokenSearch(
+              v.length === SMARTWEAVE_MAX_INPUT_SIZE ? v.trim() : v,
+            )
+          }
           value={searchText}
-          maxLength={1700}
+          maxLength={SMARTWEAVE_MAX_INPUT_SIZE}
           placeholder={
             selectedToken
               ? selectedToken.name.length
