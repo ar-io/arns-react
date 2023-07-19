@@ -220,7 +220,7 @@ function SearchBar(props: SearchBarProps) {
           <button
             className="link bold text flex-center"
             style={{
-              color: 'var(--text-faded)',
+              color: 'var(--text-grey)',
               width: 'fit-content',
               position: 'absolute',
               right: '75px',

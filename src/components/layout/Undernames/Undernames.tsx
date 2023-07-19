@@ -328,7 +328,7 @@ function Undernames() {
             <div className="flex flex-row text-large white bold">
               <span className="flex grey text-large bold">
                 <button
-                  className="faded text-large bold underline link center"
+                  className="grey text-large bold underline link center"
                   onClick={() => navigate('/manage/ants')}
                 >
                   <ArrowLeft

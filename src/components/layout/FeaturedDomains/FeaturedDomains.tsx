@@ -26,7 +26,7 @@ function FeaturedDomains(props: { domains: { [x: string]: string } }) {
   return (
     <div className="featured-domains flex-center">
       <span
-        className="text-medium center faded"
+        className="text-medium center grey"
         style={{
           letterSpacing: '0.3em',
           fontWeight: 500,
@@ -57,6 +57,7 @@ function FeaturedDomains(props: { domains: { [x: string]: string } }) {
               borderRadius: 'var(--corner-radius)',
               height: 40,
               fontSize: '14px',
+              color: 'var(--text-grey)',
             }}
           >
             View Less
@@ -70,7 +71,7 @@ function FeaturedDomains(props: { domains: { [x: string]: string } }) {
             className="flex flex-row button flex-center grey text-medium bold pointer"
             onClick={showMore}
             style={{
-              border: '1px solid var(--text-grey)',
+              border: '1px solid var(--text-faded)',
               borderRadius: 'var(--corner-radius)',
               height: 40,
               fontSize: '14px',

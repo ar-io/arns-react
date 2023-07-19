@@ -236,7 +236,7 @@ function RegisterNameForm() {
                 className="flex flex-column flex-center"
                 style={{ gap: '1em' }}
               >
-                <span className="text-medium faded center">
+                <span className="text-medium grey center">
                   Registration Period
                 </span>
                 <span className="text-medium white center">Permanent</span>

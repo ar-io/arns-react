@@ -12,7 +12,12 @@ import {
 import { getAssociatedNames, isArweaveTransactionID } from '../../../../utils';
 import { SMARTWEAVE_MAX_INPUT_SIZE } from '../../../../utils/constants';
 import eventEmitter from '../../../../utils/events';
-import { CirclePlus, CloseIcon, HamburgerOutlineIcon } from '../../../icons';
+import {
+  CirclePlus,
+  CircleXIcon,
+  CloseIcon,
+  HamburgerOutlineIcon,
+} from '../../../icons';
 import { Loader } from '../../../layout';
 import ValidationInput from '../ValidationInput/ValidationInput';
 import './styles.css';
@@ -271,7 +276,7 @@ function NameTokenSelector({
         <span
           className="flex flex-row hover center"
           style={{
-            color: listPage == page ? 'white' : 'var(--text-faded)',
+            color: listPage == page ? 'white' : 'var(--text-grey)',
             width: '32px',
           }}
         >
@@ -356,7 +361,7 @@ function NameTokenSelector({
         />
         <span
           className={`flex flex-row text grey flex-center ${
-            selectedNameToken ? 'bold' : ''
+            selectedToken ? 'bold' : ''
           } hover`}
           style={{
             width: 'fit-content',
@@ -389,7 +394,7 @@ function NameTokenSelector({
             </button>
           ) : selectedToken ? (
             <button
-              className="button flex flex-row center faded bold hover pointer"
+              className="button flex flex-row center grey bold hover pointer"
               style={{
                 gap: '5px',
                 border: '1px solid var(--text-grey)',
@@ -401,8 +406,7 @@ function NameTokenSelector({
                 selectedTokenCallback(undefined);
               }}
             >
-              Remove
-              <CircleXIcon
+              <CloseIcon
                 width={'20px'}
                 height={'20px'}
                 fill={'var(--text-grey)'}
@@ -523,7 +527,7 @@ function NameTokenSelector({
                       <HamburgerOutlineIcon
                         width={20}
                         height={20}
-                        fill="var(--text-faded)"
+                        fill="var(--text-grey)"
                       />
                     ) : (
                       <></>

@@ -33,7 +33,7 @@ function WorkflowButtons({
           <button
             className="outline-button center"
             style={{
-              borderColor: 'var(--text-grey)',
+              borderColor: 'var(--text-faded)',
               color: 'var(--text-grey)',
               ...customBackStyle,
             }}

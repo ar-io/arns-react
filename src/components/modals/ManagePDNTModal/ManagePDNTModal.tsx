@@ -258,7 +258,7 @@ function ManagePDNTModal() {
         <div className="flex-row flex-space-between">
           <span className="flex white text-large bold">
             <button
-              className="faded text-large bold underline link center"
+              className="grey text-large bold underline link center"
               onClick={() => navigate('/manage/ants')}
             >
               <ArrowLeft

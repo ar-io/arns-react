@@ -214,7 +214,7 @@ function PDNTCard(props: PDNSMapping) {
                           fontFamily: 'Rubik',
                           justifyContent: 'flex-start',
                           alignItems: 'center',
-                          fill: 'var(--text-faded)',
+                          fill: 'var(--text-grey)',
                         }}
                         position={'relative'}
                       />
@@ -243,7 +243,7 @@ function PDNTCard(props: PDNSMapping) {
                   fontSize: '15px',
                   width: '100%',
                   height: 50,
-                  color: 'var(--text-faded)',
+                  color: 'var(--text-grey)',
                 }}
               >
                 {limitDetails ? 'View More' : 'View Less'}
