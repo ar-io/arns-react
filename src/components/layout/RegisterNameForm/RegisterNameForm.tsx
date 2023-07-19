@@ -49,11 +49,11 @@ function RegisterNameForm() {
         payload: { ar: fee.ar, io: newFee },
       });
     }
-  }, [leaseDuration, tier, domain, pdnsSourceContract]);
+  }, [leaseDuration, tier, domain]);
 
   async function handlePDNTId(id: string) {
     try {
-      const txId = new ArweaveTransactionID(id);
+      const txId = new ArweaveTransactionID(id.toString());
       dispatchRegisterState({
         type: 'setPDNTID',
         payload: txId,
@@ -64,16 +64,13 @@ function RegisterNameForm() {
       if (state == undefined) {
         throw Error('PDNT contract state is undefined');
       }
-      const pdnt = new PDNTContract(state);
+      const pdnt = new PDNTContract(state, txId);
 
       if (!pdnt.isValid()) {
         throw Error('PDNT contract state does not match required schema.');
       }
     } catch (error: any) {
-      dispatchRegisterState({
-        type: 'setPDNTID',
-        payload: undefined,
-      });
+      console.error(error);
     }
   }
 
