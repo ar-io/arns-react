@@ -190,6 +190,7 @@ function TransactionWorkflow({
       interactionType,
       transactionData,
     });
+    console.log({ ...transactionData });
 
     if (!pdntProps) {
       throw Error('Unable to get PDNT properties.');

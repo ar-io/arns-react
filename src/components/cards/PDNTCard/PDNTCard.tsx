@@ -4,7 +4,11 @@ import { useEffect, useState } from 'react';
 
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { PDNSMapping, PDNTContractJSON } from '../../../types';
+import {
+  ArweaveTransactionID,
+  PDNSMapping,
+  PDNTContractJSON,
+} from '../../../types';
 import { decodeDomainToASCII, isArweaveTransactionID } from '../../../utils';
 import eventEmitter from '../../../utils/events';
 import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
@@ -65,9 +69,11 @@ function PDNTCard(props: PDNSMapping) {
       if (state) {
         pdntContractState = state;
       }
-      if (id && !state) {
+      if (id && isArweaveTransactionID(id.toString()) && !state) {
         pdntContractState = await arweaveDataProvider
-          .getContractState<PDNTContractJSON>(id)
+          .getContractState<PDNTContractJSON>(
+            new ArweaveTransactionID(id.toString()),
+          )
           .catch(() => {
             throw new Error(
               `Unable to fetch ANT contract state for "${domain}": ${id}`,

@@ -246,7 +246,9 @@ export function getPDNSMappingByInteractionType(
         domain: transactionData.name,
         id:
           transactionData.contractTxId === ATOMIC_FLAG
-            ? transactionData.deployedTransactionId ?? undefined
+            ? transactionData.deployedTransactionId
+              ? transactionData.deployedTransactionId
+              : ATOMIC_FLAG.toLocaleUpperCase('en-US')
             : new ArweaveTransactionID(transactionData.contractTxId),
         state: transactionData.state ?? undefined,
         overrides: {

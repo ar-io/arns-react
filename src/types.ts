@@ -77,7 +77,7 @@ export type PDNTContractFields = keyof PDNTContractJSON;
 
 export type PDNSMapping = {
   domain: string;
-  id?: ArweaveTransactionID;
+  id?: ArweaveTransactionID | string;
   state?: PDNTContractJSON;
   overrides?: any; // TODO;
   disabledKeys?: string[]; // TODO;
