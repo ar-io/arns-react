@@ -10,71 +10,97 @@ import eventEmitter from '../../../utils/events';
 import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
 import { Loader } from '../../layout';
 import './styles.css';
+import { MIN_TTL_SECONDS } from '../../../utils/constants';
 
-export const PDNT_DETAIL_MAPPINGS: { [x: string]: string } = {
+export const ANT_TRANSACTION_DETAILS = {
+  deployedTransactionId: 'Transaction ID',
+  contractTxId: 'Contract ID',
+}
+export const ARNS_METADATA_DETAILS = {
+  domain: 'Domain',
+  leaseDuration: 'Lease Duration',
+  maxUndernames: 'Undernames',
+}
+export const ANT_MAIN_DETAILS = {
   name: 'Nickname',
-  id: 'ANT Contract ID',
-  expiration: 'Lease Expiration',
-  maxUndernames: 'Max Undernames',
-  ttlSeconds: 'TTL Seconds',
+  ticker: 'Ticker',
+  owner: "Owner",
   controller: 'Controllers',
+}
+export const ANT_METADATA_DETAILS = {
+  targetId: 'Target ID',
+  ttlSeconds: 'TTL Seconds',
+}
+
+export const ANT_DETAIL_MAPPINGS = {
+  ...ANT_TRANSACTION_DETAILS,
+  ...ARNS_METADATA_DETAILS,
+  ...ANT_MAIN_DETAILS,
+  ...ANT_METADATA_DETAILS
 };
 
-export function mapKeyToAttribute(key: string) {
-  if (PDNT_DETAIL_MAPPINGS[key]) {
-    return PDNT_DETAIL_MAPPINGS[key];
+export type AntDetailKey = keyof typeof ANT_DETAIL_MAPPINGS;
+
+export function mapKeyToAttribute(key: AntDetailKey) {
+  if (ANT_DETAIL_MAPPINGS[key]) {
+    return ANT_DETAIL_MAPPINGS[key];
   }
   return startCase(key);
 }
 
-export const PRIMARY_DETAILS: string[] = [
-  'id',
+export const DEFAULT_PRIMARY_KEYS: string[] = [
+  'contractTxId',
   'domain',
-  'owner',
-  'controller',
-  'ticker',
+  'leaseDuration',
   'nickname',
-].map((i) => mapKeyToAttribute(i));
+  'ticker',
+  'owner'
+]
 
 function PDNTCard(props: PDNSMapping) {
   const isMobile = useIsMobile();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const {
     state,
-    id,
+    contractTxId,
     domain,
     compact,
     overrides,
     hover,
     enableActions,
     disabledKeys,
+    primaryKeys
   } = props;
   const [{ pdnsSourceContract }] = useGlobalState();
   const [pdntDetails, setPDNTDetails] = useState<{ [x: string]: string }>();
   const [isLoading, setIsLoading] = useState(true);
   const [limitDetails, setLimitDetails] = useState(true);
+  const [mappedKeys, setMappedKeys] = useState<string[]>([]);
 
   useEffect(() => {
     setDetails({ state });
-  }, [id, domain, compact, enableActions, overrides]);
+    const newMappedKeys = [...primaryKeys ?? [...DEFAULT_PRIMARY_KEYS]].map((i:string) => mapKeyToAttribute(i as AntDetailKey));
+    setMappedKeys(newMappedKeys);
+  }, [contractTxId, domain, compact, enableActions, overrides]);
 
   async function setDetails({ state }: { state?: PDNTContractJSON }) {
     try {
       setIsLoading(true);
-      let pdntContractState = undefined;
+      
+      let antContractState = undefined;
       if (state) {
-        pdntContractState = state;
+        antContractState = state;
       }
-      if (id && !state) {
-        pdntContractState = await arweaveDataProvider
-          .getContractState<PDNTContractJSON>(id)
+      if (contractTxId && !state) {
+        antContractState = await arweaveDataProvider
+          .getContractState<PDNTContractJSON>(contractTxId)
           .catch(() => {
             throw new Error(
-              `Unable to fetch ANT contract state for "${domain}": ${id}`,
+              `Unable to fetch ANT contract state for "${domain}": ${contractTxId}`,
             );
           });
       }
-      if (!pdntContractState) {
+      if (!antContractState) {
         throw new Error(
           'No state passed and unable to generate ANT contract state',
         );
@@ -88,28 +114,29 @@ function PDNTCard(props: PDNSMapping) {
           )
         : undefined;
 
-      const tierNumber = Object.keys(tiers.current).find(
-        (key: string) => tiers.current[+key] === tierDetails?.id,
-      );
-
-      const allPDNTDetails: { [x: string]: any } = {
-        ...pdntContractState,
+      const allPDNTDetails: typeof ANT_DETAIL_MAPPINGS = {
         // TODO: remove this when all pdnts have controllers
-        controllers: pdntContractState.controllers
-          ? pdntContractState.controllers.join(',')
-          : pdntContractState.owner,
-        tier: tierNumber,
-        maxUndernames: tierDetails?.settings.maxUndernames ?? 100,
-        ...overrides,
-        id: id?.toString() ?? 'N/A',
+        contractTxId: contractTxId?.toString() ?? 'N/A',
         domain: decodeDomainToASCII(domain),
+        // TODO: update lease duration to fetch lease duration from contract
+        leaseDuration: "N/A",
+        maxUndernames: "Up to " + tierDetails?.settings.maxUndernames ?? 100,
+        ...overrides,
+        name: antContractState.name,
+        ticker: antContractState.ticker,
+        owner: antContractState.owner,
+        controllers: antContractState.controllers
+          ? antContractState.controllers.join(',')
+          : antContractState.owner,
+        targetId: typeof antContractState.records['@'] === 'string' ? antContractState.records['@'] : antContractState.records['@'].transactionId,
+        ttlSeconds: typeof antContractState.records['@'] === 'string' ? MIN_TTL_SECONDS : antContractState.records['@'].ttlSeconds,
       };
 
       const filteredPDNTDetails = Object.keys(allPDNTDetails).reduce(
-        (obj: any, key: string) => {
+        (obj: {[x: string] : string}, key: string) => {
           if (!disabledKeys?.includes(key)) {
-            if (typeof allPDNTDetails[key] === 'object') return obj;
-            obj[key] = allPDNTDetails[key];
+            if (typeof allPDNTDetails[key as AntDetailKey] === 'object') return obj;
+            obj[key] = allPDNTDetails[key as AntDetailKey];
           }
           return obj;
         },
@@ -117,11 +144,10 @@ function PDNTCard(props: PDNSMapping) {
       );
       // TODO: consolidate this logic that sorts and updates key values
       const replacedKeys = Object.keys(filteredPDNTDetails)
-        .sort()
         .reduce((obj: any, key: string) => {
           // TODO: flatten recursive objects like subdomains, filter out for now
-          if (typeof allPDNTDetails[key] === 'object') return obj;
-          obj[mapKeyToAttribute(key)] = allPDNTDetails[key];
+          if (typeof allPDNTDetails[key as AntDetailKey] === 'object') return obj;
+          obj[mapKeyToAttribute(key as AntDetailKey)] = allPDNTDetails[key as AntDetailKey];
           return obj;
         }, {});
       setLimitDetails(compact ?? true);
@@ -157,13 +183,14 @@ function PDNTCard(props: PDNSMapping) {
               style={{ width: '100%' }}
             >
               {Object.entries(pdntDetails).map(([key, value]) => {
-                if (!PRIMARY_DETAILS.includes(key) && limitDetails) {
+                if (!mappedKeys.includes(key) && limitDetails) {
                   return;
                 }
                 return (
                   <Descriptions.Item
                     key={key}
                     label={`${key}:`}
+                    className='transition-row'
                     labelStyle={{
                       width: 'fit-content',
                       color: 'var(--text-faded)',

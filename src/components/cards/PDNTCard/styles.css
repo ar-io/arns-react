@@ -16,6 +16,7 @@
   color: var(--text-white);
   align-self: flex-start;
   padding: 10px;
+  transition: all 1.3s ease-in-out !important;
 }
 
 .bubble {
@@ -42,6 +43,17 @@
   height: auto;
   justify-content: center;
   gap: 2em;
+}
+.transition-row {
+  transition: all 0.3s ease-in-out;
+}
+
+.transition-row {
+  height: 0;
+}
+
+.transition-row.show {
+  height: auto; 
 }
 
 /* If the screen size is 600px wide or less, set the font-size of <div> to 30px */

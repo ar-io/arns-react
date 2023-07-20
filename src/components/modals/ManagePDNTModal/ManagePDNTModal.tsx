@@ -34,7 +34,7 @@ import {
   TTL_SECONDS_ENTRY_REGEX,
 } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
-import { mapKeyToAttribute } from '../../cards/PDNTCard/PDNTCard';
+import { AntDetailKey, mapKeyToAttribute } from '../../cards/PDNTCard/PDNTCard';
 import {
   ArrowLeft,
   CirclePending,
@@ -356,7 +356,7 @@ function ManagePDNTModal() {
                   width: isMobile ? '0px' : '20%',
                   className: 'white',
                   render: (value: string) => {
-                    return `${mapKeyToAttribute(value)}:`;
+                    return `${mapKeyToAttribute(value as AntDetailKey)}:`;
                   },
                 },
                 {

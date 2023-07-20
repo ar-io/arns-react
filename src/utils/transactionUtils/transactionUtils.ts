@@ -231,7 +231,7 @@ export function getPDNSMappingByInteractionType(
       }
       return {
         domain: transactionData.name,
-        id: new ArweaveTransactionID(transactionData.contractTxId),
+        contractTxId: new ArweaveTransactionID(transactionData.contractTxId),
         overrides: {
           tier: transactionData.tierNumber,
           maxSubdomains: 100, // TODO get subdomain count from contract
@@ -271,7 +271,7 @@ export function getPDNSMappingByInteractionType(
       }
       return {
         domain: '',
-        id: new ArweaveTransactionID(transactionData.assetId),
+        contractTxId: new ArweaveTransactionID(transactionData.assetId),
         overrides: {
           nickname: transactionData.name,
         },
@@ -299,7 +299,7 @@ export function getPDNSMappingByInteractionType(
       }
       return {
         domain: '',
-        id: new ArweaveTransactionID(transactionData.assetId),
+        contractTxId: new ArweaveTransactionID(transactionData.assetId),
         overrides: {
           ticker: transactionData.ticker,
         },
@@ -327,7 +327,7 @@ export function getPDNSMappingByInteractionType(
       }
       return {
         domain: '',
-        id: new ArweaveTransactionID(transactionData.assetId),
+        contractTxId: new ArweaveTransactionID(transactionData.assetId),
         overrides: {
           undername: transactionData.subDomain,
         },
@@ -355,7 +355,7 @@ export function getPDNSMappingByInteractionType(
       }
       return {
         domain: '',
-        id: new ArweaveTransactionID(transactionData.assetId),
+        contractTxId: new ArweaveTransactionID(transactionData.assetId),
         overrides: {
           undername: transactionData.subDomain,
           targetId: transactionData.transactionId,
@@ -385,7 +385,7 @@ export function getPDNSMappingByInteractionType(
       }
       return {
         domain: '',
-        id: new ArweaveTransactionID(transactionData.assetId),
+        contractTxId: new ArweaveTransactionID(transactionData.assetId),
         overrides: {
           targetId: transactionData.transactionId,
         },
@@ -414,7 +414,7 @@ export function getPDNSMappingByInteractionType(
       }
       return {
         domain: '',
-        id: new ArweaveTransactionID(transactionData.assetId),
+        contractTxId: new ArweaveTransactionID(transactionData.assetId),
         overrides: {
           ttlSeconds: transactionData.ttlSeconds,
         },
@@ -443,7 +443,7 @@ export function getPDNSMappingByInteractionType(
       }
       return {
         domain: '',
-        id: new ArweaveTransactionID(transactionData.assetId),
+        contractTxId: new ArweaveTransactionID(transactionData.assetId),
         overrides: {
           controller: transactionData.target,
         },
@@ -471,7 +471,7 @@ export function getPDNSMappingByInteractionType(
       }
       return {
         domain: '',
-        id: new ArweaveTransactionID(transactionData.assetId),
+        contractTxId: new ArweaveTransactionID(transactionData.assetId),
         overrides: {
           'New Owner': transactionData.target,
         },
