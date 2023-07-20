@@ -135,6 +135,28 @@ export class ArweaveCompositeDataProvider
     });
   }
 
+  async registerAtomicName({
+    walletAddress,
+    registryId,
+    srcCodeTransactionId,
+    initialState,
+    domain,
+  }: {
+    walletAddress: ArweaveTransactionID;
+    registryId: ArweaveTransactionID;
+    srcCodeTransactionId: ArweaveTransactionID;
+    initialState: PDNTContractJSON;
+    domain: string;
+  }): Promise<string | undefined> {
+    return await this._interactionProvider.registerAtomicName({
+      walletAddress,
+      registryId,
+      srcCodeTransactionId,
+      initialState,
+      domain,
+    });
+  }
+
   async getArPrice(data: number): Promise<number> {
     return await this._arweaveProvider.getArPrice(data);
   }

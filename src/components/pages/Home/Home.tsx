@@ -12,9 +12,9 @@ import {
   INTERACTION_TYPES,
 } from '../../../types';
 import {
+  ATOMIC_FLAG,
   FEATURED_DOMAINS,
   PDNS_REGISTRY_ADDRESS,
-  PDNS_TX_ID_REGEX,
 } from '../../../utils/constants';
 import {
   decodeDomainToASCII,
@@ -109,7 +109,7 @@ function Home() {
                     domain && emojiRegex().test(domain)
                       ? encodeDomainToASCII(domain)
                       : domain!,
-                  contractTxId: pdntID!.toString(),
+                  contractTxId: pdntID ? pdntID.toString() : ATOMIC_FLAG,
                   tierNumber: 1,
                   years: 1,
                 };
@@ -240,10 +240,7 @@ function Home() {
                 component: <RegisterNameForm />,
                 showNext: true,
                 showBack: true,
-                disableNext:
-                  !pdntID ||
-                  !PDNS_TX_ID_REGEX.test(pdntID.toString()) ||
-                  !walletAddress,
+                disableNext: !walletAddress,
                 requiresWallet: true,
                 customNextStyle: { width: 130 },
               },
