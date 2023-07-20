@@ -4,7 +4,11 @@ import { useEffect, useState } from 'react';
 
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { PDNSMapping, PDNTContractJSON } from '../../../types';
+import {
+  ArweaveTransactionID,
+  PDNSMapping,
+  PDNTContractJSON,
+} from '../../../types';
 import { decodeDomainToASCII, isArweaveTransactionID } from '../../../utils';
 import { MIN_TTL_SECONDS } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
