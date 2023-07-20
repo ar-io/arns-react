@@ -1,8 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react';
 
-import {
-  AntDetailKey,
-} from './components/cards/PDNTCard/PDNTCard';
+import { AntDetailKey } from './components/cards/PDNTCard/PDNTCard';
 import { PDNS_TX_ID_REGEX } from './utils/constants';
 
 export type PDNSRecordEntry = {

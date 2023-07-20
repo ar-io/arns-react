@@ -11,12 +11,12 @@ import './styles.css';
 
 const protocol = 'https';
 
-function PDNSCard({ domain, id }: PDNSMapping) {
+function PDNSCard({ domain, contractTxId }: PDNSMapping) {
   const [{ gateway }] = useGlobalState();
   const isMobile = useIsMobile();
   const [pdntDetails, setPDNTDetails] = useState<PDNSDomain>({
     domain,
-    id,
+    contractTxId,
     image: pdnsDefaultImage,
     expiration: DEFAULT_EXPIRATION, // TODO: don't default
   });
