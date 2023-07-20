@@ -1,7 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react';
 
 import {
-  ANT_DETAIL_MAPPINGS,
   AntDetailKey,
 } from './components/cards/PDNTCard/PDNTCard';
 import { PDNS_TX_ID_REGEX } from './utils/constants';

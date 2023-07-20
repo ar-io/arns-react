@@ -258,8 +258,7 @@ function PDNTCard(props: PDNSMapping) {
                     }}
                     position={'relative'}
                   />
-                ) : // TODO: update with calculated registration period using start timestamp and end timestamp
-                key === 'Lease Duration' ? (
+                ) : key === 'Lease Duration' ? (
                   <span>
                     {getLeaseDurationFromEndTimestamp(Date.now(), +value)} year
                     {getLeaseDurationFromEndTimestamp(Date.now(), +value) > 1

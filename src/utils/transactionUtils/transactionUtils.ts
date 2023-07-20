@@ -35,7 +35,6 @@ import {
   TTL_SECONDS_REGEX,
   YEAR_IN_MILLISECONDS,
 } from '../constants';
-import { getLeaseDurationFromEndTimestamp } from '../searchUtils/searchUtils';
 
 export function isArweaveTransactionID(id: string) {
   if (!id) {
