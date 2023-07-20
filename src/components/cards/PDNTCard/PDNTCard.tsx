@@ -1,5 +1,5 @@
 import { Descriptions } from 'antd';
-import { set, startCase } from 'lodash';
+import { startCase } from 'lodash';
 import { useEffect, useState } from 'react';
 
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
@@ -9,7 +9,11 @@ import {
   PDNSMapping,
   PDNTContractJSON,
 } from '../../../types';
-import { decodeDomainToASCII, isArweaveTransactionID } from '../../../utils';
+import {
+  decodeDomainToASCII,
+  getLeaseDurationFromEndTimestamp,
+  isArweaveTransactionID,
+} from '../../../utils';
 import { MIN_TTL_SECONDS } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
@@ -99,7 +103,9 @@ function PDNTCard(props: PDNSMapping) {
       }
       if (contractTxId && !state) {
         antContractState = await arweaveDataProvider
-          .getContractState<PDNTContractJSON>(contractTxId)
+          .getContractState<PDNTContractJSON>(
+            new ArweaveTransactionID(contractTxId.toString()),
+          )
           .catch(() => {
             throw new Error(
               `Unable to fetch ANT contract state for "${domain}": ${contractTxId}`,
@@ -125,7 +131,9 @@ function PDNTCard(props: PDNSMapping) {
         contractTxId: contractTxId?.toString() ?? 'N/A',
         domain: decodeDomainToASCII(domain),
         // TODO: update lease duration to fetch lease duration from contract
-        leaseDuration: 'N/A',
+        leaseDuration: pdnsSourceContract.records[domain]
+          ? +pdnsSourceContract.records[domain].endTimestamp * 1000
+          : 'N/A',
         maxUndernames: 'Up to ' + tierDetails?.settings.maxUndernames ?? 100,
         ...overrides,
         name: antContractState.name,
@@ -142,6 +150,7 @@ function PDNTCard(props: PDNSMapping) {
           typeof antContractState.records['@'] === 'string'
             ? MIN_TTL_SECONDS
             : antContractState.records['@'].ttlSeconds,
+        ...overrides,
       };
 
       const filteredPDNTDetails = Object.keys(allPDNTDetails).reduce(
@@ -249,6 +258,24 @@ function PDNTCard(props: PDNSMapping) {
                     }}
                     position={'relative'}
                   />
+                ) : // TODO: update with calculated registration period using start timestamp and end timestamp
+                key === 'Lease Duration' ? (
+                  <span>
+                    {getLeaseDurationFromEndTimestamp(Date.now(), +value)} year
+                    {getLeaseDurationFromEndTimestamp(Date.now(), +value) > 1
+                      ? 's'
+                      : ''}
+                    &nbsp;
+                    <span style={{ color: 'var(--text-faded)' }}>
+                      (expires approximately{' '}
+                      {Intl.DateTimeFormat('en', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      }).format(+value)}
+                      )
+                    </span>
+                  </span>
                 ) : value ? (
                   value
                 ) : (

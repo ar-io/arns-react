@@ -33,7 +33,9 @@ import {
   MIN_TTL_SECONDS,
   PDNS_TX_ID_REGEX,
   TTL_SECONDS_REGEX,
+  YEAR_IN_MILLISECONDS,
 } from '../constants';
+import { getLeaseDurationFromEndTimestamp } from '../searchUtils/searchUtils';
 
 export function isArweaveTransactionID(id: string) {
   if (!id) {
@@ -242,6 +244,8 @@ export function getPDNSMappingByInteractionType(
           'Atomic transaction detected but no state present, add the state to continue.',
         );
       }
+      const years = Date.now() + YEAR_IN_MILLISECONDS * transactionData.years;
+
       return {
         domain: transactionData.name,
         contractTxId:
@@ -254,7 +258,7 @@ export function getPDNSMappingByInteractionType(
         overrides: {
           tier: transactionData.tierNumber,
           maxSubdomains: 100, // TODO get subdomain count from contract
-          leaseDuration: transactionData.years,
+          leaseDuration: years,
         },
       };
     }
