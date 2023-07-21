@@ -41,7 +41,7 @@ function FeaturedDomains(props: { domains: { [x: string]: string } }) {
           return (
             <PDNSCard
               domain={domain}
-              id={new ArweaveTransactionID(domains[domain])}
+              contractTxId={new ArweaveTransactionID(domains[domain])}
               key={index}
             />
           );

@@ -92,7 +92,7 @@ function ConfirmRegistration() {
           <>
             <PDNTCard
               domain={domain ?? ''}
-              id={pdntID ? pdntID : undefined}
+              contractTxId={pdntID ? pdntID : undefined}
               compact={false}
               enableActions={false}
               overrides={{

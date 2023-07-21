@@ -18,8 +18,11 @@ import {
   TransactionCache,
   TransactionTag,
 } from '../../types';
-import { byteSize } from '../../utils';
-import { SMARTWEAVE_MAX_TAG_SPACE } from '../../utils/constants';
+import { buildSmartweaveInteractionTags, byteSize } from '../../utils';
+import {
+  ATOMIC_REGISTRATION_INPUT,
+  SMARTWEAVE_MAX_TAG_SPACE,
+} from '../../utils/constants';
 import { LocalStorageCache } from '../cache/LocalStorageCache';
 
 LoggerFactory.INST.logLevel('error');
@@ -165,8 +168,65 @@ export class WarpDataProvider
       payload: deploymentPayload,
       type: 'deploy',
     });
+    // Pulls out registration interaction and caches it
+    // TODO: make this able to cache batch interactions on multiple contracts at once.
+    if (tags && contractTxId) {
+      const input = tags.find((tag) => tag.name === 'Input')?.value;
+      const contractId = tags.find((tag) => tag.name === 'Contract')?.value;
+      if (!input || !contractId) {
+        throw new Error(
+          'Could not cache atomic transaction, missing info from tags.',
+        );
+      }
+      const interactionPayload = JSON.parse(input);
+      this._cache.push(walletAddress.toString(), {
+        id: contractTxId,
+        contractTxId: contractId,
+        payload: interactionPayload,
+        type: 'interaction',
+      });
+    }
 
     return contractTxId;
+  }
+
+  async registerAtomicName({
+    walletAddress,
+    registryId,
+    srcCodeTransactionId,
+    initialState,
+    domain,
+  }: {
+    walletAddress: ArweaveTransactionID;
+    registryId: ArweaveTransactionID;
+    srcCodeTransactionId: ArweaveTransactionID;
+    initialState: PDNTContractJSON;
+    domain: string;
+  }): Promise<string | undefined> {
+    try {
+      if (!domain) {
+        throw new Error('No domain provided');
+      }
+
+      const input = { ...ATOMIC_REGISTRATION_INPUT, name: domain };
+      const tags = buildSmartweaveInteractionTags({
+        contractId: registryId,
+        input,
+      });
+
+      const result = await this.deployContract({
+        walletAddress,
+        srcCodeTransactionId,
+        initialState,
+        tags,
+      });
+      if (!result) {
+        throw new Error('Could not deploy atomic contract');
+      }
+      return result;
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   /* eslint-disable */

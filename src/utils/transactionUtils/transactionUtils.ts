@@ -19,17 +19,23 @@ import {
   SetNamePayload,
   SetRecordPayload,
   SetTickerPayload,
+  SmartWeaveActionInput,
+  SmartWeaveActionTags,
   TransactionData,
   TransactionDataConfig,
   TransactionDataPayload,
+  TransactionTag,
   TransferPDNTPayload,
   ValidInteractionType,
 } from '../../types';
 import {
+  ATOMIC_FLAG,
+  DEFAULT_PDNT_CONTRACT_STATE,
   MAX_TTL_SECONDS,
   MIN_TTL_SECONDS,
   PDNS_TX_ID_REGEX,
   TTL_SECONDS_REGEX,
+  YEAR_IN_MILLISECONDS,
 } from '../constants';
 
 export function isArweaveTransactionID(id: string) {
@@ -224,13 +230,29 @@ export function getPDNSMappingByInteractionType(
           'transaction data not of correct payload type <BuyRecordPayload>',
         );
       }
+      if (
+        transactionData.contractTxId === ATOMIC_FLAG &&
+        !transactionData.state
+      ) {
+        throw new Error(
+          'Atomic transaction detected but no state present, add the state to continue.',
+        );
+      }
+      const years = Date.now() + YEAR_IN_MILLISECONDS * transactionData.years;
+
       return {
         domain: transactionData.name,
-        id: new ArweaveTransactionID(transactionData.contractTxId),
+        contractTxId:
+          transactionData.contractTxId === ATOMIC_FLAG
+            ? transactionData.deployedTransactionId
+              ? transactionData.deployedTransactionId
+              : ATOMIC_FLAG.toLocaleUpperCase('en-US')
+            : new ArweaveTransactionID(transactionData.contractTxId),
+        state: transactionData.state ?? undefined,
         overrides: {
           tier: transactionData.tierNumber,
           maxSubdomains: 100, // TODO get subdomain count from contract
-          leaseDuration: transactionData.years,
+          leaseDuration: years,
         },
       };
     }
@@ -266,7 +288,7 @@ export function getPDNSMappingByInteractionType(
       }
       return {
         domain: '',
-        id: new ArweaveTransactionID(transactionData.assetId),
+        contractTxId: new ArweaveTransactionID(transactionData.assetId),
         overrides: {
           nickname: transactionData.name,
         },
@@ -294,7 +316,7 @@ export function getPDNSMappingByInteractionType(
       }
       return {
         domain: '',
-        id: new ArweaveTransactionID(transactionData.assetId),
+        contractTxId: new ArweaveTransactionID(transactionData.assetId),
         overrides: {
           ticker: transactionData.ticker,
         },
@@ -322,7 +344,7 @@ export function getPDNSMappingByInteractionType(
       }
       return {
         domain: '',
-        id: new ArweaveTransactionID(transactionData.assetId),
+        contractTxId: new ArweaveTransactionID(transactionData.assetId),
         overrides: {
           undername: transactionData.subDomain,
         },
@@ -350,7 +372,7 @@ export function getPDNSMappingByInteractionType(
       }
       return {
         domain: '',
-        id: new ArweaveTransactionID(transactionData.assetId),
+        contractTxId: new ArweaveTransactionID(transactionData.assetId),
         overrides: {
           undername: transactionData.subDomain,
           targetId: transactionData.transactionId,
@@ -380,7 +402,7 @@ export function getPDNSMappingByInteractionType(
       }
       return {
         domain: '',
-        id: new ArweaveTransactionID(transactionData.assetId),
+        contractTxId: new ArweaveTransactionID(transactionData.assetId),
         overrides: {
           targetId: transactionData.transactionId,
         },
@@ -409,7 +431,7 @@ export function getPDNSMappingByInteractionType(
       }
       return {
         domain: '',
-        id: new ArweaveTransactionID(transactionData.assetId),
+        contractTxId: new ArweaveTransactionID(transactionData.assetId),
         overrides: {
           ttlSeconds: transactionData.ttlSeconds,
         },
@@ -438,7 +460,7 @@ export function getPDNSMappingByInteractionType(
       }
       return {
         domain: '',
-        id: new ArweaveTransactionID(transactionData.assetId),
+        contractTxId: new ArweaveTransactionID(transactionData.assetId),
         overrides: {
           controller: transactionData.target,
         },
@@ -466,7 +488,7 @@ export function getPDNSMappingByInteractionType(
       }
       return {
         domain: '',
-        id: new ArweaveTransactionID(transactionData.assetId),
+        contractTxId: new ArweaveTransactionID(transactionData.assetId),
         overrides: {
           'New Owner': transactionData.target,
         },
@@ -573,7 +595,10 @@ export function getLinkId(
       TRANSACTION_DATA_KEYS[INTERACTION_TYPES.BUY_RECORD].keys,
     )
   ) {
-    return transactionData.contractTxId.toString() ?? '';
+    return transactionData.contractTxId === ATOMIC_FLAG &&
+      transactionData.deployedTransactionId
+      ? transactionData.deployedTransactionId.toString()
+      : transactionData.contractTxId.toString();
   }
   if (
     interactionType === INTERACTION_TYPES.CREATE &&
@@ -643,4 +668,41 @@ export function getPendingInteractionsRowsForContract(
     }
   }
   return pendingTxRowData;
+}
+export function generateAtomicState(
+  domain: string,
+  walletAddress: ArweaveTransactionID,
+): PDNTContractJSON {
+  return {
+    ...DEFAULT_PDNT_CONTRACT_STATE,
+    name: `ANT-${domain.toUpperCase()}`,
+    ticker: 'ANT',
+    owner: walletAddress.toString(),
+    controller: walletAddress.toString(),
+    balances: { [walletAddress.toString()]: 1 },
+  };
+}
+
+export function buildSmartweaveInteractionTags({
+  contractId,
+  input,
+}: {
+  contractId: ArweaveTransactionID;
+  input: SmartWeaveActionInput;
+}): TransactionTag[] {
+  const tags: SmartWeaveActionTags = [
+    {
+      name: 'App-Name',
+      value: 'SmartWeaveAction',
+    },
+    {
+      name: 'Contract',
+      value: contractId.toString(),
+    },
+    {
+      name: 'Input',
+      value: JSON.stringify(input),
+    },
+  ];
+  return tags;
 }

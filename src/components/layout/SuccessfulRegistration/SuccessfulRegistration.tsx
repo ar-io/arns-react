@@ -38,7 +38,7 @@ function SuccessfulRegistration() {
 
         {domain ? (
           <>
-            <PDNSCard domain={domain} id={resolvedTxID!} />
+            <PDNSCard domain={domain} contractTxId={resolvedTxID!} />
             <span>
               <Link
                 to={'/manage'}

@@ -16,7 +16,7 @@ function SearchBarFooter({
           </span>
           <PDNTCard
             domain={searchTerm}
-            id={searchResult}
+            contractTxId={searchResult}
             compact={true}
             enableActions={true}
           />

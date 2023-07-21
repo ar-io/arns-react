@@ -25,7 +25,10 @@ function TransactionComplete({
   const navigate = useNavigate();
   const pdntProps = getPDNSMappingByInteractionType({
     interactionType,
-    transactionData,
+    transactionData: {
+      ...transactionData,
+      deployedTransactionId: transactionId,
+    },
   });
 
   if (!pdntProps) {

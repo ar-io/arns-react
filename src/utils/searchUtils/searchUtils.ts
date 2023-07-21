@@ -2,7 +2,11 @@ import emojiRegex from 'emoji-regex';
 import { asciiToUnicode, unicodeToAscii } from 'puny-coder';
 
 import { PDNSRecordEntry } from '../../types';
-import { PDNS_NAME_REGEX, PDNS_NAME_REGEX_PARTIAL } from '../constants';
+import {
+  PDNS_NAME_REGEX,
+  PDNS_NAME_REGEX_PARTIAL,
+  YEAR_IN_MILLISECONDS,
+} from '../constants';
 
 export function calculatePDNSNamePrice({
   domain,
@@ -144,4 +148,11 @@ export async function validateNoLeadingOrTrailingDashes(
   ) {
     throw new Error('Query cannot have leading or trailing dashes');
   }
+}
+
+export function getLeaseDurationFromEndTimestamp(start: number, end: number) {
+  const differenceInYears = Math.ceil((end - start) / YEAR_IN_MILLISECONDS);
+  const years = Math.max(1, differenceInYears);
+
+  return years;
 }

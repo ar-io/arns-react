@@ -32,6 +32,8 @@ export const PDNT_CONTRACT_STATE_KEYS = [
   'ticker',
 ];
 
+export const YEAR_IN_MILLISECONDS = 31536000000;
+
 // TODO: don't use
 export const DEFAULT_EXPIRATION = new Date('12/31/2023');
 // TODO: pull from contract
@@ -178,3 +180,13 @@ export const DEFAULT_PDNS_REGISTRY_STATE: PDNSContractJSON = {
 export const WARP_CONTRACT_BASE_URL = 'https://sonar.warp.cc/#/app/contract/';
 export const WARP_INTERACTION_BASE_URL =
   'https://sonar.warp.cc/#/app/interaction/';
+
+export const ATOMIC_FLAG = 'atomic';
+
+export const ATOMIC_REGISTRATION_INPUT = {
+  function: 'buyRecord',
+  name: '',
+  contractTxId: ATOMIC_FLAG,
+  years: 1,
+  tierNumber: 1,
+};

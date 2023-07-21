@@ -1,5 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react';
 
+import { AntDetailKey } from './components/cards/PDNTCard/PDNTCard';
 import { PDNS_TX_ID_REGEX } from './utils/constants';
 
 export type PDNSRecordEntry = {
@@ -77,10 +78,11 @@ export type PDNTContractFields = keyof PDNTContractJSON;
 
 export type PDNSMapping = {
   domain: string;
-  id?: ArweaveTransactionID;
+  contractTxId?: ArweaveTransactionID | string;
   state?: PDNTContractJSON;
-  overrides?: any; // TODO;
-  disabledKeys?: string[]; // TODO;
+  overrides?: any;
+  disabledKeys?: string[];
+  primaryKeys?: AntDetailKey[];
   compact?: boolean;
   enableActions?: boolean;
   hover?: boolean;
@@ -144,6 +146,19 @@ export interface SmartweaveContractInteractionProvider {
     initialState: PDNTContractJSON;
     tags?: TransactionTag[];
   }): Promise<string>;
+  registerAtomicName({
+    walletAddress,
+    registryId,
+    srcCodeTransactionId,
+    initialState,
+    domain,
+  }: {
+    walletAddress: ArweaveTransactionID;
+    registryId: ArweaveTransactionID;
+    srcCodeTransactionId: ArweaveTransactionID;
+    initialState: PDNTContractJSON;
+    domain: string;
+  }): Promise<string | undefined>;
 }
 
 export interface ArweaveWalletConnector {
@@ -372,6 +387,7 @@ export type BuyRecordPayload = {
   contractTxId: string;
   years: number;
   tierNumber: number;
+  state?: PDNTContractJSON;
 };
 
 export type ExtendLeasePayload = {
@@ -585,3 +601,24 @@ export type ContractInteraction = {
   valid?: boolean;
   [x: string]: any;
 };
+
+export type SmartWeaveActionInput = {
+  function: string;
+  [x: string]: any;
+};
+
+export type SmartWeaveActionTags = [
+  {
+    name: 'App-Name';
+    value: 'SmartWeaveAction';
+  },
+  {
+    name: 'Contract';
+    value: string;
+  },
+  {
+    name: 'Input';
+    value: string;
+  },
+] &
+  TransactionTag[];
