@@ -36,7 +36,6 @@ export const ANT_MAIN_DETAILS = {
   ticker: 'Ticker',
   owner: 'Owner',
   controller: 'Controllers',
-  deployedTransactionId: 'Transaction ID',
 };
 
 export const ANT_METADATA_DETAILS = {
@@ -82,6 +81,7 @@ function PDNTCard(props: PDNSMapping) {
     enableActions,
     disabledKeys,
     primaryKeys,
+    deployedTransactionId,
   } = props;
   const [{ pdnsSourceContract }] = useGlobalState();
   const [pdntDetails, setPDNTDetails] = useState<{ [x: string]: string }>();
@@ -132,6 +132,9 @@ function PDNTCard(props: PDNSMapping) {
 
       const allPDNTDetails: typeof ANT_DETAIL_MAPPINGS = {
         // TODO: remove this when all pdnts have controllers
+        deployedTransactionId: deployedTransactionId
+          ? deployedTransactionId.toString()
+          : undefined,
         contractTxId: contractTxId?.toString() ?? 'N/A',
         domain: decodeDomainToASCII(domain),
         // TODO: update lease duration to fetch lease duration from contract
@@ -139,7 +142,6 @@ function PDNTCard(props: PDNSMapping) {
           ? +pdnsSourceContract.records[domain].endTimestamp * 1000
           : 'N/A',
         maxUndernames: 'Up to ' + tierDetails?.settings.maxUndernames ?? 100,
-        ...overrides,
         name: antContractState.name,
         ticker: antContractState.ticker,
         owner: antContractState.owner,
@@ -256,7 +258,7 @@ function PDNTCard(props: PDNSMapping) {
                     <ExternalLinkIcon
                       width={'20px'}
                       height={'20px'}
-                      fill="var(--text-white)"
+                      fill="var(--text-grey)"
                     />
                   </Link>
                 ) : isArweaveTransactionID(value) ? (
@@ -286,11 +288,13 @@ function PDNTCard(props: PDNSMapping) {
                     &nbsp;
                     <span style={{ color: 'var(--text-grey)' }}>
                       (expires approximately{' '}
-                      {Intl.DateTimeFormat('en', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      }).format(+value)}
+                      {value.length === 11
+                        ? Intl.DateTimeFormat('en', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                          }).format(+value)
+                        : 'N/A'}
                       )
                     </span>
                   </span>

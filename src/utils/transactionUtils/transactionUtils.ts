@@ -239,6 +239,7 @@ export function getPDNSMappingByInteractionType(
         );
       }
       const years = Date.now() + YEAR_IN_MILLISECONDS * transactionData.years;
+      console.log;
 
       return {
         domain: transactionData.name,
@@ -248,10 +249,10 @@ export function getPDNSMappingByInteractionType(
               ? transactionData.deployedTransactionId
               : ATOMIC_FLAG.toLocaleUpperCase('en-US')
             : new ArweaveTransactionID(transactionData.contractTxId),
+        deployedTransactionId: transactionData.deployedTransactionId,
         state: transactionData.state ?? undefined,
         overrides: {
-          tier: transactionData.tierNumber,
-          maxSubdomains: 100, // TODO get subdomain count from contract
+          maxUndernames: 'Up to 100', // TODO get subdomain count from contract
           leaseDuration: years,
         },
       };

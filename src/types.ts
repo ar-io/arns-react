@@ -86,6 +86,7 @@ export type PDNSMapping = {
   compact?: boolean;
   enableActions?: boolean;
   hover?: boolean;
+  deployedTransactionId?: ArweaveTransactionID | string;
 };
 
 export type PDNSMetaData = {

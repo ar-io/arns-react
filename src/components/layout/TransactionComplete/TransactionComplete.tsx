@@ -70,7 +70,6 @@ function TransactionComplete({
           {...pdntProps}
           overrides={{
             ...pdntProps.overrides,
-            deployedTransactionId: transactionId?.toString(),
           }}
           compact={false}
         />

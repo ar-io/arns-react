@@ -27,7 +27,7 @@ function WorkflowButtons({
     <>
       <div
         className="flex-row flex-right"
-        style={{ padding: '0', boxSizing: 'border-box' }}
+        style={{ padding: '0', boxSizing: 'border-box', marginTop: '20px' }}
       >
         {showBack ? (
           <button
