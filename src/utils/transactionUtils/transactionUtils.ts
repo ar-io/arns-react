@@ -296,6 +296,7 @@ export function getPDNSMappingByInteractionType(
         },
         disabledKeys: [
           'evolve',
+          'maxSubdomains',
           'maxUndernames',
           'domain',
           'leaseDuration',
@@ -325,6 +326,7 @@ export function getPDNSMappingByInteractionType(
         },
         disabledKeys: [
           'evolve',
+          'maxSubdomains',
           'maxUndernames',
           'domain',
           'leaseDuration',
@@ -354,6 +356,7 @@ export function getPDNSMappingByInteractionType(
         },
         disabledKeys: [
           'evolve',
+          'maxSubdomains',
           'maxUndernames',
           'domain',
           'leaseDuration',
@@ -385,6 +388,7 @@ export function getPDNSMappingByInteractionType(
         },
         disabledKeys: [
           'evolve',
+          'maxSubdomains',
           'maxUndernames',
           'domain',
           'leaseDuration',
@@ -414,6 +418,7 @@ export function getPDNSMappingByInteractionType(
         },
         disabledKeys: [
           'evolve',
+          'maxSubdomains',
           'maxUndernames',
           'domain',
           'leaseDuration',
@@ -444,6 +449,7 @@ export function getPDNSMappingByInteractionType(
         },
         disabledKeys: [
           'evolve',
+          'maxSubdomains',
           'maxUndernames',
           'domain',
           'leaseDuration',
@@ -474,6 +480,7 @@ export function getPDNSMappingByInteractionType(
         },
         disabledKeys: [
           'evolve',
+          'maxSubdomains',
           'maxUndernames',
           'domain',
           'leaseDuration',
