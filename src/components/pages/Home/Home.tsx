@@ -34,8 +34,10 @@ function Home() {
   const navigate = useNavigate();
   const [{ pdnsSourceContract }] = useGlobalState();
   const { walletAddress } = useWalletAddress();
-  const [{ domain, pdntID, stage, isSearching }, dispatchRegisterState] =
-    useRegistrationState();
+  const [
+    { domain, pdntID, stage, isSearching, leaseDuration },
+    dispatchRegisterState,
+  ] = useRegistrationState();
 
   const [featuredDomains, setFeaturedDomains] = useState<{
     [x: string]: string;
@@ -111,7 +113,7 @@ function Home() {
                       : domain!,
                   contractTxId: pdntID ? pdntID.toString() : ATOMIC_FLAG,
                   tierNumber: 1,
-                  years: 1,
+                  years: leaseDuration,
                 };
                 dispatchTransactionState({
                   type: 'setTransactionData',

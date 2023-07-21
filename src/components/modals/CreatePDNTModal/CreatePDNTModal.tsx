@@ -23,7 +23,7 @@ import {
   STUB_ARWEAVE_TXID,
 } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
-import { mapKeyToAttribute } from '../../cards/PDNTCard/PDNTCard';
+import { AntDetailKey, mapKeyToAttribute } from '../../cards/PDNTCard/PDNTCard';
 import { CloseIcon, PencilIcon } from '../../icons';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import Workflow from '../../layout/Workflow/Workflow';
@@ -307,7 +307,9 @@ function CreatePDNTModal() {
                             width: isMobile ? '0px' : '20%',
                             className: 'white small-row',
                             render: (value: string) => {
-                              return `${mapKeyToAttribute(value)}:`;
+                              return `${mapKeyToAttribute(
+                                value as AntDetailKey,
+                              )}:`;
                             },
                           },
                           {

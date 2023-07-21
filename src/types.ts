@@ -1,5 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react';
 
+import { AntDetailKey } from './components/cards/PDNTCard/PDNTCard';
 import { PDNS_TX_ID_REGEX } from './utils/constants';
 
 export type PDNSRecordEntry = {
@@ -77,10 +78,11 @@ export type PDNTContractFields = keyof PDNTContractJSON;
 
 export type PDNSMapping = {
   domain: string;
-  id?: ArweaveTransactionID | string;
+  contractTxId?: ArweaveTransactionID | string;
   state?: PDNTContractJSON;
-  overrides?: any; // TODO;
-  disabledKeys?: string[]; // TODO;
+  overrides?: any;
+  disabledKeys?: string[];
+  primaryKeys?: AntDetailKey[];
   compact?: boolean;
   enableActions?: boolean;
   hover?: boolean;

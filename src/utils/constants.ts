@@ -32,6 +32,8 @@ export const PDNT_CONTRACT_STATE_KEYS = [
   'ticker',
 ];
 
+export const YEAR_IN_MILLISECONDS = 31536000000;
+
 // TODO: don't use
 export const DEFAULT_EXPIRATION = new Date('12/31/2023');
 // TODO: pull from contract
