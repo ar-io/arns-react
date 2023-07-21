@@ -12,12 +12,7 @@ import {
 import { getAssociatedNames, isArweaveTransactionID } from '../../../../utils';
 import { SMARTWEAVE_MAX_INPUT_SIZE } from '../../../../utils/constants';
 import eventEmitter from '../../../../utils/events';
-import {
-  CirclePlus,
-  CircleXIcon,
-  CloseIcon,
-  HamburgerOutlineIcon,
-} from '../../../icons';
+import { CirclePlus, CloseIcon, HamburgerOutlineIcon } from '../../../icons';
 import { Loader } from '../../../layout';
 import ValidationInput from '../ValidationInput/ValidationInput';
 import './styles.css';

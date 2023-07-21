@@ -1,4 +1,3 @@
-import { CheckCircleOutlined } from '@ant-design/icons';
 import { StepProps, Steps } from 'antd';
 
 import { AlertOctagonIcon, CheckIcon } from '../../../icons';

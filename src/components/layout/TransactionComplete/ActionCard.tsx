@@ -1,7 +1,5 @@
 import { Link } from 'react-router-dom';
 
-import { ExternalLinkOutlined } from '../../icons';
-
 function ActionCard({ to, body }: { to: string; body?: JSX.Element | string }) {
   return (
     <Link
