@@ -284,7 +284,7 @@ function PDNTCard(props: PDNSMapping) {
                       ? 's'
                       : ''}
                     &nbsp;
-                    <span style={{ color: 'var(--text-faded)' }}>
+                    <span style={{ color: 'var(--text-grey)' }}>
                       (expires approximately{' '}
                       {Intl.DateTimeFormat('en', {
                         year: 'numeric',

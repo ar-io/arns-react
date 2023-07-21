@@ -284,7 +284,12 @@ function TransactionWorkflow({
                   info={
                     <div
                       className="flex flex-row flex-left"
-                      style={{ gap: '10px', maxWidth: '50%' }}
+                      style={{
+                        gap: '10px',
+                        maxWidth: '50%',
+                        justifyContent: 'flex-start',
+                        alignItems: 'flex-start',
+                      }}
                     >
                       <InfoIcon
                         width={'20px'}
@@ -293,7 +298,7 @@ function TransactionWorkflow({
                       />
                       <span
                         className="flex flex-column flex-left grey text"
-                        style={{ textAlign: 'left' }}
+                        style={{ textAlign: 'left', lineHeight: '1.5em' }}
                       >
                         This includes a registration fee (paid in IO tokens) and
                         the Arweave network fee (paid in AR tokens).
