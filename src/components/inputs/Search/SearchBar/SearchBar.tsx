@@ -216,7 +216,7 @@ function SearchBar(props: SearchBarProps) {
             ),
           }}
         />
-        {!isAvailable && searchBarText && searchSubmitted ? (
+        {searchBarText && searchSubmitted ? (
           <button
             className="link bold text flex-center"
             style={{
@@ -256,7 +256,11 @@ function SearchBar(props: SearchBarProps) {
           className="accent-button center"
           onClick={_onSubmitButton}
           style={{
-            marginTop: 30,
+            marginTop: 40,
+            padding: '0px',
+            height: '50px',
+            width: '130px',
+            fontSize: '14px',
           }}
         >
           Register Now

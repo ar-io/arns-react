@@ -379,7 +379,7 @@ a:active {
 .accent-button {
   box-sizing: border-box;
   display: flex;
-  padding: 10px 15px;
+  padding: 15px;
   font-size: 16px;
   font-family: 'Rubik-Bold';
   font-weight: 800;
@@ -393,10 +393,11 @@ a:active {
 .outline-button {
   box-sizing: border-box;
   display: flex;
-  padding: 0.75em 2em;
+  padding: 15px 20px;
   font-size: 16px;
   font-family: 'Rubik-Bold';
   font-weight: 800;
+  min-width: 110px;
   width: fit-content;
   height: fit-content;
   border: var(--text-white) 1px solid;

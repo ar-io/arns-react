@@ -16,27 +16,13 @@ function ActionCard({ to, body }: { to: string; body?: JSX.Element | string }) {
           minHeight: '100px',
           width: '100%',
           padding: '0px',
-          gap: '.5em',
+          gap: '15px',
           textDecoration: 'none',
           position: 'relative',
           fontSize: '18px',
           border: '1px solid var(--text-faded)',
         }}
       >
-        <div
-          style={{
-            position: 'absolute',
-            top: '10px',
-            right: '10px',
-          }}
-        >
-          <ExternalLinkOutlined
-            width={'18px'}
-            height={'18px'}
-            fill={'var(--text-grey)'}
-          />
-        </div>
-
         {body}
       </div>
     </Link>

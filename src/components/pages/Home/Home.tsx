@@ -244,7 +244,8 @@ function Home() {
                 showBack: true,
                 disableNext: !walletAddress,
                 requiresWallet: true,
-                customNextStyle: { width: 130 },
+                customNextStyle: { width: 110, padding: '15px' },
+                customBackStyle: { width: 110, padding: '15px' },
               },
             }}
           />

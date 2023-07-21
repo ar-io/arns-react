@@ -202,10 +202,13 @@ function TransactionWorkflow({
       return {
         pending: {
           component: (
-            <>
+            <div
+              className="flex flex-column"
+              style={{ marginBottom: '30px', gap: '0px' }}
+            >
               <PDNTCard {...pdntProps} />
               <TransactionCost />
-            </>
+            </div>
           ),
           header: `Review your ${interactionType} action`,
           nextText: 'Proceed to Wallet',
@@ -229,7 +232,7 @@ function TransactionWorkflow({
                 background: '#213027',
                 border: '1px solid #44AF69',
                 fontSize: '18px',
-                marginBottom: '2em',
+                marginBottom: '20px',
               }}
             >
               <span className="white center">
@@ -269,7 +272,10 @@ function TransactionWorkflow({
         return {
           pending: {
             component: (
-              <>
+              <div
+                className="flex flex-column"
+                style={{ marginBottom: '30px', gap: '0px' }}
+              >
                 <PDNTCard {...pdntProps} />
                 <TransactionCost
                   fee={{
@@ -306,7 +312,7 @@ function TransactionWorkflow({
                     </div>
                   }
                 />
-              </>
+              </div>
             ),
             header: `Review your Purchase`,
             nextText: 'Proceed to Wallet',

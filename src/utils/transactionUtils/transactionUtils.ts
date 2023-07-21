@@ -239,7 +239,6 @@ export function getPDNSMappingByInteractionType(
         );
       }
       const years = Date.now() + YEAR_IN_MILLISECONDS * transactionData.years;
-      console.log;
 
       return {
         domain: transactionData.name,
@@ -274,6 +273,7 @@ export function getPDNSMappingByInteractionType(
         domain: '',
         state: pdnt.state,
         disabledKeys: ['domain', 'evolve', 'id', 'tier'],
+        deployedTransactionId: transactionData.deployedTransactionId,
       };
     }
     case INTERACTION_TYPES.SET_NAME: {
@@ -290,12 +290,13 @@ export function getPDNSMappingByInteractionType(
       return {
         domain: '',
         contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           nickname: transactionData.name,
         },
         disabledKeys: [
           'evolve',
-          'maxSubdomains',
+          'maxUndernames',
           'domain',
           'leaseDuration',
           'ttlSeconds',
@@ -318,12 +319,13 @@ export function getPDNSMappingByInteractionType(
       return {
         domain: '',
         contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           ticker: transactionData.ticker,
         },
         disabledKeys: [
           'evolve',
-          'maxSubdomains',
+          'maxUndernames',
           'domain',
           'leaseDuration',
           'ttlSeconds',
@@ -346,12 +348,13 @@ export function getPDNSMappingByInteractionType(
       return {
         domain: '',
         contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           undername: transactionData.subDomain,
         },
         disabledKeys: [
           'evolve',
-          'maxSubdomains',
+          'maxUndernames',
           'domain',
           'leaseDuration',
           'tier',
@@ -374,6 +377,7 @@ export function getPDNSMappingByInteractionType(
       return {
         domain: '',
         contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           undername: transactionData.subDomain,
           targetId: transactionData.transactionId,
@@ -381,7 +385,7 @@ export function getPDNSMappingByInteractionType(
         },
         disabledKeys: [
           'evolve',
-          'maxSubdomains',
+          'maxUndernames',
           'domain',
           'leaseDuration',
           'tier',
@@ -404,12 +408,13 @@ export function getPDNSMappingByInteractionType(
       return {
         domain: '',
         contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           targetId: transactionData.transactionId,
         },
         disabledKeys: [
           'evolve',
-          'maxSubdomains',
+          'maxUndernames',
           'domain',
           'leaseDuration',
           'ttlSeconds',
@@ -433,12 +438,13 @@ export function getPDNSMappingByInteractionType(
       return {
         domain: '',
         contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           ttlSeconds: transactionData.ttlSeconds,
         },
         disabledKeys: [
           'evolve',
-          'maxSubdomains',
+          'maxUndernames',
           'domain',
           'leaseDuration',
           'tier',
@@ -462,12 +468,13 @@ export function getPDNSMappingByInteractionType(
       return {
         domain: '',
         contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           controller: transactionData.target,
         },
         disabledKeys: [
           'evolve',
-          'maxSubdomains',
+          'maxUndernames',
           'domain',
           'leaseDuration',
           'tier',
@@ -490,6 +497,7 @@ export function getPDNSMappingByInteractionType(
       return {
         domain: '',
         contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           'New Owner': transactionData.target,
         },

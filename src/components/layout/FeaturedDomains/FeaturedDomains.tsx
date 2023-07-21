@@ -30,6 +30,7 @@ function FeaturedDomains(props: { domains: { [x: string]: string } }) {
         style={{
           letterSpacing: '0.3em',
           fontWeight: 500,
+          marginBottom: 20,
         }}
       >
         FEATURED DOMAINS

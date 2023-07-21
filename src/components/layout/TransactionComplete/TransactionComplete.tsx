@@ -1,3 +1,4 @@
+import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 
 import {
@@ -11,6 +12,7 @@ import {
   getPDNSMappingByInteractionType,
 } from '../../../utils/transactionUtils/transactionUtils';
 import { PDNTCard } from '../../cards';
+import { CodeSandboxIcon, SettingsIcon } from '../../icons';
 import ActionCard from './ActionCard';
 
 function TransactionComplete({
@@ -38,23 +40,37 @@ function TransactionComplete({
   }
 
   return (
-    <div className="flex-column center" style={{ gap: '3em', width: '700px' }}>
-      <div className="flex-column center">
+    <div className="flex-column center" style={{ gap: '20px', width: '700px' }}>
+      <div className="flex-column center" style={{ gap: '20px' }}>
         <div
           className="flex flex-row center"
           style={{
             justifyContent: 'space-between',
             boxSizing: 'border-box',
+            gap: '20px',
           }}
         >
-          <ActionCard to={'/'} body={'Register a Name'} />
-
           <ActionCard
             to={`/manage/ants/${getLinkId(interactionType, {
               ...transactionData,
               deployedTransactionId: transactionId,
             }).trim()}`}
-            body={' Manage ANT'}
+            body={
+              <div className="flex flex-column center" style={{ gap: '15px' }}>
+                <SettingsIcon width={'20px'} fill={'var(--text-grey)'} />
+                Configure Domain
+              </div>
+            }
+          />
+
+          <ActionCard
+            to={`/manage/ants`}
+            body={
+              <div className="flex flex-column center" style={{ gap: '15px' }}>
+                <CodeSandboxIcon width={'20px'} fill={'var(--text-grey)'} />
+                Create ANTs
+              </div>
+            }
           />
 
           <ActionCard
@@ -62,7 +78,14 @@ function TransactionComplete({
               ...transactionData,
               deployedTransactionId: transactionId,
             }).trim()}/undernames`}
-            body={'Add Undernames'}
+            body={
+              <div className="flex flex-column center" style={{ gap: '15px' }}>
+                <PlusOutlined
+                  style={{ color: 'var(--text-grey)', fontSize: '20px' }}
+                />
+                Add Undernames
+              </div>
+            }
           />
         </div>
         {/* TODO: configure error or fail states */}
