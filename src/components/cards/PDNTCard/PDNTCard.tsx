@@ -221,7 +221,7 @@ function PDNTCard(props: PDNSMapping) {
           style={{ width: '100%' }}
         >
           {Object.entries(pdntDetails).map(([key, value]) => {
-            if (!mappedKeys.includes(key) && limitDetails) {
+            if ((!mappedKeys.includes(key) && limitDetails) || !value) {
               return;
             }
             return (
@@ -288,7 +288,7 @@ function PDNTCard(props: PDNSMapping) {
                     &nbsp;
                     <span style={{ color: 'var(--text-grey)' }}>
                       (expires approximately{' '}
-                      {value.length === 11
+                      {+value
                         ? Intl.DateTimeFormat('en', {
                             year: 'numeric',
                             month: 'long',
