@@ -117,13 +117,14 @@ function TransferPDNTModal({
                 displayText={`${pdntId.toString().slice(0, isMobile ? 6 : 0)}${
                   isMobile ? '...' : ''
                 }${pdntId.toString().slice(isMobile ? -6 : 0)}`}
-                size={'70%'}
                 wrapperStyle={{
                   fontFamily: 'Rubik-Bold',
                   fontSize: '10px',
                   justifyContent: 'center',
                   alignItems: 'center',
+                  fill: 'var(--text-grey)',
                 }}
+                size={20}
                 position="relative"
               />
             </span>

@@ -22,6 +22,7 @@ import {
 import {
   TRANSACTION_DATA_KEYS,
   calculateFloorPrice,
+  decodeDomainToASCII,
   getPDNSMappingByInteractionType,
   getWorkflowStepsForInteraction,
   isObjectOfTransactionPayloadType,
@@ -214,10 +215,13 @@ function TransactionWorkflow({
       return {
         pending: {
           component: (
-            <>
+            <div
+              className="flex flex-column"
+              style={{ marginBottom: '30px', gap: '0px' }}
+            >
               <PDNTCard {...pdntProps} />
               <TransactionCost />
-            </>
+            </div>
           ),
           header: `Review your ${interactionType} action`,
           nextText: 'Proceed to Wallet',
@@ -241,7 +245,7 @@ function TransactionWorkflow({
                 background: '#213027',
                 border: '1px solid #44AF69',
                 fontSize: '18px',
-                marginBottom: '2em',
+                marginBottom: '20px',
               }}
             >
               <span className="white center">
@@ -282,7 +286,10 @@ function TransactionWorkflow({
         return {
           pending: {
             component: (
-              <>
+              <div
+                className="flex flex-column"
+                style={{ marginBottom: '30px', gap: '0px' }}
+              >
                 <PDNTCard {...pdntProps} />
                 <TransactionCost
                   fee={{
@@ -300,7 +307,12 @@ function TransactionWorkflow({
                   info={
                     <div
                       className="flex flex-row flex-left"
-                      style={{ gap: '10px', maxWidth: '50%' }}
+                      style={{
+                        gap: '10px',
+                        maxWidth: '50%',
+                        justifyContent: 'flex-start',
+                        alignItems: 'flex-start',
+                      }}
                     >
                       <InfoIcon
                         width={'20px'}
@@ -309,7 +321,7 @@ function TransactionWorkflow({
                       />
                       <span
                         className="flex flex-column flex-left grey text"
-                        style={{ textAlign: 'left' }}
+                        style={{ textAlign: 'left', lineHeight: '1.5em' }}
                       >
                         This includes a registration fee (paid in IO tokens) and
                         the Arweave network fee (paid in AR tokens).
@@ -317,7 +329,7 @@ function TransactionWorkflow({
                     </div>
                   }
                 />
-              </>
+              </div>
             ),
             header: `Review your ${payload.auction ? 'Auction' : 'Purchase'}`,
             nextText: 'Proceed to Wallet',
@@ -348,7 +360,7 @@ function TransactionWorkflow({
                   <CheckCircleFilled
                     style={{ fontSize: 18, color: 'var(--success-green)' }}
                   />
-                  &nbsp;<b>{payload.name}</b> is yours!
+                  &nbsp;<b>{decodeDomainToASCII(payload.name)}</b> is yours!
                 </span>
               </div>
             ),

@@ -121,8 +121,9 @@ export function useUndernames(id?: ArweaveTransactionID) {
                 wrapperStyle={{
                   justifyContent: 'center',
                   alignItems: 'center',
+                  fill: 'var(--text-grey)',
                 }}
-                size={'70%'}
+                size={15}
                 copyText={val}
                 displayText={
                   isMobile ? `${val.slice(0, 2)}...${val.slice(-2)}` : val

@@ -26,9 +26,10 @@
   --grey-white: #dfdfde;
   --error-red: #ef6461;
   --success-green: #44af69;
-  --accent: #ffbb38;
+  --accent: #ffb938;
   --modal-bg: rgba(23, 23, 23, 0.95);
   --corner-radius: 4px;
+  --shadow: 0px 0px 4px rgba(0, 0, 0);
 }
 
 html {
@@ -387,8 +388,8 @@ a:active {
 .accent-button {
   box-sizing: border-box;
   display: flex;
-  padding: 0.75em 2em;
-  font-size: 18px;
+  padding: 15px;
+  font-size: 16px;
   font-family: 'Rubik-Bold';
   font-weight: 800;
   width: fit-content;
@@ -401,10 +402,11 @@ a:active {
 .outline-button {
   box-sizing: border-box;
   display: flex;
-  padding: 0.75em 2em;
-  font-size: 18px;
+  padding: 15px 20px;
+  font-size: 16px;
   font-family: 'Rubik-Bold';
   font-weight: 800;
+  min-width: 110px;
   width: fit-content;
   height: fit-content;
   border: var(--text-white) 1px solid;

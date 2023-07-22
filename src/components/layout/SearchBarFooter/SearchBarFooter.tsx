@@ -8,7 +8,7 @@ function SearchBarFooter({
   isAvailable,
 }: SearchBarFooterProps): JSX.Element {
   return (
-    <div className="flex flex-column" style={{ marginTop: 60 }}>
+    <div className="flex flex-column" style={{ marginTop: 30 }}>
       {!isAvailable && searchResult && searchTerm ? (
         <>
           <span className="flex flex-row white text-medium flex-left">
@@ -16,7 +16,7 @@ function SearchBarFooter({
           </span>
           <PDNTCard
             domain={searchTerm}
-            id={searchResult}
+            contractTxId={searchResult}
             compact={true}
             enableActions={true}
           />

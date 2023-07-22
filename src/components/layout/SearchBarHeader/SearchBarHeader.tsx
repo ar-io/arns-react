@@ -1,6 +1,7 @@
 import { ArrowDownOutlined, CheckCircleFilled } from '@ant-design/icons';
 
 import { SearchBarHeaderProps } from '../../../types';
+import { decodeDomainToASCII } from '../../../utils';
 import './styles.css';
 
 function SearchBarHeader({
@@ -21,12 +22,18 @@ function SearchBarHeader({
       ) : isAvailable ? (
         <span
           className="text-medium white center"
-          style={{ fontWeight: 500, fontSize: 23 }}
+          style={{ fontWeight: 500, fontSize: 23, flexWrap: 'wrap' }}
         >
-          <span style={{ color: 'var(--success-green)' }}>{text}</span>&nbsp;is
-          available!&nbsp;
+          <span style={{ color: 'var(--success-green)' }}>
+            {decodeDomainToASCII(text)}
+          </span>
+          &nbsp;is available!
           <CheckCircleFilled
-            style={{ fontSize: 20, color: 'var(--success-green)' }}
+            style={{
+              fontSize: 20,
+              color: 'var(--success-green)',
+              marginLeft: '20px',
+            }}
           />
         </span>
       ) : (
@@ -34,8 +41,8 @@ function SearchBarHeader({
           className="text-medium white center"
           style={{ fontWeight: 500, fontSize: 23 }}
         >
-          <span className="unavailable">{text}&nbsp;</span>
-          is already registered, try another name
+          <span className="unavailable">{decodeDomainToASCII(text)}&nbsp;</span>
+          is already registered. Try another name.
         </span>
       )}
     </>

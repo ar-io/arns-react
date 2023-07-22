@@ -10,6 +10,7 @@ import {
   VALIDATION_INPUT_TYPES,
 } from '../../../../types';
 import { getAssociatedNames, isArweaveTransactionID } from '../../../../utils';
+import { SMARTWEAVE_MAX_INPUT_SIZE } from '../../../../utils/constants';
 import eventEmitter from '../../../../utils/events';
 import { CirclePlus, CloseIcon, HamburgerOutlineIcon } from '../../../icons';
 import { Loader } from '../../../layout';
@@ -193,7 +194,6 @@ function NameTokenSelector({
       setValidImport(undefined);
       if (!query) {
         setSearchText('');
-        setSelectedToken(undefined);
         return;
       }
       setSearchText(query);
@@ -215,7 +215,7 @@ function NameTokenSelector({
           const { name, ticker } = tokens[id];
           return { id, name: name ?? '', ticker: ticker ?? '' };
         })
-        .filter((n) => n !== undefined);
+        .filter((n) => !!n);
       if (!filteredResults.length) {
         throw new Error('No ANT tokens found for that search');
       }
@@ -223,7 +223,6 @@ function NameTokenSelector({
       setFilteredTokens(filteredResults);
     } catch (error) {
       setFilteredTokens(undefined);
-      eventEmitter.emit('error', error);
     } finally {
       setSearching(false);
       setListPage(1);
@@ -244,7 +243,7 @@ function NameTokenSelector({
       setFilteredTokens(undefined);
 
       if (id === undefined) {
-        return;
+        throw new Error(`No ID provided for ${name ?? ticker ?? ''}`);
       }
       setSelectedToken({ id, name: name ?? '', ticker: ticker ?? '' });
       selectedTokenCallback(new ArweaveTransactionID(id));
@@ -315,8 +314,13 @@ function NameTokenSelector({
         <ValidationInput
           onClick={() => setSearchActive(true)}
           showValidationIcon={validImport !== undefined}
-          setValue={(v) => handleTokenSearch(v)}
+          setValue={(v) =>
+            handleTokenSearch(
+              v.length === SMARTWEAVE_MAX_INPUT_SIZE ? v.trim() : v,
+            )
+          }
           value={searchText}
+          maxLength={SMARTWEAVE_MAX_INPUT_SIZE}
           placeholder={
             selectedToken
               ? selectedToken.name.length
@@ -325,12 +329,12 @@ function NameTokenSelector({
               : 'Add an Arweave Name Token (ANT)'
           }
           validationPredicates={{
-            [VALIDATION_INPUT_TYPES.PDNT_CONTRACT_ID]: {
+            [VALIDATION_INPUT_TYPES.SMARTWEAVE_CONTRACT]: {
               fn: (id: string) =>
                 arweaveDataProvider.validateTransactionTags({
                   id,
                   requiredTags: {
-                    'Contract-Src': pdnsSourceContract.approvedANTSourceCodeTxs,
+                    'App-Name': ['SmartWeaveContract'],
                   },
                 }),
             },
@@ -387,7 +391,7 @@ function NameTokenSelector({
             <button
               className="button flex flex-row center grey hover bold"
               style={{
-                gap: '0.5em',
+                gap: '5px',
                 border: '1px solid var(--text-grey)',
                 borderRadius: '50px',
                 height: '25px',
@@ -477,7 +481,9 @@ function NameTokenSelector({
                     }}
                   >
                     {token.name && token.ticker
-                      ? `${token.name} (${token.ticker}) - ${token.id}`
+                      ? `${token.name.slice(0, 20)} (${token.ticker}) - ${
+                          token.id
+                        }`
                       : token.id}
                   </button>
                 );
@@ -507,7 +513,11 @@ function NameTokenSelector({
                       });
                     }}
                   >
-                    {name && ticker ? `${name} (${ticker}) - ${id}` : id}
+                    {name && ticker
+                      ? `${name.slice(0, 20)} ${
+                          name.length > 20 ? '...' : ''
+                        } (${ticker}) - ${id}`
+                      : id}
                     {names?.length ? (
                       <HamburgerOutlineIcon
                         width={20}
@@ -530,22 +540,26 @@ function NameTokenSelector({
               justifyContent: 'flex-start',
             }}
           >
-            <Pagination
-              total={
-                Object.keys(tokens).length && !filteredTokens
-                  ? Object.keys(tokens).length
-                  : filteredTokens
-                  ? filteredTokens.length
-                  : 0
-              }
-              itemRender={customPreviousAndNextButtons}
-              showPrevNextJumpers={true}
-              showSizeChanger={false}
-              showQuickJumper={false}
-              onChange={updatePage}
-              current={listPage}
-              defaultPageSize={listItemCount}
-            />
+            {tokens.length || filteredTokens?.length || !searchText ? (
+              <Pagination
+                total={
+                  Object.keys(tokens).length && !filteredTokens
+                    ? Object.keys(tokens).length
+                    : filteredTokens
+                    ? filteredTokens.length
+                    : 0
+                }
+                itemRender={customPreviousAndNextButtons}
+                showPrevNextJumpers={true}
+                showSizeChanger={false}
+                showQuickJumper={false}
+                onChange={updatePage}
+                current={listPage}
+                defaultPageSize={listItemCount}
+              />
+            ) : (
+              <></>
+            )}{' '}
           </div>
         </div>
       ) : (

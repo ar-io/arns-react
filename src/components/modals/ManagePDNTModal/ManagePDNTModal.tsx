@@ -20,14 +20,21 @@ import {
   getInteractionTypeFromField,
   getPendingInteractionsRowsForContract,
   mapTransactionDataKeyToPayload,
+  validateMaxASCIILength,
+  validateTTLSeconds,
 } from '../../../utils';
 import {
   DEFAULT_MAX_UNDERNAMES,
   DEFAULT_TTL_SECONDS,
+  MAX_TTL_SECONDS,
+  MIN_TTL_SECONDS,
+  PDNS_TX_ID_ENTRY_REGEX,
+  SMARTWEAVE_MAX_INPUT_SIZE,
   STUB_ARWEAVE_TXID,
+  TTL_SECONDS_ENTRY_REGEX,
 } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
-import { mapKeyToAttribute } from '../../cards/PDNTCard/PDNTCard';
+import { AntDetailKey, mapKeyToAttribute } from '../../cards/PDNTCard/PDNTCard';
 import {
   ArrowLeft,
   CirclePending,
@@ -167,13 +174,91 @@ function ManagePDNTModal() {
     }
   }
 
+  function getValidationPredicates(
+    value: string | number | undefined,
+    row: ManagePDNTRow,
+  ): { [x: string]: { fn: (value: any) => Promise<any>; required?: boolean } } {
+    switch (row.attribute) {
+      case 'ttlSeconds':
+        return {
+          [VALIDATION_INPUT_TYPES.VALID_TTL]: {
+            fn: validateTTLSeconds,
+          },
+        };
+
+      case 'name':
+      case 'ticker':
+        return {
+          [VALIDATION_INPUT_TYPES.VALID_ANT_NAME]: {
+            fn: (name: any) =>
+              validateMaxASCIILength(name, SMARTWEAVE_MAX_INPUT_SIZE),
+          },
+        };
+      case 'targetID':
+      case 'controller': {
+        return {
+          [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
+            fn: (id: string) => arweaveDataProvider.validateArweaveId(id),
+          },
+        };
+      }
+      default:
+        return {};
+    }
+  }
+
+  function handleSave(row: ManagePDNTRow) {
+    // TODO: make this more clear, we should be updating only the value that matters and not overwriting anything
+    if (!row.isValid || !row.interactionType) {
+      return;
+    }
+    const payload =
+      row.interactionType === INTERACTION_TYPES.SET_TARGET_ID
+        ? mapTransactionDataKeyToPayload(row.interactionType, [
+            '@',
+            modifiedValue!.toString(),
+            pdntState!.records['@'].ttlSeconds,
+          ])
+        : row.interactionType === INTERACTION_TYPES.SET_TTL_SECONDS
+        ? mapTransactionDataKeyToPayload(row.interactionType, [
+            '@',
+            pdntState!.records['@'].transactionId.length
+              ? pdntState!.records['@'].transactionId
+              : STUB_ARWEAVE_TXID,
+            +modifiedValue!,
+          ])
+        : mapTransactionDataKeyToPayload(
+            row.interactionType,
+            modifiedValue!.toString(),
+          );
+
+    if (payload && row.interactionType && id) {
+      const transactionData = {
+        ...payload,
+        assetId: id,
+      };
+      dispatchTransactionState({
+        type: 'setInteractionType',
+        payload: row.interactionType,
+      });
+      dispatchTransactionState({
+        type: 'setTransactionData',
+        payload: transactionData,
+      });
+
+      navigate(`/transaction`, {
+        state: `/manage/ants/${id}`,
+      });
+    }
+  }
+
   return (
     <>
       <div className="page">
         <div className="flex-row flex-space-between">
           <span className="flex white text-large bold">
             <button
-              className="faded text-large bold underline link center"
+              className="grey text-large bold underline link center"
               onClick={() => navigate('/manage/ants')}
             >
               <ArrowLeft
@@ -272,7 +357,7 @@ function ManagePDNTModal() {
                   width: isMobile ? '0px' : '20%',
                   className: 'white',
                   render: (value: string) => {
-                    return `${mapKeyToAttribute(value)}:`;
+                    return `${mapKeyToAttribute(value as AntDetailKey)}:`;
                   },
                 },
                 {
@@ -298,19 +383,27 @@ function ManagePDNTModal() {
                           {/* TODO: add label for mobile view */}
 
                           <ValidationInput
+                            pattern={
+                              row.attribute === 'controller' ||
+                              row.attribute === 'targetID'
+                                ? PDNS_TX_ID_ENTRY_REGEX
+                                : row.attribute === 'ttlSeconds'
+                                ? TTL_SECONDS_ENTRY_REGEX
+                                : undefined
+                            }
+                            catchInvalidInput={true}
                             showValidationIcon={
                               row.attribute == editingField && !!modifiedValue
                             }
+                            onPressEnter={() => handleSave(row)}
                             showValidationOutline={true}
                             inputId={row.attribute + '-input'}
-                            inputType={
-                              row.attribute === 'ttlSeconds'
-                                ? 'number'
-                                : undefined
-                            }
-                            minNumber={100}
-                            maxNumber={1000000}
+                            minNumber={MIN_TTL_SECONDS}
+                            maxNumber={MAX_TTL_SECONDS}
                             onClick={() => {
+                              if (editingField === row.attribute) {
+                                return;
+                              }
                               setEditingField(row.attribute);
                               setModifiedValue(value);
                             }}
@@ -347,28 +440,36 @@ function ManagePDNTModal() {
                             }
                             setValue={(e) => {
                               if (row.attribute === editingField) {
-                                setModifiedValue(e);
+                                setModifiedValue(e ?? '');
                               }
                             }}
                             validityCallback={(valid: boolean) => {
                               row.isValid = valid;
                             }}
-                            validationPredicates={
-                              modifiedValue &&
-                              (row.attribute === 'owner' ||
-                                row.attribute === 'controller' ||
-                                row.attribute === 'targetID')
-                                ? {
-                                    [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
-                                      fn: (id: string) =>
-                                        arweaveDataProvider.validateArweaveId(
-                                          id,
-                                        ),
-                                    },
-                                  }
-                                : {}
-                            }
-                            maxLength={43}
+                            validationPredicates={getValidationPredicates(
+                              modifiedValue,
+                              row,
+                            )}
+                            maxLength={(length) => {
+                              if (
+                                row.attribute === 'name' ||
+                                row.attribute === 'ticker'
+                              ) {
+                                return (
+                                  length.length <= SMARTWEAVE_MAX_INPUT_SIZE
+                                );
+                              }
+                              if (row.attribute === 'ttlSeconds') {
+                                return length.length <= 7;
+                              }
+                              if (
+                                row.attribute === 'targetID' ||
+                                row.attribute === 'controller'
+                              ) {
+                                return length.length <= 43;
+                              }
+                              return false;
+                            }}
                           />
                         </>
                       );
@@ -409,57 +510,7 @@ function ManagePDNTModal() {
                                 backgroundColor: 'var(--accent)',
                                 borderColor: 'var(--accent)',
                               }}
-                              onClick={() => {
-                                // TODO: make this more clear, we should be updating only the value that matters and not overwriting anything
-                                const payload =
-                                  row.interactionType ===
-                                  INTERACTION_TYPES.SET_TARGET_ID
-                                    ? mapTransactionDataKeyToPayload(
-                                        row.interactionType,
-                                        [
-                                          '@',
-                                          modifiedValue!.toString(),
-                                          pdntState!.records['@'].ttlSeconds,
-                                        ],
-                                      )
-                                    : row.interactionType ===
-                                      INTERACTION_TYPES.SET_TTL_SECONDS
-                                    ? mapTransactionDataKeyToPayload(
-                                        row.interactionType,
-                                        [
-                                          '@',
-                                          pdntState!.records['@'].transactionId
-                                            .length
-                                            ? pdntState!.records['@']
-                                                .transactionId
-                                            : STUB_ARWEAVE_TXID,
-                                          modifiedValue!,
-                                        ],
-                                      )
-                                    : mapTransactionDataKeyToPayload(
-                                        row.interactionType,
-                                        modifiedValue!.toString(),
-                                      );
-
-                                if (payload && row.interactionType && id) {
-                                  const transactionData = {
-                                    ...payload,
-                                    assetId: id,
-                                  };
-                                  dispatchTransactionState({
-                                    type: 'setInteractionType',
-                                    payload: row.interactionType,
-                                  });
-                                  dispatchTransactionState({
-                                    type: 'setTransactionData',
-                                    payload: transactionData,
-                                  });
-
-                                  navigate(`/transaction`, {
-                                    state: `/manage/ants/${id}`,
-                                  });
-                                }
-                              }}
+                              onClick={() => handleSave(row)}
                             >
                               Save
                             </button>

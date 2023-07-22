@@ -1,7 +1,6 @@
-import { CheckCircleOutlined } from '@ant-design/icons';
 import { StepProps, Steps } from 'antd';
 
-import { AlertOctagonIcon } from '../../../icons';
+import { AlertOctagonIcon, CheckIcon } from '../../../icons';
 import './styles.css';
 
 function StepProgressBar({
@@ -15,7 +14,15 @@ function StepProgressBar({
     switch (status) {
       case 'finish':
         return (
-          <CheckCircleOutlined style={{ color: '#FFBB38', fontSize: 32 }} />
+          <span
+            className="stage-circle"
+            style={{
+              color: 'var(--text-black)',
+              border: '1px solid var(--accent)',
+            }}
+          >
+            <CheckIcon fill={'var(--accent)'} width={'16px'} height={'16px'} />
+          </span>
         );
       case 'error':
         return (
@@ -28,14 +35,29 @@ function StepProgressBar({
             style={{
               backgroundColor: 'var(--accent)',
               color: 'var(--text-black)',
-              border: 'none',
+              border: '1px solid var(--accent)',
+              alignItems: 'center',
+              fontFamily: 'Rubik-Bold',
+              position: 'relative',
             }}
           >
-            {index + 1}
+            <span style={{ position: 'absolute', top: '0px', bottom: '0px' }}>
+              {index + 1}
+            </span>
           </span>
         );
       case 'wait':
-        return <span className="stage-circle">{index + 1}</span>;
+        return (
+          <span
+            className="stage-circle"
+            style={{ fontFamily: 'Rubik-Bold', position: 'relative' }}
+          >
+            {' '}
+            <span style={{ position: 'absolute', top: '0px', bottom: '0px' }}>
+              {index + 1}
+            </span>
+          </span>
+        );
       default:
         return undefined;
     }

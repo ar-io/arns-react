@@ -101,7 +101,7 @@ function YearsCounter({
           </button>
           <div
             className="flex flex-column flex-center"
-            style={{ width: 'fit-content', gap: 20, paddingBottom: '10px' }}
+            style={{ width: 'fit-content', gap: 10, paddingBottom: '10px' }}
           >
             <span
               className="text-large white center"

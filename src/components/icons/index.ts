@@ -10,6 +10,7 @@ import { ReactComponent as BookmarkIcon } from './Bookmark.svg';
 import { ReactComponent as BorderOuterIcon } from './BorderOuter.svg';
 import { ReactComponent as BrandLogo } from './BrandLogo.svg';
 import { ReactComponent as CalendarTimeIcon } from './CalendarTime.svg';
+import { ReactComponent as CheckIcon } from './Check.svg';
 import { ReactComponent as CheckmarkIcon } from './Checkmark.svg';
 import { ReactComponent as ChevronDownIcon } from './ChevronDown.svg';
 import { ReactComponent as ChevronLeftIcon } from './ChevronLeft.svg';
@@ -59,6 +60,7 @@ export {
   BorderOuterIcon,
   BrandLogo,
   CalendarTimeIcon,
+  CheckIcon,
   CheckmarkIcon,
   ChevronDownIcon,
   ChevronLeftIcon,
