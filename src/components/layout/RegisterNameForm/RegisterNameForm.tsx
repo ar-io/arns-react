@@ -16,7 +16,6 @@ import {
   MAX_LEASE_DURATION,
   MIN_LEASE_DURATION,
 } from '../../../utils/constants';
-import { InfoIcon } from '../../icons';
 import YearsCounter from '../../inputs/Counter/Counter';
 import NameTokenSelector from '../../inputs/text/NameTokenSelector/NameTokenSelector';
 import Loader from '../Loader/Loader';

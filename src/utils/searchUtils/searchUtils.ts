@@ -94,11 +94,12 @@ export function calculatePermabuyFee(
   );
 
   const getMultiplier = () => {
-    if (domain.length > RESERVED_NAME_LENGTH) {
+    const name = encodeDomainToASCII(domain);
+    if (name.length > RESERVED_NAME_LENGTH) {
       return 1;
     }
-    if (domain.length <= RESERVED_NAME_LENGTH) {
-      const shortNameMultiplier = 1 + ((10 - domain.length) * 10) / 100;
+    if (name.length <= RESERVED_NAME_LENGTH) {
+      const shortNameMultiplier = 1 + ((10 - name.length) * 10) / 100;
       return shortNameMultiplier;
     }
     throw new Error('Unable to compute name multiplier.');
@@ -129,11 +130,12 @@ export function calculateAnnualRenewalFee(
   tier: Tier,
   years: number,
 ) {
+  const name = encodeDomainToASCII(domain);
   const tierAnnualFee = tier.fee;
   if (!tierAnnualFee) {
     throw new Error(`Could not find fee for ${tier}`);
   }
-  const initialNamePurchaseFee = fees[domain.length];
+  const initialNamePurchaseFee = fees[name.length];
   const nameAnnualRegistrationFee =
     initialNamePurchaseFee * ANNUAL_PERCENTAGE_FEE;
   const price = (nameAnnualRegistrationFee + tierAnnualFee) * years;
@@ -163,7 +165,8 @@ export function calculatePDNSNamePrice({
   auctionSettings?: { current: string; history: AuctionSettings[] };
   auction?: Auction;
 }) {
-  if (!domain || !isPDNSDomainNameValid({ name: domain })) {
+  const name = encodeDomainToASCII(domain);
+  if (!domain || !isPDNSDomainNameValid({ name })) {
     throw Error('Domain name is invalid');
   }
 
@@ -183,28 +186,16 @@ export function calculatePDNSNamePrice({
 
   const registrationFee =
     type === TRANSACTION_TYPES.LEASE
-      ? calculateTotalRegistrationFee(domain, fees, selectedTier, years)
-      : calculatePermabuyFee(domain, fees, selectedTier);
-  console.log({
-    registrationFee,
-    selectedTier,
-    type,
-    auction,
-  });
+      ? calculateTotalRegistrationFee(name, fees, selectedTier, years)
+      : calculatePermabuyFee(name, fees, selectedTier);
+
   if (
     isDomainAuctionable({
-      domain,
+      domain: name,
       registrationType: type,
       reservedList,
     })
   ) {
-    console.log(' domain is auctionable,', {
-      registrationFee,
-      selectedTier,
-      type,
-      auction,
-    });
-
     const currentAuctionSettings = auctionSettings?.history.find(
       (a) =>
         a.id ===

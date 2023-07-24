@@ -130,7 +130,7 @@ function SearchBar(props: SearchBarProps) {
     if (searchBarText) {
       if (searchSubmitted) {
         if (
-          pdnsSourceContract.reserved[searchBarText] ||
+          pdnsSourceContract.reserved[encodeDomainToASCII(searchBarText)] ||
           searchBarText.length <= RESERVED_NAME_LENGTH
         ) {
           return { border: '2px solid var(--text-grey)', marginBottom: 30 };
@@ -264,8 +264,10 @@ function SearchBar(props: SearchBarProps) {
       </div>
       {searchSubmitted &&
       isAvailable &&
-      !Object.keys(pdnsSourceContract.reserved).includes(searchBarText!) &&
-      !(searchBarText!.length <= RESERVED_NAME_LENGTH) ? (
+      !Object.keys(pdnsSourceContract.reserved).includes(
+        encodeDomainToASCII(searchBarText)!,
+      ) &&
+      !(encodeDomainToASCII(searchBarText)!.length <= RESERVED_NAME_LENGTH) ? (
         <button
           className="accent-button center"
           onClick={_onSubmitButton}

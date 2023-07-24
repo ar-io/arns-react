@@ -1,4 +1,5 @@
 import { SearchBarFooterProps } from '../../../types';
+import { encodeDomainToASCII } from '../../../utils';
 import { RESERVED_NAME_LENGTH } from '../../../utils/constants';
 import PDNTCard from '../../cards/PDNTCard/PDNTCard';
 import EmailNotificationCard from '../EmailNotificationCard/EmailNotificationCard';
@@ -11,8 +12,9 @@ function SearchBarFooter({
   reservedList,
 }: SearchBarFooterProps): JSX.Element {
   if (
-    (searchTerm && reservedList.includes(searchTerm)) ||
-    (searchTerm && searchTerm.length <= RESERVED_NAME_LENGTH)
+    (searchTerm && reservedList.includes(encodeDomainToASCII(searchTerm))) ||
+    (searchTerm &&
+      encodeDomainToASCII(searchTerm).length <= RESERVED_NAME_LENGTH)
   ) {
     return (
       <div className="flex flex-row" style={{ marginTop: '30px' }}>
