@@ -6,7 +6,7 @@ import { RegistrationAction } from '../reducers/RegistrationReducer';
 
 export type RegistrationState = {
   resolvedTxID?: ArweaveTransactionID;
-  domain?: string;
+  domain: string;
   leaseDuration: number;
   pdntContract?: PDNTContract;
   targetID?: ArweaveTransactionID;
@@ -25,7 +25,7 @@ export type RegistrationStateProviderProps = {
 
 export const initialRegistrationState: RegistrationState = {
   resolvedTxID: undefined,
-  domain: undefined,
+  domain: '',
   leaseDuration: 1,
   pdntContract: new PDNTContract(),
   fee: { ar: 0, io: 0 },

@@ -1,12 +1,19 @@
 import { CheckCircleFilled } from '@ant-design/icons';
 import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { useIsMobile, useWalletAddress } from '../../../../hooks';
+import useIsFocused from '../../../../hooks/useIsFocused/useIsFocused';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { SearchBarProps } from '../../../../types';
 import {
-  ALPHA_NUMERIC_REGEX,
+  encodeDomainToASCII,
+  validateMaxASCIILength,
+  validateMinASCIILength,
+  validateNoLeadingOrTrailingDashes,
+  validateNoSpecialCharacters,
+} from '../../../../utils';
+import {
   PDNS_NAME_REGEX_PARTIAL,
   RESERVED_NAME_LENGTH,
 } from '../../../../utils/constants';
@@ -37,26 +44,32 @@ function SearchBar(props: SearchBarProps) {
   const [isSearchValid, setIsSearchValid] = useState(true);
   const [isAvailable, setIsAvailable] = useState(false);
   const [searchSubmitted, setSearchSubmitted] = useState(false);
-  const [searchBarText, setSearchBarText] = useState<string | undefined>(value);
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [searchBarText, setSearchBarText] = useState<string>(value);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const inputRef = useRef<HTMLDivElement | null>(null);
+  const isSearchbarFocused = useIsFocused('searchbar-input-id');
 
   function reset() {
     setSearchSubmitted(false);
     setIsSearchValid(true);
-    setSearchBarText(undefined);
+    setSearchBarText('');
     return;
   }
   useEffect(() => {
     if (!searchBarText) {
       reset();
     }
-    _onFocus();
+    if (searchParams.get('search') !== searchBarText) {
+      // clear search params on new search
+      const serializeSearchParams: Record<string, string> = {};
+      setSearchParams(serializeSearchParams);
+    }
   }, [searchBarText]);
 
   useEffect(() => {
     if (value) {
       setSearchBarText(value);
-      _onFocus();
+
       _onSubmit();
       return;
     }
@@ -64,8 +77,8 @@ function SearchBar(props: SearchBarProps) {
 
   function _onChange(e: string) {
     setSearchSubmitted(false);
-    const input = e.trim().toLowerCase();
-    const searchValid = validationPredicate(input);
+    const input = e.trim();
+    const searchValid = validationPredicate(encodeDomainToASCII(input));
     setIsSearchValid(searchValid);
     setSearchBarText(input);
     onChange();
@@ -81,6 +94,7 @@ function SearchBar(props: SearchBarProps) {
   function _onSubmit(next = false) {
     onSubmit(next);
     // TODO: validation may also be async, so return a promise that resolves to a boolean
+
     const searchValid = validationPredicate(searchBarText);
     setIsSearchValid(searchValid);
     if (!searchValid) {
@@ -95,7 +109,10 @@ function SearchBar(props: SearchBarProps) {
       // on additional functions passed in
       onSuccess(searchBarText);
     } else if (!searchSuccess && searchBarText && values) {
-      onFailure(searchBarText, values[searchBarText].contractTxId);
+      onFailure(
+        searchBarText,
+        values[encodeDomainToASCII(searchBarText)].contractTxId,
+      );
     }
   }
 
@@ -113,14 +130,17 @@ function SearchBar(props: SearchBarProps) {
     if (searchBarText) {
       if (searchSubmitted) {
         if (isAvailable) {
-          return { borderColor: 'var(--success-green)' };
+          return { border: '2px solid var(--success-green)' };
         } else {
-          return { borderColor: 'var(--error-red)' };
+          return { border: '2px solid var(--error-red)' };
         }
       }
-      return { borderColor: 'white', marginBottom: 30 };
+      return { border: '2px solid white', marginBottom: 30 };
     } else {
-      return { borderColor: '', marginBottom: 30 };
+      if (isSearchbarFocused) {
+        return { border: 'var(--text-white) solid 2px', marginBottom: 30 };
+      }
+      return { border: '', marginBottom: 30 };
     }
   };
 
@@ -136,23 +156,35 @@ function SearchBar(props: SearchBarProps) {
         <></>
       )}
 
-      <div className="searchbar" style={handleSearchbarBorderStyle()}>
-        {/** TODO change max input to 32 once contract is updated */}
+      <div
+        className="searchbar"
+        style={{
+          ...handleSearchbarBorderStyle(),
+          width: '100%',
+          position: 'relative',
+        }}
+        ref={inputRef}
+      >
         <ValidationInput
+          inputClassName="searchbar-input"
+          inputId="searchbar-input-id"
+          pattern={PDNS_NAME_REGEX_PARTIAL}
+          // <input> tag considers emojis as 2 characters in length, so we need to encode the string to ASCII to get the correct length manually
+          maxLength={(v) => !(encodeDomainToASCII(v.trim()).length > 32)}
           inputType="search"
           onPressEnter={() => _onSubmit()}
           disabled={disabled}
           placeholder={placeholderText}
-          value={searchBarText}
-          setValue={(v) => _onChange(v)}
+          value={searchBarText?.trim()}
+          setValue={(v) => _onChange(v.trim())}
           onClick={() => _onFocus()}
-          maxLength={32}
           inputCustomStyle={{ height }}
           wrapperCustomStyle={{
             height,
             width: '100%',
           }}
           showValidationChecklist={!isMobile}
+          showValidationErrors={false}
           showValidationsDefault={true}
           validationListStyle={{
             display: 'flex',
@@ -164,34 +196,16 @@ function SearchBar(props: SearchBarProps) {
           }}
           validationPredicates={{
             'Min. 1 character': {
-              fn: (query: string) =>
-                new Promise((resolve, reject) =>
-                  !query || !query.length ? reject() : resolve(true),
-                ),
+              fn: (query) => validateMinASCIILength(query, 1),
             },
             'Max. 32 characters': {
-              fn: (query: string) =>
-                new Promise((resolve, reject) =>
-                  query.length && query.length <= 32 ? resolve(true) : reject(),
-                ),
+              fn: (query) => validateMaxASCIILength(query, 32),
             },
             'No special characters': {
-              fn: (query: string) =>
-                new Promise((resolve, reject) =>
-                  query.length && PDNS_NAME_REGEX_PARTIAL.test(query)
-                    ? resolve(true)
-                    : reject(),
-                ),
+              fn: (query) => validateNoSpecialCharacters(query),
             },
             'Dashes cannot be leading or trailing': {
-              fn: (query: string) =>
-                new Promise((resolve, reject) =>
-                  query.length &&
-                  ALPHA_NUMERIC_REGEX.test(query[0]) &&
-                  ALPHA_NUMERIC_REGEX.test(query[query.length - 1])
-                    ? resolve(true)
-                    : reject(),
-                ),
+              fn: (query) => validateNoLeadingOrTrailingDashes(query),
             },
           }}
           customValidationIcons={{
@@ -207,6 +221,23 @@ function SearchBar(props: SearchBarProps) {
             ),
           }}
         />
+        {searchBarText && searchSubmitted ? (
+          <button
+            className="link bold text flex-center"
+            style={{
+              color: 'var(--text-grey)',
+              width: 'fit-content',
+              position: 'absolute',
+              right: '75px',
+              height: '100%',
+            }}
+            onClick={() => reset()}
+          >
+            Clear
+          </button>
+        ) : (
+          <></>
+        )}
         {isMobile ? (
           <></>
         ) : (
@@ -233,7 +264,11 @@ function SearchBar(props: SearchBarProps) {
           className="accent-button center"
           onClick={_onSubmitButton}
           style={{
-            marginTop: 30,
+            marginTop: 40,
+            padding: '0px',
+            height: '50px',
+            width: '130px',
+            fontSize: '14px',
           }}
         >
           Register Now

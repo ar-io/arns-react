@@ -46,7 +46,7 @@ function Workflow({
   return (
     <div
       className="flex flex-column center"
-      style={isMobile ? {} : { gap: '20px', width: '100%' }}
+      style={isMobile ? {} : { gap: '10px', width: '100%' }}
     >
       {Object.entries(stages).map(([key, value], index) => {
         if (key === stage) {

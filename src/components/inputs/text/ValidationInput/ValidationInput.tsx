@@ -1,5 +1,5 @@
 import { Tooltip } from 'antd';
-import { useEffect, useRef, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 
 import { ValidationObject } from '../../../../types';
 import ValidationList from '../../../cards/ValidationList/ValidationList';
@@ -7,6 +7,8 @@ import { AlertTriangleIcon, CircleCheck, CircleXIcon } from '../../../icons';
 import { Loader } from '../../../layout';
 
 function ValidationInput({
+  pattern,
+  catchInvalidInput = false,
   wrapperClassName = '',
   wrapperCustomStyle,
   validationListStyle,
@@ -14,6 +16,7 @@ function ValidationInput({
   showValidationsDefault = false,
   showValidationOutline = false,
   showValidationIcon = false,
+  showValidationErrors = false,
   inputClassName = '',
   inputId = '',
   inputCustomStyle,
@@ -31,14 +34,17 @@ function ValidationInput({
   onPressEnter,
   customValidationIcons,
 }: {
+  pattern?: RegExp;
+  catchInvalidInput?: boolean;
   wrapperClassName?: string;
   wrapperCustomStyle?: any;
   showValidationChecklist?: boolean;
   showValidationsDefault?: boolean;
   showValidationOutline?: boolean;
+  showValidationErrors?: boolean;
   showValidationIcon?: boolean;
   placeholder?: string;
-  maxLength?: number;
+  maxLength?: number | ((length: string) => boolean);
   inputId?: string;
   inputClassName?: string;
   inputCustomStyle?: any;
@@ -49,7 +55,7 @@ function ValidationInput({
   validityCallback?: (validity: boolean) => void;
   validationPredicates: {
     [x: string]: {
-      fn: (value: string) => Promise<any>;
+      fn: (value: any) => Promise<any>;
       required?: boolean;
     };
   };
@@ -73,9 +79,45 @@ function ValidationInput({
     inputRef.current?.focus();
 
     validationExecutor(value?.toString() ?? '');
-  }, [disabled]);
+  }, [disabled, value]);
 
-  async function validationExecutor(newValue: string) {
+  async function validationExecutor(e: ChangeEvent<HTMLInputElement> | string) {
+    let newValue = '';
+
+    if (typeof e === 'object') {
+      e.preventDefault();
+      newValue = e.target.value;
+    } else if (typeof e === 'string') {
+      newValue = e;
+    }
+
+    if (!newValue.length) {
+      setValid(undefined);
+      setValidationResults([]);
+      setValue(newValue);
+      return;
+    }
+
+    // if maxLength is a callback function, we need to pass the value to it and check if it returns true
+    if (maxLength) {
+      switch (typeof maxLength) {
+        case 'number':
+          if (newValue.trim().length > maxLength) {
+            return;
+          }
+          break;
+        case 'function':
+          if (!maxLength(newValue.trim())) {
+            return;
+          }
+          break;
+      }
+    }
+    if (pattern && catchInvalidInput) {
+      if (!pattern.test(newValue)) {
+        return;
+      }
+    }
     setValidating(true);
     setValue(newValue);
 
@@ -90,7 +132,10 @@ function ValidationInput({
         return {
           name: Object.keys(validationPredicates)[index],
           status: result.status !== 'rejected',
-          error: result.status === 'rejected' ? result?.reason : undefined,
+          error:
+            result.status === 'rejected' && showValidationErrors
+              ? result?.reason
+              : undefined,
         };
       },
     );
@@ -124,6 +169,7 @@ function ValidationInput({
       >
         <div className="flex" style={{ width: '100%', position: 'relative' }}>
           <input
+            spellCheck={false}
             ref={inputRef}
             onKeyDown={(e) =>
               e.key === 'Enter' && onPressEnter ? onPressEnter() : null
@@ -134,10 +180,9 @@ function ValidationInput({
             min={inputType === 'number' ? minNumber : undefined}
             max={inputType === 'number' ? maxNumber : undefined}
             className={inputClassName}
-            maxLength={maxLength}
             placeholder={placeholder}
             value={value}
-            onChange={(e) => validationExecutor(e.target.value)}
+            onChange={(e) => validationExecutor(e)}
             disabled={disabled}
             style={
               showValidationOutline && valid !== undefined && value && !disabled
@@ -151,6 +196,7 @@ function ValidationInput({
                   }
                 : { ...inputCustomStyle }
             }
+            pattern={pattern?.source}
           />
           <div
             style={{

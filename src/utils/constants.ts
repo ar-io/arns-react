@@ -8,13 +8,15 @@ import {
 export const PDNS_NAME_REGEX = new RegExp(
   '^([a-zA-Z0-9][a-zA-Z0-9-]{0,30}[a-zA-Z0-9]|[a-zA-Z0-9]{1})$',
 );
-export const PDNS_NAME_REGEX_PARTIAL = new RegExp('^([a-zA-Z0-9-]{0,32})$');
+export const PDNS_NAME_REGEX_PARTIAL = new RegExp(`^[a-zA-Z0-9-]{0,32}$`);
 export const ALPHA_NUMERIC_REGEX = new RegExp('^[a-zA-Z0-9]$');
 export const PDNS_TX_ID_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{43}$');
 export const PDNS_TX_ID_ENTRY_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{1,43}$');
 export const EMAIL_REGEX = new RegExp(
   "([!#-'*+/-9=?A-Z^-~-]+(.[!#-'*+/-9=?A-Z^-~-]+)*|\"([]!#-[^-~ \t]|(\\[\t -~]))+\")@([!#-'*+/-9=?A-Z^-~-]+(.[!#-'*+/-9=?A-Z^-~-]+)*|[[\t -Z^-~]*])",
 );
+export const TTL_SECONDS_REGEX = new RegExp('^[0-9]{3,7}$');
+export const TTL_SECONDS_ENTRY_REGEX = new RegExp('^[0-9]{1,7}$');
 export const PDNS_REGISTRY_ADDRESS =
   'GfrHPxXyfuxNNdGvzHl_5HFX711jZsG3OE8qmG-UqlY';
 export const STUB_PDNT_ID = '6dUiTQKJCVD7c9icQhbbzfI-Le_hC4sXRDx1OQQ6jMI';
@@ -32,6 +34,8 @@ export const PDNT_CONTRACT_STATE_KEYS = [
   'records',
   'ticker',
 ];
+
+export const YEAR_IN_MILLISECONDS = 31536000000;
 
 // TODO: don't use
 export const DEFAULT_EXPIRATION = new Date('12/31/2023');
@@ -149,6 +153,7 @@ export const transactionByOwnerQuery = (address: ArweaveTransactionID) => {
 export const SMARTWEAVE_TAG_SIZE = 250; // required tag size in bytes
 
 export const SMARTWEAVE_MAX_TAG_SPACE = 2048 - SMARTWEAVE_TAG_SIZE; // minimum tag size of smartweave tags from warp is 239, rounded it for wiggle room
+export const SMARTWEAVE_MAX_INPUT_SIZE = 1700;
 
 export const DEFAULT_PDNT_CONTRACT_STATE: PDNTContractJSON = {
   balances: {},

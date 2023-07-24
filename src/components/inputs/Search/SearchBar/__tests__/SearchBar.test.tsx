@@ -19,6 +19,7 @@ describe('SearchBar', () => {
             onSuccess={stub}
             successPredicate={stub}
             validationPredicate={stub}
+            value=""
             values={{}}
             placeholderText={'Find a name'}
             headerElement={
