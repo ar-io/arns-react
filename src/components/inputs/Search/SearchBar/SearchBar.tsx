@@ -129,13 +129,16 @@ function SearchBar(props: SearchBarProps) {
   const handleSearchbarBorderStyle = () => {
     if (searchBarText) {
       if (searchSubmitted) {
-        if (pdnsSourceContract.reserved[searchBarText]) {
+        if (
+          pdnsSourceContract.reserved[searchBarText] ||
+          searchBarText.length <= RESERVED_NAME_LENGTH
+        ) {
           return { border: '2px solid var(--text-grey)', marginBottom: 30 };
         }
         if (isAvailable) {
           return { border: '2px solid var(--success-green)' };
         } else {
-          return { border: '2px solid var(--error-red)' };
+          return { border: '2px solid var(--error-red)', marginBottom: 30 };
         }
       }
       return { border: '2px solid white', marginBottom: 30 };
