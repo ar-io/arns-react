@@ -129,6 +129,9 @@ function SearchBar(props: SearchBarProps) {
   const handleSearchbarBorderStyle = () => {
     if (searchBarText) {
       if (searchSubmitted) {
+        if (pdnsSourceContract.reserved[searchBarText]) {
+          return { border: '2px solid var(--text-grey)', marginBottom: 30 };
+        }
         if (isAvailable) {
           return { border: '2px solid var(--success-green)' };
         } else {

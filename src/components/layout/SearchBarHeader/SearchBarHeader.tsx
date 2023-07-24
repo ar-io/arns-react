@@ -11,19 +11,6 @@ function SearchBarHeader({
   text,
   reservedList,
 }: SearchBarHeaderProps): JSX.Element {
-  // unavailable condition
-  if (text && !isAvailable) {
-    return (
-      <span
-        className="text-medium white center"
-        style={{ fontWeight: 500, fontSize: 23 }}
-      >
-        <span className="unavailable">{text}&nbsp;</span>
-        is already registered, try another name
-      </span>
-    );
-  }
-
   // reserved condition
   if (
     (text && reservedList.includes(text)) ||
@@ -36,6 +23,18 @@ function SearchBarHeader({
       >
         <span className="reserved">{text}&nbsp;</span>
         is currently reserved.
+      </span>
+    );
+  }
+  // unavailable condition
+  if (text && !isAvailable) {
+    return (
+      <span
+        className="text-medium white center"
+        style={{ fontWeight: 500, fontSize: 23 }}
+      >
+        <span className="unavailable">{text}&nbsp;</span>
+        is already registered. Try another name.
       </span>
     );
   }
