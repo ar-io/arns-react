@@ -258,6 +258,21 @@ function RegisterNameForm() {
               <></>
             )}
           </div>
+        </div>
+
+        <div className="flex flex-column" style={{ gap: '2em' }}>
+          <NameTokenSelector
+            selectedTokenCallback={(id) =>
+              id
+                ? handlePDNTId(id.toString())
+                : dispatchRegisterState({
+                    type: 'setPDNTID',
+                    payload: undefined,
+                  })
+            }
+          />
+
+          <TransactionCost fee={fee} />
           {domain &&
           pdnsSourceContract.settings.auctions &&
           isDomainAuctionable({
@@ -273,16 +288,12 @@ function RegisterNameForm() {
                 alignItems: 'flex-start',
                 boxSizing: 'border-box',
                 position: 'relative',
-                paddingLeft: '40px',
               }}
             >
-              <InfoIcon
-                width={'20px'}
-                height={'20px'}
-                fill="var(--accent)"
-                style={{ position: 'absolute', top: '20px', left: '12.5px' }}
-              />
-              <span className="flex flex-column" style={{ textAlign: 'left' }}>
+              <span
+                className="flex flex-column"
+                style={{ textAlign: 'left', fontSize: '13px' }}
+              >
                 Choosing to lease this reserved name will initiate a public
                 dutch auction. You will be submitting a bid at the floor price
                 of {fee.io.toLocaleString()} IO. Over a 2 week period, the price
@@ -303,21 +314,6 @@ function RegisterNameForm() {
           ) : (
             <></>
           )}
-        </div>
-
-        <div className="flex flex-column" style={{ gap: '2em' }}>
-          <NameTokenSelector
-            selectedTokenCallback={(id) =>
-              id
-                ? handlePDNTId(id.toString())
-                : dispatchRegisterState({
-                    type: 'setPDNTID',
-                    payload: undefined,
-                  })
-            }
-          />
-
-          <TransactionCost fee={fee} />
         </div>
       </div>
     </div>
