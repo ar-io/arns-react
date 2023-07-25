@@ -2,8 +2,7 @@ import { CheckCircleFilled } from '@ant-design/icons';
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-import { useArweaveCompositeProvider } from '../../../hooks';
-import useAuctionInfo from '../../../hooks/useAuctionInfo/useAuctionInfo';
+import { useArweaveCompositeProvider, useAuctionInfo } from '../../../hooks';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';

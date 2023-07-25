@@ -14,8 +14,7 @@ import { CSSProperties, useEffect, useRef, useState } from 'react';
 import { Chart } from 'react-chartjs-2';
 import { ChartJSOrUndefined } from 'react-chartjs-2/dist/types';
 
-import { useArweaveCompositeProvider } from '../../../hooks';
-import useAuctionInfo from '../../../hooks/useAuctionInfo/useAuctionInfo';
+import { useArweaveCompositeProvider, useAuctionInfo } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import eventEmitter from '../../../utils/events';
 import Loader from '../Loader/Loader';

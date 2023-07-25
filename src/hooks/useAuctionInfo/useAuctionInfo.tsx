@@ -20,7 +20,7 @@ import { useArweaveCompositeProvider } from '../useArweaveCompositeProvider/useA
  * @param leaseDuration
  */
 
-function useAuctionInfo(
+export function useAuctionInfo(
   domain: string,
   registrationType?: TRANSACTION_TYPES,
   leaseDuration?: number,
@@ -185,5 +185,3 @@ function useAuctionInfo(
     prices,
   };
 }
-
-export default useAuctionInfo;
