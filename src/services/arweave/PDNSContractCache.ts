@@ -50,7 +50,9 @@ export class PDNSContractCache implements SmartweaveContractCache {
     );
     const { contractTxIds } = await res.json();
     return {
-      contractTxIds: contractTxIds.map((id: string) => new ArweaveTransactionID(id)),
+      contractTxIds: contractTxIds.map(
+        (id: string) => new ArweaveTransactionID(id),
+      ),
     };
   }
 

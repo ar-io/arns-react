@@ -100,9 +100,8 @@ function NameTokenSelector({
       if (!address) {
         throw new Error('No address provided');
       }
-      const { contractTxIds: fetchedContractTxIds } = await arweaveDataProvider.getContractsForWallet(
-        address,
-      );
+      const { contractTxIds: fetchedContractTxIds } =
+        await arweaveDataProvider.getContractsForWallet(address);
       if (!fetchedContractTxIds.length) {
         throw new Error(
           'Unable to find any Name Tokens for the provided address',
@@ -134,7 +133,9 @@ function NameTokenSelector({
       > = await Promise.all(
         contractTxIds.map(async (contractTxId) => {
           const state =
-            await arweaveDataProvider.getContractState<PDNTContractJSON>(contractTxId);
+            await arweaveDataProvider.getContractState<PDNTContractJSON>(
+              contractTxId,
+            );
           if (!state) {
             return;
           }
