@@ -106,26 +106,18 @@ function AuctionChart({
 
   function triggerCurrentPriceTooltipWhenNotActive() {
     try {
-      if (!showCurrentPrice) {
-        return;
-      }
       const chart = chartRef.current;
-      if (!chart) {
-        throw new Error('Chart ref not found');
+      if (!showCurrentPrice || !chart) {
+        return;
       }
       const data = chart.getDatasetMeta(0).data as PointElement[];
       const point = data.find((point: PointElement) =>
         point.parsed.y === currentPrice ? point : undefined,
       );
-      if (!point) {
-        throw new Error('Current price point element not found');
-      }
-
       const tooltip = chart.tooltip;
-      if (!tooltip) {
-        throw new Error('Tooltip not found');
+      if (!point || !tooltip) {
+        return;
       }
-
       tooltip.setActiveElements(
         [
           {

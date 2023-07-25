@@ -2,9 +2,12 @@ import { CheckCircleFilled } from '@ant-design/icons';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { useIsMobile, useWalletAddress } from '../../../../hooks';
-import useAuctionInfo from '../../../../hooks/useAuctionInfo/useAuctionInfo';
-import useIsFocused from '../../../../hooks/useIsFocused/useIsFocused';
+import {
+  useAuctionInfo,
+  useIsFocused,
+  useIsMobile,
+  useWalletAddress,
+} from '../../../../hooks';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../../state/contexts/RegistrationState';
 import { SearchBarProps } from '../../../../types';
