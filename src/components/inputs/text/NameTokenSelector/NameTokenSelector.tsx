@@ -100,10 +100,10 @@ function NameTokenSelector({
       if (!address) {
         throw new Error('No address provided');
       }
-      const fetchedIds = await arweaveDataProvider.getContractsForWallet(
+      const { contractTxIds: fetchedContractTxIds } = await arweaveDataProvider.getContractsForWallet(
         address,
       );
-      if (!fetchedIds.ids.length) {
+      if (!fetchedContractTxIds.length) {
         throw new Error(
           'Unable to find any Name Tokens for the provided address',
         );
@@ -127,21 +127,21 @@ function NameTokenSelector({
           setValidImport(true);
         });
       }
-      const ids = fetchedIds.ids.concat(imports ?? []);
+      const contractTxIds = fetchedContractTxIds.concat(imports ?? []);
 
       const contracts: Array<
         [ArweaveTransactionID, PDNTContractJSON] | undefined
       > = await Promise.all(
-        ids.map(async (id) => {
+        contractTxIds.map(async (contractTxId) => {
           const state =
-            await arweaveDataProvider.getContractState<PDNTContractJSON>(id);
+            await arweaveDataProvider.getContractState<PDNTContractJSON>(contractTxId);
           if (!state) {
             return;
           }
           if (!new PDNTContract(state).isValid()) {
             return;
           }
-          return [id, state];
+          return [contractTxId, state];
         }),
       );
       if (!contracts.length) {

@@ -122,11 +122,11 @@ function Manage() {
   async function fetchWalletPDNTs(address: ArweaveTransactionID) {
     try {
       setTableLoading(true);
-      const { ids } = await arweaveDataProvider.getContractsForWallet(
+      const { contractTxIds } = await arweaveDataProvider.getContractsForWallet(
         address,
         'ant', // only fetches contracts that have a state that matches ant spec
       );
-      setPDNTIDs(ids);
+      setPDNTIDs(contractTxIds);
     } catch (error: any) {
       eventEmitter.emit('error', error);
       setTableLoading(false);
