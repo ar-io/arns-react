@@ -22,7 +22,9 @@ export class PDNSContractCache implements SmartweaveContractCache {
   async getContractState<T extends PDNTContractJSON | PDNSContractJSON>(
     contractTxId: ArweaveTransactionID,
   ): Promise<T> {
-    const res = await fetch(`${this._url}/contract/${contractTxId.toString()}`);
+    const res = await fetch(
+      `${this._url}/v1/contract/${contractTxId.toString()}`,
+    );
     const { state } = await res.json();
     return state as T;
   }
@@ -34,7 +36,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
     const res = await fetch(
       `${
         this._url
-      }/contract/${contractTxId.toString()}/balances/${wallet.toString()}`,
+      }/v1/contract/${contractTxId.toString()}/balances/${wallet.toString()}`,
     );
     const { balance } = await res.json();
     return +balance ?? 0;
@@ -43,14 +45,16 @@ export class PDNSContractCache implements SmartweaveContractCache {
   async getContractsForWallet(
     address: ArweaveTransactionID,
     type?: 'ant',
-  ): Promise<{ ids: ArweaveTransactionID[] }> {
+  ): Promise<{ contractTxIds: ArweaveTransactionID[] }> {
     const query = type ? `?type=${type}` : '';
     const res = await fetch(
-      `${this._url}/wallet/${address.toString()}/contracts${query}`,
+      `${this._url}/v1/wallet/${address.toString()}/contracts${query}`,
     );
-    const { contractIds } = await res.json();
+    const { contractTxIds } = await res.json();
     return {
-      ids: contractIds.map((id: string) => new ArweaveTransactionID(id)),
+      contractTxIds: contractTxIds.map(
+        (id: string) => new ArweaveTransactionID(id),
+      ),
     };
   }
 
@@ -58,7 +62,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
     contractTxId: ArweaveTransactionID,
   ): Promise<ContractInteraction[]> {
     const res = await fetch(
-      `${this._url}/contract/${contractTxId.toString()}/interactions`,
+      `${this._url}/v1/contract/${contractTxId.toString()}/interactions`,
     );
     const { interactions } = await res.json();
     return interactions;

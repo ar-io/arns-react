@@ -232,7 +232,7 @@ export class WarpDataProvider
   /* eslint-disable */
   async getContractsForWallet(
     address: ArweaveTransactionID,
-  ): Promise<{ ids: ArweaveTransactionID[] }> {
+  ): Promise<{ contractTxIds: ArweaveTransactionID[] }> {
     throw Error('Not implemented!');
   }
 
