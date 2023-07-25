@@ -17,7 +17,6 @@ import {
   MAX_LEASE_DURATION,
   MIN_LEASE_DURATION,
 } from '../../../utils/constants';
-import { InfoIcon } from '../../icons';
 import YearsCounter from '../../inputs/Counter/Counter';
 import NameTokenSelector from '../../inputs/text/NameTokenSelector/NameTokenSelector';
 import Loader from '../Loader/Loader';
@@ -112,7 +111,7 @@ function RegisterNameForm() {
 
   async function handlePDNTId(id: string) {
     try {
-      const txId = new ArweaveTransactionID(id);
+      const txId = new ArweaveTransactionID(id.toString());
       dispatchRegisterState({
         type: 'setPDNTID',
         payload: txId,
@@ -123,16 +122,13 @@ function RegisterNameForm() {
       if (state == undefined) {
         throw Error('ANT contract state is undefined');
       }
-      const pdnt = new PDNTContract(state);
+      const pdnt = new PDNTContract(state, txId);
 
       if (!pdnt.isValid()) {
         throw Error('ANT contract state does not match required schema.');
       }
     } catch (error: any) {
-      dispatchRegisterState({
-        type: 'setPDNTID',
-        payload: undefined,
-      });
+      console.error(error);
     }
   }
 
@@ -150,7 +146,7 @@ function RegisterNameForm() {
         padding: 0,
         margin: '50px',
         marginTop: 0,
-        gap: 60,
+        gap: 80,
         boxSizing: 'border-box',
       }}
     >
@@ -181,10 +177,11 @@ function RegisterNameForm() {
 
       <span
         className="text-medium white center"
-        style={{ fontWeight: 500, fontSize: 23 }}
+        style={{ fontWeight: 500, fontSize: 23, gap: '15px' }}
       >
-        <span style={{ color: 'var(--success-green)' }}>{domain}</span>
-        &nbsp;is available!&nbsp;
+        <span style={{ color: 'var(--success-green)' }}>
+          {domain} <span className={'white'}>is available!</span>
+        </span>{' '}
         <CheckCircleFilled
           style={{ fontSize: 20, color: 'var(--success-green)' }}
         />
@@ -221,7 +218,7 @@ function RegisterNameForm() {
                   registrationType === TRANSACTION_TYPES.LEASE
                     ? 'var(--text-black)'
                     : 'var(--text-white)',
-                border: 'solid 1px var(--text-white)',
+                border: 'solid 2px var(--text-faded)',
                 borderRadius: 'var(--corner-radius)',
                 height: '56px',
                 borderBottomWidth: '0.5px',
@@ -257,7 +254,7 @@ function RegisterNameForm() {
                   registrationType === TRANSACTION_TYPES.BUY
                     ? 'var(--text-black)'
                     : 'var(--text-white)',
-                border: 'solid 1px var(--text-white)',
+                border: 'solid 2px var(--text-faded)',
                 borderRadius: 'var(--corner-radius)',
                 height: '56px',
                 borderBottomWidth: '0.5px',
@@ -322,6 +319,21 @@ function RegisterNameForm() {
               <></>
             )}
           </div>
+        </div>
+
+        <div className="flex flex-column" style={{ gap: '2em' }}>
+          <NameTokenSelector
+            selectedTokenCallback={(id) =>
+              id
+                ? handlePDNTId(id.toString())
+                : dispatchRegisterState({
+                    type: 'setPDNTID',
+                    payload: undefined,
+                  })
+            }
+          />
+
+          <TransactionCost fee={fee} />
           {domain &&
           pdnsSourceContract.settings.auctions &&
           !isLiveAuction &&
@@ -338,16 +350,12 @@ function RegisterNameForm() {
                 alignItems: 'flex-start',
                 boxSizing: 'border-box',
                 position: 'relative',
-                paddingLeft: '40px',
               }}
             >
-              <InfoIcon
-                width={'20px'}
-                height={'20px'}
-                fill="var(--accent)"
-                style={{ position: 'absolute', top: '20px', left: '12.5px' }}
-              />
-              <span className="flex flex-column" style={{ textAlign: 'left' }}>
+              <span
+                className="flex flex-column"
+                style={{ textAlign: 'left', fontSize: '13px' }}
+              >
                 Choosing to {registrationType} this reserved name will initiate
                 a public dutch auction. You will be submitting a bid at the
                 floor price of {fee.io.toLocaleString()} IO. Over a 2 week
@@ -369,21 +377,6 @@ function RegisterNameForm() {
           ) : (
             <></>
           )}
-        </div>
-
-        <div className="flex flex-column" style={{ gap: '2em' }}>
-          <NameTokenSelector
-            selectedTokenCallback={(id) =>
-              id
-                ? handlePDNTId(id.toString())
-                : dispatchRegisterState({
-                    type: 'setPDNTID',
-                    payload: undefined,
-                  })
-            }
-          />
-
-          <TransactionCost fee={fee} />
         </div>
       </div>
     </div>

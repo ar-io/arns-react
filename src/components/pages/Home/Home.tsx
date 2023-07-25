@@ -1,3 +1,4 @@
+import emojiRegex from 'emoji-regex';
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -19,6 +20,8 @@ import {
   RESERVED_NAME_LENGTH,
 } from '../../../utils/constants';
 import {
+  decodeDomainToASCII,
+  encodeDomainToASCII,
   isPDNSDomainNameAvailable,
   isPDNSDomainNameValid,
 } from '../../../utils/searchUtils/searchUtils';
@@ -51,7 +54,7 @@ function Home() {
   useEffect(() => {
     if (domain) {
       const serializeSearchParams: Record<string, string> = {
-        search: domain,
+        search: decodeDomainToASCII(domain),
       };
       setSearchParams(serializeSearchParams);
       return;
@@ -71,16 +74,17 @@ function Home() {
 
   useEffect(() => {
     if (Object.keys(pdnsSourceContract.records).length) {
-      const featuredDomains = Object.fromEntries(
+      const newFeaturedDomains = Object.fromEntries(
         FEATURED_DOMAINS.map((domain: string) =>
           pdnsSourceContract.records[domain]?.contractTxId
             ? [domain, pdnsSourceContract.records[domain].contractTxId]
             : [],
         ).filter((n) => n.length),
       );
-      setFeaturedDomains(featuredDomains);
+
+      setFeaturedDomains(newFeaturedDomains);
     }
-  }, [pdnsSourceContract.records]);
+  }, [pdnsSourceContract]);
 
   return (
     <div className="page">
@@ -116,7 +120,10 @@ function Home() {
             onNext={() => {
               if (stage == 1 && domain) {
                 const buyRecordPayload: BuyRecordPayload = {
-                  name: domain,
+                  name:
+                    domain && emojiRegex().test(domain)
+                      ? encodeDomainToASCII(domain)
+                      : domain,
                   contractTxId: pdntID ? pdntID.toString() : ATOMIC_FLAG,
                   tier: pdnsSourceContract.tiers.current[0],
                   years: leaseDuration,
@@ -173,7 +180,7 @@ function Home() {
                 component: (
                   <SearchBar
                     values={pdnsSourceContract.records}
-                    value={domain}
+                    value={domain ? decodeDomainToASCII(domain) : domain}
                     onSubmit={(next = false) => {
                       dispatchRegisterState({
                         type: 'setIsSearching',
@@ -204,7 +211,7 @@ function Home() {
                     onFailure={(name: string, result?: string) => {
                       dispatchRegisterState({
                         type: 'setDomainName',
-                        payload: name,
+                        payload: encodeDomainToASCII(name),
                       });
                       dispatchRegisterState({
                         type: 'setPDNTID',
@@ -215,7 +222,7 @@ function Home() {
                     }}
                     successPredicate={(value: string | undefined) =>
                       isPDNSDomainNameAvailable({
-                        name: value,
+                        name: value ? encodeDomainToASCII(value) : value,
                         records: pdnsSourceContract?.records ?? {},
                       })
                     }
@@ -245,9 +252,14 @@ function Home() {
                         }
                         searchTerm={domain}
                         searchResult={
-                          domain && pdnsSourceContract.records[domain]
+                          domain &&
+                          pdnsSourceContract.records[
+                            encodeDomainToASCII(domain)
+                          ]
                             ? new ArweaveTransactionID(
-                                pdnsSourceContract.records[domain].contractTxId,
+                                pdnsSourceContract.records[
+                                  encodeDomainToASCII(domain)
+                                ].contractTxId,
                               )
                             : undefined
                         }
@@ -267,7 +279,8 @@ function Home() {
                 showBack: true,
                 disableNext: !walletAddress,
                 requiresWallet: true,
-                customNextStyle: { width: 130 },
+                customNextStyle: { width: 110, padding: '15px' },
+                customBackStyle: { width: 110, padding: '15px' },
               },
             }}
           />

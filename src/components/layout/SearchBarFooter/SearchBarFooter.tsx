@@ -1,5 +1,6 @@
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { AuctionSettings, SearchBarFooterProps } from '../../../types';
+import { encodeDomainToASCII } from '../../../utils';
 import { RESERVED_NAME_LENGTH } from '../../../utils/constants';
 import PDNTCard from '../../cards/PDNTCard/PDNTCard';
 import AuctionChart from '../AuctionChart/AuctionChart';
@@ -22,8 +23,9 @@ function SearchBarFooter({
   }
 
   if (
-    (searchTerm && reservedList.includes(searchTerm)) ||
-    (searchTerm && searchTerm.length <= RESERVED_NAME_LENGTH)
+    (searchTerm && reservedList.includes(encodeDomainToASCII(searchTerm))) ||
+    (searchTerm &&
+      encodeDomainToASCII(searchTerm).length <= RESERVED_NAME_LENGTH)
   ) {
     return (
       <div className="flex flex-row" style={{ marginTop: '30px' }}>
@@ -32,7 +34,7 @@ function SearchBarFooter({
     );
   }
   return (
-    <div className="flex flex-column" style={{ marginTop: 60 }}>
+    <div className="flex flex-column" style={{ marginTop: 30 }}>
       {!isAvailable && searchResult && searchTerm ? (
         <>
           <span className="flex flex-row white text-medium flex-left">
@@ -40,7 +42,7 @@ function SearchBarFooter({
           </span>
           <PDNTCard
             domain={searchTerm}
-            id={searchResult}
+            contractTxId={searchResult}
             compact={true}
             enableActions={true}
           />

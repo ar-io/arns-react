@@ -27,13 +27,13 @@ function WorkflowButtons({
     <>
       <div
         className="flex-row flex-right"
-        style={{ padding: '0', boxSizing: 'border-box' }}
+        style={{ padding: '0', boxSizing: 'border-box', gap: '20px' }}
       >
         {showBack ? (
           <button
             className="outline-button center"
             style={{
-              borderColor: 'var(--text-grey)',
+              borderColor: 'var(--text-faded)',
               color: 'var(--text-grey)',
               ...customBackStyle,
             }}

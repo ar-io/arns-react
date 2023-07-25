@@ -27,12 +27,12 @@ function EmailNotificationCard() {
 
         <div
           className="flex flex-row flex-center"
-          style={{ gap: '1em', position: 'relative' }}
+          style={{ gap: '10px', position: 'relative' }}
         >
           <EnvelopeIcon
             width={'24px'}
             height={'24px'}
-            fill={email ? 'var(--text-white)' : 'var(--text-faded)'}
+            fill={email ? 'var(--text-white)' : 'var(--text-grey)'}
             style={{ position: 'absolute', left: '15px', top: '10px' }}
           />
           <ValidationInput
@@ -88,7 +88,7 @@ function EmailNotificationCard() {
 
           <button
             className="accent-button center"
-            style={{ height: '45px' }}
+            style={{ height: '45px', width: '100px', fontSize: '12px' }}
             onClick={() => alert('coming soon')}
           >
             Send

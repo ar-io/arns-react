@@ -2,6 +2,7 @@ import { ArrowDownOutlined, CheckCircleFilled } from '@ant-design/icons';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { SearchBarHeaderProps } from '../../../types';
+import { encodeDomainToASCII } from '../../../utils';
 import { RESERVED_NAME_LENGTH } from '../../../utils/constants';
 import './styles.css';
 
@@ -26,22 +27,9 @@ function SearchBarHeader({
     );
   }
 
-  // unavailable condition
-  if (text && !isAvailable) {
-    return (
-      <span
-        className="text-medium white center"
-        style={{ fontWeight: 500, fontSize: 23 }}
-      >
-        <span className="unavailable">{text}&nbsp;</span>
-        is already registered, try another name
-      </span>
-    );
-  }
-
   // reserved condition
   if (
-    (text && reservedList.includes(text)) ||
+    (text && reservedList.includes(encodeDomainToASCII(text))) ||
     (text && text.length <= RESERVED_NAME_LENGTH)
   ) {
     return (
@@ -51,6 +39,18 @@ function SearchBarHeader({
       >
         <span className="reserved">{text}&nbsp;</span>
         is currently reserved.
+      </span>
+    );
+  }
+  // unavailable condition
+  if (text && !isAvailable) {
+    return (
+      <span
+        className="text-medium white center"
+        style={{ fontWeight: 500, fontSize: 23 }}
+      >
+        <span className="unavailable">{text}&nbsp;</span>
+        is already registered. Try another name.
       </span>
     );
   }

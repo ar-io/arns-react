@@ -1,5 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react';
 
+import { AntDetailKey } from './components/cards/PDNTCard/PDNTCard';
 import { PDNS_TX_ID_REGEX } from './utils/constants';
 
 export type PDNSRecordEntry = {
@@ -113,14 +114,15 @@ export type PDNTContractFields = keyof PDNTContractJSON;
 
 export type PDNSMapping = {
   domain: string;
-  id?: ArweaveTransactionID;
+  contractTxId?: ArweaveTransactionID | string;
   state?: PDNTContractJSON;
-  overrides?: any; // TODO;
-  disabledKeys?: string[]; // TODO;
+  overrides?: any;
+  disabledKeys?: string[];
+  primaryKeys?: AntDetailKey[];
   compact?: boolean;
   enableActions?: boolean;
   hover?: boolean;
-  showTier?: boolean;
+  deployedTransactionId?: ArweaveTransactionID | string;
 };
 
 export type PDNSMetaData = {
@@ -258,7 +260,7 @@ export type SearchBarProps = {
   headerElement?: JSX.Element;
   footerElement?: JSX.Element;
   values?: { [x: string]: PDNSRecordEntry };
-  value?: string;
+  value: string;
   height?: number;
 };
 
@@ -607,7 +609,8 @@ export type ManagePDNTRow = {
   value: string | number;
   editable: boolean;
   key: number;
-  interactionType?: ValidInteractionType;
+  interactionType?: ExcludedValidInteractionType;
+  isValid?: boolean;
 };
 
 export type PDNTDetails = {
@@ -641,6 +644,8 @@ export enum VALIDATION_INPUT_TYPES {
   TRANSACTION_CONFIRMATIONS = `Has sufficient confirmations (50+).`,
   VALID_TTL = `Minimum ttl allowed is 900 and Maximum ttl allowed is 2,592,000.`,
   EMAIL = `Is a valid email`,
+  SMARTWEAVE_CONTRACT = `Is a SmartWeave Contract`,
+  VALID_ANT_NAME = `ANT name or ticker must be equal or less than 1798 characters.`,
 }
 
 export type ValidationObject = {

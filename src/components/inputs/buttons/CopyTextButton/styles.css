@@ -1,0 +1,4 @@
+.copy-tooltip > .ant-tooltip-content > .ant-tooltip-inner {
+  max-height: 20px !important;
+  min-height: 5px !important;
+}
