@@ -2,7 +2,7 @@ import emojiRegex from 'emoji-regex';
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { useAuctionInfo, useWalletAddress } from '../../../hooks';
+import { useWalletAddress } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
@@ -40,11 +40,6 @@ function Home() {
     { domain, pdntID, stage, isSearching, registrationType, leaseDuration },
     dispatchRegisterState,
   ] = useRegistrationState();
-  const { isLiveAuction, auction } = useAuctionInfo(
-    domain!,
-    registrationType,
-    leaseDuration,
-  );
 
   const [featuredDomains, setFeaturedDomains] = useState<{
     [x: string]: string;
@@ -241,14 +236,16 @@ function Home() {
                     }
                     footerElement={
                       <SearchBarFooter
-                        isAuction={Object.keys(
-                          pdnsSourceContract?.auctions!,
-                        )?.includes(domain!)}
-                        reservedList={
-                          pdnsSourceContract.reserved
-                            ? Object.keys(pdnsSourceContract.reserved)
-                            : []
+                        isAuction={
+                          pdnsSourceContract?.auctions && domain
+                            ? Object.keys(pdnsSourceContract.auctions).includes(
+                                domain,
+                              )
+                            : false
                         }
+                        reservedList={Object.keys(
+                          pdnsSourceContract?.reserved ?? {},
+                        )}
                         searchTerm={domain}
                         searchResult={
                           domain &&

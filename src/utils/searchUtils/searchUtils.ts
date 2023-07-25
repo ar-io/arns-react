@@ -19,7 +19,6 @@ import {
   RESERVED_NAME_LENGTH,
   YEAR_IN_MILLISECONDS,
 } from '../constants';
-import { isDomainAuctionable } from '../transactionUtils/transactionUtils';
 
 export function generateAuction({
   domain,

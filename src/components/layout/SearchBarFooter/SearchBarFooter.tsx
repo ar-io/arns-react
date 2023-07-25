@@ -1,5 +1,4 @@
-import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { AuctionSettings, SearchBarFooterProps } from '../../../types';
+import { SearchBarFooterProps } from '../../../types';
 import { encodeDomainToASCII } from '../../../utils';
 import { RESERVED_NAME_LENGTH } from '../../../utils/constants';
 import PDNTCard from '../../cards/PDNTCard/PDNTCard';
