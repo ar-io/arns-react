@@ -1,5 +1,3 @@
-import { useEffect } from 'react';
-
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import {
@@ -17,24 +15,24 @@ import { Tooltip } from '../Tooltip/Tooltip';
 import './styles.css';
 
 function UpgradeTier() {
-  const [{ pdnsSourceContract }] = useGlobalState();
-  const [{ fee, leaseDuration, domain }] = useRegistrationState();
+  const [] = useGlobalState();
+  const [{ fee }] = useRegistrationState();
   //TODO update this in 'upgrade tier' workflow ticket ~ currently no longer used, but was used in original registration workflow
-  useEffect(() => {
-    // const fees = pdnsSourceContract.fees;
-    // if (domain) {
-    //   const newFee = calculatePDNSNamePrice({
-    //     domain,
-    //     tier: ,
-    //     years: leaseDuration,
-    //     fees,
-    //   });
-    //   dispatchRegisterState({
-    //     type: 'setFee',
-    //     payload: { ar: fee.ar, io: newFee },
-    //   });
-    // }
-  }, [leaseDuration, domain, pdnsSourceContract]);
+  //useEffect(() => {
+  // const fees = pdnsSourceContract.fees;
+  // if (domain) {
+  //   const newFee = calculatePDNSNamePrice({
+  //     domain,
+  //     tier: ,
+  //     years: leaseDuration,
+  //     fees,
+  //   });
+  //   dispatchRegisterState({
+  //     type: 'setFee',
+  //     payload: { ar: fee.ar, io: newFee },
+  //   });
+  // }
+  //}, [leaseDuration, domain, pdnsSourceContract]);
 
   return (
     <div className="upgrade-tier">
