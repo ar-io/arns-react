@@ -84,17 +84,17 @@ function RegisterNameForm() {
         maxWidth: '900px',
         minWidth: '750px',
         width: '100%',
-        padding: 0,
+        padding: '0px',
         margin: '50px',
-        marginTop: 0,
-        gap: 80,
+        marginTop: '0px',
+        gap: '80px',
         boxSizing: 'border-box',
       }}
     >
       <div
         className="flex flex-row flex-center"
         style={{
-          paddingBottom: 40,
+          paddingBottom: ' 40px',
           borderBottom: 'solid 1px var(--text-faded)',
         }}
       >
@@ -118,13 +118,13 @@ function RegisterNameForm() {
 
       <span
         className="text-medium white center"
-        style={{ fontWeight: 500, fontSize: 23, gap: '15px' }}
+        style={{ fontWeight: '500px', fontSize: '23px', gap: '15px' }}
       >
         <span style={{ color: 'var(--success-green)' }}>
           {domain} <span className={'white'}>is available!</span>
         </span>{' '}
         <CheckCircleFilled
-          style={{ fontSize: 20, color: 'var(--success-green)' }}
+          style={{ fontSize: '20px', color: 'var(--success-green)' }}
         />
       </span>
       <div className="flex flex-column flex-center">
@@ -169,11 +169,11 @@ function RegisterNameForm() {
                 <div
                   style={{
                     position: 'absolute',
-                    bottom: -6,
+                    bottom: '-6px',
                     left: '50%',
                     transform: 'rotate(45deg)',
-                    width: 11,
-                    height: 11,
+                    width: '11px',
+                    height: '11px',
                     background: 'var(--text-white)',
                   }}
                 ></div>
@@ -213,8 +213,8 @@ function RegisterNameForm() {
                     bottom: -6,
                     left: '50%',
                     transform: 'rotate(45deg)',
-                    width: 11,
-                    height: 11,
+                    width: '11px',
+                    height: '11px',
                     background: 'var(--text-white)',
                   }}
                 ></div>
@@ -228,7 +228,7 @@ function RegisterNameForm() {
             className="flex flex-column flex-center card"
             style={{
               width: '100%',
-              minHeight: 0,
+              minHeight: '0px',
               height: 'fit-content',
               maxWidth: 'unset',
               padding: '35px',
