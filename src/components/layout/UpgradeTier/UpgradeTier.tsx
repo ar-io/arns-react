@@ -1,4 +1,3 @@
-import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import {
   MAX_LEASE_DURATION,
@@ -15,7 +14,6 @@ import { Tooltip } from '../Tooltip/Tooltip';
 import './styles.css';
 
 function UpgradeTier() {
-  const [] = useGlobalState();
   const [{ fee }] = useRegistrationState();
   //TODO update this in 'upgrade tier' workflow ticket ~ currently no longer used, but was used in original registration workflow
   //useEffect(() => {
