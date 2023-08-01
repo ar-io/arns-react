@@ -30,7 +30,7 @@ jobs:
         env:
           # FOR BUILD
           NODE_OPTIONS: --max-old-space-size=32768
-          VITE_NODE_ENV: develop
+          VITE_NODE_ENV: firebase
           VITE_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           VITE_SENTRY_RELEASE: ${{ github.sha }}
           VITE_SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
