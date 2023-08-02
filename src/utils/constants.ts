@@ -198,4 +198,5 @@ export const ATOMIC_REGISTRATION_INPUT = {
   function: 'buyRecord',
   name: '',
   contractTxId: ATOMIC_FLAG,
+  qty: 0,
 };
