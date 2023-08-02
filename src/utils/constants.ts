@@ -12,10 +12,13 @@ export const PDNS_NAME_REGEX_PARTIAL = new RegExp(`^[a-zA-Z0-9-]{0,32}$`);
 export const ALPHA_NUMERIC_REGEX = new RegExp('^[a-zA-Z0-9]$');
 export const PDNS_TX_ID_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{43}$');
 export const PDNS_TX_ID_ENTRY_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{1,43}$');
+export const EMAIL_REGEX = new RegExp(
+  "([!#-'*+/-9=?A-Z^-~-]+(.[!#-'*+/-9=?A-Z^-~-]+)*|\"([]!#-[^-~ \t]|(\\[\t -~]))+\")@([!#-'*+/-9=?A-Z^-~-]+(.[!#-'*+/-9=?A-Z^-~-]+)*|[[\t -Z^-~]*])", // eslint-disable-line
+);
 export const TTL_SECONDS_REGEX = new RegExp('^[0-9]{3,7}$');
 export const TTL_SECONDS_ENTRY_REGEX = new RegExp('^[0-9]{1,7}$');
 export const PDNS_REGISTRY_ADDRESS =
-  'ARjD2EwmED2L6e05Bb1HCjcddIPeUQwb9Oe1638niuA';
+  'E-pRI1bokGWQBqHnbut9rsHSt9Ypbldos3bAtwg4JMc';
 export const STUB_PDNT_ID = '6dUiTQKJCVD7c9icQhbbzfI-Le_hC4sXRDx1OQQ6jMI';
 export const STUB_ARWEAVE_TXID = '2yHmORN-N12hM1B2f9-JPMpOfa59qhpsExFCzImrD30'; // pdns spec pdf
 export const DEFAULT_PDNT_SOURCE_CODE_TX =
