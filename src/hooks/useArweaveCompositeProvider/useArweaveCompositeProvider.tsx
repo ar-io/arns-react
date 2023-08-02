@@ -24,10 +24,7 @@ const defaultContractCache = [
 ];
 
 export function useArweaveCompositeProvider(): ArweaveCompositeDataProvider {
-  const [
-    { gateway, blockHieght, pdnsSourceContract, walletAddress },
-    dispatchGlobalState,
-  ] = useGlobalState();
+  const [{ gateway, blockHieght }, dispatchGlobalState] = useGlobalState();
   const [arweaveDataProvider, setArweaveDataProvider] =
     useState<ArweaveCompositeDataProvider>(
       new ArweaveCompositeDataProvider(
@@ -72,7 +69,7 @@ export function useArweaveCompositeProvider(): ArweaveCompositeDataProvider {
     return () => {
       clearInterval(blockInterval);
     };
-  }, [pdnsSourceContract, walletAddress]);
+  }, []);
 
   async function dispatchNewArweave(gateway: string): Promise<void> {
     try {
