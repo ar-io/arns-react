@@ -103,17 +103,19 @@ function AuctionChart({
 
   useEffect(() => {
     triggerCurrentPriceTooltipWhenNotActive();
-  }, [chartRef.current, showCurrentPrice, prices]);
+  }, [chartRef.current, showCurrentPrice, prices, currentPrice]);
 
   function triggerCurrentPriceTooltipWhenNotActive() {
     try {
       const chart = chartRef.current;
-      if (!showCurrentPrice || !chart) {
+      if (!showCurrentPrice || !chart || !prices) {
         return;
       }
       const data = chart.getDatasetMeta(0).data as PointElement[];
       const point = data.find((point: PointElement) =>
-        point.parsed.y === currentPrice ? point : undefined,
+        point.parsed.y === prices?.[prices?.indexOf(currentPrice) + 1]
+          ? point
+          : undefined,
       );
       const tooltip = chart.tooltip;
       if (!point || !tooltip) {
@@ -271,7 +273,7 @@ function AuctionChart({
                 caretPadding: 15,
                 padding: 14,
                 callbacks: {
-                  title: (data) => {
+                  title: (data: any) => {
                     const block = +data[0].label;
                     const blockDiff =
                       block > currentBlockHeight
@@ -290,7 +292,7 @@ function AuctionChart({
                     }).format(time);
                     return formattedDate ?? '';
                   },
-                  footer: (data) =>
+                  footer: (data: any) =>
                     `${Math.round(data[0].parsed.y).toLocaleString()} IO` ?? '',
                   label: () => '',
                 },
@@ -299,8 +301,8 @@ function AuctionChart({
                 annotations: {
                   point1: {
                     type: 'point',
-                    xValue: prices.indexOf(currentPrice),
-                    yValue: currentPrice,
+                    xValue: prices.indexOf(currentPrice) + 1,
+                    yValue: prices[prices.indexOf(currentPrice) + 1],
                     backgroundColor: 'white',
                     radius: 7,
                     display: showCurrentPrice,
