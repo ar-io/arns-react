@@ -88,7 +88,6 @@ function TransactionComplete({
             }
           />
         </div>
-        {/* TODO: configure error or fail states */}
         <PDNTCard
           {...pdntProps}
           overrides={{

@@ -37,7 +37,7 @@ function StepProgressBar({
               color: 'var(--text-black)',
               border: '1px solid var(--accent)',
               alignItems: 'center',
-              fontFamily: 'Rubik-Bold',
+              fontWeight: 500,
               position: 'relative',
             }}
           >

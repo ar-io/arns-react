@@ -373,7 +373,7 @@ function NameTokenSelector({
             isArweaveTransactionID(searchText) &&
             !Object.keys(tokens ?? []).includes(searchText) ? (
             <button
-              className="button flex flex-row center faded bold hover"
+              className="button flex flex-row center faded bold hover pointer"
               style={{
                 gap: '1em',
                 border: '2px solid var(--text-faded)',
