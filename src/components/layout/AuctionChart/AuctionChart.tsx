@@ -218,9 +218,9 @@ function AuctionChart({
             clip: false,
             layout: {
               padding: {
-                top: '40px',
-                bottom: '20px',
-                right: '10px',
+                top: 40,
+                bottom: 20,
+                right: 10,
               },
             },
             interaction: {
@@ -255,11 +255,11 @@ function AuctionChart({
               tooltip: {
                 backgroundColor: '#38393B',
                 titleFont: {
-                  size: '12px',
+                  size: 12,
                   weight: '400',
                 },
                 footerFont: {
-                  size: '12px', // footer font size in px
+                  size: 12, // footer font size in px
                   style: 'normal', // footer font style
                   weight: '700', // footer font weight
                 },
@@ -270,8 +270,8 @@ function AuctionChart({
                 mode: 'nearest',
                 xAlign: 'center',
                 yAlign: 'bottom',
-                caretPadding: '15px',
-                padding: '14px',
+                caretPadding: 15,
+                padding: 14,
                 callbacks: {
                   title: (data: any) => {
                     const block = +data[0].label;
@@ -304,7 +304,7 @@ function AuctionChart({
                     xValue: prices.indexOf(currentPrice) + 1,
                     yValue: prices[prices.indexOf(currentPrice) + 1],
                     backgroundColor: 'white',
-                    radius: '7px',
+                    radius: 7,
                     display: showCurrentPrice,
                   },
                 },
