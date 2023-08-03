@@ -189,7 +189,7 @@ function AuctionChart({
       id={id}
       className="flex flex-column flex-center pointer"
       style={{
-        gap: 15,
+        gap: '15px',
         width: 'fit-content',
         boxSizing: 'border-box',
       }}
@@ -218,9 +218,9 @@ function AuctionChart({
             clip: false,
             layout: {
               padding: {
-                top: 40,
-                bottom: 20,
-                right: 10,
+                top: '40px',
+                bottom: '20px',
+                right: '10px',
               },
             },
             interaction: {
@@ -255,11 +255,11 @@ function AuctionChart({
               tooltip: {
                 backgroundColor: '#38393B',
                 titleFont: {
-                  size: 12,
+                  size: '12px',
                   weight: '400',
                 },
                 footerFont: {
-                  size: 12, // footer font size in px
+                  size: '12px', // footer font size in px
                   style: 'normal', // footer font style
                   weight: '700', // footer font weight
                 },
@@ -270,8 +270,8 @@ function AuctionChart({
                 mode: 'nearest',
                 xAlign: 'center',
                 yAlign: 'bottom',
-                caretPadding: 15,
-                padding: 14,
+                caretPadding: '15px',
+                padding: '14px',
                 callbacks: {
                   title: (data: any) => {
                     const block = +data[0].label;
@@ -304,7 +304,7 @@ function AuctionChart({
                     xValue: prices.indexOf(currentPrice) + 1,
                     yValue: prices[prices.indexOf(currentPrice) + 1],
                     backgroundColor: 'white',
-                    radius: 7,
+                    radius: '7px',
                     display: showCurrentPrice,
                   },
                 },
@@ -342,13 +342,13 @@ function AuctionChart({
       </div>
       <span
         className={`flex flex-row flex-space-between white`}
-        style={{ gap: 0, boxSizing: 'border-box' }}
+        style={{ gap: '0px', boxSizing: 'border-box' }}
       >
         <span>Premium</span>
         {showUpdateCountdown ? (
           <span
             className="grey flex flex-row flex-center"
-            style={{ gap: 0, height: 'fit-content' }}
+            style={{ gap: '0px', height: 'fit-content' }}
           >
             Next price update:&nbsp;
             <Countdown
@@ -356,7 +356,7 @@ function AuctionChart({
               valueStyle={{
                 fontSize: '15px',
                 color: 'var(--text-grey)',
-                paddingBottom: 2,
+                paddingBottom: '2px',
               }}
               format="H:mm:ss"
             />

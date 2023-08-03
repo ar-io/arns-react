@@ -18,7 +18,7 @@ function SearchBarHeader({
     return (
       <span
         className="text-medium white center"
-        style={{ fontWeight: 500, fontSize: 23 }}
+        style={{ fontWeight: 500, fontSize: '23px' }}
       >
         <span className="in-auction">{text}&nbsp;</span>
         is currently in auction.
@@ -34,7 +34,7 @@ function SearchBarHeader({
     return (
       <span
         className="text-medium white center"
-        style={{ fontWeight: 500, fontSize: 23 }}
+        style={{ fontWeight: 500, fontSize: '23px' }}
       >
         <span className="reserved">{text}&nbsp;</span>
         is currently reserved.
@@ -46,7 +46,7 @@ function SearchBarHeader({
     return (
       <span
         className="text-medium white center"
-        style={{ fontWeight: 500, fontSize: 23 }}
+        style={{ fontWeight: 500, fontSize: '23px' }}
       >
         <span className="unavailable">{text}&nbsp;</span>
         is already registered. Try another name.
@@ -59,12 +59,12 @@ function SearchBarHeader({
     return (
       <span
         className="text-medium white center"
-        style={{ fontWeight: 500, fontSize: 23 }}
+        style={{ fontWeight: 500, fontSize: '23px' }}
       >
         <span style={{ color: 'var(--success-green)' }}>{text}</span>&nbsp;is
         available!&nbsp;
         <CheckCircleFilled
-          style={{ fontSize: 20, color: 'var(--success-green)' }}
+          style={{ fontSize: '20px', color: 'var(--success-green)' }}
         />
       </span>
     );
