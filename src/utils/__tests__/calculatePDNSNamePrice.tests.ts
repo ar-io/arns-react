@@ -15,7 +15,6 @@ describe('calculatePDNSNamePrice', () => {
         tiers: [],
         fees,
         type: TRANSACTION_TYPES.LEASE,
-        reservedList: [],
         currentBlockHeight: 1,
       });
     }).toThrow();
@@ -30,7 +29,6 @@ describe('calculatePDNSNamePrice', () => {
         tiers: [],
         fees,
         type: TRANSACTION_TYPES.LEASE,
-        reservedList: [],
         currentBlockHeight: 1,
       });
     }).toThrow();
@@ -45,7 +43,6 @@ describe('calculatePDNSNamePrice', () => {
         tiers: [],
         fees,
         type: TRANSACTION_TYPES.LEASE,
-        reservedList: [],
         currentBlockHeight: 1,
       });
     }).toThrow();
@@ -60,13 +57,12 @@ describe('calculatePDNSNamePrice', () => {
         tiers: [],
         fees,
         type: TRANSACTION_TYPES.LEASE,
-        reservedList: [],
         currentBlockHeight: 1,
       });
     }).toThrow();
   });
 
-  // pricing is still somewhat in flux, can fix this late
+  // pricing is still somewhat in flux, can fix this later
   // TODO add this test with proper pricing
 
   //   test('should return the proper price based on years, tier and feeds', () => {

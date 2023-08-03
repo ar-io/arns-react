@@ -1,5 +1,6 @@
 import { ArrowDownOutlined, CheckCircleFilled } from '@ant-design/icons';
 
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { SearchBarHeaderProps } from '../../../types';
 import { encodeDomainToASCII, isDomainReservedLength } from '../../../utils';
 import './styles.css';
@@ -10,6 +11,21 @@ function SearchBarHeader({
   text,
   reservedList,
 }: SearchBarHeaderProps): JSX.Element {
+  const [{ pdnsSourceContract }] = useGlobalState();
+
+  // unavailable condition
+  if (text && pdnsSourceContract?.auctions?.[text]) {
+    return (
+      <span
+        className="text-medium white center"
+        style={{ fontWeight: 500, fontSize: '23px' }}
+      >
+        <span className="in-auction">{text}&nbsp;</span>
+        is currently in auction.
+      </span>
+    );
+  }
+
   // reserved condition
   if (
     (text && reservedList.includes(encodeDomainToASCII(text))) ||
@@ -18,7 +34,7 @@ function SearchBarHeader({
     return (
       <span
         className="text-medium white center"
-        style={{ fontWeight: 500, fontSize: 23 }}
+        style={{ fontWeight: 500, fontSize: '23px' }}
       >
         <span className="reserved">{text}&nbsp;</span>
         is currently reserved.
@@ -30,7 +46,7 @@ function SearchBarHeader({
     return (
       <span
         className="text-medium white center"
-        style={{ fontWeight: 500, fontSize: 23 }}
+        style={{ fontWeight: 500, fontSize: '23px' }}
       >
         <span className="unavailable">{text}&nbsp;</span>
         is already registered. Try another name.
@@ -43,12 +59,12 @@ function SearchBarHeader({
     return (
       <span
         className="text-medium white center"
-        style={{ fontWeight: 500, fontSize: 23 }}
+        style={{ fontWeight: 500, fontSize: '23px' }}
       >
         <span style={{ color: 'var(--success-green)' }}>{text}</span>&nbsp;is
         available!&nbsp;
         <CheckCircleFilled
-          style={{ fontSize: 20, color: 'var(--success-green)' }}
+          style={{ fontSize: '20px', color: 'var(--success-green)' }}
         />
       </span>
     );

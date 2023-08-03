@@ -2,9 +2,14 @@ import { CheckCircleFilled } from '@ant-design/icons';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { useIsMobile, useWalletAddress } from '../../../../hooks';
-import useIsFocused from '../../../../hooks/useIsFocused/useIsFocused';
+import {
+  useAuctionInfo,
+  useIsFocused,
+  useIsMobile,
+  useWalletAddress,
+} from '../../../../hooks';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
+import { useRegistrationState } from '../../../../state/contexts/RegistrationState';
 import { SearchBarProps } from '../../../../types';
 import {
   encodeDomainToASCII,
@@ -37,12 +42,14 @@ function SearchBar(props: SearchBarProps) {
   } = props;
   const navigate = useNavigate();
   const [{ pdnsSourceContract }] = useGlobalState();
+  const [, dispatchRegisterState] = useRegistrationState();
   const { walletAddress } = useWalletAddress();
   const isMobile = useIsMobile();
   const [isSearchValid, setIsSearchValid] = useState(true);
   const [isAvailable, setIsAvailable] = useState(false);
   const [searchSubmitted, setSearchSubmitted] = useState(false);
   const [searchBarText, setSearchBarText] = useState<string>(value);
+  const { minimumAuctionBid, auction } = useAuctionInfo(value!);
   const [searchParams, setSearchParams] = useSearchParams();
   const inputRef = useRef<HTMLDivElement | null>(null);
   const isSearchbarFocused = useIsFocused('searchbar-input-id');
@@ -106,6 +113,12 @@ function SearchBar(props: SearchBarProps) {
     if (searchSuccess && searchBarText && values) {
       // on additional functions passed in
       onSuccess(searchBarText);
+      if (auction?.type) {
+        dispatchRegisterState({
+          type: 'setRegistrationType',
+          payload: auction.type,
+        });
+      }
     } else if (!searchSuccess && searchBarText && values) {
       onFailure(
         searchBarText,
@@ -125,26 +138,49 @@ function SearchBar(props: SearchBarProps) {
   }
 
   const handleSearchbarBorderStyle = () => {
-    if (searchBarText) {
-      if (searchSubmitted) {
-        if (
-          pdnsSourceContract.reserved[encodeDomainToASCII(searchBarText)] ||
-          isDomainReservedLength(searchBarText)
-        ) {
-          return { border: '2px solid var(--text-grey)', marginBottom: 30 };
-        }
-        if (isAvailable) {
-          return { border: '2px solid var(--success-green)' };
+    const noTextBorderStyle = { border: '', marginBottom: 30 };
+    const whiteBorderStyle = {
+      border: 'var(--text-white) solid 2px',
+      marginBottom: 30,
+    };
+    const greyBorderStyle = {
+      border: '2px solid var(--text-grey)',
+      marginBottom: 30,
+    };
+    const greenBorderStyle = { border: '2px solid var(--success-green)' };
+    const redBorderStyle = {
+      border: '2px solid var(--error-red)',
+      marginBottom: 30,
+    };
+
+    // Named variables for the cases
+    const isTextSubmitted = searchBarText && searchSubmitted;
+    const isTextNotSubmitted = searchBarText && !searchSubmitted;
+    const isSearchbarEmptyFocused = !searchBarText && isSearchbarFocused;
+    const isTextPresentNotSubmitted = searchBarText && !searchSubmitted;
+
+    switch (true) {
+      case isTextSubmitted: {
+        const asciiDomain = encodeDomainToASCII(searchBarText);
+        const isReserved = pdnsSourceContract.reserved[asciiDomain];
+        if (isReserved || isDomainReservedLength(searchBarText)) {
+          return greyBorderStyle;
         } else {
-          return { border: '2px solid var(--error-red)', marginBottom: 30 };
+          return isAvailable ? greenBorderStyle : redBorderStyle;
         }
       }
-      return { border: '2px solid white', marginBottom: 30 };
-    } else {
-      if (isSearchbarFocused) {
-        return { border: 'var(--text-white) solid 2px', marginBottom: 30 };
-      }
-      return { border: '', marginBottom: 30 };
+
+      case isTextNotSubmitted:
+        return whiteBorderStyle;
+
+      case isSearchbarEmptyFocused:
+        return whiteBorderStyle;
+
+      case isTextPresentNotSubmitted:
+        return whiteBorderStyle;
+
+      default:
+        return noTextBorderStyle;
     }
   };
 
@@ -266,19 +302,60 @@ function SearchBar(props: SearchBarProps) {
         encodeDomainToASCII(searchBarText)!,
       ) &&
       !isDomainReservedLength(searchBarText) ? (
-        <button
-          className="accent-button center"
-          onClick={_onSubmitButton}
+        <div
+          className={`flex flex-row ${
+            minimumAuctionBid ? 'flex-space-between' : 'flex-center'
+          }`}
           style={{
-            marginTop: 40,
-            padding: '0px',
-            height: '50px',
-            width: '130px',
-            fontSize: '14px',
+            alignItems: 'center',
+            marginTop: '90px',
+            boxSizing: 'border-box',
           }}
         >
-          Register Now
-        </button>
+          {minimumAuctionBid ? (
+            <div
+              className="flex flex-column"
+              style={{
+                gap: '8px',
+                justifyContent: 'center',
+                width: 'fit-content',
+              }}
+            >
+              <span
+                className="white left"
+                style={{ fontSize: '16px', width: 'fit-content' }}
+              >
+                Current auction price for instant buy:{' '}
+                {(minimumAuctionBid
+                  ? Math.round(minimumAuctionBid)
+                  : 0
+                ).toLocaleString('en-US')}{' '}
+                IO
+              </span>
+              <span
+                className="grey left"
+                style={{ fontSize: '13px', width: 'fit-content' }}
+              >
+                Started by:{' '}
+                {pdnsSourceContract?.auctions?.[searchBarText!]?.initiator}
+              </span>
+            </div>
+          ) : (
+            <></>
+          )}
+          <button
+            className="accent-button center"
+            onClick={_onSubmitButton}
+            style={{
+              padding: '0px',
+              height: '50px',
+              width: '130px',
+              fontSize: '14px',
+            }}
+          >
+            Register Now
+          </button>
+        </div>
       ) : (
         <></>
       )}

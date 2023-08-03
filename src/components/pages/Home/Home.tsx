@@ -236,11 +236,16 @@ function Home() {
                     }
                     footerElement={
                       <SearchBarFooter
-                        reservedList={
-                          pdnsSourceContract.reserved
-                            ? Object.keys(pdnsSourceContract.reserved)
-                            : []
+                        isAuction={
+                          pdnsSourceContract?.auctions && domain
+                            ? Object.keys(pdnsSourceContract.auctions).includes(
+                                domain,
+                              )
+                            : false
                         }
+                        reservedList={Object.keys(
+                          pdnsSourceContract?.reserved ?? {},
+                        )}
                         searchTerm={domain}
                         searchResult={
                           domain &&
