@@ -80,9 +80,9 @@ function EmailNotificationCard() {
               boxShadow: 'none',
             }}
             validationListStyle={{
-              color: 'transparent', // do not show validation description, is shown as custom "icon" instead
               position: 'absolute',
               bottom: '-20px',
+              fontSize: '0px',
             }}
           />
 
