@@ -16,7 +16,6 @@ import {
   ATOMIC_FLAG,
   FEATURED_DOMAINS,
   PDNS_REGISTRY_ADDRESS,
-  RESERVED_NAME_LENGTH,
 } from '../../../utils/constants';
 import {
   decodeDomainToASCII,

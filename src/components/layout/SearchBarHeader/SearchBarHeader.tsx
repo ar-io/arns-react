@@ -2,7 +2,6 @@ import { ArrowDownOutlined, CheckCircleFilled } from '@ant-design/icons';
 
 import { SearchBarHeaderProps } from '../../../types';
 import { encodeDomainToASCII, isDomainReservedLength } from '../../../utils';
-import { RESERVED_NAME_LENGTH } from '../../../utils/constants';
 import './styles.css';
 
 function SearchBarHeader({

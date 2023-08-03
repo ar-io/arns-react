@@ -1,6 +1,5 @@
 import { SearchBarFooterProps } from '../../../types';
 import { encodeDomainToASCII, isDomainReservedLength } from '../../../utils';
-import { RESERVED_NAME_LENGTH } from '../../../utils/constants';
 import PDNTCard from '../../cards/PDNTCard/PDNTCard';
 import EmailNotificationCard from '../EmailNotificationCard/EmailNotificationCard';
 import './styles.css';

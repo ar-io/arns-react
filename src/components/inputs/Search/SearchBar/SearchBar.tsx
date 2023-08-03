@@ -14,10 +14,7 @@ import {
   validateNoLeadingOrTrailingDashes,
   validateNoSpecialCharacters,
 } from '../../../../utils';
-import {
-  PDNS_NAME_REGEX_PARTIAL,
-  RESERVED_NAME_LENGTH,
-} from '../../../../utils/constants';
+import { PDNS_NAME_REGEX_PARTIAL } from '../../../../utils/constants';
 import { SearchIcon } from '../../../icons';
 import ValidationInput from '../../text/ValidationInput/ValidationInput';
 import './styles.css';
