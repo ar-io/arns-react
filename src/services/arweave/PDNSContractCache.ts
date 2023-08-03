@@ -8,6 +8,7 @@ import {
   SmartweaveContractCache,
   TransactionCache,
 } from '../../types';
+import { isDomainReservedLength } from '../../utils';
 import { LocalStorageCache } from '../cache/LocalStorageCache';
 
 export class PDNSContractCache implements SmartweaveContractCache {
@@ -95,5 +96,35 @@ export class PDNSContractCache implements SmartweaveContractCache {
     return pendingInteractions.filter(
       (i) => i.contractTxId === contractTxId.toString(),
     );
+  }
+  // TODO: implement arns service query for the following 3 functions
+  isDomainReserved({
+    domain,
+    reservedList,
+  }: {
+    domain: string;
+    reservedList: string[];
+  }): boolean {
+    return reservedList.includes(domain) || isDomainReservedLength(domain);
+  }
+
+  isDomainInAuction({
+    domain,
+    auctionsList,
+  }: {
+    domain: string;
+    auctionsList: string[];
+  }): boolean {
+    return auctionsList.includes(domain);
+  }
+
+  isDomainAvailable({
+    domain,
+    domainsList,
+  }: {
+    domain: string;
+    domainsList: string[];
+  }): boolean {
+    return !domainsList.includes(domain);
   }
 }

@@ -9,7 +9,6 @@ import {
   TRANSACTION_TYPES,
   TransactionTag,
 } from '../../types';
-import { isDomainReservedLength } from '../../utils';
 
 export class ArweaveCompositeDataProvider
   implements
@@ -204,7 +203,9 @@ export class ArweaveCompositeDataProvider
     domain: string;
     reservedList: string[];
   }): boolean {
-    return reservedList.includes(domain) || isDomainReservedLength(domain);
+    return this._contractProviders.some((p) =>
+      p.isDomainReserved({ domain, reservedList }),
+    );
   }
 
   isDomainInAuction({
@@ -214,7 +215,9 @@ export class ArweaveCompositeDataProvider
     domain: string;
     auctionsList: string[];
   }): boolean {
-    return auctionsList.includes(domain);
+    return this._contractProviders.some((p) =>
+      p.isDomainInAuction({ domain, auctionsList }),
+    );
   }
 
   isDomainAvailable({
@@ -224,6 +227,8 @@ export class ArweaveCompositeDataProvider
     domain: string;
     domainsList: string[];
   }): boolean {
-    return !domainsList.includes(domain);
+    return this._contractProviders.some((p) =>
+      p.isDomainAvailable({ domain, domainsList }),
+    );
   }
 }
