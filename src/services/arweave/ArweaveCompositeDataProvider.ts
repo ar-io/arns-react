@@ -9,6 +9,7 @@ import {
   TRANSACTION_TYPES,
   TransactionTag,
 } from '../../types';
+import { isDomainReservedLength } from '../../utils';
 
 export class ArweaveCompositeDataProvider
   implements
@@ -203,7 +204,7 @@ export class ArweaveCompositeDataProvider
     domain: string;
     reservedList: string[];
   }): boolean {
-    return reservedList.includes(domain);
+    return reservedList.includes(domain) || isDomainReservedLength(domain);
   }
 
   isDomainInAuction({
