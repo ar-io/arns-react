@@ -21,6 +21,7 @@ import {
 import {
   decodeDomainToASCII,
   encodeDomainToASCII,
+  isDomainReservedLength,
   isPDNSDomainNameAvailable,
   isPDNSDomainNameValid,
 } from '../../../utils/searchUtils/searchUtils';
@@ -279,7 +280,7 @@ function Home() {
           !pdntID &&
           stage < 1 &&
           !Object.keys(pdnsSourceContract.reserved).includes(domain!) &&
-          !(domain && domain.length <= RESERVED_NAME_LENGTH) ? (
+          !(domain && isDomainReservedLength(domain)) ? (
             <FeaturedDomains domains={featuredDomains} />
           ) : (
             <></>

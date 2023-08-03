@@ -98,7 +98,7 @@ export function calculatePermabuyFee(
     if (name.length > RESERVED_NAME_LENGTH) {
       return 1;
     }
-    if (name.length <= RESERVED_NAME_LENGTH) {
+    if (isDomainReservedLength(name)) {
       const shortNameMultiplier = 1 + ((10 - name.length) * 10) / 100;
       return shortNameMultiplier;
     }
@@ -345,4 +345,11 @@ export function getLeaseDurationFromEndTimestamp(start: number, end: number) {
   const years = Math.max(1, differenceInYears);
 
   return years;
+}
+
+export function isDomainReservedLength(domain: string): boolean {
+  if (encodeDomainToASCII(domain).length <= RESERVED_NAME_LENGTH) {
+    return true;
+  }
+  return false;
 }

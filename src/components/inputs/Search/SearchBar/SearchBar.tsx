@@ -8,6 +8,7 @@ import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { SearchBarProps } from '../../../../types';
 import {
   encodeDomainToASCII,
+  isDomainReservedLength,
   validateMaxASCIILength,
   validateMinASCIILength,
   validateNoLeadingOrTrailingDashes,
@@ -131,7 +132,7 @@ function SearchBar(props: SearchBarProps) {
       if (searchSubmitted) {
         if (
           pdnsSourceContract.reserved[encodeDomainToASCII(searchBarText)] ||
-          searchBarText.length <= RESERVED_NAME_LENGTH
+          isDomainReservedLength(searchBarText)
         ) {
           return { border: '2px solid var(--text-grey)', marginBottom: 30 };
         }
@@ -267,7 +268,7 @@ function SearchBar(props: SearchBarProps) {
       !Object.keys(pdnsSourceContract.reserved).includes(
         encodeDomainToASCII(searchBarText)!,
       ) &&
-      !(encodeDomainToASCII(searchBarText)!.length <= RESERVED_NAME_LENGTH) ? (
+      !isDomainReservedLength(searchBarText) ? (
         <button
           className="accent-button center"
           onClick={_onSubmitButton}
