@@ -13,15 +13,13 @@ import { useRegistrationState } from '../../../../state/contexts/RegistrationSta
 import { SearchBarProps } from '../../../../types';
 import {
   encodeDomainToASCII,
+  isDomainReservedLength,
   validateMaxASCIILength,
   validateMinASCIILength,
   validateNoLeadingOrTrailingDashes,
   validateNoSpecialCharacters,
 } from '../../../../utils';
-import {
-  PDNS_NAME_REGEX_PARTIAL,
-  RESERVED_NAME_LENGTH,
-} from '../../../../utils/constants';
+import { PDNS_NAME_REGEX_PARTIAL } from '../../../../utils/constants';
 import { SearchIcon } from '../../../icons';
 import ValidationInput from '../../text/ValidationInput/ValidationInput';
 import './styles.css';
@@ -144,7 +142,7 @@ function SearchBar(props: SearchBarProps) {
       if (searchSubmitted) {
         if (
           pdnsSourceContract.reserved[encodeDomainToASCII(searchBarText)] ||
-          searchBarText.length <= RESERVED_NAME_LENGTH
+          isDomainReservedLength(searchBarText)
         ) {
           return { border: '2px solid var(--text-grey)', marginBottom: 30 };
         }
@@ -283,7 +281,7 @@ function SearchBar(props: SearchBarProps) {
       !Object.keys(pdnsSourceContract.reserved).includes(
         encodeDomainToASCII(searchBarText)!,
       ) &&
-      !(encodeDomainToASCII(searchBarText)!.length <= RESERVED_NAME_LENGTH) ? (
+      !isDomainReservedLength(searchBarText) ? (
         <div
           className={`flex flex-row ${
             minimumAuctionBid ? 'flex-space-between' : 'flex-center'

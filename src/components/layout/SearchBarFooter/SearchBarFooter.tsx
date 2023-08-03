@@ -1,6 +1,5 @@
 import { SearchBarFooterProps } from '../../../types';
-import { encodeDomainToASCII } from '../../../utils';
-import { RESERVED_NAME_LENGTH } from '../../../utils/constants';
+import { encodeDomainToASCII, isDomainReservedLength } from '../../../utils';
 import PDNTCard from '../../cards/PDNTCard/PDNTCard';
 import AuctionChart from '../AuctionChart/AuctionChart';
 import EmailNotificationCard from '../EmailNotificationCard/EmailNotificationCard';
@@ -23,8 +22,7 @@ function SearchBarFooter({
 
   if (
     (searchTerm && reservedList.includes(encodeDomainToASCII(searchTerm))) ||
-    (searchTerm &&
-      encodeDomainToASCII(searchTerm).length <= RESERVED_NAME_LENGTH)
+    (searchTerm && isDomainReservedLength(searchTerm))
   ) {
     return (
       <div className="flex flex-row" style={{ marginTop: '30px' }}>

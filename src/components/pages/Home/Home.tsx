@@ -16,11 +16,11 @@ import {
   ATOMIC_FLAG,
   FEATURED_DOMAINS,
   PDNS_REGISTRY_ADDRESS,
-  RESERVED_NAME_LENGTH,
 } from '../../../utils/constants';
 import {
   decodeDomainToASCII,
   encodeDomainToASCII,
+  isDomainReservedLength,
   isPDNSDomainNameAvailable,
   isPDNSDomainNameValid,
 } from '../../../utils/searchUtils/searchUtils';
@@ -284,8 +284,7 @@ function Home() {
           !pdntID &&
           stage < 1 &&
           !Object.keys(pdnsSourceContract.reserved).includes(domain!) &&
-          !(domain && domain.length <= RESERVED_NAME_LENGTH) &&
-          !(domain && pdnsSourceContract.auctions?.[domain]) ? (
+          !(domain && isDomainReservedLength(domain)) ? (
             <FeaturedDomains domains={featuredDomains} />
           ) : (
             <></>

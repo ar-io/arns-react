@@ -2,8 +2,7 @@ import { ArrowDownOutlined, CheckCircleFilled } from '@ant-design/icons';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { SearchBarHeaderProps } from '../../../types';
-import { encodeDomainToASCII } from '../../../utils';
-import { RESERVED_NAME_LENGTH } from '../../../utils/constants';
+import { encodeDomainToASCII, isDomainReservedLength } from '../../../utils';
 import './styles.css';
 
 function SearchBarHeader({
@@ -30,7 +29,7 @@ function SearchBarHeader({
   // reserved condition
   if (
     (text && reservedList.includes(encodeDomainToASCII(text))) ||
-    (text && text.length <= RESERVED_NAME_LENGTH)
+    (text && isDomainReservedLength(text))
   ) {
     return (
       <span
