@@ -195,4 +195,34 @@ export class ArweaveCompositeDataProvider
       ),
     );
   }
+  // TODO: implement arns service query for the following 3 functions
+  isDomainReserved({
+    domain,
+    reservedList,
+  }: {
+    domain: string;
+    reservedList: string[];
+  }): boolean {
+    return reservedList.includes(domain);
+  }
+
+  isDomainInAuction({
+    domain,
+    auctionsList,
+  }: {
+    domain: string;
+    auctionsList: string[];
+  }): boolean {
+    return auctionsList.includes(domain);
+  }
+
+  isDomainAvailable({
+    domain,
+    domainsList,
+  }: {
+    domain: string;
+    domainsList: string[];
+  }): boolean {
+    return !domainsList.includes(domain);
+  }
 }

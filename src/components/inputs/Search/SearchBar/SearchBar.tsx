@@ -3,11 +3,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import {
+  useArweaveCompositeProvider,
   useAuctionInfo,
   useIsFocused,
   useIsMobile,
   useWalletAddress,
 } from '../../../../hooks';
+import useRegistrationStatus from '../../../../hooks/useRegistrationStatus/useRegistrationStatus';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../../state/contexts/RegistrationState';
 import { SearchBarProps } from '../../../../types';
@@ -46,13 +48,15 @@ function SearchBar(props: SearchBarProps) {
   const { walletAddress } = useWalletAddress();
   const isMobile = useIsMobile();
   const [isSearchValid, setIsSearchValid] = useState(true);
-  const [isAvailable, setIsAvailable] = useState(false);
+  // const [isAvailable, setIsAvailable] = useState(false);
   const [searchSubmitted, setSearchSubmitted] = useState(false);
   const [searchBarText, setSearchBarText] = useState<string>(value);
   const { minimumAuctionBid, auction } = useAuctionInfo(value!);
   const [searchParams, setSearchParams] = useSearchParams();
   const inputRef = useRef<HTMLDivElement | null>(null);
+  const [searchBarBorder, setSearchBarBorder] = useState({});
   const isSearchbarFocused = useIsFocused('searchbar-input-id');
+  const { isAvailable, isAuction, isReserved } = useRegistrationStatus(value);
 
   function reset() {
     setSearchSubmitted(false);
@@ -79,6 +83,25 @@ function SearchBar(props: SearchBarProps) {
       return;
     }
   }, [value]);
+
+  useEffect(() => {
+    const style = handleSearchbarBorderStyle({
+      domain: searchBarText,
+      auction: isAuction,
+      available: isAvailable,
+      reserved: isReserved,
+      submitted: searchSubmitted,
+      focused: isSearchbarFocused,
+    });
+    setSearchBarBorder(style);
+  }, [
+    searchBarText,
+    searchSubmitted,
+    isSearchbarFocused,
+    isAuction,
+    isAvailable,
+    isReserved,
+  ]);
 
   function _onChange(e: string) {
     setSearchSubmitted(false);
@@ -109,7 +132,7 @@ function SearchBar(props: SearchBarProps) {
     // show updated states based on search result
     const searchSuccess = successPredicate(searchBarText);
     setSearchSubmitted(true);
-    setIsAvailable(searchSuccess);
+    // setIsAvailable(searchSuccess);
     if (searchSuccess && searchBarText && values) {
       // on additional functions passed in
       onSuccess(searchBarText);
@@ -137,37 +160,56 @@ function SearchBar(props: SearchBarProps) {
     _onSubmit(true);
   }
 
-  const handleSearchbarBorderStyle = () => {
+  function handleSearchbarBorderStyle({
+    domain,
+    auction,
+    available,
+    reserved,
+    submitted,
+    focused,
+  }: {
+    domain: string;
+    auction: boolean;
+    available: boolean;
+    reserved: boolean;
+    submitted: boolean;
+    focused: boolean;
+  }) {
     const noTextBorderStyle = { border: '', marginBottom: 30 };
     const whiteBorderStyle = {
       border: 'var(--text-white) solid 2px',
-      marginBottom: 30,
+      marginBottom: '30px',
     };
     const greyBorderStyle = {
       border: '2px solid var(--text-grey)',
-      marginBottom: 30,
+      marginBottom: '30px',
     };
     const greenBorderStyle = { border: '2px solid var(--success-green)' };
     const redBorderStyle = {
       border: '2px solid var(--error-red)',
-      marginBottom: 30,
+      marginBottom: '30px',
+    };
+    const accentBorderStyle = {
+      border: '2px solid var(--accent)',
+      marginBottom: '30px',
     };
 
     // Named variables for the cases
-    const isTextSubmitted = searchBarText && searchSubmitted;
-    const isTextNotSubmitted = searchBarText && !searchSubmitted;
-    const isSearchbarEmptyFocused = !searchBarText && isSearchbarFocused;
-    const isTextPresentNotSubmitted = searchBarText && !searchSubmitted;
+    const isTextSubmitted = domain && submitted;
+    const isTextNotSubmitted = domain && !submitted;
+    const isSearchbarEmptyFocused = !domain && focused;
+    const isTextPresentNotSubmitted = domain && !submitted;
 
     switch (true) {
       case isTextSubmitted: {
-        const asciiDomain = encodeDomainToASCII(searchBarText);
-        const isReserved = pdnsSourceContract.reserved[asciiDomain];
-        if (isReserved || isDomainReservedLength(searchBarText)) {
+        if (reserved) {
           return greyBorderStyle;
-        } else {
-          return isAvailable ? greenBorderStyle : redBorderStyle;
         }
+        if (auction) {
+          return accentBorderStyle;
+        }
+
+        return available ? greenBorderStyle : redBorderStyle;
       }
 
       case isTextNotSubmitted:
@@ -182,10 +224,13 @@ function SearchBar(props: SearchBarProps) {
       default:
         return noTextBorderStyle;
     }
-  };
+  }
 
   return (
-    <div className="searchbar-container flex-center" style={{ maxWidth: 787 }}>
+    <div
+      className="searchbar-container flex-center"
+      style={{ maxWidth: '787px' }}
+    >
       {headerElement ? (
         React.cloneElement(headerElement, {
           ...props,
@@ -199,7 +244,7 @@ function SearchBar(props: SearchBarProps) {
       <div
         className="searchbar"
         style={{
-          ...handleSearchbarBorderStyle(),
+          ...searchBarBorder,
           width: '100%',
           position: 'relative',
         }}
