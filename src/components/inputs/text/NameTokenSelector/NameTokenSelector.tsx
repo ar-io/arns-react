@@ -390,7 +390,7 @@ function NameTokenSelector({
             </button>
           ) : selectedToken ? (
             <button
-              className="button flex flex-row center grey hover bold"
+              className="button flex flex-row center grey hover bold pointer"
               style={{
                 gap: '5px',
                 border: '1px solid var(--text-grey)',
