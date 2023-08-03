@@ -138,29 +138,38 @@ function SearchBar(props: SearchBarProps) {
   }
 
   const handleSearchbarBorderStyle = () => {
-    if (searchBarText) {
-      if (searchSubmitted) {
-        if (
-          pdnsSourceContract.reserved[encodeDomainToASCII(searchBarText)] ||
-          isDomainReservedLength(searchBarText)
-        ) {
-          return { border: '2px solid var(--text-grey)', marginBottom: 30 };
+    const noTextBorderStyle = { border: '', marginBottom: 30 };
+    const whiteBorderStyle = {
+      border: 'var(--text-white) solid 2px',
+      marginBottom: 30,
+    };
+    const greyBorderStyle = {
+      border: '2px solid var(--text-grey)',
+      marginBottom: 30,
+    };
+    const greenBorderStyle = { border: '2px solid var(--success-green)' };
+    const redBorderStyle = {
+      border: '2px solid var(--error-red)',
+      marginBottom: 30,
+    };
+
+    switch (true) {
+      case searchBarText && searchSubmitted:
+        const asciiDomain = encodeDomainToASCII(searchBarText);
+        const isReserved = pdnsSourceContract.reserved[asciiDomain];
+        if (isReserved || isDomainReservedLength(searchBarText)) {
+          return greyBorderStyle;
         }
-        if (pdnsSourceContract?.auctions?.[searchBarText]) {
-          return { borderColor: 'var(--accent)' };
-        }
-        if (isAvailable) {
-          return { border: '2px solid var(--success-green)' };
-        } else {
-          return { border: '2px solid var(--error-red)', marginBottom: 30 };
-        }
-      }
-      return { border: '2px solid white', marginBottom: 30 };
-    } else {
-      if (isSearchbarFocused) {
-        return { border: 'var(--text-white) solid 2px', marginBottom: 30 };
-      }
-      return { border: '', marginBottom: 30 };
+        return isAvailable ? greenBorderStyle : redBorderStyle;
+
+      case searchBarText && !searchSubmitted:
+        return noTextBorderStyle;
+
+      case !searchBarText && isSearchbarFocused:
+        return whiteBorderStyle;
+
+      default:
+        return noTextBorderStyle;
     }
   };
 
