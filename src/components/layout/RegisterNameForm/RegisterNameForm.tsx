@@ -31,7 +31,7 @@ function RegisterNameForm() {
   const [{ pdnsSourceContract, walletAddress, blockHieght }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const { minimumAuctionBid, auction, isLiveAuction } = useAuctionInfo(
-    domain!,
+    domain,
     registrationType,
     leaseDuration,
   );
