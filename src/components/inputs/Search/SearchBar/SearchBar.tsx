@@ -159,37 +159,29 @@ function SearchBar(props: SearchBarProps) {
     const isSearchbarEmptyFocused = !searchBarText && isSearchbarFocused;
     const isTextPresentNotSubmitted = searchBarText && !searchSubmitted;
 
-    let borderStyle;
-
     switch (true) {
-      case isTextSubmitted:
+      case isTextSubmitted: {
         const asciiDomain = encodeDomainToASCII(searchBarText);
         const isReserved = pdnsSourceContract.reserved[asciiDomain];
         if (isReserved || isDomainReservedLength(searchBarText)) {
-          borderStyle = greyBorderStyle;
+          return greyBorderStyle;
         } else {
-          borderStyle = isAvailable ? greenBorderStyle : redBorderStyle;
+          return isAvailable ? greenBorderStyle : redBorderStyle;
         }
-        break;
+      }
 
       case isTextNotSubmitted:
-        borderStyle = whiteBorderStyle;
-        break;
+        return whiteBorderStyle;
 
       case isSearchbarEmptyFocused:
-        borderStyle = whiteBorderStyle;
-        break;
+        return whiteBorderStyle;
 
       case isTextPresentNotSubmitted:
-        borderStyle = whiteBorderStyle;
-        break;
+        return whiteBorderStyle;
 
       default:
-        borderStyle = noTextBorderStyle;
-        break;
+        return noTextBorderStyle;
     }
-
-    return borderStyle;
   };
 
   return (
