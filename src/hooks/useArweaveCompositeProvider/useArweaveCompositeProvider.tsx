@@ -24,7 +24,7 @@ const defaultContractCache = [
 ];
 
 export function useArweaveCompositeProvider(): ArweaveCompositeDataProvider {
-  const [{ gateway }] = useGlobalState();
+  const [{ gateway, blockHieght }, dispatchGlobalState] = useGlobalState();
   const [arweaveDataProvider, setArweaveDataProvider] =
     useState<ArweaveCompositeDataProvider>(
       new ArweaveCompositeDataProvider(
@@ -36,7 +36,40 @@ export function useArweaveCompositeProvider(): ArweaveCompositeDataProvider {
 
   useEffect(() => {
     dispatchNewArweave(gateway);
+    arweaveDataProvider
+      .getCurrentBlockHeight()
+      .then((newBlockHieght: number) => {
+        if (newBlockHieght === blockHieght) {
+          return;
+        }
+        dispatchGlobalState({
+          type: 'setBlockHieght',
+          payload: newBlockHieght,
+        });
+      })
+      .catch((error) => eventEmitter.emit('error', error));
   }, [gateway]);
+
+  useEffect(() => {
+    const blockInterval = setInterval(() => {
+      arweaveDataProvider
+        .getCurrentBlockHeight()
+        .then((newBlockHieght: number) => {
+          if (newBlockHieght === blockHieght) {
+            return;
+          }
+          dispatchGlobalState({
+            type: 'setBlockHieght',
+            payload: newBlockHieght,
+          });
+        })
+        .catch((error) => eventEmitter.emit('error', error));
+    }, 120000); // get block hieght every 2 minutes or if registry or if wallet changes.
+
+    return () => {
+      clearInterval(blockInterval);
+    };
+  }, []);
 
   async function dispatchNewArweave(gateway: string): Promise<void> {
     try {

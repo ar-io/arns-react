@@ -17,7 +17,8 @@
   --bg-color: #131314;
   --card-bg: #222224;
   --text-black: #121212;
-  --text-faded: #7d7d85;
+  --text-faded: #38393b;
+  --text-grey: #7d7d85;
   --text-section-header: #d1d1d1;
   --text-white: #fafafa;
   --text-bright-white: #ffffff;
@@ -204,6 +205,9 @@ a:active {
 .faded {
   color: var(--text-faded);
 }
+.grey {
+  color: var(--text-grey);
+}
 
 .white {
   color: var(--text-white);
@@ -220,6 +224,15 @@ a:active {
 .accent {
   background-color: var(--accent);
 }
+
+.warning-container {
+  background: #29251d;
+  border: 1px solid #755922;
+  border-radius: var(--corner-radius);
+  color: #9c8251;
+  padding: 20px;
+}
+
 .icon-button {
   display: flex;
   min-width: 50px !important;
@@ -376,10 +389,10 @@ a:active {
   box-sizing: border-box;
   display: flex;
   padding: 15px;
-  font-size: 14px;
+  font-size: 16px;
   font-family: 'Rubik-Bold';
-  font-weight: 500;
-  width: 130px;
+  font-weight: 800;
+  width: fit-content;
   height: fit-content;
   border-radius: var(--corner-radius);
   background-color: var(--accent);
@@ -389,11 +402,12 @@ a:active {
 .outline-button {
   box-sizing: border-box;
   display: flex;
-  padding: 15px;
-  font-size: 14px;
+  padding: 15px 20px;
+  font-size: 16px;
   font-family: 'Rubik-Bold';
-  font-weight: 500;
-  width: 130px;
+  font-weight: 800;
+  min-width: 110px;
+  width: fit-content;
   height: fit-content;
   border: var(--text-white) 1px solid;
   border-radius: var(--corner-radius);

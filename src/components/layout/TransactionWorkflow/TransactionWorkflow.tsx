@@ -1,3 +1,5 @@
+import { CheckCircleFilled } from '@ant-design/icons';
+import { StepProps } from 'antd';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -19,6 +21,7 @@ import {
 } from '../../../types';
 import {
   TRANSACTION_DATA_KEYS,
+  calculateFloorPrice,
   decodeDomainToASCII,
   getPDNSMappingByInteractionType,
   getWorkflowStepsForInteraction,
@@ -30,13 +33,13 @@ import {
 } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { PDNTCard } from '../../cards';
-import DeployTransaction from '../DeployTransaction/DeployTransaction';
+import { InfoIcon } from '../../icons';
 import TransactionComplete from '../TransactionComplete/TransactionComplete';
+import TransactionCost from '../TransactionCost/TransactionCost';
 import Workflow, { WorkflowStage } from '../Workflow/Workflow';
 
 export enum TRANSACTION_WORKFLOW_STATUS {
   PENDING = 'pending',
-  CONFIRMED = 'confirmed',
   SUCCESSFUL = 'successful',
   FAILED = 'failed',
 }
@@ -50,13 +53,14 @@ function TransactionWorkflow({
   transactionData: TransactionData;
   workflowStage: TRANSACTION_WORKFLOW_STATUS;
 }) {
-  const [{ gateway, walletAddress, pdnsContractId }] = useGlobalState();
+  const [{ walletAddress, pdnsSourceContract, pdnsContractId }] =
+    useGlobalState();
   const [{ deployedTransactionId }, dispatchTransactionState] =
     useTransactionState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const { assetId, functionName, ...payload } = transactionData;
   const navigate = useNavigate();
-  const [steps] = useState(() =>
+  const [steps, setSteps] = useState<StepProps[] | undefined>(() =>
     getWorkflowStepsForInteraction(interactionType),
   );
   const [stages, setStages] = useState<
@@ -72,81 +76,85 @@ function TransactionWorkflow({
       interactionType,
     });
     if (newStages) setStages(newStages);
-    if (
-      workflowStage === TRANSACTION_WORKFLOW_STATUS.CONFIRMED &&
-      deployedTransactionId
-    ) {
-      dispatchTransactionState({
-        type: 'setWorkflowStage',
-        payload: TRANSACTION_WORKFLOW_STATUS.SUCCESSFUL,
-      });
-    }
   }, [workflowStage, deployedTransactionId, transactionData]);
 
-  async function deployTransaction(): Promise<string> {
-    let originalTxId: string | undefined = undefined;
-    if (!walletAddress) {
-      throw Error('No wallet connected.');
-    }
+  async function deployTransaction(): Promise<string | undefined> {
+    try {
+      let originalTxId: string | undefined = undefined;
+      if (!walletAddress) {
+        throw Error('No wallet connected.');
+      }
 
-    const validCreateInteraction =
-      interactionType === INTERACTION_TYPES.CREATE &&
-      isObjectOfTransactionPayloadType<CreatePDNTPayload>(
-        payload,
-        TRANSACTION_DATA_KEYS[INTERACTION_TYPES.CREATE].keys,
-      );
-    const validBuyRecordInteraction =
-      interactionType === INTERACTION_TYPES.BUY_RECORD &&
-      isObjectOfTransactionPayloadType<BuyRecordPayload>(
-        payload,
-        TRANSACTION_DATA_KEYS[INTERACTION_TYPES.BUY_RECORD].keys,
-      );
-    if (validCreateInteraction) {
-      originalTxId = await arweaveDataProvider.deployContract({
-        walletAddress,
-        srcCodeTransactionId: new ArweaveTransactionID(
-          payload.srcCodeTransactionId,
-        ),
-        initialState: payload.initialState,
-        tags: payload?.tags,
-      });
-    } else if (
-      validBuyRecordInteraction &&
-      payload.contractTxId === ATOMIC_FLAG &&
-      payload.state
-    ) {
-      const writeInteractionId = await arweaveDataProvider.registerAtomicName({
-        walletAddress,
-        registryId: pdnsContractId,
-        srcCodeTransactionId: new ArweaveTransactionID(
-          DEFAULT_PDNT_SOURCE_CODE_TX,
-        ),
-        initialState: payload.state,
-        domain: payload.name,
-      });
+      const validCreateInteraction =
+        interactionType === INTERACTION_TYPES.CREATE &&
+        isObjectOfTransactionPayloadType<CreatePDNTPayload>(
+          payload,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.CREATE].keys,
+        );
+      const validBuyRecordInteraction =
+        interactionType === INTERACTION_TYPES.BUY_RECORD &&
+        isObjectOfTransactionPayloadType<BuyRecordPayload>(
+          payload,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.BUY_RECORD].keys,
+        );
+      if (validCreateInteraction) {
+        originalTxId = await arweaveDataProvider.deployContract({
+          walletAddress,
+          srcCodeTransactionId: new ArweaveTransactionID(
+            payload.srcCodeTransactionId,
+          ),
+          initialState: payload.initialState,
+          tags: payload?.tags,
+        });
+      } else if (
+        validBuyRecordInteraction &&
+        payload.contractTxId === ATOMIC_FLAG &&
+        payload.state
+      ) {
+        const writeInteractionId = await arweaveDataProvider.registerAtomicName(
+          {
+            walletAddress,
+            registryId: pdnsContractId,
+            srcCodeTransactionId: new ArweaveTransactionID(
+              DEFAULT_PDNT_SOURCE_CODE_TX,
+            ),
+            initialState: payload.state,
+            domain: payload.name,
+            reservedList: Object.keys(pdnsSourceContract.reserved),
+            type: payload.type,
+            years: payload.years,
+          },
+        );
 
-      originalTxId = writeInteractionId?.toString();
-    } else {
-      const writeInteractionId = await arweaveDataProvider.writeTransaction({
-        walletAddress,
-        contractTxId: new ArweaveTransactionID(assetId),
-        payload: {
-          function: functionName,
-          ...payload,
-        },
-      });
-      originalTxId = writeInteractionId?.toString();
+        originalTxId = writeInteractionId?.toString();
+      } else {
+        const writeInteractionId = await arweaveDataProvider.writeTransaction({
+          walletAddress,
+          contractTxId: new ArweaveTransactionID(assetId),
+          dryWrite: true,
+          payload: {
+            function: functionName,
+            ...payload,
+          },
+        });
+        originalTxId = writeInteractionId?.toString();
+      }
+      if (!originalTxId) {
+        throw Error('Unable to create transaction');
+      }
+      return originalTxId;
+    } catch (error) {
+      eventEmitter.emit('error', error);
     }
-    if (!originalTxId) {
-      throw Error('Unable to create transaction');
-    }
-    return originalTxId;
   }
 
   function resetToPending() {
-    steps['1'].status = 'pending';
-    steps['2'].status = '';
-    steps['3'].status = '';
+    if (!steps) {
+      return;
+    }
+    steps[0].status = 'process';
+    steps[1].status = 'wait';
+    steps[2].status = 'wait';
     dispatchTransactionState({
       type: 'setWorkflowStage',
       payload: TRANSACTION_WORKFLOW_STATUS.PENDING,
@@ -155,20 +163,29 @@ function TransactionWorkflow({
 
   async function handleStage(direction: string) {
     try {
+      if (!steps) {
+        throw new Error('No steps found');
+      }
       if (direction === 'next' && TRANSACTION_WORKFLOW_STATUS.PENDING) {
-        steps['1'].status = 'success';
-        steps['2'].status = 'pending';
-        dispatchTransactionState({
-          type: 'setWorkflowStage',
-          payload: TRANSACTION_WORKFLOW_STATUS.CONFIRMED,
-        });
+        steps[0].status = 'finish';
+        steps[1].status = 'process';
+
         const txId = await deployTransaction();
+        if (!txId) {
+          throw new Error(`Failed to deploy transaction`);
+        }
         dispatchTransactionState({
           type: 'setDeployedTransactionId',
           payload: new ArweaveTransactionID(txId),
         });
-        steps['2'].status = 'success';
-        steps['3'].status = 'success';
+        steps[1].status = 'finish';
+        steps[2].status = 'finish';
+        dispatchTransactionState({
+          type: 'setWorkflowStage',
+          payload: TRANSACTION_WORKFLOW_STATUS.SUCCESSFUL,
+        });
+
+        setSteps(undefined);
         return;
       }
       if (direction === 'back' && TRANSACTION_WORKFLOW_STATUS.PENDING) {
@@ -197,12 +214,17 @@ function TransactionWorkflow({
     if (pdntInteractionTypes.includes(interactionType as PDNTInteractionType)) {
       return {
         pending: {
-          component: <PDNTCard {...pdntProps} />,
-        },
-        confirmed: {
-          component: <DeployTransaction />,
-          showNext: false,
-          showBack: false,
+          component: (
+            <div
+              className="flex flex-column"
+              style={{ marginBottom: '30px', gap: '0px' }}
+            >
+              <PDNTCard {...pdntProps} />
+              <TransactionCost />
+            </div>
+          ),
+          header: `Review your ${interactionType} action`,
+          nextText: 'Proceed to Wallet',
         },
         successful: {
           component: (
@@ -214,6 +236,27 @@ function TransactionWorkflow({
           ),
           showNext: false,
           showBack: false,
+          header: (
+            <div
+              className="flex flex-row center radius"
+              style={{
+                width: '700px',
+                height: '90px',
+                background: '#213027',
+                border: '1px solid #44AF69',
+                fontSize: '18px',
+                marginBottom: '20px',
+              }}
+            >
+              <span className="white center">
+                <CheckCircleFilled
+                  style={{ fontSize: 18, color: 'var(--success-green)' }}
+                />
+                &nbsp;
+                <b>{interactionType}</b> success!
+              </span>
+            </div>
+          ),
         },
         failed: {
           component: (
@@ -237,30 +280,59 @@ function TransactionWorkflow({
         isObjectOfTransactionPayloadType<BuyRecordPayload>(
           payload,
           TRANSACTION_DATA_KEYS[interactionType].keys,
-        )
+        ) &&
+        pdnsSourceContract.settings.auctions
       ) {
         return {
           pending: {
-            component: <PDNTCard {...pdntProps} />,
-            header: (
-              <>
-                <div className="flex flex-row text-large white bold center">
-                  Confirm Name Purchase
-                </div>
-              </>
+            component: (
+              <div
+                className="flex flex-column"
+                style={{ marginBottom: '30px', gap: '0px' }}
+              >
+                <PDNTCard {...pdntProps} />
+                <TransactionCost
+                  fee={{
+                    io:
+                      calculateFloorPrice({
+                        domain: payload.name,
+                        registrationType: payload.type,
+                        tiers: pdnsSourceContract.tiers.history,
+                        tier: pdnsSourceContract.tiers.current[0],
+                        years: payload.years,
+                        auctionSettings: pdnsSourceContract.settings.auctions,
+                        fees: pdnsSourceContract.fees,
+                      }) ?? 0,
+                  }}
+                  info={
+                    <div
+                      className="flex flex-row flex-left"
+                      style={{
+                        gap: '10px',
+                        maxWidth: '50%',
+                        justifyContent: 'flex-start',
+                        alignItems: 'flex-start',
+                      }}
+                    >
+                      <InfoIcon
+                        width={'20px'}
+                        height={'20px'}
+                        fill="var(--text-grey)"
+                      />
+                      <span
+                        className="flex flex-column flex-left grey text"
+                        style={{ textAlign: 'left', lineHeight: '1.5em' }}
+                      >
+                        This includes a registration fee (paid in IO tokens) and
+                        the Arweave network fee (paid in AR tokens).
+                      </span>
+                    </div>
+                  }
+                />
+              </div>
             ),
-          },
-          confirmed: {
-            component: <DeployTransaction />,
-            showNext: false,
-            showBack: false,
-            header: (
-              <>
-                <div className="flex flex-row text-large white bold center">
-                  Deploy Name Purchase
-                </div>
-              </>
-            ),
+            header: `Review your ${payload.auction ? 'Auction' : 'Purchase'}`,
+            nextText: 'Proceed to Wallet',
           },
           successful: {
             component: (
@@ -273,14 +345,24 @@ function TransactionWorkflow({
             showNext: false,
             showBack: false,
             header: (
-              <>
-                <div className="flex flex-row text-large white bold center">
-                  <span className="text-large white center">
-                    <b>{decodeDomainToASCII(payload.name)}</b>.{gateway} is
-                    yours!
-                  </span>
-                </div>
-              </>
+              <div
+                className="flex flex-row center radius"
+                style={{
+                  width: '700px',
+                  height: '90px',
+                  background: '#213027',
+                  border: '1px solid #44AF69',
+                  fontSize: '18px',
+                  marginBottom: '2em',
+                }}
+              >
+                <span className="white center">
+                  <CheckCircleFilled
+                    style={{ fontSize: 18, color: 'var(--success-green)' }}
+                  />
+                  &nbsp;<b>{decodeDomainToASCII(payload.name)}</b> is yours!
+                </span>
+              </div>
             ),
           },
           failed: {
@@ -306,7 +388,11 @@ function TransactionWorkflow({
         onNext={() => handleStage('next')}
         onBack={() => handleStage('back')}
         stage={workflowStage}
-        steps={steps}
+        steps={
+          workflowStage === TRANSACTION_WORKFLOW_STATUS.SUCCESSFUL
+            ? undefined
+            : steps
+        }
         stages={stages}
       />
     </>

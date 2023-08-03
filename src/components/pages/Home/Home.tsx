@@ -11,6 +11,7 @@ import {
   BuyRecordPayload,
   INTERACTION_TYPES,
 } from '../../../types';
+import { isDomainAuctionable } from '../../../utils';
 import {
   ATOMIC_FLAG,
   FEATURED_DOMAINS,
@@ -35,7 +36,7 @@ function Home() {
   const [{ pdnsSourceContract }] = useGlobalState();
   const { walletAddress } = useWalletAddress();
   const [
-    { domain, pdntID, stage, isSearching, leaseDuration },
+    { domain, pdntID, stage, isSearching, registrationType, leaseDuration },
     dispatchRegisterState,
   ] = useRegistrationState();
 
@@ -100,21 +101,33 @@ function Home() {
       ) : (
         <div
           className="flex flex-column flex-center"
-          style={{ width: 'fit-content', gap: 0 }}
+          style={{
+            width: '100%',
+            gap: 0,
+            maxWidth: '900px',
+            minWidth: '750px',
+          }}
         >
           <Workflow
             stage={stage.toString()}
             onNext={() => {
-              if (stage == 1) {
+              if (stage == 1 && domain) {
                 const buyRecordPayload: BuyRecordPayload = {
                   name:
                     domain && emojiRegex().test(domain)
                       ? encodeDomainToASCII(domain)
-                      : domain!,
+                      : domain,
                   contractTxId: pdntID ? pdntID.toString() : ATOMIC_FLAG,
-                  tierNumber: 1,
+                  tier: pdnsSourceContract.tiers.current[0],
                   years: leaseDuration,
+                  type: registrationType,
+                  auction: isDomainAuctionable({
+                    domain: domain,
+                    registrationType: registrationType,
+                    reservedList: Object.keys(pdnsSourceContract.reserved),
+                  }),
                 };
+
                 dispatchTransactionState({
                   type: 'setTransactionData',
                   payload: {
@@ -244,7 +257,8 @@ function Home() {
                 showBack: true,
                 disableNext: !walletAddress,
                 requiresWallet: true,
-                customNextStyle: { width: 130 },
+                customNextStyle: { width: 110, padding: '15px' },
+                customBackStyle: { width: 110, padding: '15px' },
               },
             }}
           />

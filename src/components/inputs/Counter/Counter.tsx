@@ -101,14 +101,14 @@ function YearsCounter({
           </button>
           <div
             className="flex flex-column flex-center"
-            style={{ width: 'fit-content', gap: 20, paddingBottom: '10px' }}
+            style={{ width: 'fit-content', gap: 10, paddingBottom: '10px' }}
           >
             <span
               className="text-large white center"
               style={{ fontWeight: 500 }}
             >{`${leaseDuration} year${leaseDuration > 1 ? 's' : ''}`}</span>
             <span
-              className="text faded center"
+              className="text grey center"
               style={{ fontSize: '14px' }}
             >{`Until ${registration}`}</span>
           </div>

@@ -1,3 +1,6 @@
+import { StepProps } from 'antd';
+import { inRange } from 'lodash';
+
 import { PDNTContract } from '../../services/arweave/PDNTContract';
 import {
   ArweaveTransactionID,
@@ -19,6 +22,8 @@ import {
   SetTickerPayload,
   SmartWeaveActionInput,
   SmartWeaveActionTags,
+  SubmitAuctionBidPayload,
+  TRANSACTION_TYPES,
   TransactionData,
   TransactionDataConfig,
   TransactionDataPayload,
@@ -32,6 +37,7 @@ import {
   MAX_TTL_SECONDS,
   MIN_TTL_SECONDS,
   PDNS_TX_ID_REGEX,
+  RESERVED_NAME_LENGTH,
   TTL_SECONDS_REGEX,
   YEAR_IN_MILLISECONDS,
 } from '../constants';
@@ -61,87 +67,94 @@ export function isObjectOfTransactionPayloadType<
 
 export const WorkflowStepsForInteractions: Record<
   ExcludedValidInteractionType,
-  Record<
-    number,
-    {
-      title: string;
-      status: string;
-    }
-  >
+  StepProps[]
 > = {
-  [INTERACTION_TYPES.BUY_RECORD]: {
-    1: { title: 'Confirm Registration', status: 'pending' },
-    2: { title: 'Deploy Registration', status: '' },
-    3: { title: 'Complete', status: '' },
-  },
-  [INTERACTION_TYPES.EXTEND_LEASE]: {
-    1: { title: 'Confirm Extension', status: 'pending' },
-    2: { title: 'Deploy Extension', status: '' },
-    3: { title: 'Complete', status: '' },
-  },
-  [INTERACTION_TYPES.UPGRADE_TIER]: {
-    1: { title: 'Confirm Tier', status: 'pending' },
-    2: { title: 'Deploy Tier Upgrade', status: '' },
-    3: { title: 'Complete', status: '' },
-  },
-  [INTERACTION_TYPES.REMOVE_RECORD]: {
-    1: { title: 'Confirm Removal', status: 'pending' },
-    2: { title: 'Deploy Removal', status: '' },
-    3: { title: 'Complete', status: '' },
-  },
-  [INTERACTION_TYPES.SET_CONTROLLER]: {
-    1: { title: 'Confirm Controller', status: 'pending' },
-    2: { title: 'Deploy Controller', status: '' },
-    3: { title: 'Complete', status: '' },
-  },
-  [INTERACTION_TYPES.SET_NAME]: {
-    1: { title: 'Confirm ANT Name', status: 'pending' },
-    2: { title: 'Deploy Name Change', status: '' },
-    3: { title: 'Complete', status: '' },
-  },
-  [INTERACTION_TYPES.SET_RECORD]: {
-    1: { title: 'Confirm Undername Details', status: 'pending' },
-    2: { title: 'Deploy Undername', status: '' },
-    3: { title: 'Complete', status: '' },
-  },
-  [INTERACTION_TYPES.SET_TICKER]: {
-    1: { title: 'Confirm Ticker', status: 'pending' },
-    2: { title: 'Deploy Ticker Change', status: '' },
-    3: { title: 'Complete', status: '' },
-  },
-  [INTERACTION_TYPES.TRANSFER]: {
-    1: { title: 'Confirm Transfer', status: 'pending' },
-    2: { title: 'Deploy Transfer', status: '' },
-    3: { title: 'Complete', status: '' },
-  },
-  [INTERACTION_TYPES.SET_TARGET_ID]: {
-    1: { title: 'Confirm Target ID', status: 'pending' },
-    2: { title: 'Deploy Target ID Change', status: '' },
-    3: { title: 'Complete', status: '' },
-  },
-  [INTERACTION_TYPES.SET_TTL_SECONDS]: {
-    1: { title: 'Confirm TTL Seconds', status: 'pending' },
-    2: { title: 'Deploy TTL Seconds Change', status: '' },
-    3: { title: 'Complete', status: '' },
-  },
-  [INTERACTION_TYPES.CREATE]: {
-    0: {
+  [INTERACTION_TYPES.BUY_RECORD]: [
+    { title: 'Choose', description: 'Pick a name', status: 'finish' },
+    {
+      title: 'Configure',
+      description: 'Registration Period',
+      status: 'finish',
+    },
+    { title: 'Confirm', description: 'Review Transaction', status: 'process' },
+  ],
+  [INTERACTION_TYPES.SUBMIT_AUCTION_BID]: [
+    { title: 'Choose', description: 'Pick a name', status: 'finish' },
+    {
+      title: 'Configure',
+      description: 'Registration Period',
+      status: 'finish',
+    },
+    { title: 'Confirm', description: 'Review Transaction', status: 'process' },
+  ],
+  [INTERACTION_TYPES.EXTEND_LEASE]: [
+    { title: 'Confirm Extension', status: 'process' },
+    { title: 'Deploy Extension', status: 'wait' },
+    { title: 'Complete', status: 'wait' },
+  ],
+  [INTERACTION_TYPES.UPGRADE_TIER]: [
+    { title: 'Confirm Tier', status: 'process' },
+    { title: 'Deploy Tier Upgrade', status: 'wait' },
+    { title: 'Complete', status: 'wait' },
+  ],
+  [INTERACTION_TYPES.REMOVE_RECORD]: [
+    { title: 'Confirm Removal', status: 'process' },
+    { title: 'Deploy Removal', status: 'wait' },
+    { title: 'Complete', status: 'wait' },
+  ],
+  [INTERACTION_TYPES.SET_CONTROLLER]: [
+    { title: 'Confirm Controller', status: 'process' },
+    { title: 'Deploy Controller', status: 'wait' },
+    { title: 'Complete', status: 'wait' },
+  ],
+  [INTERACTION_TYPES.SET_NAME]: [
+    { title: 'Confirm ANT Name', status: 'process' },
+    { title: 'Deploy Name Change', status: 'wait' },
+    { title: 'Complete', status: 'wait' },
+  ],
+  [INTERACTION_TYPES.SET_RECORD]: [
+    { title: 'Confirm Undername Details', status: 'process' },
+    { title: 'Deploy Undername', status: 'wait' },
+    { title: 'Complete', status: 'wait' },
+  ],
+  [INTERACTION_TYPES.SET_TICKER]: [
+    { title: 'Confirm Ticker', status: 'process' },
+    { title: 'Deploy Ticker Change', status: 'wait' },
+    { title: 'Complete', status: 'wait' },
+  ],
+  [INTERACTION_TYPES.TRANSFER]: [
+    { title: 'Confirm Transfer', status: 'process' },
+    { title: 'Deploy Transfer', status: 'wait' },
+    { title: 'Complete', status: 'wait' },
+  ],
+  [INTERACTION_TYPES.SET_TARGET_ID]: [
+    { title: 'Confirm Target ID', status: 'process' },
+    { title: 'Deploy Target ID Change', status: 'wait' },
+    { title: 'Complete', status: 'wait' },
+  ],
+  [INTERACTION_TYPES.SET_TTL_SECONDS]: [
+    { title: 'Confirm TTL Seconds', status: 'process' },
+    { title: 'Deploy TTL Seconds Change', status: 'wait' },
+    { title: 'Complete', status: 'wait' },
+  ],
+  [INTERACTION_TYPES.CREATE]: [
+    {
       title: 'Set ANT Details',
-      status: 'success',
+      status: 'finish',
     },
-    1: {
+    {
       title: 'Confirm ANT',
-      status: 'pending',
+      status: 'process',
     },
-    2: {
+    {
       title: 'Deploy ANT',
-      status: '',
+      status: 'wait',
     },
-    3: {
+    {
       title: 'Complete',
-      status: '',
+      status: 'wait',
     },
-  },
+  ],
 };
 
 export const TRANSACTION_DATA_KEYS: Record<
@@ -150,7 +163,11 @@ export const TRANSACTION_DATA_KEYS: Record<
 > = {
   [INTERACTION_TYPES.BUY_RECORD]: {
     functionName: 'buyRecord',
-    keys: ['name', 'contractTxId', 'years', 'tierNumber'],
+    keys: ['name', 'contractTxId', 'auction', 'tier'],
+  },
+  [INTERACTION_TYPES.SUBMIT_AUCTION_BID]: {
+    functionName: 'submitAuctionBid',
+    keys: ['name', 'contractTxId'],
   },
   [INTERACTION_TYPES.EXTEND_LEASE]: {
     functionName: 'extendLease',
@@ -204,12 +221,7 @@ export const TRANSACTION_DATA_KEYS: Record<
 
 export const getWorkflowStepsForInteraction = (
   interaction: ExcludedValidInteractionType,
-): {
-  [x: number]: {
-    title: string;
-    status: string;
-  };
-} => {
+): StepProps[] => {
   return structuredClone(WorkflowStepsForInteractions[interaction]);
 };
 
@@ -253,11 +265,43 @@ export function getPDNSMappingByInteractionType(
               ? transactionData.deployedTransactionId
               : ATOMIC_FLAG.toLocaleUpperCase('en-US')
             : new ArweaveTransactionID(transactionData.contractTxId),
+        deployedTransactionId: transactionData.deployedTransactionId,
         state: transactionData.state ?? undefined,
         overrides: {
-          tier: transactionData.tierNumber,
-          maxSubdomains: 100, // TODO get subdomain count from contract
+          maxUndernames: 'Up to 100', // TODO get subdomain count from contract
           leaseDuration: years,
+        },
+      };
+    }
+
+    case INTERACTION_TYPES.SUBMIT_AUCTION_BID: {
+      if (
+        !isObjectOfTransactionPayloadType<SubmitAuctionBidPayload>(
+          transactionData,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.SUBMIT_AUCTION_BID].keys,
+        )
+      ) {
+        throw new Error(
+          'transaction data not of correct payload type <SubmitAuctionBidPayload>',
+        );
+      }
+      if (
+        transactionData.contractTxId === ATOMIC_FLAG &&
+        !transactionData.state
+      ) {
+        throw new Error(
+          'Atomic transaction detected but no state present, add the state to continue.',
+        );
+      }
+      return {
+        domain: transactionData.name,
+        contractTxId:
+          transactionData.contractTxId === ATOMIC_FLAG
+            ? transactionData.deployedTransactionId ?? undefined
+            : new ArweaveTransactionID(transactionData.contractTxId),
+        state: transactionData.state ?? undefined,
+        overrides: {
+          maxSubdomains: 100, // TODO get subdomain count from contract
         },
       };
     }
@@ -278,6 +322,7 @@ export function getPDNSMappingByInteractionType(
         domain: '',
         state: pdnt.state,
         disabledKeys: ['domain', 'evolve', 'id', 'tier'],
+        deployedTransactionId: transactionData.deployedTransactionId,
       };
     }
     case INTERACTION_TYPES.SET_NAME: {
@@ -294,12 +339,14 @@ export function getPDNSMappingByInteractionType(
       return {
         domain: '',
         contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           nickname: transactionData.name,
         },
         disabledKeys: [
           'evolve',
           'maxSubdomains',
+          'maxUndernames',
           'domain',
           'leaseDuration',
           'ttlSeconds',
@@ -322,12 +369,14 @@ export function getPDNSMappingByInteractionType(
       return {
         domain: '',
         contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           ticker: transactionData.ticker,
         },
         disabledKeys: [
           'evolve',
           'maxSubdomains',
+          'maxUndernames',
           'domain',
           'leaseDuration',
           'ttlSeconds',
@@ -350,12 +399,14 @@ export function getPDNSMappingByInteractionType(
       return {
         domain: '',
         contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           undername: transactionData.subDomain,
         },
         disabledKeys: [
           'evolve',
           'maxSubdomains',
+          'maxUndernames',
           'domain',
           'leaseDuration',
           'tier',
@@ -378,6 +429,7 @@ export function getPDNSMappingByInteractionType(
       return {
         domain: '',
         contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           undername: transactionData.subDomain,
           targetId: transactionData.transactionId,
@@ -386,6 +438,7 @@ export function getPDNSMappingByInteractionType(
         disabledKeys: [
           'evolve',
           'maxSubdomains',
+          'maxUndernames',
           'domain',
           'leaseDuration',
           'tier',
@@ -408,12 +461,14 @@ export function getPDNSMappingByInteractionType(
       return {
         domain: '',
         contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           targetId: transactionData.transactionId,
         },
         disabledKeys: [
           'evolve',
           'maxSubdomains',
+          'maxUndernames',
           'domain',
           'leaseDuration',
           'ttlSeconds',
@@ -437,12 +492,14 @@ export function getPDNSMappingByInteractionType(
       return {
         domain: '',
         contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           ttlSeconds: transactionData.ttlSeconds,
         },
         disabledKeys: [
           'evolve',
           'maxSubdomains',
+          'maxUndernames',
           'domain',
           'leaseDuration',
           'tier',
@@ -466,12 +523,14 @@ export function getPDNSMappingByInteractionType(
       return {
         domain: '',
         contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           controller: transactionData.target,
         },
         disabledKeys: [
           'evolve',
           'maxSubdomains',
+          'maxUndernames',
           'domain',
           'leaseDuration',
           'tier',
@@ -494,6 +553,7 @@ export function getPDNSMappingByInteractionType(
       return {
         domain: '',
         contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           'New Owner': transactionData.target,
         },
@@ -710,4 +770,26 @@ export function buildSmartweaveInteractionTags({
     },
   ];
   return tags;
+}
+
+export function isDomainAuctionable({
+  // https://ardrive.atlassian.net/wiki/spaces/ENGINEERIN/pages/706543688/PDNS+Auction+System+-+Technical+Requirements#Requirements
+  domain,
+  registrationType,
+  reservedList,
+}: {
+  domain: string;
+  registrationType: TRANSACTION_TYPES;
+  reservedList: string[];
+}): boolean {
+  if (
+    domain.length <= RESERVED_NAME_LENGTH || // if under 5 characters, auctionable
+    (inRange(domain.length, RESERVED_NAME_LENGTH + 1, 12) &&
+      registrationType === TRANSACTION_TYPES.BUY) || // if permabuying a name between 5 and 11 chars, auctionable
+    reservedList.includes(domain) // all premium names are auctionable
+  ) {
+    return true;
+  }
+
+  return false;
 }

@@ -10,6 +10,7 @@ import { ReactComponent as BookmarkIcon } from './Bookmark.svg';
 import { ReactComponent as BorderOuterIcon } from './BorderOuter.svg';
 import { ReactComponent as BrandLogo } from './BrandLogo.svg';
 import { ReactComponent as CalendarTimeIcon } from './CalendarTime.svg';
+import { ReactComponent as CheckIcon } from './Check.svg';
 import { ReactComponent as CheckmarkIcon } from './Checkmark.svg';
 import { ReactComponent as ChevronDownIcon } from './ChevronDown.svg';
 import { ReactComponent as ChevronLeftIcon } from './ChevronLeft.svg';
@@ -25,6 +26,7 @@ import { ReactComponent as CopyIcon } from './Copy.svg';
 import { ReactComponent as CubeIcon } from './Cube.svg';
 import { ReactComponent as SunIcon } from './EvaSun.svg';
 import { ReactComponent as ExternalLinkIcon } from './ExternalLink.svg';
+import { ReactComponent as ExternalLinkOutlined } from './ExternalLinkOutlined.svg';
 import { ReactComponent as FileCodeIcon } from './FileCode.svg';
 import { ReactComponent as HamburgerOutlineIcon } from './HamburgerOutline.svg';
 import { ReactComponent as InfoIcon } from './Info.svg';
@@ -58,6 +60,7 @@ export {
   BorderOuterIcon,
   BrandLogo,
   CalendarTimeIcon,
+  CheckIcon,
   CheckmarkIcon,
   ChevronDownIcon,
   ChevronLeftIcon,
@@ -72,6 +75,7 @@ export {
   CopyIcon,
   CubeIcon,
   ExternalLinkIcon,
+  ExternalLinkOutlined,
   FileCodeIcon,
   HamburgerOutlineIcon,
   InfoIcon,

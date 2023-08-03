@@ -12,7 +12,7 @@ function Footer() {
         !isMobile ? 'flex-row flex-space-between' : 'flex-column flex-center'
       }`}
       style={{
-        borderTop: '1px solid #292A2B',
+        borderTop: '1px solid var(--text-faded)',
         padding: '30px 100px',
         boxSizing: 'border-box',
       }}
@@ -22,12 +22,12 @@ function Footer() {
           !isMobile ? 'flex-row flex-left' : 'flex-column flex-center'
         } flex`}
       >
-        <BrandLogo width={'30px'} height={'30px'} fill={'var(--text-faded)'} />
-        <span className="text faded center">
+        <BrandLogo width={'30px'} height={'30px'} fill={'var(--text-grey)'} />
+        <span className="text grey center">
           Copyright &copy; 2023 ArNS, All rights reserved
         </span>
         <Link
-          className="faded text"
+          className="grey text"
           to={'https://ar.io/arns'}
           rel="noreferrer"
           target={'_blank'}
@@ -36,7 +36,7 @@ function Footer() {
           Terms & Conditions
         </Link>
         <Link
-          className="faded text"
+          className="grey text"
           to={'https://ar.io/arns'}
           rel="noreferrer"
           target={'_blank'}
@@ -47,7 +47,7 @@ function Footer() {
       </div>
 
       <span
-        className="flex flex-row flex-right text faded center"
+        className="flex flex-row flex-right text grey center"
         style={{ width: 'fit-content', wordBreak: 'keep-all' }}
       >
         v{process.env.npm_package_version}-
@@ -56,14 +56,14 @@ function Footer() {
 
       <div className="flex flex-row flex-right">
         <button
-          className="button faded text center hover"
+          className="button grey text center hover"
           onClick={() =>
             alert('Bam! light mode! just kidding, thats not implemented yet.')
           }
         >
-          <SunIcon width={20} height={20} fill={'var(--text-faded)'} />
+          <SunIcon width={20} height={20} fill={'var(--text-grey)'} />
         </button>
-        <button className="button faded text center hover">
+        <button className="button grey text center hover">
           <QuestionCircleOutlined style={{ fontSize: 20 }} />
         </button>
       </div>

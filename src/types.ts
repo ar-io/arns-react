@@ -30,20 +30,56 @@ export type TransactionTag = {
   value: string;
 };
 
+export type AuctionSettings = {
+  id: string;
+  floorPriceMultiplier: number;
+  startPriceMultiplier: number;
+  auctionDuration: number;
+  decayRate: number;
+  decayInterval: number;
+};
+
+export type Auction = {
+  auctionSettingsId: string;
+  floorPrice: number;
+  startPrice: number;
+  contractTxId: string;
+  startHeight: number;
+  type: TRANSACTION_TYPES;
+  tier: string;
+  initiator: string;
+  years?: number;
+};
+
+export type Tier = {
+  fee: number;
+  id: string;
+  settings: { maxUndernames: number } & { [x: string]: any };
+};
+
 export type PDNSContractJSON = {
   records: PDNSDomains;
   fees: { [x: number]: number };
   tiers: {
-    current: {
-      [x: number]: string;
+    current: string[];
+    history: Tier[];
+  };
+  auctions?: {
+    [x: string]: Auction;
+  };
+  reserved: {
+    [x: string]: {
+      [x: string]: string | number;
+      target: string;
+      endTimestamp: number;
     };
-    history: {
-      id: string;
-      fee: number;
-      settings: {
-        maxUndernames: number;
-      };
-    }[];
+  };
+  settings: {
+    auctions?: {
+      current: string;
+      history: AuctionSettings[];
+    };
+    [x: string]: any;
   };
   balances: { [x: string]: number };
   controllers: ArweaveTransactionID[];
@@ -86,6 +122,7 @@ export type PDNSMapping = {
   compact?: boolean;
   enableActions?: boolean;
   hover?: boolean;
+  deployedTransactionId?: ArweaveTransactionID | string;
 };
 
 export type PDNSMetaData = {
@@ -152,12 +189,18 @@ export interface SmartweaveContractInteractionProvider {
     srcCodeTransactionId,
     initialState,
     domain,
+    type,
+    years,
+    reservedList,
   }: {
     walletAddress: ArweaveTransactionID;
     registryId: ArweaveTransactionID;
     srcCodeTransactionId: ArweaveTransactionID;
     initialState: PDNTContractJSON;
     domain: string;
+    type: TRANSACTION_TYPES;
+    years?: number;
+    reservedList: string[];
   }): Promise<string | undefined>;
 }
 
@@ -239,7 +282,7 @@ export type ConnectWalletModalProps = {
 };
 
 export type TierCardProps = {
-  tierNumber: number;
+  tierId: string;
 };
 
 export type DropdownProps = {
@@ -261,8 +304,8 @@ export const MANAGE_TABLE_NAMES: Record<ManageTable, string> = {
 };
 
 export enum TRANSACTION_TYPES {
-  LEASE = 'Lease',
-  BUY = 'Buy',
+  LEASE = 'lease',
+  BUY = 'permabuy',
 }
 
 export enum CONTRACT_TYPES {
@@ -281,6 +324,7 @@ export enum INTERACTION_TYPES {
   BUY_RECORD = 'Buy ARNS Name',
   EXTEND_LEASE = 'Extend Lease',
   UPGRADE_TIER = 'Upgrade Tier',
+  SUBMIT_AUCTION_BID = 'Submit Bid',
 
   // ANT interaction types
   SET_CONTROLLER = 'Edit Controller',
@@ -349,6 +393,7 @@ export const registryInteractionTypes = [
   INTERACTION_TYPES.BUY_RECORD,
   INTERACTION_TYPES.EXTEND_LEASE,
   INTERACTION_TYPES.UPGRADE_TIER,
+  INTERACTION_TYPES.SUBMIT_AUCTION_BID,
 ] as const;
 
 export const interactionTypeNames = [
@@ -386,7 +431,18 @@ export type BuyRecordPayload = {
   name: string;
   contractTxId: string;
   years: number;
-  tierNumber: number;
+  tier: string;
+  type: TRANSACTION_TYPES;
+  state?: PDNTContractJSON;
+  qty?: number; // only used when bidding on a pre-existing auction
+  auction?: boolean;
+};
+
+export type SubmitAuctionBidPayload = {
+  name: string;
+  contractTxId: string;
+  type?: TRANSACTION_TYPES;
+  qty?: number; // only used when bidding on a pre-existing auction
   state?: PDNTContractJSON;
 };
 
@@ -461,7 +517,7 @@ export const ALL_TRANSACTION_DATA_KEYS = [
   'name',
   'contractTxId',
   'years',
-  'tierNumber',
+  'tier',
   'target',
   'qty',
   'ticker',
@@ -471,10 +527,13 @@ export const ALL_TRANSACTION_DATA_KEYS = [
   'srcCodeTransactionId',
   'initialState',
   'tags',
+  'type',
+  'auction',
 ];
 
 export type TransactionDataPayload =
   | BuyRecordPayload
+  | SubmitAuctionBidPayload
   | ExtendLeasePayload
   | UpgradeTierPayload
   | TransferIOPayload

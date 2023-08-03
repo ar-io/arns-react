@@ -25,11 +25,18 @@ function WorkflowButtons({
 }) {
   return (
     <>
-      <div className="flex-row center" style={{ padding: '0' }}>
+      <div
+        className="flex-row flex-right"
+        style={{ padding: '0', boxSizing: 'border-box', gap: '20px' }}
+      >
         {showBack ? (
           <button
             className="outline-button center"
-            style={{ ...customBackStyle }}
+            style={{
+              borderColor: 'var(--text-faded)',
+              color: 'var(--text-grey)',
+              ...customBackStyle,
+            }}
             disabled={disableBack}
             onClick={() => onBack()}
           >

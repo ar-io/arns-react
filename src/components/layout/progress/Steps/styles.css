@@ -8,8 +8,8 @@
   font-family: 'Rubik';
   font-weight: 500;
   font-size: 16px;
-  color: var(--text-faded);
-  border: solid 1px var(--text-faded);
+  color: var(--text-grey);
+  border: solid 1px var(--text-grey);
 }
 
 .step-finish
@@ -31,7 +31,7 @@
   > .ant-steps-item-container
   > .ant-steps-item-content
   > .ant-steps-item-description {
-  color: var(--text-faded) !important;
+  color: var(--text-grey) !important;
   font-family: 'Rubik';
   font-weight: 400;
   font-size: 13px;
@@ -41,7 +41,7 @@
   > .ant-steps-item-container
   > .ant-steps-item-content
   > .ant-steps-item-title::after {
-  background-color: var(--text-faded) !important;
+  background-color: var(--text-grey) !important;
 }
 .step-process
   > .ant-steps-item-container
@@ -66,13 +66,13 @@
   > .ant-steps-item-container
   > .ant-steps-item-content
   > .ant-steps-item-title::after {
-  background-color: var(--text-faded) !important;
+  background-color: var(--text-grey) !important;
 }
 .step-wait
   > .ant-steps-item-container
   > .ant-steps-item-content
   > .ant-steps-item-title {
-  color: var(--text-faded) !important;
+  color: var(--text-grey) !important;
   font-family: 'Rubik';
   font-weight: 400;
   font-size: 16px;
@@ -81,7 +81,7 @@
   > .ant-steps-item-container
   > .ant-steps-item-content
   > .ant-steps-item-description {
-  color: var(--text-faded) !important;
+  color: var(--text-grey) !important;
   font-family: 'Rubik';
   font-weight: 400;
   font-size: 13px;

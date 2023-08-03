@@ -1,7 +1,7 @@
 import { Tooltip } from 'antd';
 import Table from 'rc-table';
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
@@ -51,6 +51,7 @@ function ManagePDNTModal() {
   const { id } = useParams();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const location = useLocation();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const [{ walletAddress, pdnsSourceContract }] = useGlobalState();
   const [, dispatchTransactionState] = useTransactionState();
@@ -169,7 +170,7 @@ function ManagePDNTModal() {
       setLoading(false);
     } catch (error) {
       eventEmitter.emit('error', error);
-      navigate('/manage/ants');
+      navigate('/manage/ants', { state: location.pathname });
     }
   }
 
@@ -257,7 +258,7 @@ function ManagePDNTModal() {
         <div className="flex-row flex-space-between">
           <span className="flex white text-large bold">
             <button
-              className="faded text-large bold underline link center"
+              className="grey text-large bold underline link center"
               onClick={() => navigate('/manage/ants')}
             >
               <ArrowLeft

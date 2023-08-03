@@ -1,10 +1,12 @@
+import { StepProps } from 'antd';
+
 import { useIsMobile } from '../../../hooks';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
 import Loader from '../Loader/Loader';
-import { StepProgressBar } from '../progress';
+import StepProgressBar from '../progress/Steps/Steps';
 
 export type WorkflowStage = {
-  header?: JSX.Element;
+  header?: JSX.Element | string;
   component: JSX.Element;
   showNext?: boolean;
   showBack?: boolean;
@@ -18,7 +20,7 @@ export type WorkflowStage = {
 
 export type WorkflowProps = {
   stage: string;
-  steps?: { [x: number]: { title: string; status: string } };
+  steps?: StepProps[];
   onNext: () => void;
   onBack: () => void;
   footer?: JSX.Element[];
@@ -44,15 +46,37 @@ function Workflow({
   return (
     <div
       className="flex flex-column center"
-      style={isMobile ? {} : { gap: '20px', width: '100%' }}
+      style={isMobile ? {} : { gap: '10px', width: '100%' }}
     >
       {Object.entries(stages).map(([key, value], index) => {
         if (key === stage) {
           return (
-            <div className="flex flex-column center" key={key}>
-              {value.header}
+            <div
+              className="flex flex-column center"
+              key={key}
+              style={{ gap: 0 }}
+            >
               {steps ? (
-                <StepProgressBar stage={index + 1} stages={steps} />
+                <div className="flex flex-row" style={{ marginBottom: '30px' }}>
+                  <StepProgressBar stage={index + 1} stages={steps} />
+                </div>
+              ) : (
+                <></>
+              )}
+              {value.header ? (
+                typeof value.header === 'string' ? (
+                  <div
+                    className="flex flex-row text-large white bold center"
+                    style={{
+                      height: '175px',
+                      borderTop: 'solid 1px var(--text-faded)',
+                    }}
+                  >
+                    {value.header}
+                  </div>
+                ) : (
+                  value.header
+                )
               ) : (
                 <></>
               )}

@@ -1,6 +1,7 @@
 import { Descriptions } from 'antd';
 import { startCase } from 'lodash';
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
@@ -16,6 +17,7 @@ import {
 } from '../../../utils';
 import { MIN_TTL_SECONDS } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
+import { ExternalLinkIcon } from '../../icons';
 import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
 import { Loader } from '../../layout';
 import './styles.css';
@@ -35,6 +37,7 @@ export const ANT_MAIN_DETAILS = {
   owner: 'Owner',
   controller: 'Controllers',
 };
+
 export const ANT_METADATA_DETAILS = {
   targetId: 'Target ID',
   ttlSeconds: 'TTL Seconds',
@@ -78,6 +81,7 @@ function PDNTCard(props: PDNSMapping) {
     enableActions,
     disabledKeys,
     primaryKeys,
+    deployedTransactionId,
   } = props;
   const [{ pdnsSourceContract }] = useGlobalState();
   const [pdntDetails, setPDNTDetails] = useState<{ [x: string]: string }>();
@@ -128,6 +132,9 @@ function PDNTCard(props: PDNSMapping) {
 
       const allPDNTDetails: typeof ANT_DETAIL_MAPPINGS = {
         // TODO: remove this when all pdnts have controllers
+        deployedTransactionId: deployedTransactionId
+          ? deployedTransactionId.toString()
+          : undefined,
         contractTxId: contractTxId?.toString() ?? 'N/A',
         domain: decodeDomainToASCII(domain),
         // TODO: update lease duration to fetch lease duration from contract
@@ -135,7 +142,6 @@ function PDNTCard(props: PDNSMapping) {
           ? +pdnsSourceContract.records[domain].endTimestamp * 1000
           : 'N/A',
         maxUndernames: 'Up to ' + tierDetails?.settings.maxUndernames ?? 100,
-        ...overrides,
         name: antContractState.name,
         ticker: antContractState.ticker,
         owner: antContractState.owner,
@@ -215,7 +221,7 @@ function PDNTCard(props: PDNSMapping) {
           style={{ width: '100%' }}
         >
           {Object.entries(pdntDetails).map(([key, value]) => {
-            if (!mappedKeys.includes(key) && limitDetails) {
+            if ((!mappedKeys.includes(key) && limitDetails) || !value) {
               return;
             }
             return (
@@ -224,8 +230,8 @@ function PDNTCard(props: PDNSMapping) {
                 label={`${key}:`}
                 labelStyle={{
                   width: 'fit-content',
-                  color: 'var(--text-faded)',
-                  border: 'solid 1px #292A2B',
+                  color: 'var(--text-grey)',
+                  border: 'solid 1px var(--text-faded)',
                   borderLeft: 'none',
                   borderRight: 'none',
                 }}
@@ -234,13 +240,28 @@ function PDNTCard(props: PDNSMapping) {
                   minWidth: '200px',
                   maxWidth: '600px',
                   color: 'white',
-                  border: 'solid 1px #292A2B',
+                  border: 'solid 1px var(--text-faded)',
                   borderLeft: 'none',
                   borderRight: 'none',
                   textAlign: 'left',
                 }}
               >
-                {isArweaveTransactionID(value) ? (
+                {key === 'Transaction ID' ? (
+                  <Link
+                    to={`https://viewblock.io/arweave/tx/${value}`}
+                    rel="noreferrer"
+                    target="_blank"
+                    className="link hover"
+                    style={{ textDecoration: 'underline' }}
+                  >
+                    {value}&nbsp;
+                    <ExternalLinkIcon
+                      width={'20px'}
+                      height={'20px'}
+                      fill="var(--text-grey)"
+                    />
+                  </Link>
+                ) : isArweaveTransactionID(value) ? (
                   <CopyTextButton
                     displayText={
                       isMobile
@@ -254,7 +275,7 @@ function PDNTCard(props: PDNSMapping) {
                       fontFamily: 'Rubik',
                       justifyContent: 'flex-start',
                       alignItems: 'center',
-                      fill: 'var(--text-faded)',
+                      fill: 'var(--text-grey)',
                     }}
                     position={'relative'}
                   />
@@ -265,13 +286,15 @@ function PDNTCard(props: PDNSMapping) {
                       ? 's'
                       : ''}
                     &nbsp;
-                    <span style={{ color: 'var(--text-faded)' }}>
+                    <span style={{ color: 'var(--text-grey)' }}>
                       (expires approximately{' '}
-                      {Intl.DateTimeFormat('en', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      }).format(+value)}
+                      {+value
+                        ? Intl.DateTimeFormat('en', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                          }).format(+value)
+                        : 'N/A'}
                       )
                     </span>
                   </span>
@@ -300,7 +323,7 @@ function PDNTCard(props: PDNSMapping) {
               fontSize: '15px',
               width: '100%',
               height: 50,
-              color: 'var(--text-faded)',
+              color: 'var(--text-grey)',
             }}
           >
             {limitDetails ? 'View More' : 'View Less'}

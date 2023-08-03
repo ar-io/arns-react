@@ -186,8 +186,8 @@ function SearchBar(props: SearchBarProps) {
             flexDirection: 'row',
             justifyContent: 'space-between',
             marginTop: '15px',
-            gap: 8,
-            color: searchBarText ? 'var(--text-white)' : 'var(--text-faded)',
+            gap: 15,
+            color: searchBarText ? 'var(--text-white)' : 'var(--text-grey)',
           }}
           validationPredicates={{
             'Min. 1 character': {
@@ -206,7 +206,7 @@ function SearchBar(props: SearchBarProps) {
           customValidationIcons={{
             error: (
               <CheckCircleFilled
-                style={{ fontSize: 16, color: 'var(--text-faded)' }}
+                style={{ fontSize: 16, color: 'var(--text-grey)' }}
               />
             ),
             success: (
@@ -216,11 +216,11 @@ function SearchBar(props: SearchBarProps) {
             ),
           }}
         />
-        {!isAvailable && searchBarText && searchSubmitted ? (
+        {searchBarText && searchSubmitted ? (
           <button
             className="link bold text flex-center"
             style={{
-              color: 'var(--text-faded)',
+              color: 'var(--text-grey)',
               width: 'fit-content',
               position: 'absolute',
               right: '75px',
@@ -256,7 +256,11 @@ function SearchBar(props: SearchBarProps) {
           className="accent-button center"
           onClick={_onSubmitButton}
           style={{
-            marginTop: 30,
+            marginTop: 40,
+            padding: '0px',
+            height: '50px',
+            width: '130px',
+            fontSize: '14px',
           }}
         >
           Register Now

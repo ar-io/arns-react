@@ -2,7 +2,10 @@ import React, { Dispatch, createContext, useContext, useReducer } from 'react';
 
 import { ArweaveTransactionID } from '../../types';
 import type { ArweaveWalletConnector, PDNSContractJSON } from '../../types';
-import { DEFAULT_PDNS_REGISTRY_STATE } from '../../utils/constants';
+import {
+  DEFAULT_PDNS_REGISTRY_STATE,
+  PDNS_REGISTRY_ADDRESS,
+} from '../../utils/constants';
 import type { Action } from '../reducers/GlobalReducer';
 
 export type GlobalState = {
@@ -11,16 +14,16 @@ export type GlobalState = {
   walletAddress?: ArweaveTransactionID;
   wallet?: ArweaveWalletConnector;
   pdnsContractId: ArweaveTransactionID;
+  blockHieght?: number;
 };
 
 const initialState: GlobalState = {
-  pdnsContractId: new ArweaveTransactionID(
-    'bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U',
-  ),
+  pdnsContractId: new ArweaveTransactionID(PDNS_REGISTRY_ADDRESS),
   pdnsSourceContract: DEFAULT_PDNS_REGISTRY_STATE,
   gateway: 'arweave.net',
   walletAddress: undefined,
   wallet: undefined,
+  blockHieght: undefined,
 };
 
 const GlobalStateContext = createContext<[GlobalState, Dispatch<Action>]>([
