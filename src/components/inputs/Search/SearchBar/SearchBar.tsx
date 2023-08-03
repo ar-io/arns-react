@@ -316,7 +316,7 @@ function SearchBar(props: SearchBarProps) {
           }`}
           style={{
             alignItems: 'center',
-            marginTop: 90,
+            marginTop: '90px',
             boxSizing: 'border-box',
           }}
         >
