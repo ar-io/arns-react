@@ -45,6 +45,8 @@ import { ReactComponent as SettingsIcon } from './Settings.svg';
 import { ReactComponent as TargetIcon } from './Target.svg';
 import { ReactComponent as TrashIcon } from './Trash.svg';
 import { ReactComponent as UploadIcon } from './Upload.svg';
+import { ReactComponent as BellIcon } from './bell-simple.svg';
+import { ReactComponent as EnvelopeIcon } from './envelope.svg';
 
 export {
   AccountIcon,
@@ -59,6 +61,7 @@ export {
   BookmarkIcon,
   BorderOuterIcon,
   BrandLogo,
+  BellIcon,
   CalendarTimeIcon,
   CheckIcon,
   CheckmarkIcon,
@@ -75,6 +78,7 @@ export {
   CopyIcon,
   CubeIcon,
   ExternalLinkIcon,
+  EnvelopeIcon,
   ExternalLinkOutlined,
   FileCodeIcon,
   HamburgerOutlineIcon,

@@ -6,4 +6,6 @@ export * from './useWalletAddress/useWalletAddress';
 export * from './useWalletDomains/useWalletDomains';
 export * from './useWalletPDNTs/useWalletPDNTs';
 export * from './useTransactionData/useTransactionData';
+export * from './useAuctionInfo/useAuctionInfo';
 export * from './useIsFocused/useIsFocused';
+export * from './useRegistrationStatus/useRegistrationStatus';

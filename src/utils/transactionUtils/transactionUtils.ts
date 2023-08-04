@@ -41,6 +41,10 @@ import {
   TTL_SECONDS_REGEX,
   YEAR_IN_MILLISECONDS,
 } from '../constants';
+import {
+  encodeDomainToASCII,
+  isDomainReservedLength,
+} from '../searchUtils/searchUtils';
 
 export function isArweaveTransactionID(id: string) {
   if (!id) {
@@ -783,8 +787,12 @@ export function isDomainAuctionable({
   reservedList: string[];
 }): boolean {
   if (
-    domain.length <= RESERVED_NAME_LENGTH || // if under 5 characters, auctionable
-    (inRange(domain.length, RESERVED_NAME_LENGTH + 1, 12) &&
+    isDomainReservedLength(domain) || // if under 5 characters, auctionable
+    (inRange(
+      encodeDomainToASCII(domain).length,
+      RESERVED_NAME_LENGTH + 1,
+      12,
+    ) &&
       registrationType === TRANSACTION_TYPES.BUY) || // if permabuying a name between 5 and 11 chars, auctionable
     reservedList.includes(domain) // all premium names are auctionable
   ) {

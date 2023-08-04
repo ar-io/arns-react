@@ -23,6 +23,7 @@ import {
   buildSmartweaveInteractionTags,
   byteSize,
   isDomainAuctionable,
+  isDomainReservedLength,
 } from '../../utils';
 import {
   ATOMIC_REGISTRATION_INPUT,
@@ -326,4 +327,34 @@ export class WarpDataProvider
     throw Error('Not implemented');
   }
   /* eslint-enable */
+
+  isDomainReserved({
+    domain,
+    reservedList,
+  }: {
+    domain: string;
+    reservedList: string[];
+  }): boolean {
+    return reservedList.includes(domain) || isDomainReservedLength(domain);
+  }
+
+  isDomainInAuction({
+    domain,
+    auctionsList,
+  }: {
+    domain: string;
+    auctionsList: string[];
+  }): boolean {
+    return auctionsList.includes(domain);
+  }
+
+  isDomainAvailable({
+    domain,
+    domainsList,
+  }: {
+    domain: string;
+    domainsList: string[];
+  }): boolean {
+    return !domainsList.includes(domain);
+  }
 }

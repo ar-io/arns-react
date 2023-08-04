@@ -2,6 +2,7 @@ import emojiRegex from 'emoji-regex';
 import { asciiToUnicode, unicodeToAscii } from 'puny-coder';
 
 import {
+  ArweaveTransactionID,
   Auction,
   AuctionSettings,
   PDNSRecordEntry,
@@ -18,7 +19,59 @@ import {
   RESERVED_NAME_LENGTH,
   YEAR_IN_MILLISECONDS,
 } from '../constants';
-import { isDomainAuctionable } from '../transactionUtils/transactionUtils';
+
+export function generateAuction({
+  domain,
+  registrationType,
+  years,
+  auctionSettings,
+  tierSettings,
+  fees,
+  currentBlockHeight,
+  walletAddress,
+}: {
+  domain: string;
+  registrationType: TRANSACTION_TYPES;
+  tierSettings: { current: string[]; history: Tier[] };
+  years: number;
+  auctionSettings: { current: string; history: AuctionSettings[] };
+  fees: { [x: number]: number };
+  currentBlockHeight: number;
+  walletAddress: ArweaveTransactionID;
+}): [Auction, AuctionSettings] {
+  const tier = tierSettings.current[0];
+  const currentTier = tierSettings.history.find((t) => t.id === tier);
+  const currentAuctionSettings = auctionSettings.history.find(
+    (a) => a.id === auctionSettings.current,
+  );
+  if (!currentTier || !currentAuctionSettings) {
+    throw new Error(`Could not get fee data`);
+  }
+
+  const { floorPriceMultiplier, startPriceMultiplier } = currentAuctionSettings;
+
+  const basePrice =
+    registrationType === TRANSACTION_TYPES.LEASE
+      ? calculateTotalRegistrationFee(domain, fees, currentTier, years)
+      : calculatePermabuyFee(domain, fees, currentTier);
+
+  const startPrice = basePrice * startPriceMultiplier;
+  const floorPrice = basePrice * floorPriceMultiplier;
+
+  return [
+    {
+      startHeight: currentBlockHeight,
+      startPrice,
+      floorPrice,
+      auctionSettingsId: auctionSettings.current,
+      tier,
+      type: registrationType,
+      initiator: walletAddress.toString(),
+      contractTxId: 'atomic',
+    },
+    currentAuctionSettings,
+  ];
+}
 
 export function calculateFloorPrice({
   domain,
@@ -94,11 +147,12 @@ export function calculatePermabuyFee(
   );
 
   const getMultiplier = () => {
-    if (domain.length > RESERVED_NAME_LENGTH) {
+    const name = encodeDomainToASCII(domain);
+    if (name.length > RESERVED_NAME_LENGTH) {
       return 1;
     }
-    if (domain.length <= RESERVED_NAME_LENGTH) {
-      const shortNameMultiplier = 1 + ((10 - domain.length) * 10) / 100;
+    if (isDomainReservedLength(name)) {
+      const shortNameMultiplier = 1 + ((10 - name.length) * 10) / 100;
       return shortNameMultiplier;
     }
     throw new Error('Unable to compute name multiplier.');
@@ -129,11 +183,12 @@ export function calculateAnnualRenewalFee(
   tier: Tier,
   years: number,
 ) {
+  const name = encodeDomainToASCII(domain);
   const tierAnnualFee = tier.fee;
   if (!tierAnnualFee) {
     throw new Error(`Could not find fee for ${tier}`);
   }
-  const initialNamePurchaseFee = fees[domain.length];
+  const initialNamePurchaseFee = fees[name.length];
   const nameAnnualRegistrationFee =
     initialNamePurchaseFee * ANNUAL_PERCENTAGE_FEE;
   const price = (nameAnnualRegistrationFee + tierAnnualFee) * years;
@@ -147,10 +202,6 @@ export function calculatePDNSNamePrice({
   fees,
   tiers,
   type,
-  reservedList,
-  currentBlockHeight,
-  auctionSettings,
-  auction,
 }: {
   domain: string;
   years: number;
@@ -158,12 +209,10 @@ export function calculatePDNSNamePrice({
   tiers: Tier[];
   fees: { [x: number]: number };
   type: TRANSACTION_TYPES;
-  reservedList: string[];
   currentBlockHeight: number;
-  auctionSettings?: { current: string; history: AuctionSettings[] };
-  auction?: Auction;
 }) {
-  if (!domain || !isPDNSDomainNameValid({ name: domain })) {
+  const name = encodeDomainToASCII(domain);
+  if (!domain || !isPDNSDomainNameValid({ name })) {
     throw Error('Domain name is invalid');
   }
 
@@ -185,58 +234,46 @@ export function calculatePDNSNamePrice({
     type === TRANSACTION_TYPES.LEASE
       ? calculateTotalRegistrationFee(domain, fees, selectedTier, years)
       : calculatePermabuyFee(domain, fees, selectedTier);
-  console.log({
-    registrationFee,
-    selectedTier,
-    type,
-    auction,
-  });
-  if (
-    isDomainAuctionable({
-      domain,
-      registrationType: type,
-      reservedList,
-    })
-  ) {
-    console.log(' domain is auctionable,', {
-      registrationFee,
-      selectedTier,
-      type,
-      auction,
-    });
-
-    const currentAuctionSettings = auctionSettings?.history.find(
-      (a) =>
-        a.id ===
-        (auction ? auction.auctionSettingsId : auctionSettings.current),
-    );
-
-    if (!currentAuctionSettings) {
-      throw new Error(
-        `Auction settings not found for the current auction: ${
-          { auction } ?? { current: auctionSettings?.current }
-        }.`,
-      );
-    }
-
-    const { floorPriceMultiplier, startPriceMultiplier } =
-      currentAuctionSettings;
-
-    return calculateMinimumAuctionBid({
-      startHeight: auction ? auction.startHeight : currentBlockHeight,
-      initialPrice: auction
-        ? auction.startPrice
-        : registrationFee * startPriceMultiplier,
-      floorPrice: auction
-        ? auction.floorPrice
-        : registrationFee * floorPriceMultiplier,
-      currentBlockHeight,
-      decayInterval: currentAuctionSettings.decayInterval,
-      decayRate: currentAuctionSettings.decayRate,
-    });
-  }
 
   return registrationFee;
+}
+
+export function updatePrices({
+  startHeight,
+  initialPrice,
+  floorPrice,
+  decayInterval,
+  decayRate,
+  auctionDuration,
+}: {
+  startHeight: number;
+  initialPrice: number;
+  floorPrice: number;
+  decayInterval: number;
+  decayRate: number;
+  auctionDuration: number;
+}): { [X: string]: number } {
+  const expiredHieght = startHeight + auctionDuration;
+  let currentHeight = startHeight;
+  const newPrices: { [X: string]: number } = {};
+  while (currentHeight < expiredHieght) {
+    const blockPrice = calculateMinimumAuctionBid({
+      startHeight,
+      initialPrice,
+      floorPrice,
+      currentBlockHeight: currentHeight,
+      decayInterval,
+      decayRate,
+    });
+    if (blockPrice <= floorPrice) {
+      break;
+    }
+    newPrices[currentHeight] = blockPrice;
+    currentHeight = currentHeight + decayInterval;
+  }
+
+  newPrices[expiredHieght] = floorPrice;
+  return newPrices;
 }
 
 export function isPDNSDomainNameValid({ name }: { name?: string }): boolean {
@@ -354,4 +391,11 @@ export function getLeaseDurationFromEndTimestamp(start: number, end: number) {
   const years = Math.max(1, differenceInYears);
 
   return years;
+}
+
+export function isDomainReservedLength(domain: string): boolean {
+  if (encodeDomainToASCII(domain).length <= RESERVED_NAME_LENGTH) {
+    return true;
+  }
+  return false;
 }

@@ -22,8 +22,12 @@ describe('SearchBar', () => {
             value=""
             values={{}}
             placeholderText={'Find a name'}
-            headerElement={<SearchBarHeader defaultText="Find a name" />}
-            footerElement={<SearchBarFooter />}
+            headerElement={
+              <SearchBarHeader defaultText="Find a name" reservedList={[]} />
+            }
+            footerElement={
+              <SearchBarFooter isAuction={false} reservedList={[]} />
+            }
           />
           ,
         </Router>,

@@ -155,6 +155,27 @@ export interface SmartweaveContractCache {
     contractTxId: ArweaveTransactionID,
     key: string,
   ): Promise<ContractInteraction[]>;
+  isDomainAvailable({
+    domain,
+    domainsList,
+  }: {
+    domain: string;
+    domainsList: string[];
+  }): boolean;
+  isDomainInAuction({
+    domain,
+    auctionsList,
+  }: {
+    domain: string;
+    auctionsList: string[];
+  }): boolean;
+  isDomainReserved({
+    domain,
+    reservedList,
+  }: {
+    domain: string;
+    reservedList: string[];
+  }): boolean;
 }
 
 export interface SmartweaveContractInteractionProvider {
@@ -266,15 +287,18 @@ export type SearchBarProps = {
 
 export type SearchBarHeaderProps = {
   defaultText: string;
+  reservedList: string[];
   isAvailable?: boolean;
   isDefault?: boolean;
   text?: string;
 };
 
 export type SearchBarFooterProps = {
+  reservedList: string[];
   isAvailable?: boolean;
   searchTerm?: string;
   searchResult?: ArweaveTransactionID;
+  isAuction: boolean;
 };
 
 export type ConnectWalletModalProps = {
@@ -640,6 +664,7 @@ export enum VALIDATION_INPUT_TYPES {
   // unfortunately we cannot use computed values in enums, so be careful if we ever modify this number
   TRANSACTION_CONFIRMATIONS = `Has sufficient confirmations (50+).`,
   VALID_TTL = `Minimum ttl allowed is 900 and Maximum ttl allowed is 2,592,000.`,
+  EMAIL = `Is a valid email`,
   SMARTWEAVE_CONTRACT = `Is a SmartWeave Contract`,
   VALID_ANT_NAME = `ANT name or ticker must be equal or less than 1798 characters.`,
 }

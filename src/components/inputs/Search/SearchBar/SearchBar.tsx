@@ -2,11 +2,20 @@ import { CheckCircleFilled } from '@ant-design/icons';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { useIsMobile, useWalletAddress } from '../../../../hooks';
-import useIsFocused from '../../../../hooks/useIsFocused/useIsFocused';
+import {
+  useAuctionInfo,
+  useIsFocused,
+  useIsMobile,
+  useWalletAddress,
+} from '../../../../hooks';
+import useRegistrationStatus from '../../../../hooks/useRegistrationStatus/useRegistrationStatus';
+import { useGlobalState } from '../../../../state/contexts/GlobalState';
+import { useRegistrationState } from '../../../../state/contexts/RegistrationState';
 import { SearchBarProps } from '../../../../types';
 import {
+  decodeDomainToASCII,
   encodeDomainToASCII,
+  isDomainReservedLength,
   validateMaxASCIILength,
   validateMinASCIILength,
   validateNoLeadingOrTrailingDashes,
@@ -34,15 +43,24 @@ function SearchBar(props: SearchBarProps) {
     height,
   } = props;
   const navigate = useNavigate();
+  const [{ pdnsSourceContract }] = useGlobalState();
+  const [, dispatchRegisterState] = useRegistrationState();
   const { walletAddress } = useWalletAddress();
   const isMobile = useIsMobile();
   const [isSearchValid, setIsSearchValid] = useState(true);
-  const [isAvailable, setIsAvailable] = useState(false);
+  // const [isAvailable, setIsAvailable] = useState(false);
   const [searchSubmitted, setSearchSubmitted] = useState(false);
-  const [searchBarText, setSearchBarText] = useState<string>(value);
+  const [searchBarText, setSearchBarText] = useState<string>(
+    decodeDomainToASCII(value),
+  );
+  const { minimumAuctionBid, auction } = useAuctionInfo(value!);
   const [searchParams, setSearchParams] = useSearchParams();
   const inputRef = useRef<HTMLDivElement | null>(null);
+  const [searchBarBorder, setSearchBarBorder] = useState({});
   const isSearchbarFocused = useIsFocused('searchbar-input-id');
+  const { isAvailable, isAuction, isReserved } = useRegistrationStatus(
+    encodeDomainToASCII(value),
+  );
 
   function reset() {
     setSearchSubmitted(false);
@@ -63,12 +81,31 @@ function SearchBar(props: SearchBarProps) {
 
   useEffect(() => {
     if (value) {
-      setSearchBarText(value);
+      setSearchBarText(decodeDomainToASCII(value));
 
       _onSubmit();
       return;
     }
   }, [value]);
+
+  useEffect(() => {
+    const style = handleSearchbarBorderStyle({
+      domain: searchBarText,
+      auction: isAuction,
+      available: isAvailable,
+      reserved: isReserved,
+      submitted: searchSubmitted,
+      focused: isSearchbarFocused,
+    });
+    setSearchBarBorder(style);
+  }, [
+    searchBarText,
+    searchSubmitted,
+    isSearchbarFocused,
+    isAuction,
+    isAvailable,
+    isReserved,
+  ]);
 
   function _onChange(e: string) {
     setSearchSubmitted(false);
@@ -96,13 +133,19 @@ function SearchBar(props: SearchBarProps) {
       return;
     }
 
-    // // show updated states based on search result
+    // show updated states based on search result
     const searchSuccess = successPredicate(searchBarText);
     setSearchSubmitted(true);
-    setIsAvailable(searchSuccess);
+    // setIsAvailable(searchSuccess);
     if (searchSuccess && searchBarText && values) {
       // on additional functions passed in
       onSuccess(searchBarText);
+      if (auction?.type) {
+        dispatchRegisterState({
+          type: 'setRegistrationType',
+          payload: auction.type,
+        });
+      }
     } else if (!searchSuccess && searchBarText && values) {
       onFailure(
         searchBarText,
@@ -121,26 +164,77 @@ function SearchBar(props: SearchBarProps) {
     _onSubmit(true);
   }
 
-  const handleSearchbarBorderStyle = () => {
-    if (searchBarText) {
-      if (searchSubmitted) {
-        if (isAvailable) {
-          return { border: '2px solid var(--success-green)' };
-        } else {
-          return { border: '2px solid var(--error-red)' };
+  function handleSearchbarBorderStyle({
+    domain,
+    auction,
+    available,
+    reserved,
+    submitted,
+    focused,
+  }: {
+    domain: string;
+    auction: boolean;
+    available: boolean;
+    reserved: boolean;
+    submitted: boolean;
+    focused: boolean;
+  }) {
+    const noTextBorderStyle = { border: '', marginBottom: 30 };
+    const whiteBorderStyle = {
+      border: 'var(--text-white) solid 2px',
+      marginBottom: '30px',
+    };
+    const greyBorderStyle = {
+      border: '2px solid var(--text-grey)',
+      marginBottom: '30px',
+    };
+    const greenBorderStyle = { border: '2px solid var(--success-green)' };
+    const redBorderStyle = {
+      border: '2px solid var(--error-red)',
+      marginBottom: '30px',
+    };
+    const accentBorderStyle = {
+      border: '2px solid var(--accent)',
+      marginBottom: '30px',
+    };
+
+    // Named variables for the cases
+    const isTextSubmitted = domain && submitted;
+    const isTextNotSubmitted = domain && !submitted;
+    const isSearchbarEmptyFocused = !domain && focused;
+    const isTextPresentNotSubmitted = domain && !submitted;
+
+    switch (true) {
+      case isTextSubmitted: {
+        if (reserved) {
+          return greyBorderStyle;
         }
+        if (auction) {
+          return accentBorderStyle;
+        }
+
+        return available ? greenBorderStyle : redBorderStyle;
       }
-      return { border: '2px solid white', marginBottom: 30 };
-    } else {
-      if (isSearchbarFocused) {
-        return { border: 'var(--text-white) solid 2px', marginBottom: 30 };
-      }
-      return { border: '', marginBottom: 30 };
+
+      case isTextNotSubmitted:
+        return whiteBorderStyle;
+
+      case isSearchbarEmptyFocused:
+        return whiteBorderStyle;
+
+      case isTextPresentNotSubmitted:
+        return whiteBorderStyle;
+
+      default:
+        return noTextBorderStyle;
     }
-  };
+  }
 
   return (
-    <div className="searchbar-container flex-center" style={{ maxWidth: 787 }}>
+    <div
+      className="searchbar-container flex-center"
+      style={{ maxWidth: '787px' }}
+    >
       {headerElement ? (
         React.cloneElement(headerElement, {
           ...props,
@@ -154,7 +248,7 @@ function SearchBar(props: SearchBarProps) {
       <div
         className="searchbar"
         style={{
-          ...handleSearchbarBorderStyle(),
+          ...searchBarBorder,
           width: '100%',
           position: 'relative',
         }}
@@ -251,20 +345,66 @@ function SearchBar(props: SearchBarProps) {
           </button>
         )}
       </div>
-      {searchSubmitted && isAvailable ? (
-        <button
-          className="accent-button center"
-          onClick={_onSubmitButton}
+      {searchSubmitted &&
+      isAvailable &&
+      !Object.keys(pdnsSourceContract.reserved).includes(
+        encodeDomainToASCII(searchBarText)!,
+      ) &&
+      !isDomainReservedLength(searchBarText) ? (
+        <div
+          className={`flex flex-row ${
+            minimumAuctionBid ? 'flex-space-between' : 'flex-center'
+          }`}
           style={{
-            marginTop: 40,
-            padding: '0px',
-            height: '50px',
-            width: '130px',
-            fontSize: '14px',
+            alignItems: 'center',
+            marginTop: '90px',
+            boxSizing: 'border-box',
           }}
         >
-          Register Now
-        </button>
+          {minimumAuctionBid ? (
+            <div
+              className="flex flex-column"
+              style={{
+                gap: '8px',
+                justifyContent: 'center',
+                width: 'fit-content',
+              }}
+            >
+              <span
+                className="white left"
+                style={{ fontSize: '16px', width: 'fit-content' }}
+              >
+                Current auction price for instant buy:{' '}
+                {(minimumAuctionBid
+                  ? Math.round(minimumAuctionBid)
+                  : 0
+                ).toLocaleString('en-US')}{' '}
+                IO
+              </span>
+              <span
+                className="grey left"
+                style={{ fontSize: '13px', width: 'fit-content' }}
+              >
+                Started by:{' '}
+                {pdnsSourceContract?.auctions?.[searchBarText!]?.initiator}
+              </span>
+            </div>
+          ) : (
+            <></>
+          )}
+          <button
+            className="accent-button center"
+            onClick={_onSubmitButton}
+            style={{
+              padding: '0px',
+              height: '50px',
+              width: '130px',
+              fontSize: '14px',
+            }}
+          >
+            Register Now
+          </button>
+        </div>
       ) : (
         <></>
       )}

@@ -2,7 +2,7 @@ import { CheckCircleFilled } from '@ant-design/icons';
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-import { useArweaveCompositeProvider } from '../../../hooks';
+import { useArweaveCompositeProvider, useAuctionInfo } from '../../../hooks';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
@@ -11,12 +11,11 @@ import {
   PDNTContractJSON,
   TRANSACTION_TYPES,
 } from '../../../types';
-import { calculateFloorPrice, isDomainAuctionable } from '../../../utils';
+import { calculatePDNSNamePrice, isDomainAuctionable } from '../../../utils';
 import {
   MAX_LEASE_DURATION,
   MIN_LEASE_DURATION,
 } from '../../../utils/constants';
-import { InfoIcon } from '../../icons';
 import YearsCounter from '../../inputs/Counter/Counter';
 import NameTokenSelector from '../../inputs/text/NameTokenSelector/NameTokenSelector';
 import Loader from '../Loader/Loader';
@@ -29,26 +28,85 @@ function RegisterNameForm() {
     { domain, fee, leaseDuration, registrationType },
     dispatchRegisterState,
   ] = useRegistrationState();
-  const [{ pdnsSourceContract, walletAddress }] = useGlobalState();
+  const [{ pdnsSourceContract, walletAddress, blockHieght }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
+  const { minimumAuctionBid, auction, isLiveAuction } = useAuctionInfo(
+    domain,
+    registrationType,
+    leaseDuration,
+  );
+
+  if (registrationType !== auction?.type && auction?.type && isLiveAuction) {
+    dispatchRegisterState({
+      type: 'setRegistrationType',
+      payload: auction?.type,
+    });
+  } else {
+    console.debug('registrationType is undefined');
+  }
 
   useEffect(() => {
-    if (domain && pdnsSourceContract.settings.auctions) {
-      const newFee = calculateFloorPrice({
-        domain,
-        registrationType,
-        tiers: pdnsSourceContract.tiers.history,
-        tier: pdnsSourceContract.tiers.current[0],
+    if (
+      // if auctionable, use auction prices
+      isDomainAuctionable({
+        domain: domain!,
+        registrationType: registrationType,
+        reservedList: Object.keys(pdnsSourceContract?.reserved),
+      }) ||
+      isLiveAuction
+    ) {
+      if (
+        domain &&
+        pdnsSourceContract.settings.auctions &&
+        blockHieght &&
+        auction
+      ) {
+        const newFee = isLiveAuction ? minimumAuctionBid : auction?.floorPrice;
+
+        if (!newFee) {
+          return;
+        }
+        dispatchRegisterState({
+          type: 'setFee',
+          payload: { ar: fee.ar, io: newFee },
+        });
+      }
+    }
+    // if not auctionable, use instant buy prices
+    if (
+      pdnsSourceContract.tiers &&
+      pdnsSourceContract.fees &&
+      domain &&
+      blockHieght &&
+      !isLiveAuction
+    ) {
+      const newFee = calculatePDNSNamePrice({
+        domain: domain!,
+        type: registrationType,
         years: leaseDuration,
-        auctionSettings: pdnsSourceContract.settings.auctions,
+        tier: pdnsSourceContract.tiers.current[0],
+        tiers: pdnsSourceContract.tiers.history,
         fees: pdnsSourceContract.fees,
+        currentBlockHeight: blockHieght,
       });
       dispatchRegisterState({
         type: 'setFee',
         payload: { ar: fee.ar, io: newFee },
       });
+      console.log({
+        newFee,
+        auctionFloor: auction?.floorPrice,
+        auctionStart: auction?.startPrice,
+      });
     }
-  }, [leaseDuration, domain, pdnsSourceContract, registrationType]);
+  }, [
+    leaseDuration,
+    domain,
+    pdnsSourceContract,
+    minimumAuctionBid,
+    auction,
+    registrationType,
+  ]);
 
   async function handlePDNTId(id: string) {
     try {
@@ -142,6 +200,7 @@ function RegisterNameForm() {
           >
             <button
               className="flex flex-row center text-medium bold pointer"
+              disabled={isLiveAuction}
               onClick={() =>
                 dispatchRegisterState({
                   type: 'setRegistrationType',
@@ -183,6 +242,7 @@ function RegisterNameForm() {
             </button>
             <button
               className="flex flex-row center text-medium bold pointer"
+              disabled={isLiveAuction}
               style={{
                 position: 'relative',
                 background:
@@ -258,51 +318,6 @@ function RegisterNameForm() {
               <></>
             )}
           </div>
-          {domain &&
-          pdnsSourceContract.settings.auctions &&
-          isDomainAuctionable({
-            domain,
-            registrationType,
-            reservedList: Object.keys(pdnsSourceContract.reserved),
-          }) ? (
-            <div
-              className="flex flex-row warning-container"
-              style={{
-                gap: '1em',
-                justifyContent: 'flex-start',
-                alignItems: 'flex-start',
-                boxSizing: 'border-box',
-                position: 'relative',
-                paddingLeft: '40px',
-              }}
-            >
-              <InfoIcon
-                width={'20px'}
-                height={'20px'}
-                fill="var(--accent)"
-                style={{ position: 'absolute', top: '20px', left: '12.5px' }}
-              />
-              <span className="flex flex-column" style={{ textAlign: 'left' }}>
-                Choosing to lease this reserved name will initiate a public
-                dutch auction. You will be submitting a bid at the floor price
-                of {fee.io.toLocaleString()} IO. Over a 2 week period, the price
-                of this name will start at 10 times your floor bid, and
-                gradually reduce to your initial bid, at which point you will
-                win the name. At any time during the auction period you can
-                instantly lease it for that price, and if another person does
-                you will lose the auction and have your initial bid returned.
-                <Link
-                  to="http://ar.io/arns"
-                  className="link"
-                  style={{ textDecoration: 'underline', color: 'inherit' }}
-                >
-                  Learn more about how auctions work.
-                </Link>
-              </span>
-            </div>
-          ) : (
-            <></>
-          )}
         </div>
 
         <div className="flex flex-column" style={{ gap: '2em' }}>
@@ -318,6 +333,49 @@ function RegisterNameForm() {
           />
 
           <TransactionCost fee={fee} />
+          {domain &&
+          pdnsSourceContract.settings.auctions &&
+          !isLiveAuction &&
+          isDomainAuctionable({
+            domain: domain,
+            registrationType: registrationType,
+            reservedList: Object.keys(pdnsSourceContract.reserved),
+          }) ? (
+            <div
+              className="flex flex-row warning-container"
+              style={{
+                gap: '1em',
+                justifyContent: 'flex-start',
+                alignItems: 'flex-start',
+                boxSizing: 'border-box',
+                position: 'relative',
+              }}
+            >
+              <span
+                className="flex flex-column"
+                style={{ textAlign: 'left', fontSize: '13px' }}
+              >
+                Choosing to {registrationType} this reserved name will initiate
+                a public dutch auction. You will be submitting a bid at the
+                floor price of {fee.io.toLocaleString()} IO. Over a 2 week
+                period, the price of this name will start at 10 times your floor
+                bid, and gradually reduce to your initial bid, at which point
+                you will win the name. At any time during the auction period you
+                can instantly lease it for that price, and if another person
+                does you will lose the auction and have your initial bid
+                returned.
+                <Link
+                  to="http://ar.io/arns"
+                  className="link"
+                  style={{ textDecoration: 'underline', color: 'inherit' }}
+                >
+                  Learn more about how auctions work.
+                </Link>
+              </span>
+            </div>
+          ) : (
+            <></>
+          )}
         </div>
       </div>
     </div>
