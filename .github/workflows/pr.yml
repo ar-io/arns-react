@@ -31,7 +31,11 @@ jobs:
           # FOR BUILD
           NODE_OPTIONS: --max-old-space-size=32768
           VITE_NODE_ENV: develop
+
+          VITE_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           VITE_SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          VITE_SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+
           VITE_GITHUB_HASH: ${{ github.sha }}
           VITE_ARWEAVE_HOST: ${{ vars.ARWEAVE_HOST }}
           VITE_ARNS_SERVICE_API: ${{ vars.ARNS_SERVICE_API }}
