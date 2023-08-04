@@ -2,7 +2,7 @@ import emojiRegex from 'emoji-regex';
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { useWalletAddress } from '../../../hooks';
+import { useArweaveCompositeProvider, useWalletAddress } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
@@ -20,7 +20,6 @@ import {
 import {
   decodeDomainToASCII,
   encodeDomainToASCII,
-  isDomainReservedLength,
   isPDNSDomainNameAvailable,
   isPDNSDomainNameValid,
 } from '../../../utils/searchUtils/searchUtils';
@@ -44,6 +43,7 @@ function Home() {
   const [featuredDomains, setFeaturedDomains] = useState<{
     [x: string]: string;
   }>();
+  const arweaveDataProvider = useArweaveCompositeProvider();
 
   useEffect(() => {
     if (domain) {
@@ -79,6 +79,33 @@ function Home() {
       setFeaturedDomains(newFeaturedDomains);
     }
   }, [pdnsSourceContract]);
+
+  function showFeaturedDomains(): boolean {
+    const isFeaturedDomains = featuredDomains;
+    const isNotPdntID = !pdntID;
+    const isFirstStage = stage < 1;
+    const isNotAuction = !arweaveDataProvider.isDomainInAuction({
+      domain,
+      auctionsList: Object.keys(pdnsSourceContract.auctions ?? {}),
+    });
+    const isNotReservedDomain = !arweaveDataProvider.isDomainReserved({
+      domain,
+      reservedList: Object.keys(pdnsSourceContract.reserved),
+    });
+
+    if (
+      (isFeaturedDomains &&
+        isNotPdntID &&
+        isFirstStage &&
+        isNotReservedDomain &&
+        isNotAuction) ||
+      !domain
+    ) {
+      return true;
+    }
+
+    return false;
+  }
 
   return (
     <div className="page">
@@ -174,7 +201,7 @@ function Home() {
                 component: (
                   <SearchBar
                     values={pdnsSourceContract.records}
-                    value={domain ? decodeDomainToASCII(domain) : domain}
+                    value={domain ? encodeDomainToASCII(domain) : domain}
                     onSubmit={(next = false) => {
                       dispatchRegisterState({
                         type: 'setIsSearching',
@@ -280,11 +307,7 @@ function Home() {
               },
             }}
           />
-          {featuredDomains &&
-          !pdntID &&
-          stage < 1 &&
-          !Object.keys(pdnsSourceContract.reserved).includes(domain!) &&
-          !(domain && isDomainReservedLength(domain)) ? (
+          {showFeaturedDomains() && featuredDomains ? (
             <FeaturedDomains domains={featuredDomains} />
           ) : (
             <></>

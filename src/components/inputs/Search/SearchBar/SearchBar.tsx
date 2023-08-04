@@ -13,6 +13,7 @@ import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../../state/contexts/RegistrationState';
 import { SearchBarProps } from '../../../../types';
 import {
+  decodeDomainToASCII,
   encodeDomainToASCII,
   isDomainReservedLength,
   validateMaxASCIILength,
@@ -49,13 +50,17 @@ function SearchBar(props: SearchBarProps) {
   const [isSearchValid, setIsSearchValid] = useState(true);
   // const [isAvailable, setIsAvailable] = useState(false);
   const [searchSubmitted, setSearchSubmitted] = useState(false);
-  const [searchBarText, setSearchBarText] = useState<string>(value);
+  const [searchBarText, setSearchBarText] = useState<string>(
+    decodeDomainToASCII(value),
+  );
   const { minimumAuctionBid, auction } = useAuctionInfo(value!);
   const [searchParams, setSearchParams] = useSearchParams();
   const inputRef = useRef<HTMLDivElement | null>(null);
   const [searchBarBorder, setSearchBarBorder] = useState({});
   const isSearchbarFocused = useIsFocused('searchbar-input-id');
-  const { isAvailable, isAuction, isReserved } = useRegistrationStatus(value);
+  const { isAvailable, isAuction, isReserved } = useRegistrationStatus(
+    encodeDomainToASCII(value),
+  );
 
   function reset() {
     setSearchSubmitted(false);
@@ -76,7 +81,7 @@ function SearchBar(props: SearchBarProps) {
 
   useEffect(() => {
     if (value) {
-      setSearchBarText(value);
+      setSearchBarText(decodeDomainToASCII(value));
 
       _onSubmit();
       return;
