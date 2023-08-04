@@ -1,26 +1,21 @@
 import { Dispatch, createContext, useContext, useReducer } from 'react';
 
 import { PDNTContract } from '../../services/arweave/PDNTContract';
-import { ArweaveTransactionID } from '../../types';
+import { ArweaveTransactionID, TRANSACTION_TYPES } from '../../types';
 import { RegistrationAction } from '../reducers/RegistrationReducer';
 
 export type RegistrationState = {
   resolvedTxID?: ArweaveTransactionID;
   domain: string;
   leaseDuration: number;
-  tier: number;
   pdntContract?: PDNTContract;
-  nickname?: string;
-  ticker?: string;
-  controllers: Array<ArweaveTransactionID>;
-  ttl: number;
   targetID?: ArweaveTransactionID;
-  owner?: ArweaveTransactionID;
   pdntID?: ArweaveTransactionID;
   fee: { ar: number; io: number };
   isRegistered: boolean;
   stage: number;
   isSearching: boolean;
+  registrationType: TRANSACTION_TYPES;
 };
 
 export type RegistrationStateProviderProps = {
@@ -33,14 +28,12 @@ export const initialRegistrationState: RegistrationState = {
   domain: '',
   leaseDuration: 1,
   pdntContract: new PDNTContract(),
-  tier: 1,
-  controllers: [],
-  ttl: 100,
   fee: { ar: 0, io: 0 },
   pdntID: undefined,
   isRegistered: false,
   stage: 0,
   isSearching: false,
+  registrationType: TRANSACTION_TYPES.LEASE,
 };
 
 const RegistrationStateContext = createContext<

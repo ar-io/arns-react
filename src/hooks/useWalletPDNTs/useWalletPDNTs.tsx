@@ -90,7 +90,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
             <ChevronUpIcon
               width={10}
               height={10}
-              fill={'var(--text-faded)'}
+              fill={'var(--text-grey)'}
               style={
                 sortField === 'name' && !sortAscending
                   ? { transform: 'rotate(180deg)' }
@@ -98,7 +98,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
               }
             />
             <span>Nickname</span>
-            <NotebookIcon width={24} height={24} fill={'var(--text-faded)'} />
+            <NotebookIcon width={24} height={24} fill={'var(--text-grey)'} />
           </button>
         ),
         dataIndex: 'name',
@@ -133,7 +133,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
             <ChevronUpIcon
               width={10}
               height={10}
-              fill={'var(--text-faded)'}
+              fill={'var(--text-grey)'}
               style={
                 sortField === 'role' && !sortAscending
                   ? { transform: 'rotate(180deg)' }
@@ -141,7 +141,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
               }
             />
             <span>Role</span>
-            <BookmarkIcon width={24} height={24} fill={'var(--text-faded)'} />
+            <BookmarkIcon width={24} height={24} fill={'var(--text-grey)'} />
           </button>
         ),
         dataIndex: 'role',
@@ -175,7 +175,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
             <ChevronUpIcon
               width={10}
               height={10}
-              fill={'var(--text-faded)'}
+              fill={'var(--text-grey)'}
               style={
                 sortField === 'id' && !sortAscending
                   ? { transform: 'rotate(180deg)' }
@@ -183,7 +183,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
               }
             />
             <span>Contract ID</span>
-            <FileCodeIcon width={24} height={24} fill={'var(--text-faded)'} />
+            <FileCodeIcon width={24} height={24} fill={'var(--text-grey)'} />
           </button>
         ),
         dataIndex: 'id',
@@ -207,7 +207,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
                 alignItems: 'center',
                 margin: 'auto',
                 fontSize: '16px',
-                fill: 'var(--text-faded)',
+                fill: 'var(--text-grey)',
               }}
             />
           ),
@@ -237,7 +237,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
             <ChevronUpIcon
               width={10}
               height={10}
-              fill={'var(--text-faded)'}
+              fill={'var(--text-grey)'}
               style={
                 sortField === 'targetID' && !sortAscending
                   ? { transform: 'rotate(180deg)' }
@@ -245,7 +245,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
               }
             />
             <span>Target ID</span>
-            <TargetIcon width={24} height={24} fill={'var(--text-faded)'} />
+            <TargetIcon width={24} height={24} fill={'var(--text-grey)'} />
           </button>
         ),
         dataIndex: 'targetID',
@@ -268,7 +268,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
                 alignItems: 'center',
                 margin: 'auto',
                 fontSize: '16px',
-                fill: 'var(--text-faded)',
+                fill: 'var(--text-grey)',
               }}
             />
           ),
@@ -298,7 +298,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
             <ChevronUpIcon
               width={10}
               height={10}
-              fill={'var(--text-faded)'}
+              fill={'var(--text-grey)'}
               style={
                 sortField === 'status' && !sortAscending
                   ? { transform: 'rotate(180deg)' }
@@ -309,7 +309,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
             <RefreshAlertIcon
               width={24}
               height={24}
-              fill={'var(--text-faded)'}
+              fill={'var(--text-grey)'}
             />
           </button>
         ),

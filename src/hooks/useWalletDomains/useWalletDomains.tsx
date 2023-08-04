@@ -50,7 +50,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
             <ChevronUpIcon
               width={10}
               height={10}
-              fill={'var(--text-faded)'}
+              fill={'var(--text-grey)'}
               style={
                 sortField === 'name' && !sortAscending
                   ? { transform: 'rotate(180deg)' }
@@ -58,7 +58,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
               }
             />
             <span>Name</span>
-            <LinkIcon width={24} height={24} fill={'var(--text-faded)'} />
+            <LinkIcon width={24} height={24} fill={'var(--text-grey)'} />
           </button>
         ),
         dataIndex: 'name',
@@ -109,7 +109,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
             <ChevronUpIcon
               width={10}
               height={10}
-              fill={'var(--text-faded)'}
+              fill={'var(--text-grey)'}
               style={
                 sortField === 'role' && !sortAscending
                   ? { transform: 'rotate(180deg)' }
@@ -117,7 +117,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
               }
             />
             <span>Role</span>
-            <PersonIcon width={24} height={24} fill={'var(--text-faded)'} />
+            <PersonIcon width={24} height={24} fill={'var(--text-grey)'} />
           </button>
         ),
         dataIndex: 'role',
@@ -151,7 +151,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
             <ChevronUpIcon
               width={10}
               height={10}
-              fill={'var(--text-faded)'}
+              fill={'var(--text-grey)'}
               style={
                 sortField === 'id' && !sortAscending
                   ? { transform: 'rotate(180deg)' }
@@ -159,7 +159,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
               }
             />
             <span>Tier</span>
-            <PriceTagIcon width={24} height={24} fill={'var(--text-faded)'} />
+            <PriceTagIcon width={24} height={24} fill={'var(--text-grey)'} />
           </button>
         ),
         dataIndex: 'tier',
@@ -192,7 +192,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
             <ChevronUpIcon
               width={10}
               height={10}
-              fill={'var(--text-faded)'}
+              fill={'var(--text-grey)'}
               style={
                 sortField === 'expiration' && !sortAscending
                   ? { transform: 'rotate(180deg)' }
@@ -203,7 +203,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
             <CalendarTimeIcon
               width={24}
               height={24}
-              fill={'var(--text-faded)'}
+              fill={'var(--text-grey)'}
             />
           </button>
         ),
@@ -238,7 +238,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
             <ChevronUpIcon
               width={10}
               height={10}
-              fill={'var(--text-faded)'}
+              fill={'var(--text-grey)'}
               style={
                 sortField === 'status' && !sortAscending
                   ? { transform: 'rotate(180deg)' }
@@ -249,7 +249,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
             <RefreshAlertIcon
               width={24}
               height={24}
-              fill={'var(--text-faded)'}
+              fill={'var(--text-grey)'}
             />
           </button>
         ),

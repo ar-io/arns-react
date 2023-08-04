@@ -272,7 +272,7 @@ function NameTokenSelector({
         <span
           className="flex flex-row hover center"
           style={{
-            color: listPage == page ? 'white' : 'var(--text-faded)',
+            color: listPage == page ? 'white' : 'var(--text-grey)',
             width: '32px',
           }}
         >
@@ -356,7 +356,7 @@ function NameTokenSelector({
           }`}
         />
         <span
-          className={`flex flex-row text faded flex-center ${
+          className={`flex flex-row text grey flex-center ${
             selectedToken ? 'bold' : ''
           } hover`}
           style={{
@@ -373,7 +373,7 @@ function NameTokenSelector({
             isArweaveTransactionID(searchText) &&
             !Object.keys(tokens ?? []).includes(searchText) ? (
             <button
-              className="button flex flex-row center faded bold hover"
+              className="button flex flex-row center faded bold hover pointer"
               style={{
                 gap: '1em',
                 border: '2px solid var(--text-faded)',
@@ -390,10 +390,10 @@ function NameTokenSelector({
             </button>
           ) : selectedToken ? (
             <button
-              className="button flex flex-row center faded bold hover pointer"
+              className="button flex flex-row center grey hover bold pointer"
               style={{
                 gap: '5px',
-                border: '1px solid var(--text-faded)',
+                border: '1px solid var(--text-grey)',
                 borderRadius: '50px',
                 height: '25px',
               }}
@@ -403,9 +403,9 @@ function NameTokenSelector({
               }}
             >
               <CloseIcon
-                width={'16px'}
-                height={'16px'}
-                fill={'var(--text-faded)'}
+                width={'20px'}
+                height={'20px'}
+                fill={'var(--text-grey)'}
               />
               Remove
             </button>
@@ -523,7 +523,7 @@ function NameTokenSelector({
                       <HamburgerOutlineIcon
                         width={20}
                         height={20}
-                        fill="var(--text-faded)"
+                        fill="var(--text-grey)"
                       />
                     ) : (
                       <></>

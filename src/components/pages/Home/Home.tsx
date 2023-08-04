@@ -2,7 +2,7 @@ import emojiRegex from 'emoji-regex';
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { useWalletAddress } from '../../../hooks';
+import { useArweaveCompositeProvider, useWalletAddress } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
@@ -11,6 +11,7 @@ import {
   BuyRecordPayload,
   INTERACTION_TYPES,
 } from '../../../types';
+import { isDomainAuctionable } from '../../../utils';
 import {
   ATOMIC_FLAG,
   FEATURED_DOMAINS,
@@ -35,13 +36,14 @@ function Home() {
   const [{ pdnsSourceContract }] = useGlobalState();
   const { walletAddress } = useWalletAddress();
   const [
-    { domain, pdntID, stage, isSearching, leaseDuration },
+    { domain, pdntID, stage, isSearching, registrationType, leaseDuration },
     dispatchRegisterState,
   ] = useRegistrationState();
 
   const [featuredDomains, setFeaturedDomains] = useState<{
     [x: string]: string;
   }>();
+  const arweaveDataProvider = useArweaveCompositeProvider();
 
   useEffect(() => {
     if (domain) {
@@ -78,6 +80,33 @@ function Home() {
     }
   }, [pdnsSourceContract]);
 
+  function showFeaturedDomains(): boolean {
+    const isFeaturedDomains = featuredDomains;
+    const isNotPdntID = !pdntID;
+    const isFirstStage = stage < 1;
+    const isNotAuction = !arweaveDataProvider.isDomainInAuction({
+      domain,
+      auctionsList: Object.keys(pdnsSourceContract.auctions ?? {}),
+    });
+    const isNotReservedDomain = !arweaveDataProvider.isDomainReserved({
+      domain,
+      reservedList: Object.keys(pdnsSourceContract.reserved),
+    });
+
+    if (
+      (isFeaturedDomains &&
+        isNotPdntID &&
+        isFirstStage &&
+        isNotReservedDomain &&
+        isNotAuction) ||
+      !domain
+    ) {
+      return true;
+    }
+
+    return false;
+  }
+
   return (
     <div className="page">
       {stage < 1 ? (
@@ -100,21 +129,33 @@ function Home() {
       ) : (
         <div
           className="flex flex-column flex-center"
-          style={{ width: 'fit-content', gap: 0 }}
+          style={{
+            width: '100%',
+            gap: 0,
+            maxWidth: '900px',
+            minWidth: '750px',
+          }}
         >
           <Workflow
             stage={stage.toString()}
             onNext={() => {
-              if (stage == 1) {
+              if (stage == 1 && domain) {
                 const buyRecordPayload: BuyRecordPayload = {
                   name:
                     domain && emojiRegex().test(domain)
                       ? encodeDomainToASCII(domain)
-                      : domain!,
+                      : domain,
                   contractTxId: pdntID ? pdntID.toString() : ATOMIC_FLAG,
-                  tierNumber: 1,
+                  tier: pdnsSourceContract.tiers.current[0],
                   years: leaseDuration,
+                  type: registrationType,
+                  auction: isDomainAuctionable({
+                    domain: domain,
+                    registrationType: registrationType,
+                    reservedList: Object.keys(pdnsSourceContract.reserved),
+                  }),
                 };
+
                 dispatchTransactionState({
                   type: 'setTransactionData',
                   payload: {
@@ -160,7 +201,7 @@ function Home() {
                 component: (
                   <SearchBar
                     values={pdnsSourceContract.records}
-                    value={domain ? decodeDomainToASCII(domain) : domain}
+                    value={domain ? encodeDomainToASCII(domain) : domain}
                     onSubmit={(next = false) => {
                       dispatchRegisterState({
                         type: 'setIsSearching',
@@ -211,10 +252,27 @@ function Home() {
                     }
                     placeholderText={'Search for a name'}
                     headerElement={
-                      <SearchBarHeader defaultText={'Find a name'} />
+                      <SearchBarHeader
+                        defaultText={'Find a name'}
+                        reservedList={
+                          pdnsSourceContract.reserved
+                            ? Object.keys(pdnsSourceContract.reserved)
+                            : []
+                        }
+                      />
                     }
                     footerElement={
                       <SearchBarFooter
+                        isAuction={
+                          pdnsSourceContract?.auctions && domain
+                            ? Object.keys(pdnsSourceContract.auctions).includes(
+                                domain,
+                              )
+                            : false
+                        }
+                        reservedList={Object.keys(
+                          pdnsSourceContract?.reserved ?? {},
+                        )}
                         searchTerm={domain}
                         searchResult={
                           domain &&
@@ -244,11 +302,12 @@ function Home() {
                 showBack: true,
                 disableNext: !walletAddress,
                 requiresWallet: true,
-                customNextStyle: { width: 130 },
+                customNextStyle: { width: 110, padding: '15px' },
+                customBackStyle: { width: 110, padding: '15px' },
               },
             }}
           />
-          {featuredDomains && !pdntID && stage < 1 ? (
+          {showFeaturedDomains() && featuredDomains ? (
             <FeaturedDomains domains={featuredDomains} />
           ) : (
             <></>

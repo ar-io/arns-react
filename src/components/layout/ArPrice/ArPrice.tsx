@@ -24,7 +24,7 @@ function ArPrice({ dataSize }: { dataSize: number }) {
     }
   }
 
-  return <>{`${price} AR`}</>;
+  return <>{`${price.toPrecision(8)} AR`}</>;
 }
 
 export default ArPrice;

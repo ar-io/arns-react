@@ -16,15 +16,15 @@
 }
 .counter-button {
   display: flex;
-  width: 61px;
-  height: 61px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  border: 1px solid var(--text-faded);
+  border: 2px solid var(--text-faded);
   color: var(--text-white);
   justify-content: center;
   align-items: center;
   font-family: 'sans-serif';
-  font-size: 45px;
+  font-size: 35px;
   padding: 0;
 }
 .counter-button:hover {

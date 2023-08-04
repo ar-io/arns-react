@@ -1,6 +1,3 @@
-import { useEffect } from 'react';
-
-import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import {
   MAX_LEASE_DURATION,
@@ -9,7 +6,7 @@ import {
   SMARTWEAVE_TAG_SIZE,
   TIER_DATA,
 } from '../../../utils/constants';
-import { calculatePDNSNamePrice } from '../../../utils/searchUtils/searchUtils';
+//import { calculatePDNSNamePrice } from '../../../utils/searchUtils/searchUtils';
 import TierCard from '../../cards/TierCard/TierCard';
 import Counter from '../../inputs/Counter/Counter';
 import ArPrice from '../ArPrice/ArPrice';
@@ -17,25 +14,23 @@ import { Tooltip } from '../Tooltip/Tooltip';
 import './styles.css';
 
 function UpgradeTier() {
-  const [{ pdnsSourceContract }] = useGlobalState();
-  const [{ fee, leaseDuration, tier, domain }, dispatchRegisterState] =
-    useRegistrationState();
-
-  useEffect(() => {
-    const fees = pdnsSourceContract.fees;
-    if (domain) {
-      const newFee = calculatePDNSNamePrice({
-        domain,
-        selectedTier: tier,
-        years: leaseDuration,
-        fees,
-      });
-      dispatchRegisterState({
-        type: 'setFee',
-        payload: { ar: fee.ar, io: newFee },
-      });
-    }
-  }, [leaseDuration, tier, domain, pdnsSourceContract]);
+  const [{ fee }] = useRegistrationState();
+  //TODO update this in 'upgrade tier' workflow ticket ~ currently no longer used, but was used in original registration workflow
+  //useEffect(() => {
+  // const fees = pdnsSourceContract.fees;
+  // if (domain) {
+  //   const newFee = calculatePDNSNamePrice({
+  //     domain,
+  //     tier: ,
+  //     years: leaseDuration,
+  //     fees,
+  //   });
+  //   dispatchRegisterState({
+  //     type: 'setFee',
+  //     payload: { ar: fee.ar, io: newFee },
+  //   });
+  // }
+  //}, [leaseDuration, domain, pdnsSourceContract]);
 
   return (
     <div className="upgrade-tier">
@@ -46,7 +41,7 @@ function UpgradeTier() {
       />
       <div className="card-container">
         {Object.keys(TIER_DATA).map((tier, index: number) => (
-          <TierCard tierNumber={+tier} key={index} />
+          <TierCard tierId={tier} key={index} />
         ))}
       </div>
       <div className="flex flex-column center" style={{ gap: '0.2em' }}>

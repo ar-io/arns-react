@@ -1,8 +1,8 @@
 import { CheckCircleFilled } from '@ant-design/icons';
-import { Tooltip } from 'antd';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
-import { useArweaveCompositeProvider } from '../../../hooks';
+import { useArweaveCompositeProvider, useAuctionInfo } from '../../../hooks';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
@@ -11,45 +11,102 @@ import {
   PDNTContractJSON,
   TRANSACTION_TYPES,
 } from '../../../types';
-import { calculatePDNSNamePrice } from '../../../utils';
+import { calculatePDNSNamePrice, isDomainAuctionable } from '../../../utils';
 import {
   MAX_LEASE_DURATION,
   MIN_LEASE_DURATION,
-  NAME_PRICE_INFO,
-  SMARTWEAVE_TAG_SIZE,
 } from '../../../utils/constants';
 import YearsCounter from '../../inputs/Counter/Counter';
 import NameTokenSelector from '../../inputs/text/NameTokenSelector/NameTokenSelector';
-import ArPrice from '../ArPrice/ArPrice';
 import Loader from '../Loader/Loader';
+import TransactionCost from '../TransactionCost/TransactionCost';
 import StepProgressBar from '../progress/Steps/Steps';
 import './styles.css';
 
 function RegisterNameForm() {
-  const [{ domain, fee, leaseDuration, tier }, dispatchRegisterState] =
-    useRegistrationState();
-  const [{ pdnsSourceContract, walletAddress }] = useGlobalState();
+  const [
+    { domain, fee, leaseDuration, registrationType },
+    dispatchRegisterState,
+  ] = useRegistrationState();
+  const [{ pdnsSourceContract, walletAddress, blockHieght }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
+  const { minimumAuctionBid, auction, isLiveAuction } = useAuctionInfo(
+    domain,
+    registrationType,
+    leaseDuration,
+  );
 
-  const [transactionType, setTransactionType] = useState<TRANSACTION_TYPES>(
-    TRANSACTION_TYPES.LEASE,
-  ); // lease or buy
+  if (registrationType !== auction?.type && auction?.type && isLiveAuction) {
+    dispatchRegisterState({
+      type: 'setRegistrationType',
+      payload: auction?.type,
+    });
+  } else {
+    console.debug('registrationType is undefined');
+  }
 
   useEffect(() => {
-    const fees = pdnsSourceContract.fees;
-    if (domain) {
+    if (
+      // if auctionable, use auction prices
+      isDomainAuctionable({
+        domain: domain!,
+        registrationType: registrationType,
+        reservedList: Object.keys(pdnsSourceContract?.reserved),
+      }) ||
+      isLiveAuction
+    ) {
+      if (
+        domain &&
+        pdnsSourceContract.settings.auctions &&
+        blockHieght &&
+        auction
+      ) {
+        const newFee = isLiveAuction ? minimumAuctionBid : auction?.floorPrice;
+
+        if (!newFee) {
+          return;
+        }
+        dispatchRegisterState({
+          type: 'setFee',
+          payload: { ar: fee.ar, io: newFee },
+        });
+      }
+    }
+    // if not auctionable, use instant buy prices
+    if (
+      pdnsSourceContract.tiers &&
+      pdnsSourceContract.fees &&
+      domain &&
+      blockHieght &&
+      !isLiveAuction
+    ) {
       const newFee = calculatePDNSNamePrice({
-        domain,
-        selectedTier: tier,
+        domain: domain!,
+        type: registrationType,
         years: leaseDuration,
-        fees,
+        tier: pdnsSourceContract.tiers.current[0],
+        tiers: pdnsSourceContract.tiers.history,
+        fees: pdnsSourceContract.fees,
+        currentBlockHeight: blockHieght,
       });
       dispatchRegisterState({
         type: 'setFee',
         payload: { ar: fee.ar, io: newFee },
       });
+      console.log({
+        newFee,
+        auctionFloor: auction?.floorPrice,
+        auctionStart: auction?.startPrice,
+      });
     }
-  }, [leaseDuration, tier, domain]);
+  }, [
+    leaseDuration,
+    domain,
+    pdnsSourceContract,
+    minimumAuctionBid,
+    auction,
+    registrationType,
+  ]);
 
   async function handlePDNTId(id: string) {
     try {
@@ -62,12 +119,12 @@ function RegisterNameForm() {
       const state =
         await arweaveDataProvider.getContractState<PDNTContractJSON>(txId);
       if (state == undefined) {
-        throw Error('PDNT contract state is undefined');
+        throw Error('ANT contract state is undefined');
       }
       const pdnt = new PDNTContract(state, txId);
 
       if (!pdnt.isValid()) {
-        throw Error('PDNT contract state does not match required schema.');
+        throw Error('ANT contract state does not match required schema.');
       }
     } catch (error: any) {
       console.error(error);
@@ -83,19 +140,19 @@ function RegisterNameForm() {
       className="flex flex-column flex-center"
       style={{
         maxWidth: '900px',
-        minWidth: 750,
+        minWidth: '750px',
         width: '100%',
-        padding: 0,
+        padding: '0px',
         margin: '50px',
-        marginTop: 0,
-        gap: 60,
+        marginTop: '0px',
+        gap: '80px',
         boxSizing: 'border-box',
       }}
     >
       <div
         className="flex flex-row flex-center"
         style={{
-          paddingBottom: 40,
+          paddingBottom: ' 40px',
           borderBottom: 'solid 1px var(--text-faded)',
         }}
       >
@@ -119,12 +176,13 @@ function RegisterNameForm() {
 
       <span
         className="text-medium white center"
-        style={{ fontWeight: 500, fontSize: 23 }}
+        style={{ fontWeight: '500px', fontSize: '23px', gap: '15px' }}
       >
-        <span style={{ color: 'var(--success-green)' }}>{domain}</span>
-        &nbsp;is available!&nbsp;
+        <span style={{ color: 'var(--success-green)' }}>
+          {domain} <span className={'white'}>is available!</span>
+        </span>{' '}
         <CheckCircleFilled
-          style={{ fontSize: 20, color: 'var(--success-green)' }}
+          style={{ fontSize: '20px', color: 'var(--success-green)' }}
         />
       </span>
       <div className="flex flex-column flex-center">
@@ -142,33 +200,39 @@ function RegisterNameForm() {
           >
             <button
               className="flex flex-row center text-medium bold pointer"
-              onClick={() => setTransactionType(TRANSACTION_TYPES.LEASE)}
+              disabled={isLiveAuction}
+              onClick={() =>
+                dispatchRegisterState({
+                  type: 'setRegistrationType',
+                  payload: TRANSACTION_TYPES.LEASE,
+                })
+              }
               style={{
                 position: 'relative',
                 background:
-                  transactionType === TRANSACTION_TYPES.LEASE
+                  registrationType === TRANSACTION_TYPES.LEASE
                     ? 'var(--text-white)'
                     : '',
                 color:
-                  transactionType === TRANSACTION_TYPES.LEASE
+                  registrationType === TRANSACTION_TYPES.LEASE
                     ? 'var(--text-black)'
                     : 'var(--text-white)',
-                border: 'solid 1px var(--text-white)',
+                border: 'solid 2px var(--text-faded)',
                 borderRadius: 'var(--corner-radius)',
                 height: '56px',
                 borderBottomWidth: '0.5px',
               }}
             >
-              {TRANSACTION_TYPES.LEASE}
-              {transactionType === TRANSACTION_TYPES.LEASE ? (
+              Lease
+              {registrationType === TRANSACTION_TYPES.LEASE ? (
                 <div
                   style={{
                     position: 'absolute',
-                    bottom: -6,
+                    bottom: '-6px',
                     left: '50%',
                     transform: 'rotate(45deg)',
-                    width: 11,
-                    height: 11,
+                    width: '11px',
+                    height: '11px',
                     background: 'var(--text-white)',
                   }}
                 ></div>
@@ -178,33 +242,39 @@ function RegisterNameForm() {
             </button>
             <button
               className="flex flex-row center text-medium bold pointer"
+              disabled={isLiveAuction}
               style={{
                 position: 'relative',
                 background:
-                  transactionType === TRANSACTION_TYPES.BUY
+                  registrationType === TRANSACTION_TYPES.BUY
                     ? 'var(--text-white)'
                     : '',
                 color:
-                  transactionType === TRANSACTION_TYPES.BUY
+                  registrationType === TRANSACTION_TYPES.BUY
                     ? 'var(--text-black)'
                     : 'var(--text-white)',
-                border: 'solid 1px var(--text-white)',
+                border: 'solid 2px var(--text-faded)',
                 borderRadius: 'var(--corner-radius)',
                 height: '56px',
                 borderBottomWidth: '0.5px',
               }}
-              onClick={() => setTransactionType(TRANSACTION_TYPES.BUY)}
+              onClick={() =>
+                dispatchRegisterState({
+                  type: 'setRegistrationType',
+                  payload: TRANSACTION_TYPES.BUY,
+                })
+              }
             >
-              {TRANSACTION_TYPES.BUY}
-              {transactionType === TRANSACTION_TYPES.BUY ? (
+              Buy
+              {registrationType === TRANSACTION_TYPES.BUY ? (
                 <div
                   style={{
                     position: 'absolute',
                     bottom: -6,
                     left: '50%',
                     transform: 'rotate(45deg)',
-                    width: 11,
-                    height: 11,
+                    width: '11px',
+                    height: '11px',
                     background: 'var(--text-white)',
                   }}
                 ></div>
@@ -218,7 +288,7 @@ function RegisterNameForm() {
             className="flex flex-column flex-center card"
             style={{
               width: '100%',
-              minHeight: 0,
+              minHeight: '0px',
               height: 'fit-content',
               maxWidth: 'unset',
               padding: '35px',
@@ -228,18 +298,18 @@ function RegisterNameForm() {
               justifyContent: 'flex-start',
             }}
           >
-            {transactionType === TRANSACTION_TYPES.LEASE ? (
+            {registrationType === TRANSACTION_TYPES.LEASE ? (
               <YearsCounter
                 period="years"
                 minValue={MIN_LEASE_DURATION}
                 maxValue={MAX_LEASE_DURATION}
               />
-            ) : transactionType === TRANSACTION_TYPES.BUY ? (
+            ) : registrationType === TRANSACTION_TYPES.BUY ? (
               <div
                 className="flex flex-column flex-center"
                 style={{ gap: '1em' }}
               >
-                <span className="text-medium faded center">
+                <span className="text-medium grey center">
                   Registration Period
                 </span>
                 <span className="text-medium white center">Permanent</span>
@@ -250,7 +320,7 @@ function RegisterNameForm() {
           </div>
         </div>
 
-        <div className="flex flex-column" style={{ gap: '75px' }}>
+        <div className="flex flex-column" style={{ gap: '2em' }}>
           <NameTokenSelector
             selectedTokenCallback={(id) =>
               id
@@ -261,64 +331,51 @@ function RegisterNameForm() {
                   })
             }
           />
-          <div
-            className="flex flex-row"
-            style={{
-              borderBottom: 'solid 1px var(--text-faded)',
-              padding: '20px 0px',
-              justifyContent: 'flex-end',
-              alignItems: 'flex-start',
-            }}
-          >
-            <span className="text white">Cost:</span>
+
+          <TransactionCost fee={fee} />
+          {domain &&
+          pdnsSourceContract.settings.auctions &&
+          !isLiveAuction &&
+          isDomainAuctionable({
+            domain: domain,
+            registrationType: registrationType,
+            reservedList: Object.keys(pdnsSourceContract.reserved),
+          }) ? (
             <div
-              className="flex flex-column"
+              className="flex flex-row warning-container"
               style={{
-                gap: '0.2em',
-                alignItems: 'flex-end',
-                width: 'fit-content',
+                gap: '1em',
+                justifyContent: 'flex-start',
+                alignItems: 'flex-start',
+                boxSizing: 'border-box',
+                position: 'relative',
               }}
             >
-              <Tooltip
-                placement="right"
-                autoAdjustOverflow={true}
-                arrow={true}
-                trigger={'hover'}
-                overlayInnerStyle={{
-                  width: '190px',
-                  color: 'var(--text-black)',
-                  textAlign: 'center',
-                  fontFamily: 'Rubik-Bold',
-                  fontSize: '14px',
-                  backgroundColor: 'var(--text-white)',
-                  padding: '15px',
-                }}
-                title={
-                  <span className="flex flex-column" style={{ gap: '15px' }}>
-                    {NAME_PRICE_INFO}
-                    <a
-                      href="https://ar.io/arns/"
-                      rel="noreferrer"
-                      target="_blank"
-                      className="link center faded underline bold"
-                      style={{ fontSize: '12px' }}
-                    >
-                      Need help choosing a tier?
-                    </a>
-                  </span>
-                }
+              <span
+                className="flex flex-column"
+                style={{ textAlign: 'left', fontSize: '13px' }}
               >
-                <span
-                  className="flex flex-row text white flex-right"
-                  style={{ gap: '5px', width: 'fit-content' }}
+                Choosing to {registrationType} this reserved name will initiate
+                a public dutch auction. You will be submitting a bid at the
+                floor price of {fee.io.toLocaleString()} IO. Over a 2 week
+                period, the price of this name will start at 10 times your floor
+                bid, and gradually reduce to your initial bid, at which point
+                you will win the name. At any time during the auction period you
+                can instantly lease it for that price, and if another person
+                does you will lose the auction and have your initial bid
+                returned.
+                <Link
+                  to="http://ar.io/arns"
+                  className="link"
+                  style={{ textDecoration: 'underline', color: 'inherit' }}
                 >
-                  {fee.io?.toLocaleString()}&nbsp;IO&nbsp;+&nbsp;
-                  <ArPrice dataSize={SMARTWEAVE_TAG_SIZE} />
-                </span>
-              </Tooltip>
-              <span className="text faded">(Approximately 0 USD)</span>
+                  Learn more about how auctions work.
+                </Link>
+              </span>
             </div>
-          </div>
+          ) : (
+            <></>
+          )}
         </div>
       </div>
     </div>

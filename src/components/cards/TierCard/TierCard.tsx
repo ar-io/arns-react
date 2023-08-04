@@ -1,11 +1,13 @@
-import { useRegistrationState } from '../../../state/contexts/RegistrationState';
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { TierCardProps } from '../../../types';
 import { TIER_DATA } from '../../../utils/constants';
 import { CircleCheck } from '../../icons';
 import './styles.css';
 
-function TierCard({ tierNumber }: TierCardProps) {
-  const [{ tier }, dispatchRegisterState] = useRegistrationState();
+function TierCard({ tierId }: TierCardProps) {
+  const [{ pdnsSourceContract }] = useGlobalState();
+  const tiers = pdnsSourceContract.tiers.current;
+  const tierNumber = tiers.indexOf(tierId);
   return (
     <div className="tier-card hover">
       <div className="text bubble-small">Tier&nbsp;{tierNumber}</div>
@@ -21,12 +23,12 @@ function TierCard({ tierNumber }: TierCardProps) {
         </span>
       ))}
 
-      {tierNumber !== tier ? (
+      {tiers[tierNumber] !== tierId ? (
         <button
           className="select-button"
-          onClick={() =>
-            dispatchRegisterState({ type: 'setTier', payload: tierNumber })
-          }
+          onClick={() => {
+            // TODO: add action for setting tier in context provider
+          }}
         >
           Select
         </button>

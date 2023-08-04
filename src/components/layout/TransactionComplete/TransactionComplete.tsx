@@ -1,4 +1,5 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { PlusOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 
 import {
   ArweaveTransactionID,
@@ -11,7 +12,8 @@ import {
   getPDNSMappingByInteractionType,
 } from '../../../utils/transactionUtils/transactionUtils';
 import { PDNTCard } from '../../cards';
-import { ArrowUpRight } from '../../icons';
+import { CodeSandboxIcon, SettingsIcon } from '../../icons';
+import ActionCard from './ActionCard';
 
 function TransactionComplete({
   transactionId,
@@ -38,109 +40,63 @@ function TransactionComplete({
   }
 
   return (
-    <>
-      <div
-        className="flex-column center"
-        style={{ gap: '3em', width: '700px' }}
-      >
-        <div className="flex-column center" style={{ gap: '2em' }}>
-          {/* TODO: configure error or fail states */}
-          <PDNTCard {...pdntProps} />
-          <div
-            className="flex flex-row center"
-            style={{
-              maxWidth: '75%',
-              justifyContent: 'space-evenly',
-              boxSizing: 'border-box',
-            }}
-          >
-            <Link to="/" className="link" style={{ textDecoration: 'none' }}>
-              <div
-                className="flex flex-column center card"
-                style={{
-                  minWidth: '175px',
-                  minHeight: '100px',
-                  flex: 1,
-                  padding: '0px',
-                  gap: '.5em',
-                  textDecoration: 'none',
-                }}
-              >
-                <ArrowUpRight
-                  width={'30px'}
-                  height={'30px'}
-                  fill={'var(--text-white)'}
-                />
-                <span className="flex text-medium faded center">
-                  Register a Name
-                </span>
+    <div className="flex-column center" style={{ gap: '20px', width: '700px' }}>
+      <div className="flex-column center" style={{ gap: '20px' }}>
+        <div
+          className="flex flex-row center"
+          style={{
+            justifyContent: 'space-between',
+            boxSizing: 'border-box',
+            gap: '20px',
+          }}
+        >
+          <ActionCard
+            to={`/manage/ants/${getLinkId(interactionType, {
+              ...transactionData,
+              deployedTransactionId: transactionId,
+            }).trim()}`}
+            body={
+              <div className="flex flex-column center" style={{ gap: '15px' }}>
+                <SettingsIcon width={'20px'} fill={'var(--text-grey)'} />
+                Configure Domain
               </div>
-            </Link>
+            }
+          />
 
-            <Link
-              to={`/manage/ants/${getLinkId(interactionType, {
-                ...transactionData,
-                deployedTransactionId: transactionId,
-              }).trim()}`}
-              className="link"
-              style={{ textDecoration: 'none' }}
-            >
-              <div
-                className="flex flex-column center card"
-                style={{
-                  minWidth: '175px',
-                  minHeight: '100px',
-                  flex: 1,
-                  padding: '0px',
-                  gap: '.5em',
-                  textDecoration: 'none',
-                }}
-              >
-                <ArrowUpRight
-                  width={'30px'}
-                  height={'30px'}
-                  fill={'var(--text-white)'}
-                />
-                <span className="flex text-medium faded center">
-                  Manage ANT
-                </span>
+          <ActionCard
+            to={`/manage/ants`}
+            body={
+              <div className="flex flex-column center" style={{ gap: '15px' }}>
+                <CodeSandboxIcon width={'20px'} fill={'var(--text-grey)'} />
+                Create ANTs
               </div>
-            </Link>
+            }
+          />
 
-            <Link
-              // TODO: update to route to undernames
-              to={`/manage/ants/${getLinkId(interactionType, {
-                ...transactionData,
-                deployedTransactionId: transactionId,
-              }).trim()}/undernames`}
-              className="link"
-              style={{ textDecoration: 'none' }}
-            >
-              <div
-                className="flex flex-column center card"
-                style={{
-                  minWidth: '175px',
-                  minHeight: '100px',
-                  flex: 1,
-                  padding: '0px',
-                  gap: '.5em',
-                  textDecoration: 'none',
-                }}
-              >
-                <ArrowUpRight
-                  width={'30px'}
-                  height={'30px'}
-                  fill={'var(--text-white)'}
+          <ActionCard
+            to={`/manage/ants/${getLinkId(interactionType, {
+              ...transactionData,
+              deployedTransactionId: transactionId,
+            }).trim()}/undernames`}
+            body={
+              <div className="flex flex-column center" style={{ gap: '15px' }}>
+                <PlusOutlined
+                  style={{ color: 'var(--text-grey)', fontSize: '20px' }}
                 />
-                <span className="flex text-medium faded center">
-                  Add Undernames
-                </span>
+                Add Undernames
               </div>
-            </Link>
-          </div>
+            }
+          />
         </div>
+        <PDNTCard
+          {...pdntProps}
+          overrides={{
+            ...pdntProps.overrides,
+          }}
+          compact={false}
+        />
       </div>
-    </>
+    </div>
   );
 }
 

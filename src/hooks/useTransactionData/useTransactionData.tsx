@@ -49,7 +49,7 @@ export function useTransactionData() {
       workflowStage,
     });
 
-    setSearchParams(updatedSearchParams);
+    setSearchParams(updatedSearchParams, { replace: true });
 
     // if atomic registration detected, generate the state for it.
     if (

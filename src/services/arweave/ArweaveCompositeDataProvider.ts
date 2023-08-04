@@ -6,6 +6,7 @@ import {
   PDNTContractJSON,
   SmartweaveContractCache,
   SmartweaveContractInteractionProvider,
+  TRANSACTION_TYPES,
   TransactionTag,
 } from '../../types';
 
@@ -141,12 +142,18 @@ export class ArweaveCompositeDataProvider
     srcCodeTransactionId,
     initialState,
     domain,
+    type,
+    years,
+    reservedList,
   }: {
     walletAddress: ArweaveTransactionID;
     registryId: ArweaveTransactionID;
     srcCodeTransactionId: ArweaveTransactionID;
     initialState: PDNTContractJSON;
     domain: string;
+    type: TRANSACTION_TYPES;
+    years?: number;
+    reservedList: string[];
   }): Promise<string | undefined> {
     return await this._interactionProvider.registerAtomicName({
       walletAddress,
@@ -154,6 +161,9 @@ export class ArweaveCompositeDataProvider
       srcCodeTransactionId,
       initialState,
       domain,
+      type,
+      years,
+      reservedList,
     });
   }
 
@@ -183,6 +193,42 @@ export class ArweaveCompositeDataProvider
       this._contractProviders.map((p) =>
         p.getPendingContractInteractions(contractTxId, key),
       ),
+    );
+  }
+  // TODO: implement arns service query for the following 3 functions
+  isDomainReserved({
+    domain,
+    reservedList,
+  }: {
+    domain: string;
+    reservedList: string[];
+  }): boolean {
+    return this._contractProviders.some((p) =>
+      p.isDomainReserved({ domain, reservedList }),
+    );
+  }
+
+  isDomainInAuction({
+    domain,
+    auctionsList,
+  }: {
+    domain: string;
+    auctionsList: string[];
+  }): boolean {
+    return this._contractProviders.some((p) =>
+      p.isDomainInAuction({ domain, auctionsList }),
+    );
+  }
+
+  isDomainAvailable({
+    domain,
+    domainsList,
+  }: {
+    domain: string;
+    domainsList: string[];
+  }): boolean {
+    return this._contractProviders.some((p) =>
+      p.isDomainAvailable({ domain, domainsList }),
     );
   }
 }
