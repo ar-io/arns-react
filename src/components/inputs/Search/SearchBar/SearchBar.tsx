@@ -15,7 +15,6 @@ import { SearchBarProps } from '../../../../types';
 import {
   decodeDomainToASCII,
   encodeDomainToASCII,
-  isDomainReservedLength,
   validateMaxASCIILength,
   validateMinASCIILength,
   validateNoLeadingOrTrailingDashes,
@@ -59,7 +58,6 @@ function SearchBar(props: SearchBarProps) {
   const isSearchbarFocused = useIsFocused('searchbar-input-id');
   const [
     { isAvailable, isAuction, isReserved, loading: isValidatingRegistration },
-    validateRegistrationStatus,
   ] = useRegistrationStatus(encodeDomainToASCII(value));
 
   function reset() {
