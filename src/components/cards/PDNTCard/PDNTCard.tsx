@@ -12,6 +12,7 @@ import {
 } from '../../../types';
 import {
   decodeDomainToASCII,
+  encodeDomainToASCII,
   getLeaseDurationFromEndTimestamp,
   isArweaveTransactionID,
 } from '../../../utils';
@@ -124,9 +125,15 @@ function PDNTCard(props: PDNSMapping) {
 
       const tiers = pdnsSourceContract.tiers;
 
-      const tierDetails = pdnsSourceContract.records[domain]
+      const tierDetails = pdnsSourceContract.records[
+        encodeDomainToASCII(domain).toLowerCase()
+      ]
         ? tiers.history.find(
-            (tier) => tier.id === pdnsSourceContract.records[domain].tier,
+            (tier) =>
+              tier.id ===
+              pdnsSourceContract.records[
+                encodeDomainToASCII(domain).toLowerCase()
+              ].tier,
           )
         : undefined;
 
@@ -138,8 +145,12 @@ function PDNTCard(props: PDNSMapping) {
         contractTxId: contractTxId?.toString() ?? 'N/A',
         domain: decodeDomainToASCII(domain),
         // TODO: update lease duration to fetch lease duration from contract
-        leaseDuration: pdnsSourceContract.records[domain]
-          ? +pdnsSourceContract.records[domain].endTimestamp * 1000
+        leaseDuration: pdnsSourceContract.records[
+          encodeDomainToASCII(domain).toLowerCase()
+        ]
+          ? +pdnsSourceContract.records[
+              encodeDomainToASCII(domain).toLowerCase()
+            ].endTimestamp * 1000
           : 'N/A',
         maxUndernames: 'Up to ' + tierDetails?.settings.maxUndernames ?? 100,
         name: antContractState.name,

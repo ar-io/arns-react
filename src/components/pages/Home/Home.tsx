@@ -263,26 +263,29 @@ function Home() {
                       isValidatingRegistration ? (
                         <Loader size={80} />
                       ) : (
+                        // TODO: update is auction once service supports queries for auction field
                         <SearchBarFooter
                           isAuction={
                             pdnsSourceContract?.auctions && domain
                               ? Object.keys(
                                   pdnsSourceContract.auctions,
-                                ).includes(domain)
+                                ).includes(
+                                  encodeDomainToASCII(domain).toLowerCase(),
+                                )
                               : false
                           }
                           reservedList={Object.keys(
                             pdnsSourceContract?.reserved ?? {},
                           )}
-                          searchTerm={domain}
+                          searchTerm={encodeDomainToASCII(domain).toLowerCase()}
                           searchResult={
                             domain &&
                             pdnsSourceContract.records[
-                              encodeDomainToASCII(domain)
+                              encodeDomainToASCII(domain).toLowerCase()
                             ]
                               ? new ArweaveTransactionID(
                                   pdnsSourceContract.records[
-                                    encodeDomainToASCII(domain)
+                                    encodeDomainToASCII(domain).toLowerCase()
                                   ].contractTxId,
                                 )
                               : undefined

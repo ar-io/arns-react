@@ -14,7 +14,10 @@ function SearchBarHeader({
   const [{ pdnsSourceContract }] = useGlobalState();
 
   // unavailable condition
-  if (text && pdnsSourceContract?.auctions?.[text]) {
+  if (
+    text &&
+    pdnsSourceContract?.auctions?.[encodeDomainToASCII(text).toLowerCase()]
+  ) {
     return (
       <span
         className="text-medium white center"
@@ -28,7 +31,7 @@ function SearchBarHeader({
 
   // reserved condition
   if (
-    (text && reservedList.includes(encodeDomainToASCII(text))) ||
+    (text && reservedList.includes(encodeDomainToASCII(text).toLowerCase())) ||
     (text && isDomainReservedLength(text))
   ) {
     return (

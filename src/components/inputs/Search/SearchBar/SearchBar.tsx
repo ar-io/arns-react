@@ -151,7 +151,7 @@ function SearchBar(props: SearchBarProps) {
     } else if (!searchSuccess && searchBarText && values) {
       onFailure(
         searchBarText,
-        values[encodeDomainToASCII(searchBarText)].contractTxId,
+        values[encodeDomainToASCII(searchBarText).toLowerCase()].contractTxId,
       );
     }
   }
@@ -386,7 +386,11 @@ function SearchBar(props: SearchBarProps) {
                 style={{ fontSize: '13px', width: 'fit-content' }}
               >
                 Started by:{' '}
-                {pdnsSourceContract?.auctions?.[searchBarText!]?.initiator}
+                {
+                  pdnsSourceContract?.auctions?.[
+                    encodeDomainToASCII(searchBarText).toLowerCase()!
+                  ]?.initiator
+                }
               </span>
             </div>
           ) : (
