@@ -21,7 +21,6 @@ function useRegistrationStatus(domain: string) {
       setLoading(true);
       const available = arweaveDataProvider.isDomainAvailable({
         domain,
-        domainsList: Object.keys(pdnsSourceContract.records),
       });
       const auction = arweaveDataProvider.isDomainInAuction({
         domain,

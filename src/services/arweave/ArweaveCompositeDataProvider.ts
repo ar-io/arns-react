@@ -215,15 +215,7 @@ export class ArweaveCompositeDataProvider
     );
   }
 
-  isDomainAvailable({
-    domain,
-    domainsList,
-  }: {
-    domain: string;
-    domainsList: string[];
-  }): boolean {
-    return this._contractProviders.some((p) =>
-      p.isDomainAvailable({ domain, domainsList }),
-    );
+  async isDomainAvailable({ domain }: { domain: string }): Promise<boolean> {
+    return this._contractProviders.some((p) => p.isDomainAvailable({ domain }));
   }
 }

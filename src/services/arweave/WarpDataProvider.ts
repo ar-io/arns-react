@@ -351,13 +351,10 @@ export class WarpDataProvider
     return auctionsList.includes(domain);
   }
 
-  isDomainAvailable({
-    domain,
-    domainsList,
-  }: {
-    domain: string;
-    domainsList: string[];
-  }): boolean {
+  async isDomainAvailable({ domain }: { domain: string }): Promise<boolean> {
+    const domainsList = await this.getContractState<PDNSContractJSON>(
+      new ArweaveTransactionID(PDNS_REGISTRY_ADDRESS),
+    ).then((state) => Object.keys(state.records));
     return !domainsList.includes(domain);
   }
 }

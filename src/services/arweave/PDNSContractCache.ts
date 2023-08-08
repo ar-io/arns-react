@@ -126,13 +126,15 @@ export class PDNSContractCache implements SmartweaveContractCache {
     return auctionsList.includes(domain);
   }
 
-  isDomainAvailable({
-    domain,
-    domainsList,
-  }: {
-    domain: string;
-    domainsList: string[];
-  }): boolean {
-    return !domainsList.includes(domain);
+  async isDomainAvailable({ domain }: { domain: string }): Promise<boolean> {
+    const res = await fetch(
+      `${
+        this._url
+      }/v1/contract/${PDNS_REGISTRY_ADDRESS}/records/${encodeDomainToASCII(
+        domain,
+      )}`,
+    );
+    const isAvailable = res.status === 200;
+    return isAvailable;
   }
 }
