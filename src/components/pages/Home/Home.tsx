@@ -45,7 +45,6 @@ function Home() {
   const [featuredDomains, setFeaturedDomains] = useState<{
     [x: string]: string;
   }>();
-  const [showFeaturedDomains, setShowFeaturedDomains] = useState<boolean>(true);
 
   useEffect(() => {
     if (domain) {

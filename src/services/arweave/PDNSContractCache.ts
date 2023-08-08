@@ -134,7 +134,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
         domain,
       )}`,
     );
-    const isAvailable = res.status === 200;
+    const isAvailable = res.status !== 200;
     return isAvailable;
   }
 }
