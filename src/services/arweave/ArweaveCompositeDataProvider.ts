@@ -196,16 +196,11 @@ export class ArweaveCompositeDataProvider
     );
   }
   // TODO: implement arns service query for the following 3 functions
-  isDomainReserved({
-    domain,
-    reservedList,
-  }: {
-    domain: string;
-    reservedList: string[];
-  }): boolean {
-    return this._contractProviders.some((p) =>
-      p.isDomainReserved({ domain, reservedList }),
+  async isDomainReserved({ domain }: { domain: string }): Promise<boolean> {
+    const res = await Promise.all(
+      this._contractProviders.map((p) => p.isDomainReserved({ domain })),
     );
+    return res.includes(true);
   }
 
   isDomainInAuction({

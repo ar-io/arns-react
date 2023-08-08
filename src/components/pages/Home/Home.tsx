@@ -2,7 +2,8 @@ import emojiRegex from 'emoji-regex';
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { useArweaveCompositeProvider, useWalletAddress } from '../../../hooks';
+import { useWalletAddress } from '../../../hooks';
+import useRegistrationStatus from '../../../hooks/useRegistrationStatus/useRegistrationStatus';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
@@ -39,11 +40,12 @@ function Home() {
     { domain, pdntID, stage, isSearching, registrationType, leaseDuration },
     dispatchRegisterState,
   ] = useRegistrationState();
-
+  const [{ isAuction, isReserved, loading: isValidatingRegistration }] =
+    useRegistrationStatus(domain);
   const [featuredDomains, setFeaturedDomains] = useState<{
     [x: string]: string;
   }>();
-  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [showFeaturedDomains, setShowFeaturedDomains] = useState<boolean>(true);
 
   useEffect(() => {
     if (domain) {
@@ -80,27 +82,24 @@ function Home() {
     }
   }, [pdnsSourceContract]);
 
-  function showFeaturedDomains(): boolean {
-    const isFeaturedDomains = featuredDomains;
-    const isNotPdntID = !pdntID;
-    const isFirstStage = stage < 1;
-    const isNotAuction = !arweaveDataProvider.isDomainInAuction({
-      domain,
-      auctionsList: Object.keys(pdnsSourceContract.auctions ?? {}),
-    });
-    const isNotReservedDomain = !arweaveDataProvider.isDomainReserved({
-      domain,
-      reservedList: Object.keys(pdnsSourceContract.reserved),
-    });
+  function updateShowFeaturedDomains({
+    auction,
+    reserved,
+    domains,
+    id,
+    currentStage,
+    name,
+  }: {
+    auction: boolean;
+    currentStage: number;
+    reserved: boolean;
+    domains: { [x: string]: string };
+    id: ArweaveTransactionID | undefined;
+    name: string | undefined;
+  }): boolean {
+    const isFirstStage = currentStage < 1;
 
-    if (
-      (isFeaturedDomains &&
-        isNotPdntID &&
-        isFirstStage &&
-        isNotReservedDomain &&
-        isNotAuction) ||
-      !domain
-    ) {
+    if ((domains && !id && isFirstStage && !reserved && !auction) || !name) {
       return true;
     }
 
@@ -262,31 +261,35 @@ function Home() {
                       />
                     }
                     footerElement={
-                      <SearchBarFooter
-                        isAuction={
-                          pdnsSourceContract?.auctions && domain
-                            ? Object.keys(pdnsSourceContract.auctions).includes(
-                                domain,
-                              )
-                            : false
-                        }
-                        reservedList={Object.keys(
-                          pdnsSourceContract?.reserved ?? {},
-                        )}
-                        searchTerm={domain}
-                        searchResult={
-                          domain &&
-                          pdnsSourceContract.records[
-                            encodeDomainToASCII(domain)
-                          ]
-                            ? new ArweaveTransactionID(
-                                pdnsSourceContract.records[
-                                  encodeDomainToASCII(domain)
-                                ].contractTxId,
-                              )
-                            : undefined
-                        }
-                      />
+                      isValidatingRegistration ? (
+                        <Loader size={80} />
+                      ) : (
+                        <SearchBarFooter
+                          isAuction={
+                            pdnsSourceContract?.auctions && domain
+                              ? Object.keys(
+                                  pdnsSourceContract.auctions,
+                                ).includes(domain)
+                              : false
+                          }
+                          reservedList={Object.keys(
+                            pdnsSourceContract?.reserved ?? {},
+                          )}
+                          searchTerm={domain}
+                          searchResult={
+                            domain &&
+                            pdnsSourceContract.records[
+                              encodeDomainToASCII(domain)
+                            ]
+                              ? new ArweaveTransactionID(
+                                  pdnsSourceContract.records[
+                                    encodeDomainToASCII(domain)
+                                  ].contractTxId,
+                                )
+                              : undefined
+                          }
+                        />
+                      )
                     }
                     height={65}
                   />
@@ -307,7 +310,16 @@ function Home() {
               },
             }}
           />
-          {showFeaturedDomains() && featuredDomains ? (
+          {!isValidatingRegistration &&
+          updateShowFeaturedDomains({
+            auction: isAuction,
+            currentStage: stage,
+            reserved: isReserved,
+            domains: featuredDomains ?? {},
+            id: pdntID,
+            name: domain,
+          }) &&
+          featuredDomains ? (
             <FeaturedDomains domains={featuredDomains} />
           ) : (
             <></>

@@ -48,7 +48,6 @@ function SearchBar(props: SearchBarProps) {
   const { walletAddress } = useWalletAddress();
   const isMobile = useIsMobile();
   const [isSearchValid, setIsSearchValid] = useState(true);
-  // const [isAvailable, setIsAvailable] = useState(false);
   const [searchSubmitted, setSearchSubmitted] = useState(false);
   const [searchBarText, setSearchBarText] = useState<string>(
     decodeDomainToASCII(value),
@@ -58,9 +57,10 @@ function SearchBar(props: SearchBarProps) {
   const inputRef = useRef<HTMLDivElement | null>(null);
   const [searchBarBorder, setSearchBarBorder] = useState({});
   const isSearchbarFocused = useIsFocused('searchbar-input-id');
-  const { isAvailable, isAuction, isReserved } = useRegistrationStatus(
-    encodeDomainToASCII(value),
-  );
+  const [
+    { isAvailable, isAuction, isReserved, loading: isValidatingRegistration },
+    validateRegistrationStatus,
+  ] = useRegistrationStatus(encodeDomainToASCII(value));
 
   function reset() {
     setSearchSubmitted(false);
@@ -82,7 +82,6 @@ function SearchBar(props: SearchBarProps) {
   useEffect(() => {
     if (value) {
       setSearchBarText(decodeDomainToASCII(value));
-
       _onSubmit();
       return;
     }
@@ -94,9 +93,12 @@ function SearchBar(props: SearchBarProps) {
       auction: isAuction,
       available: isAvailable,
       reserved: isReserved,
-      submitted: searchSubmitted,
+      submitted: searchSubmitted && !isValidatingRegistration,
       focused: isSearchbarFocused,
     });
+    if (isValidatingRegistration) {
+      return;
+    }
     setSearchBarBorder(style);
   }, [
     searchBarText,
@@ -179,7 +181,7 @@ function SearchBar(props: SearchBarProps) {
     submitted: boolean;
     focused: boolean;
   }) {
-    const noTextBorderStyle = { border: '', marginBottom: 30 };
+    const noTextBorderStyle = { border: '', marginBottom: '30px' };
     const whiteBorderStyle = {
       border: 'var(--text-white) solid 2px',
       marginBottom: '30px',
@@ -188,7 +190,10 @@ function SearchBar(props: SearchBarProps) {
       border: '2px solid var(--text-grey)',
       marginBottom: '30px',
     };
-    const greenBorderStyle = { border: '2px solid var(--success-green)' };
+    const greenBorderStyle = {
+      border: '2px solid var(--success-green)',
+      marginBottom: '0px',
+    };
     const redBorderStyle = {
       border: '2px solid var(--error-red)',
       marginBottom: '30px',
@@ -207,6 +212,7 @@ function SearchBar(props: SearchBarProps) {
     switch (true) {
       case isTextSubmitted: {
         if (reserved) {
+          console.log(':grey', reserved);
           return greyBorderStyle;
         }
         if (auction) {
@@ -217,11 +223,7 @@ function SearchBar(props: SearchBarProps) {
       }
 
       case isTextNotSubmitted:
-        return whiteBorderStyle;
-
       case isSearchbarEmptyFocused:
-        return whiteBorderStyle;
-
       case isTextPresentNotSubmitted:
         return whiteBorderStyle;
 
@@ -238,7 +240,10 @@ function SearchBar(props: SearchBarProps) {
       {headerElement ? (
         React.cloneElement(headerElement, {
           ...props,
-          text: searchSubmitted ? searchBarText : undefined,
+          text:
+            searchSubmitted && !isValidatingRegistration
+              ? searchBarText
+              : undefined,
           isAvailable,
         })
       ) : (
@@ -248,9 +253,10 @@ function SearchBar(props: SearchBarProps) {
       <div
         className="searchbar"
         style={{
-          ...searchBarBorder,
+          marginBottom: '30px',
           width: '100%',
           position: 'relative',
+          ...searchBarBorder,
         }}
         ref={inputRef}
       >
@@ -345,19 +351,14 @@ function SearchBar(props: SearchBarProps) {
           </button>
         )}
       </div>
-      {searchSubmitted &&
-      isAvailable &&
-      !Object.keys(pdnsSourceContract.reserved).includes(
-        encodeDomainToASCII(searchBarText)!,
-      ) &&
-      !isDomainReservedLength(searchBarText) ? (
+      {searchSubmitted && isAvailable && !isReserved ? (
         <div
-          className={`flex flex-row ${
+          className={`flex flex-row fade-in ${
             minimumAuctionBid ? 'flex-space-between' : 'flex-center'
           }`}
           style={{
             alignItems: 'center',
-            marginTop: '90px',
+            marginTop: '50px',
             boxSizing: 'border-box',
           }}
         >

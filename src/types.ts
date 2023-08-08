@@ -169,13 +169,7 @@ export interface SmartweaveContractCache {
     domain: string;
     auctionsList: string[];
   }): boolean;
-  isDomainReserved({
-    domain,
-    reservedList,
-  }: {
-    domain: string;
-    reservedList: string[];
-  }): boolean;
+  isDomainReserved({ domain }: { domain: string }): Promise<boolean>;
 }
 
 export interface SmartweaveContractInteractionProvider {
