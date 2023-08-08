@@ -212,7 +212,6 @@ function SearchBar(props: SearchBarProps) {
     switch (true) {
       case isTextSubmitted: {
         if (reserved) {
-          console.log(':grey', reserved);
           return greyBorderStyle;
         }
         if (auction) {

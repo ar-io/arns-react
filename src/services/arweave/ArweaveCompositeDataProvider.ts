@@ -216,6 +216,9 @@ export class ArweaveCompositeDataProvider
   }
 
   async isDomainAvailable({ domain }: { domain: string }): Promise<boolean> {
-    return this._contractProviders.some((p) => p.isDomainAvailable({ domain }));
+    const res = await Promise.all(
+      this._contractProviders.map((p) => p.isDomainAvailable({ domain })),
+    );
+    return res.includes(true);
   }
 }
