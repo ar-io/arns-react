@@ -21,8 +21,9 @@ function SearchBarFooter({
   }
 
   if (
-    (searchTerm && reservedList.includes(encodeDomainToASCII(searchTerm))) ||
-    (searchTerm && isDomainReservedLength(searchTerm))
+    (searchTerm &&
+      reservedList.includes(encodeDomainToASCII(searchTerm).toLowerCase())) ||
+    (searchTerm && isDomainReservedLength(encodeDomainToASCII(searchTerm)))
   ) {
     return (
       <div className="flex flex-row" style={{ marginTop: '30px' }}>

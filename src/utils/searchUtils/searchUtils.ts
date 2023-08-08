@@ -297,7 +297,7 @@ export function isPDNSDomainNameAvailable({
   records: { [x: string]: PDNSRecordEntry };
 }): boolean {
   //if registered return false
-  if (!name || records[name]) {
+  if (!name || records[encodeDomainToASCII(name).toLowerCase()]) {
     return false;
   }
   return true;

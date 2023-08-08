@@ -22,6 +22,7 @@ import {
 import {
   buildSmartweaveInteractionTags,
   byteSize,
+  encodeDomainToASCII,
   isDomainAuctionable,
   isDomainReservedLength,
 } from '../../utils';
@@ -338,7 +339,10 @@ export class WarpDataProvider
     const reservedList = await this.getContractState<PDNSContractJSON>(
       new ArweaveTransactionID(PDNS_REGISTRY_ADDRESS),
     ).then((state) => Object.keys(state.reserved));
-    return reservedList.includes(domain) || isDomainReservedLength(domain);
+    return (
+      reservedList.includes(encodeDomainToASCII(domain).toLowerCase()) ||
+      isDomainReservedLength(domain)
+    );
   }
 
   isDomainInAuction({
@@ -348,13 +352,13 @@ export class WarpDataProvider
     domain: string;
     auctionsList: string[];
   }): boolean {
-    return auctionsList.includes(domain);
+    return auctionsList.includes(encodeDomainToASCII(domain).toLowerCase());
   }
 
   async isDomainAvailable({ domain }: { domain: string }): Promise<boolean> {
     const domainsList = await this.getContractState<PDNSContractJSON>(
       new ArweaveTransactionID(PDNS_REGISTRY_ADDRESS),
     ).then((state) => Object.keys(state.records));
-    return !domainsList.includes(domain);
+    return !domainsList.includes(encodeDomainToASCII(domain).toLowerCase());
   }
 }

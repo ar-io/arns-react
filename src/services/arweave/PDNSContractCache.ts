@@ -105,7 +105,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
         this._url
       }/v1/contract/${PDNS_REGISTRY_ADDRESS}/reserved/${encodeDomainToASCII(
         domain,
-      )}`,
+      ).toLowerCase()}`,
     );
     const { reserved } = await res.json();
     if (reserved === undefined) {
@@ -123,7 +123,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
     domain: string;
     auctionsList: string[];
   }): boolean {
-    return auctionsList.includes(domain);
+    return auctionsList.includes(encodeDomainToASCII(domain).toLowerCase());
   }
 
   async isDomainAvailable({ domain }: { domain: string }): Promise<boolean> {
@@ -132,7 +132,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
         this._url
       }/v1/contract/${PDNS_REGISTRY_ADDRESS}/records/${encodeDomainToASCII(
         domain,
-      )}`,
+      ).toLowerCase()}`,
     );
     const isAvailable = res.status === 200;
     return isAvailable;
