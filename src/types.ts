@@ -7,6 +7,7 @@ export type PDNSRecordEntry = {
   contractTxId: string;
   tier: string;
   endTimestamp: number;
+  type: TRANSACTION_TYPES;
 };
 
 export type PDNSDomains = { [x: string]: PDNSRecordEntry };
@@ -454,7 +455,7 @@ export type TransactionDataBasePayload = {
 export type BuyRecordPayload = {
   name: string;
   contractTxId: string;
-  years: number;
+  years?: number;
   tier: string;
   type: TRANSACTION_TYPES;
   state?: PDNTContractJSON;

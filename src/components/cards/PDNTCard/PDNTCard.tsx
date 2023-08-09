@@ -9,6 +9,7 @@ import {
   ArweaveTransactionID,
   PDNSMapping,
   PDNTContractJSON,
+  TRANSACTION_TYPES,
 } from '../../../types';
 import {
   decodeDomainToASCII,
@@ -137,9 +138,10 @@ function PDNTCard(props: PDNSMapping) {
           : undefined,
         contractTxId: contractTxId?.toString() ?? 'N/A',
         domain: decodeDomainToASCII(domain),
-        // TODO: update lease duration to fetch lease duration from contract
         leaseDuration: pdnsSourceContract.records[domain]
-          ? +pdnsSourceContract.records[domain].endTimestamp * 1000
+          ? pdnsSourceContract.records[domain].type === TRANSACTION_TYPES.BUY
+            ? 'Indefinite'
+            : +pdnsSourceContract.records[domain].endTimestamp * 1000
           : 'N/A',
         maxUndernames: 'Up to ' + tierDetails?.settings.maxUndernames ?? 100,
         name: antContractState.name,
@@ -281,22 +283,30 @@ function PDNTCard(props: PDNSMapping) {
                   />
                 ) : key === 'Lease Duration' ? (
                   <span>
-                    {getLeaseDurationFromEndTimestamp(Date.now(), +value)} year
-                    {getLeaseDurationFromEndTimestamp(Date.now(), +value) > 1
-                      ? 's'
-                      : ''}
-                    &nbsp;
-                    <span style={{ color: 'var(--text-grey)' }}>
-                      (expires approximately{' '}
-                      {+value
-                        ? Intl.DateTimeFormat('en', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                          }).format(+value)
-                        : 'N/A'}
-                      )
-                    </span>
+                    {isNaN(+value) ? (
+                      value
+                    ) : (
+                      <>
+                        {getLeaseDurationFromEndTimestamp(Date.now(), +value)}{' '}
+                        year
+                        {getLeaseDurationFromEndTimestamp(Date.now(), +value) >
+                        1
+                          ? 's'
+                          : ''}
+                        &nbsp;
+                        <span style={{ color: 'var(--text-grey)' }}>
+                          (expires approximately{' '}
+                          {+value
+                            ? Intl.DateTimeFormat('en', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                              }).format(+value)
+                            : 'N/A'}
+                          )
+                        </span>
+                      </>
+                    )}
                   </span>
                 ) : value ? (
                   value

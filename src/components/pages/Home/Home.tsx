@@ -10,6 +10,7 @@ import {
   ArweaveTransactionID,
   BuyRecordPayload,
   INTERACTION_TYPES,
+  TRANSACTION_TYPES,
 } from '../../../types';
 import { isDomainAuctionable } from '../../../utils';
 import {
@@ -147,7 +148,10 @@ function Home() {
                       : domain,
                   contractTxId: pdntID ? pdntID.toString() : ATOMIC_FLAG,
                   tier: pdnsSourceContract.tiers.current[0],
-                  years: leaseDuration,
+                  years:
+                    registrationType === TRANSACTION_TYPES.LEASE
+                      ? leaseDuration
+                      : undefined,
                   type: registrationType,
                   auction: isDomainAuctionable({
                     domain: domain,
