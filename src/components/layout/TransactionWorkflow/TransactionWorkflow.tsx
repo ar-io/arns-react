@@ -299,7 +299,8 @@ function TransactionWorkflow({
                         registrationType: payload.type,
                         tiers: pdnsSourceContract.tiers.history,
                         tier: pdnsSourceContract.tiers.current[0],
-                        years: payload.years,
+                        // TODO: setup cost for permabuy
+                        years: payload.years ?? 1,
                         auctionSettings: pdnsSourceContract.settings.auctions,
                         fees: pdnsSourceContract.fees,
                       }) ?? 0,

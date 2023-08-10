@@ -259,7 +259,11 @@ export function getPDNSMappingByInteractionType(
           'Atomic transaction detected but no state present, add the state to continue.',
         );
       }
-      const years = Date.now() + YEAR_IN_MILLISECONDS * transactionData.years;
+      const years =
+        transactionData.type === TRANSACTION_TYPES.LEASE &&
+        transactionData.years
+          ? Date.now() + YEAR_IN_MILLISECONDS * transactionData.years
+          : 'Indefinite';
 
       return {
         domain: transactionData.name,
