@@ -223,6 +223,7 @@ function PDNTCard(props: PDNSMapping) {
           style={{ width: '100%' }}
         >
           {Object.entries(pdntDetails).map(([key, value]) => {
+            const numberValue = +value;
             if ((!mappedKeys.includes(key) && limitDetails) || !value) {
               return;
             }
@@ -283,14 +284,19 @@ function PDNTCard(props: PDNSMapping) {
                   />
                 ) : key === 'Lease Duration' ? (
                   <span>
-                    {isNaN(+value) ? (
+                    {isNaN(numberValue) ? (
                       value
                     ) : (
                       <>
-                        {getLeaseDurationFromEndTimestamp(Date.now(), +value)}{' '}
+                        {getLeaseDurationFromEndTimestamp(
+                          Date.now(),
+                          numberValue,
+                        )}{' '}
                         year
-                        {getLeaseDurationFromEndTimestamp(Date.now(), +value) >
-                        1
+                        {getLeaseDurationFromEndTimestamp(
+                          Date.now(),
+                          numberValue,
+                        ) > 1
                           ? 's'
                           : ''}
                         &nbsp;
@@ -301,7 +307,7 @@ function PDNTCard(props: PDNSMapping) {
                                 year: 'numeric',
                                 month: 'long',
                                 day: 'numeric',
-                              }).format(+value)
+                              }).format(numberValue)
                             : 'N/A'}
                           )
                         </span>
