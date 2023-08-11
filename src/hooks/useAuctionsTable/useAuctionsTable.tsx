@@ -1,3 +1,4 @@
+import Countdown from 'antd/lib/statistic/Countdown';
 import { startCase } from 'lodash';
 import { ColumnType } from 'rc-table/lib/interface';
 import { useEffect, useState } from 'react';
@@ -13,15 +14,18 @@ import {
 } from '../../types';
 import { calculateMinimumAuctionBid, getNextPriceUpdate } from '../../utils';
 import eventEmitter from '../../utils/events';
+import { useArweaveCompositeProvider } from '../useArweaveCompositeProvider/useArweaveCompositeProvider';
 
 export function useAuctionsTable() {
-  const [{ pdnsSourceContract, blockHieght }] = useGlobalState();
+  const [{ pdnsSourceContract, blockHieght }, dispatchGlobalState] =
+    useGlobalState();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] =
     useState<keyof AuctionMetadata>('closingDate');
   const [rows, setRows] = useState<AuctionMetadata[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [percent, setPercentLoaded] = useState<number>(0);
+  const arweaveDataProvider = useArweaveCompositeProvider();
 
   const navigate = useNavigate();
 
@@ -87,8 +91,8 @@ export function useAuctionsTable() {
             onClick: () => {
               rows.sort((a: any, b: any) =>
                 sortAscending
-                  ? a.closingDate.localeCompare(b.closingDate)
-                  : b.closingDate.localeCompare(a.closingDate),
+                  ? a.closingDate - b.closingDate
+                  : b.closingDate - a.closingDate,
               );
               // forces update of rows
               setRows([...rows]);
@@ -124,8 +128,10 @@ export function useAuctionsTable() {
             onClick: () => {
               rows.sort((a: any, b: any) =>
                 sortAscending
-                  ? a.initiator.localeCompare(b.initiator)
-                  : b.initiator.localeCompare(a.initiator),
+                  ? a.initiator.toString().localeCompare(b.initiator.toString())
+                  : b.initiator
+                      .toString()
+                      .localeCompare(a.initiator.toString()),
               );
               // forces update of rows
               setRows([...rows]);
@@ -139,7 +145,7 @@ export function useAuctionsTable() {
           <button
             className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
-            onClick={() => setSortField('initiator')}
+            onClick={() => setSortField('type')}
           >
             <span>Auction Type</span>
           </button>
@@ -170,7 +176,7 @@ export function useAuctionsTable() {
           <button
             className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
-            onClick={() => setSortField('initiator')}
+            onClick={() => setSortField('price')}
           >
             <span>Price</span>
           </button>
@@ -184,9 +190,7 @@ export function useAuctionsTable() {
           return {
             onClick: () => {
               rows.sort((a: any, b: any) =>
-                sortAscending
-                  ? a.price.localeCompare(b.price)
-                  : b.price.localeCompare(a.price),
+                sortAscending ? a.price - b.price : b.price - a.price,
               );
               // forces update of rows
               setRows([...rows]);
@@ -200,7 +204,7 @@ export function useAuctionsTable() {
           <button
             className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
-            onClick={() => setSortField('initiator')}
+            onClick={() => setSortField('nextPriceUpdate')}
           >
             <span>Next price adj.</span>
           </button>
@@ -209,14 +213,39 @@ export function useAuctionsTable() {
         key: 'nextPriceUpdate',
         width: 'fit-content',
         className: 'white assets-table-header',
-        render: (val: number) => `${Math.round(+val / 60_000)} min.`,
+        render: (val: number) => (
+          <span
+            className="white flex flex-row"
+            style={{ gap: '0px', height: 'fit-content' }}
+          >
+            <Countdown
+              value={+val}
+              valueStyle={{
+                fontSize: '15px',
+                color: 'var(--text-white)',
+              }}
+              format="m"
+              onFinish={() => {
+                arweaveDataProvider.getCurrentBlockHeight().then((block) =>
+                  block !== blockHieght
+                    ? dispatchGlobalState({
+                        type: 'setBlockHieght',
+                        payload: block,
+                      })
+                    : null,
+                );
+              }}
+            />
+            &nbsp;min.
+          </span>
+        ),
         onHeaderCell: () => {
           return {
             onClick: () => {
               rows.sort((a: any, b: any) =>
                 sortAscending
-                  ? a.nextPriceUpdate.localeCompare(b.nextPriceUpdate)
-                  : b.nextPriceUpdate.localeCompare(a.nextPriceUpdate),
+                  ? a.nextPriceUpdate - b.nextPriceUpdate
+                  : b.nextPriceUpdate - a.nextPriceUpdate,
               );
               // forces update of rows
               setRows([...rows]);
@@ -293,11 +322,13 @@ export function useAuctionsTable() {
       Date.now() +
       (startHeight + settings.auctionDuration - blockHieght) * 120_000; // approximate expiration date in milliseconds
     const nextPriceUpdate =
+      Date.now() +
       getNextPriceUpdate({
         currentBlockHeight: blockHieght,
         startHeight,
         decayInterval: settings.decayInterval,
-      }) * 120_000;
+      }) *
+        120_000;
 
     const data = {
       closingDate: expirationDateMilliseconds,

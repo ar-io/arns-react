@@ -17,6 +17,7 @@ import { ChartJSOrUndefined } from 'react-chartjs-2/dist/types';
 
 import { useArweaveCompositeProvider, useAuctionInfo } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { getNextPriceUpdate } from '../../../utils';
 import eventEmitter from '../../../utils/events';
 import Loader from '../Loader/Loader';
 
@@ -158,13 +159,14 @@ function AuctionChart({
       return auctionEnd * 120_000;
     } else {
       // If auction is still ongoing, calculate the deadline as before
-      const blockIntervalsPassed = Math.floor(
-        (currentBlock - startBlock) / blockDecayInterval,
-      );
-      const minBlockRange =
-        startBlock + blockIntervalsPassed * blockDecayInterval;
-      const blocksUntilDecay = currentBlock - minBlockRange;
-      const deadline = Date.now() + 120_000 * blocksUntilDecay;
+      const deadline =
+        Date.now() +
+        getNextPriceUpdate({
+          currentBlockHeight: currentBlockHeight!,
+          startHeight: startBlock,
+          decayInterval: blockDecayInterval,
+        }) *
+          120_000;
 
       return deadline;
     }
@@ -356,9 +358,19 @@ function AuctionChart({
               valueStyle={{
                 fontSize: '15px',
                 color: 'var(--text-grey)',
-                paddingBottom: '2px',
+                paddingBottom: '0px',
               }}
               format="H:mm:ss"
+              onFinish={() => {
+                arweaveDataProvider.getCurrentBlockHeight().then((block) =>
+                  block !== currentBlockHeight
+                    ? dispatchGlobalState({
+                        type: 'setBlockHieght',
+                        payload: block,
+                      })
+                    : null,
+                );
+              }}
             />
           </span>
         ) : (

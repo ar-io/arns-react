@@ -169,6 +169,7 @@ function NavMenuCard() {
                 copyText={walletAddress.toString()}
                 size={20}
                 wrapperStyle={{
+                  color: 'white',
                   fontWeight: 600,
                   fontFamily: 'Rubik-Bold',
                   width: '100%',

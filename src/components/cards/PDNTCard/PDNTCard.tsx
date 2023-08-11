@@ -274,6 +274,7 @@ function PDNTCard(props: PDNSMapping) {
                     copyText={value}
                     size={15}
                     wrapperStyle={{
+                      color: 'white',
                       padding: '0px',
                       fontFamily: 'Rubik',
                       justifyContent: 'flex-start',

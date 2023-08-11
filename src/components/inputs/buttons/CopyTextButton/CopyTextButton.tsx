@@ -43,7 +43,10 @@ function CopyTextButton({
           await handleCopy();
         }}
       >
-        <span className="flex white center" style={{ fontSize: 'inherit' }}>
+        <span
+          className="flex white center"
+          style={{ fontSize: 'inherit', color: 'inherit' }}
+        >
           {displayText}&nbsp;
         </span>
 
