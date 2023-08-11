@@ -1,5 +1,5 @@
-import { Pagination } from 'antd';
-import Table from 'rc-table';
+import { PaginationProps } from 'antd';
+import { Table } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -13,7 +13,13 @@ import {
 import { ArweaveTransactionID, ManageTable } from '../../../types';
 import { MANAGE_TABLE_NAMES } from '../../../types';
 import eventEmitter from '../../../utils/events';
-import { CodeSandboxIcon, NotebookIcon, RefreshIcon } from '../../icons';
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  CodeSandboxIcon,
+  NotebookIcon,
+  RefreshIcon,
+} from '../../icons';
 import { Loader } from '../../layout/index';
 import './styles.css';
 
@@ -45,7 +51,6 @@ function Manage() {
   } = useWalletDomains(pdntIds);
 
   const [tableData, setTableData] = useState<any[]>([]);
-  const [filteredTableData, setFilteredTableData] = useState<any[]>([]);
   const [tableLoading, setTableLoading] = useState(true);
   const [tableColumns, setTableColumns] = useState<any[]>();
   const [tablePage, setTablePage] = useState<number>(1);
@@ -64,21 +69,10 @@ function Manage() {
   }, [walletAddress?.toString()]);
 
   useEffect(() => {
-    const baseIndex = Math.max((tablePage - 1) * 10, 0);
-    const endIndex = tablePage * 10;
-    const filteredData = tableData.slice(baseIndex, endIndex);
-    setFilteredTableData(filteredData);
-  }, [tablePage]);
-
-  useEffect(() => {
     if (path === 'ants') {
       setTableData(pdntRows);
       setTableColumns(pdntColumns);
       setPercentLoaded(percentPDNTsLoaded);
-      const baseIndex = Math.max((tablePage - 1) * 10, 0);
-      const endIndex = tablePage * 10;
-      const filteredData = pdntRows.slice(baseIndex, endIndex);
-      setFilteredTableData(filteredData);
     }
   }, [
     path,
@@ -94,10 +88,6 @@ function Manage() {
       setTableData(domainRows);
       setTableColumns(domainColumns);
       setPercentLoaded(percentDomainsLoaded);
-      const baseIndex = Math.max((tablePage - 1) * 10, 0);
-      const endIndex = tablePage * 10;
-      const filteredData = domainRows.slice(baseIndex, endIndex);
-      setFilteredTableData(filteredData);
     }
   }, [
     path,
@@ -136,6 +126,52 @@ function Manage() {
   function updatePage(page: number) {
     setTablePage(page);
   }
+
+  const customPaginationButtons: PaginationProps['itemRender'] = (
+    page,
+    type,
+    originalElement,
+  ) => {
+    if (type === 'prev') {
+      return (
+        <span className="flex flex-center">
+          <ChevronLeftIcon
+            width={'24px'}
+            height={'24px'}
+            fill="var(--text-grey)"
+          />
+        </span>
+      );
+    }
+    if (type === 'next') {
+      return (
+        <span className="flex flex-center">
+          <ChevronRightIcon
+            width={'24px'}
+            height={'24px'}
+            fill="var(--text-grey)"
+          />
+        </span>
+      );
+    }
+    if (type === 'page') {
+      return (
+        <span
+          className="flex flex-row hover center"
+          style={{
+            color: tablePage == page ? 'white' : 'var(--text-grey)',
+            width: '32px',
+            borderRadius: 'var(--corner-radius)',
+            backgroundColor:
+              tablePage == page ? 'var(--text-faded)' : 'var(--bg-color)',
+          }}
+        >
+          {page}
+        </span>
+      );
+    }
+    return originalElement;
+  };
 
   return (
     <div className="page" ref={modalRef}>
@@ -238,16 +274,16 @@ function Manage() {
             <Table
               scroll={pdntIds.length ? { x: true } : {}}
               columns={tableColumns}
-              data={filteredTableData}
-            />
-            <Pagination
-              pageSize={10}
-              onChange={updatePage}
-              current={tablePage}
-              total={tableData.length}
-              rootClassName="center"
-              defaultCurrent={1}
-              showSizeChanger={false}
+              dataSource={tableData}
+              pagination={{
+                position: ['bottomCenter'],
+                rootClassName: 'table-pagination',
+                itemRender: customPaginationButtons,
+                onChange: updatePage,
+                showPrevNextJumpers: true,
+                showSizeChanger: false,
+                current: tablePage,
+              }}
             />
           </>
         )}

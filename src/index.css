@@ -461,11 +461,14 @@ a:active {
   background-color: var(--bg-color);
 }
 th[class~='assets-table-header'] {
-  background-color: #323232 !important;
+  background: #222224 !important;
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
 }
 
 thead > tr > td[class~='assets-table-header'] {
-  background-color: #323232 !important;
+  background: #222224 !important;
+  justify-content: flex-start !important;
 }
 
 .ant-table-cell-row-hover {
@@ -473,7 +476,7 @@ thead > tr > td[class~='assets-table-header'] {
 }
 
 .ant-table-content > table {
-  border-spacing: 0px 10px;
+  border-spacing: 0px;
   width: 100%;
   background-color: var(--bg-color);
   border: none !important;
@@ -483,17 +486,19 @@ thead > tr > td[class~='assets-table-header'] {
 }
 
 .ant-table-body > table {
-  border-spacing: 0px 10px;
+  border-spacing: 0px;
 }
 
 .ant-table-tbody > tr {
-  height: 50px;
+  height: fit-content;
 }
 
 .ant-table-thead {
   background-color: #323232;
   border-width: 1px 0px;
   border-radius: var(--corner-radius);
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
   font-size: 16px;
   font-weight: 800;
   height: 50px;
@@ -502,37 +507,41 @@ thead > tr > td[class~='assets-table-header'] {
 .ant-table-thead > tr > th {
   font-size: 16px;
   background-color: #323232;
-  border-bottom: 1px solid #323232 !important;
+  border-bottom: 1px solid transparent !important;
 }
 .ant-table-thead > tr > td {
   font-size: 16px;
   background-color: #323232;
-  border-bottom: 1px solid #323232 !important;
+  border-bottom: 1px solid transparent !important;
 }
 
 .ant-table-thead > tr > th:first-child {
   border-left: 1px solid #323232;
-  border-top-left-radius: var(--corner-radius);
-  border-bottom-left-radius: var(--corner-radius);
+  padding-left: 45px;
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
 }
 
 .ant-table-thead > tr > th:last-child {
   border-right: 1px solid #323232;
   border-top-right-radius: var(--corner-radius);
-  border-bottom-right-radius: var(--corner-radius);
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
 }
 
 .ant-table-thead > tr > td:last-child {
   border-right: 1px solid #323232;
-  border-top-right-radius: var(--corner-radius);
-  border-bottom-right-radius: var(--corner-radius);
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
 }
 
 .ant-table-tbody > tr > td {
-  border: 1px solid #323232;
+  border: 1px solid transparent;
   border-width: 1px 0px;
-  padding: 0px 15px;
-  font-size: 16px;
+  padding: 10px 24px !important;
+  justify-content: flex-start;
+  font-size: 14px;
+  font-weight: 400;
   border-bottom: 1px solid #323232 !important;
 }
 
@@ -547,13 +556,19 @@ thead > tr > td[class~='assets-table-header'] {
 
 .ant-table-tbody > tr > td:first-child {
   border-left: 1px solid #323232;
-  border-top-left-radius: var(--corner-radius);
+  padding-left: 50px !important;
+}
+
+.ant-table-tbody > tr > td:last-child {
+  border-right: 1px solid #323232;
+}
+.ant-table-tbody > tr:last-child > td:first-child {
+  border-left: 1px solid #323232;
   border-bottom-left-radius: var(--corner-radius);
 }
 
 .ant-table-tbody > tr > td:last-child {
   border-right: 1px solid #323232;
-  border-top-right-radius: var(--corner-radius);
   border-bottom-right-radius: var(--corner-radius);
 }
 
@@ -570,9 +585,14 @@ thead > tr > td[class~='assets-table-header'] {
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 150px;
+  align-items: center;
+  justify-content: flex-start;
 }
 .ant-table-tbody > tr.ant-table-row:hover > td {
   background-color: inherit !important;
+}
+.ant-table-measure-row {
+  display: none !important;
 }
 
 /* TOP LEVEL RESIZE RULES */
@@ -703,4 +723,13 @@ thead > tr > td[class~='assets-table-header'] {
 
 .ant-pagination-item-active > a {
   background-color: var(--text-faded) !important;
+}
+
+.table-pagination > .ant-pagination-item,
+.ant-pagination-next,
+.ant-pagination-prev {
+  display: flex !important;
+  justify-content: center !important;
+  border: none;
+  border-radius: 2px !important;
 }

@@ -11,7 +11,7 @@ function CopyTextButton({
   wrapperStyle = {},
   position = 'absolute',
 }: {
-  displayText: string;
+  displayText: JSX.Element | string;
   copyText: string;
   size: number | string;
   wrapperStyle?: any;
@@ -33,7 +33,12 @@ function CopyTextButton({
     <div className="flex" style={{ position, ...wrapperStyle }}>
       <button
         className="flex flex-space-between button"
-        style={{ ...wrapperStyle, cursor: 'pointer', gap: '8px' }}
+        style={{
+          ...wrapperStyle,
+          cursor: 'pointer',
+          gap: '8px',
+          padding: '0px',
+        }}
         onClick={async () => {
           await handleCopy();
         }}
@@ -62,7 +67,7 @@ function CopyTextButton({
           }}
         >
           <CopyIcon
-            className="flex"
+            className="flex hover"
             height={size ?? 15}
             width={size ?? 15}
             fill={'inherit'}
