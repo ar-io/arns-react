@@ -3,7 +3,7 @@ import { StepProps } from 'antd';
 import { useIsMobile } from '../../../hooks';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
 import Loader from '../Loader/Loader';
-import StepProgressBar from '../progress/Steps/Steps';
+import { StepProgressBar } from '../progress';
 
 export type WorkflowStage = {
   header?: JSX.Element | string;

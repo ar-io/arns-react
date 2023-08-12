@@ -8,7 +8,7 @@ export type RegistrationAction =
   | { type: 'setDomainName'; payload: string }
   | { type: 'setRegistrationType'; payload: TRANSACTION_TYPES }
   | { type: 'setLeaseDuration'; payload: number }
-  | { type: 'setPDNTID'; payload: ArweaveTransactionID | undefined }
+  | { type: 'setANTID'; payload: ArweaveTransactionID | undefined }
   | { type: 'setResolvedTx'; payload: ArweaveTransactionID | undefined }
   | { type: 'setFee'; payload: { ar: number; io: number } }
   | { type: 'setIsRegistered'; payload: boolean }
@@ -41,10 +41,10 @@ export const registrationReducer = (
         leaseDuration: action.payload,
       };
 
-    case 'setPDNTID':
+    case 'setANTID':
       return {
         ...state,
-        pdntID: action.payload,
+        antID: action.payload,
       };
     case 'setRegistrationType':
       return {

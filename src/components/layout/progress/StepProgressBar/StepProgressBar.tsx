@@ -1,45 +1,62 @@
-import { useIsMobile } from '../../../../hooks';
-import {
-  AlertOctagonIcon,
-  AlertTriangleIcon,
-  CheckmarkIcon,
-} from '../../../icons';
+import { StepProps, Steps } from 'antd';
+
+import { AlertOctagonIcon, CheckIcon } from '../../../icons';
 import './styles.css';
 
 function StepProgressBar({
   stages,
   stage,
 }: {
-  stages: { [x: number]: { title: string; status: string } };
+  stages: StepProps[];
   stage: number;
 }) {
-  const isMobile = useIsMobile();
-
-  function handleColor(status: string | undefined) {
+  function handleIcon(status: string | undefined, index: number) {
     switch (status) {
-      case 'success':
-        return 'var(--success-green)';
-      case 'fail':
-        return 'var(--error-red)';
-      case 'pending':
-        return 'var(--accent)';
-      default:
-        return '';
-    }
-  }
-  function handleIcon(status: string | undefined) {
-    switch (status) {
-      case 'success':
+      case 'finish':
         return (
-          <CheckmarkIcon width={'14px'} height={'14px'} fill={'#444444'} />
+          <span
+            className="stage-circle"
+            style={{
+              color: 'var(--text-black)',
+              border: '1px solid var(--accent)',
+            }}
+          >
+            <CheckIcon fill={'var(--accent)'} width={'16px'} height={'16px'} />
+          </span>
         );
-      case 'fail':
+      case 'error':
         return (
           <AlertOctagonIcon width={'18px'} height={'18px'} fill={'#444444'} />
         );
-      case 'pending':
+      case 'process':
         return (
-          <AlertTriangleIcon width={'18px'} height={'18px'} fill={'#444444'} />
+          <span
+            className="stage-circle"
+            style={{
+              backgroundColor: 'var(--accent)',
+              color: 'var(--text-black)',
+              border: '1px solid var(--accent)',
+              alignItems: 'center',
+              fontWeight: 500,
+              position: 'relative',
+            }}
+          >
+            <span style={{ position: 'absolute', top: '0px', bottom: '0px' }}>
+              {index + 1}
+            </span>
+          </span>
+        );
+      case 'wait':
+        return (
+          <span
+            className="stage-circle"
+            style={{ fontFamily: 'Rubik-Bold', position: 'relative' }}
+          >
+            {' '}
+            <span style={{ position: 'absolute', top: '0px', bottom: '0px' }}>
+              {index + 1}
+            </span>
+          </span>
         );
       default:
         return undefined;
@@ -47,139 +64,18 @@ function StepProgressBar({
   }
   return (
     <>
-      <div className="flex-row center" style={{ gap: '0', maxWidth: '710px' }}>
-        {Object.entries(stages).map(([key, value], index) => {
-          if (index === 0) {
-            return (
-              <div className="progress-stage" key={index}>
-                <div
-                  className="node-container"
-                  style={isMobile ? { width: '75px' } : { width: '100%' }}
-                >
-                  <span className="line" style={{ background: 'none' }}></span>
-                  <span
-                    className="progress-stage-circle"
-                    style={
-                      stage !== +key
-                        ? { background: handleColor(value.status) }
-                        : {
-                            background: handleColor(value.status),
-                            border: '3px solid white',
-                            boxShadow: `0px 0px 0px 2px ${handleColor(
-                              value.status,
-                            )}`,
-                          }
-                    }
-                  >
-                    {handleIcon(value.status) ? handleIcon(value.status) : key}
-                  </span>
-                  <span
-                    className="line"
-                    style={{ background: handleColor(value.status) }}
-                  ></span>
-                </div>
-                <span
-                  className="text-medium white center"
-                  style={
-                    isMobile
-                      ? { fontSize: '12px' }
-                      : { width: '75%', margin: 'auto' }
-                  }
-                >
-                  {value.title}
-                </span>
-              </div>
-            );
-          }
-          if (index === Object.keys(stages).length - 1) {
-            return (
-              <div className="progress-stage" key={index}>
-                <div
-                  className="node-container"
-                  style={isMobile ? { width: '75px' } : { width: '100%' }}
-                >
-                  <span
-                    className="line"
-                    style={{ background: handleColor(value.status) }}
-                  ></span>
-                  <span
-                    className="progress-stage-circle"
-                    style={
-                      stage !== +key
-                        ? { background: handleColor(value.status) }
-                        : {
-                            background: handleColor(value.status),
-                            border: '3px solid white',
-                            boxShadow: `0px 0px 0px 2px ${handleColor(
-                              value.status,
-                            )}`,
-                          }
-                    }
-                  >
-                    {handleIcon(value.status) ? handleIcon(value.status) : key}
-                  </span>
-                  <span className="line" style={{ background: 'none' }}></span>
-                </div>
-                <span
-                  className="text-medium white center"
-                  style={
-                    isMobile
-                      ? { fontSize: '12px' }
-                      : { width: '75%', margin: 'auto' }
-                  }
-                >
-                  {value.title}
-                </span>
-              </div>
-            );
-          }
-          if (index !== 0 && index !== Object.keys(stages).length - 1) {
-            return (
-              <div className="progress-stage" key={index}>
-                <div
-                  className="node-container"
-                  style={isMobile ? { width: '75px' } : { width: '100%' }}
-                >
-                  <span
-                    className="line"
-                    style={{ background: handleColor(value.status) }}
-                  ></span>
-                  <span
-                    className="progress-stage-circle"
-                    style={
-                      stage !== +key
-                        ? { background: handleColor(value.status) }
-                        : {
-                            background: handleColor(value.status),
-                            border: '3px solid white',
-                            boxShadow: `0px 0px 0px 2px ${handleColor(
-                              value.status,
-                            )}`,
-                          }
-                    }
-                  >
-                    {handleIcon(value.status) ? handleIcon(value.status) : key}
-                  </span>
-                  <span
-                    className="line"
-                    style={{ background: handleColor(value.status) }}
-                  ></span>
-                </div>
-                <span
-                  className="text-medium white center"
-                  style={
-                    isMobile
-                      ? { fontSize: '12px' }
-                      : { width: '75%', margin: 'auto' }
-                  }
-                >
-                  {value.title}
-                </span>
-              </div>
-            );
-          }
-        })}
-      </div>
+      <Steps
+        current={stage}
+        items={
+          stages.map((step, index) => {
+            return {
+              ...step,
+              className: `step-${step.status}`,
+              icon: handleIcon(step.status, index),
+            };
+          }) ?? []
+        }
+      />
     </>
   );
 }

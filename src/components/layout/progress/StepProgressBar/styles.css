@@ -1,34 +1,88 @@
-.node-container {
-  box-sizing: border-box;
+.stage-circle {
   display: flex;
-  flex-direction: row;
   justify-content: center;
   align-items: center;
-  width: 150px;
-  height: 50px;
-  padding: 0%;
-  margin: 0%;
-  gap: 0;
-}
-.line {
-  box-sizing: border-box;
-  display: flex;
-  width: 100%;
-  height: 2px;
-  background-color: var(--text-faded);
-}
-.progress-stage-circle {
-  display: flex;
-  position: absolute;
-  justify-content: center;
-  align-items: center;
-  border-radius: 1000px;
+  border-radius: 50%;
   width: 32px;
   height: 32px;
-  background-color: var(--text-faded);
-  color: #444444;
+  font-family: 'Rubik';
+  font-weight: 500;
+  font-size: 16px;
+  color: var(--text-grey);
+  border: solid 1px var(--text-grey);
 }
-.progress-stage {
-  flex: 1;
-  height: 75px;
+
+.step-finish
+  > .ant-steps-item-container
+  > .ant-steps-item-content
+  > .ant-steps-item-title::after {
+  background-color: var(--accent) !important;
+}
+.step-finish
+  > .ant-steps-item-container
+  > .ant-steps-item-content
+  > .ant-steps-item-title {
+  color: var(--text-white) !important;
+  font-family: 'Rubik';
+  font-weight: 400;
+  font-size: 16px;
+}
+.step-finish
+  > .ant-steps-item-container
+  > .ant-steps-item-content
+  > .ant-steps-item-description {
+  color: var(--text-grey) !important;
+  font-family: 'Rubik';
+  font-weight: 400;
+  font-size: 13px;
+}
+
+.step-process
+  > .ant-steps-item-container
+  > .ant-steps-item-content
+  > .ant-steps-item-title::after {
+  background-color: var(--text-grey) !important;
+}
+.step-process
+  > .ant-steps-item-container
+  > .ant-steps-item-content
+  > .ant-steps-item-title {
+  color: var(--text-white) !important;
+  font-family: 'Rubik';
+  font-weight: 400;
+  font-size: 16px;
+}
+.step-process
+  > .ant-steps-item-container
+  > .ant-steps-item-content
+  > .ant-steps-item-description {
+  color: var(--text-white) !important;
+  font-family: 'Rubik';
+  font-weight: 400;
+  font-size: 13px;
+}
+
+.step-wait
+  > .ant-steps-item-container
+  > .ant-steps-item-content
+  > .ant-steps-item-title::after {
+  background-color: var(--text-grey) !important;
+}
+.step-wait
+  > .ant-steps-item-container
+  > .ant-steps-item-content
+  > .ant-steps-item-title {
+  color: var(--text-grey) !important;
+  font-family: 'Rubik';
+  font-weight: 400;
+  font-size: 16px;
+}
+.step-wait
+  > .ant-steps-item-container
+  > .ant-steps-item-content
+  > .ant-steps-item-description {
+  color: var(--text-grey) !important;
+  font-family: 'Rubik';
+  font-weight: 400;
+  font-size: 13px;
 }

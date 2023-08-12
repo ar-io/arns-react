@@ -5,7 +5,6 @@ import NavBarLink from './Navbar/NavBarLink/NavBarLink';
 import NavGroup from './Navbar/NavGroup/NavGroup';
 import NavBar from './Navbar/Navbar';
 import ProtectedRoute from './ProtectedRoute/ProtectedRoute';
-import RegisterNameForm from './RegisterNameForm/RegisterNameForm';
 import SearchBarFooter from './SearchBarFooter/SearchBarFooter';
 import SearchBarHeader from './SearchBarHeader/SearchBarHeader';
 import { Tooltip } from './Tooltip/Tooltip';
@@ -20,6 +19,5 @@ export {
   ProtectedRoute,
   SearchBarFooter,
   SearchBarHeader,
-  RegisterNameForm,
   Tooltip,
 };
