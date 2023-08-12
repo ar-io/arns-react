@@ -284,7 +284,7 @@ export function useAuctionsTable() {
               className="accent-button hover"
               style={{ fontSize: '13px', padding: '8px' }}
               onClick={() => {
-                alert('Setup registration page to enable this button');
+                navigate(`/register/${row.name}`);
               }}
             >
               Buy
