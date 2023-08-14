@@ -11,7 +11,11 @@ import {
   AuctionMetadata,
   TRANSACTION_TYPES,
 } from '../../types';
-import { calculateMinimumAuctionBid, getNextPriceUpdate } from '../../utils';
+import {
+  calculateMinimumAuctionBid,
+  getNextPriceUpdate,
+  handleTableSort,
+} from '../../utils';
 import { AVERAGE_BLOCK_TIME } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 
@@ -54,12 +58,11 @@ export function useAuctionsTable() {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              rows.sort((a: AuctionMetadata, b: AuctionMetadata) =>
-                // by default we sort by name
-                !sortAscending
-                  ? a.name.localeCompare(b.name)
-                  : b.name.localeCompare(a.name),
-              );
+              handleTableSort<AuctionMetadata>({
+                key: 'name',
+                isAsc: sortAscending,
+                rows,
+              });
               // forces update of rows
               setRows([...rows]);
               setSortOrder(!sortAscending);
@@ -86,11 +89,11 @@ export function useAuctionsTable() {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              rows.sort((a: any, b: any) =>
-                sortAscending
-                  ? a.closingDate.localeCompare(b.closingDate)
-                  : b.closingDate.localeCompare(a.closingDate),
-              );
+              handleTableSort<AuctionMetadata>({
+                key: 'closingDate',
+                isAsc: sortAscending,
+                rows,
+              });
               // forces update of rows
               setRows([...rows]);
               setSortOrder(!sortAscending);
@@ -123,11 +126,11 @@ export function useAuctionsTable() {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              rows.sort((a: any, b: any) =>
-                sortAscending
-                  ? a.initiator.localeCompare(b.initiator)
-                  : b.initiator.localeCompare(a.initiator),
-              );
+              handleTableSort<AuctionMetadata>({
+                key: 'initiator',
+                isAsc: sortAscending,
+                rows,
+              });
               // forces update of rows
               setRows([...rows]);
               setSortOrder(!sortAscending);
@@ -154,11 +157,11 @@ export function useAuctionsTable() {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              rows.sort((a: any, b: any) =>
-                sortAscending
-                  ? a.type.localeCompare(b.type)
-                  : b.type.localeCompare(a.type),
-              );
+              handleTableSort<AuctionMetadata>({
+                key: 'type',
+                isAsc: sortAscending,
+                rows,
+              });
               // forces update of rows
               setRows([...rows]);
               setSortOrder(!sortAscending);
@@ -184,11 +187,11 @@ export function useAuctionsTable() {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              rows.sort((a: any, b: any) =>
-                sortAscending
-                  ? a.price.localeCompare(b.price)
-                  : b.price.localeCompare(a.price),
-              );
+              handleTableSort<AuctionMetadata>({
+                key: 'price',
+                isAsc: sortAscending,
+                rows,
+              });
               // forces update of rows
               setRows([...rows]);
               setSortOrder(!sortAscending);
@@ -214,11 +217,11 @@ export function useAuctionsTable() {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              rows.sort((a: any, b: any) =>
-                sortAscending
-                  ? a.nextPriceUpdate.localeCompare(b.nextPriceUpdate)
-                  : b.nextPriceUpdate.localeCompare(a.nextPriceUpdate),
-              );
+              handleTableSort<AuctionMetadata>({
+                key: 'nextPriceUpdate',
+                isAsc: sortAscending,
+                rows,
+              });
               // forces update of rows
               setRows([...rows]);
               setSortOrder(!sortAscending);
@@ -284,42 +287,44 @@ export function useAuctionsTable() {
       (settings) => settings.id === auctionSettingsId,
     );
 
-    try {
-      if (!settings || !blockHeight) {
-        throw new Error('Error fetching auction data. Please try again later.');
-      }
-      const expirationDateMilliseconds =
-        Date.now() +
-        (startHeight + settings.auctionDuration - blockHeight) *
-          AVERAGE_BLOCK_TIME; // approximate expiration date in milliseconds
-      const nextPriceUpdate =
-        getNextPriceUpdate({
-          currentBlockHeight: blockHeight,
-          startHeight,
-          decayInterval: settings.decayInterval,
-        }) * AVERAGE_BLOCK_TIME;
-
-      const data = {
-        closingDate: expirationDateMilliseconds,
-        initiator: new ArweaveTransactionID(initiator),
-        type,
-        nextPriceUpdate,
-        price: Math.round(
-          calculateMinimumAuctionBid({
-            startHeight,
-            initialPrice: startPrice,
-            floorPrice,
-            currentBlockHeight: blockHeight,
-            decayInterval: settings.decayInterval,
-            decayRate: settings.decayRate,
-          }),
-        ),
-      };
-
-      return data;
-    } catch (error) {
-      eventEmitter.emit('error', error);
+    if (!settings || !blockHeight) {
+      throw new Error('Error fetching auction data. Please try again later.');
     }
+    const expirationDateMilliseconds =
+      Date.now() +
+      (startHeight + settings.auctionDuration - blockHeight) *
+        AVERAGE_BLOCK_TIME; // approximate expiration date in milliseconds
+
+    if (expirationDateMilliseconds < Date.now()) {
+      // if auction is expired, do not show.
+      return;
+    }
+
+    const nextPriceUpdate =
+      getNextPriceUpdate({
+        currentBlockHeight: blockHeight,
+        startHeight,
+        decayInterval: settings.decayInterval,
+      }) * AVERAGE_BLOCK_TIME;
+
+    const data = {
+      closingDate: expirationDateMilliseconds,
+      initiator: new ArweaveTransactionID(initiator),
+      type,
+      nextPriceUpdate,
+      price: Math.round(
+        calculateMinimumAuctionBid({
+          startHeight,
+          initialPrice: startPrice,
+          floorPrice,
+          currentBlockHeight: blockHeight,
+          decayInterval: settings.decayInterval,
+          decayRate: settings.decayRate,
+        }),
+      ),
+    };
+
+    return data;
   }
 
   async function fetchAuctionRows(auctions: {
@@ -328,8 +333,8 @@ export function useAuctionsTable() {
     setIsLoading(true);
     const fetchedRows: AuctionMetadata[] = [];
 
-    const undernames = Object.entries(auctions);
-    for (const [name, record] of undernames) {
+    const auctionRecords = Object.entries(auctions);
+    for (const [name, record] of auctionRecords) {
       try {
         const auctionData = handleAuctionData(record);
         if (!auctionData) {

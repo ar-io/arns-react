@@ -46,7 +46,6 @@ function CopyTextButton({
         <span className="flex white center" style={{ fontSize: 'inherit' }}>
           {body}&nbsp;
         </span>
-        0
         <Tooltip
           open={textCopied}
           title={'Copied!'}

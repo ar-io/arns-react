@@ -80,3 +80,40 @@ export function getCustomPaginationButtons({
   }
   return originalElement;
 }
+
+export function handleTableSort<T extends Record<string, any>>({
+  key,
+  isAsc,
+  rows,
+}: {
+  key: keyof T;
+  isAsc: boolean;
+  rows: T[];
+}) {
+  if (!isAsc) {
+    rows.sort((a: T, b: T) => {
+      if (typeof a[key] === 'object' && typeof b[key] === 'object') {
+        return JSON.stringify(a[key]).localeCompare(JSON.stringify(b[key]));
+      }
+      if (typeof a[key] === 'string' && typeof b[key] === 'string') {
+        return a[key].localeCompare(b[key]);
+      }
+      if (typeof a[key] === 'number' && typeof b[key] === 'number') {
+        return a[key] - b[key];
+      }
+    });
+  } else {
+    // if not ascending order sort in other direction
+    rows.sort((a: T, b: T) => {
+      if (typeof a[key] === 'object' && typeof b[key] === 'object') {
+        return JSON.stringify(b[key]).localeCompare(JSON.stringify(a[key]));
+      }
+      if (typeof a[key] === 'string' && typeof b[key] === 'string') {
+        return b[key].localeCompare(a[key]);
+      }
+      if (typeof a[key] === 'number' && typeof b[key] === 'number') {
+        return b[key] - a[key];
+      }
+    });
+  }
+}
