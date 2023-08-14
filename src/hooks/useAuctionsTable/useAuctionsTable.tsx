@@ -15,7 +15,7 @@ import { calculateMinimumAuctionBid, getNextPriceUpdate } from '../../utils';
 import eventEmitter from '../../utils/events';
 
 export function useAuctionsTable() {
-  const [{ pdnsSourceContract, blockHieght }] = useGlobalState();
+  const [{ pdnsSourceContract, blockHeight: blockHeight }] = useGlobalState();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] =
     useState<keyof AuctionMetadata>('closingDate');
@@ -30,7 +30,7 @@ export function useAuctionsTable() {
       return;
     }
     fetchUndernameRows(pdnsSourceContract.auctions);
-  }, [pdnsSourceContract, blockHieght]);
+  }, [pdnsSourceContract, blockHeight]);
 
   function generateTableColumns(): ColumnType<AuctionMetadata>[] {
     return [
@@ -282,19 +282,19 @@ export function useAuctionsTable() {
     const settings = pdnsSourceContract.settings.auctions?.history.find(
       (settings) => settings.id === auctionSettingsId,
     );
-    if (!settings || !blockHieght) {
-      console.debug('auction settings or blockheight not found', {
+    if (!settings || !blockHeight) {
+      console.debug('auction settings or blockHeight not found', {
         settings,
-        blockHieght,
+        blockHieght: blockHeight,
       });
       return;
     }
     const expirationDateMilliseconds =
       Date.now() +
-      (startHeight + settings.auctionDuration - blockHieght) * 120_000; // approximate expiration date in milliseconds
+      (startHeight + settings.auctionDuration - blockHeight) * 120_000; // approximate expiration date in milliseconds
     const nextPriceUpdate =
       getNextPriceUpdate({
-        currentBlockHeight: blockHieght,
+        currentBlockHeight: blockHeight,
         startHeight,
         decayInterval: settings.decayInterval,
       }) * 120_000;
@@ -309,7 +309,7 @@ export function useAuctionsTable() {
           startHeight,
           initialPrice: startPrice,
           floorPrice,
-          currentBlockHeight: blockHieght,
+          currentBlockHeight: blockHeight,
           decayInterval: settings.decayInterval,
           decayRate: settings.decayRate,
         }),

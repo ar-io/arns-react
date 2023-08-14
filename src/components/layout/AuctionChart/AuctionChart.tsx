@@ -51,7 +51,7 @@ function AuctionChart({
     annotationPlugin,
   );
 
-  const [{ blockHieght: currentBlockHeight }, dispatchGlobalState] =
+  const [{ blockHeight: currentBlockHeight }, dispatchGlobalState] =
     useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const chartRef = useRef<ChartJSOrUndefined>(null);
@@ -73,7 +73,7 @@ function AuctionChart({
         arweaveDataProvider
           .getCurrentBlockHeight()
           .then((b: number) =>
-            dispatchGlobalState({ type: 'setBlockHieght', payload: b }),
+            dispatchGlobalState({ type: 'setBlockHeight', payload: b }),
           )
           .catch((error) => eventEmitter.emit('error', error));
       }

@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import { useArweaveCompositeProvider, useAuctionsTable } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
+import eventEmitter from '../../../utils/events';
 import { ChevronLeftIcon, ChevronRightIcon, RefreshIcon } from '../../icons';
 import { Loader } from '../../layout';
 
@@ -18,12 +19,23 @@ function Auctions() {
     );
   }
 
-  function refresh() {
-    arweaveDataProvider
-      .getCurrentBlockHeight()
-      .then((block) =>
-        dispatchGlobalState({ type: 'setBlockHieght', payload: block }),
-      );
+  async function refresh() {
+    try {
+      const height = await arweaveDataProvider
+        .getCurrentBlockHeight()
+        .catch((e) => console.debug(e));
+      if (!height) {
+        throw new Error(
+          'Error refreshing auctions table. Please try again later.',
+        );
+      }
+      dispatchGlobalState({
+        type: 'setBlockHeight',
+        payload: height,
+      });
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    }
   }
 
   const customPaginationButtons: PaginationProps['itemRender'] = (
