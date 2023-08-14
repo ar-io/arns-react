@@ -156,13 +156,7 @@ export interface SmartweaveContractCache {
     contractTxId: ArweaveTransactionID,
     key: string,
   ): Promise<ContractInteraction[]>;
-  isDomainAvailable({
-    domain,
-    domainsList,
-  }: {
-    domain: string;
-    domainsList: string[];
-  }): boolean;
+  isDomainAvailable({ domain }: { domain: string }): Promise<boolean>;
   isDomainInAuction({
     domain,
     auctionsList,
@@ -170,13 +164,7 @@ export interface SmartweaveContractCache {
     domain: string;
     auctionsList: string[];
   }): boolean;
-  isDomainReserved({
-    domain,
-    reservedList,
-  }: {
-    domain: string;
-    reservedList: string[];
-  }): boolean;
+  isDomainReserved({ domain }: { domain: string }): Promise<boolean>;
 }
 
 export interface SmartweaveContractInteractionProvider {
