@@ -30,7 +30,7 @@ export function useAuctionsTable() {
     if (!pdnsSourceContract?.auctions) {
       return;
     }
-    fetchUndernameRows(pdnsSourceContract.auctions);
+    fetchAuctionRows(pdnsSourceContract.auctions);
   }, [pdnsSourceContract, blockHeight]);
 
   function generateTableColumns(): ColumnType<AuctionMetadata>[] {
@@ -322,7 +322,9 @@ export function useAuctionsTable() {
     }
   }
 
-  async function fetchUndernameRows(auctions: { [x: string]: any }) {
+  async function fetchAuctionRows(auctions: {
+    [x: string]: any;
+  }): Promise<void> {
     setIsLoading(true);
     const fetchedRows: AuctionMetadata[] = [];
 

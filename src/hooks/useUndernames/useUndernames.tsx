@@ -224,7 +224,7 @@ export function useUndernames(id?: ArweaveTransactionID) {
     ];
   }
 
-  async function fetchUndernameRows(id: ArweaveTransactionID) {
+  async function fetchUndernameRows(id: ArweaveTransactionID): Promise<void> {
     setIsLoading(true);
     const fetchedRows: UndernameMetadata[] = [];
     const [contractState, confirmations] = await Promise.all([
