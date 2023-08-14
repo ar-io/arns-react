@@ -161,7 +161,7 @@ function NavMenuCard() {
           ) : (
             <>
               <CopyTextButton
-                displayText={`${walletAddress
+                body={`${walletAddress
                   .toString()
                   .slice(0, isMobile ? 2 : 4)}...${walletAddress
                   .toString()
