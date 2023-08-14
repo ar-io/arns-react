@@ -17,6 +17,7 @@ import { ChartJSOrUndefined } from 'react-chartjs-2/dist/types';
 
 import { useArweaveCompositeProvider, useAuctionInfo } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { AVERAGE_BLOCK_TIME } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import Loader from '../Loader/Loader';
 
@@ -155,7 +156,7 @@ function AuctionChart({
     const auctionEnd = startBlock + duration;
     if (currentBlock >= auctionEnd) {
       // If auction has already ended, return the end time of the auction
-      return auctionEnd * 120_000;
+      return auctionEnd * AVERAGE_BLOCK_TIME;
     } else {
       // If auction is still ongoing, calculate the deadline as before
       const blockIntervalsPassed = Math.floor(
@@ -164,7 +165,7 @@ function AuctionChart({
       const minBlockRange =
         startBlock + blockIntervalsPassed * blockDecayInterval;
       const blocksUntilDecay = currentBlock - minBlockRange;
-      const deadline = Date.now() + 120_000 * blocksUntilDecay;
+      const deadline = Date.now() + AVERAGE_BLOCK_TIME * blocksUntilDecay;
 
       return deadline;
     }

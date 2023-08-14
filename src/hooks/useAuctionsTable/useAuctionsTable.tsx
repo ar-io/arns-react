@@ -12,6 +12,7 @@ import {
   TRANSACTION_TYPES,
 } from '../../types';
 import { calculateMinimumAuctionBid, getNextPriceUpdate } from '../../utils';
+import { AVERAGE_BLOCK_TIME } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 
 export function useAuctionsTable() {
@@ -282,41 +283,43 @@ export function useAuctionsTable() {
     const settings = pdnsSourceContract.settings.auctions?.history.find(
       (settings) => settings.id === auctionSettingsId,
     );
-    if (!settings || !blockHeight) {
-      console.debug('auction settings or blockHeight not found', {
-        settings,
-        blockHieght: blockHeight,
-      });
-      return;
-    }
-    const expirationDateMilliseconds =
-      Date.now() +
-      (startHeight + settings.auctionDuration - blockHeight) * 120_000; // approximate expiration date in milliseconds
-    const nextPriceUpdate =
-      getNextPriceUpdate({
-        currentBlockHeight: blockHeight,
-        startHeight,
-        decayInterval: settings.decayInterval,
-      }) * 120_000;
 
-    const data = {
-      closingDate: expirationDateMilliseconds,
-      initiator: new ArweaveTransactionID(initiator),
-      type,
-      nextPriceUpdate,
-      price: Math.round(
-        calculateMinimumAuctionBid({
-          startHeight,
-          initialPrice: startPrice,
-          floorPrice,
+    try {
+      if (!settings || !blockHeight) {
+        throw new Error('Error fetching auction data. Please try again later.');
+      }
+      const expirationDateMilliseconds =
+        Date.now() +
+        (startHeight + settings.auctionDuration - blockHeight) *
+          AVERAGE_BLOCK_TIME; // approximate expiration date in milliseconds
+      const nextPriceUpdate =
+        getNextPriceUpdate({
           currentBlockHeight: blockHeight,
+          startHeight,
           decayInterval: settings.decayInterval,
-          decayRate: settings.decayRate,
-        }),
-      ),
-    };
+        }) * AVERAGE_BLOCK_TIME;
 
-    return data;
+      const data = {
+        closingDate: expirationDateMilliseconds,
+        initiator: new ArweaveTransactionID(initiator),
+        type,
+        nextPriceUpdate,
+        price: Math.round(
+          calculateMinimumAuctionBid({
+            startHeight,
+            initialPrice: startPrice,
+            floorPrice,
+            currentBlockHeight: blockHeight,
+            decayInterval: settings.decayInterval,
+            decayRate: settings.decayRate,
+          }),
+        ),
+      };
+
+      return data;
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    }
   }
 
   async function fetchUndernameRows(auctions: { [x: string]: any }) {
