@@ -1,10 +1,11 @@
-import { PaginationProps, Table } from 'antd';
+import { Table } from 'antd';
 import { useState } from 'react';
 
 import { useArweaveCompositeProvider, useAuctionsTable } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { getCustomPaginationButtons } from '../../../utils';
 import eventEmitter from '../../../utils/events';
-import { ChevronLeftIcon, ChevronRightIcon, RefreshIcon } from '../../icons';
+import { RefreshIcon } from '../../icons';
 import { Loader } from '../../layout';
 
 function Auctions() {
@@ -15,7 +16,7 @@ function Auctions() {
 
   if (isLoading) {
     return (
-      <Loader size={80} message={`Loading auctions table... %${percent}`} />
+      <Loader size={80} message={`Loading auctions table... ${percent}%`} />
     );
   }
 
@@ -38,52 +39,6 @@ function Auctions() {
     }
   }
 
-  const customPaginationButtons: PaginationProps['itemRender'] = (
-    page,
-    type,
-    originalElement,
-  ) => {
-    if (type === 'prev') {
-      return (
-        <span className="flex flex-center">
-          <ChevronLeftIcon
-            width={'24px'}
-            height={'24px'}
-            fill="var(--text-grey)"
-          />
-        </span>
-      );
-    }
-    if (type === 'next') {
-      return (
-        <span className="flex flex-center">
-          <ChevronRightIcon
-            width={'24px'}
-            height={'24px'}
-            fill="var(--text-grey)"
-          />
-        </span>
-      );
-    }
-    if (type === 'page') {
-      return (
-        <span
-          className="flex flex-row hover center"
-          style={{
-            color: currentPage == page ? 'white' : 'var(--text-grey)',
-            width: '32px',
-            borderRadius: 'var(--corner-radius)',
-            backgroundColor:
-              currentPage == page ? 'var(--text-faded)' : 'var(--bg-color)',
-          }}
-        >
-          {page}
-        </span>
-      );
-    }
-    return originalElement;
-  };
-
   return (
     <div className="page" style={{ paddingTop: '100px' }}>
       <div className="flex flex-column center">
@@ -99,7 +54,7 @@ function Auctions() {
             style={{ fontSize: '16px', gap: '10px' }}
             onClick={() => refresh()}
           >
-            <RefreshIcon width={'24px'} height={'24px'} fill={'white'} />{' '}
+            <RefreshIcon width={'24px'} height={'24px'} fill={'white'} />
             Refresh
           </button>
         </div>
@@ -109,7 +64,13 @@ function Auctions() {
           pagination={{
             position: ['bottomCenter'],
             rootClassName: 'table-pagination',
-            itemRender: customPaginationButtons,
+            itemRender: (page, type, originalElement) =>
+              getCustomPaginationButtons({
+                page,
+                type,
+                originalElement,
+                currentPage,
+              }),
             onChange(page) {
               setCurrentPage(page);
             },
