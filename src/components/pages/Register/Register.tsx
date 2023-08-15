@@ -1,9 +1,14 @@
 import { CheckCircleFilled } from '@ant-design/icons';
+import { Tooltip } from 'antd';
 import emojiRegex from 'emoji-regex';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
-import { useArweaveCompositeProvider, useAuctionInfo } from '../../../hooks';
+import {
+  useArweaveCompositeProvider,
+  useAuctionInfo,
+  useIsFocused,
+} from '../../../hooks';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
@@ -26,8 +31,10 @@ import {
   MIN_LEASE_DURATION,
   PDNS_REGISTRY_ADDRESS,
 } from '../../../utils/constants';
+import { CirclePlus } from '../../icons';
 import YearsCounter from '../../inputs/Counter/Counter';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
+import ArweaveIdInput from '../../inputs/text/ArweaveIdInput/ArweaveIdInput';
 import NameTokenSelector from '../../inputs/text/NameTokenSelector/NameTokenSelector';
 import Loader from '../../layout/Loader/Loader';
 import TransactionCost from '../../layout/TransactionCost/TransactionCost';
@@ -47,6 +54,8 @@ function RegisterNameForm() {
     registrationType,
     leaseDuration,
   );
+  const [targetId, setTargetId] = useState<ArweaveTransactionID>();
+  const targetIdFocused = useIsFocused('target-id-input');
   const { name } = useParams();
   const navigate = useNavigate();
 
@@ -336,7 +345,7 @@ function RegisterNameForm() {
             </div>
           </div>
 
-          <div className="flex flex-column" style={{ gap: '2em' }}>
+          <div className="flex flex-column" style={{ gap: '1em' }}>
             <NameTokenSelector
               selectedTokenCallback={(id) =>
                 id
@@ -346,6 +355,57 @@ function RegisterNameForm() {
                       payload: undefined,
                     })
               }
+            />
+            <ArweaveIdInput
+              id={'target-id-input'}
+              beforeElement={
+                <span
+                  className="flex center pointer"
+                  style={{ position: 'absolute', left: '16px' }}
+                >
+                  <CirclePlus
+                    width={30}
+                    height={30}
+                    fill={'var(--text-white)'}
+                  />
+                </span>
+              }
+              arweaveIdCallback={(id) => setTargetId(id)}
+              afterElement={
+                <span
+                  className="grey pointer hover"
+                  style={{ fontSize: '12px' }}
+                >
+                  <Tooltip
+                    placement={'right'}
+                    autoAdjustOverflow={true}
+                    arrow={false}
+                    overlayInnerStyle={{
+                      width: '190px',
+                      color: 'var(--text-black)',
+                      textAlign: 'center',
+                      fontFamily: 'Rubik-Bold',
+                      fontSize: '14px',
+                      backgroundColor: 'var(--text-white)',
+                      padding: '15px',
+                    }}
+                    title={
+                      'The Target ID is the arweave ID that will be resolved by the ArNS name.'
+                    }
+                  >
+                    Optional
+                  </Tooltip>
+                </span>
+              }
+              inputStyle={{ paddingLeft: '60px', background: 'transparent' }}
+              wrapperStyle={{
+                border:
+                  targetIdFocused || targetId
+                    ? 'solid 1px var(--text-white)'
+                    : 'solid 1px var(--text-faded)',
+                position: 'relative',
+              }}
+              placeholder="Add a Target ID"
             />
 
             <TransactionCost fee={fee} />
@@ -417,6 +477,7 @@ function RegisterNameForm() {
                 registrationType: registrationType,
                 reservedList: Object.keys(pdnsSourceContract.reserved),
               }),
+              targetId: targetId,
             };
 
             dispatchTransactionState({

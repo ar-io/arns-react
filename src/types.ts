@@ -461,6 +461,7 @@ export type BuyRecordPayload = {
   state?: PDNTContractJSON;
   qty?: number; // only used when bidding on a pre-existing auction
   auction?: boolean;
+  targetId?: ArweaveTransactionID;
 };
 
 export type SubmitAuctionBidPayload = {

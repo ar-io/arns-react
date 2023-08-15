@@ -1,7 +1,7 @@
 import { Pagination, PaginationProps, Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
-import { useArweaveCompositeProvider } from '../../../../hooks';
+import { useArweaveCompositeProvider, useIsFocused } from '../../../../hooks';
 import { PDNTContract } from '../../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import {
@@ -47,6 +47,7 @@ function NameTokenSelector({
   const [validImport, setValidImport] = useState<boolean | undefined>(
     undefined,
   );
+  const isFocused = useIsFocused('name-token-selector-input');
 
   const listRef = useRef<HTMLDivElement>(null);
   const [listPage, setListPage] = useState<number>(1);
@@ -295,7 +296,10 @@ function NameTokenSelector({
         position: 'relative',
         height: 'fit-content',
         maxHeight: '400px',
-        border: `1px solid var(--text-white)`,
+        border:
+          isFocused || searchActive
+            ? `1px solid var(--text-white)`
+            : `1px solid var(--text-faded)`,
         gap: 0,
       }}
     >
@@ -306,13 +310,14 @@ function NameTokenSelector({
       >
         <button
           className="button center hover"
-          style={{ width: 'fit-content' }}
+          style={{ width: 'fit-content', margin: 'auto' }}
           onClick={() => setSearchActive(true)}
         >
           <CirclePlus width={30} height={30} fill={'var(--text-white)'} />
         </button>
 
         <ValidationInput
+          inputId="name-token-selector-input"
           onClick={() => setSearchActive(true)}
           showValidationIcon={validImport !== undefined}
           setValue={(v) =>
