@@ -39,12 +39,15 @@ function ViewAuction() {
           'error',
           new Error('This auction has expired, rerouting...'),
         );
-        sleep(2000).then(() => {
-          navigate('/auctions');
-        });
+        handleExpired();
       }
     }
   }, [blockHeight, auction, auctionSettings, name]);
+
+  async function handleExpired() {
+    await sleep(2000);
+    navigate('/auctions');
+  }
 
   if (!name || !minimumAuctionBid || !auction) {
     return (
