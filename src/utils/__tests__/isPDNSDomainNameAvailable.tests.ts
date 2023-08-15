@@ -1,3 +1,4 @@
+import { TRANSACTION_TYPES } from '../../types';
 import { isPDNSDomainNameAvailable } from '../searchUtils/searchUtils';
 
 describe('isPDNSDomainNameAvailable', () => {
@@ -6,16 +7,19 @@ describe('isPDNSDomainNameAvailable', () => {
       contractTxId: 'fake-tx-id-0',
       tier: 'a27dbfe4-6992-4276-91fb-5b97ae8c3ffa',
       endTimestamp: 0,
+      type: TRANSACTION_TYPES.LEASE,
     },
     'domain-1': {
       contractTxId: 'fake-tx-id-0',
       tier: 'a27dbfe4-6992-4276-91fb-5b97ae8c3ffa',
       endTimestamp: 0,
+      type: TRANSACTION_TYPES.LEASE,
     },
     'domain-2': {
       contractTxId: 'fake-tx-id-0',
       tier: 'a27dbfe4-6992-4276-91fb-5b97ae8c3ffa',
       endTimestamp: 0,
+      type: TRANSACTION_TYPES.LEASE,
     },
   };
 

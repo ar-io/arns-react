@@ -9,6 +9,7 @@ import {
   ArweaveTransactionID,
   PDNSMapping,
   PDNTContractJSON,
+  TRANSACTION_TYPES,
 } from '../../../types';
 import {
   decodeDomainToASCII,
@@ -144,13 +145,14 @@ function PDNTCard(props: PDNSMapping) {
           : undefined,
         contractTxId: contractTxId?.toString() ?? 'N/A',
         domain: decodeDomainToASCII(domain),
-        // TODO: update lease duration to fetch lease duration from contract
         leaseDuration: pdnsSourceContract.records[
           encodeDomainToASCII(domain).toLowerCase()
         ]
-          ? +pdnsSourceContract.records[
-              encodeDomainToASCII(domain).toLowerCase()
-            ].endTimestamp * 1000
+          ? pdnsSourceContract.records[domain].type === TRANSACTION_TYPES.BUY
+            ? 'Indefinite'
+            : +pdnsSourceContract.records[
+                encodeDomainToASCII(domain).toLowerCase()
+              ].endTimestamp * 1000
           : 'N/A',
         maxUndernames: 'Up to ' + tierDetails?.settings.maxUndernames ?? 100,
         name: antContractState.name,
@@ -232,6 +234,7 @@ function PDNTCard(props: PDNSMapping) {
           style={{ width: '100%' }}
         >
           {Object.entries(pdntDetails).map(([key, value]) => {
+            const numberValue = +value;
             if ((!mappedKeys.includes(key) && limitDetails) || !value) {
               return;
             }
@@ -292,22 +295,35 @@ function PDNTCard(props: PDNSMapping) {
                   />
                 ) : key === 'Lease Duration' ? (
                   <span>
-                    {getLeaseDurationFromEndTimestamp(Date.now(), +value)} year
-                    {getLeaseDurationFromEndTimestamp(Date.now(), +value) > 1
-                      ? 's'
-                      : ''}
-                    &nbsp;
-                    <span style={{ color: 'var(--text-grey)' }}>
-                      (expires approximately{' '}
-                      {+value
-                        ? Intl.DateTimeFormat('en', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                          }).format(+value)
-                        : 'N/A'}
-                      )
-                    </span>
+                    {isNaN(numberValue) ? (
+                      value
+                    ) : (
+                      <>
+                        {getLeaseDurationFromEndTimestamp(
+                          Date.now(),
+                          numberValue,
+                        )}{' '}
+                        year
+                        {getLeaseDurationFromEndTimestamp(
+                          Date.now(),
+                          numberValue,
+                        ) > 1
+                          ? 's'
+                          : ''}
+                        &nbsp;
+                        <span style={{ color: 'var(--text-grey)' }}>
+                          (expires approximately{' '}
+                          {+value
+                            ? Intl.DateTimeFormat('en', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                              }).format(numberValue)
+                            : 'N/A'}
+                          )
+                        </span>
+                      </>
+                    )}
                   </span>
                 ) : value ? (
                   value

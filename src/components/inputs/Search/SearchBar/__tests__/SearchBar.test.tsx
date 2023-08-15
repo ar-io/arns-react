@@ -2,6 +2,7 @@ import { cleanup, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HashRouter as Router } from 'react-router-dom';
 
+import { TRANSACTION_TYPES } from '../../../../../types';
 import { SearchBarFooter, SearchBarHeader } from '../../../../layout';
 import {
   searchBarSuccessPredicate,
@@ -19,13 +20,13 @@ const TEST_RECORDS = {
     contractTxId: 'I-cxQhfh0Zb9UqQNizC9PiLC41KpUeA9hjiVV02rQRw',
     endTimestamp: 1711122739,
     tier: 'SEC0-8cTfyDBRQo21KNIhUV5KreuEmIY05wX-VOeESE',
-    type: 'lease',
+    type: TRANSACTION_TYPES.BUY,
   },
   'xn--go8h6v': {
     contractTxId: 'I-cxQhfh0Zb9UqQNizC9PiLC41KpUeA9hjiVV02rQRw',
     endTimestamp: 1711122739,
     tier: 'SEC0-8cTfyDBRQo21KNIhUV5KreuEmIY05wX-VOeESE',
-    type: 'lease',
+    type: TRANSACTION_TYPES.LEASE,
   },
 };
 
