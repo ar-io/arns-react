@@ -334,6 +334,7 @@ function SearchBar(props: SearchBarProps) {
           <></>
         ) : (
           <button
+            data-testid="search-button"
             className="button pointer"
             style={{
               width: `${height}px`,

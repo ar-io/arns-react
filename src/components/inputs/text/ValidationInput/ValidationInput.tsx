@@ -169,6 +169,7 @@ function ValidationInput({
       >
         <div className="flex" style={{ width: '100%', position: 'relative' }}>
           <input
+            data-testid={inputId}
             spellCheck={false}
             ref={inputRef}
             onKeyDown={(e) =>

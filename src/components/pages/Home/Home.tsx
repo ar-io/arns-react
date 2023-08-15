@@ -30,6 +30,37 @@ import { SearchBarFooter, SearchBarHeader } from '../../layout';
 import Workflow from '../../layout/Workflow/Workflow';
 import './styles.css';
 
+export const searchBarSuccessPredicate = ({
+  value,
+  records,
+}: {
+  value: string | undefined;
+  records: { [x: string]: any };
+}) => {
+  if (!value) {
+    return false;
+  }
+
+  return isPDNSDomainNameAvailable({
+    name: encodeDomainToASCII(value),
+    records: records,
+  });
+};
+
+export const searchBarValidationPredicate = ({
+  value,
+}: {
+  value: string | undefined;
+}) => {
+  if (!value) {
+    return false;
+  }
+
+  return isPDNSDomainNameValid({
+    name: encodeDomainToASCII(value),
+  });
+};
+
 function Home() {
   const [, dispatchTransactionState] = useTransactionState();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -240,13 +271,13 @@ function Home() {
                       });
                     }}
                     successPredicate={(value: string | undefined) =>
-                      isPDNSDomainNameAvailable({
-                        name: value ? encodeDomainToASCII(value) : value,
+                      searchBarSuccessPredicate({
+                        value,
                         records: pdnsSourceContract?.records ?? {},
                       })
                     }
                     validationPredicate={(value: string | undefined) =>
-                      isPDNSDomainNameValid({ name: value })
+                      searchBarValidationPredicate({ value })
                     }
                     placeholderText={'Search for a name'}
                     headerElement={
