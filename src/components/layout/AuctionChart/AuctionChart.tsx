@@ -364,7 +364,7 @@ function AuctionChart({
                 arweaveDataProvider.getCurrentBlockHeight().then((block) =>
                   block !== currentBlockHeight
                     ? dispatchGlobalState({
-                        type: 'setBlockHieght',
+                        type: 'setBlockHeight',
                         payload: block,
                       })
                     : null,

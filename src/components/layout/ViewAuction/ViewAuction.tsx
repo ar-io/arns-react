@@ -17,7 +17,7 @@ import AuctionChart from '../AuctionChart/AuctionChart';
 import Loader from '../Loader/Loader';
 
 function ViewAuction() {
-  const [{ blockHieght }] = useGlobalState();
+  const [{ blockHeight }] = useGlobalState();
   const { name } = useParams();
   const navigate = useNavigate();
   const { minimumAuctionBid, auction, auctionSettings } = useAuctionInfo(
@@ -31,9 +31,9 @@ function ViewAuction() {
       eventEmitter.emit('error', new Error('No name detected'));
       navigate('/auctions');
     }
-    if (auction && auctionSettings && blockHieght) {
+    if (auction && auctionSettings && blockHeight) {
       const isExpired =
-        auction.startHeight + auctionSettings.auctionDuration < blockHieght;
+        auction.startHeight + auctionSettings.auctionDuration < blockHeight;
 
       if (isExpired) {
         eventEmitter.emit(
@@ -45,7 +45,7 @@ function ViewAuction() {
         });
       }
     }
-  }, [blockHieght, auction, auctionSettings, name]);
+  }, [blockHeight, auction, auctionSettings, name]);
 
   if (!name || !minimumAuctionBid || !auction) {
     sleep(2000).then(() => {

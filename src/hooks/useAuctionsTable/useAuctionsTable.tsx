@@ -22,7 +22,10 @@ import eventEmitter from '../../utils/events';
 import { useArweaveCompositeProvider } from '../useArweaveCompositeProvider/useArweaveCompositeProvider';
 
 export function useAuctionsTable() {
-  const [{ pdnsSourceContract, blockHeight: blockHeight }] = useGlobalState();
+  const [
+    { pdnsSourceContract, blockHeight: blockHeight },
+    dispatchGlobalState,
+  ] = useGlobalState();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] =
     useState<keyof AuctionMetadata>('closingDate');
@@ -230,9 +233,9 @@ export function useAuctionsTable() {
               format="m"
               onFinish={() => {
                 arweaveDataProvider.getCurrentBlockHeight().then((block) =>
-                  block !== blockHieght
+                  block !== blockHeight
                     ? dispatchGlobalState({
-                        type: 'setBlockHieght',
+                        type: 'setBlockHeight',
                         payload: block,
                       })
                     : null,
