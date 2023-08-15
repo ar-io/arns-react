@@ -49,7 +49,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
         key: 'hasPending',
         align: 'left',
         width: '2%',
-        className: 'white',
+        className: 'white assets-table-header',
         render: (hasPending: boolean, row: any) => {
           if (hasPending) {
             return (
@@ -105,7 +105,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
         key: 'name',
         align: 'left',
         width: '18%',
-        className: 'white',
+        className: 'white assets-table-header',
         ellipsis: true,
         onHeaderCell: () => {
           return {
@@ -148,7 +148,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
         key: 'role',
         align: 'center',
         width: '18%',
-        className: 'white',
+        className: 'white assets-table-header',
         ellipsis: true,
         onHeaderCell: () => {
           return {
@@ -190,7 +190,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
         key: 'id',
         align: 'center',
         width: '18%',
-        className: 'white',
+        className: 'white assets-table-header',
         ellipsis: true,
         render: (val: string) =>
           val === 'N/A' ? (
@@ -198,7 +198,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
           ) : (
             <CopyTextButton
               copyText={val}
-              displayText={`${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
+              body={`${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
                 isMobile ? -2 : -6,
               )}`}
               size={16}
@@ -252,14 +252,14 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
         key: 'targetID',
         align: 'center',
         width: '18%',
-        className: 'white',
+        className: 'white assets-table-header',
         render: (val: string) =>
           val === 'N/A' ? (
             val
           ) : (
             <CopyTextButton
               copyText={val}
-              displayText={`${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
+              body={`${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
                 isMobile ? -2 : -6,
               )}`}
               size={16}
@@ -317,7 +317,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
         key: 'status',
         align: 'center',
         width: '18%',
-        className: 'white',
+        className: 'white assets-table-header',
         render: (val: number) => (
           <TransactionStatus
             confirmations={val}
@@ -341,6 +341,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
       },
       {
         title: '',
+        className: 'white assets-table-header',
         render: (val: any, row: PDNTMetadata) => (
           <ManageAssetButtons
             id={val.id}

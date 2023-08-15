@@ -15,7 +15,13 @@ import {
   CreatePDNTModal,
   ManagePDNTModal,
 } from './components/modals';
-import { Home, Manage, NotFound, Transaction } from './components/pages';
+import {
+  Auctions,
+  Home,
+  Manage,
+  NotFound,
+  Transaction,
+} from './components/pages';
 import { usePDNSContract } from './hooks/';
 import './index.css';
 
@@ -91,6 +97,12 @@ function App() {
               <Transaction />
             </ProtectedRoute>
           }
+        />
+        ,
+        <Route path="auctions" element={<Auctions />} />
+        <Route
+          path="auctions/:name"
+          element={<h1 className="white center">Not Implemented</h1>}
         />
         <Route path="*" element={<NotFound />} />
       </Route>,

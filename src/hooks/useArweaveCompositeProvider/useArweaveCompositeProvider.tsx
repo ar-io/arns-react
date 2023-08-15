@@ -24,7 +24,8 @@ const defaultContractCache = [
 ];
 
 export function useArweaveCompositeProvider(): ArweaveCompositeDataProvider {
-  const [{ gateway, blockHieght }, dispatchGlobalState] = useGlobalState();
+  const [{ gateway, blockHeight: blockHeight }, dispatchGlobalState] =
+    useGlobalState();
   const [arweaveDataProvider, setArweaveDataProvider] =
     useState<ArweaveCompositeDataProvider>(
       new ArweaveCompositeDataProvider(
@@ -38,13 +39,13 @@ export function useArweaveCompositeProvider(): ArweaveCompositeDataProvider {
     dispatchNewArweave(gateway);
     arweaveDataProvider
       .getCurrentBlockHeight()
-      .then((newBlockHieght: number) => {
-        if (newBlockHieght === blockHieght) {
+      .then((newBlockHeight: number) => {
+        if (newBlockHeight === blockHeight) {
           return;
         }
         dispatchGlobalState({
-          type: 'setBlockHieght',
-          payload: newBlockHieght,
+          type: 'setBlockHeight',
+          payload: newBlockHeight,
         });
       })
       .catch((error) => eventEmitter.emit('error', error));
@@ -55,16 +56,16 @@ export function useArweaveCompositeProvider(): ArweaveCompositeDataProvider {
       arweaveDataProvider
         .getCurrentBlockHeight()
         .then((newBlockHieght: number) => {
-          if (newBlockHieght === blockHieght) {
+          if (newBlockHieght === blockHeight) {
             return;
           }
           dispatchGlobalState({
-            type: 'setBlockHieght',
+            type: 'setBlockHeight',
             payload: newBlockHieght,
           });
         })
         .catch((error) => eventEmitter.emit('error', error));
-    }, 120000); // get block hieght every 2 minutes or if registry or if wallet changes.
+    }, 120000); // get block height every 2 minutes or if registry or if wallet changes.
 
     return () => {
       clearInterval(blockInterval);
