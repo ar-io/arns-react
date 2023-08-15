@@ -171,6 +171,15 @@ function AuctionChart({
     }
   }
 
+  async function updateBlockheight() {
+    try {
+      const blockHeight = await arweaveDataProvider.getCurrentBlockHeight();
+      dispatchGlobalState({ type: 'setBlockHeight', payload: blockHeight });
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    }
+  }
+
   if (
     !prices ||
     !labels ||
@@ -360,16 +369,7 @@ function AuctionChart({
                 paddingBottom: '0px',
               }}
               format="H:mm:ss"
-              onFinish={() => {
-                arweaveDataProvider.getCurrentBlockHeight().then((block) =>
-                  block !== currentBlockHeight
-                    ? dispatchGlobalState({
-                        type: 'setBlockHeight',
-                        payload: block,
-                      })
-                    : null,
-                );
-              }}
+              onFinish={() => updateBlockheight()}
             />
           </span>
         ) : (
