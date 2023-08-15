@@ -8,6 +8,7 @@ import { ArweaveTransactionID } from '../../../types';
 import {
   decodeDomainToASCII,
   encodeDomainToASCII,
+  isPDNSDomainNameValid,
   sleep,
 } from '../../../utils';
 import eventEmitter from '../../../utils/events';
@@ -27,7 +28,7 @@ function ViewAuction() {
   const [errors, setErrors] = useState<Error[]>([]);
 
   useEffect(() => {
-    if (!name) {
+    if (!name || (name && !isPDNSDomainNameValid({ name }))) {
       eventEmitter.emit('error', new Error('No name detected'));
       navigate('/auctions');
     }
@@ -52,7 +53,7 @@ function ViewAuction() {
       setRetries(retries + 1);
     });
 
-    if (retries >= 10) {
+    if (retries >= 3) {
       const error = new Error('Unable to fetch auction info, rerouting...');
       if (!errors.length) eventEmitter.emit('error', error);
       setErrors([...errors!, error]);
