@@ -23,8 +23,6 @@ function ViewAuction() {
   const { minimumAuctionBid, auction, auctionSettings } = useAuctionInfo(
     encodeDomainToASCII(name!),
   );
-  const [retries, setRetries] = useState<number>(0);
-  const [errors, setErrors] = useState<Error[]>([]);
 
   useEffect(() => {
     if (!name) {
@@ -48,25 +46,9 @@ function ViewAuction() {
   }, [blockHeight, auction, auctionSettings, name]);
 
   if (!name || !minimumAuctionBid || !auction) {
-    sleep(2000).then(() => {
-      setRetries(retries + 1);
-    });
-
-    if (retries >= 10) {
-      const error = new Error('Unable to fetch auction info, rerouting...');
-      if (!errors.length) eventEmitter.emit('error', error);
-      setErrors([...errors!, error]);
-      sleep(2000).then(() => {
-        navigate('/auctions');
-      });
-    }
-
     return (
       <div className="page center">
-        <Loader
-          size={80}
-          message={`Fetching latest auction info... retries: ${retries}`}
-        />
+        <Loader size={80} message={`Fetching latest auction info...`} />
       </div>
     );
   }
