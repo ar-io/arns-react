@@ -28,7 +28,7 @@ function RegisterNameForm() {
     { domain, fee, leaseDuration, registrationType },
     dispatchRegisterState,
   ] = useRegistrationState();
-  const [{ pdnsSourceContract, walletAddress, blockHieght }] = useGlobalState();
+  const [{ pdnsSourceContract, walletAddress, blockHeight }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const { minimumAuctionBid, auction, isLiveAuction } = useAuctionInfo(
     domain,
@@ -58,7 +58,7 @@ function RegisterNameForm() {
       if (
         domain &&
         pdnsSourceContract.settings.auctions &&
-        blockHieght &&
+        blockHeight &&
         auction
       ) {
         const newFee = isLiveAuction ? minimumAuctionBid : auction?.floorPrice;
@@ -77,7 +77,7 @@ function RegisterNameForm() {
       pdnsSourceContract.tiers &&
       pdnsSourceContract.fees &&
       domain &&
-      blockHieght &&
+      blockHeight &&
       !isLiveAuction
     ) {
       const newFee = calculatePDNSNamePrice({
@@ -87,7 +87,7 @@ function RegisterNameForm() {
         tier: pdnsSourceContract.tiers.current[0],
         tiers: pdnsSourceContract.tiers.history,
         fees: pdnsSourceContract.fees,
-        currentBlockHeight: blockHieght,
+        currentBlockHeight: blockHeight,
       });
       dispatchRegisterState({
         type: 'setFee',

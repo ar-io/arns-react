@@ -12,13 +12,17 @@ import {
   AuctionMetadata,
   TRANSACTION_TYPES,
 } from '../../types';
-import { calculateMinimumAuctionBid, getNextPriceUpdate } from '../../utils';
+import {
+  calculateMinimumAuctionBid,
+  getNextPriceUpdate,
+  handleTableSort,
+} from '../../utils';
+import { AVERAGE_BLOCK_TIME } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 import { useArweaveCompositeProvider } from '../useArweaveCompositeProvider/useArweaveCompositeProvider';
 
 export function useAuctionsTable() {
-  const [{ pdnsSourceContract, blockHieght }, dispatchGlobalState] =
-    useGlobalState();
+  const [{ pdnsSourceContract, blockHeight: blockHeight }] = useGlobalState();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] =
     useState<keyof AuctionMetadata>('closingDate');
@@ -33,8 +37,8 @@ export function useAuctionsTable() {
     if (!pdnsSourceContract?.auctions) {
       return;
     }
-    fetchUndernameRows(pdnsSourceContract.auctions);
-  }, [pdnsSourceContract, blockHieght]);
+    fetchAuctionRows(pdnsSourceContract.auctions);
+  }, [pdnsSourceContract, blockHeight]);
 
   function generateTableColumns(): ColumnType<AuctionMetadata>[] {
     return [
@@ -57,12 +61,11 @@ export function useAuctionsTable() {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              rows.sort((a: AuctionMetadata, b: AuctionMetadata) =>
-                // by default we sort by name
-                !sortAscending
-                  ? a.name.localeCompare(b.name)
-                  : b.name.localeCompare(a.name),
-              );
+              handleTableSort<AuctionMetadata>({
+                key: 'name',
+                isAsc: sortAscending,
+                rows,
+              });
               // forces update of rows
               setRows([...rows]);
               setSortOrder(!sortAscending);
@@ -89,11 +92,11 @@ export function useAuctionsTable() {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              rows.sort((a: any, b: any) =>
-                sortAscending
-                  ? a.closingDate - b.closingDate
-                  : b.closingDate - a.closingDate,
-              );
+              handleTableSort<AuctionMetadata>({
+                key: 'closingDate',
+                isAsc: sortAscending,
+                rows,
+              });
               // forces update of rows
               setRows([...rows]);
               setSortOrder(!sortAscending);
@@ -126,13 +129,11 @@ export function useAuctionsTable() {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              rows.sort((a: any, b: any) =>
-                sortAscending
-                  ? a.initiator.toString().localeCompare(b.initiator.toString())
-                  : b.initiator
-                      .toString()
-                      .localeCompare(a.initiator.toString()),
-              );
+              handleTableSort<AuctionMetadata>({
+                key: 'initiator',
+                isAsc: sortAscending,
+                rows,
+              });
               // forces update of rows
               setRows([...rows]);
               setSortOrder(!sortAscending);
@@ -159,11 +160,11 @@ export function useAuctionsTable() {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              rows.sort((a: any, b: any) =>
-                sortAscending
-                  ? a.type.localeCompare(b.type)
-                  : b.type.localeCompare(a.type),
-              );
+              handleTableSort<AuctionMetadata>({
+                key: 'type',
+                isAsc: sortAscending,
+                rows,
+              });
               // forces update of rows
               setRows([...rows]);
               setSortOrder(!sortAscending);
@@ -189,9 +190,11 @@ export function useAuctionsTable() {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              rows.sort((a: any, b: any) =>
-                sortAscending ? a.price - b.price : b.price - a.price,
-              );
+              handleTableSort<AuctionMetadata>({
+                key: 'price',
+                isAsc: sortAscending,
+                rows,
+              });
               // forces update of rows
               setRows([...rows]);
               setSortOrder(!sortAscending);
@@ -242,11 +245,11 @@ export function useAuctionsTable() {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              rows.sort((a: any, b: any) =>
-                sortAscending
-                  ? a.nextPriceUpdate - b.nextPriceUpdate
-                  : b.nextPriceUpdate - a.nextPriceUpdate,
-              );
+              handleTableSort<AuctionMetadata>({
+                key: 'nextPriceUpdate',
+                isAsc: sortAscending,
+                rows,
+              });
               // forces update of rows
               setRows([...rows]);
               setSortOrder(!sortAscending);
@@ -311,24 +314,28 @@ export function useAuctionsTable() {
     const settings = pdnsSourceContract.settings.auctions?.history.find(
       (settings) => settings.id === auctionSettingsId,
     );
-    if (!settings || !blockHieght) {
-      console.debug('auction settings or blockheight not found', {
-        settings,
-        blockHieght,
-      });
-      return;
+
+    if (!settings || !blockHeight) {
+      throw new Error('Error fetching auction data. Please try again later.');
     }
     const expirationDateMilliseconds =
       Date.now() +
-      (startHeight + settings.auctionDuration - blockHieght) * 120_000; // approximate expiration date in milliseconds
+      (startHeight + settings.auctionDuration - blockHeight) *
+        AVERAGE_BLOCK_TIME; // approximate expiration date in milliseconds
+
+    if (expirationDateMilliseconds < Date.now()) {
+      // if auction is expired, do not show.
+      return;
+    }
+
     const nextPriceUpdate =
       Date.now() +
       getNextPriceUpdate({
-        currentBlockHeight: blockHieght,
+        currentBlockHeight: blockHeight,
         startHeight,
         decayInterval: settings.decayInterval,
       }) *
-        120_000;
+        AVERAGE_BLOCK_TIME;
 
     const data = {
       closingDate: expirationDateMilliseconds,
@@ -340,7 +347,7 @@ export function useAuctionsTable() {
           startHeight,
           initialPrice: startPrice,
           floorPrice,
-          currentBlockHeight: blockHieght,
+          currentBlockHeight: blockHeight,
           decayInterval: settings.decayInterval,
           decayRate: settings.decayRate,
         }),
@@ -350,12 +357,14 @@ export function useAuctionsTable() {
     return data;
   }
 
-  async function fetchUndernameRows(auctions: { [x: string]: any }) {
+  async function fetchAuctionRows(auctions: {
+    [x: string]: any;
+  }): Promise<void> {
     setIsLoading(true);
     const fetchedRows: AuctionMetadata[] = [];
 
-    const undernames = Object.entries(auctions);
-    for (const [name, record] of undernames) {
+    const auctionRecords = Object.entries(auctions);
+    for (const [name, record] of auctionRecords) {
       try {
         const auctionData = handleAuctionData(record);
         if (!auctionData) {

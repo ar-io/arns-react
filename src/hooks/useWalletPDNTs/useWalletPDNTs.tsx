@@ -198,7 +198,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
           ) : (
             <CopyTextButton
               copyText={val}
-              displayText={`${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
+              body={`${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
                 isMobile ? -2 : -6,
               )}`}
               size={16}
@@ -260,7 +260,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
           ) : (
             <CopyTextButton
               copyText={val}
-              displayText={`${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
+              body={`${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
                 isMobile ? -2 : -6,
               )}`}
               size={16}

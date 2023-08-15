@@ -7,12 +7,12 @@ import { useArweaveCompositeProvider } from '../useArweaveCompositeProvider/useA
 
 export function usePDNSContract() {
   const arweaveDataProvider = useArweaveCompositeProvider();
-  const [{ pdnsContractId, blockHieght }, dispatch] = useGlobalState();
+  const [{ pdnsContractId, blockHeight }, dispatch] = useGlobalState();
   const [sendingContractState, setSendingContractState] = useState(false);
 
   useEffect(() => {
     dispatchNewContractState(pdnsContractId);
-  }, [pdnsContractId, blockHieght]);
+  }, [pdnsContractId, blockHeight]);
 
   async function dispatchNewContractState(
     contractId: ArweaveTransactionID,
