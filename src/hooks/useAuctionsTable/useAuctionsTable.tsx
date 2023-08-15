@@ -321,15 +321,15 @@ export function useAuctionsTable() {
     if (!settings || !blockHeight) {
       throw new Error('Error fetching auction data. Please try again later.');
     }
+    if (startHeight + settings.auctionDuration < blockHeight) {
+      // if auction is expired, do not show.
+      return;
+    }
+
     const expirationDateMilliseconds =
       Date.now() +
       (startHeight + settings.auctionDuration - blockHeight) *
         AVERAGE_BLOCK_TIME; // approximate expiration date in milliseconds
-
-    if (expirationDateMilliseconds < Date.now()) {
-      // if auction is expired, do not show.
-      return;
-    }
 
     const nextPriceUpdate =
       Date.now() +

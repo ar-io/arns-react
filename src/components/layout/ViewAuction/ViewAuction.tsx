@@ -1,5 +1,5 @@
 import { startCase } from 'lodash';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { useAuctionInfo } from '../../../hooks';
