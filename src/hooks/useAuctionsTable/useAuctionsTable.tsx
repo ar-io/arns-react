@@ -43,6 +43,22 @@ export function useAuctionsTable() {
     fetchAuctionRows(pdnsSourceContract.auctions);
   }, [pdnsSourceContract, blockHeight]);
 
+  async function updateBlockHeight(): Promise<void> {
+    try {
+      const newBlockHeight = await arweaveDataProvider.getCurrentBlockHeight();
+
+      if (blockHeight === newBlockHeight) {
+        return;
+      }
+      dispatchGlobalState({
+        type: 'setBlockHeight',
+        payload: newBlockHeight,
+      });
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    }
+  }
+
   function generateTableColumns(): ColumnType<AuctionMetadata>[] {
     return [
       {
@@ -231,16 +247,7 @@ export function useAuctionsTable() {
                 color: 'var(--text-white)',
               }}
               format="m"
-              onFinish={() => {
-                arweaveDataProvider.getCurrentBlockHeight().then((block) =>
-                  block !== blockHeight
-                    ? dispatchGlobalState({
-                        type: 'setBlockHeight',
-                        payload: block,
-                      })
-                    : null,
-                );
-              }}
+              onFinish={() => updateBlockHeight()}
             />
             &nbsp;min.
           </span>
