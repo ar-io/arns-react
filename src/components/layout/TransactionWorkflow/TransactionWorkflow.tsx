@@ -21,6 +21,7 @@ import {
 } from '../../../types';
 import {
   TRANSACTION_DATA_KEYS,
+  buildSmartweaveInteractionTags,
   calculateFloorPrice,
   decodeDomainToASCII,
   getPDNSMappingByInteractionType,
@@ -30,6 +31,7 @@ import {
 import {
   ATOMIC_FLAG,
   DEFAULT_PDNT_SOURCE_CODE_TX,
+  MIN_TTL_SECONDS,
 } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { PDNTCard } from '../../cards';
@@ -111,6 +113,13 @@ function TransactionWorkflow({
         payload.contractTxId === ATOMIC_FLAG &&
         payload.state
       ) {
+        if (payload.targetId) {
+          payload.state.records['@'] = {
+            transactionId: payload.targetId.toString(),
+            ttlSeconds: MIN_TTL_SECONDS,
+            maxUndernames: 100,
+          };
+        }
         const writeInteractionId = await arweaveDataProvider.registerAtomicName(
           {
             walletAddress,
@@ -136,6 +145,20 @@ function TransactionWorkflow({
             function: functionName,
             ...payload,
           },
+          tags:
+            validBuyRecordInteraction &&
+            payload.contractTxId !== ATOMIC_FLAG &&
+            payload.targetId
+              ? buildSmartweaveInteractionTags({
+                  contractId: new ArweaveTransactionID(payload.contractTxId),
+                  input: {
+                    function: 'setRecord',
+                    subDomain: '@',
+                    transactionId: payload.targetId,
+                    ttlSeconds: MIN_TTL_SECONDS, // TODO: remove, ttl seconds no longer supported
+                  },
+                })
+              : undefined,
         });
         originalTxId = writeInteractionId?.toString();
       }

@@ -185,6 +185,7 @@ export interface SmartweaveContractInteractionProvider {
     contractTxId,
     payload,
     dryWrite,
+    tags,
   }: {
     walletAddress: ArweaveTransactionID;
     contractTxId: ArweaveTransactionID;
@@ -193,6 +194,7 @@ export interface SmartweaveContractInteractionProvider {
       [x: string]: any;
     };
     dryWrite?: boolean;
+    tags?: TransactionTag[];
   }): Promise<ArweaveTransactionID | undefined>;
   deployContract({
     walletAddress,
