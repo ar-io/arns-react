@@ -9,3 +9,4 @@ export * from './useTransactionData/useTransactionData';
 export * from './useAuctionInfo/useAuctionInfo';
 export * from './useIsFocused/useIsFocused';
 export * from './useRegistrationStatus/useRegistrationStatus';
+export * from './useAuctionsTable/useAuctionsTable';

@@ -195,6 +195,22 @@ export function calculateAnnualRenewalFee(
 
   return price;
 }
+
+export function getNextPriceUpdate({
+  currentBlockHeight,
+  startHeight,
+  decayInterval,
+}: {
+  currentBlockHeight: number;
+  startHeight: number;
+  decayInterval: number;
+}): number {
+  const blocksSinceStart = currentBlockHeight - startHeight;
+  const blocksUntilNextDecay =
+    decayInterval - (blocksSinceStart % decayInterval);
+  return blocksUntilNextDecay;
+}
+
 export function calculatePDNSNamePrice({
   domain,
   years,
@@ -398,4 +414,8 @@ export function isDomainReservedLength(domain: string): boolean {
     return true;
   }
   return false;
+}
+
+export function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
