@@ -393,55 +393,55 @@ function RegisterNameForm() {
               <></>
             )}
           </div>
-        </div>
-        <WorkflowButtons
-          showBack={true}
-          showNext={true}
-          disableNext={false}
-          nextText="Next"
-          onNext={() => {
-            const buyRecordPayload: BuyRecordPayload = {
-              name:
-                domain && emojiRegex().test(domain)
-                  ? encodeDomainToASCII(domain)
-                  : domain,
-              contractTxId: antID ? antID.toString() : ATOMIC_FLAG,
-              tier: pdnsSourceContract.tiers.current[0],
-              years:
-                registrationType === TRANSACTION_TYPES.LEASE
-                  ? leaseDuration
-                  : undefined,
-              type: registrationType,
-              auction: isDomainAuctionable({
-                domain: domain,
-                registrationType: registrationType,
-                reservedList: Object.keys(pdnsSourceContract.reserved),
-              }),
-            };
+          <WorkflowButtons
+            showBack={true}
+            showNext={true}
+            disableNext={false}
+            nextText="Next"
+            onNext={() => {
+              const buyRecordPayload: BuyRecordPayload = {
+                name:
+                  domain && emojiRegex().test(domain)
+                    ? encodeDomainToASCII(domain)
+                    : domain,
+                contractTxId: antID ? antID.toString() : ATOMIC_FLAG,
+                tier: pdnsSourceContract.tiers.current[0],
+                years:
+                  registrationType === TRANSACTION_TYPES.LEASE
+                    ? leaseDuration
+                    : undefined,
+                type: registrationType,
+                auction: isDomainAuctionable({
+                  domain: domain,
+                  registrationType: registrationType,
+                  reservedList: Object.keys(pdnsSourceContract.reserved),
+                }),
+              };
 
-            dispatchTransactionState({
-              type: 'setTransactionData',
-              payload: {
-                assetId: PDNS_REGISTRY_ADDRESS,
-                functionName: 'buyRecord',
-                ...buyRecordPayload,
-              },
-            });
-            dispatchTransactionState({
-              type: 'setInteractionType',
-              payload: INTERACTION_TYPES.BUY_RECORD,
-            });
-            // navigate to the transaction page, which will load the updated state of the transaction context
-            navigate('/transaction', {
-              state: `/register/${domain}`,
-            });
-            dispatchRegisterState({
-              type: 'reset',
-            });
-          }}
-          onBack={() => navigate('/', { state: `/register/${domain}` })}
-          customNextStyle={{ width: '100px' }}
-        />
+              dispatchTransactionState({
+                type: 'setTransactionData',
+                payload: {
+                  assetId: PDNS_REGISTRY_ADDRESS,
+                  functionName: 'buyRecord',
+                  ...buyRecordPayload,
+                },
+              });
+              dispatchTransactionState({
+                type: 'setInteractionType',
+                payload: INTERACTION_TYPES.BUY_RECORD,
+              });
+              // navigate to the transaction page, which will load the updated state of the transaction context
+              navigate('/transaction', {
+                state: `/register/${domain}`,
+              });
+              dispatchRegisterState({
+                type: 'reset',
+              });
+            }}
+            onBack={() => navigate('/', { state: `/register/${domain}` })}
+            customNextStyle={{ width: '100px' }}
+          />
+        </div>
       </div>
     </div>
   );

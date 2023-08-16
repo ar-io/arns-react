@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { useArweaveCompositeProvider } from '../../../hooks';
+import { useIsMobile } from '../../../hooks';
+import useRegistrationStatus from '../../../hooks/useRegistrationStatus/useRegistrationStatus';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { ArweaveTransactionID } from '../../../types';
@@ -22,10 +23,12 @@ function Home() {
   const navigate = useNavigate();
   const [{ pdnsSourceContract }] = useGlobalState();
   const [{ domain, antID }, dispatchRegisterState] = useRegistrationState();
-  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [{ isAuction, isReserved, loading: isValidatingRegistration }] =
+    useRegistrationStatus(domain);
   const [featuredDomains, setFeaturedDomains] = useState<{
     [x: string]: string;
   }>();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (domain && domain !== searchParams.get('search')) {
@@ -62,24 +65,20 @@ function Home() {
     }
   }, [pdnsSourceContract]);
 
-  function showFeaturedDomains(): boolean {
-    const isFeaturedDomains = featuredDomains;
-    const isNotPdntID = !antID;
-    const isNotAuction = !arweaveDataProvider.isDomainInAuction({
-      domain,
-      auctionsList: Object.keys(pdnsSourceContract.auctions ?? {}),
-    });
-    const isNotReservedDomain = !arweaveDataProvider.isDomainReserved({
-      domain,
-    });
-
-    if (
-      (isFeaturedDomains &&
-        isNotPdntID &&
-        isNotReservedDomain &&
-        isNotAuction) ||
-      !domain
-    ) {
+  function updateShowFeaturedDomains({
+    auction,
+    reserved,
+    domains,
+    id,
+    name,
+  }: {
+    auction: boolean;
+    reserved: boolean;
+    domains: { [x: string]: string };
+    id: ArweaveTransactionID | undefined;
+    name: string | undefined;
+  }): boolean {
+    if ((domains && !id && !reserved && !auction) || !name) {
       return true;
     }
 
@@ -87,10 +86,14 @@ function Home() {
   }
 
   return (
-    <div className="page">
+    <div className="page" style={{ padding: isMobile ? '15px' : '' }}>
       <div
-        className="white"
-        style={{ fontSize: 57, padding: 56, fontWeight: 500 }}
+        className={'white'}
+        style={{
+          fontSize: isMobile ? 26 : 57,
+          padding: isMobile ? '30px 0px' : 56,
+          fontWeight: 500,
+        }}
       >
         Arweave Name System
       </div>
@@ -108,7 +111,7 @@ function Home() {
             width: '100%',
             gap: 0,
             maxWidth: '900px',
-            minWidth: '750px',
+            minWidth: isMobile ? '100%' : '750px',
           }}
         >
           <SearchBar
@@ -191,7 +194,15 @@ function Home() {
             }
             height={65}
           />
-          {showFeaturedDomains() && featuredDomains ? (
+          {!isValidatingRegistration &&
+          updateShowFeaturedDomains({
+            auction: isAuction,
+            reserved: isReserved,
+            domains: featuredDomains ?? {},
+            id: antID,
+            name: domain,
+          }) &&
+          featuredDomains ? (
             <FeaturedDomains domains={featuredDomains} />
           ) : (
             <></>

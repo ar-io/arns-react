@@ -1,3 +1,4 @@
+import { useIsMobile } from '../../../hooks';
 import { SMARTWEAVE_TAG_SIZE } from '../../../utils/constants';
 import ArPrice from '../ArPrice/ArPrice';
 
@@ -8,6 +9,7 @@ function TransactionCost({
   fee?: { io?: number; ar?: number };
   info?: JSX.Element | string;
 }) {
+  const isMobile = useIsMobile();
   return (
     <div
       className="flex flex-row"
@@ -15,14 +17,15 @@ function TransactionCost({
         borderBottom: 'solid 1px var(--text-faded)',
         padding: '20px 0px',
         justifyContent: info ? 'space-between' : 'flex-end',
-        alignItems: 'flex-start',
+        alignItems: isMobile ? 'center' : 'flex-start',
         width: '100%',
+        flexDirection: isMobile ? 'column' : 'row',
       }}
     >
       {info}
       <div
         className="flex flex-row"
-        style={{ gap: '1em', alignItems: 'flex-start', width: 'fit-content' }}
+        style={{ gap: '1em', width: isMobile ? '100%' : 'fit-content' }}
       >
         <span className="text white">Cost:</span>
         <div

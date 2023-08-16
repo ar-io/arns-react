@@ -1,3 +1,4 @@
+import { useIsMobile } from '../../../hooks';
 import { SearchBarFooterProps } from '../../../types';
 import { encodeDomainToASCII, isDomainReservedLength } from '../../../utils';
 import PDNTCard from '../../cards/PDNTCard/PDNTCard';
@@ -12,10 +13,15 @@ function SearchBarFooter({
   reservedList,
   isAuction,
 }: SearchBarFooterProps): JSX.Element {
+  const isMobile = useIsMobile();
   if (isAuction && searchTerm) {
     return (
       <div className="flex flex-row">
-        <AuctionChart domain={searchTerm} showAuctionExplainer={true} />
+        <AuctionChart
+          domain={searchTerm}
+          showAuctionExplainer={true}
+          chartHeight={isMobile ? 175 : undefined}
+        />
       </div>
     );
   }
