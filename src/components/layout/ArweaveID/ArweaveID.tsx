@@ -20,7 +20,7 @@ export const ARWEAVE_ID_MAPPING = {
 function ArweaveID({
   id,
   type = ArweaveIdTypes.TRANSACTION,
-  characterCount = 8,
+  characterCount,
   shouldLink = false,
 }: {
   id: ArweaveTransactionID;
@@ -48,7 +48,10 @@ function ArweaveID({
           shouldLink ? (
             <Link
               to={ARWEAVE_ID_MAPPING[type] + id.toString()}
+              target="_blank"
+              rel="noreferrer"
               className="link"
+              style={{ color: 'inherit' }}
             >
               {handleText(id.toString())}
             </Link>
@@ -59,6 +62,9 @@ function ArweaveID({
         size={'13px'}
         wrapperStyle={{
           fill: 'var(--text-grey)',
+          color: 'inherit',
+          position: 'static',
+          alignItems: 'center',
         }}
       />
     </>

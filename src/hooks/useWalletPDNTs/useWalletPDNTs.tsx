@@ -204,6 +204,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
               size={16}
               position="relative"
               wrapperStyle={{
+                color: 'white',
                 alignItems: 'center',
                 margin: 'auto',
                 fontSize: '16px',
@@ -265,6 +266,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
               size={16}
               position="relative"
               wrapperStyle={{
+                color: 'white',
                 alignItems: 'center',
                 margin: 'auto',
                 fontSize: '16px',

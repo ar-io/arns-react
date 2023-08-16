@@ -171,6 +171,15 @@ function AuctionChart({
     }
   }
 
+  async function updateBlockheight() {
+    try {
+      const blockHeight = await arweaveDataProvider.getCurrentBlockHeight();
+      dispatchGlobalState({ type: 'setBlockHeight', payload: blockHeight });
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    }
+  }
+
   if (
     !prices ||
     !labels ||
@@ -357,9 +366,10 @@ function AuctionChart({
               valueStyle={{
                 fontSize: '15px',
                 color: 'var(--text-grey)',
-                paddingBottom: '2px',
+                paddingBottom: '0px',
               }}
               format="H:mm:ss"
+              onFinish={() => updateBlockheight()}
             />
           </span>
         ) : (

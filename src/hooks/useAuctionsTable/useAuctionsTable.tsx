@@ -1,3 +1,4 @@
+import Countdown from 'antd/lib/statistic/Countdown';
 import { startCase } from 'lodash';
 import { ColumnType } from 'rc-table/lib/interface';
 import { useEffect, useState } from 'react';
@@ -18,15 +19,20 @@ import {
 } from '../../utils';
 import { AVERAGE_BLOCK_TIME } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
+import { useArweaveCompositeProvider } from '../useArweaveCompositeProvider/useArweaveCompositeProvider';
 
 export function useAuctionsTable() {
-  const [{ pdnsSourceContract, blockHeight: blockHeight }] = useGlobalState();
+  const [
+    { pdnsSourceContract, blockHeight: blockHeight },
+    dispatchGlobalState,
+  ] = useGlobalState();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] =
     useState<keyof AuctionMetadata>('closingDate');
   const [rows, setRows] = useState<AuctionMetadata[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [percent, setPercentLoaded] = useState<number>(0);
+  const arweaveDataProvider = useArweaveCompositeProvider();
 
   const navigate = useNavigate();
 
@@ -36,6 +42,22 @@ export function useAuctionsTable() {
     }
     fetchAuctionRows(pdnsSourceContract.auctions);
   }, [pdnsSourceContract, blockHeight]);
+
+  async function updateBlockHeight(): Promise<void> {
+    try {
+      const newBlockHeight = await arweaveDataProvider.getCurrentBlockHeight();
+
+      if (blockHeight === newBlockHeight) {
+        return;
+      }
+      dispatchGlobalState({
+        type: 'setBlockHeight',
+        payload: newBlockHeight,
+      });
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    }
+  }
 
   function generateTableColumns(): ColumnType<AuctionMetadata>[] {
     return [
@@ -143,7 +165,7 @@ export function useAuctionsTable() {
           <button
             className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
-            onClick={() => setSortField('initiator')}
+            onClick={() => setSortField('type')}
           >
             <span>Auction Type</span>
           </button>
@@ -174,7 +196,7 @@ export function useAuctionsTable() {
           <button
             className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
-            onClick={() => setSortField('initiator')}
+            onClick={() => setSortField('price')}
           >
             <span>Price</span>
           </button>
@@ -204,7 +226,7 @@ export function useAuctionsTable() {
           <button
             className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
-            onClick={() => setSortField('initiator')}
+            onClick={() => setSortField('nextPriceUpdate')}
           >
             <span>Next price adj.</span>
           </button>
@@ -213,7 +235,23 @@ export function useAuctionsTable() {
         key: 'nextPriceUpdate',
         width: 'fit-content',
         className: 'white assets-table-header',
-        render: (val: number) => `${Math.round(+val / 60_000)} min.`,
+        render: (val: number) => (
+          <span
+            className="white flex flex-row"
+            style={{ gap: '0px', height: 'fit-content' }}
+          >
+            <Countdown
+              value={+val}
+              valueStyle={{
+                fontSize: '15px',
+                color: 'var(--text-white)',
+              }}
+              format="m"
+              onFinish={() => updateBlockHeight()}
+            />
+            &nbsp;min.
+          </span>
+        ),
         onHeaderCell: () => {
           return {
             onClick: () => {
@@ -290,22 +328,24 @@ export function useAuctionsTable() {
     if (!settings || !blockHeight) {
       throw new Error('Error fetching auction data. Please try again later.');
     }
+    if (startHeight + settings.auctionDuration < blockHeight) {
+      // if auction is expired, do not show.
+      return;
+    }
+
     const expirationDateMilliseconds =
       Date.now() +
       (startHeight + settings.auctionDuration - blockHeight) *
         AVERAGE_BLOCK_TIME; // approximate expiration date in milliseconds
 
-    if (expirationDateMilliseconds < Date.now()) {
-      // if auction is expired, do not show.
-      return;
-    }
-
     const nextPriceUpdate =
+      Date.now() +
       getNextPriceUpdate({
         currentBlockHeight: blockHeight,
         startHeight,
         decayInterval: settings.decayInterval,
-      }) * AVERAGE_BLOCK_TIME;
+      }) *
+        AVERAGE_BLOCK_TIME;
 
     const data = {
       closingDate: expirationDateMilliseconds,

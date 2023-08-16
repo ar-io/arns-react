@@ -10,6 +10,7 @@ import {
 import { Layout, ProtectedRoute } from './components/layout';
 import Redirect from './components/layout/Redirect/Redirect';
 import Undernames from './components/layout/Undernames/Undernames';
+import ViewAuction from './components/layout/ViewAuction/ViewAuction';
 import {
   ConnectWalletModal,
   CreatePDNTModal,
@@ -100,10 +101,7 @@ function App() {
         />
         ,
         <Route path="auctions" element={<Auctions />} />
-        <Route
-          path="auctions/:name"
-          element={<h1 className="white center">Not Implemented</h1>}
-        />
+        <Route path="auctions/:name" element={<ViewAuction />} />
         <Route path="*" element={<NotFound />} />
       </Route>,
     ),
