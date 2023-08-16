@@ -1,5 +1,5 @@
 import { startCase } from 'lodash';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { useAuctionInfo } from '../../../hooks';
@@ -8,6 +8,7 @@ import { ArweaveTransactionID } from '../../../types';
 import {
   decodeDomainToASCII,
   encodeDomainToASCII,
+  isPDNSDomainNameValid,
   sleep,
 } from '../../../utils';
 import eventEmitter from '../../../utils/events';
@@ -17,56 +18,41 @@ import AuctionChart from '../AuctionChart/AuctionChart';
 import Loader from '../Loader/Loader';
 
 function ViewAuction() {
-  const [{ blockHieght }] = useGlobalState();
+  const [{ blockHeight }] = useGlobalState();
   const { name } = useParams();
   const navigate = useNavigate();
   const { minimumAuctionBid, auction, auctionSettings } = useAuctionInfo(
     encodeDomainToASCII(name!),
   );
-  const [retries, setRetries] = useState<number>(0);
-  const [errors, setErrors] = useState<Error[]>([]);
 
   useEffect(() => {
-    if (!name) {
+    if (!name || (name && !isPDNSDomainNameValid({ name }))) {
       eventEmitter.emit('error', new Error('No name detected'));
       navigate('/auctions');
     }
-    if (auction && auctionSettings && blockHieght) {
+    if (auction && auctionSettings && blockHeight) {
       const isExpired =
-        auction.startHeight + auctionSettings.auctionDuration < blockHieght;
+        auction.startHeight + auctionSettings.auctionDuration < blockHeight;
 
       if (isExpired) {
         eventEmitter.emit(
           'error',
           new Error('This auction has expired, rerouting...'),
         );
-        sleep(2000).then(() => {
-          navigate('/auctions');
-        });
+        handleExpired();
       }
     }
-  }, [blockHieght, auction, auctionSettings, name]);
+  }, [blockHeight, auction, auctionSettings, name]);
+
+  async function handleExpired() {
+    await sleep(2000);
+    navigate('/auctions');
+  }
 
   if (!name || !minimumAuctionBid || !auction) {
-    sleep(2000).then(() => {
-      setRetries(retries + 1);
-    });
-
-    if (retries >= 10) {
-      const error = new Error('Unable to fetch auction info, rerouting...');
-      if (!errors.length) eventEmitter.emit('error', error);
-      setErrors([...errors!, error]);
-      sleep(2000).then(() => {
-        navigate('/auctions');
-      });
-    }
-
     return (
       <div className="page center">
-        <Loader
-          size={80}
-          message={`Fetching latest auction info... retries: ${retries}`}
-        />
+        <Loader size={80} message={`Fetching latest auction info...`} />
       </div>
     );
   }

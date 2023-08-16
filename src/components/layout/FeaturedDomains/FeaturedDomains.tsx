@@ -24,7 +24,7 @@ function FeaturedDomains(props: { domains: { [x: string]: string } }) {
   }
 
   return (
-    <div className="featured-domains flex-center">
+    <div className="featured-domains flex-center fade-in">
       <span
         className="text-medium center grey"
         style={{

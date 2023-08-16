@@ -5,13 +5,13 @@ import { CopyIcon } from '../../../icons';
 import './styles.css';
 
 function CopyTextButton({
-  displayText,
+  body,
   copyText,
   size,
   wrapperStyle = {},
   position = 'absolute',
 }: {
-  displayText: JSX.Element | string;
+  body: JSX.Element | string;
   copyText: string;
   size: number | string;
   wrapperStyle?: any;
@@ -43,13 +43,9 @@ function CopyTextButton({
           await handleCopy();
         }}
       >
-        <span
-          className="flex white center"
-          style={{ fontSize: 'inherit', color: 'inherit' }}
-        >
-          {displayText}&nbsp;
+        <span className="flex white center" style={{ fontSize: 'inherit' }}>
+          {body}&nbsp;
         </span>
-
         <Tooltip
           open={textCopied}
           title={'Copied!'}

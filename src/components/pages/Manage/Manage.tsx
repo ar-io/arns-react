@@ -1,4 +1,3 @@
-import { PaginationProps } from 'antd';
 import { Table } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -12,14 +11,9 @@ import {
 } from '../../../hooks';
 import { ArweaveTransactionID, ManageTable } from '../../../types';
 import { MANAGE_TABLE_NAMES } from '../../../types';
+import { getCustomPaginationButtons } from '../../../utils';
 import eventEmitter from '../../../utils/events';
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  CodeSandboxIcon,
-  NotebookIcon,
-  RefreshIcon,
-} from '../../icons';
+import { CodeSandboxIcon, NotebookIcon, RefreshIcon } from '../../icons';
 import { Loader } from '../../layout/index';
 import './styles.css';
 
@@ -127,52 +121,6 @@ function Manage() {
     setTablePage(page);
   }
 
-  const customPaginationButtons: PaginationProps['itemRender'] = (
-    page,
-    type,
-    originalElement,
-  ) => {
-    if (type === 'prev') {
-      return (
-        <span className="flex flex-center">
-          <ChevronLeftIcon
-            width={'24px'}
-            height={'24px'}
-            fill="var(--text-grey)"
-          />
-        </span>
-      );
-    }
-    if (type === 'next') {
-      return (
-        <span className="flex flex-center">
-          <ChevronRightIcon
-            width={'24px'}
-            height={'24px'}
-            fill="var(--text-grey)"
-          />
-        </span>
-      );
-    }
-    if (type === 'page') {
-      return (
-        <span
-          className="flex flex-row hover center"
-          style={{
-            color: tablePage == page ? 'white' : 'var(--text-grey)',
-            width: '32px',
-            borderRadius: 'var(--corner-radius)',
-            backgroundColor:
-              tablePage == page ? 'var(--text-faded)' : 'var(--bg-color)',
-          }}
-        >
-          {page}
-        </span>
-      );
-    }
-    return originalElement;
-  };
-
   return (
     <div className="page" ref={modalRef}>
       <div className="flex-column">
@@ -278,7 +226,13 @@ function Manage() {
               pagination={{
                 position: ['bottomCenter'],
                 rootClassName: 'table-pagination',
-                itemRender: customPaginationButtons,
+                itemRender: (page, type, originalElement) =>
+                  getCustomPaginationButtons({
+                    page,
+                    type,
+                    originalElement,
+                    currentPage: tablePage,
+                  }),
                 onChange: updatePage,
                 showPrevNextJumpers: true,
                 showSizeChanger: false,

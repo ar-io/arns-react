@@ -44,7 +44,7 @@ function ArweaveID({
     <>
       <CopyTextButton
         copyText={id.toString()}
-        displayText={
+        body={
           shouldLink ? (
             <Link
               to={ARWEAVE_ID_MAPPING[type] + id.toString()}

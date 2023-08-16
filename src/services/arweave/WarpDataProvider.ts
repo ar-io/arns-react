@@ -58,7 +58,13 @@ export class WarpDataProvider
   async getContractState<T extends PDNTContractJSON | PDNSContractJSON>(
     id: ArweaveTransactionID,
   ): Promise<T> {
-    const contract = this._warp.contract(id.toString());
+    const contract = this._warp.contract(id.toString()).setEvaluationOptions({
+      waitForConfirmation: true,
+      internalWrites: true,
+      updateCacheForEachInteraction: true,
+      unsafeClient: 'skip',
+      maxCallDepth: 3,
+    });
     const { cachedValue } = await contract.readState();
 
     if (!cachedValue.state) {
@@ -328,13 +334,10 @@ export class WarpDataProvider
   }
   /* eslint-enable */
 
-  isDomainReserved({
-    domain,
-    reservedList,
-  }: {
-    domain: string;
-    reservedList: string[];
-  }): boolean {
+  async isDomainReserved({ domain }: { domain: string }): Promise<boolean> {
+    const reservedList = await this.getContractState<PDNSContractJSON>(
+      new ArweaveTransactionID(PDNS_REGISTRY_ADDRESS),
+    ).then((state) => Object.keys(state.reserved));
     return reservedList.includes(domain) || isDomainReservedLength(domain);
   }
 
@@ -348,13 +351,10 @@ export class WarpDataProvider
     return auctionsList.includes(domain);
   }
 
-  isDomainAvailable({
-    domain,
-    domainsList,
-  }: {
-    domain: string;
-    domainsList: string[];
-  }): boolean {
+  async isDomainAvailable({ domain }: { domain: string }): Promise<boolean> {
+    const domainsList = await this.getContractState<PDNSContractJSON>(
+      new ArweaveTransactionID(PDNS_REGISTRY_ADDRESS),
+    ).then((state) => Object.keys(state.records));
     return !domainsList.includes(domain);
   }
 }

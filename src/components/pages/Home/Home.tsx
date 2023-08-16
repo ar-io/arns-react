@@ -22,11 +22,10 @@ function Home() {
   const navigate = useNavigate();
   const [{ pdnsSourceContract }] = useGlobalState();
   const [{ domain, antID }, dispatchRegisterState] = useRegistrationState();
-
+  const arweaveDataProvider = useArweaveCompositeProvider();
   const [featuredDomains, setFeaturedDomains] = useState<{
     [x: string]: string;
   }>();
-  const arweaveDataProvider = useArweaveCompositeProvider();
 
   useEffect(() => {
     if (domain && domain !== searchParams.get('search')) {
@@ -72,7 +71,6 @@ function Home() {
     });
     const isNotReservedDomain = !arweaveDataProvider.isDomainReserved({
       domain,
-      reservedList: Object.keys(pdnsSourceContract.reserved),
     });
 
     if (
