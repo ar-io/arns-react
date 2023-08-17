@@ -65,7 +65,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
         key: 'name',
         align: 'left',
         width: '18%',
-        className: 'icon-padding white',
+        className: 'icon-padding white assets-table-header',
         ellipsis: true,
         render: (name: string) => (
           <a
@@ -124,7 +124,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
         key: 'role',
         width: '18%',
         align: 'center',
-        className: 'white',
+        className: 'white assets-table-header',
         ellipsis: true,
         onHeaderCell: () => {
           return {
@@ -165,7 +165,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
         dataIndex: 'tier',
         key: 'tier',
         width: '18%',
-        className: 'white',
+        className: 'white assets-table-header',
         align: 'center',
         ellipsis: true,
         render: (tier: number | string) => `Tier ${tier}`,
@@ -211,7 +211,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
         key: 'expiration',
         align: 'center',
         width: '18%',
-        className: 'white',
+        className: 'white assets-table-header',
         render: (val: Date) => `${val.toLocaleDateString()}`,
         onHeaderCell: () => {
           return {
@@ -257,7 +257,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
         key: 'status',
         align: 'center',
         width: '18%',
-        className: 'white',
+        className: 'white assets-table-header',
         render: (val: number) => (
           <TransactionStatus
             confirmations={val}
@@ -281,6 +281,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
       },
       {
         title: '',
+        className: 'white assets-table-header',
         render: () => (
           <button
             className="white center"

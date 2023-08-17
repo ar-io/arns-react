@@ -9,7 +9,7 @@ export type Action =
       payload: ArweaveWalletConnector | undefined;
     }
   | { type: 'setGateway'; payload: string }
-  | { type: 'setBlockHieght'; payload: number }
+  | { type: 'setBlockHeight'; payload: number }
   | { type: 'setPDNSContractState'; payload: PDNSContractJSON };
 
 export const reducer = (state: GlobalState, action: Action): GlobalState => {
@@ -29,10 +29,10 @@ export const reducer = (state: GlobalState, action: Action): GlobalState => {
         ...state,
         gateway: action.payload,
       };
-    case 'setBlockHieght':
+    case 'setBlockHeight':
       return {
         ...state,
-        blockHieght: action.payload,
+        blockHeight: action.payload,
       };
     case 'setPDNSContractState':
       return {

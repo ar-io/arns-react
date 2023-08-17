@@ -10,12 +10,19 @@ import {
 import { Layout, ProtectedRoute } from './components/layout';
 import Redirect from './components/layout/Redirect/Redirect';
 import Undernames from './components/layout/Undernames/Undernames';
+import ViewAuction from './components/layout/ViewAuction/ViewAuction';
 import {
   ConnectWalletModal,
   CreatePDNTModal,
   ManagePDNTModal,
 } from './components/modals';
-import { Home, Manage, NotFound, Transaction } from './components/pages';
+import {
+  Auctions,
+  Home,
+  Manage,
+  NotFound,
+  Transaction,
+} from './components/pages';
 import { usePDNSContract } from './hooks/';
 import './index.css';
 
@@ -92,6 +99,9 @@ function App() {
             </ProtectedRoute>
           }
         />
+        ,
+        <Route path="auctions" element={<Auctions />} />
+        <Route path="auctions/:name" element={<ViewAuction />} />
         <Route path="*" element={<NotFound />} />
       </Route>,
     ),

@@ -277,7 +277,7 @@ function PDNTCard(props: PDNSMapping) {
                   </Link>
                 ) : isArweaveTransactionID(value) ? (
                   <CopyTextButton
-                    displayText={
+                    body={
                       isMobile
                         ? `${value.slice(0, 2)}...${value.slice(-2)}`
                         : value
@@ -285,6 +285,7 @@ function PDNTCard(props: PDNSMapping) {
                     copyText={value}
                     size={15}
                     wrapperStyle={{
+                      color: 'white',
                       padding: '0px',
                       fontFamily: 'Rubik',
                       justifyContent: 'flex-start',

@@ -644,6 +644,16 @@ export type UndernameMetadata = {
   key: string;
 };
 
+export type AuctionMetadata = {
+  name: string;
+  closingDate: number;
+  initiator: ArweaveTransactionID;
+  type: TRANSACTION_TYPES;
+  price: number;
+  nextPriceUpdate: number;
+  key: string;
+};
+
 export enum VALIDATION_INPUT_TYPES {
   ARWEAVE_ID = 'Is valid Arweave Transaction (TX) ID.',
   ARWEAVE_ADDRESS = 'Is likely an Arweave wallet address.',

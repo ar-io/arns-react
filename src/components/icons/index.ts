@@ -4,6 +4,7 @@ import { ReactComponent as AlertOctagonIcon } from './AlertOctagon.svg';
 import { ReactComponent as AlertTriangleIcon } from './AlertTriangle.svg';
 import { ReactComponent as ArConnectIcon } from './ArConnectIcon.svg';
 import { ReactComponent as ArrowLeft } from './ArrowLeft.svg';
+import { ReactComponent as ArrowRightIcon } from './ArrowRight.svg';
 import { ReactComponent as ArrowUpRight } from './ArrowUpRight.svg';
 import ArweaveAppIcon from './ArweaveAppIcon.png';
 import { ReactComponent as BookmarkIcon } from './Bookmark.svg';
@@ -53,6 +54,7 @@ export {
   AlertOctagonIcon,
   AlertTriangleIcon,
   ArConnectIcon,
+  ArrowRightIcon,
   PDNSDefault,
   ArrowLeft,
   ArweaveAppIcon,
