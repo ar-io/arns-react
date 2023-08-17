@@ -387,9 +387,8 @@ function SearchBar(props: SearchBarProps) {
               >
                 Started by:{' '}
                 {
-                  pdnsSourceContract?.auctions?.[
-                    encodeDomainToASCII(searchBarText).toLowerCase()!
-                  ]?.initiator
+                  pdnsSourceContract?.auctions?.[lowerCaseDomain(searchBarText)]
+                    ?.initiator
                 }
               </span>
             </div>
