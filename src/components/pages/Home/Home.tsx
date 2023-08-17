@@ -24,6 +24,7 @@ import {
   encodeDomainToASCII,
   isPDNSDomainNameAvailable,
   isPDNSDomainNameValid,
+  lowerCaseDomain,
 } from '../../../utils/searchUtils/searchUtils';
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import { FeaturedDomains, Loader, RegisterNameForm } from '../../layout';
@@ -304,23 +305,19 @@ function Home() {
                             pdnsSourceContract?.auctions && domain
                               ? Object.keys(
                                   pdnsSourceContract.auctions,
-                                ).includes(
-                                  encodeDomainToASCII(domain).toLowerCase(),
-                                )
+                                ).includes(lowerCaseDomain(domain))
                               : false
                           }
                           reservedList={Object.keys(
                             pdnsSourceContract?.reserved ?? {},
                           )}
-                          searchTerm={encodeDomainToASCII(domain).toLowerCase()}
+                          searchTerm={lowerCaseDomain(domain)}
                           searchResult={
                             domain &&
-                            pdnsSourceContract.records[
-                              encodeDomainToASCII(domain).toLowerCase()
-                            ]
+                            pdnsSourceContract.records[lowerCaseDomain(domain)]
                               ? new ArweaveTransactionID(
                                   pdnsSourceContract.records[
-                                    encodeDomainToASCII(domain).toLowerCase()
+                                    lowerCaseDomain(domain)
                                   ].contractTxId,
                                 )
                               : undefined

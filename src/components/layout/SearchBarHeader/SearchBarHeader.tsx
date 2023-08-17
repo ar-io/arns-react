@@ -2,11 +2,7 @@ import { ArrowDownOutlined, CheckCircleFilled } from '@ant-design/icons';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { SearchBarHeaderProps } from '../../../types';
-import {
-  encodeDomainToASCII,
-  isDomainReservedLength,
-  lowerCaseDomain,
-} from '../../../utils';
+import { isDomainReservedLength, lowerCaseDomain } from '../../../utils';
 import './styles.css';
 
 function SearchBarHeader({

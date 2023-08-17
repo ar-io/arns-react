@@ -13,7 +13,6 @@ import {
 } from '../../../types';
 import {
   decodeDomainToASCII,
-  encodeDomainToASCII,
   getLeaseDurationFromEndTimestamp,
   isArweaveTransactionID,
   lowerCaseDomain,

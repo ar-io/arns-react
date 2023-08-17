@@ -15,6 +15,7 @@ import { SearchBarProps } from '../../../../types';
 import {
   decodeDomainToASCII,
   encodeDomainToASCII,
+  lowerCaseDomain,
   validateMaxASCIILength,
   validateMinASCIILength,
   validateNoLeadingOrTrailingDashes,
@@ -126,7 +127,6 @@ function SearchBar(props: SearchBarProps) {
   function _onSubmit(next = false) {
     onSubmit(next);
     // TODO: validation may also be async, so return a promise that resolves to a boolean
-    const lowerCaseDomain = encodeDomainToASCII(searchBarText).toLowerCase();
 
     const searchValid = validationPredicate(searchBarText);
     setIsSearchValid(searchValid);
@@ -148,7 +148,10 @@ function SearchBar(props: SearchBarProps) {
         });
       }
     } else if (!searchSuccess && searchBarText && values) {
-      onFailure(searchBarText, values[lowerCaseDomain].contractTxId);
+      onFailure(
+        searchBarText,
+        values[lowerCaseDomain(searchBarText)].contractTxId,
+      );
     }
   }
 
