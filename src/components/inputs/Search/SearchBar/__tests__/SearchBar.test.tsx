@@ -1,6 +1,7 @@
 import { cleanup, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HashRouter as Router } from 'react-router-dom';
+import renderer from 'react-test-renderer';
 
 import { TRANSACTION_TYPES } from '../../../../../types';
 import { SearchBarFooter, SearchBarHeader } from '../../../../layout';
@@ -77,11 +78,14 @@ describe('SearchBar', () => {
     </Router>
   );
 
-  test('handles a capitalized name correctly', async () => {
-    const { getByTestId } = render(searchBar);
+  const tree = renderer.create(searchBar).toJSON();
+  expect(tree).toMatchSnapshot();
 
-    const searchInput = getByTestId('searchbar-input-id');
-    const searchButton = getByTestId('search-button'); // Assuming you used data-testid="search-button"
+  const { getByTestId } = render(searchBar);
+  const searchInput = getByTestId('searchbar-input-id');
+  const searchButton = getByTestId('search-button'); // Assuming you used data-testid="search-button"
+
+  test('handles a capitalized name correctly', async () => {
     const domain = 'ARDRIVE';
 
     await userEvent.type(searchInput, domain);
@@ -93,10 +97,6 @@ describe('SearchBar', () => {
   });
 
   test('handles a lowercase name correctly', async () => {
-    const { getByTestId } = render(searchBar);
-
-    const searchInput = getByTestId('searchbar-input-id');
-    const searchButton = getByTestId('search-button');
     const domain = 'ardrive';
 
     await userEvent.type(searchInput, domain);
