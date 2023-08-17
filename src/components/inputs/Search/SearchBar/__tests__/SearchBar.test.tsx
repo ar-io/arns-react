@@ -1,8 +1,8 @@
-import { cleanup, render } from '@testing-library/react';
+import { act, cleanup, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Arweave from 'arweave';
 import { HashRouter as Router } from 'react-router-dom';
-import renderer, { act } from 'react-test-renderer';
+import renderer from 'react-test-renderer';
 
 import { PDNSContractCache } from '../../../../../services/arweave/PDNSContractCache';
 import { WarpDataProvider } from '../../../../../services/arweave/WarpDataProvider';
@@ -52,43 +52,39 @@ jest.mock('../../../../../hooks', () => ({
 }));
 
 jest.mock('../../../../../state/contexts/GlobalState', () => ({
-  useGlobalState: jest.fn(() => [{}, jest.fn()]),
+  useGlobalState: jest.fn(() => [
+    {
+      gateway: 'https://arweave.net',
+      blockHeight: 1711122739,
+      pdnsSourceContract: {},
+    },
+  ]),
 }));
-
-// jest.mock('level', () => {
-//   return () => ({
-//     open: jest.fn((callback) => callback(null)),
-//     get: jest.fn((key, callback) => callback(null, 'value')),
-//     put: jest.fn((key, value, callback) => callback(null)),
-//     del: jest.fn((key, callback) => callback(null)),
-//     close: jest.fn((callback) => callback(null)),
-//   });
-// });
 
 describe('SearchBar', () => {
   afterEach(cleanup);
 
-  const cache = new PDNSContractCache('some_url');
+  //const cache = new PDNSContractCache('some_url');
 
   // Spy on the methods and provide mock implementations
-  jest
-    .spyOn(cache, 'getContractState')
-    // eslint-disable-next-line
-    .mockImplementation(async (id: ArweaveTransactionID) => {
-      return DEFAULT_PDNT_CONTRACT_STATE;
-    });
+  // jest
+  //   .spyOn(cache, 'getContractState')
+  //   // eslint-disable-next-line
+  //   .mockImplementation(async (id: ArweaveTransactionID) => {
+  //     return DEFAULT_PDNT_CONTRACT_STATE;
+  //   });
 
-  const arweave = Arweave.init({});
+  // const arweave = Arweave.init({});
 
-  const warp = new WarpDataProvider(arweave);
+  // const warp = new WarpDataProvider(arweave);
 
-  // Spy on the methods and provide mock implementations
-  jest
-    .spyOn(warp, 'getContractState')
-    // eslint-disable-next-line
-    .mockImplementation(async (id: ArweaveTransactionID) => {
-      return DEFAULT_PDNT_CONTRACT_STATE;
-    });
+  // // Spy on the methods and provide mock implementations
+  // jest
+  //   .spyOn(warp, 'getContractState')
+  //   // eslint-disable-next-line
+  //   .mockImplementation(async (id: ArweaveTransactionID) => {
+  //     return DEFAULT_PDNT_CONTRACT_STATE;
+  //   });
 
   const onChange = jest.fn();
   const onSubmit = jest.fn();
@@ -119,11 +115,11 @@ describe('SearchBar', () => {
     </Router>
   );
 
-  test('handles a capitalized name correctly', async () => {
-    const { getByTestId, unmount } = render(searchBar);
-    const searchInput = getByTestId('searchbar-input-id');
-    const searchButton = getByTestId('search-button'); // Assuming you used data-testid="search-button"
+  const { getByTestId } = render(searchBar);
+  const searchInput = getByTestId('searchbar-input-id');
+  const searchButton = getByTestId('search-button'); // Assuming you used data-testid="search-button"
 
+  test('handles a capitalized name correctly', async () => {
     const domain = 'ARDRIVE';
 
     act(async () => {
@@ -134,8 +130,6 @@ describe('SearchBar', () => {
       expect(onSubmit).toHaveBeenCalled();
       expect(onFailure).toHaveBeenCalled();
     });
-    unmount();
-
     const search = renderer
       .create(
         <Router>
@@ -168,9 +162,6 @@ describe('SearchBar', () => {
   });
 
   test('handles a lowercase name correctly', async () => {
-    const { getByTestId, unmount } = render(searchBar);
-    const searchInput = getByTestId('searchbar-input-id');
-    const searchButton = getByTestId('search-button'); // Assuming you used data-testid="search-button"
     const domain = 'ardrive';
 
     act(async () => {
@@ -179,8 +170,6 @@ describe('SearchBar', () => {
       expect(onSubmit).toHaveBeenCalled();
       expect(onFailure).toHaveBeenCalled();
     });
-
-    unmount();
 
     const search = renderer
       .create(
