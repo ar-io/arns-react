@@ -52,13 +52,7 @@ jest.mock('../../../../../hooks', () => ({
 }));
 
 jest.mock('../../../../../state/contexts/GlobalState', () => ({
-  useGlobalState: jest.fn(() => [
-    {
-      gateway: 'https://arweave.net',
-      blockHeight: 1711122739,
-      pdnsSourceContract: {},
-    },
-  ]),
+  useGlobalState: jest.fn(() => [{}, jest.fn()]),
 }));
 
 // jest.mock('level', () => {
@@ -79,9 +73,8 @@ describe('SearchBar', () => {
   // Spy on the methods and provide mock implementations
   jest
     .spyOn(cache, 'getContractState')
+    // eslint-disable-next-line
     .mockImplementation(async (id: ArweaveTransactionID) => {
-      // eslint-disable-line
-      //eslint-disable-line
       return DEFAULT_PDNT_CONTRACT_STATE;
     });
 
@@ -92,9 +85,8 @@ describe('SearchBar', () => {
   // Spy on the methods and provide mock implementations
   jest
     .spyOn(warp, 'getContractState')
+    // eslint-disable-next-line
     .mockImplementation(async (id: ArweaveTransactionID) => {
-      // eslint-disable-line
-      //eslint-disable-line
       return DEFAULT_PDNT_CONTRACT_STATE;
     });
 

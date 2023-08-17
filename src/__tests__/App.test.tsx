@@ -25,9 +25,8 @@ describe('App', () => {
   // Spy on the methods and provide mock implementations
   jest
     .spyOn(cache, 'getContractState')
+    // eslint-disable-next-line
     .mockImplementation(async (id: ArweaveTransactionID) => {
-      // eslint-disable-line
-      //eslint-disable-line
       return DEFAULT_PDNT_CONTRACT_STATE;
     });
 
@@ -38,9 +37,8 @@ describe('App', () => {
   // Spy on the methods and provide mock implementations
   jest
     .spyOn(warp, 'getContractState')
+    // eslint-disable-next-line
     .mockImplementation(async (id: ArweaveTransactionID) => {
-      // eslint-disable-line
-      //eslint-disable-line
       return DEFAULT_PDNT_CONTRACT_STATE;
     });
 
