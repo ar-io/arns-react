@@ -11,11 +11,6 @@ import {
 } from '../../../../pages/Home/Home';
 import SearchBar from '../SearchBar';
 
-Object.defineProperty(global.performance, 'markResourceTiming', {
-  value: jest.fn(),
-  writable: true,
-});
-
 const TEST_RECORDS = {
   ardrive: {
     contractTxId: 'I-cxQhfh0Zb9UqQNizC9PiLC41KpUeA9hjiVV02rQRw',
