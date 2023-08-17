@@ -125,9 +125,7 @@ export function useUndernames(id?: ArweaveTransactionID) {
                 }}
                 size={15}
                 copyText={val}
-                displayText={
-                  isMobile ? `${val.slice(0, 2)}...${val.slice(-2)}` : val
-                }
+                body={isMobile ? `${val.slice(0, 2)}...${val.slice(-2)}` : val}
               />
             </div>
           ) : (
@@ -226,7 +224,7 @@ export function useUndernames(id?: ArweaveTransactionID) {
     ];
   }
 
-  async function fetchUndernameRows(id: ArweaveTransactionID) {
+  async function fetchUndernameRows(id: ArweaveTransactionID): Promise<void> {
     setIsLoading(true);
     const fetchedRows: UndernameMetadata[] = [];
     const [contractState, confirmations] = await Promise.all([

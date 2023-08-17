@@ -114,7 +114,7 @@ function TransferPDNTModal({
               Contract ID:&nbsp;
               <CopyTextButton
                 copyText={pdntId.toString()}
-                displayText={`${pdntId.toString().slice(0, isMobile ? 6 : 0)}${
+                body={`${pdntId.toString().slice(0, isMobile ? 6 : 0)}${
                   isMobile ? '...' : ''
                 }${pdntId.toString().slice(isMobile ? -6 : 0)}`}
                 wrapperStyle={{

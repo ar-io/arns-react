@@ -1,5 +1,4 @@
-import { Pagination } from 'antd';
-import Table from 'rc-table';
+import { Table } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -12,6 +11,7 @@ import {
 } from '../../../hooks';
 import { ArweaveTransactionID, ManageTable } from '../../../types';
 import { MANAGE_TABLE_NAMES } from '../../../types';
+import { getCustomPaginationButtons } from '../../../utils';
 import eventEmitter from '../../../utils/events';
 import { CodeSandboxIcon, NotebookIcon, RefreshIcon } from '../../icons';
 import { Loader } from '../../layout/index';
@@ -45,7 +45,6 @@ function Manage() {
   } = useWalletDomains(pdntIds);
 
   const [tableData, setTableData] = useState<any[]>([]);
-  const [filteredTableData, setFilteredTableData] = useState<any[]>([]);
   const [tableLoading, setTableLoading] = useState(true);
   const [tableColumns, setTableColumns] = useState<any[]>();
   const [tablePage, setTablePage] = useState<number>(1);
@@ -64,21 +63,10 @@ function Manage() {
   }, [walletAddress?.toString()]);
 
   useEffect(() => {
-    const baseIndex = Math.max((tablePage - 1) * 10, 0);
-    const endIndex = tablePage * 10;
-    const filteredData = tableData.slice(baseIndex, endIndex);
-    setFilteredTableData(filteredData);
-  }, [tablePage]);
-
-  useEffect(() => {
     if (path === 'ants') {
       setTableData(pdntRows);
       setTableColumns(pdntColumns);
       setPercentLoaded(percentPDNTsLoaded);
-      const baseIndex = Math.max((tablePage - 1) * 10, 0);
-      const endIndex = tablePage * 10;
-      const filteredData = pdntRows.slice(baseIndex, endIndex);
-      setFilteredTableData(filteredData);
     }
   }, [
     path,
@@ -94,10 +82,6 @@ function Manage() {
       setTableData(domainRows);
       setTableColumns(domainColumns);
       setPercentLoaded(percentDomainsLoaded);
-      const baseIndex = Math.max((tablePage - 1) * 10, 0);
-      const endIndex = tablePage * 10;
-      const filteredData = domainRows.slice(baseIndex, endIndex);
-      setFilteredTableData(filteredData);
     }
   }, [
     path,
@@ -238,16 +222,22 @@ function Manage() {
             <Table
               scroll={pdntIds.length ? { x: true } : {}}
               columns={tableColumns}
-              data={filteredTableData}
-            />
-            <Pagination
-              pageSize={10}
-              onChange={updatePage}
-              current={tablePage}
-              total={tableData.length}
-              rootClassName="center"
-              defaultCurrent={1}
-              showSizeChanger={false}
+              dataSource={tableData}
+              pagination={{
+                position: ['bottomCenter'],
+                rootClassName: 'table-pagination',
+                itemRender: (page, type, originalElement) =>
+                  getCustomPaginationButtons({
+                    page,
+                    type,
+                    originalElement,
+                    currentPage: tablePage,
+                  }),
+                onChange: updatePage,
+                showPrevNextJumpers: true,
+                showSizeChanger: false,
+                current: tablePage,
+              }}
             />
           </>
         )}
