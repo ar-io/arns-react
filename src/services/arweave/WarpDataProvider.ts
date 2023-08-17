@@ -22,9 +22,9 @@ import {
 import {
   buildSmartweaveInteractionTags,
   byteSize,
-  encodeDomainToASCII,
   isDomainAuctionable,
   isDomainReservedLength,
+  lowerCaseDomain,
 } from '../../utils';
 import {
   ATOMIC_REGISTRATION_INPUT,
@@ -340,7 +340,7 @@ export class WarpDataProvider
       new ArweaveTransactionID(PDNS_REGISTRY_ADDRESS),
     ).then((state) => Object.keys(state.reserved));
     return (
-      reservedList.includes(encodeDomainToASCII(domain).toLowerCase()) ||
+      reservedList.includes(lowerCaseDomain(domain)) ||
       isDomainReservedLength(domain)
     );
   }
@@ -352,13 +352,13 @@ export class WarpDataProvider
     domain: string;
     auctionsList: string[];
   }): boolean {
-    return auctionsList.includes(encodeDomainToASCII(domain).toLowerCase());
+    return auctionsList.includes(lowerCaseDomain(domain));
   }
 
   async isDomainAvailable({ domain }: { domain: string }): Promise<boolean> {
     const domainsList = await this.getContractState<PDNSContractJSON>(
       new ArweaveTransactionID(PDNS_REGISTRY_ADDRESS),
     ).then((state) => Object.keys(state.records));
-    return !domainsList.includes(encodeDomainToASCII(domain).toLowerCase());
+    return !domainsList.includes(lowerCaseDomain(domain));
   }
 }

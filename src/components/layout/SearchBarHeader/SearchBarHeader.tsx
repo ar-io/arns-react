@@ -2,7 +2,11 @@ import { ArrowDownOutlined, CheckCircleFilled } from '@ant-design/icons';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { SearchBarHeaderProps } from '../../../types';
-import { encodeDomainToASCII, isDomainReservedLength } from '../../../utils';
+import {
+  encodeDomainToASCII,
+  isDomainReservedLength,
+  lowerCaseDomain,
+} from '../../../utils';
 import './styles.css';
 
 function SearchBarHeader({
@@ -14,10 +18,7 @@ function SearchBarHeader({
   const [{ pdnsSourceContract }] = useGlobalState();
 
   // unavailable condition
-  if (
-    text &&
-    pdnsSourceContract?.auctions?.[encodeDomainToASCII(text).toLowerCase()]
-  ) {
+  if (text && pdnsSourceContract?.auctions?.[lowerCaseDomain(text)]) {
     return (
       <span
         className="text-medium white center"
@@ -31,7 +32,7 @@ function SearchBarHeader({
 
   // reserved condition
   if (
-    (text && reservedList.includes(encodeDomainToASCII(text).toLowerCase())) ||
+    (text && reservedList.includes(lowerCaseDomain(text))) ||
     (text && isDomainReservedLength(text))
   ) {
     return (

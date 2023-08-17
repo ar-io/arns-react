@@ -16,6 +16,7 @@ import {
   encodeDomainToASCII,
   getLeaseDurationFromEndTimestamp,
   isArweaveTransactionID,
+  lowerCaseDomain,
 } from '../../../utils';
 import { MIN_TTL_SECONDS } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
@@ -102,6 +103,7 @@ function PDNTCard(props: PDNSMapping) {
   async function setDetails({ state }: { state?: PDNTContractJSON }) {
     try {
       setIsLoading(true);
+      const name = lowerCaseDomain(domain);
 
       let antContractState = undefined;
       if (state) {
@@ -126,15 +128,9 @@ function PDNTCard(props: PDNSMapping) {
 
       const tiers = pdnsSourceContract.tiers;
 
-      const tierDetails = pdnsSourceContract.records[
-        encodeDomainToASCII(domain).toLowerCase()
-      ]
+      const tierDetails = pdnsSourceContract.records[name]
         ? tiers.history.find(
-            (tier) =>
-              tier.id ===
-              pdnsSourceContract.records[
-                encodeDomainToASCII(domain).toLowerCase()
-              ].tier,
+            (tier) => tier.id === pdnsSourceContract.records[name].tier,
           )
         : undefined;
 
@@ -145,14 +141,10 @@ function PDNTCard(props: PDNSMapping) {
           : undefined,
         contractTxId: contractTxId?.toString() ?? 'N/A',
         domain: decodeDomainToASCII(domain),
-        leaseDuration: pdnsSourceContract.records[
-          encodeDomainToASCII(domain).toLowerCase()
-        ]
+        leaseDuration: pdnsSourceContract.records[name]
           ? pdnsSourceContract.records[domain].type === TRANSACTION_TYPES.BUY
             ? 'Indefinite'
-            : +pdnsSourceContract.records[
-                encodeDomainToASCII(domain).toLowerCase()
-              ].endTimestamp * 1000
+            : +pdnsSourceContract.records[name].endTimestamp * 1000
           : 'N/A',
         maxUndernames: 'Up to ' + tierDetails?.settings.maxUndernames ?? 100,
         name: antContractState.name,

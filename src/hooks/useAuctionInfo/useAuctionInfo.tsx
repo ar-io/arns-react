@@ -4,9 +4,9 @@ import { useGlobalState } from '../../state/contexts/GlobalState';
 import { Auction, AuctionSettings, TRANSACTION_TYPES } from '../../types';
 import {
   calculateMinimumAuctionBid,
-  encodeDomainToASCII,
   generateAuction,
   isDomainAuctionable,
+  lowerCaseDomain,
   updatePrices,
 } from '../../utils';
 import eventEmitter from '../../utils/events';
@@ -84,9 +84,7 @@ export function useAuctionInfo(
 
       if (pdnsSourceContract?.auctions) {
         const foundAuction =
-          pdnsSourceContract?.auctions[
-            encodeDomainToASCII(domain).toLowerCase()
-          ];
+          pdnsSourceContract?.auctions[lowerCaseDomain(domain)];
 
         if (foundAuction) {
           const foundAuctionSettings =

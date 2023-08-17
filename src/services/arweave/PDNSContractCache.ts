@@ -8,7 +8,7 @@ import {
   SmartweaveContractCache,
   TransactionCache,
 } from '../../types';
-import { encodeDomainToASCII, isDomainReservedLength } from '../../utils';
+import { isDomainReservedLength, lowerCaseDomain } from '../../utils';
 import { PDNS_REGISTRY_ADDRESS } from '../../utils/constants';
 import { LocalStorageCache } from '../cache/LocalStorageCache';
 
@@ -103,9 +103,9 @@ export class PDNSContractCache implements SmartweaveContractCache {
     const res = await fetch(
       `${
         this._url
-      }/v1/contract/${PDNS_REGISTRY_ADDRESS}/reserved/${encodeDomainToASCII(
+      }/v1/contract/${PDNS_REGISTRY_ADDRESS}/reserved/${lowerCaseDomain(
         domain,
-      ).toLowerCase()}`,
+      )}`,
     );
     const { reserved } = await res.json();
     if (reserved === undefined) {
@@ -123,16 +123,16 @@ export class PDNSContractCache implements SmartweaveContractCache {
     domain: string;
     auctionsList: string[];
   }): boolean {
-    return auctionsList.includes(encodeDomainToASCII(domain).toLowerCase());
+    return auctionsList.includes(lowerCaseDomain(domain));
   }
 
   async isDomainAvailable({ domain }: { domain: string }): Promise<boolean> {
     const res = await fetch(
       `${
         this._url
-      }/v1/contract/${PDNS_REGISTRY_ADDRESS}/records/${encodeDomainToASCII(
+      }/v1/contract/${PDNS_REGISTRY_ADDRESS}/records/${lowerCaseDomain(
         domain,
-      ).toLowerCase()}`,
+      )}`,
     );
     const isAvailable = res.status !== 200;
     return isAvailable;

@@ -35,7 +35,6 @@ function useRegistrationStatus(domain: string) {
         auction,
         reserved,
       ]);
-      console.log({ isAvailable });
       setIsAvailable(isAvailable);
       setIsAuction(isAuction);
       setIsReserved(isReserved);
