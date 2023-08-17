@@ -1,13 +1,9 @@
 import { act, cleanup, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import Arweave from 'arweave';
 import { HashRouter as Router } from 'react-router-dom';
 import renderer from 'react-test-renderer';
 
-import { PDNSContractCache } from '../../../../../services/arweave/PDNSContractCache';
-import { WarpDataProvider } from '../../../../../services/arweave/WarpDataProvider';
-import { ArweaveTransactionID, TRANSACTION_TYPES } from '../../../../../types';
-import { DEFAULT_PDNT_CONTRACT_STATE } from '../../../../../utils/constants';
+import { TRANSACTION_TYPES } from '../../../../../types';
 import { SearchBarFooter, SearchBarHeader } from '../../../../layout';
 import {
   searchBarSuccessPredicate,
@@ -35,56 +31,37 @@ const TEST_RECORDS = {
   },
 };
 
+jest.mock(
+  '../../../../../services/arweave/ArweaveCompositeDataProvider',
+  () => ({
+    ArweaveCompositeDataProvider: jest.fn(() => ({
+      getCurrentBlockHeight: jest.fn(async () => 1711122739),
+      getContractState: jest.fn(async () => ({})),
+      isDomainAvailable: jest.fn(async () => true),
+      isDomainReserved: jest.fn(async () => false),
+      isDomainInAuction: jest.fn(async () => false),
+    })),
+  }),
+);
+
 jest.mock('../../../../../hooks', () => ({
   useAuctionInfo: jest.fn(() => ({})),
-  useIsFocused: jest.fn(() => ({})),
+  useIsFocused: jest.fn(() => false),
   useIsMobile: jest.fn(() => false),
-  useArweaveCompositeProvider: jest.fn(),
   useWalletAddress: jest.fn(() => ({
     walletAddress: undefined,
     wallet: undefined,
   })),
   useRegistrationStatus: jest.fn(() => ({
-    isDomainAvailable: false,
-    isDomainInvalid: false,
-    isDomainReserved: false,
+    isAvailable: false,
+    isAuction: false,
+    isReserved: false,
+    loading: false,
   })),
-}));
-
-jest.mock('../../../../../state/contexts/GlobalState', () => ({
-  useGlobalState: jest.fn(() => [
-    {
-      gateway: 'https://arweave.net',
-      blockHeight: 1711122739,
-      pdnsSourceContract: {},
-    },
-  ]),
 }));
 
 describe('SearchBar', () => {
   afterEach(cleanup);
-
-  //const cache = new PDNSContractCache('some_url');
-
-  // Spy on the methods and provide mock implementations
-  // jest
-  //   .spyOn(cache, 'getContractState')
-  //   // eslint-disable-next-line
-  //   .mockImplementation(async (id: ArweaveTransactionID) => {
-  //     return DEFAULT_PDNT_CONTRACT_STATE;
-  //   });
-
-  // const arweave = Arweave.init({});
-
-  // const warp = new WarpDataProvider(arweave);
-
-  // // Spy on the methods and provide mock implementations
-  // jest
-  //   .spyOn(warp, 'getContractState')
-  //   // eslint-disable-next-line
-  //   .mockImplementation(async (id: ArweaveTransactionID) => {
-  //     return DEFAULT_PDNT_CONTRACT_STATE;
-  //   });
 
   const onChange = jest.fn();
   const onSubmit = jest.fn();

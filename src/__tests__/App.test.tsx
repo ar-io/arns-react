@@ -1,11 +1,6 @@
-import { cleanup, render } from '@testing-library/react';
-import Arweave from 'arweave';
+import { act, cleanup, render } from '@testing-library/react';
 
 import App from '../App';
-import { PDNSContractCache } from '../services/arweave/PDNSContractCache';
-import { WarpDataProvider } from '../services/arweave/WarpDataProvider';
-import { ArweaveTransactionID } from '../types';
-import { DEFAULT_PDNT_CONTRACT_STATE } from '../utils/constants';
 
 // TODO: add mock implementations to return various contract states
 jest.mock('../hooks', () => ({
@@ -16,33 +11,22 @@ jest.mock('../hooks', () => ({
     .mockReturnValue({ wallet: undefined, walletAddress: undefined }),
   useIsMobile: jest.fn(),
 }));
+jest.mock('../services/arweave/ArweaveCompositeDataProvider', () => ({
+  ArweaveCompositeDataProvider: jest.fn(() => ({
+    getCurrentBlockHeight: jest.fn(async () => 1711122739),
+    getContractState: jest.fn(async () => ({})),
+    isDomainAvailable: jest.fn(async () => true),
+    isDomainReserved: jest.fn(async () => false),
+    isDomainInAuction: jest.fn(async () => false),
+  })),
+}));
 
 describe('App', () => {
   afterEach(cleanup);
 
-  const cache = new PDNSContractCache('some_url');
-
-  // Spy on the methods and provide mock implementations
-  jest
-    .spyOn(cache, 'getContractState')
-    // eslint-disable-next-line
-    .mockImplementation(async (id: ArweaveTransactionID) => {
-      return DEFAULT_PDNT_CONTRACT_STATE;
+  test('render App', async () => {
+    await act(() => {
+      render(<App />);
     });
-
-  const arweave = Arweave.init({});
-
-  const warp = new WarpDataProvider(arweave);
-
-  // Spy on the methods and provide mock implementations
-  jest
-    .spyOn(warp, 'getContractState')
-    // eslint-disable-next-line
-    .mockImplementation(async (id: ArweaveTransactionID) => {
-      return DEFAULT_PDNT_CONTRACT_STATE;
-    });
-
-  test('render App', () => {
-    render(<App />);
   });
 });

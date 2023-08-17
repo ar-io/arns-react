@@ -1,4 +1,4 @@
-import { cleanup, render } from '@testing-library/react';
+import { act, cleanup, render } from '@testing-library/react';
 import { HashRouter as Router } from 'react-router-dom';
 
 import Navbar from '../Navbar';
@@ -6,11 +6,13 @@ import Navbar from '../Navbar';
 describe('Navbar', () => {
   afterEach(cleanup);
 
-  test('render Navbar', () => {
-    render(
-      <Router>
-        <Navbar />
-      </Router>,
+  test('render Navbar', async () => {
+    await act(() =>
+      render(
+        <Router>
+          <Navbar />
+        </Router>,
+      ),
     );
   });
 });
