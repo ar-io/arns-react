@@ -15,6 +15,7 @@ describe('Home', () => {
   jest
     .spyOn(cache, 'getContractState')
     .mockImplementation(async (id: ArweaveTransactionID) => {
+      // eslint-disable-line
       //eslint-disable-line
       return DEFAULT_PDNT_CONTRACT_STATE;
     });
