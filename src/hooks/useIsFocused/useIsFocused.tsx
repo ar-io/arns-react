@@ -5,6 +5,9 @@ export function useIsFocused(id: string) {
   const [isFocused, setIsFocused] = useState<boolean>(false);
 
   useEffect(() => {
+    if (!id) {
+      return;
+    }
     const element = document.getElementById(id);
 
     if (!element) {

@@ -1,7 +1,7 @@
 import { cleanup, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HashRouter as Router } from 'react-router-dom';
-import renderer from 'react-test-renderer';
+import renderer, { act } from 'react-test-renderer';
 
 import { TRANSACTION_TYPES } from '../../../../../types';
 import { SearchBarFooter, SearchBarHeader } from '../../../../layout';
@@ -49,6 +49,10 @@ describe('SearchBar', () => {
     useAuctionInfo: jest.fn(() => ({})),
   }));
 
+  jest.mock('../../../../../hooks/useIsFocused/useIsFocused', () => ({
+    useIsFocused: jest.fn(() => ({})),
+  }));
+
   const onChange = jest.fn();
   const onSubmit = jest.fn();
   const onFailure = jest.fn();
@@ -78,31 +82,97 @@ describe('SearchBar', () => {
     </Router>
   );
 
-  const tree = renderer.create(searchBar).toJSON();
-  expect(tree).toMatchSnapshot();
-
-  const { getByTestId } = render(searchBar);
-  const searchInput = getByTestId('searchbar-input-id');
-  const searchButton = getByTestId('search-button'); // Assuming you used data-testid="search-button"
-
   test('handles a capitalized name correctly', async () => {
+    const { getByTestId, unmount } = render(searchBar);
+    const searchInput = getByTestId('searchbar-input-id');
+    const searchButton = getByTestId('search-button'); // Assuming you used data-testid="search-button"
+
     const domain = 'ARDRIVE';
 
-    await userEvent.type(searchInput, domain);
-    expect(onChange).toHaveBeenCalledWith();
-    await userEvent.click(searchButton);
-    expect(onSubmit).toHaveBeenCalled();
-    expect(onFailure).toHaveBeenCalled();
-    // Additional assertions as needed...
+    act(async () => {
+      await userEvent.type(searchInput, domain);
+      expect(onChange).toHaveBeenCalledWith();
+      await userEvent.click(searchButton);
+
+      expect(onSubmit).toHaveBeenCalled();
+      expect(onFailure).toHaveBeenCalled();
+    });
+    unmount();
+
+    const search = renderer
+      .create(
+        <Router>
+          <SearchBar
+            onSubmit={onSubmit}
+            onChange={onChange}
+            onFailure={onFailure}
+            onSuccess={onSuccess}
+            successPredicate={(value: string | undefined) =>
+              searchBarSuccessPredicate({ value, records: TEST_RECORDS })
+            }
+            validationPredicate={(value: string | undefined) =>
+              searchBarValidationPredicate({ value })
+            }
+            value={domain}
+            values={TEST_RECORDS}
+            placeholderText={'Find a name'}
+            headerElement={
+              <SearchBarHeader defaultText="Find a name" reservedList={[]} />
+            }
+            footerElement={
+              <SearchBarFooter isAuction={false} reservedList={[]} />
+            }
+          />
+        </Router>,
+      )
+      .toJSON();
+
+    expect(search).toMatchSnapshot();
   });
 
   test('handles a lowercase name correctly', async () => {
+    const { getByTestId, unmount } = render(searchBar);
+    const searchInput = getByTestId('searchbar-input-id');
+    const searchButton = getByTestId('search-button'); // Assuming you used data-testid="search-button"
     const domain = 'ardrive';
 
-    await userEvent.type(searchInput, domain);
-    await userEvent.click(searchButton);
+    act(async () => {
+      await userEvent.type(searchInput, domain);
+      await userEvent.click(searchButton);
+      expect(onSubmit).toHaveBeenCalled();
+      expect(onFailure).toHaveBeenCalled();
+    });
 
-    expect(onSubmit).toHaveBeenCalled();
-    expect(onFailure).toHaveBeenCalled();
+    unmount();
+
+    const search = renderer
+      .create(
+        <Router>
+          <SearchBar
+            onSubmit={onSubmit}
+            onChange={onChange}
+            onFailure={onFailure}
+            onSuccess={onSuccess}
+            successPredicate={(value: string | undefined) =>
+              searchBarSuccessPredicate({ value, records: TEST_RECORDS })
+            }
+            validationPredicate={(value: string | undefined) =>
+              searchBarValidationPredicate({ value })
+            }
+            value={domain}
+            values={TEST_RECORDS}
+            placeholderText={'Find a name'}
+            headerElement={
+              <SearchBarHeader defaultText="Find a name" reservedList={[]} />
+            }
+            footerElement={
+              <SearchBarFooter isAuction={false} reservedList={[]} />
+            }
+          />
+        </Router>,
+      )
+      .toJSON();
+
+    expect(search).toMatchSnapshot();
   });
 });
