@@ -10,7 +10,7 @@ export type RegistrationState = {
   leaseDuration: number;
   pdntContract?: PDNTContract;
   targetID?: ArweaveTransactionID;
-  pdntID?: ArweaveTransactionID;
+  antID?: ArweaveTransactionID;
   fee: { ar: number; io: number };
   isRegistered: boolean;
   stage: number;
@@ -29,7 +29,7 @@ export const initialRegistrationState: RegistrationState = {
   leaseDuration: 1,
   pdntContract: new PDNTContract(),
   fee: { ar: 0, io: 0 },
-  pdntID: undefined,
+  antID: undefined,
   isRegistered: false,
   stage: 0,
   isSearching: false,

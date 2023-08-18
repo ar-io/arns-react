@@ -21,6 +21,7 @@ import {
   Home,
   Manage,
   NotFound,
+  Register,
   Transaction,
 } from './components/pages';
 import { usePDNSContract } from './hooks/';
@@ -100,8 +101,16 @@ function App() {
           }
         />
         ,
-        <Route path="auctions" element={<Auctions />} />
+        <Route path="auctions" element={<Auctions />} />,
         <Route path="auctions/:name" element={<ViewAuction />} />
+        <Route
+          path="register/:name"
+          element={
+            <ProtectedRoute>
+              <Register />
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<NotFound />} />
       </Route>,
     ),

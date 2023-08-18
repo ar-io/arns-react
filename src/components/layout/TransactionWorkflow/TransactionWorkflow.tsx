@@ -224,7 +224,7 @@ function TransactionWorkflow({
             </div>
           ),
           header: `Review your ${interactionType} action`,
-          nextText: 'Proceed to Wallet',
+          nextText: 'Confirm',
         },
         successful: {
           component: (
@@ -333,7 +333,7 @@ function TransactionWorkflow({
               </div>
             ),
             header: `Review your ${payload.auction ? 'Auction' : 'Purchase'}`,
-            nextText: 'Proceed to Wallet',
+            nextText: 'Confirm',
           },
           successful: {
             component: (

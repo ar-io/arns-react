@@ -278,7 +278,7 @@ function SearchBar(props: SearchBarProps) {
           }}
           showValidationChecklist={!isMobile}
           showValidationErrors={false}
-          showValidationsDefault={true}
+          showValidationsDefault={!isMobile}
           validationListStyle={{
             display: 'flex',
             flexDirection: 'row',
@@ -321,7 +321,7 @@ function SearchBar(props: SearchBarProps) {
               color: 'var(--text-grey)',
               width: 'fit-content',
               position: 'absolute',
-              right: '75px',
+              right: isMobile ? '10px' : '75px',
               height: '100%',
             }}
             onClick={() => reset()}
@@ -357,8 +357,9 @@ function SearchBar(props: SearchBarProps) {
           }`}
           style={{
             alignItems: 'center',
-            marginTop: '50px',
+            marginTop: isMobile ? '20px' : '50px',
             boxSizing: 'border-box',
+            flexDirection: isMobile ? 'column-reverse' : 'row',
           }}
         >
           {minimumAuctionBid ? (

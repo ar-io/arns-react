@@ -86,7 +86,7 @@ function ViewAuction() {
           </span>
           <button
             className="accent-button center"
-            onClick={() => alert('Setup register page to enable this button')}
+            onClick={() => navigate(`/register/${name}`)}
           >
             {startCase(auction.type)} Now&nbsp;
             <ArrowRightIcon width={'16px'} height={'16px'} />

@@ -3,7 +3,7 @@ import { StepProps } from 'antd';
 import { useIsMobile } from '../../../hooks';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
 import Loader from '../Loader/Loader';
-import StepProgressBar from '../progress/Steps/Steps';
+import { StepProgressBar } from '../progress';
 
 export type WorkflowStage = {
   header?: JSX.Element | string;
@@ -68,7 +68,8 @@ function Workflow({
                   <div
                     className="flex flex-row text-large white bold center"
                     style={{
-                      height: '175px',
+                      height: '100%',
+                      minHeight: '175px',
                       borderTop: 'solid 1px var(--text-faded)',
                     }}
                   >
