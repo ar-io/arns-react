@@ -141,7 +141,7 @@ function PDNTCard(props: PDNSMapping) {
         contractTxId: contractTxId?.toString() ?? 'N/A',
         domain: decodeDomainToASCII(domain),
         leaseDuration: pdnsSourceContract.records[name]
-          ? pdnsSourceContract.records[domain].type === TRANSACTION_TYPES.BUY
+          ? pdnsSourceContract.records[domain]?.type === TRANSACTION_TYPES.BUY
             ? 'Indefinite'
             : +pdnsSourceContract.records[name].endTimestamp * 1000
           : 'N/A',

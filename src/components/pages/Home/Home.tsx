@@ -184,13 +184,15 @@ function Home() {
               });
             }}
             successPredicate={(value: string | undefined) =>
-              isPDNSDomainNameAvailable({
-                name: value ? encodeDomainToASCII(value) : value,
-                records: pdnsSourceContract?.records ?? {},
+              searchBarSuccessPredicate({
+                value: lowerCaseDomain(value ?? ''),
+                records: pdnsSourceContract.records,
               })
             }
             validationPredicate={(value: string | undefined) =>
-              isPDNSDomainNameValid({ name: value })
+              searchBarValidationPredicate({
+                value: lowerCaseDomain(value ?? ''),
+              })
             }
             placeholderText={'Search for a name'}
             headerElement={
@@ -207,17 +209,18 @@ function Home() {
               <SearchBarFooter
                 isAuction={
                   pdnsSourceContract?.auctions && domain
-                    ? Object.keys(pdnsSourceContract.auctions).includes(domain)
+                    ? Object.keys(pdnsSourceContract.auctions).includes(
+                        lowerCaseDomain(domain),
+                      )
                     : false
                 }
                 reservedList={Object.keys(pdnsSourceContract?.reserved ?? {})}
                 searchTerm={domain}
                 searchResult={
-                  domain &&
-                  pdnsSourceContract.records[encodeDomainToASCII(domain)]
+                  domain && pdnsSourceContract.records[lowerCaseDomain(domain)]
                     ? new ArweaveTransactionID(
                         pdnsSourceContract.records[
-                          encodeDomainToASCII(domain)
+                          lowerCaseDomain(domain)
                         ].contractTxId,
                       )
                     : undefined
@@ -232,7 +235,7 @@ function Home() {
             reserved: isReserved,
             domains: featuredDomains ?? {},
             id: antID,
-            name: domain,
+            name: lowerCaseDomain(domain),
           }) &&
           featuredDomains ? (
             <FeaturedDomains domains={featuredDomains} />
