@@ -17,7 +17,7 @@ export class ArweaveCompositeDataProviderMock
     SmartweaveContractCache,
     ArweaveDataProvider
 {
-  // eslint-disable
+  /* eslint-disable */
 
   async writeTransaction({
     walletAddress,
@@ -162,4 +162,4 @@ export class ArweaveCompositeDataProviderMock
     return false;
   }
 }
-// eslint-enable
+/* eslint-enable */
