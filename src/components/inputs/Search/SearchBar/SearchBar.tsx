@@ -21,7 +21,10 @@ import {
   validateNoLeadingOrTrailingDashes,
   validateNoSpecialCharacters,
 } from '../../../../utils';
-import { PDNS_NAME_REGEX_PARTIAL } from '../../../../utils/constants';
+import {
+  MAX_ARNS_NAME_LENGTH,
+  PDNS_NAME_REGEX_PARTIAL,
+} from '../../../../utils/constants';
 import { SearchIcon } from '../../../icons';
 import ValidationInput from '../../text/ValidationInput/ValidationInput';
 import './styles.css';
@@ -263,7 +266,7 @@ function SearchBar(props: SearchBarProps) {
           inputId="searchbar-input-id"
           pattern={PDNS_NAME_REGEX_PARTIAL}
           // <input> tag considers emojis as 2 characters in length, so we need to encode the string to ASCII to get the correct length manually
-          maxLength={(v) => !(encodeDomainToASCII(v.trim()).length > 32)}
+          maxLength={(v) => !(lowerCaseDomain(v).length > MAX_ARNS_NAME_LENGTH)}
           inputType="search"
           onPressEnter={() => _onSubmit()}
           disabled={disabled}
@@ -291,8 +294,9 @@ function SearchBar(props: SearchBarProps) {
             'Min. 1 character': {
               fn: (query) => validateMinASCIILength(query, 1),
             },
-            'Max. 32 characters': {
-              fn: (query) => validateMaxASCIILength(query, 32),
+            [`Max. ${MAX_ARNS_NAME_LENGTH} characters`]: {
+              fn: (query) =>
+                validateMaxASCIILength(query, MAX_ARNS_NAME_LENGTH),
             },
             'No special characters': {
               fn: (query) => validateNoSpecialCharacters(query),
