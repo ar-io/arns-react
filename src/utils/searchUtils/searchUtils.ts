@@ -421,5 +421,5 @@ export function sleep(ms: number) {
 }
 
 export function lowerCaseDomain(domain: string) {
-  return encodeDomainToASCII(domain).toLowerCase();
+  return encodeDomainToASCII(domain.trim()).toLowerCase();
 }

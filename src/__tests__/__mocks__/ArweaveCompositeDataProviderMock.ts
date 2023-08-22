@@ -11,14 +11,13 @@ import {
 } from '../../types';
 import { STUB_ARWEAVE_TXID } from '../../utils/constants';
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
 export class ArweaveCompositeDataProviderMock
   implements
     SmartweaveContractInteractionProvider,
     SmartweaveContractCache,
     ArweaveDataProvider
 {
-  /* eslint-disable */
-
   async writeTransaction({
     walletAddress,
     contractTxId,
@@ -94,7 +93,10 @@ export class ArweaveCompositeDataProviderMock
   async getContractState<T extends PDNTContractJSON | PDNSContractJSON>(
     contractTxId: ArweaveTransactionID,
   ): Promise<T> {
-    return {} as T; // Mock value
+    return {
+      records: {},
+      fees: {},
+    } as T; // Mock value
   }
 
   async registerAtomicName({
@@ -120,7 +122,7 @@ export class ArweaveCompositeDataProviderMock
   }
 
   async getArPrice(data: number): Promise<number> {
-    return 0.5; // Mock value
+    return 5; // Mock value
   }
 
   async getArBalance(wallet: ArweaveTransactionID): Promise<number> {
@@ -162,4 +164,3 @@ export class ArweaveCompositeDataProviderMock
     return false;
   }
 }
-/* eslint-enable */

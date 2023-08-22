@@ -268,8 +268,8 @@ function SearchBar(props: SearchBarProps) {
           onPressEnter={() => _onSubmit()}
           disabled={disabled}
           placeholder={placeholderText}
-          value={searchBarText?.trim()}
-          setValue={(v) => _onChange(v.trim())}
+          value={searchBarText}
+          setValue={(v) => _onChange(lowerCaseDomain(v))}
           onClick={() => _onFocus()}
           inputCustomStyle={{ height }}
           wrapperCustomStyle={{
