@@ -269,7 +269,7 @@ function SearchBar(props: SearchBarProps) {
           disabled={disabled}
           placeholder={placeholderText}
           value={searchBarText}
-          setValue={(v) => _onChange(lowerCaseDomain(v))}
+          setValue={(v) => _onChange(v)}
           onClick={() => _onFocus()}
           inputCustomStyle={{ height }}
           wrapperCustomStyle={{
