@@ -1,4 +1,3 @@
-import { before, set } from 'lodash';
 import { CSSProperties, useState } from 'react';
 
 import { useArweaveCompositeProvider } from '../../../../hooks';
