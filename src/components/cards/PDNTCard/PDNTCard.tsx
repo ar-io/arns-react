@@ -15,6 +15,7 @@ import {
   decodeDomainToASCII,
   getLeaseDurationFromEndTimestamp,
   isArweaveTransactionID,
+  lowerCaseDomain,
 } from '../../../utils';
 import { MIN_TTL_SECONDS } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
@@ -101,6 +102,7 @@ function PDNTCard(props: PDNSMapping) {
   async function setDetails({ state }: { state?: PDNTContractJSON }) {
     try {
       setIsLoading(true);
+      const name = lowerCaseDomain(domain);
 
       let antContractState = undefined;
       if (state) {
@@ -125,9 +127,9 @@ function PDNTCard(props: PDNSMapping) {
 
       const tiers = pdnsSourceContract.tiers;
 
-      const tierDetails = pdnsSourceContract.records[domain]
+      const tierDetails = pdnsSourceContract.records[name]
         ? tiers.history.find(
-            (tier) => tier.id === pdnsSourceContract.records[domain].tier,
+            (tier) => tier.id === pdnsSourceContract.records[name].tier,
           )
         : undefined;
 
@@ -138,10 +140,10 @@ function PDNTCard(props: PDNSMapping) {
           : undefined,
         contractTxId: contractTxId?.toString() ?? 'N/A',
         domain: decodeDomainToASCII(domain),
-        leaseDuration: pdnsSourceContract.records[domain]
-          ? pdnsSourceContract.records[domain].type === TRANSACTION_TYPES.BUY
+        leaseDuration: pdnsSourceContract.records[name]
+          ? pdnsSourceContract.records[domain]?.type === TRANSACTION_TYPES.BUY
             ? 'Indefinite'
-            : +pdnsSourceContract.records[domain].endTimestamp * 1000
+            : +pdnsSourceContract.records[name].endTimestamp * 1000
           : 'N/A',
         maxUndernames: 'Up to ' + tierDetails?.settings.maxUndernames ?? 100,
         name: antContractState.name,
@@ -266,7 +268,7 @@ function PDNTCard(props: PDNSMapping) {
                   </Link>
                 ) : isArweaveTransactionID(value) ? (
                   <CopyTextButton
-                    displayText={
+                    body={
                       isMobile
                         ? `${value.slice(0, 2)}...${value.slice(-2)}`
                         : value

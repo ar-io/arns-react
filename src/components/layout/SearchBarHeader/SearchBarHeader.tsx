@@ -1,8 +1,9 @@
 import { ArrowDownOutlined, CheckCircleFilled } from '@ant-design/icons';
 
+import { useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { SearchBarHeaderProps } from '../../../types';
-import { encodeDomainToASCII, isDomainReservedLength } from '../../../utils';
+import { isDomainReservedLength, lowerCaseDomain } from '../../../utils';
 import './styles.css';
 
 function SearchBarHeader({
@@ -12,13 +13,18 @@ function SearchBarHeader({
   reservedList,
 }: SearchBarHeaderProps): JSX.Element {
   const [{ pdnsSourceContract }] = useGlobalState();
+  const isMobile = useIsMobile();
 
   // unavailable condition
-  if (text && pdnsSourceContract?.auctions?.[text]) {
+  if (text && pdnsSourceContract?.auctions?.[lowerCaseDomain(text)]) {
     return (
       <span
-        className="text-medium white center"
-        style={{ fontWeight: 500, fontSize: '23px' }}
+        className="text-medium white center flex"
+        style={{
+          fontWeight: 500,
+          fontSize: '23px',
+          flexDirection: isMobile ? 'column' : 'row',
+        }}
       >
         <span className="in-auction">{text}&nbsp;</span>
         is currently in auction.
@@ -28,13 +34,17 @@ function SearchBarHeader({
 
   // reserved condition
   if (
-    (text && reservedList.includes(encodeDomainToASCII(text))) ||
+    (text && reservedList.includes(lowerCaseDomain(text))) ||
     (text && isDomainReservedLength(text))
   ) {
     return (
       <span
-        className="text-medium white center"
-        style={{ fontWeight: 500, fontSize: '23px' }}
+        className="text-medium white center flex"
+        style={{
+          fontWeight: 500,
+          fontSize: '23px',
+          flexDirection: isMobile ? 'column' : 'row',
+        }}
       >
         <span className="reserved">{text}&nbsp;</span>
         is currently reserved.
@@ -45,8 +55,12 @@ function SearchBarHeader({
   if (text && !isAvailable) {
     return (
       <span
-        className="text-medium white center"
-        style={{ fontWeight: 500, fontSize: '23px' }}
+        className="text-medium white center flex"
+        style={{
+          fontWeight: 500,
+          fontSize: '23px',
+          flexDirection: isMobile ? 'column' : 'row',
+        }}
       >
         <span className="unavailable">{text}&nbsp;</span>
         is already registered. Try another name.
@@ -58,8 +72,12 @@ function SearchBarHeader({
   if (text && isAvailable) {
     return (
       <span
-        className="text-medium white center"
-        style={{ fontWeight: 500, fontSize: '23px' }}
+        className="text-medium white center flex"
+        style={{
+          fontWeight: 500,
+          fontSize: '23px',
+          flexDirection: isMobile ? 'column' : 'row',
+        }}
       >
         <span style={{ color: 'var(--success-green)' }}>{text}</span>&nbsp;is
         available!&nbsp;

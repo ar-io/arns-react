@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { useArweaveCompositeProvider } from '../../../hooks';
+import { useIsMobile, useRegistrationStatus } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { ArweaveTransactionID } from '../../../types';
@@ -11,22 +11,55 @@ import {
   encodeDomainToASCII,
   isPDNSDomainNameAvailable,
   isPDNSDomainNameValid,
+  lowerCaseDomain,
 } from '../../../utils/searchUtils/searchUtils';
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import { FeaturedDomains, Loader } from '../../layout';
 import { SearchBarFooter, SearchBarHeader } from '../../layout';
 import './styles.css';
 
+export const searchBarSuccessPredicate = ({
+  value,
+  records,
+}: {
+  value: string | undefined;
+  records: { [x: string]: any };
+}) => {
+  if (!value) {
+    return false;
+  }
+
+  return isPDNSDomainNameAvailable({
+    name: encodeDomainToASCII(value),
+    records: records,
+  });
+};
+
+export const searchBarValidationPredicate = ({
+  value,
+}: {
+  value: string | undefined;
+}) => {
+  if (!value) {
+    return false;
+  }
+
+  return isPDNSDomainNameValid({
+    name: encodeDomainToASCII(value),
+  });
+};
+
 function Home() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [{ pdnsSourceContract }] = useGlobalState();
   const [{ domain, antID }, dispatchRegisterState] = useRegistrationState();
-
+  const [{ isAuction, isReserved, loading: isValidatingRegistration }] =
+    useRegistrationStatus(domain);
   const [featuredDomains, setFeaturedDomains] = useState<{
     [x: string]: string;
   }>();
-  const arweaveDataProvider = useArweaveCompositeProvider();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (domain && domain !== searchParams.get('search')) {
@@ -63,25 +96,20 @@ function Home() {
     }
   }, [pdnsSourceContract]);
 
-  function showFeaturedDomains(): boolean {
-    const isFeaturedDomains = featuredDomains;
-    const isNotPdntID = !antID;
-    const isNotAuction = !arweaveDataProvider.isDomainInAuction({
-      domain,
-      auctionsList: Object.keys(pdnsSourceContract.auctions ?? {}),
-    });
-    const isNotReservedDomain = !arweaveDataProvider.isDomainReserved({
-      domain,
-      reservedList: Object.keys(pdnsSourceContract.reserved),
-    });
-
-    if (
-      (isFeaturedDomains &&
-        isNotPdntID &&
-        isNotReservedDomain &&
-        isNotAuction) ||
-      !domain
-    ) {
+  function updateShowFeaturedDomains({
+    auction,
+    reserved,
+    domains,
+    id,
+    name,
+  }: {
+    auction: boolean;
+    reserved: boolean;
+    domains: { [x: string]: string };
+    id: ArweaveTransactionID | undefined;
+    name: string | undefined;
+  }): boolean {
+    if ((domains && !id && !reserved && !auction) || !name) {
       return true;
     }
 
@@ -89,10 +117,14 @@ function Home() {
   }
 
   return (
-    <div className="page">
+    <div className="page" style={{ padding: isMobile ? '15px' : '' }}>
       <div
-        className="white"
-        style={{ fontSize: 57, padding: 56, fontWeight: 500 }}
+        className={'white'}
+        style={{
+          fontSize: isMobile ? 26 : 57,
+          padding: isMobile ? '30px 0px' : 56,
+          fontWeight: 500,
+        }}
       >
         Arweave Name System
       </div>
@@ -110,7 +142,7 @@ function Home() {
             width: '100%',
             gap: 0,
             maxWidth: '900px',
-            minWidth: '750px',
+            minWidth: isMobile ? '100%' : '750px',
           }}
         >
           <SearchBar
@@ -151,13 +183,15 @@ function Home() {
               });
             }}
             successPredicate={(value: string | undefined) =>
-              isPDNSDomainNameAvailable({
-                name: value ? encodeDomainToASCII(value) : value,
-                records: pdnsSourceContract?.records ?? {},
+              searchBarSuccessPredicate({
+                value: lowerCaseDomain(value ?? ''),
+                records: pdnsSourceContract.records,
               })
             }
             validationPredicate={(value: string | undefined) =>
-              isPDNSDomainNameValid({ name: value })
+              searchBarValidationPredicate({
+                value: lowerCaseDomain(value ?? ''),
+              })
             }
             placeholderText={'Search for a name'}
             headerElement={
@@ -174,17 +208,18 @@ function Home() {
               <SearchBarFooter
                 isAuction={
                   pdnsSourceContract?.auctions && domain
-                    ? Object.keys(pdnsSourceContract.auctions).includes(domain)
+                    ? Object.keys(pdnsSourceContract.auctions).includes(
+                        lowerCaseDomain(domain),
+                      )
                     : false
                 }
                 reservedList={Object.keys(pdnsSourceContract?.reserved ?? {})}
                 searchTerm={domain}
                 searchResult={
-                  domain &&
-                  pdnsSourceContract.records[encodeDomainToASCII(domain)]
+                  domain && pdnsSourceContract.records[lowerCaseDomain(domain)]
                     ? new ArweaveTransactionID(
                         pdnsSourceContract.records[
-                          encodeDomainToASCII(domain)
+                          lowerCaseDomain(domain)
                         ].contractTxId,
                       )
                     : undefined
@@ -193,7 +228,15 @@ function Home() {
             }
             height={65}
           />
-          {showFeaturedDomains() && featuredDomains ? (
+          {!isValidatingRegistration &&
+          updateShowFeaturedDomains({
+            auction: isAuction,
+            reserved: isReserved,
+            domains: featuredDomains ?? {},
+            id: antID,
+            name: lowerCaseDomain(domain),
+          }) &&
+          featuredDomains ? (
             <FeaturedDomains domains={featuredDomains} />
           ) : (
             <></>

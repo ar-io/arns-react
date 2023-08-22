@@ -8,7 +8,8 @@ import {
   SmartweaveContractCache,
   TransactionCache,
 } from '../../types';
-import { isDomainReservedLength } from '../../utils';
+import { isDomainReservedLength, lowerCaseDomain } from '../../utils';
+import { PDNS_REGISTRY_ADDRESS } from '../../utils/constants';
 import { LocalStorageCache } from '../cache/LocalStorageCache';
 
 export class PDNSContractCache implements SmartweaveContractCache {
@@ -98,14 +99,21 @@ export class PDNSContractCache implements SmartweaveContractCache {
     );
   }
   // TODO: implement arns service query for the following 3 functions
-  isDomainReserved({
-    domain,
-    reservedList,
-  }: {
-    domain: string;
-    reservedList: string[];
-  }): boolean {
-    return reservedList.includes(domain) || isDomainReservedLength(domain);
+  async isDomainReserved({ domain }: { domain: string }): Promise<boolean> {
+    const res = await fetch(
+      `${
+        this._url
+      }/v1/contract/${PDNS_REGISTRY_ADDRESS}/reserved/${lowerCaseDomain(
+        domain,
+      )}`,
+    );
+    const { reserved } = await res.json();
+    if (reserved === undefined) {
+      throw new Error('Error checking if domain is reserved');
+    }
+
+    const isReserved = reserved || isDomainReservedLength(domain);
+    return isReserved;
   }
 
   isDomainInAuction({
@@ -115,16 +123,18 @@ export class PDNSContractCache implements SmartweaveContractCache {
     domain: string;
     auctionsList: string[];
   }): boolean {
-    return auctionsList.includes(domain);
+    return auctionsList.includes(lowerCaseDomain(domain));
   }
 
-  isDomainAvailable({
-    domain,
-    domainsList,
-  }: {
-    domain: string;
-    domainsList: string[];
-  }): boolean {
-    return !domainsList.includes(domain);
+  async isDomainAvailable({ domain }: { domain: string }): Promise<boolean> {
+    const res = await fetch(
+      `${
+        this._url
+      }/v1/contract/${PDNS_REGISTRY_ADDRESS}/records/${lowerCaseDomain(
+        domain,
+      )}`,
+    );
+    const isAvailable = res.status !== 200;
+    return isAvailable;
   }
 }

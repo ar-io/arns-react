@@ -13,3 +13,4 @@ window.matchMedia ??= matchMediaMock.create(); // required for rendering ant des
 global.React = React;
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
+global.performance.markResourceTiming = jest.fn();

@@ -3,12 +3,14 @@ import { useEffect, useState } from 'react';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useArweaveCompositeProvider } from '../useArweaveCompositeProvider/useArweaveCompositeProvider';
 
-function useRegistrationStatus(domain: string) {
+export function useRegistrationStatus(domain: string) {
   const [{ pdnsSourceContract }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
+
   const [isAvailable, setIsAvailable] = useState<boolean>(false);
   const [isAuction, setIsAuction] = useState<boolean>(false);
   const [isReserved, setIsReserved] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     updateRegistrationStatus(domain);
@@ -16,9 +18,9 @@ function useRegistrationStatus(domain: string) {
 
   async function updateRegistrationStatus(domain: string) {
     try {
+      setLoading(true);
       const available = arweaveDataProvider.isDomainAvailable({
         domain,
-        domainsList: Object.keys(pdnsSourceContract.records),
       });
       const auction = arweaveDataProvider.isDomainInAuction({
         domain,
@@ -26,8 +28,8 @@ function useRegistrationStatus(domain: string) {
       });
       const reserved = arweaveDataProvider.isDomainReserved({
         domain,
-        reservedList: Object.keys(pdnsSourceContract.reserved),
       });
+
       const [isAvailable, isAuction, isReserved] = await Promise.all([
         available,
         auction,
@@ -38,10 +40,12 @@ function useRegistrationStatus(domain: string) {
       setIsReserved(isReserved);
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   }
-
-  return { isAvailable, isAuction, isReserved };
+  return [
+    { isAvailable, isAuction, isReserved, loading },
+    updateRegistrationStatus,
+  ] as const;
 }
-
-export default useRegistrationStatus;

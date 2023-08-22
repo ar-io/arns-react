@@ -313,7 +313,7 @@ export function isPDNSDomainNameAvailable({
   records: { [x: string]: PDNSRecordEntry };
 }): boolean {
   //if registered return false
-  if (!name || records[name]) {
+  if (!name || records[lowerCaseDomain(name)]) {
     return false;
   }
   return true;
@@ -418,4 +418,8 @@ export function isDomainReservedLength(domain: string): boolean {
 
 export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export function lowerCaseDomain(domain: string) {
+  return encodeDomainToASCII(domain.trim()).toLowerCase();
 }

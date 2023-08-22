@@ -68,7 +68,8 @@ function Workflow({
                   <div
                     className="flex flex-row text-large white bold center"
                     style={{
-                      height: '175px',
+                      height: '100%',
+                      minHeight: '175px',
                       borderTop: 'solid 1px var(--text-faded)',
                     }}
                   >

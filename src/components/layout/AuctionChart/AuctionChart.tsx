@@ -17,7 +17,7 @@ import { ChartJSOrUndefined } from 'react-chartjs-2/dist/types';
 
 import { useArweaveCompositeProvider, useAuctionInfo } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { getNextPriceUpdate } from '../../../utils';
+import { AVERAGE_BLOCK_TIME } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import Loader from '../Loader/Loader';
 
@@ -52,7 +52,7 @@ function AuctionChart({
     annotationPlugin,
   );
 
-  const [{ blockHieght: currentBlockHeight }, dispatchGlobalState] =
+  const [{ blockHeight: currentBlockHeight }, dispatchGlobalState] =
     useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const chartRef = useRef<ChartJSOrUndefined>(null);
@@ -74,7 +74,7 @@ function AuctionChart({
         arweaveDataProvider
           .getCurrentBlockHeight()
           .then((b: number) =>
-            dispatchGlobalState({ type: 'setBlockHieght', payload: b }),
+            dispatchGlobalState({ type: 'setBlockHeight', payload: b }),
           )
           .catch((error) => eventEmitter.emit('error', error));
       }
@@ -156,19 +156,27 @@ function AuctionChart({
     const auctionEnd = startBlock + duration;
     if (currentBlock >= auctionEnd) {
       // If auction has already ended, return the end time of the auction
-      return auctionEnd * 120_000;
+      return auctionEnd * AVERAGE_BLOCK_TIME;
     } else {
       // If auction is still ongoing, calculate the deadline as before
-      const deadline =
-        Date.now() +
-        getNextPriceUpdate({
-          currentBlockHeight: currentBlockHeight!,
-          startHeight: startBlock,
-          decayInterval: blockDecayInterval,
-        }) *
-          120_000;
+      const blockIntervalsPassed = Math.floor(
+        (currentBlock - startBlock) / blockDecayInterval,
+      );
+      const minBlockRange =
+        startBlock + blockIntervalsPassed * blockDecayInterval;
+      const blocksUntilDecay = currentBlock - minBlockRange;
+      const deadline = Date.now() + AVERAGE_BLOCK_TIME * blocksUntilDecay;
 
       return deadline;
+    }
+  }
+
+  async function updateBlockheight() {
+    try {
+      const blockHeight = await arweaveDataProvider.getCurrentBlockHeight();
+      dispatchGlobalState({ type: 'setBlockHeight', payload: blockHeight });
+    } catch (error) {
+      eventEmitter.emit('error', error);
     }
   }
 
@@ -189,7 +197,7 @@ function AuctionChart({
   return (
     <div
       id={id}
-      className="flex flex-column flex-center pointer"
+      className="flex flex-column flex-center pointer fade-in"
       style={{
         gap: '15px',
         width: 'fit-content',
@@ -361,16 +369,7 @@ function AuctionChart({
                 paddingBottom: '0px',
               }}
               format="H:mm:ss"
-              onFinish={() => {
-                arweaveDataProvider.getCurrentBlockHeight().then((block) =>
-                  block !== currentBlockHeight
-                    ? dispatchGlobalState({
-                        type: 'setBlockHieght',
-                        payload: block,
-                      })
-                    : null,
-                );
-              }}
+              onFinish={() => updateBlockheight()}
             />
           </span>
         ) : (

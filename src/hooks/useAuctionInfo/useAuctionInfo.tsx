@@ -6,6 +6,7 @@ import {
   calculateMinimumAuctionBid,
   generateAuction,
   isDomainAuctionable,
+  lowerCaseDomain,
   updatePrices,
 } from '../../utils';
 import eventEmitter from '../../utils/events';
@@ -25,7 +26,7 @@ export function useAuctionInfo(
   leaseDuration?: number,
 ) {
   const [
-    { pdnsSourceContract, blockHieght, walletAddress, gateway },
+    { pdnsSourceContract, blockHeight: blockHeight, walletAddress, gateway },
     dispatchGlobalState,
   ] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
@@ -54,12 +55,12 @@ export function useAuctionInfo(
         return;
       }
 
-      if (!blockHieght) {
+      if (!blockHeight) {
         arweaveDataProvider
           .getCurrentBlockHeight()
           .then((b: number) => {
             dispatchGlobalState({
-              type: 'setBlockHieght',
+              type: 'setBlockHeight',
               payload: b,
             });
           })
@@ -82,7 +83,8 @@ export function useAuctionInfo(
       }
 
       if (pdnsSourceContract?.auctions) {
-        const foundAuction = pdnsSourceContract?.auctions[domain];
+        const foundAuction =
+          pdnsSourceContract?.auctions[lowerCaseDomain(domain)];
 
         if (foundAuction) {
           const foundAuctionSettings =
@@ -117,7 +119,7 @@ export function useAuctionInfo(
             auctionSettings: pdnsSourceContract.settings.auctions,
             tierSettings: pdnsSourceContract.tiers,
             fees: pdnsSourceContract.fees,
-            currentBlockHeight: blockHieght,
+            currentBlockHeight: blockHeight,
             walletAddress,
           }); // sets contract id as atomic by default
           setAuction(newAuction);
@@ -134,7 +136,7 @@ export function useAuctionInfo(
       eventEmitter.emit('error', error);
     }
   }, [
-    blockHieght,
+    blockHeight,
     pdnsSourceContract?.auctions,
     pdnsSourceContract?.settings?.auctions,
     domain,
@@ -153,12 +155,12 @@ export function useAuctionInfo(
   }, [auction, pdnsSourceContract?.settings?.auctions?.history]);
 
   useEffect(() => {
-    if (auction && auctionSettings && blockHieght) {
+    if (auction && auctionSettings && blockHeight) {
       const calculatedPrice = calculateMinimumAuctionBid({
         startHeight: auction.startHeight,
         initialPrice: auction.startPrice,
         floorPrice: auction.floorPrice,
-        currentBlockHeight: blockHieght,
+        currentBlockHeight: blockHeight,
         decayInterval: auctionSettings.decayInterval,
         decayRate: auctionSettings.decayRate,
       });
@@ -174,7 +176,7 @@ export function useAuctionInfo(
       });
       setPrices(newPrices);
     }
-  }, [auction, auctionSettings, blockHieght]);
+  }, [auction, auctionSettings, blockHeight]);
 
   return {
     minimumAuctionBid: price,

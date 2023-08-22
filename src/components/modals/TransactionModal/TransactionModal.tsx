@@ -100,9 +100,7 @@ function TransactionModal({
               Contract ID:&nbsp;
               <CopyTextButton
                 copyText={contractId ? contractId.toString() : ''}
-                displayText={`${contractId!
-                  .toString()
-                  .slice(0, isMobile ? 6 : 0)}${
+                body={`${contractId!.toString().slice(0, isMobile ? 6 : 0)}${
                   isMobile ? '...' : ''
                 }${contractId!.toString().slice(isMobile ? -6 : 0)}`}
                 size={'70%'}
