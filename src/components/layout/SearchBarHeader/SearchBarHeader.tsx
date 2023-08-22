@@ -3,7 +3,7 @@ import { ArrowDownOutlined, CheckCircleFilled } from '@ant-design/icons';
 import { useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { SearchBarHeaderProps } from '../../../types';
-import { encodeDomainToASCII, isDomainReservedLength } from '../../../utils';
+import { isDomainReservedLength, lowerCaseDomain } from '../../../utils';
 import './styles.css';
 
 function SearchBarHeader({
@@ -16,7 +16,7 @@ function SearchBarHeader({
   const isMobile = useIsMobile();
 
   // unavailable condition
-  if (text && pdnsSourceContract?.auctions?.[text]) {
+  if (text && pdnsSourceContract?.auctions?.[lowerCaseDomain(text)]) {
     return (
       <span
         className="text-medium white center flex"
@@ -34,7 +34,7 @@ function SearchBarHeader({
 
   // reserved condition
   if (
-    (text && reservedList.includes(encodeDomainToASCII(text))) ||
+    (text && reservedList.includes(lowerCaseDomain(text))) ||
     (text && isDomainReservedLength(text))
   ) {
     return (

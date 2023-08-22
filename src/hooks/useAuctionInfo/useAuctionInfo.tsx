@@ -6,6 +6,7 @@ import {
   calculateMinimumAuctionBid,
   generateAuction,
   isDomainAuctionable,
+  lowerCaseDomain,
   updatePrices,
 } from '../../utils';
 import eventEmitter from '../../utils/events';
@@ -82,7 +83,8 @@ export function useAuctionInfo(
       }
 
       if (pdnsSourceContract?.auctions) {
-        const foundAuction = pdnsSourceContract?.auctions[domain];
+        const foundAuction =
+          pdnsSourceContract?.auctions[lowerCaseDomain(domain)];
 
         if (foundAuction) {
           const foundAuctionSettings =

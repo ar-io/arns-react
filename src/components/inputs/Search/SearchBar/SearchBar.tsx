@@ -6,15 +6,16 @@ import {
   useAuctionInfo,
   useIsFocused,
   useIsMobile,
+  useRegistrationStatus,
   useWalletAddress,
 } from '../../../../hooks';
-import useRegistrationStatus from '../../../../hooks/useRegistrationStatus/useRegistrationStatus';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../../state/contexts/RegistrationState';
 import { SearchBarProps } from '../../../../types';
 import {
   decodeDomainToASCII,
   encodeDomainToASCII,
+  lowerCaseDomain,
   validateMaxASCIILength,
   validateMinASCIILength,
   validateNoLeadingOrTrailingDashes,
@@ -149,7 +150,7 @@ function SearchBar(props: SearchBarProps) {
     } else if (!searchSuccess && searchBarText && values) {
       onFailure(
         searchBarText,
-        values[encodeDomainToASCII(searchBarText)].contractTxId,
+        values[lowerCaseDomain(searchBarText)].contractTxId,
       );
     }
   }
@@ -267,8 +268,8 @@ function SearchBar(props: SearchBarProps) {
           onPressEnter={() => _onSubmit()}
           disabled={disabled}
           placeholder={placeholderText}
-          value={searchBarText?.trim()}
-          setValue={(v) => _onChange(v.trim())}
+          value={searchBarText}
+          setValue={(v) => _onChange(lowerCaseDomain(v))}
           onClick={() => _onFocus()}
           inputCustomStyle={{ height }}
           wrapperCustomStyle={{
@@ -334,6 +335,7 @@ function SearchBar(props: SearchBarProps) {
           <></>
         ) : (
           <button
+            data-testid="search-button"
             className="button pointer"
             style={{
               width: `${height}px`,
@@ -385,7 +387,10 @@ function SearchBar(props: SearchBarProps) {
                 style={{ fontSize: '13px', width: 'fit-content' }}
               >
                 Started by:{' '}
-                {pdnsSourceContract?.auctions?.[searchBarText!]?.initiator}
+                {
+                  pdnsSourceContract?.auctions?.[lowerCaseDomain(searchBarText)]
+                    ?.initiator
+                }
               </span>
             </div>
           ) : (

@@ -53,7 +53,7 @@ function ValidationInput({
   value: string | number | undefined;
   setValue: (text: string) => void;
   validityCallback?: (validity: boolean) => void;
-  validationPredicates: {
+  validationPredicates?: {
     [x: string]: {
       fn: (value: any) => Promise<any>;
       required?: boolean;
@@ -118,6 +118,8 @@ function ValidationInput({
         return;
       }
     }
+    if (!validationPredicates) return;
+
     setValidating(true);
     setValue(newValue);
 
@@ -169,6 +171,7 @@ function ValidationInput({
       >
         <div className="flex" style={{ width: '100%', position: 'relative' }}>
           <input
+            data-testid={inputId}
             spellCheck={false}
             ref={inputRef}
             onKeyDown={(e) =>
