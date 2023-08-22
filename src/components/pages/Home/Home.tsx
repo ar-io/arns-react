@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { useIsMobile } from '../../../hooks';
-import useRegistrationStatus from '../../../hooks/useRegistrationStatus/useRegistrationStatus';
+import { useIsMobile, useRegistrationStatus } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { ArweaveTransactionID } from '../../../types';

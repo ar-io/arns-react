@@ -6,9 +6,9 @@ import {
   useAuctionInfo,
   useIsFocused,
   useIsMobile,
+  useRegistrationStatus,
   useWalletAddress,
 } from '../../../../hooks';
-import useRegistrationStatus from '../../../../hooks/useRegistrationStatus/useRegistrationStatus';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../../state/contexts/RegistrationState';
 import { SearchBarProps } from '../../../../types';

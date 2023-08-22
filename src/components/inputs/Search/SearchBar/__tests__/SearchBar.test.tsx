@@ -13,12 +13,14 @@ jest.mock('../../../../../hooks', () => ({
     walletAddress: undefined,
     wallet: undefined,
   })),
-  useRegistrationStatus: jest.fn(() => ({
-    isAvailable: false,
-    isAuction: false,
-    isReserved: false,
-    loading: false,
-  })),
+  useRegistrationStatus: jest.fn(() => [
+    {
+      isAvailable: false,
+      isAuction: false,
+      isReserved: false,
+      loading: false,
+    },
+  ]),
 }));
 
 const TEST_RECORDS = {

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useArweaveCompositeProvider } from '../useArweaveCompositeProvider/useArweaveCompositeProvider';
 
-function useRegistrationStatus(domain: string) {
+export function useRegistrationStatus(domain: string) {
   const [{ pdnsSourceContract }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
 
@@ -49,5 +49,3 @@ function useRegistrationStatus(domain: string) {
     updateRegistrationStatus,
   ] as const;
 }
-
-export default useRegistrationStatus;
