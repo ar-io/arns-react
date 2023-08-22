@@ -1,4 +1,4 @@
-import { act, cleanup, render } from '@testing-library/react';
+import { cleanup, render } from '@testing-library/react';
 import { HashRouter as Router } from 'react-router-dom';
 
 import Home from '../Home';
@@ -6,13 +6,11 @@ import Home from '../Home';
 describe('Home', () => {
   afterEach(cleanup);
 
-  test('render Home', async () => {
-    await act(() =>
-      render(
-        <Router>
-          <Home />
-        </Router>,
-      ),
+  test('render Home', () => {
+    render(
+      <Router>
+        <Home />
+      </Router>,
     );
   });
 });
