@@ -11,36 +11,6 @@ describe('calculatePDNSNamePrice', () => {
       calculatePDNSNamePrice({
         domain: 'a',
         years: 0,
-        tier: '',
-        tiers: [],
-        fees,
-        type: TRANSACTION_TYPES.LEASE,
-        currentBlockHeight: 1,
-      });
-    }).toThrow();
-  });
-
-  test('should throw an error if selectedTier is less than one', () => {
-    expect(() => {
-      calculatePDNSNamePrice({
-        domain: 'a',
-        years: 1,
-        tier: '',
-        tiers: [],
-        fees,
-        type: TRANSACTION_TYPES.LEASE,
-        currentBlockHeight: 1,
-      });
-    }).toThrow();
-  });
-
-  test('should throw an error if selectedTier is greater than 3', () => {
-    expect(() => {
-      calculatePDNSNamePrice({
-        domain: 'a',
-        years: 1,
-        tier: '',
-        tiers: [],
         fees,
         type: TRANSACTION_TYPES.LEASE,
         currentBlockHeight: 1,
@@ -53,8 +23,6 @@ describe('calculatePDNSNamePrice', () => {
       calculatePDNSNamePrice({
         domain: 'www',
         years: 1,
-        tier: '',
-        tiers: [],
         fees,
         type: TRANSACTION_TYPES.LEASE,
         currentBlockHeight: 1,
@@ -65,12 +33,10 @@ describe('calculatePDNSNamePrice', () => {
   // pricing is still somewhat in flux, can fix this later
   // TODO add this test with proper pricing
 
-  //   test('should return the proper price based on years, tier and feeds', () => {
+  //   test('should return the proper price based on years, and feeds', () => {
   //     const details = {
   //       domain: 'www',
   //       years: 1,
-  //       tier: "",
-  //       tiers: [],
   //       fees,
   //       type: TRANSACTION_TYPES.LEASE,
   //       reservedList: [],

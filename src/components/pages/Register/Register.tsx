@@ -93,19 +93,11 @@ function RegisterNameForm() {
       }
     }
     // if not auctionable, use instant buy prices
-    if (
-      pdnsSourceContract.tiers &&
-      pdnsSourceContract.fees &&
-      domain &&
-      blockHeight &&
-      !isLiveAuction
-    ) {
+    if (pdnsSourceContract.fees && domain && blockHeight && !isLiveAuction) {
       const newFee = calculatePDNSNamePrice({
         domain: domain!,
         type: registrationType,
         years: leaseDuration,
-        tier: pdnsSourceContract.tiers.current[0],
-        tiers: pdnsSourceContract.tiers.history,
         fees: pdnsSourceContract.fees,
         currentBlockHeight: blockHeight,
       });
@@ -405,7 +397,6 @@ function RegisterNameForm() {
                     ? encodeDomainToASCII(domain)
                     : domain,
                 contractTxId: antID ? antID.toString() : ATOMIC_FLAG,
-                tier: pdnsSourceContract.tiers.current[0],
                 years:
                   registrationType === TRANSACTION_TYPES.LEASE
                     ? leaseDuration

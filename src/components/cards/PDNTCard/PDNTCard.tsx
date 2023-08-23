@@ -124,14 +124,7 @@ function PDNTCard(props: PDNSMapping) {
           'No state passed and unable to generate ANT contract state',
         );
       }
-
-      const tiers = pdnsSourceContract.tiers;
-
-      const tierDetails = pdnsSourceContract.records[name]
-        ? tiers.history.find(
-            (tier) => tier.id === pdnsSourceContract.records[name].tier,
-          )
-        : undefined;
+      const undernameCount = pdnsSourceContract.records[name]?.undernames;
 
       const allPDNTDetails: typeof ANT_DETAIL_MAPPINGS = {
         // TODO: remove this when all pdnts have controllers
@@ -145,7 +138,7 @@ function PDNTCard(props: PDNSMapping) {
             ? 'Indefinite'
             : +pdnsSourceContract.records[name].endTimestamp * 1000
           : 'N/A',
-        maxUndernames: 'Up to ' + tierDetails?.settings.maxUndernames ?? 100,
+        maxUndernames: 'Up to ' + undernameCount,
         name: antContractState.name,
         ticker: antContractState.ticker,
         owner: antContractState.owner,

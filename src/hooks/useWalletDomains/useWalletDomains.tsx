@@ -19,6 +19,7 @@ import {
   PDNSTableRow,
   PDNTContractJSON,
 } from '../../types';
+import { DEFAULT_MAX_UNDERNAMES } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 
 export function useWalletDomains(ids: ArweaveTransactionID[]) {
@@ -158,22 +159,24 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
                   : {}
               }
             />
-            <span>Tier</span>
+            <span>Undernames</span>
             <PriceTagIcon width={24} height={24} fill={'var(--text-grey)'} />
           </button>
         ),
-        dataIndex: 'tier',
-        key: 'tier',
+        dataIndex: 'undernames',
+        key: 'undernames',
         width: '18%',
         className: 'white assets-table-header',
         align: 'center',
         ellipsis: true,
-        render: (tier: number | string) => `Tier ${tier}`,
+        render: (undernames: number | string) => undernames.toLocaleString(),
         onHeaderCell: () => {
           return {
             onClick: () => {
               rows.sort((a: PDNSTableRow, b: PDNSTableRow) =>
-                sortAscending ? +a.tier - +b.tier : +b.tier - +a.tier,
+                sortAscending
+                  ? +a.undernames - +b.undernames
+                  : +b.undernames - +a.undernames,
               );
               // forces update of rows
               setRows([...rows]);
@@ -341,11 +344,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
               : 'N/A',
           expiration: new Date(domain.endTimestamp * 1000),
           status: confirmations ?? 0,
-          tier:
-            Object.keys(pdnsSourceContract.tiers.current).find(
-              (k: string) =>
-                pdnsSourceContract.tiers.current[+k] === domain.tier,
-            ) ?? 1,
+          undernames: domain?.undernames ?? DEFAULT_MAX_UNDERNAMES,
           key: `${domain.name}-${contractTxId.toString()}`,
         }));
         fetchedRows.push(...rowData);

@@ -5,21 +5,24 @@ describe('isPDNSDomainNameAvailable', () => {
   const records = {
     'domain-0': {
       contractTxId: 'fake-tx-id-0',
-      tier: 'a27dbfe4-6992-4276-91fb-5b97ae8c3ffa',
+      startTimestamp: 0,
       endTimestamp: 0,
       type: TRANSACTION_TYPES.LEASE,
+      undernames: 10,
     },
     'domain-1': {
       contractTxId: 'fake-tx-id-0',
-      tier: 'a27dbfe4-6992-4276-91fb-5b97ae8c3ffa',
+      startTimestamp: 0,
       endTimestamp: 0,
       type: TRANSACTION_TYPES.LEASE,
+      undernames: 10,
     },
     'domain-2': {
       contractTxId: 'fake-tx-id-0',
-      tier: 'a27dbfe4-6992-4276-91fb-5b97ae8c3ffa',
+      startTimestamp: 0,
       endTimestamp: 0,
       type: TRANSACTION_TYPES.LEASE,
+      undernames: 10,
     },
   };
 
