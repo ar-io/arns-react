@@ -163,6 +163,7 @@ export interface SmartweaveContractInteractionProvider {
     contractTxId,
     payload,
     dryWrite,
+    tags,
   }: {
     walletAddress: ArweaveTransactionID;
     contractTxId: ArweaveTransactionID;
@@ -171,6 +172,7 @@ export interface SmartweaveContractInteractionProvider {
       [x: string]: any;
     };
     dryWrite?: boolean;
+    tags?: TransactionTag[];
   }): Promise<ArweaveTransactionID | undefined>;
   deployContract({
     walletAddress,
@@ -436,6 +438,7 @@ export type BuyRecordPayload = {
   state?: PDNTContractJSON;
   qty?: number; // only used when bidding on a pre-existing auction
   auction?: boolean;
+  targetId?: ArweaveTransactionID;
 };
 
 export type SubmitAuctionBidPayload = {

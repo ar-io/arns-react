@@ -80,6 +80,7 @@ export class WarpDataProvider
     contractTxId,
     payload,
     dryWrite = true,
+    tags,
   }: {
     walletAddress: ArweaveTransactionID;
     contractTxId: ArweaveTransactionID;
@@ -88,6 +89,7 @@ export class WarpDataProvider
       [x: string]: any;
     };
     dryWrite?: boolean;
+    tags: TransactionTag[];
   }): Promise<ArweaveTransactionID | undefined> {
     const payloadSize = byteSize(JSON.stringify(payload));
     if (!payload) {
@@ -133,6 +135,7 @@ export class WarpDataProvider
     }
     const result = await contract.writeInteraction(payload, {
       disableBundling: true,
+      tags: tags,
     });
     // TODO: check for dry write options on writeInteraction
     if (!result) {

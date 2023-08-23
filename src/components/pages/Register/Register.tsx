@@ -1,9 +1,14 @@
 import { CheckCircleFilled } from '@ant-design/icons';
+import { Tooltip } from 'antd';
 import emojiRegex from 'emoji-regex';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
-import { useArweaveCompositeProvider, useAuctionInfo } from '../../../hooks';
+import {
+  useArweaveCompositeProvider,
+  useAuctionInfo,
+  useIsFocused,
+} from '../../../hooks';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
@@ -14,10 +19,12 @@ import {
   INTERACTION_TYPES,
   PDNTContractJSON,
   TRANSACTION_TYPES,
+  VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import {
   calculatePDNSNamePrice,
   encodeDomainToASCII,
+  isArweaveTransactionID,
   isDomainAuctionable,
 } from '../../../utils';
 import {
@@ -26,9 +33,11 @@ import {
   MIN_LEASE_DURATION,
   PDNS_REGISTRY_ADDRESS,
 } from '../../../utils/constants';
+import { CirclePlus } from '../../icons';
 import YearsCounter from '../../inputs/Counter/Counter';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
 import NameTokenSelector from '../../inputs/text/NameTokenSelector/NameTokenSelector';
+import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import Loader from '../../layout/Loader/Loader';
 import TransactionCost from '../../layout/TransactionCost/TransactionCost';
 import { StepProgressBar } from '../../layout/progress';
@@ -47,6 +56,8 @@ function RegisterNameForm() {
     registrationType,
     leaseDuration,
   );
+  const [targetId, setTargetId] = useState<string>();
+  const targetIdFocused = useIsFocused('target-id-input');
   const { name } = useParams();
   const navigate = useNavigate();
 
@@ -328,7 +339,7 @@ function RegisterNameForm() {
             </div>
           </div>
 
-          <div className="flex flex-column" style={{ gap: '2em' }}>
+          <div className="flex flex-column" style={{ gap: '1em' }}>
             <NameTokenSelector
               selectedTokenCallback={(id) =>
                 id
@@ -339,6 +350,72 @@ function RegisterNameForm() {
                     })
               }
             />
+
+            <div
+              className="name-token-input-wrapper"
+              style={{
+                border:
+                  targetIdFocused || targetId
+                    ? 'solid 1px var(--text-white)'
+                    : 'solid 1px var(--text-faded)',
+                position: 'relative',
+              }}
+            >
+              <span
+                className="flex center pointer"
+                style={{ position: 'absolute', left: '16px' }}
+              >
+                <CirclePlus width={30} height={30} fill={'var(--text-white)'} />
+              </span>
+              <ValidationInput
+                inputId={'target-id-input'}
+                value={targetId}
+                setValue={(v: string) => setTargetId(v.trim())}
+                wrapperCustomStyle={{
+                  width: '100%',
+                  hieght: '45px',
+                  borderRadius: '0px',
+                  backgroundColor: 'var(--card-bg)',
+                  boxSizing: 'border-box',
+                }}
+                inputClassName={`white name-token-input`}
+                inputCustomStyle={{
+                  paddingLeft: '60px',
+                  background: 'transparent',
+                }}
+                maxLength={43}
+                placeholder={'Arweave Transaction ID'}
+                validationPredicates={{
+                  [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
+                    fn: (id: string) =>
+                      arweaveDataProvider.validateArweaveId(id),
+                  },
+                }}
+                showValidationChecklist={false}
+                showValidationIcon={true}
+              />
+              <span className="grey pointer hover" style={{ fontSize: '12px' }}>
+                <Tooltip
+                  placement={'right'}
+                  autoAdjustOverflow={true}
+                  arrow={false}
+                  overlayInnerStyle={{
+                    width: '190px',
+                    color: 'var(--text-black)',
+                    textAlign: 'center',
+                    fontFamily: 'Rubik-Bold',
+                    fontSize: '14px',
+                    backgroundColor: 'var(--text-white)',
+                    padding: '15px',
+                  }}
+                  title={
+                    'The Target ID is the arweave ID that will be resolved by the ArNS name.'
+                  }
+                >
+                  Optional
+                </Tooltip>
+              </span>
+            </div>
 
             <TransactionCost fee={fee} />
             {domain &&
@@ -385,54 +462,58 @@ function RegisterNameForm() {
               <></>
             )}
           </div>
-          <WorkflowButtons
-            showBack={true}
-            showNext={true}
-            disableNext={false}
-            nextText="Next"
-            onNext={() => {
-              const buyRecordPayload: BuyRecordPayload = {
-                name:
-                  domain && emojiRegex().test(domain)
-                    ? encodeDomainToASCII(domain)
-                    : domain,
-                contractTxId: antID ? antID.toString() : ATOMIC_FLAG,
-                years:
-                  registrationType === TRANSACTION_TYPES.LEASE
-                    ? leaseDuration
-                    : undefined,
-                type: registrationType,
-                auction: isDomainAuctionable({
-                  domain: domain,
-                  registrationType: registrationType,
-                  reservedList: Object.keys(pdnsSourceContract.reserved),
-                }),
-              };
-
-              dispatchTransactionState({
-                type: 'setTransactionData',
-                payload: {
-                  assetId: PDNS_REGISTRY_ADDRESS,
-                  functionName: 'buyRecord',
-                  ...buyRecordPayload,
-                },
-              });
-              dispatchTransactionState({
-                type: 'setInteractionType',
-                payload: INTERACTION_TYPES.BUY_RECORD,
-              });
-              // navigate to the transaction page, which will load the updated state of the transaction context
-              navigate('/transaction', {
-                state: `/register/${domain}`,
-              });
-              dispatchRegisterState({
-                type: 'reset',
-              });
-            }}
-            onBack={() => navigate('/', { state: `/register/${domain}` })}
-            customNextStyle={{ width: '100px' }}
-          />
         </div>
+        <WorkflowButtons
+          showBack={true}
+          showNext={true}
+          disableNext={false}
+          nextText="Next"
+          onNext={() => {
+            const buyRecordPayload: BuyRecordPayload = {
+              name:
+                domain && emojiRegex().test(domain)
+                  ? encodeDomainToASCII(domain)
+                  : domain,
+              contractTxId: antID ? antID.toString() : ATOMIC_FLAG,
+              years:
+                registrationType === TRANSACTION_TYPES.LEASE
+                  ? leaseDuration
+                  : undefined,
+              type: registrationType,
+              auction: isDomainAuctionable({
+                domain: domain,
+                registrationType: registrationType,
+                reservedList: Object.keys(pdnsSourceContract.reserved),
+              }),
+              targetId:
+                targetId && isArweaveTransactionID(targetId.trim())
+                  ? new ArweaveTransactionID(targetId)
+                  : undefined,
+            };
+
+            dispatchTransactionState({
+              type: 'setTransactionData',
+              payload: {
+                assetId: PDNS_REGISTRY_ADDRESS,
+                functionName: 'buyRecord',
+                ...buyRecordPayload,
+              },
+            });
+            dispatchTransactionState({
+              type: 'setInteractionType',
+              payload: INTERACTION_TYPES.BUY_RECORD,
+            });
+            // navigate to the transaction page, which will load the updated state of the transaction context
+            navigate('/transaction', {
+              state: `/register/${domain}`,
+            });
+            dispatchRegisterState({
+              type: 'reset',
+            });
+          }}
+          onBack={() => navigate('/', { state: `/register/${domain}` })}
+          customNextStyle={{ width: '100px' }}
+        />
       </div>
     </div>
   );

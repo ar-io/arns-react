@@ -49,6 +49,7 @@ export class ArweaveCompositeDataProvider
     walletAddress,
     contractTxId,
     payload,
+    tags,
   }: {
     walletAddress: ArweaveTransactionID;
     contractTxId: ArweaveTransactionID;
@@ -57,11 +58,13 @@ export class ArweaveCompositeDataProvider
       [x: string]: any;
     };
     dryWrite?: boolean;
+    tags?: TransactionTag[];
   }): Promise<ArweaveTransactionID | undefined> {
     return await this._interactionProvider.writeTransaction({
       walletAddress,
       contractTxId,
       payload,
+      tags,
     });
   }
 
