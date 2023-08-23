@@ -22,6 +22,7 @@ import eventEmitter from '../../../utils/events';
 import { ExternalLinkIcon } from '../../icons';
 import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
 import { Loader } from '../../layout';
+import ArweaveID, { ArweaveIdTypes } from '../../layout/ArweaveID/ArweaveID';
 import './styles.css';
 
 export const ANT_TRANSACTION_DETAILS = {
@@ -196,6 +197,16 @@ function PDNTCard(props: PDNSMapping) {
     setIsLoading(false);
   }
 
+  function handleLinkType(key: string) {
+    if (key === 'Controllers' || key === 'Owner') {
+      return ArweaveIdTypes.ADDRESS;
+    }
+    if (key === 'Contract ID') {
+      return ArweaveIdTypes.CONTRACT;
+    }
+    return ArweaveIdTypes.TRANSACTION;
+  }
+
   if (isLoading) {
     return <Loader size={80} />;
   }
@@ -244,39 +255,12 @@ function PDNTCard(props: PDNSMapping) {
                   textAlign: 'left',
                 }}
               >
-                {key === 'Transaction ID' ? (
-                  <Link
-                    to={`https://viewblock.io/arweave/tx/${value}`}
-                    rel="noreferrer"
-                    target="_blank"
-                    className="link hover"
-                    style={{ textDecoration: 'underline' }}
-                  >
-                    {value}&nbsp;
-                    <ExternalLinkIcon
-                      width={'20px'}
-                      height={'20px'}
-                      fill="var(--text-grey)"
-                    />
-                  </Link>
-                ) : isArweaveTransactionID(value) ? (
-                  <CopyTextButton
-                    body={
-                      isMobile
-                        ? `${value.slice(0, 2)}...${value.slice(-2)}`
-                        : value
-                    }
-                    copyText={value}
-                    size={15}
-                    wrapperStyle={{
-                      color: 'white',
-                      padding: '0px',
-                      fontFamily: 'Rubik',
-                      justifyContent: 'flex-start',
-                      alignItems: 'center',
-                      fill: 'var(--text-grey)',
-                    }}
-                    position={'relative'}
+                {isArweaveTransactionID(value) ? (
+                  <ArweaveID
+                    id={new ArweaveTransactionID(value)}
+                    type={handleLinkType(key)}
+                    shouldLink
+                    characterCount={isMobile ? 4 : undefined}
                   />
                 ) : key === 'Lease Duration' ? (
                   <span>

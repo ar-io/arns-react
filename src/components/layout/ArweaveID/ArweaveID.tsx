@@ -50,8 +50,8 @@ function ArweaveID({
               to={ARWEAVE_ID_MAPPING[type] + id.toString()}
               target="_blank"
               rel="noreferrer"
-              className="link"
-              style={{ color: 'inherit' }}
+              className="link hover"
+              style={{ color: 'var(--text-link)' }}
             >
               {handleText(id.toString())}
             </Link>

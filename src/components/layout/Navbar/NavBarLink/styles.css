@@ -2,8 +2,7 @@
   display: flex;
   width: fit-content;
   color: var(--text-white);
-  font-weight: 600;
+  font-weight: 400;
   font-size: 16px;
-  font-family: 'Rubik-Bold';
   text-decoration: none;
 }
