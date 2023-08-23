@@ -27,14 +27,6 @@ const NavGroup = () => {
                 />
               );
           })}
-
-          <Link
-            to="auctions"
-            state={{ from: location.pathname }}
-            className="button text-medium bold white hover"
-          >
-            Live Auctions
-          </Link>
           {!wallet || !walletAddress ? <ConnectButton /> : <NavMenuCard />}
         </>
       ) : (
