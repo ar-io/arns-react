@@ -117,14 +117,17 @@ function NavMenuCard() {
           walletAddress
             ? {
                 borderRadius: 'var(--corner-radius',
-                borderWidth: '2px',
+                borderWidth: '1px',
                 padding: '10px',
+                borderColor: 'var(--text-faded)',
+                width: 'fit-content',
+                minWidth: 'unset',
               }
             : {}
         }
       >
         {walletAddress ? (
-          <WalletAddress />
+          <WalletAddress characterCount={4} />
         ) : (
           <MenuIcon width={'24px'} height={'24px'} fill={'var(--text-white)'} />
         )}
@@ -161,11 +164,9 @@ function NavMenuCard() {
           ) : (
             <>
               <CopyTextButton
-                body={`${walletAddress
+                body={`${walletAddress.toString().slice(0, 7)}...${walletAddress
                   .toString()
-                  .slice(0, isMobile ? 2 : 4)}...${walletAddress
-                  .toString()
-                  .slice(isMobile ? -2 : -4)}`}
+                  .slice(-7)}`}
                 copyText={walletAddress.toString()}
                 size={20}
                 wrapperStyle={{

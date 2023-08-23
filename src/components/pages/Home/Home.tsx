@@ -228,19 +228,20 @@ function Home() {
             }
             height={65}
           />
-          {!isValidatingRegistration &&
-          updateShowFeaturedDomains({
-            auction: isAuction,
-            reserved: isReserved,
-            domains: featuredDomains ?? {},
-            id: antID,
-            name: lowerCaseDomain(domain),
-          }) &&
-          featuredDomains ? (
-            <FeaturedDomains domains={featuredDomains} />
-          ) : (
-            <></>
-          )}
+          {
+            //!isValidatingRegistration &&
+            updateShowFeaturedDomains({
+              auction: isAuction,
+              reserved: isReserved,
+              domains: featuredDomains ?? {},
+              id: antID,
+              name: lowerCaseDomain(domain),
+            }) && featuredDomains ? (
+              <FeaturedDomains domains={featuredDomains} />
+            ) : (
+              <></>
+            )
+          }
         </div>
       )}
     </div>

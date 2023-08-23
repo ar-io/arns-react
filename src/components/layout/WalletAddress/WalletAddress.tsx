@@ -1,21 +1,32 @@
-import { useIsMobile, useWalletAddress } from '../../../hooks';
+import { useWalletAddress } from '../../../hooks';
+import Loader from '../Loader/Loader';
 import './styles.css';
 
-export function WalletAddress() {
+export function WalletAddress({ characterCount }: { characterCount?: number }) {
   const { walletAddress } = useWalletAddress();
-  const isMobile = useIsMobile();
+
+  function handleText(text: string) {
+    if (characterCount) {
+      const shownCount = Math.round(characterCount / 2);
+      return `${text.slice(0, shownCount)}...${text.slice(
+        text.length - shownCount,
+        text.length,
+      )}`;
+    }
+
+    return text;
+  }
   return (
     <>
       {walletAddress ? (
         <div className="flex-row" style={{ gap: '0.4em' }}>
           <span className="dot"></span>
           <span className="text white">
-            {walletAddress.toString().slice(0, isMobile ? 2 : 4)}...
-            {walletAddress.toString().slice(isMobile ? -2 : -4)}
+            {handleText(walletAddress.toString())}
           </span>
         </div>
       ) : (
-        <></>
+        <Loader size={20} />
       )}
     </>
   );
