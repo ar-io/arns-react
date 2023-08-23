@@ -251,7 +251,8 @@ a:active {
 .modal-container {
   position: fixed;
   display: flex;
-  background-color: var(--modal-bg);
+  background-color: rgb(0,0,0,0.5);
+  backdrop-filter: blur(2px);
   justify-content: center;
   align-items: center;
   width: 100%;
