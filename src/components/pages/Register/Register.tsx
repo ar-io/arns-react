@@ -19,10 +19,12 @@ import {
   INTERACTION_TYPES,
   PDNTContractJSON,
   TRANSACTION_TYPES,
+  VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import {
   calculatePDNSNamePrice,
   encodeDomainToASCII,
+  isArweaveTransactionID,
   isDomainAuctionable,
 } from '../../../utils';
 import {
@@ -34,8 +36,8 @@ import {
 import { CirclePlus } from '../../icons';
 import YearsCounter from '../../inputs/Counter/Counter';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
-import ArweaveIdInput from '../../inputs/text/ArweaveIdInput/ArweaveIdInput';
 import NameTokenSelector from '../../inputs/text/NameTokenSelector/NameTokenSelector';
+import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import Loader from '../../layout/Loader/Loader';
 import TransactionCost from '../../layout/TransactionCost/TransactionCost';
 import { StepProgressBar } from '../../layout/progress';
@@ -54,7 +56,7 @@ function RegisterNameForm() {
     registrationType,
     leaseDuration,
   );
-  const [targetId, setTargetId] = useState<ArweaveTransactionID>();
+  const [targetId, setTargetId] = useState<string>();
   const targetIdFocused = useIsFocused('target-id-input');
   const { name } = useParams();
   const navigate = useNavigate();
@@ -348,57 +350,72 @@ function RegisterNameForm() {
                     })
               }
             />
-            <ArweaveIdInput
-              id={'target-id-input'}
-              beforeElement={
-                <span
-                  className="flex center pointer"
-                  style={{ position: 'absolute', left: '16px' }}
-                >
-                  <CirclePlus
-                    width={30}
-                    height={30}
-                    fill={'var(--text-white)'}
-                  />
-                </span>
-              }
-              arweaveIdCallback={(id) => setTargetId(id)}
-              afterElement={
-                <span
-                  className="grey pointer hover"
-                  style={{ fontSize: '12px' }}
-                >
-                  <Tooltip
-                    placement={'right'}
-                    autoAdjustOverflow={true}
-                    arrow={false}
-                    overlayInnerStyle={{
-                      width: '190px',
-                      color: 'var(--text-black)',
-                      textAlign: 'center',
-                      fontFamily: 'Rubik-Bold',
-                      fontSize: '14px',
-                      backgroundColor: 'var(--text-white)',
-                      padding: '15px',
-                    }}
-                    title={
-                      'The Target ID is the arweave ID that will be resolved by the ArNS name.'
-                    }
-                  >
-                    Optional
-                  </Tooltip>
-                </span>
-              }
-              inputStyle={{ paddingLeft: '60px', background: 'transparent' }}
-              wrapperStyle={{
+
+            <div
+              className="name-token-input-wrapper"
+              style={{
                 border:
                   targetIdFocused || targetId
                     ? 'solid 1px var(--text-white)'
                     : 'solid 1px var(--text-faded)',
                 position: 'relative',
               }}
-              placeholder="Add a Target ID"
-            />
+            >
+              <span
+                className="flex center pointer"
+                style={{ position: 'absolute', left: '16px' }}
+              >
+                <CirclePlus width={30} height={30} fill={'var(--text-white)'} />
+              </span>
+              <ValidationInput
+                inputId={'target-id-input'}
+                value={targetId}
+                setValue={(v: string) => setTargetId(v.trim())}
+                wrapperCustomStyle={{
+                  width: '100%',
+                  hieght: '45px',
+                  borderRadius: '0px',
+                  backgroundColor: 'var(--card-bg)',
+                  boxSizing: 'border-box',
+                }}
+                inputClassName={`white name-token-input`}
+                inputCustomStyle={{
+                  paddingLeft: '60px',
+                  background: 'transparent',
+                }}
+                maxLength={43}
+                placeholder={'Arweave Transaction ID'}
+                validationPredicates={{
+                  [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
+                    fn: (id: string) =>
+                      arweaveDataProvider.validateArweaveId(id),
+                  },
+                }}
+                showValidationChecklist={false}
+                showValidationIcon={true}
+              />
+              <span className="grey pointer hover" style={{ fontSize: '12px' }}>
+                <Tooltip
+                  placement={'right'}
+                  autoAdjustOverflow={true}
+                  arrow={false}
+                  overlayInnerStyle={{
+                    width: '190px',
+                    color: 'var(--text-black)',
+                    textAlign: 'center',
+                    fontFamily: 'Rubik-Bold',
+                    fontSize: '14px',
+                    backgroundColor: 'var(--text-white)',
+                    padding: '15px',
+                  }}
+                  title={
+                    'The Target ID is the arweave ID that will be resolved by the ArNS name.'
+                  }
+                >
+                  Optional
+                </Tooltip>
+              </span>
+            </div>
 
             <TransactionCost fee={fee} />
             {domain &&
@@ -468,7 +485,10 @@ function RegisterNameForm() {
                 registrationType: registrationType,
                 reservedList: Object.keys(pdnsSourceContract.reserved),
               }),
-              targetId: targetId,
+              targetId:
+                targetId && isArweaveTransactionID(targetId.trim())
+                  ? new ArweaveTransactionID(targetId)
+                  : undefined,
             };
 
             dispatchTransactionState({
