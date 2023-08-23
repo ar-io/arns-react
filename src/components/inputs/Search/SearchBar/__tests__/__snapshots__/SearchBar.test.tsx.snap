@@ -24,11 +24,11 @@ exports[`SearchBar handles a capitalized name correctly 1`] = `
             data-testid="searchbar-input-id"
             enterkeyhint="search"
             id="searchbar-input-id"
-            pattern="^[a-zA-Z0-9-]{0,32}$"
+            pattern="^[a-zA-Z0-9-]{0,51}$"
             placeholder="Find a name"
             spellcheck="false"
             type="search"
-            value="ardrive"
+            value="ARDRIVE"
           />
           <div
             style="position: absolute; right: 10px; top: 25%;"
@@ -99,7 +99,7 @@ exports[`SearchBar handles a capitalized name correctly 1`] = `
                   />
                 </svg>
               </span>
-              Max. 32 characters
+              Max. 51 characters
             </span>
           </span>
           <span
@@ -213,7 +213,7 @@ exports[`SearchBar handles a lowercase name correctly 1`] = `
             data-testid="searchbar-input-id"
             enterkeyhint="search"
             id="searchbar-input-id"
-            pattern="^[a-zA-Z0-9-]{0,32}$"
+            pattern="^[a-zA-Z0-9-]{0,51}$"
             placeholder="Find a name"
             spellcheck="false"
             type="search"
@@ -288,7 +288,7 @@ exports[`SearchBar handles a lowercase name correctly 1`] = `
                   />
                 </svg>
               </span>
-              Max. 32 characters
+              Max. 51 characters
             </span>
           </span>
           <span
@@ -402,7 +402,7 @@ exports[`SearchBar renders correctly 1`] = `
             data-testid="searchbar-input-id"
             enterkeyhint="search"
             id="searchbar-input-id"
-            pattern="^[a-zA-Z0-9-]{0,32}$"
+            pattern="^[a-zA-Z0-9-]{0,51}$"
             placeholder="Find a name"
             spellcheck="false"
             type="search"

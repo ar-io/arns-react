@@ -5,10 +5,15 @@ import {
 } from '../types';
 
 // note: lookahead/lookbehind regex's are not compatible with iOS browsers
+export const MAX_ARNS_NAME_LENGTH = 51;
 export const PDNS_NAME_REGEX = new RegExp(
-  '^([a-zA-Z0-9][a-zA-Z0-9-]{0,30}[a-zA-Z0-9]|[a-zA-Z0-9]{1})$',
+  `^([a-zA-Z0-9][a-zA-Z0-9-]{0,${
+    MAX_ARNS_NAME_LENGTH - 2
+  }}[a-zA-Z0-9]|[a-zA-Z0-9]{1})$`,
 );
-export const PDNS_NAME_REGEX_PARTIAL = new RegExp(`^[a-zA-Z0-9-]{0,32}$`);
+export const PDNS_NAME_REGEX_PARTIAL = new RegExp(
+  `^[a-zA-Z0-9-]{0,${MAX_ARNS_NAME_LENGTH}}$`,
+);
 export const ALPHA_NUMERIC_REGEX = new RegExp('^[a-zA-Z0-9]$');
 export const PDNS_TX_ID_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{43}$');
 export const PDNS_TX_ID_ENTRY_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{1,43}$');
@@ -25,7 +30,7 @@ export const DEFAULT_PDNT_SOURCE_CODE_TX =
   'PEI1efYrsX08HUwvc6y-h6TSpsNlo2r6_fWL2_GdwhY';
 export const RECOMMENDED_TRANSACTION_CONFIRMATIONS = 50;
 export const DEFAULT_TTL_SECONDS = 3600;
-export const DEFAULT_MAX_UNDERNAMES = 100;
+export const DEFAULT_MAX_UNDERNAMES = 10;
 export const PDNT_CONTRACT_STATE_KEYS = [
   'balances',
   'evolve',
@@ -54,33 +59,14 @@ export const FEATURED_DOMAINS = [
   'wallet',
 ];
 
-// TODO: pull from contract
-export const TIER_DATA: { [x: number]: string[] } = {
-  1: [
-    'Up to 100 Undernames',
-    'Available via all PDNS-enabled gateways',
-    'Permanently stored on Arweave',
-  ],
-  2: [
-    'Up to 1,000 Undernames',
-    'Available via all PDNS-enabled gateways',
-    'Permanently stored on Arweave',
-  ],
-  3: [
-    'Up to 10,000 Undernames',
-    'Available via all PDNS-enabled gateways',
-    'Permanently stored on Arweave',
-  ],
-};
 export const NAME_PRICE_INFO =
-  'Registration fees are determined by the character length of the domain, lease duration, and what tier you choose.';
+  'Registration fees are determined by the character length of the domain, and what lease duration you choose.';
 export const MAX_TTL_SECONDS = 2_592_000;
 export const MIN_TTL_SECONDS = 900;
 export const MIN_SAFE_EDIT_CONFIRMATIONS = 15;
 export const MAX_LEASE_DURATION = 5;
 export const MIN_LEASE_DURATION = 1;
 export const RESERVED_NAME_LENGTH = 4; // names must be greater than 4 characters, in contract this is MINIMUM_ALLOWED_NAME_LENGTH = 5
-export const MAX_ARNS_NAME_LENGTH = 32;
 export const SECONDS_IN_GRACE_PERIOD = 1814400;
 export const ANNUAL_PERCENTAGE_FEE = 0.1;
 export const PERMABUY_LEASE_FEE_LENGTH = 10;
@@ -177,10 +163,6 @@ export const DEFAULT_PDNS_REGISTRY_STATE: PDNSContractJSON = {
   balances: { '': 0 },
   controllers: [],
   evolve: undefined,
-  tiers: {
-    history: [],
-    current: [],
-  },
   reserved: {},
   settings: {},
   name: '',

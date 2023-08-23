@@ -12,7 +12,7 @@ describe('isPDNSDomainNameValid', () => {
     'trailingdash-',
     'namewithcharacter.init',
     'name with space',
-    'namelongerthanthirtytwocharacters',
+    'namelongerthanthirtytwocharactersddddddddddddddddddddddddddddddddd',
   ];
 
   test.each(invalidNames)(

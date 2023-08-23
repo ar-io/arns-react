@@ -96,11 +96,6 @@ export const WorkflowStepsForInteractions: Record<
     { title: 'Deploy Extension', status: 'wait' },
     { title: 'Complete', status: 'wait' },
   ],
-  [INTERACTION_TYPES.UPGRADE_TIER]: [
-    { title: 'Confirm Tier', status: 'process' },
-    { title: 'Deploy Tier Upgrade', status: 'wait' },
-    { title: 'Complete', status: 'wait' },
-  ],
   [INTERACTION_TYPES.REMOVE_RECORD]: [
     { title: 'Confirm Removal', status: 'process' },
     { title: 'Deploy Removal', status: 'wait' },
@@ -167,7 +162,7 @@ export const TRANSACTION_DATA_KEYS: Record<
 > = {
   [INTERACTION_TYPES.BUY_RECORD]: {
     functionName: 'buyRecord',
-    keys: ['name', 'contractTxId', 'auction', 'tier'],
+    keys: ['name', 'contractTxId', 'auction'],
   },
   [INTERACTION_TYPES.SUBMIT_AUCTION_BID]: {
     functionName: 'submitAuctionBid',
@@ -176,10 +171,6 @@ export const TRANSACTION_DATA_KEYS: Record<
   [INTERACTION_TYPES.EXTEND_LEASE]: {
     functionName: 'extendLease',
     keys: ['name', 'years'],
-  },
-  [INTERACTION_TYPES.UPGRADE_TIER]: {
-    functionName: 'upgradeTier',
-    keys: ['name', 'tierNumber'],
   },
   [INTERACTION_TYPES.TRANSFER]: {
     functionName: 'transfer',
@@ -329,7 +320,7 @@ export function getPDNSMappingByInteractionType(
       return {
         domain: '',
         state: pdnt.state,
-        disabledKeys: ['domain', 'evolve', 'id', 'tier'],
+        disabledKeys: ['domain', 'evolve', 'id'],
         deployedTransactionId: transactionData.deployedTransactionId,
       };
     }
@@ -417,7 +408,6 @@ export function getPDNSMappingByInteractionType(
           'maxUndernames',
           'domain',
           'leaseDuration',
-          'tier',
         ],
       };
     }
@@ -449,7 +439,6 @@ export function getPDNSMappingByInteractionType(
           'maxUndernames',
           'domain',
           'leaseDuration',
-          'tier',
         ],
       };
     }
@@ -480,7 +469,6 @@ export function getPDNSMappingByInteractionType(
           'domain',
           'leaseDuration',
           'ttlSeconds',
-          'tier',
         ],
       };
     }
@@ -510,7 +498,6 @@ export function getPDNSMappingByInteractionType(
           'maxUndernames',
           'domain',
           'leaseDuration',
-          'tier',
         ],
       };
     }
@@ -541,7 +528,6 @@ export function getPDNSMappingByInteractionType(
           'maxUndernames',
           'domain',
           'leaseDuration',
-          'tier',
         ],
       };
     }

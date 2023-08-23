@@ -5,9 +5,10 @@ import { PDNS_TX_ID_REGEX } from './utils/constants';
 
 export type PDNSRecordEntry = {
   contractTxId: string;
-  tier: string;
+  startTimestamp: number;
   endTimestamp: number;
   type: TRANSACTION_TYPES;
+  undernames: number;
 };
 
 export type PDNSDomains = { [x: string]: PDNSRecordEntry };
@@ -47,24 +48,13 @@ export type Auction = {
   contractTxId: string;
   startHeight: number;
   type: TRANSACTION_TYPES;
-  tier: string;
   initiator: string;
   years?: number;
-};
-
-export type Tier = {
-  fee: number;
-  id: string;
-  settings: { maxUndernames: number } & { [x: string]: any };
 };
 
 export type PDNSContractJSON = {
   records: PDNSDomains;
   fees: { [x: number]: number };
-  tiers: {
-    current: string[];
-    history: Tier[];
-  };
   auctions?: {
     [x: string]: Auction;
   };
@@ -338,7 +328,6 @@ export enum INTERACTION_TYPES {
   // Registry interaction types
   BUY_RECORD = 'Buy ARNS Name',
   EXTEND_LEASE = 'Extend Lease',
-  UPGRADE_TIER = 'Upgrade Tier',
   SUBMIT_AUCTION_BID = 'Submit Bid',
 
   // ANT interaction types
@@ -407,7 +396,6 @@ export const registryInteractionTypes = [
   ...commonInteractionTypeNames,
   INTERACTION_TYPES.BUY_RECORD,
   INTERACTION_TYPES.EXTEND_LEASE,
-  INTERACTION_TYPES.UPGRADE_TIER,
   INTERACTION_TYPES.SUBMIT_AUCTION_BID,
 ] as const;
 
@@ -446,7 +434,6 @@ export type BuyRecordPayload = {
   name: string;
   contractTxId: string;
   years?: number;
-  tier: string;
   type: TRANSACTION_TYPES;
   state?: PDNTContractJSON;
   qty?: number; // only used when bidding on a pre-existing auction
@@ -465,11 +452,6 @@ export type SubmitAuctionBidPayload = {
 export type ExtendLeasePayload = {
   name: string;
   years: number;
-};
-
-export type UpgradeTierPayload = {
-  name: string;
-  tierNumber: number;
 };
 
 export type TransferIOPayload = {
@@ -533,7 +515,6 @@ export const ALL_TRANSACTION_DATA_KEYS = [
   'name',
   'contractTxId',
   'years',
-  'tier',
   'target',
   'qty',
   'ticker',
@@ -551,7 +532,6 @@ export type TransactionDataPayload =
   | BuyRecordPayload
   | SubmitAuctionBidPayload
   | ExtendLeasePayload
-  | UpgradeTierPayload
   | TransferIOPayload
   | SetTickerPayload
   | SetControllerPayload
@@ -599,8 +579,8 @@ export interface Equatable<T> {
 export type PDNSTableRow = {
   name: string;
   role: string;
+  undernames: number;
   id: string;
-  tier: number | string;
   expiration: Date;
   status: number;
   key: string | number;
