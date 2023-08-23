@@ -5,10 +5,15 @@ import {
 } from '../types';
 
 // note: lookahead/lookbehind regex's are not compatible with iOS browsers
+export const MAX_ARNS_NAME_LENGTH = 51;
 export const PDNS_NAME_REGEX = new RegExp(
-  '^([a-zA-Z0-9][a-zA-Z0-9-]{0,30}[a-zA-Z0-9]|[a-zA-Z0-9]{1})$',
+  `^([a-zA-Z0-9][a-zA-Z0-9-]{0,${
+    MAX_ARNS_NAME_LENGTH - 2
+  }}[a-zA-Z0-9]|[a-zA-Z0-9]{1})$`,
 );
-export const PDNS_NAME_REGEX_PARTIAL = new RegExp(`^[a-zA-Z0-9-]{0,32}$`);
+export const PDNS_NAME_REGEX_PARTIAL = new RegExp(
+  `^[a-zA-Z0-9-]{0,${MAX_ARNS_NAME_LENGTH}}$`,
+);
 export const ALPHA_NUMERIC_REGEX = new RegExp('^[a-zA-Z0-9]$');
 export const PDNS_TX_ID_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{43}$');
 export const PDNS_TX_ID_ENTRY_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{1,43}$');
@@ -80,7 +85,6 @@ export const MIN_SAFE_EDIT_CONFIRMATIONS = 15;
 export const MAX_LEASE_DURATION = 5;
 export const MIN_LEASE_DURATION = 1;
 export const RESERVED_NAME_LENGTH = 4; // names must be greater than 4 characters, in contract this is MINIMUM_ALLOWED_NAME_LENGTH = 5
-export const MAX_ARNS_NAME_LENGTH = 32;
 export const SECONDS_IN_GRACE_PERIOD = 1814400;
 export const ANNUAL_PERCENTAGE_FEE = 0.1;
 export const PERMABUY_LEASE_FEE_LENGTH = 10;

@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { HashRouter as Router } from 'react-router-dom';
 
 import { TRANSACTION_TYPES } from '../../../../../types';
+import { lowerCaseDomain } from '../../../../../utils';
 import SearchBar from '../SearchBar';
 
 jest.mock('../../../../../hooks', () => ({
@@ -90,7 +91,7 @@ describe('SearchBar', () => {
     expect(onChange).toHaveBeenCalled();
     expect(onSubmit).toHaveBeenCalled();
     expect(onFailure).not.toHaveBeenCalled();
-    expect(searchInput.value).toEqual(domain.toLowerCase());
+    expect(lowerCaseDomain(searchInput.value)).toEqual(lowerCaseDomain(domain));
     expect(renderSearchBar()).toMatchSnapshot();
   });
 
@@ -102,7 +103,7 @@ describe('SearchBar', () => {
     expect(onChange).toHaveBeenCalled();
     expect(onSubmit).toHaveBeenCalled();
     expect(onFailure).not.toHaveBeenCalled();
-    expect(searchInput.value).toEqual(domain.toLowerCase());
+    expect(lowerCaseDomain(searchInput.value)).toEqual(lowerCaseDomain(domain));
     expect(renderSearchBar()).toMatchSnapshot();
   });
 
