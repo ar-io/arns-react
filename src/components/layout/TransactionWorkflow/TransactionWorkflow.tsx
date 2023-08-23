@@ -297,8 +297,6 @@ function TransactionWorkflow({
                       calculateFloorPrice({
                         domain: payload.name,
                         registrationType: payload.type,
-                        tiers: pdnsSourceContract.tiers.history,
-                        tier: pdnsSourceContract.tiers.current[0],
                         // TODO: setup cost for permabuy
                         years: payload.years ?? 1,
                         auctionSettings: pdnsSourceContract.settings.auctions,

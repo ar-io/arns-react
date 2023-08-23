@@ -117,7 +117,6 @@ export function useAuctionInfo(
             registrationType,
             years: leaseDuration ?? 1,
             auctionSettings: pdnsSourceContract.settings.auctions,
-            tierSettings: pdnsSourceContract.tiers,
             fees: pdnsSourceContract.fees,
             currentBlockHeight: blockHeight,
             walletAddress,

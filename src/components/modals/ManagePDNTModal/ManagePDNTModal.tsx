@@ -115,9 +115,6 @@ function ManagePDNTModal() {
       const record = Object.values(pdnsSourceContract.records).find(
         (r) => r.contractTxId === contractTxId.toString(),
       );
-      const tier = pdnsSourceContract.tiers.history.find(
-        (t) => t.id === record?.tier,
-      );
 
       const consolidatedDetails: PDNTDetails = {
         status: confirmations ?? 0,
@@ -128,7 +125,7 @@ function ManagePDNTModal() {
         ttlSeconds: contract.getRecord('@')?.ttlSeconds ?? DEFAULT_TTL_SECONDS,
         controller: contract.controller ?? 'N/A',
         undernames: `${Object.keys(contract.records).length - 1} / ${
-          tier?.settings.maxUndernames ?? DEFAULT_MAX_UNDERNAMES
+          record?.undernames ?? DEFAULT_MAX_UNDERNAMES
         }`,
         owner: contract.owner ?? 'N/A',
       };

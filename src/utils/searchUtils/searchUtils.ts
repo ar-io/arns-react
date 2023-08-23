@@ -7,7 +7,6 @@ import {
   AuctionSettings,
   PDNSRecordEntry,
   TRANSACTION_TYPES,
-  Tier,
 } from '../../types';
 import {
   ANNUAL_PERCENTAGE_FEE,
@@ -25,26 +24,22 @@ export function generateAuction({
   registrationType,
   years,
   auctionSettings,
-  tierSettings,
   fees,
   currentBlockHeight,
   walletAddress,
 }: {
   domain: string;
   registrationType: TRANSACTION_TYPES;
-  tierSettings: { current: string[]; history: Tier[] };
   years: number;
   auctionSettings: { current: string; history: AuctionSettings[] };
   fees: { [x: number]: number };
   currentBlockHeight: number;
   walletAddress: ArweaveTransactionID;
 }): [Auction, AuctionSettings] {
-  const tier = tierSettings.current[0];
-  const currentTier = tierSettings.history.find((t) => t.id === tier);
   const currentAuctionSettings = auctionSettings.history.find(
     (a) => a.id === auctionSettings.current,
   );
-  if (!currentTier || !currentAuctionSettings) {
+  if (!currentAuctionSettings) {
     throw new Error(`Could not get fee data`);
   }
 
@@ -52,8 +47,8 @@ export function generateAuction({
 
   const basePrice =
     registrationType === TRANSACTION_TYPES.LEASE
-      ? calculateTotalRegistrationFee(domain, fees, currentTier, years)
-      : calculatePermabuyFee(domain, fees, currentTier);
+      ? calculateTotalRegistrationFee(domain, fees, years)
+      : calculatePermabuyFee(domain, fees);
 
   const startPrice = basePrice * startPriceMultiplier;
   const floorPrice = basePrice * floorPriceMultiplier;
@@ -64,7 +59,6 @@ export function generateAuction({
       startPrice,
       floorPrice,
       auctionSettingsId: auctionSettings.current,
-      tier,
       type: registrationType,
       initiator: walletAddress.toString(),
       contractTxId: 'atomic',
@@ -76,25 +70,20 @@ export function generateAuction({
 export function calculateFloorPrice({
   domain,
   registrationType,
-  tiers,
-  tier,
   years,
   auctionSettings,
   fees,
 }: {
   domain: string;
   registrationType: TRANSACTION_TYPES;
-  tiers: Tier[];
-  tier: string;
   years: number;
   auctionSettings: { current: string; history: AuctionSettings[] };
   fees: { [x: number]: number };
 }) {
-  const currentTier = tiers.find((t) => t.id === tier);
   const currentAuctionSettings = auctionSettings.history.find(
     (a) => a.id === auctionSettings.current,
   );
-  if (!currentTier || !currentAuctionSettings) {
+  if (!currentAuctionSettings) {
     throw new Error(`Could not get fee data`);
   }
 
@@ -102,8 +91,8 @@ export function calculateFloorPrice({
 
   const basePrice =
     registrationType === TRANSACTION_TYPES.LEASE
-      ? calculateTotalRegistrationFee(domain, fees, currentTier, years)
-      : calculatePermabuyFee(domain, fees, currentTier);
+      ? calculateTotalRegistrationFee(domain, fees, years)
+      : calculatePermabuyFee(domain, fees);
 
   return basePrice * floorPriceMultiplier;
 }
@@ -136,13 +125,11 @@ export function calculateMinimumAuctionBid({
 export function calculatePermabuyFee(
   domain: string,
   fees: { [x: number]: number },
-  tier: Tier,
 ) {
   // not sure this pricing is correct, it winds up being lower than leasing sometimes
   const permabuyLeasePrice = calculateAnnualRenewalFee(
     domain,
     fees,
-    tier,
     PERMABUY_LEASE_FEE_LENGTH,
   );
 
@@ -166,32 +153,25 @@ export function calculatePermabuyFee(
 export function calculateTotalRegistrationFee(
   domain: string,
   fees: { [x: number]: number },
-  tier: Tier,
   years: number,
 ) {
   // instant lease price
   const initialNamePurchaseFee = fees[domain.length];
   return (
-    initialNamePurchaseFee +
-    calculateAnnualRenewalFee(domain, fees, tier, years)
+    initialNamePurchaseFee + calculateAnnualRenewalFee(domain, fees, years)
   );
 }
 
 export function calculateAnnualRenewalFee(
   domain: string,
   fees: { [x: number]: number },
-  tier: Tier,
   years: number,
 ) {
   const name = encodeDomainToASCII(domain);
-  const tierAnnualFee = tier.fee;
-  if (!tierAnnualFee) {
-    throw new Error(`Could not find fee for ${tier}`);
-  }
   const initialNamePurchaseFee = fees[name.length];
   const nameAnnualRegistrationFee =
     initialNamePurchaseFee * ANNUAL_PERCENTAGE_FEE;
-  const price = (nameAnnualRegistrationFee + tierAnnualFee) * years;
+  const price = nameAnnualRegistrationFee * years;
 
   return price;
 }
@@ -214,15 +194,11 @@ export function getNextPriceUpdate({
 export function calculatePDNSNamePrice({
   domain,
   years,
-  tier,
   fees,
-  tiers,
   type,
 }: {
   domain: string;
   years: number;
-  tier: string;
-  tiers: Tier[];
   fees: { [x: number]: number };
   type: TRANSACTION_TYPES;
   currentBlockHeight: number;
@@ -244,12 +220,11 @@ export function calculatePDNSNamePrice({
       );
     }
   }
-  const selectedTier = tiers.find((t) => t.id === tier) ?? tiers[0];
 
   const registrationFee =
     type === TRANSACTION_TYPES.LEASE
-      ? calculateTotalRegistrationFee(domain, fees, selectedTier, years)
-      : calculatePermabuyFee(domain, fees, selectedTier);
+      ? calculateTotalRegistrationFee(domain, fees, years)
+      : calculatePermabuyFee(domain, fees);
 
   return registrationFee;
 }

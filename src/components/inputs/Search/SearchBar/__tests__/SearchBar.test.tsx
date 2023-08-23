@@ -26,15 +26,17 @@ jest.mock('../../../../../hooks', () => ({
 const TEST_RECORDS = {
   ardrive: {
     contractTxId: 'I-cxQhfh0Zb9UqQNizC9PiLC41KpUeA9hjiVV02rQRw',
+    startTimestamp: 1711122719,
     endTimestamp: 1711122739,
-    tier: 'SEC0-8cTfyDBRQo21KNIhUV5KreuEmIY05wX-VOeESE',
     type: TRANSACTION_TYPES.BUY,
+    undernames: 10,
   },
   'xn--go8h6v': {
     contractTxId: 'I-cxQhfh0Zb9UqQNizC9PiLC41KpUeA9hjiVV02rQRw',
+    startTimestamp: 1711122719,
     endTimestamp: 1711122739,
-    tier: 'SEC0-8cTfyDBRQo21KNIhUV5KreuEmIY05wX-VOeESE',
     type: TRANSACTION_TYPES.LEASE,
+    undernames: 10,
   },
 };
 
