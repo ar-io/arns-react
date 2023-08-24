@@ -22,14 +22,11 @@ function NavBarLink({
       to={path}
       target={target}
       onClick={() => (onClick ? onClick() : null)}
-      className={
-        children
-          ? 'flex-row flex-space-between navbar-link hover'
-          : 'navbar-link hover'
-      }
+      className={children ? 'flex-row navbar-link hover' : 'navbar-link hover'}
+      style={{ gap: '10px', alignItems: 'center' }}
     >
-      {linkText}
       {children}
+      {linkText}
     </Link>
   );
 }

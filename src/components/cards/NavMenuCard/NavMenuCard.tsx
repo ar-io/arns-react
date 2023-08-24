@@ -1,5 +1,6 @@
+import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import {
   useArweaveCompositeProvider,
@@ -12,9 +13,9 @@ import eventEmitter from '../../../utils/events';
 import { ROUTES } from '../../../utils/routes';
 import { LogoutIcon, MenuIcon } from '../../icons';
 import ConnectButton from '../../inputs/buttons/ConnectButton/ConnectButton';
-import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
 import MenuButton from '../../inputs/buttons/MenuButton/MenuButton';
 import { Loader, NavBarLink } from '../../layout';
+import ArweaveID, { ArweaveIdTypes } from '../../layout/ArweaveID/ArweaveID';
 import { WalletAddress } from '../../layout/WalletAddress/WalletAddress';
 import './styles.css';
 
@@ -24,11 +25,11 @@ function NavMenuCard() {
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
   const [walletDetails, setWalletDetails] = useState<{
-    IO: number | undefined | string;
     AR: number | undefined | string;
+    IO: number | undefined | string;
   }>({
-    IO: undefined,
     AR: undefined,
+    IO: undefined,
   });
   const menuRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
@@ -72,8 +73,8 @@ function NavMenuCard() {
         }).format(+balance),
     );
     setWalletDetails({
-      IO: formattedIOBalance,
       AR: formattedBalance,
+      IO: formattedIOBalance,
     });
   }
 
@@ -109,107 +110,34 @@ function NavMenuCard() {
 
   return (
     <>
-      <MenuButton
-        setShow={setShowMenu}
-        show={showMenu}
-        className={walletAddress ? 'outline-button' : ''}
-        style={
-          walletAddress
-            ? {
-                borderRadius: 'var(--corner-radius',
-                borderWidth: '1px',
-                padding: '10px',
-                borderColor: 'var(--text-faded)',
-                width: 'fit-content',
-                minWidth: 'unset',
-              }
-            : {}
-        }
-      >
-        {walletAddress ? (
-          <WalletAddress characterCount={4} />
-        ) : (
-          <MenuIcon width={'24px'} height={'24px'} fill={'var(--text-white)'} />
-        )}
-      </MenuButton>
-
-      {showMenu ? (
-        <div className="card menu" ref={menuRef}>
-          {!walletAddress || !wallet ? (
-            <>
-              {Object.entries(ROUTES).map(([key, route]) => {
-                if (!route.protected)
-                  return (
-                    // TODO: add menu icons
-                    <NavBarLink
-                      path={route.path}
-                      linkText={route.text}
-                      target={route.external ? '_blank' : '_self'}
-                      key={key}
-                      onClick={() => {
-                        setShowMenu(false);
-                      }}
-                    />
-                  );
-              })}
-              <Link
-                to="/create"
-                className="button text-medium bold white hover"
-                style={{ padding: '0' }}
-              >
-                Create
-              </Link>
-              <ConnectButton />
-            </>
-          ) : (
-            <>
-              <CopyTextButton
-                body={`${walletAddress.toString().slice(0, 7)}...${walletAddress
-                  .toString()
-                  .slice(-7)}`}
-                copyText={walletAddress.toString()}
-                size={20}
-                wrapperStyle={{
-                  color: 'white',
-                  fontWeight: 600,
-                  fontFamily: 'Rubik-Bold',
-                  width: '100%',
-                  padding: 0,
-                  fill: 'var(--text-white)',
-                }}
-                position="relative"
-              />
-              {isMobile ? (
-                <>
-                  {Object.entries(ROUTES).map(([key, route]) => {
-                    if (!route.index && (!route.protected || walletAddress))
-                      return (
-                        <NavBarLink
-                          path={route.path}
-                          linkText={route.text}
-                          target={route.external ? '_blank' : '_self'}
-                          key={key}
-                          onClick={() => {
-                            setShowMenu(false);
-                          }}
-                        />
-                      );
-                  })}
-                  <Link
-                    to="/create"
-                    className="button text-medium bold white hover"
-                    style={{ padding: '0' }}
-                  >
-                    Create
-                  </Link>
-                </>
-              ) : (
-                Object.entries(ROUTES).map(([key, route]) => {
-                  if (route.protected && walletAddress)
+      <Tooltip
+        rootClassName="menu-card"
+        open={showMenu}
+        placement="bottomRight"
+        color="var(--card-bg)"
+        autoAdjustOverflow
+        arrow={{ arrowPointAtCenter: true }}
+        overlayInnerStyle={{
+          width: 'fit-content',
+          border: '1px solid var(--text-faded)',
+        }}
+        overlayStyle={{ width: 'fit-content', minWidth: '180px' }}
+        title={
+          <div
+            className="flex flex-column"
+            ref={menuRef}
+            style={{ minWidth: '200px', gap: '15px', paddingBottom: '15px' }}
+          >
+            {!walletAddress || !wallet ? (
+              <div className="flex flex-column" style={{ padding: '15px' }}>
+                {Object.entries(ROUTES).map(([key, route]) => {
+                  if (!route.protected)
                     return (
+                      // TODO: add menu icons
                       <NavBarLink
                         path={route.path}
                         linkText={route.text}
+                        target={route.external ? '_blank' : '_self'}
                         key={key}
                         onClick={() => {
                           setShowMenu(false);
@@ -218,9 +146,9 @@ function NavMenuCard() {
                         <>
                           {route.icon ? (
                             route.icon({
-                              height: 24,
-                              width: 24,
-                              fill: 'var(--text-white)',
+                              height: 16,
+                              width: 16,
+                              fill: 'var(--text-grey)',
                             })
                           ) : (
                             <></>
@@ -228,49 +156,188 @@ function NavMenuCard() {
                         </>
                       </NavBarLink>
                     );
-                })
-              )}
-              {Object.entries(walletDetails).map(([key, value]) => {
-                return (
-                  <span
-                    key={key}
-                    className="flex-row flex-space-between navbar-link"
-                  >
-                    <span>{key} Balance</span>
-                    {value ? (
-                      <span className="grey">{value}</span>
-                    ) : (
-                      // TODO: add error icon with hover for error details
-                      <Loader size={20} wrapperStyle={{ margin: '0px' }} />
-                    )}
-                  </span>
-                );
-              })}
-              {
-                <button
-                  className="navbar-link hover flex-row flex-space-between"
-                  onClick={() => logout()}
-                  style={{
-                    cursor: 'pointer',
-                    padding: '0px',
-                  }}
+                })}
+                <ConnectButton />
+              </div>
+            ) : (
+              <>
+                <div
+                  className="flex flex-column"
+                  style={{ padding: '15px', boxSizing: 'border-box' }}
                 >
-                  <span className="flex">Log Out</span>
-                  <LogoutIcon
-                    style={{
-                      height: '24px',
-                      width: '24px',
-                      fill: 'var(--text-bright-white)',
+                  <ArweaveID
+                    id={walletAddress}
+                    type={ArweaveIdTypes.ADDRESS}
+                    characterCount={14}
+                    copyButtonStyle={{
+                      padding: '10px',
+                      background: 'var(--text-faded)',
+                      borderRadius: '5px',
+                      fill: 'var(--text-white)',
+                    }}
+                    wrapperStyle={{
+                      width: '100%',
+                      justifyContent: 'space-between',
+                      boxSizing: 'border-box',
                     }}
                   />
-                </button>
-              }
-            </>
+                  <div
+                    className="flex flex-column"
+                    style={{
+                      background: 'var(--box-color)',
+                      borderRadius: '5px',
+                      padding: '15px',
+                      boxSizing: 'border-box',
+                      gap: '10px',
+                      borderBottom: '1px solid var(--text-faded)',
+                    }}
+                  >
+                    {Object.entries(walletDetails).map(([key, value]) => {
+                      return (
+                        <span
+                          key={key}
+                          className="flex-row grey"
+                          style={{
+                            fontSize: '13px',
+                            gap: '10px',
+                          }}
+                        >
+                          <span style={{ fontWeight: 400 }}>
+                            {key} Balance:
+                          </span>
+                          {value ? (
+                            <span className="white">{value}</span>
+                          ) : (
+                            // TODO: add error icon with hover for error details
+                            <Loader
+                              size={20}
+                              wrapperStyle={{ margin: '0px' }}
+                            />
+                          )}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <span
+                  className="flex"
+                  style={{
+                    height: '1px',
+                    width: '100%',
+                    boxSizing: 'border-box',
+                    background: 'var(--text-faded)',
+                  }}
+                ></span>
+
+                <div
+                  className="flex flex-column"
+                  style={{
+                    padding: '0px 15px',
+                    boxSizing: 'border-box',
+                    gap: '15px',
+                  }}
+                >
+                  {isMobile ? (
+                    <>
+                      {Object.entries(ROUTES).map(([key, route]) => {
+                        if (!route.index && (!route.protected || walletAddress))
+                          return (
+                            <NavBarLink
+                              path={route.path}
+                              linkText={route.text}
+                              target={route.external ? '_blank' : '_self'}
+                              key={key}
+                              onClick={() => {
+                                setShowMenu(false);
+                              }}
+                            />
+                          );
+                      })}
+                    </>
+                  ) : (
+                    Object.entries(ROUTES).map(([key, route]) => {
+                      if (route.protected && walletAddress)
+                        return (
+                          <NavBarLink
+                            path={route.path}
+                            linkText={route.text}
+                            key={key}
+                            onClick={() => {
+                              setShowMenu(false);
+                            }}
+                          >
+                            <>
+                              {route.icon ? (
+                                route.icon({
+                                  height: 16,
+                                  width: 16,
+                                  fill: 'var(--text-grey)',
+                                })
+                              ) : (
+                                <></>
+                              )}
+                            </>
+                          </NavBarLink>
+                        );
+                    })
+                  )}
+                  {
+                    <button
+                      className="navbar-link hover flex-row"
+                      onClick={() => logout()}
+                      style={{
+                        cursor: 'pointer',
+                        padding: '0px',
+                        gap: '10px',
+                        fontSize: '14px',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <LogoutIcon
+                        style={{
+                          height: '16px',
+                          width: '16px',
+                          fill: 'var(--text-grey)',
+                        }}
+                      />
+                      <span className="flex">Log Out</span>
+                    </button>
+                  }
+                </div>
+              </>
+            )}
+          </div>
+        }
+      >
+        <MenuButton
+          setShow={setShowMenu}
+          show={showMenu}
+          className={walletAddress ? 'outline-button' : ''}
+          style={
+            walletAddress
+              ? {
+                  borderRadius: 'var(--corner-radius',
+                  borderWidth: '1px',
+                  padding: '10px',
+                  borderColor: 'var(--text-faded)',
+                  width: 'fit-content',
+                  minWidth: 'unset',
+                }
+              : {}
+          }
+        >
+          {walletAddress ? (
+            <WalletAddress characterCount={4} />
+          ) : (
+            <MenuIcon
+              width={'24px'}
+              height={'24px'}
+              fill={'var(--text-white)'}
+            />
           )}
-        </div>
-      ) : (
-        <></>
-      )}
+        </MenuButton>
+      </Tooltip>
     </>
   );
 }

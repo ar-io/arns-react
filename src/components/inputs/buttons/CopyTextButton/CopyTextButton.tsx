@@ -1,3 +1,4 @@
+import { CSSProperties } from '@ant-design/cssinjs/lib/hooks/useStyleRegister';
 import { Tooltip } from 'antd';
 import { useState } from 'react';
 
@@ -10,12 +11,14 @@ function CopyTextButton({
   size,
   wrapperStyle = {},
   position = 'absolute',
+  copyButtonStyle,
 }: {
   body: JSX.Element | string;
   copyText: string;
   size: number | string;
   wrapperStyle?: any;
   position?: 'static' | 'relative' | 'absolute' | 'sticky' | 'fixed';
+  copyButtonStyle?: any;
 }) {
   const [textCopied, setTextCopied] = useState<boolean>(false);
 
@@ -70,7 +73,7 @@ function CopyTextButton({
             height={size ?? 15}
             width={size ?? 15}
             fill={'inherit'}
-            style={{ cursor: 'pointer', scale: size }}
+            style={{ cursor: 'pointer', scale: size, ...copyButtonStyle }}
           />
         </Tooltip>
       </button>

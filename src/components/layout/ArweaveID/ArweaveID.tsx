@@ -1,3 +1,4 @@
+import { CSSProperties } from '@ant-design/cssinjs/lib/hooks/useStyleRegister';
 import { Link } from 'react-router-dom';
 
 import { ArweaveTransactionID } from '../../../types';
@@ -22,11 +23,15 @@ function ArweaveID({
   type = ArweaveIdTypes.TRANSACTION,
   characterCount,
   shouldLink = false,
+  copyButtonStyle,
+  wrapperStyle,
 }: {
   id: ArweaveTransactionID;
   type?: ArweaveIdTypes;
   characterCount?: number;
   shouldLink?: boolean;
+  copyButtonStyle?: CSSProperties;
+  wrapperStyle?: CSSProperties;
 }) {
   function handleText(text: string) {
     if (characterCount) {
@@ -65,7 +70,9 @@ function ArweaveID({
           color: 'inherit',
           position: 'static',
           alignItems: 'center',
+          ...wrapperStyle,
         }}
+        copyButtonStyle={copyButtonStyle}
       />
     </>
   );

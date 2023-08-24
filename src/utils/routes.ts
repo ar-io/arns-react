@@ -1,4 +1,4 @@
-import { CubeIcon } from '../components/icons';
+import { CubeIcon, SettingsIcon } from '../components/icons';
 import { Auctions, Home, Manage } from '../components/pages';
 
 export type Route = {
@@ -36,7 +36,7 @@ export const ROUTES: { [x: string]: Route } = {
   },
   manage: {
     text: 'Manage Assets',
-    icon: CubeIcon,
+    icon: SettingsIcon,
     path: '/manage',
     component: Manage,
     protected: true,
