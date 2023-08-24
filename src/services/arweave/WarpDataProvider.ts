@@ -23,7 +23,6 @@ import {
 import {
   buildSmartweaveInteractionTags,
   byteSize,
-  isArweaveTransactionID,
   isDomainAuctionable,
   isDomainReservedLength,
   lowerCaseDomain,

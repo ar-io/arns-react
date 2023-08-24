@@ -1,4 +1,3 @@
-import { CSSProperties } from '@ant-design/cssinjs/lib/hooks/useStyleRegister';
 import { Tooltip } from 'antd';
 import { useState } from 'react';
 

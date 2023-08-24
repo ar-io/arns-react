@@ -1,7 +1,6 @@
 import { Descriptions } from 'antd';
 import { startCase } from 'lodash';
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
@@ -19,8 +18,6 @@ import {
 } from '../../../utils';
 import { MIN_TTL_SECONDS } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
-import { ExternalLinkIcon } from '../../icons';
-import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
 import { Loader } from '../../layout';
 import ArweaveID, { ArweaveIdTypes } from '../../layout/ArweaveID/ArweaveID';
 import './styles.css';

@@ -1,4 +1,4 @@
-import { CubeIcon, SettingsIcon } from '../components/icons';
+import { SettingsIcon } from '../components/icons';
 import { Auctions, Home, Manage } from '../components/pages';
 
 export type Route = {

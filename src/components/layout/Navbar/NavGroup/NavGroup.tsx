@@ -1,5 +1,3 @@
-import { Link, useLocation } from 'react-router-dom';
-
 import { useIsMobile, useWalletAddress } from '../../../../hooks';
 import { ROUTES } from '../../../../utils/routes';
 import NavMenuCard from '../../../cards/NavMenuCard/NavMenuCard';
@@ -10,7 +8,6 @@ import './styles.css';
 const NavGroup = () => {
   const isMobile = useIsMobile();
   const { wallet, walletAddress } = useWalletAddress();
-  const location = useLocation();
 
   return (
     <div className="flex-row flex-right flex-padding">
