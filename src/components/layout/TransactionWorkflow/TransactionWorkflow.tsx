@@ -39,6 +39,7 @@ import { InfoIcon } from '../../icons';
 import TransactionComplete from '../TransactionComplete/TransactionComplete';
 import TransactionCost from '../TransactionCost/TransactionCost';
 import Workflow, { WorkflowStage } from '../Workflow/Workflow';
+import PageLoader from '../progress/PageLoader/PageLoader';
 
 export enum TRANSACTION_WORKFLOW_STATUS {
   PENDING = 'pending',
@@ -72,6 +73,8 @@ function TransactionWorkflow({
       interactionType,
     }),
   );
+  const [deployingTransaction, setDeployingTransaction] =
+    useState<boolean>(false);
 
   useEffect(() => {
     const newStages = getStagesByTransactionType({
@@ -82,6 +85,7 @@ function TransactionWorkflow({
 
   async function deployTransaction(): Promise<string | undefined> {
     try {
+      setDeployingTransaction(true);
       let originalTxId: string | undefined = undefined;
       if (!walletAddress) {
         throw Error('No wallet connected.');
@@ -168,6 +172,8 @@ function TransactionWorkflow({
       return originalTxId;
     } catch (error) {
       eventEmitter.emit('error', error);
+    } finally {
+      setDeployingTransaction(false);
     }
   }
 
@@ -408,6 +414,10 @@ function TransactionWorkflow({
 
   return (
     <>
+      <PageLoader
+        message={'Deploying transaction...'}
+        loading={deployingTransaction}
+      />
       <Workflow
         onNext={() => handleStage('next')}
         onBack={() => handleStage('back')}

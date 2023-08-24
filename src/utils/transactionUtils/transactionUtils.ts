@@ -41,6 +41,7 @@ import {
   TTL_SECONDS_REGEX,
   YEAR_IN_MILLISECONDS,
 } from '../constants';
+import eventEmitter from '../events';
 import {
   encodeDomainToASCII,
   isDomainReservedLength,
@@ -790,4 +791,41 @@ export function isDomainAuctionable({
   }
 
   return false;
+}
+
+export async function withExponentialBackoff<T>({
+  fn,
+  shouldRetry,
+  maxTries,
+  initialDelay,
+}: {
+  fn: () => Promise<T>;
+  shouldRetry: (error: any) => boolean;
+  maxTries: number;
+  initialDelay: number;
+}): Promise<T> {
+  let tries = 0;
+  let delay = initialDelay;
+
+  while (tries < maxTries) {
+    try {
+      console.log(`Attempt ${tries + 1} of ${maxTries}`);
+      const result = await fn();
+      if (shouldRetry(result)) {
+        tries++;
+        if (tries >= maxTries) {
+          throw new Error('Maximum retry attempts reached');
+        }
+        console.log(`Retrying in ${delay / 1000} seconds...`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        delay *= 2; // Double the delay for the next attempt
+      } else {
+        break;
+      }
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    }
+  }
+
+  throw new Error('Maximum retry attempts reached');
 }

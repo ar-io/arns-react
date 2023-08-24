@@ -4,6 +4,7 @@ import {
   LoggerFactory,
   Warp,
   WarpFactory,
+  WriteInteractionResponse,
   defaultCacheOptions,
 } from 'warp-contracts';
 import { DeployPlugin } from 'warp-contracts-plugin-deploy';
@@ -22,9 +23,11 @@ import {
 import {
   buildSmartweaveInteractionTags,
   byteSize,
+  isArweaveTransactionID,
   isDomainAuctionable,
   isDomainReservedLength,
   lowerCaseDomain,
+  withExponentialBackoff,
 } from '../../utils';
 import {
   ATOMIC_REGISTRATION_INPUT,
@@ -133,10 +136,17 @@ export class WarpDataProvider
         );
       }
     }
-    const result = await contract.writeInteraction(payload, {
-      disableBundling: true,
-      tags: tags,
-    });
+    const result =
+      await withExponentialBackoff<WriteInteractionResponse | null>({
+        fn: () =>
+          contract.writeInteraction(payload, {
+            disableBundling: true,
+            tags: tags,
+          }),
+        shouldRetry: (result) => !result,
+        maxTries: 5,
+        initialDelay: 500,
+      });
     // TODO: check for dry write options on writeInteraction
     if (!result) {
       throw Error('No result from write interaction');

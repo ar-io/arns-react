@@ -357,91 +357,110 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
     ];
   }
 
+  async function fetchRowData(
+    contractTxId: ArweaveTransactionID,
+    address: ArweaveTransactionID,
+    key: any,
+  ) {
+    try {
+      const [contractState, confirmations, pendingContractInteractions] =
+        await Promise.all([
+          arweaveDataProvider.getContractState<PDNTContractJSON>(contractTxId),
+          arweaveDataProvider.getTransactionStatus(contractTxId),
+          arweaveDataProvider.getPendingContractInteractions(
+            contractTxId,
+            address.toString(),
+          ),
+        ]);
+
+      if (!contractState) {
+        throw Error(`Failed to load contract: ${contractTxId.toString()}`);
+      }
+
+      const contract = new PDNTContract(contractState, contractTxId);
+
+      // simple check that it is ANT shaped contract
+      if (!contract.isValid()) {
+        throw new Error('Invalid contract');
+      }
+
+      const target =
+        contract.getRecord('@') && contract.getRecord('@')?.transactionId !== ''
+          ? contract.getRecord('@')?.transactionId
+          : undefined;
+
+      // TODO: add error messages and reload state to row
+      const rowData = {
+        name: contract.name ?? 'N/A',
+        id: contractTxId.toString(),
+        role:
+          contract.owner === walletAddress?.toString()
+            ? 'Owner'
+            : contract.controller === walletAddress?.toString()
+            ? 'Controller'
+            : 'N/A',
+        targetID: target ?? 'N/A',
+        ttlSeconds: contract.getRecord('@')?.ttlSeconds,
+        status: confirmations ?? 0,
+        state: contractState,
+        key,
+      };
+
+      // get any pending transactions for various attributes
+      const pendingTxsForContract = getPendingInteractionsRowsForContract(
+        pendingContractInteractions,
+        rowData,
+      );
+
+      // replace the values with pending ones until the interaction is confirmed
+      const pendingInteractions = pendingTxsForContract.reduce(
+        (pendingValues, i) => ({
+          ...pendingValues,
+          [i.attribute]: i.value,
+        }),
+        {},
+      );
+
+      console.log(rowData);
+      return {
+        ...rowData,
+        ...pendingInteractions,
+        hasPending: pendingTxsForContract.length,
+      };
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   async function fetchPDNTRows(
     ids: ArweaveTransactionID[],
     address: ArweaveTransactionID,
   ) {
     const fetchedRows: PDNTMetadata[] = [];
     setIsLoading(true);
-    for (const [index, contractTxId] of ids.entries()) {
-      try {
-        const [contractState, confirmations, pendingContractInteractions] =
-          await Promise.all([
-            arweaveDataProvider.getContractState<PDNTContractJSON>(
-              contractTxId,
-            ),
-            arweaveDataProvider.getTransactionStatus(contractTxId),
-            arweaveDataProvider.getPendingContractInteractions(
-              contractTxId,
-              address.toString(),
-            ),
-          ]);
 
-        if (!contractState) {
-          throw Error(`Failed to load contract: ${contractTxId.toString()}`);
-        }
-
-        const contract = new PDNTContract(contractState, contractTxId);
-
-        // simple check that it is ANT shaped contract
-        if (!contract.isValid()) {
-          continue;
-        }
-
-        const target =
-          contract.getRecord('@') &&
-          contract.getRecord('@')?.transactionId !== ''
-            ? contract.getRecord('@')?.transactionId
-            : undefined;
-
-        // TODO: add error messages and reload state to row
-        const rowData = {
-          name: contract.name ?? 'N/A',
-          id: contractTxId.toString(),
-          role:
-            contract.owner === walletAddress?.toString()
-              ? 'Owner'
-              : contract.controller === walletAddress?.toString()
-              ? 'Controller'
-              : 'N/A',
-          targetID: target ?? 'N/A',
-          ttlSeconds: contract.getRecord('@')?.ttlSeconds,
-          status: confirmations ?? 0,
-          state: contractState,
-          key: index,
-        };
-
-        // get any pending transactions for various attributes
-        const pendingTxsForContract = getPendingInteractionsRowsForContract(
-          pendingContractInteractions,
-          rowData,
-        );
-
-        // replace the values with pending ones until the interaction is confirmed
-        const pendingInteractions = pendingTxsForContract.reduce(
-          (pendingValues, i) => ({
-            ...pendingValues,
-            [i.attribute]: i.value,
-          }),
-          {},
-        );
-
-        const updatedRowData = {
-          ...rowData,
-          ...pendingInteractions,
-          hasPending: pendingTxsForContract.length,
-        };
-
-        fetchedRows.push(updatedRowData);
-        // sort by confirmation count (ASC) by default
-        fetchedRows.sort((a, b) => a.status - b.status);
-      } catch (error) {
-        eventEmitter.emit('error', error);
-      } finally {
-        setPercentLoaded(((index + 1) / ids.length) * 100);
-      }
+    try {
+      const allData: PDNTMetadata[] = await Promise.all(
+        Object.values(ids).map((id, index) => fetchRowData(id, address, index)),
+      ).then((rows) =>
+        rows.reduce((acc: PDNTMetadata[], row: PDNTMetadata | undefined) => {
+          if (row) {
+            acc.push(row);
+          }
+          return acc;
+        }, []),
+      );
+      fetchedRows.push(...allData);
+      // sort by confirmation count (ASC) by default
+      fetchedRows.sort((a, b) => a?.status - b?.status);
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    } finally {
+      setPercentLoaded((fetchedRows.length / ids.length) * 100);
     }
+
     setRows(fetchedRows);
+
     setIsLoading(false);
   }
 

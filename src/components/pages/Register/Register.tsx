@@ -42,6 +42,7 @@ import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import Loader from '../../layout/Loader/Loader';
 import TransactionCost from '../../layout/TransactionCost/TransactionCost';
 import { StepProgressBar } from '../../layout/progress';
+import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
 
 function RegisterNameForm() {
@@ -49,22 +50,46 @@ function RegisterNameForm() {
     { domain, fee, leaseDuration, registrationType, antID },
     dispatchRegisterState,
   ] = useRegistrationState();
-  const [{ pdnsSourceContract, walletAddress, blockHeight }] = useGlobalState();
+  const [
+    { pdnsSourceContract, walletAddress, blockHeight },
+    dispatchGlobalState,
+  ] = useGlobalState();
   const [, dispatchTransactionState] = useTransactionState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const { name } = useParams();
-  const { minimumAuctionBid, auction, isLiveAuction, loadingAuctionInfo } =
-    useAuctionInfo('boomarang', registrationType, leaseDuration);
+  const { minimumAuctionBid, auction, loadingAuctionInfo, updateAuctionInfo } =
+    useAuctionInfo(
+      lowerCaseDomain(name ?? domain),
+      registrationType,
+      leaseDuration,
+    );
   const [targetId, setTargetId] = useState<string>();
   const targetIdFocused = useIsFocused('target-id-input');
   const navigate = useNavigate();
+  const [isInAuction, setIsInAuction] = useState<boolean>(false);
+
+  // TODO: give this component some refactor love, i can barely read it.
 
   useEffect(() => {
-    if (auction) {
+    if (!blockHeight) {
+      arweaveDataProvider.getCurrentBlockHeight().then((height) => {
+        dispatchGlobalState({
+          type: 'setBlockHeight',
+          payload: height,
+        });
+      });
+    }
+    const auctionForName =
+      pdnsSourceContract.auctions?.[lowerCaseDomain(domain!)];
+    if (auctionForName) {
       dispatchRegisterState({
         type: 'setRegistrationType',
-        payload: TRANSACTION_TYPES.BUY,
+        payload: auctionForName.type,
       });
+      setIsInAuction(true);
+      if (!minimumAuctionBid && !loadingAuctionInfo) {
+        updateAuctionInfo(lowerCaseDomain(domain));
+      }
     }
   }, [loadingAuctionInfo, domain]);
 
@@ -82,7 +107,7 @@ function RegisterNameForm() {
         registrationType: registrationType,
         reservedList: Object.keys(pdnsSourceContract?.reserved),
       }) ||
-      isLiveAuction
+      isInAuction
     ) {
       if (
         domain &&
@@ -90,7 +115,7 @@ function RegisterNameForm() {
         blockHeight &&
         auction
       ) {
-        const newFee = isLiveAuction ? minimumAuctionBid : auction?.floorPrice;
+        const newFee = isInAuction ? minimumAuctionBid : auction?.floorPrice;
 
         if (!newFee) {
           return;
@@ -102,7 +127,7 @@ function RegisterNameForm() {
       }
     }
     // if not auctionable, use instant buy prices
-    if (pdnsSourceContract.fees && domain && blockHeight && !isLiveAuction) {
+    if (pdnsSourceContract.fees && domain && blockHeight && !isInAuction) {
       const newFee = calculatePDNSNamePrice({
         domain: domain!,
         type: registrationType,
@@ -153,25 +178,10 @@ function RegisterNameForm() {
 
   return (
     <div className="page center">
-      {loadingAuctionInfo ? (
-        <div className="modal-container center">
-          <div
-            className="flex flex-column center white"
-            style={{
-              padding: '30px',
-              width: 'fit-content',
-              height: 'fit-content',
-              background: 'var(--card-bg)',
-              borderRadius: 'var(--corner-radius)',
-            }}
-          >
-            <Loader size={80} color="var(--accent)" />
-            Loading Auction Info, please wait.
-          </div>
-        </div>
-      ) : (
-        <></>
-      )}
+      <PageLoader
+        message={'Loading Auction Info, please wait.'}
+        loading={loadingAuctionInfo}
+      />
       <div
         className="flex flex-column flex-center"
         style={{
@@ -237,7 +247,7 @@ function RegisterNameForm() {
               <button
                 className="flex flex-row center text-medium bold pointer"
                 disabled={
-                  isLiveAuction && registrationType === TRANSACTION_TYPES.BUY
+                  isInAuction && registrationType === TRANSACTION_TYPES.BUY
                 }
                 onClick={() =>
                   dispatchRegisterState({
@@ -263,7 +273,7 @@ function RegisterNameForm() {
               >
                 Lease{' '}
                 {registrationType === TRANSACTION_TYPES.LEASE ||
-                (auction?.type === TRANSACTION_TYPES.LEASE && isLiveAuction) ? (
+                (auction?.type === TRANSACTION_TYPES.LEASE && isInAuction) ? (
                   <LockIcon
                     width={'20px'}
                     height={'20px'}
@@ -292,7 +302,7 @@ function RegisterNameForm() {
               <button
                 className="flex flex-row center text-medium bold pointer"
                 disabled={
-                  isLiveAuction && registrationType === TRANSACTION_TYPES.LEASE
+                  isInAuction && registrationType === TRANSACTION_TYPES.LEASE
                 }
                 style={{
                   position: 'relative',
@@ -318,7 +328,7 @@ function RegisterNameForm() {
               >
                 Buy{' '}
                 {registrationType === TRANSACTION_TYPES.BUY ||
-                (auction?.type === TRANSACTION_TYPES.BUY && isLiveAuction) ? (
+                (auction?.type === TRANSACTION_TYPES.BUY && isInAuction) ? (
                   <LockIcon
                     width={'20px'}
                     height={'20px'}
@@ -463,7 +473,7 @@ function RegisterNameForm() {
             <TransactionCost fee={fee} />
             {domain &&
             pdnsSourceContract.settings.auctions &&
-            !isLiveAuction &&
+            isInAuction &&
             isDomainAuctionable({
               domain: domain,
               registrationType: registrationType,

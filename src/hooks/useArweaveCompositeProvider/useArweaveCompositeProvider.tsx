@@ -81,10 +81,7 @@ export function useArweaveCompositeProvider(): ArweaveCompositeDataProvider {
 
       const warpDataProvider = new WarpDataProvider(arweave);
       const arweaveDataProvider = new SimpleArweaveDataProvider(arweave);
-      const contractCacheProviders = [
-        new PDNSContractCache(PDNS_SERVICE_API),
-        warpDataProvider,
-      ];
+      const contractCacheProviders = [new PDNSContractCache(PDNS_SERVICE_API)];
 
       const arweaveCompositeDataProvider = new ArweaveCompositeDataProvider(
         arweaveDataProvider,

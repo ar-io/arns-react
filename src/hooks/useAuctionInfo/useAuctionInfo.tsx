@@ -35,7 +35,8 @@ export function useAuctionInfo(
   const [price, setPrice] = useState<number>(0);
   const [prices, setPrices] = useState<{ [X: string]: number }>();
   const [isLiveAuction, setIsLiveAuction] = useState<boolean>(false);
-  const [loadingAuctionInfo, setLoadingAuctionInfo] = useState<boolean>(true);
+  const [loadingAuctionInfo, setLoadingAuctionInfo] = useState<boolean>(false);
+  // TODO: Fix wacky up pricing
 
   useEffect(() => {
     if (!domain.length) {
@@ -104,6 +105,7 @@ export function useAuctionInfo(
       }
     } catch (error) {
       eventEmitter.emit('error', error);
+      reset();
     } finally {
       setLoadingAuctionInfo(false);
     }
@@ -184,6 +186,7 @@ export function useAuctionInfo(
     auction,
     auctionSettings,
     prices,
+    updateAuctionInfo,
     loadingAuctionInfo,
   };
 }

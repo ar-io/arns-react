@@ -92,7 +92,6 @@ function PDNSCard({ domain, contractTxId }: PDNSMapping) {
       return metaImage;
     } catch (error) {
       const index = getRandomInteger(0, 2);
-      console.log(index);
       return [ElephantOne, ElephantTwo, ElephantThree][index];
     }
   }

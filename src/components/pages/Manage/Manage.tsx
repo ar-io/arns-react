@@ -3,7 +3,6 @@ import { Table } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
-import logo from '../../../../assets/images/logo/looped-winston-white.gif';
 import {
   useArweaveCompositeProvider,
   useIsMobile,
