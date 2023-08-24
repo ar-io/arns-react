@@ -32,6 +32,7 @@ import { ReactComponent as FileCodeIcon } from './FileCode.svg';
 import { ReactComponent as HamburgerOutlineIcon } from './HamburgerOutline.svg';
 import { ReactComponent as InfoIcon } from './Info.svg';
 import { ReactComponent as LinkIcon } from './Link.svg';
+import { ReactComponent as LockIcon } from './Lock.svg';
 import { ReactComponent as LogoutIcon } from './Logout.svg';
 import { ReactComponent as MenuIcon } from './Menu.svg';
 import { ReactComponent as NotebookIcon } from './Notebook.svg';
@@ -92,6 +93,7 @@ export {
   HamburgerOutlineIcon,
   InfoIcon,
   LinkIcon,
+  LockIcon,
   LogoutIcon,
   MenuIcon,
   NotebookIcon,

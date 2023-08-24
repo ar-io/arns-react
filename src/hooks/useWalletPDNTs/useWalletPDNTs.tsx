@@ -32,7 +32,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] = useState<keyof PDNTMetadata>('status');
   const [rows, setRows] = useState<PDNTMetadata[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [percent, setPercentLoaded] = useState<number | undefined>();
 
   useEffect(() => {

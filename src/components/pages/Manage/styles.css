@@ -18,3 +18,20 @@
   width: fit-content;
   position: relative;
 }
+
+.ant-table-empty
+  > .ant-table-container
+  > .ant-table-content
+  > table
+  > tbody
+  > tr
+  > td {
+  background-color: unset !important;
+}
+
+.ant-spin-blur::after {
+  background-color: rgb(0, 0, 0, 0.7) !important;
+  backdrop-filter: blur(2px) !important;
+  opacity: 100% !important;
+  border-radius: var(--corner-radius);
+}

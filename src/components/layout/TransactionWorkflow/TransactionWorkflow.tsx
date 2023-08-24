@@ -378,10 +378,12 @@ function TransactionWorkflow({
                   marginBottom: '2em',
                 }}
               >
-                <span className="white center">
-                  <CheckCircleFilled
-                    style={{ fontSize: 18, color: 'var(--success-green)' }}
-                  />
+                <span className="flex white center" style={{ gap: '8px' }}>
+                  <span>
+                    <CheckCircleFilled
+                      style={{ fontSize: 18, color: 'var(--success-green)' }}
+                    />
+                  </span>
                   &nbsp;<b>{decodeDomainToASCII(payload.name)}</b> is yours!
                 </span>
               </div>

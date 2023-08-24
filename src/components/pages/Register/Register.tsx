@@ -26,6 +26,7 @@ import {
   encodeDomainToASCII,
   isArweaveTransactionID,
   isDomainAuctionable,
+  lowerCaseDomain,
 } from '../../../utils';
 import {
   ATOMIC_FLAG,
@@ -33,7 +34,7 @@ import {
   MIN_LEASE_DURATION,
   PDNS_REGISTRY_ADDRESS,
 } from '../../../utils/constants';
-import { CirclePlus } from '../../icons';
+import { CirclePlus, LockIcon } from '../../icons';
 import YearsCounter from '../../inputs/Counter/Counter';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
 import NameTokenSelector from '../../inputs/text/NameTokenSelector/NameTokenSelector';
@@ -51,24 +52,21 @@ function RegisterNameForm() {
   const [{ pdnsSourceContract, walletAddress, blockHeight }] = useGlobalState();
   const [, dispatchTransactionState] = useTransactionState();
   const arweaveDataProvider = useArweaveCompositeProvider();
-  const { minimumAuctionBid, auction, isLiveAuction } = useAuctionInfo(
-    domain,
-    registrationType,
-    leaseDuration,
-  );
+  const { name } = useParams();
+  const { minimumAuctionBid, auction, isLiveAuction, loadingAuctionInfo } =
+    useAuctionInfo('boomarang', registrationType, leaseDuration);
   const [targetId, setTargetId] = useState<string>();
   const targetIdFocused = useIsFocused('target-id-input');
-  const { name } = useParams();
   const navigate = useNavigate();
 
-  if (registrationType !== auction?.type && auction?.type && isLiveAuction) {
-    dispatchRegisterState({
-      type: 'setRegistrationType',
-      payload: auction?.type,
-    });
-  } else {
-    console.debug('registrationType is undefined');
-  }
+  useEffect(() => {
+    if (auction) {
+      dispatchRegisterState({
+        type: 'setRegistrationType',
+        payload: TRANSACTION_TYPES.BUY,
+      });
+    }
+  }, [loadingAuctionInfo, domain]);
 
   useEffect(() => {
     if (name && domain !== name) {
@@ -149,12 +147,31 @@ function RegisterNameForm() {
     }
   }
 
-  if (!walletAddress) {
+  if (!walletAddress || !registrationType) {
     return <Loader size={80} />;
   }
 
   return (
     <div className="page center">
+      {loadingAuctionInfo ? (
+        <div className="modal-container center">
+          <div
+            className="flex flex-column center white"
+            style={{
+              padding: '30px',
+              width: 'fit-content',
+              height: 'fit-content',
+              background: 'var(--card-bg)',
+              borderRadius: 'var(--corner-radius)',
+            }}
+          >
+            <Loader size={80} color="var(--accent)" />
+            Loading Auction Info, please wait.
+          </div>
+        </div>
+      ) : (
+        <></>
+      )}
       <div
         className="flex flex-column flex-center"
         style={{
@@ -219,7 +236,9 @@ function RegisterNameForm() {
             >
               <button
                 className="flex flex-row center text-medium bold pointer"
-                disabled={isLiveAuction}
+                disabled={
+                  isLiveAuction && registrationType === TRANSACTION_TYPES.BUY
+                }
                 onClick={() =>
                   dispatchRegisterState({
                     type: 'setRegistrationType',
@@ -242,7 +261,18 @@ function RegisterNameForm() {
                   borderBottomWidth: '0.5px',
                 }}
               >
-                Lease
+                Lease{' '}
+                {registrationType === TRANSACTION_TYPES.LEASE ||
+                (auction?.type === TRANSACTION_TYPES.LEASE && isLiveAuction) ? (
+                  <LockIcon
+                    width={'20px'}
+                    height={'20px'}
+                    fill={'var(--text-black)'}
+                    style={{ position: 'absolute', right: '20px' }}
+                  />
+                ) : (
+                  <></>
+                )}
                 {registrationType === TRANSACTION_TYPES.LEASE ? (
                   <div
                     style={{
@@ -261,7 +291,9 @@ function RegisterNameForm() {
               </button>
               <button
                 className="flex flex-row center text-medium bold pointer"
-                disabled={isLiveAuction}
+                disabled={
+                  isLiveAuction && registrationType === TRANSACTION_TYPES.LEASE
+                }
                 style={{
                   position: 'relative',
                   background:
@@ -284,7 +316,18 @@ function RegisterNameForm() {
                   })
                 }
               >
-                Buy
+                Buy{' '}
+                {registrationType === TRANSACTION_TYPES.BUY ||
+                (auction?.type === TRANSACTION_TYPES.BUY && isLiveAuction) ? (
+                  <LockIcon
+                    width={'20px'}
+                    height={'20px'}
+                    fill={'var(--text-black)'}
+                    style={{ position: 'absolute', right: '20px' }}
+                  />
+                ) : (
+                  <></>
+                )}
                 {registrationType === TRANSACTION_TYPES.BUY ? (
                   <div
                     style={{

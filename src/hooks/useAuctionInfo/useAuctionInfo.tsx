@@ -26,7 +26,7 @@ export function useAuctionInfo(
   leaseDuration?: number,
 ) {
   const [
-    { pdnsSourceContract, blockHeight: blockHeight, walletAddress, gateway },
+    { pdnsSourceContract, blockHeight, walletAddress },
     dispatchGlobalState,
   ] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
@@ -35,6 +35,22 @@ export function useAuctionInfo(
   const [price, setPrice] = useState<number>(0);
   const [prices, setPrices] = useState<{ [X: string]: number }>();
   const [isLiveAuction, setIsLiveAuction] = useState<boolean>(false);
+  const [loadingAuctionInfo, setLoadingAuctionInfo] = useState<boolean>(true);
+
+  useEffect(() => {
+    if (!domain.length) {
+      return;
+    }
+    updateAuctionInfo(domain);
+  }, [pdnsSourceContract?.auctions, domain, registrationType]);
+
+  useEffect(() => {
+    updateAuctionSettings();
+  }, [auction, pdnsSourceContract?.settings?.auctions?.history]);
+
+  useEffect(() => {
+    updatePrice();
+  }, [auction, blockHeight]);
 
   function reset() {
     setAuctionSettings(undefined);
@@ -44,34 +60,58 @@ export function useAuctionInfo(
     setIsLiveAuction(false);
   }
 
-  useEffect(() => {
+  function updateAuctionSettings() {
     try {
-      if (!domain) {
-        reset();
-        console.debug(
-          'No domain provided to useAuctionInfo hook. To calculate auction prices a domain is required.',
-        );
+      setLoadingAuctionInfo(true);
+      if (auction && pdnsSourceContract?.settings?.auctions?.history) {
+        const foundAuctionSettings =
+          pdnsSourceContract?.settings?.auctions?.history.find(
+            (a: AuctionSettings) => a.id === auction.auctionSettingsId,
+          );
 
-        return;
+        setAuctionSettings(foundAuctionSettings);
       }
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    } finally {
+      setLoadingAuctionInfo(false);
+    }
+  }
 
-      if (!blockHeight) {
-        arweaveDataProvider
-          .getCurrentBlockHeight()
-          .then((b: number) => {
-            dispatchGlobalState({
-              type: 'setBlockHeight',
-              payload: b,
-            });
-          })
-          .catch(() => {
-            throw new Error(
-              `Error getting block height from ${gateway}, unable to calculate auction prices.`,
-            );
-          });
-        return;
+  function updatePrice() {
+    try {
+      setLoadingAuctionInfo(true);
+      if (auction && auctionSettings && blockHeight) {
+        const calculatedPrice = calculateMinimumAuctionBid({
+          startHeight: auction.startHeight,
+          initialPrice: auction.startPrice,
+          floorPrice: auction.floorPrice,
+          currentBlockHeight: blockHeight,
+          decayInterval: auctionSettings.decayInterval,
+          decayRate: auctionSettings.decayRate,
+        });
+
+        setPrice(calculatedPrice);
+        const newPrices = updatePrices({
+          startHeight: auction.startHeight,
+          initialPrice: auction.startPrice,
+          auctionDuration: auctionSettings.auctionDuration,
+          floorPrice: auction.floorPrice,
+          decayInterval: auctionSettings.decayInterval,
+          decayRate: auctionSettings.decayRate,
+        });
+        setPrices(newPrices);
       }
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    } finally {
+      setLoadingAuctionInfo(false);
+    }
+  }
 
+  async function updateAuctionInfo(domainName: string) {
+    try {
+      setLoadingAuctionInfo(true);
       if (
         !isDomainAuctionable({
           domain,
@@ -79,12 +119,19 @@ export function useAuctionInfo(
           reservedList: Object.keys(pdnsSourceContract.reserved),
         })
       ) {
+        setLoadingAuctionInfo(false);
         return;
       }
 
+      const newBlock = await arweaveDataProvider.getCurrentBlockHeight();
+      dispatchGlobalState({
+        type: 'setBlockHeight',
+        payload: newBlock,
+      });
+
       if (pdnsSourceContract?.auctions) {
         const foundAuction =
-          pdnsSourceContract?.auctions[lowerCaseDomain(domain)];
+          pdnsSourceContract?.auctions[lowerCaseDomain(domainName)];
 
         if (foundAuction) {
           const foundAuctionSettings =
@@ -94,16 +141,14 @@ export function useAuctionInfo(
           setAuction(foundAuction);
           setAuctionSettings(foundAuctionSettings);
           setIsLiveAuction(true);
-          return;
         }
 
         if (pdnsSourceContract.settings.auctions) {
           if (!registrationType) {
-            console.debug(
+            throw new Error(
               'unable to generate auction prices without registration type',
-              { registrationType },
+              registrationType,
             );
-            return;
           }
 
           if (!walletAddress) {
@@ -113,69 +158,25 @@ export function useAuctionInfo(
           }
 
           const [newAuction, newAuctionSettings] = generateAuction({
-            domain,
+            domain: domainName,
             registrationType,
             years: leaseDuration ?? 1,
             auctionSettings: pdnsSourceContract.settings.auctions,
             fees: pdnsSourceContract.fees,
-            currentBlockHeight: blockHeight,
+            currentBlockHeight: blockHeight ?? newBlock,
             walletAddress,
           }); // sets contract id as atomic by default
           setAuction(newAuction);
           setAuctionSettings(newAuctionSettings);
           setIsLiveAuction(false);
-          return;
         }
-
-        // if auction found, set live auction
-        setIsLiveAuction(true);
-        setAuction(foundAuction);
       }
     } catch (error) {
       eventEmitter.emit('error', error);
+    } finally {
+      setLoadingAuctionInfo(false);
     }
-  }, [
-    blockHeight,
-    pdnsSourceContract?.auctions,
-    pdnsSourceContract?.settings?.auctions,
-    domain,
-    registrationType,
-  ]);
-
-  useEffect(() => {
-    if (auction && pdnsSourceContract?.settings?.auctions?.history) {
-      const foundAuctionSettings =
-        pdnsSourceContract?.settings?.auctions?.history.find(
-          (a: AuctionSettings) => a.id === auction.auctionSettingsId,
-        );
-
-      setAuctionSettings(foundAuctionSettings);
-    }
-  }, [auction, pdnsSourceContract?.settings?.auctions?.history]);
-
-  useEffect(() => {
-    if (auction && auctionSettings && blockHeight) {
-      const calculatedPrice = calculateMinimumAuctionBid({
-        startHeight: auction.startHeight,
-        initialPrice: auction.startPrice,
-        floorPrice: auction.floorPrice,
-        currentBlockHeight: blockHeight,
-        decayInterval: auctionSettings.decayInterval,
-        decayRate: auctionSettings.decayRate,
-      });
-
-      setPrice(calculatedPrice);
-      const newPrices = updatePrices({
-        startHeight: auction.startHeight,
-        initialPrice: auction.startPrice,
-        auctionDuration: auctionSettings.auctionDuration,
-        floorPrice: auction.floorPrice,
-        decayInterval: auctionSettings.decayInterval,
-        decayRate: auctionSettings.decayRate,
-      });
-      setPrices(newPrices);
-    }
-  }, [auction, auctionSettings, blockHeight]);
+  }
 
   return {
     minimumAuctionBid: price,
@@ -183,5 +184,6 @@ export function useAuctionInfo(
     auction,
     auctionSettings,
     prices,
+    loadingAuctionInfo,
   };
 }

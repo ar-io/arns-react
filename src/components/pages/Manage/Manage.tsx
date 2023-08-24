@@ -1,7 +1,9 @@
+import { PlusOutlined } from '@ant-design/icons';
 import { Table } from 'antd';
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
+import logo from '../../../../assets/images/logo/looped-winston-white.gif';
 import {
   useArweaveCompositeProvider,
   useIsMobile,
@@ -110,6 +112,9 @@ function Manage() {
         address,
         'ant', // only fetches contracts that have a state that matches ant spec
       );
+      if (!contractTxIds.length) {
+        throw new Error('No contracts found for wallet');
+      }
       setPDNTIDs(contractTxIds);
     } catch (error: any) {
       eventEmitter.emit('error', error);
@@ -184,12 +189,7 @@ function Manage() {
             </button>
 
             <button
-              disabled={tableLoading}
-              className={
-                tableLoading
-                  ? 'outline-button center disabled-button'
-                  : 'outline-button center'
-              }
+              className={'outline-button center'}
               style={{
                 padding: '0.75em',
               }}
@@ -204,43 +204,121 @@ function Manage() {
             </button>
           </div>
         </div>
-        {tableLoading ? (
-          <div
-            className="flex center"
-            style={{ paddingTop: '10%', justifyContent: 'center' }}
-          >
-            <Loader
-              message={
-                !percent
-                  ? `Querying for wallet contracts...${pdntIds.length} found`
-                  : `Validating contracts...${Math.round(percent)}%`
-              }
-            />
-          </div>
-        ) : (
-          <>
-            <Table
-              scroll={pdntIds.length ? { x: true } : {}}
-              columns={tableColumns}
-              dataSource={tableData}
-              pagination={{
-                position: ['bottomCenter'],
-                rootClassName: 'table-pagination',
-                itemRender: (page, type, originalElement) =>
-                  getCustomPaginationButtons({
-                    page,
-                    type,
-                    originalElement,
-                    currentPage: tablePage,
-                  }),
-                onChange: updatePage,
-                showPrevNextJumpers: true,
-                showSizeChanger: false,
-                current: tablePage,
-              }}
-            />
-          </>
-        )}
+        <Table
+          scroll={pdntIds.length ? { x: true } : {}}
+          columns={tableColumns}
+          dataSource={tableData}
+          pagination={{
+            position: ['bottomCenter'],
+            rootClassName: 'table-pagination',
+            itemRender: (page, type, originalElement) =>
+              getCustomPaginationButtons({
+                page,
+                type,
+                originalElement,
+                currentPage: tablePage,
+              }),
+            onChange: updatePage,
+            showPrevNextJumpers: true,
+            showSizeChanger: false,
+            current: tablePage,
+          }}
+          loading={{
+            spinning: tableLoading,
+            indicator: <></>,
+            tip: (
+              <div
+                className={'flex flex-column center'}
+                style={{
+                  position: 'absolute',
+                  height: '100%',
+                  width: '100%',
+                  boxSizing: 'border-box',
+                  top: '0px',
+                }}
+              >
+                <div
+                  className="flex flex-column center"
+                  style={{
+                    background: 'var(--card-bg)',
+                    borderRadius: 'var(--corner-radius)',
+                    padding: '20px',
+                    width: 'fit-content',
+                  }}
+                >
+                  <Loader
+                    size={80}
+                    color="var(--accent)"
+                    wrapperStyle={{ margin: 'auto', position: 'static' }}
+                  />
+                  {!percent
+                    ? `Querying for wallet contracts...${pdntIds.length} found`
+                    : `Validating contracts...${Math.round(percent)}%`}
+                </div>
+              </div>
+            ),
+            style: {
+              display: 'flex',
+              flexDirection: 'column',
+              height: '150%',
+              width: '100%',
+              color: 'white',
+              fontSize: '16px',
+              boxSizing: 'border-box',
+            },
+          }}
+          locale={{
+            emptyText: (
+              <div
+                className="flex flex-column center"
+                style={{ padding: '100px', boxSizing: 'border-box' }}
+              >
+                {path === 'ants' ? (
+                  <>
+                    <span className="white bold" style={{ fontSize: '16px' }}>
+                      No Name Tokens Found
+                    </span>
+                    <span
+                      className={'grey'}
+                      style={{ fontSize: '13px', maxWidth: '400px' }}
+                    >
+                      Arweave Name Tokens (ANTs) provide ownership and control
+                      of ArNS names. With ANTs you can easily manage, transfer,
+                      and adjust your domains, as well as create undernames.
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="white bold" style={{ fontSize: '16px' }}>
+                      No Registered Names Found
+                    </span>
+                    <span
+                      className={'grey'}
+                      style={{ fontSize: '13px', maxWidth: '400px' }}
+                    >
+                      Arweave Names are friendly names for data on the Arweave
+                      blockchain. They serve to improve finding, sharing, and
+                      access to data, resistant to takedowns or losses.
+                    </span>
+                  </>
+                )}
+                <div className="flex flex-row center" style={{ gap: '16px' }}>
+                  <Link
+                    to="/create"
+                    className="button-secondary center hover"
+                    style={{ gap: '8px' }}
+                  >
+                    <PlusOutlined width={'16px'} height={'16px'} />
+                    Create an ANT
+                  </Link>
+                  <Link to="/" className="button-primary center hover">
+                    Search for a Name
+                  </Link>
+                </div>
+              </div>
+            ),
+          }}
+        />
       </div>
     </div>
   );
