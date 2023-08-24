@@ -50,7 +50,6 @@ function Undernames() {
   const { id } = useParams();
   const [pdntId, setPDNTId] = useState<ArweaveTransactionID>();
   const [pdntState, setPDNTState] = useState<PDNTContractJSON>();
-  // TODO implement data editing
   const [selectedRow, setSelectedRow] = useState<
     UndernameMetadata | undefined
   >();

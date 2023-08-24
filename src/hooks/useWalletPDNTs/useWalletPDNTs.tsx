@@ -360,7 +360,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
   async function fetchRowData(
     contractTxId: ArweaveTransactionID,
     address: ArweaveTransactionID,
-    key: any,
+    key: number,
   ) {
     try {
       const [contractState, confirmations, pendingContractInteractions] =
@@ -421,7 +421,6 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
         {},
       );
 
-      console.log(rowData);
       return {
         ...rowData,
         ...pendingInteractions,

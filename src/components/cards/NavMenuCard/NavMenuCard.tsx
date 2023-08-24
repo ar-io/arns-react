@@ -133,7 +133,6 @@ function NavMenuCard() {
                 {Object.entries(ROUTES).map(([key, route]) => {
                   if (!route.protected)
                     return (
-                      // TODO: add menu icons
                       <NavBarLink
                         path={route.path}
                         linkText={route.text}
