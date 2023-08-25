@@ -33,6 +33,7 @@ import {
 } from '../../types';
 import {
   ATOMIC_FLAG,
+  DEFAULT_MAX_UNDERNAMES,
   DEFAULT_PDNT_CONTRACT_STATE,
   MAX_TTL_SECONDS,
   MIN_TTL_SECONDS,
@@ -41,6 +42,7 @@ import {
   TTL_SECONDS_REGEX,
   YEAR_IN_MILLISECONDS,
 } from '../constants';
+import eventEmitter from '../events';
 import {
   encodeDomainToASCII,
   isDomainReservedLength,
@@ -267,7 +269,7 @@ export function getPDNSMappingByInteractionType(
         deployedTransactionId: transactionData.deployedTransactionId,
         state: transactionData.state ?? undefined,
         overrides: {
-          maxUndernames: 'Up to 100', // TODO get subdomain count from contract
+          maxUndernames: `Up to ${DEFAULT_MAX_UNDERNAMES}`,
           leaseDuration: years,
         },
       };
@@ -300,7 +302,7 @@ export function getPDNSMappingByInteractionType(
             : new ArweaveTransactionID(transactionData.contractTxId),
         state: transactionData.state ?? undefined,
         overrides: {
-          maxSubdomains: 100, // TODO get subdomain count from contract
+          maxSubdomains: `Up to ${DEFAULT_MAX_UNDERNAMES}`,
         },
       };
     }
@@ -790,4 +792,39 @@ export function isDomainAuctionable({
   }
 
   return false;
+}
+
+export async function withExponentialBackoff<T>({
+  fn,
+  shouldRetry,
+  maxTries,
+  initialDelay,
+}: {
+  fn: () => Promise<T>;
+  shouldRetry: (error: any) => boolean;
+  maxTries: number;
+  initialDelay: number;
+}): Promise<T> {
+  let tries = 0;
+  let delay = initialDelay;
+
+  while (tries < maxTries) {
+    try {
+      const result = await fn();
+      if (shouldRetry(result)) {
+        tries++;
+        if (tries >= maxTries) {
+          throw new Error('Maximum retry attempts reached');
+        }
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        delay *= 2; // Double the delay for the next attempt
+      } else {
+        return result;
+      }
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    }
+  }
+
+  throw new Error('Maximum retry attempts reached');
 }

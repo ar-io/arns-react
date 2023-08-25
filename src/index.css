@@ -15,6 +15,7 @@
 }
 :root {
   --bg-color: #131314;
+  --box-color: #18191a;
   --card-bg: #222224;
   --text-black: #121212;
   --text-faded: #38393b;
@@ -22,11 +23,13 @@
   --text-section-header: #d1d1d1;
   --text-white: #fafafa;
   --text-bright-white: #ffffff;
+  --text-link: #6c97b5;
   --placeholder-text: #7d7d85;
   --grey-white: #dfdfde;
   --error-red: #ef6461;
   --success-green: #44af69;
   --accent: #ffb938;
+  --secondary: #2e2a22;
   --modal-bg: rgba(23, 23, 23, 0.95);
   --corner-radius: 4px;
   --shadow: 0px 0px 4px rgba(0, 0, 0);
@@ -251,7 +254,8 @@ a:active {
 .modal-container {
   position: fixed;
   display: flex;
-  background-color: var(--modal-bg);
+  background-color: rgb(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
   justify-content: center;
   align-items: center;
   width: 100%;
@@ -385,6 +389,36 @@ a:active {
   height: 100%;
   cursor: pointer;
 }
+.button-primary {
+  box-sizing: border-box;
+  display: flex;
+  padding: 15px;
+  font-size: 16px;
+  font-family: 'Rubik-Bold';
+  font-weight: 800;
+  width: fit-content;
+  height: fit-content;
+  border-radius: var(--corner-radius);
+  background-color: var(--accent);
+  color: var(--text-black);
+  cursor: pointer;
+}
+.button-secondary {
+  box-sizing: border-box;
+  display: flex;
+  padding: 15px;
+  font-size: 16px;
+  font-family: 'Rubik-Bold';
+  font-weight: 800;
+  width: fit-content;
+  height: fit-content;
+  border-radius: var(--corner-radius);
+  background-color: var(--secondary);
+  color: var(--accent);
+  fill: var(--accent);
+  cursor: pointer;
+}
+
 .accent-button {
   box-sizing: border-box;
   display: flex;

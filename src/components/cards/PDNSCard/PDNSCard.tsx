@@ -5,8 +5,15 @@ import { Link } from 'react-router-dom';
 import { useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { PDNSDomain, PDNSMapping } from '../../../types';
+import { getRandomInteger } from '../../../utils';
 import { DEFAULT_EXPIRATION } from '../../../utils/constants';
-import { ExternalLinkIcon, PDNSDefault as pdnsDefaultImage } from '../../icons';
+import {
+  ElephantOne,
+  ElephantThree,
+  ElephantTwo,
+  PDNSDefault,
+} from '../../icons';
+import { Loader } from '../../layout';
 import './styles.css';
 
 const protocol = 'https';
@@ -17,21 +24,24 @@ function PDNSCard({ domain, contractTxId }: PDNSMapping) {
   const [pdntDetails, setPDNTDetails] = useState<PDNSDomain>({
     domain,
     contractTxId,
-    image: pdnsDefaultImage,
+    image: PDNSDefault,
     expiration: DEFAULT_EXPIRATION, // TODO: don't default
   });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getPDNTDetailsFromName(domain);
   }, [isMobile]);
 
   async function getPDNTDetailsFromName(domain: string) {
+    setLoading(true);
     const image = await getMetaImage();
     setPDNTDetails({
       ...pdntDetails,
       domain,
       image,
     });
+    setLoading(false);
   }
 
   async function getMetaImage() {
@@ -81,7 +91,8 @@ function PDNSCard({ domain, contractTxId }: PDNSMapping) {
       }
       return metaImage;
     } catch (error) {
-      return pdnsDefaultImage;
+      const index = getRandomInteger(0, 2);
+      return [ElephantOne, ElephantTwo, ElephantThree][index];
     }
   }
 
@@ -92,31 +103,34 @@ function PDNSCard({ domain, contractTxId }: PDNSMapping) {
       className="pdns-card hover"
       rel="noreferrer"
     >
-      <img
-        className="pdns-preview"
-        src={pdntDetails.image}
-        key={pdntDetails.image}
-        alt={`${domain}.${gateway}`}
-      />
+      {loading ? (
+        <div
+          className="flex flex-column center"
+          style={{ height: '100%', background: 'var(--modal-bg)' }}
+        >
+          <Loader size={80} color="var(--accent)" />
+        </div>
+      ) : (
+        <img
+          className="pdns-preview fade-in"
+          src={pdntDetails.image}
+          key={pdntDetails.image}
+          alt={`${domain}.${gateway}`}
+        />
+      )}
       <div
         className="flex flex-column link"
         style={{
-          gap: 3,
-          padding: 10,
+          gap: '10px',
+          padding: '13px',
           boxSizing: 'border-box',
           textDecoration: 'unset',
+          fontSize: '13px',
         }}
       >
-        <div className="flex flex-row flex-space-between">
-          <span className="flex text white bold">{`${pdntDetails.domain}.${gateway}`}</span>
-          <ExternalLinkIcon
-            height={25}
-            width={25}
-            viewBox={'0 -3 5 20'}
-            fill={'var(--text-white)'}
-          />
-        </div>
-        <span className="text-small white">
+        <span className="flex white">{`${pdntDetails.domain}.${gateway}`}</span>
+
+        <span className="grey">
           Exp.{' '}
           {new Intl.DateTimeFormat('en-US', {
             day: '2-digit',

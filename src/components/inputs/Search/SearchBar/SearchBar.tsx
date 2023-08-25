@@ -183,7 +183,10 @@ function SearchBar(props: SearchBarProps) {
     submitted: boolean;
     focused: boolean;
   }) {
-    const noTextBorderStyle = { border: '', marginBottom: '30px' };
+    const noTextBorderStyle = {
+      border: 'solid 1px var(--text-faded)',
+      marginBottom: '30px',
+    };
     const whiteBorderStyle = {
       border: 'var(--text-white) solid 2px',
       marginBottom: '30px',

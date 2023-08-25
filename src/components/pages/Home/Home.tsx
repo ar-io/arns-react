@@ -54,8 +54,7 @@ function Home() {
   const navigate = useNavigate();
   const [{ pdnsSourceContract }] = useGlobalState();
   const [{ domain, antID }, dispatchRegisterState] = useRegistrationState();
-  const [{ isAuction, isReserved, loading: isValidatingRegistration }] =
-    useRegistrationStatus(domain);
+  const [{ isAuction, isReserved }] = useRegistrationStatus(domain);
   const [featuredDomains, setFeaturedDomains] = useState<{
     [x: string]: string;
   }>();
@@ -228,19 +227,20 @@ function Home() {
             }
             height={65}
           />
-          {!isValidatingRegistration &&
-          updateShowFeaturedDomains({
-            auction: isAuction,
-            reserved: isReserved,
-            domains: featuredDomains ?? {},
-            id: antID,
-            name: lowerCaseDomain(domain),
-          }) &&
-          featuredDomains ? (
-            <FeaturedDomains domains={featuredDomains} />
-          ) : (
-            <></>
-          )}
+          {
+            //!isValidatingRegistration &&
+            updateShowFeaturedDomains({
+              auction: isAuction,
+              reserved: isReserved,
+              domains: featuredDomains ?? {},
+              id: antID,
+              name: lowerCaseDomain(domain),
+            }) && featuredDomains ? (
+              <FeaturedDomains domains={featuredDomains} />
+            ) : (
+              <></>
+            )
+          }
         </div>
       )}
     </div>

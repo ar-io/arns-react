@@ -21,7 +21,6 @@ function Layout() {
       </div>
       <div className="body">
         <Outlet />
-        {/* TODO: add errors here */}
         <Notifications />
       </div>
       <div

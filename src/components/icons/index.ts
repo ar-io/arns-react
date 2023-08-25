@@ -32,6 +32,7 @@ import { ReactComponent as FileCodeIcon } from './FileCode.svg';
 import { ReactComponent as HamburgerOutlineIcon } from './HamburgerOutline.svg';
 import { ReactComponent as InfoIcon } from './Info.svg';
 import { ReactComponent as LinkIcon } from './Link.svg';
+import { ReactComponent as LockIcon } from './Lock.svg';
 import { ReactComponent as LogoutIcon } from './Logout.svg';
 import { ReactComponent as MenuIcon } from './Menu.svg';
 import { ReactComponent as NotebookIcon } from './Notebook.svg';
@@ -47,6 +48,9 @@ import { ReactComponent as TargetIcon } from './Target.svg';
 import { ReactComponent as TrashIcon } from './Trash.svg';
 import { ReactComponent as UploadIcon } from './Upload.svg';
 import { ReactComponent as BellIcon } from './bell-simple.svg';
+import ElephantOne from './elephant1.png';
+import ElephantTwo from './elephant2.png';
+import ElephantThree from './elephant3.png';
 import { ReactComponent as EnvelopeIcon } from './envelope.svg';
 
 export {
@@ -79,6 +83,9 @@ export {
   CloseIcon,
   CopyIcon,
   CubeIcon,
+  ElephantOne,
+  ElephantTwo,
+  ElephantThree,
   ExternalLinkIcon,
   EnvelopeIcon,
   ExternalLinkOutlined,
@@ -86,6 +93,7 @@ export {
   HamburgerOutlineIcon,
   InfoIcon,
   LinkIcon,
+  LockIcon,
   LogoutIcon,
   MenuIcon,
   NotebookIcon,

@@ -34,8 +34,10 @@
   }
 
   .pdns-preview {
-    width: 30%;
-    height: 50px;
+    width: 100px;
+    height: 66px;
     border-radius: 8px;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
   }
 }

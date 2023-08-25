@@ -30,7 +30,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
   const [sortField, setSortField] = useState<keyof PDNSTableRow>('status');
   const [selectedRow] = useState<PDNSTableRow>();
   const [rows, setRows] = useState<PDNSTableRow[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [percent, setPercentLoaded] = useState<number | undefined>();
 
   useEffect(() => {
