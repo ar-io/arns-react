@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/react';
+import { useEffect } from 'react';
 import {
   Navigate,
   Route,
@@ -25,7 +26,9 @@ import {
   Transaction,
 } from './components/pages';
 import { usePDNSContract } from './hooks/';
+import useArconnectEvents from './hooks/useArconnectEvents/useArconnectEvents';
 import './index.css';
+import { useGlobalState } from './state/contexts/GlobalState';
 
 const sentryCreateBrowserRouter =
   Sentry.wrapCreateBrowserRouter(createBrowserRouter);
@@ -33,6 +36,19 @@ const sentryCreateBrowserRouter =
 function App() {
   // dispatches global state
   usePDNSContract();
+  const [, dispatchGlobalState] = useGlobalState();
+  const arconnectEvents = useArconnectEvents();
+
+  useEffect(() => {
+    if (arconnectEvents) {
+      arconnectEvents.on('gateway', (e: any) => {
+        dispatchGlobalState({
+          type: 'setGateway',
+          payload: e.host,
+        });
+      });
+    }
+  }, [arconnectEvents]);
 
   const router = sentryCreateBrowserRouter(
     createRoutesFromElements(

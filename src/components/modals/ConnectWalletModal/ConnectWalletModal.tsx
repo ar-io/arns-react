@@ -46,6 +46,14 @@ function ConnectWalletModal(): JSX.Element {
   async function setGlobalWallet(walletConnector: ArweaveWalletConnector) {
     try {
       await walletConnector.connect();
+      const arconnectGate = await walletConnector.getGatewayConfig();
+      console.log(arconnectGate);
+      if (arconnectGate?.host) {
+        dispatchGlobalState({
+          type: 'setGateway',
+          payload: arconnectGate.host,
+        });
+      }
       dispatchGlobalState({
         type: 'setWallet',
         payload: walletConnector,

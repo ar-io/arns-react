@@ -20,7 +20,7 @@ export type GlobalState = {
 const initialState: GlobalState = {
   pdnsContractId: new ArweaveTransactionID(PDNS_REGISTRY_ADDRESS),
   pdnsSourceContract: DEFAULT_PDNS_REGISTRY_STATE,
-  gateway: 'arweave.net',
+  gateway: 'ar-io.dev',
   walletAddress: undefined,
   wallet: undefined,
   blockHeight: undefined,

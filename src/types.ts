@@ -1,3 +1,5 @@
+import { Config } from 'arweave/node/common';
+import { ApiConfig } from 'arweave/node/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
 
 import { AntDetailKey } from './components/cards/PDNTCard/PDNTCard';
@@ -215,6 +217,7 @@ export interface ArweaveWalletConnector {
   connect(): Promise<void>;
   disconnect(): Promise<void>;
   getWalletAddress(): Promise<ArweaveTransactionID>;
+  getGatewayConfig(): Promise<ApiConfig>;
 }
 
 export interface TransactionCache {
