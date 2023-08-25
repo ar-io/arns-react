@@ -1,12 +1,13 @@
 import type { Dispatch, SetStateAction } from 'react';
 
 import { AntDetailKey } from './components/cards/PDNTCard/PDNTCard';
+import { PDNTContract } from './services/arweave/PDNTContract';
 import { PDNS_TX_ID_REGEX } from './utils/constants';
 
 export type PDNSRecordEntry = {
   contractTxId: string;
   startTimestamp: number;
-  endTimestamp: number;
+  endTimestamp?: number;
   type: TRANSACTION_TYPES;
   undernames: number;
 };
@@ -130,6 +131,7 @@ export type JsonWalletProvider = {
 export interface SmartweaveContractCache {
   getContractState<T extends PDNTContractJSON | PDNSContractJSON>(
     contractTxId: ArweaveTransactionID,
+    address?: ArweaveTransactionID, // required for getting cached name tokens
   ): Promise<T>;
   getContractBalanceForWallet(
     contractTxId: ArweaveTransactionID,
@@ -155,6 +157,9 @@ export interface SmartweaveContractCache {
     auctionsList: string[];
   }): boolean;
   isDomainReserved({ domain }: { domain: string }): Promise<boolean>;
+  getCachedNameTokens(
+    address: ArweaveTransactionID,
+  ): Promise<PDNTContract[] | undefined>;
 }
 
 export interface SmartweaveContractInteractionProvider {
@@ -581,7 +586,7 @@ export type PDNSTableRow = {
   role: string;
   undernames: number;
   id: string;
-  expiration: Date;
+  expiration: Date | string;
   status: number;
   key: string | number;
 };

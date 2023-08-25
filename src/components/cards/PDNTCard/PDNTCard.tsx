@@ -8,7 +8,6 @@ import {
   ArweaveTransactionID,
   PDNSMapping,
   PDNTContractJSON,
-  TRANSACTION_TYPES,
 } from '../../../types';
 import {
   decodeDomainToASCII,
@@ -132,9 +131,9 @@ function PDNTCard(props: PDNSMapping) {
         contractTxId: contractTxId?.toString() ?? 'N/A',
         domain: decodeDomainToASCII(domain),
         leaseDuration: pdnsSourceContract.records[name]
-          ? pdnsSourceContract.records[domain]?.type === TRANSACTION_TYPES.BUY
-            ? 'Indefinite'
-            : +pdnsSourceContract.records[name].endTimestamp * 1000
+          ? pdnsSourceContract.records[name].endTimestamp
+            ? +pdnsSourceContract.records[name].endTimestamp! * 1000
+            : 'Indefinite'
           : 'N/A',
         maxUndernames: 'Up to ' + undernameCount,
         name: antContractState.name,

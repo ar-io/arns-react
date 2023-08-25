@@ -365,12 +365,18 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
     try {
       const [contractState, confirmations, pendingContractInteractions] =
         await Promise.all([
-          arweaveDataProvider.getContractState<PDNTContractJSON>(contractTxId),
-          arweaveDataProvider.getTransactionStatus(contractTxId),
-          arweaveDataProvider.getPendingContractInteractions(
+          arweaveDataProvider.getContractState<PDNTContractJSON>(
             contractTxId,
-            address.toString(),
+            address,
           ),
+          arweaveDataProvider.getTransactionStatus(contractTxId).catch((e) => {
+            console.error(e);
+          }),
+          arweaveDataProvider
+            .getPendingContractInteractions(contractTxId, address.toString())
+            .catch((e) => {
+              console.error(e);
+            }),
         ]);
 
       if (!contractState) {
@@ -408,7 +414,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
 
       // get any pending transactions for various attributes
       const pendingTxsForContract = getPendingInteractionsRowsForContract(
-        pendingContractInteractions,
+        pendingContractInteractions ?? [],
         rowData,
       );
 
@@ -436,11 +442,22 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
     address: ArweaveTransactionID,
   ) {
     const fetchedRows: PDNTMetadata[] = [];
-    setIsLoading(true);
+    const tokenIds = new Set(ids);
 
     try {
+      setIsLoading(true);
+      const cachedTokens = await arweaveDataProvider.getCachedNameTokens(
+        address,
+      );
+      if (cachedTokens?.length) {
+        cachedTokens.forEach((token: PDNTContract) => {
+          if (token?.id) {
+            tokenIds.add(new ArweaveTransactionID(token.id.toString()));
+          }
+        });
+      }
       const allData: PDNTMetadata[] = await Promise.all(
-        Object.values(ids).map((id, index) => fetchRowData(id, address, index)),
+        [...tokenIds].map((id, index) => fetchRowData(id, address, index)),
       ).then((rows) =>
         rows.reduce((acc: PDNTMetadata[], row: PDNTMetadata | undefined) => {
           if (row) {
@@ -455,7 +472,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
     } catch (error) {
       eventEmitter.emit('error', error);
     } finally {
-      setPercentLoaded((fetchedRows.length / ids.length) * 100);
+      setPercentLoaded((fetchedRows.length / tokenIds.size) * 100);
     }
 
     setRows(fetchedRows);

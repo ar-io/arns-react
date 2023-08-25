@@ -9,6 +9,7 @@ import {
   TRANSACTION_TYPES,
   TransactionTag,
 } from '../../types';
+import { PDNTContract } from './PDNTContract';
 
 export class ArweaveCompositeDataProvider
   implements
@@ -39,9 +40,12 @@ export class ArweaveCompositeDataProvider
 
   async getContractState<T extends PDNSContractJSON | PDNTContractJSON>(
     contractTxId: ArweaveTransactionID,
+    address?: ArweaveTransactionID,
   ): Promise<T> {
     return Promise.any(
-      this._contractProviders.map((p) => p.getContractState<T>(contractTxId)),
+      this._contractProviders.map((p) =>
+        p.getContractState<T>(contractTxId, address),
+      ),
     );
   }
 
@@ -185,6 +189,14 @@ export class ArweaveCompositeDataProvider
       this._contractProviders.map((p) =>
         p.getContractInteractions(contractTxId),
       ),
+    );
+  }
+
+  async getCachedNameTokens(
+    address: ArweaveTransactionID,
+  ): Promise<PDNTContract[] | undefined> {
+    return Promise.any(
+      this._contractProviders.map((p) => p.getCachedNameTokens(address)),
     );
   }
 
