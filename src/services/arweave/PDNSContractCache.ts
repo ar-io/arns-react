@@ -11,6 +11,7 @@ import {
 import { isDomainReservedLength, lowerCaseDomain } from '../../utils';
 import { PDNS_REGISTRY_ADDRESS } from '../../utils/constants';
 import { LocalStorageCache } from '../cache/LocalStorageCache';
+import { PDNTContract } from './PDNTContract';
 
 export class PDNSContractCache implements SmartweaveContractCache {
   private _url: string;
@@ -23,11 +24,23 @@ export class PDNSContractCache implements SmartweaveContractCache {
 
   async getContractState<T extends PDNTContractJSON | PDNSContractJSON>(
     contractTxId: ArweaveTransactionID,
+    address?: ArweaveTransactionID,
   ): Promise<T> {
+    if (address) {
+      const cachedTokens = await this._cache.get(address.toString());
+      const cachedToken = cachedTokens?.find(
+        (token: any) =>
+          token.type === 'deploy' && token.id === contractTxId.toString(),
+      );
+      if (cachedToken) {
+        return JSON.parse(cachedToken.payload.initState);
+      }
+    }
     const res = await fetch(
       `${this._url}/v1/contract/${contractTxId.toString()}`,
     );
     const { state } = await res.json();
+
     return state as T;
   }
 
@@ -136,5 +149,27 @@ export class PDNSContractCache implements SmartweaveContractCache {
     );
     const isAvailable = res.status !== 200;
     return isAvailable;
+  }
+  async getCachedNameTokens(
+    address: ArweaveTransactionID,
+  ): Promise<PDNTContract[] | undefined> {
+    const cachedTokens = await this._cache.get(address.toString());
+
+    const tokens = cachedTokens.map((token: any) => {
+      if (token.type !== 'deploy') {
+        return;
+      }
+      const contract = new PDNTContract(
+        JSON.parse(token.payload.initState),
+        new ArweaveTransactionID(token.id),
+      );
+      return contract;
+    });
+    return tokens.reduce((acc: any, token: any) => {
+      if (token) {
+        acc.push(token);
+      }
+      return acc;
+    }, []);
   }
 }

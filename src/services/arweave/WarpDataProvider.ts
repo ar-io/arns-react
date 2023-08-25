@@ -34,6 +34,7 @@ import {
   SMARTWEAVE_MAX_TAG_SPACE,
 } from '../../utils/constants';
 import { LocalStorageCache } from '../cache/LocalStorageCache';
+import { PDNTContract } from './PDNTContract';
 
 LoggerFactory.INST.logLevel('error');
 
@@ -343,6 +344,11 @@ export class WarpDataProvider
     id: ArweaveTransactionID,
     key: string,
   ): Promise<ContractInteraction[]> {
+    throw Error('Not implemented');
+  }
+  async getCachedNameTokens(
+    address: ArweaveTransactionID,
+  ): Promise<PDNTContract[] | undefined> {
     throw Error('Not implemented');
   }
   /* eslint-enable */

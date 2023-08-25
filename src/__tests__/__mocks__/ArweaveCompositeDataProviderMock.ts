@@ -1,3 +1,4 @@
+import { PDNTContract } from '../../services/arweave/PDNTContract';
 import {
   ArweaveDataProvider,
   ArweaveTransactionID,
@@ -162,5 +163,10 @@ export class ArweaveCompositeDataProviderMock
 
   async isDomainAvailable({ domain }: { domain: string }): Promise<boolean> {
     return false;
+  }
+  async getCachedNameTokens(
+    address: ArweaveTransactionID,
+  ): Promise<PDNTContract[] | undefined> {
+    return [] as PDNTContract[]; // Mock value
   }
 }
