@@ -119,5 +119,5 @@ export function handleTableSort<T extends Record<string, any>>({
 }
 
 export function getRandomInteger(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+  return Math.floor(Math.random() * (max - min + 1) + min);
 }
