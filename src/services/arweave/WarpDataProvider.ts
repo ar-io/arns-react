@@ -348,7 +348,7 @@ export class WarpDataProvider
   }
   async getCachedNameTokens(
     address: ArweaveTransactionID,
-  ): Promise<PDNTContract[] | undefined> {
+  ): Promise<PDNTContract[]> {
     throw Error('Not implemented');
   }
   /* eslint-enable */

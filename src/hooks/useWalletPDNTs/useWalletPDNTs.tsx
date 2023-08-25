@@ -449,7 +449,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
       const cachedTokens = await arweaveDataProvider.getCachedNameTokens(
         address,
       );
-      if (cachedTokens?.length) {
+      if (cachedTokens.length) {
         cachedTokens.forEach((token: PDNTContract) => {
           if (token?.id) {
             tokenIds.add(new ArweaveTransactionID(token.id.toString()));

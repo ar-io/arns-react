@@ -31,7 +31,7 @@ function PDNSCard({ domain, contractTxId }: PDNSMapping) {
 
   useEffect(() => {
     getPDNTDetailsFromName(domain);
-  }, [isMobile]);
+  }, [isMobile, gateway]);
 
   async function getPDNTDetailsFromName(domain: string) {
     setLoading(true);

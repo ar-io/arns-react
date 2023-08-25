@@ -1,3 +1,4 @@
+import { ApiConfig } from 'arweave/node/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
 
 import { AntDetailKey } from './components/cards/PDNTCard/PDNTCard';
@@ -157,9 +158,7 @@ export interface SmartweaveContractCache {
     auctionsList: string[];
   }): boolean;
   isDomainReserved({ domain }: { domain: string }): Promise<boolean>;
-  getCachedNameTokens(
-    address: ArweaveTransactionID,
-  ): Promise<PDNTContract[] | undefined>;
+  getCachedNameTokens(address: ArweaveTransactionID): Promise<PDNTContract[]>;
 }
 
 export interface SmartweaveContractInteractionProvider {
@@ -215,6 +214,7 @@ export interface ArweaveWalletConnector {
   connect(): Promise<void>;
   disconnect(): Promise<void>;
   getWalletAddress(): Promise<ArweaveTransactionID>;
+  getGatewayConfig(): Promise<ApiConfig>;
 }
 
 export interface TransactionCache {

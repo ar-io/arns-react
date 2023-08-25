@@ -194,7 +194,7 @@ export class ArweaveCompositeDataProvider
 
   async getCachedNameTokens(
     address: ArweaveTransactionID,
-  ): Promise<PDNTContract[] | undefined> {
+  ): Promise<PDNTContract[]> {
     return Promise.any(
       this._contractProviders.map((p) => p.getCachedNameTokens(address)),
     );

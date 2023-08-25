@@ -152,7 +152,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
   }
   async getCachedNameTokens(
     address: ArweaveTransactionID,
-  ): Promise<PDNTContract[] | undefined> {
+  ): Promise<PDNTContract[]> {
     const cachedTokens = await this._cache.get(address.toString());
 
     const tokens = cachedTokens.map((token: any) => {

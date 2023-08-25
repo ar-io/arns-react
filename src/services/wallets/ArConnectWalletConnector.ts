@@ -1,4 +1,5 @@
 import { PermissionType } from 'arconnect';
+import { ApiConfig } from 'arweave/node/lib/api';
 
 import { ArweaveTransactionID } from '../../types';
 import { ArweaveWalletConnector } from '../../types';
@@ -8,6 +9,7 @@ const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [
   'ACCESS_ALL_ADDRESSES',
   'ACCESS_PUBLIC_KEY',
   'SIGN_TRANSACTION',
+  'ACCESS_ARWEAVE_CONFIG',
 ];
 
 export class ArConnectWalletConnector implements ArweaveWalletConnector {
@@ -48,5 +50,9 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
     return this._wallet
       .getActiveAddress()
       .then((res) => new ArweaveTransactionID(res));
+  }
+  async getGatewayConfig(): Promise<ApiConfig> {
+    const config = await this._wallet.getArweaveConfig();
+    return config as unknown as ApiConfig;
   }
 }
