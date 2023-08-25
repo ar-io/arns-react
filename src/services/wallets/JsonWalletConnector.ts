@@ -1,3 +1,4 @@
+import { ApiConfig } from 'arweave/node/lib/api';
 import { JWKInterface } from 'arweave/node/lib/wallet';
 import { isString } from 'lodash';
 
@@ -48,6 +49,9 @@ export class JsonWalletConnector implements ArweaveWalletConnector {
   }
 
   async getWalletAddress(): Promise<ArweaveTransactionID> {
+    throw Error('Not implemented!');
+  }
+  async getGatewayConfig(): Promise<ApiConfig> {
     throw Error('Not implemented!');
   }
 }

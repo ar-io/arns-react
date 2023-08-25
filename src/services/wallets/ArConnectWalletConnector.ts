@@ -1,5 +1,4 @@
 import { PermissionType } from 'arconnect';
-import { Config } from 'arweave/node/common';
 import { ApiConfig } from 'arweave/node/lib/api';
 
 import { ArweaveTransactionID } from '../../types';

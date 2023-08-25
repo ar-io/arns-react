@@ -1,4 +1,3 @@
-import { Config } from 'arweave/node/common';
 import { ApiConfig } from 'arweave/node/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
 
