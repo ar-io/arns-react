@@ -166,7 +166,7 @@ export class ArweaveCompositeDataProviderMock
   }
   async getCachedNameTokens(
     address: ArweaveTransactionID,
-  ): Promise<PDNTContract[] | undefined> {
+  ): Promise<PDNTContract[]> {
     return [] as PDNTContract[]; // Mock value
   }
 }

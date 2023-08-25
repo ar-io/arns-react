@@ -158,9 +158,7 @@ export interface SmartweaveContractCache {
     auctionsList: string[];
   }): boolean;
   isDomainReserved({ domain }: { domain: string }): Promise<boolean>;
-  getCachedNameTokens(
-    address: ArweaveTransactionID,
-  ): Promise<PDNTContract[] | undefined>;
+  getCachedNameTokens(address: ArweaveTransactionID): Promise<PDNTContract[]>;
 }
 
 export interface SmartweaveContractInteractionProvider {
