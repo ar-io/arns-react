@@ -8,7 +8,6 @@ import {
   ArweaveTransactionID,
   PDNSMapping,
   PDNTContractJSON,
-  TRANSACTION_TYPES,
 } from '../../../types';
 import {
   decodeDomainToASCII,

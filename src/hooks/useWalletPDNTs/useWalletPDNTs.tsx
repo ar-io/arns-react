@@ -1,5 +1,4 @@
 import { Tooltip } from 'antd';
-import Arweave from 'arweave';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
