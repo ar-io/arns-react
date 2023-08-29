@@ -24,12 +24,17 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
     if (!window.arweaveWallet) {
       window.open('https://arconnect.io');
     }
+    const permissions = await this._wallet.getPermissions();
 
-    const address = await this._wallet
-      .getActiveAddress()
-      .catch(() => undefined);
-
-    if (address) {
+    if (
+      permissions &&
+      !ARCONNECT_WALLET_PERMISSIONS.every((permission) =>
+        permissions.includes(permission),
+      )
+    ) {
+      // disconnect due to missing permissions, then re-connect
+      await this._wallet.disconnect();
+    } else if (permissions) {
       return;
     }
 
@@ -46,11 +51,12 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
     return this._wallet.disconnect();
   }
 
-  getWalletAddress(): Promise<ArweaveTransactionID> {
+  async getWalletAddress(): Promise<ArweaveTransactionID> {
     return this._wallet
       .getActiveAddress()
       .then((res) => new ArweaveTransactionID(res));
   }
+
   async getGatewayConfig(): Promise<ApiConfig> {
     const config = await this._wallet.getArweaveConfig();
     return config as unknown as ApiConfig;

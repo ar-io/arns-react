@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 
+import { useGlobalState } from '../../state/contexts/GlobalState';
+
 function useArconnectEvents() {
+  const [, dispatchGlobalState] = useGlobalState();
   const [eventEmitter, setEventEmitter] = useState<any>();
 
   useEffect(() => {
@@ -11,6 +14,17 @@ function useArconnectEvents() {
       }
     });
   }, []);
+
+  useEffect(() => {
+    if (eventEmitter) {
+      eventEmitter.on('gateway', (e: any) => {
+        dispatchGlobalState({
+          type: 'setGateway',
+          payload: e.host,
+        });
+      });
+    }
+  }, [eventEmitter]);
 
   return eventEmitter;
 }
