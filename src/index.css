@@ -407,8 +407,8 @@ a:active {
   display: flex;
   padding: 15px;
   font-size: 16px;
-  font-family: 'Rubik-Bold';
-  font-weight: 800;
+  font-family: 'Rubik';
+  font-weight: 600;
   width: fit-content;
   height: fit-content;
   border-radius: var(--corner-radius);
@@ -421,8 +421,8 @@ a:active {
   display: flex;
   padding: 15px;
   font-size: 16px;
-  font-family: 'Rubik-Bold';
-  font-weight: 800;
+  font-family: 'Rubik';
+  font-weight: 500;
   width: fit-content;
   height: fit-content;
   border-radius: var(--corner-radius);
@@ -456,7 +456,7 @@ a:active {
   display: flex;
   padding: 15px 20px;
   font-size: 16px;
-  font-family: 'Rubik-Bold';
+  font-family: 'Rubik';
   font-weight: 800;
   min-width: 110px;
   width: fit-content;
