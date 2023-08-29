@@ -2,19 +2,16 @@ import { Tooltip } from 'antd';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { useArweaveCompositeProvider, useIsMobile, useWalletAddress } from '..';
+import { useArweaveCompositeProvider, useWalletAddress } from '..';
 import {
-  BookmarkIcon,
   ChevronUpIcon,
   CirclePending,
   ExternalLinkIcon,
-  FileCodeIcon,
-  NotebookIcon,
-  RefreshAlertIcon,
-  TargetIcon,
 } from '../../components/icons/index';
-import CopyTextButton from '../../components/inputs/buttons/CopyTextButton/CopyTextButton';
 import ManageAssetButtons from '../../components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
+import ArweaveID, {
+  ArweaveIdTypes,
+} from '../../components/layout/ArweaveID/ArweaveID';
 import TransactionStatus from '../../components/layout/TransactionStatus/TransactionStatus';
 import { PDNTContract } from '../../services/arweave/PDNTContract';
 import {
@@ -22,11 +19,13 @@ import {
   PDNTContractJSON,
   PDNTMetadata,
 } from '../../types';
-import { getPendingInteractionsRowsForContract } from '../../utils';
+import {
+  getPendingInteractionsRowsForContract,
+  isArweaveTransactionID,
+} from '../../utils';
 import eventEmitter from '../../utils/events';
 
 export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
-  const isMobile = useIsMobile();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const { walletAddress } = useWalletAddress();
   const [sortAscending, setSortOrder] = useState(true);
@@ -48,8 +47,8 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
         dataIndex: 'hasPending',
         key: 'hasPending',
         align: 'left',
-        width: '2%',
-        className: 'white assets-table-header',
+        width: '1%',
+        className: 'grey manage-assets-table-header',
         render: (hasPending: boolean, row: any) => {
           if (hasPending) {
             return (
@@ -83,10 +82,11 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
       {
         title: (
           <button
-            className="flex-row pointer white"
+            className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
             onClick={() => setSortField('name')}
           >
+            <span>Nickname</span>{' '}
             <ChevronUpIcon
               width={10}
               height={10}
@@ -94,18 +94,16 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
               style={
                 sortField === 'name' && !sortAscending
                   ? { transform: 'rotate(180deg)' }
-                  : {}
+                  : { display: sortField === 'name' ? '' : 'none' }
               }
             />
-            <span>Nickname</span>
-            <NotebookIcon width={24} height={24} fill={'var(--text-grey)'} />
           </button>
         ),
         dataIndex: 'name',
         key: 'name',
         align: 'left',
         width: '18%',
-        className: 'white assets-table-header',
+        className: 'white manage-assets-table-header',
         ellipsis: true,
         onHeaderCell: () => {
           return {
@@ -126,10 +124,11 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
       {
         title: (
           <button
-            className="flex-row pointer white center"
+            className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
             onClick={() => setSortField('role')}
           >
+            <span>Role</span>{' '}
             <ChevronUpIcon
               width={10}
               height={10}
@@ -137,18 +136,16 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
               style={
                 sortField === 'role' && !sortAscending
                   ? { transform: 'rotate(180deg)' }
-                  : {}
+                  : { display: sortField === 'role' ? '' : 'none' }
               }
             />
-            <span>Role</span>
-            <BookmarkIcon width={24} height={24} fill={'var(--text-grey)'} />
           </button>
         ),
         dataIndex: 'role',
         key: 'role',
-        align: 'center',
+        align: 'left',
         width: '18%',
-        className: 'white assets-table-header',
+        className: 'white manage-assets-table-header',
         ellipsis: true,
         onHeaderCell: () => {
           return {
@@ -168,10 +165,11 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
       {
         title: (
           <button
-            className="flex-row pointer white center"
+            className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
             onClick={() => setSortField('id')}
           >
+            <span>Contract ID</span>{' '}
             <ChevronUpIcon
               width={10}
               height={10}
@@ -179,37 +177,26 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
               style={
                 sortField === 'id' && !sortAscending
                   ? { transform: 'rotate(180deg)' }
-                  : {}
+                  : { display: sortField === 'id' ? '' : 'none' }
               }
             />
-            <span>Contract ID</span>
-            <FileCodeIcon width={24} height={24} fill={'var(--text-grey)'} />
           </button>
         ),
         dataIndex: 'id',
         key: 'id',
-        align: 'center',
+        align: 'left',
         width: '18%',
-        className: 'white assets-table-header',
+        className: 'white manage-assets-table-header',
         ellipsis: true,
         render: (val: string) =>
           val === 'N/A' ? (
             val
           ) : (
-            <CopyTextButton
-              copyText={val}
-              body={`${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
-                isMobile ? -2 : -6,
-              )}`}
-              size={16}
-              position="relative"
-              wrapperStyle={{
-                color: 'white',
-                alignItems: 'center',
-                margin: 'auto',
-                fontSize: '16px',
-                fill: 'var(--text-grey)',
-              }}
+            <ArweaveID
+              id={new ArweaveTransactionID(val)}
+              characterCount={12}
+              shouldLink
+              type={ArweaveIdTypes.CONTRACT}
             />
           ),
 
@@ -231,10 +218,11 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
       {
         title: (
           <button
-            className="flex-row pointer white center"
+            className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
             onClick={() => setSortField('targetID')}
           >
+            <span>Target ID</span>{' '}
             <ChevronUpIcon
               width={10}
               height={10}
@@ -242,36 +230,25 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
               style={
                 sortField === 'targetID' && !sortAscending
                   ? { transform: 'rotate(180deg)' }
-                  : {}
+                  : { display: sortField === 'targetID' ? '' : 'none' }
               }
             />
-            <span>Target ID</span>
-            <TargetIcon width={24} height={24} fill={'var(--text-grey)'} />
           </button>
         ),
         dataIndex: 'targetID',
         key: 'targetID',
-        align: 'center',
+        align: 'left',
         width: '18%',
-        className: 'white assets-table-header',
+        className: 'white manage-assets-table-header',
         render: (val: string) =>
-          val === 'N/A' ? (
+          val === 'N/A' || !isArweaveTransactionID(val) ? (
             val
           ) : (
-            <CopyTextButton
-              copyText={val}
-              body={`${val.slice(0, isMobile ? 2 : 6)}...${val.slice(
-                isMobile ? -2 : -6,
-              )}`}
-              size={16}
-              position="relative"
-              wrapperStyle={{
-                color: 'white',
-                alignItems: 'center',
-                margin: 'auto',
-                fontSize: '16px',
-                fill: 'var(--text-grey)',
-              }}
+            <ArweaveID
+              id={new ArweaveTransactionID(val)}
+              characterCount={12}
+              shouldLink
+              type={ArweaveIdTypes.TRANSACTION}
             />
           ),
 
@@ -293,10 +270,11 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
       {
         title: (
           <button
-            className="flex-row pointer white center"
+            className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
             onClick={() => setSortField('status')}
           >
+            <span>Status</span>{' '}
             <ChevronUpIcon
               width={10}
               height={10}
@@ -304,30 +282,17 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
               style={
                 sortField === 'status' && !sortAscending
                   ? { transform: 'rotate(180deg)' }
-                  : {}
+                  : { display: sortField === 'status' ? '' : 'none' }
               }
-            />
-            <span>Status</span>
-            <RefreshAlertIcon
-              width={24}
-              height={24}
-              fill={'var(--text-grey)'}
             />
           </button>
         ),
         dataIndex: 'status',
         key: 'status',
-        align: 'center',
+        align: 'left',
         width: '18%',
-        className: 'white assets-table-header',
-        render: (val: number) => (
-          <TransactionStatus
-            confirmations={val}
-            wrapperStyle={{
-              justifyContent: 'center',
-            }}
-          />
-        ),
+        className: 'white manage-assets-table-header',
+        render: (val: number) => <TransactionStatus confirmations={val} />,
         onHeaderCell: () => {
           return {
             onClick: () => {
@@ -343,7 +308,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
       },
       {
         title: '',
-        className: 'white assets-table-header',
+        className: 'white manage-assets-table-header',
         render: (val: any, row: PDNTMetadata) => (
           <ManageAssetButtons
             id={val.id}
@@ -430,7 +395,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
       return {
         ...rowData,
         ...pendingInteractions,
-        hasPending: pendingTxsForContract.length,
+        hasPending: !!pendingTxsForContract.length,
       };
     } catch (error) {
       console.error(error);

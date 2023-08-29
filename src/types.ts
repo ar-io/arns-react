@@ -589,6 +589,7 @@ export type PDNSTableRow = {
   expiration: Date | string;
   status: number;
   key: string | number;
+  hasPending: boolean;
 };
 
 export type PDNTMetadata = {
@@ -600,6 +601,7 @@ export type PDNTMetadata = {
   state: PDNTContractJSON;
   error?: string;
   key: number;
+  hasPending: boolean;
 };
 
 export type ManagePDNTRow = {

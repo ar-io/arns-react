@@ -1,8 +1,9 @@
+import { Tooltip } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
-import { useIsMobile } from '../../../../hooks';
 import { ArweaveTransactionID } from '../../../../types';
 import { ManageTable } from '../../../../types';
+import { SettingsIcon } from '../../../icons';
 
 function ManageAssetButtons({
   id,
@@ -13,7 +14,6 @@ function ManageAssetButtons({
   assetType: ManageTable;
   disabled: boolean;
 }) {
-  const isMobile = useIsMobile();
   const navigate = useNavigate();
 
   return (
@@ -32,21 +32,26 @@ function ManageAssetButtons({
         >
           Undernames
         </button>
-        {!isMobile ? (
+        <Tooltip
+          title="Manage"
+          placement={'top'}
+          autoAdjustOverflow={true}
+          color="var(--text-faded)"
+        >
           <button
-            className={
-              disabled
-                ? 'assets-manage-button disabled-button'
-                : 'assets-manage-button'
-            }
+            className="outline-button hover"
             onClick={() => navigate(`/manage/${assetType}/${id.toString()}`)}
             disabled={disabled}
+            style={{
+              border: 'none',
+              padding: '0px',
+              minWidth: '0px',
+              width: 'fit-content',
+            }}
           >
-            Manage
+            <SettingsIcon width={'20px'} height={'20px'} fill="inherit" />
           </button>
-        ) : (
-          <></>
-        )}
+        </Tooltip>
       </div>
     </>
   );
