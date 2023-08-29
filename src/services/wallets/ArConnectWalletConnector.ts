@@ -51,7 +51,7 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
     return this._wallet.disconnect();
   }
 
-  async getWalletAddress(): Promise<ArweaveTransactionID> {
+  getWalletAddress(): Promise<ArweaveTransactionID> {
     return this._wallet
       .getActiveAddress()
       .then((res) => new ArweaveTransactionID(res));
