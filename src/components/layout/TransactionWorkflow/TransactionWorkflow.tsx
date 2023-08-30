@@ -13,7 +13,6 @@ import {
   ExcludedValidInteractionType,
   INTERACTION_TYPES,
   IncreaseUndernamesPayload,
-  PDNSMapping,
   PDNTInteractionType,
   RegistryInteractionType,
   TransactionData,
@@ -29,7 +28,6 @@ import {
   getPDNSMappingByInteractionType,
   getWorkflowStepsForInteraction,
   isObjectOfTransactionPayloadType,
-  lowerCaseDomain,
   pruneExtraDataFromTransactionPayload,
 } from '../../../utils';
 import {
@@ -56,7 +54,7 @@ function TransactionWorkflow({
   transactionData,
   workflowStage,
 }: {
-  interactionType: ExcludedValidInteractionType;
+  interactionType?: ExcludedValidInteractionType;
   transactionData: TransactionData;
   workflowStage: TRANSACTION_WORKFLOW_STATUS;
 }) {
@@ -67,27 +65,40 @@ function TransactionWorkflow({
   const arweaveDataProvider = useArweaveCompositeProvider();
   const { assetId, functionName, ...payload } = transactionData;
   const navigate = useNavigate();
-  const [steps, setSteps] = useState<StepProps[] | undefined>(() =>
-    getWorkflowStepsForInteraction(interactionType),
-  );
+  const [currentInteractionType, setCurrentInteractionType] =
+    useState<ExcludedValidInteractionType>();
+  const [steps, setSteps] = useState<StepProps[] | undefined>();
   const [stages, setStages] = useState<
     { [x: string]: WorkflowStage } | undefined
-  >(() =>
-    getStagesByTransactionType({
-      interactionType,
-    }),
-  );
+  >();
   const [deployingTransaction, setDeployingTransaction] =
     useState<boolean>(false);
 
   useEffect(() => {
-    const newStages = getStagesByTransactionType({
-      interactionType,
-    });
-    if (newStages) setStages(newStages);
+    onLoad(interactionType);
   }, [workflowStage, deployedTransactionId, transactionData]);
 
-  async function deployTransaction(): Promise<string | undefined> {
+  function onLoad(type?: ExcludedValidInteractionType) {
+    try {
+      if (!type && !currentInteractionType) {
+        throw new Error('Unable to get transaction type.');
+      }
+      if (type) {
+        setCurrentInteractionType(type);
+        setSteps(getWorkflowStepsForInteraction(type));
+        const newStages = getStagesByTransactionType({
+          interactionType: type,
+        });
+        if (newStages) setStages(newStages);
+      }
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    }
+  }
+
+  async function deployTransaction(
+    type: ExcludedValidInteractionType,
+  ): Promise<string | undefined> {
     try {
       setDeployingTransaction(true);
       let originalTxId: string | undefined = undefined;
@@ -146,7 +157,7 @@ function TransactionWorkflow({
         originalTxId = writeInteractionId?.toString();
       } else {
         const cleanPayload = pruneExtraDataFromTransactionPayload(
-          interactionType,
+          type,
           payload,
         );
         const writeInteractionId = await arweaveDataProvider.writeTransaction({
@@ -204,8 +215,12 @@ function TransactionWorkflow({
         steps[0].status = 'finish';
         steps[1].status = 'process';
       }
-      if (direction === 'next' && TRANSACTION_WORKFLOW_STATUS.PENDING) {
-        const txId = await deployTransaction();
+      if (
+        direction === 'next' &&
+        TRANSACTION_WORKFLOW_STATUS.PENDING &&
+        interactionType
+      ) {
+        const txId = await deployTransaction(interactionType);
         if (!txId) {
           throw new Error(`Failed to deploy transaction`);
         }
@@ -527,7 +542,7 @@ function TransactionWorkflow({
     <>
       <PageLoader
         message={'Deploying transaction...'}
-        loading={deployingTransaction && !deployedTransactionId}
+        loading={deployingTransaction}
       />
       <Workflow
         onNext={() => handleStage('next')}

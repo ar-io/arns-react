@@ -325,8 +325,16 @@ export function getPDNSMappingByInteractionType(
       return {
         domain: transactionData.name,
         contractTxId: transactionData.contractTxId,
+        deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
-          maxUndernames: (
+          maxUndernames: transactionData.deployedTransactionId ? (
+            <span className="white">
+              Up to{' '}
+              <span style={{ color: 'var(--success-green)' }}>
+                {transactionData.qty + transactionData.oldQty}
+              </span>
+            </span>
+          ) : (
             <span className="add-box center">
               {transactionData.qty + transactionData.oldQty}
             </span>

@@ -31,7 +31,7 @@ function UpgradeUndernames() {
   const arweaveDataProvider = useArweaveCompositeProvider();
   const name = location.pathname.split('/').at(-2);
   const [{ pdnsSourceContract }, dispatchGlobalState] = useGlobalState();
-  const [{}, dispatchTransactionState] = useTransactionState();
+  const [, dispatchTransactionState] = useTransactionState();
   const [record, setRecord] = useState<PDNSRecordEntry>();
   const [antContract, setAntContract] = useState<PDNTContract>();
   // min count of 1 ~ contract rule

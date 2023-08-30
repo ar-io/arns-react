@@ -1,8 +1,11 @@
 import { PlusOutlined } from '@ant-design/icons';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ArweaveTransactionID,
+  PDNSMapping,
   TransactionData,
   ValidInteractionType,
 } from '../../../types';
@@ -12,7 +15,8 @@ import {
   getPDNSMappingByInteractionType,
 } from '../../../utils/transactionUtils/transactionUtils';
 import { PDNTCard } from '../../cards';
-import { CodeSandboxIcon, SettingsIcon } from '../../icons';
+import { ArrowLeft, CodeSandboxIcon, SettingsIcon } from '../../icons';
+import PageLoader from '../progress/PageLoader/PageLoader';
 import ActionCard from './ActionCard';
 
 function TransactionComplete({
@@ -24,19 +28,55 @@ function TransactionComplete({
   interactionType: ValidInteractionType;
   transactionData: TransactionData;
 }) {
+  const [{ deployedTransactionId }, dispatchTransactionState] =
+    useTransactionState();
   const navigate = useNavigate();
-  const pdntProps = getPDNSMappingByInteractionType({
-    interactionType,
-    transactionData: {
-      ...transactionData,
-      deployedTransactionId: transactionId,
-    },
-  });
+  const [loading, setLoading] = useState<boolean>(true);
+  const [pdntProps, setPdntProps] = useState<PDNSMapping>();
+  const [currentInteractionType, setCurrentInteractionType] =
+    useState<ValidInteractionType>();
+
+  useEffect(() => {
+    if (transactionId && transactionId === deployedTransactionId) {
+      onLoad();
+    }
+  }, [transactionId]);
+
+  function onLoad() {
+    try {
+      setLoading(true);
+      // reset transaction state upon succesfull deployment
+      if (!transactionId) {
+        throw new Error('Unable to set ANT properties.');
+      }
+      setCurrentInteractionType(interactionType);
+      setPdntProps(
+        getPDNSMappingByInteractionType({
+          interactionType,
+          transactionData: {
+            ...transactionData,
+            deployedTransactionId: transactionId,
+          },
+        }),
+      );
+      dispatchTransactionState({
+        type: 'setDeployedTransactionId',
+        payload: undefined,
+      });
+      dispatchTransactionState({
+        type: 'setInteractionType',
+        payload: undefined,
+      });
+    } catch (error) {
+      eventEmitter.emit('error', error);
+      navigate(-1);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   if (!pdntProps) {
-    eventEmitter.emit('error', new Error('Unable to set ANT properties.'));
-    navigate(-1);
-    return <></>;
+    return <PageLoader loading={loading} />;
   }
 
   return (
@@ -95,6 +135,21 @@ function TransactionComplete({
           }}
           compact={false}
         />
+        <div
+          className="flex flex-row center"
+          style={{
+            justifyContent: 'flex-start',
+          }}
+        >
+          <button
+            className="flex button hover center white"
+            onClick={() => navigate('/manage')}
+            style={{ gap: '10px' }}
+          >
+            <ArrowLeft width={'20px'} fill={'var(--text-grey)'} />
+            Back to Manage Assets
+          </button>
+        </div>
       </div>
     </div>
   );
