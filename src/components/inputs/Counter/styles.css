@@ -1,4 +1,4 @@
-.years-counter-container {
+.counter-container {
   display: flex;
   flex-direction: column;
   row-gap: 1em;
@@ -6,20 +6,19 @@
   justify-content: center;
   align-items: center;
 }
-.years-counter {
+.counter {
   display: flex;
-  width: 330px;
+  width: fit-content;
   height: fit-content;
   justify-content: space-between;
   align-items: center;
-  margin-top: 2em;
 }
 .counter-button {
   display: flex;
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  border: 2px solid var(--text-faded);
+  border: 2px solid var(--text-grey);
   color: var(--text-white);
   justify-content: center;
   align-items: center;

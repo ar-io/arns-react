@@ -109,7 +109,7 @@ export type PDNSMapping = {
   domain: string;
   contractTxId?: ArweaveTransactionID | string;
   state?: PDNTContractJSON;
-  overrides?: any;
+  overrides?: { [x: string]: JSX.Element | string | number };
   disabledKeys?: string[];
   primaryKeys?: AntDetailKey[];
   compact?: boolean;
@@ -333,6 +333,7 @@ export enum INTERACTION_TYPES {
   // Registry interaction types
   BUY_RECORD = 'Buy ARNS Name',
   EXTEND_LEASE = 'Extend Lease',
+  INCREASE_UNDERNAMES = 'Increase Undernames',
   SUBMIT_AUCTION_BID = 'Submit Bid',
 
   // ANT interaction types
@@ -402,6 +403,7 @@ export const registryInteractionTypes = [
   INTERACTION_TYPES.BUY_RECORD,
   INTERACTION_TYPES.EXTEND_LEASE,
   INTERACTION_TYPES.SUBMIT_AUCTION_BID,
+  INTERACTION_TYPES.INCREASE_UNDERNAMES,
 ] as const;
 
 export const interactionTypeNames = [
@@ -462,6 +464,12 @@ export type ExtendLeasePayload = {
 export type TransferIOPayload = {
   target: string;
   qty: number;
+};
+export type IncreaseUndernamesPayload = {
+  name: string;
+  qty: number;
+  oldQty: number;
+  contractTxId?: string;
 };
 //end registry transaction payload types
 
@@ -537,6 +545,7 @@ export type TransactionDataPayload =
   | BuyRecordPayload
   | SubmitAuctionBidPayload
   | ExtendLeasePayload
+  | IncreaseUndernamesPayload
   | TransferIOPayload
   | SetTickerPayload
   | SetControllerPayload

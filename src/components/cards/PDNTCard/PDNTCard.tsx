@@ -1,6 +1,6 @@
 import { Descriptions } from 'antd';
 import { startCase } from 'lodash';
-import { useEffect, useState } from 'react';
+import { isValidElement, useEffect, useState } from 'react';
 
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
@@ -83,7 +83,7 @@ function PDNTCard(props: PDNSMapping) {
     deployedTransactionId,
   } = props;
   const [{ pdnsSourceContract }] = useGlobalState();
-  const [pdntDetails, setPDNTDetails] = useState<{ [x: string]: string }>();
+  const [pdntDetails, setPDNTDetails] = useState<{ [x: string]: any }>();
   const [isLoading, setIsLoading] = useState(true);
   const [limitDetails, setLimitDetails] = useState(true);
   const [mappedKeys, setMappedKeys] = useState<string[]>([]);
@@ -123,7 +123,7 @@ function PDNTCard(props: PDNSMapping) {
       }
       const undernameCount = pdnsSourceContract.records[name]?.undernames;
 
-      const allPDNTDetails: typeof ANT_DETAIL_MAPPINGS = {
+      const allPDNTDetails: Record<AntDetailKey, any> = {
         // TODO: remove this when all pdnts have controllers
         deployedTransactionId: deployedTransactionId
           ? deployedTransactionId.toString()
@@ -139,7 +139,7 @@ function PDNTCard(props: PDNSMapping) {
         name: antContractState.name,
         ticker: antContractState.ticker,
         owner: antContractState.owner,
-        controllers: antContractState.controllers
+        controller: antContractState.controllers
           ? antContractState.controllers.join(',')
           : antContractState.owner,
         targetId:
@@ -154,24 +154,26 @@ function PDNTCard(props: PDNSMapping) {
       };
 
       const filteredPDNTDetails = Object.keys(allPDNTDetails).reduce(
-        (obj: { [x: string]: string }, key: string) => {
+        (obj: { [x: string]: any }, key: string) => {
+          const value = allPDNTDetails[key as AntDetailKey];
           if (!disabledKeys?.includes(key)) {
-            if (typeof allPDNTDetails[key as AntDetailKey] === 'object')
+            if (typeof value === 'object' && !isValidElement(value)) {
               return obj;
-            obj[key] = allPDNTDetails[key as AntDetailKey];
+            }
+            obj[key] = value;
           }
           return obj;
         },
         {},
       );
-      // TODO: consolidate this logic that sorts and updates key values
+
       const replacedKeys = Object.keys(filteredPDNTDetails).reduce(
         (obj: any, key: string) => {
-          // TODO: flatten recursive objects like subdomains, filter out for now
-          if (typeof allPDNTDetails[key as AntDetailKey] === 'object')
+          const value = allPDNTDetails[key as AntDetailKey];
+          if (typeof value === 'object' && !isValidElement(value)) {
             return obj;
-          obj[mapKeyToAttribute(key as AntDetailKey)] =
-            allPDNTDetails[key as AntDetailKey];
+          }
+          obj[mapKeyToAttribute(key as AntDetailKey)] = value;
           return obj;
         },
         {},

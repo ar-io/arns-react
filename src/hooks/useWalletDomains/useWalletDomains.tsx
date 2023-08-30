@@ -1,4 +1,5 @@
 import { Tooltip } from 'antd';
+import { set } from 'lodash';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -43,7 +44,10 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
   const [sortField, setSortField] = useState<keyof PDNSTableRow>('status');
   const [selectedRow] = useState<PDNSTableRow>();
   const [rows, setRows] = useState<PDNSTableRow[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  // loading info
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [itemCount, setItemCount] = useState<number>(0);
+  const [itemsLoaded, setItemsLoaded] = useState<number>(0);
   const [percent, setPercentLoaded] = useState<number | undefined>();
   const navigate = useNavigate();
 
@@ -462,6 +466,9 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
       };
     } catch (error) {
       console.error(error);
+    } finally {
+      setPercentLoaded(((itemsLoaded + 1) / itemCount) * 100);
+      setItemsLoaded(itemsLoaded + 1);
     }
   }
 
@@ -521,6 +528,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
         ...cachedRegistrations,
         ...pdnsSourceContract.records,
       });
+      setItemCount(consolidatedRecords.length);
       const rowData = await Promise.all(
         [...tokenIds].map((id: ArweaveTransactionID) => {
           const record = consolidatedRecords.find(
@@ -544,11 +552,10 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
     } catch (error) {
       eventEmitter.emit('error', error);
     } finally {
-      setPercentLoaded(((fetchedRows?.length + 1) / tokenIds.size) * 100);
+      setIsLoading(false);
     }
 
     setRows(fetchedRows);
-    setIsLoading(false);
   }
 
   return {
