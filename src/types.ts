@@ -589,6 +589,7 @@ export type PDNSTableRow = {
   expiration: Date | string;
   status: number;
   key: string | number;
+  hasPending: boolean;
 };
 
 export type PDNTMetadata = {
@@ -600,6 +601,7 @@ export type PDNTMetadata = {
   state: PDNTContractJSON;
   error?: string;
   key: number;
+  hasPending: boolean;
 };
 
 export type ManagePDNTRow = {
@@ -611,11 +613,30 @@ export type ManagePDNTRow = {
   isValid?: boolean;
 };
 
+export type ManageDomainRow = {
+  attribute: string;
+  value: string | number | JSX.Element;
+  key: number;
+};
+
 export type PDNTDetails = {
   status: number;
   associatedNames: string;
   name: string;
   ticker: string;
+  targetID: string;
+  ttlSeconds: number;
+  controller: string;
+  undernames: string;
+  owner: string;
+};
+export type DomainDetails = {
+  expiryDate: string | number;
+  leaseDuration: string;
+  status: JSX.Element;
+  name: string;
+  ticker: string;
+  contractTxId: string;
   targetID: string;
   ttlSeconds: number;
   controller: string;

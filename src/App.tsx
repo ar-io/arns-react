@@ -17,6 +17,7 @@ import {
   CreatePDNTModal,
   ManagePDNTModal,
 } from './components/modals';
+import ManageDomainModal from './components/modals/ManageDomainModal/ManageDomainModal';
 import {
   Auctions,
   Home,
@@ -97,12 +98,7 @@ function App() {
             path="names/:name"
             element={
               <ProtectedRoute>
-                <div
-                  className="text-large white center"
-                  style={{ margin: '15% 0%' }}
-                >
-                  Manage Name Modal Coming soon!
-                </div>
+                <ManageDomainModal />
               </ProtectedRoute>
             }
           />

@@ -316,16 +316,23 @@ a:active {
 
 .assets-see-more-button {
   background-color: none;
-  color: var(--text-white);
+  color: var(--text-grey);
   border-radius: 3px;
   height: 25px;
   min-width: 80px;
-  border: 2px solid var(--text-white);
+  border: 1px solid var(--text-faded);
   font-family: 'Rubik-Bold';
   font-weight: 500;
   font-size: 10px;
   cursor: pointer;
 }
+.assets-see-more-button:hover {
+  border-color: var(--text-grey);
+  color: var(--text-white);
+  fill: var(--text-white);
+  transition: all 0.5s ease;
+}
+
 .assets-manage-button {
   background-color: var(--text-white);
   color: var(--text-black);
@@ -337,6 +344,12 @@ a:active {
   font-weight: 500;
   font-size: 10px;
   cursor: pointer;
+}
+.assets-manage-button:hover {
+  border-color: var(--text-grey);
+  color: var(--text-white);
+  fill: var(--text-white);
+  transition: all 0.5s ease;
 }
 
 .button-link {
@@ -394,8 +407,8 @@ a:active {
   display: flex;
   padding: 15px;
   font-size: 16px;
-  font-family: 'Rubik-Bold';
-  font-weight: 800;
+  font-family: 'Rubik';
+  font-weight: 600;
   width: fit-content;
   height: fit-content;
   border-radius: var(--corner-radius);
@@ -408,8 +421,8 @@ a:active {
   display: flex;
   padding: 15px;
   font-size: 16px;
-  font-family: 'Rubik-Bold';
-  font-weight: 800;
+  font-family: 'Rubik';
+  font-weight: 500;
   width: fit-content;
   height: fit-content;
   border-radius: var(--corner-radius);
@@ -417,6 +430,11 @@ a:active {
   color: var(--accent);
   fill: var(--accent);
   cursor: pointer;
+  border: 1px transparent solid;
+}
+.button-secondary:hover {
+  border: var(--accent) 1px solid;
+  transition: all 0.5s ease;
 }
 
 .accent-button {
@@ -438,16 +456,23 @@ a:active {
   display: flex;
   padding: 15px 20px;
   font-size: 16px;
-  font-family: 'Rubik-Bold';
+  font-family: 'Rubik';
   font-weight: 800;
   min-width: 110px;
   width: fit-content;
   height: fit-content;
-  border: var(--text-white) 1px solid;
+  border: var(--text-faded) 1px solid;
   border-radius: var(--corner-radius);
   background-color: none;
-  color: var(--text-white);
+  color: var(--text-grey);
+  fill: var(--text-grey);
   cursor: pointer;
+}
+.outline-button:hover {
+  border: var(--text-grey) 1px solid;
+  fill: var(--text-white);
+  color: var(--text-white);
+  transition: all 0.5s ease;
 }
 
 .disabled-button {

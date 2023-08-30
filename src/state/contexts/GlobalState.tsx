@@ -1,5 +1,6 @@
 import React, { Dispatch, createContext, useContext, useReducer } from 'react';
 
+import { NavItem } from '../../components/layout/Navbar/Navbar';
 import { ArweaveTransactionID } from '../../types';
 import type { ArweaveWalletConnector, PDNSContractJSON } from '../../types';
 import {
@@ -15,6 +16,7 @@ export type GlobalState = {
   wallet?: ArweaveWalletConnector;
   pdnsContractId: ArweaveTransactionID;
   blockHeight?: number;
+  navItems?: NavItem[];
 };
 
 const initialState: GlobalState = {

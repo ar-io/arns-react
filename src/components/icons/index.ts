@@ -25,6 +25,7 @@ import { ReactComponent as CloseIcon } from './Close.svg';
 import { ReactComponent as CodeSandboxIcon } from './CodeSandbox.svg';
 import { ReactComponent as CopyIcon } from './Copy.svg';
 import { ReactComponent as CubeIcon } from './Cube.svg';
+import { ReactComponent as DownloadIcon } from './Download.svg';
 import { ReactComponent as SunIcon } from './EvaSun.svg';
 import { ReactComponent as ExternalLinkIcon } from './ExternalLink.svg';
 import { ReactComponent as ExternalLinkOutlined } from './ExternalLinkOutlined.svg';
@@ -83,6 +84,7 @@ export {
   CloseIcon,
   CopyIcon,
   CubeIcon,
+  DownloadIcon,
   ElephantOne,
   ElephantTwo,
   ElephantThree,
