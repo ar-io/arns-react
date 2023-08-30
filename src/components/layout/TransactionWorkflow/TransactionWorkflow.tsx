@@ -501,7 +501,7 @@ function TransactionWorkflow({
                       style={{ fontSize: 18, color: 'var(--success-green)' }}
                     />
                   </span>
-                  &nbsp;<b>{decodeDomainToASCII(payload.name)}</b> is yours!
+                  &nbsp;Undernames Increased
                 </span>
               </div>
             ),
