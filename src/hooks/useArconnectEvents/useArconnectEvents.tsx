@@ -1,9 +1,10 @@
 import { useState } from 'react';
 
 import { useGlobalState } from '../../state/contexts/GlobalState';
+import { ArweaveTransactionID } from '../../types';
 
 function useArconnectEvents() {
-  const [, dispatchGlobalState] = useGlobalState();
+  const [{ wallet }, dispatchGlobalState] = useGlobalState();
   const [eventEmitter, setEventEmitter] = useState<any>();
 
   window.addEventListener('arweaveWalletLoaded', () => {
@@ -18,6 +19,15 @@ function useArconnectEvents() {
       dispatchGlobalState({
         type: 'setGateway',
         payload: e.host,
+      });
+    });
+
+    eventEmitter.on('activeAddress', () => {
+      wallet?.getWalletAddress().then((address: ArweaveTransactionID) => {
+        dispatchGlobalState({
+          type: 'setWalletAddress',
+          payload: address,
+        });
       });
     });
   }

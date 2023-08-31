@@ -13,33 +13,6 @@ export function useWalletAddress(): {
   const [{ wallet, walletAddress }, dispatchGlobalState] = useGlobalState();
 
   useEffect(() => {
-    // add a listener for wallet changes in arconnect
-    window.addEventListener('walletSwitch', (e) => {
-      const address = e.detail.address;
-      if (wallet) {
-        wallet
-          .getWalletAddress()
-          .then((addr) => {
-            if (addr.toString() !== address.toString()) {
-              throw Error('Wallets are mismatched!');
-            }
-            // all good, update state
-            dispatchGlobalState({
-              type: 'setWalletAddress',
-              payload: new ArweaveTransactionID(address),
-            });
-          })
-          .catch((error: Error) => {
-            dispatchGlobalState({
-              type: 'setWalletAddress',
-              payload: undefined,
-            });
-            navigate('/connect');
-            eventEmitter.emit('error', error);
-          });
-      }
-    });
-
     if (!wallet) {
       // remove address if wallet gets cleared
       dispatchGlobalState({
