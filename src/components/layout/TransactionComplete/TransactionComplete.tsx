@@ -33,8 +33,6 @@ function TransactionComplete({
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(true);
   const [pdntProps, setPdntProps] = useState<PDNSMapping>();
-  const [currentInteractionType, setCurrentInteractionType] =
-    useState<ValidInteractionType>();
 
   useEffect(() => {
     if (transactionId && transactionId === deployedTransactionId) {
@@ -49,7 +47,6 @@ function TransactionComplete({
       if (!transactionId) {
         throw new Error('Unable to set ANT properties.');
       }
-      setCurrentInteractionType(interactionType);
       setPdntProps(
         getPDNSMappingByInteractionType({
           interactionType,
