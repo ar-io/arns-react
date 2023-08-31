@@ -38,7 +38,6 @@ export function useTransactionData() {
 
   useEffect(() => {
     if (!transactionData) {
-      navigate(from ?? '/');
       return;
     }
 
