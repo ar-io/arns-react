@@ -58,6 +58,13 @@ function ConnectWalletModal(): JSX.Element {
         type: 'setWallet',
         payload: walletConnector,
       });
+      await walletConnector.getWalletAddress().then((address) => {
+        dispatchGlobalState({
+          type: 'setWalletAddress',
+          payload: address,
+        });
+      });
+      closeModal();
     } catch (error: any) {
       eventEmitter.emit('error', error);
     }
