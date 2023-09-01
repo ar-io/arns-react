@@ -56,7 +56,7 @@ function Workflow({
               key={key}
               style={{ gap: 0 }}
             >
-              {steps ? (
+              {steps && steps.length ? (
                 <div className="flex flex-row" style={{ marginBottom: '30px' }}>
                   <StepProgressBar stage={index + 1} stages={steps} />
                 </div>
@@ -70,7 +70,9 @@ function Workflow({
                     style={{
                       height: '100%',
                       minHeight: '175px',
-                      borderTop: 'solid 1px var(--text-faded)',
+                      borderTop: steps?.length
+                        ? 'solid 1px var(--text-faded)'
+                        : '',
                     }}
                   >
                     {value.header}

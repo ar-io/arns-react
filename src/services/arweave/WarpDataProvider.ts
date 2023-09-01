@@ -109,7 +109,7 @@ export class WarpDataProvider
       .setEvaluationOptions(
         contractTxId.toString() === PDNS_REGISTRY_ADDRESS
           ? {
-              waitForConfirmation: true,
+              waitForConfirmation: false,
               internalWrites: true,
               updateCacheForEachInteraction: true,
               unsafeClient: 'skip',
@@ -124,7 +124,10 @@ export class WarpDataProvider
         walletAddress.toString(),
       );
 
-      if (dryWriteResults.originalValidity?.valid === false) {
+      if (
+        dryWriteResults.originalValidity?.valid === false ||
+        dryWriteResults.errorMessage
+      ) {
         throw new Error(
           `Contract interaction detected to be invalid: ${
             dryWriteResults?.originalErrorMessages
@@ -145,7 +148,7 @@ export class WarpDataProvider
           }),
         shouldRetry: (result) => !result,
         maxTries: 5,
-        initialDelay: 500,
+        initialDelay: 100,
       });
     // TODO: check for dry write options on writeInteraction
     if (!result) {

@@ -35,7 +35,7 @@ import {
   PDNS_REGISTRY_ADDRESS,
 } from '../../../utils/constants';
 import { CirclePlus, LockIcon } from '../../icons';
-import YearsCounter from '../../inputs/Counter/Counter';
+import Counter from '../../inputs/Counter/Counter';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
 import NameTokenSelector from '../../inputs/text/NameTokenSelector/NameTokenSelector';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
@@ -371,10 +371,23 @@ function RegisterNameForm() {
               }}
             >
               {registrationType === TRANSACTION_TYPES.LEASE ? (
-                <YearsCounter
-                  period="years"
+                <Counter
+                  value={leaseDuration}
+                  setValue={(v: number) => {
+                    dispatchRegisterState({
+                      type: 'setLeaseDuration',
+                      payload: v,
+                    });
+                  }}
                   minValue={MIN_LEASE_DURATION}
                   maxValue={MAX_LEASE_DURATION}
+                  detail={`Until ${Intl.DateTimeFormat('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  }).format(
+                    Date.now() + leaseDuration * 365 * 24 * 60 * 60 * 1000,
+                  )}`}
                 />
               ) : registrationType === TRANSACTION_TYPES.BUY ? (
                 <div

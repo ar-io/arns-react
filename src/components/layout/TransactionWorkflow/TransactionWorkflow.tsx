@@ -12,6 +12,7 @@ import {
   CreatePDNTPayload,
   ExcludedValidInteractionType,
   INTERACTION_TYPES,
+  IncreaseUndernamesPayload,
   PDNTInteractionType,
   RegistryInteractionType,
   TransactionData,
@@ -27,6 +28,7 @@ import {
   getPDNSMappingByInteractionType,
   getWorkflowStepsForInteraction,
   isObjectOfTransactionPayloadType,
+  pruneExtraDataFromTransactionPayload,
 } from '../../../utils';
 import {
   ATOMIC_FLAG,
@@ -52,7 +54,7 @@ function TransactionWorkflow({
   transactionData,
   workflowStage,
 }: {
-  interactionType: ExcludedValidInteractionType;
+  interactionType?: ExcludedValidInteractionType;
   transactionData: TransactionData;
   workflowStage: TRANSACTION_WORKFLOW_STATUS;
 }) {
@@ -63,27 +65,40 @@ function TransactionWorkflow({
   const arweaveDataProvider = useArweaveCompositeProvider();
   const { assetId, functionName, ...payload } = transactionData;
   const navigate = useNavigate();
-  const [steps, setSteps] = useState<StepProps[] | undefined>(() =>
-    getWorkflowStepsForInteraction(interactionType),
-  );
+  const [currentInteractionType, setCurrentInteractionType] =
+    useState<ExcludedValidInteractionType>();
+  const [steps, setSteps] = useState<StepProps[] | undefined>();
   const [stages, setStages] = useState<
     { [x: string]: WorkflowStage } | undefined
-  >(() =>
-    getStagesByTransactionType({
-      interactionType,
-    }),
-  );
+  >();
   const [deployingTransaction, setDeployingTransaction] =
     useState<boolean>(false);
 
   useEffect(() => {
-    const newStages = getStagesByTransactionType({
-      interactionType,
-    });
-    if (newStages) setStages(newStages);
+    onLoad(interactionType);
   }, [workflowStage, deployedTransactionId, transactionData]);
 
-  async function deployTransaction(): Promise<string | undefined> {
+  function onLoad(type?: ExcludedValidInteractionType) {
+    try {
+      if (!type && !currentInteractionType) {
+        throw new Error('Unable to get transaction type.');
+      }
+      if (type) {
+        setCurrentInteractionType(type);
+        setSteps(getWorkflowStepsForInteraction(type));
+        const newStages = getStagesByTransactionType({
+          interactionType: type,
+        });
+        if (newStages) setStages(newStages);
+      }
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    }
+  }
+
+  async function deployTransaction(
+    type: ExcludedValidInteractionType,
+  ): Promise<string | undefined> {
     try {
       setDeployingTransaction(true);
       let originalTxId: string | undefined = undefined;
@@ -141,13 +156,17 @@ function TransactionWorkflow({
 
         originalTxId = writeInteractionId?.toString();
       } else {
+        const cleanPayload = pruneExtraDataFromTransactionPayload(
+          type,
+          payload,
+        );
         const writeInteractionId = await arweaveDataProvider.writeTransaction({
           walletAddress,
           contractTxId: new ArweaveTransactionID(assetId),
           dryWrite: true,
           payload: {
             function: functionName,
-            ...payload,
+            ...cleanPayload,
           },
           tags:
             validBuyRecordInteraction &&
@@ -178,7 +197,7 @@ function TransactionWorkflow({
   }
 
   function resetToPending() {
-    if (!steps) {
+    if (!steps?.length) {
       return;
     }
     steps[0].status = 'process';
@@ -192,14 +211,16 @@ function TransactionWorkflow({
 
   async function handleStage(direction: string) {
     try {
-      if (!steps) {
-        throw new Error('No steps found');
-      }
-      if (direction === 'next' && TRANSACTION_WORKFLOW_STATUS.PENDING) {
+      if (steps?.length) {
         steps[0].status = 'finish';
         steps[1].status = 'process';
-
-        const txId = await deployTransaction();
+      }
+      if (
+        direction === 'next' &&
+        TRANSACTION_WORKFLOW_STATUS.PENDING &&
+        interactionType
+      ) {
+        const txId = await deployTransaction(interactionType);
         if (!txId) {
           throw new Error(`Failed to deploy transaction`);
         }
@@ -207,8 +228,10 @@ function TransactionWorkflow({
           type: 'setDeployedTransactionId',
           payload: new ArweaveTransactionID(txId),
         });
-        steps[1].status = 'finish';
-        steps[2].status = 'finish';
+        if (steps?.length) {
+          steps[1].status = 'finish';
+          steps[2].status = 'finish';
+        }
         dispatchTransactionState({
           type: 'setWorkflowStage',
           payload: TRANSACTION_WORKFLOW_STATUS.SUCCESSFUL,
@@ -271,7 +294,7 @@ function TransactionWorkflow({
               style={{
                 width: '700px',
                 height: '90px',
-                background: '#213027',
+                background: 'var(--green-bg)',
                 border: '1px solid #44AF69',
                 fontSize: '18px',
                 marginBottom: '20px',
@@ -306,6 +329,7 @@ function TransactionWorkflow({
       )
     ) {
       if (
+        interactionType === INTERACTION_TYPES.BUY_RECORD &&
         isObjectOfTransactionPayloadType<BuyRecordPayload>(
           payload,
           TRANSACTION_DATA_KEYS[interactionType].keys,
@@ -378,7 +402,7 @@ function TransactionWorkflow({
                 style={{
                   width: '700px',
                   height: '90px',
-                  background: '#213027',
+                  background: 'var(--green-bg)',
                   border: '1px solid #44AF69',
                   fontSize: '18px',
                   marginBottom: '2em',
@@ -391,6 +415,108 @@ function TransactionWorkflow({
                     />
                   </span>
                   &nbsp;<b>{decodeDomainToASCII(payload.name)}</b> is yours!
+                </span>
+              </div>
+            ),
+          },
+          failed: {
+            component: (
+              <TransactionComplete
+                transactionId={deployedTransactionId}
+                interactionType={interactionType}
+                transactionData={transactionData}
+              />
+            ),
+            showNext: false,
+            showBack: false,
+          },
+        };
+      }
+      if (
+        interactionType === INTERACTION_TYPES.INCREASE_UNDERNAMES &&
+        isObjectOfTransactionPayloadType<IncreaseUndernamesPayload>(
+          payload,
+          TRANSACTION_DATA_KEYS[interactionType].keys,
+        )
+      ) {
+        return {
+          pending: {
+            component: (
+              <div
+                className="flex flex-column"
+                style={{ marginBottom: '30px', gap: '0px' }}
+              >
+                <PDNTCard {...pdntProps} />
+                <TransactionCost
+                  fee={{
+                    io: payload.qty,
+                  }}
+                  info={
+                    <div
+                      className="flex flex-row flex-left"
+                      style={{
+                        gap: '10px',
+                        maxWidth: '50%',
+                        justifyContent: 'flex-start',
+                        alignItems: 'flex-start',
+                      }}
+                    >
+                      <InfoIcon
+                        width={'20px'}
+                        height={'20px'}
+                        fill="var(--text-grey)"
+                      />
+                      <span
+                        className="flex flex-column flex-left grey text"
+                        style={{ textAlign: 'left', lineHeight: '1.5em' }}
+                      >
+                        Increasing your undernames is paid in IO tokens, and an
+                        Arweave network fee paid in AR tokens.
+                      </span>
+                    </div>
+                  }
+                />
+              </div>
+            ),
+            header: (
+              <h1
+                className="flex white"
+                style={{ width: '100%', paddingBottom: '30px' }}
+              >
+                Review
+              </h1>
+            ),
+            nextText: 'Confirm',
+          },
+          successful: {
+            component: (
+              <TransactionComplete
+                transactionId={deployedTransactionId}
+                interactionType={interactionType}
+                transactionData={transactionData}
+              />
+            ),
+            showNext: false,
+            showBack: false,
+            header: (
+              <div
+                className="flex flex-row center radius"
+                style={{
+                  width: '700px',
+                  height: '90px',
+                  background: 'var(--green-bg)',
+                  border: '1px solid #44AF69',
+                  fontSize: '18px',
+                  marginBottom: '2em',
+                }}
+              >
+                <span className="flex white center" style={{ gap: '8px' }}>
+                  <span>
+                    <CheckCircleFilled
+                      style={{ fontSize: 18, color: 'var(--success-green)' }}
+                    />
+                  </span>
+                  &nbsp;Undernames Increased
                 </span>
               </div>
             ),

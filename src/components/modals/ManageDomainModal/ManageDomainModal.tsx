@@ -192,7 +192,7 @@ function ManageDomainModal() {
             <button
               className="button-secondary hover"
               style={{ padding: '8px 10px', gap: '8px', fontSize: '14px' }}
-              onClick={() => alert('Not implemented yet')}
+              onClick={() => navigate(`/manage/names/${name}/undernames`)}
             >
               Increase Undernames
             </button>

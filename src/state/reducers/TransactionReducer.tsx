@@ -15,10 +15,10 @@ export type TransactionAction =
       payload: TRANSACTION_WORKFLOW_STATUS;
     }
   | { type: 'setTransactionData'; payload: TransactionData }
-  | { type: 'setDeployedTransactionId'; payload: ArweaveTransactionID }
+  | { type: 'setDeployedTransactionId'; payload?: ArweaveTransactionID }
   | {
       type: 'setInteractionType';
-      payload: ExcludedValidInteractionType;
+      payload?: ExcludedValidInteractionType;
     }
   | { type: 'reset' };
 

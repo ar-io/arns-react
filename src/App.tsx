@@ -10,6 +10,7 @@ import {
 import { Layout, ProtectedRoute } from './components/layout';
 import Redirect from './components/layout/Redirect/Redirect';
 import Undernames from './components/layout/Undernames/Undernames';
+import UpgradeUndernames from './components/layout/UpgradeUndernames/UpgradeUndernames';
 import ViewAuction from './components/layout/ViewAuction/ViewAuction';
 import {
   ConnectWalletModal,
@@ -85,6 +86,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <ManageDomainModal />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="names/:name/undernames"
+            element={
+              <ProtectedRoute>
+                <UpgradeUndernames />
               </ProtectedRoute>
             }
           />

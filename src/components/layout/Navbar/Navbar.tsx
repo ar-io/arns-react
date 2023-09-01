@@ -1,8 +1,10 @@
 import { Breadcrumb } from 'antd';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
+import { useTransactionData } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
+import { INTERACTION_TYPES } from '../../../types';
 import { BrandLogo, ChevronDownIcon } from '../../icons';
 import NavGroup from './NavGroup/NavGroup';
 import './styles.css';
@@ -16,8 +18,9 @@ function NavBar() {
   const { Item } = Breadcrumb;
   const [{ navItems }] = useGlobalState();
   const [, dispatchRegisterState] = useRegistrationState();
-  const path = window.location.pathname.split('/');
-  const params = useParams();
+  const { interactionType } = useTransactionData();
+  const location = useLocation();
+  const path = location.pathname.split('/');
 
   return (
     <div className="flex flex-column" style={{ gap: '0px' }}>
@@ -43,7 +46,9 @@ function NavBar() {
         <NavGroup />
       </div>
       {/* TODO: improve this render logic with specific approved routes to render breadcrumb on */}
-      {navItems && Object.values(path).length >= 4 ? (
+      {(navItems && path.length >= 4) ||
+      (navItems &&
+        interactionType === INTERACTION_TYPES.INCREASE_UNDERNAMES) ? (
         <Breadcrumb
           className="flex flex-row center"
           style={{
@@ -65,7 +70,7 @@ function NavBar() {
               <ChevronDownIcon
                 width={'10px'}
                 height={'10px'}
-                fill={'white'}
+                fill={'var(--text-grey)'}
                 style={{ transform: 'rotate(-90deg)' }}
               />
             </span>
@@ -79,8 +84,7 @@ function NavBar() {
                   style={{
                     fontSize: '16px',
                     color:
-                      Object.values(params).at(-1) ===
-                      item.route.split('/').at(-1)
+                      path.at(-1) === item.route.split('/').at(-1)
                         ? 'white'
                         : 'var(--text-grey)',
                   }}
