@@ -2,6 +2,9 @@ import { PDNTContract } from '../../services/arweave/PDNTContract';
 import {
   ArweaveDataProvider,
   ArweaveTransactionID,
+  Auction,
+  AuctionParametres,
+  AuctionSettings,
   ContractInteraction,
   PDNSContractJSON,
   PDNTContractJSON,
@@ -168,5 +171,21 @@ export class ArweaveCompositeDataProviderMock
     address: ArweaveTransactionID,
   ): Promise<PDNTContract[]> {
     return [] as PDNTContract[]; // Mock value
+  }
+
+  getAuctionPrices(
+    domain: string,
+    currentBlockHeight: number,
+  ): Promise<Auction> {
+    throw new Error('Method not implemented.');
+  }
+  getAuction(domain: string): Promise<AuctionParametres> {
+    throw new Error('Method not implemented.');
+  }
+  getAuctionSettings(id: string): Promise<AuctionSettings> {
+    throw new Error('Method not implemented.');
+  }
+  getDomainsInAuction(): Promise<string[]> {
+    throw new Error('Method not implemented.');
   }
 }

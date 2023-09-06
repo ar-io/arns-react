@@ -17,7 +17,7 @@ import { ChartJSOrUndefined } from 'react-chartjs-2/dist/types';
 
 import { useArweaveCompositeProvider } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { FullAuctionInfo } from '../../../types';
+import { Auction } from '../../../types';
 import { AVERAGE_BLOCK_TIME } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import Loader from '../Loader/Loader';
@@ -62,7 +62,7 @@ function AuctionChart({
   const [labels, setLabels] = useState<string[]>();
   const [prices, setPrices] = useState<number[]>();
   const [showCurrentPrice, setShowCurrentPrice] = useState<boolean>(true);
-  const [auctionInfo, setAuctionInfo] = useState<FullAuctionInfo>();
+  const [auctionInfo, setAuctionInfo] = useState<Auction>();
 
   useEffect(() => {
     if (!currentBlockHeight || !auctionInfo) {
@@ -77,7 +77,7 @@ function AuctionChart({
       }
 
       arweaveDataProvider
-        .getFullAuctionInfo(domain, currentBlockHeight)
+        .getAuctionPrices(domain, currentBlockHeight)
         .then((info) => {
           setAuctionInfo(info);
         });

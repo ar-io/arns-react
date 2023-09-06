@@ -25,7 +25,7 @@ function PDNSCard({ domain, contractTxId }: PDNSMapping) {
     domain,
     contractTxId,
     image: PDNSDefault,
-    expiration: DEFAULT_EXPIRATION, // TODO: don't default
+    expiration: DEFAULT_EXPIRATION, // TODO: [PE-4549] don't default
   });
   const [loading, setLoading] = useState(true);
 

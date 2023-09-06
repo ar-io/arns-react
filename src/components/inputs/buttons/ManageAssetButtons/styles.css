@@ -1,0 +1,11 @@
+.manage-asset-button-tooltip {
+  border: none;
+  padding: 0px !important;
+  width: fit-content !important;
+  height: fit-content !important;
+  min-width: unset !important;
+}
+
+.manage-asset-button-tooltip:hover {
+  border: none;
+}

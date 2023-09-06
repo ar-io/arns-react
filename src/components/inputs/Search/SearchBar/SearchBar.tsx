@@ -11,7 +11,7 @@ import {
 } from '../../../../hooks';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../../state/contexts/RegistrationState';
-import { FullAuctionInfo, SearchBarProps } from '../../../../types';
+import { Auction, SearchBarProps } from '../../../../types';
 import {
   decodeDomainToASCII,
   encodeDomainToASCII,
@@ -64,7 +64,7 @@ function SearchBar(props: SearchBarProps) {
   const [
     { isAvailable, isAuction, isReserved, loading: isValidatingRegistration },
   ] = useRegistrationStatus(encodeDomainToASCII(value));
-  const [auctionInfo, setAuctionInfo] = useState<FullAuctionInfo>();
+  const [auctionInfo, setAuctionInfo] = useState<Auction>();
 
   function reset() {
     setSearchSubmitted(false);
@@ -126,7 +126,7 @@ function SearchBar(props: SearchBarProps) {
         });
         return;
       }
-      const info = await arweaveDataProvider.getFullAuctionInfo(
+      const info = await arweaveDataProvider.getAuctionPrices(
         lowerCaseDomain(domain),
         blockHeight,
       );

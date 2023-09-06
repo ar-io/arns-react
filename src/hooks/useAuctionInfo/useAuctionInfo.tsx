@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
 
 import { useGlobalState } from '../../state/contexts/GlobalState';
-import { Auction, AuctionSettings, TRANSACTION_TYPES } from '../../types';
+import {
+  AuctionParametres,
+  AuctionSettings,
+  TRANSACTION_TYPES,
+} from '../../types';
 import { generateAuction, updatePrices } from '../../utils';
 import eventEmitter from '../../utils/events';
 import { useArweaveCompositeProvider } from '../useArweaveCompositeProvider/useArweaveCompositeProvider';
@@ -25,7 +29,7 @@ export function useAuctionInfo(
   ] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const [auctionSettings, setAuctionSettings] = useState<AuctionSettings>();
-  const [auction, setAuction] = useState<Auction>();
+  const [auction, setAuction] = useState<AuctionParametres>();
   const [price, setPrice] = useState<number>(0);
   const [prices, setPrices] = useState<{ [X: string]: number }>();
   const [isLiveAuction, setIsLiveAuction] = useState<boolean>(false);
@@ -53,7 +57,7 @@ export function useAuctionInfo(
         return;
       }
 
-      const auctionInfo = await arweaveDataProvider.getFullAuctionInfo(
+      const auctionInfo = await arweaveDataProvider.getAuctionPrices(
         domainName,
         blockHeight,
       );

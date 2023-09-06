@@ -8,8 +8,8 @@ import ArweaveID from '../../components/layout/ArweaveID/ArweaveID';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import {
   ArweaveTransactionID,
+  Auction,
   AuctionMetadata,
-  FullAuctionInfo,
   TRANSACTION_TYPES,
 } from '../../types';
 import { getNextPriceUpdate, handleTableSort } from '../../utils';
@@ -307,7 +307,7 @@ export function useAuctionsTable() {
   }
 
   function handleAuctionData(
-    auction: FullAuctionInfo,
+    auction: Auction,
   ): Omit<AuctionMetadata, 'name' | 'key'> | undefined {
     const {
       type,
@@ -355,6 +355,7 @@ export function useAuctionsTable() {
 
     const fetchedRows: AuctionMetadata[] = [];
     const domains = await arweaveDataProvider.getDomainsInAuction();
+    console.log(domains);
 
     for (const name of domains) {
       try {
@@ -365,7 +366,7 @@ export function useAuctionsTable() {
         }
         // will throw on non-ticked expired auctions, catch and continue
         const auction = await arweaveDataProvider
-          .getFullAuctionInfo(name, blockHeight)
+          .getAuctionPrices(name, blockHeight)
           .catch((e) => console.error(e));
         if (!auction) {
           continue;

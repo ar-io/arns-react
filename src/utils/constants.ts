@@ -165,7 +165,12 @@ export const DEFAULT_PDNS_REGISTRY_STATE: PDNSContractJSON = {
   controllers: [],
   evolve: undefined,
   reserved: {},
-  settings: {},
+  settings: {
+    auctions: {
+      current: '',
+      history: [],
+    },
+  },
   name: '',
   owner: undefined,
   ticker: '',

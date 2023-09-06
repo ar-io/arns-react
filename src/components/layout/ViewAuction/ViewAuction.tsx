@@ -32,6 +32,7 @@ function ViewAuction() {
       navigate('/auctions');
     }
     if (auction && auctionSettings && blockHeight) {
+      // TODO: [PE-4550] add expired state to auction info
       const isExpired =
         auction.startHeight + auctionSettings.auctionDuration < blockHeight;
 

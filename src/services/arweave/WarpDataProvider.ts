@@ -12,9 +12,9 @@ import { DeployPlugin } from 'warp-contracts-plugin-deploy';
 import {
   ArweaveTransactionID,
   Auction,
+  AuctionParametres,
   AuctionSettings,
   ContractInteraction,
-  FullAuctionInfo,
   PDNSContractJSON,
   PDNTContractJSON,
   SmartweaveContractCache,
@@ -358,7 +358,7 @@ export class WarpDataProvider
     throw Error('Not implemented');
   }
 
-  async getAuction(domain: string): Promise<Auction> {
+  async getAuction(domain: string): Promise<AuctionParametres> {
     throw Error('Not implemented');
   }
   async getAuctionSettings(id: string): Promise<AuctionSettings> {
@@ -394,10 +394,10 @@ export class WarpDataProvider
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async getFullAuctionInfo(
+  async getAuctionPrices(
     domain: string,
     currentBlockHeight: number,
-  ): Promise<FullAuctionInfo> {
+  ): Promise<Auction> {
     const { result } = (await this._warp
       .contract(PDNS_REGISTRY_ADDRESS)
       .setEvaluationOptions({
@@ -427,10 +427,11 @@ export class WarpDataProvider
       ...settings,
       ...auction,
       minimumAuctionBid: auction.prices[priceKey!],
-    } as FullAuctionInfo;
+    } as Auction;
   }
 
   async getDomainsInAuction(): Promise<string[]> {
+    // todo: make this a read action on the contract
     const state = await this.getContractState<PDNSContractJSON>(
       new ArweaveTransactionID(PDNS_REGISTRY_ADDRESS),
     );

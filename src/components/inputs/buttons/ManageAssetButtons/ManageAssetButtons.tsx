@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArweaveTransactionID } from '../../../../types';
 import { ManageTable } from '../../../../types';
 import { SettingsIcon } from '../../../icons';
+import './styles.css';
 
 function ManageAssetButtons({
   id,
@@ -37,6 +38,7 @@ function ManageAssetButtons({
           placement={'top'}
           autoAdjustOverflow={true}
           color="var(--text-faded)"
+          className="manage-asset-button-tooltip"
         >
           <button
             className="outline-button hover"

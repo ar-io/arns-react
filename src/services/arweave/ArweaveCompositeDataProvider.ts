@@ -2,9 +2,9 @@ import {
   ArweaveDataProvider,
   ArweaveTransactionID,
   Auction,
+  AuctionParametres,
   AuctionSettings,
   ContractInteraction,
-  FullAuctionInfo,
   PDNSContractJSON,
   PDNTContractJSON,
   SmartweaveContractCache,
@@ -240,7 +240,7 @@ export class ArweaveCompositeDataProvider
     return res.includes(true);
   }
 
-  async getAuction(domain: string): Promise<Auction> {
+  async getAuction(domain: string): Promise<AuctionParametres> {
     return Promise.any(
       this._contractProviders.map((p) => p.getAuction(domain)),
     );
@@ -252,11 +252,11 @@ export class ArweaveCompositeDataProvider
     );
   }
 
-  async getFullAuctionInfo(
+  async getAuctionPrices(
     domain: string,
     currentBlockHeight: number,
-  ): Promise<FullAuctionInfo> {
-    return this._interactionProvider.getFullAuctionInfo(
+  ): Promise<Auction> {
+    return this._interactionProvider.getAuctionPrices(
       domain,
       currentBlockHeight,
     );
