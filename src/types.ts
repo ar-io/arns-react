@@ -116,7 +116,7 @@ export type PDNSMapping = {
   domain: string;
   contractTxId?: ArweaveTransactionID | string;
   state?: PDNTContractJSON;
-  overrides?: any;
+  overrides?: { [x: string]: JSX.Element | string | number };
   disabledKeys?: string[];
   primaryKeys?: AntDetailKey[];
   compact?: boolean;
@@ -350,6 +350,7 @@ export enum INTERACTION_TYPES {
   // Registry interaction types
   BUY_RECORD = 'Buy ARNS Name',
   EXTEND_LEASE = 'Extend Lease',
+  INCREASE_UNDERNAMES = 'Increase Undernames',
   SUBMIT_AUCTION_BID = 'Submit Bid',
 
   // ANT interaction types
@@ -419,6 +420,7 @@ export const registryInteractionTypes = [
   INTERACTION_TYPES.BUY_RECORD,
   INTERACTION_TYPES.EXTEND_LEASE,
   INTERACTION_TYPES.SUBMIT_AUCTION_BID,
+  INTERACTION_TYPES.INCREASE_UNDERNAMES,
 ] as const;
 
 export const interactionTypeNames = [
@@ -479,6 +481,12 @@ export type ExtendLeasePayload = {
 export type TransferIOPayload = {
   target: string;
   qty: number;
+};
+export type IncreaseUndernamesPayload = {
+  name: string;
+  qty: number;
+  oldQty: number;
+  contractTxId?: string;
 };
 //end registry transaction payload types
 
@@ -554,6 +562,7 @@ export type TransactionDataPayload =
   | BuyRecordPayload
   | SubmitAuctionBidPayload
   | ExtendLeasePayload
+  | IncreaseUndernamesPayload
   | TransferIOPayload
   | SetTickerPayload
   | SetControllerPayload
@@ -606,6 +615,7 @@ export type PDNSTableRow = {
   expiration: Date | string;
   status: number;
   key: string | number;
+  hasPending: boolean;
 };
 
 export type PDNTMetadata = {
@@ -617,6 +627,7 @@ export type PDNTMetadata = {
   state: PDNTContractJSON;
   error?: string;
   key: number;
+  hasPending: boolean;
 };
 
 export type ManagePDNTRow = {
@@ -628,11 +639,30 @@ export type ManagePDNTRow = {
   isValid?: boolean;
 };
 
+export type ManageDomainRow = {
+  attribute: string;
+  value: string | number | JSX.Element;
+  key: number;
+};
+
 export type PDNTDetails = {
   status: number;
   associatedNames: string;
   name: string;
   ticker: string;
+  targetID: string;
+  ttlSeconds: number;
+  controller: string;
+  undernames: string;
+  owner: string;
+};
+export type DomainDetails = {
+  expiryDate: string | number;
+  leaseDuration: string;
+  status: JSX.Element;
+  name: string;
+  ticker: string;
+  contractTxId: string;
   targetID: string;
   ttlSeconds: number;
   controller: string;

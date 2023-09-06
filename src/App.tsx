@@ -1,5 +1,4 @@
 import * as Sentry from '@sentry/react';
-import { useEffect } from 'react';
 import {
   Navigate,
   Route,
@@ -11,12 +10,14 @@ import {
 import { Layout, ProtectedRoute } from './components/layout';
 import Redirect from './components/layout/Redirect/Redirect';
 import Undernames from './components/layout/Undernames/Undernames';
+import UpgradeUndernames from './components/layout/UpgradeUndernames/UpgradeUndernames';
 import ViewAuction from './components/layout/ViewAuction/ViewAuction';
 import {
   ConnectWalletModal,
   CreatePDNTModal,
   ManagePDNTModal,
 } from './components/modals';
+import ManageDomainModal from './components/modals/ManageDomainModal/ManageDomainModal';
 import {
   Auctions,
   Home,
@@ -28,7 +29,6 @@ import {
 import { usePDNSContract } from './hooks/';
 import useArconnectEvents from './hooks/useArconnectEvents/useArconnectEvents';
 import './index.css';
-import { useGlobalState } from './state/contexts/GlobalState';
 
 const sentryCreateBrowserRouter =
   Sentry.wrapCreateBrowserRouter(createBrowserRouter);
@@ -36,19 +36,7 @@ const sentryCreateBrowserRouter =
 function App() {
   // dispatches global state
   usePDNSContract();
-  const [, dispatchGlobalState] = useGlobalState();
-  const arconnectEvents = useArconnectEvents();
-
-  useEffect(() => {
-    if (arconnectEvents) {
-      arconnectEvents.on('gateway', (e: any) => {
-        dispatchGlobalState({
-          type: 'setGateway',
-          payload: e.host,
-        });
-      });
-    }
-  }, [arconnectEvents]);
+  useArconnectEvents();
 
   const router = sentryCreateBrowserRouter(
     createRoutesFromElements(
@@ -97,12 +85,15 @@ function App() {
             path="names/:name"
             element={
               <ProtectedRoute>
-                <div
-                  className="text-large white center"
-                  style={{ margin: '15% 0%' }}
-                >
-                  Manage Name Modal Coming soon!
-                </div>
+                <ManageDomainModal />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="names/:name/undernames"
+            element={
+              <ProtectedRoute>
+                <UpgradeUndernames />
               </ProtectedRoute>
             }
           />

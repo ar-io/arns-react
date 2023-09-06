@@ -11,6 +11,8 @@ import {
   CreatePDNTPayload,
   ExcludedValidInteractionType,
   INTERACTION_TYPES,
+  IncreaseUndernamesPayload,
+  InteractionTypes,
   PDNSDomains,
   PDNSMapping,
   PDNSRecordEntry,
@@ -93,11 +95,8 @@ export const WorkflowStepsForInteractions: Record<
     },
     { title: 'Confirm', description: 'Review Transaction', status: 'process' },
   ],
-  [INTERACTION_TYPES.EXTEND_LEASE]: [
-    { title: 'Confirm Extension', status: 'process' },
-    { title: 'Deploy Extension', status: 'wait' },
-    { title: 'Complete', status: 'wait' },
-  ],
+  [INTERACTION_TYPES.INCREASE_UNDERNAMES]: [],
+  [INTERACTION_TYPES.EXTEND_LEASE]: [],
   [INTERACTION_TYPES.REMOVE_RECORD]: [
     { title: 'Confirm Removal', status: 'process' },
     { title: 'Deploy Removal', status: 'wait' },
@@ -169,6 +168,10 @@ export const TRANSACTION_DATA_KEYS: Record<
   [INTERACTION_TYPES.SUBMIT_AUCTION_BID]: {
     functionName: 'submitAuctionBid',
     keys: ['name', 'contractTxId'],
+  },
+  [INTERACTION_TYPES.INCREASE_UNDERNAMES]: {
+    functionName: 'increaseUndernames',
+    keys: ['name', 'qty'],
   },
   [INTERACTION_TYPES.EXTEND_LEASE]: {
     functionName: 'extendLease',
@@ -304,6 +307,40 @@ export function getPDNSMappingByInteractionType(
         overrides: {
           maxSubdomains: `Up to ${DEFAULT_MAX_UNDERNAMES}`,
         },
+      };
+    }
+
+    case INTERACTION_TYPES.INCREASE_UNDERNAMES: {
+      if (
+        !isObjectOfTransactionPayloadType<IncreaseUndernamesPayload>(
+          transactionData,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.INCREASE_UNDERNAMES].keys,
+        )
+      ) {
+        throw new Error(
+          'transaction data not of correct payload type <IncreaseUndernamesPayload>',
+        );
+      }
+
+      return {
+        domain: transactionData.name,
+        contractTxId: transactionData.contractTxId,
+        deployedTransactionId: transactionData.deployedTransactionId,
+        overrides: {
+          maxUndernames: transactionData.deployedTransactionId ? (
+            <span className="white">
+              Up to{' '}
+              <span style={{ color: 'var(--success-green)' }}>
+                {transactionData.qty + transactionData.oldQty}
+              </span>
+            </span>
+          ) : (
+            <span className="add-box center">
+              {transactionData.qty + transactionData.oldQty}
+            </span>
+          ),
+        },
+        compact: false,
       };
     }
 
@@ -827,4 +864,21 @@ export async function withExponentialBackoff<T>({
   }
 
   throw new Error('Maximum retry attempts reached');
+}
+
+export function pruneExtraDataFromTransactionPayload(
+  interactionType: InteractionTypes,
+  payload: TransactionDataPayload,
+): TransactionDataPayload {
+  const requiredKeys = TRANSACTION_DATA_KEYS[interactionType].keys;
+  const cleanPayload = Object.entries(payload).reduce<TransactionDataPayload>(
+    (accum: TransactionDataPayload, [k, v]: [any, any]) => {
+      if (requiredKeys.includes(k)) {
+        accum[k as keyof TransactionDataPayload] = v as keyof typeof accum;
+      }
+      return accum;
+    },
+    {} as TransactionDataPayload,
+  );
+  return cleanPayload;
 }

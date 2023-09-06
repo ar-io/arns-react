@@ -1,4 +1,3 @@
-import { useIsMobile } from '../../../hooks';
 import { RECOMMENDED_TRANSACTION_CONFIRMATIONS } from '../../../utils/constants';
 import { AlertCircle, AlertTriangleIcon, CircleCheck } from '../../icons';
 
@@ -9,8 +8,6 @@ function TransactionStatus({
   confirmations: number;
   wrapperStyle?: any;
 }): JSX.Element {
-  const isMobile = useIsMobile();
-
   function getStatusIcon(confirmations: number): JSX.Element {
     switch (true) {
       case confirmations <= 0:
@@ -35,8 +32,7 @@ function TransactionStatus({
       className="text white bold"
       style={{ alignItems: 'center', ...wrapperStyle }}
     >
-      {getStatusIcon(confirmations)}&nbsp;
-      {!isMobile ? `${confirmations} / 50` : <></>}
+      {getStatusIcon(confirmations)}
     </span>
   );
 }

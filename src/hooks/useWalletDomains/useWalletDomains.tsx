@@ -1,14 +1,15 @@
+import { Tooltip } from 'antd';
 import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 import {
-  CalendarTimeIcon,
   ChevronUpIcon,
+  CirclePending,
   ExternalLinkIcon,
-  LinkIcon,
-  PersonIcon,
-  PriceTagIcon,
-  RefreshAlertIcon,
 } from '../../components/icons/index';
+import ArweaveID, {
+  ArweaveIdTypes,
+} from '../../components/layout/ArweaveID/ArweaveID';
 import TransactionStatus from '../../components/layout/TransactionStatus/TransactionStatus';
 import { useArweaveCompositeProvider, useWalletAddress } from '../../hooks';
 import { PDNTContract } from '../../services/arweave/PDNTContract';
@@ -22,7 +23,11 @@ import {
   PDNTContractJSON,
   TRANSACTION_TYPES,
 } from '../../types';
-import { decodeDomainToASCII, handleTableSort } from '../../utils';
+import {
+  decodeDomainToASCII,
+  getPendingInteractionsRowsForContract,
+  handleTableSort,
+} from '../../utils';
 import {
   DEFAULT_MAX_UNDERNAMES,
   PDNS_REGISTRY_ADDRESS,
@@ -38,8 +43,12 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
   const [sortField, setSortField] = useState<keyof PDNSTableRow>('status');
   const [selectedRow] = useState<PDNSTableRow>();
   const [rows, setRows] = useState<PDNSTableRow[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  // loading info
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [itemCount, setItemCount] = useState<number>(0);
+  const [itemsLoaded, setItemsLoaded] = useState<number>(0);
   const [percent, setPercentLoaded] = useState<number | undefined>();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (ids.length) {
@@ -51,12 +60,50 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
   function generateTableColumns(): any[] {
     return [
       {
+        title: '',
+        dataIndex: 'hasPending',
+        key: 'hasPending',
+        align: 'left',
+        width: '1%',
+        className: 'grey manage-assets-table-header',
+        render: (hasPending: boolean, row: any) => {
+          if (hasPending) {
+            return (
+              <Tooltip
+                placement="right"
+                title={
+                  <Link
+                    className="link white text underline"
+                    to={`/manage/pdnts/${row.id}`}
+                  >
+                    This contract has pending transactions.
+                    <ExternalLinkIcon
+                      height={12}
+                      width={12}
+                      fill={'var(--text-white)'}
+                    />
+                  </Link>
+                }
+                showArrow={true}
+                overlayStyle={{
+                  maxWidth: 'fit-content',
+                }}
+              >
+                <CirclePending height={20} width={20} fill={'var(--accent)'} />
+              </Tooltip>
+            );
+          }
+          return <></>;
+        },
+      },
+      {
         title: (
           <button
-            className="flex-row pointer white"
+            className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
             onClick={() => setSortField('name')}
           >
+            <span>Name</span>{' '}
             <ChevronUpIcon
               width={10}
               height={10}
@@ -64,18 +111,16 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
               style={
                 sortField === 'name' && !sortAscending
                   ? { transform: 'rotate(180deg)' }
-                  : {}
+                  : { display: sortField === 'name' ? '' : 'none' }
               }
             />
-            <span>Name</span>
-            <LinkIcon width={24} height={24} fill={'var(--text-grey)'} />
           </button>
         ),
         dataIndex: 'name',
         key: 'name',
         align: 'left',
         width: '18%',
-        className: 'icon-padding white assets-table-header',
+        className: 'white manage-assets-table-header',
         ellipsis: true,
         render: (name: string) => (
           <a
@@ -112,10 +157,11 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
       {
         title: (
           <button
-            className="flex-row pointer white center"
+            className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
             onClick={() => setSortField('role')}
           >
+            <span>Role</span>{' '}
             <ChevronUpIcon
               width={10}
               height={10}
@@ -123,18 +169,16 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
               style={
                 sortField === 'role' && !sortAscending
                   ? { transform: 'rotate(180deg)' }
-                  : {}
+                  : { display: sortField === 'role' ? '' : 'none' }
               }
             />
-            <span>Role</span>
-            <PersonIcon width={24} height={24} fill={'var(--text-grey)'} />
           </button>
         ),
         dataIndex: 'role',
         key: 'role',
         width: '18%',
-        align: 'center',
-        className: 'white assets-table-header',
+        align: 'left',
+        className: 'white manage-assets-table-header',
         ellipsis: true,
         onHeaderCell: () => {
           return {
@@ -154,10 +198,11 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
       {
         title: (
           <button
-            className="flex-row pointer white center"
+            className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
             onClick={() => setSortField('id')}
           >
+            <span>Contract ID</span>{' '}
             <ChevronUpIcon
               width={10}
               height={10}
@@ -165,18 +210,65 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
               style={
                 sortField === 'id' && !sortAscending
                   ? { transform: 'rotate(180deg)' }
-                  : {}
+                  : { display: sortField === 'id' ? '' : 'none' }
               }
             />
-            <span>Undernames</span>
-            <PriceTagIcon width={24} height={24} fill={'var(--text-grey)'} />
+          </button>
+        ),
+        dataIndex: 'id',
+        key: 'id',
+        width: '18%',
+        className: 'white manage-assets-table-header',
+        align: 'left',
+        ellipsis: true,
+        render: (id: ArweaveTransactionID) => (
+          <ArweaveID
+            id={id}
+            characterCount={12}
+            shouldLink
+            type={ArweaveIdTypes.CONTRACT}
+          />
+        ),
+        onHeaderCell: () => {
+          return {
+            onClick: () => {
+              handleTableSort<PDNSTableRow>({
+                key: 'id',
+                isAsc: sortAscending,
+                rows,
+              });
+              // forces update of rows
+              setRows([...rows]);
+              setSortOrder(!sortAscending);
+            },
+          };
+        },
+      },
+      {
+        title: (
+          <button
+            className="flex-row pointer grey"
+            style={{ gap: '0.5em' }}
+            onClick={() => setSortField('undernames')}
+          >
+            <span>Undernames</span>{' '}
+            <ChevronUpIcon
+              width={10}
+              height={10}
+              fill={'var(--text-grey)'}
+              style={
+                sortField === 'undernames' && !sortAscending
+                  ? { transform: 'rotate(180deg)' }
+                  : { display: sortField === 'undernames' ? '' : 'none' }
+              }
+            />
           </button>
         ),
         dataIndex: 'undernames',
         key: 'undernames',
         width: '18%',
-        className: 'white assets-table-header',
-        align: 'center',
+        className: 'white manage-assets-table-header',
+        align: 'left',
         ellipsis: true,
         render: (undernames: number | string) => undernames.toLocaleString(),
         onHeaderCell: () => {
@@ -197,10 +289,11 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
       {
         title: (
           <button
-            className="flex-row pointer white center"
+            className="flex-row pointer grey "
             style={{ gap: '0.5em' }}
             onClick={() => setSortField('expiration')}
           >
+            <span>Expiry Date</span>{' '}
             <ChevronUpIcon
               width={10}
               height={10}
@@ -208,22 +301,16 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
               style={
                 sortField === 'expiration' && !sortAscending
                   ? { transform: 'rotate(180deg)' }
-                  : {}
+                  : { display: sortField === 'expiration' ? '' : 'none' }
               }
-            />
-            <span>Expiry Date</span>
-            <CalendarTimeIcon
-              width={24}
-              height={24}
-              fill={'var(--text-grey)'}
             />
           </button>
         ),
         dataIndex: 'expiration',
         key: 'expiration',
-        align: 'center',
+        align: 'left',
         width: '18%',
-        className: 'white assets-table-header',
+        className: 'white manage-assets-table-header',
         render: (val: Date | string) =>
           typeof val === 'string' ? val : `${val.toLocaleDateString()}`,
         onHeaderCell: () => {
@@ -244,10 +331,11 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
       {
         title: (
           <button
-            className="flex-row pointer white center"
+            className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
             onClick={() => setSortField('status')}
           >
+            <span>Status</span>{' '}
             <ChevronUpIcon
               width={10}
               height={10}
@@ -255,30 +343,17 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
               style={
                 sortField === 'status' && !sortAscending
                   ? { transform: 'rotate(180deg)' }
-                  : {}
+                  : { display: sortField === 'status' ? '' : 'none' }
               }
-            />
-            <span>Status</span>
-            <RefreshAlertIcon
-              width={24}
-              height={24}
-              fill={'var(--text-grey)'}
             />
           </button>
         ),
         dataIndex: 'status',
         key: 'status',
-        align: 'center',
+        align: 'left',
         width: '18%',
-        className: 'white assets-table-header',
-        render: (val: number) => (
-          <TransactionStatus
-            confirmations={val}
-            wrapperStyle={{
-              justifyContent: 'center',
-            }}
-          />
-        ),
+        className: 'white manage-assets-table-header',
+        render: (val: number) => <TransactionStatus confirmations={val} />,
         onHeaderCell: () => {
           return {
             onClick: () => {
@@ -294,11 +369,12 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
       },
       {
         title: '',
-        className: 'white assets-table-header',
-        render: () => (
+        className: 'white manage-assets-table-header',
+        // eslint-disable-next-line
+        render: (val: any, record: PDNSTableRow) => (
           <button
-            className="white center"
-            onClick={() => alert('coming soon!')}
+            className="white center pointer"
+            onClick={() => navigate(`/manage/names/${record.name}`)}
           >
             &#x2022;&#x2022;&#x2022;
           </button>
@@ -315,17 +391,26 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
     address: ArweaveTransactionID,
   ): Promise<PDNSTableRow | undefined> {
     try {
-      const [contractState, confirmations] = await Promise.all([
-        arweaveDataProvider
-          .getContractState<PDNTContractJSON>(
-            new ArweaveTransactionID(record.contractTxId),
-            address,
-          )
-          .catch((e) => console.error(e)),
-        arweaveDataProvider
-          .getTransactionStatus(new ArweaveTransactionID(record.contractTxId))
-          .catch((e) => console.error(e)),
-      ]);
+      const [contractState, confirmations, pendingContractInteractions] =
+        await Promise.all([
+          arweaveDataProvider
+            .getContractState<PDNTContractJSON>(
+              new ArweaveTransactionID(record.contractTxId),
+              address,
+            )
+            .catch((e) => console.error(e)),
+          arweaveDataProvider
+            .getTransactionStatus(new ArweaveTransactionID(record.contractTxId))
+            .catch((e) => console.error(e)),
+          arweaveDataProvider
+            .getPendingContractInteractions(
+              new ArweaveTransactionID(record.contractTxId),
+              address.toString(),
+            )
+            .catch((e) => {
+              console.error(e);
+            }),
+        ]);
 
       if (!contractState) {
         throw Error(
@@ -343,8 +428,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
         throw new Error(`Invalid contract: ${record.contractTxId.toString()}`);
       }
 
-      // TODO: add error messages and reload state to row
-      return {
+      const rowData = {
         name: decodeDomainToASCII(domain),
         id: record.contractTxId,
         role:
@@ -360,8 +444,30 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
         undernames: record?.undernames ?? DEFAULT_MAX_UNDERNAMES,
         key: `${domain}-${record.contractTxId}`,
       };
+      const pendingTxsForContract = getPendingInteractionsRowsForContract(
+        pendingContractInteractions ?? [],
+        rowData,
+      );
+
+      const pendingInteractions = pendingTxsForContract.reduce(
+        (pendingValues, i) => ({
+          ...pendingValues,
+          [i.attribute]: i.value,
+        }),
+        {},
+      );
+
+      // TODO: add error messages and reload state to row
+      return {
+        ...rowData,
+        ...pendingInteractions,
+        hasPending: !!pendingTxsForContract.length,
+      };
     } catch (error) {
       console.error(error);
+    } finally {
+      setPercentLoaded(((itemsLoaded + 1) / itemCount) * 100);
+      setItemsLoaded(itemsLoaded + 1);
     }
   }
 
@@ -421,6 +527,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
         ...cachedRegistrations,
         ...pdnsSourceContract.records,
       });
+      setItemCount(consolidatedRecords.length);
       const rowData = await Promise.all(
         [...tokenIds].map((id: ArweaveTransactionID) => {
           const record = consolidatedRecords.find(
@@ -444,11 +551,10 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
     } catch (error) {
       eventEmitter.emit('error', error);
     } finally {
-      setPercentLoaded(((fetchedRows?.length + 1) / tokenIds.size) * 100);
+      setIsLoading(false);
     }
 
     setRows(fetchedRows);
-    setIsLoading(false);
   }
 
   return {

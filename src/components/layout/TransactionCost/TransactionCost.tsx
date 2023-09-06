@@ -25,7 +25,11 @@ function TransactionCost({
       {info}
       <div
         className="flex flex-row"
-        style={{ gap: '1em', width: isMobile ? '100%' : 'fit-content' }}
+        style={{
+          gap: '1em',
+          width: isMobile ? '100%' : 'fit-content',
+          alignItems: 'flex-start',
+        }}
       >
         <span className="text white">Cost:</span>
         <div

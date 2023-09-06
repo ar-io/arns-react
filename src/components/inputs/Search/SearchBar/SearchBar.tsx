@@ -1,5 +1,4 @@
 import { CheckCircleFilled } from '@ant-design/icons';
-import { set } from 'lodash';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -104,17 +103,8 @@ function SearchBar(props: SearchBarProps) {
     if (isValidatingRegistration) {
       return;
     }
-    if (isAuction === true) {
-      if (!blockHeight) {
-        arweaveDataProvider.getCurrentBlockHeight().then((height) => {
-          dispatchGlobalState({
-            type: 'setBlockHeight',
-            payload: height,
-          });
-        });
-        return;
-      }
-      updateAuctionInfo(searchBarText);
+    if (isAuction === true && value) {
+      updateAuctionInfo(value);
     }
     setSearchBarBorder(style);
   }, [
@@ -140,6 +130,9 @@ function SearchBar(props: SearchBarProps) {
         lowerCaseDomain(domain),
         blockHeight,
       );
+      if (!info) {
+        return;
+      }
       setAuctionInfo(info);
     } catch (error) {
       eventEmitter.emit('error', error);
@@ -404,7 +397,7 @@ function SearchBar(props: SearchBarProps) {
             flexDirection: isMobile ? 'column-reverse' : 'row',
           }}
         >
-          {isAuction ? (
+          {isAuction && auctionInfo?.minimumAuctionBid ? (
             <div
               className="flex flex-column"
               style={{

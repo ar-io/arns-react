@@ -85,10 +85,7 @@ function NavMenuCard() {
       e.target !== menuRef.current &&
       !menuRef.current.contains(e.target)
     ) {
-      // slight jitter in case menu button is pushed to close
-      setTimeout(() => {
-        setShowMenu(false);
-      }, 100);
+      setShowMenu(false);
     }
   }
 

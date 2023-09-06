@@ -4,7 +4,6 @@ import { TRANSACTION_WORKFLOW_STATUS } from '../../components/layout/Transaction
 import {
   ArweaveTransactionID,
   ExcludedValidInteractionType,
-  INTERACTION_TYPES,
   TransactionData,
 } from '../../types';
 import { TransactionAction } from '../reducers/TransactionReducer';
@@ -12,7 +11,7 @@ import { TransactionAction } from '../reducers/TransactionReducer';
 export type TransactionState = {
   deployedTransactionId?: ArweaveTransactionID;
   transactionData: TransactionData | undefined; // data that will be used to perform the transaction.
-  interactionType: ExcludedValidInteractionType;
+  interactionType: ExcludedValidInteractionType | undefined;
   workflowStage: TRANSACTION_WORKFLOW_STATUS;
 };
 
@@ -23,7 +22,7 @@ export type TransactionStateProviderProps = {
 
 export const initialTransactionState: TransactionState = {
   transactionData: undefined,
-  interactionType: INTERACTION_TYPES.BUY_RECORD,
+  interactionType: undefined,
   workflowStage: TRANSACTION_WORKFLOW_STATUS.PENDING, // confirm deploy complete,
 };
 

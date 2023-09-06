@@ -79,7 +79,6 @@ function AuctionChart({
       arweaveDataProvider
         .getFullAuctionInfo(domain, currentBlockHeight)
         .then((info) => {
-          console.log(info);
           setAuctionInfo(info);
         });
       return;
@@ -180,7 +179,7 @@ function AuctionChart({
 
   if (!prices || !labels || !currentBlockHeight || !auctionInfo) {
     return (
-      <div className="flex flex-row">
+      <div className="flex flex-row center" style={{ height: '100%' }}>
         <Loader size={80} message="Loading prices..." />
       </div>
     );

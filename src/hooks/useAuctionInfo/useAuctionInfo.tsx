@@ -2,12 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { Auction, AuctionSettings, TRANSACTION_TYPES } from '../../types';
-import {
-  calculateMinimumAuctionBid,
-  generateAuction,
-  lowerCaseDomain,
-  updatePrices,
-} from '../../utils';
+import { generateAuction, updatePrices } from '../../utils';
 import eventEmitter from '../../utils/events';
 import { useArweaveCompositeProvider } from '../useArweaveCompositeProvider/useArweaveCompositeProvider';
 

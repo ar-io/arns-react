@@ -8,16 +8,11 @@ import ArweaveID from '../../components/layout/ArweaveID/ArweaveID';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import {
   ArweaveTransactionID,
-  Auction,
   AuctionMetadata,
   FullAuctionInfo,
   TRANSACTION_TYPES,
 } from '../../types';
-import {
-  calculateMinimumAuctionBid,
-  getNextPriceUpdate,
-  handleTableSort,
-} from '../../utils';
+import { getNextPriceUpdate, handleTableSort } from '../../utils';
 import { AVERAGE_BLOCK_TIME } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 import { useArweaveCompositeProvider } from '../useArweaveCompositeProvider/useArweaveCompositeProvider';

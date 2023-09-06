@@ -1,3 +1,4 @@
+import { NavItem } from '../../components/layout/Navbar/Navbar';
 import { ArweaveTransactionID } from '../../types';
 import { ArweaveWalletConnector, PDNSContractJSON } from '../../types';
 import { GlobalState } from '../contexts/GlobalState';
@@ -10,7 +11,8 @@ export type Action =
     }
   | { type: 'setGateway'; payload: string }
   | { type: 'setBlockHeight'; payload: number }
-  | { type: 'setPDNSContractState'; payload: PDNSContractJSON };
+  | { type: 'setPDNSContractState'; payload: PDNSContractJSON }
+  | { type: 'setNavItems'; payload: NavItem[] | undefined };
 
 export const reducer = (state: GlobalState, action: Action): GlobalState => {
   switch (action.type) {
@@ -38,6 +40,11 @@ export const reducer = (state: GlobalState, action: Action): GlobalState => {
       return {
         ...state,
         pdnsSourceContract: action.payload,
+      };
+    case 'setNavItems':
+      return {
+        ...state,
+        navItems: action.payload,
       };
     default:
       return state;
