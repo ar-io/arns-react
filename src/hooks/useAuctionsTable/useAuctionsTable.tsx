@@ -10,6 +10,7 @@ import {
   ArweaveTransactionID,
   Auction,
   AuctionMetadata,
+  FullAuctionInfo,
   TRANSACTION_TYPES,
 } from '../../types';
 import {
@@ -40,7 +41,7 @@ export function useAuctionsTable() {
     if (!pdnsSourceContract?.auctions) {
       return;
     }
-    fetchAuctionRows(pdnsSourceContract.auctions);
+    fetchAuctionRows(Object.keys(pdnsSourceContract.auctions));
   }, [pdnsSourceContract, blockHeight]);
 
   async function updateBlockHeight(): Promise<void> {
@@ -311,39 +312,35 @@ export function useAuctionsTable() {
   }
 
   function handleAuctionData(
-    auction: Auction,
+    auction: FullAuctionInfo,
   ): Omit<AuctionMetadata, 'name' | 'key'> | undefined {
     const {
-      auctionSettingsId,
       type,
       initiator,
       startHeight,
-      startPrice,
-      floorPrice,
+      auctionDuration,
+      decayInterval,
+      minimumAuctionBid,
     } = auction;
-    const settings = pdnsSourceContract.settings.auctions?.history.find(
-      (settings) => settings.id === auctionSettingsId,
-    );
 
-    if (!settings || !blockHeight) {
+    if (!blockHeight) {
       throw new Error('Error fetching auction data. Please try again later.');
     }
-    if (startHeight + settings.auctionDuration < blockHeight) {
+    if (startHeight + auctionDuration < blockHeight) {
       // if auction is expired, do not show.
       return;
     }
 
     const expirationDateMilliseconds =
       Date.now() +
-      (startHeight + settings.auctionDuration - blockHeight) *
-        AVERAGE_BLOCK_TIME; // approximate expiration date in milliseconds
+      (startHeight + auctionDuration - blockHeight) * AVERAGE_BLOCK_TIME; // approximate expiration date in milliseconds
 
     const nextPriceUpdate =
       Date.now() +
       getNextPriceUpdate({
         currentBlockHeight: blockHeight,
         startHeight,
-        decayInterval: settings.decayInterval,
+        decayInterval,
       }) *
         AVERAGE_BLOCK_TIME;
 
@@ -352,31 +349,32 @@ export function useAuctionsTable() {
       initiator: new ArweaveTransactionID(initiator),
       type,
       nextPriceUpdate,
-      price: Math.round(
-        calculateMinimumAuctionBid({
-          startHeight,
-          initialPrice: startPrice,
-          floorPrice,
-          currentBlockHeight: blockHeight,
-          decayInterval: settings.decayInterval,
-          decayRate: settings.decayRate,
-        }),
-      ),
+      price: Math.round(minimumAuctionBid),
     };
 
     return data;
   }
 
-  async function fetchAuctionRows(auctions: {
-    [x: string]: any;
-  }): Promise<void> {
+  async function fetchAuctionRows(domains: string[]): Promise<void> {
     setIsLoading(true);
+
     const fetchedRows: AuctionMetadata[] = [];
 
-    const auctionRecords = Object.entries(auctions);
-    for (const [name, record] of auctionRecords) {
+    for (const name of domains) {
       try {
-        const auctionData = handleAuctionData(record);
+        if (!blockHeight) {
+          throw new Error(
+            'Error fetching auction data. Please try again later.',
+          );
+        }
+        // will throw on non-ticked expired auctions, catch and continue
+        const auction = await arweaveDataProvider
+          .getFullAuctionInfo(name, blockHeight)
+          .catch((e) => console.error(e));
+        if (!auction) {
+          continue;
+        }
+        const auctionData = handleAuctionData(auction);
         if (!auctionData) {
           continue;
         }
@@ -392,8 +390,8 @@ export function useAuctionsTable() {
         eventEmitter.emit('error', error);
       } finally {
         setPercentLoaded(
-          ((Object.keys(auctions).indexOf(name) + 1) /
-            Object.keys(auctions).length) *
+          ((Object.keys(domains).indexOf(name) + 1) /
+            Object.keys(domains).length) *
             100,
         );
       }

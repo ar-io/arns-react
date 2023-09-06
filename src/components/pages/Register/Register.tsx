@@ -473,7 +473,6 @@ function RegisterNameForm() {
             <TransactionCost fee={fee} />
             {domain &&
             pdnsSourceContract.settings.auctions &&
-            isInAuction &&
             isDomainAuctionable({
               domain: domain,
               registrationType: registrationType,

@@ -16,8 +16,15 @@ export function useRegistrationStatus(domain: string) {
     updateRegistrationStatus(domain);
   }, [domain]);
 
+  function reset() {
+    setIsAvailable(false);
+    setIsAuction(false);
+    setIsReserved(false);
+  }
+
   async function updateRegistrationStatus(domain: string) {
     try {
+      reset();
       setLoading(true);
       const available = arweaveDataProvider.isDomainAvailable({
         domain,

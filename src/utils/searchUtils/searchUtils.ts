@@ -60,7 +60,7 @@ export function generateAuction({
       floorPrice,
       auctionSettingsId: auctionSettings.current,
       type: registrationType,
-      initiator: walletAddress.toString(),
+      initiator: walletAddress?.toString(),
       contractTxId: 'atomic',
     },
     currentAuctionSettings,
@@ -99,24 +99,19 @@ export function calculateFloorPrice({
 
 export function calculateMinimumAuctionBid({
   startHeight,
-  initialPrice,
+  startPrice,
   floorPrice,
   currentBlockHeight,
   decayInterval,
   decayRate,
-}: {
-  startHeight: number;
-  initialPrice: number;
-  floorPrice: number;
-  currentBlockHeight: number;
-  decayInterval: number;
-  decayRate: number;
-}): number {
-  const blockIntervalsPassed = Math.floor(
-    (currentBlockHeight - startHeight) / decayInterval,
+}: Auction & AuctionSettings & { currentBlockHeight: number }): number {
+  const blockIntervalsPassed = Math.max(
+    0,
+    Math.floor((currentBlockHeight - startHeight) / decayInterval),
   );
+
   const dutchAuctionBid =
-    initialPrice * Math.pow(1 - decayRate, blockIntervalsPassed);
+    startPrice * Math.pow(1 - decayRate, blockIntervalsPassed);
 
   const minimumBid = Math.max(floorPrice, dutchAuctionBid);
   return minimumBid;
@@ -229,32 +224,18 @@ export function calculatePDNSNamePrice({
   return registrationFee;
 }
 
-export function updatePrices({
-  startHeight,
-  initialPrice,
-  floorPrice,
-  decayInterval,
-  decayRate,
-  auctionDuration,
-}: {
-  startHeight: number;
-  initialPrice: number;
-  floorPrice: number;
-  decayInterval: number;
-  decayRate: number;
-  auctionDuration: number;
-}): { [X: string]: number } {
+export function updatePrices(props: Auction & AuctionSettings): {
+  [X: string]: number;
+} {
+  const { startHeight, floorPrice, decayInterval, auctionDuration } = props;
+
   const expiredHieght = startHeight + auctionDuration;
   let currentHeight = startHeight;
   const newPrices: { [X: string]: number } = {};
   while (currentHeight < expiredHieght) {
     const blockPrice = calculateMinimumAuctionBid({
-      startHeight,
-      initialPrice,
-      floorPrice,
+      ...props,
       currentBlockHeight: currentHeight,
-      decayInterval,
-      decayRate,
     });
     if (blockPrice <= floorPrice) {
       break;

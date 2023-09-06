@@ -2,13 +2,21 @@ import { isArray } from 'lodash';
 
 import {
   ArweaveTransactionID,
+  Auction,
+  AuctionSettings,
   ContractInteraction,
+  FullAuctionInfo,
   PDNSContractJSON,
   PDNTContractJSON,
   SmartweaveContractCache,
   TransactionCache,
 } from '../../types';
-import { isDomainReservedLength, lowerCaseDomain } from '../../utils';
+import {
+  calculateMinimumAuctionBid,
+  isDomainReservedLength,
+  lowerCaseDomain,
+  updatePrices,
+} from '../../utils';
 import { PDNS_REGISTRY_ADDRESS } from '../../utils/constants';
 import { LocalStorageCache } from '../cache/LocalStorageCache';
 import { PDNTContract } from './PDNTContract';
@@ -171,5 +179,62 @@ export class PDNSContractCache implements SmartweaveContractCache {
       }
       return acc;
     }, []);
+  }
+
+  async getAuction(domain: string): Promise<Auction> {
+    const auctionRes = await fetch(
+      `${this._url}/v1/contract/${PDNS_REGISTRY_ADDRESS}/auctions`,
+    );
+    const { auctions } = await auctionRes.json();
+    const auction = auctions[lowerCaseDomain(domain)];
+    if (!auction) {
+      throw new Error('Provided domain is not in auction');
+    }
+
+    return auction;
+  }
+
+  async getAuctionSettings(id: string): Promise<AuctionSettings> {
+    const res = await fetch(
+      `${this._url}/v1/contract/${PDNS_REGISTRY_ADDRESS}/settings`,
+    );
+    const { settings } = await res.json();
+    const auctionSettings = settings.auctions.history.find(
+      (s: any) => s.id === id,
+    );
+    if (!auctionSettings) {
+      throw new Error('Auction was created with invalid settings');
+    }
+    return auctionSettings;
+  }
+
+  async getFullAuctionInfo(
+    domain: string,
+    currentBlockHeight: number,
+  ): Promise<FullAuctionInfo> {
+    const auction = await this.getAuction(domain);
+    const auctionSettings = await this.getAuctionSettings(
+      auction.auctionSettingsId,
+    );
+    const prices = updatePrices({
+      ...auctionSettings,
+      ...auction,
+    });
+    const isExpired =
+      auction.startHeight + auctionSettings.auctionDuration <
+      currentBlockHeight;
+    const minimumAuctionBid = calculateMinimumAuctionBid({
+      ...auction,
+      ...auctionSettings,
+      currentBlockHeight,
+    });
+
+    return {
+      ...auction,
+      ...auctionSettings,
+      minimumAuctionBid,
+      prices,
+      isExpired,
+    };
   }
 }
