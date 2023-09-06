@@ -261,4 +261,10 @@ export class ArweaveCompositeDataProvider
       currentBlockHeight,
     );
   }
+
+  async getDomainsInAuction(): Promise<string[]> {
+    return Promise.any(
+      this._contractProviders.map((p) => p.getDomainsInAuction()),
+    );
+  }
 }

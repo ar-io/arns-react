@@ -172,6 +172,7 @@ export interface SmartweaveContractCache {
     domain: string,
     currentBlockHeight: number,
   ): Promise<FullAuctionInfo>;
+  getDomainsInAuction(): Promise<string[]>;
 }
 
 export interface SmartweaveContractInteractionProvider {

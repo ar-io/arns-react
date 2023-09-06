@@ -80,7 +80,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-          {/* TODO: create manage name modal and add here */}
           <Route
             path="names/:name"
             element={

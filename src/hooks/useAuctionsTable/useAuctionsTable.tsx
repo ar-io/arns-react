@@ -36,7 +36,7 @@ export function useAuctionsTable() {
     if (!pdnsSourceContract?.auctions) {
       return;
     }
-    fetchAuctionRows(Object.keys(pdnsSourceContract.auctions));
+    fetchAuctionRows();
   }, [pdnsSourceContract, blockHeight]);
 
   async function updateBlockHeight(): Promise<void> {
@@ -350,10 +350,11 @@ export function useAuctionsTable() {
     return data;
   }
 
-  async function fetchAuctionRows(domains: string[]): Promise<void> {
+  async function fetchAuctionRows(): Promise<void> {
     setIsLoading(true);
 
     const fetchedRows: AuctionMetadata[] = [];
+    const domains = await arweaveDataProvider.getDomainsInAuction();
 
     for (const name of domains) {
       try {

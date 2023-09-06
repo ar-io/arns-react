@@ -237,4 +237,12 @@ export class PDNSContractCache implements SmartweaveContractCache {
       isExpired,
     };
   }
+
+  async getDomainsInAuction(): Promise<string[]> {
+    const res = await fetch(
+      `${this._url}/v1/contract/${PDNS_REGISTRY_ADDRESS}/auctions`,
+    );
+    const { auctions } = await res.json();
+    return Object.keys(auctions);
+  }
 }

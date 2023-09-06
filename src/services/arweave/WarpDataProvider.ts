@@ -429,4 +429,17 @@ export class WarpDataProvider
       minimumAuctionBid: auction.prices[priceKey!],
     } as FullAuctionInfo;
   }
+
+  async getDomainsInAuction(): Promise<string[]> {
+    const state = await this.getContractState<PDNSContractJSON>(
+      new ArweaveTransactionID(PDNS_REGISTRY_ADDRESS),
+    );
+
+    if (!state || !state.auctions) {
+      throw new Error('Unable to read auction info from contract');
+    }
+    const auctionsList = Object.keys(state.auctions);
+
+    return auctionsList;
+  }
 }
