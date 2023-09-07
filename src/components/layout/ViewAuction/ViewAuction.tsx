@@ -9,6 +9,7 @@ import {
   decodeDomainToASCII,
   encodeDomainToASCII,
   isPDNSDomainNameValid,
+  lowerCaseDomain,
   sleep,
 } from '../../../utils';
 import eventEmitter from '../../../utils/events';
@@ -22,7 +23,7 @@ function ViewAuction() {
   const { name } = useParams();
   const navigate = useNavigate();
   const { minimumAuctionBid, auction, auctionSettings } = useAuctionInfo(
-    encodeDomainToASCII(name!),
+    lowerCaseDomain(name!),
   );
 
   useEffect(() => {
@@ -31,6 +32,7 @@ function ViewAuction() {
       navigate('/auctions');
     }
     if (auction && auctionSettings && blockHeight) {
+      // TODO: [PE-4550] add expired state to auction info
       const isExpired =
         auction.startHeight + auctionSettings.auctionDuration < blockHeight;
 
@@ -97,7 +99,7 @@ function ViewAuction() {
           <div className="flex flex-column" style={{ gap: '15px' }}>
             <span className="flex white">
               Current auction price for instant {auction.type}:{' '}
-              {Math.round(minimumAuctionBid).toLocaleString()} IO
+              {minimumAuctionBid.toLocaleString()} IO
             </span>
             <span className="flex grey" style={{ color: 'var(--text-grey)' }}>
               Started by:&nbsp;

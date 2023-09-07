@@ -123,6 +123,7 @@ function Home() {
           fontSize: isMobile ? 26 : 57,
           padding: isMobile ? '30px 0px' : 56,
           fontWeight: 500,
+          whiteSpace: 'nowrap',
         }}
       >
         Arweave Name System
@@ -205,13 +206,8 @@ function Home() {
             }
             footerElement={
               <SearchBarFooter
-                isAuction={
-                  pdnsSourceContract?.auctions && domain
-                    ? Object.keys(pdnsSourceContract.auctions).includes(
-                        lowerCaseDomain(domain),
-                      )
-                    : false
-                }
+                key={domain}
+                isAuction={isAuction}
                 reservedList={Object.keys(pdnsSourceContract?.reserved ?? {})}
                 searchTerm={domain}
                 searchResult={

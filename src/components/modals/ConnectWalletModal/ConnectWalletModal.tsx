@@ -47,7 +47,6 @@ function ConnectWalletModal(): JSX.Element {
     try {
       await walletConnector.connect();
       const arconnectGate = await walletConnector.getGatewayConfig();
-      console.log(arconnectGate);
       if (arconnectGate?.host) {
         dispatchGlobalState({
           type: 'setGateway',
