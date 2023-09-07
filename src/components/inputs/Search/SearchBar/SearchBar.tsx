@@ -103,7 +103,7 @@ function SearchBar(props: SearchBarProps) {
     if (isValidatingRegistration) {
       return;
     }
-    if (isAuction === true && value) {
+    if (isAuction) {
       updateAuctionInfo(value);
     }
     setSearchBarBorder(style);
@@ -135,6 +135,7 @@ function SearchBar(props: SearchBarProps) {
       }
       setAuctionInfo(info);
     } catch (error) {
+      setSearchBarText('');
       eventEmitter.emit('error', error);
     }
   }

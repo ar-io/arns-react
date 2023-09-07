@@ -2,7 +2,7 @@ import {
   ArweaveDataProvider,
   ArweaveTransactionID,
   Auction,
-  AuctionParametres,
+  AuctionParameters,
   AuctionSettings,
   ContractInteraction,
   PDNSContractJSON,
@@ -240,7 +240,7 @@ export class ArweaveCompositeDataProvider
     return res.includes(true);
   }
 
-  async getAuction(domain: string): Promise<AuctionParametres> {
+  async getAuction(domain: string): Promise<AuctionParameters> {
     return Promise.any(
       this._contractProviders.map((p) => p.getAuction(domain)),
     );

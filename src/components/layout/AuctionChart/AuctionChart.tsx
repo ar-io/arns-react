@@ -110,7 +110,9 @@ function AuctionChart({
       }
       const data = chart.getDatasetMeta(0).data as PointElement[];
       if (!prices.includes(price)) {
-        throw new Error(' price not included in generated list of prices');
+        throw new Error(
+          `Price ${price?.toLocaleString()} not included in generated list of auction prices`,
+        );
       }
       const point = data.find((point: PointElement) =>
         point.parsed.y === prices?.[prices?.indexOf(price)] ? point : undefined,

@@ -3,7 +3,7 @@ import { isArray } from 'lodash';
 import {
   ArweaveTransactionID,
   Auction,
-  AuctionParametres,
+  AuctionParameters,
   AuctionSettings,
   ContractInteraction,
   PDNSContractJSON,
@@ -181,7 +181,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
     }, []);
   }
 
-  async getAuction(domain: string): Promise<AuctionParametres> {
+  async getAuction(domain: string): Promise<AuctionParameters> {
     const auctionRes = await fetch(
       `${this._url}/v1/contract/${PDNS_REGISTRY_ADDRESS}/auctions`,
     );

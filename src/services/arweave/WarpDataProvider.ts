@@ -12,7 +12,7 @@ import { DeployPlugin } from 'warp-contracts-plugin-deploy';
 import {
   ArweaveTransactionID,
   Auction,
-  AuctionParametres,
+  AuctionParameters,
   AuctionSettings,
   ContractInteraction,
   PDNSContractJSON,
@@ -358,7 +358,7 @@ export class WarpDataProvider
     throw Error('Not implemented');
   }
 
-  async getAuction(domain: string): Promise<AuctionParametres> {
+  async getAuction(domain: string): Promise<AuctionParameters> {
     throw Error('Not implemented');
   }
   async getAuctionSettings(id: string): Promise<AuctionSettings> {

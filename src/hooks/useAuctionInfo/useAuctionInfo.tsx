@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import {
-  AuctionParametres,
+  AuctionParameters,
   AuctionSettings,
   TRANSACTION_TYPES,
 } from '../../types';
@@ -29,13 +29,13 @@ export function useAuctionInfo(
   ] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const [auctionSettings, setAuctionSettings] = useState<AuctionSettings>();
-  const [auction, setAuction] = useState<AuctionParametres>();
+  const [auction, setAuction] = useState<AuctionParameters>();
   const [price, setPrice] = useState<number>(0);
   const [prices, setPrices] = useState<{ [X: string]: number }>();
   const [isLiveAuction, setIsLiveAuction] = useState<boolean>(false);
   const [loadingAuctionInfo, setLoadingAuctionInfo] = useState<boolean>(false);
 
-  // TODO: Fix wacky up pricing
+  // TODO: Update when demand factor is implemented.
 
   useEffect(() => {
     if (!domain.length) {

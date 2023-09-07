@@ -3,7 +3,7 @@ import { asciiToUnicode, unicodeToAscii } from 'puny-coder';
 
 import {
   ArweaveTransactionID,
-  AuctionParametres,
+  AuctionParameters,
   AuctionSettings,
   PDNSRecordEntry,
   TRANSACTION_TYPES,
@@ -35,7 +35,7 @@ export function generateAuction({
   fees: { [x: number]: number };
   currentBlockHeight: number;
   walletAddress: ArweaveTransactionID;
-}): [AuctionParametres, AuctionSettings] {
+}): [AuctionParameters, AuctionSettings] {
   const currentAuctionSettings = auctionSettings.history.find(
     (a) => a.id === auctionSettings.current,
   );
@@ -104,7 +104,7 @@ export function calculateMinimumAuctionBid({
   currentBlockHeight,
   decayInterval,
   decayRate,
-}: AuctionParametres &
+}: AuctionParameters &
   AuctionSettings & { currentBlockHeight: number }): number {
   const blockIntervalsPassed = Math.max(
     0,
@@ -225,7 +225,7 @@ export function calculatePDNSNamePrice({
   return registrationFee;
 }
 
-export function updatePrices(props: AuctionParametres & AuctionSettings): {
+export function updatePrices(props: AuctionParameters & AuctionSettings): {
   [X: string]: number;
 } {
   const { startHeight, floorPrice, decayInterval, auctionDuration } = props;

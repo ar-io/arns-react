@@ -3,7 +3,7 @@ import {
   ArweaveDataProvider,
   ArweaveTransactionID,
   Auction,
-  AuctionParametres,
+  AuctionParameters,
   AuctionSettings,
   ContractInteraction,
   PDNSContractJSON,
@@ -179,7 +179,7 @@ export class ArweaveCompositeDataProviderMock
   ): Promise<Auction> {
     throw new Error('Method not implemented.');
   }
-  getAuction(domain: string): Promise<AuctionParametres> {
+  getAuction(domain: string): Promise<AuctionParameters> {
     throw new Error('Method not implemented.');
   }
   getAuctionSettings(id: string): Promise<AuctionSettings> {

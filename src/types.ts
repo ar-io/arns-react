@@ -43,7 +43,7 @@ export type AuctionSettings = {
   decayInterval: number;
 };
 
-export type AuctionParametres = {
+export type AuctionParameters = {
   auctionSettingsId: string;
   floorPrice: number;
   startPrice: number;
@@ -54,7 +54,7 @@ export type AuctionParametres = {
   years?: number;
 };
 
-export type Auction = AuctionParametres &
+export type Auction = AuctionParameters &
   AuctionSettings & {
     prices: Record<string | number, number>;
     minimumAuctionBid: number;
@@ -65,7 +65,7 @@ export type PDNSContractJSON = {
   records: PDNSDomains;
   fees: { [x: number]: number };
   auctions?: {
-    [x: string]: AuctionParametres;
+    [x: string]: AuctionParameters;
   };
   reserved: {
     [x: string]: {
@@ -166,7 +166,7 @@ export interface SmartweaveContractCache {
   }): boolean;
   isDomainReserved({ domain }: { domain: string }): Promise<boolean>;
   getCachedNameTokens(address: ArweaveTransactionID): Promise<PDNTContract[]>;
-  getAuction(domain: string): Promise<AuctionParametres>;
+  getAuction(domain: string): Promise<AuctionParameters>;
   getAuctionSettings(id: string): Promise<AuctionSettings>;
   getAuctionPrices(
     domain: string,
