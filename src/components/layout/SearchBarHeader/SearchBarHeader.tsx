@@ -66,7 +66,7 @@ function SearchBarHeader({
   }
 
   // available condition
-  if (text && isAvailable === true) {
+  if (text && isAvailable) {
     return (
       <span
         className="text-medium white center flex fade-in"
