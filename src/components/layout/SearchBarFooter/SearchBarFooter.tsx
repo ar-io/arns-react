@@ -1,6 +1,6 @@
 import { useIsMobile } from '../../../hooks';
 import { SearchBarFooterProps } from '../../../types';
-import { encodeDomainToASCII, isDomainReservedLength } from '../../../utils';
+import { isDomainReservedLength, lowerCaseDomain } from '../../../utils';
 import PDNTCard from '../../cards/PDNTCard/PDNTCard';
 import AuctionChart from '../AuctionChart/AuctionChart';
 import EmailNotificationCard from '../EmailNotificationCard/EmailNotificationCard';
@@ -10,10 +10,11 @@ function SearchBarFooter({
   searchTerm,
   searchResult,
   isAvailable,
-  reservedList,
   isAuction,
+  isReserved,
 }: SearchBarFooterProps): JSX.Element {
   const isMobile = useIsMobile();
+
   if (isAuction && searchTerm) {
     return (
       <div className="flex flex-row">
@@ -27,9 +28,8 @@ function SearchBarFooter({
   }
 
   if (
-    (searchTerm &&
-      reservedList.includes(encodeDomainToASCII(searchTerm).toLowerCase())) ||
-    (searchTerm && isDomainReservedLength(encodeDomainToASCII(searchTerm)))
+    (searchTerm && isReserved) ||
+    (searchTerm && isDomainReservedLength(lowerCaseDomain(searchTerm)))
   ) {
     return (
       <div className="flex flex-row" style={{ marginTop: '30px' }}>

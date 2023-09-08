@@ -4,35 +4,53 @@ import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useArweaveCompositeProvider } from '../useArweaveCompositeProvider/useArweaveCompositeProvider';
 
 export function useRegistrationStatus(domain: string) {
-  const [{ pdnsSourceContract }] = useGlobalState();
+  const [{ blockHeight }, dispatchGlobalState] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
 
-  const [isAvailable, setIsAvailable] = useState<boolean>(false);
-  const [isAuction, setIsAuction] = useState<boolean>(false);
-  const [isReserved, setIsReserved] = useState<boolean>(false);
+  const [isAvailable, setIsAvailable] = useState<boolean>();
+  const [isAuction, setIsAuction] = useState<boolean>();
+  const [isReserved, setIsReserved] = useState<boolean>();
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
+    if (loading) {
+      return;
+    }
     updateRegistrationStatus(domain);
   }, [domain]);
 
   function reset() {
-    setIsAvailable(false);
-    setIsAuction(false);
-    setIsReserved(false);
+    setIsAvailable(undefined);
+    setIsAuction(undefined);
+    setIsReserved(undefined);
   }
 
   async function updateRegistrationStatus(domain: string) {
     try {
       reset();
       setLoading(true);
+
+      if (!domain.length) {
+        return reset();
+      }
+
+      if (!blockHeight) {
+        const block = await arweaveDataProvider.getCurrentBlockHeight();
+        if (!block) {
+          throw new Error('Could not get current block height');
+        }
+        dispatchGlobalState({
+          type: 'setBlockHeight',
+          payload: block,
+        });
+        return;
+      }
       const available = arweaveDataProvider.isDomainAvailable({
         domain,
       });
-      const auction = arweaveDataProvider.isDomainInAuction({
-        domain,
-        auctionsList: Object.keys(pdnsSourceContract.auctions ?? {}),
-      });
+      const auction = arweaveDataProvider
+        .getAuctionPrices(domain, blockHeight)
+        .catch(() => undefined);
       const reserved = arweaveDataProvider.isDomainReserved({
         domain,
       });
@@ -43,10 +61,11 @@ export function useRegistrationStatus(domain: string) {
         reserved,
       ]);
       setIsAvailable(isAvailable);
-      setIsAuction(isAuction);
+      setIsAuction(!!isAuction);
       setIsReserved(isReserved);
     } catch (error) {
       console.error(error);
+      reset();
     } finally {
       setLoading(false);
     }

@@ -156,6 +156,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
       )}`,
     );
     const isAvailable = res.status !== 200;
+
     return isAvailable;
   }
   async getCachedNameTokens(

@@ -291,18 +291,20 @@ export type SearchBarProps = {
 
 export type SearchBarHeaderProps = {
   defaultText: string;
-  reservedList: string[];
-  isAvailable?: boolean;
   isDefault?: boolean;
   text?: string;
+  searchResult?: ArweaveTransactionID;
+  isAvailable?: boolean;
+  isAuction?: boolean;
+  isReserved?: boolean;
 };
 
 export type SearchBarFooterProps = {
-  reservedList: string[];
-  isAvailable?: boolean;
   searchTerm?: string;
   searchResult?: ArweaveTransactionID;
-  isAuction: boolean;
+  isAvailable?: boolean;
+  isAuction?: boolean;
+  isReserved?: boolean;
 };
 
 export type ConnectWalletModalProps = {

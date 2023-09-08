@@ -27,6 +27,7 @@ import {
 } from '../../../../utils/constants';
 import eventEmitter from '../../../../utils/events';
 import { SearchIcon } from '../../../icons';
+import { Loader } from '../../../layout';
 import ValidationInput from '../../text/ValidationInput/ValidationInput';
 import './styles.css';
 
@@ -63,7 +64,7 @@ function SearchBar(props: SearchBarProps) {
   const isSearchbarFocused = useIsFocused('searchbar-input-id');
   const [
     { isAvailable, isAuction, isReserved, loading: isValidatingRegistration },
-  ] = useRegistrationStatus(encodeDomainToASCII(value));
+  ] = useRegistrationStatus(lowerCaseDomain(value));
   const [auctionInfo, setAuctionInfo] = useState<Auction>();
 
   function reset() {
@@ -92,17 +93,25 @@ function SearchBar(props: SearchBarProps) {
   }, [value]);
 
   useEffect(() => {
-    const style = handleSearchbarBorderStyle({
-      domain: searchBarText,
-      auction: isAuction,
-      available: isAvailable,
-      reserved: isReserved,
-      submitted: searchSubmitted && !isValidatingRegistration,
-      focused: isSearchbarFocused,
-    });
-    if (isValidatingRegistration) {
+    if (
+      isValidatingRegistration ||
+      ([isAvailable, isAuction, isReserved].every(
+        (status) => status === undefined,
+      ) &&
+        searchBarText)
+    ) {
       return;
     }
+
+    const style = handleSearchbarBorderStyle({
+      domain: searchBarText,
+      auction: isAuction ?? false,
+      available: isAvailable ?? false,
+      reserved: isReserved ?? false,
+      submitted: searchSubmitted,
+      focused: isSearchbarFocused,
+    });
+
     if (isAuction) {
       updateAuctionInfo(value);
     }
@@ -273,11 +282,10 @@ function SearchBar(props: SearchBarProps) {
       {headerElement ? (
         React.cloneElement(headerElement, {
           ...props,
-          text:
-            searchSubmitted && !isValidatingRegistration
-              ? searchBarText
-              : undefined,
+          text: searchSubmitted ? searchBarText : undefined,
           isAvailable,
+          isAuction,
+          isReserved,
         })
       ) : (
         <></>
@@ -351,19 +359,23 @@ function SearchBar(props: SearchBarProps) {
           }}
         />
         {searchBarText && searchSubmitted ? (
-          <button
-            className="link bold text flex-center"
-            style={{
-              color: 'var(--text-grey)',
-              width: 'fit-content',
-              position: 'absolute',
-              right: isMobile ? '10px' : '75px',
-              height: '100%',
-            }}
-            onClick={() => reset()}
-          >
-            Clear
-          </button>
+          isValidatingRegistration ? (
+            <Loader size={30} color="var(--text-grey)" />
+          ) : (
+            <button
+              className="link bold text flex-center"
+              style={{
+                color: 'var(--text-grey)',
+                width: 'fit-content',
+                position: 'absolute',
+                right: isMobile ? '10px' : '75px',
+                height: '100%',
+              }}
+              onClick={() => reset()}
+            >
+              Clear
+            </button>
+          )
         ) : (
           <></>
         )}
@@ -449,6 +461,8 @@ function SearchBar(props: SearchBarProps) {
           ...props,
           isSearchValid,
           isAvailable,
+          isAuction,
+          isReserved,
         })
       ) : (
         <></>

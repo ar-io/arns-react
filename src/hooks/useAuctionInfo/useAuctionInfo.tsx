@@ -57,10 +57,9 @@ export function useAuctionInfo(
         return;
       }
 
-      const auctionInfo = await arweaveDataProvider.getAuctionPrices(
-        domainName,
-        blockHeight,
-      );
+      const auctionInfo = await arweaveDataProvider
+        .getAuctionPrices(domainName, blockHeight)
+        .catch(() => null);
 
       if (auctionInfo) {
         setAuction({

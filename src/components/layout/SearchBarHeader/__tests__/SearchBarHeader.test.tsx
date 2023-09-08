@@ -6,6 +6,6 @@ describe('SearchBarHeader', () => {
   afterEach(cleanup);
 
   test('render SearchBarHeader', () => {
-    render(<SearchBarHeader defaultText="Example header" reservedList={[]} />);
+    render(<SearchBarHeader defaultText="Example header" />);
   });
 });

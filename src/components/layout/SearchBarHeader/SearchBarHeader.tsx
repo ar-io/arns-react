@@ -1,25 +1,25 @@
 import { ArrowDownOutlined, CheckCircleFilled } from '@ant-design/icons';
 
 import { useIsMobile } from '../../../hooks';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { SearchBarHeaderProps } from '../../../types';
-import { isDomainReservedLength, lowerCaseDomain } from '../../../utils';
+import { isDomainReservedLength } from '../../../utils';
 import './styles.css';
 
 function SearchBarHeader({
   defaultText,
-  isAvailable,
   text,
-  reservedList,
+  searchResult,
+  isAvailable,
+  isAuction,
+  isReserved,
 }: SearchBarHeaderProps): JSX.Element {
-  const [{ pdnsSourceContract }] = useGlobalState();
   const isMobile = useIsMobile();
 
   // unavailable condition
-  if (text && pdnsSourceContract?.auctions?.[lowerCaseDomain(text)]) {
+  if (text && isAuction) {
     return (
       <span
-        className="text-medium white center flex"
+        className="text-medium white center flex fade-in"
         style={{
           fontWeight: 500,
           fontSize: '23px',
@@ -33,13 +33,10 @@ function SearchBarHeader({
   }
 
   // reserved condition
-  if (
-    (text && reservedList.includes(lowerCaseDomain(text))) ||
-    (text && isDomainReservedLength(text))
-  ) {
+  if ((text && isReserved) || (text && isDomainReservedLength(text))) {
     return (
       <span
-        className="text-medium white center flex"
+        className="text-medium white center flex fade-in"
         style={{
           fontWeight: 500,
           fontSize: '23px',
@@ -52,10 +49,10 @@ function SearchBarHeader({
     );
   }
   // unavailable condition
-  if (text && !isAvailable) {
+  if (searchResult && text) {
     return (
       <span
-        className="text-medium white center flex"
+        className="text-medium white center flex fade-in"
         style={{
           fontWeight: 500,
           fontSize: '23px',
@@ -69,10 +66,10 @@ function SearchBarHeader({
   }
 
   // available condition
-  if (text && isAvailable) {
+  if (text && isAvailable === true) {
     return (
       <span
-        className="text-medium white center flex"
+        className="text-medium white center flex fade-in"
         style={{
           fontWeight: 500,
           fontSize: '23px',
@@ -92,7 +89,7 @@ function SearchBarHeader({
 
   return (
     <div
-      className="flex flex-column flex-center text-medium white"
+      className="flex flex-column flex-center text-medium white fade-in"
       style={{ gap: '5px' }}
     >
       {defaultText} <ArrowDownOutlined />

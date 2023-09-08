@@ -413,7 +413,9 @@ export class WarpDataProvider
       })) as unknown as any;
 
     if (!result) {
-      throw new Error('Unable to read auction info from contract');
+      throw new Error(
+        `Unable to read auction info from contract for ${domain}`,
+      );
     }
 
     const { settings, ...auction } = result.auction;

@@ -35,12 +35,7 @@ function ConnectWalletModal(): JSX.Element {
   }
 
   function closeModal() {
-    if (!walletAddress) {
-      navigate(state?.from ?? '/');
-      return;
-    }
-
-    navigate(state?.to ?? '/');
+    navigate(state?.to ? state.to : state?.from ? state.from : '/');
   }
 
   async function setGlobalWallet(walletConnector: ArweaveWalletConnector) {
