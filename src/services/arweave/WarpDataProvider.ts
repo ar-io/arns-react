@@ -456,4 +456,16 @@ export class WarpDataProvider
 
     return state.records[lowerCaseDomain(domain)];
   }
+
+  async getIoBalance(address: ArweaveTransactionID): Promise<number> {
+    const state = await this.getContractState<PDNSContractJSON>(
+      new ArweaveTransactionID(PDNS_REGISTRY_ADDRESS),
+    );
+
+    if (!state || !state.balances) {
+      throw new Error('Unable to read balance info from contract');
+    }
+
+    return state.balances[address.toString()];
+  }
 }

@@ -271,4 +271,9 @@ export class ArweaveCompositeDataProvider
   async getRecord(domain: string): Promise<PDNSRecordEntry> {
     return Promise.any(this._contractProviders.map((p) => p.getRecord(domain)));
   }
+  async getIoBalance(address: ArweaveTransactionID): Promise<number> {
+    return Promise.any(
+      this._contractProviders.map((p) => p.getIoBalance(address)),
+    );
+  }
 }

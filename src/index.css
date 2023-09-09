@@ -479,7 +479,7 @@ a:active {
 
 .disabled-button {
   opacity: 50%;
-  pointer-events: none;
+  cursor: not-allowed;
 }
 
 .data-input {

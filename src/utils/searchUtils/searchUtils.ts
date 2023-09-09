@@ -10,13 +10,16 @@ import {
 } from '../../types';
 import {
   ANNUAL_PERCENTAGE_FEE,
+  DEFAULT_MAX_UNDERNAMES,
   MAX_LEASE_DURATION,
   MIN_LEASE_DURATION,
   PDNS_NAME_REGEX,
   PDNS_NAME_REGEX_PARTIAL,
   PERMABUY_LEASE_FEE_LENGTH,
   RESERVED_NAME_LENGTH,
+  UNDERNAME_REGISTRATION_IO_FEE,
   YEAR_IN_MILLISECONDS,
+  YEAR_IN_SECONDS,
 } from '../constants';
 
 export function generateAuction({
@@ -127,6 +130,8 @@ export function calculatePermabuyFee(
     domain,
     fees,
     PERMABUY_LEASE_FEE_LENGTH,
+    DEFAULT_MAX_UNDERNAMES,
+    Date.now() / 1000 + PERMABUY_LEASE_FEE_LENGTH * YEAR_IN_SECONDS,
   );
 
   const getMultiplier = () => {
@@ -154,22 +159,70 @@ export function calculateTotalRegistrationFee(
   // instant lease price
   const initialNamePurchaseFee = fees[domain.length];
   return (
-    initialNamePurchaseFee + calculateAnnualRenewalFee(domain, fees, years)
+    initialNamePurchaseFee +
+    calculateAnnualRenewalFee(
+      domain,
+      fees,
+      years,
+      DEFAULT_MAX_UNDERNAMES,
+      Date.now() / 1000 + years * YEAR_IN_SECONDS,
+    )
   );
 }
 
 export function calculateAnnualRenewalFee(
-  domain: string,
-  fees: { [x: number]: number },
+  name: string,
+  fees: Record<string, number>,
   years: number,
-) {
-  const name = encodeDomainToASCII(domain);
-  const initialNamePurchaseFee = fees[name.length];
+  undernames: number,
+  endTimestamp: number,
+): number {
+  // Determine annual registration price of name
+  const initialNamePurchaseFee = fees[name.length.toString()];
+
+  // Annual fee is specific % of initial purchase cost
   const nameAnnualRegistrationFee =
     initialNamePurchaseFee * ANNUAL_PERCENTAGE_FEE;
-  const price = nameAnnualRegistrationFee * years;
 
-  return price;
+  const totalAnnualRenewalCost = nameAnnualRegistrationFee * years;
+
+  const extensionEndTimestamp = endTimestamp + years * YEAR_IN_SECONDS;
+  // Do not charge for undernames if there are less or equal than the default
+  const undernameCount =
+    undernames > DEFAULT_MAX_UNDERNAMES
+      ? undernames - DEFAULT_MAX_UNDERNAMES
+      : undernames;
+
+  const totalCost =
+    undernameCount === DEFAULT_MAX_UNDERNAMES
+      ? totalAnnualRenewalCost
+      : totalAnnualRenewalCost +
+        calculateProRatedUndernameCost(
+          undernameCount,
+          endTimestamp,
+          'lease',
+          extensionEndTimestamp,
+        );
+
+  return totalCost;
+}
+
+// TODO: update after dynamic pricing?
+export function calculateProRatedUndernameCost(
+  qty: number,
+  currentTimestamp: number,
+  type: 'lease' | 'permabuy',
+  endTimestamp?: number,
+): number {
+  const fullCost =
+    type === 'lease'
+      ? UNDERNAME_REGISTRATION_IO_FEE * qty
+      : PERMABUY_LEASE_FEE_LENGTH * qty;
+  const proRatedCost =
+    type === 'lease' && endTimestamp
+      ? (fullCost / YEAR_IN_SECONDS) * (endTimestamp - currentTimestamp)
+      : fullCost;
+  return proRatedCost;
 }
 
 export function getNextPriceUpdate({
@@ -361,7 +414,7 @@ export async function validateNoLeadingOrTrailingDashes(
 
 export function getLeaseDurationFromEndTimestamp(start: number, end: number) {
   const differenceInYears = Math.ceil((end - start) / YEAR_IN_MILLISECONDS);
-  const years = Math.max(1, differenceInYears);
+  const years = Math.max(0, differenceInYears);
 
   return years;
 }

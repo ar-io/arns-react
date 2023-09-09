@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { useArweaveCompositeProvider } from '../../../hooks';
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ArweaveTransactionID,
@@ -11,6 +12,7 @@ import {
   TRANSACTION_TYPES,
 } from '../../../types';
 import {
+  calculateAnnualRenewalFee,
   getLeaseDurationFromEndTimestamp,
   lowerCaseDomain,
 } from '../../../utils';
@@ -19,6 +21,7 @@ import {
   MIN_LEASE_DURATION,
   PDNS_REGISTRY_ADDRESS,
   YEAR_IN_MILLISECONDS,
+  YEAR_IN_SECONDS,
 } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { PDNSCard } from '../../cards';
@@ -31,6 +34,7 @@ import PageLoader from '../progress/PageLoader/PageLoader';
 
 function ExtendLease() {
   const arweaveDataProvider = useArweaveCompositeProvider();
+  const [{ pdnsSourceContract, walletAddress }] = useGlobalState();
   const [, dispatchTransactionState] = useTransactionState();
   const location = useLocation();
   const navigate = useNavigate();
@@ -38,7 +42,9 @@ function ExtendLease() {
   const [record, setRecord] = useState<PDNSRecordEntry>();
   const [registrationType, setRegistrationType] = useState<TRANSACTION_TYPES>();
   const [newLeaseDuration, setNewLeaseDuration] = useState<number>(1);
-  const [maxIncrease, setMaxIncrease] = useState<number>(1);
+  const [maxIncrease, setMaxIncrease] = useState<number>(0);
+  const [ioFee, setIoFee] = useState<number>(0);
+  const [ioBalance, setIoBalance] = useState<number>(0);
 
   useEffect(() => {
     if (!name) {
@@ -47,6 +53,23 @@ function ExtendLease() {
     }
     onLoad(lowerCaseDomain(name));
   }, [name]);
+
+  // TODO: use contract API to get fee
+  useEffect(() => {
+    if (!record || !record.endTimestamp || !name) {
+      return;
+    }
+
+    setIoFee(
+      calculateAnnualRenewalFee(
+        lowerCaseDomain(name),
+        pdnsSourceContract.fees,
+        newLeaseDuration,
+        record.undernames,
+        record.endTimestamp + newLeaseDuration * YEAR_IN_SECONDS,
+      ),
+    );
+  }, [newLeaseDuration, maxIncrease]);
 
   async function onLoad(domain: string) {
     try {
@@ -62,17 +85,24 @@ function ExtendLease() {
         setRegistrationType(TRANSACTION_TYPES.BUY);
         return;
       }
+      const balance = await arweaveDataProvider.getIoBalance(walletAddress!);
+
+      setIoBalance(balance ?? 0);
 
       setMaxIncrease(
         Math.max(
-          1,
+          0,
           MAX_LEASE_DURATION -
             getLeaseDurationFromEndTimestamp(
-              domainRecord.startTimestamp,
-              domainRecord.endTimestamp,
+              // TODO: remove this when state in contract is fixed. (currently was backfilled incorrectly with ms timestamps)
+              domainRecord.startTimestamp > domainRecord.endTimestamp
+                ? domainRecord.startTimestamp
+                : domainRecord.startTimestamp * 1000,
+              domainRecord.endTimestamp * 1000,
             ),
         ),
       );
+      console.log({ maxIncrease });
     } catch (error) {
       eventEmitter.emit('error', error);
     }
@@ -141,8 +171,50 @@ function ExtendLease() {
             borderRadius: 'var(--corner-radius)',
             padding: '30px',
             boxSizing: 'border-box',
+            position: 'relative',
           }}
         >
+          {/* maxxed out duration overlay */}
+          {maxIncrease < 1 ? (
+            <div
+              className="flex flex-column center modal-container"
+              style={{
+                position: 'absolute',
+                top: '0',
+                left: '0',
+                width: '100%',
+                height: '100%',
+                background: 'rgba(0,0,0,0.5)',
+                borderRadius: 'var(--corner-radius)',
+                zIndex: 1,
+              }}
+            >
+              <div
+                className="flex flex-row center"
+                style={{
+                  width: 'fit-content',
+                  height: 'fit-content',
+                  borderRadius: 'var(--corner-radius)',
+                  border: 'solid 1px var(--error-red)',
+                  background: '#1D1314',
+                  padding: '10px',
+                  boxSizing: 'border-box',
+                  color: 'var(--error-red)',
+                  gap: '10px',
+                }}
+              >
+                {' '}
+                <InfoIcon
+                  width={'24px'}
+                  height={'24px'}
+                  fill="var(--error-red)"
+                />
+                <span className="center">Maximum lease extension reached</span>
+              </div>
+            </div>
+          ) : (
+            <></>
+          )}
           <Counter
             setValue={setNewLeaseDuration}
             value={newLeaseDuration}
@@ -167,14 +239,24 @@ function ExtendLease() {
               <span
                 className="white"
                 style={{ padding: '10px', fontWeight: '500' }}
-              >{`Registration period (between ${MIN_LEASE_DURATION}-${maxIncrease} years)`}</span>
+              >{`Registration period (between ${MIN_LEASE_DURATION}-${MAX_LEASE_DURATION} years)`}</span>
             }
           />
         </div>
-        <TransactionCost fee={{ io: 0 }} />
+        {/* TODO: [PE-4563] implement contract read api for extend record */}
+        <TransactionCost
+          fee={{
+            io: ioFee,
+          }}
+        />
         <WorkflowButtons
           backText="Cancel"
           nextText="Continue"
+          disableNext={maxIncrease < 1 || ioFee > ioBalance}
+          customNextStyle={{
+            background: maxIncrease < 1 && 'var(--text-grey)',
+            color: maxIncrease < 1 && 'var(--text-white)',
+          }}
           onBack={() => navigate(-1)}
           onNext={() => {
             const payload: ExtendLeasePayload = {
@@ -197,6 +279,36 @@ function ExtendLease() {
             });
             navigate('/transaction', { state: `/manage/names/${name}/extend` });
           }}
+          detail={
+            ioFee > ioBalance && maxIncrease > 0 ? (
+              <div
+                className="flex flex-row center"
+                style={{
+                  width: 'fit-content',
+                  height: 'fit-content',
+                  borderRadius: 'var(--corner-radius)',
+                  border: 'solid 1px var(--error-red)',
+                  background: '#1D1314',
+                  padding: '8px',
+                  boxSizing: 'border-box',
+                  color: 'var(--error-red)',
+                  gap: '10px',
+                  whiteSpace: 'nowrap',
+                  fontSize: '13px',
+                }}
+              >
+                {' '}
+                <InfoIcon
+                  width={'24px'}
+                  height={'24px'}
+                  fill="var(--error-red)"
+                />
+                <span className="center">Insufficient funds.</span>
+              </div>
+            ) : (
+              <></>
+            )
+          }
         />
       </div>
     </div>

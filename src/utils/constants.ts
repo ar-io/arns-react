@@ -42,6 +42,7 @@ export const PDNT_CONTRACT_STATE_KEYS = [
 ];
 
 export const YEAR_IN_MILLISECONDS = 31536000000;
+export const YEAR_IN_SECONDS = 31536000;
 export const AVERAGE_BLOCK_TIME = 120_000;
 
 // TODO: don't use
@@ -70,6 +71,7 @@ export const MIN_LEASE_DURATION = 1;
 export const RESERVED_NAME_LENGTH = 4; // names must be greater than 4 characters, in contract this is MINIMUM_ALLOWED_NAME_LENGTH = 5
 export const SECONDS_IN_GRACE_PERIOD = 1814400;
 export const ANNUAL_PERCENTAGE_FEE = 0.1;
+export const UNDERNAME_REGISTRATION_IO_FEE = 1;
 export const PERMABUY_LEASE_FEE_LENGTH = 10;
 
 export const approvedContractsForWalletQuery = (
