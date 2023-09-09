@@ -6,6 +6,7 @@ import {
   AuctionSettings,
   ContractInteraction,
   PDNSContractJSON,
+  PDNSRecordEntry,
   PDNTContractJSON,
   SmartweaveContractCache,
   SmartweaveContractInteractionProvider,
@@ -266,5 +267,8 @@ export class ArweaveCompositeDataProvider
     return Promise.any(
       this._contractProviders.map((p) => p.getDomainsInAuction()),
     );
+  }
+  async getRecord(domain: string): Promise<PDNSRecordEntry> {
+    return Promise.any(this._contractProviders.map((p) => p.getRecord(domain)));
   }
 }

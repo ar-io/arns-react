@@ -9,6 +9,7 @@ import {
 
 import { Layout, ProtectedRoute } from './components/layout';
 import { ANT_FLAG } from './components/layout/Breadcrumbs/Breadcrumbs';
+import ExtendLease from './components/layout/ExtendLease/ExtendLease';
 import Redirect from './components/layout/Redirect/Redirect';
 import Undernames from './components/layout/Undernames/Undernames';
 import UpgradeUndernames from './components/layout/UpgradeUndernames/UpgradeUndernames';
@@ -131,6 +132,24 @@ function App() {
                 {
                   name: 'Increase Undernames',
                   route: `/manage/names/${data}/undernames`,
+                },
+              ],
+            }}
+          />
+          <Route
+            path="names/:name/extend"
+            element={
+              <ProtectedRoute>
+                <ExtendLease />
+              </ProtectedRoute>
+            }
+            handle={{
+              crumbs: (data: string) => [
+                { name: 'Manage Assets', route: '/manage/names' },
+                { name: data, route: `/manage/names/${data}` },
+                {
+                  name: 'Extend Lease',
+                  route: `/manage/names/${data}/extend`,
                 },
               ],
             }}

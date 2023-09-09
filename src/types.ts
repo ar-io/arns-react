@@ -173,6 +173,7 @@ export interface SmartweaveContractCache {
     currentBlockHeight: number,
   ): Promise<Auction>;
   getDomainsInAuction(): Promise<string[]>;
+  getRecord(domain: string): Promise<PDNSRecordEntry>;
 }
 
 export interface SmartweaveContractInteractionProvider {
@@ -477,6 +478,7 @@ export type SubmitAuctionBidPayload = {
 export type ExtendLeasePayload = {
   name: string;
   years: number;
+  contractTxId?: ArweaveTransactionID;
 };
 
 export type TransferIOPayload = {

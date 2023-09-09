@@ -69,7 +69,7 @@ function Counter({
           </button>
           <div
             className="flex flex-column flex-center"
-            style={{ width: 'fit-content' }}
+            style={{ width: 'fit-content', gap: '0px' }}
           >
             <span
               className="text-large white center"

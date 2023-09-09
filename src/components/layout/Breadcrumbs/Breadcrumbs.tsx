@@ -1,8 +1,6 @@
 import { Breadcrumb } from 'antd';
-import { raw } from 'body-parser';
-import { set } from 'lodash';
 import { useEffect, useState } from 'react';
-import { useLocation, useMatches, useParams } from 'react-router';
+import { useLocation, useMatches } from 'react-router';
 import { Link } from 'react-router-dom';
 
 import { useArweaveCompositeProvider } from '../../../hooks';

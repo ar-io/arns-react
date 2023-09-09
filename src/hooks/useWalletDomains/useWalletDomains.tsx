@@ -373,10 +373,15 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
         // eslint-disable-next-line
         render: (val: any, record: PDNSTableRow) => (
           <button
-            className="white center pointer"
+            className="outline-button center pointer"
+            style={{
+              padding: '6px 10px',
+              fontSize: '14px',
+              minWidth: 'fit-content',
+            }}
             onClick={() => navigate(`/manage/names/${record.name}`)}
           >
-            &#x2022;&#x2022;&#x2022;
+            Details
           </button>
         ),
         align: 'right',

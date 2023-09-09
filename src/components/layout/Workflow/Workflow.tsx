@@ -2,8 +2,8 @@ import { StepProps } from 'antd';
 
 import { useIsMobile } from '../../../hooks';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
-import Loader from '../Loader/Loader';
 import { StepProgressBar } from '../progress';
+import PageLoader from '../progress/PageLoader/PageLoader';
 
 export type WorkflowStage = {
   header?: JSX.Element | string;
@@ -40,7 +40,7 @@ function Workflow({
   const isMobile = useIsMobile();
 
   if (!stages) {
-    return <Loader size={200} />;
+    return <PageLoader loading={!stages} message={'Loading Workflow stages'} />;
   }
 
   return (

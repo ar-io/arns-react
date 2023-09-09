@@ -191,7 +191,7 @@ function ManageDomainModal() {
             <button
               className="button-primary hover"
               style={{ padding: '8px 10px', gap: '8px', fontSize: '14px' }}
-              onClick={() => alert('Not implemented yet')}
+              onClick={() => navigate(`/manage/names/${name}/extend`)}
             >
               Extend Lease
             </button>

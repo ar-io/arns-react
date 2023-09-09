@@ -10,6 +10,7 @@ import {
   ContractTypes,
   CreatePDNTPayload,
   ExcludedValidInteractionType,
+  ExtendLeasePayload,
   INTERACTION_TYPES,
   IncreaseUndernamesPayload,
   InteractionTypes,
@@ -337,6 +338,38 @@ export function getPDNSMappingByInteractionType(
           ) : (
             <span className="add-box center">
               {transactionData.qty + transactionData.oldQty}
+            </span>
+          ),
+        },
+        compact: false,
+      };
+    }
+    case INTERACTION_TYPES.EXTEND_LEASE: {
+      if (
+        !isObjectOfTransactionPayloadType<ExtendLeasePayload>(
+          transactionData,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.EXTEND_LEASE].keys,
+        )
+      ) {
+        throw new Error(
+          'transaction data not of correct payload type <ExtendLeasePayload>',
+        );
+      }
+
+      return {
+        domain: transactionData.name,
+        contractTxId: transactionData.contractTxId,
+        deployedTransactionId: transactionData.deployedTransactionId,
+        overrides: {
+          leaseDuration: transactionData.deployedTransactionId ? (
+            <span className="white">
+              <span style={{ color: 'var(--success-green)' }}>
+                {transactionData.years} years
+              </span>
+            </span>
+          ) : (
+            <span className="add-box center">
+              {transactionData.years} years
             </span>
           ),
         },

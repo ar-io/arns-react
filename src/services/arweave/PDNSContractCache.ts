@@ -7,6 +7,7 @@ import {
   AuctionSettings,
   ContractInteraction,
   PDNSContractJSON,
+  PDNSRecordEntry,
   PDNTContractJSON,
   SmartweaveContractCache,
   TransactionCache,
@@ -244,5 +245,17 @@ export class PDNSContractCache implements SmartweaveContractCache {
     );
     const { auctions } = await res.json();
     return Object.keys(auctions);
+  }
+
+  async getRecord(domain: string): Promise<PDNSRecordEntry> {
+    const res = await fetch(
+      `${
+        this._url
+      }/v1/contract/${PDNS_REGISTRY_ADDRESS}/records/${lowerCaseDomain(
+        domain,
+      )}`,
+    );
+    const { record } = await res.json();
+    return record;
   }
 }

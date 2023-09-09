@@ -1,4 +1,3 @@
-import { NavItem } from '../../components/layout/Navbar/Navbar';
 import { ArweaveTransactionID } from '../../types';
 import { ArweaveWalletConnector, PDNSContractJSON } from '../../types';
 import { GlobalState } from '../contexts/GlobalState';
