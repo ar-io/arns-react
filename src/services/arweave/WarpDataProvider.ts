@@ -16,6 +16,7 @@ import {
   AuctionSettings,
   ContractInteraction,
   PDNSContractJSON,
+  PDNSRecordEntry,
   PDNTContractJSON,
   SmartweaveContractCache,
   SmartweaveContractInteractionProvider,
@@ -442,5 +443,17 @@ export class WarpDataProvider
     const auctionsList = Object.keys(state.auctions);
 
     return auctionsList;
+  }
+
+  async getRecord(domain: string): Promise<PDNSRecordEntry> {
+    const state = await this.getContractState<PDNSContractJSON>(
+      new ArweaveTransactionID(PDNS_REGISTRY_ADDRESS),
+    );
+
+    if (!state || !state.records) {
+      throw new Error('Unable to read record info from contract');
+    }
+
+    return state.records[lowerCaseDomain(domain)];
   }
 }

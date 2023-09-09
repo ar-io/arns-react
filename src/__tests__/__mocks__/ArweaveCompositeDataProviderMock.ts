@@ -7,6 +7,7 @@ import {
   AuctionSettings,
   ContractInteraction,
   PDNSContractJSON,
+  PDNSRecordEntry,
   PDNTContractJSON,
   SmartweaveContractCache,
   SmartweaveContractInteractionProvider,
@@ -186,6 +187,9 @@ export class ArweaveCompositeDataProviderMock
     throw new Error('Method not implemented.');
   }
   getDomainsInAuction(): Promise<string[]> {
+    throw new Error('Method not implemented.');
+  }
+  getRecord(domain: string): Promise<PDNSRecordEntry> {
     throw new Error('Method not implemented.');
   }
 }
