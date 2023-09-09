@@ -11,8 +11,7 @@ export type Action =
     }
   | { type: 'setGateway'; payload: string }
   | { type: 'setBlockHeight'; payload: number }
-  | { type: 'setPDNSContractState'; payload: PDNSContractJSON }
-  | { type: 'setNavItems'; payload: NavItem[] | undefined };
+  | { type: 'setPDNSContractState'; payload: PDNSContractJSON };
 
 export const reducer = (state: GlobalState, action: Action): GlobalState => {
   switch (action.type) {
@@ -40,11 +39,6 @@ export const reducer = (state: GlobalState, action: Action): GlobalState => {
       return {
         ...state,
         pdnsSourceContract: action.payload,
-      };
-    case 'setNavItems':
-      return {
-        ...state,
-        navItems: action.payload,
       };
     default:
       return state;

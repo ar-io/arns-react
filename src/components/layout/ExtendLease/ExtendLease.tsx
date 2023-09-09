@@ -12,7 +12,7 @@ import { InfoIcon } from '../../icons';
 import PageLoader from '../progress/PageLoader/PageLoader';
 
 function ExtendLease() {
-  const [{ pdnsSourceContract }, dispatchGlobalState] = useGlobalState();
+  const [{ pdnsSourceContract }] = useGlobalState();
   const location = useLocation();
   const navigate = useNavigate();
   const name = location.pathname.split('/').at(-2);
@@ -30,23 +30,6 @@ function ExtendLease() {
       return;
     }
     setRecord(domainRecord);
-    dispatchGlobalState({
-      type: 'setNavItems',
-      payload: [
-        {
-          name: 'Manage Assets',
-          route: '/manage/names',
-        },
-        {
-          name: `${name}`,
-          route: `/manage/names/${name}`,
-        },
-        {
-          name: 'Extend Lease',
-          route: location.pathname,
-        },
-      ],
-    });
 
     if (!domainRecord.endTimestamp) {
       setRegistrationType(TRANSACTION_TYPES.BUY);

@@ -43,8 +43,7 @@ function ManageDomainModal() {
   const navigate = useNavigate();
   const location = useLocation();
   const arweaveDataProvider = useArweaveCompositeProvider();
-  const [{ walletAddress, pdnsSourceContract }, dispatchGlobalState] =
-    useGlobalState();
+  const [{ walletAddress, pdnsSourceContract }] = useGlobalState();
   const [rows, setRows] = useState<ManageDomainRow[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -53,13 +52,6 @@ function ManageDomainModal() {
       navigate('/manage/ants');
       return;
     }
-    dispatchGlobalState({
-      type: 'setNavItems',
-      payload: [
-        { name: 'Manage Assets', route: '/manage/names' },
-        { name: `${name}`, route: `/manage/names/${name}` },
-      ],
-    });
 
     fetchDomainDetails(walletAddress, name);
   }, [name]);

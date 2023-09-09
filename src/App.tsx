@@ -9,6 +9,7 @@ import {
 } from 'react-router-dom';
 
 import { Layout, ProtectedRoute } from './components/layout';
+import { ANT_FLAG } from './components/layout/Breadcrumbs/Breadcrumbs';
 import Redirect from './components/layout/Redirect/Redirect';
 import Undernames from './components/layout/Undernames/Undernames';
 import UpgradeUndernames from './components/layout/UpgradeUndernames/UpgradeUndernames';
@@ -85,6 +86,15 @@ function App() {
                 <ManagePDNTModal />
               </ProtectedRoute>
             }
+            handle={{
+              crumbs: (data: string) => [
+                { name: 'Manage Assets', route: '/manage/ants' },
+                {
+                  name: ANT_FLAG,
+                  route: `/manage/ants/${data}`,
+                },
+              ],
+            }}
           />
           <Route
             path="ants/:id/undernames"
@@ -93,6 +103,19 @@ function App() {
                 <Undernames />
               </ProtectedRoute>
             }
+            handle={{
+              crumbs: (data: string) => [
+                { name: 'Manage Assets', route: '/manage/ants' },
+                {
+                  name: ANT_FLAG,
+                  route: `/manage/ants/${data}`,
+                },
+                {
+                  name: 'Manage Undernames',
+                  route: `/manage/ants/${data}/undernames`,
+                },
+              ],
+            }}
           />
           {/* TODO: create manage name modal and add here */}
           <Route
@@ -102,6 +125,12 @@ function App() {
                 <ManageDomainModal />
               </ProtectedRoute>
             }
+            handle={{
+              crumbs: (data: string) => [
+                { name: 'Manage Assets', route: '/manage/names' },
+                { name: data, route: `/manage/names/${data}` },
+              ],
+            }}
           />
           <Route
             path="names/:name/undernames"
@@ -110,6 +139,16 @@ function App() {
                 <UpgradeUndernames />
               </ProtectedRoute>
             }
+            handle={{
+              crumbs: (data: string) => [
+                { name: 'Manage Assets', route: '/manage/names' },
+                { name: data, route: `/manage/names/${data}` },
+                {
+                  name: 'Increase Undernames',
+                  route: `/manage/names/${data}/undernames`,
+                },
+              ],
+            }}
           />
         </Route>
         ,
