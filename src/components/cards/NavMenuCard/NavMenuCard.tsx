@@ -204,7 +204,6 @@ function NavMenuCard() {
                           {value ? (
                             <span className="white">{value}</span>
                           ) : (
-                            // TODO: add error icon with hover for error details
                             <Loader
                               size={20}
                               wrapperStyle={{ margin: '0px' }}

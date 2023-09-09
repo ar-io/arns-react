@@ -11,6 +11,9 @@ import { DeployPlugin } from 'warp-contracts-plugin-deploy';
 
 import {
   ArweaveTransactionID,
+  Auction,
+  AuctionParameters,
+  AuctionSettings,
   ContractInteraction,
   PDNSContractJSON,
   PDNTContractJSON,
@@ -354,6 +357,13 @@ export class WarpDataProvider
   ): Promise<PDNTContract[]> {
     throw Error('Not implemented');
   }
+
+  async getAuction(domain: string): Promise<AuctionParameters> {
+    throw Error('Not implemented');
+  }
+  async getAuctionSettings(id: string): Promise<AuctionSettings> {
+    throw Error('Not implemented');
+  }
   /* eslint-enable */
 
   async isDomainReserved({ domain }: { domain: string }): Promise<boolean> {
@@ -381,5 +391,56 @@ export class WarpDataProvider
       new ArweaveTransactionID(PDNS_REGISTRY_ADDRESS),
     ).then((state) => Object.keys(state.records));
     return !domainsList.includes(lowerCaseDomain(domain));
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async getAuctionPrices(
+    domain: string,
+    currentBlockHeight: number,
+  ): Promise<Auction> {
+    const { result } = (await this._warp
+      .contract(PDNS_REGISTRY_ADDRESS)
+      .setEvaluationOptions({
+        waitForConfirmation: true,
+        internalWrites: true,
+        updateCacheForEachInteraction: true,
+        unsafeClient: 'skip',
+        maxCallDepth: 3,
+      })
+      .viewState({
+        function: 'auction',
+        name: lowerCaseDomain(domain),
+      })) as unknown as any;
+
+    if (!result) {
+      throw new Error('Unable to read auction info from contract');
+    }
+
+    const { settings, ...auction } = result.auction;
+    // return the first price that is less than the current block height
+    const priceKey = Object.keys(auction.prices).find((key, index) => {
+      if (+key <= currentBlockHeight) {
+        return index;
+      }
+    });
+    return {
+      ...settings,
+      ...auction,
+      minimumAuctionBid: auction.prices[priceKey!],
+    } as Auction;
+  }
+
+  async getDomainsInAuction(): Promise<string[]> {
+    // todo: make this a read action on the contract
+    const state = await this.getContractState<PDNSContractJSON>(
+      new ArweaveTransactionID(PDNS_REGISTRY_ADDRESS),
+    );
+
+    if (!state || !state.auctions) {
+      throw new Error('Unable to read auction info from contract');
+    }
+    const auctionsList = Object.keys(state.auctions);
+
+    return auctionsList;
   }
 }

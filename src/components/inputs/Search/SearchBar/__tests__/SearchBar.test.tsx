@@ -22,6 +22,7 @@ jest.mock('../../../../../hooks', () => ({
       loading: false,
     },
   ]),
+  useArweaveCompositeProvider: jest.fn(),
 }));
 
 const TEST_RECORDS = {

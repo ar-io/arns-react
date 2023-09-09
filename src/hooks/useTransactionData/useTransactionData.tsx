@@ -1,10 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-  createSearchParams,
-  useLocation,
-  useNavigate,
-  useSearchParams,
-} from 'react-router-dom';
+import { createSearchParams, useSearchParams } from 'react-router-dom';
 
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useTransactionState } from '../../state/contexts/TransactionState';
@@ -21,9 +16,7 @@ import {
 import { ATOMIC_FLAG } from '../../utils/constants';
 
 export function useTransactionData() {
-  const navigate = useNavigate();
   const [, setSearchParams] = useSearchParams();
-  const from = useLocation().state;
   const [{ walletAddress }] = useGlobalState();
   const [{ transactionData, interactionType, workflowStage }] =
     useTransactionState();

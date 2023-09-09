@@ -15,8 +15,9 @@ import { CSSProperties, useEffect, useRef, useState } from 'react';
 import { Chart } from 'react-chartjs-2';
 import { ChartJSOrUndefined } from 'react-chartjs-2/dist/types';
 
-import { useArweaveCompositeProvider, useAuctionInfo } from '../../../hooks';
+import { useArweaveCompositeProvider } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { Auction } from '../../../types';
 import { AVERAGE_BLOCK_TIME } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import Loader from '../Loader/Loader';
@@ -61,15 +62,10 @@ function AuctionChart({
   const [labels, setLabels] = useState<string[]>();
   const [prices, setPrices] = useState<number[]>();
   const [showCurrentPrice, setShowCurrentPrice] = useState<boolean>(true);
-  const {
-    minimumAuctionBid: currentPrice,
-    prices: auctionPrices,
-    auction,
-    auctionSettings,
-  } = useAuctionInfo(domain);
+  const [auctionInfo, setAuctionInfo] = useState<Auction>();
 
   useEffect(() => {
-    if (!auction || !auctionSettings || !currentBlockHeight || !auctionPrices) {
+    if (!currentBlockHeight || !auctionInfo) {
       if (!currentBlockHeight) {
         arweaveDataProvider
           .getCurrentBlockHeight()
@@ -77,46 +73,49 @@ function AuctionChart({
             dispatchGlobalState({ type: 'setBlockHeight', payload: b }),
           )
           .catch((error) => eventEmitter.emit('error', error));
+        return;
       }
+
+      arweaveDataProvider
+        .getAuctionPrices(domain, currentBlockHeight)
+        .then((info) => {
+          setAuctionInfo(info);
+        });
       return;
     }
 
-    const { startHeight } = auction;
-    const { auctionDuration, decayInterval } = auctionSettings;
-
     const deadline = getDeadline({
       currentBlock: currentBlockHeight,
-      duration: auctionDuration,
-      startBlock: startHeight,
-      blockDecayInterval: decayInterval,
+      duration: auctionInfo.auctionDuration,
+      startBlock: auctionInfo.startHeight,
+      blockDecayInterval: auctionInfo.decayInterval,
     });
+
     setTimeUntilUpdate(deadline);
-    setPrices(Object.values(auctionPrices));
-    setLabels(Object.keys(auctionPrices));
-  }, [
-    chartRef.current,
-    auction,
-    domain,
-    auctionSettings,
-    currentBlockHeight,
-    auctionPrices,
-  ]);
+    setPrices(Object.values(auctionInfo.prices));
+    setLabels(Object.keys(auctionInfo.prices));
+  }, [chartRef.current, domain, currentBlockHeight, auctionInfo]);
 
   useEffect(() => {
-    triggerCurrentPriceTooltipWhenNotActive();
-  }, [chartRef.current, showCurrentPrice, prices, currentPrice]);
+    triggerCurrentPriceTooltipWhenNotActive(
+      auctionInfo?.minimumAuctionBid ?? 0,
+    );
+  }, [chartRef.current, showCurrentPrice, prices, auctionInfo]);
 
-  function triggerCurrentPriceTooltipWhenNotActive() {
+  function triggerCurrentPriceTooltipWhenNotActive(price: number) {
     try {
       const chart = chartRef.current;
       if (!showCurrentPrice || !chart || !prices) {
         return;
       }
       const data = chart.getDatasetMeta(0).data as PointElement[];
+      if (!prices.includes(price)) {
+        throw new Error(
+          `Price ${price?.toLocaleString()} not included in generated list of auction prices`,
+        );
+      }
       const point = data.find((point: PointElement) =>
-        point.parsed.y === prices?.[prices?.indexOf(currentPrice) + 1]
-          ? point
-          : undefined,
+        point.parsed.y === prices?.[prices?.indexOf(price)] ? point : undefined,
       );
       const tooltip = chart.tooltip;
       if (!point || !tooltip) {
@@ -180,15 +179,9 @@ function AuctionChart({
     }
   }
 
-  if (
-    !prices ||
-    !labels ||
-    !currentBlockHeight ||
-    !auctionSettings ||
-    !auction
-  ) {
+  if (!prices || !labels || !currentBlockHeight || !auctionInfo) {
     return (
-      <div className="flex flex-row">
+      <div className="flex flex-row center" style={{ height: '100%' }}>
         <Loader size={80} message="Loading prices..." />
       </div>
     );
@@ -286,9 +279,8 @@ function AuctionChart({
                   title: (data: any) => {
                     const block = +data[0].label;
                     const blockDiff =
-                      block > currentBlockHeight
-                        ? block - currentBlockHeight
-                        : currentBlockHeight - block;
+                      Math.max(+block, currentBlockHeight) -
+                      Math.min(+block, currentBlockHeight);
                     const timeDifferenceMs = blockDiff * 120000;
                     const time = new Date(
                       block > currentBlockHeight
@@ -311,8 +303,9 @@ function AuctionChart({
                 annotations: {
                   point1: {
                     type: 'point',
-                    xValue: prices.indexOf(currentPrice) + 1,
-                    yValue: prices[prices.indexOf(currentPrice) + 1],
+                    xValue: prices.indexOf(auctionInfo?.minimumAuctionBid),
+                    yValue:
+                      prices[prices.indexOf(auctionInfo?.minimumAuctionBid)],
                     backgroundColor: 'white',
                     radius: 7,
                     display: showCurrentPrice,
@@ -340,7 +333,9 @@ function AuctionChart({
                 segment: {
                   borderColor: 'white',
                   borderDash: (ctx: any) =>
-                    ctx.p0.parsed.y > currentPrice ? undefined : [3, 3],
+                    ctx.p0.parsed.y > auctionInfo.minimumAuctionBid
+                      ? undefined
+                      : [3, 3],
                 },
                 spanGaps: true,
                 pointHoverRadius: 7,
@@ -391,13 +386,13 @@ function AuctionChart({
         >
           To ensure that everyone has a fair opportunity to register this
           premium name, it has an auction premium that will reduce gradually
-          over a {Math.round(auctionSettings.auctionDuration / 720)} day period.
+          over a {Math.round(auctionInfo.auctionDuration / 720)} day period.
           This name has been on auction for{' '}
-          {Math.round((currentBlockHeight - auction.startHeight) / 720)} days
-          and has{' '}
+          {Math.round((currentBlockHeight - auctionInfo.startHeight) / 720)}{' '}
+          days and has{' '}
           {Math.round(
-            (auction.startHeight +
-              auctionSettings.auctionDuration -
+            (auctionInfo.startHeight +
+              auctionInfo.auctionDuration -
               currentBlockHeight) /
               720,
           )}{' '}

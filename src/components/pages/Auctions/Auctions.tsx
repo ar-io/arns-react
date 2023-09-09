@@ -6,7 +6,7 @@ import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { getCustomPaginationButtons } from '../../../utils';
 import eventEmitter from '../../../utils/events';
 import { RefreshIcon } from '../../icons';
-import { Loader } from '../../layout';
+import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 
 function Auctions() {
   const [, dispatchGlobalState] = useGlobalState();
@@ -16,7 +16,10 @@ function Auctions() {
 
   if (isLoading) {
     return (
-      <Loader size={80} message={`Loading auctions table... ${percent}%`} />
+      <PageLoader
+        loading={isLoading}
+        message={`Loading auctions table... ${percent}%`}
+      />
     );
   }
 
