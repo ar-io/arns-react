@@ -41,6 +41,7 @@ import {
   MIN_TTL_SECONDS,
   PDNS_TX_ID_REGEX,
   RESERVED_NAME_LENGTH,
+  TRADEABLE_ANT_TAGS,
   TTL_SECONDS_REGEX,
   YEAR_IN_MILLISECONDS,
 } from '../constants';
@@ -784,11 +785,22 @@ export function generateAtomicState(
 export function buildSmartweaveInteractionTags({
   contractId,
   input,
+  tradeable,
 }: {
   contractId: ArweaveTransactionID;
   input: SmartWeaveActionInput;
+  tradeable?: boolean;
 }): TransactionTag[] {
-  const tags: SmartWeaveActionTags = [
+  const tradeableTags: TransactionTag[] = TRADEABLE_ANT_TAGS.map((t) => {
+    if (t.name === 'Title' && input?.state?.name) {
+      return {
+        name: t.name,
+        value: input.state.name,
+      };
+    }
+    return t;
+  });
+  const tags = [
     {
       name: 'App-Name',
       value: 'SmartWeaveAction',
@@ -801,8 +813,9 @@ export function buildSmartweaveInteractionTags({
       name: 'Input',
       value: JSON.stringify(input),
     },
+    ...(tradeable ? tradeableTags : []),
   ];
-  return tags;
+  return tags as SmartWeaveActionTags;
 }
 
 export function isDomainAuctionable({

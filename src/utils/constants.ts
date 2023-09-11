@@ -27,7 +27,7 @@ export const PDNS_REGISTRY_ADDRESS =
 export const STUB_PDNT_ID = '6dUiTQKJCVD7c9icQhbbzfI-Le_hC4sXRDx1OQQ6jMI';
 export const STUB_ARWEAVE_TXID = '2yHmORN-N12hM1B2f9-JPMpOfa59qhpsExFCzImrD30'; // pdns spec pdf
 export const DEFAULT_PDNT_SOURCE_CODE_TX =
-  'PEI1efYrsX08HUwvc6y-h6TSpsNlo2r6_fWL2_GdwhY';
+  'npsNpXNps3wf0o15tQIW-AoXx7IBQbiURpwnWJhgdLk';
 export const RECOMMENDED_TRANSACTION_CONFIRMATIONS = 50;
 export const DEFAULT_TTL_SECONDS = 3600;
 export const DEFAULT_MAX_UNDERNAMES = 10;
@@ -157,6 +157,8 @@ export const DEFAULT_PDNT_CONTRACT_STATE: PDNTContractJSON = {
       maxUndernames: DEFAULT_MAX_UNDERNAMES,
     },
   },
+  claims: [],
+  claimable: {},
 };
 export const DEFAULT_PDNS_REGISTRY_STATE: PDNSContractJSON = {
   records: {},
@@ -189,3 +191,24 @@ export const ATOMIC_REGISTRATION_INPUT = {
   contractTxId: ATOMIC_FLAG,
   qty: 0,
 };
+
+export const TRADEABLE_ANT_TAGS = [
+  { name: 'Content-Type', value: 'application/json' },
+  {
+    name: 'Contract-Manifest',
+    value:
+      '{"evaluationOptions":{"sourceType":"arweave","allowBigInt":true,"internalWrites":false,"unsafeClient":"skip","useConstructor":true}}',
+  },
+  { name: 'Title', value: 'Title of Asset' },
+  { name: 'Description', value: 'Arweave Name Token for the ArNS Ecosystem' },
+  { name: 'Type', value: 'asset' },
+  { name: 'Indexed-By', value: 'ucm' },
+  { name: 'License', value: 'udlicense' },
+  { name: 'Access', value: 'restricted' },
+  { name: 'Access-Fee', value: 'One-Time-0.001' },
+  { name: 'Derivation', value: 'allowed-with-license-fee' },
+  { name: 'Derivation-Fee', value: 'One-Time-0.1' },
+  { name: 'Commercial', value: 'allowed' },
+  { name: 'Commercial-Free', value: 'One-Time-0.5' },
+  { name: 'Payment-Mode', value: 'Global-Distribution' },
+];

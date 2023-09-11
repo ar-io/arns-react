@@ -108,6 +108,8 @@ export type PDNTContractJSON = {
     [x: string]: string | PDNTContractDomainRecord;
   };
   ticker: string;
+  claims: Array<any>;
+  claimable: Record<string, string>;
 };
 
 export type PDNTContractFields = keyof PDNTContractJSON;

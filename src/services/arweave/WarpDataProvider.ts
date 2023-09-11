@@ -291,6 +291,7 @@ export class WarpDataProvider
     const tags = buildSmartweaveInteractionTags({
       contractId: registryId,
       input,
+      tradeable: true,
     });
 
     const contract = this._warp // eval options were required due to change in manifest. This is causing an issue where it is causing a delay for returning the txid due to the `waitForConfirmation` option. This should be removed from the eval manifest if we dont want to make the user wait.
@@ -330,6 +331,7 @@ export class WarpDataProvider
     if (!result) {
       throw new Error('Could not deploy atomic contract');
     }
+
     return result;
   }
 
