@@ -125,24 +125,6 @@ function TransactionWorkflow({
           TRANSACTION_DATA_KEYS[INTERACTION_TYPES.BUY_RECORD].keys,
         );
 
-      // ISSUE: old code for specifically deploying a contract (taken out for MVP)
-      // const validCreateInteraction =
-      //   interactionType === INTERACTION_TYPES.CREATE &&
-      //   isObjectOfTransactionPayloadType<CreatePDNTPayload>(
-      //     payload,
-      //     TRANSACTION_DATA_KEYS[INTERACTION_TYPES.CREATE].keys,
-      //   );
-      // if (validCreateInteraction) {
-      //   originalTxId = await arweaveDataProvider.deployContract({
-      //     walletAddress,
-      //     srcCodeTransactionId: new ArweaveTransactionID(
-      //       payload.srcCodeTransactionId,
-      //     ),
-      //     initialState: payload.initialState,
-      //     tags: payload?.tags,
-      //   });
-      // } else
-
       if (
         validBuyRecordInteraction &&
         payload.contractTxId === ATOMIC_FLAG &&
