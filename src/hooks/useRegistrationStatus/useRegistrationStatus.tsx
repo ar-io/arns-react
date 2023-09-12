@@ -1,4 +1,3 @@
-import { set } from 'lodash';
 import { useEffect, useState } from 'react';
 
 import { useGlobalState } from '../../state/contexts/GlobalState';
