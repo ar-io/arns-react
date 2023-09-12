@@ -1,4 +1,5 @@
 import { CheckCircleFilled } from '@ant-design/icons';
+import { set } from 'lodash';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -63,7 +64,13 @@ function SearchBar(props: SearchBarProps) {
   const [searchBarBorder, setSearchBarBorder] = useState({});
   const isSearchbarFocused = useIsFocused('searchbar-input-id');
   const [
-    { isAvailable, isAuction, isReserved, loading: isValidatingRegistration },
+    {
+      isAvailable,
+      isAuction,
+      isReserved,
+      loading: isValidatingRegistration,
+      validated,
+    },
   ] = useRegistrationStatus(lowerCaseDomain(value));
   const [auctionInfo, setAuctionInfo] = useState<Auction>();
 
@@ -94,28 +101,23 @@ function SearchBar(props: SearchBarProps) {
 
   useEffect(() => {
     if (
-      isValidatingRegistration ||
-      ([isAvailable, isAuction, isReserved].every(
-        (status) => status === undefined,
-      ) &&
-        searchBarText)
+      (value && !isValidatingRegistration && searchSubmitted && validated) ||
+      !searchBarText
     ) {
-      return;
+      const style = handleSearchbarBorderStyle({
+        domain: value,
+        auction: isAuction,
+        available: isAvailable,
+        reserved: isReserved,
+        submitted: searchSubmitted,
+        focused: isSearchbarFocused && !validated,
+      });
+      setSearchBarBorder(style);
     }
-
-    const style = handleSearchbarBorderStyle({
-      domain: searchBarText,
-      auction: isAuction ?? false,
-      available: isAvailable ?? false,
-      reserved: isReserved ?? false,
-      submitted: searchSubmitted,
-      focused: isSearchbarFocused,
-    });
 
     if (isAuction) {
       updateAuctionInfo(value);
     }
-    setSearchBarBorder(style);
   }, [
     searchBarText,
     searchSubmitted,
@@ -123,6 +125,7 @@ function SearchBar(props: SearchBarProps) {
     isAuction,
     isAvailable,
     isReserved,
+    validated,
   ]);
 
   async function updateAuctionInfo(domain: string) {
