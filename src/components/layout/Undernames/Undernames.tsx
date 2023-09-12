@@ -1,4 +1,4 @@
-import { Pagination, Tooltip } from 'antd';
+import { Pagination } from 'antd';
 import { Table } from 'antd';
 import { ColumnType } from 'rc-table/lib/interface';
 import { useEffect, useState } from 'react';
@@ -36,7 +36,7 @@ import {
   STUB_ARWEAVE_TXID,
 } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
-import { ArrowLeft, TrashIcon } from '../../icons';
+import { TrashIcon } from '../../icons';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import DialogModal from '../../modals/DialogModal/DialogModal';
 import ArPrice from '../ArPrice/ArPrice';
@@ -324,44 +324,6 @@ function Undernames() {
       <div className="page">
         <div className="flex-column">
           <div className="flex flex-justify-between">
-            <div className="flex flex-row text-large white bold">
-              <span className="flex grey text-large bold">
-                <button
-                  className="grey text-large bold underline link center"
-                  onClick={() => navigate('/manage/ants')}
-                >
-                  <ArrowLeft
-                    width={30}
-                    height={20}
-                    viewBox={'0 0 20 20'}
-                    fill={'var(--text-white)'}
-                  />
-                  Manage ANTs
-                </button>
-                &nbsp;/&nbsp;
-                <Tooltip
-                  placement="top"
-                  title={id}
-                  showArrow={true}
-                  overlayStyle={{
-                    maxWidth: 'fit-content',
-                  }}
-                >
-                  <button
-                    className="grey text-large bold underline link center"
-                    onClick={() =>
-                      navigate(`/manage/ants/${pdntId?.toString()}`)
-                    }
-                  >
-                    {pdntState?.name.length
-                      ? pdntState.name
-                      : `${id?.slice(0, 4)}...${id?.slice(-4)}`}
-                  </button>
-                </Tooltip>
-                &nbsp;/&nbsp;
-                <span className="text-large white">Manage Undernames</span>
-              </span>
-            </div>
             <div className="flex flex-row flex-right">
               {filteredTableData.length ? (
                 <button

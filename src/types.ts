@@ -622,7 +622,7 @@ export type PDNSTableRow = {
   hasPending: boolean;
 };
 
-export type PDNTMetadata = {
+export type ANTMetadata = {
   name: string;
   id: string;
   targetID: string;
@@ -634,7 +634,7 @@ export type PDNTMetadata = {
   hasPending: boolean;
 };
 
-export type ManagePDNTRow = {
+export type ManageANTRow = {
   attribute: string;
   value: string | number;
   editable: boolean;
@@ -659,6 +659,7 @@ export type PDNTDetails = {
   controller: string;
   undernames: string;
   owner: string;
+  contractTxId: string;
 };
 export type DomainDetails = {
   expiryDate: string | number;

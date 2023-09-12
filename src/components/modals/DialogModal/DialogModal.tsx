@@ -13,8 +13,8 @@ function DialogModal({
   onCancel = () => alert('onCancel not set'),
   onNext = () => alert('onNext not set'),
 }: {
-  title?: string;
-  body?: JSX.Element;
+  title?: string | JSX.Element;
+  body?: string | JSX.Element;
   footer?: JSX.Element;
   showClose?: boolean; // shows x and divider for title
   showNext?: boolean;

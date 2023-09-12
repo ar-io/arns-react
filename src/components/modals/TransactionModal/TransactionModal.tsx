@@ -3,9 +3,9 @@ import { useState } from 'react';
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
+  ANTMetadata,
   ArweaveTransactionID,
   PDNSRecordEntry,
-  PDNTMetadata,
   PDNT_INTERACTION_TYPES,
   TRANSACTION_TYPES,
   VALIDATION_INPUT_TYPES,
@@ -27,7 +27,7 @@ function TransactionModal({
   // main control for how the modal is built
   transactionType: TRANSACTION_TYPES;
   interactionType?: PDNT_INTERACTION_TYPES;
-  state?: PDNTMetadata;
+  state?: ANTMetadata;
   contractId?: ArweaveTransactionID; // contract ID if asset type is a contract interaction
   showModal: () => void;
 }) {

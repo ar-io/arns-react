@@ -4,9 +4,9 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import {
   useArweaveCompositeProvider,
+  useWalletANTs,
   useWalletAddress,
   useWalletDomains,
-  useWalletPDNTs,
 } from '../../../hooks';
 import { ArweaveTransactionID, ManageTable } from '../../../types';
 import { MANAGE_TABLE_NAMES } from '../../../types';
@@ -37,7 +37,7 @@ function Manage() {
     rows: pdntRows,
     sortAscending: pdntSortAscending,
     sortField: pdntSortField,
-  } = useWalletPDNTs(pdntIds);
+  } = useWalletANTs(pdntIds);
   const {
     isLoading: domainTableLoading,
     percent: percentDomainsLoaded,

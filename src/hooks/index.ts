@@ -4,7 +4,7 @@ export * from './usePDNSContract/usePDNSContract';
 export * from './useLongPress/useLongPress';
 export * from './useWalletAddress/useWalletAddress';
 export * from './useWalletDomains/useWalletDomains';
-export * from './useWalletPDNTs/useWalletPDNTs';
+export * from './useWalletANTs/useWalletANTs';
 export * from './useTransactionData/useTransactionData';
 export * from './useAuctionInfo/useAuctionInfo';
 export * from './useIsFocused/useIsFocused';

@@ -1,5 +1,5 @@
 import { Tooltip } from 'antd';
-import Table from 'rc-table';
+import { Table } from 'antd';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 
@@ -10,7 +10,7 @@ import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ArweaveTransactionID,
   INTERACTION_TYPES,
-  ManagePDNTRow,
+  ManageANTRow,
   PDNSRecordEntry,
   PDNTContractJSON,
   PDNTDetails,
@@ -18,7 +18,6 @@ import {
 } from '../../../types';
 import {
   getInteractionTypeFromField,
-  getPendingInteractionsRowsForContract,
   mapTransactionDataKeyToPayload,
   validateMaxASCIILength,
   validateTTLSeconds,
@@ -37,17 +36,21 @@ import eventEmitter from '../../../utils/events';
 import { AntDetailKey, mapKeyToAttribute } from '../../cards/PDNTCard/PDNTCard';
 import {
   ArrowLeft,
+  ArrowRightIcon,
   CirclePending,
-  CloseIcon,
+  CodeSandboxIcon,
   ExternalLinkIcon,
+  NewspaperIcon,
   PencilIcon,
+  VerticalDotMenuIcon,
 } from '../../icons';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
-import { Loader } from '../../layout';
 import TransactionStatus from '../../layout/TransactionStatus/TransactionStatus';
-import TransferPDNTModal from '../TransferPDNTModal/TransferPDNTModal';
+import PageLoader from '../../layout/progress/PageLoader/PageLoader';
+import { TransferANTModal } from '../../modals';
+import './styles.css';
 
-function ManagePDNTModal() {
+function ManageANT() {
   const { id } = useParams();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
@@ -59,18 +62,15 @@ function ManagePDNTModal() {
   const [pdntName, setPDNTName] = useState<string>();
   const [editingField, setEditingField] = useState<string>();
   const [modifiedValue, setModifiedValue] = useState<string | number>();
-  const [rows, setRows] = useState<ManagePDNTRow[]>([]);
+  const [rows, setRows] = useState<ManageANTRow[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [showTransferPDNTModal, setShowTransferPDNTModal] =
+  const [showTransferANTModal, setShowTransferANTModal] =
     useState<boolean>(false);
+  const [pendingInteractions, setPendingInteractions] = useState<Array<any>>(
+    [],
+  );
 
-  const EDITABLE_FIELDS = [
-    'name',
-    'ticker',
-    'targetID',
-    'ttlSeconds',
-    'controller',
-  ];
+  const EDITABLE_FIELDS = ['name', 'ticker', 'targetID', 'ttlSeconds'];
 
   useEffect(() => {
     if (!id || !walletAddress) {
@@ -118,42 +118,31 @@ function ManagePDNTModal() {
 
       const consolidatedDetails: PDNTDetails = {
         status: confirmations ?? 0,
+        contractTxId: contractTxId.toString(),
         associatedNames: !names.length ? 'N/A' : names.join(', '),
-        name: contract.name ?? 'N/A',
-        ticker: contract.ticker ?? 'N/A',
-        targetID: contract.getRecord('@')?.transactionId ?? 'N/A',
-        ttlSeconds: contract.getRecord('@')?.ttlSeconds ?? DEFAULT_TTL_SECONDS,
-        controller: contract.controller ?? 'N/A',
-        undernames: `${Object.keys(contract.records).length - 1} / ${
+        undernames: `${Object.keys(contract.records).length - 1}/${
           record?.undernames ?? DEFAULT_MAX_UNDERNAMES
         }`,
+        name: contract.name ?? 'N/A',
+        ticker: contract.ticker ?? 'N/A',
         owner: contract.owner ?? 'N/A',
+        controller: contract.controller ?? 'N/A',
+        targetID: contract.getRecord('@')?.transactionId ?? 'N/A',
+        ttlSeconds: contract.getRecord('@')?.ttlSeconds ?? DEFAULT_TTL_SECONDS,
       };
 
-      // get pending tx details
-      const pendingTxs = getPendingInteractionsRowsForContract(
-        pendingContractInteractions,
-        consolidatedDetails,
-      );
-
       const rows = Object.keys(consolidatedDetails).reduce(
-        (details: ManagePDNTRow[], attribute: string, index: number) => {
+        (details: ManageANTRow[], attribute: string, index: number) => {
           const existingValue =
             consolidatedDetails[attribute as keyof PDNTDetails];
-          const pendingInteraction = pendingTxs.find(
-            (i) => i.attribute === attribute,
-          );
-          const value = pendingInteraction
-            ? pendingInteraction.value
-            : existingValue;
+
+          const value = existingValue;
           const detail = {
             attribute,
             value,
-            editable:
-              EDITABLE_FIELDS.includes(attribute) && !pendingInteraction,
+            editable: EDITABLE_FIELDS.includes(attribute),
             key: index,
             interactionType: getInteractionTypeFromField(attribute),
-            pendingInteraction,
           };
           details.push(detail);
           return details;
@@ -161,6 +150,7 @@ function ManagePDNTModal() {
         [],
       );
 
+      setPendingInteractions(pendingContractInteractions);
       setPDNTState(contract);
       setPDNTName(contractState.name ?? id);
       setRows(rows);
@@ -173,7 +163,7 @@ function ManagePDNTModal() {
 
   function getValidationPredicates(
     value: string | number | undefined,
-    row: ManagePDNTRow,
+    row: ManageANTRow,
   ): { [x: string]: { fn: (value: any) => Promise<any>; required?: boolean } } {
     switch (row.attribute) {
       case 'ttlSeconds':
@@ -204,7 +194,7 @@ function ManagePDNTModal() {
     }
   }
 
-  function handleSave(row: ManagePDNTRow) {
+  function handleSave(row: ManageANTRow) {
     // TODO: make this more clear, we should be updating only the value that matters and not overwriting anything
     if (!row.isValid || !row.interactionType) {
       return;
@@ -251,108 +241,43 @@ function ManagePDNTModal() {
 
   return (
     <>
-      <div className="page">
+      <div className="page" style={{ gap: '30px' }}>
         <div className="flex-row flex-space-between">
-          <span className="flex white text-large bold">
-            <button
-              className="grey text-large bold underline link center"
-              onClick={() => navigate('/manage/ants')}
-            >
-              <ArrowLeft
-                width={30}
-                height={20}
-                viewBox={'0 0 20 20'}
-                fill={'var(--text-white)'}
-              />
-              Manage ANTs
-            </button>
-            <Tooltip
-              placement="right"
-              title={id}
-              showArrow={true}
-              overlayStyle={{
-                maxWidth: 'fit-content',
-              }}
-            >
-              <span>&nbsp;/&nbsp;{pdntName?.length ? pdntName : id}</span>
-            </Tooltip>
-          </span>
-          {/* TODO: make sure the table doesn't refresh if no actions were saved/written */}
-          <button
-            className="flex flex-right pointer"
-            onClick={() => navigate('/manage/ants')}
-          >
-            <CloseIcon width="30px" height={'30px'} fill="var(--text-white)" />
-          </button>
+          <h2 className="flex white center" style={{ gap: '15px' }}>
+            <CodeSandboxIcon
+              width={'24px'}
+              height={'24px'}
+              fill="var(--text-white)"
+            />
+            {pdntName ?? id}
+          </h2>
         </div>
         <div className="flex-row center">
           {loading ? (
             <div className="flex" style={{ padding: '10%' }}>
-              <Loader size={80} />
+              <PageLoader
+                loading={loading}
+                message={'Loading ANT data, please wait.'}
+              />
             </div>
           ) : (
             <Table
               showHeader={false}
               style={{ width: '100%' }}
-              onRow={(row: ManagePDNTRow) => ({
+              onRow={(row: ManageANTRow) => ({
                 className: row.attribute === editingField ? 'active-row' : '',
               })}
               scroll={{ x: true }}
+              pagination={false}
+              prefixCls="manage-ant-table"
               columns={[
-                {
-                  title: '',
-                  dataIndex: 'pendingInteraction',
-                  key: 'pendingInteraction',
-                  align: 'left',
-                  width: '2%',
-                  className: 'white',
-                  render: (interaction: {
-                    value: string;
-                    valid: boolean;
-                    id: string;
-                  }) => {
-                    if (interaction) {
-                      return (
-                        <Tooltip
-                          placement="right"
-                          title={
-                            <Link
-                              className="link white text underline"
-                              to={`https://viewblock.io/arweave/tx/${interaction.id}`}
-                              target="_blank"
-                            >
-                              There is a pending transaction modifying this
-                              field.
-                              <ExternalLinkIcon
-                                height={12}
-                                width={12}
-                                fill={'var(--text-white)'}
-                              />
-                            </Link>
-                          }
-                          showArrow={true}
-                          overlayStyle={{
-                            maxWidth: 'fit-content',
-                          }}
-                        >
-                          <CirclePending
-                            height={20}
-                            width={20}
-                            fill={'var(--accent)'}
-                          />
-                        </Tooltip>
-                      );
-                    }
-                    return <></>;
-                  },
-                },
                 {
                   title: '',
                   dataIndex: 'attribute',
                   key: 'attribute',
                   align: 'left',
                   width: isMobile ? '0px' : '20%',
-                  className: 'white',
+                  className: 'grey whitespace-no-wrap',
                   render: (value: string) => {
                     return `${mapKeyToAttribute(value as AntDetailKey)}:`;
                   },
@@ -366,12 +291,56 @@ function ManagePDNTModal() {
                   className: 'white',
                   render: (value: string | number, row: any) => {
                     if (row.attribute === 'status')
-                      return <TransactionStatus confirmations={+value} />;
+                      return (
+                        <Tooltip
+                          placement="right"
+                          title={pendingInteractions.map(
+                            (interaction, index) => (
+                              <Link
+                                key={'interaction-' + index}
+                                className="link white text underline"
+                                to={`https://viewblock.io/arweave/tx/${interaction.id}`}
+                                target="_blank"
+                              >
+                                There is a pending transaction modifying this
+                                field.
+                                <ExternalLinkIcon
+                                  height={12}
+                                  width={12}
+                                  fill={'var(--text-white)'}
+                                />
+                              </Link>
+                            ),
+                          )}
+                          showArrow={true}
+                          overlayStyle={{
+                            maxWidth: 'fit-content',
+                          }}
+                        >
+                          {!pendingInteractions ? (
+                            <TransactionStatus confirmations={+value} />
+                          ) : (
+                            <CirclePending
+                              height={20}
+                              width={20}
+                              fill={'var(--accent)'}
+                            />
+                          )}
+                        </Tooltip>
+                      );
                     if (row.attribute === 'undernames') {
                       return (
-                        <Link to={'undernames'} className={'link'}>
-                          {value}
-                        </Link>
+                        <span
+                          className="flex center"
+                          style={{ justifyContent: 'flex-start', gap: '10px' }}
+                        >
+                          {value}{' '}
+                          <NewspaperIcon
+                            width={'20px'}
+                            height={'20px'}
+                            fill="var(--text-grey)"
+                          />
+                        </span>
                       );
                     }
                     if (row.editable)
@@ -381,7 +350,6 @@ function ManagePDNTModal() {
 
                           <ValidationInput
                             pattern={
-                              row.attribute === 'controller' ||
                               row.attribute === 'targetID'
                                 ? PDNS_TX_ID_ENTRY_REGEX
                                 : row.attribute === 'ttlSeconds'
@@ -393,7 +361,7 @@ function ManagePDNTModal() {
                               row.attribute == editingField && !!modifiedValue
                             }
                             onPressEnter={() => handleSave(row)}
-                            showValidationOutline={true}
+                            showValidationOutline={false}
                             inputId={row.attribute + '-input'}
                             minNumber={MIN_TTL_SECONDS}
                             maxNumber={MAX_TTL_SECONDS}
@@ -409,22 +377,12 @@ function ManagePDNTModal() {
                               width: '100%',
                               border: 'none',
                               overflow: 'hidden',
-                              fontSize: '16px',
+                              fontSize: '13px',
                               outline: 'none',
                               borderRadius: 'var(--corner-radius)',
-                              background:
-                                editingField === row.attribute
-                                  ? 'white'
-                                  : 'transparent',
-                              color:
-                                editingField === row.attribute
-                                  ? 'black'
-                                  : 'white',
-                              padding:
-                                editingField === row.attribute
-                                  ? '10px 40px 10px 10px'
-                                  : '10px 0px',
-                              display: 'flex',
+                              background: 'transparent',
+                              color: 'white',
+                              alignContent: 'center',
                             }}
                             disabled={editingField !== row.attribute}
                             placeholder={`Enter a ${mapKeyToAttribute(
@@ -459,10 +417,7 @@ function ManagePDNTModal() {
                               if (row.attribute === 'ttlSeconds') {
                                 return length.length <= 7;
                               }
-                              if (
-                                row.attribute === 'targetID' ||
-                                row.attribute === 'controller'
-                              ) {
+                              if (row.attribute === 'targetID') {
                                 return length.length <= 43;
                               }
                               return false;
@@ -487,56 +442,212 @@ function ManagePDNTModal() {
                         <>
                           {editingField !== row.attribute ? (
                             <button
+                              className="button pointer hover"
                               onClick={() => {
                                 setEditingField(row.attribute);
                                 setModifiedValue(row.value);
                               }}
+                              style={{ boxSizing: 'border-box' }}
                             >
                               <PencilIcon
                                 style={{
-                                  width: '24px',
-                                  height: '24px',
-                                  fill: 'white',
+                                  width: '16px',
+                                  height: '16px',
+                                  fill: 'var(--text-grey)',
+                                  boxSizing: 'border-box',
                                 }}
                               />
                             </button>
                           ) : (
-                            <button
-                              className="assets-manage-button"
+                            <span
+                              className="flex flex-row"
                               style={{
-                                backgroundColor: 'var(--accent)',
-                                borderColor: 'var(--accent)',
+                                boxSizing: 'border-box',
+                                gap: '10px',
                               }}
-                              onClick={() => handleSave(row)}
                             >
-                              Save
-                            </button>
+                              <button
+                                className="button bold grey pointer hover"
+                                style={{
+                                  padding: '6px',
+                                  fontSize: '13px',
+                                  boxSizing: 'border-box',
+                                }}
+                                onClick={() => setEditingField('')}
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                className="button-primary hover"
+                                style={{
+                                  padding: '9px 12px',
+                                  fontSize: '13px',
+                                  boxSizing: 'border-box',
+                                }}
+                                onClick={() => alert('not implemented')}
+                              >
+                                Save
+                              </button>
+                            </span>
                           )}
                         </>
                       );
                     }
-                    if (row.attribute == 'owner') {
+                    if (row.attribute === 'owner') {
                       return (
-                        <button
-                          onClick={() => setShowTransferPDNTModal(true)}
-                          className="assets-manage-button"
+                        <span className={'flex flex-right'}>
+                          <button
+                            onClick={() => alert('not implemented')}
+                            className="button-secondary"
+                            style={{
+                              padding: '9px 12px',
+                              fontSize: '13px',
+                              boxSizing: 'border-box',
+                              letterSpacing: '0.5px',
+                              fontWeight: 500,
+                            }}
+                          >
+                            Transfer
+                          </button>
+                        </span>
+                      );
+                    }
+                    if (row.attribute === 'controller') {
+                      return (
+                        // TODO: add condition to "open" to be false when modals are open
+                        <Tooltip
+                          open={undefined}
+                          placement="bottomRight"
+                          color="var(--card-bg)"
+                          autoAdjustOverflow
+                          arrow={false}
+                          overlayInnerStyle={{
+                            width: 'fit-content',
+                            border: '1px solid var(--text-faded)',
+                            padding: '9px 12px',
+                          }}
+                          overlayStyle={{ width: 'fit-content' }}
+                          trigger={'click'}
+                          title={
+                            <div
+                              className="flex-column flex"
+                              style={{ gap: '10px' }}
+                            >
+                              <button
+                                className="flex flex-right white pointer button"
+                                onClick={() => alert('not implemented')}
+                              >
+                                Add Controller
+                              </button>
+                              <button
+                                className="flex flex-right white pointer button"
+                                onClick={() => alert('not implemented')}
+                              >
+                                Remove Controller
+                              </button>
+                            </div>
+                          }
                         >
-                          Transfer
-                        </button>
+                          <VerticalDotMenuIcon
+                            width={'18px'}
+                            height={'18px'}
+                            fill="var(--text-grey)"
+                          />
+                        </Tooltip>
+                      );
+                    }
+                    if (row.attribute === 'undernames') {
+                      return (
+                        <Tooltip
+                          placement="bottomRight"
+                          color="var(--card-bg)"
+                          autoAdjustOverflow
+                          arrow={false}
+                          overlayInnerStyle={{
+                            width: 'fit-content',
+                            border: '1px solid var(--text-faded)',
+                            padding: '9px 12px',
+                          }}
+                          overlayStyle={{ width: 'fit-content' }}
+                          trigger={'click'}
+                          title={
+                            <div
+                              className="flex-column flex"
+                              style={{ gap: '10px' }}
+                            >
+                              <button
+                                className="flex flex-right white pointer button"
+                                onClick={() =>
+                                  navigate(`/manage/ants/${id}/undernames`)
+                                }
+                              >
+                                Manage
+                              </button>
+                              <button
+                                className="flex flex-right white pointer button"
+                                onClick={() =>
+                                  navigate(
+                                    `/manage/ants/${id}/undernames?modal=add`,
+                                  )
+                                }
+                              >
+                                Add Undername
+                              </button>
+                            </div>
+                          }
+                        >
+                          <VerticalDotMenuIcon
+                            width={'18px'}
+                            height={'18px'}
+                            fill="var(--text-grey)"
+                          />
+                        </Tooltip>
                       );
                     }
                     return value;
                   },
                 },
               ]}
-              data={rows}
+              dataSource={rows}
             />
           )}
         </div>
+        <div
+          id="back-next-container"
+          className="flex flex-row"
+          style={{ justifyContent: 'space-between' }}
+        >
+          <button
+            className="outline-button center hover"
+            style={{
+              padding: '10px',
+              gap: '8px',
+              fontSize: '13px',
+              fontWeight: 400,
+            }}
+            onClick={() => alert('Not implemented yet')}
+          >
+            <ArrowLeft width={'16px'} height={'16px'} fill="inherit" />
+            Previous
+          </button>
+          <button
+            className="outline-button center hover"
+            style={{
+              padding: '10px',
+              gap: '8px',
+              fontSize: '13px',
+              fontWeight: 400,
+            }}
+            onClick={() => alert('Not implemented yet')}
+          >
+            Next
+            <ArrowRightIcon width={'16px'} height={'16px'} fill="inherit" />
+          </button>
+        </div>
       </div>
-      {showTransferPDNTModal && id ? (
-        <TransferPDNTModal
-          showModal={() => setShowTransferPDNTModal(false)}
+      {showTransferANTModal && id ? (
+        <TransferANTModal
+          showModal={() => setShowTransferANTModal(false)}
           pdntId={new ArweaveTransactionID(id)}
         />
       ) : (
@@ -546,4 +657,4 @@ function ManagePDNTModal() {
   );
 }
 
-export default ManagePDNTModal;
+export default ManageANT;

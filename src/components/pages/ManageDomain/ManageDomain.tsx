@@ -37,7 +37,7 @@ import ArweaveID, { ArweaveIdTypes } from '../../layout/ArweaveID/ArweaveID';
 import TransactionStatus from '../../layout/TransactionStatus/TransactionStatus';
 import './styles.css';
 
-function ManageDomainModal() {
+function ManageDomain() {
   const { name } = useParams();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
@@ -320,7 +320,12 @@ function ManageDomainModal() {
         >
           <button
             className="outline-button center hover"
-            style={{ padding: '6px', gap: '8px', fontSize: '14px' }}
+            style={{
+              padding: '10px',
+              gap: '8px',
+              fontSize: '13px',
+              fontWeight: 400,
+            }}
             onClick={() => alert('Not implemented yet')}
           >
             <ArrowLeft width={'16px'} height={'16px'} fill="inherit" />
@@ -328,7 +333,12 @@ function ManageDomainModal() {
           </button>
           <button
             className="outline-button center hover"
-            style={{ padding: '6px', gap: '8px', fontSize: '14px' }}
+            style={{
+              padding: '10px',
+              gap: '8px',
+              fontSize: '13px',
+              fontWeight: 400,
+            }}
             onClick={() => alert('Not implemented yet')}
           >
             Next
@@ -340,4 +350,4 @@ function ManageDomainModal() {
   );
 }
 
-export default ManageDomainModal;
+export default ManageDomain;

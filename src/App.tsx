@@ -14,16 +14,13 @@ import Redirect from './components/layout/Redirect/Redirect';
 import Undernames from './components/layout/Undernames/Undernames';
 import UpgradeUndernames from './components/layout/UpgradeUndernames/UpgradeUndernames';
 import ViewAuction from './components/layout/ViewAuction/ViewAuction';
-import {
-  ConnectWalletModal,
-  CreatePDNTModal,
-  ManagePDNTModal,
-} from './components/modals';
-import ManageDomainModal from './components/modals/ManageDomainModal/ManageDomainModal';
+import { ConnectWalletModal, CreatePDNTModal } from './components/modals';
 import {
   Auctions,
   Home,
   Manage,
+  ManageANT,
+  ManageDomain,
   NotFound,
   Register,
   Transaction,
@@ -70,7 +67,7 @@ function App() {
             path="ants/:id"
             element={
               <ProtectedRoute>
-                <ManagePDNTModal />
+                <ManageANT />
               </ProtectedRoute>
             }
             handle={{
@@ -108,7 +105,7 @@ function App() {
             path="names/:name"
             element={
               <ProtectedRoute>
-                <ManageDomainModal />
+                <ManageDomain />
               </ProtectedRoute>
             }
             handle={{
