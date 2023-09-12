@@ -14,7 +14,7 @@ import Redirect from './components/layout/Redirect/Redirect';
 import Undernames from './components/layout/Undernames/Undernames';
 import UpgradeUndernames from './components/layout/UpgradeUndernames/UpgradeUndernames';
 import ViewAuction from './components/layout/ViewAuction/ViewAuction';
-import { ConnectWalletModal, CreatePDNTModal } from './components/modals';
+import { ConnectWalletModal } from './components/modals';
 import {
   Auctions,
   Home,
@@ -43,14 +43,6 @@ function App() {
         <Route index element={<Home />} />
         <Route path="info" element={<Redirect url="https://ar.io/arns" />} />
         <Route path="connect" element={<ConnectWalletModal />} />
-        <Route
-          path="create"
-          element={
-            <ProtectedRoute>
-              <CreatePDNTModal />
-            </ProtectedRoute>
-          }
-        />
         <Route path="manage">
           <Route index={true} element={<Navigate to="names" />} />
           <Route path=":path">
