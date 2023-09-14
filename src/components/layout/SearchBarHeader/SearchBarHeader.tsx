@@ -33,7 +33,7 @@ function SearchBarHeader({
   }
 
   // reserved condition
-  if ((domain && isReserved) || (domain && isDomainReservedLength(domain))) {
+  if (domain && (isReserved || isDomainReservedLength(domain))) {
     return (
       <span
         className="text-medium white center flex fade-in"

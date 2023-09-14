@@ -28,8 +28,8 @@ function SearchBarFooter({
   }
 
   if (
-    (domain && isReserved) ||
-    (domain && isDomainReservedLength(lowerCaseDomain(domain)))
+    domain &&
+    (isReserved || isDomainReservedLength(lowerCaseDomain(domain)))
   ) {
     return (
       <div className="flex flex-row" style={{ marginTop: '30px' }}>
