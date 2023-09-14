@@ -11,7 +11,7 @@ function ProtectedRoute({ children }: { children: JSX.Element }) {
   ) : (
     <Navigate
       to={location?.state?.to ?? '/connect'}
-      state={{ from: location.pathname, to: location?.state?.to ?? '/connect' }}
+      state={{ from: location.pathname, to: location?.state?.to ?? '/' }}
     />
   );
 }
