@@ -43,13 +43,10 @@ export default function Notifications() {
 
   // error notifications
   useEffect(() => {
-    const handleErrorEvent = (error: Error) => {
-      handleError(error);
-    };
-    eventEmitter.on('error', handleErrorEvent);
+    eventEmitter.on('error', handleError);
 
     return () => {
-      eventEmitter.off('error', handleErrorEvent);
+      eventEmitter.off('error', handleError);
     };
   });
 
