@@ -25,7 +25,6 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
       window.open('https://arconnect.io');
     }
     const permissions = await this._wallet.getPermissions();
-
     if (
       permissions &&
       !ARCONNECT_WALLET_PERMISSIONS.every((permission) =>

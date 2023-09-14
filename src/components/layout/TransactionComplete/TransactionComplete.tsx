@@ -15,7 +15,7 @@ import {
   getPDNSMappingByInteractionType,
 } from '../../../utils/transactionUtils/transactionUtils';
 import { PDNTCard } from '../../cards';
-import { ArrowLeft, CodeSandboxIcon, SettingsIcon } from '../../icons';
+import { ArrowLeft, SettingsIcon } from '../../icons';
 import PageLoader from '../progress/PageLoader/PageLoader';
 import ActionCard from './ActionCard';
 
@@ -99,17 +99,6 @@ function TransactionComplete({
               </div>
             }
           />
-
-          <ActionCard
-            to={`/manage/ants`}
-            body={
-              <div className="flex flex-column center" style={{ gap: '15px' }}>
-                <CodeSandboxIcon width={'20px'} fill={'var(--text-grey)'} />
-                Create ANTs
-              </div>
-            }
-          />
-
           <ActionCard
             to={`/manage/ants/${getLinkId(interactionType, {
               ...transactionData,

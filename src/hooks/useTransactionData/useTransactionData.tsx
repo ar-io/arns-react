@@ -59,7 +59,7 @@ export function useTransactionData() {
       return;
     }
     setData(transactionData);
-  }, [transactionData, interactionType, workflowStage]);
+  }, [transactionData, interactionType, workflowStage, walletAddress]);
 
   return {
     transactionData: data,

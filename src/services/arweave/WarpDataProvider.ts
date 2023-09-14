@@ -309,7 +309,7 @@ export class WarpDataProvider
       walletAddress.toString(),
     );
 
-    if (dryWriteResults.originalValidity?.valid === false) {
+    if (!dryWriteResults.originalValidity?.valid) {
       throw new Error(
         `Contract interaction detected to be invalid: ${
           dryWriteResults?.originalErrorMessages
@@ -413,7 +413,9 @@ export class WarpDataProvider
       })) as unknown as any;
 
     if (!result) {
-      throw new Error('Unable to read auction info from contract');
+      throw new Error(
+        `Unable to read auction info from contract for ${domain}`,
+      );
     }
 
     const { settings, ...auction } = result.auction;

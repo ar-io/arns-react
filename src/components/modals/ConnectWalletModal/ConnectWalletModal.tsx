@@ -34,13 +34,13 @@ function ConnectWalletModal(): JSX.Element {
     return;
   }
 
-  function closeModal() {
+  // ISSUE: [PE-4603] bug, need to click twice to close modal
+  async function closeModal() {
     if (!walletAddress) {
-      navigate(state?.from ?? '/');
-      return;
+      console.log(walletAddress);
+      navigate(state?.from ?? '/', { state: { from: state?.from ?? '/' } });
     }
-
-    navigate(state?.to ?? '/');
+    navigate(state?.to ? state.to : state?.from ? state.from : '/');
   }
 
   async function setGlobalWallet(walletConnector: ArweaveWalletConnector) {
@@ -83,7 +83,7 @@ function ConnectWalletModal(): JSX.Element {
         >
           Connect with an Arweave wallet
         </p>
-        <button className="modal-close-button" onClick={closeModal}>
+        <button className="modal-close-button" onClick={() => closeModal()}>
           <CloseIcon width="30px" height={'30px'} fill="var(--text-white)" />
         </button>
 
