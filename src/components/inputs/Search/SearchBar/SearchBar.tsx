@@ -37,7 +37,7 @@ import { Loader, SearchBarFooter, SearchBarHeader } from '../../../layout';
 import ValidationInput from '../../text/ValidationInput/ValidationInput';
 import './styles.css';
 
-export const searchBarSuccessPredicate = ({
+const searchBarSuccessPredicate = ({
   value,
   records,
 }: {
@@ -54,7 +54,7 @@ export const searchBarSuccessPredicate = ({
   });
 };
 
-export const searchBarValidationPredicate = ({
+const searchBarValidationPredicate = ({
   value,
 }: {
   value: string | undefined;

@@ -1,10 +1,33 @@
 import { cleanup, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { HashRouter as Router } from 'react-router-dom';
 
-import { TRANSACTION_TYPES } from '../../../../../types';
+import RegistrationStateProvider, {
+  RegistrationState,
+} from '../../../../../state/contexts/RegistrationState';
+import {
+  RegistrationAction,
+  registrationReducer,
+} from '../../../../../state/reducers';
+import {
+  ArweaveTransactionID,
+  PDNSRecordEntry,
+  TRANSACTION_TYPES,
+} from '../../../../../types';
 import { lowerCaseDomain } from '../../../../../utils';
 import SearchBar from '../SearchBar';
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useLocation: jest.fn(() => ({
+    pathname: '/',
+    search: '',
+    hash: '',
+    state: null,
+    key: '5nvxpbdafa',
+  })),
+  useNavigate: jest.fn(() => jest.fn()),
+  useSearchParams: () => [new URLSearchParams(), jest.fn()],
+}));
 
 jest.mock('../../../../../hooks', () => ({
   useAuctionInfo: jest.fn(() => ({})),
@@ -12,8 +35,14 @@ jest.mock('../../../../../hooks', () => ({
   useIsMobile: jest.fn(() => false),
   useWalletAddress: jest.fn(() => ({
     walletAddress: undefined,
-    wallet: undefined,
   })),
+  useRegistrationState: jest.fn(() => {
+    const originalHook = jest.requireActual(
+      'path-to-your-hook-file',
+    ).useRegistrationState;
+    const [state, dispatch] = originalHook();
+    return [state, jest.spyOn({ dispatch }, 'dispatch')];
+  }),
   useRegistrationStatus: jest.fn(() => ({
     isAvailable: false,
     isAuction: false,
@@ -23,7 +52,7 @@ jest.mock('../../../../../hooks', () => ({
   useArweaveCompositeProvider: jest.fn(),
 }));
 
-const TEST_RECORDS = {
+const TEST_RECORDS: Record<string, PDNSRecordEntry> = {
   ardrive: {
     contractTxId: 'I-cxQhfh0Zb9UqQNizC9PiLC41KpUeA9hjiVV02rQRw',
     startTimestamp: 1711122719,
@@ -45,18 +74,20 @@ describe('SearchBar', () => {
   let searchButton: HTMLButtonElement;
   let renderSearchBar: any;
 
-  const onChange = jest.fn();
-  const onSubmit = jest.fn();
-  const onFailure = jest.fn();
+  const reducer = jest.fn(
+    (state: RegistrationState, action: RegistrationAction) => {
+      return registrationReducer(state, action);
+    },
+  );
+
   const searchBar = (
-    <Router>
+    <RegistrationStateProvider reducer={reducer}>
       <SearchBar
-        value=""
+        value={''}
         values={TEST_RECORDS}
         placeholderText={'Find a name'}
       />
-      ,
-    </Router>
+    </RegistrationStateProvider>
   );
 
   beforeEach(() => {
@@ -66,7 +97,9 @@ describe('SearchBar', () => {
     searchButton = getByTestId('search-button') as HTMLButtonElement;
   });
 
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+  });
 
   test('renders correctly', () => {
     expect(renderSearchBar()).toMatchSnapshot();
@@ -78,9 +111,20 @@ describe('SearchBar', () => {
     await userEvent.type(searchInput, domain);
     await userEvent.click(searchButton);
 
-    expect(onChange).toHaveBeenCalled();
-    expect(onSubmit).toHaveBeenCalled();
-    expect(onFailure).not.toHaveBeenCalled();
+    expect(reducer).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        type: 'setDomainName',
+        payload: domain,
+      }),
+    );
+    expect(reducer).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        type: 'setANTID',
+        payload: new ArweaveTransactionID(TEST_RECORDS['ardrive'].contractTxId),
+      }),
+    );
     expect(lowerCaseDomain(searchInput.value)).toEqual(lowerCaseDomain(domain));
     expect(renderSearchBar()).toMatchSnapshot();
   });
@@ -90,9 +134,21 @@ describe('SearchBar', () => {
 
     await userEvent.type(searchInput, domain);
     await userEvent.click(searchButton);
-    expect(onChange).toHaveBeenCalled();
-    expect(onSubmit).toHaveBeenCalled();
-    expect(onFailure).not.toHaveBeenCalled();
+
+    expect(reducer).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        type: 'setDomainName',
+        payload: 'ardrive',
+      }),
+    );
+    expect(reducer).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        type: 'setANTID',
+        payload: new ArweaveTransactionID(TEST_RECORDS['ardrive'].contractTxId),
+      }),
+    );
     expect(lowerCaseDomain(searchInput.value)).toEqual(lowerCaseDomain(domain));
     expect(renderSearchBar()).toMatchSnapshot();
   });
