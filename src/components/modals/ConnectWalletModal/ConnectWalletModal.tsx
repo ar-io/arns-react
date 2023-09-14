@@ -34,6 +34,7 @@ function ConnectWalletModal(): JSX.Element {
     return;
   }
 
+  // ISSUE: [PE-4603] bug, need to click twice to close modal
   async function closeModal() {
     if (!walletAddress) {
       console.log(walletAddress);

@@ -6,6 +6,13 @@ describe('SearchBarHeader', () => {
   afterEach(cleanup);
 
   test('render SearchBarHeader', () => {
-    render(<SearchBarHeader defaultText="Example header" />);
+    render(
+      <SearchBarHeader
+        defaultText="Example header"
+        isAuction={false}
+        isAvailable={false}
+        isReserved={false}
+      />,
+    );
   });
 });

@@ -6,6 +6,12 @@ describe('SearchBarFooter', () => {
   afterEach(cleanup);
 
   test('render SearchBarFooter', () => {
-    render(<SearchBarFooter isAuction={true} />);
+    render(
+      <SearchBarFooter
+        isAvailable={false}
+        isReserved={false}
+        isAuction={true}
+      />,
+    );
   });
 });
