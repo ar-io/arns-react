@@ -27,7 +27,7 @@ function Transaction() {
   if (!transactionData && !interactionType) {
     return <Navigate to={from ?? '/'} />;
   }
-  if (!transactionData) {
+  if (!transactionData || !interactionType) {
     return <Loader size={80} />;
   }
   return (

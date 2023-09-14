@@ -9,7 +9,10 @@ function ProtectedRoute({ children }: { children: JSX.Element }) {
   return walletAddress ? (
     children
   ) : (
-    <Navigate to="/connect" state={{ from: '/', to: location.pathname }} />
+    <Navigate
+      to={location?.state?.to ?? '/connect'}
+      state={{ from: location.pathname, to: location?.state?.to ?? '/' }}
+    />
   );
 }
 

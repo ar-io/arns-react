@@ -14,6 +14,11 @@ jest.mock('../services/arweave/ArweaveCompositeDataProvider', () => {
   };
 });
 
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useSearchParams: () => [new URLSearchParams(), jest.fn()],
+}));
+
 describe('App', () => {
   afterEach(cleanup);
 

@@ -215,7 +215,9 @@ function PDNTCard(props: PDNSMapping) {
 
   return (
     <div
-      className={hover ? 'flex flex-column hover' : 'flex flex-column'}
+      className={
+        hover ? 'flex flex-column hover fade-in' : 'flex flex-column fade-in'
+      }
       style={{ gap: '20px' }}
     >
       <div className="flex flex-center" style={{ width: '100%' }}>

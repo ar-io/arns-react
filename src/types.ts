@@ -276,35 +276,28 @@ export interface PDNTInteractionProvider {
 }
 
 export type SearchBarProps = {
-  successPredicate: (value: string | undefined) => boolean;
-  validationPredicate: (value: string | undefined) => boolean;
-  onSuccess: (value: string, result?: string) => void;
-  onFailure: (value: string, result?: string) => void;
-  onChange: () => void;
-  onSubmit: (next?: boolean) => void;
   disabled?: boolean;
   placeholderText?: string;
-  headerElement?: JSX.Element;
-  footerElement?: JSX.Element;
   values?: { [x: string]: PDNSRecordEntry };
   value: string;
-  height?: number;
 };
 
 export type SearchBarHeaderProps = {
   defaultText: string;
-  reservedList: string[];
-  isAvailable?: boolean;
+  isAvailable: boolean;
+  isAuction: boolean;
+  isReserved: boolean;
   isDefault?: boolean;
-  text?: string;
+  domain?: string;
+  contractTxId?: ArweaveTransactionID;
 };
 
 export type SearchBarFooterProps = {
-  reservedList: string[];
-  isAvailable?: boolean;
-  searchTerm?: string;
-  searchResult?: ArweaveTransactionID;
+  isAvailable: boolean;
   isAuction: boolean;
+  isReserved: boolean;
+  domain?: string;
+  contractTxId?: ArweaveTransactionID;
 };
 
 export type ConnectWalletModalProps = {
