@@ -211,6 +211,7 @@ function SearchBar(props: SearchBarProps) {
     }
 
     // show updated states based on search result
+    // TODO: [PE-4604] update to check if available using arweaveDateProvider.getRecord()
     const searchSuccess = searchBarSuccessPredicate({
       value: lowerCaseDomain(searchBarText ?? ''),
       records: values ?? {},

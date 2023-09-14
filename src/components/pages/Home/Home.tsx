@@ -19,7 +19,11 @@ function Home() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [{ pdnsSourceContract }] = useGlobalState();
   const [{ domain, antID }, dispatchRegisterState] = useRegistrationState();
-  const { isAuction } = useRegistrationStatus(domain);
+  const {
+    isAuction,
+    isReserved,
+    loading: isValidatingRegistration,
+  } = useRegistrationStatus(domain);
   const [featuredDomains, setFeaturedDomains] = useState<{
     [x: string]: string;
   }>();
@@ -70,8 +74,8 @@ function Home() {
     domains: { [x: string]: string };
     id: ArweaveTransactionID | undefined;
     name: string | undefined;
-    auction?: boolean;
-    reserved?: boolean;
+    auction: boolean;
+    reserved: boolean;
   }): boolean {
     if ((domains && !id && !reserved && !auction) || !name) {
       return true;
@@ -112,12 +116,13 @@ function Home() {
           //!isValidatingRegistration &&
           updateShowFeaturedDomains({
             auction: isAuction,
-            reserved:
-              !!domain && !!pdnsSourceContract.records[lowerCaseDomain(domain)],
+            reserved: isReserved,
             domains: featuredDomains ?? {},
             id: antID,
             name: lowerCaseDomain(domain),
-          }) && featuredDomains ? (
+          }) &&
+          featuredDomains &&
+          !isValidatingRegistration ? (
             <FeaturedDomains domains={featuredDomains} />
           ) : (
             <></>

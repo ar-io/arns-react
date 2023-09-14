@@ -54,7 +54,6 @@ export function useRegistrationStatus(domain: string) {
       const available = arweaveDataProvider.isDomainAvailable({
         domain,
       });
-      // TODO: remove contract usage (use the service)
       const auction = arweaveDataProvider
         .getAuctionPrices(domain, blockHeight)
         .catch(() => undefined);
