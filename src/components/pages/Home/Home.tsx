@@ -9,45 +9,11 @@ import { FEATURED_DOMAINS } from '../../../utils/constants';
 import {
   decodeDomainToASCII,
   encodeDomainToASCII,
-  isPDNSDomainNameAvailable,
-  isPDNSDomainNameValid,
   lowerCaseDomain,
 } from '../../../utils/searchUtils/searchUtils';
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import { FeaturedDomains } from '../../layout';
-import { SearchBarFooter, SearchBarHeader } from '../../layout';
 import './styles.css';
-
-export const searchBarSuccessPredicate = ({
-  value,
-  records,
-}: {
-  value: string | undefined;
-  records: { [x: string]: any };
-}) => {
-  if (!value) {
-    return false;
-  }
-
-  return isPDNSDomainNameAvailable({
-    name: encodeDomainToASCII(value),
-    records: records,
-  });
-};
-
-export const searchBarValidationPredicate = ({
-  value,
-}: {
-  value: string | undefined;
-}) => {
-  if (!value) {
-    return false;
-  }
-
-  return isPDNSDomainNameValid({
-    name: encodeDomainToASCII(value),
-  });
-};
 
 function Home() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -141,82 +107,7 @@ function Home() {
         <SearchBar
           values={pdnsSourceContract.records}
           value={domain ? encodeDomainToASCII(domain) : domain}
-          onSubmit={(next = false) => {
-            dispatchRegisterState({
-              type: 'setIsSearching',
-              payload: true,
-            });
-            if (next) {
-              navigate(`/register/${decodeDomainToASCII(domain)}`);
-            }
-          }}
-          onChange={() => {
-            dispatchRegisterState({
-              type: 'reset',
-            });
-          }}
-          onSuccess={(value: string) => {
-            dispatchRegisterState({
-              type: 'setDomainName',
-              payload: value,
-            });
-            dispatchRegisterState({
-              type: 'setANTID',
-              payload: undefined,
-            });
-          }}
-          onFailure={(name: string, result?: string) => {
-            dispatchRegisterState({
-              type: 'setDomainName',
-              payload: encodeDomainToASCII(name),
-            });
-            dispatchRegisterState({
-              type: 'setANTID',
-              payload: result ? new ArweaveTransactionID(result) : undefined,
-            });
-          }}
-          successPredicate={(value: string | undefined) =>
-            searchBarSuccessPredicate({
-              value: lowerCaseDomain(value ?? ''),
-              records: pdnsSourceContract.records,
-            })
-          }
-          validationPredicate={(value: string | undefined) =>
-            searchBarValidationPredicate({
-              value: lowerCaseDomain(value ?? ''),
-            })
-          }
           placeholderText={'Search for a name'}
-          headerElement={
-            <SearchBarHeader
-              defaultText={'Find a name'}
-              searchResult={
-                domain && pdnsSourceContract.records[lowerCaseDomain(domain)]
-                  ? new ArweaveTransactionID(
-                      pdnsSourceContract.records[
-                        lowerCaseDomain(domain)
-                      ].contractTxId,
-                    )
-                  : undefined
-              }
-            />
-          }
-          footerElement={
-            <SearchBarFooter
-              key={domain}
-              searchTerm={domain}
-              searchResult={
-                domain && pdnsSourceContract.records[lowerCaseDomain(domain)]
-                  ? new ArweaveTransactionID(
-                      pdnsSourceContract.records[
-                        lowerCaseDomain(domain)
-                      ].contractTxId,
-                    )
-                  : undefined
-              }
-            />
-          }
-          height={65}
         />
         {
           //!isValidatingRegistration &&

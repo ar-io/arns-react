@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/react';
 import { notification } from 'antd';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 import eventEmitter from '../../../utils/events';
 
@@ -10,10 +10,6 @@ export default function Notifications() {
   const [api, contextHolder] = notification.useNotification({
     maxCount: 3,
   });
-  const [previousErrorMessage, setPreviousErrorMessage] = useState<{
-    message: string;
-    timestamp: number;
-  }>();
 
   function handleError(error: Error) {
     // TODO: check for duplicate errors
@@ -47,22 +43,13 @@ export default function Notifications() {
 
   // error notifications
   useEffect(() => {
-    eventEmitter.on('error', (error: Error) => {
-      if (
-        error.message === previousErrorMessage?.message &&
-        Date.now() - previousErrorMessage?.timestamp < 5000
-      ) {
-        return;
-      }
-      setPreviousErrorMessage({
-        message: error.message,
-        timestamp: Date.now(),
-      });
+    const handleErrorEvent = (error: Error) => {
       handleError(error);
-    });
+    };
+    eventEmitter.on('error', handleErrorEvent);
 
     return () => {
-      eventEmitter.off('error');
+      eventEmitter.off('error', handleErrorEvent);
     };
   });
 

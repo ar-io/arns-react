@@ -7,19 +7,19 @@ import EmailNotificationCard from '../EmailNotificationCard/EmailNotificationCar
 import './styles.css';
 
 function SearchBarFooter({
-  searchTerm,
-  searchResult,
+  domain,
+  contractTxId,
   isAvailable,
   isAuction,
   isReserved,
 }: SearchBarFooterProps): JSX.Element {
   const isMobile = useIsMobile();
 
-  if (isAuction && searchTerm) {
+  if (isAuction && domain) {
     return (
       <div className="flex flex-row">
         <AuctionChart
-          domain={searchTerm}
+          domain={domain}
           showAuctionExplainer={true}
           chartHeight={isMobile ? 175 : undefined}
         />
@@ -28,8 +28,8 @@ function SearchBarFooter({
   }
 
   if (
-    (searchTerm && isReserved) ||
-    (searchTerm && isDomainReservedLength(lowerCaseDomain(searchTerm)))
+    (domain && isReserved) ||
+    (domain && isDomainReservedLength(lowerCaseDomain(domain)))
   ) {
     return (
       <div className="flex flex-row" style={{ marginTop: '30px' }}>
@@ -39,14 +39,14 @@ function SearchBarFooter({
   }
   return (
     <div className="flex flex-column" style={{ marginTop: 30 }}>
-      {!isAvailable && searchResult && searchTerm ? (
+      {!isAvailable && contractTxId && domain ? (
         <>
           <span className="flex flex-row white text-medium flex-left">
             Ownership Details:
           </span>
           <PDNTCard
-            domain={searchTerm}
-            contractTxId={searchResult}
+            domain={domain}
+            contractTxId={contractTxId}
             compact={true}
             enableActions={true}
           />
