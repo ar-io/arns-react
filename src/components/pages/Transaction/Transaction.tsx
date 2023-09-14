@@ -7,6 +7,7 @@ import { Loader } from '../../layout';
 import TransactionWorkflow, {
   TRANSACTION_WORKFLOW_STATUS,
 } from '../../layout/TransactionWorkflow/TransactionWorkflow';
+import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 
 function Transaction() {
   const { transactionData, interactionType, workflowStage } =
@@ -28,7 +29,12 @@ function Transaction() {
     return <Navigate to={from ?? '/'} />;
   }
   if (!transactionData || !interactionType) {
-    return <Loader size={80} />;
+    return (
+      <PageLoader
+        loading={!transactionData || !interactionType}
+        message={'Waiting for transaction data.'}
+      />
+    );
   }
   return (
     <div

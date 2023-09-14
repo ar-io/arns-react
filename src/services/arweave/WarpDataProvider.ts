@@ -129,7 +129,7 @@ export class WarpDataProvider
       );
 
       if (
-        dryWriteResults.originalValidity?.valid === false ||
+        !dryWriteResults.originalValidity?.valid ||
         dryWriteResults.errorMessage
       ) {
         throw new Error(
@@ -309,8 +309,8 @@ export class WarpDataProvider
       input,
       walletAddress.toString(),
     );
-
-    if (!dryWriteResults.originalValidity?.valid) {
+    console.log(dryWriteResults.originalValidity);
+    if (dryWriteResults.originalValidity?.valid === false) {
       throw new Error(
         `Contract interaction detected to be invalid: ${
           dryWriteResults?.originalErrorMessages
