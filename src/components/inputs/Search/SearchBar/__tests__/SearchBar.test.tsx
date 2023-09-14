@@ -14,14 +14,12 @@ jest.mock('../../../../../hooks', () => ({
     walletAddress: undefined,
     wallet: undefined,
   })),
-  useRegistrationStatus: jest.fn(() => [
-    {
-      isAvailable: false,
-      isAuction: false,
-      isReserved: false,
-      loading: false,
-    },
-  ]),
+  useRegistrationStatus: jest.fn(() => ({
+    isAvailable: false,
+    isAuction: false,
+    isReserved: false,
+    loading: false,
+  })),
   useArweaveCompositeProvider: jest.fn(),
 }));
 
@@ -50,23 +48,12 @@ describe('SearchBar', () => {
   const onChange = jest.fn();
   const onSubmit = jest.fn();
   const onFailure = jest.fn();
-  const onSuccess = jest.fn();
-  const successPredicate = jest.fn().mockReturnValue(true);
-  const validationPredicate = jest.fn().mockReturnValue(true);
   const searchBar = (
     <Router>
       <SearchBar
-        onSubmit={onSubmit}
-        onChange={onChange}
-        onFailure={onFailure}
-        onSuccess={onSuccess}
-        successPredicate={successPredicate}
-        validationPredicate={validationPredicate}
         value=""
         values={TEST_RECORDS}
         placeholderText={'Find a name'}
-        headerElement={<></>}
-        footerElement={<></>}
       />
       ,
     </Router>

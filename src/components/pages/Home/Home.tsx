@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 
 import { useIsMobile, useRegistrationStatus } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
@@ -17,10 +17,9 @@ import './styles.css';
 
 function Home() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
   const [{ pdnsSourceContract }] = useGlobalState();
   const [{ domain, antID }, dispatchRegisterState] = useRegistrationState();
-  const [{ isAuction }] = useRegistrationStatus(domain);
+  const { isAuction } = useRegistrationStatus(domain);
   const [featuredDomains, setFeaturedDomains] = useState<{
     [x: string]: string;
   }>();

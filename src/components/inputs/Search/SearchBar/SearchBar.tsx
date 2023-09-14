@@ -85,15 +85,13 @@ function SearchBar(props: SearchBarProps) {
   const inputRef = useRef<HTMLDivElement | null>(null);
   const [searchBarBorder, setSearchBarBorder] = useState({});
   const isSearchbarFocused = useIsFocused('searchbar-input-id');
-  const [
-    {
-      isAvailable,
-      isAuction,
-      isReserved,
-      loading: isValidatingRegistration,
-      validated,
-    },
-  ] = useRegistrationStatus(lowerCaseDomain(value));
+  const {
+    isAvailable,
+    isAuction,
+    isReserved,
+    loading: isValidatingRegistration,
+    validated,
+  } = useRegistrationStatus(lowerCaseDomain(value));
   const [auctionInfo, setAuctionInfo] = useState<Auction>();
 
   function reset() {

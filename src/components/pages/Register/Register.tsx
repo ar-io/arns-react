@@ -64,7 +64,7 @@ function RegisterNameForm() {
       registrationType,
       leaseDuration,
     );
-  const [{ isAuction, loading: isValidatingRegistration }] =
+  const { isAuction, loading: isValidatingRegistration } =
     useRegistrationStatus(name ?? domain);
   const [targetId, setTargetId] = useState<string>();
   const targetIdFocused = useIsFocused('target-id-input');

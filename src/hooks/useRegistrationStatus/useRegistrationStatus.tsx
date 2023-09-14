@@ -78,8 +78,5 @@ export function useRegistrationStatus(domain: string) {
       setLoading(false);
     }
   }
-  return [
-    { isAvailable, isAuction, isReserved, loading, validated },
-    updateRegistrationStatus,
-  ] as const;
+  return { isAvailable, isAuction, isReserved, loading, validated };
 }
