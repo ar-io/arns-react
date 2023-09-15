@@ -29,6 +29,7 @@ import {
   byteSize,
   isDomainAuctionable,
   isDomainReservedLength,
+  isPDNSDomainNameValid,
   lowerCaseDomain,
   withExponentialBackoff,
 } from '../../utils';
@@ -395,6 +396,12 @@ export class WarpDataProvider
     domain: string,
     currentBlockHeight: number,
   ): Promise<Auction> {
+    if (!domain.length) {
+      throw new Error('No domain provided');
+    }
+    if (!isPDNSDomainNameValid({ name: domain })) {
+      throw new Error('Invalid domain name');
+    }
     const { result } = (await this._warp
       .contract(PDNS_REGISTRY_ADDRESS)
       .setEvaluationOptions({
