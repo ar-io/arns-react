@@ -271,14 +271,14 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
         className: 'white manage-assets-table-header',
         align: 'left',
         ellipsis: true,
-        render: (undernames: number | string) => undernames.toLocaleString(),
+        render: (undernames: number | string) => undernames,
         onHeaderCell: () => {
           return {
             onClick: () => {
               rows.sort((a: PDNSTableRow, b: PDNSTableRow) =>
                 sortAscending
-                  ? +a.undernames - +b.undernames
-                  : +b.undernames - +a.undernames,
+                  ? +a.undernameSupport - +b.undernameSupport
+                  : +b.undernameSupport - +a.undernameSupport,
               );
               // forces update of rows
               setRows([...rows]);
@@ -451,7 +451,13 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
           ? new Date(record.endTimestamp * 1000)
           : 'Indefinite',
         status: confirmations ?? 0,
-        undernames: record?.undernames ?? DEFAULT_MAX_UNDERNAMES,
+        undernameSupport: record?.undernames ?? DEFAULT_MAX_UNDERNAMES,
+        undernameCount: Object.keys(contract.records).length - 1,
+        undernames: `${(
+          Object.keys(contract.records).length - 1
+        ).toLocaleString()} / ${(
+          record?.undernames ?? DEFAULT_MAX_UNDERNAMES
+        ).toLocaleString()}`,
         key: `${domain}-${record.contractTxId}`,
       };
       const pendingTxsForContract = getPendingInteractionsRowsForContract(
