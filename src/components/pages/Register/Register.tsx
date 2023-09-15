@@ -58,12 +58,17 @@ function RegisterNameForm() {
   const [, dispatchTransactionState] = useTransactionState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const { name } = useParams();
-  const { minimumAuctionBid, auction, loadingAuctionInfo, updateAuctionInfo } =
-    useAuctionInfo(
-      lowerCaseDomain(name ?? domain),
-      registrationType,
-      leaseDuration,
-    );
+  const {
+    minimumAuctionBid,
+    auction,
+    loadingAuctionInfo,
+    updateAuctionInfo,
+    isLiveAuction,
+  } = useAuctionInfo(
+    lowerCaseDomain(name ?? domain),
+    registrationType,
+    leaseDuration,
+  );
   const { isAuction, loading: isValidatingRegistration } =
     useRegistrationStatus(name ?? domain);
   const [targetId, setTargetId] = useState<string>();
@@ -181,7 +186,10 @@ function RegisterNameForm() {
     <div className="page center">
       <PageLoader
         message={'Loading Domain info, please wait.'}
-        loading={loadingAuctionInfo || isValidatingRegistration}
+        loading={
+          (isAuction && loadingAuctionInfo) ||
+          (!isAuction && isValidatingRegistration)
+        }
       />
       <div
         className="flex flex-column flex-center"
@@ -273,8 +281,9 @@ function RegisterNameForm() {
                 }}
               >
                 Lease{' '}
-                {registrationType === TRANSACTION_TYPES.LEASE ||
-                (auction?.type === TRANSACTION_TYPES.LEASE && isAuction) ? (
+                {(registrationType === TRANSACTION_TYPES.LEASE ||
+                  auction?.type === TRANSACTION_TYPES.LEASE) &&
+                isLiveAuction ? (
                   <LockIcon
                     width={'20px'}
                     height={'20px'}
@@ -328,8 +337,9 @@ function RegisterNameForm() {
                 }
               >
                 Buy{' '}
-                {registrationType === TRANSACTION_TYPES.BUY ||
-                (auction?.type === TRANSACTION_TYPES.BUY && isAuction) ? (
+                {(registrationType === TRANSACTION_TYPES.BUY ||
+                  auction?.type === TRANSACTION_TYPES.BUY) &&
+                isLiveAuction ? (
                   <LockIcon
                     width={'20px'}
                     height={'20px'}
@@ -382,6 +392,8 @@ function RegisterNameForm() {
                   }}
                   minValue={MIN_LEASE_DURATION}
                   maxValue={MAX_LEASE_DURATION}
+                  valueStyle={{ padding: '20px 120px' }}
+                  valueName={leaseDuration > 1 ? 'years' : 'year'}
                   detail={`Until ${Intl.DateTimeFormat('en-US', {
                     year: 'numeric',
                     month: 'long',
@@ -389,6 +401,12 @@ function RegisterNameForm() {
                   }).format(
                     Date.now() + leaseDuration * 365 * 24 * 60 * 60 * 1000,
                   )}`}
+                  title={
+                    <span
+                      className="white"
+                      style={{ padding: '10px', fontWeight: '500' }}
+                    >{`Registration period (between ${MIN_LEASE_DURATION}-${MAX_LEASE_DURATION} years)`}</span>
+                  }
                 />
               ) : registrationType === TRANSACTION_TYPES.BUY ? (
                 <div
