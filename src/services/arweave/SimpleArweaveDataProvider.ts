@@ -42,6 +42,7 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
       const queryIds = (cursor?: string) => ({
         query: ` {
         transactions(
+          first:100
           ids: [${ids.map((id) => `"${id.toString()}"`)}]
           ${cursor ? `after: "${cursor}"` : ''}
         ) {
@@ -63,7 +64,6 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
       });
 
       const transactions = await this.fetchPaginatedData(queryIds);
-      console.log(transactions);
       const stati = transactions.reduce(
         (acc: Record<string, number>, tx: any) => {
           acc[tx.node.id] = currentBlockHeight - tx.node.block.height;
