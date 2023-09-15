@@ -260,9 +260,10 @@ export class ArweaveCompositeDataProvider
     domain: string,
     currentBlockHeight: number,
   ): Promise<Auction> {
-    return this._interactionProvider.getAuctionPrices(
-      domain,
-      currentBlockHeight,
+    return Promise.any(
+      this._contractProviders.map((p) =>
+        p.getAuctionPrices(domain, currentBlockHeight),
+      ),
     );
   }
 
