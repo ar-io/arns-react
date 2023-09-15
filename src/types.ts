@@ -224,10 +224,6 @@ export interface SmartweaveContractInteractionProvider {
     years?: number;
     reservedList: string[];
   }): Promise<string | undefined>;
-  getAuctionPrices(
-    domain: string,
-    currentBlockHeight: number,
-  ): Promise<Auction>;
 }
 
 export interface ArweaveWalletConnector {
