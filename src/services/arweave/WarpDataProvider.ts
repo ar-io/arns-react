@@ -306,7 +306,6 @@ export class WarpDataProvider
       input,
       walletAddress.toString(),
     );
-    console.log(dryWriteResults.originalValidity);
     if (dryWriteResults.originalValidity?.valid === false) {
       throw new Error(
         `Contract interaction detected to be invalid: ${

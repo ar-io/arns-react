@@ -16,7 +16,6 @@ import eventEmitter from '../../../utils/events';
 import { ArrowLeft, ArrowRightIcon } from '../../icons';
 import ArweaveID, { ArweaveIdTypes } from '../ArweaveID/ArweaveID';
 import AuctionChart from '../AuctionChart/AuctionChart';
-import Loader from '../Loader/Loader';
 import PageLoader from '../progress/PageLoader/PageLoader';
 
 function ViewAuction() {

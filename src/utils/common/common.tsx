@@ -121,3 +121,18 @@ export function handleTableSort<T extends Record<string, any>>({
 export function getRandomInteger(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
+
+export function splitStringToCharCount(
+  string: string,
+  charCount?: number,
+): string {
+  if (charCount) {
+    const shownCount = Math.round(charCount / 2);
+    return `${string.slice(0, shownCount)}...${string.slice(
+      string.length - shownCount,
+      string.length,
+    )}`;
+  }
+
+  return string;
+}

@@ -102,7 +102,6 @@ function ExtendLease() {
             ),
         ),
       );
-      console.log({ maxIncrease });
     } catch (error) {
       eventEmitter.emit('error', error);
     }

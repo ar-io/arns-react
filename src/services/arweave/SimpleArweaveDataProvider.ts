@@ -7,7 +7,7 @@ import {
   ArweaveTransactionID,
   TransactionHeaders,
 } from '../../types';
-import { sleep, tagsToObject, withExponentialBackoff } from '../../utils';
+import { tagsToObject, withExponentialBackoff } from '../../utils';
 import {
   RECOMMENDED_TRANSACTION_CONFIRMATIONS,
   transactionByOwnerQuery,

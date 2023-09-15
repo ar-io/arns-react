@@ -48,7 +48,6 @@ function ManageDomainModal() {
   const arweaveDataProvider = useArweaveCompositeProvider();
   const [{ walletAddress, pdnsSourceContract }] = useGlobalState();
   const [rows, setRows] = useState<ManageDomainRow[]>([]);
-  const [leaseDuration, setLeaseDuration] = useState<string | number>();
   const [isMaxLeaseDuration, setIsMaxLeaseDuration] = useState<boolean>(false);
   const [undernameCount, setUndernameCount] = useState<number>();
   const [loading, setLoading] = useState<boolean>(true);
@@ -103,7 +102,15 @@ function ManageDomainModal() {
       if (!record) {
         throw Error('This name is not registered');
       }
-      const getLeaseDuration = () => {
+
+      const duration = record?.endTimestamp
+        ? getLeaseDurationFromEndTimestamp(
+            record.startTimestamp * 1000,
+            record.endTimestamp * 1000,
+          )
+        : 'Indefinite';
+
+      const getLeaseDurationString = () => {
         if (record?.endTimestamp) {
           const duration = getLeaseDurationFromEndTimestamp(
             record.startTimestamp * 1000,
@@ -114,15 +121,6 @@ function ManageDomainModal() {
         }
         return 'Indefinite';
       };
-
-      const duration = record?.endTimestamp
-        ? getLeaseDurationFromEndTimestamp(
-            record.startTimestamp * 1000,
-            record.endTimestamp * 1000,
-          )
-        : 'Indefinite';
-
-      setLeaseDuration(duration);
 
       setIsMaxLeaseDuration(
         (duration &&
@@ -150,7 +148,7 @@ function ManageDomainModal() {
         controller: contract.controller ?? 'N/A',
         owner: contract.owner ?? 'N/A',
         ttlSeconds: contract.getRecord('@')?.ttlSeconds ?? DEFAULT_TTL_SECONDS,
-        leaseDuration: `${getLeaseDuration()}`,
+        leaseDuration: `${getLeaseDurationString()}`,
         // -1 because @ record is not counted
         undernames: `${Object.keys(contract.records).length - 1}/${(
           record?.undernames ?? DEFAULT_MAX_UNDERNAMES

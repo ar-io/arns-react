@@ -3,7 +3,6 @@ import { Navigate, useLocation } from 'react-router-dom';
 
 import { useIsMobile, useTransactionData } from '../../../hooks';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
-import { Loader } from '../../layout';
 import TransactionWorkflow, {
   TRANSACTION_WORKFLOW_STATUS,
 } from '../../layout/TransactionWorkflow/TransactionWorkflow';

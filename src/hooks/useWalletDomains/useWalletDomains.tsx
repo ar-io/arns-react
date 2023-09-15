@@ -585,6 +585,5 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
     sortAscending,
     selectedRow,
     loadingManageDomain,
-    setLoadingManageDomain,
   };
 }

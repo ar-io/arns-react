@@ -47,7 +47,6 @@ function Manage() {
     sortAscending: domainSortAscending,
     sortField: domainSortField,
     loadingManageDomain,
-    setLoadingManageDomain,
   } = useWalletDomains(pdntIds);
 
   const [tableData, setTableData] = useState<any[]>([]);
