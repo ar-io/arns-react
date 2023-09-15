@@ -158,10 +158,9 @@ function SearchBar(props: SearchBarProps) {
         });
         return;
       }
-      const info = await arweaveDataProvider.getAuctionPrices(
-        lowerCaseDomain(domain),
-        blockHeight,
-      );
+      const info = await arweaveDataProvider.getAuctionPrices({
+        domain: lowerCaseDomain(domain),
+      });
       if (!info) {
         return;
       }

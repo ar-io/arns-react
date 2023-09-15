@@ -236,26 +236,27 @@ export class ArweaveCompositeDataProvider
     );
   }
 
-  async getAuction(domain: string): Promise<AuctionParameters> {
+  async getAuction({ domain }: { domain: string }): Promise<AuctionParameters> {
     return Promise.any(
-      this._contractProviders.map((p) => p.getAuction(domain)),
+      this._contractProviders.map((p) => p.getAuction({ domain })),
     );
   }
 
-  async getAuctionSettings(id: string): Promise<AuctionSettings> {
-    return Promise.any(
-      this._contractProviders.map((p) => p.getAuctionSettings(id)),
-    );
-  }
-
-  async getAuctionPrices(
-    domain: string,
-    currentBlockHeight: number,
-  ): Promise<Auction> {
+  async getAuctionSettings({
+    auctionSettingsId,
+  }: {
+    auctionSettingsId: string;
+  }): Promise<AuctionSettings> {
     return Promise.any(
       this._contractProviders.map((p) =>
-        p.getAuctionPrices(domain, currentBlockHeight),
+        p.getAuctionSettings({ auctionSettingsId }),
       ),
+    );
+  }
+
+  async getAuctionPrices({ domain }: { domain: string }): Promise<Auction> {
+    return Promise.any(
+      this._contractProviders.map((p) => p.getAuctionPrices({ domain })),
     );
   }
 

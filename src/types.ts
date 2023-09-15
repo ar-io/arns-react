@@ -160,12 +160,13 @@ export interface SmartweaveContractCache {
   isDomainInAuction({ domain }: { domain: string }): Promise<boolean>;
   isDomainReserved({ domain }: { domain: string }): Promise<boolean>;
   getCachedNameTokens(address: ArweaveTransactionID): Promise<PDNTContract[]>;
-  getAuction(domain: string): Promise<AuctionParameters>;
-  getAuctionSettings(id: string): Promise<AuctionSettings>;
-  getAuctionPrices(
-    domain: string,
-    currentBlockHeight: number,
-  ): Promise<Auction>;
+  getAuction({ domain }: { domain: string }): Promise<AuctionParameters>;
+  getAuctionSettings({
+    auctionSettingsId,
+  }: {
+    auctionSettingsId: string;
+  }): Promise<AuctionSettings>;
+  getAuctionPrices({ domain }: { domain: string }): Promise<Auction>;
   getDomainsInAuction(): Promise<string[]>;
   getRecord(domain: string): Promise<PDNSRecordEntry>;
   getIoBalance(address: ArweaveTransactionID): Promise<number>;

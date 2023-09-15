@@ -65,22 +65,17 @@ function AuctionChart({
   const [auctionInfo, setAuctionInfo] = useState<Auction>();
 
   useEffect(() => {
-    if (!currentBlockHeight || !auctionInfo) {
-      if (!currentBlockHeight) {
-        arweaveDataProvider
-          .getCurrentBlockHeight()
-          .then((b: number) =>
-            dispatchGlobalState({ type: 'setBlockHeight', payload: b }),
-          )
-          .catch((error) => eventEmitter.emit('error', error));
-        return;
-      }
+    if (!auctionInfo) {
+      arweaveDataProvider.getAuctionPrices({ domain }).then((info) => {
+        setAuctionInfo(info);
+      });
+      return;
+    }
 
-      arweaveDataProvider
-        .getAuctionPrices(domain, currentBlockHeight)
-        .then((info) => {
-          setAuctionInfo(info);
-        });
+    if (!currentBlockHeight) {
+      arweaveDataProvider.getCurrentBlockHeight().then((blockHeight) => {
+        dispatchGlobalState({ type: 'setBlockHeight', payload: blockHeight });
+      });
       return;
     }
 
@@ -170,7 +165,7 @@ function AuctionChart({
     }
   }
 
-  async function updateBlockheight() {
+  async function updateBlockHeight() {
     try {
       const blockHeight = await arweaveDataProvider.getCurrentBlockHeight();
       dispatchGlobalState({ type: 'setBlockHeight', payload: blockHeight });
@@ -364,7 +359,7 @@ function AuctionChart({
                 paddingBottom: '0px',
               }}
               format="H:mm:ss"
-              onFinish={() => updateBlockheight()}
+              onFinish={() => updateBlockHeight()}
             />
           </span>
         ) : (

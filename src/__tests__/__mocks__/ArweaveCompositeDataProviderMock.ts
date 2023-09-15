@@ -158,7 +158,7 @@ export class ArweaveCompositeDataProviderMock
   }
 
   async isDomainInAuction({ domain }: { domain: string }): Promise<boolean> {
-    return Promise.resolve(false);
+    return false;
   }
 
   async isDomainAvailable({ domain }: { domain: string }): Promise<boolean> {
@@ -170,19 +170,20 @@ export class ArweaveCompositeDataProviderMock
     return [] as PDNTContract[]; // Mock value
   }
 
-  getAuctionPrices(
-    domain: string,
-    currentBlockHeight: number,
-  ): Promise<Auction> {
+  async getAuctionPrices({ domain }: { domain: string }): Promise<Auction> {
     throw new Error('Method not implemented.');
   }
-  getAuction(domain: string): Promise<AuctionParameters> {
+  async getAuction({ domain }: { domain: string }): Promise<AuctionParameters> {
     throw new Error('Method not implemented.');
   }
-  getAuctionSettings(id: string): Promise<AuctionSettings> {
+  async getAuctionSettings({
+    auctionSettingsId,
+  }: {
+    auctionSettingsId: string;
+  }): Promise<AuctionSettings> {
     throw new Error('Method not implemented.');
   }
-  getDomainsInAuction(): Promise<string[]> {
+  async getDomainsInAuction(): Promise<string[]> {
     throw new Error('Method not implemented.');
   }
   getRecord(domain: string): Promise<PDNSRecordEntry> {
