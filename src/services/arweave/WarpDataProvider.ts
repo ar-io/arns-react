@@ -129,7 +129,6 @@ export class WarpDataProvider
       );
 
       if (dryWriteResults.originalValidity?.valid === false) {
-        console.log(dryWriteResults);
         throw new Error(
           `Contract interaction detected to be invalid: ${
             dryWriteResults?.originalErrorMessages

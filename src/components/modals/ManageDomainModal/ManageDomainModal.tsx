@@ -23,6 +23,7 @@ import {
   DEFAULT_MAX_UNDERNAMES,
   DEFAULT_TTL_SECONDS,
   MAX_LEASE_DURATION,
+  MAX_UNDERNAME_COUNT,
   SECONDS_IN_GRACE_PERIOD,
 } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
@@ -48,6 +49,7 @@ function ManageDomainModal() {
   const [{ walletAddress, pdnsSourceContract }] = useGlobalState();
   const [rows, setRows] = useState<ManageDomainRow[]>([]);
   const [leaseDuration, setLeaseDuration] = useState<string | number>();
+  const [isMaxLeaseDuration, setIsMaxLeaseDuration] = useState<boolean>(false);
   const [undernameCount, setUndernameCount] = useState<number>();
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -113,7 +115,22 @@ function ManageDomainModal() {
         return 'Indefinite';
       };
 
-      setLeaseDuration(getLeaseDuration());
+      const duration = record?.endTimestamp
+        ? getLeaseDurationFromEndTimestamp(
+            record.startTimestamp * 1000,
+            record.endTimestamp * 1000,
+          )
+        : 'Indefinite';
+
+      setLeaseDuration(duration);
+
+      setIsMaxLeaseDuration(
+        (duration &&
+          typeof duration === 'number' &&
+          duration >= MAX_LEASE_DURATION) ||
+          duration === 'Indefinite',
+      );
+
       setUndernameCount(record.undernames);
 
       const consolidatedDetails: DomainDetails = {
@@ -196,25 +213,72 @@ function ManageDomainModal() {
             className="flex flex-row"
             style={{ gap: '20px', width: 'fit-content' }}
           >
-            <button
-              className="button-secondary hover"
-              style={{ padding: '8px 10px', gap: '8px', fontSize: '14px' }}
-              onClick={() => navigate(`/manage/names/${name}/undernames`)}
-            >
-              Increase Undernames
-            </button>
-            <button
-              disabled={
-                loading ||
-                leaseDuration === MAX_LEASE_DURATION ||
-                leaseDuration === 'Indefinite'
+            <Tooltip
+              trigger={['hover']}
+              title={
+                !!undernameCount && undernameCount >= MAX_UNDERNAME_COUNT
+                  ? 'Max undername support reached'
+                  : 'Increase undername support'
               }
-              className="button-primary hover"
-              style={{ padding: '8px 10px', gap: '8px', fontSize: '14px' }}
-              onClick={() => navigate(`/manage/names/${name}/extend`)}
+              color="#222224"
+              placement="top"
+              rootClassName="notification-tooltip"
             >
-              Extend Lease
-            </button>
+              <button
+                disabled={
+                  loading ||
+                  (!!undernameCount && undernameCount >= MAX_UNDERNAME_COUNT)
+                }
+                className={`button-secondary ${
+                  loading ||
+                  (!!undernameCount && undernameCount >= MAX_UNDERNAME_COUNT)
+                    ? 'disabled-button'
+                    : 'hover'
+                }`}
+                style={{
+                  padding:
+                    loading ||
+                    (!!undernameCount && undernameCount >= MAX_UNDERNAME_COUNT)
+                      ? '0px'
+                      : '9px',
+                  gap: '8px',
+                  fontSize: '14px',
+                  color: 'var(--accent)',
+                  fontFamily: 'Rubik',
+                }}
+                onClick={() => navigate(`/manage/names/${name}/undernames`)}
+              >
+                Increase Undernames
+              </button>
+            </Tooltip>
+            <Tooltip
+              trigger={['hover']}
+              title={
+                isMaxLeaseDuration
+                  ? 'Max lease duration reached'
+                  : 'Extend lease'
+              }
+              color="#222224"
+              placement="top"
+              rootClassName="notification-tooltip"
+            >
+              <button
+                disabled={loading || isMaxLeaseDuration}
+                className={`button-primary ${
+                  loading || isMaxLeaseDuration ? 'disabled-button' : 'hover'
+                }`}
+                style={{
+                  padding: loading || isMaxLeaseDuration ? '0px' : '9px',
+                  gap: '8px',
+                  fontSize: '14px',
+                  color: 'var(--text-black)',
+                  fontFamily: 'Rubik',
+                }}
+                onClick={() => navigate(`/manage/names/${name}/extend`)}
+              >
+                Extend Lease
+              </button>
+            </Tooltip>
           </div>
         </div>
         <div className="flex-row center">
