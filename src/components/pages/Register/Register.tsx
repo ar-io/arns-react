@@ -8,6 +8,7 @@ import {
   useArweaveCompositeProvider,
   useAuctionInfo,
   useIsFocused,
+  useRegistrationStatus,
 } from '../../../hooks';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
@@ -57,16 +58,22 @@ function RegisterNameForm() {
   const [, dispatchTransactionState] = useTransactionState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const { name } = useParams();
-  const { minimumAuctionBid, auction, loadingAuctionInfo, updateAuctionInfo } =
-    useAuctionInfo(
-      lowerCaseDomain(name ?? domain),
-      registrationType,
-      leaseDuration,
-    );
+  const {
+    minimumAuctionBid,
+    auction,
+    loadingAuctionInfo,
+    updateAuctionInfo,
+    isLiveAuction,
+  } = useAuctionInfo(
+    lowerCaseDomain(name ?? domain),
+    registrationType,
+    leaseDuration,
+  );
+  const { isAuction, loading: isValidatingRegistration } =
+    useRegistrationStatus(name ?? domain);
   const [targetId, setTargetId] = useState<string>();
   const targetIdFocused = useIsFocused('target-id-input');
   const navigate = useNavigate();
-  const [isInAuction, setIsInAuction] = useState<boolean>(false);
 
   // TODO: give this component some refactor love, i can barely read it.
 
@@ -86,7 +93,6 @@ function RegisterNameForm() {
         type: 'setRegistrationType',
         payload: auctionForName.type,
       });
-      setIsInAuction(true);
       if (!minimumAuctionBid && !loadingAuctionInfo) {
         updateAuctionInfo(lowerCaseDomain(domain));
       }
@@ -107,7 +113,7 @@ function RegisterNameForm() {
         registrationType: registrationType,
         reservedList: Object.keys(pdnsSourceContract?.reserved),
       }) ||
-      isInAuction
+      isAuction
     ) {
       if (
         domain &&
@@ -115,7 +121,7 @@ function RegisterNameForm() {
         blockHeight &&
         auction
       ) {
-        const newFee = isInAuction ? minimumAuctionBid : auction?.floorPrice;
+        const newFee = isAuction ? minimumAuctionBid : auction?.floorPrice;
 
         if (!newFee) {
           return;
@@ -127,7 +133,7 @@ function RegisterNameForm() {
       }
     }
     // if not auctionable, use instant buy prices
-    if (pdnsSourceContract.fees && domain && blockHeight && !isInAuction) {
+    if (pdnsSourceContract.fees && domain && blockHeight && !isAuction) {
       const newFee = calculatePDNSNamePrice({
         domain: domain!,
         type: registrationType,
@@ -179,8 +185,11 @@ function RegisterNameForm() {
   return (
     <div className="page center">
       <PageLoader
-        message={'Loading Auction Info, please wait.'}
-        loading={loadingAuctionInfo}
+        message={'Loading Domain info, please wait.'}
+        loading={
+          (isAuction && loadingAuctionInfo) ||
+          (!isAuction && isValidatingRegistration)
+        }
       />
       <div
         className="flex flex-column flex-center"
@@ -247,7 +256,7 @@ function RegisterNameForm() {
               <button
                 className="flex flex-row center text-medium bold pointer"
                 disabled={
-                  isInAuction && registrationType === TRANSACTION_TYPES.BUY
+                  isAuction && registrationType === TRANSACTION_TYPES.BUY
                 }
                 onClick={() =>
                   dispatchRegisterState({
@@ -272,8 +281,9 @@ function RegisterNameForm() {
                 }}
               >
                 Lease{' '}
-                {registrationType === TRANSACTION_TYPES.LEASE ||
-                (auction?.type === TRANSACTION_TYPES.LEASE && isInAuction) ? (
+                {(registrationType === TRANSACTION_TYPES.LEASE ||
+                  auction?.type === TRANSACTION_TYPES.LEASE) &&
+                isLiveAuction ? (
                   <LockIcon
                     width={'20px'}
                     height={'20px'}
@@ -302,7 +312,7 @@ function RegisterNameForm() {
               <button
                 className="flex flex-row center text-medium bold pointer"
                 disabled={
-                  isInAuction && registrationType === TRANSACTION_TYPES.LEASE
+                  isAuction && registrationType === TRANSACTION_TYPES.LEASE
                 }
                 style={{
                   position: 'relative',
@@ -327,8 +337,9 @@ function RegisterNameForm() {
                 }
               >
                 Buy{' '}
-                {registrationType === TRANSACTION_TYPES.BUY ||
-                (auction?.type === TRANSACTION_TYPES.BUY && isInAuction) ? (
+                {(registrationType === TRANSACTION_TYPES.BUY ||
+                  auction?.type === TRANSACTION_TYPES.BUY) &&
+                isLiveAuction ? (
                   <LockIcon
                     width={'20px'}
                     height={'20px'}
@@ -381,6 +392,8 @@ function RegisterNameForm() {
                   }}
                   minValue={MIN_LEASE_DURATION}
                   maxValue={MAX_LEASE_DURATION}
+                  valueStyle={{ padding: '20px 120px' }}
+                  valueName={leaseDuration > 1 ? 'years' : 'year'}
                   detail={`Until ${Intl.DateTimeFormat('en-US', {
                     year: 'numeric',
                     month: 'long',
@@ -388,6 +401,12 @@ function RegisterNameForm() {
                   }).format(
                     Date.now() + leaseDuration * 365 * 24 * 60 * 60 * 1000,
                   )}`}
+                  title={
+                    <span
+                      className="white"
+                      style={{ padding: '10px', fontWeight: '500' }}
+                    >{`Registration period (between ${MIN_LEASE_DURATION}-${MAX_LEASE_DURATION} years)`}</span>
+                  }
                 />
               ) : registrationType === TRANSACTION_TYPES.BUY ? (
                 <div

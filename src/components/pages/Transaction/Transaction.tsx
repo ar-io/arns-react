@@ -3,10 +3,10 @@ import { Navigate, useLocation } from 'react-router-dom';
 
 import { useIsMobile, useTransactionData } from '../../../hooks';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
-import { Loader } from '../../layout';
 import TransactionWorkflow, {
   TRANSACTION_WORKFLOW_STATUS,
 } from '../../layout/TransactionWorkflow/TransactionWorkflow';
+import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 
 function Transaction() {
   const { transactionData, interactionType, workflowStage } =
@@ -27,8 +27,13 @@ function Transaction() {
   if (!transactionData && !interactionType) {
     return <Navigate to={from ?? '/'} />;
   }
-  if (!transactionData) {
-    return <Loader size={80} />;
+  if (!transactionData || !interactionType) {
+    return (
+      <PageLoader
+        loading={!transactionData || !interactionType}
+        message={'Waiting for transaction data.'}
+      />
+    );
   }
   return (
     <div

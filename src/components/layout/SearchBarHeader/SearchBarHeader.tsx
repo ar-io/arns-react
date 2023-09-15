@@ -1,85 +1,82 @@
 import { ArrowDownOutlined, CheckCircleFilled } from '@ant-design/icons';
 
 import { useIsMobile } from '../../../hooks';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { SearchBarHeaderProps } from '../../../types';
-import { isDomainReservedLength, lowerCaseDomain } from '../../../utils';
+import { isDomainReservedLength } from '../../../utils';
 import './styles.css';
 
 function SearchBarHeader({
   defaultText,
+  domain,
+  contractTxId,
   isAvailable,
-  text,
-  reservedList,
+  isAuction,
+  isReserved,
 }: SearchBarHeaderProps): JSX.Element {
-  const [{ pdnsSourceContract }] = useGlobalState();
   const isMobile = useIsMobile();
 
   // unavailable condition
-  if (text && pdnsSourceContract?.auctions?.[lowerCaseDomain(text)]) {
+  if (domain && isAuction) {
     return (
       <span
-        className="text-medium white center flex"
+        className="text-medium white center flex fade-in"
         style={{
           fontWeight: 500,
           fontSize: '23px',
           flexDirection: isMobile ? 'column' : 'row',
         }}
       >
-        <span className="in-auction">{text}&nbsp;</span>
+        <span className="in-auction">{domain}&nbsp;</span>
         is currently in auction.
       </span>
     );
   }
 
   // reserved condition
-  if (
-    (text && reservedList.includes(lowerCaseDomain(text))) ||
-    (text && isDomainReservedLength(text))
-  ) {
+  if (domain && (isReserved || isDomainReservedLength(domain))) {
     return (
       <span
-        className="text-medium white center flex"
+        className="text-medium white center flex fade-in"
         style={{
           fontWeight: 500,
           fontSize: '23px',
           flexDirection: isMobile ? 'column' : 'row',
         }}
       >
-        <span className="reserved">{text}&nbsp;</span>
+        <span className="reserved">{domain}&nbsp;</span>
         is currently reserved.
       </span>
     );
   }
   // unavailable condition
-  if (text && !isAvailable) {
+  if (contractTxId && domain) {
     return (
       <span
-        className="text-medium white center flex"
+        className="text-medium white center flex fade-in"
         style={{
           fontWeight: 500,
           fontSize: '23px',
           flexDirection: isMobile ? 'column' : 'row',
         }}
       >
-        <span className="unavailable">{text}&nbsp;</span>
+        <span className="unavailable">{domain}&nbsp;</span>
         is already registered. Try another name.
       </span>
     );
   }
 
   // available condition
-  if (text && isAvailable) {
+  if (domain && isAvailable) {
     return (
       <span
-        className="text-medium white center flex"
+        className="text-medium white center flex fade-in"
         style={{
           fontWeight: 500,
           fontSize: '23px',
           flexDirection: isMobile ? 'column' : 'row',
         }}
       >
-        <span style={{ color: 'var(--success-green)' }}>{text}</span>&nbsp;is
+        <span style={{ color: 'var(--success-green)' }}>{domain}</span>&nbsp;is
         available!&nbsp;
         <CheckCircleFilled
           style={{ fontSize: '20px', color: 'var(--success-green)' }}
@@ -92,7 +89,7 @@ function SearchBarHeader({
 
   return (
     <div
-      className="flex flex-column flex-center text-medium white"
+      className="flex flex-column flex-center text-medium white fade-in"
       style={{ gap: '5px' }}
     >
       {defaultText} <ArrowDownOutlined />

@@ -36,7 +36,7 @@ import {
 import eventEmitter from '../../utils/events';
 
 export function useWalletDomains(ids: ArweaveTransactionID[]) {
-  const [{ gateway, pdnsSourceContract }] = useGlobalState();
+  const [{ gateway, pdnsSourceContract, blockHeight }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const { walletAddress } = useWalletAddress();
   const [sortAscending, setSortOrder] = useState(true);
@@ -48,6 +48,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
   const [itemCount, setItemCount] = useState<number>(0);
   const [itemsLoaded, setItemsLoaded] = useState<number>(0);
   const [percent, setPercentLoaded] = useState<number | undefined>();
+  const [loadingManageDomain, setLoadingManageDomain] = useState<string>();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -379,7 +380,12 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
               fontSize: '14px',
               minWidth: 'fit-content',
             }}
-            onClick={() => navigate(`/manage/names/${record.name}`)}
+            onClick={() => {
+              setLoadingManageDomain(record.name);
+              navigate(`/manage/names/${record.name}`, {
+                state: { from: '/manage/names' },
+              });
+            }}
           >
             Details
           </button>
@@ -394,6 +400,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
     domain: string,
     record: PDNSRecordEntry,
     address: ArweaveTransactionID,
+    txConfirmations: number,
   ): Promise<PDNSTableRow | undefined> {
     try {
       const [contractState, confirmations, pendingContractInteractions] =
@@ -404,9 +411,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
               address,
             )
             .catch((e) => console.error(e)),
-          arweaveDataProvider
-            .getTransactionStatus(new ArweaveTransactionID(record.contractTxId))
-            .catch((e) => console.error(e)),
+          txConfirmations,
           arweaveDataProvider
             .getPendingContractInteractions(
               new ArweaveTransactionID(record.contractTxId),
@@ -532,6 +537,10 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
         ...cachedRegistrations,
         ...pdnsSourceContract.records,
       });
+      const confirmations = await arweaveDataProvider.getTransactionStatus(
+        [...tokenIds],
+        blockHeight,
+      );
       setItemCount(consolidatedRecords.length);
       const rowData = await Promise.all(
         [...tokenIds].map((id: ArweaveTransactionID) => {
@@ -539,7 +548,12 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
             ([, record]) => record.contractTxId === id.toString(),
           );
           if (record) {
-            return fetchDomainRow(record[0], record[1], address);
+            return fetchDomainRow(
+              record[0],
+              record[1],
+              address,
+              confirmations[record[1].contractTxId],
+            );
           }
         }),
       ).then((rows) =>
@@ -570,5 +584,6 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
     sortField,
     sortAscending,
     selectedRow,
+    loadingManageDomain,
   };
 }

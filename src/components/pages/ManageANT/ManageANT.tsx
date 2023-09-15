@@ -99,7 +99,9 @@ function ManageANT() {
       const [contractState, confirmations, pendingContractInteractions] =
         await Promise.all([
           arweaveDataProvider.getContractState<PDNTContractJSON>(contractTxId),
-          arweaveDataProvider.getTransactionStatus(contractTxId),
+          arweaveDataProvider
+            .getTransactionStatus(contractTxId)
+            .then((status) => status[contractTxId.toString()]),
           arweaveDataProvider.getPendingContractInteractions(
             contractTxId,
             address.toString(),

@@ -31,30 +31,19 @@ function Footer() {
           to={'https://ar.io/arns'}
           rel="noreferrer"
           target={'_blank'}
-          style={{ textDecoration: 'underline' }}
         >
           Terms & Conditions
         </Link>
-        <Link
-          className="grey text"
-          to={'https://ar.io/arns'}
-          rel="noreferrer"
-          target={'_blank'}
-          style={{ textDecoration: 'underline' }}
-        >
-          Privacy Policy
-        </Link>
       </div>
 
-      <span
-        className="flex flex-row flex-right text grey center"
-        style={{ width: 'fit-content', wordBreak: 'keep-all' }}
-      >
-        v{process.env.npm_package_version}-
-        {process.env.VITE_GITHUB_HASH?.slice(0, 6)}
-      </span>
-
       <div className="flex flex-row flex-right">
+        <span
+          className="flex flex-row flex-right text grey center"
+          style={{ width: 'fit-content', wordBreak: 'keep-all' }}
+        >
+          v{process.env.npm_package_version}-
+          {process.env.VITE_GITHUB_HASH?.slice(0, 6)}
+        </span>
         <button
           className="button grey text center hover"
           onClick={() =>

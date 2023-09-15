@@ -20,7 +20,10 @@ function EmailNotificationCard() {
       <BellIcon width={'30px'} height={'30px'} fill="var(--text-grey)" />
 
       <div className="flex flex-column" style={{ maxWidth: '400px' }}>
-        <span className="text white" style={{ fontSize: '18px', maxWidth: '' }}>
+        <span
+          className="text white center"
+          style={{ fontSize: '18px', maxWidth: '' }}
+        >
           Leave us your email to get notified when this name becomes available
           for auction.
         </span>

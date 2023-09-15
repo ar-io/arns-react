@@ -9,7 +9,6 @@ import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ArweaveTransactionID,
   BuyRecordPayload,
-  CreatePDNTPayload,
   ExcludedValidInteractionType,
   ExtendLeasePayload,
   INTERACTION_TYPES,
@@ -55,7 +54,7 @@ function TransactionWorkflow({
   transactionData,
   workflowStage,
 }: {
-  interactionType?: ExcludedValidInteractionType;
+  interactionType: ExcludedValidInteractionType;
   transactionData: TransactionData;
   workflowStage: TRANSACTION_WORKFLOW_STATUS;
 }) {
@@ -72,6 +71,12 @@ function TransactionWorkflow({
   const [stages, setStages] = useState<
     { [x: string]: WorkflowStage } | undefined
   >();
+  const [pdntProps, setPdntProps] = useState(() =>
+    getPDNSMappingByInteractionType({
+      interactionType,
+      transactionData,
+    }),
+  );
   const [deployingTransaction, setDeployingTransaction] =
     useState<boolean>(false);
 
@@ -91,6 +96,13 @@ function TransactionWorkflow({
           interactionType: type,
         });
         if (newStages) setStages(newStages);
+        const newPdntProps = getPDNSMappingByInteractionType({
+          interactionType: type,
+          transactionData,
+        });
+        if (newPdntProps) {
+          setPdntProps(newPdntProps);
+        }
       }
     } catch (error) {
       eventEmitter.emit('error', error);
@@ -107,28 +119,14 @@ function TransactionWorkflow({
         throw Error('No wallet connected.');
       }
 
-      const validCreateInteraction =
-        interactionType === INTERACTION_TYPES.CREATE &&
-        isObjectOfTransactionPayloadType<CreatePDNTPayload>(
-          payload,
-          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.CREATE].keys,
-        );
       const validBuyRecordInteraction =
         interactionType === INTERACTION_TYPES.BUY_RECORD &&
         isObjectOfTransactionPayloadType<BuyRecordPayload>(
           payload,
           TRANSACTION_DATA_KEYS[INTERACTION_TYPES.BUY_RECORD].keys,
         );
-      if (validCreateInteraction) {
-        originalTxId = await arweaveDataProvider.deployContract({
-          walletAddress,
-          srcCodeTransactionId: new ArweaveTransactionID(
-            payload.srcCodeTransactionId,
-          ),
-          initialState: payload.initialState,
-          tags: payload?.tags,
-        });
-      } else if (
+
+      if (
         validBuyRecordInteraction &&
         payload.contractTxId === ATOMIC_FLAG &&
         payload.state
@@ -256,11 +254,6 @@ function TransactionWorkflow({
   }: {
     interactionType: ValidInteractionType;
   }): { [x: string]: WorkflowStage } | undefined {
-    const pdntProps = getPDNSMappingByInteractionType({
-      interactionType,
-      transactionData,
-    });
-
     if (!pdntProps) {
       throw Error('Unable to get PDNT properties.');
     }
@@ -639,7 +632,6 @@ function TransactionWorkflow({
         };
       }
     }
-    // TODO implement other registry interactions
   }
 
   return (

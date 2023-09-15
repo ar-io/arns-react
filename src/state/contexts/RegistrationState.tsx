@@ -36,7 +36,7 @@ export const initialRegistrationState: RegistrationState = {
   registrationType: TRANSACTION_TYPES.LEASE,
 };
 
-const RegistrationStateContext = createContext<
+export const RegistrationStateContext = createContext<
   [RegistrationState, Dispatch<RegistrationAction>]
 >([initialRegistrationState, () => initialRegistrationState]);
 
