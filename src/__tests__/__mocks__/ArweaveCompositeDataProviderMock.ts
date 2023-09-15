@@ -50,8 +50,10 @@ export class ArweaveCompositeDataProviderMock
     return { contractTxIds: [] }; // Mock value
   }
 
-  async getTransactionStatus(id: ArweaveTransactionID) {
-    return 0; // Mock value
+  async getTransactionStatus(
+    ids: ArweaveTransactionID[] | ArweaveTransactionID,
+  ): Promise<Record<string, number>> {
+    return { '': 0 }; // Mock value
   }
 
   async getTransactionTags(

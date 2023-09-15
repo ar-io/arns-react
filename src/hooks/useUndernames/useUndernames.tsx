@@ -229,7 +229,9 @@ export function useUndernames(id?: ArweaveTransactionID) {
     const fetchedRows: UndernameMetadata[] = [];
     const [contractState, confirmations] = await Promise.all([
       arweaveDataProvider.getContractState<PDNTContractJSON>(id),
-      arweaveDataProvider.getTransactionStatus(id),
+      arweaveDataProvider
+        .getTransactionStatus(id)
+        .then((status) => status[id.toString()]),
     ]);
 
     const undernames = Object.entries(contractState.records).filter(

@@ -246,7 +246,10 @@ export interface TransactionCache {
 
 export interface ArweaveDataProvider {
   // add isAddress method
-  getTransactionStatus(id: ArweaveTransactionID): Promise<number>;
+  getTransactionStatus(
+    ids: ArweaveTransactionID[] | ArweaveTransactionID,
+    blockheight?: number,
+  ): Promise<Record<string, number>>;
   getTransactionTags(
     id: ArweaveTransactionID,
   ): Promise<{ [x: string]: string }>;

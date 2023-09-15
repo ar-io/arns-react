@@ -17,6 +17,7 @@ import {
   getLeaseDurationFromEndTimestamp,
   getPendingInteractionsRowsForContract,
   isArweaveTransactionID,
+  lowerCaseDomain,
 } from '../../../utils';
 import {
   DEFAULT_MAX_UNDERNAMES,
@@ -63,7 +64,10 @@ function ManageDomainModal() {
     try {
       setLoading(true);
 
-      const txId = pdnsSourceContract.records[domainName].contractTxId;
+      const recordEntry = await arweaveDataProvider.getRecord(
+        lowerCaseDomain(domainName),
+      );
+      const txId = recordEntry?.contractTxId;
       if (!txId) {
         throw Error('This name is not registered');
       }
@@ -72,7 +76,9 @@ function ManageDomainModal() {
       const [contractState, confirmations, pendingContractInteractions] =
         await Promise.all([
           arweaveDataProvider.getContractState<PDNTContractJSON>(contractTxId),
-          arweaveDataProvider.getTransactionStatus(contractTxId),
+          arweaveDataProvider
+            .getTransactionStatus(contractTxId)
+            .then((status) => status[contractTxId.toString()]),
           arweaveDataProvider.getPendingContractInteractions(
             contractTxId,
             address.toString(),

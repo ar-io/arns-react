@@ -19,7 +19,7 @@ function ConnectWalletModal(): JSX.Element {
   useEffect(() => {
     // disable scrolling when modal is in view
     if (wallet && walletAddress) {
-      closeModal();
+      closeModal({ next: true });
     }
     document.body.style.overflow = 'hidden';
     return () => {
@@ -29,18 +29,22 @@ function ConnectWalletModal(): JSX.Element {
 
   function handleClickOutside(e: any) {
     if (modalRef.current && modalRef.current === e.target) {
-      closeModal();
+      closeModal({ next: false });
     }
     return;
   }
 
-  // ISSUE: [PE-4603] bug, need to click twice to close modal
-  async function closeModal() {
+  async function closeModal({ next }: { next: boolean }) {
     if (!walletAddress) {
-      console.log(walletAddress);
       navigate(state?.from ?? '/', { state: { from: state?.from ?? '/' } });
+      return;
     }
-    navigate(state?.to ? state.to : state?.from ? state.from : '/');
+
+    if (next) {
+      navigate(state?.to ?? '/');
+    } else {
+      navigate(state?.from ?? '/');
+    }
   }
 
   async function setGlobalWallet(walletConnector: ArweaveWalletConnector) {
@@ -63,7 +67,7 @@ function ConnectWalletModal(): JSX.Element {
           payload: address,
         });
       });
-      closeModal();
+      closeModal({ next: true });
     } catch (error: any) {
       eventEmitter.emit('error', error);
     }
@@ -83,7 +87,10 @@ function ConnectWalletModal(): JSX.Element {
         >
           Connect with an Arweave wallet
         </p>
-        <button className="modal-close-button" onClick={() => closeModal()}>
+        <button
+          className="modal-close-button"
+          onClick={() => closeModal({ next: false })}
+        >
           <CloseIcon width="30px" height={'30px'} fill="var(--text-white)" />
         </button>
 
