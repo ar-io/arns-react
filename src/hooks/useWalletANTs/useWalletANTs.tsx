@@ -14,6 +14,7 @@ import ArweaveID, {
 } from '../../components/layout/ArweaveID/ArweaveID';
 import TransactionStatus from '../../components/layout/TransactionStatus/TransactionStatus';
 import { PDNTContract } from '../../services/arweave/PDNTContract';
+import { useGlobalState } from '../../state/contexts/GlobalState';
 import {
   ANTMetadata,
   ArweaveTransactionID,
@@ -26,6 +27,7 @@ import {
 import eventEmitter from '../../utils/events';
 
 export function useWalletANTs(ids: ArweaveTransactionID[]) {
+  const [{ blockHeight }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const { walletAddress } = useWalletAddress();
   const [sortAscending, setSortOrder] = useState(true);
@@ -328,6 +330,7 @@ export function useWalletANTs(ids: ArweaveTransactionID[]) {
     contractTxId: ArweaveTransactionID,
     address: ArweaveTransactionID,
     key: number,
+    txConfirmations: number,
   ) {
     try {
       const [contractState, confirmations, pendingContractInteractions] =
@@ -336,9 +339,8 @@ export function useWalletANTs(ids: ArweaveTransactionID[]) {
             contractTxId,
             address,
           ),
-          arweaveDataProvider.getTransactionStatus(contractTxId).catch((e) => {
-            console.error(e);
-          }),
+          txConfirmations,
+          ,
           arweaveDataProvider
             .getPendingContractInteractions(contractTxId, address.toString())
             .catch((e) => {
@@ -428,8 +430,15 @@ export function useWalletANTs(ids: ArweaveTransactionID[]) {
       }
       setItemCount(tokenIds.size);
 
+      const confirmations = await arweaveDataProvider.getTransactionStatus(
+        [...tokenIds],
+        blockHeight,
+      );
+
       const allData: ANTMetadata[] = await Promise.all(
-        [...tokenIds].map((id, index) => fetchRowData(id, address, index)),
+        [...tokenIds].map((id, index) =>
+          fetchRowData(id, address, index, confirmations[id.toString()]),
+        ),
       ).then((rows) =>
         rows.reduce((acc: ANTMetadata[], row: ANTMetadata | undefined) => {
           if (row) {
