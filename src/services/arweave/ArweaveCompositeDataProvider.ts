@@ -219,29 +219,21 @@ export class ArweaveCompositeDataProvider
   }
   // TODO: implement arns service query for the following 3 functions
   async isDomainReserved({ domain }: { domain: string }): Promise<boolean> {
-    const res = await Promise.all(
+    return Promise.any(
       this._contractProviders.map((p) => p.isDomainReserved({ domain })),
     );
-    return res.includes(true);
   }
 
-  isDomainInAuction({
-    domain,
-    auctionsList,
-  }: {
-    domain: string;
-    auctionsList: string[];
-  }): boolean {
-    return this._contractProviders.some((p) =>
-      p.isDomainInAuction({ domain, auctionsList }),
+  async isDomainInAuction({ domain }: { domain: string }): Promise<boolean> {
+    return Promise.any(
+      this._contractProviders.map((p) => p.isDomainInAuction({ domain })),
     );
   }
 
   async isDomainAvailable({ domain }: { domain: string }): Promise<boolean> {
-    const res = await Promise.all(
+    return Promise.any(
       this._contractProviders.map((p) => p.isDomainAvailable({ domain })),
     );
-    return res.includes(true);
   }
 
   async getAuction(domain: string): Promise<AuctionParameters> {

@@ -157,13 +157,7 @@ export interface SmartweaveContractCache {
     key: string,
   ): Promise<ContractInteraction[]>;
   isDomainAvailable({ domain }: { domain: string }): Promise<boolean>;
-  isDomainInAuction({
-    domain,
-    auctionsList,
-  }: {
-    domain: string;
-    auctionsList: string[];
-  }): boolean;
+  isDomainInAuction({ domain }: { domain: string }): Promise<boolean>;
   isDomainReserved({ domain }: { domain: string }): Promise<boolean>;
   getCachedNameTokens(address: ArweaveTransactionID): Promise<PDNTContract[]>;
   getAuction(domain: string): Promise<AuctionParameters>;

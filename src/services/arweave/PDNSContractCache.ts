@@ -138,14 +138,10 @@ export class PDNSContractCache implements SmartweaveContractCache {
     return isReserved;
   }
 
-  isDomainInAuction({
-    domain,
-    auctionsList,
-  }: {
-    domain: string;
-    auctionsList: string[];
-  }): boolean {
-    return auctionsList.includes(lowerCaseDomain(domain));
+  async isDomainInAuction({ domain }: { domain: string }): Promise<boolean> {
+    return this.getAuction(domain)
+      .then((auction) => !!auction) // it found the auction
+      .catch(() => false); // it returned a 404 or otherwise failed
   }
 
   async isDomainAvailable({ domain }: { domain: string }): Promise<boolean> {
@@ -160,6 +156,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
 
     return isAvailable;
   }
+
   async getCachedNameTokens(
     address: ArweaveTransactionID,
   ): Promise<PDNTContract[]> {

@@ -157,14 +157,8 @@ export class ArweaveCompositeDataProviderMock
     return false; // Mock value
   }
 
-  isDomainInAuction({
-    domain,
-    auctionsList,
-  }: {
-    domain: string;
-    auctionsList: string[];
-  }): boolean {
-    return false; // Mock value
+  async isDomainInAuction({ domain }: { domain: string }): Promise<boolean> {
+    return Promise.resolve(false);
   }
 
   async isDomainAvailable({ domain }: { domain: string }): Promise<boolean> {
