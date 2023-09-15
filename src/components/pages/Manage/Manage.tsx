@@ -19,6 +19,7 @@ import {
   RefreshIcon,
 } from '../../icons';
 import { Loader } from '../../layout/index';
+import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
 
 function Manage() {
@@ -45,6 +46,8 @@ function Manage() {
     rows: domainRows,
     sortAscending: domainSortAscending,
     sortField: domainSortField,
+    loadingManageDomain,
+    setLoadingManageDomain,
   } = useWalletDomains(pdntIds);
 
   const [tableData, setTableData] = useState<any[]>([]);
@@ -368,6 +371,16 @@ function Manage() {
           )}
         </div>
       </div>
+      {loadingManageDomain ? (
+        <div className="modal-container">
+          <PageLoader
+            loading={!!loadingManageDomain}
+            message={`Loading details for ${loadingManageDomain}`}
+          />
+        </div>
+      ) : (
+        <></>
+      )}
     </div>
   );
 }

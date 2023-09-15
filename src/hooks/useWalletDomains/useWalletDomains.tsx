@@ -48,6 +48,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
   const [itemCount, setItemCount] = useState<number>(0);
   const [itemsLoaded, setItemsLoaded] = useState<number>(0);
   const [percent, setPercentLoaded] = useState<number | undefined>();
+  const [loadingManageDomain, setLoadingManageDomain] = useState<string>();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -379,11 +380,12 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
               fontSize: '14px',
               minWidth: 'fit-content',
             }}
-            onClick={() =>
+            onClick={() => {
+              setLoadingManageDomain(record.name);
               navigate(`/manage/names/${record.name}`, {
                 state: { from: '/manage/names' },
-              })
-            }
+              });
+            }}
           >
             Details
           </button>
@@ -539,7 +541,6 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
         [...tokenIds],
         blockHeight,
       );
-      console.log(confirmations);
       setItemCount(consolidatedRecords.length);
       const rowData = await Promise.all(
         [...tokenIds].map((id: ArweaveTransactionID) => {
@@ -583,5 +584,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
     sortField,
     sortAscending,
     selectedRow,
+    loadingManageDomain,
+    setLoadingManageDomain,
   };
 }

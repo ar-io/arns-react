@@ -22,6 +22,7 @@ import {
 import {
   DEFAULT_MAX_UNDERNAMES,
   DEFAULT_TTL_SECONDS,
+  MAX_LEASE_DURATION,
   SECONDS_IN_GRACE_PERIOD,
 } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
@@ -46,6 +47,8 @@ function ManageDomainModal() {
   const arweaveDataProvider = useArweaveCompositeProvider();
   const [{ walletAddress, pdnsSourceContract }] = useGlobalState();
   const [rows, setRows] = useState<ManageDomainRow[]>([]);
+  const [leaseDuration, setLeaseDuration] = useState<string | number>();
+  const [undernameCount, setUndernameCount] = useState<number>();
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -95,6 +98,9 @@ function ManageDomainModal() {
       const record = Object.values(pdnsSourceContract.records).find(
         (r) => r.contractTxId === contractTxId.toString(),
       );
+      if (!record) {
+        throw Error('This name is not registered');
+      }
       const getLeaseDuration = () => {
         if (record?.endTimestamp) {
           const duration = getLeaseDurationFromEndTimestamp(
@@ -106,6 +112,9 @@ function ManageDomainModal() {
         }
         return 'Indefinite';
       };
+
+      setLeaseDuration(getLeaseDuration());
+      setUndernameCount(record.undernames);
 
       const consolidatedDetails: DomainDetails = {
         expiryDate: record?.endTimestamp
@@ -195,6 +204,11 @@ function ManageDomainModal() {
               Increase Undernames
             </button>
             <button
+              disabled={
+                loading ||
+                leaseDuration === MAX_LEASE_DURATION ||
+                leaseDuration === 'Indefinite'
+              }
               className="button-primary hover"
               style={{ padding: '8px 10px', gap: '8px', fontSize: '14px' }}
               onClick={() => navigate(`/manage/names/${name}/extend`)}
