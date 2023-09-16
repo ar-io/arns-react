@@ -126,7 +126,7 @@ export function splitStringToCharCount(
   string: string,
   charCount?: number,
 ): string {
-  if (charCount) {
+  if (charCount && string.length > charCount) {
     const shownCount = Math.round(charCount / 2);
     return `${string.slice(0, shownCount)}...${string.slice(
       string.length - shownCount,

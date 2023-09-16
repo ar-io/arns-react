@@ -111,7 +111,7 @@ function Breadcrumbs() {
                   }}
                   to={item?.route ?? '/'}
                 >
-                  {splitStringToCharCount(item.name, 20)}
+                  {splitStringToCharCount(item.name, 16)}
                 </Link>
               </Item>
             );
