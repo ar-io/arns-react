@@ -244,8 +244,6 @@ function CreatePDNTModal() {
             ]}
             stages={{
               0: {
-                showNext: true,
-                showBack: true,
                 backText: 'Cancel',
                 customBackStyle: {
                   height: '40px',
