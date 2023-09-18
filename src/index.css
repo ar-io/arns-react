@@ -51,11 +51,10 @@ body {
 }
 
 body::-webkit-scrollbar {
-  width: 0px;  /* For vertical scrollbars */
+  width: 0px; /* For vertical scrollbars */
   height: 0px; /* For horizontal scrollbars */
   scrollbar-width: none;
 }
-
 
 b {
   font-family: 'Rubik-Bold';

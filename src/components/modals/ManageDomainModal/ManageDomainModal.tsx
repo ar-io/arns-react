@@ -63,6 +63,7 @@ function ManageDomainModal() {
     fetchDomainDetails(walletAddress, name);
   }, [name]);
 
+  // TODO: [PE-4630] tech debt, refactor this into smaller pure functions
   async function fetchDomainDetails(
     address: ArweaveTransactionID,
     domainName: string,

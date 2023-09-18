@@ -254,11 +254,7 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
           initialDelay: 100,
           maxTries: 30,
         });
-        const {
-          data: {
-            data: { transactions },
-          },
-        } = response;
+        const transactions = response?.data?.data?.transactions;
 
         if (transactions?.edges.length) {
           allData = [...allData, ...transactions.edges];
