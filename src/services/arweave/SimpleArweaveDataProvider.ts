@@ -204,7 +204,7 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
 
   async validateConfirmations(
     id: string,
-    numberOfConfirmations = RECOMMENDED_TRANSACTION_CONFIRMATIONS,
+    requiredNumberOfConfirmations = RECOMMENDED_TRANSACTION_CONFIRMATIONS,
   ): Promise<void> {
     const txId = await this.validateArweaveId(id);
 
@@ -212,11 +212,11 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
     await this.getTransactionHeaders(txId);
 
     // validate confirmations
-    if (numberOfConfirmations > 0) {
+    if (requiredNumberOfConfirmations > 0) {
       const confirmations = await this.getTransactionStatus(txId);
-      if (confirmations[txId.toString()] < numberOfConfirmations) {
+      if (confirmations[txId.toString()] < requiredNumberOfConfirmations) {
         throw Error(
-          `Contract ID does not have required number of confirmations. Current confirmations: ${confirmations}. Required number of confirmations: ${numberOfConfirmations}.`,
+          `Contract ID does not have required number of confirmations. Current confirmations: ${confirmations}. Required number of confirmations: ${requiredNumberOfConfirmations}.`,
         );
       }
     }
@@ -254,13 +254,17 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
           initialDelay: 100,
           maxTries: 30,
         });
-        const { data } = response;
+        const {
+          data: {
+            data: { transactions },
+          },
+        } = response;
 
-        if (data.data.transactions?.edges.length) {
-          allData = [...allData, ...data.data.transactions.edges];
+        if (transactions?.edges.length) {
+          allData = [...allData, ...transactions.edges];
         }
-        hasNextPage = data.data.transactions?.pageInfo?.hasNextPage;
-        afterCursor = data.data.transactions?.edges?.at(-1)?.cursor;
+        hasNextPage = transactions?.pageInfo?.hasNextPage;
+        afterCursor = transactions?.edges?.at(-1)?.cursor;
         if (!afterCursor) {
           hasNextPage = false;
         }

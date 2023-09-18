@@ -49,6 +49,8 @@ function ManageDomainModal() {
   const [{ walletAddress, pdnsSourceContract }] = useGlobalState();
   const [rows, setRows] = useState<ManageDomainRow[]>([]);
   const [isMaxLeaseDuration, setIsMaxLeaseDuration] = useState<boolean>(false);
+  const [isMaxUndernameCount, setIsMaxUndernameCount] =
+    useState<boolean>(false);
   const [undernameCount, setUndernameCount] = useState<number>();
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -130,6 +132,9 @@ function ManageDomainModal() {
       );
 
       setUndernameCount(record.undernames);
+      setIsMaxUndernameCount(
+        !!undernameCount && record.undernames >= MAX_UNDERNAME_COUNT,
+      );
 
       const consolidatedDetails: DomainDetails = {
         expiryDate: record?.endTimestamp
@@ -214,7 +219,7 @@ function ManageDomainModal() {
             <Tooltip
               trigger={['hover']}
               title={
-                !!undernameCount && undernameCount >= MAX_UNDERNAME_COUNT
+                isMaxUndernameCount
                   ? 'Max undername support reached'
                   : 'Increase undername support'
               }
@@ -223,22 +228,12 @@ function ManageDomainModal() {
               rootClassName="notification-tooltip"
             >
               <button
-                disabled={
-                  loading ||
-                  (!!undernameCount && undernameCount >= MAX_UNDERNAME_COUNT)
-                }
+                disabled={loading || isMaxUndernameCount}
                 className={`button-secondary ${
-                  loading ||
-                  (!!undernameCount && undernameCount >= MAX_UNDERNAME_COUNT)
-                    ? 'disabled-button'
-                    : 'hover'
+                  loading || isMaxUndernameCount ? 'disabled-button' : 'hover'
                 }`}
                 style={{
-                  padding:
-                    loading ||
-                    (!!undernameCount && undernameCount >= MAX_UNDERNAME_COUNT)
-                      ? '0px'
-                      : '9px',
+                  padding: loading || isMaxUndernameCount ? '0px' : '9px',
                   gap: '8px',
                   fontSize: '14px',
                   color: 'var(--accent)',

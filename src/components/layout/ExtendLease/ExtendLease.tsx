@@ -251,33 +251,38 @@ function ExtendLease() {
         <WorkflowButtons
           backText="Cancel"
           nextText="Continue"
-          disableNext={maxIncrease < 1 || ioFee > ioBalance}
           customNextStyle={{
             background: maxIncrease < 1 && 'var(--text-grey)',
             color: maxIncrease < 1 && 'var(--text-white)',
           }}
           onBack={() => navigate(-1)}
-          onNext={() => {
-            const payload: ExtendLeasePayload = {
-              name,
-              years: newLeaseDuration,
-              contractTxId: new ArweaveTransactionID(record.contractTxId),
-            };
+          onNext={
+            maxIncrease < 1 || ioFee > ioBalance
+              ? () => {
+                  const payload: ExtendLeasePayload = {
+                    name,
+                    years: newLeaseDuration,
+                    contractTxId: new ArweaveTransactionID(record.contractTxId),
+                  };
 
-            dispatchTransactionState({
-              type: 'setInteractionType',
-              payload: INTERACTION_TYPES.EXTEND_LEASE,
-            });
-            dispatchTransactionState({
-              type: 'setTransactionData',
-              payload: {
-                assetId: PDNS_REGISTRY_ADDRESS,
-                functionName: 'extendRecord',
-                ...payload,
-              },
-            });
-            navigate('/transaction', { state: `/manage/names/${name}/extend` });
-          }}
+                  dispatchTransactionState({
+                    type: 'setInteractionType',
+                    payload: INTERACTION_TYPES.EXTEND_LEASE,
+                  });
+                  dispatchTransactionState({
+                    type: 'setTransactionData',
+                    payload: {
+                      assetId: PDNS_REGISTRY_ADDRESS,
+                      functionName: 'extendRecord',
+                      ...payload,
+                    },
+                  });
+                  navigate('/transaction', {
+                    state: `/manage/names/${name}/extend`,
+                  });
+                }
+              : undefined
+          }
           detail={
             ioFee > ioBalance && maxIncrease > 0 ? (
               <div

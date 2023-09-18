@@ -129,6 +129,8 @@ export class WarpDataProvider
         walletAddress.toString(),
       );
 
+      // because we are manually constructing the tags, we want to verify them immediately and always
+      // an undefined valid means the transaction is valid
       if (dryWriteResults.originalValidity?.valid === false) {
         throw new Error(
           `Contract interaction detected to be invalid: ${
@@ -307,6 +309,7 @@ export class WarpDataProvider
       input,
       walletAddress.toString(),
     );
+    // an undefined valid means the transaction is valid
     if (dryWriteResults.originalValidity?.valid === false) {
       throw new Error(
         `Contract interaction detected to be invalid: ${
@@ -455,7 +458,7 @@ export class WarpDataProvider
       new ArweaveTransactionID(PDNS_REGISTRY_ADDRESS),
     );
 
-    if (!state || !state.records) {
+    if (!state?.records) {
       throw new Error('Unable to read record info from contract');
     }
 
@@ -467,7 +470,7 @@ export class WarpDataProvider
       new ArweaveTransactionID(PDNS_REGISTRY_ADDRESS),
     );
 
-    if (!state || !state.balances) {
+    if (!state?.balances) {
       throw new Error('Unable to read balance info from contract');
     }
 

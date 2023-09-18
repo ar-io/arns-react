@@ -21,10 +21,7 @@ export function useWalletAddress(): {
       const connector = new ArConnectWalletConnector();
       const permissions = await window.arweaveWallet.getPermissions();
 
-      if (
-        permissions.length &&
-        ARCONNECT_WALLET_PERMISSIONS.every((p) => permissions.includes(p))
-      ) {
+      if (ARCONNECT_WALLET_PERMISSIONS.every((p) => permissions.includes(p))) {
         await connector.connect();
         const address = await connector.getWalletAddress();
 

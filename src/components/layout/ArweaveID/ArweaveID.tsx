@@ -2,7 +2,7 @@ import { CSSProperties } from '@ant-design/cssinjs/lib/hooks/useStyleRegister';
 import { Link } from 'react-router-dom';
 
 import { ArweaveTransactionID } from '../../../types';
-import { splitStringToCharCount } from '../../../utils';
+import { formatForMaxCharCount } from '../../../utils';
 import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
 
 export enum ArweaveIdTypes {
@@ -47,10 +47,10 @@ function ArweaveID({
               className="link hover"
               style={{ color: 'var(--text-link)' }}
             >
-              {splitStringToCharCount(id.toString(), characterCount)}
+              {formatForMaxCharCount(id.toString(), characterCount)}
             </Link>
           ) : (
-            splitStringToCharCount(id.toString(), characterCount)
+            formatForMaxCharCount(id.toString(), characterCount)
           )
         }
         size={'13px'}

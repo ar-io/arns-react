@@ -270,7 +270,9 @@ function TransactionWorkflow({
             </div>
           ),
           header: `Review your ${interactionType} action`,
+          backText: 'Back',
           nextText: 'Confirm',
+          onBack: () => navigate(-1),
         },
         successful: {
           component: (
@@ -280,8 +282,6 @@ function TransactionWorkflow({
               transactionData={transactionData}
             />
           ),
-          showNext: false,
-          showBack: false,
           header: (
             <div
               className="flex flex-row center radius"
@@ -312,8 +312,6 @@ function TransactionWorkflow({
               transactionData={transactionData}
             />
           ),
-          showNext: false,
-          showBack: false,
         },
       };
     }
@@ -378,7 +376,9 @@ function TransactionWorkflow({
               </div>
             ),
             header: `Review your ${payload.auction ? 'Auction' : 'Purchase'}`,
+            backText: 'Back',
             nextText: 'Confirm',
+            onBack: () => navigate(-1),
           },
           successful: {
             component: (
@@ -388,8 +388,6 @@ function TransactionWorkflow({
                 transactionData={transactionData}
               />
             ),
-            showNext: false,
-            showBack: false,
             header: (
               <div
                 className="flex flex-row center radius"
@@ -421,8 +419,6 @@ function TransactionWorkflow({
                 transactionData={transactionData}
               />
             ),
-            showNext: false,
-            showBack: false,
           },
         };
       }
@@ -480,7 +476,9 @@ function TransactionWorkflow({
                 Review
               </h1>
             ),
+            backText: 'Back',
             nextText: 'Confirm',
+            onBack: () => navigate(-1),
           },
           successful: {
             component: (
@@ -490,8 +488,6 @@ function TransactionWorkflow({
                 transactionData={transactionData}
               />
             ),
-            showNext: false,
-            showBack: false,
             header: (
               <div
                 className="flex flex-row center radius"
@@ -523,8 +519,6 @@ function TransactionWorkflow({
                 transactionData={transactionData}
               />
             ),
-            showNext: false,
-            showBack: false,
           },
         };
       }
@@ -583,7 +577,9 @@ function TransactionWorkflow({
                 Review
               </h1>
             ),
+            backText: 'Back',
             nextText: 'Confirm',
+            onBack: () => navigate(-1),
           },
           successful: {
             component: (
@@ -593,8 +589,6 @@ function TransactionWorkflow({
                 transactionData={transactionData}
               />
             ),
-            showNext: false,
-            showBack: false,
             header: (
               <div
                 className="flex flex-row center radius"
@@ -626,8 +620,6 @@ function TransactionWorkflow({
                 transactionData={transactionData}
               />
             ),
-            showNext: false,
-            showBack: false,
           },
         };
       }

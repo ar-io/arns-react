@@ -548,10 +548,8 @@ function RegisterNameForm() {
           </div>
         </div>
         <WorkflowButtons
-          showBack={true}
-          showNext={true}
-          disableNext={false}
           nextText="Next"
+          backText="Back"
           onNext={() => {
             const buyRecordPayload: BuyRecordPayload = {
               name:

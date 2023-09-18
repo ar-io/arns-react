@@ -373,7 +373,7 @@ function Manage() {
       {loadingManageDomain ? (
         <div className="modal-container">
           <PageLoader
-            loading={!!loadingManageDomain}
+            loading={true}
             message={`Loading details for ${loadingManageDomain}`}
           />
         </div>
