@@ -188,21 +188,18 @@ export function calculateAnnualRenewalFee(
 
   const extensionEndTimestamp = endTimestamp + years * YEAR_IN_SECONDS;
   // Do not charge for undernames if there are less or equal than the default
-  const undernameCount =
-    undernames > DEFAULT_MAX_UNDERNAMES
-      ? undernames - DEFAULT_MAX_UNDERNAMES
-      : undernames;
 
-  const totalCost =
-    undernameCount === DEFAULT_MAX_UNDERNAMES
-      ? totalAnnualRenewalCost
-      : totalAnnualRenewalCost +
-        calculateProRatedUndernameCost(
-          undernameCount,
-          endTimestamp,
-          'lease',
-          extensionEndTimestamp,
-        );
+  const hasAdditionalUndernames = undernames > DEFAULT_MAX_UNDERNAMES;
+
+  const totalCost = !hasAdditionalUndernames
+    ? totalAnnualRenewalCost
+    : totalAnnualRenewalCost +
+      calculateProRatedUndernameCost(
+        undernames - DEFAULT_MAX_UNDERNAMES,
+        endTimestamp,
+        'lease',
+        extensionEndTimestamp,
+      );
 
   return totalCost;
 }
