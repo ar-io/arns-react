@@ -122,17 +122,29 @@ export function getRandomInteger(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-export function splitStringToCharCount(
-  string: string,
-  charCount?: number,
-): string {
-  if (charCount) {
+/**
+ * Splits a string into two segments, each containing a specified number of characters, and separates them with an ellipsis ('...'). If the `charCount` parameter is not provided or if the string length is less than `charCount`, the original string is returned.
+ *
+ * @param {string} str - The string to be split.
+ * @param {number} [charCount] - The maximum number of characters for the split segments. If provided, the function will split the string into two segments, each containing approximately half of the specified `charCount`, separated by an ellipsis ('...').
+ * @returns {string} - The split string with an ellipsis ('...') inserted in the middle, or the original string if `charCount` is not provided or if the string length is less than `charCount`.
+ *
+ * @example
+ * // Returns 'He...lo'
+ * formatForMaxCharCount('Hello', 4);
+ *
+ * @example
+ * // Returns 'Hello World'
+ * formatForMaxCharCount('Hello World');
+ */
+export function formatForMaxCharCount(str: string, charCount?: number): string {
+  if (charCount && str.length > charCount) {
     const shownCount = Math.round(charCount / 2);
-    return `${string.slice(0, shownCount)}...${string.slice(
-      string.length - shownCount,
-      string.length,
+    return `${str.slice(0, shownCount)}...${str.slice(
+      str.length - shownCount,
+      str.length,
     )}`;
   }
 
-  return string;
+  return str;
 }

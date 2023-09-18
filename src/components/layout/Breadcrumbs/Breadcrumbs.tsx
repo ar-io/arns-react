@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 
 import { useArweaveCompositeProvider } from '../../../hooks';
 import { ArweaveTransactionID } from '../../../types';
-import { isArweaveTransactionID, splitStringToCharCount } from '../../../utils';
+import { formatForMaxCharCount, isArweaveTransactionID } from '../../../utils';
 import eventEmitter from '../../../utils/events';
 import { ChevronDownIcon } from '../../icons';
 
@@ -111,7 +111,7 @@ function Breadcrumbs() {
                   }}
                   to={item?.route ?? '/'}
                 >
-                  {splitStringToCharCount(item.name, 20)}
+                  {formatForMaxCharCount(item.name, 16)}
                 </Link>
               </Item>
             );

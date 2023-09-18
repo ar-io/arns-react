@@ -610,7 +610,9 @@ export interface Equatable<T> {
 export type PDNSTableRow = {
   name: string;
   role: string;
-  undernames: number;
+  undernameSupport: number;
+  undernameCount: number;
+  undernames: string;
   id: string;
   expiration: Date | string;
   status: number;
