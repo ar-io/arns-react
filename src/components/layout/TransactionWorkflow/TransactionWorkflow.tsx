@@ -10,6 +10,7 @@ import {
   ArweaveTransactionID,
   BuyRecordPayload,
   ExcludedValidInteractionType,
+  ExtendLeasePayload,
   INTERACTION_TYPES,
   IncreaseUndernamesPayload,
   PDNTInteractionType,
@@ -248,6 +249,8 @@ function TransactionWorkflow({
     }
   }
 
+  // TODO: [PE-4631] this should be mapped and broken down into seperate files with tests for each interaction type
+
   function getStagesByTransactionType({
     interactionType,
   }: {
@@ -269,7 +272,9 @@ function TransactionWorkflow({
             </div>
           ),
           header: `Review your ${interactionType} action`,
+          backText: 'Back',
           nextText: 'Confirm',
+          onBack: () => navigate(-1),
         },
         successful: {
           component: (
@@ -279,8 +284,6 @@ function TransactionWorkflow({
               transactionData={transactionData}
             />
           ),
-          showNext: false,
-          showBack: false,
           header: (
             <div
               className="flex flex-row center radius"
@@ -311,8 +314,6 @@ function TransactionWorkflow({
               transactionData={transactionData}
             />
           ),
-          showNext: false,
-          showBack: false,
         },
       };
     }
@@ -377,7 +378,9 @@ function TransactionWorkflow({
               </div>
             ),
             header: `Review your ${payload.auction ? 'Auction' : 'Purchase'}`,
+            backText: 'Back',
             nextText: 'Confirm',
+            onBack: () => navigate(-1),
           },
           successful: {
             component: (
@@ -387,8 +390,6 @@ function TransactionWorkflow({
                 transactionData={transactionData}
               />
             ),
-            showNext: false,
-            showBack: false,
             header: (
               <div
                 className="flex flex-row center radius"
@@ -420,8 +421,6 @@ function TransactionWorkflow({
                 transactionData={transactionData}
               />
             ),
-            showNext: false,
-            showBack: false,
           },
         };
       }
@@ -479,7 +478,9 @@ function TransactionWorkflow({
                 Review
               </h1>
             ),
+            backText: 'Back',
             nextText: 'Confirm',
+            onBack: () => navigate(-1),
           },
           successful: {
             component: (
@@ -489,8 +490,6 @@ function TransactionWorkflow({
                 transactionData={transactionData}
               />
             ),
-            showNext: false,
-            showBack: false,
             header: (
               <div
                 className="flex flex-row center radius"
@@ -522,8 +521,107 @@ function TransactionWorkflow({
                 transactionData={transactionData}
               />
             ),
-            showNext: false,
-            showBack: false,
+          },
+        };
+      }
+
+      if (
+        interactionType === INTERACTION_TYPES.EXTEND_LEASE &&
+        isObjectOfTransactionPayloadType<ExtendLeasePayload>(
+          payload,
+          TRANSACTION_DATA_KEYS[interactionType].keys,
+        )
+      ) {
+        return {
+          pending: {
+            component: (
+              <div
+                className="flex flex-column"
+                style={{ marginBottom: '30px', gap: '0px' }}
+              >
+                <PDNTCard {...pdntProps} />
+                <TransactionCost
+                  fee={{
+                    io: payload.ioFee,
+                  }}
+                  info={
+                    <div
+                      className="flex flex-row flex-left"
+                      style={{
+                        gap: '10px',
+                        maxWidth: '50%',
+                        justifyContent: 'flex-start',
+                        alignItems: 'flex-start',
+                      }}
+                    >
+                      <InfoIcon
+                        width={'20px'}
+                        height={'20px'}
+                        fill="var(--text-grey)"
+                      />
+                      <span
+                        className="flex flex-column flex-left grey text"
+                        style={{ textAlign: 'left', lineHeight: '1.5em' }}
+                      >
+                        This includes a registration fee (paid in IO tokens) and
+                        the Arweave network fee (paid in AR tokens).
+                      </span>
+                    </div>
+                  }
+                />
+              </div>
+            ),
+            header: (
+              <h1
+                className="flex white"
+                style={{ width: '100%', paddingBottom: '30px' }}
+              >
+                Review
+              </h1>
+            ),
+            backText: 'Back',
+            nextText: 'Confirm',
+            onBack: () => navigate(-1),
+          },
+          successful: {
+            component: (
+              <TransactionComplete
+                transactionId={deployedTransactionId}
+                interactionType={interactionType}
+                transactionData={transactionData}
+              />
+            ),
+            header: (
+              <div
+                className="flex flex-row center radius"
+                style={{
+                  width: '700px',
+                  height: '90px',
+                  background: 'var(--green-bg)',
+                  border: '1px solid #44AF69',
+                  fontSize: '18px',
+                  marginBottom: '2em',
+                }}
+              >
+                <span className="flex white center" style={{ gap: '8px' }}>
+                  <span>
+                    <CheckCircleFilled
+                      style={{ fontSize: 18, color: 'var(--success-green)' }}
+                    />
+                  </span>
+                  &nbsp;Your lease has been extended
+                </span>
+              </div>
+            ),
+          },
+          failed: {
+            component: (
+              <TransactionComplete
+                transactionId={deployedTransactionId}
+                interactionType={interactionType}
+                transactionData={transactionData}
+              />
+            ),
           },
         };
       }

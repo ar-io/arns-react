@@ -1,66 +1,66 @@
 import './styles.css';
 
 function WorkflowButtons({
-  showBack = true,
-  showNext = true,
   customNextStyle = {},
   customBackStyle = {},
-  backText = 'Back',
-  nextText = 'Next',
-  disableNext,
-  disableBack,
+  backText,
+  nextText,
   onNext,
   onBack,
+  detail,
 }: {
-  showBack?: boolean;
-  showNext?: boolean;
   customNextStyle?: any;
   customBackStyle?: any;
   backText?: string;
   nextText?: string;
-  disableNext?: boolean;
-  disableBack?: boolean;
-  onBack: () => void;
-  onNext: () => void;
+  onBack?: () => void;
+  onNext?: () => void;
+  detail?: JSX.Element | string;
 }) {
   return (
     <>
       <div
-        className="flex-row flex-right"
-        style={{ padding: '0', boxSizing: 'border-box', gap: '20px' }}
+        className="flex-row flex flex-space-between"
+        style={{ boxSizing: 'border-box' }}
       >
-        {showBack ? (
-          <button
-            className="outline-button center"
-            style={{
-              borderColor: 'var(--text-faded)',
-              color: 'var(--text-grey)',
-              ...customBackStyle,
-            }}
-            disabled={disableBack}
-            onClick={() => onBack()}
-          >
-            {backText}
-          </button>
-        ) : (
-          <></>
-        )}
-        {showNext ? (
-          <button
-            className={
-              disableNext
-                ? 'accent-button disabled-button center'
-                : 'accent-button center'
-            }
-            style={customNextStyle}
-            disabled={disableNext}
-            onClick={() => onNext()}
-          >
-            {nextText}
-          </button>
-        ) : (
-          <></>
-        )}
+        {detail}
+        <div
+          className="flex-row flex-right"
+          style={{ padding: '0', boxSizing: 'border-box', gap: '20px' }}
+        >
+          {backText && backText.length ? (
+            <button
+              className="outline-button center"
+              style={{
+                borderColor: 'var(--text-faded)',
+                color: 'var(--text-grey)',
+                ...customBackStyle,
+              }}
+              disabled={!onBack}
+              onClick={onBack ? () => onBack() : undefined}
+            >
+              {backText}
+            </button>
+          ) : (
+            <></>
+          )}
+          {nextText && nextText.length ? (
+            <button
+              className={
+                !onNext
+                  ? 'accent-button disabled-button center'
+                  : 'accent-button center'
+              }
+              style={customNextStyle}
+              disabled={!onNext}
+              onClick={onNext ? () => onNext() : undefined}
+            >
+              {nextText}
+            </button>
+          ) : (
+            <></>
+          )}
+        </div>
       </div>
     </>
   );

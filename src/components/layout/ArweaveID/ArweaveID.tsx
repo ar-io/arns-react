@@ -2,6 +2,7 @@ import { CSSProperties } from '@ant-design/cssinjs/lib/hooks/useStyleRegister';
 import { Link } from 'react-router-dom';
 
 import { ArweaveTransactionID } from '../../../types';
+import { formatForMaxCharCount } from '../../../utils';
 import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
 
 export enum ArweaveIdTypes {
@@ -33,18 +34,6 @@ function ArweaveID({
   copyButtonStyle?: CSSProperties;
   wrapperStyle?: CSSProperties;
 }) {
-  function handleText(text: string) {
-    if (characterCount) {
-      const shownCount = Math.round(characterCount / 2);
-      return `${text.slice(0, shownCount)}...${text.slice(
-        text.length - shownCount,
-        text.length,
-      )}`;
-    }
-
-    return text;
-  }
-
   return (
     <>
       <CopyTextButton
@@ -58,10 +47,10 @@ function ArweaveID({
               className="link hover"
               style={{ color: 'var(--text-link)' }}
             >
-              {handleText(id.toString())}
+              {formatForMaxCharCount(id.toString(), characterCount)}
             </Link>
           ) : (
-            handleText(id.toString())
+            formatForMaxCharCount(id.toString(), characterCount)
           )
         }
         size={'13px'}

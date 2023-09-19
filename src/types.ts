@@ -173,6 +173,8 @@ export interface SmartweaveContractCache {
     currentBlockHeight: number,
   ): Promise<Auction>;
   getDomainsInAuction(): Promise<string[]>;
+  getRecord(domain: string): Promise<PDNSRecordEntry>;
+  getIoBalance(address: ArweaveTransactionID): Promise<number>;
 }
 
 export interface SmartweaveContractInteractionProvider {
@@ -244,7 +246,10 @@ export interface TransactionCache {
 
 export interface ArweaveDataProvider {
   // add isAddress method
-  getTransactionStatus(id: ArweaveTransactionID): Promise<number>;
+  getTransactionStatus(
+    ids: ArweaveTransactionID[] | ArweaveTransactionID,
+    blockheight?: number,
+  ): Promise<Record<string, number>>;
   getTransactionTags(
     id: ArweaveTransactionID,
   ): Promise<{ [x: string]: string }>;
@@ -470,6 +475,8 @@ export type SubmitAuctionBidPayload = {
 export type ExtendLeasePayload = {
   name: string;
   years: number;
+  contractTxId?: ArweaveTransactionID;
+  ioFee?: number;
 };
 
 export type TransferIOPayload = {
@@ -604,7 +611,9 @@ export interface Equatable<T> {
 export type PDNSTableRow = {
   name: string;
   role: string;
-  undernames: number;
+  undernameSupport: number;
+  undernameCount: number;
+  undernames: string;
   id: string;
   expiration: Date | string;
   status: number;

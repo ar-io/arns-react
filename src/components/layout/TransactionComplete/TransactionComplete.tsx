@@ -28,8 +28,7 @@ function TransactionComplete({
   interactionType: ValidInteractionType;
   transactionData: TransactionData;
 }) {
-  const [{ deployedTransactionId }, dispatchTransactionState] =
-    useTransactionState();
+  const [{ deployedTransactionId }] = useTransactionState();
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(true);
   const [pdntProps, setPdntProps] = useState<PDNSMapping>();
@@ -47,23 +46,17 @@ function TransactionComplete({
       if (!transactionId) {
         throw new Error('Unable to set ANT properties.');
       }
-      setPdntProps(
-        getPDNSMappingByInteractionType({
-          interactionType,
-          transactionData: {
-            ...transactionData,
-            deployedTransactionId: transactionId,
-          },
-        }),
-      );
-      dispatchTransactionState({
-        type: 'setDeployedTransactionId',
-        payload: undefined,
+      const newProps = getPDNSMappingByInteractionType({
+        interactionType,
+        transactionData: {
+          ...transactionData,
+          deployedTransactionId: transactionId,
+        },
       });
-      dispatchTransactionState({
-        type: 'setInteractionType',
-        payload: undefined,
-      });
+      if (!newProps) {
+        throw new Error('Unable to set ANT properties.', newProps);
+      }
+      setPdntProps(newProps);
     } catch (error) {
       eventEmitter.emit('error', error);
       navigate(-1);
@@ -73,7 +66,9 @@ function TransactionComplete({
   }
 
   if (!pdntProps) {
-    return <PageLoader loading={loading} />;
+    return (
+      <PageLoader loading={loading} message={'Loading transaction data.'} />
+    );
   }
 
   return (

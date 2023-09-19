@@ -36,7 +36,7 @@ import {
 import eventEmitter from '../../utils/events';
 
 export function useWalletDomains(ids: ArweaveTransactionID[]) {
-  const [{ gateway, pdnsSourceContract }] = useGlobalState();
+  const [{ gateway, pdnsSourceContract, blockHeight }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const { walletAddress } = useWalletAddress();
   const [sortAscending, setSortOrder] = useState(true);
@@ -48,6 +48,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
   const [itemCount, setItemCount] = useState<number>(0);
   const [itemsLoaded, setItemsLoaded] = useState<number>(0);
   const [percent, setPercentLoaded] = useState<number | undefined>();
+  const [loadingManageDomain, setLoadingManageDomain] = useState<string>();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -270,14 +271,14 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
         className: 'white manage-assets-table-header',
         align: 'left',
         ellipsis: true,
-        render: (undernames: number | string) => undernames.toLocaleString(),
+        render: (undernames: number | string) => undernames,
         onHeaderCell: () => {
           return {
             onClick: () => {
               rows.sort((a: PDNSTableRow, b: PDNSTableRow) =>
                 sortAscending
-                  ? +a.undernames - +b.undernames
-                  : +b.undernames - +a.undernames,
+                  ? +a.undernameSupport - +b.undernameSupport
+                  : +b.undernameSupport - +a.undernameSupport,
               );
               // forces update of rows
               setRows([...rows]);
@@ -373,10 +374,20 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
         // eslint-disable-next-line
         render: (val: any, record: PDNSTableRow) => (
           <button
-            className="white center pointer"
-            onClick={() => navigate(`/manage/names/${record.name}`)}
+            className="outline-button center pointer"
+            style={{
+              padding: '6px 10px',
+              fontSize: '14px',
+              minWidth: 'fit-content',
+            }}
+            onClick={() => {
+              setLoadingManageDomain(record.name);
+              navigate(`/manage/names/${record.name}`, {
+                state: { from: '/manage/names' },
+              });
+            }}
           >
-            &#x2022;&#x2022;&#x2022;
+            Details
           </button>
         ),
         align: 'right',
@@ -389,6 +400,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
     domain: string,
     record: PDNSRecordEntry,
     address: ArweaveTransactionID,
+    txConfirmations: number,
   ): Promise<PDNSTableRow | undefined> {
     try {
       const [contractState, confirmations, pendingContractInteractions] =
@@ -399,9 +411,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
               address,
             )
             .catch((e) => console.error(e)),
-          arweaveDataProvider
-            .getTransactionStatus(new ArweaveTransactionID(record.contractTxId))
-            .catch((e) => console.error(e)),
+          txConfirmations,
           arweaveDataProvider
             .getPendingContractInteractions(
               new ArweaveTransactionID(record.contractTxId),
@@ -441,7 +451,13 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
           ? new Date(record.endTimestamp * 1000)
           : 'Indefinite',
         status: confirmations ?? 0,
-        undernames: record?.undernames ?? DEFAULT_MAX_UNDERNAMES,
+        undernameSupport: record?.undernames ?? DEFAULT_MAX_UNDERNAMES,
+        undernameCount: Object.keys(contract.records).length - 1,
+        undernames: `${(
+          Object.keys(contract.records).length - 1
+        ).toLocaleString()} / ${(
+          record?.undernames ?? DEFAULT_MAX_UNDERNAMES
+        ).toLocaleString()}`,
         key: `${domain}-${record.contractTxId}`,
       };
       const pendingTxsForContract = getPendingInteractionsRowsForContract(
@@ -485,7 +501,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
       endTimestamp:
         cachedRecord.type === TRANSACTION_TYPES.LEASE
           ? cachedRecord.timestamp +
-            +cachedRecord.payload.years * YEAR_IN_MILLISECONDS
+            Math.max(1, +cachedRecord.payload.years) * YEAR_IN_MILLISECONDS
           : undefined,
       undernames: DEFAULT_MAX_UNDERNAMES,
     };
@@ -527,6 +543,10 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
         ...cachedRegistrations,
         ...pdnsSourceContract.records,
       });
+      const confirmations = await arweaveDataProvider.getTransactionStatus(
+        [...tokenIds],
+        blockHeight,
+      );
       setItemCount(consolidatedRecords.length);
       const rowData = await Promise.all(
         [...tokenIds].map((id: ArweaveTransactionID) => {
@@ -534,7 +554,12 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
             ([, record]) => record.contractTxId === id.toString(),
           );
           if (record) {
-            return fetchDomainRow(record[0], record[1], address);
+            return fetchDomainRow(
+              record[0],
+              record[1],
+              address,
+              confirmations[record[1].contractTxId],
+            );
           }
         }),
       ).then((rows) =>
@@ -565,5 +590,6 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
     sortField,
     sortAscending,
     selectedRow,
+    loadingManageDomain,
   };
 }

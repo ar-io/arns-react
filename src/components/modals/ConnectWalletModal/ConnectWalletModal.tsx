@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 
 import { useWalletAddress } from '../../../hooks';
@@ -15,11 +15,12 @@ function ConnectWalletModal(): JSX.Element {
   const { wallet, walletAddress } = useWalletAddress();
   const navigate = useNavigate();
   const { state } = useLocation();
+  const [connecting, setConnecting] = useState(false);
 
   useEffect(() => {
     // disable scrolling when modal is in view
     if (wallet && walletAddress) {
-      closeModal();
+      closeModal({ next: true });
     }
     document.body.style.overflow = 'hidden';
     return () => {
@@ -29,22 +30,27 @@ function ConnectWalletModal(): JSX.Element {
 
   function handleClickOutside(e: any) {
     if (modalRef.current && modalRef.current === e.target) {
-      closeModal();
+      closeModal({ next: false });
     }
     return;
   }
 
-  // ISSUE: [PE-4603] bug, need to click twice to close modal
-  async function closeModal() {
+  async function closeModal({ next }: { next: boolean }) {
     if (!walletAddress) {
-      console.log(walletAddress);
       navigate(state?.from ?? '/', { state: { from: state?.from ?? '/' } });
+      return;
     }
-    navigate(state?.to ? state.to : state?.from ? state.from : '/');
+
+    if (next) {
+      navigate(state?.to ?? '/');
+    } else {
+      navigate(state?.from ?? '/');
+    }
   }
 
   async function setGlobalWallet(walletConnector: ArweaveWalletConnector) {
     try {
+      setConnecting(true);
       await walletConnector.connect();
       const arconnectGate = await walletConnector.getGatewayConfig();
       if (arconnectGate?.host) {
@@ -63,9 +69,11 @@ function ConnectWalletModal(): JSX.Element {
           payload: address,
         });
       });
-      closeModal();
+      closeModal({ next: true });
     } catch (error: any) {
       eventEmitter.emit('error', error);
+    } finally {
+      setConnecting(false);
     }
   }
 
@@ -83,11 +91,15 @@ function ConnectWalletModal(): JSX.Element {
         >
           Connect with an Arweave wallet
         </p>
-        <button className="modal-close-button" onClick={() => closeModal()}>
+        <button
+          className="modal-close-button"
+          onClick={() => closeModal({ next: false })}
+        >
           <CloseIcon width="30px" height={'30px'} fill="var(--text-white)" />
         </button>
 
         <button
+          disabled={connecting}
           className="wallet-connect-button h2"
           onClick={() => {
             setGlobalWallet(new ArConnectWalletConnector());

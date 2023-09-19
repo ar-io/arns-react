@@ -16,7 +16,7 @@ import eventEmitter from '../../../utils/events';
 import { ArrowLeft, ArrowRightIcon } from '../../icons';
 import ArweaveID, { ArweaveIdTypes } from '../ArweaveID/ArweaveID';
 import AuctionChart from '../AuctionChart/AuctionChart';
-import Loader from '../Loader/Loader';
+import PageLoader from '../progress/PageLoader/PageLoader';
 
 function ViewAuction() {
   const [{ blockHeight }] = useGlobalState();
@@ -54,7 +54,10 @@ function ViewAuction() {
   if (!name || !minimumAuctionBid || !auction) {
     return (
       <div className="page center">
-        <Loader size={80} message={`Fetching latest auction info...`} />
+        <PageLoader
+          loading={!name || !minimumAuctionBid || !auction}
+          message={`Fetching latest auction info...`}
+        />
       </div>
     );
   }

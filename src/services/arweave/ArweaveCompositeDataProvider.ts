@@ -6,6 +6,7 @@ import {
   AuctionSettings,
   ContractInteraction,
   PDNSContractJSON,
+  PDNSRecordEntry,
   PDNTContractJSON,
   SmartweaveContractCache,
   SmartweaveContractInteractionProvider,
@@ -95,8 +96,11 @@ export class ArweaveCompositeDataProvider
     );
   }
 
-  async getTransactionStatus(id: ArweaveTransactionID) {
-    return this._arweaveProvider.getTransactionStatus(id);
+  async getTransactionStatus(
+    ids: ArweaveTransactionID[] | ArweaveTransactionID,
+    blockheight?: number,
+  ): Promise<Record<string, number>> {
+    return this._arweaveProvider.getTransactionStatus(ids, blockheight);
   }
 
   async getTransactionTags(
@@ -265,6 +269,14 @@ export class ArweaveCompositeDataProvider
   async getDomainsInAuction(): Promise<string[]> {
     return Promise.any(
       this._contractProviders.map((p) => p.getDomainsInAuction()),
+    );
+  }
+  async getRecord(domain: string): Promise<PDNSRecordEntry> {
+    return Promise.any(this._contractProviders.map((p) => p.getRecord(domain)));
+  }
+  async getIoBalance(address: ArweaveTransactionID): Promise<number> {
+    return Promise.any(
+      this._contractProviders.map((p) => p.getIoBalance(address)),
     );
   }
 }

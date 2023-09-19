@@ -16,6 +16,7 @@ import {
   AuctionSettings,
   ContractInteraction,
   PDNSContractJSON,
+  PDNSRecordEntry,
   PDNTContractJSON,
   SmartweaveContractCache,
   SmartweaveContractInteractionProvider,
@@ -28,6 +29,7 @@ import {
   byteSize,
   isDomainAuctionable,
   isDomainReservedLength,
+  isPDNSDomainNameValid,
   lowerCaseDomain,
   withExponentialBackoff,
 } from '../../utils';
@@ -127,10 +129,9 @@ export class WarpDataProvider
         walletAddress.toString(),
       );
 
-      if (
-        dryWriteResults.originalValidity?.valid === false ||
-        dryWriteResults.errorMessage
-      ) {
+      // because we are manually constructing the tags, we want to verify them immediately and always
+      // an undefined valid means the transaction is valid
+      if (dryWriteResults.originalValidity?.valid === false) {
         throw new Error(
           `Contract interaction detected to be invalid: ${
             dryWriteResults?.originalErrorMessages
@@ -308,8 +309,8 @@ export class WarpDataProvider
       input,
       walletAddress.toString(),
     );
-
-    if (!dryWriteResults.originalValidity?.valid) {
+    // an undefined valid means the transaction is valid
+    if (dryWriteResults.originalValidity?.valid === false) {
       throw new Error(
         `Contract interaction detected to be invalid: ${
           dryWriteResults?.originalErrorMessages
@@ -398,6 +399,12 @@ export class WarpDataProvider
     domain: string,
     currentBlockHeight: number,
   ): Promise<Auction> {
+    if (!domain.length) {
+      throw new Error('No domain provided');
+    }
+    if (!isPDNSDomainNameValid({ name: domain })) {
+      throw new Error('Invalid domain name');
+    }
     const { result } = (await this._warp
       .contract(PDNS_REGISTRY_ADDRESS)
       .setEvaluationOptions({
@@ -444,5 +451,29 @@ export class WarpDataProvider
     const auctionsList = Object.keys(state.auctions);
 
     return auctionsList;
+  }
+
+  async getRecord(domain: string): Promise<PDNSRecordEntry> {
+    const state = await this.getContractState<PDNSContractJSON>(
+      new ArweaveTransactionID(PDNS_REGISTRY_ADDRESS),
+    );
+
+    if (!state?.records) {
+      throw new Error('Unable to read record info from contract');
+    }
+
+    return state.records[lowerCaseDomain(domain)];
+  }
+
+  async getIoBalance(address: ArweaveTransactionID): Promise<number> {
+    const state = await this.getContractState<PDNSContractJSON>(
+      new ArweaveTransactionID(PDNS_REGISTRY_ADDRESS),
+    );
+
+    if (!state?.balances) {
+      throw new Error('Unable to read balance info from contract');
+    }
+
+    return state.balances[address.toString()];
   }
 }

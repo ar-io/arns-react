@@ -96,7 +96,7 @@ function Undernames() {
 
     arweaveDataProvider
       .getTransactionStatus(new ArweaveTransactionID(id))
-      .then((res) => setConfirmations(res));
+      .then((res) => setConfirmations(res[id]));
   }, [id]);
 
   useEffect(() => {

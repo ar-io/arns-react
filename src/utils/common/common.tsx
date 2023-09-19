@@ -121,3 +121,33 @@ export function handleTableSort<T extends Record<string, any>>({
 export function getRandomInteger(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
+
+/**
+ * Splits a string into two segments, each containing a specified number of characters, and separates them with an ellipsis ('...'). If the `maxCharCount` parameter is not provided or if the string length is less than `maxCharCount`, the original string is returned.
+ *
+ * @param {string} str - The string to be split.
+ * @param {number} [maxCharCount] - The maximum number of characters for the split segments. If provided, the function will split the string into two segments, each containing approximately half of the specified `maxCharCount`, separated by an ellipsis ('...').
+ * @returns {string} - The split string with an ellipsis ('...') inserted in the middle, or the original string if `maxCharCount` is not provided or if the string length is less than `maxCharCount`.
+ *
+ * @example
+ * // Returns 'He...lo'
+ * formatForMaxCharCount('Hello', 4);
+ *
+ * @example
+ * // Returns 'Hello World'
+ * formatForMaxCharCount('Hello World');
+ */
+export function formatForMaxCharCount(
+  str: string,
+  maxCharCount?: number,
+): string {
+  if (maxCharCount && str.length > maxCharCount) {
+    const shownCount = Math.round(maxCharCount / 2);
+    return `${str.slice(0, shownCount)}...${str.slice(
+      str.length - shownCount,
+      str.length,
+    )}`;
+  }
+
+  return str;
+}

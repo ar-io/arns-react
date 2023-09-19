@@ -30,7 +30,7 @@ function UpgradeUndernames() {
   const navigate = useNavigate();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const name = location.pathname.split('/').at(-2);
-  const [{ pdnsSourceContract }, dispatchGlobalState] = useGlobalState();
+  const [{ pdnsSourceContract }] = useGlobalState();
   const [, dispatchTransactionState] = useTransactionState();
   const [record, setRecord] = useState<PDNSRecordEntry>();
   const [antContract, setAntContract] = useState<PDNTContract>();
@@ -60,17 +60,6 @@ function UpgradeUndernames() {
         }
         const contract = new PDNTContract(state);
         setAntContract(contract);
-        dispatchGlobalState({
-          type: 'setNavItems',
-          payload: [
-            { name: 'Manage Assets', route: '/manage/names' },
-            { name: `${name}`, route: `/manage/names/${name}` },
-            {
-              name: 'Increase Undernames',
-              route: `/manage/names/${name}/undernames`,
-            },
-          ],
-        });
       }
     } catch (error) {
       eventEmitter.emit('error', error);
