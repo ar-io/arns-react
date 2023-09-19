@@ -336,7 +336,7 @@ function ManageANT() {
                           className="flex center"
                           style={{ justifyContent: 'flex-start', gap: '10px' }}
                         >
-                          {value}{' '}
+                          {value}
                           <NewspaperIcon
                             width={'20px'}
                             height={'20px'}
