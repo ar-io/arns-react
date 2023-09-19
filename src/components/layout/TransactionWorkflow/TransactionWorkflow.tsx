@@ -23,13 +23,11 @@ import {
 import {
   TRANSACTION_DATA_KEYS,
   buildSmartweaveInteractionTags,
-  calculateAnnualRenewalFee,
   calculateFloorPrice,
   decodeDomainToASCII,
   getPDNSMappingByInteractionType,
   getWorkflowStepsForInteraction,
   isObjectOfTransactionPayloadType,
-  lowerCaseDomain,
   pruneExtraDataFromTransactionPayload,
 } from '../../../utils';
 import {
