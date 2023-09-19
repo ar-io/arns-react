@@ -110,7 +110,6 @@ function ExtendLease() {
         domainRecord.undernames,
         domainRecord.endTimestamp + newLeaseDuration * YEAR_IN_SECONDS,
       );
-      console.log(newFee);
       setIoFee(newFee);
     } catch (error) {
       eventEmitter.emit('error', error);
