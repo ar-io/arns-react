@@ -178,7 +178,7 @@ export function calculateAnnualRenewalFee(
   endTimestamp: number,
 ): number {
   // Determine annual registration price of name
-  const initialNamePurchaseFee = fees['13'];
+  const initialNamePurchaseFee = fees[name.length.toString()];
 
   // Annual fee is specific % of initial purchase cost
   const nameAnnualRegistrationFee =

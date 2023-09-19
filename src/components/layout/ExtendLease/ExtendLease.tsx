@@ -102,6 +102,16 @@ function ExtendLease() {
             ),
         ),
       );
+
+      const newFee = calculateAnnualRenewalFee(
+        lowerCaseDomain(domain),
+        pdnsSourceContract.fees,
+        newLeaseDuration,
+        domainRecord.undernames,
+        domainRecord.endTimestamp + newLeaseDuration * YEAR_IN_SECONDS,
+      );
+      console.log(newFee);
+      setIoFee(newFee);
     } catch (error) {
       eventEmitter.emit('error', error);
     }
@@ -257,7 +267,7 @@ function ExtendLease() {
           }}
           onBack={() => navigate(-1)}
           onNext={
-            maxIncrease < 1 || ioFee > ioBalance
+            maxIncrease >= 1 || ioFee <= ioBalance
               ? () => {
                   const payload: ExtendLeasePayload = {
                     name,
