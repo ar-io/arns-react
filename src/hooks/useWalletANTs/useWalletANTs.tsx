@@ -340,7 +340,6 @@ export function useWalletANTs(ids: ArweaveTransactionID[]) {
             address,
           ),
           txConfirmations,
-          ,
           arweaveDataProvider
             .getPendingContractInteractions(contractTxId, address.toString())
             .catch((e) => {
