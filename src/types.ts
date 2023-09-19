@@ -414,7 +414,6 @@ export const pdntInteractionTypes = [
   INTERACTION_TYPES.SET_TARGET_ID,
   INTERACTION_TYPES.SET_RECORD,
   INTERACTION_TYPES.REMOVE_RECORD,
-  INTERACTION_TYPES.CREATE,
 ] as const;
 export const registryInteractionTypes = [
   ...commonInteractionTypeNames,
@@ -521,11 +520,6 @@ export type TransferPDNTPayload = {
   qty: number;
 };
 
-export type CreatePDNTPayload = {
-  srcCodeTransactionId: string;
-  initialState: PDNTContractJSON;
-  tags?: TransactionTag[];
-};
 // end pdnt transaction payload types
 
 export enum PDNT_INTERACTION_TYPES {
@@ -571,8 +565,7 @@ export type TransactionDataPayload =
   | SetNamePayload
   | SetRecordPayload
   | RemoveRecordPayload
-  | TransferPDNTPayload
-  | CreatePDNTPayload;
+  | TransferPDNTPayload;
 
 export type TransactionData = TransactionDataBasePayload &
   TransactionDataPayload;

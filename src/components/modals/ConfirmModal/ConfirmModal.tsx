@@ -1,10 +1,6 @@
-import {
-  INTERACTION_TYPES,
-  PDNTInteractionType,
-  PDNT_INTERACTION_TYPES,
-  TransactionDataPayload,
-  ValidInteractionType,
-} from '../../../types';
+import { useEffect, useState } from 'react';
+
+import { PDNT_INTERACTION_TYPES, TransactionDataPayload } from '../../../types';
 import DialogModal from '../DialogModal/DialogModal';
 
 const TITLE_MAP: Record<PDNT_INTERACTION_TYPES, string> = {
@@ -26,9 +22,15 @@ function ConfirmTransactionModal({
   interactionType: PDNT_INTERACTION_TYPES;
   payload: TransactionDataPayload;
 }) {
+  const [title, setTitle] = useState<string>('');
+
+  useEffect(() => {
+    setTitle(TITLE_MAP[interactionType]);
+  }, [interactionType, payload]);
+
   return (
     <div className="modal-container">
-      <DialogModal title={TITLE_MAP[interactionType]} />
+      <DialogModal title={title} />
     </div>
   );
 }
