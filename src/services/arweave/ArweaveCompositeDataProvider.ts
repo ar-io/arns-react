@@ -96,8 +96,11 @@ export class ArweaveCompositeDataProvider
     );
   }
 
-  async getTransactionStatus(id: ArweaveTransactionID) {
-    return this._arweaveProvider.getTransactionStatus(id);
+  async getTransactionStatus(
+    ids: ArweaveTransactionID[] | ArweaveTransactionID,
+    blockheight?: number,
+  ): Promise<Record<string, number>> {
+    return this._arweaveProvider.getTransactionStatus(ids, blockheight);
   }
 
   async getTransactionTags(

@@ -4,7 +4,7 @@ import { ApiConfig } from 'arweave/node/lib/api';
 import { ArweaveTransactionID } from '../../types';
 import { ArweaveWalletConnector } from '../../types';
 
-const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [
+export const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [
   'ACCESS_ADDRESS',
   'ACCESS_ALL_ADDRESSES',
   'ACCESS_PUBLIC_KEY',
@@ -25,7 +25,6 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
       window.open('https://arconnect.io');
     }
     const permissions = await this._wallet.getPermissions();
-
     if (
       permissions &&
       !ARCONNECT_WALLET_PERMISSIONS.every((permission) =>

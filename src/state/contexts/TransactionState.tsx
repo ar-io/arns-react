@@ -44,7 +44,6 @@ export default function TransactionStateProvider({
     reducer,
     initialTransactionState,
   );
-
   /**
    * TODO: cache workflows in case connection lost, gives ability to continue interrupted workflows. To cache, simply add state as the value under a timestamp key.
    * TODO: prompt user if they want to continue a workflow, if no, clear workflow from cache

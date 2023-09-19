@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 
 import { useArweaveCompositeProvider } from '../../../hooks';
 import { ArweaveTransactionID } from '../../../types';
-import { isArweaveTransactionID } from '../../../utils';
+import { formatForMaxCharCount, isArweaveTransactionID } from '../../../utils';
 import eventEmitter from '../../../utils/events';
 import { ChevronDownIcon } from '../../icons';
 
@@ -40,7 +40,7 @@ function Breadcrumbs() {
           (match: any) =>
             match?.handle?.crumbs && match.pathname === location.pathname,
         )
-        ?.map((match: any) => {
+        .map((match: any) => {
           if (match.params?.id) {
             contractId = match.params?.id;
           }
@@ -51,12 +51,10 @@ function Breadcrumbs() {
         const state = await arweaveDataProvider.getContractState(
           new ArweaveTransactionID(contractId),
         );
-        const crumbName =
-          (state.name.length ? state.name : contractId).slice(0, 20) + '...';
 
         const parsedCrumbs = rawCrumbs[0].map((crumb: NavItem) => {
           if (crumb.name == ANT_FLAG) {
-            return { name: crumbName, route: crumb.route };
+            return { name: state.name, route: crumb.route };
           }
           return crumb;
         });
@@ -113,7 +111,7 @@ function Breadcrumbs() {
                   }}
                   to={item?.route ?? '/'}
                 >
-                  {item.name}
+                  {formatForMaxCharCount(item.name, 16)}
                 </Link>
               </Item>
             );

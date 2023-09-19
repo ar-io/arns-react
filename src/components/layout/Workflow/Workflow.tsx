@@ -8,14 +8,13 @@ import PageLoader from '../progress/PageLoader/PageLoader';
 export type WorkflowStage = {
   header?: JSX.Element | string;
   component: JSX.Element;
-  showNext?: boolean;
-  showBack?: boolean;
-  disableNext?: boolean;
   requiresWallet?: boolean;
   customNextStyle?: any;
   customBackStyle?: any;
   backText?: string;
   nextText?: string;
+  onBack?: () => void;
+  onNext?: () => void;
 };
 
 export type WorkflowProps = {
@@ -90,15 +89,12 @@ function Workflow({
       })}
 
       <WorkflowButtons
-        showBack={stages[stage].showBack}
-        disableNext={stages[stage].disableNext}
-        showNext={stages[stage].showNext}
         onNext={onNext}
         onBack={onBack}
         customNextStyle={stages[stage].customNextStyle}
         customBackStyle={stages[stage].customBackStyle}
-        backText={stages[stage].backText}
-        nextText={stages[stage].nextText}
+        backText={stages[stage]?.backText}
+        nextText={stages[stage]?.nextText}
       />
 
       {footer ?? <></>}

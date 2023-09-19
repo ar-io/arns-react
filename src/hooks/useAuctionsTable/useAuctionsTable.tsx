@@ -355,7 +355,6 @@ export function useAuctionsTable() {
 
     const fetchedRows: AuctionMetadata[] = [];
     const domains = await arweaveDataProvider.getDomainsInAuction();
-    console.log(domains);
 
     for (const name of domains) {
       try {

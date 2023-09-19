@@ -29,6 +29,7 @@ import {
   byteSize,
   isDomainAuctionable,
   isDomainReservedLength,
+  isPDNSDomainNameValid,
   lowerCaseDomain,
   withExponentialBackoff,
 } from '../../utils';
@@ -128,10 +129,9 @@ export class WarpDataProvider
         walletAddress.toString(),
       );
 
-      if (
-        dryWriteResults.originalValidity?.valid === false ||
-        dryWriteResults.errorMessage
-      ) {
+      // because we are manually constructing the tags, we want to verify them immediately and always
+      // an undefined valid means the transaction is valid
+      if (dryWriteResults.originalValidity?.valid === false) {
         throw new Error(
           `Contract interaction detected to be invalid: ${
             dryWriteResults?.originalErrorMessages
@@ -309,7 +309,7 @@ export class WarpDataProvider
       input,
       walletAddress.toString(),
     );
-
+    // an undefined valid means the transaction is valid
     if (dryWriteResults.originalValidity?.valid === false) {
       throw new Error(
         `Contract interaction detected to be invalid: ${
@@ -399,6 +399,12 @@ export class WarpDataProvider
     domain: string,
     currentBlockHeight: number,
   ): Promise<Auction> {
+    if (!domain.length) {
+      throw new Error('No domain provided');
+    }
+    if (!isPDNSDomainNameValid({ name: domain })) {
+      throw new Error('Invalid domain name');
+    }
     const { result } = (await this._warp
       .contract(PDNS_REGISTRY_ADDRESS)
       .setEvaluationOptions({
@@ -414,7 +420,9 @@ export class WarpDataProvider
       })) as unknown as any;
 
     if (!result) {
-      throw new Error('Unable to read auction info from contract');
+      throw new Error(
+        `Unable to read auction info from contract for ${domain}`,
+      );
     }
 
     const { settings, ...auction } = result.auction;
@@ -450,7 +458,7 @@ export class WarpDataProvider
       new ArweaveTransactionID(PDNS_REGISTRY_ADDRESS),
     );
 
-    if (!state || !state.records) {
+    if (!state?.records) {
       throw new Error('Unable to read record info from contract');
     }
 
@@ -462,7 +470,7 @@ export class WarpDataProvider
       new ArweaveTransactionID(PDNS_REGISTRY_ADDRESS),
     );
 
-    if (!state || !state.balances) {
+    if (!state?.balances) {
       throw new Error('Unable to read balance info from contract');
     }
 

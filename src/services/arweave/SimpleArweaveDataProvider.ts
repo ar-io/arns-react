@@ -7,7 +7,7 @@ import {
   ArweaveTransactionID,
   TransactionHeaders,
 } from '../../types';
-import { tagsToObject } from '../../utils';
+import { tagsToObject, withExponentialBackoff } from '../../utils';
 import {
   RECOMMENDED_TRANSACTION_CONFIRMATIONS,
   transactionByOwnerQuery,
@@ -28,12 +28,58 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
     return +this._ar.winstonToAr(winstonBalance);
   }
 
-  async getTransactionStatus(id: ArweaveTransactionID) {
-    const { status, data } = await this._arweave.api.get(`/tx/${id}/status`);
+  async getTransactionStatus(
+    ids: ArweaveTransactionID[] | ArweaveTransactionID,
+    currentBlockHeight?: number,
+  ): Promise<Record<string, number>> {
+    if (Array.isArray(ids)) {
+      if (!currentBlockHeight) {
+        throw new Error(
+          `Current blockheight is required when fetching multiple transactions`,
+        );
+      }
+
+      const queryIds = (cursor?: string) => ({
+        query: ` {
+        transactions(
+          first:100
+          ids: [${ids.map((id) => `"${id.toString()}"`)}]
+          ${cursor ? `after: "${cursor}"` : ''}
+        ) {
+          pageInfo { 
+            hasNextPage
+          } 
+          
+          edges {
+           cursor
+            node {
+              id
+              block {
+                height
+              }
+            }
+          }
+        }
+      }`,
+      });
+
+      const transactions = await this.fetchPaginatedData(queryIds);
+      const stati = transactions.reduce(
+        (acc: Record<string, number>, tx: any) => {
+          acc[tx.node.id] = currentBlockHeight - tx.node.block.height;
+          return acc;
+        },
+        {},
+      );
+
+      return stati;
+    }
+
+    const { status, data } = await this._arweave.api.get(`/tx/${ids}/status`);
     if (status !== 200) {
       throw Error('Failed fetch confirmations for transaction id.');
     }
-    return +data.number_of_confirmations;
+    return { [ids.toString()]: +data.number_of_confirmations };
   }
 
   async getTransactionTags(
@@ -158,7 +204,7 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
 
   async validateConfirmations(
     id: string,
-    numberOfConfirmations = RECOMMENDED_TRANSACTION_CONFIRMATIONS,
+    requiredNumberOfConfirmations = RECOMMENDED_TRANSACTION_CONFIRMATIONS,
   ): Promise<void> {
     const txId = await this.validateArweaveId(id);
 
@@ -166,11 +212,11 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
     await this.getTransactionHeaders(txId);
 
     // validate confirmations
-    if (numberOfConfirmations > 0) {
+    if (requiredNumberOfConfirmations > 0) {
       const confirmations = await this.getTransactionStatus(txId);
-      if (confirmations < numberOfConfirmations) {
+      if (confirmations[txId.toString()] < requiredNumberOfConfirmations) {
         throw Error(
-          `Contract ID does not have required number of confirmations. Current confirmations: ${confirmations}. Required number of confirmations: ${numberOfConfirmations}.`,
+          `Contract ID does not have required number of confirmations. Current confirmations: ${confirmations}. Required number of confirmations: ${requiredNumberOfConfirmations}.`,
         );
       }
     }
@@ -189,5 +235,41 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
 
   async getCurrentBlockHeight(): Promise<number> {
     return (await this._arweave.blocks.getCurrent()).height;
+  }
+
+  async fetchPaginatedData(query: (c?: string) => Record<string, any>) {
+    let hasNextPage = true;
+    let afterCursor: string | undefined = undefined;
+    let allData: any[] = [];
+
+    while (hasNextPage) {
+      try {
+        const response = await withExponentialBackoff({
+          fn: () =>
+            this._arweave.api.post(
+              '/graphql',
+              query(afterCursor),
+            ) as Promise<ResponseWithData>,
+          shouldRetry: (error) => error?.status === 429,
+          initialDelay: 100,
+          maxTries: 30,
+        });
+        const transactions = response?.data?.data?.transactions;
+
+        if (transactions?.edges.length) {
+          allData = [...allData, ...transactions.edges];
+        }
+        hasNextPage = transactions?.pageInfo?.hasNextPage;
+        afterCursor = transactions?.edges?.at(-1)?.cursor;
+        if (!afterCursor) {
+          hasNextPage = false;
+        }
+      } catch (error) {
+        console.error('Error fetching paginated data:', error);
+        hasNextPage = false;
+      }
+    }
+
+    return allData;
   }
 }

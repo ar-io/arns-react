@@ -1,28 +1,20 @@
 import './styles.css';
 
 function WorkflowButtons({
-  showBack = true,
-  showNext = true,
   customNextStyle = {},
   customBackStyle = {},
-  backText = 'Back',
-  nextText = 'Next',
-  disableNext,
-  disableBack,
+  backText,
+  nextText,
   onNext,
   onBack,
   detail,
 }: {
-  showBack?: boolean;
-  showNext?: boolean;
   customNextStyle?: any;
   customBackStyle?: any;
   backText?: string;
   nextText?: string;
-  disableNext?: boolean;
-  disableBack?: boolean;
-  onBack: () => void;
-  onNext: () => void;
+  onBack?: () => void;
+  onNext?: () => void;
   detail?: JSX.Element | string;
 }) {
   return (
@@ -36,7 +28,7 @@ function WorkflowButtons({
           className="flex-row flex-right"
           style={{ padding: '0', boxSizing: 'border-box', gap: '20px' }}
         >
-          {showBack ? (
+          {backText && backText.length ? (
             <button
               className="outline-button center"
               style={{
@@ -44,24 +36,24 @@ function WorkflowButtons({
                 color: 'var(--text-grey)',
                 ...customBackStyle,
               }}
-              disabled={disableBack}
-              onClick={() => onBack()}
+              disabled={!onBack}
+              onClick={onBack ? () => onBack() : undefined}
             >
               {backText}
             </button>
           ) : (
             <></>
           )}
-          {showNext ? (
+          {nextText && nextText.length ? (
             <button
               className={
-                disableNext
+                !onNext
                   ? 'accent-button disabled-button center'
                   : 'accent-button center'
               }
               style={customNextStyle}
-              disabled={disableNext}
-              onClick={() => onNext()}
+              disabled={!onNext}
+              onClick={onNext ? () => onNext() : undefined}
             >
               {nextText}
             </button>

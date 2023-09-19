@@ -5,3 +5,4 @@ node_modules
 .vscode
 vite.config.ts.*.mjs
 cache
+*.log

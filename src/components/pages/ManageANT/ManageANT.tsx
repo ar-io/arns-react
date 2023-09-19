@@ -99,7 +99,9 @@ function ManageANT() {
       const [contractState, confirmations, pendingContractInteractions] =
         await Promise.all([
           arweaveDataProvider.getContractState<PDNTContractJSON>(contractTxId),
-          arweaveDataProvider.getTransactionStatus(contractTxId),
+          arweaveDataProvider
+            .getTransactionStatus(contractTxId)
+            .then((status) => status[contractTxId.toString()]),
           arweaveDataProvider.getPendingContractInteractions(
             contractTxId,
             address.toString(),
@@ -334,7 +336,7 @@ function ManageANT() {
                           className="flex center"
                           style={{ justifyContent: 'flex-start', gap: '10px' }}
                         >
-                          {value}{' '}
+                          {value}
                           <NewspaperIcon
                             width={'20px'}
                             height={'20px'}

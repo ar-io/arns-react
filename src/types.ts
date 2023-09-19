@@ -246,7 +246,10 @@ export interface TransactionCache {
 
 export interface ArweaveDataProvider {
   // add isAddress method
-  getTransactionStatus(id: ArweaveTransactionID): Promise<number>;
+  getTransactionStatus(
+    ids: ArweaveTransactionID[] | ArweaveTransactionID,
+    blockheight?: number,
+  ): Promise<Record<string, number>>;
   getTransactionTags(
     id: ArweaveTransactionID,
   ): Promise<{ [x: string]: string }>;
@@ -276,35 +279,28 @@ export interface PDNTInteractionProvider {
 }
 
 export type SearchBarProps = {
-  successPredicate: (value: string | undefined) => boolean;
-  validationPredicate: (value: string | undefined) => boolean;
-  onSuccess: (value: string, result?: string) => void;
-  onFailure: (value: string, result?: string) => void;
-  onChange: () => void;
-  onSubmit: (next?: boolean) => void;
   disabled?: boolean;
   placeholderText?: string;
-  headerElement?: JSX.Element;
-  footerElement?: JSX.Element;
   values?: { [x: string]: PDNSRecordEntry };
   value: string;
-  height?: number;
 };
 
 export type SearchBarHeaderProps = {
   defaultText: string;
-  reservedList: string[];
-  isAvailable?: boolean;
+  isAvailable: boolean;
+  isAuction: boolean;
+  isReserved: boolean;
   isDefault?: boolean;
-  text?: string;
+  domain?: string;
+  contractTxId?: ArweaveTransactionID;
 };
 
 export type SearchBarFooterProps = {
-  reservedList: string[];
-  isAvailable?: boolean;
-  searchTerm?: string;
-  searchResult?: ArweaveTransactionID;
+  isAvailable: boolean;
   isAuction: boolean;
+  isReserved: boolean;
+  domain?: string;
+  contractTxId?: ArweaveTransactionID;
 };
 
 export type ConnectWalletModalProps = {
@@ -482,6 +478,7 @@ export type ExtendLeasePayload = {
   name: string;
   years: number;
   contractTxId?: ArweaveTransactionID;
+  ioFee?: number;
 };
 
 export type TransferIOPayload = {
@@ -615,7 +612,9 @@ export interface Equatable<T> {
 export type PDNSTableRow = {
   name: string;
   role: string;
-  undernames: number;
+  undernameSupport: number;
+  undernameCount: number;
+  undernames: string;
   id: string;
   expiration: Date | string;
   status: number;

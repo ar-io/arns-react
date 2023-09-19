@@ -50,6 +50,12 @@ body {
   margin: 0;
 }
 
+body::-webkit-scrollbar {
+  width: 0px; /* For vertical scrollbars */
+  height: 0px; /* For horizontal scrollbars */
+  scrollbar-width: none;
+}
+
 b {
   font-family: 'Rubik-Bold';
 }
@@ -814,4 +820,25 @@ thead > tr > td[class~='assets-table-header'] {
   justify-content: center !important;
   border: none;
   border-radius: 2px !important;
+}
+
+.notification-tooltip {
+  border: 1px solid var(--text-faded);
+  border-radius: var(--corner-radius);
+}
+
+.ant-tooltip-disabled-compatible-wrapper {
+  padding: 9px !important;
+  color: var(--text-black) !important;
+}
+
+.notification-tooltip > .ant-tooltip-content > .ant-tooltip-arrow::after {
+  border: 1px solid var(--text-faded) !important;
+  border-left: none !important;
+  border-top: none !important;
+  background-color: var(--card-bg);
+}
+
+.notification-tooltip > .ant-tooltip-content > .ant-tooltip-inner {
+  padding: 6px !important;
 }

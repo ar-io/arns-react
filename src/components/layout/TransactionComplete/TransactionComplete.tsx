@@ -15,7 +15,7 @@ import {
   getPDNSMappingByInteractionType,
 } from '../../../utils/transactionUtils/transactionUtils';
 import { PDNTCard } from '../../cards';
-import { ArrowLeft, CodeSandboxIcon, SettingsIcon } from '../../icons';
+import { ArrowLeft, SettingsIcon } from '../../icons';
 import PageLoader from '../progress/PageLoader/PageLoader';
 import ActionCard from './ActionCard';
 
@@ -28,8 +28,7 @@ function TransactionComplete({
   interactionType: ValidInteractionType;
   transactionData: TransactionData;
 }) {
-  const [{ deployedTransactionId }, dispatchTransactionState] =
-    useTransactionState();
+  const [{ deployedTransactionId }] = useTransactionState();
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(true);
   const [pdntProps, setPdntProps] = useState<PDNSMapping>();
@@ -47,23 +46,17 @@ function TransactionComplete({
       if (!transactionId) {
         throw new Error('Unable to set ANT properties.');
       }
-      setPdntProps(
-        getPDNSMappingByInteractionType({
-          interactionType,
-          transactionData: {
-            ...transactionData,
-            deployedTransactionId: transactionId,
-          },
-        }),
-      );
-      dispatchTransactionState({
-        type: 'setDeployedTransactionId',
-        payload: undefined,
+      const newProps = getPDNSMappingByInteractionType({
+        interactionType,
+        transactionData: {
+          ...transactionData,
+          deployedTransactionId: transactionId,
+        },
       });
-      dispatchTransactionState({
-        type: 'setInteractionType',
-        payload: undefined,
-      });
+      if (!newProps) {
+        throw new Error('Unable to set ANT properties.', newProps);
+      }
+      setPdntProps(newProps);
     } catch (error) {
       eventEmitter.emit('error', error);
       navigate(-1);
@@ -73,7 +66,9 @@ function TransactionComplete({
   }
 
   if (!pdntProps) {
-    return <PageLoader loading={loading} />;
+    return (
+      <PageLoader loading={loading} message={'Loading transaction data.'} />
+    );
   }
 
   return (
@@ -99,17 +94,6 @@ function TransactionComplete({
               </div>
             }
           />
-
-          <ActionCard
-            to={`/manage/ants`}
-            body={
-              <div className="flex flex-column center" style={{ gap: '15px' }}>
-                <CodeSandboxIcon width={'20px'} fill={'var(--text-grey)'} />
-                Create ANTs
-              </div>
-            }
-          />
-
           <ActionCard
             to={`/manage/ants/${getLinkId(interactionType, {
               ...transactionData,

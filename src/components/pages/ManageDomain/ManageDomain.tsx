@@ -17,10 +17,13 @@ import {
   getLeaseDurationFromEndTimestamp,
   getPendingInteractionsRowsForContract,
   isArweaveTransactionID,
+  lowerCaseDomain,
 } from '../../../utils';
 import {
   DEFAULT_MAX_UNDERNAMES,
   DEFAULT_TTL_SECONDS,
+  MAX_LEASE_DURATION,
+  MAX_UNDERNAME_COUNT,
   SECONDS_IN_GRACE_PERIOD,
 } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
@@ -45,6 +48,10 @@ function ManageDomain() {
   const arweaveDataProvider = useArweaveCompositeProvider();
   const [{ walletAddress, pdnsSourceContract }] = useGlobalState();
   const [rows, setRows] = useState<ManageDomainRow[]>([]);
+  const [isMaxLeaseDuration, setIsMaxLeaseDuration] = useState<boolean>(false);
+  const [isMaxUndernameCount, setIsMaxUndernameCount] =
+    useState<boolean>(false);
+  const [undernameCount, setUndernameCount] = useState<number>();
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -56,6 +63,7 @@ function ManageDomain() {
     fetchDomainDetails(walletAddress, name);
   }, [name]);
 
+  // TODO: [PE-4630] tech debt, refactor this into smaller pure functions
   async function fetchDomainDetails(
     address: ArweaveTransactionID,
     domainName: string,
@@ -63,7 +71,10 @@ function ManageDomain() {
     try {
       setLoading(true);
 
-      const txId = pdnsSourceContract.records[domainName].contractTxId;
+      const recordEntry = await arweaveDataProvider.getRecord(
+        lowerCaseDomain(domainName),
+      );
+      const txId = recordEntry?.contractTxId;
       if (!txId) {
         throw Error('This name is not registered');
       }
@@ -72,7 +83,9 @@ function ManageDomain() {
       const [contractState, confirmations, pendingContractInteractions] =
         await Promise.all([
           arweaveDataProvider.getContractState<PDNTContractJSON>(contractTxId),
-          arweaveDataProvider.getTransactionStatus(contractTxId),
+          arweaveDataProvider
+            .getTransactionStatus(contractTxId)
+            .then((status) => status[contractTxId.toString()]),
           arweaveDataProvider.getPendingContractInteractions(
             contractTxId,
             address.toString(),
@@ -89,17 +102,43 @@ function ManageDomain() {
       const record = Object.values(pdnsSourceContract.records).find(
         (r) => r.contractTxId === contractTxId.toString(),
       );
-      const getLeaseDuration = () => {
-        if (record?.endTimestamp) {
-          const duration = getLeaseDurationFromEndTimestamp(
+      if (!record) {
+        throw Error('This name is not registered');
+      }
+
+      const duration = record?.endTimestamp
+        ? getLeaseDurationFromEndTimestamp(
             record.startTimestamp * 1000,
             record.endTimestamp * 1000,
+          )
+        : 'Indefinite';
+
+      const getLeaseDurationString = () => {
+        if (record?.endTimestamp) {
+          const duration = Math.max(
+            1,
+            getLeaseDurationFromEndTimestamp(
+              record.startTimestamp * 1000,
+              record.endTimestamp * 1000,
+            ),
           );
           const y = duration > 1 ? 'years' : 'year';
           return `${duration} ${y}`;
         }
         return 'Indefinite';
       };
+
+      setIsMaxLeaseDuration(
+        (duration &&
+          typeof duration === 'number' &&
+          duration >= MAX_LEASE_DURATION) ||
+          duration === 'Indefinite',
+      );
+
+      setUndernameCount(record.undernames);
+      setIsMaxUndernameCount(
+        !!undernameCount && record.undernames >= MAX_UNDERNAME_COUNT,
+      );
 
       const consolidatedDetails: DomainDetails = {
         expiryDate: record?.endTimestamp
@@ -118,7 +157,7 @@ function ManageDomain() {
         controller: contract.controller ?? 'N/A',
         owner: contract.owner ?? 'N/A',
         ttlSeconds: contract.getRecord('@')?.ttlSeconds ?? DEFAULT_TTL_SECONDS,
-        leaseDuration: `${getLeaseDuration()}`,
+        leaseDuration: `${getLeaseDurationString()}`,
         // -1 because @ record is not counted
         undernames: `${Object.keys(contract.records).length - 1}/${(
           record?.undernames ?? DEFAULT_MAX_UNDERNAMES
@@ -181,20 +220,62 @@ function ManageDomain() {
             className="flex flex-row"
             style={{ gap: '20px', width: 'fit-content' }}
           >
-            <button
-              className="button-secondary hover"
-              style={{ padding: '8px 10px', gap: '8px', fontSize: '14px' }}
-              onClick={() => navigate(`/manage/names/${name}/undernames`)}
+            <Tooltip
+              trigger={['hover']}
+              title={
+                isMaxUndernameCount
+                  ? 'Max undername support reached'
+                  : 'Increase undername support'
+              }
+              color="#222224"
+              placement="top"
+              rootClassName="notification-tooltip"
             >
-              Increase Undernames
-            </button>
-            <button
-              className="button-primary hover"
-              style={{ padding: '8px 10px', gap: '8px', fontSize: '14px' }}
-              onClick={() => navigate(`/manage/names/${name}/extend`)}
+              <button
+                disabled={loading || isMaxUndernameCount}
+                className={`button-secondary ${
+                  loading || isMaxUndernameCount ? 'disabled-button' : 'hover'
+                }`}
+                style={{
+                  padding: loading || isMaxUndernameCount ? '0px' : '9px',
+                  gap: '8px',
+                  fontSize: '14px',
+                  color: 'var(--accent)',
+                  fontFamily: 'Rubik',
+                }}
+                onClick={() => navigate(`/manage/names/${name}/undernames`)}
+              >
+                Increase Undernames
+              </button>
+            </Tooltip>
+            <Tooltip
+              trigger={['hover']}
+              title={
+                isMaxLeaseDuration
+                  ? 'Max lease duration reached'
+                  : 'Extend lease'
+              }
+              color="#222224"
+              placement="top"
+              rootClassName="notification-tooltip"
             >
-              Extend Lease
-            </button>
+              <button
+                disabled={loading || isMaxLeaseDuration}
+                className={`button-primary ${
+                  loading || isMaxLeaseDuration ? 'disabled-button' : 'hover'
+                }`}
+                style={{
+                  padding: loading || isMaxLeaseDuration ? '0px' : '9px',
+                  gap: '8px',
+                  fontSize: '14px',
+                  color: 'var(--text-black)',
+                  fontFamily: 'Rubik',
+                }}
+                onClick={() => navigate(`/manage/names/${name}/extend`)}
+              >
+                Extend Lease
+              </button>
+            </Tooltip>
           </div>
         </div>
         <div className="flex-row center">

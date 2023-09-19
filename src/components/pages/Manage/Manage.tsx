@@ -19,6 +19,7 @@ import {
   RefreshIcon,
 } from '../../icons';
 import { Loader } from '../../layout/index';
+import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
 
 function Manage() {
@@ -45,6 +46,7 @@ function Manage() {
     rows: domainRows,
     sortAscending: domainSortAscending,
     sortField: domainSortField,
+    loadingManageDomain,
   } = useWalletDomains(pdntIds);
 
   const [tableData, setTableData] = useState<any[]>([]);
@@ -360,6 +362,7 @@ function Manage() {
                   color="var(--accent)"
                   wrapperStyle={{ margin: 'auto', position: 'static' }}
                 />
+                {/* TODO: [PE-4637] fix infinity load percentage */}
                 {!percent
                   ? `Querying for wallet contracts...${pdntIds.length} found`
                   : `Validating contracts...${Math.round(percent)}%`}
@@ -368,6 +371,16 @@ function Manage() {
           )}
         </div>
       </div>
+      {loadingManageDomain ? (
+        <div className="modal-container">
+          <PageLoader
+            loading={true}
+            message={`Loading details for ${loadingManageDomain}`}
+          />
+        </div>
+      ) : (
+        <></>
+      )}
     </div>
   );
 }
