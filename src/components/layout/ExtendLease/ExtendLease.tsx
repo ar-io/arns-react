@@ -272,6 +272,7 @@ function ExtendLease() {
                     name,
                     years: newLeaseDuration,
                     contractTxId: new ArweaveTransactionID(record.contractTxId),
+                    ioFee,
                   };
 
                   dispatchTransactionState({

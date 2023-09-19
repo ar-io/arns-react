@@ -23,11 +23,13 @@ import {
 import {
   TRANSACTION_DATA_KEYS,
   buildSmartweaveInteractionTags,
+  calculateAnnualRenewalFee,
   calculateFloorPrice,
   decodeDomainToASCII,
   getPDNSMappingByInteractionType,
   getWorkflowStepsForInteraction,
   isObjectOfTransactionPayloadType,
+  lowerCaseDomain,
   pruneExtraDataFromTransactionPayload,
 } from '../../../utils';
 import {
@@ -542,7 +544,7 @@ function TransactionWorkflow({
                 <PDNTCard {...pdntProps} />
                 <TransactionCost
                   fee={{
-                    io: 1,
+                    io: payload.ioFee,
                   }}
                   info={
                     <div
