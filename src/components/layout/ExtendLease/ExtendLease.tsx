@@ -69,7 +69,7 @@ function ExtendLease() {
         record.endTimestamp + newLeaseDuration * YEAR_IN_SECONDS,
       ),
     );
-  }, [newLeaseDuration, maxIncrease]);
+  }, [newLeaseDuration, maxIncrease, record, name]);
 
   async function onLoad(domain: string) {
     try {
@@ -102,6 +102,15 @@ function ExtendLease() {
             ),
         ),
       );
+
+      const newFee = calculateAnnualRenewalFee(
+        lowerCaseDomain(domain),
+        pdnsSourceContract.fees,
+        newLeaseDuration,
+        domainRecord.undernames,
+        domainRecord.endTimestamp + newLeaseDuration * YEAR_IN_SECONDS,
+      );
+      setIoFee(newFee);
     } catch (error) {
       eventEmitter.emit('error', error);
     }
@@ -257,12 +266,13 @@ function ExtendLease() {
           }}
           onBack={() => navigate(-1)}
           onNext={
-            maxIncrease < 1 || ioFee > ioBalance
+            maxIncrease >= 1 || ioFee <= ioBalance
               ? () => {
                   const payload: ExtendLeasePayload = {
                     name,
                     years: newLeaseDuration,
                     contractTxId: new ArweaveTransactionID(record.contractTxId),
+                    ioFee,
                   };
 
                   dispatchTransactionState({

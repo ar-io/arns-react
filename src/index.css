@@ -50,6 +50,12 @@ body {
   margin: 0;
 }
 
+body::-webkit-scrollbar {
+  width: 0px; /* For vertical scrollbars */
+  height: 0px; /* For horizontal scrollbars */
+  scrollbar-width: none;
+}
+
 b {
   font-family: 'Rubik-Bold';
 }

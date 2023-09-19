@@ -476,6 +476,7 @@ export type ExtendLeasePayload = {
   name: string;
   years: number;
   contractTxId?: ArweaveTransactionID;
+  ioFee?: number;
 };
 
 export type TransferIOPayload = {

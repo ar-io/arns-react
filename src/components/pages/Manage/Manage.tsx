@@ -362,6 +362,7 @@ function Manage() {
                   color="var(--accent)"
                   wrapperStyle={{ margin: 'auto', position: 'static' }}
                 />
+                {/* TODO: [PE-4637] fix infinity load percentage */}
                 {!percent
                   ? `Querying for wallet contracts...${pdntIds.length} found`
                   : `Validating contracts...${Math.round(percent)}%`}

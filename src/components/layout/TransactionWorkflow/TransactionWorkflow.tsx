@@ -23,11 +23,13 @@ import {
 import {
   TRANSACTION_DATA_KEYS,
   buildSmartweaveInteractionTags,
+  calculateAnnualRenewalFee,
   calculateFloorPrice,
   decodeDomainToASCII,
   getPDNSMappingByInteractionType,
   getWorkflowStepsForInteraction,
   isObjectOfTransactionPayloadType,
+  lowerCaseDomain,
   pruneExtraDataFromTransactionPayload,
 } from '../../../utils';
 import {
@@ -248,6 +250,8 @@ function TransactionWorkflow({
       resetToPending();
     }
   }
+
+  // TODO: [PE-4631] this should be mapped and broken down into seperate files with tests for each interaction type
 
   function getStagesByTransactionType({
     interactionType,
@@ -540,7 +544,7 @@ function TransactionWorkflow({
                 <PDNTCard {...pdntProps} />
                 <TransactionCost
                   fee={{
-                    io: 1,
+                    io: payload.ioFee,
                   }}
                   info={
                     <div

@@ -63,6 +63,7 @@ function ManageDomain() {
     fetchDomainDetails(walletAddress, name);
   }, [name]);
 
+  // TODO: [PE-4630] tech debt, refactor this into smaller pure functions
   async function fetchDomainDetails(
     address: ArweaveTransactionID,
     domainName: string,
@@ -114,9 +115,12 @@ function ManageDomain() {
 
       const getLeaseDurationString = () => {
         if (record?.endTimestamp) {
-          const duration = getLeaseDurationFromEndTimestamp(
-            record.startTimestamp * 1000,
-            record.endTimestamp * 1000,
+          const duration = Math.max(
+            1,
+            getLeaseDurationFromEndTimestamp(
+              record.startTimestamp * 1000,
+              record.endTimestamp * 1000,
+            ),
           );
           const y = duration > 1 ? 'years' : 'year';
           return `${duration} ${y}`;
