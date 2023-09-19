@@ -1,11 +1,5 @@
 import ConnectWalletModal from './ConnectWalletModal/ConnectWalletModal';
-import CreatePDNTModal from './CreatePDNTModal/CreatePDNTModal';
-import ManagePDNTModal from './ManagePDNTModal/ManagePDNTModal';
 import TransactionModal from './TransactionModal/TransactionModal';
+import TransferANTModal from './TransferANTModal/TransferANTModal';
 
-export {
-  CreatePDNTModal,
-  ConnectWalletModal,
-  ManagePDNTModal,
-  TransactionModal,
-};
+export { ConnectWalletModal, TransactionModal, TransferANTModal };

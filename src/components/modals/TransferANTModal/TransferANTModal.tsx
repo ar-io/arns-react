@@ -22,7 +22,7 @@ import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import { Loader } from '../../layout';
 import ArPrice from '../../layout/ArPrice/ArPrice';
 
-function TransferPDNTModal({
+function TransferANTModal({
   pdntId,
   showModal,
 }: {
@@ -305,4 +305,4 @@ function TransferPDNTModal({
   );
 }
 
-export default TransferPDNTModal;
+export default TransferANTModal;

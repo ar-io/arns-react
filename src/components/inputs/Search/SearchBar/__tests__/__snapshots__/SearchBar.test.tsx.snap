@@ -57,7 +57,7 @@ exports[`SearchBar handles a capitalized name correctly 1`] = `
             value="ARDRIVE"
           />
           <div
-            style="position: absolute; right: 10px; top: 25%;"
+            style="position: absolute; right: 10px; top: 0px; bottom: 0px;"
           >
             <span />
           </div>
@@ -275,7 +275,7 @@ exports[`SearchBar handles a lowercase name correctly 1`] = `
             value="ardrive"
           />
           <div
-            style="position: absolute; right: 10px; top: 25%;"
+            style="position: absolute; right: 10px; top: 0px; bottom: 0px;"
           >
             <span />
           </div>
@@ -493,7 +493,7 @@ exports[`SearchBar renders correctly 1`] = `
             value=""
           />
           <div
-            style="position: absolute; right: 10px; top: 25%;"
+            style="position: absolute; right: 10px; top: 0px; bottom: 0px;"
           >
             <span />
           </div>

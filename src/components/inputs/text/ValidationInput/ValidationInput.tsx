@@ -205,7 +205,8 @@ function ValidationInput({
             style={{
               position: 'absolute',
               right: '10px',
-              top: '25%',
+              top: '0px',
+              bottom: '0px',
             }}
             onFocus={() => {
               return;

@@ -16,9 +16,9 @@ import TransactionStatus from '../../components/layout/TransactionStatus/Transac
 import { PDNTContract } from '../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import {
+  ANTMetadata,
   ArweaveTransactionID,
   PDNTContractJSON,
-  PDNTMetadata,
 } from '../../types';
 import {
   getPendingInteractionsRowsForContract,
@@ -26,13 +26,13 @@ import {
 } from '../../utils';
 import eventEmitter from '../../utils/events';
 
-export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
+export function useWalletANTs(ids: ArweaveTransactionID[]) {
   const [{ blockHeight }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const { walletAddress } = useWalletAddress();
   const [sortAscending, setSortOrder] = useState(true);
-  const [sortField, setSortField] = useState<keyof PDNTMetadata>('status');
-  const [rows, setRows] = useState<PDNTMetadata[]>([]);
+  const [sortField, setSortField] = useState<keyof ANTMetadata>('status');
+  const [rows, setRows] = useState<ANTMetadata[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [itemCount, setItemCount] = useState<number>(0);
   const [itemsLoaded, setItemsLoaded] = useState<number>(0);
@@ -112,7 +112,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              rows.sort((a: PDNTMetadata, b: PDNTMetadata) =>
+              rows.sort((a: ANTMetadata, b: ANTMetadata) =>
                 // by default we sort by name
                 !sortAscending
                   ? a.name.localeCompare(b.name)
@@ -154,7 +154,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              rows.sort((a: PDNTMetadata, b: PDNTMetadata) =>
+              rows.sort((a: ANTMetadata, b: ANTMetadata) =>
                 !sortAscending
                   ? a.role.localeCompare(b.role)
                   : b.role.localeCompare(a.role),
@@ -207,7 +207,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              rows.sort((a: PDNTMetadata, b: PDNTMetadata) =>
+              rows.sort((a: ANTMetadata, b: ANTMetadata) =>
                 sortAscending
                   ? a.id.localeCompare(b.id)
                   : b.id.localeCompare(a.id),
@@ -313,7 +313,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
       {
         title: '',
         className: 'white manage-assets-table-header',
-        render: (val: any, row: PDNTMetadata) => (
+        render: (val: any, row: ANTMetadata) => (
           <ManageAssetButtons
             id={val.id}
             assetType="ants"
@@ -412,7 +412,7 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
     ids: ArweaveTransactionID[],
     address: ArweaveTransactionID,
   ) {
-    const fetchedRows: PDNTMetadata[] = [];
+    const fetchedRows: ANTMetadata[] = [];
     const tokenIds = new Set(ids);
 
     try {
@@ -434,12 +434,12 @@ export function useWalletPDNTs(ids: ArweaveTransactionID[]) {
         blockHeight,
       );
 
-      const allData: PDNTMetadata[] = await Promise.all(
+      const allData: ANTMetadata[] = await Promise.all(
         [...tokenIds].map((id, index) =>
           fetchRowData(id, address, index, confirmations[id.toString()]),
         ),
       ).then((rows) =>
-        rows.reduce((acc: PDNTMetadata[], row: PDNTMetadata | undefined) => {
+        rows.reduce((acc: ANTMetadata[], row: ANTMetadata | undefined) => {
           if (row) {
             acc.push(row);
           }

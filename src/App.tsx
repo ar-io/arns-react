@@ -14,16 +14,13 @@ import Redirect from './components/layout/Redirect/Redirect';
 import Undernames from './components/layout/Undernames/Undernames';
 import UpgradeUndernames from './components/layout/UpgradeUndernames/UpgradeUndernames';
 import ViewAuction from './components/layout/ViewAuction/ViewAuction';
-import {
-  ConnectWalletModal,
-  CreatePDNTModal,
-  ManagePDNTModal,
-} from './components/modals';
-import ManageDomainModal from './components/modals/ManageDomainModal/ManageDomainModal';
+import { ConnectWalletModal } from './components/modals';
 import {
   Auctions,
   Home,
   Manage,
+  ManageANT,
+  ManageDomain,
   NotFound,
   Register,
   Transaction,
@@ -46,14 +43,6 @@ function App() {
         <Route index element={<Home />} />
         <Route path="info" element={<Redirect url="https://ar.io/arns" />} />
         <Route path="connect" element={<ConnectWalletModal />} />
-        <Route
-          path="create"
-          element={
-            <ProtectedRoute>
-              <CreatePDNTModal />
-            </ProtectedRoute>
-          }
-        />
         <Route path="manage">
           <Route index={true} element={<Navigate to="names" />} />
           <Route path=":path">
@@ -70,7 +59,7 @@ function App() {
             path="ants/:id"
             element={
               <ProtectedRoute>
-                <ManagePDNTModal />
+                <ManageANT />
               </ProtectedRoute>
             }
             handle={{
@@ -108,7 +97,7 @@ function App() {
             path="names/:name"
             element={
               <ProtectedRoute>
-                <ManageDomainModal />
+                <ManageDomain />
               </ProtectedRoute>
             }
             handle={{

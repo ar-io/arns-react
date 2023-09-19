@@ -25,6 +25,7 @@ import { ReactComponent as CloseIcon } from './Close.svg';
 import { ReactComponent as CodeSandboxIcon } from './CodeSandbox.svg';
 import { ReactComponent as CopyIcon } from './Copy.svg';
 import { ReactComponent as CubeIcon } from './Cube.svg';
+import { ReactComponent as VerticalDotMenuIcon } from './DotsThreeOutlineVertical.svg';
 import { ReactComponent as DownloadIcon } from './Download.svg';
 import { ReactComponent as SunIcon } from './EvaSun.svg';
 import { ReactComponent as ExternalLinkIcon } from './ExternalLink.svg';
@@ -36,6 +37,7 @@ import { ReactComponent as LinkIcon } from './Link.svg';
 import { ReactComponent as LockIcon } from './Lock.svg';
 import { ReactComponent as LogoutIcon } from './Logout.svg';
 import { ReactComponent as MenuIcon } from './Menu.svg';
+import { ReactComponent as NewspaperIcon } from './Newspaper.svg';
 import { ReactComponent as NotebookIcon } from './Notebook.svg';
 import PDNSDefault from './PDNSDefault.png';
 import { ReactComponent as PencilIcon } from './Pencil.svg';
@@ -99,6 +101,7 @@ export {
   LogoutIcon,
   MenuIcon,
   NotebookIcon,
+  NewspaperIcon,
   PencilIcon,
   PersonIcon,
   PriceTagIcon,
@@ -110,4 +113,5 @@ export {
   TargetIcon,
   TrashIcon,
   UploadIcon,
+  VerticalDotMenuIcon,
 };
