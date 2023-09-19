@@ -69,7 +69,7 @@ function ExtendLease() {
         record.endTimestamp + newLeaseDuration * YEAR_IN_SECONDS,
       ),
     );
-  }, [newLeaseDuration, maxIncrease]);
+  }, [newLeaseDuration, maxIncrease, record, name]);
 
   async function onLoad(domain: string) {
     try {

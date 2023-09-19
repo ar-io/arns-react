@@ -115,9 +115,12 @@ function ManageDomainModal() {
 
       const getLeaseDurationString = () => {
         if (record?.endTimestamp) {
-          const duration = getLeaseDurationFromEndTimestamp(
-            record.startTimestamp * 1000,
-            record.endTimestamp * 1000,
+          const duration = Math.max(
+            1,
+            getLeaseDurationFromEndTimestamp(
+              record.startTimestamp * 1000,
+              record.endTimestamp * 1000,
+            ),
           );
           const y = duration > 1 ? 'years' : 'year';
           return `${duration} ${y}`;

@@ -249,6 +249,8 @@ function TransactionWorkflow({
     }
   }
 
+  // TODO: [PE-4631] this should be mapped and broken down into seperate files with tests for each interaction type
+
   function getStagesByTransactionType({
     interactionType,
   }: {

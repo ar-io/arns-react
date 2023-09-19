@@ -501,7 +501,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
       endTimestamp:
         cachedRecord.type === TRANSACTION_TYPES.LEASE
           ? cachedRecord.timestamp +
-            +cachedRecord.payload.years * YEAR_IN_MILLISECONDS
+            Math.max(1, +cachedRecord.payload.years) * YEAR_IN_MILLISECONDS
           : undefined,
       undernames: DEFAULT_MAX_UNDERNAMES,
     };
