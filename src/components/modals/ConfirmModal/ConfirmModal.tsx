@@ -21,6 +21,7 @@ import DialogModal from '../DialogModal/DialogModal';
 
 export const TITLE_MAP: Record<string, string> = {
   [PDNT_INTERACTION_TYPES.SET_NAME]: 'Edit Nickname',
+  [PDNT_INTERACTION_TYPES.SET_TICKER]: 'Edit Ticker',
 };
 
 const BODY_MAP: Record<string, (props: string[]) => JSX.Element> = {
@@ -28,6 +29,13 @@ const BODY_MAP: Record<string, (props: string[]) => JSX.Element> = {
     <span>
       By completing this action, you are going to change the name of this token
       to <br />
+      <span className="text-color-warning">{`"${props[0]}"`}.</span>
+    </span>
+  ),
+  [PDNT_INTERACTION_TYPES.SET_TICKER]: (props: string[]) => (
+    <span>
+      By completing this action, you are going to change the ticker of this
+      token to <br />
       <span className="text-color-warning">{`"${props[0]}"`}.</span>
     </span>
   ),
@@ -40,6 +48,8 @@ const getBodyFromPayload = (
   switch (interactionType) {
     case PDNT_INTERACTION_TYPES.SET_NAME:
       return BODY_MAP[interactionType]([payload.name]);
+    case PDNT_INTERACTION_TYPES.SET_TICKER:
+      return BODY_MAP[interactionType]([payload.ticker]);
     default:
       return null;
   }
