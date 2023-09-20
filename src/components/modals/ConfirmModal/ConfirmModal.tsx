@@ -22,6 +22,7 @@ import DialogModal from '../DialogModal/DialogModal';
 export const TITLE_MAP: Record<string, string> = {
   [PDNT_INTERACTION_TYPES.SET_NAME]: 'Edit Nickname',
   [PDNT_INTERACTION_TYPES.SET_TICKER]: 'Edit Ticker',
+  [PDNT_INTERACTION_TYPES.SET_TARGET_ID]: 'Edit Target ID',
 };
 
 const BODY_MAP: Record<string, (props: string[]) => JSX.Element> = {
@@ -39,6 +40,13 @@ const BODY_MAP: Record<string, (props: string[]) => JSX.Element> = {
       <span className="text-color-warning">{`"${props[0]}"`}.</span>
     </span>
   ),
+  [PDNT_INTERACTION_TYPES.SET_TARGET_ID]: (props: string[]) => (
+    <span>
+      By completing this action, you are going to change the target ID of this
+      token to <br />
+      <span className="text-color-warning">{`"${props[0]}"`}.</span>
+    </span>
+  ),
 };
 
 const getBodyFromPayload = (
@@ -50,6 +58,8 @@ const getBodyFromPayload = (
       return BODY_MAP[interactionType]([payload.name]);
     case PDNT_INTERACTION_TYPES.SET_TICKER:
       return BODY_MAP[interactionType]([payload.ticker]);
+    case PDNT_INTERACTION_TYPES.SET_TARGET_ID:
+      return BODY_MAP[interactionType]([payload.transactionId]);
     default:
       return null;
   }
