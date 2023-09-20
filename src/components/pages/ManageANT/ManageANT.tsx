@@ -14,6 +14,7 @@ import {
   PDNSRecordEntry,
   PDNTContractJSON,
   PDNTDetails,
+  PDNT_INTERACTION_TYPES,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import {
@@ -34,6 +35,7 @@ import {
 } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { AntDetailKey, mapKeyToAttribute } from '../../cards/PDNTCard/PDNTCard';
+import TransactionSuccessCard from '../../cards/TransactionSuccessCard/TransactionSuccessCard';
 import {
   ArrowLeft,
   ArrowRightIcon,
@@ -48,6 +50,9 @@ import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import TransactionStatus from '../../layout/TransactionStatus/TransactionStatus';
 import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import { TransferANTModal } from '../../modals';
+import ConfirmTransactionModal, {
+  TITLE_MAP,
+} from '../../modals/ConfirmModal/ConfirmModal';
 import './styles.css';
 
 function ManageANT() {
@@ -57,7 +62,6 @@ function ManageANT() {
   const location = useLocation();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const [{ walletAddress, pdnsSourceContract }] = useGlobalState();
-  const [, dispatchTransactionState] = useTransactionState();
   const [pdntState, setPDNTState] = useState<PDNTContract>();
   const [pdntName, setPDNTName] = useState<string>();
   const [editingField, setEditingField] = useState<string>();
@@ -69,6 +73,12 @@ function ManageANT() {
   const [pendingInteractions, setPendingInteractions] = useState<Array<any>>(
     [],
   );
+  const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
+  const [interactionType, setInteractionType] =
+    useState<PDNT_INTERACTION_TYPES>();
+  const [transactionData, setTransactionData] = useState<any>();
+  const [deployedTransactionId, setDeployedTransactionId] =
+    useState<ArweaveTransactionID>();
 
   const EDITABLE_FIELDS = ['name', 'ticker', 'targetID', 'ttlSeconds'];
 
@@ -79,7 +89,7 @@ function ManageANT() {
     }
     const txId = new ArweaveTransactionID(id);
     fetchPDNTDetails(walletAddress, txId);
-  }, [id]);
+  }, [id, deployedTransactionId]);
 
   function getAssociatedNames(txId: ArweaveTransactionID) {
     return Object.entries(pdnsSourceContract.records)
@@ -226,24 +236,29 @@ function ManageANT() {
         ...payload,
         assetId: id,
       };
-      dispatchTransactionState({
-        type: 'setInteractionType',
-        payload: row.interactionType,
-      });
-      dispatchTransactionState({
-        type: 'setTransactionData',
-        payload: transactionData,
-      });
-
-      navigate(`/transaction`, {
-        state: `/manage/ants/${id}`,
-      });
+      setInteractionType(
+        row.interactionType as unknown as PDNT_INTERACTION_TYPES,
+      );
+      setTransactionData(transactionData);
+      setShowConfirmModal(true);
     }
   }
 
   return (
     <>
       <div className="page" style={{ gap: '30px' }}>
+        {deployedTransactionId && interactionType ? (
+          <TransactionSuccessCard
+            txId={deployedTransactionId}
+            title={TITLE_MAP[interactionType] + ' complete'}
+            close={() => {
+              setDeployedTransactionId(undefined);
+              setInteractionType(undefined);
+            }}
+          />
+        ) : (
+          <></>
+        )}
         <div className="flex-row flex-space-between">
           <h2 className="flex white center" style={{ gap: '15px' }}>
             <CodeSandboxIcon
@@ -292,7 +307,7 @@ function ManageANT() {
                   width: '70%',
                   className: 'white',
                   render: (value: string | number, row: any) => {
-                    if (row.attribute === 'status')
+                    if (row.attribute === 'status' && pendingInteractions)
                       return (
                         <Tooltip
                           placement="right"
@@ -319,7 +334,7 @@ function ManageANT() {
                             maxWidth: 'fit-content',
                           }}
                         >
-                          {!pendingInteractions ? (
+                          {!pendingInteractions.length ? (
                             <TransactionStatus confirmations={+value} />
                           ) : (
                             <CirclePending
@@ -486,7 +501,7 @@ function ManageANT() {
                                   fontSize: '13px',
                                   boxSizing: 'border-box',
                                 }}
-                                onClick={() => alert('not implemented')}
+                                onClick={() => handleSave(row)}
                               >
                                 Save
                               </button>
@@ -651,6 +666,22 @@ function ManageANT() {
         <TransferANTModal
           showModal={() => setShowTransferANTModal(false)}
           pdntId={new ArweaveTransactionID(id)}
+        />
+      ) : (
+        <></>
+      )}
+      {showConfirmModal && interactionType && id ? (
+        <ConfirmTransactionModal
+          interactionType={interactionType}
+          payload={transactionData}
+          close={() => {
+            setShowConfirmModal(false);
+            setTransactionData(undefined);
+            setEditingField(undefined);
+            setModifiedValue(undefined);
+          }}
+          setDeployedTransactionId={(id) => setDeployedTransactionId(id)}
+          assetId={new ArweaveTransactionID(id)}
         />
       ) : (
         <></>

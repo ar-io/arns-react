@@ -5,16 +5,18 @@ import ArPrice from '../ArPrice/ArPrice';
 function TransactionCost({
   fee,
   info,
+  showBorder = true,
 }: {
   fee?: { io?: number; ar?: number };
   info?: JSX.Element | string;
+  showBorder?: boolean;
 }) {
   const isMobile = useIsMobile();
   return (
     <div
       className="flex flex-row"
       style={{
-        borderBottom: 'solid 1px var(--text-faded)',
+        borderBottom: showBorder ? 'solid 1px var(--text-faded)' : 'none',
         padding: '20px 0px',
         justifyContent: info ? 'space-between' : 'flex-end',
         alignItems: isMobile ? 'center' : 'flex-start',

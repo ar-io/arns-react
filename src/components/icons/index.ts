@@ -18,6 +18,7 @@ import { ReactComponent as ChevronLeftIcon } from './ChevronLeft.svg';
 import { ReactComponent as ChevronRightIcon } from './ChevronRight.svg';
 import { ReactComponent as ChevronUpIcon } from './ChevronUp.svg';
 import { ReactComponent as CircleCheck } from './CircleCheck.svg';
+import { ReactComponent as CircleCheckFilled } from './CircleCheckFilled.svg';
 import { ReactComponent as CirclePending } from './CirclePending.svg';
 import { ReactComponent as CirclePlus } from './CirclePlus.svg';
 import { ReactComponent as CircleXIcon } from './CircleX.svg';
@@ -79,6 +80,7 @@ export {
   ChevronRightIcon,
   ChevronUpIcon,
   CircleCheck,
+  CircleCheckFilled,
   CirclePending,
   CircleXIcon,
   CirclePlus,
