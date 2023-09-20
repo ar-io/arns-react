@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { ArweaveTransactionID } from '../../../types';
 import { CircleCheckFilled, CloseIcon } from '../../icons';
@@ -13,14 +13,14 @@ function TransactionSuccessCard({
   close: () => void;
   title?: string;
 }) {
+  const cardRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const card = document.getElementById(`transaction-success-card-${txId}`);
-    card?.scrollIntoView({ behavior: 'smooth' });
+    cardRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [txId]);
 
   return (
     <div
-      id={`transaction-success-card-${txId}`}
+      ref={cardRef}
       className="flex flex-row add-box center fade-in"
       style={{
         padding: '20px',

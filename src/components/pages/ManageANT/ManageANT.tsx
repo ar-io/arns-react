@@ -8,6 +8,7 @@ import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
   ArweaveTransactionID,
+  ContractInteraction,
   INTERACTION_TYPES,
   ManageANTRow,
   PDNSRecordEntry,
@@ -50,8 +51,8 @@ import TransactionStatus from '../../layout/TransactionStatus/TransactionStatus'
 import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import { TransferANTModal } from '../../modals';
 import ConfirmTransactionModal, {
-  TITLE_MAP,
-} from '../../modals/ConfirmModal/ConfirmModal';
+  CONFIRM_TRANSACTION_PROPS_MAP,
+} from '../../modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import './styles.css';
 
 function ManageANT() {
@@ -69,9 +70,9 @@ function ManageANT() {
   const [loading, setLoading] = useState<boolean>(true);
   const [showTransferANTModal, setShowTransferANTModal] =
     useState<boolean>(false);
-  const [pendingInteractions, setPendingInteractions] = useState<Array<any>>(
-    [],
-  );
+  const [pendingInteractions, setPendingInteractions] = useState<
+    Array<ContractInteraction>
+  >([]);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
   const [interactionType, setInteractionType] =
     useState<PDNT_INTERACTION_TYPES>();
@@ -249,7 +250,10 @@ function ManageANT() {
         {deployedTransactionId && interactionType ? (
           <TransactionSuccessCard
             txId={deployedTransactionId}
-            title={TITLE_MAP[interactionType] + ' complete'}
+            title={
+              CONFIRM_TRANSACTION_PROPS_MAP[interactionType].header +
+              ' complete'
+            }
             close={() => {
               setDeployedTransactionId(undefined);
               setInteractionType(undefined);

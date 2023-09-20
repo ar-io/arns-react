@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { useArweaveCompositeProvider } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
@@ -19,30 +19,28 @@ import DialogModal from '../DialogModal/DialogModal';
 
 // TODO: use PDNT_INTERACTION_TYPES to render the correct modal, update the type to that once all flows are implemented
 
-export const TITLE_MAP: Record<string, string> = {
-  [PDNT_INTERACTION_TYPES.SET_NAME]: 'Edit Nickname',
+type ConfirmTransactionProps = {
+  header: string;
+  body: (props: TransactionDataPayload) => JSX.Element;
 };
 
-const BODY_MAP: Record<string, (props: string[]) => JSX.Element> = {
-  [PDNT_INTERACTION_TYPES.SET_NAME]: (props: string[]) => (
-    <span>
-      By completing this action, you are going to change the name of this token
-      to <br />
-      <span className="text-color-warning">{`"${props[0]}"`}.</span>
-    </span>
-  ),
-};
-
-const getBodyFromPayload = (
-  payload: any,
-  interactionType: PDNT_INTERACTION_TYPES,
-) => {
-  switch (interactionType) {
-    case PDNT_INTERACTION_TYPES.SET_NAME:
-      return BODY_MAP[interactionType]([payload.name]);
-    default:
-      return null;
-  }
+export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
+  string,
+  ConfirmTransactionProps
+> = {
+  [PDNT_INTERACTION_TYPES.SET_NAME]: {
+    header: 'Edit Nickname',
+    body: (props: any) => {
+      const name = props?.name;
+      return (
+        <span>
+          By completing this action, you are going to change the name of this
+          token to <br />
+          <span className="text-color-warning">{`"${name}"`}.</span>
+        </span>
+      );
+    },
+  },
 };
 
 function ConfirmTransactionModal({
@@ -60,15 +58,18 @@ function ConfirmTransactionModal({
 }) {
   const [{ walletAddress }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
-  const [title, setTitle] = useState<string>('');
+  const [transactionProps] = useState<{ title: string; body: JSX.Element }>(
+    () => {
+      return {
+        title: CONFIRM_TRANSACTION_PROPS_MAP[interactionType].header,
+        body: CONFIRM_TRANSACTION_PROPS_MAP[interactionType].body(payload),
+      };
+    },
+  );
 
   // TODO: add fee for any IO transactions (eg extend lease or increase undernames)
   const [fee] = useState({ io: 0 });
   const [deployingTransaction, setDeployingTransaction] = useState(false);
-
-  useEffect(() => {
-    setTitle(TITLE_MAP[interactionType]);
-  }, [interactionType, payload]);
 
   async function deployInteraction(
     payload: TransactionDataPayload,
@@ -115,7 +116,7 @@ function ConfirmTransactionModal({
   return (
     <div className="modal-container">
       <DialogModal
-        title={<h2 className="white">{title}</h2>}
+        title={<h2 className="white">{transactionProps.title}</h2>}
         body={
           <div
             className="flex flex-column white"
@@ -127,7 +128,7 @@ function ConfirmTransactionModal({
               fontWeight: 160,
             }}
           >
-            {getBodyFromPayload(payload, interactionType)}
+            {transactionProps.body}
             <span>Are you sure you want to continue?</span>
           </div>
         }
