@@ -1,54 +1,61 @@
-import { Tooltip } from 'antd';
+import { Checkbox, ConfigProvider } from 'antd';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ArweaveTransactionID,
-  INTERACTION_TYPES,
   PDNTContractJSON,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import {
+  formatForMaxCharCount,
   getAssociatedNames,
-  mapTransactionDataKeyToPayload,
+  isArweaveTransactionID,
 } from '../../../utils';
-import { SMARTWEAVE_TAG_SIZE } from '../../../utils/constants';
-import { AlertTriangleIcon } from '../../icons';
-import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
+import { InfoIcon } from '../../icons';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import { Loader } from '../../layout';
-import ArPrice from '../../layout/ArPrice/ArPrice';
+import TransactionCost from '../../layout/TransactionCost/TransactionCost';
+import DialogModal from '../DialogModal/DialogModal';
+import './styles.css';
 
 function TransferANTModal({
-  pdntId,
+  antId,
   showModal,
 }: {
-  pdntId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
+  antId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
   showModal: () => void;
 }) {
   const [{ pdnsSourceContract }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
-  const [, dispatchTransactionState] = useTransactionState();
   const isMobile = useIsMobile();
   const [accepted, setAccepted] = useState<boolean>(false);
   const [toAddress, setToAddress] = useState<string>('');
-  const [isValidAddress, setIsValidAddress] = useState(false);
+  const [isValidAddress, setIsValidAddress] = useState<boolean>();
   const [state, setState] = useState<PDNTContractJSON>();
   const [associatedNames] = useState(() =>
-    getAssociatedNames(pdntId, pdnsSourceContract.records),
+    getAssociatedNames(antId, pdnsSourceContract.records),
   );
-  const navigate = useNavigate();
+  const [review, setReview] = useState<boolean>(false);
 
   // TODO: add "transfer to another account" dropdown
 
   useEffect(() => {
     arweaveDataProvider
-      .getContractState(pdntId)
+      .getContractState(antId)
       .then((res) => setState(res as PDNTContractJSON));
-  }, [pdntId]);
+  }, [antId]);
+
+  useEffect(() => {
+    if (!isArweaveTransactionID(toAddress)) {
+      setAccepted(false);
+    }
+    if (!toAddress.length) {
+      setIsValidAddress(undefined);
+      return;
+    }
+  }, [toAddress]);
 
   if (!state) {
     return (
@@ -59,249 +66,127 @@ function TransferANTModal({
   }
 
   return (
-    <>
-      <div
-        className="modal-container"
-        style={isMobile ? { padding: 'none' } : {}}
-      >
-        {/**modal header */}
-        <div
-          className="flex flex-column card"
-          style={
-            isMobile
-              ? {
-                  width: '95%',
-                  maxWidth: 'none',
-                  height: '95%',
-                  padding: 0,
-                  boxSizing: 'border-box',
-                  gap: '10px',
-                  position: 'relative',
-                  paddingBottom: 85,
-                  justifyContent: 'space-between',
-                }
-              : {
-                  width: 420,
-                  minHeight: 200,
-                  padding: 0,
-                  paddingBottom: 75,
-                  gap: '1em',
-                  position: 'relative',
-                }
-          }
-        >
-          <div
-            className="flex flex-column flex-space-between"
-            style={{
-              padding: '15px 0px 0px 15px',
-              boxSizing: 'border-box',
-              marginTop: 5,
-              gap: '.5em',
-              position: 'relative',
-            }}
-          >
-            <span
-              className="text-medium white bold flex flex-column"
-              style={{
-                gap: 0,
-              }}
-            >
-              Transfer&nbsp;{state.name.length ? state.name : ''}&nbsp;
-              {state.ticker.length ? `(${state.ticker})` : ''}
-            </span>
-
-            <span className="flex grey text" style={{ alignItems: 'center' }}>
-              Contract ID:&nbsp;
-              <CopyTextButton
-                copyText={pdntId.toString()}
-                body={`${pdntId.toString().slice(0, isMobile ? 6 : 0)}${
-                  isMobile ? '...' : ''
-                }${pdntId.toString().slice(isMobile ? -6 : 0)}`}
-                wrapperStyle={{
-                  fontFamily: 'Rubik-Bold',
-                  fontSize: '10px',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  fill: 'var(--text-grey)',
-                }}
-                size={20}
-                position="relative"
-              />
-            </span>
-          </div>
-          {/** modal body - condition render edit or transfer */}
-
+    <div
+      className="modal-container"
+      style={isMobile ? { padding: 'none' } : {}}
+    >
+      {/**modal header */}
+      <DialogModal
+        title={<h2 className="white">Transfer ANT</h2>}
+        body={
           <div
             className="flex flex-column"
-            style={{
-              width: '90%',
-              height: '100%',
-              gap: '1em',
-            }}
+            style={{ fontSize: '14px', maxWidth: '575px' }}
           >
-            {/* todo: show 'transfer between accounts' option */}
-
-            <ValidationInput
-              inputClassName="data-input center"
-              inputCustomStyle={{ paddingRight: '30px' }}
-              showValidationIcon={true}
-              showValidationOutline={true}
-              placeholder="Enter recipients address"
-              maxLength={43}
-              value={toAddress}
-              setValue={setToAddress}
-              validityCallback={(validity: boolean) =>
-                setIsValidAddress(validity)
-              }
-              validationPredicates={{
-                [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
-                  fn: (id: string) => arweaveDataProvider.validateArweaveId(id),
-                },
-                [VALIDATION_INPUT_TYPES.ARWEAVE_ADDRESS]: {
-                  fn: (id: string) =>
-                    arweaveDataProvider.validateArweaveAddress(id),
-                  required: false,
-                },
-              }}
-            />
-            {associatedNames.length ? (
-              <span
-                className="flex flex-row"
-                style={{
-                  gap: 10,
-                  alignItems: 'flex-start',
-                }}
-              >
-                <AlertTriangleIcon
-                  width={20}
-                  height={20}
-                  fill={'var(--accent)'}
+            <div className="flex flex-column" style={{ gap: '10px' }}>
+              <span className="grey">Contract ID:</span>
+              <span className="white">{antId.toString()}</span>
+            </div>
+            <div className="flex flex-column" style={{ gap: '10px' }}>
+              <span className="grey">Nickname:</span>
+              <span className="white">
+                {formatForMaxCharCount(state.name, 40)}
+              </span>
+            </div>
+            <div className="flex flex-column" style={{ paddingBottom: '30px' }}>
+              <div className="flex flex-column" style={{ gap: '10px' }}>
+                <span className="grey">Recipient wallet address:</span>
+                <ValidationInput
+                  inputClassName="name-token-input white"
+                  inputCustomStyle={{ paddingLeft: '10px', fontSize: '16px' }}
+                  wrapperCustomStyle={{
+                    position: 'relative',
+                    border: '1px solid var(--text-faded)',
+                    borderRadius: 'var(--corner-radius)',
+                  }}
+                  showValidationIcon={true}
+                  showValidationOutline={true}
+                  showValidationChecklist={false}
+                  maxLength={43}
+                  value={toAddress}
+                  setValue={setToAddress}
+                  validityCallback={(validity: boolean) =>
+                    setIsValidAddress(validity)
+                  }
+                  validationPredicates={{
+                    [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
+                      fn: (id: string) =>
+                        arweaveDataProvider.validateArweaveId(id),
+                    },
+                    [VALIDATION_INPUT_TYPES.ARWEAVE_ADDRESS]: {
+                      fn: (id: string) =>
+                        arweaveDataProvider.validateArweaveAddress(id),
+                      required: false,
+                    },
+                  }}
                 />
+                <span className="text-color-error">
+                  {isValidAddress === false ? 'invalid address' : ''}
+                </span>
+              </div>
+              {associatedNames.length ? (
                 <span
-                  className="text grey"
-                  style={{ textAlign: 'left', width: '90%' }}
+                  className="warning-container flex flex-row"
+                  style={{
+                    boxSizing: 'border-box',
+                    fontSize: 'inherit',
+                    gap: '10px',
+                  }}
                 >
-                  {`This ANT has ${associatedNames.length} name(s) that are associated with it. By transferring this ANT, you
+                  <InfoIcon
+                    width={'24px'}
+                    height={'24px'}
+                    fill={'var(--accent)'}
+                    style={{
+                      height: 'fit-content',
+                      width: '40px',
+                      justifyContent: 'flex-start',
+                      display: 'flex',
+                      lineHeight: '150%',
+                    }}
+                  />
+                  <span style={{}}>
+                    {`This ANT has ${associatedNames.length} name${
+                      associatedNames.length > 1 ? 's' : ''
+                    } that ${
+                      associatedNames.length > 1 ? 'are' : 'is'
+                    } associated with it. By transferring this ANT, you
                   will also be transferring control of those names to the new
                   ANT holder.`}
+                  </span>
                 </span>
+              ) : (
+                <></>
+              )}
+              <span
+                className={`flex flex-row text ${accepted ? 'white' : 'grey'}`}
+                style={{
+                  gap: 10,
+                  alignItems: 'center',
+                }}
+              >
+                <Checkbox
+                  rootClassName="accept-checkbox"
+                  onChange={(e) => setAccepted(e.target.checked)}
+                  checked={accepted && isArweaveTransactionID(toAddress)}
+                  style={{ color: 'white' }}
+                  disabled={!isArweaveTransactionID(toAddress)}
+                />
+                I understand that this action cannot be undone.
               </span>
-            ) : (
-              <></>
-            )}
-          </div>
-          <div
-            className="flex flex-column center"
-            style={{ width: '90%', gap: 0 }}
-          >
-            <span
-              className="flex flex-row text white"
-              style={{
-                gap: 10,
-                alignItems: 'center',
-              }}
-            >
-              <input
-                type="checkbox"
-                className="accept-terms"
-                checked={accepted}
-                onClick={() => setAccepted(!accepted)}
-              />
-              I understand that this action cannot be undone.
-            </span>
-
-            <div
-              className="flex flex-row flex-space-between"
-              style={{
-                position: 'absolute',
-                width: '100%',
-                borderTop: '2px #323232 solid',
-                boxSizing: 'border-box',
-                padding: '15px',
-                bottom: 0,
-              }}
-            >
-              {/* Footer */}
-              {/* Price / error */}
-              {/* TODO add address validation (check an id is an arweave address or transaction) */}
-              <div
-                className="text white flex flex-column left"
-                style={{ gap: 0 }}
-              >
-                <span>This transaction will cost</span>
-                <ArPrice dataSize={SMARTWEAVE_TAG_SIZE} />
-              </div>
-
-              {/* buttontainer */}
-              <div
-                className="flex flex-row"
-                style={{ gap: '5px', width: 'fit-content' }}
-              >
-                <button
-                  className="outline-button center"
-                  style={{ width: '65px', height: '30px', fontSize: '12px' }}
-                  onClick={() => showModal()}
-                >
-                  Cancel
-                </button>
-                {(accepted && !isValidAddress) || !accepted ? (
-                  <Tooltip
-                    title={
-                      !accepted
-                        ? 'Must accept to continue'
-                        : 'Not a valid address format, fix errors to continue'
-                    }
-                    placement="bottom"
-                  >
-                    <button
-                      className="accent-button center flex flex-row"
-                      style={{
-                        width: '65px',
-                        height: '30px',
-                        fontSize: '12px',
-                        backgroundColor: 'var(--text-grey)',
-                      }}
-                    >
-                      Next
-                    </button>
-                  </Tooltip>
-                ) : (
-                  <button
-                    className="accent-button center flex flex-row"
-                    style={{ width: '65px', height: '30px', fontSize: '12px' }}
-                    onClick={() => {
-                      const payload = mapTransactionDataKeyToPayload(
-                        INTERACTION_TYPES.TRANSFER,
-                        [toAddress?.toString(), 1],
-                      );
-
-                      if (payload) {
-                        dispatchTransactionState({
-                          type: 'setInteractionType',
-                          payload: INTERACTION_TYPES.TRANSFER,
-                        });
-                        dispatchTransactionState({
-                          type: 'setTransactionData',
-                          payload: {
-                            ...payload,
-                            assetId: pdntId?.toString(),
-                          },
-                        });
-                        navigate(`/transaction`, {
-                          state: `/manage/ants/${pdntId?.toString()}`,
-                        });
-                      }
-                    }}
-                  >
-                    Next
-                  </button>
-                )}
-              </div>
             </div>
           </div>
-        </div>
-      </div>
-    </>
+        }
+        onCancel={() => showModal()}
+        onClose={() => showModal()}
+        onNext={
+          accepted && isArweaveTransactionID(toAddress)
+            ? () => setReview(true)
+            : undefined
+        }
+        footer={<TransactionCost fee={{}} />}
+      />
+    </div>
   );
 }
 

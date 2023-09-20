@@ -1,0 +1,23 @@
+.accept-checkbox > span > .ant-checkbox-inner {
+  background-color: transparent;
+  border: var(--text-faded) 1px solid;
+}
+
+.ant-checkbox-inner:hover {
+  border-color: var(--accent) !important;
+}
+
+.ant-checkbox-checked {
+  background-color: transparent;
+  border-color: var(--accent) !important;
+}
+
+.ant-checkbox-wrapper-disabled:hover {
+  background-color: transparent;
+  border-color: var(--accent) !important;
+}
+
+.ant-checkbox-wrapper {
+  background-color: transparent;
+  border-color: var(--accent) !important;
+}

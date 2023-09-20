@@ -202,11 +202,13 @@ function ValidationInput({
             pattern={pattern?.source}
           />
           <div
+            className="center"
             style={{
               position: 'absolute',
               right: '10px',
               top: '0px',
               bottom: '0px',
+              display: 'flex',
             }}
             onFocus={() => {
               return;
@@ -215,7 +217,11 @@ function ValidationInput({
             onMouseLeave={() => setOpenTooltip(false)}
           >
             <Tooltip
-              open={openTooltip && validationResults!.length > 0}
+              open={
+                showValidationChecklist &&
+                openTooltip &&
+                validationResults!.length > 0
+              }
               placement="right"
               autoAdjustOverflow={true}
               title={

@@ -239,6 +239,10 @@ a:active {
 .text-color-warning {
   color: var(--text-warning);
 }
+.text-color-error {
+  color: var(--error-red);
+  font-weight: 100;
+}
 .warning-container {
   background: #29251d;
   border: 1px solid #755922;

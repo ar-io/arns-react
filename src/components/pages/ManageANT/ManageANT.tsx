@@ -513,7 +513,7 @@ function ManageANT() {
                       return (
                         <span className={'flex flex-right'}>
                           <button
-                            onClick={() => alert('not implemented')}
+                            onClick={() => setShowTransferANTModal(true)}
                             className="button-secondary"
                             style={{
                               padding: '9px 12px',
@@ -664,7 +664,7 @@ function ManageANT() {
       {showTransferANTModal && id ? (
         <TransferANTModal
           showModal={() => setShowTransferANTModal(false)}
-          pdntId={new ArweaveTransactionID(id)}
+          antId={new ArweaveTransactionID(id)}
         />
       ) : (
         <></>
