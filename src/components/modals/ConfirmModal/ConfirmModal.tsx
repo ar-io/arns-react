@@ -23,6 +23,7 @@ export const TITLE_MAP: Record<string, string> = {
   [PDNT_INTERACTION_TYPES.SET_NAME]: 'Edit Nickname',
   [PDNT_INTERACTION_TYPES.SET_TICKER]: 'Edit Ticker',
   [PDNT_INTERACTION_TYPES.SET_TARGET_ID]: 'Edit Target ID',
+  [PDNT_INTERACTION_TYPES.SET_TTL_SECONDS]: 'Edit TTL Seconds',
 };
 
 const BODY_MAP: Record<string, (props: string[]) => JSX.Element> = {
@@ -47,6 +48,13 @@ const BODY_MAP: Record<string, (props: string[]) => JSX.Element> = {
       <span className="text-color-warning">{`"${props[0]}"`}.</span>
     </span>
   ),
+  [PDNT_INTERACTION_TYPES.SET_TTL_SECONDS]: (props: string[]) => (
+    <span>
+      By completing this action, you are going to change the TTL seconds of this
+      token to <br />
+      <span className="text-color-warning">{`"${props[0]}"`}.</span>
+    </span>
+  ),
 };
 
 const getBodyFromPayload = (
@@ -60,6 +68,8 @@ const getBodyFromPayload = (
       return BODY_MAP[interactionType]([payload.ticker]);
     case PDNT_INTERACTION_TYPES.SET_TARGET_ID:
       return BODY_MAP[interactionType]([payload.transactionId]);
+    case PDNT_INTERACTION_TYPES.SET_TTL_SECONDS:
+      return BODY_MAP[interactionType]([payload.ttlSeconds]);
     default:
       return null;
   }
