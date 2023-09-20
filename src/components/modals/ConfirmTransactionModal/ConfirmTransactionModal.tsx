@@ -58,14 +58,10 @@ function ConfirmTransactionModal({
 }) {
   const [{ walletAddress }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
-  const [transactionProps] = useState<{ title: string; body: JSX.Element }>(
-    () => {
-      return {
-        title: CONFIRM_TRANSACTION_PROPS_MAP[interactionType].header,
-        body: CONFIRM_TRANSACTION_PROPS_MAP[interactionType].body(payload),
-      };
-    },
-  );
+  const transactionProps: { title: string; body: JSX.Element } = {
+    title: CONFIRM_TRANSACTION_PROPS_MAP[interactionType].header,
+    body: CONFIRM_TRANSACTION_PROPS_MAP[interactionType].body(payload),
+  };
 
   // TODO: add fee for any IO transactions (eg extend lease or increase undernames)
   const [fee] = useState({ io: 0 });
