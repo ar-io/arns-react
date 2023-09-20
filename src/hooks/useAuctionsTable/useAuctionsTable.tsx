@@ -354,9 +354,9 @@ export function useAuctionsTable() {
     setIsLoading(true);
 
     const fetchedRows: AuctionMetadata[] = [];
-    const domains = await arweaveDataProvider.getDomainsInAuction();
+    const domainsInAuction = await arweaveDataProvider.getDomainsInAuction();
 
-    for (const name of domains) {
+    for (const domain of domainsInAuction) {
       try {
         if (!blockHeight) {
           throw new Error(
@@ -365,7 +365,7 @@ export function useAuctionsTable() {
         }
         // will throw on non-ticked expired auctions, catch and continue
         const auction = await arweaveDataProvider
-          .getAuctionPrices(name, blockHeight)
+          .getAuctionPrices({ domain })
           .catch((e) => console.error(e));
         if (!auction) {
           continue;
@@ -376,8 +376,8 @@ export function useAuctionsTable() {
         }
         const rowData = {
           ...auctionData,
-          name: name,
-          key: name,
+          name: domain,
+          key: domain,
         };
         // sort by confirmation count (ASC) by default
         fetchedRows.sort((a, b) => a.closingDate - b.closingDate);
@@ -386,8 +386,8 @@ export function useAuctionsTable() {
         eventEmitter.emit('error', error);
       } finally {
         setPercentLoaded(
-          ((Object.keys(domains).indexOf(name) + 1) /
-            Object.keys(domains).length) *
+          ((Object.keys(domainsInAuction).indexOf(domain) + 1) /
+            Object.keys(domainsInAuction).length) *
             100,
         );
       }

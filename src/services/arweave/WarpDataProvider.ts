@@ -11,14 +11,7 @@ import { DeployPlugin } from 'warp-contracts-plugin-deploy';
 
 import {
   ArweaveTransactionID,
-  Auction,
-  AuctionParameters,
-  AuctionSettings,
-  ContractInteraction,
-  PDNSContractJSON,
-  PDNSRecordEntry,
   PDNTContractJSON,
-  SmartweaveContractCache,
   SmartweaveContractInteractionProvider,
   TRANSACTION_TYPES,
   TransactionCache,
@@ -28,9 +21,6 @@ import {
   buildSmartweaveInteractionTags,
   byteSize,
   isDomainAuctionable,
-  isDomainReservedLength,
-  isPDNSDomainNameValid,
-  lowerCaseDomain,
   withExponentialBackoff,
 } from '../../utils';
 import {
@@ -39,13 +29,10 @@ import {
   SMARTWEAVE_MAX_TAG_SPACE,
 } from '../../utils/constants';
 import { LocalStorageCache } from '../cache/LocalStorageCache';
-import { PDNTContract } from './PDNTContract';
 
 LoggerFactory.INST.logLevel('error');
 
-export class WarpDataProvider
-  implements SmartweaveContractInteractionProvider, SmartweaveContractCache
-{
+export class WarpDataProvider implements SmartweaveContractInteractionProvider {
   private _warp: Warp;
   private _cache: TransactionCache;
 
@@ -62,25 +49,6 @@ export class WarpDataProvider
       arweave,
     ).use(new DeployPlugin());
     this._cache = cache;
-  }
-
-  async getContractState<T extends PDNTContractJSON | PDNSContractJSON>(
-    id: ArweaveTransactionID,
-  ): Promise<T> {
-    const contract = this._warp.contract(id.toString()).setEvaluationOptions({
-      waitForConfirmation: true,
-      internalWrites: true,
-      updateCacheForEachInteraction: true,
-      unsafeClient: 'skip',
-      maxCallDepth: 3,
-    });
-    const { cachedValue } = await contract.readState();
-
-    if (!cachedValue.state) {
-      throw Error('Failed to fetch state from Warp.');
-    }
-
-    return cachedValue.state as T;
   }
 
   async writeTransaction({
@@ -172,14 +140,6 @@ export class WarpDataProvider
     });
 
     return new ArweaveTransactionID(originalTxId);
-  }
-
-  async getContractBalanceForWallet(
-    id: ArweaveTransactionID,
-    wallet: ArweaveTransactionID,
-  ) {
-    const state = await this.getContractState(id);
-    return state?.balances[wallet.toString()] ?? 0;
   }
 
   async deployContract({
@@ -332,148 +292,5 @@ export class WarpDataProvider
       throw new Error('Could not deploy atomic contract');
     }
     return result;
-  }
-
-  /* eslint-disable */
-  async getContractsForWallet(
-    address: ArweaveTransactionID,
-  ): Promise<{ contractTxIds: ArweaveTransactionID[] }> {
-    throw Error('Not implemented!');
-  }
-
-  async getContractInteractions(
-    id: ArweaveTransactionID,
-  ): Promise<ContractInteraction[]> {
-    throw Error('Not implemented!');
-  }
-
-  async getPendingContractInteractions(
-    id: ArweaveTransactionID,
-    key: string,
-  ): Promise<ContractInteraction[]> {
-    throw Error('Not implemented');
-  }
-  async getCachedNameTokens(
-    address: ArweaveTransactionID,
-  ): Promise<PDNTContract[]> {
-    throw Error('Not implemented');
-  }
-
-  async getAuction(domain: string): Promise<AuctionParameters> {
-    throw Error('Not implemented');
-  }
-  async getAuctionSettings(id: string): Promise<AuctionSettings> {
-    throw Error('Not implemented');
-  }
-  /* eslint-enable */
-
-  async isDomainReserved({ domain }: { domain: string }): Promise<boolean> {
-    const reservedList = await this.getContractState<PDNSContractJSON>(
-      new ArweaveTransactionID(PDNS_REGISTRY_ADDRESS),
-    ).then((state) => Object.keys(state.reserved));
-    return (
-      reservedList.includes(lowerCaseDomain(domain)) ||
-      isDomainReservedLength(domain)
-    );
-  }
-
-  isDomainInAuction({
-    domain,
-    auctionsList,
-  }: {
-    domain: string;
-    auctionsList: string[];
-  }): boolean {
-    return auctionsList.includes(lowerCaseDomain(domain));
-  }
-
-  async isDomainAvailable({ domain }: { domain: string }): Promise<boolean> {
-    const domainsList = await this.getContractState<PDNSContractJSON>(
-      new ArweaveTransactionID(PDNS_REGISTRY_ADDRESS),
-    ).then((state) => Object.keys(state.records));
-    return !domainsList.includes(lowerCaseDomain(domain));
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async getAuctionPrices(
-    domain: string,
-    currentBlockHeight: number,
-  ): Promise<Auction> {
-    if (!domain.length) {
-      throw new Error('No domain provided');
-    }
-    if (!isPDNSDomainNameValid({ name: domain })) {
-      throw new Error('Invalid domain name');
-    }
-    const { result } = (await this._warp
-      .contract(PDNS_REGISTRY_ADDRESS)
-      .setEvaluationOptions({
-        waitForConfirmation: true,
-        internalWrites: true,
-        updateCacheForEachInteraction: true,
-        unsafeClient: 'skip',
-        maxCallDepth: 3,
-      })
-      .viewState({
-        function: 'auction',
-        name: lowerCaseDomain(domain),
-      })) as unknown as any;
-
-    if (!result) {
-      throw new Error(
-        `Unable to read auction info from contract for ${domain}`,
-      );
-    }
-
-    const { settings, ...auction } = result.auction;
-    // return the first price that is less than the current block height
-    const priceKey = Object.keys(auction.prices).find((key, index) => {
-      if (+key <= currentBlockHeight) {
-        return index;
-      }
-    });
-    return {
-      ...settings,
-      ...auction,
-      minimumAuctionBid: auction.prices[priceKey!],
-    } as Auction;
-  }
-
-  async getDomainsInAuction(): Promise<string[]> {
-    // todo: make this a read action on the contract
-    const state = await this.getContractState<PDNSContractJSON>(
-      new ArweaveTransactionID(PDNS_REGISTRY_ADDRESS),
-    );
-
-    if (!state || !state.auctions) {
-      throw new Error('Unable to read auction info from contract');
-    }
-    const auctionsList = Object.keys(state.auctions);
-
-    return auctionsList;
-  }
-
-  async getRecord(domain: string): Promise<PDNSRecordEntry> {
-    const state = await this.getContractState<PDNSContractJSON>(
-      new ArweaveTransactionID(PDNS_REGISTRY_ADDRESS),
-    );
-
-    if (!state?.records) {
-      throw new Error('Unable to read record info from contract');
-    }
-
-    return state.records[lowerCaseDomain(domain)];
-  }
-
-  async getIoBalance(address: ArweaveTransactionID): Promise<number> {
-    const state = await this.getContractState<PDNSContractJSON>(
-      new ArweaveTransactionID(PDNS_REGISTRY_ADDRESS),
-    );
-
-    if (!state?.balances) {
-      throw new Error('Unable to read balance info from contract');
-    }
-
-    return state.balances[address.toString()];
   }
 }

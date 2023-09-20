@@ -18,7 +18,9 @@ const DEFAULT_ARWEAVE = new Arweave({
 });
 const defaultWarp = new WarpDataProvider(DEFAULT_ARWEAVE);
 const defaultArweave = new SimpleArweaveDataProvider(DEFAULT_ARWEAVE);
-const defaultContractCache = [new PDNSContractCache(PDNS_SERVICE_API)];
+const defaultContractCache = [
+  new PDNSContractCache({ url: PDNS_SERVICE_API, arweave: defaultArweave }),
+];
 
 export function useArweaveCompositeProvider(): ArweaveCompositeDataProvider {
   const [{ gateway, blockHeight: blockHeight }, dispatchGlobalState] =
@@ -78,7 +80,12 @@ export function useArweaveCompositeProvider(): ArweaveCompositeDataProvider {
 
       const warpDataProvider = new WarpDataProvider(arweave);
       const arweaveDataProvider = new SimpleArweaveDataProvider(arweave);
-      const contractCacheProviders = [new PDNSContractCache(PDNS_SERVICE_API)];
+      const contractCacheProviders = [
+        new PDNSContractCache({
+          url: PDNS_SERVICE_API,
+          arweave: arweaveDataProvider,
+        }),
+      ];
 
       const arweaveCompositeDataProvider = new ArweaveCompositeDataProvider(
         arweaveDataProvider,

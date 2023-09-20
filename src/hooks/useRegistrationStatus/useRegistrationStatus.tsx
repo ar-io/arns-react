@@ -55,7 +55,7 @@ export function useRegistrationStatus(domain: string) {
         domain,
       });
       const auction = arweaveDataProvider
-        .getAuctionPrices(domain, blockHeight)
+        .getAuctionPrices({ domain })
         .catch(() => undefined);
       const reserved = arweaveDataProvider.isDomainReserved({
         domain,
