@@ -28,7 +28,7 @@ const BODY_MAP: Record<string, (props: string[]) => JSX.Element> = {
     <span>
       By completing this action, you are going to change the name of this token
       to <br />
-      <span className="text-color-warning">"{props[0]}".</span>
+      <span className="text-color-warning">{`"${props[0]}"`}.</span>
     </span>
   ),
 };
