@@ -47,7 +47,7 @@ function ArweaveID({
               target="_blank"
               rel="noreferrer"
               className="link hover"
-              style={{ ...linkStyle }}
+              style={linkStyle}
             >
               {formatForMaxCharCount(id.toString(), characterCount)}
             </Link>

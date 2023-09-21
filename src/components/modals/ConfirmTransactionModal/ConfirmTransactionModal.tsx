@@ -4,12 +4,17 @@ import { useArweaveCompositeProvider } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
   ArweaveTransactionID,
+  INTERACTION_TYPES,
   PDNT_INTERACTION_TYPES,
+  SetNamePayload,
+  SetRecordPayload,
+  SetTickerPayload,
   TransactionDataPayload,
   ValidInteractionType,
 } from '../../../types';
 import {
   TRANSACTION_DATA_KEYS,
+  isObjectOfTransactionPayloadType,
   pruneExtraDataFromTransactionPayload,
 } from '../../../utils';
 import eventEmitter from '../../../utils/events';
@@ -30,37 +35,62 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
 > = {
   [PDNT_INTERACTION_TYPES.SET_NAME]: {
     header: 'Edit Nickname',
-    body: (props: any) => {
+    body: (props: TransactionDataPayload) => {
+      if (
+        !isObjectOfTransactionPayloadType<SetNamePayload>(
+          props,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.SET_NAME].keys,
+        )
+      ) {
+        return <></>;
+      }
+
       return (
         <span>
           By completing this action, you are going to change the name of this
           token to <br />
-          <span className="text-color-warning">{`"${props?.name}"`}.</span>
+          <span className="text-color-warning">{`"${props.name}"`}.</span>
         </span>
       );
     },
   },
   [PDNT_INTERACTION_TYPES.SET_TICKER]: {
     header: 'Edit Ticker',
-    body: (props: any) => {
+    body: (props: TransactionDataPayload) => {
+      if (
+        !isObjectOfTransactionPayloadType<SetTickerPayload>(
+          props,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.SET_TICKER].keys,
+        )
+      ) {
+        return <></>;
+      }
       return (
         <span>
           By completing this action, you are going to change the ticker of this
           token to <br />
-          <span className="text-color-warning">{`"${props?.ticker}"`}.</span>
+          <span className="text-color-warning">{`"${props.ticker}"`}.</span>
         </span>
       );
     },
   },
   [PDNT_INTERACTION_TYPES.SET_TARGET_ID]: {
     header: 'Edit Target ID',
-    body: (props: any) => {
+    body: (props: TransactionDataPayload) => {
+      if (
+        !isObjectOfTransactionPayloadType<SetRecordPayload>(
+          props,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.SET_RECORD].keys,
+        )
+      ) {
+        return <></>;
+      }
       return (
         <span>
           By completing this action, you are going to change the target ID of
           this token to <br />
           <span className="text-color-warning">
-            {`"${props?.transactionId}"`}.
+            {`"${props.transactionId}"`}.
           </span>
         </span>
       );
@@ -68,14 +98,20 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
   },
   [PDNT_INTERACTION_TYPES.SET_TTL_SECONDS]: {
     header: 'Edit TTL Seconds',
-    body: (props: any) => {
+    body: (props: TransactionDataPayload) => {
+      if (
+        !isObjectOfTransactionPayloadType<SetRecordPayload>(
+          props,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.SET_TTL_SECONDS].keys,
+        )
+      ) {
+        return <></>;
+      }
       return (
         <span>
           By completing this action, you are going to change the TTL seconds of
           this token to <br />
-          <span className="text-color-warning">
-            {`"${props?.ttlSeconds}"`}.
-          </span>
+          <span className="text-color-warning">{`"${props.ttlSeconds}"`}.</span>
         </span>
       );
     },
@@ -97,6 +133,7 @@ function ConfirmTransactionModal({
 }) {
   const [{ walletAddress }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
+  // TODO: remove null check when map is finished
   const transactionProps: { title: string; body: JSX.Element } = {
     title: CONFIRM_TRANSACTION_PROPS_MAP[interactionType]?.header,
     body: CONFIRM_TRANSACTION_PROPS_MAP[interactionType]?.body(payload),
