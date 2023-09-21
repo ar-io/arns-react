@@ -50,6 +50,7 @@ import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import TransactionStatus from '../../layout/TransactionStatus/TransactionStatus';
 import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import { TransferANTModal } from '../../modals';
+import AddControllerModal from '../../modals/AddControllerModal/AddControllerModal';
 import ConfirmTransactionModal, {
   CONFIRM_TRANSACTION_PROPS_MAP,
 } from '../../modals/ConfirmTransactionModal/ConfirmTransactionModal';
@@ -69,6 +70,8 @@ function ManageANT() {
   const [rows, setRows] = useState<ManageANTRow[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [showTransferANTModal, setShowTransferANTModal] =
+    useState<boolean>(false);
+  const [showAddControllerModal, setShowAddControllerModal] =
     useState<boolean>(false);
   const [pendingInteractions, setPendingInteractions] = useState<
     Array<ContractInteraction>
@@ -250,10 +253,7 @@ function ManageANT() {
         {deployedTransactionId && interactionType ? (
           <TransactionSuccessCard
             txId={deployedTransactionId}
-            title={
-              CONFIRM_TRANSACTION_PROPS_MAP[interactionType].header +
-              ' complete'
-            }
+            title={CONFIRM_TRANSACTION_PROPS_MAP[interactionType].successHeader}
             close={() => {
               setDeployedTransactionId(undefined);
               setInteractionType(undefined);
@@ -573,7 +573,7 @@ function ManageANT() {
                             >
                               <button
                                 className="flex flex-right white pointer button"
-                                onClick={() => alert('not implemented')}
+                                onClick={() => setShowAddControllerModal(true)}
                               >
                                 Add Controller
                               </button>
@@ -692,6 +692,20 @@ function ManageANT() {
             setInteractionType(PDNT_INTERACTION_TYPES.TRANSFER);
             setShowConfirmModal(true);
             setShowTransferANTModal(false);
+          }}
+        />
+      ) : (
+        <></>
+      )}
+      {showAddControllerModal && id ? (
+        <AddControllerModal
+          showModal={() => setShowAddControllerModal(false)}
+          antId={new ArweaveTransactionID(id)}
+          payloadCallback={(payload) => {
+            setTransactionData(payload);
+            setInteractionType(PDNT_INTERACTION_TYPES.SET_CONTROLLER);
+            setShowConfirmModal(true);
+            setShowAddControllerModal(false);
           }}
         />
       ) : (
