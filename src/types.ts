@@ -345,6 +345,7 @@ export enum INTERACTION_TYPES {
 
   // ANT interaction types
   SET_CONTROLLER = 'Edit Controller',
+  REMOVE_CONTROLLER = 'Remove Controllers',
   SET_TICKER = 'Edit Ticker',
   SET_NAME = 'Edit Name',
   SET_TTL_SECONDS = 'Edit TTL Seconds',
@@ -397,13 +398,13 @@ const unknownInteractionType = INTERACTION_TYPES.UNKNOWN as const;
 export const pdntInteractionTypes = [
   ...commonInteractionTypeNames,
   INTERACTION_TYPES.SET_CONTROLLER,
+  INTERACTION_TYPES.REMOVE_CONTROLLER,
   INTERACTION_TYPES.SET_TICKER,
   INTERACTION_TYPES.SET_NAME,
   INTERACTION_TYPES.SET_TTL_SECONDS,
   INTERACTION_TYPES.SET_TARGET_ID,
   INTERACTION_TYPES.SET_RECORD,
   INTERACTION_TYPES.REMOVE_RECORD,
-  INTERACTION_TYPES.CREATE,
 ] as const;
 export const registryInteractionTypes = [
   ...commonInteractionTypeNames,
@@ -510,15 +511,11 @@ export type TransferPDNTPayload = {
   qty: number;
 };
 
-export type CreatePDNTPayload = {
-  srcCodeTransactionId: string;
-  initialState: PDNTContractJSON;
-  tags?: TransactionTag[];
-};
 // end pdnt transaction payload types
 
 export enum PDNT_INTERACTION_TYPES {
   SET_CONTROLLER = 'Edit Controller',
+  REMOVE_CONTROLLER = 'Remove Controllers',
   SET_TICKER = 'Edit Ticker',
   SET_NAME = 'Edit Name',
   SET_RECORD = 'Edit Record',
@@ -526,8 +523,6 @@ export enum PDNT_INTERACTION_TYPES {
   SET_TTL_SECONDS = 'Set TTL Seconds',
   REMOVE_RECORD = 'Delete Record',
   TRANSFER = 'Transfer',
-  BALANCE = 'Balance',
-  CREATE = 'Create Arweave Name Token',
 }
 
 export const ALL_TRANSACTION_DATA_KEYS = [
@@ -561,8 +556,7 @@ export type TransactionDataPayload =
   | SetNamePayload
   | SetRecordPayload
   | RemoveRecordPayload
-  | TransferPDNTPayload
-  | CreatePDNTPayload;
+  | TransferPDNTPayload;
 
 export type TransactionData = TransactionDataBasePayload &
   TransactionDataPayload;

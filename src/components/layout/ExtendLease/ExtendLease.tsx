@@ -127,7 +127,6 @@ function ExtendLease() {
       <div className="page center">
         <DialogModal
           showClose={false}
-          showNext={false}
           cancelText="Manage"
           body={
             <span

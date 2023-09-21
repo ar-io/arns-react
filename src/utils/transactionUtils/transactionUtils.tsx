@@ -1,14 +1,12 @@
 import { StepProps } from 'antd';
 import { inRange } from 'lodash';
 
-import { PDNTContract } from '../../services/arweave/PDNTContract';
 import {
   ArweaveTransactionID,
   BuyRecordPayload,
   CONTRACT_TYPES,
   ContractInteraction,
   ContractTypes,
-  CreatePDNTPayload,
   ExcludedValidInteractionType,
   ExtendLeasePayload,
   INTERACTION_TYPES,
@@ -108,6 +106,11 @@ export const WorkflowStepsForInteractions: Record<
     { title: 'Deploy Controller', status: 'wait' },
     { title: 'Complete', status: 'wait' },
   ],
+  [INTERACTION_TYPES.REMOVE_CONTROLLER]: [
+    { title: 'Confirm Remove Controller', status: 'process' },
+    { title: 'Deploy Remove Controller', status: 'wait' },
+    { title: 'Removal Complete', status: 'wait' },
+  ],
   [INTERACTION_TYPES.SET_NAME]: [
     { title: 'Confirm ANT Name', status: 'process' },
     { title: 'Deploy Name Change', status: 'wait' },
@@ -137,24 +140,6 @@ export const WorkflowStepsForInteractions: Record<
     { title: 'Confirm TTL Seconds', status: 'process' },
     { title: 'Deploy TTL Seconds Change', status: 'wait' },
     { title: 'Complete', status: 'wait' },
-  ],
-  [INTERACTION_TYPES.CREATE]: [
-    {
-      title: 'Set ANT Details',
-      status: 'finish',
-    },
-    {
-      title: 'Confirm ANT',
-      status: 'process',
-    },
-    {
-      title: 'Deploy ANT',
-      status: 'wait',
-    },
-    {
-      title: 'Complete',
-      status: 'wait',
-    },
   ],
 };
 
@@ -202,6 +187,10 @@ export const TRANSACTION_DATA_KEYS: Record<
     functionName: 'setController',
     keys: ['target'],
   },
+  [INTERACTION_TYPES.REMOVE_CONTROLLER]: {
+    functionName: 'removeController',
+    keys: ['target'],
+  },
   [INTERACTION_TYPES.SET_NAME]: {
     functionName: 'setName',
     keys: ['name'],
@@ -213,10 +202,6 @@ export const TRANSACTION_DATA_KEYS: Record<
   [INTERACTION_TYPES.REMOVE_RECORD]: {
     functionName: 'removeRecord',
     keys: ['subDomain'],
-  },
-  [INTERACTION_TYPES.CREATE]: {
-    functionName: '',
-    keys: ['srcCodeTransactionId', 'initialState'],
   },
 };
 
@@ -378,25 +363,6 @@ export function getPDNSMappingByInteractionType(
       };
     }
 
-    case INTERACTION_TYPES.CREATE: {
-      if (
-        !isObjectOfTransactionPayloadType<CreatePDNTPayload>(
-          transactionData,
-          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.CREATE].keys,
-        )
-      ) {
-        throw new Error(
-          'transaction data not of correct payload type <CreatePDNTPayload>',
-        );
-      }
-      const pdnt = new PDNTContract(transactionData.initialState);
-      return {
-        domain: '',
-        state: pdnt.state,
-        disabledKeys: ['domain', 'evolve', 'id'],
-        deployedTransactionId: transactionData.deployedTransactionId,
-      };
-    }
     case INTERACTION_TYPES.SET_NAME: {
       if (
         !isObjectOfTransactionPayloadType<SetNamePayload>(
@@ -732,15 +698,7 @@ export function getLinkId(
       ? transactionData.deployedTransactionId.toString()
       : transactionData.contractTxId.toString();
   }
-  if (
-    interactionType === INTERACTION_TYPES.CREATE &&
-    isObjectOfTransactionPayloadType<CreatePDNTPayload>(
-      transactionData,
-      TRANSACTION_DATA_KEYS[INTERACTION_TYPES.CREATE].keys,
-    )
-  ) {
-    return transactionData.deployedTransactionId?.toString() ?? '';
-  }
+
   return transactionData.assetId.toString();
 }
 
