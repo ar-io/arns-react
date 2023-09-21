@@ -6,10 +6,13 @@ import {
   ArweaveTransactionID,
   INTERACTION_TYPES,
   PDNT_INTERACTION_TYPES,
+  RemoveRecordPayload,
+  SetControllerPayload,
   SetNamePayload,
   SetRecordPayload,
   SetTickerPayload,
   TransactionDataPayload,
+  TransferPDNTPayload,
   ValidInteractionType,
 } from '../../../types';
 import {
@@ -22,15 +25,13 @@ import TransactionCost from '../../layout/TransactionCost/TransactionCost';
 import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import DialogModal from '../DialogModal/DialogModal';
 
-// TODO: use PDNT_INTERACTION_TYPES to render the correct modal, update the type to that once all flows are implemented
-
 type ConfirmTransactionProps = {
   header: string;
   body: (props: TransactionDataPayload) => JSX.Element;
 };
 
 export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
-  string,
+  PDNT_INTERACTION_TYPES,
   ConfirmTransactionProps
 > = {
   [PDNT_INTERACTION_TYPES.SET_NAME]: {
@@ -116,6 +117,107 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
       );
     },
   },
+  [PDNT_INTERACTION_TYPES.SET_CONTROLLER]: {
+    header: 'Edit TTL Seconds',
+    body: (props: TransactionDataPayload) => {
+      if (
+        !isObjectOfTransactionPayloadType<SetControllerPayload>(
+          props,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.SET_CONTROLLER].keys,
+        )
+      ) {
+        return <></>;
+      }
+      return (
+        <span>
+          By completing this action, you are going to add controller with the
+          wallet ID <br />
+          <span className="text-color-warning">{`"${props.target}"`}.</span>
+        </span>
+      );
+    },
+  },
+  [PDNT_INTERACTION_TYPES.REMOVE_CONTROLLER]: {
+    header: 'Edit TTL Seconds',
+    body: (props: TransactionDataPayload) => {
+      if (
+        !isObjectOfTransactionPayloadType<SetControllerPayload>(
+          props,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.SET_TTL_SECONDS].keys,
+        )
+      ) {
+        return <></>;
+      }
+      return (
+        <span>
+          By completing this action, you are going to remove
+          <span className="text-color-warning">{`"${props.target}"`}</span>
+          controllers.
+        </span>
+      );
+    },
+  },
+  [PDNT_INTERACTION_TYPES.REMOVE_RECORD]: {
+    header: 'Edit TTL Seconds',
+    body: (props: TransactionDataPayload) => {
+      if (
+        !isObjectOfTransactionPayloadType<RemoveRecordPayload>(
+          props,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.REMOVE_RECORD].keys,
+        )
+      ) {
+        return <></>;
+      }
+      return (
+        <span>
+          By completing this action, you are going to remove
+          <span className="text-color-warning">{`"${props.subDomain}"`}.</span>
+        </span>
+      );
+    },
+  },
+  [PDNT_INTERACTION_TYPES.SET_RECORD]: {
+    header: 'Edit TTL Seconds',
+    body: (props: TransactionDataPayload) => {
+      if (
+        !isObjectOfTransactionPayloadType<SetRecordPayload>(
+          props,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.SET_TTL_SECONDS].keys,
+        )
+      ) {
+        return <></>;
+      }
+      return (
+        <span>
+          By completing this action, you are going to add
+          <span className="text-color-warning">{`"${props.ttlSeconds}"`}</span>{' '}
+          undername with{' '}
+          <span className="text-color-warning">{`"${props.ttlSeconds}"`}</span>{' '}
+          target ID.
+        </span>
+      );
+    },
+  },
+  [PDNT_INTERACTION_TYPES.TRANSFER]: {
+    header: 'Review Transfer',
+    body: (props: TransactionDataPayload) => {
+      if (
+        !isObjectOfTransactionPayloadType<TransferPDNTPayload>(
+          props,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.TRANSFER].keys,
+        )
+      ) {
+        return <></>;
+      }
+      return (
+        <span>
+          By completing this action, you are going to change the TTL seconds of
+          this token to <br />
+          <span className="text-color-warning">{`"${props.target}"`}.</span>
+        </span>
+      );
+    },
+  },
 };
 
 function ConfirmTransactionModal({
@@ -133,10 +235,9 @@ function ConfirmTransactionModal({
 }) {
   const [{ walletAddress }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
-  // TODO: remove null check when map is finished
   const transactionProps: { title: string; body: JSX.Element } = {
-    title: CONFIRM_TRANSACTION_PROPS_MAP[interactionType]?.header,
-    body: CONFIRM_TRANSACTION_PROPS_MAP[interactionType]?.body(payload),
+    title: CONFIRM_TRANSACTION_PROPS_MAP[interactionType].header,
+    body: CONFIRM_TRANSACTION_PROPS_MAP[interactionType].body(payload),
   };
 
   // TODO: add fee for any IO transactions (eg extend lease or increase undernames)
