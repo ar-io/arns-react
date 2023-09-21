@@ -184,7 +184,17 @@ function TransferANTModal({
             ? () => setReview(true)
             : undefined
         }
-        footer={<TransactionCost fee={{}} />}
+        footer={
+          <div className="flex">
+            <TransactionCost
+              fee={{}}
+              feeWrapperStyle={{ alignItems: 'flex-start' }}
+              showBorder={false}
+            />
+          </div>
+        }
+        nextText="Confirm"
+        cancelText="Cancel"
       />
     </div>
   );
