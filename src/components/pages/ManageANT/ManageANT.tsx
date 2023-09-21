@@ -298,9 +298,8 @@ function ManageANT() {
                   align: 'left',
                   width: isMobile ? '0px' : '20%',
                   className: 'grey whitespace-no-wrap',
-                  render: (value: string) => {
-                    return `${mapKeyToAttribute(value as AntDetailKey)}:`;
-                  },
+                  render: (value: string) =>
+                    `${mapKeyToAttribute(value as AntDetailKey)}:`,
                 },
                 {
                   title: '',
@@ -310,6 +309,7 @@ function ManageANT() {
                   width: '70%',
                   className: 'white',
                   render: (value: string | number, row: any) => {
+                    const isEditMode = row.attribute === editingField;
                     if (row.attribute === 'status' && pendingInteractions)
                       return (
                         <Tooltip
@@ -352,7 +352,10 @@ function ManageANT() {
                       return (
                         <span
                           className="flex center"
-                          style={{ justifyContent: 'flex-start', gap: '10px' }}
+                          style={{
+                            justifyContent: 'flex-start',
+                            gap: '10px',
+                          }}
                         >
                           {value}
                           <NewspaperIcon
@@ -363,7 +366,7 @@ function ManageANT() {
                         </span>
                       );
                     }
-                    if (row.editable)
+                    if (row.editable) {
                       return (
                         <>
                           {/* TODO: add label for mobile view */}
@@ -393,16 +396,30 @@ function ManageANT() {
                               setModifiedValue(value);
                             }}
                             inputClassName={'flex'}
+                            wrapperCustomStyle={{
+                              position: 'relative',
+                              boxSizing: 'border-box',
+                            }}
                             inputCustomStyle={{
                               width: '100%',
-                              border: 'none',
                               overflow: 'hidden',
                               fontSize: '13px',
                               outline: 'none',
-                              borderRadius: 'var(--corner-radius)',
-                              background: 'transparent',
                               color: 'white',
                               alignContent: 'center',
+                              borderBottom: 'none',
+                              boxSizing: 'border-box',
+                              ...(isEditMode
+                                ? {
+                                    background: 'var(--card-bg)',
+                                    borderRadius: 'var(--corner-radius)',
+                                    border: '1px solid var(--text-faded)',
+                                    padding: '15px',
+                                  }
+                                : {
+                                    border: 'none',
+                                    background: 'transparent',
+                                  }),
                             }}
                             disabled={editingField !== row.attribute}
                             placeholder={`Enter a ${mapKeyToAttribute(
@@ -445,6 +462,7 @@ function ManageANT() {
                           />
                         </>
                       );
+                    }
                     return value;
                   },
                 },

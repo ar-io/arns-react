@@ -1,4 +1,4 @@
-import { CSSProperties } from '@ant-design/cssinjs/lib/hooks/useStyleRegister';
+import { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 
 import { ArweaveTransactionID } from '../../../types';
@@ -26,6 +26,7 @@ function ArweaveID({
   shouldLink = false,
   copyButtonStyle,
   wrapperStyle,
+  linkStyle,
 }: {
   id: ArweaveTransactionID;
   type?: ArweaveIdTypes;
@@ -33,6 +34,7 @@ function ArweaveID({
   shouldLink?: boolean;
   copyButtonStyle?: CSSProperties;
   wrapperStyle?: CSSProperties;
+  linkStyle?: CSSProperties;
 }) {
   return (
     <>
@@ -45,7 +47,7 @@ function ArweaveID({
               target="_blank"
               rel="noreferrer"
               className="link hover"
-              style={{ color: 'var(--text-link)' }}
+              style={linkStyle}
             >
               {formatForMaxCharCount(id.toString(), characterCount)}
             </Link>

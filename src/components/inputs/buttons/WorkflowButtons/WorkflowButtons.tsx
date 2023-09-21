@@ -31,11 +31,7 @@ function WorkflowButtons({
           {backText && backText.length ? (
             <button
               className="outline-button center"
-              style={{
-                borderColor: 'var(--text-faded)',
-                color: 'var(--text-grey)',
-                ...customBackStyle,
-              }}
+              style={customBackStyle}
               disabled={!onBack}
               onClick={onBack ? () => onBack() : undefined}
             >

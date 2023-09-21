@@ -202,6 +202,7 @@ function ValidationInput({
             pattern={pattern?.source}
           />
           <div
+            className="flex center"
             style={{
               position: 'absolute',
               right: '10px',

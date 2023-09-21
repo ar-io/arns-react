@@ -27,7 +27,7 @@ function DialogModal({
       <div
         className="flex flex-column radius fade-in"
         style={{
-          backgroundColor: 'var(--bg-color)',
+          backgroundColor: 'var(--card-bg)',
           width: 'fit-content',
           padding: '0px 30px',
           paddingBottom: '0px',
