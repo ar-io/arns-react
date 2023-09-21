@@ -402,11 +402,9 @@ function ManageANT() {
                             }}
                             inputCustomStyle={{
                               width: '100%',
-                              border: 'none',
                               overflow: 'hidden',
                               fontSize: '13px',
                               outline: 'none',
-                              background: 'transparent',
                               color: 'white',
                               alignContent: 'center',
                               borderBottom: 'none',
@@ -418,7 +416,10 @@ function ManageANT() {
                                     border: '1px solid var(--text-faded)',
                                     padding: '15px',
                                   }
-                                : {}),
+                                : {
+                                    border: 'none',
+                                    background: 'transparent',
+                                  }),
                             }}
                             disabled={editingField !== row.attribute}
                             placeholder={`Enter a ${mapKeyToAttribute(
