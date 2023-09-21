@@ -172,7 +172,11 @@ function ConfirmTransactionModal({
         onNext={() => deployInteraction(payload, interactionType)}
         footer={
           <div style={{ width: 'fit-content' }}>
-            <TransactionCost fee={fee} showBorder={false} />
+            <TransactionCost
+              fee={fee}
+              showBorder={false}
+              feeWrapperStyle={{ alignItems: 'flex-start' }}
+            />
           </div>
         }
       />

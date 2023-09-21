@@ -21,13 +21,7 @@ function TransactionSuccessCard({
   return (
     <div
       ref={cardRef}
-      className="flex flex-row add-box center fade-in"
-      style={{
-        padding: '20px',
-        gap: '20px',
-        border: '2px solid var(--success-green)',
-        boxSizing: 'border-box',
-      }}
+      className="flex flex-row success-container center fade-in"
     >
       <CircleCheckFilled
         width={'20px'}
@@ -48,7 +42,7 @@ function TransactionSuccessCard({
         <ArweaveID
           id={txId}
           shouldLink={true}
-          copyButtonStyle={{ display: 'none' }}
+          linkStyle={{ color: 'var(--success-green)' }}
         />
       </div>
 

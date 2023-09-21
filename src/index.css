@@ -89,6 +89,7 @@ input[type='number']:disabled {
   text-decoration: underline;
   cursor: pointer;
   padding: 0px;
+  color: var(--text-link);
 }
 a:link {
   text-decoration: none;
@@ -245,6 +246,16 @@ a:active {
   border-radius: var(--corner-radius);
   color: #9c8251;
   padding: 20px;
+}
+
+.success-container {
+  color: var(--success-green);
+  background: var(--green-bg);
+  border: 2px solid var(--success-green);
+  border-radius: var(--corner-radius);
+  padding: 20px;
+  gap: '20px';
+  box-sizing: border-box;
 }
 
 .icon-button {
