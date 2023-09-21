@@ -16,7 +16,7 @@ function TransactionSuccessCard({
   const cardRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     cardRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [txId]);
+  }, [txId, cardRef]);
 
   return (
     <div

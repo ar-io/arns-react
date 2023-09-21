@@ -6,6 +6,7 @@ import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
   ArweaveTransactionID,
   PDNTContractJSON,
+  TransferANTPayload,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import {
@@ -23,9 +24,11 @@ import './styles.css';
 function TransferANTModal({
   antId,
   showModal,
+  payloadCallback,
 }: {
   antId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
   showModal: () => void;
+  payloadCallback: (payload: TransferANTPayload) => void;
 }) {
   const [{ pdnsSourceContract }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
@@ -37,7 +40,6 @@ function TransferANTModal({
   const [associatedNames] = useState(() =>
     getAssociatedNames(antId, pdnsSourceContract.records),
   );
-  const [review, setReview] = useState<boolean>(false);
 
   // TODO: add "transfer to another account" dropdown
 
@@ -63,6 +65,14 @@ function TransferANTModal({
         <Loader size={80} />
       </div>
     );
+  }
+
+  function handlePayloadCallback() {
+    payloadCallback({
+      target: toAddress,
+      qty: 1,
+      associatedNames: associatedNames as string[],
+    });
   }
 
   return (
@@ -181,8 +191,8 @@ function TransferANTModal({
         onClose={() => showModal()}
         onNext={
           accepted && isArweaveTransactionID(toAddress)
-            ? () => setReview(true)
-            : undefined
+            ? () => handlePayloadCallback()
+            : () => alert('You must accept the terms to continue.')
         }
         footer={
           <div className="flex">

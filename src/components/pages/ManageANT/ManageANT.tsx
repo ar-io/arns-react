@@ -687,6 +687,12 @@ function ManageANT() {
         <TransferANTModal
           showModal={() => setShowTransferANTModal(false)}
           antId={new ArweaveTransactionID(id)}
+          payloadCallback={(payload) => {
+            setTransactionData(payload);
+            setInteractionType(PDNT_INTERACTION_TYPES.TRANSFER);
+            setShowConfirmModal(true);
+            setShowTransferANTModal(false);
+          }}
         />
       ) : (
         <></>

@@ -123,6 +123,8 @@ export type PDNSMapping = {
   enableActions?: boolean;
   hover?: boolean;
   deployedTransactionId?: ArweaveTransactionID | string;
+  mobileView?: boolean;
+  bordered?: boolean;
 };
 
 export type PDNSMetaData = {
@@ -515,9 +517,10 @@ export type RemoveRecordPayload = {
   subDomain: string;
 };
 
-export type TransferPDNTPayload = {
+export type TransferANTPayload = {
   target: string;
   qty: number;
+  associatedNames?: string[];
 };
 
 // end pdnt transaction payload types
@@ -565,7 +568,7 @@ export type TransactionDataPayload =
   | SetNamePayload
   | SetRecordPayload
   | RemoveRecordPayload
-  | TransferPDNTPayload;
+  | TransferANTPayload;
 
 export type TransactionData = TransactionDataBasePayload &
   TransactionDataPayload;

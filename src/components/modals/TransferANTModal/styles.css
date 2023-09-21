@@ -46,3 +46,7 @@
   background-color: transparent;
   border-color: var(--accent) !important;
 }
+
+.ant-checkbox-checked::after {
+  border-color: var(--accent) !important;
+}

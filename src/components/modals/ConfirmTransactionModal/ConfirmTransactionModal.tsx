@@ -11,23 +11,26 @@ import {
   SetNamePayload,
   SetRecordPayload,
   SetTickerPayload,
+  TransactionData,
   TransactionDataPayload,
-  TransferPDNTPayload,
+  TransferANTPayload,
   ValidInteractionType,
 } from '../../../types';
 import {
   TRANSACTION_DATA_KEYS,
+  getPDNSMappingByInteractionType,
   isObjectOfTransactionPayloadType,
   pruneExtraDataFromTransactionPayload,
 } from '../../../utils';
 import eventEmitter from '../../../utils/events';
+import { PDNTCard } from '../../cards';
 import TransactionCost from '../../layout/TransactionCost/TransactionCost';
 import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import DialogModal from '../DialogModal/DialogModal';
 
 type ConfirmTransactionProps = {
   header: string;
-  body: (props: TransactionDataPayload) => JSX.Element;
+  body: (props: TransactionData) => JSX.Element;
 };
 
 export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
@@ -36,7 +39,7 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
 > = {
   [PDNT_INTERACTION_TYPES.SET_NAME]: {
     header: 'Edit Nickname',
-    body: (props: TransactionDataPayload) => {
+    body: (props: TransactionData) => {
       if (
         !isObjectOfTransactionPayloadType<SetNamePayload>(
           props,
@@ -47,11 +50,14 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
       }
 
       return (
-        <span>
-          By completing this action, you are going to change the name of this
-          token to <br />
-          <span className="text-color-warning">{`"${props.name}"`}.</span>
-        </span>
+        <>
+          <span>
+            By completing this action, you are going to change the name of this
+            token to <br />
+            <span className="text-color-warning">{`"${props.name}"`}.</span>
+          </span>
+          <span>Are you sure you want to continue?</span>
+        </>
       );
     },
   },
@@ -67,11 +73,14 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
         return <></>;
       }
       return (
-        <span>
-          By completing this action, you are going to change the ticker of this
-          token to <br />
-          <span className="text-color-warning">{`"${props.ticker}"`}.</span>
-        </span>
+        <>
+          <span>
+            By completing this action, you are going to change the ticker of
+            this token to <br />
+            <span className="text-color-warning">{`"${props.ticker}"`}.</span>
+          </span>
+          <span>Are you sure you want to continue?</span>
+        </>
       );
     },
   },
@@ -87,13 +96,16 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
         return <></>;
       }
       return (
-        <span>
-          By completing this action, you are going to change the target ID of
-          this token to <br />
-          <span className="text-color-warning">
-            {`"${props.transactionId}"`}.
+        <>
+          <span>
+            By completing this action, you are going to change the target ID of
+            this token to <br />
+            <span className="text-color-warning">
+              {`"${props.transactionId}"`}.
+            </span>
           </span>
-        </span>
+          <span>Are you sure you want to continue?</span>
+        </>
       );
     },
   },
@@ -109,11 +121,16 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
         return <></>;
       }
       return (
-        <span>
-          By completing this action, you are going to change the TTL seconds of
-          this token to <br />
-          <span className="text-color-warning">{`"${props.ttlSeconds}"`}.</span>
-        </span>
+        <>
+          <span>
+            By completing this action, you are going to change the TTL seconds
+            of this token to <br />
+            <span className="text-color-warning">
+              {`"${props.ttlSeconds}"`}.
+            </span>
+          </span>
+          <span>Are you sure you want to continue?</span>
+        </>
       );
     },
   },
@@ -129,11 +146,14 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
         return <></>;
       }
       return (
-        <span>
-          By completing this action, you are going to add controller with the
-          wallet ID <br />
-          <span className="text-color-warning">{`"${props.target}"`}.</span>
-        </span>
+        <>
+          <span>
+            By completing this action, you are going to add controller with the
+            wallet ID <br />
+            <span className="text-color-warning">{`"${props.target}"`}.</span>
+          </span>
+          <span>Are you sure you want to continue?</span>
+        </>
       );
     },
   },
@@ -149,11 +169,14 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
         return <></>;
       }
       return (
-        <span>
-          By completing this action, you are going to remove
-          <span className="text-color-warning">{`"${props.target}"`}</span>
-          controllers.
-        </span>
+        <>
+          <span>
+            By completing this action, you are going to remove
+            <span className="text-color-warning">{`"${props.target}"`}</span>
+            controllers.
+          </span>
+          <span>Are you sure you want to continue?</span>
+        </>
       );
     },
   },
@@ -169,10 +192,15 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
         return <></>;
       }
       return (
-        <span>
-          By completing this action, you are going to remove
-          <span className="text-color-warning">{`"${props.subDomain}"`}.</span>
-        </span>
+        <>
+          <span>
+            By completing this action, you are going to remove
+            <span className="text-color-warning">
+              {`"${props.subDomain}"`}.
+            </span>
+          </span>
+          <span>Are you sure you want to continue?</span>
+        </>
       );
     },
   },
@@ -188,13 +216,16 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
         return <></>;
       }
       return (
-        <span>
-          By completing this action, you are going to add
-          <span className="text-color-warning">{`"${props.ttlSeconds}"`}</span>{' '}
-          undername with{' '}
-          <span className="text-color-warning">{`"${props.ttlSeconds}"`}</span>{' '}
-          target ID.
-        </span>
+        <>
+          <span>
+            By completing this action, you are going to add
+            <span className="text-color-warning">{`"${props.ttlSeconds}"`}</span>{' '}
+            undername with{' '}
+            <span className="text-color-warning">{`"${props.ttlSeconds}"`}</span>{' '}
+            target ID.
+          </span>
+          <span>Are you sure you want to continue?</span>
+        </>
       );
     },
   },
@@ -202,18 +233,25 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
     header: 'Review Transfer',
     body: (props: TransactionDataPayload) => {
       if (
-        !isObjectOfTransactionPayloadType<TransferPDNTPayload>(
+        !isObjectOfTransactionPayloadType<TransferANTPayload>(
           props,
           TRANSACTION_DATA_KEYS[INTERACTION_TYPES.TRANSFER].keys,
         )
       ) {
         return <></>;
       }
+      const pdntProps = getPDNSMappingByInteractionType({
+        interactionType: INTERACTION_TYPES.TRANSFER,
+        transactionData: { ...props } as unknown as TransactionData,
+      });
+
       return (
-        <span>
-          By completing this action, you are going to change the TTL seconds of
-          this token to <br />
-          <span className="text-color-warning">{`"${props.target}"`}.</span>
+        <span className="flex" style={{ maxWidth: '500px' }}>
+          <PDNTCard
+            {...pdntProps}
+            domain={props.associatedNames?.[0] ?? ''}
+            mobileView
+          />
         </span>
       );
     },
@@ -237,7 +275,11 @@ function ConfirmTransactionModal({
   const arweaveDataProvider = useArweaveCompositeProvider();
   const transactionProps: { title: string; body: JSX.Element } = {
     title: CONFIRM_TRANSACTION_PROPS_MAP[interactionType].header,
-    body: CONFIRM_TRANSACTION_PROPS_MAP[interactionType].body(payload),
+    body: CONFIRM_TRANSACTION_PROPS_MAP[interactionType].body({
+      ...payload,
+      assetId: assetId.toString(),
+      functionName: '',
+    }),
   };
 
   // TODO: add fee for any IO transactions (eg extend lease or increase undernames)
@@ -302,7 +344,6 @@ function ConfirmTransactionModal({
             }}
           >
             {transactionProps.body}
-            <span>Are you sure you want to continue?</span>
           </div>
         }
         onCancel={() => close()}

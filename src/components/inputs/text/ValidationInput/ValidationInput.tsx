@@ -238,9 +238,10 @@ function ValidationInput({
                 validating ? (
                   <Loader
                     size={20}
-                    color="var(--text-black)"
+                    color="var(--text-grey)"
                     wrapperStyle={{
-                      top: -12,
+                      top: 0,
+                      bottom: 0,
                       left: -40,
                       position: 'absolute',
                     }}

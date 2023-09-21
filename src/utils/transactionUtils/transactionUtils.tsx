@@ -29,7 +29,7 @@ import {
   TransactionDataConfig,
   TransactionDataPayload,
   TransactionTag,
-  TransferPDNTPayload,
+  TransferANTPayload,
   ValidInteractionType,
 } from '../../types';
 import {
@@ -572,13 +572,13 @@ export function getPDNSMappingByInteractionType(
     }
     case INTERACTION_TYPES.TRANSFER: {
       if (
-        !isObjectOfTransactionPayloadType<TransferPDNTPayload>(
+        !isObjectOfTransactionPayloadType<TransferANTPayload>(
           transactionData,
           TRANSACTION_DATA_KEYS[INTERACTION_TYPES.TRANSFER].keys,
         )
       ) {
         throw new Error(
-          `transaction data not of correct payload type <TransferPDNTPayload> keys: ${Object.keys(
+          `transaction data not of correct payload type <TransferANTPayload> keys: ${Object.keys(
             transactionData,
           )}`,
         );
@@ -590,6 +590,8 @@ export function getPDNSMappingByInteractionType(
         overrides: {
           'New Owner': transactionData.target,
         },
+        compact: false,
+        disabledKeys: ['maxUndernames', 'owner', 'controller', 'ttlSeconds'],
       };
     }
   }
