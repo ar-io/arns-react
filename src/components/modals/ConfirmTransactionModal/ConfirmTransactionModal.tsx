@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { useArweaveCompositeProvider } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
@@ -19,60 +19,67 @@ import DialogModal from '../DialogModal/DialogModal';
 
 // TODO: use PDNT_INTERACTION_TYPES to render the correct modal, update the type to that once all flows are implemented
 
-export const TITLE_MAP: Record<string, string> = {
-  [PDNT_INTERACTION_TYPES.SET_NAME]: 'Edit Nickname',
-  [PDNT_INTERACTION_TYPES.SET_TICKER]: 'Edit Ticker',
-  [PDNT_INTERACTION_TYPES.SET_TARGET_ID]: 'Edit Target ID',
-  [PDNT_INTERACTION_TYPES.SET_TTL_SECONDS]: 'Edit TTL Seconds',
+type ConfirmTransactionProps = {
+  header: string;
+  body: (props: TransactionDataPayload) => JSX.Element;
 };
 
-const BODY_MAP: Record<string, (props: string[]) => JSX.Element> = {
-  [PDNT_INTERACTION_TYPES.SET_NAME]: (props: string[]) => (
-    <span>
-      By completing this action, you are going to change the name of this token
-      to <br />
-      <span className="text-color-warning">{`"${props[0]}"`}.</span>
-    </span>
-  ),
-  [PDNT_INTERACTION_TYPES.SET_TICKER]: (props: string[]) => (
-    <span>
-      By completing this action, you are going to change the ticker of this
-      token to <br />
-      <span className="text-color-warning">{`"${props[0]}"`}.</span>
-    </span>
-  ),
-  [PDNT_INTERACTION_TYPES.SET_TARGET_ID]: (props: string[]) => (
-    <span>
-      By completing this action, you are going to change the target ID of this
-      token to <br />
-      <span className="text-color-warning">{`"${props[0]}"`}.</span>
-    </span>
-  ),
-  [PDNT_INTERACTION_TYPES.SET_TTL_SECONDS]: (props: string[]) => (
-    <span>
-      By completing this action, you are going to change the TTL seconds of this
-      token to <br />
-      <span className="text-color-warning">{`"${props[0]}"`}.</span>
-    </span>
-  ),
-};
-
-const getBodyFromPayload = (
-  payload: any,
-  interactionType: PDNT_INTERACTION_TYPES,
-) => {
-  switch (interactionType) {
-    case PDNT_INTERACTION_TYPES.SET_NAME:
-      return BODY_MAP[interactionType]([payload.name]);
-    case PDNT_INTERACTION_TYPES.SET_TICKER:
-      return BODY_MAP[interactionType]([payload.ticker]);
-    case PDNT_INTERACTION_TYPES.SET_TARGET_ID:
-      return BODY_MAP[interactionType]([payload.transactionId]);
-    case PDNT_INTERACTION_TYPES.SET_TTL_SECONDS:
-      return BODY_MAP[interactionType]([payload.ttlSeconds]);
-    default:
-      return null;
-  }
+export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
+  string,
+  ConfirmTransactionProps
+> = {
+  [PDNT_INTERACTION_TYPES.SET_NAME]: {
+    header: 'Edit Nickname',
+    body: (props: any) => {
+      return (
+        <span>
+          By completing this action, you are going to change the name of this
+          token to <br />
+          <span className="text-color-warning">{`"${props?.name}"`}.</span>
+        </span>
+      );
+    },
+  },
+  [PDNT_INTERACTION_TYPES.SET_TICKER]: {
+    header: 'Edit Ticker',
+    body: (props: any) => {
+      return (
+        <span>
+          By completing this action, you are going to change the ticker of this
+          token to <br />
+          <span className="text-color-warning">{`"${props?.ticker}"`}.</span>
+        </span>
+      );
+    },
+  },
+  [PDNT_INTERACTION_TYPES.SET_TARGET_ID]: {
+    header: 'Edit Target ID',
+    body: (props: any) => {
+      return (
+        <span>
+          By completing this action, you are going to change the target ID of
+          this token to <br />
+          <span className="text-color-warning">
+            {`"${props?.transactionId}"`}.
+          </span>
+        </span>
+      );
+    },
+  },
+  [PDNT_INTERACTION_TYPES.SET_TTL_SECONDS]: {
+    header: 'Edit TTL Seconds',
+    body: (props: any) => {
+      return (
+        <span>
+          By completing this action, you are going to change the TTL seconds of
+          this token to <br />
+          <span className="text-color-warning">
+            {`"${props?.ttlSeconds}"`}.
+          </span>
+        </span>
+      );
+    },
+  },
 };
 
 function ConfirmTransactionModal({
@@ -90,15 +97,14 @@ function ConfirmTransactionModal({
 }) {
   const [{ walletAddress }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
-  const [title, setTitle] = useState<string>('');
+  const transactionProps: { title: string; body: JSX.Element } = {
+    title: CONFIRM_TRANSACTION_PROPS_MAP[interactionType]?.header,
+    body: CONFIRM_TRANSACTION_PROPS_MAP[interactionType]?.body(payload),
+  };
 
   // TODO: add fee for any IO transactions (eg extend lease or increase undernames)
   const [fee] = useState({ io: 0 });
   const [deployingTransaction, setDeployingTransaction] = useState(false);
-
-  useEffect(() => {
-    setTitle(TITLE_MAP[interactionType]);
-  }, [interactionType, payload]);
 
   async function deployInteraction(
     payload: TransactionDataPayload,
@@ -145,7 +151,7 @@ function ConfirmTransactionModal({
   return (
     <div className="modal-container">
       <DialogModal
-        title={<h2 className="white">{title}</h2>}
+        title={<h2 className="white">{transactionProps.title}</h2>}
         body={
           <div
             className="flex flex-column white"
@@ -157,17 +163,22 @@ function ConfirmTransactionModal({
               fontWeight: 160,
             }}
           >
-            {getBodyFromPayload(payload, interactionType)}
+            {transactionProps.body}
             <span>Are you sure you want to continue?</span>
           </div>
         }
         onCancel={() => close()}
         onClose={() => close()}
         nextText="Confirm"
+        cancelText="Cancel"
         onNext={() => deployInteraction(payload, interactionType)}
         footer={
           <div style={{ width: 'fit-content' }}>
-            <TransactionCost fee={fee} showBorder={false} />
+            <TransactionCost
+              fee={fee}
+              showBorder={false}
+              feeWrapperStyle={{ alignItems: 'flex-start' }}
+            />
           </div>
         }
       />

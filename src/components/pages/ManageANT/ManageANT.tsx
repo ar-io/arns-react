@@ -8,6 +8,7 @@ import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
   ArweaveTransactionID,
+  ContractInteraction,
   INTERACTION_TYPES,
   ManageANTRow,
   PDNSRecordEntry,
@@ -50,8 +51,8 @@ import TransactionStatus from '../../layout/TransactionStatus/TransactionStatus'
 import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import { TransferANTModal } from '../../modals';
 import ConfirmTransactionModal, {
-  TITLE_MAP,
-} from '../../modals/ConfirmModal/ConfirmModal';
+  CONFIRM_TRANSACTION_PROPS_MAP,
+} from '../../modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import './styles.css';
 
 function ManageANT() {
@@ -69,9 +70,9 @@ function ManageANT() {
   const [loading, setLoading] = useState<boolean>(true);
   const [showTransferANTModal, setShowTransferANTModal] =
     useState<boolean>(false);
-  const [pendingInteractions, setPendingInteractions] = useState<Array<any>>(
-    [],
-  );
+  const [pendingInteractions, setPendingInteractions] = useState<
+    Array<ContractInteraction>
+  >([]);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
   const [interactionType, setInteractionType] =
     useState<PDNT_INTERACTION_TYPES>();
@@ -249,7 +250,10 @@ function ManageANT() {
         {deployedTransactionId && interactionType ? (
           <TransactionSuccessCard
             txId={deployedTransactionId}
-            title={TITLE_MAP[interactionType] + ' complete'}
+            title={
+              CONFIRM_TRANSACTION_PROPS_MAP[interactionType].header +
+              ' complete'
+            }
             close={() => {
               setDeployedTransactionId(undefined);
               setInteractionType(undefined);
@@ -294,9 +298,8 @@ function ManageANT() {
                   align: 'left',
                   width: isMobile ? '0px' : '20%',
                   className: 'grey whitespace-no-wrap',
-                  render: (value: string) => {
-                    return `${mapKeyToAttribute(value as AntDetailKey)}:`;
-                  },
+                  render: (value: string) =>
+                    `${mapKeyToAttribute(value as AntDetailKey)}:`,
                 },
                 {
                   title: '',
@@ -306,6 +309,7 @@ function ManageANT() {
                   width: '70%',
                   className: 'white',
                   render: (value: string | number, row: any) => {
+                    const isEditMode = row.attribute === editingField;
                     if (row.attribute === 'status' && pendingInteractions)
                       return (
                         <Tooltip
@@ -348,7 +352,10 @@ function ManageANT() {
                       return (
                         <span
                           className="flex center"
-                          style={{ justifyContent: 'flex-start', gap: '10px' }}
+                          style={{
+                            justifyContent: 'flex-start',
+                            gap: '10px',
+                          }}
                         >
                           {value}
                           <NewspaperIcon
@@ -359,7 +366,7 @@ function ManageANT() {
                         </span>
                       );
                     }
-                    if (row.editable)
+                    if (row.editable) {
                       return (
                         <>
                           {/* TODO: add label for mobile view */}
@@ -389,16 +396,29 @@ function ManageANT() {
                               setModifiedValue(value);
                             }}
                             inputClassName={'flex'}
+                            wrapperCustomStyle={{
+                              position: 'relative',
+                              boxSizing: 'border-box',
+                            }}
                             inputCustomStyle={{
                               width: '100%',
                               border: 'none',
                               overflow: 'hidden',
                               fontSize: '13px',
                               outline: 'none',
-                              borderRadius: 'var(--corner-radius)',
                               background: 'transparent',
                               color: 'white',
                               alignContent: 'center',
+                              borderBottom: 'none',
+                              boxSizing: 'border-box',
+                              ...(isEditMode
+                                ? {
+                                    background: 'var(--card-bg)',
+                                    borderRadius: 'var(--corner-radius)',
+                                    border: '1px solid var(--text-faded)',
+                                    padding: '15px',
+                                  }
+                                : {}),
                             }}
                             disabled={editingField !== row.attribute}
                             placeholder={`Enter a ${mapKeyToAttribute(
@@ -441,6 +461,7 @@ function ManageANT() {
                           />
                         </>
                       );
+                    }
                     return value;
                   },
                 },

@@ -1,3 +1,5 @@
+import { CSSProperties } from 'react';
+
 import { useIsMobile } from '../../../hooks';
 import { SMARTWEAVE_TAG_SIZE } from '../../../utils/constants';
 import ArPrice from '../ArPrice/ArPrice';
@@ -6,10 +8,12 @@ function TransactionCost({
   fee,
   info,
   showBorder = true,
+  feeWrapperStyle,
 }: {
   fee?: { io?: number; ar?: number };
   info?: JSX.Element | string;
   showBorder?: boolean;
+  feeWrapperStyle?: CSSProperties;
 }) {
   const isMobile = useIsMobile();
   return (
@@ -40,6 +44,7 @@ function TransactionCost({
             gap: '0.2em',
             alignItems: 'flex-end',
             width: 'fit-content',
+            ...feeWrapperStyle,
           }}
         >
           <span

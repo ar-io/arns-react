@@ -6,8 +6,8 @@ function DialogModal({
   body,
   footer,
   showClose = true,
-  cancelText = 'Cancel',
-  nextText = 'Next',
+  cancelText,
+  nextText,
   onClose = () => alert('onClose not set'),
   onCancel = () => alert('onCancel not set'),
   onNext = () => alert('onNext not set'),
@@ -27,7 +27,7 @@ function DialogModal({
       <div
         className="flex flex-column radius fade-in"
         style={{
-          backgroundColor: 'var(--bg-color)',
+          backgroundColor: 'var(--card-bg)',
           width: 'fit-content',
           padding: '0px 30px',
           paddingBottom: '0px',
@@ -116,8 +116,8 @@ function DialogModal({
             <WorkflowButtons
               nextText={nextText}
               backText={cancelText}
-              onNext={() => onNext()}
-              onBack={() => onCancel()}
+              onNext={onNext}
+              onBack={onCancel}
               customBackStyle={{
                 fontSize: '14px',
                 fontWeight: 160,
