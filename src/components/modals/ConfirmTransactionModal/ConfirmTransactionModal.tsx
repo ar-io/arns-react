@@ -59,7 +59,9 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
         <span>
           By completing this action, you are going to change the target ID of
           this token to <br />
-          <span className="text-color-warning">{`"${props?.target}"`}.</span>
+          <span className="text-color-warning">
+            {`"${props?.transactionId}"`}.
+          </span>
         </span>
       );
     },

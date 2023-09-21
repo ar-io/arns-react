@@ -40,6 +40,13 @@ thead > tr > td[class~='manage-ant-table-header'] {
   font-weight: 800;
   height: 50px;
 }
+
+.manage-ant-table-tbody > .active-row > td,
+.manage-ant-table-tbody > .active-row > td:first-child,
+.manage-ant-table-tbody > .active-row > td:last-child {
+  border-color: var(--text-grey) !important;
+}
+
 .active-row > td {
   border-color: var(--text-white) !important;
 }
@@ -153,4 +160,9 @@ thead > tr > td[class~='manage-ant-table-header'] {
 
 .whitespace-no-wrap {
   white-space: nowrap;
+}
+
+.blur-row {
+  filter: blur(3px) !important;
+  opacity: 100% !important;
 }
