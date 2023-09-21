@@ -1,4 +1,4 @@
-import { Checkbox, ConfigProvider } from 'antd';
+import { Checkbox } from 'antd';
 import { useEffect, useState } from 'react';
 
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
