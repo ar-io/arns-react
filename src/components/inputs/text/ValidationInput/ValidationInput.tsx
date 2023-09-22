@@ -208,6 +208,7 @@ function ValidationInput({
               right: '10px',
               top: '0px',
               bottom: '0px',
+              display: 'flex',
             }}
             onFocus={() => {
               return;
@@ -216,7 +217,11 @@ function ValidationInput({
             onMouseLeave={() => setOpenTooltip(false)}
           >
             <Tooltip
-              open={openTooltip && validationResults!.length > 0}
+              open={
+                showValidationChecklist &&
+                openTooltip &&
+                validationResults!.length > 0
+              }
               placement="right"
               autoAdjustOverflow={true}
               title={
@@ -233,9 +238,10 @@ function ValidationInput({
                 validating ? (
                   <Loader
                     size={20}
-                    color="var(--text-black)"
+                    color="var(--text-grey)"
                     wrapperStyle={{
-                      top: -12,
+                      top: 0,
+                      bottom: 0,
                       left: -40,
                       position: 'absolute',
                     }}

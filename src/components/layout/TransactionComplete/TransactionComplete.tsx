@@ -115,6 +115,7 @@ function TransactionComplete({
             ...pdntProps.overrides,
           }}
           compact={false}
+          bordered
         />
         <div
           className="flex flex-row center"

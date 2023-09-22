@@ -267,7 +267,7 @@ function TransactionWorkflow({
               className="flex flex-column"
               style={{ marginBottom: '30px', gap: '0px' }}
             >
-              <PDNTCard {...pdntProps} />
+              <PDNTCard {...pdntProps} bordered />
               <TransactionCost />
             </div>
           ),
@@ -337,7 +337,7 @@ function TransactionWorkflow({
                 className="flex flex-column"
                 style={{ marginBottom: '30px', gap: '0px' }}
               >
-                <PDNTCard {...pdntProps} />
+                <PDNTCard {...pdntProps} bordered />
                 <TransactionCost
                   fee={{
                     io:
@@ -438,7 +438,7 @@ function TransactionWorkflow({
                 className="flex flex-column"
                 style={{ marginBottom: '30px', gap: '0px' }}
               >
-                <PDNTCard {...pdntProps} />
+                <PDNTCard {...pdntProps} bordered />
                 <TransactionCost
                   fee={{
                     io: payload.qty,
@@ -539,7 +539,7 @@ function TransactionWorkflow({
                 className="flex flex-column"
                 style={{ marginBottom: '30px', gap: '0px' }}
               >
-                <PDNTCard {...pdntProps} />
+                <PDNTCard {...pdntProps} bordered />
                 <TransactionCost
                   fee={{
                     io: payload.ioFee,

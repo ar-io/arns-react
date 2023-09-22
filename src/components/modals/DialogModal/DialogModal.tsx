@@ -8,9 +8,9 @@ function DialogModal({
   showClose = true,
   cancelText,
   nextText,
-  onClose = () => alert('onClose not set'),
-  onCancel = () => alert('onCancel not set'),
-  onNext = () => alert('onNext not set'),
+  onClose,
+  onCancel,
+  onNext,
 }: {
   title?: string | JSX.Element;
   body?: string | JSX.Element;
@@ -27,7 +27,7 @@ function DialogModal({
       <div
         className="flex flex-column radius fade-in"
         style={{
-          backgroundColor: 'var(--card-bg)',
+          backgroundColor: '#1B1B1D',
           width: 'fit-content',
           padding: '0px 30px',
           paddingBottom: '0px',
@@ -62,9 +62,9 @@ function DialogModal({
                 padding: '0px',
                 minWidth: '0px',
               }}
-              onClick={() => onClose()}
+              onClick={onClose}
             >
-              <CloseIcon width={'24px'} height={'px24'} fill="white" />
+              <CloseIcon width={'24px'} height={'24px'} fill="white" />
             </button>
           ) : (
             <></>
@@ -88,10 +88,10 @@ function DialogModal({
           style={{
             justifyContent: footer ? 'space-between' : 'flex-end',
             alignItems: 'center',
-            borderTop: '2px solid var(--text-faded)',
+            borderTop: '1px solid var(--text-faded)',
             boxSizing: 'border-box',
-            height: '75px',
             bottom: 0,
+            padding: '20px 0px',
           }}
         >
           {footer ? (
