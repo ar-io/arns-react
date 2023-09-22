@@ -8,7 +8,7 @@ import svgr from 'vite-plugin-svgr';
 export default defineConfig({
   build: {
     // dev only source maps for now
-    sourcemap: process.env.VITE_NODE_ENV === 'develop',
+    sourcemap: process.env.VITE_NODE_ENV !== 'test',
   },
   plugins: [
     svgr(),
@@ -17,17 +17,21 @@ export default defineConfig({
       // Whether to polyfill `node:` protocol imports.
       protocolImports: true,
     }),
-    sentryVitePlugin({
-      org: process.env.VITE_SENTRY_ORG,
-      project: process.env.VITE_SENTRY_PROJECT,
-      ignore: ['node_modules', 'vite.config.ts'],
-      authToken: process.env.VITE_SENTRY_AUTH_TOKEN,
-      // TODO: enable when generating source maps
-      sourcemaps: {
-        assets: './dist/**',
-      },
-      release: process.env.VITE_SENTRY_RELEASE,
-    }),
+    ...(process.env.VITE_NODE_ENV !== 'test'
+      ? [
+          sentryVitePlugin({
+            org: process.env.VITE_SENTRY_ORG,
+            project: process.env.VITE_SENTRY_PROJECT,
+            ignore: ['node_modules', 'vite.config.ts'],
+            authToken: process.env.VITE_SENTRY_AUTH_TOKEN,
+            // TODO: enable when generating source maps
+            sourcemaps: {
+              assets: './dist/**',
+            },
+            release: process.env.VITE_SENTRY_RELEASE,
+          }),
+        ]
+      : []),
   ],
   base: '/',
   define: {
