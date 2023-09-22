@@ -2,7 +2,7 @@
   "name": "arns-vite-react",
   "private": true,
   "version": "0.0.1",
-  "homepage": "https://arns.app",
+  "homepage": ".",
   "scripts": {
     "build": "npm run clean && tsc && vite build",
     "clean": "rimraf dist",
