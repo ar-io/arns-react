@@ -24,8 +24,8 @@ import {
   withExponentialBackoff,
 } from '../../utils';
 import {
+  ARNS_REGISTRY_ADDRESS,
   ATOMIC_REGISTRATION_INPUT,
-  PDNS_REGISTRY_ADDRESS,
   SMARTWEAVE_MAX_TAG_SPACE,
 } from '../../utils/constants';
 import { LocalStorageCache } from '../cache/LocalStorageCache';
@@ -80,7 +80,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     const contract = this._warp // eval options were required due to change in manifest. This is causing an issue where it is causing a delay for returning the txid due to the `waitForConfirmation` option. This should be removed from the eval manifest if we dont want to make the user wait.
       .contract(contractTxId.toString())
       .setEvaluationOptions(
-        contractTxId.toString() === PDNS_REGISTRY_ADDRESS
+        contractTxId.toString() === ARNS_REGISTRY_ADDRESS
           ? {
               waitForConfirmation: false,
               internalWrites: true,
@@ -255,7 +255,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     });
 
     const contract = this._warp // eval options were required due to change in manifest. This is causing an issue where it is causing a delay for returning the txid due to the `waitForConfirmation` option. This should be removed from the eval manifest if we dont want to make the user wait.
-      .contract(PDNS_REGISTRY_ADDRESS)
+      .contract(ARNS_REGISTRY_ADDRESS)
       .setEvaluationOptions({
         waitForConfirmation: true,
         internalWrites: true,
