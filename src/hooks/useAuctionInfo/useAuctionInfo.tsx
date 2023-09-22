@@ -60,7 +60,7 @@ export function useAuctionInfo(
       // gets auction prices if auction exists, otherwise returns undefined
       // will update once service supports returning boolean for auction existence
       const auctionInfo = await arweaveDataProvider
-        .getAuctionPrices(domainName, blockHeight)
+        .getAuctionPrices({ domain: domainName })
         .catch(() => null);
 
       if (auctionInfo) {

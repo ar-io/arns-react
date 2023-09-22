@@ -1,6 +1,7 @@
 import { isArray } from 'lodash';
 
 import {
+  ArweaveDataProvider,
   ArweaveTransactionID,
   Auction,
   AuctionParameters,
@@ -18,17 +19,27 @@ import {
   lowerCaseDomain,
   updatePrices,
 } from '../../utils';
-import { PDNS_REGISTRY_ADDRESS } from '../../utils/constants';
+import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
 import { LocalStorageCache } from '../cache/LocalStorageCache';
 import { PDNTContract } from './PDNTContract';
 
 export class PDNSContractCache implements SmartweaveContractCache {
-  private _url: string;
-  private _cache: TransactionCache;
+  protected _url: string;
+  protected _cache: TransactionCache;
+  protected _arweave: ArweaveDataProvider;
 
-  constructor(url: string, cache: TransactionCache = new LocalStorageCache()) {
+  constructor({
+    url,
+    arweave,
+    cache = new LocalStorageCache(),
+  }: {
+    url: string;
+    arweave: ArweaveDataProvider;
+    cache?: TransactionCache;
+  }) {
     this._url = url;
     this._cache = cache;
+    this._arweave = arweave;
   }
 
   async getContractState<T extends PDNTContractJSON | PDNSContractJSON>(
@@ -125,7 +136,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
     const res = await fetch(
       `${
         this._url
-      }/v1/contract/${PDNS_REGISTRY_ADDRESS}/reserved/${lowerCaseDomain(
+      }/v1/contract/${ARNS_REGISTRY_ADDRESS}/reserved/${lowerCaseDomain(
         domain,
       )}`,
     );
@@ -138,21 +149,17 @@ export class PDNSContractCache implements SmartweaveContractCache {
     return isReserved;
   }
 
-  isDomainInAuction({
-    domain,
-    auctionsList,
-  }: {
-    domain: string;
-    auctionsList: string[];
-  }): boolean {
-    return auctionsList.includes(lowerCaseDomain(domain));
+  async isDomainInAuction({ domain }: { domain: string }): Promise<boolean> {
+    return this.getAuction({ domain })
+      .then((auction) => !!auction) // it found the auction
+      .catch(() => false); // it returned a 404 or otherwise failed
   }
 
   async isDomainAvailable({ domain }: { domain: string }): Promise<boolean> {
     const res = await fetch(
       `${
         this._url
-      }/v1/contract/${PDNS_REGISTRY_ADDRESS}/records/${lowerCaseDomain(
+      }/v1/contract/${ARNS_REGISTRY_ADDRESS}/records/${lowerCaseDomain(
         domain,
       )}`,
     );
@@ -160,6 +167,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
 
     return isAvailable;
   }
+
   async getCachedNameTokens(
     address: ArweaveTransactionID,
   ): Promise<PDNTContract[]> {
@@ -183,9 +191,9 @@ export class PDNSContractCache implements SmartweaveContractCache {
     }, []);
   }
 
-  async getAuction(domain: string): Promise<AuctionParameters> {
+  async getAuction({ domain }: { domain: string }): Promise<AuctionParameters> {
     const auctionRes = await fetch(
-      `${this._url}/v1/contract/${PDNS_REGISTRY_ADDRESS}/auctions`,
+      `${this._url}/v1/contract/${ARNS_REGISTRY_ADDRESS}/auctions`,
     );
     const { auctions } = await auctionRes.json();
     const auction = auctions[lowerCaseDomain(domain)];
@@ -196,13 +204,17 @@ export class PDNSContractCache implements SmartweaveContractCache {
     return auction;
   }
 
-  async getAuctionSettings(id: string): Promise<AuctionSettings> {
+  async getAuctionSettings({
+    auctionSettingsId,
+  }: {
+    auctionSettingsId: string;
+  }): Promise<AuctionSettings> {
     const res = await fetch(
-      `${this._url}/v1/contract/${PDNS_REGISTRY_ADDRESS}/settings`,
+      `${this._url}/v1/contract/${ARNS_REGISTRY_ADDRESS}/settings`,
     );
     const { settings } = await res.json();
     const auctionSettings = settings.auctions.history.find(
-      (s: any) => s.id === id,
+      (s: any) => s.id === auctionSettingsId,
     );
     if (!auctionSettings) {
       throw new Error('Auction was created with invalid settings');
@@ -210,14 +222,12 @@ export class PDNSContractCache implements SmartweaveContractCache {
     return auctionSettings;
   }
 
-  async getAuctionPrices(
-    domain: string,
-    currentBlockHeight: number,
-  ): Promise<Auction> {
-    const auction = await this.getAuction(domain);
-    const auctionSettings = await this.getAuctionSettings(
-      auction.auctionSettingsId,
-    );
+  async getAuctionPrices({ domain }: { domain: string }): Promise<Auction> {
+    const currentBlockHeight = await this._arweave.getCurrentBlockHeight();
+    const auction = await this.getAuction({ domain });
+    const auctionSettings = await this.getAuctionSettings({
+      auctionSettingsId: auction.auctionSettingsId,
+    });
     const prices = updatePrices({
       ...auctionSettings,
       ...auction,
@@ -225,6 +235,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
     const isExpired =
       auction.startHeight + auctionSettings.auctionDuration <
       currentBlockHeight;
+
     const minimumAuctionBid = calculateMinimumAuctionBid({
       ...auction,
       ...auctionSettings,
@@ -242,7 +253,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
 
   async getDomainsInAuction(): Promise<string[]> {
     const res = await fetch(
-      `${this._url}/v1/contract/${PDNS_REGISTRY_ADDRESS}/auctions`,
+      `${this._url}/v1/contract/${ARNS_REGISTRY_ADDRESS}/auctions`,
     );
     const { auctions } = await res.json();
     return Object.keys(auctions);
@@ -252,7 +263,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
     const res = await fetch(
       `${
         this._url
-      }/v1/contract/${PDNS_REGISTRY_ADDRESS}/records/${lowerCaseDomain(
+      }/v1/contract/${ARNS_REGISTRY_ADDRESS}/records/${lowerCaseDomain(
         domain,
       )}`,
     );
@@ -264,7 +275,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
     const res = await fetch(
       `${
         this._url
-      }/v1/contract/${PDNS_REGISTRY_ADDRESS}/balances/${address.toString()}`,
+      }/v1/contract/${ARNS_REGISTRY_ADDRESS}/balances/${address.toString()}`,
     );
     const { balance } = await res.json();
     return balance;

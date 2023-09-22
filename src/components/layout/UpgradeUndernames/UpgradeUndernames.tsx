@@ -14,8 +14,8 @@ import {
 } from '../../../types';
 import { isPDNSDomainNameValid, lowerCaseDomain, sleep } from '../../../utils';
 import {
+  ARNS_REGISTRY_ADDRESS,
   MAX_UNDERNAME_COUNT,
-  PDNS_REGISTRY_ADDRESS,
 } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { InfoIcon } from '../../icons';
@@ -181,7 +181,7 @@ function UpgradeUndernames() {
             dispatchTransactionState({
               type: 'setTransactionData',
               payload: {
-                assetId: PDNS_REGISTRY_ADDRESS,
+                assetId: ARNS_REGISTRY_ADDRESS,
                 functionName: 'increaseUndernameCount',
                 ...increaseUndernamePayload,
               },

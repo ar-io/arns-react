@@ -30,10 +30,10 @@ import {
   lowerCaseDomain,
 } from '../../../utils';
 import {
+  ARNS_REGISTRY_ADDRESS,
   ATOMIC_FLAG,
   MAX_LEASE_DURATION,
   MIN_LEASE_DURATION,
-  PDNS_REGISTRY_ADDRESS,
 } from '../../../utils/constants';
 import { CirclePlus, LockIcon } from '../../icons';
 import Counter from '../../inputs/Counter/Counter';
@@ -576,7 +576,7 @@ function RegisterNameForm() {
             dispatchTransactionState({
               type: 'setTransactionData',
               payload: {
-                assetId: PDNS_REGISTRY_ADDRESS,
+                assetId: ARNS_REGISTRY_ADDRESS,
                 functionName: 'buyRecord',
                 ...buyRecordPayload,
               },

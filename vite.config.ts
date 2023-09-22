@@ -17,7 +17,6 @@ export default defineConfig({
       // Whether to polyfill `node:` protocol imports.
       protocolImports: true,
     }),
-
     ...(process.env.VITE_NODE_ENV === 'develop'
       ? [
           sentryVitePlugin({
