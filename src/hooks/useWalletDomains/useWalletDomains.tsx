@@ -29,8 +29,8 @@ import {
   handleTableSort,
 } from '../../utils';
 import {
+  ARNS_REGISTRY_ADDRESS,
   DEFAULT_MAX_UNDERNAMES,
-  PDNS_REGISTRY_ADDRESS,
   YEAR_IN_MILLISECONDS,
 } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
@@ -519,7 +519,7 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
     try {
       const cachedInteractions =
         await arweaveDataProvider.getPendingContractInteractions(
-          new ArweaveTransactionID(PDNS_REGISTRY_ADDRESS),
+          new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
           address.toString(),
         );
       const cachedRegistrations = cachedInteractions.reduce(
