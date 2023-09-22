@@ -99,7 +99,7 @@ function TransferANTModal({
               </span>
             </div>
             <div className="flex flex-column" style={{ paddingBottom: '30px' }}>
-              <div className="flex flex-column" style={{ gap: '10px' }}>
+              <div className="flex flex-column" style={{ gap: '15px' }}>
                 <span className="grey">Recipient wallet address:</span>
                 <ValidationInput
                   inputClassName="name-token-input white"
@@ -131,60 +131,71 @@ function TransferANTModal({
                     },
                   }}
                 />
-                <span className="text-color-error">
-                  {isValidAddress === false ? 'invalid address' : ''}
-                </span>
-              </div>
-              {associatedNames.length ? (
-                <span
-                  className="warning-container flex flex-row"
-                  style={{
-                    boxSizing: 'border-box',
-                    fontSize: 'inherit',
-                    gap: '10px',
-                  }}
-                >
-                  <InfoIcon
-                    width={'24px'}
-                    height={'24px'}
-                    fill={'var(--accent)'}
+                {isValidAddress === false ? (
+                  <span
+                    className="text-color-error"
+                    style={{ marginBottom: '10px' }}
+                  >
+                    invalid address
+                  </span>
+                ) : (
+                  <></>
+                )}
+
+                {associatedNames.length ? (
+                  <span
+                    className="warning-container flex flex-row"
                     style={{
-                      height: 'fit-content',
-                      width: '40px',
-                      justifyContent: 'flex-start',
-                      display: 'flex',
-                      lineHeight: '150%',
+                      boxSizing: 'border-box',
+                      fontSize: 'inherit',
+                      gap: '10px',
                     }}
-                  />
-                  <span style={{}}>
-                    {`This ANT has ${associatedNames.length} name${
-                      associatedNames.length > 1 ? 's' : ''
-                    } that ${
-                      associatedNames.length > 1 ? 'are' : 'is'
-                    } associated with it. By transferring this ANT, you
+                  >
+                    <InfoIcon
+                      width={'24px'}
+                      height={'24px'}
+                      fill={'var(--accent)'}
+                      style={{
+                        height: 'fit-content',
+                        width: '40px',
+                        justifyContent: 'flex-start',
+                        display: 'flex',
+                        lineHeight: '150%',
+                      }}
+                    />
+                    <span style={{}}>
+                      {`This ANT has ${associatedNames.length} name${
+                        associatedNames.length > 1 ? 's' : ''
+                      } that ${
+                        associatedNames.length > 1 ? 'are' : 'is'
+                      } associated with it. By transferring this ANT, you
                   will also be transferring control of those names to the new
                   ANT holder.`}
+                    </span>
                   </span>
+                ) : (
+                  <></>
+                )}
+
+                <span
+                  className={`flex flex-row text ${
+                    accepted ? 'white' : 'grey'
+                  }`}
+                  style={{
+                    gap: 10,
+                    alignItems: 'center',
+                  }}
+                >
+                  <Checkbox
+                    rootClassName="accept-checkbox"
+                    onChange={(e) => setAccepted(e.target.checked)}
+                    checked={accepted && isArweaveTransactionID(toAddress)}
+                    style={{ color: 'white' }}
+                    disabled={!isArweaveTransactionID(toAddress)}
+                  />
+                  I understand that this action cannot be undone.
                 </span>
-              ) : (
-                <></>
-              )}
-              <span
-                className={`flex flex-row text ${accepted ? 'white' : 'grey'}`}
-                style={{
-                  gap: 10,
-                  alignItems: 'center',
-                }}
-              >
-                <Checkbox
-                  rootClassName="accept-checkbox"
-                  onChange={(e) => setAccepted(e.target.checked)}
-                  checked={accepted && isArweaveTransactionID(toAddress)}
-                  style={{ color: 'white' }}
-                  disabled={!isArweaveTransactionID(toAddress)}
-                />
-                I understand that this action cannot be undone.
-              </span>
+              </div>
             </div>
           </div>
         }

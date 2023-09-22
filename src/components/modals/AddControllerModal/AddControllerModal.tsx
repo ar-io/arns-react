@@ -93,7 +93,8 @@ function AddControllerModal({
                   }}
                   showValidationIcon={true}
                   showValidationOutline={true}
-                  showValidationChecklist={false}
+                  showValidationChecklist={true}
+                  validationListStyle={{ display: 'none' }}
                   maxLength={43}
                   value={toAddress}
                   setValue={setToAddress}
@@ -124,7 +125,7 @@ function AddControllerModal({
         onNext={
           isArweaveTransactionID(toAddress)
             ? () => handlePayloadCallback()
-            : () => alert('You must accept the terms to continue.')
+            : undefined
         }
         footer={
           <div className="flex">

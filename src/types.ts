@@ -503,6 +503,10 @@ export type SetControllerPayload = {
   target: string;
 };
 
+export type RemoveControllersPayload = {
+  targets: string[];
+};
+
 export type SetNamePayload = {
   name: string;
 };

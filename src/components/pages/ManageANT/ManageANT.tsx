@@ -54,6 +54,7 @@ import AddControllerModal from '../../modals/AddControllerModal/AddControllerMod
 import ConfirmTransactionModal, {
   CONFIRM_TRANSACTION_PROPS_MAP,
 } from '../../modals/ConfirmTransactionModal/ConfirmTransactionModal';
+import RemoveControllersModal from '../../modals/RemoveControllerModal/RemoveControllerModal';
 import './styles.css';
 
 function ManageANT() {
@@ -72,6 +73,8 @@ function ManageANT() {
   const [showTransferANTModal, setShowTransferANTModal] =
     useState<boolean>(false);
   const [showAddControllerModal, setShowAddControllerModal] =
+    useState<boolean>(false);
+  const [showRemoveControllerModal, setShowRemoveControllerModal] =
     useState<boolean>(false);
   const [pendingInteractions, setPendingInteractions] = useState<
     Array<ContractInteraction>
@@ -579,7 +582,9 @@ function ManageANT() {
                               </button>
                               <button
                                 className="flex flex-right white pointer button"
-                                onClick={() => alert('not implemented')}
+                                onClick={() =>
+                                  setShowRemoveControllerModal(true)
+                                }
                               >
                                 Remove Controller
                               </button>
@@ -711,6 +716,20 @@ function ManageANT() {
       ) : (
         <></>
       )}
+      {showRemoveControllerModal && id ? (
+        <RemoveControllersModal
+          showModal={() => setShowRemoveControllerModal(false)}
+          antId={new ArweaveTransactionID(id)}
+          payloadCallback={(payload) => {
+            setTransactionData(payload);
+            setInteractionType(PDNT_INTERACTION_TYPES.REMOVE_CONTROLLER);
+            setShowConfirmModal(true);
+            setShowRemoveControllerModal(false);
+          }}
+        />
+      ) : (
+        <></>
+      )}
       {showConfirmModal && interactionType && id ? (
         <ConfirmTransactionModal
           interactionType={interactionType}
@@ -721,6 +740,34 @@ function ManageANT() {
             setEditingField(undefined);
             setModifiedValue(undefined);
           }}
+          cancel={() => {
+            if (interactionType === PDNT_INTERACTION_TYPES.TRANSFER) {
+              setShowTransferANTModal(true);
+              setShowConfirmModal(false);
+              return;
+            }
+            if (interactionType === PDNT_INTERACTION_TYPES.SET_CONTROLLER) {
+              setShowAddControllerModal(true);
+              setShowConfirmModal(false);
+              return;
+            }
+            if (interactionType === PDNT_INTERACTION_TYPES.REMOVE_CONTROLLER) {
+              setShowRemoveControllerModal(true);
+              setShowConfirmModal(false);
+              return;
+            }
+            setShowConfirmModal(false);
+            setTransactionData(undefined);
+            setEditingField(undefined);
+            setModifiedValue(undefined);
+          }}
+          cancelText={
+            interactionType === PDNT_INTERACTION_TYPES.TRANSFER ||
+            interactionType === PDNT_INTERACTION_TYPES.SET_CONTROLLER ||
+            interactionType === PDNT_INTERACTION_TYPES.REMOVE_CONTROLLER
+              ? 'Back'
+              : 'Cancel'
+          }
           setDeployedTransactionId={(id) => setDeployedTransactionId(id)}
           assetId={new ArweaveTransactionID(id)}
         />

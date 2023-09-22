@@ -310,7 +310,7 @@ export class WarpDataProvider
       walletAddress.toString(),
     );
     // an undefined valid means the transaction is valid
-    if (dryWriteResults.originalValidity?.valid === false) {
+    if (dryWriteResults.type === 'error') {
       throw new Error(
         `Contract interaction detected to be invalid: ${
           dryWriteResults?.originalErrorMessages

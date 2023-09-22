@@ -273,13 +273,19 @@ function ConfirmTransactionModal({
   payload,
   assetId,
   close,
+  cancel,
   setDeployedTransactionId,
+  cancelText = 'Cancel',
+  confirmText = 'Confirm',
 }: {
   interactionType: PDNT_INTERACTION_TYPES;
   payload: TransactionDataPayload;
   assetId: ArweaveTransactionID;
   close: () => void;
+  cancel: () => void;
   setDeployedTransactionId: (id: ArweaveTransactionID) => void;
+  cancelText?: string;
+  confirmText?: string;
 }) {
   const [{ walletAddress }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
@@ -356,10 +362,10 @@ function ConfirmTransactionModal({
             {transactionProps.body}
           </div>
         }
-        onCancel={() => close()}
-        onClose={() => close()}
-        nextText="Confirm"
-        cancelText="Cancel"
+        onCancel={cancel}
+        onClose={close}
+        nextText={confirmText}
+        cancelText={cancelText}
         onNext={() => deployInteraction(payload, interactionType)}
         footer={
           <div style={{ width: 'fit-content' }}>
