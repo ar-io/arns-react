@@ -250,10 +250,7 @@ function ManageANT() {
         {deployedTransactionId && interactionType ? (
           <TransactionSuccessCard
             txId={deployedTransactionId}
-            title={
-              CONFIRM_TRANSACTION_PROPS_MAP[interactionType].header +
-              ' complete'
-            }
+            title={CONFIRM_TRANSACTION_PROPS_MAP[interactionType].successHeader}
             close={() => {
               setDeployedTransactionId(undefined);
               setInteractionType(undefined);
@@ -707,6 +704,30 @@ function ManageANT() {
             setEditingField(undefined);
             setModifiedValue(undefined);
           }}
+          cancel={() => {
+            if (
+              interactionType ===
+              (PDNT_INTERACTION_TYPES.TRANSFER ||
+                PDNT_INTERACTION_TYPES.SET_CONTROLLER ||
+                PDNT_INTERACTION_TYPES.REMOVE_CONTROLLER)
+            ) {
+              setShowTransferANTModal(true);
+              setShowConfirmModal(false);
+              return;
+            }
+            setShowConfirmModal(false);
+            setTransactionData(undefined);
+            setEditingField(undefined);
+            setModifiedValue(undefined);
+          }}
+          cancelText={
+            interactionType ===
+            (PDNT_INTERACTION_TYPES.TRANSFER ||
+              PDNT_INTERACTION_TYPES.SET_CONTROLLER ||
+              PDNT_INTERACTION_TYPES.REMOVE_CONTROLLER)
+              ? 'Back'
+              : 'Cancel'
+          }
           setDeployedTransactionId={(id) => setDeployedTransactionId(id)}
           assetId={new ArweaveTransactionID(id)}
         />

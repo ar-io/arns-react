@@ -30,6 +30,7 @@ import DialogModal from '../DialogModal/DialogModal';
 
 type ConfirmTransactionProps = {
   header: string;
+  successHeader: string;
   body: (props: TransactionData) => JSX.Element;
 };
 
@@ -39,6 +40,7 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
 > = {
   [PDNT_INTERACTION_TYPES.SET_NAME]: {
     header: 'Edit Nickname',
+    successHeader: 'Edit Nickname completed',
     body: (props: TransactionData) => {
       if (
         !isObjectOfTransactionPayloadType<SetNamePayload>(
@@ -63,6 +65,7 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
   },
   [PDNT_INTERACTION_TYPES.SET_TICKER]: {
     header: 'Edit Ticker',
+    successHeader: 'Edit Ticker completed',
     body: (props: TransactionDataPayload) => {
       if (
         !isObjectOfTransactionPayloadType<SetTickerPayload>(
@@ -86,6 +89,7 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
   },
   [PDNT_INTERACTION_TYPES.SET_TARGET_ID]: {
     header: 'Edit Target ID',
+    successHeader: 'Edit Target ID completed',
     body: (props: TransactionDataPayload) => {
       if (
         !isObjectOfTransactionPayloadType<SetRecordPayload>(
@@ -111,6 +115,7 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
   },
   [PDNT_INTERACTION_TYPES.SET_TTL_SECONDS]: {
     header: 'Edit TTL Seconds',
+    successHeader: 'Edit ttlSeconds completed',
     body: (props: TransactionDataPayload) => {
       if (
         !isObjectOfTransactionPayloadType<SetRecordPayload>(
@@ -135,7 +140,8 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
     },
   },
   [PDNT_INTERACTION_TYPES.SET_CONTROLLER]: {
-    header: 'Edit TTL Seconds',
+    header: 'Add Controllers',
+    successHeader: 'Controller Added',
     body: (props: TransactionDataPayload) => {
       if (
         !isObjectOfTransactionPayloadType<SetControllerPayload>(
@@ -158,12 +164,13 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
     },
   },
   [PDNT_INTERACTION_TYPES.REMOVE_CONTROLLER]: {
-    header: 'Edit TTL Seconds',
+    header: 'Remove Controller',
+    successHeader: 'Controllers Removed',
     body: (props: TransactionDataPayload) => {
       if (
         !isObjectOfTransactionPayloadType<SetControllerPayload>(
           props,
-          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.SET_TTL_SECONDS].keys,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.REMOVE_CONTROLLER].keys,
         )
       ) {
         return <></>;
@@ -181,7 +188,8 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
     },
   },
   [PDNT_INTERACTION_TYPES.REMOVE_RECORD]: {
-    header: 'Edit TTL Seconds',
+    header: 'Remove Undername',
+    successHeader: 'Undername Removed',
     body: (props: TransactionDataPayload) => {
       if (
         !isObjectOfTransactionPayloadType<RemoveRecordPayload>(
@@ -205,7 +213,8 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
     },
   },
   [PDNT_INTERACTION_TYPES.SET_RECORD]: {
-    header: 'Edit TTL Seconds',
+    header: 'Add Undername',
+    successHeader: 'Undername Added',
     body: (props: TransactionDataPayload) => {
       if (
         !isObjectOfTransactionPayloadType<SetRecordPayload>(
@@ -231,6 +240,7 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
   },
   [PDNT_INTERACTION_TYPES.TRANSFER]: {
     header: 'Review Transfer',
+    successHeader: 'Transfer completed',
     body: (props: TransactionDataPayload) => {
       if (
         !isObjectOfTransactionPayloadType<TransferANTPayload>(
@@ -263,13 +273,19 @@ function ConfirmTransactionModal({
   payload,
   assetId,
   close,
+  cancel,
   setDeployedTransactionId,
+  cancelText = 'Cancel',
+  confirmText = 'Confirm',
 }: {
   interactionType: PDNT_INTERACTION_TYPES;
   payload: TransactionDataPayload;
   assetId: ArweaveTransactionID;
   close: () => void;
+  cancel: () => void;
   setDeployedTransactionId: (id: ArweaveTransactionID) => void;
+  cancelText?: string;
+  confirmText?: string;
 }) {
   const [{ walletAddress }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
@@ -346,10 +362,10 @@ function ConfirmTransactionModal({
             {transactionProps.body}
           </div>
         }
-        onCancel={() => close()}
-        onClose={() => close()}
-        nextText="Confirm"
-        cancelText="Cancel"
+        onCancel={cancel}
+        onClose={close}
+        nextText={confirmText}
+        cancelText={cancelText}
         onNext={() => deployInteraction(payload, interactionType)}
         footer={
           <div style={{ width: 'fit-content' }}>

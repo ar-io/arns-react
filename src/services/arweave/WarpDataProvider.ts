@@ -131,7 +131,7 @@ export class WarpDataProvider
 
       // because we are manually constructing the tags, we want to verify them immediately and always
       // an undefined valid means the transaction is valid
-      if (dryWriteResults.originalValidity?.valid === false) {
+      if (dryWriteResults.type === 'error') {
         throw new Error(
           `Contract interaction detected to be invalid: ${
             dryWriteResults?.originalErrorMessages
@@ -310,7 +310,7 @@ export class WarpDataProvider
       walletAddress.toString(),
     );
     // an undefined valid means the transaction is valid
-    if (dryWriteResults.originalValidity?.valid === false) {
+    if (dryWriteResults.type === 'error') {
       throw new Error(
         `Contract interaction detected to be invalid: ${
           dryWriteResults?.originalErrorMessages

@@ -82,7 +82,7 @@ function PDNTCard(props: PDNSMapping) {
     primaryKeys,
     deployedTransactionId,
     mobileView,
-    bordered,
+    bordered = false,
   } = props;
   const [{ pdnsSourceContract }] = useGlobalState();
   const [pdntDetails, setPDNTDetails] = useState<{ [x: string]: any }>();
@@ -225,7 +225,7 @@ function PDNTCard(props: PDNSMapping) {
       <div className="flex flex-center" style={{ width: '100%' }}>
         <Descriptions
           key={limitDetails ? 'limit' : 'full'}
-          bordered={bordered === true ? true : false}
+          bordered={bordered}
           colon
           column={1}
           layout={mobileView ? 'vertical' : 'horizontal'}
