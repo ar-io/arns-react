@@ -19,6 +19,7 @@ jobs:
   deploy-to-firebase:
     runs-on: ubuntu-latest
     needs: build
+    environment: develop
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v3
@@ -39,8 +40,7 @@ jobs:
           VITE_GITHUB_HASH: ${{ github.sha }}
           VITE_ARWEAVE_HOST: ${{ vars.ARWEAVE_HOST }}
           VITE_ARNS_SERVICE_API: ${{ vars.ARNS_SERVICE_API }}
-          VITE_ARNS_REGISTRY_ADDRESS_DEV: 'E-pRI1bokGWQBqHnbut9rsHSt9Ypbldos3bAtwg4JMc'
-          VITE_ARNS_REGISTRY_ADDRESS_PROD: 'bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U'
+          VITE_ARNS_REGISTRY_ADDRESS: ${{ vars.VITE_ARNS_REGISTRY_ADDRESS }}
 
       # Disribute to Firebase
       - name: Deploy 🚀
