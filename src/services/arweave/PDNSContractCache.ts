@@ -19,7 +19,7 @@ import {
   lowerCaseDomain,
   updatePrices,
 } from '../../utils';
-import { PDNS_REGISTRY_ADDRESS } from '../../utils/constants';
+import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
 import { LocalStorageCache } from '../cache/LocalStorageCache';
 import { PDNTContract } from './PDNTContract';
 
@@ -136,7 +136,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
     const res = await fetch(
       `${
         this._url
-      }/v1/contract/${PDNS_REGISTRY_ADDRESS}/reserved/${lowerCaseDomain(
+      }/v1/contract/${ARNS_REGISTRY_ADDRESS}/reserved/${lowerCaseDomain(
         domain,
       )}`,
     );
@@ -159,7 +159,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
     const res = await fetch(
       `${
         this._url
-      }/v1/contract/${PDNS_REGISTRY_ADDRESS}/records/${lowerCaseDomain(
+      }/v1/contract/${ARNS_REGISTRY_ADDRESS}/records/${lowerCaseDomain(
         domain,
       )}`,
     );
@@ -193,7 +193,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
 
   async getAuction({ domain }: { domain: string }): Promise<AuctionParameters> {
     const auctionRes = await fetch(
-      `${this._url}/v1/contract/${PDNS_REGISTRY_ADDRESS}/auctions`,
+      `${this._url}/v1/contract/${ARNS_REGISTRY_ADDRESS}/auctions`,
     );
     const { auctions } = await auctionRes.json();
     const auction = auctions[lowerCaseDomain(domain)];
@@ -210,7 +210,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
     auctionSettingsId: string;
   }): Promise<AuctionSettings> {
     const res = await fetch(
-      `${this._url}/v1/contract/${PDNS_REGISTRY_ADDRESS}/settings`,
+      `${this._url}/v1/contract/${ARNS_REGISTRY_ADDRESS}/settings`,
     );
     const { settings } = await res.json();
     const auctionSettings = settings.auctions.history.find(
@@ -253,7 +253,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
 
   async getDomainsInAuction(): Promise<string[]> {
     const res = await fetch(
-      `${this._url}/v1/contract/${PDNS_REGISTRY_ADDRESS}/auctions`,
+      `${this._url}/v1/contract/${ARNS_REGISTRY_ADDRESS}/auctions`,
     );
     const { auctions } = await res.json();
     return Object.keys(auctions);
@@ -263,7 +263,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
     const res = await fetch(
       `${
         this._url
-      }/v1/contract/${PDNS_REGISTRY_ADDRESS}/records/${lowerCaseDomain(
+      }/v1/contract/${ARNS_REGISTRY_ADDRESS}/records/${lowerCaseDomain(
         domain,
       )}`,
     );
@@ -275,7 +275,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
     const res = await fetch(
       `${
         this._url
-      }/v1/contract/${PDNS_REGISTRY_ADDRESS}/balances/${address.toString()}`,
+      }/v1/contract/${ARNS_REGISTRY_ADDRESS}/balances/${address.toString()}`,
     );
     const { balance } = await res.json();
     return balance;

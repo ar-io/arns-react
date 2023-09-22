@@ -17,9 +17,9 @@ import {
   lowerCaseDomain,
 } from '../../../utils';
 import {
+  ARNS_REGISTRY_ADDRESS,
   MAX_LEASE_DURATION,
   MIN_LEASE_DURATION,
-  PDNS_REGISTRY_ADDRESS,
   YEAR_IN_MILLISECONDS,
   YEAR_IN_SECONDS,
 } from '../../../utils/constants';
@@ -281,7 +281,7 @@ function ExtendLease() {
                   dispatchTransactionState({
                     type: 'setTransactionData',
                     payload: {
-                      assetId: PDNS_REGISTRY_ADDRESS,
+                      assetId: ARNS_REGISTRY_ADDRESS,
                       functionName: 'extendRecord',
                       ...payload,
                     },

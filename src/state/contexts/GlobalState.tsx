@@ -3,8 +3,8 @@ import React, { Dispatch, createContext, useContext, useReducer } from 'react';
 import { ArweaveTransactionID } from '../../types';
 import type { ArweaveWalletConnector, PDNSContractJSON } from '../../types';
 import {
+  ARNS_REGISTRY_ADDRESS,
   DEFAULT_PDNS_REGISTRY_STATE,
-  PDNS_REGISTRY_ADDRESS,
 } from '../../utils/constants';
 import type { Action } from '../reducers/GlobalReducer';
 
@@ -18,16 +18,7 @@ export type GlobalState = {
 };
 
 const initialState: GlobalState = {
-  pdnsContractId:
-    process.env.VITE_NODE_ENV &&
-    (process.env.VITE_ARNS_REGISTRY_ADDRESS_DEV ||
-      process.env.VITE_ARNS_REGISTRY_ADDRESS_PROD)
-      ? new ArweaveTransactionID(
-          (process.env.VITE_NODE_ENV === 'develop'
-            ? process.env.VITE_ARNS_REGISTRY_ADDRESS_DEV
-            : process.env.VITE_ARNS_REGISTRY_ADDRESS_PROD) as string,
-        )
-      : new ArweaveTransactionID(PDNS_REGISTRY_ADDRESS),
+  pdnsContractId: new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
   pdnsSourceContract: DEFAULT_PDNS_REGISTRY_STATE,
   gateway: 'ar-io.dev',
   walletAddress: undefined,
