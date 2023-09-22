@@ -18,7 +18,16 @@ export type GlobalState = {
 };
 
 const initialState: GlobalState = {
-  pdnsContractId: new ArweaveTransactionID(PDNS_REGISTRY_ADDRESS),
+  pdnsContractId:
+    process.env.VITE_NODE_ENV &&
+    (process.env.VITE_ARNS_REGISTRY_ADDRESS_DEV ||
+      process.env.VITE_ARNS_REGISTRY_ADDRESS_PROD)
+      ? new ArweaveTransactionID(
+          (process.env.VITE_NODE_ENV === 'develop'
+            ? process.env.VITE_ARNS_REGISTRY_ADDRESS_DEV
+            : process.env.VITE_ARNS_REGISTRY_ADDRESS_PROD) as string,
+        )
+      : new ArweaveTransactionID(PDNS_REGISTRY_ADDRESS),
   pdnsSourceContract: DEFAULT_PDNS_REGISTRY_STATE,
   gateway: 'ar-io.dev',
   walletAddress: undefined,

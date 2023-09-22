@@ -1,8 +1,8 @@
-name: PR deploy
+name: Production Deploy
 
 on:
-  pull_request:
-    branches-ignore:
+  push:
+    branches:
       - main
 
 jobs:
@@ -30,7 +30,8 @@ jobs:
         env:
           # FOR BUILD
           NODE_OPTIONS: --max-old-space-size=32768
-          VITE_NODE_ENV: develop
+          VITE_NODE_ENV: production
+          VITE_ENVIRONMENT: production
 
           VITE_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           VITE_SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
@@ -48,4 +49,4 @@ jobs:
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_CI_SERVICE_ACCOUNT }}'
-          expires: 14d
+          channelId: live
