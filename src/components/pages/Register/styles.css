@@ -1,0 +1,41 @@
+.register-name-modal {
+  display: flex;
+  flex-direction: column;
+  max-width: 1000px;
+  min-width: 300px;
+  width: 80%;
+  height: fit-content;
+  margin: auto;
+  gap: 2em;
+}
+
+.register-inputs {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: fit-content;
+  row-gap: 5px;
+}
+.input-group {
+  box-sizing: border-box;
+  display: flex;
+  width: 100%;
+  height: fit-content;
+  gap: 5px;
+  margin: 0;
+  padding: 5px;
+  overflow: visible;
+}
+
+@media screen and (max-width: 600px) {
+  .register-name-modal {
+    padding: unset;
+  }
+  .register-inputs {
+    width: 100%;
+  }
+  .input-group {
+    flex-direction: column;
+  }
+}

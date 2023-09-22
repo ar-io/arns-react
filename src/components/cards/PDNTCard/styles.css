@@ -1,0 +1,76 @@
+.card {
+  min-height: 250px;
+  max-width: 75%;
+  height: fit-content;
+  display: flex;
+  background: #1f1f1f;
+  padding: 30px 60px;
+  flex-direction: column;
+  align-items: center;
+  min-width: 250px;
+  box-shadow: 0px 0px 1px #0d0d0d, 0px 8px 16px rgba(13, 13, 13, 0.9);
+  border-radius: var(--corner-radius);
+}
+
+.detail {
+  color: var(--text-white);
+  align-self: flex-start;
+  padding: 10px;
+  transition: all 1.3s ease-in-out !important;
+}
+
+.bubble {
+  display: flex;
+  align-self: flex-start;
+  border-radius: var(--corner-radius);
+  background-color: var(--text-white);
+  font-family: 'Rubik-Bold';
+  padding: 10px 30px;
+}
+
+.link {
+  color: var(--text-white);
+  display: flex;
+  align-self: flex-start;
+  cursor: pointer;
+  text-decoration: underline;
+  background-color: transparent;
+  border: none;
+}
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  height: auto;
+  justify-content: center;
+  gap: 2em;
+}
+
+.ant-descriptions-row {
+  opacity: 100;
+  animation: fade-in-animation 0.5s ease-in;
+}
+.ant-descriptions-row:nth-child(odd) > .ant-descriptions-item {
+  padding-bottom: 5px !important;
+}
+
+@keyframes fade-in-animation {
+  0% {
+    opacity: 0;
+    height: 0px;
+  }
+  100% {
+    opacity: 1;
+    height: auto;
+  }
+}
+
+/* If the screen size is 600px wide or less, set the font-size of <div> to 30px */
+@media screen and (max-width: 600px) {
+  .card {
+    padding: 30px;
+  }
+
+  .footer {
+    gap: 1em;
+  }
+}

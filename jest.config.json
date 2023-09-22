@@ -1,0 +1,20 @@
+{
+  "testEnvironment": "jsdom",
+  "setupFilesAfterEnv": ["<rootDir>/jest-setup.ts"],
+  "collectCoverage": false,
+  "collectCoverageFrom": ["src/**/*.{ts,tsx,js,jsx}", "!src/**/*.d.ts"],
+  "moduleNameMapper": {
+    "\\.(css|gif|png)$": "jest-transform-stub",
+    "\\.svg": "<rootDir>/src/__tests__/__mocks__/svg.js"
+  },
+  "moduleDirectories": ["node_modules", "assets"],
+  "testPathIgnorePatterns": ["src/__tests__/__mocks__"],
+  "coverageThreshold": {
+    "global": {
+      "branches": 80,
+      "functions": 80,
+      "lines": 80
+    }
+  },
+  "verbose": true
+}

@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ValidationInput renders correctly 1`] = `
+<DocumentFragment>
+  <div
+    class=""
+    id="validation-input"
+  >
+    <div
+      class="flex"
+      style="width: 100%; position: relative;"
+    >
+      <input
+        class=""
+        data-testid="test-input-id"
+        enterkeyhint="enter"
+        id="test-input-id"
+        placeholder="Test input"
+        spellcheck="false"
+        type="text"
+        value=""
+      />
+      <div
+        class="flex center"
+        style="position: absolute; right: 10px; top: 0px; bottom: 0px; display: flex;"
+      >
+        <span />
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;

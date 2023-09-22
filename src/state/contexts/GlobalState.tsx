@@ -1,0 +1,62 @@
+import React, { Dispatch, createContext, useContext, useReducer } from 'react';
+
+import { ArweaveTransactionID } from '../../types';
+import type { ArweaveWalletConnector, PDNSContractJSON } from '../../types';
+import {
+  DEFAULT_PDNS_REGISTRY_STATE,
+  PDNS_REGISTRY_ADDRESS,
+} from '../../utils/constants';
+import type { Action } from '../reducers/GlobalReducer';
+
+export type GlobalState = {
+  pdnsSourceContract: PDNSContractJSON;
+  gateway: string;
+  walletAddress?: ArweaveTransactionID;
+  wallet?: ArweaveWalletConnector;
+  pdnsContractId: ArweaveTransactionID;
+  blockHeight?: number;
+};
+
+const initialState: GlobalState = {
+  pdnsContractId:
+    process.env.VITE_NODE_ENV &&
+    (process.env.VITE_ARNS_REGISTRY_ADDRESS_DEV ||
+      process.env.VITE_ARNS_REGISTRY_ADDRESS_PROD)
+      ? new ArweaveTransactionID(
+          (process.env.VITE_NODE_ENV === 'develop'
+            ? process.env.VITE_ARNS_REGISTRY_ADDRESS_DEV
+            : process.env.VITE_ARNS_REGISTRY_ADDRESS_PROD) as string,
+        )
+      : new ArweaveTransactionID(PDNS_REGISTRY_ADDRESS),
+  pdnsSourceContract: DEFAULT_PDNS_REGISTRY_STATE,
+  gateway: 'ar-io.dev',
+  walletAddress: undefined,
+  wallet: undefined,
+  blockHeight: undefined,
+};
+
+const GlobalStateContext = createContext<[GlobalState, Dispatch<Action>]>([
+  initialState,
+  () => initialState,
+]);
+
+export const useGlobalState = (): [GlobalState, Dispatch<Action>] =>
+  useContext(GlobalStateContext);
+
+type StateProviderProps = {
+  reducer: React.Reducer<GlobalState, Action>;
+  children: React.ReactNode;
+};
+
+/** Create provider to wrap app in */
+export default function GlobalStateProvider({
+  reducer,
+  children,
+}: StateProviderProps): JSX.Element {
+  const [state, dispatchGlobalState] = useReducer(reducer, initialState);
+  return (
+    <GlobalStateContext.Provider value={[state, dispatchGlobalState]}>
+      {children}
+    </GlobalStateContext.Provider>
+  );
+}

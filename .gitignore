@@ -1,1 +1,8 @@
+coverage
+dist
 node_modules
+.env
+.vscode
+vite.config.ts.*.mjs
+cache
+*.log

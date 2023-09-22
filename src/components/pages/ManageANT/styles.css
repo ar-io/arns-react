@@ -1,0 +1,168 @@
+.manage-ant-table-row {
+  background-color: var(--bg-color);
+}
+
+th[class~='manage-ant-table-header'] {
+  background: var(--bg-color) !important;
+  border-radius: 0px !important;
+}
+
+thead > tr > td[class~='manage-ant-table-header'] {
+  background: var(--bg-color) !important;
+  justify-content: flex-start !important;
+  border-radius: 0px !important;
+}
+
+.manage-ant-table-cell-row-hover {
+  background-color: var(--bg-color) !important;
+}
+
+.manage-ant-table-content > table {
+  border-spacing: 0px 10px;
+  width: 100%;
+  background-color: var(--bg-color);
+  border: none !important;
+}
+.manage-ant-table {
+  background-color: inherit !important;
+}
+
+.manage-ant-table-body > table {
+  border-spacing: 8px;
+}
+
+.manage-ant-table-tbody > tr {
+  height: 56px;
+}
+
+.manage-ant-table-thead {
+  font-size: 16px;
+  font-weight: 800;
+  height: 50px;
+}
+
+.manage-ant-table-tbody > .active-row > td,
+.manage-ant-table-tbody > .active-row > td:first-child,
+.manage-ant-table-tbody > .active-row > td:last-child {
+  border-color: var(--text-grey) !important;
+}
+
+.active-row > td {
+  border-color: var(--text-white) !important;
+}
+
+.manage-ant-table-thead > tr > th {
+  border-bottom: 1px solid var(--text-faded) !important;
+  border-top: 1px solid var(--text-faded) !important;
+}
+.manage-ant-table-thead > tr > td {
+  border-bottom: 1px solid var(--text-faded);
+  border-top: 1px solid var(--text-faded) !important;
+}
+
+.manage-ant-table-thead > tr > th:first-child {
+  border-left: 1px solid var(--text-faded) !important;
+  min-width: 50px !important;
+}
+.manage-ant-table-thead > tr > th:nth-child(2) {
+  padding-left: 0px !important;
+}
+
+.manage-ant-table-thead > tr > th:last-child {
+  border-right: 1px solid var(--text-faded) !important;
+}
+.manage-ant-table-thead > tr > td:first-child {
+  border-left: 1px solid var(--text-faded) !important;
+  min-width: 50px !important;
+}
+.manage-ant-table-thead > tr > td:nth-child(2) {
+  padding-left: 0px !important;
+}
+
+.manage-ant-table-thead > tr > td:last-child {
+  border-right: 1px solid var(--text-faded) !important;
+}
+
+.manage-ant-table-tbody > tr > td:first-child {
+  padding-left: 20px !important;
+  border-left: 1px solid var(--text-faded) !important;
+  border-top-left-radius: var(--corner-radius);
+  border-bottom-left-radius: var(--corner-radius);
+}
+
+.manage-ant-table-tbody > tr > td {
+  border: 1px solid transparent;
+  border-width: 1px 0px;
+  padding: 10px 24px !important;
+  justify-content: flex-start;
+  font-size: 14px;
+  font-weight: 400;
+  border-top: 1px solid var(--text-faded) !important;
+  border-bottom: 1px solid var(--text-faded) !important;
+}
+.manage-ant-table-tbody > tr > td:last-child {
+  border-right: 1px solid var(--text-faded) !important;
+  border-top-right-radius: var(--corner-radius);
+  border-bottom-right-radius: var(--corner-radius);
+}
+
+.manage-ant-table-tbody > tr > td > input:focus {
+  outline: 1px solid #e0e0e0;
+  border-radius: 2px;
+}
+
+.manage-ant-table-tbody > tr > td:nth-child(2) {
+  padding-left: 0px !important;
+}
+.manage-ant-table-placeholder {
+  color: white;
+  text-align: center;
+}
+
+.manage-ant-table-cell::before {
+  background-color: inherit !important;
+}
+.manage-ant-table-cell-ellipsis {
+  background-color: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.manage-ant-table-tbody > tr.manage-ant-table-row:hover > td {
+  background-color: #313133 !important;
+}
+
+.manage-ant-table-measure-row {
+  display: none !important;
+}
+
+.manage-ant-table-empty
+  > .manage-ant-table-container
+  > .manage-ant-table-content
+  > table
+  > tbody
+  > tr
+  > td {
+  background-color: unset !important;
+  box-sizing: border-box;
+}
+
+.ant-spin-blur::after {
+  background-color: rgb(0, 0, 0, 0.7) !important;
+  backdrop-filter: blur(2px) !important;
+  opacity: 100% !important;
+  border-radius: var(--corner-radius);
+}
+
+.whitespace-no-wrap {
+  white-space: nowrap;
+}
+
+.blur-row {
+  filter: blur(3px) !important;
+  opacity: 100% !important;
+}

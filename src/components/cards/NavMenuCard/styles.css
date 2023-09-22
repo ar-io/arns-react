@@ -1,0 +1,33 @@
+.menu {
+  position: absolute;
+  z-index: 10;
+  min-height: unset;
+  top: 110px;
+  align-items: flex-start;
+  padding: 40px;
+  gap: 25px;
+}
+
+.menu-card > .ant-tooltip-content > .ant-tooltip-arrow {
+  width: 40px;
+  overflow: visible;
+}
+.menu-card > .ant-tooltip-content > .ant-tooltip-arrow::after {
+  border: 1px solid var(--text-faded) !important;
+  border-left: none !important;
+  border-top: none !important;
+  background-color: var(--card-bg);
+  width: 12px;
+  height: 12px;
+  margin-right: 30px;
+}
+
+.menu-card > .ant-tooltip-content > .ant-tooltip-inner {
+  padding: 0 !important;
+}
+
+@media screen and (max-width: 600px) {
+  .menu {
+    top: 95px;
+  }
+}

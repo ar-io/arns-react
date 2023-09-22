@@ -1,0 +1,8 @@
+.navbar-link {
+  display: flex;
+  width: fit-content;
+  color: var(--text-white);
+  font-weight: 400;
+  font-size: 16px;
+  text-decoration: none;
+}

@@ -1,0 +1,25 @@
+.featured-domains {
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+  max-width: 787px;
+  gap: 1em;
+}
+
+.card-container {
+  display: flex;
+  flex-direction: row;
+  width: fit-content;
+  gap: 1em;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+@media screen and (max-width: 600px) {
+  .featured-domains {
+    width: 90%;
+  }
+  .card-container {
+    gap: 0.75em;
+  }
+}
