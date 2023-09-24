@@ -36,7 +36,7 @@ thead > tr > td[class~='remove-controller-table-header'] {
 }
 
 .remove-controller-table-tbody > tr {
-  height: 30px;
+  height: fit-content !important;
 }
 
 .remove-controller-table-thead {
@@ -64,7 +64,7 @@ thead > tr > td[class~='remove-controller-table-header'] {
 .remove-controller-table-tbody > tr > td {
   border: 1px solid transparent;
   border-width: 1px 0px;
-  padding: 10px 15px !important;
+  padding: 0px 15px !important;
   justify-content: flex-start;
   font-size: 14px;
   font-weight: 400;
@@ -124,11 +124,16 @@ thead > tr > td[class~='remove-controller-table-header'] {
   opacity: 100% !important;
   border-radius: var(--corner-radius);
 }
-
-.remove-controller-pagination > li:first-child,
+.remove-controller-pagination {
+  background: var(--bg-color);
+  padding: 10px;
+  border-radius: var(--corner-radius);
+  margin-top: 10px !important;
+}
+/* .remove-controller-pagination > li:first-child,
 .remove-controller-pagination > li:last-child {
   display: none !important;
-}
+} */
 
 .remove-controller-checkbox-inner {
   background-color: var(--bg-color);

@@ -101,8 +101,8 @@ export type PDNTContractJSON = {
   evolve: boolean | undefined;
   name: string;
   owner: string;
-  controller: string;
-  controllers?: string[];
+  controller?: string;
+  controllers: string[];
   records: {
     '@': string | PDNTContractDomainRecord;
     [x: string]: string | PDNTContractDomainRecord;
@@ -265,7 +265,7 @@ export interface ArweaveDataProvider {
 
 export interface PDNTInteractionProvider {
   setOwner(id: ArweaveTransactionID): Promise<string>;
-  setController(id: ArweaveTransactionID): Promise<string>;
+  setControllers(ids: ArweaveTransactionID[]): Promise<string>;
   setTargetId(id: ArweaveTransactionID): Promise<string>;
   setUndername(name: string): Promise<string>;
   removeUndername(name: string): Promise<string>;
@@ -346,8 +346,8 @@ export enum INTERACTION_TYPES {
   SUBMIT_AUCTION_BID = 'Submit Bid',
 
   // ANT interaction types
-  SET_CONTROLLER = 'Edit Controller',
-  REMOVE_CONTROLLER = 'Remove Controllers',
+  SET_CONTROLLERS = 'Edit Controllers',
+  REMOVE_CONTROLLERS = 'Remove Controllers',
   SET_TICKER = 'Edit Ticker',
   SET_NAME = 'Edit Name',
   SET_TTL_SECONDS = 'Edit TTL Seconds',
@@ -399,8 +399,8 @@ const commonInteractionTypeNames = [
 const unknownInteractionType = INTERACTION_TYPES.UNKNOWN as const;
 export const pdntInteractionTypes = [
   ...commonInteractionTypeNames,
-  INTERACTION_TYPES.SET_CONTROLLER,
-  INTERACTION_TYPES.REMOVE_CONTROLLER,
+  INTERACTION_TYPES.SET_CONTROLLERS,
+  INTERACTION_TYPES.REMOVE_CONTROLLERS,
   INTERACTION_TYPES.SET_TICKER,
   INTERACTION_TYPES.SET_NAME,
   INTERACTION_TYPES.SET_TTL_SECONDS,
@@ -490,8 +490,8 @@ export type SetTickerPayload = {
   ticker: string;
 };
 
-export type SetControllerPayload = {
-  target: string;
+export type SetControllersPayload = {
+  targets: string[];
 };
 
 export type RemoveControllersPayload = {
@@ -521,8 +521,8 @@ export type TransferANTPayload = {
 // end pdnt transaction payload types
 
 export enum PDNT_INTERACTION_TYPES {
-  SET_CONTROLLER = 'Edit Controller',
-  REMOVE_CONTROLLER = 'Remove Controllers',
+  SET_CONTROLLERS = 'Edit Controllers',
+  REMOVE_CONTROLLERS = 'Remove Controllers',
   SET_TICKER = 'Edit Ticker',
   SET_NAME = 'Edit Name',
   SET_RECORD = 'Edit Record',
@@ -559,7 +559,8 @@ export type TransactionDataPayload =
   | IncreaseUndernamesPayload
   | TransferIOPayload
   | SetTickerPayload
-  | SetControllerPayload
+  | SetControllersPayload
+  | RemoveControllersPayload
   | SetNamePayload
   | SetRecordPayload
   | RemoveRecordPayload

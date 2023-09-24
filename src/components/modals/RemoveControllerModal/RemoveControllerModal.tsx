@@ -1,4 +1,4 @@
-import { Checkbox, Pagination, Table } from 'antd';
+import { Checkbox, Table } from 'antd';
 import { useEffect, useState } from 'react';
 
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
@@ -32,14 +32,22 @@ function RemoveControllersModal({
   >([]);
   const [state, setState] = useState<PDNTContractJSON>();
   const [tablePage, setTablePage] = useState<number>(1);
+  const [rows, setRows] = useState<{ controller: ArweaveTransactionID }[]>([]);
 
   // TODO: add "transfer to another account" dropdown
 
   useEffect(() => {
-    arweaveDataProvider
-      .getContractState(antId)
-      .then((res) => setState(res as PDNTContractJSON));
+    arweaveDataProvider.getContractState(antId).then((res) => {
+      setState(res as PDNTContractJSON);
+      const newRows = getControllerRows();
+      setRows(newRows);
+    });
   }, [antId]);
+
+  useEffect(() => {
+    const newRows = getControllerRows();
+    setRows(newRows);
+  }, [state]);
 
   if (!state) {
     return (
@@ -57,6 +65,17 @@ function RemoveControllersModal({
 
   function updatePage(page: number) {
     setTablePage(page);
+  }
+
+  function getControllerRows() {
+    if (state?.controllers && Array.isArray(state.controllers)) {
+      return state.controllers.map((controller) => ({
+        controller: new ArweaveTransactionID(controller),
+      }));
+    } else if (state?.controller) {
+      return [{ controller: new ArweaveTransactionID(state.controller) }];
+    }
+    return [];
   }
 
   return (
@@ -110,11 +129,10 @@ function RemoveControllersModal({
             </div>
             <div className="flex flex-column" style={{ paddingBottom: '30px' }}>
               <div className="flex flex-column" style={{ gap: '10px' }}>
-                {state && (state.controller || state.controllers?.length) ? (
+                {rows.length ? (
                   <>
                     <Table
                       prefixCls="remove-controller-table"
-                      pagination={false}
                       columns={[
                         {
                           title: '',
@@ -126,18 +144,21 @@ function RemoveControllersModal({
                           render: (value: string, row: any) => (
                             <Checkbox
                               prefixCls="remove-controller-checkbox"
-                              checked={controllersToRemove.includes(
-                                row.controller,
-                              )}
+                              checked={controllersToRemove
+                                .map((c) => c.toString())
+                                .includes(row.controller.toString())}
                               style={{ color: 'white' }}
                               onChange={() => {
                                 if (
-                                  controllersToRemove.includes(row.controller)
+                                  controllersToRemove
+                                    .map((c) => c.toString())
+                                    .includes(row.controller.toString())
                                 ) {
                                   const newControllers =
                                     controllersToRemove.filter(
                                       (controller) =>
-                                        controller !== row.controller,
+                                        controller.toString() !==
+                                        row.controller.toString(),
                                     );
                                   setControllersToRemove(newControllers);
                                 } else {
@@ -170,60 +191,25 @@ function RemoveControllersModal({
                           ),
                         },
                       ]}
-                      dataSource={
-                        state.controller
-                          ? [{ controller: state.controller }]
-                          : state.controllers &&
-                            Array.isArray(state.controllers)
-                          ? state.controllers.map((controller) => ({
-                              controller,
-                            }))
-                          : []
-                      }
-                    />
-                    <div
-                      className="flex flex-row"
-                      style={{
-                        alignItems: 'flex-start',
-                        background: 'var(--bg-color)',
-                        borderRadius: 'var(--corner-radius)',
-                        padding: '10px',
-                        boxSizing: 'border-box',
-                      }}
-                    >
-                      <Pagination
-                        pageSize={8}
-                        total={
-                          state.controller
-                            ? 1
-                            : state.controllers &&
-                              Array.isArray(state.controllers)
-                            ? state.controllers.length
-                            : 1
-                        }
-                        rootClassName={
-                          'table-pagination remove-controller-pagination'
-                        }
-                        itemRender={(page, type, originalElement) =>
+                      dataSource={rows}
+                      pagination={{
+                        position: ['bottomLeft'],
+                        rootClassName:
+                          'table-pagination remove-controller-pagination',
+                        itemRender: (page, type, originalElement) =>
                           getCustomPaginationButtons({
                             page,
                             type,
                             originalElement,
                             currentPage: tablePage,
-                            nextStyle: {
-                              display: 'none',
-                              height: '0px',
-                              minHeight: '0px',
-                            },
-                            prevStyle: { display: 'none' },
-                          })
-                        }
-                        onChange={updatePage}
-                        showPrevNextJumpers={true}
-                        showSizeChanger={false}
-                        current={tablePage}
-                      />
-                    </div>
+                          }),
+                        onChange: updatePage,
+                        showPrevNextJumpers: true,
+                        showSizeChanger: false,
+                        current: tablePage,
+                        pageSize: 8,
+                      }}
+                    />
                   </>
                 ) : (
                   <div className="flex flex-column flex-center">

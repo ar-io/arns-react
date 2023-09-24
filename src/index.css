@@ -40,6 +40,9 @@
 
 html {
   scroll-behavior: smooth;
+  display: flex;
+  width: 100vw;
+  height: 100vh;
 }
 
 body {
@@ -49,6 +52,9 @@ body {
   font-family: 'Rubik';
   overflow: scroll;
   margin: 0;
+  box-sizing: border-box;
+  height: 100%;
+  width: 100%;
 }
 
 body::-webkit-scrollbar {
@@ -174,22 +180,6 @@ a:active {
   align-items: center;
 }
 
-.hover {
-  transition: all 0.5s ease;
-  -webkit-transition: all 0.5s ease;
-  -moz-transition: all 0.5s ease;
-  -o-transition: all 0.5s ease;
-}
-
-.hover:hover {
-  transition: all 0.5s ease;
-  -webkit-transition: all 0.5s ease;
-  -moz-transition: all 0.5s ease;
-  -o-transition: all 0.5s ease;
-  transform: scale(1.05);
-  cursor: pointer;
-}
-
 .underline {
   text-decoration: underline;
 }
@@ -294,9 +284,11 @@ a:active {
 .page {
   display: flex;
   flex-direction: column;
-  padding: 2% 10%;
-  height: fit-content;
+  height: 100%;
+  width: 100%;
   align-items: center;
+  box-sizing: border-box;
+  padding: 30px 100px;
 }
 
 .page-header {

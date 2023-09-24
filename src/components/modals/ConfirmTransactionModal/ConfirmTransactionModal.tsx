@@ -6,8 +6,9 @@ import {
   ArweaveTransactionID,
   INTERACTION_TYPES,
   PDNT_INTERACTION_TYPES,
+  RemoveControllersPayload,
   RemoveRecordPayload,
-  SetControllerPayload,
+  SetControllersPayload,
   SetNamePayload,
   SetRecordPayload,
   SetTickerPayload,
@@ -139,14 +140,14 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
       );
     },
   },
-  [PDNT_INTERACTION_TYPES.SET_CONTROLLER]: {
+  [PDNT_INTERACTION_TYPES.SET_CONTROLLERS]: {
     header: 'Add Controllers',
     successHeader: 'Controller Added',
     body: (props: TransactionDataPayload) => {
       if (
-        !isObjectOfTransactionPayloadType<SetControllerPayload>(
+        !isObjectOfTransactionPayloadType<SetControllersPayload>(
           props,
-          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.SET_CONTROLLER].keys,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.SET_CONTROLLERS].keys,
         )
       ) {
         return <></>;
@@ -156,21 +157,23 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
           <span>
             By completing this action, you are going to add controller with the
             wallet ID <br />
-            <span className="text-color-warning">{`"${props.target}"`}.</span>
+            <span className="text-color-warning">
+              {`"${props.targets[0]}"`}.
+            </span>
           </span>
           <span>Are you sure you want to continue?</span>
         </>
       );
     },
   },
-  [PDNT_INTERACTION_TYPES.REMOVE_CONTROLLER]: {
+  [PDNT_INTERACTION_TYPES.REMOVE_CONTROLLERS]: {
     header: 'Remove Controller',
     successHeader: 'Controllers Removed',
     body: (props: TransactionDataPayload) => {
       if (
-        !isObjectOfTransactionPayloadType<SetControllerPayload>(
+        !isObjectOfTransactionPayloadType<RemoveControllersPayload>(
           props,
-          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.REMOVE_CONTROLLER].keys,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.REMOVE_CONTROLLERS].keys,
         )
       ) {
         return <></>;
@@ -179,8 +182,10 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
         <>
           <span>
             By completing this action, you are going to remove
-            <span className="text-color-warning">{`"${props.target}"`}</span>
-            controllers.
+            <span className="text-color-error">
+              &nbsp;{`${props.targets.length}`}&nbsp;
+            </span>
+            controller{props.targets.length > 1 ? 's' : ''}.
           </span>
           <span>Are you sure you want to continue?</span>
         </>
@@ -314,6 +319,7 @@ function ConfirmTransactionModal({
           'Wallet Address is required to deploy transaction, please connect before continuing',
         );
       }
+      console.log(interactionType);
       const functionName =
         TRANSACTION_DATA_KEYS[interactionType as any as ValidInteractionType]
           .functionName;
@@ -322,6 +328,8 @@ function ConfirmTransactionModal({
         interactionType as any as ValidInteractionType,
         payload,
       );
+
+      console.log(functionName, cleanPayload);
       const writeInteractionId = await arweaveDataProvider.writeTransaction({
         walletAddress,
         contractTxId: assetId,
