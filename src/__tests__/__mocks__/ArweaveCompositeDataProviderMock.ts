@@ -189,6 +189,17 @@ export class ArweaveCompositeDataProviderMock
   getRecord(domain: string): Promise<PDNSRecordEntry> {
     throw new Error('Method not implemented.');
   }
+  getRecords({
+    contractTxId,
+    filters,
+  }: {
+    contractTxId?: ArweaveTransactionID;
+    filters: {
+      contractTxId?: ArweaveTransactionID[];
+    };
+  }): Promise<{ [x: string]: PDNSRecordEntry }> {
+    throw new Error('Method not implemented.');
+  }
   getIoBalance(address: ArweaveTransactionID): Promise<number> {
     throw new Error('Method not implemented.');
   }

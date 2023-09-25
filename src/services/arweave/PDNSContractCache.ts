@@ -271,6 +271,30 @@ export class PDNSContractCache implements SmartweaveContractCache {
     return record;
   }
 
+  async getRecords({
+    contractTxId = new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
+    filters,
+  }: {
+    contractTxId?: ArweaveTransactionID;
+    filters: {
+      contractTxId?: ArweaveTransactionID[];
+    };
+  }): Promise<{ [x: string]: PDNSRecordEntry }> {
+    const urlQueryParams = new URLSearchParams({
+      contractTxId: (filters.contractTxId ?? [])
+        .map((id) => id.toString())
+        .join(','),
+      // TODO: add other query params
+    });
+    const res = await fetch(
+      `${
+        this._url
+      }/v1/contract/${contractTxId.toString()}/records?${urlQueryParams.toString()}`,
+    );
+    const { records } = await res.json();
+    return records;
+  }
+
   async getIoBalance(address: ArweaveTransactionID): Promise<number> {
     const res = await fetch(
       `${

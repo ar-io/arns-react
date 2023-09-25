@@ -9,7 +9,7 @@ import {
   PDNTContractJSON,
   VALIDATION_INPUT_TYPES,
 } from '../../../../types';
-import { getAssociatedNames, isArweaveTransactionID } from '../../../../utils';
+import { isArweaveTransactionID } from '../../../../utils';
 import { SMARTWEAVE_MAX_INPUT_SIZE } from '../../../../utils/constants';
 import eventEmitter from '../../../../utils/events';
 import { CirclePlus, CloseIcon, HamburgerOutlineIcon } from '../../../icons';
@@ -30,7 +30,7 @@ function NameTokenSelector({
   selectedTokenCallback: (id: ArweaveTransactionID | undefined) => void;
 }) {
   const arweaveDataProvider = useArweaveCompositeProvider();
-  const [{ pdnsSourceContract, walletAddress }] = useGlobalState();
+  const [{ walletAddress }] = useGlobalState();
 
   const [searchText, setSearchText] = useState<string>();
   const [tokens, setTokens] = useState<NameTokenDetails>();
@@ -128,7 +128,11 @@ function NameTokenSelector({
         });
       }
       const contractTxIds = fetchedContractTxIds.concat(imports ?? []);
-
+      const associatedRecords = await arweaveDataProvider.getRecords({
+        filters: {
+          contractTxId: contractTxIds,
+        },
+      });
       const contracts: Array<
         [ArweaveTransactionID, PDNTContractJSON] | undefined
       > = await Promise.all(
@@ -149,6 +153,7 @@ function NameTokenSelector({
       if (!contracts.length) {
         throw new Error('Unable to get details for Name Tokens');
       }
+
       const newTokens: NameTokenDetails = contracts.reduce(
         (result, contract) => {
           if (!contract) {
@@ -156,10 +161,7 @@ function NameTokenSelector({
           }
           const [id, state] = contract;
           const { owner, controller, name, ticker } = state;
-          const associatedNames = getAssociatedNames(
-            id,
-            pdnsSourceContract.records,
-          );
+
           return {
             ...result,
             [id.toString()]: {
@@ -167,7 +169,10 @@ function NameTokenSelector({
               controller,
               name,
               ticker,
-              names: associatedNames,
+              names: Object.keys(associatedRecords).filter(
+                (r: string) =>
+                  associatedRecords[r].contractTxId === id.toString(),
+              ),
             },
           };
         },
