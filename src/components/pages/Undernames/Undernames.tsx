@@ -1,5 +1,5 @@
 import { Table, TableProps } from 'antd';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
@@ -73,6 +73,9 @@ function Undernames() {
   const [targetID, setTargetID] = useState<string>();
   const [ttl, setTTL] = useState<number>();
   const [changesValid, setChangesValid] = useState<boolean>();
+  const targetIdRef = useRef<HTMLInputElement>(null);
+  const ttlRef = useRef<HTMLInputElement>(null);
+  const nameRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!id) {
@@ -438,6 +441,7 @@ function Undernames() {
               <>
                 {action === UNDERNAME_TABLE_ACTIONS.CREATE ? (
                   <ValidationInput
+                    ref={nameRef}
                     inputClassName="data-input"
                     showValidationIcon={false}
                     showValidationOutline={true}
@@ -469,6 +473,7 @@ function Undernames() {
                 ) ? (
                   <>
                     <ValidationInput
+                      ref={targetIdRef}
                       inputClassName="data-input"
                       showValidationIcon={true}
                       showValidationOutline={true}
@@ -500,6 +505,7 @@ function Undernames() {
                       maxLength={43}
                     />
                     <ValidationInput
+                      ref={ttlRef}
                       inputClassName="data-input"
                       showValidationIcon={true}
                       showValidationOutline={true}
