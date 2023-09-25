@@ -41,164 +41,18 @@ export function useUndernames(id?: ArweaveTransactionID) {
   const [action, setAction] = useState<
     UndernameTableInteractionTypes | undefined
   >();
-  const [searchOpen, setSearchOpen] = useState<boolean>(false);
-  const [undernameFilter, setUndernameFilter] = useState<string>('');
-  const [searchedColumn, setSearchedColumn] = useState('');
-  const searchInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!id) {
       return;
     }
+    generateTableColumns();
     fetchUndernameRows(id);
   }, [id]);
-
-  useEffect(() => {
-    generateTableColumns();
-  }, [searchOpen]);
-
-  type DataIndex = keyof UndernameMetadata;
-
-  const handleSearch = (
-    selectedKeys: string[],
-    confirm: (param?: FilterConfirmProps) => void,
-    dataIndex: DataIndex,
-  ) => {
-    console.log('im searching');
-
-    setUndernameFilter((selectedKeys as string[])[0]);
-    setSearchedColumn(dataIndex.toString());
-    confirm({ closeDropdown: false });
-  };
-
-  const handleReset = (clearFilters: () => void) => {
-    console.log('im resetting');
-    clearFilters();
-    setUndernameFilter('');
-  };
-
-  const getColumnSearchProps = (
-    dataIndex: DataIndex,
-  ): ColumnType<UndernameMetadata> => ({
-    filterDropdown: ({
-      setSelectedKeys,
-      selectedKeys,
-      confirm,
-      clearFilters,
-    }) => (
-      <div
-        className="flex flex-row center undername-search-wrapper"
-        style={{
-          gap: '1px',
-          justifyContent: 'flex-end',
-          boxSizing: 'border-box',
-        }}
-      >
-        <button
-          className="flex button center pointer"
-          style={{ zIndex: 10 }}
-          onClick={() => {
-            confirm({ closeDropdown: false });
-            console.log(selectedKeys);
-            setUndernameFilter((selectedKeys as string[])[0]);
-            setSearchedColumn(dataIndex.toString());
-          }}
-        >
-          <SearchIcon
-            width={'16px'}
-            height={'16px'}
-            fill={searchOpen ? 'var(--text-white)' : 'var(--text-grey)'}
-          />
-        </button>
-
-        <span
-          className="flex flex-row center"
-          style={{
-            gap: '1px',
-            justifyContent: 'flex-end',
-            width: 'fit-content',
-            boxSizing: 'border-box',
-          }}
-        >
-          <ValidationInput
-            ref={searchInput}
-            onPressEnter={() => {
-              confirm({ closeDropdown: false });
-              setUndernameFilter((selectedKeys as string[])[0]);
-              setSearchedColumn(dataIndex.toString());
-            }}
-            value={selectedKeys[0]}
-            setValue={(e) => setSelectedKeys(e ? [e] : [])}
-            customPattern={PDNS_NAME_REGEX}
-            catchInvalidInput={false}
-            showValidationIcon={true}
-            placeholder={'Search for a name'}
-            maxCharLength={61}
-            wrapperCustomStyle={{
-              position: 'relative',
-              boxSizing: 'border-box',
-            }}
-            inputCustomStyle={{
-              width: '100%',
-              minWidth: '100px',
-              overflow: 'hidden',
-              fontSize: '13px',
-              outline: 'none',
-              color: 'white',
-              alignContent: 'center',
-              borderBottom: 'none',
-              boxSizing: 'border-box',
-              background: 'transparent',
-              borderRadius: 'var(--corner-radius)',
-              border: 'none',
-            }}
-          />
-          <button
-            className="flex button center pointer"
-            onClick={() => {
-              if (clearFilters) {
-                handleReset(clearFilters);
-              }
-            }}
-          >
-            <CircleXFilled
-              width={'18px'}
-              height={'18px'}
-              fill={'var(--text-grey)'}
-            />
-          </button>
-        </span>
-      </div>
-    ),
-    filterIcon: (filtered: boolean) => (
-      <SearchIcon
-        width={'18px'}
-        height={'18px'}
-        fill={filtered ? 'var(--accent)' : 'var(--text-grey)'}
-      />
-    ),
-    onFilter: (value, record) => {
-      console.log('im filtering', value, record);
-      const res = record[dataIndex]
-        ?.toString()
-        .toLowerCase()
-        .includes((value as string).toLowerCase());
-      if (!res) {
-        return false;
-      }
-      return res;
-    },
-    onFilterDropdownOpenChange: (visible) => {
-      if (visible) {
-        setTimeout(() => searchInput.current?.select(), 100);
-      }
-    },
-  });
 
   function generateTableColumns(): ColumnType<UndernameMetadata>[] {
     const newColumns: ColumnType<UndernameMetadata>[] = [
       {
-        ...getColumnSearchProps('name'),
         title: (
           <button
             className="flex-row pointer white"
@@ -448,6 +302,5 @@ export function useUndernames(id?: ArweaveTransactionID) {
     action,
     setAction: (action: UNDERNAME_TABLE_ACTIONS | undefined) =>
       setAction(action),
-    undernameFilter,
   };
 }

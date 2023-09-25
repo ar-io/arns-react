@@ -63,7 +63,6 @@ function Undernames() {
     sortField: undernameSortField,
     action,
     setAction,
-    undernameFilter,
   } = useUndernames(pdntId);
   const [tableLoading, setTableLoading] = useState(true);
   const [tablePage, setTablePage] = useState<number>(1);
@@ -113,11 +112,7 @@ function Undernames() {
     undernameTableLoading,
     percentUndernamesLoaded,
     action,
-    undernameFilter,
   ]);
-  useEffect(() => {
-    console.log(undernameFilter);
-  }, [undernameFilter]);
 
   function resetActionModal() {
     setUndername(undefined);
