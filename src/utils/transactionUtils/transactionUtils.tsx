@@ -17,7 +17,7 @@ import {
   PDNSRecordEntry,
   PDNTContractJSON,
   RemoveRecordPayload,
-  SetControllersPayload,
+  SetControllerPayload,
   SetNamePayload,
   SetRecordPayload,
   SetTickerPayload,
@@ -101,12 +101,12 @@ export const WorkflowStepsForInteractions: Record<
     { title: 'Deploy Removal', status: 'wait' },
     { title: 'Complete', status: 'wait' },
   ],
-  [INTERACTION_TYPES.SET_CONTROLLERS]: [
+  [INTERACTION_TYPES.SET_CONTROLLER]: [
     { title: 'Confirm Controller', status: 'process' },
     { title: 'Deploy Controller', status: 'wait' },
     { title: 'Complete', status: 'wait' },
   ],
-  [INTERACTION_TYPES.REMOVE_CONTROLLERS]: [
+  [INTERACTION_TYPES.REMOVE_CONTROLLER]: [
     { title: 'Confirm Remove Controller', status: 'process' },
     { title: 'Deploy Remove Controller', status: 'wait' },
     { title: 'Removal Complete', status: 'wait' },
@@ -183,13 +183,13 @@ export const TRANSACTION_DATA_KEYS: Record<
     functionName: 'setTicker',
     keys: ['ticker'],
   },
-  [INTERACTION_TYPES.SET_CONTROLLERS]: {
-    functionName: 'setControllers',
-    keys: ['targets'],
+  [INTERACTION_TYPES.SET_CONTROLLER]: {
+    functionName: 'setController',
+    keys: ['target'],
   },
-  [INTERACTION_TYPES.REMOVE_CONTROLLERS]: {
-    functionName: 'removeControllers',
-    keys: ['targets'],
+  [INTERACTION_TYPES.REMOVE_CONTROLLER]: {
+    functionName: 'removeController',
+    keys: ['target'],
   },
   [INTERACTION_TYPES.SET_NAME]: {
     functionName: 'setName',
@@ -541,15 +541,15 @@ export function getPDNSMappingByInteractionType(
       };
     }
 
-    case INTERACTION_TYPES.SET_CONTROLLERS: {
+    case INTERACTION_TYPES.SET_CONTROLLER: {
       if (
-        !isObjectOfTransactionPayloadType<SetControllersPayload>(
+        !isObjectOfTransactionPayloadType<SetControllerPayload>(
           transactionData,
-          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.SET_CONTROLLERS].keys,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.SET_CONTROLLER].keys,
         )
       ) {
         throw new Error(
-          `transaction data not of correct payload type <SetControllersPayload> keys: ${Object.keys(
+          `transaction data not of correct payload type <SetControllerPayload> keys: ${Object.keys(
             transactionData,
           )}`,
         );
@@ -559,11 +559,7 @@ export function getPDNSMappingByInteractionType(
         contractTxId: new ArweaveTransactionID(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
-          controllers: (
-            <span>
-              {transactionData.targets.map((t) => t.toString()).join(', ')}
-            </span>
-          ),
+          controllers: <span>{transactionData.target}</span>,
         },
         disabledKeys: [
           'evolve',
@@ -626,9 +622,9 @@ export const FieldToInteractionMap: {
     function: 'setRecord',
   },
   controller: {
-    title: INTERACTION_TYPES.SET_CONTROLLERS,
-    function: 'setControllers',
-    name: 'targets',
+    title: INTERACTION_TYPES.SET_CONTROLLER,
+    function: 'setController',
+    name: 'target',
   },
   owner: {
     title: INTERACTION_TYPES.TRANSFER,

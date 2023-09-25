@@ -4,7 +4,7 @@ import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
 import {
   ArweaveTransactionID,
   PDNTContractJSON,
-  SetControllersPayload,
+  SetControllerPayload,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import { formatForMaxCharCount, isArweaveTransactionID } from '../../../utils';
@@ -20,7 +20,7 @@ function AddControllerModal({
 }: {
   antId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
   showModal: () => void;
-  payloadCallback: (payload: SetControllersPayload) => void;
+  payloadCallback: (payload: SetControllerPayload) => void;
 }) {
   const arweaveDataProvider = useArweaveCompositeProvider();
   const isMobile = useIsMobile();
@@ -53,7 +53,7 @@ function AddControllerModal({
 
   function handlePayloadCallback() {
     payloadCallback({
-      targets: [toAddress],
+      target: toAddress,
     });
   }
 

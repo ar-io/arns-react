@@ -5,11 +5,12 @@ import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
 import {
   ArweaveTransactionID,
   PDNTContractJSON,
-  RemoveControllersPayload,
+  RemoveControllerPayload,
 } from '../../../types';
 import {
   formatForMaxCharCount,
   getCustomPaginationButtons,
+  getLegacyControllersFromState,
 } from '../../../utils';
 import { Loader } from '../../layout';
 import TransactionCost from '../../layout/TransactionCost/TransactionCost';
@@ -23,7 +24,7 @@ function RemoveControllersModal({
 }: {
   antId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
   showModal: () => void;
-  payloadCallback: (payload: RemoveControllersPayload) => void;
+  payloadCallback: (payload: RemoveControllerPayload) => void;
 }) {
   const arweaveDataProvider = useArweaveCompositeProvider();
   const isMobile = useIsMobile();
@@ -59,7 +60,7 @@ function RemoveControllersModal({
 
   function handlePayloadCallback() {
     payloadCallback({
-      targets: controllersToRemove.map((controller) => controller.toString()),
+      target: controllersToRemove[0].toString(),
     });
   }
 
@@ -96,24 +97,36 @@ function RemoveControllersModal({
               <span className="white">{antId.toString()}</span>
             </div>
             <div className="flex flex-row">
-              <div className="flex flex-column" style={{ gap: '10px' }}>
+              <div
+                className="flex flex-column"
+                style={{ gap: '10px', width: 'fit-content' }}
+              >
                 <span className="grey">Nickname</span>
                 <span className="white">
-                  {formatForMaxCharCount(state.name, 40)}
+                  {formatForMaxCharCount(state.name, 20)}
                 </span>
               </div>
-              <div className="flex flex-column" style={{ gap: '10px' }}>
-                <span className="grey">Total Controllers</span>
+              <div
+                className="flex flex-column"
+                style={{ gap: '10px', width: 'fit-content' }}
+              >
+                <span className="grey" style={{ whiteSpace: 'nowrap' }}>
+                  Total Controllers
+                </span>
                 <span className="white">
                   {/* legacy contract state check */}
-                  {state.controller
-                    ? 1
-                    : state.controllers && Array.isArray(state.controllers)
-                    ? state.controllers.length.toLocaleString()
-                    : 'N/A'}
+                  {getLegacyControllersFromState(state).length ?? 'N/A'}
                 </span>
               </div>
-              <div className="flex flex-column" style={{ gap: '10px' }}>
+              <div
+                className="flex flex-column"
+                style={{
+                  gap: '10px',
+                  height: '100%',
+                  justifyContent: 'flex-start',
+                  width: 'fit-content',
+                }}
+              >
                 <span className="grey">Selected</span>
                 <span
                   style={{
@@ -144,6 +157,11 @@ function RemoveControllersModal({
                           render: (value: string, row: any) => (
                             <Checkbox
                               prefixCls="remove-controller-checkbox"
+                              // TODO: remove once we have support for multi remove of controllers
+                              disabled={
+                                controllersToRemove.length > 0 &&
+                                !controllersToRemove.includes(row.controller)
+                              }
                               checked={controllersToRemove
                                 .map((c) => c.toString())
                                 .includes(row.controller.toString())}

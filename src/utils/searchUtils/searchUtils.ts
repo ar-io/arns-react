@@ -6,6 +6,8 @@ import {
   AuctionParameters,
   AuctionSettings,
   PDNSRecordEntry,
+  PDNTContractFields,
+  PDNTContractJSON,
   TRANSACTION_TYPES,
 } from '../../types';
 import {
@@ -429,4 +431,17 @@ export function sleep(ms: number) {
 
 export function lowerCaseDomain(domain: string) {
   return encodeDomainToASCII(domain.trim()).toLowerCase();
+}
+
+// controller vs controllers array
+export function getLegacyControllersFromState(
+  state: PDNTContractJSON,
+): string[] {
+  if (state.controller && !state.controllers) {
+    return [state.controller];
+  } else if (state.controllers) {
+    return state.controllers;
+  }
+
+  return [];
 }

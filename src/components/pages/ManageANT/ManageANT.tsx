@@ -708,7 +708,7 @@ function ManageANT() {
           antId={new ArweaveTransactionID(id)}
           payloadCallback={(payload) => {
             setTransactionData(payload);
-            setInteractionType(PDNT_INTERACTION_TYPES.SET_CONTROLLERS);
+            setInteractionType(PDNT_INTERACTION_TYPES.SET_CONTROLLER);
             setShowConfirmModal(true);
             setShowAddControllerModal(false);
           }}
@@ -722,7 +722,7 @@ function ManageANT() {
           antId={new ArweaveTransactionID(id)}
           payloadCallback={(payload) => {
             setTransactionData(payload);
-            setInteractionType(PDNT_INTERACTION_TYPES.REMOVE_CONTROLLERS);
+            setInteractionType(PDNT_INTERACTION_TYPES.REMOVE_CONTROLLER);
             setShowConfirmModal(true);
             setShowRemoveControllerModal(false);
           }}
@@ -746,12 +746,12 @@ function ManageANT() {
               setShowConfirmModal(false);
               return;
             }
-            if (interactionType === PDNT_INTERACTION_TYPES.SET_CONTROLLERS) {
+            if (interactionType === PDNT_INTERACTION_TYPES.SET_CONTROLLER) {
               setShowAddControllerModal(true);
               setShowConfirmModal(false);
               return;
             }
-            if (interactionType === PDNT_INTERACTION_TYPES.REMOVE_CONTROLLERS) {
+            if (interactionType === PDNT_INTERACTION_TYPES.REMOVE_CONTROLLER) {
               setShowRemoveControllerModal(true);
               setShowConfirmModal(false);
               return;
@@ -763,8 +763,8 @@ function ManageANT() {
           }}
           cancelText={
             interactionType === PDNT_INTERACTION_TYPES.TRANSFER ||
-            interactionType === PDNT_INTERACTION_TYPES.SET_CONTROLLERS ||
-            interactionType === PDNT_INTERACTION_TYPES.REMOVE_CONTROLLERS
+            interactionType === PDNT_INTERACTION_TYPES.SET_CONTROLLER ||
+            interactionType === PDNT_INTERACTION_TYPES.REMOVE_CONTROLLER
               ? 'Back'
               : 'Cancel'
           }

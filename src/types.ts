@@ -346,8 +346,8 @@ export enum INTERACTION_TYPES {
   SUBMIT_AUCTION_BID = 'Submit Bid',
 
   // ANT interaction types
-  SET_CONTROLLERS = 'Edit Controllers',
-  REMOVE_CONTROLLERS = 'Remove Controllers',
+  SET_CONTROLLER = 'Edit Controller',
+  REMOVE_CONTROLLER = 'Remove Controller',
   SET_TICKER = 'Edit Ticker',
   SET_NAME = 'Edit Name',
   SET_TTL_SECONDS = 'Edit TTL Seconds',
@@ -399,8 +399,8 @@ const commonInteractionTypeNames = [
 const unknownInteractionType = INTERACTION_TYPES.UNKNOWN as const;
 export const pdntInteractionTypes = [
   ...commonInteractionTypeNames,
-  INTERACTION_TYPES.SET_CONTROLLERS,
-  INTERACTION_TYPES.REMOVE_CONTROLLERS,
+  INTERACTION_TYPES.SET_CONTROLLER,
+  INTERACTION_TYPES.REMOVE_CONTROLLER,
   INTERACTION_TYPES.SET_TICKER,
   INTERACTION_TYPES.SET_NAME,
   INTERACTION_TYPES.SET_TTL_SECONDS,
@@ -490,12 +490,12 @@ export type SetTickerPayload = {
   ticker: string;
 };
 
-export type SetControllersPayload = {
-  targets: string[];
+export type SetControllerPayload = {
+  target: string;
 };
 
-export type RemoveControllersPayload = {
-  targets: string[];
+export type RemoveControllerPayload = {
+  target: string;
 };
 
 export type SetNamePayload = {
@@ -521,8 +521,8 @@ export type TransferANTPayload = {
 // end pdnt transaction payload types
 
 export enum PDNT_INTERACTION_TYPES {
-  SET_CONTROLLERS = 'Edit Controllers',
-  REMOVE_CONTROLLERS = 'Remove Controllers',
+  SET_CONTROLLER = 'Edit Controller',
+  REMOVE_CONTROLLER = 'Remove Controller',
   SET_TICKER = 'Edit Ticker',
   SET_NAME = 'Edit Name',
   SET_RECORD = 'Edit Record',
@@ -559,8 +559,8 @@ export type TransactionDataPayload =
   | IncreaseUndernamesPayload
   | TransferIOPayload
   | SetTickerPayload
-  | SetControllersPayload
-  | RemoveControllersPayload
+  | SetControllerPayload
+  | RemoveControllerPayload
   | SetNamePayload
   | SetRecordPayload
   | RemoveRecordPayload

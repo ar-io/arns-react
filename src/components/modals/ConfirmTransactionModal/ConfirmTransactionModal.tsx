@@ -6,9 +6,9 @@ import {
   ArweaveTransactionID,
   INTERACTION_TYPES,
   PDNT_INTERACTION_TYPES,
-  RemoveControllersPayload,
+  RemoveControllerPayload,
   RemoveRecordPayload,
-  SetControllersPayload,
+  SetControllerPayload,
   SetNamePayload,
   SetRecordPayload,
   SetTickerPayload,
@@ -140,14 +140,14 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
       );
     },
   },
-  [PDNT_INTERACTION_TYPES.SET_CONTROLLERS]: {
-    header: 'Add Controllers',
+  [PDNT_INTERACTION_TYPES.SET_CONTROLLER]: {
+    header: 'Add Controller',
     successHeader: 'Controller Added',
     body: (props: TransactionDataPayload) => {
       if (
-        !isObjectOfTransactionPayloadType<SetControllersPayload>(
+        !isObjectOfTransactionPayloadType<SetControllerPayload>(
           props,
-          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.SET_CONTROLLERS].keys,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.SET_CONTROLLER].keys,
         )
       ) {
         return <></>;
@@ -157,23 +157,21 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
           <span>
             By completing this action, you are going to add controller with the
             wallet ID <br />
-            <span className="text-color-warning">
-              {`"${props.targets[0]}"`}.
-            </span>
+            <span className="text-color-warning">{`"${props.target}"`}.</span>
           </span>
           <span>Are you sure you want to continue?</span>
         </>
       );
     },
   },
-  [PDNT_INTERACTION_TYPES.REMOVE_CONTROLLERS]: {
+  [PDNT_INTERACTION_TYPES.REMOVE_CONTROLLER]: {
     header: 'Remove Controller',
-    successHeader: 'Controllers Removed',
+    successHeader: 'Controller Removed',
     body: (props: TransactionDataPayload) => {
       if (
-        !isObjectOfTransactionPayloadType<RemoveControllersPayload>(
+        !isObjectOfTransactionPayloadType<RemoveControllerPayload>(
           props,
-          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.REMOVE_CONTROLLERS].keys,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.REMOVE_CONTROLLER].keys,
         )
       ) {
         return <></>;
@@ -182,10 +180,8 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
         <>
           <span>
             By completing this action, you are going to remove
-            <span className="text-color-error">
-              &nbsp;{`${props.targets.length}`}&nbsp;
-            </span>
-            controller{props.targets.length > 1 ? 's' : ''}.
+            <span className="text-color-error">&nbsp;1&nbsp;</span>
+            controller.
           </span>
           <span>Are you sure you want to continue?</span>
         </>
