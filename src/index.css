@@ -846,7 +846,7 @@ thead > tr > td[class~='assets-table-header'] {
 }
 
 .ant-tooltip-disabled-compatible-wrapper {
-  padding: 9px !important;
+  padding: 9px 12px !important;
   color: var(--text-black) !important;
 }
 
@@ -858,5 +858,5 @@ thead > tr > td[class~='assets-table-header'] {
 }
 
 .notification-tooltip > .ant-tooltip-content > .ant-tooltip-inner {
-  padding: 6px !important;
+  padding: 6px 8px !important;
 }

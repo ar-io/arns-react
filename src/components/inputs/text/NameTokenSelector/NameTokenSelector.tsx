@@ -326,7 +326,7 @@ function NameTokenSelector({
             )
           }
           value={searchText}
-          maxLength={SMARTWEAVE_MAX_INPUT_SIZE}
+          maxCharLength={SMARTWEAVE_MAX_INPUT_SIZE}
           placeholder={
             selectedToken
               ? selectedToken.name.length

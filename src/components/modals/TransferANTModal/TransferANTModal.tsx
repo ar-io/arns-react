@@ -113,7 +113,7 @@ function TransferANTModal({
                   showValidationOutline={true}
                   showValidationChecklist={true}
                   validationListStyle={{ display: 'none' }}
-                  maxLength={43}
+                  maxCharLength={43}
                   value={toAddress}
                   setValue={setToAddress}
                   validityCallback={(validity: boolean) =>

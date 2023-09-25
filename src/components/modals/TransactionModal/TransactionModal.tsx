@@ -154,7 +154,7 @@ function TransactionModal({
                 wrapperClassName="flex flex-column center"
                 wrapperCustomStyle={{ gap: isMobile ? '0.5em' : '1em' }}
                 placeholder="Enter recipients address"
-                maxLength={43}
+                maxCharLength={43}
                 value={toAddress}
                 setValue={setToAddress}
                 validityCallback={(validity: boolean) =>

@@ -11,7 +11,6 @@ import { Layout, ProtectedRoute } from './components/layout';
 import { ANT_FLAG } from './components/layout/Breadcrumbs/Breadcrumbs';
 import ExtendLease from './components/layout/ExtendLease/ExtendLease';
 import Redirect from './components/layout/Redirect/Redirect';
-import Undernames from './components/layout/Undernames/Undernames';
 import UpgradeUndernames from './components/layout/UpgradeUndernames/UpgradeUndernames';
 import ViewAuction from './components/layout/ViewAuction/ViewAuction';
 import { ConnectWalletModal } from './components/modals';
@@ -24,6 +23,7 @@ import {
   NotFound,
   Register,
   Transaction,
+  Undernames,
 } from './components/pages';
 import { usePDNSContract } from './hooks/';
 import useArconnectEvents from './hooks/useArconnectEvents/useArconnectEvents';

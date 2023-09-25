@@ -360,9 +360,11 @@ function SearchBar(props: SearchBarProps) {
         <ValidationInput
           inputClassName="searchbar-input"
           inputId="searchbar-input-id"
-          pattern={PDNS_NAME_REGEX_PARTIAL}
+          customPattern={PDNS_NAME_REGEX_PARTIAL}
           // <input> tag considers emojis as 2 characters in length, so we need to encode the string to ASCII to get the correct length manually
-          maxLength={(v) => !(lowerCaseDomain(v).length > MAX_ARNS_NAME_LENGTH)}
+          maxCharLength={(v) =>
+            !(lowerCaseDomain(v).length > MAX_ARNS_NAME_LENGTH)
+          }
           inputType="search"
           onPressEnter={() => _onSubmit()}
           disabled={disabled}

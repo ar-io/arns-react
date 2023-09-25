@@ -1,8 +1,6 @@
-import { Pagination } from 'antd';
-import { Table } from 'antd';
-import { ColumnType } from 'rc-table/lib/interface';
+import { Table, TableProps } from 'antd';
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
 import { useUndernames } from '../../../hooks/useUndernames/useUndernames';
@@ -22,6 +20,7 @@ import {
 import {
   TRANSACTION_DATA_KEYS,
   byteSize,
+  getCustomPaginationButtons,
   isArweaveTransactionID,
   isObjectOfTransactionPayloadType,
   mapTransactionDataKeyToPayload,
@@ -36,16 +35,16 @@ import {
   STUB_ARWEAVE_TXID,
 } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
-import { TrashIcon } from '../../icons';
+import { PlusIcon, TrashIcon } from '../../icons';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
+import { Loader } from '../../layout';
+import ArPrice from '../../layout/ArPrice/ArPrice';
 import DialogModal from '../../modals/DialogModal/DialogModal';
-import ArPrice from '../ArPrice/ArPrice';
-import Loader from '../Loader/Loader';
+import './styles.css';
 
 function Undernames() {
   const arweaveDataProvider = useArweaveCompositeProvider();
   const [, dispatchTransactionState] = useTransactionState();
-  const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { id } = useParams();
   const [pdntId, setPDNTId] = useState<ArweaveTransactionID>();
@@ -64,14 +63,9 @@ function Undernames() {
     sortField: undernameSortField,
     action,
     setAction,
+    undernameFilter,
   } = useUndernames(pdntId);
-  const [tableData, setTableData] = useState<UndernameMetadata[]>([]);
-  const [filteredTableData, setFilteredTableData] = useState<
-    UndernameMetadata[]
-  >([]);
   const [tableLoading, setTableLoading] = useState(true);
-  const [tableColumns, setTableColumns] =
-    useState<ColumnType<UndernameMetadata>[]>();
   const [tablePage, setTablePage] = useState<number>(1);
 
   // modal state
@@ -107,14 +101,8 @@ function Undernames() {
     }
     if (isArweaveTransactionID(id)) {
       setTableLoading(undernameTableLoading);
-      setTableData(undernameRows);
-      setTableColumns(undernameColumns);
       setPercentLoaded(percentUndernamesLoaded);
       setSelectedRow(selectedUndernameRow);
-      const baseIndex = Math.max((tablePage - 1) * 10, 0);
-      const endIndex = tablePage * 10;
-      const filteredData = undernameRows.slice(baseIndex, endIndex);
-      setFilteredTableData(filteredData);
     }
   }, [
     id,
@@ -125,7 +113,11 @@ function Undernames() {
     undernameTableLoading,
     percentUndernamesLoaded,
     action,
+    undernameFilter,
   ]);
+  useEffect(() => {
+    console.log(undernameFilter);
+  }, [undernameFilter]);
 
   function resetActionModal() {
     setUndername(undefined);
@@ -319,40 +311,42 @@ function Undernames() {
     }
   }
 
+  const onTableChange: TableProps<UndernameMetadata>['onChange'] = (
+    pagination,
+    filters,
+    sorter,
+    extra,
+  ) => {
+    console.log('params', pagination, filters, sorter, extra);
+  };
+
   return (
     <>
       <div className="page">
         <div className="flex-column">
           <div className="flex flex-justify-between">
-            <div className="flex flex-row flex-right">
-              {filteredTableData.length ? (
-                <button
-                  disabled={undernameTableLoading}
-                  className={
-                    undernameTableLoading
-                      ? 'outline-button center disabled-button'
-                      : 'outline-button center'
-                  }
-                  style={{
-                    padding: '0.75em',
-                  }}
-                  onClick={() => setAction(UNDERNAME_TABLE_ACTIONS.CREATE)}
-                >
-                  {/* TODO get undername logo from figma */}
-                  {isMobile ? (
-                    <></>
-                  ) : (
-                    <span
-                      className="text white"
-                      style={{ fontSize: '16px', padding: '0 0.2em' }}
-                    >
-                      Add Undername
-                    </span>
-                  )}
-                </button>
-              ) : (
-                <></>
-              )}
+            <div
+              className="flex flex-row"
+              style={{ justifyContent: 'space-between' }}
+            >
+              <h2 className="white">Manage Undernames</h2>
+              <button
+                className={'button-secondary center'}
+                style={{
+                  gap: '10px',
+                  padding: '9px 12px',
+                  fontSize: '14px',
+                  textAlign: 'center',
+                }}
+                onClick={() => setAction(UNDERNAME_TABLE_ACTIONS.CREATE)}
+              >
+                <PlusIcon
+                  width={'16px'}
+                  height={'16px'}
+                  fill={'var(--accent)'}
+                />
+                Add Undername
+              </button>
             </div>
           </div>
           {tableLoading ? (
@@ -365,63 +359,73 @@ function Undernames() {
               />
             </div>
           ) : (
-            <>
-              {filteredTableData.length ? (
-                <>
-                  <Table
-                    rowClassName={'assets-table-row'}
-                    bordered={false}
-                    scroll={{ x: true }}
-                    columns={tableColumns}
-                    dataSource={filteredTableData}
-                    pagination={false}
-                  />
-
-                  <Pagination
-                    pageSize={10}
-                    onChange={updatePage}
-                    current={tablePage}
-                    total={tableData.length}
-                    rootClassName="center"
-                    defaultCurrent={1}
-                    showSizeChanger={false}
-                  />
-                </>
-              ) : (
-                <div
-                  className="flex flex-column flex-center"
-                  style={{ marginTop: '100px' }}
-                >
-                  <span className="text-large white bold center">
-                    No Undernames present on ANT
-                  </span>
-                  <button
-                    disabled={undernameTableLoading}
-                    className={
-                      undernameTableLoading
-                        ? 'outline-button center disabled-button'
-                        : 'outline-button center'
-                    }
-                    style={{
-                      padding: '0.75em',
-                    }}
-                    onClick={() => setAction(UNDERNAME_TABLE_ACTIONS.CREATE)}
+            <Table
+              onChange={(pagination, filters, sorter, extra) =>
+                onTableChange(pagination, filters, sorter, extra)
+              }
+              onRow={() => ({ className: 'hovered-row' })}
+              prefixCls="manage-table"
+              bordered={false}
+              scroll={{ x: true }}
+              columns={undernameColumns}
+              dataSource={undernameRows}
+              pagination={{
+                position: ['bottomCenter'],
+                rootClassName: 'table-pagination',
+                itemRender: (page, type, originalElement) =>
+                  getCustomPaginationButtons({
+                    page,
+                    type,
+                    originalElement,
+                    currentPage: tablePage,
+                  }),
+                onChange: updatePage,
+                showPrevNextJumpers: true,
+                showSizeChanger: false,
+                current: tablePage,
+              }}
+              locale={{
+                emptyText: (
+                  <div
+                    className="flex flex-column center"
+                    style={{ padding: '100px', boxSizing: 'border-box' }}
                   >
-                    {/* TODO get undername logo from figma */}
-                    {isMobile ? (
-                      <></>
-                    ) : (
-                      <span
-                        className="text white"
-                        style={{ fontSize: '16px', padding: '0 0.2em' }}
+                    <span className="white bold" style={{ fontSize: '16px' }}>
+                      No Name Tokens Found
+                    </span>
+                    <span
+                      className={'grey'}
+                      style={{ fontSize: '13px', maxWidth: '400px' }}
+                    >
+                      Arweave Name Tokens (ANTs) provide ownership and control
+                      of ArNS names. With ANTs you can easily manage, transfer,
+                      and adjust your domains, as well as create undernames.
+                    </span>
+
+                    <div
+                      className="flex flex-row center"
+                      style={{ gap: '16px' }}
+                    >
+                      <Link
+                        to="/"
+                        className="button-primary center hover"
+                        style={{
+                          gap: '8px',
+                          minWidth: '105px',
+                          height: '22px',
+                          padding: '10px 16px',
+                          boxSizing: 'content-box',
+                          fontSize: '14px',
+                          flexWrap: 'nowrap',
+                        }}
                       >
-                        Add Undername
-                      </span>
-                    )}
-                  </button>
-                </div>
-              )}
-            </>
+                        Search for a Name
+                      </Link>
+                    </div>
+                  </div>
+                ),
+              }}
+            />
           )}
         </div>
       </div>
@@ -430,6 +434,8 @@ function Undernames() {
           <DialogModal
             title={getActionModalTitle()}
             onNext={() => handleOnNext()}
+            nextText="Next"
+            cancelText="Cancel"
             onCancel={() => {
               resetActionModal();
             }}

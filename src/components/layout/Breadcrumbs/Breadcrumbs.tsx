@@ -67,6 +67,19 @@ function Breadcrumbs() {
     }
   }
 
+  function handleCrumbTitle(title: string) {
+    const reservedTitles = [
+      'Manage Assets',
+      'Increase Undernames',
+      'Extend Lease',
+      'Manage Undernames',
+    ];
+    if (reservedTitles.includes(title)) {
+      return title;
+    }
+    return formatForMaxCharCount(title, 16);
+  }
+
   return (
     <>
       {crumbs?.length ? (
@@ -111,7 +124,7 @@ function Breadcrumbs() {
                   }}
                   to={item?.route ?? '/'}
                 >
-                  {formatForMaxCharCount(item.name, 16)}
+                  {handleCrumbTitle(item.name)}
                 </Link>
               </Item>
             );

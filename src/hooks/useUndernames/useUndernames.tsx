@@ -1,16 +1,22 @@
-import { ColumnType } from 'rc-table/lib/interface';
-import { useEffect, useState } from 'react';
+import { Tooltip } from 'antd';
+import { ColumnType } from 'antd/es/table';
+import { FilterConfirmProps } from 'antd/es/table/interface';
+import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 
-import { useArweaveCompositeProvider, useIsMobile } from '..';
+import { useArweaveCompositeProvider } from '..';
 import {
-  CalendarTimeIcon,
   ChevronUpIcon,
-  NotebookIcon,
+  CircleXFilled,
   PencilIcon,
-  TargetIcon,
+  SearchIcon,
   TrashIcon,
 } from '../../components/icons/index';
-import CopyTextButton from '../../components/inputs/buttons/CopyTextButton/CopyTextButton';
+import ValidationInput from '../../components/inputs/text/ValidationInput/ValidationInput';
+import ArweaveID, {
+  ArweaveIdTypes,
+} from '../../components/layout/ArweaveID/ArweaveID';
+import { useGlobalState } from '../../state/contexts/GlobalState';
 import {
   ArweaveTransactionID,
   PDNTContractJSON,
@@ -18,20 +24,27 @@ import {
   UndernameMetadata,
   UndernameTableInteractionTypes,
 } from '../../types';
+import { isArweaveTransactionID } from '../../utils';
+import { PDNS_NAME_REGEX } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 
 export function useUndernames(id?: ArweaveTransactionID) {
-  const isMobile = useIsMobile();
+  const [{ gateway }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const [sortAscending, setSortOrder] = useState(true);
-  const [sortField, setSortField] = useState<keyof UndernameMetadata>('status');
+  const [sortField, setSortField] = useState<keyof UndernameMetadata>('name');
   const [selectedRow, setSelectedRow] = useState<UndernameMetadata>();
   const [rows, setRows] = useState<UndernameMetadata[]>([]);
+  const [columns, setColumns] = useState<ColumnType<UndernameMetadata>[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [percent, setPercentLoaded] = useState<number>(0);
   const [action, setAction] = useState<
     UndernameTableInteractionTypes | undefined
   >();
+  const [searchOpen, setSearchOpen] = useState<boolean>(false);
+  const [undernameFilter, setUndernameFilter] = useState<string>('');
+  const [searchedColumn, setSearchedColumn] = useState('');
+  const searchInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!id) {
@@ -40,34 +53,176 @@ export function useUndernames(id?: ArweaveTransactionID) {
     fetchUndernameRows(id);
   }, [id]);
 
+  useEffect(() => {
+    generateTableColumns();
+  }, [searchOpen]);
+
+  type DataIndex = keyof UndernameMetadata;
+
+  const handleSearch = (
+    selectedKeys: string[],
+    confirm: (param?: FilterConfirmProps) => void,
+    dataIndex: DataIndex,
+  ) => {
+    console.log('im searching');
+
+    setUndernameFilter((selectedKeys as string[])[0]);
+    setSearchedColumn(dataIndex.toString());
+    confirm({ closeDropdown: false });
+  };
+
+  const handleReset = (clearFilters: () => void) => {
+    console.log('im resetting');
+    clearFilters();
+    setUndernameFilter('');
+  };
+
+  const getColumnSearchProps = (
+    dataIndex: DataIndex,
+  ): ColumnType<UndernameMetadata> => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+    }) => (
+      <div
+        className="flex flex-row center undername-search-wrapper"
+        style={{
+          gap: '1px',
+          justifyContent: 'flex-end',
+          boxSizing: 'border-box',
+        }}
+      >
+        <button
+          className="flex button center pointer"
+          style={{ zIndex: 10 }}
+          onClick={() => {
+            confirm({ closeDropdown: false });
+            console.log(selectedKeys);
+            setUndernameFilter((selectedKeys as string[])[0]);
+            setSearchedColumn(dataIndex.toString());
+          }}
+        >
+          <SearchIcon
+            width={'16px'}
+            height={'16px'}
+            fill={searchOpen ? 'var(--text-white)' : 'var(--text-grey)'}
+          />
+        </button>
+
+        <span
+          className="flex flex-row center"
+          style={{
+            gap: '1px',
+            justifyContent: 'flex-end',
+            width: 'fit-content',
+            boxSizing: 'border-box',
+          }}
+        >
+          <ValidationInput
+            ref={searchInput}
+            onPressEnter={() => {
+              confirm({ closeDropdown: false });
+              setUndernameFilter((selectedKeys as string[])[0]);
+              setSearchedColumn(dataIndex.toString());
+            }}
+            value={selectedKeys[0]}
+            setValue={(e) => setSelectedKeys(e ? [e] : [])}
+            customPattern={PDNS_NAME_REGEX}
+            catchInvalidInput={false}
+            showValidationIcon={true}
+            placeholder={'Search for a name'}
+            maxCharLength={61}
+            wrapperCustomStyle={{
+              position: 'relative',
+              boxSizing: 'border-box',
+            }}
+            inputCustomStyle={{
+              width: '100%',
+              minWidth: '100px',
+              overflow: 'hidden',
+              fontSize: '13px',
+              outline: 'none',
+              color: 'white',
+              alignContent: 'center',
+              borderBottom: 'none',
+              boxSizing: 'border-box',
+              background: 'transparent',
+              borderRadius: 'var(--corner-radius)',
+              border: 'none',
+            }}
+          />
+          <button
+            className="flex button center pointer"
+            onClick={() => {
+              if (clearFilters) {
+                handleReset(clearFilters);
+              }
+            }}
+          >
+            <CircleXFilled
+              width={'18px'}
+              height={'18px'}
+              fill={'var(--text-grey)'}
+            />
+          </button>
+        </span>
+      </div>
+    ),
+    filterIcon: (filtered: boolean) => (
+      <SearchIcon
+        width={'18px'}
+        height={'18px'}
+        fill={filtered ? 'var(--accent)' : 'var(--text-grey)'}
+      />
+    ),
+    onFilter: (value, record) => {
+      console.log('im filtering', value, record);
+      const res = record[dataIndex]
+        ?.toString()
+        .toLowerCase()
+        .includes((value as string).toLowerCase());
+      if (!res) {
+        return false;
+      }
+      return res;
+    },
+    onFilterDropdownOpenChange: (visible) => {
+      if (visible) {
+        setTimeout(() => searchInput.current?.select(), 100);
+      }
+    },
+  });
+
   function generateTableColumns(): ColumnType<UndernameMetadata>[] {
-    return [
+    const newColumns: ColumnType<UndernameMetadata>[] = [
       {
+        ...getColumnSearchProps('name'),
         title: (
           <button
             className="flex-row pointer white"
             style={{ gap: '0.5em' }}
             onClick={() => setSortField('name')}
           >
-            <ChevronUpIcon
-              width={10}
-              height={10}
-              fill={'var(--text-grey)'}
-              style={
-                sortField === 'name' && !sortAscending
-                  ? { transform: 'rotate(180deg)' }
-                  : {}
-              }
-            />
             <span>Undername</span>
-            <NotebookIcon width={24} height={24} fill={'var(--text-grey)'} />
+            {sortField === 'name' ? (
+              <ChevronUpIcon
+                width={10}
+                height={10}
+                fill={'var(--text-grey)'}
+                style={!sortAscending ? { transform: 'rotate(180deg)' } : {}}
+              />
+            ) : (
+              <></>
+            )}
           </button>
         ),
         dataIndex: 'name',
         key: 'name',
         align: 'left',
         width: '18%',
-        className: 'icon-padding white assets-table-header',
+        className: 'white manage-assets-table-header',
         ellipsis: true,
         onHeaderCell: () => {
           return {
@@ -84,54 +239,53 @@ export function useUndernames(id?: ArweaveTransactionID) {
             },
           };
         },
+        render: (val: string) => (
+          <Link
+            to={`https://${val}.${gateway}`}
+            rel="noreferrer"
+            target="_blank"
+            className="link"
+          >
+            {val}
+          </Link>
+        ),
       },
       {
         title: (
           <button
-            className="flex-row pointer white center"
+            className="flex-row pointer white"
             style={{ gap: '0.5em' }}
             onClick={() => setSortField('targetID')}
           >
-            <ChevronUpIcon
-              width={10}
-              height={10}
-              fill={'var(--text-grey)'}
-              style={
-                sortField === 'targetID' && !sortAscending
-                  ? { transform: 'rotate(180deg)' }
-                  : {}
-              }
-            />
             <span>Target ID</span>
-            <TargetIcon width={24} height={24} fill={'var(--text-grey)'} />
+            {sortField === 'targetID' ? (
+              <ChevronUpIcon
+                width={10}
+                height={10}
+                fill={'var(--text-grey)'}
+                style={!sortAscending ? { transform: 'rotate(180deg)' } : {}}
+              />
+            ) : (
+              <></>
+            )}
           </button>
         ),
         dataIndex: 'targetID',
         key: 'targetID',
-        align: 'center',
+        align: 'left',
         width: '18%',
-        className: 'white assets-table-header',
+        className: 'white manage-assets-table-header',
         render: (val: string) =>
-          val ? (
-            <div
-              className="flex flex-column flex-center"
-              style={{ position: 'relative' }}
-            >
-              <CopyTextButton
-                wrapperStyle={{
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  fill: 'var(--text-grey)',
-                }}
-                size={15}
-                copyText={val}
-                body={isMobile ? `${val.slice(0, 2)}...${val.slice(-2)}` : val}
-              />
-            </div>
-          ) : (
+          val === 'N/A' || !isArweaveTransactionID(val) ? (
             val
+          ) : (
+            <ArweaveID
+              id={new ArweaveTransactionID(val)}
+              characterCount={12}
+              shouldLink
+              type={ArweaveIdTypes.TRANSACTION}
+            />
           ),
-
         onHeaderCell: () => {
           return {
             onClick: () => {
@@ -150,33 +304,28 @@ export function useUndernames(id?: ArweaveTransactionID) {
       {
         title: (
           <button
-            className="flex-row pointer white center"
+            className="flex-row pointer white"
             style={{ gap: '0.5em' }}
             onClick={() => setSortField('ttlSeconds')}
           >
-            <ChevronUpIcon
-              width={10}
-              height={10}
-              fill={'var(--text-grey)'}
-              style={
-                sortField === 'ttlSeconds' && !sortAscending
-                  ? { transform: 'rotate(180deg)' }
-                  : {}
-              }
-            />
             <span>TTL</span>
-            <CalendarTimeIcon
-              width={24}
-              height={24}
-              fill={'var(--text-grey)'}
-            />
+            {sortField === 'ttlSeconds' ? (
+              <ChevronUpIcon
+                width={10}
+                height={10}
+                fill={'var(--text-grey)'}
+                style={!sortAscending ? { transform: 'rotate(180deg)' } : {}}
+              />
+            ) : (
+              <></>
+            )}
           </button>
         ),
         dataIndex: 'ttlSeconds',
         key: 'ttlSeconds',
-        align: 'center',
+        align: 'left',
         width: '18%',
-        className: 'white assets-table-header',
+        className: 'white manage-assets-table-header',
         render: (val: string) => val,
         onHeaderCell: () => {
           return {
@@ -195,33 +344,56 @@ export function useUndernames(id?: ArweaveTransactionID) {
       },
       {
         title: '',
-        className: 'assets-table-header',
+        className: 'manage-assets-table-header',
         render: (row) => (
-          <div className="flex flex-row flex-center" style={{ gap: '1em' }}>
-            <button
-              className="button hover"
-              onClick={() => {
-                setSelectedRow(row);
-                setAction(UNDERNAME_TABLE_ACTIONS.EDIT);
-              }}
+          <div
+            className="flex flex-row action-buttons fade-in"
+            style={{ gap: '10px', justifyContent: 'flex-end' }}
+          >
+            <Tooltip
+              trigger={['hover']}
+              title={'Edit'}
+              color="var(--card-bg)"
+              placement="top"
+              rootClassName="notification-tooltip"
             >
-              <PencilIcon width={25} height={25} fill={'var(--text-white)'} />
-            </button>
-            <button
-              className="button hover"
-              onClick={() => {
-                setSelectedRow(row);
-                setAction(UNDERNAME_TABLE_ACTIONS.REMOVE);
-              }}
+              <button
+                className="button pointer"
+                onClick={() => {
+                  setSelectedRow(row);
+                  setAction(UNDERNAME_TABLE_ACTIONS.EDIT);
+                }}
+              >
+                <PencilIcon width={18} height={18} fill={'var(--text-grey)'} />
+              </button>
+            </Tooltip>
+
+            <Tooltip
+              trigger={['hover']}
+              title={'Delete'}
+              color="#222224"
+              placement="top"
+              rootClassName="notification-tooltip"
             >
-              <TrashIcon width={25} height={25} fill={'var(--text-white)'} />
-            </button>
+              <button
+                className="button pointer"
+                onClick={() => {
+                  setSelectedRow(row);
+                  setAction(UNDERNAME_TABLE_ACTIONS.REMOVE);
+                }}
+              >
+                <TrashIcon width={18} height={18} fill={'var(--text-grey)'} />
+              </button>
+            </Tooltip>
           </div>
         ),
         align: 'right',
         width: '10%',
+        key: 'action',
+        dataIndex: 'action',
       },
     ];
+    return newColumns;
   }
 
   async function fetchUndernameRows(id: ArweaveTransactionID): Promise<void> {
@@ -276,5 +448,6 @@ export function useUndernames(id?: ArweaveTransactionID) {
     action,
     setAction: (action: UNDERNAME_TABLE_ACTIONS | undefined) =>
       setAction(action),
+    undernameFilter,
   };
 }
