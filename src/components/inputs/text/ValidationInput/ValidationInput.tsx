@@ -1,11 +1,9 @@
 import { Tooltip } from 'antd';
 import {
   ChangeEvent,
-  ForwardedRef,
   InputHTMLAttributes,
   forwardRef,
   useEffect,
-  useRef,
   useState,
 } from 'react';
 
@@ -315,5 +313,7 @@ const ValidationInput = forwardRef<HTMLInputElement, ValidationInputProps>(
     );
   },
 );
+
+ValidationInput.displayName = 'ValidationInput';
 
 export default ValidationInput;

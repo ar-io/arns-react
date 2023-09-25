@@ -1,18 +1,14 @@
 import { Tooltip } from 'antd';
 import { ColumnType } from 'antd/es/table';
-import { FilterConfirmProps } from 'antd/es/table/interface';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { useArweaveCompositeProvider } from '..';
 import {
   ChevronUpIcon,
-  CircleXFilled,
   PencilIcon,
-  SearchIcon,
   TrashIcon,
 } from '../../components/icons/index';
-import ValidationInput from '../../components/inputs/text/ValidationInput/ValidationInput';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '../../components/layout/ArweaveID/ArweaveID';
@@ -25,7 +21,6 @@ import {
   UndernameTableInteractionTypes,
 } from '../../types';
 import { isArweaveTransactionID } from '../../utils';
-import { PDNS_NAME_REGEX } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 
 export function useUndernames(id?: ArweaveTransactionID) {
@@ -35,7 +30,6 @@ export function useUndernames(id?: ArweaveTransactionID) {
   const [sortField, setSortField] = useState<keyof UndernameMetadata>('name');
   const [selectedRow, setSelectedRow] = useState<UndernameMetadata>();
   const [rows, setRows] = useState<UndernameMetadata[]>([]);
-  const [columns, setColumns] = useState<ColumnType<UndernameMetadata>[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [percent, setPercentLoaded] = useState<number>(0);
   const [action, setAction] = useState<

@@ -2,7 +2,7 @@ import { Table, TableProps } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
-import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
+import { useArweaveCompositeProvider } from '../../../hooks';
 import { useUndernames } from '../../../hooks/useUndernames/useUndernames';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
