@@ -468,7 +468,7 @@ function RegisterNameForm() {
                   paddingLeft: '60px',
                   background: 'transparent',
                 }}
-                maxLength={43}
+                maxCharLength={43}
                 placeholder={'Arweave Transaction ID'}
                 validationPredicates={{
                   [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {

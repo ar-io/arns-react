@@ -23,11 +23,11 @@ import './styles.css';
 
 function TransferANTModal({
   antId,
-  showModal,
+  closeModal,
   payloadCallback,
 }: {
   antId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
-  showModal: () => void;
+  closeModal: () => void;
   payloadCallback: (payload: TransferANTPayload) => void;
 }) {
   const [{ pdnsSourceContract }] = useGlobalState();
@@ -113,7 +113,7 @@ function TransferANTModal({
                   showValidationOutline={true}
                   showValidationChecklist={true}
                   validationListStyle={{ display: 'none' }}
-                  maxLength={43}
+                  maxCharLength={43}
                   value={toAddress}
                   setValue={setToAddress}
                   validityCallback={(validity: boolean) =>
@@ -199,8 +199,8 @@ function TransferANTModal({
             </div>
           </div>
         }
-        onCancel={() => showModal()}
-        onClose={() => showModal()}
+        onCancel={closeModal}
+        onClose={closeModal}
         onNext={
           accepted && isArweaveTransactionID(toAddress)
             ? () => handlePayloadCallback()

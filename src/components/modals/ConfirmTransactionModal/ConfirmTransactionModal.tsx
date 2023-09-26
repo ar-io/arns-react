@@ -204,7 +204,7 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
           <span>
             By completing this action, you are going to remove
             <span className="text-color-warning">
-              {`"${props.subDomain}"`}.
+              &nbsp;{`"${props.subDomain}"`}.
             </span>
           </span>
           <span>Are you sure you want to continue?</span>
@@ -219,7 +219,7 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
       if (
         !isObjectOfTransactionPayloadType<SetRecordPayload>(
           props,
-          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.SET_TTL_SECONDS].keys,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.SET_RECORD].keys,
         )
       ) {
         return <></>;
@@ -228,11 +228,70 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
         <>
           <span>
             By completing this action, you are going to add
-            <span className="text-color-warning">{`"${props.ttlSeconds}"`}</span>{' '}
-            undername with{' '}
-            <span className="text-color-warning">{`"${props.ttlSeconds}"`}</span>{' '}
+            <span className="text-color-warning">
+              &nbsp;{`"${props.subDomain}"`}&nbsp;
+            </span>
+            undername with <br />
+            <span className="text-color-warning">
+              &nbsp;{`"${props.transactionId}"`}&nbsp;
+            </span>
             target ID.
           </span>
+          <span>Are you sure you want to continue?</span>
+        </>
+      );
+    },
+  },
+  [PDNT_INTERACTION_TYPES.EDIT_RECORD]: {
+    header: 'Edit Undername',
+    successHeader: 'Undername Edited',
+    body: (props: TransactionDataPayload) => {
+      if (
+        !isObjectOfTransactionPayloadType<SetRecordPayload>(
+          props,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.SET_RECORD].keys,
+        )
+      ) {
+        return <></>;
+      }
+      return (
+        <>
+          <span>
+            By completing this action, you are going to edit
+            <span className="text-color-warning">
+              &nbsp;{`"${props.subDomain}"`}&nbsp;
+            </span>
+            <br />
+            {props.previousRecord?.transactionId !== props.transactionId ? (
+              <>
+                with
+                <span className="text-color-warning">
+                  &nbsp;{`"${props.transactionId}"`}&nbsp;
+                </span>
+                target ID
+              </>
+            ) : (
+              <></>
+            )}
+            {props.previousRecord?.ttlSeconds !== props.ttlSeconds ? (
+              <>
+                {' '}
+                and set the TTL to
+                <span className="text-color-warning">
+                  &nbsp;{`"${props.ttlSeconds}"`}&nbsp;
+                </span>
+              </>
+            ) : (
+              <></>
+            )}
+            {props.previousRecord?.ttlSeconds === props.ttlSeconds &&
+            props.previousRecord?.transactionId === props.transactionId ? (
+              <span>no new data</span>
+            ) : (
+              <></>
+            )}
+          </span>
+
           <span>Are you sure you want to continue?</span>
         </>
       );
@@ -355,6 +414,7 @@ function ConfirmTransactionModal({
               gap: '20px',
               fontSize: '13px',
               padding: '15px 0px',
+              paddingTop: '0px',
               lineHeight: '1.5',
               fontWeight: 160,
             }}
