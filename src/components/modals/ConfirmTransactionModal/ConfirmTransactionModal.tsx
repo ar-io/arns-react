@@ -257,7 +257,7 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
       return (
         <>
           <span>
-            By completing this action, you are going to set
+            By completing this action, you are going to edit
             <span className="text-color-warning">
               &nbsp;{`"${props.subDomain}"`}&nbsp;
             </span>
@@ -268,7 +268,7 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
                 <span className="text-color-warning">
                   &nbsp;{`"${props.transactionId}"`}&nbsp;
                 </span>
-                target ID.
+                target ID
               </>
             ) : (
               <></>
