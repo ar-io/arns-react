@@ -7,6 +7,7 @@ import ManageDomain from './ManageDomain/ManageDomain';
 import NotFound from './NotFound/NotFound';
 import Register from './Register/Register';
 import Transaction from './Transaction/Transaction';
+import Undernames from './Undernames/Undernames';
 
 export {
   About,
@@ -18,4 +19,5 @@ export {
   Register,
   ManageANT,
   ManageDomain,
+  Undernames,
 };

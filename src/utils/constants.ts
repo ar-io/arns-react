@@ -193,3 +193,10 @@ export const ATOMIC_REGISTRATION_INPUT = {
   contractTxId: ATOMIC_FLAG,
   qty: 0,
 };
+
+export const RESERVED_BREADCRUMB_TITLES = new Set([
+  'Manage Assets',
+  'Increase Undernames',
+  'Extend Lease',
+  'Manage Undernames',
+]);

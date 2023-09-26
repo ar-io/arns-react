@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { useArweaveCompositeProvider } from '../../../hooks';
 import { ArweaveTransactionID } from '../../../types';
 import { formatForMaxCharCount, isArweaveTransactionID } from '../../../utils';
+import { RESERVED_BREADCRUMB_TITLES } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { ChevronDownIcon } from '../../icons';
 
@@ -67,6 +68,14 @@ function Breadcrumbs() {
     }
   }
 
+  // TODO: move this to a css class
+  function handleCrumbTitle(title: string) {
+    if (RESERVED_BREADCRUMB_TITLES.has(title)) {
+      return title;
+    }
+    return formatForMaxCharCount(title, 16);
+  }
+
   return (
     <>
       {crumbs?.length ? (
@@ -111,7 +120,7 @@ function Breadcrumbs() {
                   }}
                   to={item?.route ?? '/'}
                 >
-                  {formatForMaxCharCount(item.name, 16)}
+                  {handleCrumbTitle(item.name)}
                 </Link>
               </Item>
             );

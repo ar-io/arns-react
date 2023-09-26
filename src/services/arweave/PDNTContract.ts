@@ -86,13 +86,7 @@ export class PDNTContract {
 
   getRecord(name: string): PDNTContractDomainRecord | undefined {
     if (!this.contract.records[name]) return undefined;
-    if (typeof this.contract.records[name] == 'string') {
-      return {
-        ttlSeconds: DEFAULT_TTL_SECONDS,
-        transactionId: this.contract.records[name] as string,
-        maxUndernames: DEFAULT_MAX_UNDERNAMES,
-      };
-    }
+
     return this.contract.records[name] as PDNTContractDomainRecord;
   }
 

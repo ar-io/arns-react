@@ -104,8 +104,7 @@ export type PDNTContractJSON = {
   controller?: string;
   controllers: string[];
   records: {
-    '@': string | PDNTContractDomainRecord;
-    [x: string]: string | PDNTContractDomainRecord;
+    [x: string]: PDNTContractDomainRecord;
   };
   ticker: string;
 };
@@ -352,7 +351,8 @@ export enum INTERACTION_TYPES {
   SET_NAME = 'Edit Name',
   SET_TTL_SECONDS = 'Edit TTL Seconds',
   SET_TARGET_ID = 'Edit Target ID',
-  SET_RECORD = 'Edit Record',
+  SET_RECORD = 'Add Record',
+  EDIT_RECORD = 'Edit Record',
   REMOVE_RECORD = 'Delete Record',
   CREATE = 'Create Arweave Name Token',
 
@@ -406,6 +406,8 @@ export const pdntInteractionTypes = [
   INTERACTION_TYPES.SET_TTL_SECONDS,
   INTERACTION_TYPES.SET_TARGET_ID,
   INTERACTION_TYPES.SET_RECORD,
+  INTERACTION_TYPES.EDIT_RECORD,
+
   INTERACTION_TYPES.REMOVE_RECORD,
 ] as const;
 export const registryInteractionTypes = [
@@ -506,6 +508,7 @@ export type SetRecordPayload = {
   subDomain: string;
   transactionId: string;
   ttlSeconds: number;
+  previousRecord?: PDNTContractDomainRecord;
 };
 
 export type RemoveRecordPayload = {
@@ -525,7 +528,8 @@ export enum PDNT_INTERACTION_TYPES {
   REMOVE_CONTROLLER = 'Remove Controller',
   SET_TICKER = 'Edit Ticker',
   SET_NAME = 'Edit Name',
-  SET_RECORD = 'Edit Record',
+  SET_RECORD = 'Add Record',
+  EDIT_RECORD = 'Edit Record',
   SET_TARGET_ID = 'Edit Target ID',
   SET_TTL_SECONDS = 'Edit TTL Seconds',
   REMOVE_RECORD = 'Delete Record',
@@ -690,7 +694,7 @@ export enum VALIDATION_INPUT_TYPES {
   ARWEAVE_ID = 'Is valid Arweave Transaction (TX) ID.',
   ARWEAVE_ADDRESS = 'Is likely an Arweave wallet address.',
   PDNS_NAME = 'ARNS Name.',
-  UNDERNAME = 'Undername.',
+  UNDERNAME = 'Is a valid Undername.',
   PDNT_CONTRACT_ID = 'Is a valid Arweave Name Token (PDNT).',
   // unfortunately we cannot use computed values in enums, so be careful if we ever modify this number
   TRANSACTION_CONFIRMATIONS = `Has sufficient confirmations (50+).`,

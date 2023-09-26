@@ -375,7 +375,7 @@ function ManageANT() {
                           {/* TODO: add label for mobile view */}
 
                           <ValidationInput
-                            pattern={
+                            customPattern={
                               row.attribute === 'targetID'
                                 ? PDNS_TX_ID_ENTRY_REGEX
                                 : row.attribute === 'ttlSeconds'
@@ -445,7 +445,7 @@ function ManageANT() {
                               modifiedValue,
                               row,
                             )}
-                            maxLength={(length) => {
+                            maxCharLength={(length) => {
                               if (
                                 row.attribute === 'name' ||
                                 row.attribute === 'ticker'
@@ -690,7 +690,7 @@ function ManageANT() {
       </div>
       {showTransferANTModal && id ? (
         <TransferANTModal
-          showModal={() => setShowTransferANTModal(false)}
+          closeModal={() => setShowTransferANTModal(false)}
           antId={new ArweaveTransactionID(id)}
           payloadCallback={(payload) => {
             setTransactionData(payload);
