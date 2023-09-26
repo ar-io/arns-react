@@ -1,14 +1,17 @@
 import { Tooltip } from 'antd';
 import { ColumnType } from 'antd/es/table';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { useArweaveCompositeProvider } from '..';
 import {
   ChevronUpIcon,
+  CircleXFilled,
   PencilIcon,
+  SearchIcon,
   TrashIcon,
 } from '../../components/icons/index';
+import ValidationInput from '../../components/inputs/text/ValidationInput/ValidationInput';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '../../components/layout/ArweaveID/ArweaveID';
@@ -21,6 +24,7 @@ import {
   UndernameTableInteractionTypes,
 } from '../../types';
 import { isArweaveTransactionID } from '../../utils';
+import { PDNS_NAME_REGEX_PARTIAL } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 
 export function useUndernames(id?: ArweaveTransactionID) {
@@ -30,11 +34,17 @@ export function useUndernames(id?: ArweaveTransactionID) {
   const [sortField, setSortField] = useState<keyof UndernameMetadata>('name');
   const [selectedRow, setSelectedRow] = useState<UndernameMetadata>();
   const [rows, setRows] = useState<UndernameMetadata[]>([]);
+  const [filteredResults, setFilteredResults] = useState<UndernameMetadata[]>(
+    [],
+  );
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [percent, setPercentLoaded] = useState<number>(0);
   const [action, setAction] = useState<
     UndernameTableInteractionTypes | undefined
   >();
+  const searchRef = useRef<HTMLInputElement>(null);
+  const [searchText, setSearchText] = useState<string>('');
+  const [searchOpen, setSearchOpen] = useState<boolean>(false);
 
   useEffect(() => {
     if (!id) {
@@ -43,6 +53,17 @@ export function useUndernames(id?: ArweaveTransactionID) {
     generateTableColumns();
     fetchUndernameRows(id);
   }, [id]);
+
+  useEffect(() => {
+    if (searchText) {
+      const filtered = rows.filter((row) =>
+        row.name.toLowerCase().startsWith(searchText.toLowerCase()),
+      );
+      setFilteredResults(filtered);
+    } else {
+      setFilteredResults([]);
+    }
+  }, [searchText]);
 
   function generateTableColumns(): ColumnType<UndernameMetadata>[] {
     const newColumns: ColumnType<UndernameMetadata>[] = [
@@ -191,7 +212,85 @@ export function useUndernames(id?: ArweaveTransactionID) {
         },
       },
       {
-        title: '',
+        title: (
+          <div
+            className="flex flex-row center undername-search-wrapper"
+            style={{
+              gap: '1px',
+              justifyContent: 'flex-end',
+              boxSizing: 'border-box',
+            }}
+          >
+            <button
+              className="flex button center pointer"
+              style={{ zIndex: 10 }}
+              onClick={() => setSearchOpen(!searchOpen)}
+            >
+              <SearchIcon
+                width={'16px'}
+                height={'16px'}
+                fill={searchOpen ? 'var(--text-white)' : 'var(--text-grey)'}
+              />
+            </button>
+            {searchOpen ? (
+              <span
+                className="flex flex-row center"
+                style={{
+                  gap: '1px',
+                  justifyContent: 'flex-end',
+                  width: 'fit-content',
+                  boxSizing: 'border-box',
+                }}
+              >
+                <ValidationInput
+                  ref={searchRef}
+                  value={searchText}
+                  setValue={(e) => setSearchText(e)}
+                  catchInvalidInput={true}
+                  showValidationIcon={false}
+                  placeholder={'Search for a name'}
+                  maxCharLength={61}
+                  wrapperCustomStyle={{
+                    position: 'relative',
+                    boxSizing: 'border-box',
+                  }}
+                  inputCustomStyle={{
+                    width: '100%',
+                    minWidth: '100px',
+                    overflow: 'hidden',
+                    fontSize: '13px',
+                    outline: 'none',
+                    color: 'white',
+                    alignContent: 'center',
+                    borderBottom: 'none',
+                    boxSizing: 'border-box',
+                    background: 'transparent',
+                    borderRadius: 'var(--corner-radius)',
+                    border: 'none',
+                    paddingRight: '10px',
+                  }}
+                  customPattern={PDNS_NAME_REGEX_PARTIAL}
+                  validationPredicates={{}}
+                />
+                <button
+                  className="flex button center pointer"
+                  onClick={() => {
+                    setSearchText('');
+                    setSearchOpen(false);
+                  }}
+                >
+                  <CircleXFilled
+                    width={'18px'}
+                    height={'18px'}
+                    fill={'var(--text-grey)'}
+                  />
+                </button>
+              </span>
+            ) : (
+              <></>
+            )}
+          </div>
+        ),
         className: 'manage-assets-table-header',
         render: (value, row) => (
           <div
@@ -289,12 +388,14 @@ export function useUndernames(id?: ArweaveTransactionID) {
     isLoading,
     percent,
     columns: generateTableColumns(),
-    rows,
+    rows: filteredResults.length ? filteredResults : rows,
     sortField,
     sortAscending,
     selectedRow,
     action,
     setAction: (action: UNDERNAME_TABLE_ACTIONS | undefined) =>
       setAction(action),
+    searchOpen,
+    searchText,
   };
 }

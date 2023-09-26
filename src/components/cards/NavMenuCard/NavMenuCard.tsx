@@ -79,7 +79,6 @@ function NavMenuCard() {
   }
 
   function handleClickOutside(e: any) {
-    e.preventDefault();
     if (
       menuRef.current &&
       e.target !== menuRef.current &&
