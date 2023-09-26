@@ -28,11 +28,11 @@ import DialogModal from '../DialogModal/DialogModal';
 
 function AddUndernameModal({
   antId,
-  showModal,
+  closeModal,
   payloadCallback,
 }: {
   antId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
-  showModal: () => void;
+  closeModal: () => void;
   payloadCallback: (payload: SetRecordPayload) => void;
 }) {
   const [{ pdnsSourceContract }] = useGlobalState();
@@ -67,9 +67,8 @@ function AddUndernameModal({
         setMaxUndernameLength(Math.max(0, 61 - nameRes[0].length));
       }
     });
-    if (nameRef.current) {
-      nameRef.current.focus();
-    }
+
+    nameRef.current?.focus();
   }, [antId]);
 
   function handlePayloadCallback() {
@@ -238,8 +237,8 @@ function AddUndernameModal({
             </div>
           </form>
         }
-        onCancel={() => showModal()}
-        onClose={() => showModal()}
+        onCancel={closeModal}
+        onClose={closeModal}
         onNext={
           isArweaveTransactionID(targetId) &&
           isPDNSDomainNameValid({ name: undername }) &&

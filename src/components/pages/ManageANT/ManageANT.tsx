@@ -682,7 +682,7 @@ function ManageANT() {
       </div>
       {showTransferANTModal && id ? (
         <TransferANTModal
-          showModal={() => setShowTransferANTModal(false)}
+          closeModal={() => setShowTransferANTModal(false)}
           antId={new ArweaveTransactionID(id)}
           payloadCallback={(payload) => {
             setTransactionData(payload);

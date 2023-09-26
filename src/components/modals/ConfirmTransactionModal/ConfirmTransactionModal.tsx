@@ -257,16 +257,41 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
       return (
         <>
           <span>
-            By completing this action, you are going to add
+            By completing this action, you are going to set
             <span className="text-color-warning">
               &nbsp;{`"${props.subDomain}"`}&nbsp;
             </span>
-            undername with <br />
-            <span className="text-color-warning">
-              &nbsp;{`"${props.transactionId}"`}&nbsp;
-            </span>
-            target ID.
+            <br />
+            {props.previousRecord?.transactionId !== props.transactionId ? (
+              <>
+                with
+                <span className="text-color-warning">
+                  &nbsp;{`"${props.transactionId}"`}&nbsp;
+                </span>
+                target ID.
+              </>
+            ) : (
+              <></>
+            )}
+            {props.previousRecord?.ttlSeconds !== props.ttlSeconds ? (
+              <>
+                {' '}
+                and set the TTL to
+                <span className="text-color-warning">
+                  &nbsp;{`"${props.ttlSeconds}"`}&nbsp;
+                </span>
+              </>
+            ) : (
+              <></>
+            )}
+            {props.previousRecord?.ttlSeconds === props.ttlSeconds &&
+            props.previousRecord?.transactionId === props.transactionId ? (
+              <span>no new data.</span>
+            ) : (
+              <></>
+            )}
           </span>
+
           <span>Are you sure you want to continue?</span>
         </>
       );

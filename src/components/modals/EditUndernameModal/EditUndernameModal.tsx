@@ -1,3 +1,4 @@
+import { clamp } from 'lodash';
 import { useEffect, useRef, useState } from 'react';
 
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
@@ -26,12 +27,12 @@ import DialogModal from '../DialogModal/DialogModal';
 function EditUndernameModal({
   antId,
   undername,
-  showModal,
+  closeModal,
   payloadCallback,
 }: {
   antId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
   undername: string;
-  showModal: () => void;
+  closeModal: () => void;
   payloadCallback: (payload: SetRecordPayload) => void;
 }) {
   const arweaveDataProvider = useArweaveCompositeProvider();
@@ -55,12 +56,14 @@ function EditUndernameModal({
           setTargetId(stateRes?.records?.[undername]?.transactionId);
         }
 
-        if (
-          stateRes?.records?.[undername]?.ttlSeconds &&
-          (stateRes?.records?.[undername]?.ttlSeconds < MIN_TTL_SECONDS ||
-            stateRes?.records?.[undername]?.ttlSeconds > MAX_TTL_SECONDS)
-        ) {
-          setTtlSeconds(MIN_TTL_SECONDS);
+        if (stateRes?.records?.[undername]?.ttlSeconds) {
+          setTtlSeconds(
+            clamp(
+              stateRes?.records?.[undername]?.ttlSeconds,
+              MIN_TTL_SECONDS,
+              MAX_TTL_SECONDS,
+            ),
+          );
         }
       });
     if (targetIdRef.current) {
@@ -73,6 +76,7 @@ function EditUndernameModal({
       subDomain: undername,
       transactionId: targetId,
       ttlSeconds,
+      previousRecord: state?.records?.[undername],
     });
   }
 
@@ -173,8 +177,8 @@ function EditUndernameModal({
             </div>
           </div>
         }
-        onCancel={() => showModal()}
-        onClose={() => showModal()}
+        onCancel={closeModal}
+        onClose={closeModal}
         onNext={
           isArweaveTransactionID(targetId) &&
           isPDNSDomainNameValid({ name: undername }) &&

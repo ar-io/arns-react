@@ -504,6 +504,7 @@ export type SetRecordPayload = {
   subDomain: string;
   transactionId: string;
   ttlSeconds: number;
+  previousRecord?: PDNTContractDomainRecord;
 };
 
 export type RemoveRecordPayload = {

@@ -58,19 +58,15 @@ function Undernames() {
 
   useEffect(() => {
     if (!id) {
-      eventEmitter.emit('error', new Error('Missing PDNT transaction ID.'));
-      navigate('/manage/ants');
-      return;
-    }
-    setPDNTId(new ArweaveTransactionID(id));
-  }, [id]);
-
-  useEffect(() => {
-    if (!id) {
       eventEmitter.emit('error', new Error('Missing ANT transaction ID.'));
       navigate('/manage/ants');
       return;
     }
+
+    if (!pdntId) {
+      setPDNTId(new ArweaveTransactionID(id));
+    }
+
     if (isArweaveTransactionID(id)) {
       setTableLoading(undernameTableLoading);
       setPercentLoaded(percentUndernamesLoaded);
@@ -97,10 +93,6 @@ function Undernames() {
     percentUndernamesLoaded,
     action,
   ]);
-
-  function updatePage(page: number) {
-    setTablePage(page);
-  }
 
   return (
     <>
@@ -172,7 +164,7 @@ function Undernames() {
                     originalElement,
                     currentPage: tablePage,
                   }),
-                onChange: updatePage,
+                onChange: (page: number) => setTablePage(page),
                 showPrevNextJumpers: true,
                 showSizeChanger: false,
                 current: tablePage,
@@ -232,7 +224,7 @@ function Undernames() {
       </div>
       {action === UNDERNAME_TABLE_ACTIONS.CREATE && pdntId ? (
         <AddUndernameModal
-          showModal={() => {
+          closeModal={() => {
             setAction(undefined);
             setSelectedRow(undefined);
           }}
@@ -252,7 +244,7 @@ function Undernames() {
       pdntId &&
       selectedRow?.name ? (
         <EditUndernameModal
-          showModal={() => {
+          closeModal={() => {
             setAction(undefined);
             setSelectedRow(undefined);
           }}
