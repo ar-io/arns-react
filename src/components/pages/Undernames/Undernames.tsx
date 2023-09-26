@@ -43,8 +43,6 @@ function Undernames() {
     sortField: undernameSortField,
     action,
     setAction,
-    searchOpen,
-    searchText,
   } = useUndernames(pdntId);
   const [tableLoading, setTableLoading] = useState(true);
   const [tablePage, setTablePage] = useState<number>(1);
@@ -98,7 +96,6 @@ function Undernames() {
     undernameTableLoading,
     percentUndernamesLoaded,
     action,
-    searchText,
   ]);
 
   function updatePage(page: number) {

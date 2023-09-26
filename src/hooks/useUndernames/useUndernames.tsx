@@ -201,8 +201,8 @@ export function useUndernames(id?: ArweaveTransactionID) {
             onClick: () => {
               rows.sort((a: any, b: any) =>
                 sortAscending
-                  ? a.ttlSeconds.localeCompare(b.ttlSeconds)
-                  : b.ttlSeconds.localeCompare(a.ttlSeconds),
+                  ? a.ttlSeconds - b.ttlSeconds
+                  : b.ttlSeconds - a.ttlSeconds,
               );
               // forces update of rows
               setRows([...rows]);
@@ -395,7 +395,5 @@ export function useUndernames(id?: ArweaveTransactionID) {
     action,
     setAction: (action: UNDERNAME_TABLE_ACTIONS | undefined) =>
       setAction(action),
-    searchOpen,
-    searchText,
   };
 }
