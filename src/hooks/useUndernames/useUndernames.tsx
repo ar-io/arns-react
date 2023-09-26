@@ -49,7 +49,7 @@ export function useUndernames(id?: ArweaveTransactionID) {
       {
         title: (
           <button
-            className="flex-row pointer white"
+            className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
             onClick={() => setSortField('name')}
           >
@@ -70,7 +70,7 @@ export function useUndernames(id?: ArweaveTransactionID) {
         key: 'name',
         align: 'left',
         width: '18%',
-        className: 'white manage-assets-table-header',
+        className: 'grey manage-assets-table-header',
         ellipsis: true,
         onHeaderCell: () => {
           return {
@@ -101,7 +101,7 @@ export function useUndernames(id?: ArweaveTransactionID) {
       {
         title: (
           <button
-            className="flex-row pointer white"
+            className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
             onClick={() => setSortField('targetID')}
           >
@@ -122,7 +122,7 @@ export function useUndernames(id?: ArweaveTransactionID) {
         key: 'targetID',
         align: 'left',
         width: '18%',
-        className: 'white manage-assets-table-header',
+        className: 'grey manage-assets-table-header',
         render: (val: string) =>
           val === 'N/A' || !isArweaveTransactionID(val) ? (
             val
@@ -152,7 +152,7 @@ export function useUndernames(id?: ArweaveTransactionID) {
       {
         title: (
           <button
-            className="flex-row pointer white"
+            className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
             onClick={() => setSortField('ttlSeconds')}
           >
@@ -173,7 +173,7 @@ export function useUndernames(id?: ArweaveTransactionID) {
         key: 'ttlSeconds',
         align: 'left',
         width: '18%',
-        className: 'white manage-assets-table-header',
+        className: 'grey manage-assets-table-header',
         render: (val: string) => val,
         onHeaderCell: () => {
           return {
@@ -193,7 +193,7 @@ export function useUndernames(id?: ArweaveTransactionID) {
       {
         title: '',
         className: 'manage-assets-table-header',
-        render: (row) => (
+        render: (value, row) => (
           <div
             className="flex flex-row action-buttons fade-in"
             style={{ gap: '10px', justifyContent: 'flex-end' }}

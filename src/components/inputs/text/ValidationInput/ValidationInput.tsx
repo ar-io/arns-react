@@ -87,15 +87,6 @@ const ValidationInput = forwardRef<HTMLInputElement, ValidationInputProps>(
     const [openTooltip, setOpenTooltip] = useState(false);
 
     useEffect(() => {
-      if (
-        typeof ref === 'object' &&
-        ref !== null &&
-        'current' in ref &&
-        ref.current
-      ) {
-        ref.current.focus();
-      }
-
       validationExecutor(value?.toString() ?? '');
     }, [disabled, value]);
 
@@ -218,10 +209,10 @@ const ValidationInput = forwardRef<HTMLInputElement, ValidationInputProps>(
                   ? {
                       ...inputCustomStyle,
                       border: warning
-                        ? '2px solid var(--accent)'
+                        ? '1px solid var(--accent)'
                         : valid === true
-                        ? '2px solid var(--success-green)'
-                        : '2px solid var(--error-red)',
+                        ? '1px solid var(--success-green)'
+                        : '1px solid var(--error-red)',
                     }
                   : { ...inputCustomStyle }
               }

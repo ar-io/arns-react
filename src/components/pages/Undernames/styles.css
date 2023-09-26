@@ -40,14 +40,14 @@
   height: 100%;
 }
 
-#manage-table-wrapper {
+#manage-undernames-table-wrapper {
   display: flex;
   flex-direction: column;
   width: 100%;
   height: fit-content;
 }
 
-#manage-table-toolbar {
+#manage-undernames-table-toolbar {
   display: flex;
   position: relative;
   border: 1px solid var(--text-faded);
@@ -75,67 +75,67 @@ thead > tr > td[class~='manage-assets-table-header'] {
   border-radius: 0px !important;
 }
 
-.manage-table-cell-row-hover {
+.manage-undernames-table-cell-row-hover {
   background-color: var(--bg-color) !important;
 }
 
-.manage-table-content > table {
+.manage-undernames-table-content > table {
   border-spacing: 0px;
   width: 100%;
   background-color: var(--bg-color);
   border: none !important;
 }
-.manage-table {
+.manage-undernames-table {
   background-color: inherit !important;
 }
 
-.manage-table-body > table {
+.manage-undernames-table-body > table {
   border-spacing: 0px;
 }
 
-.manage-table-tbody > tr {
+.manage-undernames-table-tbody > tr {
   height: fit-content;
 }
 
-.manage-table-thead {
+.manage-undernames-table-thead {
   font-size: 16px;
   font-weight: 800;
   height: 50px;
 }
 
-.manage-table-thead > tr > th {
+.manage-undernames-table-thead > tr > th {
   border-bottom: 1px solid var(--text-faded) !important;
   border-top: 1px solid var(--text-faded) !important;
 }
-.manage-table-thead > tr > td {
+.manage-undernames-table-thead > tr > td {
   border-bottom: 1px solid var(--text-faded) !important;
   border-top: 1px solid var(--text-faded) !important;
 }
 
-.manage-table-thead > tr > th:first-child {
+.manage-undernames-table-thead > tr > th:first-child {
   border-left: 1px solid var(--text-faded) !important;
   min-width: 50px !important;
 }
-.manage-table-thead > tr > th:nth-child(2) {
+.manage-undernames-table-thead > tr > th:nth-child(2) {
   padding-left: 0px !important;
 }
 
-.manage-table-thead > tr > th:last-child {
+.manage-undernames-table-thead > tr > th:last-child {
   border-right: 1px solid var(--text-faded) !important;
 }
-.manage-table-thead > tr > td:first-child {
+.manage-undernames-table-thead > tr > td:first-child {
   border-left: 1px solid var(--text-faded) !important;
   min-width: 50px !important;
 }
-.manage-table-thead > tr > td:nth-child(2) {
+.manage-undernames-table-thead > tr > td:nth-child(2) {
   padding-left: 0px !important;
 }
 
-.manage-table-thead > tr > td:last-child {
+.manage-undernames-table-thead > tr > td:last-child {
   border-right: 1px solid var(--text-faded) !important;
 }
 
-.manage-table-tbody > tr > td {
+.manage-undernames-table-tbody > tr > td {
   border: 1px solid transparent;
   border-width: 1px 0px;
   padding: 10px 24px !important;
@@ -145,44 +145,44 @@ thead > tr > td[class~='manage-assets-table-header'] {
   border-bottom: 1px solid #323232 !important;
 }
 
-.manage-table-tbody > tr > td > input:focus {
+.manage-undernames-table-tbody > tr > td > input:focus {
   outline: 1px solid #e0e0e0;
   border-radius: 2px;
 }
 
-.manage-table-tbody > .active-row {
+.manage-undernames-table-tbody > .active-row {
   background-color: #757575;
 }
 
-.manage-table-tbody > tr > td:first-child {
+.manage-undernames-table-tbody > tr > td:first-child {
   border-left: 1px solid #323232;
 }
 
-.manage-table-tbody > tr > td:last-child {
+.manage-undernames-table-tbody > tr > td:last-child {
   border-right: 1px solid #323232;
 }
-.manage-table-tbody > tr > td:nth-child(2) {
+.manage-undernames-table-tbody > tr > td:nth-child(2) {
   padding-left: 0px !important;
 }
-.manage-table-tbody > tr:last-child > td:first-child {
+.manage-undernames-table-tbody > tr:last-child > td:first-child {
   border-left: 1px solid #323232;
   border-bottom-left-radius: var(--corner-radius);
 }
 
-.manage-table-tbody > tr:last-child > td:last-child {
+.manage-undernames-table-tbody > tr:last-child > td:last-child {
   border-right: 1px solid #323232;
   border-bottom-right-radius: var(--corner-radius);
 }
 
-.manage-table-placeholder {
+.manage-undernames-table-placeholder {
   color: white;
   text-align: center;
 }
 
-.manage-table-cell::before {
+.manage-undernames-table-cell::before {
   background-color: inherit !important;
 }
-.manage-table-cell-ellipsis {
+.manage-undernames-table-cell-ellipsis {
   background-color: inherit;
   white-space: nowrap;
   overflow: hidden;
@@ -192,16 +192,16 @@ thead > tr > td[class~='manage-assets-table-header'] {
   justify-content: flex-start;
 }
 
-.manage-table-tbody > tr.manage-table-row:hover > td {
+.manage-undernames-table-tbody > tr.manage-undernames-table-row:hover > td {
   background-color: inherit !important;
 }
-.manage-table-measure-row {
+.manage-undernames-table-measure-row {
   display: none !important;
 }
 
-.manage-table-empty
-  > .manage-table-container
-  > .manage-table-content
+.manage-undernames-table-empty
+  > .manage-undernames-table-container
+  > .manage-undernames-table-content
   > table
   > tbody
   > tr
@@ -217,14 +217,14 @@ thead > tr > td[class~='manage-assets-table-header'] {
   border-radius: var(--corner-radius);
 }
 
-.manage-table-row
-  > td.manage-table-cell-row-hover:last-child
+.manage-undernames-table-row
+  > td.manage-undernames-table-cell-row-hover:last-child
   > .action-buttons {
   display: block !important;
 }
 
-.manage-table-row
-  > td:not(.manage-table-cell-row-hover):last-child
+.manage-undernames-table-row
+  > td:not(.manage-undernames-table-cell-row-hover):last-child
   > .action-buttons {
   display: none;
 }
@@ -232,18 +232,33 @@ thead > tr > td[class~='manage-assets-table-header'] {
 .undername-search-wrapper {
 }
 
-.manage-table-filter-dropdown {
+.manage-undernames-table-filter-dropdown {
   background: transparent !important;
   position: relative;
   display: flex;
   min-height: 25px;
 }
 
-.manage-table-filter-dropdown > .undername-search-wrapper {
+.manage-undernames-table-filter-dropdown > .undername-search-wrapper {
   position: absolute;
   top: -22px;
   display: flex;
   width: 200px;
   min-width: fit-content;
   right: 0;
+}
+
+.manage-undernames-table-placeholder,
+.manage-undernames-table-tbody,
+.manage-undernames-table-cell,
+.manage-undernames-table-content > table {
+  box-sizing: border-box !important;
+  width: fit-content !important;
+  max-width: 100% !important;
+}
+
+.manage-undernames-table-expanded-row-fixed {
+  margin: auto;
+  width: fit-content;
+  max-width: 100% !important;
 }

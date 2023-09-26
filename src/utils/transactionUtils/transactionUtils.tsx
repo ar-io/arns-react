@@ -121,6 +121,11 @@ export const WorkflowStepsForInteractions: Record<
     { title: 'Deploy Undername', status: 'wait' },
     { title: 'Complete', status: 'wait' },
   ],
+  [INTERACTION_TYPES.EDIT_RECORD]: [
+    { title: 'Confirm Undername Details', status: 'process' },
+    { title: 'Deploy Undername', status: 'wait' },
+    { title: 'Complete', status: 'wait' },
+  ],
   [INTERACTION_TYPES.SET_TICKER]: [
     { title: 'Confirm Ticker', status: 'process' },
     { title: 'Deploy Ticker Change', status: 'wait' },
@@ -196,6 +201,10 @@ export const TRANSACTION_DATA_KEYS: Record<
     keys: ['name'],
   },
   [INTERACTION_TYPES.SET_RECORD]: {
+    functionName: 'setRecord',
+    keys: ['subDomain', 'transactionId', 'ttlSeconds'],
+  },
+  [INTERACTION_TYPES.EDIT_RECORD]: {
     functionName: 'setRecord',
     keys: ['subDomain', 'transactionId', 'ttlSeconds'],
   },

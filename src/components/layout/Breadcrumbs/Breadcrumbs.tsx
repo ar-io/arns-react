@@ -67,6 +67,7 @@ function Breadcrumbs() {
     }
   }
 
+  // TODO: move this to a css class
   function handleCrumbTitle(title: string) {
     const reservedTitles = [
       'Manage Assets',
