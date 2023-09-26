@@ -286,7 +286,7 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
             )}
             {props.previousRecord?.ttlSeconds === props.ttlSeconds &&
             props.previousRecord?.transactionId === props.transactionId ? (
-              <span>no new data.</span>
+              <span>no new data</span>
             ) : (
               <></>
             )}
@@ -414,6 +414,7 @@ function ConfirmTransactionModal({
               gap: '20px',
               fontSize: '13px',
               padding: '15px 0px',
+              paddingTop: '0px',
               lineHeight: '1.5',
               fontWeight: 160,
             }}
