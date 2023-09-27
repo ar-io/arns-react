@@ -56,7 +56,10 @@ export class PDNTContract {
   }
 
   // TODO: this should be refactored when we are ready to not support pdnts that do not comply with the new PDNT spec
-  get records(): { [x: string]: PDNTContractDomainRecord } {
+  get records(): { [x: string]: PDNTContractDomainRecord } | undefined {
+    if (!this.contract?.records) {
+      return undefined;
+    }
     return Object.keys(this.contract.records).reduce(
       (records, r) => ({
         ...records,
@@ -121,6 +124,6 @@ export class PDNTContract {
   }
 
   isValid(): boolean {
-    return this.contract && this.records && !!this.getRecord('@');
+    return this.contract && !!this.records && !!this.getRecord('@');
   }
 }

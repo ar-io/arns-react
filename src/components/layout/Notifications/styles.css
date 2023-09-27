@@ -1,0 +1,7 @@
+.ant-notification-notice-close {
+  display: none !important;
+}
+
+.ant-notification-notice-message {
+  padding-inline-end: 0px !important;
+}

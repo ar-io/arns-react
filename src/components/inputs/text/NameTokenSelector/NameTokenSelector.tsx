@@ -116,8 +116,11 @@ function NameTokenSelector({
               'App-Name': ['SmartWeaveContract'],
             },
           });
-          const validState =
-            await arweaveDataProvider.getContractState<PDNTContractJSON>(id);
+          const validState = await arweaveDataProvider
+            .getContractState<PDNTContractJSON>(id)
+            .catch(() => {
+              throw new Error(`Unable to get Contract State`);
+            });
           if (!validState) {
             throw new Error('Unable to get contract state');
           }
@@ -133,10 +136,11 @@ function NameTokenSelector({
         [ArweaveTransactionID, PDNTContractJSON] | undefined
       > = await Promise.all(
         contractTxIds.map(async (contractTxId) => {
-          const state =
-            await arweaveDataProvider.getContractState<PDNTContractJSON>(
-              contractTxId,
-            );
+          const state = await arweaveDataProvider
+            .getContractState<PDNTContractJSON>(contractTxId)
+            .catch(() => {
+              throw new Error(`Unable to get Contract State`);
+            });
           if (!state) {
             return;
           }
@@ -183,7 +187,10 @@ function NameTokenSelector({
         });
       }
     } catch (error: any) {
-      eventEmitter.emit('error', error);
+      eventEmitter.emit('error', {
+        name: `Unable to import ANT`,
+        message: `${error.message}`,
+      });
     } finally {
       setLoading(false);
       setListPage(1);
@@ -329,7 +336,7 @@ function NameTokenSelector({
           maxCharLength={SMARTWEAVE_MAX_INPUT_SIZE}
           placeholder={
             selectedToken
-              ? selectedToken.name.length
+              ? selectedToken.name?.length
                 ? selectedToken.name
                 : selectedToken.id
               : 'Add an Arweave Name Token (ANT)'
@@ -378,12 +385,14 @@ function NameTokenSelector({
             isArweaveTransactionID(searchText) &&
             !Object.keys(tokens ?? []).includes(searchText) ? (
             <button
-              className="button flex flex-row center faded bold hover pointer"
+              className="outline-button flex flex-row center pointer"
               style={{
-                gap: '1em',
-                border: '2px solid var(--text-faded)',
                 borderRadius: '50px',
-                height: '25px',
+                width: 'fit-content',
+                padding: '3px 6px',
+                fontSize: '12px',
+                minWidth: 'fit-content',
+                border: '1px solid var(--text-grey)',
               }}
               onClick={() => {
                 getTokenList(walletAddress, [
@@ -395,23 +404,22 @@ function NameTokenSelector({
             </button>
           ) : selectedToken ? (
             <button
-              className="button flex flex-row center grey hover pointer"
+              className="outline-button flex flex-row center pointer"
               style={{
-                gap: '5px',
-                border: '1px solid var(--text-grey)',
+                gap: '3px',
                 borderRadius: '50px',
-                height: '25px',
+                width: 'fit-content',
+                padding: '3px 7px',
+                fontSize: '12px',
+                minWidth: 'fit-content',
+                border: '1px solid var(--text-grey)',
               }}
               onClick={() => {
                 setSelectedToken(undefined);
                 selectedTokenCallback(undefined);
               }}
             >
-              <CloseIcon
-                width={'20px'}
-                height={'20px'}
-                fill={'var(--text-grey)'}
-              />
+              <CloseIcon width={'13px'} height={'13px'} />
               Remove
             </button>
           ) : (
