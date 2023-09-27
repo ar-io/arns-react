@@ -132,7 +132,7 @@ function AddControllerModal({
             />
           </div>
         }
-        nextText="Confirm"
+        nextText="Add"
         cancelText="Cancel"
       />
     </div>

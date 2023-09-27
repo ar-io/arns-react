@@ -261,7 +261,7 @@ function RemoveControllersModal({
             />
           </div>
         }
-        nextText="Confirm"
+        nextText="Remove"
         cancelText="Cancel"
       />
     </div>
