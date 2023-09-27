@@ -160,34 +160,13 @@ function RemoveControllersModal({
                             <Checkbox
                               prefixCls="remove-controller-checkbox"
                               // TODO: remove once we have support for multi remove of controllers
-                              disabled={
-                                controllersToRemove.length > 0 &&
-                                !controllersToRemove.includes(row.controller)
-                              }
                               checked={controllersToRemove
                                 .map((c) => c.toString())
                                 .includes(row.controller.toString())}
                               style={{ color: 'white' }}
-                              onChange={() => {
-                                if (
-                                  controllersToRemove
-                                    .map((c) => c.toString())
-                                    .includes(row.controller.toString())
-                                ) {
-                                  const newControllers =
-                                    controllersToRemove.filter(
-                                      (controller) =>
-                                        controller.toString() !==
-                                        row.controller.toString(),
-                                    );
-                                  setControllersToRemove(newControllers);
-                                } else {
-                                  setControllersToRemove([
-                                    ...controllersToRemove,
-                                    row.controller,
-                                  ]);
-                                }
-                              }}
+                              onChange={() =>
+                                setControllersToRemove([row.controller])
+                              }
                             />
                           ),
                         },

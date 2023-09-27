@@ -18,7 +18,7 @@ thead > tr > td[class~='remove-controller-table-header'] {
 }
 
 .remove-controller-table-cell-row-hover {
-  background-color: var(--bg-color) !important;
+  background-color: var(--card-bg) !important;
 }
 
 .remove-controller-table-content > table {
