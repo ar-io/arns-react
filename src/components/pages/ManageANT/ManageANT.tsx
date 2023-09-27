@@ -704,7 +704,7 @@ function ManageANT() {
       )}
       {showAddControllerModal && id ? (
         <AddControllerModal
-          showModal={() => setShowAddControllerModal(false)}
+          closeModal={() => setShowAddControllerModal(false)}
           antId={new ArweaveTransactionID(id)}
           payloadCallback={(payload) => {
             setTransactionData(payload);
@@ -718,7 +718,7 @@ function ManageANT() {
       )}
       {showRemoveControllerModal && id ? (
         <RemoveControllersModal
-          showModal={() => setShowRemoveControllerModal(false)}
+          closeModal={() => setShowRemoveControllerModal(false)}
           antId={new ArweaveTransactionID(id)}
           payloadCallback={(payload) => {
             setTransactionData(payload);

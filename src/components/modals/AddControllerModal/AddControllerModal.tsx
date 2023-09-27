@@ -15,11 +15,11 @@ import DialogModal from '../DialogModal/DialogModal';
 
 function AddControllerModal({
   antId,
-  showModal,
+  closeModal,
   payloadCallback,
 }: {
   antId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
-  showModal: () => void;
+  closeModal: () => void;
   payloadCallback: (payload: SetControllerPayload) => void;
 }) {
   const arweaveDataProvider = useArweaveCompositeProvider();
@@ -116,8 +116,8 @@ function AddControllerModal({
             </div>
           </div>
         }
-        onCancel={() => showModal()}
-        onClose={() => showModal()}
+        onCancel={() => closeModal()}
+        onClose={() => closeModal()}
         onNext={
           isArweaveTransactionID(toAddress)
             ? () => handlePayloadCallback()

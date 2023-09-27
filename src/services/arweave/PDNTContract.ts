@@ -99,8 +99,8 @@ export class PDNTContract {
   get controller() {
     return this.contract.controllers?.[0] ?? this.contract.controller;
   }
-  set controller(controller: string) {
-    // any validations we want to do on the controller
+
+  addController(controller: string) {
     try {
       if (!controller) {
         throw new Error('No ID provided');

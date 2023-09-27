@@ -19,11 +19,11 @@ import './styles.css';
 
 function RemoveControllersModal({
   antId,
-  showModal,
+  closeModal,
   payloadCallback,
 }: {
   antId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
-  showModal: () => void;
+  closeModal: () => void;
   payloadCallback: (payload: RemoveControllerPayload) => void;
 }) {
   const arweaveDataProvider = useArweaveCompositeProvider();
@@ -156,6 +156,7 @@ function RemoveControllersModal({
                           align: 'left',
                           width: '5%',
                           className: 'grey whitespace-no-wrap',
+                          // eslint-disable-next-line
                           render: (value: string, row: any) => (
                             <Checkbox
                               prefixCls="remove-controller-checkbox"
@@ -164,9 +165,15 @@ function RemoveControllersModal({
                                 .map((c) => c.toString())
                                 .includes(row.controller.toString())}
                               style={{ color: 'white' }}
-                              onChange={() =>
-                                setControllersToRemove([row.controller])
-                              }
+                              onChange={() => {
+                                if (
+                                  controllersToRemove.includes(row.controller)
+                                ) {
+                                  setControllersToRemove([]);
+                                  return;
+                                }
+                                setControllersToRemove([row.controller]);
+                              }}
                             />
                           ),
                         },
@@ -224,8 +231,8 @@ function RemoveControllersModal({
             </div>
           </div>
         }
-        onCancel={() => showModal()}
-        onClose={() => showModal()}
+        onCancel={() => closeModal()}
+        onClose={() => closeModal()}
         onNext={
           controllersToRemove.length > 0
             ? () => handlePayloadCallback()
