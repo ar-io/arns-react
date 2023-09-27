@@ -88,7 +88,7 @@ function RemoveControllersModal({
     >
       {/**modal header */}
       <DialogModal
-        title={<h2 className="white">Remove Controllers</h2>}
+        title={<h2 className="white">Remove Controller</h2>}
         body={
           <div
             className="flex flex-column"
