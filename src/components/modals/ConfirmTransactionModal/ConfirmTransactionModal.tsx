@@ -374,7 +374,6 @@ function ConfirmTransactionModal({
           'Wallet Address is required to deploy transaction, please connect before continuing',
         );
       }
-      console.log(interactionType);
       const functionName =
         TRANSACTION_DATA_KEYS[interactionType as any as ValidInteractionType]
           .functionName;
@@ -384,7 +383,6 @@ function ConfirmTransactionModal({
         payload,
       );
 
-      console.log(functionName, cleanPayload);
       const writeInteractionId = await arweaveDataProvider.writeTransaction({
         walletAddress,
         contractTxId: assetId,

@@ -38,11 +38,13 @@ function RemoveControllersModal({
   // TODO: add "transfer to another account" dropdown
 
   useEffect(() => {
-    arweaveDataProvider.getContractState(antId).then((res) => {
-      setState(res as PDNTContractJSON);
-      const newRows = getControllerRows();
-      setRows(newRows);
-    });
+    arweaveDataProvider
+      .getContractState<PDNTContractJSON>(antId)
+      .then((res) => {
+        setState(res);
+        const newRows = getControllerRows();
+        setRows(newRows);
+      });
   }, [antId]);
 
   useEffect(() => {

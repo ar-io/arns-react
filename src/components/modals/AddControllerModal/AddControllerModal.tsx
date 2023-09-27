@@ -32,8 +32,8 @@ function AddControllerModal({
 
   useEffect(() => {
     arweaveDataProvider
-      .getContractState(antId)
-      .then((res) => setState(res as PDNTContractJSON));
+      .getContractState<PDNTContractJSON>(antId)
+      .then((res) => setState(res));
   }, [antId]);
 
   useEffect(() => {
