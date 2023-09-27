@@ -6,7 +6,6 @@ import {
   AuctionParameters,
   AuctionSettings,
   PDNSRecordEntry,
-  PDNTContractFields,
   PDNTContractJSON,
   TRANSACTION_TYPES,
 } from '../../types';

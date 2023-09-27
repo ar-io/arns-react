@@ -779,7 +779,7 @@ export function generateAtomicState(
     name: `ANT-${domain.toUpperCase()}`,
     ticker: 'ANT',
     owner: walletAddress.toString(),
-    controller: walletAddress.toString(),
+    controllers: [walletAddress.toString()],
     balances: { [walletAddress.toString()]: 1 },
   };
 }

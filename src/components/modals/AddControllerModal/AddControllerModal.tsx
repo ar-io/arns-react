@@ -95,7 +95,8 @@ function AddControllerModal({
                   showValidationOutline={true}
                   showValidationChecklist={true}
                   validationListStyle={{ display: 'none' }}
-                  maxLength={43}
+                  catchInvalidInput={true}
+                  maxCharLength={43}
                   value={toAddress}
                   setValue={setToAddress}
                   validityCallback={(validity: boolean) =>
@@ -105,11 +106,6 @@ function AddControllerModal({
                     [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
                       fn: (id: string) =>
                         arweaveDataProvider.validateArweaveId(id),
-                    },
-                    [VALIDATION_INPUT_TYPES.ARWEAVE_ADDRESS]: {
-                      fn: (id: string) =>
-                        arweaveDataProvider.validateArweaveAddress(id),
-                      required: false,
                     },
                   }}
                 />

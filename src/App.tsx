@@ -25,7 +25,7 @@ import {
   Transaction,
   Undernames,
 } from './components/pages';
-import { usePDNSContract } from './hooks/';
+import { usePDNSContract, useWalletAddress } from './hooks/';
 import useArconnectEvents from './hooks/useArconnectEvents/useArconnectEvents';
 import './index.css';
 
@@ -36,6 +36,7 @@ function App() {
   // dispatches global state
   usePDNSContract();
   useArconnectEvents();
+  useWalletAddress();
 
   const router = sentryCreateBrowserRouter(
     createRoutesFromElements(
