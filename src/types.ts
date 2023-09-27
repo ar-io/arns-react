@@ -660,7 +660,7 @@ export type PDNTDetails = {
   targetID: string;
   ttlSeconds: number;
   controller: string;
-  undernames: string;
+  undernames: number;
   owner: string;
   contractTxId: string;
 };

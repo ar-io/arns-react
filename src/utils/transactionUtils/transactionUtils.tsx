@@ -713,16 +713,6 @@ export function getLinkId(
   return transactionData.assetId.toString();
 }
 
-export function getAssociatedNames(
-  txId: ArweaveTransactionID,
-  records: PDNSDomains,
-) {
-  return Object.entries(records)
-    .map(([name, recordEntry]: [string, PDNSRecordEntry]) => {
-      if (recordEntry.contractTxId === txId.toString()) return name;
-    })
-    .filter((n) => !!n);
-}
 export async function validateTTLSeconds(ttl: number): Promise<void> {
   if (ttl < MIN_TTL_SECONDS) {
     throw new Error(
