@@ -115,11 +115,7 @@ function Home() {
           minWidth: isMobile ? '100%' : '750px',
         }}
       >
-        <SearchBar
-          values={pdnsSourceContract.records}
-          value={domain ? encodeDomainToASCII(domain) : domain}
-          placeholderText={'Search for a name'}
-        />
+        <SearchBar placeholderText={'Search for a name'} />
         {
           //!isValidatingRegistration &&
           updateShowFeaturedDomains({
