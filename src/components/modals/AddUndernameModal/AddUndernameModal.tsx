@@ -116,6 +116,7 @@ function AddUndernameModal({
                       value={undername}
                       setValue={(v: string) => setUndername(v)}
                       catchInvalidInput={true}
+                      // TODO: we need to inform the user that depending on the root name length and # of undernames, it is not guaranteed that this new undername will be resolved
                       maxCharLength={MAX_ARNS_NAME_LENGTH}
                       customPattern={PDNS_NAME_REGEX}
                       validationPredicates={{

@@ -155,7 +155,7 @@ function TransactionModal({
                     ? {
                         border: '2px solid var(--error-red)',
                       }
-                    : isValidAddress && toAddress && {}
+                    : !isValidAddress && !toAddress && {}
                 }
                 validationListStyle={{
                   gap: isMobile ? '0.5em' : '1em',
