@@ -159,7 +159,7 @@ function ManageDomain() {
         ttlSeconds: contract.getRecord('@')?.ttlSeconds ?? DEFAULT_TTL_SECONDS,
         leaseDuration: `${getLeaseDurationString()}`,
         // -1 because @ record is not counted
-        undernames: `${Object.keys(contract.records).length - 1}/${(
+        undernames: `${Object.keys(contract.records ?? []).length - 1}/${(
           record?.undernames ?? DEFAULT_MAX_UNDERNAMES
         ).toLocaleString()}`,
       };
