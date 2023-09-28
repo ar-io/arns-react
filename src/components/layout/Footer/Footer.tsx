@@ -53,7 +53,7 @@ function Footer() {
             {
               title: 'Discord',
               onClick: () =>
-                window.open('https://discord.gg/ya4hf2H', '_blank'),
+                window.open('https://discord.gg/7dBaqcE8', '_blank'),
             },
           ]}
         >
