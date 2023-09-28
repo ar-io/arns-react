@@ -568,7 +568,7 @@ export function getPDNSMappingByInteractionType(
         contractTxId: new ArweaveTransactionID(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
-          controller: transactionData.target,
+          controllers: <span>{transactionData.target}</span>,
         },
         disabledKeys: [
           'evolve',
@@ -779,7 +779,7 @@ export function generateAtomicState(
     name: `ANT-${domain.toUpperCase()}`,
     ticker: 'ANT',
     owner: walletAddress.toString(),
-    controller: walletAddress.toString(),
+    controllers: [walletAddress.toString()],
     balances: { [walletAddress.toString()]: 1 },
   };
 }

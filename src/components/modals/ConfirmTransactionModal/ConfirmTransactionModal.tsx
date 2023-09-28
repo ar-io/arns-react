@@ -6,6 +6,7 @@ import {
   ArweaveTransactionID,
   INTERACTION_TYPES,
   PDNT_INTERACTION_TYPES,
+  RemoveControllerPayload,
   RemoveRecordPayload,
   SetControllerPayload,
   SetNamePayload,
@@ -140,7 +141,7 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
     },
   },
   [PDNT_INTERACTION_TYPES.SET_CONTROLLER]: {
-    header: 'Add Controllers',
+    header: 'Add Controller',
     successHeader: 'Controller Added',
     body: (props: TransactionDataPayload) => {
       if (
@@ -165,10 +166,10 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
   },
   [PDNT_INTERACTION_TYPES.REMOVE_CONTROLLER]: {
     header: 'Remove Controller',
-    successHeader: 'Controllers Removed',
+    successHeader: 'Controller Removed',
     body: (props: TransactionDataPayload) => {
       if (
-        !isObjectOfTransactionPayloadType<SetControllerPayload>(
+        !isObjectOfTransactionPayloadType<RemoveControllerPayload>(
           props,
           TRANSACTION_DATA_KEYS[INTERACTION_TYPES.REMOVE_CONTROLLER].keys,
         )
@@ -179,8 +180,8 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
         <>
           <span>
             By completing this action, you are going to remove
-            <span className="text-color-warning">{`"${props.target}"`}</span>
-            controllers.
+            <span className="text-color-error">&nbsp;1&nbsp;</span>
+            controller.
           </span>
           <span>Are you sure you want to continue?</span>
         </>
@@ -381,6 +382,7 @@ function ConfirmTransactionModal({
         interactionType as any as ValidInteractionType,
         payload,
       );
+
       const writeInteractionId = await arweaveDataProvider.writeTransaction({
         walletAddress,
         contractTxId: assetId,

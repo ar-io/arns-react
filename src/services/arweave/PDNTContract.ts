@@ -100,16 +100,19 @@ export class PDNTContract {
     this.contract.balances = balances;
   }
   get controller() {
-    return this.contract.controller;
+    return this.contract.controllers?.[0] ?? this.contract.controller;
   }
-  set controller(controller: string) {
-    // any validations we want to do on the controller
+
+  addController(controller: string) {
     try {
       if (!controller) {
         throw new Error('No ID provided');
       }
       const txId = new ArweaveTransactionID(controller);
-      this.contract.controller = txId.toString();
+      this.contract.controllers = [
+        ...this.contract.controllers,
+        txId.toString(),
+      ];
       this.contract.balances[controller] = 1;
     } catch (error) {
       console.log(error);

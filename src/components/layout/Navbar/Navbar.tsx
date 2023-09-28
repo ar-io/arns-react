@@ -15,7 +15,7 @@ function NavBar() {
         className="flex-row flex-space-between"
         style={{
           boxSizing: 'border-box',
-          padding: '0px 5%',
+          padding: '0px 100px',
           minHeight: 75,
         }}
       >

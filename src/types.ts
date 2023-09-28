@@ -101,8 +101,8 @@ export type PDNTContractJSON = {
   evolve: boolean | undefined;
   name: string;
   owner: string;
-  controller: string;
-  controllers?: string[];
+  controller?: string;
+  controllers: string[];
   records: {
     [x: string]: PDNTContractDomainRecord;
   };
@@ -264,7 +264,7 @@ export interface ArweaveDataProvider {
 
 export interface PDNTInteractionProvider {
   setOwner(id: ArweaveTransactionID): Promise<string>;
-  setController(id: ArweaveTransactionID): Promise<string>;
+  setControllers(ids: ArweaveTransactionID[]): Promise<string>;
   setTargetId(id: ArweaveTransactionID): Promise<string>;
   setUndername(name: string): Promise<string>;
   removeUndername(name: string): Promise<string>;
@@ -346,7 +346,7 @@ export enum INTERACTION_TYPES {
 
   // ANT interaction types
   SET_CONTROLLER = 'Edit Controller',
-  REMOVE_CONTROLLER = 'Remove Controllers',
+  REMOVE_CONTROLLER = 'Remove Controller',
   SET_TICKER = 'Edit Ticker',
   SET_NAME = 'Edit Name',
   SET_TTL_SECONDS = 'Edit TTL Seconds',
@@ -496,6 +496,10 @@ export type SetControllerPayload = {
   target: string;
 };
 
+export type RemoveControllerPayload = {
+  target: string;
+};
+
 export type SetNamePayload = {
   name: string;
 };
@@ -521,7 +525,7 @@ export type TransferANTPayload = {
 
 export enum PDNT_INTERACTION_TYPES {
   SET_CONTROLLER = 'Edit Controller',
-  REMOVE_CONTROLLER = 'Remove Controllers',
+  REMOVE_CONTROLLER = 'Remove Controller',
   SET_TICKER = 'Edit Ticker',
   SET_NAME = 'Edit Name',
   SET_RECORD = 'Add Record',
@@ -560,6 +564,7 @@ export type TransactionDataPayload =
   | TransferIOPayload
   | SetTickerPayload
   | SetControllerPayload
+  | RemoveControllerPayload
   | SetNamePayload
   | SetRecordPayload
   | RemoveRecordPayload

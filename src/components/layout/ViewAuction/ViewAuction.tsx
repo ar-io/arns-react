@@ -63,11 +63,11 @@ function ViewAuction() {
   }
 
   return (
-    <div className="page" style={{ paddingTop: '100px' }}>
+    <div className="page" style={{ paddingTop: '30px' }}>
       <div
         className="flex flex-column"
         style={{
-          gap: '50px',
+          gap: '30px',
           justifyContent: 'flex-start',
           alignItems: 'flex-start',
           maxWidth: '900px',
