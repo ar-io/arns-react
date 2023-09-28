@@ -85,7 +85,7 @@ function Breadcrumbs() {
             background: 'black',
             height: '50px',
             justifyContent: 'flex-start',
-            paddingLeft: '5%',
+            paddingLeft: '100px',
             fontSize: '16px',
             color: 'var(--text-faded)',
           }}

@@ -1,0 +1,221 @@
+.remove-controller-table-content > table {
+  border-radius: var(--corner-radius);
+}
+
+.remove-controller-table-row {
+  background-color: var(--bg-color);
+}
+
+th[class~='remove-controller-table-header'] {
+  background: var(--bg-color) !important;
+  border-radius: 0px !important;
+}
+
+thead > tr > td[class~='remove-controller-table-header'] {
+  background: var(--bg-color) !important;
+  justify-content: flex-start !important;
+  border-radius: 0px !important;
+}
+
+.remove-controller-table-cell-row-hover {
+  background-color: var(--card-bg) !important;
+}
+
+.remove-controller-table-content > table {
+  border-spacing: 0px 10px;
+  width: 100%;
+  background-color: var(--bg-color);
+  border: none !important;
+}
+.remove-controller-table {
+  background-color: inherit !important;
+}
+
+.remove-controller-table-body > table {
+  border-spacing: 8px;
+}
+
+.remove-controller-table-tbody > tr {
+  height: fit-content !important;
+}
+
+.remove-controller-table-thead {
+  font-size: 16px;
+  font-weight: 800;
+  height: 50px;
+  display: none;
+}
+
+.active-row > td {
+  border-color: var(--text-white) !important;
+}
+
+.remove-controller-table-thead > tr > th:first-child,
+.remove-controller-table-thead > tr > td:first-child {
+  min-width: 30px !important;
+}
+
+.remove-controller-table-tbody > tr > td:first-child {
+  padding-left: 15px !important;
+  border-top-left-radius: var(--corner-radius);
+  border-bottom-left-radius: var(--corner-radius);
+}
+
+.remove-controller-table-tbody > tr > td {
+  border: 1px solid transparent;
+  border-width: 1px 0px;
+  padding: 0px 15px !important;
+  justify-content: flex-start;
+  font-size: 14px;
+  font-weight: 400;
+  border-bottom: 1px solid var(--bg-color) !important;
+}
+.remove-controller-table-tbody > tr > td:last-child {
+  border-top-right-radius: var(--corner-radius);
+  border-bottom-right-radius: var(--corner-radius);
+}
+
+.remove-controller-table-tbody > tr > td > input:focus {
+  outline: 1px solid #e0e0e0;
+  border-radius: 2px;
+}
+
+.remove-controller-table-tbody > tr > td:nth-child(2) {
+  padding-left: 0px !important;
+}
+.remove-controller-table-placeholder {
+  color: white;
+  text-align: center;
+  border: none !important;
+}
+
+.remove-controller-table-cell::before {
+  background-color: inherit !important;
+}
+.remove-controller-table-cell-ellipsis {
+  background-color: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.remove-controller-table-measure-row {
+  display: none !important;
+}
+
+.remove-controller-table-empty
+  > .remove-controller-table-container
+  > .remove-controller-table-content
+  > table
+  > tbody
+  > tr
+  > td {
+  background-color: unset !important;
+  box-sizing: border-box;
+  border: none !important;
+}
+
+.ant-spin-blur::after {
+  background-color: rgb(0, 0, 0, 0.7) !important;
+  backdrop-filter: blur(2px) !important;
+  opacity: 100% !important;
+  border-radius: var(--corner-radius);
+}
+.remove-controller-pagination {
+  background: var(--bg-color);
+  padding: 10px;
+  border-radius: var(--corner-radius);
+  margin-top: 10px !important;
+}
+/* .remove-controller-pagination > li:first-child,
+.remove-controller-pagination > li:last-child {
+  display: none !important;
+} */
+
+.remove-controller-checkbox-inner {
+  background-color: var(--bg-color);
+  border: var(--text-faded) 1px solid;
+  border-radius: 2px !important;
+}
+
+.remove-controller-checkbox:not(.remove-controller-checkbox-disabled):hover {
+  background-color: transparent;
+  border-color: var(--error-red);
+}
+
+.remove-controller-checkbox-wrapper:not(
+    .remove-controller-checkbox-wrapper-disabled
+  ):hover
+  .remove-controller-checkbox-checked:not(.remove-controller-checkbox-disabled)
+  .remove-controller-checkbox-inner {
+  background-color: transparent !important;
+}
+.remove-controller-checkbox-wrapper-checked:not(
+    .remove-controller-checkbox-wrapper-disabled
+  ):hover
+  .remove-controller-checkbox-inner,
+.remove-controller-checkbox-checked:not(
+    .remove-controller-checkbox-disabled
+  ):hover
+  .remove-controller-checkbox-inner {
+  background-color: transparent !important;
+}
+
+.remove-controller-checkbox:not(.remove-controller-checkbox-disabled):hover
+  .remove-controller-checkbox-inner {
+  border-color: var(--error-red) !important;
+}
+
+.remove-controller-checkbox-wrapper:not(
+    .remove-controller-checkbox-wrapper-disabled
+  ):hover
+  .remove-controller-checkbox-checked:not(
+    .remove-controller-checkbox-disabled
+  ):after {
+  border-color: var(--error-red) !important;
+}
+
+.remove-controller-checkbox-inner:hover {
+  border-color: var(--error-red) !important;
+}
+
+.remove-controller-checkbox-checked > .remove-controller-checkbox-inner {
+  background-color: transparent;
+  border-color: var(--error-red) !important;
+}
+
+.remove-controller-checkbox-checked > .remove-controller-checkbox-inner::after {
+  background-color: transparent;
+  border: none !important;
+  content: '+';
+  color: var(--error-red) !important;
+  transform: rotate(45deg) !important;
+  width: 10px !important;
+  height: 10px !important;
+  transition: none !important;
+  font-size: 20px !important;
+  top: -14px;
+  left: 2px;
+}
+
+.remove-controller-checkbox > .remove-controller-checkbox-inner {
+  background-color: transparent;
+  border-color: var(--text-faded);
+}
+
+.remove-controller-checkbox-wrapper-disabled:hover {
+  background-color: transparent;
+  border-color: var(--error-red) !important;
+}
+
+.remove-controller-checkbox-wrapper {
+  background-color: transparent;
+  border-color: var(--error-red) !important;
+}
+
+.remove-controller-checkbox-checked::after {
+  border-color: var(--error-red) !important;
+}

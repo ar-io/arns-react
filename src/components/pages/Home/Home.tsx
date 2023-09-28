@@ -85,14 +85,17 @@ function Home() {
   }
 
   return (
-    <div className="page" style={{ padding: isMobile ? '15px' : '' }}>
+    <div
+      className="page"
+      style={{ padding: isMobile ? '15px' : '', boxSizing: 'border-box' }}
+    >
       <div
         className={'white'}
         style={{
           fontSize: isMobile ? 26 : 57,
-          padding: isMobile ? '30px 0px' : 56,
+          padding: isMobile ? '10px' : '30px',
           fontWeight: 500,
-          whiteSpace: 'nowrap',
+          whiteSpace: isMobile ? undefined : 'nowrap',
         }}
       >
         Arweave Name System

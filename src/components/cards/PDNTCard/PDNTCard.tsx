@@ -34,7 +34,7 @@ export const ANT_MAIN_DETAILS = {
   name: 'Nickname',
   ticker: 'Ticker',
   owner: 'Owner',
-  controller: 'Controllers',
+  controller: 'Controller(s)',
 };
 
 export const ANT_METADATA_DETAILS = {

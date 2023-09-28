@@ -50,9 +50,11 @@ import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import TransactionStatus from '../../layout/TransactionStatus/TransactionStatus';
 import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import { TransferANTModal } from '../../modals';
+import AddControllerModal from '../../modals/AddControllerModal/AddControllerModal';
 import ConfirmTransactionModal, {
   CONFIRM_TRANSACTION_PROPS_MAP,
 } from '../../modals/ConfirmTransactionModal/ConfirmTransactionModal';
+import RemoveControllersModal from '../../modals/RemoveControllerModal/RemoveControllerModal';
 import './styles.css';
 
 function ManageANT() {
@@ -69,6 +71,10 @@ function ManageANT() {
   const [rows, setRows] = useState<ManageANTRow[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [showTransferANTModal, setShowTransferANTModal] =
+    useState<boolean>(false);
+  const [showAddControllerModal, setShowAddControllerModal] =
+    useState<boolean>(false);
+  const [showRemoveControllerModal, setShowRemoveControllerModal] =
     useState<boolean>(false);
   const [pendingInteractions, setPendingInteractions] = useState<
     Array<ContractInteraction>
@@ -570,13 +576,15 @@ function ManageANT() {
                             >
                               <button
                                 className="flex flex-right white pointer button"
-                                onClick={() => alert('not implemented')}
+                                onClick={() => setShowAddControllerModal(true)}
                               >
                                 Add Controller
                               </button>
                               <button
                                 className="flex flex-right white pointer button"
-                                onClick={() => alert('not implemented')}
+                                onClick={() =>
+                                  setShowRemoveControllerModal(true)
+                                }
                               >
                                 Remove Controller
                               </button>
@@ -694,6 +702,34 @@ function ManageANT() {
       ) : (
         <></>
       )}
+      {showAddControllerModal && id ? (
+        <AddControllerModal
+          closeModal={() => setShowAddControllerModal(false)}
+          antId={new ArweaveTransactionID(id)}
+          payloadCallback={(payload) => {
+            setTransactionData(payload);
+            setInteractionType(PDNT_INTERACTION_TYPES.SET_CONTROLLER);
+            setShowConfirmModal(true);
+            setShowAddControllerModal(false);
+          }}
+        />
+      ) : (
+        <></>
+      )}
+      {showRemoveControllerModal && id ? (
+        <RemoveControllersModal
+          closeModal={() => setShowRemoveControllerModal(false)}
+          antId={new ArweaveTransactionID(id)}
+          payloadCallback={(payload) => {
+            setTransactionData(payload);
+            setInteractionType(PDNT_INTERACTION_TYPES.REMOVE_CONTROLLER);
+            setShowConfirmModal(true);
+            setShowRemoveControllerModal(false);
+          }}
+        />
+      ) : (
+        <></>
+      )}
       {showConfirmModal && interactionType && id ? (
         <ConfirmTransactionModal
           interactionType={interactionType}
@@ -705,13 +741,18 @@ function ManageANT() {
             setModifiedValue(undefined);
           }}
           cancel={() => {
-            if (
-              interactionType ===
-              (PDNT_INTERACTION_TYPES.TRANSFER ||
-                PDNT_INTERACTION_TYPES.SET_CONTROLLER ||
-                PDNT_INTERACTION_TYPES.REMOVE_CONTROLLER)
-            ) {
+            if (interactionType === PDNT_INTERACTION_TYPES.TRANSFER) {
               setShowTransferANTModal(true);
+              setShowConfirmModal(false);
+              return;
+            }
+            if (interactionType === PDNT_INTERACTION_TYPES.SET_CONTROLLER) {
+              setShowAddControllerModal(true);
+              setShowConfirmModal(false);
+              return;
+            }
+            if (interactionType === PDNT_INTERACTION_TYPES.REMOVE_CONTROLLER) {
+              setShowRemoveControllerModal(true);
               setShowConfirmModal(false);
               return;
             }
@@ -721,10 +762,9 @@ function ManageANT() {
             setModifiedValue(undefined);
           }}
           cancelText={
-            interactionType ===
-            (PDNT_INTERACTION_TYPES.TRANSFER ||
-              PDNT_INTERACTION_TYPES.SET_CONTROLLER ||
-              PDNT_INTERACTION_TYPES.REMOVE_CONTROLLER)
+            interactionType === PDNT_INTERACTION_TYPES.TRANSFER ||
+            interactionType === PDNT_INTERACTION_TYPES.SET_CONTROLLER ||
+            interactionType === PDNT_INTERACTION_TYPES.REMOVE_CONTROLLER
               ? 'Back'
               : 'Cancel'
           }
