@@ -44,6 +44,7 @@ function Footer() {
         </span>
         <Popup
           title={'Contact Support'}
+          trigger={'click'}
           popupMenuOptions={[
             {
               title: 'Github',
@@ -57,7 +58,7 @@ function Footer() {
             },
           ]}
         >
-          <button className="button grey text center hover">
+          <button className="button grey text center hover pointer">
             <QuestionCircleOutlined style={{ fontSize: 20 }} />
           </button>
         </Popup>
