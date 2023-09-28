@@ -2,7 +2,8 @@ import { QuestionCircleOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 
 import { useIsMobile } from '../../../hooks';
-import { BrandLogo, SunIcon } from '../../icons';
+import { BrandLogo } from '../../icons';
+import Popup from '../Popup/Popup';
 
 function Footer() {
   const isMobile = useIsMobile();
@@ -23,12 +24,9 @@ function Footer() {
         } flex`}
       >
         <BrandLogo width={'30px'} height={'30px'} fill={'var(--text-grey)'} />
-        <span className="text grey center">
-          Copyright &copy; 2023 ArNS, All rights reserved
-        </span>
         <Link
           className="grey text"
-          to={'https://ar.io/arns'}
+          to={'https://ar.io/terms-and-conditions/'}
           rel="noreferrer"
           target={'_blank'}
         >
@@ -44,17 +42,25 @@ function Footer() {
           v{process.env.npm_package_version}-
           {process.env.VITE_GITHUB_HASH?.slice(0, 6)}
         </span>
-        <button
-          className="button grey text center hover"
-          onClick={() =>
-            alert('Bam! light mode! just kidding, thats not implemented yet.')
-          }
+        <Popup
+          title={'Contact Support'}
+          popupMenuOptions={[
+            {
+              title: 'Github',
+              onClick: () =>
+                window.open('https://github.com/ar-io/arns-react', '_blank'),
+            },
+            {
+              title: 'Discord',
+              onClick: () =>
+                window.open('https://discord.gg/ya4hf2H', '_blank'),
+            },
+          ]}
         >
-          <SunIcon width={20} height={20} fill={'var(--text-grey)'} />
-        </button>
-        <button className="button grey text center hover">
-          <QuestionCircleOutlined style={{ fontSize: 20 }} />
-        </button>
+          <button className="button grey text center hover">
+            <QuestionCircleOutlined style={{ fontSize: 20 }} />
+          </button>
+        </Popup>
       </div>
     </div>
   );
