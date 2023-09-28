@@ -885,3 +885,20 @@ export function pruneExtraDataFromTransactionPayload(
   );
   return cleanPayload;
 }
+
+export async function userHasSufficientBalance<
+  T extends Record<string, number>,
+>({ balances, costs }: { balances: T; costs: T }): Promise<boolean> {
+  return Object.entries(costs).every(([key, value]) => {
+    if (!(balances[key] >= value)) {
+      throw new Error(
+        `Insufficient balance of ${key.toUpperCase()}, user has ${
+          balances[key]
+        } and needs ${
+          value - balances[key]
+        } more ${key.toUpperCase()} to pay for this transaction.`,
+      );
+    }
+    return true;
+  });
+}
