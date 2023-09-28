@@ -231,8 +231,8 @@ function RemoveControllersModal({
             </div>
           </div>
         }
-        onCancel={() => closeModal()}
-        onClose={() => closeModal()}
+        onCancel={closeModal}
+        onClose={closeModal}
         onNext={
           controllersToRemove.length > 0
             ? () => handlePayloadCallback()

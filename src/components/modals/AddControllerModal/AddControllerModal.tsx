@@ -116,8 +116,8 @@ function AddControllerModal({
             </div>
           </div>
         }
-        onCancel={() => closeModal()}
-        onClose={() => closeModal()}
+        onCancel={closeModal}
+        onClose={closeModal}
         onNext={
           isArweaveTransactionID(toAddress)
             ? () => handlePayloadCallback()
