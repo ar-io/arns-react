@@ -13,6 +13,7 @@ import {
 } from '../../../utils/searchUtils/searchUtils';
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import { FeaturedDomains } from '../../layout';
+import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
 
 function Home() {
@@ -82,6 +83,10 @@ function Home() {
     }
 
     return false;
+  }
+
+  if (!featuredDomains) {
+    return <PageLoader loading message={'Loading Home'} />;
   }
 
   return (
