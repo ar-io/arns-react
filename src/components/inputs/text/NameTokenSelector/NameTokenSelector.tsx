@@ -102,7 +102,7 @@ function NameTokenSelector({
         throw new Error('No address provided');
       }
       const { contractTxIds: fetchedContractTxIds } =
-        await arweaveDataProvider.getContractsForWallet(address);
+        await arweaveDataProvider.getContractsForWallet(address, 'ant');
       if (!fetchedContractTxIds.length) {
         throw new Error(
           'Unable to find any Name Tokens for the provided address',
