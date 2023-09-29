@@ -215,7 +215,7 @@ function ManageANT() {
 
   function handleSave(row: ManageANTRow) {
     // TODO: make this more clear, we should be updating only the value that matters and not overwriting anything
-    if (!row.isValid || !row.interactionType) {
+    if (!row.isValid || !row.interactionType || !pdntState) {
       return;
     }
     const payload =
@@ -223,13 +223,13 @@ function ManageANT() {
         ? mapTransactionDataKeyToPayload(row.interactionType, [
             '@',
             modifiedValue!.toString(),
-            pdntState!.records?.['@'].ttlSeconds ?? MIN_TTL_SECONDS,
+            pdntState.getRecord('@')?.ttlSeconds ?? MIN_TTL_SECONDS,
           ])
         : row.interactionType === INTERACTION_TYPES.SET_TTL_SECONDS
         ? mapTransactionDataKeyToPayload(row.interactionType, [
             '@',
-            pdntState!.getRecord('@')?.transactionId?.length
-              ? pdntState!.getRecord('@')!.transactionId
+            pdntState.getRecord('@')?.transactionId?.length
+              ? pdntState.getRecord('@')!.transactionId
               : STUB_ARWEAVE_TXID,
             +modifiedValue!,
           ])

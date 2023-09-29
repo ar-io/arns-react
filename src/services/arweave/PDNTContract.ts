@@ -127,6 +127,6 @@ export class PDNTContract {
   }
 
   isValid(): boolean {
-    return this.contract && !!this.records && !!this.getRecord('@');
+    return this.contract && this.records && !!this.getRecord('@');
   }
 }
