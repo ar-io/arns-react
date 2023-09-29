@@ -10,7 +10,7 @@ import './styles.css';
 type NotificationType = 'success' | 'info' | 'warning' | 'error';
 
 export default function Notifications() {
-  const [api, contextHolder] = notification.useNotification({
+  const [notificationApi, contextHolder] = notification.useNotification({
     maxCount: 3,
   });
 
@@ -48,7 +48,7 @@ export default function Notifications() {
               {title}
               <button
                 className="button center pointer"
-                onClick={() => api.destroy(key)}
+                onClick={() => notificationApi.destroy(key)}
                 style={{ padding: '0px' }}
               >
                 <CloseIcon
@@ -64,7 +64,7 @@ export default function Notifications() {
             <button
               className="button-primary"
               style={{ padding: '9px 12px' }}
-              onClick={() => api.destroy(key)}
+              onClick={() => notificationApi.destroy(key)}
             >
               Close
             </button>
@@ -109,7 +109,7 @@ export default function Notifications() {
       description,
       key,
     });
-    api[type](notificationProps);
+    notificationApi[type](notificationProps);
   }
 
   // error notifications
