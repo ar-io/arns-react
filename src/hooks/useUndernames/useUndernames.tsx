@@ -60,6 +60,7 @@ export function useUndernames(id?: ArweaveTransactionID) {
         row.name.toLowerCase().startsWith(searchText.toLowerCase()),
       );
       setFilteredResults(filtered);
+    } else {
       setFilteredResults([]);
     }
   }, [searchText]);

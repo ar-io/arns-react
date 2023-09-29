@@ -20,6 +20,8 @@ export const UNDERNAME_REGEX = new RegExp(
     MAX_UNDERNAME_LENGTH - 2
   }}[a-zA-Z0-9]|[a-zA-Z0-9]{1})$`,
 );
+
+export const APPROVED_CHARACTERS_REGEX = new RegExp(`^[a-zA-Z0-9-]$`);
 export const ALPHA_NUMERIC_REGEX = new RegExp('^[a-zA-Z0-9]$');
 export const PDNS_TX_ID_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{43}$');
 export const PDNS_TX_ID_ENTRY_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{1,43}$');
