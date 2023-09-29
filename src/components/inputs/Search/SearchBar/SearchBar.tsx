@@ -91,26 +91,30 @@ function SearchBar(props: SearchBarProps) {
     return;
   }
   useEffect(() => {
-    if (!searchBarText) {
-      reset();
-    }
     if (searchParams.get('search') !== searchBarText) {
       // clear search params on new search
       const serializeSearchParams: Record<string, string> = {};
       setSearchParams(serializeSearchParams);
     }
+
+    if (!searchBarText) {
+      reset();
+    }
   }, [searchBarText]);
 
   useEffect(() => {
     if (domain) {
-      setSearchBarText(decodeDomainToASCII(domain));
       _onSubmit();
       return;
     }
-  }, [domain]);
+  }, [domain, searchParams]);
 
   useEffect(() => {
-    if ((!isValidatingRegistration && validated) || !searchSubmitted) {
+    if (
+      (!isValidatingRegistration && validated) ||
+      !searchSubmitted ||
+      isReserved
+    ) {
       const style = handleSearchbarBorderStyle({
         domain: domain,
         auction: isAuction,
@@ -128,11 +132,9 @@ function SearchBar(props: SearchBarProps) {
     searchBarText,
     searchSubmitted,
     isSearchbarFocused,
-    isAuction,
-    isAvailable,
     isReserved,
     validated,
-    searchParams,
+    isValidatingRegistration,
   ]);
 
   async function updateAuctionInfo(domain: string) {
@@ -203,6 +205,12 @@ function SearchBar(props: SearchBarProps) {
       return;
     }
 
+    if (searchParams.get('search') !== searchBarText) {
+      const serializeSearchParams: Record<string, string> = {
+        search: decodeDomainToASCII(domain),
+      };
+      setSearchParams(serializeSearchParams);
+    }
     // show updated states based on search result
     const record = await arweaveDataProvider
       .getRecord(lowerCaseDomain(searchBarText ?? ''))

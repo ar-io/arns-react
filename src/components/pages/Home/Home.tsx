@@ -30,26 +30,26 @@ function Home() {
   }>();
   const isMobile = useIsMobile();
 
-  useEffect(() => {
-    if (domain && domain !== searchParams.get('search')) {
-      const serializeSearchParams: Record<string, string> = {
-        search: decodeDomainToASCII(domain),
-      };
-      setSearchParams(serializeSearchParams);
-      return;
-    }
-  }, [domain]);
+  // useEffect(() => {
+  //   if (domain && domain !== searchParams.get('search')) {
+  //     const serializeSearchParams: Record<string, string> = {
+  //       search: decodeDomainToASCII(domain),
+  //     };
+  //     setSearchParams(serializeSearchParams);
+  //     return;
+  //   }
+  // }, [domain]);
 
-  useEffect(() => {
-    const searchDomain = searchParams.get('search');
-    if (searchDomain && searchDomain !== domain) {
-      dispatchRegisterState({
-        type: 'setDomainName',
-        payload: searchDomain,
-      });
-      return;
-    }
-  }, [searchParams]);
+  // useEffect(() => {
+  //   const searchDomain = searchParams.get('search');
+  //   if (searchDomain && searchDomain !== domain) {
+  //     dispatchRegisterState({
+  //       type: 'setDomainName',
+  //       payload: searchDomain,
+  //     });
+  //     return;
+  //   }
+  // }, [searchParams]);
 
   useEffect(() => {
     if (Object.keys(pdnsSourceContract.records).length) {
