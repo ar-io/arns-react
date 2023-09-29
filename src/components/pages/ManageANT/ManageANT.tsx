@@ -138,9 +138,10 @@ function ManageANT() {
         status: confirmations ?? 0,
         contractTxId: contractTxId.toString(),
         associatedNames: !names.length ? 'N/A' : names.join(', '),
-        undernames: `${Math.min(0, Object.keys(contract.records).length - 1)}/${
-          record?.undernames ?? DEFAULT_MAX_UNDERNAMES
-        }`,
+        //
+        undernames: `${
+          Object.entries(contract.records).filter(([n]) => n !== '@').length
+        }/${record?.undernames ?? DEFAULT_MAX_UNDERNAMES}`,
         name: contract.name ?? 'N/A',
         ticker: contract.ticker ?? 'N/A',
         owner: contract.owner ?? 'N/A',
