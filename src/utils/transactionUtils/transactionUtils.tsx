@@ -886,9 +886,13 @@ export function pruneExtraDataFromTransactionPayload(
   return cleanPayload;
 }
 
-export async function userHasSufficientBalance<
-  T extends Record<string, number>,
->({ balances, costs }: { balances: T; costs: T }): Promise<boolean> {
+export function userHasSufficientBalance<T extends Record<string, number>>({
+  balances,
+  costs,
+}: {
+  balances: T;
+  costs: T;
+}): boolean {
   return Object.entries(costs).every(([key, value]) => {
     if (!(balances[key] >= value)) {
       throw new Error(

@@ -185,64 +185,65 @@ function RegisterNameForm() {
   }
 
   async function handleNext() {
-    {
-      const hasSufficientBalance = await userHasSufficientBalance<{
+    try {
+      // validate transaction cost, return if insufficient balance and emit validation message
+      userHasSufficientBalance<{
         io: number;
         ar: number;
       }>({
         balances,
         costs: fee,
-      }).catch((e: any) => {
-        eventEmitter.emit('error', {
-          name: 'Insufficient funds',
-          message: e.message,
-        });
       });
-      if (!hasSufficientBalance) {
-        return;
-      }
-      const buyRecordPayload: BuyRecordPayload = {
-        name:
-          domain && emojiRegex().test(domain)
-            ? encodeDomainToASCII(domain)
-            : domain,
-        contractTxId: antID ? antID.toString() : ATOMIC_FLAG,
-        years:
-          registrationType === TRANSACTION_TYPES.LEASE
-            ? leaseDuration
-            : undefined,
-        type: registrationType,
-        auction: isDomainAuctionable({
-          domain: domain,
-          registrationType: registrationType,
-          reservedList: Object.keys(pdnsSourceContract.reserved),
-        }),
-        targetId:
-          targetId && isArweaveTransactionID(targetId.trim())
-            ? new ArweaveTransactionID(targetId)
-            : undefined,
-      };
+    } catch (error: any) {
+      eventEmitter.emit('error', {
+        name: 'Insufficient funds',
+        message: error.message,
+      });
 
-      dispatchTransactionState({
-        type: 'setTransactionData',
-        payload: {
-          assetId: ARNS_REGISTRY_ADDRESS,
-          functionName: 'buyRecord',
-          ...buyRecordPayload,
-        },
-      });
-      dispatchTransactionState({
-        type: 'setInteractionType',
-        payload: INTERACTION_TYPES.BUY_RECORD,
-      });
-      // navigate to the transaction page, which will load the updated state of the transaction context
-      navigate('/transaction', {
-        state: `/register/${domain}`,
-      });
-      dispatchRegisterState({
-        type: 'reset',
-      });
+      return;
     }
+
+    const buyRecordPayload: BuyRecordPayload = {
+      name:
+        domain && emojiRegex().test(domain)
+          ? encodeDomainToASCII(domain)
+          : domain,
+      contractTxId: antID ? antID.toString() : ATOMIC_FLAG,
+      years:
+        registrationType === TRANSACTION_TYPES.LEASE
+          ? leaseDuration
+          : undefined,
+      type: registrationType,
+      auction: isDomainAuctionable({
+        domain: domain,
+        registrationType: registrationType,
+        reservedList: Object.keys(pdnsSourceContract.reserved),
+      }),
+      targetId:
+        targetId && isArweaveTransactionID(targetId.trim())
+          ? new ArweaveTransactionID(targetId)
+          : undefined,
+    };
+
+    dispatchTransactionState({
+      type: 'setTransactionData',
+      payload: {
+        assetId: ARNS_REGISTRY_ADDRESS,
+        functionName: 'buyRecord',
+        ...buyRecordPayload,
+      },
+    });
+    dispatchTransactionState({
+      type: 'setInteractionType',
+      payload: INTERACTION_TYPES.BUY_RECORD,
+    });
+    // navigate to the transaction page, which will load the updated state of the transaction context
+    navigate('/transaction', {
+      state: `/register/${domain}`,
+    });
+    dispatchRegisterState({
+      type: 'reset',
+    });
   }
 
   return (
