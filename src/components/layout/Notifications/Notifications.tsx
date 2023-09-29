@@ -36,10 +36,9 @@ export default function Notifications() {
     description: string;
     key: string;
   }): ArgsProps {
-    let props;
     switch (type) {
       case 'error':
-        props = {
+        return {
           key: key,
           message: (
             <h4
@@ -88,11 +87,10 @@ export default function Notifications() {
           },
         };
       default:
-        props = {
+        return {
           message: '',
         };
     }
-    return props;
   }
 
   function showNotification({

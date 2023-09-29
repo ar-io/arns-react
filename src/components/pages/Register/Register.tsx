@@ -613,7 +613,7 @@ function RegisterNameForm() {
         <WorkflowButtons
           nextText="Next"
           backText="Back"
-          onNext={() => handleNext()}
+          onNext={handleNext}
           onBack={() => navigate('/', { state: `/register/${domain}` })}
           customNextStyle={{ width: '100px' }}
         />

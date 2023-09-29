@@ -121,9 +121,7 @@ function NameTokenSelector({
             .catch(() => {
               throw new Error(`Unable to get Contract State`);
             });
-          if (!validState) {
-            throw new Error('Unable to get contract state');
-          }
+
           if (!new PDNTContract(validState).isValid()) {
             throw new Error('Invalid ANT Contract.');
           }
