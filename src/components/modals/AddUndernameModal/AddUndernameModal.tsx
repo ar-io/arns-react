@@ -18,7 +18,6 @@ import {
 import {
   MAX_TTL_SECONDS,
   MIN_TTL_SECONDS,
-  PDNS_NAME_REGEX,
   PDNS_TX_ID_ENTRY_REGEX,
   UNDERNAME_REGEX,
 } from '../../../utils/constants';
