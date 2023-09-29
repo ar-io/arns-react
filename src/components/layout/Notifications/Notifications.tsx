@@ -1,5 +1,6 @@
 import * as Sentry from '@sentry/react';
 import { notification } from 'antd';
+import { ArgsProps } from 'antd/es/notification/interface';
 import { useEffect } from 'react';
 
 import eventEmitter from '../../../utils/events';
@@ -15,7 +16,6 @@ export default function Notifications() {
 
   function handleError(error: Error) {
     // TODO: check for duplicate errors
-    console.log(error);
     const sentryID = Sentry.captureException(error);
     console.debug('Error sent to sentry:', error, sentryID);
     showNotification({
@@ -25,7 +25,7 @@ export default function Notifications() {
     });
   }
 
-  function getApiConfig({
+  function getNotificationProps({
     type,
     title,
     description,
@@ -35,18 +35,11 @@ export default function Notifications() {
     title: string;
     description: string;
     key: string;
-  }): any {
+  }): ArgsProps {
+    let props;
     switch (type) {
-      case 'success':
-        return { content: 'stub.' };
-      case 'info':
-        return {
-          content: 'stub.',
-        };
-      case 'warning':
-        return { content: 'stub.' };
       case 'error':
-        return {
+        props = {
           key: key,
           message: (
             <h4
@@ -94,7 +87,12 @@ export default function Notifications() {
             boxShadow: 'var(--shadow)',
           },
         };
+      default:
+        props = {
+          message: '',
+        };
     }
+    return props;
   }
 
   function showNotification({
@@ -107,13 +105,13 @@ export default function Notifications() {
     description: string;
   }) {
     const key = `open${Date.now()}`;
-    const config = getApiConfig({
+    const notificationProps = getNotificationProps({
       type,
       title,
       description,
       key,
     });
-    api[type](config);
+    api[type](notificationProps);
   }
 
   // error notifications
