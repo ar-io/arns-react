@@ -13,6 +13,7 @@ export type GlobalState = {
   gateway: string;
   walletAddress?: ArweaveTransactionID;
   wallet?: ArweaveWalletConnector;
+  // TODO: assess need for this in the global state
   balances: {
     ar: number;
     io: number;
