@@ -13,6 +13,11 @@ export type GlobalState = {
   gateway: string;
   walletAddress?: ArweaveTransactionID;
   wallet?: ArweaveWalletConnector;
+  // TODO: assess need for this in the global state
+  balances: {
+    ar: number;
+    io: number;
+  };
   pdnsContractId: ArweaveTransactionID;
   blockHeight?: number;
 };
@@ -23,6 +28,10 @@ const initialState: GlobalState = {
   gateway: 'ar-io.dev',
   walletAddress: undefined,
   wallet: undefined,
+  balances: {
+    ar: 0,
+    io: 0,
+  },
   blockHeight: undefined,
 };
 

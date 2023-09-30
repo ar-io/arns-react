@@ -11,11 +11,11 @@ import {
 } from '../../types';
 import {
   ANNUAL_PERCENTAGE_FEE,
+  APPROVED_CHARACTERS_REGEX,
   DEFAULT_MAX_UNDERNAMES,
   MAX_LEASE_DURATION,
   MIN_LEASE_DURATION,
   PDNS_NAME_REGEX,
-  PDNS_NAME_REGEX_PARTIAL,
   PERMABUY_LEASE_FEE_LENGTH,
   RESERVED_NAME_LENGTH,
   UNDERNAME_REGISTRATION_IO_FEE,
@@ -384,7 +384,7 @@ export async function validateNoSpecialCharacters(
   if (
     !query ||
     (query.trim().length &&
-      !PDNS_NAME_REGEX_PARTIAL.test(encodeDomainToASCII(query.trim())))
+      !APPROVED_CHARACTERS_REGEX.test(encodeDomainToASCII(query.trim())))
   ) {
     throw new Error('Query cannot contain special characters');
   }

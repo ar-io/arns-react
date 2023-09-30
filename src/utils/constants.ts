@@ -6,6 +6,7 @@ import {
 
 // note: lookahead/lookbehind regex's are not compatible with iOS browsers
 export const MAX_ARNS_NAME_LENGTH = 51;
+export const MAX_UNDERNAME_LENGTH = 61;
 export const PDNS_NAME_REGEX = new RegExp(
   `^([a-zA-Z0-9][a-zA-Z0-9-]{0,${
     MAX_ARNS_NAME_LENGTH - 2
@@ -14,6 +15,13 @@ export const PDNS_NAME_REGEX = new RegExp(
 export const PDNS_NAME_REGEX_PARTIAL = new RegExp(
   `^[a-zA-Z0-9-]{0,${MAX_ARNS_NAME_LENGTH}}$`,
 );
+export const UNDERNAME_REGEX = new RegExp(
+  `^([a-zA-Z0-9][a-zA-Z0-9-]{0,${
+    MAX_UNDERNAME_LENGTH - 2
+  }}[a-zA-Z0-9]|[a-zA-Z0-9]{1})$`,
+);
+
+export const APPROVED_CHARACTERS_REGEX = new RegExp(`^[a-zA-Z0-9-]{0,61}$`);
 export const ALPHA_NUMERIC_REGEX = new RegExp('^[a-zA-Z0-9]$');
 export const PDNS_TX_ID_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{43}$');
 export const PDNS_TX_ID_ENTRY_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{1,43}$');
