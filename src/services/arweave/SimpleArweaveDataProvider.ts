@@ -66,7 +66,10 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
       const transactions = await this.fetchPaginatedData(queryIds);
       const stati = transactions.reduce(
         (acc: Record<string, number>, tx: any) => {
-          acc[tx.node.id] = currentBlockHeight - tx.node.block.height;
+          // not guaranteed
+          if (tx?.node?.id && tx?.node?.block?.height) {
+            acc[tx.node.id] = currentBlockHeight - tx.node.block.height;
+          }
           return acc;
         },
         {},
