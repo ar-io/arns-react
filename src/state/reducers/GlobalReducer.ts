@@ -10,7 +10,8 @@ export type Action =
     }
   | { type: 'setGateway'; payload: string }
   | { type: 'setBlockHeight'; payload: number }
-  | { type: 'setPDNSContractState'; payload: PDNSContractJSON };
+  | { type: 'setPDNSContractState'; payload: PDNSContractJSON }
+  | { type: 'setBalances'; payload: { io: number; ar: number } };
 
 export const reducer = (state: GlobalState, action: Action): GlobalState => {
   switch (action.type) {
@@ -38,6 +39,11 @@ export const reducer = (state: GlobalState, action: Action): GlobalState => {
       return {
         ...state,
         pdnsSourceContract: action.payload,
+      };
+    case 'setBalances':
+      return {
+        ...state,
+        balances: action.payload,
       };
     default:
       return state;

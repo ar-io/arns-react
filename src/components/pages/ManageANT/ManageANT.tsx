@@ -138,9 +138,10 @@ function ManageANT() {
         status: confirmations ?? 0,
         contractTxId: contractTxId.toString(),
         associatedNames: !names.length ? 'N/A' : names.join(', '),
-        undernames: `${Object.keys(contract.records).length - 1}/${
-          record?.undernames ?? DEFAULT_MAX_UNDERNAMES
-        }`,
+        //
+        undernames: `${
+          Object.entries(contract.records).filter(([n]) => n !== '@').length
+        }/${record?.undernames ?? DEFAULT_MAX_UNDERNAMES}`,
         name: contract.name ?? 'N/A',
         ticker: contract.ticker ?? 'N/A',
         owner: contract.owner ?? 'N/A',
@@ -214,7 +215,7 @@ function ManageANT() {
 
   function handleSave(row: ManageANTRow) {
     // TODO: make this more clear, we should be updating only the value that matters and not overwriting anything
-    if (!row.isValid || !row.interactionType) {
+    if (!row.isValid || !row.interactionType || !pdntState) {
       return;
     }
     const payload =
@@ -222,13 +223,13 @@ function ManageANT() {
         ? mapTransactionDataKeyToPayload(row.interactionType, [
             '@',
             modifiedValue!.toString(),
-            pdntState!.records['@'].ttlSeconds,
+            pdntState.getRecord('@')?.ttlSeconds ?? MIN_TTL_SECONDS,
           ])
         : row.interactionType === INTERACTION_TYPES.SET_TTL_SECONDS
         ? mapTransactionDataKeyToPayload(row.interactionType, [
             '@',
-            pdntState!.records['@'].transactionId.length
-              ? pdntState!.records['@'].transactionId
+            pdntState.getRecord('@')?.transactionId?.length
+              ? pdntState.getRecord('@')!.transactionId
               : STUB_ARWEAVE_TXID,
             +modifiedValue!,
           ])

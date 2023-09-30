@@ -18,8 +18,8 @@ import {
 import {
   MAX_TTL_SECONDS,
   MIN_TTL_SECONDS,
-  PDNS_NAME_REGEX,
   PDNS_TX_ID_ENTRY_REGEX,
+  UNDERNAME_REGEX,
 } from '../../../utils/constants';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import { Loader } from '../../layout';
@@ -140,7 +140,7 @@ function AddUndernameModal({
                       setValue={(v: string) => setUndername(v)}
                       catchInvalidInput={true}
                       maxCharLength={maxUndernameLength}
-                      customPattern={PDNS_NAME_REGEX}
+                      customPattern={UNDERNAME_REGEX}
                       validationPredicates={{
                         [VALIDATION_INPUT_TYPES.UNDERNAME]: {
                           fn: (name: string) =>
