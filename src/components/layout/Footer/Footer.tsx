@@ -2,6 +2,7 @@ import { QuestionCircleOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 
 import { useIsMobile } from '../../../hooks';
+import { ARIO_DISCORD_LINK } from '../../../utils/constants';
 import { BrandLogo } from '../../icons';
 import Popup from '../Popup/Popup';
 
@@ -53,8 +54,7 @@ function Footer() {
             },
             {
               title: 'Discord',
-              onClick: () =>
-                window.open('https://discord.gg/7dBaqcE8', '_blank'),
+              onClick: () => window.open(ARIO_DISCORD_LINK, '_blank'),
             },
           ]}
         >

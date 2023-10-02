@@ -208,3 +208,5 @@ export const RESERVED_BREADCRUMB_TITLES = new Set([
   'Extend Lease',
   'Manage Undernames',
 ]);
+
+export const ARIO_DISCORD_LINK = 'https://discord.gg/7dBaqcE8';
