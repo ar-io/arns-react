@@ -8,7 +8,6 @@ import { ArweaveTransactionID } from '../../../types';
 import { FEATURED_DOMAINS } from '../../../utils/constants';
 import {
   decodeDomainToASCII,
-  encodeDomainToASCII,
   lowerCaseDomain,
 } from '../../../utils/searchUtils/searchUtils';
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';

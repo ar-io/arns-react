@@ -2,7 +2,6 @@ import { cleanup, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { ArweaveCompositeDataProviderMock } from '../../../../../__tests__/__mocks__/ArweaveCompositeDataProviderMock';
-import { ArweaveCompositeDataProvider } from '../../../../../services/arweave/ArweaveCompositeDataProvider';
 import RegistrationStateProvider, {
   RegistrationState,
 } from '../../../../../state/contexts/RegistrationState';
@@ -68,6 +67,7 @@ jest.mock('../../../../../hooks', () => ({
   })),
   useArweaveCompositeProvider: jest.fn(() => {
     const ArweaveCompositeDataProviderMock =
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       require('../../../../../__tests__/__mocks__/ArweaveCompositeDataProviderMock').ArweaveCompositeDataProviderMock;
     return new ArweaveCompositeDataProviderMock();
   }),

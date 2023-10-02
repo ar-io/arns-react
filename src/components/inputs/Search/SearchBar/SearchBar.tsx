@@ -107,7 +107,7 @@ function SearchBar(props: SearchBarProps) {
       _onSubmit();
       return;
     }
-  }, [domain, searchParams]);
+  }, [domain]);
 
   useEffect(() => {
     if (
