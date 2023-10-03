@@ -3,7 +3,7 @@ import { SearchBarFooterProps } from '../../../types';
 import { isDomainReservedLength, lowerCaseDomain } from '../../../utils';
 import PDNTCard from '../../cards/PDNTCard/PDNTCard';
 import AuctionChart from '../AuctionChart/AuctionChart';
-import EmailNotificationCard from '../EmailNotificationCard/EmailNotificationCard';
+import ReservedNameNotificationCard from '../ReservedNameNotificationCard/ReservedNameNotificationCard';
 import './styles.css';
 
 function SearchBarFooter({
@@ -33,7 +33,7 @@ function SearchBarFooter({
   ) {
     return (
       <div className="flex flex-row" style={{ marginTop: '30px' }}>
-        <EmailNotificationCard />
+        <ReservedNameNotificationCard />
       </div>
     );
   }
