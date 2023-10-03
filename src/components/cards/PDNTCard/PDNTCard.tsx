@@ -91,14 +91,12 @@ function PDNTCard(props: PDNSMapping) {
   const [mappedKeys, setMappedKeys] = useState<string[]>([]);
 
   useEffect(() => {
-    if (!isLoading) {
-      setDetails({ state });
-      const newMappedKeys = [...(primaryKeys ?? [...DEFAULT_PRIMARY_KEYS])].map(
-        (i: string) => mapKeyToAttribute(i as AntDetailKey),
-      );
-      setMappedKeys(newMappedKeys);
-    }
-  }, [contractTxId, domain, compact, enableActions, overrides, isLoading]);
+    setDetails({ state });
+    const newMappedKeys = [...(primaryKeys ?? [...DEFAULT_PRIMARY_KEYS])].map(
+      (i: string) => mapKeyToAttribute(i as AntDetailKey),
+    );
+    setMappedKeys(newMappedKeys);
+  }, [contractTxId, domain, compact, enableActions, overrides]);
 
   async function setDetails({ state }: { state?: PDNTContractJSON }) {
     try {
