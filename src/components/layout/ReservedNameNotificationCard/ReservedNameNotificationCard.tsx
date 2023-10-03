@@ -1,16 +1,7 @@
-import { Link } from 'react-router-dom';
-
 import { ARIO_DISCORD_LINK } from '../../../utils/constants';
 import { BellIcon } from '../../icons';
 
-type ReservedNameNotificationCardProps = {
-  domain: string;
-};
-
-const ReservedNameNotificationCard = ({
-  domain,
-}: ReservedNameNotificationCardProps) => {
-  console.log('domain', domain);
+const ReservedNameNotificationCard = () => {
   const message = (
     <span>
       This name is currently reserved. Please reach out to us on{' '}

@@ -33,7 +33,7 @@ function SearchBarFooter({
   ) {
     return (
       <div className="flex flex-row" style={{ marginTop: '30px' }}>
-        <ReservedNameNotificationCard domain={domain} />
+        <ReservedNameNotificationCard />
       </div>
     );
   }
