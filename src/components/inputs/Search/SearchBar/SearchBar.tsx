@@ -79,6 +79,10 @@ function SearchBar(props: SearchBarProps) {
   const [registeredDomainRecord, setRegisteredDomainRecord] =
     useState<PDNSRecordEntry>();
 
+  const contractTxID = registeredDomainRecord
+    ? new ArweaveTransactionID(registeredDomainRecord.contractTxId)
+    : undefined;
+
   function reset() {
     setSearchSubmitted(false);
     setIsSearchValid(true);
@@ -334,11 +338,7 @@ function SearchBar(props: SearchBarProps) {
         isAvailable={isAvailable}
         isAuction={isAuction}
         isReserved={isReserved}
-        contractTxId={
-          registeredDomainRecord
-            ? new ArweaveTransactionID(registeredDomainRecord.contractTxId)
-            : undefined
-        }
+        contractTxId={contractTxID}
       />
 
       <div
@@ -514,11 +514,7 @@ function SearchBar(props: SearchBarProps) {
         isAvailable={isAvailable}
         isReserved={isReserved}
         domain={domain}
-        contractTxId={
-          registeredDomainRecord
-            ? new ArweaveTransactionID(registeredDomainRecord.contractTxId)
-            : undefined
-        }
+        contractTxId={contractTxID}
       />
     </div>
   );
