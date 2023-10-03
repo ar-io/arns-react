@@ -1,3 +1,6 @@
+import { Link } from 'react-router-dom';
+
+import { ARIO_DISCORD_LINK } from '../../../utils/constants';
 import { BellIcon } from '../../icons';
 
 type ReservedNameNotificationCardProps = {
@@ -8,8 +11,21 @@ const ReservedNameNotificationCard = ({
   domain,
 }: ReservedNameNotificationCardProps) => {
   console.log('domain', domain);
-  const message =
-    'Arweave ecosystem project names are currently reserved. Please reach out to us on Discord for more information.';
+  const message = (
+    <span>
+      This name is currently reserved. Please reach out to us on{' '}
+      <a
+        target="_blank"
+        href={ARIO_DISCORD_LINK}
+        rel="noreferrer"
+        className="link text-medium"
+        style={{ display: 'inline' }}
+      >
+        Discord
+      </a>{' '}
+      for more information.
+    </span>
+  );
 
   return (
     <div
