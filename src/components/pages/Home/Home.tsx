@@ -8,11 +8,11 @@ import { ArweaveTransactionID } from '../../../types';
 import { FEATURED_DOMAINS } from '../../../utils/constants';
 import {
   decodeDomainToASCII,
-  encodeDomainToASCII,
   lowerCaseDomain,
 } from '../../../utils/searchUtils/searchUtils';
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import { FeaturedDomains } from '../../layout';
+import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
 
 function Home() {
@@ -84,6 +84,10 @@ function Home() {
     return false;
   }
 
+  if (!featuredDomains) {
+    return <PageLoader loading message={'Loading Home'} />;
+  }
+
   return (
     <div
       className="page"
@@ -110,11 +114,7 @@ function Home() {
           minWidth: isMobile ? '100%' : '750px',
         }}
       >
-        <SearchBar
-          values={pdnsSourceContract.records}
-          value={domain ? encodeDomainToASCII(domain) : domain}
-          placeholderText={'Search for a name'}
-        />
+        <SearchBar placeholderText={'Search for a name'} />
         {
           //!isValidatingRegistration &&
           updateShowFeaturedDomains({

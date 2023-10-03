@@ -273,8 +273,6 @@ export interface PDNTInteractionProvider {
 export type SearchBarProps = {
   disabled?: boolean;
   placeholderText?: string;
-  values?: { [x: string]: PDNSRecordEntry };
-  value: string;
 };
 
 export type SearchBarHeaderProps = {

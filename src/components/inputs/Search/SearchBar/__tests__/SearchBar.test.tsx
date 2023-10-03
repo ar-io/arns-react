@@ -1,6 +1,7 @@
 import { cleanup, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { ArweaveCompositeDataProviderMock } from '../../../../../__tests__/__mocks__/ArweaveCompositeDataProviderMock';
 import RegistrationStateProvider, {
   RegistrationState,
 } from '../../../../../state/contexts/RegistrationState';
@@ -29,6 +30,21 @@ jest.mock('react-router-dom', () => ({
   useSearchParams: () => [new URLSearchParams(), jest.fn()],
 }));
 
+jest.mock(
+  '../../../../../services/arweave/ArweaveCompositeDataProvider',
+  () => {
+    const {
+      ArweaveCompositeDataProviderMock,
+    } = require('../../../../../__tests__/__mocks__/ArweaveCompositeDataProviderMock'); // eslint-disable-line
+
+    return {
+      ArweaveCompositeDataProvider: jest.fn().mockImplementation(() => {
+        return new ArweaveCompositeDataProviderMock();
+      }),
+    };
+  },
+);
+
 jest.mock('../../../../../hooks', () => ({
   useAuctionInfo: jest.fn(() => ({})),
   useIsFocused: jest.fn(() => false),
@@ -49,7 +65,12 @@ jest.mock('../../../../../hooks', () => ({
     isReserved: false,
     loading: false,
   })),
-  useArweaveCompositeProvider: jest.fn(),
+  useArweaveCompositeProvider: jest.fn(() => {
+    const ArweaveCompositeDataProviderMock =
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      require('../../../../../__tests__/__mocks__/ArweaveCompositeDataProviderMock').ArweaveCompositeDataProviderMock;
+    return new ArweaveCompositeDataProviderMock();
+  }),
 }));
 
 const TEST_RECORDS: Record<string, PDNSRecordEntry> = {
@@ -82,11 +103,7 @@ describe('SearchBar', () => {
 
   const searchBar = (
     <RegistrationStateProvider reducer={reducer}>
-      <SearchBar
-        value={''}
-        values={TEST_RECORDS}
-        placeholderText={'Find a name'}
-      />
+      <SearchBar placeholderText={'Find a name'} />
     </RegistrationStateProvider>
   );
 
@@ -107,6 +124,11 @@ describe('SearchBar', () => {
 
   test('handles a capitalized name correctly', async () => {
     const domain = 'ARDRIVE';
+
+    const mockRecord = TEST_RECORDS['ardrive'];
+    const mockGetRecord = jest.fn().mockResolvedValue(mockRecord);
+
+    ArweaveCompositeDataProviderMock.prototype.getRecord = mockGetRecord;
 
     await userEvent.type(searchInput, domain);
     await userEvent.click(searchButton);
