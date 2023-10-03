@@ -6,9 +6,9 @@ exports[`SearchBar handles a capitalized name correctly 1`] = `
     class="searchbar-container flex-center"
     style="max-width: 787px;"
   >
-    <span
+    <div
       class="text-medium white center flex fade-in"
-      style="font-weight: 500; font-size: 23px; flex-direction: row;"
+      style="min-height: 45px; font-weight: 500; font-size: 23px; flex-direction: row;"
     >
       <span
         class="unavailable"
@@ -16,7 +16,7 @@ exports[`SearchBar handles a capitalized name correctly 1`] = `
         ARDRIVE 
       </span>
       is already registered. Try another name.
-    </span>
+    </div>
     <div
       class="searchbar"
       style="margin-bottom: 30px; width: 100%; position: relative;"
@@ -222,9 +222,9 @@ exports[`SearchBar handles a lowercase name correctly 1`] = `
     class="searchbar-container flex-center"
     style="max-width: 787px;"
   >
-    <span
+    <div
       class="text-medium white center flex fade-in"
-      style="font-weight: 500; font-size: 23px; flex-direction: row;"
+      style="min-height: 45px; font-weight: 500; font-size: 23px; flex-direction: row;"
     >
       <span
         class="unavailable"
@@ -232,7 +232,7 @@ exports[`SearchBar handles a lowercase name correctly 1`] = `
         ardrive 
       </span>
       is already registered. Try another name.
-    </span>
+    </div>
     <div
       class="searchbar"
       style="margin-bottom: 30px; width: 100%; position: relative;"
@@ -440,7 +440,7 @@ exports[`SearchBar renders correctly 1`] = `
   >
     <div
       class="flex flex-column flex-center text-medium white fade-in"
-      style="gap: 5px;"
+      style="gap: 5px; min-height: 45px;"
     >
       Find a name 
       <span
