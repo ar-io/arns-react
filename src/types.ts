@@ -1,7 +1,6 @@
 import { ApiConfig } from 'arweave/node/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
 
-import { AntDetailKey } from './components/cards/PDNTCard/PDNTCard';
 import { PDNTContract } from './services/arweave/PDNTContract';
 import { ATOMIC_FLAG, PDNS_TX_ID_REGEX } from './utils/constants';
 

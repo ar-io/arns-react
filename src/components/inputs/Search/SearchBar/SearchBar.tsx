@@ -94,6 +94,7 @@ function SearchBar(props: SearchBarProps) {
 
     return;
   }
+
   useEffect(() => {
     if (searchParams.get('search') !== searchBarText) {
       // clear search params on new search

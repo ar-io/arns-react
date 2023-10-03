@@ -88,7 +88,7 @@ function PDNTCard({
 
   useEffect(() => {
     setDetails();
-  }, [contractTxId, domain, record, overrides]);
+  }, []);
 
   async function setDetails() {
     try {
