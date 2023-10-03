@@ -118,7 +118,6 @@ export type PDNSMapping = {
   state?: PDNTContractJSON;
   overrides?: { [x: string]: JSX.Element | string | number };
   disabledKeys?: string[];
-  primaryKeys?: AntDetailKey[];
   compact?: boolean;
   hover?: boolean;
   deployedTransactionId?: ArweaveTransactionID | string;

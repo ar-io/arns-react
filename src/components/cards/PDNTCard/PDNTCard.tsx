@@ -44,7 +44,7 @@ export const ANT_DETAIL_MAPPINGS = {
   ...ARNS_METADATA_DETAILS,
   ...ANT_MAIN_DETAILS,
   ...ANT_METADATA_DETAILS,
-};
+} as const;
 
 export type AntDetailKey = keyof typeof ANT_DETAIL_MAPPINGS;
 
@@ -55,11 +55,11 @@ export function mapKeyToAttribute(key: AntDetailKey) {
   return startCase(key);
 }
 
-export const DEFAULT_PRIMARY_KEYS: string[] = [
+export const DEFAULT_PRIMARY_KEYS: Partial<AntDetailKey>[] = [
   'contractTxId',
   'domain',
   'leaseDuration',
-  'nickname',
+  'name',
   'ticker',
   'owner',
 ];
@@ -69,11 +69,10 @@ function PDNTCard({
   contractTxId,
   domain,
   record,
-  compact,
+  compact = true,
   overrides,
   hover,
   disabledKeys,
-  primaryKeys,
   deployedTransactionId,
   mobileView,
   bordered = false,
@@ -81,19 +80,17 @@ function PDNTCard({
   const isMobile = useIsMobile();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const [pdntDetails, setPDNTDetails] = useState<{ [x: string]: any }>();
-  const [isLoading, setIsLoading] = useState(true);
-  const [limitDetails, setLimitDetails] = useState(true);
-  const [mappedKeys, setMappedKeys] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [limitDetails, setLimitDetails] = useState<boolean>(true);
+  const mappedKeys = DEFAULT_PRIMARY_KEYS.map((key: AntDetailKey) =>
+    mapKeyToAttribute(key),
+  );
 
   useEffect(() => {
-    setDetails({ state });
-    const newMappedKeys = [...(primaryKeys ?? [...DEFAULT_PRIMARY_KEYS])].map(
-      (i: string) => mapKeyToAttribute(i as AntDetailKey),
-    );
-    setMappedKeys(newMappedKeys);
+    setDetails();
   }, [contractTxId, domain, record, overrides]);
 
-  async function setDetails({ state }: { state?: PDNTContractJSON }) {
+  async function setDetails() {
     try {
       setIsLoading(true);
       let antContractState = undefined;
@@ -165,8 +162,6 @@ function PDNTCard({
         },
         {},
       );
-
-      setLimitDetails(compact ?? true);
       setPDNTDetails(replacedKeys);
     } catch (error) {
       eventEmitter.emit('error', error);
@@ -176,8 +171,7 @@ function PDNTCard({
     }
   }
 
-  function showMore(e: any) {
-    e.preventDefault();
+  function showMore() {
     setLimitDetails(!limitDetails);
   }
 
