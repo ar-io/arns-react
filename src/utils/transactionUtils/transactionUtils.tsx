@@ -260,7 +260,7 @@ export function getPDNSMappingByInteractionType(
         transactionData.contractTxId === ATOMIC_FLAG
           ? transactionData.deployedTransactionId
             ? transactionData.deployedTransactionId
-            : 'ATOMIC'
+            : ATOMIC_FLAG
           : new ArweaveTransactionID(transactionData.contractTxId);
 
       return {

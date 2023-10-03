@@ -13,6 +13,7 @@ import {
   getLeaseDurationFromEndTimestamp,
   isArweaveTransactionID,
 } from '../../../utils';
+import { ATOMIC_FLAG } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { Loader } from '../../layout';
 import ArweaveID, { ArweaveIdTypes } from '../../layout/ArweaveID/ArweaveID';
@@ -63,23 +64,22 @@ export const DEFAULT_PRIMARY_KEYS: string[] = [
   'owner',
 ];
 
-function PDNTCard(props: PDNSMapping) {
+function PDNTCard({
+  state,
+  contractTxId,
+  domain,
+  record,
+  compact,
+  overrides,
+  hover,
+  disabledKeys,
+  primaryKeys,
+  deployedTransactionId,
+  mobileView,
+  bordered = false,
+}: PDNSMapping) {
   const isMobile = useIsMobile();
   const arweaveDataProvider = useArweaveCompositeProvider();
-  const {
-    state,
-    contractTxId,
-    domain,
-    record,
-    compact,
-    overrides,
-    hover,
-    disabledKeys,
-    primaryKeys,
-    deployedTransactionId,
-    mobileView,
-    bordered = false,
-  } = props;
   const [pdntDetails, setPDNTDetails] = useState<{ [x: string]: any }>();
   const [isLoading, setIsLoading] = useState(true);
   const [limitDetails, setLimitDetails] = useState(true);
@@ -91,7 +91,7 @@ function PDNTCard(props: PDNSMapping) {
       (i: string) => mapKeyToAttribute(i as AntDetailKey),
     );
     setMappedKeys(newMappedKeys);
-  }, [contractTxId, domain, record]);
+  }, [contractTxId, domain, record, overrides]);
 
   async function setDetails({ state }: { state?: PDNTContractJSON }) {
     try {
@@ -100,11 +100,7 @@ function PDNTCard(props: PDNSMapping) {
       if (state) {
         antContractState = state;
       }
-      if (
-        contractTxId &&
-        contractTxId instanceof ArweaveTransactionID &&
-        !state
-      ) {
+      if (contractTxId && contractTxId !== ATOMIC_FLAG && !state) {
         antContractState = await arweaveDataProvider
           .getContractState<PDNTContractJSON>(contractTxId)
           .catch(() => {
@@ -133,6 +129,7 @@ function PDNTCard(props: PDNSMapping) {
           : undefined,
         contractTxId: contractTxId?.toString() ?? 'N/A',
         domain: domain,
+        // TODO: add the # of associated names that point to this ANT
         leaseDuration: leaseDuration,
         name: contract.name,
         ticker: contract.ticker,

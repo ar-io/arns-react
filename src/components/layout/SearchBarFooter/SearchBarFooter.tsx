@@ -50,7 +50,6 @@ function SearchBarFooter({
             contractTxId={contractTxId}
             record={record}
             compact={true}
-            enableActions={true}
             bordered
           />
         </>

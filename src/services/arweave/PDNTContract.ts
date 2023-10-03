@@ -4,6 +4,7 @@ import {
   PDNTContractJSON,
 } from '../../types';
 import {
+  ATOMIC_FLAG,
   DEFAULT_MAX_UNDERNAMES,
   DEFAULT_PDNT_CONTRACT_STATE,
   DEFAULT_TTL_SECONDS,
@@ -13,13 +14,15 @@ import {
  * TODOS:
  * - create lastUpdated attribute to track when changes are written to smartweave
  * - add validations and checks on setters
- * - include additional attributes like evolve to getters/setters
  */
 export class PDNTContract {
-  id?: ArweaveTransactionID | 'ATOMIC';
+  id?: ArweaveTransactionID | typeof ATOMIC_FLAG;
   contract: PDNTContractJSON;
 
-  constructor(state?: PDNTContractJSON, id?: ArweaveTransactionID | 'ATOMIC') {
+  constructor(
+    state?: PDNTContractJSON,
+    id?: ArweaveTransactionID | typeof ATOMIC_FLAG,
+  ) {
     this.id = id;
     if (state) {
       this.contract = { ...state };

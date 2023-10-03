@@ -3,7 +3,7 @@ import type { Dispatch, SetStateAction } from 'react';
 
 import { AntDetailKey } from './components/cards/PDNTCard/PDNTCard';
 import { PDNTContract } from './services/arweave/PDNTContract';
-import { PDNS_TX_ID_REGEX } from './utils/constants';
+import { ATOMIC_FLAG, PDNS_TX_ID_REGEX } from './utils/constants';
 
 export type PDNSRecordEntry = {
   contractTxId: string;
@@ -114,13 +114,12 @@ export type PDNTContractFields = keyof PDNTContractJSON;
 export type PDNSMapping = {
   domain: string;
   record?: PDNSRecordEntry;
-  contractTxId?: ArweaveTransactionID | 'ATOMIC';
+  contractTxId?: ArweaveTransactionID | typeof ATOMIC_FLAG;
   state?: PDNTContractJSON;
   overrides?: { [x: string]: JSX.Element | string | number };
   disabledKeys?: string[];
   primaryKeys?: AntDetailKey[];
   compact?: boolean;
-  enableActions?: boolean;
   hover?: boolean;
   deployedTransactionId?: ArweaveTransactionID | string;
   mobileView?: boolean;
