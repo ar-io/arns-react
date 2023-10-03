@@ -514,7 +514,8 @@ function SearchBar(props: SearchBarProps) {
         isAuction={isAuction}
         isAvailable={isAvailable}
         isReserved={isReserved}
-        domain={domain}
+        domain={lowerCaseDomain(domain)}
+        record={registeredDomainRecord}
         contractTxId={contractTxID}
       />
     </div>

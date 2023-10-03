@@ -16,10 +16,10 @@ import {
  * - include additional attributes like evolve to getters/setters
  */
 export class PDNTContract {
-  id?: ArweaveTransactionID;
+  id?: ArweaveTransactionID | 'ATOMIC';
   contract: PDNTContractJSON;
 
-  constructor(state?: PDNTContractJSON, id?: ArweaveTransactionID) {
+  constructor(state?: PDNTContractJSON, id?: ArweaveTransactionID | 'ATOMIC') {
     this.id = id;
     if (state) {
       this.contract = { ...state };
@@ -53,6 +53,14 @@ export class PDNTContract {
   }
   set ticker(ticker: string) {
     this.contract.ticker = ticker;
+  }
+
+  get controllers() {
+    return (
+      this.contract.controllers ?? [
+        this.contract.controller ?? this.contract.owner,
+      ]
+    );
   }
 
   // TODO: this should be refactored when we are ready to not support pdnts that do not comply with the new PDNT spec
@@ -90,7 +98,15 @@ export class PDNTContract {
   getRecord(name: string): PDNTContractDomainRecord | undefined {
     if (!this.contract.records[name]) return undefined;
 
-    return this.contract.records[name] as PDNTContractDomainRecord;
+    if (typeof this.contract.records[name] === 'string') {
+      return {
+        transactionId: this.contract.records[name] as unknown as string,
+        maxUndernames: DEFAULT_MAX_UNDERNAMES,
+        ttlSeconds: DEFAULT_TTL_SECONDS,
+      };
+    }
+
+    return this.contract.records[name];
   }
 
   get balances() {
@@ -98,9 +114,6 @@ export class PDNTContract {
   }
   set balances(balances: { [x: string]: number }) {
     this.contract.balances = balances;
-  }
-  get controller() {
-    return this.contract.controllers?.[0] ?? this.contract.controller;
   }
 
   addController(controller: string) {

@@ -113,7 +113,8 @@ export type PDNTContractFields = keyof PDNTContractJSON;
 
 export type PDNSMapping = {
   domain: string;
-  contractTxId?: ArweaveTransactionID | string;
+  record?: PDNSRecordEntry;
+  contractTxId?: ArweaveTransactionID | 'ATOMIC';
   state?: PDNTContractJSON;
   overrides?: { [x: string]: JSX.Element | string | number };
   disabledKeys?: string[];
@@ -290,6 +291,7 @@ export type SearchBarFooterProps = {
   isAuction: boolean;
   isReserved: boolean;
   domain?: string;
+  record?: PDNSRecordEntry;
   contractTxId?: ArweaveTransactionID;
 };
 
@@ -574,8 +576,8 @@ export type TransactionData = TransactionDataBasePayload &
 export type TransactionDataConfig = { functionName: string; keys: string[] };
 
 export class ArweaveTransactionID implements Equatable<ArweaveTransactionID> {
-  constructor(private readonly transactionId: string) {
-    if (!PDNS_TX_ID_REGEX.test(transactionId)) {
+  constructor(private readonly transactionId?: string) {
+    if (!transactionId || !PDNS_TX_ID_REGEX.test(transactionId)) {
       throw new Error(
         'Transaction ID should be a 43-character, alphanumeric string potentially including "-" and "_" characters.',
       );
@@ -591,7 +593,7 @@ export class ArweaveTransactionID implements Equatable<ArweaveTransactionID> {
   }
 
   toString(): string {
-    return this.transactionId;
+    return this.transactionId ?? '';
   }
 
   equals(entityId: ArweaveTransactionID): boolean {
@@ -650,7 +652,7 @@ export type PDNTDetails = {
   ticker: string;
   targetID: string;
   ttlSeconds: number;
-  controller: string;
+  controllers: string;
   undernames: string;
   owner: string;
   contractTxId: string;
@@ -664,7 +666,7 @@ export type DomainDetails = {
   contractTxId: string;
   targetID: string;
   ttlSeconds: number;
-  controller: string;
+  controllers: string;
   undernames: string;
   owner: string;
 };

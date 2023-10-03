@@ -8,6 +8,7 @@ import './styles.css';
 
 function SearchBarFooter({
   domain,
+  record,
   contractTxId,
   isAvailable,
   isAuction,
@@ -39,7 +40,7 @@ function SearchBarFooter({
   }
   return (
     <div className="flex flex-column" style={{ marginTop: 30 }}>
-      {!isAvailable && contractTxId && domain ? (
+      {!isAvailable && record && contractTxId && domain ? (
         <>
           <span className="flex flex-row white text-medium flex-left">
             Ownership Details:
@@ -47,6 +48,7 @@ function SearchBarFooter({
           <PDNTCard
             domain={domain}
             contractTxId={contractTxId}
+            record={record}
             compact={true}
             enableActions={true}
             bordered
