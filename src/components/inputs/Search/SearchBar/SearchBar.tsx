@@ -221,6 +221,7 @@ function SearchBar(props: SearchBarProps) {
       .catch(() => null);
     setSearchSubmitted(true);
     if (!record && searchBarText) {
+      setRegisteredDomainRecord(undefined);
       // on additional functions passed in
       dispatchRegisterState({
         type: 'setDomainName',
