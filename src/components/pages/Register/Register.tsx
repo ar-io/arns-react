@@ -76,6 +76,8 @@ function RegisterNameForm() {
   const [targetId, setTargetId] = useState<string>();
   const targetIdFocused = useIsFocused('target-id-input');
   const navigate = useNavigate();
+  const [hasValidationErrors, setHasValidationErrors] =
+    useState<boolean>(false);
 
   // TODO: give this component some refactor love, i can barely read it.
 
@@ -124,7 +126,6 @@ function RegisterNameForm() {
         auction
       ) {
         const newFee = isAuction ? minimumAuctionBid : auction?.floorPrice;
-
         if (!newFee) {
           return;
         }
@@ -519,7 +520,12 @@ function RegisterNameForm() {
               <ValidationInput
                 inputId={'target-id-input'}
                 value={targetId}
-                setValue={(v: string) => setTargetId(v.trim())}
+                setValue={(v: string) => {
+                  setTargetId(v.trim());
+                  if (v.trim().length === 0) {
+                    setHasValidationErrors(false);
+                  }
+                }}
                 wrapperCustomStyle={{
                   width: '100%',
                   hieght: '45px',
@@ -542,6 +548,9 @@ function RegisterNameForm() {
                 }}
                 showValidationChecklist={false}
                 showValidationIcon={true}
+                validityCallback={(validity: boolean) => {
+                  setHasValidationErrors(!validity);
+                }}
               />
               <span className="grey pointer hover" style={{ fontSize: '12px' }}>
                 <Tooltip
@@ -614,7 +623,7 @@ function RegisterNameForm() {
         <WorkflowButtons
           nextText="Next"
           backText="Back"
-          onNext={handleNext}
+          onNext={hasValidationErrors ? undefined : handleNext}
           onBack={() => navigate('/', { state: `/register/${domain}` })}
           customNextStyle={{ width: '100px' }}
         />
