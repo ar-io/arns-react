@@ -192,4 +192,9 @@ export class ArweaveCompositeDataProviderMock
   getIoBalance(address: ArweaveTransactionID): Promise<number> {
     throw new Error('Method not implemented.');
   }
+  getRecordsByContractId(
+    contractTxId: ArweaveTransactionID,
+  ): Promise<Record<string, PDNSRecordEntry>> {
+    throw new Error('Method not implemented.');
+  }
 }
