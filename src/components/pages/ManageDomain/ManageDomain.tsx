@@ -29,8 +29,6 @@ import {
 import eventEmitter from '../../../utils/events';
 import { AntDetailKey, mapKeyToAttribute } from '../../cards/PDNTCard/PDNTCard';
 import {
-  ArrowLeft,
-  ArrowRightIcon,
   CirclePending,
   ExternalLinkIcon,
   HamburgerOutlineIcon,

@@ -12,12 +12,7 @@ import { ArweaveTransactionID, ManageTable } from '../../../types';
 import { MANAGE_TABLE_NAMES } from '../../../types';
 import { getCustomPaginationButtons } from '../../../utils';
 import eventEmitter from '../../../utils/events';
-import {
-  CodeSandboxIcon,
-  DownloadIcon,
-  NotebookIcon,
-  RefreshIcon,
-} from '../../icons';
+import { CodeSandboxIcon, NotebookIcon, RefreshIcon } from '../../icons';
 import { Loader } from '../../layout/index';
 import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';

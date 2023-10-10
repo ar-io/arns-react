@@ -24,12 +24,18 @@ function ManageAssetButtons({
           className={
             disabled
               ? 'assets-see-more-button disabled-button'
-              : 'assets-see-more-button'
+              : 'assets-see-more-button center'
           }
           disabled={disabled}
           onClick={() =>
             navigate(`/manage/${assetType}/${id.toString()}/undernames`)
           }
+          style={{
+            padding: '8px 12px',
+            textAlign: 'center',
+            width: 'fit-content',
+            height: 'fit-content',
+          }}
         >
           Undernames
         </button>

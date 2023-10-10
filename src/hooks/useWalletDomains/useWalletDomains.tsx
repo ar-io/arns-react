@@ -376,8 +376,8 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
           <button
             className="outline-button center pointer"
             style={{
-              padding: '6px 10px',
-              fontSize: '14px',
+              padding: '8px 12px',
+              fontSize: '11px',
               minWidth: 'fit-content',
             }}
             onClick={() => {

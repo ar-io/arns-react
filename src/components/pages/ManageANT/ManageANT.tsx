@@ -37,8 +37,6 @@ import eventEmitter from '../../../utils/events';
 import { AntDetailKey, mapKeyToAttribute } from '../../cards/PDNTCard/PDNTCard';
 import TransactionSuccessCard from '../../cards/TransactionSuccessCard/TransactionSuccessCard';
 import {
-  ArrowLeft,
-  ArrowRightIcon,
   CirclePending,
   CodeSandboxIcon,
   ExternalLinkIcon,
