@@ -259,7 +259,7 @@ function RegisterNameForm() {
       <div
         className="flex flex-column flex-center"
         style={{
-          maxWidth: '900px',
+          maxWidth: '100px',
           minWidth: '750px',
           width: '100%',
           padding: '0px',

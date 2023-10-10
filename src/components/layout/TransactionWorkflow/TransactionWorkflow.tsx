@@ -634,17 +634,19 @@ function TransactionWorkflow({
         message={'Deploying transaction...'}
         loading={deployingTransaction}
       />
-      <Workflow
-        onNext={() => handleStage('next')}
-        onBack={() => handleStage('back')}
-        stage={workflowStage}
-        steps={
-          workflowStage === TRANSACTION_WORKFLOW_STATUS.SUCCESSFUL
-            ? undefined
-            : steps
-        }
-        stages={stages}
-      />
+      <div style={{ maxWidth: '900px' }}>
+        <Workflow
+          onNext={() => handleStage('next')}
+          onBack={() => handleStage('back')}
+          stage={workflowStage}
+          steps={
+            workflowStage === TRANSACTION_WORKFLOW_STATUS.SUCCESSFUL
+              ? undefined
+              : steps
+          }
+          stages={stages}
+        />
+      </div>
     </>
   );
 }

@@ -68,7 +68,7 @@ function Workflow({
                     className="flex flex-row text-large white bold center"
                     style={{
                       height: '100%',
-                      minHeight: '175px',
+                      padding: '80px 0px',
                       borderTop: steps?.length
                         ? 'solid 1px var(--text-faded)'
                         : '',
