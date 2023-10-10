@@ -26,12 +26,13 @@ export const ANT_TRANSACTION_DETAILS = {
 export const ARNS_METADATA_DETAILS = {
   domain: 'Domain',
   leaseDuration: 'Lease Duration',
+  maxUndernames: 'Undernames',
 };
 export const ANT_MAIN_DETAILS = {
   name: 'Nickname',
   ticker: 'Ticker',
   owner: 'Owner',
-  controllers: 'Controllers',
+  controllers: 'Controller(s)',
 };
 
 export const ANT_METADATA_DETAILS = {
@@ -128,6 +129,8 @@ function PDNTCard({
         domain: domain,
         // TODO: add the # of associated names that point to this ANT
         leaseDuration: leaseDuration,
+        // TODO: undernames are associated with the record, not the ANT - how do we want to represent this
+        maxUndernames: 'Up to ' + record?.undernames,
         name: contract.name,
         ticker: contract.ticker,
         owner: contract.owner,
@@ -162,6 +165,7 @@ function PDNTCard({
         },
         {},
       );
+      setLimitDetails(compact);
       setPDNTDetails(replacedKeys);
     } catch (error) {
       eventEmitter.emit('error', error);
