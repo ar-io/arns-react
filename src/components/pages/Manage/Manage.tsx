@@ -122,6 +122,8 @@ function Manage() {
     } catch (error: any) {
       eventEmitter.emit('error', error);
       setTableLoading(false);
+      setPDNTIDs([]);
+      setTableData([]);
     }
   }
 
