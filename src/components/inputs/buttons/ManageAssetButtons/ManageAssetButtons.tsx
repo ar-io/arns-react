@@ -47,7 +47,7 @@ function ManageAssetButtons({
           className="manage-asset-button-tooltip"
         >
           <button
-            className="outline-button hover"
+            className="outline-button manage-button"
             onClick={() => navigate(`/manage/${assetType}/${id.toString()}`)}
             disabled={disabled}
             style={{
