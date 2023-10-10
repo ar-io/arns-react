@@ -302,7 +302,7 @@ export function getPDNSMappingByInteractionType(
             : new ArweaveTransactionID(transactionData.contractTxId),
         state: transactionData.state ?? undefined,
         overrides: {
-          maxSubdomains: `Up to ${DEFAULT_MAX_UNDERNAMES}`,
+          maxUndernames: `Up to ${DEFAULT_MAX_UNDERNAMES}`,
         },
       };
     }
@@ -390,7 +390,7 @@ export function getPDNSMappingByInteractionType(
         contractTxId: new ArweaveTransactionID(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
-          nickname: transactionData.name,
+          name: transactionData.name,
         },
         disabledKeys: [
           'evolve',
