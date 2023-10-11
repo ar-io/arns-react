@@ -488,7 +488,6 @@ function RegisterNameForm() {
               )}
             </div>
           </div>
-
           <div className="flex flex-column" style={{ gap: '1em' }}>
             <NameTokenSelector
               selectedTokenCallback={(id) =>
@@ -500,7 +499,6 @@ function RegisterNameForm() {
                     })
               }
             />
-
             <div
               className="name-token-input-wrapper"
               style={{
@@ -574,7 +572,6 @@ function RegisterNameForm() {
                 </Tooltip>
               </span>
             </div>
-
             <TransactionCost fee={fee} />
             {domain &&
             pdnsSourceContract.settings.auctions &&
@@ -617,16 +614,18 @@ function RegisterNameForm() {
               </div>
             ) : (
               <></>
-            )}
+            )}{' '}
+            <div style={{ marginTop: '30px' }}>
+              <WorkflowButtons
+                nextText="Next"
+                backText="Back"
+                onNext={hasValidationErrors ? undefined : handleNext}
+                onBack={() => navigate('/', { state: `/register/${domain}` })}
+                customNextStyle={{ width: '100px' }}
+              />
+            </div>
           </div>
         </div>
-        <WorkflowButtons
-          nextText="Next"
-          backText="Back"
-          onNext={hasValidationErrors ? undefined : handleNext}
-          onBack={() => navigate('/', { state: `/register/${domain}` })}
-          customNextStyle={{ width: '100px' }}
-        />
       </div>
     </div>
   );

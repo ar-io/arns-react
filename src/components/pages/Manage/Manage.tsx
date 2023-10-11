@@ -12,12 +12,7 @@ import { ArweaveTransactionID, ManageTable } from '../../../types';
 import { MANAGE_TABLE_NAMES } from '../../../types';
 import { getCustomPaginationButtons } from '../../../utils';
 import eventEmitter from '../../../utils/events';
-import {
-  CodeSandboxIcon,
-  DownloadIcon,
-  NotebookIcon,
-  RefreshIcon,
-} from '../../icons';
+import { CodeSandboxIcon, NotebookIcon, RefreshIcon } from '../../icons';
 import { Loader } from '../../layout/index';
 import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
@@ -134,7 +129,7 @@ function Manage() {
   return (
     <div className="page" ref={modalRef}>
       <div className="flex-column" style={{ gap: '10px' }}>
-        <div className="flex flex-justify-between">
+        <div className="flex flex-start">
           <h1
             className="flex white"
             style={{
@@ -143,33 +138,7 @@ function Manage() {
             }}
           >
             Manage Assets
-          </h1>{' '}
-          <div className="flex flex-row flex-right" style={{ gap: '20px' }}>
-            <button
-              disabled={tableLoading}
-              className={
-                tableLoading
-                  ? 'flex outline-button center disabled-button'
-                  : 'flex outline-button center hover'
-              }
-              onClick={() =>
-                alert(
-                  "Imports Coming Soon! This will allow you to import and manage ANT's or domains from other wallets that are not deployed by you.",
-                )
-              }
-              style={{
-                gap: '8px',
-                height: '22px',
-                minWidth: '0px',
-                padding: '10px 16px',
-                boxSizing: 'content-box',
-                fontSize: '14px',
-              }}
-            >
-              <DownloadIcon height={'20px'} width={'20px'} fill="inherit" />
-              Import
-            </button>
-          </div>
+          </h1>
         </div>
         <div
           id="manage-table-wrapper"
@@ -238,7 +207,7 @@ function Manage() {
               className={
                 tableLoading
                   ? 'button center disabled-button'
-                  : 'button center hover'
+                  : 'button center pointer'
               }
               onClick={() => walletAddress && fetchWalletPDNTs(walletAddress)}
               style={{

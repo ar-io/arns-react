@@ -42,7 +42,7 @@ function Transaction() {
       style={{
         width: '100%',
         boxSizing: 'border-box',
-        padding: isMobile ? '30px 10px' : '50px 30%',
+        padding: isMobile ? '30px 10px' : '30px 100px',
       }}
     >
       <TransactionWorkflow

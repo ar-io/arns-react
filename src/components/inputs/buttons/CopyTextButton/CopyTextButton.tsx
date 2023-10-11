@@ -68,11 +68,16 @@ function CopyTextButton({
           }}
         >
           <CopyIcon
-            className="flex hover"
-            height={size ?? 15}
-            width={size ?? 15}
+            className="flex"
+            height={size ?? '15px'}
+            width={size ?? '15px'}
             fill={'inherit'}
-            style={{ cursor: 'pointer', scale: size, ...copyButtonStyle }}
+            style={{
+              cursor: 'pointer',
+              scale: size,
+              overflow: 'visible',
+              ...copyButtonStyle,
+            }}
           />
         </Tooltip>
       </button>

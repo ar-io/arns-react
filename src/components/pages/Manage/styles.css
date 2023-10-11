@@ -143,6 +143,8 @@ thead > tr > td[class~='manage-assets-table-header'] {
   font-size: 14px;
   font-weight: 400;
   border-bottom: 1px solid #323232 !important;
+  height: 53px !important;
+  overflow: hidden;
 }
 
 .manage-table-tbody > tr > td > input:focus {

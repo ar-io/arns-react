@@ -37,8 +37,6 @@ import eventEmitter from '../../../utils/events';
 import { AntDetailKey, mapKeyToAttribute } from '../../cards/PDNTCard/PDNTCard';
 import TransactionSuccessCard from '../../cards/TransactionSuccessCard/TransactionSuccessCard';
 import {
-  ArrowLeft,
-  ArrowRightIcon,
   CirclePending,
   CodeSandboxIcon,
   ExternalLinkIcon,
@@ -655,38 +653,6 @@ function ManageANT() {
               dataSource={rows}
             />
           )}
-        </div>
-        <div
-          id="back-next-container"
-          className="flex flex-row"
-          style={{ justifyContent: 'space-between' }}
-        >
-          <button
-            className="outline-button center hover"
-            style={{
-              padding: '10px',
-              gap: '8px',
-              fontSize: '13px',
-              fontWeight: 400,
-            }}
-            onClick={() => alert('Not implemented yet')}
-          >
-            <ArrowLeft width={'16px'} height={'16px'} fill="inherit" />
-            Previous
-          </button>
-          <button
-            className="outline-button center hover"
-            style={{
-              padding: '10px',
-              gap: '8px',
-              fontSize: '13px',
-              fontWeight: 400,
-            }}
-            onClick={() => alert('Not implemented yet')}
-          >
-            Next
-            <ArrowRightIcon width={'16px'} height={'16px'} fill="inherit" />
-          </button>
         </div>
       </div>
       {showTransferANTModal && id ? (
