@@ -5,7 +5,6 @@ import { useGlobalState } from '../../../state/contexts/GlobalState';
 function ProtectedRoute({ children }: { children: JSX.Element }) {
   const [{ walletAddress }] = useGlobalState();
   const location = useLocation();
-  //  const [isLoading, setIsLoading] = useState(true);
 
   return walletAddress ? (
     children
