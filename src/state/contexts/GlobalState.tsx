@@ -54,6 +54,7 @@ export default function GlobalStateProvider({
   children,
 }: StateProviderProps): JSX.Element {
   const [state, dispatchGlobalState] = useReducer(reducer, initialState);
+
   return (
     <GlobalStateContext.Provider value={[state, dispatchGlobalState]}>
       {children}

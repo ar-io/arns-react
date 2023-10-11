@@ -3,10 +3,12 @@ import { useLocation, useNavigate } from 'react-router';
 
 import { useWalletAddress } from '../../../hooks';
 import { ArConnectWalletConnector } from '../../../services/wallets';
+import { ARCONNECT_WALLET_PERMISSIONS } from '../../../services/wallets/ArConnectWalletConnector';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ArweaveWalletConnector } from '../../../types';
 import eventEmitter from '../../../utils/events';
 import { ArConnectIcon, ArweaveAppIcon, CloseIcon } from '../../icons';
+import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
 
 function ConnectWalletModal(): JSX.Element {
@@ -16,6 +18,39 @@ function ConnectWalletModal(): JSX.Element {
   const navigate = useNavigate();
   const { state } = useLocation();
   const [connecting, setConnecting] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const walletLoaded = !!window.arweaveWallet;
+
+  const [hasPermissions, setHasPermissions] = useState(false);
+
+  useEffect(() => {
+    const handleArweaveWalletLoaded = async () => {
+      // Check for permissions
+      const permissions = await window.arweaveWallet.getPermissions(); // Replace with actual API call
+      const hasRequiredPermissions = ARCONNECT_WALLET_PERMISSIONS.every(
+        (perm) => permissions.includes(perm),
+      );
+
+      setHasPermissions(hasRequiredPermissions);
+      if (hasRequiredPermissions && walletAddress) {
+        closeModal({ next: true });
+      }
+      setLoading(false);
+    };
+
+    if (walletLoaded) {
+      handleArweaveWalletLoaded();
+    } else {
+      window.addEventListener('arweaveWalletLoaded', handleArweaveWalletLoaded);
+    }
+
+    return () => {
+      window.removeEventListener(
+        'arweaveWalletLoaded',
+        handleArweaveWalletLoaded,
+      );
+    };
+  }, []);
 
   useEffect(() => {
     // disable scrolling when modal is in view
@@ -75,6 +110,10 @@ function ConnectWalletModal(): JSX.Element {
     } finally {
       setConnecting(false);
     }
+  }
+
+  if (loading || (hasPermissions && walletLoaded) || !walletLoaded) {
+    return <PageLoader loading={true} message={'Connecting to Wallet'} />; // Replace with your loading component
   }
 
   return (
