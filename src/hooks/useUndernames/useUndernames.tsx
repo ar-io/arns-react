@@ -349,13 +349,14 @@ export function useUndernames(id?: ArweaveTransactionID) {
     const domain = await arweaveDataProvider
       .getRecords({ filters: { contractTxId: [id] } })
       .then((records) => Object.keys(records)[0])
-      .catch(() =>
+      .catch(() => {
         eventEmitter.emit('error', {
           name: 'No domain found',
           message: 'No domains found for this ANT',
-        }),
-      );
-    setDomain(typeof domain === 'string' ? domain : '');
+        });
+        return '';
+      });
+    setDomain(domain);
     const fetchedRows: UndernameMetadata[] = [];
     const [contractState, confirmations] = await Promise.all([
       arweaveDataProvider.getContractState<PDNTContractJSON>(id),
