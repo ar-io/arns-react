@@ -1,4 +1,3 @@
-import { set } from 'lodash';
 import { useEffect, useRef, useState } from 'react';
 
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
@@ -15,7 +14,6 @@ import {
   validateTTLSeconds,
 } from '../../../utils';
 import {
-  MAX_ARNS_NAME_LENGTH,
   MAX_TTL_SECONDS,
   MAX_UNDERNAME_LENGTH,
   MIN_TTL_SECONDS,
