@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
   ArweaveTransactionID,
   PDNTContractJSON,
@@ -9,13 +8,13 @@ import {
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import {
-  getAssociatedNames,
   isArweaveTransactionID,
   isPDNSDomainNameValid,
   validateNoSpecialCharacters,
   validateTTLSeconds,
 } from '../../../utils';
 import {
+  MAX_ARNS_NAME_LENGTH,
   MAX_TTL_SECONDS,
   MIN_TTL_SECONDS,
   PDNS_TX_ID_ENTRY_REGEX,
@@ -35,38 +34,23 @@ function AddUndernameModal({
   closeModal: () => void;
   payloadCallback: (payload: SetRecordPayload) => void;
 }) {
-  const [{ pdnsSourceContract }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const isMobile = useIsMobile();
   const [state, setState] = useState<PDNTContractJSON>();
-  const [maxUndernameLength, setMaxUndernameLength] = useState(61);
 
   const targetIdRef = useRef<HTMLInputElement>(null);
   const ttlRef = useRef<HTMLInputElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
-  const [associatedNames, setAssociatedNames] = useState<string[]>([]);
   const [undername, setUndername] = useState<string>('');
   const [targetId, setTargetId] = useState<string>('');
   const [ttlSeconds, setTtlSeconds] = useState<number>(MIN_TTL_SECONDS);
 
   useEffect(() => {
-    arweaveDataProvider.getContractState(antId).then((stateRes) => {
-      setState(stateRes as PDNTContractJSON);
-      const nameRes = getAssociatedNames(
-        antId,
-        pdnsSourceContract.records,
-      ).reduce((acc: string[], curr) => {
-        if (curr) {
-          acc.push(curr);
-        }
-        return acc;
-      }, []);
-      if (nameRes.length) {
-        nameRes.sort((a, b) => a.length - b.length);
-        setAssociatedNames(nameRes);
-        setMaxUndernameLength(Math.max(0, 61 - nameRes[0].length));
-      }
-    });
+    arweaveDataProvider
+      .getContractState<PDNTContractJSON>(antId)
+      .then((state) => {
+        setState(state);
+      });
 
     nameRef.current?.focus();
   }, [antId]);
@@ -101,13 +85,6 @@ function AddUndernameModal({
               className="flex flex-column"
               style={{ fontSize: '14px', maxWidth: '575px', minWidth: '475px' }}
             >
-              <div
-                className="flex flex-column"
-                style={{ gap: '10px', marginBottom: '20px' }}
-              >
-                <span className="grey">Name</span>
-                <span className="white">{associatedNames[0]}</span>
-              </div>
               <div
                 className="flex flex-column"
                 style={{ paddingBottom: '30px' }}
@@ -158,7 +135,7 @@ function AddUndernameModal({
                         width: 'fit-content',
                       }}
                     >
-                      {undername.length}/{maxUndernameLength}
+                      {undername.length}
                     </span>
                   </span>
                 </div>

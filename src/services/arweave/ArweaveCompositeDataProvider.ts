@@ -13,6 +13,7 @@ import {
   TRANSACTION_TYPES,
   TransactionTag,
 } from '../../types';
+import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
 import { PDNTContract } from './PDNTContract';
 
 export class ArweaveCompositeDataProvider
@@ -265,9 +266,27 @@ export class ArweaveCompositeDataProvider
       this._contractProviders.map((p) => p.getDomainsInAuction()),
     );
   }
+
   async getRecord(domain: string): Promise<PDNSRecordEntry> {
     return Promise.any(this._contractProviders.map((p) => p.getRecord(domain)));
   }
+
+  async getRecords({
+    contractTxId = new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
+    filters,
+  }: {
+    contractTxId?: ArweaveTransactionID;
+    filters: {
+      contractTxId?: ArweaveTransactionID[];
+    };
+  }): Promise<{ [x: string]: PDNSRecordEntry }> {
+    return Promise.any(
+      this._contractProviders.map((p) =>
+        p.getRecords({ contractTxId, filters }),
+      ),
+    );
+  }
+
   async getIoBalance(address: ArweaveTransactionID): Promise<number> {
     return Promise.any(
       this._contractProviders.map((p) => p.getIoBalance(address)),

@@ -1,15 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import {
   ANTMetadata,
   ArweaveTransactionID,
-  PDNSRecordEntry,
+  PDNTContractJSON,
   PDNT_INTERACTION_TYPES,
   TRANSACTION_TYPES,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
+import eventEmitter from '../../../utils/events';
 import { AlertTriangleIcon, CloseIcon } from '../../icons';
 import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
@@ -28,25 +29,35 @@ function TransactionModal({
   transactionType: TRANSACTION_TYPES;
   interactionType?: PDNT_INTERACTION_TYPES;
   state?: ANTMetadata;
-  contractId?: ArweaveTransactionID; // contract ID if asset type is a contract interaction
+  contractId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
   showModal: () => void;
 }) {
-  const [{ pdnsSourceContract }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const isMobile = useIsMobile();
   const [accepted, setAccepted] = useState<boolean>(false);
   const [toAddress, setToAddress] = useState<string>('');
   const [isValidAddress, setIsValidAddress] = useState<boolean>(false);
+  const [recordCount, setRecordCount] = useState<number>(0);
 
   // todo: add "transfer to another account" dropdown
 
-  function getAssociatedNames(txId: ArweaveTransactionID) {
-    return Object.entries(pdnsSourceContract.records)
-      .map(([name, recordEntry]: [string, PDNSRecordEntry]) => {
-        if (recordEntry.contractTxId === txId.toString()) return name;
+  useEffect(() => {
+    arweaveDataProvider
+      .getContractState<PDNTContractJSON>(contractId)
+      .then((state) => {
+        const contract = new PDNTContract(state);
+        const records = Object.keys(contract.records).filter(
+          (key) => key === '@',
+        ).length;
+        setRecordCount(records);
       })
-      .filter((n) => !!n);
-  }
+      .catch(() => {
+        eventEmitter.emit(
+          'error',
+          `Failed to get contract state for ${contractId.toString()}`,
+        );
+      });
+  }, [contractId, arweaveDataProvider]);
 
   return (
     <>
@@ -100,9 +111,9 @@ function TransactionModal({
               Contract ID:&nbsp;
               <CopyTextButton
                 copyText={contractId ? contractId.toString() : ''}
-                body={`${contractId!.toString().slice(0, isMobile ? 6 : 0)}${
+                body={`${contractId.toString().slice(0, isMobile ? 6 : 0)}${
                   isMobile ? '...' : ''
-                }${contractId!.toString().slice(isMobile ? -6 : 0)}`}
+                }${contractId.toString().slice(isMobile ? -6 : 0)}`}
                 size={'70%'}
                 wrapperStyle={{
                   fontStyle: 'bold',
@@ -168,7 +179,7 @@ function TransactionModal({
                   },
                 }}
               />
-              {getAssociatedNames(contractId!).length ? (
+              {recordCount ? (
                 <span
                   className="flex flex-row"
                   style={{
@@ -185,11 +196,9 @@ function TransactionModal({
                     className="text faded"
                     style={{ textAlign: 'left', width: '90%' }}
                   >
-                    This PDNT has{' '}
-                    {`${getAssociatedNames(contractId!).length} name(s)`} that
-                    are associated with it. By transferring this PDNT, you will
-                    also be transferring control of those names to the new PDNT
-                    holder.
+                    This PDNT has {`${recordCount} name(s)`} that are associated
+                    with it. By transferring this PDNT, you will also be
+                    transferring control of those names to the new PDNT holder.
                   </span>
                 </span>
               ) : (

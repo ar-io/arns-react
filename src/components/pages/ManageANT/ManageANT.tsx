@@ -11,7 +11,6 @@ import {
   ContractInteraction,
   INTERACTION_TYPES,
   ManageANTRow,
-  PDNSRecordEntry,
   PDNTContractJSON,
   PDNTDetails,
   PDNT_INTERACTION_TYPES,
@@ -24,7 +23,6 @@ import {
   validateTTLSeconds,
 } from '../../../utils';
 import {
-  DEFAULT_MAX_UNDERNAMES,
   DEFAULT_TTL_SECONDS,
   MAX_TTL_SECONDS,
   MIN_TTL_SECONDS,
@@ -63,7 +61,7 @@ function ManageANT() {
   const navigate = useNavigate();
   const location = useLocation();
   const arweaveDataProvider = useArweaveCompositeProvider();
-  const [{ walletAddress, pdnsSourceContract }] = useGlobalState();
+  const [{ walletAddress }] = useGlobalState();
   const [pdntState, setPDNTState] = useState<PDNTContract>();
   const [pdntName, setPDNTName] = useState<string>();
   const [editingField, setEditingField] = useState<string>();
@@ -97,32 +95,32 @@ function ManageANT() {
     fetchPDNTDetails(walletAddress, txId);
   }, [id, deployedTransactionId]);
 
-  function getAssociatedNames(txId: ArweaveTransactionID) {
-    return Object.entries(pdnsSourceContract.records)
-      .map(([name, recordEntry]: [string, PDNSRecordEntry]) => {
-        if (recordEntry.contractTxId === txId.toString()) return name;
-      })
-      .filter((n) => !!n);
-  }
-
   async function fetchPDNTDetails(
     address: ArweaveTransactionID,
     contractTxId: ArweaveTransactionID,
   ) {
     try {
       setLoading(true);
-      const names = getAssociatedNames(contractTxId);
-      const [contractState, confirmations, pendingContractInteractions] =
-        await Promise.all([
-          arweaveDataProvider.getContractState<PDNTContractJSON>(contractTxId),
-          arweaveDataProvider
-            .getTransactionStatus(contractTxId)
-            .then((status) => status[contractTxId.toString()]),
-          arweaveDataProvider.getPendingContractInteractions(
-            contractTxId,
-            address.toString(),
-          ),
-        ]);
+      const [
+        contractState,
+        confirmations,
+        pendingContractInteractions,
+        associatedRecords,
+      ] = await Promise.all([
+        arweaveDataProvider.getContractState<PDNTContractJSON>(contractTxId),
+        arweaveDataProvider
+          .getTransactionStatus(contractTxId)
+          .then((status) => status[contractTxId.toString()]),
+        arweaveDataProvider.getPendingContractInteractions(
+          contractTxId,
+          address.toString(),
+        ),
+        arweaveDataProvider.getRecords({
+          filters: {
+            contractTxId: [contractTxId],
+          },
+        }),
+      ]);
       const contract = new PDNTContract(contractState);
 
       // simple check that it is ANT shaped contract
@@ -130,9 +128,7 @@ function ManageANT() {
         throw Error('Invalid ANT contract');
       }
 
-      const record = Object.values(pdnsSourceContract.records).find(
-        (r) => r.contractTxId === contractTxId.toString(),
-      );
+      const names = Object.keys(associatedRecords);
 
       const consolidatedDetails: PDNTDetails = {
         status: confirmations ?? 0,
