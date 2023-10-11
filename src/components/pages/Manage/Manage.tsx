@@ -205,7 +205,7 @@ function Manage() {
               className={
                 tableLoading
                   ? 'button center disabled-button'
-                  : 'button center hover'
+                  : 'button center pointer'
               }
               onClick={() => walletAddress && fetchWalletPDNTs(walletAddress)}
               style={{
