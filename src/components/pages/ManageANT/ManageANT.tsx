@@ -23,6 +23,7 @@ import {
   validateTTLSeconds,
 } from '../../../utils';
 import {
+  DEFAULT_MAX_UNDERNAMES,
   DEFAULT_TTL_SECONDS,
   MAX_TTL_SECONDS,
   MIN_TTL_SECONDS,
@@ -137,7 +138,10 @@ function ManageANT() {
         //
         undernames: `${
           Object.entries(contract.records).filter(([n]) => n !== '@').length
-        }/${record?.undernames ?? DEFAULT_MAX_UNDERNAMES}`,
+        }/${
+          Object.values(associatedRecords)[0]?.undernames ??
+          DEFAULT_MAX_UNDERNAMES
+        }`,
         name: contract.name ?? 'N/A',
         ticker: contract.ticker ?? 'N/A',
         owner: contract.owner ?? 'N/A',

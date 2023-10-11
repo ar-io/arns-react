@@ -292,13 +292,4 @@ export class ArweaveCompositeDataProvider
       this._contractProviders.map((p) => p.getIoBalance(address)),
     );
   }
-  async getRecordsByContractId(
-    contractTxId: ArweaveTransactionID,
-  ): Promise<Record<string, PDNSRecordEntry>> {
-    return Promise.any(
-      this._contractProviders.map((p) =>
-        p.getRecordsByContractId(contractTxId),
-      ),
-    );
-  }
 }

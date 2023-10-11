@@ -171,9 +171,6 @@ export interface SmartweaveContractCache {
   getAuctionPrices({ domain }: { domain: string }): Promise<Auction>;
   getDomainsInAuction(): Promise<string[]>;
   getRecord(domain: string): Promise<PDNSRecordEntry>;
-  getRecordsByContractId(
-    contractTxId: ArweaveTransactionID,
-  ): Promise<Record<string, PDNSRecordEntry>>;
   getIoBalance(address: ArweaveTransactionID): Promise<number>;
   // END TODO
   getRecords({
@@ -666,7 +663,7 @@ export type PDNTDetails = {
   targetID: string;
   ttlSeconds: number;
   controller: string;
-  undernames: number;
+  undernames: string;
   owner: string;
   contractTxId: string;
 };

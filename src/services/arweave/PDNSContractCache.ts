@@ -304,15 +304,4 @@ export class PDNSContractCache implements SmartweaveContractCache {
     const { balance } = await res.json();
     return balance;
   }
-  async getRecordsByContractId(
-    contractTxId: ArweaveTransactionID,
-  ): Promise<Record<string, PDNSRecordEntry>> {
-    const res = await fetch(
-      `${
-        this._url
-      }/v1/contract/${ARNS_REGISTRY_ADDRESS}/records?contractTxId=${contractTxId.toString()}`,
-    );
-    const { records } = await res.json();
-    return records;
-  }
 }

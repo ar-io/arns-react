@@ -1,3 +1,4 @@
+import { set } from 'lodash';
 import { useEffect, useRef, useState } from 'react';
 
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
@@ -16,6 +17,7 @@ import {
 import {
   MAX_ARNS_NAME_LENGTH,
   MAX_TTL_SECONDS,
+  MAX_UNDERNAME_LENGTH,
   MIN_TTL_SECONDS,
   PDNS_TX_ID_ENTRY_REGEX,
   UNDERNAME_REGEX,
@@ -44,12 +46,21 @@ function AddUndernameModal({
   const [undername, setUndername] = useState<string>('');
   const [targetId, setTargetId] = useState<string>('');
   const [ttlSeconds, setTtlSeconds] = useState<number>(MIN_TTL_SECONDS);
+  const [maxUndernameLength, setMaxUndernameLength] =
+    useState<number>(MAX_UNDERNAME_LENGTH);
 
   useEffect(() => {
     arweaveDataProvider
       .getContractState<PDNTContractJSON>(antId)
       .then((state) => {
         setState(state);
+      });
+    arweaveDataProvider
+      .getRecords({ filters: { contractTxId: [antId] } })
+      .then((records) => {
+        setMaxUndernameLength(
+          MAX_UNDERNAME_LENGTH - Object.keys(records)[0].length,
+        );
       });
 
     nameRef.current?.focus();
@@ -135,7 +146,7 @@ function AddUndernameModal({
                         width: 'fit-content',
                       }}
                     >
-                      {undername.length}
+                      {undername.length} / {maxUndernameLength}
                     </span>
                   </span>
                 </div>
