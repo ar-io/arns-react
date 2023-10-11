@@ -245,7 +245,7 @@ function ExtendLease() {
             title={
               <span
                 className="white"
-                style={{ padding: '10px', fontWeight: '500' }}
+                style={{ padding: '0px 10px 10px 10px', fontWeight: '500' }}
               >{`Registration period (between ${MIN_LEASE_DURATION}-${MAX_LEASE_DURATION} years)`}</span>
             }
           />
