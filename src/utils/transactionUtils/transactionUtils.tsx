@@ -256,14 +256,16 @@ export function getPDNSMappingByInteractionType(
           ? Date.now() + YEAR_IN_MILLISECONDS * transactionData.years
           : 'Indefinite';
 
+      const contractTxId =
+        transactionData.contractTxId === ATOMIC_FLAG
+          ? transactionData.deployedTransactionId
+            ? transactionData.deployedTransactionId
+            : ATOMIC_FLAG
+          : new ArweaveTransactionID(transactionData.contractTxId);
+
       return {
         domain: transactionData.name,
-        contractTxId:
-          transactionData.contractTxId === ATOMIC_FLAG
-            ? transactionData.deployedTransactionId
-              ? transactionData.deployedTransactionId
-              : ATOMIC_FLAG.toLocaleUpperCase('en-US')
-            : new ArweaveTransactionID(transactionData.contractTxId),
+        contractTxId: contractTxId,
         deployedTransactionId: transactionData.deployedTransactionId,
         state: transactionData.state ?? undefined,
         overrides: {
@@ -300,7 +302,7 @@ export function getPDNSMappingByInteractionType(
             : new ArweaveTransactionID(transactionData.contractTxId),
         state: transactionData.state ?? undefined,
         overrides: {
-          maxSubdomains: `Up to ${DEFAULT_MAX_UNDERNAMES}`,
+          maxUndernames: `Up to ${DEFAULT_MAX_UNDERNAMES}`,
         },
       };
     }
@@ -319,7 +321,7 @@ export function getPDNSMappingByInteractionType(
 
       return {
         domain: transactionData.name,
-        contractTxId: transactionData.contractTxId,
+        contractTxId: new ArweaveTransactionID(transactionData.contractTxId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           maxUndernames: transactionData.deployedTransactionId ? (
@@ -388,7 +390,7 @@ export function getPDNSMappingByInteractionType(
         contractTxId: new ArweaveTransactionID(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
-          nickname: transactionData.name,
+          name: transactionData.name,
         },
         disabledKeys: [
           'evolve',

@@ -370,7 +370,7 @@ export function useWalletANTs(ids: ArweaveTransactionID[]) {
         role:
           contract.owner === walletAddress?.toString()
             ? 'Owner'
-            : contract.controller === walletAddress?.toString()
+            : contract.controllers.includes(walletAddress?.toString() ?? '')
             ? 'Controller'
             : 'N/A',
         targetID: target ?? 'N/A',

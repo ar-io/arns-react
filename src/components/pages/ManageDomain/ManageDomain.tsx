@@ -154,7 +154,7 @@ function ManageDomain() {
             ? contract.getRecord('@')!.transactionId
             : 'N/A',
         ticker: contract.ticker ?? 'N/A',
-        controller: contract.controller ?? 'N/A',
+        controllers: contract.controllers.join(', ') ?? 'N/A',
         owner: contract.owner ?? 'N/A',
         ttlSeconds: contract.getRecord('@')?.ttlSeconds ?? DEFAULT_TTL_SECONDS,
         leaseDuration: `${getLeaseDurationString()}`,

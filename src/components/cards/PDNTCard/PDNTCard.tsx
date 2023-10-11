@@ -3,19 +3,17 @@ import { startCase } from 'lodash';
 import { isValidElement, useEffect, useState } from 'react';
 
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import {
   ArweaveTransactionID,
   PDNSMapping,
   PDNTContractJSON,
 } from '../../../types';
 import {
-  decodeDomainToASCII,
   getLeaseDurationFromEndTimestamp,
   isArweaveTransactionID,
-  lowerCaseDomain,
 } from '../../../utils';
-import { MIN_TTL_SECONDS } from '../../../utils/constants';
+import { ATOMIC_FLAG } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { Loader } from '../../layout';
 import ArweaveID, { ArweaveIdTypes } from '../../layout/ArweaveID/ArweaveID';
@@ -34,7 +32,7 @@ export const ANT_MAIN_DETAILS = {
   name: 'Nickname',
   ticker: 'Ticker',
   owner: 'Owner',
-  controller: 'Controller(s)',
+  controllers: 'Controller(s)',
 };
 
 export const ANT_METADATA_DETAILS = {
@@ -47,7 +45,7 @@ export const ANT_DETAIL_MAPPINGS = {
   ...ARNS_METADATA_DETAILS,
   ...ANT_MAIN_DETAILS,
   ...ANT_METADATA_DETAILS,
-};
+} as const;
 
 export type AntDetailKey = keyof typeof ANT_DETAIL_MAPPINGS;
 
@@ -58,72 +56,69 @@ export function mapKeyToAttribute(key: AntDetailKey) {
   return startCase(key);
 }
 
-export const DEFAULT_PRIMARY_KEYS: string[] = [
+export const DEFAULT_PRIMARY_KEYS: Partial<AntDetailKey>[] = [
   'contractTxId',
   'domain',
   'leaseDuration',
-  'nickname',
+  'name',
   'ticker',
   'owner',
 ];
 
-function PDNTCard(props: PDNSMapping) {
+function PDNTCard({
+  state,
+  contractTxId,
+  domain,
+  record,
+  compact = true,
+  overrides,
+  hover,
+  disabledKeys,
+  deployedTransactionId,
+  mobileView,
+  bordered = false,
+}: PDNSMapping) {
   const isMobile = useIsMobile();
   const arweaveDataProvider = useArweaveCompositeProvider();
-  const {
-    state,
-    contractTxId,
-    domain,
-    compact,
-    overrides,
-    hover,
-    enableActions,
-    disabledKeys,
-    primaryKeys,
-    deployedTransactionId,
-    mobileView,
-    bordered = false,
-  } = props;
-  const [{ pdnsSourceContract }] = useGlobalState();
   const [pdntDetails, setPDNTDetails] = useState<{ [x: string]: any }>();
-  const [isLoading, setIsLoading] = useState(true);
-  const [limitDetails, setLimitDetails] = useState(true);
-  const [mappedKeys, setMappedKeys] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [limitDetails, setLimitDetails] = useState<boolean>(true);
+  const mappedKeys = DEFAULT_PRIMARY_KEYS.map((key: AntDetailKey) =>
+    mapKeyToAttribute(key),
+  );
 
   useEffect(() => {
-    setDetails({ state });
-    const newMappedKeys = [...(primaryKeys ?? [...DEFAULT_PRIMARY_KEYS])].map(
-      (i: string) => mapKeyToAttribute(i as AntDetailKey),
-    );
-    setMappedKeys(newMappedKeys);
-  }, [contractTxId, domain, compact, enableActions, overrides]);
+    setDetails();
+  }, []);
 
-  async function setDetails({ state }: { state?: PDNTContractJSON }) {
+  async function setDetails() {
     try {
       setIsLoading(true);
-      const name = lowerCaseDomain(domain);
-
       let antContractState = undefined;
       if (state) {
         antContractState = state;
       }
-      if (contractTxId && !state) {
+      if (contractTxId && contractTxId !== ATOMIC_FLAG && !state) {
         antContractState = await arweaveDataProvider
-          .getContractState<PDNTContractJSON>(
-            new ArweaveTransactionID(contractTxId.toString()),
-          )
+          .getContractState<PDNTContractJSON>(contractTxId)
           .catch(() => {
             throw new Error(
-              `Unable to fetch ANT contract state for "${domain}": ${contractTxId}`,
+              `Unable to fetch ANT contract state for ${contractTxId}`,
             );
           });
       }
-      if (!antContractState) {
-        throw new Error(
-          'No state passed and unable to generate ANT contract state',
-        );
+
+      const contract = new PDNTContract(antContractState, contractTxId);
+      if (!contract.isValid()) {
+        throw new Error('Invalid ANT contract');
       }
-      const undernameCount = pdnsSourceContract.records[name]?.undernames;
+
+      let leaseDuration = 'N/A';
+      if (record) {
+        leaseDuration = record.endTimestamp
+          ? `${record.endTimestamp * 1000}`
+          : 'Indefinite';
+      }
 
       const allPDNTDetails: Record<AntDetailKey, any> = {
         // TODO: remove this when all pdnts have controllers
@@ -131,27 +126,17 @@ function PDNTCard(props: PDNSMapping) {
           ? deployedTransactionId.toString()
           : undefined,
         contractTxId: contractTxId?.toString() ?? 'N/A',
-        domain: decodeDomainToASCII(domain),
-        leaseDuration: pdnsSourceContract.records[name]
-          ? pdnsSourceContract.records[name].endTimestamp
-            ? +pdnsSourceContract.records[name].endTimestamp! * 1000
-            : 'Indefinite'
-          : 'N/A',
-        maxUndernames: 'Up to ' + undernameCount,
-        name: antContractState.name,
-        ticker: antContractState.ticker,
-        owner: antContractState.owner,
-        controller: antContractState.controllers
-          ? antContractState.controllers.join(',')
-          : antContractState.owner,
-        targetId:
-          typeof antContractState.records['@'] === 'string'
-            ? antContractState.records['@']
-            : antContractState.records['@'].transactionId,
-        ttlSeconds:
-          typeof antContractState.records['@'] === 'string'
-            ? MIN_TTL_SECONDS
-            : antContractState.records['@'].ttlSeconds,
+        domain: domain,
+        // TODO: add the # of associated names that point to this ANT
+        leaseDuration: leaseDuration,
+        // TODO: undernames are associated with the record, not the ANT - how do we want to represent this
+        maxUndernames: 'Up to ' + record?.undernames,
+        name: contract.name,
+        ticker: contract.ticker,
+        owner: contract.owner,
+        controllers: contract.controllers.join(', '),
+        targetId: contract.getRecord('@')?.transactionId,
+        ttlSeconds: contract.getRecord('@')?.ttlSeconds,
         ...overrides,
       };
 
@@ -180,7 +165,7 @@ function PDNTCard(props: PDNSMapping) {
         },
         {},
       );
-      setLimitDetails(compact ?? true);
+      setLimitDetails(compact);
       setPDNTDetails(replacedKeys);
     } catch (error) {
       eventEmitter.emit('error', error);
@@ -190,11 +175,8 @@ function PDNTCard(props: PDNSMapping) {
     }
   }
 
-  function showMore(e: any) {
-    e.preventDefault();
-    setIsLoading(true);
+  function showMore() {
     setLimitDetails(!limitDetails);
-    setIsLoading(false);
   }
 
   function handleLinkType(key: string) {

@@ -337,7 +337,7 @@ function TransactionWorkflow({
                 className="flex flex-column"
                 style={{ marginBottom: '30px', gap: '0px' }}
               >
-                <PDNTCard {...pdntProps} bordered />
+                <PDNTCard {...pdntProps} bordered compact={false} />
                 <TransactionCost
                   fee={{
                     io:

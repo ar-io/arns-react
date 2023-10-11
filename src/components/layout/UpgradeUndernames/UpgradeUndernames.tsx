@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ArweaveTransactionID,
@@ -30,7 +29,6 @@ function UpgradeUndernames() {
   const navigate = useNavigate();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const name = location.pathname.split('/').at(-2);
-  const [{ pdnsSourceContract }] = useGlobalState();
   const [, dispatchTransactionState] = useTransactionState();
   const [record, setRecord] = useState<PDNSRecordEntry>();
   const [antContract, setAntContract] = useState<PDNTContract>();
@@ -46,7 +44,9 @@ function UpgradeUndernames() {
     try {
       setLoading(true);
       if (name && isPDNSDomainNameValid({ name: lowerCaseDomain(name) })) {
-        const record = pdnsSourceContract?.records[lowerCaseDomain(name)];
+        const record = await arweaveDataProvider.getRecord(
+          lowerCaseDomain(name),
+        );
         if (!record) {
           throw new Error(`Unable to get record for ${name}`);
         }
@@ -59,11 +59,15 @@ function UpgradeUndernames() {
           throw new Error(`Unable to get contract state for ${name}`);
         }
         const contract = new PDNTContract(state);
+
+        if (!contract.isValid) {
+          throw new Error(`Invalid contract for ${name}`);
+        }
         setAntContract(contract);
       }
     } catch (error) {
       eventEmitter.emit('error', error);
-      await sleep(2000);
+      await sleep(2000); // TODO: why are we sleeping for 2 seconds?
       navigate(-1);
     } finally {
       setLoading(false);

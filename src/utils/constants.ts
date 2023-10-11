@@ -193,7 +193,7 @@ export const WARP_CONTRACT_BASE_URL = 'https://sonar.warp.cc/#/app/contract/';
 export const WARP_INTERACTION_BASE_URL =
   'https://sonar.warp.cc/#/app/interaction/';
 
-export const ATOMIC_FLAG = 'atomic';
+export const ATOMIC_FLAG = 'atomic' as const;
 
 export const ATOMIC_REGISTRATION_INPUT = {
   function: 'buyRecord',

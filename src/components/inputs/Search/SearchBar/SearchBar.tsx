@@ -94,6 +94,7 @@ function SearchBar(props: SearchBarProps) {
 
     return;
   }
+
   useEffect(() => {
     if (searchParams.get('search') !== searchBarText) {
       // clear search params on new search
@@ -514,7 +515,8 @@ function SearchBar(props: SearchBarProps) {
         isAuction={isAuction}
         isAvailable={isAvailable}
         isReserved={isReserved}
-        domain={domain}
+        domain={lowerCaseDomain(domain)}
+        record={registeredDomainRecord}
         contractTxId={contractTxID}
       />
     </div>

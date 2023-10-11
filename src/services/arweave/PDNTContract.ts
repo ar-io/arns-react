@@ -4,6 +4,7 @@ import {
   PDNTContractJSON,
 } from '../../types';
 import {
+  ATOMIC_FLAG,
   DEFAULT_MAX_UNDERNAMES,
   DEFAULT_PDNT_CONTRACT_STATE,
   DEFAULT_TTL_SECONDS,
@@ -13,13 +14,15 @@ import {
  * TODOS:
  * - create lastUpdated attribute to track when changes are written to smartweave
  * - add validations and checks on setters
- * - include additional attributes like evolve to getters/setters
  */
 export class PDNTContract {
-  id?: ArweaveTransactionID;
+  id?: ArweaveTransactionID | typeof ATOMIC_FLAG;
   contract: PDNTContractJSON;
 
-  constructor(state?: PDNTContractJSON, id?: ArweaveTransactionID) {
+  constructor(
+    state?: PDNTContractJSON,
+    id?: ArweaveTransactionID | typeof ATOMIC_FLAG,
+  ) {
     this.id = id;
     if (state) {
       this.contract = { ...state };
@@ -53,6 +56,14 @@ export class PDNTContract {
   }
   set ticker(ticker: string) {
     this.contract.ticker = ticker;
+  }
+
+  get controllers() {
+    return (
+      this.contract.controllers ?? [
+        this.contract.controller ?? this.contract.owner,
+      ]
+    );
   }
 
   // TODO: this should be refactored when we are ready to not support pdnts that do not comply with the new PDNT spec
@@ -90,7 +101,15 @@ export class PDNTContract {
   getRecord(name: string): PDNTContractDomainRecord | undefined {
     if (!this.contract.records[name]) return undefined;
 
-    return this.contract.records[name] as PDNTContractDomainRecord;
+    if (typeof this.contract.records[name] === 'string') {
+      return {
+        transactionId: this.contract.records[name] as unknown as string,
+        maxUndernames: DEFAULT_MAX_UNDERNAMES,
+        ttlSeconds: DEFAULT_TTL_SECONDS,
+      };
+    }
+
+    return this.contract.records[name];
   }
 
   get balances() {
@@ -98,9 +117,6 @@ export class PDNTContract {
   }
   set balances(balances: { [x: string]: number }) {
     this.contract.balances = balances;
-  }
-  get controller() {
-    return this.contract.controllers?.[0] ?? this.contract.controller;
   }
 
   addController(controller: string) {
