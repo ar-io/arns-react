@@ -169,10 +169,7 @@ function NameTokenSelector({
               controller,
               name,
               ticker,
-              names: Object.keys(associatedRecords).filter(
-                (r: string) =>
-                  associatedRecords[r].contractTxId === id.toString(),
-              ),
+              names: Object.keys(associatedRecords)
             },
           };
         },
