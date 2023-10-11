@@ -347,7 +347,7 @@ export function useUndernames(id?: ArweaveTransactionID) {
   async function fetchUndernameRows(id: ArweaveTransactionID): Promise<void> {
     setIsLoading(true);
     const domain = await arweaveDataProvider
-      .getRecordsByContractId(id)
+      .getRecords({ filters: { contractTxId: [id] } })
       .then((records) => Object.keys(records)[0])
       .catch(() =>
         eventEmitter.emit('error', {
