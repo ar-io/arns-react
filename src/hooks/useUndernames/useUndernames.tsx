@@ -45,6 +45,7 @@ export function useUndernames(id?: ArweaveTransactionID) {
   const searchRef = useRef<HTMLInputElement>(null);
   const [searchText, setSearchText] = useState<string>('');
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
+  const [domain, setDomain] = useState<string>('');
 
   useEffect(() => {
     if (!id) {
@@ -110,7 +111,7 @@ export function useUndernames(id?: ArweaveTransactionID) {
         },
         render: (val: string) => (
           <Link
-            to={`https://${val}.${gateway}`}
+            to={`https://${val}_${domain}.${gateway}`}
             rel="noreferrer"
             target="_blank"
             className="link"
@@ -345,6 +346,17 @@ export function useUndernames(id?: ArweaveTransactionID) {
 
   async function fetchUndernameRows(id: ArweaveTransactionID): Promise<void> {
     setIsLoading(true);
+    const domain = await arweaveDataProvider
+      .getRecords({ filters: { contractTxId: [id] } })
+      .then((records) => Object.keys(records)[0])
+      .catch(() => {
+        eventEmitter.emit('error', {
+          name: 'No domain found',
+          message: 'No domains found for this ANT',
+        });
+        return '';
+      });
+    setDomain(domain);
     const fetchedRows: UndernameMetadata[] = [];
     const [contractState, confirmations] = await Promise.all([
       arweaveDataProvider.getContractState<PDNTContractJSON>(id),

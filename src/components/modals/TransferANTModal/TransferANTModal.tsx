@@ -2,18 +2,15 @@ import { Checkbox } from 'antd';
 import { useEffect, useState } from 'react';
 
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import {
   ArweaveTransactionID,
   PDNTContractJSON,
   TransferANTPayload,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
-import {
-  formatForMaxCharCount,
-  getAssociatedNames,
-  isArweaveTransactionID,
-} from '../../../utils';
+import { formatForMaxCharCount, isArweaveTransactionID } from '../../../utils';
+import eventEmitter from '../../../utils/events';
 import { InfoIcon } from '../../icons';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import { Loader } from '../../layout';
@@ -30,23 +27,35 @@ function TransferANTModal({
   closeModal: () => void;
   payloadCallback: (payload: TransferANTPayload) => void;
 }) {
-  const [{ pdnsSourceContract }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const isMobile = useIsMobile();
   const [accepted, setAccepted] = useState<boolean>(false);
   const [toAddress, setToAddress] = useState<string>('');
   const [isValidAddress, setIsValidAddress] = useState<boolean>();
   const [state, setState] = useState<PDNTContractJSON>();
-  const [associatedNames] = useState(() =>
-    getAssociatedNames(antId, pdnsSourceContract.records),
-  );
+  const [associatedNames, setAssociatedNames] = useState<string[]>([]);
 
   // TODO: add "transfer to another account" dropdown
 
   useEffect(() => {
     arweaveDataProvider
-      .getContractState(antId)
-      .then((res) => setState(res as PDNTContractJSON));
+      .getContractState<PDNTContractJSON>(antId)
+      .then((res) => {
+        const contract = new PDNTContract(res);
+        if (!contract.isValid()) {
+          throw new Error('Invalid ANT contract');
+        }
+        setState(res);
+        // TODO: filter out '@' names?
+        setAssociatedNames(Object.keys(state?.records ?? {}));
+      })
+      .catch(() => {
+        eventEmitter.emit(
+          'error',
+          `Failed to get contract state for ${antId.toString()}`,
+        );
+        closeModal();
+      });
   }, [antId]);
 
   useEffect(() => {
@@ -71,7 +80,7 @@ function TransferANTModal({
     payloadCallback({
       target: toAddress,
       qty: 1,
-      associatedNames: associatedNames as string[],
+      associatedNames,
     });
   }
 

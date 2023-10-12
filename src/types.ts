@@ -155,6 +155,7 @@ export interface SmartweaveContractCache {
     contractTxId: ArweaveTransactionID,
     key: string,
   ): Promise<ContractInteraction[]>;
+  // TODO: ALL OF THESE SHOULD REQUIRE A CONTRACT-TX-ID! NO HARD CODING OF CONTRACTS!
   isDomainAvailable({ domain }: { domain: string }): Promise<boolean>;
   isDomainInAuction({ domain }: { domain: string }): Promise<boolean>;
   isDomainReserved({ domain }: { domain: string }): Promise<boolean>;
@@ -169,6 +170,17 @@ export interface SmartweaveContractCache {
   getDomainsInAuction(): Promise<string[]>;
   getRecord(domain: string): Promise<PDNSRecordEntry>;
   getIoBalance(address: ArweaveTransactionID): Promise<number>;
+  // END TODO
+  getRecords({
+    contractTxId,
+    filters,
+  }: {
+    contractTxId?: ArweaveTransactionID;
+    filters: {
+      // TODO: add other filters when the API supports it
+      contractTxId?: ArweaveTransactionID[];
+    };
+  }): Promise<{ [x: string]: PDNSRecordEntry }>;
 }
 
 export interface SmartweaveContractInteractionProvider {
