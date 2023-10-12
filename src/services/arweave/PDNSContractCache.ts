@@ -45,6 +45,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
   async getContractState<T extends PDNTContractJSON | PDNSContractJSON>(
     contractTxId: ArweaveTransactionID,
     address?: ArweaveTransactionID,
+    // includePending: boolean
   ): Promise<T> {
     if (address) {
       const cachedTokens = await this._cache.get(address.toString());
@@ -56,6 +57,11 @@ export class PDNSContractCache implements SmartweaveContractCache {
         return JSON.parse(cachedToken.payload.initState);
       }
     }
+    // TODO: look at local pending iteractions, check for confirmations, if has confirmations del from cache
+    // if we have pending interactions, manipulate state based on their payloads (map function names to state keys and apply payloads)
+
+    // atticus opinion: implement state manipulation in PDNTContract class and ArNSRegistry contract class which implements this getContractState method and
+    // adds cached interactions.
     const res = await fetch(
       `${this._url}/v1/contract/${contractTxId.toString()}`,
     );

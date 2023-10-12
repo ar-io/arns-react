@@ -46,6 +46,9 @@ function TransactionModal({
       .getContractState<PDNTContractJSON>(contractId)
       .then((state) => {
         const contract = new PDNTContract(state);
+        if (!contract.isValid()) {
+          throw new Error('Invalid ANT contract');
+        }
         const records = Object.keys(contract.records).filter(
           (key) => key === '@',
         ).length;
@@ -56,6 +59,7 @@ function TransactionModal({
           'error',
           `Failed to get contract state for ${contractId.toString()}`,
         );
+        showModal();
       });
   }, [contractId, arweaveDataProvider]);
 

@@ -2,6 +2,7 @@ import { Checkbox } from 'antd';
 import { useEffect, useState } from 'react';
 
 import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
+import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import {
   ArweaveTransactionID,
   PDNTContractJSON,
@@ -9,6 +10,7 @@ import {
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import { formatForMaxCharCount, isArweaveTransactionID } from '../../../utils';
+import eventEmitter from '../../../utils/events';
 import { InfoIcon } from '../../icons';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import { Loader } from '../../layout';
@@ -39,9 +41,20 @@ function TransferANTModal({
     arweaveDataProvider
       .getContractState<PDNTContractJSON>(antId)
       .then((res) => {
+        const contract = new PDNTContract(res);
+        if (!contract.isValid()) {
+          throw new Error('Invalid ANT contract');
+        }
         setState(res);
         // TODO: filter out '@' names?
         setAssociatedNames(Object.keys(state?.records ?? {}));
+      })
+      .catch(() => {
+        eventEmitter.emit(
+          'error',
+          `Failed to get contract state for ${antId.toString()}`,
+        );
+        closeModal();
       });
   }, [antId]);
 
