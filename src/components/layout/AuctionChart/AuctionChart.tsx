@@ -66,8 +66,8 @@ function AuctionChart({
 
   useEffect(() => {
     if (!auctionInfo) {
-      arweaveDataProvider.getAuctionPrices({ domain }).then((info) => {
-        setAuctionInfo(info);
+      arweaveDataProvider.getAuction({ domain }).then((auction) => {
+        setAuctionInfo(auction);
       });
       return;
     }
@@ -81,9 +81,9 @@ function AuctionChart({
 
     const deadline = getDeadline({
       currentBlock: currentBlockHeight,
-      duration: auctionInfo.auctionDuration,
+      duration: auctionInfo.settings.auctionDuration,
       startBlock: auctionInfo.startHeight,
-      blockDecayInterval: auctionInfo.decayInterval,
+      blockDecayInterval: auctionInfo.settings.decayInterval,
     });
 
     setTimeUntilUpdate(deadline);
@@ -92,9 +92,7 @@ function AuctionChart({
   }, [chartRef.current, domain, currentBlockHeight, auctionInfo]);
 
   useEffect(() => {
-    triggerCurrentPriceTooltipWhenNotActive(
-      auctionInfo?.minimumAuctionBid ?? 0,
-    );
+    triggerCurrentPriceTooltipWhenNotActive(auctionInfo?.minimumBid ?? 0);
   }, [chartRef.current, showCurrentPrice, prices, auctionInfo]);
 
   function triggerCurrentPriceTooltipWhenNotActive(price: number) {
@@ -298,9 +296,8 @@ function AuctionChart({
                 annotations: {
                   point1: {
                     type: 'point',
-                    xValue: prices.indexOf(auctionInfo?.minimumAuctionBid),
-                    yValue:
-                      prices[prices.indexOf(auctionInfo?.minimumAuctionBid)],
+                    xValue: prices.indexOf(auctionInfo?.minimumBid),
+                    yValue: prices[prices.indexOf(auctionInfo?.minimumBid)],
                     backgroundColor: 'white',
                     radius: 7,
                     display: showCurrentPrice,
@@ -328,7 +325,7 @@ function AuctionChart({
                 segment: {
                   borderColor: 'white',
                   borderDash: (ctx: any) =>
-                    ctx.p0.parsed.y > auctionInfo.minimumAuctionBid
+                    ctx.p0.parsed.y > auctionInfo.minimumBid
                       ? undefined
                       : [3, 3],
                 },
@@ -381,13 +378,13 @@ function AuctionChart({
         >
           To ensure that everyone has a fair opportunity to register this
           premium name, it has an auction premium that will reduce gradually
-          over a {Math.round(auctionInfo.auctionDuration / 720)} day period.
-          This name has been on auction for{' '}
+          over a {Math.round(auctionInfo.settings.auctionDuration / 720)} day
+          period. This name has been on auction for{' '}
           {Math.round((currentBlockHeight - auctionInfo.startHeight) / 720)}{' '}
           days and has{' '}
           {Math.round(
             (auctionInfo.startHeight +
-              auctionInfo.auctionDuration -
+              auctionInfo.settings.auctionDuration -
               currentBlockHeight) /
               720,
           )}{' '}

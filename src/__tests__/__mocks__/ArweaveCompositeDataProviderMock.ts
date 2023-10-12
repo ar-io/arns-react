@@ -177,9 +177,9 @@ export class ArweaveCompositeDataProviderMock
     throw new Error('Method not implemented.');
   }
   async getAuctionSettings({
-    auctionSettingsId,
+    contractTxId,
   }: {
-    auctionSettingsId: string;
+    contractTxId: string;
   }): Promise<AuctionSettings> {
     throw new Error('Method not implemented.');
   }

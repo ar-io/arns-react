@@ -156,13 +156,13 @@ function SearchBar(props: SearchBarProps) {
         });
         return;
       }
-      const info = await arweaveDataProvider.getAuctionPrices({
+      const auction = await arweaveDataProvider.getAuction({
         domain: lowerCaseDomain(domain),
       });
-      if (!info) {
+      if (!auction) {
         return;
       }
-      setAuctionInfo(info);
+      setAuctionInfo(auction);
     } catch (error: any) {
       setSearchBarText('');
       eventEmitter.emit('error', {
@@ -464,7 +464,7 @@ function SearchBar(props: SearchBarProps) {
             flexDirection: isMobile ? 'column-reverse' : 'row',
           }}
         >
-          {isAuction && auctionInfo?.minimumAuctionBid ? (
+          {isAuction && auctionInfo?.minimumBid ? (
             <div
               className="flex flex-column"
               style={{
@@ -478,8 +478,8 @@ function SearchBar(props: SearchBarProps) {
                 style={{ fontSize: '16px', width: 'fit-content' }}
               >
                 Current auction price for instant buy:{' '}
-                {(auctionInfo?.minimumAuctionBid
-                  ? Math.round(auctionInfo?.minimumAuctionBid)
+                {(auctionInfo?.minimumBid
+                  ? Math.round(auctionInfo?.minimumBid)
                   : 0
                 ).toLocaleString('en-US')}{' '}
                 IO

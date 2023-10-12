@@ -4,7 +4,6 @@ import {
   ArweaveDataProvider,
   ArweaveTransactionID,
   Auction,
-  AuctionParameters,
   AuctionSettings,
   ContractInteraction,
   PDNSContractJSON,
@@ -13,12 +12,7 @@ import {
   SmartweaveContractCache,
   TransactionCache,
 } from '../../types';
-import {
-  calculateMinimumAuctionBid,
-  isDomainReservedLength,
-  lowerCaseDomain,
-  updatePrices,
-} from '../../utils';
+import { isDomainReservedLength, lowerCaseDomain } from '../../utils';
 import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
 import { LocalStorageCache } from '../cache/LocalStorageCache';
 import { PDNTContract } from './PDNTContract';
@@ -155,9 +149,20 @@ export class PDNSContractCache implements SmartweaveContractCache {
     return isReserved;
   }
 
-  async isDomainInAuction({ domain }: { domain: string }): Promise<boolean> {
-    return this.getAuction({ domain })
-      .then((auction) => !!auction) // it found the auction
+  async isDomainInAuction({
+    contractTxId,
+    domain,
+    type = 'lease',
+  }: {
+    contractTxId: ArweaveTransactionID;
+    domain: string;
+    type: 'lease' | 'permabuy';
+  }): Promise<boolean> {
+    return this.getAuction({ contractTxId, domain, type })
+      .then(
+        (auction: Auction) =>
+          auction.isAvailableForAuction && !auction.isExpired,
+      ) // it found the auction
       .catch(() => false); // it returned a 404 or otherwise failed
   }
 
@@ -197,64 +202,49 @@ export class PDNSContractCache implements SmartweaveContractCache {
     }, []);
   }
 
-  async getAuction({ domain }: { domain: string }): Promise<AuctionParameters> {
+  async getAuction({
+    contractTxId,
+    domain,
+    type,
+  }: {
+    contractTxId: ArweaveTransactionID;
+    domain: string;
+    type?: 'lease' | 'permabuy';
+  }): Promise<Auction> {
+    const urlParams = type
+      ? new URLSearchParams({ type })
+      : new URLSearchParams();
     const auctionRes = await fetch(
-      `${this._url}/v1/contract/${ARNS_REGISTRY_ADDRESS}/auctions`,
+      `${
+        this._url
+      }/v1/contract/${contractTxId.toString()}/auctions/${domain}?${urlParams.toString()}}`,
     );
-    const { auctions } = await auctionRes.json();
-    const auction = auctions[lowerCaseDomain(domain)];
+    const { result: auction } = await auctionRes.json();
     if (!auction) {
-      throw new Error('Provided domain is not in auction');
+      throw new Error(
+        `Failed to get auction for ${domain} on contract ${contractTxId.toString()}`,
+      );
     }
 
     return auction;
   }
 
   async getAuctionSettings({
-    auctionSettingsId,
+    contractTxId,
   }: {
-    auctionSettingsId: string;
+    contractTxId: ArweaveTransactionID;
   }): Promise<AuctionSettings> {
     const res = await fetch(
-      `${this._url}/v1/contract/${ARNS_REGISTRY_ADDRESS}/settings`,
+      `${this._url}/v1/contract/${contractTxId.toString()}/settings`,
     );
     const { settings } = await res.json();
-    const auctionSettings = settings.auctions.history.find(
-      (s: any) => s.id === auctionSettingsId,
-    );
-    if (!auctionSettings) {
-      throw new Error('Auction was created with invalid settings');
+    const { auctions } = settings;
+    if (!auctions) {
+      throw new Error(
+        `Auction settings not found for contract ${contractTxId.toString()}`,
+      );
     }
-    return auctionSettings;
-  }
-
-  async getAuctionPrices({ domain }: { domain: string }): Promise<Auction> {
-    const currentBlockHeight = await this._arweave.getCurrentBlockHeight();
-    const auction = await this.getAuction({ domain });
-    const auctionSettings = await this.getAuctionSettings({
-      auctionSettingsId: auction.auctionSettingsId,
-    });
-    const prices = updatePrices({
-      ...auctionSettings,
-      ...auction,
-    });
-    const isExpired =
-      auction.startHeight + auctionSettings.auctionDuration <
-      currentBlockHeight;
-
-    const minimumAuctionBid = calculateMinimumAuctionBid({
-      ...auction,
-      ...auctionSettings,
-      currentBlockHeight,
-    });
-
-    return {
-      ...auction,
-      ...auctionSettings,
-      minimumAuctionBid,
-      prices,
-      isExpired,
-    };
+    return auctions;
   }
 
   async getDomainsInAuction(): Promise<string[]> {

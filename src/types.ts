@@ -34,7 +34,6 @@ export type TransactionTag = {
 };
 
 export type AuctionSettings = {
-  id: string;
   floorPriceMultiplier: number;
   startPriceMultiplier: number;
   auctionDuration: number;
@@ -43,22 +42,32 @@ export type AuctionSettings = {
 };
 
 export type AuctionParameters = {
-  auctionSettingsId: string;
   floorPrice: number;
   startPrice: number;
   contractTxId: string;
   startHeight: number;
+  endHeight: number;
   type: TRANSACTION_TYPES;
   initiator: string;
   years?: number;
+  settings: AuctionSettings;
 };
 
-export type Auction = AuctionParameters &
-  AuctionSettings & {
-    prices: Record<string | number, number>;
-    minimumAuctionBid: number;
-    isExpired: boolean;
-  };
+export type Auction = AuctionParameters & {
+  name: string;
+  prices: Record<string | number, number>;
+  minimumBid: number;
+  isExpired: boolean;
+  isAvailableForAuction: boolean;
+};
+
+export type AuctionTableData = Pick<
+  Auction,
+  'name' | 'minimumBid' | 'isExpired' | 'initiator' | 'type'
+> & {
+  closingDate: number;
+  nextPriceUpdate: number;
+};
 
 export type PDNSContractJSON = {
   records: PDNSDomains;
@@ -135,6 +144,7 @@ export type JsonWalletProvider = {
   key: any;
 };
 
+// TODO: we could break this up into separate interfaces
 export interface SmartweaveContractCache {
   getContractState<T extends PDNTContractJSON | PDNSContractJSON>(
     contractTxId: ArweaveTransactionID,
@@ -157,16 +167,29 @@ export interface SmartweaveContractCache {
   ): Promise<ContractInteraction[]>;
   // TODO: ALL OF THESE SHOULD REQUIRE A CONTRACT-TX-ID! NO HARD CODING OF CONTRACTS!
   isDomainAvailable({ domain }: { domain: string }): Promise<boolean>;
-  isDomainInAuction({ domain }: { domain: string }): Promise<boolean>;
   isDomainReserved({ domain }: { domain: string }): Promise<boolean>;
   getCachedNameTokens(address: ArweaveTransactionID): Promise<PDNTContract[]>;
-  getAuction({ domain }: { domain: string }): Promise<AuctionParameters>;
-  getAuctionSettings({
-    auctionSettingsId,
+  isDomainInAuction({
+    contractTxId,
+    domain,
   }: {
-    auctionSettingsId: string;
+    contractTxId: ArweaveTransactionID;
+    domain: string;
+  }): Promise<boolean>;
+  getAuction({
+    contractTxId,
+    domain,
+    type,
+  }: {
+    contractTxId: ArweaveTransactionID;
+    domain: string;
+    type?: 'lease' | 'permabuy';
+  }): Promise<Auction>;
+  getAuctionSettings({
+    contractTxId,
+  }: {
+    contractTxId: ArweaveTransactionID;
   }): Promise<AuctionSettings>;
-  getAuctionPrices({ domain }: { domain: string }): Promise<Auction>;
   getDomainsInAuction(): Promise<string[]>;
   getRecord(domain: string): Promise<PDNSRecordEntry>;
   getIoBalance(address: ArweaveTransactionID): Promise<number>;
@@ -686,16 +709,6 @@ export type UndernameMetadata = {
   ttlSeconds: string;
   status: number;
   error?: string;
-  key: string;
-};
-
-export type AuctionMetadata = {
-  name: string;
-  closingDate: number;
-  initiator: ArweaveTransactionID;
-  type: TRANSACTION_TYPES;
-  price: number;
-  nextPriceUpdate: number;
   key: string;
 };
 

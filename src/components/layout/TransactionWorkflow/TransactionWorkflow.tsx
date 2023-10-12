@@ -346,6 +346,7 @@ function TransactionWorkflow({
                         registrationType: payload.type,
                         // TODO: setup cost for permabuy
                         years: payload.years ?? 1,
+                        // TODO: fetch from service
                         auctionSettings: pdnsSourceContract.settings.auctions,
                         fees: pdnsSourceContract.fees,
                       }) ?? 0,
