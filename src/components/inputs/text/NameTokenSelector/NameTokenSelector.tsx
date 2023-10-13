@@ -132,7 +132,13 @@ function NameTokenSelector({
           setValidImport(true);
         });
       }
+
       const contractTxIds = fetchedContractTxIds.concat(imports ?? []);
+      const associatedRecords = await arweaveDataProvider.getRecords({
+        filters: {
+          contractTxId: contractTxIds,
+        },
+      });
       const contracts: Array<
         | [
             ArweaveTransactionID,
@@ -151,12 +157,19 @@ function NameTokenSelector({
           if (!new PDNTContract(state).isValid()) {
             throw new Error('Invalid ANT Contract.');
           }
-          const associatedRecords = await arweaveDataProvider.getRecords({
-            filters: {
-              contractTxId: [contractTxId],
+          const names = Object.keys(associatedRecords).reduce(
+            (acc: Record<string, PDNSRecordEntry>, id: string) => {
+              if (
+                associatedRecords[id].contractTxId === contractTxId.toString()
+              ) {
+                acc[id] = associatedRecords[id];
+              }
+              return acc;
             },
-          });
-          return [contractTxId, state, associatedRecords];
+            {},
+          );
+
+          return [contractTxId, state, names];
         }),
       );
       if (!contracts.length) {
@@ -168,7 +181,7 @@ function NameTokenSelector({
           if (!contract) {
             return { ...result };
           }
-          const [id, state, associatedRecords] = contract;
+          const [id, state, names] = contract;
           const { owner, controller, name, ticker } = state;
 
           return {
@@ -178,7 +191,7 @@ function NameTokenSelector({
               controller,
               name,
               ticker,
-              names: Object.keys(associatedRecords),
+              names: Object.keys(names),
             },
           };
         },
