@@ -214,7 +214,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
     const auctionRes = await fetch(
       `${
         this._url
-      }/v1/contract/${contractTxId.toString()}/auctions/${domain}?${urlParams.toString()}}`,
+      }/v1/contract/${contractTxId.toString()}/auctions/${domain}?${urlParams.toString()}`,
     );
     const { result: auction } = await auctionRes.json();
     if (!auction) {

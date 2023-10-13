@@ -8,7 +8,6 @@ export function useRegistrationStatus(domain: string) {
   const arweaveDataProvider = useArweaveCompositeProvider();
 
   const [isAvailable, setIsAvailable] = useState<boolean>(false);
-  const [isAuction, setIsAuction] = useState<boolean>(false);
   const [isReserved, setIsReserved] = useState<boolean>(false);
   const [validated, setValidated] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -25,7 +24,6 @@ export function useRegistrationStatus(domain: string) {
 
   function reset() {
     setIsAvailable(false);
-    setIsAuction(false);
     setIsReserved(false);
     setValidated(false);
   }
@@ -54,18 +52,15 @@ export function useRegistrationStatus(domain: string) {
       const available = arweaveDataProvider.isDomainAvailable({
         domain,
       });
-      const auction = arweaveDataProvider.isDomainInAuction({ domain });
       const reserved = arweaveDataProvider.isDomainReserved({
         domain,
       });
 
-      const [isAvailable, isAuction, isReserved] = await Promise.all([
+      const [isAvailable, isReserved] = await Promise.all([
         available,
-        auction,
         reserved,
       ]);
       setIsAvailable(isAvailable);
-      setIsAuction(isAuction);
       setIsReserved(isReserved);
       setValidated(true);
     } catch (error) {
@@ -75,5 +70,5 @@ export function useRegistrationStatus(domain: string) {
       setLoading(false);
     }
   }
-  return { isAvailable, isAuction, isReserved, loading, validated };
+  return { isAvailable, isReserved, loading, validated };
 }

@@ -30,16 +30,16 @@ export function useAuctionInfo(
       return;
     }
     updateAuctionInfo(domain);
-  }, [blockHeight]);
+  }, [blockHeight, registrationType, domain]);
 
   async function updateAuctionInfo(domainName: string) {
     try {
       setLoadingAuctionInfo(true);
-      const auctionInfo = await arweaveDataProvider.getAuction({
+      const auction = await arweaveDataProvider.getAuction({
         domain: domainName,
         type: registrationType,
       });
-      setAuction(auctionInfo);
+      setAuction(auction);
     } catch (error) {
       eventEmitter.emit('error', error);
       console.error(error);

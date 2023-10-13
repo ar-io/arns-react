@@ -63,15 +63,15 @@ function RegisterNameForm() {
     lowerCaseDomain(name ?? domain),
     registrationType,
   );
-  const { isAuction, loading: isValidatingRegistration } =
-    useRegistrationStatus(name ?? domain);
+  const { loading: isValidatingRegistration } = useRegistrationStatus(
+    name ?? domain,
+  );
   const [targetId, setTargetId] = useState<string>();
   const targetIdFocused = useIsFocused('target-id-input');
   const navigate = useNavigate();
   const [hasValidationErrors, setHasValidationErrors] =
     useState<boolean>(false);
 
-  // TODO: give this component some refactor love, i can barely read it.
   useEffect(() => {
     if (!blockHeight) {
       arweaveDataProvider.getCurrentBlockHeight().then((height) => {
@@ -81,7 +81,7 @@ function RegisterNameForm() {
         });
       });
     }
-    if (auction) {
+    if (!loadingAuctionInfo && auction) {
       dispatchRegisterState({
         type: 'setRegistrationType',
         payload: auction.type,
@@ -97,9 +97,8 @@ function RegisterNameForm() {
       });
     }
     if (
-      isAuction &&
       auction &&
-      auction.isRequiredToBeAuctioned &&
+      (auction.isRequiredToBeAuctioned || auction.isActive) &&
       domain &&
       blockHeight
     ) {
@@ -109,7 +108,13 @@ function RegisterNameForm() {
       });
     }
     // TODO: remove use of source contract
-    if (pdnsSourceContract.fees && domain && blockHeight && !isAuction) {
+    if (
+      pdnsSourceContract.fees &&
+      domain &&
+      blockHeight &&
+      !auction?.isActive &&
+      !auction?.isRequiredToBeAuctioned
+    ) {
       // TODO: replace this with read API on the contract for the name
       const newFee = calculatePDNSNamePrice({
         domain: domain,
@@ -220,10 +225,7 @@ function RegisterNameForm() {
     <div className="page center">
       <PageLoader
         message={'Loading Domain info, please wait.'}
-        loading={
-          (isAuction && loadingAuctionInfo) ||
-          (!isAuction && isValidatingRegistration)
-        }
+        loading={loadingAuctionInfo || isValidatingRegistration}
       />
       <div
         className="flex flex-column flex-center"
@@ -289,8 +291,10 @@ function RegisterNameForm() {
             >
               <button
                 className="flex flex-row center text-medium bold pointer"
+                // TODO: add a tool tip explaining why when it is an active auction you cannot change the type
                 disabled={
-                  isAuction && registrationType === TRANSACTION_TYPES.BUY
+                  auction?.isActive &&
+                  registrationType === TRANSACTION_TYPES.BUY
                 }
                 onClick={() =>
                   dispatchRegisterState({
@@ -345,8 +349,10 @@ function RegisterNameForm() {
               </button>
               <button
                 className="flex flex-row center text-medium bold pointer"
+                // TODO: add a tool tip explaining why when it is an active auction you cannot change the type
                 disabled={
-                  isAuction && registrationType === TRANSACTION_TYPES.LEASE
+                  auction?.isActive &&
+                  registrationType === TRANSACTION_TYPES.LEASE
                 }
                 style={{
                   position: 'relative',
@@ -424,8 +430,17 @@ function RegisterNameForm() {
                       payload: v,
                     });
                   }}
-                  minValue={MIN_LEASE_DURATION}
-                  maxValue={MAX_LEASE_DURATION}
+                  // TODO: move this to a helper function
+                  minValue={
+                    auction?.isActive || auction?.isRequiredToBeAuctioned
+                      ? 1
+                      : MIN_LEASE_DURATION
+                  }
+                  maxValue={
+                    auction?.isActive || auction?.isRequiredToBeAuctioned
+                      ? 1
+                      : MAX_LEASE_DURATION
+                  }
                   valueStyle={{ padding: '20px 120px' }}
                   valueName={leaseDuration > 1 ? 'years' : 'year'}
                   detail={`Until ${Intl.DateTimeFormat('en-US', {
