@@ -12,7 +12,7 @@ import {
 import { isArweaveTransactionID } from '../../../../utils';
 import { SMARTWEAVE_MAX_INPUT_SIZE } from '../../../../utils/constants';
 import eventEmitter from '../../../../utils/events';
-import { CirclePlus, CloseIcon, HamburgerOutlineIcon } from '../../../icons';
+import { CloseIcon, HamburgerOutlineIcon } from '../../../icons';
 import { Loader } from '../../../layout';
 import ValidationInput from '../ValidationInput/ValidationInput';
 import './styles.css';
@@ -313,14 +313,6 @@ function NameTokenSelector({
         className="name-token-input-wrapper"
         style={{ borderBottom: '1px solid var(--text-faded)' }}
       >
-        <button
-          className="button center hover"
-          style={{ width: 'fit-content', margin: 'auto' }}
-          onClick={() => setSearchActive(true)}
-        >
-          <CirclePlus width={30} height={30} fill={'var(--text-white)'} />
-        </button>
-
         <ValidationInput
           inputId="name-token-selector-input"
           onClick={() => setSearchActive(true)}
@@ -360,6 +352,7 @@ function NameTokenSelector({
             borderRadius: '0px',
             backgroundColor: 'var(--card-bg)',
             boxSizing: 'border-box',
+            paddingLeft: '10px',
           }}
           inputClassName={`white ${
             selectedToken ? 'name-token-input-selected' : 'name-token-input'

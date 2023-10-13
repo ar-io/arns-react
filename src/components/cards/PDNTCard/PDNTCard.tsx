@@ -299,12 +299,10 @@ function PDNTCard({
             className="outline-button center faded"
             onClick={showMore}
             style={{
-              borderColor: '#38393b',
               padding: 0,
               fontSize: '15px',
               width: '100%',
               height: 50,
-              color: 'var(--text-grey)',
             }}
           >
             {limitDetails ? 'View More' : 'View Less'}

@@ -37,7 +37,7 @@ import {
   MIN_LEASE_DURATION,
 } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
-import { CirclePlus, LockIcon } from '../../icons';
+import { LockIcon } from '../../icons';
 import Counter from '../../inputs/Counter/Counter';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
 import NameTokenSelector from '../../inputs/text/NameTokenSelector/NameTokenSelector';
@@ -512,12 +512,6 @@ function RegisterNameForm() {
                 position: 'relative',
               }}
             >
-              <span
-                className="flex center pointer"
-                style={{ position: 'absolute', left: '16px' }}
-              >
-                <CirclePlus width={30} height={30} fill={'var(--text-white)'} />
-              </span>
               <ValidationInput
                 inputId={'target-id-input'}
                 value={targetId}
@@ -536,7 +530,7 @@ function RegisterNameForm() {
                 }}
                 inputClassName={`white name-token-input`}
                 inputCustomStyle={{
-                  paddingLeft: '60px',
+                  paddingLeft: '10px',
                   background: 'transparent',
                 }}
                 maxCharLength={43}
