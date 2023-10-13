@@ -9,7 +9,6 @@ import {
   useRegistrationStatus,
   useWalletAddress,
 } from '../../../../hooks';
-import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../../state/contexts/RegistrationState';
 import {
   ArweaveTransactionID,
@@ -54,7 +53,6 @@ const searchBarValidationPredicate = ({
 function SearchBar(props: SearchBarProps) {
   const { disabled = false, placeholderText } = props;
   const navigate = useNavigate();
-  const [{ blockHeight }, dispatchGlobalState] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const [{ domain }, dispatchRegisterState] = useRegistrationState();
   const { walletAddress } = useWalletAddress();
@@ -330,7 +328,7 @@ function SearchBar(props: SearchBarProps) {
         defaultText="Find a name"
         domain={searchSubmitted ? searchBarText : undefined}
         isAvailable={isAvailable}
-        isAuction={isActiveAuction}
+        isActiveAuction={isActiveAuction}
         isReserved={isReserved}
         contractTxId={contractTxID}
       />
@@ -504,7 +502,7 @@ function SearchBar(props: SearchBarProps) {
       )}
 
       <SearchBarFooter
-        isAuction={isActiveAuction}
+        isActiveAuction={isActiveAuction}
         isAvailable={isAvailable}
         isReserved={isReserved}
         domain={lowerCaseDomain(domain)}

@@ -9,7 +9,7 @@ describe('SearchBarHeader', () => {
     render(
       <SearchBarHeader
         defaultText="Example header"
-        isAuction={false}
+        isActiveAuction={false}
         isAvailable={false}
         isReserved={false}
       />,

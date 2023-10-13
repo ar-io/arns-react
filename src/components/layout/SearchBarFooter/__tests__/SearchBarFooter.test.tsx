@@ -10,7 +10,7 @@ describe('SearchBarFooter', () => {
       <SearchBarFooter
         isAvailable={false}
         isReserved={false}
-        isAuction={true}
+        isActiveAuction={true}
       />,
     );
   });

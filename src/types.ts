@@ -312,7 +312,7 @@ export type SearchBarProps = {
 export type SearchBarHeaderProps = {
   defaultText: string;
   isAvailable: boolean;
-  isAuction: boolean;
+  isActiveAuction: boolean;
   isReserved: boolean;
   isDefault?: boolean;
   domain?: string;
@@ -321,7 +321,7 @@ export type SearchBarHeaderProps = {
 
 export type SearchBarFooterProps = {
   isAvailable: boolean;
-  isAuction: boolean;
+  isActiveAuction: boolean;
   isReserved: boolean;
   domain?: string;
   record?: PDNSRecordEntry;
