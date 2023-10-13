@@ -1,6 +1,6 @@
 import { startCase } from 'lodash';
 import { useEffect } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 
 import { useAuctionInfo } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
@@ -59,7 +59,7 @@ function ViewAuction() {
   }
 
   if (!loadingAuctionInfo && !auction) {
-    return navigate('/auctions');
+    return <Navigate to="auctions" />;
   }
 
   return (

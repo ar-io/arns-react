@@ -132,6 +132,7 @@ export class PDNTContract {
       this.contract.balances[controller] = 1;
     } catch (error) {
       console.log(error);
+      // TODO: should we log this error or emit?
     }
   }
 

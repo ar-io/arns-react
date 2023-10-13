@@ -366,7 +366,6 @@ export function useAuctionsTable() {
         if (!rowData) {
           continue;
         }
-        console.log(rowData);
         // sort by confirmation count (ASC) by default
         fetchedRows.push(rowData);
         fetchedRows.sort((a, b) => a.closingDate - b.closingDate);
