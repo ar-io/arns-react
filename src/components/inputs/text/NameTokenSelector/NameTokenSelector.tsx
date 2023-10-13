@@ -6,6 +6,7 @@ import { PDNTContract } from '../../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import {
   ArweaveTransactionID,
+  PDNSRecordEntry,
   PDNTContractJSON,
   VALIDATION_INPUT_TYPES,
 } from '../../../../types';
@@ -37,10 +38,13 @@ function NameTokenSelector({
   const [loading, setLoading] = useState(false);
   const [filteredTokens, setFilteredTokens] =
     useState<
-      Array<{ id: string; name?: string; ticker?: string } | undefined>
+      Array<
+        | { id: string; name?: string; ticker?: string; names?: string[] }
+        | undefined
+      >
     >();
   const [selectedToken, setSelectedToken] = useState<
-    { id: string; name: string; ticker: string } | undefined
+    { id: string; name: string; ticker: string; names: string[] } | undefined
   >(undefined);
   const [searching, setSearching] = useState<boolean>(false);
   const [searchActive, setSearchActive] = useState(false);
@@ -128,6 +132,7 @@ function NameTokenSelector({
           setValidImport(true);
         });
       }
+
       const contractTxIds = fetchedContractTxIds.concat(imports ?? []);
       const associatedRecords = await arweaveDataProvider.getRecords({
         filters: {
@@ -135,7 +140,12 @@ function NameTokenSelector({
         },
       });
       const contracts: Array<
-        [ArweaveTransactionID, PDNTContractJSON] | undefined
+        | [
+            ArweaveTransactionID,
+            PDNTContractJSON,
+            Record<string, PDNSRecordEntry>,
+          ]
+        | undefined
       > = await Promise.all(
         contractTxIds.map(async (contractTxId) => {
           const state = await arweaveDataProvider
@@ -147,7 +157,19 @@ function NameTokenSelector({
           if (!new PDNTContract(state).isValid()) {
             throw new Error('Invalid ANT Contract.');
           }
-          return [contractTxId, state];
+          const names = Object.keys(associatedRecords).reduce(
+            (acc: Record<string, PDNSRecordEntry>, id: string) => {
+              if (
+                associatedRecords[id].contractTxId === contractTxId.toString()
+              ) {
+                acc[id] = associatedRecords[id];
+              }
+              return acc;
+            },
+            {},
+          );
+
+          return [contractTxId, state, names];
         }),
       );
       if (!contracts.length) {
@@ -159,7 +181,7 @@ function NameTokenSelector({
           if (!contract) {
             return { ...result };
           }
-          const [id, state] = contract;
+          const [id, state, names] = contract;
           const { owner, controller, name, ticker } = state;
 
           return {
@@ -169,7 +191,7 @@ function NameTokenSelector({
               controller,
               name,
               ticker,
-              names: Object.keys(associatedRecords),
+              names: Object.keys(names),
             },
           };
         },
@@ -182,6 +204,7 @@ function NameTokenSelector({
           name: details?.name,
           ticker: details?.ticker,
           id: imports[0].toString(),
+          names: details?.names ?? [],
         });
       }
     } catch (error: any) {
@@ -219,8 +242,8 @@ function NameTokenSelector({
           return queryResult;
         })
         .map((id) => {
-          const { name, ticker } = tokens[id];
-          return { id, name: name ?? '', ticker: ticker ?? '' };
+          const { name, ticker, names } = tokens[id];
+          return { id, name: name ?? '', ticker: ticker ?? '', names };
         })
         .filter((n) => !!n);
       if (!filteredResults.length) {
@@ -240,10 +263,12 @@ function NameTokenSelector({
     id,
     name,
     ticker,
+    names,
   }: {
     id?: string;
     name?: string;
     ticker?: string;
+    names: string[];
   }) {
     try {
       setSearchText('');
@@ -252,7 +277,7 @@ function NameTokenSelector({
       if (id === undefined) {
         throw new Error(`No ID provided for ${name ?? ticker ?? ''}`);
       }
-      setSelectedToken({ id, name: name ?? '', ticker: ticker ?? '' });
+      setSelectedToken({ id, name: name ?? '', ticker: ticker ?? '', names });
       selectedTokenCallback(new ArweaveTransactionID(id));
       setListPage(1);
     } catch (error) {
@@ -482,6 +507,7 @@ function NameTokenSelector({
                         id: token.id,
                         name: token.name ?? '',
                         ticker: token.ticker ?? '',
+                        names: token.names ?? [],
                       });
                     }}
                   >
@@ -490,6 +516,36 @@ function NameTokenSelector({
                           token.id
                         }`
                       : token.id}
+                    {token.names?.length ? (
+                      <Tooltip
+                        key={index}
+                        title={
+                          <div
+                            className="flex flex-column"
+                            style={{
+                              padding: '5px',
+                              gap: '5px',
+                              boxSizing: 'border-box',
+                            }}
+                          >
+                            {token.names.map((name) => (
+                              <span key={name}>{name}</span>
+                            ))}
+                          </div>
+                        }
+                        color="var(--card-bg)"
+                        placement="top"
+                        showArrow={true}
+                      >
+                        <HamburgerOutlineIcon
+                          width={20}
+                          height={20}
+                          fill="var(--text-grey)"
+                        />{' '}
+                      </Tooltip>
+                    ) : (
+                      <></>
+                    )}
                   </button>
                 );
               })
@@ -515,6 +571,7 @@ function NameTokenSelector({
                         id,
                         name: name ?? '',
                         ticker: ticker ?? '',
+                        names: names ?? [],
                       });
                     }}
                   >
@@ -524,11 +581,30 @@ function NameTokenSelector({
                         } (${ticker}) - ${id}`
                       : id}
                     {names?.length ? (
-                      <HamburgerOutlineIcon
-                        width={20}
-                        height={20}
-                        fill="var(--text-grey)"
-                      />
+                      <Tooltip
+                        title={
+                          <div
+                            className="flex flex-column"
+                            style={{
+                              padding: '5px',
+                              boxSizing: 'border-box',
+                            }}
+                          >
+                            {names.map((name) => (
+                              <span key={name}>{name}</span>
+                            ))}
+                          </div>
+                        }
+                        color="var(--card-bg)"
+                        placement="top"
+                        showArrow={true}
+                      >
+                        <HamburgerOutlineIcon
+                          width={20}
+                          height={20}
+                          fill="var(--text-grey)"
+                        />{' '}
+                      </Tooltip>
                     ) : (
                       <></>
                     )}
