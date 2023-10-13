@@ -58,6 +58,10 @@ function ViewAuction() {
     );
   }
 
+  if (!loadingAuctionInfo && !auction) {
+    return navigate('/auctions');
+  }
+
   return (
     <div className="page" style={{ paddingTop: '30px' }}>
       <div

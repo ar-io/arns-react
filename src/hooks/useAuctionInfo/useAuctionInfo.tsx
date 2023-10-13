@@ -39,6 +39,7 @@ export function useAuctionInfo(
         domain: domainName,
         type: registrationType,
       });
+      console.log(auction);
       setAuction(auction);
     } catch (error) {
       eventEmitter.emit('error', error);
