@@ -146,9 +146,9 @@ function TransactionWorkflow({
             ),
             initialState: payload.state,
             domain: payload.name,
-            reservedList: Object.keys(pdnsSourceContract.reserved),
             type: payload.type,
             years: payload.years,
+            auction: payload.auction ?? false,
           },
         );
 

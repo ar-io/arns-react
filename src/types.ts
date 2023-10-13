@@ -59,6 +59,7 @@ export type Auction = AuctionParameters & {
   minimumBid: number;
   isActive: boolean;
   isAvailableForAuction: boolean;
+  isRequiredToBeAuctioned: boolean; // TODO: this may be optional
 };
 
 export type AuctionTableData = Pick<
@@ -242,7 +243,7 @@ export interface SmartweaveContractInteractionProvider {
     domain,
     type,
     years,
-    reservedList,
+    auction,
   }: {
     walletAddress: ArweaveTransactionID;
     registryId: ArweaveTransactionID;
@@ -251,7 +252,7 @@ export interface SmartweaveContractInteractionProvider {
     domain: string;
     type: TRANSACTION_TYPES;
     years?: number;
-    reservedList: string[];
+    auction: boolean;
   }): Promise<string | undefined>;
 }
 
@@ -487,7 +488,7 @@ export type BuyRecordPayload = {
   years?: number;
   type: TRANSACTION_TYPES;
   state?: PDNTContractJSON;
-  qty?: number; // only used when bidding on a pre-existing auction
+  qty: number; // the cost displayed to the user when buying a record
   auction?: boolean;
   targetId?: ArweaveTransactionID;
 };
@@ -496,7 +497,7 @@ export type SubmitAuctionBidPayload = {
   name: string;
   contractTxId: string;
   type?: TRANSACTION_TYPES;
-  qty?: number; // only used when bidding on a pre-existing auction
+  qty: number; // the bid required to start or win the auction
   state?: PDNTContractJSON;
 };
 

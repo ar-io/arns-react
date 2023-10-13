@@ -113,7 +113,7 @@ export class ArweaveCompositeDataProviderMock
     domain,
     type,
     years,
-    reservedList,
+    auction,
   }: {
     walletAddress: ArweaveTransactionID;
     registryId: ArweaveTransactionID;
@@ -122,7 +122,7 @@ export class ArweaveCompositeDataProviderMock
     domain: string;
     type: TRANSACTION_TYPES;
     years?: number;
-    reservedList: string[];
+    auction: boolean;
   }): Promise<string | undefined> {
     return 'mock-register-id'; // Mock value
   }

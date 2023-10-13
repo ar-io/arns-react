@@ -65,7 +65,7 @@ export function useRegistrationStatus(domain: string) {
         reserved,
       ]);
       setIsAvailable(isAvailable);
-      setIsAuction(!!isAuction);
+      setIsAuction(isAuction);
       setIsReserved(isReserved);
       setValidated(true);
     } catch (error) {

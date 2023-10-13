@@ -20,7 +20,6 @@ import {
 import {
   buildSmartweaveInteractionTags,
   byteSize,
-  isDomainAuctionable,
   withExponentialBackoff,
 } from '../../utils';
 import {
@@ -223,7 +222,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     domain,
     type,
     years,
-    reservedList,
+    auction,
   }: {
     walletAddress: ArweaveTransactionID;
     registryId: ArweaveTransactionID;
@@ -232,7 +231,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     domain: string;
     type: TRANSACTION_TYPES;
     years?: number;
-    reservedList: string[];
+    auction: boolean;
   }): Promise<string | undefined> {
     if (!domain) {
       throw new Error('No domain provided');
@@ -243,17 +242,14 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       name: domain,
       type,
       years,
-      auction: isDomainAuctionable({
-        domain,
-        registrationType: type,
-        reservedList,
-      }),
+      auction,
     };
     const tags = buildSmartweaveInteractionTags({
       contractId: registryId,
       input,
     });
 
+    // TODO: have an API to get evaluation options from the contract
     const contract = this._warp // eval options were required due to change in manifest. This is causing an issue where it is causing a delay for returning the txid due to the `waitForConfirmation` option. This should be removed from the eval manifest if we dont want to make the user wait.
       .contract(ARNS_REGISTRY_ADDRESS)
       .setEvaluationOptions({

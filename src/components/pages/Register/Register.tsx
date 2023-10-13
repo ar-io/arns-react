@@ -26,7 +26,6 @@ import {
   calculatePDNSNamePrice,
   encodeDomainToASCII,
   isArweaveTransactionID,
-  isDomainAuctionable,
   lowerCaseDomain,
   userHasSufficientBalance,
 } from '../../../utils';
@@ -73,7 +72,6 @@ function RegisterNameForm() {
     useState<boolean>(false);
 
   // TODO: give this component some refactor love, i can barely read it.
-
   useEffect(() => {
     if (!blockHeight) {
       arweaveDataProvider.getCurrentBlockHeight().then((height) => {
@@ -101,7 +99,7 @@ function RegisterNameForm() {
     if (
       isAuction &&
       auction &&
-      auction.isAvailableForAuction &&
+      auction.isRequiredToBeAuctioned &&
       domain &&
       blockHeight
     ) {
@@ -112,6 +110,7 @@ function RegisterNameForm() {
     }
     // TODO: remove use of source contract
     if (pdnsSourceContract.fees && domain && blockHeight && !isAuction) {
+      // TODO: replace this with read API on the contract for the name
       const newFee = calculatePDNSNamePrice({
         domain: domain,
         type: registrationType,
@@ -172,22 +171,24 @@ function RegisterNameForm() {
       return;
     }
 
+    const leaseDurationType = auction?.isRequiredToBeAuctioned
+      ? 1
+      : leaseDuration;
+
     const buyRecordPayload: BuyRecordPayload = {
       name:
         domain && emojiRegex().test(domain)
           ? encodeDomainToASCII(domain)
           : domain,
       contractTxId: antID ? antID.toString() : ATOMIC_FLAG,
+      // TODO: move this to a helper function
       years:
         registrationType === TRANSACTION_TYPES.LEASE
-          ? leaseDuration
+          ? leaseDurationType
           : undefined,
       type: registrationType,
-      auction: isDomainAuctionable({
-        domain: domain,
-        registrationType: registrationType,
-        reservedList: Object.keys(pdnsSourceContract.reserved),
-      }),
+      auction: auction?.isRequiredToBeAuctioned ?? false,
+      qty: fee.io,
       targetId:
         targetId && isArweaveTransactionID(targetId.trim())
           ? new ArweaveTransactionID(targetId)
@@ -538,13 +539,7 @@ function RegisterNameForm() {
               </span>
             </div>
             <TransactionCost fee={fee} />
-            {domain &&
-            pdnsSourceContract.settings.auctions &&
-            isDomainAuctionable({
-              domain: domain,
-              registrationType: registrationType,
-              reservedList: Object.keys(pdnsSourceContract.reserved),
-            }) ? (
+            {domain && auction && auction.isRequiredToBeAuctioned ? (
               <div
                 className="flex flex-row warning-container"
                 style={{
