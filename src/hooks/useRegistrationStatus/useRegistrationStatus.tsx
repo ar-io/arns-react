@@ -6,7 +6,7 @@ import { useArweaveCompositeProvider } from '../useArweaveCompositeProvider/useA
 export function useRegistrationStatus(domain: string) {
   const [{ blockHeight }, dispatchGlobalState] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
-
+  const [isActiveAuction, setIsActiveAuction] = useState<boolean>(false);
   const [isAvailable, setIsAvailable] = useState<boolean>(false);
   const [isReserved, setIsReserved] = useState<boolean>(false);
   const [validated, setValidated] = useState<boolean>(false);
@@ -49,18 +49,23 @@ export function useRegistrationStatus(domain: string) {
         });
         return;
       }
-      const available = arweaveDataProvider.isDomainAvailable({
+      const availablePromise = arweaveDataProvider.isDomainAvailable({
         domain,
       });
-      const reserved = arweaveDataProvider.isDomainReserved({
+      const auctionPromise = arweaveDataProvider.isDomainInAuction({
+        domain,
+      });
+      const reservedPromise = arweaveDataProvider.isDomainReserved({
         domain,
       });
 
-      const [isAvailable, isReserved] = await Promise.all([
-        available,
-        reserved,
+      const [isAvailable, isActiveAuction, isReserved] = await Promise.all([
+        availablePromise,
+        auctionPromise,
+        reservedPromise,
       ]);
       setIsAvailable(isAvailable);
+      setIsActiveAuction(isActiveAuction);
       setIsReserved(isReserved);
       setValidated(true);
     } catch (error) {
@@ -70,5 +75,5 @@ export function useRegistrationStatus(domain: string) {
       setLoading(false);
     }
   }
-  return { isAvailable, isReserved, loading, validated };
+  return { isAvailable, isActiveAuction, isReserved, loading, validated };
 }

@@ -70,7 +70,7 @@ function SearchBar(props: SearchBarProps) {
   const isSearchbarFocused = useIsFocused('searchbar-input-id');
   const {
     isAvailable,
-    isAuction,
+    isActiveAuction,
     isReserved,
     loading: isValidatingRegistration,
     validated,
@@ -122,7 +122,7 @@ function SearchBar(props: SearchBarProps) {
     ) {
       const style = handleSearchbarBorderStyle({
         domain: domain,
-        auction: isAuction,
+        auction: isActiveAuction,
         available: isAvailable,
         reserved: isReserved,
         submitted: searchSubmitted,
@@ -130,7 +130,7 @@ function SearchBar(props: SearchBarProps) {
       });
       setSearchBarBorder(style);
     }
-    if (isAuction) {
+    if (isActiveAuction) {
       updateAuctionInfo(domain);
     }
   }, [
@@ -148,14 +148,6 @@ function SearchBar(props: SearchBarProps) {
       return;
     }
     try {
-      if (!blockHeight) {
-        const block = await arweaveDataProvider.getCurrentBlockHeight();
-        dispatchGlobalState({
-          type: 'setBlockHeight',
-          payload: block,
-        });
-        return;
-      }
       const auction = await arweaveDataProvider.getAuction({
         domain: lowerCaseDomain(domain),
       });
@@ -338,7 +330,7 @@ function SearchBar(props: SearchBarProps) {
         defaultText="Find a name"
         domain={searchSubmitted ? searchBarText : undefined}
         isAvailable={isAvailable}
-        isAuction={isAuction}
+        isAuction={isActiveAuction}
         isReserved={isReserved}
         contractTxId={contractTxID}
       />
@@ -455,7 +447,7 @@ function SearchBar(props: SearchBarProps) {
       {searchSubmitted && isAvailable && !isReserved ? (
         <div
           className={`flex flex-row fade-in ${
-            isAuction ? 'flex-space-between' : 'flex-center'
+            isActiveAuction ? 'flex-space-between' : 'flex-center'
           }`}
           style={{
             alignItems: 'center',
@@ -464,7 +456,7 @@ function SearchBar(props: SearchBarProps) {
             flexDirection: isMobile ? 'column-reverse' : 'row',
           }}
         >
-          {isAuction && auctionInfo?.minimumBid ? (
+          {isActiveAuction && auctionInfo?.minimumBid ? (
             <div
               className="flex flex-column"
               style={{
@@ -512,7 +504,7 @@ function SearchBar(props: SearchBarProps) {
       )}
 
       <SearchBarFooter
-        isAuction={isAuction}
+        isAuction={isActiveAuction}
         isAvailable={isAvailable}
         isReserved={isReserved}
         domain={lowerCaseDomain(domain)}

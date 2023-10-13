@@ -20,7 +20,7 @@ function Home() {
   const [{ pdnsSourceContract }] = useGlobalState();
   const [{ domain, antID }, dispatchRegisterState] = useRegistrationState();
   const {
-    isAuction,
+    isActiveAuction,
     isReserved,
     loading: isValidatingRegistration,
   } = useRegistrationStatus(domain);
@@ -118,7 +118,7 @@ function Home() {
         {
           //!isValidatingRegistration &&
           updateShowFeaturedDomains({
-            auction: isAuction,
+            auction: isActiveAuction,
             reserved: isReserved,
             domains: featuredDomains ?? {},
             id: antID,
