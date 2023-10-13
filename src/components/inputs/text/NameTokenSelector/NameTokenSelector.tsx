@@ -13,7 +13,6 @@ import {
 import { isArweaveTransactionID } from '../../../../utils';
 import { SMARTWEAVE_MAX_INPUT_SIZE } from '../../../../utils/constants';
 import eventEmitter from '../../../../utils/events';
-import { PDNSCard } from '../../../cards';
 import { CloseIcon, HamburgerOutlineIcon } from '../../../icons';
 import { Loader } from '../../../layout';
 import ValidationInput from '../ValidationInput/ValidationInput';
@@ -506,6 +505,7 @@ function NameTokenSelector({
                       : token.id}
                     {token.names?.length ? (
                       <Tooltip
+                        key={index}
                         title={
                           <div
                             className="flex flex-column"
@@ -516,7 +516,7 @@ function NameTokenSelector({
                             }}
                           >
                             {token.names.map((name) => (
-                              <span>{name}</span>
+                              <span key={name}>{name}</span>
                             ))}
                           </div>
                         }
@@ -578,7 +578,7 @@ function NameTokenSelector({
                             }}
                           >
                             {names.map((name) => (
-                              <span>{name}</span>
+                              <span key={name}>{name}</span>
                             ))}
                           </div>
                         }
