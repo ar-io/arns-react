@@ -25,6 +25,7 @@ export function useRegistrationStatus(domain: string) {
   function reset() {
     setIsAvailable(false);
     setIsReserved(false);
+    setIsActiveAuction(false);
     setValidated(false);
   }
 
