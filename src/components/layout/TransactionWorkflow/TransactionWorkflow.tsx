@@ -23,7 +23,6 @@ import {
 import {
   TRANSACTION_DATA_KEYS,
   buildSmartweaveInteractionTags,
-  calculateFloorPrice,
   decodeDomainToASCII,
   getPDNSMappingByInteractionType,
   getWorkflowStepsForInteraction,
@@ -340,16 +339,8 @@ function TransactionWorkflow({
                 <PDNTCard {...pdntProps} bordered compact={false} />
                 <TransactionCost
                   fee={{
-                    io:
-                      calculateFloorPrice({
-                        domain: payload.name,
-                        registrationType: payload.type,
-                        // TODO: setup cost for permabuy
-                        years: payload.years ?? 1,
-                        // TODO: fetch from service
-                        auctionSettings: pdnsSourceContract.settings.auctions,
-                        fees: pdnsSourceContract.fees,
-                      }) ?? 0,
+                    // TODO: this scares me - we need to make sure we are using the correct fee
+                    io: payload.qty,
                   }}
                   info={
                     <div

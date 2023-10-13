@@ -14,16 +14,19 @@ import { useArweaveCompositeProvider } from '../useArweaveCompositeProvider/useA
  */
 
 export function useAuctionInfo(
-  domain: string,
+  domain?: string,
   registrationType?: TRANSACTION_TYPES,
-) {
+): {
+  auction: Auction | undefined;
+  loadingAuctionInfo: boolean;
+} {
   const [{ blockHeight }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const [auction, setAuction] = useState<Auction>();
   const [loadingAuctionInfo, setLoadingAuctionInfo] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!domain.length) {
+    if (!domain) {
       return;
     }
     updateAuctionInfo(domain);

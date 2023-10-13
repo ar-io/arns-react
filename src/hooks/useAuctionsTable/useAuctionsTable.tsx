@@ -49,7 +49,7 @@ export function useAuctionsTable() {
     }
   }
 
-  function generateTableColumns(): ColumnType<Auction>[] {
+  function generateTableColumns(): ColumnType<AuctionTableData>[] {
     return [
       {
         title: (
@@ -300,6 +300,7 @@ export function useAuctionsTable() {
     ];
   }
 
+  // TODO: move to util outside this class so it is easy to test
   function generateAuctionTableData({
     blockHeight,
     auction,
@@ -313,11 +314,11 @@ export function useAuctionsTable() {
       initiator,
       startHeight,
       settings,
-      isExpired,
+      isActive,
       minimumBid,
     } = auction;
 
-    if (isExpired) {
+    if (!isActive) {
       // if auction is expired, do not show.
       return;
     }
@@ -341,7 +342,7 @@ export function useAuctionsTable() {
       key: name,
       type,
       initiator,
-      isExpired,
+      isActive,
       closingDate: expirationDateMilliseconds,
       nextPriceUpdate,
       minimumBid: Math.round(minimumBid),

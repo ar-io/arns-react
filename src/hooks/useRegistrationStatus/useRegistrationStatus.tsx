@@ -54,7 +54,7 @@ export function useRegistrationStatus(domain: string) {
       const available = arweaveDataProvider.isDomainAvailable({
         domain,
       });
-      const auction = arweaveDataProvider.getAuction({ domain });
+      const auction = arweaveDataProvider.isDomainInAuction({ domain });
       const reserved = arweaveDataProvider.isDomainReserved({
         domain,
       });

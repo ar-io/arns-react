@@ -3,7 +3,6 @@ import {
   ArweaveDataProvider,
   ArweaveTransactionID,
   Auction,
-  AuctionParameters,
   AuctionSettings,
   ContractInteraction,
   PDNSContractJSON,
@@ -173,13 +172,21 @@ export class ArweaveCompositeDataProviderMock
   async getAuctionPrices({ domain }: { domain: string }): Promise<Auction> {
     throw new Error('Method not implemented.');
   }
-  async getAuction({ domain }: { domain: string }): Promise<AuctionParameters> {
+  async getAuction({
+    contractTxId,
+    domain,
+    type,
+  }: {
+    contractTxId: ArweaveTransactionID;
+    domain: string;
+    type: 'lease' | 'permabuy';
+  }): Promise<Auction> {
     throw new Error('Method not implemented.');
   }
   async getAuctionSettings({
     contractTxId,
   }: {
-    contractTxId: string;
+    contractTxId: ArweaveTransactionID;
   }): Promise<AuctionSettings> {
     throw new Error('Method not implemented.');
   }

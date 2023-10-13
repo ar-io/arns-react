@@ -159,10 +159,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
     type: 'lease' | 'permabuy';
   }): Promise<boolean> {
     return this.getAuction({ contractTxId, domain, type })
-      .then(
-        (auction: Auction) =>
-          auction.isAvailableForAuction && !auction.isExpired,
-      ) // it found the auction
+      .then((auction: Auction) => auction.isActive) // it found the auction
       .catch(() => false); // it returned a 404 or otherwise failed
   }
 

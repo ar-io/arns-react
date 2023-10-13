@@ -60,16 +60,9 @@ function RegisterNameForm() {
   const [, dispatchTransactionState] = useTransactionState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const { name } = useParams();
-  const {
-    minimumAuctionBid,
-    auction,
-    loadingAuctionInfo,
-    updateAuctionInfo,
-    isLiveAuction,
-  } = useAuctionInfo(
+  const { auction, loadingAuctionInfo } = useAuctionInfo(
     lowerCaseDomain(name ?? domain),
     registrationType,
-    leaseDuration,
   );
   const { isAuction, loading: isValidatingRegistration } =
     useRegistrationStatus(name ?? domain);
@@ -90,16 +83,11 @@ function RegisterNameForm() {
         });
       });
     }
-    const auctionForName =
-      pdnsSourceContract.auctions?.[lowerCaseDomain(domain!)];
-    if (auctionForName) {
+    if (auction) {
       dispatchRegisterState({
         type: 'setRegistrationType',
-        payload: auctionForName.type,
+        payload: auction.type,
       });
-      if (!minimumAuctionBid && !loadingAuctionInfo) {
-        updateAuctionInfo(lowerCaseDomain(domain));
-      }
     }
   }, [loadingAuctionInfo, domain]);
 
@@ -111,34 +99,21 @@ function RegisterNameForm() {
       });
     }
     if (
-      // if auctionable, use auction prices
-      isDomainAuctionable({
-        domain: domain!,
-        registrationType: registrationType,
-        reservedList: Object.keys(pdnsSourceContract?.reserved),
-      }) ||
-      isAuction
+      isAuction &&
+      auction &&
+      auction.isAvailableForAuction &&
+      domain &&
+      blockHeight
     ) {
-      if (
-        domain &&
-        pdnsSourceContract.settings.auctions &&
-        blockHeight &&
-        auction
-      ) {
-        const newFee = isAuction ? minimumAuctionBid : auction?.floorPrice;
-        if (!newFee) {
-          return;
-        }
-        dispatchRegisterState({
-          type: 'setFee',
-          payload: { ar: fee.ar, io: newFee },
-        });
-      }
+      dispatchRegisterState({
+        type: 'setFee',
+        payload: { ar: fee.ar, io: auction.minimumBid },
+      });
     }
-    // if not auctionable, use instant buy prices
+    // TODO: remove use of source contract
     if (pdnsSourceContract.fees && domain && blockHeight && !isAuction) {
       const newFee = calculatePDNSNamePrice({
-        domain: domain!,
+        domain: domain,
         type: registrationType,
         years: leaseDuration,
         fees: pdnsSourceContract.fees,
@@ -149,14 +124,7 @@ function RegisterNameForm() {
         payload: { ar: fee.ar, io: newFee },
       });
     }
-  }, [
-    leaseDuration,
-    domain,
-    pdnsSourceContract,
-    minimumAuctionBid,
-    auction,
-    registrationType,
-  ]);
+  }, [leaseDuration, domain, pdnsSourceContract, auction, registrationType]);
 
   async function handlePDNTId(id: string) {
     try {
@@ -348,7 +316,7 @@ function RegisterNameForm() {
                 Lease{' '}
                 {(registrationType === TRANSACTION_TYPES.LEASE ||
                   auction?.type === TRANSACTION_TYPES.LEASE) &&
-                isLiveAuction ? (
+                auction?.isActive ? (
                   <LockIcon
                     width={'20px'}
                     height={'20px'}
@@ -404,7 +372,7 @@ function RegisterNameForm() {
                 Buy{' '}
                 {(registrationType === TRANSACTION_TYPES.BUY ||
                   auction?.type === TRANSACTION_TYPES.BUY) &&
-                isLiveAuction ? (
+                auction?.isActive ? (
                   <LockIcon
                     width={'20px'}
                     height={'20px'}

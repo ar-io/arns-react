@@ -57,13 +57,13 @@ export type Auction = AuctionParameters & {
   name: string;
   prices: Record<string | number, number>;
   minimumBid: number;
-  isExpired: boolean;
+  isActive: boolean;
   isAvailableForAuction: boolean;
 };
 
 export type AuctionTableData = Pick<
   Auction,
-  'name' | 'minimumBid' | 'isExpired' | 'initiator' | 'type'
+  'name' | 'minimumBid' | 'isActive' | 'initiator' | 'type'
 > & {
   closingDate: number;
   nextPriceUpdate: number;

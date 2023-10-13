@@ -2,9 +2,6 @@ import emojiRegex from 'emoji-regex';
 import { asciiToUnicode, unicodeToAscii } from 'puny-coder';
 
 import {
-  ArweaveTransactionID,
-  AuctionParameters,
-  AuctionSettings,
   PDNSRecordEntry,
   PDNTContractJSON,
   TRANSACTION_TYPES,
@@ -22,105 +19,6 @@ import {
   YEAR_IN_MILLISECONDS,
   YEAR_IN_SECONDS,
 } from '../constants';
-
-export function generateAuction({
-  domain,
-  registrationType,
-  years,
-  auctionSettings,
-  fees,
-  currentBlockHeight,
-  walletAddress,
-}: {
-  domain: string;
-  registrationType: TRANSACTION_TYPES;
-  years: number;
-  auctionSettings: { current: string; history: AuctionSettings[] };
-  fees: { [x: number]: number };
-  currentBlockHeight: number;
-  walletAddress: ArweaveTransactionID;
-}): [AuctionParameters, AuctionSettings] {
-  const currentAuctionSettings = auctionSettings.history.find(
-    (a) => a.id === auctionSettings.current,
-  );
-  if (!currentAuctionSettings) {
-    throw new Error(`Could not get fee data`);
-  }
-
-  const { floorPriceMultiplier, startPriceMultiplier } = currentAuctionSettings;
-
-  const basePrice =
-    registrationType === TRANSACTION_TYPES.LEASE
-      ? calculateTotalRegistrationFee(domain, fees, years)
-      : calculatePermabuyFee(domain, fees);
-
-  const startPrice = basePrice * startPriceMultiplier;
-  const floorPrice = basePrice * floorPriceMultiplier;
-
-  return [
-    {
-      startHeight: currentBlockHeight,
-      startPrice,
-      floorPrice,
-      auctionSettingsId: auctionSettings.current,
-      type: registrationType,
-      initiator: walletAddress?.toString(),
-      contractTxId: 'atomic',
-    },
-    currentAuctionSettings,
-  ];
-}
-
-export function calculateFloorPrice({
-  domain,
-  registrationType,
-  years,
-  auctionSettings,
-  fees,
-}: {
-  domain: string;
-  registrationType: TRANSACTION_TYPES;
-  years: number;
-  auctionSettings: { current: string; history: AuctionSettings[] };
-  fees: { [x: number]: number };
-}) {
-  const currentAuctionSettings = auctionSettings.history.find(
-    (a) => a.id === auctionSettings.current,
-  );
-  if (!currentAuctionSettings) {
-    throw new Error(`Could not get fee data`);
-  }
-
-  const { floorPriceMultiplier } = currentAuctionSettings;
-
-  const basePrice =
-    registrationType === TRANSACTION_TYPES.LEASE
-      ? calculateTotalRegistrationFee(domain, fees, years)
-      : calculatePermabuyFee(domain, fees);
-
-  return basePrice * floorPriceMultiplier;
-}
-
-export function calculateMinimumAuctionBid({
-  startHeight,
-  startPrice,
-  floorPrice,
-  currentBlockHeight,
-  decayInterval,
-  decayRate,
-}: AuctionParameters &
-  AuctionSettings & { currentBlockHeight: number }): number {
-  const blockIntervalsPassed = Math.max(
-    0,
-    Math.floor((currentBlockHeight - startHeight) / decayInterval),
-  );
-
-  const dutchAuctionBid =
-    startPrice * Math.pow(1 - decayRate, blockIntervalsPassed);
-
-  const minimumBid = Math.max(floorPrice, dutchAuctionBid);
-  return minimumBid;
-}
 
 export function calculatePermabuyFee(
   domain: string,
@@ -274,30 +172,6 @@ export function calculatePDNSNamePrice({
       : calculatePermabuyFee(domain, fees);
 
   return registrationFee;
-}
-
-export function updatePrices(props: AuctionParameters & AuctionSettings): {
-  [X: string]: number;
-} {
-  const { startHeight, floorPrice, decayInterval, auctionDuration } = props;
-
-  const expiredHieght = startHeight + auctionDuration;
-  let currentHeight = startHeight;
-  const newPrices: { [X: string]: number } = {};
-  while (currentHeight < expiredHieght) {
-    const blockPrice = calculateMinimumAuctionBid({
-      ...props,
-      currentBlockHeight: currentHeight,
-    });
-    if (blockPrice <= floorPrice) {
-      break;
-    }
-    newPrices[currentHeight] = blockPrice;
-    currentHeight = currentHeight + decayInterval;
-  }
-
-  newPrices[expiredHieght] = floorPrice;
-  return newPrices;
 }
 
 export function isPDNSDomainNameValid({ name }: { name?: string }): boolean {
