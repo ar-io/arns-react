@@ -36,7 +36,6 @@ export function useAuctionsTable() {
   async function updateBlockHeight(): Promise<void> {
     try {
       const newBlockHeight = await arweaveDataProvider.getCurrentBlockHeight();
-
       if (blockHeight === newBlockHeight) {
         return;
       }
@@ -191,8 +190,8 @@ export function useAuctionsTable() {
             <span>Price</span>
           </button>
         ),
-        dataIndex: 'price',
-        key: 'price',
+        dataIndex: 'minimumBid',
+        key: 'minimumBid',
         width: 'fit-content',
         className: 'white assets-table-header',
         render: (val: number) => <span>{val.toLocaleString()} IO</span>,
@@ -339,7 +338,7 @@ export function useAuctionsTable() {
 
     const data = {
       name,
-      key: name,
+      key: `${name}-${type}`,
       type,
       initiator,
       isActive,
@@ -360,18 +359,14 @@ export function useAuctionsTable() {
     // TODO: do this concurrently
     for (const domain of domainsInAuction) {
       try {
-        // TODO: we may want to just fetch height here rather than relying on global state
-        if (!blockHeight) {
-          throw new Error(
-            'Error fetching auction data. Please try again later.',
-          );
-        }
-        // will throw on non-ticked expired auctions, catch and continue
+        // TODO: update global state
+        const blockHeight = await arweaveDataProvider.getCurrentBlockHeight();
         const auction = await arweaveDataProvider.getAuction({ domain });
         const rowData = generateAuctionTableData({ blockHeight, auction });
         if (!rowData) {
           continue;
         }
+        console.log(rowData);
         // sort by confirmation count (ASC) by default
         fetchedRows.push(rowData);
         fetchedRows.sort((a, b) => a.closingDate - b.closingDate);
