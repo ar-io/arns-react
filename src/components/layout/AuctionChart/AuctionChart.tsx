@@ -18,6 +18,7 @@ import { ChartJSOrUndefined } from 'react-chartjs-2/dist/types';
 import { useArweaveCompositeProvider } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { Auction } from '../../../types';
+import { getNextPriceChangeTimestamp } from '../../../utils/auctions';
 import {
   APPROXIMATE_BLOCKS_PER_DAY,
   AVERAGE_BLOCK_TIME,
@@ -82,14 +83,13 @@ function AuctionChart({
       return;
     }
 
-    const deadline = getDeadline({
-      currentBlock: currentBlockHeight,
-      duration: auctionInfo.settings.auctionDuration,
-      startBlock: auctionInfo.startHeight,
-      blockDecayInterval: auctionInfo.settings.decayInterval,
+    // use the price response to calculate the next interval
+    const nextPriceChangeTimestamp = getNextPriceChangeTimestamp({
+      currentBlockHeight,
+      prices: auctionInfo.prices,
     });
 
-    setTimeUntilUpdate(deadline);
+    setTimeUntilUpdate(nextPriceChangeTimestamp);
     setPrices(Object.values(auctionInfo.prices));
     setLabels(Object.keys(auctionInfo.prices));
   }, [chartRef.current, domain, currentBlockHeight, auctionInfo]);
@@ -134,35 +134,6 @@ function AuctionChart({
       chart.update();
     } catch (error) {
       console.error('error', error);
-    }
-  }
-
-  function getDeadline({
-    currentBlock,
-    duration,
-    startBlock,
-    blockDecayInterval,
-  }: {
-    currentBlock: number;
-    duration: number;
-    startBlock: number;
-    blockDecayInterval: number;
-  }): number {
-    const auctionEnd = startBlock + duration;
-    if (currentBlock >= auctionEnd) {
-      // If auction has already ended, return the end time of the auction
-      return auctionEnd * AVERAGE_BLOCK_TIME;
-    } else {
-      // If auction is still ongoing, calculate the deadline as before
-      const blockIntervalsPassed = Math.floor(
-        (currentBlock - startBlock) / blockDecayInterval,
-      );
-      const minBlockRange =
-        startBlock + blockIntervalsPassed * blockDecayInterval;
-      const blocksUntilDecay = currentBlock - minBlockRange;
-      const deadline = Date.now() + AVERAGE_BLOCK_TIME * blocksUntilDecay;
-
-      return deadline;
     }
   }
 

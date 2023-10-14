@@ -121,21 +121,6 @@ export function calculateProRatedUndernameCost(
   return proRatedCost;
 }
 
-export function getNextPriceUpdate({
-  currentBlockHeight,
-  startHeight,
-  decayInterval,
-}: {
-  currentBlockHeight: number;
-  startHeight: number;
-  decayInterval: number;
-}): number {
-  const blocksSinceStart = currentBlockHeight - startHeight;
-  const blocksUntilNextDecay =
-    decayInterval - (blocksSinceStart % decayInterval);
-  return blocksUntilNextDecay;
-}
-
 export function calculatePDNSNamePrice({
   domain,
   years,

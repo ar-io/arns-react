@@ -12,7 +12,7 @@ import {
   AuctionTableData,
   TRANSACTION_TYPES,
 } from '../../types';
-import { getNextPriceUpdate, handleTableSort } from '../../utils';
+import { getNextPriceChangeTimestamp, handleTableSort } from '../../utils';
 import { AVERAGE_BLOCK_TIME } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 import { useArweaveCompositeProvider } from '../useArweaveCompositeProvider/useArweaveCompositeProvider';
@@ -315,6 +315,7 @@ export function useAuctionsTable() {
       settings,
       isActive,
       minimumBid,
+      prices,
     } = auction;
 
     if (!isActive) {
@@ -327,14 +328,10 @@ export function useAuctionsTable() {
       (startHeight + settings.auctionDuration - blockHeight) *
         AVERAGE_BLOCK_TIME; // approximate expiration date in milliseconds
 
-    const nextPriceUpdate =
-      Date.now() +
-      getNextPriceUpdate({
-        currentBlockHeight: blockHeight,
-        startHeight,
-        decayInterval: settings.decayInterval,
-      }) *
-        AVERAGE_BLOCK_TIME;
+    const nextPriceUpdateTimestamp = getNextPriceChangeTimestamp({
+      currentBlockHeight: blockHeight,
+      prices,
+    });
 
     const data = {
       name,
@@ -343,7 +340,7 @@ export function useAuctionsTable() {
       initiator,
       isActive,
       closingDate: expirationDateMilliseconds,
-      nextPriceUpdate,
+      nextPriceUpdate: nextPriceUpdateTimestamp,
       minimumBid: Math.round(minimumBid),
     };
 
