@@ -359,7 +359,6 @@ function ConfirmTransactionModal({
   };
 
   const [fee, setIOFee] = useState({ io: (payload as any).qty ?? 0 });
-  console.log(fee);
   const [deployingTransaction, setDeployingTransaction] = useState(false);
 
   async function deployInteraction(
@@ -385,8 +384,6 @@ function ConfirmTransactionModal({
       );
 
       const fee = (cleanPayload as any).qty ?? 0;
-
-      console.log(cleanPayload);
 
       const writeInteractionId = await arweaveDataProvider.writeTransaction({
         walletAddress,

@@ -25,7 +25,6 @@ import {
 import {
   calculatePDNSNamePrice,
   encodeDomainToASCII,
-  isArweaveTransactionID,
   lowerCaseDomain,
   userHasSufficientBalance,
 } from '../../../utils';

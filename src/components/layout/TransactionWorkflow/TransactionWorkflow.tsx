@@ -117,16 +117,12 @@ function TransactionWorkflow({
         throw Error('No wallet connected.');
       }
 
-      console.log(transactionData);
-
       const validBuyRecordInteraction =
         interactionType === INTERACTION_TYPES.BUY_RECORD &&
         isObjectOfTransactionPayloadType<BuyRecordPayload>(
           payload,
           TRANSACTION_DATA_KEYS[INTERACTION_TYPES.BUY_RECORD].keys,
         );
-
-      console.log(validBuyRecordInteraction);
 
       if (
         validBuyRecordInteraction &&
@@ -332,7 +328,6 @@ function TransactionWorkflow({
           TRANSACTION_DATA_KEYS[interactionType].keys,
         )
       ) {
-        console.log(payload);
         return {
           pending: {
             component: (
@@ -538,7 +533,7 @@ function TransactionWorkflow({
                 <PDNTCard {...pdntProps} bordered />
                 <TransactionCost
                   fee={{
-                    io: payload.ioFee,
+                    io: payload.qty,
                   }}
                   info={
                     <div
