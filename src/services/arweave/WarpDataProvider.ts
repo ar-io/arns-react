@@ -223,6 +223,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     type,
     years,
     auction,
+    qty,
   }: {
     walletAddress: ArweaveTransactionID;
     registryId: ArweaveTransactionID;
@@ -232,6 +233,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     type: TRANSACTION_TYPES;
     years?: number;
     auction: boolean;
+    qty: number;
   }): Promise<string | undefined> {
     if (!domain) {
       throw new Error('No domain provided');
@@ -243,6 +245,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       type,
       years,
       auction,
+      qty,
     };
     const tags = buildSmartweaveInteractionTags({
       contractId: registryId,

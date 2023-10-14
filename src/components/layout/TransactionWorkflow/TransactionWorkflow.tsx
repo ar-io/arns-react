@@ -57,8 +57,7 @@ function TransactionWorkflow({
   transactionData: TransactionData;
   workflowStage: TRANSACTION_WORKFLOW_STATUS;
 }) {
-  const [{ walletAddress, pdnsSourceContract, pdnsContractId }] =
-    useGlobalState();
+  const [{ walletAddress, pdnsContractId }] = useGlobalState();
   const [{ deployedTransactionId }, dispatchTransactionState] =
     useTransactionState();
   const arweaveDataProvider = useArweaveCompositeProvider();
@@ -149,6 +148,7 @@ function TransactionWorkflow({
             type: payload.type,
             years: payload.years,
             auction: payload.auction ?? false,
+            qty: payload.qty,
           },
         );
 
@@ -326,8 +326,7 @@ function TransactionWorkflow({
         isObjectOfTransactionPayloadType<BuyRecordPayload>(
           payload,
           TRANSACTION_DATA_KEYS[interactionType].keys,
-        ) &&
-        pdnsSourceContract.settings.auctions
+        )
       ) {
         return {
           pending: {
@@ -534,7 +533,7 @@ function TransactionWorkflow({
                 <PDNTCard {...pdntProps} bordered />
                 <TransactionCost
                   fee={{
-                    io: payload.ioFee,
+                    io: payload.qty,
                   }}
                   info={
                     <div

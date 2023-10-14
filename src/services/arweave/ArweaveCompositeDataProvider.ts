@@ -159,6 +159,7 @@ export class ArweaveCompositeDataProvider
     type,
     years,
     auction,
+    qty,
   }: {
     walletAddress: ArweaveTransactionID;
     registryId: ArweaveTransactionID;
@@ -168,6 +169,7 @@ export class ArweaveCompositeDataProvider
     type: TRANSACTION_TYPES;
     years?: number;
     auction: boolean;
+    qty: number;
   }): Promise<string | undefined> {
     return await this._interactionProvider.registerAtomicName({
       walletAddress,
@@ -178,6 +180,7 @@ export class ArweaveCompositeDataProvider
       type,
       years,
       auction,
+      qty,
     });
   }
 

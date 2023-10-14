@@ -25,7 +25,6 @@ import {
 import {
   calculatePDNSNamePrice,
   encodeDomainToASCII,
-  isArweaveTransactionID,
   lowerCaseDomain,
   userHasSufficientBalance,
 } from '../../../utils';
@@ -194,10 +193,7 @@ function RegisterNameForm() {
       type: registrationType,
       auction: (auction?.isRequiredToBeAuctioned || auction?.isActive) ?? false,
       qty: fee.io,
-      targetId:
-        targetId && isArweaveTransactionID(targetId.trim())
-          ? new ArweaveTransactionID(targetId)
-          : undefined,
+      targetId: targetId ? new ArweaveTransactionID(targetId) : undefined,
     };
 
     dispatchTransactionState({
