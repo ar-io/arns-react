@@ -244,6 +244,7 @@ export interface SmartweaveContractInteractionProvider {
     type,
     years,
     auction,
+    qty,
   }: {
     walletAddress: ArweaveTransactionID;
     registryId: ArweaveTransactionID;
@@ -253,6 +254,7 @@ export interface SmartweaveContractInteractionProvider {
     type: TRANSACTION_TYPES;
     years?: number;
     auction: boolean;
+    qty: number;
   }): Promise<string | undefined>;
 }
 
@@ -505,7 +507,7 @@ export type ExtendLeasePayload = {
   name: string;
   years: number;
   contractTxId?: ArweaveTransactionID;
-  ioFee?: number;
+  qty?: number;
 };
 
 export type TransferIOPayload = {

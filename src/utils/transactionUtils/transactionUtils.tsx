@@ -146,11 +146,11 @@ export const TRANSACTION_DATA_KEYS: Record<
 > = {
   [INTERACTION_TYPES.BUY_RECORD]: {
     functionName: 'buyRecord',
-    keys: ['name', 'contractTxId', 'auction'],
+    keys: ['name', 'contractTxId', 'auction', 'qty'],
   },
   [INTERACTION_TYPES.SUBMIT_AUCTION_BID]: {
     functionName: 'submitAuctionBid',
-    keys: ['name', 'contractTxId'],
+    keys: ['name', 'contractTxId', 'qty'],
   },
   [INTERACTION_TYPES.INCREASE_UNDERNAMES]: {
     functionName: 'increaseUndernames',

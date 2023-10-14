@@ -358,8 +358,8 @@ function ConfirmTransactionModal({
     }),
   };
 
-  // TODO: add fee for any IO transactions (eg extend lease or increase undernames)
-  const [fee] = useState({ io: 0 });
+  const [fee, setIOFee] = useState({ io: (payload as any).qty ?? 0 });
+  console.log(fee);
   const [deployingTransaction, setDeployingTransaction] = useState(false);
 
   async function deployInteraction(
@@ -375,13 +375,18 @@ function ConfirmTransactionModal({
         );
       }
       const functionName =
-        TRANSACTION_DATA_KEYS[interactionType as any as ValidInteractionType]
-          .functionName;
+        TRANSACTION_DATA_KEYS[
+          interactionType as unknown as ValidInteractionType
+        ].functionName;
 
       const cleanPayload = pruneExtraDataFromTransactionPayload(
-        interactionType as any as ValidInteractionType,
+        interactionType as unknown as ValidInteractionType,
         payload,
       );
+
+      const fee = (cleanPayload as any).qty ?? 0;
+
+      console.log(cleanPayload);
 
       const writeInteractionId = await arweaveDataProvider.writeTransaction({
         walletAddress,
@@ -396,6 +401,7 @@ function ConfirmTransactionModal({
       if (!writeInteractionId) {
         throw Error('Unable to deploy transaction');
       }
+      setIOFee({ io: fee });
       setDeployedTransactionId(writeInteractionId);
       close();
     } catch (error) {

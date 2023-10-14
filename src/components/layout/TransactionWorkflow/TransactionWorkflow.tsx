@@ -57,8 +57,7 @@ function TransactionWorkflow({
   transactionData: TransactionData;
   workflowStage: TRANSACTION_WORKFLOW_STATUS;
 }) {
-  const [{ walletAddress, pdnsSourceContract, pdnsContractId }] =
-    useGlobalState();
+  const [{ walletAddress, pdnsContractId }] = useGlobalState();
   const [{ deployedTransactionId }, dispatchTransactionState] =
     useTransactionState();
   const arweaveDataProvider = useArweaveCompositeProvider();
@@ -118,12 +117,16 @@ function TransactionWorkflow({
         throw Error('No wallet connected.');
       }
 
+      console.log(transactionData);
+
       const validBuyRecordInteraction =
         interactionType === INTERACTION_TYPES.BUY_RECORD &&
         isObjectOfTransactionPayloadType<BuyRecordPayload>(
           payload,
           TRANSACTION_DATA_KEYS[INTERACTION_TYPES.BUY_RECORD].keys,
         );
+
+      console.log(validBuyRecordInteraction);
 
       if (
         validBuyRecordInteraction &&
@@ -149,6 +152,7 @@ function TransactionWorkflow({
             type: payload.type,
             years: payload.years,
             auction: payload.auction ?? false,
+            qty: payload.qty,
           },
         );
 
@@ -326,9 +330,9 @@ function TransactionWorkflow({
         isObjectOfTransactionPayloadType<BuyRecordPayload>(
           payload,
           TRANSACTION_DATA_KEYS[interactionType].keys,
-        ) &&
-        pdnsSourceContract.settings.auctions
+        )
       ) {
+        console.log(payload);
         return {
           pending: {
             component: (
