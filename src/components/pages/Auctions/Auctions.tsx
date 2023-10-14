@@ -25,6 +25,7 @@ function Auctions() {
 
   async function refresh() {
     try {
+      // TODO: show loading indicator and disable the button or force rerender so the loading page at least shows
       const height = await arweaveDataProvider
         .getCurrentBlockHeight()
         .catch((e) => console.debug(e));

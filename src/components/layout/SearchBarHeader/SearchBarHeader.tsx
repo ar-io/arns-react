@@ -10,13 +10,13 @@ function SearchBarHeader({
   domain,
   contractTxId,
   isAvailable,
-  isAuction,
+  isActiveAuction,
   isReserved,
 }: SearchBarHeaderProps): JSX.Element {
   const isMobile = useIsMobile();
 
   // unavailable condition
-  if (domain && isAuction) {
+  if (domain && isActiveAuction) {
     return (
       <div
         className="text-medium white center flex fade-in"

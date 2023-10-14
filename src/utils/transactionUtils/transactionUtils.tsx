@@ -1,5 +1,4 @@
 import { StepProps } from 'antd';
-import { inRange } from 'lodash';
 
 import {
   ArweaveTransactionID,
@@ -37,15 +36,10 @@ import {
   MAX_TTL_SECONDS,
   MIN_TTL_SECONDS,
   PDNS_TX_ID_REGEX,
-  RESERVED_NAME_LENGTH,
   TTL_SECONDS_REGEX,
   YEAR_IN_MILLISECONDS,
 } from '../constants';
 import eventEmitter from '../events';
-import {
-  encodeDomainToASCII,
-  isDomainReservedLength,
-} from '../searchUtils/searchUtils';
 
 export function isArweaveTransactionID(id: string) {
   if (!id) {
@@ -296,9 +290,10 @@ export function getPDNSMappingByInteractionType(
         domain: transactionData.name,
         contractTxId:
           transactionData.contractTxId === ATOMIC_FLAG
-            ? transactionData.deployedTransactionId ?? undefined
+            ? transactionData.deployedTransactionId
             : new ArweaveTransactionID(transactionData.contractTxId),
         state: transactionData.state ?? undefined,
+        // TODO: set qty for the auction bid based on the auction data
         overrides: {
           maxUndernames: `Up to ${DEFAULT_MAX_UNDERNAMES}`,
         },
@@ -796,32 +791,6 @@ export function buildSmartweaveInteractionTags({
     },
   ];
   return tags;
-}
-
-export function isDomainAuctionable({
-  // https://ardrive.atlassian.net/wiki/spaces/ENGINEERIN/pages/706543688/PDNS+Auction+System+-+Technical+Requirements#Requirements
-  domain,
-  registrationType,
-  reservedList,
-}: {
-  domain: string;
-  registrationType: TRANSACTION_TYPES;
-  reservedList: string[];
-}): boolean {
-  if (
-    isDomainReservedLength(domain) || // if under 5 characters, auctionable
-    (inRange(
-      encodeDomainToASCII(domain).length,
-      RESERVED_NAME_LENGTH + 1,
-      12,
-    ) &&
-      registrationType === TRANSACTION_TYPES.BUY) || // if permabuying a name between 5 and 11 chars, auctionable
-    reservedList.includes(domain) // all premium names are auctionable
-  ) {
-    return true;
-  }
-
-  return false;
 }
 
 export async function withExponentialBackoff<T>({

@@ -9,7 +9,6 @@ import {
   useRegistrationStatus,
   useWalletAddress,
 } from '../../../../hooks';
-import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../../state/contexts/RegistrationState';
 import {
   ArweaveTransactionID,
@@ -54,7 +53,6 @@ const searchBarValidationPredicate = ({
 function SearchBar(props: SearchBarProps) {
   const { disabled = false, placeholderText } = props;
   const navigate = useNavigate();
-  const [{ blockHeight }, dispatchGlobalState] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const [{ domain }, dispatchRegisterState] = useRegistrationState();
   const { walletAddress } = useWalletAddress();
@@ -70,7 +68,7 @@ function SearchBar(props: SearchBarProps) {
   const isSearchbarFocused = useIsFocused('searchbar-input-id');
   const {
     isAvailable,
-    isAuction,
+    isActiveAuction,
     isReserved,
     loading: isValidatingRegistration,
     validated,
@@ -122,7 +120,7 @@ function SearchBar(props: SearchBarProps) {
     ) {
       const style = handleSearchbarBorderStyle({
         domain: domain,
-        auction: isAuction,
+        auction: isActiveAuction,
         available: isAvailable,
         reserved: isReserved,
         submitted: searchSubmitted,
@@ -130,7 +128,7 @@ function SearchBar(props: SearchBarProps) {
       });
       setSearchBarBorder(style);
     }
-    if (isAuction) {
+    if (isActiveAuction) {
       updateAuctionInfo(domain);
     }
   }, [
@@ -148,21 +146,13 @@ function SearchBar(props: SearchBarProps) {
       return;
     }
     try {
-      if (!blockHeight) {
-        const block = await arweaveDataProvider.getCurrentBlockHeight();
-        dispatchGlobalState({
-          type: 'setBlockHeight',
-          payload: block,
-        });
-        return;
-      }
-      const info = await arweaveDataProvider.getAuctionPrices({
+      const auction = await arweaveDataProvider.getAuction({
         domain: lowerCaseDomain(domain),
       });
-      if (!info) {
+      if (!auction) {
         return;
       }
-      setAuctionInfo(info);
+      setAuctionInfo(auction);
     } catch (error: any) {
       setSearchBarText('');
       eventEmitter.emit('error', {
@@ -338,7 +328,7 @@ function SearchBar(props: SearchBarProps) {
         defaultText="Find a name"
         domain={searchSubmitted ? searchBarText : undefined}
         isAvailable={isAvailable}
-        isAuction={isAuction}
+        isActiveAuction={isActiveAuction}
         isReserved={isReserved}
         contractTxId={contractTxID}
       />
@@ -455,7 +445,7 @@ function SearchBar(props: SearchBarProps) {
       {searchSubmitted && isAvailable && !isReserved ? (
         <div
           className={`flex flex-row fade-in ${
-            isAuction ? 'flex-space-between' : 'flex-center'
+            isActiveAuction ? 'flex-space-between' : 'flex-center'
           }`}
           style={{
             alignItems: 'center',
@@ -464,7 +454,7 @@ function SearchBar(props: SearchBarProps) {
             flexDirection: isMobile ? 'column-reverse' : 'row',
           }}
         >
-          {isAuction && auctionInfo?.minimumAuctionBid ? (
+          {isActiveAuction && auctionInfo?.minimumBid ? (
             <div
               className="flex flex-column"
               style={{
@@ -478,11 +468,7 @@ function SearchBar(props: SearchBarProps) {
                 style={{ fontSize: '16px', width: 'fit-content' }}
               >
                 Current auction price for instant buy:{' '}
-                {(auctionInfo?.minimumAuctionBid
-                  ? Math.round(auctionInfo?.minimumAuctionBid)
-                  : 0
-                ).toLocaleString('en-US')}{' '}
-                IO
+                {auctionInfo?.minimumBid.toLocaleString() ?? 0} IO
               </span>
               <span
                 className="grey left"
@@ -512,7 +498,7 @@ function SearchBar(props: SearchBarProps) {
       )}
 
       <SearchBarFooter
-        isAuction={isAuction}
+        isActiveAuction={isActiveAuction}
         isAvailable={isAvailable}
         isReserved={isReserved}
         domain={lowerCaseDomain(domain)}

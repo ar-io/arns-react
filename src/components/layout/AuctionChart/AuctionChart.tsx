@@ -18,7 +18,8 @@ import { ChartJSOrUndefined } from 'react-chartjs-2/dist/types';
 import { useArweaveCompositeProvider } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { Auction } from '../../../types';
-import { AVERAGE_BLOCK_TIME } from '../../../utils/constants';
+import { getNextPriceChangeTimestamp } from '../../../utils/auctions';
+import { APPROXIMATE_BLOCKS_PER_DAY } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import Loader from '../Loader/Loader';
 
@@ -66,8 +67,8 @@ function AuctionChart({
 
   useEffect(() => {
     if (!auctionInfo) {
-      arweaveDataProvider.getAuctionPrices({ domain }).then((info) => {
-        setAuctionInfo(info);
+      arweaveDataProvider.getAuction({ domain }).then((auction) => {
+        setAuctionInfo(auction);
       });
       return;
     }
@@ -79,22 +80,19 @@ function AuctionChart({
       return;
     }
 
-    const deadline = getDeadline({
-      currentBlock: currentBlockHeight,
-      duration: auctionInfo.auctionDuration,
-      startBlock: auctionInfo.startHeight,
-      blockDecayInterval: auctionInfo.decayInterval,
+    // use the price response to calculate the next interval
+    const nextPriceChangeTimestamp = getNextPriceChangeTimestamp({
+      currentBlockHeight,
+      prices: auctionInfo.prices,
     });
 
-    setTimeUntilUpdate(deadline);
+    setTimeUntilUpdate(nextPriceChangeTimestamp);
     setPrices(Object.values(auctionInfo.prices));
     setLabels(Object.keys(auctionInfo.prices));
   }, [chartRef.current, domain, currentBlockHeight, auctionInfo]);
 
   useEffect(() => {
-    triggerCurrentPriceTooltipWhenNotActive(
-      auctionInfo?.minimumAuctionBid ?? 0,
-    );
+    triggerCurrentPriceTooltipWhenNotActive(auctionInfo?.minimumBid ?? 0);
   }, [chartRef.current, showCurrentPrice, prices, auctionInfo]);
 
   function triggerCurrentPriceTooltipWhenNotActive(price: number) {
@@ -133,35 +131,6 @@ function AuctionChart({
       chart.update();
     } catch (error) {
       console.error('error', error);
-    }
-  }
-
-  function getDeadline({
-    currentBlock,
-    duration,
-    startBlock,
-    blockDecayInterval,
-  }: {
-    currentBlock: number;
-    duration: number;
-    startBlock: number;
-    blockDecayInterval: number;
-  }): number {
-    const auctionEnd = startBlock + duration;
-    if (currentBlock >= auctionEnd) {
-      // If auction has already ended, return the end time of the auction
-      return auctionEnd * AVERAGE_BLOCK_TIME;
-    } else {
-      // If auction is still ongoing, calculate the deadline as before
-      const blockIntervalsPassed = Math.floor(
-        (currentBlock - startBlock) / blockDecayInterval,
-      );
-      const minBlockRange =
-        startBlock + blockIntervalsPassed * blockDecayInterval;
-      const blocksUntilDecay = currentBlock - minBlockRange;
-      const deadline = Date.now() + AVERAGE_BLOCK_TIME * blocksUntilDecay;
-
-      return deadline;
     }
   }
 
@@ -272,6 +241,7 @@ function AuctionChart({
                 padding: 14,
                 callbacks: {
                   title: (data: any) => {
+                    // TODO: move these a util function in auctions.test.ts and add unit tests
                     const block = +data[0].label;
                     const blockDiff =
                       Math.max(+block, currentBlockHeight) -
@@ -298,9 +268,8 @@ function AuctionChart({
                 annotations: {
                   point1: {
                     type: 'point',
-                    xValue: prices.indexOf(auctionInfo?.minimumAuctionBid),
-                    yValue:
-                      prices[prices.indexOf(auctionInfo?.minimumAuctionBid)],
+                    xValue: prices.indexOf(auctionInfo?.minimumBid),
+                    yValue: prices[prices.indexOf(auctionInfo?.minimumBid)],
                     backgroundColor: 'white',
                     radius: 7,
                     display: showCurrentPrice,
@@ -328,7 +297,7 @@ function AuctionChart({
                 segment: {
                   borderColor: 'white',
                   borderDash: (ctx: any) =>
-                    ctx.p0.parsed.y > auctionInfo.minimumAuctionBid
+                    ctx.p0.parsed.y > auctionInfo.minimumBid
                       ? undefined
                       : [3, 3],
                 },
@@ -381,15 +350,22 @@ function AuctionChart({
         >
           To ensure that everyone has a fair opportunity to register this
           premium name, it has an auction premium that will reduce gradually
-          over a {Math.round(auctionInfo.auctionDuration / 720)} day period.
-          This name has been on auction for{' '}
-          {Math.round((currentBlockHeight - auctionInfo.startHeight) / 720)}{' '}
+          over a{' '}
+          {Math.round(
+            auctionInfo.settings.auctionDuration / APPROXIMATE_BLOCKS_PER_DAY,
+          )}{' '}
+          day period. This name has been on auction for{' '}
+          {/* TODO: MOVE THESE TO FUNCTIONS */}
+          {Math.round(
+            (currentBlockHeight - auctionInfo.startHeight) /
+              APPROXIMATE_BLOCKS_PER_DAY,
+          )}{' '}
           days and has{' '}
           {Math.round(
             (auctionInfo.startHeight +
-              auctionInfo.auctionDuration -
+              auctionInfo.settings.auctionDuration -
               currentBlockHeight) /
-              720,
+              APPROXIMATE_BLOCKS_PER_DAY,
           )}{' '}
           days remaining, during which time anyone can buy it now for the
           current price. If there are no bidders before the auction end date,

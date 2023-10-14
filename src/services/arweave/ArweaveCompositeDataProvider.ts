@@ -2,7 +2,6 @@ import {
   ArweaveDataProvider,
   ArweaveTransactionID,
   Auction,
-  AuctionParameters,
   AuctionSettings,
   ContractInteraction,
   PDNSContractJSON,
@@ -159,7 +158,7 @@ export class ArweaveCompositeDataProvider
     domain,
     type,
     years,
-    reservedList,
+    auction,
   }: {
     walletAddress: ArweaveTransactionID;
     registryId: ArweaveTransactionID;
@@ -168,7 +167,7 @@ export class ArweaveCompositeDataProvider
     domain: string;
     type: TRANSACTION_TYPES;
     years?: number;
-    reservedList: string[];
+    auction: boolean;
   }): Promise<string | undefined> {
     return await this._interactionProvider.registerAtomicName({
       walletAddress,
@@ -178,7 +177,7 @@ export class ArweaveCompositeDataProvider
       domain,
       type,
       years,
-      reservedList,
+      auction,
     });
   }
 
@@ -225,9 +224,17 @@ export class ArweaveCompositeDataProvider
     );
   }
 
-  async isDomainInAuction({ domain }: { domain: string }): Promise<boolean> {
+  async isDomainInAuction({
+    contractTxId = new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
+    domain,
+  }: {
+    contractTxId?: ArweaveTransactionID;
+    domain: string;
+  }): Promise<boolean> {
     return Promise.any(
-      this._contractProviders.map((p) => p.isDomainInAuction({ domain })),
+      this._contractProviders.map((p) =>
+        p.isDomainInAuction({ contractTxId, domain }),
+      ),
     );
   }
 
@@ -237,27 +244,31 @@ export class ArweaveCompositeDataProvider
     );
   }
 
-  async getAuction({ domain }: { domain: string }): Promise<AuctionParameters> {
-    return Promise.any(
-      this._contractProviders.map((p) => p.getAuction({ domain })),
-    );
-  }
-
-  async getAuctionSettings({
-    auctionSettingsId,
+  async getAuction({
+    contractTxId = new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
+    domain,
+    type,
   }: {
-    auctionSettingsId: string;
-  }): Promise<AuctionSettings> {
+    contractTxId?: ArweaveTransactionID;
+    domain: string;
+    type?: 'lease' | 'permabuy';
+  }): Promise<Auction> {
     return Promise.any(
       this._contractProviders.map((p) =>
-        p.getAuctionSettings({ auctionSettingsId }),
+        p.getAuction({ contractTxId, domain, type }),
       ),
     );
   }
 
-  async getAuctionPrices({ domain }: { domain: string }): Promise<Auction> {
+  async getAuctionSettings({
+    contractTxId,
+  }: {
+    contractTxId: ArweaveTransactionID;
+  }): Promise<AuctionSettings> {
     return Promise.any(
-      this._contractProviders.map((p) => p.getAuctionPrices({ domain })),
+      this._contractProviders.map((p) =>
+        p.getAuctionSettings({ contractTxId }),
+      ),
     );
   }
 

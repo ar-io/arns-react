@@ -9,23 +9,20 @@ import { useGlobalState } from '../../state/contexts/GlobalState';
 import {
   ArweaveTransactionID,
   Auction,
-  AuctionMetadata,
+  AuctionTableData,
   TRANSACTION_TYPES,
 } from '../../types';
-import { getNextPriceUpdate, handleTableSort } from '../../utils';
+import { getNextPriceChangeTimestamp, handleTableSort } from '../../utils';
 import { AVERAGE_BLOCK_TIME } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 import { useArweaveCompositeProvider } from '../useArweaveCompositeProvider/useArweaveCompositeProvider';
 
 export function useAuctionsTable() {
-  const [
-    { pdnsSourceContract, blockHeight: blockHeight },
-    dispatchGlobalState,
-  ] = useGlobalState();
+  const [{ blockHeight }, dispatchGlobalState] = useGlobalState();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] =
-    useState<keyof AuctionMetadata>('closingDate');
-  const [rows, setRows] = useState<AuctionMetadata[]>([]);
+    useState<keyof AuctionTableData>('closingDate');
+  const [rows, setRows] = useState<AuctionTableData[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [percent, setPercentLoaded] = useState<number>(0);
   const arweaveDataProvider = useArweaveCompositeProvider();
@@ -33,16 +30,12 @@ export function useAuctionsTable() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!pdnsSourceContract?.auctions) {
-      return;
-    }
     fetchAuctionRows();
-  }, [pdnsSourceContract, blockHeight]);
+  }, [blockHeight]);
 
   async function updateBlockHeight(): Promise<void> {
     try {
       const newBlockHeight = await arweaveDataProvider.getCurrentBlockHeight();
-
       if (blockHeight === newBlockHeight) {
         return;
       }
@@ -55,7 +48,7 @@ export function useAuctionsTable() {
     }
   }
 
-  function generateTableColumns(): ColumnType<AuctionMetadata>[] {
+  function generateTableColumns(): ColumnType<AuctionTableData>[] {
     return [
       {
         title: (
@@ -76,7 +69,7 @@ export function useAuctionsTable() {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              handleTableSort<AuctionMetadata>({
+              handleTableSort<AuctionTableData>({
                 key: 'name',
                 isAsc: sortAscending,
                 rows,
@@ -107,7 +100,7 @@ export function useAuctionsTable() {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              handleTableSort<AuctionMetadata>({
+              handleTableSort<AuctionTableData>({
                 key: 'closingDate',
                 isAsc: sortAscending,
                 rows,
@@ -144,7 +137,7 @@ export function useAuctionsTable() {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              handleTableSort<AuctionMetadata>({
+              handleTableSort<AuctionTableData>({
                 key: 'initiator',
                 isAsc: sortAscending,
                 rows,
@@ -175,7 +168,7 @@ export function useAuctionsTable() {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              handleTableSort<AuctionMetadata>({
+              handleTableSort<AuctionTableData>({
                 key: 'type',
                 isAsc: sortAscending,
                 rows,
@@ -192,21 +185,21 @@ export function useAuctionsTable() {
           <button
             className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
-            onClick={() => setSortField('price')}
+            onClick={() => setSortField('minimumBid')}
           >
             <span>Price</span>
           </button>
         ),
-        dataIndex: 'price',
-        key: 'price',
+        dataIndex: 'minimumBid',
+        key: 'minimumBid',
         width: 'fit-content',
         className: 'white assets-table-header',
         render: (val: number) => <span>{val.toLocaleString()} IO</span>,
         onHeaderCell: () => {
           return {
             onClick: () => {
-              handleTableSort<AuctionMetadata>({
-                key: 'price',
+              handleTableSort<AuctionTableData>({
+                key: 'minimumBid',
                 isAsc: sortAscending,
                 rows,
               });
@@ -251,7 +244,7 @@ export function useAuctionsTable() {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              handleTableSort<AuctionMetadata>({
+              handleTableSort<AuctionTableData>({
                 key: 'nextPriceUpdate',
                 isAsc: sortAscending,
                 rows,
@@ -306,45 +299,49 @@ export function useAuctionsTable() {
     ];
   }
 
-  function handleAuctionData(
-    auction: Auction,
-  ): Omit<AuctionMetadata, 'name' | 'key'> | undefined {
+  // TODO: move to util outside this class so it is easy to test
+  function generateAuctionTableData({
+    blockHeight,
+    auction,
+  }: {
+    blockHeight: number;
+    auction: Auction;
+  }): AuctionTableData | undefined {
     const {
+      name,
       type,
       initiator,
       startHeight,
-      auctionDuration,
-      decayInterval,
-      minimumAuctionBid,
+      settings,
+      isActive,
+      minimumBid,
+      prices,
     } = auction;
 
-    if (!blockHeight) {
-      throw new Error('Error fetching auction data. Please try again later.');
-    }
-    if (startHeight + auctionDuration < blockHeight) {
+    if (!isActive) {
       // if auction is expired, do not show.
       return;
     }
 
     const expirationDateMilliseconds =
       Date.now() +
-      (startHeight + auctionDuration - blockHeight) * AVERAGE_BLOCK_TIME; // approximate expiration date in milliseconds
+      (startHeight + settings.auctionDuration - blockHeight) *
+        AVERAGE_BLOCK_TIME; // approximate expiration date in milliseconds
 
-    const nextPriceUpdate =
-      Date.now() +
-      getNextPriceUpdate({
-        currentBlockHeight: blockHeight,
-        startHeight,
-        decayInterval,
-      }) *
-        AVERAGE_BLOCK_TIME;
+    const nextPriceUpdateTimestamp = getNextPriceChangeTimestamp({
+      currentBlockHeight: blockHeight,
+      prices,
+    });
 
     const data = {
-      closingDate: expirationDateMilliseconds,
-      initiator: new ArweaveTransactionID(initiator),
+      name,
+      key: `${name}-${type}`,
       type,
-      nextPriceUpdate,
-      price: Math.round(minimumAuctionBid),
+      initiator,
+      isActive,
+      closingDate: expirationDateMilliseconds,
+      nextPriceUpdate: nextPriceUpdateTimestamp,
+      minimumBid: Math.round(minimumBid),
     };
 
     return data;
@@ -353,35 +350,22 @@ export function useAuctionsTable() {
   async function fetchAuctionRows(): Promise<void> {
     setIsLoading(true);
 
-    const fetchedRows: AuctionMetadata[] = [];
+    const fetchedRows: AuctionTableData[] = [];
     const domainsInAuction = await arweaveDataProvider.getDomainsInAuction();
 
+    // TODO: do this concurrently
     for (const domain of domainsInAuction) {
       try {
-        if (!blockHeight) {
-          throw new Error(
-            'Error fetching auction data. Please try again later.',
-          );
-        }
-        // will throw on non-ticked expired auctions, catch and continue
-        const auction = await arweaveDataProvider
-          .getAuctionPrices({ domain })
-          .catch((e) => console.error(e));
-        if (!auction) {
+        // TODO: update global state
+        const blockHeight = await arweaveDataProvider.getCurrentBlockHeight();
+        const auction = await arweaveDataProvider.getAuction({ domain });
+        const rowData = generateAuctionTableData({ blockHeight, auction });
+        if (!rowData) {
           continue;
         }
-        const auctionData = handleAuctionData(auction);
-        if (!auctionData) {
-          continue;
-        }
-        const rowData = {
-          ...auctionData,
-          name: domain,
-          key: domain,
-        };
         // sort by confirmation count (ASC) by default
-        fetchedRows.sort((a, b) => a.closingDate - b.closingDate);
         fetchedRows.push(rowData);
+        fetchedRows.sort((a, b) => a.closingDate - b.closingDate);
       } catch (error) {
         eventEmitter.emit('error', error);
       } finally {

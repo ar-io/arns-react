@@ -26,7 +26,6 @@ import {
   calculatePDNSNamePrice,
   encodeDomainToASCII,
   isArweaveTransactionID,
-  isDomainAuctionable,
   lowerCaseDomain,
   userHasSufficientBalance,
 } from '../../../utils';
@@ -60,26 +59,18 @@ function RegisterNameForm() {
   const [, dispatchTransactionState] = useTransactionState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const { name } = useParams();
-  const {
-    minimumAuctionBid,
-    auction,
-    loadingAuctionInfo,
-    updateAuctionInfo,
-    isLiveAuction,
-  } = useAuctionInfo(
+  const { auction, loadingAuctionInfo } = useAuctionInfo(
     lowerCaseDomain(name ?? domain),
     registrationType,
-    leaseDuration,
   );
-  const { isAuction, loading: isValidatingRegistration } =
-    useRegistrationStatus(name ?? domain);
+  const { loading: isValidatingRegistration } = useRegistrationStatus(
+    name ?? domain,
+  );
   const [targetId, setTargetId] = useState<string>();
   const targetIdFocused = useIsFocused('target-id-input');
   const navigate = useNavigate();
   const [hasValidationErrors, setHasValidationErrors] =
     useState<boolean>(false);
-
-  // TODO: give this component some refactor love, i can barely read it.
 
   useEffect(() => {
     if (!blockHeight) {
@@ -90,16 +81,11 @@ function RegisterNameForm() {
         });
       });
     }
-    const auctionForName =
-      pdnsSourceContract.auctions?.[lowerCaseDomain(domain!)];
-    if (auctionForName) {
+    if (!loadingAuctionInfo && auction) {
       dispatchRegisterState({
         type: 'setRegistrationType',
-        payload: auctionForName.type,
+        payload: auction.type,
       });
-      if (!minimumAuctionBid && !loadingAuctionInfo) {
-        updateAuctionInfo(lowerCaseDomain(domain));
-      }
     }
   }, [loadingAuctionInfo, domain]);
 
@@ -111,34 +97,27 @@ function RegisterNameForm() {
       });
     }
     if (
-      // if auctionable, use auction prices
-      isDomainAuctionable({
-        domain: domain!,
-        registrationType: registrationType,
-        reservedList: Object.keys(pdnsSourceContract?.reserved),
-      }) ||
-      isAuction
+      auction &&
+      (auction.isRequiredToBeAuctioned || auction.isActive) &&
+      domain &&
+      blockHeight
     ) {
-      if (
-        domain &&
-        pdnsSourceContract.settings.auctions &&
-        blockHeight &&
-        auction
-      ) {
-        const newFee = isAuction ? minimumAuctionBid : auction?.floorPrice;
-        if (!newFee) {
-          return;
-        }
-        dispatchRegisterState({
-          type: 'setFee',
-          payload: { ar: fee.ar, io: newFee },
-        });
-      }
+      dispatchRegisterState({
+        type: 'setFee',
+        payload: { ar: fee.ar, io: auction.minimumBid },
+      });
     }
-    // if not auctionable, use instant buy prices
-    if (pdnsSourceContract.fees && domain && blockHeight && !isAuction) {
+    // TODO: remove use of source contract
+    if (
+      pdnsSourceContract.fees &&
+      domain &&
+      blockHeight &&
+      !auction?.isActive &&
+      !auction?.isRequiredToBeAuctioned
+    ) {
+      // TODO: replace this with read API on the contract for the name
       const newFee = calculatePDNSNamePrice({
-        domain: domain!,
+        domain: domain,
         type: registrationType,
         years: leaseDuration,
         fees: pdnsSourceContract.fees,
@@ -149,14 +128,7 @@ function RegisterNameForm() {
         payload: { ar: fee.ar, io: newFee },
       });
     }
-  }, [
-    leaseDuration,
-    domain,
-    pdnsSourceContract,
-    minimumAuctionBid,
-    auction,
-    registrationType,
-  ]);
+  }, [leaseDuration, domain, pdnsSourceContract, auction, registrationType]);
 
   async function handlePDNTId(id: string) {
     try {
@@ -204,22 +176,24 @@ function RegisterNameForm() {
       return;
     }
 
+    const leaseDurationType = auction?.isRequiredToBeAuctioned
+      ? 1
+      : leaseDuration;
+
     const buyRecordPayload: BuyRecordPayload = {
       name:
         domain && emojiRegex().test(domain)
           ? encodeDomainToASCII(domain)
           : domain,
       contractTxId: antID ? antID.toString() : ATOMIC_FLAG,
+      // TODO: move this to a helper function
       years:
         registrationType === TRANSACTION_TYPES.LEASE
-          ? leaseDuration
+          ? leaseDurationType
           : undefined,
       type: registrationType,
-      auction: isDomainAuctionable({
-        domain: domain,
-        registrationType: registrationType,
-        reservedList: Object.keys(pdnsSourceContract.reserved),
-      }),
+      auction: (auction?.isRequiredToBeAuctioned || auction?.isActive) ?? false,
+      qty: fee.io,
       targetId:
         targetId && isArweaveTransactionID(targetId.trim())
           ? new ArweaveTransactionID(targetId)
@@ -251,10 +225,7 @@ function RegisterNameForm() {
     <div className="page center">
       <PageLoader
         message={'Loading Domain info, please wait.'}
-        loading={
-          (isAuction && loadingAuctionInfo) ||
-          (!isAuction && isValidatingRegistration)
-        }
+        loading={loadingAuctionInfo || isValidatingRegistration}
       />
       <div
         className="flex flex-column flex-center"
@@ -320,8 +291,10 @@ function RegisterNameForm() {
             >
               <button
                 className="flex flex-row center text-medium bold pointer"
+                // TODO: add a tool tip explaining why when it is an active auction you cannot change the type
                 disabled={
-                  isAuction && registrationType === TRANSACTION_TYPES.BUY
+                  auction?.isActive &&
+                  registrationType === TRANSACTION_TYPES.BUY
                 }
                 onClick={() =>
                   dispatchRegisterState({
@@ -348,7 +321,7 @@ function RegisterNameForm() {
                 Lease{' '}
                 {(registrationType === TRANSACTION_TYPES.LEASE ||
                   auction?.type === TRANSACTION_TYPES.LEASE) &&
-                isLiveAuction ? (
+                auction?.isActive ? (
                   <LockIcon
                     width={'20px'}
                     height={'20px'}
@@ -376,8 +349,10 @@ function RegisterNameForm() {
               </button>
               <button
                 className="flex flex-row center text-medium bold pointer"
+                // TODO: add a tool tip explaining why when it is an active auction you cannot change the type
                 disabled={
-                  isAuction && registrationType === TRANSACTION_TYPES.LEASE
+                  auction?.isActive &&
+                  registrationType === TRANSACTION_TYPES.LEASE
                 }
                 style={{
                   position: 'relative',
@@ -404,7 +379,7 @@ function RegisterNameForm() {
                 Buy{' '}
                 {(registrationType === TRANSACTION_TYPES.BUY ||
                   auction?.type === TRANSACTION_TYPES.BUY) &&
-                isLiveAuction ? (
+                auction?.isActive ? (
                   <LockIcon
                     width={'20px'}
                     height={'20px'}
@@ -455,8 +430,17 @@ function RegisterNameForm() {
                       payload: v,
                     });
                   }}
-                  minValue={MIN_LEASE_DURATION}
-                  maxValue={MAX_LEASE_DURATION}
+                  // TODO: move this to a helper function
+                  minValue={
+                    auction?.isActive || auction?.isRequiredToBeAuctioned
+                      ? 1
+                      : MIN_LEASE_DURATION
+                  }
+                  maxValue={
+                    auction?.isActive || auction?.isRequiredToBeAuctioned
+                      ? 1
+                      : MAX_LEASE_DURATION
+                  }
                   valueStyle={{ padding: '20px 120px' }}
                   valueName={leaseDuration > 1 ? 'years' : 'year'}
                   detail={`Until ${Intl.DateTimeFormat('en-US', {
@@ -570,13 +554,7 @@ function RegisterNameForm() {
               </span>
             </div>
             <TransactionCost fee={fee} />
-            {domain &&
-            pdnsSourceContract.settings.auctions &&
-            isDomainAuctionable({
-              domain: domain,
-              registrationType: registrationType,
-              reservedList: Object.keys(pdnsSourceContract.reserved),
-            }) ? (
+            {domain && auction && auction.isRequiredToBeAuctioned ? (
               <div
                 className="flex flex-row warning-container"
                 style={{

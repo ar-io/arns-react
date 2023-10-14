@@ -11,12 +11,12 @@ function SearchBarFooter({
   record,
   contractTxId,
   isAvailable,
-  isAuction,
+  isActiveAuction,
   isReserved,
 }: SearchBarFooterProps): JSX.Element {
   const isMobile = useIsMobile();
 
-  if (isAuction && domain) {
+  if (isActiveAuction && domain) {
     return (
       <div className="flex flex-row">
         <AuctionChart
