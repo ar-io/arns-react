@@ -19,10 +19,7 @@ import { useArweaveCompositeProvider } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { Auction } from '../../../types';
 import { getNextPriceChangeTimestamp } from '../../../utils/auctions';
-import {
-  APPROXIMATE_BLOCKS_PER_DAY,
-  AVERAGE_BLOCK_TIME,
-} from '../../../utils/constants';
+import { APPROXIMATE_BLOCKS_PER_DAY } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import Loader from '../Loader/Loader';
 

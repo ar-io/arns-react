@@ -8,25 +8,23 @@ export function getNextPriceChangeTimestamp({
   currentBlockHeight: number;
   prices: Record<string, number>;
 }): number {
+  const firstBlockInAuction = Object.keys(prices)[0];
   const lastBlockInAuction =
     +Object.keys(prices)[Object.keys(prices).length - 1];
+
   if (currentBlockHeight >= lastBlockInAuction) {
     // If auction has already ended, return the end time of the auction
     return lastBlockInAuction * AVERAGE_BLOCK_TIME;
-  } else {
-    // find the next interval period based on the current block, and calculate the difference between the current block and that block height
-    const nextPriceChangeHeight = Object.keys(prices).find(
-      (priceChangeHeight) => +priceChangeHeight >= currentBlockHeight,
-    );
-    if (!nextPriceChangeHeight) {
-      // the auction likely ended, so return the end time of the auction
-      return lastBlockInAuction * AVERAGE_BLOCK_TIME;
-    }
-    const blocksRemainingUntilPriceChange =
-      +nextPriceChangeHeight - currentBlockHeight;
-    const nextPriceChangeTimestamp =
-      Date.now() + AVERAGE_BLOCK_TIME * blocksRemainingUntilPriceChange;
-
-    return nextPriceChangeTimestamp;
   }
+  // find the next interval period based on the current block, and calculate the difference between the current block and that block height
+  const nextPriceChangeHeight =
+    Object.keys(prices).find(
+      (priceChangeHeight) => +priceChangeHeight >= currentBlockHeight,
+    ) ?? firstBlockInAuction;
+  const blocksRemainingUntilPriceChange =
+    +nextPriceChangeHeight - currentBlockHeight;
+  const nextPriceChangeTimestamp =
+    Date.now() + AVERAGE_BLOCK_TIME * blocksRemainingUntilPriceChange;
+
+  return nextPriceChangeTimestamp;
 }
