@@ -468,11 +468,7 @@ function SearchBar(props: SearchBarProps) {
                 style={{ fontSize: '16px', width: 'fit-content' }}
               >
                 Current auction price for instant buy:{' '}
-                {(auctionInfo?.minimumBid
-                  ? Math.round(auctionInfo?.minimumBid)
-                  : 0
-                ).toLocaleString('en-US')}{' '}
-                IO
+                {auctionInfo?.minimumBid.toLocaleString() ?? 0} IO
               </span>
               <span
                 className="grey left"

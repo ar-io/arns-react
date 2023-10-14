@@ -18,7 +18,10 @@ import { ChartJSOrUndefined } from 'react-chartjs-2/dist/types';
 import { useArweaveCompositeProvider } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { Auction } from '../../../types';
-import { AVERAGE_BLOCK_TIME } from '../../../utils/constants';
+import {
+  APPROXIMATE_BLOCKS_PER_DAY,
+  AVERAGE_BLOCK_TIME,
+} from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import Loader from '../Loader/Loader';
 
@@ -378,15 +381,22 @@ function AuctionChart({
         >
           To ensure that everyone has a fair opportunity to register this
           premium name, it has an auction premium that will reduce gradually
-          over a {Math.round(auctionInfo.settings.auctionDuration / 720)} day
-          period. This name has been on auction for{' '}
-          {Math.round((currentBlockHeight - auctionInfo.startHeight) / 720)}{' '}
+          over a{' '}
+          {Math.round(
+            auctionInfo.settings.auctionDuration / APPROXIMATE_BLOCKS_PER_DAY,
+          )}{' '}
+          day period. This name has been on auction for{' '}
+          {/* TODO: MOVE THESE TO FUNCTIONS */}
+          {Math.round(
+            (currentBlockHeight - auctionInfo.startHeight) /
+              APPROXIMATE_BLOCKS_PER_DAY,
+          )}{' '}
           days and has{' '}
           {Math.round(
             (auctionInfo.startHeight +
               auctionInfo.settings.auctionDuration -
               currentBlockHeight) /
-              720,
+              APPROXIMATE_BLOCKS_PER_DAY,
           )}{' '}
           days remaining, during which time anyone can buy it now for the
           current price. If there are no bidders before the auction end date,

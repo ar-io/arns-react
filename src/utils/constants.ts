@@ -210,3 +210,4 @@ export const RESERVED_BREADCRUMB_TITLES = new Set([
 ]);
 
 export const ARIO_DISCORD_LINK = 'https://discord.gg/7dBaqcE8';
+export const APPROXIMATE_BLOCKS_PER_DAY = 720;
