@@ -23,7 +23,7 @@ export function useAuctionInfo(
   const [{ blockHeight }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const [auction, setAuction] = useState<Auction>();
-  const [loadingAuctionInfo, setLoadingAuctionInfo] = useState<boolean>(false);
+  const [loadingAuctionInfo, setLoadingAuctionInfo] = useState<boolean>(true);
 
   useEffect(() => {
     if (!domain) {

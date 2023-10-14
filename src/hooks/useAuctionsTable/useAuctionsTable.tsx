@@ -21,7 +21,7 @@ export function useAuctionsTable() {
   const [{ blockHeight }, dispatchGlobalState] = useGlobalState();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] =
-    useState<keyof AuctionTableData>('nextPriceUpdate');
+    useState<keyof AuctionTableData>('closingDate');
   const [rows, setRows] = useState<AuctionTableData[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [percent, setPercentLoaded] = useState<number>(0);

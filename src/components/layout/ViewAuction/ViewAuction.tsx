@@ -59,7 +59,7 @@ function ViewAuction() {
   }
 
   if (!loadingAuctionInfo && !auction) {
-    return <Navigate to="auctions" />;
+    return <Navigate to="/auctions" />;
   }
 
   return (
