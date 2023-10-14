@@ -241,6 +241,7 @@ function AuctionChart({
                 padding: 14,
                 callbacks: {
                   title: (data: any) => {
+                    // TODO: move these a util function in auctions.test.ts and add unit tests
                     const block = +data[0].label;
                     const blockDiff =
                       Math.max(+block, currentBlockHeight) -

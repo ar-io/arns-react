@@ -192,7 +192,7 @@ function RegisterNameForm() {
           ? leaseDurationType
           : undefined,
       type: registrationType,
-      auction: auction?.isRequiredToBeAuctioned ?? false,
+      auction: (auction?.isRequiredToBeAuctioned || auction?.isActive) ?? false,
       qty: fee.io,
       targetId:
         targetId && isArweaveTransactionID(targetId.trim())
