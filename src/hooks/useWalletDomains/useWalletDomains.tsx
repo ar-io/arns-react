@@ -1,5 +1,5 @@
 import { Tooltip } from 'antd';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import {
@@ -35,8 +35,8 @@ import {
 } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 
-export function useWalletDomains(ids: ArweaveTransactionID[]) {
-  const [{ gateway, pdnsSourceContract, blockHeight }] = useGlobalState();
+export function useWalletDomains() {
+  const [{ gateway, blockHeight }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const { walletAddress } = useWalletAddress();
   const [sortAscending, setSortOrder] = useState(true);
@@ -45,18 +45,35 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
   const [rows, setRows] = useState<PDNSTableRow[]>([]);
   // loading info
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [itemCount, setItemCount] = useState<number>(0);
-  const [itemsLoaded, setItemsLoaded] = useState<number>(0);
+  const itemCount = useRef<number>(0);
+  const itemsLoaded = useRef<number>(0);
   const [percent, setPercentLoaded] = useState<number | undefined>();
   const [loadingManageDomain, setLoadingManageDomain] = useState<string>();
+  const [antIds, setAntIds] = useState<ArweaveTransactionID[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (ids.length) {
-      0;
-      fetchDomainRows(ids, walletAddress!);
+    refresh();
+  }, []);
+
+  async function refresh() {
+    try {
+      setIsLoading(true);
+      if (walletAddress && blockHeight) {
+        const { contractTxIds } =
+          await arweaveDataProvider.getContractsForWallet(
+            walletAddress,
+            'ant', // only fetches contracts that have a state that matches ant spec
+          );
+        setAntIds(contractTxIds);
+        fetchDomainRows(contractTxIds, walletAddress);
+      }
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    } finally {
+      setIsLoading(false);
     }
-  }, [ids]);
+  }
 
   function generateTableColumns(): any[] {
     return [
@@ -452,7 +469,9 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
           : 'Indefinite',
         status: confirmations ?? 0,
         undernameSupport: record?.undernames ?? DEFAULT_MAX_UNDERNAMES,
-        undernameCount: Object.keys(contract.records).length - 1,
+        undernameCount: Object.keys(contract.records).filter(
+          (undername) => undername === '@',
+        ).length,
         undernames: `${(
           Object.keys(contract.records).length - 1
         ).toLocaleString()} / ${(
@@ -472,7 +491,12 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
         }),
         {},
       );
+      // TODO: investigate why this func is called twice - this is needed because itemsLoaded is incremented twice
+      if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
 
+      setPercentLoaded(
+        Math.round((itemCount.current / itemsLoaded.current) * 100),
+      );
       // TODO: add error messages and reload state to row
       return {
         ...rowData,
@@ -481,9 +505,6 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
       };
     } catch (error) {
       console.error(error);
-    } finally {
-      setPercentLoaded(((itemsLoaded + 1) / itemCount) * 100);
-      setItemsLoaded(itemsLoaded + 1);
     }
   }
 
@@ -513,10 +534,15 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
     address: ArweaveTransactionID,
   ) {
     setIsLoading(true);
+    setPercentLoaded(0);
+    itemsLoaded.current = 0;
     const fetchedRows: PDNSTableRow[] = [];
     const tokenIds = new Set(ids);
 
     try {
+      if (!blockHeight) {
+        return;
+      }
       const cachedInteractions =
         await arweaveDataProvider.getPendingContractInteractions(
           new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
@@ -539,27 +565,31 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
         {},
       );
 
+      const registrations = await arweaveDataProvider.getRecords({
+        filters: { contractTxId: [...tokenIds] },
+      });
       const consolidatedRecords = Object.entries({
         ...cachedRegistrations,
-        ...pdnsSourceContract.records,
+        ...registrations,
       });
       const confirmations = await arweaveDataProvider.getTransactionStatus(
         [...tokenIds],
         blockHeight,
       );
-      setItemCount(consolidatedRecords.length);
+      itemCount.current = consolidatedRecords.length;
       const rowData = await Promise.all(
-        [...tokenIds].map((id: ArweaveTransactionID) => {
+        [...tokenIds].map(async (id: ArweaveTransactionID) => {
           const record = consolidatedRecords.find(
             ([, record]) => record.contractTxId === id.toString(),
           );
           if (record) {
-            return fetchDomainRow(
+            const row = await fetchDomainRow(
               record[0],
               record[1],
               address,
               confirmations[record[1].contractTxId],
             );
+            return row;
           }
         }),
       ).then((rows) =>
@@ -591,5 +621,6 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
     sortAscending,
     selectedRow,
     loadingManageDomain,
+    refresh,
   };
 }
