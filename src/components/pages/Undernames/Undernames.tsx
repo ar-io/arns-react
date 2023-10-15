@@ -227,7 +227,7 @@ function Undernames() {
           )}
         </div>
       </div>
-      {searchParams.has('modal', UNDERNAME_TABLE_ACTIONS.CREATE) && pdntId ? (
+      {searchParams.has('modal') && pdntId ? (
         <AddUndernameModal
           closeModal={() => {
             setSearchParams({});
