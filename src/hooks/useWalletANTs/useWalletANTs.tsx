@@ -37,7 +37,6 @@ export function useWalletANTs() {
   const itemCount = useRef<number>(0);
   const itemsLoaded = useRef<number>(0);
   const [percent, setPercentLoaded] = useState<number | undefined>();
-  const [antIds, setAntIds] = useState<ArweaveTransactionID[]>([]);
 
   useEffect(() => {
     refresh();
@@ -52,7 +51,6 @@ export function useWalletANTs() {
             walletAddress,
             'ant', // only fetches contracts that have a state that matches ant spec
           );
-        setAntIds(contractTxIds);
         fetchPDNTRows(contractTxIds, walletAddress);
       }
     } catch (error) {

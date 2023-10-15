@@ -49,7 +49,6 @@ export function useWalletDomains() {
   const itemsLoaded = useRef<number>(0);
   const [percent, setPercentLoaded] = useState<number | undefined>();
   const [loadingManageDomain, setLoadingManageDomain] = useState<string>();
-  const [antIds, setAntIds] = useState<ArweaveTransactionID[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -65,7 +64,6 @@ export function useWalletDomains() {
             walletAddress,
             'ant', // only fetches contracts that have a state that matches ant spec
           );
-        setAntIds(contractTxIds);
         fetchDomainRows(contractTxIds, walletAddress);
       }
     } catch (error) {
