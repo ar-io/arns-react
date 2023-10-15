@@ -552,7 +552,7 @@ function ManageANT() {
                         </span>
                       );
                     }
-                    if (row.attribute === 'controller') {
+                    if (row.attribute === 'controllers') {
                       return (
                         // TODO: add condition to "open" to be false when modals are open
                         <Tooltip
