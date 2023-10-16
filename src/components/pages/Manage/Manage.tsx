@@ -16,7 +16,6 @@ import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
 
 function Manage() {
-  // debugger;
   const { walletAddress } = useWalletAddress();
   const navigate = useNavigate();
   const { path } = useParams();
