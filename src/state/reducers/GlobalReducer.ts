@@ -1,3 +1,4 @@
+import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
 import { ArweaveTransactionID } from '../../types';
 import { ArweaveWalletConnector, PDNSContractJSON } from '../../types';
 import { GlobalState } from '../contexts/GlobalState';
@@ -11,7 +12,8 @@ export type Action =
   | { type: 'setGateway'; payload: string }
   | { type: 'setBlockHeight'; payload: number }
   | { type: 'setPDNSContractState'; payload: PDNSContractJSON }
-  | { type: 'setBalances'; payload: { io: number; ar: number } };
+  | { type: 'setBalances'; payload: { io: number; ar: number } }
+  | { type: 'setArweaveDataProvider'; payload: ArweaveCompositeDataProvider };
 
 export const reducer = (state: GlobalState, action: Action): GlobalState => {
   switch (action.type) {
@@ -44,6 +46,11 @@ export const reducer = (state: GlobalState, action: Action): GlobalState => {
       return {
         ...state,
         balances: action.payload,
+      };
+    case 'setArweaveDataProvider':
+      return {
+        ...state,
+        arweaveDataProvider: action.payload,
       };
     default:
       return state;
