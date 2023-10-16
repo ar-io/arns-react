@@ -1,4 +1,4 @@
-import { identity, isArray } from 'lodash';
+import { isArray } from 'lodash';
 
 import {
   ArweaveDataProvider,
