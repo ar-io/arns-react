@@ -10,6 +10,7 @@ import {
   TRANSACTION_TYPES,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
+import { getUndernameCount } from '../../../utils';
 import eventEmitter from '../../../utils/events';
 import { AlertTriangleIcon, CloseIcon } from '../../icons';
 import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
@@ -49,9 +50,7 @@ function TransactionModal({
         if (!contract.isValid()) {
           throw new Error('Invalid ANT contract');
         }
-        const records = Object.keys(contract.records).filter(
-          (key) => key === '@',
-        ).length;
+        const records = getUndernameCount(contract.records);
         setRecordCount(records);
       })
       .catch(() => {
