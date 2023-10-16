@@ -470,9 +470,9 @@ export function useWalletDomains() {
         undernameCount: Object.keys(contract.records).filter(
           (undername) => undername === '@',
         ).length,
-        undernames: `${(
-          Object.keys(contract.records).length - 1
-        ).toLocaleString()} / ${(
+        undernames: `${Object.keys(contract.records)
+          .filter((undername) => undername === '@')
+          .length.toLocaleString()} / ${(
           record?.undernames ?? DEFAULT_MAX_UNDERNAMES
         ).toLocaleString()}`,
         key: `${domain}-${record.contractTxId}`,
