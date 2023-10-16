@@ -50,7 +50,7 @@ function TransactionModal({
           throw new Error('Invalid ANT contract');
         }
         const records = Object.keys(contract.records).filter(
-          (key) => key === '@',
+          (key) => key !== '@',
         ).length;
         setRecordCount(records);
       })

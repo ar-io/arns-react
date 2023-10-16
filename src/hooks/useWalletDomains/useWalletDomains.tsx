@@ -468,10 +468,10 @@ export function useWalletDomains() {
         status: confirmations ?? 0,
         undernameSupport: record?.undernames ?? DEFAULT_MAX_UNDERNAMES,
         undernameCount: Object.keys(contract.records).filter(
-          (undername) => undername === '@',
+          (undername) => undername !== '@',
         ).length,
         undernames: `${Object.keys(contract.records)
-          .filter((undername) => undername === '@')
+          .filter((undername) => undername !== '@')
           .length.toLocaleString()} / ${(
           record?.undernames ?? DEFAULT_MAX_UNDERNAMES
         ).toLocaleString()}`,
