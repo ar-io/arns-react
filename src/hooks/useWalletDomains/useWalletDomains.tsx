@@ -536,9 +536,6 @@ export function useWalletDomains() {
     const tokenIds = new Set(ids);
 
     try {
-      if (!blockHeight) {
-        return;
-      }
       const cachedInteractions =
         await arweaveDataProvider.getPendingContractInteractions(
           new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
