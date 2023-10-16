@@ -54,8 +54,10 @@ function AuctionChart({
     annotationPlugin,
   );
 
-  const [{ blockHeight: currentBlockHeight }, dispatchGlobalState] =
-    useGlobalState();
+  const [
+    { blockHeight: currentBlockHeight, walletAddress },
+    dispatchGlobalState,
+  ] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const chartRef = useRef<ChartJSOrUndefined>(null);
 
@@ -67,9 +69,11 @@ function AuctionChart({
 
   useEffect(() => {
     if (!auctionInfo) {
-      arweaveDataProvider.getAuction({ domain }).then((auction) => {
-        setAuctionInfo(auction);
-      });
+      arweaveDataProvider
+        .getAuction({ domain, address: walletAddress })
+        .then((auction) => {
+          setAuctionInfo(auction);
+        });
       return;
     }
 
@@ -92,23 +96,23 @@ function AuctionChart({
   }, [chartRef.current, domain, currentBlockHeight, auctionInfo]);
 
   useEffect(() => {
-    triggerCurrentPriceTooltipWhenNotActive(auctionInfo?.minimumBid ?? 0);
+    if (auctionInfo) {
+      triggerCurrentPriceTooltipWhenNotActive(auctionInfo?.minimumBid);
+    }
   }, [chartRef.current, showCurrentPrice, prices, auctionInfo]);
 
   function triggerCurrentPriceTooltipWhenNotActive(price: number) {
     try {
       const chart = chartRef.current;
+      const validPrice = prices?.includes(price);
       if (!showCurrentPrice || !chart || !prices) {
         return;
       }
       const data = chart.getDatasetMeta(0).data as PointElement[];
-      if (!prices.includes(price)) {
-        throw new Error(
-          `Price ${price?.toLocaleString()} not included in generated list of auction prices`,
-        );
-      }
       const point = data.find((point: PointElement) =>
-        point.parsed.y === prices?.[prices?.indexOf(price)] ? point : undefined,
+        point.parsed.y === prices?.[validPrice ? prices?.indexOf(price) : 0]
+          ? point
+          : undefined,
       );
       const tooltip = chart.tooltip;
       if (!point || !tooltip) {
@@ -269,7 +273,7 @@ function AuctionChart({
                   point1: {
                     type: 'point',
                     xValue: prices.indexOf(auctionInfo?.minimumBid),
-                    yValue: prices[prices.indexOf(auctionInfo?.minimumBid)],
+                    yValue: auctionInfo?.minimumBid,
                     backgroundColor: 'white',
                     radius: 7,
                     display: showCurrentPrice,

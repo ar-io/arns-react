@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { WalletAddress } from '../../components/layout/WalletAddress/WalletAddress';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { Auction, TRANSACTION_TYPES } from '../../types';
 import eventEmitter from '../../utils/events';
@@ -20,7 +21,7 @@ export function useAuctionInfo(
   auction: Auction | undefined;
   loadingAuctionInfo: boolean;
 } {
-  const [{ blockHeight }] = useGlobalState();
+  const [{ blockHeight, walletAddress }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const [auction, setAuction] = useState<Auction>();
   const [loadingAuctionInfo, setLoadingAuctionInfo] = useState<boolean>(true);
@@ -38,11 +39,11 @@ export function useAuctionInfo(
       const auction = await arweaveDataProvider.getAuction({
         domain: domainName,
         type: registrationType,
+        address: walletAddress,
       });
       setAuction(auction);
     } catch (error) {
       eventEmitter.emit('error', error);
-      console.error(error);
     } finally {
       setLoadingAuctionInfo(false);
     }

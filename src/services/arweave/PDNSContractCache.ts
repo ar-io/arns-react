@@ -1,4 +1,4 @@
-import { isArray } from 'lodash';
+import { identity, isArray } from 'lodash';
 
 import {
   ArweaveDataProvider,
@@ -203,12 +203,39 @@ export class PDNSContractCache implements SmartweaveContractCache {
     contractTxId,
     domain,
     type,
+    address,
   }: {
     contractTxId: ArweaveTransactionID;
     domain: string;
     type?: 'lease' | 'permabuy';
+    address?: ArweaveTransactionID;
   }): Promise<Auction> {
-    const urlParams = type
+    let cachedAuction: any;
+    if (address) {
+      const cachedInteractions = await this._cache.get(address.toString());
+      cachedInteractions.forEach((i: any) => {
+        if (
+          i.type === 'interaction' &&
+          i.payload?.name === domain &&
+          i.payload?.auction === true
+        ) {
+          console.log('found cached auction:');
+          cachedAuction = {
+            ...i,
+            payload: {
+              ...i.payload,
+              contractTxId: i.id.toString(),
+              initiator: address.toString(),
+            },
+          };
+          console.log(cachedAuction);
+        }
+      });
+      console.log('cached interactions: ', cachedInteractions);
+    }
+    const urlParams = cachedAuction
+      ? new URLSearchParams({ type: cachedAuction?.payload?.type })
+      : type
       ? new URLSearchParams({ type })
       : new URLSearchParams();
     const auctionRes = await fetch(
@@ -222,8 +249,18 @@ export class PDNSContractCache implements SmartweaveContractCache {
         `Failed to get auction for ${domain} on contract ${contractTxId.toString()}`,
       );
     }
-
-    return auction;
+    const res = {
+      ...auction,
+      ...(cachedAuction?.payload
+        ? {
+            ...cachedAuction.payload,
+            minimumBid: Object.values(auction.prices)[0],
+            isActive: true,
+          }
+        : {}),
+    };
+    console.log(res, cachedAuction);
+    return res;
   }
 
   async getAuctionSettings({

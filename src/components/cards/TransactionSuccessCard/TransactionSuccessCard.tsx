@@ -10,7 +10,7 @@ function TransactionSuccessCard({
   close,
 }: {
   txId: ArweaveTransactionID;
-  close: () => void;
+  close?: () => void;
   title?: string;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -45,10 +45,13 @@ function TransactionSuccessCard({
           linkStyle={{ color: 'var(--success-green)' }}
         />
       </div>
-
-      <button className="button flex center pointer" onClick={() => close()}>
-        <CloseIcon width={'20px'} height={'20px'} fill="white" />
-      </button>
+      {close ? (
+        <button className="button flex center pointer" onClick={() => close()}>
+          <CloseIcon width={'20px'} height={'20px'} fill="white" />
+        </button>
+      ) : (
+        <></>
+      )}
     </div>
   );
 }
