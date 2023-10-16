@@ -51,7 +51,7 @@ export function useWalletANTs() {
             walletAddress,
             'ant', // only fetches contracts that have a state that matches ant spec
           );
-        fetchPDNTRows(contractTxIds, walletAddress);
+        await fetchPDNTRows(contractTxIds, walletAddress);
       }
     } catch (error) {
       eventEmitter.emit('error', error);
@@ -413,7 +413,7 @@ export function useWalletANTs() {
       if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
 
       setPercentLoaded(
-        Math.round((itemCount.current / itemsLoaded.current) * 100),
+        Math.round((itemsLoaded.current / itemCount.current) * 100),
       );
 
       return {

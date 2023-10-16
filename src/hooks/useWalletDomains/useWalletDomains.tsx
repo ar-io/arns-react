@@ -57,6 +57,7 @@ export function useWalletDomains() {
   }, []);
 
   async function refresh() {
+    console.log('rendering useWalletDomains.tsx');
     try {
       setIsLoading(true);
       if (walletAddress && blockHeight) {
@@ -65,7 +66,7 @@ export function useWalletDomains() {
             walletAddress,
             'ant', // only fetches contracts that have a state that matches ant spec
           );
-        fetchDomainRows(contractTxIds, walletAddress);
+        await fetchDomainRows(contractTxIds, walletAddress);
       }
     } catch (error) {
       eventEmitter.emit('error', error);
@@ -492,7 +493,7 @@ export function useWalletDomains() {
       if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
 
       setPercentLoaded(
-        Math.round((itemCount.current / itemsLoaded.current) * 100),
+        Math.round((itemsLoaded.current / itemCount.current) * 100),
       );
       // TODO: add error messages and reload state to row
       return {

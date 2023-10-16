@@ -16,6 +16,7 @@ import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
 
 function Manage() {
+  // debugger;
   const { walletAddress } = useWalletAddress();
   const navigate = useNavigate();
   const { path } = useParams();
@@ -200,7 +201,7 @@ function Manage() {
               prefixCls="manage-table"
               scroll={pdntRows.length ? { x: true } : {}}
               columns={tableColumns}
-              dataSource={tableLoading ? [] : tableData}
+              dataSource={tableData}
               pagination={{
                 position: ['bottomCenter'],
                 rootClassName: 'table-pagination',
