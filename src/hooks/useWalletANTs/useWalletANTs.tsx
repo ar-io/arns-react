@@ -338,6 +338,7 @@ export function useWalletANTs(ids: ArweaveTransactionID[]) {
           arweaveDataProvider.getContractState<PDNTContractJSON>(
             contractTxId,
             address,
+            blockHeight,
           ),
           txConfirmations,
           arweaveDataProvider
@@ -417,16 +418,6 @@ export function useWalletANTs(ids: ArweaveTransactionID[]) {
 
     try {
       setIsLoading(true);
-      const cachedTokens = await arweaveDataProvider.getCachedNameTokens(
-        address,
-      );
-      if (cachedTokens.length) {
-        cachedTokens.forEach((token: PDNTContract) => {
-          if (token?.id) {
-            tokenIds.add(new ArweaveTransactionID(token.id.toString()));
-          }
-        });
-      }
       setItemCount(tokenIds.size);
 
       const confirmations = await arweaveDataProvider.getTransactionStatus(

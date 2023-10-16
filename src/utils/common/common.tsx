@@ -151,3 +151,12 @@ export function formatForMaxCharCount(
 
   return str;
 }
+
+export function isJsonSerializable(obj: any): boolean {
+  try {
+    JSON.parse(obj);
+    return true;
+  } catch {
+    return false;
+  }
+}

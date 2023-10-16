@@ -150,6 +150,7 @@ export interface SmartweaveContractCache {
   getContractState<T extends PDNTContractJSON | PDNSContractJSON>(
     contractTxId: ArweaveTransactionID,
     address?: ArweaveTransactionID, // required for getting cached name tokens
+    currentBlockHeight?: number, // required for getting cached name tokens
   ): Promise<T>;
   getContractBalanceForWallet(
     contractTxId: ArweaveTransactionID,
@@ -269,6 +270,7 @@ export interface TransactionCache {
   set(key: string, value: any): void;
   get(key: string): any;
   del(key: string): void;
+  deleteTransaction(key: string, txId: string): void;
   push(key: string, value: any): void;
 }
 
