@@ -1,7 +1,7 @@
 import Countdown from 'antd/lib/statistic/Countdown';
 import { startCase } from 'lodash';
 import { ColumnType } from 'rc-table/lib/interface';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import ArweaveID from '../../components/layout/ArweaveID/ArweaveID';
@@ -18,11 +18,14 @@ import eventEmitter from '../../utils/events';
 import { useArweaveCompositeProvider } from '../useArweaveCompositeProvider/useArweaveCompositeProvider';
 
 export function useAuctionsTable() {
-  const [{ blockHeight }, dispatchGlobalState] = useGlobalState();
+  const [{ blockHeight, walletAddress }, dispatchGlobalState] =
+    useGlobalState();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] =
     useState<keyof AuctionTableData>('closingDate');
   const [rows, setRows] = useState<AuctionTableData[]>([]);
+  const itemCount = useRef<number>(0);
+  const itemsLoaded = useRef<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [percent, setPercentLoaded] = useState<number>(0);
   const arweaveDataProvider = useArweaveCompositeProvider();
@@ -31,7 +34,7 @@ export function useAuctionsTable() {
 
   useEffect(() => {
     fetchAuctionRows();
-  }, [blockHeight]);
+  }, [walletAddress]);
 
   async function updateBlockHeight(): Promise<void> {
     try {
@@ -349,35 +352,52 @@ export function useAuctionsTable() {
 
   async function fetchAuctionRows(): Promise<void> {
     setIsLoading(true);
+    itemCount.current = 0;
 
     const fetchedRows: AuctionTableData[] = [];
-    const domainsInAuction = await arweaveDataProvider.getDomainsInAuction();
+    try {
+      const domainsInAuction = await arweaveDataProvider.getDomainsInAuction({
+        address: walletAddress,
+      });
+      itemCount.current = domainsInAuction.length;
 
-    // TODO: do this concurrently
-    for (const domain of domainsInAuction) {
-      try {
-        // TODO: update global state
-        const blockHeight = await arweaveDataProvider.getCurrentBlockHeight();
-        const auction = await arweaveDataProvider.getAuction({ domain });
-        const rowData = generateAuctionTableData({ blockHeight, auction });
+      const currentBlockHeight =
+        await arweaveDataProvider.getCurrentBlockHeight();
+
+      // TODO: do this concurrently
+      for (const domain of domainsInAuction) {
+        const auction = await arweaveDataProvider.getAuction({
+          domain,
+          address: walletAddress,
+        });
+        if (!auction) {
+          return;
+        }
+        const rowData = generateAuctionTableData({
+          blockHeight: currentBlockHeight,
+          auction,
+        });
         if (!rowData) {
           continue;
         }
         // sort by confirmation count (ASC) by default
         fetchedRows.push(rowData);
         fetchedRows.sort((a, b) => a.closingDate - b.closingDate);
-      } catch (error) {
-        eventEmitter.emit('error', error);
-      } finally {
+        if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
+
         setPercentLoaded(
-          ((Object.keys(domainsInAuction).indexOf(domain) + 1) /
-            Object.keys(domainsInAuction).length) *
-            100,
+          Math.round((itemsLoaded.current / itemCount.current) * 100),
         );
       }
+    } catch (error) {
+      eventEmitter.emit('error', error);
+      console.error(error);
+    } finally {
+      itemCount.current = 0;
+      itemsLoaded.current = 0;
+      setRows(fetchedRows);
+      setIsLoading(false);
     }
-    setRows(fetchedRows);
-    setIsLoading(false);
   }
 
   return {

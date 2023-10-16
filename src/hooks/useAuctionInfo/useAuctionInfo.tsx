@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 
-import { WalletAddress } from '../../components/layout/WalletAddress/WalletAddress';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { Auction, TRANSACTION_TYPES } from '../../types';
 import eventEmitter from '../../utils/events';

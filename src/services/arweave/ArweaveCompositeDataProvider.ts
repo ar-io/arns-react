@@ -277,9 +277,13 @@ export class ArweaveCompositeDataProvider
     );
   }
 
-  async getDomainsInAuction(): Promise<string[]> {
+  async getDomainsInAuction({
+    address,
+  }: {
+    address?: ArweaveTransactionID;
+  }): Promise<string[]> {
     return Promise.any(
-      this._contractProviders.map((p) => p.getDomainsInAuction()),
+      this._contractProviders.map((p) => p.getDomainsInAuction({ address })),
     );
   }
 
