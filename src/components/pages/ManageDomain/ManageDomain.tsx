@@ -16,6 +16,7 @@ import {
   getInteractionTypeFromField,
   getLeaseDurationFromEndTimestamp,
   getPendingInteractionsRowsForContract,
+  getUndernameCount,
   isArweaveTransactionID,
   lowerCaseDomain,
 } from '../../../utils';
@@ -157,9 +158,9 @@ function ManageDomain() {
         ttlSeconds: contract.getRecord('@')?.ttlSeconds ?? DEFAULT_TTL_SECONDS,
         leaseDuration: `${getLeaseDurationString()}`,
         // -1 because @ record is not counted
-        undernames: `${
-          Object.entries(contract.records).filter(([n]) => n !== '@').length
-        }/${(record?.undernames ?? DEFAULT_MAX_UNDERNAMES).toLocaleString()}`,
+        undernames: `${getUndernameCount(contract.records)}/${(
+          record?.undernames ?? DEFAULT_MAX_UNDERNAMES
+        ).toLocaleString()}`,
       };
 
       // get pending tx details

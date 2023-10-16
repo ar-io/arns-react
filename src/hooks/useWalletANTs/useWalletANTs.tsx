@@ -1,5 +1,5 @@
 import { Tooltip } from 'antd';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { useArweaveCompositeProvider, useWalletAddress } from '..';
@@ -26,23 +26,39 @@ import {
 } from '../../utils';
 import eventEmitter from '../../utils/events';
 
-export function useWalletANTs(ids: ArweaveTransactionID[]) {
+export function useWalletANTs() {
   const [{ blockHeight }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
   const { walletAddress } = useWalletAddress();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] = useState<keyof ANTMetadata>('status');
   const [rows, setRows] = useState<ANTMetadata[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [itemCount, setItemCount] = useState<number>(0);
-  const [itemsLoaded, setItemsLoaded] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const itemCount = useRef<number>(0);
+  const itemsLoaded = useRef<number>(0);
   const [percent, setPercentLoaded] = useState<number | undefined>();
 
   useEffect(() => {
-    if (ids.length && walletAddress) {
-      fetchPDNTRows(ids, walletAddress);
+    refresh();
+  }, []);
+
+  async function refresh() {
+    try {
+      setIsLoading(true);
+      if (walletAddress && blockHeight) {
+        const { contractTxIds } =
+          await arweaveDataProvider.getContractsForWallet(
+            walletAddress,
+            'ant', // only fetches contracts that have a state that matches ant spec
+          );
+        await fetchPDNTRows(contractTxIds, walletAddress);
+      }
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    } finally {
+      setIsLoading(false);
     }
-  }, [ids]);
+  }
 
   function generateTableColumns(): any[] {
     return [
@@ -394,6 +410,12 @@ export function useWalletANTs(ids: ArweaveTransactionID[]) {
         }),
         {},
       );
+      // TODO: react strict mode makes this increment twice in dev
+      if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
+
+      setPercentLoaded(
+        Math.round((itemsLoaded.current / itemCount.current) * 100),
+      );
 
       return {
         ...rowData,
@@ -402,9 +424,6 @@ export function useWalletANTs(ids: ArweaveTransactionID[]) {
       };
     } catch (error) {
       console.error(error);
-    } finally {
-      setPercentLoaded(((itemsLoaded + 1) / itemCount) * 100);
-      setItemsLoaded(itemsLoaded + 1);
     }
   }
 
@@ -412,11 +431,11 @@ export function useWalletANTs(ids: ArweaveTransactionID[]) {
     ids: ArweaveTransactionID[],
     address: ArweaveTransactionID,
   ) {
+    itemsLoaded.current = 0;
     const fetchedRows: ANTMetadata[] = [];
     const tokenIds = new Set(ids);
 
     try {
-      setIsLoading(true);
       const cachedTokens = await arweaveDataProvider.getCachedNameTokens(
         address,
       );
@@ -427,7 +446,7 @@ export function useWalletANTs(ids: ArweaveTransactionID[]) {
           }
         });
       }
-      setItemCount(tokenIds.size);
+      itemCount.current = tokenIds.size;
 
       const confirmations = await arweaveDataProvider.getTransactionStatus(
         [...tokenIds],
@@ -435,8 +454,14 @@ export function useWalletANTs(ids: ArweaveTransactionID[]) {
       );
 
       const allData: ANTMetadata[] = await Promise.all(
-        [...tokenIds].map((id, index) =>
-          fetchRowData(id, address, index, confirmations[id.toString()]),
+        [...tokenIds].map(
+          async (id, index) =>
+            await fetchRowData(
+              id,
+              address,
+              index,
+              confirmations[id.toString()],
+            ),
         ),
       ).then((rows) =>
         rows.reduce((acc: ANTMetadata[], row: ANTMetadata | undefined) => {
@@ -451,9 +476,6 @@ export function useWalletANTs(ids: ArweaveTransactionID[]) {
       fetchedRows.sort((a, b) => a?.status - b?.status);
     } catch (error) {
       eventEmitter.emit('error', error);
-    } finally {
-      setPercentLoaded((fetchedRows.length / tokenIds.size) * 100);
-      setIsLoading(false);
     }
 
     setRows(fetchedRows);
@@ -466,5 +488,6 @@ export function useWalletANTs(ids: ArweaveTransactionID[]) {
     rows,
     sortField,
     sortAscending,
+    refresh,
   };
 }
