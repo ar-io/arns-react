@@ -45,7 +45,7 @@ export function useWalletDomains() {
   const [selectedRow] = useState<PDNSTableRow>();
   const [rows, setRows] = useState<PDNSTableRow[]>([]);
   // loading info
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const itemCount = useRef<number>(0);
   const itemsLoaded = useRef<number>(0);
   const [percent, setPercentLoaded] = useState<number | undefined>();
@@ -57,7 +57,6 @@ export function useWalletDomains() {
   }, []);
 
   async function refresh() {
-    console.log('rendering useWalletDomains.tsx');
     try {
       setIsLoading(true);
       if (walletAddress && blockHeight) {
@@ -489,7 +488,7 @@ export function useWalletDomains() {
         }),
         {},
       );
-      // TODO: investigate why this func is called twice - this is needed because itemsLoaded is incremented twice
+      // TODO: react strict mode makes this increment twice in dev
       if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
 
       setPercentLoaded(
@@ -531,7 +530,6 @@ export function useWalletDomains() {
     ids: ArweaveTransactionID[],
     address: ArweaveTransactionID,
   ) {
-    setIsLoading(true);
     setPercentLoaded(0);
     itemsLoaded.current = 0;
     const fetchedRows: PDNSTableRow[] = [];
@@ -603,10 +601,7 @@ export function useWalletDomains() {
       fetchedRows.sort((a, b) => a.status - b.status);
     } catch (error) {
       eventEmitter.emit('error', error);
-    } finally {
-      setIsLoading(false);
     }
-
     setRows(fetchedRows);
   }
 

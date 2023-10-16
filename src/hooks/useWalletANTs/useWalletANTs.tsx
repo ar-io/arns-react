@@ -33,7 +33,7 @@ export function useWalletANTs() {
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] = useState<keyof ANTMetadata>('status');
   const [rows, setRows] = useState<ANTMetadata[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const itemCount = useRef<number>(0);
   const itemsLoaded = useRef<number>(0);
   const [percent, setPercentLoaded] = useState<number | undefined>();
@@ -410,6 +410,7 @@ export function useWalletANTs() {
         }),
         {},
       );
+      // TODO: react strict mode makes this increment twice in dev
       if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
 
       setPercentLoaded(
@@ -435,7 +436,6 @@ export function useWalletANTs() {
     const tokenIds = new Set(ids);
 
     try {
-      setIsLoading(true);
       const cachedTokens = await arweaveDataProvider.getCachedNameTokens(
         address,
       );
@@ -476,8 +476,6 @@ export function useWalletANTs() {
       fetchedRows.sort((a, b) => a?.status - b?.status);
     } catch (error) {
       eventEmitter.emit('error', error);
-    } finally {
-      setIsLoading(false);
     }
 
     setRows(fetchedRows);
