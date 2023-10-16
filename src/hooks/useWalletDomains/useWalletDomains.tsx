@@ -26,6 +26,7 @@ import {
 import {
   decodeDomainToASCII,
   getPendingInteractionsRowsForContract,
+  getUndernameCount,
   handleTableSort,
 } from '../../utils';
 import {
@@ -467,12 +468,10 @@ export function useWalletDomains() {
           : 'Indefinite',
         status: confirmations ?? 0,
         undernameSupport: record?.undernames ?? DEFAULT_MAX_UNDERNAMES,
-        undernameCount: Object.keys(contract.records).filter(
-          (undername) => undername !== '@',
-        ).length,
-        undernames: `${Object.keys(contract.records)
-          .filter((undername) => undername !== '@')
-          .length.toLocaleString()} / ${(
+        undernameCount: getUndernameCount(contract.records),
+        undernames: `${getUndernameCount(
+          contract.records,
+        ).toLocaleString()} / ${(
           record?.undernames ?? DEFAULT_MAX_UNDERNAMES
         ).toLocaleString()}`,
         key: `${domain}-${record.contractTxId}`,

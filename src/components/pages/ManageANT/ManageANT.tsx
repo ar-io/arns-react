@@ -19,6 +19,7 @@ import {
 } from '../../../types';
 import {
   getInteractionTypeFromField,
+  getUndernameCount,
   mapTransactionDataKeyToPayload,
   validateMaxASCIILength,
   validateTTLSeconds,
@@ -135,9 +136,7 @@ function ManageANT() {
         contractTxId: contractTxId.toString(),
         associatedNames: !names.length ? 'N/A' : names.join(', '),
         //
-        undernames: `${
-          Object.entries(contract.records).filter(([n]) => n !== '@').length
-        }/${
+        undernames: `${getUndernameCount(contract.records)}/${
           Object.values(associatedRecords)[0]?.undernames ??
           DEFAULT_MAX_UNDERNAMES
         }`,

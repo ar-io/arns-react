@@ -151,3 +151,7 @@ export function formatForMaxCharCount(
 
   return str;
 }
+
+export function getUndernameCount(records: Record<string, any>): number {
+  return Object.keys(records).filter((key) => key !== '@').length;
+}
