@@ -460,7 +460,7 @@ export function useWalletANTs() {
               id,
               address,
               index,
-              confirmations[id.toString()],
+              confirmations[id.toString()].confirmations,
             ),
         ),
       ).then((rows) =>

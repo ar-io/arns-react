@@ -36,9 +36,18 @@ import {
 } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 
+type DomainData = {
+  record: PDNSRecordEntry & { domain: string };
+  state?: PDNTContractJSON;
+  blockHeight?: number;
+  pendingContractInteractions?: ContractInteraction[];
+  errors?: string[];
+};
+
 export function useWalletDomains() {
   const [{ gateway, blockHeight }] = useGlobalState();
   const arweaveDataProvider = useArweaveCompositeProvider();
+  const [domainData, setDomainData] = useState<DomainData[]>([]);
   const { walletAddress } = useWalletAddress();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] = useState<keyof PDNSTableRow>('status');
@@ -53,19 +62,30 @@ export function useWalletDomains() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    refresh();
-  }, []);
+    if (walletAddress) {
+      if (!domainData.length) {
+        load();
+        return;
+      }
+      fetchDomainRows(domainData, walletAddress, blockHeight);
+    }
+  }, [domainData, blockHeight]);
 
-  async function refresh() {
+  async function load() {
     try {
       setIsLoading(true);
-      if (walletAddress && blockHeight) {
+      if (walletAddress) {
         const { contractTxIds } =
           await arweaveDataProvider.getContractsForWallet(
             walletAddress,
             'ant', // only fetches contracts that have a state that matches ant spec
           );
-        await fetchDomainRows(contractTxIds, walletAddress);
+        const data = await fetchDomainData(
+          contractTxIds,
+          walletAddress,
+          blockHeight,
+        );
+        setDomainData(data);
       }
     } catch (error) {
       eventEmitter.emit('error', error);
@@ -370,12 +390,21 @@ export function useWalletDomains() {
         align: 'left',
         width: '18%',
         className: 'white manage-assets-table-header',
-        render: (val: number) => <TransactionStatus confirmations={val} />,
+        render: (val?: number) => (
+          <TransactionStatus
+            confirmations={val ?? 0}
+            errorMessage={
+              !val ? 'Unable to get confirmations for contract' : undefined
+            }
+          />
+        ),
         onHeaderCell: () => {
           return {
             onClick: () => {
               rows.sort((a, b) =>
-                sortAscending ? a.status - b.status : b.status - a.status,
+                sortAscending
+                  ? (a.status ?? 1) - (b.status ?? 1)
+                  : (b.status ?? 1) - (a.status ?? 1),
               );
               // forces update of rows
               setRows([...rows]);
@@ -412,99 +441,6 @@ export function useWalletDomains() {
     ];
   }
 
-  async function fetchDomainRow(
-    domain: string,
-    record: PDNSRecordEntry,
-    address: ArweaveTransactionID,
-    txConfirmations: number,
-  ): Promise<PDNSTableRow | undefined> {
-    try {
-      const [contractState, confirmations, pendingContractInteractions] =
-        await Promise.all([
-          arweaveDataProvider
-            .getContractState<PDNTContractJSON>(
-              new ArweaveTransactionID(record.contractTxId),
-              address,
-            )
-            .catch((e) => console.error(e)),
-          txConfirmations,
-          arweaveDataProvider
-            .getPendingContractInteractions(
-              new ArweaveTransactionID(record.contractTxId),
-              address.toString(),
-            )
-            .catch((e) => {
-              console.error(e);
-            }),
-        ]);
-
-      if (!contractState) {
-        throw Error(
-          `Failed to load contract: ${record.contractTxId.toString()}`,
-        );
-      }
-
-      const contract = new PDNTContract(
-        contractState,
-        new ArweaveTransactionID(record.contractTxId),
-      );
-
-      // simple check that it is ANT shaped contract
-      if (!contract.isValid()) {
-        throw new Error(`Invalid contract: ${record.contractTxId.toString()}`);
-      }
-
-      const rowData = {
-        name: decodeDomainToASCII(domain),
-        id: record.contractTxId,
-        role:
-          contract.owner === walletAddress?.toString()
-            ? 'Owner'
-            : contractState.controller === walletAddress?.toString()
-            ? 'Controller'
-            : 'N/A',
-        expiration: record.endTimestamp
-          ? new Date(record.endTimestamp * 1000)
-          : 'Indefinite',
-        status: confirmations ?? 0,
-        undernameSupport: record?.undernames ?? DEFAULT_MAX_UNDERNAMES,
-        undernameCount: getUndernameCount(contract.records),
-        undernames: `${getUndernameCount(
-          contract.records,
-        ).toLocaleString()} / ${(
-          record?.undernames ?? DEFAULT_MAX_UNDERNAMES
-        ).toLocaleString()}`,
-        key: `${domain}-${record.contractTxId}`,
-      };
-      const pendingTxsForContract = getPendingInteractionsRowsForContract(
-        pendingContractInteractions ?? [],
-        rowData,
-      );
-
-      const pendingInteractions = pendingTxsForContract.reduce(
-        (pendingValues, i) => ({
-          ...pendingValues,
-          [i.attribute]: i.value,
-        }),
-        {},
-      );
-      // TODO: react strict mode makes this increment twice in dev
-      if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
-
-      setPercentLoaded(
-        Math.round((itemsLoaded.current / itemCount.current) * 100),
-      );
-      // TODO: add error messages and reload state to row
-      return {
-        ...rowData,
-        ...pendingInteractions,
-        hasPending: !!pendingTxsForContract.length,
-      };
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
   function buildFakeRecord(cachedRecord: ContractInteraction) {
     const record: PDNSRecordEntry = {
       type:
@@ -525,15 +461,15 @@ export function useWalletDomains() {
     };
     return record;
   }
-
-  async function fetchDomainRows(
+  async function fetchDomainData(
     ids: ArweaveTransactionID[],
     address: ArweaveTransactionID,
-  ) {
+    currentBlockHeight?: number,
+  ): Promise<DomainData[]> {
     setPercentLoaded(0);
     itemsLoaded.current = 0;
-    const fetchedRows: PDNSTableRow[] = [];
     const tokenIds = new Set(ids);
+    let datas: DomainData[] = [];
 
     try {
       const cachedInteractions =
@@ -543,7 +479,10 @@ export function useWalletDomains() {
         );
       const cachedRegistrations = cachedInteractions.reduce(
         (acc: PDNSDomains, interaction) => {
-          if (interaction.payload?.function === 'buyRecord') {
+          if (
+            interaction.payload?.function === 'buyRecord' &&
+            !interaction?.payload?.auction
+          ) {
             acc[interaction.payload.name] = buildFakeRecord(interaction);
             tokenIds.add(
               new ArweaveTransactionID(
@@ -557,45 +496,130 @@ export function useWalletDomains() {
         },
         {},
       );
-
       const registrations = await arweaveDataProvider.getRecords({
         filters: { contractTxId: [...tokenIds] },
       });
       const consolidatedRecords = Object.entries({
         ...cachedRegistrations,
         ...registrations,
-      });
-      const confirmations = await arweaveDataProvider.getTransactionStatus(
-        [...tokenIds],
-        blockHeight,
-      );
-      itemCount.current = consolidatedRecords.length;
-      const rowData = await Promise.all(
-        [...tokenIds].map(async (id: ArweaveTransactionID) => {
-          const record = consolidatedRecords.find(
-            ([, record]) => record.contractTxId === id.toString(),
-          );
-          if (record) {
-            const row = await fetchDomainRow(
-              record[0],
-              record[1],
-              address,
-              confirmations[record[1].contractTxId],
-            );
-            return row;
-          }
-        }),
-      ).then((rows) =>
-        rows.reduce((acc: PDNSTableRow[], row) => {
-          if (row) {
-            acc.push(row);
-          }
+      }).reduce(
+        (
+          acc: Array<PDNSRecordEntry & { domain: string }>,
+          [domain, record],
+        ) => {
+          acc.push({ ...record, domain });
           return acc;
-        }, []),
+        },
+        [],
       );
+      const allBlockHeights = await arweaveDataProvider
+        .getTransactionStatus([...tokenIds], currentBlockHeight)
+        .catch((e) => console.error(e));
+
+      itemCount.current = consolidatedRecords.length;
+
+      const newDatas = consolidatedRecords.map(async (record) => {
+        const errors = [];
+        const [contractState, pendingContractInteractions] = await Promise.all([
+          arweaveDataProvider
+            .getContractState<PDNTContractJSON>(
+              new ArweaveTransactionID(record.contractTxId),
+              address,
+            )
+            .catch((e) => console.error(e)),
+          arweaveDataProvider
+            .getPendingContractInteractions(
+              new ArweaveTransactionID(record.contractTxId),
+              address.toString(),
+            )
+            .catch((e) => {
+              console.error(e);
+            }),
+        ]);
+
+        const contract = new PDNTContract(
+          contractState ?? undefined,
+          new ArweaveTransactionID(record.contractTxId),
+        );
+        if (!contractState) {
+          errors.push(
+            `Failed to load contract: ${record.contractTxId.toString()}`,
+          );
+        }
+        // simple check that it is ANT shaped contract
+        if (!contract.isValid()) {
+          errors.push(`Invalid contract: ${record.contractTxId.toString()}`);
+        }
+        // TODO: react strict mode makes this increment twice in dev
+        if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
+        setPercentLoaded(
+          Math.round((itemsLoaded.current / itemCount.current) * 100),
+        );
+
+        const data: DomainData = {
+          record,
+          state: contractState ?? undefined,
+          pendingContractInteractions: pendingContractInteractions ?? undefined,
+          blockHeight:
+            allBlockHeights?.[record.contractTxId.toString()].blockHeight,
+          errors,
+        };
+
+        return data;
+      });
+
+      datas = await Promise.all(newDatas);
+    } catch (error) {
+      console.error(error);
+    }
+    return datas;
+  }
+
+  function fetchDomainRows(
+    datas: DomainData[],
+    address: ArweaveTransactionID,
+    currentBlockHeight?: number,
+  ) {
+    const fetchedRows: PDNSTableRow[] = [];
+
+    try {
+      const rowData = datas.map((data: DomainData) => {
+        const { record, state, blockHeight } = data;
+        const contract = new PDNTContract(
+          state,
+          new ArweaveTransactionID(record.contractTxId),
+        );
+
+        return {
+          name: decodeDomainToASCII(data.record.domain),
+          id: data.record.contractTxId,
+          role:
+            contract.owner === walletAddress?.toString()
+              ? 'Owner'
+              : contract.controllers.includes(address.toString())
+              ? 'Controller'
+              : 'N/A',
+          expiration: record.endTimestamp
+            ? new Date(record.endTimestamp * 1000)
+            : 'Indefinite',
+          status:
+            blockHeight && currentBlockHeight
+              ? currentBlockHeight - blockHeight
+              : undefined,
+          undernameSupport: record?.undernames ?? DEFAULT_MAX_UNDERNAMES,
+          undernameCount: getUndernameCount(contract.records),
+          undernames: `${getUndernameCount(
+            contract.records,
+          ).toLocaleString()} / ${(
+            record?.undernames ?? DEFAULT_MAX_UNDERNAMES
+          ).toLocaleString()}`,
+          key: `${record.domain}-${record.contractTxId}`,
+          hasPending: !!data.pendingContractInteractions?.length,
+        };
+      });
       fetchedRows.push(...rowData);
       // sort by confirmations by default
-      fetchedRows.sort((a, b) => a.status - b.status);
+      fetchedRows.sort((a, b) => (a.status ?? 1) - (b.status ?? 1));
     } catch (error) {
       eventEmitter.emit('error', error);
     }
@@ -611,6 +635,6 @@ export function useWalletDomains() {
     sortAscending,
     selectedRow,
     loadingManageDomain,
-    refresh,
+    refresh: load,
   };
 }

@@ -99,7 +99,7 @@ export class ArweaveCompositeDataProvider
   async getTransactionStatus(
     ids: ArweaveTransactionID[] | ArweaveTransactionID,
     blockheight?: number,
-  ): Promise<Record<string, number>> {
+  ): Promise<Record<string, { confirmations: number; blockHeight: number }>> {
     return this._arweaveProvider.getTransactionStatus(ids, blockheight);
   }
 

@@ -1,10 +1,22 @@
+import Arweave from 'arweave';
+
 import {
   ArweaveTransactionID,
   PDNSContractJSON,
   PDNTContractJSON,
 } from '../types';
 
+export const PDNS_SERVICE_API =
+  process.env.VITE_ARNS_SERVICE_API ?? 'https://dev.arns.app';
+export const ARWEAVE_HOST = process.env.VITE_ARWEAVE_HOST ?? 'ar-io.dev';
+
+export const DEFAULT_ARWEAVE = new Arweave({
+  host: ARWEAVE_HOST,
+  protocol: 'https',
+});
+
 // note: lookahead/lookbehind regex's are not compatible with iOS browsers
+
 export const MAX_ARNS_NAME_LENGTH = 51;
 export const MAX_UNDERNAME_LENGTH = 61;
 export const PDNS_NAME_REGEX = new RegExp(

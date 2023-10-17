@@ -51,8 +51,8 @@ export class ArweaveCompositeDataProviderMock
 
   async getTransactionStatus(
     ids: ArweaveTransactionID[] | ArweaveTransactionID,
-  ): Promise<Record<string, number>> {
-    return { '': 0 }; // Mock value
+  ): Promise<Record<string, { confirmations: number; blockHeight: number }>> {
+    return { '': { confirmations: 0, blockHeight: 0 } }; // Mock value
   }
 
   async getTransactionTags(

@@ -277,7 +277,7 @@ export interface ArweaveDataProvider {
   getTransactionStatus(
     ids: ArweaveTransactionID[] | ArweaveTransactionID,
     blockheight?: number,
-  ): Promise<Record<string, number>>;
+  ): Promise<Record<string, { confirmations: number; blockHeight: number }>>;
   getTransactionTags(
     id: ArweaveTransactionID,
   ): Promise<{ [x: string]: string }>;
@@ -648,7 +648,7 @@ export type PDNSTableRow = {
   undernames: string;
   id: string;
   expiration: Date | string;
-  status: number;
+  status?: number;
   key: string | number;
   hasPending: boolean;
 };
