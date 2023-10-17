@@ -42,6 +42,7 @@ jobs:
           VITE_GITHUB_HASH: ${{ github.sha }}
           VITE_ARWEAVE_HOST: ${{ vars.ARWEAVE_HOST }}
           VITE_ARNS_SERVICE_API: ${{ vars.ARNS_SERVICE_API }}
+          VITE_ARNS_REGISTRY_ADDRESS: ${{ vars.VITE_ARNS_REGISTRY_ADDRESS }}
 
       # Disribute to Firebase
       - name: Deploy 🚀
