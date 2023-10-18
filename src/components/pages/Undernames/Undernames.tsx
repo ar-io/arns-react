@@ -44,7 +44,7 @@ function Undernames() {
     action,
     setAction,
     refresh,
-  } = useUndernames(pdntId!);
+  } = useUndernames(pdntId);
   const [tableLoading, setTableLoading] = useState(true);
   const [tablePage, setTablePage] = useState<number>(1);
   const [searchParams, setSearchParams] = useSearchParams();

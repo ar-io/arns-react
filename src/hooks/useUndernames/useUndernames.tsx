@@ -26,7 +26,7 @@ import { isArweaveTransactionID } from '../../utils';
 import { PDNS_NAME_REGEX_PARTIAL } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 
-export function useUndernames(id: ArweaveTransactionID) {
+export function useUndernames(id?: ArweaveTransactionID) {
   const [{ gateway, walletAddress, arweaveDataProvider }] = useGlobalState();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] = useState<keyof UndernameMetadata>('name');
@@ -342,7 +342,10 @@ export function useUndernames(id: ArweaveTransactionID) {
     return newColumns;
   }
 
-  async function fetchUndernameRows(id: ArweaveTransactionID): Promise<void> {
+  async function fetchUndernameRows(id?: ArweaveTransactionID): Promise<void> {
+    if (!id) {
+      return;
+    }
     setIsLoading(true);
     const domain = await arweaveDataProvider
       .getRecords({ filters: { contractTxId: [id] }, address: walletAddress })
