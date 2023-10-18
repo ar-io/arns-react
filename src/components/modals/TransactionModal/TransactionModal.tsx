@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 
-import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
+import { useIsMobile } from '../../../hooks';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
   ANTMetadata,
   ArweaveTransactionID,
@@ -33,7 +34,7 @@ function TransactionModal({
   contractId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
   showModal: () => void;
 }) {
-  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [{ arweaveDataProvider }] = useGlobalState();
   const isMobile = useIsMobile();
   const [accepted, setAccepted] = useState<boolean>(false);
   const [toAddress, setToAddress] = useState<string>('');

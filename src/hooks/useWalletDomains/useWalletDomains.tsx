@@ -11,42 +11,34 @@ import ArweaveID, {
   ArweaveIdTypes,
 } from '../../components/layout/ArweaveID/ArweaveID';
 import TransactionStatus from '../../components/layout/TransactionStatus/TransactionStatus';
-import { useArweaveCompositeProvider, useWalletAddress } from '../../hooks';
+import { useWalletAddress } from '../../hooks';
 import { PDNTContract } from '../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import {
   ArweaveTransactionID,
   ContractInteraction,
-  PDNSDomains,
   PDNSRecordEntry,
   PDNSTableRow,
   PDNTContractJSON,
-  TRANSACTION_TYPES,
 } from '../../types';
 import {
   decodeDomainToASCII,
-  getPendingInteractionsRowsForContract,
   getUndernameCount,
   handleTableSort,
 } from '../../utils';
-import {
-  ARNS_REGISTRY_ADDRESS,
-  DEFAULT_MAX_UNDERNAMES,
-  YEAR_IN_MILLISECONDS,
-} from '../../utils/constants';
+import { DEFAULT_MAX_UNDERNAMES } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 
 type DomainData = {
   record: PDNSRecordEntry & { domain: string };
   state?: PDNTContractJSON;
-  blockHeight?: number;
+  transactionBlockHeight?: number;
   pendingContractInteractions?: ContractInteraction[];
   errors?: string[];
 };
 
 export function useWalletDomains() {
-  const [{ gateway, blockHeight }] = useGlobalState();
-  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [{ gateway, blockHeight, arweaveDataProvider }] = useGlobalState();
   const [domainData, setDomainData] = useState<DomainData[]>([]);
   const { walletAddress } = useWalletAddress();
   const [sortAscending, setSortOrder] = useState(true);
@@ -62,11 +54,11 @@ export function useWalletDomains() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    load();
+  }, [walletAddress]);
+
+  useEffect(() => {
     if (walletAddress) {
-      if (!domainData.length) {
-        load();
-        return;
-      }
       fetchDomainRows(domainData, walletAddress, blockHeight);
     }
   }, [domainData, blockHeight]);
@@ -390,11 +382,15 @@ export function useWalletDomains() {
         align: 'left',
         width: '18%',
         className: 'white manage-assets-table-header',
-        render: (val?: number) => (
+        render: (val: number, row: PDNSTableRow) => (
           <TransactionStatus
-            confirmations={val ?? 0}
+            confirmations={val}
             errorMessage={
-              !val ? 'Unable to get confirmations for contract' : undefined
+              !val && !row.hasPending
+                ? row.errors
+                  ? row.errors?.join(', ')
+                  : 'Unable to get confirmations for ANT Contract'
+                : undefined
             }
           />
         ),
@@ -402,9 +398,7 @@ export function useWalletDomains() {
           return {
             onClick: () => {
               rows.sort((a, b) =>
-                sortAscending
-                  ? (a.status ?? 1) - (b.status ?? 1)
-                  : (b.status ?? 1) - (a.status ?? 1),
+                sortAscending ? a.status - b.status : b.status - a.status,
               );
               // forces update of rows
               setRows([...rows]);
@@ -441,26 +435,6 @@ export function useWalletDomains() {
     ];
   }
 
-  function buildFakeRecord(cachedRecord: ContractInteraction) {
-    const record: PDNSRecordEntry = {
-      type:
-        cachedRecord.payload.type === TRANSACTION_TYPES.LEASE
-          ? TRANSACTION_TYPES.LEASE
-          : TRANSACTION_TYPES.BUY,
-      contractTxId:
-        cachedRecord.payload.contractTxId === 'atomic'
-          ? cachedRecord.id
-          : cachedRecord.payload.contractTxId,
-      startTimestamp: Math.round(cachedRecord.timestamp / 1000),
-      endTimestamp:
-        cachedRecord.type === TRANSACTION_TYPES.LEASE
-          ? cachedRecord.timestamp +
-            Math.max(1, +cachedRecord.payload.years) * YEAR_IN_MILLISECONDS
-          : undefined,
-      undernames: DEFAULT_MAX_UNDERNAMES,
-    };
-    return record;
-  }
   async function fetchDomainData(
     ids: ArweaveTransactionID[],
     address: ArweaveTransactionID,
@@ -470,49 +444,16 @@ export function useWalletDomains() {
     itemsLoaded.current = 0;
     const tokenIds = new Set(ids);
     let datas: DomainData[] = [];
-
     try {
-      const cachedInteractions =
-        await arweaveDataProvider.getPendingContractInteractions(
-          new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
-          address.toString(),
-        );
-      const cachedRegistrations = cachedInteractions.reduce(
-        (acc: PDNSDomains, interaction) => {
-          if (
-            interaction.payload?.function === 'buyRecord' &&
-            !interaction?.payload?.auction
-          ) {
-            acc[interaction.payload.name] = buildFakeRecord(interaction);
-            tokenIds.add(
-              new ArweaveTransactionID(
-                interaction.payload.contractTxId === 'atomic'
-                  ? interaction.id
-                  : interaction.payload.contractTxId,
-              ),
-            );
-          }
-          return acc;
-        },
-        {},
+      const registrations =
+        await arweaveDataProvider.getRecords<PDNSRecordEntry>({
+          filters: { contractTxId: [...tokenIds] },
+          address,
+        });
+      const consolidatedRecords = Object.entries(registrations).map(
+        ([domain, record]) => ({ ...record, domain }),
       );
-      const registrations = await arweaveDataProvider.getRecords({
-        filters: { contractTxId: [...tokenIds] },
-      });
-      const consolidatedRecords = Object.entries({
-        ...cachedRegistrations,
-        ...registrations,
-      }).reduce(
-        (
-          acc: Array<PDNSRecordEntry & { domain: string }>,
-          [domain, record],
-        ) => {
-          acc.push({ ...record, domain });
-          return acc;
-        },
-        [],
-      );
-      const allBlockHeights = await arweaveDataProvider
+      const allTransactionBlockHeights = await arweaveDataProvider
         .getTransactionStatus([...tokenIds], currentBlockHeight)
         .catch((e) => console.error(e));
 
@@ -560,8 +501,9 @@ export function useWalletDomains() {
           record,
           state: contractState ?? undefined,
           pendingContractInteractions: pendingContractInteractions ?? undefined,
-          blockHeight:
-            allBlockHeights?.[record.contractTxId.toString()].blockHeight,
+          transactionBlockHeight:
+            allTransactionBlockHeights?.[record.contractTxId.toString()]
+              .blockHeight,
           errors,
         };
 
@@ -584,7 +526,7 @@ export function useWalletDomains() {
 
     try {
       const rowData = datas.map((data: DomainData) => {
-        const { record, state, blockHeight } = data;
+        const { record, state, transactionBlockHeight } = data;
         const contract = new PDNTContract(
           state,
           new ArweaveTransactionID(record.contractTxId),
@@ -603,9 +545,9 @@ export function useWalletDomains() {
             ? new Date(record.endTimestamp * 1000)
             : 'Indefinite',
           status:
-            blockHeight && currentBlockHeight
-              ? currentBlockHeight - blockHeight
-              : undefined,
+            transactionBlockHeight && currentBlockHeight
+              ? currentBlockHeight - transactionBlockHeight
+              : 0,
           undernameSupport: record?.undernames ?? DEFAULT_MAX_UNDERNAMES,
           undernameCount: getUndernameCount(contract.records),
           undernames: `${getUndernameCount(
@@ -615,6 +557,7 @@ export function useWalletDomains() {
           ).toLocaleString()}`,
           key: `${record.domain}-${record.contractTxId}`,
           hasPending: !!data.pendingContractInteractions?.length,
+          errors: data.errors,
         };
       });
       fetchedRows.push(...rowData);

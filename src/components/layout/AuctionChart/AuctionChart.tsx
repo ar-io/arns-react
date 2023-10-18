@@ -15,7 +15,6 @@ import { CSSProperties, useEffect, useRef, useState } from 'react';
 import { Chart } from 'react-chartjs-2';
 import { ChartJSOrUndefined } from 'react-chartjs-2/dist/types';
 
-import { useArweaveCompositeProvider } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { Auction } from '../../../types';
 import { getNextPriceChangeTimestamp } from '../../../utils/auctions';
@@ -54,9 +53,10 @@ function AuctionChart({
     annotationPlugin,
   );
 
-  const [{ blockHeight: currentBlockHeight }, dispatchGlobalState] =
-    useGlobalState();
-  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [
+    { blockHeight: currentBlockHeight, arweaveDataProvider },
+    dispatchGlobalState,
+  ] = useGlobalState();
   const chartRef = useRef<ChartJSOrUndefined>(null);
 
   const [timeUntilUpdate, setTimeUntilUpdate] = useState<number>(0);

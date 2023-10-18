@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useMatches } from 'react-router';
 import { Link } from 'react-router-dom';
 
-import { useArweaveCompositeProvider } from '../../../hooks';
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ArweaveTransactionID } from '../../../types';
 import { formatForMaxCharCount, isArweaveTransactionID } from '../../../utils';
 import { RESERVED_BREADCRUMB_TITLES } from '../../../utils/constants';
@@ -18,7 +18,7 @@ export type NavItem = {
 export const ANT_FLAG = 'ant-flag';
 
 function Breadcrumbs() {
-  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [{ arweaveDataProvider }] = useGlobalState();
   const { Item } = Breadcrumb;
   const location = useLocation();
   const path = location.pathname.split('/');

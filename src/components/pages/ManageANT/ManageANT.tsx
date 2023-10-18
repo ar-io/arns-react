@@ -3,7 +3,7 @@ import { Table } from 'antd';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 
-import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
+import { useIsMobile } from '../../../hooks';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
@@ -11,6 +11,7 @@ import {
   ContractInteraction,
   INTERACTION_TYPES,
   ManageANTRow,
+  PDNSRecordEntry,
   PDNTContractJSON,
   PDNTDetails,
   PDNT_INTERACTION_TYPES,
@@ -61,7 +62,7 @@ function ManageANT() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const location = useLocation();
-  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [{ arweaveDataProvider }] = useGlobalState();
   const [{ walletAddress }] = useGlobalState();
   const [pdntState, setPDNTState] = useState<PDNTContract>();
   const [pdntName, setPDNTName] = useState<string>();
@@ -116,7 +117,7 @@ function ManageANT() {
           contractTxId,
           address.toString(),
         ),
-        arweaveDataProvider.getRecords({
+        arweaveDataProvider.getRecords<PDNSRecordEntry>({
           filters: {
             contractTxId: [contractTxId],
           },

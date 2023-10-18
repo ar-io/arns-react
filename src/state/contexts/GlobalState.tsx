@@ -1,4 +1,3 @@
-import Arweave from 'arweave';
 import React, {
   Dispatch,
   createContext,

@@ -2,11 +2,7 @@ import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import {
-  useArweaveCompositeProvider,
-  useIsMobile,
-  useWalletAddress,
-} from '../../../hooks';
+import { useIsMobile, useWalletAddress } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ArweaveTransactionID } from '../../../types';
 import eventEmitter from '../../../utils/events';
@@ -20,8 +16,8 @@ import { WalletAddress } from '../../layout/WalletAddress/WalletAddress';
 import './styles.css';
 
 function NavMenuCard() {
-  const arweaveDataProvider = useArweaveCompositeProvider();
-  const [{ pdnsContractId }, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
+  const [{ pdnsContractId, arweaveDataProvider }, dispatchGlobalState] =
+    useGlobalState(); // eslint-disable-line
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
   const [walletDetails, setWalletDetails] = useState<{

@@ -8,11 +8,17 @@ import {
   ContractInteraction,
   PDNSContractJSON,
   PDNSRecordEntry,
+  PDNTContractDomainRecord,
   PDNTContractJSON,
   SmartweaveContractCache,
   TransactionCache,
 } from '../../types';
-import { isDomainReservedLength, lowerCaseDomain } from '../../utils';
+import {
+  buildFakeANTRecord,
+  buildFakeArNSRecord,
+  isDomainReservedLength,
+  lowerCaseDomain,
+} from '../../utils';
 import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
 import { LocalStorageCache } from '../cache/LocalStorageCache';
 import { PDNTContract } from './PDNTContract';
@@ -264,15 +270,46 @@ export class PDNSContractCache implements SmartweaveContractCache {
     return record;
   }
 
-  async getRecords({
+  async getRecords<T extends PDNSRecordEntry | PDNTContractDomainRecord>({
     contractTxId = new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
     filters,
+    address,
   }: {
     contractTxId?: ArweaveTransactionID;
+
     filters: {
       contractTxId?: ArweaveTransactionID[];
     };
-  }): Promise<{ [x: string]: PDNSRecordEntry }> {
+    address?: ArweaveTransactionID;
+  }): Promise<{ [x: string]: T }> {
+    // TODO: add getCachedRegistrations to transaction cache as a method once cache is converted to contractTxId index
+    const cachedRegistrations: Record<string, T> = {};
+    if (address) {
+      const cache = await this._cache.get(address.toString());
+      const cachedInteractions = cache.filter(
+        (i: ContractInteraction) =>
+          i.type === 'interaction' &&
+          i.contractTxId === contractTxId.toString() &&
+          i.payload.function ===
+            (contractTxId.toString() === ARNS_REGISTRY_ADDRESS
+              ? 'buyRecord'
+              : 'setRecord') &&
+          !i.payload?.auction,
+      );
+      cachedInteractions.forEach(
+        (i: ContractInteraction) =>
+          (cachedRegistrations[
+            contractTxId.toString() === ARNS_REGISTRY_ADDRESS
+              ? i.payload.name
+              : i.payload.subDomain
+          ] = (
+            contractTxId.toString() === ARNS_REGISTRY_ADDRESS
+              ? buildFakeArNSRecord(i)
+              : buildFakeANTRecord(i)
+          ) as T),
+      );
+    }
+
     const urlQueryParams = (filters.contractTxId ?? [])
       .map((id) =>
         new URLSearchParams({
@@ -288,7 +325,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
       }/v1/contract/${contractTxId.toString()}/records?${urlQueryParams}`,
     );
     const { records } = await res.json();
-    return records;
+    return { ...cachedRegistrations, ...records };
   }
 
   async getIoBalance(address: ArweaveTransactionID): Promise<number> {
