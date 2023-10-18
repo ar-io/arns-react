@@ -2,8 +2,9 @@ import { Descriptions } from 'antd';
 import { startCase } from 'lodash';
 import { isValidElement, useEffect, useState } from 'react';
 
-import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
+import { useIsMobile } from '../../../hooks';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
   ArweaveTransactionID,
   PDNSMapping,
@@ -79,7 +80,7 @@ function PDNTCard({
   bordered = false,
 }: PDNSMapping) {
   const isMobile = useIsMobile();
-  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [{ arweaveDataProvider }] = useGlobalState();
   const [pdntDetails, setPDNTDetails] = useState<{ [x: string]: any }>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [limitDetails, setLimitDetails] = useState<boolean>(true);

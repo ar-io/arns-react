@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
 
 import { useGlobalState } from '../../state/contexts/GlobalState';
-import { useArweaveCompositeProvider } from '../useArweaveCompositeProvider/useArweaveCompositeProvider';
 
 export function useRegistrationStatus(domain: string) {
-  const [{ blockHeight }, dispatchGlobalState] = useGlobalState();
-  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [{ blockHeight, arweaveDataProvider }, dispatchGlobalState] =
+    useGlobalState();
   const [isActiveAuction, setIsActiveAuction] = useState<boolean>(false);
   const [isAvailable, setIsAvailable] = useState<boolean>(false);
   const [isReserved, setIsReserved] = useState<boolean>(false);

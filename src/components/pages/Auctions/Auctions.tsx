@@ -1,7 +1,7 @@
 import { Table } from 'antd';
 import { useState } from 'react';
 
-import { useArweaveCompositeProvider, useAuctionsTable } from '../../../hooks';
+import { useAuctionsTable } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { getCustomPaginationButtons } from '../../../utils';
 import eventEmitter from '../../../utils/events';
@@ -9,9 +9,8 @@ import { RefreshIcon } from '../../icons';
 import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 
 function Auctions() {
-  const [, dispatchGlobalState] = useGlobalState();
+  const [{ arweaveDataProvider }, dispatchGlobalState] = useGlobalState();
   const { rows, columns, isLoading, percent } = useAuctionsTable();
-  const arweaveDataProvider = useArweaveCompositeProvider();
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   if (isLoading) {

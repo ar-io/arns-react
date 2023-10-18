@@ -2,7 +2,14 @@ import { Buffer } from 'buffer';
 import { CSSProperties } from 'react';
 
 import { ChevronLeftIcon, ChevronRightIcon } from '../../components/icons';
-import { TransactionTag } from '../../types';
+import {
+  ContractInteraction,
+  PDNSRecordEntry,
+  PDNTContractDomainRecord,
+  TRANSACTION_TYPES,
+  TransactionTag,
+} from '../../types';
+import { DEFAULT_MAX_UNDERNAMES, YEAR_IN_MILLISECONDS } from '../constants';
 import { fromB64Url } from '../encodings';
 
 export function tagsToObject(tags: TransactionTag[]): {
@@ -150,4 +157,44 @@ export function formatForMaxCharCount(
   }
 
   return str;
+}
+
+export function getUndernameCount(records: Record<string, any>): number {
+  return Object.keys(records).filter((key) => key !== '@').length;
+}
+
+export function buildPendingArNSRecord(cachedRecord: ContractInteraction) {
+  const record: PDNSRecordEntry = {
+    type:
+      cachedRecord.payload.type === TRANSACTION_TYPES.LEASE
+        ? TRANSACTION_TYPES.LEASE
+        : TRANSACTION_TYPES.BUY,
+    contractTxId:
+      cachedRecord.payload.contractTxId === 'atomic'
+        ? cachedRecord.id
+        : cachedRecord.payload.contractTxId,
+    startTimestamp: Math.round(cachedRecord.timestamp / 1000),
+    endTimestamp:
+      cachedRecord.type === TRANSACTION_TYPES.LEASE
+        ? cachedRecord.timestamp +
+          Math.max(1, +cachedRecord.payload.years) * YEAR_IN_MILLISECONDS
+        : undefined,
+    undernames: DEFAULT_MAX_UNDERNAMES,
+  };
+  return record;
+}
+
+export function buildPendingANTRecord(
+  cachedRecord: ContractInteraction,
+): PDNTContractDomainRecord {
+  if (cachedRecord.payload.function !== 'setRecord') {
+    throw new Error('Invalid ANT setRecord interaction');
+  }
+
+  const { transactionId, ttlSeconds } = cachedRecord.payload;
+  return {
+    transactionId,
+    ttlSeconds: +ttlSeconds,
+    maxUndernames: DEFAULT_MAX_UNDERNAMES,
+  };
 }

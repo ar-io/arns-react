@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 
-import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
+import { useIsMobile } from '../../../hooks';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
   ANTMetadata,
   ArweaveTransactionID,
@@ -10,6 +11,7 @@ import {
   TRANSACTION_TYPES,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
+import { getUndernameCount } from '../../../utils';
 import eventEmitter from '../../../utils/events';
 import { AlertTriangleIcon, CloseIcon } from '../../icons';
 import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
@@ -32,7 +34,7 @@ function TransactionModal({
   contractId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
   showModal: () => void;
 }) {
-  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [{ arweaveDataProvider }] = useGlobalState();
   const isMobile = useIsMobile();
   const [accepted, setAccepted] = useState<boolean>(false);
   const [toAddress, setToAddress] = useState<string>('');
@@ -49,9 +51,7 @@ function TransactionModal({
         if (!contract.isValid()) {
           throw new Error('Invalid ANT contract');
         }
-        const records = Object.keys(contract.records).filter(
-          (key) => key === '@',
-        ).length;
+        const records = getUndernameCount(contract.records);
         setRecordCount(records);
       })
       .catch(() => {

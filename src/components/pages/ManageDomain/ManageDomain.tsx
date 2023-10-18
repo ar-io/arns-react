@@ -3,7 +3,7 @@ import { Table } from 'antd';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 
-import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
+import { useIsMobile } from '../../../hooks';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
@@ -16,6 +16,7 @@ import {
   getInteractionTypeFromField,
   getLeaseDurationFromEndTimestamp,
   getPendingInteractionsRowsForContract,
+  getUndernameCount,
   isArweaveTransactionID,
   lowerCaseDomain,
 } from '../../../utils';
@@ -43,8 +44,8 @@ function ManageDomain() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const location = useLocation();
-  const arweaveDataProvider = useArweaveCompositeProvider();
-  const [{ walletAddress, pdnsSourceContract }] = useGlobalState();
+  const [{ walletAddress, pdnsSourceContract, arweaveDataProvider }] =
+    useGlobalState();
   const [rows, setRows] = useState<ManageDomainRow[]>([]);
   const [isMaxLeaseDuration, setIsMaxLeaseDuration] = useState<boolean>(false);
   const [isMaxUndernameCount, setIsMaxUndernameCount] =
@@ -83,7 +84,7 @@ function ManageDomain() {
           arweaveDataProvider.getContractState<PDNTContractJSON>(contractTxId),
           arweaveDataProvider
             .getTransactionStatus(contractTxId)
-            .then((status) => status[contractTxId.toString()]),
+            .then((status) => status[contractTxId.toString()].confirmations),
           arweaveDataProvider.getPendingContractInteractions(
             contractTxId,
             address.toString(),
@@ -157,9 +158,9 @@ function ManageDomain() {
         ttlSeconds: contract.getRecord('@')?.ttlSeconds ?? DEFAULT_TTL_SECONDS,
         leaseDuration: `${getLeaseDurationString()}`,
         // -1 because @ record is not counted
-        undernames: `${
-          Object.entries(contract.records).filter(([n]) => n !== '@').length
-        }/${(record?.undernames ?? DEFAULT_MAX_UNDERNAMES).toLocaleString()}`,
+        undernames: `${getUndernameCount(contract.records)}/${(
+          record?.undernames ?? DEFAULT_MAX_UNDERNAMES
+        ).toLocaleString()}`,
       };
 
       // get pending tx details

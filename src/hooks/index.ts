@@ -1,4 +1,3 @@
-export * from './useArweaveCompositeProvider/useArweaveCompositeProvider';
 export * from './useIsMobile/useIsMobile';
 export * from './usePDNSContract/usePDNSContract';
 export * from './useLongPress/useLongPress';

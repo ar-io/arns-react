@@ -15,11 +15,12 @@ import {
 import { getNextPriceChangeTimestamp, handleTableSort } from '../../utils';
 import { AVERAGE_BLOCK_TIME } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
-import { useArweaveCompositeProvider } from '../useArweaveCompositeProvider/useArweaveCompositeProvider';
 
 export function useAuctionsTable() {
-  const [{ blockHeight, walletAddress }, dispatchGlobalState] =
-    useGlobalState();
+  const [
+    { blockHeight, arweaveDataProvider, walletAddress },
+    dispatchGlobalState,
+  ] = useGlobalState();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] =
     useState<keyof AuctionTableData>('closingDate');
@@ -28,7 +29,6 @@ export function useAuctionsTable() {
   const itemsLoaded = useRef<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [percent, setPercentLoaded] = useState<number>(0);
-  const arweaveDataProvider = useArweaveCompositeProvider();
 
   const navigate = useNavigate();
 

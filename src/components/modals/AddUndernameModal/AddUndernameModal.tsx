@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
+import { useIsMobile } from '../../../hooks';
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
   ArweaveTransactionID,
+  PDNSRecordEntry,
   PDNTContractJSON,
   SetRecordPayload,
   VALIDATION_INPUT_TYPES,
@@ -34,7 +36,7 @@ function AddUndernameModal({
   closeModal: () => void;
   payloadCallback: (payload: SetRecordPayload) => void;
 }) {
-  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [{ arweaveDataProvider }] = useGlobalState();
   const isMobile = useIsMobile();
   const [state, setState] = useState<PDNTContractJSON>();
 
@@ -54,10 +56,12 @@ function AddUndernameModal({
         setState(state);
       });
     arweaveDataProvider
-      .getRecords({ filters: { contractTxId: [antId] } })
+      .getRecords<PDNSRecordEntry>({ filters: { contractTxId: [antId] } })
       .then((records) => {
         setMaxUndernameLength(
-          MAX_UNDERNAME_LENGTH - Object.keys(records)[0].length,
+          Object.keys(records)[0]?.length
+            ? MAX_UNDERNAME_LENGTH - Object.keys(records)[0].length
+            : MAX_UNDERNAME_LENGTH,
         );
       });
 

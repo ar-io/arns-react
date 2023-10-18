@@ -1,9 +1,9 @@
-import { Breadcrumb } from 'antd';
+import { Breadcrumb, Tooltip } from 'antd';
 import { useEffect, useState } from 'react';
 import { useLocation, useMatches } from 'react-router';
 import { Link } from 'react-router-dom';
 
-import { useArweaveCompositeProvider } from '../../../hooks';
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ArweaveTransactionID } from '../../../types';
 import { formatForMaxCharCount, isArweaveTransactionID } from '../../../utils';
 import { RESERVED_BREADCRUMB_TITLES } from '../../../utils/constants';
@@ -18,7 +18,7 @@ export type NavItem = {
 export const ANT_FLAG = 'ant-flag';
 
 function Breadcrumbs() {
-  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [{ arweaveDataProvider }] = useGlobalState();
   const { Item } = Breadcrumb;
   const location = useLocation();
   const path = location.pathname.split('/');
@@ -107,7 +107,9 @@ function Breadcrumbs() {
           }
         >
           {crumbs.map((item, index) => {
-            return (
+            const crumbTitle = handleCrumbTitle(item.name);
+
+            const crumbItem = (
               <Item key={index} className="center faded">
                 <Link
                   className="link faded hover"
@@ -120,9 +122,22 @@ function Breadcrumbs() {
                   }}
                   to={item?.route ?? '/'}
                 >
-                  {handleCrumbTitle(item.name)}
+                  {crumbTitle}
                 </Link>
               </Item>
+            );
+
+            return crumbTitle === item.name ? (
+              crumbItem
+            ) : (
+              <Tooltip
+                title={<span className=" flex center">{item.name}</span>}
+                placement={'top'}
+                autoAdjustOverflow={true}
+                color="var(--text-faded)"
+              >
+                {crumbItem}
+              </Tooltip>
             );
           })}
         </Breadcrumb>

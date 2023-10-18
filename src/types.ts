@@ -201,16 +201,18 @@ export interface SmartweaveContractCache {
   getRecord(domain: string): Promise<PDNSRecordEntry>;
   getIoBalance(address: ArweaveTransactionID): Promise<number>;
   // END TODO
-  getRecords({
+  getRecords<T extends PDNSRecordEntry | PDNTContractDomainRecord>({
     contractTxId,
     filters,
+    address,
   }: {
     contractTxId?: ArweaveTransactionID;
     filters: {
       // TODO: add other filters when the API supports it
       contractTxId?: ArweaveTransactionID[];
     };
-  }): Promise<{ [x: string]: PDNSRecordEntry }>;
+    address?: ArweaveTransactionID;
+  }): Promise<{ [x: string]: T }>;
 }
 
 export interface SmartweaveContractInteractionProvider {
@@ -283,7 +285,7 @@ export interface ArweaveDataProvider {
   getTransactionStatus(
     ids: ArweaveTransactionID[] | ArweaveTransactionID,
     blockheight?: number,
-  ): Promise<Record<string, number>>;
+  ): Promise<Record<string, { confirmations: number; blockHeight: number }>>;
   getTransactionTags(
     id: ArweaveTransactionID,
   ): Promise<{ [x: string]: string }>;
@@ -657,6 +659,7 @@ export type PDNSTableRow = {
   status: number;
   key: string | number;
   hasPending: boolean;
+  errors?: string[];
 };
 
 export type ANTMetadata = {
@@ -666,7 +669,7 @@ export type ANTMetadata = {
   role: string;
   status: number;
   state: PDNTContractJSON;
-  error?: string;
+  errors?: string[];
   key: number;
   hasPending: boolean;
 };

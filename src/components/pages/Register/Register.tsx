@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import {
-  useArweaveCompositeProvider,
   useAuctionInfo,
   useIsFocused,
   useRegistrationStatus,
@@ -52,11 +51,18 @@ function RegisterNameForm() {
     dispatchRegisterState,
   ] = useRegistrationState();
   const [
-    { pdnsSourceContract, walletAddress, blockHeight, balances },
+    {
+      // TODO: remove use of source contract
+
+      pdnsSourceContract,
+      walletAddress,
+      blockHeight,
+      balances,
+      arweaveDataProvider,
+    },
     dispatchGlobalState,
   ] = useGlobalState();
   const [, dispatchTransactionState] = useTransactionState();
-  const arweaveDataProvider = useArweaveCompositeProvider();
   const { name } = useParams();
   const { auction, loadingAuctionInfo } = useAuctionInfo(
     lowerCaseDomain(name ?? domain),
