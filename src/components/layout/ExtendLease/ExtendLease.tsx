@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
+import { useWalletState } from '../../../state/contexts/WalletState';
 import {
   ArweaveTransactionID,
   ExtendLeasePayload,
@@ -33,8 +34,8 @@ import PageLoader from '../progress/PageLoader/PageLoader';
 
 function ExtendLease() {
   // TODO: remove use of source contract
-  const [{ pdnsSourceContract, walletAddress, arweaveDataProvider }] =
-    useGlobalState();
+  const [{ pdnsSourceContract, arweaveDataProvider }] = useGlobalState();
+  const [{ walletAddress }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const location = useLocation();
   const navigate = useNavigate();
