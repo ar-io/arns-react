@@ -163,7 +163,7 @@ export function getUndernameCount(records: Record<string, any>): number {
   return Object.keys(records).filter((key) => key !== '@').length;
 }
 
-export function buildFakeArNSRecord(cachedRecord: ContractInteraction) {
+export function buildPendingArNSRecord(cachedRecord: ContractInteraction) {
   const record: PDNSRecordEntry = {
     type:
       cachedRecord.payload.type === TRANSACTION_TYPES.LEASE
@@ -184,7 +184,7 @@ export function buildFakeArNSRecord(cachedRecord: ContractInteraction) {
   return record;
 }
 
-export function buildFakeANTRecord(
+export function buildPendingANTRecord(
   cachedRecord: ContractInteraction,
 ): PDNTContractDomainRecord {
   if (cachedRecord.payload.function !== 'setRecord') {

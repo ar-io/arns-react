@@ -14,8 +14,8 @@ import {
   TransactionCache,
 } from '../../types';
 import {
-  buildFakeANTRecord,
-  buildFakeArNSRecord,
+  buildPendingANTRecord,
+  buildPendingArNSRecord,
   isDomainReservedLength,
   lowerCaseDomain,
 } from '../../utils';
@@ -304,8 +304,8 @@ export class PDNSContractCache implements SmartweaveContractCache {
               : i.payload.subDomain
           ] = (
             contractTxId.toString() === ARNS_REGISTRY_ADDRESS
-              ? buildFakeArNSRecord(i)
-              : buildFakeANTRecord(i)
+              ? buildPendingArNSRecord(i)
+              : buildPendingANTRecord(i)
           ) as T),
       );
     }
