@@ -18,8 +18,7 @@ export type GlobalAction =
     }
   | { type: 'setBlockHeight'; payload: number }
   | { type: 'setPDNSContractState'; payload: PDNSContractJSON }
-  | { type: 'setBalances'; payload: { io: number; ar: number } }
-  | { type: 'setArweaveDataProvider'; payload: ArweaveCompositeDataProvider };
+  | { type: 'setBalances'; payload: { io: number; ar: number } };
 
 export const reducer = (
   state: GlobalState,
@@ -56,11 +55,6 @@ export const reducer = (
       return {
         ...state,
         balances: action.payload,
-      };
-    case 'setArweaveDataProvider':
-      return {
-        ...state,
-        arweaveDataProvider: action.payload,
       };
     default:
       return state;

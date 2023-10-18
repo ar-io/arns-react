@@ -32,6 +32,7 @@ import TransactionCost from '../TransactionCost/TransactionCost';
 import PageLoader from '../progress/PageLoader/PageLoader';
 
 function ExtendLease() {
+  // TODO: remove use of source contract
   const [{ pdnsSourceContract, walletAddress, arweaveDataProvider }] =
     useGlobalState();
   const [, dispatchTransactionState] = useTransactionState();

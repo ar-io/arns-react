@@ -48,8 +48,8 @@ export function useWalletANTs() {
   }, [walletAddress]);
 
   useEffect(() => {
-    if (antData.length && walletAddress) {
-      fetchANTRows(antData, walletAddress, blockHeight);
+    if (walletAddress) {
+      buildANTRows(antData, walletAddress, blockHeight);
     }
   }, [antData, blockHeight]);
 
@@ -454,7 +454,7 @@ export function useWalletANTs() {
     return datas;
   }
 
-  function fetchANTRows(
+  function buildANTRows(
     datas: ANTData[],
     address: ArweaveTransactionID,
     currentBlockHeight?: number,

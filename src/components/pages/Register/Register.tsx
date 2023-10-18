@@ -52,6 +52,8 @@ function RegisterNameForm() {
   ] = useRegistrationState();
   const [
     {
+      // TODO: remove use of source contract
+
       pdnsSourceContract,
       walletAddress,
       blockHeight,
