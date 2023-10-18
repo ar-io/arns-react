@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 
-import { useWalletAddress } from '../../../hooks';
 import { ArConnectWalletConnector } from '../../../services/wallets';
 import { ARCONNECT_WALLET_PERMISSIONS } from '../../../services/wallets/ArConnectWalletConnector';
 import { dispatchNewGateway } from '../../../state/actions';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { useWalletState } from '../../../state/contexts/WalletState';
 import { ArweaveWalletConnector } from '../../../types';
 import eventEmitter from '../../../utils/events';
 import { ArConnectIcon, ArweaveAppIcon, CloseIcon } from '../../icons';
@@ -15,7 +15,7 @@ import './styles.css';
 function ConnectWalletModal(): JSX.Element {
   const modalRef = useRef(null);
   const [, dispatchGlobalState] = useGlobalState();
-  const { wallet, walletAddress } = useWalletAddress();
+  const [{ wallet, walletAddress }, dispatchWalletState] = useWalletState();
   const navigate = useNavigate();
   const { state } = useLocation();
   const [connecting, setConnecting] = useState(false);
@@ -92,12 +92,12 @@ function ConnectWalletModal(): JSX.Element {
       if (arconnectGate?.host) {
         await dispatchNewGateway(arconnectGate.host, dispatchGlobalState);
       }
-      dispatchGlobalState({
+      dispatchWalletState({
         type: 'setWallet',
         payload: walletConnector,
       });
       await walletConnector.getWalletAddress().then((address) => {
-        dispatchGlobalState({
+        dispatchWalletState({
           type: 'setWalletAddress',
           payload: address,
         });

@@ -1,9 +1,9 @@
-import { useWalletAddress } from '../../../hooks';
+import { useWalletState } from '../../../state/contexts/WalletState';
 import Loader from '../Loader/Loader';
 import './styles.css';
 
 export function WalletAddress({ characterCount }: { characterCount?: number }) {
-  const { walletAddress } = useWalletAddress();
+  const [{ walletAddress }] = useWalletState();
 
   function handleText(text: string) {
     if (characterCount) {

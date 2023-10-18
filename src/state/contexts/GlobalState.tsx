@@ -11,7 +11,7 @@ import { PDNSContractCache } from '../../services/arweave/PDNSContractCache';
 import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
 import { WarpDataProvider } from '../../services/arweave/WarpDataProvider';
 import { ArweaveTransactionID } from '../../types';
-import type { ArweaveWalletConnector, PDNSContractJSON } from '../../types';
+import type { PDNSContractJSON } from '../../types';
 import {
   ARNS_REGISTRY_ADDRESS,
   DEFAULT_ARWEAVE,
@@ -30,13 +30,6 @@ const defaultContractCache = [
 export type GlobalState = {
   pdnsSourceContract: PDNSContractJSON;
   gateway: string;
-  walletAddress?: ArweaveTransactionID;
-  wallet?: ArweaveWalletConnector;
-  // TODO: assess need for this in the global state
-  balances: {
-    ar: number;
-    io: number;
-  };
   pdnsContractId: ArweaveTransactionID;
   blockHeight?: number;
   arweaveDataProvider: ArweaveCompositeDataProvider;
@@ -46,12 +39,6 @@ const initialState: GlobalState = {
   pdnsContractId: new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
   pdnsSourceContract: DEFAULT_PDNS_REGISTRY_STATE,
   gateway: 'ar-io.dev',
-  walletAddress: undefined,
-  wallet: undefined,
-  balances: {
-    ar: 0,
-    io: 0,
-  },
   blockHeight: undefined,
   arweaveDataProvider: new ArweaveCompositeDataProvider(
     defaultArweave,

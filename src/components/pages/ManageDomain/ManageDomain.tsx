@@ -6,6 +6,7 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useIsMobile } from '../../../hooks';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { useWalletState } from '../../../state/contexts/WalletState';
 import {
   ArweaveTransactionID,
   DomainDetails,
@@ -44,8 +45,8 @@ function ManageDomain() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const location = useLocation();
-  const [{ walletAddress, pdnsSourceContract, arweaveDataProvider }] =
-    useGlobalState();
+  const [{ pdnsSourceContract, arweaveDataProvider }] = useGlobalState();
+  const [{ walletAddress }] = useWalletState();
   const [rows, setRows] = useState<ManageDomainRow[]>([]);
   const [isMaxLeaseDuration, setIsMaxLeaseDuration] = useState<boolean>(false);
   const [isMaxUndernameCount, setIsMaxUndernameCount] =
