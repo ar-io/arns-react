@@ -466,10 +466,11 @@ export function useWalletANTs() {
         pendingContractInteractions,
         errors,
       } = data;
-      const target =
-        contract.getRecord('@') && contract.getRecord('@')?.transactionId !== ''
-          ? contract.getRecord('@')?.transactionId
-          : undefined;
+      const target = isArweaveTransactionID(
+        contract.getRecord('@')?.transactionId ?? '',
+      )
+        ? contract.getRecord('@')?.transactionId
+        : undefined;
       const rowData = {
         name: contract.name ?? 'N/A',
         id: contract.id ? contract.id?.toString() : 'N/A',
