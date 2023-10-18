@@ -6,6 +6,7 @@ import React, {
   useReducer,
 } from 'react';
 
+import { useEffectOnce } from '../../hooks/useEffectOnce/useEffectOnce';
 import { ArConnectWalletConnector } from '../../services/wallets';
 import { ARCONNECT_WALLET_PERMISSIONS } from '../../services/wallets/ArConnectWalletConnector';
 import { ArweaveTransactionID, ArweaveWalletConnector } from '../../types';
@@ -54,9 +55,9 @@ export default function WalletStateProvider({
 
   const { walletAddress } = state;
 
-  useEffect(() => {
+  useEffectOnce(() => {
     updateIfConnected();
-  }, []);
+  });
 
   useEffect(() => {
     if (walletAddress) {
