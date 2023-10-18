@@ -43,6 +43,7 @@ function Undernames() {
     sortField: undernameSortField,
     action,
     setAction,
+    refresh,
   } = useUndernames(pdntId);
   const [tableLoading, setTableLoading] = useState(true);
   const [tablePage, setTablePage] = useState<number>(1);
@@ -232,12 +233,14 @@ function Undernames() {
           closeModal={() => {
             setSearchParams({});
             setSelectedRow(undefined);
+            setSearchParams({});
           }}
           payloadCallback={(payload: SetRecordPayload) => {
             setTransactionData(payload);
             setInteractionType(PDNT_INTERACTION_TYPES.SET_RECORD);
             setAction(undefined);
             setSelectedRow(undefined);
+            setSearchParams({});
           }}
           antId={pdntId}
         />
@@ -271,6 +274,7 @@ function Undernames() {
           setDeployedTransactionId={(id: ArweaveTransactionID) => {
             setDeployedTransactionId(id);
             setTransactionData(undefined);
+            refresh();
           }}
           interactionType={interactionType}
           payload={transactionData}

@@ -3,7 +3,6 @@ import { StepProps } from 'antd';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { useArweaveCompositeProvider } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
@@ -57,10 +56,10 @@ function TransactionWorkflow({
   transactionData: TransactionData;
   workflowStage: TRANSACTION_WORKFLOW_STATUS;
 }) {
-  const [{ walletAddress, pdnsContractId }] = useGlobalState();
+  const [{ walletAddress, pdnsContractId, arweaveDataProvider }] =
+    useGlobalState();
   const [{ deployedTransactionId }, dispatchTransactionState] =
     useTransactionState();
-  const arweaveDataProvider = useArweaveCompositeProvider();
   const { assetId, functionName, ...payload } = transactionData;
   const navigate = useNavigate();
   const [currentInteractionType, setCurrentInteractionType] =

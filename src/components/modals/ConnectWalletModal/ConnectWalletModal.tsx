@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router';
 import { useWalletAddress } from '../../../hooks';
 import { ArConnectWalletConnector } from '../../../services/wallets';
 import { ARCONNECT_WALLET_PERMISSIONS } from '../../../services/wallets/ArConnectWalletConnector';
+import { dispatchNewGateway } from '../../../state/actions';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ArweaveWalletConnector } from '../../../types';
 import eventEmitter from '../../../utils/events';
@@ -89,10 +90,7 @@ function ConnectWalletModal(): JSX.Element {
       await walletConnector.connect();
       const arconnectGate = await walletConnector.getGatewayConfig();
       if (arconnectGate?.host) {
-        dispatchGlobalState({
-          type: 'setGateway',
-          payload: arconnectGate.host,
-        });
+        await dispatchNewGateway(arconnectGate.host, dispatchGlobalState);
       }
       dispatchGlobalState({
         type: 'setWallet',

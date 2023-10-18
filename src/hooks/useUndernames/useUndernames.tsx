@@ -3,7 +3,6 @@ import { ColumnType } from 'antd/es/table';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { useArweaveCompositeProvider } from '..';
 import {
   ChevronUpIcon,
   CircleXFilled,
@@ -18,7 +17,7 @@ import ArweaveID, {
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import {
   ArweaveTransactionID,
-  PDNTContractJSON,
+  PDNTContractDomainRecord,
   UNDERNAME_TABLE_ACTIONS,
   UndernameMetadata,
   UndernameTableInteractionTypes,
@@ -28,8 +27,7 @@ import { PDNS_NAME_REGEX_PARTIAL } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 
 export function useUndernames(id?: ArweaveTransactionID) {
-  const [{ gateway }] = useGlobalState();
-  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [{ gateway, walletAddress, arweaveDataProvider }] = useGlobalState();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] = useState<keyof UndernameMetadata>('name');
   const [selectedRow, setSelectedRow] = useState<UndernameMetadata>();
@@ -344,10 +342,13 @@ export function useUndernames(id?: ArweaveTransactionID) {
     return newColumns;
   }
 
-  async function fetchUndernameRows(id: ArweaveTransactionID): Promise<void> {
+  async function fetchUndernameRows(id?: ArweaveTransactionID): Promise<void> {
+    if (!id) {
+      return;
+    }
     setIsLoading(true);
     const domain = await arweaveDataProvider
-      .getRecords({ filters: { contractTxId: [id] } })
+      .getRecords({ filters: { contractTxId: [id] }, address: walletAddress })
       .then((records) => Object.keys(records)[0])
       .catch(() => {
         eventEmitter.emit('error', {
@@ -358,26 +359,23 @@ export function useUndernames(id?: ArweaveTransactionID) {
       });
     setDomain(domain);
     const fetchedRows: UndernameMetadata[] = [];
-    const [contractState, confirmations] = await Promise.all([
-      arweaveDataProvider.getContractState<PDNTContractJSON>(id),
+    const [records, confirmations] = await Promise.all([
+      arweaveDataProvider.getRecords<PDNTContractDomainRecord>({
+        contractTxId: id,
+        filters: {},
+        address: walletAddress,
+      }),
       arweaveDataProvider
         .getTransactionStatus(id)
-        .then((status) => status[id.toString()]),
+        .then((status) => status[id.toString()].confirmations),
     ]);
-
-    const undernames = Object.entries(contractState.records).filter(
-      ([key]) => key !== '@',
-    );
+    const undernames = Object.entries(records).filter(([key]) => key !== '@');
     for (const [name, record] of undernames) {
       try {
         const rowData = {
           name: name,
-          targetID: (typeof record === 'string'
-            ? record
-            : record.transactionId) as string,
-          ttlSeconds: (typeof record === 'string'
-            ? 'N/A'
-            : record.ttlSeconds) as string,
+          targetID: record.transactionId,
+          ttlSeconds: record.ttlSeconds.toString(),
           status: confirmations ?? 0,
           key: name,
         };
@@ -407,5 +405,6 @@ export function useUndernames(id?: ArweaveTransactionID) {
     action,
     setAction: (action: UNDERNAME_TABLE_ACTIONS | undefined) =>
       setAction(action),
+    refresh: () => fetchUndernameRows(id),
   };
 }

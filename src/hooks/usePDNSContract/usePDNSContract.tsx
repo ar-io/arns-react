@@ -3,11 +3,10 @@ import { useEffect, useState } from 'react';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { ArweaveTransactionID, PDNSContractJSON } from '../../types';
 import eventEmitter from '../../utils/events';
-import { useArweaveCompositeProvider } from '../useArweaveCompositeProvider/useArweaveCompositeProvider';
 
 export function usePDNSContract() {
-  const arweaveDataProvider = useArweaveCompositeProvider();
-  const [{ pdnsContractId, blockHeight }, dispatch] = useGlobalState();
+  const [{ pdnsContractId, blockHeight, arweaveDataProvider }, dispatch] =
+    useGlobalState();
   const [sendingContractState, setSendingContractState] = useState(false);
 
   useEffect(() => {

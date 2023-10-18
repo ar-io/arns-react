@@ -5,15 +5,15 @@ import { ARCONNECT_WALLET_PERMISSIONS } from '../../services/wallets/ArConnectWa
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { ArweaveTransactionID } from '../../types';
 import eventEmitter from '../../utils/events';
-import { useArweaveCompositeProvider } from '../useArweaveCompositeProvider/useArweaveCompositeProvider';
 
 export function useWalletAddress(): {
   wallet: any;
   walletAddress: ArweaveTransactionID | undefined;
 } {
-  const [{ wallet, walletAddress, blockHeight }, dispatchGlobalState] =
-    useGlobalState();
-  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [
+    { wallet, walletAddress, blockHeight, arweaveDataProvider },
+    dispatchGlobalState,
+  ] = useGlobalState();
 
   useEffect(() => {
     updateIfConnected();

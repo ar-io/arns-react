@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 
-import { useArweaveCompositeProvider } from '../../../hooks';
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import eventEmitter from '../../../utils/events';
 
 function ArPrice({ dataSize }: { dataSize: number }) {
-  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [{ arweaveDataProvider }] = useGlobalState();
 
   const [price, setPrice] = useState(0);
   useEffect(() => {

@@ -3,7 +3,7 @@ import { Table } from 'antd';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 
-import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
+import { useIsMobile } from '../../../hooks';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
@@ -44,8 +44,8 @@ function ManageDomain() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const location = useLocation();
-  const arweaveDataProvider = useArweaveCompositeProvider();
-  const [{ walletAddress, pdnsSourceContract }] = useGlobalState();
+  const [{ walletAddress, pdnsSourceContract, arweaveDataProvider }] =
+    useGlobalState();
   const [rows, setRows] = useState<ManageDomainRow[]>([]);
   const [isMaxLeaseDuration, setIsMaxLeaseDuration] = useState<boolean>(false);
   const [isMaxUndernameCount, setIsMaxUndernameCount] =
@@ -84,7 +84,7 @@ function ManageDomain() {
           arweaveDataProvider.getContractState<PDNTContractJSON>(contractTxId),
           arweaveDataProvider
             .getTransactionStatus(contractTxId)
-            .then((status) => status[contractTxId.toString()]),
+            .then((status) => status[contractTxId.toString()].confirmations),
           arweaveDataProvider.getPendingContractInteractions(
             contractTxId,
             address.toString(),

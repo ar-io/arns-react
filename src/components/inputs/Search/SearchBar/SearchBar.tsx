@@ -3,12 +3,12 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import {
-  useArweaveCompositeProvider,
   useIsFocused,
   useIsMobile,
   useRegistrationStatus,
   useWalletAddress,
 } from '../../../../hooks';
+import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../../state/contexts/RegistrationState';
 import {
   ArweaveTransactionID,
@@ -53,7 +53,7 @@ const searchBarValidationPredicate = ({
 function SearchBar(props: SearchBarProps) {
   const { disabled = false, placeholderText } = props;
   const navigate = useNavigate();
-  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [{ arweaveDataProvider }] = useGlobalState();
   const [{ domain }, dispatchRegisterState] = useRegistrationState();
   const { walletAddress } = useWalletAddress();
   const isMobile = useIsMobile();

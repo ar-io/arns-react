@@ -1,8 +1,9 @@
 import { Checkbox } from 'antd';
 import { useEffect, useState } from 'react';
 
-import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
+import { useIsMobile } from '../../../hooks';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
   ArweaveTransactionID,
   PDNTContractJSON,
@@ -27,7 +28,7 @@ function TransferANTModal({
   closeModal: () => void;
   payloadCallback: (payload: TransferANTPayload) => void;
 }) {
-  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [{ arweaveDataProvider }] = useGlobalState();
   const isMobile = useIsMobile();
   const [accepted, setAccepted] = useState<boolean>(false);
   const [toAddress, setToAddress] = useState<string>('');

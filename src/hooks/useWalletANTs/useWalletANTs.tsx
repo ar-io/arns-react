@@ -2,7 +2,7 @@ import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { useArweaveCompositeProvider, useWalletAddress } from '..';
+import { useWalletAddress } from '..';
 import {
   ChevronUpIcon,
   CirclePending,
@@ -18,20 +18,25 @@ import { useGlobalState } from '../../state/contexts/GlobalState';
 import {
   ANTMetadata,
   ArweaveTransactionID,
+  ContractInteraction,
   PDNTContractJSON,
 } from '../../types';
-import {
-  getPendingInteractionsRowsForContract,
-  isArweaveTransactionID,
-} from '../../utils';
+import { isArweaveTransactionID } from '../../utils';
 import eventEmitter from '../../utils/events';
 
+type ANTData = {
+  contract: PDNTContract;
+  transactionBlockHeight?: number;
+  pendingContractInteractions?: ContractInteraction[];
+  errors?: string[];
+};
+
 export function useWalletANTs() {
-  const [{ blockHeight }] = useGlobalState();
-  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [{ blockHeight, arweaveDataProvider }] = useGlobalState();
   const { walletAddress } = useWalletAddress();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] = useState<keyof ANTMetadata>('status');
+  const [antData, setAntData] = useState<ANTData[]>([]);
   const [rows, setRows] = useState<ANTMetadata[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const itemCount = useRef<number>(0);
@@ -39,19 +44,30 @@ export function useWalletANTs() {
   const [percent, setPercentLoaded] = useState<number | undefined>();
 
   useEffect(() => {
-    refresh();
-  }, []);
+    load();
+  }, [walletAddress]);
 
-  async function refresh() {
+  useEffect(() => {
+    if (walletAddress) {
+      buildANTRows(antData, walletAddress, blockHeight);
+    }
+  }, [antData, blockHeight]);
+
+  async function load() {
     try {
       setIsLoading(true);
-      if (walletAddress && blockHeight) {
+      if (walletAddress) {
         const { contractTxIds } =
           await arweaveDataProvider.getContractsForWallet(
             walletAddress,
             'ant', // only fetches contracts that have a state that matches ant spec
           );
-        await fetchPDNTRows(contractTxIds, walletAddress);
+        const data = await fetchANTData(
+          contractTxIds,
+          walletAddress,
+          blockHeight,
+        );
+        setAntData(data);
       }
     } catch (error) {
       eventEmitter.emit('error', error);
@@ -77,7 +93,7 @@ export function useWalletANTs() {
                 title={
                   <Link
                     className="link white text underline"
-                    to={`/manage/pdnts/${row.id}`}
+                    to={`/manage/ants/${row.id}`}
                   >
                     This contract has pending transactions.
                     <ExternalLinkIcon
@@ -312,7 +328,18 @@ export function useWalletANTs() {
         align: 'left',
         width: '18%',
         className: 'white manage-assets-table-header',
-        render: (val: number) => <TransactionStatus confirmations={val} />,
+        render: (val: number, row: ANTMetadata) => (
+          <TransactionStatus
+            confirmations={val}
+            errorMessage={
+              !val && !row.hasPending
+                ? row.errors?.length
+                  ? row.errors?.join(', ')
+                  : 'Unable to get confirmations for ANT Contract'
+                : undefined
+            }
+          />
+        ),
         onHeaderCell: () => {
           return {
             onClick: () => {
@@ -342,100 +369,16 @@ export function useWalletANTs() {
     ];
   }
 
-  async function fetchRowData(
-    contractTxId: ArweaveTransactionID,
+  async function fetchANTData(
+    contractTxIds: ArweaveTransactionID[],
     address: ArweaveTransactionID,
-    key: number,
-    txConfirmations: number,
-  ) {
+    currentBlockHeight?: number,
+  ): Promise<ANTData[]> {
+    let datas: ANTData[] = [];
     try {
-      const [contractState, confirmations, pendingContractInteractions] =
-        await Promise.all([
-          arweaveDataProvider.getContractState<PDNTContractJSON>(
-            contractTxId,
-            address,
-          ),
-          txConfirmations,
-          arweaveDataProvider
-            .getPendingContractInteractions(contractTxId, address.toString())
-            .catch((e) => {
-              console.error(e);
-            }),
-        ]);
+      itemsLoaded.current = 0;
+      const tokenIds = new Set(contractTxIds);
 
-      if (!contractState) {
-        throw Error(`Failed to load contract: ${contractTxId.toString()}`);
-      }
-
-      const contract = new PDNTContract(contractState, contractTxId);
-
-      // simple check that it is ANT shaped contract
-      if (!contract.isValid()) {
-        throw new Error('Invalid contract');
-      }
-
-      const target =
-        contract.getRecord('@') && contract.getRecord('@')?.transactionId !== ''
-          ? contract.getRecord('@')?.transactionId
-          : undefined;
-
-      // TODO: add error messages and reload state to row
-      const rowData = {
-        name: contract.name ?? 'N/A',
-        id: contractTxId.toString(),
-        role:
-          contract.owner === walletAddress?.toString()
-            ? 'Owner'
-            : contract.controllers.includes(walletAddress?.toString() ?? '')
-            ? 'Controller'
-            : 'N/A',
-        targetID: target ?? 'N/A',
-        ttlSeconds: contract.getRecord('@')?.ttlSeconds,
-        status: confirmations ?? 0,
-        state: contractState,
-        key,
-      };
-
-      // get any pending transactions for various attributes
-      const pendingTxsForContract = getPendingInteractionsRowsForContract(
-        pendingContractInteractions ?? [],
-        rowData,
-      );
-
-      // replace the values with pending ones until the interaction is confirmed
-      const pendingInteractions = pendingTxsForContract.reduce(
-        (pendingValues, i) => ({
-          ...pendingValues,
-          [i.attribute]: i.value,
-        }),
-        {},
-      );
-      // TODO: react strict mode makes this increment twice in dev
-      if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
-
-      setPercentLoaded(
-        Math.round((itemsLoaded.current / itemCount.current) * 100),
-      );
-
-      return {
-        ...rowData,
-        ...pendingInteractions,
-        hasPending: !!pendingTxsForContract.length,
-      };
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  async function fetchPDNTRows(
-    ids: ArweaveTransactionID[],
-    address: ArweaveTransactionID,
-  ) {
-    itemsLoaded.current = 0;
-    const fetchedRows: ANTMetadata[] = [];
-    const tokenIds = new Set(ids);
-
-    try {
       const cachedTokens = await arweaveDataProvider.getCachedNameTokens(
         address,
       );
@@ -448,35 +391,108 @@ export function useWalletANTs() {
       }
       itemCount.current = tokenIds.size;
 
-      const confirmations = await arweaveDataProvider.getTransactionStatus(
-        [...tokenIds],
-        blockHeight,
+      const allTransactionBlockHeights = await arweaveDataProvider
+        .getTransactionStatus([...tokenIds], currentBlockHeight)
+        .catch((e) => console.error(e));
+
+      const newDatas = contractTxIds.map(
+        async (contractTxId: ArweaveTransactionID) => {
+          const errors = [];
+          const [contractState, confirmations, pendingContractInteractions] =
+            await Promise.all([
+              arweaveDataProvider.getContractState<PDNTContractJSON>(
+                contractTxId,
+                address,
+              ),
+              allTransactionBlockHeights
+                ? allTransactionBlockHeights[contractTxId.toString()]
+                    .blockHeight
+                : 0,
+              arweaveDataProvider
+                .getPendingContractInteractions(
+                  contractTxId,
+                  address.toString(),
+                )
+                .catch((e) => {
+                  console.error(e);
+                }),
+            ]);
+
+          if (!contractState) {
+            errors.push(`Failed to load contract: ${contractTxId.toString()}`);
+          }
+
+          const contract = new PDNTContract(contractState, contractTxId);
+
+          // simple check that it is ANT shaped contract
+          if (!contract.isValid()) {
+            errors.push('Invalid contract');
+          }
+          // TODO: react strict mode makes this increment twice in dev
+          if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
+
+          setPercentLoaded(
+            Math.round((itemsLoaded.current / itemCount.current) * 100),
+          );
+
+          return {
+            contract,
+            status: confirmations ?? 0,
+            transactionBlockHeight: allTransactionBlockHeights
+              ? allTransactionBlockHeights[contractTxId.toString()].blockHeight
+              : 0,
+            pendingContractInteractions,
+            errors,
+          } as ANTData;
+        },
       );
 
-      const allData: ANTMetadata[] = await Promise.all(
-        [...tokenIds].map(
-          async (id, index) =>
-            await fetchRowData(
-              id,
-              address,
-              index,
-              confirmations[id.toString()],
-            ),
-        ),
-      ).then((rows) =>
-        rows.reduce((acc: ANTMetadata[], row: ANTMetadata | undefined) => {
-          if (row) {
-            acc.push(row);
-          }
-          return acc;
-        }, []),
-      );
-      fetchedRows.push(...allData);
-      // sort by confirmation count (ASC) by default
-      fetchedRows.sort((a, b) => a?.status - b?.status);
+      datas = await Promise.all(newDatas);
     } catch (error) {
-      eventEmitter.emit('error', error);
+      console.error(error);
     }
+    return datas;
+  }
+
+  function buildANTRows(
+    datas: ANTData[],
+    address: ArweaveTransactionID,
+    currentBlockHeight?: number,
+  ) {
+    const fetchedRows: ANTMetadata[] = datas.map((data, i) => {
+      const {
+        contract,
+        transactionBlockHeight,
+        pendingContractInteractions,
+        errors,
+      } = data;
+      const target = isArweaveTransactionID(
+        contract.getRecord('@')?.transactionId ?? '',
+      )
+        ? contract.getRecord('@')?.transactionId
+        : undefined;
+      const rowData = {
+        name: contract.name ?? 'N/A',
+        id: contract.id ? contract.id?.toString() : 'N/A',
+        role:
+          contract.owner === address.toString()
+            ? 'Owner'
+            : contract.controllers.includes(address.toString())
+            ? 'Controller'
+            : 'N/A',
+        targetID: target ?? 'N/A',
+        ttlSeconds: contract.getRecord('@')?.ttlSeconds,
+        status:
+          transactionBlockHeight && currentBlockHeight
+            ? currentBlockHeight - transactionBlockHeight
+            : 0,
+        state: contract.state,
+        hasPending: !!pendingContractInteractions?.length,
+        errors,
+        key: i,
+      };
+      return rowData;
+    });
 
     setRows(fetchedRows);
   }
@@ -488,6 +504,6 @@ export function useWalletANTs() {
     rows,
     sortField,
     sortAscending,
-    refresh,
+    refresh: load,
   };
 }

@@ -1,12 +1,8 @@
 import { Table } from 'antd';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
-import {
-  useWalletANTs,
-  useWalletAddress,
-  useWalletDomains,
-} from '../../../hooks';
+import { useWalletANTs, useWalletDomains } from '../../../hooks';
 import { ManageTable } from '../../../types';
 import { MANAGE_TABLE_NAMES } from '../../../types';
 import { getCustomPaginationButtons } from '../../../utils';
@@ -16,11 +12,9 @@ import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
 
 function Manage() {
-  const { walletAddress } = useWalletAddress();
   const navigate = useNavigate();
   const { path } = useParams();
 
-  const modalRef = useRef(null);
   const [percent, setPercentLoaded] = useState<number | undefined>();
   const {
     isLoading: pdntTableLoading,
@@ -50,13 +44,14 @@ function Manage() {
   useEffect(() => {
     if (!path) {
       navigate('names');
+      return;
     }
+    setTableColumns(path === 'ants' ? pdntColumns : domainColumns);
   }, [path]);
 
   useEffect(() => {
     if (path === 'ants') {
       setTableData(pdntRows);
-      setTableColumns(pdntColumns);
       setPercentLoaded(percentPDNTsLoaded);
     }
   }, [
@@ -71,7 +66,6 @@ function Manage() {
   useEffect(() => {
     if (path === 'names') {
       setTableData(domainRows);
-      setTableColumns(domainColumns);
       setPercentLoaded(percentDomainsLoaded);
     }
   }, [
@@ -99,7 +93,7 @@ function Manage() {
   }
 
   return (
-    <div className="page" ref={modalRef}>
+    <div className="page">
       <div className="flex-column" style={{ gap: '10px' }}>
         <div className="flex flex-start">
           <h1
@@ -182,8 +176,7 @@ function Manage() {
                   : 'button center pointer'
               }
               onClick={() =>
-                walletAddress &&
-                (path === 'ants' ? refreshANTs() : refreshDomains())
+                path === 'ants' ? refreshANTs() : refreshDomains()
               }
               style={{
                 position: 'absolute',
