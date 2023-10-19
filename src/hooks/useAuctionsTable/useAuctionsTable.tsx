@@ -46,7 +46,7 @@ export function useAuctionsTable() {
 
   useEffect(() => {
     if (blockHeight) {
-      fetchAuctionRows(auctionData, blockHeight);
+      buildAuctionRows(auctionData, blockHeight);
     }
   }, [auctionData, blockHeight]);
 
@@ -399,7 +399,7 @@ export function useAuctionsTable() {
     return datas;
   }
 
-  function fetchAuctionRows(data: Auction[], blockHeight: number) {
+  function buildAuctionRows(data: Auction[], blockHeight: number) {
     const fetchedRows: AuctionTableData[] = [];
 
     data.forEach((auction) => {

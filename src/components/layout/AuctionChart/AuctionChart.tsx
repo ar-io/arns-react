@@ -272,8 +272,8 @@ function AuctionChart({
                 annotations: {
                   point1: {
                     type: 'point',
-                    xValue: prices.indexOf(auctionInfo?.minimumBid),
-                    yValue: auctionInfo?.minimumBid,
+                    xValue: prices.indexOf(auctionInfo.minimumBid),
+                    yValue: auctionInfo.minimumBid,
                     backgroundColor: 'white',
                     radius: 7,
                     display: showCurrentPrice,
