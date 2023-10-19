@@ -47,6 +47,7 @@ export function useAuctionInfo(
       setLoadingAuctionInfo(false);
     }
   }
+  console.log(auction);
 
   return {
     auction,
