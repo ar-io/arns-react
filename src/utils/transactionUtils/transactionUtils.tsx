@@ -872,8 +872,8 @@ export const getPriceByBlockHeight = (
   currentHeight: number,
 ) => {
   const heightKeys = Object.keys(prices);
-  const heightForCurrentBid = heightKeys.find(
-    (_, index) => +heightKeys[index + 1] < currentHeight,
+  const heightForCurrentBid = heightKeys.find((_, index) =>
+    heightKeys[index + 1] ? +heightKeys[index + 1] < currentHeight : false,
   );
   if (!heightForCurrentBid) {
     throw Error('Unable to find next block interval for bid');
