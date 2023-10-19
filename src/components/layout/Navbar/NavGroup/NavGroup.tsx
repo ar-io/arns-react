@@ -1,4 +1,5 @@
-import { useIsMobile, useWalletAddress } from '../../../../hooks';
+import { useIsMobile } from '../../../../hooks';
+import { useWalletState } from '../../../../state/contexts/WalletState';
 import { ROUTES } from '../../../../utils/routes';
 import NavMenuCard from '../../../cards/NavMenuCard/NavMenuCard';
 import ConnectButton from '../../../inputs/buttons/ConnectButton/ConnectButton';
@@ -7,7 +8,7 @@ import './styles.css';
 
 const NavGroup = () => {
   const isMobile = useIsMobile();
-  const { wallet, walletAddress } = useWalletAddress();
+  const [{ wallet, walletAddress }] = useWalletState();
 
   return (
     <div className="flex-row flex-right flex-padding">

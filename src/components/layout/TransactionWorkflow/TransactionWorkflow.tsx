@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
+import { useWalletState } from '../../../state/contexts/WalletState';
 import {
   ArweaveTransactionID,
   BuyRecordPayload,
@@ -57,8 +58,8 @@ function TransactionWorkflow({
   transactionData: TransactionData;
   workflowStage: TRANSACTION_WORKFLOW_STATUS;
 }) {
-  const [{ walletAddress, pdnsContractId, arweaveDataProvider }] =
-    useGlobalState();
+  const [{ pdnsContractId, arweaveDataProvider }] = useGlobalState();
+  const [{ walletAddress }] = useWalletState();
   const [{ deployedTransactionId }, dispatchTransactionState] =
     useTransactionState();
   const { assetId, functionName, ...payload } = transactionData;

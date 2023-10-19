@@ -13,6 +13,7 @@ import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
+import { useWalletState } from '../../../state/contexts/WalletState';
 import {
   ArweaveTransactionID,
   BuyRecordPayload,
@@ -55,13 +56,12 @@ function RegisterNameForm() {
       // TODO: remove use of source contract
 
       pdnsSourceContract,
-      walletAddress,
       blockHeight,
-      balances,
       arweaveDataProvider,
     },
     dispatchGlobalState,
   ] = useGlobalState();
+  const [{ walletAddress, balances }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const { name } = useParams();
   const { auction, loadingAuctionInfo } = useAuctionInfo(

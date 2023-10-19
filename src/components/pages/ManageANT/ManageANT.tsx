@@ -6,6 +6,7 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useIsMobile } from '../../../hooks';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { useWalletState } from '../../../state/contexts/WalletState';
 import {
   ArweaveTransactionID,
   ContractInteraction,
@@ -63,7 +64,7 @@ function ManageANT() {
   const navigate = useNavigate();
   const location = useLocation();
   const [{ arweaveDataProvider }] = useGlobalState();
-  const [{ walletAddress }] = useGlobalState();
+  const [{ walletAddress }] = useWalletState();
   const [pdntState, setPDNTState] = useState<PDNTContract>();
   const [pdntName, setPDNTName] = useState<string>();
   const [editingField, setEditingField] = useState<string>();
