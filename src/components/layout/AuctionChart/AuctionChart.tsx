@@ -62,8 +62,8 @@ function AuctionChart({
   const chartRef = useRef<ChartJSOrUndefined>(null);
 
   const [timeUntilUpdate, setTimeUntilUpdate] = useState<number>(0);
-  const [labels, setLabels] = useState<string[]>();
-  const [prices, setPrices] = useState<number[]>();
+  const [labels, setLabels] = useState<string[]>([]);
+  const [prices, setPrices] = useState<number[]>([]);
   const [showCurrentPrice, setShowCurrentPrice] = useState<boolean>(true);
   const [auctionInfo, setAuctionInfo] = useState<Auction>();
 
@@ -104,13 +104,13 @@ function AuctionChart({
   function triggerCurrentPriceTooltipWhenNotActive(price: number) {
     try {
       const chart = chartRef.current;
-      const validPrice = prices?.includes(price);
-      if (!showCurrentPrice || !chart || !prices) {
+      const validPrice = prices.includes(price);
+      if (!showCurrentPrice || !chart || !prices.length) {
         return;
       }
       const data = chart.getDatasetMeta(0).data as PointElement[];
       const point = data.find((point: PointElement) =>
-        point.parsed.y === prices?.[validPrice ? prices?.indexOf(price) : 0]
+        point.parsed.y === prices[validPrice ? prices.indexOf(price) : 0]
           ? point
           : undefined,
       );
@@ -147,7 +147,7 @@ function AuctionChart({
     }
   }
 
-  if (!prices || !labels || !currentBlockHeight || !auctionInfo) {
+  if (!prices.length || !labels.length || !currentBlockHeight || !auctionInfo) {
     return (
       <div className="flex flex-row center" style={{ height: '100%' }}>
         <Loader size={80} message="Loading prices..." />

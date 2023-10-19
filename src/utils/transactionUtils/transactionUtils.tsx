@@ -871,13 +871,24 @@ export const getPriceByBlockHeight = (
   prices: Record<string, number>,
   currentHeight: number,
 ) => {
-  const heightKeys = Object.keys(prices);
-  const heightForCurrentBid = heightKeys.find((_, index) =>
-    heightKeys[index + 1] ? +heightKeys[index + 1] < currentHeight : false,
-  );
-  if (!heightForCurrentBid) {
-    throw Error('Unable to find next block interval for bid');
+  const heightKeys = Object.keys(prices).map((k) => +k);
+  if (!heightKeys.length) {
+    throw new Error(`No prices found for auction`);
   }
-  const minimumBid = prices[heightForCurrentBid];
-  return minimumBid;
+
+  if (currentHeight < heightKeys[1]) {
+    return prices[heightKeys[0].toString()];
+  }
+
+  if (currentHeight >= heightKeys[heightKeys.length - 1]) {
+    return prices[heightKeys[heightKeys.length - 1].toString()];
+  }
+
+  for (let i = 0; i < heightKeys.length - 1; i++) {
+    if (currentHeight < heightKeys[i + 1]) {
+      return prices[heightKeys[i].toString()];
+    }
+  }
+
+  throw Error(`Unable to find next block interval for bid ${currentHeight}`);
 };
