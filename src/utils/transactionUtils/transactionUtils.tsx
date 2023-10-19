@@ -868,14 +868,16 @@ export function userHasSufficientBalance<T extends Record<string, number>>({
 
 // TODO: maybe use binary search?
 export const getPriceByBlockHeight = (
-  prices: Record<number, number>,
-  height: number,
+  prices: Record<string, number>,
+  currentHeight: number,
 ) => {
   const heightKeys = Object.keys(prices);
-  for (const h of heightKeys) {
-    if (height > +h) {
-      return +heightKeys[Math.max(0, heightKeys.indexOf(h) - 1)];
-    }
+  const heightForCurrentBid = heightKeys.find(
+    (_, index) => +heightKeys[index + 1] < currentHeight,
+  );
+  if (!heightForCurrentBid) {
+    throw Error('Unable to find next block interval for bid');
   }
-  return prices[0];
+  const minimumBid = prices[heightForCurrentBid];
+  return minimumBid;
 };

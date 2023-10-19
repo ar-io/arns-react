@@ -280,11 +280,15 @@ export class ArweaveCompositeDataProvider
 
   async getDomainsInAuction({
     address,
+    contractTxId,
   }: {
     address?: ArweaveTransactionID;
+    contractTxId: ArweaveTransactionID;
   }): Promise<string[]> {
     return Promise.any(
-      this._contractProviders.map((p) => p.getDomainsInAuction({ address })),
+      this._contractProviders.map((p) =>
+        p.getDomainsInAuction({ address, contractTxId }),
+      ),
     );
   }
 

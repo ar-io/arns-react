@@ -285,11 +285,13 @@ export class PDNSContractCache implements SmartweaveContractCache {
 
   async getDomainsInAuction({
     address,
+    contractTxId,
   }: {
     address?: ArweaveTransactionID;
+    contractTxId: ArweaveTransactionID;
   }): Promise<string[]> {
     const res = await fetch(
-      `${this._url}/v1/contract/${ARNS_REGISTRY_ADDRESS}/auctions`,
+      `${this._url}/v1/contract/${contractTxId.toString()}/auctions`,
     );
     const { auctions } = await res.json();
     const domainsInAuction = new Set(Object.keys(auctions));

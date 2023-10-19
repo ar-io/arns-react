@@ -18,7 +18,10 @@ import {
   getPriceByBlockHeight,
   handleTableSort,
 } from '../../utils';
-import { AVERAGE_BLOCK_TIME } from '../../utils/constants';
+import {
+  ARNS_REGISTRY_ADDRESS,
+  AVERAGE_BLOCK_TIME,
+} from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 
 export function useAuctionsTable() {
@@ -360,6 +363,7 @@ export function useAuctionsTable() {
     const domainsInAuction = await arweaveDataProvider
       .getDomainsInAuction({
         address: walletAddress,
+        contractTxId: new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
       })
       .catch((e) => console.debug(e));
     if (!domainsInAuction) {
