@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 import ArweaveID from '../../components/layout/ArweaveID/ArweaveID';
 import { useGlobalState } from '../../state/contexts/GlobalState';
+import { useWalletState } from '../../state/contexts/WalletState';
 import {
   ArweaveTransactionID,
   Auction,
@@ -17,10 +18,9 @@ import { AVERAGE_BLOCK_TIME } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 
 export function useAuctionsTable() {
-  const [
-    { blockHeight, arweaveDataProvider, walletAddress },
-    dispatchGlobalState,
-  ] = useGlobalState();
+  const [{ blockHeight, arweaveDataProvider }, dispatchGlobalState] =
+    useGlobalState();
+  const [{ walletAddress }] = useWalletState();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] =
     useState<keyof AuctionTableData>('closingDate');

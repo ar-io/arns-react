@@ -16,6 +16,7 @@ import { Chart } from 'react-chartjs-2';
 import { ChartJSOrUndefined } from 'react-chartjs-2/dist/types';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { useWalletState } from '../../../state/contexts/WalletState';
 import { Auction } from '../../../types';
 import { getNextPriceChangeTimestamp } from '../../../utils/auctions';
 import { APPROXIMATE_BLOCKS_PER_DAY } from '../../../utils/constants';
@@ -54,9 +55,10 @@ function AuctionChart({
   );
 
   const [
-    { blockHeight: currentBlockHeight, arweaveDataProvider, walletAddress },
+    { blockHeight: currentBlockHeight, arweaveDataProvider },
     dispatchGlobalState,
   ] = useGlobalState();
+  const [{ walletAddress }] = useWalletState();
   const chartRef = useRef<ChartJSOrUndefined>(null);
 
   const [timeUntilUpdate, setTimeUntilUpdate] = useState<number>(0);

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { useGlobalState } from '../../state/contexts/GlobalState';
+import { useWalletState } from '../../state/contexts/WalletState';
 import { Auction, TRANSACTION_TYPES } from '../../types';
 import eventEmitter from '../../utils/events';
 
@@ -19,9 +20,8 @@ export function useAuctionInfo(
   auction: Auction | undefined;
   loadingAuctionInfo: boolean;
 } {
-  const [{ blockHeight, arweaveDataProvider, walletAddress }] =
-    useGlobalState();
-
+  const [{ blockHeight, arweaveDataProvider }] = useGlobalState();
+  const [{ walletAddress }] = useWalletState();
   const [auction, setAuction] = useState<Auction>();
   const [loadingAuctionInfo, setLoadingAuctionInfo] = useState<boolean>(true);
 
