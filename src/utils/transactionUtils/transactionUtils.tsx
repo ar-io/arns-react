@@ -865,3 +865,17 @@ export function userHasSufficientBalance<T extends Record<string, number>>({
     return true;
   });
 }
+
+// TODO: maybe use binary search?
+export const getPriceByBlockHeight = (
+  prices: Record<number, number>,
+  height: number,
+) => {
+  const heightKeys = Object.keys(prices);
+  for (const h of heightKeys) {
+    if (height > +h) {
+      return +heightKeys[Math.max(0, heightKeys.indexOf(h) - 1)];
+    }
+  }
+  return prices[0];
+};

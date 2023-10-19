@@ -257,7 +257,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
       ...(cachedAuction?.payload
         ? {
             ...cachedAuction.payload,
-            minimumBid: Object.values(auction.prices)[0],
+            minimumBid: auction.minimumBid,
             isActive: true,
           }
         : {}),
