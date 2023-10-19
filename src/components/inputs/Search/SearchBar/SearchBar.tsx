@@ -6,10 +6,10 @@ import {
   useIsFocused,
   useIsMobile,
   useRegistrationStatus,
-  useWalletAddress,
 } from '../../../../hooks';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../../state/contexts/RegistrationState';
+import { useWalletState } from '../../../../state/contexts/WalletState';
 import {
   ArweaveTransactionID,
   Auction,
@@ -55,7 +55,7 @@ function SearchBar(props: SearchBarProps) {
   const navigate = useNavigate();
   const [{ arweaveDataProvider }] = useGlobalState();
   const [{ domain }, dispatchRegisterState] = useRegistrationState();
-  const { walletAddress } = useWalletAddress();
+  const [{ walletAddress }] = useWalletState();
   const isMobile = useIsMobile();
   const [isSearchValid, setIsSearchValid] = useState(true);
   const [searchSubmitted, setSearchSubmitted] = useState(false);

@@ -49,9 +49,6 @@ jest.mock('../../../../../hooks', () => ({
   useAuctionInfo: jest.fn(() => ({})),
   useIsFocused: jest.fn(() => false),
   useIsMobile: jest.fn(() => false),
-  useWalletAddress: jest.fn(() => ({
-    walletAddress: undefined,
-  })),
   useRegistrationState: jest.fn(() => {
     const originalHook = jest.requireActual(
       'path-to-your-hook-file',

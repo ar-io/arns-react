@@ -2,7 +2,6 @@ import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { useWalletAddress } from '..';
 import {
   ChevronUpIcon,
   CirclePending,
@@ -15,6 +14,7 @@ import ArweaveID, {
 import TransactionStatus from '../../components/layout/TransactionStatus/TransactionStatus';
 import { PDNTContract } from '../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../state/contexts/GlobalState';
+import { useWalletState } from '../../state/contexts/WalletState';
 import {
   ANTMetadata,
   ArweaveTransactionID,
@@ -33,7 +33,7 @@ type ANTData = {
 
 export function useWalletANTs() {
   const [{ blockHeight, arweaveDataProvider }] = useGlobalState();
-  const { walletAddress } = useWalletAddress();
+  const [{ walletAddress }] = useWalletState();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] = useState<keyof ANTMetadata>('status');
   const [antData, setAntData] = useState<ANTData[]>([]);

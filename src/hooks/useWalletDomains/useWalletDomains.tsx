@@ -11,9 +11,9 @@ import ArweaveID, {
   ArweaveIdTypes,
 } from '../../components/layout/ArweaveID/ArweaveID';
 import TransactionStatus from '../../components/layout/TransactionStatus/TransactionStatus';
-import { useWalletAddress } from '../../hooks';
 import { PDNTContract } from '../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../state/contexts/GlobalState';
+import { useWalletState } from '../../state/contexts/WalletState';
 import {
   ArweaveTransactionID,
   ContractInteraction,
@@ -40,7 +40,7 @@ type DomainData = {
 export function useWalletDomains() {
   const [{ gateway, blockHeight, arweaveDataProvider }] = useGlobalState();
   const [domainData, setDomainData] = useState<DomainData[]>([]);
-  const { walletAddress } = useWalletAddress();
+  const [{ walletAddress }] = useWalletState();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] = useState<keyof PDNSTableRow>('status');
   const [selectedRow] = useState<PDNSTableRow>();

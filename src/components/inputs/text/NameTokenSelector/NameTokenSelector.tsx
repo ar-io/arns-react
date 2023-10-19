@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useIsFocused } from '../../../../hooks';
 import { PDNTContract } from '../../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
+import { useWalletState } from '../../../../state/contexts/WalletState';
 import {
   ArweaveTransactionID,
   PDNSRecordEntry,
@@ -30,7 +31,8 @@ function NameTokenSelector({
 }: {
   selectedTokenCallback: (id: ArweaveTransactionID | undefined) => void;
 }) {
-  const [{ walletAddress, arweaveDataProvider }] = useGlobalState();
+  const [{ arweaveDataProvider }] = useGlobalState();
+  const [{ walletAddress }] = useWalletState();
 
   const [searchText, setSearchText] = useState<string>();
   const [tokens, setTokens] = useState<NameTokenDetails>();
