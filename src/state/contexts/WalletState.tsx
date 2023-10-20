@@ -21,6 +21,7 @@ export type WalletState = {
     ar: number;
     io: number;
   };
+  walletStateInitialized: boolean;
 };
 
 const initialState: WalletState = {
@@ -30,6 +31,7 @@ const initialState: WalletState = {
     ar: 0,
     io: 0,
   },
+  walletStateInitialized: false,
 };
 
 const WalletStateContext = createContext<[WalletState, Dispatch<WalletAction>]>(
@@ -55,8 +57,20 @@ export default function WalletStateProvider({
 
   const { walletAddress } = state;
 
+  useEffect(() => {
+    window.addEventListener('arweaveWalletLoaded', updateIfConnected);
+
+    return () => {
+      window.removeEventListener('arweaveWalletLoaded', updateIfConnected);
+    };
+  }, []);
+
   useEffectOnce(() => {
-    updateIfConnected();
+    setTimeout(() => {
+      dispatchWalletState({
+        type: 'setWalletStateInitialized',
+      });
+    }, 5000);
   });
 
   useEffect(() => {
@@ -85,25 +99,32 @@ export default function WalletStateProvider({
   }
 
   async function updateIfConnected() {
+    const connector = new ArConnectWalletConnector();
+    dispatchWalletState({
+      type: 'setWallet',
+      payload: connector,
+    });
+
     try {
-      const connector = new ArConnectWalletConnector();
+      // check if wallet has permissions and reconnect
       const permissions = await window.arweaveWallet.getPermissions();
 
       if (ARCONNECT_WALLET_PERMISSIONS.every((p) => permissions.includes(p))) {
-        await connector.connect();
+        // await connector.connect();
         const address = await connector.getWalletAddress();
 
         dispatchWalletState({
           type: 'setWalletAddress',
           payload: address,
         });
-        dispatchWalletState({
-          type: 'setWallet',
-          payload: connector,
-        });
       }
     } catch (error) {
-      eventEmitter.emit('error', error);
+      // intentionally swallow error here
+      // eventEmitter.emit('error', error);
+    } finally {
+      dispatchWalletState({
+        type: 'setWalletStateInitialized',
+      });
     }
   }
 

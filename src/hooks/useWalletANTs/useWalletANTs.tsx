@@ -38,7 +38,7 @@ export function useWalletANTs() {
   const [sortField, setSortField] = useState<keyof ANTMetadata>('status');
   const [antData, setAntData] = useState<ANTData[]>([]);
   const [rows, setRows] = useState<ANTMetadata[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const itemCount = useRef<number>(0);
   const itemsLoaded = useRef<number>(0);
   const [percent, setPercentLoaded] = useState<number | undefined>();
