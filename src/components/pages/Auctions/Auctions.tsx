@@ -2,15 +2,12 @@ import { Table } from 'antd';
 import { useState } from 'react';
 
 import { useAuctionsTable } from '../../../hooks';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { getCustomPaginationButtons } from '../../../utils';
-import eventEmitter from '../../../utils/events';
 import { RefreshIcon } from '../../icons';
 import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 
 function Auctions() {
-  const [{ arweaveDataProvider }, dispatchGlobalState] = useGlobalState();
-  const { rows, columns, isLoading, percent } = useAuctionsTable();
+  const { rows, columns, isLoading, percent, refresh } = useAuctionsTable();
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   if (isLoading) {
@@ -20,26 +17,6 @@ function Auctions() {
         message={`Loading auctions table... ${percent}%`}
       />
     );
-  }
-
-  async function refresh() {
-    try {
-      // TODO: show loading indicator and disable the button or force rerender so the loading page at least shows
-      const height = await arweaveDataProvider
-        .getCurrentBlockHeight()
-        .catch((e) => console.debug(e));
-      if (!height) {
-        throw new Error(
-          'Error refreshing auctions table. Please try again later.',
-        );
-      }
-      dispatchGlobalState({
-        type: 'setBlockHeight',
-        payload: height,
-      });
-    } catch (error) {
-      eventEmitter.emit('error', error);
-    }
   }
 
   return (

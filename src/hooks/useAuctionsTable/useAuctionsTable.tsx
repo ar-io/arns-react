@@ -1,49 +1,72 @@
 import Countdown from 'antd/lib/statistic/Countdown';
 import { startCase } from 'lodash';
 import { ColumnType } from 'rc-table/lib/interface';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import ArweaveID from '../../components/layout/ArweaveID/ArweaveID';
 import { useGlobalState } from '../../state/contexts/GlobalState';
+import { useWalletState } from '../../state/contexts/WalletState';
 import {
   ArweaveTransactionID,
   Auction,
   AuctionTableData,
   TRANSACTION_TYPES,
 } from '../../types';
-import { getNextPriceChangeTimestamp, handleTableSort } from '../../utils';
-import { AVERAGE_BLOCK_TIME } from '../../utils/constants';
+import {
+  getNextPriceChangeTimestamp,
+  getPriceByBlockHeight,
+  handleTableSort,
+} from '../../utils';
+import {
+  ARNS_REGISTRY_ADDRESS,
+  AVERAGE_BLOCK_TIME,
+} from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 
 export function useAuctionsTable() {
   const [{ blockHeight, arweaveDataProvider }, dispatchGlobalState] =
     useGlobalState();
+  const [{ walletAddress }] = useWalletState();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] =
     useState<keyof AuctionTableData>('closingDate');
+  const [auctionData, setAuctionData] = useState<Auction[]>([]);
   const [rows, setRows] = useState<AuctionTableData[]>([]);
+  const itemCount = useRef<number>(0);
+  const itemsLoaded = useRef<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [percent, setPercentLoaded] = useState<number>(0);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchAuctionRows();
-  }, [blockHeight]);
+    load();
+  }, [walletAddress]);
 
-  async function updateBlockHeight(): Promise<void> {
+  useEffect(() => {
+    if (blockHeight) {
+      buildAuctionRows(auctionData, blockHeight);
+    }
+  }, [auctionData, blockHeight]);
+
+  async function load() {
     try {
-      const newBlockHeight = await arweaveDataProvider.getCurrentBlockHeight();
-      if (blockHeight === newBlockHeight) {
-        return;
+      setIsLoading(true);
+      if (!blockHeight) {
+        const currentBlockHeight =
+          await arweaveDataProvider.getCurrentBlockHeight();
+        dispatchGlobalState({
+          type: 'setBlockHeight',
+          payload: currentBlockHeight,
+        });
       }
-      dispatchGlobalState({
-        type: 'setBlockHeight',
-        payload: newBlockHeight,
-      });
+      const datas = await fetchAuctionDatas();
+      setAuctionData(datas);
     } catch (error) {
       eventEmitter.emit('error', error);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -235,7 +258,6 @@ export function useAuctionsTable() {
                 color: 'var(--text-white)',
               }}
               format="m"
-              onFinish={() => updateBlockHeight()}
             />
             &nbsp;min.
           </span>
@@ -305,22 +327,9 @@ export function useAuctionsTable() {
   }: {
     blockHeight: number;
     auction: Auction;
-  }): AuctionTableData | undefined {
-    const {
-      name,
-      type,
-      initiator,
-      startHeight,
-      settings,
-      isActive,
-      minimumBid,
-      prices,
-    } = auction;
-
-    if (!isActive) {
-      // if auction is expired, do not show.
-      return;
-    }
+  }): AuctionTableData {
+    const { name, type, initiator, startHeight, settings, isActive, prices } =
+      auction;
 
     const expirationDateMilliseconds =
       Date.now() +
@@ -340,43 +349,73 @@ export function useAuctionsTable() {
       isActive,
       closingDate: expirationDateMilliseconds,
       nextPriceUpdate: nextPriceUpdateTimestamp,
-      minimumBid: Math.round(minimumBid),
+      // allows us to not query for new prices and use previous net call to find the new price
+      minimumBid: getPriceByBlockHeight(prices, blockHeight),
     };
 
     return data;
   }
 
-  async function fetchAuctionRows(): Promise<void> {
-    setIsLoading(true);
+  async function fetchAuctionDatas(): Promise<Auction[]> {
+    let datas: Auction[] = [];
+    itemCount.current = 0;
 
-    const fetchedRows: AuctionTableData[] = [];
-    const domainsInAuction = await arweaveDataProvider.getDomainsInAuction();
-
-    // TODO: do this concurrently
-    for (const domain of domainsInAuction) {
-      try {
-        // TODO: update global state
-        const blockHeight = await arweaveDataProvider.getCurrentBlockHeight();
-        const auction = await arweaveDataProvider.getAuction({ domain });
-        const rowData = generateAuctionTableData({ blockHeight, auction });
-        if (!rowData) {
-          continue;
-        }
-        // sort by confirmation count (ASC) by default
-        fetchedRows.push(rowData);
-        fetchedRows.sort((a, b) => a.closingDate - b.closingDate);
-      } catch (error) {
-        eventEmitter.emit('error', error);
-      } finally {
-        setPercentLoaded(
-          ((Object.keys(domainsInAuction).indexOf(domain) + 1) /
-            Object.keys(domainsInAuction).length) *
-            100,
-        );
-      }
+    const domainsInAuction = await arweaveDataProvider
+      .getDomainsInAuction({
+        address: walletAddress,
+        contractTxId: new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
+      })
+      .catch((e) => console.debug(e));
+    if (!domainsInAuction) {
+      throw new Error('no domains in auction');
     }
+    itemCount.current = domainsInAuction.length;
+    itemsLoaded.current = 0;
+    const newDatas = await Promise.all(
+      domainsInAuction.map(async (domain) => {
+        const auction = await arweaveDataProvider
+          .getAuction({
+            domain,
+            address: walletAddress,
+          })
+          .catch((e) => console.debug(e));
+        if (!auction) {
+          return;
+        }
+        if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
+        if (!auction) {
+          return;
+        }
+        setPercentLoaded(
+          Math.round((itemsLoaded.current / itemCount.current) * 100),
+        );
+
+        return auction;
+      }),
+    );
+
+    datas = newDatas.filter((a) => a !== undefined) as any as Auction[];
+
+    return datas;
+  }
+
+  function buildAuctionRows(data: Auction[], blockHeight: number) {
+    const fetchedRows: AuctionTableData[] = [];
+
+    data.forEach((auction) => {
+      if (!auction.isActive) {
+        return;
+      }
+      const rowData = generateAuctionTableData({
+        blockHeight,
+        auction,
+      });
+      // sort by confirmation count (ASC) by default
+      fetchedRows.push(rowData);
+      fetchedRows.sort((a, b) => a.closingDate - b.closingDate);
+    });
+
     setRows(fetchedRows);
-    setIsLoading(false);
   }
 
   return {
@@ -386,5 +425,6 @@ export function useAuctionsTable() {
     rows,
     sortField,
     sortAscending,
+    refresh: load,
   };
 }

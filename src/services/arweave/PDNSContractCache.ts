@@ -209,12 +209,36 @@ export class PDNSContractCache implements SmartweaveContractCache {
     contractTxId,
     domain,
     type,
+    address,
   }: {
     contractTxId: ArweaveTransactionID;
     domain: string;
     type?: 'lease' | 'permabuy';
+    address?: ArweaveTransactionID;
   }): Promise<Auction> {
-    const urlParams = type
+    let cachedAuction: any;
+    if (address) {
+      const cachedInteractions = await this._cache.get(address.toString());
+      cachedInteractions.forEach((i: any) => {
+        if (
+          i.type === 'interaction' &&
+          i.payload?.name === domain &&
+          i.payload?.auction === true
+        ) {
+          cachedAuction = {
+            ...i,
+            payload: {
+              ...i.payload,
+              contractTxId: i.id.toString(),
+              initiator: address.toString(),
+            },
+          };
+        }
+      });
+    }
+    const urlParams = cachedAuction
+      ? new URLSearchParams({ type: cachedAuction?.payload?.type })
+      : type
       ? new URLSearchParams({ type })
       : new URLSearchParams();
     const auctionRes = await fetch(
@@ -228,8 +252,17 @@ export class PDNSContractCache implements SmartweaveContractCache {
         `Failed to get auction for ${domain} on contract ${contractTxId.toString()}`,
       );
     }
-
-    return auction;
+    const res = {
+      ...auction,
+      ...(cachedAuction?.payload
+        ? {
+            ...cachedAuction.payload,
+            minimumBid: auction.minimumBid,
+            isActive: true,
+          }
+        : {}),
+    };
+    return res;
   }
 
   async getAuctionSettings({
@@ -250,12 +283,32 @@ export class PDNSContractCache implements SmartweaveContractCache {
     return auctions;
   }
 
-  async getDomainsInAuction(): Promise<string[]> {
+  async getDomainsInAuction({
+    address,
+    contractTxId,
+  }: {
+    address?: ArweaveTransactionID;
+    contractTxId: ArweaveTransactionID;
+  }): Promise<string[]> {
     const res = await fetch(
-      `${this._url}/v1/contract/${ARNS_REGISTRY_ADDRESS}/auctions`,
+      `${this._url}/v1/contract/${contractTxId.toString()}/auctions`,
     );
     const { auctions } = await res.json();
-    return Object.keys(auctions);
+    const domainsInAuction = new Set(Object.keys(auctions));
+
+    if (address) {
+      const cachedInteractions = await this._cache.get(address.toString());
+      cachedInteractions.forEach((i: any) => {
+        if (
+          i.type === 'interaction' &&
+          i.payload?.auction === true &&
+          !domainsInAuction.has(i.payload.name)
+        ) {
+          domainsInAuction.add(i.payload.name);
+        }
+      });
+    }
+    return [...domainsInAuction];
   }
 
   async getRecord(domain: string): Promise<PDNSRecordEntry> {
