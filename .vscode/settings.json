@@ -16,6 +16,5 @@
     "**/dist": true,
     "**/coverage": true,
     "**/cache": true
-  },
-  "githubPullRequests.ignoredPullRequestBranches": ["develop"]
+  }
 }
