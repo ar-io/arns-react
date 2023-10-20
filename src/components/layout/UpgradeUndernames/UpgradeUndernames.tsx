@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
+import { useIsMobile } from '../../../hooks';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ArweaveTransactionID,
@@ -27,7 +28,7 @@ function UpgradeUndernames() {
   const isMobile = useIsMobile();
   const location = useLocation();
   const navigate = useNavigate();
-  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [{ arweaveDataProvider }] = useGlobalState();
   const name = location.pathname.split('/').at(-2);
   const [, dispatchTransactionState] = useTransactionState();
   const [record, setRecord] = useState<PDNSRecordEntry>();

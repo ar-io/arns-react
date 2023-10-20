@@ -47,7 +47,7 @@ function ViewAuction() {
     navigate('/auctions');
   }
 
-  if (loadingAuctionInfo) {
+  if (loadingAuctionInfo || !auction) {
     return (
       <div className="page center">
         <PageLoader
@@ -58,7 +58,12 @@ function ViewAuction() {
     );
   }
 
-  if (!loadingAuctionInfo && !auction) {
+  if (!loadingAuctionInfo && auction?.isActive === false) {
+    eventEmitter.emit(
+      'error',
+      new Error('This auction does not exist, rerouting...'),
+    );
+
     return <Navigate to="/auctions" />;
   }
 

@@ -1,30 +1,20 @@
 import { Table } from 'antd';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
-import {
-  useArweaveCompositeProvider,
-  useWalletANTs,
-  useWalletAddress,
-  useWalletDomains,
-} from '../../../hooks';
-import { ArweaveTransactionID, ManageTable } from '../../../types';
+import { useWalletANTs, useWalletDomains } from '../../../hooks';
+import { ManageTable } from '../../../types';
 import { MANAGE_TABLE_NAMES } from '../../../types';
 import { getCustomPaginationButtons } from '../../../utils';
-import eventEmitter from '../../../utils/events';
 import { CodeSandboxIcon, NotebookIcon, RefreshIcon } from '../../icons';
 import { Loader } from '../../layout/index';
 import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
 
 function Manage() {
-  const arweaveDataProvider = useArweaveCompositeProvider();
-  const { walletAddress } = useWalletAddress();
   const navigate = useNavigate();
   const { path } = useParams();
 
-  const modalRef = useRef(null);
-  const [pdntIds, setPDNTIDs] = useState<ArweaveTransactionID[]>([]);
   const [percent, setPercentLoaded] = useState<number | undefined>();
   const {
     isLoading: pdntTableLoading,
@@ -33,7 +23,8 @@ function Manage() {
     rows: pdntRows,
     sortAscending: pdntSortAscending,
     sortField: pdntSortField,
-  } = useWalletANTs(pdntIds);
+    refresh: refreshDomains,
+  } = useWalletANTs();
   const {
     isLoading: domainTableLoading,
     percent: percentDomainsLoaded,
@@ -42,7 +33,8 @@ function Manage() {
     sortAscending: domainSortAscending,
     sortField: domainSortField,
     loadingManageDomain,
-  } = useWalletDomains(pdntIds);
+    refresh: refreshANTs,
+  } = useWalletDomains();
 
   const [tableData, setTableData] = useState<any[]>([]);
   const [tableLoading, setTableLoading] = useState(true);
@@ -52,20 +44,14 @@ function Manage() {
   useEffect(() => {
     if (!path) {
       navigate('names');
+      return;
     }
+    setTableColumns(path === 'ants' ? pdntColumns : domainColumns);
   }, [path]);
-
-  useEffect(() => {
-    // todo: move this to a separate function to manage error state and poll for new pdnts to concat them to the state.
-    if (walletAddress) {
-      fetchWalletPDNTs(walletAddress);
-    }
-  }, [walletAddress?.toString()]);
 
   useEffect(() => {
     if (path === 'ants') {
       setTableData(pdntRows);
-      setTableColumns(pdntColumns);
       setPercentLoaded(percentPDNTsLoaded);
     }
   }, [
@@ -80,7 +66,6 @@ function Manage() {
   useEffect(() => {
     if (path === 'names') {
       setTableData(domainRows);
-      setTableColumns(domainColumns);
       setPercentLoaded(percentDomainsLoaded);
     }
   }, [
@@ -103,31 +88,12 @@ function Manage() {
     }
   }, [percent]);
 
-  async function fetchWalletPDNTs(address: ArweaveTransactionID) {
-    try {
-      setTableLoading(true);
-      const { contractTxIds } = await arweaveDataProvider.getContractsForWallet(
-        address,
-        'ant', // only fetches contracts that have a state that matches ant spec
-      );
-      if (!contractTxIds.length) {
-        throw new Error('No contracts found for wallet');
-      }
-      setPDNTIDs(contractTxIds);
-    } catch (error: any) {
-      eventEmitter.emit('error', error);
-      setTableLoading(false);
-      setPDNTIDs([]);
-      setTableData([]);
-    }
-  }
-
   function updatePage(page: number) {
     setTablePage(page);
   }
 
   return (
-    <div className="page" ref={modalRef}>
+    <div className="page">
       <div className="flex-column" style={{ gap: '10px' }}>
         <div className="flex flex-start">
           <h1
@@ -209,7 +175,9 @@ function Manage() {
                   ? 'button center disabled-button'
                   : 'button center pointer'
               }
-              onClick={() => walletAddress && fetchWalletPDNTs(walletAddress)}
+              onClick={() =>
+                path === 'ants' ? refreshANTs() : refreshDomains()
+              }
               style={{
                 position: 'absolute',
                 right: '20px',
@@ -223,7 +191,7 @@ function Manage() {
           {!tableLoading ? (
             <Table
               prefixCls="manage-table"
-              scroll={pdntIds.length ? { x: true } : {}}
+              scroll={pdntRows.length ? { x: true } : {}}
               columns={tableColumns}
               dataSource={tableData}
               pagination={{
@@ -335,7 +303,7 @@ function Manage() {
                 />
                 {/* TODO: [PE-4637] fix infinity load percentage */}
                 {!percent
-                  ? `Querying for wallet contracts...${pdntIds.length} found`
+                  ? `Querying for wallet contracts...${pdntRows.length} found`
                   : `Validating contracts...${Math.round(percent)}%`}
               </div>
             </div>

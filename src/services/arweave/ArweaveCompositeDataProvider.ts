@@ -6,6 +6,7 @@ import {
   ContractInteraction,
   PDNSContractJSON,
   PDNSRecordEntry,
+  PDNTContractDomainRecord,
   PDNTContractJSON,
   SmartweaveContractCache,
   SmartweaveContractInteractionProvider,
@@ -100,7 +101,7 @@ export class ArweaveCompositeDataProvider
   async getTransactionStatus(
     ids: ArweaveTransactionID[] | ArweaveTransactionID,
     blockheight?: number,
-  ): Promise<Record<string, number>> {
+  ): Promise<Record<string, { confirmations: number; blockHeight: number }>> {
     return this._arweaveProvider.getTransactionStatus(ids, blockheight);
   }
 
@@ -251,15 +252,17 @@ export class ArweaveCompositeDataProvider
   async getAuction({
     contractTxId = new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
     domain,
+    address,
     type,
   }: {
     contractTxId?: ArweaveTransactionID;
     domain: string;
+    address?: ArweaveTransactionID;
     type?: 'lease' | 'permabuy';
   }): Promise<Auction> {
     return Promise.any(
       this._contractProviders.map((p) =>
-        p.getAuction({ contractTxId, domain, type }),
+        p.getAuction({ contractTxId, domain, type, address }),
       ),
     );
   }
@@ -276,9 +279,17 @@ export class ArweaveCompositeDataProvider
     );
   }
 
-  async getDomainsInAuction(): Promise<string[]> {
+  async getDomainsInAuction({
+    address,
+    contractTxId,
+  }: {
+    address?: ArweaveTransactionID;
+    contractTxId: ArweaveTransactionID;
+  }): Promise<string[]> {
     return Promise.any(
-      this._contractProviders.map((p) => p.getDomainsInAuction()),
+      this._contractProviders.map((p) =>
+        p.getDomainsInAuction({ address, contractTxId }),
+      ),
     );
   }
 
@@ -286,18 +297,20 @@ export class ArweaveCompositeDataProvider
     return Promise.any(this._contractProviders.map((p) => p.getRecord(domain)));
   }
 
-  async getRecords({
+  async getRecords<T extends PDNSRecordEntry | PDNTContractDomainRecord>({
     contractTxId = new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
     filters,
+    address,
   }: {
     contractTxId?: ArweaveTransactionID;
     filters: {
       contractTxId?: ArweaveTransactionID[];
     };
-  }): Promise<{ [x: string]: PDNSRecordEntry }> {
+    address?: ArweaveTransactionID;
+  }): Promise<{ [x: string]: T }> {
     return Promise.any(
       this._contractProviders.map((p) =>
-        p.getRecords({ contractTxId, filters }),
+        p.getRecords<T>({ contractTxId, filters, address }),
       ),
     );
   }

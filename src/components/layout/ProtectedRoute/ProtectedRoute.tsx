@@ -1,9 +1,9 @@
 import { Navigate, useLocation } from 'react-router-dom';
 
-import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { useWalletState } from '../../../state/contexts/WalletState';
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
-  const [{ walletAddress }] = useGlobalState();
+  const [{ walletAddress }] = useWalletState();
   const location = useLocation();
 
   return walletAddress ? (

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
-import { useArweaveCompositeProvider } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { useWalletState } from '../../../state/contexts/WalletState';
 import {
   ArweaveTransactionID,
   INTERACTION_TYPES,
@@ -347,8 +347,9 @@ function ConfirmTransactionModal({
   cancelText?: string;
   confirmText?: string;
 }) {
-  const [{ walletAddress }] = useGlobalState();
-  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [{ arweaveDataProvider }] = useGlobalState();
+  const [{ walletAddress }] = useWalletState();
+
   const transactionProps: { title: string; body: JSX.Element } = {
     title: CONFIRM_TRANSACTION_PROPS_MAP[interactionType].header,
     body: CONFIRM_TRANSACTION_PROPS_MAP[interactionType].body({

@@ -1,7 +1,8 @@
 import { Checkbox, Table } from 'antd';
 import { useEffect, useState } from 'react';
 
-import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
+import { useIsMobile } from '../../../hooks';
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
   ArweaveTransactionID,
   PDNTContractJSON,
@@ -26,7 +27,7 @@ function RemoveControllersModal({
   closeModal: () => void;
   payloadCallback: (payload: RemoveControllerPayload) => void;
 }) {
-  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [{ arweaveDataProvider }] = useGlobalState();
   const isMobile = useIsMobile();
   const [controllersToRemove, setControllersToRemove] = useState<
     ArweaveTransactionID[]

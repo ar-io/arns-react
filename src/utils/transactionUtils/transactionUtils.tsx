@@ -865,3 +865,30 @@ export function userHasSufficientBalance<T extends Record<string, number>>({
     return true;
   });
 }
+
+// TODO: maybe use binary search?
+export const getPriceByBlockHeight = (
+  prices: Record<string, number>,
+  currentHeight: number,
+) => {
+  const heightKeys = Object.keys(prices).map((k) => +k);
+  if (!heightKeys.length) {
+    throw new Error(`No prices found for auction`);
+  }
+
+  if (currentHeight < heightKeys[1]) {
+    return prices[heightKeys[0].toString()];
+  }
+
+  if (currentHeight >= heightKeys[heightKeys.length - 1]) {
+    return prices[heightKeys[heightKeys.length - 1].toString()];
+  }
+
+  for (let i = 0; i < heightKeys.length - 1; i++) {
+    if (currentHeight < heightKeys[i + 1]) {
+      return prices[heightKeys[i].toString()];
+    }
+  }
+
+  throw Error(`Unable to find next block interval for bid ${currentHeight}`);
+};

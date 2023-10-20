@@ -1,6 +1,6 @@
 import { Table } from 'antd';
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { useUndernames } from '../../../hooks/useUndernames/useUndernames';
 import {
@@ -43,9 +43,11 @@ function Undernames() {
     sortField: undernameSortField,
     action,
     setAction,
+    refresh,
   } = useUndernames(pdntId);
   const [tableLoading, setTableLoading] = useState(true);
   const [tablePage, setTablePage] = useState<number>(1);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // modal state
   const [transactionData, setTransactionData] = useState<
@@ -126,7 +128,9 @@ function Undernames() {
                   fontSize: '14px',
                   textAlign: 'center',
                 }}
-                onClick={() => setAction(UNDERNAME_TABLE_ACTIONS.CREATE)}
+                onClick={() =>
+                  setSearchParams({ modal: UNDERNAME_TABLE_ACTIONS.CREATE })
+                }
               >
                 <PlusIcon
                   width={'16px'}
@@ -204,7 +208,9 @@ function Undernames() {
                           textAlign: 'center',
                         }}
                         onClick={() =>
-                          setAction(UNDERNAME_TABLE_ACTIONS.CREATE)
+                          setSearchParams({
+                            modal: UNDERNAME_TABLE_ACTIONS.CREATE,
+                          })
                         }
                       >
                         <PlusIcon
@@ -222,17 +228,19 @@ function Undernames() {
           )}
         </div>
       </div>
-      {action === UNDERNAME_TABLE_ACTIONS.CREATE && pdntId ? (
+      {searchParams.has('modal') && pdntId ? (
         <AddUndernameModal
           closeModal={() => {
-            setAction(undefined);
+            setSearchParams({});
             setSelectedRow(undefined);
+            setSearchParams({});
           }}
           payloadCallback={(payload: SetRecordPayload) => {
             setTransactionData(payload);
             setInteractionType(PDNT_INTERACTION_TYPES.SET_RECORD);
             setAction(undefined);
             setSelectedRow(undefined);
+            setSearchParams({});
           }}
           antId={pdntId}
         />
@@ -266,6 +274,7 @@ function Undernames() {
           setDeployedTransactionId={(id: ArweaveTransactionID) => {
             setDeployedTransactionId(id);
             setTransactionData(undefined);
+            refresh();
           }}
           interactionType={interactionType}
           payload={transactionData}

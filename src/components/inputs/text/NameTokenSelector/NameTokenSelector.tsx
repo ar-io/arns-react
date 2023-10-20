@@ -1,9 +1,10 @@
 import { Pagination, PaginationProps, Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
-import { useArweaveCompositeProvider, useIsFocused } from '../../../../hooks';
+import { useIsFocused } from '../../../../hooks';
 import { PDNTContract } from '../../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
+import { useWalletState } from '../../../../state/contexts/WalletState';
 import {
   ArweaveTransactionID,
   PDNSRecordEntry,
@@ -30,8 +31,8 @@ function NameTokenSelector({
 }: {
   selectedTokenCallback: (id: ArweaveTransactionID | undefined) => void;
 }) {
-  const arweaveDataProvider = useArweaveCompositeProvider();
-  const [{ walletAddress }] = useGlobalState();
+  const [{ arweaveDataProvider }] = useGlobalState();
+  const [{ walletAddress }] = useWalletState();
 
   const [searchText, setSearchText] = useState<string>();
   const [tokens, setTokens] = useState<NameTokenDetails>();
@@ -134,11 +135,12 @@ function NameTokenSelector({
       }
 
       const contractTxIds = fetchedContractTxIds.concat(imports ?? []);
-      const associatedRecords = await arweaveDataProvider.getRecords({
-        filters: {
-          contractTxId: contractTxIds,
-        },
-      });
+      const associatedRecords =
+        await arweaveDataProvider.getRecords<PDNSRecordEntry>({
+          filters: {
+            contractTxId: contractTxIds,
+          },
+        });
       const contracts: Array<
         | [
             ArweaveTransactionID,

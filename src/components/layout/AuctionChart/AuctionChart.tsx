@@ -15,8 +15,8 @@ import { CSSProperties, useEffect, useRef, useState } from 'react';
 import { Chart } from 'react-chartjs-2';
 import { ChartJSOrUndefined } from 'react-chartjs-2/dist/types';
 
-import { useArweaveCompositeProvider } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { useWalletState } from '../../../state/contexts/WalletState';
 import { Auction } from '../../../types';
 import { getNextPriceChangeTimestamp } from '../../../utils/auctions';
 import { APPROXIMATE_BLOCKS_PER_DAY } from '../../../utils/constants';
@@ -54,22 +54,26 @@ function AuctionChart({
     annotationPlugin,
   );
 
-  const [{ blockHeight: currentBlockHeight }, dispatchGlobalState] =
-    useGlobalState();
-  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [
+    { blockHeight: currentBlockHeight, arweaveDataProvider },
+    dispatchGlobalState,
+  ] = useGlobalState();
+  const [{ walletAddress }] = useWalletState();
   const chartRef = useRef<ChartJSOrUndefined>(null);
 
   const [timeUntilUpdate, setTimeUntilUpdate] = useState<number>(0);
-  const [labels, setLabels] = useState<string[]>();
-  const [prices, setPrices] = useState<number[]>();
+  const [labels, setLabels] = useState<string[]>([]);
+  const [prices, setPrices] = useState<number[]>([]);
   const [showCurrentPrice, setShowCurrentPrice] = useState<boolean>(true);
   const [auctionInfo, setAuctionInfo] = useState<Auction>();
 
   useEffect(() => {
     if (!auctionInfo) {
-      arweaveDataProvider.getAuction({ domain }).then((auction) => {
-        setAuctionInfo(auction);
-      });
+      arweaveDataProvider
+        .getAuction({ domain, address: walletAddress })
+        .then((auction) => {
+          setAuctionInfo(auction);
+        });
       return;
     }
 
@@ -92,23 +96,23 @@ function AuctionChart({
   }, [chartRef.current, domain, currentBlockHeight, auctionInfo]);
 
   useEffect(() => {
-    triggerCurrentPriceTooltipWhenNotActive(auctionInfo?.minimumBid ?? 0);
+    if (auctionInfo) {
+      triggerCurrentPriceTooltipWhenNotActive(auctionInfo?.minimumBid);
+    }
   }, [chartRef.current, showCurrentPrice, prices, auctionInfo]);
 
   function triggerCurrentPriceTooltipWhenNotActive(price: number) {
     try {
       const chart = chartRef.current;
-      if (!showCurrentPrice || !chart || !prices) {
+      const validPrice = prices.includes(price);
+      if (!showCurrentPrice || !chart || !prices.length) {
         return;
       }
       const data = chart.getDatasetMeta(0).data as PointElement[];
-      if (!prices.includes(price)) {
-        throw new Error(
-          `Price ${price?.toLocaleString()} not included in generated list of auction prices`,
-        );
-      }
       const point = data.find((point: PointElement) =>
-        point.parsed.y === prices?.[prices?.indexOf(price)] ? point : undefined,
+        point.parsed.y === prices[validPrice ? prices.indexOf(price) : 0]
+          ? point
+          : undefined,
       );
       const tooltip = chart.tooltip;
       if (!point || !tooltip) {
@@ -143,7 +147,7 @@ function AuctionChart({
     }
   }
 
-  if (!prices || !labels || !currentBlockHeight || !auctionInfo) {
+  if (!prices.length || !labels.length || !currentBlockHeight || !auctionInfo) {
     return (
       <div className="flex flex-row center" style={{ height: '100%' }}>
         <Loader size={80} message="Loading prices..." />
@@ -268,8 +272,8 @@ function AuctionChart({
                 annotations: {
                   point1: {
                     type: 'point',
-                    xValue: prices.indexOf(auctionInfo?.minimumBid),
-                    yValue: prices[prices.indexOf(auctionInfo?.minimumBid)],
+                    xValue: prices.indexOf(auctionInfo.minimumBid),
+                    yValue: auctionInfo.minimumBid,
                     backgroundColor: 'white',
                     radius: 7,
                     display: showCurrentPrice,

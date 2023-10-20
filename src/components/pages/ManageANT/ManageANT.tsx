@@ -3,21 +3,25 @@ import { Table } from 'antd';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 
-import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
+import { useIsMobile } from '../../../hooks';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { useWalletState } from '../../../state/contexts/WalletState';
 import {
   ArweaveTransactionID,
   ContractInteraction,
   INTERACTION_TYPES,
   ManageANTRow,
+  PDNSRecordEntry,
   PDNTContractJSON,
   PDNTDetails,
   PDNT_INTERACTION_TYPES,
+  UNDERNAME_TABLE_ACTIONS,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import {
   getInteractionTypeFromField,
+  getUndernameCount,
   mapTransactionDataKeyToPayload,
   validateMaxASCIILength,
   validateTTLSeconds,
@@ -59,8 +63,8 @@ function ManageANT() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const location = useLocation();
-  const arweaveDataProvider = useArweaveCompositeProvider();
-  const [{ walletAddress }] = useGlobalState();
+  const [{ arweaveDataProvider }] = useGlobalState();
+  const [{ walletAddress }] = useWalletState();
   const [pdntState, setPDNTState] = useState<PDNTContract>();
   const [pdntName, setPDNTName] = useState<string>();
   const [editingField, setEditingField] = useState<string>();
@@ -109,12 +113,12 @@ function ManageANT() {
         arweaveDataProvider.getContractState<PDNTContractJSON>(contractTxId),
         arweaveDataProvider
           .getTransactionStatus(contractTxId)
-          .then((status) => status[contractTxId.toString()]),
+          .then((status) => status[contractTxId.toString()].confirmations),
         arweaveDataProvider.getPendingContractInteractions(
           contractTxId,
           address.toString(),
         ),
-        arweaveDataProvider.getRecords({
+        arweaveDataProvider.getRecords<PDNSRecordEntry>({
           filters: {
             contractTxId: [contractTxId],
           },
@@ -134,9 +138,7 @@ function ManageANT() {
         contractTxId: contractTxId.toString(),
         associatedNames: !names.length ? 'N/A' : names.join(', '),
         //
-        undernames: `${
-          Object.entries(contract.records).filter(([n]) => n !== '@').length
-        }/${
+        undernames: `${getUndernameCount(contract.records)}/${
           Object.values(associatedRecords)[0]?.undernames ??
           DEFAULT_MAX_UNDERNAMES
         }`,
@@ -552,7 +554,7 @@ function ManageANT() {
                         </span>
                       );
                     }
-                    if (row.attribute === 'controller') {
+                    if (row.attribute === 'controllers') {
                       return (
                         // TODO: add condition to "open" to be false when modals are open
                         <Tooltip
@@ -594,6 +596,7 @@ function ManageANT() {
                             width={'18px'}
                             height={'18px'}
                             fill="var(--text-grey)"
+                            className="pointer"
                           />
                         </Tooltip>
                       );
@@ -627,11 +630,16 @@ function ManageANT() {
                               </button>
                               <button
                                 className="flex flex-right white pointer button"
-                                onClick={() =>
+                                onClick={() => {
+                                  const params = new URLSearchParams({
+                                    modal: UNDERNAME_TABLE_ACTIONS.CREATE,
+                                  });
                                   navigate(
-                                    `/manage/ants/${id}/undernames?modal=add`,
-                                  )
-                                }
+                                    encodeURI(
+                                      `/manage/ants/${id}/undernames?${params.toString()}`,
+                                    ),
+                                  );
+                                }}
                               >
                                 Add Undername
                               </button>
@@ -642,6 +650,7 @@ function ManageANT() {
                             width={'18px'}
                             height={'18px'}
                             fill="var(--text-grey)"
+                            className="pointer"
                           />
                         </Tooltip>
                       );

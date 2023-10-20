@@ -3,9 +3,9 @@ import { StepProps } from 'antd';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { useArweaveCompositeProvider } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
+import { useWalletState } from '../../../state/contexts/WalletState';
 import {
   ArweaveTransactionID,
   BuyRecordPayload,
@@ -27,6 +27,7 @@ import {
   getPDNSMappingByInteractionType,
   getWorkflowStepsForInteraction,
   isObjectOfTransactionPayloadType,
+  lowerCaseDomain,
   pruneExtraDataFromTransactionPayload,
 } from '../../../utils';
 import {
@@ -57,10 +58,10 @@ function TransactionWorkflow({
   transactionData: TransactionData;
   workflowStage: TRANSACTION_WORKFLOW_STATUS;
 }) {
-  const [{ walletAddress, pdnsContractId }] = useGlobalState();
+  const [{ pdnsContractId, arweaveDataProvider }] = useGlobalState();
+  const [{ walletAddress }] = useWalletState();
   const [{ deployedTransactionId }, dispatchTransactionState] =
     useTransactionState();
-  const arweaveDataProvider = useArweaveCompositeProvider();
   const { assetId, functionName, ...payload } = transactionData;
   const navigate = useNavigate();
   const [currentInteractionType, setCurrentInteractionType] =
@@ -393,13 +394,41 @@ function TransactionWorkflow({
                   marginBottom: '2em',
                 }}
               >
-                <span className="flex white center" style={{ gap: '8px' }}>
+                <span
+                  className="flex white center"
+                  style={{ gap: '8px', width: '100%', padding: '0px 24px' }}
+                >
                   <span>
                     <CheckCircleFilled
                       style={{ fontSize: 18, color: 'var(--success-green)' }}
                     />
                   </span>
-                  &nbsp;<b>{decodeDomainToASCII(payload.name)}</b> is yours!
+                  &nbsp;
+                  {payload.auction ? (
+                    <span
+                      className="flex center"
+                      style={{ width: '100%', justifyContent: 'space-between' }}
+                    >
+                      Auction started for {decodeDomainToASCII(payload.name)}{' '}
+                      <button
+                        className="outline-button"
+                        style={{
+                          color: 'var(--text-black)',
+                          background: 'var(--text-white)',
+                          borderColor: 'var(--text-black)',
+                        }}
+                        onClick={() =>
+                          navigate(`/auctions/${lowerCaseDomain(payload.name)}`)
+                        }
+                      >
+                        View Auction
+                      </button>
+                    </span>
+                  ) : (
+                    <>
+                      <b>{decodeDomainToASCII(payload.name)}</b> is yours!
+                    </>
+                  )}
                 </span>
               </div>
             ),

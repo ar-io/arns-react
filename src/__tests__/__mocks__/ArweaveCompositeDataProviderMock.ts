@@ -7,6 +7,7 @@ import {
   ContractInteraction,
   PDNSContractJSON,
   PDNSRecordEntry,
+  PDNTContractDomainRecord,
   PDNTContractJSON,
   SmartweaveContractCache,
   SmartweaveContractInteractionProvider,
@@ -51,8 +52,8 @@ export class ArweaveCompositeDataProviderMock
 
   async getTransactionStatus(
     ids: ArweaveTransactionID[] | ArweaveTransactionID,
-  ): Promise<Record<string, number>> {
-    return { '': 0 }; // Mock value
+  ): Promise<Record<string, { confirmations: number; blockHeight: number }>> {
+    return { '': { confirmations: 0, blockHeight: 0 } }; // Mock value
   }
 
   async getTransactionTags(
@@ -196,7 +197,7 @@ export class ArweaveCompositeDataProviderMock
   getRecord(domain: string): Promise<PDNSRecordEntry> {
     return Promise.resolve({} as PDNSRecordEntry);
   }
-  getRecords({
+  getRecords<T extends PDNSRecordEntry | PDNTContractDomainRecord>({
     contractTxId,
     filters,
   }: {
@@ -204,7 +205,7 @@ export class ArweaveCompositeDataProviderMock
     filters: {
       contractTxId?: ArweaveTransactionID[];
     };
-  }): Promise<{ [x: string]: PDNSRecordEntry }> {
+  }): Promise<{ [x: string]: T }> {
     throw new Error('Method not implemented.');
   }
   getIoBalance(address: ArweaveTransactionID): Promise<number> {
