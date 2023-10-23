@@ -21,9 +21,6 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
 
   async connect(): Promise<void> {
     // confirm they have the extension installed
-    if (!window.arweaveWallet) {
-      window.open('https://arconnect.io');
-    }
     const permissions = await this._wallet.getPermissions();
     if (
       permissions &&
@@ -37,13 +34,18 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
       return;
     }
 
-    return this._wallet.connect(
-      ARCONNECT_WALLET_PERMISSIONS,
-      {
-        name: 'ARNS - ar.io',
-      },
-      // TODO: add arweave configs here
-    );
+    return this._wallet
+      .connect(
+        ARCONNECT_WALLET_PERMISSIONS,
+        {
+          name: 'ARNS - ar.io',
+        },
+        // TODO: add arweave configs here
+      )
+      .catch((err) => {
+        console.error(err);
+        throw { name: 'ArConnect', message: 'User cancelled authentication.' };
+      });
   }
 
   disconnect(): Promise<void> {

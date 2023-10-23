@@ -8,7 +8,8 @@ export type WalletAction =
       type: 'setWallet';
       payload: ArweaveWalletConnector | undefined;
     }
-  | { type: 'setBalances'; payload: { io: number; ar: number } };
+  | { type: 'setBalances'; payload: { io: number; ar: number } }
+  | { type: 'setWalletStateInitialized' };
 
 export const walletReducer = (
   state: WalletState,
@@ -29,6 +30,11 @@ export const walletReducer = (
       return {
         ...state,
         balances: action.payload,
+      };
+    case 'setWalletStateInitialized':
+      return {
+        ...state,
+        walletStateInitialized: true,
       };
     default:
       return state;

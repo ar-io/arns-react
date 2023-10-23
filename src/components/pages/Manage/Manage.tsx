@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { useWalletANTs, useWalletDomains } from '../../../hooks';
+import { useWalletState } from '../../../state/contexts/WalletState';
 import { ManageTable } from '../../../types';
 import { MANAGE_TABLE_NAMES } from '../../../types';
 import { getCustomPaginationButtons } from '../../../utils';
@@ -35,6 +36,8 @@ function Manage() {
     loadingManageDomain,
     refresh: refreshANTs,
   } = useWalletDomains();
+
+  const [{ walletStateInitialized }] = useWalletState();
 
   const [tableData, setTableData] = useState<any[]>([]);
   const [tableLoading, setTableLoading] = useState(true);
@@ -79,8 +82,10 @@ function Manage() {
   ]);
 
   useEffect(() => {
-    setTableLoading(domainTableLoading || pdntTableLoading);
-  }, [domainTableLoading, pdntTableLoading]);
+    setTableLoading(
+      domainTableLoading || pdntTableLoading || !walletStateInitialized,
+    );
+  }, [domainTableLoading, pdntTableLoading, walletStateInitialized]);
 
   useEffect(() => {
     if (percent === 100) {
