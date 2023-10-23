@@ -130,7 +130,7 @@ function ConnectWalletModal(): JSX.Element {
           <img className="external-icon" src={ArweaveAppIcon} alt="" />
           <a
             target="_blank"
-            href="https://ardrive.io/start"
+            href="https://ar.io/wallet"
             style={{
               color: 'inherit',
               paddingLeft: '65px',
