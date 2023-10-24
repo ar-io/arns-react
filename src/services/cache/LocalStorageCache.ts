@@ -1,7 +1,12 @@
 import { isArray } from 'lodash';
 
-import { TransactionCache } from '../../types';
+import {
+  ArweaveTransactionID,
+  ContractInteraction,
+  TransactionCache,
+} from '../../types';
 import { isJsonSerializable } from '../../utils';
+import { PDNTContract } from '../arweave/PDNTContract';
 
 // time to live for transaction cache items
 export const ITEM_TTL = 1000 * 60 * 60 * 2; // 2 HOURS
@@ -22,6 +27,55 @@ export class LocalStorageCache implements TransactionCache {
       console.debug(`Failed to get item from cache. ${key}`);
       return [];
     }
+  }
+
+  getCachedNameTokens(address?: ArweaveTransactionID): PDNTContract[] {
+    const cachedTokens = Object.entries(window.localStorage).reduce(
+      (acc: PDNTContract[], [contractTxId, interactions]) => {
+        const parsedInteractions = isJsonSerializable(interactions)
+          ? JSON.parse(interactions)
+          : interactions;
+        const deploy = isArray(parsedInteractions)
+          ? parsedInteractions.find(
+              (i: ContractInteraction) => i.type === 'deploy',
+            )
+          : undefined;
+        if (
+          !deploy ||
+          (deploy && address && deploy.deployer !== address.toString())
+        ) {
+          return acc;
+        }
+        acc.push(
+          new PDNTContract(
+            JSON.parse(deploy.payload.initState),
+            new ArweaveTransactionID(contractTxId),
+          ),
+        );
+        return acc;
+      },
+      [],
+    );
+
+    if (isArray(cachedTokens)) {
+      return cachedTokens;
+    }
+    return [];
+  }
+
+  getCachedInteractions(
+    contractTxId: ArweaveTransactionID,
+  ): ContractInteraction[] {
+    const cachedInteractions = this.get(contractTxId.toString());
+
+    if (isArray(cachedInteractions)) {
+      return cachedInteractions.filter((interaction: ContractInteraction) => {
+        if (interaction.type === 'interaction') {
+          return true;
+        }
+      });
+    }
+    return [];
   }
 
   // default to use arrays for now, and just push items to a given key
@@ -58,6 +112,7 @@ export class LocalStorageCache implements TransactionCache {
     return window.localStorage.setItem(key, JSON.stringify(value));
   }
 
+  // TODO: update to remove empty keys
   clean() {
     const items = Object.entries(window.localStorage);
     for (const [key, values] of items) {
@@ -79,6 +134,9 @@ export class LocalStorageCache implements TransactionCache {
           } else {
             this.del(key);
           }
+        }
+        if (!parsedValues || !parsedValues.length) {
+          this.del(key);
         }
       } catch (error) {
         console.debug(`Failed to clean item from cache. ${key}`);

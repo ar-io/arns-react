@@ -753,7 +753,12 @@ export function getPendingInteractionsRowsForContract(
       }
     }
   }
-  return pendingTxRowData;
+  return pendingTxRowData as {
+    attribute: string;
+    value: string;
+    id: string;
+    valid: boolean | undefined;
+  }[];
 }
 export function generateAtomicState(
   domain: string,

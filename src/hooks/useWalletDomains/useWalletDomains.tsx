@@ -39,9 +39,8 @@ type DomainData = {
 
 export function useWalletDomains() {
   const [{ gateway, blockHeight, arweaveDataProvider }] = useGlobalState();
-  const [domainData, setDomainData] = useState<DomainData[]>([]);
   const [{ walletAddress }] = useWalletState();
-  const [sortAscending, setSortOrder] = useState(true);
+  const [sortAscending, setSortAscending] = useState(true);
   const [sortField, setSortField] = useState<keyof PDNSTableRow>('status');
   const [selectedRow] = useState<PDNSTableRow>();
   const [rows, setRows] = useState<PDNSTableRow[]>([]);
@@ -57,16 +56,24 @@ export function useWalletDomains() {
     load();
   }, [walletAddress]);
 
-  useEffect(() => {
-    if (walletAddress) {
-      fetchDomainRows(domainData, walletAddress, blockHeight);
-    }
-  }, [domainData, blockHeight]);
+  function sortRows(key: keyof PDNSTableRow, isAsc: boolean): void {
+    setSortField(key);
+    const newRows = [...rows];
+    handleTableSort<PDNSTableRow>({
+      key,
+      isAsc,
+
+      rows: newRows,
+    });
+    setRows([...newRows]);
+  }
 
   async function load() {
     try {
       setIsLoading(true);
       if (walletAddress) {
+        const height =
+          blockHeight ?? (await arweaveDataProvider.getCurrentBlockHeight());
         const { contractTxIds } =
           await arweaveDataProvider.getContractsForWallet(
             walletAddress,
@@ -75,9 +82,10 @@ export function useWalletDomains() {
         const data = await fetchDomainData(
           contractTxIds,
           walletAddress,
-          blockHeight,
+          height,
         );
-        setDomainData(data);
+        const newRows = buildDomainRows(data, walletAddress, height);
+        setRows(newRows);
       }
     } catch (error) {
       eventEmitter.emit('error', error);
@@ -130,7 +138,12 @@ export function useWalletDomains() {
           <button
             className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
-            onClick={() => setSortField('name')}
+            onClick={() => {
+              if (sortField == 'name') {
+                setSortAscending(!sortAscending);
+              }
+              sortRows('name', !sortAscending);
+            }}
           >
             <span>Name</span>{' '}
             <ChevronUpIcon
@@ -167,28 +180,18 @@ export function useWalletDomains() {
             />
           </a>
         ),
-        onHeaderCell: () => {
-          return {
-            onClick: () => {
-              rows.sort((a: PDNSTableRow, b: PDNSTableRow) =>
-                // by default we sort by name
-                !sortAscending
-                  ? a.name.localeCompare(b.name)
-                  : b.name.localeCompare(a.name),
-              );
-              // forces update of rows
-              setRows([...rows]);
-              setSortOrder(!sortAscending);
-            },
-          };
-        },
       },
       {
         title: (
           <button
             className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
-            onClick={() => setSortField('role')}
+            onClick={() => {
+              if (sortField == 'role') {
+                setSortAscending(!sortAscending);
+              }
+              sortRows('role', !sortAscending);
+            }}
           >
             <span>Role</span>{' '}
             <ChevronUpIcon
@@ -209,27 +212,18 @@ export function useWalletDomains() {
         align: 'left',
         className: 'white manage-assets-table-header',
         ellipsis: true,
-        onHeaderCell: () => {
-          return {
-            onClick: () => {
-              rows.sort((a: PDNSTableRow, b: PDNSTableRow) =>
-                !sortAscending
-                  ? a.role.localeCompare(b.role)
-                  : b.role.localeCompare(a.role),
-              );
-              // forces update of rows
-              setRows([...rows]);
-              setSortOrder(!sortAscending);
-            },
-          };
-        },
       },
       {
         title: (
           <button
             className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
-            onClick={() => setSortField('id')}
+            onClick={() => {
+              if (sortField == 'id') {
+                setSortAscending(!sortAscending);
+              }
+              sortRows('id', !sortAscending);
+            }}
           >
             <span>Contract ID</span>{' '}
             <ChevronUpIcon
@@ -258,27 +252,18 @@ export function useWalletDomains() {
             type={ArweaveIdTypes.CONTRACT}
           />
         ),
-        onHeaderCell: () => {
-          return {
-            onClick: () => {
-              handleTableSort<PDNSTableRow>({
-                key: 'id',
-                isAsc: sortAscending,
-                rows,
-              });
-              // forces update of rows
-              setRows([...rows]);
-              setSortOrder(!sortAscending);
-            },
-          };
-        },
       },
       {
         title: (
           <button
             className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
-            onClick={() => setSortField('undernames')}
+            onClick={() => {
+              if (sortField == 'undernames') {
+                setSortAscending(!sortAscending);
+              }
+              sortRows('undernames', !sortAscending);
+            }}
           >
             <span>Undernames</span>{' '}
             <ChevronUpIcon
@@ -300,27 +285,18 @@ export function useWalletDomains() {
         align: 'left',
         ellipsis: true,
         render: (undernames: number | string) => undernames,
-        onHeaderCell: () => {
-          return {
-            onClick: () => {
-              rows.sort((a: PDNSTableRow, b: PDNSTableRow) =>
-                sortAscending
-                  ? +a.undernameSupport - +b.undernameSupport
-                  : +b.undernameSupport - +a.undernameSupport,
-              );
-              // forces update of rows
-              setRows([...rows]);
-              setSortOrder(!sortAscending);
-            },
-          };
-        },
       },
       {
         title: (
           <button
             className="flex-row pointer grey "
             style={{ gap: '0.5em' }}
-            onClick={() => setSortField('expiration')}
+            onClick={() => {
+              if (sortField == 'expiration') {
+                setSortAscending(!sortAscending);
+              }
+              sortRows('expiration', !sortAscending);
+            }}
           >
             <span>Expiry Date</span>{' '}
             <ChevronUpIcon
@@ -341,28 +317,19 @@ export function useWalletDomains() {
         width: '18%',
         className: 'white manage-assets-table-header',
         render: (val: Date | string) =>
-          typeof val === 'string' ? val : `${val.toLocaleDateString()}`,
-        onHeaderCell: () => {
-          return {
-            onClick: () => {
-              handleTableSort<PDNSTableRow>({
-                key: 'expiration',
-                isAsc: sortAscending,
-                rows,
-              });
-              // forces update of rows
-              setRows([...rows]);
-              setSortOrder(!sortAscending);
-            },
-          };
-        },
+          typeof val === 'string' ? val : `${val?.toLocaleDateString()}`,
       },
       {
         title: (
           <button
             className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
-            onClick={() => setSortField('status')}
+            onClick={() => {
+              if (sortField == 'status') {
+                setSortAscending(!sortAscending);
+              }
+              sortRows('status', !sortAscending);
+            }}
           >
             <span>Status</span>{' '}
             <ChevronUpIcon
@@ -386,7 +353,7 @@ export function useWalletDomains() {
           <TransactionStatus
             confirmations={val}
             errorMessage={
-              !val && !row.hasPending
+              !val && !row.hasPending && val !== 0
                 ? row.errors
                   ? row.errors?.join(', ')
                   : 'Unable to get confirmations for ANT Contract'
@@ -394,18 +361,6 @@ export function useWalletDomains() {
             }
           />
         ),
-        onHeaderCell: () => {
-          return {
-            onClick: () => {
-              rows.sort((a, b) =>
-                sortAscending ? a.status - b.status : b.status - a.status,
-              );
-              // forces update of rows
-              setRows([...rows]);
-              setSortOrder(!sortAscending);
-            },
-          };
-        },
       },
       {
         title: '',
@@ -465,7 +420,6 @@ export function useWalletDomains() {
           arweaveDataProvider
             .getContractState<PDNTContractJSON>(
               new ArweaveTransactionID(record.contractTxId),
-              address,
             )
             .catch((e) => console.error(e)),
           arweaveDataProvider
@@ -503,7 +457,7 @@ export function useWalletDomains() {
           pendingContractInteractions: pendingContractInteractions ?? undefined,
           transactionBlockHeight:
             allTransactionBlockHeights?.[record.contractTxId.toString()]
-              .blockHeight,
+              ?.blockHeight,
           errors,
         };
 
@@ -517,7 +471,7 @@ export function useWalletDomains() {
     return datas;
   }
 
-  function fetchDomainRows(
+  function buildDomainRows(
     datas: DomainData[],
     address: ArweaveTransactionID,
     currentBlockHeight?: number,
@@ -561,12 +515,15 @@ export function useWalletDomains() {
         };
       });
       fetchedRows.push(...rowData);
-      // sort by confirmations by default
-      fetchedRows.sort((a, b) => (a.status ?? 1) - (b.status ?? 1));
     } catch (error) {
       eventEmitter.emit('error', error);
     }
-    setRows(fetchedRows);
+    handleTableSort<PDNSTableRow>({
+      key: 'status',
+      isAsc: false,
+      rows: fetchedRows,
+    });
+    return fetchedRows;
   }
 
   return {

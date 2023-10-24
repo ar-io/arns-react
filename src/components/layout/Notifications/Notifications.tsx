@@ -17,7 +17,7 @@ export default function Notifications() {
   function handleError(error: Error) {
     // TODO: check for duplicate errors
     const sentryID = Sentry.captureException(error);
-    console.debug('Error sent to sentry:', error, sentryID);
+    console.error('Error sent to sentry:', error, sentryID);
     showNotification({
       type: 'error',
       title: error.name,

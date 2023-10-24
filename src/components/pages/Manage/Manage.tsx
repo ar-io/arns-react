@@ -38,7 +38,6 @@ function Manage() {
 
   const [tableData, setTableData] = useState<any[]>([]);
   const [tableLoading, setTableLoading] = useState(true);
-  const [tableColumns, setTableColumns] = useState<any[]>();
   const [tablePage, setTablePage] = useState<number>(1);
 
   useEffect(() => {
@@ -46,7 +45,7 @@ function Manage() {
       navigate('names');
       return;
     }
-    setTableColumns(path === 'ants' ? pdntColumns : domainColumns);
+    setTablePage(1);
   }, [path]);
 
   useEffect(() => {
@@ -192,7 +191,7 @@ function Manage() {
             <Table
               prefixCls="manage-table"
               scroll={pdntRows.length ? { x: true } : {}}
-              columns={tableColumns}
+              columns={path === 'ants' ? pdntColumns : domainColumns}
               dataSource={tableData}
               pagination={{
                 position: ['bottomCenter'],

@@ -131,11 +131,12 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       throw Error('No transaction ID from write interaction');
     }
 
-    this._cache.push(walletAddress.toString(), {
+    this._cache.push(contractTxId.toString(), {
       id: originalTxId,
       contractTxId: contractTxId.toString(),
       payload,
       type: 'interaction',
+      deployer: walletAddress.toString(),
     });
 
     return new ArweaveTransactionID(originalTxId);
@@ -186,11 +187,12 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     }
 
     // TODO: emit event on successfully transaction
-    this._cache.push(walletAddress.toString(), {
+    this._cache.push(contractTxId.toString(), {
       contractTxId,
       id: contractTxId,
       payload: deploymentPayload,
       type: 'deploy',
+      deployer: walletAddress.toString(),
     });
     // Pulls out registration interaction and caches it
     // TODO: make this able to cache batch interactions on multiple contracts at once.
@@ -203,11 +205,12 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
         );
       }
       const interactionPayload = JSON.parse(input);
-      this._cache.push(walletAddress.toString(), {
+      this._cache.push(contractId, {
         id: contractTxId,
         contractTxId: contractId,
         payload: interactionPayload,
         type: 'interaction',
+        deployer: walletAddress.toString(),
       });
     }
 

@@ -21,7 +21,7 @@ import {
   ContractInteraction,
   PDNTContractJSON,
 } from '../../types';
-import { isArweaveTransactionID } from '../../utils';
+import { handleTableSort, isArweaveTransactionID } from '../../utils';
 import eventEmitter from '../../utils/events';
 
 type ANTData = {
@@ -34,9 +34,8 @@ type ANTData = {
 export function useWalletANTs() {
   const [{ blockHeight, arweaveDataProvider }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
-  const [sortAscending, setSortOrder] = useState(true);
+  const [sortAscending, setSortAscending] = useState<boolean>(true);
   const [sortField, setSortField] = useState<keyof ANTMetadata>('status');
-  const [antData, setAntData] = useState<ANTData[]>([]);
   const [rows, setRows] = useState<ANTMetadata[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const itemCount = useRef<number>(0);
@@ -47,27 +46,32 @@ export function useWalletANTs() {
     load();
   }, [walletAddress]);
 
-  useEffect(() => {
-    if (walletAddress) {
-      buildANTRows(antData, walletAddress, blockHeight);
-    }
-  }, [antData, blockHeight]);
+  function sortRows(key: keyof ANTMetadata, isAsc: boolean): void {
+    setSortField(key);
+    const newRows = [...rows];
+    handleTableSort<ANTMetadata>({
+      key,
+      isAsc,
+
+      rows: newRows,
+    });
+    setRows([...newRows]);
+  }
 
   async function load() {
     try {
       setIsLoading(true);
       if (walletAddress) {
+        const height =
+          blockHeight ?? (await arweaveDataProvider.getCurrentBlockHeight());
         const { contractTxIds } =
           await arweaveDataProvider.getContractsForWallet(
             walletAddress,
             'ant', // only fetches contracts that have a state that matches ant spec
           );
-        const data = await fetchANTData(
-          contractTxIds,
-          walletAddress,
-          blockHeight,
-        );
-        setAntData(data);
+        const data = await fetchANTData(contractTxIds, height);
+        const newRows = buildANTRows(data, walletAddress, height);
+        setRows(newRows);
       }
     } catch (error) {
       eventEmitter.emit('error', error);
@@ -120,7 +124,12 @@ export function useWalletANTs() {
           <button
             className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
-            onClick={() => setSortField('name')}
+            onClick={() => {
+              if (sortField == 'name') {
+                setSortAscending(!sortAscending);
+              }
+              sortRows('name', !sortAscending);
+            }}
           >
             <span>Nickname</span>{' '}
             <ChevronUpIcon
@@ -141,28 +150,18 @@ export function useWalletANTs() {
         width: '18%',
         className: 'white manage-assets-table-header',
         ellipsis: true,
-        onHeaderCell: () => {
-          return {
-            onClick: () => {
-              rows.sort((a: ANTMetadata, b: ANTMetadata) =>
-                // by default we sort by name
-                !sortAscending
-                  ? a.name.localeCompare(b.name)
-                  : b.name.localeCompare(a.name),
-              );
-              // forces update of rows
-              setRows([...rows]);
-              setSortOrder(!sortAscending);
-            },
-          };
-        },
       },
       {
         title: (
           <button
             className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
-            onClick={() => setSortField('role')}
+            onClick={() => {
+              if (sortField == 'role') {
+                setSortAscending(!sortAscending);
+              }
+              sortRows('role', !sortAscending);
+            }}
           >
             <span>Role</span>{' '}
             <ChevronUpIcon
@@ -183,27 +182,18 @@ export function useWalletANTs() {
         width: '18%',
         className: 'white manage-assets-table-header',
         ellipsis: true,
-        onHeaderCell: () => {
-          return {
-            onClick: () => {
-              rows.sort((a: ANTMetadata, b: ANTMetadata) =>
-                !sortAscending
-                  ? a.role.localeCompare(b.role)
-                  : b.role.localeCompare(a.role),
-              );
-              // forces update of rows
-              setRows([...rows]);
-              setSortOrder(!sortAscending);
-            },
-          };
-        },
       },
       {
         title: (
           <button
             className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
-            onClick={() => setSortField('id')}
+            onClick={() => {
+              if (sortField == 'id') {
+                setSortAscending(!sortAscending);
+              }
+              sortRows('id', !sortAscending);
+            }}
           >
             <span>Contract ID</span>{' '}
             <ChevronUpIcon
@@ -226,37 +216,27 @@ export function useWalletANTs() {
         ellipsis: true,
         render: (val: string) =>
           val === 'N/A' ? (
-            val
+            val.toString()
           ) : (
             <ArweaveID
-              id={new ArweaveTransactionID(val)}
+              id={new ArweaveTransactionID(val.toString())}
               characterCount={12}
               shouldLink
               type={ArweaveIdTypes.CONTRACT}
             />
           ),
-
-        onHeaderCell: () => {
-          return {
-            onClick: () => {
-              rows.sort((a: ANTMetadata, b: ANTMetadata) =>
-                sortAscending
-                  ? a.id.localeCompare(b.id)
-                  : b.id.localeCompare(a.id),
-              );
-              // forces update of rows
-              setRows([...rows]);
-              setSortOrder(!sortAscending);
-            },
-          };
-        },
       },
       {
         title: (
           <button
             className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
-            onClick={() => setSortField('targetID')}
+            onClick={() => {
+              if (sortField == 'targetID') {
+                setSortAscending(!sortAscending);
+              }
+              sortRows('name', !sortAscending);
+            }}
           >
             <span>Target ID</span>{' '}
             <ChevronUpIcon
@@ -278,37 +258,27 @@ export function useWalletANTs() {
         className: 'white manage-assets-table-header',
         render: (val: string) =>
           val === 'N/A' || !isArweaveTransactionID(val) ? (
-            val
+            val?.toString()
           ) : (
             <ArweaveID
-              id={new ArweaveTransactionID(val)}
+              id={new ArweaveTransactionID(val.toString())}
               characterCount={12}
               shouldLink
               type={ArweaveIdTypes.TRANSACTION}
             />
           ),
-
-        onHeaderCell: () => {
-          return {
-            onClick: () => {
-              rows.sort((a, b) =>
-                sortAscending
-                  ? a.targetID.localeCompare(b.targetID)
-                  : b.targetID.localeCompare(a.targetID),
-              );
-              // forces update of rows
-              setRows([...rows]);
-              setSortOrder(!sortAscending);
-            },
-          };
-        },
       },
       {
         title: (
           <button
             className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
-            onClick={() => setSortField('status')}
+            onClick={() => {
+              if (sortField == 'status') {
+                setSortAscending(!sortAscending);
+              }
+              sortRows('status', !sortAscending);
+            }}
           >
             <span>Status</span>{' '}
             <ChevronUpIcon
@@ -332,7 +302,7 @@ export function useWalletANTs() {
           <TransactionStatus
             confirmations={val}
             errorMessage={
-              !val && !row.hasPending
+              !val && !row.hasPending && val !== 0
                 ? row.errors?.length
                   ? row.errors?.join(', ')
                   : 'Unable to get confirmations for ANT Contract'
@@ -340,18 +310,6 @@ export function useWalletANTs() {
             }
           />
         ),
-        onHeaderCell: () => {
-          return {
-            onClick: () => {
-              rows.sort((a, b) =>
-                sortAscending ? a.status - b.status : b.status - a.status,
-              );
-              // forces update of rows
-              setRows([...rows]);
-              setSortOrder(!sortAscending);
-            },
-          };
-        },
       },
       {
         title: '',
@@ -371,51 +329,40 @@ export function useWalletANTs() {
 
   async function fetchANTData(
     contractTxIds: ArweaveTransactionID[],
-    address: ArweaveTransactionID,
     currentBlockHeight?: number,
   ): Promise<ANTData[]> {
     let datas: ANTData[] = [];
     try {
       itemsLoaded.current = 0;
-      const tokenIds = new Set(contractTxIds);
+      const tokenIds: Set<ArweaveTransactionID> = new Set(contractTxIds);
 
-      const cachedTokens = await arweaveDataProvider.getCachedNameTokens(
-        address,
-      );
-      if (cachedTokens.length) {
-        cachedTokens.forEach((token: PDNTContract) => {
-          if (token?.id) {
-            tokenIds.add(new ArweaveTransactionID(token.id.toString()));
-          }
-        });
-      }
       itemCount.current = tokenIds.size;
 
       const allTransactionBlockHeights = await arweaveDataProvider
         .getTransactionStatus([...tokenIds], currentBlockHeight)
         .catch((e) => console.error(e));
-
-      const newDatas = contractTxIds.map(
+      const newDatas = [...tokenIds].map(
         async (contractTxId: ArweaveTransactionID) => {
           const errors = [];
           const [contractState, confirmations, pendingContractInteractions] =
             await Promise.all([
-              arweaveDataProvider.getContractState<PDNTContractJSON>(
-                contractTxId,
-                address,
-              ),
-              allTransactionBlockHeights
-                ? allTransactionBlockHeights[contractTxId.toString()]
-                    .blockHeight
-                : 0,
               arweaveDataProvider
-                .getPendingContractInteractions(
+                .getContractState<PDNTContractJSON>(
                   contractTxId,
-                  address.toString(),
+                  currentBlockHeight,
                 )
                 .catch((e) => {
                   console.error(e);
+                  return undefined;
                 }),
+              allTransactionBlockHeights
+                ? allTransactionBlockHeights[contractTxId.toString()]
+                    ?.blockHeight
+                : 0,
+              arweaveDataProvider.getPendingContractInteractions(
+                contractTxId,
+                contractTxId.toString(),
+              ),
             ]);
 
           if (!contractState) {
@@ -438,7 +385,9 @@ export function useWalletANTs() {
           return {
             contract,
             status: confirmations ?? 0,
-            transactionBlockHeight: allTransactionBlockHeights
+            transactionBlockHeight: allTransactionBlockHeights?.[
+              contractTxId.toString()
+            ]?.blockHeight
               ? allTransactionBlockHeights[contractTxId.toString()].blockHeight
               : 0,
             pendingContractInteractions,
@@ -466,21 +415,21 @@ export function useWalletANTs() {
         pendingContractInteractions,
         errors,
       } = data;
-      const target = isArweaveTransactionID(
-        contract.getRecord('@')?.transactionId ?? '',
-      )
-        ? contract.getRecord('@')?.transactionId
-        : undefined;
+
       const rowData = {
         name: contract.name ?? 'N/A',
-        id: contract.id ? contract.id?.toString() : 'N/A',
+        id: contract.id?.toString() ?? 'N/A',
         role:
           contract.owner === address.toString()
             ? 'Owner'
             : contract.controllers.includes(address.toString())
             ? 'Controller'
             : 'N/A',
-        targetID: target ?? 'N/A',
+        targetID: isArweaveTransactionID(
+          contract.getRecord('@')?.transactionId ?? '',
+        )
+          ? contract.getRecord('@')!.transactionId
+          : 'N/A',
         ttlSeconds: contract.getRecord('@')?.ttlSeconds,
         status:
           transactionBlockHeight && currentBlockHeight
@@ -493,8 +442,12 @@ export function useWalletANTs() {
       };
       return rowData;
     });
-
-    setRows(fetchedRows);
+    handleTableSort<ANTMetadata>({
+      key: 'status',
+      isAsc: false,
+      rows: fetchedRows,
+    });
+    return fetchedRows;
   }
 
   return {

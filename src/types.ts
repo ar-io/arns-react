@@ -149,7 +149,6 @@ export type JsonWalletProvider = {
 export interface SmartweaveContractCache {
   getContractState<T extends PDNTContractJSON | PDNSContractJSON>(
     contractTxId: ArweaveTransactionID,
-    address?: ArweaveTransactionID, // required for getting cached name tokens
     currentBlockHeight?: number, // required for getting cached name tokens
   ): Promise<T>;
   getContractBalanceForWallet(
@@ -170,7 +169,7 @@ export interface SmartweaveContractCache {
   // TODO: ALL OF THESE SHOULD REQUIRE A CONTRACT-TX-ID! NO HARD CODING OF CONTRACTS!
   isDomainAvailable({ domain }: { domain: string }): Promise<boolean>;
   isDomainReserved({ domain }: { domain: string }): Promise<boolean>;
-  getCachedNameTokens(address: ArweaveTransactionID): Promise<PDNTContract[]>;
+  getCachedNameTokens(address?: ArweaveTransactionID): Promise<PDNTContract[]>;
   isDomainInAuction({
     contractTxId,
     domain,
@@ -282,6 +281,10 @@ export interface TransactionCache {
   del(key: string): void;
   deleteTransaction(key: string, txId: string): void;
   push(key: string, value: any): void;
+  getCachedNameTokens(address?: ArweaveTransactionID): PDNTContract[];
+  getCachedInteractions(
+    contractTxId: ArweaveTransactionID,
+  ): ContractInteraction[];
 }
 
 export interface ArweaveDataProvider {
@@ -749,11 +752,12 @@ export type ValidationObject = {
 };
 
 export type ContractInteraction = {
+  deployer: string;
   contractTxId: string;
   id: string;
   payload: {
     function: string;
-    [x: string]: string;
+    [x: string]: string | number | boolean;
   };
   valid?: boolean;
   [x: string]: any;

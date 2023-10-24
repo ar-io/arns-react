@@ -45,12 +45,11 @@ export class ArweaveCompositeDataProvider
 
   async getContractState<T extends PDNSContractJSON | PDNTContractJSON>(
     contractTxId: ArweaveTransactionID,
-    address?: ArweaveTransactionID,
     currentBlockHeight?: number,
   ): Promise<T> {
     return Promise.any(
       this._contractProviders.map((p) =>
-        p.getContractState<T>(contractTxId, address, currentBlockHeight),
+        p.getContractState<T>(contractTxId, currentBlockHeight),
       ),
     );
   }
@@ -205,7 +204,7 @@ export class ArweaveCompositeDataProvider
   }
 
   async getCachedNameTokens(
-    address: ArweaveTransactionID,
+    address?: ArweaveTransactionID,
   ): Promise<PDNTContract[]> {
     return Promise.any(
       this._contractProviders.map((p) => p.getCachedNameTokens(address)),
