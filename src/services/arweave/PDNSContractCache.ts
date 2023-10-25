@@ -367,15 +367,15 @@ export class PDNSContractCache implements SmartweaveContractCache {
               : 'setRecord') && !i.payload?.auction,
       );
     cachedInteractions.forEach(
-      (i: ContractInteraction) =>
+      (interaction: ContractInteraction) =>
         (cachedRegistrations[
           (contractTxId.toString() === ARNS_REGISTRY_ADDRESS
-            ? i.payload.name
-            : i.payload.subDomain) as string
+            ? interaction.payload.name
+            : interaction.payload.subDomain) as string
         ] = (
           contractTxId.toString() === ARNS_REGISTRY_ADDRESS
-            ? buildPendingArNSRecord(i)
-            : buildPendingANTRecord(i)
+            ? buildPendingArNSRecord(interaction)
+            : buildPendingANTRecord(interaction)
         ) as T),
     );
 
