@@ -98,17 +98,9 @@ function AddUndernameModal({
     undername: string,
     records: Record<string, PDNSRecordEntry>,
   ): string[] {
-    const incompatibleNames: string[] = Object.keys(records).reduce(
-      (names: string[], name: string) => {
-        if (undername.length + name.length > MAX_UNDERNAME_LENGTH) {
-          names.push(name);
-        }
-        return names;
-      },
-      [],
+    return Object.keys(records).filter(
+      (name: string) => undername.length + name.length > MAX_UNDERNAME_LENGTH,
     );
-
-    return incompatibleNames;
   }
 
   return (
