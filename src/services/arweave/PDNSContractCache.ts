@@ -54,16 +54,8 @@ export class PDNSContractCache implements SmartweaveContractCache {
     try {
       const res = await fetch(
         `${this._url}/v1/contract/${contractTxId.toString()}`,
-      ).catch((e) => {
-        console.error(e);
-        return {
-          ok: false,
-          json: async () => {
-            return { state: undefined };
-          },
-        };
-      });
-      const { state } = res.ok ? await res.json() : { state: undefined };
+      );
+      const { state } = await res.json();
 
       if (currentBlockHeight) {
         const cachedTokens = await this.getCachedNameTokens();
