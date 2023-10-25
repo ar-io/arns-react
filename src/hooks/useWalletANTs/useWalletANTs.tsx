@@ -69,6 +69,7 @@ export function useWalletANTs() {
             walletAddress,
             'ant', // only fetches contracts that have a state that matches ant spec
           );
+        console.log(contractTxIds);
         const data = await fetchANTData(contractTxIds, height);
         const newRows = buildANTRows(data, walletAddress, height);
         setRows(newRows);

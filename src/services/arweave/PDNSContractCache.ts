@@ -16,6 +16,7 @@ import {
 import {
   buildPendingANTRecord,
   buildPendingArNSRecord,
+  isArweaveTransactionID,
   isDomainReservedLength,
   lowerCaseDomain,
 } from '../../utils';
@@ -55,7 +56,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
       const res = await fetch(
         `${this._url}/v1/contract/${contractTxId.toString()}`,
       );
-      const { state } = await res.json();
+      const { state } = res && res.ok ? await res.json() : { state: undefined };
 
       if (currentBlockHeight) {
         const cachedTokens = await this.getCachedNameTokens();
@@ -119,17 +120,16 @@ export class PDNSContractCache implements SmartweaveContractCache {
       `${this._url}/v1/wallet/${address.toString()}/contracts${query}`,
     );
     const { contractTxIds } = await res.json();
+    const ids = new Set<string>(contractTxIds);
     const cachedTokens = await this.getCachedNameTokens(address);
+    cachedTokens.forEach((token) =>
+      token.id && isArweaveTransactionID(token.id.toString())
+        ? ids.add(token.id?.toString())
+        : null,
+    );
 
     return {
-      contractTxIds: [
-        ...new Set<ArweaveTransactionID>(
-          [
-            ...contractTxIds,
-            ...cachedTokens.map((token: PDNTContract) => token.id?.toString()),
-          ].map((id: string) => new ArweaveTransactionID(id)),
-        ),
-      ],
+      contractTxIds: [...ids].map((id: string) => new ArweaveTransactionID(id)),
     };
   }
 
@@ -360,6 +360,22 @@ export class PDNSContractCache implements SmartweaveContractCache {
               ? 'buyRecord'
               : 'setRecord') && !i.payload?.auction,
       );
+
+    if (cachedInteractions) {
+      await Promise.all(
+        cachedInteractions.map(async (interaction: ContractInteraction) => {
+          const interactionStatus = await this._arweave.getTransactionStatus(
+            new ArweaveTransactionID(interaction.id),
+          );
+          if (interactionStatus[interaction.id]) {
+            await this._cache.del(contractTxId.toString(), {
+              key: 'id',
+              value: interaction.id,
+            });
+          }
+        }),
+      );
+    }
     cachedInteractions.forEach(
       (interaction: ContractInteraction) =>
         (cachedRegistrations[
