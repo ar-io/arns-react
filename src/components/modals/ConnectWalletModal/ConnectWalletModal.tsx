@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 
-import { ArConnectWalletConnector } from '../../../services/wallets';
-import { ARCONNECT_WALLET_PERMISSIONS } from '../../../services/wallets/ArConnectWalletConnector';
 import { dispatchNewGateway } from '../../../state/actions';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../state/contexts/WalletState';
@@ -15,43 +13,20 @@ import './styles.css';
 function ConnectWalletModal(): JSX.Element {
   const modalRef = useRef(null);
   const [, dispatchGlobalState] = useGlobalState();
-  const [{ wallet, walletAddress }, dispatchWalletState] = useWalletState();
+  const [
+    { wallet, walletAddress, walletStateInitialized },
+    dispatchWalletState,
+  ] = useWalletState();
   const navigate = useNavigate();
   const { state } = useLocation();
   const [connecting, setConnecting] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const walletLoaded = !!window.arweaveWallet;
-
-  const [hasPermissions, setHasPermissions] = useState(false);
+  const [loading, setLoading] = useState(!walletStateInitialized);
 
   useEffect(() => {
-    const handleArweaveWalletLoaded = async () => {
-      // Check for permissions
-      const permissions = await window.arweaveWallet.getPermissions(); // Replace with actual API call
-      const hasRequiredPermissions = ARCONNECT_WALLET_PERMISSIONS.every(
-        (perm) => permissions.includes(perm),
-      );
-
-      setHasPermissions(hasRequiredPermissions);
-      if (hasRequiredPermissions && walletAddress) {
-        closeModal({ next: true });
-      }
+    if (walletStateInitialized) {
       setLoading(false);
-    };
-
-    if (walletLoaded) {
-      handleArweaveWalletLoaded();
-    } else {
-      window.addEventListener('arweaveWalletLoaded', handleArweaveWalletLoaded);
     }
-
-    return () => {
-      window.removeEventListener(
-        'arweaveWalletLoaded',
-        handleArweaveWalletLoaded,
-      );
-    };
-  }, []);
+  }, [walletStateInitialized]);
 
   useEffect(() => {
     // disable scrolling when modal is in view
@@ -84,7 +59,7 @@ function ConnectWalletModal(): JSX.Element {
     }
   }
 
-  async function setGlobalWallet(walletConnector: ArweaveWalletConnector) {
+  async function connect(walletConnector: ArweaveWalletConnector) {
     try {
       setConnecting(true);
       await walletConnector.connect();
@@ -92,10 +67,6 @@ function ConnectWalletModal(): JSX.Element {
       if (arconnectGate?.host) {
         await dispatchNewGateway(arconnectGate.host, dispatchGlobalState);
       }
-      dispatchWalletState({
-        type: 'setWallet',
-        payload: walletConnector,
-      });
       await walletConnector.getWalletAddress().then((address) => {
         dispatchWalletState({
           type: 'setWalletAddress',
@@ -104,13 +75,15 @@ function ConnectWalletModal(): JSX.Element {
       });
       closeModal({ next: true });
     } catch (error: any) {
-      eventEmitter.emit('error', error);
+      if (walletConnector) {
+        eventEmitter.emit('error', error);
+      }
     } finally {
       setConnecting(false);
     }
   }
 
-  if (loading || (hasPermissions && walletLoaded) || !walletLoaded) {
+  if (loading) {
     return <PageLoader loading={true} message={'Connecting to Wallet'} />; // Replace with your loading component
   }
 
@@ -139,7 +112,11 @@ function ConnectWalletModal(): JSX.Element {
           disabled={connecting}
           className="wallet-connect-button h2"
           onClick={() => {
-            setGlobalWallet(new ArConnectWalletConnector());
+            if (wallet) {
+              connect(wallet);
+            } else {
+              window.open('https://arconnect.io');
+            }
           }}
         >
           <ArConnectIcon
@@ -153,7 +130,7 @@ function ConnectWalletModal(): JSX.Element {
           <img className="external-icon" src={ArweaveAppIcon} alt="" />
           <a
             target="_blank"
-            href="https://ardrive.io/start"
+            href="https://ar.io/wallet"
             style={{
               color: 'inherit',
               paddingLeft: '65px',
