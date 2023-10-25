@@ -64,12 +64,19 @@ export function useWalletANTs() {
       if (walletAddress) {
         const height =
           blockHeight ?? (await arweaveDataProvider.getCurrentBlockHeight());
-        const { contractTxIds } =
-          await arweaveDataProvider.getContractsForWallet(
+        const { contractTxIds } = await arweaveDataProvider
+          .getContractsForWallet(
             walletAddress,
             'ant', // only fetches contracts that have a state that matches ant spec
-          );
-        const data = await fetchANTData(contractTxIds, height);
+          )
+          .catch((e) => {
+            console.error(e);
+            return { contractTxIds: [] as ArweaveTransactionID[] };
+          });
+        const data = await fetchANTData(contractTxIds, height).catch((e) => {
+          console.error(e);
+          return [];
+        });
         const newRows = buildANTRows(data, walletAddress, height);
         setRows(newRows);
       }

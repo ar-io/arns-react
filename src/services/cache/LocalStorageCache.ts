@@ -41,12 +41,15 @@ export class LocalStorageCache implements TransactionCache {
               (address ? interaction.deployer === address.toString() : true),
           );
 
+          if (!deployment) {
+            return;
+          }
+
           return new PDNTContract(
             JSON.parse(deployment.payload.initState),
             new ArweaveTransactionID(contractTxId),
           );
         }
-        return undefined;
       })
       .filter((contract) => contract !== undefined);
 

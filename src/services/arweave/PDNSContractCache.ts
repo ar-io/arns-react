@@ -128,12 +128,14 @@ export class PDNSContractCache implements SmartweaveContractCache {
     );
     const { contractTxIds } = await res.json();
     const cachedTokens = await this.getCachedNameTokens(address);
+
     return {
       contractTxIds: [
-        ...contractTxIds.map((id: string) => new ArweaveTransactionID(id)),
-        ...cachedTokens.map(
-          (token: PDNTContract) =>
-            new ArweaveTransactionID(token.id?.toString()),
+        ...new Set<ArweaveTransactionID>(
+          [
+            ...contractTxIds,
+            ...cachedTokens.map((token: PDNTContract) => token.id?.toString()),
+          ].map((id: string) => new ArweaveTransactionID(id)),
         ),
       ],
     };
