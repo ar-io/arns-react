@@ -112,7 +112,6 @@ export class LocalStorageCache implements TransactionCache {
     return window.localStorage.setItem(key, JSON.stringify(value));
   }
 
-  // TODO: update to remove empty keys
   clean() {
     const items = Object.entries(window.localStorage);
     for (const [key, values] of items) {
