@@ -216,10 +216,10 @@ export function useWalletANTs() {
         ellipsis: true,
         render: (val: string) =>
           val === 'N/A' ? (
-            val.toString()
+            val
           ) : (
             <ArweaveID
-              id={new ArweaveTransactionID(val.toString())}
+              id={new ArweaveTransactionID(val)}
               characterCount={12}
               shouldLink
               type={ArweaveIdTypes.CONTRACT}
@@ -257,11 +257,11 @@ export function useWalletANTs() {
         width: '18%',
         className: 'white manage-assets-table-header',
         render: (val: string) =>
-          val === 'N/A' || !isArweaveTransactionID(val) ? (
-            val?.toString()
+          !isArweaveTransactionID(val) ? (
+            val
           ) : (
             <ArweaveID
-              id={new ArweaveTransactionID(val.toString())}
+              id={new ArweaveTransactionID(val)}
               characterCount={12}
               shouldLink
               type={ArweaveIdTypes.TRANSACTION}
@@ -428,7 +428,7 @@ export function useWalletANTs() {
         targetID: isArweaveTransactionID(
           contract.getRecord('@')?.transactionId ?? '',
         )
-          ? contract.getRecord('@')!.transactionId
+          ? contract.getRecord('@')!.transactionId.toString()
           : 'N/A',
         ttlSeconds: contract.getRecord('@')?.ttlSeconds,
         status:
