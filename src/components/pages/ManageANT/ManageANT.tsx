@@ -27,7 +27,6 @@ import {
   validateTTLSeconds,
 } from '../../../utils';
 import {
-  DEFAULT_MAX_UNDERNAMES,
   DEFAULT_TTL_SECONDS,
   MAX_TTL_SECONDS,
   MIN_TTL_SECONDS,
@@ -138,10 +137,7 @@ function ManageANT() {
         contractTxId: contractTxId.toString(),
         associatedNames: !names.length ? 'N/A' : names.join(', '),
         //
-        undernames: `${getUndernameCount(contract.records)}/${
-          Object.values(associatedRecords)[0]?.undernames ??
-          DEFAULT_MAX_UNDERNAMES
-        }`,
+        undernames: getUndernameCount(contract.records).toString(),
         name: contract.name ?? 'N/A',
         ticker: contract.ticker ?? 'N/A',
         owner: contract.owner ?? 'N/A',
