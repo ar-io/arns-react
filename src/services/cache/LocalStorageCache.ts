@@ -59,11 +59,10 @@ export class LocalStorageCache implements TransactionCache {
     const cachedInteractions = this.get(contractTxId.toString());
 
     if (isArray(cachedInteractions)) {
-      return cachedInteractions.filter((interaction: ContractInteraction) => {
-        if (interaction.type === 'interaction') {
-          return true;
-        }
-      });
+      return cachedInteractions.filter(
+        (interaction: ContractInteraction) =>
+          interaction.type === 'interaction',
+      );
     }
     return [];
   }
