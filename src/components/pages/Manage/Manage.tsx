@@ -36,7 +36,6 @@ function Manage() {
     refresh: refreshANTs,
   } = useWalletDomains();
 
-  const [tableData, setTableData] = useState<any[]>([]);
   const [tableLoading, setTableLoading] = useState(true);
   const [tablePage, setTablePage] = useState<number>(1);
 
@@ -50,7 +49,6 @@ function Manage() {
 
   useEffect(() => {
     if (path === 'ants') {
-      setTableData(pdntRows);
       setPercentLoaded(percentPDNTsLoaded);
     }
   }, [
@@ -64,7 +62,6 @@ function Manage() {
 
   useEffect(() => {
     if (path === 'names') {
-      setTableData(domainRows);
       setPercentLoaded(percentDomainsLoaded);
     }
   }, [
@@ -192,7 +189,7 @@ function Manage() {
               prefixCls="manage-table"
               scroll={pdntRows.length ? { x: true } : {}}
               columns={path === 'ants' ? pdntColumns : domainColumns}
-              dataSource={tableData}
+              dataSource={(path === 'ants' ? pdntRows : domainRows) as any}
               pagination={{
                 position: ['bottomCenter'],
                 rootClassName: 'table-pagination',
