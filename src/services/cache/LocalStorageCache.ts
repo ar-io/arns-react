@@ -5,7 +5,7 @@ import {
   ContractInteraction,
   TransactionCache,
 } from '../../types';
-import { isJsonSerializable } from '../../utils';
+import { jsonSerialize } from '../../utils';
 import { PDNTContract } from '../arweave/PDNTContract';
 
 // time to live for transaction cache items
@@ -32,9 +32,7 @@ export class LocalStorageCache implements TransactionCache {
   getCachedNameTokens(address?: ArweaveTransactionID): PDNTContract[] {
     const cachedTokens = Object.entries(window.localStorage)
       .map(([contractTxId, interactions]) => {
-        const parsedInteractions = isJsonSerializable(interactions)
-          ? JSON.parse(interactions)
-          : interactions;
+        const parsedInteractions = jsonSerialize(interactions) ?? interactions;
 
         if (isArray(parsedInteractions)) {
           const deployment = parsedInteractions.find(
@@ -108,9 +106,7 @@ export class LocalStorageCache implements TransactionCache {
     const items = Object.entries(window.localStorage);
     for (const [key, values] of items) {
       try {
-        const parsedValues = isJsonSerializable(values)
-          ? JSON.parse(values)
-          : values;
+        const parsedValues = jsonSerialize(values) ?? values;
         if (isArray(parsedValues)) {
           const now = Date.now();
           const filteredValues = parsedValues.filter((value: any) => {

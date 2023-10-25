@@ -168,6 +168,14 @@ export function isJsonSerializable(obj: any): boolean {
   }
 }
 
+export function jsonSerialize(obj: any) {
+  try {
+    return JSON.parse(obj);
+  } catch (error) {
+    return undefined;
+  }
+}
+
 export function getUndernameCount(records: Record<string, any>): number {
   return Object.keys(records).filter((key) => key !== '@').length;
 }
