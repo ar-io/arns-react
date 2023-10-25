@@ -104,7 +104,7 @@ export class LocalStorageCache implements TransactionCache {
       const updatedArr = currentCache.filter((value: any) => {
         return value.id !== txId;
       });
-      return window.localStorage.setItem(key, JSON.stringify(updatedArr));
+      window.localStorage.setItem(key, JSON.stringify(updatedArr));
     }
   }
 
