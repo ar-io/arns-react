@@ -120,12 +120,13 @@ export class LocalStorageCache implements TransactionCache {
           ? JSON.parse(values)
           : values;
         if (isArray(parsedValues)) {
+          const now = Date.now();
           const filteredValues = parsedValues.filter((value: any) => {
             const { timestamp } = value;
             if (!timestamp) {
               return false;
             }
-            const now = Date.now();
+
             return now - timestamp < ITEM_TTL;
           });
           if (filteredValues.length > 0) {
