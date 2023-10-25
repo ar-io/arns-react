@@ -66,10 +66,10 @@ function AddUndernameModal({
         .getRecords<PDNSRecordEntry>({ filters: { contractTxId: [antId] } })
         .then((records) => {
           setAssociatedRecords(records);
-          const names = Object.keys(records).sort(
-            (a, b) => a.length - b.length,
+          const shortestAssociatedName = Math.min(
+            ...Object.keys(records).map((name) => name.length),
           );
-          setMaxUndernameLength(MAX_UNDERNAME_LENGTH - names[0].length);
+          setMaxUndernameLength(MAX_UNDERNAME_LENGTH - shortestAssociatedName);
         });
     } catch (error) {
       eventEmitter.emit('error', error);
