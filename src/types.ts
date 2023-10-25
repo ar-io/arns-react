@@ -278,8 +278,7 @@ export interface ArweaveWalletConnector {
 export interface TransactionCache {
   set(key: string, value: any): void;
   get(key: string): any;
-  del(key: string): void;
-  deleteTransaction(key: string, txId: string): void;
+  del(key: string, filter?: { key: string; value: string }): void;
   push(key: string, value: any): void;
   getCachedNameTokens(address?: ArweaveTransactionID): PDNTContract[];
   getCachedInteractions(

@@ -83,18 +83,22 @@ export class LocalStorageCache implements TransactionCache {
     return window.localStorage.setItem(key, JSON.stringify(value));
   }
 
-  del(key: string): void {
-    return window.localStorage.removeItem(key);
-  }
-
-  deleteTransaction(key: string, txId: string): void {
+  del(key: string, filter?: { key: string; value: string }): void {
     const currentCache = this.get(key);
     if (isArray(currentCache)) {
-      const updatedArr = currentCache.filter((value: any) => {
-        return value.id !== txId;
+      if (!filter) {
+        // no filter set so clear
+        return window.localStorage.removeItem(key);
+      }
+      const { key: filterKey, value: matchFilterValue } = filter;
+      const updatedArr = currentCache.filter((cachedValue: any) => {
+        // add check if it's a json object and parsed correctly
+        return cachedValue[filterKey] !== matchFilterValue;
       });
       window.localStorage.setItem(key, JSON.stringify(updatedArr));
     }
+    // existing delete functionality
+    return window.localStorage.removeItem(key);
   }
 
   set(key: string, value: any) {

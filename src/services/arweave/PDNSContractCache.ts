@@ -75,16 +75,16 @@ export class PDNSContractCache implements SmartweaveContractCache {
         );
         if (cachedInteractions) {
           await Promise.all(
-            cachedInteractions.map(async (interaction: any) => {
+            cachedInteractions.map(async (interaction: ContractInteraction) => {
               const interactionStatus =
                 await this._arweave.getTransactionStatus(
                   new ArweaveTransactionID(interaction.id),
                 );
               if (interactionStatus[interaction.id]) {
-                await this._cache.deleteTransaction(
-                  contractTxId.toString(),
-                  interaction.id,
-                );
+                await this._cache.del(contractTxId.toString(), {
+                  key: 'id',
+                  value: interaction.id,
+                });
               }
             }),
           );
@@ -94,10 +94,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
           return cachedToken.state as T;
         }
         if (state && cachedToken) {
-          this._cache.deleteTransaction(
-            contractTxId.toString(),
-            contractTxId.toString(),
-          );
+          this._cache.del(contractTxId.toString());
         }
       }
 
