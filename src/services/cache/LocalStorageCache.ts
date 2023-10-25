@@ -30,37 +30,29 @@ export class LocalStorageCache implements TransactionCache {
   }
 
   getCachedNameTokens(address?: ArweaveTransactionID): PDNTContract[] {
-    const cachedTokens = Object.entries(window.localStorage).reduce(
-      (acc: PDNTContract[], [contractTxId, interactions]) => {
+    const cachedTokens = Object.entries(window.localStorage)
+      .map(([contractTxId, interactions]) => {
         const parsedInteractions = isJsonSerializable(interactions)
           ? JSON.parse(interactions)
           : interactions;
-        const deploy = isArray(parsedInteractions)
-          ? parsedInteractions.find(
-              (i: ContractInteraction) => i.type === 'deploy',
-            )
-          : undefined;
-        if (
-          !deploy ||
-          (deploy && address && deploy.deployer !== address.toString())
-        ) {
-          return acc;
-        }
-        acc.push(
-          new PDNTContract(
-            JSON.parse(deploy.payload.initState),
-            new ArweaveTransactionID(contractTxId),
-          ),
-        );
-        return acc;
-      },
-      [],
-    );
 
-    if (isArray(cachedTokens)) {
-      return cachedTokens;
-    }
-    return [];
+        if (isArray(parsedInteractions)) {
+          const deployment = parsedInteractions.find(
+            (interaction) =>
+              interaction.type === 'deploy' &&
+              (address ? interaction.deployer === address.toString() : true),
+          );
+
+          return new PDNTContract(
+            JSON.parse(deployment.payload.initState),
+            new ArweaveTransactionID(contractTxId),
+          );
+        }
+        return undefined;
+      })
+      .filter((contract) => contract !== undefined);
+
+    return cachedTokens as PDNTContract[];
   }
 
   getCachedInteractions(
