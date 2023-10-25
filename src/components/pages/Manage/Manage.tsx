@@ -50,33 +50,23 @@ function Manage() {
   useEffect(() => {
     if (path === 'ants') {
       setPercentLoaded(percentPDNTsLoaded);
-    }
-  }, [
-    path,
-    pdntSortAscending,
-    pdntSortField,
-    pdntRows,
-    pdntTableLoading,
-    percentPDNTsLoaded,
-  ]);
-
-  useEffect(() => {
-    if (path === 'names') {
+    } else {
       setPercentLoaded(percentDomainsLoaded);
     }
+    setTableLoading(domainTableLoading || pdntTableLoading);
   }, [
     path,
     domainSortAscending,
     domainSortField,
     domainTableLoading,
     domainRows,
-    pdntTableLoading,
     percentDomainsLoaded,
+    pdntSortAscending,
+    pdntSortField,
+    pdntRows,
+    pdntTableLoading,
+    percentPDNTsLoaded,
   ]);
-
-  useEffect(() => {
-    setTableLoading(domainTableLoading || pdntTableLoading);
-  }, [domainTableLoading, pdntTableLoading]);
 
   useEffect(() => {
     if (percent === 100) {

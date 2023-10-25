@@ -64,19 +64,12 @@ export function useWalletANTs() {
       if (walletAddress) {
         const height =
           blockHeight ?? (await arweaveDataProvider.getCurrentBlockHeight());
-        const { contractTxIds } = await arweaveDataProvider
-          .getContractsForWallet(
+        const { contractTxIds } =
+          await arweaveDataProvider.getContractsForWallet(
             walletAddress,
             'ant', // only fetches contracts that have a state that matches ant spec
-          )
-          .catch((e) => {
-            console.error(e);
-            return { contractTxIds: [] as ArweaveTransactionID[] };
-          });
-        const data = await fetchANTData(contractTxIds, height).catch((e) => {
-          console.error(e);
-          return [];
-        });
+          );
+        const data = await fetchANTData(contractTxIds, height);
         const newRows = buildANTRows(data, walletAddress, height);
         setRows(newRows);
       }
@@ -353,15 +346,10 @@ export function useWalletANTs() {
           const errors = [];
           const [contractState, confirmations, pendingContractInteractions] =
             await Promise.all([
-              arweaveDataProvider
-                .getContractState<PDNTContractJSON>(
-                  contractTxId,
-                  currentBlockHeight,
-                )
-                .catch((e) => {
-                  console.error(e);
-                  return undefined;
-                }),
+              arweaveDataProvider.getContractState<PDNTContractJSON>(
+                contractTxId,
+                currentBlockHeight,
+              ),
               allTransactionBlockHeights
                 ? allTransactionBlockHeights[contractTxId.toString()]
                     ?.blockHeight
