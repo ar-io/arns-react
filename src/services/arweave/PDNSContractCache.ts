@@ -21,7 +21,7 @@ import {
   lowerCaseDomain,
 } from '../../utils';
 import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
-import { ContractInteractionCache } from '../cache/ContractInteractionCache';
+import { ContractInteractionCache } from '../caches/ContractInteractionCache';
 import { PDNTContract } from './PDNTContract';
 
 export class PDNSContractCache implements SmartweaveContractCache {

@@ -27,7 +27,7 @@ import {
   ATOMIC_REGISTRATION_INPUT,
   SMARTWEAVE_MAX_TAG_SPACE,
 } from '../../utils/constants';
-import { ContractInteractionCache } from '../cache/ContractInteractionCache';
+import { ContractInteractionCache } from '../caches/ContractInteractionCache';
 
 LoggerFactory.INST.logLevel('error');
 
