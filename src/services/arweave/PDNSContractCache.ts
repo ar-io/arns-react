@@ -21,7 +21,7 @@ import {
   lowerCaseDomain,
 } from '../../utils';
 import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
-import { LocalStorageCache } from '../cache/LocalStorageCache';
+import ContractInteractionCache from '../cache/ContractInteractionCache';
 import { PDNTContract } from './PDNTContract';
 
 export class PDNSContractCache implements SmartweaveContractCache {
@@ -32,7 +32,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
   constructor({
     url,
     arweave,
-    cache = new LocalStorageCache(),
+    cache = new ContractInteractionCache(),
   }: {
     url: string;
     arweave: ArweaveDataProvider;
@@ -122,11 +122,11 @@ export class PDNSContractCache implements SmartweaveContractCache {
     const { contractTxIds } = await res.json();
     const ids = new Set<string>(contractTxIds);
     const cachedTokens = await this.getCachedNameTokens(address);
-    cachedTokens.forEach((token) =>
-      token.id && isArweaveTransactionID(token.id.toString())
-        ? ids.add(token.id?.toString())
-        : null,
-    );
+    cachedTokens.forEach((token) => {
+      if (token.id && isArweaveTransactionID(token.id.toString())) {
+        ids.add(token.id?.toString());
+      }
+    });
 
     return {
       contractTxIds: [...ids].map((id: string) => new ArweaveTransactionID(id)),

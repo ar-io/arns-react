@@ -27,7 +27,7 @@ import {
   ATOMIC_REGISTRATION_INPUT,
   SMARTWEAVE_MAX_TAG_SPACE,
 } from '../../utils/constants';
-import { LocalStorageCache } from '../cache/LocalStorageCache';
+import ContractInteractionCache from '../cache/ContractInteractionCache';
 
 LoggerFactory.INST.logLevel('error');
 
@@ -37,7 +37,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
 
   constructor(
     arweave: Arweave,
-    cache: TransactionCache = new LocalStorageCache(),
+    cache: TransactionCache = new ContractInteractionCache(),
   ) {
     // using ar.io gateway and stick to L1 only transactions
     this._warp = WarpFactory.forMainnet(

@@ -1,17 +1,12 @@
 import { isArray } from 'lodash';
 
-import {
-  ArweaveTransactionID,
-  ContractInteraction,
-  TransactionCache,
-} from '../../types';
+import { KVCache } from '../../types';
 import { jsonSerialize } from '../../utils';
-import { PDNTContract } from '../arweave/PDNTContract';
 
 // time to live for transaction cache items
-export const ITEM_TTL = 1000 * 60 * 60 * 2; // 2 HOURS
+export const INTERACTION_CACHE_TTL_MS = 1000 * 60 * 60 * 2; // 2 HOURS
 
-export class LocalStorageCache implements TransactionCache {
+export class LocalStorageCache implements KVCache {
   constructor() {
     if (!window.localStorage) {
       throw Error('Local storage not available.');
@@ -27,47 +22,6 @@ export class LocalStorageCache implements TransactionCache {
       console.debug(`Failed to get item from cache. ${key}`);
       return [];
     }
-  }
-
-  getCachedNameTokens(address?: ArweaveTransactionID): PDNTContract[] {
-    const cachedTokens = Object.entries(window.localStorage)
-      .map(([contractTxId, interactions]) => {
-        const parsedInteractions = jsonSerialize(interactions) ?? interactions;
-
-        if (isArray(parsedInteractions)) {
-          const deployment = parsedInteractions.find(
-            (interaction) =>
-              interaction.type === 'deploy' &&
-              (address ? interaction.deployer === address.toString() : true),
-          );
-
-          if (!deployment) {
-            return;
-          }
-
-          return new PDNTContract(
-            JSON.parse(deployment.payload.initState),
-            new ArweaveTransactionID(contractTxId),
-          );
-        }
-      })
-      .filter((contract) => contract !== undefined);
-
-    return cachedTokens as PDNTContract[];
-  }
-
-  getCachedInteractions(
-    contractTxId: ArweaveTransactionID,
-  ): ContractInteraction[] {
-    const cachedInteractions = this.get(contractTxId.toString());
-
-    if (isArray(cachedInteractions)) {
-      return cachedInteractions.filter(
-        (interaction: ContractInteraction) =>
-          interaction.type === 'interaction',
-      );
-    }
-    return [];
   }
 
   // default to use arrays for now, and just push items to a given key
@@ -121,7 +75,7 @@ export class LocalStorageCache implements TransactionCache {
               return false;
             }
 
-            return now - timestamp < ITEM_TTL;
+            return now - timestamp < INTERACTION_CACHE_TTL_MS;
           });
           if (filteredValues.length > 0) {
             this.set(key, filteredValues);

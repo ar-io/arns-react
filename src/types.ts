@@ -275,11 +275,14 @@ export interface ArweaveWalletConnector {
   getGatewayConfig(): Promise<ApiConfig>;
 }
 
-export interface TransactionCache {
+export interface KVCache {
   set(key: string, value: any): void;
   get(key: string): any;
   del(key: string, filter?: { key: string; value: string }): void;
   push(key: string, value: any): void;
+}
+
+export interface TransactionCache extends KVCache {
   getCachedNameTokens(address?: ArweaveTransactionID): PDNTContract[];
   getCachedInteractions(
     contractTxId: ArweaveTransactionID,
