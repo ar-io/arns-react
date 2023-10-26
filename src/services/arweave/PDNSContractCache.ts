@@ -22,6 +22,7 @@ import {
 } from '../../utils';
 import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
 import { ContractInteractionCache } from '../caches/ContractInteractionCache';
+import { LocalStorageCache } from '../caches/LocalStorageCache';
 import { PDNTContract } from './PDNTContract';
 
 export class PDNSContractCache implements SmartweaveContractCache {
@@ -32,7 +33,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
   constructor({
     url,
     arweave,
-    cache = new ContractInteractionCache(),
+    cache = new ContractInteractionCache(new LocalStorageCache()),
   }: {
     url: string;
     arweave: ArweaveDataProvider;

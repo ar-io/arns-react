@@ -28,6 +28,7 @@ import {
   SMARTWEAVE_MAX_TAG_SPACE,
 } from '../../utils/constants';
 import { ContractInteractionCache } from '../caches/ContractInteractionCache';
+import { LocalStorageCache } from '../caches/LocalStorageCache';
 
 LoggerFactory.INST.logLevel('error');
 
@@ -37,7 +38,9 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
 
   constructor(
     arweave: Arweave,
-    cache: TransactionCache = new ContractInteractionCache(),
+    cache: TransactionCache = new ContractInteractionCache(
+      new LocalStorageCache(),
+    ),
   ) {
     // using ar.io gateway and stick to L1 only transactions
     this._warp = WarpFactory.forMainnet(
