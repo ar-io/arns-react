@@ -729,12 +729,17 @@ export function getPendingInteractionsRowsForContract(
   existingValues: any,
 ): {
   attribute: string;
-  value: string;
+  value: string | number | boolean;
   id: string;
   valid: boolean | undefined;
 }[] {
   // find all pending interactions for the contract, find relevant ones related to row attributes
-  const pendingTxRowData = [];
+  const pendingTxRowData: {
+    attribute: string;
+    value: string | number | boolean;
+    id: string;
+    valid: boolean | undefined;
+  }[] = [];
   for (const i of pendingContractInteractions) {
     const attributes = getAttributesFromInteractionFunction(i.payload.function);
     // TODO: this is not pretty, and could be avoided if we rework the ANT contract to allow `setTTL` and `setTransaction` rather than all of them
@@ -753,12 +758,7 @@ export function getPendingInteractionsRowsForContract(
       }
     }
   }
-  return pendingTxRowData as {
-    attribute: string;
-    value: string;
-    id: string;
-    valid: boolean | undefined;
-  }[];
+  return pendingTxRowData;
 }
 export function generateAtomicState(
   domain: string,

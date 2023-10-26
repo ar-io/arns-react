@@ -694,7 +694,7 @@ export type ManageANTRow = {
 
 export type ManageDomainRow = {
   attribute: string;
-  value: string | number | JSX.Element;
+  value: string | number | boolean | JSX.Element;
   key: number;
 };
 
