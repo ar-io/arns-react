@@ -1,16 +1,20 @@
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
+import { useWalletState } from '../../../../state/contexts/WalletState';
 import './styles.css';
 
 function ConnectButton(): JSX.Element {
+  const [{ walletStateInitialized }] = useWalletState();
+  const navigate = useNavigate();
   return (
-    <Link
+    <button
       className="connect-button"
       style={{ textDecoration: 'none' }}
-      to="connect"
+      onClick={() => navigate('connect')}
+      disabled={walletStateInitialized}
     >
       Connect
-    </Link>
+    </button>
   );
 }
 
