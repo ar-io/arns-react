@@ -10,7 +10,7 @@ import { jsonSerialize } from '../../utils';
 import { PDNTContract } from '../arweave/PDNTContract';
 
 export class ContractInteractionCache implements TransactionCache {
-  _cache: KVCache;
+  private _cache: KVCache;
   constructor(cache: KVCache) {
     this._cache = cache;
   }
@@ -53,18 +53,5 @@ export class ContractInteractionCache implements TransactionCache {
       );
     }
     return [];
-  }
-
-  set(key: string, value: any): void {
-    this._cache.set(key, value);
-  }
-  get(key: string) {
-    return this._cache.get(key);
-  }
-  del(key: string, filter?: { key: string; value: string } | undefined): void {
-    this._cache.del(key, filter);
-  }
-  push(key: string, value: any): void {
-    this._cache.push(key, value);
   }
 }

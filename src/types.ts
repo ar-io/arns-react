@@ -282,7 +282,7 @@ export interface KVCache {
   push(key: string, value: any): void;
 }
 
-export interface TransactionCache extends KVCache {
+export interface TransactionCache {
   getCachedNameTokens(address?: ArweaveTransactionID): PDNTContract[];
   getCachedInteractions(
     contractTxId: ArweaveTransactionID,
