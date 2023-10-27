@@ -56,27 +56,29 @@ function AddUndernameModal({
     useState<number>(MAX_UNDERNAME_LENGTH);
 
   useEffect(() => {
+    loadDetails();
+    nameRef.current?.focus();
+  }, [antId]);
+
+  async function loadDetails() {
     try {
-      arweaveDataProvider
-        .getContractState<PDNTContractJSON>(antId)
-        .then((state) => {
-          setState(state);
-        });
-      arweaveDataProvider
-        .getRecords<PDNSRecordEntry>({ filters: { contractTxId: [antId] } })
-        .then((records) => {
-          setAssociatedRecords(records);
-          const shortestAssociatedName = Math.min(
-            ...Object.keys(records).map((name) => name.length),
-          );
-          setMaxUndernameLength(MAX_UNDERNAME_LENGTH - shortestAssociatedName);
-        });
+      const [state, arnsRecords] = await Promise.all([
+        arweaveDataProvider.getContractState<PDNTContractJSON>(antId),
+        arweaveDataProvider.getRecords<PDNSRecordEntry>({
+          filters: { contractTxId: [antId] },
+        }),
+      ]);
+
+      setState(state);
+      setAssociatedRecords(arnsRecords);
+      const shortestAssociatedName = Math.min(
+        ...Object.keys(arnsRecords).map((name) => name.length),
+      );
+      setMaxUndernameLength(MAX_UNDERNAME_LENGTH - shortestAssociatedName);
     } catch (error) {
       eventEmitter.emit('error', error);
     }
-
-    nameRef.current?.focus();
-  }, [antId]);
+  }
 
   function handlePayloadCallback() {
     payloadCallback({
