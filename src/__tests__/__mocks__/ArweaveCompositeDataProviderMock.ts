@@ -164,9 +164,7 @@ export class ArweaveCompositeDataProviderMock
   async isDomainAvailable({ domain }: { domain: string }): Promise<boolean> {
     return false;
   }
-  async getCachedNameTokens(
-    address: ArweaveTransactionID,
-  ): Promise<PDNTContract[]> {
+  getCachedNameTokens(address: ArweaveTransactionID): PDNTContract[] {
     return [] as PDNTContract[]; // Mock value
   }
 

@@ -21,12 +21,10 @@ export async function dispatchNewGateway(
 
     const warpDataProvider = new WarpDataProvider(arweave);
     const arweaveDataProvider = new SimpleArweaveDataProvider(arweave);
-    const contractCacheProviders = [
-      new PDNSContractCache({
-        url: PDNS_SERVICE_API,
-        arweave: arweaveDataProvider,
-      }),
-    ];
+    const contractCacheProviders = new PDNSContractCache({
+      url: PDNS_SERVICE_API,
+      arweave: arweaveDataProvider,
+    });
 
     const provider = new ArweaveCompositeDataProvider(
       arweaveDataProvider,

@@ -23,9 +23,10 @@ import type { GlobalAction } from '../reducers/GlobalReducer';
 
 const defaultWarp = new WarpDataProvider(DEFAULT_ARWEAVE);
 const defaultArweave = new SimpleArweaveDataProvider(DEFAULT_ARWEAVE);
-const defaultContractCache = [
-  new PDNSContractCache({ url: PDNS_SERVICE_API, arweave: defaultArweave }),
-];
+const defaultContractCache = new PDNSContractCache({
+  url: PDNS_SERVICE_API,
+  arweave: defaultArweave,
+});
 
 export type GlobalState = {
   pdnsSourceContract: PDNSContractJSON;
