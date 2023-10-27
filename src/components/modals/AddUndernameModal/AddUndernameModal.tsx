@@ -1,3 +1,4 @@
+import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
 import { useIsMobile } from '../../../hooks';
@@ -22,6 +23,8 @@ import {
   PDNS_TX_ID_ENTRY_REGEX,
   UNDERNAME_REGEX,
 } from '../../../utils/constants';
+import eventEmitter from '../../../utils/events';
+import WarningCard from '../../cards/WarningCard/WarningCard';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import { Loader } from '../../layout';
 import TransactionCost from '../../layout/TransactionCost/TransactionCost';
@@ -46,27 +49,36 @@ function AddUndernameModal({
   const [undername, setUndername] = useState<string>('');
   const [targetId, setTargetId] = useState<string>('');
   const [ttlSeconds, setTtlSeconds] = useState<number>(MIN_TTL_SECONDS);
+  const [associatedRecords, setAssociatedRecords] = useState<
+    Record<string, PDNSRecordEntry>
+  >({});
   const [maxUndernameLength, setMaxUndernameLength] =
     useState<number>(MAX_UNDERNAME_LENGTH);
 
   useEffect(() => {
-    arweaveDataProvider
-      .getContractState<PDNTContractJSON>(antId)
-      .then((state) => {
-        setState(state);
-      });
-    arweaveDataProvider
-      .getRecords<PDNSRecordEntry>({ filters: { contractTxId: [antId] } })
-      .then((records) => {
-        setMaxUndernameLength(
-          Object.keys(records)[0]?.length
-            ? MAX_UNDERNAME_LENGTH - Object.keys(records)[0].length
-            : MAX_UNDERNAME_LENGTH,
-        );
-      });
-
+    loadDetails();
     nameRef.current?.focus();
   }, [antId]);
+
+  async function loadDetails() {
+    try {
+      const [state, arnsRecords] = await Promise.all([
+        arweaveDataProvider.getContractState<PDNTContractJSON>(antId),
+        arweaveDataProvider.getRecords<PDNSRecordEntry>({
+          filters: { contractTxId: [antId] },
+        }),
+      ]);
+
+      setState(state);
+      setAssociatedRecords(arnsRecords);
+      const shortestAssociatedName = Math.min(
+        ...Object.keys(arnsRecords).map((name) => name.length),
+      );
+      setMaxUndernameLength(MAX_UNDERNAME_LENGTH - shortestAssociatedName);
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    }
+  }
 
   function handlePayloadCallback() {
     payloadCallback({
@@ -84,6 +96,15 @@ function AddUndernameModal({
     );
   }
 
+  function getIncompatibleNames(
+    undername: string,
+    records: Record<string, PDNSRecordEntry>,
+  ): string[] {
+    return Object.keys(records).filter(
+      (name: string) => undername.length + name.length > MAX_UNDERNAME_LENGTH,
+    );
+  }
+
   return (
     <div
       className="modal-container"
@@ -96,7 +117,7 @@ function AddUndernameModal({
           <form>
             <div
               className="flex flex-column"
-              style={{ fontSize: '14px', maxWidth: '575px', minWidth: '475px' }}
+              style={{ fontSize: '14px', width: '500px' }}
             >
               <div
                 className="flex flex-column"
@@ -151,6 +172,57 @@ function AddUndernameModal({
                       {undername.length} / {maxUndernameLength}
                     </span>
                   </span>
+                  {getIncompatibleNames(undername, associatedRecords).length ? (
+                    <WarningCard
+                      text={
+                        <span>
+                          This ANT has{' '}
+                          <Tooltip
+                            title={
+                              <div
+                                className="flex flex-column"
+                                style={{
+                                  padding: '5px',
+                                  gap: '5px',
+                                  boxSizing: 'border-box',
+                                }}
+                              >
+                                {getIncompatibleNames(
+                                  undername,
+                                  associatedRecords,
+                                ).map((name) => (
+                                  <span key={name}>{name}</span>
+                                ))}
+                              </div>
+                            }
+                            color="var(--card-bg)"
+                            placement="top"
+                            showArrow={true}
+                          >
+                            <span className="underline bold">
+                              {
+                                getIncompatibleNames(
+                                  undername,
+                                  associatedRecords,
+                                ).length
+                              }{' '}
+                              name
+                              {getIncompatibleNames(
+                                undername,
+                                associatedRecords,
+                              ).length > 1
+                                ? 's'
+                                : ''}
+                            </span>
+                          </Tooltip>{' '}
+                          that will not support this undername as it is over
+                          their supported length.
+                        </span>
+                      }
+                    />
+                  ) : (
+                    <></>
+                  )}
                 </div>
 
                 <div className="flex flex-column" style={{ gap: '15px' }}>
