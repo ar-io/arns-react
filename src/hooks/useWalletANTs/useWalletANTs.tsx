@@ -420,9 +420,7 @@ export function useWalletANTs() {
             : contract.controllers.includes(address.toString())
             ? 'Controller'
             : 'N/A',
-        targetID: isArweaveTransactionID(
-          contract.getRecord('@')?.transactionId ?? '',
-        )
+        targetID: isArweaveTransactionID(contract.getRecord('@')?.transactionId)
           ? contract.getRecord('@')!.transactionId.toString()
           : 'N/A',
         ttlSeconds: contract.getRecord('@')?.ttlSeconds,

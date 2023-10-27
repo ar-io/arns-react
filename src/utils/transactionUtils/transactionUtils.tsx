@@ -41,7 +41,7 @@ import {
 } from '../constants';
 import eventEmitter from '../events';
 
-export function isArweaveTransactionID(id: string) {
+export function isArweaveTransactionID(id?: string) {
   if (!id) {
     return false;
   }
