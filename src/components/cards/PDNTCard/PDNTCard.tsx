@@ -122,7 +122,6 @@ function PDNTCard({
       }
 
       const allPDNTDetails: Record<AntDetailKey, any> = {
-        // TODO: remove this when all pdnts have controllers
         deployedTransactionId: deployedTransactionId
           ? deployedTransactionId.toString()
           : undefined,

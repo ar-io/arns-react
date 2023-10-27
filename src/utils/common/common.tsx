@@ -159,6 +159,23 @@ export function formatForMaxCharCount(
   return str;
 }
 
+export function isJsonSerializable(obj: any): boolean {
+  try {
+    JSON.parse(obj);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function jsonSerialize(obj: any) {
+  try {
+    return JSON.parse(obj);
+  } catch (error) {
+    return undefined;
+  }
+}
+
 export function getUndernameCount(records: Record<string, any>): number {
   return Object.keys(records).filter((key) => key !== '@').length;
 }
@@ -171,8 +188,8 @@ export function buildPendingArNSRecord(cachedRecord: ContractInteraction) {
         : TRANSACTION_TYPES.BUY,
     contractTxId:
       cachedRecord.payload.contractTxId === 'atomic'
-        ? cachedRecord.id
-        : cachedRecord.payload.contractTxId,
+        ? cachedRecord.id.toString()
+        : cachedRecord.payload.contractTxId.toString(),
     startTimestamp: Math.round(cachedRecord.timestamp / 1000),
     endTimestamp:
       cachedRecord.type === TRANSACTION_TYPES.LEASE
@@ -193,7 +210,7 @@ export function buildPendingANTRecord(
 
   const { transactionId, ttlSeconds } = cachedRecord.payload;
   return {
-    transactionId,
+    transactionId: transactionId.toString(),
     ttlSeconds: +ttlSeconds,
     maxUndernames: DEFAULT_MAX_UNDERNAMES,
   };

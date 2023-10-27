@@ -6,6 +6,7 @@ import {
   Auction,
   AuctionSettings,
   ContractInteraction,
+  KVCache,
   PDNSContractJSON,
   PDNSRecordEntry,
   PDNTContractDomainRecord,
@@ -16,26 +17,28 @@ import {
 import {
   buildPendingANTRecord,
   buildPendingArNSRecord,
+  isArweaveTransactionID,
   isDomainReservedLength,
   lowerCaseDomain,
 } from '../../utils';
 import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
-import { LocalStorageCache } from '../cache/LocalStorageCache';
+import { ContractInteractionCache } from '../caches/ContractInteractionCache';
+import { LocalStorageCache } from '../caches/LocalStorageCache';
 import { PDNTContract } from './PDNTContract';
 
 export class PDNSContractCache implements SmartweaveContractCache {
   protected _url: string;
-  protected _cache: TransactionCache;
+  protected _cache: TransactionCache & KVCache;
   protected _arweave: ArweaveDataProvider;
 
   constructor({
     url,
     arweave,
-    cache = new LocalStorageCache(),
+    cache = new ContractInteractionCache(new LocalStorageCache()),
   }: {
     url: string;
     arweave: ArweaveDataProvider;
-    cache?: TransactionCache;
+    cache?: TransactionCache & KVCache;
   }) {
     this._url = url;
     this._cache = cache;
@@ -44,30 +47,59 @@ export class PDNSContractCache implements SmartweaveContractCache {
 
   async getContractState<T extends PDNTContractJSON | PDNSContractJSON>(
     contractTxId: ArweaveTransactionID,
-    address?: ArweaveTransactionID,
-    // includePending: boolean
   ): Promise<T> {
-    if (address) {
-      const cachedTokens = await this._cache.get(address.toString());
-      const cachedToken = cachedTokens?.find(
-        (token: any) =>
-          token.type === 'deploy' && token.id === contractTxId.toString(),
-      );
-      if (cachedToken) {
-        return JSON.parse(cachedToken.payload.initState);
-      }
-    }
-    // TODO: look at local pending iteractions, check for confirmations, if has confirmations del from cache
     // if we have pending interactions, manipulate state based on their payloads (map function names to state keys and apply payloads)
 
     // atticus opinion: implement state manipulation in PDNTContract class and ArNSRegistry contract class which implements this getContractState method and
     // adds cached interactions.
-    const res = await fetch(
-      `${this._url}/v1/contract/${contractTxId.toString()}`,
-    );
-    const { state } = await res.json();
 
-    return state as T;
+    try {
+      const res = await fetch(
+        `${this._url}/v1/contract/${contractTxId.toString()}`,
+      );
+      const { state } = res && res.ok ? await res.json() : { state: undefined };
+
+      const cachedTokens = this._cache.getCachedNameTokens();
+      const cachedToken = cachedTokens?.find(
+        (token: PDNTContract) =>
+          token.id?.toString() === contractTxId.toString(),
+      );
+      const cachedInteractions =
+        this._cache.getCachedInteractions(contractTxId);
+      if (cachedInteractions) {
+        await Promise.all(
+          cachedInteractions.map(async (interaction: ContractInteraction) => {
+            const interactionStatus = await this._arweave
+              .getTransactionStatus(new ArweaveTransactionID(interaction.id))
+              .catch(() => {
+                console.error(
+                  'Error getting transaction status for',
+                  interaction.id,
+                );
+                return {} as Record<string, boolean>;
+              });
+            if (interactionStatus[interaction.id]) {
+              this._cache.del(contractTxId.toString(), {
+                key: 'id',
+                value: interaction.id,
+              });
+            }
+          }),
+        );
+      }
+
+      if (cachedToken && !state) {
+        return cachedToken.state as T;
+      }
+      if (state && cachedToken) {
+        this._cache.del(contractTxId.toString());
+      }
+
+      return state as T;
+    } catch (error) {
+      console.error(error);
+      return {} as T;
+    }
   }
 
   async getContractBalanceForWallet(
@@ -92,10 +124,16 @@ export class PDNSContractCache implements SmartweaveContractCache {
       `${this._url}/v1/wallet/${address.toString()}/contracts${query}`,
     );
     const { contractTxIds } = await res.json();
+    const ids = new Set<string>(contractTxIds);
+    const cachedTokens = await this._cache.getCachedNameTokens(address);
+    cachedTokens.forEach((token) => {
+      if (token.id && isArweaveTransactionID(token.id.toString())) {
+        ids.add(token.id?.toString());
+      }
+    });
+
     return {
-      contractTxIds: contractTxIds.map(
-        (id: string) => new ArweaveTransactionID(id),
-      ),
+      contractTxIds: [...ids].map((id: string) => new ArweaveTransactionID(id)),
     };
   }
 
@@ -113,7 +151,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
     contractTxId: ArweaveTransactionID,
     key: string,
   ): Promise<ContractInteraction[]> {
-    const cachedInteractions = this._cache.get(key);
+    const cachedInteractions = this._cache.getCachedInteractions(contractTxId);
 
     if (!isArray(cachedInteractions) || !cachedInteractions.length) {
       return [];
@@ -123,9 +161,10 @@ export class PDNSContractCache implements SmartweaveContractCache {
       contractTxId,
     );
     const pendingInteractions = cachedInteractions.filter(
-      (i) =>
+      (interaction) =>
         !gqlIndexedInteractions.find(
-          (gqlInteraction: ContractInteraction) => gqlInteraction.id === i.id,
+          (gqlInteraction: ContractInteraction) =>
+            gqlInteraction.id === interaction.id,
         ),
     );
 
@@ -134,7 +173,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
 
     // return only the ones relevant to the specified contract
     return pendingInteractions.filter(
-      (i) => i.contractTxId === contractTxId.toString(),
+      (interaction) => interaction.contractTxId === contractTxId.toString(),
     );
   }
   // TODO: implement arns service query for the following 3 functions
@@ -182,29 +221,6 @@ export class PDNSContractCache implements SmartweaveContractCache {
     return isAvailable;
   }
 
-  async getCachedNameTokens(
-    address: ArweaveTransactionID,
-  ): Promise<PDNTContract[]> {
-    const cachedTokens = await this._cache.get(address.toString());
-
-    const tokens = cachedTokens.map((token: any) => {
-      if (token.type !== 'deploy') {
-        return;
-      }
-      const contract = new PDNTContract(
-        JSON.parse(token.payload.initState),
-        new ArweaveTransactionID(token.id),
-      );
-      return contract;
-    });
-    return tokens.reduce((acc: any, token: any) => {
-      if (token) {
-        acc.push(token);
-      }
-      return acc;
-    }, []);
-  }
-
   async getAuction({
     contractTxId,
     domain,
@@ -218,19 +234,20 @@ export class PDNSContractCache implements SmartweaveContractCache {
   }): Promise<Auction> {
     let cachedAuction: any;
     if (address) {
-      const cachedInteractions = await this._cache.get(address.toString());
-      cachedInteractions.forEach((i: any) => {
+      const cachedInteractions = await this._cache.getCachedInteractions(
+        contractTxId,
+      );
+      cachedInteractions.forEach((interaction: ContractInteraction) => {
         if (
-          i.type === 'interaction' &&
-          i.payload?.name === domain &&
-          i.payload?.auction === true
+          interaction.payload?.name === domain &&
+          interaction.payload?.auction === true
         ) {
           cachedAuction = {
-            ...i,
+            ...interaction,
             payload: {
-              ...i.payload,
-              contractTxId: i.id.toString(),
-              initiator: address.toString(),
+              ...interaction.payload,
+              contractTxId: interaction.id.toString(),
+              initiator: interaction.deployer,
             },
           };
         }
@@ -297,14 +314,14 @@ export class PDNSContractCache implements SmartweaveContractCache {
     const domainsInAuction = new Set(Object.keys(auctions));
 
     if (address) {
-      const cachedInteractions = await this._cache.get(address.toString());
-      cachedInteractions.forEach((i: any) => {
+      const cachedInteractions = await this._cache.get(contractTxId.toString());
+      cachedInteractions.forEach((interaction: any) => {
         if (
-          i.type === 'interaction' &&
-          i.payload?.auction === true &&
-          !domainsInAuction.has(i.payload.name)
+          interaction.payload?.auction === true &&
+          interaction.deployer === address.toString() &&
+          !domainsInAuction.has(interaction.payload.name)
         ) {
-          domainsInAuction.add(i.payload.name);
+          domainsInAuction.add(interaction.payload.name);
         }
       });
     }
@@ -326,42 +343,53 @@ export class PDNSContractCache implements SmartweaveContractCache {
   async getRecords<T extends PDNSRecordEntry | PDNTContractDomainRecord>({
     contractTxId = new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
     filters,
-    address,
   }: {
     contractTxId?: ArweaveTransactionID;
 
     filters: {
       contractTxId?: ArweaveTransactionID[];
     };
-    address?: ArweaveTransactionID;
   }): Promise<{ [x: string]: T }> {
     // TODO: add getCachedRegistrations to transaction cache as a method once cache is converted to contractTxId index
     const cachedRegistrations: Record<string, T> = {};
-    if (address) {
-      const cache = await this._cache.get(address.toString());
-      const cachedInteractions = cache.filter(
-        (i: ContractInteraction) =>
-          i.type === 'interaction' &&
-          i.contractTxId === contractTxId.toString() &&
-          i.payload.function ===
+
+    const cachedInteractions = await this._cache
+      .getCachedInteractions(contractTxId)
+      .filter(
+        (interaction: ContractInteraction) =>
+          interaction.payload.function ===
             (contractTxId.toString() === ARNS_REGISTRY_ADDRESS
               ? 'buyRecord'
-              : 'setRecord') &&
-          !i.payload?.auction,
+              : 'setRecord') && !interaction.payload?.auction,
       );
-      cachedInteractions.forEach(
-        (i: ContractInteraction) =>
-          (cachedRegistrations[
-            contractTxId.toString() === ARNS_REGISTRY_ADDRESS
-              ? i.payload.name
-              : i.payload.subDomain
-          ] = (
-            contractTxId.toString() === ARNS_REGISTRY_ADDRESS
-              ? buildPendingArNSRecord(i)
-              : buildPendingANTRecord(i)
-          ) as T),
+
+    if (cachedInteractions) {
+      await Promise.all(
+        cachedInteractions.map(async (interaction: ContractInteraction) => {
+          const interactionStatus = await this._arweave
+            .getTransactionStatus(new ArweaveTransactionID(interaction.id))
+            .catch(() => ({} as Record<string, boolean>));
+          if (interactionStatus[interaction.id]) {
+            this._cache.del(contractTxId.toString(), {
+              key: 'id',
+              value: interaction.id,
+            });
+          }
+        }),
       );
     }
+    cachedInteractions.forEach(
+      (interaction: ContractInteraction) =>
+        (cachedRegistrations[
+          (contractTxId.toString() === ARNS_REGISTRY_ADDRESS
+            ? interaction.payload.name
+            : interaction.payload.subDomain) as string
+        ] = (
+          contractTxId.toString() === ARNS_REGISTRY_ADDRESS
+            ? buildPendingArNSRecord(interaction)
+            : buildPendingANTRecord(interaction)
+        ) as T),
+    );
 
     const urlQueryParams = (filters.contractTxId ?? [])
       .map((id) =>

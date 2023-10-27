@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { useWalletANTs, useWalletDomains } from '../../../hooks';
-import { useWalletState } from '../../../state/contexts/WalletState';
 import { ManageTable } from '../../../types';
 import { MANAGE_TABLE_NAMES } from '../../../types';
 import { getCustomPaginationButtons } from '../../../utils';
@@ -37,11 +36,7 @@ function Manage() {
     refresh: refreshANTs,
   } = useWalletDomains();
 
-  const [{ walletStateInitialized }] = useWalletState();
-
-  const [tableData, setTableData] = useState<any[]>([]);
   const [tableLoading, setTableLoading] = useState(true);
-  const [tableColumns, setTableColumns] = useState<any[]>();
   const [tablePage, setTablePage] = useState<number>(1);
 
   useEffect(() => {
@@ -49,43 +44,29 @@ function Manage() {
       navigate('names');
       return;
     }
-    setTableColumns(path === 'ants' ? pdntColumns : domainColumns);
+    setTablePage(1);
   }, [path]);
 
   useEffect(() => {
     if (path === 'ants') {
-      setTableData(pdntRows);
       setPercentLoaded(percentPDNTsLoaded);
-    }
-  }, [
-    path,
-    pdntSortAscending,
-    pdntSortField,
-    pdntRows,
-    pdntTableLoading,
-    percentPDNTsLoaded,
-  ]);
-
-  useEffect(() => {
-    if (path === 'names') {
-      setTableData(domainRows);
+    } else {
       setPercentLoaded(percentDomainsLoaded);
     }
+    setTableLoading(domainTableLoading || pdntTableLoading);
   }, [
     path,
     domainSortAscending,
     domainSortField,
     domainTableLoading,
     domainRows,
-    pdntTableLoading,
     percentDomainsLoaded,
+    pdntSortAscending,
+    pdntSortField,
+    pdntRows,
+    pdntTableLoading,
+    percentPDNTsLoaded,
   ]);
-
-  useEffect(() => {
-    setTableLoading(
-      domainTableLoading || pdntTableLoading || !walletStateInitialized,
-    );
-  }, [domainTableLoading, pdntTableLoading, walletStateInitialized]);
 
   useEffect(() => {
     if (percent === 100) {
@@ -197,8 +178,8 @@ function Manage() {
             <Table
               prefixCls="manage-table"
               scroll={pdntRows.length ? { x: true } : {}}
-              columns={tableColumns}
-              dataSource={tableData}
+              columns={path === 'ants' ? pdntColumns : domainColumns}
+              dataSource={(path === 'ants' ? pdntRows : domainRows) as any}
               pagination={{
                 position: ['bottomCenter'],
                 rootClassName: 'table-pagination',
