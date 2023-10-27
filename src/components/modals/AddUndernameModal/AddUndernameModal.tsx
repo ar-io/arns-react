@@ -71,9 +71,9 @@ function AddUndernameModal({
 
       setState(state);
       setAssociatedRecords(arnsRecords);
-      const shortestAssociatedName = Math.min(
-        ...Object.keys(arnsRecords).map((name) => name.length),
-      );
+      const shortestAssociatedName = Object.keys(arnsRecords).length
+        ? Math.min(...Object.keys(arnsRecords).map((name) => name.length))
+        : 0;
       setMaxUndernameLength(MAX_UNDERNAME_LENGTH - shortestAssociatedName);
     } catch (error) {
       eventEmitter.emit('error', error);
