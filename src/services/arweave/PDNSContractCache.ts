@@ -24,6 +24,7 @@ import {
 import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
 import { ContractInteractionCache } from '../caches/ContractInteractionCache';
 import { LocalStorageCache } from '../caches/LocalStorageCache';
+import { PDNTContract } from './PDNTContract';
 
 export class PDNSContractCache implements SmartweaveContractCache {
   protected _url: string;
@@ -62,7 +63,8 @@ export class PDNSContractCache implements SmartweaveContractCache {
       if (currentBlockHeight) {
         const cachedTokens = await this._cache.getCachedNameTokens();
         const cachedToken = cachedTokens?.find(
-          (token: any) => token.id.toString() === contractTxId.toString(),
+          (token: PDNTContract) =>
+            token.id?.toString() === contractTxId.toString(),
         );
         const cachedInteractions = await this._cache.getCachedInteractions(
           contractTxId,
@@ -158,9 +160,10 @@ export class PDNSContractCache implements SmartweaveContractCache {
       contractTxId,
     );
     const pendingInteractions = cachedInteractions.filter(
-      (i) =>
+      (interaction) =>
         !gqlIndexedInteractions.find(
-          (gqlInteraction: ContractInteraction) => gqlInteraction.id === i.id,
+          (gqlInteraction: ContractInteraction) =>
+            gqlInteraction.id === interaction.id,
         ),
     );
 
@@ -169,7 +172,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
 
     // return only the ones relevant to the specified contract
     return pendingInteractions.filter(
-      (i) => i.contractTxId === contractTxId.toString(),
+      (interaction) => interaction.contractTxId === contractTxId.toString(),
     );
   }
   // TODO: implement arns service query for the following 3 functions
@@ -233,14 +236,17 @@ export class PDNSContractCache implements SmartweaveContractCache {
       const cachedInteractions = await this._cache.getCachedInteractions(
         contractTxId,
       );
-      cachedInteractions.forEach((i: ContractInteraction) => {
-        if (i.payload?.name === domain && i.payload?.auction === true) {
+      cachedInteractions.forEach((interaction: ContractInteraction) => {
+        if (
+          interaction.payload?.name === domain &&
+          interaction.payload?.auction === true
+        ) {
           cachedAuction = {
-            ...i,
+            ...interaction,
             payload: {
-              ...i.payload,
-              contractTxId: i.id.toString(),
-              initiator: i.deployer,
+              ...interaction.payload,
+              contractTxId: interaction.id.toString(),
+              initiator: interaction.deployer,
             },
           };
         }
@@ -308,13 +314,13 @@ export class PDNSContractCache implements SmartweaveContractCache {
 
     if (address) {
       const cachedInteractions = await this._cache.get(contractTxId.toString());
-      cachedInteractions.forEach((i: any) => {
+      cachedInteractions.forEach((interaction: any) => {
         if (
-          i.payload?.auction === true &&
-          i.deployer === address.toString() &&
-          !domainsInAuction.has(i.payload.name)
+          interaction.payload?.auction === true &&
+          interaction.deployer === address.toString() &&
+          !domainsInAuction.has(interaction.payload.name)
         ) {
-          domainsInAuction.add(i.payload.name);
+          domainsInAuction.add(interaction.payload.name);
         }
       });
     }
@@ -349,11 +355,11 @@ export class PDNSContractCache implements SmartweaveContractCache {
     const cachedInteractions = await this._cache
       .getCachedInteractions(contractTxId)
       .filter(
-        (i: ContractInteraction) =>
-          i.payload.function ===
+        (interaction: ContractInteraction) =>
+          interaction.payload.function ===
             (contractTxId.toString() === ARNS_REGISTRY_ADDRESS
               ? 'buyRecord'
-              : 'setRecord') && !i.payload?.auction,
+              : 'setRecord') && !interaction.payload?.auction,
       );
 
     if (cachedInteractions) {
