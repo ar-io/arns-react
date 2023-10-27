@@ -14,7 +14,6 @@ import {
   TransactionTag,
 } from '../../types';
 import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
-import { PDNTContract } from './PDNTContract';
 
 export class ArweaveCompositeDataProvider
   implements
@@ -193,10 +192,6 @@ export class ArweaveCompositeDataProvider
     contractTxId: ArweaveTransactionID,
   ): Promise<ContractInteraction[]> {
     return this._contractProvider.getContractInteractions(contractTxId);
-  }
-
-  getCachedNameTokens(address?: ArweaveTransactionID): PDNTContract[] {
-    return this._contractProvider.getCachedNameTokens(address);
   }
 
   async getPendingContractInteractions(

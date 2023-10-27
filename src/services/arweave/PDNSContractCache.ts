@@ -24,7 +24,6 @@ import {
 import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
 import { ContractInteractionCache } from '../caches/ContractInteractionCache';
 import { LocalStorageCache } from '../caches/LocalStorageCache';
-import { PDNTContract } from './PDNTContract';
 
 export class PDNSContractCache implements SmartweaveContractCache {
   protected _url: string;
@@ -61,7 +60,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
       const { state } = res && res.ok ? await res.json() : { state: undefined };
 
       if (currentBlockHeight) {
-        const cachedTokens = await this.getCachedNameTokens();
+        const cachedTokens = await this._cache.getCachedNameTokens();
         const cachedToken = cachedTokens?.find(
           (token: any) => token.id.toString() === contractTxId.toString(),
         );
@@ -123,7 +122,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
     );
     const { contractTxIds } = await res.json();
     const ids = new Set<string>(contractTxIds);
-    const cachedTokens = await this.getCachedNameTokens(address);
+    const cachedTokens = await this._cache.getCachedNameTokens(address);
     cachedTokens.forEach((token) => {
       if (token.id && isArweaveTransactionID(token.id.toString())) {
         ids.add(token.id?.toString());
@@ -401,12 +400,6 @@ export class PDNSContractCache implements SmartweaveContractCache {
     );
     const { records } = await res.json();
     return { ...cachedRegistrations, ...records };
-  }
-
-  getCachedNameTokens(
-    address?: ArweaveTransactionID | undefined,
-  ): PDNTContract[] {
-    return this._cache.getCachedNameTokens(address);
   }
 
   async getIoBalance(address: ArweaveTransactionID): Promise<number> {
