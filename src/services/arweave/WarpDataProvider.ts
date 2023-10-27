@@ -11,6 +11,7 @@ import { DeployPlugin } from 'warp-contracts-plugin-deploy';
 
 import {
   ArweaveTransactionID,
+  KVCache,
   PDNTContractJSON,
   SmartweaveContractInteractionProvider,
   TRANSACTION_TYPES,
@@ -34,11 +35,11 @@ LoggerFactory.INST.logLevel('error');
 
 export class WarpDataProvider implements SmartweaveContractInteractionProvider {
   private _warp: Warp;
-  private _cache: TransactionCache;
+  private _cache: TransactionCache & KVCache;
 
   constructor(
     arweave: Arweave,
-    cache: TransactionCache = new ContractInteractionCache(
+    cache: TransactionCache & KVCache = new ContractInteractionCache(
       new LocalStorageCache(),
     ),
   ) {

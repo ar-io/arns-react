@@ -169,7 +169,7 @@ export interface SmartweaveContractCache {
   // TODO: ALL OF THESE SHOULD REQUIRE A CONTRACT-TX-ID! NO HARD CODING OF CONTRACTS!
   isDomainAvailable({ domain }: { domain: string }): Promise<boolean>;
   isDomainReserved({ domain }: { domain: string }): Promise<boolean>;
-  getCachedNameTokens(address?: ArweaveTransactionID): Promise<PDNTContract[]>;
+  getCachedNameTokens(address?: ArweaveTransactionID): PDNTContract[];
   isDomainInAuction({
     contractTxId,
     domain,

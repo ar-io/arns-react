@@ -6,6 +6,7 @@ import {
   Auction,
   AuctionSettings,
   ContractInteraction,
+  KVCache,
   PDNSContractJSON,
   PDNSRecordEntry,
   PDNTContractDomainRecord,
@@ -27,7 +28,7 @@ import { PDNTContract } from './PDNTContract';
 
 export class PDNSContractCache implements SmartweaveContractCache {
   protected _url: string;
-  protected _cache: TransactionCache;
+  protected _cache: TransactionCache & KVCache;
   protected _arweave: ArweaveDataProvider;
 
   constructor({
@@ -37,7 +38,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
   }: {
     url: string;
     arweave: ArweaveDataProvider;
-    cache?: TransactionCache;
+    cache?: TransactionCache & KVCache;
   }) {
     this._url = url;
     this._cache = cache;
@@ -215,12 +216,6 @@ export class PDNSContractCache implements SmartweaveContractCache {
     const isAvailable = res.status !== 200;
 
     return isAvailable;
-  }
-
-  async getCachedNameTokens(
-    address?: ArweaveTransactionID,
-  ): Promise<PDNTContract[]> {
-    return this._cache.getCachedNameTokens(address);
   }
 
   async getAuction({
@@ -406,6 +401,12 @@ export class PDNSContractCache implements SmartweaveContractCache {
     );
     const { records } = await res.json();
     return { ...cachedRegistrations, ...records };
+  }
+
+  getCachedNameTokens(
+    address?: ArweaveTransactionID | undefined,
+  ): PDNTContract[] {
+    return this._cache.getCachedNameTokens(address);
   }
 
   async getIoBalance(address: ArweaveTransactionID): Promise<number> {

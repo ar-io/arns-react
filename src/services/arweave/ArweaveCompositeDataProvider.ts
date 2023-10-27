@@ -203,12 +203,8 @@ export class ArweaveCompositeDataProvider
     );
   }
 
-  async getCachedNameTokens(
-    address?: ArweaveTransactionID,
-  ): Promise<PDNTContract[]> {
-    return Promise.any(
-      this._contractProviders.map((p) => p.getCachedNameTokens(address)),
-    );
+  getCachedNameTokens(address?: ArweaveTransactionID): PDNTContract[] {
+    return this._contractProviders[0].getCachedNameTokens(address);
   }
 
   async getPendingContractInteractions(
