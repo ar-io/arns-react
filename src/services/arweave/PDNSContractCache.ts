@@ -365,11 +365,11 @@ export class PDNSContractCache implements SmartweaveContractCache {
     if (cachedInteractions) {
       await Promise.all(
         cachedInteractions.map(async (interaction: ContractInteraction) => {
-          const interactionStatus = await this._arweave.getTransactionStatus(
-            new ArweaveTransactionID(interaction.id),
-          );
+          const interactionStatus = await this._arweave
+            .getTransactionStatus(new ArweaveTransactionID(interaction.id))
+            .catch(() => ({} as Record<string, boolean>));
           if (interactionStatus[interaction.id]) {
-            await this._cache.del(contractTxId.toString(), {
+            this._cache.del(contractTxId.toString(), {
               key: 'id',
               value: interaction.id,
             });
