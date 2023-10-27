@@ -149,7 +149,6 @@ export type JsonWalletProvider = {
 export interface SmartweaveContractCache {
   getContractState<T extends PDNTContractJSON | PDNSContractJSON>(
     contractTxId: ArweaveTransactionID,
-    currentBlockHeight?: number, // required for getting cached name tokens
   ): Promise<T>;
   getContractBalanceForWallet(
     contractTxId: ArweaveTransactionID,

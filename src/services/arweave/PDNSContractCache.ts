@@ -47,7 +47,6 @@ export class PDNSContractCache implements SmartweaveContractCache {
 
   async getContractState<T extends PDNTContractJSON | PDNSContractJSON>(
     contractTxId: ArweaveTransactionID,
-    currentBlockHeight?: number,
   ): Promise<T> {
     // if we have pending interactions, manipulate state based on their payloads (map function names to state keys and apply payloads)
 
@@ -60,38 +59,40 @@ export class PDNSContractCache implements SmartweaveContractCache {
       );
       const { state } = res && res.ok ? await res.json() : { state: undefined };
 
-      if (currentBlockHeight) {
-        const cachedTokens = await this._cache.getCachedNameTokens();
-        const cachedToken = cachedTokens?.find(
-          (token: PDNTContract) =>
-            token.id?.toString() === contractTxId.toString(),
-        );
-        const cachedInteractions = await this._cache.getCachedInteractions(
-          contractTxId,
-        );
-        if (cachedInteractions) {
-          await Promise.all(
-            cachedInteractions.map(async (interaction: ContractInteraction) => {
-              const interactionStatus =
-                await this._arweave.getTransactionStatus(
-                  new ArweaveTransactionID(interaction.id),
+      const cachedTokens = this._cache.getCachedNameTokens();
+      const cachedToken = cachedTokens?.find(
+        (token: PDNTContract) =>
+          token.id?.toString() === contractTxId.toString(),
+      );
+      const cachedInteractions =
+        this._cache.getCachedInteractions(contractTxId);
+      if (cachedInteractions) {
+        await Promise.all(
+          cachedInteractions.map(async (interaction: ContractInteraction) => {
+            const interactionStatus = await this._arweave
+              .getTransactionStatus(new ArweaveTransactionID(interaction.id))
+              .catch(() => {
+                console.error(
+                  'Error getting transaction status for',
+                  interaction.id,
                 );
-              if (interactionStatus[interaction.id]) {
-                await this._cache.del(contractTxId.toString(), {
-                  key: 'id',
-                  value: interaction.id,
-                });
-              }
-            }),
-          );
-        }
+                return {} as Record<string, boolean>;
+              });
+            if (interactionStatus[interaction.id]) {
+              this._cache.del(contractTxId.toString(), {
+                key: 'id',
+                value: interaction.id,
+              });
+            }
+          }),
+        );
+      }
 
-        if (cachedToken && !state) {
-          return cachedToken.state as T;
-        }
-        if (state && cachedToken) {
-          this._cache.del(contractTxId.toString());
-        }
+      if (cachedToken && !state) {
+        return cachedToken.state as T;
+      }
+      if (state && cachedToken) {
+        this._cache.del(contractTxId.toString());
       }
 
       return state as T;

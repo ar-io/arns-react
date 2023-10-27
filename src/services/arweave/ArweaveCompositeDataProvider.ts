@@ -44,12 +44,8 @@ export class ArweaveCompositeDataProvider
 
   async getContractState<T extends PDNSContractJSON | PDNTContractJSON>(
     contractTxId: ArweaveTransactionID,
-    currentBlockHeight?: number,
   ): Promise<T> {
-    return this._contractProvider.getContractState<T>(
-      contractTxId,
-      currentBlockHeight,
-    );
+    return this._contractProvider.getContractState<T>(contractTxId);
   }
 
   async writeTransaction({

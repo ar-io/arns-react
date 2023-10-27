@@ -348,7 +348,6 @@ export function useWalletANTs() {
             await Promise.all([
               arweaveDataProvider.getContractState<PDNTContractJSON>(
                 contractTxId,
-                currentBlockHeight,
               ),
               allTransactionBlockHeights
                 ? allTransactionBlockHeights[contractTxId.toString()]
