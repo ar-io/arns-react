@@ -56,13 +56,23 @@ function Footer() {
                 width: 'fit-content',
                 borderRadius: 6,
                 backgroundColor: 'var(--card-bg)',
-                padding: '6px 12px',
+                padding: '12px 18px',
                 gap: '16px',
               }}
             >
               <div>
                 ArNS is part of the ar.io testnet phase. Please share your
-                feedback on our 2 min survey.
+                feedback on our 2 min{' '}
+                <Link
+                  to="https://pds-inc.typeform.com/to/TTrkj0MM"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="link hover"
+                  style={{ display: 'inline' }}
+                >
+                  survey
+                </Link>
+                .
               </div>
               <button
                 className="flex center pointer"
