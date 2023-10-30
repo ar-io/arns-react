@@ -654,7 +654,7 @@ function TransactionWorkflow({
         message={'Deploying transaction...'}
         loading={deployingTransaction}
       />
-      <div style={{ maxWidth: '900px' }}>
+      <div className="flex" style={{ maxWidth: '900px', width: '100%' }}>
         <Workflow
           onNext={() => handleStage('next')}
           onBack={() => handleStage('back')}

@@ -10,6 +10,7 @@
   font-size: 16px;
   color: var(--text-grey);
   border: solid 1px var(--text-grey);
+  text-align: center;
 }
 
 .step-finish
@@ -85,4 +86,40 @@
   font-family: 'Rubik';
   font-weight: 400;
   font-size: 13px;
+}
+
+@media screen and (max-width: 600px) {
+  .stage-circle {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+  .step-wait
+    > .ant-steps-item-container
+    > .ant-steps-item-content
+    > .ant-steps-item-title,
+  .step-process
+    > .ant-steps-item-container
+    > .ant-steps-item-content
+    > .ant-steps-item-title,
+  .step-finish
+    > .ant-steps-item-container
+    > .ant-steps-item-content
+    > .ant-steps-item-title {
+    font-size: 13px;
+  }
+  .step-wait
+    > .ant-steps-item-container
+    > .ant-steps-item-content
+    > .ant-steps-item-description,
+  .step-process
+    > .ant-steps-item-container
+    > .ant-steps-item-content
+    > .ant-steps-item-description,
+  .step-finish
+    > .ant-steps-item-container
+    > .ant-steps-item-content
+    > .ant-steps-item-description {
+    font-size: 10px;
+  }
 }

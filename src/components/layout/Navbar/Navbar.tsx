@@ -11,14 +11,7 @@ function NavBar() {
 
   return (
     <div className="flex flex-column" style={{ gap: '0px' }}>
-      <div
-        className="flex-row flex-space-between"
-        style={{
-          boxSizing: 'border-box',
-          padding: '0px 100px',
-          minHeight: 75,
-        }}
-      >
+      <div className="navbar">
         <div className="flex-row flex-left">
           <Link
             className="hover"

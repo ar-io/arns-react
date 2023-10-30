@@ -1,29 +1,21 @@
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 
-import { useIsMobile } from '../../../hooks';
 import { ARIO_DISCORD_LINK } from '../../../utils/constants';
 import { BrandLogo } from '../../icons';
 import Popup from '../Popup/Popup';
+import './styles.css';
 
 function Footer() {
-  const isMobile = useIsMobile();
   return (
     <div
-      className={`${
-        !isMobile ? 'flex-row flex-space-between' : 'flex-column flex-center'
-      }`}
+      className={'flex-row flex-space-between app-footer'}
       style={{
         borderTop: '1px solid var(--text-faded)',
-        padding: '30px 100px',
         boxSizing: 'border-box',
       }}
     >
-      <div
-        className={`${
-          !isMobile ? 'flex-row flex-left' : 'flex-column flex-center'
-        } flex`}
-      >
+      <div className={'flex-row flex-left flex'}>
         <BrandLogo width={'30px'} height={'30px'} fill={'var(--text-grey)'} />
         <Link
           className="grey text"

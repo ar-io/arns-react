@@ -358,9 +358,11 @@ function SearchBar(props: SearchBarProps) {
           value={searchBarText}
           setValue={(v) => _onChange(v)}
           onClick={() => _onFocus()}
-          inputCustomStyle={{ height: '65px' }}
+          inputCustomStyle={{
+            height: isMobile ? '50px' : '65px',
+          }}
           wrapperCustomStyle={{
-            height: '65px',
+            height: isMobile ? 'fit-content' : '65px',
             width: '100%',
           }}
           showValidationChecklist={!isMobile}

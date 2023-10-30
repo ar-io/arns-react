@@ -108,7 +108,7 @@ function PDNSCard({ domain, contractTxId }: PDNSMapping) {
           className="flex flex-column center"
           style={{ height: '100%', background: 'var(--modal-bg)' }}
         >
-          <Loader size={80} color="var(--accent)" />
+          <Loader size={isMobile ? 50 : 80} color="var(--accent)" />
         </div>
       ) : (
         <img

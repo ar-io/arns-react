@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 
-import { useIsMobile, useTransactionData } from '../../../hooks';
+import { useTransactionData } from '../../../hooks';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import TransactionWorkflow, {
   TRANSACTION_WORKFLOW_STATUS,
@@ -13,7 +13,6 @@ function Transaction() {
     useTransactionData();
   const from = useLocation().state;
   const [, dispatchTransactionState] = useTransactionState();
-  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (from) {
@@ -42,7 +41,6 @@ function Transaction() {
       style={{
         width: '100%',
         boxSizing: 'border-box',
-        padding: isMobile ? '30px 10px' : '30px 100px',
       }}
     >
       <TransactionWorkflow

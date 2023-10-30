@@ -14,7 +14,7 @@ export function useIsMobile(): boolean {
   }, [isMobile]);
 
   function updateIsMobile(): void {
-    setIsMobile(window.outerWidth < 600);
+    setIsMobile(window.innerWidth < 600);
   }
 
   return isMobile;

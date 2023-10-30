@@ -39,7 +39,10 @@ function SearchBarFooter({
     );
   }
   return (
-    <div className="flex flex-column" style={{ marginTop: 30 }}>
+    <div
+      className="flex flex-column"
+      style={{ marginTop: '30px', boxSizing: 'border-box' }}
+    >
       {!isAvailable && record && contractTxId && domain ? (
         <>
           <span className="flex flex-row white text-medium flex-left">
