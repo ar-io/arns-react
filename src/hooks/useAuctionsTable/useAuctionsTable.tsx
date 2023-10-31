@@ -376,7 +376,6 @@ export function useAuctionsTable() {
         const auction = await arweaveDataProvider
           .getAuction({
             domain,
-            address: walletAddress,
           })
           .catch((e) => console.debug(e));
         if (!auction) {

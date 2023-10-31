@@ -221,19 +221,16 @@ export class ArweaveCompositeDataProvider
   async getAuction({
     contractTxId = new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
     domain,
-    address,
     type,
   }: {
     contractTxId?: ArweaveTransactionID;
     domain: string;
-    address?: ArweaveTransactionID;
     type?: 'lease' | 'permabuy';
   }): Promise<Auction> {
     return this._contractProvider.getAuction({
       contractTxId,
       domain,
       type,
-      address,
     });
   }
 
