@@ -521,6 +521,7 @@ export type BuyRecordPayload = {
   qty: number; // the cost displayed to the user when buying a record
   auction?: boolean;
   targetId?: ArweaveTransactionID;
+  isBid?: boolean;
 };
 
 export type SubmitAuctionBidPayload = {

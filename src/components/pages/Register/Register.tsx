@@ -199,6 +199,7 @@ function RegisterNameForm() {
       type: registrationType,
       auction: (auction?.isRequiredToBeAuctioned || auction?.isActive) ?? false,
       qty: fee.io,
+      isBid: auction?.isActive ?? false,
       targetId: targetId ? new ArweaveTransactionID(targetId) : undefined,
     };
 
