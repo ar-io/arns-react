@@ -257,7 +257,7 @@ export class ArweaveCompositeDataProvider
 
   async getRecord(
     domain: string,
-    contractTxId: ArweaveTransactionID,
+    contractTxId?: ArweaveTransactionID,
   ): Promise<PDNSRecordEntry> {
     return this._contractProvider.getRecord(domain, contractTxId);
   }
