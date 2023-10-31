@@ -1,4 +1,4 @@
-import Countdown from 'antd/es/statistic/Countdown';
+import Countdown from 'antd/lib/statistic/Countdown';
 import { useEffect, useState } from 'react';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
