@@ -20,7 +20,21 @@ function NavBar() {
               dispatchRegisterState({ type: 'reset' });
             }}
           >
-            <BrandLogo width={'36px'} height={'36px'} fill={'white'} />
+            <div style={{ position: 'relative' }}>
+              <BrandLogo width={'36px'} height={'36px'} fill={'white'} />
+
+              {/* TODO: Conditionally show testnet depending on environment when mainnet becomes available */}
+              <div
+                className="testnet"
+                style={{
+                  position: 'absolute',
+                  top: '-6px',
+                  left: '24px',
+                }}
+              >
+                Testnet
+              </div>
+            </div>
           </Link>
         </div>
         <NavGroup />
