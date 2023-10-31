@@ -196,7 +196,10 @@ export interface SmartweaveContractCache {
     address?: ArweaveTransactionID;
     contractTxId: ArweaveTransactionID;
   }): Promise<string[]>;
-  getRecord(domain: string): Promise<PDNSRecordEntry>;
+  getRecord(
+    domain: string,
+    contractTxId?: ArweaveTransactionID,
+  ): Promise<PDNSRecordEntry>;
   getIoBalance(address: ArweaveTransactionID): Promise<number>;
   // END TODO
   getRecords<T extends PDNSRecordEntry | PDNTContractDomainRecord>({

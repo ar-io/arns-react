@@ -349,18 +349,23 @@ export class PDNSContractCache implements SmartweaveContractCache {
     return [...domainsInAuction];
   }
 
-  async getRecord(domain: string): Promise<PDNSRecordEntry> {
+  async getRecord(
+    domain: string,
+    contractTxId: ArweaveTransactionID = new ArweaveTransactionID(
+      ARNS_REGISTRY_ADDRESS,
+    ),
+  ): Promise<PDNSRecordEntry> {
     const res = await fetch(
       `${
         this._url
-      }/v1/contract/${ARNS_REGISTRY_ADDRESS}/records/${lowerCaseDomain(
+      }/v1/contract/${contractTxId.toString()}/records/${lowerCaseDomain(
         domain,
       )}`,
     ).catch(() => undefined);
     const { record } = res && res.ok ? await res.json() : { record: undefined };
 
     const cachedInteractions = await this._cache.getCachedInteractions(
-      new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
+      contractTxId,
     );
 
     const cachedRecord = cachedInteractions.find(
@@ -369,7 +374,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
         interaction.payload?.function === 'buyRecord',
     );
     if (record && cachedRecord) {
-      await this._cache.del(ARNS_REGISTRY_ADDRESS, {
+      await this._cache.del(contractTxId.toString(), {
         key: 'id',
         value: cachedRecord.id,
       });
