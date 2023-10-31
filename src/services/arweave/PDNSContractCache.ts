@@ -231,7 +231,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
         interaction.payload?.function === 'buyRecord',
     );
     if (record && cachedRecord) {
-      await this._cache.del(contractTxId, {
+      await this._cache.del(contractTxId.toString(), {
         key: 'id',
         value: cachedRecord.id,
       });
