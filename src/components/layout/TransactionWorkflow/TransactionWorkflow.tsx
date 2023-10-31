@@ -404,7 +404,7 @@ function TransactionWorkflow({
                     />
                   </span>
                   &nbsp;
-                  {payload.auction ? (
+                  {payload.auction && !payload.isBid ? (
                     <span
                       className="flex center"
                       style={{ width: '100%', justifyContent: 'space-between' }}
