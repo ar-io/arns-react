@@ -179,11 +179,9 @@ export interface SmartweaveContractCache {
     contractTxId,
     domain,
     type,
-    address,
   }: {
     contractTxId: ArweaveTransactionID;
     domain: string;
-    address?: ArweaveTransactionID;
     type?: 'lease' | 'permabuy';
   }): Promise<Auction>;
   getAuctionSettings({

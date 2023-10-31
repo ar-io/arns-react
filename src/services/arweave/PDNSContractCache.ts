@@ -204,8 +204,11 @@ export class PDNSContractCache implements SmartweaveContractCache {
     type: 'lease' | 'permabuy';
   }): Promise<boolean> {
     return this.getAuction({ contractTxId, domain, type })
-      .then((auction: Auction) => auction.isActive) // it found the auction
-      .catch(() => false); // it returned a 404 or otherwise failed
+      .then((auction: Auction) => auction.isActive)
+      .catch((e) => {
+        console.error(e);
+        return false;
+      });
   }
 
   async isDomainAvailable({ domain }: { domain: string }): Promise<boolean> {
@@ -215,34 +218,47 @@ export class PDNSContractCache implements SmartweaveContractCache {
       }/v1/contract/${ARNS_REGISTRY_ADDRESS}/records/${lowerCaseDomain(
         domain,
       )}`,
-    );
-    const isAvailable = res.status !== 200;
+    ).catch(() => undefined);
+    const { record } = res && res.ok ? await res.json() : { record: undefined };
 
-    return isAvailable;
+    const cachedInteractions = await this._cache.getCachedInteractions(
+      new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
+    );
+
+    const cachedRecord = cachedInteractions.find(
+      (interaction: ContractInteraction) =>
+        interaction.payload?.name === domain &&
+        interaction.payload?.function === 'buyRecord',
+    );
+    if (record && cachedRecord) {
+      await this._cache.del(ARNS_REGISTRY_ADDRESS, {
+        key: 'id',
+        value: cachedRecord.id,
+      });
+      return false;
+    }
+    return cachedRecord && !cachedRecord.payload.auction ? false : !record;
   }
 
   async getAuction({
     contractTxId,
     domain,
     type,
-    address,
   }: {
     contractTxId: ArweaveTransactionID;
     domain: string;
     type?: 'lease' | 'permabuy';
-    address?: ArweaveTransactionID;
   }): Promise<Auction> {
-    let cachedAuction: any;
-    if (address) {
-      const cachedInteractions = await this._cache.getCachedInteractions(
-        contractTxId,
-      );
-      cachedInteractions.forEach((interaction: ContractInteraction) => {
+    const cachedInteractions = await this._cache.getCachedInteractions(
+      contractTxId,
+    );
+    const cachedAuction = cachedInteractions.find(
+      (interaction: ContractInteraction) => {
         if (
           interaction.payload?.name === domain &&
           interaction.payload?.auction === true
         ) {
-          cachedAuction = {
+          return {
             ...interaction,
             payload: {
               ...interaction.payload,
@@ -251,10 +267,11 @@ export class PDNSContractCache implements SmartweaveContractCache {
             },
           };
         }
-      });
-    }
+      },
+    );
+
     const urlParams = cachedAuction
-      ? new URLSearchParams({ type: cachedAuction?.payload?.type })
+      ? new URLSearchParams({ type: cachedAuction?.payload?.type.toString() })
       : type
       ? new URLSearchParams({ type })
       : new URLSearchParams();
@@ -262,8 +279,12 @@ export class PDNSContractCache implements SmartweaveContractCache {
       `${
         this._url
       }/v1/contract/${contractTxId.toString()}/auctions/${domain}?${urlParams.toString()}`,
-    );
-    const { result: auction } = await auctionRes.json();
+    ).catch(() => undefined);
+    const { result: auction } =
+      auctionRes && auctionRes.ok
+        ? await auctionRes.json()
+        : { result: undefined };
+
     if (!auction) {
       throw new Error(
         `Failed to get auction for ${domain} on contract ${contractTxId.toString()}`,
@@ -335,8 +356,28 @@ export class PDNSContractCache implements SmartweaveContractCache {
       }/v1/contract/${ARNS_REGISTRY_ADDRESS}/records/${lowerCaseDomain(
         domain,
       )}`,
+    ).catch(() => undefined);
+    const { record } = res && res.ok ? await res.json() : { record: undefined };
+
+    const cachedInteractions = await this._cache.getCachedInteractions(
+      new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
     );
-    const { record } = await res.json();
+
+    const cachedRecord = cachedInteractions.find(
+      (interaction: ContractInteraction) =>
+        interaction.payload?.name === domain &&
+        interaction.payload?.function === 'buyRecord',
+    );
+    if (record && cachedRecord) {
+      await this._cache.del(ARNS_REGISTRY_ADDRESS, {
+        key: 'id',
+        value: cachedRecord.id,
+      });
+    }
+    if (!record && cachedRecord && !cachedRecord.payload.auction) {
+      return buildPendingArNSRecord(cachedRecord);
+    }
+
     return record;
   }
 
