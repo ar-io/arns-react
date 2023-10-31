@@ -200,8 +200,14 @@ export class ArweaveCompositeDataProvider
     );
   }
   // TODO: implement arns service query for the following 3 functions
-  async isDomainReserved({ domain }: { domain: string }): Promise<boolean> {
-    return this._contractProvider.isDomainReserved({ domain });
+  async isDomainReserved({
+    domain,
+    contractTxId,
+  }: {
+    domain: string;
+    contractTxId?: ArweaveTransactionID;
+  }): Promise<boolean> {
+    return this._contractProvider.isDomainReserved({ domain, contractTxId });
   }
 
   async isDomainInAuction({
@@ -214,8 +220,14 @@ export class ArweaveCompositeDataProvider
     return this._contractProvider.isDomainInAuction({ contractTxId, domain });
   }
 
-  async isDomainAvailable({ domain }: { domain: string }): Promise<boolean> {
-    return this._contractProvider.isDomainAvailable({ domain });
+  async isDomainAvailable({
+    domain,
+    contractTxId,
+  }: {
+    domain: string;
+    contractTxId?: ArweaveTransactionID;
+  }): Promise<boolean> {
+    return this._contractProvider.isDomainAvailable({ domain, contractTxId });
   }
 
   async getAuction({

@@ -177,11 +177,17 @@ export class PDNSContractCache implements SmartweaveContractCache {
     );
   }
   // TODO: implement arns service query for the following 3 functions
-  async isDomainReserved({ domain }: { domain: string }): Promise<boolean> {
+  async isDomainReserved({
+    domain,
+    contractTxId = new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
+  }: {
+    domain: string;
+    contractTxId: ArweaveTransactionID;
+  }): Promise<boolean> {
     const res = await fetch(
       `${
         this._url
-      }/v1/contract/${ARNS_REGISTRY_ADDRESS}/reserved/${lowerCaseDomain(
+      }/v1/contract/${contractTxId.toString()}/reserved/${lowerCaseDomain(
         domain,
       )}`,
     );
@@ -211,18 +217,24 @@ export class PDNSContractCache implements SmartweaveContractCache {
       });
   }
 
-  async isDomainAvailable({ domain }: { domain: string }): Promise<boolean> {
+  async isDomainAvailable({
+    domain,
+    contractTxId = new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
+  }: {
+    domain: string;
+    contractTxId: ArweaveTransactionID;
+  }): Promise<boolean> {
     const res = await fetch(
       `${
         this._url
-      }/v1/contract/${ARNS_REGISTRY_ADDRESS}/records/${lowerCaseDomain(
+      }/v1/contract/${contractTxId.toString()}/records/${lowerCaseDomain(
         domain,
       )}`,
     ).catch(() => undefined);
     const { record } = res && res.ok ? await res.json() : { record: undefined };
 
     const cachedInteractions = await this._cache.getCachedInteractions(
-      new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
+      contractTxId,
     );
 
     const cachedRecord = cachedInteractions.find(
