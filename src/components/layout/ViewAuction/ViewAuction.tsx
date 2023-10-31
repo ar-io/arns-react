@@ -16,6 +16,7 @@ import eventEmitter from '../../../utils/events';
 import { ArrowLeft, ArrowRightIcon } from '../../icons';
 import ArweaveID, { ArweaveIdTypes } from '../ArweaveID/ArweaveID';
 import AuctionChart from '../AuctionChart/AuctionChart';
+import NextPriceUpdate from '../NextPriceUpdate/NextPriceUpdate';
 import PageLoader from '../progress/PageLoader/PageLoader';
 
 function ViewAuction() {
@@ -23,7 +24,7 @@ function ViewAuction() {
   const { name } = useParams();
   const navigate = useNavigate();
   const { auction, loadingAuctionInfo } = useAuctionInfo(
-    lowerCaseDomain(name!),
+    lowerCaseDomain(name ?? ''),
   );
 
   useEffect(() => {
@@ -117,10 +118,8 @@ function ViewAuction() {
                 shouldLink={true}
               />
             </span>
-            <span className="flex grey">
-              Auction Type: {startCase(auction!.type)}
-            </span>
           </div>
+          <NextPriceUpdate auction={auction} />
 
           <AuctionChart
             domain={encodeDomainToASCII(name!)}

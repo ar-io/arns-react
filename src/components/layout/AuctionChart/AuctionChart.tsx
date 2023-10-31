@@ -1,4 +1,3 @@
-import Countdown from 'antd/lib/statistic/Countdown';
 import {
   CategoryScale,
   Chart as ChartJS,
@@ -6,11 +5,13 @@ import {
   LineController,
   LineElement,
   LinearScale,
+  Plugin,
   PointElement,
   Title,
   Tooltip,
 } from 'chart.js';
 import annotationPlugin from 'chartjs-plugin-annotation';
+import { clamp } from 'lodash';
 import { CSSProperties, useEffect, useRef, useState } from 'react';
 import { Chart } from 'react-chartjs-2';
 import { ChartJSOrUndefined } from 'react-chartjs-2/dist/types';
@@ -18,10 +19,72 @@ import { ChartJSOrUndefined } from 'react-chartjs-2/dist/types';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import { Auction } from '../../../types';
-import { getNextPriceChangeTimestamp } from '../../../utils/auctions';
+import { formattedEstimatedDateFromBlockHeight } from '../../../utils';
 import { APPROXIMATE_BLOCKS_PER_DAY } from '../../../utils/constants';
-import eventEmitter from '../../../utils/events';
 import Loader from '../Loader/Loader';
+
+const BlockHeightLabelPlugin: Plugin = {
+  id: 'blockHeightLabel',
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  beforeTooltipDraw(chart, args, options) {
+    const { ctx, chartArea, tooltip } = chart;
+    if (!(ctx && chartArea && tooltip)) {
+      return;
+    }
+    const label = tooltip.dataPoints?.[0].label;
+    if (!label) {
+      return;
+    }
+    const blockHeight = +label;
+
+    const fontSize = 10;
+    const fontStyle = 'normal';
+    const fontFamily = 'Rubik';
+    ctx.save();
+    ctx.font = `${fontStyle} ${fontSize}px ${fontFamily}`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    const x = tooltip.caretX;
+    const y = chartArea.bottom + 15;
+
+    const labelText = `Block ${blockHeight}`;
+    const labelDimension = ctx.measureText(labelText);
+    const labelW = labelDimension.width + 14;
+    const labelH = labelDimension.actualBoundingBoxAscent + 14;
+
+    const labelLeft = clamp(x - labelW / 2, 0, chartArea.right - labelW);
+
+    ctx.strokeStyle = '#313133';
+    ctx.beginPath();
+    ctx.roundRect(labelLeft, y - labelH / 2, labelW, labelH, 5);
+    ctx.stroke();
+
+    ctx.strokeStyle = '#a7a7a7';
+
+    ctx.beginPath();
+    ctx.setLineDash([2, 2]);
+    ctx.moveTo(x, tooltip.caretY + 9);
+    ctx.lineTo(x, y - 12);
+    ctx.stroke();
+
+    ctx.fillStyle = 'white';
+    ctx.fillText(labelText, labelLeft + labelW / 2, y);
+    ctx.restore();
+  },
+};
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  LineController,
+  Title,
+  Tooltip,
+  Legend,
+  annotationPlugin,
+);
 
 function AuctionChart({
   id = 'auction-chart',
@@ -30,7 +93,6 @@ function AuctionChart({
   chartTitle,
   chartWidth = '100%',
   chartHeight = 330,
-  showUpdateCountdown = true,
   showAuctionExplainer,
 }: {
   domain: string;
@@ -39,21 +101,8 @@ function AuctionChart({
   chartTitle?: string;
   chartWidth?: number | string | 'fit-content';
   chartHeight?: number | string | 'fit-content';
-  showUpdateCountdown?: boolean;
   showAuctionExplainer?: boolean;
 }) {
-  ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    LineController,
-    Title,
-    Tooltip,
-    Legend,
-    annotationPlugin,
-  );
-
   const [
     { blockHeight: currentBlockHeight, arweaveDataProvider },
     dispatchGlobalState,
@@ -61,7 +110,6 @@ function AuctionChart({
   const [{ walletAddress }] = useWalletState();
   const chartRef = useRef<ChartJSOrUndefined>(null);
 
-  const [timeUntilUpdate, setTimeUntilUpdate] = useState<number>(0);
   const [labels, setLabels] = useState<string[]>([]);
   const [prices, setPrices] = useState<number[]>([]);
   const [showCurrentPrice, setShowCurrentPrice] = useState<boolean>(true);
@@ -84,13 +132,6 @@ function AuctionChart({
       return;
     }
 
-    // use the price response to calculate the next interval
-    const nextPriceChangeTimestamp = getNextPriceChangeTimestamp({
-      currentBlockHeight,
-      prices: auctionInfo.prices,
-    });
-
-    setTimeUntilUpdate(nextPriceChangeTimestamp);
     setPrices(Object.values(auctionInfo.prices));
     setLabels(Object.keys(auctionInfo.prices));
   }, [chartRef.current, domain, currentBlockHeight, auctionInfo]);
@@ -138,15 +179,6 @@ function AuctionChart({
     }
   }
 
-  async function updateBlockHeight() {
-    try {
-      const blockHeight = await arweaveDataProvider.getCurrentBlockHeight();
-      dispatchGlobalState({ type: 'setBlockHeight', payload: blockHeight });
-    } catch (error) {
-      eventEmitter.emit('error', error);
-    }
-  }
-
   if (!prices.length || !labels.length || !currentBlockHeight || !auctionInfo) {
     return (
       <div className="flex flex-row center" style={{ height: '100%' }}>
@@ -175,11 +207,62 @@ function AuctionChart({
           border: '1px rgb(255,255,255,.2) solid',
           borderTop: 'none',
           borderRight: 'none',
+          position: 'relative',
           width: chartWidth,
           height: chartHeight,
           ...chartStyle,
         }}
       >
+        <div
+          className="flex flex-column flex-space-between grey"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: -100,
+            width: 100,
+            height: '100%',
+            textAlign: 'right',
+            fontSize: '13px',
+          }}
+        >
+          <div
+            className="flex flex-column"
+            style={{ gap: 0, width: 73, paddingTop: 12 }}
+          >
+            {`${auctionInfo.startPrice} IO`}
+            <div>ceiling</div>
+          </div>
+
+          <div
+            style={{
+              position: 'absolute',
+              top: 20,
+              right: 1,
+              width: 8,
+              height: 1,
+              backgroundColor: 'rgba(255,255,255,0.2)',
+            }}
+          ></div>
+
+          <div
+            className="flex flex-column"
+            style={{ gap: 0, width: 73, paddingBottom: 18 }}
+          >
+            {`${auctionInfo.floorPrice} IO`}
+            <div>floor</div>
+          </div>
+
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 40,
+              right: 1,
+              width: 8,
+              height: 1,
+              backgroundColor: 'rgba(255,255,255,0.2)',
+            }}
+          ></div>
+        </div>
         <Chart
           type="line"
           ref={chartRef}
@@ -189,15 +272,17 @@ function AuctionChart({
             clip: false,
             layout: {
               padding: {
-                top: 40,
+                top: 0,
                 bottom: 20,
                 right: 10,
               },
             },
             interaction: {
+              axis: 'x',
               intersect: false,
             },
             responsive: true,
+            maintainAspectRatio: false,
             scales: {
               x: {
                 ticks: {
@@ -223,8 +308,11 @@ function AuctionChart({
               },
             },
             plugins: {
+              // blockHeightLabel: {},
               tooltip: {
-                backgroundColor: '#38393B',
+                borderWidth: 1,
+                borderColor: '#313133',
+                backgroundColor: '#141416',
                 titleFont: {
                   size: 12,
                   weight: '400',
@@ -242,26 +330,15 @@ function AuctionChart({
                 xAlign: 'center',
                 yAlign: 'bottom',
                 caretPadding: 15,
-                padding: 14,
+                padding: 9,
                 callbacks: {
                   title: (data: any) => {
-                    // TODO: move these a util function in auctions.test.ts and add unit tests
                     const block = +data[0].label;
-                    const blockDiff =
-                      Math.max(+block, currentBlockHeight) -
-                      Math.min(+block, currentBlockHeight);
-                    const timeDifferenceMs = blockDiff * 120000;
-                    const time = new Date(
-                      block > currentBlockHeight
-                        ? Date.now() + timeDifferenceMs
-                        : Date.now() - timeDifferenceMs,
+                    const formattedDate = formattedEstimatedDateFromBlockHeight(
+                      block,
+                      currentBlockHeight,
                     );
-                    const formattedDate = new Intl.DateTimeFormat('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    }).format(time);
-                    return formattedDate ?? '';
+                    return `${formattedDate}*`;
                   },
                   footer: (data: any) =>
                     `${Math.round(data[0].parsed.y).toLocaleString()} IO` ?? '',
@@ -288,6 +365,7 @@ function AuctionChart({
               },
             },
           }}
+          plugins={[BlockHeightLabelPlugin]}
           data={{
             labels,
             datasets: [
@@ -314,31 +392,34 @@ function AuctionChart({
         />
       </div>
       <span
-        className={`flex flex-row flex-space-between white`}
-        style={{ gap: '0px', boxSizing: 'border-box' }}
+        className={`flex flex-row flex-space-between grey`}
+        style={{ gap: '0px', boxSizing: 'border-box', fontSize: '13px' }}
       >
-        <span>Premium</span>
-        {showUpdateCountdown ? (
-          <span
-            className="grey flex flex-row flex-center"
-            style={{ gap: '0px', height: 'fit-content' }}
-          >
-            Next price update:&nbsp;
-            <Countdown
-              value={timeUntilUpdate}
-              valueStyle={{
-                fontSize: '15px',
-                color: 'var(--text-grey)',
-                paddingBottom: '0px',
-              }}
-              format="H:mm:ss"
-              onFinish={() => updateBlockHeight()}
-            />
-          </span>
-        ) : (
-          <></>
+        {auctionInfo && (
+          <>
+            <div className="flex flex-column" style={{ gap: 4 }}>
+              <div>Auction start date:</div>
+              <div>
+                <span className="white">Block {auctionInfo.startHeight}</span>
+                {` (${formattedEstimatedDateFromBlockHeight(
+                  auctionInfo.startHeight,
+                  currentBlockHeight,
+                )})*`}
+              </div>
+            </div>
+
+            <div className="flex flex-column right " style={{ gap: 4 }}>
+              <div>Auction end date:</div>
+              <div>
+                <span className="white">Block {auctionInfo.endHeight}</span>
+                {` (${formattedEstimatedDateFromBlockHeight(
+                  auctionInfo.endHeight,
+                  currentBlockHeight,
+                )})*`}
+              </div>
+            </div>
+          </>
         )}
-        <span>Floor</span>
       </span>
       {showAuctionExplainer ? (
         <div
