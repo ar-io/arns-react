@@ -1,6 +1,6 @@
 import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 
 import {
   ChevronUpIcon,
@@ -49,13 +49,29 @@ export function useWalletANTs() {
   const searchRef = useRef<HTMLInputElement>(null);
   const [searchText, setSearchText] = useState<string>('');
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { path } = useParams();
 
   useEffect(() => {
     load();
   }, [walletAddress]);
 
   useEffect(() => {
-    if (searchText) {
+    const searchQuery = searchParams.get('search');
+    if (searchRef.current) {
+      searchRef.current.focus();
+    }
+    if (searchQuery || searchText) {
+      if (searchText !== searchQuery) {
+        setSearchParams(searchText ? { search: searchText } : {});
+      }
+      if (searchQuery && !searchText && !searchOpen) {
+        setSearchText(searchQuery);
+        setSearchOpen(true);
+      }
+      if (!rows) {
+        return;
+      }
       const filtered = rows.filter(
         (row) =>
           row.name.toLowerCase().includes(searchText.toLowerCase()) ||
@@ -66,7 +82,7 @@ export function useWalletANTs() {
     } else {
       setFilteredResults([]);
     }
-  }, [searchText]);
+  }, [searchText, rows, path]);
 
   function sortRows(key: keyof ANTMetadata, isAsc: boolean): void {
     setSortField(key);
@@ -396,6 +412,7 @@ export function useWalletANTs() {
                   className="flex button center pointer"
                   onClick={() => {
                     setSearchText('');
+                    setSearchParams({});
                     setSearchOpen(false);
                   }}
                 >
@@ -546,7 +563,7 @@ export function useWalletANTs() {
     isLoading,
     percent,
     columns: generateTableColumns(),
-    rows: filteredResults.length ? filteredResults : rows,
+    rows: searchText.length && searchOpen ? filteredResults : rows,
     sortField,
     sortAscending,
     refresh: load,

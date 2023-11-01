@@ -1,6 +1,11 @@
 import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from 'react-router-dom';
 
 import {
   ChevronUpIcon,
@@ -29,10 +34,7 @@ import {
   getUndernameCount,
   handleTableSort,
 } from '../../utils';
-import {
-  DEFAULT_MAX_UNDERNAMES,
-  PDNS_NAME_REGEX_PARTIAL,
-} from '../../utils/constants';
+import { DEFAULT_MAX_UNDERNAMES } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 
 type DomainData = {
@@ -60,22 +62,40 @@ export function useWalletDomains() {
   const searchRef = useRef<HTMLInputElement>(null);
   const [searchText, setSearchText] = useState<string>('');
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { path } = useParams();
 
   useEffect(() => {
     load();
   }, [walletAddress]);
 
   useEffect(() => {
-    if (searchText) {
-      const filtered = rows.filter((row) =>
-        row.name.toLowerCase().startsWith(searchText.toLowerCase()),
+    const searchQuery = searchParams.get('search');
+    if (searchRef.current) {
+      searchRef.current.focus();
+    }
+    if (searchQuery || searchText) {
+      if (searchText !== searchQuery) {
+        setSearchParams(searchText ? { search: searchText } : {});
+      }
+      if (searchQuery && !searchText && !searchOpen) {
+        setSearchText(searchQuery);
+        setSearchOpen(true);
+      }
+      if (!rows) {
+        return;
+      }
+      const filtered = rows.filter(
+        (row) =>
+          row.name.toLowerCase().includes(searchText.toLowerCase()) ||
+          row.id.toLowerCase().includes(searchText.toLowerCase()),
       );
       setFilteredResults(filtered);
     } else {
       setFilteredResults([]);
     }
-  }, [searchText]);
+  }, [searchText, rows, path]);
 
   function sortRows(key: keyof PDNSTableRow, isAsc: boolean): void {
     setSortField(key);
@@ -421,7 +441,7 @@ export function useWalletDomains() {
                   catchInvalidInput={true}
                   showValidationIcon={false}
                   placeholder={'Search for a domain'}
-                  maxCharLength={61}
+                  maxCharLength={63}
                   wrapperCustomStyle={{
                     position: 'relative',
                     boxSizing: 'border-box',
@@ -441,13 +461,13 @@ export function useWalletDomains() {
                     border: 'none',
                     paddingRight: '10px',
                   }}
-                  customPattern={PDNS_NAME_REGEX_PARTIAL}
                   validationPredicates={{}}
                 />
                 <button
                   className="flex button center pointer"
                   onClick={() => {
                     setSearchText('');
+                    setSearchParams({});
                     setSearchOpen(false);
                   }}
                 >
@@ -631,7 +651,7 @@ export function useWalletDomains() {
     isLoading,
     percent,
     columns: generateTableColumns(),
-    rows: filteredResults.length ? filteredResults : rows,
+    rows: searchText.length && searchOpen ? filteredResults : rows,
     sortField,
     sortAscending,
     selectedRow,
