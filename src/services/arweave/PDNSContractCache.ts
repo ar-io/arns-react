@@ -282,11 +282,13 @@ export class PDNSContractCache implements SmartweaveContractCache {
       },
     );
 
-    const urlParams = cachedAuction
-      ? new URLSearchParams({ type: cachedAuction?.payload?.type.toString() })
-      : type
-      ? new URLSearchParams({ type })
-      : new URLSearchParams();
+    const urlParams =
+      type || cachedAuction?.payload?.type
+        ? new URLSearchParams({
+            type: type ?? cachedAuction!.payload?.type.toString(),
+          })
+        : '';
+
     const auctionRes = await fetch(
       `${
         this._url
