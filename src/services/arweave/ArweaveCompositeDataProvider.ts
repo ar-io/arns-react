@@ -267,11 +267,14 @@ export class ArweaveCompositeDataProvider
     });
   }
 
-  async getRecord(
-    domain: string,
-    contractTxId?: ArweaveTransactionID,
-  ): Promise<PDNSRecordEntry> {
-    return this._contractProvider.getRecord(domain, contractTxId);
+  async getRecord({
+    domain,
+    contractTxId,
+  }: {
+    domain: string;
+    contractTxId?: ArweaveTransactionID;
+  }): Promise<PDNSRecordEntry> {
+    return this._contractProvider.getRecord({ domain, contractTxId });
   }
 
   async getRecords<T extends PDNSRecordEntry | PDNTContractDomainRecord>({

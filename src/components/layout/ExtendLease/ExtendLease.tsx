@@ -74,7 +74,7 @@ function ExtendLease() {
 
   async function onLoad(domain: string) {
     try {
-      const domainRecord = await arweaveDataProvider.getRecord(domain);
+      const domainRecord = await arweaveDataProvider.getRecord({ domain });
       if (!domainRecord?.type) {
         throw new Error(`Unable to get record for ${domain}`);
       }

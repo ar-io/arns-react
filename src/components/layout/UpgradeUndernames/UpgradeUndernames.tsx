@@ -45,9 +45,9 @@ function UpgradeUndernames() {
     try {
       setLoading(true);
       if (name && isPDNSDomainNameValid({ name: lowerCaseDomain(name) })) {
-        const record = await arweaveDataProvider.getRecord(
-          lowerCaseDomain(name),
-        );
+        const record = await arweaveDataProvider.getRecord({
+          domain: lowerCaseDomain(name),
+        });
         if (!record) {
           throw new Error(`Unable to get record for ${name}`);
         }
