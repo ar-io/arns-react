@@ -208,7 +208,7 @@ function SearchBar(props: SearchBarProps) {
     }
     // show updated states based on search result
     const record = await arweaveDataProvider
-      .getRecord(lowerCaseDomain(searchBarText ?? ''))
+      .getRecord({ domain: lowerCaseDomain(searchBarText ?? '') })
       .catch(() => null);
     setSearchSubmitted(true);
     if (!record && searchBarText) {
