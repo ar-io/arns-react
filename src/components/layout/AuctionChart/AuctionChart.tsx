@@ -402,9 +402,8 @@ function AuctionChart({
         {auctionInfo && (
           <>
             <div className="flex flex-column" style={{ gap: 4 }}>
-              <div>Auction start date:</div>
+              <div>Auction start: Block {auctionInfo.startHeight}</div>
               <div>
-                Block {auctionInfo.startHeight}
                 {` (${formattedEstimatedDateFromBlockHeight(
                   auctionInfo.startHeight,
                   currentBlockHeight,
@@ -413,9 +412,8 @@ function AuctionChart({
             </div>
 
             <div className="flex flex-column right " style={{ gap: 4 }}>
-              <div>Auction end date:</div>
+              <div>Auction end: Block {auctionInfo.endHeight}</div>
               <div>
-                Block {auctionInfo.endHeight}
                 {` (${formattedEstimatedDateFromBlockHeight(
                   auctionInfo.endHeight,
                   currentBlockHeight,
