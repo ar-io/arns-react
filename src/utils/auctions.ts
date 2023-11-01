@@ -1,4 +1,4 @@
-import { AVERAGE_BLOCK_TIME } from './constants';
+import { APPROXIMATE_BLOCKS_PER_DAY, AVERAGE_BLOCK_TIME } from './constants';
 
 // TODO: write a unit test for this function
 export function getNextPriceChangeTimestamp({
@@ -54,4 +54,8 @@ export const formattedEstimatedDateFromBlockHeight = (
     month: 'long',
     day: 'numeric',
   }).format(dateTime);
+};
+
+export const approximateDays = (blockHeightDuration: number) => {
+  return Math.round(blockHeightDuration / APPROXIMATE_BLOCKS_PER_DAY);
 };

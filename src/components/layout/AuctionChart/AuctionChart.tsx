@@ -15,12 +15,15 @@ import { clamp } from 'lodash';
 import { CSSProperties, useEffect, useRef, useState } from 'react';
 import { Chart } from 'react-chartjs-2';
 import { ChartJSOrUndefined } from 'react-chartjs-2/dist/types';
+import { Link } from 'react-router-dom';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import { Auction } from '../../../types';
-import { formattedEstimatedDateFromBlockHeight } from '../../../utils';
-import { APPROXIMATE_BLOCKS_PER_DAY } from '../../../utils/constants';
+import {
+  approximateDays,
+  formattedEstimatedDateFromBlockHeight,
+} from '../../../utils';
 import Loader from '../Loader/Loader';
 
 const BlockHeightLabelPlugin: Plugin = {
@@ -423,7 +426,7 @@ function AuctionChart({
       </span>
       {showAuctionExplainer ? (
         <div
-          className="flex flex-row grey radius left"
+          className="flex flex-column grey radius left"
           style={{
             padding: '16px',
             border: 'solid 1px var(--text-faded)',
@@ -433,29 +436,24 @@ function AuctionChart({
             marginTop: '48px',
           }}
         >
-          To ensure that everyone has a fair opportunity to register this
-          premium name, it has an auction premium that will reduce gradually
-          over a{' '}
-          {Math.round(
-            auctionInfo.settings.auctionDuration / APPROXIMATE_BLOCKS_PER_DAY,
-          )}{' '}
-          day period. This name has been on auction for{' '}
-          {/* TODO: MOVE THESE TO FUNCTIONS */}
-          {Math.round(
-            (currentBlockHeight - auctionInfo.startHeight) /
-              APPROXIMATE_BLOCKS_PER_DAY,
-          )}{' '}
-          days and has{' '}
-          {Math.round(
-            (auctionInfo.startHeight +
-              auctionInfo.settings.auctionDuration -
-              currentBlockHeight) /
-              APPROXIMATE_BLOCKS_PER_DAY,
-          )}{' '}
+          To ensure that everyone has a fair opportunity to register this name,
+          it has an auction premium that will reduce gradually over a
+          {approximateDays(auctionInfo.settings.auctionDuration)}
+          -day period. This name has been on auction for{' '}
+          {approximateDays(currentBlockHeight - auctionInfo.startHeight)} days
+          and has {approximateDays(auctionInfo.endHeight - currentBlockHeight)}
           days remaining, during which time anyone can buy it now for the
-          current price. If there are no bidders before the auction end date,
-          the person who initiated the bid will win the name for the floor
-          price.
+          current price. If there is no buyer before the auction ends, the
+          auction initiator will win the name at the floor price.
+          <Link
+            to="https://ar.io/docs/arns/#bid-initiated-dutch-auctions-bida"
+            rel="noreferrer"
+            target="_blank"
+            className="link"
+            style={{ textDecoration: 'underline', color: 'inherit' }}
+          >
+            Learn more.
+          </Link>
         </div>
       ) : (
         <></>
