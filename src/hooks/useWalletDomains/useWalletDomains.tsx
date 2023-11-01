@@ -66,15 +66,17 @@ export function useWalletDomains() {
   const navigate = useNavigate();
   const { path } = useParams();
 
+  if (searchRef.current && searchOpen) {
+    searchRef.current.focus();
+  }
+
   useEffect(() => {
     load();
   }, [walletAddress]);
 
   useEffect(() => {
     const searchQuery = searchParams.get('search');
-    if (searchRef.current) {
-      searchRef.current.focus();
-    }
+
     if (searchQuery || searchText) {
       if (searchText !== searchQuery) {
         setSearchParams(searchText ? { search: searchText } : {});
