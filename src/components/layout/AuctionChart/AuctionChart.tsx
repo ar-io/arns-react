@@ -193,7 +193,7 @@ function AuctionChart({
   return (
     <div
       id={id}
-      className="flex flex-column flex-center pointer fade-in"
+      className="flex flex-column flex-centerfade-in"
       style={{
         gap: '15px',
         width: 'fit-content',
@@ -267,6 +267,7 @@ function AuctionChart({
           ></div>
         </div>
         <Chart
+          className="pointer"
           type="line"
           ref={chartRef}
           onMouseLeave={() => setShowCurrentPrice(true)}
