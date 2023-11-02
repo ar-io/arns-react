@@ -90,7 +90,7 @@ function NavMenuCard() {
       // reset state
       setShowMenu(false);
       dispatchWalletState({
-        type: 'setWallet',
+        type: 'setWalletAddress',
         payload: undefined,
       });
     } catch (error: any) {
