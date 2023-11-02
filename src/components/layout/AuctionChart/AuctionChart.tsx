@@ -516,6 +516,7 @@ function AuctionChart({
             fontSize: '13px',
             lineHeight: '150%',
             marginTop: '48px',
+            gap: '1em',
           }}
         >
           To ensure that everyone has a fair opportunity to register this name,
@@ -536,6 +537,7 @@ function AuctionChart({
           >
             Learn more.
           </Link>
+          * All dates are approximate, based on block height.
         </div>
       ) : (
         <></>

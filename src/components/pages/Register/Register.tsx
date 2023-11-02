@@ -570,7 +570,7 @@ function RegisterNameForm() {
               >
                 <span
                   className="flex flex-column"
-                  style={{ textAlign: 'left', fontSize: '13px' }}
+                  style={{ textAlign: 'left', fontSize: '13px', gap: '1em' }}
                 >
                   Buying this name involves a Dutch auction. You start by
                   bidding at the floor price of {fee.io.toLocaleString()} IO.
