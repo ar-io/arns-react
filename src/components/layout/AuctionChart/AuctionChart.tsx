@@ -356,7 +356,11 @@ function AuctionChart({
         >
           <div
             className="grey"
-            style={{ fontWeight: '400', whiteSpace: 'nowrap' }}
+            style={{
+              fontWeight: '400',
+              fontSize: '10px',
+              whiteSpace: 'nowrap',
+            }}
           ></div>
           <div
             className="white"
