@@ -10,10 +10,10 @@ function ProtectedRoute({ children }: { children: JSX.Element }) {
     children
   ) : (
     <Navigate
-      to={location?.state?.to ?? '/connect'}
+      to={location?.state?.to ?? `/connect${location.search}`}
       state={{
         from: location.pathname,
-        to: location?.state?.to ?? location.pathname ?? '/',
+        to: location?.state?.to ?? location.pathname + location.search ?? '/',
       }}
     />
   );
