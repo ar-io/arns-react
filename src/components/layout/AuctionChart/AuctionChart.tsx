@@ -11,7 +11,6 @@ import {
   Tooltip,
 } from 'chart.js';
 import annotationPlugin from 'chartjs-plugin-annotation';
-import { clamp } from 'lodash';
 import { CSSProperties, useEffect, useRef, useState } from 'react';
 import { Chart } from 'react-chartjs-2';
 import { ChartJSOrUndefined } from 'react-chartjs-2/dist/types';
@@ -25,6 +24,7 @@ import {
   formattedEstimatedDateFromBlockHeight,
 } from '../../../utils';
 import Loader from '../Loader/Loader';
+import './styles.css';
 
 const BlockHeightLabelPlugin: Plugin = {
   id: 'blockHeightLabel',
@@ -38,30 +38,10 @@ const BlockHeightLabelPlugin: Plugin = {
     if (!label) {
       return;
     }
-    const blockHeight = +label;
-
-    const fontSize = 10;
-    const fontStyle = 'normal';
-    const fontFamily = 'Rubik';
     ctx.save();
-    ctx.font = `${fontStyle} ${fontSize}px ${fontFamily}`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
 
     const x = tooltip.caretX;
     const y = chartArea.bottom + 15;
-
-    const labelText = `Block ${blockHeight}`;
-    const labelDimension = ctx.measureText(labelText);
-    const labelW = labelDimension.width + 14;
-    const labelH = labelDimension.actualBoundingBoxAscent + 14;
-
-    const labelLeft = clamp(x - labelW / 2, 0, chartArea.right - labelW);
-
-    ctx.strokeStyle = '#313133';
-    ctx.beginPath();
-    ctx.roundRect(labelLeft, y - labelH / 2, labelW, labelH, 5);
-    ctx.stroke();
 
     ctx.strokeStyle = '#a7a7a7';
 
@@ -71,8 +51,6 @@ const BlockHeightLabelPlugin: Plugin = {
     ctx.lineTo(x, y - 12);
     ctx.stroke();
 
-    ctx.fillStyle = 'white';
-    ctx.fillText(labelText, labelLeft + labelW / 2, y);
     ctx.restore();
   },
 };
@@ -117,6 +95,9 @@ function AuctionChart({
   const [prices, setPrices] = useState<number[]>([]);
   const [showCurrentPrice, setShowCurrentPrice] = useState<boolean>(true);
   const [auctionInfo, setAuctionInfo] = useState<Auction>();
+
+  const tooltipRef = useRef<HTMLDivElement>(null);
+  const blockHeightLabelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!auctionInfo) {
@@ -266,6 +247,52 @@ function AuctionChart({
             }}
           ></div>
         </div>
+        <div
+          ref={tooltipRef}
+          className="flex flex-column flex-center bottom-arrow"
+          style={{
+            position: 'absolute',
+            width: 'fit-content',
+            height: 'fit-content',
+            pointerEvents: 'none',
+            gap: '5px',
+            padding: '9px',
+            fontSize: '12px',
+            borderRadius: '5px',
+            border: 'solid 1px var(--text-faded)',
+            backgroundColor: 'var(--bg-color) ',
+            opacity: 0,
+          }}
+        >
+          <div
+            className="grey"
+            style={{ fontWeight: '400', whiteSpace: 'nowrap' }}
+          ></div>
+          <div
+            className="white"
+            style={{ fontWeight: '700', whiteSpace: 'nowrap' }}
+          ></div>
+        </div>
+
+        <div
+          ref={blockHeightLabelRef}
+          style={{
+            position: 'absolute',
+            width: 'fit-content',
+            height: 'fit-content',
+            pointerEvents: 'none',
+            padding: '3.5px 7px',
+            fontSize: '10px',
+            borderRadius: '5px',
+            border: 'solid 1px #313133',
+            backgroundColor: 'var(--bg-color) ',
+            color: 'white',
+            whiteSpace: 'nowrap',
+            bottom: '3px',
+            opacity: 0,
+          }}
+        ></div>
+
         <Chart
           className="pointer"
           type="line"
@@ -274,6 +301,7 @@ function AuctionChart({
           onMouseOver={() => setShowCurrentPrice(false)}
           options={{
             clip: false,
+            animation: false,
             layout: {
               padding: {
                 top: 0,
@@ -312,42 +340,71 @@ function AuctionChart({
               },
             },
             plugins: {
-              // blockHeightLabel: {},
               tooltip: {
-                borderWidth: 1,
-                borderColor: '#313133',
-                backgroundColor: '#141416',
-                titleFont: {
-                  size: 12,
-                  weight: '400',
-                },
-                footerFont: {
-                  size: 12, // footer font size in px
-                  style: 'normal', // footer font style
-                  weight: '700', // footer font weight
-                },
-                titleAlign: 'center',
-                footerAlign: 'center',
-                footerColor: '#FAFAFA',
-                titleColor: '#FAFAFA80',
-                mode: 'nearest',
-                xAlign: 'center',
-                yAlign: 'bottom',
-                caretPadding: 15,
-                padding: 9,
-                callbacks: {
-                  title: (data: any) => {
-                    const block = +data[0].label;
+                enabled: false,
+                external: (context) => {
+                  const { tooltip } = context;
+
+                  const label = tooltip.dataPoints?.[0].label;
+                  const io = tooltip.dataPoints?.[0].parsed.y;
+                  if (!label || !io) {
+                    if (tooltipRef.current) {
+                      tooltipRef.current.style.opacity = '0';
+                    }
+
+                    if (blockHeightLabelRef.current) {
+                      blockHeightLabelRef.current.style.opacity = '0';
+                    }
+                    return;
+                  }
+
+                  if (tooltipRef.current && blockHeightLabelRef.current) {
+                    tooltipRef.current.style.opacity = '1';
+                    blockHeightLabelRef.current.style.opacity = '1';
+
+                    const tooltipDiv = tooltipRef.current;
+                    const blockHeightLabelDiv = blockHeightLabelRef.current;
+
+                    let left = tooltip.caretX - tooltipDiv.clientWidth / 2;
+                    let top = tooltip.caretY - tooltipDiv.clientHeight - 15;
+                    let bottomArrow = true;
+
+                    if (left < 5) {
+                      left = tooltip.caretX + 15;
+                      top = tooltip.caretY - tooltipDiv.clientHeight / 2;
+                      bottomArrow = false;
+                    }
+
+                    if (bottomArrow) {
+                      tooltipDiv.classList.add('bottom-arrow');
+                      tooltipDiv.classList.remove('left-arrow');
+                    } else {
+                      tooltipDiv.classList.remove('bottom-arrow');
+                      tooltipDiv.classList.add('left-arrow');
+                    }
+
+                    tooltipDiv.style.left = `${left}px`;
+                    tooltipDiv.style.top = `${top}px`;
+
+                    const block = +label;
                     const formattedDate = formattedEstimatedDateFromBlockHeight(
                       block,
                       currentBlockHeight,
                     );
-                    return `${formattedDate}*`;
-                  },
-                  footer: (data: any) =>
-                    `${Math.round(data[0].parsed.y).toLocaleString()} IO` ?? '',
-                  label: () => '',
+
+                    tooltipDiv.childNodes[0].textContent = `${formattedDate}*`;
+                    tooltipDiv.childNodes[1].textContent =
+                      `${Math.round(io).toLocaleString()} IO` ?? '';
+
+                    blockHeightLabelDiv.textContent = `Block ${block}`;
+
+                    const blockHeightLabelX =
+                      tooltip.caretX - blockHeightLabelDiv.clientWidth / 2;
+
+                    blockHeightLabelDiv.style.left = `${blockHeightLabelX}px`;
+                  }
                 },
+                mode: 'nearest',
               },
               annotation: {
                 annotations: {
