@@ -21,6 +21,7 @@ import { useWalletState } from '../../../state/contexts/WalletState';
 import { Auction } from '../../../types';
 import {
   approximateDays,
+  formatIO,
   formattedEstimatedDateFromBlockHeight,
 } from '../../../utils';
 import Loader from '../Loader/Loader';
@@ -268,7 +269,7 @@ function AuctionChart({
             className="flex flex-column"
             style={{ gap: 0, width: 73, paddingTop: 12 }}
           >
-            {`${auctionInfo.startPrice} IO`}
+            {`${formatIO(auctionInfo.startPrice)} IO`}
             <div>ceiling</div>
           </div>
 
@@ -287,7 +288,7 @@ function AuctionChart({
             className="flex flex-column"
             style={{ gap: 0, width: 73, paddingBottom: 18 }}
           >
-            {`${auctionInfo.floorPrice} IO`}
+            {`${formatIO(auctionInfo.floorPrice)} IO`}
             <div>floor</div>
           </div>
 
