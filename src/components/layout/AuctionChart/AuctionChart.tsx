@@ -316,6 +316,7 @@ function AuctionChart({
             backgroundRepeat: 'repeat-y',
             bottom: '10px',
             pointerEvents: 'none',
+            transition: 'all .1s',
             opacity: 0,
           }}
         />
@@ -330,6 +331,7 @@ function AuctionChart({
             borderRadius: '50%',
             display: 'inline-block',
             pointerEvents: 'none',
+            transition: 'all .1s',
             opacity: 0,
           }}
         />
@@ -348,6 +350,7 @@ function AuctionChart({
             borderRadius: '5px',
             border: 'solid 1px var(--text-faded)',
             backgroundColor: 'var(--bg-color) ',
+            transition: 'all .1s',
             opacity: 0,
           }}
         >
@@ -376,6 +379,7 @@ function AuctionChart({
             color: 'white',
             whiteSpace: 'nowrap',
             bottom: '3px',
+            transition: 'all .1s',
             opacity: 0,
           }}
         ></div>
@@ -463,7 +467,7 @@ function AuctionChart({
                       : [3, 3],
                 },
                 spanGaps: true,
-                pointHoverRadius: 7,
+                pointHoverRadius: 0,
                 pointRadius: 0,
               },
             ],
