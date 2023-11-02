@@ -259,7 +259,7 @@ export function useAuctionsTable() {
               }}
               format="m"
             />
-            &nbsp;min.
+            &nbsp;min
           </span>
         ),
         onHeaderCell: () => {

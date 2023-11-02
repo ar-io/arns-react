@@ -33,20 +33,38 @@ const NextPriceUpdate = ({ auction }: { auction: Auction }) => {
     } // use the price response to calculate the next interval
   }, [blockHeight, auction]);
 
+  const lessThanOneMinute = timeUntilUpdate - Date.now() < 60000;
+
   return (
     <div className="flex flex-row grey" style={{ gap: '8px' }}>
       <ClockClockwiseIcon />
-      Next price update:
-      <Countdown
-        value={timeUntilUpdate}
-        valueStyle={{
+      <div style={{ whiteSpace: 'nowrap' }}>Next price update:</div>
+      <div
+        className="flex flex-row"
+        style={{
+          gap: '0px',
           fontSize: '15px',
-          color: 'var(--text-grey)',
+          color: 'var(--text-white)',
           paddingBottom: '0px',
         }}
-        format="H:mm:ss"
-        onFinish={() => updateBlockHeight()}
-      />
+      >
+        {timeUntilUpdate > 0 && (
+          <>
+            <Countdown
+              value={timeUntilUpdate}
+              format="m"
+              valueStyle={{
+                fontSize: '15px',
+                color: 'var(--text-white)',
+                display: lessThanOneMinute ? 'none' : 'block',
+              }}
+              onFinish={() => updateBlockHeight()}
+            />
+            {lessThanOneMinute && <span>&lt; 1</span>}
+            &nbsp;min
+          </>
+        )}
+      </div>
     </div>
   );
 };
