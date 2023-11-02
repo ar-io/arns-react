@@ -229,7 +229,7 @@ function AuctionChart({
   return (
     <div
       id={id}
-      className="flex flex-column flex-centerfade-in"
+      className="flex flex-column flex-center fade-in"
       style={{
         gap: '15px',
         width: 'fit-content',
