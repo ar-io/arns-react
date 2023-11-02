@@ -239,6 +239,7 @@ export interface SmartweaveContractInteractionProvider {
     payload,
     dryWrite,
     tags,
+    interactionDetails,
   }: {
     walletAddress: ArweaveTransactionID;
     contractTxId: ArweaveTransactionID;
@@ -248,17 +249,20 @@ export interface SmartweaveContractInteractionProvider {
     };
     dryWrite?: boolean;
     tags?: Tags;
+    interactionDetails?: Record<string, any>;
   }): Promise<ArweaveTransactionID | undefined>;
   deployContract({
     walletAddress,
     srcCodeTransactionId,
     initialState,
     tags,
+    interactionDetails,
   }: {
     walletAddress: ArweaveTransactionID;
     srcCodeTransactionId: ArweaveTransactionID;
     initialState: PDNTContractJSON;
     tags?: Tags;
+    interactionDetails?: Record<string, any>;
   }): Promise<string>;
   registerAtomicName({
     walletAddress,
@@ -270,6 +274,7 @@ export interface SmartweaveContractInteractionProvider {
     years,
     auction,
     qty,
+    isBid,
   }: {
     walletAddress: ArweaveTransactionID;
     registryId: ArweaveTransactionID;
@@ -280,6 +285,7 @@ export interface SmartweaveContractInteractionProvider {
     years?: number;
     auction: boolean;
     qty: number;
+    isBid: boolean;
   }): Promise<string | undefined>;
 }
 

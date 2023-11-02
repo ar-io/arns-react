@@ -33,6 +33,7 @@ import {
 import eventEmitter from '../../../../utils/events';
 import { SearchIcon } from '../../../icons';
 import { Loader, SearchBarFooter, SearchBarHeader } from '../../../layout';
+import ArweaveID, { ArweaveIdTypes } from '../../../layout/ArweaveID/ArweaveID';
 import ValidationInput from '../../text/ValidationInput/ValidationInput';
 import './styles.css';
 
@@ -468,13 +469,25 @@ function SearchBar(props: SearchBarProps) {
                 style={{ fontSize: '16px', width: 'fit-content' }}
               >
                 Current auction price for instant buy:{' '}
-                {auctionInfo?.minimumBid.toLocaleString() ?? 0} IO
+                <span
+                  className="bold"
+                  style={{
+                    color: 'var(--accent)',
+                  }}
+                >
+                  {auctionInfo?.minimumBid.toLocaleString() ?? 0} IO
+                </span>
               </span>
               <span
-                className="grey left"
+                className="flex grey left"
                 style={{ fontSize: '13px', width: 'fit-content' }}
               >
-                Started by: {auctionInfo?.initiator}
+                Started by:&nbsp;
+                <ArweaveID
+                  id={new ArweaveTransactionID(auctionInfo!.initiator)}
+                  type={ArweaveIdTypes.ADDRESS}
+                  shouldLink={true}
+                />
               </span>
             </div>
           ) : (

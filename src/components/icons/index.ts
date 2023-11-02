@@ -23,6 +23,7 @@ import { ReactComponent as CirclePending } from './CirclePending.svg';
 import { ReactComponent as CirclePlus } from './CirclePlus.svg';
 import { ReactComponent as CircleXIcon } from './CircleX.svg';
 import { ReactComponent as CircleXFilled } from './CircleXFilled.svg';
+import { ReactComponent as ClockClockwiseIcon } from './ClockClockwise.svg';
 import { ReactComponent as CloseIcon } from './Close.svg';
 import { ReactComponent as CodeSandboxIcon } from './CodeSandbox.svg';
 import { ReactComponent as CopyIcon } from './Copy.svg';
@@ -88,6 +89,7 @@ export {
   CircleXFilled,
   CirclePlus,
   CodeSandboxIcon,
+  ClockClockwiseIcon,
   CloseIcon,
   CopyIcon,
   CubeIcon,

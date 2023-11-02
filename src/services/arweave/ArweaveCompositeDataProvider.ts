@@ -1,3 +1,5 @@
+import { Tags } from 'warp-contracts';
+
 import {
   ArweaveDataProvider,
   ArweaveTransactionID,
@@ -11,7 +13,6 @@ import {
   SmartweaveContractCache,
   SmartweaveContractInteractionProvider,
   TRANSACTION_TYPES,
-  TransactionTag,
 } from '../../types';
 import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
 
@@ -53,6 +54,7 @@ export class ArweaveCompositeDataProvider
     contractTxId,
     payload,
     tags,
+    interactionDetails,
   }: {
     walletAddress: ArweaveTransactionID;
     contractTxId: ArweaveTransactionID;
@@ -61,13 +63,15 @@ export class ArweaveCompositeDataProvider
       [x: string]: any;
     };
     dryWrite?: boolean;
-    tags?: TransactionTag[];
+    tags?: Tags;
+    interactionDetails?: Record<string, any>;
   }): Promise<ArweaveTransactionID | undefined> {
     return await this._interactionProvider.writeTransaction({
       walletAddress,
       contractTxId,
       payload,
       tags,
+      interactionDetails,
     });
   }
 
@@ -132,7 +136,7 @@ export class ArweaveCompositeDataProvider
     walletAddress: ArweaveTransactionID;
     srcCodeTransactionId: ArweaveTransactionID;
     initialState: PDNTContractJSON;
-    tags?: TransactionTag[];
+    tags?: Tags;
   }): Promise<string> {
     return await this._interactionProvider.deployContract({
       walletAddress,
@@ -152,6 +156,7 @@ export class ArweaveCompositeDataProvider
     years,
     auction,
     qty,
+    isBid,
   }: {
     walletAddress: ArweaveTransactionID;
     registryId: ArweaveTransactionID;
@@ -162,6 +167,7 @@ export class ArweaveCompositeDataProvider
     years?: number;
     auction: boolean;
     qty: number;
+    isBid: boolean;
   }): Promise<string | undefined> {
     return await this._interactionProvider.registerAtomicName({
       walletAddress,
@@ -173,6 +179,7 @@ export class ArweaveCompositeDataProvider
       years,
       auction,
       qty,
+      isBid,
     });
   }
 

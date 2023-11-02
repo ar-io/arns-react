@@ -1,8 +1,9 @@
-import { useIsMobile } from '../../../hooks';
+import { useAuctionInfo, useIsMobile } from '../../../hooks';
 import { SearchBarFooterProps } from '../../../types';
 import { isDomainReservedLength, lowerCaseDomain } from '../../../utils';
 import PDNTCard from '../../cards/PDNTCard/PDNTCard';
 import AuctionChart from '../AuctionChart/AuctionChart';
+import NextPriceUpdate from '../NextPriceUpdate/NextPriceUpdate';
 import ReservedNameNotificationCard from '../ReservedNameNotificationCard/ReservedNameNotificationCard';
 import './styles.css';
 
@@ -15,10 +16,12 @@ function SearchBarFooter({
   isReserved,
 }: SearchBarFooterProps): JSX.Element {
   const isMobile = useIsMobile();
+  const { auction } = useAuctionInfo(domain);
 
   if (isActiveAuction && domain) {
     return (
-      <div className="flex flex-row">
+      <div className="flex flex-column">
+        {auction && <NextPriceUpdate auction={auction} />}
         <AuctionChart
           domain={domain}
           showAuctionExplainer={true}

@@ -227,46 +227,11 @@ export class PDNSContractCache implements SmartweaveContractCache {
     const domainRecord = await this.getRecord({
       domain,
       contractTxId,
-    });
-    console.log(domainRecord);
+    }).catch(() => undefined);
     if (domainRecord) {
       return false;
     }
     return true;
-
-    // const res = await fetch(
-    //   `${
-    //     this._url
-    //   }/v1/contract/${contractTxId.toString()}/records/${lowerCaseDomain(
-    //     domain,
-    //   )}`,
-    // ).catch(() => undefined);
-    // const { record } = res && res.ok ? await res.json() : { record: undefined };
-
-    // const cachedInteractions = await this._cache.getCachedInteractions(
-    //   contractTxId,
-    // );
-
-    // const cachedRecord = cachedInteractions.find(
-    //   (interaction: ContractInteraction) =>
-    //     interaction.payload?.name === domain &&
-    //     interaction.payload?.function === 'buyRecord',
-    // );
-    // if (record && cachedRecord) {
-    //   await this._cache.del(contractTxId.toString(), {
-    //     key: 'id',
-    //     value: cachedRecord.id,
-    //   });
-    //   return false;
-    // }
-    // if (cachedRecord && !cachedRecord.payload.auction) {
-    //   return false;
-    // }
-    // if (!cachedRecord && !record) {
-    //   return true;
-    // }
-    // // this will get caught at dryWrite if incorrect
-    // return true;
   }
 
   async getAuction({
@@ -321,13 +286,15 @@ export class PDNSContractCache implements SmartweaveContractCache {
         `Failed to get auction for ${domain} on contract ${contractTxId.toString()}`,
       );
     }
+
     const res = {
       ...auction,
       ...(cachedAuction?.payload
         ? {
             ...cachedAuction.payload,
             minimumBid: auction.startPrice,
-            isActive: cachedAuction.payload.qty > auction.floorPrice,
+            isActive: !cachedAuction?.isBid,
+            initiator: cachedAuction.deployer,
           }
         : {}),
     };
@@ -406,16 +373,17 @@ export class PDNSContractCache implements SmartweaveContractCache {
         interaction.payload?.function === 'buyRecord',
     );
     // its possible for their to be multiple interactions because of bid and auction initialization so we need to get the most recent one.
-
-    console.log(cachedRecords);
     const cachedRecord = cachedRecords.sort(
-      (a, b) => +a.timestamp - +b.timestamp,
+      (a, b) => +b.timestamp - +a.timestamp,
     )[0];
-    if (record && cachedRecord) {
-      await this._cache.del(contractTxId.toString(), {
-        key: 'id',
-        value: cachedRecord.id,
-      });
+    if (record !== undefined) {
+      if (cachedRecord) {
+        await this._cache.del(contractTxId.toString(), {
+          key: 'id',
+          value: cachedRecord.id,
+        });
+      }
+      return record;
     }
     // check if cached record is an auction bid
     const auction = cachedRecord?.payload.auction
@@ -424,23 +392,10 @@ export class PDNSContractCache implements SmartweaveContractCache {
           domain,
         })
       : undefined;
-
-    const isAuctionBid = auction
-      ? auction.minimumBid > auction.floorPrice
-      : false;
-
-    console.log({
-      record,
-      cachedRecord,
-      auction,
-      isAuctionBid,
-    });
-    if ((!record && cachedRecord && !auction) || isAuctionBid) {
-      console.log('building pending record');
+    if ((cachedRecord && !auction) || cachedRecord.isBid) {
       return buildPendingArNSRecord(cachedRecord);
     }
-    console.log('returning record');
-    return record;
+    throw new Error('Error getting record');
   }
 
   async getRecords<T extends PDNSRecordEntry | PDNTContractDomainRecord>({
