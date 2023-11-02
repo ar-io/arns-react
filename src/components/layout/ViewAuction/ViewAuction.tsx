@@ -107,8 +107,15 @@ function ViewAuction() {
         <div className="flex flex-column" style={{ gap: '15px' }}>
           <div className="flex flex-column" style={{ gap: '15px' }}>
             <span className="flex white">
-              Current auction price for instant {auction!.type}:{' '}
-              {auction!.minimumBid.toLocaleString()} IO
+              Current auction price for instant {auction!.type}:&nbsp;
+              <span
+                className="bold"
+                style={{
+                  color: 'var(--accent)',
+                }}
+              >
+                {auction!.minimumBid.toLocaleString() ?? 0} IO
+              </span>
             </span>
             <span className="flex grey" style={{ color: 'var(--text-grey)' }}>
               Started by:&nbsp;
