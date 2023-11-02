@@ -199,6 +199,7 @@ function RegisterNameForm() {
       type: registrationType,
       auction: (auction?.isRequiredToBeAuctioned || auction?.isActive) ?? false,
       qty: fee.io,
+      isBid: auction?.isActive ?? false,
       targetId: targetId ? new ArweaveTransactionID(targetId) : undefined,
     };
 
@@ -570,23 +571,23 @@ function RegisterNameForm() {
               >
                 <span
                   className="flex flex-column"
-                  style={{ textAlign: 'left', fontSize: '13px' }}
+                  style={{ textAlign: 'left', fontSize: '13px', gap: '1em' }}
                 >
-                  Choosing to {registrationType} this reserved name will
-                  initiate a public dutch auction. You will be submitting a bid
-                  at the floor price of {fee.io.toLocaleString()} IO. Over a 2
-                  week period, the price of this name will start at 10 times
-                  your floor bid, and gradually reduce to your initial bid, at
-                  which point you will win the name. At any time during the
-                  auction period you can instantly lease it for that price, and
-                  if another person does you will lose the auction and have your
-                  initial bid returned.
+                  Buying this name involves a Dutch auction. You start by
+                  bidding at the floor price of {fee.io.toLocaleString()} IO.
+                  The name&apos;s price begins at 10 times your bid and
+                  decreases over 2 weeks until it matches your bid, securing
+                  your win. You can also buy instantly at the ongoing price
+                  throughout the auction; if someone else does, you will lose
+                  the auction and have your initial bid returned.
                   <Link
-                    to="http://ar.io/arns"
+                    to="https://ar.io/docs/arns/#bid-initiated-dutch-auctions-bida"
+                    rel="noreferrer"
+                    target="_blank"
                     className="link"
                     style={{ textDecoration: 'underline', color: 'inherit' }}
                   >
-                    Learn more about how auctions work.
+                    Learn more.
                   </Link>
                 </span>
               </div>

@@ -1,6 +1,6 @@
 import { Table } from 'antd';
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { useWalletANTs, useWalletDomains } from '../../../hooks';
 import { ManageTable } from '../../../types';
@@ -14,6 +14,7 @@ import './styles.css';
 function Manage() {
   const navigate = useNavigate();
   const { path } = useParams();
+  const location = useLocation();
 
   const [percent, setPercentLoaded] = useState<number | undefined>();
   const {
@@ -113,7 +114,7 @@ function Manage() {
                     key={index}
                     className="table-selector text bold center"
                     onClick={() => {
-                      navigate(`/manage/${t}`);
+                      navigate(`/manage/${t}${location.search.toString()}`);
                     }}
                     style={
                       path === t

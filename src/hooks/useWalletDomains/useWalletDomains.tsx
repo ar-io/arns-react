@@ -1,12 +1,20 @@
 import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from 'react-router-dom';
 
 import {
   ChevronUpIcon,
   CirclePending,
+  CircleXFilled,
   ExternalLinkIcon,
+  SearchIcon,
 } from '../../components/icons/index';
+import ValidationInput from '../../components/inputs/text/ValidationInput/ValidationInput';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '../../components/layout/ArweaveID/ArweaveID';
@@ -44,17 +52,52 @@ export function useWalletDomains() {
   const [sortField, setSortField] = useState<keyof PDNSTableRow>('status');
   const [selectedRow] = useState<PDNSTableRow>();
   const [rows, setRows] = useState<PDNSTableRow[]>([]);
+  const [filteredResults, setFilteredResults] = useState<PDNSTableRow[]>([]);
   // loading info
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const itemCount = useRef<number>(0);
   const itemsLoaded = useRef<number>(0);
   const [percent, setPercentLoaded] = useState<number | undefined>();
   const [loadingManageDomain, setLoadingManageDomain] = useState<string>();
+  const searchRef = useRef<HTMLInputElement>(null);
+  const [searchText, setSearchText] = useState<string>('');
+  const [searchOpen, setSearchOpen] = useState<boolean>(false);
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { path } = useParams();
+
+  if (searchRef.current && searchOpen) {
+    searchRef.current.focus();
+  }
 
   useEffect(() => {
     load();
   }, [walletAddress]);
+
+  useEffect(() => {
+    const searchQuery = searchParams.get('search');
+
+    if (searchQuery || searchText) {
+      if (searchText !== searchQuery) {
+        setSearchParams(searchText ? { search: searchText } : {});
+      }
+      if (searchQuery && !searchText && !searchOpen) {
+        setSearchText(searchQuery);
+        setSearchOpen(true);
+      }
+      if (!rows) {
+        return;
+      }
+      const filtered = rows.filter(
+        (row) =>
+          row.name.toLowerCase().includes(searchText.toLowerCase()) ||
+          row.id.toLowerCase().includes(searchText.toLowerCase()),
+      );
+      setFilteredResults(filtered);
+    } else {
+      setFilteredResults([]);
+    }
+  }, [searchText, rows, path]);
 
   function sortRows(key: keyof PDNSTableRow, isAsc: boolean): void {
     setSortField(key);
@@ -363,29 +406,109 @@ export function useWalletDomains() {
         ),
       },
       {
-        title: '',
+        title: (
+          <div
+            className="flex flex-row center undername-search-wrapper"
+            style={{
+              gap: '1px',
+              justifyContent: 'flex-end',
+              boxSizing: 'border-box',
+            }}
+          >
+            <button
+              className="flex button center pointer"
+              style={{ zIndex: 10 }}
+              onClick={() => setSearchOpen(!searchOpen)}
+            >
+              <SearchIcon
+                width={'16px'}
+                height={'16px'}
+                fill={searchOpen ? 'var(--text-white)' : 'var(--text-grey)'}
+              />
+            </button>
+            {searchOpen ? (
+              <span
+                className="flex flex-row center"
+                style={{
+                  gap: '1px',
+                  justifyContent: 'flex-end',
+                  width: 'fit-content',
+                  boxSizing: 'border-box',
+                }}
+              >
+                <ValidationInput
+                  ref={searchRef}
+                  value={searchText}
+                  setValue={(e) => setSearchText(e)}
+                  catchInvalidInput={true}
+                  showValidationIcon={false}
+                  placeholder={'Search for a domain'}
+                  maxCharLength={63}
+                  wrapperCustomStyle={{
+                    position: 'relative',
+                    boxSizing: 'border-box',
+                  }}
+                  inputCustomStyle={{
+                    width: '100%',
+                    minWidth: '120px',
+                    overflow: 'hidden',
+                    fontSize: '13px',
+                    outline: 'none',
+                    color: 'white',
+                    alignContent: 'center',
+                    borderBottom: 'none',
+                    boxSizing: 'border-box',
+                    background: 'transparent',
+                    borderRadius: 'var(--corner-radius)',
+                    border: 'none',
+                    paddingRight: '10px',
+                  }}
+                  validationPredicates={{}}
+                />
+                <button
+                  className="flex button center pointer"
+                  onClick={() => {
+                    setSearchText('');
+                    setSearchParams({});
+                    setSearchOpen(false);
+                  }}
+                >
+                  <CircleXFilled
+                    width={'18px'}
+                    height={'18px'}
+                    fill={'var(--text-grey)'}
+                  />
+                </button>
+              </span>
+            ) : (
+              <></>
+            )}
+          </div>
+        ),
         className: 'white manage-assets-table-header',
         // eslint-disable-next-line
         render: (val: any, record: PDNSTableRow) => (
-          <button
-            className="outline-button center pointer"
-            style={{
-              padding: '8px 12px',
-              fontSize: '11px',
-              minWidth: 'fit-content',
-            }}
-            onClick={() => {
-              setLoadingManageDomain(record.name);
-              navigate(`/manage/names/${record.name}`, {
-                state: { from: '/manage/names' },
-              });
-            }}
-          >
-            Details
-          </button>
+          <span className="flex" style={{ justifyContent: 'flex-end' }}>
+            <button
+              className="outline-button center pointer"
+              style={{
+                padding: '8px 12px',
+                fontSize: '11px',
+                minWidth: 'fit-content',
+              }}
+              onClick={() => {
+                setLoadingManageDomain(record.name);
+                navigate(`/manage/names/${record.name}`, {
+                  state: { from: '/manage/names' },
+                });
+              }}
+            >
+              Details
+            </button>
+          </span>
         ),
         align: 'right',
-        width: '10%',
+        width: '20%',
       },
     ];
   }
@@ -530,7 +653,7 @@ export function useWalletDomains() {
     isLoading,
     percent,
     columns: generateTableColumns(),
-    rows,
+    rows: searchText.length && searchOpen ? filteredResults : rows,
     sortField,
     sortAscending,
     selectedRow,
