@@ -1,16 +1,16 @@
 import {
   CategoryScale,
   Chart as ChartJS,
+  ChartTypeRegistry,
   Legend,
   LineController,
   LineElement,
   LinearScale,
-  Plugin,
   PointElement,
   Title,
   Tooltip,
+  TooltipModel,
 } from 'chart.js';
-import annotationPlugin from 'chartjs-plugin-annotation';
 import { CSSProperties, useEffect, useRef, useState } from 'react';
 import { Chart } from 'react-chartjs-2';
 import { ChartJSOrUndefined } from 'react-chartjs-2/dist/types';
@@ -26,35 +26,6 @@ import {
 import Loader from '../Loader/Loader';
 import './styles.css';
 
-const BlockHeightLabelPlugin: Plugin = {
-  id: 'blockHeightLabel',
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  beforeTooltipDraw(chart, args, options) {
-    const { ctx, chartArea, tooltip } = chart;
-    if (!(ctx && chartArea && tooltip)) {
-      return;
-    }
-    const label = tooltip.dataPoints?.[0].label;
-    if (!label) {
-      return;
-    }
-    ctx.save();
-
-    const x = tooltip.caretX;
-    const y = chartArea.bottom + 15;
-
-    ctx.strokeStyle = '#a7a7a7';
-
-    ctx.beginPath();
-    ctx.setLineDash([2, 2]);
-    ctx.moveTo(x, tooltip.caretY + 9);
-    ctx.lineTo(x, y - 12);
-    ctx.stroke();
-
-    ctx.restore();
-  },
-};
-
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -64,7 +35,6 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  annotationPlugin,
 );
 
 function AuctionChart({
@@ -93,11 +63,12 @@ function AuctionChart({
 
   const [labels, setLabels] = useState<string[]>([]);
   const [prices, setPrices] = useState<number[]>([]);
-  const [showCurrentPrice, setShowCurrentPrice] = useState<boolean>(true);
   const [auctionInfo, setAuctionInfo] = useState<Auction>();
 
   const tooltipRef = useRef<HTMLDivElement>(null);
   const blockHeightLabelRef = useRef<HTMLDivElement>(null);
+  const pointRef = useRef<HTMLDivElement>(null);
+  const dashedLineRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!auctionInfo) {
@@ -124,13 +95,13 @@ function AuctionChart({
     if (auctionInfo) {
       triggerCurrentPriceTooltipWhenNotActive(auctionInfo?.minimumBid);
     }
-  }, [chartRef.current, showCurrentPrice, prices, auctionInfo]);
+  }, [prices, auctionInfo]);
 
   function triggerCurrentPriceTooltipWhenNotActive(price: number) {
     try {
       const chart = chartRef.current;
       const validPrice = prices.includes(price);
-      if (!showCurrentPrice || !chart || !prices.length) {
+      if (!chart || !prices.length) {
         return;
       }
       const data = chart.getDatasetMeta(0).data as PointElement[];
@@ -158,10 +129,94 @@ function AuctionChart({
       );
 
       chart.update();
+      updateToolTip(tooltip);
     } catch (error) {
       console.error('error', error);
     }
   }
+
+  const updateToolTip = (tooltip: TooltipModel<keyof ChartTypeRegistry>) => {
+    const label = tooltip.dataPoints?.[0].label;
+    const io = tooltip.dataPoints?.[0].parsed.y;
+    if (!label || !io) {
+      if (tooltipRef.current) {
+        tooltipRef.current.style.opacity = '0';
+      }
+
+      if (blockHeightLabelRef.current) {
+        blockHeightLabelRef.current.style.opacity = '0';
+      }
+
+      if (pointRef.current) {
+        pointRef.current.style.opacity = '0';
+      }
+
+      if (dashedLineRef.current) {
+        dashedLineRef.current.style.opacity = '0';
+      }
+      return;
+    }
+
+    if (
+      tooltipRef.current &&
+      blockHeightLabelRef.current &&
+      pointRef.current &&
+      dashedLineRef.current &&
+      currentBlockHeight
+    ) {
+      pointRef.current.style.left = `${tooltip.caretX - 7}px`;
+      pointRef.current.style.top = `${tooltip.caretY - 7}px`;
+
+      dashedLineRef.current.style.left = `${tooltip.caretX}px`;
+      dashedLineRef.current.style.top = `${tooltip.caretY}px`;
+
+      const tooltipDiv = tooltipRef.current;
+      const blockHeightLabelDiv = blockHeightLabelRef.current;
+
+      let left = tooltip.caretX - tooltipDiv.clientWidth / 2;
+      let top = tooltip.caretY - tooltipDiv.clientHeight - 15;
+      let bottomArrow = true;
+
+      if (left < 5) {
+        left = tooltip.caretX + 15;
+        top = tooltip.caretY - tooltipDiv.clientHeight / 2;
+        bottomArrow = false;
+      }
+
+      if (bottomArrow) {
+        tooltipDiv.classList.add('bottom-arrow');
+        tooltipDiv.classList.remove('left-arrow');
+      } else {
+        tooltipDiv.classList.remove('bottom-arrow');
+        tooltipDiv.classList.add('left-arrow');
+      }
+
+      tooltipDiv.style.left = `${left}px`;
+      tooltipDiv.style.top = `${top}px`;
+
+      const block = +label;
+      const formattedDate = formattedEstimatedDateFromBlockHeight(
+        block,
+        currentBlockHeight,
+      );
+
+      tooltipDiv.childNodes[0].textContent = `${formattedDate}*`;
+      tooltipDiv.childNodes[1].textContent =
+        `${Math.round(io).toLocaleString()} IO` ?? '';
+
+      blockHeightLabelDiv.textContent = `Block ${block}`;
+
+      const blockHeightLabelX =
+        tooltip.caretX - blockHeightLabelDiv.clientWidth / 2;
+
+      blockHeightLabelDiv.style.left = `${blockHeightLabelX}px`;
+
+      tooltipRef.current.style.opacity = '1';
+      blockHeightLabelRef.current.style.opacity = '1';
+      pointRef.current.style.opacity = '1';
+      dashedLineRef.current.style.opacity = '1';
+    }
+  };
 
   if (!prices.length || !labels.length || !currentBlockHeight || !auctionInfo) {
     return (
@@ -247,6 +302,37 @@ function AuctionChart({
             }}
           ></div>
         </div>
+
+        <div
+          ref={dashedLineRef}
+          style={{
+            position: 'absolute',
+            width: '1px',
+            backgroundImage:
+              'linear-gradient(#a7a7a7 50%, rgba(255,255,255,0) 0%)',
+            backgroundPosition: 'right',
+            backgroundSize: '1px 4px',
+            backgroundRepeat: 'repeat-y',
+            bottom: '10px',
+            pointerEvents: 'none',
+            opacity: 0,
+          }}
+        />
+
+        <div
+          ref={pointRef}
+          style={{
+            position: 'absolute',
+            backgroundColor: 'white',
+            width: '14px',
+            height: '14px',
+            borderRadius: '50%',
+            display: 'inline-block',
+            pointerEvents: 'none',
+            opacity: 0,
+          }}
+        />
+
         <div
           ref={tooltipRef}
           className="flex flex-column flex-center bottom-arrow"
@@ -297,8 +383,11 @@ function AuctionChart({
           className="pointer"
           type="line"
           ref={chartRef}
-          onMouseLeave={() => setShowCurrentPrice(true)}
-          onMouseOver={() => setShowCurrentPrice(false)}
+          onMouseLeave={() => {
+            if (auctionInfo) {
+              triggerCurrentPriceTooltipWhenNotActive(auctionInfo.minimumBid);
+            }
+          }}
           options={{
             clip: false,
             animation: false,
@@ -342,81 +431,10 @@ function AuctionChart({
             plugins: {
               tooltip: {
                 enabled: false,
-                external: (context) => {
-                  const { tooltip } = context;
-
-                  const label = tooltip.dataPoints?.[0].label;
-                  const io = tooltip.dataPoints?.[0].parsed.y;
-                  if (!label || !io) {
-                    if (tooltipRef.current) {
-                      tooltipRef.current.style.opacity = '0';
-                    }
-
-                    if (blockHeightLabelRef.current) {
-                      blockHeightLabelRef.current.style.opacity = '0';
-                    }
-                    return;
-                  }
-
-                  if (tooltipRef.current && blockHeightLabelRef.current) {
-                    tooltipRef.current.style.opacity = '1';
-                    blockHeightLabelRef.current.style.opacity = '1';
-
-                    const tooltipDiv = tooltipRef.current;
-                    const blockHeightLabelDiv = blockHeightLabelRef.current;
-
-                    let left = tooltip.caretX - tooltipDiv.clientWidth / 2;
-                    let top = tooltip.caretY - tooltipDiv.clientHeight - 15;
-                    let bottomArrow = true;
-
-                    if (left < 5) {
-                      left = tooltip.caretX + 15;
-                      top = tooltip.caretY - tooltipDiv.clientHeight / 2;
-                      bottomArrow = false;
-                    }
-
-                    if (bottomArrow) {
-                      tooltipDiv.classList.add('bottom-arrow');
-                      tooltipDiv.classList.remove('left-arrow');
-                    } else {
-                      tooltipDiv.classList.remove('bottom-arrow');
-                      tooltipDiv.classList.add('left-arrow');
-                    }
-
-                    tooltipDiv.style.left = `${left}px`;
-                    tooltipDiv.style.top = `${top}px`;
-
-                    const block = +label;
-                    const formattedDate = formattedEstimatedDateFromBlockHeight(
-                      block,
-                      currentBlockHeight,
-                    );
-
-                    tooltipDiv.childNodes[0].textContent = `${formattedDate}*`;
-                    tooltipDiv.childNodes[1].textContent =
-                      `${Math.round(io).toLocaleString()} IO` ?? '';
-
-                    blockHeightLabelDiv.textContent = `Block ${block}`;
-
-                    const blockHeightLabelX =
-                      tooltip.caretX - blockHeightLabelDiv.clientWidth / 2;
-
-                    blockHeightLabelDiv.style.left = `${blockHeightLabelX}px`;
-                  }
+                external: (context: any) => {
+                  updateToolTip(context.tooltip);
                 },
                 mode: 'nearest',
-              },
-              annotation: {
-                annotations: {
-                  point1: {
-                    type: 'point',
-                    xValue: prices.indexOf(auctionInfo.minimumBid),
-                    yValue: auctionInfo.minimumBid,
-                    backgroundColor: 'white',
-                    radius: 7,
-                    display: showCurrentPrice,
-                  },
-                },
               },
               legend: {
                 display: false,
@@ -426,7 +444,6 @@ function AuctionChart({
               },
             },
           }}
-          plugins={[BlockHeightLabelPlugin]}
           data={{
             labels,
             datasets: [
