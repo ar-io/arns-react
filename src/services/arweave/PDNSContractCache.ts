@@ -224,32 +224,49 @@ export class PDNSContractCache implements SmartweaveContractCache {
     domain: string;
     contractTxId: ArweaveTransactionID;
   }): Promise<boolean> {
-    const res = await fetch(
-      `${
-        this._url
-      }/v1/contract/${contractTxId.toString()}/records/${lowerCaseDomain(
-        domain,
-      )}`,
-    ).catch(() => undefined);
-    const { record } = res && res.ok ? await res.json() : { record: undefined };
-
-    const cachedInteractions = await this._cache.getCachedInteractions(
+    const domainRecord = await this.getRecord({
+      domain,
       contractTxId,
-    );
-
-    const cachedRecord = cachedInteractions.find(
-      (interaction: ContractInteraction) =>
-        interaction.payload?.name === domain &&
-        interaction.payload?.function === 'buyRecord',
-    );
-    if (record && cachedRecord) {
-      await this._cache.del(contractTxId.toString(), {
-        key: 'id',
-        value: cachedRecord.id,
-      });
+    });
+    console.log(domainRecord);
+    if (domainRecord) {
       return false;
     }
-    return cachedRecord && !cachedRecord.payload.auction ? false : !record;
+    return true;
+
+    // const res = await fetch(
+    //   `${
+    //     this._url
+    //   }/v1/contract/${contractTxId.toString()}/records/${lowerCaseDomain(
+    //     domain,
+    //   )}`,
+    // ).catch(() => undefined);
+    // const { record } = res && res.ok ? await res.json() : { record: undefined };
+
+    // const cachedInteractions = await this._cache.getCachedInteractions(
+    //   contractTxId,
+    // );
+
+    // const cachedRecord = cachedInteractions.find(
+    //   (interaction: ContractInteraction) =>
+    //     interaction.payload?.name === domain &&
+    //     interaction.payload?.function === 'buyRecord',
+    // );
+    // if (record && cachedRecord) {
+    //   await this._cache.del(contractTxId.toString(), {
+    //     key: 'id',
+    //     value: cachedRecord.id,
+    //   });
+    //   return false;
+    // }
+    // if (cachedRecord && !cachedRecord.payload.auction) {
+    //   return false;
+    // }
+    // if (!cachedRecord && !record) {
+    //   return true;
+    // }
+    // // this will get caught at dryWrite if incorrect
+    // return true;
   }
 
   async getAuction({
@@ -264,8 +281,8 @@ export class PDNSContractCache implements SmartweaveContractCache {
     const cachedInteractions = await this._cache.getCachedInteractions(
       contractTxId,
     );
-    const cachedAuction = cachedInteractions.find(
-      (interaction: ContractInteraction) => {
+    const cachedAuction = cachedInteractions
+      .filter((interaction: ContractInteraction) => {
         if (
           interaction.payload?.name === domain &&
           interaction.payload?.auction === true
@@ -279,8 +296,8 @@ export class PDNSContractCache implements SmartweaveContractCache {
             },
           };
         }
-      },
-    );
+      })
+      .sort((a, b) => +b.timestamp - +a.timestamp)[0];
 
     const urlParams =
       type || cachedAuction?.payload?.type
@@ -310,7 +327,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
         ? {
             ...cachedAuction.payload,
             minimumBid: auction.startPrice,
-            isActive: true,
+            isActive: cachedAuction.payload.qty > auction.floorPrice,
           }
         : {}),
     };
@@ -383,21 +400,46 @@ export class PDNSContractCache implements SmartweaveContractCache {
       contractTxId,
     );
 
-    const cachedRecord = cachedInteractions.find(
+    const cachedRecords = cachedInteractions.filter(
       (interaction: ContractInteraction) =>
         interaction.payload?.name === domain &&
         interaction.payload?.function === 'buyRecord',
     );
+    // its possible for their to be multiple interactions because of bid and auction initialization so we need to get the most recent one.
+
+    console.log(cachedRecords);
+    const cachedRecord = cachedRecords.sort(
+      (a, b) => +a.timestamp - +b.timestamp,
+    )[0];
     if (record && cachedRecord) {
       await this._cache.del(contractTxId.toString(), {
         key: 'id',
         value: cachedRecord.id,
       });
     }
-    if (!record && cachedRecord && !cachedRecord.payload.auction) {
+    // check if cached record is an auction bid
+    const auction = cachedRecord?.payload.auction
+      ? await this.getAuction({
+          contractTxId,
+          domain,
+        })
+      : undefined;
+
+    const isAuctionBid = auction
+      ? auction.minimumBid > auction.floorPrice
+      : false;
+
+    console.log({
+      record,
+      cachedRecord,
+      auction,
+      isAuctionBid,
+    });
+    if ((!record && cachedRecord && !auction) || isAuctionBid) {
+      console.log('building pending record');
       return buildPendingArNSRecord(cachedRecord);
     }
-
+    console.log('returning record');
     return record;
   }
 

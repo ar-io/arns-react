@@ -64,6 +64,11 @@ export function useRegistrationStatus(domain: string) {
         auctionPromise,
         reservedPromise,
       ]);
+      console.log({
+        isAvailable,
+        isActiveAuction,
+        isReserved,
+      });
       setIsAvailable(isAvailable);
       setIsActiveAuction(isActiveAuction);
       setIsReserved(isReserved);

@@ -2,6 +2,7 @@ import Arweave from 'arweave/node/common';
 import {
   ArWallet,
   LoggerFactory,
+  Tags,
   Warp,
   WarpFactory,
   WriteInteractionResponse,
@@ -16,7 +17,6 @@ import {
   SmartweaveContractInteractionProvider,
   TRANSACTION_TYPES,
   TransactionCache,
-  TransactionTag,
 } from '../../types';
 import {
   buildSmartweaveInteractionTags,
@@ -68,7 +68,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       [x: string]: any;
     };
     dryWrite?: boolean;
-    tags: TransactionTag[];
+    tags: Tags;
   }): Promise<ArweaveTransactionID | undefined> {
     const payloadSize = byteSize(JSON.stringify(payload));
     if (!payload) {
@@ -155,7 +155,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     walletAddress: ArweaveTransactionID;
     srcCodeTransactionId: ArweaveTransactionID;
     initialState: PDNTContractJSON;
-    tags?: TransactionTag[];
+    tags?: Tags;
   }): Promise<string> {
     const tagSize = byteSize(JSON.stringify(tags));
 
@@ -173,7 +173,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       wallet: ArWallet;
       initState: string;
       srcTxId: string;
-      tags: TransactionTag[];
+      tags: Tags;
     } = {
       wallet: 'use_wallet',
       initState: JSON.stringify(initialState),

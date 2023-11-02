@@ -1,5 +1,6 @@
 import { ApiConfig } from 'arweave/node/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
+import { Tags } from 'warp-contracts';
 
 import { PDNTContract } from './services/arweave/PDNTContract';
 import { ATOMIC_FLAG, PDNS_TX_ID_REGEX } from './utils/constants';
@@ -246,7 +247,7 @@ export interface SmartweaveContractInteractionProvider {
       [x: string]: any;
     };
     dryWrite?: boolean;
-    tags?: TransactionTag[];
+    tags?: Tags;
   }): Promise<ArweaveTransactionID | undefined>;
   deployContract({
     walletAddress,
@@ -257,7 +258,7 @@ export interface SmartweaveContractInteractionProvider {
     walletAddress: ArweaveTransactionID;
     srcCodeTransactionId: ArweaveTransactionID;
     initialState: PDNTContractJSON;
-    tags?: TransactionTag[];
+    tags?: Tags;
   }): Promise<string>;
   registerAtomicName({
     walletAddress,
