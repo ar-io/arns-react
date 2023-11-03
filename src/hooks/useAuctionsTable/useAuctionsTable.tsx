@@ -1,6 +1,7 @@
+import { ColumnType } from 'antd/es/table';
 import Countdown from 'antd/lib/statistic/Countdown';
 import { startCase } from 'lodash';
-import { AlignType, ColumnType } from 'rc-table/lib/interface';
+import { AlignType } from 'rc-table/lib/interface';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -87,7 +88,7 @@ export function useAuctionsTable() {
         dataIndex: 'name',
         key: 'name',
         align: 'left' as AlignType,
-        width: isMobile ? '130px' : '250px',
+        width: isMobile ? '130px' : '20%',
         className: 'white assets-table-header',
         ellipsis: true,
         onHeaderCell: () => {
@@ -106,6 +107,7 @@ export function useAuctionsTable() {
         },
       },
       {
+        responsive: ['md'],
         title: (
           <button
             className="flex-row pointer grey"
@@ -137,6 +139,7 @@ export function useAuctionsTable() {
         },
       },
       {
+        responsive: ['lg'],
         title: (
           <button
             className="flex-row pointer grey"
@@ -239,6 +242,7 @@ export function useAuctionsTable() {
         },
       },
       {
+        responsive: ['lg'],
         title: (
           <button
             className="flex-row pointer grey"
@@ -284,6 +288,7 @@ export function useAuctionsTable() {
         },
       },
       {
+        responsive: ['sm'],
         title: '',
         className: 'assets-table-header',
         render: (row: AuctionTableData) => (
@@ -328,13 +333,7 @@ export function useAuctionsTable() {
         align: 'right' as AlignType,
         width: 'fit-content',
       },
-    ].filter((col) =>
-      isMobile
-        ? col.dataIndex !== 'initiator' &&
-          col.dataIndex !== 'nextPriceUpdate' &&
-          col.dataIndex !== 'closingDate'
-        : true,
-    );
+    ];
   }
 
   // TODO: move to util outside this class so it is easy to test
@@ -367,7 +366,7 @@ export function useAuctionsTable() {
       closingDate: expirationDateMilliseconds,
       nextPriceUpdate: nextPriceUpdateTimestamp,
       // allows us to not query for new prices and use previous net call to find the new price
-      minimumBid: getPriceByBlockHeight(prices, blockHeight),
+      minimumBid: Math.round(getPriceByBlockHeight(prices, blockHeight)),
     };
 
     return data;

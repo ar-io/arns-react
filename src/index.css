@@ -691,6 +691,10 @@ thead > tr > td[class~='assets-table-header'] {
   }
 }
 
+.assets-table-header {
+  white-space: nowrap;
+}
+
 /* TOP LEVEL RESIZE RULES */
 @media screen and (max-width: 600px) {
   .page-header {
@@ -709,6 +713,10 @@ thead > tr > td[class~='assets-table-header'] {
   }
   .page {
     padding: 10px 10px;
+  }
+  .ant-table-tbody > tr > td:first-child,
+  .ant-table-thead > tr > th:first-child {
+    padding-left: 10px !important;
   }
 }
 
