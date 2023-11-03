@@ -408,9 +408,6 @@ export class PDNSContractCache implements SmartweaveContractCache {
       contractTxId?: ArweaveTransactionID[];
     };
   }): Promise<{ [x: string]: T }> {
-    // TODO: add getCachedRegistrations to transaction cache as a method once cache is converted to contractTxId index
-    const cachedRegistrations: Record<string, T> = {};
-
     const cachedInteractions = await this._cache
       .getCachedInteractions(contractTxId)
       .filter(
@@ -436,27 +433,28 @@ export class PDNSContractCache implements SmartweaveContractCache {
         }),
       );
     }
-    cachedInteractions.forEach(
-      (interaction: ContractInteraction) =>
-        (cachedRegistrations[
-          (contractTxId.toString() === ARNS_REGISTRY_ADDRESS
-            ? interaction.payload.name
-            : interaction.payload.subDomain) as string
-        ] = (
-          contractTxId.toString() === ARNS_REGISTRY_ADDRESS
-            ? buildPendingArNSRecord(interaction)
-            : buildPendingANTRecord(interaction)
-        ) as T),
+
+    const cachedRegistrations = cachedInteractions.reduce(
+      (acc: Record<string, T>, interaction: ContractInteraction) => {
+        // arns specific entry
+        const domainName = interaction.payload.name as string;
+        if (contractTxId.toString() === ARNS_REGISTRY_ADDRESS) {
+          acc[domainName] = buildPendingArNSRecord(interaction) as T;
+          return acc;
+        }
+        // ant specific entry
+        acc[domainName] = buildPendingANTRecord(interaction) as T;
+        return acc;
+      },
+      {},
     );
 
-    const urlQueryParams = (filters.contractTxId ?? [])
-      .map((id) =>
-        new URLSearchParams({
-          contractTxId: id.toString(),
-        }).toString(),
-      )
-      .join('&');
-    // TODO: add other query params
+    // TODO: this doesn't extend well, but allows multiple contractTxIds to be passed in
+    // We'd want to create an array for any key that can be an array and then add it to the
+    // array of [key, value]'s provided to URLSearchParams
+    const urlQueryParams = new URLSearchParams(
+      filters.contractTxId?.map((id) => ['contractTxId', id.toString()]),
+    );
 
     const res = await fetch(
       `${
