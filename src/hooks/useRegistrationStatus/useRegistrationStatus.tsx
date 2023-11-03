@@ -64,6 +64,7 @@ export function useRegistrationStatus(domain: string) {
         auctionPromise,
         reservedPromise,
       ]);
+
       setIsAvailable(isAvailable);
       setIsActiveAuction(isActiveAuction);
       setIsReserved(isReserved);

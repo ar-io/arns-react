@@ -150,6 +150,7 @@ function TransactionWorkflow({
             years: payload.years,
             auction: payload.auction ?? false,
             qty: payload.qty,
+            isBid: payload.isBid ?? false,
           },
         );
 
@@ -181,6 +182,12 @@ function TransactionWorkflow({
                   },
                 })
               : undefined,
+          interactionDetails: {
+            isBid:
+              validBuyRecordInteraction && payload.isBid
+                ? payload.isBid
+                : false,
+          },
         });
         originalTxId = writeInteractionId?.toString();
       }

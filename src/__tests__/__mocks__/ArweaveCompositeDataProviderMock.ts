@@ -188,7 +188,7 @@ export class ArweaveCompositeDataProviderMock
   async getDomainsInAuction(): Promise<string[]> {
     throw new Error('Method not implemented.');
   }
-  getRecord(domain: string): Promise<PDNSRecordEntry> {
+  getRecord({ domain }: { domain: string }): Promise<PDNSRecordEntry> {
     return Promise.resolve({} as PDNSRecordEntry);
   }
   getRecords<T extends PDNSRecordEntry | PDNTContractDomainRecord>({

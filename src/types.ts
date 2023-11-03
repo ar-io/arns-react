@@ -1,5 +1,6 @@
 import { ApiConfig } from 'arweave/node/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
+import { Tags } from 'warp-contracts';
 
 import { PDNTContract } from './services/arweave/PDNTContract';
 import { ATOMIC_FLAG, PDNS_TX_ID_REGEX } from './utils/constants';
@@ -166,8 +167,20 @@ export interface SmartweaveContractCache {
     key: string,
   ): Promise<ContractInteraction[]>;
   // TODO: ALL OF THESE SHOULD REQUIRE A CONTRACT-TX-ID! NO HARD CODING OF CONTRACTS!
-  isDomainAvailable({ domain }: { domain: string }): Promise<boolean>;
-  isDomainReserved({ domain }: { domain: string }): Promise<boolean>;
+  isDomainAvailable({
+    domain,
+    contractTxId,
+  }: {
+    domain: string;
+    contractTxId?: ArweaveTransactionID;
+  }): Promise<boolean>;
+  isDomainReserved({
+    domain,
+    contractTxId,
+  }: {
+    domain: string;
+    contractTxId?: ArweaveTransactionID;
+  }): Promise<boolean>;
   isDomainInAuction({
     contractTxId,
     domain,
@@ -179,11 +192,9 @@ export interface SmartweaveContractCache {
     contractTxId,
     domain,
     type,
-    address,
   }: {
     contractTxId: ArweaveTransactionID;
     domain: string;
-    address?: ArweaveTransactionID;
     type?: 'lease' | 'permabuy';
   }): Promise<Auction>;
   getAuctionSettings({
@@ -198,7 +209,13 @@ export interface SmartweaveContractCache {
     address?: ArweaveTransactionID;
     contractTxId: ArweaveTransactionID;
   }): Promise<string[]>;
-  getRecord(domain: string): Promise<PDNSRecordEntry>;
+  getRecord({
+    domain,
+    contractTxId,
+  }: {
+    domain: string;
+    contractTxId?: ArweaveTransactionID;
+  }): Promise<PDNSRecordEntry>;
   getIoBalance(address: ArweaveTransactionID): Promise<number>;
   // END TODO
   getRecords<T extends PDNSRecordEntry | PDNTContractDomainRecord>({
@@ -222,6 +239,7 @@ export interface SmartweaveContractInteractionProvider {
     payload,
     dryWrite,
     tags,
+    interactionDetails,
   }: {
     walletAddress: ArweaveTransactionID;
     contractTxId: ArweaveTransactionID;
@@ -230,18 +248,21 @@ export interface SmartweaveContractInteractionProvider {
       [x: string]: any;
     };
     dryWrite?: boolean;
-    tags?: TransactionTag[];
+    tags?: Tags;
+    interactionDetails?: Record<string, any>;
   }): Promise<ArweaveTransactionID | undefined>;
   deployContract({
     walletAddress,
     srcCodeTransactionId,
     initialState,
     tags,
+    interactionDetails,
   }: {
     walletAddress: ArweaveTransactionID;
     srcCodeTransactionId: ArweaveTransactionID;
     initialState: PDNTContractJSON;
-    tags?: TransactionTag[];
+    tags?: Tags;
+    interactionDetails?: Record<string, any>;
   }): Promise<string>;
   registerAtomicName({
     walletAddress,
@@ -253,6 +274,7 @@ export interface SmartweaveContractInteractionProvider {
     years,
     auction,
     qty,
+    isBid,
   }: {
     walletAddress: ArweaveTransactionID;
     registryId: ArweaveTransactionID;
@@ -263,6 +285,7 @@ export interface SmartweaveContractInteractionProvider {
     years?: number;
     auction: boolean;
     qty: number;
+    isBid: boolean;
   }): Promise<string | undefined>;
 }
 

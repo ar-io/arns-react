@@ -71,9 +71,9 @@ function ManageDomain() {
     try {
       setLoading(true);
 
-      const recordEntry = await arweaveDataProvider.getRecord(
-        lowerCaseDomain(domainName),
-      );
+      const recordEntry = await arweaveDataProvider.getRecord({
+        domain: lowerCaseDomain(domainName),
+      });
       const txId = recordEntry?.contractTxId;
       if (!txId) {
         throw Error('This name is not registered');
