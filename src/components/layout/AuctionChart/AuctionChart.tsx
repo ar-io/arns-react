@@ -17,7 +17,6 @@ import { ChartJSOrUndefined } from 'react-chartjs-2/dist/types';
 import { Link } from 'react-router-dom';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { useWalletState } from '../../../state/contexts/WalletState';
 import { Auction } from '../../../types';
 import {
   approximateDays,
@@ -59,7 +58,6 @@ function AuctionChart({
     { blockHeight: currentBlockHeight, arweaveDataProvider },
     dispatchGlobalState,
   ] = useGlobalState();
-  const [{ walletAddress }] = useWalletState();
   const chartRef = useRef<ChartJSOrUndefined>(null);
 
   const [labels, setLabels] = useState<string[]>([]);
@@ -73,11 +71,9 @@ function AuctionChart({
 
   useEffect(() => {
     if (!auctionInfo) {
-      arweaveDataProvider
-        .getAuction({ domain, address: walletAddress })
-        .then((auction) => {
-          setAuctionInfo(auction);
-        });
+      arweaveDataProvider.getAuction({ domain }).then((auction) => {
+        setAuctionInfo(auction);
+      });
       return;
     }
 

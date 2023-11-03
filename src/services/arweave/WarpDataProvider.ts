@@ -2,6 +2,7 @@ import Arweave from 'arweave/node/common';
 import {
   ArWallet,
   LoggerFactory,
+  Tags,
   Warp,
   WarpFactory,
   WriteInteractionResponse,
@@ -16,7 +17,6 @@ import {
   SmartweaveContractInteractionProvider,
   TRANSACTION_TYPES,
   TransactionCache,
-  TransactionTag,
 } from '../../types';
 import {
   buildSmartweaveInteractionTags,
@@ -60,6 +60,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     payload,
     dryWrite = true,
     tags,
+    interactionDetails,
   }: {
     walletAddress: ArweaveTransactionID;
     contractTxId: ArweaveTransactionID;
@@ -68,7 +69,8 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       [x: string]: any;
     };
     dryWrite?: boolean;
-    tags: TransactionTag[];
+    tags: Tags;
+    interactionDetails?: Record<string, any>;
   }): Promise<ArweaveTransactionID | undefined> {
     const payloadSize = byteSize(JSON.stringify(payload));
     if (!payload) {
@@ -134,13 +136,13 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     if (!originalTxId) {
       throw Error('No transaction ID from write interaction');
     }
-
     this._cache.push(contractTxId.toString(), {
       id: originalTxId,
       contractTxId: contractTxId.toString(),
       payload,
       type: 'interaction',
       deployer: walletAddress.toString(),
+      ...(interactionDetails ?? {}),
     });
 
     return new ArweaveTransactionID(originalTxId);
@@ -151,11 +153,13 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     srcCodeTransactionId,
     initialState,
     tags = [],
+    interactionDetails,
   }: {
     walletAddress: ArweaveTransactionID;
     srcCodeTransactionId: ArweaveTransactionID;
     initialState: PDNTContractJSON;
-    tags?: TransactionTag[];
+    tags?: Tags;
+    interactionDetails?: Record<string, any>;
   }): Promise<string> {
     const tagSize = byteSize(JSON.stringify(tags));
 
@@ -173,7 +177,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       wallet: ArWallet;
       initState: string;
       srcTxId: string;
-      tags: TransactionTag[];
+      tags: Tags;
     } = {
       wallet: 'use_wallet',
       initState: JSON.stringify(initialState),
@@ -215,6 +219,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
         payload: interactionPayload,
         type: 'interaction',
         deployer: walletAddress.toString(),
+        ...(interactionDetails ?? {}),
       });
     }
 
@@ -231,6 +236,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     years,
     auction,
     qty,
+    isBid,
   }: {
     walletAddress: ArweaveTransactionID;
     registryId: ArweaveTransactionID;
@@ -241,6 +247,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     years?: number;
     auction: boolean;
     qty: number;
+    isBid: boolean;
   }): Promise<string | undefined> {
     if (!domain) {
       throw new Error('No domain provided');
@@ -293,6 +300,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       srcCodeTransactionId,
       initialState,
       tags,
+      interactionDetails: { isBid },
     });
     if (!result) {
       throw new Error('Could not deploy atomic contract');

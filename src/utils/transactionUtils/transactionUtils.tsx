@@ -1,4 +1,5 @@
 import { StepProps } from 'antd';
+import { Tag, Tags } from 'warp-contracts';
 
 import {
   ArweaveTransactionID,
@@ -25,7 +26,6 @@ import {
   TransactionData,
   TransactionDataConfig,
   TransactionDataPayload,
-  TransactionTag,
   TransferANTPayload,
   ValidInteractionType,
 } from '../../types';
@@ -146,7 +146,7 @@ export const TRANSACTION_DATA_KEYS: Record<
 > = {
   [INTERACTION_TYPES.BUY_RECORD]: {
     functionName: 'buyRecord',
-    keys: ['name', 'contractTxId', 'auction', 'qty'],
+    keys: ['name', 'contractTxId', 'auction', 'qty', 'type'],
   },
   [INTERACTION_TYPES.SUBMIT_AUCTION_BID]: {
     functionName: 'submitAuctionBid',
@@ -780,7 +780,7 @@ export function buildSmartweaveInteractionTags({
 }: {
   contractId: ArweaveTransactionID;
   input: SmartWeaveActionInput;
-}): TransactionTag[] {
+}): Tags {
   const tags: SmartWeaveActionTags = [
     {
       name: 'App-Name',
@@ -795,7 +795,7 @@ export function buildSmartweaveInteractionTags({
       value: JSON.stringify(input),
     },
   ];
-  return tags;
+  return tags.map((t) => new Tag(t.name, t.value));
 }
 
 export async function withExponentialBackoff<T>({

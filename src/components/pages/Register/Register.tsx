@@ -184,7 +184,6 @@ function RegisterNameForm() {
     const leaseDurationType = auction?.isRequiredToBeAuctioned
       ? 1
       : leaseDuration;
-
     const buyRecordPayload: BuyRecordPayload = {
       name:
         domain && emojiRegex().test(domain)
