@@ -61,8 +61,8 @@ export function useAuctionsTable() {
           payload: currentBlockHeight,
         });
       }
-      const datas = await fetchAuctionDatas();
-      setAuctionData(datas);
+      const auctions = await fetchAuctions();
+      setAuctionData(auctions);
     } catch (error) {
       eventEmitter.emit('error', error);
     } finally {
@@ -356,10 +356,8 @@ export function useAuctionsTable() {
     return data;
   }
 
-  async function fetchAuctionDatas(): Promise<Auction[]> {
-    let datas: Auction[] = [];
+  async function fetchAuctions(): Promise<Auction[]> {
     itemCount.current = 0;
-
     const domainsInAuction = await arweaveDataProvider
       .getDomainsInAuction({
         address: walletAddress,
@@ -371,31 +369,28 @@ export function useAuctionsTable() {
     }
     itemCount.current = domainsInAuction.length;
     itemsLoaded.current = 0;
-    const newDatas = await Promise.all(
-      domainsInAuction.map(async (domain) => {
-        const auction = await arweaveDataProvider
-          .getAuction({
-            domain,
-          })
-          .catch((e) => console.debug(e));
-        if (!auction) {
-          return;
-        }
-        if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
-        if (!auction) {
-          return;
-        }
-        setPercentLoaded(
-          Math.round((itemsLoaded.current / itemCount.current) * 100),
-        );
+    const fetchedAuctions = [];
+    /**
+     * NOTE: We were previously doing this concurrently, but it was causing some auction objects to fail to load. Ideally the endpoint on the service provides a batch request, but for now we will do this sequentially.
+     */
+    for (const domain of domainsInAuction) {
+      const auction = await arweaveDataProvider
+        .getAuction({
+          domain,
+          address: walletAddress,
+        })
+        .catch((e) => console.debug(e));
+      if (!auction) {
+        continue;
+      }
+      if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
+      setPercentLoaded(
+        Math.round((itemsLoaded.current / itemCount.current) * 100),
+      );
+      fetchedAuctions.push(auction);
+    }
 
-        return auction;
-      }),
-    );
-
-    datas = newDatas.filter((a) => a !== undefined) as any as Auction[];
-
-    return datas;
+    return fetchedAuctions.filter((a) => a !== undefined);
   }
 
   function buildAuctionRows(data: Auction[], blockHeight: number) {
