@@ -11,6 +11,7 @@ export type PDNSRecordEntry = {
   endTimestamp?: number;
   type: TRANSACTION_TYPES;
   undernames: number;
+  purchasePrice?: number;
 };
 
 export type PDNSDomains = { [x: string]: PDNSRecordEntry };

@@ -23,7 +23,6 @@ import {
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import {
-  calculatePDNSNamePrice,
   encodeDomainToASCII,
   lowerCaseDomain,
   userHasSufficientBalance,
@@ -51,16 +50,8 @@ function RegisterNameForm() {
     { domain, fee, leaseDuration, registrationType, antID },
     dispatchRegisterState,
   ] = useRegistrationState();
-  const [
-    {
-      // TODO: remove use of source contract
-
-      pdnsSourceContract,
-      blockHeight,
-      arweaveDataProvider,
-    },
-    dispatchGlobalState,
-  ] = useGlobalState();
+  const [{ blockHeight, arweaveDataProvider }, dispatchGlobalState] =
+    useGlobalState();
   const [{ walletAddress, balances }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const { name } = useParams();
@@ -111,29 +102,29 @@ function RegisterNameForm() {
         type: 'setFee',
         payload: { ar: fee.ar, io: auction.minimumBid },
       });
+    } else {
+      const update = async () => {
+        if (domain) {
+          try {
+            const record = await arweaveDataProvider.getRecord({
+              domain: domain,
+            });
+            if (record.purchasePrice) {
+              dispatchRegisterState({
+                type: 'setFee',
+                payload: { ar: fee.ar, io: record.purchasePrice },
+              });
+            } else {
+              throw Error('Unable to get purchase price for domain');
+            }
+          } catch (e) {
+            eventEmitter.emit('error', e);
+          }
+        }
+      };
+      update();
     }
-    // TODO: remove use of source contract
-    if (
-      pdnsSourceContract.fees &&
-      domain &&
-      blockHeight &&
-      !auction?.isActive &&
-      !auction?.isRequiredToBeAuctioned
-    ) {
-      // TODO: replace this with read API on the contract for the name
-      const newFee = calculatePDNSNamePrice({
-        domain: domain,
-        type: registrationType,
-        years: leaseDuration,
-        fees: pdnsSourceContract.fees,
-        currentBlockHeight: blockHeight,
-      });
-      dispatchRegisterState({
-        type: 'setFee',
-        payload: { ar: fee.ar, io: newFee },
-      });
-    }
-  }, [leaseDuration, domain, pdnsSourceContract, auction, registrationType]);
+  }, [leaseDuration, domain, auction, registrationType]);
 
   async function handlePDNTId(id: string) {
     try {
