@@ -471,8 +471,23 @@ export class PDNSContractCache implements SmartweaveContractCache {
       `${
         this._url
       }/v1/contract/${ARNS_REGISTRY_ADDRESS}/balances/${address.toString()}`,
-    );
-    const { balance } = await res.json();
-    return balance;
+    ).catch(() => undefined);
+
+    const { balance } =
+      res && res.ok ? await res.json() : { balance: undefined };
+
+    const cachedRegistryInteractions = await this._cache
+      .getCachedInteractions(new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS))
+      .filter((interaction: ContractInteraction) => interaction.payload.qty);
+
+    let cachedBalance = 0;
+
+    cachedRegistryInteractions.forEach((interaction: ContractInteraction) => {
+      if (interaction.payload.target === address.toString()) {
+        cachedBalance += +interaction.payload.qty;
+      }
+    });
+
+    return balance - cachedBalance;
   }
 }
