@@ -2,16 +2,13 @@ import Arweave from 'arweave/node';
 import Ar from 'arweave/node/ar';
 import { ResponseWithData } from 'arweave/node/lib/api';
 
-import {
-  ArweaveDataProvider,
-  ArweaveTransactionID,
-  TransactionHeaders,
-} from '../../types';
+import { ArweaveDataProvider, TransactionHeaders } from '../../types';
 import { tagsToObject, withExponentialBackoff } from '../../utils';
 import {
   RECOMMENDED_TRANSACTION_CONFIRMATIONS,
   transactionByOwnerQuery,
 } from '../../utils/constants';
+import { ArweaveTransactionID } from './ArweaveTransactionID';
 
 export class SimpleArweaveDataProvider implements ArweaveDataProvider {
   private _arweave: Arweave;
@@ -63,8 +60,10 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
       }`,
       });
 
-      const transactions = await this.fetchPaginatedData(queryIds);
-      const stati = transactions.reduce(
+      const transactions = ids.length
+        ? await this.fetchPaginatedData(queryIds)
+        : ids;
+      const statuses = transactions.reduce(
         (
           acc: Record<string, { confirmations: number; blockHeight: number }>,
           tx: any,
@@ -81,7 +80,7 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
         {},
       );
 
-      return stati;
+      return statuses;
     }
 
     const { status, data } = await this._arweave.api.get(`/tx/${ids}/status`);

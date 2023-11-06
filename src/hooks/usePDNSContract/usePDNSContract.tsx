@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 
+import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../state/contexts/GlobalState';
-import { ArweaveTransactionID, PDNSContractJSON } from '../../types';
+import { PDNSContractJSON } from '../../types';
 import eventEmitter from '../../utils/events';
 
 export function usePDNSContract() {

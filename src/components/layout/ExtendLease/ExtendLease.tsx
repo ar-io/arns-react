@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
+import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import {
-  ArweaveTransactionID,
   ExtendLeasePayload,
   INTERACTION_TYPES,
   PDNSRecordEntry,
@@ -86,7 +86,10 @@ function ExtendLease() {
         setRegistrationType(TRANSACTION_TYPES.BUY);
         return;
       }
-      const balance = await arweaveDataProvider.getIoBalance(walletAddress!);
+      const balance = await arweaveDataProvider.getTokenBalance(
+        walletAddress!,
+        ARNS_REGISTRY_ADDRESS,
+      );
 
       setIoBalance(balance ?? 0);
 
@@ -282,7 +285,7 @@ function ExtendLease() {
                   dispatchTransactionState({
                     type: 'setTransactionData',
                     payload: {
-                      assetId: ARNS_REGISTRY_ADDRESS,
+                      assetId: ARNS_REGISTRY_ADDRESS.toString(),
                       functionName: 'extendRecord',
                       ...payload,
                     },

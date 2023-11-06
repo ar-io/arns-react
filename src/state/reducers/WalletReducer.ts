@@ -1,4 +1,4 @@
-import { ArweaveTransactionID } from '../../types';
+import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { ArweaveWalletConnector } from '../../types';
 import { WalletState } from '../contexts/WalletState';
 

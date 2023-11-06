@@ -2,7 +2,6 @@ import { Tags } from 'warp-contracts';
 
 import {
   ArweaveDataProvider,
-  ArweaveTransactionID,
   Auction,
   AuctionSettings,
   ContractInteraction,
@@ -14,7 +13,9 @@ import {
   SmartweaveContractInteractionProvider,
   TRANSACTION_TYPES,
 } from '../../types';
+import { byteSize, userHasSufficientBalance } from '../../utils';
 import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
+import { ArweaveTransactionID } from './ArweaveTransactionID';
 
 export class ArweaveCompositeDataProvider
   implements
@@ -66,6 +67,29 @@ export class ArweaveCompositeDataProvider
     tags?: Tags;
     interactionDetails?: Record<string, any>;
   }): Promise<ArweaveTransactionID | undefined> {
+    const payloadSize = byteSize(JSON.stringify(payload));
+    const arBalance = await this._arweaveProvider.getArBalance(walletAddress);
+    const txPrice = await this._arweaveProvider.getArPrice(payloadSize);
+
+    if (!arBalance || arBalance < txPrice) {
+      throw new Error('Insufficient AR balance to perform transaction');
+    }
+
+    if (contractTxId === ARNS_REGISTRY_ADDRESS) {
+      const ioBalance = await this._contractProvider.getTokenBalance(
+        walletAddress,
+        ARNS_REGISTRY_ADDRESS,
+      );
+      if (
+        !userHasSufficientBalance({
+          balances: { io: +ioBalance },
+          costs: { io: +payload.qty },
+        })
+      ) {
+        throw new Error('Insufficient IO balance to perform transaction');
+      }
+    }
+
     return await this._interactionProvider.writeTransaction({
       walletAddress,
       contractTxId,
@@ -218,7 +242,7 @@ export class ArweaveCompositeDataProvider
   }
 
   async isDomainInAuction({
-    contractTxId = new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
+    contractTxId = ARNS_REGISTRY_ADDRESS,
     domain,
   }: {
     contractTxId?: ArweaveTransactionID;
@@ -238,7 +262,7 @@ export class ArweaveCompositeDataProvider
   }
 
   async getAuction({
-    contractTxId = new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
+    contractTxId = ARNS_REGISTRY_ADDRESS,
     domain,
     type,
   }: {
@@ -285,7 +309,7 @@ export class ArweaveCompositeDataProvider
   }
 
   async getRecords<T extends PDNSRecordEntry | PDNTContractDomainRecord>({
-    contractTxId = new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
+    contractTxId = ARNS_REGISTRY_ADDRESS,
     filters,
     address,
   }: {
@@ -302,7 +326,10 @@ export class ArweaveCompositeDataProvider
     });
   }
 
-  async getIoBalance(address: ArweaveTransactionID): Promise<number> {
-    return this._contractProvider.getIoBalance(address);
+  async getTokenBalance(
+    address: ArweaveTransactionID,
+    contractTxId: ArweaveTransactionID,
+  ): Promise<number> {
+    return this._contractProvider.getTokenBalance(address, contractTxId);
   }
 }

@@ -1,7 +1,7 @@
 import { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 
-import { ArweaveTransactionID } from '../../../types';
+import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { formatForMaxCharCount } from '../../../utils';
 import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
 

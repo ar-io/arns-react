@@ -3,8 +3,8 @@ import { useEffect } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 
 import { useAuctionInfo, useIsMobile } from '../../../hooks';
+import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { ArweaveTransactionID } from '../../../types';
 import {
   decodeDomainToASCII,
   encodeDomainToASCII,

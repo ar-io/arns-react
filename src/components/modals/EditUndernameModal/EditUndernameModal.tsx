@@ -2,9 +2,9 @@ import { clamp } from 'lodash';
 import { useEffect, useRef, useState } from 'react';
 
 import { useIsMobile } from '../../../hooks';
+import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
-  ArweaveTransactionID,
   PDNTContractJSON,
   SetRecordPayload,
   VALIDATION_INPUT_TYPES,

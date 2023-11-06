@@ -7,10 +7,10 @@ import React, {
 } from 'react';
 
 import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
+import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { PDNSContractCache } from '../../services/arweave/PDNSContractCache';
 import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
 import { WarpDataProvider } from '../../services/arweave/WarpDataProvider';
-import { ArweaveTransactionID } from '../../types';
 import type { PDNSContractJSON } from '../../types';
 import {
   ARNS_REGISTRY_ADDRESS,
@@ -37,7 +37,7 @@ export type GlobalState = {
 };
 
 const initialState: GlobalState = {
-  pdnsContractId: new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
+  pdnsContractId: ARNS_REGISTRY_ADDRESS,
   pdnsSourceContract: DEFAULT_PDNS_REGISTRY_STATE,
   gateway: 'ar-io.dev',
   blockHeight: undefined,

@@ -3,13 +3,10 @@ import { startCase } from 'lodash';
 import { isValidElement, useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../hooks';
+import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import {
-  ArweaveTransactionID,
-  PDNSMapping,
-  PDNTContractJSON,
-} from '../../../types';
+import { PDNSMapping, PDNTContractJSON } from '../../../types';
 import {
   getLeaseDurationFromEndTimestamp,
   isArweaveTransactionID,

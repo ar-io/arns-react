@@ -7,15 +7,11 @@ import {
   useIsMobile,
   useRegistrationStatus,
 } from '../../../../hooks';
+import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../../state/contexts/RegistrationState';
 import { useWalletState } from '../../../../state/contexts/WalletState';
-import {
-  ArweaveTransactionID,
-  Auction,
-  PDNSRecordEntry,
-  SearchBarProps,
-} from '../../../../types';
+import { Auction, PDNSRecordEntry, SearchBarProps } from '../../../../types';
 import {
   decodeDomainToASCII,
   encodeDomainToASCII,

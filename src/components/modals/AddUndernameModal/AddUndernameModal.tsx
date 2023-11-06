@@ -2,9 +2,9 @@ import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
 import { useIsMobile } from '../../../hooks';
+import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
-  ArweaveTransactionID,
   PDNSRecordEntry,
   PDNTContractJSON,
   SetRecordPayload,

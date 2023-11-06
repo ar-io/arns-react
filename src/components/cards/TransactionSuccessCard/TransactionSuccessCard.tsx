@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-import { ArweaveTransactionID } from '../../../types';
+import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { CircleCheckFilled, CloseIcon } from '../../icons';
 import ArweaveID from '../../layout/ArweaveID/ArweaveID';
 
