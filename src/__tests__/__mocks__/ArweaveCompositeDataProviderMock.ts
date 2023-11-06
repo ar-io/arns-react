@@ -202,7 +202,10 @@ export class ArweaveCompositeDataProviderMock
   }): Promise<{ [x: string]: T }> {
     throw new Error('Method not implemented.');
   }
-  getIoBalance(address: ArweaveTransactionID): Promise<number> {
+  getTokenBalance(
+    address: ArweaveTransactionID,
+    contractTxId: ArweaveTransactionID,
+  ): Promise<number> {
     throw new Error('Method not implemented.');
   }
 }

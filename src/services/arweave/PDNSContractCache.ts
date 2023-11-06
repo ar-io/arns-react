@@ -466,11 +466,14 @@ export class PDNSContractCache implements SmartweaveContractCache {
     return { ...cachedRegistrations, ...records };
   }
 
-  async getIoBalance(address: ArweaveTransactionID): Promise<number> {
+  async getTokenBalance(
+    address: ArweaveTransactionID,
+    contractTxId: ArweaveTransactionID,
+  ): Promise<number> {
     const res = await fetch(
       `${
         this._url
-      }/v1/contract/${ARNS_REGISTRY_ADDRESS}/balances/${address.toString()}`,
+      }/v1/contract/${contractTxId.toString()}/balances/${address.toString()}`,
     );
     const { balance } = await res.json();
     return balance;

@@ -63,7 +63,9 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
       }`,
       });
 
-      const transactions = await this.fetchPaginatedData(queryIds);
+      const transactions = ids.length
+        ? await this.fetchPaginatedData(queryIds)
+        : ids;
       const stati = transactions.reduce(
         (
           acc: Record<string, { confirmations: number; blockHeight: number }>,

@@ -86,7 +86,10 @@ function ExtendLease() {
         setRegistrationType(TRANSACTION_TYPES.BUY);
         return;
       }
-      const balance = await arweaveDataProvider.getIoBalance(walletAddress!);
+      const balance = await arweaveDataProvider.getTokenBalance(
+        walletAddress!,
+        new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
+      );
 
       setIoBalance(balance ?? 0);
 

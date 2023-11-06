@@ -76,8 +76,9 @@ export class ArweaveCompositeDataProvider
     }
 
     if (contractTxId.toString() === ARNS_REGISTRY_ADDRESS) {
-      const ioBalance = await this._contractProvider.getIoBalance(
+      const ioBalance = await this._contractProvider.getTokenBalance(
         walletAddress,
+        new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
       );
       if (payload.qty && ioBalance < payload.qty) {
         throw new Error('Insufficient IO balance to perform transaction');
@@ -320,7 +321,10 @@ export class ArweaveCompositeDataProvider
     });
   }
 
-  async getIoBalance(address: ArweaveTransactionID): Promise<number> {
-    return this._contractProvider.getIoBalance(address);
+  async getTokenBalance(
+    address: ArweaveTransactionID,
+    contractTxId: ArweaveTransactionID,
+  ): Promise<number> {
+    return this._contractProvider.getTokenBalance(address, contractTxId);
   }
 }
