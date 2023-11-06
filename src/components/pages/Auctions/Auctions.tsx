@@ -1,7 +1,8 @@
 import { Table } from 'antd';
 import { useState } from 'react';
+import { useNavigate } from 'react-router';
 
-import { useAuctionsTable } from '../../../hooks';
+import { useAuctionsTable, useIsMobile } from '../../../hooks';
 import { getCustomPaginationButtons } from '../../../utils';
 import { RefreshIcon } from '../../icons';
 import PageLoader from '../../layout/progress/PageLoader/PageLoader';
@@ -9,6 +10,8 @@ import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 function Auctions() {
   const { rows, columns, isLoading, percent, refresh } = useAuctionsTable();
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const isMobile = useIsMobile();
+  const navigate = useNavigate();
 
   if (isLoading) {
     return (
@@ -20,13 +23,16 @@ function Auctions() {
   }
 
   return (
-    <div className="page" style={{ paddingTop: '100px' }}>
+    <div className="page">
       <div className="flex flex-column center">
         <div
           className="flex"
           style={{ justifyContent: 'space-between', width: '100%' }}
         >
-          <span className="white bold" style={{ fontSize: '36px' }}>
+          <span
+            className="white bold"
+            style={{ fontSize: isMobile ? '20px' : '36px' }}
+          >
             Live Auctions
           </span>
           <button
@@ -41,6 +47,12 @@ function Auctions() {
         <Table
           dataSource={rows}
           columns={columns}
+          onRow={(row) => ({
+            onClick: () =>
+              isMobile
+                ? navigate(`/auctions/${row.name}`, { state: 'auctions' })
+                : null,
+          })}
           pagination={{
             position: ['bottomCenter'],
             rootClassName: 'table-pagination',

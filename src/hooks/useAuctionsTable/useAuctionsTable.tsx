@@ -1,6 +1,7 @@
+import { ColumnType } from 'antd/es/table';
 import Countdown from 'antd/lib/statistic/Countdown';
 import { startCase } from 'lodash';
-import { ColumnType } from 'rc-table/lib/interface';
+import { AlignType } from 'rc-table/lib/interface';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -23,6 +24,7 @@ import {
   AVERAGE_BLOCK_TIME,
 } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
+import { useIsMobile } from '../useIsMobile/useIsMobile';
 
 export function useAuctionsTable() {
   const [{ blockHeight, arweaveDataProvider }, dispatchGlobalState] =
@@ -39,6 +41,7 @@ export function useAuctionsTable() {
   const [percent, setPercentLoaded] = useState<number>(0);
 
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     load();
@@ -84,8 +87,8 @@ export function useAuctionsTable() {
         ),
         dataIndex: 'name',
         key: 'name',
-        align: 'left',
-        width: '250px',
+        align: 'left' as AlignType,
+        width: isMobile ? '130px' : '20%',
         className: 'white assets-table-header',
         ellipsis: true,
         onHeaderCell: () => {
@@ -104,6 +107,7 @@ export function useAuctionsTable() {
         },
       },
       {
+        responsive: ['md'],
         title: (
           <button
             className="flex-row pointer grey"
@@ -135,6 +139,7 @@ export function useAuctionsTable() {
         },
       },
       {
+        responsive: ['lg'],
         title: (
           <button
             className="flex-row pointer grey"
@@ -216,7 +221,11 @@ export function useAuctionsTable() {
         key: 'minimumBid',
         width: 'fit-content',
         className: 'white assets-table-header',
-        render: (val: number) => <span>{val.toLocaleString()} IO</span>,
+        render: (val: number) => (
+          <span style={{ whiteSpace: 'nowrap' }}>
+            {val.toLocaleString()} IO
+          </span>
+        ),
         onHeaderCell: () => {
           return {
             onClick: () => {
@@ -233,6 +242,7 @@ export function useAuctionsTable() {
         },
       },
       {
+        responsive: ['lg'],
         title: (
           <button
             className="flex-row pointer grey"
@@ -278,9 +288,10 @@ export function useAuctionsTable() {
         },
       },
       {
+        responsive: ['sm'],
         title: '',
         className: 'assets-table-header',
-        render: (row) => (
+        render: (row: AuctionTableData) => (
           <div
             className="flex flex-row"
             style={{
@@ -296,16 +307,21 @@ export function useAuctionsTable() {
                 padding: '8px',
                 borderColor: 'var(--text-faded)',
                 color: 'var(--text-grey)',
+                minWidth: isMobile ? 'fit-content' : '',
               }}
               onClick={() => {
                 navigate(`/auctions/${row.name}`, { state: 'auctions' });
               }}
             >
-              View Auction
+              {isMobile ? 'View' : 'View Auction'}
             </button>
             <button
               className="accent-button hover"
-              style={{ fontSize: '13px', padding: '8px' }}
+              style={{
+                fontSize: '13px',
+                padding: '8px',
+                display: isMobile ? 'none' : 'flex',
+              }}
               onClick={() => {
                 navigate(`/register/${row.name}`);
               }}
@@ -314,7 +330,7 @@ export function useAuctionsTable() {
             </button>
           </div>
         ),
-        align: 'right',
+        align: 'right' as AlignType,
         width: 'fit-content',
       },
     ];
@@ -350,7 +366,7 @@ export function useAuctionsTable() {
       closingDate: expirationDateMilliseconds,
       nextPriceUpdate: nextPriceUpdateTimestamp,
       // allows us to not query for new prices and use previous net call to find the new price
-      minimumBid: getPriceByBlockHeight(prices, blockHeight),
+      minimumBid: Math.round(getPriceByBlockHeight(prices, blockHeight)),
     };
 
     return data;

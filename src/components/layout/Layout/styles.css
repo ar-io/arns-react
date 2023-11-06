@@ -8,10 +8,22 @@
   flex-direction: column;
   box-sizing: border-box;
   min-height: fit-content;
+  width: 100%;
 }
 
 .footer {
   padding: 2% 0%;
   box-sizing: border-box;
   max-height: 104px;
+}
+
+@media screen and (max-width: 600px) {
+  .brand-logo {
+    height: 45px;
+    width: 45px;
+  }
+  .navbar,
+  .footer {
+    padding: 0px 15px;
+  }
 }

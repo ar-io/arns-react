@@ -22,3 +22,10 @@
     gap: 0.75em;
   }
 }
+
+@media screen and (max-width: 700px) {
+  .card-container {
+    flex-direction: column;
+    gap: 0.75em;
+  }
+}
