@@ -101,7 +101,6 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
         payload,
         walletAddress.toString(),
       );
-      console.log(dryWriteResults);
       // because we are manually constructing the tags, we want to verify them immediately and always
       // an undefined valid means the transaction is valid
       if (dryWriteResults.type === 'error') {

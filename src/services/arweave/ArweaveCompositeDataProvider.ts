@@ -14,6 +14,7 @@ import {
   SmartweaveContractInteractionProvider,
   TRANSACTION_TYPES,
 } from '../../types';
+import { byteSize } from '../../utils';
 import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
 
 export class ArweaveCompositeDataProvider
@@ -66,6 +67,23 @@ export class ArweaveCompositeDataProvider
     tags?: Tags;
     interactionDetails?: Record<string, any>;
   }): Promise<ArweaveTransactionID | undefined> {
+    const payloadSize = byteSize(JSON.stringify(payload));
+    const arBalance = await this._arweaveProvider.getArBalance(walletAddress);
+    const txPrice = await this._arweaveProvider.getArPrice(payloadSize);
+
+    if (!arBalance || arBalance < txPrice) {
+      throw new Error('Insufficient AR balance to perform transaction');
+    }
+
+    if (contractTxId.toString() === ARNS_REGISTRY_ADDRESS) {
+      const ioBalance = await this._contractProvider.getIoBalance(
+        walletAddress,
+      );
+      if (payload.qty && ioBalance < payload.qty) {
+        throw new Error('Insufficient IO balance to perform transaction');
+      }
+    }
+
     return await this._interactionProvider.writeTransaction({
       walletAddress,
       contractTxId,
