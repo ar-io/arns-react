@@ -14,7 +14,7 @@ import {
   SmartweaveContractInteractionProvider,
   TRANSACTION_TYPES,
 } from '../../types';
-import { byteSize } from '../../utils';
+import { byteSize, userHasSufficientBalance } from '../../utils';
 import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
 
 export class ArweaveCompositeDataProvider
@@ -75,12 +75,17 @@ export class ArweaveCompositeDataProvider
       throw new Error('Insufficient AR balance to perform transaction');
     }
 
-    if (contractTxId.toString() === ARNS_REGISTRY_ADDRESS) {
+    if (contractTxId === ARNS_REGISTRY_ADDRESS) {
       const ioBalance = await this._contractProvider.getTokenBalance(
         walletAddress,
-        new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
+        ARNS_REGISTRY_ADDRESS,
       );
-      if (payload.qty && ioBalance < payload.qty) {
+      if (
+        !userHasSufficientBalance({
+          balances: { io: +ioBalance },
+          costs: { io: +payload.qty },
+        })
+      ) {
         throw new Error('Insufficient IO balance to perform transaction');
       }
     }
@@ -237,7 +242,7 @@ export class ArweaveCompositeDataProvider
   }
 
   async isDomainInAuction({
-    contractTxId = new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
+    contractTxId = ARNS_REGISTRY_ADDRESS,
     domain,
   }: {
     contractTxId?: ArweaveTransactionID;
@@ -257,7 +262,7 @@ export class ArweaveCompositeDataProvider
   }
 
   async getAuction({
-    contractTxId = new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
+    contractTxId = ARNS_REGISTRY_ADDRESS,
     domain,
     type,
   }: {
@@ -304,7 +309,7 @@ export class ArweaveCompositeDataProvider
   }
 
   async getRecords<T extends PDNSRecordEntry | PDNTContractDomainRecord>({
-    contractTxId = new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
+    contractTxId = ARNS_REGISTRY_ADDRESS,
     filters,
     address,
   }: {

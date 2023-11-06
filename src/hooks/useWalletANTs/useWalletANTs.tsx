@@ -452,7 +452,6 @@ export function useWalletANTs() {
   ): Promise<ANTData[]> {
     let datas: ANTData[] = [];
     try {
-      // without this for some reason it will cause an infinite loop fetching tx status
       itemsLoaded.current = 0;
       const tokenIds: Set<ArweaveTransactionID> = new Set(contractTxIds);
 

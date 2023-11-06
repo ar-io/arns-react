@@ -186,7 +186,7 @@ function UpgradeUndernames() {
             dispatchTransactionState({
               type: 'setTransactionData',
               payload: {
-                assetId: ARNS_REGISTRY_ADDRESS,
+                assetId: ARNS_REGISTRY_ADDRESS.toString(),
                 functionName: 'increaseUndernameCount',
                 ...increaseUndernamePayload,
               },

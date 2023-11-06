@@ -83,10 +83,7 @@ export default function WalletStateProvider({
   async function updateBalances(address: ArweaveTransactionID) {
     try {
       const [ioBalance, arBalance] = await Promise.all([
-        arweaveDataProvider.getTokenBalance(
-          address,
-          new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
-        ),
+        arweaveDataProvider.getTokenBalance(address, ARNS_REGISTRY_ADDRESS),
         arweaveDataProvider.getArBalance(address),
       ]);
 

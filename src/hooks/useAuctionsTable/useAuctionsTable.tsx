@@ -361,7 +361,7 @@ export function useAuctionsTable() {
     const domainsInAuction = await arweaveDataProvider
       .getDomainsInAuction({
         address: walletAddress,
-        contractTxId: new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
+        contractTxId: ARNS_REGISTRY_ADDRESS,
       })
       .catch((e) => console.debug(e));
     if (!domainsInAuction) {

@@ -88,7 +88,7 @@ function ExtendLease() {
       }
       const balance = await arweaveDataProvider.getTokenBalance(
         walletAddress!,
-        new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
+        ARNS_REGISTRY_ADDRESS,
       );
 
       setIoBalance(balance ?? 0);
@@ -285,7 +285,7 @@ function ExtendLease() {
                   dispatchTransactionState({
                     type: 'setTransactionData',
                     payload: {
-                      assetId: ARNS_REGISTRY_ADDRESS,
+                      assetId: ARNS_REGISTRY_ADDRESS.toString(),
                       functionName: 'extendRecord',
                       ...payload,
                     },
