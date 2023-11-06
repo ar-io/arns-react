@@ -2,7 +2,6 @@ import {
   ArweaveTransactionID,
   PDNTContractDomainRecord,
   PDNTContractJSON,
-  TransactionCache,
 } from '../../types';
 import {
   ATOMIC_FLAG,
@@ -10,8 +9,6 @@ import {
   DEFAULT_PDNT_CONTRACT_STATE,
   DEFAULT_TTL_SECONDS,
 } from '../../utils/constants';
-import { ContractInteractionCache } from '../caches/ContractInteractionCache';
-import { LocalStorageCache } from '../caches/LocalStorageCache';
 
 /**
  * TODOS:
@@ -21,14 +18,12 @@ import { LocalStorageCache } from '../caches/LocalStorageCache';
 export class PDNTContract {
   id?: ArweaveTransactionID | typeof ATOMIC_FLAG;
   contract: PDNTContractJSON;
-  cache: TransactionCache;
 
   constructor(
     state?: PDNTContractJSON,
     id?: ArweaveTransactionID | typeof ATOMIC_FLAG,
   ) {
     this.id = id;
-    this.cache = new ContractInteractionCache(new LocalStorageCache());
     if (state) {
       this.contract = { ...state };
     } else {
