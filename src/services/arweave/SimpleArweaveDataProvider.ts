@@ -2,16 +2,13 @@ import Arweave from 'arweave/node';
 import Ar from 'arweave/node/ar';
 import { ResponseWithData } from 'arweave/node/lib/api';
 
-import {
-  ArweaveDataProvider,
-  ArweaveTransactionID,
-  TransactionHeaders,
-} from '../../types';
+import { ArweaveDataProvider, TransactionHeaders } from '../../types';
 import { tagsToObject, withExponentialBackoff } from '../../utils';
 import {
   RECOMMENDED_TRANSACTION_CONFIRMATIONS,
   transactionByOwnerQuery,
 } from '../../utils/constants';
+import { ArweaveTransactionID } from './ArweaveTransactionID';
 
 export class SimpleArweaveDataProvider implements ArweaveDataProvider {
   private _arweave: Arweave;

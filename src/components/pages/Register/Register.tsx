@@ -9,13 +9,13 @@ import {
   useIsFocused,
   useRegistrationStatus,
 } from '../../../hooks';
+import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import {
-  ArweaveTransactionID,
   BuyRecordPayload,
   INTERACTION_TYPES,
   PDNTContractJSON,

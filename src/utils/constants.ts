@@ -1,10 +1,7 @@
 import Arweave from 'arweave';
 
-import {
-  ArweaveTransactionID,
-  PDNSContractJSON,
-  PDNTContractJSON,
-} from '../types';
+import { ArweaveTransactionID } from '../services/arweave/ArweaveTransactionID';
+import { PDNSContractJSON, PDNTContractJSON } from '../types';
 
 export const PDNS_SERVICE_API =
   process.env.VITE_ARNS_SERVICE_API ?? 'https://dev.arns.app';

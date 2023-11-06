@@ -6,14 +6,10 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import ArweaveID from '../../components/layout/ArweaveID/ArweaveID';
+import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useWalletState } from '../../state/contexts/WalletState';
-import {
-  ArweaveTransactionID,
-  Auction,
-  AuctionTableData,
-  TRANSACTION_TYPES,
-} from '../../types';
+import { Auction, AuctionTableData, TRANSACTION_TYPES } from '../../types';
 import {
   getNextPriceChangeTimestamp,
   getPriceByBlockHeight,

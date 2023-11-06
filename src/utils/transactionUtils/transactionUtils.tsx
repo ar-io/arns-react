@@ -1,8 +1,8 @@
 import { StepProps } from 'antd';
 import { Tag, Tags } from 'warp-contracts';
 
+import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import {
-  ArweaveTransactionID,
   BuyRecordPayload,
   CONTRACT_TYPES,
   ContractInteraction,

@@ -1,14 +1,11 @@
-import {
-  ArweaveTransactionID,
-  PDNTContractDomainRecord,
-  PDNTContractJSON,
-} from '../../types';
+import { PDNTContractDomainRecord, PDNTContractJSON } from '../../types';
 import {
   ATOMIC_FLAG,
   DEFAULT_MAX_UNDERNAMES,
   DEFAULT_PDNT_CONTRACT_STATE,
   DEFAULT_TTL_SECONDS,
 } from '../../utils/constants';
+import { ArweaveTransactionID } from './ArweaveTransactionID';
 
 /**
  * TODOS:

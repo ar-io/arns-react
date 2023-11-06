@@ -2,7 +2,6 @@ import { isArray } from 'lodash';
 
 import {
   ArweaveDataProvider,
-  ArweaveTransactionID,
   Auction,
   AuctionSettings,
   ContractInteraction,
@@ -24,6 +23,7 @@ import {
 import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
 import { ContractInteractionCache } from '../caches/ContractInteractionCache';
 import { LocalStorageCache } from '../caches/LocalStorageCache';
+import { ArweaveTransactionID } from './ArweaveTransactionID';
 import { PDNTContract } from './PDNTContract';
 
 export class PDNSContractCache implements SmartweaveContractCache {

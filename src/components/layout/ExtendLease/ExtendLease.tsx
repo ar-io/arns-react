@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
+import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import {
-  ArweaveTransactionID,
   ExtendLeasePayload,
   INTERACTION_TYPES,
   PDNSRecordEntry,

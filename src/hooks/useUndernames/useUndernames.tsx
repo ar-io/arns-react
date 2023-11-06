@@ -14,10 +14,10 @@ import ValidationInput from '../../components/inputs/text/ValidationInput/Valida
 import ArweaveID, {
   ArweaveIdTypes,
 } from '../../components/layout/ArweaveID/ArweaveID';
+import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useWalletState } from '../../state/contexts/WalletState';
 import {
-  ArweaveTransactionID,
   PDNTContractDomainRecord,
   UNDERNAME_TABLE_ACTIONS,
   UndernameMetadata,

@@ -2,6 +2,7 @@ import { cleanup, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { ArweaveCompositeDataProviderMock } from '../../../../../__tests__/__mocks__/ArweaveCompositeDataProviderMock';
+import { ArweaveTransactionID } from '../../../../../services/arweave/ArweaveTransactionID';
 import RegistrationStateProvider, {
   RegistrationState,
 } from '../../../../../state/contexts/RegistrationState';
@@ -9,11 +10,7 @@ import {
   RegistrationAction,
   registrationReducer,
 } from '../../../../../state/reducers';
-import {
-  ArweaveTransactionID,
-  PDNSRecordEntry,
-  TRANSACTION_TYPES,
-} from '../../../../../types';
+import { PDNSRecordEntry, TRANSACTION_TYPES } from '../../../../../types';
 import { lowerCaseDomain } from '../../../../../utils';
 import SearchBar from '../SearchBar';
 

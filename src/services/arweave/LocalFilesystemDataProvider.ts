@@ -1,12 +1,12 @@
 import axios from 'axios';
 
-import { ArweaveTransactionID } from '../../types';
 import {
   PDNSContractJSON,
   PDNTContractJSON,
   SmartweaveContractInteractionProvider,
   TransactionTag,
 } from '../../types';
+import { ArweaveTransactionID } from './ArweaveTransactionID';
 
 export class LocalFileSystemDataProvider
   implements Partial<SmartweaveContractInteractionProvider>

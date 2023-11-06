@@ -4,11 +4,11 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { useIsMobile } from '../../../hooks';
+import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import {
-  ArweaveTransactionID,
   DomainDetails,
   ManageDomainRow,
   PDNTContractJSON,

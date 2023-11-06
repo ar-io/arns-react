@@ -1,6 +1,6 @@
+import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import {
   ArweaveDataProvider,
-  ArweaveTransactionID,
   Auction,
   AuctionSettings,
   ContractInteraction,

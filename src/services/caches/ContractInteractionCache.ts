@@ -1,12 +1,8 @@
 import { isArray } from 'lodash';
 
-import {
-  ArweaveTransactionID,
-  ContractInteraction,
-  KVCache,
-  TransactionCache,
-} from '../../types';
+import { ContractInteraction, KVCache, TransactionCache } from '../../types';
 import { jsonSerialize } from '../../utils';
+import { ArweaveTransactionID } from '../arweave/ArweaveTransactionID';
 import { PDNTContract } from '../arweave/PDNTContract';
 
 export class ContractInteractionCache implements TransactionCache, KVCache {

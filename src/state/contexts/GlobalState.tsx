@@ -7,10 +7,10 @@ import React, {
 } from 'react';
 
 import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
+import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { PDNSContractCache } from '../../services/arweave/PDNSContractCache';
 import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
 import { WarpDataProvider } from '../../services/arweave/WarpDataProvider';
-import { ArweaveTransactionID } from '../../types';
 import type { PDNSContractJSON } from '../../types';
 import {
   ARNS_REGISTRY_ADDRESS,

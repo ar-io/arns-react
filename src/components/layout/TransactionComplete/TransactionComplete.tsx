@@ -2,9 +2,9 @@ import { PlusOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
-  ArweaveTransactionID,
   PDNSMapping,
   TransactionData,
   ValidInteractionType,

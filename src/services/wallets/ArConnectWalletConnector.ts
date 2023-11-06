@@ -1,8 +1,8 @@
 import { PermissionType } from 'arconnect';
 import { ApiConfig } from 'arweave/node/lib/api';
 
-import { ArweaveTransactionID } from '../../types';
 import { ArweaveWalletConnector } from '../../types';
+import { ArweaveTransactionID } from '../arweave/ArweaveTransactionID';
 
 export const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [
   'ACCESS_ADDRESS',

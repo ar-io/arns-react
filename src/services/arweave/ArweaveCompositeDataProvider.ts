@@ -2,7 +2,6 @@ import { Tags } from 'warp-contracts';
 
 import {
   ArweaveDataProvider,
-  ArweaveTransactionID,
   Auction,
   AuctionSettings,
   ContractInteraction,
@@ -16,6 +15,7 @@ import {
 } from '../../types';
 import { byteSize, userHasSufficientBalance } from '../../utils';
 import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
+import { ArweaveTransactionID } from './ArweaveTransactionID';
 
 export class ArweaveCompositeDataProvider
   implements

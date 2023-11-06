@@ -2,10 +2,10 @@ import { Checkbox } from 'antd';
 import { useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../hooks';
+import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
-  ArweaveTransactionID,
   PDNTContractJSON,
   TransferANTPayload,
   VALIDATION_INPUT_TYPES,

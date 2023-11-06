@@ -1,7 +1,7 @@
 import { Tooltip } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
-import { ArweaveTransactionID } from '../../../../types';
+import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import { ManageTable } from '../../../../types';
 import { SettingsIcon } from '../../../icons';
 import './styles.css';

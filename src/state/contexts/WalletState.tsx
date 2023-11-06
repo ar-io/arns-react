@@ -7,9 +7,10 @@ import React, {
 } from 'react';
 
 import { useEffectOnce } from '../../hooks/useEffectOnce/useEffectOnce';
+import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { ArConnectWalletConnector } from '../../services/wallets';
 import { ARCONNECT_WALLET_PERMISSIONS } from '../../services/wallets/ArConnectWalletConnector';
-import { ArweaveTransactionID, ArweaveWalletConnector } from '../../types';
+import { ArweaveWalletConnector } from '../../types';
 import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 import { WalletAction } from '../reducers/WalletReducer';
