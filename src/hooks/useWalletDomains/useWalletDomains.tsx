@@ -523,7 +523,6 @@ export function useWalletDomains() {
     const tokenIds = new Set(ids);
     let datas: DomainData[] = [];
     try {
-      console.log(ids);
       if (!ids.length) return [];
       const registrations =
         await arweaveDataProvider.getRecords<PDNSRecordEntry>({
