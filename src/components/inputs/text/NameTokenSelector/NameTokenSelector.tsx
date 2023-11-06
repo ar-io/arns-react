@@ -341,7 +341,7 @@ function NameTokenSelector({
         style={{ borderBottom: '1px solid var(--text-faded)' }}
       >
         <ValidationInput
-          inputId="name-token-selector-input"
+          inputId="name-token-input"
           onClick={() => setSearchActive(true)}
           showValidationIcon={validImport !== undefined}
           setValue={(v) =>

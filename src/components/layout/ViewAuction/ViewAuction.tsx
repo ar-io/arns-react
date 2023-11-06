@@ -2,7 +2,7 @@ import { startCase } from 'lodash';
 import { useEffect } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 
-import { useAuctionInfo } from '../../../hooks';
+import { useAuctionInfo, useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ArweaveTransactionID } from '../../../types';
 import {
@@ -26,6 +26,7 @@ function ViewAuction() {
   const { auction, loadingAuctionInfo } = useAuctionInfo(
     lowerCaseDomain(name ?? ''),
   );
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (!name || (name && !isPDNSDomainNameValid({ name }))) {
@@ -123,6 +124,7 @@ function ViewAuction() {
                 id={new ArweaveTransactionID(auction!.initiator)}
                 type={ArweaveIdTypes.ADDRESS}
                 shouldLink={true}
+                characterCount={isMobile ? 10 : undefined}
               />
             </span>
           </div>

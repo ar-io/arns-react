@@ -204,7 +204,10 @@ function PDNTCard({
       }
       style={{ gap: '20px' }}
     >
-      <div className="flex flex-center" style={{ width: '100%' }}>
+      <div
+        className="flex flex-center"
+        style={{ width: '100%', height: 'fit-content' }}
+      >
         <Descriptions
           key={limitDetails ? 'limit' : 'full'}
           bordered={bordered}
@@ -228,6 +231,7 @@ function PDNTCard({
                   border: bordered ? 'solid 1px var(--text-faded)' : '',
                   borderLeft: 'none',
                   borderRight: 'none',
+                  whiteSpace: 'nowrap',
                 }}
                 contentStyle={{
                   width: 'fit-content',
