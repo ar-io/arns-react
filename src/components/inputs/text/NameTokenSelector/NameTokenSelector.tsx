@@ -2,11 +2,11 @@ import { Pagination, PaginationProps, Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
 import { useIsFocused } from '../../../../hooks';
+import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import { PDNTContract } from '../../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../../state/contexts/WalletState';
 import {
-  ArweaveTransactionID,
   PDNSRecordEntry,
   PDNTContractJSON,
   VALIDATION_INPUT_TYPES,
@@ -341,7 +341,7 @@ function NameTokenSelector({
         style={{ borderBottom: '1px solid var(--text-faded)' }}
       >
         <ValidationInput
-          inputId="name-token-selector-input"
+          inputId="name-token-input"
           onClick={() => setSearchActive(true)}
           showValidationIcon={validImport !== undefined}
           setValue={(v) =>

@@ -1,0 +1,14 @@
+.navgroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+@media screen and (max-width: 600px) {
+  .navgroup {
+    display: none;
+  }
+}

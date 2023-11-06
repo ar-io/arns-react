@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../hooks';
+import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
   ANTMetadata,
-  ArweaveTransactionID,
   PDNTContractJSON,
   PDNT_INTERACTION_TYPES,
   TRANSACTION_TYPES,

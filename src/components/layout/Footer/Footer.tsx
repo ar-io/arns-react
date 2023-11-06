@@ -6,6 +6,7 @@ import { useIsMobile } from '../../../hooks';
 import { ARIO_DISCORD_LINK } from '../../../utils/constants';
 import { BrandLogo, CloseIcon } from '../../icons';
 import Popup from '../Popup/Popup';
+import './styles.css';
 
 function Footer() {
   const isMobile = useIsMobile();
@@ -14,19 +15,13 @@ function Footer() {
 
   return (
     <div
-      className={`${!isMobile ? 'flex-row' : 'flex-column flex-center'}`}
+      className={'flex-row app-footer'}
       style={{
         borderTop: '1px solid var(--text-faded)',
-        padding: '30px 100px',
         boxSizing: 'border-box',
       }}
     >
-      <div
-        className={
-          !isMobile ? 'flex flex-row flex-left' : 'flex flex-column flex-center'
-        }
-        style={{ width: 'fit-content' }}
-      >
+      <div className={'flex-row flex-left'} style={{ width: 'fit-content' }}>
         <BrandLogo width={'30px'} height={'30px'} fill={'var(--text-grey)'} />
         <Link
           className="grey text"
@@ -47,7 +42,7 @@ function Footer() {
           textAlign: 'center',
         }}
       >
-        {showTestnetBanner && (
+        {showTestnetBanner && !isMobile && (
           <div>
             <div
               className="flex-row"

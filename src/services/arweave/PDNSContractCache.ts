@@ -2,7 +2,6 @@ import { isArray } from 'lodash';
 
 import {
   ArweaveDataProvider,
-  ArweaveTransactionID,
   Auction,
   AuctionSettings,
   ContractInteraction,
@@ -24,6 +23,7 @@ import {
 import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
 import { ContractInteractionCache } from '../caches/ContractInteractionCache';
 import { LocalStorageCache } from '../caches/LocalStorageCache';
+import { ArweaveTransactionID } from './ArweaveTransactionID';
 import { PDNTContract } from './PDNTContract';
 
 export class PDNSContractCache implements SmartweaveContractCache {
@@ -179,7 +179,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
   // TODO: implement arns service query for the following 3 functions
   async isDomainReserved({
     domain,
-    contractTxId = new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
+    contractTxId = ARNS_REGISTRY_ADDRESS,
   }: {
     domain: string;
     contractTxId: ArweaveTransactionID;
@@ -219,7 +219,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
 
   async isDomainAvailable({
     domain,
-    contractTxId = new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
+    contractTxId = ARNS_REGISTRY_ADDRESS,
   }: {
     domain: string;
     contractTxId: ArweaveTransactionID;
@@ -349,7 +349,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
 
   async getRecord({
     domain,
-    contractTxId = new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
+    contractTxId = ARNS_REGISTRY_ADDRESS,
   }: {
     domain: string;
     contractTxId: ArweaveTransactionID;
@@ -399,7 +399,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
   }
 
   async getRecords<T extends PDNSRecordEntry | PDNTContractDomainRecord>({
-    contractTxId = new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
+    contractTxId = ARNS_REGISTRY_ADDRESS,
     filters,
   }: {
     contractTxId?: ArweaveTransactionID;
@@ -413,7 +413,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
       .filter(
         (interaction: ContractInteraction) =>
           interaction.payload.function ===
-            (contractTxId.toString() === ARNS_REGISTRY_ADDRESS
+            (contractTxId === ARNS_REGISTRY_ADDRESS
               ? 'buyRecord'
               : 'setRecord') && !interaction.payload?.auction,
       );
@@ -437,7 +437,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
     const cachedRegistrations = cachedInteractions.reduce(
       (acc: Record<string, T>, interaction: ContractInteraction) => {
         // arns specific entry
-        if (contractTxId.toString() === ARNS_REGISTRY_ADDRESS) {
+        if (contractTxId === ARNS_REGISTRY_ADDRESS) {
           const domainName = interaction.payload.name as string;
           acc[domainName] = buildPendingArNSRecord(interaction) as T;
           return acc;
@@ -466,11 +466,14 @@ export class PDNSContractCache implements SmartweaveContractCache {
     return { ...cachedRegistrations, ...records };
   }
 
-  async getIoBalance(address: ArweaveTransactionID): Promise<number> {
+  async getTokenBalance(
+    address: ArweaveTransactionID,
+    contractTxId: ArweaveTransactionID,
+  ): Promise<number> {
     const res = await fetch(
       `${
         this._url
-      }/v1/contract/${ARNS_REGISTRY_ADDRESS}/balances/${address.toString()}`,
+      }/v1/contract/${contractTxId.toString()}/balances/${address.toString()}`,
     ).catch(() => undefined);
 
     const { balance } =

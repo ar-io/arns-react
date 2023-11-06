@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { Auction, TRANSACTION_TYPES } from '../../types';
-import eventEmitter from '../../utils/events';
 
 /**
  * @param domain this hook is used to get the auction information for a given domain - if a live auction exists,
@@ -39,7 +38,7 @@ export function useAuctionInfo(
       });
       setAuction(auction);
     } catch (error) {
-      eventEmitter.emit('error', error);
+      console.error(error);
     } finally {
       setLoadingAuctionInfo(false);
     }

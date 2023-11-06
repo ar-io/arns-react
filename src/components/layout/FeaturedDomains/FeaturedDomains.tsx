@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { ArweaveTransactionID } from '../../../types';
+import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { PDNSCard } from '../../cards';
 import './styles.css';
 

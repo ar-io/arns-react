@@ -3,13 +3,10 @@ import { startCase } from 'lodash';
 import { isValidElement, useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../hooks';
+import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import {
-  ArweaveTransactionID,
-  PDNSMapping,
-  PDNTContractJSON,
-} from '../../../types';
+import { PDNSMapping, PDNTContractJSON } from '../../../types';
 import {
   getLeaseDurationFromEndTimestamp,
   isArweaveTransactionID,
@@ -204,7 +201,10 @@ function PDNTCard({
       }
       style={{ gap: '20px' }}
     >
-      <div className="flex flex-center" style={{ width: '100%' }}>
+      <div
+        className="flex flex-center"
+        style={{ width: '100%', height: 'fit-content' }}
+      >
         <Descriptions
           key={limitDetails ? 'limit' : 'full'}
           bordered={bordered}
@@ -228,6 +228,7 @@ function PDNTCard({
                   border: bordered ? 'solid 1px var(--text-faded)' : '',
                   borderLeft: 'none',
                   borderRight: 'none',
+                  whiteSpace: 'nowrap',
                 }}
                 contentStyle={{
                   width: 'fit-content',

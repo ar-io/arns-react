@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { useUndernames } from '../../../hooks/useUndernames/useUndernames';
+import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import {
-  ArweaveTransactionID,
   PDNT_INTERACTION_TYPES,
   SetRecordPayload,
   TransactionDataPayload,

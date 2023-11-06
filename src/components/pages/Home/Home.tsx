@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { useIsMobile, useRegistrationStatus } from '../../../hooks';
+import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
-import { ArweaveTransactionID } from '../../../types';
 import { FEATURED_DOMAINS } from '../../../utils/constants';
 import {
   decodeDomainToASCII,

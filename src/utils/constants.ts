@@ -1,10 +1,7 @@
 import Arweave from 'arweave';
 
-import {
-  ArweaveTransactionID,
-  PDNSContractJSON,
-  PDNTContractJSON,
-} from '../types';
+import { ArweaveTransactionID } from '../services/arweave/ArweaveTransactionID';
+import { PDNSContractJSON, PDNTContractJSON } from '../types';
 
 export const PDNS_SERVICE_API =
   process.env.VITE_ARNS_SERVICE_API ?? 'https://dev.arns.app';
@@ -42,9 +39,10 @@ export const EMAIL_REGEX = new RegExp(
 );
 export const TTL_SECONDS_REGEX = new RegExp('^[0-9]{3,7}$');
 export const TTL_SECONDS_ENTRY_REGEX = new RegExp('^[0-9]{1,7}$');
-export const ARNS_REGISTRY_ADDRESS =
+export const ARNS_REGISTRY_ADDRESS = new ArweaveTransactionID(
   process.env.VITE_ARNS_REGISTRY_ADDRESS ??
-  'E-pRI1bokGWQBqHnbut9rsHSt9Ypbldos3bAtwg4JMc';
+    '3aX8Ck5_IRLA3L9o4BJLOWxJDrmLLIPoUGZxqOfmHDI',
+);
 export const STUB_PDNT_ID = '6dUiTQKJCVD7c9icQhbbzfI-Le_hC4sXRDx1OQQ6jMI';
 export const STUB_ARWEAVE_TXID = '2yHmORN-N12hM1B2f9-JPMpOfa59qhpsExFCzImrD30'; // pdns spec pdf
 export const DEFAULT_PDNT_SOURCE_CODE_TX =

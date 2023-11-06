@@ -1,5 +1,6 @@
 import { StepProps, Steps } from 'antd';
 
+import { useIsMobile } from '../../../../hooks';
 import { AlertOctagonIcon, CheckIcon } from '../../../icons';
 import './styles.css';
 
@@ -10,6 +11,7 @@ function StepProgressBar({
   stages: StepProps[];
   stage: number;
 }) {
+  const isMobile = useIsMobile();
   function handleIcon(status: string | undefined, index: number) {
     switch (status) {
       case 'finish':
@@ -21,7 +23,11 @@ function StepProgressBar({
               border: '1px solid var(--accent)',
             }}
           >
-            <CheckIcon fill={'var(--accent)'} width={'16px'} height={'16px'} />
+            <CheckIcon
+              fill={'var(--accent)'}
+              width={isMobile ? '13px' : '16px'}
+              height={isMobile ? '13px' : '16px'}
+            />
           </span>
         );
       case 'error':
@@ -31,17 +37,21 @@ function StepProgressBar({
       case 'process':
         return (
           <span
-            className="stage-circle"
+            className="stage-circle flex"
             style={{
               backgroundColor: 'var(--accent)',
               color: 'var(--text-black)',
               border: '1px solid var(--accent)',
               alignItems: 'center',
-              fontWeight: 500,
-              position: 'relative',
+              fontWeight: 700,
+              justifyContent: 'center',
             }}
           >
-            <span style={{ position: 'absolute', top: '0px', bottom: '0px' }}>
+            <span
+              style={{
+                height: '30px',
+              }}
+            >
               {index + 1}
             </span>
           </span>
@@ -49,11 +59,18 @@ function StepProgressBar({
       case 'wait':
         return (
           <span
-            className="stage-circle"
-            style={{ fontFamily: 'Rubik-Bold', position: 'relative' }}
+            className="stage-circle flex"
+            style={{
+              fontWeight: 700,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
           >
-            {' '}
-            <span style={{ position: 'absolute', top: '0px', bottom: '0px' }}>
+            <span
+              style={{
+                height: '30px',
+              }}
+            >
               {index + 1}
             </span>
           </span>
@@ -66,6 +83,7 @@ function StepProgressBar({
     <>
       <Steps
         current={stage}
+        responsive={false}
         items={
           stages.map((step, index) => {
             return {

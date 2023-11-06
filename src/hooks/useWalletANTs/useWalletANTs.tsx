@@ -15,12 +15,12 @@ import ArweaveID, {
   ArweaveIdTypes,
 } from '../../components/layout/ArweaveID/ArweaveID';
 import TransactionStatus from '../../components/layout/TransactionStatus/TransactionStatus';
+import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { PDNTContract } from '../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useWalletState } from '../../state/contexts/WalletState';
 import {
   ANTMetadata,
-  ArweaveTransactionID,
   ContractInteraction,
   PDNTContractJSON,
 } from '../../types';

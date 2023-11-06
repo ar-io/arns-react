@@ -1,6 +1,7 @@
 import Arweave from 'arweave/node/common';
 import {
   ArWallet,
+  EvaluationManifest,
   LoggerFactory,
   Tags,
   Warp,
@@ -11,7 +12,6 @@ import {
 import { DeployPlugin } from 'warp-contracts-plugin-deploy';
 
 import {
-  ArweaveTransactionID,
   KVCache,
   PDNTContractJSON,
   SmartweaveContractInteractionProvider,
@@ -21,6 +21,7 @@ import {
 import {
   buildSmartweaveInteractionTags,
   byteSize,
+  tagsToObject,
   withExponentialBackoff,
 } from '../../utils';
 import {
@@ -30,12 +31,14 @@ import {
 } from '../../utils/constants';
 import { ContractInteractionCache } from '../caches/ContractInteractionCache';
 import { LocalStorageCache } from '../caches/LocalStorageCache';
+import { ArweaveTransactionID } from './ArweaveTransactionID';
 
 LoggerFactory.INST.logLevel('error');
 
 export class WarpDataProvider implements SmartweaveContractInteractionProvider {
   private _warp: Warp;
   private _cache: TransactionCache & KVCache;
+  private _arweave: Arweave;
 
   constructor(
     arweave: Arweave,
@@ -43,6 +46,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       new LocalStorageCache(),
     ),
   ) {
+    this._arweave = arweave;
     // using ar.io gateway and stick to L1 only transactions
     this._warp = WarpFactory.forMainnet(
       {
@@ -52,6 +56,22 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       arweave,
     ).use(new DeployPlugin());
     this._cache = cache;
+  }
+
+  private async getContractManifest({
+    contractTxId,
+  }: {
+    contractTxId: ArweaveTransactionID;
+  }): Promise<EvaluationManifest> {
+    const { tags: encodedTags } = await this._arweave.transactions
+      .get(contractTxId.toString())
+      .catch(() => ({
+        tags: undefined,
+      }));
+    const decodedTags = encodedTags ? tagsToObject(encodedTags) : {};
+    const contractManifestString = decodedTags['Contract-Manifest'] ?? '{}';
+    const contractManifest = JSON.parse(contractManifestString);
+    return contractManifest;
   }
 
   async writeTransaction({
@@ -82,26 +102,19 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       );
     }
 
-    const contract = this._warp // eval options were required due to change in manifest. This is causing an issue where it is causing a delay for returning the txid due to the `waitForConfirmation` option. This should be removed from the eval manifest if we dont want to make the user wait.
+    const { evaluationOptions = {} } = await this.getContractManifest({
+      contractTxId,
+    });
+
+    const contract = this._warp
       .contract(contractTxId.toString())
-      .setEvaluationOptions(
-        contractTxId.toString() === ARNS_REGISTRY_ADDRESS
-          ? {
-              waitForConfirmation: false,
-              internalWrites: true,
-              updateCacheForEachInteraction: true,
-              unsafeClient: 'skip',
-              maxCallDepth: 3,
-            }
-          : {},
-      )
+      .setEvaluationOptions(evaluationOptions)
       .connect('use_wallet');
     if (dryWrite) {
       const dryWriteResults = await contract.dryWrite(
         payload,
         walletAddress.toString(),
       );
-
       // because we are manually constructing the tags, we want to verify them immediately and always
       // an undefined valid means the transaction is valid
       if (dryWriteResults.type === 'error') {
@@ -116,6 +129,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
         );
       }
     }
+
     const result =
       await withExponentialBackoff<WriteInteractionResponse | null>({
         fn: () =>
@@ -266,16 +280,14 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       input,
     });
 
+    const { evaluationOptions = {} } = await this.getContractManifest({
+      contractTxId: registryId,
+    });
+
     // TODO: have an API to get evaluation options from the contract
     const contract = this._warp // eval options were required due to change in manifest. This is causing an issue where it is causing a delay for returning the txid due to the `waitForConfirmation` option. This should be removed from the eval manifest if we dont want to make the user wait.
-      .contract(ARNS_REGISTRY_ADDRESS)
-      .setEvaluationOptions({
-        waitForConfirmation: true,
-        internalWrites: true,
-        updateCacheForEachInteraction: true,
-        unsafeClient: 'skip',
-        maxCallDepth: 3,
-      })
+      .contract(ARNS_REGISTRY_ADDRESS.toString())
+      .setEvaluationOptions(evaluationOptions)
       .connect('use_wallet');
     // because we are manually constructing the tags, we want to verify them immediately and always
     const dryWriteResults = await contract.dryWrite(

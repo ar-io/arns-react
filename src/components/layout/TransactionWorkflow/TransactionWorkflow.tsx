@@ -3,11 +3,11 @@ import { StepProps } from 'antd';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import {
-  ArweaveTransactionID,
   BuyRecordPayload,
   ExcludedValidInteractionType,
   ExtendLeasePayload,
@@ -661,7 +661,7 @@ function TransactionWorkflow({
         message={'Deploying transaction...'}
         loading={deployingTransaction}
       />
-      <div style={{ maxWidth: '900px' }}>
+      <div className="flex" style={{ maxWidth: '900px', width: '100%' }}>
         <Workflow
           onNext={() => handleStage('next')}
           onBack={() => handleStage('back')}

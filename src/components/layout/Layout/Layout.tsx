@@ -1,22 +1,19 @@
 import { Outlet } from 'react-router-dom';
 
-import { useIsMobile } from '../../../hooks';
 import Footer from '../Footer/Footer';
 import NavBar from '../Navbar/Navbar';
 import Notifications from '../Notifications/Notifications';
 import './styles.css';
 
 function Layout() {
-  const isMobile = useIsMobile();
   return (
     <div
       className="flex flex-column"
       style={{
-        minHeight: '100vh',
         gap: 0,
         position: 'relative',
-        paddingBottom: isMobile ? '350px' : '104px',
         boxSizing: 'border-box',
+        height: '100vh',
       }}
     >
       <div
@@ -26,6 +23,7 @@ function Layout() {
           backgroundColor: 'var(--card-bg)',
           boxSizing: 'border-box',
           margin: '0px',
+          minHeight: 'fit-content',
         }}
       >
         <NavBar />
@@ -34,12 +32,14 @@ function Layout() {
         <Outlet />
         <Notifications />
       </div>
+
       <div
         className="flex flex-row"
         style={{
           boxSizing: 'border-box',
-          position: 'absolute',
-          bottom: 0,
+          justifyContent: 'flex-end',
+          alignItems: 'flex-end',
+          height: '100%',
         }}
       >
         <Footer />

@@ -9,13 +9,13 @@ import {
   useIsFocused,
   useRegistrationStatus,
 } from '../../../hooks';
+import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import {
-  ArweaveTransactionID,
   BuyRecordPayload,
   INTERACTION_TYPES,
   PDNTContractJSON,
@@ -205,7 +205,7 @@ function RegisterNameForm() {
     dispatchTransactionState({
       type: 'setTransactionData',
       payload: {
-        assetId: ARNS_REGISTRY_ADDRESS,
+        assetId: ARNS_REGISTRY_ADDRESS.toString(),
         functionName: 'buyRecord',
         ...buyRecordPayload,
       },
@@ -233,11 +233,9 @@ function RegisterNameForm() {
         className="flex flex-column flex-center"
         style={{
           maxWidth: '900px',
-          minWidth: '750px',
           width: '100%',
           padding: '0px',
           margin: '50px',
-          marginTop: '0px',
           gap: '80px',
           boxSizing: 'border-box',
         }}
@@ -245,7 +243,7 @@ function RegisterNameForm() {
         <div
           className="flex flex-row flex-center"
           style={{
-            paddingBottom: ' 40px',
+            paddingBottom: '40px',
             borderBottom: 'solid 1px var(--text-faded)',
           }}
         >
@@ -555,7 +553,10 @@ function RegisterNameForm() {
                 </Tooltip>
               </span>
             </div>
-            <TransactionCost fee={fee} />
+            <TransactionCost
+              fee={fee}
+              feeWrapperStyle={{ alignItems: 'flex-start' }}
+            />
             {domain && auction && auction.isRequiredToBeAuctioned ? (
               <div
                 className="flex flex-row warning-container"

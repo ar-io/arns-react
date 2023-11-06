@@ -7,15 +7,11 @@ import {
   useIsMobile,
   useRegistrationStatus,
 } from '../../../../hooks';
+import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../../state/contexts/RegistrationState';
 import { useWalletState } from '../../../../state/contexts/WalletState';
-import {
-  ArweaveTransactionID,
-  Auction,
-  PDNSRecordEntry,
-  SearchBarProps,
-} from '../../../../types';
+import { Auction, PDNSRecordEntry, SearchBarProps } from '../../../../types';
 import {
   decodeDomainToASCII,
   encodeDomainToASCII,
@@ -359,9 +355,11 @@ function SearchBar(props: SearchBarProps) {
           value={searchBarText}
           setValue={(v) => _onChange(v)}
           onClick={() => _onFocus()}
-          inputCustomStyle={{ height: '65px' }}
+          inputCustomStyle={{
+            height: isMobile ? '50px' : '65px',
+          }}
           wrapperCustomStyle={{
-            height: '65px',
+            height: isMobile ? 'fit-content' : '65px',
             width: '100%',
           }}
           showValidationChecklist={!isMobile}

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../hooks';
+import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
-  ArweaveTransactionID,
   PDNTContractJSON,
   SetControllerPayload,
   VALIDATION_INPUT_TYPES,

@@ -2,8 +2,8 @@ import { ApiConfig } from 'arweave/node/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
 import { Tags } from 'warp-contracts';
 
+import { ArweaveTransactionID } from './services/arweave/ArweaveTransactionID';
 import { PDNTContract } from './services/arweave/PDNTContract';
-import { ATOMIC_FLAG, PDNS_TX_ID_REGEX } from './utils/constants';
 
 export type PDNSRecordEntry = {
   contractTxId: string;
@@ -124,7 +124,7 @@ export type PDNTContractFields = keyof PDNTContractJSON;
 export type PDNSMapping = {
   domain: string;
   record?: PDNSRecordEntry;
-  contractTxId?: ArweaveTransactionID | typeof ATOMIC_FLAG;
+  contractTxId?: ArweaveTransactionID | 'atomic';
   state?: PDNTContractJSON;
   overrides?: { [x: string]: JSX.Element | string | number };
   disabledKeys?: string[];
@@ -216,7 +216,10 @@ export interface SmartweaveContractCache {
     domain: string;
     contractTxId?: ArweaveTransactionID;
   }): Promise<PDNSRecordEntry>;
-  getIoBalance(address: ArweaveTransactionID): Promise<number>;
+  getTokenBalance(
+    address: ArweaveTransactionID,
+    contractTxId: ArweaveTransactionID,
+  ): Promise<number>;
   // END TODO
   getRecords<T extends PDNSRecordEntry | PDNTContractDomainRecord>({
     contractTxId,
@@ -648,32 +651,6 @@ export type TransactionData = TransactionDataBasePayload &
   TransactionDataPayload;
 
 export type TransactionDataConfig = { functionName: string; keys: string[] };
-
-export class ArweaveTransactionID implements Equatable<ArweaveTransactionID> {
-  constructor(private readonly transactionId?: string) {
-    if (!transactionId || !PDNS_TX_ID_REGEX.test(transactionId)) {
-      throw new Error(
-        'Transaction ID should be a 43-character, alphanumeric string potentially including "-" and "_" characters.',
-      );
-    }
-  }
-
-  [Symbol.toPrimitive](hint?: string): string {
-    if (hint === 'number') {
-      throw new Error('Transaction IDs cannot be interpreted as a number!');
-    }
-
-    return this.toString();
-  }
-
-  toString(): string {
-    return this.transactionId ?? '';
-  }
-
-  equals(entityId: ArweaveTransactionID): boolean {
-    return this.transactionId === entityId.transactionId;
-  }
-}
 
 export interface Equatable<T> {
   equals(other: T): boolean;

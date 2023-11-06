@@ -1,4 +1,5 @@
-import { ArweaveTransactionID, TRANSACTION_TYPES } from '../../types';
+import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
+import { TRANSACTION_TYPES } from '../../types';
 import {
   RegistrationState,
   initialRegistrationState,
