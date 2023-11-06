@@ -286,7 +286,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
 
     // TODO: have an API to get evaluation options from the contract
     const contract = this._warp // eval options were required due to change in manifest. This is causing an issue where it is causing a delay for returning the txid due to the `waitForConfirmation` option. This should be removed from the eval manifest if we dont want to make the user wait.
-      .contract(ARNS_REGISTRY_ADDRESS)
+      .contract(ARNS_REGISTRY_ADDRESS.toString())
       .setEvaluationOptions(evaluationOptions)
       .connect('use_wallet');
     // because we are manually constructing the tags, we want to verify them immediately and always
