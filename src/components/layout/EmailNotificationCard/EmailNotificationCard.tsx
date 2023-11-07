@@ -39,7 +39,7 @@ function EmailNotificationCard() {
             style={{ position: 'absolute', left: '15px', top: '10px' }}
           />
           <ValidationInput
-            value={email}
+            value={email ?? ''}
             setValue={(s) => setEmail(s)}
             placeholder="Email address"
             validationPredicates={{
