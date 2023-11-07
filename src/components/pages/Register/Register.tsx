@@ -498,7 +498,7 @@ function RegisterNameForm() {
             >
               <ValidationInput
                 inputId={'target-id-input'}
-                value={targetId}
+                value={targetId ?? ''}
                 setValue={(v: string) => {
                   setTargetId(v.trim());
                   if (v.trim().length === 0) {

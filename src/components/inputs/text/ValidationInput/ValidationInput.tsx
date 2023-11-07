@@ -29,7 +29,7 @@ interface ValidationInputProps extends InputHTMLAttributes<HTMLInputElement> {
   inputCustomStyle?: any;
   validationListStyle?: any;
   disabled?: boolean; // disables input
-  value: string | number | undefined;
+  value: string | number;
   setValue: (text: string) => void;
   validityCallback?: (validity: boolean) => void;
   validationPredicates?: {

@@ -52,7 +52,7 @@ function NameTokenSelector({
   const [validImport, setValidImport] = useState<boolean | undefined>(
     undefined,
   );
-  const isFocused = useIsFocused('name-token-selector-input');
+  const isFocused = useIsFocused('name-token-input');
 
   const listRef = useRef<HTMLDivElement>(null);
   const [listPage, setListPage] = useState<number>(1);
@@ -84,7 +84,6 @@ function NameTokenSelector({
   }, [listRef]);
 
   function handleClickOutside(e: any) {
-    e.preventDefault();
     if (
       listRef.current &&
       e.target !== listRef.current &&
@@ -349,7 +348,7 @@ function NameTokenSelector({
               v.length === SMARTWEAVE_MAX_INPUT_SIZE ? v.trim() : v,
             )
           }
-          value={searchText}
+          value={searchText ?? ''}
           maxCharLength={SMARTWEAVE_MAX_INPUT_SIZE}
           placeholder={
             selectedToken
