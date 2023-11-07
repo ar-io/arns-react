@@ -59,13 +59,14 @@ export class PDNSContractCache implements SmartweaveContractCache {
       );
       const { state } = res && res.ok ? await res.json() : { state: undefined };
 
-      const cachedTokens = this._cache.getCachedNameTokens();
+      const cachedTokens = await this._cache.getCachedNameTokens();
       const cachedToken = cachedTokens?.find(
         (token: PDNTContract) =>
           token.id?.toString() === contractTxId.toString(),
       );
-      const cachedInteractions =
-        this._cache.getCachedInteractions(contractTxId);
+      const cachedInteractions = await this._cache.getCachedInteractions(
+        contractTxId,
+      );
       if (cachedInteractions) {
         await Promise.all(
           cachedInteractions.map(async (interaction: ContractInteraction) => {
@@ -410,12 +411,14 @@ export class PDNSContractCache implements SmartweaveContractCache {
   }): Promise<{ [x: string]: T }> {
     const cachedInteractions = await this._cache
       .getCachedInteractions(contractTxId)
-      .filter(
-        (interaction: ContractInteraction) =>
-          interaction.payload.function ===
-            (contractTxId === ARNS_REGISTRY_ADDRESS
-              ? 'buyRecord'
-              : 'setRecord') && !interaction.payload?.auction,
+      .then((interactions) =>
+        interactions.filter(
+          (interaction: ContractInteraction) =>
+            interaction.payload.function ===
+              (contractTxId === ARNS_REGISTRY_ADDRESS
+                ? 'buyRecord'
+                : 'setRecord') && !interaction.payload?.auction,
+        ),
       );
 
     if (cachedInteractions) {
@@ -474,8 +477,19 @@ export class PDNSContractCache implements SmartweaveContractCache {
       `${
         this._url
       }/v1/contract/${contractTxId.toString()}/balances/${address.toString()}`,
+    ).catch(() => undefined);
+
+    const { balance } =
+      res && res.ok ? await res.json() : { balance: undefined };
+
+    const cachedRegistryInteractions = await this._cache.getCachedInteractions(
+      ARNS_REGISTRY_ADDRESS,
     );
-    const { balance } = await res.json();
-    return balance;
+
+    const cachedBalance = cachedRegistryInteractions
+      .filter((interaction) => interaction.payload.qty)
+      .reduce((acc, interaction) => acc + +interaction.payload.qty, 0);
+
+    return balance - cachedBalance;
   }
 }

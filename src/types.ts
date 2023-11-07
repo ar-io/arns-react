@@ -300,17 +300,17 @@ export interface ArweaveWalletConnector {
 }
 
 export interface KVCache {
-  set(key: string, value: any): void;
-  get(key: string): any;
-  del(key: string, filter?: { key: string; value: string }): void;
-  push(key: string, value: any): void;
+  set(key: string, value: any): Promise<void>;
+  get(key: string): Promise<any>;
+  del(key: string, filter?: { key: string; value: string }): Promise<void>;
+  push(key: string, value: any): Promise<void>;
 }
 
 export interface TransactionCache {
-  getCachedNameTokens(address?: ArweaveTransactionID): PDNTContract[];
+  getCachedNameTokens(address?: ArweaveTransactionID): Promise<PDNTContract[]>;
   getCachedInteractions(
     contractTxId: ArweaveTransactionID,
-  ): ContractInteraction[];
+  ): Promise<ContractInteraction[]>;
 }
 
 export interface ArweaveDataProvider {

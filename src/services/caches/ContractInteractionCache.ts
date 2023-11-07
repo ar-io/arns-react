@@ -10,7 +10,9 @@ export class ContractInteractionCache implements TransactionCache, KVCache {
   constructor(cache: KVCache) {
     this._cache = cache;
   }
-  getCachedNameTokens(address?: ArweaveTransactionID): PDNTContract[] {
+  async getCachedNameTokens(
+    address?: ArweaveTransactionID,
+  ): Promise<PDNTContract[]> {
     const cachedTokens = Object.entries(window.localStorage)
       .map(([contractTxId, interactions]) => {
         const parsedInteractions = jsonSerialize(interactions) ?? interactions;
@@ -37,9 +39,9 @@ export class ContractInteractionCache implements TransactionCache, KVCache {
     return cachedTokens as PDNTContract[];
   }
 
-  getCachedInteractions(
+  async getCachedInteractions(
     contractTxId: ArweaveTransactionID,
-  ): ContractInteraction[] {
+  ): Promise<ContractInteraction[]> {
     const cachedInteractions = this._cache.get(contractTxId.toString());
 
     if (isArray(cachedInteractions)) {
@@ -50,16 +52,19 @@ export class ContractInteractionCache implements TransactionCache, KVCache {
     }
     return [];
   }
-  set(key: string, value: any): void {
+  async set(key: string, value: any): Promise<void> {
     this._cache.set(key, value);
   }
-  get(key: string): any {
+  async get(key: string): Promise<any> {
     return this._cache.get(key);
   }
-  del(key: string, filter?: { key: string; value: string } | undefined): void {
+  async del(
+    key: string,
+    filter?: { key: string; value: string } | undefined,
+  ): Promise<void> {
     this._cache.del(key, filter);
   }
-  push(key: string, value: any): void {
+  async push(key: string, value: any): Promise<void> {
     this._cache.push(key, value);
   }
 }
