@@ -409,15 +409,17 @@ export class PDNSContractCache implements SmartweaveContractCache {
       contractTxId?: ArweaveTransactionID[];
     };
   }): Promise<{ [x: string]: T }> {
-    const cache = await this._cache.getCachedInteractions(contractTxId);
-
-    const cachedInteractions = cache.filter(
-      (interaction: ContractInteraction) =>
-        interaction.payload.function ===
-          (contractTxId === ARNS_REGISTRY_ADDRESS
-            ? 'buyRecord'
-            : 'setRecord') && !interaction.payload?.auction,
-    );
+    const cachedInteractions = await this._cache
+      .getCachedInteractions(contractTxId)
+      .then((interactions) =>
+        interactions.filter(
+          (interaction: ContractInteraction) =>
+            interaction.payload.function ===
+              (contractTxId === ARNS_REGISTRY_ADDRESS
+                ? 'buyRecord'
+                : 'setRecord') && !interaction.payload?.auction,
+        ),
+      );
 
     if (cachedInteractions) {
       await Promise.all(
