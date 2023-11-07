@@ -480,16 +480,16 @@ export class PDNSContractCache implements SmartweaveContractCache {
       res && res.ok ? await res.json() : { balance: undefined };
 
     const cachedRegistryInteractions = await this._cache
-      .getCachedInteractions(new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS))
+      .getCachedInteractions(ARNS_REGISTRY_ADDRESS)
       .filter((interaction: ContractInteraction) => interaction.payload.qty);
 
     let cachedBalance = 0;
 
-    cachedRegistryInteractions.forEach((interaction: ContractInteraction) => {
-      if (interaction.payload.target === address.toString()) {
-        cachedBalance += +interaction.payload.qty;
-      }
-    });
+    cachedRegistryInteractions.map(
+      (interaction: ContractInteraction) =>
+        (cachedBalance += +interaction.payload.qty),
+    );
+    console.log(cachedBalance, cachedRegistryInteractions);
 
     return balance - cachedBalance;
   }
