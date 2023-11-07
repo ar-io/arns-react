@@ -14,7 +14,7 @@ export class LocalStorageCache implements KVCache {
     this.clean();
   }
 
-  get(key: string): string | object | any[] {
+  async get(key: string): Promise<string | object | any[]> {
     const cachedItem = window.localStorage.getItem(key) ?? '[]';
     try {
       return JSON.parse(cachedItem);
@@ -25,7 +25,7 @@ export class LocalStorageCache implements KVCache {
   }
 
   // default to use arrays for now, and just push items to a given key
-  push(key: string, value: any): void {
+  async push(key: string, value: any): Promise<void> {
     const currentCache = this.get(key);
     if (isArray(currentCache)) {
       const updatedArr = [
@@ -40,7 +40,10 @@ export class LocalStorageCache implements KVCache {
     return window.localStorage.setItem(key, JSON.stringify(value));
   }
 
-  del(key: string, filter?: { key: string; value: string }): void {
+  async del(
+    key: string,
+    filter?: { key: string; value: string },
+  ): Promise<void> {
     const currentCache = this.get(key);
     if (isArray(currentCache)) {
       if (!filter) {
@@ -58,11 +61,11 @@ export class LocalStorageCache implements KVCache {
     return window.localStorage.removeItem(key);
   }
 
-  set(key: string, value: any) {
+  async set(key: string, value: any): Promise<void> {
     return window.localStorage.setItem(key, JSON.stringify(value));
   }
 
-  clean() {
+  async clean(): Promise<void> {
     const items = Object.entries(window.localStorage);
     for (const [key, values] of items) {
       try {
