@@ -117,12 +117,8 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       );
       // because we are manually constructing the tags, we want to verify them immediately and always
       // an undefined valid means the transaction is valid
-      const isTickError = Object.values(
-        dryWriteResults?.originalErrorMessages ?? {},
-      )
-        ?.map((e) => e.includes('is less than last ticked height'))
-        ?.includes(true);
-      if (dryWriteResults.type === 'error' && !isTickError) {
+
+      if (dryWriteResults.type === 'error') {
         throw new Error(
           `Contract interaction detected to be invalid: ${
             dryWriteResults?.originalErrorMessages
