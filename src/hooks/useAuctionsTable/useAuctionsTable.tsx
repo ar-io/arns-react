@@ -377,7 +377,7 @@ export function useAuctionsTable() {
       })
       .catch((e) => console.debug(e));
     if (!domainsInAuction) {
-      throw new Error('no domains in auction');
+      return [];
     }
     itemCount.current = domainsInAuction.length;
     itemsLoaded.current = 0;

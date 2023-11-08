@@ -334,7 +334,9 @@ export class PDNSContractCache implements SmartweaveContractCache {
     const domainsInAuction = new Set(Object.keys(auctions));
 
     if (address) {
-      const cachedInteractions = await this._cache.get(contractTxId.toString());
+      const cachedInteractions = await this._cache.getCachedInteractions(
+        contractTxId,
+      );
       cachedInteractions.forEach((interaction: any) => {
         if (
           interaction.payload?.auction === true &&

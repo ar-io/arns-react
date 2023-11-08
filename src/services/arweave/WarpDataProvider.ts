@@ -117,6 +117,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       );
       // because we are manually constructing the tags, we want to verify them immediately and always
       // an undefined valid means the transaction is valid
+
       if (dryWriteResults.type === 'error') {
         throw new Error(
           `Contract interaction detected to be invalid: ${
