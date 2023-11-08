@@ -4,7 +4,11 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { useUndernames } from '../../../hooks/useUndernames/useUndernames';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
+import { PDNTContract } from '../../../services/arweave/PDNTContract';
+import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { useWalletState } from '../../../state/contexts/WalletState';
 import {
+  PDNTContractJSON,
   PDNT_INTERACTION_TYPES,
   SetRecordPayload,
   TransactionDataPayload,
@@ -28,7 +32,15 @@ import './styles.css';
 function Undernames() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const [{ arweaveDataProvider }] = useGlobalState();
+  const [{ walletAddress }] = useWalletState();
   const [pdntId, setPDNTId] = useState<ArweaveTransactionID>();
+  const [pdntState, setPDNTState] = useState<PDNTContract>();
+  const [ownershipStatus, setOwnershipStatus] = useState<string | undefined>(
+    walletAddress && pdntState
+      ? pdntState?.getOwnershipStatus(walletAddress)
+      : undefined,
+  );
   const [selectedRow, setSelectedRow] = useState<
     UndernameMetadata | undefined
   >();
@@ -73,8 +85,24 @@ function Undernames() {
       setTableLoading(undernameTableLoading);
       setPercentLoaded(percentUndernamesLoaded);
       setSelectedRow(selectedUndernameRow);
+      arweaveDataProvider
+        .getContractState<PDNTContractJSON>(new ArweaveTransactionID(id))
+        .then((state) => {
+          const contract = new PDNTContract(
+            state,
+            new ArweaveTransactionID(id),
+          );
+          setPDNTState(contract);
+          setOwnershipStatus(
+            walletAddress && contract
+              ? contract.getOwnershipStatus(walletAddress)
+              : '',
+          );
+        });
     }
+
     setAction(action);
+
     if (
       action === UNDERNAME_TABLE_ACTIONS.REMOVE &&
       pdntId &&
@@ -121,6 +149,7 @@ function Undernames() {
             >
               <h2 className="white">Manage Undernames</h2>
               <button
+                disabled={ownershipStatus !== ('owner' || 'controller')}
                 className={'button-secondary center'}
                 style={{
                   gap: '10px',
@@ -228,7 +257,9 @@ function Undernames() {
           )}
         </div>
       </div>
-      {searchParams.has('modal') && pdntId ? (
+      {searchParams.has('modal') &&
+      pdntId &&
+      ownershipStatus === ('owner' || 'controller') ? (
         <AddUndernameModal
           closeModal={() => {
             setSearchParams({});
@@ -250,7 +281,8 @@ function Undernames() {
 
       {action === UNDERNAME_TABLE_ACTIONS.EDIT &&
       pdntId &&
-      selectedRow?.name ? (
+      selectedRow?.name &&
+      ownershipStatus === ('owner' || 'controller') ? (
         <EditUndernameModal
           closeModal={() => {
             setAction(undefined);
@@ -269,7 +301,10 @@ function Undernames() {
         <> </>
       )}
 
-      {pdntId && transactionData && interactionType ? (
+      {pdntId &&
+      transactionData &&
+      interactionType &&
+      ownershipStatus === ('owner' || 'controller') ? (
         <ConfirmTransactionModal
           setDeployedTransactionId={(id: ArweaveTransactionID) => {
             setDeployedTransactionId(id);

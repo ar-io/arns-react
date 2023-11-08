@@ -65,6 +65,11 @@ function ManageANT() {
   const [{ arweaveDataProvider }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [pdntState, setPDNTState] = useState<PDNTContract>();
+  const [ownershipStatus, setOwnershipStatus] = useState<string | undefined>(
+    walletAddress && pdntState
+      ? pdntState?.getOwnershipStatus(walletAddress)
+      : undefined,
+  );
   const [pdntName, setPDNTName] = useState<string>();
   const [editingField, setEditingField] = useState<string>();
   const [modifiedValue, setModifiedValue] = useState<string | number>();
@@ -167,6 +172,9 @@ function ManageANT() {
 
       setPendingInteractions(pendingContractInteractions);
       setPDNTState(contract);
+      setOwnershipStatus(
+        walletAddress ? contract.getOwnershipStatus(walletAddress) : undefined,
+      );
       setPDNTName(contractState.name ?? id);
       setRows(rows);
       setLoading(false);
@@ -475,7 +483,11 @@ function ManageANT() {
                   className: 'white',
                   render: (value: any, row: any) => {
                     //TODO: if it's got an action attached, show it
-                    if (row.editable) {
+                    if (
+                      row.editable &&
+                      (ownershipStatus === 'owner' ||
+                        ownershipStatus === 'controller')
+                    ) {
                       return (
                         <>
                           {editingField !== row.attribute ? (
@@ -531,7 +543,10 @@ function ManageANT() {
                         </>
                       );
                     }
-                    if (row.attribute === 'owner') {
+                    if (
+                      row.attribute === 'owner' &&
+                      ownershipStatus === 'owner'
+                    ) {
                       return (
                         <span className={'flex flex-right'}>
                           <button
@@ -550,7 +565,10 @@ function ManageANT() {
                         </span>
                       );
                     }
-                    if (row.attribute === 'controllers') {
+                    if (
+                      row.attribute === 'controllers' &&
+                      ownershipStatus === 'owner'
+                    ) {
                       return (
                         // TODO: add condition to "open" to be false when modals are open
                         <Tooltip
@@ -624,21 +642,26 @@ function ManageANT() {
                               >
                                 Manage
                               </button>
-                              <button
-                                className="flex flex-right white pointer button"
-                                onClick={() => {
-                                  const params = new URLSearchParams({
-                                    modal: UNDERNAME_TABLE_ACTIONS.CREATE,
-                                  });
-                                  navigate(
-                                    encodeURI(
-                                      `/manage/ants/${id}/undernames?${params.toString()}`,
-                                    ),
-                                  );
-                                }}
-                              >
-                                Add Undername
-                              </button>
+                              {ownershipStatus === 'owner' ||
+                              ownershipStatus === 'controller' ? (
+                                <button
+                                  className="flex flex-right white pointer button"
+                                  onClick={() => {
+                                    const params = new URLSearchParams({
+                                      modal: UNDERNAME_TABLE_ACTIONS.CREATE,
+                                    });
+                                    navigate(
+                                      encodeURI(
+                                        `/manage/ants/${id}/undernames?${params.toString()}`,
+                                      ),
+                                    );
+                                  }}
+                                >
+                                  Add Undername
+                                </button>
+                              ) : (
+                                <></>
+                              )}
                             </div>
                           }
                         >
