@@ -475,7 +475,10 @@ function ManageANT() {
                   className: 'white',
                   render: (value: any, row: any) => {
                     //TODO: if it's got an action attached, show it
-                    if (row.editable) {
+                    if (
+                      row.editable &&
+                      pdntState?.getOwnershipStatus(walletAddress)
+                    ) {
                       return (
                         <>
                           {editingField !== row.attribute ? (
@@ -531,7 +534,10 @@ function ManageANT() {
                         </>
                       );
                     }
-                    if (row.attribute === 'owner') {
+                    if (
+                      row.attribute === 'owner' &&
+                      pdntState?.getOwnershipStatus(walletAddress) === 'owner'
+                    ) {
                       return (
                         <span className={'flex flex-right'}>
                           <button
@@ -550,7 +556,10 @@ function ManageANT() {
                         </span>
                       );
                     }
-                    if (row.attribute === 'controllers') {
+                    if (
+                      row.attribute === 'controllers' &&
+                      pdntState?.getOwnershipStatus(walletAddress) === 'owner'
+                    ) {
                       return (
                         // TODO: add condition to "open" to be false when modals are open
                         <Tooltip
@@ -624,21 +633,25 @@ function ManageANT() {
                               >
                                 Manage
                               </button>
-                              <button
-                                className="flex flex-right white pointer button"
-                                onClick={() => {
-                                  const params = new URLSearchParams({
-                                    modal: UNDERNAME_TABLE_ACTIONS.CREATE,
-                                  });
-                                  navigate(
-                                    encodeURI(
-                                      `/manage/ants/${id}/undernames?${params.toString()}`,
-                                    ),
-                                  );
-                                }}
-                              >
-                                Add Undername
-                              </button>
+                              {pdntState?.getOwnershipStatus(walletAddress) ? (
+                                <button
+                                  className="flex flex-right white pointer button"
+                                  onClick={() => {
+                                    const params = new URLSearchParams({
+                                      modal: UNDERNAME_TABLE_ACTIONS.CREATE,
+                                    });
+                                    navigate(
+                                      encodeURI(
+                                        `/manage/ants/${id}/undernames?${params.toString()}`,
+                                      ),
+                                    );
+                                  }}
+                                >
+                                  Add Undername
+                                </button>
+                              ) : (
+                                <></>
+                              )}
                             </div>
                           }
                         >
