@@ -6,7 +6,6 @@ import { useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { PDNSDomain, PDNSMapping } from '../../../types';
 import { getRandomInteger } from '../../../utils';
-import { DEFAULT_EXPIRATION } from '../../../utils/constants';
 import {
   ElephantOne,
   ElephantThree,
@@ -25,7 +24,6 @@ function PDNSCard({ domain, contractTxId }: PDNSMapping) {
     domain,
     contractTxId,
     image: PDNSDefault,
-    expiration: DEFAULT_EXPIRATION, // TODO: [PE-4549] don't default
   });
   const [loading, setLoading] = useState(true);
 
@@ -129,15 +127,6 @@ function PDNSCard({ domain, contractTxId }: PDNSMapping) {
         }}
       >
         <span className="flex white">{`${pdntDetails.domain}.${gateway}`}</span>
-
-        <span className="grey">
-          Exp.{' '}
-          {new Intl.DateTimeFormat('en-US', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-          }).format(pdntDetails.expiration)}
-        </span>
       </div>
     </Link>
   );
