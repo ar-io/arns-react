@@ -143,7 +143,8 @@ export class PDNTContract {
   isValid(): boolean {
     return this.contract && this.records && !!this.getRecord('@');
   }
-  getOwnershipStatus(address: ArweaveTransactionID): string | undefined {
+  getOwnershipStatus(address?: ArweaveTransactionID): string | undefined {
+    if (!address) return;
     if (this.owner === address.toString()) {
       return 'owner';
     }

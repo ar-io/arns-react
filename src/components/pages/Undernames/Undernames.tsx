@@ -36,11 +36,6 @@ function Undernames() {
   const [{ walletAddress }] = useWalletState();
   const [pdntId, setPDNTId] = useState<ArweaveTransactionID>();
   const [pdntState, setPDNTState] = useState<PDNTContract>();
-  const [ownershipStatus, setOwnershipStatus] = useState<string | undefined>(
-    walletAddress && pdntState
-      ? pdntState?.getOwnershipStatus(walletAddress)
-      : undefined,
-  );
   const [selectedRow, setSelectedRow] = useState<
     UndernameMetadata | undefined
   >();
@@ -93,11 +88,6 @@ function Undernames() {
             new ArweaveTransactionID(id),
           );
           setPDNTState(contract);
-          setOwnershipStatus(
-            walletAddress && contract
-              ? contract.getOwnershipStatus(walletAddress)
-              : '',
-          );
         });
     }
 
@@ -149,7 +139,7 @@ function Undernames() {
             >
               <h2 className="white">Manage Undernames</h2>
               <button
-                disabled={ownershipStatus !== ('owner' || 'controller')}
+                disabled={!!pdntState?.getOwnershipStatus(walletAddress)}
                 className={'button-secondary center'}
                 style={{
                   gap: '10px',
@@ -259,7 +249,7 @@ function Undernames() {
       </div>
       {searchParams.has('modal') &&
       pdntId &&
-      ownershipStatus === ('owner' || 'controller') ? (
+      pdntState?.getOwnershipStatus(walletAddress) ? (
         <AddUndernameModal
           closeModal={() => {
             setSearchParams({});
@@ -282,7 +272,7 @@ function Undernames() {
       {action === UNDERNAME_TABLE_ACTIONS.EDIT &&
       pdntId &&
       selectedRow?.name &&
-      ownershipStatus === ('owner' || 'controller') ? (
+      pdntState?.getOwnershipStatus(walletAddress) ? (
         <EditUndernameModal
           closeModal={() => {
             setAction(undefined);
@@ -304,7 +294,7 @@ function Undernames() {
       {pdntId &&
       transactionData &&
       interactionType &&
-      ownershipStatus === ('owner' || 'controller') ? (
+      pdntState?.getOwnershipStatus(walletAddress) ? (
         <ConfirmTransactionModal
           setDeployedTransactionId={(id: ArweaveTransactionID) => {
             setDeployedTransactionId(id);

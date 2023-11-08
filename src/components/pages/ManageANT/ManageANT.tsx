@@ -65,11 +65,6 @@ function ManageANT() {
   const [{ arweaveDataProvider }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [pdntState, setPDNTState] = useState<PDNTContract>();
-  const [ownershipStatus, setOwnershipStatus] = useState<string | undefined>(
-    walletAddress && pdntState
-      ? pdntState?.getOwnershipStatus(walletAddress)
-      : undefined,
-  );
   const [pdntName, setPDNTName] = useState<string>();
   const [editingField, setEditingField] = useState<string>();
   const [modifiedValue, setModifiedValue] = useState<string | number>();
@@ -172,9 +167,6 @@ function ManageANT() {
 
       setPendingInteractions(pendingContractInteractions);
       setPDNTState(contract);
-      setOwnershipStatus(
-        walletAddress ? contract.getOwnershipStatus(walletAddress) : undefined,
-      );
       setPDNTName(contractState.name ?? id);
       setRows(rows);
       setLoading(false);
@@ -485,8 +477,7 @@ function ManageANT() {
                     //TODO: if it's got an action attached, show it
                     if (
                       row.editable &&
-                      (ownershipStatus === 'owner' ||
-                        ownershipStatus === 'controller')
+                      pdntState?.getOwnershipStatus(walletAddress)
                     ) {
                       return (
                         <>
@@ -545,7 +536,7 @@ function ManageANT() {
                     }
                     if (
                       row.attribute === 'owner' &&
-                      ownershipStatus === 'owner'
+                      pdntState?.getOwnershipStatus(walletAddress) === 'owner'
                     ) {
                       return (
                         <span className={'flex flex-right'}>
@@ -567,7 +558,7 @@ function ManageANT() {
                     }
                     if (
                       row.attribute === 'controllers' &&
-                      ownershipStatus === 'owner'
+                      pdntState?.getOwnershipStatus(walletAddress) === 'owner'
                     ) {
                       return (
                         // TODO: add condition to "open" to be false when modals are open
@@ -642,8 +633,7 @@ function ManageANT() {
                               >
                                 Manage
                               </button>
-                              {ownershipStatus === 'owner' ||
-                              ownershipStatus === 'controller' ? (
+                              {pdntState?.getOwnershipStatus(walletAddress) ? (
                                 <button
                                   className="flex flex-right white pointer button"
                                   onClick={() => {
