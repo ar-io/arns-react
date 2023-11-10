@@ -27,6 +27,7 @@ import {
 import {
   ARNS_REGISTRY_ADDRESS,
   ATOMIC_REGISTRATION_INPUT,
+  PDNS_SERVICE_API,
   SMARTWEAVE_MAX_TAG_SPACE,
 } from '../../utils/constants';
 import { ContractInteractionCache } from '../caches/ContractInteractionCache';
@@ -106,10 +107,12 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       contractTxId,
     });
 
-    const contract = this._warp
+    const contract = await this._warp
       .contract(contractTxId.toString())
       .setEvaluationOptions(evaluationOptions)
-      .connect('use_wallet');
+      .connect('use_wallet')
+      // TODO: add to our SmartweaveContractInterface a method that gets the full response of the service with `sortKey`
+      .syncState(`${PDNS_SERVICE_API}/v1/contract/${contractTxId.toString()}`);
     if (dryWrite) {
       const dryWriteResults = await contract.dryWrite(
         payload,
@@ -285,11 +288,13 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       contractTxId: registryId,
     });
 
-    // TODO: have an API to get evaluation options from the contract
-    const contract = this._warp // eval options were required due to change in manifest. This is causing an issue where it is causing a delay for returning the txid due to the `waitForConfirmation` option. This should be removed from the eval manifest if we dont want to make the user wait.
+    const contract = await this._warp
       .contract(ARNS_REGISTRY_ADDRESS.toString())
       .setEvaluationOptions(evaluationOptions)
-      .connect('use_wallet');
+      .connect('use_wallet')
+      // TODO: add to our SmartweaveContractInterface a method that gets the full response of the service with `sortKey`
+      .syncState(`${PDNS_SERVICE_API}/v1/contract/${ARNS_REGISTRY_ADDRESS}`);
+
     // because we are manually constructing the tags, we want to verify them immediately and always
     const dryWriteResults = await contract.dryWrite(
       input,
