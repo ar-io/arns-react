@@ -332,4 +332,10 @@ export class ArweaveCompositeDataProvider
   ): Promise<number> {
     return this._contractProvider.getTokenBalance(address, contractTxId);
   }
+  async getBlock(height: number): Promise<Record<string, any>> {
+    return this._arweaveProvider.getBlock(height);
+  }
+  async warmTickStateCache(): Promise<void> {
+    return this._contractProvider.warmTickStateCache();
+  }
 }

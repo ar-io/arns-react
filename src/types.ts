@@ -233,6 +233,7 @@ export interface SmartweaveContractCache {
     };
     address?: ArweaveTransactionID;
   }): Promise<{ [x: string]: T }>;
+  warmTickStateCache(): Promise<void>;
 }
 
 export interface SmartweaveContractInteractionProvider {
@@ -337,6 +338,7 @@ export interface ArweaveDataProvider {
   getArBalance(wallet: ArweaveTransactionID): Promise<number>;
   getArPrice(data: number): Promise<number>;
   getCurrentBlockHeight(): Promise<number>;
+  getBlock(height: number): Promise<Record<string, any>>;
 }
 
 export interface PDNTInteractionProvider {

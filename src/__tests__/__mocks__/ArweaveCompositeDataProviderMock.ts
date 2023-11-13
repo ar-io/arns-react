@@ -208,4 +208,10 @@ export class ArweaveCompositeDataProviderMock
   ): Promise<number> {
     throw new Error('Method not implemented.');
   }
+  async getBlock(height: number): Promise<Record<string, any>> {
+    return { '1': 1 };
+  }
+  warmTickStateCache(): Promise<void> {
+    return Promise.resolve();
+  }
 }

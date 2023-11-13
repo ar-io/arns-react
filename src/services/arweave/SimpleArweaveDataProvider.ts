@@ -288,4 +288,7 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
 
     return allData;
   }
+  async getBlock(height: number) {
+    return this._arweave.api.get(`/block/height/${height}`);
+  }
 }

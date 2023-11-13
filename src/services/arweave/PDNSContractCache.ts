@@ -19,8 +19,12 @@ import {
   isArweaveTransactionID,
   isDomainReservedLength,
   lowerCaseDomain,
+  sleep,
 } from '../../utils';
-import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
+import {
+  ARNS_REGISTRY_ADDRESS,
+  MIN_SAFE_EDIT_CONFIRMATIONS,
+} from '../../utils/constants';
 import { ContractInteractionCache } from '../caches/ContractInteractionCache';
 import { LocalStorageCache } from '../caches/LocalStorageCache';
 import { ArweaveTransactionID } from './ArweaveTransactionID';
@@ -493,5 +497,25 @@ export class PDNSContractCache implements SmartweaveContractCache {
       .reduce((acc, interaction) => acc + +interaction.payload.qty, 0);
 
     return balance - cachedBalance;
+  }
+  async warmTickStateCache() {
+    const res = await fetch(
+      `${this._url}/v1/contract/${ARNS_REGISTRY_ADDRESS.toString()}`,
+    );
+    const {
+      state: { lastTickedHeight },
+    } = await res.json();
+    const currentHeight = await this._arweave.getCurrentBlockHeight();
+    const startHeight = lastTickedHeight - MIN_SAFE_EDIT_CONFIRMATIONS;
+    const heightPromises = [];
+    for (let i = startHeight; i < currentHeight; i++) {
+      // store the calls in an array so we can await them in order
+      heightPromises.push(() => this._arweave.getBlock(i));
+    }
+    for (const q of heightPromises) {
+      // wait for each call to finish before moving on to the next. We sleep to prevent rate limiting and prevent blocking the main thread.
+      await sleep(500);
+      Promise.resolve(q());
+    }
   }
 }
