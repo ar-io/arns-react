@@ -63,6 +63,10 @@ export class PDNTContract {
     );
   }
 
+  set controllers(controllers: string[]) {
+    this.contract.controllers = controllers;
+  }
+
   // TODO: this should be refactored when we are ready to not support pdnts that do not comply with the new PDNT spec
   get records(): { [x: string]: PDNTContractDomainRecord } {
     if (!this.contract?.records) {

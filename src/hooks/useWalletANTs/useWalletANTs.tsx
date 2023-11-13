@@ -484,16 +484,40 @@ export function useWalletANTs() {
 
           const contract = new PDNTContract(contractState, contractTxId);
 
+          const pendingTransfer = pendingContractInteractions?.find(
+            (interaction) => interaction.function === 'transfer',
+          );
+          const pendingController = pendingContractInteractions?.find(
+            (interaction) => interaction.function === 'removeController',
+          );
+
+          if (pendingTransfer) {
+            contract.owner = pendingTransfer.payload.target.toString();
+          }
+          if (
+            pendingController &&
+            pendingController.payload.target === walletAddress?.toString()
+          ) {
+            contract.controllers = contract.controllers.filter(
+              (c: string) => c === walletAddress?.toString(),
+            );
+          }
+
           // simple check that it is ANT shaped contract
           if (!contract.isValid()) {
             errors.push('Invalid contract');
           }
+
           // TODO: react strict mode makes this increment twice in dev
           if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
 
           setPercentLoaded(
             Math.round((itemsLoaded.current / itemCount.current) * 100),
           );
+
+          if (!contract.getOwnershipStatus(walletAddress)) {
+            return;
+          }
 
           return {
             contract,
@@ -509,7 +533,7 @@ export function useWalletANTs() {
         },
       );
 
-      datas = await Promise.all(newDatas);
+      datas = (await Promise.all(newDatas)).filter((d) => !!d) as ANTData[];
     } catch (error) {
       console.error(error);
     }
