@@ -108,6 +108,11 @@ export default function WalletStateProvider({
     });
 
     try {
+      // check if arconnect is responsive
+      await connector.validateArconnectResponsive().catch((e) => {
+        eventEmitter.emit('error', e);
+        throw new Error(e);
+      });
       // check if wallet has permissions and reconnect
       const permissions = await window.arweaveWallet.getPermissions();
 
@@ -121,7 +126,7 @@ export default function WalletStateProvider({
         });
       }
     } catch (error) {
-      // intentionally swallow error here
+      // intentionally swallow here
       // eventEmitter.emit('error', error);
     } finally {
       dispatchWalletState({
