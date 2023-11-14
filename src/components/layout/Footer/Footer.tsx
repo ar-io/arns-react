@@ -59,7 +59,7 @@ function Footer() {
                 ArNS is part of the ar.io testnet phase. Please share your
                 feedback on our 2 min{' '}
                 <Link
-                  to="https://pds-inc.typeform.com/to/TTrkj0MM"
+                  to="https://pds-inc.typeform.com/arns-test-app"
                   target="_blank"
                   rel="noreferrer"
                   className="link hover"
