@@ -21,31 +21,30 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
     this._wallet = window.arweaveWallet;
   }
 
-  async validateArconnectResponsive(): Promise<void> {
+  // The API has been shown to be unreliable, so we call each function with a timeout
+  async safeArconnectApiExecutor<T>(fn: () => T): Promise<T> {
     /**
      * This is here because occasionally arconnect injects but does not initialize internally properly,
      * allowing the api to be called but then hanging.
      * This is a workaround to check that and emit appropriate errors,
      * and to trigger the workaround workflow of reloading the page and re-initializing arconnect.
      */
-    const isResponsive = await executeWithTimeout(async () => {
-      // can test this with sleep(4000)
-      return this._wallet.getPermissions();
-    }, 3000);
+    const res = await executeWithTimeout(() => fn(), 3000);
 
-    if (isResponsive === 'timeout') {
-      console.log(isResponsive);
+    if (res === 'timeout') {
       throw {
         name: 'ArConnect',
         message: ARCONNECT_UNRESPONSIVE_ERROR,
       };
     }
+    return res as T;
   }
 
   async connect(): Promise<void> {
     // confirm they have the extension installed
-    await this.validateArconnectResponsive();
-    const permissions = await this._wallet.getPermissions();
+    const permissions = await this.safeArconnectApiExecutor(
+      this._wallet.getPermissions,
+    );
     if (
       permissions &&
       !ARCONNECT_WALLET_PERMISSIONS.every((permission) =>
@@ -53,40 +52,41 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
       )
     ) {
       // disconnect due to missing permissions, then re-connect
-      await this._wallet.disconnect();
+      await this.safeArconnectApiExecutor(this._wallet.disconnect);
     } else if (permissions) {
       return;
     }
 
-    return this._wallet
-      .connect(
+    return this.safeArconnectApiExecutor(() =>
+      this._wallet.connect(
         ARCONNECT_WALLET_PERMISSIONS,
         {
           name: 'ARNS - ar.io',
         },
         // TODO: add arweave configs here
-      )
-      .catch((err) => {
-        console.error(err);
-        throw { name: 'ArConnect', message: 'User cancelled authentication.' };
-      });
+      ),
+    ).catch((err) => {
+      console.error(err);
+      throw { name: 'ArConnect', message: 'User cancelled authentication.' };
+    });
   }
 
   async disconnect(): Promise<void> {
-    await this.validateArconnectResponsive();
-    return this._wallet.disconnect();
+    return this.safeArconnectApiExecutor(this._wallet.disconnect);
   }
 
   async getWalletAddress(): Promise<ArweaveTransactionID> {
-    await this.validateArconnectResponsive();
-    return this._wallet
-      .getActiveAddress()
-      .then((res) => new ArweaveTransactionID(res));
+    return this.safeArconnectApiExecutor(() =>
+      this._wallet
+        .getActiveAddress()
+        .then((res) => new ArweaveTransactionID(res)),
+    );
   }
 
   async getGatewayConfig(): Promise<ApiConfig> {
-    await this.validateArconnectResponsive();
-    const config = await this._wallet.getArweaveConfig();
+    const config = await this.safeArconnectApiExecutor(
+      this._wallet.getArweaveConfig,
+    );
     return config as unknown as ApiConfig;
   }
 }

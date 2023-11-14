@@ -4,14 +4,13 @@ import { ArgsProps } from 'antd/es/notification/interface';
 import { useEffect } from 'react';
 
 import eventEmitter from '../../../utils/events';
-import { arconnectUnresponsive } from './arconnect';
 import { defaultError } from './error';
 import './styles.css';
 
 export type NotificationType = 'success' | 'info' | 'warning' | 'error';
 
 export const ARCONNECT_UNRESPONSIVE_ERROR =
-  'There was an issue initializing ArConnect. Please reload the page to re-initialize.';
+  'There was an issue initializing ArConnect. Please reload the page to initialize.';
 
 export default function Notifications() {
   const [notificationApi, contextHolder] = notification.useNotification({
@@ -43,14 +42,23 @@ export default function Notifications() {
     switch (type) {
       case 'error':
         if (description === ARCONNECT_UNRESPONSIVE_ERROR) {
-          return arconnectUnresponsive({
-            api: notificationApi,
+          return defaultError({
+            closeCallback: () => notificationApi.destroy(),
+            actionCallback: () => location.reload(),
+            actionText: 'Reload',
             title,
             description,
             key,
           });
         }
-        return defaultError({ api: notificationApi, title, description, key });
+        return defaultError({
+          closeCallback: () => notificationApi.destroy(),
+          actionCallback: () => notificationApi.destroy(),
+          actionText: 'Close',
+          title,
+          description,
+          key,
+        });
       default:
         return {
           message: '',
