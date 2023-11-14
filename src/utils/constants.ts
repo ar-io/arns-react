@@ -41,7 +41,7 @@ export const TTL_SECONDS_REGEX = new RegExp('^[0-9]{3,7}$');
 export const TTL_SECONDS_ENTRY_REGEX = new RegExp('^[0-9]{1,7}$');
 export const ARNS_REGISTRY_ADDRESS = new ArweaveTransactionID(
   process.env.VITE_ARNS_REGISTRY_ADDRESS ??
-    '3aX8Ck5_IRLA3L9o4BJLOWxJDrmLLIPoUGZxqOfmHDI',
+    'fbU8Y4NMKKzP4rmAYeYj6tDrVDo9XNbdyq5IZPA31WQ',
 );
 export const STUB_PDNT_ID = '6dUiTQKJCVD7c9icQhbbzfI-Le_hC4sXRDx1OQQ6jMI';
 export const STUB_ARWEAVE_TXID = '2yHmORN-N12hM1B2f9-JPMpOfa59qhpsExFCzImrD30'; // pdns spec pdf
