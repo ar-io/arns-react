@@ -40,25 +40,21 @@ export default function Notifications() {
     key: string;
   }): ArgsProps {
     switch (type) {
-      case 'error':
-        if (description === ARCONNECT_UNRESPONSIVE_ERROR) {
-          return defaultError({
-            closeCallback: () => notificationApi.destroy(),
-            actionCallback: () => location.reload(),
-            actionText: 'Reload',
-            title,
-            description,
-            key,
-          });
-        }
+      case 'error': {
+        const arconnectUnresponsive =
+          description === ARCONNECT_UNRESPONSIVE_ERROR;
+
         return defaultError({
           closeCallback: () => notificationApi.destroy(),
-          actionCallback: () => notificationApi.destroy(),
-          actionText: 'Close',
+          actionCallback: arconnectUnresponsive
+            ? () => location.reload()
+            : () => notificationApi.destroy(),
+          actionText: arconnectUnresponsive ? 'Reload' : 'Close',
           title,
           description,
           key,
         });
+      }
       default:
         return {
           message: '',
