@@ -57,18 +57,18 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
       return;
     }
 
-    return this.safeArconnectApiExecutor(() =>
-      this._wallet.connect(
+    return this._wallet
+      .connect(
         ARCONNECT_WALLET_PERMISSIONS,
         {
           name: 'ARNS - ar.io',
         },
         // TODO: add arweave configs here
-      ),
-    ).catch((err) => {
-      console.error(err);
-      throw { name: 'ArConnect', message: 'User cancelled authentication.' };
-    });
+      )
+      .catch((err) => {
+        console.error(err);
+        throw { name: 'ArConnect', message: 'User cancelled authentication.' };
+      });
   }
 
   async disconnect(): Promise<void> {
