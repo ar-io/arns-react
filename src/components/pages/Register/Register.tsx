@@ -17,6 +17,7 @@ import { useTransactionState } from '../../../state/contexts/TransactionState';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import {
   BuyRecordPayload,
+  INTERACTION_NAMES,
   INTERACTION_TYPES,
   PDNTContractJSON,
   TRANSACTION_TYPES,
@@ -106,17 +107,23 @@ function RegisterNameForm() {
       const update = async () => {
         if (domain) {
           try {
-            const record = await arweaveDataProvider.getRecord({
-              domain: domain,
-            });
-            if (record.purchasePrice) {
-              dispatchRegisterState({
-                type: 'setFee',
-                payload: { ar: fee.ar, io: record.purchasePrice },
+            const price = await arweaveDataProvider
+              .getPriceForInteraction({
+                interactionName: INTERACTION_NAMES.BUY_RECORD,
+                payload: {
+                  name: domain,
+                  years: leaseDuration,
+                  type: registrationType,
+                  contractTxId: ATOMIC_FLAG,
+                },
+              })
+              .catch(() => {
+                throw new Error('Unable to get purchase price for domain');
               });
-            } else {
-              throw Error('Unable to get purchase price for domain');
-            }
+            dispatchRegisterState({
+              type: 'setFee',
+              payload: { ar: fee.ar, io: price },
+            });
           } catch (e) {
             eventEmitter.emit('error', e);
           }
@@ -124,7 +131,7 @@ function RegisterNameForm() {
       };
       update();
     }
-  }, [leaseDuration, domain, auction, registrationType]);
+  }, [leaseDuration, domain, registrationType]);
 
   async function handlePDNTId(id: string) {
     try {

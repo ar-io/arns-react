@@ -5,6 +5,7 @@ import {
   Auction,
   AuctionSettings,
   ContractInteraction,
+  INTERACTION_PRICE_PARAMS,
   KVCache,
   PDNSContractJSON,
   PDNSRecordEntry,
@@ -395,7 +396,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
           domain,
         })
       : undefined;
-    if ((cachedRecord && !auction) || cachedRecord.isBid) {
+    if ((cachedRecord && !auction) || cachedRecord?.isBid) {
       return buildPendingArNSRecord(cachedRecord);
     }
     throw new Error('Error getting record');
@@ -493,5 +494,33 @@ export class PDNSContractCache implements SmartweaveContractCache {
       .reduce((acc, interaction) => acc + +interaction.payload.qty, 0);
 
     return balance - cachedBalance;
+  }
+
+  async getPriceForInteraction(
+    { interactionName, payload }: INTERACTION_PRICE_PARAMS,
+    contractTxId: ArweaveTransactionID,
+  ): Promise<number> {
+    const params = new URLSearchParams(
+      Object.entries({
+        interactionName: interactionName,
+        ...payload,
+      }).map(([key, value]) => [key, value.toString()]),
+    );
+
+    const res = await fetch(
+      `${
+        this._url
+      }/v1/contract/${contractTxId.toString()}/read/priceForInteraction?${params.toString()}`,
+    ).catch(() => undefined);
+
+    const {
+      result: { price },
+    } = res && res.ok ? await res.json() : { result: { price: undefined } };
+
+    if (!price) {
+      throw new Error(`Couldn't get price for ${interactionName}`);
+    }
+
+    return price;
   }
 }
