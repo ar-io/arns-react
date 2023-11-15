@@ -26,18 +26,22 @@ export class LocalStorageCache implements KVCache {
 
   // default to use arrays for now, and just push items to a given key
   async push(key: string, value: any): Promise<void> {
-    const currentCache = this.get(key);
+    const currentCache = await this.get(key);
+    const timestamp = Date.now();
     if (isArray(currentCache)) {
       const updatedArr = [
         {
           ...value,
-          timestamp: Date.now(),
+          timestamp,
         },
         ...currentCache,
       ];
       return window.localStorage.setItem(key, JSON.stringify(updatedArr));
     }
-    return window.localStorage.setItem(key, JSON.stringify(value));
+    return window.localStorage.setItem(
+      key,
+      JSON.stringify([{ ...value, timestamp }, currentCache]),
+    );
   }
 
   async del(
@@ -51,14 +55,16 @@ export class LocalStorageCache implements KVCache {
         return window.localStorage.removeItem(key);
       }
       const { key: filterKey, value: matchFilterValue } = filter;
-      const updatedArr = currentCache.filter((cachedValue: any) => {
-        // add check if it's a json object and parsed correctly
-        return cachedValue[filterKey] !== matchFilterValue;
-      });
+      const updatedArr = currentCache.filter(
+        (cachedValue: any) =>
+          // add check if it's a json object and parsed correctly
+          cachedValue[filterKey] !== matchFilterValue,
+      );
+
       window.localStorage.setItem(key, JSON.stringify(updatedArr));
+    } else {
+      window.localStorage.removeItem(key);
     }
-    // existing delete functionality
-    return window.localStorage.removeItem(key);
   }
 
   async set(key: string, value: any): Promise<void> {
@@ -77,7 +83,6 @@ export class LocalStorageCache implements KVCache {
             if (!timestamp) {
               return false;
             }
-
             return now - timestamp < INTERACTION_CACHE_TTL_MS;
           });
           if (filteredValues.length > 0) {

@@ -10,6 +10,7 @@ export const ARWEAVE_HOST = process.env.VITE_ARWEAVE_HOST ?? 'ar-io.dev';
 export const DEFAULT_ARWEAVE = new Arweave({
   host: ARWEAVE_HOST,
   protocol: 'https',
+  port: 443,
 });
 
 // note: lookahead/lookbehind regex's are not compatible with iOS browsers
@@ -41,7 +42,7 @@ export const TTL_SECONDS_REGEX = new RegExp('^[0-9]{3,7}$');
 export const TTL_SECONDS_ENTRY_REGEX = new RegExp('^[0-9]{1,7}$');
 export const ARNS_REGISTRY_ADDRESS = new ArweaveTransactionID(
   process.env.VITE_ARNS_REGISTRY_ADDRESS ??
-    '3aX8Ck5_IRLA3L9o4BJLOWxJDrmLLIPoUGZxqOfmHDI',
+    'fbU8Y4NMKKzP4rmAYeYj6tDrVDo9XNbdyq5IZPA31WQ',
 );
 export const STUB_PDNT_ID = '6dUiTQKJCVD7c9icQhbbzfI-Le_hC4sXRDx1OQQ6jMI';
 export const STUB_ARWEAVE_TXID = '2yHmORN-N12hM1B2f9-JPMpOfa59qhpsExFCzImrD30'; // pdns spec pdf
@@ -63,7 +64,7 @@ export const PDNT_CONTRACT_STATE_KEYS = [
 // seconds / milliseconds in 365 days (not leap year aware)
 export const YEAR_IN_MILLISECONDS = 31536000000;
 export const YEAR_IN_SECONDS = 31536000;
-export const AVERAGE_BLOCK_TIME = 120_000;
+export const AVERAGE_BLOCK_TIME_MS = 120_000; // 2 mins
 
 // TODO: don't use
 export const DEFAULT_EXPIRATION = new Date('12/31/2023');

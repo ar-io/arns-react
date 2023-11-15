@@ -1,4 +1,4 @@
-import { APPROXIMATE_BLOCKS_PER_DAY, AVERAGE_BLOCK_TIME } from './constants';
+import { APPROXIMATE_BLOCKS_PER_DAY, AVERAGE_BLOCK_TIME_MS } from './constants';
 
 // TODO: write a unit test for this function
 export function getNextPriceChangeTimestamp({
@@ -14,7 +14,7 @@ export function getNextPriceChangeTimestamp({
 
   if (currentBlockHeight >= lastBlockInAuction) {
     // If auction has already ended, return the end time of the auction
-    return lastBlockInAuction * AVERAGE_BLOCK_TIME;
+    return lastBlockInAuction * AVERAGE_BLOCK_TIME_MS;
   }
   // find the next interval period based on the current block, and calculate the difference between the current block and that block height
   const nextPriceChangeHeight =
@@ -24,7 +24,7 @@ export function getNextPriceChangeTimestamp({
   const blocksRemainingUntilPriceChange =
     +nextPriceChangeHeight - currentBlockHeight;
   const nextPriceChangeTimestamp =
-    Date.now() + AVERAGE_BLOCK_TIME * blocksRemainingUntilPriceChange;
+    Date.now() + AVERAGE_BLOCK_TIME_MS * blocksRemainingUntilPriceChange;
 
   return nextPriceChangeTimestamp;
 }
@@ -38,7 +38,7 @@ export const estimateDateFromBlockHeight = (
   currentBlockHeight: number,
 ): Date => {
   const blockDiff = targetBlockHeight - currentBlockHeight;
-  return new Date(Date.now() + AVERAGE_BLOCK_TIME * blockDiff);
+  return new Date(Date.now() + AVERAGE_BLOCK_TIME_MS * blockDiff);
 };
 
 export const formattedEstimatedDateFromBlockHeight = (

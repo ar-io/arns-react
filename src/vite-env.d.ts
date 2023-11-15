@@ -10,6 +10,7 @@ interface ImportMetaEnv {
   readonly VITE_GITHUB_HASH: string;
   readonly VITE_ARWEAVE_HOST: string;
   readonly VITE_ARNS_SERVICE_API: string;
+  readonly VITE_ARNS_REGISTRY_ADDRESS: string;
 }
 
 interface ImportMeta {
