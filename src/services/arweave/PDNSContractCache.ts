@@ -435,18 +435,18 @@ export class PDNSContractCache implements SmartweaveContractCache {
             key: 'id',
             value: interaction.id,
           });
-          return acc;
-        }
-        // arns specific entry
-        if (contractTxId === ARNS_REGISTRY_ADDRESS) {
-          const domainName = interaction.payload.name as string;
-          acc[domainName] = buildPendingArNSRecord(interaction) as T;
-          return acc;
+        } else {
+          // arns specific entry
+          if (contractTxId === ARNS_REGISTRY_ADDRESS) {
+            const domainName = interaction.payload.name as string;
+            acc[domainName] = buildPendingArNSRecord(interaction) as T;
+          } else {
+            const subdomain = interaction.payload.subdomain as string;
+            // ant specific entry
+            acc[subdomain] = buildPendingANTRecord(interaction) as T;
+          }
         }
 
-        const subdomain = interaction.payload.subdomain as string;
-        // ant specific entry
-        acc[subdomain] = buildPendingANTRecord(interaction) as T;
         return acc;
       },
       {},
