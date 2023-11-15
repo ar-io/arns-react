@@ -435,6 +435,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
             key: 'id',
             value: interaction.id,
           });
+          return acc;
         }
         // arns specific entry
         if (contractTxId === ARNS_REGISTRY_ADDRESS) {

@@ -48,7 +48,6 @@ export class LocalStorageCache implements KVCache {
     key: string,
     filter?: { key: string; value: string },
   ): Promise<void> {
-    console.error(`deleting ${key}`, filter);
     const currentCache = this.get(key);
     if (isArray(currentCache)) {
       if (!filter) {
@@ -71,7 +70,6 @@ export class LocalStorageCache implements KVCache {
   }
 
   async clean(): Promise<void> {
-    //debugger;
     const items = Object.entries(window.localStorage);
     for (const [key, values] of items) {
       try {
