@@ -1,5 +1,3 @@
-import { isArray } from 'lodash';
-
 import {
   ArweaveDataProvider,
   Auction,
@@ -70,16 +68,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
       if (cachedInteractions) {
         await Promise.all(
           cachedInteractions.map(async (interaction: ContractInteraction) => {
-            const interactionStatus = await this._arweave
-              .getTransactionStatus(new ArweaveTransactionID(interaction.id))
-              .catch(() => {
-                console.error(
-                  'Error getting transaction status for',
-                  interaction.id,
-                );
-                return {} as Record<string, boolean>;
-              });
-            if (interactionStatus[interaction.id]) {
+            if (state) {
               this._cache.del(contractTxId.toString(), {
                 key: 'id',
                 value: interaction.id,
@@ -152,9 +141,11 @@ export class PDNSContractCache implements SmartweaveContractCache {
     contractTxId: ArweaveTransactionID,
     key: string,
   ): Promise<ContractInteraction[]> {
-    const cachedInteractions = this._cache.getCachedInteractions(contractTxId);
+    const cachedInteractions = await this._cache.getCachedInteractions(
+      contractTxId,
+    );
 
-    if (!isArray(cachedInteractions) || !cachedInteractions.length) {
+    if (!cachedInteractions.length) {
       return [];
     }
 
@@ -170,6 +161,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
     );
 
     // update the cache to remove indexed transactions for
+    console.log({ pendingInteractions, cachedInteractions });
     this._cache.set(key, pendingInteractions);
 
     // return only the ones relevant to the specified contract
@@ -417,43 +409,11 @@ export class PDNSContractCache implements SmartweaveContractCache {
         interactions.filter(
           (interaction: ContractInteraction) =>
             interaction.payload.function ===
-              (contractTxId === ARNS_REGISTRY_ADDRESS
+              (contractTxId.toString() === ARNS_REGISTRY_ADDRESS.toString()
                 ? 'buyRecord'
                 : 'setRecord') && !interaction.payload?.auction,
         ),
       );
-
-    if (cachedInteractions) {
-      await Promise.all(
-        cachedInteractions.map(async (interaction: ContractInteraction) => {
-          const interactionStatus = await this._arweave
-            .getTransactionStatus(new ArweaveTransactionID(interaction.id))
-            .catch(() => ({} as Record<string, boolean>));
-          if (interactionStatus[interaction.id]) {
-            this._cache.del(contractTxId.toString(), {
-              key: 'id',
-              value: interaction.id,
-            });
-          }
-        }),
-      );
-    }
-
-    const cachedRegistrations = cachedInteractions.reduce(
-      (acc: Record<string, T>, interaction: ContractInteraction) => {
-        // arns specific entry
-        if (contractTxId === ARNS_REGISTRY_ADDRESS) {
-          const domainName = interaction.payload.name as string;
-          acc[domainName] = buildPendingArNSRecord(interaction) as T;
-          return acc;
-        }
-        const subdomain = interaction.payload.subdomain as string;
-        // ant specific entry
-        acc[subdomain] = buildPendingANTRecord(interaction) as T;
-        return acc;
-      },
-      {},
-    );
 
     // TODO: this doesn't extend well, but allows multiple contractTxIds to be passed in
     // We'd want to create an array for any key that can be an array and then add it to the
@@ -467,7 +427,33 @@ export class PDNSContractCache implements SmartweaveContractCache {
         this._url
       }/v1/contract/${contractTxId.toString()}/records?${urlQueryParams}`,
     );
-    const { records } = await res.json();
+    const { records } =
+      res && res.ok ? await res.json() : { records: undefined };
+    const domains = Object.keys(records ?? {});
+
+    const cachedRegistrations = cachedInteractions.reduce(
+      (acc: Record<string, T>, interaction: ContractInteraction) => {
+        if (domains.includes(interaction.payload.name.toString())) {
+          console.log(`deleting ${interaction.payload.name} from cache`);
+          this._cache.del(contractTxId.toString(), {
+            key: 'id',
+            value: interaction.id,
+          });
+        }
+        // arns specific entry
+        if (contractTxId === ARNS_REGISTRY_ADDRESS) {
+          const domainName = interaction.payload.name as string;
+          acc[domainName] = buildPendingArNSRecord(interaction) as T;
+          return acc;
+        }
+
+        const subdomain = interaction.payload.subdomain as string;
+        // ant specific entry
+        acc[subdomain] = buildPendingANTRecord(interaction) as T;
+        return acc;
+      },
+      {},
+    );
     return { ...cachedRegistrations, ...records };
   }
 
