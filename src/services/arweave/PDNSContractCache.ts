@@ -159,7 +159,6 @@ export class PDNSContractCache implements SmartweaveContractCache {
     );
 
     // update the cache to remove indexed transactions for
-    console.log({ pendingInteractions, cachedInteractions });
     this._cache.set(key, pendingInteractions);
 
     // return only the ones relevant to the specified contract
@@ -432,7 +431,6 @@ export class PDNSContractCache implements SmartweaveContractCache {
     const cachedRegistrations = cachedInteractions.reduce(
       (acc: Record<string, T>, interaction: ContractInteraction) => {
         if (domains.includes(interaction.payload.name.toString())) {
-          console.log(`deleting ${interaction.payload.name} from cache`);
           this._cache.del(contractTxId.toString(), {
             key: 'id',
             value: interaction.id,
