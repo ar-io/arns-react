@@ -17,7 +17,7 @@ import {
 } from '../../utils';
 import {
   ARNS_REGISTRY_ADDRESS,
-  AVERAGE_BLOCK_TIME,
+  AVERAGE_BLOCK_TIME_MS,
 } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 import { useIsMobile } from '../useIsMobile/useIsMobile';
@@ -346,7 +346,7 @@ export function useAuctionsTable() {
     const expirationDateMilliseconds =
       Date.now() +
       (startHeight + settings.auctionDuration - blockHeight) *
-        AVERAGE_BLOCK_TIME; // approximate expiration date in milliseconds
+        AVERAGE_BLOCK_TIME_MS; // approximate expiration date in milliseconds
 
     const nextPriceUpdateTimestamp = getNextPriceChangeTimestamp({
       currentBlockHeight: blockHeight,

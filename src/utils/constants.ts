@@ -64,7 +64,7 @@ export const PDNT_CONTRACT_STATE_KEYS = [
 // seconds / milliseconds in 365 days (not leap year aware)
 export const YEAR_IN_MILLISECONDS = 31536000000;
 export const YEAR_IN_SECONDS = 31536000;
-export const AVERAGE_BLOCK_TIME = 120_000;
+export const AVERAGE_BLOCK_TIME_MS = 120_000; // 2 mins
 
 // TODO: don't use
 export const DEFAULT_EXPIRATION = new Date('12/31/2023');

@@ -14,6 +14,7 @@ import { WarpDataProvider } from '../../services/arweave/WarpDataProvider';
 import type { PDNSContractJSON } from '../../types';
 import {
   ARNS_REGISTRY_ADDRESS,
+  AVERAGE_BLOCK_TIME_MS,
   DEFAULT_ARWEAVE,
   DEFAULT_PDNS_REGISTRY_STATE,
   PDNS_SERVICE_API,
@@ -33,6 +34,7 @@ export type GlobalState = {
   gateway: string;
   pdnsContractId: ArweaveTransactionID;
   blockHeight?: number;
+  lastBlockUpdateTimestamp?: number;
   arweaveDataProvider: ArweaveCompositeDataProvider;
 };
 
@@ -41,6 +43,7 @@ const initialState: GlobalState = {
   pdnsSourceContract: DEFAULT_PDNS_REGISTRY_STATE,
   gateway: 'ar-io.dev',
   blockHeight: undefined,
+  lastBlockUpdateTimestamp: undefined,
   arweaveDataProvider: new ArweaveCompositeDataProvider(
     defaultArweave,
     defaultWarp,
@@ -71,10 +74,10 @@ export default function GlobalStateProvider({
     const updateBlockHeight = () => {
       state.arweaveDataProvider
         .getCurrentBlockHeight()
-        .then((newBlockHieght: number) => {
+        .then((newBlockHeight: number) => {
           dispatchGlobalState({
             type: 'setBlockHeight',
-            payload: newBlockHieght,
+            payload: newBlockHeight,
           });
         })
         .catch((error) => eventEmitter.emit('error', error));
@@ -84,7 +87,7 @@ export default function GlobalStateProvider({
       updateBlockHeight();
     }
 
-    const blockInterval = setInterval(updateBlockHeight, 120000); // get block height every 2 minutes or if registry or if wallet changes.
+    const blockInterval = setInterval(updateBlockHeight, AVERAGE_BLOCK_TIME_MS); // get block height every 2 minutes or if registry or if wallet changes.
 
     return () => {
       clearInterval(blockInterval);
