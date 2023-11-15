@@ -2,6 +2,7 @@ import { isArray } from 'lodash';
 
 import { KVCache } from '../../types';
 import { jsonSerialize } from '../../utils';
+import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
 
 // time to live for transaction cache items
 export const INTERACTION_CACHE_TTL_MS = 1000 * 60 * 60 * 2; // 2 HOURS
@@ -49,20 +50,24 @@ export class LocalStorageCache implements KVCache {
     filter?: { key: string; value: string },
   ): Promise<void> {
     const currentCache = this.get(key);
+    if (key === ARNS_REGISTRY_ADDRESS.toString()) {
+    }
     if (isArray(currentCache)) {
       if (!filter) {
         // no filter set so clear
         return window.localStorage.removeItem(key);
       }
       const { key: filterKey, value: matchFilterValue } = filter;
-      const updatedArr = currentCache.filter((cachedValue: any) => {
-        // add check if it's a json object and parsed correctly
-        return cachedValue[filterKey] !== matchFilterValue;
-      });
+      const updatedArr = currentCache.filter(
+        (cachedValue: any) =>
+          // add check if it's a json object and parsed correctly
+          cachedValue[filterKey] !== matchFilterValue,
+      );
+
       window.localStorage.setItem(key, JSON.stringify(updatedArr));
+    } else {
+      window.localStorage.removeItem(key);
     }
-    // existing delete functionality
-    return window.localStorage.removeItem(key);
   }
 
   async set(key: string, value: any): Promise<void> {
@@ -81,7 +86,6 @@ export class LocalStorageCache implements KVCache {
             if (!timestamp) {
               return false;
             }
-
             return now - timestamp < INTERACTION_CACHE_TTL_MS;
           });
           if (filteredValues.length > 0) {

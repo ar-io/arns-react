@@ -67,7 +67,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
       );
       if (cachedInteractions) {
         cachedInteractions.map((interaction: ContractInteraction) => {
-          if (state) {
+          if (state && interaction.type === 'deploy') {
             this._cache.del(contractTxId.toString(), {
               key: 'id',
               value: interaction.id,
@@ -78,9 +78,6 @@ export class PDNSContractCache implements SmartweaveContractCache {
 
       if (cachedToken && !state) {
         return cachedToken.state as T;
-      }
-      if (state && cachedToken) {
-        this._cache.del(contractTxId.toString());
       }
 
       return state as T;
@@ -422,7 +419,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
     const res = await fetch(
       `${
         this._url
-      }/v1/contract/${contractTxId.toString()}/records?${urlQueryParams}`,
+      }/v1/contract/${contractTxId.toString()}/records?${urlQueryParams.toString()}`,
     );
     const { records } =
       res && res.ok ? await res.json() : { records: undefined };
