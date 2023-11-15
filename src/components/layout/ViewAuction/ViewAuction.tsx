@@ -115,7 +115,7 @@ function ViewAuction() {
                   color: 'var(--accent)',
                 }}
               >
-                {auction!.minimumBid.toLocaleString() ?? 0} IO
+                {auction!.currentPrice.toLocaleString() ?? 0} IO
               </span>
             </span>
             <span className="flex grey" style={{ color: 'var(--text-grey)' }}>

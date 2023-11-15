@@ -208,13 +208,13 @@ export function useAuctionsTable() {
           <button
             className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
-            onClick={() => setSortField('minimumBid')}
+            onClick={() => setSortField('currentPrice')}
           >
             <span>Price</span>
           </button>
         ),
-        dataIndex: 'minimumBid',
-        key: 'minimumBid',
+        dataIndex: 'currentPrice',
+        key: 'currentPrice',
         width: 'fit-content',
         className: 'white assets-table-header',
         render: (val: number) => (
@@ -226,7 +226,7 @@ export function useAuctionsTable() {
           return {
             onClick: () => {
               handleTableSort<AuctionTableData>({
-                key: 'minimumBid',
+                key: 'currentPrice',
                 isAsc: sortAscending,
                 rows,
               });
@@ -362,7 +362,7 @@ export function useAuctionsTable() {
       closingDate: expirationDateMilliseconds,
       nextPriceUpdate: nextPriceUpdateTimestamp,
       // allows us to not query for new prices and use previous net call to find the new price
-      minimumBid: Math.round(getPriceByBlockHeight(prices, blockHeight)),
+      currentPrice: Math.round(getPriceByBlockHeight(prices, blockHeight)),
     };
 
     return data;
