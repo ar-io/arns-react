@@ -66,16 +66,14 @@ export class PDNSContractCache implements SmartweaveContractCache {
         contractTxId,
       );
       if (cachedInteractions) {
-        await Promise.all(
-          cachedInteractions.map(async (interaction: ContractInteraction) => {
-            if (state) {
-              this._cache.del(contractTxId.toString(), {
-                key: 'id',
-                value: interaction.id,
-              });
-            }
-          }),
-        );
+        cachedInteractions.map((interaction: ContractInteraction) => {
+          if (state) {
+            this._cache.del(contractTxId.toString(), {
+              key: 'id',
+              value: interaction.id,
+            });
+          }
+        });
       }
 
       if (cachedToken && !state) {
