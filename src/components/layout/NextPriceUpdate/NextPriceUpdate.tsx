@@ -49,7 +49,7 @@ const NextPriceUpdate = ({ auction }: { auction: Auction }) => {
           <>
             <Countdown
               value={timeUntilUpdate}
-              format="m:ss"
+              format="m [min] s [secs]"
               valueStyle={{
                 fontSize: '15px',
                 color: 'var(--text-white)',
@@ -57,7 +57,6 @@ const NextPriceUpdate = ({ auction }: { auction: Auction }) => {
               }}
               onFinish={() => updateBlockHeight()}
             />
-            &nbsp;min
           </>
         )}
       </div>
