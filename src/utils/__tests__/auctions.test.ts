@@ -1,5 +1,5 @@
 import { getNextPriceChangeTimestamp } from '../auctions';
-import { AVERAGE_BLOCK_TIME } from '../constants';
+import { AVERAGE_BLOCK_TIME_MS } from '../constants';
 
 describe('getNextPriceChangeTimestamp', () => {
   const stubbedPrices = {
@@ -17,7 +17,7 @@ describe('getNextPriceChangeTimestamp', () => {
       prices: stubbedPrices,
     });
     const expectedNextPriceChangeTimestamp =
-      Date.now() + AVERAGE_BLOCK_TIME * 64;
+      Date.now() + AVERAGE_BLOCK_TIME_MS * 64;
     expect(nextPriceChangeTimestamp).toEqual(expectedNextPriceChangeTimestamp);
   });
 
@@ -28,7 +28,7 @@ describe('getNextPriceChangeTimestamp', () => {
       prices: stubbedPrices,
     });
     const expectedNextPriceChangeTimestamp =
-      currentBlockHeight * AVERAGE_BLOCK_TIME;
+      currentBlockHeight * AVERAGE_BLOCK_TIME_MS;
     expect(nextPriceChangeTimestamp).toEqual(expectedNextPriceChangeTimestamp);
   });
 
@@ -39,7 +39,7 @@ describe('getNextPriceChangeTimestamp', () => {
       prices: stubbedPrices,
     });
     // the last price
-    const expectedNextPriceChangeTimestamp = 500 * AVERAGE_BLOCK_TIME;
+    const expectedNextPriceChangeTimestamp = 500 * AVERAGE_BLOCK_TIME_MS;
     expect(nextPriceChangeTimestamp).toEqual(expectedNextPriceChangeTimestamp);
   });
 
@@ -50,7 +50,7 @@ describe('getNextPriceChangeTimestamp', () => {
       prices: stubbedPrices,
     });
     const expectedNextPriceChangeTimestamp =
-      Date.now() + 50 * AVERAGE_BLOCK_TIME;
+      Date.now() + 50 * AVERAGE_BLOCK_TIME_MS;
     expect(nextPriceChangeTimestamp).toEqual(expectedNextPriceChangeTimestamp);
   });
 });

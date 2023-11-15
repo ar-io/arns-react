@@ -10,7 +10,10 @@ export type GlobalAction =
         provider: ArweaveCompositeDataProvider;
       };
     }
-  | { type: 'setBlockHeight'; payload: number }
+  | {
+      type: 'setBlockHeight';
+      payload: number;
+    }
   | { type: 'setPDNSContractState'; payload: PDNSContractJSON };
 
 export const reducer = (
@@ -28,6 +31,7 @@ export const reducer = (
       return {
         ...state,
         blockHeight: action.payload,
+        lastBlockUpdateTimestamp: Date.now(),
       };
     case 'setPDNSContractState':
       return {

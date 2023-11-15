@@ -109,7 +109,7 @@ function RegisterNameForm() {
     ) {
       dispatchRegisterState({
         type: 'setFee',
-        payload: { ar: fee.ar, io: auction.minimumBid },
+        payload: { ar: fee.ar, io: auction.currentPrice },
       });
     }
     // TODO: remove use of source contract
