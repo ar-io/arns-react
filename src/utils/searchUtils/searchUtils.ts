@@ -3,68 +3,12 @@ import { asciiToUnicode, unicodeToAscii } from 'puny-coder';
 
 import { PDNSRecordEntry, PDNTContractJSON } from '../../types';
 import {
-  ANNUAL_PERCENTAGE_FEE,
   APPROVED_CHARACTERS_REGEX,
-  DEFAULT_MAX_UNDERNAMES,
   PDNS_NAME_REGEX,
-  PERMABUY_LEASE_FEE_LENGTH,
   RESERVED_NAME_LENGTH,
-  UNDERNAME_REGISTRATION_IO_FEE,
   YEAR_IN_MILLISECONDS,
-  YEAR_IN_SECONDS,
 } from '../constants';
 
-export function calculateAnnualRenewalFee(
-  name: string,
-  fees: Record<string, number>,
-  years: number,
-  undernames: number,
-  endTimestamp: number,
-): number {
-  // Determine annual registration price of name
-  const initialNamePurchaseFee = fees[name.length.toString()];
-
-  // Annual fee is specific % of initial purchase cost
-  const nameAnnualRegistrationFee =
-    initialNamePurchaseFee * ANNUAL_PERCENTAGE_FEE;
-
-  const totalAnnualRenewalCost = nameAnnualRegistrationFee * years;
-
-  const extensionEndTimestamp = endTimestamp + years * YEAR_IN_SECONDS;
-  // Do not charge for undernames if there are less or equal than the default
-
-  const hasAdditionalUndernames = undernames > DEFAULT_MAX_UNDERNAMES;
-
-  const totalCost = !hasAdditionalUndernames
-    ? totalAnnualRenewalCost
-    : totalAnnualRenewalCost +
-      calculateProRatedUndernameCost(
-        undernames - DEFAULT_MAX_UNDERNAMES,
-        endTimestamp,
-        'lease',
-        extensionEndTimestamp,
-      );
-
-  return totalCost;
-}
-
-// TODO: update after dynamic pricing?
-export function calculateProRatedUndernameCost(
-  qty: number,
-  currentTimestamp: number,
-  type: 'lease' | 'permabuy',
-  endTimestamp?: number,
-): number {
-  const fullCost =
-    type === 'lease'
-      ? UNDERNAME_REGISTRATION_IO_FEE * qty
-      : PERMABUY_LEASE_FEE_LENGTH * qty;
-  const proRatedCost =
-    type === 'lease' && endTimestamp
-      ? (fullCost / YEAR_IN_SECONDS) * (endTimestamp - currentTimestamp)
-      : fullCost;
-  return proRatedCost;
-}
 export function isPDNSDomainNameValid({ name }: { name?: string }): boolean {
   if (
     !name ||

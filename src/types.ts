@@ -582,7 +582,7 @@ export type TransferIOPayload = {
 export type IncreaseUndernamesPayload = {
   name: string;
   qty: number;
-  oldQty: number;
+  oldQty?: number;
   contractTxId?: string;
 };
 //end registry transaction payload types
