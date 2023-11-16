@@ -545,6 +545,7 @@ export type TransactionDataBasePayload = {
   assetId: string;
   functionName: string;
   deployedTransactionId?: ArweaveTransactionID;
+  interactionPrice?: number;
 };
 
 // registry transaction payload types

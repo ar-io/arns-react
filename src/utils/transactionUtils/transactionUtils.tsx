@@ -146,7 +146,7 @@ export const TRANSACTION_DATA_KEYS: Record<
 > = {
   [INTERACTION_TYPES.BUY_RECORD]: {
     functionName: 'buyRecord',
-    keys: ['name', 'contractTxId', 'auction', 'qty', 'type'],
+    keys: ['name', 'contractTxId', 'auction', 'type'],
   },
   [INTERACTION_TYPES.SUBMIT_AUCTION_BID]: {
     functionName: 'submitAuctionBid',
@@ -692,17 +692,32 @@ export function getLinkId(
   interactionType: ValidInteractionType,
   transactionData: TransactionData,
 ): string {
-  if (
+  const isBuyRecord =
     interactionType === INTERACTION_TYPES.BUY_RECORD &&
     isObjectOfTransactionPayloadType<BuyRecordPayload>(
       transactionData,
       TRANSACTION_DATA_KEYS[INTERACTION_TYPES.BUY_RECORD].keys,
-    )
-  ) {
+    );
+
+  const isExtendLease =
+    interactionType === INTERACTION_TYPES.EXTEND_LEASE &&
+    isObjectOfTransactionPayloadType<ExtendLeasePayload>(
+      transactionData,
+      TRANSACTION_DATA_KEYS[INTERACTION_TYPES.EXTEND_LEASE].keys,
+    );
+
+  const isIncreaseUndernames =
+    interactionType === INTERACTION_TYPES.INCREASE_UNDERNAMES &&
+    isObjectOfTransactionPayloadType<IncreaseUndernamesPayload>(
+      transactionData,
+      TRANSACTION_DATA_KEYS[INTERACTION_TYPES.INCREASE_UNDERNAMES].keys,
+    );
+
+  if (isBuyRecord || isExtendLease || isIncreaseUndernames) {
     return transactionData.contractTxId === ATOMIC_FLAG &&
       transactionData.deployedTransactionId
       ? transactionData.deployedTransactionId.toString()
-      : transactionData.contractTxId.toString();
+      : transactionData.contractTxId?.toString() ?? '';
   }
 
   return transactionData.assetId.toString();

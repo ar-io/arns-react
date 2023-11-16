@@ -54,7 +54,7 @@ function UpgradeUndernames() {
           interactionName: INTERACTION_NAMES.INCREASE_UNDERNAME_COUNT,
           payload: {
             name: name,
-            qty: record.undernames + newUndernameCount,
+            qty: newUndernameCount,
           },
         })
         .catch(() => {
@@ -223,6 +223,7 @@ function UpgradeUndernames() {
                       assetId: ARNS_REGISTRY_ADDRESS.toString(),
                       functionName: 'increaseUndernameCount',
                       ...increaseUndernamePayload,
+                      interactionPrice: fee,
                     },
                   });
                   dispatchTransactionState({

@@ -298,6 +298,7 @@ function ExtendLease() {
                       assetId: ARNS_REGISTRY_ADDRESS.toString(),
                       functionName: 'extendRecord',
                       ...payload,
+                      interactionPrice: ioFee,
                     },
                   });
                   navigate('/transaction', {
