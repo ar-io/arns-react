@@ -3,13 +3,15 @@ import { useEffect, useState } from 'react';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { Auction } from '../../../types';
-import { getNextPriceChangeTimestamp } from '../../../utils';
+import { AVERAGE_BLOCK_TIME_MS } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { ClockClockwiseIcon } from '../../icons';
 
 const NextPriceUpdate = ({ auction }: { auction: Auction }) => {
-  const [{ blockHeight, arweaveDataProvider }, dispatchGlobalState] =
-    useGlobalState();
+  const [
+    { blockHeight, lastBlockUpdateTimestamp, arweaveDataProvider },
+    dispatchGlobalState,
+  ] = useGlobalState();
 
   const [timeUntilUpdate, setTimeUntilUpdate] = useState<number>(0);
 
@@ -23,17 +25,12 @@ const NextPriceUpdate = ({ auction }: { auction: Auction }) => {
   };
 
   useEffect(() => {
-    if (blockHeight && auction) {
-      const nextPriceChangeTimestamp = getNextPriceChangeTimestamp({
-        currentBlockHeight: blockHeight,
-        prices: auction.prices,
-      });
-
+    if (blockHeight && auction && lastBlockUpdateTimestamp) {
+      const nextPriceChangeTimestamp =
+        lastBlockUpdateTimestamp + AVERAGE_BLOCK_TIME_MS;
       setTimeUntilUpdate(nextPriceChangeTimestamp);
     } // use the price response to calculate the next interval
-  }, [blockHeight, auction]);
-
-  const lessThanOneMinute = timeUntilUpdate - Date.now() < 60000;
+  }, [blockHeight, lastBlockUpdateTimestamp, auction]);
 
   return (
     <div className="flex flex-row grey" style={{ gap: '8px' }}>
@@ -52,16 +49,14 @@ const NextPriceUpdate = ({ auction }: { auction: Auction }) => {
           <>
             <Countdown
               value={timeUntilUpdate}
-              format="m"
+              format="m [min] s [secs]"
               valueStyle={{
                 fontSize: '15px',
                 color: 'var(--text-white)',
-                display: lessThanOneMinute ? 'none' : 'block',
+                display: 'block',
               }}
               onFinish={() => updateBlockHeight()}
             />
-            {lessThanOneMinute && <span>&lt; 1</span>}
-            &nbsp;min
           </>
         )}
       </div>

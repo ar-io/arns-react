@@ -42,15 +42,11 @@ export class ContractInteractionCache implements TransactionCache, KVCache {
   async getCachedInteractions(
     contractTxId: ArweaveTransactionID,
   ): Promise<ContractInteraction[]> {
-    const cachedInteractions = this._cache.get(contractTxId.toString());
+    const cachedInteractions = await this._cache.get(contractTxId.toString());
 
-    if (isArray(cachedInteractions)) {
-      return cachedInteractions.filter(
-        (interaction: ContractInteraction) =>
-          interaction.type === 'interaction',
-      );
-    }
-    return [];
+    return cachedInteractions.filter(
+      (interaction: ContractInteraction) => interaction?.type === 'interaction',
+    );
   }
   async set(key: string, value: any): Promise<void> {
     this._cache.set(key, value);
