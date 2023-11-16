@@ -15,6 +15,7 @@ import {
 import {
   buildPendingANTRecord,
   buildPendingArNSRecord,
+  fetchWithRetry,
   isArweaveTransactionID,
   isDomainReservedLength,
   lowerCaseDomain,
@@ -485,7 +486,8 @@ export class PDNSContractCache implements SmartweaveContractCache {
       }).map(([key, value]) => [key, value.toString()]),
     );
 
-    const res = await fetch(
+    // NOTE: Using fetchWithRetry as service is occassionally returning 400 errors
+    const res = await fetchWithRetry(
       `${
         this._url
       }/v1/contract/${contractTxId.toString()}/read/priceForInteraction?${params.toString()}`,

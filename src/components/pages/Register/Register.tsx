@@ -104,6 +104,9 @@ function RegisterNameForm() {
         payload: { ar: fee.ar, io: auction.currentPrice },
       });
     } else {
+      if (!auction) {
+        return;
+      }
       const update = async () => {
         if (domain) {
           try {
@@ -113,7 +116,7 @@ function RegisterNameForm() {
                 payload: {
                   name: domain,
                   years: leaseDuration,
-                  type: registrationType,
+                  type: auction.type,
                   contractTxId: ATOMIC_FLAG,
                 },
               })
@@ -131,7 +134,7 @@ function RegisterNameForm() {
       };
       update();
     }
-  }, [leaseDuration, domain, registrationType]);
+  }, [leaseDuration, domain, auction]);
 
   async function handlePDNTId(id: string) {
     try {
