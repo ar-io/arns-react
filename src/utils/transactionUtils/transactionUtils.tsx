@@ -321,12 +321,12 @@ export function getPDNSMappingByInteractionType(
             <span className="white">
               Up to{' '}
               <span style={{ color: 'var(--success-green)' }}>
-                {transactionData.qty + transactionData.oldQty}
+                {transactionData.qty + transactionData.oldQty!}
               </span>
             </span>
           ) : (
             <span className="add-box center">
-              {transactionData.qty + transactionData.oldQty}
+              {transactionData.qty + transactionData.oldQty!}
             </span>
           ),
         },
