@@ -224,3 +224,23 @@ export const executeWithTimeout = async (fn: () => any, ms: number) => {
     new Promise((resolve) => setTimeout(() => resolve('timeout'), ms)),
   ]);
 };
+
+export const fetchWithRetry = async (url: string, numRetries = 1) => {
+  let lastException = undefined;
+  const exceptionHandler = (e: any) => {
+    lastException = e;
+    return undefined;
+  };
+
+  let res = await fetch(url).catch(exceptionHandler);
+  let i = 0;
+
+  while ((!res || !res.ok) && i < numRetries) {
+    res = await fetch(url).catch(exceptionHandler);
+    i++;
+  }
+  if ((!res || !res.ok) && lastException) {
+    throw lastException;
+  }
+  return res;
+};

@@ -17,13 +17,13 @@ import { useTransactionState } from '../../../state/contexts/TransactionState';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import {
   BuyRecordPayload,
+  INTERACTION_NAMES,
   INTERACTION_TYPES,
   PDNTContractJSON,
   TRANSACTION_TYPES,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import {
-  calculatePDNSNamePrice,
   encodeDomainToASCII,
   lowerCaseDomain,
   userHasSufficientBalance,
@@ -51,16 +51,8 @@ function RegisterNameForm() {
     { domain, fee, leaseDuration, registrationType, antID },
     dispatchRegisterState,
   ] = useRegistrationState();
-  const [
-    {
-      // TODO: remove use of source contract
-
-      pdnsSourceContract,
-      blockHeight,
-      arweaveDataProvider,
-    },
-    dispatchGlobalState,
-  ] = useGlobalState();
+  const [{ blockHeight, arweaveDataProvider }, dispatchGlobalState] =
+    useGlobalState();
   const [{ walletAddress, balances }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const { name } = useParams();
@@ -111,29 +103,38 @@ function RegisterNameForm() {
         type: 'setFee',
         payload: { ar: fee.ar, io: auction.currentPrice },
       });
+    } else {
+      if (!auction) {
+        return;
+      }
+      const update = async () => {
+        if (domain) {
+          try {
+            const price = await arweaveDataProvider
+              .getPriceForInteraction({
+                interactionName: INTERACTION_NAMES.BUY_RECORD,
+                payload: {
+                  name: domain,
+                  years: leaseDuration,
+                  type: auction.type,
+                  contractTxId: ATOMIC_FLAG,
+                },
+              })
+              .catch(() => {
+                throw new Error('Unable to get purchase price for domain');
+              });
+            dispatchRegisterState({
+              type: 'setFee',
+              payload: { ar: fee.ar, io: price },
+            });
+          } catch (e) {
+            eventEmitter.emit('error', e);
+          }
+        }
+      };
+      update();
     }
-    // TODO: remove use of source contract
-    if (
-      pdnsSourceContract.fees &&
-      domain &&
-      blockHeight &&
-      !auction?.isActive &&
-      !auction?.isRequiredToBeAuctioned
-    ) {
-      // TODO: replace this with read API on the contract for the name
-      const newFee = calculatePDNSNamePrice({
-        domain: domain,
-        type: registrationType,
-        years: leaseDuration,
-        fees: pdnsSourceContract.fees,
-        currentBlockHeight: blockHeight,
-      });
-      dispatchRegisterState({
-        type: 'setFee',
-        payload: { ar: fee.ar, io: newFee },
-      });
-    }
-  }, [leaseDuration, domain, pdnsSourceContract, auction, registrationType]);
+  }, [leaseDuration, domain, auction]);
 
   async function handlePDNTId(id: string) {
     try {

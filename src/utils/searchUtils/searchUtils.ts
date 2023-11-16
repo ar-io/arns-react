@@ -1,17 +1,11 @@
 import emojiRegex from 'emoji-regex';
 import { asciiToUnicode, unicodeToAscii } from 'puny-coder';
 
-import {
-  PDNSRecordEntry,
-  PDNTContractJSON,
-  TRANSACTION_TYPES,
-} from '../../types';
+import { PDNSRecordEntry, PDNTContractJSON } from '../../types';
 import {
   ANNUAL_PERCENTAGE_FEE,
   APPROVED_CHARACTERS_REGEX,
   DEFAULT_MAX_UNDERNAMES,
-  MAX_LEASE_DURATION,
-  MIN_LEASE_DURATION,
   PDNS_NAME_REGEX,
   PERMABUY_LEASE_FEE_LENGTH,
   RESERVED_NAME_LENGTH,
@@ -19,55 +13,6 @@ import {
   YEAR_IN_MILLISECONDS,
   YEAR_IN_SECONDS,
 } from '../constants';
-
-export function calculatePermabuyFee(
-  domain: string,
-  fees: { [x: number]: number },
-) {
-  // not sure this pricing is correct, it winds up being lower than leasing sometimes
-  const permabuyLeasePrice = calculateAnnualRenewalFee(
-    domain,
-    fees,
-    PERMABUY_LEASE_FEE_LENGTH,
-    DEFAULT_MAX_UNDERNAMES,
-    Date.now() / 1000 + PERMABUY_LEASE_FEE_LENGTH * YEAR_IN_SECONDS,
-  );
-
-  const getMultiplier = () => {
-    const name = encodeDomainToASCII(domain);
-    if (name.length > RESERVED_NAME_LENGTH) {
-      return 1;
-    }
-    if (isDomainReservedLength(name)) {
-      const shortNameMultiplier = 1 + ((10 - name.length) * 10) / 100;
-      return shortNameMultiplier;
-    }
-    throw new Error('Unable to compute name multiplier.');
-  };
-  const rarityMultiplier = getMultiplier();
-  const permabuyFee = permabuyLeasePrice * rarityMultiplier;
-
-  return permabuyFee;
-}
-
-export function calculateTotalRegistrationFee(
-  domain: string,
-  fees: { [x: number]: number },
-  years: number,
-) {
-  // instant lease price
-  const initialNamePurchaseFee = fees[domain.length];
-  return (
-    initialNamePurchaseFee +
-    calculateAnnualRenewalFee(
-      domain,
-      fees,
-      years,
-      DEFAULT_MAX_UNDERNAMES,
-      Date.now() / 1000 + years * YEAR_IN_SECONDS,
-    )
-  );
-}
 
 export function calculateAnnualRenewalFee(
   name: string,
@@ -120,45 +65,6 @@ export function calculateProRatedUndernameCost(
       : fullCost;
   return proRatedCost;
 }
-
-export function calculatePDNSNamePrice({
-  domain,
-  years,
-  fees,
-  type,
-}: {
-  domain: string;
-  years: number;
-  fees: { [x: number]: number };
-  type: TRANSACTION_TYPES;
-  currentBlockHeight: number;
-}) {
-  const name = encodeDomainToASCII(domain);
-  if (!domain || !isPDNSDomainNameValid({ name })) {
-    throw Error('Domain name is invalid');
-  }
-
-  if (type === TRANSACTION_TYPES.LEASE) {
-    if (years < MIN_LEASE_DURATION) {
-      throw Error(
-        `Minimum duration must be at least ${MIN_LEASE_DURATION} year`,
-      );
-    }
-    if (years > MAX_LEASE_DURATION) {
-      throw Error(
-        `Maximum duration must be at most ${MAX_LEASE_DURATION} year`,
-      );
-    }
-  }
-
-  const registrationFee =
-    type === TRANSACTION_TYPES.LEASE
-      ? calculateTotalRegistrationFee(domain, fees, years)
-      : calculatePermabuyFee(domain, fees);
-
-  return registrationFee;
-}
-
 export function isPDNSDomainNameValid({ name }: { name?: string }): boolean {
   if (
     !name ||
