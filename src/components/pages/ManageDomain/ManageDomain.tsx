@@ -5,14 +5,9 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { useIsMobile } from '../../../hooks';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
-import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../state/contexts/WalletState';
-import {
-  DomainDetails,
-  ManageDomainRow,
-  PDNTContractJSON,
-} from '../../../types';
+import { DomainDetails, ManageDomainRow } from '../../../types';
 import {
   getInteractionTypeFromField,
   getLeaseDurationFromEndTimestamp,
@@ -80,19 +75,14 @@ function ManageDomain() {
       }
       const contractTxId = new ArweaveTransactionID(txId);
 
-      const [contractState, confirmations, pendingContractInteractions] =
+      const [contract, confirmations, pendingContractInteractions] =
         await Promise.all([
-          arweaveDataProvider.getContractState<PDNTContractJSON>(contractTxId),
+          arweaveDataProvider.buildANTContract(contractTxId),
           arweaveDataProvider
             .getTransactionStatus(contractTxId)
             .then((status) => status[contractTxId.toString()].confirmations),
           arweaveDataProvider.getPendingContractInteractions(contractTxId),
         ]);
-      const contract = new PDNTContract(
-        contractState,
-        contractTxId,
-        pendingContractInteractions,
-      );
 
       // simple check that it is ANT shaped contract
       // TODO: add more checks, eg AST tree and function IO's

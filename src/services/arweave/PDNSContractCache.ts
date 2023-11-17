@@ -502,4 +502,13 @@ export class PDNSContractCache implements SmartweaveContractCache {
 
     return price;
   }
+  async buildANTContract(
+    contractTxId: ArweaveTransactionID,
+  ): Promise<PDNTContract> {
+    const [state, pendingInteractions] = await Promise.all([
+      this.getContractState<PDNTContractJSON>(contractTxId),
+      this.getPendingContractInteractions(contractTxId),
+    ]);
+    return new PDNTContract(state, contractTxId, pendingInteractions);
+  }
 }

@@ -17,6 +17,7 @@ import {
 import { byteSize, userHasSufficientBalance } from '../../utils';
 import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
 import { ArweaveTransactionID } from './ArweaveTransactionID';
+import { PDNTContract } from './PDNTContract';
 
 export class ArweaveCompositeDataProvider
   implements
@@ -338,5 +339,10 @@ export class ArweaveCompositeDataProvider
       interaction,
       contractTxId,
     );
+  }
+  async buildANTContract(
+    contractTxId: ArweaveTransactionID,
+  ): Promise<PDNTContract> {
+    return this._contractProvider.buildANTContract(contractTxId);
   }
 }

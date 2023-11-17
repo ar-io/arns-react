@@ -149,23 +149,13 @@ function NameTokenSelector({
         | undefined
       > = await Promise.all(
         contractTxIds.map(async (contractTxId) => {
-          const pendingContractInteractions =
-            await arweaveDataProvider.getPendingContractInteractions(
-              contractTxId,
-            );
-          const state = await arweaveDataProvider
-            .getContractState<PDNTContractJSON>(contractTxId)
+          const contract = await arweaveDataProvider
+            .buildANTContract(contractTxId)
             .catch(() => {
               throw new Error(`Unable to get Contract State`);
             });
 
-          if (
-            !new PDNTContract(
-              state,
-              contractTxId,
-              pendingContractInteractions,
-            ).isValid()
-          ) {
+          if (!contract.isValid()) {
             throw new Error('Invalid ANT Contract.');
           }
           const names = Object.keys(associatedRecords).reduce(
@@ -180,7 +170,7 @@ function NameTokenSelector({
             {},
           );
 
-          return [contractTxId, state, names];
+          return [contractTxId, contract.state, names];
         }),
       );
       if (!contracts.length) {

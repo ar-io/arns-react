@@ -10,7 +10,6 @@ import {
   useRegistrationStatus,
 } from '../../../hooks';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
-import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
@@ -19,7 +18,6 @@ import {
   BuyRecordPayload,
   INTERACTION_NAMES,
   INTERACTION_TYPES,
-  PDNTContractJSON,
   TRANSACTION_TYPES,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
@@ -148,16 +146,9 @@ function RegisterNameForm() {
         payload: txId,
       });
 
-      const state =
-        await arweaveDataProvider.getContractState<PDNTContractJSON>(txId);
-      if (state == undefined) {
-        throw Error('ANT contract state is undefined');
-      }
-      const pendingContractInteractions =
-        await arweaveDataProvider.getPendingContractInteractions(txId);
-      const pdnt = new PDNTContract(state, txId, pendingContractInteractions);
+      const contract = await arweaveDataProvider.buildANTContract(txId);
 
-      if (!pdnt.isValid()) {
+      if (!contract.isValid()) {
         throw Error('ANT contract state does not match required schema.');
       }
     } catch (error: any) {

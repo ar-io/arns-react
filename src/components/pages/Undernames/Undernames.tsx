@@ -8,7 +8,6 @@ import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import {
-  PDNTContractJSON,
   PDNT_INTERACTION_TYPES,
   SetRecordPayload,
   TransactionDataPayload,
@@ -108,11 +107,7 @@ function Undernames() {
 
   async function load(id: ArweaveTransactionID) {
     try {
-      const state =
-        await arweaveDataProvider.getContractState<PDNTContractJSON>(id);
-      const pendingInteractions =
-        await arweaveDataProvider.getPendingContractInteractions(id);
-      const contract = new PDNTContract(state, id, pendingInteractions);
+      const contract = await arweaveDataProvider.buildANTContract(id);
 
       setPDNTState(contract);
     } catch (error) {

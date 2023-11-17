@@ -11,7 +11,6 @@ import {
   INTERACTION_TYPES,
   IncreaseUndernamesPayload,
   PDNSRecordEntry,
-  PDNTContractJSON,
 } from '../../../types';
 import { isPDNSDomainNameValid, lowerCaseDomain, sleep } from '../../../utils';
 import {
@@ -83,22 +82,12 @@ function UpgradeUndernames() {
         }
         setRecord(record);
         const contractTxId = new ArweaveTransactionID(record?.contractTxId);
-        const state =
-          await arweaveDataProvider.getContractState<PDNTContractJSON>(
-            contractTxId,
-          );
-        if (!state) {
+        const contract = await arweaveDataProvider.buildANTContract(
+          contractTxId,
+        );
+        if (!contract.state) {
           throw new Error(`Unable to get contract state for ${name}`);
         }
-        const pendingContractInteractions =
-          await arweaveDataProvider.getPendingContractInteractions(
-            contractTxId,
-          );
-        const contract = new PDNTContract(
-          state,
-          contractTxId,
-          pendingContractInteractions,
-        );
 
         if (!contract.isValid) {
           throw new Error(`Invalid contract for ${name}`);

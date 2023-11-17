@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../hooks';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
-import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
   PDNTContractJSON,
@@ -39,15 +38,7 @@ function AddControllerModal({
 
   async function load(id: ArweaveTransactionID) {
     try {
-      const contractState =
-        await arweaveDataProvider.getContractState<PDNTContractJSON>(id);
-      const pendingContractInteractions =
-        await arweaveDataProvider.getPendingContractInteractions(id);
-      const contract = new PDNTContract(
-        contractState,
-        id,
-        pendingContractInteractions,
-      );
+      const contract = await arweaveDataProvider.buildANTContract(id);
       setState(contract.state);
     } catch (error) {
       eventEmitter.emit('error', error);

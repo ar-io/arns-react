@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../hooks';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
-import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
   PDNTContractJSON,
@@ -39,20 +38,12 @@ function TransferANTModal({
   // TODO: add "transfer to another account" dropdown
 
   useEffect(() => {
-    fetchANTData();
+    fetchANTData(antId);
   }, [antId]);
 
-  async function fetchANTData() {
+  async function fetchANTData(id: ArweaveTransactionID) {
     try {
-      const state =
-        await arweaveDataProvider.getContractState<PDNTContractJSON>(antId);
-      const pendingContractInteractions =
-        await arweaveDataProvider.getPendingContractInteractions(antId);
-      const contract = new PDNTContract(
-        state,
-        antId,
-        pendingContractInteractions,
-      );
+      const contract = await arweaveDataProvider.buildANTContract(id);
       if (!contract.isValid()) {
         throw new Error('Invalid ANT contract');
       }

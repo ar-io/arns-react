@@ -6,7 +6,7 @@ import { useIsMobile } from '../../../hooks';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { PDNSMapping, PDNTContractJSON } from '../../../types';
+import { PDNSMapping } from '../../../types';
 import {
   getLeaseDurationFromEndTimestamp,
   isArweaveTransactionID,
@@ -92,31 +92,21 @@ function PDNTCard({
   async function setDetails() {
     try {
       setIsLoading(true);
-      let antContractState = undefined;
-      let pendingContractInteractions = undefined;
+      let contract = undefined;
       if (state) {
-        antContractState = state;
+        contract = new PDNTContract(state);
       }
       if (contractTxId && contractTxId !== ATOMIC_FLAG && !state) {
-        antContractState = await arweaveDataProvider
-          .getContractState<PDNTContractJSON>(contractTxId)
+        contract = await arweaveDataProvider
+          .buildANTContract(contractTxId)
           .catch(() => {
             throw new Error(
               `Unable to fetch ANT contract state for ${contractTxId}`,
             );
           });
-        pendingContractInteractions =
-          await arweaveDataProvider.getPendingContractInteractions(
-            contractTxId,
-          );
       }
 
-      const contract = new PDNTContract(
-        antContractState,
-        contractTxId,
-        pendingContractInteractions,
-      );
-      if (!contract.isValid()) {
+      if (!contract?.isValid()) {
         throw new Error('Invalid ANT contract');
       }
 

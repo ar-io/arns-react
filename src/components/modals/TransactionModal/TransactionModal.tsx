@@ -2,11 +2,9 @@ import { useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../hooks';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
-import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
   ANTMetadata,
-  PDNTContractJSON,
   PDNT_INTERACTION_TYPES,
   TRANSACTION_TYPES,
   VALIDATION_INPUT_TYPES,
@@ -49,15 +47,7 @@ function TransactionModal({
 
   async function load(id: ArweaveTransactionID) {
     try {
-      const contractState =
-        await arweaveDataProvider.getContractState<PDNTContractJSON>(id);
-      const pendingContractInteractions =
-        await arweaveDataProvider.getPendingContractInteractions(id);
-      const contract = new PDNTContract(
-        contractState,
-        id,
-        pendingContractInteractions,
-      );
+      const contract = await arweaveDataProvider.buildANTContract(id);
       if (!contract.isValid()) {
         throw new Error('Invalid ANT contract');
       }

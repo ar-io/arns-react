@@ -248,6 +248,7 @@ export interface SmartweaveContractCache {
     interaction: INTERACTION_PRICE_PARAMS,
     contractTxId?: ArweaveTransactionID,
   ): Promise<number>;
+  buildANTContract(contractTxId: ArweaveTransactionID): Promise<PDNTContract>;
 }
 
 export interface SmartweaveContractInteractionProvider {
