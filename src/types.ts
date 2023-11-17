@@ -103,7 +103,6 @@ export type PDNSContractJSON = {
 
 export type PDNTContractDomainRecord = {
   ttlSeconds: number;
-  maxUndernames: number;
   transactionId: string;
 };
 

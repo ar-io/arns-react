@@ -5,7 +5,6 @@ import {
 } from '../../types';
 import {
   ATOMIC_FLAG,
-  DEFAULT_MAX_UNDERNAMES,
   DEFAULT_PDNT_CONTRACT_STATE,
   DEFAULT_TTL_SECONDS,
 } from '../../utils/constants';
@@ -33,7 +32,9 @@ export class PDNTContract {
     } else {
       this.contract = { ...DEFAULT_PDNT_CONTRACT_STATE };
     }
-    this.applyPendingInteractions();
+    this.pendingInteractions.forEach((interaction: ContractInteraction) =>
+      this.handleInteraction(interaction),
+    );
   }
   get owner() {
     return this.contract.owner;
@@ -85,17 +86,14 @@ export class PDNTContract {
     );
   }
   set records(records: { [x: string]: PDNTContractDomainRecord }) {
-    for (const [
-      domain,
-      { transactionId, maxUndernames, ttlSeconds },
-    ] of Object.entries(records)) {
+    for (const [domain, { transactionId, ttlSeconds }] of Object.entries(
+      records,
+    )) {
       this.contract.records[domain] = {
         transactionId: transactionId
           ? transactionId
           : this.getRecord(domain)?.transactionId ?? '',
-        maxUndernames: maxUndernames
-          ? maxUndernames
-          : this.getRecord(domain)?.maxUndernames ?? DEFAULT_MAX_UNDERNAMES,
+
         ttlSeconds: ttlSeconds
           ? ttlSeconds
           : this.getRecord(domain)?.ttlSeconds ?? DEFAULT_TTL_SECONDS,
@@ -109,7 +107,6 @@ export class PDNTContract {
     if (typeof this.contract.records[name] === 'string') {
       return {
         transactionId: this.contract.records[name] as unknown as string,
-        maxUndernames: DEFAULT_MAX_UNDERNAMES,
         ttlSeconds: DEFAULT_TTL_SECONDS,
       };
     }
@@ -161,32 +158,41 @@ export class PDNTContract {
     }
   }
 
-  applyPendingInteractions() {
-    // handle current owner
-    const pendingTransfer = this.pendingInteractions?.find(
-      (interaction) => interaction.payload.function === 'transfer',
-    );
-
-    if (pendingTransfer) {
-      this.owner = pendingTransfer.payload.target.toString();
-    }
-
-    // handle pending controllers
-    if (this.pendingInteractions) {
-      const pendingRemoveControllers = new Set(
-        this.pendingInteractions
-          .filter(
-            (interaction) =>
-              interaction.payload.function === 'removeController',
-          )
-          .map((interaction) => interaction.payload.target.toString()),
-      );
-
-      if (pendingRemoveControllers) {
+  handleInteraction(interaction: ContractInteraction) {
+    switch (interaction.payload.function) {
+      case 'transfer':
+        this.owner = interaction.payload.target.toString();
+        break;
+      case 'addController':
+        this.addController(interaction.payload.target.toString());
+        break;
+      case 'removeController':
         this.controllers = this.controllers.filter(
-          (c: string) => !pendingRemoveControllers.has(c),
+          (c: string) => c !== interaction.payload.target.toString(),
         );
-      }
+        break;
+      case 'setRecord':
+        this.records = {
+          ...this.records,
+          [interaction.payload.subDomain.toString()]: {
+            transactionId: interaction.payload.transactionId.toString(),
+            ttlSeconds: parseInt(interaction.payload.ttlSeconds.toString()),
+          },
+        };
+        break;
+      case 'removeRecord':
+        delete this.records[interaction.payload.subDomain.toString()];
+        break;
+      case 'setName':
+        this.name = interaction.payload.name.toString();
+        break;
+      case 'setTicker':
+        this.ticker = interaction.payload.ticker.toString();
+        break;
+      default:
+        throw new Error(
+          `Invalid interaction function: ${interaction.payload.function}`,
+        );
     }
   }
 }
