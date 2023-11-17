@@ -151,7 +151,6 @@ export class ArweaveCompositeDataProviderMock
 
   async getPendingContractInteractions(
     contractTxId: ArweaveTransactionID,
-    key: string,
   ): Promise<ContractInteraction[]> {
     return []; // Mock value
   }

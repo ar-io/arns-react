@@ -178,7 +178,6 @@ export interface SmartweaveContractCache {
   ): Promise<ContractInteraction[]>;
   getPendingContractInteractions(
     contractTxId: ArweaveTransactionID,
-    key: string,
   ): Promise<ContractInteraction[]>;
   isDomainAvailable({
     domain,

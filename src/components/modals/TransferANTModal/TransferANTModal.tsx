@@ -47,10 +47,7 @@ function TransferANTModal({
       const state =
         await arweaveDataProvider.getContractState<PDNTContractJSON>(antId);
       const pendingContractInteractions =
-        await arweaveDataProvider.getPendingContractInteractions(
-          antId,
-          antId.toString(),
-        );
+        await arweaveDataProvider.getPendingContractInteractions(antId);
       const contract = new PDNTContract(
         state,
         antId,

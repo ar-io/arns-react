@@ -111,10 +111,7 @@ function Undernames() {
       const state =
         await arweaveDataProvider.getContractState<PDNTContractJSON>(id);
       const pendingInteractions =
-        await arweaveDataProvider.getPendingContractInteractions(
-          id,
-          id.toString(),
-        );
+        await arweaveDataProvider.getPendingContractInteractions(id);
       const contract = new PDNTContract(state, id, pendingInteractions);
 
       setPDNTState(contract);

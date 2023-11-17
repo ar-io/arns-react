@@ -472,10 +472,7 @@ export function useWalletANTs() {
                 ? allTransactionBlockHeights[contractTxId.toString()]
                     ?.blockHeight
                 : 0,
-              arweaveDataProvider.getPendingContractInteractions(
-                contractTxId,
-                contractTxId.toString(),
-              ),
+              arweaveDataProvider.getPendingContractInteractions(contractTxId),
             ]);
 
           if (!contractState) {

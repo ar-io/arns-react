@@ -224,12 +224,8 @@ export class ArweaveCompositeDataProvider
 
   async getPendingContractInteractions(
     contractTxId: ArweaveTransactionID,
-    key: string,
   ): Promise<ContractInteraction[]> {
-    return this._contractProvider.getPendingContractInteractions(
-      contractTxId,
-      key,
-    );
+    return this._contractProvider.getPendingContractInteractions(contractTxId);
   }
   // TODO: implement arns service query for the following 3 functions
   async isDomainReserved({

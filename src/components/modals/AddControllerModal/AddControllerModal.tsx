@@ -42,10 +42,7 @@ function AddControllerModal({
       const contractState =
         await arweaveDataProvider.getContractState<PDNTContractJSON>(id);
       const pendingContractInteractions =
-        await arweaveDataProvider.getPendingContractInteractions(
-          id,
-          id.toString(),
-        );
+        await arweaveDataProvider.getPendingContractInteractions(id);
       const contract = new PDNTContract(
         contractState,
         id,

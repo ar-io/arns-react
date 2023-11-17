@@ -93,7 +93,6 @@ function UpgradeUndernames() {
         const pendingContractInteractions =
           await arweaveDataProvider.getPendingContractInteractions(
             contractTxId,
-            contractTxId.toString(),
           );
         const contract = new PDNTContract(
           state,

@@ -108,7 +108,6 @@ function PDNTCard({
         pendingContractInteractions =
           await arweaveDataProvider.getPendingContractInteractions(
             contractTxId,
-            contractTxId.toString(),
           );
       }
 

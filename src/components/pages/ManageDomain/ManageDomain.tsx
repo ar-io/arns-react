@@ -86,10 +86,7 @@ function ManageDomain() {
           arweaveDataProvider
             .getTransactionStatus(contractTxId)
             .then((status) => status[contractTxId.toString()].confirmations),
-          arweaveDataProvider.getPendingContractInteractions(
-            contractTxId,
-            address.toString(),
-          ),
+          arweaveDataProvider.getPendingContractInteractions(contractTxId),
         ]);
       const contract = new PDNTContract(
         contractState,

@@ -154,10 +154,7 @@ function RegisterNameForm() {
         throw Error('ANT contract state is undefined');
       }
       const pendingContractInteractions =
-        await arweaveDataProvider.getPendingContractInteractions(
-          txId,
-          txId.toString(),
-        );
+        await arweaveDataProvider.getPendingContractInteractions(txId);
       const pdnt = new PDNTContract(state, txId, pendingContractInteractions);
 
       if (!pdnt.isValid()) {

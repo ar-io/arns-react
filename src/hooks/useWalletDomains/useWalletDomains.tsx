@@ -548,7 +548,6 @@ export function useWalletDomains() {
           arweaveDataProvider
             .getPendingContractInteractions(
               new ArweaveTransactionID(record.contractTxId),
-              address.toString(),
             )
             .catch((e) => {
               console.error(e);

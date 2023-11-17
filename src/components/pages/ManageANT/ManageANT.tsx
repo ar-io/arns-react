@@ -113,10 +113,7 @@ function ManageANT() {
         arweaveDataProvider
           .getTransactionStatus(contractTxId)
           .then((status) => status[contractTxId.toString()].confirmations),
-        arweaveDataProvider.getPendingContractInteractions(
-          contractTxId,
-          address.toString(),
-        ),
+        arweaveDataProvider.getPendingContractInteractions(contractTxId),
         arweaveDataProvider.getRecords<PDNSRecordEntry>({
           filters: {
             contractTxId: [contractTxId],

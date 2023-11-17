@@ -69,10 +69,7 @@ function AddUndernameModal({
           arweaveDataProvider.getRecords<PDNSRecordEntry>({
             filters: { contractTxId: [antId] },
           }),
-          arweaveDataProvider.getPendingContractInteractions(
-            antId,
-            antId.toString(),
-          ),
+          arweaveDataProvider.getPendingContractInteractions(antId),
         ]);
       const contract = new PDNTContract(
         state,

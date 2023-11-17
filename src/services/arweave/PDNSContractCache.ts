@@ -136,7 +136,6 @@ export class PDNSContractCache implements SmartweaveContractCache {
 
   async getPendingContractInteractions(
     contractTxId: ArweaveTransactionID,
-    key: string,
   ): Promise<ContractInteraction[]> {
     const cachedInteractions = await this._cache.getCachedInteractions(
       contractTxId,
@@ -158,7 +157,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
     );
 
     // update the cache to remove indexed transactions for
-    this._cache.set(key, pendingInteractions);
+    this._cache.set(contractTxId.toString(), pendingInteractions);
 
     // return only the ones relevant to the specified contract
     return pendingInteractions.filter(

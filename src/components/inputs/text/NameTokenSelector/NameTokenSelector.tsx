@@ -152,7 +152,6 @@ function NameTokenSelector({
           const pendingContractInteractions =
             await arweaveDataProvider.getPendingContractInteractions(
               contractTxId,
-              contractTxId.toString(),
             );
           const state = await arweaveDataProvider
             .getContractState<PDNTContractJSON>(contractTxId)

@@ -368,7 +368,7 @@ export function useUndernames(id?: ArweaveTransactionID) {
         arweaveDataProvider
           .getTransactionStatus(id)
           .then((status) => status[id.toString()].confirmations),
-        arweaveDataProvider.getPendingContractInteractions(id, id.toString()),
+        arweaveDataProvider.getPendingContractInteractions(id),
       ]);
     const contract = new PDNTContract(state, id, pendingContractInteractions);
     const undernames = Object.entries(contract.records).filter(
