@@ -499,7 +499,6 @@ export function useWalletANTs() {
           setPercentLoaded(
             Math.round((itemsLoaded.current / itemCount.current) * 100),
           );
-          contract.applyPendingInteractions(walletAddress!);
           if (!contract.getOwnershipStatus(walletAddress)) {
             return;
           }

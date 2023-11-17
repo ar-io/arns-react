@@ -33,6 +33,7 @@ export class PDNTContract {
     } else {
       this.contract = { ...DEFAULT_PDNT_CONTRACT_STATE };
     }
+    this.applyPendingInteractions();
   }
   get owner() {
     return this.contract.owner;
@@ -163,21 +164,33 @@ export class PDNTContract {
       return 'controller';
     }
   }
-  applyPendingInteractions(address: ArweaveTransactionID) {
+
+  applyPendingInteractions() {
+    // handle current owner
     const pendingTransfer = this.pendingInteractions?.find(
       (interaction) => interaction.payload.function === 'transfer',
-    );
-    const pendingController = this.pendingInteractions?.find(
-      (interaction) => interaction.payload.function === 'removeController',
     );
 
     if (pendingTransfer) {
       this.owner = pendingTransfer.payload.target.toString();
     }
-    if (pendingController) {
-      this.controllers = this.controllers.filter(
-        (c: string) => c.toString() !== address?.toString(),
+
+    // handle pending controllers
+    if (this.pendingInteractions) {
+      const pendingRemoveControllers = new Set(
+        this.pendingInteractions
+          .filter(
+            (interaction) =>
+              interaction.payload.function === 'removeController',
+          )
+          .map((interaction) => interaction.payload.target.toString()),
       );
+
+      if (pendingRemoveControllers) {
+        this.controllers = this.controllers.filter(
+          (c: string) => !pendingRemoveControllers.has(c),
+        );
+      }
     }
   }
 }
