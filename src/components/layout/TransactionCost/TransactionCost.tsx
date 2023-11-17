@@ -8,14 +8,19 @@ function TransactionCost({
   fee,
   info,
   showBorder = true,
+  ioRequired = false,
   feeWrapperStyle,
 }: {
   fee?: { io?: number; ar?: number };
   info?: JSX.Element | string;
   showBorder?: boolean;
+  ioRequired?: boolean;
   feeWrapperStyle?: CSSProperties;
 }) {
   const isMobile = useIsMobile();
+
+  const feeError = fee?.io && fee.io < 0;
+
   return (
     <div
       className="flex flex-row"
@@ -51,12 +56,19 @@ function TransactionCost({
             className="flex flex-row text white flex-right"
             style={{ gap: '5px', width: 'fit-content' }}
           >
-            {fee?.io ? `${fee.io?.toLocaleString()} IO + ` : ''}
-            <ArPrice dataSize={SMARTWEAVE_TAG_SIZE} />
+            {feeError ? (
+              'Unable to calculate fee'
+            ) : (
+              <>
+                {fee?.io
+                  ? `${fee.io.toLocaleString()} IO + `
+                  : ioRequired
+                  ? 'Calculating IO + '
+                  : ''}
+                <ArPrice dataSize={SMARTWEAVE_TAG_SIZE} />
+              </>
+            )}
           </span>
-
-          {/* TODO: update usd when fiat api available */}
-          <span className="text grey">(Approximately 0 USD)</span>
         </div>
       </div>
     </div>

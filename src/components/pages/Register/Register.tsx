@@ -110,6 +110,10 @@ function RegisterNameForm() {
       const update = async () => {
         if (domain) {
           try {
+            dispatchRegisterState({
+              type: 'setFee',
+              payload: { ar: fee.ar, io: undefined },
+            });
             const price = await arweaveDataProvider
               .getPriceForInteraction({
                 interactionName: INTERACTION_NAMES.BUY_RECORD,
@@ -164,6 +168,9 @@ function RegisterNameForm() {
   }
 
   async function handleNext() {
+    if (fee.io === undefined) {
+      return;
+    }
     try {
       // validate transaction cost, return if insufficient balance and emit validation message
       userHasSufficientBalance<{
@@ -171,7 +178,7 @@ function RegisterNameForm() {
         ar: number;
       }>({
         balances,
-        costs: fee,
+        costs: fee as { io: number; ar: number },
       });
     } catch (error: any) {
       eventEmitter.emit('error', {
@@ -198,7 +205,6 @@ function RegisterNameForm() {
           : undefined,
       type: registrationType,
       auction: (auction?.isRequiredToBeAuctioned || auction?.isActive) ?? false,
-      qty: fee.io,
       isBid: auction?.isActive ?? false,
       targetId: targetId ? new ArweaveTransactionID(targetId) : undefined,
     };
@@ -209,6 +215,7 @@ function RegisterNameForm() {
         assetId: ARNS_REGISTRY_ADDRESS.toString(),
         functionName: 'buyRecord',
         ...buyRecordPayload,
+        interactionPrice: fee.io,
       },
     });
     dispatchTransactionState({
@@ -555,10 +562,11 @@ function RegisterNameForm() {
               </span>
             </div>
             <TransactionCost
+              ioRequired={true}
               fee={fee}
               feeWrapperStyle={{ alignItems: 'flex-start' }}
             />
-            {domain && auction && auction.isRequiredToBeAuctioned ? (
+            {domain && auction && auction.isRequiredToBeAuctioned && fee.io ? (
               <div
                 className="flex flex-row warning-container"
                 style={{
@@ -598,7 +606,9 @@ function RegisterNameForm() {
               <WorkflowButtons
                 nextText="Next"
                 backText="Back"
-                onNext={hasValidationErrors ? undefined : handleNext}
+                onNext={
+                  hasValidationErrors || !fee?.io ? undefined : handleNext
+                }
                 onBack={() => navigate('/', { state: `/register/${domain}` })}
                 customNextStyle={{ width: '100px' }}
               />

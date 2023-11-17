@@ -12,7 +12,7 @@ export type RegistrationState = {
   pdntContract?: PDNTContract;
   targetID?: ArweaveTransactionID;
   antID?: ArweaveTransactionID;
-  fee: { ar: number; io: number };
+  fee: { ar: number; io?: number };
   isRegistered: boolean;
   stage: number;
   isSearching: boolean;

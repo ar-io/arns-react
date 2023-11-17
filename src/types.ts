@@ -545,6 +545,7 @@ export type TransactionDataBasePayload = {
   assetId: string;
   functionName: string;
   deployedTransactionId?: ArweaveTransactionID;
+  interactionPrice?: number;
 };
 
 // registry transaction payload types
@@ -582,7 +583,7 @@ export type TransferIOPayload = {
 export type IncreaseUndernamesPayload = {
   name: string;
   qty: number;
-  oldQty: number;
+  oldQty?: number;
   contractTxId?: string;
 };
 //end registry transaction payload types
