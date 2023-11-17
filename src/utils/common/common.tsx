@@ -214,7 +214,6 @@ export function buildPendingANTRecord(
   return {
     transactionId: transactionId.toString(),
     ttlSeconds: +ttlSeconds,
-    maxUndernames: DEFAULT_MAX_UNDERNAMES,
   };
 }
 

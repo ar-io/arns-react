@@ -32,9 +32,14 @@ export class PDNTContract {
     } else {
       this.contract = { ...DEFAULT_PDNT_CONTRACT_STATE };
     }
-    this.pendingInteractions.forEach((interaction: ContractInteraction) =>
-      this.handleInteraction(interaction),
-    );
+    this.pendingInteractions
+      .sort(
+        (a: ContractInteraction, b: ContractInteraction) =>
+          +a.timestamp - +b.timestamp,
+      )
+      .forEach((interaction: ContractInteraction) =>
+        this.handleInteraction(interaction),
+      );
   }
   get owner() {
     return this.contract.owner;
