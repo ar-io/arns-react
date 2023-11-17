@@ -1,4 +1,8 @@
-import { PDNTContractDomainRecord, PDNTContractJSON } from '../../types';
+import {
+  ContractInteraction,
+  PDNTContractDomainRecord,
+  PDNTContractJSON,
+} from '../../types';
 import {
   ATOMIC_FLAG,
   DEFAULT_MAX_UNDERNAMES,
@@ -15,12 +19,15 @@ import { ArweaveTransactionID } from './ArweaveTransactionID';
 export class PDNTContract {
   id?: ArweaveTransactionID | typeof ATOMIC_FLAG;
   contract: PDNTContractJSON;
+  pendingInteractions: ContractInteraction[];
 
   constructor(
     state?: PDNTContractJSON,
     id?: ArweaveTransactionID | typeof ATOMIC_FLAG,
+    pendingInteractions: ContractInteraction[] = [],
   ) {
     this.id = id;
+    this.pendingInteractions = pendingInteractions;
     if (state) {
       this.contract = { ...state };
     } else {
@@ -154,6 +161,23 @@ export class PDNTContract {
     }
     if (this.controllers.includes(address.toString())) {
       return 'controller';
+    }
+  }
+  applyPendingInteractions(address: ArweaveTransactionID) {
+    const pendingTransfer = this.pendingInteractions?.find(
+      (interaction) => interaction.payload.function === 'transfer',
+    );
+    const pendingController = this.pendingInteractions?.find(
+      (interaction) => interaction.payload.function === 'removeController',
+    );
+
+    if (pendingTransfer) {
+      this.owner = pendingTransfer.payload.target.toString();
+    }
+    if (pendingController) {
+      this.controllers = this.controllers.filter(
+        (c: string) => c.toString() !== address?.toString(),
+      );
     }
   }
 }

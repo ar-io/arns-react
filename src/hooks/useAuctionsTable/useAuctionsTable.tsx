@@ -1,7 +1,6 @@
 import { ColumnType } from 'antd/es/table';
 import Countdown from 'antd/lib/statistic/Countdown';
 import { startCase } from 'lodash';
-import { AlignType } from 'rc-table/lib/interface';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -83,7 +82,7 @@ export function useAuctionsTable() {
         ),
         dataIndex: 'name',
         key: 'name',
-        align: 'left' as AlignType,
+        align: 'left',
         width: isMobile ? '130px' : '20%',
         className: 'white assets-table-header',
         ellipsis: true,
@@ -326,7 +325,7 @@ export function useAuctionsTable() {
             </button>
           </div>
         ),
-        align: 'right' as AlignType,
+        align: 'right',
         width: 'fit-content',
       },
     ];

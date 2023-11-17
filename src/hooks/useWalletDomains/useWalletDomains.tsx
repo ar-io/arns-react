@@ -558,6 +558,7 @@ export function useWalletDomains() {
         const contract = new PDNTContract(
           contractState ?? undefined,
           new ArweaveTransactionID(record.contractTxId),
+          pendingContractInteractions ?? [],
         );
         if (!contractState) {
           errors.push(
@@ -565,6 +566,7 @@ export function useWalletDomains() {
           );
         }
         // simple check that it is ANT shaped contract
+
         if (!contract.isValid()) {
           errors.push(`Invalid contract: ${record.contractTxId.toString()}`);
         }
@@ -573,6 +575,10 @@ export function useWalletDomains() {
         setPercentLoaded(
           Math.round((itemsLoaded.current / itemCount.current) * 100),
         );
+        contract.applyPendingInteractions(walletAddress!);
+        if (!contract.getOwnershipStatus(walletAddress)) {
+          return;
+        }
 
         const data: DomainData = {
           record,
@@ -587,7 +593,9 @@ export function useWalletDomains() {
         return data;
       });
 
-      datas = await Promise.all(newDatas);
+      datas = (await Promise.all(newDatas)).filter(
+        (data) => !!data,
+      ) as DomainData[];
     } catch (error) {
       console.error(error);
     }
