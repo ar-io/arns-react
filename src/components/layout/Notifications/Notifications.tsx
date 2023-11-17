@@ -4,10 +4,13 @@ import { ArgsProps } from 'antd/es/notification/interface';
 import { useEffect } from 'react';
 
 import eventEmitter from '../../../utils/events';
-import { CircleXIcon, CloseIcon } from '../../icons';
+import { defaultError } from './error';
 import './styles.css';
 
-type NotificationType = 'success' | 'info' | 'warning' | 'error';
+export type NotificationType = 'success' | 'info' | 'warning' | 'error';
+
+export const ARCONNECT_UNRESPONSIVE_ERROR =
+  'There was an issue initializing ArConnect. Please reload the page to initialize.';
 
 export default function Notifications() {
   const [notificationApi, contextHolder] = notification.useNotification({
@@ -37,55 +40,21 @@ export default function Notifications() {
     key: string;
   }): ArgsProps {
     switch (type) {
-      case 'error':
-        return {
-          key: key,
-          message: (
-            <h4
-              className="flex flex-row white"
-              style={{ marginTop: '0px', justifyContent: 'space-between' }}
-            >
-              {title}
-              <button
-                className="button center pointer"
-                onClick={() => notificationApi.destroy(key)}
-                style={{ padding: '0px' }}
-              >
-                <CloseIcon
-                  width={'25px'}
-                  height={'25px'}
-                  fill={'var(--text-white)'}
-                />
-              </button>
-            </h4>
-          ),
-          description: <div className="grey">{description}</div>,
-          btn: (
-            <button
-              className="button-primary"
-              style={{ padding: '9px 12px' }}
-              onClick={() => notificationApi.destroy(key)}
-            >
-              Close
-            </button>
-          ),
-          closeIcon: false,
-          icon: (
-            <CircleXIcon
-              width={'25px'}
-              height={'25px'}
-              fill={'var(--error-red)'}
-            />
-          ),
-          placement: 'bottomRight',
-          duration: 30,
-          style: {
-            fontFamily: 'Rubik',
-            background: 'var(--card-bg)',
-            color: 'var(--text-white)',
-            boxShadow: 'var(--shadow)',
-          },
-        };
+      case 'error': {
+        const arconnectUnresponsive =
+          description === ARCONNECT_UNRESPONSIVE_ERROR;
+
+        return defaultError({
+          closeCallback: () => notificationApi.destroy(),
+          actionCallback: arconnectUnresponsive
+            ? () => location.reload()
+            : () => notificationApi.destroy(),
+          actionText: arconnectUnresponsive ? 'Reload' : 'Close',
+          title,
+          description,
+          key,
+        });
+      }
       default:
         return {
           message: '',

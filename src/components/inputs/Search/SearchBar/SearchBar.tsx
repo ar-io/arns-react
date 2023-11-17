@@ -453,7 +453,7 @@ function SearchBar(props: SearchBarProps) {
             flexDirection: isMobile ? 'column-reverse' : 'row',
           }}
         >
-          {isActiveAuction && auctionInfo?.minimumBid ? (
+          {isActiveAuction && auctionInfo?.currentPrice ? (
             <div
               className="flex flex-column"
               style={{
@@ -473,7 +473,7 @@ function SearchBar(props: SearchBarProps) {
                     color: 'var(--accent)',
                   }}
                 >
-                  {auctionInfo?.minimumBid.toLocaleString() ?? 0} IO
+                  {auctionInfo?.currentPrice.toLocaleString() ?? 0} IO
                 </span>
               </span>
               <span

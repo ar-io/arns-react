@@ -20,7 +20,7 @@ import NextPriceUpdate from '../NextPriceUpdate/NextPriceUpdate';
 import PageLoader from '../progress/PageLoader/PageLoader';
 
 function ViewAuction() {
-  const [{ blockHeight }] = useGlobalState();
+  const [{ blockHeight, lastBlockUpdateTimestamp }] = useGlobalState();
   const { name } = useParams();
   const navigate = useNavigate();
   const { auction, loadingAuctionInfo } = useAuctionInfo(
@@ -42,7 +42,7 @@ function ViewAuction() {
         handleExpired();
       }
     }
-  }, [blockHeight, auction, name]);
+  }, [blockHeight, lastBlockUpdateTimestamp, auction, name]);
 
   async function handleExpired() {
     await sleep(2000); // TODO: why do we wait here?
@@ -115,7 +115,7 @@ function ViewAuction() {
                   color: 'var(--accent)',
                 }}
               >
-                {auction!.minimumBid.toLocaleString() ?? 0} IO
+                {auction!.currentPrice.toLocaleString() ?? 0} IO
               </span>
             </span>
             <span className="flex grey" style={{ color: 'var(--text-grey)' }}>

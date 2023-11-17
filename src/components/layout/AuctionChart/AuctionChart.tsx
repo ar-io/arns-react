@@ -60,7 +60,7 @@ function AuctionChart({
   ] = useGlobalState();
   const chartRef = useRef<ChartJSOrUndefined>(null);
 
-  const [labels, setLabels] = useState<string[]>([]);
+  const [labels, setLabels] = useState<number[]>([]);
   const [prices, setPrices] = useState<number[]>([]);
   const [auctionInfo, setAuctionInfo] = useState<Auction>();
 
@@ -84,26 +84,33 @@ function AuctionChart({
       return;
     }
 
-    setPrices(Object.values(auctionInfo.prices));
-    setLabels(Object.keys(auctionInfo.prices));
+    setPrices(
+      [...Object.values(auctionInfo.prices), auctionInfo.currentPrice].sort(
+        (a, b) => b - a,
+      ),
+    );
+    setLabels([
+      ...Object.keys(auctionInfo.prices).map((k: string) => +k),
+      currentBlockHeight,
+    ]);
   }, [chartRef.current, domain, currentBlockHeight, auctionInfo]);
 
   useEffect(() => {
     if (auctionInfo) {
-      triggerCurrentPriceTooltipWhenNotActive(auctionInfo?.minimumBid);
+      triggerCurrentPriceTooltipWhenNotActive(auctionInfo?.currentPrice);
     }
   }, [prices, auctionInfo]);
 
-  function triggerCurrentPriceTooltipWhenNotActive(price: number) {
+  function triggerCurrentPriceTooltipWhenNotActive(currentPrice: number) {
     try {
       const chart = chartRef.current;
-      const validPrice = prices.includes(price);
+      const validPrice = prices.includes(currentPrice);
       if (!chart || !prices.length) {
         return;
       }
       const data = chart.getDatasetMeta(0).data as PointElement[];
       const point = data.find((point: PointElement) =>
-        point.parsed.y === prices[validPrice ? prices.indexOf(price) : 0]
+        point.parsed.y === prices[validPrice ? prices.indexOf(currentPrice) : 0]
           ? point
           : undefined,
       );
@@ -390,7 +397,7 @@ function AuctionChart({
           ref={chartRef}
           onMouseLeave={() => {
             if (auctionInfo) {
-              triggerCurrentPriceTooltipWhenNotActive(auctionInfo.minimumBid);
+              triggerCurrentPriceTooltipWhenNotActive(auctionInfo.currentPrice);
             }
           }}
           options={{
@@ -462,7 +469,7 @@ function AuctionChart({
                 segment: {
                   borderColor: 'white',
                   borderDash: (ctx: any) =>
-                    ctx.p0.parsed.y > auctionInfo.minimumBid
+                    ctx.p0.parsed.y > auctionInfo.currentPrice
                       ? undefined
                       : [3, 3],
                 },

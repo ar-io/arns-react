@@ -11,6 +11,7 @@ export type PDNSRecordEntry = {
   endTimestamp?: number;
   type: TRANSACTION_TYPES;
   undernames: number;
+  purchasePrice?: number;
 };
 
 export type PDNSDomains = { [x: string]: PDNSRecordEntry };
@@ -57,7 +58,7 @@ export type AuctionParameters = {
 export type Auction = AuctionParameters & {
   name: string;
   prices: Record<string | number, number>;
-  minimumBid: number;
+  currentPrice: number;
   isActive: boolean;
   isAvailableForAuction: boolean;
   isRequiredToBeAuctioned: boolean; // TODO: this may be optional
@@ -65,7 +66,7 @@ export type Auction = AuctionParameters & {
 
 export type AuctionTableData = Pick<
   Auction,
-  'name' | 'minimumBid' | 'isActive' | 'initiator' | 'type'
+  'name' | 'currentPrice' | 'isActive' | 'initiator' | 'type'
 > & {
   closingDate: number;
   nextPriceUpdate: number;
@@ -146,6 +147,20 @@ export type JsonWalletProvider = {
   key: any;
 };
 
+export type INTERACTION_PRICE_PARAMS =
+  | {
+      interactionName: INTERACTION_NAMES.BUY_RECORD;
+      payload: BuyRecordPayload;
+    }
+  | {
+      interactionName: INTERACTION_NAMES.EXTEND_RECORD;
+      payload: ExtendLeasePayload;
+    }
+  | {
+      interactionName: INTERACTION_NAMES.INCREASE_UNDERNAME_COUNT;
+      payload: IncreaseUndernamesPayload;
+    };
+
 // TODO: we could break this up into separate interfaces
 export interface SmartweaveContractCache {
   getContractState<T extends PDNTContractJSON | PDNSContractJSON>(
@@ -166,7 +181,6 @@ export interface SmartweaveContractCache {
     contractTxId: ArweaveTransactionID,
     key: string,
   ): Promise<ContractInteraction[]>;
-  // TODO: ALL OF THESE SHOULD REQUIRE A CONTRACT-TX-ID! NO HARD CODING OF CONTRACTS!
   isDomainAvailable({
     domain,
     contractTxId,
@@ -220,7 +234,6 @@ export interface SmartweaveContractCache {
     address: ArweaveTransactionID,
     contractTxId: ArweaveTransactionID,
   ): Promise<number>;
-  // END TODO
   getRecords<T extends PDNSRecordEntry | PDNTContractDomainRecord>({
     contractTxId,
     filters,
@@ -233,6 +246,10 @@ export interface SmartweaveContractCache {
     };
     address?: ArweaveTransactionID;
   }): Promise<{ [x: string]: T }>;
+  getPriceForInteraction(
+    interaction: INTERACTION_PRICE_PARAMS,
+    contractTxId?: ArweaveTransactionID,
+  ): Promise<number>;
 }
 
 export interface SmartweaveContractInteractionProvider {
@@ -287,7 +304,7 @@ export interface SmartweaveContractInteractionProvider {
     type: TRANSACTION_TYPES;
     years?: number;
     auction: boolean;
-    qty: number;
+    qty?: number;
     isBid: boolean;
   }): Promise<string | undefined>;
 }
@@ -438,6 +455,12 @@ export enum INTERACTION_TYPES {
   UNKNOWN = 'Unknown',
 }
 
+export enum INTERACTION_NAMES {
+  BUY_RECORD = 'buyRecord',
+  EXTEND_RECORD = 'extendRecord',
+  INCREASE_UNDERNAME_COUNT = 'increaseUndernameCount',
+}
+
 export enum UNDERNAME_TABLE_ACTIONS {
   CREATE = 'Create',
   REMOVE = 'Remove',
@@ -522,6 +545,7 @@ export type TransactionDataBasePayload = {
   assetId: string;
   functionName: string;
   deployedTransactionId?: ArweaveTransactionID;
+  interactionPrice?: number;
 };
 
 // registry transaction payload types
@@ -531,7 +555,7 @@ export type BuyRecordPayload = {
   years?: number;
   type: TRANSACTION_TYPES;
   state?: PDNTContractJSON;
-  qty: number; // the cost displayed to the user when buying a record
+  qty?: number; // the cost displayed to the user when buying a record
   auction?: boolean;
   targetId?: ArweaveTransactionID;
   isBid?: boolean;
@@ -559,7 +583,7 @@ export type TransferIOPayload = {
 export type IncreaseUndernamesPayload = {
   name: string;
   qty: number;
-  oldQty: number;
+  oldQty?: number;
   contractTxId?: string;
 };
 //end registry transaction payload types

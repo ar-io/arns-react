@@ -17,17 +17,20 @@ export function useAuctionInfo(
 ): {
   auction: Auction | undefined;
   loadingAuctionInfo: boolean;
+  lastUpdated: number | undefined;
 } {
-  const [{ blockHeight, arweaveDataProvider }] = useGlobalState();
+  const [{ blockHeight, lastBlockUpdateTimestamp, arweaveDataProvider }] =
+    useGlobalState();
   const [auction, setAuction] = useState<Auction>();
   const [loadingAuctionInfo, setLoadingAuctionInfo] = useState<boolean>(true);
+  const [lastUpdated, setLastUpdated] = useState<number | undefined>();
 
   useEffect(() => {
     if (!domain) {
       return;
     }
     updateAuctionInfo(domain);
-  }, [blockHeight, registrationType, domain]);
+  }, [blockHeight, lastBlockUpdateTimestamp, registrationType, domain]);
 
   async function updateAuctionInfo(domainName: string) {
     try {
@@ -36,6 +39,7 @@ export function useAuctionInfo(
         domain: domainName,
         type: registrationType,
       });
+      setLastUpdated(Date.now());
       setAuction(auction);
     } catch (error) {
       console.error(error);
@@ -47,5 +51,6 @@ export function useAuctionInfo(
   return {
     auction,
     loadingAuctionInfo,
+    lastUpdated,
   };
 }
