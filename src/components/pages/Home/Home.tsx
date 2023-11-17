@@ -16,8 +16,8 @@ import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
 
 function Home() {
+  const [{ arweaveDataProvider }] = useGlobalState();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [{ pdnsSourceContract }] = useGlobalState();
   const [{ domain, antID }, dispatchRegisterState] = useRegistrationState();
   const {
     isActiveAuction,
@@ -51,18 +51,30 @@ function Home() {
   }, [searchParams]);
 
   useEffect(() => {
-    if (Object.keys(pdnsSourceContract.records).length) {
-      const newFeaturedDomains = Object.fromEntries(
-        FEATURED_DOMAINS.map((domain: string) =>
-          pdnsSourceContract.records[domain]?.contractTxId
-            ? [domain, pdnsSourceContract.records[domain].contractTxId]
-            : [],
-        ).filter((n) => n.length),
-      );
+    fetchFeaturedDomains();
+  }, []);
 
+  async function fetchFeaturedDomains() {
+    try {
+      const results = await Promise.all(
+        FEATURED_DOMAINS.map(async (domain: string) => {
+          const record = await arweaveDataProvider
+            .getRecord({ domain })
+            .catch(() => undefined);
+          const res = record?.contractTxId
+            ? [domain, record?.contractTxId]
+            : [];
+          return res;
+        }),
+      );
+      const newFeaturedDomains = Object.fromEntries(
+        results.filter((x) => x.length),
+      );
       setFeaturedDomains(newFeaturedDomains);
+    } catch (error) {
+      console.error(error);
     }
-  }, [pdnsSourceContract]);
+  }
 
   function updateShowFeaturedDomains({
     auction,

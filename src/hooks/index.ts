@@ -1,5 +1,4 @@
 export * from './useIsMobile/useIsMobile';
-export * from './usePDNSContract/usePDNSContract';
 export * from './useLongPress/useLongPress';
 export * from './useWalletDomains/useWalletDomains';
 export * from './useWalletANTs/useWalletANTs';
