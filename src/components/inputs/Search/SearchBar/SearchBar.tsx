@@ -1,4 +1,4 @@
-import { CheckCircleFilled } from '@ant-design/icons';
+import { CheckCircleFilled, InfoCircleOutlined } from '@ant-design/icons';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -333,10 +333,11 @@ function SearchBar(props: SearchBarProps) {
       <div
         className="searchbar"
         style={{
-          marginBottom: '30px',
+          ...searchBarBorder,
+          marginBottom:
+            searchBarText && searchBarText === 'www' ? '80px' : '30px',
           width: '100%',
           position: 'relative',
-          ...searchBarBorder,
         }}
         ref={inputRef}
       >
@@ -369,7 +370,8 @@ function SearchBar(props: SearchBarProps) {
             display: 'flex',
             flexDirection: 'row',
             justifyContent: 'space-between',
-            marginTop: '15px',
+            marginTop:
+              searchBarText && searchBarText === 'www' ? '90px' : '15px',
             gap: 15,
             color: searchBarText ? 'var(--text-white)' : 'var(--text-grey)',
           }}
@@ -440,7 +442,28 @@ function SearchBar(props: SearchBarProps) {
             <SearchIcon fill="white" width={18} height={18} />
           </button>
         )}
+        {searchBarText && searchBarText === 'www' ? (
+          <div
+            className="warning-container flex"
+            style={{
+              width: '100%',
+              gap: '15px',
+              boxSizing: 'border-box',
+              position: 'absolute',
+              top: '80px',
+            }}
+          >
+            <InfoCircleOutlined />
+            <span className="warning-text" style={{ fontSize: '14px' }}>
+              This name can not be registered, as &apos;www&apos; is a reserved
+              domain in browsers.
+            </span>
+          </div>
+        ) : (
+          <></>
+        )}
       </div>
+
       {searchSubmitted && isAvailable && !isReserved ? (
         <div
           className={`flex flex-row fade-in ${
