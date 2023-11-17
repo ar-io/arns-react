@@ -2,6 +2,9 @@ import { EventEmitter } from 'events';
 import { useEffect, useState } from 'react';
 
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
+import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { ARNS_REGISTRY_ADDRESS } from '../../../utils/constants';
+import eventEmitter from '../../../utils/events';
 import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 
 export const evaluationProgessEmitter = new EventEmitter();
@@ -9,18 +12,34 @@ export const evaluationProgessEmitter = new EventEmitter();
 function WarpEvaluationProgress({
   contractTxId,
   writingTransaction,
+  warmTickStateCallback,
 }: {
   contractTxId: ArweaveTransactionID;
   writingTransaction: boolean;
+  warmTickStateCallback: (state: boolean) => void; // callback when finished warming network cach
 }) {
+  const [{ arweaveDataProvider }] = useGlobalState();
+  const [tickStateWarmed, setTickStateWarmed] = useState(false);
   const [evaluationProgress, setEvaluationProgress] = useState<
     number | undefined
   >();
   // implement listeners for warp evaluation progress
   useEffect(() => {
-    evaluationProgessEmitter.on('progress-notification', tickProgress);
+    if (
+      contractTxId.toString() === ARNS_REGISTRY_ADDRESS.toString() &&
+      writingTransaction
+    ) {
+      handleWarmTickState();
+    }
+    evaluationProgessEmitter.on(
+      'progress-notification',
+      tickEvaluationProgress,
+    );
     return () => {
-      evaluationProgessEmitter.off('progress-notification', tickProgress);
+      evaluationProgessEmitter.off(
+        'progress-notification',
+        tickEvaluationProgress,
+      );
     };
   }, [contractTxId]);
 
@@ -36,7 +55,7 @@ function WarpEvaluationProgress({
     };
   }
 
-  function tickProgress({ message }: { message: string }) {
+  function tickEvaluationProgress({ message }: { message: string }) {
     const { currentInteractionNumber, totalInteractionCount } =
       parseProgressMessage(message);
     const percentage =
@@ -45,7 +64,25 @@ function WarpEvaluationProgress({
     if (percentage >= 100) {
       return setEvaluationProgress(undefined);
     }
-    return setEvaluationProgress(Math.round(percentage));
+    return setEvaluationProgress(percentage);
+  }
+
+  async function handleWarmTickState() {
+    try {
+      const handleTickStateProgress = (current: number, total: number) => {
+        const percentage = (current / total) * 100;
+        setEvaluationProgress(percentage);
+      };
+      await arweaveDataProvider.warmTickStateCache({
+        progressCallback: handleTickStateProgress,
+      });
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    } finally {
+      setTickStateWarmed(true);
+      warmTickStateCallback(true);
+      setEvaluationProgress(undefined);
+    }
   }
 
   return (
@@ -60,8 +97,17 @@ function WarpEvaluationProgress({
             <span className="bold" style={{ fontSize: '18px' }}>
               Writing transaction, please wait.
             </span>
-            <span style={{ fontSize: '16px' }}>Evaluating contract</span>
-            <span style={{ fontSize: '14px' }}>{evaluationProgress ?? 0}%</span>
+            <span style={{ fontSize: '16px' }}>
+              {!tickStateWarmed &&
+              contractTxId.toString() === ARNS_REGISTRY_ADDRESS.toString()
+                ? 'Fetching Block Data'
+                : 'Evaluating contract'}
+            </span>
+            <span style={{ fontSize: '14px' }}>
+              {evaluationProgress
+                ? `${evaluationProgress?.toPrecision(4)}%`
+                : 'calculating...'}
+            </span>
           </div>
         }
       />

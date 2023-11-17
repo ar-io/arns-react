@@ -1,5 +1,4 @@
 import * as Sentry from '@sentry/react';
-import { useCallback } from 'react';
 import {
   Navigate,
   Route,
@@ -28,9 +27,7 @@ import {
 } from './components/pages';
 import { usePDNSContract } from './hooks/';
 import useArconnectEvents from './hooks/useArconnectEvents/useArconnectEvents';
-import { useEffectOnce } from './hooks/useEffectOnce/useEffectOnce';
 import './index.css';
-import { useGlobalState } from './state/contexts/GlobalState';
 
 const sentryCreateBrowserRouter =
   Sentry.wrapCreateBrowserRouter(createBrowserRouter);
@@ -39,14 +36,6 @@ function App() {
   // dispatches global state
   usePDNSContract();
   useArconnectEvents();
-  const [{ arweaveDataProvider }] = useGlobalState();
-  const warmCache = useCallback(() => {
-    arweaveDataProvider.warmTickStateCache();
-  }, [arweaveDataProvider]);
-
-  useEffectOnce(() => {
-    warmCache();
-  });
 
   const router = sentryCreateBrowserRouter(
     createRoutesFromElements(

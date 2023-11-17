@@ -3,6 +3,7 @@ import {
   Auction,
   AuctionSettings,
   ContractInteraction,
+  INTERACTION_PRICE_PARAMS,
   KVCache,
   PDNSContractJSON,
   PDNSRecordEntry,
@@ -14,15 +15,12 @@ import {
 import {
   buildPendingANTRecord,
   buildPendingArNSRecord,
+  fetchWithRetry,
   isArweaveTransactionID,
   isDomainReservedLength,
   lowerCaseDomain,
-  sleep,
 } from '../../utils';
-import {
-  ARNS_REGISTRY_ADDRESS,
-  MIN_SAFE_EDIT_CONFIRMATIONS,
-} from '../../utils/constants';
+import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
 import { ContractInteractionCache } from '../caches/ContractInteractionCache';
 import { LocalStorageCache } from '../caches/LocalStorageCache';
 import { ArweaveTransactionID } from './ArweaveTransactionID';
@@ -385,7 +383,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
           domain,
         })
       : undefined;
-    if ((cachedRecord && !auction) || cachedRecord.isBid) {
+    if ((cachedRecord && !auction) || cachedRecord?.isBid) {
       return buildPendingArNSRecord(cachedRecord);
     }
     throw new Error('Error getting record');
@@ -476,7 +474,11 @@ export class PDNSContractCache implements SmartweaveContractCache {
 
     return balance - cachedBalance;
   }
-  async warmTickStateCache() {
+  async warmTickStateCache({
+    progressCallback,
+  }: {
+    progressCallback?: ((current: number, total: number) => void) | undefined;
+  }): Promise<void> {
     const res = await fetch(
       `${this._url}/v1/contract/${ARNS_REGISTRY_ADDRESS.toString()}`,
     );
@@ -484,16 +486,54 @@ export class PDNSContractCache implements SmartweaveContractCache {
       state: { lastTickedHeight },
     } = await res.json();
     const currentHeight = await this._arweave.getCurrentBlockHeight();
-    const startHeight = lastTickedHeight - MIN_SAFE_EDIT_CONFIRMATIONS;
+    const totalQueries = currentHeight - lastTickedHeight;
     const heightPromises = [];
-    for (let i = startHeight; i < currentHeight; i++) {
+    let fetchedHeights = 0;
+    for (let i = lastTickedHeight; i < currentHeight; i++) {
       // store the calls in an array so we can await them in order
-      heightPromises.push(() => this._arweave.getBlock(i));
+      heightPromises.push(async () => {
+        const res = await this._arweave.getBlock(i);
+        return res;
+      });
     }
-    for (const q of heightPromises) {
-      // wait for each call to finish before moving on to the next. We sleep to prevent rate limiting and prevent blocking the main thread.
-      await sleep(500);
-      Promise.resolve(q());
+
+    await Promise.all(
+      heightPromises.map(async (query) => {
+        await query();
+        fetchedHeights++;
+        if (progressCallback) {
+          progressCallback(fetchedHeights, totalQueries);
+        }
+      }),
+    );
+  }
+
+  async getPriceForInteraction(
+    { interactionName, payload }: INTERACTION_PRICE_PARAMS,
+    contractTxId: ArweaveTransactionID,
+  ): Promise<number> {
+    const params = new URLSearchParams(
+      Object.entries({
+        interactionName: interactionName,
+        ...payload,
+      }).map(([key, value]) => [key, value.toString()]),
+    );
+
+    // NOTE: Using fetchWithRetry as service is occassionally returning 400 errors
+    const res = await fetchWithRetry(
+      `${
+        this._url
+      }/v1/contract/${contractTxId.toString()}/read/priceForInteraction?${params.toString()}`,
+    ).catch(() => undefined);
+
+    const {
+      result: { price },
+    } = res && res.ok ? await res.json() : { result: { price: undefined } };
+
+    if (!price) {
+      throw new Error(`Couldn't get price for ${interactionName}`);
     }
+
+    return price;
   }
 }

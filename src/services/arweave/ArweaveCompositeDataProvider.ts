@@ -5,6 +5,7 @@ import {
   Auction,
   AuctionSettings,
   ContractInteraction,
+  INTERACTION_PRICE_PARAMS,
   PDNSContractJSON,
   PDNSRecordEntry,
   PDNTContractDomainRecord,
@@ -190,7 +191,7 @@ export class ArweaveCompositeDataProvider
     type: TRANSACTION_TYPES;
     years?: number;
     auction: boolean;
-    qty: number;
+    qty?: number;
     isBid: boolean;
   }): Promise<string | undefined> {
     return await this._interactionProvider.registerAtomicName({
@@ -335,7 +336,21 @@ export class ArweaveCompositeDataProvider
   async getBlock(height: number): Promise<Record<string, any>> {
     return this._arweaveProvider.getBlock(height);
   }
-  async warmTickStateCache(): Promise<void> {
-    return this._contractProvider.warmTickStateCache();
+  async warmTickStateCache({
+    progressCallback,
+  }: {
+    progressCallback?: (current: number, total: number) => void;
+  }): Promise<void> {
+    return this._contractProvider.warmTickStateCache({ progressCallback });
+  }
+
+  getPriceForInteraction(
+    interaction: INTERACTION_PRICE_PARAMS,
+    contractTxId = ARNS_REGISTRY_ADDRESS,
+  ): Promise<number> {
+    return this._contractProvider.getPriceForInteraction(
+      interaction,
+      contractTxId,
+    );
   }
 }

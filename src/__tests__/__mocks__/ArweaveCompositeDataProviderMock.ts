@@ -4,6 +4,7 @@ import {
   Auction,
   AuctionSettings,
   ContractInteraction,
+  INTERACTION_PRICE_PARAMS,
   PDNSContractJSON,
   PDNSRecordEntry,
   PDNTContractDomainRecord,
@@ -13,7 +14,10 @@ import {
   TRANSACTION_TYPES,
   TransactionTag,
 } from '../../types';
-import { STUB_ARWEAVE_TXID } from '../../utils/constants';
+import {
+  ARNS_REGISTRY_ADDRESS,
+  STUB_ARWEAVE_TXID,
+} from '../../utils/constants';
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 export class ArweaveCompositeDataProviderMock
@@ -213,5 +217,12 @@ export class ArweaveCompositeDataProviderMock
   }
   warmTickStateCache(): Promise<void> {
     return Promise.resolve();
+  }
+
+  async getPriceForInteraction(
+    interaction: INTERACTION_PRICE_PARAMS,
+    contractTxId = ARNS_REGISTRY_ADDRESS,
+  ): Promise<number> {
+    return 0; // Mock value
   }
 }

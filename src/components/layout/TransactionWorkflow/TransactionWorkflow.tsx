@@ -31,6 +31,7 @@ import {
   pruneExtraDataFromTransactionPayload,
 } from '../../../utils';
 import {
+  ARNS_REGISTRY_ADDRESS,
   ATOMIC_FLAG,
   DEFAULT_PDNT_SOURCE_CODE_TX,
   MIN_TTL_SECONDS,
@@ -42,7 +43,6 @@ import WarpEvaluationProgress from '../../modals/WarpEvaluationProgess/WarpEvalu
 import TransactionComplete from '../TransactionComplete/TransactionComplete';
 import TransactionCost from '../TransactionCost/TransactionCost';
 import Workflow, { WorkflowStage } from '../Workflow/Workflow';
-import PageLoader from '../progress/PageLoader/PageLoader';
 
 export enum TRANSACTION_WORKFLOW_STATUS {
   PENDING = 'pending',
@@ -79,6 +79,7 @@ function TransactionWorkflow({
   );
   const [deployingTransaction, setDeployingTransaction] =
     useState<boolean>(false);
+  const [tickStateWarmed, setTickStateWarmed] = useState(false);
 
   useEffect(() => {
     onLoad(interactionType);
@@ -227,6 +228,14 @@ function TransactionWorkflow({
         TRANSACTION_WORKFLOW_STATUS.PENDING &&
         interactionType
       ) {
+        if (
+          transactionData.assetId.toString() ===
+            ARNS_REGISTRY_ADDRESS.toString() &&
+          !tickStateWarmed
+        ) {
+          setDeployingTransaction(true);
+          return;
+        }
         const txId = await deployTransaction(interactionType);
         if (!txId) {
           throw new Error(`Failed to deploy transaction`);
@@ -347,8 +356,7 @@ function TransactionWorkflow({
                 <PDNTCard {...pdntProps} bordered compact={false} />
                 <TransactionCost
                   fee={{
-                    // TODO: this scares me - we need to make sure we are using the correct fee
-                    io: payload.qty,
+                    io: payload.interactionPrice,
                   }}
                   info={
                     <div
@@ -469,7 +477,7 @@ function TransactionWorkflow({
                 <PDNTCard {...pdntProps} bordered />
                 <TransactionCost
                   fee={{
-                    io: payload.qty,
+                    io: payload.interactionPrice,
                   }}
                   info={
                     <div
@@ -570,7 +578,7 @@ function TransactionWorkflow({
                 <PDNTCard {...pdntProps} bordered />
                 <TransactionCost
                   fee={{
-                    io: payload.qty,
+                    io: payload.interactionPrice,
                   }}
                   info={
                     <div
@@ -658,10 +666,13 @@ function TransactionWorkflow({
 
   return (
     <>
-      <PageLoader message={'Deploying transaction...'} loading={false} />
       <WarpEvaluationProgress
         contractTxId={new ArweaveTransactionID(transactionData.assetId)}
         writingTransaction={deployingTransaction}
+        warmTickStateCallback={(warmed: boolean) => {
+          setTickStateWarmed(warmed);
+          handleStage('next');
+        }}
       />
       <div className="flex" style={{ maxWidth: '900px', width: '100%' }}>
         <Workflow
