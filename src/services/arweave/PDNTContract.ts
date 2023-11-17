@@ -39,16 +39,12 @@ export class PDNTContract {
     return this.contract.owner;
   }
   set owner(id: string) {
-    try {
-      if (!id) {
-        throw new Error('No ID provided');
-      }
-      const txId = new ArweaveTransactionID(id);
-      this.contract.owner = txId.toString();
-      this.contract.balances[id] = 1;
-    } catch (error) {
-      console.log(error);
+    if (!id) {
+      throw new Error('No ID provided');
     }
+    const txId = new ArweaveTransactionID(id);
+    this.contract.owner = txId.toString();
+    this.contract.balances[id] = 1;
   }
   get name() {
     return this.contract.name;

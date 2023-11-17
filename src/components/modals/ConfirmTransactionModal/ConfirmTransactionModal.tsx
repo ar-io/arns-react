@@ -383,7 +383,6 @@ function ConfirmTransactionModal({
         interactionType as unknown as ValidInteractionType,
         payload,
       );
-      console.log(cleanPayload);
 
       const fee = (cleanPayload as any).qty ?? 0;
 
