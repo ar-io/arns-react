@@ -482,18 +482,26 @@ export function useWalletANTs() {
             errors.push(`Failed to load contract: ${contractTxId.toString()}`);
           }
 
-          const contract = new PDNTContract(contractState, contractTxId);
+          const contract = new PDNTContract(
+            contractState,
+            contractTxId,
+            pendingContractInteractions,
+          );
 
           // simple check that it is ANT shaped contract
           if (!contract.isValid()) {
             errors.push('Invalid contract');
           }
+
           // TODO: react strict mode makes this increment twice in dev
           if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
 
           setPercentLoaded(
             Math.round((itemsLoaded.current / itemCount.current) * 100),
           );
+          if (!contract.getOwnershipStatus(walletAddress)) {
+            return;
+          }
 
           return {
             contract,
@@ -509,7 +517,7 @@ export function useWalletANTs() {
         },
       );
 
-      datas = await Promise.all(newDatas);
+      datas = (await Promise.all(newDatas)).filter((d) => !!d) as ANTData[];
     } catch (error) {
       console.error(error);
     }

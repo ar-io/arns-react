@@ -39,25 +39,27 @@ function TransferANTModal({
   // TODO: add "transfer to another account" dropdown
 
   useEffect(() => {
-    arweaveDataProvider
-      .getContractState<PDNTContractJSON>(antId)
-      .then((res) => {
-        const contract = new PDNTContract(res);
-        if (!contract.isValid()) {
-          throw new Error('Invalid ANT contract');
-        }
-        setState(res);
-        // TODO: filter out '@' names?
-        setAssociatedNames(Object.keys(state?.records ?? {}));
-      })
-      .catch(() => {
-        eventEmitter.emit(
-          'error',
-          `Failed to get contract state for ${antId.toString()}`,
-        );
-        closeModal();
-      });
+    fetchANTData();
   }, [antId]);
+
+  async function fetchANTData() {
+    try {
+      const state =
+        await arweaveDataProvider.getContractState<PDNTContractJSON>(antId);
+      const contract = new PDNTContract(state, antId);
+      if (!contract.isValid()) {
+        throw new Error('Invalid ANT contract');
+      }
+      setState(state);
+      const associatedRecords = await arweaveDataProvider.getRecords({
+        filters: { contractTxId: [antId] },
+      });
+      setAssociatedNames(Object.keys(associatedRecords));
+    } catch (error) {
+      eventEmitter.emit('error', error);
+      closeModal();
+    }
+  }
 
   useEffect(() => {
     if (!isArweaveTransactionID(toAddress)) {
@@ -80,7 +82,6 @@ function TransferANTModal({
   function handlePayloadCallback() {
     payloadCallback({
       target: toAddress,
-      qty: 1,
       associatedNames,
     });
   }

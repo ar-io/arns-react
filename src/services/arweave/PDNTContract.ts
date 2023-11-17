@@ -1,7 +1,10 @@
-import { PDNTContractDomainRecord, PDNTContractJSON } from '../../types';
+import {
+  ContractInteraction,
+  PDNTContractDomainRecord,
+  PDNTContractJSON,
+} from '../../types';
 import {
   ATOMIC_FLAG,
-  DEFAULT_MAX_UNDERNAMES,
   DEFAULT_PDNT_CONTRACT_STATE,
   DEFAULT_TTL_SECONDS,
 } from '../../utils/constants';
@@ -15,32 +18,39 @@ import { ArweaveTransactionID } from './ArweaveTransactionID';
 export class PDNTContract {
   id?: ArweaveTransactionID | typeof ATOMIC_FLAG;
   contract: PDNTContractJSON;
+  pendingInteractions: ContractInteraction[];
 
   constructor(
     state?: PDNTContractJSON,
     id?: ArweaveTransactionID | typeof ATOMIC_FLAG,
+    pendingInteractions: ContractInteraction[] = [],
   ) {
     this.id = id;
+    this.pendingInteractions = pendingInteractions;
     if (state) {
       this.contract = { ...state };
     } else {
       this.contract = { ...DEFAULT_PDNT_CONTRACT_STATE };
     }
+    this.pendingInteractions
+      .sort(
+        (a: ContractInteraction, b: ContractInteraction) =>
+          +a.timestamp - +b.timestamp,
+      )
+      .forEach((interaction: ContractInteraction) =>
+        this.handleInteraction(interaction),
+      );
   }
   get owner() {
     return this.contract.owner;
   }
   set owner(id: string) {
-    try {
-      if (!id) {
-        throw new Error('No ID provided');
-      }
-      const txId = new ArweaveTransactionID(id);
-      this.contract.owner = txId.toString();
-      this.contract.balances[id] = 1;
-    } catch (error) {
-      console.log(error);
+    if (!id) {
+      throw new Error('No ID provided');
     }
+    const txId = new ArweaveTransactionID(id);
+    this.contract.owner = txId.toString();
+    this.contract.balances[id] = 1;
   }
   get name() {
     return this.contract.name;
@@ -63,6 +73,10 @@ export class PDNTContract {
     );
   }
 
+  set controllers(controllers: string[]) {
+    this.contract.controllers = controllers;
+  }
+
   // TODO: this should be refactored when we are ready to not support pdnts that do not comply with the new PDNT spec
   get records(): { [x: string]: PDNTContractDomainRecord } {
     if (!this.contract?.records) {
@@ -77,17 +91,14 @@ export class PDNTContract {
     );
   }
   set records(records: { [x: string]: PDNTContractDomainRecord }) {
-    for (const [
-      domain,
-      { transactionId, maxUndernames, ttlSeconds },
-    ] of Object.entries(records)) {
+    for (const [domain, { transactionId, ttlSeconds }] of Object.entries(
+      records,
+    )) {
       this.contract.records[domain] = {
         transactionId: transactionId
           ? transactionId
           : this.getRecord(domain)?.transactionId ?? '',
-        maxUndernames: maxUndernames
-          ? maxUndernames
-          : this.getRecord(domain)?.maxUndernames ?? DEFAULT_MAX_UNDERNAMES,
+
         ttlSeconds: ttlSeconds
           ? ttlSeconds
           : this.getRecord(domain)?.ttlSeconds ?? DEFAULT_TTL_SECONDS,
@@ -101,7 +112,6 @@ export class PDNTContract {
     if (typeof this.contract.records[name] === 'string') {
       return {
         transactionId: this.contract.records[name] as unknown as string,
-        maxUndernames: DEFAULT_MAX_UNDERNAMES,
         ttlSeconds: DEFAULT_TTL_SECONDS,
       };
     }
@@ -150,6 +160,44 @@ export class PDNTContract {
     }
     if (this.controllers.includes(address.toString())) {
       return 'controller';
+    }
+  }
+
+  handleInteraction(interaction: ContractInteraction) {
+    switch (interaction.payload.function) {
+      case 'transfer':
+        this.owner = interaction.payload.target.toString();
+        break;
+      case 'addController':
+        this.addController(interaction.payload.target.toString());
+        break;
+      case 'removeController':
+        this.controllers = this.controllers.filter(
+          (c: string) => c !== interaction.payload.target.toString(),
+        );
+        break;
+      case 'setRecord':
+        this.records = {
+          ...this.records,
+          [interaction.payload.subDomain.toString()]: {
+            transactionId: interaction.payload.transactionId.toString(),
+            ttlSeconds: parseInt(interaction.payload.ttlSeconds.toString()),
+          },
+        };
+        break;
+      case 'removeRecord':
+        delete this.records[interaction.payload.subDomain.toString()];
+        break;
+      case 'setName':
+        this.name = interaction.payload.name.toString();
+        break;
+      case 'setTicker':
+        this.ticker = interaction.payload.ticker.toString();
+        break;
+      default:
+        throw new Error(
+          `Invalid interaction function: ${interaction.payload.function}`,
+        );
     }
   }
 }

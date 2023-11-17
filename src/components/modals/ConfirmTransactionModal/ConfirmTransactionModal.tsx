@@ -305,13 +305,13 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
       if (
         !isObjectOfTransactionPayloadType<TransferANTPayload>(
           props,
-          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.TRANSFER].keys,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.TRANSFER_ANT].keys,
         )
       ) {
         return <></>;
       }
       const pdntProps = getPDNSMappingByInteractionType({
-        interactionType: INTERACTION_TYPES.TRANSFER,
+        interactionType: INTERACTION_TYPES.TRANSFER_ANT,
         transactionData: { ...props } as unknown as TransactionData,
       });
 
