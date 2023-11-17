@@ -123,7 +123,11 @@ function ManageANT() {
           },
         }),
       ]);
-      const contract = new PDNTContract(contractState);
+      const contract = new PDNTContract(
+        contractState,
+        contractTxId,
+        pendingContractInteractions,
+      );
 
       // simple check that it is ANT shaped contract
       if (!contract.isValid()) {

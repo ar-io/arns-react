@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { useIsMobile } from '../../../hooks';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
+import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
   PDNSRecordEntry,
@@ -62,14 +63,24 @@ function AddUndernameModal({
 
   async function loadDetails() {
     try {
-      const [state, arnsRecords] = await Promise.all([
-        arweaveDataProvider.getContractState<PDNTContractJSON>(antId),
-        arweaveDataProvider.getRecords<PDNSRecordEntry>({
-          filters: { contractTxId: [antId] },
-        }),
-      ]);
+      const [state, arnsRecords, pendingContractInteractions] =
+        await Promise.all([
+          arweaveDataProvider.getContractState<PDNTContractJSON>(antId),
+          arweaveDataProvider.getRecords<PDNSRecordEntry>({
+            filters: { contractTxId: [antId] },
+          }),
+          arweaveDataProvider.getPendingContractInteractions(
+            antId,
+            antId.toString(),
+          ),
+        ]);
+      const contract = new PDNTContract(
+        state,
+        antId,
+        pendingContractInteractions,
+      );
 
-      setState(state);
+      setState(contract.state);
       setAssociatedRecords(arnsRecords);
       const shortestAssociatedName = Object.keys(arnsRecords).length
         ? Math.min(...Object.keys(arnsRecords).map((name) => name.length))

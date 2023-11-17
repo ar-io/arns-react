@@ -44,24 +44,33 @@ function TransactionModal({
   // todo: add "transfer to another account" dropdown
 
   useEffect(() => {
-    arweaveDataProvider
-      .getContractState<PDNTContractJSON>(contractId)
-      .then((state) => {
-        const contract = new PDNTContract(state);
-        if (!contract.isValid()) {
-          throw new Error('Invalid ANT contract');
-        }
-        const records = getUndernameCount(contract.records);
-        setRecordCount(records);
-      })
-      .catch(() => {
-        eventEmitter.emit(
-          'error',
-          `Failed to get contract state for ${contractId.toString()}`,
+    load(contractId);
+  }, [contractId]);
+
+  async function load(id: ArweaveTransactionID) {
+    try {
+      const contractState =
+        await arweaveDataProvider.getContractState<PDNTContractJSON>(id);
+      const pendingContractInteractions =
+        await arweaveDataProvider.getPendingContractInteractions(
+          id,
+          id.toString(),
         );
-        showModal();
-      });
-  }, [contractId, arweaveDataProvider]);
+      const contract = new PDNTContract(
+        contractState,
+        id,
+        pendingContractInteractions,
+      );
+      if (!contract.isValid()) {
+        throw new Error('Invalid ANT contract');
+      }
+      const records = getUndernameCount(contract.records);
+      setRecordCount(records);
+    } catch (error) {
+      eventEmitter.emit('error', error);
+      showModal();
+    }
+  }
 
   return (
     <>

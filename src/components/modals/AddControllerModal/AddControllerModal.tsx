@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../hooks';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
+import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
   PDNTContractJSON,
@@ -9,6 +10,7 @@ import {
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import { formatForMaxCharCount, isArweaveTransactionID } from '../../../utils';
+import eventEmitter from '../../../utils/events';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import { Loader } from '../../layout';
 import TransactionCost from '../../layout/TransactionCost/TransactionCost';
@@ -32,10 +34,28 @@ function AddControllerModal({
   // TODO: add "transfer to another account" dropdown
 
   useEffect(() => {
-    arweaveDataProvider
-      .getContractState<PDNTContractJSON>(antId)
-      .then((res) => setState(res));
+    load(antId);
   }, [antId]);
+
+  async function load(id: ArweaveTransactionID) {
+    try {
+      const contractState =
+        await arweaveDataProvider.getContractState<PDNTContractJSON>(id);
+      const pendingContractInteractions =
+        await arweaveDataProvider.getPendingContractInteractions(
+          id,
+          id.toString(),
+        );
+      const contract = new PDNTContract(
+        contractState,
+        id,
+        pendingContractInteractions,
+      );
+      setState(contract.state);
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    }
+  }
 
   useEffect(() => {
     if (!toAddress.length) {

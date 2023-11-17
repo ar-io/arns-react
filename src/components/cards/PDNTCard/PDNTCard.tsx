@@ -93,6 +93,7 @@ function PDNTCard({
     try {
       setIsLoading(true);
       let antContractState = undefined;
+      let pendingContractInteractions = undefined;
       if (state) {
         antContractState = state;
       }
@@ -104,9 +105,18 @@ function PDNTCard({
               `Unable to fetch ANT contract state for ${contractTxId}`,
             );
           });
+        pendingContractInteractions =
+          await arweaveDataProvider.getPendingContractInteractions(
+            contractTxId,
+            contractTxId.toString(),
+          );
       }
 
-      const contract = new PDNTContract(antContractState, contractTxId);
+      const contract = new PDNTContract(
+        antContractState,
+        contractTxId,
+        pendingContractInteractions,
+      );
       if (!contract.isValid()) {
         throw new Error('Invalid ANT contract');
       }

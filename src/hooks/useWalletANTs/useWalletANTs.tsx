@@ -76,9 +76,9 @@ export function useWalletANTs() {
       }
       const filtered = rows.filter(
         (row) =>
-          row.name.toLowerCase().includes(searchText.toLowerCase()) ||
-          row.state.ticker.toLowerCase().includes(searchText.toLowerCase()) ||
-          row.id.toLowerCase().includes(searchText.toLowerCase()),
+          row.name?.toLowerCase().includes(searchText.toLowerCase()) ||
+          row.state.ticker?.toLowerCase().includes(searchText.toLowerCase()) ||
+          row.id?.toLowerCase().includes(searchText.toLowerCase()),
       );
       setFilteredResults(filtered);
     } else {

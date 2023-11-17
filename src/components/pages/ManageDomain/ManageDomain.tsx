@@ -91,7 +91,11 @@ function ManageDomain() {
             address.toString(),
           ),
         ]);
-      const contract = new PDNTContract(contractState);
+      const contract = new PDNTContract(
+        contractState,
+        contractTxId,
+        pendingContractInteractions,
+      );
 
       // simple check that it is ANT shaped contract
       // TODO: add more checks, eg AST tree and function IO's

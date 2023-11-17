@@ -15,10 +15,11 @@ import ArweaveID, {
   ArweaveIdTypes,
 } from '../../components/layout/ArweaveID/ArweaveID';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
+import { PDNTContract } from '../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useWalletState } from '../../state/contexts/WalletState';
 import {
-  PDNTContractDomainRecord,
+  PDNTContractJSON,
   UNDERNAME_TABLE_ACTIONS,
   UndernameMetadata,
   UndernameTableInteractionTypes,
@@ -361,17 +362,18 @@ export function useUndernames(id?: ArweaveTransactionID) {
       });
     setDomain(domain);
     const fetchedRows: UndernameMetadata[] = [];
-    const [records, confirmations] = await Promise.all([
-      arweaveDataProvider.getRecords<PDNTContractDomainRecord>({
-        contractTxId: id,
-        filters: {},
-        address: walletAddress,
-      }),
-      arweaveDataProvider
-        .getTransactionStatus(id)
-        .then((status) => status[id.toString()].confirmations),
-    ]);
-    const undernames = Object.entries(records).filter(([key]) => key !== '@');
+    const [state, confirmations, pendingContractInteractions] =
+      await Promise.all([
+        arweaveDataProvider.getContractState<PDNTContractJSON>(id),
+        arweaveDataProvider
+          .getTransactionStatus(id)
+          .then((status) => status[id.toString()].confirmations),
+        arweaveDataProvider.getPendingContractInteractions(id, id.toString()),
+      ]);
+    const contract = new PDNTContract(state, id, pendingContractInteractions);
+    const undernames = Object.entries(contract.records).filter(
+      ([key]) => key !== '@',
+    );
     for (const [name, record] of undernames) {
       try {
         const rowData = {

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../hooks';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
+import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { PDNTContractJSON, RemoveControllerPayload } from '../../../types';
 import {
@@ -10,6 +11,7 @@ import {
   getCustomPaginationButtons,
   getLegacyControllersFromState,
 } from '../../../utils';
+import eventEmitter from '../../../utils/events';
 import { Loader } from '../../layout';
 import TransactionCost from '../../layout/TransactionCost/TransactionCost';
 import DialogModal from '../DialogModal/DialogModal';
@@ -36,19 +38,35 @@ function RemoveControllersModal({
   // TODO: add "transfer to another account" dropdown
 
   useEffect(() => {
-    arweaveDataProvider
-      .getContractState<PDNTContractJSON>(antId)
-      .then((res) => {
-        setState(res);
-        const newRows = getControllerRows();
-        setRows(newRows);
-      });
+    load(antId);
   }, [antId]);
 
   useEffect(() => {
     const newRows = getControllerRows();
     setRows(newRows);
   }, [state]);
+
+  async function load(id: ArweaveTransactionID) {
+    try {
+      const contractState =
+        await arweaveDataProvider.getContractState<PDNTContractJSON>(id);
+      const pendingContractInteractions =
+        await arweaveDataProvider.getPendingContractInteractions(
+          id,
+          id.toString(),
+        );
+      const contract = new PDNTContract(
+        contractState,
+        id,
+        pendingContractInteractions,
+      );
+      setState(contract.state);
+      const newRows = getControllerRows();
+      setRows(newRows);
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    }
+  }
 
   if (!state) {
     return (

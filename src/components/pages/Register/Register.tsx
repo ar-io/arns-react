@@ -153,7 +153,12 @@ function RegisterNameForm() {
       if (state == undefined) {
         throw Error('ANT contract state is undefined');
       }
-      const pdnt = new PDNTContract(state, txId);
+      const pendingContractInteractions =
+        await arweaveDataProvider.getPendingContractInteractions(
+          txId,
+          txId.toString(),
+        );
+      const pdnt = new PDNTContract(state, txId, pendingContractInteractions);
 
       if (!pdnt.isValid()) {
         throw Error('ANT contract state does not match required schema.');

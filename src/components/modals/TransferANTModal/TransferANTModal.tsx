@@ -46,11 +46,20 @@ function TransferANTModal({
     try {
       const state =
         await arweaveDataProvider.getContractState<PDNTContractJSON>(antId);
-      const contract = new PDNTContract(state, antId);
+      const pendingContractInteractions =
+        await arweaveDataProvider.getPendingContractInteractions(
+          antId,
+          antId.toString(),
+        );
+      const contract = new PDNTContract(
+        state,
+        antId,
+        pendingContractInteractions,
+      );
       if (!contract.isValid()) {
         throw new Error('Invalid ANT contract');
       }
-      setState(state);
+      setState(contract.state);
       const associatedRecords = await arweaveDataProvider.getRecords({
         filters: { contractTxId: [antId] },
       });

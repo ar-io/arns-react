@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { useIsMobile } from '../../../hooks';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
+import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
   PDNTContractJSON,
@@ -20,6 +21,7 @@ import {
   MIN_TTL_SECONDS,
   PDNS_TX_ID_ENTRY_REGEX,
 } from '../../../utils/constants';
+import eventEmitter from '../../../utils/events';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import { Loader } from '../../layout';
 import TransactionCost from '../../layout/TransactionCost/TransactionCost';
@@ -46,31 +48,48 @@ function EditUndernameModal({
   const [ttlSeconds, setTtlSeconds] = useState<number>(MIN_TTL_SECONDS);
 
   useEffect(() => {
-    arweaveDataProvider
-      .getContractState<PDNTContractJSON>(antId)
-      .then((stateRes) => {
-        setState(stateRes);
-
-        if (
-          isArweaveTransactionID(stateRes?.records?.[undername]?.transactionId)
-        ) {
-          setTargetId(stateRes?.records?.[undername]?.transactionId);
-        }
-
-        if (stateRes?.records?.[undername]?.ttlSeconds) {
-          setTtlSeconds(
-            clamp(
-              stateRes?.records?.[undername]?.ttlSeconds,
-              MIN_TTL_SECONDS,
-              MAX_TTL_SECONDS,
-            ),
-          );
-        }
-      });
+    load(antId);
     if (targetIdRef.current) {
       targetIdRef.current.focus();
     }
   }, [antId]);
+
+  async function load(id: ArweaveTransactionID) {
+    try {
+      const contractState =
+        await arweaveDataProvider.getContractState<PDNTContractJSON>(id);
+      const pendingContractInteractions =
+        await arweaveDataProvider.getPendingContractInteractions(
+          id,
+          id.toString(),
+        );
+      const contract = new PDNTContract(
+        contractState,
+        id,
+        pendingContractInteractions,
+      );
+      setState(contract.state);
+      if (
+        isArweaveTransactionID(
+          contract.state?.records?.[undername]?.transactionId,
+        )
+      ) {
+        setTargetId(contract.state?.records?.[undername]?.transactionId);
+      }
+
+      if (contract.state?.records?.[undername]?.ttlSeconds) {
+        setTtlSeconds(
+          clamp(
+            contract.state?.records?.[undername]?.ttlSeconds,
+            MIN_TTL_SECONDS,
+            MAX_TTL_SECONDS,
+          ),
+        );
+      }
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    }
+  }
 
   function handlePayloadCallback() {
     payloadCallback({

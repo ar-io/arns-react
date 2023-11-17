@@ -581,7 +581,7 @@ export function useWalletDomains() {
 
         const data: DomainData = {
           record,
-          state: contractState ?? undefined,
+          state: contractState ? contract.state : undefined,
           pendingContractInteractions: pendingContractInteractions ?? undefined,
           transactionBlockHeight:
             allTransactionBlockHeights?.[record.contractTxId.toString()]

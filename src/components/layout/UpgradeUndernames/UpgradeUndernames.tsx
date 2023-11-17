@@ -82,14 +82,24 @@ function UpgradeUndernames() {
           throw new Error(`Unable to get record for ${name}`);
         }
         setRecord(record);
+        const contractTxId = new ArweaveTransactionID(record?.contractTxId);
         const state =
           await arweaveDataProvider.getContractState<PDNTContractJSON>(
-            new ArweaveTransactionID(record?.contractTxId),
+            contractTxId,
           );
         if (!state) {
           throw new Error(`Unable to get contract state for ${name}`);
         }
-        const contract = new PDNTContract(state);
+        const pendingContractInteractions =
+          await arweaveDataProvider.getPendingContractInteractions(
+            contractTxId,
+            contractTxId.toString(),
+          );
+        const contract = new PDNTContract(
+          state,
+          contractTxId,
+          pendingContractInteractions,
+        );
 
         if (!contract.isValid) {
           throw new Error(`Invalid contract for ${name}`);
