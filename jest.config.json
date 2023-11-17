@@ -16,5 +16,9 @@
       "lines": 80
     }
   },
-  "verbose": true
+  "verbose": true,
+  "transform": {
+    "^.+\\.(js|jsx|ts|tsx)$": "babel-jest"
+  },
+  "transformIgnorePatterns": ["/node_modules/(?!arbundles).+\\.js$"]
 }

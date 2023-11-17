@@ -38,6 +38,7 @@ import {
 import eventEmitter from '../../../utils/events';
 import { PDNTCard } from '../../cards';
 import { InfoIcon } from '../../icons';
+import WarpEvaluationProgress from '../../modals/WarpEvaluationProgess/WarpEvaluationProgress';
 import TransactionComplete from '../TransactionComplete/TransactionComplete';
 import TransactionCost from '../TransactionCost/TransactionCost';
 import Workflow, { WorkflowStage } from '../Workflow/Workflow';
@@ -657,9 +658,10 @@ function TransactionWorkflow({
 
   return (
     <>
-      <PageLoader
-        message={'Deploying transaction...'}
-        loading={deployingTransaction}
+      <PageLoader message={'Deploying transaction...'} loading={false} />
+      <WarpEvaluationProgress
+        contractTxId={new ArweaveTransactionID(transactionData.assetId)}
+        writingTransaction={deployingTransaction}
       />
       <div className="flex" style={{ maxWidth: '900px', width: '100%' }}>
         <Workflow

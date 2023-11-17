@@ -10,7 +10,9 @@ import {
   defaultCacheOptions,
 } from 'warp-contracts';
 import { DeployPlugin } from 'warp-contracts-plugin-deploy';
+import { EvaluationProgressPlugin } from 'warp-contracts-plugin-evaluation-progress';
 
+import { evaluationProgessEmitter } from '../../components/modals/WarpEvaluationProgess/WarpEvaluationProgress';
 import {
   KVCache,
   PDNTContractJSON,
@@ -55,7 +57,9 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       },
       true,
       arweave,
-    ).use(new DeployPlugin());
+    )
+      .use(new EvaluationProgressPlugin(evaluationProgessEmitter, 1))
+      .use(new DeployPlugin());
     this._cache = cache;
   }
 
@@ -110,9 +114,10 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     const contract = await this._warp
       .contract(contractTxId.toString())
       .setEvaluationOptions(evaluationOptions)
-      .connect('use_wallet')
-      // TODO: add to our SmartweaveContractInterface a method that gets the full response of the service with `sortKey`
-      .syncState(`${PDNS_SERVICE_API}/v1/contract/${contractTxId.toString()}`);
+      .connect('use_wallet');
+    // TODO: add to our SmartweaveContractInterface a method that gets the full response of the service with `sortKey`
+    //.syncState(`${PDNS_SERVICE_API}/v1/contract/${contractTxId.toString()}`);
+
     if (dryWrite) {
       const dryWriteResults = await contract.dryWrite(
         payload,
