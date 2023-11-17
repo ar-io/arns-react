@@ -633,7 +633,6 @@ export type RemoveRecordPayload = {
 
 export type TransferANTPayload = {
   target: string;
-  qty: number;
   associatedNames?: string[];
 };
 

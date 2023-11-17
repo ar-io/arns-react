@@ -82,7 +82,6 @@ function TransferANTModal({
   function handlePayloadCallback() {
     payloadCallback({
       target: toAddress,
-      qty: 1,
       associatedNames,
     });
   }
