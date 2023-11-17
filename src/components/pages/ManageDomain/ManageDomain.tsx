@@ -45,7 +45,7 @@ function ManageDomain() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const location = useLocation();
-  const [{ pdnsSourceContract, arweaveDataProvider }] = useGlobalState();
+  const [{ arweaveDataProvider }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [rows, setRows] = useState<ManageDomainRow[]>([]);
   const [isMaxLeaseDuration, setIsMaxLeaseDuration] = useState<boolean>(false);
@@ -99,9 +99,13 @@ function ManageDomain() {
         throw Error('Invalid ANT contract');
       }
 
-      const record = Object.values(pdnsSourceContract.records).find(
-        (r) => r.contractTxId === contractTxId.toString(),
-      );
+      const record = name
+        ? await arweaveDataProvider
+            .getRecord({
+              domain: lowerCaseDomain(name),
+            })
+            .catch(() => undefined)
+        : undefined;
       if (!record) {
         throw Error('This name is not registered');
       }

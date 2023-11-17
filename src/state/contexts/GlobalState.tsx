@@ -11,12 +11,10 @@ import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionI
 import { PDNSContractCache } from '../../services/arweave/PDNSContractCache';
 import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
 import { WarpDataProvider } from '../../services/arweave/WarpDataProvider';
-import type { PDNSContractJSON } from '../../types';
 import {
   ARNS_REGISTRY_ADDRESS,
   AVERAGE_BLOCK_TIME_MS,
   DEFAULT_ARWEAVE,
-  DEFAULT_PDNS_REGISTRY_STATE,
   PDNS_SERVICE_API,
 } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
@@ -30,7 +28,6 @@ const defaultContractCache = new PDNSContractCache({
 });
 
 export type GlobalState = {
-  pdnsSourceContract: PDNSContractJSON;
   gateway: string;
   pdnsContractId: ArweaveTransactionID;
   blockHeight?: number;
@@ -40,7 +37,6 @@ export type GlobalState = {
 
 const initialState: GlobalState = {
   pdnsContractId: ARNS_REGISTRY_ADDRESS,
-  pdnsSourceContract: DEFAULT_PDNS_REGISTRY_STATE,
   gateway: 'ar-io.dev',
   blockHeight: undefined,
   lastBlockUpdateTimestamp: undefined,
