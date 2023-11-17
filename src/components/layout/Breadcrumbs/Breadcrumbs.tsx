@@ -109,35 +109,37 @@ function Breadcrumbs() {
           {crumbs.map((item, index) => {
             const crumbTitle = handleCrumbTitle(item.name);
 
-            const crumbItem = (
-              <Item key={index} className="center faded">
-                <Link
-                  className="link faded hover"
-                  style={{
-                    fontSize: '16px',
-                    color:
-                      path.at(-1) === item?.route?.split('/').at(-1)
-                        ? 'white'
-                        : 'var(--text-grey)',
-                  }}
-                  to={item?.route ?? '/'}
-                >
-                  {crumbTitle}
-                </Link>
-              </Item>
+            const crumbLink = (
+              <Link
+                className="link faded hover"
+                style={{
+                  fontSize: '16px',
+                  color:
+                    path.at(-1) === item?.route?.split('/').at(-1)
+                      ? 'white'
+                      : 'var(--text-grey)',
+                }}
+                to={item?.route ?? '/'}
+              >
+                {crumbTitle}
+              </Link>
             );
 
-            return crumbTitle === item.name ? (
-              crumbItem
-            ) : (
-              <Tooltip
-                title={<span className=" flex center">{item.name}</span>}
-                placement={'top'}
-                autoAdjustOverflow={true}
-                color="var(--text-faded)"
-              >
-                {crumbItem}
-              </Tooltip>
+            return (
+              <Item key={index} className="center faded">
+                {crumbTitle === item.name ? (
+                  crumbLink
+                ) : (
+                  <Tooltip
+                    title={<span className=" flex center">{item.name}</span>}
+                    placement={'top'}
+                    autoAdjustOverflow={true}
+                    color="var(--text-faded)"
+                  >
+                    {crumbLink}
+                  </Tooltip>
+                )}
+              </Item>
             );
           })}
         </Breadcrumb>
