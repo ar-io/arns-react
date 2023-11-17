@@ -1,4 +1,5 @@
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
+import { PDNTContract } from '../../services/arweave/PDNTContract';
 import {
   ArweaveDataProvider,
   Auction,
@@ -151,7 +152,6 @@ export class ArweaveCompositeDataProviderMock
 
   async getPendingContractInteractions(
     contractTxId: ArweaveTransactionID,
-    key: string,
   ): Promise<ContractInteraction[]> {
     return []; // Mock value
   }
@@ -218,5 +218,10 @@ export class ArweaveCompositeDataProviderMock
     contractTxId = ARNS_REGISTRY_ADDRESS,
   ): Promise<number> {
     return 0; // Mock value
+  }
+  async buildANTContract(
+    contractTxId: ArweaveTransactionID,
+  ): Promise<PDNTContract> {
+    return {} as PDNTContract; // Mock value
   }
 }

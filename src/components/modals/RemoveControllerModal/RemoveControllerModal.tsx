@@ -10,6 +10,7 @@ import {
   getCustomPaginationButtons,
   getLegacyControllersFromState,
 } from '../../../utils';
+import eventEmitter from '../../../utils/events';
 import { Loader } from '../../layout';
 import TransactionCost from '../../layout/TransactionCost/TransactionCost';
 import DialogModal from '../DialogModal/DialogModal';
@@ -36,19 +37,24 @@ function RemoveControllersModal({
   // TODO: add "transfer to another account" dropdown
 
   useEffect(() => {
-    arweaveDataProvider
-      .getContractState<PDNTContractJSON>(antId)
-      .then((res) => {
-        setState(res);
-        const newRows = getControllerRows();
-        setRows(newRows);
-      });
+    load(antId);
   }, [antId]);
 
   useEffect(() => {
     const newRows = getControllerRows();
     setRows(newRows);
   }, [state]);
+
+  async function load(id: ArweaveTransactionID) {
+    try {
+      const contract = await arweaveDataProvider.buildANTContract(id);
+      setState(contract.state);
+      const newRows = getControllerRows();
+      setRows(newRows);
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    }
+  }
 
   if (!state) {
     return (

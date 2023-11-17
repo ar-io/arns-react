@@ -17,6 +17,7 @@ import {
 import { byteSize, userHasSufficientBalance } from '../../utils';
 import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
 import { ArweaveTransactionID } from './ArweaveTransactionID';
+import { PDNTContract } from './PDNTContract';
 
 export class ArweaveCompositeDataProvider
   implements
@@ -224,12 +225,8 @@ export class ArweaveCompositeDataProvider
 
   async getPendingContractInteractions(
     contractTxId: ArweaveTransactionID,
-    key: string,
   ): Promise<ContractInteraction[]> {
-    return this._contractProvider.getPendingContractInteractions(
-      contractTxId,
-      key,
-    );
+    return this._contractProvider.getPendingContractInteractions(contractTxId);
   }
   // TODO: implement arns service query for the following 3 functions
   async isDomainReserved({
@@ -342,5 +339,10 @@ export class ArweaveCompositeDataProvider
       interaction,
       contractTxId,
     );
+  }
+  async buildANTContract(
+    contractTxId: ArweaveTransactionID,
+  ): Promise<PDNTContract> {
+    return this._contractProvider.buildANTContract(contractTxId);
   }
 }
