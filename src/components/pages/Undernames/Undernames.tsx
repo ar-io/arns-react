@@ -8,7 +8,6 @@ import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import {
-  PDNTContractJSON,
   PDNT_INTERACTION_TYPES,
   SetRecordPayload,
   TransactionDataPayload,
@@ -80,28 +79,20 @@ function Undernames() {
       setTableLoading(undernameTableLoading);
       setPercentLoaded(percentUndernamesLoaded);
       setSelectedRow(selectedUndernameRow);
-      arweaveDataProvider
-        .getContractState<PDNTContractJSON>(new ArweaveTransactionID(id))
-        .then((state) => {
-          const contract = new PDNTContract(
-            state,
-            new ArweaveTransactionID(id),
-          );
-          setPDNTState(contract);
+      load(new ArweaveTransactionID(id));
+
+      setAction(action);
+
+      if (
+        action === UNDERNAME_TABLE_ACTIONS.REMOVE &&
+        pdntId &&
+        selectedUndernameRow?.name
+      ) {
+        setTransactionData({
+          subDomain: selectedUndernameRow?.name,
         });
-    }
-
-    setAction(action);
-
-    if (
-      action === UNDERNAME_TABLE_ACTIONS.REMOVE &&
-      pdntId &&
-      selectedUndernameRow?.name
-    ) {
-      setTransactionData({
-        subDomain: selectedUndernameRow?.name,
-      });
-      setInteractionType(PDNT_INTERACTION_TYPES.REMOVE_RECORD);
+        setInteractionType(PDNT_INTERACTION_TYPES.REMOVE_RECORD);
+      }
     }
   }, [
     id,
@@ -113,6 +104,16 @@ function Undernames() {
     percentUndernamesLoaded,
     action,
   ]);
+
+  async function load(id: ArweaveTransactionID) {
+    try {
+      const contract = await arweaveDataProvider.buildANTContract(id);
+
+      setPDNTState(contract);
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    }
+  }
 
   return (
     <>
@@ -139,7 +140,9 @@ function Undernames() {
             >
               <h2 className="white">Manage Undernames</h2>
               <button
-                disabled={!!pdntState?.getOwnershipStatus(walletAddress)}
+                disabled={
+                  pdntState?.getOwnershipStatus(walletAddress) === undefined
+                }
                 className={'button-secondary center'}
                 style={{
                   gap: '10px',

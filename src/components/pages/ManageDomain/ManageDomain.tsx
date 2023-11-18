@@ -5,14 +5,9 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { useIsMobile } from '../../../hooks';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
-import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../state/contexts/WalletState';
-import {
-  DomainDetails,
-  ManageDomainRow,
-  PDNTContractJSON,
-} from '../../../types';
+import { DomainDetails, ManageDomainRow } from '../../../types';
 import {
   getInteractionTypeFromField,
   getLeaseDurationFromEndTimestamp,
@@ -45,7 +40,7 @@ function ManageDomain() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const location = useLocation();
-  const [{ pdnsSourceContract, arweaveDataProvider }] = useGlobalState();
+  const [{ arweaveDataProvider }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [rows, setRows] = useState<ManageDomainRow[]>([]);
   const [isMaxLeaseDuration, setIsMaxLeaseDuration] = useState<boolean>(false);
@@ -80,18 +75,14 @@ function ManageDomain() {
       }
       const contractTxId = new ArweaveTransactionID(txId);
 
-      const [contractState, confirmations, pendingContractInteractions] =
+      const [contract, confirmations, pendingContractInteractions] =
         await Promise.all([
-          arweaveDataProvider.getContractState<PDNTContractJSON>(contractTxId),
+          arweaveDataProvider.buildANTContract(contractTxId),
           arweaveDataProvider
             .getTransactionStatus(contractTxId)
             .then((status) => status[contractTxId.toString()].confirmations),
-          arweaveDataProvider.getPendingContractInteractions(
-            contractTxId,
-            address.toString(),
-          ),
+          arweaveDataProvider.getPendingContractInteractions(contractTxId),
         ]);
-      const contract = new PDNTContract(contractState);
 
       // simple check that it is ANT shaped contract
       // TODO: add more checks, eg AST tree and function IO's
@@ -99,9 +90,13 @@ function ManageDomain() {
         throw Error('Invalid ANT contract');
       }
 
-      const record = Object.values(pdnsSourceContract.records).find(
-        (r) => r.contractTxId === contractTxId.toString(),
-      );
+      const record = name
+        ? await arweaveDataProvider
+            .getRecord({
+              domain: lowerCaseDomain(name),
+            })
+            .catch(() => undefined)
+        : undefined;
       if (!record) {
         throw Error('This name is not registered');
       }

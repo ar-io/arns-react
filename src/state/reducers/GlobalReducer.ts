@@ -1,5 +1,4 @@
 import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
-import { PDNSContractJSON } from '../../types';
 import { GlobalState } from '../contexts/GlobalState';
 
 export type GlobalAction =
@@ -13,8 +12,7 @@ export type GlobalAction =
   | {
       type: 'setBlockHeight';
       payload: number;
-    }
-  | { type: 'setPDNSContractState'; payload: PDNSContractJSON };
+    };
 
 export const reducer = (
   state: GlobalState,
@@ -32,11 +30,6 @@ export const reducer = (
         ...state,
         blockHeight: action.payload,
         lastBlockUpdateTimestamp: Date.now(),
-      };
-    case 'setPDNSContractState':
-      return {
-        ...state,
-        pdnsSourceContract: action.payload,
       };
     default:
       return state;

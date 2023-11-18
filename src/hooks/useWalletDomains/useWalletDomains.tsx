@@ -539,33 +539,27 @@ export function useWalletDomains() {
 
       const newDatas = consolidatedRecords.map(async (record) => {
         const errors = [];
-        const [contractState, pendingContractInteractions] = await Promise.all([
+        const [contract, pendingContractInteractions] = await Promise.all([
           arweaveDataProvider
-            .getContractState<PDNTContractJSON>(
-              new ArweaveTransactionID(record.contractTxId),
-            )
+            .buildANTContract(new ArweaveTransactionID(record.contractTxId))
             .catch((e) => console.error(e)),
           arweaveDataProvider
             .getPendingContractInteractions(
               new ArweaveTransactionID(record.contractTxId),
-              address.toString(),
             )
             .catch((e) => {
               console.error(e);
             }),
         ]);
 
-        const contract = new PDNTContract(
-          contractState ?? undefined,
-          new ArweaveTransactionID(record.contractTxId),
-        );
-        if (!contractState) {
+        if (!contract?.state) {
           errors.push(
             `Failed to load contract: ${record.contractTxId.toString()}`,
           );
         }
         // simple check that it is ANT shaped contract
-        if (!contract.isValid()) {
+
+        if (!contract?.isValid()) {
           errors.push(`Invalid contract: ${record.contractTxId.toString()}`);
         }
         // TODO: react strict mode makes this increment twice in dev
@@ -573,10 +567,13 @@ export function useWalletDomains() {
         setPercentLoaded(
           Math.round((itemsLoaded.current / itemCount.current) * 100),
         );
+        if (!contract?.getOwnershipStatus(walletAddress)) {
+          return;
+        }
 
         const data: DomainData = {
           record,
-          state: contractState ?? undefined,
+          state: contract?.state,
           pendingContractInteractions: pendingContractInteractions ?? undefined,
           transactionBlockHeight:
             allTransactionBlockHeights?.[record.contractTxId.toString()]
@@ -587,7 +584,9 @@ export function useWalletDomains() {
         return data;
       });
 
-      datas = await Promise.all(newDatas);
+      datas = (await Promise.all(newDatas)).filter(
+        (data) => !!data,
+      ) as DomainData[];
     } catch (error) {
       console.error(error);
     }

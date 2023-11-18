@@ -9,6 +9,7 @@ import {
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import { formatForMaxCharCount, isArweaveTransactionID } from '../../../utils';
+import eventEmitter from '../../../utils/events';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import { Loader } from '../../layout';
 import TransactionCost from '../../layout/TransactionCost/TransactionCost';
@@ -32,10 +33,17 @@ function AddControllerModal({
   // TODO: add "transfer to another account" dropdown
 
   useEffect(() => {
-    arweaveDataProvider
-      .getContractState<PDNTContractJSON>(antId)
-      .then((res) => setState(res));
+    load(antId);
   }, [antId]);
+
+  async function load(id: ArweaveTransactionID) {
+    try {
+      const contract = await arweaveDataProvider.buildANTContract(id);
+      setState(contract.state);
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    }
+  }
 
   useEffect(() => {
     if (!toAddress.length) {

@@ -27,6 +27,7 @@ import {
   TransactionDataConfig,
   TransactionDataPayload,
   TransferANTPayload,
+  TransferIOPayload,
   ValidInteractionType,
 } from '../../types';
 import {
@@ -128,6 +129,11 @@ export const WorkflowStepsForInteractions: Record<
     { title: 'Deploy Transfer', status: 'wait' },
     { title: 'Complete', status: 'wait' },
   ],
+  [INTERACTION_TYPES.TRANSFER_ANT]: [
+    { title: 'Confirm Transfer', status: 'process' },
+    { title: 'Deploy Transfer', status: 'wait' },
+    { title: 'Complete', status: 'wait' },
+  ],
   [INTERACTION_TYPES.SET_TARGET_ID]: [
     { title: 'Confirm Target ID', status: 'process' },
     { title: 'Deploy Target ID Change', status: 'wait' },
@@ -163,6 +169,10 @@ export const TRANSACTION_DATA_KEYS: Record<
   [INTERACTION_TYPES.TRANSFER]: {
     functionName: 'transfer',
     keys: ['target', 'qty'],
+  },
+  [INTERACTION_TYPES.TRANSFER_ANT]: {
+    functionName: 'transfer',
+    keys: ['target'],
   }, // transfer io tokens
   [INTERACTION_TYPES.BALANCE]: {
     functionName: 'getBalance',
@@ -576,9 +586,33 @@ export function getPDNSMappingByInteractionType(
     }
     case INTERACTION_TYPES.TRANSFER: {
       if (
-        !isObjectOfTransactionPayloadType<TransferANTPayload>(
+        !isObjectOfTransactionPayloadType<TransferIOPayload>(
           transactionData,
           TRANSACTION_DATA_KEYS[INTERACTION_TYPES.TRANSFER].keys,
+        )
+      ) {
+        throw new Error(
+          `transaction data not of correct payload type <TransferANTPayload> keys: ${Object.keys(
+            transactionData,
+          )}`,
+        );
+      }
+      return {
+        domain: '',
+        contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        deployedTransactionId: transactionData.deployedTransactionId,
+        overrides: {
+          'New Owner': transactionData.target,
+        },
+        compact: false,
+        disabledKeys: ['maxUndernames', 'owner', 'controller', 'ttlSeconds'],
+      };
+    }
+    case INTERACTION_TYPES.TRANSFER_ANT: {
+      if (
+        !isObjectOfTransactionPayloadType<TransferANTPayload>(
+          transactionData,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.TRANSFER_ANT].keys,
         )
       ) {
         throw new Error(

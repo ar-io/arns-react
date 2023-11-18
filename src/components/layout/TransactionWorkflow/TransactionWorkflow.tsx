@@ -136,7 +136,6 @@ function TransactionWorkflow({
           payload.state.records['@'] = {
             transactionId: payload.targetId.toString(),
             ttlSeconds: MIN_TTL_SECONDS,
-            maxUndernames: 100,
           };
         }
         const writeInteractionId = await arweaveDataProvider.registerAtomicName(

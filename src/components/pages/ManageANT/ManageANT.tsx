@@ -13,7 +13,6 @@ import {
   INTERACTION_TYPES,
   ManageANTRow,
   PDNSRecordEntry,
-  PDNTContractJSON,
   PDNTDetails,
   PDNT_INTERACTION_TYPES,
   UNDERNAME_TABLE_ACTIONS,
@@ -104,26 +103,22 @@ function ManageANT() {
     try {
       setLoading(true);
       const [
-        contractState,
+        contract,
         confirmations,
         pendingContractInteractions,
         associatedRecords,
       ] = await Promise.all([
-        arweaveDataProvider.getContractState<PDNTContractJSON>(contractTxId),
+        arweaveDataProvider.buildANTContract(contractTxId),
         arweaveDataProvider
           .getTransactionStatus(contractTxId)
           .then((status) => status[contractTxId.toString()].confirmations),
-        arweaveDataProvider.getPendingContractInteractions(
-          contractTxId,
-          address.toString(),
-        ),
+        arweaveDataProvider.getPendingContractInteractions(contractTxId),
         arweaveDataProvider.getRecords<PDNSRecordEntry>({
           filters: {
             contractTxId: [contractTxId],
           },
         }),
       ]);
-      const contract = new PDNTContract(contractState);
 
       // simple check that it is ANT shaped contract
       if (!contract.isValid()) {
@@ -167,7 +162,7 @@ function ManageANT() {
 
       setPendingInteractions(pendingContractInteractions);
       setPDNTState(contract);
-      setPDNTName(contractState.name ?? id);
+      setPDNTName(contract.name ?? id);
       setRows(rows);
       setLoading(false);
     } catch (error) {

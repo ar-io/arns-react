@@ -103,7 +103,6 @@ export type PDNSContractJSON = {
 
 export type PDNTContractDomainRecord = {
   ttlSeconds: number;
-  maxUndernames: number;
   transactionId: string;
 };
 
@@ -179,7 +178,6 @@ export interface SmartweaveContractCache {
   ): Promise<ContractInteraction[]>;
   getPendingContractInteractions(
     contractTxId: ArweaveTransactionID,
-    key: string,
   ): Promise<ContractInteraction[]>;
   isDomainAvailable({
     domain,
@@ -255,6 +253,7 @@ export interface SmartweaveContractCache {
     interaction: INTERACTION_PRICE_PARAMS,
     contractTxId?: ArweaveTransactionID,
   ): Promise<number>;
+  buildANTContract(contractTxId: ArweaveTransactionID): Promise<PDNTContract>;
 }
 
 export interface SmartweaveContractInteractionProvider {
@@ -436,6 +435,19 @@ export enum ASSET_TYPES {
   UNDERNAME = 'Undername',
   COIN = 'coin',
 }
+
+export enum PDNT_INTERACTION_TYPES {
+  SET_CONTROLLER = 'Edit Controller',
+  REMOVE_CONTROLLER = 'Remove Controller',
+  SET_TICKER = 'Edit Ticker',
+  SET_NAME = 'Edit Name',
+  SET_RECORD = 'Add Record',
+  EDIT_RECORD = 'Edit Record',
+  SET_TARGET_ID = 'Edit Target ID',
+  SET_TTL_SECONDS = 'Edit TTL Seconds',
+  REMOVE_RECORD = 'Delete Record',
+  TRANSFER = 'Transfer ANT',
+}
 export enum INTERACTION_TYPES {
   // Registry interaction types
   BUY_RECORD = 'Buy ARNS Name',
@@ -454,6 +466,7 @@ export enum INTERACTION_TYPES {
   EDIT_RECORD = 'Edit Record',
   REMOVE_RECORD = 'Delete Record',
   CREATE = 'Create Arweave Name Token',
+  TRANSFER_ANT = 'Transfer ANT',
 
   // Common interaction types
   TRANSFER = 'Transfer',
@@ -512,6 +525,7 @@ export const pdntInteractionTypes = [
   INTERACTION_TYPES.SET_TARGET_ID,
   INTERACTION_TYPES.SET_RECORD,
   INTERACTION_TYPES.EDIT_RECORD,
+  INTERACTION_TYPES.TRANSFER_ANT,
 
   INTERACTION_TYPES.REMOVE_RECORD,
 ] as const;
@@ -624,24 +638,10 @@ export type RemoveRecordPayload = {
 
 export type TransferANTPayload = {
   target: string;
-  qty: number;
   associatedNames?: string[];
 };
 
 // end pdnt transaction payload types
-
-export enum PDNT_INTERACTION_TYPES {
-  SET_CONTROLLER = 'Edit Controller',
-  REMOVE_CONTROLLER = 'Remove Controller',
-  SET_TICKER = 'Edit Ticker',
-  SET_NAME = 'Edit Name',
-  SET_RECORD = 'Add Record',
-  EDIT_RECORD = 'Edit Record',
-  SET_TARGET_ID = 'Edit Target ID',
-  SET_TTL_SECONDS = 'Edit TTL Seconds',
-  REMOVE_RECORD = 'Delete Record',
-  TRANSFER = 'Transfer',
-}
 
 export const ALL_TRANSACTION_DATA_KEYS = [
   'assetId',

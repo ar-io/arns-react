@@ -18,7 +18,6 @@ import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionI
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useWalletState } from '../../state/contexts/WalletState';
 import {
-  PDNTContractDomainRecord,
   UNDERNAME_TABLE_ACTIONS,
   UndernameMetadata,
   UndernameTableInteractionTypes,
@@ -361,17 +360,15 @@ export function useUndernames(id?: ArweaveTransactionID) {
       });
     setDomain(domain);
     const fetchedRows: UndernameMetadata[] = [];
-    const [records, confirmations] = await Promise.all([
-      arweaveDataProvider.getRecords<PDNTContractDomainRecord>({
-        contractTxId: id,
-        filters: {},
-        address: walletAddress,
-      }),
+    const [contract, confirmations] = await Promise.all([
+      arweaveDataProvider.buildANTContract(id),
       arweaveDataProvider
         .getTransactionStatus(id)
         .then((status) => status[id.toString()].confirmations),
     ]);
-    const undernames = Object.entries(records).filter(([key]) => key !== '@');
+    const undernames = Object.entries(contract.records).filter(
+      ([key]) => key !== '@',
+    );
     for (const [name, record] of undernames) {
       try {
         const rowData = {

@@ -177,7 +177,6 @@ export const DEFAULT_PDNT_CONTRACT_STATE: PDNTContractJSON = {
     '@': {
       transactionId: '',
       ttlSeconds: DEFAULT_TTL_SECONDS,
-      maxUndernames: DEFAULT_MAX_UNDERNAMES,
     },
   },
 };

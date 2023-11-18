@@ -19,11 +19,7 @@ import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionI
 import { PDNTContract } from '../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useWalletState } from '../../state/contexts/WalletState';
-import {
-  ANTMetadata,
-  ContractInteraction,
-  PDNTContractJSON,
-} from '../../types';
+import { ANTMetadata, ContractInteraction } from '../../types';
 import { handleTableSort, isArweaveTransactionID } from '../../utils';
 import eventEmitter from '../../utils/events';
 
@@ -76,9 +72,9 @@ export function useWalletANTs() {
       }
       const filtered = rows.filter(
         (row) =>
-          row.name.toLowerCase().includes(searchText.toLowerCase()) ||
-          row.state.ticker.toLowerCase().includes(searchText.toLowerCase()) ||
-          row.id.toLowerCase().includes(searchText.toLowerCase()),
+          row.name?.toLowerCase().includes(searchText.toLowerCase()) ||
+          row.state.ticker?.toLowerCase().includes(searchText.toLowerCase()) ||
+          row.id?.toLowerCase().includes(searchText.toLowerCase()),
       );
       setFilteredResults(filtered);
     } else {
@@ -463,37 +459,34 @@ export function useWalletANTs() {
       const newDatas = [...tokenIds].map(
         async (contractTxId: ArweaveTransactionID) => {
           const errors = [];
-          const [contractState, confirmations, pendingContractInteractions] =
+          const [contract, confirmations, pendingContractInteractions] =
             await Promise.all([
-              arweaveDataProvider.getContractState<PDNTContractJSON>(
-                contractTxId,
-              ),
+              arweaveDataProvider.buildANTContract(contractTxId),
               allTransactionBlockHeights
                 ? allTransactionBlockHeights[contractTxId.toString()]
                     ?.blockHeight
                 : 0,
-              arweaveDataProvider.getPendingContractInteractions(
-                contractTxId,
-                contractTxId.toString(),
-              ),
+              arweaveDataProvider.getPendingContractInteractions(contractTxId),
             ]);
 
-          if (!contractState) {
+          if (!contract.state) {
             errors.push(`Failed to load contract: ${contractTxId.toString()}`);
           }
-
-          const contract = new PDNTContract(contractState, contractTxId);
 
           // simple check that it is ANT shaped contract
           if (!contract.isValid()) {
             errors.push('Invalid contract');
           }
+
           // TODO: react strict mode makes this increment twice in dev
           if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
 
           setPercentLoaded(
             Math.round((itemsLoaded.current / itemCount.current) * 100),
           );
+          if (!contract.getOwnershipStatus(walletAddress)) {
+            return;
+          }
 
           return {
             contract,
@@ -509,7 +502,7 @@ export function useWalletANTs() {
         },
       );
 
-      datas = await Promise.all(newDatas);
+      datas = (await Promise.all(newDatas)).filter((d) => !!d) as ANTData[];
     } catch (error) {
       console.error(error);
     }
