@@ -1,4 +1,4 @@
-import { Tooltip } from 'antd';
+import { Badge, Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -6,9 +6,11 @@ import { useIsMobile } from '../../../hooks';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../state/contexts/WalletState';
+import { fetchDREStatus } from '../../../utils';
+import { ARNS_REGISTRY_ADDRESS } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { ROUTES } from '../../../utils/routes';
-import { LogoutIcon, MenuIcon } from '../../icons';
+import { ArConnectIcon, LogoutIcon, MenuIcon } from '../../icons';
 import ConnectButton from '../../inputs/buttons/ConnectButton/ConnectButton';
 import MenuButton from '../../inputs/buttons/MenuButton/MenuButton';
 import { Loader, NavBarLink } from '../../layout';
@@ -30,6 +32,8 @@ function NavMenuCard() {
   const menuRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const [{ wallet, walletAddress }, dispatchWalletState] = useWalletState();
+  const [registryDreStatus, setRegistryDreStatus] =
+    useState<Record<string, any>>();
 
   useEffect(() => {
     if (walletAddress) {
@@ -59,6 +63,7 @@ function NavMenuCard() {
       pdnsContractId,
       walletAddress,
     );
+    const registryDreStatus = await fetchDREStatus(ARNS_REGISTRY_ADDRESS);
     const arBalance = await arweaveDataProvider.getArBalance(walletAddress);
     const [formattedBalance, formattedIOBalance] = [arBalance, ioBalance].map(
       (balance: string | number) =>
@@ -68,6 +73,8 @@ function NavMenuCard() {
           compactDisplay: 'short',
         }).format(+balance),
     );
+    console.log(registryDreStatus);
+    setRegistryDreStatus(registryDreStatus);
     setWalletDetails({
       AR: formattedBalance,
       IO: formattedIOBalance,
@@ -203,6 +210,43 @@ function NavMenuCard() {
                               size={20}
                               wrapperStyle={{ margin: '0px' }}
                             />
+                          )}
+                          {key === 'IO' ? (
+                            <button
+                              className="flex pointer"
+                              onClick={() =>
+                                wallet?.addToken(
+                                  new ArweaveTransactionID(
+                                    'bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U',
+                                  ),
+                                  'asset',
+                                )
+                              }
+                              style={{
+                                position: 'absolute',
+                                boxSizing: 'border-box',
+                                overflow: 'hidden',
+                                right: '10px',
+                              }}
+                            >
+                              <ArConnectIcon
+                                width={'40px'}
+                                height={'40px'}
+                                style={{ boxSizing: 'border-box' }}
+                              />
+                              <Badge
+                                color={
+                                  registryDreStatus ? '#44af69' : '#ef6461'
+                                }
+                                style={{
+                                  position: 'absolute',
+                                  bottom: '3px',
+                                  right: '10px',
+                                }}
+                              />
+                            </button>
+                          ) : (
+                            <></>
                           )}
                         </span>
                       );
