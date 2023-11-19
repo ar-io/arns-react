@@ -313,6 +313,10 @@ export interface ArweaveWalletConnector {
   disconnect(): Promise<void>;
   getWalletAddress(): Promise<ArweaveTransactionID>;
   getGatewayConfig(): Promise<ApiConfig>;
+  addToken(
+    contractTxId: ArweaveTransactionID,
+    type: 'asset' | 'collectible',
+  ): Promise<void>;
 }
 
 export interface KVCache {
@@ -695,6 +699,7 @@ export type PDNSTableRow = {
 };
 
 export type ANTMetadata = {
+  dreStatus?: Record<string, any>;
   name: string;
   id: string;
   targetID: string;

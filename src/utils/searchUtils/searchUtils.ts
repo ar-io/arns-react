@@ -1,6 +1,7 @@
 import emojiRegex from 'emoji-regex';
 import { asciiToUnicode, unicodeToAscii } from 'puny-coder';
 
+import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { PDNSRecordEntry, PDNTContractJSON } from '../../types';
 import {
   APPROVED_CHARACTERS_REGEX,
@@ -152,4 +153,19 @@ export function getLegacyControllersFromState(
   }
 
   return [];
+}
+
+export async function fetchDREStatus(
+  contractTxId: ArweaveTransactionID,
+): Promise<Record<string, any> | undefined> {
+  try {
+    const res = await fetch(
+      `https://dre-1.warp.cc/contract/?id=${contractTxId.toString()}`,
+    );
+    const data = await res.json();
+
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
 }

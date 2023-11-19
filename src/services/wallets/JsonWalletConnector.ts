@@ -54,4 +54,13 @@ export class JsonWalletConnector implements ArweaveWalletConnector {
   async getGatewayConfig(): Promise<ApiConfig> {
     throw Error('Not implemented!');
   }
+
+  addToken(
+    /* eslint-disable @typescript-eslint/no-unused-vars */
+    contractTxId: ArweaveTransactionID,
+    type: 'asset' | 'collectible',
+    /* eslint-enable @typescript-eslint/no-unused-vars */
+  ): Promise<void> {
+    throw Error('Not implemented!');
+  }
 }

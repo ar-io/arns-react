@@ -290,7 +290,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
 
     const contract = await this._warp
       .contract(ARNS_REGISTRY_ADDRESS.toString())
-      .setEvaluationOptions(evaluationOptions)
+      .setEvaluationOptions({ ...evaluationOptions })
       .connect('use_wallet')
       // TODO: add to our SmartweaveContractInterface a method that gets the full response of the service with `sortKey`
       .syncState(`${PDNS_SERVICE_API}/v1/contract/${ARNS_REGISTRY_ADDRESS}`);

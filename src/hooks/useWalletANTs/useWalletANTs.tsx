@@ -1,8 +1,9 @@
-import { Tooltip } from 'antd';
+import { Badge, Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 
 import {
+  ArConnectIcon,
   ChevronUpIcon,
   CirclePending,
   CircleXFilled,
@@ -20,10 +21,15 @@ import { PDNTContract } from '../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useWalletState } from '../../state/contexts/WalletState';
 import { ANTMetadata, ContractInteraction } from '../../types';
-import { handleTableSort, isArweaveTransactionID } from '../../utils';
+import {
+  fetchDREStatus,
+  handleTableSort,
+  isArweaveTransactionID,
+} from '../../utils';
 import eventEmitter from '../../utils/events';
 
 type ANTData = {
+  dreStatus?: Record<string, any>;
   contract: PDNTContract;
   transactionBlockHeight?: number;
   pendingContractInteractions?: ContractInteraction[];
@@ -32,7 +38,7 @@ type ANTData = {
 
 export function useWalletANTs() {
   const [{ blockHeight, arweaveDataProvider }] = useGlobalState();
-  const [{ walletAddress }] = useWalletState();
+  const [{ walletAddress, wallet }] = useWalletState();
   const [sortAscending, setSortAscending] = useState<boolean>(true);
   const [sortField, setSortField] = useState<keyof ANTMetadata>('status');
   const [rows, setRows] = useState<ANTMetadata[]>([]);
@@ -428,12 +434,46 @@ export function useWalletANTs() {
         ),
         className: 'white manage-assets-table-header',
         render: (val: any, row: ANTMetadata) => (
-          <span className="flex" style={{ justifyContent: 'flex-end' }}>
+          <span
+            className="flex flex-row"
+            style={{
+              justifyContent: 'flex-end',
+              gap: '5px',
+              position: 'relative',
+              paddingRight: '30px',
+              marginRight: '20px',
+            }}
+          >
             <ManageAssetButtons
               id={val.id}
               assetType="ants"
               disabled={!row.state || !row.status}
             />
+            <button
+              className="flex pointer"
+              onClick={() =>
+                wallet?.addToken(
+                  new ArweaveTransactionID(row.id),
+                  'collectible',
+                )
+              }
+              style={{
+                position: 'absolute',
+                boxSizing: 'border-box',
+                overflow: 'hidden',
+                right: '10px',
+              }}
+            >
+              <ArConnectIcon
+                width={'40px'}
+                height={'40px'}
+                style={{ boxSizing: 'border-box' }}
+              />
+              <Badge
+                color={row.dreStatus ? '#44af69' : '#ef6461'}
+                style={{ position: 'absolute', bottom: '3px', right: '10px' }}
+              />
+            </button>
           </span>
         ),
         align: 'right',
@@ -487,8 +527,10 @@ export function useWalletANTs() {
           if (!contract.getOwnershipStatus(walletAddress)) {
             return;
           }
+          const dreStatus = await fetchDREStatus(contractTxId);
 
           return {
+            dreStatus,
             contract,
             status: confirmations ?? 0,
             transactionBlockHeight: allTransactionBlockHeights?.[
@@ -516,6 +558,7 @@ export function useWalletANTs() {
   ) {
     const fetchedRows: ANTMetadata[] = datas.map((data, i) => {
       const {
+        dreStatus,
         contract,
         transactionBlockHeight,
         pendingContractInteractions,
@@ -523,6 +566,7 @@ export function useWalletANTs() {
       } = data;
 
       const rowData = {
+        dreStatus,
         name: contract.name ?? 'N/A',
         id: contract.id?.toString() ?? 'N/A',
         role:
