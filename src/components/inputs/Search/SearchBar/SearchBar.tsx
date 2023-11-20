@@ -1,25 +1,20 @@
-import { CheckCircleFilled } from '@ant-design/icons';
+import { CheckCircleFilled, InfoCircleOutlined } from '@ant-design/icons';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import {
-  useArweaveCompositeProvider,
   useIsFocused,
   useIsMobile,
   useRegistrationStatus,
-  useWalletAddress,
 } from '../../../../hooks';
+import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../../state/contexts/RegistrationState';
-import {
-  ArweaveTransactionID,
-  Auction,
-  SearchBarProps,
-} from '../../../../types';
+import { useWalletState } from '../../../../state/contexts/WalletState';
+import { Auction, PDNSRecordEntry, SearchBarProps } from '../../../../types';
 import {
   decodeDomainToASCII,
   encodeDomainToASCII,
-  isPDNSDomainNameAvailable,
   isPDNSDomainNameValid,
   lowerCaseDomain,
   validateMaxASCIILength,
@@ -34,25 +29,9 @@ import {
 import eventEmitter from '../../../../utils/events';
 import { SearchIcon } from '../../../icons';
 import { Loader, SearchBarFooter, SearchBarHeader } from '../../../layout';
+import ArweaveID, { ArweaveIdTypes } from '../../../layout/ArweaveID/ArweaveID';
 import ValidationInput from '../../text/ValidationInput/ValidationInput';
 import './styles.css';
-
-const searchBarSuccessPredicate = ({
-  value,
-  records,
-}: {
-  value: string | undefined;
-  records: { [x: string]: any };
-}) => {
-  if (!value) {
-    return false;
-  }
-
-  return isPDNSDomainNameAvailable({
-    name: encodeDomainToASCII(value),
-    records: records,
-  });
-};
 
 const searchBarValidationPredicate = ({
   value,
@@ -69,17 +48,16 @@ const searchBarValidationPredicate = ({
 };
 
 function SearchBar(props: SearchBarProps) {
-  const { disabled = false, placeholderText, values, value } = props;
+  const { disabled = false, placeholderText } = props;
   const navigate = useNavigate();
-  const [{ blockHeight }, dispatchGlobalState] = useGlobalState();
-  const arweaveDataProvider = useArweaveCompositeProvider();
-  const [, dispatchRegisterState] = useRegistrationState();
-  const { walletAddress } = useWalletAddress();
+  const [{ arweaveDataProvider }] = useGlobalState();
+  const [{ domain }, dispatchRegisterState] = useRegistrationState();
+  const [{ walletAddress }] = useWalletState();
   const isMobile = useIsMobile();
   const [isSearchValid, setIsSearchValid] = useState(true);
   const [searchSubmitted, setSearchSubmitted] = useState(false);
   const [searchBarText, setSearchBarText] = useState<string>(
-    decodeDomainToASCII(value),
+    decodeDomainToASCII(domain ?? ''),
   );
   const [searchParams, setSearchParams] = useSearchParams();
   const inputRef = useRef<HTMLDivElement | null>(null);
@@ -87,46 +65,59 @@ function SearchBar(props: SearchBarProps) {
   const isSearchbarFocused = useIsFocused('searchbar-input-id');
   const {
     isAvailable,
-    isAuction,
+    isActiveAuction,
     isReserved,
     loading: isValidatingRegistration,
     validated,
-  } = useRegistrationStatus(lowerCaseDomain(value));
+  } = useRegistrationStatus(lowerCaseDomain(domain));
   const [auctionInfo, setAuctionInfo] = useState<Auction>();
+  const [registeredDomainRecord, setRegisteredDomainRecord] =
+    useState<PDNSRecordEntry>();
+
+  const contractTxID = registeredDomainRecord
+    ? new ArweaveTransactionID(registeredDomainRecord.contractTxId)
+    : undefined;
 
   function reset() {
     setSearchSubmitted(false);
     setIsSearchValid(true);
     setSearchBarText('');
+    setRegisteredDomainRecord(undefined);
+    dispatchRegisterState({
+      type: 'reset',
+    });
+
     return;
   }
+
   useEffect(() => {
-    if (!searchBarText) {
-      reset();
-    }
     if (searchParams.get('search') !== searchBarText) {
       // clear search params on new search
       const serializeSearchParams: Record<string, string> = {};
       setSearchParams(serializeSearchParams);
     }
+
+    if (!searchBarText) {
+      reset();
+    }
   }, [searchBarText]);
 
   useEffect(() => {
-    if (value) {
-      setSearchBarText(decodeDomainToASCII(value));
+    if (domain) {
       _onSubmit();
       return;
     }
-  }, [value]);
+  }, [domain]);
 
   useEffect(() => {
     if (
-      (value && !isValidatingRegistration && searchSubmitted && validated) ||
-      !searchBarText
+      (!isValidatingRegistration && validated) ||
+      !searchSubmitted ||
+      isReserved
     ) {
       const style = handleSearchbarBorderStyle({
-        domain: value,
-        auction: isAuction,
+        domain: domain,
+        auction: isActiveAuction,
         available: isAvailable,
         reserved: isReserved,
         submitted: searchSubmitted,
@@ -134,40 +125,37 @@ function SearchBar(props: SearchBarProps) {
       });
       setSearchBarBorder(style);
     }
-
-    if (isAuction) {
-      updateAuctionInfo(value);
+    if (isActiveAuction) {
+      updateAuctionInfo(domain);
     }
   }, [
     searchBarText,
     searchSubmitted,
     isSearchbarFocused,
-    isAuction,
-    isAvailable,
     isReserved,
     validated,
+    isValidatingRegistration,
   ]);
 
   async function updateAuctionInfo(domain: string) {
+    if (!domain.length) {
+      setAuctionInfo(undefined);
+      return;
+    }
     try {
-      if (!blockHeight) {
-        const block = await arweaveDataProvider.getCurrentBlockHeight();
-        dispatchGlobalState({
-          type: 'setBlockHeight',
-          payload: block,
-        });
-        return;
-      }
-      const info = await arweaveDataProvider.getAuctionPrices({
+      const auction = await arweaveDataProvider.getAuction({
         domain: lowerCaseDomain(domain),
       });
-      if (!info) {
+      if (!auction) {
         return;
       }
-      setAuctionInfo(info);
-    } catch (error) {
+      setAuctionInfo(auction);
+    } catch (error: any) {
       setSearchBarText('');
-      eventEmitter.emit('error', error);
+      eventEmitter.emit('error', {
+        name: 'Could not get auction info',
+        message: error.message,
+      });
     }
   }
 
@@ -191,7 +179,7 @@ function SearchBar(props: SearchBarProps) {
     }
   }
 
-  function _onSubmit(next = false) {
+  async function _onSubmit(next = false) {
     dispatchRegisterState({
       type: 'setIsSearching',
       payload: true,
@@ -209,15 +197,19 @@ function SearchBar(props: SearchBarProps) {
       return;
     }
 
+    if (searchParams.get('search') !== searchBarText) {
+      const serializeSearchParams: Record<string, string> = {
+        search: decodeDomainToASCII(domain),
+      };
+      setSearchParams(serializeSearchParams);
+    }
     // show updated states based on search result
-    // TODO: [PE-4604] update to check if available using arweaveDateProvider.getRecord()
-    const searchSuccess = searchBarSuccessPredicate({
-      value: lowerCaseDomain(searchBarText ?? ''),
-      records: values ?? {},
-    });
+    const record = await arweaveDataProvider
+      .getRecord({ domain: lowerCaseDomain(searchBarText ?? '') })
+      .catch(() => null);
     setSearchSubmitted(true);
-    // setIsAvailable(searchSuccess);
-    if (searchSuccess && searchBarText && values) {
+    if (!record && searchBarText) {
+      setRegisteredDomainRecord(undefined);
       // on additional functions passed in
       dispatchRegisterState({
         type: 'setDomainName',
@@ -233,18 +225,15 @@ function SearchBar(props: SearchBarProps) {
           payload: auctionInfo.type,
         });
       }
-    } else if (!searchSuccess && searchBarText && values) {
+    } else if (record && searchBarText) {
+      setRegisteredDomainRecord(record);
       dispatchRegisterState({
         type: 'setDomainName',
         payload: encodeDomainToASCII(searchBarText),
       });
       dispatchRegisterState({
         type: 'setANTID',
-        payload: values[lowerCaseDomain(searchBarText)].contractTxId
-          ? new ArweaveTransactionID(
-              values[lowerCaseDomain(searchBarText)].contractTxId,
-            )
-          : undefined,
+        payload: new ArweaveTransactionID(record.contractTxId),
       });
     }
   }
@@ -336,33 +325,30 @@ function SearchBar(props: SearchBarProps) {
         defaultText="Find a name"
         domain={searchSubmitted ? searchBarText : undefined}
         isAvailable={isAvailable}
-        isAuction={isAuction}
+        isActiveAuction={isActiveAuction}
         isReserved={isReserved}
-        contractTxId={
-          values && values[lowerCaseDomain(value)]?.contractTxId
-            ? new ArweaveTransactionID(
-                values[lowerCaseDomain(value)]?.contractTxId,
-              )
-            : undefined
-        }
+        contractTxId={contractTxID}
       />
 
       <div
         className="searchbar"
         style={{
-          marginBottom: '30px',
+          ...searchBarBorder,
+          marginBottom:
+            searchBarText && searchBarText === 'www' ? '80px' : '30px',
           width: '100%',
           position: 'relative',
-          ...searchBarBorder,
         }}
         ref={inputRef}
       >
         <ValidationInput
           inputClassName="searchbar-input"
           inputId="searchbar-input-id"
-          pattern={PDNS_NAME_REGEX_PARTIAL}
+          customPattern={PDNS_NAME_REGEX_PARTIAL}
           // <input> tag considers emojis as 2 characters in length, so we need to encode the string to ASCII to get the correct length manually
-          maxLength={(v) => !(lowerCaseDomain(v).length > MAX_ARNS_NAME_LENGTH)}
+          maxCharLength={(v) =>
+            lowerCaseDomain(v).length <= MAX_ARNS_NAME_LENGTH
+          }
           inputType="search"
           onPressEnter={() => _onSubmit()}
           disabled={disabled}
@@ -370,9 +356,11 @@ function SearchBar(props: SearchBarProps) {
           value={searchBarText}
           setValue={(v) => _onChange(v)}
           onClick={() => _onFocus()}
-          inputCustomStyle={{ height: '65px' }}
+          inputCustomStyle={{
+            height: isMobile ? '50px' : '65px',
+          }}
           wrapperCustomStyle={{
-            height: '65px',
+            height: isMobile ? 'fit-content' : '65px',
             width: '100%',
           }}
           showValidationChecklist={!isMobile}
@@ -382,7 +370,8 @@ function SearchBar(props: SearchBarProps) {
             display: 'flex',
             flexDirection: 'row',
             justifyContent: 'space-between',
-            marginTop: '15px',
+            marginTop:
+              searchBarText && searchBarText === 'www' ? '90px' : '15px',
             gap: 15,
             color: searchBarText ? 'var(--text-white)' : 'var(--text-grey)',
           }}
@@ -453,11 +442,32 @@ function SearchBar(props: SearchBarProps) {
             <SearchIcon fill="white" width={18} height={18} />
           </button>
         )}
+        {searchBarText && searchBarText === 'www' ? (
+          <div
+            className="warning-container flex"
+            style={{
+              width: '100%',
+              gap: '15px',
+              boxSizing: 'border-box',
+              position: 'absolute',
+              top: '80px',
+            }}
+          >
+            <InfoCircleOutlined />
+            <span className="warning-text" style={{ fontSize: '14px' }}>
+              This name can not be registered, as &apos;www&apos; is a reserved
+              domain in browsers.
+            </span>
+          </div>
+        ) : (
+          <></>
+        )}
       </div>
+
       {searchSubmitted && isAvailable && !isReserved ? (
         <div
           className={`flex flex-row fade-in ${
-            isAuction ? 'flex-space-between' : 'flex-center'
+            isActiveAuction ? 'flex-space-between' : 'flex-center'
           }`}
           style={{
             alignItems: 'center',
@@ -466,7 +476,7 @@ function SearchBar(props: SearchBarProps) {
             flexDirection: isMobile ? 'column-reverse' : 'row',
           }}
         >
-          {isAuction && auctionInfo?.minimumAuctionBid ? (
+          {isActiveAuction && auctionInfo?.currentPrice ? (
             <div
               className="flex flex-column"
               style={{
@@ -480,17 +490,25 @@ function SearchBar(props: SearchBarProps) {
                 style={{ fontSize: '16px', width: 'fit-content' }}
               >
                 Current auction price for instant buy:{' '}
-                {(auctionInfo?.minimumAuctionBid
-                  ? Math.round(auctionInfo?.minimumAuctionBid)
-                  : 0
-                ).toLocaleString('en-US')}{' '}
-                IO
+                <span
+                  className="bold"
+                  style={{
+                    color: 'var(--accent)',
+                  }}
+                >
+                  {auctionInfo?.currentPrice.toLocaleString() ?? 0} IO
+                </span>
               </span>
               <span
-                className="grey left"
+                className="flex grey left"
                 style={{ fontSize: '13px', width: 'fit-content' }}
               >
-                Started by: {auctionInfo?.initiator}
+                Started by:&nbsp;
+                <ArweaveID
+                  id={new ArweaveTransactionID(auctionInfo!.initiator)}
+                  type={ArweaveIdTypes.ADDRESS}
+                  shouldLink={true}
+                />
               </span>
             </div>
           ) : (
@@ -514,17 +532,12 @@ function SearchBar(props: SearchBarProps) {
       )}
 
       <SearchBarFooter
-        isAuction={isAuction}
+        isActiveAuction={isActiveAuction}
         isAvailable={isAvailable}
         isReserved={isReserved}
-        domain={value}
-        contractTxId={
-          values && values[lowerCaseDomain(value)]?.contractTxId
-            ? new ArweaveTransactionID(
-                values[lowerCaseDomain(value)]?.contractTxId,
-              )
-            : undefined
-        }
+        domain={lowerCaseDomain(domain)}
+        record={registeredDomainRecord}
+        contractTxId={contractTxID}
       />
     </div>
   );

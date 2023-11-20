@@ -1,6 +1,8 @@
 import { cleanup, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { ArweaveCompositeDataProviderMock } from '../../../../../__tests__/__mocks__/ArweaveCompositeDataProviderMock';
+import { ArweaveTransactionID } from '../../../../../services/arweave/ArweaveTransactionID';
 import RegistrationStateProvider, {
   RegistrationState,
 } from '../../../../../state/contexts/RegistrationState';
@@ -8,11 +10,7 @@ import {
   RegistrationAction,
   registrationReducer,
 } from '../../../../../state/reducers';
-import {
-  ArweaveTransactionID,
-  PDNSRecordEntry,
-  TRANSACTION_TYPES,
-} from '../../../../../types';
+import { PDNSRecordEntry, TRANSACTION_TYPES } from '../../../../../types';
 import { lowerCaseDomain } from '../../../../../utils';
 import SearchBar from '../SearchBar';
 
@@ -29,13 +27,25 @@ jest.mock('react-router-dom', () => ({
   useSearchParams: () => [new URLSearchParams(), jest.fn()],
 }));
 
+jest.mock(
+  '../../../../../services/arweave/ArweaveCompositeDataProvider',
+  () => {
+    const {
+      ArweaveCompositeDataProviderMock,
+    } = require('../../../../../__tests__/__mocks__/ArweaveCompositeDataProviderMock'); // eslint-disable-line
+
+    return {
+      ArweaveCompositeDataProvider: jest.fn().mockImplementation(() => {
+        return new ArweaveCompositeDataProviderMock();
+      }),
+    };
+  },
+);
+
 jest.mock('../../../../../hooks', () => ({
   useAuctionInfo: jest.fn(() => ({})),
   useIsFocused: jest.fn(() => false),
   useIsMobile: jest.fn(() => false),
-  useWalletAddress: jest.fn(() => ({
-    walletAddress: undefined,
-  })),
   useRegistrationState: jest.fn(() => {
     const originalHook = jest.requireActual(
       'path-to-your-hook-file',
@@ -49,7 +59,12 @@ jest.mock('../../../../../hooks', () => ({
     isReserved: false,
     loading: false,
   })),
-  useArweaveCompositeProvider: jest.fn(),
+  useArweaveCompositeProvider: jest.fn(() => {
+    const ArweaveCompositeDataProviderMock =
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      require('../../../../../__tests__/__mocks__/ArweaveCompositeDataProviderMock').ArweaveCompositeDataProviderMock;
+    return new ArweaveCompositeDataProviderMock();
+  }),
 }));
 
 const TEST_RECORDS: Record<string, PDNSRecordEntry> = {
@@ -82,11 +97,7 @@ describe('SearchBar', () => {
 
   const searchBar = (
     <RegistrationStateProvider reducer={reducer}>
-      <SearchBar
-        value={''}
-        values={TEST_RECORDS}
-        placeholderText={'Find a name'}
-      />
+      <SearchBar placeholderText={'Find a name'} />
     </RegistrationStateProvider>
   );
 
@@ -107,6 +118,11 @@ describe('SearchBar', () => {
 
   test('handles a capitalized name correctly', async () => {
     const domain = 'ARDRIVE';
+
+    const mockRecord = TEST_RECORDS['ardrive'];
+    const mockGetRecord = jest.fn().mockResolvedValue(mockRecord);
+
+    ArweaveCompositeDataProviderMock.prototype.getRecord = mockGetRecord;
 
     await userEvent.type(searchInput, domain);
     await userEvent.click(searchButton);

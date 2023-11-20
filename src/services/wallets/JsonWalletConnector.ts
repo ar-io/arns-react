@@ -2,8 +2,8 @@ import { ApiConfig } from 'arweave/node/lib/api';
 import { JWKInterface } from 'arweave/node/lib/wallet';
 import { isString } from 'lodash';
 
-import { ArweaveTransactionID } from '../../types';
 import { ArweaveWalletConnector } from '../../types';
+import { ArweaveTransactionID } from '../arweave/ArweaveTransactionID';
 
 // A lot to do here, r.e. security, we will likely move to a different approach.
 export class JsonWalletConnector implements ArweaveWalletConnector {

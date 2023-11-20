@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { createSearchParams, useSearchParams } from 'react-router-dom';
 
-import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useTransactionState } from '../../state/contexts/TransactionState';
+import { useWalletState } from '../../state/contexts/WalletState';
 import {
   BuyRecordPayload,
   INTERACTION_TYPES,
@@ -17,7 +17,7 @@ import { ATOMIC_FLAG } from '../../utils/constants';
 
 export function useTransactionData() {
   const [, setSearchParams] = useSearchParams();
-  const [{ walletAddress }] = useGlobalState();
+  const [{ walletAddress }] = useWalletState();
   const [{ transactionData, interactionType, workflowStage }] =
     useTransactionState();
 

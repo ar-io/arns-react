@@ -56,16 +56,10 @@ function Counter({
             onMouseLeave={decHandleOnTouchEnd}
             style={{
               borderColor: minValue === value ? 'var(--disabled-grey)' : '',
+              color: minValue === value ? 'var(--disabled-grey)' : 'white',
             }}
           >
-            <span
-              style={{
-                height: '2px',
-                background:
-                  minValue === value ? 'var(--disabled-grey)' : 'white',
-                width: '18px',
-              }}
-            ></span>
+            -
           </button>
           <div
             className="flex flex-column flex-center"
@@ -73,7 +67,12 @@ function Counter({
           >
             <span
               className="text-large white center"
-              style={{ fontWeight: 500, ...valueStyle }}
+              style={{
+                fontWeight: 500,
+                ...valueStyle,
+                paddingTop: '5px',
+                paddingBottom: '8px',
+              }}
             >
               {value} {valueName}
             </span>

@@ -2,7 +2,14 @@ import { Buffer } from 'buffer';
 import { CSSProperties } from 'react';
 
 import { ChevronLeftIcon, ChevronRightIcon } from '../../components/icons';
-import { TransactionTag } from '../../types';
+import {
+  ContractInteraction,
+  PDNSRecordEntry,
+  PDNTContractDomainRecord,
+  TRANSACTION_TYPES,
+  TransactionTag,
+} from '../../types';
+import { DEFAULT_MAX_UNDERNAMES, YEAR_IN_MILLISECONDS } from '../constants';
 import { fromB64Url } from '../encodings';
 
 export function tagsToObject(tags: TransactionTag[]): {
@@ -151,3 +158,88 @@ export function formatForMaxCharCount(
 
   return str;
 }
+
+export function isJsonSerializable(obj: any): boolean {
+  try {
+    JSON.parse(obj);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function jsonSerialize(obj: any) {
+  try {
+    return JSON.parse(obj);
+  } catch (error) {
+    return undefined;
+  }
+}
+
+export function getUndernameCount(records: Record<string, any>): number {
+  return Object.keys(records).filter((key) => key !== '@').length;
+}
+
+export function buildPendingArNSRecord(
+  cachedRecord: ContractInteraction,
+): PDNSRecordEntry {
+  const record: PDNSRecordEntry = {
+    type:
+      cachedRecord.payload.type === TRANSACTION_TYPES.LEASE
+        ? TRANSACTION_TYPES.LEASE
+        : TRANSACTION_TYPES.BUY,
+    contractTxId:
+      cachedRecord.payload.contractTxId === 'atomic'
+        ? cachedRecord.id.toString()
+        : cachedRecord.payload.contractTxId.toString(),
+    startTimestamp: Math.round(cachedRecord.timestamp / 1000),
+    endTimestamp:
+      cachedRecord.type === TRANSACTION_TYPES.LEASE
+        ? cachedRecord.timestamp +
+          Math.max(1, +cachedRecord.payload.years) * YEAR_IN_MILLISECONDS
+        : undefined,
+    undernames: DEFAULT_MAX_UNDERNAMES,
+  };
+  return record;
+}
+
+export function buildPendingANTRecord(
+  cachedRecord: ContractInteraction,
+): PDNTContractDomainRecord {
+  if (cachedRecord.payload.function !== 'setRecord') {
+    throw new Error('Invalid ANT setRecord interaction');
+  }
+
+  const { transactionId, ttlSeconds } = cachedRecord.payload;
+  return {
+    transactionId: transactionId.toString(),
+    ttlSeconds: +ttlSeconds,
+  };
+}
+
+export const executeWithTimeout = async (fn: () => any, ms: number) => {
+  return await Promise.race([
+    fn(),
+    new Promise((resolve) => setTimeout(() => resolve('timeout'), ms)),
+  ]);
+};
+
+export const fetchWithRetry = async (url: string, numRetries = 1) => {
+  let lastException = undefined;
+  const exceptionHandler = (e: any) => {
+    lastException = e;
+    return undefined;
+  };
+
+  let res = await fetch(url).catch(exceptionHandler);
+  let i = 0;
+
+  while ((!res || !res.ok) && i < numRetries) {
+    res = await fetch(url).catch(exceptionHandler);
+    i++;
+  }
+  if ((!res || !res.ok) && lastException) {
+    throw lastException;
+  }
+  return res;
+};

@@ -23,7 +23,7 @@ function NavBarLink({
       target={target}
       onClick={() => (onClick ? onClick() : null)}
       className={children ? 'flex-row navbar-link hover' : 'navbar-link hover'}
-      style={{ gap: '10px', alignItems: 'center' }}
+      style={{ gap: '10px', alignItems: 'center', color: 'var(--text-white)' }}
     >
       {children}
       {linkText}

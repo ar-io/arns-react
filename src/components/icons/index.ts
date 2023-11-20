@@ -22,6 +22,8 @@ import { ReactComponent as CircleCheckFilled } from './CircleCheckFilled.svg';
 import { ReactComponent as CirclePending } from './CirclePending.svg';
 import { ReactComponent as CirclePlus } from './CirclePlus.svg';
 import { ReactComponent as CircleXIcon } from './CircleX.svg';
+import { ReactComponent as CircleXFilled } from './CircleXFilled.svg';
+import { ReactComponent as ClockClockwiseIcon } from './ClockClockwise.svg';
 import { ReactComponent as CloseIcon } from './Close.svg';
 import { ReactComponent as CodeSandboxIcon } from './CodeSandbox.svg';
 import { ReactComponent as CopyIcon } from './Copy.svg';
@@ -43,6 +45,7 @@ import { ReactComponent as NotebookIcon } from './Notebook.svg';
 import PDNSDefault from './PDNSDefault.png';
 import { ReactComponent as PencilIcon } from './Pencil.svg';
 import { ReactComponent as PersonIcon } from './Person.svg';
+import { ReactComponent as PlusIcon } from './Plus.svg';
 import { ReactComponent as PriceTagIcon } from './PriceTag.svg';
 import { ReactComponent as RefreshIcon } from './Refresh.svg';
 import { ReactComponent as RefreshAlertIcon } from './RefreshAlert.svg';
@@ -83,8 +86,10 @@ export {
   CircleCheckFilled,
   CirclePending,
   CircleXIcon,
+  CircleXFilled,
   CirclePlus,
   CodeSandboxIcon,
+  ClockClockwiseIcon,
   CloseIcon,
   CopyIcon,
   CubeIcon,
@@ -106,6 +111,7 @@ export {
   NewspaperIcon,
   PencilIcon,
   PersonIcon,
+  PlusIcon,
   PriceTagIcon,
   RefreshIcon,
   RefreshAlertIcon,

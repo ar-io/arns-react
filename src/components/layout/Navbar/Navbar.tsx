@@ -11,14 +11,7 @@ function NavBar() {
 
   return (
     <div className="flex flex-column" style={{ gap: '0px' }}>
-      <div
-        className="flex-row flex-space-between"
-        style={{
-          boxSizing: 'border-box',
-          padding: '0px 5%',
-          minHeight: 75,
-        }}
-      >
+      <div className="navbar">
         <div className="flex-row flex-left">
           <Link
             className="hover"
@@ -27,7 +20,21 @@ function NavBar() {
               dispatchRegisterState({ type: 'reset' });
             }}
           >
-            <BrandLogo width={'36px'} height={'36px'} fill={'white'} />
+            <div style={{ position: 'relative' }}>
+              <BrandLogo width={'36px'} height={'36px'} fill={'white'} />
+
+              {/* TODO: Conditionally show testnet depending on environment when mainnet becomes available */}
+              <div
+                className="testnet"
+                style={{
+                  position: 'absolute',
+                  top: '-6px',
+                  left: '24px',
+                }}
+              >
+                Testnet
+              </div>
+            </div>
           </Link>
         </div>
         <NavGroup />

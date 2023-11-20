@@ -2,13 +2,10 @@ import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import {
-  useArweaveCompositeProvider,
-  useIsMobile,
-  useWalletAddress,
-} from '../../../hooks';
+import { useIsMobile } from '../../../hooks';
+import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { ArweaveTransactionID } from '../../../types';
+import { useWalletState } from '../../../state/contexts/WalletState';
 import eventEmitter from '../../../utils/events';
 import { ROUTES } from '../../../utils/routes';
 import { LogoutIcon, MenuIcon } from '../../icons';
@@ -20,8 +17,7 @@ import { WalletAddress } from '../../layout/WalletAddress/WalletAddress';
 import './styles.css';
 
 function NavMenuCard() {
-  const arweaveDataProvider = useArweaveCompositeProvider();
-  const [{ pdnsContractId }, dispatchGlobalState] = useGlobalState(); // eslint-disable-line
+  const [{ pdnsContractId, arweaveDataProvider }] = useGlobalState(); // eslint-disable-line
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
   const [walletDetails, setWalletDetails] = useState<{
@@ -33,7 +29,7 @@ function NavMenuCard() {
   });
   const menuRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
-  const { wallet, walletAddress } = useWalletAddress();
+  const [{ wallet, walletAddress }, dispatchWalletState] = useWalletState();
 
   useEffect(() => {
     if (walletAddress) {
@@ -79,7 +75,6 @@ function NavMenuCard() {
   }
 
   function handleClickOutside(e: any) {
-    e.preventDefault();
     if (
       menuRef.current &&
       e.target !== menuRef.current &&
@@ -94,8 +89,8 @@ function NavMenuCard() {
       await wallet?.disconnect();
       // reset state
       setShowMenu(false);
-      dispatchGlobalState({
-        type: 'setWallet',
+      dispatchWalletState({
+        type: 'setWalletAddress',
         payload: undefined,
       });
     } catch (error: any) {

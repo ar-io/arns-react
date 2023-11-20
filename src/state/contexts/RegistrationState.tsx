@@ -1,7 +1,8 @@
 import { Dispatch, createContext, useContext, useReducer } from 'react';
 
+import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { PDNTContract } from '../../services/arweave/PDNTContract';
-import { ArweaveTransactionID, TRANSACTION_TYPES } from '../../types';
+import { TRANSACTION_TYPES } from '../../types';
 import { RegistrationAction } from '../reducers/RegistrationReducer';
 
 export type RegistrationState = {
@@ -11,7 +12,7 @@ export type RegistrationState = {
   pdntContract?: PDNTContract;
   targetID?: ArweaveTransactionID;
   antID?: ArweaveTransactionID;
-  fee: { ar: number; io: number };
+  fee: { ar: number; io?: number };
   isRegistered: boolean;
   stage: number;
   isSearching: boolean;

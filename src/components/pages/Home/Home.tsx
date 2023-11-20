@@ -2,25 +2,25 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { useIsMobile, useRegistrationStatus } from '../../../hooks';
+import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
-import { ArweaveTransactionID } from '../../../types';
 import { FEATURED_DOMAINS } from '../../../utils/constants';
 import {
   decodeDomainToASCII,
-  encodeDomainToASCII,
   lowerCaseDomain,
 } from '../../../utils/searchUtils/searchUtils';
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import { FeaturedDomains } from '../../layout';
+import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
 
 function Home() {
+  const [{ arweaveDataProvider }] = useGlobalState();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [{ pdnsSourceContract }] = useGlobalState();
   const [{ domain, antID }, dispatchRegisterState] = useRegistrationState();
   const {
-    isAuction,
+    isActiveAuction,
     isReserved,
     loading: isValidatingRegistration,
   } = useRegistrationStatus(domain);
@@ -51,18 +51,30 @@ function Home() {
   }, [searchParams]);
 
   useEffect(() => {
-    if (Object.keys(pdnsSourceContract.records).length) {
-      const newFeaturedDomains = Object.fromEntries(
-        FEATURED_DOMAINS.map((domain: string) =>
-          pdnsSourceContract.records[domain]?.contractTxId
-            ? [domain, pdnsSourceContract.records[domain].contractTxId]
-            : [],
-        ).filter((n) => n.length),
-      );
+    fetchFeaturedDomains();
+  }, []);
 
+  async function fetchFeaturedDomains() {
+    try {
+      const results = await Promise.all(
+        FEATURED_DOMAINS.map(async (domain: string) => {
+          const record = await arweaveDataProvider
+            .getRecord({ domain })
+            .catch(() => undefined);
+          const res = record?.contractTxId
+            ? [domain, record?.contractTxId]
+            : [];
+          return res;
+        }),
+      );
+      const newFeaturedDomains = Object.fromEntries(
+        results.filter((x) => x.length),
+      );
       setFeaturedDomains(newFeaturedDomains);
+    } catch (error) {
+      console.error(error);
     }
-  }, [pdnsSourceContract]);
+  }
 
   function updateShowFeaturedDomains({
     auction,
@@ -84,15 +96,22 @@ function Home() {
     return false;
   }
 
+  if (!featuredDomains) {
+    return <PageLoader loading message={'Loading Home'} />;
+  }
+
   return (
-    <div className="page" style={{ padding: isMobile ? '15px' : '' }}>
+    <div
+      className="page"
+      style={{ padding: isMobile ? '15px' : '', boxSizing: 'border-box' }}
+    >
       <div
         className={'white'}
         style={{
           fontSize: isMobile ? 26 : 57,
-          padding: isMobile ? '30px 0px' : 56,
+          padding: isMobile ? '10px' : '30px',
           fontWeight: 500,
-          whiteSpace: 'nowrap',
+          whiteSpace: isMobile ? undefined : 'nowrap',
         }}
       >
         Arweave Name System
@@ -107,15 +126,11 @@ function Home() {
           minWidth: isMobile ? '100%' : '750px',
         }}
       >
-        <SearchBar
-          values={pdnsSourceContract.records}
-          value={domain ? encodeDomainToASCII(domain) : domain}
-          placeholderText={'Search for a name'}
-        />
+        <SearchBar placeholderText={'Search for a name'} />
         {
           //!isValidatingRegistration &&
           updateShowFeaturedDomains({
-            auction: isAuction,
+            auction: isActiveAuction,
             reserved: isReserved,
             domains: featuredDomains ?? {},
             id: antID,

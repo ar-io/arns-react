@@ -10,9 +10,8 @@
   display: flex;
   flex-direction: row;
   width: fit-content;
-  gap: 1em;
   flex-wrap: wrap;
-  justify-content: space-between;
+  gap: 1em;
 }
 
 @media screen and (max-width: 600px) {
@@ -20,6 +19,13 @@
     width: 90%;
   }
   .card-container {
+    gap: 0.75em;
+  }
+}
+
+@media screen and (max-width: 700px) {
+  .card-container {
+    flex-direction: column;
     gap: 0.75em;
   }
 }

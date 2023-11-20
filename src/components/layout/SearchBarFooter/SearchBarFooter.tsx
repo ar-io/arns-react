@@ -1,23 +1,27 @@
-import { useIsMobile } from '../../../hooks';
+import { useAuctionInfo, useIsMobile } from '../../../hooks';
 import { SearchBarFooterProps } from '../../../types';
 import { isDomainReservedLength, lowerCaseDomain } from '../../../utils';
 import PDNTCard from '../../cards/PDNTCard/PDNTCard';
 import AuctionChart from '../AuctionChart/AuctionChart';
-import EmailNotificationCard from '../EmailNotificationCard/EmailNotificationCard';
+import NextPriceUpdate from '../NextPriceUpdate/NextPriceUpdate';
+import ReservedNameNotificationCard from '../ReservedNameNotificationCard/ReservedNameNotificationCard';
 import './styles.css';
 
 function SearchBarFooter({
   domain,
+  record,
   contractTxId,
   isAvailable,
-  isAuction,
+  isActiveAuction,
   isReserved,
 }: SearchBarFooterProps): JSX.Element {
   const isMobile = useIsMobile();
+  const { auction } = useAuctionInfo(domain);
 
-  if (isAuction && domain) {
+  if (isActiveAuction && domain) {
     return (
-      <div className="flex flex-row">
+      <div className="flex flex-column">
+        {auction && <NextPriceUpdate auction={auction} />}
         <AuctionChart
           domain={domain}
           showAuctionExplainer={true}
@@ -33,13 +37,16 @@ function SearchBarFooter({
   ) {
     return (
       <div className="flex flex-row" style={{ marginTop: '30px' }}>
-        <EmailNotificationCard />
+        <ReservedNameNotificationCard />
       </div>
     );
   }
   return (
-    <div className="flex flex-column" style={{ marginTop: 30 }}>
-      {!isAvailable && contractTxId && domain ? (
+    <div
+      className="flex flex-column"
+      style={{ marginTop: '30px', boxSizing: 'border-box' }}
+    >
+      {!isAvailable && record && contractTxId && domain ? (
         <>
           <span className="flex flex-row white text-medium flex-left">
             Ownership Details:
@@ -47,8 +54,8 @@ function SearchBarFooter({
           <PDNTCard
             domain={domain}
             contractTxId={contractTxId}
+            record={record}
             compact={true}
-            enableActions={true}
             bordered
           />
         </>

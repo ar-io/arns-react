@@ -3,19 +3,16 @@ import { Table } from 'antd';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 
-import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
-import { PDNTContract } from '../../../services/arweave/PDNTContract';
+import { useIsMobile } from '../../../hooks';
+import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import {
-  ArweaveTransactionID,
-  DomainDetails,
-  ManageDomainRow,
-  PDNTContractJSON,
-} from '../../../types';
+import { useWalletState } from '../../../state/contexts/WalletState';
+import { DomainDetails, ManageDomainRow } from '../../../types';
 import {
   getInteractionTypeFromField,
   getLeaseDurationFromEndTimestamp,
   getPendingInteractionsRowsForContract,
+  getUndernameCount,
   isArweaveTransactionID,
   lowerCaseDomain,
 } from '../../../utils';
@@ -29,8 +26,6 @@ import {
 import eventEmitter from '../../../utils/events';
 import { AntDetailKey, mapKeyToAttribute } from '../../cards/PDNTCard/PDNTCard';
 import {
-  ArrowLeft,
-  ArrowRightIcon,
   CirclePending,
   ExternalLinkIcon,
   HamburgerOutlineIcon,
@@ -45,8 +40,8 @@ function ManageDomain() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const location = useLocation();
-  const arweaveDataProvider = useArweaveCompositeProvider();
-  const [{ walletAddress, pdnsSourceContract }] = useGlobalState();
+  const [{ arweaveDataProvider }] = useGlobalState();
+  const [{ walletAddress }] = useWalletState();
   const [rows, setRows] = useState<ManageDomainRow[]>([]);
   const [isMaxLeaseDuration, setIsMaxLeaseDuration] = useState<boolean>(false);
   const [isMaxUndernameCount, setIsMaxUndernameCount] =
@@ -71,27 +66,23 @@ function ManageDomain() {
     try {
       setLoading(true);
 
-      const recordEntry = await arweaveDataProvider.getRecord(
-        lowerCaseDomain(domainName),
-      );
+      const recordEntry = await arweaveDataProvider.getRecord({
+        domain: lowerCaseDomain(domainName),
+      });
       const txId = recordEntry?.contractTxId;
       if (!txId) {
         throw Error('This name is not registered');
       }
       const contractTxId = new ArweaveTransactionID(txId);
 
-      const [contractState, confirmations, pendingContractInteractions] =
+      const [contract, confirmations, pendingContractInteractions] =
         await Promise.all([
-          arweaveDataProvider.getContractState<PDNTContractJSON>(contractTxId),
+          arweaveDataProvider.buildANTContract(contractTxId),
           arweaveDataProvider
             .getTransactionStatus(contractTxId)
-            .then((status) => status[contractTxId.toString()]),
-          arweaveDataProvider.getPendingContractInteractions(
-            contractTxId,
-            address.toString(),
-          ),
+            .then((status) => status[contractTxId.toString()].confirmations),
+          arweaveDataProvider.getPendingContractInteractions(contractTxId),
         ]);
-      const contract = new PDNTContract(contractState);
 
       // simple check that it is ANT shaped contract
       // TODO: add more checks, eg AST tree and function IO's
@@ -99,9 +90,13 @@ function ManageDomain() {
         throw Error('Invalid ANT contract');
       }
 
-      const record = Object.values(pdnsSourceContract.records).find(
-        (r) => r.contractTxId === contractTxId.toString(),
-      );
+      const record = name
+        ? await arweaveDataProvider
+            .getRecord({
+              domain: lowerCaseDomain(name),
+            })
+            .catch(() => undefined)
+        : undefined;
       if (!record) {
         throw Error('This name is not registered');
       }
@@ -154,12 +149,12 @@ function ManageDomain() {
             ? contract.getRecord('@')!.transactionId
             : 'N/A',
         ticker: contract.ticker ?? 'N/A',
-        controller: contract.controller ?? 'N/A',
+        controllers: contract.controllers.join(', ') ?? 'N/A',
         owner: contract.owner ?? 'N/A',
         ttlSeconds: contract.getRecord('@')?.ttlSeconds ?? DEFAULT_TTL_SECONDS,
         leaseDuration: `${getLeaseDurationString()}`,
         // -1 because @ record is not counted
-        undernames: `${Object.keys(contract.records).length - 1}/${(
+        undernames: `${getUndernameCount(contract.records)}/${(
           record?.undernames ?? DEFAULT_MAX_UNDERNAMES
         ).toLocaleString()}`,
       };
@@ -393,38 +388,6 @@ function ManageDomain() {
               dataSource={rows}
             />
           )}
-        </div>
-        <div
-          id="back-next-container"
-          className="flex flex-row"
-          style={{ justifyContent: 'space-between' }}
-        >
-          <button
-            className="outline-button center hover"
-            style={{
-              padding: '10px',
-              gap: '8px',
-              fontSize: '13px',
-              fontWeight: 400,
-            }}
-            onClick={() => alert('Not implemented yet')}
-          >
-            <ArrowLeft width={'16px'} height={'16px'} fill="inherit" />
-            Previous
-          </button>
-          <button
-            className="outline-button center hover"
-            style={{
-              padding: '10px',
-              gap: '8px',
-              fontSize: '13px',
-              fontWeight: 400,
-            }}
-            onClick={() => alert('Not implemented yet')}
-          >
-            Next
-            <ArrowRightIcon width={'16px'} height={'16px'} fill="inherit" />
-          </button>
         </div>
       </div>
     </>

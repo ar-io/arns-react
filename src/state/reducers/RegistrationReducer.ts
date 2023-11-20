@@ -1,4 +1,5 @@
-import { ArweaveTransactionID, TRANSACTION_TYPES } from '../../types';
+import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
+import { TRANSACTION_TYPES } from '../../types';
 import {
   RegistrationState,
   initialRegistrationState,
@@ -10,7 +11,7 @@ export type RegistrationAction =
   | { type: 'setLeaseDuration'; payload: number }
   | { type: 'setANTID'; payload: ArweaveTransactionID | undefined }
   | { type: 'setResolvedTx'; payload: ArweaveTransactionID | undefined }
-  | { type: 'setFee'; payload: { ar: number; io: number } }
+  | { type: 'setFee'; payload: { ar: number; io?: number } }
   | { type: 'setIsRegistered'; payload: boolean }
   | { type: 'setStage'; payload: number }
   | { type: 'setIsSearching'; payload: boolean }

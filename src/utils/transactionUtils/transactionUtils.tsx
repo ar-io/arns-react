@@ -1,8 +1,8 @@
 import { StepProps } from 'antd';
-import { inRange } from 'lodash';
+import { Tag, Tags } from 'warp-contracts';
 
+import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import {
-  ArweaveTransactionID,
   BuyRecordPayload,
   CONTRACT_TYPES,
   ContractInteraction,
@@ -12,9 +12,7 @@ import {
   INTERACTION_TYPES,
   IncreaseUndernamesPayload,
   InteractionTypes,
-  PDNSDomains,
   PDNSMapping,
-  PDNSRecordEntry,
   PDNTContractJSON,
   RemoveRecordPayload,
   SetControllerPayload,
@@ -28,8 +26,8 @@ import {
   TransactionData,
   TransactionDataConfig,
   TransactionDataPayload,
-  TransactionTag,
   TransferANTPayload,
+  TransferIOPayload,
   ValidInteractionType,
 } from '../../types';
 import {
@@ -39,17 +37,12 @@ import {
   MAX_TTL_SECONDS,
   MIN_TTL_SECONDS,
   PDNS_TX_ID_REGEX,
-  RESERVED_NAME_LENGTH,
   TTL_SECONDS_REGEX,
   YEAR_IN_MILLISECONDS,
 } from '../constants';
 import eventEmitter from '../events';
-import {
-  encodeDomainToASCII,
-  isDomainReservedLength,
-} from '../searchUtils/searchUtils';
 
-export function isArweaveTransactionID(id: string) {
+export function isArweaveTransactionID(id?: string) {
   if (!id) {
     return false;
   }
@@ -121,12 +114,22 @@ export const WorkflowStepsForInteractions: Record<
     { title: 'Deploy Undername', status: 'wait' },
     { title: 'Complete', status: 'wait' },
   ],
+  [INTERACTION_TYPES.EDIT_RECORD]: [
+    { title: 'Confirm Undername Details', status: 'process' },
+    { title: 'Deploy Undername', status: 'wait' },
+    { title: 'Complete', status: 'wait' },
+  ],
   [INTERACTION_TYPES.SET_TICKER]: [
     { title: 'Confirm Ticker', status: 'process' },
     { title: 'Deploy Ticker Change', status: 'wait' },
     { title: 'Complete', status: 'wait' },
   ],
   [INTERACTION_TYPES.TRANSFER]: [
+    { title: 'Confirm Transfer', status: 'process' },
+    { title: 'Deploy Transfer', status: 'wait' },
+    { title: 'Complete', status: 'wait' },
+  ],
+  [INTERACTION_TYPES.TRANSFER_ANT]: [
     { title: 'Confirm Transfer', status: 'process' },
     { title: 'Deploy Transfer', status: 'wait' },
     { title: 'Complete', status: 'wait' },
@@ -149,11 +152,11 @@ export const TRANSACTION_DATA_KEYS: Record<
 > = {
   [INTERACTION_TYPES.BUY_RECORD]: {
     functionName: 'buyRecord',
-    keys: ['name', 'contractTxId', 'auction'],
+    keys: ['name', 'contractTxId', 'auction', 'type'],
   },
   [INTERACTION_TYPES.SUBMIT_AUCTION_BID]: {
     functionName: 'submitAuctionBid',
-    keys: ['name', 'contractTxId'],
+    keys: ['name', 'contractTxId', 'qty'],
   },
   [INTERACTION_TYPES.INCREASE_UNDERNAMES]: {
     functionName: 'increaseUndernames',
@@ -166,6 +169,10 @@ export const TRANSACTION_DATA_KEYS: Record<
   [INTERACTION_TYPES.TRANSFER]: {
     functionName: 'transfer',
     keys: ['target', 'qty'],
+  },
+  [INTERACTION_TYPES.TRANSFER_ANT]: {
+    functionName: 'transfer',
+    keys: ['target'],
   }, // transfer io tokens
   [INTERACTION_TYPES.BALANCE]: {
     functionName: 'getBalance',
@@ -196,6 +203,10 @@ export const TRANSACTION_DATA_KEYS: Record<
     keys: ['name'],
   },
   [INTERACTION_TYPES.SET_RECORD]: {
+    functionName: 'setRecord',
+    keys: ['subDomain', 'transactionId', 'ttlSeconds'],
+  },
+  [INTERACTION_TYPES.EDIT_RECORD]: {
     functionName: 'setRecord',
     keys: ['subDomain', 'transactionId', 'ttlSeconds'],
   },
@@ -247,14 +258,16 @@ export function getPDNSMappingByInteractionType(
           ? Date.now() + YEAR_IN_MILLISECONDS * transactionData.years
           : 'Indefinite';
 
+      const contractTxId =
+        transactionData.contractTxId === ATOMIC_FLAG
+          ? transactionData.deployedTransactionId
+            ? transactionData.deployedTransactionId
+            : ATOMIC_FLAG
+          : new ArweaveTransactionID(transactionData.contractTxId);
+
       return {
         domain: transactionData.name,
-        contractTxId:
-          transactionData.contractTxId === ATOMIC_FLAG
-            ? transactionData.deployedTransactionId
-              ? transactionData.deployedTransactionId
-              : ATOMIC_FLAG.toLocaleUpperCase('en-US')
-            : new ArweaveTransactionID(transactionData.contractTxId),
+        contractTxId: contractTxId,
         deployedTransactionId: transactionData.deployedTransactionId,
         state: transactionData.state ?? undefined,
         overrides: {
@@ -287,11 +300,12 @@ export function getPDNSMappingByInteractionType(
         domain: transactionData.name,
         contractTxId:
           transactionData.contractTxId === ATOMIC_FLAG
-            ? transactionData.deployedTransactionId ?? undefined
+            ? transactionData.deployedTransactionId
             : new ArweaveTransactionID(transactionData.contractTxId),
         state: transactionData.state ?? undefined,
+        // TODO: set qty for the auction bid based on the auction data
         overrides: {
-          maxSubdomains: `Up to ${DEFAULT_MAX_UNDERNAMES}`,
+          maxUndernames: `Up to ${DEFAULT_MAX_UNDERNAMES}`,
         },
       };
     }
@@ -310,19 +324,19 @@ export function getPDNSMappingByInteractionType(
 
       return {
         domain: transactionData.name,
-        contractTxId: transactionData.contractTxId,
+        contractTxId: new ArweaveTransactionID(transactionData.contractTxId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           maxUndernames: transactionData.deployedTransactionId ? (
             <span className="white">
               Up to{' '}
               <span style={{ color: 'var(--success-green)' }}>
-                {transactionData.qty + transactionData.oldQty}
+                {transactionData.qty + transactionData.oldQty!}
               </span>
             </span>
           ) : (
             <span className="add-box center">
-              {transactionData.qty + transactionData.oldQty}
+              {transactionData.qty + transactionData.oldQty!}
             </span>
           ),
         },
@@ -379,7 +393,7 @@ export function getPDNSMappingByInteractionType(
         contractTxId: new ArweaveTransactionID(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
-          nickname: transactionData.name,
+          name: transactionData.name,
         },
         disabledKeys: [
           'evolve',
@@ -559,7 +573,7 @@ export function getPDNSMappingByInteractionType(
         contractTxId: new ArweaveTransactionID(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
-          controller: transactionData.target,
+          controllers: <span>{transactionData.target}</span>,
         },
         disabledKeys: [
           'evolve',
@@ -572,9 +586,33 @@ export function getPDNSMappingByInteractionType(
     }
     case INTERACTION_TYPES.TRANSFER: {
       if (
-        !isObjectOfTransactionPayloadType<TransferANTPayload>(
+        !isObjectOfTransactionPayloadType<TransferIOPayload>(
           transactionData,
           TRANSACTION_DATA_KEYS[INTERACTION_TYPES.TRANSFER].keys,
+        )
+      ) {
+        throw new Error(
+          `transaction data not of correct payload type <TransferANTPayload> keys: ${Object.keys(
+            transactionData,
+          )}`,
+        );
+      }
+      return {
+        domain: '',
+        contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        deployedTransactionId: transactionData.deployedTransactionId,
+        overrides: {
+          'New Owner': transactionData.target,
+        },
+        compact: false,
+        disabledKeys: ['maxUndernames', 'owner', 'controller', 'ttlSeconds'],
+      };
+    }
+    case INTERACTION_TYPES.TRANSFER_ANT: {
+      if (
+        !isObjectOfTransactionPayloadType<TransferANTPayload>(
+          transactionData,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.TRANSFER_ANT].keys,
         )
       ) {
         throw new Error(
@@ -688,32 +726,37 @@ export function getLinkId(
   interactionType: ValidInteractionType,
   transactionData: TransactionData,
 ): string {
-  if (
+  const isBuyRecord =
     interactionType === INTERACTION_TYPES.BUY_RECORD &&
     isObjectOfTransactionPayloadType<BuyRecordPayload>(
       transactionData,
       TRANSACTION_DATA_KEYS[INTERACTION_TYPES.BUY_RECORD].keys,
-    )
-  ) {
+    );
+
+  const isExtendLease =
+    interactionType === INTERACTION_TYPES.EXTEND_LEASE &&
+    isObjectOfTransactionPayloadType<ExtendLeasePayload>(
+      transactionData,
+      TRANSACTION_DATA_KEYS[INTERACTION_TYPES.EXTEND_LEASE].keys,
+    );
+
+  const isIncreaseUndernames =
+    interactionType === INTERACTION_TYPES.INCREASE_UNDERNAMES &&
+    isObjectOfTransactionPayloadType<IncreaseUndernamesPayload>(
+      transactionData,
+      TRANSACTION_DATA_KEYS[INTERACTION_TYPES.INCREASE_UNDERNAMES].keys,
+    );
+
+  if (isBuyRecord || isExtendLease || isIncreaseUndernames) {
     return transactionData.contractTxId === ATOMIC_FLAG &&
       transactionData.deployedTransactionId
       ? transactionData.deployedTransactionId.toString()
-      : transactionData.contractTxId.toString();
+      : transactionData.contractTxId?.toString() ?? '';
   }
 
   return transactionData.assetId.toString();
 }
 
-export function getAssociatedNames(
-  txId: ArweaveTransactionID,
-  records: PDNSDomains,
-) {
-  return Object.entries(records)
-    .map(([name, recordEntry]: [string, PDNSRecordEntry]) => {
-      if (recordEntry.contractTxId === txId.toString()) return name;
-    })
-    .filter((n) => !!n);
-}
 export async function validateTTLSeconds(ttl: number): Promise<void> {
   if (ttl < MIN_TTL_SECONDS) {
     throw new Error(
@@ -735,12 +778,17 @@ export function getPendingInteractionsRowsForContract(
   existingValues: any,
 ): {
   attribute: string;
-  value: string;
+  value: string | number | boolean;
   id: string;
   valid: boolean | undefined;
 }[] {
   // find all pending interactions for the contract, find relevant ones related to row attributes
-  const pendingTxRowData = [];
+  const pendingTxRowData: {
+    attribute: string;
+    value: string | number | boolean;
+    id: string;
+    valid: boolean | undefined;
+  }[] = [];
   for (const i of pendingContractInteractions) {
     const attributes = getAttributesFromInteractionFunction(i.payload.function);
     // TODO: this is not pretty, and could be avoided if we rework the ANT contract to allow `setTTL` and `setTransaction` rather than all of them
@@ -770,7 +818,7 @@ export function generateAtomicState(
     name: `ANT-${domain.toUpperCase()}`,
     ticker: 'ANT',
     owner: walletAddress.toString(),
-    controller: walletAddress.toString(),
+    controllers: [walletAddress.toString()],
     balances: { [walletAddress.toString()]: 1 },
   };
 }
@@ -781,7 +829,7 @@ export function buildSmartweaveInteractionTags({
 }: {
   contractId: ArweaveTransactionID;
   input: SmartWeaveActionInput;
-}): TransactionTag[] {
+}): Tags {
   const tags: SmartWeaveActionTags = [
     {
       name: 'App-Name',
@@ -796,33 +844,7 @@ export function buildSmartweaveInteractionTags({
       value: JSON.stringify(input),
     },
   ];
-  return tags;
-}
-
-export function isDomainAuctionable({
-  // https://ardrive.atlassian.net/wiki/spaces/ENGINEERIN/pages/706543688/PDNS+Auction+System+-+Technical+Requirements#Requirements
-  domain,
-  registrationType,
-  reservedList,
-}: {
-  domain: string;
-  registrationType: TRANSACTION_TYPES;
-  reservedList: string[];
-}): boolean {
-  if (
-    isDomainReservedLength(domain) || // if under 5 characters, auctionable
-    (inRange(
-      encodeDomainToASCII(domain).length,
-      RESERVED_NAME_LENGTH + 1,
-      12,
-    ) &&
-      registrationType === TRANSACTION_TYPES.BUY) || // if permabuying a name between 5 and 11 chars, auctionable
-    reservedList.includes(domain) // all premium names are auctionable
-  ) {
-    return true;
-  }
-
-  return false;
+  return tags.map((t) => new Tag(t.name, t.value));
 }
 
 export async function withExponentialBackoff<T>({
@@ -876,3 +898,51 @@ export function pruneExtraDataFromTransactionPayload(
   );
   return cleanPayload;
 }
+
+export function userHasSufficientBalance<T extends Record<string, number>>({
+  balances,
+  costs,
+}: {
+  balances: T;
+  costs: T;
+}): boolean {
+  return Object.entries(costs).every(([key, value]) => {
+    if (!(balances[key] >= value)) {
+      throw new Error(
+        `Insufficient balance of ${key.toUpperCase()}, user has ${
+          balances[key]
+        } and needs ${
+          value - balances[key]
+        } more ${key.toUpperCase()} to pay for this transaction.`,
+      );
+    }
+    return true;
+  });
+}
+
+// TODO: maybe use binary search?
+export const getPriceByBlockHeight = (
+  prices: Record<string, number>,
+  currentHeight: number,
+) => {
+  const heightKeys = Object.keys(prices).map((k) => +k);
+  if (!heightKeys.length) {
+    throw new Error(`No prices found for auction`);
+  }
+
+  if (currentHeight < heightKeys[1]) {
+    return prices[heightKeys[0].toString()];
+  }
+
+  if (currentHeight >= heightKeys[heightKeys.length - 1]) {
+    return prices[heightKeys[heightKeys.length - 1].toString()];
+  }
+
+  for (let i = 0; i < heightKeys.length - 1; i++) {
+    if (currentHeight < heightKeys[i + 1]) {
+      return prices[heightKeys[i].toString()];
+    }
+  }
+
+  throw Error(`Unable to find next block interval for bid ${currentHeight}`);
+};

@@ -1,7 +1,9 @@
 import Arweave from 'arweave/node/common';
 import {
   ArWallet,
+  EvaluationManifest,
   LoggerFactory,
+  Tags,
   Warp,
   WarpFactory,
   WriteInteractionResponse,
@@ -10,36 +12,42 @@ import {
 import { DeployPlugin } from 'warp-contracts-plugin-deploy';
 
 import {
-  ArweaveTransactionID,
+  KVCache,
   PDNTContractJSON,
   SmartweaveContractInteractionProvider,
   TRANSACTION_TYPES,
   TransactionCache,
-  TransactionTag,
 } from '../../types';
 import {
   buildSmartweaveInteractionTags,
   byteSize,
-  isDomainAuctionable,
+  tagsToObject,
   withExponentialBackoff,
 } from '../../utils';
 import {
   ARNS_REGISTRY_ADDRESS,
   ATOMIC_REGISTRATION_INPUT,
+  PDNS_SERVICE_API,
   SMARTWEAVE_MAX_TAG_SPACE,
 } from '../../utils/constants';
-import { LocalStorageCache } from '../cache/LocalStorageCache';
+import { ContractInteractionCache } from '../caches/ContractInteractionCache';
+import { LocalStorageCache } from '../caches/LocalStorageCache';
+import { ArweaveTransactionID } from './ArweaveTransactionID';
 
 LoggerFactory.INST.logLevel('error');
 
 export class WarpDataProvider implements SmartweaveContractInteractionProvider {
   private _warp: Warp;
-  private _cache: TransactionCache;
+  private _cache: TransactionCache & KVCache;
+  private _arweave: Arweave;
 
   constructor(
     arweave: Arweave,
-    cache: TransactionCache = new LocalStorageCache(),
+    cache: TransactionCache & KVCache = new ContractInteractionCache(
+      new LocalStorageCache(),
+    ),
   ) {
+    this._arweave = arweave;
     // using ar.io gateway and stick to L1 only transactions
     this._warp = WarpFactory.forMainnet(
       {
@@ -51,12 +59,29 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     this._cache = cache;
   }
 
+  private async getContractManifest({
+    contractTxId,
+  }: {
+    contractTxId: ArweaveTransactionID;
+  }): Promise<EvaluationManifest> {
+    const { tags: encodedTags } = await this._arweave.transactions
+      .get(contractTxId.toString())
+      .catch(() => ({
+        tags: undefined,
+      }));
+    const decodedTags = encodedTags ? tagsToObject(encodedTags) : {};
+    const contractManifestString = decodedTags['Contract-Manifest'] ?? '{}';
+    const contractManifest = JSON.parse(contractManifestString);
+    return contractManifest;
+  }
+
   async writeTransaction({
     walletAddress,
     contractTxId,
     payload,
     dryWrite = true,
     tags,
+    interactionDetails,
   }: {
     walletAddress: ArweaveTransactionID;
     contractTxId: ArweaveTransactionID;
@@ -65,7 +90,8 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       [x: string]: any;
     };
     dryWrite?: boolean;
-    tags: TransactionTag[];
+    tags: Tags;
+    interactionDetails?: Record<string, any>;
   }): Promise<ArweaveTransactionID | undefined> {
     const payloadSize = byteSize(JSON.stringify(payload));
     if (!payload) {
@@ -77,28 +103,24 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       );
     }
 
-    const contract = this._warp // eval options were required due to change in manifest. This is causing an issue where it is causing a delay for returning the txid due to the `waitForConfirmation` option. This should be removed from the eval manifest if we dont want to make the user wait.
+    const { evaluationOptions = {} } = await this.getContractManifest({
+      contractTxId,
+    });
+
+    const contract = await this._warp
       .contract(contractTxId.toString())
-      .setEvaluationOptions(
-        contractTxId.toString() === ARNS_REGISTRY_ADDRESS
-          ? {
-              waitForConfirmation: false,
-              internalWrites: true,
-              updateCacheForEachInteraction: true,
-              unsafeClient: 'skip',
-              maxCallDepth: 3,
-            }
-          : {},
-      )
-      .connect('use_wallet');
+      .setEvaluationOptions(evaluationOptions)
+      .connect('use_wallet')
+      // TODO: add to our SmartweaveContractInterface a method that gets the full response of the service with `sortKey`
+      .syncState(`${PDNS_SERVICE_API}/v1/contract/${contractTxId.toString()}`);
     if (dryWrite) {
       const dryWriteResults = await contract.dryWrite(
         payload,
         walletAddress.toString(),
       );
-
       // because we are manually constructing the tags, we want to verify them immediately and always
       // an undefined valid means the transaction is valid
+
       if (dryWriteResults.type === 'error') {
         throw new Error(
           `Contract interaction detected to be invalid: ${
@@ -111,6 +133,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
         );
       }
     }
+
     const result =
       await withExponentialBackoff<WriteInteractionResponse | null>({
         fn: () =>
@@ -131,12 +154,13 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     if (!originalTxId) {
       throw Error('No transaction ID from write interaction');
     }
-
-    this._cache.push(walletAddress.toString(), {
+    this._cache.push(contractTxId.toString(), {
       id: originalTxId,
       contractTxId: contractTxId.toString(),
       payload,
       type: 'interaction',
+      deployer: walletAddress.toString(),
+      ...(interactionDetails ?? {}),
     });
 
     return new ArweaveTransactionID(originalTxId);
@@ -147,11 +171,13 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     srcCodeTransactionId,
     initialState,
     tags = [],
+    interactionDetails,
   }: {
     walletAddress: ArweaveTransactionID;
     srcCodeTransactionId: ArweaveTransactionID;
     initialState: PDNTContractJSON;
-    tags?: TransactionTag[];
+    tags?: Tags;
+    interactionDetails?: Record<string, any>;
   }): Promise<string> {
     const tagSize = byteSize(JSON.stringify(tags));
 
@@ -169,7 +195,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       wallet: ArWallet;
       initState: string;
       srcTxId: string;
-      tags: TransactionTag[];
+      tags: Tags;
     } = {
       wallet: 'use_wallet',
       initState: JSON.stringify(initialState),
@@ -187,11 +213,12 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     }
 
     // TODO: emit event on successfully transaction
-    this._cache.push(walletAddress.toString(), {
+    this._cache.push(contractTxId.toString(), {
       contractTxId,
       id: contractTxId,
       payload: deploymentPayload,
       type: 'deploy',
+      deployer: walletAddress.toString(),
     });
     // Pulls out registration interaction and caches it
     // TODO: make this able to cache batch interactions on multiple contracts at once.
@@ -204,11 +231,13 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
         );
       }
       const interactionPayload = JSON.parse(input);
-      this._cache.push(walletAddress.toString(), {
+      this._cache.push(contractId, {
         id: contractTxId,
         contractTxId: contractId,
         payload: interactionPayload,
         type: 'interaction',
+        deployer: walletAddress.toString(),
+        ...(interactionDetails ?? {}),
       });
     }
 
@@ -223,7 +252,9 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     domain,
     type,
     years,
-    reservedList,
+    auction,
+    qty,
+    isBid,
   }: {
     walletAddress: ArweaveTransactionID;
     registryId: ArweaveTransactionID;
@@ -232,7 +263,9 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     domain: string;
     type: TRANSACTION_TYPES;
     years?: number;
-    reservedList: string[];
+    auction: boolean;
+    qty: number;
+    isBid: boolean;
   }): Promise<string | undefined> {
     if (!domain) {
       throw new Error('No domain provided');
@@ -243,27 +276,25 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       name: domain,
       type,
       years,
-      auction: isDomainAuctionable({
-        domain,
-        registrationType: type,
-        reservedList,
-      }),
+      auction,
+      qty,
     };
     const tags = buildSmartweaveInteractionTags({
       contractId: registryId,
       input,
     });
 
-    const contract = this._warp // eval options were required due to change in manifest. This is causing an issue where it is causing a delay for returning the txid due to the `waitForConfirmation` option. This should be removed from the eval manifest if we dont want to make the user wait.
-      .contract(ARNS_REGISTRY_ADDRESS)
-      .setEvaluationOptions({
-        waitForConfirmation: true,
-        internalWrites: true,
-        updateCacheForEachInteraction: true,
-        unsafeClient: 'skip',
-        maxCallDepth: 3,
-      })
-      .connect('use_wallet');
+    const { evaluationOptions = {} } = await this.getContractManifest({
+      contractTxId: registryId,
+    });
+
+    const contract = await this._warp
+      .contract(ARNS_REGISTRY_ADDRESS.toString())
+      .setEvaluationOptions(evaluationOptions)
+      .connect('use_wallet')
+      // TODO: add to our SmartweaveContractInterface a method that gets the full response of the service with `sortKey`
+      .syncState(`${PDNS_SERVICE_API}/v1/contract/${ARNS_REGISTRY_ADDRESS}`);
+
     // because we are manually constructing the tags, we want to verify them immediately and always
     const dryWriteResults = await contract.dryWrite(
       input,
@@ -287,6 +318,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       srcCodeTransactionId,
       initialState,
       tags,
+      interactionDetails: { isBid },
     });
     if (!result) {
       throw new Error('Could not deploy atomic contract');

@@ -1,19 +1,16 @@
 import { Checkbox } from 'antd';
 import { useEffect, useState } from 'react';
 
-import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
+import { useIsMobile } from '../../../hooks';
+import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
-  ArweaveTransactionID,
   PDNTContractJSON,
   TransferANTPayload,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
-import {
-  formatForMaxCharCount,
-  getAssociatedNames,
-  isArweaveTransactionID,
-} from '../../../utils';
+import { formatForMaxCharCount, isArweaveTransactionID } from '../../../utils';
+import eventEmitter from '../../../utils/events';
 import { InfoIcon } from '../../icons';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import { Loader } from '../../layout';
@@ -23,31 +20,43 @@ import './styles.css';
 
 function TransferANTModal({
   antId,
-  showModal,
+  closeModal,
   payloadCallback,
 }: {
   antId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
-  showModal: () => void;
+  closeModal: () => void;
   payloadCallback: (payload: TransferANTPayload) => void;
 }) {
-  const [{ pdnsSourceContract }] = useGlobalState();
-  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [{ arweaveDataProvider }] = useGlobalState();
   const isMobile = useIsMobile();
   const [accepted, setAccepted] = useState<boolean>(false);
   const [toAddress, setToAddress] = useState<string>('');
   const [isValidAddress, setIsValidAddress] = useState<boolean>();
   const [state, setState] = useState<PDNTContractJSON>();
-  const [associatedNames] = useState(() =>
-    getAssociatedNames(antId, pdnsSourceContract.records),
-  );
+  const [associatedNames, setAssociatedNames] = useState<string[]>([]);
 
   // TODO: add "transfer to another account" dropdown
 
   useEffect(() => {
-    arweaveDataProvider
-      .getContractState(antId)
-      .then((res) => setState(res as PDNTContractJSON));
+    fetchANTData(antId);
   }, [antId]);
+
+  async function fetchANTData(id: ArweaveTransactionID) {
+    try {
+      const contract = await arweaveDataProvider.buildANTContract(id);
+      if (!contract.isValid()) {
+        throw new Error('Invalid ANT contract');
+      }
+      setState(contract.state);
+      const associatedRecords = await arweaveDataProvider.getRecords({
+        filters: { contractTxId: [antId] },
+      });
+      setAssociatedNames(Object.keys(associatedRecords));
+    } catch (error) {
+      eventEmitter.emit('error', error);
+      closeModal();
+    }
+  }
 
   useEffect(() => {
     if (!isArweaveTransactionID(toAddress)) {
@@ -70,8 +79,7 @@ function TransferANTModal({
   function handlePayloadCallback() {
     payloadCallback({
       target: toAddress,
-      qty: 1,
-      associatedNames: associatedNames as string[],
+      associatedNames,
     });
   }
 
@@ -113,7 +121,7 @@ function TransferANTModal({
                   showValidationOutline={true}
                   showValidationChecklist={true}
                   validationListStyle={{ display: 'none' }}
-                  maxLength={43}
+                  maxCharLength={43}
                   value={toAddress}
                   setValue={setToAddress}
                   validityCallback={(validity: boolean) =>
@@ -199,8 +207,8 @@ function TransferANTModal({
             </div>
           </div>
         }
-        onCancel={() => showModal()}
-        onClose={() => showModal()}
+        onCancel={closeModal}
+        onClose={closeModal}
         onNext={
           accepted && isArweaveTransactionID(toAddress)
             ? () => handlePayloadCallback()

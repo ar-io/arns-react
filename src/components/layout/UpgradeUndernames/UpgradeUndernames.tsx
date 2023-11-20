@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { useArweaveCompositeProvider, useIsMobile } from '../../../hooks';
+import { useIsMobile } from '../../../hooks';
+import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
-  ArweaveTransactionID,
+  INTERACTION_NAMES,
   INTERACTION_TYPES,
   IncreaseUndernamesPayload,
   PDNSRecordEntry,
-  PDNTContractJSON,
 } from '../../../types';
 import { isPDNSDomainNameValid, lowerCaseDomain, sleep } from '../../../utils';
 import {
@@ -28,43 +28,76 @@ function UpgradeUndernames() {
   const isMobile = useIsMobile();
   const location = useLocation();
   const navigate = useNavigate();
-  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [{ arweaveDataProvider }] = useGlobalState();
   const name = location.pathname.split('/').at(-2);
-  const [{ pdnsSourceContract }] = useGlobalState();
   const [, dispatchTransactionState] = useTransactionState();
   const [record, setRecord] = useState<PDNSRecordEntry>();
   const [antContract, setAntContract] = useState<PDNTContract>();
   // min count of 1 ~ contract rule
   const [newUndernameCount, setNewUndernameCount] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
+  const [fee, setFee] = useState<number | undefined>();
 
   useEffect(() => {
     onLoad();
   }, [name]);
 
+  useEffect(() => {
+    if (!name || !record) {
+      return;
+    }
+    setFee(undefined);
+    const updateFee = async () => {
+      const price = await arweaveDataProvider
+        .getPriceForInteraction({
+          interactionName: INTERACTION_NAMES.INCREASE_UNDERNAME_COUNT,
+          payload: {
+            name: name,
+            qty: newUndernameCount,
+          },
+        })
+        .catch(() => {
+          eventEmitter.emit(
+            'error',
+            new Error('Unable to get price for extend lease'),
+          );
+          return -1;
+        });
+
+      setFee(price);
+    };
+
+    updateFee();
+  }, [newUndernameCount, record, name]);
+
   async function onLoad() {
     try {
       setLoading(true);
       if (name && isPDNSDomainNameValid({ name: lowerCaseDomain(name) })) {
-        const record = pdnsSourceContract?.records[lowerCaseDomain(name)];
+        const record = await arweaveDataProvider.getRecord({
+          domain: lowerCaseDomain(name),
+        });
         if (!record) {
           throw new Error(`Unable to get record for ${name}`);
         }
         setRecord(record);
-        const state =
-          await arweaveDataProvider.getContractState<PDNTContractJSON>(
-            new ArweaveTransactionID(record?.contractTxId),
-          );
-        if (!state) {
+        const contractTxId = new ArweaveTransactionID(record?.contractTxId);
+        const contract = await arweaveDataProvider.buildANTContract(
+          contractTxId,
+        );
+        if (!contract.state) {
           throw new Error(`Unable to get contract state for ${name}`);
         }
-        const contract = new PDNTContract(state);
+
+        if (!contract.isValid) {
+          throw new Error(`Invalid contract for ${name}`);
+        }
         setAntContract(contract);
       }
     } catch (error) {
       eventEmitter.emit('error', error);
-      await sleep(2000);
-      navigate(-1);
+      await sleep(2000); // TODO: why are we sleeping for 2 seconds?
+      navigate(`/manage/names`);
     } finally {
       setLoading(false);
     }
@@ -138,8 +171,9 @@ function UpgradeUndernames() {
           />
         </div>
         <TransactionCost
+          ioRequired={true}
           fee={{
-            io: newUndernameCount,
+            io: fee,
             ar: 0,
           }}
           info={
@@ -171,30 +205,35 @@ function UpgradeUndernames() {
           backText="Cancel"
           nextText="Confirm"
           onBack={() => navigate(`/manage/names/${name}`)}
-          onNext={() => {
-            const increaseUndernamePayload: IncreaseUndernamesPayload = {
-              name: lowerCaseDomain(name),
-              qty: newUndernameCount,
-              oldQty: record.undernames,
-              contractTxId: record.contractTxId,
-            };
-            dispatchTransactionState({
-              type: 'setTransactionData',
-              payload: {
-                assetId: ARNS_REGISTRY_ADDRESS,
-                functionName: 'increaseUndernameCount',
-                ...increaseUndernamePayload,
-              },
-            });
-            dispatchTransactionState({
-              type: 'setInteractionType',
-              payload: INTERACTION_TYPES.INCREASE_UNDERNAMES,
-            });
-            // navigate to the transaction page, which will load the updated state of the transaction context
-            navigate('/transaction', {
-              state: `/manage/names/${name}/undernames`,
-            });
-          }}
+          onNext={
+            !fee || fee < 0
+              ? undefined
+              : () => {
+                  const increaseUndernamePayload: IncreaseUndernamesPayload = {
+                    name: lowerCaseDomain(name),
+                    qty: newUndernameCount,
+                    oldQty: record.undernames,
+                    contractTxId: record.contractTxId,
+                  };
+                  dispatchTransactionState({
+                    type: 'setTransactionData',
+                    payload: {
+                      assetId: ARNS_REGISTRY_ADDRESS.toString(),
+                      functionName: 'increaseUndernameCount',
+                      ...increaseUndernamePayload,
+                      interactionPrice: fee,
+                    },
+                  });
+                  dispatchTransactionState({
+                    type: 'setInteractionType',
+                    payload: INTERACTION_TYPES.INCREASE_UNDERNAMES,
+                  });
+                  // navigate to the transaction page, which will load the updated state of the transaction context
+                  navigate('/transaction', {
+                    state: `/manage/names/${name}/undernames`,
+                  });
+                }
+          }
           customBackStyle={{
             minWidth: '100px',
             padding: ' 12px 16px',

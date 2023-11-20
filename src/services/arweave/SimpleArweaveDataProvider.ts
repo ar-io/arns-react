@@ -2,16 +2,13 @@ import Arweave from 'arweave/node';
 import Ar from 'arweave/node/ar';
 import { ResponseWithData } from 'arweave/node/lib/api';
 
-import {
-  ArweaveDataProvider,
-  ArweaveTransactionID,
-  TransactionHeaders,
-} from '../../types';
+import { ArweaveDataProvider, TransactionHeaders } from '../../types';
 import { tagsToObject, withExponentialBackoff } from '../../utils';
 import {
   RECOMMENDED_TRANSACTION_CONFIRMATIONS,
   transactionByOwnerQuery,
 } from '../../utils/constants';
+import { ArweaveTransactionID } from './ArweaveTransactionID';
 
 export class SimpleArweaveDataProvider implements ArweaveDataProvider {
   private _arweave: Arweave;
@@ -31,7 +28,7 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
   async getTransactionStatus(
     ids: ArweaveTransactionID[] | ArweaveTransactionID,
     currentBlockHeight?: number,
-  ): Promise<Record<string, number>> {
+  ): Promise<Record<string, { confirmations: number; blockHeight: number }>> {
     if (Array.isArray(ids)) {
       if (!currentBlockHeight) {
         throw new Error(
@@ -63,23 +60,39 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
       }`,
       });
 
-      const transactions = await this.fetchPaginatedData(queryIds);
-      const stati = transactions.reduce(
-        (acc: Record<string, number>, tx: any) => {
-          acc[tx.node.id] = currentBlockHeight - tx.node.block.height;
+      const transactions = ids.length
+        ? await this.fetchPaginatedData(queryIds)
+        : ids;
+      const statuses = transactions.reduce(
+        (
+          acc: Record<string, { confirmations: number; blockHeight: number }>,
+          tx: any,
+        ) => {
+          // not guaranteed
+          if (tx?.node?.id && tx?.node?.block?.height) {
+            acc[tx.node.id] = {
+              confirmations: currentBlockHeight - tx.node.block.height,
+              blockHeight: tx.node.block.height,
+            };
+          }
           return acc;
         },
         {},
       );
 
-      return stati;
+      return statuses;
     }
 
     const { status, data } = await this._arweave.api.get(`/tx/${ids}/status`);
     if (status !== 200) {
       throw Error('Failed fetch confirmations for transaction id.');
     }
-    return { [ids.toString()]: +data.number_of_confirmations };
+    return {
+      [ids.toString()]: {
+        confirmations: +data.number_of_confirmations,
+        blockHeight: data.block_height,
+      },
+    };
   }
 
   async getTransactionTags(
@@ -214,7 +227,10 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
     // validate confirmations
     if (requiredNumberOfConfirmations > 0) {
       const confirmations = await this.getTransactionStatus(txId);
-      if (confirmations[txId.toString()] < requiredNumberOfConfirmations) {
+      if (
+        confirmations[txId.toString()].confirmations <
+        requiredNumberOfConfirmations
+      ) {
         throw Error(
           `Contract ID does not have required number of confirmations. Current confirmations: ${confirmations}. Required number of confirmations: ${requiredNumberOfConfirmations}.`,
         );

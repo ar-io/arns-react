@@ -1,61 +1,74 @@
+import { ColumnType } from 'antd/es/table';
 import Countdown from 'antd/lib/statistic/Countdown';
 import { startCase } from 'lodash';
-import { ColumnType } from 'rc-table/lib/interface';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import ArweaveID from '../../components/layout/ArweaveID/ArweaveID';
+import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../state/contexts/GlobalState';
+import { useWalletState } from '../../state/contexts/WalletState';
+import { Auction, AuctionTableData, TRANSACTION_TYPES } from '../../types';
 import {
-  ArweaveTransactionID,
-  Auction,
-  AuctionMetadata,
-  TRANSACTION_TYPES,
-} from '../../types';
-import { getNextPriceUpdate, handleTableSort } from '../../utils';
-import { AVERAGE_BLOCK_TIME } from '../../utils/constants';
+  getNextPriceChangeTimestamp,
+  getPriceByBlockHeight,
+  handleTableSort,
+} from '../../utils';
+import {
+  ARNS_REGISTRY_ADDRESS,
+  AVERAGE_BLOCK_TIME_MS,
+} from '../../utils/constants';
 import eventEmitter from '../../utils/events';
-import { useArweaveCompositeProvider } from '../useArweaveCompositeProvider/useArweaveCompositeProvider';
+import { useIsMobile } from '../useIsMobile/useIsMobile';
 
 export function useAuctionsTable() {
-  const [
-    { pdnsSourceContract, blockHeight: blockHeight },
-    dispatchGlobalState,
-  ] = useGlobalState();
+  const [{ blockHeight, arweaveDataProvider }, dispatchGlobalState] =
+    useGlobalState();
+  const [{ walletAddress }] = useWalletState();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] =
-    useState<keyof AuctionMetadata>('closingDate');
-  const [rows, setRows] = useState<AuctionMetadata[]>([]);
+    useState<keyof AuctionTableData>('closingDate');
+  const [auctionData, setAuctionData] = useState<Auction[]>([]);
+  const [rows, setRows] = useState<AuctionTableData[]>([]);
+  const itemCount = useRef<number>(0);
+  const itemsLoaded = useRef<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [percent, setPercentLoaded] = useState<number>(0);
-  const arweaveDataProvider = useArweaveCompositeProvider();
 
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
-    if (!pdnsSourceContract?.auctions) {
-      return;
+    load();
+  }, [walletAddress]);
+
+  useEffect(() => {
+    if (blockHeight) {
+      buildAuctionRows(auctionData, blockHeight);
     }
-    fetchAuctionRows();
-  }, [pdnsSourceContract, blockHeight]);
+  }, [auctionData, blockHeight]);
 
-  async function updateBlockHeight(): Promise<void> {
+  async function load() {
     try {
-      const newBlockHeight = await arweaveDataProvider.getCurrentBlockHeight();
-
-      if (blockHeight === newBlockHeight) {
-        return;
+      setIsLoading(true);
+      if (!blockHeight) {
+        const currentBlockHeight =
+          await arweaveDataProvider.getCurrentBlockHeight();
+        dispatchGlobalState({
+          type: 'setBlockHeight',
+          payload: currentBlockHeight,
+        });
       }
-      dispatchGlobalState({
-        type: 'setBlockHeight',
-        payload: newBlockHeight,
-      });
+      const auctions = await fetchAuctions();
+      setAuctionData(auctions);
     } catch (error) {
       eventEmitter.emit('error', error);
+    } finally {
+      setIsLoading(false);
     }
   }
 
-  function generateTableColumns(): ColumnType<AuctionMetadata>[] {
+  function generateTableColumns(): ColumnType<AuctionTableData>[] {
     return [
       {
         title: (
@@ -70,13 +83,13 @@ export function useAuctionsTable() {
         dataIndex: 'name',
         key: 'name',
         align: 'left',
-        width: '250px',
+        width: isMobile ? '130px' : '20%',
         className: 'white assets-table-header',
         ellipsis: true,
         onHeaderCell: () => {
           return {
             onClick: () => {
-              handleTableSort<AuctionMetadata>({
+              handleTableSort<AuctionTableData>({
                 key: 'name',
                 isAsc: sortAscending,
                 rows,
@@ -89,6 +102,7 @@ export function useAuctionsTable() {
         },
       },
       {
+        responsive: ['md'],
         title: (
           <button
             className="flex-row pointer grey"
@@ -107,7 +121,7 @@ export function useAuctionsTable() {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              handleTableSort<AuctionMetadata>({
+              handleTableSort<AuctionTableData>({
                 key: 'closingDate',
                 isAsc: sortAscending,
                 rows,
@@ -120,6 +134,7 @@ export function useAuctionsTable() {
         },
       },
       {
+        responsive: ['lg'],
         title: (
           <button
             className="flex-row pointer grey"
@@ -144,7 +159,7 @@ export function useAuctionsTable() {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              handleTableSort<AuctionMetadata>({
+              handleTableSort<AuctionTableData>({
                 key: 'initiator',
                 isAsc: sortAscending,
                 rows,
@@ -175,7 +190,7 @@ export function useAuctionsTable() {
         onHeaderCell: () => {
           return {
             onClick: () => {
-              handleTableSort<AuctionMetadata>({
+              handleTableSort<AuctionTableData>({
                 key: 'type',
                 isAsc: sortAscending,
                 rows,
@@ -192,21 +207,25 @@ export function useAuctionsTable() {
           <button
             className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
-            onClick={() => setSortField('price')}
+            onClick={() => setSortField('currentPrice')}
           >
             <span>Price</span>
           </button>
         ),
-        dataIndex: 'price',
-        key: 'price',
+        dataIndex: 'currentPrice',
+        key: 'currentPrice',
         width: 'fit-content',
         className: 'white assets-table-header',
-        render: (val: number) => <span>{val.toLocaleString()} IO</span>,
+        render: (val: number) => (
+          <span style={{ whiteSpace: 'nowrap' }}>
+            {val.toLocaleString()} IO
+          </span>
+        ),
         onHeaderCell: () => {
           return {
             onClick: () => {
-              handleTableSort<AuctionMetadata>({
-                key: 'price',
+              handleTableSort<AuctionTableData>({
+                key: 'currentPrice',
                 isAsc: sortAscending,
                 rows,
               });
@@ -218,6 +237,7 @@ export function useAuctionsTable() {
         },
       },
       {
+        responsive: ['lg'],
         title: (
           <button
             className="flex-row pointer grey"
@@ -243,15 +263,14 @@ export function useAuctionsTable() {
                 color: 'var(--text-white)',
               }}
               format="m"
-              onFinish={() => updateBlockHeight()}
             />
-            &nbsp;min.
+            &nbsp;min
           </span>
         ),
         onHeaderCell: () => {
           return {
             onClick: () => {
-              handleTableSort<AuctionMetadata>({
+              handleTableSort<AuctionTableData>({
                 key: 'nextPriceUpdate',
                 isAsc: sortAscending,
                 rows,
@@ -264,9 +283,10 @@ export function useAuctionsTable() {
         },
       },
       {
+        responsive: ['sm'],
         title: '',
         className: 'assets-table-header',
-        render: (row) => (
+        render: (row: AuctionTableData) => (
           <div
             className="flex flex-row"
             style={{
@@ -282,16 +302,21 @@ export function useAuctionsTable() {
                 padding: '8px',
                 borderColor: 'var(--text-faded)',
                 color: 'var(--text-grey)',
+                minWidth: isMobile ? 'fit-content' : '',
               }}
               onClick={() => {
                 navigate(`/auctions/${row.name}`, { state: 'auctions' });
               }}
             >
-              View Auction
+              {isMobile ? 'View' : 'View Auction'}
             </button>
             <button
               className="accent-button hover"
-              style={{ fontSize: '13px', padding: '8px' }}
+              style={{
+                fontSize: '13px',
+                padding: '8px',
+                display: isMobile ? 'none' : 'flex',
+              }}
               onClick={() => {
                 navigate(`/register/${row.name}`);
               }}
@@ -306,94 +331,95 @@ export function useAuctionsTable() {
     ];
   }
 
-  function handleAuctionData(
-    auction: Auction,
-  ): Omit<AuctionMetadata, 'name' | 'key'> | undefined {
-    const {
-      type,
-      initiator,
-      startHeight,
-      auctionDuration,
-      decayInterval,
-      minimumAuctionBid,
-    } = auction;
-
-    if (!blockHeight) {
-      throw new Error('Error fetching auction data. Please try again later.');
-    }
-    if (startHeight + auctionDuration < blockHeight) {
-      // if auction is expired, do not show.
-      return;
-    }
+  // TODO: move to util outside this class so it is easy to test
+  function generateAuctionTableData({
+    blockHeight,
+    auction,
+  }: {
+    blockHeight: number;
+    auction: Auction;
+  }): AuctionTableData {
+    const { name, type, initiator, startHeight, settings, isActive, prices } =
+      auction;
 
     const expirationDateMilliseconds =
       Date.now() +
-      (startHeight + auctionDuration - blockHeight) * AVERAGE_BLOCK_TIME; // approximate expiration date in milliseconds
+      (startHeight + settings.auctionDuration - blockHeight) *
+        AVERAGE_BLOCK_TIME_MS; // approximate expiration date in milliseconds
 
-    const nextPriceUpdate =
-      Date.now() +
-      getNextPriceUpdate({
-        currentBlockHeight: blockHeight,
-        startHeight,
-        decayInterval,
-      }) *
-        AVERAGE_BLOCK_TIME;
+    const nextPriceUpdateTimestamp = getNextPriceChangeTimestamp({
+      currentBlockHeight: blockHeight,
+      prices,
+    });
 
     const data = {
-      closingDate: expirationDateMilliseconds,
-      initiator: new ArweaveTransactionID(initiator),
+      name,
+      key: `${name}-${type}`,
       type,
-      nextPriceUpdate,
-      price: Math.round(minimumAuctionBid),
+      initiator,
+      isActive,
+      closingDate: expirationDateMilliseconds,
+      nextPriceUpdate: nextPriceUpdateTimestamp,
+      // allows us to not query for new prices and use previous net call to find the new price
+      currentPrice: Math.round(getPriceByBlockHeight(prices, blockHeight)),
     };
 
     return data;
   }
 
-  async function fetchAuctionRows(): Promise<void> {
-    setIsLoading(true);
-
-    const fetchedRows: AuctionMetadata[] = [];
-    const domainsInAuction = await arweaveDataProvider.getDomainsInAuction();
-
-    for (const domain of domainsInAuction) {
-      try {
-        if (!blockHeight) {
-          throw new Error(
-            'Error fetching auction data. Please try again later.',
-          );
-        }
-        // will throw on non-ticked expired auctions, catch and continue
-        const auction = await arweaveDataProvider
-          .getAuctionPrices({ domain })
-          .catch((e) => console.error(e));
-        if (!auction) {
-          continue;
-        }
-        const auctionData = handleAuctionData(auction);
-        if (!auctionData) {
-          continue;
-        }
-        const rowData = {
-          ...auctionData,
-          name: domain,
-          key: domain,
-        };
-        // sort by confirmation count (ASC) by default
-        fetchedRows.sort((a, b) => a.closingDate - b.closingDate);
-        fetchedRows.push(rowData);
-      } catch (error) {
-        eventEmitter.emit('error', error);
-      } finally {
-        setPercentLoaded(
-          ((Object.keys(domainsInAuction).indexOf(domain) + 1) /
-            Object.keys(domainsInAuction).length) *
-            100,
-        );
-      }
+  async function fetchAuctions(): Promise<Auction[]> {
+    itemCount.current = 0;
+    const domainsInAuction = await arweaveDataProvider
+      .getDomainsInAuction({
+        address: walletAddress,
+        contractTxId: ARNS_REGISTRY_ADDRESS,
+      })
+      .catch((e) => console.debug(e));
+    if (!domainsInAuction) {
+      return [];
     }
+    itemCount.current = domainsInAuction.length;
+    itemsLoaded.current = 0;
+    const fetchedAuctions = [];
+    /**
+     * NOTE: We were previously doing this concurrently, but it was causing some auction objects to fail to load. Ideally the endpoint on the service provides a batch request, but for now we will do this sequentially.
+     */
+    for (const domain of domainsInAuction) {
+      const auction = await arweaveDataProvider
+        .getAuction({
+          domain,
+        })
+        .catch((e) => console.debug(e));
+      if (!auction) {
+        continue;
+      }
+      if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
+      setPercentLoaded(
+        Math.round((itemsLoaded.current / itemCount.current) * 100),
+      );
+      fetchedAuctions.push(auction);
+    }
+
+    return fetchedAuctions.filter((a) => a !== undefined);
+  }
+
+  function buildAuctionRows(data: Auction[], blockHeight: number) {
+    const fetchedRows: AuctionTableData[] = [];
+
+    data.forEach((auction) => {
+      if (!auction.isActive) {
+        return;
+      }
+      const rowData = generateAuctionTableData({
+        blockHeight,
+        auction,
+      });
+      // sort by confirmation count (ASC) by default
+      fetchedRows.push(rowData);
+      fetchedRows.sort((a, b) => a.closingDate - b.closingDate);
+    });
+
     setRows(fetchedRows);
-    setIsLoading(false);
   }
 
   return {
@@ -403,5 +429,6 @@ export function useAuctionsTable() {
     rows,
     sortField,
     sortAscending,
+    refresh: load,
   };
 }

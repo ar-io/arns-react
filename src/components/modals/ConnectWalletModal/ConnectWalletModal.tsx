@@ -1,21 +1,32 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 
-import { useWalletAddress } from '../../../hooks';
-import { ArConnectWalletConnector } from '../../../services/wallets';
+import { dispatchNewGateway } from '../../../state/actions';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { useWalletState } from '../../../state/contexts/WalletState';
 import { ArweaveWalletConnector } from '../../../types';
 import eventEmitter from '../../../utils/events';
 import { ArConnectIcon, ArweaveAppIcon, CloseIcon } from '../../icons';
+import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
 
 function ConnectWalletModal(): JSX.Element {
   const modalRef = useRef(null);
   const [, dispatchGlobalState] = useGlobalState();
-  const { wallet, walletAddress } = useWalletAddress();
+  const [
+    { wallet, walletAddress, walletStateInitialized },
+    dispatchWalletState,
+  ] = useWalletState();
   const navigate = useNavigate();
   const { state } = useLocation();
   const [connecting, setConnecting] = useState(false);
+  const [loading, setLoading] = useState(!walletStateInitialized);
+
+  useEffect(() => {
+    if (walletStateInitialized) {
+      setLoading(false);
+    }
+  }, [walletStateInitialized]);
 
   useEffect(() => {
     // disable scrolling when modal is in view
@@ -48,33 +59,32 @@ function ConnectWalletModal(): JSX.Element {
     }
   }
 
-  async function setGlobalWallet(walletConnector: ArweaveWalletConnector) {
+  async function connect(walletConnector: ArweaveWalletConnector) {
     try {
       setConnecting(true);
       await walletConnector.connect();
       const arconnectGate = await walletConnector.getGatewayConfig();
       if (arconnectGate?.host) {
-        dispatchGlobalState({
-          type: 'setGateway',
-          payload: arconnectGate.host,
-        });
+        await dispatchNewGateway(arconnectGate.host, dispatchGlobalState);
       }
-      dispatchGlobalState({
-        type: 'setWallet',
-        payload: walletConnector,
-      });
       await walletConnector.getWalletAddress().then((address) => {
-        dispatchGlobalState({
+        dispatchWalletState({
           type: 'setWalletAddress',
           payload: address,
         });
       });
       closeModal({ next: true });
     } catch (error: any) {
-      eventEmitter.emit('error', error);
+      if (walletConnector) {
+        eventEmitter.emit('error', error);
+      }
     } finally {
       setConnecting(false);
     }
+  }
+
+  if (loading) {
+    return <PageLoader loading={true} message={'Connecting to Wallet'} />; // Replace with your loading component
   }
 
   return (
@@ -102,7 +112,11 @@ function ConnectWalletModal(): JSX.Element {
           disabled={connecting}
           className="wallet-connect-button h2"
           onClick={() => {
-            setGlobalWallet(new ArConnectWalletConnector());
+            if (wallet) {
+              connect(wallet);
+            } else {
+              window.open('https://arconnect.io');
+            }
           }}
         >
           <ArConnectIcon
@@ -116,7 +130,7 @@ function ConnectWalletModal(): JSX.Element {
           <img className="external-icon" src={ArweaveAppIcon} alt="" />
           <a
             target="_blank"
-            href="https://ardrive.io/start"
+            href="https://ar.io/wallet"
             style={{
               color: 'inherit',
               paddingLeft: '65px',

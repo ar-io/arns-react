@@ -2,3 +2,6 @@
   max-height: 20px !important;
   min-height: 5px !important;
 }
+.ant-tooltip-open {
+  box-sizing: unset !important;
+}

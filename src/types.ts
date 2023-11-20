@@ -1,9 +1,9 @@
 import { ApiConfig } from 'arweave/node/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
+import { Tags } from 'warp-contracts';
 
-import { AntDetailKey } from './components/cards/PDNTCard/PDNTCard';
+import { ArweaveTransactionID } from './services/arweave/ArweaveTransactionID';
 import { PDNTContract } from './services/arweave/PDNTContract';
-import { PDNS_TX_ID_REGEX } from './utils/constants';
 
 export type PDNSRecordEntry = {
   contractTxId: string;
@@ -11,6 +11,7 @@ export type PDNSRecordEntry = {
   endTimestamp?: number;
   type: TRANSACTION_TYPES;
   undernames: number;
+  purchasePrice?: number;
 };
 
 export type PDNSDomains = { [x: string]: PDNSRecordEntry };
@@ -35,7 +36,6 @@ export type TransactionTag = {
 };
 
 export type AuctionSettings = {
-  id: string;
   floorPriceMultiplier: number;
   startPriceMultiplier: number;
   auctionDuration: number;
@@ -44,22 +44,33 @@ export type AuctionSettings = {
 };
 
 export type AuctionParameters = {
-  auctionSettingsId: string;
   floorPrice: number;
   startPrice: number;
   contractTxId: string;
   startHeight: number;
+  endHeight: number;
   type: TRANSACTION_TYPES;
   initiator: string;
   years?: number;
+  settings: AuctionSettings;
 };
 
-export type Auction = AuctionParameters &
-  AuctionSettings & {
-    prices: Record<string | number, number>;
-    minimumAuctionBid: number;
-    isExpired: boolean;
-  };
+export type Auction = AuctionParameters & {
+  name: string;
+  prices: Record<string | number, number>;
+  currentPrice: number;
+  isActive: boolean;
+  isAvailableForAuction: boolean;
+  isRequiredToBeAuctioned: boolean; // TODO: this may be optional
+};
+
+export type AuctionTableData = Pick<
+  Auction,
+  'name' | 'currentPrice' | 'isActive' | 'initiator' | 'type'
+> & {
+  closingDate: number;
+  nextPriceUpdate: number;
+};
 
 export type PDNSContractJSON = {
   records: PDNSDomains;
@@ -92,7 +103,6 @@ export type PDNSContractJSON = {
 
 export type PDNTContractDomainRecord = {
   ttlSeconds: number;
-  maxUndernames: number;
   transactionId: string;
 };
 
@@ -101,11 +111,10 @@ export type PDNTContractJSON = {
   evolve: boolean | undefined;
   name: string;
   owner: string;
-  controller: string;
-  controllers?: string[];
+  controller?: string;
+  controllers: string[];
   records: {
-    '@': string | PDNTContractDomainRecord;
-    [x: string]: string | PDNTContractDomainRecord;
+    [x: string]: PDNTContractDomainRecord;
   };
   ticker: string;
 };
@@ -114,13 +123,12 @@ export type PDNTContractFields = keyof PDNTContractJSON;
 
 export type PDNSMapping = {
   domain: string;
-  contractTxId?: ArweaveTransactionID | string;
+  record?: PDNSRecordEntry;
+  contractTxId?: ArweaveTransactionID | 'atomic';
   state?: PDNTContractJSON;
   overrides?: { [x: string]: JSX.Element | string | number };
   disabledKeys?: string[];
-  primaryKeys?: AntDetailKey[];
   compact?: boolean;
-  enableActions?: boolean;
   hover?: boolean;
   deployedTransactionId?: ArweaveTransactionID | string;
   mobileView?: boolean;
@@ -138,10 +146,24 @@ export type JsonWalletProvider = {
   key: any;
 };
 
+export type INTERACTION_PRICE_PARAMS =
+  | {
+      interactionName: INTERACTION_NAMES.BUY_RECORD;
+      payload: BuyRecordPayload;
+    }
+  | {
+      interactionName: INTERACTION_NAMES.EXTEND_RECORD;
+      payload: ExtendLeasePayload;
+    }
+  | {
+      interactionName: INTERACTION_NAMES.INCREASE_UNDERNAME_COUNT;
+      payload: IncreaseUndernamesPayload;
+    };
+
+// TODO: we could break this up into separate interfaces
 export interface SmartweaveContractCache {
   getContractState<T extends PDNTContractJSON | PDNSContractJSON>(
     contractTxId: ArweaveTransactionID,
-    address?: ArweaveTransactionID, // required for getting cached name tokens
   ): Promise<T>;
   getContractBalanceForWallet(
     contractTxId: ArweaveTransactionID,
@@ -156,22 +178,77 @@ export interface SmartweaveContractCache {
   ): Promise<ContractInteraction[]>;
   getPendingContractInteractions(
     contractTxId: ArweaveTransactionID,
-    key: string,
   ): Promise<ContractInteraction[]>;
-  isDomainAvailable({ domain }: { domain: string }): Promise<boolean>;
-  isDomainInAuction({ domain }: { domain: string }): Promise<boolean>;
-  isDomainReserved({ domain }: { domain: string }): Promise<boolean>;
-  getCachedNameTokens(address: ArweaveTransactionID): Promise<PDNTContract[]>;
-  getAuction({ domain }: { domain: string }): Promise<AuctionParameters>;
-  getAuctionSettings({
-    auctionSettingsId,
+  isDomainAvailable({
+    domain,
+    contractTxId,
   }: {
-    auctionSettingsId: string;
+    domain: string;
+    contractTxId?: ArweaveTransactionID;
+  }): Promise<boolean>;
+  isDomainReserved({
+    domain,
+    contractTxId,
+  }: {
+    domain: string;
+    contractTxId?: ArweaveTransactionID;
+  }): Promise<boolean>;
+  isDomainInAuction({
+    contractTxId,
+    domain,
+  }: {
+    contractTxId: ArweaveTransactionID;
+    domain: string;
+  }): Promise<boolean>;
+  getAuction({
+    contractTxId,
+    domain,
+    type,
+  }: {
+    contractTxId: ArweaveTransactionID;
+    domain: string;
+    type?: 'lease' | 'permabuy';
+  }): Promise<Auction>;
+  getAuctionSettings({
+    contractTxId,
+  }: {
+    contractTxId: ArweaveTransactionID;
   }): Promise<AuctionSettings>;
-  getAuctionPrices({ domain }: { domain: string }): Promise<Auction>;
-  getDomainsInAuction(): Promise<string[]>;
-  getRecord(domain: string): Promise<PDNSRecordEntry>;
-  getIoBalance(address: ArweaveTransactionID): Promise<number>;
+  getDomainsInAuction({
+    address,
+    contractTxId,
+  }: {
+    address?: ArweaveTransactionID;
+    contractTxId: ArweaveTransactionID;
+  }): Promise<string[]>;
+  getRecord({
+    domain,
+    contractTxId,
+  }: {
+    domain: string;
+    contractTxId?: ArweaveTransactionID;
+  }): Promise<PDNSRecordEntry>;
+  getTokenBalance(
+    address: ArweaveTransactionID,
+    contractTxId: ArweaveTransactionID,
+  ): Promise<number>;
+  getRecords<T extends PDNSRecordEntry | PDNTContractDomainRecord>({
+    contractTxId,
+    filters,
+    address,
+  }: {
+    contractTxId?: ArweaveTransactionID;
+    filters: {
+      // TODO: add other filters when the API supports it
+      contractTxId?: ArweaveTransactionID[];
+    };
+    address?: ArweaveTransactionID;
+  }): Promise<{ [x: string]: T }>;
+  getPriceForInteraction(
+    interaction: INTERACTION_PRICE_PARAMS,
+    contractTxId?: ArweaveTransactionID,
+  ): Promise<number>;
+  buildANTContract(contractTxId: ArweaveTransactionID): Promise<PDNTContract>;
 }
 
 export interface SmartweaveContractInteractionProvider {
@@ -181,6 +258,7 @@ export interface SmartweaveContractInteractionProvider {
     payload,
     dryWrite,
     tags,
+    interactionDetails,
   }: {
     walletAddress: ArweaveTransactionID;
     contractTxId: ArweaveTransactionID;
@@ -189,18 +267,21 @@ export interface SmartweaveContractInteractionProvider {
       [x: string]: any;
     };
     dryWrite?: boolean;
-    tags?: TransactionTag[];
+    tags?: Tags;
+    interactionDetails?: Record<string, any>;
   }): Promise<ArweaveTransactionID | undefined>;
   deployContract({
     walletAddress,
     srcCodeTransactionId,
     initialState,
     tags,
+    interactionDetails,
   }: {
     walletAddress: ArweaveTransactionID;
     srcCodeTransactionId: ArweaveTransactionID;
     initialState: PDNTContractJSON;
-    tags?: TransactionTag[];
+    tags?: Tags;
+    interactionDetails?: Record<string, any>;
   }): Promise<string>;
   registerAtomicName({
     walletAddress,
@@ -210,7 +291,9 @@ export interface SmartweaveContractInteractionProvider {
     domain,
     type,
     years,
-    reservedList,
+    auction,
+    qty,
+    isBid,
   }: {
     walletAddress: ArweaveTransactionID;
     registryId: ArweaveTransactionID;
@@ -219,7 +302,9 @@ export interface SmartweaveContractInteractionProvider {
     domain: string;
     type: TRANSACTION_TYPES;
     years?: number;
-    reservedList: string[];
+    auction: boolean;
+    qty?: number;
+    isBid: boolean;
   }): Promise<string | undefined>;
 }
 
@@ -230,11 +315,18 @@ export interface ArweaveWalletConnector {
   getGatewayConfig(): Promise<ApiConfig>;
 }
 
+export interface KVCache {
+  set(key: string, value: any): Promise<void>;
+  get(key: string): Promise<any>;
+  del(key: string, filter?: { key: string; value: string }): Promise<void>;
+  push(key: string, value: any): Promise<void>;
+}
+
 export interface TransactionCache {
-  set(key: string, value: any): void;
-  get(key: string): any;
-  del(key: string): void;
-  push(key: string, value: any): void;
+  getCachedNameTokens(address?: ArweaveTransactionID): Promise<PDNTContract[]>;
+  getCachedInteractions(
+    contractTxId: ArweaveTransactionID,
+  ): Promise<ContractInteraction[]>;
 }
 
 export interface ArweaveDataProvider {
@@ -242,7 +334,7 @@ export interface ArweaveDataProvider {
   getTransactionStatus(
     ids: ArweaveTransactionID[] | ArweaveTransactionID,
     blockheight?: number,
-  ): Promise<Record<string, number>>;
+  ): Promise<Record<string, { confirmations: number; blockHeight: number }>>;
   getTransactionTags(
     id: ArweaveTransactionID,
   ): Promise<{ [x: string]: string }>;
@@ -265,7 +357,7 @@ export interface ArweaveDataProvider {
 
 export interface PDNTInteractionProvider {
   setOwner(id: ArweaveTransactionID): Promise<string>;
-  setController(id: ArweaveTransactionID): Promise<string>;
+  setControllers(ids: ArweaveTransactionID[]): Promise<string>;
   setTargetId(id: ArweaveTransactionID): Promise<string>;
   setUndername(name: string): Promise<string>;
   removeUndername(name: string): Promise<string>;
@@ -274,14 +366,12 @@ export interface PDNTInteractionProvider {
 export type SearchBarProps = {
   disabled?: boolean;
   placeholderText?: string;
-  values?: { [x: string]: PDNSRecordEntry };
-  value: string;
 };
 
 export type SearchBarHeaderProps = {
   defaultText: string;
   isAvailable: boolean;
-  isAuction: boolean;
+  isActiveAuction: boolean;
   isReserved: boolean;
   isDefault?: boolean;
   domain?: string;
@@ -290,9 +380,10 @@ export type SearchBarHeaderProps = {
 
 export type SearchBarFooterProps = {
   isAvailable: boolean;
-  isAuction: boolean;
+  isActiveAuction: boolean;
   isReserved: boolean;
   domain?: string;
+  record?: PDNSRecordEntry;
   contractTxId?: ArweaveTransactionID;
 };
 
@@ -338,6 +429,19 @@ export enum ASSET_TYPES {
   UNDERNAME = 'Undername',
   COIN = 'coin',
 }
+
+export enum PDNT_INTERACTION_TYPES {
+  SET_CONTROLLER = 'Edit Controller',
+  REMOVE_CONTROLLER = 'Remove Controller',
+  SET_TICKER = 'Edit Ticker',
+  SET_NAME = 'Edit Name',
+  SET_RECORD = 'Add Record',
+  EDIT_RECORD = 'Edit Record',
+  SET_TARGET_ID = 'Edit Target ID',
+  SET_TTL_SECONDS = 'Edit TTL Seconds',
+  REMOVE_RECORD = 'Delete Record',
+  TRANSFER = 'Transfer ANT',
+}
 export enum INTERACTION_TYPES {
   // Registry interaction types
   BUY_RECORD = 'Buy ARNS Name',
@@ -347,19 +451,27 @@ export enum INTERACTION_TYPES {
 
   // ANT interaction types
   SET_CONTROLLER = 'Edit Controller',
-  REMOVE_CONTROLLER = 'Remove Controllers',
+  REMOVE_CONTROLLER = 'Remove Controller',
   SET_TICKER = 'Edit Ticker',
   SET_NAME = 'Edit Name',
   SET_TTL_SECONDS = 'Edit TTL Seconds',
   SET_TARGET_ID = 'Edit Target ID',
-  SET_RECORD = 'Edit Record',
+  SET_RECORD = 'Add Record',
+  EDIT_RECORD = 'Edit Record',
   REMOVE_RECORD = 'Delete Record',
   CREATE = 'Create Arweave Name Token',
+  TRANSFER_ANT = 'Transfer ANT',
 
   // Common interaction types
   TRANSFER = 'Transfer',
   BALANCE = 'Balance',
   UNKNOWN = 'Unknown',
+}
+
+export enum INTERACTION_NAMES {
+  BUY_RECORD = 'buyRecord',
+  EXTEND_RECORD = 'extendRecord',
+  INCREASE_UNDERNAME_COUNT = 'increaseUndernameCount',
 }
 
 export enum UNDERNAME_TABLE_ACTIONS {
@@ -406,6 +518,9 @@ export const pdntInteractionTypes = [
   INTERACTION_TYPES.SET_TTL_SECONDS,
   INTERACTION_TYPES.SET_TARGET_ID,
   INTERACTION_TYPES.SET_RECORD,
+  INTERACTION_TYPES.EDIT_RECORD,
+  INTERACTION_TYPES.TRANSFER_ANT,
+
   INTERACTION_TYPES.REMOVE_RECORD,
 ] as const;
 export const registryInteractionTypes = [
@@ -444,6 +559,7 @@ export type TransactionDataBasePayload = {
   assetId: string;
   functionName: string;
   deployedTransactionId?: ArweaveTransactionID;
+  interactionPrice?: number;
 };
 
 // registry transaction payload types
@@ -453,16 +569,17 @@ export type BuyRecordPayload = {
   years?: number;
   type: TRANSACTION_TYPES;
   state?: PDNTContractJSON;
-  qty?: number; // only used when bidding on a pre-existing auction
+  qty?: number; // the cost displayed to the user when buying a record
   auction?: boolean;
   targetId?: ArweaveTransactionID;
+  isBid?: boolean;
 };
 
 export type SubmitAuctionBidPayload = {
   name: string;
   contractTxId: string;
   type?: TRANSACTION_TYPES;
-  qty?: number; // only used when bidding on a pre-existing auction
+  qty: number; // the bid required to start or win the auction
   state?: PDNTContractJSON;
 };
 
@@ -470,7 +587,7 @@ export type ExtendLeasePayload = {
   name: string;
   years: number;
   contractTxId?: ArweaveTransactionID;
-  ioFee?: number;
+  qty?: number;
 };
 
 export type TransferIOPayload = {
@@ -480,7 +597,7 @@ export type TransferIOPayload = {
 export type IncreaseUndernamesPayload = {
   name: string;
   qty: number;
-  oldQty: number;
+  oldQty?: number;
   contractTxId?: string;
 };
 //end registry transaction payload types
@@ -494,6 +611,10 @@ export type SetControllerPayload = {
   target: string;
 };
 
+export type RemoveControllerPayload = {
+  target: string;
+};
+
 export type SetNamePayload = {
   name: string;
 };
@@ -502,6 +623,7 @@ export type SetRecordPayload = {
   subDomain: string;
   transactionId: string;
   ttlSeconds: number;
+  previousRecord?: PDNTContractDomainRecord;
 };
 
 export type RemoveRecordPayload = {
@@ -510,23 +632,10 @@ export type RemoveRecordPayload = {
 
 export type TransferANTPayload = {
   target: string;
-  qty: number;
   associatedNames?: string[];
 };
 
 // end pdnt transaction payload types
-
-export enum PDNT_INTERACTION_TYPES {
-  SET_CONTROLLER = 'Edit Controller',
-  REMOVE_CONTROLLER = 'Remove Controllers',
-  SET_TICKER = 'Edit Ticker',
-  SET_NAME = 'Edit Name',
-  SET_RECORD = 'Edit Record',
-  SET_TARGET_ID = 'Edit Target ID',
-  SET_TTL_SECONDS = 'Edit TTL Seconds',
-  REMOVE_RECORD = 'Delete Record',
-  TRANSFER = 'Transfer',
-}
 
 export const ALL_TRANSACTION_DATA_KEYS = [
   'assetId',
@@ -556,6 +665,7 @@ export type TransactionDataPayload =
   | TransferIOPayload
   | SetTickerPayload
   | SetControllerPayload
+  | RemoveControllerPayload
   | SetNamePayload
   | SetRecordPayload
   | RemoveRecordPayload
@@ -565,32 +675,6 @@ export type TransactionData = TransactionDataBasePayload &
   TransactionDataPayload;
 
 export type TransactionDataConfig = { functionName: string; keys: string[] };
-
-export class ArweaveTransactionID implements Equatable<ArweaveTransactionID> {
-  constructor(private readonly transactionId: string) {
-    if (!PDNS_TX_ID_REGEX.test(transactionId)) {
-      throw new Error(
-        'Transaction ID should be a 43-character, alphanumeric string potentially including "-" and "_" characters.',
-      );
-    }
-  }
-
-  [Symbol.toPrimitive](hint?: string): string {
-    if (hint === 'number') {
-      throw new Error('Transaction IDs cannot be interpreted as a number!');
-    }
-
-    return this.toString();
-  }
-
-  toString(): string {
-    return this.transactionId;
-  }
-
-  equals(entityId: ArweaveTransactionID): boolean {
-    return this.transactionId === entityId.transactionId;
-  }
-}
 
 export interface Equatable<T> {
   equals(other: T): boolean;
@@ -607,6 +691,7 @@ export type PDNSTableRow = {
   status: number;
   key: string | number;
   hasPending: boolean;
+  errors?: string[];
 };
 
 export type ANTMetadata = {
@@ -616,7 +701,7 @@ export type ANTMetadata = {
   role: string;
   status: number;
   state: PDNTContractJSON;
-  error?: string;
+  errors?: string[];
   key: number;
   hasPending: boolean;
 };
@@ -632,7 +717,7 @@ export type ManageANTRow = {
 
 export type ManageDomainRow = {
   attribute: string;
-  value: string | number | JSX.Element;
+  value: string | number | boolean | JSX.Element;
   key: number;
 };
 
@@ -643,7 +728,7 @@ export type PDNTDetails = {
   ticker: string;
   targetID: string;
   ttlSeconds: number;
-  controller: string;
+  controllers: string;
   undernames: string;
   owner: string;
   contractTxId: string;
@@ -657,7 +742,7 @@ export type DomainDetails = {
   contractTxId: string;
   targetID: string;
   ttlSeconds: number;
-  controller: string;
+  controllers: string;
   undernames: string;
   owner: string;
 };
@@ -671,21 +756,11 @@ export type UndernameMetadata = {
   key: string;
 };
 
-export type AuctionMetadata = {
-  name: string;
-  closingDate: number;
-  initiator: ArweaveTransactionID;
-  type: TRANSACTION_TYPES;
-  price: number;
-  nextPriceUpdate: number;
-  key: string;
-};
-
 export enum VALIDATION_INPUT_TYPES {
   ARWEAVE_ID = 'Is valid Arweave Transaction (TX) ID.',
   ARWEAVE_ADDRESS = 'Is likely an Arweave wallet address.',
   PDNS_NAME = 'ARNS Name.',
-  UNDERNAME = 'Undername.',
+  UNDERNAME = 'Is a valid Undername.',
   PDNT_CONTRACT_ID = 'Is a valid Arweave Name Token (PDNT).',
   // unfortunately we cannot use computed values in enums, so be careful if we ever modify this number
   TRANSACTION_CONFIRMATIONS = `Has sufficient confirmations (50+).`,
@@ -702,11 +777,12 @@ export type ValidationObject = {
 };
 
 export type ContractInteraction = {
+  deployer: string;
   contractTxId: string;
   id: string;
   payload: {
     function: string;
-    [x: string]: string;
+    [x: string]: string | number | boolean;
   };
   valid?: boolean;
   [x: string]: any;

@@ -44,6 +44,7 @@ function Workflow({
 
   return (
     <div
+      id="workflow-container"
       className="flex flex-column center"
       style={isMobile ? {} : { gap: '10px', width: '100%' }}
     >
@@ -56,7 +57,10 @@ function Workflow({
               style={{ gap: 0 }}
             >
               {steps && steps.length ? (
-                <div className="flex flex-row" style={{ marginBottom: '30px' }}>
+                <div
+                  className="flex flex-row"
+                  style={{ marginBottom: '30px', width: '100%' }}
+                >
                   <StepProgressBar stage={index + 1} stages={steps} />
                 </div>
               ) : (
@@ -68,7 +72,7 @@ function Workflow({
                     className="flex flex-row text-large white bold center"
                     style={{
                       height: '100%',
-                      minHeight: '175px',
+                      padding: '80px 0px',
                       borderTop: steps?.length
                         ? 'solid 1px var(--text-faded)'
                         : '',

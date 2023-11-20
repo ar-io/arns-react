@@ -1,11 +1,12 @@
 import { useState } from 'react';
 
-import { useArweaveCompositeProvider } from '../../../hooks';
+import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { useWalletState } from '../../../state/contexts/WalletState';
 import {
-  ArweaveTransactionID,
   INTERACTION_TYPES,
   PDNT_INTERACTION_TYPES,
+  RemoveControllerPayload,
   RemoveRecordPayload,
   SetControllerPayload,
   SetNamePayload,
@@ -140,7 +141,7 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
     },
   },
   [PDNT_INTERACTION_TYPES.SET_CONTROLLER]: {
-    header: 'Add Controllers',
+    header: 'Add Controller',
     successHeader: 'Controller Added',
     body: (props: TransactionDataPayload) => {
       if (
@@ -165,10 +166,10 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
   },
   [PDNT_INTERACTION_TYPES.REMOVE_CONTROLLER]: {
     header: 'Remove Controller',
-    successHeader: 'Controllers Removed',
+    successHeader: 'Controller Removed',
     body: (props: TransactionDataPayload) => {
       if (
-        !isObjectOfTransactionPayloadType<SetControllerPayload>(
+        !isObjectOfTransactionPayloadType<RemoveControllerPayload>(
           props,
           TRANSACTION_DATA_KEYS[INTERACTION_TYPES.REMOVE_CONTROLLER].keys,
         )
@@ -179,8 +180,8 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
         <>
           <span>
             By completing this action, you are going to remove
-            <span className="text-color-warning">{`"${props.target}"`}</span>
-            controllers.
+            <span className="text-color-error">&nbsp;1&nbsp;</span>
+            controller.
           </span>
           <span>Are you sure you want to continue?</span>
         </>
@@ -204,7 +205,7 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
           <span>
             By completing this action, you are going to remove
             <span className="text-color-warning">
-              {`"${props.subDomain}"`}.
+              &nbsp;{`"${props.subDomain}"`}.
             </span>
           </span>
           <span>Are you sure you want to continue?</span>
@@ -219,7 +220,7 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
       if (
         !isObjectOfTransactionPayloadType<SetRecordPayload>(
           props,
-          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.SET_TTL_SECONDS].keys,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.SET_RECORD].keys,
         )
       ) {
         return <></>;
@@ -228,11 +229,70 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
         <>
           <span>
             By completing this action, you are going to add
-            <span className="text-color-warning">{`"${props.ttlSeconds}"`}</span>{' '}
-            undername with{' '}
-            <span className="text-color-warning">{`"${props.ttlSeconds}"`}</span>{' '}
+            <span className="text-color-warning">
+              &nbsp;{`"${props.subDomain}"`}&nbsp;
+            </span>
+            undername with <br />
+            <span className="text-color-warning">
+              &nbsp;{`"${props.transactionId}"`}&nbsp;
+            </span>
             target ID.
           </span>
+          <span>Are you sure you want to continue?</span>
+        </>
+      );
+    },
+  },
+  [PDNT_INTERACTION_TYPES.EDIT_RECORD]: {
+    header: 'Edit Undername',
+    successHeader: 'Undername Edited',
+    body: (props: TransactionDataPayload) => {
+      if (
+        !isObjectOfTransactionPayloadType<SetRecordPayload>(
+          props,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.SET_RECORD].keys,
+        )
+      ) {
+        return <></>;
+      }
+      return (
+        <>
+          <span>
+            By completing this action, you are going to edit
+            <span className="text-color-warning">
+              &nbsp;{`"${props.subDomain}"`}&nbsp;
+            </span>
+            <br />
+            {props.previousRecord?.transactionId !== props.transactionId ? (
+              <>
+                with
+                <span className="text-color-warning">
+                  &nbsp;{`"${props.transactionId}"`}&nbsp;
+                </span>
+                target ID
+              </>
+            ) : (
+              <></>
+            )}
+            {props.previousRecord?.ttlSeconds !== props.ttlSeconds ? (
+              <>
+                {' '}
+                and set the TTL to
+                <span className="text-color-warning">
+                  &nbsp;{`"${props.ttlSeconds}"`}&nbsp;
+                </span>
+              </>
+            ) : (
+              <></>
+            )}
+            {props.previousRecord?.ttlSeconds === props.ttlSeconds &&
+            props.previousRecord?.transactionId === props.transactionId ? (
+              <span>no new data</span>
+            ) : (
+              <></>
+            )}
+          </span>
+
           <span>Are you sure you want to continue?</span>
         </>
       );
@@ -245,13 +305,13 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
       if (
         !isObjectOfTransactionPayloadType<TransferANTPayload>(
           props,
-          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.TRANSFER].keys,
+          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.TRANSFER_ANT].keys,
         )
       ) {
         return <></>;
       }
       const pdntProps = getPDNSMappingByInteractionType({
-        interactionType: INTERACTION_TYPES.TRANSFER,
+        interactionType: INTERACTION_TYPES.TRANSFER_ANT,
         transactionData: { ...props } as unknown as TransactionData,
       });
 
@@ -287,8 +347,9 @@ function ConfirmTransactionModal({
   cancelText?: string;
   confirmText?: string;
 }) {
-  const [{ walletAddress }] = useGlobalState();
-  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [{ arweaveDataProvider }] = useGlobalState();
+  const [{ walletAddress }] = useWalletState();
+
   const transactionProps: { title: string; body: JSX.Element } = {
     title: CONFIRM_TRANSACTION_PROPS_MAP[interactionType].header,
     body: CONFIRM_TRANSACTION_PROPS_MAP[interactionType].body({
@@ -298,8 +359,7 @@ function ConfirmTransactionModal({
     }),
   };
 
-  // TODO: add fee for any IO transactions (eg extend lease or increase undernames)
-  const [fee] = useState({ io: 0 });
+  const [fee, setIOFee] = useState({ io: (payload as any).qty ?? 0 });
   const [deployingTransaction, setDeployingTransaction] = useState(false);
 
   async function deployInteraction(
@@ -315,13 +375,17 @@ function ConfirmTransactionModal({
         );
       }
       const functionName =
-        TRANSACTION_DATA_KEYS[interactionType as any as ValidInteractionType]
-          .functionName;
+        TRANSACTION_DATA_KEYS[
+          interactionType as unknown as ValidInteractionType
+        ].functionName;
 
       const cleanPayload = pruneExtraDataFromTransactionPayload(
-        interactionType as any as ValidInteractionType,
+        interactionType as unknown as ValidInteractionType,
         payload,
       );
+
+      const fee = (cleanPayload as any).qty ?? 0;
+
       const writeInteractionId = await arweaveDataProvider.writeTransaction({
         walletAddress,
         contractTxId: assetId,
@@ -335,6 +399,7 @@ function ConfirmTransactionModal({
       if (!writeInteractionId) {
         throw Error('Unable to deploy transaction');
       }
+      setIOFee({ io: fee });
       setDeployedTransactionId(writeInteractionId);
       close();
     } catch (error) {
@@ -355,6 +420,7 @@ function ConfirmTransactionModal({
               gap: '20px',
               fontSize: '13px',
               padding: '15px 0px',
+              paddingTop: '0px',
               lineHeight: '1.5',
               fontWeight: 160,
             }}

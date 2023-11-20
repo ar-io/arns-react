@@ -1,35 +1,21 @@
 import { Table } from 'antd';
-import { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 
-import {
-  useArweaveCompositeProvider,
-  useWalletANTs,
-  useWalletAddress,
-  useWalletDomains,
-} from '../../../hooks';
-import { ArweaveTransactionID, ManageTable } from '../../../types';
+import { useWalletANTs, useWalletDomains } from '../../../hooks';
+import { ManageTable } from '../../../types';
 import { MANAGE_TABLE_NAMES } from '../../../types';
 import { getCustomPaginationButtons } from '../../../utils';
-import eventEmitter from '../../../utils/events';
-import {
-  CodeSandboxIcon,
-  DownloadIcon,
-  NotebookIcon,
-  RefreshIcon,
-} from '../../icons';
+import { CodeSandboxIcon, NotebookIcon, RefreshIcon } from '../../icons';
 import { Loader } from '../../layout/index';
 import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
 
 function Manage() {
-  const arweaveDataProvider = useArweaveCompositeProvider();
-  const { walletAddress } = useWalletAddress();
   const navigate = useNavigate();
   const { path } = useParams();
+  const location = useLocation();
 
-  const modalRef = useRef(null);
-  const [pdntIds, setPDNTIDs] = useState<ArweaveTransactionID[]>([]);
   const [percent, setPercentLoaded] = useState<number | undefined>();
   const {
     isLoading: pdntTableLoading,
@@ -38,7 +24,8 @@ function Manage() {
     rows: pdntRows,
     sortAscending: pdntSortAscending,
     sortField: pdntSortField,
-  } = useWalletANTs(pdntIds);
+    refresh: refreshDomains,
+  } = useWalletANTs();
   const {
     isLoading: domainTableLoading,
     percent: percentDomainsLoaded,
@@ -47,34 +34,34 @@ function Manage() {
     sortAscending: domainSortAscending,
     sortField: domainSortField,
     loadingManageDomain,
-  } = useWalletDomains(pdntIds);
+    refresh: refreshANTs,
+  } = useWalletDomains();
 
-  const [tableData, setTableData] = useState<any[]>([]);
   const [tableLoading, setTableLoading] = useState(true);
-  const [tableColumns, setTableColumns] = useState<any[]>();
   const [tablePage, setTablePage] = useState<number>(1);
 
   useEffect(() => {
     if (!path) {
       navigate('names');
+      return;
     }
+    setTablePage(1);
   }, [path]);
 
   useEffect(() => {
-    // todo: move this to a separate function to manage error state and poll for new pdnts to concat them to the state.
-    if (walletAddress) {
-      fetchWalletPDNTs(walletAddress);
-    }
-  }, [walletAddress?.toString()]);
-
-  useEffect(() => {
     if (path === 'ants') {
-      setTableData(pdntRows);
-      setTableColumns(pdntColumns);
       setPercentLoaded(percentPDNTsLoaded);
+    } else {
+      setPercentLoaded(percentDomainsLoaded);
     }
+    setTableLoading(domainTableLoading || pdntTableLoading);
   }, [
     path,
+    domainSortAscending,
+    domainSortField,
+    domainTableLoading,
+    domainRows,
+    percentDomainsLoaded,
     pdntSortAscending,
     pdntSortField,
     pdntRows,
@@ -83,56 +70,19 @@ function Manage() {
   ]);
 
   useEffect(() => {
-    if (path === 'names') {
-      setTableData(domainRows);
-      setTableColumns(domainColumns);
-      setPercentLoaded(percentDomainsLoaded);
-    }
-  }, [
-    path,
-    domainSortAscending,
-    domainSortField,
-    domainTableLoading,
-    domainRows,
-    pdntTableLoading,
-    percentDomainsLoaded,
-  ]);
-
-  useEffect(() => {
-    setTableLoading(domainTableLoading || pdntTableLoading);
-  }, [domainTableLoading, pdntTableLoading]);
-
-  useEffect(() => {
     if (percent === 100) {
       setPercentLoaded(undefined);
     }
   }, [percent]);
-
-  async function fetchWalletPDNTs(address: ArweaveTransactionID) {
-    try {
-      setTableLoading(true);
-      const { contractTxIds } = await arweaveDataProvider.getContractsForWallet(
-        address,
-        'ant', // only fetches contracts that have a state that matches ant spec
-      );
-      if (!contractTxIds.length) {
-        throw new Error('No contracts found for wallet');
-      }
-      setPDNTIDs(contractTxIds);
-    } catch (error: any) {
-      eventEmitter.emit('error', error);
-      setTableLoading(false);
-    }
-  }
 
   function updatePage(page: number) {
     setTablePage(page);
   }
 
   return (
-    <div className="page" ref={modalRef}>
+    <div className="page">
       <div className="flex-column" style={{ gap: '10px' }}>
-        <div className="flex flex-justify-between">
+        <div className="flex flex-start">
           <h1
             className="flex white"
             style={{
@@ -141,33 +91,7 @@ function Manage() {
             }}
           >
             Manage Assets
-          </h1>{' '}
-          <div className="flex flex-row flex-right" style={{ gap: '20px' }}>
-            <button
-              disabled={tableLoading}
-              className={
-                tableLoading
-                  ? 'flex outline-button center disabled-button'
-                  : 'flex outline-button center hover'
-              }
-              onClick={() =>
-                alert(
-                  "Imports Coming Soon! This will allow you to import and manage ANT's or domains from other wallets that are not deployed by you.",
-                )
-              }
-              style={{
-                gap: '8px',
-                height: '22px',
-                minWidth: '0px',
-                padding: '10px 16px',
-                boxSizing: 'content-box',
-                fontSize: '14px',
-              }}
-            >
-              <DownloadIcon height={'20px'} width={'20px'} fill="inherit" />
-              Import
-            </button>
-          </div>
+          </h1>
         </div>
         <div
           id="manage-table-wrapper"
@@ -190,7 +114,7 @@ function Manage() {
                     key={index}
                     className="table-selector text bold center"
                     onClick={() => {
-                      navigate(`/manage/${t}`);
+                      navigate(`/manage/${t}${location.search.toString()}`);
                     }}
                     style={
                       path === t
@@ -236,9 +160,11 @@ function Manage() {
               className={
                 tableLoading
                   ? 'button center disabled-button'
-                  : 'button center hover'
+                  : 'button center pointer'
               }
-              onClick={() => walletAddress && fetchWalletPDNTs(walletAddress)}
+              onClick={() =>
+                path === 'ants' ? refreshANTs() : refreshDomains()
+              }
               style={{
                 position: 'absolute',
                 right: '20px',
@@ -252,9 +178,9 @@ function Manage() {
           {!tableLoading ? (
             <Table
               prefixCls="manage-table"
-              scroll={pdntIds.length ? { x: true } : {}}
-              columns={tableColumns}
-              dataSource={tableData}
+              scroll={pdntRows.length ? { x: true } : {}}
+              columns={path === 'ants' ? pdntColumns : domainColumns}
+              dataSource={(path === 'ants' ? pdntRows : domainRows) as any}
               pagination={{
                 position: ['bottomCenter'],
                 rootClassName: 'table-pagination',
@@ -364,7 +290,7 @@ function Manage() {
                 />
                 {/* TODO: [PE-4637] fix infinity load percentage */}
                 {!percent
-                  ? `Querying for wallet contracts...${pdntIds.length} found`
+                  ? `Querying for wallet contracts...${pdntRows.length} found`
                   : `Validating contracts...${Math.round(percent)}%`}
               </div>
             </div>

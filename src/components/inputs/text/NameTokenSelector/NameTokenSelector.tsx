@@ -1,18 +1,20 @@
 import { Pagination, PaginationProps, Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
-import { useArweaveCompositeProvider, useIsFocused } from '../../../../hooks';
+import { useIsFocused } from '../../../../hooks';
+import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import { PDNTContract } from '../../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
+import { useWalletState } from '../../../../state/contexts/WalletState';
 import {
-  ArweaveTransactionID,
+  PDNSRecordEntry,
   PDNTContractJSON,
   VALIDATION_INPUT_TYPES,
 } from '../../../../types';
-import { getAssociatedNames, isArweaveTransactionID } from '../../../../utils';
+import { isArweaveTransactionID } from '../../../../utils';
 import { SMARTWEAVE_MAX_INPUT_SIZE } from '../../../../utils/constants';
 import eventEmitter from '../../../../utils/events';
-import { CirclePlus, CloseIcon, HamburgerOutlineIcon } from '../../../icons';
+import { CloseIcon, HamburgerOutlineIcon } from '../../../icons';
 import { Loader } from '../../../layout';
 import ValidationInput from '../ValidationInput/ValidationInput';
 import './styles.css';
@@ -29,25 +31,28 @@ function NameTokenSelector({
 }: {
   selectedTokenCallback: (id: ArweaveTransactionID | undefined) => void;
 }) {
-  const arweaveDataProvider = useArweaveCompositeProvider();
-  const [{ pdnsSourceContract, walletAddress }] = useGlobalState();
+  const [{ arweaveDataProvider }] = useGlobalState();
+  const [{ walletAddress }] = useWalletState();
 
   const [searchText, setSearchText] = useState<string>();
   const [tokens, setTokens] = useState<NameTokenDetails>();
   const [loading, setLoading] = useState(false);
   const [filteredTokens, setFilteredTokens] =
     useState<
-      Array<{ id: string; name?: string; ticker?: string } | undefined>
+      Array<
+        | { id: string; name?: string; ticker?: string; names?: string[] }
+        | undefined
+      >
     >();
   const [selectedToken, setSelectedToken] = useState<
-    { id: string; name: string; ticker: string } | undefined
+    { id: string; name: string; ticker: string; names: string[] } | undefined
   >(undefined);
   const [searching, setSearching] = useState<boolean>(false);
   const [searchActive, setSearchActive] = useState(false);
   const [validImport, setValidImport] = useState<boolean | undefined>(
     undefined,
   );
-  const isFocused = useIsFocused('name-token-selector-input');
+  const isFocused = useIsFocused('name-token-input');
 
   const listRef = useRef<HTMLDivElement>(null);
   const [listPage, setListPage] = useState<number>(1);
@@ -79,7 +84,6 @@ function NameTokenSelector({
   }, [listRef]);
 
   function handleClickOutside(e: any) {
-    e.preventDefault();
     if (
       listRef.current &&
       e.target !== listRef.current &&
@@ -102,7 +106,7 @@ function NameTokenSelector({
         throw new Error('No address provided');
       }
       const { contractTxIds: fetchedContractTxIds } =
-        await arweaveDataProvider.getContractsForWallet(address);
+        await arweaveDataProvider.getContractsForWallet(address, 'ant');
       if (!fetchedContractTxIds.length) {
         throw new Error(
           'Unable to find any Name Tokens for the provided address',
@@ -116,50 +120,71 @@ function NameTokenSelector({
               'App-Name': ['SmartWeaveContract'],
             },
           });
-          const validState =
-            await arweaveDataProvider.getContractState<PDNTContractJSON>(id);
-          if (!validState) {
-            throw new Error('Unable to get contract state');
-          }
+          const validState = await arweaveDataProvider
+            .getContractState<PDNTContractJSON>(id)
+            .catch(() => {
+              throw new Error(`Unable to get Contract State`);
+            });
+
           if (!new PDNTContract(validState).isValid()) {
             throw new Error('Invalid ANT Contract.');
           }
           setValidImport(true);
         });
       }
-      const contractTxIds = fetchedContractTxIds.concat(imports ?? []);
 
+      const contractTxIds = fetchedContractTxIds.concat(imports ?? []);
+      const associatedRecords =
+        await arweaveDataProvider.getRecords<PDNSRecordEntry>({
+          filters: {
+            contractTxId: contractTxIds,
+          },
+        });
       const contracts: Array<
-        [ArweaveTransactionID, PDNTContractJSON] | undefined
+        | [
+            ArweaveTransactionID,
+            PDNTContractJSON,
+            Record<string, PDNSRecordEntry>,
+          ]
+        | undefined
       > = await Promise.all(
         contractTxIds.map(async (contractTxId) => {
-          const state =
-            await arweaveDataProvider.getContractState<PDNTContractJSON>(
-              contractTxId,
-            );
-          if (!state) {
-            return;
+          const contract = await arweaveDataProvider
+            .buildANTContract(contractTxId)
+            .catch(() => {
+              throw new Error(`Unable to get Contract State`);
+            });
+
+          if (!contract.isValid()) {
+            throw new Error('Invalid ANT Contract.');
           }
-          if (!new PDNTContract(state).isValid()) {
-            return;
-          }
-          return [contractTxId, state];
+          const names = Object.keys(associatedRecords).reduce(
+            (acc: Record<string, PDNSRecordEntry>, id: string) => {
+              if (
+                associatedRecords[id].contractTxId === contractTxId.toString()
+              ) {
+                acc[id] = associatedRecords[id];
+              }
+              return acc;
+            },
+            {},
+          );
+
+          return [contractTxId, contract.state, names];
         }),
       );
       if (!contracts.length) {
         throw new Error('Unable to get details for Name Tokens');
       }
+
       const newTokens: NameTokenDetails = contracts.reduce(
         (result, contract) => {
           if (!contract) {
             return { ...result };
           }
-          const [id, state] = contract;
+          const [id, state, names] = contract;
           const { owner, controller, name, ticker } = state;
-          const associatedNames = getAssociatedNames(
-            id,
-            pdnsSourceContract.records,
-          );
+
           return {
             ...result,
             [id.toString()]: {
@@ -167,7 +192,7 @@ function NameTokenSelector({
               controller,
               name,
               ticker,
-              names: associatedNames,
+              names: Object.keys(names),
             },
           };
         },
@@ -180,10 +205,14 @@ function NameTokenSelector({
           name: details?.name,
           ticker: details?.ticker,
           id: imports[0].toString(),
+          names: details?.names ?? [],
         });
       }
     } catch (error: any) {
-      eventEmitter.emit('error', error);
+      eventEmitter.emit('error', {
+        name: `Unable to import ANT`,
+        message: `${error.message}`,
+      });
     } finally {
       setLoading(false);
       setListPage(1);
@@ -214,8 +243,8 @@ function NameTokenSelector({
           return queryResult;
         })
         .map((id) => {
-          const { name, ticker } = tokens[id];
-          return { id, name: name ?? '', ticker: ticker ?? '' };
+          const { name, ticker, names } = tokens[id];
+          return { id, name: name ?? '', ticker: ticker ?? '', names };
         })
         .filter((n) => !!n);
       if (!filteredResults.length) {
@@ -235,10 +264,12 @@ function NameTokenSelector({
     id,
     name,
     ticker,
+    names,
   }: {
     id?: string;
     name?: string;
     ticker?: string;
+    names: string[];
   }) {
     try {
       setSearchText('');
@@ -247,7 +278,7 @@ function NameTokenSelector({
       if (id === undefined) {
         throw new Error(`No ID provided for ${name ?? ticker ?? ''}`);
       }
-      setSelectedToken({ id, name: name ?? '', ticker: ticker ?? '' });
+      setSelectedToken({ id, name: name ?? '', ticker: ticker ?? '', names });
       selectedTokenCallback(new ArweaveTransactionID(id));
       setListPage(1);
     } catch (error) {
@@ -308,16 +339,8 @@ function NameTokenSelector({
         className="name-token-input-wrapper"
         style={{ borderBottom: '1px solid var(--text-faded)' }}
       >
-        <button
-          className="button center hover"
-          style={{ width: 'fit-content', margin: 'auto' }}
-          onClick={() => setSearchActive(true)}
-        >
-          <CirclePlus width={30} height={30} fill={'var(--text-white)'} />
-        </button>
-
         <ValidationInput
-          inputId="name-token-selector-input"
+          inputId="name-token-input"
           onClick={() => setSearchActive(true)}
           showValidationIcon={validImport !== undefined}
           setValue={(v) =>
@@ -325,11 +348,11 @@ function NameTokenSelector({
               v.length === SMARTWEAVE_MAX_INPUT_SIZE ? v.trim() : v,
             )
           }
-          value={searchText}
-          maxLength={SMARTWEAVE_MAX_INPUT_SIZE}
+          value={searchText ?? ''}
+          maxCharLength={SMARTWEAVE_MAX_INPUT_SIZE}
           placeholder={
             selectedToken
-              ? selectedToken.name.length
+              ? selectedToken.name?.length
                 ? selectedToken.name
                 : selectedToken.id
               : 'Add an Arweave Name Token (ANT)'
@@ -355,6 +378,7 @@ function NameTokenSelector({
             borderRadius: '0px',
             backgroundColor: 'var(--card-bg)',
             boxSizing: 'border-box',
+            paddingLeft: '10px',
           }}
           inputClassName={`white ${
             selectedToken ? 'name-token-input-selected' : 'name-token-input'
@@ -378,12 +402,14 @@ function NameTokenSelector({
             isArweaveTransactionID(searchText) &&
             !Object.keys(tokens ?? []).includes(searchText) ? (
             <button
-              className="button flex flex-row center faded bold hover pointer"
+              className="outline-button flex flex-row center pointer"
               style={{
-                gap: '1em',
-                border: '2px solid var(--text-faded)',
                 borderRadius: '50px',
-                height: '25px',
+                width: 'fit-content',
+                padding: '3px 6px',
+                fontSize: '12px',
+                minWidth: 'fit-content',
+                border: '1px solid var(--text-grey)',
               }}
               onClick={() => {
                 getTokenList(walletAddress, [
@@ -395,23 +421,22 @@ function NameTokenSelector({
             </button>
           ) : selectedToken ? (
             <button
-              className="button flex flex-row center grey hover pointer"
+              className="outline-button flex flex-row center pointer"
               style={{
-                gap: '5px',
-                border: '1px solid var(--text-grey)',
+                gap: '3px',
                 borderRadius: '50px',
-                height: '25px',
+                width: 'fit-content',
+                padding: '3px 7px',
+                fontSize: '12px',
+                minWidth: 'fit-content',
+                border: '1px solid var(--text-grey)',
               }}
               onClick={() => {
                 setSelectedToken(undefined);
                 selectedTokenCallback(undefined);
               }}
             >
-              <CloseIcon
-                width={'20px'}
-                height={'20px'}
-                fill={'var(--text-grey)'}
-              />
+              <CloseIcon width={'13px'} height={'13px'} />
               Remove
             </button>
           ) : (
@@ -483,6 +508,7 @@ function NameTokenSelector({
                         id: token.id,
                         name: token.name ?? '',
                         ticker: token.ticker ?? '',
+                        names: token.names ?? [],
                       });
                     }}
                   >
@@ -491,6 +517,36 @@ function NameTokenSelector({
                           token.id
                         }`
                       : token.id}
+                    {token.names?.length ? (
+                      <Tooltip
+                        key={index}
+                        title={
+                          <div
+                            className="flex flex-column"
+                            style={{
+                              padding: '5px',
+                              gap: '5px',
+                              boxSizing: 'border-box',
+                            }}
+                          >
+                            {token.names.map((name) => (
+                              <span key={name}>{name}</span>
+                            ))}
+                          </div>
+                        }
+                        color="var(--card-bg)"
+                        placement="top"
+                        showArrow={true}
+                      >
+                        <HamburgerOutlineIcon
+                          width={20}
+                          height={20}
+                          fill="var(--text-grey)"
+                        />{' '}
+                      </Tooltip>
+                    ) : (
+                      <></>
+                    )}
                   </button>
                 );
               })
@@ -516,6 +572,7 @@ function NameTokenSelector({
                         id,
                         name: name ?? '',
                         ticker: ticker ?? '',
+                        names: names ?? [],
                       });
                     }}
                   >
@@ -525,11 +582,30 @@ function NameTokenSelector({
                         } (${ticker}) - ${id}`
                       : id}
                     {names?.length ? (
-                      <HamburgerOutlineIcon
-                        width={20}
-                        height={20}
-                        fill="var(--text-grey)"
-                      />
+                      <Tooltip
+                        title={
+                          <div
+                            className="flex flex-column"
+                            style={{
+                              padding: '5px',
+                              boxSizing: 'border-box',
+                            }}
+                          >
+                            {names.map((name) => (
+                              <span key={name}>{name}</span>
+                            ))}
+                          </div>
+                        }
+                        color="var(--card-bg)"
+                        placement="top"
+                        showArrow={true}
+                      >
+                        <HamburgerOutlineIcon
+                          width={20}
+                          height={20}
+                          fill="var(--text-grey)"
+                        />{' '}
+                      </Tooltip>
                     ) : (
                       <></>
                     )}

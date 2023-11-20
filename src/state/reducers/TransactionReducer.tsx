@@ -1,9 +1,6 @@
 import { TRANSACTION_WORKFLOW_STATUS } from '../../components/layout/TransactionWorkflow/TransactionWorkflow';
-import {
-  ArweaveTransactionID,
-  ExcludedValidInteractionType,
-  TransactionData,
-} from '../../types';
+import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
+import { ExcludedValidInteractionType, TransactionData } from '../../types';
 import {
   TransactionState,
   initialTransactionState,

@@ -1,14 +1,12 @@
 import { useEffect, useState } from 'react';
 
 import { useGlobalState } from '../../state/contexts/GlobalState';
-import { useArweaveCompositeProvider } from '../useArweaveCompositeProvider/useArweaveCompositeProvider';
 
 export function useRegistrationStatus(domain: string) {
-  const [{ blockHeight }, dispatchGlobalState] = useGlobalState();
-  const arweaveDataProvider = useArweaveCompositeProvider();
-
+  const [{ blockHeight, arweaveDataProvider }, dispatchGlobalState] =
+    useGlobalState();
+  const [isActiveAuction, setIsActiveAuction] = useState<boolean>(false);
   const [isAvailable, setIsAvailable] = useState<boolean>(false);
-  const [isAuction, setIsAuction] = useState<boolean>(false);
   const [isReserved, setIsReserved] = useState<boolean>(false);
   const [validated, setValidated] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -25,8 +23,8 @@ export function useRegistrationStatus(domain: string) {
 
   function reset() {
     setIsAvailable(false);
-    setIsAuction(false);
     setIsReserved(false);
+    setIsActiveAuction(false);
     setValidated(false);
   }
 
@@ -51,23 +49,24 @@ export function useRegistrationStatus(domain: string) {
         });
         return;
       }
-      const available = arweaveDataProvider.isDomainAvailable({
+      const availablePromise = arweaveDataProvider.isDomainAvailable({
         domain,
       });
-      const auction = arweaveDataProvider
-        .getAuctionPrices({ domain })
-        .catch(() => undefined);
-      const reserved = arweaveDataProvider.isDomainReserved({
+      const auctionPromise = arweaveDataProvider.isDomainInAuction({
+        domain,
+      });
+      const reservedPromise = arweaveDataProvider.isDomainReserved({
         domain,
       });
 
-      const [isAvailable, isAuction, isReserved] = await Promise.all([
-        available,
-        auction,
-        reserved,
+      const [isAvailable, isActiveAuction, isReserved] = await Promise.all([
+        availablePromise,
+        auctionPromise,
+        reservedPromise,
       ]);
+
       setIsAvailable(isAvailable);
-      setIsAuction(!!isAuction);
+      setIsActiveAuction(isActiveAuction);
       setIsReserved(isReserved);
       setValidated(true);
     } catch (error) {
@@ -77,5 +76,5 @@ export function useRegistrationStatus(domain: string) {
       setLoading(false);
     }
   }
-  return { isAvailable, isAuction, isReserved, loading, validated };
+  return { isAvailable, isActiveAuction, isReserved, loading, validated };
 }

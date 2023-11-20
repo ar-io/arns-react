@@ -10,70 +10,74 @@ function SearchBarHeader({
   domain,
   contractTxId,
   isAvailable,
-  isAuction,
+  isActiveAuction,
   isReserved,
 }: SearchBarHeaderProps): JSX.Element {
   const isMobile = useIsMobile();
 
   // unavailable condition
-  if (domain && isAuction) {
+  if (domain && isActiveAuction) {
     return (
-      <span
+      <div
         className="text-medium white center flex fade-in"
         style={{
           fontWeight: 500,
           fontSize: '23px',
           flexDirection: isMobile ? 'column' : 'row',
+          minHeight: '45px',
         }}
       >
         <span className="in-auction">{domain}&nbsp;</span>
         is currently in auction.
-      </span>
+      </div>
     );
   }
 
   // reserved condition
   if (domain && (isReserved || isDomainReservedLength(domain))) {
     return (
-      <span
+      <div
         className="text-medium white center flex fade-in"
         style={{
           fontWeight: 500,
           fontSize: '23px',
           flexDirection: isMobile ? 'column' : 'row',
+          minHeight: '45px',
         }}
       >
         <span className="reserved">{domain}&nbsp;</span>
         is currently reserved.
-      </span>
+      </div>
     );
   }
   // unavailable condition
   if (contractTxId && domain) {
     return (
-      <span
+      <div
         className="text-medium white center flex fade-in"
         style={{
           fontWeight: 500,
           fontSize: '23px',
           flexDirection: isMobile ? 'column' : 'row',
+          minHeight: '45px',
         }}
       >
         <span className="unavailable">{domain}&nbsp;</span>
         is already registered. Try another name.
-      </span>
+      </div>
     );
   }
 
   // available condition
   if (domain && isAvailable) {
     return (
-      <span
+      <div
         className="text-medium white center flex fade-in"
         style={{
           fontWeight: 500,
           fontSize: '23px',
           flexDirection: isMobile ? 'column' : 'row',
+          minHeight: '45px',
         }}
       >
         <span style={{ color: 'var(--success-green)' }}>{domain}</span>&nbsp;is
@@ -81,7 +85,7 @@ function SearchBarHeader({
         <CheckCircleFilled
           style={{ fontSize: '20px', color: 'var(--success-green)' }}
         />
-      </span>
+      </div>
     );
   }
 
@@ -90,7 +94,7 @@ function SearchBarHeader({
   return (
     <div
       className="flex flex-column flex-center text-medium white fade-in"
-      style={{ gap: '5px' }}
+      style={{ gap: '5px', minHeight: '45px' }}
     >
       {defaultText} <ArrowDownOutlined />
     </div>

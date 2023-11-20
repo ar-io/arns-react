@@ -3,11 +3,11 @@ import { StepProps } from 'antd';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { useArweaveCompositeProvider } from '../../../hooks';
+import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
+import { useWalletState } from '../../../state/contexts/WalletState';
 import {
-  ArweaveTransactionID,
   BuyRecordPayload,
   ExcludedValidInteractionType,
   ExtendLeasePayload,
@@ -23,11 +23,11 @@ import {
 import {
   TRANSACTION_DATA_KEYS,
   buildSmartweaveInteractionTags,
-  calculateFloorPrice,
   decodeDomainToASCII,
   getPDNSMappingByInteractionType,
   getWorkflowStepsForInteraction,
   isObjectOfTransactionPayloadType,
+  lowerCaseDomain,
   pruneExtraDataFromTransactionPayload,
 } from '../../../utils';
 import {
@@ -58,11 +58,10 @@ function TransactionWorkflow({
   transactionData: TransactionData;
   workflowStage: TRANSACTION_WORKFLOW_STATUS;
 }) {
-  const [{ walletAddress, pdnsSourceContract, pdnsContractId }] =
-    useGlobalState();
+  const [{ pdnsContractId, arweaveDataProvider }] = useGlobalState();
+  const [{ walletAddress }] = useWalletState();
   const [{ deployedTransactionId }, dispatchTransactionState] =
     useTransactionState();
-  const arweaveDataProvider = useArweaveCompositeProvider();
   const { assetId, functionName, ...payload } = transactionData;
   const navigate = useNavigate();
   const [currentInteractionType, setCurrentInteractionType] =
@@ -135,7 +134,6 @@ function TransactionWorkflow({
           payload.state.records['@'] = {
             transactionId: payload.targetId.toString(),
             ttlSeconds: MIN_TTL_SECONDS,
-            maxUndernames: 100,
           };
         }
         const writeInteractionId = await arweaveDataProvider.registerAtomicName(
@@ -147,9 +145,11 @@ function TransactionWorkflow({
             ),
             initialState: payload.state,
             domain: payload.name,
-            reservedList: Object.keys(pdnsSourceContract.reserved),
             type: payload.type,
             years: payload.years,
+            auction: payload.auction ?? false,
+            qty: payload.qty,
+            isBid: payload.isBid ?? false,
           },
         );
 
@@ -181,6 +181,12 @@ function TransactionWorkflow({
                   },
                 })
               : undefined,
+          interactionDetails: {
+            isBid:
+              validBuyRecordInteraction && payload.isBid
+                ? payload.isBid
+                : false,
+          },
         });
         originalTxId = writeInteractionId?.toString();
       }
@@ -327,8 +333,7 @@ function TransactionWorkflow({
         isObjectOfTransactionPayloadType<BuyRecordPayload>(
           payload,
           TRANSACTION_DATA_KEYS[interactionType].keys,
-        ) &&
-        pdnsSourceContract.settings.auctions
+        )
       ) {
         return {
           pending: {
@@ -337,18 +342,10 @@ function TransactionWorkflow({
                 className="flex flex-column"
                 style={{ marginBottom: '30px', gap: '0px' }}
               >
-                <PDNTCard {...pdntProps} bordered />
+                <PDNTCard {...pdntProps} bordered compact={false} />
                 <TransactionCost
                   fee={{
-                    io:
-                      calculateFloorPrice({
-                        domain: payload.name,
-                        registrationType: payload.type,
-                        // TODO: setup cost for permabuy
-                        years: payload.years ?? 1,
-                        auctionSettings: pdnsSourceContract.settings.auctions,
-                        fees: pdnsSourceContract.fees,
-                      }) ?? 0,
+                    io: payload.interactionPrice,
                   }}
                   info={
                     <div
@@ -402,13 +399,41 @@ function TransactionWorkflow({
                   marginBottom: '2em',
                 }}
               >
-                <span className="flex white center" style={{ gap: '8px' }}>
+                <span
+                  className="flex white center"
+                  style={{ gap: '8px', width: '100%', padding: '0px 24px' }}
+                >
                   <span>
                     <CheckCircleFilled
                       style={{ fontSize: 18, color: 'var(--success-green)' }}
                     />
                   </span>
-                  &nbsp;<b>{decodeDomainToASCII(payload.name)}</b> is yours!
+                  &nbsp;
+                  {payload.auction && !payload.isBid ? (
+                    <span
+                      className="flex center"
+                      style={{ width: '100%', justifyContent: 'space-between' }}
+                    >
+                      Auction started for {decodeDomainToASCII(payload.name)}{' '}
+                      <button
+                        className="outline-button"
+                        style={{
+                          color: 'var(--text-black)',
+                          background: 'var(--text-white)',
+                          borderColor: 'var(--text-black)',
+                        }}
+                        onClick={() =>
+                          navigate(`/auctions/${lowerCaseDomain(payload.name)}`)
+                        }
+                      >
+                        View Auction
+                      </button>
+                    </span>
+                  ) : (
+                    <>
+                      <b>{decodeDomainToASCII(payload.name)}</b> is yours!
+                    </>
+                  )}
                 </span>
               </div>
             ),
@@ -441,7 +466,7 @@ function TransactionWorkflow({
                 <PDNTCard {...pdntProps} bordered />
                 <TransactionCost
                   fee={{
-                    io: payload.qty,
+                    io: payload.interactionPrice,
                   }}
                   info={
                     <div
@@ -542,7 +567,7 @@ function TransactionWorkflow({
                 <PDNTCard {...pdntProps} bordered />
                 <TransactionCost
                   fee={{
-                    io: payload.ioFee,
+                    io: payload.interactionPrice,
                   }}
                   info={
                     <div
@@ -634,17 +659,19 @@ function TransactionWorkflow({
         message={'Deploying transaction...'}
         loading={deployingTransaction}
       />
-      <Workflow
-        onNext={() => handleStage('next')}
-        onBack={() => handleStage('back')}
-        stage={workflowStage}
-        steps={
-          workflowStage === TRANSACTION_WORKFLOW_STATUS.SUCCESSFUL
-            ? undefined
-            : steps
-        }
-        stages={stages}
-      />
+      <div className="flex" style={{ maxWidth: '900px', width: '100%' }}>
+        <Workflow
+          onNext={() => handleStage('next')}
+          onBack={() => handleStage('back')}
+          stage={workflowStage}
+          steps={
+            workflowStage === TRANSACTION_WORKFLOW_STATUS.SUCCESSFUL
+              ? undefined
+              : steps
+          }
+          stages={stages}
+        />
+      </div>
     </>
   );
 }

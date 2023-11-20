@@ -30,7 +30,29 @@ const sentry =
         ],
         tracesSampleRate: 1.0,
         environment: ENVIRONMENT,
+        beforeSend(event) {
+          return sanitizeEvent(event);
+        },
       })
     : {};
 
 export default sentry;
+
+const sanitizeEvent = (event: Sentry.Event): Sentry.Event => {
+  // Remove user's IP address
+  if (event.request) {
+    if (event.request.headers) {
+      delete event.request.headers['X-Forwarded-For'];
+    }
+    if (event.request.env) {
+      delete event.request.env['REMOTE_ADDR'];
+    }
+  }
+
+  // Remove user details
+  if (event.user) {
+    delete event.user; // Remove user object
+  }
+
+  return event;
+};

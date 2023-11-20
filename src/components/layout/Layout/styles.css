@@ -1,14 +1,29 @@
 .header {
   padding: 1em;
+  box-sizing: border-box;
 }
 
 .body {
   display: flex;
   flex-direction: column;
-  min-height: 85vh;
-  flex: 1;
+  box-sizing: border-box;
+  min-height: fit-content;
+  width: 100%;
 }
 
 .footer {
-  padding: 1em;
+  padding: 2% 0%;
+  box-sizing: border-box;
+  max-height: 104px;
+}
+
+@media screen and (max-width: 600px) {
+  .brand-logo {
+    height: 45px;
+    width: 45px;
+  }
+  .navbar,
+  .footer {
+    padding: 0px 15px;
+  }
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { ArweaveTransactionID } from '../../../types';
+import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { PDNSCard } from '../../cards';
 import './styles.css';
 
@@ -15,7 +15,7 @@ function FeaturedDomains(props: { domains: { [x: string]: string } }) {
 
   function showMore(e: any) {
     e.preventDefault();
-    setDisplayCount(displayCount + DEFAULT_INCREMENT);
+    setDisplayCount(MAX_COUNT);
   }
 
   function showLess(e: any) {
@@ -47,42 +47,19 @@ function FeaturedDomains(props: { domains: { [x: string]: string } }) {
             />
           );
         })}
-      </div>
-      <div className="flex-row flex-center">
-        {displayCount > DEFAULT_INCREMENT ? (
-          <button
-            className="flex flex-row button flex-center faded text-medium bold pointer"
-            onClick={showLess}
-            style={{
-              border: '1px solid var(--text-faded)',
-              borderRadius: 'var(--corner-radius)',
-              height: 40,
-              fontSize: '14px',
-              color: 'var(--text-grey)',
-            }}
-          >
-            View Less
-          </button>
-        ) : (
-          <></>
-        )}
-        {displayCount < Object.keys(domains).length &&
-        displayCount < MAX_COUNT ? (
-          <button
-            className="flex flex-row button flex-center grey text-medium bold pointer"
-            onClick={showMore}
-            style={{
-              border: '1px solid var(--text-faded)',
-              borderRadius: 'var(--corner-radius)',
-              height: 40,
-              fontSize: '14px',
-            }}
-          >
-            View More
-          </button>
-        ) : (
-          <></>
-        )}
+        <button
+          className="outline-button center faded"
+          onClick={displayCount < MAX_COUNT ? showMore : showLess}
+          style={{
+            padding: 0,
+            fontSize: '15px',
+            width: '100%',
+            height: 50,
+            margin: '0em 0.5em',
+          }}
+        >
+          {displayCount < MAX_COUNT ? 'View More' : 'View Less'}
+        </button>
       </div>
     </div>
   );

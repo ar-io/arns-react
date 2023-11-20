@@ -1,7 +1,7 @@
 import { Tooltip } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
-import { ArweaveTransactionID } from '../../../../types';
+import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import { ManageTable } from '../../../../types';
 import { SettingsIcon } from '../../../icons';
 import './styles.css';
@@ -24,12 +24,18 @@ function ManageAssetButtons({
           className={
             disabled
               ? 'assets-see-more-button disabled-button'
-              : 'assets-see-more-button'
+              : 'assets-see-more-button center'
           }
           disabled={disabled}
           onClick={() =>
             navigate(`/manage/${assetType}/${id.toString()}/undernames`)
           }
+          style={{
+            padding: '8px 12px',
+            textAlign: 'center',
+            width: 'fit-content',
+            height: 'fit-content',
+          }}
         >
           Undernames
         </button>
@@ -41,7 +47,7 @@ function ManageAssetButtons({
           className="manage-asset-button-tooltip"
         >
           <button
-            className="outline-button hover"
+            className="outline-button manage-button"
             onClick={() => navigate(`/manage/${assetType}/${id.toString()}`)}
             disabled={disabled}
             style={{

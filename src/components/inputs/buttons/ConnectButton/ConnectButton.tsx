@@ -1,16 +1,17 @@
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import './styles.css';
 
 function ConnectButton(): JSX.Element {
+  const navigate = useNavigate();
   return (
-    <Link
+    <button
       className="connect-button"
       style={{ textDecoration: 'none' }}
-      to="connect"
+      onClick={() => navigate('connect')}
     >
       Connect
-    </Link>
+    </button>
   );
 }
 

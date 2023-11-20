@@ -5,29 +5,26 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import {
-  useArweaveCompositeProvider,
   useAuctionInfo,
   useIsFocused,
   useRegistrationStatus,
 } from '../../../hooks';
-import { PDNTContract } from '../../../services/arweave/PDNTContract';
+import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
+import { useWalletState } from '../../../state/contexts/WalletState';
 import {
-  ArweaveTransactionID,
   BuyRecordPayload,
+  INTERACTION_NAMES,
   INTERACTION_TYPES,
-  PDNTContractJSON,
   TRANSACTION_TYPES,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import {
-  calculatePDNSNamePrice,
   encodeDomainToASCII,
-  isArweaveTransactionID,
-  isDomainAuctionable,
   lowerCaseDomain,
+  userHasSufficientBalance,
 } from '../../../utils';
 import {
   ARNS_REGISTRY_ADDRESS,
@@ -35,7 +32,8 @@ import {
   MAX_LEASE_DURATION,
   MIN_LEASE_DURATION,
 } from '../../../utils/constants';
-import { CirclePlus, LockIcon } from '../../icons';
+import eventEmitter from '../../../utils/events';
+import { LockIcon } from '../../icons';
 import Counter from '../../inputs/Counter/Counter';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
 import NameTokenSelector from '../../inputs/text/NameTokenSelector/NameTokenSelector';
@@ -51,31 +49,23 @@ function RegisterNameForm() {
     { domain, fee, leaseDuration, registrationType, antID },
     dispatchRegisterState,
   ] = useRegistrationState();
-  const [
-    { pdnsSourceContract, walletAddress, blockHeight },
-    dispatchGlobalState,
-  ] = useGlobalState();
+  const [{ blockHeight, arweaveDataProvider }, dispatchGlobalState] =
+    useGlobalState();
+  const [{ walletAddress, balances }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
-  const arweaveDataProvider = useArweaveCompositeProvider();
   const { name } = useParams();
-  const {
-    minimumAuctionBid,
-    auction,
-    loadingAuctionInfo,
-    updateAuctionInfo,
-    isLiveAuction,
-  } = useAuctionInfo(
+  const { auction, loadingAuctionInfo } = useAuctionInfo(
     lowerCaseDomain(name ?? domain),
     registrationType,
-    leaseDuration,
   );
-  const { isAuction, loading: isValidatingRegistration } =
-    useRegistrationStatus(name ?? domain);
+  const { loading: isValidatingRegistration } = useRegistrationStatus(
+    name ?? domain,
+  );
   const [targetId, setTargetId] = useState<string>();
   const targetIdFocused = useIsFocused('target-id-input');
   const navigate = useNavigate();
-
-  // TODO: give this component some refactor love, i can barely read it.
+  const [hasValidationErrors, setHasValidationErrors] =
+    useState<boolean>(false);
 
   useEffect(() => {
     if (!blockHeight) {
@@ -86,16 +76,11 @@ function RegisterNameForm() {
         });
       });
     }
-    const auctionForName =
-      pdnsSourceContract.auctions?.[lowerCaseDomain(domain!)];
-    if (auctionForName) {
+    if (!loadingAuctionInfo && auction) {
       dispatchRegisterState({
         type: 'setRegistrationType',
-        payload: auctionForName.type,
+        payload: auction.type,
       });
-      if (!minimumAuctionBid && !loadingAuctionInfo) {
-        updateAuctionInfo(lowerCaseDomain(domain));
-      }
     }
   }, [loadingAuctionInfo, domain]);
 
@@ -107,53 +92,51 @@ function RegisterNameForm() {
       });
     }
     if (
-      // if auctionable, use auction prices
-      isDomainAuctionable({
-        domain: domain!,
-        registrationType: registrationType,
-        reservedList: Object.keys(pdnsSourceContract?.reserved),
-      }) ||
-      isAuction
+      auction &&
+      (auction.isRequiredToBeAuctioned || auction.isActive) &&
+      domain &&
+      blockHeight
     ) {
-      if (
-        domain &&
-        pdnsSourceContract.settings.auctions &&
-        blockHeight &&
-        auction
-      ) {
-        const newFee = isAuction ? minimumAuctionBid : auction?.floorPrice;
-
-        if (!newFee) {
-          return;
-        }
-        dispatchRegisterState({
-          type: 'setFee',
-          payload: { ar: fee.ar, io: newFee },
-        });
-      }
-    }
-    // if not auctionable, use instant buy prices
-    if (pdnsSourceContract.fees && domain && blockHeight && !isAuction) {
-      const newFee = calculatePDNSNamePrice({
-        domain: domain!,
-        type: registrationType,
-        years: leaseDuration,
-        fees: pdnsSourceContract.fees,
-        currentBlockHeight: blockHeight,
-      });
       dispatchRegisterState({
         type: 'setFee',
-        payload: { ar: fee.ar, io: newFee },
+        payload: { ar: fee.ar, io: auction.currentPrice },
       });
+    } else {
+      if (!auction) {
+        return;
+      }
+      const update = async () => {
+        if (domain) {
+          try {
+            dispatchRegisterState({
+              type: 'setFee',
+              payload: { ar: fee.ar, io: undefined },
+            });
+            const price = await arweaveDataProvider
+              .getPriceForInteraction({
+                interactionName: INTERACTION_NAMES.BUY_RECORD,
+                payload: {
+                  name: domain,
+                  years: leaseDuration,
+                  type: auction.type,
+                  contractTxId: ATOMIC_FLAG,
+                },
+              })
+              .catch(() => {
+                throw new Error('Unable to get purchase price for domain');
+              });
+            dispatchRegisterState({
+              type: 'setFee',
+              payload: { ar: fee.ar, io: price },
+            });
+          } catch (e) {
+            eventEmitter.emit('error', e);
+          }
+        }
+      };
+      update();
     }
-  }, [
-    leaseDuration,
-    domain,
-    pdnsSourceContract,
-    minimumAuctionBid,
-    auction,
-    registrationType,
-  ]);
+  }, [leaseDuration, domain, auction]);
 
   async function handlePDNTId(id: string) {
     try {
@@ -163,14 +146,9 @@ function RegisterNameForm() {
         payload: txId,
       });
 
-      const state =
-        await arweaveDataProvider.getContractState<PDNTContractJSON>(txId);
-      if (state == undefined) {
-        throw Error('ANT contract state is undefined');
-      }
-      const pdnt = new PDNTContract(state, txId);
+      const contract = await arweaveDataProvider.buildANTContract(txId);
 
-      if (!pdnt.isValid()) {
+      if (!contract.isValid()) {
         throw Error('ANT contract state does not match required schema.');
       }
     } catch (error: any) {
@@ -182,24 +160,83 @@ function RegisterNameForm() {
     return <Loader size={80} />;
   }
 
+  async function handleNext() {
+    if (fee.io === undefined) {
+      return;
+    }
+    try {
+      // validate transaction cost, return if insufficient balance and emit validation message
+      userHasSufficientBalance<{
+        io: number;
+        ar: number;
+      }>({
+        balances,
+        costs: fee as { io: number; ar: number },
+      });
+    } catch (error: any) {
+      eventEmitter.emit('error', {
+        name: 'Insufficient funds',
+        message: error.message,
+      });
+
+      return;
+    }
+
+    const leaseDurationType = auction?.isRequiredToBeAuctioned
+      ? 1
+      : leaseDuration;
+    const buyRecordPayload: BuyRecordPayload = {
+      name:
+        domain && emojiRegex().test(domain)
+          ? encodeDomainToASCII(domain)
+          : domain,
+      contractTxId: antID ? antID.toString() : ATOMIC_FLAG,
+      // TODO: move this to a helper function
+      years:
+        registrationType === TRANSACTION_TYPES.LEASE
+          ? leaseDurationType
+          : undefined,
+      type: registrationType,
+      auction: (auction?.isRequiredToBeAuctioned || auction?.isActive) ?? false,
+      isBid: auction?.isActive ?? false,
+      targetId: targetId ? new ArweaveTransactionID(targetId) : undefined,
+    };
+
+    dispatchTransactionState({
+      type: 'setTransactionData',
+      payload: {
+        assetId: ARNS_REGISTRY_ADDRESS.toString(),
+        functionName: 'buyRecord',
+        ...buyRecordPayload,
+        interactionPrice: fee.io,
+      },
+    });
+    dispatchTransactionState({
+      type: 'setInteractionType',
+      payload: INTERACTION_TYPES.BUY_RECORD,
+    });
+    // navigate to the transaction page, which will load the updated state of the transaction context
+    navigate('/transaction', {
+      state: `/register/${domain}`,
+    });
+    dispatchRegisterState({
+      type: 'reset',
+    });
+  }
+
   return (
     <div className="page center">
       <PageLoader
         message={'Loading Domain info, please wait.'}
-        loading={
-          (isAuction && loadingAuctionInfo) ||
-          (!isAuction && isValidatingRegistration)
-        }
+        loading={loadingAuctionInfo || isValidatingRegistration}
       />
       <div
         className="flex flex-column flex-center"
         style={{
           maxWidth: '900px',
-          minWidth: '750px',
           width: '100%',
           padding: '0px',
           margin: '50px',
-          marginTop: '0px',
           gap: '80px',
           boxSizing: 'border-box',
         }}
@@ -207,7 +244,7 @@ function RegisterNameForm() {
         <div
           className="flex flex-row flex-center"
           style={{
-            paddingBottom: ' 40px',
+            paddingBottom: '40px',
             borderBottom: 'solid 1px var(--text-faded)',
           }}
         >
@@ -255,8 +292,10 @@ function RegisterNameForm() {
             >
               <button
                 className="flex flex-row center text-medium bold pointer"
+                // TODO: add a tool tip explaining why when it is an active auction you cannot change the type
                 disabled={
-                  isAuction && registrationType === TRANSACTION_TYPES.BUY
+                  auction?.isActive &&
+                  registrationType === TRANSACTION_TYPES.BUY
                 }
                 onClick={() =>
                   dispatchRegisterState({
@@ -283,7 +322,7 @@ function RegisterNameForm() {
                 Lease{' '}
                 {(registrationType === TRANSACTION_TYPES.LEASE ||
                   auction?.type === TRANSACTION_TYPES.LEASE) &&
-                isLiveAuction ? (
+                auction?.isActive ? (
                   <LockIcon
                     width={'20px'}
                     height={'20px'}
@@ -311,8 +350,10 @@ function RegisterNameForm() {
               </button>
               <button
                 className="flex flex-row center text-medium bold pointer"
+                // TODO: add a tool tip explaining why when it is an active auction you cannot change the type
                 disabled={
-                  isAuction && registrationType === TRANSACTION_TYPES.LEASE
+                  auction?.isActive &&
+                  registrationType === TRANSACTION_TYPES.LEASE
                 }
                 style={{
                   position: 'relative',
@@ -339,7 +380,7 @@ function RegisterNameForm() {
                 Buy{' '}
                 {(registrationType === TRANSACTION_TYPES.BUY ||
                   auction?.type === TRANSACTION_TYPES.BUY) &&
-                isLiveAuction ? (
+                auction?.isActive ? (
                   <LockIcon
                     width={'20px'}
                     height={'20px'}
@@ -390,8 +431,17 @@ function RegisterNameForm() {
                       payload: v,
                     });
                   }}
-                  minValue={MIN_LEASE_DURATION}
-                  maxValue={MAX_LEASE_DURATION}
+                  // TODO: move this to a helper function
+                  minValue={
+                    auction?.isActive || auction?.isRequiredToBeAuctioned
+                      ? 1
+                      : MIN_LEASE_DURATION
+                  }
+                  maxValue={
+                    auction?.isActive || auction?.isRequiredToBeAuctioned
+                      ? 1
+                      : MAX_LEASE_DURATION
+                  }
                   valueStyle={{ padding: '20px 120px' }}
                   valueName={leaseDuration > 1 ? 'years' : 'year'}
                   detail={`Until ${Intl.DateTimeFormat('en-US', {
@@ -404,7 +454,10 @@ function RegisterNameForm() {
                   title={
                     <span
                       className="white"
-                      style={{ padding: '10px', fontWeight: '500' }}
+                      style={{
+                        padding: '0px 10px 10px 10px',
+                        fontWeight: '500',
+                      }}
                     >{`Registration period (between ${MIN_LEASE_DURATION}-${MAX_LEASE_DURATION} years)`}</span>
                   }
                 />
@@ -423,7 +476,6 @@ function RegisterNameForm() {
               )}
             </div>
           </div>
-
           <div className="flex flex-column" style={{ gap: '1em' }}>
             <NameTokenSelector
               selectedTokenCallback={(id) =>
@@ -435,7 +487,6 @@ function RegisterNameForm() {
                     })
               }
             />
-
             <div
               className="name-token-input-wrapper"
               style={{
@@ -446,16 +497,15 @@ function RegisterNameForm() {
                 position: 'relative',
               }}
             >
-              <span
-                className="flex center pointer"
-                style={{ position: 'absolute', left: '16px' }}
-              >
-                <CirclePlus width={30} height={30} fill={'var(--text-white)'} />
-              </span>
               <ValidationInput
                 inputId={'target-id-input'}
-                value={targetId}
-                setValue={(v: string) => setTargetId(v.trim())}
+                value={targetId ?? ''}
+                setValue={(v: string) => {
+                  setTargetId(v.trim());
+                  if (v.trim().length === 0) {
+                    setHasValidationErrors(false);
+                  }
+                }}
                 wrapperCustomStyle={{
                   width: '100%',
                   hieght: '45px',
@@ -465,10 +515,10 @@ function RegisterNameForm() {
                 }}
                 inputClassName={`white name-token-input`}
                 inputCustomStyle={{
-                  paddingLeft: '60px',
+                  paddingLeft: '10px',
                   background: 'transparent',
                 }}
-                maxLength={43}
+                maxCharLength={43}
                 placeholder={'Arweave Transaction ID'}
                 validationPredicates={{
                   [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
@@ -478,6 +528,9 @@ function RegisterNameForm() {
                 }}
                 showValidationChecklist={false}
                 showValidationIcon={true}
+                validityCallback={(validity: boolean) => {
+                  setHasValidationErrors(!validity);
+                }}
               />
               <span className="grey pointer hover" style={{ fontSize: '12px' }}>
                 <Tooltip
@@ -501,15 +554,12 @@ function RegisterNameForm() {
                 </Tooltip>
               </span>
             </div>
-
-            <TransactionCost fee={fee} />
-            {domain &&
-            pdnsSourceContract.settings.auctions &&
-            isDomainAuctionable({
-              domain: domain,
-              registrationType: registrationType,
-              reservedList: Object.keys(pdnsSourceContract.reserved),
-            }) ? (
+            <TransactionCost
+              ioRequired={true}
+              fee={fee}
+              feeWrapperStyle={{ alignItems: 'flex-start' }}
+            />
+            {domain && auction && auction.isRequiredToBeAuctioned && fee.io ? (
               <div
                 className="flex flex-row warning-container"
                 style={{
@@ -522,80 +572,42 @@ function RegisterNameForm() {
               >
                 <span
                   className="flex flex-column"
-                  style={{ textAlign: 'left', fontSize: '13px' }}
+                  style={{ textAlign: 'left', fontSize: '13px', gap: '1em' }}
                 >
-                  Choosing to {registrationType} this reserved name will
-                  initiate a public dutch auction. You will be submitting a bid
-                  at the floor price of {fee.io.toLocaleString()} IO. Over a 2
-                  week period, the price of this name will start at 10 times
-                  your floor bid, and gradually reduce to your initial bid, at
-                  which point you will win the name. At any time during the
-                  auction period you can instantly lease it for that price, and
-                  if another person does you will lose the auction and have your
-                  initial bid returned.
+                  Buying this name involves a Dutch auction. You start by
+                  bidding at the floor price of {fee.io.toLocaleString()} IO.
+                  The name&apos;s price begins at 10 times your bid and
+                  decreases over 2 weeks until it matches your bid, securing
+                  your win. You can also buy instantly at the ongoing price
+                  throughout the auction; if someone else does, you will lose
+                  the auction and have your initial bid returned.
                   <Link
-                    to="http://ar.io/arns"
+                    to="https://ar.io/docs/arns/#bid-initiated-dutch-auctions-bida"
+                    rel="noreferrer"
+                    target="_blank"
                     className="link"
                     style={{ textDecoration: 'underline', color: 'inherit' }}
                   >
-                    Learn more about how auctions work.
+                    Learn more.
                   </Link>
                 </span>
               </div>
             ) : (
               <></>
-            )}
+            )}{' '}
+            <div style={{ marginTop: '30px' }}>
+              <WorkflowButtons
+                nextText="Next"
+                backText="Back"
+                onNext={
+                  hasValidationErrors || !fee?.io ? undefined : handleNext
+                }
+                onBack={() => navigate('/', { state: `/register/${domain}` })}
+                customNextStyle={{ width: '100px' }}
+              />
+            </div>
           </div>
         </div>
-        <WorkflowButtons
-          nextText="Next"
-          backText="Back"
-          onNext={() => {
-            const buyRecordPayload: BuyRecordPayload = {
-              name:
-                domain && emojiRegex().test(domain)
-                  ? encodeDomainToASCII(domain)
-                  : domain,
-              contractTxId: antID ? antID.toString() : ATOMIC_FLAG,
-              years:
-                registrationType === TRANSACTION_TYPES.LEASE
-                  ? leaseDuration
-                  : undefined,
-              type: registrationType,
-              auction: isDomainAuctionable({
-                domain: domain,
-                registrationType: registrationType,
-                reservedList: Object.keys(pdnsSourceContract.reserved),
-              }),
-              targetId:
-                targetId && isArweaveTransactionID(targetId.trim())
-                  ? new ArweaveTransactionID(targetId)
-                  : undefined,
-            };
-
-            dispatchTransactionState({
-              type: 'setTransactionData',
-              payload: {
-                assetId: ARNS_REGISTRY_ADDRESS,
-                functionName: 'buyRecord',
-                ...buyRecordPayload,
-              },
-            });
-            dispatchTransactionState({
-              type: 'setInteractionType',
-              payload: INTERACTION_TYPES.BUY_RECORD,
-            });
-            // navigate to the transaction page, which will load the updated state of the transaction context
-            navigate('/transaction', {
-              state: `/register/${domain}`,
-            });
-            dispatchRegisterState({
-              type: 'reset',
-            });
-          }}
-          onBack={() => navigate('/', { state: `/register/${domain}` })}
-          customNextStyle={{ width: '100px' }}
-        />
       </div>
     </div>
   );

@@ -1,62 +1,141 @@
 import { Tooltip } from 'antd';
-import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from 'react-router-dom';
 
 import {
   ChevronUpIcon,
   CirclePending,
+  CircleXFilled,
   ExternalLinkIcon,
+  SearchIcon,
 } from '../../components/icons/index';
+import ValidationInput from '../../components/inputs/text/ValidationInput/ValidationInput';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '../../components/layout/ArweaveID/ArweaveID';
 import TransactionStatus from '../../components/layout/TransactionStatus/TransactionStatus';
-import { useArweaveCompositeProvider, useWalletAddress } from '../../hooks';
+import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { PDNTContract } from '../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../state/contexts/GlobalState';
+import { useWalletState } from '../../state/contexts/WalletState';
 import {
-  ArweaveTransactionID,
   ContractInteraction,
-  PDNSDomains,
   PDNSRecordEntry,
   PDNSTableRow,
   PDNTContractJSON,
-  TRANSACTION_TYPES,
 } from '../../types';
 import {
   decodeDomainToASCII,
-  getPendingInteractionsRowsForContract,
+  getUndernameCount,
   handleTableSort,
 } from '../../utils';
-import {
-  ARNS_REGISTRY_ADDRESS,
-  DEFAULT_MAX_UNDERNAMES,
-  YEAR_IN_MILLISECONDS,
-} from '../../utils/constants';
+import { DEFAULT_MAX_UNDERNAMES } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 
-export function useWalletDomains(ids: ArweaveTransactionID[]) {
-  const [{ gateway, pdnsSourceContract, blockHeight }] = useGlobalState();
-  const arweaveDataProvider = useArweaveCompositeProvider();
-  const { walletAddress } = useWalletAddress();
-  const [sortAscending, setSortOrder] = useState(true);
+type DomainData = {
+  record: PDNSRecordEntry & { domain: string };
+  state?: PDNTContractJSON;
+  transactionBlockHeight?: number;
+  pendingContractInteractions?: ContractInteraction[];
+  errors?: string[];
+};
+
+export function useWalletDomains() {
+  const [{ gateway, blockHeight, arweaveDataProvider }] = useGlobalState();
+  const [{ walletAddress }] = useWalletState();
+  const [sortAscending, setSortAscending] = useState(true);
   const [sortField, setSortField] = useState<keyof PDNSTableRow>('status');
   const [selectedRow] = useState<PDNSTableRow>();
   const [rows, setRows] = useState<PDNSTableRow[]>([]);
+  const [filteredResults, setFilteredResults] = useState<PDNSTableRow[]>([]);
   // loading info
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [itemCount, setItemCount] = useState<number>(0);
-  const [itemsLoaded, setItemsLoaded] = useState<number>(0);
+  const itemCount = useRef<number>(0);
+  const itemsLoaded = useRef<number>(0);
   const [percent, setPercentLoaded] = useState<number | undefined>();
   const [loadingManageDomain, setLoadingManageDomain] = useState<string>();
+  const searchRef = useRef<HTMLInputElement>(null);
+  const [searchText, setSearchText] = useState<string>('');
+  const [searchOpen, setSearchOpen] = useState<boolean>(false);
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { path } = useParams();
+
+  if (searchRef.current && searchOpen) {
+    searchRef.current.focus();
+  }
 
   useEffect(() => {
-    if (ids.length) {
-      0;
-      fetchDomainRows(ids, walletAddress!);
+    load();
+  }, [walletAddress]);
+
+  useEffect(() => {
+    const searchQuery = searchParams.get('search');
+
+    if (searchQuery || searchText) {
+      if (searchText !== searchQuery) {
+        setSearchParams(searchText ? { search: searchText } : {});
+      }
+      if (searchQuery && !searchText && !searchOpen) {
+        setSearchText(searchQuery);
+        setSearchOpen(true);
+      }
+      if (!rows) {
+        return;
+      }
+      const filtered = rows.filter(
+        (row) =>
+          row.name.toLowerCase().includes(searchText.toLowerCase()) ||
+          row.id.toLowerCase().includes(searchText.toLowerCase()),
+      );
+      setFilteredResults(filtered);
+    } else {
+      setFilteredResults([]);
     }
-  }, [ids]);
+  }, [searchText, rows, path]);
+
+  function sortRows(key: keyof PDNSTableRow, isAsc: boolean): void {
+    setSortField(key);
+    const newRows = [...rows];
+    handleTableSort<PDNSTableRow>({
+      key,
+      isAsc,
+
+      rows: newRows,
+    });
+    setRows([...newRows]);
+  }
+
+  async function load() {
+    try {
+      setIsLoading(true);
+      if (walletAddress) {
+        const height =
+          blockHeight ?? (await arweaveDataProvider.getCurrentBlockHeight());
+        const { contractTxIds } =
+          await arweaveDataProvider.getContractsForWallet(
+            walletAddress,
+            'ant', // only fetches contracts that have a state that matches ant spec
+          );
+        const data = await fetchDomainData(
+          contractTxIds,
+          walletAddress,
+          height,
+        );
+        const newRows = buildDomainRows(data, walletAddress, height);
+        setRows(newRows);
+      }
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   function generateTableColumns(): any[] {
     return [
@@ -102,7 +181,12 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
           <button
             className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
-            onClick={() => setSortField('name')}
+            onClick={() => {
+              if (sortField == 'name') {
+                setSortAscending(!sortAscending);
+              }
+              sortRows('name', !sortAscending);
+            }}
           >
             <span>Name</span>{' '}
             <ChevronUpIcon
@@ -139,28 +223,18 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
             />
           </a>
         ),
-        onHeaderCell: () => {
-          return {
-            onClick: () => {
-              rows.sort((a: PDNSTableRow, b: PDNSTableRow) =>
-                // by default we sort by name
-                !sortAscending
-                  ? a.name.localeCompare(b.name)
-                  : b.name.localeCompare(a.name),
-              );
-              // forces update of rows
-              setRows([...rows]);
-              setSortOrder(!sortAscending);
-            },
-          };
-        },
       },
       {
         title: (
           <button
             className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
-            onClick={() => setSortField('role')}
+            onClick={() => {
+              if (sortField == 'role') {
+                setSortAscending(!sortAscending);
+              }
+              sortRows('role', !sortAscending);
+            }}
           >
             <span>Role</span>{' '}
             <ChevronUpIcon
@@ -181,27 +255,18 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
         align: 'left',
         className: 'white manage-assets-table-header',
         ellipsis: true,
-        onHeaderCell: () => {
-          return {
-            onClick: () => {
-              rows.sort((a: PDNSTableRow, b: PDNSTableRow) =>
-                !sortAscending
-                  ? a.role.localeCompare(b.role)
-                  : b.role.localeCompare(a.role),
-              );
-              // forces update of rows
-              setRows([...rows]);
-              setSortOrder(!sortAscending);
-            },
-          };
-        },
       },
       {
         title: (
           <button
             className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
-            onClick={() => setSortField('id')}
+            onClick={() => {
+              if (sortField == 'id') {
+                setSortAscending(!sortAscending);
+              }
+              sortRows('id', !sortAscending);
+            }}
           >
             <span>Contract ID</span>{' '}
             <ChevronUpIcon
@@ -230,27 +295,18 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
             type={ArweaveIdTypes.CONTRACT}
           />
         ),
-        onHeaderCell: () => {
-          return {
-            onClick: () => {
-              handleTableSort<PDNSTableRow>({
-                key: 'id',
-                isAsc: sortAscending,
-                rows,
-              });
-              // forces update of rows
-              setRows([...rows]);
-              setSortOrder(!sortAscending);
-            },
-          };
-        },
       },
       {
         title: (
           <button
             className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
-            onClick={() => setSortField('undernames')}
+            onClick={() => {
+              if (sortField == 'undernames') {
+                setSortAscending(!sortAscending);
+              }
+              sortRows('undernames', !sortAscending);
+            }}
           >
             <span>Undernames</span>{' '}
             <ChevronUpIcon
@@ -272,27 +328,18 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
         align: 'left',
         ellipsis: true,
         render: (undernames: number | string) => undernames,
-        onHeaderCell: () => {
-          return {
-            onClick: () => {
-              rows.sort((a: PDNSTableRow, b: PDNSTableRow) =>
-                sortAscending
-                  ? +a.undernameSupport - +b.undernameSupport
-                  : +b.undernameSupport - +a.undernameSupport,
-              );
-              // forces update of rows
-              setRows([...rows]);
-              setSortOrder(!sortAscending);
-            },
-          };
-        },
       },
       {
         title: (
           <button
             className="flex-row pointer grey "
             style={{ gap: '0.5em' }}
-            onClick={() => setSortField('expiration')}
+            onClick={() => {
+              if (sortField == 'expiration') {
+                setSortAscending(!sortAscending);
+              }
+              sortRows('expiration', !sortAscending);
+            }}
           >
             <span>Expiry Date</span>{' '}
             <ChevronUpIcon
@@ -313,28 +360,19 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
         width: '18%',
         className: 'white manage-assets-table-header',
         render: (val: Date | string) =>
-          typeof val === 'string' ? val : `${val.toLocaleDateString()}`,
-        onHeaderCell: () => {
-          return {
-            onClick: () => {
-              handleTableSort<PDNSTableRow>({
-                key: 'expiration',
-                isAsc: sortAscending,
-                rows,
-              });
-              // forces update of rows
-              setRows([...rows]);
-              setSortOrder(!sortAscending);
-            },
-          };
-        },
+          typeof val === 'string' ? val : `${val?.toLocaleDateString()}`,
       },
       {
         title: (
           <button
             className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
-            onClick={() => setSortField('status')}
+            onClick={() => {
+              if (sortField == 'status') {
+                setSortAscending(!sortAscending);
+              }
+              sortRows('status', !sortAscending);
+            }}
           >
             <span>Status</span>{' '}
             <ChevronUpIcon
@@ -354,242 +392,271 @@ export function useWalletDomains(ids: ArweaveTransactionID[]) {
         align: 'left',
         width: '18%',
         className: 'white manage-assets-table-header',
-        render: (val: number) => <TransactionStatus confirmations={val} />,
-        onHeaderCell: () => {
-          return {
-            onClick: () => {
-              rows.sort((a, b) =>
-                sortAscending ? a.status - b.status : b.status - a.status,
-              );
-              // forces update of rows
-              setRows([...rows]);
-              setSortOrder(!sortAscending);
-            },
-          };
-        },
+        render: (val: number, row: PDNSTableRow) => (
+          <TransactionStatus
+            confirmations={val}
+            errorMessage={
+              !val && !row.hasPending && val !== 0
+                ? row.errors
+                  ? row.errors?.join(', ')
+                  : 'Unable to get confirmations for ANT Contract'
+                : undefined
+            }
+          />
+        ),
       },
       {
-        title: '',
+        title: (
+          <div
+            className="flex flex-row center undername-search-wrapper"
+            style={{
+              gap: '1px',
+              justifyContent: 'flex-end',
+              boxSizing: 'border-box',
+            }}
+          >
+            <button
+              className="flex button center pointer"
+              style={{ zIndex: 10 }}
+              onClick={() => setSearchOpen(!searchOpen)}
+            >
+              <SearchIcon
+                width={'16px'}
+                height={'16px'}
+                fill={searchOpen ? 'var(--text-white)' : 'var(--text-grey)'}
+              />
+            </button>
+            {searchOpen ? (
+              <span
+                className="flex flex-row center"
+                style={{
+                  gap: '1px',
+                  justifyContent: 'flex-end',
+                  width: 'fit-content',
+                  boxSizing: 'border-box',
+                }}
+              >
+                <ValidationInput
+                  ref={searchRef}
+                  value={searchText}
+                  setValue={(e) => setSearchText(e)}
+                  catchInvalidInput={true}
+                  showValidationIcon={false}
+                  placeholder={'Search for a domain'}
+                  maxCharLength={63}
+                  wrapperCustomStyle={{
+                    position: 'relative',
+                    boxSizing: 'border-box',
+                  }}
+                  inputCustomStyle={{
+                    width: '100%',
+                    minWidth: '120px',
+                    overflow: 'hidden',
+                    fontSize: '13px',
+                    outline: 'none',
+                    color: 'white',
+                    alignContent: 'center',
+                    borderBottom: 'none',
+                    boxSizing: 'border-box',
+                    background: 'transparent',
+                    borderRadius: 'var(--corner-radius)',
+                    border: 'none',
+                    paddingRight: '10px',
+                  }}
+                  validationPredicates={{}}
+                />
+                <button
+                  className="flex button center pointer"
+                  onClick={() => {
+                    setSearchText('');
+                    setSearchParams({});
+                    setSearchOpen(false);
+                  }}
+                >
+                  <CircleXFilled
+                    width={'18px'}
+                    height={'18px'}
+                    fill={'var(--text-grey)'}
+                  />
+                </button>
+              </span>
+            ) : (
+              <></>
+            )}
+          </div>
+        ),
         className: 'white manage-assets-table-header',
         // eslint-disable-next-line
         render: (val: any, record: PDNSTableRow) => (
-          <button
-            className="outline-button center pointer"
-            style={{
-              padding: '6px 10px',
-              fontSize: '14px',
-              minWidth: 'fit-content',
-            }}
-            onClick={() => {
-              setLoadingManageDomain(record.name);
-              navigate(`/manage/names/${record.name}`, {
-                state: { from: '/manage/names' },
-              });
-            }}
-          >
-            Details
-          </button>
+          <span className="flex" style={{ justifyContent: 'flex-end' }}>
+            <button
+              className="outline-button center pointer"
+              style={{
+                padding: '8px 12px',
+                fontSize: '11px',
+                minWidth: 'fit-content',
+              }}
+              onClick={() => {
+                setLoadingManageDomain(record.name);
+                navigate(`/manage/names/${record.name}`, {
+                  state: { from: '/manage/names' },
+                });
+              }}
+            >
+              Details
+            </button>
+          </span>
         ),
         align: 'right',
-        width: '10%',
+        width: '20%',
       },
     ];
   }
 
-  async function fetchDomainRow(
-    domain: string,
-    record: PDNSRecordEntry,
+  async function fetchDomainData(
+    ids: ArweaveTransactionID[],
     address: ArweaveTransactionID,
-    txConfirmations: number,
-  ): Promise<PDNSTableRow | undefined> {
+    currentBlockHeight?: number,
+  ): Promise<DomainData[]> {
+    setPercentLoaded(0);
+    itemsLoaded.current = 0;
+    const tokenIds = new Set(ids);
+    let datas: DomainData[] = [];
     try {
-      const [contractState, confirmations, pendingContractInteractions] =
-        await Promise.all([
+      const registrations =
+        await arweaveDataProvider.getRecords<PDNSRecordEntry>({
+          filters: { contractTxId: [...tokenIds] },
+          address,
+        });
+      const consolidatedRecords = Object.entries(registrations).map(
+        ([domain, record]) => ({ ...record, domain }),
+      );
+      const allTransactionBlockHeights = await arweaveDataProvider
+        .getTransactionStatus([...tokenIds], currentBlockHeight)
+        .catch((e) => console.error(e));
+
+      itemCount.current = consolidatedRecords.length;
+
+      const newDatas = consolidatedRecords.map(async (record) => {
+        const errors = [];
+        const [contract, pendingContractInteractions] = await Promise.all([
           arweaveDataProvider
-            .getContractState<PDNTContractJSON>(
-              new ArweaveTransactionID(record.contractTxId),
-              address,
-            )
+            .buildANTContract(new ArweaveTransactionID(record.contractTxId))
             .catch((e) => console.error(e)),
-          txConfirmations,
           arweaveDataProvider
             .getPendingContractInteractions(
               new ArweaveTransactionID(record.contractTxId),
-              address.toString(),
             )
             .catch((e) => {
               console.error(e);
             }),
         ]);
 
-      if (!contractState) {
-        throw Error(
-          `Failed to load contract: ${record.contractTxId.toString()}`,
+        if (!contract?.state) {
+          errors.push(
+            `Failed to load contract: ${record.contractTxId.toString()}`,
+          );
+        }
+        // simple check that it is ANT shaped contract
+
+        if (!contract?.isValid()) {
+          errors.push(`Invalid contract: ${record.contractTxId.toString()}`);
+        }
+        // TODO: react strict mode makes this increment twice in dev
+        if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
+        setPercentLoaded(
+          Math.round((itemsLoaded.current / itemCount.current) * 100),
         );
-      }
+        if (!contract?.getOwnershipStatus(walletAddress)) {
+          return;
+        }
 
-      const contract = new PDNTContract(
-        contractState,
-        new ArweaveTransactionID(record.contractTxId),
-      );
+        const data: DomainData = {
+          record,
+          state: contract?.state,
+          pendingContractInteractions: pendingContractInteractions ?? undefined,
+          transactionBlockHeight:
+            allTransactionBlockHeights?.[record.contractTxId.toString()]
+              ?.blockHeight,
+          errors,
+        };
 
-      // simple check that it is ANT shaped contract
-      if (!contract.isValid()) {
-        throw new Error(`Invalid contract: ${record.contractTxId.toString()}`);
-      }
+        return data;
+      });
 
-      const rowData = {
-        name: decodeDomainToASCII(domain),
-        id: record.contractTxId,
-        role:
-          contract.owner === walletAddress?.toString()
-            ? 'Owner'
-            : contractState.controller === walletAddress?.toString()
-            ? 'Controller'
-            : 'N/A',
-        expiration: record.endTimestamp
-          ? new Date(record.endTimestamp * 1000)
-          : 'Indefinite',
-        status: confirmations ?? 0,
-        undernameSupport: record?.undernames ?? DEFAULT_MAX_UNDERNAMES,
-        undernameCount: Object.keys(contract.records).length - 1,
-        undernames: `${(
-          Object.keys(contract.records).length - 1
-        ).toLocaleString()} / ${(
-          record?.undernames ?? DEFAULT_MAX_UNDERNAMES
-        ).toLocaleString()}`,
-        key: `${domain}-${record.contractTxId}`,
-      };
-      const pendingTxsForContract = getPendingInteractionsRowsForContract(
-        pendingContractInteractions ?? [],
-        rowData,
-      );
-
-      const pendingInteractions = pendingTxsForContract.reduce(
-        (pendingValues, i) => ({
-          ...pendingValues,
-          [i.attribute]: i.value,
-        }),
-        {},
-      );
-
-      // TODO: add error messages and reload state to row
-      return {
-        ...rowData,
-        ...pendingInteractions,
-        hasPending: !!pendingTxsForContract.length,
-      };
+      datas = (await Promise.all(newDatas)).filter(
+        (data) => !!data,
+      ) as DomainData[];
     } catch (error) {
       console.error(error);
-    } finally {
-      setPercentLoaded(((itemsLoaded + 1) / itemCount) * 100);
-      setItemsLoaded(itemsLoaded + 1);
     }
+    return datas;
   }
 
-  function buildFakeRecord(cachedRecord: ContractInteraction) {
-    const record: PDNSRecordEntry = {
-      type:
-        cachedRecord.payload.type === TRANSACTION_TYPES.LEASE
-          ? TRANSACTION_TYPES.LEASE
-          : TRANSACTION_TYPES.BUY,
-      contractTxId:
-        cachedRecord.payload.contractTxId === 'atomic'
-          ? cachedRecord.id
-          : cachedRecord.payload.contractTxId,
-      startTimestamp: Math.round(cachedRecord.timestamp / 1000),
-      endTimestamp:
-        cachedRecord.type === TRANSACTION_TYPES.LEASE
-          ? cachedRecord.timestamp +
-            Math.max(1, +cachedRecord.payload.years) * YEAR_IN_MILLISECONDS
-          : undefined,
-      undernames: DEFAULT_MAX_UNDERNAMES,
-    };
-    return record;
-  }
-
-  async function fetchDomainRows(
-    ids: ArweaveTransactionID[],
+  function buildDomainRows(
+    datas: DomainData[],
     address: ArweaveTransactionID,
+    currentBlockHeight?: number,
   ) {
-    setIsLoading(true);
     const fetchedRows: PDNSTableRow[] = [];
-    const tokenIds = new Set(ids);
 
     try {
-      const cachedInteractions =
-        await arweaveDataProvider.getPendingContractInteractions(
-          new ArweaveTransactionID(ARNS_REGISTRY_ADDRESS),
-          address.toString(),
+      const rowData = datas.map((data: DomainData) => {
+        const { record, state, transactionBlockHeight } = data;
+        const contract = new PDNTContract(
+          state,
+          new ArweaveTransactionID(record.contractTxId),
         );
-      const cachedRegistrations = cachedInteractions.reduce(
-        (acc: PDNSDomains, interaction) => {
-          if (interaction.payload?.function === 'buyRecord') {
-            acc[interaction.payload.name] = buildFakeRecord(interaction);
-            tokenIds.add(
-              new ArweaveTransactionID(
-                interaction.payload.contractTxId === 'atomic'
-                  ? interaction.id
-                  : interaction.payload.contractTxId,
-              ),
-            );
-          }
-          return acc;
-        },
-        {},
-      );
 
-      const consolidatedRecords = Object.entries({
-        ...cachedRegistrations,
-        ...pdnsSourceContract.records,
+        return {
+          name: decodeDomainToASCII(data.record.domain),
+          id: data.record.contractTxId,
+          role:
+            contract.owner === walletAddress?.toString()
+              ? 'Owner'
+              : contract.controllers.includes(address.toString())
+              ? 'Controller'
+              : 'N/A',
+          expiration: record.endTimestamp
+            ? new Date(record.endTimestamp * 1000)
+            : 'Indefinite',
+          status:
+            transactionBlockHeight && currentBlockHeight
+              ? currentBlockHeight - transactionBlockHeight
+              : 0,
+          undernameSupport: record?.undernames ?? DEFAULT_MAX_UNDERNAMES,
+          undernameCount: getUndernameCount(contract.records),
+          undernames: `${getUndernameCount(
+            contract.records,
+          ).toLocaleString()} / ${(
+            record?.undernames ?? DEFAULT_MAX_UNDERNAMES
+          ).toLocaleString()}`,
+          key: `${record.domain}-${record.contractTxId}`,
+          hasPending: !!data.pendingContractInteractions?.length,
+          errors: data.errors,
+        };
       });
-      const confirmations = await arweaveDataProvider.getTransactionStatus(
-        [...tokenIds],
-        blockHeight,
-      );
-      setItemCount(consolidatedRecords.length);
-      const rowData = await Promise.all(
-        [...tokenIds].map((id: ArweaveTransactionID) => {
-          const record = consolidatedRecords.find(
-            ([, record]) => record.contractTxId === id.toString(),
-          );
-          if (record) {
-            return fetchDomainRow(
-              record[0],
-              record[1],
-              address,
-              confirmations[record[1].contractTxId],
-            );
-          }
-        }),
-      ).then((rows) =>
-        rows.reduce((acc: PDNSTableRow[], row) => {
-          if (row) {
-            acc.push(row);
-          }
-          return acc;
-        }, []),
-      );
       fetchedRows.push(...rowData);
-      // sort by confirmations by default
-      fetchedRows.sort((a, b) => a.status - b.status);
     } catch (error) {
       eventEmitter.emit('error', error);
-    } finally {
-      setIsLoading(false);
     }
-
-    setRows(fetchedRows);
+    handleTableSort<PDNSTableRow>({
+      key: 'status',
+      isAsc: false,
+      rows: fetchedRows,
+    });
+    return fetchedRows;
   }
 
   return {
     isLoading,
     percent,
     columns: generateTableColumns(),
-    rows,
+    rows: searchText.length && searchOpen ? filteredResults : rows,
     sortField,
     sortAscending,
     selectedRow,
     loadingManageDomain,
+    refresh: load,
   };
 }

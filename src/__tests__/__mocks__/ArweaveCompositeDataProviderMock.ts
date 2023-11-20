@@ -1,20 +1,24 @@
+import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { PDNTContract } from '../../services/arweave/PDNTContract';
 import {
   ArweaveDataProvider,
-  ArweaveTransactionID,
   Auction,
-  AuctionParameters,
   AuctionSettings,
   ContractInteraction,
+  INTERACTION_PRICE_PARAMS,
   PDNSContractJSON,
   PDNSRecordEntry,
+  PDNTContractDomainRecord,
   PDNTContractJSON,
   SmartweaveContractCache,
   SmartweaveContractInteractionProvider,
   TRANSACTION_TYPES,
   TransactionTag,
 } from '../../types';
-import { STUB_ARWEAVE_TXID } from '../../utils/constants';
+import {
+  ARNS_REGISTRY_ADDRESS,
+  STUB_ARWEAVE_TXID,
+} from '../../utils/constants';
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 export class ArweaveCompositeDataProviderMock
@@ -52,8 +56,8 @@ export class ArweaveCompositeDataProviderMock
 
   async getTransactionStatus(
     ids: ArweaveTransactionID[] | ArweaveTransactionID,
-  ): Promise<Record<string, number>> {
-    return { '': 0 }; // Mock value
+  ): Promise<Record<string, { confirmations: number; blockHeight: number }>> {
+    return { '': { confirmations: 0, blockHeight: 0 } }; // Mock value
   }
 
   async getTransactionTags(
@@ -114,7 +118,7 @@ export class ArweaveCompositeDataProviderMock
     domain,
     type,
     years,
-    reservedList,
+    auction,
   }: {
     walletAddress: ArweaveTransactionID;
     registryId: ArweaveTransactionID;
@@ -123,7 +127,7 @@ export class ArweaveCompositeDataProviderMock
     domain: string;
     type: TRANSACTION_TYPES;
     years?: number;
-    reservedList: string[];
+    auction: boolean;
   }): Promise<string | undefined> {
     return 'mock-register-id'; // Mock value
   }
@@ -148,7 +152,6 @@ export class ArweaveCompositeDataProviderMock
 
   async getPendingContractInteractions(
     contractTxId: ArweaveTransactionID,
-    key: string,
   ): Promise<ContractInteraction[]> {
     return []; // Mock value
   }
@@ -164,32 +167,61 @@ export class ArweaveCompositeDataProviderMock
   async isDomainAvailable({ domain }: { domain: string }): Promise<boolean> {
     return false;
   }
-  async getCachedNameTokens(
-    address: ArweaveTransactionID,
-  ): Promise<PDNTContract[]> {
-    return [] as PDNTContract[]; // Mock value
-  }
 
   async getAuctionPrices({ domain }: { domain: string }): Promise<Auction> {
     throw new Error('Method not implemented.');
   }
-  async getAuction({ domain }: { domain: string }): Promise<AuctionParameters> {
+  async getAuction({
+    contractTxId,
+    domain,
+    type,
+  }: {
+    contractTxId: ArweaveTransactionID;
+    domain: string;
+    type: 'lease' | 'permabuy';
+  }): Promise<Auction> {
     throw new Error('Method not implemented.');
   }
   async getAuctionSettings({
-    auctionSettingsId,
+    contractTxId,
   }: {
-    auctionSettingsId: string;
+    contractTxId: ArweaveTransactionID;
   }): Promise<AuctionSettings> {
     throw new Error('Method not implemented.');
   }
   async getDomainsInAuction(): Promise<string[]> {
     throw new Error('Method not implemented.');
   }
-  getRecord(domain: string): Promise<PDNSRecordEntry> {
+  getRecord({ domain }: { domain: string }): Promise<PDNSRecordEntry> {
+    return Promise.resolve({} as PDNSRecordEntry);
+  }
+  getRecords<T extends PDNSRecordEntry | PDNTContractDomainRecord>({
+    contractTxId,
+    filters,
+  }: {
+    contractTxId?: ArweaveTransactionID;
+    filters: {
+      contractTxId?: ArweaveTransactionID[];
+    };
+  }): Promise<{ [x: string]: T }> {
     throw new Error('Method not implemented.');
   }
-  getIoBalance(address: ArweaveTransactionID): Promise<number> {
+  getTokenBalance(
+    address: ArweaveTransactionID,
+    contractTxId: ArweaveTransactionID,
+  ): Promise<number> {
     throw new Error('Method not implemented.');
+  }
+
+  async getPriceForInteraction(
+    interaction: INTERACTION_PRICE_PARAMS,
+    contractTxId = ARNS_REGISTRY_ADDRESS,
+  ): Promise<number> {
+    return 0; // Mock value
+  }
+  async buildANTContract(
+    contractTxId: ArweaveTransactionID,
+  ): Promise<PDNTContract> {
+    return {} as PDNTContract; // Mock value
   }
 }

@@ -1,11 +1,12 @@
-import { Breadcrumb } from 'antd';
+import { Breadcrumb, Tooltip } from 'antd';
 import { useEffect, useState } from 'react';
 import { useLocation, useMatches } from 'react-router';
 import { Link } from 'react-router-dom';
 
-import { useArweaveCompositeProvider } from '../../../hooks';
-import { ArweaveTransactionID } from '../../../types';
+import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { formatForMaxCharCount, isArweaveTransactionID } from '../../../utils';
+import { RESERVED_BREADCRUMB_TITLES } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { ChevronDownIcon } from '../../icons';
 
@@ -17,7 +18,7 @@ export type NavItem = {
 export const ANT_FLAG = 'ant-flag';
 
 function Breadcrumbs() {
-  const arweaveDataProvider = useArweaveCompositeProvider();
+  const [{ arweaveDataProvider }] = useGlobalState();
   const { Item } = Breadcrumb;
   const location = useLocation();
   const path = location.pathname.split('/');
@@ -67,6 +68,14 @@ function Breadcrumbs() {
     }
   }
 
+  // TODO: move this to a css class
+  function handleCrumbTitle(title: string) {
+    if (RESERVED_BREADCRUMB_TITLES.has(title)) {
+      return title;
+    }
+    return formatForMaxCharCount(title, 16);
+  }
+
   return (
     <>
       {crumbs?.length ? (
@@ -76,7 +85,7 @@ function Breadcrumbs() {
             background: 'black',
             height: '50px',
             justifyContent: 'flex-start',
-            paddingLeft: '5%',
+            paddingLeft: '100px',
             fontSize: '16px',
             color: 'var(--text-faded)',
           }}
@@ -98,21 +107,38 @@ function Breadcrumbs() {
           }
         >
           {crumbs.map((item, index) => {
+            const crumbTitle = handleCrumbTitle(item.name);
+
+            const crumbLink = (
+              <Link
+                className="link faded hover"
+                style={{
+                  fontSize: '16px',
+                  color:
+                    path.at(-1) === item?.route?.split('/').at(-1)
+                      ? 'white'
+                      : 'var(--text-grey)',
+                }}
+                to={item?.route ?? '/'}
+              >
+                {crumbTitle}
+              </Link>
+            );
+
             return (
               <Item key={index} className="center faded">
-                <Link
-                  className="link faded hover"
-                  style={{
-                    fontSize: '16px',
-                    color:
-                      path.at(-1) === item?.route?.split('/').at(-1)
-                        ? 'white'
-                        : 'var(--text-grey)',
-                  }}
-                  to={item?.route ?? '/'}
-                >
-                  {formatForMaxCharCount(item.name, 16)}
-                </Link>
+                {crumbTitle === item.name ? (
+                  crumbLink
+                ) : (
+                  <Tooltip
+                    title={<span className=" flex center">{item.name}</span>}
+                    placement={'top'}
+                    autoAdjustOverflow={true}
+                    color="var(--text-faded)"
+                  >
+                    {crumbLink}
+                  </Tooltip>
+                )}
               </Item>
             );
           })}

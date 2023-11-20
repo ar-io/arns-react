@@ -12,6 +12,7 @@
     "lint:check": "eslint .",
     "preview": "vite preview",
     "test": "NODE_ENV=test jest",
+    "test:updateSnapshot": "NODE_ENV=test jest --updateSnapshot",
     "test:coverage": "NODE_ENV=test jest --coverage",
     "prepare": "husky install",
     "pre-commit": "lint-staged"
@@ -30,14 +31,12 @@
     "eventemitter3": "^5.0.0",
     "lodash": "^4.17.21",
     "puny-coder": "^1.0.1",
-    "rc-table": "^7.30.3",
-    "rc-util": "^5.28.0",
     "react": "^18.2.0",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.6.0",
     "react-router-dom": "^6.4.2",
-    "warp-contracts": "^1.4.6",
+    "warp-contracts": "^1.4.22",
     "warp-contracts-plugin-deploy": "^1.0.8"
   },
   "devDependencies": {
@@ -100,8 +99,7 @@
       "eslint --fix ."
     ],
     "**/*.{ts,tsx,js,md,json}": [
-      "prettier --write .",
-      "git add ."
+      "prettier --write ."
     ]
   }
 }
