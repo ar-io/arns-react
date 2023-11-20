@@ -59,8 +59,7 @@ function Footer() {
               }}
             >
               <div>
-                ArNS is part of the ar.io testnet phase. Please share your
-                feedback on our 2 min{' '}
+                Please help improve ArNS by taking this 2 minute{' '}
                 <Link
                   to="https://pds-inc.typeform.com/arns-test-app"
                   target="_blank"
@@ -68,8 +67,9 @@ function Footer() {
                   className="link hover"
                   style={{
                     display: 'inline',
-                    color: 'red',
-                    fontWeight: 500,
+                    color: 'var(--text-black)',
+                    textDecoration: 'underline',
+                    fontWeight: 600,
                   }}
                 >
                   survey
