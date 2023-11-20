@@ -600,7 +600,9 @@ function RegisterNameForm() {
                 nextText="Next"
                 backText="Back"
                 onNext={
-                  hasValidationErrors || !fee?.io ? undefined : handleNext
+                  hasValidationErrors || !fee?.io || fee?.io < 0
+                    ? undefined
+                    : handleNext
                 }
                 onBack={() => navigate('/', { state: `/register/${domain}` })}
                 customNextStyle={{ width: '100px' }}
