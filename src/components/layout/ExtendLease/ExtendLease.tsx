@@ -262,7 +262,7 @@ function ExtendLease() {
         {/* TODO: [PE-4563] implement contract read api for extend record */}
         <TransactionCost
           fee={{
-            [ioTicker]: ioFee ?? -1,
+            [ioTicker]: ioFee,
           }}
           ioRequired={true}
         />

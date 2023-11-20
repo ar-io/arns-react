@@ -66,6 +66,8 @@ function RegisterNameForm() {
   const navigate = useNavigate();
   const [hasValidationErrors, setHasValidationErrors] =
     useState<boolean>(false);
+  const ioFee = fee?.[ioTicker];
+  const feeError = ioFee && ioFee < 0;
 
   useEffect(() => {
     if (!blockHeight) {
@@ -110,7 +112,7 @@ function RegisterNameForm() {
           try {
             dispatchRegisterState({
               type: 'setFee',
-              payload: { ar: fee.ar, [ioTicker]: -1 },
+              payload: { ar: fee.ar, [ioTicker]: undefined },
             });
             const price = await arweaveDataProvider
               .getPriceForInteraction({
@@ -161,7 +163,7 @@ function RegisterNameForm() {
   }
 
   async function handleNext() {
-    if (fee?.[ioTicker] === undefined || fee?.[ioTicker] < 0) {
+    if (fee?.[ioTicker] === undefined) {
       return;
     }
     try {
@@ -604,9 +606,7 @@ function RegisterNameForm() {
                 nextText="Next"
                 backText="Back"
                 onNext={
-                  hasValidationErrors || !fee?.[ioTicker] || fee?.[ioTicker] < 0
-                    ? undefined
-                    : handleNext
+                  hasValidationErrors || feeError ? undefined : handleNext
                 }
                 onBack={() => navigate('/', { state: `/register/${domain}` })}
                 customNextStyle={{ width: '100px' }}

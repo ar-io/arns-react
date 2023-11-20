@@ -12,7 +12,7 @@ function TransactionCost({
   ioRequired = false,
   feeWrapperStyle,
 }: {
-  fee?: { [x: string]: number };
+  fee?: { [x: string]: number | undefined };
   info?: JSX.Element | string;
   showBorder?: boolean;
   ioRequired?: boolean;
@@ -20,8 +20,8 @@ function TransactionCost({
 }) {
   const isMobile = useIsMobile();
   const [{ ioTicker }] = useGlobalState();
-
-  const feeError = fee?.[ioTicker] && fee?.[ioTicker] < 0;
+  const ioFee = fee?.[ioTicker];
+  const feeError = ioFee && ioFee < 0;
 
   return (
     <div
@@ -57,14 +57,13 @@ function TransactionCost({
           <span
             className="flex flex-row text white flex-right"
             style={{ gap: '5px', width: 'fit-content' }}
-            key={fee?.[ioTicker]}
           >
             {feeError ? (
               'Unable to calculate fee'
             ) : (
               <>
-                {fee?.[ioTicker]
-                  ? `${fee?.[ioTicker].toLocaleString()} ${ioTicker} + `
+                {ioFee
+                  ? `${ioFee.toLocaleString()} ${ioTicker} + `
                   : ioRequired
                   ? `Calculating ${ioTicker} + `
                   : ''}

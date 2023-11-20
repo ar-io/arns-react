@@ -345,7 +345,7 @@ function TransactionWorkflow({
                 <PDNTCard {...pdntProps} bordered compact={false} />
                 <TransactionCost
                   fee={{
-                    [ioTicker]: payload.interactionPrice ?? -1,
+                    [ioTicker]: payload.interactionPrice,
                   }}
                   info={
                     <div
@@ -466,7 +466,7 @@ function TransactionWorkflow({
                 <PDNTCard {...pdntProps} bordered />
                 <TransactionCost
                   fee={{
-                    [ioTicker]: payload.interactionPrice ?? -1,
+                    [ioTicker]: payload.interactionPrice,
                   }}
                   info={
                     <div
@@ -567,7 +567,7 @@ function TransactionWorkflow({
                 <PDNTCard {...pdntProps} bordered />
                 <TransactionCost
                   fee={{
-                    [ioTicker]: payload.interactionPrice ?? -1,
+                    [ioTicker]: payload.interactionPrice,
                   }}
                   info={
                     <div

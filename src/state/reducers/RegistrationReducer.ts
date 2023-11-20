@@ -11,7 +11,7 @@ export type RegistrationAction =
   | { type: 'setLeaseDuration'; payload: number }
   | { type: 'setANTID'; payload: ArweaveTransactionID | undefined }
   | { type: 'setResolvedTx'; payload: ArweaveTransactionID | undefined }
-  | { type: 'setFee'; payload: { ar: number; [x: string]: number } }
+  | { type: 'setFee'; payload: { ar: number; [x: string]: number | undefined } }
   | { type: 'setIsRegistered'; payload: boolean }
   | { type: 'setStage'; payload: number }
   | { type: 'setIsSearching'; payload: boolean }
