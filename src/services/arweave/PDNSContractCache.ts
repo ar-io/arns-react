@@ -511,4 +511,17 @@ export class PDNSContractCache implements SmartweaveContractCache {
     ]);
     return new PDNTContract(state, contractTxId, pendingInteractions);
   }
+  async getStateField({
+    contractTxId,
+    field,
+  }: {
+    contractTxId: ArweaveTransactionID;
+    field: string;
+  }) {
+    const res = await fetch(
+      `${this._url}/v1/contract/${contractTxId.toString()}/${field}`,
+    );
+    const result = await res.json();
+    return result[field];
+  }
 }

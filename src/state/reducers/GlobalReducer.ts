@@ -12,6 +12,10 @@ export type GlobalAction =
   | {
       type: 'setBlockHeight';
       payload: number;
+    }
+  | {
+      type: 'setIoTicker';
+      payload: string;
     };
 
 export const reducer = (
@@ -30,6 +34,11 @@ export const reducer = (
         ...state,
         blockHeight: action.payload,
         lastBlockUpdateTimestamp: Date.now(),
+      };
+    case 'setIoTicker':
+      return {
+        ...state,
+        ioTicker: action.payload,
       };
     default:
       return state;

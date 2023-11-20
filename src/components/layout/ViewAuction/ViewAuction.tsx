@@ -20,7 +20,8 @@ import NextPriceUpdate from '../NextPriceUpdate/NextPriceUpdate';
 import PageLoader from '../progress/PageLoader/PageLoader';
 
 function ViewAuction() {
-  const [{ blockHeight, lastBlockUpdateTimestamp }] = useGlobalState();
+  const [{ blockHeight, lastBlockUpdateTimestamp, ioTicker }] =
+    useGlobalState();
   const { name } = useParams();
   const navigate = useNavigate();
   const { auction, loadingAuctionInfo } = useAuctionInfo(
@@ -115,7 +116,7 @@ function ViewAuction() {
                   color: 'var(--accent)',
                 }}
               >
-                {auction!.currentPrice.toLocaleString() ?? 0} IO
+                {auction!.currentPrice.toLocaleString() ?? 0} {ioTicker}
               </span>
             </span>
             <span className="flex grey" style={{ color: 'var(--text-grey)' }}>

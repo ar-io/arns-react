@@ -899,6 +899,23 @@ export function pruneExtraDataFromTransactionPayload(
   return cleanPayload;
 }
 
+/**
+ * Checks if a user has sufficient balance for a given set of costs.
+ * This function iterates over each cost item, verifying if the user's balance for that item
+ * is equal to or greater than the cost. If the balance is insufficient for any item,
+ * it throws an Error with a specific message indicating the shortfall in a case-sensitive manner.
+ *
+ * @param {Object} params - The parameters object.
+ * @param {T} params.balances - An object representing the user's current balances,
+ * where the keys are the item names (case-sensitive) and values are their corresponding balances.
+ * @param {T} params.costs - An object representing the costs,
+ * structured similarly to the balances object, with keys as item names and values as the required amounts.
+ * @throws {Error} - Throws an error with a message indicating the specific item for which the balance is insufficient,
+ * including the current balance and the additional amount required.
+ * @return {boolean} - Returns true if the user has a sufficient balance for all costs.
+ * @template T - A generic type extending a Record of string keys to number values,
+ * used for both the 'balances' and 'costs' parameters.
+ */
 export function userHasSufficientBalance<T extends Record<string, number>>({
   balances,
   costs,
@@ -906,14 +923,13 @@ export function userHasSufficientBalance<T extends Record<string, number>>({
   balances: T;
   costs: T;
 }): boolean {
+  // TODO: emit multiple errors if multiple balances are insufficient
   return Object.entries(costs).every(([key, value]) => {
     if (!(balances[key] >= value)) {
       throw new Error(
-        `Insufficient balance of ${key.toUpperCase()}, user has ${
-          balances[key]
-        } and needs ${
+        `Insufficient balance of ${key}, user has ${balances[key]} and needs ${
           value - balances[key]
-        } more ${key.toUpperCase()} to pay for this transaction.`,
+        } more ${key} to pay for this transaction.`,
       );
     }
     return true;

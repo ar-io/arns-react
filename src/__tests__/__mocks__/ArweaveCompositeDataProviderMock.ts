@@ -224,4 +224,13 @@ export class ArweaveCompositeDataProviderMock
   ): Promise<PDNTContract> {
     return {} as PDNTContract; // Mock value
   }
+  async getStateField({
+    contractTxId,
+    field,
+  }: {
+    contractTxId: ArweaveTransactionID;
+    field: string;
+  }): Promise<any> {
+    return {}; // Mock value
+  }
 }

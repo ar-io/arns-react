@@ -49,7 +49,7 @@ function RegisterNameForm() {
     { domain, fee, leaseDuration, registrationType, antID },
     dispatchRegisterState,
   ] = useRegistrationState();
-  const [{ blockHeight, arweaveDataProvider }, dispatchGlobalState] =
+  const [{ blockHeight, arweaveDataProvider, ioTicker }, dispatchGlobalState] =
     useGlobalState();
   const [{ walletAddress, balances }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
@@ -66,6 +66,8 @@ function RegisterNameForm() {
   const navigate = useNavigate();
   const [hasValidationErrors, setHasValidationErrors] =
     useState<boolean>(false);
+  const ioFee = fee?.[ioTicker];
+  const feeError = ioFee && ioFee < 0;
 
   useEffect(() => {
     if (!blockHeight) {
@@ -99,7 +101,7 @@ function RegisterNameForm() {
     ) {
       dispatchRegisterState({
         type: 'setFee',
-        payload: { ar: fee.ar, io: auction.currentPrice },
+        payload: { ar: fee.ar, [ioTicker]: auction.currentPrice },
       });
     } else {
       if (!auction) {
@@ -110,7 +112,7 @@ function RegisterNameForm() {
           try {
             dispatchRegisterState({
               type: 'setFee',
-              payload: { ar: fee.ar, io: undefined },
+              payload: { ar: fee.ar, [ioTicker]: undefined },
             });
             const price = await arweaveDataProvider
               .getPriceForInteraction({
@@ -127,7 +129,7 @@ function RegisterNameForm() {
               });
             dispatchRegisterState({
               type: 'setFee',
-              payload: { ar: fee.ar, io: price },
+              payload: { ar: fee.ar, [ioTicker]: price },
             });
           } catch (e) {
             eventEmitter.emit('error', e);
@@ -161,17 +163,17 @@ function RegisterNameForm() {
   }
 
   async function handleNext() {
-    if (fee.io === undefined) {
+    if (fee?.[ioTicker] === undefined) {
       return;
     }
     try {
       // validate transaction cost, return if insufficient balance and emit validation message
       userHasSufficientBalance<{
-        io: number;
-        ar: number;
+        [x: string]: number;
+        AR: number;
       }>({
-        balances,
-        costs: fee as { io: number; ar: number },
+        balances: { AR: balances.ar, ...balances },
+        costs: { AR: fee.ar, ...fee } as { [x: string]: number; AR: number },
       });
     } catch (error: any) {
       eventEmitter.emit('error', {
@@ -208,7 +210,7 @@ function RegisterNameForm() {
         assetId: ARNS_REGISTRY_ADDRESS.toString(),
         functionName: 'buyRecord',
         ...buyRecordPayload,
-        interactionPrice: fee.io,
+        interactionPrice: fee?.[ioTicker],
       },
     });
     dispatchTransactionState({
@@ -559,7 +561,10 @@ function RegisterNameForm() {
               fee={fee}
               feeWrapperStyle={{ alignItems: 'flex-start' }}
             />
-            {domain && auction && auction.isRequiredToBeAuctioned && fee.io ? (
+            {domain &&
+            auction &&
+            auction.isRequiredToBeAuctioned &&
+            fee?.[ioTicker] ? (
               <div
                 className="flex flex-row warning-container"
                 style={{
@@ -575,12 +580,13 @@ function RegisterNameForm() {
                   style={{ textAlign: 'left', fontSize: '13px', gap: '1em' }}
                 >
                   Buying this name involves a Dutch auction. You start by
-                  bidding at the floor price of {fee.io.toLocaleString()} IO.
-                  The name&apos;s price begins at 10 times your bid and
-                  decreases over 2 weeks until it matches your bid, securing
-                  your win. You can also buy instantly at the ongoing price
-                  throughout the auction; if someone else does, you will lose
-                  the auction and have your initial bid returned.
+                  bidding at the floor price of{' '}
+                  {fee?.[ioTicker]?.toLocaleString()} {ioTicker}. The
+                  name&apos;s price begins at 10 times your bid and decreases
+                  over 2 weeks until it matches your bid, securing your win. You
+                  can also buy instantly at the ongoing price throughout the
+                  auction; if someone else does, you will lose the auction and
+                  have your initial bid returned.
                   <Link
                     to="https://ar.io/docs/arns/#bid-initiated-dutch-auctions-bida"
                     rel="noreferrer"
@@ -600,7 +606,7 @@ function RegisterNameForm() {
                 nextText="Next"
                 backText="Back"
                 onNext={
-                  hasValidationErrors || !fee?.io ? undefined : handleNext
+                  hasValidationErrors || feeError ? undefined : handleNext
                 }
                 onBack={() => navigate('/', { state: `/register/${domain}` })}
                 customNextStyle={{ width: '100px' }}

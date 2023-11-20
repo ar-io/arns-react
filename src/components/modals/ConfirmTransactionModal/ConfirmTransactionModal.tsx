@@ -347,7 +347,7 @@ function ConfirmTransactionModal({
   cancelText?: string;
   confirmText?: string;
 }) {
-  const [{ arweaveDataProvider }] = useGlobalState();
+  const [{ arweaveDataProvider, ioTicker }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
 
   const transactionProps: { title: string; body: JSX.Element } = {
@@ -359,7 +359,7 @@ function ConfirmTransactionModal({
     }),
   };
 
-  const [fee, setIOFee] = useState({ io: (payload as any).qty ?? 0 });
+  const [fee, setIOFee] = useState({ [ioTicker]: (payload as any).qty ?? 0 });
   const [deployingTransaction, setDeployingTransaction] = useState(false);
 
   async function deployInteraction(
@@ -399,7 +399,7 @@ function ConfirmTransactionModal({
       if (!writeInteractionId) {
         throw Error('Unable to deploy transaction');
       }
-      setIOFee({ io: fee });
+      setIOFee({ [ioTicker]: fee });
       setDeployedTransactionId(writeInteractionId);
       close();
     } catch (error) {

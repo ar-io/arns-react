@@ -4,6 +4,7 @@ import React, {
   useContext,
   useEffect,
   useReducer,
+  useState,
 } from 'react';
 
 import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
@@ -15,6 +16,7 @@ import {
   ARNS_REGISTRY_ADDRESS,
   AVERAGE_BLOCK_TIME_MS,
   DEFAULT_ARWEAVE,
+  DEFAULT_PDNS_REGISTRY_STATE,
   PDNS_SERVICE_API,
 } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
@@ -28,6 +30,7 @@ const defaultContractCache = new PDNSContractCache({
 });
 
 export type GlobalState = {
+  ioTicker: string;
   gateway: string;
   pdnsContractId: ArweaveTransactionID;
   blockHeight?: number;
@@ -37,6 +40,7 @@ export type GlobalState = {
 
 const initialState: GlobalState = {
   pdnsContractId: ARNS_REGISTRY_ADDRESS,
+  ioTicker: DEFAULT_PDNS_REGISTRY_STATE.ticker,
   gateway: 'ar-io.dev',
   blockHeight: undefined,
   lastBlockUpdateTimestamp: undefined,
@@ -65,8 +69,12 @@ export default function GlobalStateProvider({
   children,
 }: StateProviderProps): JSX.Element {
   const [state, dispatchGlobalState] = useReducer(reducer, initialState);
+  const [updatingTicker, setUpdatingTicker] = useState(false);
 
   useEffect(() => {
+    if (state.ioTicker === initialState.ioTicker && !updatingTicker) {
+      updateTicker();
+    }
     const updateBlockHeight = () => {
       state.arweaveDataProvider
         .getCurrentBlockHeight()
@@ -89,6 +97,21 @@ export default function GlobalStateProvider({
       clearInterval(blockInterval);
     };
   }, []);
+
+  async function updateTicker() {
+    try {
+      setUpdatingTicker(true);
+      const ticker = await state.arweaveDataProvider.getStateField({
+        contractTxId: ARNS_REGISTRY_ADDRESS,
+        field: 'ticker',
+      });
+      dispatchGlobalState({ type: 'setIoTicker', payload: ticker });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setUpdatingTicker(false);
+    }
+  }
 
   return (
     <GlobalStateContext.Provider value={[state, dispatchGlobalState]}>

@@ -34,7 +34,7 @@ import PageLoader from '../progress/PageLoader/PageLoader';
 
 function ExtendLease() {
   // TODO: remove use of source contract
-  const [{ arweaveDataProvider }] = useGlobalState();
+  const [{ arweaveDataProvider, ioTicker }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const location = useLocation();
@@ -262,7 +262,7 @@ function ExtendLease() {
         {/* TODO: [PE-4563] implement contract read api for extend record */}
         <TransactionCost
           fee={{
-            io: ioFee,
+            [ioTicker]: ioFee,
           }}
           ioRequired={true}
         />
