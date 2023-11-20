@@ -21,7 +21,7 @@ function TransactionCost({
   const isMobile = useIsMobile();
   const [{ ioTicker }] = useGlobalState();
 
-  const feeError = fee?.io && fee.io < 0;
+  const feeError = fee?.[ioTicker] && fee?.[ioTicker] < 0;
 
   return (
     <div

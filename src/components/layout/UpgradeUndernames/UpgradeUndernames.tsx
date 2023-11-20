@@ -173,7 +173,7 @@ function UpgradeUndernames() {
         <TransactionCost
           ioRequired={true}
           fee={{
-            io: fee,
+            [ioTicker]: fee ?? -1,
             ar: 0,
           }}
           info={
