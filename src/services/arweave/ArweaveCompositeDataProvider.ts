@@ -15,7 +15,10 @@ import {
   TRANSACTION_TYPES,
 } from '../../types';
 import { byteSize, userHasSufficientBalance } from '../../utils';
-import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
+import {
+  ARNS_REGISTRY_ADDRESS,
+  DEFAULT_PDNS_REGISTRY_STATE,
+} from '../../utils/constants';
 import { ArweaveTransactionID } from './ArweaveTransactionID';
 import { PDNTContract } from './PDNTContract';
 
@@ -78,14 +81,19 @@ export class ArweaveCompositeDataProvider
     }
 
     if (contractTxId === ARNS_REGISTRY_ADDRESS) {
+      const ioTicker =
+        (await this.getStateField({
+          contractTxId,
+          field: 'ticker',
+        }).catch(() => undefined)) ?? DEFAULT_PDNS_REGISTRY_STATE.ticker;
       const ioBalance = await this._contractProvider.getTokenBalance(
         walletAddress,
         ARNS_REGISTRY_ADDRESS,
       );
       if (
         !userHasSufficientBalance({
-          balances: { io: +ioBalance },
-          costs: { io: +payload.qty },
+          balances: { [ioTicker]: +ioBalance },
+          costs: { [ioTicker]: +payload.qty },
         })
       ) {
         throw new Error(`Insufficient token balance to perform transaction`);
