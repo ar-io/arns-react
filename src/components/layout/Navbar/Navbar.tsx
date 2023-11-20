@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
 import { BrandLogo } from '../../icons';
 import Breadcrumbs from '../Breadcrumbs/Breadcrumbs';
-import NavBarLink from './NavBarLink/NavBarLink';
 import NavGroup from './NavGroup/NavGroup';
 import './styles.css';
 
