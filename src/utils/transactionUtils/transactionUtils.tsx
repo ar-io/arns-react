@@ -909,11 +909,9 @@ export function userHasSufficientBalance<T extends Record<string, number>>({
   return Object.entries(costs).every(([key, value]) => {
     if (!(balances[key] >= value)) {
       throw new Error(
-        `Insufficient balance of ${key.toUpperCase()}, user has ${
-          balances[key]
-        } and needs ${
+        `Insufficient balance of ${key}, user has ${balances[key]} and needs ${
           value - balances[key]
-        } more ${key.toUpperCase()} to pay for this transaction.`,
+        } more ${key} to pay for this transaction.`,
       );
     }
     return true;

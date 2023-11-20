@@ -170,10 +170,10 @@ function RegisterNameForm() {
       // validate transaction cost, return if insufficient balance and emit validation message
       userHasSufficientBalance<{
         [x: string]: number;
-        ar: number;
+        AR: number;
       }>({
-        balances,
-        costs: fee as { [x: string]: number; ar: number },
+        balances: { AR: balances.ar, ...balances },
+        costs: { AR: fee.ar, ...fee } as { [x: string]: number; AR: number },
       });
     } catch (error: any) {
       eventEmitter.emit('error', {
