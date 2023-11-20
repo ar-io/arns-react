@@ -442,7 +442,7 @@ export function useWalletDomains() {
                   setValue={(e) => setSearchText(e)}
                   catchInvalidInput={true}
                   showValidationIcon={false}
-                  placeholder={'Search for a domain'}
+                  placeholder={'Search for a name'}
                   maxCharLength={63}
                   wrapperCustomStyle={{
                     position: 'relative',
