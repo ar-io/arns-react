@@ -16,6 +16,7 @@ import {
   ARNS_REGISTRY_ADDRESS,
   AVERAGE_BLOCK_TIME_MS,
   DEFAULT_ARWEAVE,
+  DEFAULT_PDNS_REGISTRY_STATE,
   PDNS_SERVICE_API,
 } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
@@ -39,7 +40,7 @@ export type GlobalState = {
 
 const initialState: GlobalState = {
   pdnsContractId: ARNS_REGISTRY_ADDRESS,
-  ioTicker: 'Test IO',
+  ioTicker: DEFAULT_PDNS_REGISTRY_STATE.ticker,
   gateway: 'ar-io.dev',
   blockHeight: undefined,
   lastBlockUpdateTimestamp: undefined,

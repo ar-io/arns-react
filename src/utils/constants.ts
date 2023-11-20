@@ -195,7 +195,7 @@ export const DEFAULT_PDNS_REGISTRY_STATE: PDNSContractJSON = {
   },
   name: '',
   owner: undefined,
-  ticker: '',
+  ticker: 'Test IO',
   approvedANTSourceCodeTxs: [],
 };
 

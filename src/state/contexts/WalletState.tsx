@@ -11,7 +11,10 @@ import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionI
 import { ArConnectWalletConnector } from '../../services/wallets';
 import { ARCONNECT_WALLET_PERMISSIONS } from '../../services/wallets/ArConnectWalletConnector';
 import { ArweaveWalletConnector } from '../../types';
-import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
+import {
+  ARNS_REGISTRY_ADDRESS,
+  DEFAULT_PDNS_REGISTRY_STATE,
+} from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 import { WalletAction } from '../reducers/WalletReducer';
 import { useGlobalState } from './GlobalState';
@@ -31,7 +34,7 @@ const initialState: WalletState = {
   wallet: undefined,
   balances: {
     ar: 0,
-    ['Test IO']: 0,
+    [DEFAULT_PDNS_REGISTRY_STATE.ticker]: 0,
   },
   walletStateInitialized: false,
 };
