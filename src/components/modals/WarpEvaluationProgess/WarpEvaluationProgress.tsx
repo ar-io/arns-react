@@ -69,7 +69,10 @@ function WarpEvaluationProgress({
 
   async function handleWarmTickState() {
     try {
-      const handleTickStateProgress = (current: number, total: number) => {
+      const handleTickStateProgress = async (
+        current: number,
+        total: number,
+      ) => {
         const percentage = (current / total) * 100;
         setEvaluationProgress(percentage);
       };

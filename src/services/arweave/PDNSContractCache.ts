@@ -1,3 +1,6 @@
+import { chunk } from 'lodash';
+import { of } from 'rxjs';
+
 import {
   ArweaveDataProvider,
   Auction,
@@ -19,7 +22,9 @@ import {
   isArweaveTransactionID,
   isDomainReservedLength,
   lowerCaseDomain,
+  withExponentialBackoff,
 } from '../../utils';
+import RateLimitedRequester from '../../utils/common/RateLimitRequester';
 import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
 import { ContractInteractionCache } from '../caches/ContractInteractionCache';
 import { LocalStorageCache } from '../caches/LocalStorageCache';
@@ -476,8 +481,11 @@ export class PDNSContractCache implements SmartweaveContractCache {
   async warmTickStateCache({
     progressCallback,
   }: {
-    progressCallback?: ((current: number, total: number) => void) | undefined;
+    progressCallback?:
+      | ((current: number, total: number) => Promise<void>)
+      | undefined;
   }): Promise<void> {
+    const blockRequester = new RateLimitedRequester(80, 28_000);
     const res = await fetch(
       `${this._url}/v1/contract/${ARNS_REGISTRY_ADDRESS.toString()}`,
     );
@@ -486,25 +494,33 @@ export class PDNSContractCache implements SmartweaveContractCache {
     } = await res.json();
     const currentHeight = await this._arweave.getCurrentBlockHeight();
     const totalQueries = currentHeight - lastTickedHeight;
-    const heightPromises = [];
     let fetchedHeights = 0;
     for (let i = lastTickedHeight; i < currentHeight; i++) {
       // store the calls in an array so we can await them in order
-      heightPromises.push(async () => {
-        const res = await this._arweave.getBlock(i);
+      await blockRequester.enqueue(async () => {
+        const res = await withExponentialBackoff({
+          fn: async () => {
+            try {
+              const res = await this._arweave.getBlock(i);
+              if (!res) {
+                throw new Error('Block not found');
+              }
+              fetchedHeights++;
+              if (progressCallback) {
+                await progressCallback(fetchedHeights, totalQueries);
+              }
+              return res;
+            } catch (error) {
+              console.error(error);
+            }
+          },
+          maxTries: 15,
+          initialDelay: 10,
+          shouldRetry: (e) => e === undefined,
+        });
         return res;
       });
     }
-
-    await Promise.all(
-      heightPromises.map(async (query) => {
-        await query();
-        fetchedHeights++;
-        if (progressCallback) {
-          progressCallback(fetchedHeights, totalQueries);
-        }
-      }),
-    );
   }
 
   async getPriceForInteraction(
