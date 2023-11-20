@@ -1,6 +1,3 @@
-import { chunk } from 'lodash';
-import { of } from 'rxjs';
-
 import {
   ArweaveDataProvider,
   Auction,
