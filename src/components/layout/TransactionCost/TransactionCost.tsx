@@ -57,6 +57,7 @@ function TransactionCost({
           <span
             className="flex flex-row text white flex-right"
             style={{ gap: '5px', width: 'fit-content' }}
+            key={fee?.[ioTicker]}
           >
             {feeError ? (
               'Unable to calculate fee'
