@@ -50,7 +50,7 @@ const searchBarValidationPredicate = ({
 function SearchBar(props: SearchBarProps) {
   const { disabled = false, placeholderText } = props;
   const navigate = useNavigate();
-  const [{ arweaveDataProvider }] = useGlobalState();
+  const [{ arweaveDataProvider, ioTicker }] = useGlobalState();
   const [{ domain }, dispatchRegisterState] = useRegistrationState();
   const [{ walletAddress }] = useWalletState();
   const isMobile = useIsMobile();
@@ -496,7 +496,7 @@ function SearchBar(props: SearchBarProps) {
                     color: 'var(--accent)',
                   }}
                 >
-                  {auctionInfo?.currentPrice.toLocaleString() ?? 0} IO
+                  {auctionInfo?.currentPrice.toLocaleString() ?? 0} {ioTicker}
                 </span>
               </span>
               <span

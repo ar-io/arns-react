@@ -22,7 +22,7 @@ import eventEmitter from '../../utils/events';
 import { useIsMobile } from '../useIsMobile/useIsMobile';
 
 export function useAuctionsTable() {
-  const [{ blockHeight, arweaveDataProvider }, dispatchGlobalState] =
+  const [{ blockHeight, arweaveDataProvider, ioTicker }, dispatchGlobalState] =
     useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [sortAscending, setSortOrder] = useState(true);
@@ -218,7 +218,7 @@ export function useAuctionsTable() {
         className: 'white assets-table-header',
         render: (val: number) => (
           <span style={{ whiteSpace: 'nowrap' }}>
-            {val.toLocaleString()} IO
+            {val.toLocaleString()} {ioTicker}
           </span>
         ),
         onHeaderCell: () => {

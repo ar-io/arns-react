@@ -28,7 +28,7 @@ function UpgradeUndernames() {
   const isMobile = useIsMobile();
   const location = useLocation();
   const navigate = useNavigate();
-  const [{ arweaveDataProvider }] = useGlobalState();
+  const [{ arweaveDataProvider, ioTicker }] = useGlobalState();
   const name = location.pathname.split('/').at(-2);
   const [, dispatchTransactionState] = useTransactionState();
   const [record, setRecord] = useState<PDNSRecordEntry>();
@@ -195,8 +195,8 @@ function UpgradeUndernames() {
                 className="flex flex-column flex-left grey text"
                 style={{ textAlign: 'left', lineHeight: '1.5em' }}
               >
-                Increasing your undernames is paid in IO tokens, and an Arweave
-                network fee paid in AR tokens.
+                Increasing your undernames is paid in {ioTicker} tokens, and an
+                Arweave network fee paid in AR tokens.
               </span>
             </div>
           }

@@ -58,7 +58,7 @@ function TransactionWorkflow({
   transactionData: TransactionData;
   workflowStage: TRANSACTION_WORKFLOW_STATUS;
 }) {
-  const [{ pdnsContractId, arweaveDataProvider }] = useGlobalState();
+  const [{ pdnsContractId, arweaveDataProvider, ioTicker }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [{ deployedTransactionId }, dispatchTransactionState] =
     useTransactionState();
@@ -366,8 +366,8 @@ function TransactionWorkflow({
                         className="flex flex-column flex-left grey text"
                         style={{ textAlign: 'left', lineHeight: '1.5em' }}
                       >
-                        This includes a registration fee (paid in IO tokens) and
-                        the Arweave network fee (paid in AR tokens).
+                        This includes a registration fee (paid in {ioTicker}{' '}
+                        tokens) and the Arweave network fee (paid in AR tokens).
                       </span>
                     </div>
                   }
@@ -487,8 +487,8 @@ function TransactionWorkflow({
                         className="flex flex-column flex-left grey text"
                         style={{ textAlign: 'left', lineHeight: '1.5em' }}
                       >
-                        Increasing your undernames is paid in IO tokens, and an
-                        Arweave network fee paid in AR tokens.
+                        Increasing your undernames is paid in {ioTicker} tokens,
+                        and an Arweave network fee paid in AR tokens.
                       </span>
                     </div>
                   }
@@ -588,8 +588,8 @@ function TransactionWorkflow({
                         className="flex flex-column flex-left grey text"
                         style={{ textAlign: 'left', lineHeight: '1.5em' }}
                       >
-                        This includes a registration fee (paid in IO tokens) and
-                        the Arweave network fee (paid in AR tokens).
+                        This includes a registration fee (paid in {ioTicker}{' '}
+                        tokens) and the Arweave network fee (paid in AR tokens).
                       </span>
                     </div>
                   }

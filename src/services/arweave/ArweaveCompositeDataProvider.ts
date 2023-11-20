@@ -88,7 +88,7 @@ export class ArweaveCompositeDataProvider
           costs: { io: +payload.qty },
         })
       ) {
-        throw new Error('Insufficient IO balance to perform transaction');
+        throw new Error(`Insufficient token balance to perform transaction`);
       }
     }
 
@@ -344,5 +344,14 @@ export class ArweaveCompositeDataProvider
     contractTxId: ArweaveTransactionID,
   ): Promise<PDNTContract> {
     return this._contractProvider.buildANTContract(contractTxId);
+  }
+  async getStateField({
+    contractTxId,
+    field,
+  }: {
+    contractTxId: ArweaveTransactionID;
+    field: string;
+  }): Promise<any> {
+    return this._contractProvider.getStateField({ contractTxId, field });
   }
 }

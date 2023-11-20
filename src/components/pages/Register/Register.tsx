@@ -49,7 +49,7 @@ function RegisterNameForm() {
     { domain, fee, leaseDuration, registrationType, antID },
     dispatchRegisterState,
   ] = useRegistrationState();
-  const [{ blockHeight, arweaveDataProvider }, dispatchGlobalState] =
+  const [{ blockHeight, arweaveDataProvider, ioTicker }, dispatchGlobalState] =
     useGlobalState();
   const [{ walletAddress, balances }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
@@ -575,9 +575,9 @@ function RegisterNameForm() {
                   style={{ textAlign: 'left', fontSize: '13px', gap: '1em' }}
                 >
                   Buying this name involves a Dutch auction. You start by
-                  bidding at the floor price of {fee.io.toLocaleString()} IO.
-                  The name&apos;s price begins at 10 times your bid and
-                  decreases over 2 weeks until it matches your bid, securing
+                  bidding at the floor price of {fee.io.toLocaleString()}{' '}
+                  {ioTicker}. The name&apos;s price begins at 10 times your bid
+                  and decreases over 2 weeks until it matches your bid, securing
                   your win. You can also buy instantly at the ongoing price
                   throughout the auction; if someone else does, you will lose
                   the auction and have your initial bid returned.

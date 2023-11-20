@@ -249,6 +249,13 @@ export interface SmartweaveContractCache {
     contractTxId?: ArweaveTransactionID,
   ): Promise<number>;
   buildANTContract(contractTxId: ArweaveTransactionID): Promise<PDNTContract>;
+  getStateField({
+    contractTxId,
+    field,
+  }: {
+    contractTxId: ArweaveTransactionID;
+    field: string;
+  }): Promise<any>;
 }
 
 export interface SmartweaveContractInteractionProvider {
