@@ -3,6 +3,8 @@ import { Tag, Tags } from 'warp-contracts';
 
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import {
+  ANTContractJSON,
+  ARNSMapping,
   BuyRecordPayload,
   CONTRACT_TYPES,
   ContractInteraction,
@@ -12,8 +14,6 @@ import {
   INTERACTION_TYPES,
   IncreaseUndernamesPayload,
   InteractionTypes,
-  PDNSMapping,
-  PDNTContractJSON,
   RemoveRecordPayload,
   SetControllerPayload,
   SetNamePayload,
@@ -31,12 +31,12 @@ import {
   ValidInteractionType,
 } from '../../types';
 import {
+  ARNS_TX_ID_REGEX,
   ATOMIC_FLAG,
+  DEFAULT_ANT_CONTRACT_STATE,
   DEFAULT_MAX_UNDERNAMES,
-  DEFAULT_PDNT_CONTRACT_STATE,
   MAX_TTL_SECONDS,
   MIN_TTL_SECONDS,
-  PDNS_TX_ID_REGEX,
   TTL_SECONDS_REGEX,
   YEAR_IN_MILLISECONDS,
 } from '../constants';
@@ -46,7 +46,7 @@ export function isArweaveTransactionID(id?: string) {
   if (!id) {
     return false;
   }
-  if (!PDNS_TX_ID_REGEX.test(id)) {
+  if (!ARNS_TX_ID_REGEX.test(id)) {
     return false;
   }
   return true;
@@ -222,8 +222,8 @@ export const getWorkflowStepsForInteraction = (
   return structuredClone(WorkflowStepsForInteractions[interaction]);
 };
 
-export function getPDNSMappingByInteractionType(
-  // can be used to generate PDNTCard props: <PDNTCard {...props = getPDNSMappingByInteractionType()} />
+export function getARNSMappingByInteractionType(
+  // can be used to generate ANTCard props: <ANTCard {...props = getARNSMappingByInteractionType()} />
   {
     interactionType,
     transactionData,
@@ -231,7 +231,7 @@ export function getPDNSMappingByInteractionType(
     interactionType: ValidInteractionType;
     transactionData: TransactionData;
   },
-): PDNSMapping | undefined {
+): ARNSMapping | undefined {
   switch (interactionType) {
     case INTERACTION_TYPES.BUY_RECORD: {
       if (
@@ -696,7 +696,7 @@ export function getAttributesFromInteractionFunction(f: string) {
 
 export function mapTransactionDataKeyToPayload(
   interactionType: ValidInteractionType,
-  data: string | number | Array<string | number | PDNTContractJSON>,
+  data: string | number | Array<string | number | ANTContractJSON>,
 ): TransactionData | undefined {
   const txData = typeof data === 'object' ? data : [data];
   if (!data) {
@@ -812,9 +812,9 @@ export function getPendingInteractionsRowsForContract(
 export function generateAtomicState(
   domain: string,
   walletAddress: ArweaveTransactionID,
-): PDNTContractJSON {
+): ANTContractJSON {
   return {
-    ...DEFAULT_PDNT_CONTRACT_STATE,
+    ...DEFAULT_ANT_CONTRACT_STATE,
     name: `ANT-${domain.toUpperCase()}`,
     ticker: 'ANT',
     owner: walletAddress.toString(),

@@ -1,14 +1,14 @@
 import {
+  ANTContractDomainRecord,
+  ANTContractJSON,
+  ARNSContractJSON,
+  ARNSRecordEntry,
   ArweaveDataProvider,
   Auction,
   AuctionSettings,
   ContractInteraction,
   INTERACTION_PRICE_PARAMS,
   KVCache,
-  PDNSContractJSON,
-  PDNSRecordEntry,
-  PDNTContractDomainRecord,
-  PDNTContractJSON,
   SmartweaveContractCache,
   TransactionCache,
 } from '../../types';
@@ -23,10 +23,10 @@ import {
 import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
 import { ContractInteractionCache } from '../caches/ContractInteractionCache';
 import { LocalStorageCache } from '../caches/LocalStorageCache';
+import { ANTContract } from './ANTContract';
 import { ArweaveTransactionID } from './ArweaveTransactionID';
-import { PDNTContract } from './PDNTContract';
 
-export class PDNSContractCache implements SmartweaveContractCache {
+export class ARNSContractCache implements SmartweaveContractCache {
   protected _url: string;
   protected _cache: TransactionCache & KVCache;
   protected _arweave: ArweaveDataProvider;
@@ -45,12 +45,12 @@ export class PDNSContractCache implements SmartweaveContractCache {
     this._arweave = arweave;
   }
 
-  async getContractState<T extends PDNTContractJSON | PDNSContractJSON>(
+  async getContractState<T extends ANTContractJSON | ARNSContractJSON>(
     contractTxId: ArweaveTransactionID,
   ): Promise<T> {
     // if we have pending interactions, manipulate state based on their payloads (map function names to state keys and apply payloads)
 
-    // atticus opinion: implement state manipulation in PDNTContract class and ArNSRegistry contract class which implements this getContractState method and
+    // atticus opinion: implement state manipulation in ANTContract class and ArNSRegistry contract class which implements this getContractState method and
     // adds cached interactions.
 
     try {
@@ -61,7 +61,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
 
       const cachedTokens = await this._cache.getCachedNameTokens();
       const cachedToken = cachedTokens?.find(
-        (token: PDNTContract) =>
+        (token: ANTContract) =>
           token.id?.toString() === contractTxId.toString(),
       );
       const cachedInteractions = await this._cache.getCachedInteractions(
@@ -343,7 +343,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
   }: {
     domain: string;
     contractTxId: ArweaveTransactionID;
-  }): Promise<PDNSRecordEntry> {
+  }): Promise<ARNSRecordEntry> {
     const res = await fetch(
       `${
         this._url
@@ -388,7 +388,7 @@ export class PDNSContractCache implements SmartweaveContractCache {
     throw new Error('Error getting record');
   }
 
-  async getRecords<T extends PDNSRecordEntry | PDNTContractDomainRecord>({
+  async getRecords<T extends ARNSRecordEntry | ANTContractDomainRecord>({
     contractTxId = ARNS_REGISTRY_ADDRESS,
     filters,
   }: {
@@ -504,12 +504,12 @@ export class PDNSContractCache implements SmartweaveContractCache {
   }
   async buildANTContract(
     contractTxId: ArweaveTransactionID,
-  ): Promise<PDNTContract> {
+  ): Promise<ANTContract> {
     const [state, pendingInteractions] = await Promise.all([
-      this.getContractState<PDNTContractJSON>(contractTxId),
+      this.getContractState<ANTContractJSON>(contractTxId),
       this.getPendingContractInteractions(contractTxId),
     ]);
-    return new PDNTContract(state, contractTxId, pendingInteractions);
+    return new ANTContract(state, contractTxId, pendingInteractions);
   }
   async getStateField({
     contractTxId,

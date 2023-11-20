@@ -8,23 +8,23 @@ import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import {
+  ANTInteractionType,
   BuyRecordPayload,
   ExcludedValidInteractionType,
   ExtendLeasePayload,
   INTERACTION_TYPES,
   IncreaseUndernamesPayload,
-  PDNTInteractionType,
   RegistryInteractionType,
   TransactionData,
   ValidInteractionType,
-  pdntInteractionTypes,
+  antInteractionTypes,
   registryInteractionTypes,
 } from '../../../types';
 import {
   TRANSACTION_DATA_KEYS,
   buildSmartweaveInteractionTags,
   decodeDomainToASCII,
-  getPDNSMappingByInteractionType,
+  getARNSMappingByInteractionType,
   getWorkflowStepsForInteraction,
   isObjectOfTransactionPayloadType,
   lowerCaseDomain,
@@ -32,11 +32,11 @@ import {
 } from '../../../utils';
 import {
   ATOMIC_FLAG,
-  DEFAULT_PDNT_SOURCE_CODE_TX,
+  DEFAULT_ANT_SOURCE_CODE_TX,
   MIN_TTL_SECONDS,
 } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
-import { PDNTCard } from '../../cards';
+import { ANTCard } from '../../cards';
 import { InfoIcon } from '../../icons';
 import TransactionComplete from '../TransactionComplete/TransactionComplete';
 import TransactionCost from '../TransactionCost/TransactionCost';
@@ -58,7 +58,7 @@ function TransactionWorkflow({
   transactionData: TransactionData;
   workflowStage: TRANSACTION_WORKFLOW_STATUS;
 }) {
-  const [{ pdnsContractId, arweaveDataProvider, ioTicker }] = useGlobalState();
+  const [{ arnsContractId, arweaveDataProvider, ioTicker }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [{ deployedTransactionId }, dispatchTransactionState] =
     useTransactionState();
@@ -70,8 +70,8 @@ function TransactionWorkflow({
   const [stages, setStages] = useState<
     { [x: string]: WorkflowStage } | undefined
   >();
-  const [pdntProps, setPdntProps] = useState(() =>
-    getPDNSMappingByInteractionType({
+  const [antProps, setAntProps] = useState(() =>
+    getARNSMappingByInteractionType({
       interactionType,
       transactionData,
     }),
@@ -95,12 +95,12 @@ function TransactionWorkflow({
           interactionType: type,
         });
         if (newStages) setStages(newStages);
-        const newPdntProps = getPDNSMappingByInteractionType({
+        const newAntProps = getARNSMappingByInteractionType({
           interactionType: type,
           transactionData,
         });
-        if (newPdntProps) {
-          setPdntProps(newPdntProps);
+        if (newAntProps) {
+          setAntProps(newAntProps);
         }
       }
     } catch (error) {
@@ -139,9 +139,9 @@ function TransactionWorkflow({
         const writeInteractionId = await arweaveDataProvider.registerAtomicName(
           {
             walletAddress,
-            registryId: pdnsContractId,
+            registryId: arnsContractId,
             srcCodeTransactionId: new ArweaveTransactionID(
-              DEFAULT_PDNT_SOURCE_CODE_TX,
+              DEFAULT_ANT_SOURCE_CODE_TX,
             ),
             initialState: payload.state,
             domain: payload.name,
@@ -262,10 +262,10 @@ function TransactionWorkflow({
   }: {
     interactionType: ValidInteractionType;
   }): { [x: string]: WorkflowStage } | undefined {
-    if (!pdntProps) {
-      throw Error('Unable to get PDNT properties.');
+    if (!antProps) {
+      throw Error('Unable to get ANT properties.');
     }
-    if (pdntInteractionTypes.includes(interactionType as PDNTInteractionType)) {
+    if (antInteractionTypes.includes(interactionType as ANTInteractionType)) {
       return {
         pending: {
           component: (
@@ -273,7 +273,7 @@ function TransactionWorkflow({
               className="flex flex-column"
               style={{ marginBottom: '30px', gap: '0px' }}
             >
-              <PDNTCard {...pdntProps} bordered />
+              <ANTCard {...antProps} bordered />
               <TransactionCost />
             </div>
           ),
@@ -342,7 +342,7 @@ function TransactionWorkflow({
                 className="flex flex-column"
                 style={{ marginBottom: '30px', gap: '0px' }}
               >
-                <PDNTCard {...pdntProps} bordered compact={false} />
+                <ANTCard {...antProps} bordered compact={false} />
                 <TransactionCost
                   fee={{
                     [ioTicker]: payload.interactionPrice,
@@ -463,7 +463,7 @@ function TransactionWorkflow({
                 className="flex flex-column"
                 style={{ marginBottom: '30px', gap: '0px' }}
               >
-                <PDNTCard {...pdntProps} bordered />
+                <ANTCard {...antProps} bordered />
                 <TransactionCost
                   fee={{
                     [ioTicker]: payload.interactionPrice,
@@ -564,7 +564,7 @@ function TransactionWorkflow({
                 className="flex flex-column"
                 style={{ marginBottom: '30px', gap: '0px' }}
               >
-                <PDNTCard {...pdntProps} bordered />
+                <ANTCard {...antProps} bordered />
                 <TransactionCost
                   fee={{
                     [ioTicker]: payload.interactionPrice,

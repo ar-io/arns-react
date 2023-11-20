@@ -1,7 +1,7 @@
 import { TRANSACTION_TYPES } from '../../types';
-import { isPDNSDomainNameAvailable } from '../searchUtils/searchUtils';
+import { isARNSDomainNameAvailable } from '../searchUtils/searchUtils';
 
-describe('isPDNSDomainNameAvailable', () => {
+describe('isARNSDomainNameAvailable', () => {
   const records = {
     'domain-0': {
       contractTxId: 'fake-tx-id-0',
@@ -27,19 +27,19 @@ describe('isPDNSDomainNameAvailable', () => {
   };
 
   test('it should return false if name is in records', () => {
-    expect(isPDNSDomainNameAvailable({ name: 'domain-0', records })).toEqual(
+    expect(isARNSDomainNameAvailable({ name: 'domain-0', records })).toEqual(
       false,
     );
   });
 
   test('it should return true if name is not in records', () => {
-    expect(isPDNSDomainNameAvailable({ name: 'available', records })).toEqual(
+    expect(isARNSDomainNameAvailable({ name: 'available', records })).toEqual(
       true,
     );
   });
 
   test('it should return false if name is undefined', () => {
-    expect(isPDNSDomainNameAvailable({ name: undefined, records })).toEqual(
+    expect(isARNSDomainNameAvailable({ name: undefined, records })).toEqual(
       false,
     );
   });

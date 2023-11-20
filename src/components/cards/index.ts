@@ -1,4 +1,4 @@
-import PDNSCard from './PDNSCard/PDNSCard';
-import PDNTCard from './PDNTCard/PDNTCard';
+import ANTCard from './ANTCard/ANTCard';
+import ARNSCard from './ARNSCard/ARNSCard';
 
-export { PDNSCard, PDNTCard };
+export { ARNSCard, ANTCard };

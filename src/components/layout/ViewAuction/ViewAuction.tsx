@@ -8,7 +8,7 @@ import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
   decodeDomainToASCII,
   encodeDomainToASCII,
-  isPDNSDomainNameValid,
+  isARNSDomainNameValid,
   lowerCaseDomain,
   sleep,
 } from '../../../utils';
@@ -30,7 +30,7 @@ function ViewAuction() {
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    if (!name || (name && !isPDNSDomainNameValid({ name }))) {
+    if (!name || (name && !isARNSDomainNameValid({ name }))) {
       eventEmitter.emit('error', new Error('No name detected'));
       navigate('/auctions');
     }

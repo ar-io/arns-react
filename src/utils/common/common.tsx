@@ -3,9 +3,9 @@ import { CSSProperties } from 'react';
 
 import { ChevronLeftIcon, ChevronRightIcon } from '../../components/icons';
 import {
+  ANTContractDomainRecord,
+  ARNSRecordEntry,
   ContractInteraction,
-  PDNSRecordEntry,
-  PDNTContractDomainRecord,
   TRANSACTION_TYPES,
   TransactionTag,
 } from '../../types';
@@ -182,8 +182,8 @@ export function getUndernameCount(records: Record<string, any>): number {
 
 export function buildPendingArNSRecord(
   cachedRecord: ContractInteraction,
-): PDNSRecordEntry {
-  const record: PDNSRecordEntry = {
+): ARNSRecordEntry {
+  const record: ARNSRecordEntry = {
     type:
       cachedRecord.payload.type === TRANSACTION_TYPES.LEASE
         ? TRANSACTION_TYPES.LEASE
@@ -205,7 +205,7 @@ export function buildPendingArNSRecord(
 
 export function buildPendingANTRecord(
   cachedRecord: ContractInteraction,
-): PDNTContractDomainRecord {
+): ANTContractDomainRecord {
   if (cachedRecord.payload.function !== 'setRecord') {
     throw new Error('Invalid ANT setRecord interaction');
   }

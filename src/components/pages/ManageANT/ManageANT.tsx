@@ -4,17 +4,17 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { useIsMobile } from '../../../hooks';
+import { ANTContract } from '../../../services/arweave/ANTContract';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
-import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import {
+  ANTDetails,
+  ANT_INTERACTION_TYPES,
+  ARNSRecordEntry,
   ContractInteraction,
   INTERACTION_TYPES,
   ManageANTRow,
-  PDNSRecordEntry,
-  PDNTDetails,
-  PDNT_INTERACTION_TYPES,
   UNDERNAME_TABLE_ACTIONS,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
@@ -26,16 +26,16 @@ import {
   validateTTLSeconds,
 } from '../../../utils';
 import {
+  ARNS_TX_ID_ENTRY_REGEX,
   DEFAULT_TTL_SECONDS,
   MAX_TTL_SECONDS,
   MIN_TTL_SECONDS,
-  PDNS_TX_ID_ENTRY_REGEX,
   SMARTWEAVE_MAX_INPUT_SIZE,
   STUB_ARWEAVE_TXID,
   TTL_SECONDS_ENTRY_REGEX,
 } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
-import { AntDetailKey, mapKeyToAttribute } from '../../cards/PDNTCard/PDNTCard';
+import { AntDetailKey, mapKeyToAttribute } from '../../cards/ANTCard/ANTCard';
 import TransactionSuccessCard from '../../cards/TransactionSuccessCard/TransactionSuccessCard';
 import {
   CirclePending,
@@ -63,8 +63,8 @@ function ManageANT() {
   const location = useLocation();
   const [{ arweaveDataProvider }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
-  const [pdntState, setPDNTState] = useState<PDNTContract>();
-  const [pdntName, setPDNTName] = useState<string>();
+  const [antState, setANTState] = useState<ANTContract>();
+  const [antName, setANTName] = useState<string>();
   const [editingField, setEditingField] = useState<string>();
   const [modifiedValue, setModifiedValue] = useState<string | number>();
   const [rows, setRows] = useState<ManageANTRow[]>([]);
@@ -80,7 +80,7 @@ function ManageANT() {
   >([]);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
   const [interactionType, setInteractionType] =
-    useState<PDNT_INTERACTION_TYPES>();
+    useState<ANT_INTERACTION_TYPES>();
   const [transactionData, setTransactionData] = useState<any>();
   const [deployedTransactionId, setDeployedTransactionId] =
     useState<ArweaveTransactionID>();
@@ -93,10 +93,10 @@ function ManageANT() {
       return;
     }
     const txId = new ArweaveTransactionID(id);
-    fetchPDNTDetails(walletAddress, txId);
+    fetchANTDetails(walletAddress, txId);
   }, [id, deployedTransactionId]);
 
-  async function fetchPDNTDetails(
+  async function fetchANTDetails(
     address: ArweaveTransactionID,
     contractTxId: ArweaveTransactionID,
   ) {
@@ -113,7 +113,7 @@ function ManageANT() {
           .getTransactionStatus(contractTxId)
           .then((status) => status[contractTxId.toString()].confirmations),
         arweaveDataProvider.getPendingContractInteractions(contractTxId),
-        arweaveDataProvider.getRecords<PDNSRecordEntry>({
+        arweaveDataProvider.getRecords<ARNSRecordEntry>({
           filters: {
             contractTxId: [contractTxId],
           },
@@ -127,7 +127,7 @@ function ManageANT() {
 
       const names = Object.keys(associatedRecords);
 
-      const consolidatedDetails: PDNTDetails = {
+      const consolidatedDetails: ANTDetails = {
         status: confirmations ?? 0,
         contractTxId: contractTxId.toString(),
         associatedNames: !names.length ? 'N/A' : names.join(', '),
@@ -144,7 +144,7 @@ function ManageANT() {
       const rows = Object.keys(consolidatedDetails).reduce(
         (details: ManageANTRow[], attribute: string, index: number) => {
           const existingValue =
-            consolidatedDetails[attribute as keyof PDNTDetails];
+            consolidatedDetails[attribute as keyof ANTDetails];
 
           const value = existingValue;
           const detail = {
@@ -161,8 +161,8 @@ function ManageANT() {
       );
 
       setPendingInteractions(pendingContractInteractions);
-      setPDNTState(contract);
-      setPDNTName(contract.name ?? id);
+      setANTState(contract);
+      setANTName(contract.name ?? id);
       setRows(rows);
       setLoading(false);
     } catch (error) {
@@ -206,7 +206,7 @@ function ManageANT() {
 
   function handleSave(row: ManageANTRow) {
     // TODO: make this more clear, we should be updating only the value that matters and not overwriting anything
-    if (!row.isValid || !row.interactionType || !pdntState) {
+    if (!row.isValid || !row.interactionType || !antState) {
       return;
     }
     const payload =
@@ -214,13 +214,13 @@ function ManageANT() {
         ? mapTransactionDataKeyToPayload(row.interactionType, [
             '@',
             modifiedValue!.toString(),
-            pdntState.getRecord('@')?.ttlSeconds ?? MIN_TTL_SECONDS,
+            antState.getRecord('@')?.ttlSeconds ?? MIN_TTL_SECONDS,
           ])
         : row.interactionType === INTERACTION_TYPES.SET_TTL_SECONDS
         ? mapTransactionDataKeyToPayload(row.interactionType, [
             '@',
-            pdntState.getRecord('@')?.transactionId?.length
-              ? pdntState.getRecord('@')!.transactionId
+            antState.getRecord('@')?.transactionId?.length
+              ? antState.getRecord('@')!.transactionId
               : STUB_ARWEAVE_TXID,
             +modifiedValue!,
           ])
@@ -235,7 +235,7 @@ function ManageANT() {
         assetId: id,
       };
       setInteractionType(
-        row.interactionType as unknown as PDNT_INTERACTION_TYPES,
+        row.interactionType as unknown as ANT_INTERACTION_TYPES,
       );
       setTransactionData(transactionData);
       setShowConfirmModal(true);
@@ -264,7 +264,7 @@ function ManageANT() {
               height={'24px'}
               fill="var(--text-white)"
             />
-            {pdntName ?? id}
+            {antName ?? id}
           </h2>
         </div>
         <div className="flex-row center">
@@ -369,7 +369,7 @@ function ManageANT() {
                           <ValidationInput
                             customPattern={
                               row.attribute === 'targetID'
-                                ? PDNS_TX_ID_ENTRY_REGEX
+                                ? ARNS_TX_ID_ENTRY_REGEX
                                 : row.attribute === 'ttlSeconds'
                                 ? TTL_SECONDS_ENTRY_REGEX
                                 : undefined
@@ -472,7 +472,7 @@ function ManageANT() {
                     //TODO: if it's got an action attached, show it
                     if (
                       row.editable &&
-                      pdntState?.getOwnershipStatus(walletAddress)
+                      antState?.getOwnershipStatus(walletAddress)
                     ) {
                       return (
                         <>
@@ -531,7 +531,7 @@ function ManageANT() {
                     }
                     if (
                       row.attribute === 'owner' &&
-                      pdntState?.getOwnershipStatus(walletAddress) === 'owner'
+                      antState?.getOwnershipStatus(walletAddress) === 'owner'
                     ) {
                       return (
                         <span className={'flex flex-right'}>
@@ -553,7 +553,7 @@ function ManageANT() {
                     }
                     if (
                       row.attribute === 'controllers' &&
-                      pdntState?.getOwnershipStatus(walletAddress) === 'owner'
+                      antState?.getOwnershipStatus(walletAddress) === 'owner'
                     ) {
                       return (
                         // TODO: add condition to "open" to be false when modals are open
@@ -628,7 +628,7 @@ function ManageANT() {
                               >
                                 Manage
                               </button>
-                              {pdntState?.getOwnershipStatus(walletAddress) ? (
+                              {antState?.getOwnershipStatus(walletAddress) ? (
                                 <button
                                   className="flex flex-right white pointer button"
                                   onClick={() => {
@@ -674,7 +674,7 @@ function ManageANT() {
           antId={new ArweaveTransactionID(id)}
           payloadCallback={(payload) => {
             setTransactionData(payload);
-            setInteractionType(PDNT_INTERACTION_TYPES.TRANSFER);
+            setInteractionType(ANT_INTERACTION_TYPES.TRANSFER);
             setShowConfirmModal(true);
             setShowTransferANTModal(false);
           }}
@@ -688,7 +688,7 @@ function ManageANT() {
           antId={new ArweaveTransactionID(id)}
           payloadCallback={(payload) => {
             setTransactionData(payload);
-            setInteractionType(PDNT_INTERACTION_TYPES.SET_CONTROLLER);
+            setInteractionType(ANT_INTERACTION_TYPES.SET_CONTROLLER);
             setShowConfirmModal(true);
             setShowAddControllerModal(false);
           }}
@@ -702,7 +702,7 @@ function ManageANT() {
           antId={new ArweaveTransactionID(id)}
           payloadCallback={(payload) => {
             setTransactionData(payload);
-            setInteractionType(PDNT_INTERACTION_TYPES.REMOVE_CONTROLLER);
+            setInteractionType(ANT_INTERACTION_TYPES.REMOVE_CONTROLLER);
             setShowConfirmModal(true);
             setShowRemoveControllerModal(false);
           }}
@@ -721,17 +721,17 @@ function ManageANT() {
             setModifiedValue(undefined);
           }}
           cancel={() => {
-            if (interactionType === PDNT_INTERACTION_TYPES.TRANSFER) {
+            if (interactionType === ANT_INTERACTION_TYPES.TRANSFER) {
               setShowTransferANTModal(true);
               setShowConfirmModal(false);
               return;
             }
-            if (interactionType === PDNT_INTERACTION_TYPES.SET_CONTROLLER) {
+            if (interactionType === ANT_INTERACTION_TYPES.SET_CONTROLLER) {
               setShowAddControllerModal(true);
               setShowConfirmModal(false);
               return;
             }
-            if (interactionType === PDNT_INTERACTION_TYPES.REMOVE_CONTROLLER) {
+            if (interactionType === ANT_INTERACTION_TYPES.REMOVE_CONTROLLER) {
               setShowRemoveControllerModal(true);
               setShowConfirmModal(false);
               return;
@@ -742,9 +742,9 @@ function ManageANT() {
             setModifiedValue(undefined);
           }}
           cancelText={
-            interactionType === PDNT_INTERACTION_TYPES.TRANSFER ||
-            interactionType === PDNT_INTERACTION_TYPES.SET_CONTROLLER ||
-            interactionType === PDNT_INTERACTION_TYPES.REMOVE_CONTROLLER
+            interactionType === ANT_INTERACTION_TYPES.TRANSFER ||
+            interactionType === ANT_INTERACTION_TYPES.SET_CONTROLLER ||
+            interactionType === ANT_INTERACTION_TYPES.REMOVE_CONTROLLER
               ? 'Back'
               : 'Cancel'
           }

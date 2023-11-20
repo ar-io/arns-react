@@ -1,11 +1,11 @@
 import {
+  ANTContractDomainRecord,
+  ANTContractJSON,
   ContractInteraction,
-  PDNTContractDomainRecord,
-  PDNTContractJSON,
 } from '../../types';
 import {
   ATOMIC_FLAG,
-  DEFAULT_PDNT_CONTRACT_STATE,
+  DEFAULT_ANT_CONTRACT_STATE,
   DEFAULT_TTL_SECONDS,
 } from '../../utils/constants';
 import { ArweaveTransactionID } from './ArweaveTransactionID';
@@ -15,13 +15,13 @@ import { ArweaveTransactionID } from './ArweaveTransactionID';
  * - create lastUpdated attribute to track when changes are written to smartweave
  * - add validations and checks on setters
  */
-export class PDNTContract {
+export class ANTContract {
   id?: ArweaveTransactionID | typeof ATOMIC_FLAG;
-  contract: PDNTContractJSON;
+  contract: ANTContractJSON;
   pendingInteractions: ContractInteraction[];
 
   constructor(
-    state?: PDNTContractJSON,
+    state?: ANTContractJSON,
     id?: ArweaveTransactionID | typeof ATOMIC_FLAG,
     pendingInteractions: ContractInteraction[] = [],
   ) {
@@ -30,7 +30,7 @@ export class PDNTContract {
     if (state) {
       this.contract = { ...state };
     } else {
-      this.contract = { ...DEFAULT_PDNT_CONTRACT_STATE };
+      this.contract = { ...DEFAULT_ANT_CONTRACT_STATE };
     }
     this.pendingInteractions
       .sort(
@@ -77,8 +77,8 @@ export class PDNTContract {
     this.contract.controllers = controllers;
   }
 
-  // TODO: this should be refactored when we are ready to not support pdnts that do not comply with the new PDNT spec
-  get records(): { [x: string]: PDNTContractDomainRecord } {
+  // TODO: this should be refactored when we are ready to not support ants that do not comply with the new ANT spec
+  get records(): { [x: string]: ANTContractDomainRecord } {
     if (!this.contract?.records) {
       return {};
     }
@@ -90,7 +90,7 @@ export class PDNTContract {
       {},
     );
   }
-  set records(records: { [x: string]: PDNTContractDomainRecord }) {
+  set records(records: { [x: string]: ANTContractDomainRecord }) {
     for (const [domain, { transactionId, ttlSeconds }] of Object.entries(
       records,
     )) {
@@ -106,7 +106,7 @@ export class PDNTContract {
     }
   }
 
-  getRecord(name: string): PDNTContractDomainRecord | undefined {
+  getRecord(name: string): ANTContractDomainRecord | undefined {
     if (!this.contract.records[name]) return undefined;
 
     if (typeof this.contract.records[name] === 'string') {
@@ -146,8 +146,8 @@ export class PDNTContract {
   get state() {
     return this.contract;
   }
-  get pdntId(): string | undefined {
-    return this.pdntId?.toString();
+  get antId(): string | undefined {
+    return this.antId?.toString();
   }
 
   isValid(): boolean {

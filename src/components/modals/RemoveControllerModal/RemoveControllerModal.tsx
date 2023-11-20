@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useIsMobile } from '../../../hooks';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { PDNTContractJSON, RemoveControllerPayload } from '../../../types';
+import { ANTContractJSON, RemoveControllerPayload } from '../../../types';
 import {
   formatForMaxCharCount,
   getCustomPaginationButtons,
@@ -30,7 +30,7 @@ function RemoveControllersModal({
   const [controllersToRemove, setControllersToRemove] = useState<
     ArweaveTransactionID[]
   >([]);
-  const [state, setState] = useState<PDNTContractJSON>();
+  const [state, setState] = useState<ANTContractJSON>();
   const [tablePage, setTablePage] = useState<number>(1);
   const [rows, setRows] = useState<{ controller: ArweaveTransactionID }[]>([]);
 

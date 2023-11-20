@@ -4,38 +4,38 @@ import { Link } from 'react-router-dom';
 
 import { useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { PDNSDomain, PDNSMapping } from '../../../types';
+import { ARNSDomain, ARNSMapping } from '../../../types';
 import { getRandomInteger } from '../../../utils';
 import {
+  ARNSDefault,
   ElephantOne,
   ElephantThree,
   ElephantTwo,
-  PDNSDefault,
 } from '../../icons';
 import { Loader } from '../../layout';
 import './styles.css';
 
 const protocol = 'https';
 
-function PDNSCard({ domain, contractTxId }: PDNSMapping) {
+function ARNSCard({ domain, contractTxId }: ARNSMapping) {
   const [{ gateway }] = useGlobalState();
   const isMobile = useIsMobile();
-  const [pdntDetails, setPDNTDetails] = useState<PDNSDomain>({
+  const [antDetails, setANTDetails] = useState<ARNSDomain>({
     domain,
     contractTxId,
-    image: PDNSDefault,
+    image: ARNSDefault,
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getPDNTDetailsFromName(domain);
+    getANTDetailsFromName(domain);
   }, [isMobile, gateway]);
 
-  async function getPDNTDetailsFromName(domain: string) {
+  async function getANTDetailsFromName(domain: string) {
     setLoading(true);
     const image = await getMetaImage();
-    setPDNTDetails({
-      ...pdntDetails,
+    setANTDetails({
+      ...antDetails,
       domain,
       image,
     });
@@ -44,6 +44,7 @@ function PDNSCard({ domain, contractTxId }: PDNSMapping) {
 
   async function getMetaImage() {
     try {
+      // TODO: replace with fetch
       const metaImage = await axios
         .get(`${protocol}://${domain}.${gateway}`)
         .then((res) => res.data)
@@ -76,6 +77,8 @@ function PDNSCard({ domain, contractTxId }: PDNSMapping) {
                 imagePath[0] === '.' ? 2 : 1,
               );
               const fullImageURL = `${protocol}://${domain}.${gateway}/${relativePath}`;
+
+              // TODO: replace with fetch
               const { status } = await axios.get(fullImageURL);
               if (status === 200) {
                 return fullImageURL;
@@ -98,7 +101,7 @@ function PDNSCard({ domain, contractTxId }: PDNSMapping) {
     <Link
       target="_blank"
       to={`${protocol}://${domain}.${gateway}`}
-      className="pdns-card hover"
+      className="arns-card hover"
       rel="noreferrer"
     >
       {loading ? (
@@ -110,9 +113,9 @@ function PDNSCard({ domain, contractTxId }: PDNSMapping) {
         </div>
       ) : (
         <img
-          className="pdns-preview fade-in"
-          src={pdntDetails.image}
-          key={pdntDetails.image}
+          className="arns-preview fade-in"
+          src={antDetails.image}
+          key={antDetails.image}
           alt={`${domain}.${gateway}`}
         />
       )}
@@ -126,10 +129,10 @@ function PDNSCard({ domain, contractTxId }: PDNSMapping) {
           fontSize: '13px',
         }}
       >
-        <span className="flex white">{`${pdntDetails.domain}.${gateway}`}</span>
+        <span className="flex white">{`${antDetails.domain}.${gateway}`}</span>
       </div>
     </Link>
   );
 }
 
-export default PDNSCard;
+export default ARNSCard;
