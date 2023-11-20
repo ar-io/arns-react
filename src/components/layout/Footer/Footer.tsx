@@ -50,7 +50,8 @@ function Footer() {
                 margin: 'auto',
                 width: 'fit-content',
                 borderRadius: 6,
-                backgroundColor: 'var(--card-bg)',
+                backgroundColor: 'var(--accent)',
+                color: 'var(--text-black)',
                 padding: '12px 18px',
                 gap: '16px',
               }}
@@ -63,7 +64,11 @@ function Footer() {
                   target="_blank"
                   rel="noreferrer"
                   className="link hover"
-                  style={{ display: 'inline' }}
+                  style={{
+                    display: 'inline',
+                    color: 'red',
+                    fontWeight: 500,
+                  }}
                 >
                   survey
                 </Link>
@@ -77,7 +82,7 @@ function Footer() {
                 <CloseIcon
                   width={'16px'}
                   height={'16px'}
-                  fill="var(--text-subtle)"
+                  fill="var(--text-black)"
                 />
               </button>
             </div>
