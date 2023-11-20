@@ -230,6 +230,11 @@ function NavMenuCard() {
                 >
                   {isMobile ? (
                     <>
+                      <NavBarLink
+                        path={'https://ar.io/arns'}
+                        linkText={'Need test tokens?'}
+                        target={'_blank'}
+                      />
                       {Object.entries(ROUTES).map(([key, route]) => {
                         if (!route.index && (!route.protected || walletAddress))
                           return (
