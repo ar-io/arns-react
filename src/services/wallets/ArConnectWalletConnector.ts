@@ -32,10 +32,7 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
     const res = await executeWithTimeout(() => fn(), 3000);
 
     if (res === 'timeout') {
-      throw {
-        name: 'ArConnect',
-        message: ARCONNECT_UNRESPONSIVE_ERROR,
-      };
+      throw new Error(ARCONNECT_UNRESPONSIVE_ERROR);
     }
     return res as T;
   }

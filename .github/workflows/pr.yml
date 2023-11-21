@@ -22,15 +22,17 @@ jobs:
     environment: develop
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v3
-
+        uses: actions/checkout@v4
+      - uses: actions/setup-node@v2
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
       - name: Install and Build 🔧
         run: |
           npm ci
           npm run build
         env:
           # FOR BUILD
-          NODE_OPTIONS: --max-old-space-size=32768
           VITE_NODE_ENV: develop
 
           VITE_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
