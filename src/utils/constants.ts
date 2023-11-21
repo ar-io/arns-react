@@ -79,7 +79,6 @@ export const FEATURED_DOMAINS = [
   'pst',
   'sam',
   'search',
-  'wallet',
 ];
 
 export const NAME_PRICE_INFO =

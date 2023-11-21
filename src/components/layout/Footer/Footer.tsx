@@ -111,9 +111,7 @@ function Footer() {
         >
           <button
             className="button grey text center hover pointer"
-            onClick={() =>
-              window.open('https://github.com/ar-io/arns-react', '_blank')
-            }
+            onClick={() => window.open('https://github.com/ar-io/', '_blank')}
           >
             <FaGithub style={{ fontSize: 20 }} />
           </button>
