@@ -2,12 +2,16 @@ import Countdown from 'antd/lib/statistic/Countdown';
 import { useEffect, useState } from 'react';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { Auction } from '../../../types';
+import { Auction, AuctionTableData } from '../../../types';
 import { AVERAGE_BLOCK_TIME_MS } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { ClockClockwiseIcon } from '../../icons';
 
-const NextPriceUpdate = ({ auction }: { auction: Auction }) => {
+const NextPriceUpdate = ({
+  auction,
+}: {
+  auction: Auction | AuctionTableData;
+}) => {
   const [
     { blockHeight, lastBlockUpdateTimestamp, arweaveDataProvider },
     dispatchGlobalState,

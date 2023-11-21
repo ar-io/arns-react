@@ -1,19 +1,15 @@
 import { ColumnType } from 'antd/es/table';
-import Countdown from 'antd/lib/statistic/Countdown';
 import { startCase } from 'lodash';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import ArweaveID from '../../components/layout/ArweaveID/ArweaveID';
+import NextPriceUpdate from '../../components/layout/NextPriceUpdate/NextPriceUpdate';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useWalletState } from '../../state/contexts/WalletState';
 import { Auction, AuctionTableData, TRANSACTION_TYPES } from '../../types';
-import {
-  getNextPriceChangeTimestamp,
-  getPriceByBlockHeight,
-  handleTableSort,
-} from '../../utils';
+import { getPriceByBlockHeight, handleTableSort } from '../../utils';
 import {
   ARNS_REGISTRY_ADDRESS,
   AVERAGE_BLOCK_TIME_MS,
@@ -22,8 +18,10 @@ import eventEmitter from '../../utils/events';
 import { useIsMobile } from '../useIsMobile/useIsMobile';
 
 export function useAuctionsTable() {
-  const [{ blockHeight, arweaveDataProvider, ioTicker }, dispatchGlobalState] =
-    useGlobalState();
+  const [
+    { blockHeight, arweaveDataProvider, ioTicker, lastBlockUpdateTimestamp },
+    dispatchGlobalState,
+  ] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] =
@@ -43,10 +41,10 @@ export function useAuctionsTable() {
   }, [walletAddress]);
 
   useEffect(() => {
-    if (blockHeight) {
-      buildAuctionRows(auctionData, blockHeight);
+    if (blockHeight && lastBlockUpdateTimestamp) {
+      buildAuctionRows(auctionData, blockHeight, lastBlockUpdateTimestamp);
     }
-  }, [auctionData, blockHeight]);
+  }, [auctionData, blockHeight, lastBlockUpdateTimestamp]);
 
   async function load() {
     try {
@@ -244,28 +242,15 @@ export function useAuctionsTable() {
             style={{ gap: '0.5em' }}
             onClick={() => setSortField('nextPriceUpdate')}
           >
-            <span>Next price adj.</span>
+            <span>Next Price Update</span>
           </button>
         ),
         dataIndex: 'nextPriceUpdate',
         key: 'nextPriceUpdate',
         width: 'fit-content',
         className: 'white assets-table-header',
-        render: (val: number) => (
-          <span
-            className="white flex flex-row"
-            style={{ gap: '0px', height: 'fit-content' }}
-          >
-            <Countdown
-              value={+val}
-              valueStyle={{
-                fontSize: '15px',
-                color: 'var(--text-white)',
-              }}
-              format="m"
-            />
-            &nbsp;min
-          </span>
+        render: (val: number, record: AuctionTableData) => (
+          <NextPriceUpdate auction={record} />
         ),
         onHeaderCell: () => {
           return {
@@ -335,9 +320,11 @@ export function useAuctionsTable() {
   function generateAuctionTableData({
     blockHeight,
     auction,
+    lastBlockUpdateTimestamp,
   }: {
     blockHeight: number;
     auction: Auction;
+    lastBlockUpdateTimestamp: number;
   }): AuctionTableData {
     const { name, type, initiator, startHeight, settings, isActive, prices } =
       auction;
@@ -347,10 +334,8 @@ export function useAuctionsTable() {
       (startHeight + settings.auctionDuration - blockHeight) *
         AVERAGE_BLOCK_TIME_MS; // approximate expiration date in milliseconds
 
-    const nextPriceUpdateTimestamp = getNextPriceChangeTimestamp({
-      currentBlockHeight: blockHeight,
-      prices,
-    });
+    const nextPriceUpdateTimestamp =
+      lastBlockUpdateTimestamp + AVERAGE_BLOCK_TIME_MS;
 
     const data = {
       name,
@@ -403,7 +388,11 @@ export function useAuctionsTable() {
     return fetchedAuctions.filter((a) => a !== undefined);
   }
 
-  function buildAuctionRows(data: Auction[], blockHeight: number) {
+  function buildAuctionRows(
+    data: Auction[],
+    blockHeight: number,
+    lastBlockUpdateTimestamp: number,
+  ) {
     const fetchedRows: AuctionTableData[] = [];
 
     data.forEach((auction) => {
@@ -413,6 +402,7 @@ export function useAuctionsTable() {
       const rowData = generateAuctionTableData({
         blockHeight,
         auction,
+        lastBlockUpdateTimestamp,
       });
       // sort by confirmation count (ASC) by default
       fetchedRows.push(rowData);
