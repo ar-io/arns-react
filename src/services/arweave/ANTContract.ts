@@ -168,7 +168,7 @@ export class ANTContract {
       case 'transfer':
         this.owner = interaction.payload.target.toString();
         break;
-      case 'addController':
+      case 'setController':
         this.addController(interaction.payload.target.toString());
         break;
       case 'removeController':
