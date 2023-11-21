@@ -98,7 +98,7 @@ function NameTokenSelector({
 
   async function getTokenList(
     address: ArweaveTransactionID | undefined,
-    imports?: ArweaveTransactionID[],
+    imports: ArweaveTransactionID[] = [],
   ) {
     try {
       setLoading(true);
@@ -112,28 +112,49 @@ function NameTokenSelector({
           'Unable to find any Name Tokens for the provided address',
         );
       }
-      if (imports?.length) {
-        imports.map(async (id) => {
-          await arweaveDataProvider.validateTransactionTags({
-            id: id.toString(),
-            requiredTags: {
-              'App-Name': ['SmartWeaveContract'],
-            },
-          });
-          const validState = await arweaveDataProvider
-            .getContractState<ANTContractJSON>(id)
-            .catch(() => {
-              throw new Error(`Unable to get Contract State`);
-            });
+      const validImports = imports.length
+        ? await Promise.all(
+            imports.map(async (id: ArweaveTransactionID) => {
+              try {
+                const isSmartweaveContract = await arweaveDataProvider
+                  .validateTransactionTags({
+                    id: id.toString(),
+                    requiredTags: {
+                      'App-Name': ['SmartWeaveContract'],
+                    },
+                  })
+                  .then(() => true)
+                  .catch(() => {
+                    return false;
+                  });
+                const state = await arweaveDataProvider
+                  .getContractState<ANTContractJSON>(id)
+                  .catch(() => {
+                    throw new Error(`Unable to get Contract State`);
+                  });
+                const isValidState = new ANTContract(state).isValid();
 
-          if (!new ANTContract(validState).isValid()) {
-            throw new Error('Invalid ANT Contract.');
-          }
-          setValidImport(true);
-        });
-      }
+                if (!isValidState) {
+                  console.log('invalid ant');
+                  throw new Error('Invalid ANT Contract.');
+                }
 
-      const contractTxIds = fetchedContractTxIds.concat(imports ?? []);
+                if (isValidState && isSmartweaveContract && state) {
+                  return id;
+                } else {
+                  throw new Error('Unable to import ANT');
+                }
+              } catch (error) {
+                eventEmitter.emit('error', error);
+              }
+            }),
+          ).then(
+            (ids: Array<ArweaveTransactionID | undefined>) =>
+              ids.filter((id) => !!id) as ArweaveTransactionID[],
+          )
+        : [];
+
+      const contractTxIds = fetchedContractTxIds.concat(validImports);
       const associatedRecords =
         await arweaveDataProvider.getRecords<ARNSRecordEntry>({
           filters: {
@@ -199,20 +220,17 @@ function NameTokenSelector({
         {},
       );
       setTokens(newTokens);
-      if (imports) {
-        const details = newTokens[imports[0].toString()];
+      if (validImports.length) {
+        const details = newTokens[validImports[0].toString()];
         setSelectedToken({
           name: details?.name,
           ticker: details?.ticker,
-          id: imports[0].toString(),
+          id: validImports[0].toString(),
           names: details?.names ?? [],
         });
       }
     } catch (error: any) {
-      eventEmitter.emit('error', {
-        name: `Unable to import ANT`,
-        message: `${error.message}`,
-      });
+      eventEmitter.emit('error', error);
     } finally {
       setLoading(false);
       setListPage(1);
