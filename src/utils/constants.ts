@@ -219,5 +219,5 @@ export const RESERVED_BREADCRUMB_TITLES = new Set([
   'Manage Undernames',
 ]);
 
-export const ARIO_DISCORD_LINK = 'https://discord.gg/7dBaqcE8';
+export const ARIO_DISCORD_LINK = 'https://discord.gg/YZGfvxb4az';
 export const APPROXIMATE_BLOCKS_PER_DAY = 720;

@@ -1,11 +1,13 @@
 import { QuestionCircleOutlined } from '@ant-design/icons';
+import { Tooltip } from 'antd';
 import { useState } from 'react';
+import { FaGithub } from 'react-icons/fa';
+import { FaDiscord } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
 import { useIsMobile } from '../../../hooks';
 import { ARIO_DISCORD_LINK } from '../../../utils/constants';
 import { BrandLogo, CloseIcon } from '../../icons';
-import Popup from '../Popup/Popup';
 import './styles.css';
 
 function Footer() {
@@ -50,20 +52,25 @@ function Footer() {
                 margin: 'auto',
                 width: 'fit-content',
                 borderRadius: 6,
-                backgroundColor: 'var(--card-bg)',
+                backgroundColor: 'var(--accent)',
+                color: 'var(--text-black)',
                 padding: '12px 18px',
                 gap: '16px',
               }}
             >
               <div>
-                ArNS is part of the ar.io testnet phase. Please share your
-                feedback on our 2 min{' '}
+                Please help improve ArNS by taking this 2 minute{' '}
                 <Link
                   to="https://pds-inc.typeform.com/arns-test-app"
                   target="_blank"
                   rel="noreferrer"
                   className="link hover"
-                  style={{ display: 'inline' }}
+                  style={{
+                    display: 'inline',
+                    color: 'var(--text-black)',
+                    textDecoration: 'underline',
+                    fontWeight: 600,
+                  }}
                 >
                   survey
                 </Link>
@@ -77,7 +84,7 @@ function Footer() {
                 <CloseIcon
                   width={'16px'}
                   height={'16px'}
-                  fill="var(--text-subtle)"
+                  fill="var(--text-black)"
                 />
               </button>
             </div>
@@ -85,7 +92,10 @@ function Footer() {
         )}
       </div>
 
-      <div className="flex-row flex-right" style={{ width: 'fit-content' }}>
+      <div
+        className="flex-row flex-right"
+        style={{ width: 'fit-content', gap: '15px' }}
+      >
         <span
           className="flex flex-row flex-right text grey center"
           style={{ whiteSpace: 'nowrap' }}
@@ -93,25 +103,47 @@ function Footer() {
           v{process.env.npm_package_version}-
           {process.env.VITE_GITHUB_HASH?.slice(0, 6)}
         </span>
-        <Popup
-          title={'Contact Support'}
-          trigger={'click'}
-          popupMenuOptions={[
-            {
-              title: 'Github',
-              onClick: () =>
-                window.open('https://github.com/ar-io/arns-react', '_blank'),
-            },
-            {
-              title: 'Discord',
-              onClick: () => window.open(ARIO_DISCORD_LINK, '_blank'),
-            },
-          ]}
+        <Tooltip
+          title="Github"
+          placement={'top'}
+          autoAdjustOverflow={true}
+          color="var(--text-faded)"
         >
-          <button className="button grey text center hover pointer">
+          <button
+            className="button grey text center hover pointer"
+            onClick={() =>
+              window.open('https://github.com/ar-io/arns-react', '_blank')
+            }
+          >
+            <FaGithub style={{ fontSize: 20 }} />
+          </button>
+        </Tooltip>
+        <Tooltip
+          title="Discord"
+          placement={'top'}
+          autoAdjustOverflow={true}
+          color="var(--text-faded)"
+        >
+          <button
+            className="button grey text center hover pointer"
+            onClick={() => window.open(ARIO_DISCORD_LINK, '_blank')}
+          >
+            <FaDiscord style={{ fontSize: 20 }} />
+          </button>
+        </Tooltip>
+        <Tooltip
+          title="Documentation"
+          placement={'top'}
+          autoAdjustOverflow={true}
+          color="var(--text-faded)"
+        >
+          <button
+            className="button grey text center hover pointer"
+            onClick={() => window.open('https://ar.io/docs/arns', '_blank')}
+          >
             <QuestionCircleOutlined style={{ fontSize: 20 }} />
           </button>
-        </Popup>
+        </Tooltip>
       </div>
     </div>
   );

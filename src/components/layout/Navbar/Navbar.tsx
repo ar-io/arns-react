@@ -10,9 +10,12 @@ function NavBar() {
   const [, dispatchRegisterState] = useRegistrationState();
 
   return (
-    <div className="flex flex-column" style={{ gap: '0px' }}>
-      <div className="navbar">
-        <div className="flex-row flex-left">
+    <div
+      className="flex flex-column"
+      style={{ gap: '0px', position: 'relative' }}
+    >
+      <div className="navbar" style={{ position: 'relative' }}>
+        <div className="flex-row flex-left" style={{ width: 'fit-content' }}>
           <Link
             className="hover"
             to="/"
@@ -37,6 +40,7 @@ function NavBar() {
             </div>
           </Link>
         </div>
+
         <NavGroup />
       </div>
       <Breadcrumbs />

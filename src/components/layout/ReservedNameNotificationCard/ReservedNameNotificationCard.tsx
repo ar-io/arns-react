@@ -14,7 +14,17 @@ const ReservedNameNotificationCard = () => {
       >
         Discord
       </a>{' '}
-      for more information.
+      or sign up for our{' '}
+      <a
+        target="_blank"
+        href={`https://ar.io/newsletter/`}
+        rel="noreferrer"
+        className="link text-medium"
+        style={{ display: 'inline' }}
+      >
+        newsletter
+      </a>{' '}
+      for additional information.
     </span>
   );
 
