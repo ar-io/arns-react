@@ -116,34 +116,30 @@ function NameTokenSelector({
         ? await Promise.all(
             imports.map(async (id: ArweaveTransactionID) => {
               try {
-                const isSmartweaveContract = await arweaveDataProvider
+                await arweaveDataProvider
                   .validateTransactionTags({
                     id: id.toString(),
                     requiredTags: {
                       'App-Name': ['SmartWeaveContract'],
                     },
                   })
-                  .then(() => true)
                   .catch(() => {
-                    return false;
+                    throw new Error(`Import is not a SmartWeave Contract`);
                   });
-                const state = await arweaveDataProvider
-                  .getContractState<ANTContractJSON>(id)
-                  .catch(() => {
-                    throw new Error(`Unable to get Contract State`);
-                  });
-                const isValidState = new ANTContract(state).isValid();
+                const state =
+                  await arweaveDataProvider.getContractState<ANTContractJSON>(
+                    id,
+                  );
+                if (!Object.keys(state).length) {
+                  throw new Error(`Unable to get Contract State`);
+                }
 
-                if (!isValidState) {
-                  console.log('invalid ant');
+                if (!new ANTContract(state).isValid()) {
                   throw new Error('Invalid ANT Contract.');
                 }
 
-                if (isValidState && isSmartweaveContract && state) {
-                  return id;
-                } else {
-                  throw new Error('Unable to import ANT');
-                }
+                setValidImport(true);
+                return id;
               } catch (error) {
                 eventEmitter.emit('error', error);
               }
