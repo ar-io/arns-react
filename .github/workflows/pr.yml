@@ -30,7 +30,6 @@ jobs:
           npm run build
         env:
           # FOR BUILD
-          NODE_OPTIONS: --max-old-space-size=32768
           VITE_NODE_ENV: develop
 
           VITE_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
