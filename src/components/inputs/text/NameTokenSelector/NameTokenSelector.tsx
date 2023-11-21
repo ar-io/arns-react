@@ -209,10 +209,8 @@ function NameTokenSelector({
         });
       }
     } catch (error: any) {
-      eventEmitter.emit('error', {
-        name: `Unable to import ANT`,
-        message: `${error.message}`,
-      });
+      console.debug('`Unable to import ANT`,', error.message);
+      eventEmitter.emit('error', error);
     } finally {
       setLoading(false);
       setListPage(1);
