@@ -1,15 +1,14 @@
 import Countdown from 'antd/lib/statistic/Countdown';
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { AVERAGE_BLOCK_TIME_MS } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
-import { ClockClockwiseIcon } from '../../icons';
 
 const BlockHeightCounter = ({
   prefixText = 'Next price update:',
 }: {
-  prefixText?: string;
+  prefixText?: ReactNode;
 }) => {
   const [
     { blockHeight, lastBlockUpdateTimestamp, arweaveDataProvider },
@@ -37,7 +36,6 @@ const BlockHeightCounter = ({
 
   return (
     <div className="flex flex-row grey" style={{ gap: '8px' }}>
-      <ClockClockwiseIcon />
       <div style={{ whiteSpace: 'nowrap' }}>{prefixText}</div>
       <div
         className="flex flex-row"

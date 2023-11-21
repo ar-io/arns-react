@@ -2,6 +2,7 @@ import { useAuctionInfo, useIsMobile } from '../../../hooks';
 import { SearchBarFooterProps } from '../../../types';
 import { isDomainReservedLength, lowerCaseDomain } from '../../../utils';
 import ANTCard from '../../cards/ANTCard/ANTCard';
+import { ClockClockwiseIcon } from '../../icons';
 import AuctionChart from '../AuctionChart/AuctionChart';
 import BlockHeightCounter from '../BlockHeightCounter/BlockHeightCounter';
 import ReservedNameNotificationCard from '../ReservedNameNotificationCard/ReservedNameNotificationCard';
@@ -21,7 +22,16 @@ function SearchBarFooter({
   if (isActiveAuction && domain) {
     return (
       <div className="flex flex-column">
-        {auction && <BlockHeightCounter />}
+        {auction && (
+          <BlockHeightCounter
+            prefixText={
+              <span className="flex center" style={{ gap: '10px' }}>
+                <ClockClockwiseIcon width={'18px'} height={'18px'} /> Next price
+                update:
+              </span>
+            }
+          />
+        )}
         <AuctionChart
           domain={domain}
           showAuctionExplainer={true}
