@@ -176,11 +176,8 @@ function RegisterNameForm() {
         costs: { AR: fee.ar, ...fee } as { [x: string]: number; AR: number },
       });
     } catch (error: any) {
-      eventEmitter.emit('error', {
-        name: 'Insufficient funds',
-        message: error.message,
-      });
-
+      console.debug('Insufficient funds');
+      // do not emit error
       return;
     }
 
