@@ -5,7 +5,7 @@ import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransacti
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
   ANTMetadata,
-  PDNT_INTERACTION_TYPES,
+  ANT_INTERACTION_TYPES,
   TRANSACTION_TYPES,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
@@ -17,7 +17,7 @@ import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import './styles.css';
 
 function TransactionModal({
-  transactionType, // todo: add other tx types (ex edit pdnt, IO token management)
+  transactionType, // todo: add other tx types (ex edit ant, IO token management)
   interactionType,
   contractId,
   // todo: implement advanced settings
@@ -27,7 +27,7 @@ function TransactionModal({
 }: {
   // main control for how the modal is built
   transactionType: TRANSACTION_TYPES;
-  interactionType?: PDNT_INTERACTION_TYPES;
+  interactionType?: ANT_INTERACTION_TYPES;
   state?: ANTMetadata;
   contractId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
   showModal: () => void;
@@ -133,7 +133,7 @@ function TransactionModal({
             </button>
           </div>
           {/** modal body - condition render edit or transfer */}
-          {interactionType === PDNT_INTERACTION_TYPES.TRANSFER ? (
+          {interactionType === ANT_INTERACTION_TYPES.TRANSFER ? (
             <div
               className="flex flex-column"
               style={{
@@ -196,9 +196,9 @@ function TransactionModal({
                     className="text faded"
                     style={{ textAlign: 'left', width: '90%' }}
                   >
-                    This PDNT has {`${recordCount} name(s)`} that are associated
-                    with it. By transferring this PDNT, you will also be
-                    transferring control of those names to the new PDNT holder.
+                    This ANT has {`${recordCount} name(s)`} that are associated
+                    with it. By transferring this ANT, you will also be
+                    transferring control of those names to the new ANT holder.
                   </span>
                 </span>
               ) : (

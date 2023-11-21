@@ -10,7 +10,6 @@ import {
 import { Layout, ProtectedRoute } from './components/layout';
 import { ANT_FLAG } from './components/layout/Breadcrumbs/Breadcrumbs';
 import ExtendLease from './components/layout/ExtendLease/ExtendLease';
-import Redirect from './components/layout/Redirect/Redirect';
 import UpgradeUndernames from './components/layout/UpgradeUndernames/UpgradeUndernames';
 import ViewAuction from './components/layout/ViewAuction/ViewAuction';
 import { ConnectWalletModal } from './components/modals';
@@ -38,7 +37,6 @@ function App() {
     createRoutesFromElements(
       <Route element={<Layout />} errorElement={<NotFound />}>
         <Route index element={<Home />} />
-        <Route path="info" element={<Redirect url="https://ar.io/arns" />} />
         <Route path="connect" element={<ConnectWalletModal />} />
         <Route path="manage">
           <Route index={true} element={<Navigate to="names" />} />

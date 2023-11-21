@@ -55,7 +55,7 @@ function AuctionChart({
   showAuctionExplainer?: boolean;
 }) {
   const [
-    { blockHeight: currentBlockHeight, arweaveDataProvider },
+    { blockHeight: currentBlockHeight, arweaveDataProvider, ioTicker },
     dispatchGlobalState,
   ] = useGlobalState();
   const chartRef = useRef<ChartJSOrUndefined>(null);
@@ -206,7 +206,7 @@ function AuctionChart({
 
       tooltipDiv.childNodes[0].textContent = `${formattedDate}*`;
       tooltipDiv.childNodes[1].textContent =
-        `${Math.round(io).toLocaleString()} IO` ?? '';
+        `${Math.round(io).toLocaleString()} ${ioTicker}` ?? '';
 
       blockHeightLabelDiv.textContent = `Block ${block}`;
 
@@ -272,7 +272,7 @@ function AuctionChart({
             className="flex flex-column"
             style={{ gap: 0, width: 73, paddingTop: 12 }}
           >
-            {`${formatIO(auctionInfo.startPrice)} IO`}
+            {`${formatIO(auctionInfo.startPrice)} ${ioTicker}`}
             <div>ceiling</div>
           </div>
 
@@ -291,7 +291,7 @@ function AuctionChart({
             className="flex flex-column"
             style={{ gap: 0, width: 73, paddingBottom: 18 }}
           >
-            {`${formatIO(auctionInfo.floorPrice)} IO`}
+            {`${formatIO(auctionInfo.floorPrice)} ${ioTicker}`}
             <div>floor</div>
           </div>
 

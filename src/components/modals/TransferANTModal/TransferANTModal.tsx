@@ -5,7 +5,7 @@ import { useIsMobile } from '../../../hooks';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
-  PDNTContractJSON,
+  ANTContractJSON,
   TransferANTPayload,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
@@ -32,7 +32,7 @@ function TransferANTModal({
   const [accepted, setAccepted] = useState<boolean>(false);
   const [toAddress, setToAddress] = useState<string>('');
   const [isValidAddress, setIsValidAddress] = useState<boolean>();
-  const [state, setState] = useState<PDNTContractJSON>();
+  const [state, setState] = useState<ANTContractJSON>();
   const [associatedNames, setAssociatedNames] = useState<string[]>([]);
 
   // TODO: add "transfer to another account" dropdown

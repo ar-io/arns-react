@@ -17,15 +17,15 @@ import { WalletAddress } from '../../layout/WalletAddress/WalletAddress';
 import './styles.css';
 
 function NavMenuCard() {
-  const [{ pdnsContractId, arweaveDataProvider }] = useGlobalState(); // eslint-disable-line
+  const [{ arnsContractId, arweaveDataProvider, ioTicker }] = useGlobalState(); // eslint-disable-line
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
   const [walletDetails, setWalletDetails] = useState<{
     AR: number | undefined | string;
-    IO: number | undefined | string;
+    [x: string]: number | undefined | string;
   }>({
     AR: undefined,
-    IO: undefined,
+    [ioTicker]: undefined,
   });
   const menuRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
@@ -49,14 +49,14 @@ function NavMenuCard() {
 
   function resetWalletDetails() {
     setWalletDetails({
-      IO: undefined,
+      [ioTicker]: undefined,
       AR: undefined,
     });
   }
 
   async function fetchWalletDetails(walletAddress: ArweaveTransactionID) {
     const ioBalance = await arweaveDataProvider.getContractBalanceForWallet(
-      pdnsContractId,
+      arnsContractId,
       walletAddress,
     );
     const arBalance = await arweaveDataProvider.getArBalance(walletAddress);
@@ -70,7 +70,7 @@ function NavMenuCard() {
     );
     setWalletDetails({
       AR: formattedBalance,
-      IO: formattedIOBalance,
+      [ioTicker]: formattedIOBalance,
     });
   }
 
@@ -230,6 +230,11 @@ function NavMenuCard() {
                 >
                   {isMobile ? (
                     <>
+                      <NavBarLink
+                        path={'https://ar.io/arns'}
+                        linkText={'Need test tokens?'}
+                        target={'_blank'}
+                      />
                       {Object.entries(ROUTES).map(([key, route]) => {
                         if (!route.index && (!route.protected || walletAddress))
                           return (

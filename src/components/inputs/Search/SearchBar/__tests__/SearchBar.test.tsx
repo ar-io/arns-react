@@ -10,7 +10,7 @@ import {
   RegistrationAction,
   registrationReducer,
 } from '../../../../../state/reducers';
-import { PDNSRecordEntry, TRANSACTION_TYPES } from '../../../../../types';
+import { ARNSRecordEntry, TRANSACTION_TYPES } from '../../../../../types';
 import { lowerCaseDomain } from '../../../../../utils';
 import SearchBar from '../SearchBar';
 
@@ -67,7 +67,7 @@ jest.mock('../../../../../hooks', () => ({
   }),
 }));
 
-const TEST_RECORDS: Record<string, PDNSRecordEntry> = {
+const TEST_RECORDS: Record<string, ARNSRecordEntry> = {
   ardrive: {
     contractTxId: 'I-cxQhfh0Zb9UqQNizC9PiLC41KpUeA9hjiVV02rQRw',
     startTimestamp: 1711122719,

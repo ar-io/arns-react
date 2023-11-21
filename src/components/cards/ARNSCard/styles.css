@@ -1,4 +1,4 @@
-.pdns-card {
+.arns-card {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -13,7 +13,7 @@
   border-radius: var(--corner-radius);
 }
 
-.pdns-preview {
+.arns-preview {
   display: flex;
   overflow: hidden;
   border-radius: var(--corner-radius);
@@ -25,7 +25,7 @@
 }
 
 @media screen and (max-width: 600px) {
-  .pdns-card {
+  .arns-card {
     flex-direction: row;
     height: fit-content;
     width: 100%;
@@ -33,7 +33,7 @@
     border-radius: 10px;
   }
 
-  .pdns-preview {
+  .arns-preview {
     width: 100px;
     height: 66px;
     border-radius: 8px;

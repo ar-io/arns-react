@@ -2,13 +2,13 @@ import { Pagination, PaginationProps, Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
 import { useIsFocused } from '../../../../hooks';
+import { ANTContract } from '../../../../services/arweave/ANTContract';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
-import { PDNTContract } from '../../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../../state/contexts/WalletState';
 import {
-  PDNSRecordEntry,
-  PDNTContractJSON,
+  ANTContractJSON,
+  ARNSRecordEntry,
   VALIDATION_INPUT_TYPES,
 } from '../../../../types';
 import { isArweaveTransactionID } from '../../../../utils';
@@ -21,7 +21,7 @@ import './styles.css';
 
 type NameTokenDetails = {
   [x: string]: Pick<
-    PDNTContractJSON,
+    ANTContractJSON,
     'name' | 'ticker' | 'owner' | 'controller'
   > & { names?: string[] };
 };
@@ -121,12 +121,12 @@ function NameTokenSelector({
             },
           });
           const validState = await arweaveDataProvider
-            .getContractState<PDNTContractJSON>(id)
+            .getContractState<ANTContractJSON>(id)
             .catch(() => {
               throw new Error(`Unable to get Contract State`);
             });
 
-          if (!new PDNTContract(validState).isValid()) {
+          if (!new ANTContract(validState).isValid()) {
             throw new Error('Invalid ANT Contract.');
           }
           setValidImport(true);
@@ -135,7 +135,7 @@ function NameTokenSelector({
 
       const contractTxIds = fetchedContractTxIds.concat(imports ?? []);
       const associatedRecords =
-        await arweaveDataProvider.getRecords<PDNSRecordEntry>({
+        await arweaveDataProvider.getRecords<ARNSRecordEntry>({
           filters: {
             contractTxId: contractTxIds,
           },
@@ -143,8 +143,8 @@ function NameTokenSelector({
       const contracts: Array<
         | [
             ArweaveTransactionID,
-            PDNTContractJSON,
-            Record<string, PDNSRecordEntry>,
+            ANTContractJSON,
+            Record<string, ARNSRecordEntry>,
           ]
         | undefined
       > = await Promise.all(
@@ -159,7 +159,7 @@ function NameTokenSelector({
             throw new Error('Invalid ANT Contract.');
           }
           const names = Object.keys(associatedRecords).reduce(
-            (acc: Record<string, PDNSRecordEntry>, id: string) => {
+            (acc: Record<string, ARNSRecordEntry>, id: string) => {
               if (
                 associatedRecords[id].contractTxId === contractTxId.toString()
               ) {

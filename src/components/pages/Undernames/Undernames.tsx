@@ -3,12 +3,12 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { useUndernames } from '../../../hooks/useUndernames/useUndernames';
+import { ANTContract } from '../../../services/arweave/ANTContract';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
-import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import {
-  PDNT_INTERACTION_TYPES,
+  ANT_INTERACTION_TYPES,
   SetRecordPayload,
   TransactionDataPayload,
   UNDERNAME_TABLE_ACTIONS,
@@ -33,8 +33,8 @@ function Undernames() {
   const { id } = useParams();
   const [{ arweaveDataProvider }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
-  const [pdntId, setPDNTId] = useState<ArweaveTransactionID>();
-  const [pdntState, setPDNTState] = useState<PDNTContract>();
+  const [antId, setANTId] = useState<ArweaveTransactionID>();
+  const [antState, setANTState] = useState<ANTContract>();
   const [selectedRow, setSelectedRow] = useState<
     UndernameMetadata | undefined
   >();
@@ -50,7 +50,7 @@ function Undernames() {
     action,
     setAction,
     refresh,
-  } = useUndernames(pdntId);
+  } = useUndernames(antId);
   const [tableLoading, setTableLoading] = useState(true);
   const [tablePage, setTablePage] = useState<number>(1);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -60,7 +60,7 @@ function Undernames() {
     TransactionDataPayload | undefined
   >();
   const [interactionType, setInteractionType] =
-    useState<PDNT_INTERACTION_TYPES>();
+    useState<ANT_INTERACTION_TYPES>();
   const [deployedTransactionId, setDeployedTransactionId] =
     useState<ArweaveTransactionID>();
 
@@ -71,8 +71,8 @@ function Undernames() {
       return;
     }
 
-    if (!pdntId) {
-      setPDNTId(new ArweaveTransactionID(id));
+    if (!antId) {
+      setANTId(new ArweaveTransactionID(id));
     }
 
     if (isArweaveTransactionID(id)) {
@@ -85,13 +85,13 @@ function Undernames() {
 
       if (
         action === UNDERNAME_TABLE_ACTIONS.REMOVE &&
-        pdntId &&
+        antId &&
         selectedUndernameRow?.name
       ) {
         setTransactionData({
           subDomain: selectedUndernameRow?.name,
         });
-        setInteractionType(PDNT_INTERACTION_TYPES.REMOVE_RECORD);
+        setInteractionType(ANT_INTERACTION_TYPES.REMOVE_RECORD);
       }
     }
   }, [
@@ -109,7 +109,7 @@ function Undernames() {
     try {
       const contract = await arweaveDataProvider.buildANTContract(id);
 
-      setPDNTState(contract);
+      setANTState(contract);
     } catch (error) {
       eventEmitter.emit('error', error);
     }
@@ -141,7 +141,7 @@ function Undernames() {
               <h2 className="white">Manage Undernames</h2>
               <button
                 disabled={
-                  pdntState?.getOwnershipStatus(walletAddress) === undefined
+                  antState?.getOwnershipStatus(walletAddress) === undefined
                 }
                 className={'button-secondary center'}
                 style={{
@@ -251,8 +251,8 @@ function Undernames() {
         </div>
       </div>
       {searchParams.has('modal') &&
-      pdntId &&
-      pdntState?.getOwnershipStatus(walletAddress) ? (
+      antId &&
+      antState?.getOwnershipStatus(walletAddress) ? (
         <AddUndernameModal
           closeModal={() => {
             setSearchParams({});
@@ -261,21 +261,21 @@ function Undernames() {
           }}
           payloadCallback={(payload: SetRecordPayload) => {
             setTransactionData(payload);
-            setInteractionType(PDNT_INTERACTION_TYPES.SET_RECORD);
+            setInteractionType(ANT_INTERACTION_TYPES.SET_RECORD);
             setAction(undefined);
             setSelectedRow(undefined);
             setSearchParams({});
           }}
-          antId={pdntId}
+          antId={antId}
         />
       ) : (
         <> </>
       )}
 
       {action === UNDERNAME_TABLE_ACTIONS.EDIT &&
-      pdntId &&
+      antId &&
       selectedRow?.name &&
-      pdntState?.getOwnershipStatus(walletAddress) ? (
+      antState?.getOwnershipStatus(walletAddress) ? (
         <EditUndernameModal
           closeModal={() => {
             setAction(undefined);
@@ -283,21 +283,21 @@ function Undernames() {
           }}
           payloadCallback={(payload: SetRecordPayload) => {
             setTransactionData(payload);
-            setInteractionType(PDNT_INTERACTION_TYPES.EDIT_RECORD);
+            setInteractionType(ANT_INTERACTION_TYPES.EDIT_RECORD);
             setAction(undefined);
             setSelectedRow(undefined);
           }}
-          antId={pdntId}
+          antId={antId}
           undername={selectedRow.name}
         />
       ) : (
         <> </>
       )}
 
-      {pdntId &&
+      {antId &&
       transactionData &&
       interactionType &&
-      pdntState?.getOwnershipStatus(walletAddress) ? (
+      antState?.getOwnershipStatus(walletAddress) ? (
         <ConfirmTransactionModal
           setDeployedTransactionId={(id: ArweaveTransactionID) => {
             setDeployedTransactionId(id);
@@ -306,7 +306,7 @@ function Undernames() {
           }}
           interactionType={interactionType}
           payload={transactionData}
-          assetId={pdntId}
+          assetId={antId}
           close={() => {
             setTransactionData(undefined);
             setSelectedRow(undefined);

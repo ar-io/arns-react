@@ -1,6 +1,7 @@
 import { CSSProperties } from 'react';
 
 import { useIsMobile } from '../../../hooks';
+import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { SMARTWEAVE_TAG_SIZE } from '../../../utils/constants';
 import ArPrice from '../ArPrice/ArPrice';
 
@@ -11,15 +12,16 @@ function TransactionCost({
   ioRequired = false,
   feeWrapperStyle,
 }: {
-  fee?: { io?: number; ar?: number };
+  fee?: { [x: string]: number | undefined };
   info?: JSX.Element | string;
   showBorder?: boolean;
   ioRequired?: boolean;
   feeWrapperStyle?: CSSProperties;
 }) {
   const isMobile = useIsMobile();
-
-  const feeError = fee?.io && fee.io < 0;
+  const [{ ioTicker }] = useGlobalState();
+  const ioFee = fee?.[ioTicker];
+  const feeError = ioFee && ioFee < 0;
 
   return (
     <div
@@ -60,10 +62,10 @@ function TransactionCost({
               'Unable to calculate fee'
             ) : (
               <>
-                {fee?.io
-                  ? `${fee.io.toLocaleString()} IO + `
+                {ioFee
+                  ? `${ioFee.toLocaleString()} ${ioTicker} + `
                   : ioRequired
-                  ? 'Calculating IO + '
+                  ? `Calculating ${ioTicker} + `
                   : ''}
                 <ArPrice dataSize={SMARTWEAVE_TAG_SIZE} />
               </>

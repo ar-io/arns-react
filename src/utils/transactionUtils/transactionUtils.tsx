@@ -3,6 +3,8 @@ import { Tag, Tags } from 'warp-contracts';
 
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import {
+  ANTContractJSON,
+  ARNSMapping,
   BuyRecordPayload,
   CONTRACT_TYPES,
   ContractInteraction,
@@ -12,8 +14,6 @@ import {
   INTERACTION_TYPES,
   IncreaseUndernamesPayload,
   InteractionTypes,
-  PDNSMapping,
-  PDNTContractJSON,
   RemoveRecordPayload,
   SetControllerPayload,
   SetNamePayload,
@@ -31,12 +31,12 @@ import {
   ValidInteractionType,
 } from '../../types';
 import {
+  ARNS_TX_ID_REGEX,
   ATOMIC_FLAG,
+  DEFAULT_ANT_CONTRACT_STATE,
   DEFAULT_MAX_UNDERNAMES,
-  DEFAULT_PDNT_CONTRACT_STATE,
   MAX_TTL_SECONDS,
   MIN_TTL_SECONDS,
-  PDNS_TX_ID_REGEX,
   TTL_SECONDS_REGEX,
   YEAR_IN_MILLISECONDS,
 } from '../constants';
@@ -46,7 +46,7 @@ export function isArweaveTransactionID(id?: string) {
   if (!id) {
     return false;
   }
-  if (!PDNS_TX_ID_REGEX.test(id)) {
+  if (!ARNS_TX_ID_REGEX.test(id)) {
     return false;
   }
   return true;
@@ -222,8 +222,8 @@ export const getWorkflowStepsForInteraction = (
   return structuredClone(WorkflowStepsForInteractions[interaction]);
 };
 
-export function getPDNSMappingByInteractionType(
-  // can be used to generate PDNTCard props: <PDNTCard {...props = getPDNSMappingByInteractionType()} />
+export function getARNSMappingByInteractionType(
+  // can be used to generate ANTCard props: <ANTCard {...props = getARNSMappingByInteractionType()} />
   {
     interactionType,
     transactionData,
@@ -231,7 +231,7 @@ export function getPDNSMappingByInteractionType(
     interactionType: ValidInteractionType;
     transactionData: TransactionData;
   },
-): PDNSMapping | undefined {
+): ARNSMapping | undefined {
   switch (interactionType) {
     case INTERACTION_TYPES.BUY_RECORD: {
       if (
@@ -696,7 +696,7 @@ export function getAttributesFromInteractionFunction(f: string) {
 
 export function mapTransactionDataKeyToPayload(
   interactionType: ValidInteractionType,
-  data: string | number | Array<string | number | PDNTContractJSON>,
+  data: string | number | Array<string | number | ANTContractJSON>,
 ): TransactionData | undefined {
   const txData = typeof data === 'object' ? data : [data];
   if (!data) {
@@ -812,9 +812,9 @@ export function getPendingInteractionsRowsForContract(
 export function generateAtomicState(
   domain: string,
   walletAddress: ArweaveTransactionID,
-): PDNTContractJSON {
+): ANTContractJSON {
   return {
-    ...DEFAULT_PDNT_CONTRACT_STATE,
+    ...DEFAULT_ANT_CONTRACT_STATE,
     name: `ANT-${domain.toUpperCase()}`,
     ticker: 'ANT',
     owner: walletAddress.toString(),
@@ -899,6 +899,23 @@ export function pruneExtraDataFromTransactionPayload(
   return cleanPayload;
 }
 
+/**
+ * Checks if a user has sufficient balance for a given set of costs.
+ * This function iterates over each cost item, verifying if the user's balance for that item
+ * is equal to or greater than the cost. If the balance is insufficient for any item,
+ * it throws an Error with a specific message indicating the shortfall in a case-sensitive manner.
+ *
+ * @param {Object} params - The parameters object.
+ * @param {T} params.balances - An object representing the user's current balances,
+ * where the keys are the item names (case-sensitive) and values are their corresponding balances.
+ * @param {T} params.costs - An object representing the costs,
+ * structured similarly to the balances object, with keys as item names and values as the required amounts.
+ * @throws {Error} - Throws an error with a message indicating the specific item for which the balance is insufficient,
+ * including the current balance and the additional amount required.
+ * @return {boolean} - Returns true if the user has a sufficient balance for all costs.
+ * @template T - A generic type extending a Record of string keys to number values,
+ * used for both the 'balances' and 'costs' parameters.
+ */
 export function userHasSufficientBalance<T extends Record<string, number>>({
   balances,
   costs,
@@ -906,14 +923,13 @@ export function userHasSufficientBalance<T extends Record<string, number>>({
   balances: T;
   costs: T;
 }): boolean {
+  // TODO: emit multiple errors if multiple balances are insufficient
   return Object.entries(costs).every(([key, value]) => {
     if (!(balances[key] >= value)) {
       throw new Error(
-        `Insufficient balance of ${key.toUpperCase()}, user has ${
-          balances[key]
-        } and needs ${
+        `Insufficient balance of ${key}, user has ${balances[key]} and needs ${
           value - balances[key]
-        } more ${key.toUpperCase()} to pay for this transaction.`,
+        } more ${key} to pay for this transaction.`,
       );
     }
     return true;

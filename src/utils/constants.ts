@@ -1,9 +1,9 @@
 import Arweave from 'arweave';
 
 import { ArweaveTransactionID } from '../services/arweave/ArweaveTransactionID';
-import { PDNSContractJSON, PDNTContractJSON } from '../types';
+import { ANTContractJSON, ARNSContractJSON } from '../types';
 
-export const PDNS_SERVICE_API =
+export const ARNS_SERVICE_API =
   process.env.VITE_ARNS_SERVICE_API ?? 'https://dev.arns.app';
 export const ARWEAVE_HOST = process.env.VITE_ARWEAVE_HOST ?? 'ar-io.dev';
 
@@ -17,12 +17,12 @@ export const DEFAULT_ARWEAVE = new Arweave({
 
 export const MAX_ARNS_NAME_LENGTH = 51;
 export const MAX_UNDERNAME_LENGTH = 61;
-export const PDNS_NAME_REGEX = new RegExp(
+export const ARNS_NAME_REGEX = new RegExp(
   `^([a-zA-Z0-9][a-zA-Z0-9-]{0,${
     MAX_ARNS_NAME_LENGTH - 2
   }}[a-zA-Z0-9]|[a-zA-Z0-9]{1})$`,
 );
-export const PDNS_NAME_REGEX_PARTIAL = new RegExp(
+export const ARNS_NAME_REGEX_PARTIAL = new RegExp(
   `^[a-zA-Z0-9-]{0,${MAX_ARNS_NAME_LENGTH}}$`,
 );
 export const UNDERNAME_REGEX = new RegExp(
@@ -33,8 +33,8 @@ export const UNDERNAME_REGEX = new RegExp(
 
 export const APPROVED_CHARACTERS_REGEX = new RegExp(`^[a-zA-Z0-9-]{0,61}$`);
 export const ALPHA_NUMERIC_REGEX = new RegExp('^[a-zA-Z0-9]$');
-export const PDNS_TX_ID_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{43}$');
-export const PDNS_TX_ID_ENTRY_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{1,43}$');
+export const ARNS_TX_ID_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{43}$');
+export const ARNS_TX_ID_ENTRY_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{1,43}$');
 export const EMAIL_REGEX = new RegExp(
   "([!#-'*+/-9=?A-Z^-~-]+(.[!#-'*+/-9=?A-Z^-~-]+)*|\"([]!#-[^-~ \t]|(\\[\t -~]))+\")@([!#-'*+/-9=?A-Z^-~-]+(.[!#-'*+/-9=?A-Z^-~-]+)*|[[\t -Z^-~]*])", // eslint-disable-line
 );
@@ -44,15 +44,15 @@ export const ARNS_REGISTRY_ADDRESS = new ArweaveTransactionID(
   process.env.VITE_ARNS_REGISTRY_ADDRESS ??
     'fbU8Y4NMKKzP4rmAYeYj6tDrVDo9XNbdyq5IZPA31WQ',
 );
-export const STUB_PDNT_ID = '6dUiTQKJCVD7c9icQhbbzfI-Le_hC4sXRDx1OQQ6jMI';
-export const STUB_ARWEAVE_TXID = '2yHmORN-N12hM1B2f9-JPMpOfa59qhpsExFCzImrD30'; // pdns spec pdf
-export const DEFAULT_PDNT_SOURCE_CODE_TX =
+export const STUB_ANT_ID = '6dUiTQKJCVD7c9icQhbbzfI-Le_hC4sXRDx1OQQ6jMI';
+export const STUB_ARWEAVE_TXID = '2yHmORN-N12hM1B2f9-JPMpOfa59qhpsExFCzImrD30'; // arns spec pdf
+export const DEFAULT_ANT_SOURCE_CODE_TX =
   'H2uxnw_oVIEzXeBeYmxDgJuxPqwBCGPO4OmQzdWQu3U';
 export const RECOMMENDED_TRANSACTION_CONFIRMATIONS = 50;
 export const DEFAULT_TTL_SECONDS = 3600;
 export const DEFAULT_MAX_UNDERNAMES = 10;
 export const MAX_UNDERNAME_COUNT = 50_000;
-export const PDNT_CONTRACT_STATE_KEYS = [
+export const ANT_CONTRACT_STATE_KEYS = [
   'balances',
   'evolve',
   'name',
@@ -72,14 +72,13 @@ export const DEFAULT_EXPIRATION = new Date('12/31/2023');
 export const FEATURED_DOMAINS = [
   'arcode',
   'ardrive',
-  'pdns',
+  'arns',
   'blog',
   'connect',
   'permapages',
   'pst',
   'sam',
   'search',
-  'wallet',
 ];
 
 export const NAME_PRICE_INFO =
@@ -166,7 +165,7 @@ export const SMARTWEAVE_TAG_SIZE = 250; // required tag size in bytes
 export const SMARTWEAVE_MAX_TAG_SPACE = 2048 - SMARTWEAVE_TAG_SIZE; // minimum tag size of smartweave tags from warp is 239, rounded it for wiggle room
 export const SMARTWEAVE_MAX_INPUT_SIZE = 1700;
 
-export const DEFAULT_PDNT_CONTRACT_STATE: PDNTContractJSON = {
+export const DEFAULT_ANT_CONTRACT_STATE: ANTContractJSON = {
   balances: {},
   evolve: undefined,
   name: '',
@@ -180,7 +179,7 @@ export const DEFAULT_PDNT_CONTRACT_STATE: PDNTContractJSON = {
     },
   },
 };
-export const DEFAULT_PDNS_REGISTRY_STATE: PDNSContractJSON = {
+export const DEFAULT_ARNS_REGISTRY_STATE: ARNSContractJSON = {
   records: {},
   fees: {},
   balances: { '': 0 },
@@ -195,7 +194,7 @@ export const DEFAULT_PDNS_REGISTRY_STATE: PDNSContractJSON = {
   },
   name: '',
   owner: undefined,
-  ticker: '',
+  ticker: 'Test IO',
   approvedANTSourceCodeTxs: [],
 };
 
@@ -219,5 +218,5 @@ export const RESERVED_BREADCRUMB_TITLES = new Set([
   'Manage Undernames',
 ]);
 
-export const ARIO_DISCORD_LINK = 'https://discord.gg/7dBaqcE8';
+export const ARIO_DISCORD_LINK = 'https://discord.gg/YZGfvxb4az';
 export const APPROXIMATE_BLOCKS_PER_DAY = 720;

@@ -1,15 +1,15 @@
+import { ANTContract } from '../../services/arweave/ANTContract';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
-import { PDNTContract } from '../../services/arweave/PDNTContract';
 import {
+  ANTContractDomainRecord,
+  ANTContractJSON,
+  ARNSContractJSON,
+  ARNSRecordEntry,
   ArweaveDataProvider,
   Auction,
   AuctionSettings,
   ContractInteraction,
   INTERACTION_PRICE_PARAMS,
-  PDNSContractJSON,
-  PDNSRecordEntry,
-  PDNTContractDomainRecord,
-  PDNTContractJSON,
   SmartweaveContractCache,
   SmartweaveContractInteractionProvider,
   TRANSACTION_TYPES,
@@ -95,13 +95,13 @@ export class ArweaveCompositeDataProviderMock
   }: {
     walletAddress: ArweaveTransactionID;
     srcCodeTransactionId: ArweaveTransactionID;
-    initialState: PDNTContractJSON;
+    initialState: ANTContractJSON;
     tags?: TransactionTag[];
   }): Promise<string> {
     return 'mock-deploy-id'; // Mock value
   }
 
-  async getContractState<T extends PDNTContractJSON | PDNSContractJSON>(
+  async getContractState<T extends ANTContractJSON | ARNSContractJSON>(
     contractTxId: ArweaveTransactionID,
   ): Promise<T> {
     return {
@@ -123,7 +123,7 @@ export class ArweaveCompositeDataProviderMock
     walletAddress: ArweaveTransactionID;
     registryId: ArweaveTransactionID;
     srcCodeTransactionId: ArweaveTransactionID;
-    initialState: PDNTContractJSON;
+    initialState: ANTContractJSON;
     domain: string;
     type: TRANSACTION_TYPES;
     years?: number;
@@ -192,10 +192,10 @@ export class ArweaveCompositeDataProviderMock
   async getDomainsInAuction(): Promise<string[]> {
     throw new Error('Method not implemented.');
   }
-  getRecord({ domain }: { domain: string }): Promise<PDNSRecordEntry> {
-    return Promise.resolve({} as PDNSRecordEntry);
+  getRecord({ domain }: { domain: string }): Promise<ARNSRecordEntry> {
+    return Promise.resolve({} as ARNSRecordEntry);
   }
-  getRecords<T extends PDNSRecordEntry | PDNTContractDomainRecord>({
+  getRecords<T extends ARNSRecordEntry | ANTContractDomainRecord>({
     contractTxId,
     filters,
   }: {
@@ -221,7 +221,16 @@ export class ArweaveCompositeDataProviderMock
   }
   async buildANTContract(
     contractTxId: ArweaveTransactionID,
-  ): Promise<PDNTContract> {
-    return {} as PDNTContract; // Mock value
+  ): Promise<ANTContract> {
+    return {} as ANTContract; // Mock value
+  }
+  async getStateField({
+    contractTxId,
+    field,
+  }: {
+    contractTxId: ArweaveTransactionID;
+    field: string;
+  }): Promise<any> {
+    return {}; // Mock value
   }
 }

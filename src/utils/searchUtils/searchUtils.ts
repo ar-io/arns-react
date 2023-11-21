@@ -1,18 +1,18 @@
 import emojiRegex from 'emoji-regex';
 import { asciiToUnicode, unicodeToAscii } from 'puny-coder';
 
-import { PDNSRecordEntry, PDNTContractJSON } from '../../types';
+import { ANTContractJSON, ARNSRecordEntry } from '../../types';
 import {
   APPROVED_CHARACTERS_REGEX,
-  PDNS_NAME_REGEX,
+  ARNS_NAME_REGEX,
   RESERVED_NAME_LENGTH,
   YEAR_IN_MILLISECONDS,
 } from '../constants';
 
-export function isPDNSDomainNameValid({ name }: { name?: string }): boolean {
+export function isARNSDomainNameValid({ name }: { name?: string }): boolean {
   if (
     !name ||
-    !PDNS_NAME_REGEX.test(
+    !ARNS_NAME_REGEX.test(
       emojiRegex().test(name) ? encodeDomainToASCII(name) : name,
     ) ||
     name === 'www'
@@ -22,12 +22,12 @@ export function isPDNSDomainNameValid({ name }: { name?: string }): boolean {
   return true;
 }
 
-export function isPDNSDomainNameAvailable({
+export function isARNSDomainNameAvailable({
   name,
   records,
 }: {
   name?: string;
-  records: { [x: string]: PDNSRecordEntry };
+  records: { [x: string]: ARNSRecordEntry };
 }): boolean {
   //if registered return false
   if (!name || records[lowerCaseDomain(name)]) {
@@ -143,7 +143,7 @@ export function lowerCaseDomain(domain: string) {
 
 // controller vs controllers array
 export function getLegacyControllersFromState(
-  state: PDNTContractJSON,
+  state: ANTContractJSON,
 ): string[] {
   if (state.controller && !state.controllers) {
     return [state.controller];

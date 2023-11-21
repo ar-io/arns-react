@@ -19,15 +19,15 @@ import ArweaveID, {
   ArweaveIdTypes,
 } from '../../components/layout/ArweaveID/ArweaveID';
 import TransactionStatus from '../../components/layout/TransactionStatus/TransactionStatus';
+import { ANTContract } from '../../services/arweave/ANTContract';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
-import { PDNTContract } from '../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useWalletState } from '../../state/contexts/WalletState';
 import {
+  ANTContractJSON,
+  ARNSRecordEntry,
+  ARNSTableRow,
   ContractInteraction,
-  PDNSRecordEntry,
-  PDNSTableRow,
-  PDNTContractJSON,
 } from '../../types';
 import {
   decodeDomainToASCII,
@@ -38,8 +38,8 @@ import { DEFAULT_MAX_UNDERNAMES } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 
 type DomainData = {
-  record: PDNSRecordEntry & { domain: string };
-  state?: PDNTContractJSON;
+  record: ARNSRecordEntry & { domain: string };
+  state?: ANTContractJSON;
   transactionBlockHeight?: number;
   pendingContractInteractions?: ContractInteraction[];
   errors?: string[];
@@ -49,10 +49,10 @@ export function useWalletDomains() {
   const [{ gateway, blockHeight, arweaveDataProvider }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [sortAscending, setSortAscending] = useState(true);
-  const [sortField, setSortField] = useState<keyof PDNSTableRow>('status');
-  const [selectedRow] = useState<PDNSTableRow>();
-  const [rows, setRows] = useState<PDNSTableRow[]>([]);
-  const [filteredResults, setFilteredResults] = useState<PDNSTableRow[]>([]);
+  const [sortField, setSortField] = useState<keyof ARNSTableRow>('status');
+  const [selectedRow] = useState<ARNSTableRow>();
+  const [rows, setRows] = useState<ARNSTableRow[]>([]);
+  const [filteredResults, setFilteredResults] = useState<ARNSTableRow[]>([]);
   // loading info
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const itemCount = useRef<number>(0);
@@ -99,10 +99,10 @@ export function useWalletDomains() {
     }
   }, [searchText, rows, path]);
 
-  function sortRows(key: keyof PDNSTableRow, isAsc: boolean): void {
+  function sortRows(key: keyof ARNSTableRow, isAsc: boolean): void {
     setSortField(key);
     const newRows = [...rows];
-    handleTableSort<PDNSTableRow>({
+    handleTableSort<ARNSTableRow>({
       key,
       isAsc,
 
@@ -154,7 +154,7 @@ export function useWalletDomains() {
                 title={
                   <Link
                     className="link white text underline"
-                    to={`/manage/pdnts/${row.id}`}
+                    to={`/manage/ants/${row.id}`}
                   >
                     This contract has pending transactions.
                     <ExternalLinkIcon
@@ -392,7 +392,7 @@ export function useWalletDomains() {
         align: 'left',
         width: '18%',
         className: 'white manage-assets-table-header',
-        render: (val: number, row: PDNSTableRow) => (
+        render: (val: number, row: ARNSTableRow) => (
           <TransactionStatus
             confirmations={val}
             errorMessage={
@@ -442,7 +442,7 @@ export function useWalletDomains() {
                   setValue={(e) => setSearchText(e)}
                   catchInvalidInput={true}
                   showValidationIcon={false}
-                  placeholder={'Search for a domain'}
+                  placeholder={'Search for a name'}
                   maxCharLength={63}
                   wrapperCustomStyle={{
                     position: 'relative',
@@ -487,7 +487,7 @@ export function useWalletDomains() {
         ),
         className: 'white manage-assets-table-header',
         // eslint-disable-next-line
-        render: (val: any, record: PDNSTableRow) => (
+        render: (val: any, record: ARNSTableRow) => (
           <span className="flex" style={{ justifyContent: 'flex-end' }}>
             <button
               className="outline-button center pointer"
@@ -524,7 +524,7 @@ export function useWalletDomains() {
     let datas: DomainData[] = [];
     try {
       const registrations =
-        await arweaveDataProvider.getRecords<PDNSRecordEntry>({
+        await arweaveDataProvider.getRecords<ARNSRecordEntry>({
           filters: { contractTxId: [...tokenIds] },
           address,
         });
@@ -598,12 +598,12 @@ export function useWalletDomains() {
     address: ArweaveTransactionID,
     currentBlockHeight?: number,
   ) {
-    const fetchedRows: PDNSTableRow[] = [];
+    const fetchedRows: ARNSTableRow[] = [];
 
     try {
       const rowData = datas.map((data: DomainData) => {
         const { record, state, transactionBlockHeight } = data;
-        const contract = new PDNTContract(
+        const contract = new ANTContract(
           state,
           new ArweaveTransactionID(record.contractTxId),
         );
@@ -640,7 +640,7 @@ export function useWalletDomains() {
     } catch (error) {
       eventEmitter.emit('error', error);
     }
-    handleTableSort<PDNSTableRow>({
+    handleTableSort<ARNSTableRow>({
       key: 'status',
       isAsc: false,
       rows: fetchedRows,

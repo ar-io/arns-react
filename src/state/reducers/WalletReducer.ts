@@ -8,7 +8,7 @@ export type WalletAction =
       type: 'setWallet';
       payload: ArweaveWalletConnector | undefined;
     }
-  | { type: 'setBalances'; payload: { io: number; ar: number } }
+  | { type: 'setBalances'; payload: { [x: string]: number; ar: number } }
   | { type: 'setWalletStateInitialized' };
 
 export const walletReducer = (
