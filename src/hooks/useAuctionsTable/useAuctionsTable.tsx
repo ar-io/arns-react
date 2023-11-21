@@ -250,7 +250,7 @@ export function useAuctionsTable() {
         width: 'fit-content',
         className: 'white assets-table-header',
         render: (val: number, record: AuctionTableData) => (
-          <NextPriceUpdate auction={record} />
+          <NextPriceUpdate prefixText={''} auction={record} />
         ),
         onHeaderCell: () => {
           return {

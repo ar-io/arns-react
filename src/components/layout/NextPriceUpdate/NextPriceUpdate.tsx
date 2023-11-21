@@ -9,8 +9,10 @@ import { ClockClockwiseIcon } from '../../icons';
 
 const NextPriceUpdate = ({
   auction,
+  prefixText = 'Next price update:',
 }: {
   auction: Auction | AuctionTableData;
+  prefixText?: string;
 }) => {
   const [
     { blockHeight, lastBlockUpdateTimestamp, arweaveDataProvider },
@@ -39,7 +41,7 @@ const NextPriceUpdate = ({
   return (
     <div className="flex flex-row grey" style={{ gap: '8px' }}>
       <ClockClockwiseIcon />
-      <div style={{ whiteSpace: 'nowrap' }}>Next price update:</div>
+      <div style={{ whiteSpace: 'nowrap' }}>{prefixText}</div>
       <div
         className="flex flex-row"
         style={{
