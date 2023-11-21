@@ -209,7 +209,7 @@ function NameTokenSelector({
         });
       }
     } catch (error: any) {
-      console.debug('`Unable to import ANT`,', error.message);
+      console.debug('Unable to import ANT', error.message);
       eventEmitter.emit('error', error);
     } finally {
       setLoading(false);
