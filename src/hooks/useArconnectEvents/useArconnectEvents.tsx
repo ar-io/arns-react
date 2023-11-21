@@ -20,7 +20,11 @@ function useArconnectEvents() {
 
     window.addEventListener('arweaveWalletLoaded', arweaveWalletLoadedListener);
 
-    const gatewayListener = (e: any) => {
+    const gatewayListener = (e: {
+      host: string;
+      port: number;
+      protocol: string;
+    }) => {
       dispatchNewGateway(e?.host, dispatchGlobalState);
     };
 
