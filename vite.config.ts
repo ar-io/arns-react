@@ -7,8 +7,7 @@ import svgr from 'vite-plugin-svgr';
 // https://vitejs.dev/config/
 export default defineConfig({
   build: {
-    // dev only source maps for now
-    sourcemap: process.env.VITE_NODE_ENV === 'develop',
+    sourcemap: true,
   },
   plugins: [
     svgr(),
