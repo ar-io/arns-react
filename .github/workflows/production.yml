@@ -12,7 +12,11 @@ jobs:
       matrix:
         step: ['lint:check', 'test', 'build']
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v2
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
       - run: npm ci
       - run: npm run ${{ matrix.step }}
 
@@ -22,7 +26,11 @@ jobs:
     environment: production
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+      - uses: actions/setup-node@v2
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
 
       - name: Install and Build 🔧
         run: |

@@ -22,8 +22,11 @@ jobs:
     environment: develop
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v3
-
+        uses: actions/checkout@v4
+      - uses: actions/setup-node@v2
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
       - name: Install and Build 🔧
         run: |
           npm ci
