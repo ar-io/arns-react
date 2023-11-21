@@ -16,7 +16,7 @@ import eventEmitter from '../../../utils/events';
 import { ArrowLeft, ArrowRightIcon } from '../../icons';
 import ArweaveID, { ArweaveIdTypes } from '../ArweaveID/ArweaveID';
 import AuctionChart from '../AuctionChart/AuctionChart';
-import NextPriceUpdate from '../NextPriceUpdate/NextPriceUpdate';
+import BlockHeightCounter from '../BlockHeightCounter/BlockHeightCounter';
 import PageLoader from '../progress/PageLoader/PageLoader';
 
 function ViewAuction() {
@@ -129,7 +129,7 @@ function ViewAuction() {
               />
             </span>
           </div>
-          <NextPriceUpdate auction={auction} />
+          <BlockHeightCounter />
 
           <AuctionChart
             domain={encodeDomainToASCII(name!)}

@@ -3,7 +3,7 @@ import { SearchBarFooterProps } from '../../../types';
 import { isDomainReservedLength, lowerCaseDomain } from '../../../utils';
 import ANTCard from '../../cards/ANTCard/ANTCard';
 import AuctionChart from '../AuctionChart/AuctionChart';
-import NextPriceUpdate from '../NextPriceUpdate/NextPriceUpdate';
+import BlockHeightCounter from '../BlockHeightCounter/BlockHeightCounter';
 import ReservedNameNotificationCard from '../ReservedNameNotificationCard/ReservedNameNotificationCard';
 import './styles.css';
 
@@ -21,7 +21,7 @@ function SearchBarFooter({
   if (isActiveAuction && domain) {
     return (
       <div className="flex flex-column">
-        {auction && <NextPriceUpdate auction={auction} />}
+        {auction && <BlockHeightCounter />}
         <AuctionChart
           domain={domain}
           showAuctionExplainer={true}

@@ -2,16 +2,13 @@ import Countdown from 'antd/lib/statistic/Countdown';
 import { useEffect, useState } from 'react';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { Auction, AuctionTableData } from '../../../types';
 import { AVERAGE_BLOCK_TIME_MS } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { ClockClockwiseIcon } from '../../icons';
 
-const NextPriceUpdate = ({
-  auction,
+const BlockHeightCounter = ({
   prefixText = 'Next price update:',
 }: {
-  auction: Auction | AuctionTableData;
   prefixText?: string;
 }) => {
   const [
@@ -31,12 +28,12 @@ const NextPriceUpdate = ({
   };
 
   useEffect(() => {
-    if (blockHeight && auction && lastBlockUpdateTimestamp) {
+    if (blockHeight && lastBlockUpdateTimestamp) {
       const nextPriceChangeTimestamp =
         lastBlockUpdateTimestamp + AVERAGE_BLOCK_TIME_MS;
       setTimeUntilUpdate(nextPriceChangeTimestamp);
     } // use the price response to calculate the next interval
-  }, [blockHeight, lastBlockUpdateTimestamp, auction]);
+  }, [blockHeight, lastBlockUpdateTimestamp]);
 
   return (
     <div className="flex flex-row grey" style={{ gap: '8px' }}>
@@ -70,4 +67,4 @@ const NextPriceUpdate = ({
   );
 };
 
-export default NextPriceUpdate;
+export default BlockHeightCounter;

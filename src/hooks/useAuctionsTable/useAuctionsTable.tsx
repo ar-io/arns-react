@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import ArweaveID from '../../components/layout/ArweaveID/ArweaveID';
-import NextPriceUpdate from '../../components/layout/NextPriceUpdate/NextPriceUpdate';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useWalletState } from '../../state/contexts/WalletState';
@@ -42,7 +41,7 @@ export function useAuctionsTable() {
 
   useEffect(() => {
     if (blockHeight && lastBlockUpdateTimestamp) {
-      buildAuctionRows(auctionData, blockHeight, lastBlockUpdateTimestamp);
+      buildAuctionRows(auctionData, blockHeight);
     }
   }, [auctionData, blockHeight, lastBlockUpdateTimestamp]);
 
@@ -235,39 +234,6 @@ export function useAuctionsTable() {
         },
       },
       {
-        responsive: ['lg'],
-        title: (
-          <button
-            className="flex-row pointer grey"
-            style={{ gap: '0.5em' }}
-            onClick={() => setSortField('nextPriceUpdate')}
-          >
-            <span>Next Price Update</span>
-          </button>
-        ),
-        dataIndex: 'nextPriceUpdate',
-        key: 'nextPriceUpdate',
-        width: 'fit-content',
-        className: 'white assets-table-header',
-        render: (val: number, record: AuctionTableData) => (
-          <NextPriceUpdate prefixText={''} auction={record} />
-        ),
-        onHeaderCell: () => {
-          return {
-            onClick: () => {
-              handleTableSort<AuctionTableData>({
-                key: 'nextPriceUpdate',
-                isAsc: sortAscending,
-                rows,
-              });
-              // forces update of rows
-              setRows([...rows]);
-              setSortOrder(!sortAscending);
-            },
-          };
-        },
-      },
-      {
         responsive: ['sm'],
         title: '',
         className: 'assets-table-header',
@@ -320,11 +286,9 @@ export function useAuctionsTable() {
   function generateAuctionTableData({
     blockHeight,
     auction,
-    lastBlockUpdateTimestamp,
   }: {
     blockHeight: number;
     auction: Auction;
-    lastBlockUpdateTimestamp: number;
   }): AuctionTableData {
     const { name, type, initiator, startHeight, settings, isActive, prices } =
       auction;
@@ -334,9 +298,6 @@ export function useAuctionsTable() {
       (startHeight + settings.auctionDuration - blockHeight) *
         AVERAGE_BLOCK_TIME_MS; // approximate expiration date in milliseconds
 
-    const nextPriceUpdateTimestamp =
-      lastBlockUpdateTimestamp + AVERAGE_BLOCK_TIME_MS;
-
     const data = {
       name,
       key: `${name}-${type}`,
@@ -344,7 +305,6 @@ export function useAuctionsTable() {
       initiator,
       isActive,
       closingDate: expirationDateMilliseconds,
-      nextPriceUpdate: nextPriceUpdateTimestamp,
       // allows us to not query for new prices and use previous net call to find the new price
       currentPrice: Math.round(getPriceByBlockHeight(prices, blockHeight)),
     };
@@ -388,11 +348,7 @@ export function useAuctionsTable() {
     return fetchedAuctions.filter((a) => a !== undefined);
   }
 
-  function buildAuctionRows(
-    data: Auction[],
-    blockHeight: number,
-    lastBlockUpdateTimestamp: number,
-  ) {
+  function buildAuctionRows(data: Auction[], blockHeight: number) {
     const fetchedRows: AuctionTableData[] = [];
 
     data.forEach((auction) => {
@@ -402,7 +358,6 @@ export function useAuctionsTable() {
       const rowData = generateAuctionTableData({
         blockHeight,
         auction,
-        lastBlockUpdateTimestamp,
       });
       // sort by confirmation count (ASC) by default
       fetchedRows.push(rowData);
@@ -418,6 +373,9 @@ export function useAuctionsTable() {
     columns: generateTableColumns(),
     rows,
     sortField,
+    nextPriceUpdates: lastBlockUpdateTimestamp
+      ? lastBlockUpdateTimestamp + AVERAGE_BLOCK_TIME_MS
+      : undefined,
     sortAscending,
     refresh: load,
   };

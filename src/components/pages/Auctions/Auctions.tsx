@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router';
 import { useAuctionsTable, useIsMobile } from '../../../hooks';
 import { getCustomPaginationButtons } from '../../../utils';
 import { RefreshIcon } from '../../icons';
+import BlockHeightCounter from '../../layout/BlockHeightCounter/BlockHeightCounter';
 import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 
 function Auctions() {
@@ -34,6 +35,9 @@ function Auctions() {
             style={{ fontSize: isMobile ? '20px' : '36px' }}
           >
             Live Auctions
+          </span>
+          <span className="flex flex-right white">
+            <BlockHeightCounter />
           </span>
           <button
             className="flex button center white pointer hover"

@@ -69,7 +69,6 @@ export type AuctionTableData = Pick<
   'name' | 'currentPrice' | 'isActive' | 'initiator' | 'type'
 > & {
   closingDate: number;
-  nextPriceUpdate: number;
 };
 
 export type ARNSContractJSON = {
