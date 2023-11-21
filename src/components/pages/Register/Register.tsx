@@ -140,7 +140,7 @@ function RegisterNameForm() {
     }
   }, [leaseDuration, domain, auction]);
 
-  async function handlePDNTId(id: string) {
+  async function handleANTId(id: string) {
     try {
       const txId = new ArweaveTransactionID(id.toString());
       dispatchRegisterState({
@@ -482,7 +482,7 @@ function RegisterNameForm() {
             <NameTokenSelector
               selectedTokenCallback={(id) =>
                 id
-                  ? handlePDNTId(id.toString())
+                  ? handleANTId(id.toString())
                   : dispatchRegisterState({
                       type: 'setANTID',
                       payload: undefined,

@@ -2,17 +2,17 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { useIsMobile } from '../../../hooks';
+import { ANTContract } from '../../../services/arweave/ANTContract';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
-import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
+  ARNSRecordEntry,
   INTERACTION_NAMES,
   INTERACTION_TYPES,
   IncreaseUndernamesPayload,
-  PDNSRecordEntry,
 } from '../../../types';
-import { isPDNSDomainNameValid, lowerCaseDomain, sleep } from '../../../utils';
+import { isARNSDomainNameValid, lowerCaseDomain, sleep } from '../../../utils';
 import {
   ARNS_REGISTRY_ADDRESS,
   MAX_UNDERNAME_COUNT,
@@ -31,8 +31,8 @@ function UpgradeUndernames() {
   const [{ arweaveDataProvider, ioTicker }] = useGlobalState();
   const name = location.pathname.split('/').at(-2);
   const [, dispatchTransactionState] = useTransactionState();
-  const [record, setRecord] = useState<PDNSRecordEntry>();
-  const [antContract, setAntContract] = useState<PDNTContract>();
+  const [record, setRecord] = useState<ARNSRecordEntry>();
+  const [antContract, setAntContract] = useState<ANTContract>();
   // min count of 1 ~ contract rule
   const [newUndernameCount, setNewUndernameCount] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
@@ -73,7 +73,7 @@ function UpgradeUndernames() {
   async function onLoad() {
     try {
       setLoading(true);
-      if (name && isPDNSDomainNameValid({ name: lowerCaseDomain(name) })) {
+      if (name && isARNSDomainNameValid({ name: lowerCaseDomain(name) })) {
         const record = await arweaveDataProvider.getRecord({
           domain: lowerCaseDomain(name),
         });

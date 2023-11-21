@@ -4,8 +4,8 @@ import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransacti
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import {
+  ANT_INTERACTION_TYPES,
   INTERACTION_TYPES,
-  PDNT_INTERACTION_TYPES,
   RemoveControllerPayload,
   RemoveRecordPayload,
   SetControllerPayload,
@@ -19,12 +19,12 @@ import {
 } from '../../../types';
 import {
   TRANSACTION_DATA_KEYS,
-  getPDNSMappingByInteractionType,
+  getARNSMappingByInteractionType,
   isObjectOfTransactionPayloadType,
   pruneExtraDataFromTransactionPayload,
 } from '../../../utils';
 import eventEmitter from '../../../utils/events';
-import { PDNTCard } from '../../cards';
+import { ANTCard } from '../../cards';
 import TransactionCost from '../../layout/TransactionCost/TransactionCost';
 import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import DialogModal from '../DialogModal/DialogModal';
@@ -36,10 +36,10 @@ type ConfirmTransactionProps = {
 };
 
 export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
-  PDNT_INTERACTION_TYPES,
+  ANT_INTERACTION_TYPES,
   ConfirmTransactionProps
 > = {
-  [PDNT_INTERACTION_TYPES.SET_NAME]: {
+  [ANT_INTERACTION_TYPES.SET_NAME]: {
     header: 'Edit Nickname',
     successHeader: 'Edit Nickname completed',
     body: (props: TransactionData) => {
@@ -64,7 +64,7 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
       );
     },
   },
-  [PDNT_INTERACTION_TYPES.SET_TICKER]: {
+  [ANT_INTERACTION_TYPES.SET_TICKER]: {
     header: 'Edit Ticker',
     successHeader: 'Edit Ticker completed',
     body: (props: TransactionDataPayload) => {
@@ -88,7 +88,7 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
       );
     },
   },
-  [PDNT_INTERACTION_TYPES.SET_TARGET_ID]: {
+  [ANT_INTERACTION_TYPES.SET_TARGET_ID]: {
     header: 'Edit Target ID',
     successHeader: 'Edit Target ID completed',
     body: (props: TransactionDataPayload) => {
@@ -114,7 +114,7 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
       );
     },
   },
-  [PDNT_INTERACTION_TYPES.SET_TTL_SECONDS]: {
+  [ANT_INTERACTION_TYPES.SET_TTL_SECONDS]: {
     header: 'Edit TTL Seconds',
     successHeader: 'Edit ttlSeconds completed',
     body: (props: TransactionDataPayload) => {
@@ -140,7 +140,7 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
       );
     },
   },
-  [PDNT_INTERACTION_TYPES.SET_CONTROLLER]: {
+  [ANT_INTERACTION_TYPES.SET_CONTROLLER]: {
     header: 'Add Controller',
     successHeader: 'Controller Added',
     body: (props: TransactionDataPayload) => {
@@ -164,7 +164,7 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
       );
     },
   },
-  [PDNT_INTERACTION_TYPES.REMOVE_CONTROLLER]: {
+  [ANT_INTERACTION_TYPES.REMOVE_CONTROLLER]: {
     header: 'Remove Controller',
     successHeader: 'Controller Removed',
     body: (props: TransactionDataPayload) => {
@@ -188,7 +188,7 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
       );
     },
   },
-  [PDNT_INTERACTION_TYPES.REMOVE_RECORD]: {
+  [ANT_INTERACTION_TYPES.REMOVE_RECORD]: {
     header: 'Remove Undername',
     successHeader: 'Undername Removed',
     body: (props: TransactionDataPayload) => {
@@ -213,7 +213,7 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
       );
     },
   },
-  [PDNT_INTERACTION_TYPES.SET_RECORD]: {
+  [ANT_INTERACTION_TYPES.SET_RECORD]: {
     header: 'Add Undername',
     successHeader: 'Undername Added',
     body: (props: TransactionDataPayload) => {
@@ -243,7 +243,7 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
       );
     },
   },
-  [PDNT_INTERACTION_TYPES.EDIT_RECORD]: {
+  [ANT_INTERACTION_TYPES.EDIT_RECORD]: {
     header: 'Edit Undername',
     successHeader: 'Undername Edited',
     body: (props: TransactionDataPayload) => {
@@ -298,7 +298,7 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
       );
     },
   },
-  [PDNT_INTERACTION_TYPES.TRANSFER]: {
+  [ANT_INTERACTION_TYPES.TRANSFER]: {
     header: 'Review Transfer',
     successHeader: 'Transfer completed',
     body: (props: TransactionDataPayload) => {
@@ -310,15 +310,15 @@ export const CONFIRM_TRANSACTION_PROPS_MAP: Record<
       ) {
         return <></>;
       }
-      const pdntProps = getPDNSMappingByInteractionType({
+      const antProps = getARNSMappingByInteractionType({
         interactionType: INTERACTION_TYPES.TRANSFER_ANT,
         transactionData: { ...props } as unknown as TransactionData,
       });
 
       return (
         <span className="flex" style={{ maxWidth: '500px' }}>
-          <PDNTCard
-            {...pdntProps}
+          <ANTCard
+            {...antProps}
             domain={props.associatedNames?.[0] ?? ''}
             mobileView
           />
@@ -338,7 +338,7 @@ function ConfirmTransactionModal({
   cancelText = 'Cancel',
   confirmText = 'Confirm',
 }: {
-  interactionType: PDNT_INTERACTION_TYPES;
+  interactionType: ANT_INTERACTION_TYPES;
   payload: TransactionDataPayload;
   assetId: ArweaveTransactionID;
   close: () => void;
@@ -364,7 +364,7 @@ function ConfirmTransactionModal({
 
   async function deployInteraction(
     payload: TransactionDataPayload,
-    interactionType: PDNT_INTERACTION_TYPES,
+    interactionType: ANT_INTERACTION_TYPES,
   ) {
     try {
       setDeployingTransaction(true);

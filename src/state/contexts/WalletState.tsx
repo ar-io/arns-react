@@ -13,7 +13,7 @@ import { ARCONNECT_WALLET_PERMISSIONS } from '../../services/wallets/ArConnectWa
 import { ArweaveWalletConnector } from '../../types';
 import {
   ARNS_REGISTRY_ADDRESS,
-  DEFAULT_PDNS_REGISTRY_STATE,
+  DEFAULT_ARNS_REGISTRY_STATE,
 } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 import { WalletAction } from '../reducers/WalletReducer';
@@ -34,7 +34,7 @@ const initialState: WalletState = {
   wallet: undefined,
   balances: {
     ar: 0,
-    [DEFAULT_PDNS_REGISTRY_STATE.ticker]: 0,
+    [DEFAULT_ARNS_REGISTRY_STATE.ticker]: 0,
   },
   walletStateInitialized: false,
 };

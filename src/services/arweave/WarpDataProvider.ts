@@ -12,8 +12,8 @@ import {
 import { DeployPlugin } from 'warp-contracts-plugin-deploy';
 
 import {
+  ANTContractJSON,
   KVCache,
-  PDNTContractJSON,
   SmartweaveContractInteractionProvider,
   TRANSACTION_TYPES,
   TransactionCache,
@@ -26,8 +26,8 @@ import {
 } from '../../utils';
 import {
   ARNS_REGISTRY_ADDRESS,
+  ARNS_SERVICE_API,
   ATOMIC_REGISTRATION_INPUT,
-  PDNS_SERVICE_API,
   SMARTWEAVE_MAX_TAG_SPACE,
 } from '../../utils/constants';
 import { ContractInteractionCache } from '../caches/ContractInteractionCache';
@@ -112,7 +112,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       .setEvaluationOptions(evaluationOptions)
       .connect('use_wallet')
       // TODO: add to our SmartweaveContractInterface a method that gets the full response of the service with `sortKey`
-      .syncState(`${PDNS_SERVICE_API}/v1/contract/${contractTxId.toString()}`);
+      .syncState(`${ARNS_SERVICE_API}/v1/contract/${contractTxId.toString()}`);
     if (dryWrite) {
       const dryWriteResults = await contract.dryWrite(
         payload,
@@ -175,7 +175,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
   }: {
     walletAddress: ArweaveTransactionID;
     srcCodeTransactionId: ArweaveTransactionID;
-    initialState: PDNTContractJSON;
+    initialState: ANTContractJSON;
     tags?: Tags;
     interactionDetails?: Record<string, any>;
   }): Promise<string> {
@@ -259,7 +259,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     walletAddress: ArweaveTransactionID;
     registryId: ArweaveTransactionID;
     srcCodeTransactionId: ArweaveTransactionID;
-    initialState: PDNTContractJSON;
+    initialState: ANTContractJSON;
     domain: string;
     type: TRANSACTION_TYPES;
     years?: number;
@@ -293,7 +293,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       .setEvaluationOptions(evaluationOptions)
       .connect('use_wallet')
       // TODO: add to our SmartweaveContractInterface a method that gets the full response of the service with `sortKey`
-      .syncState(`${PDNS_SERVICE_API}/v1/contract/${ARNS_REGISTRY_ADDRESS}`);
+      .syncState(`${ARNS_SERVICE_API}/v1/contract/${ARNS_REGISTRY_ADDRESS}`);
 
     // because we are manually constructing the tags, we want to verify them immediately and always
     const dryWriteResults = await contract.dryWrite(

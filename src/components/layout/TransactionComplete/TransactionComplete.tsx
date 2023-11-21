@@ -5,16 +5,16 @@ import { useNavigate } from 'react-router-dom';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
-  PDNSMapping,
+  ARNSMapping,
   TransactionData,
   ValidInteractionType,
 } from '../../../types';
 import eventEmitter from '../../../utils/events';
 import {
+  getARNSMappingByInteractionType,
   getLinkId,
-  getPDNSMappingByInteractionType,
 } from '../../../utils/transactionUtils/transactionUtils';
-import { PDNTCard } from '../../cards';
+import { ANTCard } from '../../cards';
 import { ArrowLeft, SettingsIcon } from '../../icons';
 import PageLoader from '../progress/PageLoader/PageLoader';
 import ActionCard from './ActionCard';
@@ -31,7 +31,7 @@ function TransactionComplete({
   const [{ deployedTransactionId }] = useTransactionState();
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(true);
-  const [pdntProps, setPdntProps] = useState<PDNSMapping>();
+  const [antProps, setAntProps] = useState<ARNSMapping>();
 
   useEffect(() => {
     if (transactionId && transactionId === deployedTransactionId) {
@@ -46,7 +46,7 @@ function TransactionComplete({
       if (!transactionId) {
         throw new Error('Unable to set ANT properties.');
       }
-      const newProps = getPDNSMappingByInteractionType({
+      const newProps = getARNSMappingByInteractionType({
         interactionType,
         transactionData: {
           ...transactionData,
@@ -56,7 +56,7 @@ function TransactionComplete({
       if (!newProps) {
         throw new Error('Unable to set ANT properties.', newProps);
       }
-      setPdntProps(newProps);
+      setAntProps(newProps);
     } catch (error) {
       eventEmitter.emit('error', error);
       navigate(-1);
@@ -65,7 +65,7 @@ function TransactionComplete({
     }
   }
 
-  if (!pdntProps) {
+  if (!antProps) {
     return (
       <PageLoader loading={loading} message={'Loading transaction data.'} />
     );
@@ -109,10 +109,10 @@ function TransactionComplete({
             }
           />
         </div>
-        <PDNTCard
-          {...pdntProps}
+        <ANTCard
+          {...antProps}
           overrides={{
-            ...pdntProps.overrides,
+            ...antProps.overrides,
           }}
           compact={false}
           bordered

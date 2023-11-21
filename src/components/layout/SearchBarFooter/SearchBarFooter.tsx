@@ -1,7 +1,7 @@
 import { useAuctionInfo, useIsMobile } from '../../../hooks';
 import { SearchBarFooterProps } from '../../../types';
 import { isDomainReservedLength, lowerCaseDomain } from '../../../utils';
-import PDNTCard from '../../cards/PDNTCard/PDNTCard';
+import ANTCard from '../../cards/ANTCard/ANTCard';
 import AuctionChart from '../AuctionChart/AuctionChart';
 import NextPriceUpdate from '../NextPriceUpdate/NextPriceUpdate';
 import ReservedNameNotificationCard from '../ReservedNameNotificationCard/ReservedNameNotificationCard';
@@ -51,7 +51,7 @@ function SearchBarFooter({
           <span className="flex flex-row white text-medium flex-left">
             Ownership Details:
           </span>
-          <PDNTCard
+          <ANTCard
             domain={domain}
             contractTxId={contractTxId}
             record={record}

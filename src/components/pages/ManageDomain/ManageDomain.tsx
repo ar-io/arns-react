@@ -24,7 +24,7 @@ import {
   SECONDS_IN_GRACE_PERIOD,
 } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
-import { AntDetailKey, mapKeyToAttribute } from '../../cards/PDNTCard/PDNTCard';
+import { AntDetailKey, mapKeyToAttribute } from '../../cards/ANTCard/ANTCard';
 import {
   CirclePending,
   ExternalLinkIcon,

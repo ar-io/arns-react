@@ -2,8 +2,8 @@ import { isArray } from 'lodash';
 
 import { ContractInteraction, KVCache, TransactionCache } from '../../types';
 import { jsonSerialize } from '../../utils';
+import { ANTContract } from '../arweave/ANTContract';
 import { ArweaveTransactionID } from '../arweave/ArweaveTransactionID';
-import { PDNTContract } from '../arweave/PDNTContract';
 
 export class ContractInteractionCache implements TransactionCache, KVCache {
   private _cache: KVCache;
@@ -12,7 +12,7 @@ export class ContractInteractionCache implements TransactionCache, KVCache {
   }
   async getCachedNameTokens(
     address?: ArweaveTransactionID,
-  ): Promise<PDNTContract[]> {
+  ): Promise<ANTContract[]> {
     const cachedTokens = Object.entries(window.localStorage)
       .map(([contractTxId, interactions]) => {
         const parsedInteractions = jsonSerialize(interactions) ?? interactions;
@@ -28,7 +28,7 @@ export class ContractInteractionCache implements TransactionCache, KVCache {
             return;
           }
 
-          return new PDNTContract(
+          return new ANTContract(
             JSON.parse(deployment.payload.initState),
             new ArweaveTransactionID(contractTxId),
           );
@@ -36,7 +36,7 @@ export class ContractInteractionCache implements TransactionCache, KVCache {
       })
       .filter((contract) => contract !== undefined);
 
-    return cachedTokens as PDNTContract[];
+    return cachedTokens as ANTContract[];
   }
 
   async getCachedInteractions(

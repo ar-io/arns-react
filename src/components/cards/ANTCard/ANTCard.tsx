@@ -3,10 +3,10 @@ import { startCase } from 'lodash';
 import { isValidElement, useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../hooks';
+import { ANTContract } from '../../../services/arweave/ANTContract';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
-import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { PDNSMapping } from '../../../types';
+import { ARNSMapping } from '../../../types';
 import {
   getLeaseDurationFromEndTimestamp,
   isArweaveTransactionID,
@@ -63,7 +63,7 @@ export const DEFAULT_PRIMARY_KEYS: Partial<AntDetailKey>[] = [
   'owner',
 ];
 
-function PDNTCard({
+function ANTCard({
   state,
   contractTxId,
   domain,
@@ -75,10 +75,10 @@ function PDNTCard({
   deployedTransactionId,
   mobileView,
   bordered = false,
-}: PDNSMapping) {
+}: ARNSMapping) {
   const isMobile = useIsMobile();
   const [{ arweaveDataProvider }] = useGlobalState();
-  const [pdntDetails, setPDNTDetails] = useState<{ [x: string]: any }>();
+  const [antDetails, setANTDetails] = useState<{ [x: string]: any }>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [limitDetails, setLimitDetails] = useState<boolean>(true);
   const mappedKeys = DEFAULT_PRIMARY_KEYS.map((key: AntDetailKey) =>
@@ -94,7 +94,7 @@ function PDNTCard({
       setIsLoading(true);
       let contract = undefined;
       if (state) {
-        contract = new PDNTContract(state);
+        contract = new ANTContract(state);
       }
       if (contractTxId && contractTxId !== ATOMIC_FLAG && !state) {
         contract = await arweaveDataProvider
@@ -117,7 +117,7 @@ function PDNTCard({
           : 'Indefinite';
       }
 
-      const allPDNTDetails: Record<AntDetailKey, any> = {
+      const allANTDetails: Record<AntDetailKey, any> = {
         deployedTransactionId: deployedTransactionId
           ? deployedTransactionId.toString()
           : undefined,
@@ -136,9 +136,9 @@ function PDNTCard({
         ...overrides,
       };
 
-      const filteredPDNTDetails = Object.keys(allPDNTDetails).reduce(
+      const filteredANTDetails = Object.keys(allANTDetails).reduce(
         (obj: { [x: string]: any }, key: string) => {
-          const value = allPDNTDetails[key as AntDetailKey];
+          const value = allANTDetails[key as AntDetailKey];
           if (!disabledKeys?.includes(key)) {
             if (typeof value === 'object' && !isValidElement(value)) {
               return obj;
@@ -150,9 +150,9 @@ function PDNTCard({
         {},
       );
 
-      const replacedKeys = Object.keys(filteredPDNTDetails).reduce(
+      const replacedKeys = Object.keys(filteredANTDetails).reduce(
         (obj: any, key: string) => {
-          const value = allPDNTDetails[key as AntDetailKey];
+          const value = allANTDetails[key as AntDetailKey];
           if (typeof value === 'object' && !isValidElement(value)) {
             return obj;
           }
@@ -162,10 +162,10 @@ function PDNTCard({
         {},
       );
       setLimitDetails(compact);
-      setPDNTDetails(replacedKeys);
+      setANTDetails(replacedKeys);
     } catch (error) {
       eventEmitter.emit('error', error);
-      setPDNTDetails(undefined);
+      setANTDetails(undefined);
     } finally {
       setIsLoading(false);
     }
@@ -189,7 +189,7 @@ function PDNTCard({
     return <Loader size={80} />;
   }
 
-  if (!pdntDetails) {
+  if (!antDetails) {
     return <span className="section-header">Uh oh. Something went wrong.</span>;
   }
 
@@ -212,7 +212,7 @@ function PDNTCard({
           layout={mobileView ? 'vertical' : 'horizontal'}
           style={{ width: '100%' }}
         >
-          {Object.entries(pdntDetails).map(([key, value]) => {
+          {Object.entries(antDetails).map(([key, value]) => {
             const numberValue = +value;
             if ((!mappedKeys.includes(key) && limitDetails) || !value) {
               return;
@@ -315,4 +315,4 @@ function PDNTCard({
   );
 }
 
-export default PDNTCard;
+export default ANTCard;

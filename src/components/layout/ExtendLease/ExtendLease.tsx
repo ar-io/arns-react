@@ -6,10 +6,10 @@ import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import {
+  ARNSRecordEntry,
   ExtendLeasePayload,
   INTERACTION_NAMES,
   INTERACTION_TYPES,
-  PDNSRecordEntry,
   TRANSACTION_TYPES,
 } from '../../../types';
 import {
@@ -24,7 +24,7 @@ import {
   YEAR_IN_MILLISECONDS,
 } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
-import { PDNSCard } from '../../cards';
+import { ARNSCard } from '../../cards';
 import { InfoIcon } from '../../icons';
 import Counter from '../../inputs/Counter/Counter';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
@@ -40,7 +40,7 @@ function ExtendLease() {
   const location = useLocation();
   const navigate = useNavigate();
   const name = location.pathname.split('/').at(-2);
-  const [record, setRecord] = useState<PDNSRecordEntry>();
+  const [record, setRecord] = useState<ARNSRecordEntry>();
   const [registrationType, setRegistrationType] = useState<TRANSACTION_TYPES>();
   const [newLeaseDuration, setNewLeaseDuration] = useState<number>(1);
   const [maxIncrease, setMaxIncrease] = useState<number>(0);
@@ -146,7 +146,7 @@ function ExtendLease() {
             >
               This domain is permanently registered and its lease cannot be
               extended.
-              <PDNSCard domain={name} />
+              <ARNSCard domain={name} />
             </span>
           }
         />
