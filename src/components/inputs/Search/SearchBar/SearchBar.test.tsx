@@ -1,18 +1,18 @@
 import { cleanup, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { ArweaveCompositeDataProviderMock } from '../../../../../__tests__/__mocks__/ArweaveCompositeDataProviderMock';
-import { ArweaveTransactionID } from '../../../../../services/arweave/ArweaveTransactionID';
+import { ArweaveCompositeDataProviderMock } from '../../../../__tests__/__mocks__/ArweaveCompositeDataProviderMock';
+import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import RegistrationStateProvider, {
   RegistrationState,
-} from '../../../../../state/contexts/RegistrationState';
+} from '../../../../state/contexts/RegistrationState';
 import {
   RegistrationAction,
   registrationReducer,
-} from '../../../../../state/reducers';
-import { ARNSRecordEntry, TRANSACTION_TYPES } from '../../../../../types';
-import { lowerCaseDomain } from '../../../../../utils';
-import SearchBar from '../SearchBar';
+} from '../../../../state/reducers';
+import { ARNSRecordEntry, TRANSACTION_TYPES } from '../../../../types';
+import { lowerCaseDomain } from '../../../../utils';
+import SearchBar from './SearchBar';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -27,22 +27,19 @@ jest.mock('react-router-dom', () => ({
   useSearchParams: () => [new URLSearchParams(), jest.fn()],
 }));
 
-jest.mock(
-  '../../../../../services/arweave/ArweaveCompositeDataProvider',
-  () => {
-    const {
-      ArweaveCompositeDataProviderMock,
-    } = require('../../../../../__tests__/__mocks__/ArweaveCompositeDataProviderMock'); // eslint-disable-line
+jest.mock('../../../../services/arweave/ArweaveCompositeDataProvider', () => {
+  const {
+    ArweaveCompositeDataProviderMock,
+  } = require('../../../../__tests__/__mocks__/ArweaveCompositeDataProviderMock'); // eslint-disable-line
 
-    return {
-      ArweaveCompositeDataProvider: jest.fn().mockImplementation(() => {
-        return new ArweaveCompositeDataProviderMock();
-      }),
-    };
-  },
-);
+  return {
+    ArweaveCompositeDataProvider: jest.fn().mockImplementation(() => {
+      return new ArweaveCompositeDataProviderMock();
+    }),
+  };
+});
 
-jest.mock('../../../../../hooks', () => ({
+jest.mock('../../../../hooks', () => ({
   useAuctionInfo: jest.fn(() => ({})),
   useIsFocused: jest.fn(() => false),
   useIsMobile: jest.fn(() => false),
@@ -62,7 +59,7 @@ jest.mock('../../../../../hooks', () => ({
   useArweaveCompositeProvider: jest.fn(() => {
     const ArweaveCompositeDataProviderMock =
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      require('../../../../../__tests__/__mocks__/ArweaveCompositeDataProviderMock').ArweaveCompositeDataProviderMock;
+      require('../../../../__tests__/__mocks__/ArweaveCompositeDataProviderMock').ArweaveCompositeDataProviderMock;
     return new ArweaveCompositeDataProviderMock();
   }),
 }));

@@ -1,6 +1,6 @@
 import { cleanup, render } from '@testing-library/react';
 
-import SearchBarHeader from '../SearchBarHeader';
+import SearchBarHeader from './SearchBarHeader';
 
 describe('SearchBarHeader', () => {
   afterEach(cleanup);

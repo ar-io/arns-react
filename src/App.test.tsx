@@ -1,8 +1,8 @@
 import { act, cleanup, render } from '@testing-library/react';
 
-import App from '../App';
+import App from './App';
 
-jest.mock('../services/arweave/ArweaveCompositeDataProvider', () => {
+jest.mock('./services/arweave/ArweaveCompositeDataProvider', () => {
   const {
     ArweaveCompositeDataProviderMock,
   } = require('./__mocks__/ArweaveCompositeDataProviderMock'); // eslint-disable-line

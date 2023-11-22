@@ -1,15 +1,15 @@
 import { cleanup, render } from '@testing-library/react';
 import { HashRouter as Router } from 'react-router-dom';
 
-import NavGroup from '../NavGroup';
+import Home from './Home';
 
-describe('NavGroup', () => {
+describe('Home', () => {
   afterEach(cleanup);
 
-  test('render NavGroup', () => {
+  test('render Home', () => {
     render(
       <Router>
-        <NavGroup />
+        <Home />
       </Router>,
     );
   });
