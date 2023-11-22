@@ -326,9 +326,6 @@ export function useAuctionsTable() {
     }
     itemCount.current = domainsInAuction.length;
     itemsLoaded.current = 0;
-    /**
-     * NOTE: We were previously doing this concurrently, but it was causing some auction objects to fail to load. Ideally the endpoint on the service provides a batch request, but for now we will do this sequentially.
-     */
     const fetchedAuctions: (Auction | undefined)[] = await Promise.all(
       domainsInAuction.map((domain) => {
         return arweaveDataProvider
