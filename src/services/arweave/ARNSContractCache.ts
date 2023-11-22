@@ -40,23 +40,23 @@ export class ARNSContractCache implements SmartweaveContractCache {
     arweave,
     cache = new ContractInteractionCache(new LocalStorageCache()),
     http = fetchRetry(fetch, {
-        retryOn: (attempt, error, response) => {
-          if (withRetry && attempt > 3) return false;
-          if (
-            error !== null ||
-            (response &&
-              response.status >= 400 &&
-              !NO_RETRY_HTTP_STATUS_CODES.has(response.status))
-          ) {
-            console.debug(`Retrying request, attempt number ${attempt + 1}`);
-            return true;
-          }
-          return false;
-        },
-        retryDelay: (attempt) => {
-          return Math.pow(2, attempt) * 500; // 500, 1000, 2000
-        },
-      });
+      retryOn: (attempt, error, response) => {
+        if (attempt > 3) return false;
+        if (
+          error !== null ||
+          (response &&
+            response.status >= 400 &&
+            !NO_RETRY_HTTP_STATUS_CODES.has(response.status))
+        ) {
+          console.debug(`Retrying request, attempt number ${attempt + 1}`);
+          return true;
+        }
+        return false;
+      },
+      retryDelay: (attempt) => {
+        return Math.pow(2, attempt) * 500; // 500, 1000, 2000
+      },
+    }),
   }: {
     url: string;
     arweave: ArweaveDataProvider;
