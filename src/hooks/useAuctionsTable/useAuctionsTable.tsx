@@ -1,5 +1,4 @@
 import { ColumnType } from 'antd/es/table';
-import Countdown from 'antd/lib/statistic/Countdown';
 import { startCase } from 'lodash';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -9,11 +8,7 @@ import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionI
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useWalletState } from '../../state/contexts/WalletState';
 import { Auction, AuctionTableData, TRANSACTION_TYPES } from '../../types';
-import {
-  getNextPriceChangeTimestamp,
-  getPriceByBlockHeight,
-  handleTableSort,
-} from '../../utils';
+import { getPriceByBlockHeight, handleTableSort } from '../../utils';
 import {
   ARNS_REGISTRY_ADDRESS,
   AVERAGE_BLOCK_TIME_MS,
@@ -22,8 +17,10 @@ import eventEmitter from '../../utils/events';
 import { useIsMobile } from '../useIsMobile/useIsMobile';
 
 export function useAuctionsTable() {
-  const [{ blockHeight, arweaveDataProvider, ioTicker }, dispatchGlobalState] =
-    useGlobalState();
+  const [
+    { blockHeight, arweaveDataProvider, ioTicker, lastBlockUpdateTimestamp },
+    dispatchGlobalState,
+  ] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] =
@@ -43,10 +40,10 @@ export function useAuctionsTable() {
   }, [walletAddress]);
 
   useEffect(() => {
-    if (blockHeight) {
+    if (blockHeight && lastBlockUpdateTimestamp) {
       buildAuctionRows(auctionData, blockHeight);
     }
-  }, [auctionData, blockHeight]);
+  }, [auctionData, blockHeight, lastBlockUpdateTimestamp]);
 
   async function load() {
     try {
@@ -237,52 +234,6 @@ export function useAuctionsTable() {
         },
       },
       {
-        responsive: ['lg'],
-        title: (
-          <button
-            className="flex-row pointer grey"
-            style={{ gap: '0.5em' }}
-            onClick={() => setSortField('nextPriceUpdate')}
-          >
-            <span>Next price adj.</span>
-          </button>
-        ),
-        dataIndex: 'nextPriceUpdate',
-        key: 'nextPriceUpdate',
-        width: 'fit-content',
-        className: 'white assets-table-header',
-        render: (val: number) => (
-          <span
-            className="white flex flex-row"
-            style={{ gap: '0px', height: 'fit-content' }}
-          >
-            <Countdown
-              value={+val}
-              valueStyle={{
-                fontSize: '15px',
-                color: 'var(--text-white)',
-              }}
-              format="m"
-            />
-            &nbsp;min
-          </span>
-        ),
-        onHeaderCell: () => {
-          return {
-            onClick: () => {
-              handleTableSort<AuctionTableData>({
-                key: 'nextPriceUpdate',
-                isAsc: sortAscending,
-                rows,
-              });
-              // forces update of rows
-              setRows([...rows]);
-              setSortOrder(!sortAscending);
-            },
-          };
-        },
-      },
-      {
         responsive: ['sm'],
         title: '',
         className: 'assets-table-header',
@@ -347,11 +298,6 @@ export function useAuctionsTable() {
       (startHeight + settings.auctionDuration - blockHeight) *
         AVERAGE_BLOCK_TIME_MS; // approximate expiration date in milliseconds
 
-    const nextPriceUpdateTimestamp = getNextPriceChangeTimestamp({
-      currentBlockHeight: blockHeight,
-      prices,
-    });
-
     const data = {
       name,
       key: `${name}-${type}`,
@@ -359,7 +305,6 @@ export function useAuctionsTable() {
       initiator,
       isActive,
       closingDate: expirationDateMilliseconds,
-      nextPriceUpdate: nextPriceUpdateTimestamp,
       // allows us to not query for new prices and use previous net call to find the new price
       currentPrice: Math.round(getPriceByBlockHeight(prices, blockHeight)),
     };

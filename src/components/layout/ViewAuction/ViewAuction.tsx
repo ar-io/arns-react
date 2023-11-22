@@ -13,10 +13,10 @@ import {
   sleep,
 } from '../../../utils';
 import eventEmitter from '../../../utils/events';
-import { ArrowLeft, ArrowRightIcon } from '../../icons';
+import { ArrowLeft, ArrowRightIcon, ClockClockwiseIcon } from '../../icons';
 import ArweaveID, { ArweaveIdTypes } from '../ArweaveID/ArweaveID';
 import AuctionChart from '../AuctionChart/AuctionChart';
-import NextPriceUpdate from '../NextPriceUpdate/NextPriceUpdate';
+import BlockHeightCounter from '../BlockHeightCounter/BlockHeightCounter';
 import PageLoader from '../progress/PageLoader/PageLoader';
 
 function ViewAuction() {
@@ -129,7 +129,14 @@ function ViewAuction() {
               />
             </span>
           </div>
-          <NextPriceUpdate auction={auction} />
+          <BlockHeightCounter
+            prefixText={
+              <span className="flex center" style={{ gap: '10px' }}>
+                <ClockClockwiseIcon width={'18px'} height={'18px'} /> Next price
+                update:
+              </span>
+            }
+          />
 
           <AuctionChart
             domain={encodeDomainToASCII(name!)}

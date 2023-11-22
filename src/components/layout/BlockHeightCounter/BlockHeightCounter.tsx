@@ -1,13 +1,15 @@
 import Countdown from 'antd/lib/statistic/Countdown';
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { Auction } from '../../../types';
 import { AVERAGE_BLOCK_TIME_MS } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
-import { ClockClockwiseIcon } from '../../icons';
 
-const NextPriceUpdate = ({ auction }: { auction: Auction }) => {
+const BlockHeightCounter = ({
+  prefixText = 'Next price update:',
+}: {
+  prefixText?: ReactNode;
+}) => {
   const [
     { blockHeight, lastBlockUpdateTimestamp, arweaveDataProvider },
     dispatchGlobalState,
@@ -25,17 +27,16 @@ const NextPriceUpdate = ({ auction }: { auction: Auction }) => {
   };
 
   useEffect(() => {
-    if (blockHeight && auction && lastBlockUpdateTimestamp) {
+    if (blockHeight && lastBlockUpdateTimestamp) {
       const nextPriceChangeTimestamp =
         lastBlockUpdateTimestamp + AVERAGE_BLOCK_TIME_MS;
       setTimeUntilUpdate(nextPriceChangeTimestamp);
     } // use the price response to calculate the next interval
-  }, [blockHeight, lastBlockUpdateTimestamp, auction]);
+  }, [blockHeight, lastBlockUpdateTimestamp]);
 
   return (
     <div className="flex flex-row grey" style={{ gap: '8px' }}>
-      <ClockClockwiseIcon />
-      <div style={{ whiteSpace: 'nowrap' }}>Next price update:</div>
+      <div style={{ whiteSpace: 'nowrap' }}>{prefixText}</div>
       <div
         className="flex flex-row"
         style={{
@@ -64,4 +65,4 @@ const NextPriceUpdate = ({ auction }: { auction: Auction }) => {
   );
 };
 
-export default NextPriceUpdate;
+export default BlockHeightCounter;
