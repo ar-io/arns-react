@@ -39,19 +39,14 @@ export class ARNSContractCache implements SmartweaveContractCache {
     url,
     arweave,
     cache = new ContractInteractionCache(new LocalStorageCache()),
-    http = (
-      url: string,
-      withRetry = true,
-      allowedStatusCodes: Set<number> = NO_RETRY_HTTP_STATUS_CODES,
-    ) => {
-      const f = fetchRetry(fetch, {
+    http = fetchRetry(fetch, {
         retryOn: (attempt, error, response) => {
           if (withRetry && attempt > 3) return false;
           if (
             error !== null ||
             (response &&
               response.status >= 400 &&
-              !allowedStatusCodes.has(response.status))
+              !NO_RETRY_HTTP_STATUS_CODES.has(response.status))
           ) {
             console.debug(`Retrying request, attempt number ${attempt + 1}`);
             return true;
@@ -62,8 +57,6 @@ export class ARNSContractCache implements SmartweaveContractCache {
           return Math.pow(2, attempt) * 500; // 500, 1000, 2000
         },
       });
-      return f(url);
-    },
   }: {
     url: string;
     arweave: ArweaveDataProvider;
