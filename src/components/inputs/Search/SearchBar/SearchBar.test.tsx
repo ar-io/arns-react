@@ -1,7 +1,7 @@
 import { cleanup, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { ArweaveCompositeDataProviderMock } from '@tests/common/mocks/ArweaveCompositeDataProviderMock';
 
-import { ArweaveCompositeDataProviderMock } from '../../../../__tests__/__mocks__/ArweaveCompositeDataProviderMock';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import RegistrationStateProvider, {
   RegistrationState,
@@ -30,7 +30,7 @@ jest.mock('react-router-dom', () => ({
 jest.mock('../../../../services/arweave/ArweaveCompositeDataProvider', () => {
   const {
     ArweaveCompositeDataProviderMock,
-  } = require('../../../../__tests__/__mocks__/ArweaveCompositeDataProviderMock'); // eslint-disable-line
+  } = require('@tests/common/mocks/ArweaveCompositeDataProviderMock'); // eslint-disable-line
 
   return {
     ArweaveCompositeDataProvider: jest.fn().mockImplementation(() => {

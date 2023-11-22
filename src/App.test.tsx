@@ -5,7 +5,7 @@ import App from './App';
 jest.mock('./services/arweave/ArweaveCompositeDataProvider', () => {
   const {
     ArweaveCompositeDataProviderMock,
-  } = require('./__mocks__/ArweaveCompositeDataProviderMock'); // eslint-disable-line
+  } = require('@tests/common/mocks/ArweaveCompositeDataProviderMock'); // eslint-disable-line
 
   return {
     ArweaveCompositeDataProvider: jest.fn().mockImplementation(() => {
