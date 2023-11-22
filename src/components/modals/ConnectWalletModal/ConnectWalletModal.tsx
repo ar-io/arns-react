@@ -47,8 +47,12 @@ function ConnectWalletModal(): JSX.Element {
   }
 
   async function closeModal({ next }: { next: boolean }) {
+    console.log({
+      from: state?.from,
+      to: state?.to,
+    });
     if (!walletAddress) {
-      navigate(state?.from ?? '/', { state: { from: state?.from ?? '/' } });
+      navigate('/', { state: { from: state?.from ?? '/' } });
       return;
     }
 
