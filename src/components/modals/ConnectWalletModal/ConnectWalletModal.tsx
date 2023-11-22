@@ -12,7 +12,7 @@ import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
 
 function ConnectWalletModal(): JSX.Element {
-  const modalRef = useRef(null);
+  const modalRef = useRef<HTMLDivElement>(null);
   const [, dispatchGlobalState] = useGlobalState();
   const [
     { wallet, walletAddress, walletStateInitialized },
@@ -32,7 +32,7 @@ function ConnectWalletModal(): JSX.Element {
   useEffect(() => {
     // disable scrolling when modal is in view
     if (wallet && walletAddress) {
-      closeModal({ next: true });
+      closeModal({ next: true, address: walletAddress });
     }
     document.body.style.overflow = 'hidden';
     return () => {
@@ -54,8 +54,14 @@ function ConnectWalletModal(): JSX.Element {
     next: boolean;
     address?: ArweaveTransactionID;
   }) {
+    console.log({
+      from: state?.from,
+      to: state?.to,
+      next,
+      address,
+    });
     if (!address) {
-      navigate('/', { state: { from: state?.from ?? '/' } });
+      navigate(state?.from ?? '/', { state: { from: state?.from ?? '/' } });
       return;
     }
 
