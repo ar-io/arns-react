@@ -107,9 +107,10 @@ function NameTokenSelector({
       }
       const { contractTxIds: fetchedContractTxIds } = await arweaveDataProvider
         .getContractsForWallet(address, 'ant')
-        .catch((): { contractTxIds: ArweaveTransactionID[] } => ({
-          contractTxIds: [],
-        }));
+        .catch((e) => {
+          console.debug(e);
+          throw new Error('Unable to get contracts for wallet');
+        });
 
       const validImports = imports.length
         ? await Promise.all(
