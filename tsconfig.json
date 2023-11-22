@@ -16,10 +16,9 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "paths": {
-      "@tests/*": ["./src/__tests__"]
+      "@tests/*": ["./tests"]
     }
   },
-  "include": ["src", "types"],
-  "exclude": ["**/*.test.ts", "**/*.test.tsx"],
+  "include": ["src", "types", "tests"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

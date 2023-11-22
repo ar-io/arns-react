@@ -4,8 +4,9 @@
     "module": "ESNext",
     "moduleResolution": "Node",
     "allowSyntheticDefaultImports": true,
+    "jsx": "react-jsx",
     "paths": {
-      "@tests/*": ["./src/__tests__"]
+      "@tests/*": ["./tests"]
     }
   },
   "include": ["vite.config.ts"]
