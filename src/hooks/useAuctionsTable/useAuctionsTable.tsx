@@ -333,7 +333,13 @@ export function useAuctionsTable() {
             domain,
           })
           .catch((e) => {
-            console.debug(e);
+            console.debug('Failed to load auction', e);
+            eventEmitter.emit(
+              'error',
+              new Error(
+                `Failed to load for '${domain}'. You may need to refresh to see the latest data.`,
+              ),
+            );
             return undefined;
           })
           .finally(() => {
