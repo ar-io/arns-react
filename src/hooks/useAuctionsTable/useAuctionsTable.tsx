@@ -1,5 +1,6 @@
 import { ColumnType } from 'antd/es/table';
 import { startCase } from 'lodash';
+import * as _ from 'lodash';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -325,27 +326,29 @@ export function useAuctionsTable() {
     }
     itemCount.current = domainsInAuction.length;
     itemsLoaded.current = 0;
-    const fetchedAuctions = [];
     /**
      * NOTE: We were previously doing this concurrently, but it was causing some auction objects to fail to load. Ideally the endpoint on the service provides a batch request, but for now we will do this sequentially.
      */
-    for (const domain of domainsInAuction) {
-      const auction = await arweaveDataProvider
-        .getAuction({
-          domain,
-        })
-        .catch((e) => console.debug(e));
-      if (!auction) {
-        continue;
-      }
-      if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
-      setPercentLoaded(
-        Math.round((itemsLoaded.current / itemCount.current) * 100),
-      );
-      fetchedAuctions.push(auction);
-    }
+    const fetchedAuctions: (Auction | undefined)[] = await Promise.all(
+      domainsInAuction.map((domain) => {
+        return arweaveDataProvider
+          .getAuction({
+            domain,
+          })
+          .catch((e) => {
+            console.debug(e);
+            return undefined;
+          })
+          .finally(() => {
+            itemCount.current++;
+            setPercentLoaded(
+              Math.round((itemsLoaded.current / itemCount.current) * 100),
+            );
+          });
+      }),
+    );
 
-    return fetchedAuctions.filter((a) => a !== undefined);
+    return _.compact(fetchedAuctions);
   }
 
   function buildAuctionRows(data: Auction[], blockHeight: number) {
