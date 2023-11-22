@@ -100,10 +100,8 @@ function Footer() {
           className="flex flex-row flex-right text grey center"
           style={{ whiteSpace: 'nowrap' }}
         >
-          v{process.env.npm_package_version}
-          {process.env.VITE_NODE_ENV === 'production'
-            ? ''
-            : `-${process.env.VITE_GITHUB_HASH?.slice(0, 6)}`}
+          v{process.env.npm_package_version}-
+          {process.env.VITE_GITHUB_HASH?.slice(0, 6)}
         </span>
         <Tooltip
           title="Github"
