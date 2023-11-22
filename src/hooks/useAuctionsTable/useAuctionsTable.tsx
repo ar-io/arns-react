@@ -1,6 +1,6 @@
 import { ColumnType } from 'antd/es/table';
 import { startCase } from 'lodash';
-import * as _ from 'lodash';
+import { compact } from 'lodash';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -351,7 +351,8 @@ export function useAuctionsTable() {
       }),
     );
 
-    return _.compact(fetchedAuctions);
+    // remove empty auctions
+    return compact(fetchedAuctions);
   }
 
   function buildAuctionRows(data: Auction[], blockHeight: number) {
