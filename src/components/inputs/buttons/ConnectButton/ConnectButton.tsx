@@ -11,7 +11,6 @@ function ConnectButton(): JSX.Element {
       className="connect-button"
       style={{ textDecoration: 'none' }}
       onClick={() => {
-        console.log(location);
         navigate('/connect', {
           state: { from: location.pathname, to: location.pathname },
         });

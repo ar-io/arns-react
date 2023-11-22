@@ -54,12 +54,6 @@ function ConnectWalletModal(): JSX.Element {
     next: boolean;
     address?: ArweaveTransactionID;
   }) {
-    console.log({
-      from: state?.from,
-      to: state?.to,
-      next,
-      address,
-    });
     if (!address) {
       navigate(state?.from ?? '/', { state: { from: state?.from ?? '/' } });
       return;
