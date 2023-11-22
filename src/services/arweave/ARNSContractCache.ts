@@ -27,6 +27,8 @@ import { LocalStorageCache } from '../caches/LocalStorageCache';
 import { ANTContract } from './ANTContract';
 import { ArweaveTransactionID } from './ArweaveTransactionID';
 
+const NO_RETRY_HTTP_STATUS_CODES = new Set([404]);
+
 export class ARNSContractCache implements SmartweaveContractCache {
   protected _url: string;
   protected _cache: TransactionCache & KVCache;
@@ -37,19 +39,31 @@ export class ARNSContractCache implements SmartweaveContractCache {
     url,
     arweave,
     cache = new ContractInteractionCache(new LocalStorageCache()),
-    http = fetchRetry(fetch, {
-      retryOn: (attempt, error, response) => {
-        if (attempt > 3) return false;
-        if (error !== null || (response && response.status >= 400)) {
-          console.debug(`Retrying request, attempt number ${attempt + 1}`);
-          return true;
-        }
-        return false;
-      },
-      retryDelay: (attempt) => {
-        return Math.pow(2, attempt) * 500; // 500, 1000, 2000
-      },
-    }),
+    http = (
+      url: string,
+      withRetry = true,
+      allowedStatusCodes: Set<number> = NO_RETRY_HTTP_STATUS_CODES,
+    ) => {
+      const f = fetchRetry(fetch, {
+        retryOn: (attempt, error, response) => {
+          if (withRetry && attempt > 3) return false;
+          if (
+            error !== null ||
+            (response &&
+              response.status >= 400 &&
+              !allowedStatusCodes.has(response.status))
+          ) {
+            console.debug(`Retrying request, attempt number ${attempt + 1}`);
+            return true;
+          }
+          return false;
+        },
+        retryDelay: (attempt) => {
+          return Math.pow(2, attempt) * 500; // 500, 1000, 2000
+        },
+      });
+      return f(url);
+    },
   }: {
     url: string;
     arweave: ArweaveDataProvider;
