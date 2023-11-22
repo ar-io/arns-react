@@ -254,6 +254,7 @@ function Manage() {
                           boxSizing: 'content-box',
                           fontSize: '14px',
                           flexWrap: 'nowrap',
+                          color: 'var(--text-black)',
                         }}
                       >
                         Search for a Name
