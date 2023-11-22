@@ -373,9 +373,6 @@ export function useAuctionsTable() {
     columns: generateTableColumns(),
     rows,
     sortField,
-    nextPriceUpdates: lastBlockUpdateTimestamp
-      ? lastBlockUpdateTimestamp + AVERAGE_BLOCK_TIME_MS
-      : undefined,
     sortAscending,
     refresh: load,
   };
