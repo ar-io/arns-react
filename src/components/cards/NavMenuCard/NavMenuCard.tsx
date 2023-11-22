@@ -16,7 +16,7 @@ import { WalletAddress } from '../../layout/WalletAddress/WalletAddress';
 import './styles.css';
 
 function NavMenuCard() {
-  const [{ arnsContractId, arweaveDataProvider, ioTicker }] = useGlobalState(); // eslint-disable-line
+  const [{ arnsContractId, arweaveDataProvider, ioTicker }] = useGlobalState();
   const [showMenu, setShowMenu] = useState(false);
   const [walletDetails, setWalletDetails] = useState<{
     AR: number | undefined | string;
