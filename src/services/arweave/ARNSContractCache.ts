@@ -1,3 +1,5 @@
+import fetchRetry from 'fetch-retry';
+
 import {
   ANTContractDomainRecord,
   ANTContractJSON,
@@ -15,7 +17,6 @@ import {
 import {
   buildPendingANTRecord,
   buildPendingArNSRecord,
-  fetchWithRetry,
   isArweaveTransactionID,
   isDomainReservedLength,
   lowerCaseDomain,
@@ -30,19 +31,35 @@ export class ARNSContractCache implements SmartweaveContractCache {
   protected _url: string;
   protected _cache: TransactionCache & KVCache;
   protected _arweave: ArweaveDataProvider;
+  protected _http;
 
   constructor({
     url,
     arweave,
     cache = new ContractInteractionCache(new LocalStorageCache()),
+    http = fetchRetry(fetch, {
+      retryOn: (attempt, error, response) => {
+        if (attempt > 3) return false;
+        if (error !== null || (response && response.status >= 400)) {
+          console.debug(`Retrying request, attempt number ${attempt + 1}`);
+          return true;
+        }
+        return false;
+      },
+      retryDelay: (attempt) => {
+        return Math.pow(2, attempt) * 500; // 500, 1000, 2000
+      },
+    }),
   }: {
     url: string;
     arweave: ArweaveDataProvider;
     cache?: TransactionCache & KVCache;
+    http?: any;
   }) {
     this._url = url;
     this._cache = cache;
     this._arweave = arweave;
+    this._http = http;
   }
 
   async getContractState<T extends ANTContractJSON | ARNSContractJSON>(
@@ -54,7 +71,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
     // adds cached interactions.
 
     try {
-      const res = await fetch(
+      const res = await this._http(
         `${this._url}/v1/contract/${contractTxId.toString()}`,
       );
       const { state } = res && res.ok ? await res.json() : { state: undefined };
@@ -93,7 +110,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
     contractTxId: ArweaveTransactionID,
     wallet: ArweaveTransactionID,
   ): Promise<number> {
-    const res = await fetch(
+    const res = await this._http(
       `${
         this._url
       }/v1/contract/${contractTxId.toString()}/balances/${wallet.toString()}`,
@@ -107,7 +124,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
     type?: 'ant',
   ): Promise<{ contractTxIds: ArweaveTransactionID[] }> {
     const query = type ? `?type=${type}` : '';
-    const res = await fetch(
+    const res = await this._http(
       `${this._url}/v1/wallet/${address.toString()}/contracts${query}`,
     );
     const { contractTxIds } = await res.json();
@@ -127,7 +144,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
   async getContractInteractions(
     contractTxId: ArweaveTransactionID,
   ): Promise<ContractInteraction[]> {
-    const res = await fetch(
+    const res = await this._http(
       `${this._url}/v1/contract/${contractTxId.toString()}/interactions`,
     );
     const { interactions } = await res.json();
@@ -172,7 +189,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
     domain: string;
     contractTxId: ArweaveTransactionID;
   }): Promise<boolean> {
-    const res = await fetch(
+    const res = await this._http(
       `${
         this._url
       }/v1/contract/${contractTxId.toString()}/reserved/${lowerCaseDomain(
@@ -259,7 +276,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
           })
         : '';
 
-    const auctionRes = await fetch(
+    const auctionRes = await this._http(
       `${
         this._url
       }/v1/contract/${contractTxId.toString()}/auctions/${domain}?${urlParams.toString()}`,
@@ -294,7 +311,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
   }: {
     contractTxId: ArweaveTransactionID;
   }): Promise<AuctionSettings> {
-    const res = await fetch(
+    const res = await this._http(
       `${this._url}/v1/contract/${contractTxId.toString()}/settings`,
     );
     const { settings } = await res.json();
@@ -314,7 +331,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
     address?: ArweaveTransactionID;
     contractTxId: ArweaveTransactionID;
   }): Promise<string[]> {
-    const res = await fetch(
+    const res = await this._http(
       `${this._url}/v1/contract/${contractTxId.toString()}/auctions`,
     );
     const { auctions } = await res.json();
@@ -344,7 +361,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
     domain: string;
     contractTxId: ArweaveTransactionID;
   }): Promise<ARNSRecordEntry> {
-    const res = await fetch(
+    const res = await this._http(
       `${
         this._url
       }/v1/contract/${contractTxId.toString()}/records/${lowerCaseDomain(
@@ -417,7 +434,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
       filters.contractTxId?.map((id) => ['contractTxId', id.toString()]),
     );
 
-    const res = await fetch(
+    const res = await this._http(
       `${
         this._url
       }/v1/contract/${contractTxId.toString()}/records?${urlQueryParams.toString()}`,
@@ -454,7 +471,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
     address: ArweaveTransactionID,
     contractTxId: ArweaveTransactionID,
   ): Promise<number> {
-    const res = await fetch(
+    const res = await this._http(
       `${
         this._url
       }/v1/contract/${contractTxId.toString()}/balances/${address.toString()}`,
@@ -485,8 +502,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
       }).map(([key, value]) => [key, value.toString()]),
     );
 
-    // NOTE: Using fetchWithRetry as service is occassionally returning 400 errors
-    const res = await fetchWithRetry(
+    const res = await this._http(
       `${
         this._url
       }/v1/contract/${contractTxId.toString()}/read/priceForInteraction?${params.toString()}`,
@@ -518,7 +534,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
     contractTxId: ArweaveTransactionID;
     field: string;
   }) {
-    const res = await fetch(
+    const res = await this._http(
       `${this._url}/v1/contract/${contractTxId.toString()}/${field}`,
     );
     const result = await res.json();
