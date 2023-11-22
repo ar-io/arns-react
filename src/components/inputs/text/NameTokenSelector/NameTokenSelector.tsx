@@ -105,11 +105,11 @@ function NameTokenSelector({
       if (!address) {
         throw new Error('No address provided');
       }
-      const { contractTxIds: fetchedContractTxIds } = (await arweaveDataProvider
+      const { contractTxIds: fetchedContractTxIds } = await arweaveDataProvider
         .getContractsForWallet(address, 'ant')
-        .catch(() => ({
+        .catch((): { contractTxIds: ArweaveTransactionID[] } => ({
           contractTxIds: [],
-        }))) as { contractTxIds: ArweaveTransactionID[] };
+        }));
 
       const validImports = imports.length
         ? await Promise.all(
