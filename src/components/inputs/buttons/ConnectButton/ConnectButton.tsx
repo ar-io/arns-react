@@ -1,14 +1,20 @@
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import './styles.css';
 
 function ConnectButton(): JSX.Element {
   const navigate = useNavigate();
+  const location = useLocation();
+
   return (
     <button
       className="connect-button"
       style={{ textDecoration: 'none' }}
-      onClick={() => navigate('connect')}
+      onClick={() => {
+        navigate('/connect', {
+          state: { from: location.pathname, to: location.pathname },
+        });
+      }}
     >
       Connect
     </button>

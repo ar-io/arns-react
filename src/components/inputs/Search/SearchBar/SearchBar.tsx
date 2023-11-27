@@ -183,7 +183,9 @@ function SearchBar(props: SearchBarProps) {
       payload: true,
     });
     if (next) {
-      navigate(`/register/${decodeDomainToASCII(searchBarText)}`);
+      navigate(`/register/${decodeDomainToASCII(searchBarText)}`, {
+        state: { from: `/?search=${searchBarText}` },
+      });
     }
     // TODO: validation may also be async, so return a promise that resolves to a boolean
 

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 
+import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { dispatchNewGateway } from '../../../state/actions';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../state/contexts/WalletState';
@@ -11,7 +12,7 @@ import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
 
 function ConnectWalletModal(): JSX.Element {
-  const modalRef = useRef(null);
+  const modalRef = useRef<HTMLDivElement>(null);
   const [, dispatchGlobalState] = useGlobalState();
   const [
     { wallet, walletAddress, walletStateInitialized },
@@ -31,7 +32,7 @@ function ConnectWalletModal(): JSX.Element {
   useEffect(() => {
     // disable scrolling when modal is in view
     if (wallet && walletAddress) {
-      closeModal({ next: true });
+      closeModal({ next: true, address: walletAddress });
     }
     document.body.style.overflow = 'hidden';
     return () => {
@@ -46,9 +47,15 @@ function ConnectWalletModal(): JSX.Element {
     return;
   }
 
-  async function closeModal({ next }: { next: boolean }) {
-    if (!walletAddress) {
-      navigate('/', { state: { from: state?.from ?? '/' } });
+  async function closeModal({
+    next,
+    address,
+  }: {
+    next: boolean;
+    address?: ArweaveTransactionID;
+  }) {
+    if (!address) {
+      navigate(state?.from ?? '/', { state: { from: state?.from ?? '/' } });
       return;
     }
 
@@ -67,13 +74,13 @@ function ConnectWalletModal(): JSX.Element {
       if (arconnectGate?.host) {
         await dispatchNewGateway(arconnectGate.host, dispatchGlobalState);
       }
-      await walletConnector.getWalletAddress().then((address) => {
-        dispatchWalletState({
-          type: 'setWalletAddress',
-          payload: address,
-        });
+      const address = await walletConnector.getWalletAddress();
+      dispatchWalletState({
+        type: 'setWalletAddress',
+        payload: address,
       });
-      closeModal({ next: true });
+
+      closeModal({ next: true, address });
     } catch (error: any) {
       if (walletConnector) {
         eventEmitter.emit('error', error);
