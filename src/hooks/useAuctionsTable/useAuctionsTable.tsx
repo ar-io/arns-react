@@ -4,7 +4,9 @@ import { compact } from 'lodash';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import ArweaveID from '../../components/layout/ArweaveID/ArweaveID';
+import ArweaveID, {
+  ArweaveIdTypes,
+} from '../../components/layout/ArweaveID/ArweaveID';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useWalletState } from '../../state/contexts/WalletState';
@@ -151,7 +153,12 @@ export function useAuctionsTable() {
             className="flex"
             style={{ alignItems: 'center', height: '100%' }}
           >
-            <ArweaveID id={val} shouldLink characterCount={12} />
+            <ArweaveID
+              id={val}
+              shouldLink
+              characterCount={12}
+              type={ArweaveIdTypes.ADDRESS}
+            />
           </span>
         ),
         onHeaderCell: () => {
