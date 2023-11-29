@@ -1,5 +1,5 @@
-import { ANTContract } from '../../../src/services/arweave/ANTContract';
-import { ArweaveTransactionID } from '../../../src/services/arweave/ArweaveTransactionID';
+import { ANTContract } from '@src/services/arweave/ANTContract';
+import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import {
   ANTContractDomainRecord,
   ANTContractJSON,
@@ -14,14 +14,11 @@ import {
   SmartweaveContractInteractionProvider,
   TRANSACTION_TYPES,
   TransactionTag,
-} from '../../../src/types';
-import {
-  ARNS_REGISTRY_ADDRESS,
-  STUB_ARWEAVE_TXID,
-} from '../../../src/utils/constants';
+} from '@src/types';
+import { ARNS_REGISTRY_ADDRESS, STUB_ARWEAVE_TXID } from '@src/utils/constants';
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-export class ArweaveCompositeDataProviderMock
+export class ArweaveCompositeDataProvider
   implements
     SmartweaveContractInteractionProvider,
     SmartweaveContractCache,

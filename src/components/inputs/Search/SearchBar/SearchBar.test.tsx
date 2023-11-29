@@ -1,6 +1,6 @@
+import { ArweaveCompositeDataProvider } from '@src/services/arweave/ArweaveCompositeDataProvider';
 import { cleanup, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ArweaveCompositeDataProviderMock } from '@tests/common/mocks/ArweaveCompositeDataProviderMock';
 
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import RegistrationStateProvider, {
@@ -14,55 +14,7 @@ import { ARNSRecordEntry, TRANSACTION_TYPES } from '../../../../types';
 import { lowerCaseDomain } from '../../../../utils';
 import SearchBar from './SearchBar';
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useLocation: jest.fn(() => ({
-    pathname: '/',
-    search: '',
-    hash: '',
-    state: null,
-    key: '5nvxpbdafa',
-  })),
-  useNavigate: jest.fn(() => jest.fn()),
-  useSearchParams: () => [new URLSearchParams(), jest.fn()],
-}));
-
-jest.mock('../../../../services/arweave/ArweaveCompositeDataProvider', () => {
-  const {
-    ArweaveCompositeDataProviderMock,
-  } = require('@tests/common/mocks/ArweaveCompositeDataProviderMock'); // eslint-disable-line
-
-  return {
-    ArweaveCompositeDataProvider: jest.fn().mockImplementation(() => {
-      return new ArweaveCompositeDataProviderMock();
-    }),
-  };
-});
-
-jest.mock('../../../../hooks', () => ({
-  useAuctionInfo: jest.fn(() => ({})),
-  useIsFocused: jest.fn(() => false),
-  useIsMobile: jest.fn(() => false),
-  useRegistrationState: jest.fn(() => {
-    const originalHook = jest.requireActual(
-      'path-to-your-hook-file',
-    ).useRegistrationState;
-    const [state, dispatch] = originalHook();
-    return [state, jest.spyOn({ dispatch }, 'dispatch')];
-  }),
-  useRegistrationStatus: jest.fn(() => ({
-    isAvailable: false,
-    isAuction: false,
-    isReserved: false,
-    loading: false,
-  })),
-  useArweaveCompositeProvider: jest.fn(() => {
-    const ArweaveCompositeDataProviderMock =
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      require('../../../../__tests__/__mocks__/ArweaveCompositeDataProviderMock').ArweaveCompositeDataProviderMock;
-    return new ArweaveCompositeDataProviderMock();
-  }),
-}));
+jest.mock('@src/services/arweave/ArweaveCompositeDataProvider');
 
 const TEST_RECORDS: Record<string, ARNSRecordEntry> = {
   ardrive: {
@@ -119,7 +71,7 @@ describe('SearchBar', () => {
     const mockRecord = TEST_RECORDS['ardrive'];
     const mockGetRecord = jest.fn().mockResolvedValue(mockRecord);
 
-    ArweaveCompositeDataProviderMock.prototype.getRecord = mockGetRecord;
+    ArweaveCompositeDataProvider.prototype.getRecord = mockGetRecord;
 
     await userEvent.type(searchInput, domain);
     await userEvent.click(searchButton);
