@@ -6,7 +6,8 @@
   "moduleNameMapper": {
     "\\.(css|gif|png)$": "jest-transform-stub",
     "\\.svg": "<rootDir>/tests/common/mocks/svg.js",
-    "^@tests/(.*)$": "<rootDir>/tests/$1"
+    "^@tests/(.*)$": "<rootDir>/tests/$1",
+    "^@src/(.*)$": "<rootDir>/src/$1"
   },
   "moduleDirectories": ["node_modules", "assets"],
   "testPathIgnorePatterns": ["tests/common/"],

@@ -6,7 +6,8 @@
     "allowSyntheticDefaultImports": true,
     "jsx": "react-jsx",
     "paths": {
-      "@tests/*": ["./tests"]
+      "@tests/*": ["./tests/*"],
+      "@src/*": ["./src/*"]
     }
   },
   "include": ["vite.config.ts"]
