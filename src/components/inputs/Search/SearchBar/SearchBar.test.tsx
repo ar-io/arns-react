@@ -1,6 +1,6 @@
-import { ArweaveCompositeDataProvider } from '@src/services/arweave/ArweaveCompositeDataProvider';
 import { cleanup, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import TEST_RECORDS from '@tests/common/fixtures/TestRecords';
 
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import RegistrationStateProvider, {
@@ -10,28 +10,22 @@ import {
   RegistrationAction,
   registrationReducer,
 } from '../../../../state/reducers';
-import { ARNSRecordEntry, TRANSACTION_TYPES } from '../../../../types';
 import { lowerCaseDomain } from '../../../../utils';
 import SearchBar from './SearchBar';
 
-jest.mock('@src/services/arweave/ArweaveCompositeDataProvider');
-
-const TEST_RECORDS: Record<string, ARNSRecordEntry> = {
-  ardrive: {
-    contractTxId: 'I-cxQhfh0Zb9UqQNizC9PiLC41KpUeA9hjiVV02rQRw',
-    startTimestamp: 1711122719,
-    endTimestamp: 1711122739,
-    type: TRANSACTION_TYPES.BUY,
-    undernames: 10,
-  },
-  'xn--go8h6v': {
-    contractTxId: 'I-cxQhfh0Zb9UqQNizC9PiLC41KpUeA9hjiVV02rQRw',
-    startTimestamp: 1711122719,
-    endTimestamp: 1711122739,
-    type: TRANSACTION_TYPES.LEASE,
-    undernames: 10,
-  },
-};
+jest.mock('@src/services/arweave/ArweaveCompositeDataProvider', () => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const TEST_RECORDS = require('@tests/common/fixtures/TestRecords') as any;
+  return {
+    ArweaveCompositeDataProvider: function () {
+      return {
+        getRecord: async () => {
+          return TEST_RECORDS.default['ardrive'];
+        },
+      };
+    },
+  };
+});
 
 describe('SearchBar', () => {
   let searchInput: HTMLInputElement;
@@ -67,11 +61,6 @@ describe('SearchBar', () => {
 
   test('handles a capitalized name correctly', async () => {
     const domain = 'ARDRIVE';
-
-    const mockRecord = TEST_RECORDS['ardrive'];
-    const mockGetRecord = jest.fn().mockResolvedValue(mockRecord);
-
-    ArweaveCompositeDataProvider.prototype.getRecord = mockGetRecord;
 
     await userEvent.type(searchInput, domain);
     await userEvent.click(searchButton);
