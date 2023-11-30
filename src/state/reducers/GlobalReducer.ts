@@ -26,8 +26,7 @@ export const reducer = (
     case 'setGateway':
       return {
         ...state,
-        // TODO: use provided gateway once warp implements deduplication of interactions retrieved from gql
-        // gateway: action.payload.gateway,
+        gateway: action.payload.gateway,
         arweaveDataProvider: action.payload.provider,
       };
     case 'setBlockHeight':
