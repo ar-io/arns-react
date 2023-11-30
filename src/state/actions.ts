@@ -9,13 +9,16 @@ import { ARNS_SERVICE_API } from '../utils/constants';
 import eventEmitter from '../utils/events';
 import { GlobalAction } from './reducers';
 
+// TODO: use provided gateway once warp implements deduplication of interactions retrieved from gql
 export async function dispatchNewGateway(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   gateway: string,
   dispatch: Dispatch<GlobalAction>,
 ): Promise<void> {
   try {
     const arweave = new Arweave({
-      host: gateway,
+      //host: gateway,
+      host: 'ar-io.dev',
       protocol: 'https',
     });
 
@@ -39,7 +42,7 @@ export async function dispatchNewGateway(
     dispatch({
       type: 'setGateway',
       payload: {
-        gateway,
+        gateway: 'ar-io.dev',
         provider,
       },
     });
