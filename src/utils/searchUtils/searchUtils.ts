@@ -22,20 +22,6 @@ export function isARNSDomainNameValid({ name }: { name?: string }): boolean {
   return true;
 }
 
-export function isARNSDomainNameAvailable({
-  name,
-  records,
-}: {
-  name?: string;
-  records: { [x: string]: ARNSRecordEntry };
-}): boolean {
-  //if registered return false
-  if (!name || records[lowerCaseDomain(name)]) {
-    return false;
-  }
-  return true;
-}
-
 export function encodeDomainToASCII(domain: string): string {
   const decodedDomain = unicodeToAscii(domain);
 
