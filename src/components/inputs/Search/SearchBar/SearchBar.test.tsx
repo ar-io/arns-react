@@ -1,6 +1,10 @@
-import { cleanup, render } from '@testing-library/react';
+import { ArweaveCompositeDataProvider } from '@src/services/arweave/ArweaveCompositeDataProvider';
+import GlobalStateProvider from '@src/state/contexts/GlobalState';
+import { reducer as globalReducer } from '@src/state/reducers/GlobalReducer';
+import { act, cleanup, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import TEST_RECORDS from '@tests/common/fixtures/TestRecords';
+import ArweaveCompositeDataProviderMock from '@tests/common/mocks/ArweaveCompositeDataProviderMock';
 
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import RegistrationStateProvider, {
@@ -13,19 +17,11 @@ import {
 import { lowerCaseDomain } from '../../../../utils';
 import SearchBar from './SearchBar';
 
-jest.mock('@src/services/arweave/ArweaveCompositeDataProvider', () => {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const TEST_RECORDS = require('@tests/common/fixtures/TestRecords') as any;
-  return {
-    ArweaveCompositeDataProvider: function () {
-      return {
-        getRecord: async () => {
-          return TEST_RECORDS.default['ardrive'];
-        },
-      };
-    },
-  };
-});
+const providerMock = new ArweaveCompositeDataProviderMock();
+
+providerMock.getRecord.mockReturnValue(
+  Promise.resolve(TEST_RECORDS['ardrive']),
+);
 
 describe('SearchBar', () => {
   let searchInput: HTMLInputElement;
@@ -39,13 +35,22 @@ describe('SearchBar', () => {
   );
 
   const searchBar = (
-    <RegistrationStateProvider reducer={reducer}>
-      <SearchBar placeholderText={'Find a name'} />
-    </RegistrationStateProvider>
+    <GlobalStateProvider
+      reducer={globalReducer}
+      arweaveDataProvider={
+        providerMock as unknown as ArweaveCompositeDataProvider
+      }
+    >
+      <RegistrationStateProvider reducer={reducer}>
+        <SearchBar placeholderText={'Find a name'} />
+      </RegistrationStateProvider>
+    </GlobalStateProvider>
   );
 
-  beforeEach(() => {
-    const { asFragment, getByTestId } = render(searchBar);
+  beforeEach(async () => {
+    const { asFragment, getByTestId } = await act(async () =>
+      render(searchBar),
+    );
     renderSearchBar = asFragment;
     searchInput = getByTestId('searchbar-input-id') as HTMLInputElement;
     searchButton = getByTestId('search-button') as HTMLButtonElement;
@@ -62,8 +67,10 @@ describe('SearchBar', () => {
   test('handles a capitalized name correctly', async () => {
     const domain = 'ARDRIVE';
 
-    await userEvent.type(searchInput, domain);
-    await userEvent.click(searchButton);
+    await act(async () => {
+      await userEvent.type(searchInput, domain);
+      await userEvent.click(searchButton);
+    });
 
     expect(reducer).toHaveBeenCalledWith(
       expect.anything(),
@@ -86,8 +93,10 @@ describe('SearchBar', () => {
   test('handles a lowercase name correctly', async () => {
     const domain = 'ardrive';
 
-    await userEvent.type(searchInput, domain);
-    await userEvent.click(searchButton);
+    await act(async () => {
+      await userEvent.type(searchInput, domain);
+      await userEvent.click(searchButton);
+    });
 
     expect(reducer).toHaveBeenCalledWith(
       expect.anything(),

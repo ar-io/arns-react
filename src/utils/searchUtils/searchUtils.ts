@@ -1,7 +1,7 @@
 import emojiRegex from 'emoji-regex';
 import { asciiToUnicode, unicodeToAscii } from 'puny-coder';
 
-import { ANTContractJSON, ARNSRecordEntry } from '../../types';
+import { ANTContractJSON } from '../../types';
 import {
   APPROVED_CHARACTERS_REGEX,
   ARNS_NAME_REGEX,
