@@ -1,6 +1,5 @@
 import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import { useIsMobile } from '../../../hooks';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
@@ -17,8 +16,7 @@ import { WalletAddress } from '../../layout/WalletAddress/WalletAddress';
 import './styles.css';
 
 function NavMenuCard() {
-  const [{ arnsContractId, arweaveDataProvider, ioTicker }] = useGlobalState(); // eslint-disable-line
-  const navigate = useNavigate();
+  const [{ arnsContractId, arweaveDataProvider, ioTicker }] = useGlobalState();
   const [showMenu, setShowMenu] = useState(false);
   const [walletDetails, setWalletDetails] = useState<{
     AR: number | undefined | string;
@@ -95,8 +93,6 @@ function NavMenuCard() {
       });
     } catch (error: any) {
       eventEmitter.emit('error', error);
-    } finally {
-      navigate('/');
     }
   }
 

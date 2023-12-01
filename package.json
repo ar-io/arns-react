@@ -29,6 +29,7 @@
     "chartjs-plugin-annotation": "^3.0.1",
     "emoji-regex": "^10.2.1",
     "eventemitter3": "^5.0.0",
+    "fetch-retry": "^5.0.6",
     "lodash": "^4.17.21",
     "puny-coder": "^1.0.1",
     "react": "^18.2.0",
