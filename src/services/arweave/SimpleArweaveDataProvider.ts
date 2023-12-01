@@ -85,7 +85,7 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
     }
 
     const { status, data } = await this._arweave.api.get(`/tx/${ids}/status`);
-    if (ACCEPTABLE_STATUSES.includes(status)) {
+    if (!ACCEPTABLE_STATUSES.includes(status)) {
       throw Error('Failed fetch confirmations for transaction id.');
     }
     return {
@@ -114,7 +114,7 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
       data: headers,
     }: { status: number; data: TransactionHeaders } =
       await this._arweave.api.get(`/tx/${id.toString()}`);
-    if (ACCEPTABLE_STATUSES.includes(status)) {
+    if (!ACCEPTABLE_STATUSES.includes(status)) {
       throw Error(`Transaction ID not found. Try again. Status: ${status}`);
     }
     return headers;
