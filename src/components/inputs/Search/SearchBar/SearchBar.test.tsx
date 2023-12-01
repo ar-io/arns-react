@@ -48,8 +48,8 @@ describe('SearchBar', () => {
   );
 
   beforeEach(async () => {
-    const { asFragment, getByTestId } = await act(async () =>
-      render(searchBar),
+    const { asFragment, getByTestId } = await act(
+      async () => await render(searchBar),
     );
     renderSearchBar = asFragment;
     searchInput = getByTestId('searchbar-input-id') as HTMLInputElement;
