@@ -1,4 +1,4 @@
-import { getPriceByBlockHeight } from '../transactionUtils/transactionUtils';
+import { getPriceByBlockHeight } from './transactionUtils';
 
 const prices: Record<string, number> = {
   '1281517': 500000,

@@ -1,6 +1,6 @@
 import { cleanup, render } from '@testing-library/react';
 
-import ValidationInput from '../ValidationInput';
+import ValidationInput from './ValidationInput';
 
 describe('ValidationInput', () => {
   let renderInput: any;

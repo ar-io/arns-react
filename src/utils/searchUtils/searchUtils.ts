@@ -1,7 +1,7 @@
 import emojiRegex from 'emoji-regex';
 import { asciiToUnicode, unicodeToAscii } from 'puny-coder';
 
-import { ANTContractJSON, ARNSRecordEntry } from '../../types';
+import { ANTContractJSON } from '../../types';
 import {
   APPROVED_CHARACTERS_REGEX,
   ARNS_NAME_REGEX,
@@ -17,20 +17,6 @@ export function isARNSDomainNameValid({ name }: { name?: string }): boolean {
     ) ||
     name === 'www'
   ) {
-    return false;
-  }
-  return true;
-}
-
-export function isARNSDomainNameAvailable({
-  name,
-  records,
-}: {
-  name?: string;
-  records: { [x: string]: ARNSRecordEntry };
-}): boolean {
-  //if registered return false
-  if (!name || records[lowerCaseDomain(name)]) {
     return false;
   }
   return true;

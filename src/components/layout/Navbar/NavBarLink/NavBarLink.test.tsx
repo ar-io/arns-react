@@ -1,15 +1,15 @@
 import { cleanup, render } from '@testing-library/react';
 import { HashRouter as Router } from 'react-router-dom';
 
-import Home from '../Home';
+import NavBarLink from './NavBarLink';
 
-describe('Home', () => {
+describe('NavLink', () => {
   afterEach(cleanup);
 
-  test('render Home', () => {
+  test('render NavLink', () => {
     render(
       <Router>
-        <Home />
+        <NavBarLink path="" linkText="" />
       </Router>,
     );
   });

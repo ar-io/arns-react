@@ -5,10 +5,13 @@
   "collectCoverageFrom": ["src/**/*.{ts,tsx,js,jsx}", "!src/**/*.d.ts"],
   "moduleNameMapper": {
     "\\.(css|gif|png)$": "jest-transform-stub",
-    "\\.svg": "<rootDir>/src/__tests__/__mocks__/svg.js"
+    "\\.svg": "<rootDir>/tests/common/mocks/svg.js",
+    "^@tests/(.*)$": "<rootDir>/tests/$1",
+    "^@src/(.*)$": "<rootDir>/src/$1"
   },
+  "transformIgnorePatterns": ["/node_modules/(?!arbundles).+\\.js$"],
   "moduleDirectories": ["node_modules", "assets"],
-  "testPathIgnorePatterns": ["src/__tests__/__mocks__"],
+  "testPathIgnorePatterns": ["tests/common/"],
   "coverageThreshold": {
     "global": {
       "branches": 80,
