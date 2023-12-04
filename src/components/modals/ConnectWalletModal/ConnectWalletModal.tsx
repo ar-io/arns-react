@@ -76,8 +76,9 @@ function ConnectWalletModal(): JSX.Element {
       if (arweaveGate?.host) {
         await dispatchNewGateway(arweaveGate.host, dispatchGlobalState);
       }
+
       const address = await walletConnector.getWalletAddress();
-      console.log(address);
+
       dispatchWalletState({
         type: 'setWalletAddress',
         payload: address,
@@ -121,7 +122,6 @@ function ConnectWalletModal(): JSX.Element {
         >
           <CloseIcon width="30px" height={'30px'} fill="var(--text-white)" />
         </button>
-
         <button
           disabled={connecting}
           className="wallet-connect-button h2"
@@ -151,20 +151,26 @@ function ConnectWalletModal(): JSX.Element {
           }}
         >
           <img className="external-icon" src={ArweaveAppIcon} alt="" />
-          {/* <a
+          Connect using Arweave.app
+        </button>{' '}
+        <span
+          className="flex flex-row white flex-center"
+          style={{ whiteSpace: 'nowrap', gap: '5px', paddingTop: '16px' }}
+        >
+          Don't have a wallet?&nbsp;
+          <a
             target="_blank"
             href="https://ar.io/wallet"
             style={{
               color: 'inherit',
-              paddingLeft: '65px',
-              textDecoration: 'none',
+              textDecoration: 'underline',
             }}
             rel="noreferrer"
-            className="span-all flex-row left"
-          >          </a>
- */}
-          Connect using Arweave.app
-        </button>
+            className="bold"
+          >
+            Get one here.
+          </a>
+        </span>
       </div>
     </div>
   );
