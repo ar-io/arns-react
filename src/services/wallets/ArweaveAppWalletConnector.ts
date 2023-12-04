@@ -1,11 +1,10 @@
 import { PermissionType } from 'arconnect';
 import { ArweaveWebWallet } from 'arweave-wallet-connector';
-import { ReactiveConnector } from 'arweave-wallet-connector/lib/browser/Reactive';
 import { ApiConfig } from 'arweave/node/lib/api';
 
 import { ARCONNECT_UNRESPONSIVE_ERROR } from '../../components/layout/Notifications/Notifications';
 import { ArweaveWalletConnector, WALLET_TYPES } from '../../types';
-import { executeWithTimeout, sleep } from '../../utils';
+import { executeWithTimeout } from '../../utils';
 import { ArweaveTransactionID } from '../arweave/ArweaveTransactionID';
 
 export const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [
@@ -18,7 +17,6 @@ export const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [
 
 export class ArweaveAppWalletConnector implements ArweaveWalletConnector {
   private _wallet: Window['arweaveWallet'];
-  private _arweaveAppApi: ReactiveConnector;
 
   constructor() {
     const webWallet = new ArweaveWebWallet({
@@ -27,7 +25,6 @@ export class ArweaveAppWalletConnector implements ArweaveWalletConnector {
     webWallet.setUrl('arweave.app');
     this._wallet = webWallet.namespaces
       .arweaveWallet as any as Window['arweaveWallet'];
-    this._arweaveAppApi = webWallet;
   }
 
   // The API has been shown to be unreliable, so we call each function with a timeout

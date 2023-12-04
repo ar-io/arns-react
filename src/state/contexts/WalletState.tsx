@@ -10,7 +10,6 @@ import React, {
 import { useEffectOnce } from '../../hooks/useEffectOnce/useEffectOnce';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { ArConnectWalletConnector } from '../../services/wallets';
-import { ARCONNECT_WALLET_PERMISSIONS } from '../../services/wallets/ArConnectWalletConnector';
 import { ArweaveWalletConnector, WALLET_TYPES } from '../../types';
 import {
   ARNS_REGISTRY_ADDRESS,
