@@ -1,9 +1,11 @@
 import { PermissionType } from 'arconnect';
+import { ArweaveWebWallet } from 'arweave-wallet-connector';
+import { ReactiveConnector } from 'arweave-wallet-connector/lib/browser/Reactive';
 import { ApiConfig } from 'arweave/node/lib/api';
 
 import { ARCONNECT_UNRESPONSIVE_ERROR } from '../../components/layout/Notifications/Notifications';
 import { ArweaveWalletConnector, WALLET_TYPES } from '../../types';
-import { executeWithTimeout } from '../../utils';
+import { executeWithTimeout, sleep } from '../../utils';
 import { ArweaveTransactionID } from '../arweave/ArweaveTransactionID';
 
 export const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [
@@ -14,11 +16,18 @@ export const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [
   'ACCESS_ARWEAVE_CONFIG',
 ];
 
-export class ArConnectWalletConnector implements ArweaveWalletConnector {
+export class ArweaveAppWalletConnector implements ArweaveWalletConnector {
   private _wallet: Window['arweaveWallet'];
+  private _arweaveAppApi: ReactiveConnector;
 
   constructor() {
-    this._wallet = window?.arweaveWallet;
+    const webWallet = new ArweaveWebWallet({
+      name: 'ArNS',
+    });
+    webWallet.setUrl('arweave.app');
+    this._wallet = webWallet.namespaces
+      .arweaveWallet as any as Window['arweaveWallet'];
+    this._arweaveAppApi = webWallet;
   }
 
   // The API has been shown to be unreliable, so we call each function with a timeout
@@ -29,7 +38,8 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
      * This is a workaround to check that and emit appropriate errors,
      * and to trigger the workaround workflow of reloading the page and re-initializing arconnect.
      */
-    const res = await executeWithTimeout(() => fn(), 3000);
+
+    const res = await executeWithTimeout(() => fn(), 20_000);
 
     if (res === 'timeout') {
       throw new Error(ARCONNECT_UNRESPONSIVE_ERROR);
@@ -38,60 +48,34 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
   }
 
   async connect(): Promise<void> {
-    if (!window.arweaveWallet) {
-      window.open('https://arconnect.io');
-
-      return;
-    }
     // confirm they have the extension installed
-    localStorage.setItem('walletType', WALLET_TYPES.ARCONNECT);
-    const permissions = await this.safeArconnectApiExecutor(
-      this._wallet.getPermissions,
-    );
-    if (
-      permissions &&
-      !ARCONNECT_WALLET_PERMISSIONS.every((permission) =>
-        permissions.includes(permission),
-      )
-    ) {
-      // disconnect due to missing permissions, then re-connect
-      await this.safeArconnectApiExecutor(this._wallet.disconnect);
-    } else if (permissions) {
-      return;
-    }
+    try {
+      localStorage.setItem('walletType', WALLET_TYPES.ARWEAVE_APP);
 
-    return this._wallet
-      .connect(
-        ARCONNECT_WALLET_PERMISSIONS,
-        {
-          name: 'ARNS - ar.io',
-        },
-        // TODO: add arweave configs here
-      )
-      .catch((err) => {
-        localStorage.removeItem('walletType');
-        console.error(err);
-        throw { name: 'ArConnect', message: 'User cancelled authentication.' };
+      await this._wallet.connect(ARCONNECT_WALLET_PERMISSIONS, {
+        name: 'ARNS - ar.io',
       });
+    } catch (error) {
+      localStorage.removeItem('walletType');
+      throw {
+        name: 'Arweave.app',
+        message: 'User cancelled authentication.',
+      };
+    }
   }
 
   async disconnect(): Promise<void> {
     localStorage.removeItem('walletType');
-    return this.safeArconnectApiExecutor(this._wallet.disconnect);
+    return this._wallet.disconnect();
   }
 
   async getWalletAddress(): Promise<ArweaveTransactionID> {
-    return this.safeArconnectApiExecutor(() =>
-      this._wallet
-        .getActiveAddress()
-        .then((res) => new ArweaveTransactionID(res)),
-    );
+    const address = await this._wallet.getActiveAddress();
+    return new ArweaveTransactionID(address);
   }
 
   async getGatewayConfig(): Promise<ApiConfig> {
-    const config = await this.safeArconnectApiExecutor(
-      this._wallet.getArweaveConfig,
-    );
+    const config = await this._wallet.getArweaveConfig();
     return config as unknown as ApiConfig;
   }
 }

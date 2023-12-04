@@ -1,3 +1,4 @@
+import { ArweaveAppWalletConnector } from '@src/services/wallets/ArweaveAppWalletConnector';
 import React, {
   Dispatch,
   createContext,
@@ -10,7 +11,7 @@ import { useEffectOnce } from '../../hooks/useEffectOnce/useEffectOnce';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { ArConnectWalletConnector } from '../../services/wallets';
 import { ARCONNECT_WALLET_PERMISSIONS } from '../../services/wallets/ArConnectWalletConnector';
-import { ArweaveWalletConnector } from '../../types';
+import { ArweaveWalletConnector, WALLET_TYPES } from '../../types';
 import {
   ARNS_REGISTRY_ADDRESS,
   DEFAULT_ARNS_REGISTRY_STATE,
@@ -114,22 +115,23 @@ export default function WalletStateProvider({
   }
 
   async function updateIfConnected() {
-    const connector = new ArConnectWalletConnector();
+    const walletType = window.localStorage.getItem('walletType');
+    let connector;
+    if (walletType) {
+      connector =
+        walletType === WALLET_TYPES.ARCONNECT
+          ? new ArConnectWalletConnector()
+          : new ArweaveAppWalletConnector();
+    }
     dispatchWalletState({
       type: 'setWallet',
       payload: connector,
     });
 
     try {
-      // check if arconnect is responsive
-      // check if wallet has permissions and reconnect
-      const permissions = await connector.safeArconnectApiExecutor(
-        window.arweaveWallet.getPermissions,
-      );
-
-      if (ARCONNECT_WALLET_PERMISSIONS.every((p) => permissions.includes(p))) {
+      if (walletType) {
         // await connector.connect();
-        const address = await connector.getWalletAddress();
+        const address = await connector?.getWalletAddress();
 
         dispatchWalletState({
           type: 'setWalletAddress',

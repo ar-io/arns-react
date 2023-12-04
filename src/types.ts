@@ -321,6 +321,11 @@ export interface ArweaveWalletConnector {
   getGatewayConfig(): Promise<ApiConfig>;
 }
 
+export enum WALLET_TYPES {
+  ARCONNECT = 'ArConnect',
+  ARWEAVE_APP = 'ArweaveApp',
+}
+
 export interface KVCache {
   set(key: string, value: any): Promise<void>;
   get(key: string): Promise<any>;

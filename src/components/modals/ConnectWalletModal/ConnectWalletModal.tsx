@@ -1,3 +1,5 @@
+import { ArConnectWalletConnector } from '@src/services/wallets';
+import { ArweaveAppWalletConnector } from '@src/services/wallets/ArweaveAppWalletConnector';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 
@@ -70,14 +72,19 @@ function ConnectWalletModal(): JSX.Element {
     try {
       setConnecting(true);
       await walletConnector.connect();
-      const arconnectGate = await walletConnector.getGatewayConfig();
-      if (arconnectGate?.host) {
-        await dispatchNewGateway(arconnectGate.host, dispatchGlobalState);
+      const arweaveGate = await walletConnector.getGatewayConfig();
+      if (arweaveGate?.host) {
+        await dispatchNewGateway(arweaveGate.host, dispatchGlobalState);
       }
       const address = await walletConnector.getWalletAddress();
+      console.log(address);
       dispatchWalletState({
         type: 'setWalletAddress',
         payload: address,
+      });
+      dispatchWalletState({
+        type: 'setWallet',
+        payload: walletConnector,
       });
 
       closeModal({ next: true, address });
@@ -122,7 +129,7 @@ function ConnectWalletModal(): JSX.Element {
             if (wallet) {
               connect(wallet);
             } else {
-              window.open('https://arconnect.io');
+              connect(new ArConnectWalletConnector());
             }
           }}
         >
@@ -133,9 +140,18 @@ function ConnectWalletModal(): JSX.Element {
           />
           Connect via ArConnect
         </button>
-        <button className="wallet-connect-button h2">
+        <button
+          className="wallet-connect-button h2"
+          onClick={() => {
+            if (wallet) {
+              connect(wallet);
+            } else {
+              connect(new ArweaveAppWalletConnector());
+            }
+          }}
+        >
           <img className="external-icon" src={ArweaveAppIcon} alt="" />
-          <a
+          {/* <a
             target="_blank"
             href="https://ar.io/wallet"
             style={{
@@ -145,9 +161,9 @@ function ConnectWalletModal(): JSX.Element {
             }}
             rel="noreferrer"
             className="span-all flex-row left"
-          >
-            I need a wallet
-          </a>
+          >          </a>
+ */}
+          Connect using Arweave.app
         </button>
       </div>
     </div>

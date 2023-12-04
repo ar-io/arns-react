@@ -91,6 +91,10 @@ function NavMenuCard() {
         type: 'setWalletAddress',
         payload: undefined,
       });
+      dispatchWalletState({
+        type: 'setWallet',
+        payload: undefined,
+      });
     } catch (error: any) {
       eventEmitter.emit('error', error);
     }
