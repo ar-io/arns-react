@@ -9,7 +9,9 @@
     "^@tests/(.*)$": "<rootDir>/tests/$1",
     "^@src/(.*)$": "<rootDir>/src/$1"
   },
-  "transformIgnorePatterns": ["/node_modules/(?!arbundles).+\\.js$"],
+  "transformIgnorePatterns": [
+    "/node_modules/(?!arbundles|arweave-wallet-connector).+\\.js$"
+  ],
   "moduleDirectories": ["node_modules", "assets"],
   "testPathIgnorePatterns": ["tests/common/"],
   "coverageThreshold": {
