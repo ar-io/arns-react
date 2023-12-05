@@ -157,7 +157,7 @@ function ConnectWalletModal(): JSX.Element {
           className="flex flex-row white flex-center"
           style={{ whiteSpace: 'nowrap', gap: '5px', paddingTop: '16px' }}
         >
-          Don't have a wallet?&nbsp;
+          Don&apos;t have a wallet?&nbsp;
           <a
             target="_blank"
             href="https://ar.io/wallet"

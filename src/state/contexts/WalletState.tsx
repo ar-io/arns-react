@@ -115,26 +115,24 @@ export default function WalletStateProvider({
 
   async function updateIfConnected() {
     const walletType = window.localStorage.getItem('walletType');
-    let connector;
-    if (walletType) {
-      connector =
-        walletType === WALLET_TYPES.ARCONNECT
-          ? new ArConnectWalletConnector()
-          : new ArweaveAppWalletConnector();
-    }
-    dispatchWalletState({
-      type: 'setWallet',
-      payload: connector,
-    });
 
     try {
       if (walletType) {
-        // await connector.connect();
-        const address = await connector?.getWalletAddress();
+        const connector =
+          walletType === WALLET_TYPES.ARCONNECT
+            ? new ArConnectWalletConnector()
+            : new ArweaveAppWalletConnector();
 
+        if (walletType === WALLET_TYPES.ARCONNECT) {
+          const address = await connector?.getWalletAddress();
+          dispatchWalletState({
+            type: 'setWalletAddress',
+            payload: address,
+          });
+        }
         dispatchWalletState({
-          type: 'setWalletAddress',
-          payload: address,
+          type: 'setWallet',
+          payload: connector,
         });
       }
     } catch (error) {
