@@ -126,11 +126,7 @@ function ConnectWalletModal(): JSX.Element {
           disabled={connecting}
           className="wallet-connect-button h2"
           onClick={() => {
-            if (wallet) {
-              connect(wallet);
-            } else {
-              connect(new ArConnectWalletConnector());
-            }
+            connect(new ArConnectWalletConnector());
           }}
         >
           <ArConnectIcon
@@ -143,11 +139,7 @@ function ConnectWalletModal(): JSX.Element {
         <button
           className="wallet-connect-button h2"
           onClick={() => {
-            if (wallet) {
-              connect(wallet);
-            } else {
-              connect(new ArweaveAppWalletConnector());
-            }
+            connect(new ArweaveAppWalletConnector());
           }}
         >
           <img className="external-icon" src={ArweaveAppIcon} alt="" />

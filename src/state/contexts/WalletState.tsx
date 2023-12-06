@@ -1,4 +1,3 @@
-import { ArweaveAppWalletConnector } from '@src/services/wallets/ArweaveAppWalletConnector';
 import React, {
   Dispatch,
   createContext,
@@ -117,19 +116,14 @@ export default function WalletStateProvider({
     const walletType = window.localStorage.getItem('walletType');
 
     try {
-      if (walletType) {
-        const connector =
-          walletType === WALLET_TYPES.ARCONNECT
-            ? new ArConnectWalletConnector()
-            : new ArweaveAppWalletConnector();
+      if (walletType === WALLET_TYPES.ARCONNECT) {
+        const connector = new ArConnectWalletConnector();
+        const address = await connector?.getWalletAddress();
 
-        if (walletType === WALLET_TYPES.ARCONNECT) {
-          const address = await connector?.getWalletAddress();
-          dispatchWalletState({
-            type: 'setWalletAddress',
-            payload: address,
-          });
-        }
+        dispatchWalletState({
+          type: 'setWalletAddress',
+          payload: address,
+        });
         dispatchWalletState({
           type: 'setWallet',
           payload: connector,
