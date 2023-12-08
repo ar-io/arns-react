@@ -1,8 +1,13 @@
 import Arweave from 'arweave';
+import { ArweaveWebWallet } from 'arweave-wallet-connector';
 
 import { ArweaveTransactionID } from '../services/arweave/ArweaveTransactionID';
 import { ANTContractJSON, ARNSContractJSON } from '../types';
 
+export const ARWEAVE_APP_API = new ArweaveWebWallet(
+  { name: 'ArNS' },
+  { state: { url: 'arweave.app' } },
+);
 export const ARNS_SERVICE_API =
   process.env.VITE_ARNS_SERVICE_API ?? 'https://dev.arns.app';
 export const ARWEAVE_HOST = process.env.VITE_ARWEAVE_HOST ?? 'ar-io.dev';

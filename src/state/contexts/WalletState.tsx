@@ -1,4 +1,3 @@
-import { ArweaveWebWallet } from 'arweave-wallet-connector';
 import React, {
   Dispatch,
   createContext,
@@ -13,6 +12,7 @@ import { ArConnectWalletConnector } from '../../services/wallets';
 import { ArweaveWalletConnector, WALLET_TYPES } from '../../types';
 import {
   ARNS_REGISTRY_ADDRESS,
+  ARWEAVE_APP_API,
   DEFAULT_ARNS_REGISTRY_STATE,
 } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
@@ -63,28 +63,32 @@ export default function WalletStateProvider({
   const { walletAddress, wallet } = state;
 
   useEffect(() => {
-    const arweaveAppApi = new ArweaveWebWallet();
-    arweaveAppApi.setUrl('arweave.app');
+    if (!walletAddress) {
+      wallet?.disconnect();
+      return;
+    }
+
     const removeWalletState = () => {
-      eventEmitter.emit(
-        'error',
-        new Error(
-          'Arweave.app disconnected unexpectedly, please reconnect. You may need to keep the popup open to stay connected.',
-        ),
-      );
-      dispatchWalletState({
-        type: 'setWalletAddress',
-        payload: undefined,
-      });
-      dispatchWalletState({
-        type: 'setWallet',
-        payload: undefined,
-      });
+      if (walletAddress) {
+        eventEmitter.emit('error', {
+          name: 'Arweave.app',
+          message:
+            'Arweave.app disconnected unexpectedly, please reconnect. You may need to keep the popup open to stay connected.',
+        });
+        dispatchWalletState({
+          type: 'setWalletAddress',
+          payload: undefined,
+        });
+        dispatchWalletState({
+          type: 'setWallet',
+          payload: undefined,
+        });
+      }
     };
 
-    arweaveAppApi.on('disconnect', removeWalletState);
+    ARWEAVE_APP_API.on('disconnect', removeWalletState);
 
-    return () => arweaveAppApi.off('disconnect', removeWalletState);
+    return () => ARWEAVE_APP_API.off('disconnect', removeWalletState);
   }, [walletAddress, wallet]);
 
   useEffect(() => {

@@ -71,13 +71,13 @@ export default function Notifications() {
     title: string;
     description: string;
   }) {
-    if (!title.length && !description.length) {
+    if (!title?.length && !description?.length) {
       return;
     }
     const key = `open${Date.now()}`;
     const notificationProps = getNotificationProps({
       type,
-      title,
+      title: title?.length ? title : 'Error',
       description,
       key,
     });

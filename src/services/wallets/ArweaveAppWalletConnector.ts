@@ -1,5 +1,5 @@
+import { ARWEAVE_APP_API } from '@src/utils/constants';
 import { PermissionType } from 'arconnect';
-import { ArweaveWebWallet } from 'arweave-wallet-connector';
 import { ReactiveConnector } from 'arweave-wallet-connector/lib/browser/Reactive';
 import { ApiConfig } from 'arweave/node/lib/api';
 import { CustomSignature, SignatureType, Transaction } from 'warp-contracts';
@@ -22,17 +22,10 @@ export class ArweaveAppWalletConnector implements ArweaveWalletConnector {
   signer: CustomSignature;
 
   constructor() {
-    const webWallet = new ArweaveWebWallet({
-      name: 'ArNS',
-    });
-    webWallet.setUrl('arweave.app');
-    this._wallet = webWallet as any;
+    this._wallet = ARWEAVE_APP_API as any;
     this.signer = {
       signer: async (transaction: Transaction) => {
-        if (!webWallet.url) {
-          webWallet.setUrl('arweave.app');
-        }
-        await webWallet.signTransaction(transaction);
+        await ARWEAVE_APP_API.signTransaction(transaction);
       },
       type: 'arweave' as SignatureType,
     };
@@ -76,7 +69,7 @@ export class ArweaveAppWalletConnector implements ArweaveWalletConnector {
 
   async disconnect(): Promise<void> {
     localStorage.removeItem('walletType');
-    return this._wallet.disconnect();
+    return await this._wallet.disconnect();
   }
 
   async getWalletAddress(): Promise<ArweaveTransactionID> {

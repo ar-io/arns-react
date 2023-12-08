@@ -112,8 +112,6 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       contractTxId,
     });
 
-    console.log('walletConnector signer', this._walletConnector.signer);
-
     const contract = await this._warp
       .contract(contractTxId.toString())
       .setEvaluationOptions(evaluationOptions)
