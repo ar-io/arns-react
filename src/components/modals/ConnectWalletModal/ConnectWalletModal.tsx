@@ -74,7 +74,11 @@ function ConnectWalletModal(): JSX.Element {
       await walletConnector.connect();
       const arweaveGate = await walletConnector.getGatewayConfig();
       if (arweaveGate?.host) {
-        await dispatchNewGateway(arweaveGate.host, dispatchGlobalState);
+        await dispatchNewGateway(
+          arweaveGate.host,
+          walletConnector,
+          dispatchGlobalState,
+        );
       }
 
       const address = await walletConnector.getWalletAddress();

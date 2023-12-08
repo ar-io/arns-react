@@ -1,6 +1,7 @@
 import { ApiConfig } from 'arweave/node/lib/api';
 import { JWKInterface } from 'arweave/node/lib/wallet';
 import { isString } from 'lodash';
+import { CustomSignature, Transaction } from 'warp-contracts';
 
 import { ArweaveWalletConnector } from '../../types';
 import { ArweaveTransactionID } from '../arweave/ArweaveTransactionID';
@@ -9,9 +10,16 @@ import { ArweaveTransactionID } from '../arweave/ArweaveTransactionID';
 export class JsonWalletConnector implements ArweaveWalletConnector {
   private _walletFile;
   private _wallet?: JWKInterface;
+  signer: CustomSignature;
 
   constructor(file: any) {
     this._walletFile = file;
+    this.signer = {
+      signer: async (transaction: Transaction) => {
+        throw Error(`${transaction} not implemented!`);
+      },
+      type: 'arweave',
+    };
   }
 
   async connect(): Promise<void> {

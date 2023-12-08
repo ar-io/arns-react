@@ -1,6 +1,7 @@
 import Arweave from 'arweave/node/common';
 import {
   ArWallet,
+  CustomSignature,
   EvaluationManifest,
   LoggerFactory,
   Tags,
@@ -13,6 +14,7 @@ import { DeployPlugin } from 'warp-contracts-plugin-deploy';
 
 import {
   ANTContractJSON,
+  ArweaveWalletConnector,
   KVCache,
   SmartweaveContractInteractionProvider,
   TRANSACTION_TYPES,
@@ -40,9 +42,11 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
   private _warp: Warp;
   private _cache: TransactionCache & KVCache;
   private _arweave: Arweave;
+  private _walletConnector: ArweaveWalletConnector;
 
   constructor(
     arweave: Arweave,
+    walletConnector: ArweaveWalletConnector,
     cache: TransactionCache & KVCache = new ContractInteractionCache(
       new LocalStorageCache(),
     ),
@@ -57,6 +61,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       arweave,
     ).use(new DeployPlugin());
     this._cache = cache;
+    this._walletConnector = walletConnector;
   }
 
   private async getContractManifest({
@@ -107,10 +112,12 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       contractTxId,
     });
 
+    console.log('walletConnector signer', this._walletConnector.signer);
+
     const contract = await this._warp
       .contract(contractTxId.toString())
       .setEvaluationOptions(evaluationOptions)
-      .connect('use_wallet')
+      .connect(this._walletConnector.signer)
       // TODO: add to our SmartweaveContractInterface a method that gets the full response of the service with `sortKey`
       .syncState(`${ARNS_SERVICE_API}/v1/contract/${contractTxId.toString()}`);
     if (dryWrite) {
@@ -192,12 +199,12 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     }
 
     const deploymentPayload: {
-      wallet: ArWallet;
+      wallet: ArWallet | CustomSignature;
       initState: string;
       srcTxId: string;
       tags: Tags;
     } = {
-      wallet: 'use_wallet',
+      wallet: this._walletConnector.signer,
       initState: JSON.stringify(initialState),
       srcTxId: srcCodeTransactionId.toString(),
       tags: tags,
@@ -291,7 +298,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     const contract = await this._warp
       .contract(ARNS_REGISTRY_ADDRESS.toString())
       .setEvaluationOptions(evaluationOptions)
-      .connect('use_wallet')
+      .connect(this._walletConnector.signer)
       // TODO: add to our SmartweaveContractInterface a method that gets the full response of the service with `sortKey`
       .syncState(`${ARNS_SERVICE_API}/v1/contract/${ARNS_REGISTRY_ADDRESS}`);
 

@@ -1,6 +1,6 @@
 import { ApiConfig } from 'arweave/node/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
-import { Tags } from 'warp-contracts';
+import { CustomSignature, Tags } from 'warp-contracts';
 
 import { ANTContract } from './services/arweave/ANTContract';
 import { ArweaveTransactionID } from './services/arweave/ArweaveTransactionID';
@@ -319,6 +319,7 @@ export interface ArweaveWalletConnector {
   disconnect(): Promise<void>;
   getWalletAddress(): Promise<ArweaveTransactionID>;
   getGatewayConfig(): Promise<ApiConfig>;
+  signer: CustomSignature;
 }
 
 export enum WALLET_TYPES {

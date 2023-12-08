@@ -1,6 +1,8 @@
 import { PermissionType } from 'arconnect';
 import { ArweaveWebWallet } from 'arweave-wallet-connector';
+import { ReactiveConnector } from 'arweave-wallet-connector/lib/browser/Reactive';
 import { ApiConfig } from 'arweave/node/lib/api';
+import { CustomSignature, SignatureType, Transaction } from 'warp-contracts';
 
 import { ARCONNECT_UNRESPONSIVE_ERROR } from '../../components/layout/Notifications/Notifications';
 import { ArweaveWalletConnector, WALLET_TYPES } from '../../types';
@@ -16,15 +18,24 @@ export const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [
 ];
 
 export class ArweaveAppWalletConnector implements ArweaveWalletConnector {
-  private _wallet: Window['arweaveWallet'];
+  private _wallet: ReactiveConnector & { namespaces: any };
+  signer: CustomSignature;
 
   constructor() {
     const webWallet = new ArweaveWebWallet({
       name: 'ArNS',
     });
     webWallet.setUrl('arweave.app');
-    this._wallet = webWallet.namespaces
-      .arweaveWallet as any as Window['arweaveWallet'];
+    this._wallet = webWallet as any;
+    this.signer = {
+      signer: async (transaction: Transaction) => {
+        if (!webWallet.url) {
+          webWallet.setUrl('arweave.app');
+        }
+        await webWallet.signTransaction(transaction);
+      },
+      type: 'arweave' as SignatureType,
+    };
   }
 
   // The API has been shown to be unreliable, so we call each function with a timeout
@@ -49,9 +60,11 @@ export class ArweaveAppWalletConnector implements ArweaveWalletConnector {
     try {
       localStorage.setItem('walletType', WALLET_TYPES.ARWEAVE_APP);
 
-      await this._wallet.connect(ARCONNECT_WALLET_PERMISSIONS, {
+      await this._wallet.connect({
         name: 'ARNS - ar.io',
       });
+
+      this.signer.signer.bind(this);
     } catch (error) {
       localStorage.removeItem('walletType');
       throw {
@@ -67,12 +80,16 @@ export class ArweaveAppWalletConnector implements ArweaveWalletConnector {
   }
 
   async getWalletAddress(): Promise<ArweaveTransactionID> {
-    const address = await this._wallet.getActiveAddress();
+    const address =
+      await this._wallet.namespaces.arweaveWallet.getActiveAddress();
     return new ArweaveTransactionID(address);
   }
 
   async getGatewayConfig(): Promise<ApiConfig> {
-    const config = await this._wallet.getArweaveConfig();
-    return config as unknown as ApiConfig;
+    return {
+      host: 'ar-io.dev',
+      port: 443,
+      protocol: 'https',
+    };
   }
 }
