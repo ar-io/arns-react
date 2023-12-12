@@ -165,33 +165,34 @@ function RegisterNameForm() {
   async function handleNext() {
     try {
       // validate transaction cost, return if insufficient balance and emit validation message
-      userHasSufficientBalance<{
+
+      const balanceErrors = userHasSufficientBalance<{
         [x: string]: number;
         AR: number;
       }>({
         balances: { AR: balances.ar, ...balances },
         costs: { AR: fee.ar, ...fee } as { [x: string]: number; AR: number },
       });
+
+      if (balanceErrors.length) {
+        balanceErrors.forEach((error: any) => {
+          eventEmitter.emit('error', {
+            message: error.message,
+            name: 'Insufficient Funds',
+          });
+        });
+        return;
+      }
+
       if (feeError) throw new Error('Issue calculating transaction cost.');
       if (hasValidationErrors) {
-        throw new Error('Please fix the errors above before continuing.');
+        throw {
+          message: 'Please fix the errors above before continuing.',
+          name: 'Validation Error',
+        };
       }
     } catch (error: any) {
-      if (error.message.includes('Insufficient balance')) {
-        eventEmitter.emit('error', {
-          message: error.message,
-          name: 'Insufficient Funds',
-        });
-      } else if (
-        error.message.includes('Please fix the errors above before continuing.')
-      ) {
-        eventEmitter.emit('error', {
-          message: error.message,
-          name: 'Validation Error',
-        });
-      } else {
-        eventEmitter.emit('error', error);
-      }
+      eventEmitter.emit('error', error);
       return;
     }
 
