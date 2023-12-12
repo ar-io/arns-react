@@ -163,9 +163,6 @@ function RegisterNameForm() {
   }
 
   async function handleNext() {
-    if (fee?.[ioTicker] === undefined) {
-      return;
-    }
     try {
       // validate transaction cost, return if insufficient balance and emit validation message
       userHasSufficientBalance<{
@@ -175,9 +172,26 @@ function RegisterNameForm() {
         balances: { AR: balances.ar, ...balances },
         costs: { AR: fee.ar, ...fee } as { [x: string]: number; AR: number },
       });
+      if (feeError) throw new Error('Issue calculating transaction cost.');
+      if (hasValidationErrors) {
+        throw new Error('Please fix the errors above before continuing.');
+      }
     } catch (error: any) {
-      console.debug('Insufficient funds');
-      // do not emit error
+      if (error.message.includes('Insufficient balance')) {
+        eventEmitter.emit('error', {
+          message: error.message,
+          name: 'Insufficient Funds',
+        });
+      } else if (
+        error.message.includes('Please fix the errors above before continuing.')
+      ) {
+        eventEmitter.emit('error', {
+          message: error.message,
+          name: 'Validation Error',
+        });
+      } else {
+        eventEmitter.emit('error', error);
+      }
       return;
     }
 
@@ -602,9 +616,7 @@ function RegisterNameForm() {
               <WorkflowButtons
                 nextText="Next"
                 backText="Back"
-                onNext={
-                  hasValidationErrors || feeError ? undefined : handleNext
-                }
+                onNext={handleNext}
                 onBack={() => navigate('/', { state: `/register/${domain}` })}
                 customNextStyle={{ width: '100px' }}
               />
