@@ -182,6 +182,13 @@ function RegisterNameForm() {
           message: error.message,
           name: 'Insufficient Funds',
         });
+      } else if (
+        error.message.includes('Please fix the errors above before continuing.')
+      ) {
+        eventEmitter.emit('error', {
+          message: error.message,
+          name: 'Validation Error',
+        });
       } else {
         eventEmitter.emit('error', error);
       }
