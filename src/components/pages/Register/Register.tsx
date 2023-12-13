@@ -31,6 +31,7 @@ import {
   ATOMIC_FLAG,
   MAX_LEASE_DURATION,
   MIN_LEASE_DURATION,
+  SMARTWEAVE_TAG_SIZE,
 } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { LockIcon } from '../../icons';
@@ -114,6 +115,9 @@ function RegisterNameForm() {
               type: 'setFee',
               payload: { ar: fee.ar, [ioTicker]: undefined },
             });
+            const gas = await arweaveDataProvider.getArPrice(
+              SMARTWEAVE_TAG_SIZE,
+            );
             const price = await arweaveDataProvider
               .getPriceForInteraction({
                 interactionName: INTERACTION_NAMES.BUY_RECORD,
@@ -129,7 +133,7 @@ function RegisterNameForm() {
               });
             dispatchRegisterState({
               type: 'setFee',
-              payload: { ar: fee.ar, [ioTicker]: price },
+              payload: { ar: gas, [ioTicker]: price },
             });
           } catch (e) {
             eventEmitter.emit('error', e);
@@ -163,21 +167,39 @@ function RegisterNameForm() {
   }
 
   async function handleNext() {
-    if (fee?.[ioTicker] === undefined) {
-      return;
-    }
     try {
       // validate transaction cost, return if insufficient balance and emit validation message
-      userHasSufficientBalance<{
+
+      const balanceErrors = userHasSufficientBalance<{
         [x: string]: number;
         AR: number;
       }>({
-        balances: { AR: balances.ar, ...balances },
-        costs: { AR: fee.ar, ...fee } as { [x: string]: number; AR: number },
+        balances: { AR: balances.ar, [ioTicker]: balances[ioTicker] },
+        costs: { AR: fee.ar, [ioTicker]: fee[ioTicker] } as {
+          [x: string]: number;
+          AR: number;
+        },
       });
+
+      if (balanceErrors.length) {
+        balanceErrors.forEach((error: any) => {
+          eventEmitter.emit('error', {
+            message: error.message,
+            name: 'Insufficient Funds',
+          });
+        });
+        return;
+      }
+
+      if (feeError) throw new Error('Issue calculating transaction cost.');
+      if (hasValidationErrors) {
+        throw {
+          message: 'Please fix the errors above before continuing.',
+          name: 'Validation Error',
+        };
+      }
     } catch (error: any) {
-      console.debug('Insufficient funds');
-      // do not emit error
+      eventEmitter.emit('error', error);
       return;
     }
 
@@ -602,9 +624,7 @@ function RegisterNameForm() {
               <WorkflowButtons
                 nextText="Next"
                 backText="Back"
-                onNext={
-                  hasValidationErrors || feeError ? undefined : handleNext
-                }
+                onNext={handleNext}
                 onBack={() => navigate('/', { state: `/register/${domain}` })}
                 customNextStyle={{ width: '100px' }}
               />

@@ -90,12 +90,11 @@ export class ArweaveCompositeDataProvider
         walletAddress,
         ARNS_REGISTRY_ADDRESS,
       );
-      if (
-        !userHasSufficientBalance({
-          balances: { [ioTicker]: +ioBalance },
-          costs: { [ioTicker]: +payload.qty },
-        })
-      ) {
+      const balanceErrors = userHasSufficientBalance({
+        balances: { [ioTicker]: +ioBalance },
+        costs: { [ioTicker]: +payload.qty },
+      });
+      if (balanceErrors.length) {
         throw new Error(`Insufficient token balance to perform transaction`);
       }
     }
