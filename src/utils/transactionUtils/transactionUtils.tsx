@@ -922,18 +922,22 @@ export function userHasSufficientBalance<T extends Record<string, number>>({
 }: {
   balances: T;
   costs: T;
-}): boolean {
+}): Error[] {
   // TODO: emit multiple errors if multiple balances are insufficient
-  return Object.entries(costs).every(([key, value]) => {
+  return Object.entries(costs).reduce((acc: Error[], [key, value]) => {
     if (!(balances[key] >= value)) {
-      throw new Error(
-        `Insufficient balance of ${key}, user has ${balances[key]} and needs ${
-          value - balances[key]
-        } more ${key} to pay for this transaction.`,
+      acc.push(
+        new Error(
+          `Insufficient balance of ${key}, user has ${
+            balances[key]
+          } and needs ${
+            value - balances[key]
+          } more ${key} to pay for this transaction.`,
+        ),
       );
     }
-    return true;
-  });
+    return acc;
+  }, []);
 }
 
 // TODO: maybe use binary search?
