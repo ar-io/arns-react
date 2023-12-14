@@ -12,8 +12,8 @@ import {
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import {
-  isARNSDomainNameValid,
   isArweaveTransactionID,
+  validateNoLeadingOrTrailingDashes,
   validateNoSpecialCharacters,
   validateTTLSeconds,
 } from '../../../utils';
@@ -157,13 +157,16 @@ function AddUndernameModal({
                       validationListStyle={{ display: 'none' }}
                       value={undername}
                       setValue={(v: string) => setUndername(v)}
-                      catchInvalidInput={true}
+                      catchInvalidInput={false}
                       maxCharLength={maxUndernameLength}
                       customPattern={UNDERNAME_REGEX}
                       validationPredicates={{
                         [VALIDATION_INPUT_TYPES.UNDERNAME]: {
                           fn: (name: string) =>
                             validateNoSpecialCharacters(name),
+                        },
+                        'Dashes cannot be leading or trailing': {
+                          fn: (name) => validateNoLeadingOrTrailingDashes(name),
                         },
                       }}
                     />
@@ -311,7 +314,7 @@ function AddUndernameModal({
         onClose={closeModal}
         onNext={
           isArweaveTransactionID(targetId) &&
-          isARNSDomainNameValid({ name: undername }) &&
+          UNDERNAME_REGEX.test(undername) &&
           ttlSeconds >= MIN_TTL_SECONDS &&
           ttlSeconds <= MAX_TTL_SECONDS
             ? () => handlePayloadCallback()

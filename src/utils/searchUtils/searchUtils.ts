@@ -99,7 +99,9 @@ export async function validateNoLeadingOrTrailingDashes(
   } else if (
     query.trim().length &&
     (encodeDomainToASCII(query.trim()).startsWith('-') ||
-      encodeDomainToASCII(query.trim()).endsWith('-'))
+      encodeDomainToASCII(query.trim()).endsWith('-') ||
+      encodeDomainToASCII(query.trim()).startsWith('_') ||
+      encodeDomainToASCII(query.trim()).endsWith('_'))
   ) {
     throw new Error('Query cannot have leading or trailing dashes');
   }
