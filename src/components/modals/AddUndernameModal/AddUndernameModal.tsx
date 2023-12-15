@@ -166,9 +166,11 @@ function AddUndernameModal({
                           fn: (name: string) =>
                             validateNoSpecialCharacters(name),
                         },
-                        'Dashes cannot be leading or trailing': {
-                          fn: (name) => validateNoLeadingOrTrailingDashes(name),
-                        },
+                        'Dashes and Underscores cannot be leading or trailing':
+                          {
+                            fn: (name) =>
+                              validateNoLeadingOrTrailingDashes(name),
+                          },
                       }}
                     />
                     <span
