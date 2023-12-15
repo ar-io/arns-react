@@ -255,7 +255,9 @@ function ExtendLease() {
               <span
                 className="white"
                 style={{ padding: '0px 10px 10px 10px', fontWeight: '500' }}
-              >{`Registration period (between ${MIN_LEASE_DURATION}-${MAX_LEASE_DURATION} years)`}</span>
+              >{`Extension Duration ( up to ${Math.max(1, maxIncrease)} year${
+                maxIncrease > 1 ? 's' : ''
+              } )`}</span>
             }
           />
         </div>
