@@ -6,6 +6,7 @@ import {
   APPROVED_CHARACTERS_REGEX,
   ARNS_NAME_REGEX,
   RESERVED_NAME_LENGTH,
+  TRAILING_DASH_UNDERSCORE_REGEX,
   UNDERNAME_REGEX,
   YEAR_IN_MILLISECONDS,
 } from '../constants';
@@ -105,13 +106,7 @@ export async function validateNoLeadingOrTrailingDashes(
   const s = query?.trim();
   if (!s) {
     throw new Error('Query is undefined');
-  } else if (
-    s.length &&
-    (encodeDomainToASCII(s).startsWith('-') ||
-      encodeDomainToASCII(s).endsWith('-') ||
-      encodeDomainToASCII(s).startsWith('_') ||
-      encodeDomainToASCII(s).endsWith('_'))
-  ) {
+  } else if (TRAILING_DASH_UNDERSCORE_REGEX.test(s)) {
     throw new Error('Query cannot have leading or trailing dashes');
   }
 }

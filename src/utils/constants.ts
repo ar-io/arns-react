@@ -18,6 +18,8 @@ export const DEFAULT_ARWEAVE = new Arweave({
   port: 443,
 });
 
+export const TRAILING_DASH_UNDERSCORE_REGEX = new RegExp('^[-_]|[-_]$');
+
 // note: lookahead/lookbehind regex's are not compatible with iOS browsers
 
 export const MAX_ARNS_NAME_LENGTH = 51;
