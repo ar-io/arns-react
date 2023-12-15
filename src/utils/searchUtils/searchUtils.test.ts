@@ -1,3 +1,4 @@
+import { MAX_UNDERNAME_LENGTH } from '../constants';
 import {
   isARNSDomainNameValid,
   isUndernameValid,
@@ -95,9 +96,9 @@ describe('isARNSDomainNameValid', () => {
     'arn_s',
     'arn-_s',
     'arns1-1',
-    ''.padEnd(61, 'a'),
-    '1-'.padEnd(61, 'a'),
-    '1_'.padEnd(61, 'a'),
+    ''.padEnd(MAX_UNDERNAME_LENGTH, 'a'),
+    '1-'.padEnd(MAX_UNDERNAME_LENGTH, 'a'),
+    '1_'.padEnd(MAX_UNDERNAME_LENGTH, 'a'),
   ])('should return true if undername is valid', (name) => {
     expect(isUndernameValid(name)).toBe(true);
   });
@@ -112,9 +113,9 @@ describe('isARNSDomainNameValid', () => {
     '_leadingunderscore',
     '_leading-underscore',
     '-leading-dash',
-    ''.padEnd(61, '_'),
-    '1-'.padEnd(61, '-'),
-    '1_'.padEnd(61, '_'),
+    ''.padEnd(MAX_UNDERNAME_LENGTH, '_'),
+    '1-'.padEnd(MAX_UNDERNAME_LENGTH, '-'),
+    '1_'.padEnd(MAX_UNDERNAME_LENGTH, '_'),
     ''.padEnd(62, 'a'),
     'specialcharacter$',
     'specialcharact_er%',

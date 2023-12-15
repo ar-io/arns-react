@@ -24,15 +24,12 @@ export function isARNSDomainNameValid({ name }: { name?: string }): boolean {
 }
 
 export function isUndernameValid(name: string): boolean {
-  if (
-    !name ||
+  return (
+    !!name &&
     !UNDERNAME_REGEX.test(
       emojiRegex().test(name) ? encodeDomainToASCII(name) : name,
     )
-  ) {
-    return false;
-  }
-  return true;
+  );
 }
 
 export function encodeDomainToASCII(domain: string): string {
@@ -56,7 +53,8 @@ export async function validateMinASCIILength(
   query: string,
   minLength = 1,
 ): Promise<void> {
-  if (!query.trim() || query.trim().length < minLength) {
+  const s = query?.trim();
+  if (!s || s.length < minLength) {
     throw new Error(`Query must be at least ${minLength} characters`);
   }
 }
@@ -71,11 +69,8 @@ export async function validateMaxASCIILength(
   query: string,
   maxLength = Infinity,
 ): Promise<void> {
-  if (
-    !query ||
-    (query.trim().length &&
-      encodeDomainToASCII(query.trim()).length > maxLength)
-  ) {
+  const s = query?.trim();
+  if (!s || (s.length && encodeDomainToASCII(s).length > maxLength)) {
     throw new Error(`Query cannot exceed ${maxLength} characters`);
   }
 }
@@ -89,10 +84,10 @@ export async function validateMaxASCIILength(
 export async function validateNoSpecialCharacters(
   query?: string,
 ): Promise<void> {
+  const s = query?.trim();
   if (
-    !query ||
-    (query.trim().length &&
-      !APPROVED_CHARACTERS_REGEX.test(encodeDomainToASCII(query.trim())))
+    !s ||
+    (s.length && !APPROVED_CHARACTERS_REGEX.test(encodeDomainToASCII(s)))
   ) {
     throw new Error('Query cannot contain special characters');
   }
@@ -107,14 +102,15 @@ export async function validateNoSpecialCharacters(
 export async function validateNoLeadingOrTrailingDashes(
   query?: string,
 ): Promise<void> {
-  if (!query) {
+  const s = query?.trim();
+  if (!s) {
     throw new Error('Query is undefined');
   } else if (
-    query.trim().length &&
-    (encodeDomainToASCII(query.trim()).startsWith('-') ||
-      encodeDomainToASCII(query.trim()).endsWith('-') ||
-      encodeDomainToASCII(query.trim()).startsWith('_') ||
-      encodeDomainToASCII(query.trim()).endsWith('_'))
+    s.length &&
+    (encodeDomainToASCII(s).startsWith('-') ||
+      encodeDomainToASCII(s).endsWith('-') ||
+      encodeDomainToASCII(s).startsWith('_') ||
+      encodeDomainToASCII(s).endsWith('_'))
   ) {
     throw new Error('Query cannot have leading or trailing dashes');
   }
