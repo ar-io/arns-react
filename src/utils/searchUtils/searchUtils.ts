@@ -6,6 +6,7 @@ import {
   APPROVED_CHARACTERS_REGEX,
   ARNS_NAME_REGEX,
   RESERVED_NAME_LENGTH,
+  UNDERNAME_REGEX,
   YEAR_IN_MILLISECONDS,
 } from '../constants';
 
@@ -16,6 +17,18 @@ export function isARNSDomainNameValid({ name }: { name?: string }): boolean {
       emojiRegex().test(name) ? encodeDomainToASCII(name) : name,
     ) ||
     name === 'www'
+  ) {
+    return false;
+  }
+  return true;
+}
+
+export function isUndernameValid(name: string): boolean {
+  if (
+    !name ||
+    !UNDERNAME_REGEX.test(
+      emojiRegex().test(name) ? encodeDomainToASCII(name) : name,
+    )
   ) {
     return false;
   }

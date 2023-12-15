@@ -13,6 +13,7 @@ import {
 } from '../../../types';
 import {
   isArweaveTransactionID,
+  isUndernameValid,
   validateNoLeadingOrTrailingDashes,
   validateNoSpecialCharacters,
   validateTTLSeconds,
@@ -314,7 +315,7 @@ function AddUndernameModal({
         onClose={closeModal}
         onNext={
           isArweaveTransactionID(targetId) &&
-          UNDERNAME_REGEX.test(undername) &&
+          isUndernameValid(undername) &&
           ttlSeconds >= MIN_TTL_SECONDS &&
           ttlSeconds <= MAX_TTL_SECONDS
             ? () => handlePayloadCallback()

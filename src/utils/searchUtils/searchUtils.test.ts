@@ -1,5 +1,6 @@
 import {
   isARNSDomainNameValid,
+  isUndernameValid,
   validateMaxASCIILength,
   validateMinASCIILength,
   validateNoLeadingOrTrailingDashes,
@@ -86,5 +87,39 @@ describe('isARNSDomainNameValid', () => {
 
   test('should return true if name is valid', () => {
     expect(isARNSDomainNameValid({ name: 'arns' })).toBe(true);
+  });
+
+  it.each([
+    'arns',
+    'arn-s',
+    'arn_s',
+    'arn-_s',
+    'arns1-1',
+    ''.padEnd(61, 'a'),
+    '1-'.padEnd(61, 'a'),
+    '1_'.padEnd(61, 'a'),
+  ])('should return true if undername is valid', (name) => {
+    expect(isUndernameValid(name)).toBe(true);
+  });
+
+  it.each([
+    'arns-',
+    'arn-s-',
+    'arn_s_',
+    'arn-_s-_',
+    'arns1-1-',
+    '-leadingdash',
+    '_leadingunderscore',
+    '_leading-underscore',
+    '-leading-dash',
+    ''.padEnd(61, '_'),
+    '1-'.padEnd(61, '-'),
+    '1_'.padEnd(61, '_'),
+    ''.padEnd(62, 'a'),
+    'specialcharacter$',
+    'specialcharact_er%',
+    'specialcharact-er^',
+  ])('should return false if undername is invalid', (name) => {
+    expect(isUndernameValid(name)).toBe(false);
   });
 });
