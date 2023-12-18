@@ -1,3 +1,4 @@
+import { ArweaveWalletConnector } from '@src/types';
 import Arweave from 'arweave';
 import { Dispatch } from 'react';
 
@@ -11,6 +12,7 @@ import { GlobalAction } from './reducers';
 
 export async function dispatchNewGateway(
   gateway: string,
+  walletConnector: ArweaveWalletConnector,
   dispatch: Dispatch<GlobalAction>,
 ): Promise<void> {
   try {
@@ -19,7 +21,7 @@ export async function dispatchNewGateway(
       protocol: 'https',
     });
 
-    const warpDataProvider = new WarpDataProvider(arweave);
+    const warpDataProvider = new WarpDataProvider(arweave, walletConnector);
     const arweaveDataProvider = new SimpleArweaveDataProvider(arweave);
     const contractCacheProviders = new ARNSContractCache({
       url: ARNS_SERVICE_API,

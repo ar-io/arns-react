@@ -1,6 +1,6 @@
 import { cleanup, render } from '@testing-library/react';
 
-import SearchBarFooter from '../SearchBarFooter';
+import SearchBarFooter from './SearchBarFooter';
 
 describe('SearchBarFooter', () => {
   afterEach(cleanup);

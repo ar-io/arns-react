@@ -1,15 +1,15 @@
 import { cleanup, render } from '@testing-library/react';
 import { HashRouter as Router } from 'react-router-dom';
 
-import NavBarLink from '../NavBarLink';
+import ConnectButton from './ConnectButton';
 
-describe('NavLink', () => {
+describe('ConnectButton', () => {
   afterEach(cleanup);
 
-  test('render NavLink', () => {
+  test('render ConnectButton', () => {
     render(
       <Router>
-        <NavBarLink path="" linkText="" />
+        <ConnectButton />
       </Router>,
     );
   });

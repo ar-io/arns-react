@@ -3,7 +3,12 @@
     "composite": true,
     "module": "ESNext",
     "moduleResolution": "Node",
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "jsx": "react-jsx",
+    "paths": {
+      "@tests/*": ["./tests/*"],
+      "@src/*": ["./src/*"]
+    }
   },
   "include": ["vite.config.ts"]
 }

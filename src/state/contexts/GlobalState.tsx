@@ -1,3 +1,4 @@
+import { ArConnectWalletConnector } from '@src/services/wallets';
 import React, {
   Dispatch,
   createContext,
@@ -22,7 +23,10 @@ import {
 import eventEmitter from '../../utils/events';
 import type { GlobalAction } from '../reducers/GlobalReducer';
 
-const defaultWarp = new WarpDataProvider(DEFAULT_ARWEAVE);
+const defaultWarp = new WarpDataProvider(
+  DEFAULT_ARWEAVE,
+  new ArConnectWalletConnector(),
+);
 const defaultArweave = new SimpleArweaveDataProvider(DEFAULT_ARWEAVE);
 const defaultContractCache = new ARNSContractCache({
   url: ARNS_SERVICE_API,
@@ -61,14 +65,21 @@ export const useGlobalState = (): [GlobalState, Dispatch<GlobalAction>] =>
 type StateProviderProps = {
   reducer: React.Reducer<GlobalState, GlobalAction>;
   children: React.ReactNode;
+  arweaveDataProvider?: ArweaveCompositeDataProvider;
 };
 
 /** Create provider to wrap app in */
 export default function GlobalStateProvider({
   reducer,
   children,
+  arweaveDataProvider,
 }: StateProviderProps): JSX.Element {
-  const [state, dispatchGlobalState] = useReducer(reducer, initialState);
+  const [state, dispatchGlobalState] = useReducer(
+    reducer,
+    arweaveDataProvider
+      ? { ...initialState, arweaveDataProvider }
+      : initialState,
+  );
   const [updatingTicker, setUpdatingTicker] = useState(false);
 
   useEffect(() => {

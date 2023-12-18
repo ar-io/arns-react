@@ -1,4 +1,6 @@
+import { ARWEAVE_APP_API } from '@src/utils/constants';
 import { PermissionType } from 'arconnect';
+import { ReactiveConnector } from 'arweave-wallet-connector/lib/browser/Reactive';
 import { ApiConfig } from 'arweave/node/lib/api';
 import { CustomSignature, SignatureType, Transaction } from 'warp-contracts';
 
@@ -15,16 +17,15 @@ export const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [
   'ACCESS_ARWEAVE_CONFIG',
 ];
 
-export class ArConnectWalletConnector implements ArweaveWalletConnector {
-  private _wallet: Window['arweaveWallet'];
+export class ArweaveAppWalletConnector implements ArweaveWalletConnector {
+  private _wallet: ReactiveConnector & { namespaces: any };
   signer: CustomSignature;
 
   constructor() {
-    this._wallet = window?.arweaveWallet;
+    this._wallet = ARWEAVE_APP_API as any;
     this.signer = {
       signer: async (transaction: Transaction) => {
-        const signedTransaction = await this._wallet.sign(transaction);
-        Object.assign(transaction, signedTransaction);
+        await ARWEAVE_APP_API.signTransaction(transaction);
       },
       type: 'arweave' as SignatureType,
     };
@@ -38,7 +39,8 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
      * This is a workaround to check that and emit appropriate errors,
      * and to trigger the workaround workflow of reloading the page and re-initializing arconnect.
      */
-    const res = await executeWithTimeout(() => fn(), 3000);
+
+    const res = await executeWithTimeout(() => fn(), 20_000);
 
     if (res === 'timeout') {
       throw new Error(ARCONNECT_UNRESPONSIVE_ERROR);
@@ -47,61 +49,40 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
   }
 
   async connect(): Promise<void> {
-    if (!window.arweaveWallet) {
-      window.open('https://arconnect.io');
-
-      return;
-    }
     // confirm they have the extension installed
-    localStorage.setItem('walletType', WALLET_TYPES.ARCONNECT);
-    const permissions = await this.safeArconnectApiExecutor(
-      this._wallet.getPermissions,
-    );
-    if (
-      permissions &&
-      !ARCONNECT_WALLET_PERMISSIONS.every((permission) =>
-        permissions.includes(permission),
-      )
-    ) {
-      // disconnect due to missing permissions, then re-connect
-      await this.safeArconnectApiExecutor(this._wallet.disconnect);
-    } else if (permissions) {
-      return;
-    }
+    try {
+      localStorage.setItem('walletType', WALLET_TYPES.ARWEAVE_APP);
 
-    await this._wallet
-      .connect(
-        ARCONNECT_WALLET_PERMISSIONS,
-        {
-          name: 'ARNS - ar.io',
-        },
-        // TODO: add arweave configs here
-      )
-      .catch((err) => {
-        localStorage.removeItem('walletType');
-        console.error(err);
-        throw { name: 'ArConnect', message: 'User cancelled authentication.' };
+      await this._wallet.connect({
+        name: 'ARNS - ar.io',
       });
-    this.signer.signer.bind(this);
+
+      this.signer.signer.bind(this);
+    } catch (error) {
+      localStorage.removeItem('walletType');
+      throw {
+        name: 'Arweave.app',
+        message: 'User cancelled authentication.',
+      };
+    }
   }
 
   async disconnect(): Promise<void> {
     localStorage.removeItem('walletType');
-    return this.safeArconnectApiExecutor(this._wallet.disconnect);
+    return await this._wallet.disconnect();
   }
 
   async getWalletAddress(): Promise<ArweaveTransactionID> {
-    return this.safeArconnectApiExecutor(() =>
-      this._wallet
-        .getActiveAddress()
-        .then((res) => new ArweaveTransactionID(res)),
-    );
+    const address =
+      await this._wallet.namespaces.arweaveWallet.getActiveAddress();
+    return new ArweaveTransactionID(address);
   }
 
   async getGatewayConfig(): Promise<ApiConfig> {
-    const config = await this.safeArconnectApiExecutor(
-      this._wallet.getArweaveConfig,
-    );
-    return config as unknown as ApiConfig;
+    return {
+      host: 'ar-io.dev',
+      port: 443,
+      protocol: 'https',
+    };
   }
 }

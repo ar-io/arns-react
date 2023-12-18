@@ -84,7 +84,6 @@ function NavMenuCard() {
 
   async function logout() {
     try {
-      await wallet?.disconnect();
       // reset state
       setShowMenu(false);
       dispatchWalletState({

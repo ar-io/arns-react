@@ -9,10 +9,10 @@ import React, {
 import { useEffectOnce } from '../../hooks/useEffectOnce/useEffectOnce';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { ArConnectWalletConnector } from '../../services/wallets';
-import { ARCONNECT_WALLET_PERMISSIONS } from '../../services/wallets/ArConnectWalletConnector';
-import { ArweaveWalletConnector } from '../../types';
+import { ArweaveWalletConnector, WALLET_TYPES } from '../../types';
 import {
   ARNS_REGISTRY_ADDRESS,
+  ARWEAVE_APP_API,
   DEFAULT_ARNS_REGISTRY_STATE,
 } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
@@ -60,7 +60,36 @@ export default function WalletStateProvider({
 
   const [{ arweaveDataProvider, blockHeight, ioTicker }] = useGlobalState();
 
-  const { walletAddress } = state;
+  const { walletAddress, wallet } = state;
+
+  useEffect(() => {
+    if (!walletAddress) {
+      wallet?.disconnect();
+      return;
+    }
+
+    const removeWalletState = () => {
+      if (walletAddress) {
+        eventEmitter.emit('error', {
+          name: 'Arweave.app',
+          message:
+            'Arweave.app disconnected unexpectedly, please reconnect. You may need to keep the popup open to stay connected.',
+        });
+        dispatchWalletState({
+          type: 'setWalletAddress',
+          payload: undefined,
+        });
+        dispatchWalletState({
+          type: 'setWallet',
+          payload: undefined,
+        });
+      }
+    };
+
+    ARWEAVE_APP_API.on('disconnect', removeWalletState);
+
+    return () => ARWEAVE_APP_API.off('disconnect', removeWalletState);
+  }, [walletAddress, wallet]);
 
   useEffect(() => {
     if (!Object.keys(state.balances).includes(ioTicker)) {
@@ -114,26 +143,20 @@ export default function WalletStateProvider({
   }
 
   async function updateIfConnected() {
-    const connector = new ArConnectWalletConnector();
-    dispatchWalletState({
-      type: 'setWallet',
-      payload: connector,
-    });
+    const walletType = window.localStorage.getItem('walletType');
 
     try {
-      // check if arconnect is responsive
-      // check if wallet has permissions and reconnect
-      const permissions = await connector.safeArconnectApiExecutor(
-        window.arweaveWallet.getPermissions,
-      );
-
-      if (ARCONNECT_WALLET_PERMISSIONS.every((p) => permissions.includes(p))) {
-        // await connector.connect();
-        const address = await connector.getWalletAddress();
+      if (walletType === WALLET_TYPES.ARCONNECT) {
+        const connector = new ArConnectWalletConnector();
+        const address = await connector?.getWalletAddress();
 
         dispatchWalletState({
           type: 'setWalletAddress',
           payload: address,
+        });
+        dispatchWalletState({
+          type: 'setWallet',
+          payload: connector,
         });
       }
     } catch (error) {
