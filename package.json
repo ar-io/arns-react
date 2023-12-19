@@ -18,9 +18,11 @@
     "pre-commit": "lint-staged"
   },
   "dependencies": {
+    "@ardrive/turbo-sdk": "../turbo-sdk",
     "@sentry/react": "^7.45.0",
     "@sentry/tracing": "^7.45.0",
     "antd": "5.2.1",
+    "arbundles": "^0.10.0",
     "arconnect": "^0.4.2",
     "arweave": "^1.13.7",
     "arweave-wallet-connector": "^1.0.2",
@@ -38,7 +40,7 @@
     "react-dom": "^18.2.0",
     "react-icons": "^4.6.0",
     "react-router-dom": "^6.4.2",
-    "warp-contracts": "^1.4.26",
+    "warp-contracts": "1.4.26",
     "warp-contracts-plugin-deploy": "^1.0.8"
   },
   "devDependencies": {

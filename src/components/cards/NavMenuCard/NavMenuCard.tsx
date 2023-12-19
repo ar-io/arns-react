@@ -1,4 +1,8 @@
+import { TurboFactory } from '@ardrive/turbo-sdk';
+import { DEFAULT_ARWEAVE } from '@src/utils/constants';
 import { Tooltip } from 'antd';
+import { ArconnectSigner, createData } from 'arbundles';
+import base64url from 'base64url';
 import { useEffect, useRef, useState } from 'react';
 
 import { useIsMobile } from '../../../hooks';
@@ -93,6 +97,20 @@ function NavMenuCard() {
     } catch (error: any) {
       eventEmitter.emit('error', error);
     }
+  }
+
+  async function testTurbo() {
+    const signer = await new ArconnectSigner(window.arweaveWallet);
+    await signer.setPublicKey();
+    const turbo = TurboFactory.authenticated({ signer });
+    const dataItem = await createData('signed data item', signer);
+    await dataItem.sign(signer);
+    const res = await turbo.uploadSignedDataItem({
+      dataItemStreamFactory: () => dataItem.getRaw(),
+      dataItemSizeFactory: () => dataItem.getRaw().length,
+    });
+
+    console.log(res);
   }
 
   return (
@@ -204,6 +222,9 @@ function NavMenuCard() {
                     })}
                   </div>
                 </div>
+                <button className="accent-button" onClick={() => testTurbo()}>
+                  Test turbo
+                </button>
 
                 <span
                   className="flex"
