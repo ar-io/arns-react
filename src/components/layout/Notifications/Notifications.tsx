@@ -17,10 +17,13 @@ export default function Notifications() {
     maxCount: 3,
   });
 
-  function handleError(error: Error) {
+  function handleError(error: Error | { message: string; name: string }) {
     // TODO: check for duplicate errors
-    const sentryID = Sentry.captureException(error);
-    console.debug('Error sent to sentry:', error, sentryID);
+    if (error instanceof Error) {
+      const sentryID = Sentry.captureException(error);
+      console.debug('Error sent to sentry:', error, sentryID);
+    }
+
     showNotification({
       type: 'error',
       title: error.name,
