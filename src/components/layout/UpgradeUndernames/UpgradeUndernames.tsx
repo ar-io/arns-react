@@ -48,6 +48,12 @@ function UpgradeUndernames() {
     }
     setFee(undefined);
     const updateFee = async () => {
+      if (Number.isNaN(newUndernameCount) || newUndernameCount < 1) {
+        eventEmitter.emit(
+          'error',
+          new Error('Invalid undername count, must be a number greater than 0'),
+        );
+      }
       const price = await arweaveDataProvider
         .getPriceForInteraction({
           interactionName: INTERACTION_NAMES.INCREASE_UNDERNAME_COUNT,
@@ -59,7 +65,7 @@ function UpgradeUndernames() {
         .catch(() => {
           eventEmitter.emit(
             'error',
-            new Error('Unable to get price for extend lease'),
+            new Error('Unable to get price for undername increase'),
           );
           return -1;
         });
@@ -148,7 +154,7 @@ function UpgradeUndernames() {
             </span>
           </div>
           <Counter
-            maxValue={MAX_UNDERNAME_COUNT}
+            maxValue={MAX_UNDERNAME_COUNT - record.undernames}
             minValue={1}
             value={newUndernameCount}
             setValue={setNewUndernameCount}
@@ -168,6 +174,7 @@ function UpgradeUndernames() {
               margin: '0px 10px',
               fontSize: '14px',
             }}
+            editable={true}
           />
         </div>
         <TransactionCost

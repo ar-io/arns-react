@@ -32,14 +32,14 @@
 }
 .counter-input {
   display: flex;
-  width: 50%;
-  height: 100%;
   text-align: center;
   outline: none;
   border: none;
   font-size: 16px;
-  background-color: transparent;
+  background: transparent;
   color: var(--text-white);
+  overflow: hidden;
+  height: 50px;
 }
 
 input[type='number' i] {

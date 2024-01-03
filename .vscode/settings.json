@@ -16,5 +16,13 @@
     "**/dist": true,
     "**/coverage": true,
     "**/cache": true
-  }
+  },
+  "cSpell.words": [
+    "undername",
+    "Undername",
+    "UNDERNAME",
+    "undernames",
+    "Undernames",
+    "UNDERNAMES"
+  ]
 }

@@ -58,7 +58,7 @@ export const DEFAULT_ANT_SOURCE_CODE_TX =
 export const RECOMMENDED_TRANSACTION_CONFIRMATIONS = 50;
 export const DEFAULT_TTL_SECONDS = 3600;
 export const DEFAULT_MAX_UNDERNAMES = 10;
-export const MAX_UNDERNAME_COUNT = 50_000;
+export const MAX_UNDERNAME_COUNT = 10_000;
 export const ANT_CONTRACT_STATE_KEYS = [
   'balances',
   'evolve',
