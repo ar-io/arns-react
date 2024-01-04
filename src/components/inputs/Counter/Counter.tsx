@@ -80,13 +80,10 @@ function Counter({
             >
               {editable ? (
                 <ValidationInput
-                  value={value.toString()}
-                  setValue={(v) => {
-                    const parsed = Number.isNaN(parseInt(v.toString()))
-                      ? minValue
-                      : parseInt(v.toString());
-                    setValue(clamp(parsed, minValue, maxValue));
-                  }}
+                  value={value}
+                  setValue={(v: string | number) =>
+                    setValue(clamp(v as number, minValue, maxValue))
+                  }
                   minNumber={minValue}
                   maxNumber={maxValue}
                   inputType="number"
