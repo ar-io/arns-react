@@ -1,6 +1,11 @@
 import { ApiConfig } from 'arweave/node/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
-import { CustomSignature, Tags } from 'warp-contracts';
+import {
+  Contract,
+  CustomSignature,
+  InteractionResult,
+  Tags,
+} from 'warp-contracts';
 
 import { ANTContract } from './services/arweave/ANTContract';
 import { ArweaveTransactionID } from './services/arweave/ArweaveTransactionID';
@@ -276,6 +281,16 @@ export interface SmartweaveContractInteractionProvider {
     tags?: Tags;
     interactionDetails?: Record<string, any>;
   }): Promise<ArweaveTransactionID | undefined>;
+  unsafeWriteTransaction({
+    contractTxId,
+    payload,
+  }: {
+    contractTxId: ArweaveTransactionID;
+    payload: {
+      function: string;
+      [x: string]: any;
+    };
+  }): Promise<ArweaveTransactionID | undefined>;
   deployContract({
     walletAddress,
     srcCodeTransactionId,
@@ -312,6 +327,18 @@ export interface SmartweaveContractInteractionProvider {
     qty?: number;
     isBid: boolean;
   }): Promise<string | undefined>;
+  dryWrite({
+    walletAddress,
+    contract,
+    payload,
+  }: {
+    walletAddress: ArweaveTransactionID;
+    contract: Contract<any>;
+    payload: {
+      function: string;
+      [x: string]: any;
+    };
+  }): Promise<InteractionResult<any, any> | undefined>;
 }
 
 export interface ArweaveWalletConnector {
