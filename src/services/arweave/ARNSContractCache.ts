@@ -152,8 +152,9 @@ export class ARNSContractCache implements SmartweaveContractCache {
     contractTxId: ArweaveTransactionID,
   ): Promise<ContractInteraction[]> {
     const res = await this._http(
-      `${this._url}/v1/contract/${contractTxId.toString()}/interactions`,
+      `${this._url}/v1/contract/${contractTxId.toString()}/interactions?page=1`,
     );
+    // TODO: implement pagination and selective page query
     const { interactions } = await res.json();
     return interactions;
   }
