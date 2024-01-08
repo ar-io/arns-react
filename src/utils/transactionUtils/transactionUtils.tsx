@@ -854,7 +854,7 @@ export async function withExponentialBackoff<T>({
   initialDelay,
 }: {
   fn: () => Promise<T>;
-  shouldRetry: (error: any) => boolean;
+  shouldRetry: (error: any, attempt: number, nextAttemptMs: number) => boolean;
   maxTries: number;
   initialDelay: number;
 }): Promise<T> {
@@ -864,7 +864,7 @@ export async function withExponentialBackoff<T>({
   while (tries < maxTries) {
     try {
       const result = await fn();
-      if (shouldRetry(result)) {
+      if (shouldRetry(result, tries, delay * 2)) {
         tries++;
         if (tries >= maxTries) {
           throw new Error('Maximum retry attempts reached');

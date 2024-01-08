@@ -26,7 +26,6 @@ import {
 import {
   buildSmartweaveInteractionTags,
   byteSize,
-  sleep,
   tagsToObject,
   withExponentialBackoff,
 } from '../../utils';
@@ -370,44 +369,36 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       [x: string]: any;
     };
   }): Promise<InteractionResult<any, any> | undefined> {
-    let result: InteractionResult<any, any> | undefined;
-    let shouldRetry = true;
-    const errors: Set<Error> = new Set();
-    let maxRetryTime: number | undefined;
-
-    while (shouldRetry && (!maxRetryTime || maxRetryTime < Date.now())) {
-      if (errors.size > 0) {
-        maxRetryTime ??= Date.now() + 5 * 60 * 1000; // 5m max retry time starting from first retry attempt
-        sleep(30 * 1000); // 30s interval between retries
-      }
-
-      const dryWriteResults = await contract
+    const dryWriteResults = async () => {
+      return await contract
         .dryWrite(payload, walletAddress.toString())
-        .catch((error) => {
-          errors.add(error);
-          /**
-           * case for retry example: https://permanent-data-solutions-e7.sentry.io/issues/4577680450/?alert_rule_id=14289185&alert_type=issue&notification_uuid=bbbf62a0-1317-439d-9079-5bfce0286d10&project=4504894571085824&referrer=slack
-           */
-          if (
-            error instanceof TypeError &&
-            error.message.includes('Cannot read properties of undefined')
-          ) {
-            shouldRetry = true;
-          } else {
-            shouldRetry = false;
-          }
-        });
+        .catch((e) => e);
+    };
 
-      result = dryWriteResults as any;
-    }
-    if (errors.size) {
-      throw new Error(
-        `Could not dry write input on ${contract.txId()}: ${[...errors].join(
-          ', ',
-        )}`,
-      );
-    }
-    return result;
+    const results = await withExponentialBackoff<InteractionResult<any, any>>({
+      fn: dryWriteResults,
+      shouldRetry: (res, attempt, nextAttemptMs) => {
+        /**
+         * case for retry example: https://permanent-data-solutions-e7.sentry.io/issues/4577680450/?alert_rule_id=14289185&alert_type=issue&notification_uuid=bbbf62a0-1317-439d-9079-5bfce0286d10&project=4504894571085824&referrer=slack
+         */
+        if (res instanceof Error) {
+          eventEmitter.emit('error', {
+            name: 'Contract Interaction',
+            message: `Dry Write failed for contract ${contract.txId()} with error: ${
+              res.message
+            } on attempt ${attempt}. Retrying in ${
+              nextAttemptMs / 1000
+            } seconds.`,
+          });
+          return true;
+        }
+        return false;
+      },
+      maxTries: 3,
+      initialDelay: 30 * 1000, // total try period 3.5 minutes max
+    });
+
+    return results;
   }
 
   async unsafeWriteTransaction({
