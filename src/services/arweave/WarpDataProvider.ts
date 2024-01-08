@@ -161,13 +161,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
                 tags: tags,
               })
               .catch((error) => error),
-          shouldRetry: (result) => {
-            if (result instanceof TypeError) {
-              return false;
-            } else {
-              return true;
-            }
-          },
+          shouldRetry: (result) => !(result instanceof TypeError),
           maxTries: 5,
           initialDelay: 100,
         });
@@ -332,7 +326,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     });
     // an undefined valid means the transaction is valid
     // it is possible for dryWrite to fail (warp will break) which we catch and deploy the contract + interaction anyway, which is already done "unsafely"
-    if (dryWriteResults && dryWriteResults?.type === 'error') {
+    if (dryWriteResults?.type === 'error') {
       throw new Error(
         `Contract interaction detected to be invalid: ${
           dryWriteResults?.originalErrorMessages
