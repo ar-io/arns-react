@@ -1,3 +1,4 @@
+import { ContractInteractionError } from '@src/utils/errors';
 import eventEmitter from '@src/utils/events';
 import Arweave from 'arweave/node/common';
 import {
@@ -161,9 +162,22 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
                 tags: tags,
               })
               .catch((error) => error),
-          shouldRetry: (result) => !(result instanceof TypeError),
-          maxTries: 5,
-          initialDelay: 100,
+          shouldRetry: (result, attempt, nextAttemptMs) => {
+            if (result instanceof Error) {
+              eventEmitter.emit(
+                'error',
+                new ContractInteractionError(
+                  `Write interaction failed for contract ${contractTxId.toString()} with error: ${
+                    result.message
+                  }. Retrying in ${nextAttemptMs / 1000} seconds...`,
+                ),
+              );
+              return true;
+            }
+            return false;
+          },
+          maxTries: 3,
+          initialDelay: 1000,
         });
     // TODO: check for dry write options on writeInteraction
     if (!result) {
@@ -376,14 +390,16 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
          * case for retry example: https://permanent-data-solutions-e7.sentry.io/issues/4577680450/?alert_rule_id=14289185&alert_type=issue&notification_uuid=bbbf62a0-1317-439d-9079-5bfce0286d10&project=4504894571085824&referrer=slack
          */
         if (res instanceof Error) {
-          eventEmitter.emit('error', {
-            name: 'Contract Interaction',
-            message: `Dry Write failed for contract ${contract.txId()} with error: ${
-              res.message
-            } on attempt ${attempt}. Retrying in ${
-              nextAttemptMs / 1000
-            } seconds.`,
-          });
+          eventEmitter.emit(
+            'error',
+            new ContractInteractionError(
+              `Dry Write failed for contract ${contract.txId()} with error: ${
+                res.message
+              } on attempt ${attempt}. Retrying in ${
+                nextAttemptMs / 1000
+              } seconds.`,
+            ),
+          );
           return true;
         }
         return false;
