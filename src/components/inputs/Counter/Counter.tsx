@@ -80,15 +80,15 @@ function Counter({
             >
               {editable ? (
                 <ValidationInput
-                  value={value}
-                  setValue={(v: string | number) =>
-                    setValue(clamp(v as number, minValue, maxValue))
-                  }
+                  value={value.toFixed()} // removes leading zeroes
+                  setValue={(v: string | number) => {
+                    setValue(clamp(v as number, minValue, maxValue));
+                  }}
                   minNumber={minValue}
                   maxNumber={maxValue}
                   inputType="number"
                   id="counter-input"
-                  catchInvalidInput={true}
+                  catchInvalidInput={false}
                   inputClassName="counter-input"
                   wrapperClassName="flex center"
                   validationPredicates={{}}
