@@ -32,7 +32,7 @@
 }
 .counter-input {
   display: flex;
-  text-align: center;
+  text-align: center !important;
   outline: none;
   border: none;
   font-size: 16px;
