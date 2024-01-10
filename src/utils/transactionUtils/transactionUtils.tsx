@@ -858,17 +858,12 @@ export async function withExponentialBackoff<T>({
   maxTries: number;
   initialDelay: number;
 }): Promise<T> {
-  let tries = 0;
   let delay = initialDelay;
 
-  while (tries < maxTries) {
+  for (let tries = 0; tries < maxTries; tries++) {
     try {
       const result = await fn();
       if (shouldRetry(result, tries, delay * 2)) {
-        tries++;
-        if (tries >= maxTries) {
-          throw new Error('Maximum retry attempts reached');
-        }
         await new Promise((resolve) => setTimeout(resolve, delay));
         delay *= 2; // Double the delay for the next attempt
       } else {
@@ -878,7 +873,6 @@ export async function withExponentialBackoff<T>({
       eventEmitter.emit('error', error);
     }
   }
-
   throw new Error('Maximum retry attempts reached');
 }
 
