@@ -1,4 +1,4 @@
-import { Tags } from 'warp-contracts';
+import { Contract, InteractionResult, Tags } from 'warp-contracts';
 
 import {
   ANTContractDomainRecord,
@@ -360,5 +360,32 @@ export class ArweaveCompositeDataProvider
     field: string;
   }): Promise<any> {
     return this._contractProvider.getStateField({ contractTxId, field });
+  }
+  async unsafeWriteTransaction({
+    contractTxId,
+    payload,
+  }: {
+    contractTxId: ArweaveTransactionID;
+    payload: { [x: string]: any; function: string };
+  }): Promise<ArweaveTransactionID | undefined> {
+    return this._interactionProvider.unsafeWriteTransaction({
+      contractTxId,
+      payload,
+    });
+  }
+  async dryWrite({
+    walletAddress,
+    contract,
+    payload,
+  }: {
+    walletAddress: ArweaveTransactionID;
+    contract: Contract<any>;
+    payload: { [x: string]: any; function: string };
+  }): Promise<InteractionResult<any, any> | undefined> {
+    return this._interactionProvider.dryWrite({
+      walletAddress,
+      contract,
+      payload,
+    });
   }
 }

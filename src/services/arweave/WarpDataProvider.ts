@@ -1,8 +1,12 @@
+import { ContractInteractionError } from '@src/utils/errors';
+import eventEmitter from '@src/utils/events';
 import Arweave from 'arweave/node/common';
 import {
   ArWallet,
+  Contract,
   CustomSignature,
   EvaluationManifest,
+  InteractionResult,
   LoggerFactory,
   Tags,
   Warp,
@@ -98,6 +102,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     tags: Tags;
     interactionDetails?: Record<string, any>;
   }): Promise<ArweaveTransactionID | undefined> {
+    let useUnsafe = false;
     const payloadSize = byteSize(JSON.stringify(payload));
     if (!payload) {
       throw Error('Payload cannot be empty.');
@@ -118,38 +123,62 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       .connect(this._walletConnector.signer)
       // TODO: add to our SmartweaveContractInterface a method that gets the full response of the service with `sortKey`
       .syncState(`${ARNS_SERVICE_API}/v1/contract/${contractTxId.toString()}`);
+
     if (dryWrite) {
-      const dryWriteResults = await contract.dryWrite(
+      const dryWriteResults = await this.dryWrite({
+        walletAddress,
+        contract,
         payload,
-        walletAddress.toString(),
-      );
+      }).catch((e) => {
+        console.error(e);
+        eventEmitter.emit('error', e);
+        useUnsafe = true; // if dry write breaks, use unsafe write to deploy the transaction
+      });
       // because we are manually constructing the tags, we want to verify them immediately and always
       // an undefined valid means the transaction is valid
 
-      if (dryWriteResults.type === 'error') {
+      if (dryWriteResults?.type === 'error') {
         throw new Error(
           `Contract interaction detected to be invalid: ${
             dryWriteResults?.originalErrorMessages
               ? Object.entries(dryWriteResults?.originalErrorMessages)
                   .map(([name, errorMessage]) => `${name}: ${errorMessage}`)
                   .join(',')
-              : dryWriteResults.errorMessage
+              : dryWriteResults?.errorMessage
           }`,
         );
       }
     }
 
-    const result =
-      await withExponentialBackoff<WriteInteractionResponse | null>({
-        fn: () =>
-          contract.writeInteraction(payload, {
-            disableBundling: true,
-            tags: tags,
-          }),
-        shouldRetry: (result) => !result,
-        maxTries: 5,
-        initialDelay: 100,
-      });
+    const result = useUnsafe
+      ? await this.unsafeWriteTransaction({ contractTxId, payload }).then(
+          (id: ArweaveTransactionID) => ({ originalTxId: id.toString() }),
+        )
+      : await withExponentialBackoff<WriteInteractionResponse | null>({
+          fn: () =>
+            contract
+              .writeInteraction(payload, {
+                disableBundling: true,
+                tags: tags,
+              })
+              .catch((error) => error),
+          shouldRetry: (result, attempt, nextAttemptMs) => {
+            if (result instanceof Error) {
+              eventEmitter.emit(
+                'error',
+                new ContractInteractionError(
+                  `Write interaction failed for contract ${contractTxId.toString()} with error: ${
+                    result.message
+                  }. Retrying in ${nextAttemptMs / 1000} seconds...`,
+                ),
+              );
+              return true;
+            }
+            return false;
+          },
+          maxTries: 3,
+          initialDelay: 1000,
+        });
     // TODO: check for dry write options on writeInteraction
     if (!result) {
       throw Error('No result from write interaction');
@@ -301,12 +330,17 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       .syncState(`${ARNS_SERVICE_API}/v1/contract/${ARNS_REGISTRY_ADDRESS}`);
 
     // because we are manually constructing the tags, we want to verify them immediately and always
-    const dryWriteResults = await contract.dryWrite(
-      input,
-      walletAddress.toString(),
-    );
+    const dryWriteResults = await this.dryWrite({
+      walletAddress,
+      contract,
+      payload: input,
+    }).catch((e) => {
+      console.error(e);
+      eventEmitter.emit('error', e);
+    });
     // an undefined valid means the transaction is valid
-    if (dryWriteResults.type === 'error') {
+    // it is possible for dryWrite to fail (warp will break) which we catch and deploy the contract + interaction anyway, which is already done "unsafely"
+    if (dryWriteResults?.type === 'error') {
       throw new Error(
         `Contract interaction detected to be invalid: ${
           dryWriteResults?.originalErrorMessages
@@ -329,5 +363,101 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       throw new Error('Could not deploy atomic contract');
     }
     return result;
+  }
+
+  async dryWrite({
+    walletAddress,
+    contract,
+    payload,
+  }: {
+    walletAddress: ArweaveTransactionID;
+    contract: Contract<any>;
+    payload: {
+      function: string;
+      [x: string]: any;
+    };
+  }): Promise<InteractionResult<any, any> | undefined> {
+    const dryWriteResults = async () => {
+      return await contract
+        .dryWrite(payload, walletAddress.toString())
+        .catch((e) => e);
+    };
+
+    const results = await withExponentialBackoff<InteractionResult<any, any>>({
+      fn: dryWriteResults,
+      shouldRetry: (res, attempt, nextAttemptMs) => {
+        /**
+         * case for retry example: https://permanent-data-solutions-e7.sentry.io/issues/4577680450/?alert_rule_id=14289185&alert_type=issue&notification_uuid=bbbf62a0-1317-439d-9079-5bfce0286d10&project=4504894571085824&referrer=slack
+         */
+        if (res instanceof Error) {
+          eventEmitter.emit(
+            'error',
+            new ContractInteractionError(
+              `Dry Write failed for contract ${contract.txId()} with error: ${
+                res.message
+              } on attempt ${attempt}. Retrying in ${
+                nextAttemptMs / 1000
+              } seconds.`,
+            ),
+          );
+          return true;
+        }
+        return false;
+      },
+      maxTries: 3,
+      initialDelay: 30 * 1000, // total try period 3.5 minutes max
+    });
+
+    return results;
+  }
+
+  async unsafeWriteTransaction({
+    contractTxId,
+    payload,
+    data,
+    tags = [],
+  }: {
+    contractTxId: ArweaveTransactionID;
+    payload: {
+      function: string;
+      [x: string]: any;
+    };
+    data?: string | Uint8Array;
+    tags?: Tags;
+  }): Promise<ArweaveTransactionID> {
+    const interactionTags = buildSmartweaveInteractionTags({
+      contractId: contractTxId,
+      input: payload,
+    });
+    const transaction = await this._arweave.createTransaction(
+      {
+        data,
+      },
+      'use_wallet',
+    );
+    [...interactionTags, ...tags].forEach((tag) => {
+      transaction.addTag(tag.name, tag.value);
+    });
+    await this._arweave.transactions.sign(transaction, 'use_wallet');
+    const response = await withExponentialBackoff<ArweaveTransactionID | null>({
+      fn: () =>
+        this._arweave.transactions
+          .post(transaction)
+          .then((response) => response)
+          .catch((error) => error),
+      shouldRetry: (result) => {
+        if (result instanceof Response && result.status > 300) {
+          return false;
+        } else {
+          return true;
+        }
+      },
+      maxTries: 5,
+      initialDelay: 100,
+    });
+    if (!response) {
+      throw Error('No result from write interaction');
+    }
+    return new ArweaveTransactionID(transaction.id);
   }
 }
