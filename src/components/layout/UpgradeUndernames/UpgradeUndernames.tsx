@@ -34,9 +34,9 @@ function UpgradeUndernames() {
   const [record, setRecord] = useState<ARNSRecordEntry>();
   const [antContract, setAntContract] = useState<ANTContract>();
   // min count of 1 ~ contract rule
-  const [newUndernameCount, setNewUndernameCount] = useState<number>(1);
+  const [newUndernameCount, setNewUndernameCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
-  const [fee, setFee] = useState<number | undefined>();
+  const [fee, setFee] = useState<number | undefined>(0);
 
   useEffect(() => {
     onLoad();
@@ -48,7 +48,11 @@ function UpgradeUndernames() {
     }
     setFee(undefined);
     const updateFee = async () => {
-      if (Number.isNaN(newUndernameCount) || newUndernameCount < 1) {
+      if (newUndernameCount === 0) {
+        setFee(0);
+        return;
+      }
+      if (Number.isNaN(newUndernameCount)) {
         eventEmitter.emit(
           'error',
           new Error('Invalid undername count, must be a number greater than 0'),
@@ -155,7 +159,7 @@ function UpgradeUndernames() {
           </div>
           <Counter
             maxValue={MAX_UNDERNAME_COUNT - record.undernames}
-            minValue={1}
+            minValue={0}
             value={newUndernameCount}
             setValue={setNewUndernameCount}
             containerStyle={{

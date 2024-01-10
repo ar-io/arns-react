@@ -74,21 +74,23 @@ function Counter({
               style={{
                 fontWeight: 500,
                 ...valueStyle,
-                paddingTop: '5px',
-                paddingBottom: '8px',
+                paddingTop: '7px',
+                paddingBottom: '7px',
               }}
             >
               {editable ? (
                 <ValidationInput
-                  value={value}
-                  setValue={(v: string | number) =>
-                    setValue(clamp(v as number, minValue, maxValue))
-                  }
+                  value={value.toFixed()} // removes leading zeroes
+                  setValue={(v: string | number) => {
+                    setValue(
+                      Math.round(clamp(v as number, minValue, maxValue)),
+                    );
+                  }}
                   minNumber={minValue}
                   maxNumber={maxValue}
                   inputType="number"
                   id="counter-input"
-                  catchInvalidInput={true}
+                  catchInvalidInput={false}
                   inputClassName="counter-input"
                   wrapperClassName="flex center"
                   validationPredicates={{}}
@@ -96,8 +98,8 @@ function Counter({
               ) : (
                 value
               )}
-              &nbsp;
-              {valueName}
+
+              {valueName ? <>&nbsp;{valueName}</> : <></>}
             </span>
             {detail ? (
               <span className="text grey center" style={{ fontSize: '14px' }}>
