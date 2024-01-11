@@ -4,10 +4,3 @@ export class ContractInteractionError extends Error {
     this.name = 'Contract Interaction Error';
   }
 }
-
-export class NoNetworkError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'No Network Detected';
-  }
-}

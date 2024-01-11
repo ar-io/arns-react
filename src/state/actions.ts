@@ -1,4 +1,3 @@
-import ArweaveServiceController from '@src/services/ArweaveServiceController';
 import { ArweaveWalletConnector } from '@src/types';
 import Arweave from 'arweave';
 import { Dispatch } from 'react';
@@ -29,13 +28,11 @@ export async function dispatchNewGateway(
       arweave: arweaveDataProvider,
     });
 
-    const provider = new ArweaveServiceController(
-      new ArweaveCompositeDataProvider(
-        arweaveDataProvider,
-        warpDataProvider,
-        contractCacheProviders,
-      ),
-    ) as any as ArweaveCompositeDataProvider;
+    const provider = new ArweaveCompositeDataProvider(
+      arweaveDataProvider,
+      warpDataProvider,
+      contractCacheProviders,
+    );
     const blockHeight = await provider.getCurrentBlockHeight();
     dispatch({
       type: 'setBlockHeight',
