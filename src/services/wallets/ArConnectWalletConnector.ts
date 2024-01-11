@@ -1,3 +1,4 @@
+import { WalletNotInstalledError } from '@src/utils/errors';
 import { PermissionType } from 'arconnect';
 import { ApiConfig } from 'arweave/node/lib/api';
 import { CustomSignature, SignatureType, Transaction } from 'warp-contracts';
@@ -32,6 +33,8 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
 
   // The API has been shown to be unreliable, so we call each function with a timeout
   async safeArconnectApiExecutor<T>(fn: () => T): Promise<T> {
+    if (!this._wallet)
+      throw new WalletNotInstalledError('Arconnect is not installed.');
     /**
      * This is here because occasionally arconnect injects but does not initialize internally properly,
      * allowing the api to be called but then hanging.
@@ -55,7 +58,7 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
     // confirm they have the extension installed
     localStorage.setItem('walletType', WALLET_TYPES.ARCONNECT);
     const permissions = await this.safeArconnectApiExecutor(
-      this._wallet.getPermissions,
+      this._wallet?.getPermissions,
     );
     if (
       permissions &&
@@ -64,7 +67,7 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
       )
     ) {
       // disconnect due to missing permissions, then re-connect
-      await this.safeArconnectApiExecutor(this._wallet.disconnect);
+      await this.safeArconnectApiExecutor(this._wallet?.disconnect);
     } else if (permissions) {
       return;
     }
@@ -87,20 +90,20 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
 
   async disconnect(): Promise<void> {
     localStorage.removeItem('walletType');
-    return this.safeArconnectApiExecutor(this._wallet.disconnect);
+    return this.safeArconnectApiExecutor(this._wallet?.disconnect);
   }
 
   async getWalletAddress(): Promise<ArweaveTransactionID> {
     return this.safeArconnectApiExecutor(() =>
       this._wallet
-        .getActiveAddress()
+        ?.getActiveAddress()
         .then((res) => new ArweaveTransactionID(res)),
     );
   }
 
   async getGatewayConfig(): Promise<ApiConfig> {
     const config = await this.safeArconnectApiExecutor(
-      this._wallet.getArweaveConfig,
+      this._wallet?.getArweaveConfig,
     );
     return config as unknown as ApiConfig;
   }
