@@ -1,3 +1,4 @@
+import ArweaveServiceController from '@src/services/ArweaveServiceController';
 import { ArConnectWalletConnector } from '@src/services/wallets';
 import React, {
   Dispatch,
@@ -48,11 +49,13 @@ const initialState: GlobalState = {
   gateway: 'ar-io.dev',
   blockHeight: undefined,
   lastBlockUpdateTimestamp: undefined,
-  arweaveDataProvider: new ArweaveCompositeDataProvider(
-    defaultArweave,
-    defaultWarp,
-    defaultContractCache,
-  ),
+  arweaveDataProvider: new ArweaveServiceController(
+    new ArweaveCompositeDataProvider(
+      defaultArweave,
+      defaultWarp,
+      defaultContractCache,
+    ),
+  ) as any as ArweaveCompositeDataProvider,
 };
 
 const GlobalStateContext = createContext<[GlobalState, Dispatch<GlobalAction>]>(

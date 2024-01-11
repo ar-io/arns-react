@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/react';
+import { NoNetworkError } from '@src/utils/errors';
 import { notification } from 'antd';
 import { ArgsProps } from 'antd/es/notification/interface';
 import { useEffect } from 'react';
@@ -22,6 +23,10 @@ export default function Notifications() {
     if (error instanceof Error) {
       const sentryID = Sentry.captureException(error);
       console.debug('Error sent to sentry:', error, sentryID);
+    }
+
+    if (error instanceof NoNetworkError) {
+      return;
     }
 
     showNotification({
