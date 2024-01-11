@@ -24,7 +24,9 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
     this._wallet = window?.arweaveWallet;
     this.signer = {
       signer: async (transaction: Transaction) => {
-        const signedTransaction = await this._wallet.sign(transaction);
+        const signedTransaction = await this.safeArconnectApiExecutor(() =>
+          this._wallet.sign(transaction),
+        );
         Object.assign(transaction, signedTransaction);
       },
       type: 'arweave' as SignatureType,
