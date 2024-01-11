@@ -27,7 +27,14 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
         const signedTransaction = await this.safeArconnectApiExecutor(() =>
           this._wallet.sign(transaction),
         );
-        Object.assign(transaction, signedTransaction);
+        // arconnect 0.5.5 requires this pattern, 1.0.0+ simply does this internally.
+        transaction.setSignature({
+          id: signedTransaction.id,
+          owner: signedTransaction.owner,
+          reward: signedTransaction.reward,
+          tags: signedTransaction.tags,
+          signature: signedTransaction.signature,
+        });
       },
       type: 'arweave' as SignatureType,
     };
