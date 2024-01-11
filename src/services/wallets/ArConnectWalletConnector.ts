@@ -24,8 +24,17 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
     this._wallet = window?.arweaveWallet;
     this.signer = {
       signer: async (transaction: Transaction) => {
-        const signedTransaction = await this._wallet.sign(transaction);
-        Object.assign(transaction, signedTransaction);
+        const signedTransaction = await this.safeArconnectApiExecutor(() =>
+          this._wallet.sign(transaction),
+        );
+        // arconnect 0.5.5 requires this pattern, 1.0.0+ simply does this internally.
+        transaction.setSignature({
+          id: signedTransaction.id,
+          owner: signedTransaction.owner,
+          reward: signedTransaction.reward,
+          tags: signedTransaction.tags,
+          signature: signedTransaction.signature,
+        });
       },
       type: 'arweave' as SignatureType,
     };
@@ -33,7 +42,10 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
 
   // The API has been shown to be unreliable, so we call each function with a timeout
   async safeArconnectApiExecutor<T>(fn: () => T): Promise<T> {
-    if (!this._wallet)
+    if (!this._wallet && window?.arweaveWallet) {
+      this._wallet = window.arweaveWallet;
+      this.signer.signer.bind(this);
+    } else if (!this._wallet)
       throw new WalletNotInstalledError('Arconnect is not installed.');
     /**
      * This is here because occasionally arconnect injects but does not initialize internally properly,
