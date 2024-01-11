@@ -35,7 +35,10 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
 
   // The API has been shown to be unreliable, so we call each function with a timeout
   async safeArconnectApiExecutor<T>(fn: () => T): Promise<T> {
-    if (!this._wallet)
+    if (!this._wallet && window?.arweaveWallet) {
+      this._wallet = window.arweaveWallet;
+      this.signer.signer.bind(this);
+    } else if (!this._wallet)
       throw new WalletNotInstalledError('Arconnect is not installed.');
     /**
      * This is here because occasionally arconnect injects but does not initialize internally properly,
