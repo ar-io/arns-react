@@ -7,8 +7,7 @@ export const buildContractTxQuery = (id: ArweaveTransactionID) => {
       tags: [],
     ids:["${id.toString()}"]) {
       edges {
-        node {
-          id
+        node {          id
           owner {
             address
           }
