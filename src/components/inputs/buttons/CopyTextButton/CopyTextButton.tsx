@@ -22,6 +22,11 @@ function CopyTextButton({
   const [textCopied, setTextCopied] = useState<boolean>(false);
 
   async function handleCopy() {
+    if (!document.hasFocus()) {
+      // this is an intermittent non-emitting notifying error that is hard to reproduce, but this SHOULD fix it
+      //https://permanent-data-solutions-e7.sentry.io/issues/4421686865/?project=4504894571085824&query=is%3Aunresolved&referrer=issue-stream&statsPeriod=14d&stream_index=3
+      return;
+    }
     setTextCopied(true);
     if (copyText) {
       await navigator.clipboard.writeText(copyText);
@@ -41,9 +46,7 @@ function CopyTextButton({
           gap: '8px',
           padding: '0px',
         }}
-        onClick={async () => {
-          await handleCopy();
-        }}
+        onClick={() => handleCopy()}
       >
         <span className="flex white center" style={{ fontSize: 'inherit' }}>
           {body}&nbsp;
