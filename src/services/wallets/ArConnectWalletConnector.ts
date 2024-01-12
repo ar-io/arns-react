@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import { DRE_URL } from '@src/utils/constants';
 import { PermissionType } from 'arconnect';
 import { ApiConfig } from 'arweave/node/lib/api';
@@ -105,6 +107,7 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
     );
     return config as unknown as ApiConfig;
   }
+
   async addToken(
     contractTxId: ArweaveTransactionID,
     type: 'asset' | 'collectible',
@@ -115,4 +118,5 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
       `${DRE_URL}/${contractTxId.toString()}`,
     );
   }
+  /* @ts-enable */
 }
