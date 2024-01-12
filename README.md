@@ -34,3 +34,7 @@ These rules are to help keep the repo tidy and help know where everything is. A 
 - When creating a util, it should be in the src/utils folder, which has its own testing folder.
 - When adding images, they should go in the assets/images/<theme-type> folder. Dark-mode and light-mode specific images get their own folders, images shared across themes go in the common folder.
 - When adding a translation, it goes in the assets/translations folder, named as `<native-languages-name>.json`. Translated text in the json should
+
+### Notifications
+
+When using the notification API you can import the `eventEmitter` from the `events.ts` file. From the `errors.ts` file you can import `NotificationOnlyError` which will not emit the error to sentry, otherwise for errors that should be reported, such as unhandled errors, use the `Error` object or create a custom error that extends it in the `errors.ts` file.

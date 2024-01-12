@@ -5,6 +5,8 @@ export class ContractInteractionError extends Error {
   }
 }
 
+// NotificationOnlyError is an error that is only shown as a notification and does not emit to sentry
+
 export class NotificationOnlyError extends Error {
   constructor(message: string) {
     super(message);
