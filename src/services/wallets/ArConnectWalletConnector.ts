@@ -1,3 +1,4 @@
+import { DRE_URL } from '@src/utils/constants';
 import { PermissionType } from 'arconnect';
 import { ApiConfig } from 'arweave/node/lib/api';
 import { CustomSignature, SignatureType, Transaction } from 'warp-contracts';
@@ -108,7 +109,10 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
     contractTxId: ArweaveTransactionID,
     type: 'asset' | 'collectible',
   ): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    return this._wallet.addToken(contractTxId.toString(), type);
+    return this._wallet.addToken(
+      contractTxId.toString(),
+      type,
+      `${DRE_URL}/${contractTxId.toString()}`,
+    );
   }
 }
