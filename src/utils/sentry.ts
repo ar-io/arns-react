@@ -47,14 +47,12 @@ const sentry =
 
 export default sentry;
 
-const filterMessages = new Set([
-  'chrome-extension://aflkmfhebedbjioipglgcbcmnbpgliof/injected.js',
-]);
+const filterMessages = new Set(['Cannot redefine property: ethereum']);
 
 const shouldFilterEvent = (event: Sentry.Event): boolean => {
   const isFiltered = [...filterMessages].some((message) =>
     event.exception?.values?.some((value) =>
-      value.value?.includes(message.toLowerCase()),
+      value.value?.toLowerCase().includes(message.toLowerCase()),
     ),
   );
 
