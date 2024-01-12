@@ -215,7 +215,7 @@ function AuctionChart({
       }
 
       tooltipDiv.style.left = `${left}px`;
-      tooltipDiv.style.top = `${Math.max(top)}px`;
+      tooltipDiv.style.top = `${top}px`;
 
       const block = +label;
       const formattedDate = formattedEstimatedDateFromBlockHeight(
