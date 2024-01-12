@@ -23,7 +23,7 @@ import {
   UndernameTableInteractionTypes,
 } from '../../types';
 import { isArweaveTransactionID } from '../../utils';
-import { PDNS_NAME_REGEX_PARTIAL } from '../../utils/constants';
+import { ARNS_NAME_REGEX_PARTIAL } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 
 export function useUndernames(id?: ArweaveTransactionID) {
@@ -269,7 +269,7 @@ export function useUndernames(id?: ArweaveTransactionID) {
                     border: 'none',
                     paddingRight: '10px',
                   }}
-                  customPattern={PDNS_NAME_REGEX_PARTIAL}
+                  customPattern={ARNS_NAME_REGEX_PARTIAL}
                   validationPredicates={{}}
                 />
                 <button
@@ -351,11 +351,9 @@ export function useUndernames(id?: ArweaveTransactionID) {
     const domain = await arweaveDataProvider
       .getRecords({ filters: { contractTxId: [id] }, address: walletAddress })
       .then((records) => Object.keys(records)[0])
-      .catch(() => {
-        eventEmitter.emit('error', {
-          name: 'No domain found',
-          message: 'No domains found for this ANT',
-        });
+      .catch((error) => {
+        console.debug('No domain found for ANT', id.toString());
+        eventEmitter.emit('error', error);
         return '';
       });
     setDomain(domain);

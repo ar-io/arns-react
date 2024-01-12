@@ -9,9 +9,12 @@ import React, {
 import { useEffectOnce } from '../../hooks/useEffectOnce/useEffectOnce';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { ArConnectWalletConnector } from '../../services/wallets';
-import { ARCONNECT_WALLET_PERMISSIONS } from '../../services/wallets/ArConnectWalletConnector';
-import { ArweaveWalletConnector } from '../../types';
-import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
+import { ArweaveWalletConnector, WALLET_TYPES } from '../../types';
+import {
+  ARNS_REGISTRY_ADDRESS,
+  ARWEAVE_APP_API,
+  DEFAULT_ARNS_REGISTRY_STATE,
+} from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 import { WalletAction } from '../reducers/WalletReducer';
 import { useGlobalState } from './GlobalState';
@@ -21,7 +24,7 @@ export type WalletState = {
   wallet?: ArweaveWalletConnector;
   balances: {
     ar: number;
-    io: number;
+    [x: string]: number;
   };
   walletStateInitialized: boolean;
 };
@@ -31,7 +34,7 @@ const initialState: WalletState = {
   wallet: undefined,
   balances: {
     ar: 0,
-    io: 0,
+    [DEFAULT_ARNS_REGISTRY_STATE.ticker]: 0,
   },
   walletStateInitialized: false,
 };
@@ -55,9 +58,48 @@ export default function WalletStateProvider({
 }: StateProviderProps): JSX.Element {
   const [state, dispatchWalletState] = useReducer(reducer, initialState);
 
-  const [{ arweaveDataProvider, blockHeight }] = useGlobalState();
+  const [{ arweaveDataProvider, blockHeight, ioTicker }] = useGlobalState();
 
-  const { walletAddress } = state;
+  const { walletAddress, wallet } = state;
+
+  useEffect(() => {
+    if (!walletAddress) {
+      wallet?.disconnect();
+      return;
+    }
+
+    const removeWalletState = () => {
+      if (walletAddress) {
+        eventEmitter.emit('error', {
+          name: 'Arweave.app',
+          message:
+            'Arweave.app disconnected unexpectedly, please reconnect. You may need to keep the popup open to stay connected.',
+        });
+        dispatchWalletState({
+          type: 'setWalletAddress',
+          payload: undefined,
+        });
+        dispatchWalletState({
+          type: 'setWallet',
+          payload: undefined,
+        });
+      }
+    };
+
+    ARWEAVE_APP_API.on('disconnect', removeWalletState);
+
+    return () => ARWEAVE_APP_API.off('disconnect', removeWalletState);
+  }, [walletAddress, wallet]);
+
+  useEffect(() => {
+    if (!Object.keys(state.balances).includes(ioTicker)) {
+      const { ar, ...ioFee } = state.balances;
+      dispatchWalletState({
+        type: 'setBalances',
+        payload: { ar, [ioTicker]: Object.values(ioFee)[0] },
+      });
+    }
+  }, [ioTicker]);
 
   useEffect(() => {
     window.addEventListener('arweaveWalletLoaded', updateIfConnected);
@@ -91,7 +133,7 @@ export default function WalletStateProvider({
       dispatchWalletState({
         type: 'setBalances',
         payload: {
-          io: ioBalance,
+          [ioTicker]: ioBalance,
           ar: arBalance,
         },
       });
@@ -101,26 +143,20 @@ export default function WalletStateProvider({
   }
 
   async function updateIfConnected() {
-    const connector = new ArConnectWalletConnector();
-    dispatchWalletState({
-      type: 'setWallet',
-      payload: connector,
-    });
+    const walletType = window.localStorage.getItem('walletType');
 
     try {
-      // check if arconnect is responsive
-      // check if wallet has permissions and reconnect
-      const permissions = await connector.safeArconnectApiExecutor(
-        window.arweaveWallet.getPermissions,
-      );
-
-      if (ARCONNECT_WALLET_PERMISSIONS.every((p) => permissions.includes(p))) {
-        // await connector.connect();
-        const address = await connector.getWalletAddress();
+      if (walletType === WALLET_TYPES.ARCONNECT) {
+        const connector = new ArConnectWalletConnector();
+        const address = await connector?.getWalletAddress();
 
         dispatchWalletState({
           type: 'setWalletAddress',
           payload: address,
+        });
+        dispatchWalletState({
+          type: 'setWallet',
+          payload: connector,
         });
       }
     } catch (error) {

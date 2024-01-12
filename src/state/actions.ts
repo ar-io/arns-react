@@ -1,16 +1,18 @@
+import { ArweaveWalletConnector } from '@src/types';
 import Arweave from 'arweave';
 import { Dispatch } from 'react';
 
+import { ARNSContractCache } from '../services/arweave/ARNSContractCache';
 import { ArweaveCompositeDataProvider } from '../services/arweave/ArweaveCompositeDataProvider';
-import { PDNSContractCache } from '../services/arweave/PDNSContractCache';
 import { SimpleArweaveDataProvider } from '../services/arweave/SimpleArweaveDataProvider';
 import { WarpDataProvider } from '../services/arweave/WarpDataProvider';
-import { PDNS_SERVICE_API } from '../utils/constants';
+import { ARNS_SERVICE_API } from '../utils/constants';
 import eventEmitter from '../utils/events';
 import { GlobalAction } from './reducers';
 
 export async function dispatchNewGateway(
   gateway: string,
+  walletConnector: ArweaveWalletConnector,
   dispatch: Dispatch<GlobalAction>,
 ): Promise<void> {
   try {
@@ -19,10 +21,10 @@ export async function dispatchNewGateway(
       protocol: 'https',
     });
 
-    const warpDataProvider = new WarpDataProvider(arweave);
+    const warpDataProvider = new WarpDataProvider(arweave, walletConnector);
     const arweaveDataProvider = new SimpleArweaveDataProvider(arweave);
-    const contractCacheProviders = new PDNSContractCache({
-      url: PDNS_SERVICE_API,
+    const contractCacheProviders = new ARNSContractCache({
+      url: ARNS_SERVICE_API,
       arweave: arweaveDataProvider,
     });
 

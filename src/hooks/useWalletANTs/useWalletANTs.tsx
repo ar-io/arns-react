@@ -16,8 +16,8 @@ import ArweaveID, {
   ArweaveIdTypes,
 } from '../../components/layout/ArweaveID/ArweaveID';
 import TransactionStatus from '../../components/layout/TransactionStatus/TransactionStatus';
+import { ANTContract } from '../../services/arweave/ANTContract';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
-import { PDNTContract } from '../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useWalletState } from '../../state/contexts/WalletState';
 import { ANTMetadata, ContractInteraction } from '../../types';
@@ -30,7 +30,7 @@ import eventEmitter from '../../utils/events';
 
 type ANTData = {
   dreStatus?: Record<string, any>;
-  contract: PDNTContract;
+  contract: ANTContract;
   transactionBlockHeight?: number;
   pendingContractInteractions?: ContractInteraction[];
   errors?: string[];

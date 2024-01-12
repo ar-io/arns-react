@@ -11,11 +11,11 @@ import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransa
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../../state/contexts/RegistrationState';
 import { useWalletState } from '../../../../state/contexts/WalletState';
-import { Auction, PDNSRecordEntry, SearchBarProps } from '../../../../types';
+import { ARNSRecordEntry, Auction, SearchBarProps } from '../../../../types';
 import {
   decodeDomainToASCII,
   encodeDomainToASCII,
-  isPDNSDomainNameValid,
+  isARNSDomainNameValid,
   lowerCaseDomain,
   validateMaxASCIILength,
   validateMinASCIILength,
@@ -23,8 +23,8 @@ import {
   validateNoSpecialCharacters,
 } from '../../../../utils';
 import {
+  ARNS_NAME_REGEX_PARTIAL,
   MAX_ARNS_NAME_LENGTH,
-  PDNS_NAME_REGEX_PARTIAL,
 } from '../../../../utils/constants';
 import eventEmitter from '../../../../utils/events';
 import { SearchIcon } from '../../../icons';
@@ -42,7 +42,7 @@ const searchBarValidationPredicate = ({
     return false;
   }
 
-  return isPDNSDomainNameValid({
+  return isARNSDomainNameValid({
     name: encodeDomainToASCII(value),
   });
 };
@@ -50,7 +50,7 @@ const searchBarValidationPredicate = ({
 function SearchBar(props: SearchBarProps) {
   const { disabled = false, placeholderText } = props;
   const navigate = useNavigate();
-  const [{ arweaveDataProvider }] = useGlobalState();
+  const [{ arweaveDataProvider, ioTicker }] = useGlobalState();
   const [{ domain }, dispatchRegisterState] = useRegistrationState();
   const [{ walletAddress }] = useWalletState();
   const isMobile = useIsMobile();
@@ -72,7 +72,7 @@ function SearchBar(props: SearchBarProps) {
   } = useRegistrationStatus(lowerCaseDomain(domain));
   const [auctionInfo, setAuctionInfo] = useState<Auction>();
   const [registeredDomainRecord, setRegisteredDomainRecord] =
-    useState<PDNSRecordEntry>();
+    useState<ARNSRecordEntry>();
 
   const contractTxID = registeredDomainRecord
     ? new ArweaveTransactionID(registeredDomainRecord.contractTxId)
@@ -152,10 +152,8 @@ function SearchBar(props: SearchBarProps) {
       setAuctionInfo(auction);
     } catch (error: any) {
       setSearchBarText('');
-      eventEmitter.emit('error', {
-        name: 'Could not get auction info',
-        message: error.message,
-      });
+      console.debug('Could not get auction info', error.message);
+      eventEmitter.emit('error', error);
     }
   }
 
@@ -185,7 +183,9 @@ function SearchBar(props: SearchBarProps) {
       payload: true,
     });
     if (next) {
-      navigate(`/register/${decodeDomainToASCII(searchBarText)}`);
+      navigate(`/register/${decodeDomainToASCII(searchBarText)}`, {
+        state: { from: `/?search=${searchBarText}` },
+      });
     }
     // TODO: validation may also be async, so return a promise that resolves to a boolean
 
@@ -344,7 +344,7 @@ function SearchBar(props: SearchBarProps) {
         <ValidationInput
           inputClassName="searchbar-input"
           inputId="searchbar-input-id"
-          customPattern={PDNS_NAME_REGEX_PARTIAL}
+          customPattern={ARNS_NAME_REGEX_PARTIAL}
           // <input> tag considers emojis as 2 characters in length, so we need to encode the string to ASCII to get the correct length manually
           maxCharLength={(v) =>
             lowerCaseDomain(v).length <= MAX_ARNS_NAME_LENGTH
@@ -496,7 +496,7 @@ function SearchBar(props: SearchBarProps) {
                     color: 'var(--accent)',
                   }}
                 >
-                  {auctionInfo?.currentPrice.toLocaleString() ?? 0} IO
+                  {auctionInfo?.currentPrice.toLocaleString() ?? 0} {ioTicker}
                 </span>
               </span>
               <span

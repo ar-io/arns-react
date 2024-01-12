@@ -2,13 +2,13 @@ import { Pagination, PaginationProps, Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
 import { useIsFocused } from '../../../../hooks';
+import { ANTContract } from '../../../../services/arweave/ANTContract';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
-import { PDNTContract } from '../../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../../state/contexts/WalletState';
 import {
-  PDNSRecordEntry,
-  PDNTContractJSON,
+  ANTContractJSON,
+  ARNSRecordEntry,
   VALIDATION_INPUT_TYPES,
 } from '../../../../types';
 import { isArweaveTransactionID } from '../../../../utils';
@@ -21,7 +21,7 @@ import './styles.css';
 
 type NameTokenDetails = {
   [x: string]: Pick<
-    PDNTContractJSON,
+    ANTContractJSON,
     'name' | 'ticker' | 'owner' | 'controller'
   > & { names?: string[] };
 };
@@ -98,44 +98,65 @@ function NameTokenSelector({
 
   async function getTokenList(
     address: ArweaveTransactionID | undefined,
-    imports?: ArweaveTransactionID[],
+    imports: ArweaveTransactionID[] = [],
   ) {
     try {
       setLoading(true);
       if (!address) {
         throw new Error('No address provided');
       }
-      const { contractTxIds: fetchedContractTxIds } =
-        await arweaveDataProvider.getContractsForWallet(address, 'ant');
-      if (!fetchedContractTxIds.length) {
-        throw new Error(
-          'Unable to find any Name Tokens for the provided address',
-        );
-      }
-      if (imports?.length) {
-        imports.map(async (id) => {
-          await arweaveDataProvider.validateTransactionTags({
-            id: id.toString(),
-            requiredTags: {
-              'App-Name': ['SmartWeaveContract'],
-            },
-          });
-          const validState = await arweaveDataProvider
-            .getContractState<PDNTContractJSON>(id)
-            .catch(() => {
-              throw new Error(`Unable to get Contract State`);
-            });
-
-          if (!new PDNTContract(validState).isValid()) {
-            throw new Error('Invalid ANT Contract.');
-          }
-          setValidImport(true);
+      const { contractTxIds: fetchedContractTxIds } = await arweaveDataProvider
+        .getContractsForWallet(address, 'ant')
+        .catch((e) => {
+          console.debug(e);
+          throw new Error('Unable to get contracts for wallet');
         });
+
+      const validImports = imports.length
+        ? await Promise.all(
+            imports.map(async (id: ArweaveTransactionID) => {
+              try {
+                await arweaveDataProvider
+                  .validateTransactionTags({
+                    id: id.toString(),
+                    requiredTags: {
+                      'App-Name': ['SmartWeaveContract'],
+                    },
+                  })
+                  .catch(() => {
+                    throw new Error(`Import is not a SmartWeave Contract`);
+                  });
+                const state =
+                  await arweaveDataProvider.getContractState<ANTContractJSON>(
+                    id,
+                  );
+                if (!Object.keys(state).length) {
+                  throw new Error(`Unable to get Contract State`);
+                }
+
+                if (!new ANTContract(state).isValid()) {
+                  throw new Error('Invalid ANT Contract.');
+                }
+
+                setValidImport(true);
+                return id;
+              } catch (error) {
+                eventEmitter.emit('error', error);
+              }
+            }),
+          ).then(
+            (ids: Array<ArweaveTransactionID | undefined>) =>
+              ids.filter((id) => !!id) as ArweaveTransactionID[],
+          )
+        : [];
+
+      if (!fetchedContractTxIds.length && !validImports.length) {
+        return;
       }
 
-      const contractTxIds = fetchedContractTxIds.concat(imports ?? []);
+      const contractTxIds = fetchedContractTxIds.concat(validImports);
       const associatedRecords =
-        await arweaveDataProvider.getRecords<PDNSRecordEntry>({
+        await arweaveDataProvider.getRecords<ARNSRecordEntry>({
           filters: {
             contractTxId: contractTxIds,
           },
@@ -143,8 +164,8 @@ function NameTokenSelector({
       const contracts: Array<
         | [
             ArweaveTransactionID,
-            PDNTContractJSON,
-            Record<string, PDNSRecordEntry>,
+            ANTContractJSON,
+            Record<string, ARNSRecordEntry>,
           ]
         | undefined
       > = await Promise.all(
@@ -159,7 +180,7 @@ function NameTokenSelector({
             throw new Error('Invalid ANT Contract.');
           }
           const names = Object.keys(associatedRecords).reduce(
-            (acc: Record<string, PDNSRecordEntry>, id: string) => {
+            (acc: Record<string, ARNSRecordEntry>, id: string) => {
               if (
                 associatedRecords[id].contractTxId === contractTxId.toString()
               ) {
@@ -199,20 +220,17 @@ function NameTokenSelector({
         {},
       );
       setTokens(newTokens);
-      if (imports) {
-        const details = newTokens[imports[0].toString()];
+      if (validImports.length) {
+        const details = newTokens[validImports[0].toString()];
         setSelectedToken({
           name: details?.name,
           ticker: details?.ticker,
-          id: imports[0].toString(),
+          id: validImports[0].toString(),
           names: details?.names ?? [],
         });
       }
     } catch (error: any) {
-      eventEmitter.emit('error', {
-        name: `Unable to import ANT`,
-        message: `${error.message}`,
-      });
+      eventEmitter.emit('error', error);
     } finally {
       setLoading(false);
       setListPage(1);

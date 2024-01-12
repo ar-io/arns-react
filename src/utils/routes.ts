@@ -19,14 +19,6 @@ export const ROUTES: { [x: string]: Route } = {
     protected: false,
     index: true,
   },
-  about: {
-    text: 'Info',
-    path: 'https://ar.io/arns',
-    component: undefined,
-    protected: false,
-    index: false,
-    external: true,
-  },
   auctions: {
     text: 'Live Auctions',
     path: '/auctions',

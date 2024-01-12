@@ -2,26 +2,27 @@ import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
 import { useIsMobile } from '../../../hooks';
+import { ANTContract } from '../../../services/arweave/ANTContract';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
-import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
-  PDNSRecordEntry,
-  PDNTContractJSON,
+  ANTContractJSON,
+  ARNSRecordEntry,
   SetRecordPayload,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import {
   isArweaveTransactionID,
-  isPDNSDomainNameValid,
+  isUndernameValid,
+  validateNoLeadingOrTrailingDashes,
   validateNoSpecialCharacters,
   validateTTLSeconds,
 } from '../../../utils';
 import {
+  ARNS_TX_ID_ENTRY_REGEX,
   MAX_TTL_SECONDS,
   MAX_UNDERNAME_LENGTH,
   MIN_TTL_SECONDS,
-  PDNS_TX_ID_ENTRY_REGEX,
   UNDERNAME_REGEX,
 } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
@@ -42,7 +43,7 @@ function AddUndernameModal({
 }) {
   const [{ arweaveDataProvider }] = useGlobalState();
   const isMobile = useIsMobile();
-  const [state, setState] = useState<PDNTContractJSON>();
+  const [state, setState] = useState<ANTContractJSON>();
 
   const targetIdRef = useRef<HTMLInputElement>(null);
   const ttlRef = useRef<HTMLInputElement>(null);
@@ -51,7 +52,7 @@ function AddUndernameModal({
   const [targetId, setTargetId] = useState<string>('');
   const [ttlSeconds, setTtlSeconds] = useState<number>(MIN_TTL_SECONDS);
   const [associatedRecords, setAssociatedRecords] = useState<
-    Record<string, PDNSRecordEntry>
+    Record<string, ARNSRecordEntry>
   >({});
   const [maxUndernameLength, setMaxUndernameLength] =
     useState<number>(MAX_UNDERNAME_LENGTH);
@@ -65,13 +66,13 @@ function AddUndernameModal({
     try {
       const [state, arnsRecords, pendingContractInteractions] =
         await Promise.all([
-          arweaveDataProvider.getContractState<PDNTContractJSON>(antId),
-          arweaveDataProvider.getRecords<PDNSRecordEntry>({
+          arweaveDataProvider.getContractState<ANTContractJSON>(antId),
+          arweaveDataProvider.getRecords<ARNSRecordEntry>({
             filters: { contractTxId: [antId] },
           }),
           arweaveDataProvider.getPendingContractInteractions(antId),
         ]);
-      const contract = new PDNTContract(
+      const contract = new ANTContract(
         state,
         antId,
         pendingContractInteractions,
@@ -106,7 +107,7 @@ function AddUndernameModal({
 
   function getIncompatibleNames(
     undername: string,
-    records: Record<string, PDNSRecordEntry>,
+    records: Record<string, ARNSRecordEntry>,
   ): string[] {
     return Object.keys(records).filter(
       (name: string) => undername.length + name.length > MAX_UNDERNAME_LENGTH,
@@ -157,7 +158,7 @@ function AddUndernameModal({
                       validationListStyle={{ display: 'none' }}
                       value={undername}
                       setValue={(v: string) => setUndername(v)}
-                      catchInvalidInput={true}
+                      catchInvalidInput={false}
                       maxCharLength={maxUndernameLength}
                       customPattern={UNDERNAME_REGEX}
                       validationPredicates={{
@@ -165,6 +166,11 @@ function AddUndernameModal({
                           fn: (name: string) =>
                             validateNoSpecialCharacters(name),
                         },
+                        'Dashes and Underscores cannot be leading or trailing':
+                          {
+                            fn: (name) =>
+                              validateNoLeadingOrTrailingDashes(name),
+                          },
                       }}
                     />
                     <span
@@ -257,7 +263,7 @@ function AddUndernameModal({
                     value={targetId}
                     setValue={setTargetId}
                     catchInvalidInput={true}
-                    customPattern={PDNS_TX_ID_ENTRY_REGEX}
+                    customPattern={ARNS_TX_ID_ENTRY_REGEX}
                     validationPredicates={{
                       [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
                         fn: (id: string) =>
@@ -311,7 +317,7 @@ function AddUndernameModal({
         onClose={closeModal}
         onNext={
           isArweaveTransactionID(targetId) &&
-          isPDNSDomainNameValid({ name: undername }) &&
+          isUndernameValid(undername) &&
           ttlSeconds >= MIN_TTL_SECONDS &&
           ttlSeconds <= MAX_TTL_SECONDS
             ? () => handlePayloadCallback()

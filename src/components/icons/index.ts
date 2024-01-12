@@ -1,3 +1,4 @@
+import ARNSDefault from './ARNSDefault.png';
 import { ReactComponent as AccountIcon } from './Account.svg';
 import { ReactComponent as AlertCircle } from './AlertCircle.svg';
 import { ReactComponent as AlertOctagonIcon } from './AlertOctagon.svg';
@@ -42,7 +43,6 @@ import { ReactComponent as LogoutIcon } from './Logout.svg';
 import { ReactComponent as MenuIcon } from './Menu.svg';
 import { ReactComponent as NewspaperIcon } from './Newspaper.svg';
 import { ReactComponent as NotebookIcon } from './Notebook.svg';
-import PDNSDefault from './PDNSDefault.png';
 import { ReactComponent as PencilIcon } from './Pencil.svg';
 import { ReactComponent as PersonIcon } from './Person.svg';
 import { ReactComponent as PlusIcon } from './Plus.svg';
@@ -66,7 +66,7 @@ export {
   AlertTriangleIcon,
   ArConnectIcon,
   ArrowRightIcon,
-  PDNSDefault,
+  ARNSDefault,
   ArrowLeft,
   ArweaveAppIcon,
   ArrowUpRight,

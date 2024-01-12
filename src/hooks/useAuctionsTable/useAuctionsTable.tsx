@@ -1,19 +1,17 @@
 import { ColumnType } from 'antd/es/table';
-import Countdown from 'antd/lib/statistic/Countdown';
 import { startCase } from 'lodash';
+import { compact } from 'lodash';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import ArweaveID from '../../components/layout/ArweaveID/ArweaveID';
+import ArweaveID, {
+  ArweaveIdTypes,
+} from '../../components/layout/ArweaveID/ArweaveID';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useWalletState } from '../../state/contexts/WalletState';
 import { Auction, AuctionTableData, TRANSACTION_TYPES } from '../../types';
-import {
-  getNextPriceChangeTimestamp,
-  getPriceByBlockHeight,
-  handleTableSort,
-} from '../../utils';
+import { getPriceByBlockHeight, handleTableSort } from '../../utils';
 import {
   ARNS_REGISTRY_ADDRESS,
   AVERAGE_BLOCK_TIME_MS,
@@ -22,8 +20,10 @@ import eventEmitter from '../../utils/events';
 import { useIsMobile } from '../useIsMobile/useIsMobile';
 
 export function useAuctionsTable() {
-  const [{ blockHeight, arweaveDataProvider }, dispatchGlobalState] =
-    useGlobalState();
+  const [
+    { blockHeight, arweaveDataProvider, ioTicker, lastBlockUpdateTimestamp },
+    dispatchGlobalState,
+  ] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] =
@@ -43,10 +43,10 @@ export function useAuctionsTable() {
   }, [walletAddress]);
 
   useEffect(() => {
-    if (blockHeight) {
+    if (blockHeight && lastBlockUpdateTimestamp) {
       buildAuctionRows(auctionData, blockHeight);
     }
-  }, [auctionData, blockHeight]);
+  }, [auctionData, blockHeight, lastBlockUpdateTimestamp]);
 
   async function load() {
     try {
@@ -153,7 +153,12 @@ export function useAuctionsTable() {
             className="flex"
             style={{ alignItems: 'center', height: '100%' }}
           >
-            <ArweaveID id={val} shouldLink characterCount={12} />
+            <ArweaveID
+              id={val}
+              shouldLink
+              characterCount={12}
+              type={ArweaveIdTypes.ADDRESS}
+            />
           </span>
         ),
         onHeaderCell: () => {
@@ -218,7 +223,7 @@ export function useAuctionsTable() {
         className: 'white assets-table-header',
         render: (val: number) => (
           <span style={{ whiteSpace: 'nowrap' }}>
-            {val.toLocaleString()} IO
+            {val.toLocaleString()} {ioTicker}
           </span>
         ),
         onHeaderCell: () => {
@@ -226,52 +231,6 @@ export function useAuctionsTable() {
             onClick: () => {
               handleTableSort<AuctionTableData>({
                 key: 'currentPrice',
-                isAsc: sortAscending,
-                rows,
-              });
-              // forces update of rows
-              setRows([...rows]);
-              setSortOrder(!sortAscending);
-            },
-          };
-        },
-      },
-      {
-        responsive: ['lg'],
-        title: (
-          <button
-            className="flex-row pointer grey"
-            style={{ gap: '0.5em' }}
-            onClick={() => setSortField('nextPriceUpdate')}
-          >
-            <span>Next price adj.</span>
-          </button>
-        ),
-        dataIndex: 'nextPriceUpdate',
-        key: 'nextPriceUpdate',
-        width: 'fit-content',
-        className: 'white assets-table-header',
-        render: (val: number) => (
-          <span
-            className="white flex flex-row"
-            style={{ gap: '0px', height: 'fit-content' }}
-          >
-            <Countdown
-              value={+val}
-              valueStyle={{
-                fontSize: '15px',
-                color: 'var(--text-white)',
-              }}
-              format="m"
-            />
-            &nbsp;min
-          </span>
-        ),
-        onHeaderCell: () => {
-          return {
-            onClick: () => {
-              handleTableSort<AuctionTableData>({
-                key: 'nextPriceUpdate',
                 isAsc: sortAscending,
                 rows,
               });
@@ -347,11 +306,6 @@ export function useAuctionsTable() {
       (startHeight + settings.auctionDuration - blockHeight) *
         AVERAGE_BLOCK_TIME_MS; // approximate expiration date in milliseconds
 
-    const nextPriceUpdateTimestamp = getNextPriceChangeTimestamp({
-      currentBlockHeight: blockHeight,
-      prices,
-    });
-
     const data = {
       name,
       key: `${name}-${type}`,
@@ -359,7 +313,6 @@ export function useAuctionsTable() {
       initiator,
       isActive,
       closingDate: expirationDateMilliseconds,
-      nextPriceUpdate: nextPriceUpdateTimestamp,
       // allows us to not query for new prices and use previous net call to find the new price
       currentPrice: Math.round(getPriceByBlockHeight(prices, blockHeight)),
     };
@@ -380,27 +333,33 @@ export function useAuctionsTable() {
     }
     itemCount.current = domainsInAuction.length;
     itemsLoaded.current = 0;
-    const fetchedAuctions = [];
-    /**
-     * NOTE: We were previously doing this concurrently, but it was causing some auction objects to fail to load. Ideally the endpoint on the service provides a batch request, but for now we will do this sequentially.
-     */
-    for (const domain of domainsInAuction) {
-      const auction = await arweaveDataProvider
-        .getAuction({
-          domain,
-        })
-        .catch((e) => console.debug(e));
-      if (!auction) {
-        continue;
-      }
-      if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
-      setPercentLoaded(
-        Math.round((itemsLoaded.current / itemCount.current) * 100),
-      );
-      fetchedAuctions.push(auction);
-    }
+    const fetchedAuctions: (Auction | undefined)[] = await Promise.all(
+      domainsInAuction.map((domain) => {
+        return arweaveDataProvider
+          .getAuction({
+            domain,
+          })
+          .catch((e) => {
+            console.debug('Failed to load auction', e);
+            eventEmitter.emit(
+              'error',
+              new Error(
+                `Failed to load for '${domain}'. You may need to refresh to see the latest data.`,
+              ),
+            );
+            return undefined;
+          })
+          .finally(() => {
+            itemCount.current++;
+            setPercentLoaded(
+              Math.round((itemsLoaded.current / itemCount.current) * 100),
+            );
+          });
+      }),
+    );
 
-    return fetchedAuctions.filter((a) => a !== undefined);
+    // remove empty auctions
+    return compact(fetchedAuctions);
   }
 
   function buildAuctionRows(data: Auction[], blockHeight: number) {

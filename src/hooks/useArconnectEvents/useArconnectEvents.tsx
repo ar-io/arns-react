@@ -1,6 +1,8 @@
+import { ArConnectWalletConnector } from '@src/services/wallets';
 import { useEffect, useState } from 'react';
 
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
+import { dispatchNewGateway } from '../../state/actions';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useWalletState } from '../../state/contexts/WalletState';
 
@@ -19,11 +21,16 @@ function useArconnectEvents() {
 
     window.addEventListener('arweaveWalletLoaded', arweaveWalletLoadedListener);
 
-    const gatewayListener = (e: any) => {
-      dispatchGlobalState({
-        type: 'setGateway',
-        payload: e.host,
-      });
+    const gatewayListener = (e: {
+      host: string;
+      port: number;
+      protocol: string;
+    }) => {
+      dispatchNewGateway(
+        e?.host,
+        wallet ?? new ArConnectWalletConnector(),
+        dispatchGlobalState,
+      );
     };
 
     const addressListener = () => {

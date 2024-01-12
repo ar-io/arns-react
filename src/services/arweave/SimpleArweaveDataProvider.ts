@@ -10,6 +10,7 @@ import {
 } from '../../utils/constants';
 import { ArweaveTransactionID } from './ArweaveTransactionID';
 
+const ACCEPTABLE_STATUSES = new Set([200, 202]);
 export class SimpleArweaveDataProvider implements ArweaveDataProvider {
   private _arweave: Arweave;
   private _ar: Ar = new Ar();
@@ -19,9 +20,12 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
   }
 
   async getArBalance(wallet: ArweaveTransactionID): Promise<number> {
-    const winstonBalance = await this._arweave.wallets.getBalance(
-      wallet.toString(),
-    );
+    const winstonBalance = await withExponentialBackoff({
+      fn: () => this._arweave.wallets.getBalance(wallet.toString()),
+      shouldRetry: (balance) => !balance,
+      initialDelay: 500,
+      maxTries: 3,
+    });
     return +this._ar.winstonToAr(winstonBalance);
   }
 
@@ -84,7 +88,7 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
     }
 
     const { status, data } = await this._arweave.api.get(`/tx/${ids}/status`);
-    if (status !== 200) {
+    if (!ACCEPTABLE_STATUSES.has(status)) {
       throw Error('Failed fetch confirmations for transaction id.');
     }
     return {
@@ -113,7 +117,7 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
       data: headers,
     }: { status: number; data: TransactionHeaders } =
       await this._arweave.api.get(`/tx/${id.toString()}`);
-    if (status !== 200) {
+    if (!ACCEPTABLE_STATUSES.has(status)) {
       throw Error(`Transaction ID not found. Try again. Status: ${status}`);
     }
     return headers;
@@ -168,19 +172,21 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
       const txPromise = this._arweave.api
         .get(`/tx/${targetAddress.toString()}`)
         .then((res: ResponseWithData<TransactionHeaders>) =>
-          res.status === 200 ? res.data : undefined,
+          ACCEPTABLE_STATUSES.has(res.status) ? res.data : undefined,
         );
 
       const balancePromise = this._arweave.api
         .get(`/wallet/${targetAddress.toString()}/balance`)
         .then((res: ResponseWithData<number>) =>
-          res.status === 200 ? res.data > 0 : undefined,
+          ACCEPTABLE_STATUSES.has(res.status) ? res.data > 0 : undefined,
         );
 
       const gqlPromise = this._arweave.api
         .post(`/graphql`, transactionByOwnerQuery(targetAddress))
         .then((res: ResponseWithData<any>) =>
-          res.status === 200 ? res.data.data.transactions.edges : [],
+          ACCEPTABLE_STATUSES.has(res.status)
+            ? res.data.data.transactions.edges
+            : [],
         );
 
       const [isTransaction, balance, hasTransactions] = await Promise.all([

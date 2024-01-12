@@ -55,7 +55,7 @@ function AuctionChart({
   showAuctionExplainer?: boolean;
 }) {
   const [
-    { blockHeight: currentBlockHeight, arweaveDataProvider },
+    { blockHeight: currentBlockHeight, arweaveDataProvider, ioTicker },
     dispatchGlobalState,
   ] = useGlobalState();
   const chartRef = useRef<ChartJSOrUndefined>(null);
@@ -68,6 +68,8 @@ function AuctionChart({
   const blockHeightLabelRef = useRef<HTMLDivElement>(null);
   const pointRef = useRef<HTMLDivElement>(null);
   const dashedLineRef = useRef<HTMLDivElement>(null);
+  const ceilingLineRef = useRef<HTMLDivElement>(null);
+  const floorLineRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!auctionInfo) {
@@ -118,6 +120,23 @@ function AuctionChart({
       if (!point || !tooltip) {
         return;
       }
+
+      const setFloorAndCeilingLines = () => {
+        if (ceilingLineRef.current && floorLineRef.current && auctionInfo) {
+          const ceilingLine = ceilingLineRef.current;
+          const floorLine = floorLineRef.current;
+          const ceilingLineY = chart.scales.y.getPixelForValue(
+            auctionInfo.startPrice,
+          );
+          const floorLineY = chart.scales.y.getPixelForValue(
+            auctionInfo.floorPrice,
+          );
+
+          ceilingLine.style.top = `${ceilingLineY}px`;
+          floorLine.style.top = `${floorLineY}px`;
+        }
+      };
+
       tooltip.setActiveElements(
         [
           {
@@ -131,7 +150,7 @@ function AuctionChart({
         ],
         { x: point.x, y: point.y },
       );
-
+      setFloorAndCeilingLines();
       chart.update();
       updateToolTip(tooltip);
     } catch (error) {
@@ -206,7 +225,7 @@ function AuctionChart({
 
       tooltipDiv.childNodes[0].textContent = `${formattedDate}*`;
       tooltipDiv.childNodes[1].textContent =
-        `${Math.round(io).toLocaleString()} IO` ?? '';
+        `${Math.round(io).toLocaleString()} ${ioTicker}` ?? '';
 
       blockHeightLabelDiv.textContent = `Block ${block}`;
 
@@ -272,11 +291,12 @@ function AuctionChart({
             className="flex flex-column"
             style={{ gap: 0, width: 73, paddingTop: 12 }}
           >
-            {`${formatIO(auctionInfo.startPrice)} IO`}
+            {`${formatIO(auctionInfo.startPrice)} ${ioTicker}`}
             <div>ceiling</div>
           </div>
 
           <div
+            ref={ceilingLineRef}
             style={{
               position: 'absolute',
               top: 20,
@@ -291,11 +311,12 @@ function AuctionChart({
             className="flex flex-column"
             style={{ gap: 0, width: 73, paddingBottom: 18 }}
           >
-            {`${formatIO(auctionInfo.floorPrice)} IO`}
+            {`${formatIO(auctionInfo.floorPrice)} ${ioTicker}`}
             <div>floor</div>
           </div>
 
           <div
+            ref={floorLineRef}
             style={{
               position: 'absolute',
               bottom: 40,

@@ -1,8 +1,9 @@
 import { PermissionType } from 'arconnect';
 import { ApiConfig } from 'arweave/node/lib/api';
+import { CustomSignature, SignatureType, Transaction } from 'warp-contracts';
 
 import { ARCONNECT_UNRESPONSIVE_ERROR } from '../../components/layout/Notifications/Notifications';
-import { ArweaveWalletConnector } from '../../types';
+import { ArweaveWalletConnector, WALLET_TYPES } from '../../types';
 import { executeWithTimeout } from '../../utils';
 import { ArweaveTransactionID } from '../arweave/ArweaveTransactionID';
 
@@ -16,9 +17,17 @@ export const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [
 
 export class ArConnectWalletConnector implements ArweaveWalletConnector {
   private _wallet: Window['arweaveWallet'];
+  signer: CustomSignature;
 
   constructor() {
-    this._wallet = window.arweaveWallet;
+    this._wallet = window?.arweaveWallet;
+    this.signer = {
+      signer: async (transaction: Transaction) => {
+        const signedTransaction = await this._wallet.sign(transaction);
+        Object.assign(transaction, signedTransaction);
+      },
+      type: 'arweave' as SignatureType,
+    };
   }
 
   // The API has been shown to be unreliable, so we call each function with a timeout
@@ -32,16 +41,19 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
     const res = await executeWithTimeout(() => fn(), 3000);
 
     if (res === 'timeout') {
-      throw {
-        name: 'ArConnect',
-        message: ARCONNECT_UNRESPONSIVE_ERROR,
-      };
+      throw new Error(ARCONNECT_UNRESPONSIVE_ERROR);
     }
     return res as T;
   }
 
   async connect(): Promise<void> {
+    if (!window.arweaveWallet) {
+      window.open('https://arconnect.io');
+
+      return;
+    }
     // confirm they have the extension installed
+    localStorage.setItem('walletType', WALLET_TYPES.ARCONNECT);
     const permissions = await this.safeArconnectApiExecutor(
       this._wallet.getPermissions,
     );
@@ -57,7 +69,7 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
       return;
     }
 
-    return this._wallet
+    await this._wallet
       .connect(
         ARCONNECT_WALLET_PERMISSIONS,
         {
@@ -66,12 +78,15 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
         // TODO: add arweave configs here
       )
       .catch((err) => {
+        localStorage.removeItem('walletType');
         console.error(err);
         throw { name: 'ArConnect', message: 'User cancelled authentication.' };
       });
+    this.signer.signer.bind(this);
   }
 
   async disconnect(): Promise<void> {
+    localStorage.removeItem('walletType');
     return this.safeArconnectApiExecutor(this._wallet.disconnect);
   }
 

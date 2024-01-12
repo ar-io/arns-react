@@ -4,7 +4,7 @@ import { useIsMobile } from '../../../hooks';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
-  PDNTContractJSON,
+  ANTContractJSON,
   SetControllerPayload,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
@@ -28,7 +28,7 @@ function AddControllerModal({
   const isMobile = useIsMobile();
   const [toAddress, setToAddress] = useState<string>('');
   const [isValidAddress, setIsValidAddress] = useState<boolean>();
-  const [state, setState] = useState<PDNTContractJSON>();
+  const [state, setState] = useState<ANTContractJSON>();
 
   // TODO: add "transfer to another account" dropdown
 

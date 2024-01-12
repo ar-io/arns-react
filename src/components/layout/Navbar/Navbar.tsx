@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
@@ -8,11 +9,38 @@ import './styles.css';
 
 function NavBar() {
   const [, dispatchRegisterState] = useRegistrationState();
+  const [online, setOnline] = useState(navigator.onLine);
+
+  useEffect(() => {
+    window.addEventListener('online', () => setOnline(true));
+    window.addEventListener('offline', () => setOnline(false));
+    return () => {
+      window.removeEventListener('online', () => setOnline(true));
+      window.removeEventListener('offline', () => setOnline(false));
+    };
+  }, []);
 
   return (
-    <div className="flex flex-column" style={{ gap: '0px' }}>
-      <div className="navbar">
-        <div className="flex-row flex-left">
+    <div
+      className="flex flex-column"
+      style={{ gap: '0px', position: 'relative' }}
+    >
+      {online ? null : (
+        <div
+          className="flex flex-row center"
+          style={{
+            backgroundColor: 'var(--accent)',
+            padding: '10px',
+          }}
+        >
+          <span className="text black bold">
+            We can&apos;t connect to the Internet. Please check your connection
+            and try again.
+          </span>
+        </div>
+      )}
+      <div className="navbar" style={{ position: 'relative' }}>
+        <div className="flex-row flex-left" style={{ width: 'fit-content' }}>
           <Link
             className="hover"
             to="/"
@@ -37,6 +65,7 @@ function NavBar() {
             </div>
           </Link>
         </div>
+
         <NavGroup />
       </div>
       <Breadcrumbs />

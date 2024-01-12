@@ -11,9 +11,17 @@ const NavGroup = () => {
   const [{ wallet, walletAddress }] = useWalletState();
 
   return (
-    <div className="flex-row flex-right flex-padding">
+    <div
+      className="flex-row flex-right flex-padding"
+      style={{ width: 'fit-content' }}
+    >
       {!isMobile ? (
         <>
+          <NavBarLink
+            path={'https://ar.io/arns'}
+            linkText={'Need test tokens?'}
+            target={'_blank'}
+          />
           {Object.entries(ROUTES).map(([key, value]) => {
             if (!value.index && !value.protected)
               return (

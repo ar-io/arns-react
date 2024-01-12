@@ -1,23 +1,26 @@
-import { Tags } from 'warp-contracts';
+import { Contract, InteractionResult, Tags } from 'warp-contracts';
 
 import {
+  ANTContractDomainRecord,
+  ANTContractJSON,
+  ARNSContractJSON,
+  ARNSRecordEntry,
   ArweaveDataProvider,
   Auction,
   AuctionSettings,
   ContractInteraction,
   INTERACTION_PRICE_PARAMS,
-  PDNSContractJSON,
-  PDNSRecordEntry,
-  PDNTContractDomainRecord,
-  PDNTContractJSON,
   SmartweaveContractCache,
   SmartweaveContractInteractionProvider,
   TRANSACTION_TYPES,
 } from '../../types';
 import { byteSize, userHasSufficientBalance } from '../../utils';
-import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
+import {
+  ARNS_REGISTRY_ADDRESS,
+  DEFAULT_ARNS_REGISTRY_STATE,
+} from '../../utils/constants';
+import { ANTContract } from './ANTContract';
 import { ArweaveTransactionID } from './ArweaveTransactionID';
-import { PDNTContract } from './PDNTContract';
 
 export class ArweaveCompositeDataProvider
   implements
@@ -46,7 +49,7 @@ export class ArweaveCompositeDataProvider
     return this._arweaveProvider.getArBalance(wallet);
   }
 
-  async getContractState<T extends PDNSContractJSON | PDNTContractJSON>(
+  async getContractState<T extends ARNSContractJSON | ANTContractJSON>(
     contractTxId: ArweaveTransactionID,
   ): Promise<T> {
     return this._contractProvider.getContractState<T>(contractTxId);
@@ -78,17 +81,21 @@ export class ArweaveCompositeDataProvider
     }
 
     if (contractTxId === ARNS_REGISTRY_ADDRESS) {
+      const ioTicker =
+        (await this.getStateField({
+          contractTxId,
+          field: 'ticker',
+        }).catch(() => undefined)) ?? DEFAULT_ARNS_REGISTRY_STATE.ticker;
       const ioBalance = await this._contractProvider.getTokenBalance(
         walletAddress,
         ARNS_REGISTRY_ADDRESS,
       );
-      if (
-        !userHasSufficientBalance({
-          balances: { io: +ioBalance },
-          costs: { io: +payload.qty },
-        })
-      ) {
-        throw new Error('Insufficient IO balance to perform transaction');
+      const balanceErrors = userHasSufficientBalance({
+        balances: { [ioTicker]: +ioBalance },
+        costs: { [ioTicker]: +payload.qty },
+      });
+      if (balanceErrors.length) {
+        throw new Error(`Insufficient token balance to perform transaction`);
       }
     }
 
@@ -161,7 +168,7 @@ export class ArweaveCompositeDataProvider
   }: {
     walletAddress: ArweaveTransactionID;
     srcCodeTransactionId: ArweaveTransactionID;
-    initialState: PDNTContractJSON;
+    initialState: ANTContractJSON;
     tags?: Tags;
   }): Promise<string> {
     return await this._interactionProvider.deployContract({
@@ -187,7 +194,7 @@ export class ArweaveCompositeDataProvider
     walletAddress: ArweaveTransactionID;
     registryId: ArweaveTransactionID;
     srcCodeTransactionId: ArweaveTransactionID;
-    initialState: PDNTContractJSON;
+    initialState: ANTContractJSON;
     domain: string;
     type: TRANSACTION_TYPES;
     years?: number;
@@ -302,11 +309,11 @@ export class ArweaveCompositeDataProvider
   }: {
     domain: string;
     contractTxId?: ArweaveTransactionID;
-  }): Promise<PDNSRecordEntry> {
+  }): Promise<ARNSRecordEntry> {
     return this._contractProvider.getRecord({ domain, contractTxId });
   }
 
-  async getRecords<T extends PDNSRecordEntry | PDNTContractDomainRecord>({
+  async getRecords<T extends ARNSRecordEntry | ANTContractDomainRecord>({
     contractTxId = ARNS_REGISTRY_ADDRESS,
     filters,
     address,
@@ -342,7 +349,43 @@ export class ArweaveCompositeDataProvider
   }
   async buildANTContract(
     contractTxId: ArweaveTransactionID,
-  ): Promise<PDNTContract> {
+  ): Promise<ANTContract> {
     return this._contractProvider.buildANTContract(contractTxId);
+  }
+  async getStateField({
+    contractTxId,
+    field,
+  }: {
+    contractTxId: ArweaveTransactionID;
+    field: string;
+  }): Promise<any> {
+    return this._contractProvider.getStateField({ contractTxId, field });
+  }
+  async unsafeWriteTransaction({
+    contractTxId,
+    payload,
+  }: {
+    contractTxId: ArweaveTransactionID;
+    payload: { [x: string]: any; function: string };
+  }): Promise<ArweaveTransactionID | undefined> {
+    return this._interactionProvider.unsafeWriteTransaction({
+      contractTxId,
+      payload,
+    });
+  }
+  async dryWrite({
+    walletAddress,
+    contract,
+    payload,
+  }: {
+    walletAddress: ArweaveTransactionID;
+    contract: Contract<any>;
+    payload: { [x: string]: any; function: string };
+  }): Promise<InteractionResult<any, any> | undefined> {
+    return this._interactionProvider.dryWrite({
+      walletAddress,
+      contract,
+      payload,
+    });
   }
 }

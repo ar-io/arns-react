@@ -5,20 +5,20 @@ import { useIsMobile } from '../../../hooks';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
-  PDNTContractJSON,
+  ANTContractJSON,
   SetRecordPayload,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import {
   formatForMaxCharCount,
+  isARNSDomainNameValid,
   isArweaveTransactionID,
-  isPDNSDomainNameValid,
   validateTTLSeconds,
 } from '../../../utils';
 import {
+  ARNS_TX_ID_ENTRY_REGEX,
   MAX_TTL_SECONDS,
   MIN_TTL_SECONDS,
-  PDNS_TX_ID_ENTRY_REGEX,
 } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
@@ -39,7 +39,7 @@ function EditUndernameModal({
 }) {
   const [{ arweaveDataProvider }] = useGlobalState();
   const isMobile = useIsMobile();
-  const [state, setState] = useState<PDNTContractJSON>();
+  const [state, setState] = useState<ANTContractJSON>();
 
   const targetIdRef = useRef<HTMLInputElement>(null);
   const ttlRef = useRef<HTMLInputElement>(null);
@@ -136,7 +136,7 @@ function EditUndernameModal({
                   value={targetId}
                   setValue={setTargetId}
                   catchInvalidInput={true}
-                  customPattern={PDNS_TX_ID_ENTRY_REGEX}
+                  customPattern={ARNS_TX_ID_ENTRY_REGEX}
                   validationPredicates={{
                     [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
                       fn: (id: string) =>
@@ -189,7 +189,7 @@ function EditUndernameModal({
         onClose={closeModal}
         onNext={
           isArweaveTransactionID(targetId) &&
-          isPDNSDomainNameValid({ name: undername }) &&
+          isARNSDomainNameValid({ name: undername }) &&
           ttlSeconds >= MIN_TTL_SECONDS &&
           ttlSeconds <= MAX_TTL_SECONDS
             ? () => handlePayloadCallback()

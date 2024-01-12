@@ -2,17 +2,17 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { useIsMobile } from '../../../hooks';
+import { ANTContract } from '../../../services/arweave/ANTContract';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
-import { PDNTContract } from '../../../services/arweave/PDNTContract';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
+  ARNSRecordEntry,
   INTERACTION_NAMES,
   INTERACTION_TYPES,
   IncreaseUndernamesPayload,
-  PDNSRecordEntry,
 } from '../../../types';
-import { isPDNSDomainNameValid, lowerCaseDomain, sleep } from '../../../utils';
+import { isARNSDomainNameValid, lowerCaseDomain, sleep } from '../../../utils';
 import {
   ARNS_REGISTRY_ADDRESS,
   MAX_UNDERNAME_COUNT,
@@ -28,15 +28,15 @@ function UpgradeUndernames() {
   const isMobile = useIsMobile();
   const location = useLocation();
   const navigate = useNavigate();
-  const [{ arweaveDataProvider }] = useGlobalState();
+  const [{ arweaveDataProvider, ioTicker }] = useGlobalState();
   const name = location.pathname.split('/').at(-2);
   const [, dispatchTransactionState] = useTransactionState();
-  const [record, setRecord] = useState<PDNSRecordEntry>();
-  const [antContract, setAntContract] = useState<PDNTContract>();
+  const [record, setRecord] = useState<ARNSRecordEntry>();
+  const [antContract, setAntContract] = useState<ANTContract>();
   // min count of 1 ~ contract rule
-  const [newUndernameCount, setNewUndernameCount] = useState<number>(1);
+  const [newUndernameCount, setNewUndernameCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
-  const [fee, setFee] = useState<number | undefined>();
+  const [fee, setFee] = useState<number | undefined>(0);
 
   useEffect(() => {
     onLoad();
@@ -48,6 +48,16 @@ function UpgradeUndernames() {
     }
     setFee(undefined);
     const updateFee = async () => {
+      if (newUndernameCount === 0) {
+        setFee(0);
+        return;
+      }
+      if (Number.isNaN(newUndernameCount)) {
+        eventEmitter.emit(
+          'error',
+          new Error('Invalid undername count, must be a number greater than 0'),
+        );
+      }
       const price = await arweaveDataProvider
         .getPriceForInteraction({
           interactionName: INTERACTION_NAMES.INCREASE_UNDERNAME_COUNT,
@@ -59,7 +69,7 @@ function UpgradeUndernames() {
         .catch(() => {
           eventEmitter.emit(
             'error',
-            new Error('Unable to get price for extend lease'),
+            new Error('Unable to get price for undername increase'),
           );
           return -1;
         });
@@ -73,7 +83,7 @@ function UpgradeUndernames() {
   async function onLoad() {
     try {
       setLoading(true);
-      if (name && isPDNSDomainNameValid({ name: lowerCaseDomain(name) })) {
+      if (name && isARNSDomainNameValid({ name: lowerCaseDomain(name) })) {
         const record = await arweaveDataProvider.getRecord({
           domain: lowerCaseDomain(name),
         });
@@ -148,8 +158,8 @@ function UpgradeUndernames() {
             </span>
           </div>
           <Counter
-            maxValue={MAX_UNDERNAME_COUNT}
-            minValue={1}
+            maxValue={MAX_UNDERNAME_COUNT - record.undernames}
+            minValue={0}
             value={newUndernameCount}
             setValue={setNewUndernameCount}
             containerStyle={{
@@ -168,12 +178,13 @@ function UpgradeUndernames() {
               margin: '0px 10px',
               fontSize: '14px',
             }}
+            editable={true}
           />
         </div>
         <TransactionCost
           ioRequired={true}
           fee={{
-            io: fee,
+            [ioTicker]: fee,
             ar: 0,
           }}
           info={
@@ -195,8 +206,8 @@ function UpgradeUndernames() {
                 className="flex flex-column flex-left grey text"
                 style={{ textAlign: 'left', lineHeight: '1.5em' }}
               >
-                Increasing your undernames is paid in IO tokens, and an Arweave
-                network fee paid in AR tokens.
+                Increasing your undernames is paid in {ioTicker} tokens, and an
+                Arweave network fee paid in AR tokens.
               </span>
             </div>
           }

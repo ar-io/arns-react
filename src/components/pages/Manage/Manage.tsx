@@ -18,12 +18,12 @@ function Manage() {
 
   const [percent, setPercentLoaded] = useState<number | undefined>();
   const {
-    isLoading: pdntTableLoading,
-    percent: percentPDNTsLoaded,
-    columns: pdntColumns,
-    rows: pdntRows,
-    sortAscending: pdntSortAscending,
-    sortField: pdntSortField,
+    isLoading: antTableLoading,
+    percent: percentANTsLoaded,
+    columns: antColumns,
+    rows: antRows,
+    sortAscending: antSortAscending,
+    sortField: antSortField,
     refresh: refreshDomains,
   } = useWalletANTs();
   const {
@@ -50,11 +50,11 @@ function Manage() {
 
   useEffect(() => {
     if (path === 'ants') {
-      setPercentLoaded(percentPDNTsLoaded);
+      setPercentLoaded(percentANTsLoaded);
     } else {
       setPercentLoaded(percentDomainsLoaded);
     }
-    setTableLoading(domainTableLoading || pdntTableLoading);
+    setTableLoading(domainTableLoading || antTableLoading);
   }, [
     path,
     domainSortAscending,
@@ -62,11 +62,11 @@ function Manage() {
     domainTableLoading,
     domainRows,
     percentDomainsLoaded,
-    pdntSortAscending,
-    pdntSortField,
-    pdntRows,
-    pdntTableLoading,
-    percentPDNTsLoaded,
+    antSortAscending,
+    antSortField,
+    antRows,
+    antTableLoading,
+    percentANTsLoaded,
   ]);
 
   useEffect(() => {
@@ -178,9 +178,9 @@ function Manage() {
           {!tableLoading ? (
             <Table
               prefixCls="manage-table"
-              scroll={pdntRows.length ? { x: true } : {}}
-              columns={path === 'ants' ? pdntColumns : domainColumns}
-              dataSource={(path === 'ants' ? pdntRows : domainRows) as any}
+              scroll={antRows.length ? { x: true } : {}}
+              columns={path === 'ants' ? antColumns : domainColumns}
+              dataSource={(path === 'ants' ? antRows : domainRows) as any}
               pagination={{
                 position: ['bottomCenter'],
                 rootClassName: 'table-pagination',
@@ -254,6 +254,7 @@ function Manage() {
                           boxSizing: 'content-box',
                           fontSize: '14px',
                           flexWrap: 'nowrap',
+                          color: 'var(--text-black)',
                         }}
                       >
                         Search for a Name
@@ -290,7 +291,7 @@ function Manage() {
                 />
                 {/* TODO: [PE-4637] fix infinity load percentage */}
                 {!percent
-                  ? `Querying for wallet contracts...${pdntRows.length} found`
+                  ? `Querying for wallet contracts...${antRows.length} found`
                   : `Validating contracts...${Math.round(percent)}%`}
               </div>
             </div>

@@ -1,6 +1,5 @@
 import { Badge, Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import { useIsMobile } from '../../../hooks';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
@@ -19,15 +18,14 @@ import { WalletAddress } from '../../layout/WalletAddress/WalletAddress';
 import './styles.css';
 
 function NavMenuCard() {
-  const [{ pdnsContractId, arweaveDataProvider }] = useGlobalState(); // eslint-disable-line
-  const navigate = useNavigate();
+  const [{ arnsContractId, arweaveDataProvider, ioTicker }] = useGlobalState();
   const [showMenu, setShowMenu] = useState(false);
   const [walletDetails, setWalletDetails] = useState<{
     AR: number | undefined | string;
-    IO: number | undefined | string;
+    [x: string]: number | undefined | string;
   }>({
     AR: undefined,
-    IO: undefined,
+    [ioTicker]: undefined,
   });
   const menuRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
@@ -53,14 +51,14 @@ function NavMenuCard() {
 
   function resetWalletDetails() {
     setWalletDetails({
-      IO: undefined,
+      [ioTicker]: undefined,
       AR: undefined,
     });
   }
 
   async function fetchWalletDetails(walletAddress: ArweaveTransactionID) {
     const ioBalance = await arweaveDataProvider.getContractBalanceForWallet(
-      pdnsContractId,
+      arnsContractId,
       walletAddress,
     );
     const registryDreStatus = await fetchDREStatus(ARNS_REGISTRY_ADDRESS);
@@ -77,7 +75,7 @@ function NavMenuCard() {
     setRegistryDreStatus(registryDreStatus);
     setWalletDetails({
       AR: formattedBalance,
-      IO: formattedIOBalance,
+      [ioTicker]: formattedIOBalance,
     });
   }
 
@@ -93,7 +91,6 @@ function NavMenuCard() {
 
   async function logout() {
     try {
-      await wallet?.disconnect();
       // reset state
       setShowMenu(false);
       dispatchWalletState({
@@ -102,8 +99,6 @@ function NavMenuCard() {
       });
     } catch (error: any) {
       eventEmitter.emit('error', error);
-    } finally {
-      navigate('/');
     }
   }
 
@@ -274,6 +269,11 @@ function NavMenuCard() {
                 >
                   {isMobile ? (
                     <>
+                      <NavBarLink
+                        path={'https://ar.io/arns'}
+                        linkText={'Need test tokens?'}
+                        target={'_blank'}
+                      />
                       {Object.entries(ROUTES).map(([key, route]) => {
                         if (!route.index && (!route.protected || walletAddress))
                           return (

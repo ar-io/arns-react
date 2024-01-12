@@ -1,9 +1,10 @@
 import { useAuctionInfo, useIsMobile } from '../../../hooks';
 import { SearchBarFooterProps } from '../../../types';
 import { isDomainReservedLength, lowerCaseDomain } from '../../../utils';
-import PDNTCard from '../../cards/PDNTCard/PDNTCard';
+import ANTCard from '../../cards/ANTCard/ANTCard';
+import { ClockClockwiseIcon } from '../../icons';
 import AuctionChart from '../AuctionChart/AuctionChart';
-import NextPriceUpdate from '../NextPriceUpdate/NextPriceUpdate';
+import BlockHeightCounter from '../BlockHeightCounter/BlockHeightCounter';
 import ReservedNameNotificationCard from '../ReservedNameNotificationCard/ReservedNameNotificationCard';
 import './styles.css';
 
@@ -21,7 +22,16 @@ function SearchBarFooter({
   if (isActiveAuction && domain) {
     return (
       <div className="flex flex-column">
-        {auction && <NextPriceUpdate auction={auction} />}
+        {auction && (
+          <BlockHeightCounter
+            prefixText={
+              <span className="flex center" style={{ gap: '10px' }}>
+                <ClockClockwiseIcon width={'18px'} height={'18px'} /> Next price
+                update:
+              </span>
+            }
+          />
+        )}
         <AuctionChart
           domain={domain}
           showAuctionExplainer={true}
@@ -51,7 +61,7 @@ function SearchBarFooter({
           <span className="flex flex-row white text-medium flex-left">
             Ownership Details:
           </span>
-          <PDNTCard
+          <ANTCard
             domain={domain}
             contractTxId={contractTxId}
             record={record}
