@@ -31,6 +31,15 @@ const sentry =
         tracesSampleRate: 1.0,
         environment: ENVIRONMENT,
         beforeSend(event) {
+          if (shouldFilterEvent(event)) {
+            return null;
+          }
+          return sanitizeEvent(event);
+        },
+        beforeSendTransaction(event) {
+          if (shouldFilterEvent(event)) {
+            return null;
+          }
           return sanitizeEvent(event);
         },
       })
@@ -38,7 +47,21 @@ const sentry =
 
 export default sentry;
 
-const sanitizeEvent = (event: Sentry.Event): Sentry.Event => {
+const filterMessages = new Set([
+  'chrome-extension://aflkmfhebedbjioipglgcbcmnbpgliof/injected.js',
+]);
+
+const shouldFilterEvent = (event: Sentry.Event): boolean => {
+  const isFiltered = [...filterMessages].some((message) =>
+    event.exception?.values?.some((value) =>
+      value.value?.includes(message.toLowerCase()),
+    ),
+  );
+
+  return isFiltered;
+};
+
+const sanitizeEvent = (event: Sentry.Event): Sentry.Event | null => {
   // Remove user's IP address
   if (event.request) {
     if (event.request.headers) {

@@ -20,15 +20,6 @@ export default function Notifications() {
   function handleError(error: Error | { message: string; name: string }) {
     // TODO: check for duplicate errors
     if (error instanceof Error) {
-      if (
-        JSON.stringify(error.stack).includes(
-          'chrome-extension://aflkmfhebedbjioipglgcbcmnbpgliof/injected.js',
-        )
-      ) {
-        // we want to ignore errors from this extension
-        // https://permanent-data-solutions-e7.sentry.io/issues/4774988645/?project=4504894571085824&query=is%3Aunresolved&referrer=issue-stream&statsPeriod=14d&stream_index=15
-        return;
-      }
       const sentryID = Sentry.captureException(error);
       console.debug('Error sent to sentry:', error, sentryID);
     }
