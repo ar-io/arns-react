@@ -23,8 +23,9 @@ function CopyTextButton({
 
   async function handleCopy() {
     if (!document.hasFocus()) {
-      // this is an intermittent non-emitting notifying error that is hard to reproduce, but this SHOULD fix it
-      //https://permanent-data-solutions-e7.sentry.io/issues/4421686865/?project=4504894571085824&query=is%3Aunresolved&referrer=issue-stream&statsPeriod=14d&stream_index=3
+      /** this is an intermittent non-emitting notifying error that is hard to reproduce, but this SHOULD fix it
+       * NotAllowedError: Document not focused
+       */
       return;
     }
     setTextCopied(true);
