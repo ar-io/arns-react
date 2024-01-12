@@ -1,3 +1,4 @@
+import { ArweaveAppError } from '@src/utils/errors';
 import React, {
   Dispatch,
   createContext,
@@ -70,11 +71,12 @@ export default function WalletStateProvider({
 
     const removeWalletState = () => {
       if (walletAddress) {
-        eventEmitter.emit('error', {
-          name: 'Arweave.app',
-          message:
+        eventEmitter.emit(
+          'error',
+          new ArweaveAppError(
             'Arweave.app disconnected unexpectedly, please reconnect. You may need to keep the popup open to stay connected.',
-        });
+          ),
+        );
         dispatchWalletState({
           type: 'setWalletAddress',
           payload: undefined,

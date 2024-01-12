@@ -1,4 +1,4 @@
-import { WalletNotInstalledError } from '@src/utils/errors';
+import { ArconnectError, WalletNotInstalledError } from '@src/utils/errors';
 import { PermissionType } from 'arconnect';
 import { ApiConfig } from 'arweave/node/lib/api';
 import { CustomSignature, SignatureType, Transaction } from 'warp-contracts';
@@ -24,17 +24,8 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
     this._wallet = window?.arweaveWallet;
     this.signer = {
       signer: async (transaction: Transaction) => {
-        const signedTransaction = await this.safeArconnectApiExecutor(() =>
-          this._wallet.sign(transaction),
-        );
-        // arconnect 0.5.5 requires this pattern, 1.0.0+ simply does this internally.
-        transaction.setSignature({
-          id: signedTransaction.id,
-          owner: signedTransaction.owner,
-          reward: signedTransaction.reward,
-          tags: signedTransaction.tags,
-          signature: signedTransaction.signature,
-        });
+        const signedTransaction = await this._wallet.sign(transaction);
+        Object.assign(transaction, signedTransaction);
       },
       type: 'arweave' as SignatureType,
     };
@@ -42,10 +33,7 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
 
   // The API has been shown to be unreliable, so we call each function with a timeout
   async safeArconnectApiExecutor<T>(fn: () => T): Promise<T> {
-    if (!this._wallet && window?.arweaveWallet) {
-      this._wallet = window.arweaveWallet;
-      this.signer.signer.bind(this);
-    } else if (!this._wallet)
+    if (!this._wallet)
       throw new WalletNotInstalledError('Arconnect is not installed.');
     /**
      * This is here because occasionally arconnect injects but does not initialize internally properly,
@@ -95,7 +83,7 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
       .catch((err) => {
         localStorage.removeItem('walletType');
         console.error(err);
-        throw { name: 'ArConnect', message: 'User cancelled authentication.' };
+        throw new ArconnectError('User cancelled authentication.');
       });
     this.signer.signer.bind(this);
   }
