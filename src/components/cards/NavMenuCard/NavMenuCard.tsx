@@ -206,7 +206,7 @@ function NavMenuCard() {
                               wrapperStyle={{ margin: '0px' }}
                             />
                           )}
-                          {key === 'IO' ? (
+                          {key === ioTicker ? (
                             <button
                               className="flex pointer"
                               onClick={() =>

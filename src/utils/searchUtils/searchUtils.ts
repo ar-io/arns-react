@@ -6,6 +6,7 @@ import { ANTContractJSON } from '../../types';
 import {
   APPROVED_CHARACTERS_REGEX,
   ARNS_NAME_REGEX,
+  DRE_URL,
   RESERVED_NAME_LENGTH,
   TRAILING_DASH_UNDERSCORE_REGEX,
   UNDERNAME_REGEX,
@@ -151,9 +152,7 @@ export async function fetchDREStatus(
   contractTxId: ArweaveTransactionID,
 ): Promise<Record<string, any> | undefined> {
   try {
-    const res = await fetch(
-      `https://dre-1.warp.cc/contract/?id=${contractTxId.toString()}`,
-    );
+    const res = await fetch(`${DRE_URL}/${contractTxId.toString()}`);
     const data = await res.json();
 
     return data;

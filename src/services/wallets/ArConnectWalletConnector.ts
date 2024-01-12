@@ -109,7 +109,6 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
     type: 'asset' | 'collectible',
   ): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error  because the arconnect types are wrong
     return this._wallet.addToken(contractTxId.toString(), type);
   }
 }

@@ -1,6 +1,6 @@
 import { ContractInteractionError } from '@src/utils/errors';
 import eventEmitter from '@src/utils/events';
-import Arweave from 'arweave/node/common';
+import Arweave from 'arweave';
 import {
   ArWallet,
   Contract,
@@ -62,7 +62,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
         ...defaultCacheOptions,
       },
       true,
-      arweave,
+      arweave as any,
     ).use(new DeployPlugin());
     this._cache = cache;
     this._walletConnector = walletConnector;

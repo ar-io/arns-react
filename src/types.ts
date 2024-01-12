@@ -347,6 +347,10 @@ export interface ArweaveWalletConnector {
   getWalletAddress(): Promise<ArweaveTransactionID>;
   getGatewayConfig(): Promise<ApiConfig>;
   signer: CustomSignature;
+  addToken(
+    contractTxId: ArweaveTransactionID,
+    type: 'asset' | 'collectible',
+  ): Promise<void>;
 }
 
 export enum WALLET_TYPES {

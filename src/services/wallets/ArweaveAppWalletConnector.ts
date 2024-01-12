@@ -85,4 +85,14 @@ export class ArweaveAppWalletConnector implements ArweaveWalletConnector {
       protocol: 'https',
     };
   }
+  /* eslint-disable */
+  async addToken(
+    contractTxId: ArweaveTransactionID,
+    type: 'asset' | 'collectible',
+  ): Promise<void> {
+    throw new Error(
+      'Unable to add tokens to arweave.app, please use ArConnect.',
+    );
+  }
+  /* eslint-enable */
 }
