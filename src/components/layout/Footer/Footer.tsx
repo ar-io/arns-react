@@ -1,12 +1,11 @@
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { Tooltip } from 'antd';
 import { useState } from 'react';
-import { FaGithub } from 'react-icons/fa';
-import { FaDiscord } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
 import { useIsMobile } from '../../../hooks';
 import { ARIO_DISCORD_LINK } from '../../../utils/constants';
+import { DiscordIcon, GithubIcon } from '../../icons';
 import { BrandLogo, CloseIcon } from '../../icons';
 import './styles.css';
 
@@ -113,7 +112,7 @@ function Footer() {
             className="button grey text center hover pointer"
             onClick={() => window.open('https://github.com/ar-io/', '_blank')}
           >
-            <FaGithub style={{ fontSize: 20 }} />
+            <GithubIcon style={{ width: 20, fill: 'var(--text-grey)' }} />
           </button>
         </Tooltip>
         <Tooltip
@@ -126,7 +125,7 @@ function Footer() {
             className="button grey text center hover pointer"
             onClick={() => window.open(ARIO_DISCORD_LINK, '_blank')}
           >
-            <FaDiscord style={{ fontSize: 20 }} />
+            <DiscordIcon style={{ width: 25, fill: 'var(--text-grey)' }} />
           </button>
         </Tooltip>
         <Tooltip

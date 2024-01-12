@@ -117,6 +117,8 @@ function ARNSCard({ domain, contractTxId }: ARNSMapping) {
           src={antDetails.image}
           key={antDetails.image}
           alt={`${domain}.${gateway}`}
+          width={'100%'}
+          height={'100%'}
         />
       )}
       <div
