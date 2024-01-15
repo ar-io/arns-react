@@ -132,6 +132,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       }).catch((e) => {
         console.error(e);
         eventEmitter.emit('error', e);
+
         useUnsafe = true; // if dry write breaks, use unsafe write to deploy the transaction
       });
       // because we are manually constructing the tags, we want to verify them immediately and always

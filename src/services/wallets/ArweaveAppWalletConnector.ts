@@ -1,4 +1,5 @@
 import { ARWEAVE_APP_API } from '@src/utils/constants';
+import { ArweaveAppError } from '@src/utils/errors';
 import { PermissionType } from 'arconnect';
 import { ReactiveConnector } from 'arweave-wallet-connector/lib/browser/Reactive';
 import { ApiConfig } from 'arweave/node/lib/api';
@@ -60,10 +61,7 @@ export class ArweaveAppWalletConnector implements ArweaveWalletConnector {
       this.signer.signer.bind(this);
     } catch (error) {
       localStorage.removeItem('walletType');
-      throw {
-        name: 'Arweave.app',
-        message: 'User cancelled authentication.',
-      };
+      throw new ArweaveAppError('User cancelled authentication.');
     }
   }
 

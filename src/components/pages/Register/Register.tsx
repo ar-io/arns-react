@@ -1,4 +1,5 @@
 import { CheckCircleFilled } from '@ant-design/icons';
+import { InsufficientFundsError, ValidationError } from '@src/utils/errors';
 import { Tooltip } from 'antd';
 import emojiRegex from 'emoji-regex';
 import { useEffect, useState } from 'react';
@@ -183,20 +184,16 @@ function RegisterNameForm() {
 
       if (balanceErrors.length) {
         balanceErrors.forEach((error: any) => {
-          eventEmitter.emit('error', {
-            message: error.message,
-            name: 'Insufficient Funds',
-          });
+          eventEmitter.emit('error', new InsufficientFundsError(error.message));
         });
         return;
       }
 
       if (feeError) throw new Error('Issue calculating transaction cost.');
       if (hasValidationErrors) {
-        throw {
-          message: 'Please fix the errors above before continuing.',
-          name: 'Validation Error',
-        };
+        throw new ValidationError(
+          'Please fix the errors above before continuing.',
+        );
       }
     } catch (error: any) {
       eventEmitter.emit('error', error);
