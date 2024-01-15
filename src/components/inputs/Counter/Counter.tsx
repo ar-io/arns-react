@@ -1,6 +1,8 @@
+import { clamp } from 'lodash';
 import { CSSProperties } from 'react';
 
 import { useLongPress } from '../../../hooks';
+import ValidationInput from '../text/ValidationInput/ValidationInput';
 import './styles.css';
 
 function Counter({
@@ -13,6 +15,7 @@ function Counter({
   detail,
   valueStyle = {},
   containerStyle = {},
+  editable,
 }: {
   value: number;
   setValue: (v: number) => void;
@@ -23,6 +26,7 @@ function Counter({
   detail?: JSX.Element | string;
   valueStyle?: CSSProperties;
   containerStyle?: CSSProperties;
+  editable?: boolean;
 }) {
   // TODO make this component generic; pass in count and setCount
   const {
@@ -70,11 +74,32 @@ function Counter({
               style={{
                 fontWeight: 500,
                 ...valueStyle,
-                paddingTop: '5px',
-                paddingBottom: '8px',
+                paddingTop: '7px',
+                paddingBottom: '7px',
               }}
             >
-              {value} {valueName}
+              {editable ? (
+                <ValidationInput
+                  value={value.toFixed()} // removes leading zeroes
+                  setValue={(v: string | number) => {
+                    setValue(
+                      Math.round(clamp(v as number, minValue, maxValue)),
+                    );
+                  }}
+                  minNumber={minValue}
+                  maxNumber={maxValue}
+                  inputType="number"
+                  id="counter-input"
+                  catchInvalidInput={false}
+                  inputClassName="counter-input"
+                  wrapperClassName="flex center"
+                  validationPredicates={{}}
+                />
+              ) : (
+                value
+              )}
+
+              {valueName ? <>&nbsp;{valueName}</> : <></>}
             </span>
             {detail ? (
               <span className="text grey center" style={{ fontSize: '14px' }}>

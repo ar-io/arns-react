@@ -22,6 +22,12 @@ function CopyTextButton({
   const [textCopied, setTextCopied] = useState<boolean>(false);
 
   async function handleCopy() {
+    if (!document.hasFocus()) {
+      /** this is an intermittent non-emitting notifying error that is hard to reproduce, but this SHOULD fix it
+       * NotAllowedError: Document not focused
+       */
+      return;
+    }
     setTextCopied(true);
     if (copyText) {
       await navigator.clipboard.writeText(copyText);
@@ -41,9 +47,7 @@ function CopyTextButton({
           gap: '8px',
           padding: '0px',
         }}
-        onClick={async () => {
-          await handleCopy();
-        }}
+        onClick={() => handleCopy()}
       >
         <span className="flex white center" style={{ fontSize: 'inherit' }}>
           {body}&nbsp;

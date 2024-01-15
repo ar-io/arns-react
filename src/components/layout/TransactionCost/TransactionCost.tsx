@@ -62,7 +62,7 @@ function TransactionCost({
               'Unable to calculate fee'
             ) : (
               <>
-                {ioFee
+                {ioFee !== undefined && ioFee >= 0
                   ? `${ioFee.toLocaleString()} ${ioTicker} + `
                   : ioRequired
                   ? `Calculating ${ioTicker} + `

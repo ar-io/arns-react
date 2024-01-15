@@ -1,7 +1,7 @@
 import { ArweaveCompositeDataProvider } from '@src/services/arweave/ArweaveCompositeDataProvider';
 import GlobalStateProvider from '@src/state/contexts/GlobalState';
 import { reducer as globalReducer } from '@src/state/reducers/GlobalReducer';
-import { act, cleanup, render } from '@testing-library/react';
+import { cleanup, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import TEST_RECORDS from '@tests/common/fixtures/TestRecords';
 import ArweaveCompositeDataProviderMock from '@tests/common/mocks/ArweaveCompositeDataProviderMock';
@@ -48,9 +48,7 @@ describe('SearchBar', () => {
   );
 
   beforeEach(async () => {
-    const { asFragment, getByTestId } = await act(
-      async () => await render(searchBar),
-    );
+    const { asFragment, getByTestId } = await render(searchBar);
     renderSearchBar = asFragment;
     searchInput = getByTestId('searchbar-input-id') as HTMLInputElement;
     searchButton = getByTestId('search-button') as HTMLButtonElement;
@@ -67,10 +65,8 @@ describe('SearchBar', () => {
   test('handles a capitalized name correctly', async () => {
     const domain = 'ARDRIVE';
 
-    await act(async () => {
-      await userEvent.type(searchInput, domain);
-      await userEvent.click(searchButton);
-    });
+    await userEvent.type(searchInput, domain);
+    await userEvent.click(searchButton);
 
     expect(reducer).toHaveBeenCalledWith(
       expect.anything(),
@@ -93,10 +89,8 @@ describe('SearchBar', () => {
   test('handles a lowercase name correctly', async () => {
     const domain = 'ardrive';
 
-    await act(async () => {
-      await userEvent.type(searchInput, domain);
-      await userEvent.click(searchButton);
-    });
+    await userEvent.type(searchInput, domain);
+    await userEvent.click(searchButton);
 
     expect(reducer).toHaveBeenCalledWith(
       expect.anything(),
