@@ -5,3 +5,4 @@ node_modules
 vite.config.ts.*.mjs
 cache
 *.log
+.idea
