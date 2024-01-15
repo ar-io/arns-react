@@ -68,6 +68,8 @@ function AuctionChart({
   const blockHeightLabelRef = useRef<HTMLDivElement>(null);
   const pointRef = useRef<HTMLDivElement>(null);
   const dashedLineRef = useRef<HTMLDivElement>(null);
+  const ceilingLineRef = useRef<HTMLDivElement>(null);
+  const floorLineRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!auctionInfo) {
@@ -118,6 +120,23 @@ function AuctionChart({
       if (!point || !tooltip) {
         return;
       }
+
+      const setFloorAndCeilingLines = () => {
+        if (ceilingLineRef.current && floorLineRef.current && auctionInfo) {
+          const ceilingLine = ceilingLineRef.current;
+          const floorLine = floorLineRef.current;
+          const ceilingLineY = chart.scales.y.getPixelForValue(
+            auctionInfo.startPrice,
+          );
+          const floorLineY = chart.scales.y.getPixelForValue(
+            auctionInfo.floorPrice,
+          );
+
+          ceilingLine.style.top = `${ceilingLineY}px`;
+          floorLine.style.top = `${floorLineY}px`;
+        }
+      };
+
       tooltip.setActiveElements(
         [
           {
@@ -131,7 +150,7 @@ function AuctionChart({
         ],
         { x: point.x, y: point.y },
       );
-
+      setFloorAndCeilingLines();
       chart.update();
       updateToolTip(tooltip);
     } catch (error) {
@@ -277,6 +296,7 @@ function AuctionChart({
           </div>
 
           <div
+            ref={ceilingLineRef}
             style={{
               position: 'absolute',
               top: 20,
@@ -296,6 +316,7 @@ function AuctionChart({
           </div>
 
           <div
+            ref={floorLineRef}
             style={{
               position: 'absolute',
               bottom: 40,
