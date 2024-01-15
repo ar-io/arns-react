@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/react';
+import { NotificationOnlyError } from '@src/utils/errors';
 import { notification } from 'antd';
 import { ArgsProps } from 'antd/es/notification/interface';
 import { useEffect } from 'react';
@@ -19,7 +20,7 @@ export default function Notifications() {
 
   function handleError(error: Error | { message: string; name: string }) {
     // TODO: check for duplicate errors
-    if (error instanceof Error) {
+    if (error instanceof Error && !(error instanceof NotificationOnlyError)) {
       const sentryID = Sentry.captureException(error);
       console.debug('Error sent to sentry:', error, sentryID);
     }
