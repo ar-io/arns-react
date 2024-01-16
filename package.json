@@ -20,6 +20,7 @@
   "dependencies": {
     "@sentry/react": "^7.45.0",
     "@sentry/tracing": "^7.45.0",
+    "@typescript-eslint/parser": "^6.19.0",
     "antd": "5.2.1",
     "arconnect": "^0.4.2",
     "arweave": "^1.13.7",
