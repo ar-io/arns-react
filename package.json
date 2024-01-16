@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "homepage": ".",
   "scripts": {
-    "build": "npm run clean && tsc --build tsconfig.build.json && NODE_OPTIONS=--max-old-space-size=32768 vite build",
+    "build": "yarn clean && tsc --build tsconfig.build.json && NODE_OPTIONS=--max-old-space-size=32768 vite build",
     "clean": "rimraf dist",
     "dev": "NODE_ENV=prod VITE_GITHUB_HASH=local vite",
     "format": "prettier --write .",
