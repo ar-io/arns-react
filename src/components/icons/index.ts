@@ -55,12 +55,10 @@ import { ReactComponent as TargetIcon } from './Target.svg';
 import { ReactComponent as TrashIcon } from './Trash.svg';
 import { ReactComponent as UploadIcon } from './Upload.svg';
 import { ReactComponent as BellIcon } from './bell-simple.svg';
-import { ReactComponent as DiscordIcon } from './discord.svg';
 import ElephantOne from './elephant1.png';
 import ElephantTwo from './elephant2.png';
 import ElephantThree from './elephant3.png';
 import { ReactComponent as EnvelopeIcon } from './envelope.svg';
-import { ReactComponent as GithubIcon } from './github.svg';
 
 export {
   AccountIcon,
@@ -96,7 +94,6 @@ export {
   CopyIcon,
   CubeIcon,
   DownloadIcon,
-  DiscordIcon,
   ElephantOne,
   ElephantTwo,
   ElephantThree,
@@ -104,7 +101,6 @@ export {
   EnvelopeIcon,
   ExternalLinkOutlined,
   FileCodeIcon,
-  GithubIcon,
   HamburgerOutlineIcon,
   InfoIcon,
   LinkIcon,
