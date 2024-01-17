@@ -14,7 +14,6 @@ import {
   WriteInteractionResponse,
   defaultCacheOptions,
 } from 'warp-contracts';
-import { DeployPlugin } from 'warp-contracts-plugin-deploy';
 
 import {
   ANTContractJSON,
@@ -25,6 +24,7 @@ import {
   TransactionCache,
 } from '../../types';
 import {
+  buildSmartweaveContractTags,
   buildSmartweaveInteractionTags,
   byteSize,
   tagsToObject,
@@ -63,7 +63,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       },
       true,
       arweave,
-    ).use(new DeployPlugin());
+    );
     this._cache = cache;
     this._walletConnector = walletConnector;
   }
@@ -237,13 +237,39 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       srcTxId: srcCodeTransactionId.toString(),
       tags: tags,
     };
+    const swContractTags = buildSmartweaveContractTags({
+      contractSrc: srcCodeTransactionId,
+    });
 
-    const { contractTxId } = await this._warp.deployFromSourceTx(
-      deploymentPayload,
-      true, // disable bundling
+    const transaction = await this._arweave.createTransaction(
+      {
+        data: JSON.stringify(deploymentPayload),
+        tags: [...swContractTags, ...tags],
+      },
+      'use_wallet',
     );
 
-    if (!contractTxId) {
+    await this._arweave.transactions.sign(transaction, 'use_wallet');
+
+    const contractTxId =
+      await withExponentialBackoff<ArweaveTransactionID | null>({
+        fn: () =>
+          this._arweave.transactions
+            .post(transaction)
+            .then((response) => response)
+            .catch((error) => error),
+        shouldRetry: (result) => {
+          if (result instanceof Response && result.status > 300) {
+            return false;
+          } else {
+            return true;
+          }
+        },
+        maxTries: 3,
+        initialDelay: 300,
+      });
+
+    if (!contractTxId && contractTxId === null) {
       throw new Error('Deploy failed.');
     }
 
@@ -276,7 +302,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       });
     }
 
-    return contractTxId;
+    return contractTxId.toString();
   }
 
   async registerAtomicName({

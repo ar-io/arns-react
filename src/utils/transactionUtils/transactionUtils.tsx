@@ -823,6 +823,37 @@ export function generateAtomicState(
   };
 }
 
+export function buildSmartweaveContractTags({
+  contractSrc,
+  initState,
+}: {
+  contractSrc: ArweaveTransactionID;
+  initState?: Record<any, any> | string;
+}): Tags {
+  const tags = [
+    {
+      name: 'App-Name',
+      value: 'SmartWeaveContract',
+    },
+    {
+      name: 'Contract-Src',
+      value: contractSrc.toString(),
+    },
+    ...(initState
+      ? [
+          {
+            name: 'Init-State',
+            value:
+              typeof initState === 'string'
+                ? initState
+                : JSON.stringify(initState),
+          },
+        ]
+      : []),
+  ];
+  return tags.map((t) => new Tag(t?.name, t?.value));
+}
+
 export function buildSmartweaveInteractionTags({
   contractId,
   input,
