@@ -151,14 +151,7 @@ function App() {
         ,
         <Route path="auctions" element={<Auctions />} />,
         <Route path="auctions/:name" element={<ViewAuction />} />
-        <Route
-          path="register/:name"
-          element={
-            <ProtectedRoute>
-              <Register />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="register/:name" element={<Register />} />
         <Route path="*" element={<NotFound />} />
       </Route>,
     ),

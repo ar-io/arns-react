@@ -163,13 +163,20 @@ function RegisterNameForm() {
     }
   }
 
-  if (!walletAddress || !registrationType) {
+  if (!registrationType) {
     return <Loader size={80} />;
   }
 
   async function handleNext() {
     try {
       // validate transaction cost, return if insufficient balance and emit validation message
+
+      if (!walletAddress) {
+        navigate('/connect', {
+          state: { to: `/register/${domain}`, from: `/register/${domain}` },
+        });
+        return;
+      }
 
       const balanceErrors = userHasSufficientBalance<{
         [x: string]: number;
