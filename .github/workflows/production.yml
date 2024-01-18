@@ -16,9 +16,9 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version-file: '.nvmrc'
-          cache: 'npm'
-      - run: npm ci
-      - run: npm run ${{ matrix.step }}
+          cache: 'yarn'
+      - run: yarn install --frozen-lockfile
+      - run: yarn ${{ matrix.step }}
 
   deploy-to-firebase:
     runs-on: ubuntu-latest
@@ -30,12 +30,12 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version-file: '.nvmrc'
-          cache: 'npm'
+          cache: 'yarn'
 
       - name: Install and Build 🔧
         run: |
-          npm ci
-          npm run build
+          yarn install --frozen-lockfile
+          yarn build
         env:
           # FOR BUILD
           VITE_NODE_ENV: production

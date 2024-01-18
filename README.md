@@ -7,20 +7,20 @@ A React App for the Arweave Name System Registry, which lets users search for an
 ### Run
 
 ```shell
-npm ci
-npm run dev
+yarn
+yarn dev
 ```
 
 ### Build
 
 ```shell
-npm run build
+yarn build
 ```
 
 ### Test
 
 ```shell
-npm test
+yarn test
 ```
 
 ## Contributions
