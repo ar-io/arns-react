@@ -244,39 +244,41 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     const transaction = await this._arweave.createTransaction(
       {
         data: JSON.stringify(deploymentPayload),
-        tags: [...swContractTags, ...tags],
       },
       'use_wallet',
     );
+    [...swContractTags, ...tags].forEach((tag) => {
+      transaction.addTag(tag.name, tag.value);
+    });
 
     await this._arweave.transactions.sign(transaction, 'use_wallet');
 
-    const contractTxId =
-      await withExponentialBackoff<ArweaveTransactionID | null>({
-        fn: () =>
-          this._arweave.transactions
-            .post(transaction)
-            .then((response) => response)
-            .catch((error) => error),
-        shouldRetry: (result) => {
-          if (result instanceof Response && result.status > 300) {
-            return false;
-          } else {
-            return true;
-          }
-        },
-        maxTries: 3,
-        initialDelay: 300,
-      });
+    const deployRes = await withExponentialBackoff<Response | null>({
+      fn: () =>
+        this._arweave.transactions
+          .post(transaction)
+          .then((response) => response)
+          .catch((error) => error),
+      shouldRetry: (result) => {
+        if (result instanceof Response && result.status > 300) {
+          return true;
+        } else {
+          return false;
+        }
+      },
+      maxTries: 3,
+      initialDelay: 300,
+    });
+    const contractTxId = new ArweaveTransactionID(transaction.id);
 
-    if (!contractTxId && contractTxId === null) {
+    if (!deployRes || deployRes.status > 300) {
       throw new Error('Deploy failed.');
     }
 
     // TODO: emit event on successfully transaction
     this._cache.push(contractTxId.toString(), {
-      contractTxId,
-      id: contractTxId,
+      contractTxId: contractTxId.toString(),
+      id: contractTxId.toString(),
       payload: deploymentPayload,
       type: 'deploy',
       deployer: walletAddress.toString(),
@@ -293,7 +295,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       }
       const interactionPayload = JSON.parse(input);
       this._cache.push(contractId, {
-        id: contractTxId,
+        id: contractTxId.toString(),
         contractTxId: contractId,
         payload: interactionPayload,
         type: 'interaction',
