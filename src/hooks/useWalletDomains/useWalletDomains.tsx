@@ -1,11 +1,7 @@
+import ManageAssetButtons from '@src/components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
 import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
-import {
-  Link,
-  useNavigate,
-  useParams,
-  useSearchParams,
-} from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 
 import {
   ChevronUpIcon,
@@ -58,12 +54,10 @@ export function useWalletDomains() {
   const itemCount = useRef<number>(0);
   const itemsLoaded = useRef<number>(0);
   const [percent, setPercentLoaded] = useState<number | undefined>();
-  const [loadingManageDomain, setLoadingManageDomain] = useState<string>();
   const searchRef = useRef<HTMLInputElement>(null);
   const [searchText, setSearchText] = useState<string>('');
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
   const { path } = useParams();
 
   if (searchRef.current && searchOpen) {
@@ -489,22 +483,11 @@ export function useWalletDomains() {
         // eslint-disable-next-line
         render: (val: any, record: ARNSTableRow) => (
           <span className="flex" style={{ justifyContent: 'flex-end' }}>
-            <button
-              className="outline-button center pointer"
-              style={{
-                padding: '8px 12px',
-                fontSize: '11px',
-                minWidth: 'fit-content',
-              }}
-              onClick={() => {
-                setLoadingManageDomain(record.name);
-                navigate(`/manage/names/${record.name}`, {
-                  state: { from: '/manage/names' },
-                });
-              }}
-            >
-              Details
-            </button>
+            <ManageAssetButtons
+              id={record.name}
+              assetType="names"
+              disabled={!record.status}
+            />
           </span>
         ),
         align: 'right',
@@ -656,7 +639,6 @@ export function useWalletDomains() {
     sortField,
     sortAscending,
     selectedRow,
-    loadingManageDomain,
     refresh: load,
   };
 }

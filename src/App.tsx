@@ -103,7 +103,7 @@ function App() {
             }}
           />
           <Route
-            path="names/:name/undernames"
+            path="names/:name/upgrade-undernames"
             element={
               <ProtectedRoute>
                 <UpgradeUndernames />
@@ -115,6 +115,27 @@ function App() {
                 { name: data, route: `/manage/names/${data}` },
                 {
                   name: 'Increase Undernames',
+                  route: `/manage/names/${data}/undernames`,
+                },
+              ],
+            }}
+          />
+          <Route
+            path="names/:name/undernames"
+            element={
+              <ProtectedRoute>
+                <Undernames />
+              </ProtectedRoute>
+            }
+            handle={{
+              crumbs: (data: string) => [
+                { name: 'Manage Assets', route: '/manage/names' },
+                {
+                  name: ANT_FLAG,
+                  route: `/manage/names/${data}`,
+                },
+                {
+                  name: 'Manage Undernames',
                   route: `/manage/names/${data}/undernames`,
                 },
               ],

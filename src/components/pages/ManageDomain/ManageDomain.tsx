@@ -100,7 +100,7 @@ function ManageDomain() {
 
   useEffect(() => {
     if (!name || !walletAddress) {
-      navigate('/manage/ants');
+      navigate('/manage/names');
       return;
     }
 
@@ -371,7 +371,9 @@ function ManageDomain() {
                   color: 'var(--accent)',
                   fontFamily: 'Rubik',
                 }}
-                onClick={() => navigate(`/manage/names/${name}/undernames`)}
+                onClick={() =>
+                  navigate(`/manage/names/${name}/upgrade-undernames`)
+                }
               >
                 Increase Undernames
               </button>
@@ -780,9 +782,7 @@ function ManageDomain() {
                               <button
                                 className="flex flex-right white pointer button"
                                 onClick={() =>
-                                  navigate(
-                                    `/manage/ants/${contractTxId}/undernames`,
-                                  )
+                                  navigate(`/manage/names/${name}/undernames`)
                                 }
                               >
                                 Manage
@@ -797,7 +797,7 @@ function ManageDomain() {
                                     });
                                     navigate(
                                       encodeURI(
-                                        `/manage/ants/${contractTxId.toString()}/undernames?${params.toString()}`,
+                                        `/manage/names/${name}/undernames?${params.toString()}`,
                                       ),
                                     );
                                   }}
