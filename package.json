@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "homepage": ".",
   "scripts": {
-    "build": "npm run clean && tsc --build tsconfig.build.json && NODE_OPTIONS=--max-old-space-size=32768 vite build",
+    "build": "yarn clean && tsc --build tsconfig.build.json && NODE_OPTIONS=--max-old-space-size=32768 vite build",
     "clean": "rimraf dist",
     "dev": "NODE_ENV=prod VITE_GITHUB_HASH=local vite",
     "format": "prettier --write .",
@@ -20,6 +20,7 @@
   "dependencies": {
     "@sentry/react": "^7.45.0",
     "@sentry/tracing": "^7.45.0",
+    "@typescript-eslint/parser": "^6.19.0",
     "antd": "5.2.1",
     "arconnect": "^0.4.2",
     "arweave": "^1.13.7",
@@ -37,7 +38,7 @@
     "react-dom": "^18.2.0",
     "react-icons": "^5.0.1",
     "react-router-dom": "^6.4.2",
-    "warp-contracts": "^1.4.26",
+    "warp-contracts": "1.4.26",
     "warp-contracts-plugin-deploy": "^1.0.8"
   },
   "devDependencies": {
