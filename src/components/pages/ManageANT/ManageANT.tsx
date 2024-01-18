@@ -171,39 +171,6 @@ function ManageANT() {
     }
   }
 
-  function getValidationPredicates(
-    value: string | number | undefined,
-    row: ManageANTRow,
-  ): { [x: string]: { fn: (value: any) => Promise<any>; required?: boolean } } {
-    switch (row.attribute) {
-      case 'ttlSeconds':
-        return {
-          [VALIDATION_INPUT_TYPES.VALID_TTL]: {
-            fn: validateTTLSeconds,
-          },
-        };
-
-      case 'name':
-      case 'ticker':
-        return {
-          [VALIDATION_INPUT_TYPES.VALID_ANT_NAME]: {
-            fn: (name: any) =>
-              validateMaxASCIILength(name, SMARTWEAVE_MAX_INPUT_SIZE),
-          },
-        };
-      case 'targetID':
-      case 'controller': {
-        return {
-          [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
-            fn: (id: string) => arweaveDataProvider.validateArweaveId(id),
-          },
-        };
-      }
-      default:
-        return {};
-    }
-  }
-
   function handleSave(row: ManageANTRow) {
     // TODO: make this more clear, we should be updating only the value that matters and not overwriting anything
     if (!row.isValid || !row.interactionType || !antState) {
@@ -239,6 +206,39 @@ function ManageANT() {
       );
       setTransactionData(transactionData);
       setShowConfirmModal(true);
+    }
+  }
+
+  function getValidationPredicates(
+    value: string | number | undefined,
+    row: ManageANTRow,
+  ): { [x: string]: { fn: (value: any) => Promise<any>; required?: boolean } } {
+    switch (row.attribute) {
+      case 'ttlSeconds':
+        return {
+          [VALIDATION_INPUT_TYPES.VALID_TTL]: {
+            fn: validateTTLSeconds,
+          },
+        };
+
+      case 'name':
+      case 'ticker':
+        return {
+          [VALIDATION_INPUT_TYPES.VALID_ANT_NAME]: {
+            fn: (name: any) =>
+              validateMaxASCIILength(name, SMARTWEAVE_MAX_INPUT_SIZE),
+          },
+        };
+      case 'targetID':
+      case 'controller': {
+        return {
+          [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
+            fn: (id: string) => arweaveDataProvider.validateArweaveId(id),
+          },
+        };
+      }
+      default:
+        return {};
     }
   }
 

@@ -756,6 +756,9 @@ export type ManageDomainRow = {
   attribute: string;
   value: string | number | boolean | JSX.Element;
   key: number;
+  interactionType?: ExcludedValidInteractionType;
+  isValid?: boolean;
+  editable: boolean;
 };
 
 export type ANTDetails = {
@@ -773,7 +776,7 @@ export type ANTDetails = {
 export type DomainDetails = {
   expiryDate: string | number;
   leaseDuration: string;
-  status: JSX.Element;
+  status: number;
   name: string;
   ticker: string;
   contractTxId: string;
