@@ -259,29 +259,22 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
           .post(transaction)
           .then((response) => response)
           .catch((error) => error),
-      shouldRetry: (result) => {
-        if (
-          result instanceof Response &&
-          /**
-           * 400 - transaction failed verification
-           * 503 - transaction failed verification
-           * -- transaction can fail verification for various reasons, some retryable, some not, like node peer block lag.
-           * 404 - gateway is down / issues
-           * 429 - rate limit warning
-           */
-          [400, 404, 429, 503].includes(result.status)
-        ) {
-          return true;
-        } else {
-          return false;
-        }
-      },
+      shouldRetry: (result) =>
+        result instanceof Response &&
+        /**
+         * 400 - transaction failed verification
+         * 503 - transaction failed verification
+         * -- transaction can fail verification for various reasons, some retryable, some not, like node peer block lag.
+         * 404 - gateway is down / issues
+         * 429 - rate limit warning
+         */
+        [400, 404, 429, 503].includes(result.status),
       maxTries: 3,
       initialDelay: 300,
     });
     const contractTxId = new ArweaveTransactionID(transaction.id);
 
-    if (!deployRes || deployRes.status !== (200 | 208)) {
+    if (!deployRes || (deployRes.status !== 200 && deployRes.status !== 208)) {
       // 200 success, 208 already posted tx
       throw new Error('Deploy failed.');
     }
