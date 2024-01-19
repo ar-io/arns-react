@@ -825,10 +825,10 @@ export function generateAtomicState(
 
 export function buildSmartweaveContractTags({
   contractSrc,
-  initState,
-}: {
+}: //initState, TODO: add init state support for atomic assets
+{
   contractSrc: ArweaveTransactionID;
-  initState?: Record<any, any> | string;
+  // initState?: Record<any, any> | string;
 }): Tags {
   const tags = [
     {
@@ -847,17 +847,18 @@ export function buildSmartweaveContractTags({
       name: 'Contract-Src',
       value: contractSrc.toString(),
     },
-    ...(initState
-      ? [
-          {
-            name: 'Init-State',
-            value:
-              typeof initState === 'string'
-                ? initState
-                : JSON.stringify(initState),
-          },
-        ]
-      : []),
+
+    // ...(initState
+    //   ? [
+    //       {
+    //         name: 'Init-State',
+    //         value:
+    //           typeof initState === 'string'
+    //             ? initState
+    //             : JSON.stringify(initState),
+    //       },
+    //     ]
+    //   : []),
   ];
   return tags.map((t) => new Tag(t?.name, t?.value));
 }
