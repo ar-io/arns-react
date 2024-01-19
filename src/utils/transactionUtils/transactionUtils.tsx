@@ -832,8 +832,16 @@ export function buildSmartweaveContractTags({
 }): Tags {
   const tags = [
     {
+      name: 'Content-Type',
+      value: 'application/json',
+    },
+    {
       name: 'App-Name',
       value: 'SmartWeaveContract',
+    },
+    {
+      name: 'App-Version',
+      value: '0.3.0',
     },
     {
       name: 'Contract-Src',
