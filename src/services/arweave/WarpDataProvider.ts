@@ -243,7 +243,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
 
     const transaction = await this._arweave.createTransaction(
       {
-        data: JSON.stringify(deploymentPayload),
+        data: JSON.stringify(initialState),
       },
       'use_wallet',
     );
