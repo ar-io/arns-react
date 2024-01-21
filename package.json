@@ -14,6 +14,7 @@
     "test": "NODE_ENV=test jest",
     "test:updateSnapshot": "NODE_ENV=test jest --updateSnapshot",
     "test:coverage": "NODE_ENV=test jest --coverage",
+    "test:services": "NODE_ENV=test jest --testEnvironment=node --testPathPattern=tests/services --globalSetup=./tests/setup.jest.ts --globalTeardown=./tests/teardown.jest.ts --runInBand",
     "prepare": "husky install",
     "pre-commit": "lint-staged"
   },

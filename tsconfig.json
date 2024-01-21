@@ -18,9 +18,9 @@
     "baseUrl": ".",
     "paths": {
       "@tests/*": ["./tests/*"],
-      "@src/*": ["./src/*"]
-    }
+      "@src/*": ["./src/*"],
+    },
   },
   "include": ["src", "types", "tests"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "references": [{ "path": "./tsconfig.node.json" }],
 }

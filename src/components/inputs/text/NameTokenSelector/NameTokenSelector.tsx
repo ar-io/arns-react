@@ -646,8 +646,8 @@ function NameTokenSelector({
                   Object.keys(tokens).length && !filteredTokens
                     ? Object.keys(tokens).length
                     : filteredTokens
-                    ? filteredTokens.length
-                    : 0
+                      ? filteredTokens.length
+                      : 0
                 }
                 itemRender={customPreviousAndNextButtons}
                 showPrevNextJumpers={true}

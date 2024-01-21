@@ -1,11 +1,14 @@
-import { ArweaveCompositeDataProvider } from '@src/services/arweave/ArweaveCompositeDataProvider';
-import { SimpleArweaveDataProvider } from '@src/services/arweave/SimpleArweaveDataProvider';
 import ArLocal from 'arlocal';
 import Arweave from 'arweave';
 import { JWKInterface } from 'arweave/node/lib/wallet';
 import * as fs from 'fs';
 import path from 'path';
-import { LoggerFactory, SourceType, Warp, WarpFactory } from 'warp-contracts';
+import { LoggerFactory, WarpFactory } from 'warp-contracts';
+
+import { ArweaveCompositeDataProvider } from '../../../src/services/arweave/ArweaveCompositeDataProvider';
+import { ArweaveTransactionID } from '../../../src/services/arweave/ArweaveTransactionID';
+import { SimpleArweaveDataProvider } from '../../../src/services/arweave/SimpleArweaveDataProvider';
+import { buildSmartweaveSourceTags } from '../../../src/utils';
 
 export const WALLET_FUND_AMOUNT = 1000000000000;
 
@@ -64,10 +67,7 @@ export async function deployARNSContract({
   provider: ArweaveCompositeDataProvider;
   wallet: JWKInterface;
   balances: Record<string, number>;
-}): Promise<{
-  contractTxId: string;
-  srcTxId: string;
-}> {
+}): Promise<string> {
   const sourceCode = fs.readFileSync(
     path.join(__dirname, '../fixtures/arns/source.js'),
     'utf8',
@@ -82,18 +82,44 @@ export async function deployARNSContract({
     balances,
   };
 
-  const srcTx = arweave.createTransaction(
+  const srcTx = await arweave.createTransaction(
     {
       data: sourceCode,
+      tags: buildSmartweaveSourceTags(),
     },
     wallet,
   );
+  await arweave.transactions.sign(srcTx, wallet);
+  await arweave.transactions.post(srcTx);
   const contractTxId = await provider.deployContract({
-    src: sourceCode,
-    initState: JSON.stringify(ownerState),
-    wallet,
+    srcCodeTransactionId: new ArweaveTransactionID(srcTx.id),
+    initialState: ownerState as any,
+    walletAddress: new ArweaveTransactionID(owner),
   });
-  return {
-    contractTxId,
-  };
+  return contractTxId;
+}
+
+export async function deployANTSource({
+  wallet,
+  arweave,
+}: {
+  wallet: JWKInterface;
+  arweave: Arweave;
+}): Promise<ArweaveTransactionID> {
+  const sourceCode = fs.readFileSync(
+    path.join(__dirname, '../fixtures/ant/source.js'),
+    'utf8',
+  );
+
+  const srcTx = await arweave.createTransaction(
+    {
+      data: sourceCode,
+      tags: buildSmartweaveSourceTags(),
+    },
+    wallet,
+  );
+  await arweave.transactions.sign(srcTx, wallet);
+  await arweave.transactions.post(srcTx);
+
+  return new ArweaveTransactionID(srcTx.id);
 }

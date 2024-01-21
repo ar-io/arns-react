@@ -529,8 +529,8 @@ export function useWalletANTs() {
           contract.owner === address.toString()
             ? 'Owner'
             : contract.controllers.includes(address.toString())
-            ? 'Controller'
-            : 'N/A',
+              ? 'Controller'
+              : 'N/A',
         targetID: isArweaveTransactionID(contract.getRecord('@')?.transactionId)
           ? contract.getRecord('@')!.transactionId.toString()
           : 'N/A',

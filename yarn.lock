@@ -1788,7 +1788,7 @@
   dependencies:
     "@ethersproject/logger" "^5.7.0"
 
-"@ethersproject/providers@5.7.2", "@ethersproject/providers@^5.7.2":
+"@ethersproject/providers@5.7.2":
   version "5.7.2"
   resolved "https://registry.yarnpkg.com/@ethersproject/providers/-/providers-5.7.2.tgz#f8b1a4f275d7ce58cf0a2eec222269a08beb18cb"
   integrity sha512-g34EWZ1WWAVgr4aptGlVBF8mhl3VWjv+8hoAnzStu8Ah22VHBsuGzP17eb6xDVRzw895G4W7vvx60lFFur/1Rg==
@@ -1896,7 +1896,7 @@
     "@ethersproject/constants" "^5.7.0"
     "@ethersproject/logger" "^5.7.0"
 
-"@ethersproject/wallet@5.7.0", "@ethersproject/wallet@^5.7.0":
+"@ethersproject/wallet@5.7.0":
   version "5.7.0"
   resolved "https://registry.yarnpkg.com/@ethersproject/wallet/-/wallet-5.7.0.tgz#4e5d0790d96fe21d61d38fb40324e6c7ef350b2d"
   integrity sha512-MhmXlJXEJFBFVKrDLB4ZdDzxcBxQ3rLyCkhNqVu3CDYvR97E+8r01UgrI+TI99Le+aYm/in/0vp86guJuM7FCA==
@@ -2033,17 +2033,6 @@
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/@humanwhocodes/object-schema/-/object-schema-2.0.2.tgz#d9fae00a2d5cb40f92cfe64b47ad749fbc38f917"
   integrity sha512-6EwiSjwWYP7pTckG6I5eyFANjPhmPjUX9JRLUSfNPC7FX7zK9gyZAfUEaECL6ALTpGX5AjnBq3C9XmVWPitNpw==
-
-"@irys/arweave@^0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@irys/arweave/-/arweave-0.0.2.tgz#c0e73eb8c15e323342d33ea92701d4036fd22ae3"
-  integrity sha512-ddE5h4qXbl0xfGlxrtBIwzflaxZUDlDs43TuT0u1OMfyobHul4AA1VEX72Rpzw2bOh4vzoytSqA1jCM7x9YtHg==
-  dependencies:
-    asn1.js "^5.4.1"
-    async-retry "^1.3.3"
-    axios "^1.4.0"
-    base64-js "^1.5.1"
-    bignumber.js "^9.1.1"
 
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"
@@ -3837,30 +3826,6 @@ append-transform@^2.0.0:
   resolved "https://registry.yarnpkg.com/aproba/-/aproba-2.0.0.tgz#52520b8ae5b569215b354efc0caa3fe1e45a8adc"
   integrity sha512-lYe4Gx7QT+MKGbDsA+Z+he/Wtef0BiwDOlK/XkBrdfsh9J/jPPXbX0tE9x9cl27Tmu5gg3QUbUrQYa/y+KOHPQ==
 
-arbundles@^0.10.0:
-  version "0.10.1"
-  resolved "https://registry.yarnpkg.com/arbundles/-/arbundles-0.10.1.tgz#1f542d9edf185a8a272994aef501a8ee12aaaa46"
-  integrity sha512-QYFepxessLCirvRkQK9iQmjxjHz+s50lMNGRwZwpyPWLohuf6ISyj1gkFXJHlMT+rNSrsHxb532glHnKbjwu3A==
-  dependencies:
-    "@ethersproject/bytes" "^5.7.0"
-    "@ethersproject/hash" "^5.7.0"
-    "@ethersproject/providers" "^5.7.2"
-    "@ethersproject/signing-key" "^5.7.0"
-    "@ethersproject/transactions" "^5.7.0"
-    "@ethersproject/wallet" "^5.7.0"
-    "@irys/arweave" "^0.0.2"
-    "@noble/ed25519" "^1.6.1"
-    base64url "^3.0.1"
-    bs58 "^4.0.1"
-    keccak "^3.0.2"
-    secp256k1 "^5.0.0"
-  optionalDependencies:
-    "@randlabs/myalgo-connect" "^1.1.2"
-    algosdk "^1.13.1"
-    arweave-stream-tx "^1.1.0"
-    multistream "^4.1.0"
-    tmp-promise "^3.0.2"
-
 arbundles@^0.6.19:
   version "0.6.23"
   resolved "https://registry.yarnpkg.com/arbundles/-/arbundles-0.6.23.tgz#c00cda953df67fa65d4297486237cc8e0c072c47"
@@ -3979,7 +3944,7 @@ aria-query@^5.0.0, aria-query@^5.3.0:
   dependencies:
     dequal "^2.0.3"
 
-arlocal@^1.1.59, arlocal@^1.1.65:
+arlocal@^1.1.65:
   version "1.1.65"
   resolved "https://registry.yarnpkg.com/arlocal/-/arlocal-1.1.65.tgz#3ff3df5aae8ce2f343d7fb4835d26f9cd8976e58"
   integrity sha512-miD+h5H+Z4cS6dihHdrs9LS6OxvdwdIcZ285v36y7nfrFwSrdTvoC9V52P7FIt1fF78+HNyHSi11BaVi6ZwO+w==
@@ -4172,7 +4137,7 @@ async-mutex@^0.4.0:
   dependencies:
     tslib "^2.4.0"
 
-async-retry@^1.2.1, async-retry@^1.3.3:
+async-retry@^1.2.1:
   version "1.3.3"
   resolved "https://registry.yarnpkg.com/async-retry/-/async-retry-1.3.3.tgz#0e7f36c04d8478e7a58bdbed80cedf977785f280"
   integrity sha512-wfr/jstw9xNi/0teMHrRW7dsz3Lt5ARhYNZ2ewpadnhaIp5mbALhOAP+EAdsC7t4Z6wqsDVv9+W6gm1Dk9mEyw==
@@ -4222,7 +4187,7 @@ axios@^0.21.3:
   dependencies:
     follow-redirects "^1.14.0"
 
-axios@^1.1.3, axios@^1.4.0:
+axios@^1.1.3:
   version "1.6.5"
   resolved "https://registry.yarnpkg.com/axios/-/axios-1.6.5.tgz#2c090da14aeeab3770ad30c3a1461bc970fb0cd8"
   integrity sha512-Ii012v05KEVuUoFWmMW/UQv9aRIc3ZwkWDcM+h5Il8izZCtRVpDUfwpoFf7eOtajT3QiGR4yDUx7lPqHJULgbg==
@@ -4354,7 +4319,7 @@ bignumber.js@9.1.1:
   resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-9.1.1.tgz#c4df7dc496bd849d4c9464344c1aa74228b4dac6"
   integrity sha512-pHm4LsMJ6lzgNGVfZHjMoO8sdoRhOzOH4MLmY65Jg70bpxCKu5iOHNJyfF6OyvYw7t8Fpf35RuzUyqnQsj8Vig==
 
-bignumber.js@^9.0.0, bignumber.js@^9.0.2, bignumber.js@^9.1.1:
+bignumber.js@^9.0.0, bignumber.js@^9.0.2:
   version "9.1.2"
   resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-9.1.2.tgz#b7c4242259c008903b13707983b5f4bbd31eda0c"
   integrity sha512-2/mKyZH9K85bzOEfhXDBFZTGd1CTs+5IHpeFQo9luiBG7hghdC851Pj2WAhb6E3R6b9tZj/XKhbg4fum+Kepug==
@@ -8768,11 +8733,6 @@ node-addon-api@^2.0.0:
   resolved "https://registry.yarnpkg.com/node-addon-api/-/node-addon-api-2.0.2.tgz#432cfa82962ce494b132e9d72a15b29f71ff5d32"
   integrity sha512-Ntyt4AIXyaLIuMHF6IOoTakB3K+RWxwtsHNRxllEoA6vPwP9o4866g6YWDLUdnucilZhmkxiHwHr11gAENw+QA==
 
-node-addon-api@^5.0.0:
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/node-addon-api/-/node-addon-api-5.1.0.tgz#49da1ca055e109a23d537e9de43c09cca21eb762"
-  integrity sha512-eh0GgfEkpnoWDq+VY8OyvYhFEzBk6jIYbRKdIlyTiAXIVJ8PyBaKb0rp7oDtoddbdoHWhq8wwr+XZ81F1rpNdA==
-
 node-addon-api@^7.0.0:
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/node-addon-api/-/node-addon-api-7.0.0.tgz#8136add2f510997b3b94814f4af1cce0b0e3962e"
@@ -10419,15 +10379,6 @@ secp256k1@^4.0.2:
     node-addon-api "^2.0.0"
     node-gyp-build "^4.2.0"
 
-secp256k1@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/secp256k1/-/secp256k1-5.0.0.tgz#be6f0c8c7722e2481e9773336d351de8cddd12f7"
-  integrity sha512-TKWX8xvoGHrxVdqbYeZM9w+izTF4b9z3NhSaDkdn81btvuh+ivbIMGT/zQvDtTFWhRlThpoz6LEYTr7n8A5GcA==
-  dependencies:
-    elliptic "^6.5.4"
-    node-addon-api "^5.0.0"
-    node-gyp-build "^4.2.0"
-
 "semver@2 || 3 || 4 || 5":
   version "5.7.2"
   resolved "https://registry.yarnpkg.com/semver/-/semver-5.7.2.tgz#48d55db737c3287cd4835e17fa13feace1c41ef8"
@@ -11581,15 +11532,6 @@ warp-arbundles@^1.0.4:
     base64url "^3.0.1"
     buffer "^6.0.3"
     warp-isomorphic "^1.0.7"
-
-warp-contracts-plugin-deploy@^1.0.8:
-  version "1.0.12"
-  resolved "https://registry.yarnpkg.com/warp-contracts-plugin-deploy/-/warp-contracts-plugin-deploy-1.0.12.tgz#c394ccf7adfbace74e61373354040ca17960d7a8"
-  integrity sha512-IHetl9Ly5CDZlMT2ccy+HBonBJjmd6rHBxxhycC0QI0yHv6QPIwR6faQKWdrY093Y2cYUE6/NZPirolPWXalnA==
-  dependencies:
-    arbundles "^0.10.0"
-    arlocal "^1.1.59"
-    node-stdlib-browser "^1.2.0"
 
 warp-contracts@1.4.26:
   version "1.4.26"

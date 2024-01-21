@@ -217,17 +217,17 @@ function ManageANT() {
             antState.getRecord('@')?.ttlSeconds ?? MIN_TTL_SECONDS,
           ])
         : row.interactionType === INTERACTION_TYPES.SET_TTL_SECONDS
-        ? mapTransactionDataKeyToPayload(row.interactionType, [
-            '@',
-            antState.getRecord('@')?.transactionId?.length
-              ? antState.getRecord('@')!.transactionId
-              : STUB_ARWEAVE_TXID,
-            +modifiedValue!,
-          ])
-        : mapTransactionDataKeyToPayload(
-            row.interactionType,
-            modifiedValue!.toString(),
-          );
+          ? mapTransactionDataKeyToPayload(row.interactionType, [
+              '@',
+              antState.getRecord('@')?.transactionId?.length
+                ? antState.getRecord('@')!.transactionId
+                : STUB_ARWEAVE_TXID,
+              +modifiedValue!,
+            ])
+          : mapTransactionDataKeyToPayload(
+              row.interactionType,
+              modifiedValue!.toString(),
+            );
 
     if (payload && row.interactionType && id) {
       const transactionData = {
@@ -371,8 +371,8 @@ function ManageANT() {
                               row.attribute === 'targetID'
                                 ? ARNS_TX_ID_ENTRY_REGEX
                                 : row.attribute === 'ttlSeconds'
-                                ? TTL_SECONDS_ENTRY_REGEX
-                                : undefined
+                                  ? TTL_SECONDS_ENTRY_REGEX
+                                  : undefined
                             }
                             catchInvalidInput={true}
                             showValidationIcon={

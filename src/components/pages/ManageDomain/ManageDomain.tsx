@@ -314,8 +314,8 @@ function ManageDomain() {
                           row.attribute === 'targetID'
                             ? ArweaveIdTypes.TRANSACTION
                             : row.attribute === 'contractTxId'
-                            ? ArweaveIdTypes.CONTRACT
-                            : ArweaveIdTypes.ADDRESS
+                              ? ArweaveIdTypes.CONTRACT
+                              : ArweaveIdTypes.ADDRESS
                         }
                       />
                     ) : row.attribute === 'expiryDate' &&
@@ -326,9 +326,9 @@ function ManageDomain() {
                             value * 1000 > Date.now()
                               ? 'var(--success-green)'
                               : value * 1000 + SECONDS_IN_GRACE_PERIOD * 1000 <
-                                Date.now()
-                              ? 'var(--accent)'
-                              : 'var(--error-red)',
+                                  Date.now()
+                                ? 'var(--accent)'
+                                : 'var(--error-red)',
                         }}
                       >
                         {Intl.DateTimeFormat('en-US').format(value * 1000)}

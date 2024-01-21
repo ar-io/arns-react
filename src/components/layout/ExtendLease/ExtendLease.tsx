@@ -282,32 +282,34 @@ function ExtendLease() {
             !ioFee || ioFee < 0
               ? undefined
               : maxIncrease >= 1 || ioFee <= ioBalance
-              ? () => {
-                  const payload: ExtendLeasePayload = {
-                    name,
-                    years: newLeaseDuration,
-                    contractTxId: new ArweaveTransactionID(record.contractTxId),
-                    qty: ioFee,
-                  };
+                ? () => {
+                    const payload: ExtendLeasePayload = {
+                      name,
+                      years: newLeaseDuration,
+                      contractTxId: new ArweaveTransactionID(
+                        record.contractTxId,
+                      ),
+                      qty: ioFee,
+                    };
 
-                  dispatchTransactionState({
-                    type: 'setInteractionType',
-                    payload: INTERACTION_TYPES.EXTEND_LEASE,
-                  });
-                  dispatchTransactionState({
-                    type: 'setTransactionData',
-                    payload: {
-                      assetId: ARNS_REGISTRY_ADDRESS.toString(),
-                      functionName: 'extendRecord',
-                      ...payload,
-                      interactionPrice: ioFee,
-                    },
-                  });
-                  navigate('/transaction', {
-                    state: `/manage/names/${name}/extend`,
-                  });
-                }
-              : undefined
+                    dispatchTransactionState({
+                      type: 'setInteractionType',
+                      payload: INTERACTION_TYPES.EXTEND_LEASE,
+                    });
+                    dispatchTransactionState({
+                      type: 'setTransactionData',
+                      payload: {
+                        assetId: ARNS_REGISTRY_ADDRESS.toString(),
+                        functionName: 'extendRecord',
+                        ...payload,
+                        interactionPrice: ioFee,
+                      },
+                    });
+                    navigate('/transaction', {
+                      state: `/manage/names/${name}/extend`,
+                    });
+                  }
+                : undefined
           }
           detail={
             ioFee && ioFee > ioBalance && maxIncrease > 0 ? (

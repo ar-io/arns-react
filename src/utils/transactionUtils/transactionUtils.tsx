@@ -864,6 +864,24 @@ export function buildSmartweaveContractTags({
   return tags.map((t) => new Tag(t?.name, t?.value));
 }
 
+export function buildSmartweaveSourceTags(): Tags {
+  const tags = [
+    {
+      name: 'Content-Type',
+      value: 'application/javascript',
+    },
+    {
+      name: 'App-Name',
+      value: 'SmartWeaveContractSource',
+    },
+    {
+      name: 'App-Version',
+      value: '0.3.0',
+    },
+  ];
+  return tags.map((t) => new Tag(t?.name, t?.value));
+}
+
 export function buildSmartweaveInteractionTags({
   contractId,
   input,

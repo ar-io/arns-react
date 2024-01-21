@@ -14,4 +14,4 @@ global.React = React;
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 global.performance.markResourceTiming = jest.fn();
-global.fetch = jest.fn();
+// global.fetch = jest.fn();
