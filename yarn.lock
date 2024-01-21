@@ -3979,7 +3979,7 @@ aria-query@^5.0.0, aria-query@^5.3.0:
   dependencies:
     dequal "^2.0.3"
 
-arlocal@^1.1.59:
+arlocal@^1.1.59, arlocal@^1.1.65:
   version "1.1.65"
   resolved "https://registry.yarnpkg.com/arlocal/-/arlocal-1.1.65.tgz#3ff3df5aae8ce2f343d7fb4835d26f9cd8976e58"
   integrity sha512-miD+h5H+Z4cS6dihHdrs9LS6OxvdwdIcZ285v36y7nfrFwSrdTvoC9V52P7FIt1fF78+HNyHSi11BaVi6ZwO+w==
@@ -9368,10 +9368,10 @@ prettier-linter-helpers@^1.0.0:
   dependencies:
     fast-diff "^1.1.2"
 
-prettier@^2.7.1:
-  version "2.8.8"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.8.8.tgz#e8c5d7e98a4305ffe3de2e1fc4aca1a71c28b1da"
-  integrity sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==
+prettier@^3.2.4:
+  version "3.2.4"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-3.2.4.tgz#4723cadeac2ce7c9227de758e5ff9b14e075f283"
+  integrity sha512-FWu1oLHKCrtpO1ypU6J0SbK2d9Ckwysq6bHj/uaCP26DxrPpppCLQRGVuqAxSTvhF00AcvDRyYrLNW7ocBhFFQ==
 
 pretty-format@^27.0.2:
   version "27.5.1"

@@ -1,4 +1,5 @@
 import { StepProps } from 'antd';
+import { JWKInterface } from 'arweave/node/lib/wallet';
 import { Tag, Tags } from 'warp-contracts';
 
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
@@ -959,4 +960,8 @@ export const getPriceByBlockHeight = (
   }
 
   throw Error(`Unable to find next block interval for bid ${currentHeight}`);
+};
+
+export const isJWK = (obj: any): obj is JWKInterface => {
+  return obj.alg !== undefined && obj.kty !== undefined;
 };
