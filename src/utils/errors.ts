@@ -5,6 +5,13 @@ export class ContractInteractionError extends Error {
   }
 }
 
+export class ArNSServiceError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ArNS Service Error';
+  }
+}
+
 // NotificationOnlyError is an error that is only shown as a notification and does not emit to sentry
 
 export class NotificationOnlyError extends Error {
