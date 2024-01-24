@@ -611,20 +611,18 @@ function ManageDomain() {
                               modifiedValue,
                               row,
                             )}
-                            maxCharLength={(length) => {
+                            maxCharLength={(str) => {
                               if (
                                 row.attribute === 'name' ||
                                 row.attribute === 'ticker'
                               ) {
-                                return (
-                                  length.length <= SMARTWEAVE_MAX_INPUT_SIZE
-                                );
+                                return str.length <= SMARTWEAVE_MAX_INPUT_SIZE;
                               }
                               if (row.attribute === 'ttlSeconds') {
-                                return length.length <= 7;
+                                return str.length <= 7;
                               }
                               if (row.attribute === 'targetID') {
-                                return length.length <= 43;
+                                return str.length <= 43;
                               }
                               return false;
                             }}
