@@ -56,14 +56,6 @@ function Breadcrumbs() {
           return match?.handle?.crumbs(Object.values(match.params)[0]);
         });
       // check for ant flag
-      if (
-        name.length &&
-        !contractId.length &&
-        isARNSDomainNameValid({ name })
-      ) {
-        const record = await arweaveDataProvider.getRecord({ domain: name });
-        contractId = record.contractTxId;
-      }
       if (isArweaveTransactionID(contractId)) {
         const state = await arweaveDataProvider.getContractState(
           new ArweaveTransactionID(contractId),
@@ -72,6 +64,14 @@ function Breadcrumbs() {
         const parsedCrumbs = rawCrumbs[0].map((crumb: NavItem) => {
           if (crumb.name == ANT_FLAG) {
             return { name: state.name, route: crumb.route };
+          }
+          return crumb;
+        });
+        setCrumbs(parsedCrumbs);
+      } else if (name.length && isARNSDomainNameValid({ name })) {
+        const parsedCrumbs = rawCrumbs[0].map((crumb: NavItem) => {
+          if (crumb.name == ANT_FLAG) {
+            return { name: name, route: crumb.route };
           }
           return crumb;
         });
