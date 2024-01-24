@@ -776,6 +776,7 @@ export type ANTDetails = {
 export type DomainDetails = {
   expiryDate: string | number;
   leaseDuration: string;
+  associatedNames: string;
   status: number;
   name: string;
   ticker: string;

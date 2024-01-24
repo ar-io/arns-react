@@ -156,28 +156,32 @@ function Undernames() {
               style={{ justifyContent: 'space-between' }}
             >
               <h2 className="white">Manage Undernames</h2>
-              <button
-                disabled={
-                  antState?.getOwnershipStatus(walletAddress) === undefined
-                }
-                className={'button-secondary center'}
-                style={{
-                  gap: '10px',
-                  padding: '9px 12px',
-                  fontSize: '14px',
-                  textAlign: 'center',
-                }}
-                onClick={() =>
-                  setSearchParams({ modal: UNDERNAME_TABLE_ACTIONS.CREATE })
-                }
-              >
-                <PlusIcon
-                  width={'16px'}
-                  height={'16px'}
-                  fill={'var(--accent)'}
-                />
-                Add Undername
-              </button>
+              {antState?.getOwnershipStatus(walletAddress) ? (
+                <button
+                  disabled={
+                    antState?.getOwnershipStatus(walletAddress) === undefined
+                  }
+                  className={'button-secondary center'}
+                  style={{
+                    gap: '10px',
+                    padding: '9px 12px',
+                    fontSize: '14px',
+                    textAlign: 'center',
+                  }}
+                  onClick={() =>
+                    setSearchParams({ modal: UNDERNAME_TABLE_ACTIONS.CREATE })
+                  }
+                >
+                  <PlusIcon
+                    width={'16px'}
+                    height={'16px'}
+                    fill={'var(--accent)'}
+                  />
+                  Add Undername
+                </button>
+              ) : (
+                <></>
+              )}
             </div>
           </div>
           {tableLoading ? (
@@ -238,27 +242,31 @@ function Undernames() {
                       className="flex flex-row center"
                       style={{ gap: '16px' }}
                     >
-                      <button
-                        className={'button-secondary center'}
-                        style={{
-                          gap: '10px',
-                          padding: '9px 12px',
-                          fontSize: '14px',
-                          textAlign: 'center',
-                        }}
-                        onClick={() =>
-                          setSearchParams({
-                            modal: UNDERNAME_TABLE_ACTIONS.CREATE,
-                          })
-                        }
-                      >
-                        <PlusIcon
-                          width={'16px'}
-                          height={'16px'}
-                          fill={'var(--accent)'}
-                        />
-                        Add Undername
-                      </button>
+                      {antState?.getOwnershipStatus(walletAddress) ? (
+                        <button
+                          className={'button-secondary center'}
+                          style={{
+                            gap: '10px',
+                            padding: '9px 12px',
+                            fontSize: '14px',
+                            textAlign: 'center',
+                          }}
+                          onClick={() =>
+                            setSearchParams({
+                              modal: UNDERNAME_TABLE_ACTIONS.CREATE,
+                            })
+                          }
+                        >
+                          <PlusIcon
+                            width={'16px'}
+                            height={'16px'}
+                            fill={'var(--accent)'}
+                          />
+                          Add Undername
+                        </button>
+                      ) : (
+                        <></>
+                      )}
                     </div>
                   </div>
                 ),

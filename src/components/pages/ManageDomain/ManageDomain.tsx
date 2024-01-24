@@ -18,6 +18,7 @@ import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import {
   ANT_INTERACTION_TYPES,
+  ARNSRecordEntry,
   ContractInteraction,
   DomainDetails,
   INTERACTION_TYPES,
@@ -121,20 +122,33 @@ function ManageDomain() {
       }
       const contractTxId = new ArweaveTransactionID(txId);
 
-      const [contract, confirmations, pendingContractInteractions] =
-        await Promise.all([
-          arweaveDataProvider.buildANTContract(contractTxId),
-          arweaveDataProvider
-            .getTransactionStatus(contractTxId)
-            .then((status) => status[contractTxId.toString()].confirmations),
-          arweaveDataProvider.getPendingContractInteractions(contractTxId),
-        ]);
+      const [
+        contract,
+        confirmations,
+        pendingContractInteractions,
+        associatedRecords,
+      ] = await Promise.all([
+        arweaveDataProvider.buildANTContract(contractTxId),
+        arweaveDataProvider
+          .getTransactionStatus(contractTxId)
+          .then((status) => status[contractTxId.toString()].confirmations),
+        arweaveDataProvider.getPendingContractInteractions(contractTxId),
+        arweaveDataProvider.getRecords<ARNSRecordEntry>({
+          filters: {
+            contractTxId: [contractTxId],
+          },
+        }),
+      ]);
 
       // simple check that it is ANT shaped contract
       // TODO: add more checks, eg AST tree and function IO's
       if (!contract.isValid()) {
         throw Error('Invalid ANT contract');
       }
+
+      const names = Object.keys(associatedRecords).filter(
+        (key) => key !== name,
+      );
 
       const record = name
         ? await arweaveDataProvider
@@ -187,6 +201,7 @@ function ManageDomain() {
             +record.endTimestamp
           : 'Indefinite',
         status: confirmations,
+        associatedNames: !names.length ? 'N/A' : names.join(', '),
         name: contract.name ?? 'N/A',
         contractTxId: contractTxId.toString(),
         targetID:
