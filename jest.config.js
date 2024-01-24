@@ -2,10 +2,7 @@ module.exports = {
   testEnvironment: 'jsdom',
   collectCoverage: false,
   collectCoverageFrom: ['src/**/*.{ts,tsx,js,jsx}', '!src/**/*.d.ts'],
-  setupFilesAfterEnv: [
-    '<rootDir>/jest-setup.ts',
-    '<rootDir>/tests/setup.jest.ts',
-  ],
+  setupFilesAfterEnv: ['<rootDir>/jest-setup.ts'],
   moduleNameMapper: {
     '\\.(css|gif|png)$': 'jest-transform-stub',
     '\\.svg': '<rootDir>/tests/common/mocks/svg.js',

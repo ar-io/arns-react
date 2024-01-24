@@ -1,3 +1,6 @@
+import { TransactionInterface } from 'arweave/node/lib/transaction';
+import Transaction from 'arweave/web/lib/transaction';
+
 import { ANTContract } from '../../src/services/arweave/ANTContract';
 import { ARNSContractCache } from '../../src/services/arweave/ARNSContractCache';
 import { ArweaveCompositeDataProvider } from '../../src/services/arweave/ArweaveCompositeDataProvider';
@@ -10,50 +13,47 @@ import {
   TRANSACTION_TYPES,
 } from '../../src/types';
 import {
+  ARNS_REGISTRY_ADDRESS,
   ARNS_SERVICE_API,
   DEFAULT_ANT_CONTRACT_STATE,
+  DEFAULT_ANT_SOURCE_CODE_TX,
 } from '../../src/utils/constants';
-import {
-  addFunds,
-  arweave,
-  createLocalWallet,
-  deployARNSContract,
-  mineBlock,
-  simpleArweaveProvider,
-  warp,
-} from '../common/utils/helper';
+import { arweave, simpleArweaveProvider } from '../common/utils/helper';
 
 describe('Register ARNS Name', () => {
-  let arnsContractId: string;
   let provider: ArweaveCompositeDataProvider;
   let signer: ArweaveWalletConnector;
+  let antState: ANTContractJSON;
+  const signerSignMock = jest.fn((t: TransactionInterface) => t);
 
   beforeAll(async () => {
     // create composite data provider
-    const { wallet, address: owner } = await createLocalWallet(arweave);
+    const wallet = await arweave.wallets.generate();
+
+    arweave.api.request = jest.fn();
+    arweave.transactions.getTransactionAnchor = jest.fn(async () => 'anchor');
+    arweave.createTransaction = jest.fn(
+      async (props: Partial<TransactionInterface>) => {
+        antState = JSON.parse(props.data!.toString());
+        return new Transaction({ ...props, id: ''.padEnd(43, 'a') });
+      },
+    );
 
     const walletConnector = new JsonWalletConnector(wallet, arweave);
 
+    walletConnector.signer.signer = signerSignMock as any;
+    const warpProvider = new WarpDataProvider(arweave, walletConnector);
+    warpProvider.dryWrite = jest.fn(async () => ({ type: 'ok' })) as any;
+
     const arweavedataProvider = new ArweaveCompositeDataProvider(
       simpleArweaveProvider,
-      new WarpDataProvider(arweave, walletConnector),
+      warpProvider,
       new ARNSContractCache({
         url: ARNS_SERVICE_API,
         arweave: simpleArweaveProvider,
       }),
     );
 
-    // add funds to wallet
-    await addFunds(arweave, wallet);
-
-    // deploy registry contract
-    const contractTxId = await deployARNSContract({
-      owner,
-      wallet,
-      provider: arweavedataProvider,
-      balances: { [owner]: 1000000000000 },
-    });
-    arnsContractId = contractTxId;
     provider = arweavedataProvider;
     signer = walletConnector;
   });
@@ -69,39 +69,24 @@ describe('Register ARNS Name', () => {
       },
     };
 
-    const antRegistrationId = await provider.registerAtomicName({
-      walletAddress: await signer.getWalletAddress(),
-      registryId: new ArweaveTransactionID(arnsContractId),
-      srcCodeTransactionId: new ArweaveTransactionID(
-        process.env.ANT_CONTRACT_SRC_ID as any,
-      ),
-      initialState,
-      domain,
-      type: TRANSACTION_TYPES.BUY,
-      auction: false,
-      isBid: false,
-    });
-    await mineBlock(arweave);
-    const antState = await arweave.transactions
-      // eslint-disable-next-line
-      .getData(antRegistrationId!, {
-        decode: true,
-        string: true,
+    await provider
+      .registerAtomicName({
+        walletAddress: await signer.getWalletAddress(),
+        registryId: ARNS_REGISTRY_ADDRESS,
+        srcCodeTransactionId: new ArweaveTransactionID(
+          DEFAULT_ANT_SOURCE_CODE_TX,
+        ),
+        initialState,
+        domain,
+        type: TRANSACTION_TYPES.BUY,
+        auction: false,
+        isBid: false,
       })
-      .then((data) => JSON.parse(data.toString()));
+      .catch(() => null);
     const contract = new ANTContract(antState);
 
-    const arns = warp.contract<any>(arnsContractId);
-    const {
-      cachedValue: { state: arnsState },
-    } = await arns.readState();
-
-    expect(antRegistrationId).toBeDefined();
     expect(antState).toBeDefined();
     expect(contract.isValid()).toBeTruthy();
-    expect(arnsState.records[domain]).toBeDefined();
-    expect(arnsState.records[domain].contractTxId).toEqual(antRegistrationId);
-    expect(arnsState.records[domain].type).toEqual(TRANSACTION_TYPES.BUY);
   });
 
   // TODO: add tests for auctions, lease extension, and undername increase

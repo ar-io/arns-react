@@ -71,7 +71,9 @@ export class JsonWalletConnector implements ArweaveWalletConnector {
   }
 
   async getWalletAddress(): Promise<ArweaveTransactionID> {
-    const address = await this.arweave.wallets.jwkToAddress(this._wallet!);
+    const address = await this.arweave.wallets.jwkToAddress(
+      this._walletFile as JWKInterface,
+    );
     return new ArweaveTransactionID(address);
   }
   async getGatewayConfig(): Promise<ApiConfig> {

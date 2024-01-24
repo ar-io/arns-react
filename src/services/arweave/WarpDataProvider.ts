@@ -241,17 +241,15 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       contractSrc: srcCodeTransactionId,
     });
 
-    const transaction = await this._arweave.createTransaction(
-      {
-        data: JSON.stringify(initialState),
-      },
-      'use_wallet',
-    );
+    const transaction = await this._arweave.createTransaction({
+      data: JSON.stringify(initialState),
+    });
+
     [...swContractTags, ...tags].forEach((tag) => {
       transaction.addTag(tag.name, tag.value);
     });
 
-    await this._arweave.transactions.sign(transaction, 'use_wallet');
+    await this._walletConnector.signer.signer(transaction);
 
     const deployRes = await withExponentialBackoff<Response | null>({
       fn: () =>

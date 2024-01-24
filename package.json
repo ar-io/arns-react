@@ -14,7 +14,6 @@
     "test": "NODE_ENV=test jest",
     "test:updateSnapshot": "NODE_ENV=test jest --updateSnapshot",
     "test:coverage": "NODE_ENV=test jest --coverage",
-    "test:services": "NODE_ENV=test jest --testEnvironment=node --testPathPattern=tests/services --globalSetup=./tests/setup.jest.ts --globalTeardown=./tests/teardown.jest.ts --runInBand",
     "prepare": "husky install",
     "pre-commit": "lint-staged"
   },
@@ -67,6 +66,7 @@
     "@typescript-eslint/eslint-plugin": "^5.42.1",
     "@vitejs/plugin-react": "^4.0.0",
     "core-js": "^3.26.1",
+    "crypto": "^1.0.1",
     "eslint": "^8.27.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.26.0",
