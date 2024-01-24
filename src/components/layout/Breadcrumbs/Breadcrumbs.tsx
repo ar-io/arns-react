@@ -5,7 +5,11 @@ import { Link } from 'react-router-dom';
 
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { formatForMaxCharCount, isArweaveTransactionID } from '../../../utils';
+import {
+  formatForMaxCharCount,
+  isARNSDomainNameValid,
+  isArweaveTransactionID,
+} from '../../../utils';
 import { RESERVED_BREADCRUMB_TITLES } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { ChevronDownIcon } from '../../icons';
@@ -35,6 +39,7 @@ function Breadcrumbs() {
   async function handleCrumbs() {
     try {
       let contractId = '';
+      let name = '';
 
       const rawCrumbs = matches
         .filter(
@@ -45,9 +50,20 @@ function Breadcrumbs() {
           if (match.params?.id) {
             contractId = match.params?.id;
           }
+          if (match.params?.name) {
+            name = match.params?.name;
+          }
           return match?.handle?.crumbs(Object.values(match.params)[0]);
         });
       // check for ant flag
+      if (
+        name.length &&
+        !contractId.length &&
+        isARNSDomainNameValid({ name })
+      ) {
+        const record = await arweaveDataProvider.getRecord({ domain: name });
+        contractId = record.contractTxId;
+      }
       if (isArweaveTransactionID(contractId)) {
         const state = await arweaveDataProvider.getContractState(
           new ArweaveTransactionID(contractId),
