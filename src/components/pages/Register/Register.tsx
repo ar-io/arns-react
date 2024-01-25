@@ -3,7 +3,12 @@ import { InsufficientFundsError, ValidationError } from '@src/utils/errors';
 import { Tooltip } from 'antd';
 import emojiRegex from 'emoji-regex';
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from 'react-router-dom';
 
 import {
   useAuctionInfo,
@@ -24,6 +29,7 @@ import {
 } from '../../../types';
 import {
   encodeDomainToASCII,
+  isArweaveTransactionID,
   lowerCaseDomain,
   userHasSufficientBalance,
 } from '../../../utils';
@@ -48,7 +54,7 @@ import './styles.css';
 
 function RegisterNameForm() {
   const [
-    { domain, fee, leaseDuration, registrationType, antID },
+    { domain, fee, leaseDuration, registrationType, antID, targetId },
     dispatchRegisterState,
   ] = useRegistrationState();
   const [{ blockHeight, arweaveDataProvider, ioTicker }, dispatchGlobalState] =
@@ -63,13 +69,24 @@ function RegisterNameForm() {
   const { loading: isValidatingRegistration } = useRegistrationStatus(
     name ?? domain,
   );
-  const [targetId, setTargetId] = useState<string>();
+  const [newTargetId, setNewTargetId] = useState<string>();
   const targetIdFocused = useIsFocused('target-id-input');
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [hasValidationErrors, setHasValidationErrors] =
     useState<boolean>(false);
   const ioFee = fee?.[ioTicker];
   const feeError = ioFee && ioFee < 0;
+
+  useEffect(() => {
+    const redirect = searchParams.get('redirect');
+    if (redirect && name) {
+      if (!balances[ioTicker]) return;
+      setSearchParams();
+      handleNext();
+      return;
+    }
+  }, [balances]);
 
   useEffect(() => {
     if (!blockHeight) {
@@ -163,13 +180,23 @@ function RegisterNameForm() {
     }
   }
 
-  if (!walletAddress || !registrationType) {
+  if (!registrationType) {
     return <Loader size={80} />;
   }
 
   async function handleNext() {
     try {
       // validate transaction cost, return if insufficient balance and emit validation message
+      if (!walletAddress) {
+        const redirectParams = new URLSearchParams({ redirect: 'true' });
+        navigate('/connect', {
+          state: {
+            to: `/register/${domain}?${redirectParams.toString()}`,
+            from: `/register/${domain}`,
+          },
+        });
+        return;
+      }
 
       const balanceErrors = userHasSufficientBalance<{
         [x: string]: number;
@@ -217,7 +244,7 @@ function RegisterNameForm() {
       type: registrationType,
       auction: (auction?.isRequiredToBeAuctioned || auction?.isActive) ?? false,
       isBid: auction?.isActive ?? false,
-      targetId: targetId ? new ArweaveTransactionID(targetId) : undefined,
+      targetId,
     };
 
     dispatchTransactionState({
@@ -233,12 +260,12 @@ function RegisterNameForm() {
       type: 'setInteractionType',
       payload: INTERACTION_TYPES.BUY_RECORD,
     });
+    dispatchRegisterState({
+      type: 'reset',
+    });
     // navigate to the transaction page, which will load the updated state of the transaction context
     navigate('/transaction', {
       state: `/register/${domain}`,
-    });
-    dispatchRegisterState({
-      type: 'reset',
     });
   }
 
@@ -509,7 +536,7 @@ function RegisterNameForm() {
               className="name-token-input-wrapper"
               style={{
                 border:
-                  targetIdFocused || targetId
+                  targetIdFocused || newTargetId
                     ? 'solid 1px var(--text-white)'
                     : 'solid 1px var(--text-faded)',
                 position: 'relative',
@@ -517,9 +544,15 @@ function RegisterNameForm() {
             >
               <ValidationInput
                 inputId={'target-id-input'}
-                value={targetId ?? ''}
+                value={newTargetId ?? ''}
                 setValue={(v: string) => {
-                  setTargetId(v.trim());
+                  setNewTargetId(v.trim());
+                  if (isArweaveTransactionID(v.trim())) {
+                    dispatchRegisterState({
+                      type: 'setTargetId',
+                      payload: new ArweaveTransactionID(v.trim()),
+                    });
+                  }
                   if (v.trim().length === 0) {
                     setHasValidationErrors(false);
                   }
