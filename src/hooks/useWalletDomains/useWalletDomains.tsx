@@ -615,8 +615,8 @@ export function useWalletDomains() {
             contract.owner === walletAddress?.toString()
               ? 'Owner'
               : contract.controllers.includes(address.toString())
-                ? 'Controller'
-                : 'N/A',
+              ? 'Controller'
+              : 'N/A',
           expiration: record.endTimestamp
             ? new Date(record.endTimestamp * 1000)
             : 'Indefinite',

@@ -152,10 +152,10 @@ function TransactionModal({
                         border: '2px solid var(--success-green)',
                       }
                     : !isValidAddress && toAddress
-                      ? {
-                          border: '2px solid var(--error-red)',
-                        }
-                      : !isValidAddress && !toAddress && {}
+                    ? {
+                        border: '2px solid var(--error-red)',
+                      }
+                    : !isValidAddress && !toAddress && {}
                 }
                 validationListStyle={{
                   gap: isMobile ? '0.5em' : '1em',

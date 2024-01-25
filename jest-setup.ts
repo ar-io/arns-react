@@ -20,4 +20,4 @@ Object.defineProperty(global.self, 'crypto', {
     subtle: crypto.webcrypto.subtle,
   },
 });
-// global.fetch = jest.fn();
+global.fetch = jest.fn();

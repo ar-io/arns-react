@@ -92,8 +92,9 @@ function UpgradeUndernames() {
         }
         setRecord(record);
         const contractTxId = new ArweaveTransactionID(record?.contractTxId);
-        const contract =
-          await arweaveDataProvider.buildANTContract(contractTxId);
+        const contract = await arweaveDataProvider.buildANTContract(
+          contractTxId,
+        );
         if (!contract.state) {
           throw new Error(`Unable to get contract state for ${name}`);
         }

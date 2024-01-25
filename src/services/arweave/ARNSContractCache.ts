@@ -88,8 +88,9 @@ export class ARNSContractCache implements SmartweaveContractCache {
         (token: ANTContract) =>
           token.id?.toString() === contractTxId.toString(),
       );
-      const cachedInteractions =
-        await this._cache.getCachedInteractions(contractTxId);
+      const cachedInteractions = await this._cache.getCachedInteractions(
+        contractTxId,
+      );
       if (cachedInteractions) {
         cachedInteractions.map((interaction: ContractInteraction) => {
           if (state && interaction.type === 'deploy') {
@@ -161,15 +162,17 @@ export class ARNSContractCache implements SmartweaveContractCache {
   async getPendingContractInteractions(
     contractTxId: ArweaveTransactionID,
   ): Promise<ContractInteraction[]> {
-    const cachedInteractions =
-      await this._cache.getCachedInteractions(contractTxId);
+    const cachedInteractions = await this._cache.getCachedInteractions(
+      contractTxId,
+    );
 
     if (!cachedInteractions.length) {
       return [];
     }
 
-    const gqlIndexedInteractions =
-      await this.getContractInteractions(contractTxId);
+    const gqlIndexedInteractions = await this.getContractInteractions(
+      contractTxId,
+    );
     const pendingInteractions = cachedInteractions.filter(
       (interaction) =>
         !gqlIndexedInteractions.find(
@@ -253,8 +256,9 @@ export class ARNSContractCache implements SmartweaveContractCache {
     domain: string;
     type?: 'lease' | 'permabuy';
   }): Promise<Auction> {
-    const cachedInteractions =
-      await this._cache.getCachedInteractions(contractTxId);
+    const cachedInteractions = await this._cache.getCachedInteractions(
+      contractTxId,
+    );
     const cachedAuction = cachedInteractions
       .filter((interaction: ContractInteraction) => {
         if (
@@ -342,8 +346,9 @@ export class ARNSContractCache implements SmartweaveContractCache {
     const domainsInAuction = new Set(Object.keys(auctions));
 
     if (address) {
-      const cachedInteractions =
-        await this._cache.getCachedInteractions(contractTxId);
+      const cachedInteractions = await this._cache.getCachedInteractions(
+        contractTxId,
+      );
       cachedInteractions.forEach((interaction: any) => {
         if (
           interaction.payload?.auction === true &&
@@ -373,8 +378,9 @@ export class ARNSContractCache implements SmartweaveContractCache {
     ).catch(() => undefined);
     const { record } = res && res.ok ? await res.json() : { record: undefined };
 
-    const cachedInteractions =
-      await this._cache.getCachedInteractions(contractTxId);
+    const cachedInteractions = await this._cache.getCachedInteractions(
+      contractTxId,
+    );
 
     const cachedRecords = cachedInteractions.filter(
       (interaction: ContractInteraction) =>

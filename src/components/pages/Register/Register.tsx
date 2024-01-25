@@ -116,8 +116,9 @@ function RegisterNameForm() {
               type: 'setFee',
               payload: { ar: fee.ar, [ioTicker]: undefined },
             });
-            const gas =
-              await arweaveDataProvider.getArPrice(SMARTWEAVE_TAG_SIZE);
+            const gas = await arweaveDataProvider.getArPrice(
+              SMARTWEAVE_TAG_SIZE,
+            );
             const price = await arweaveDataProvider
               .getPriceForInteraction({
                 interactionName: INTERACTION_NAMES.BUY_RECORD,
