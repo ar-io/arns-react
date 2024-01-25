@@ -280,10 +280,7 @@ function App() {
                 <PageLoader loading={true} message={'Loading, please wait'} />
               }
             >
-              {' '}
-              <ProtectedRoute>
-                <Register />
-              </ProtectedRoute>
+              <Register />
             </Suspense>
           }
         />
