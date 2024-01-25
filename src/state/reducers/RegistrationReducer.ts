@@ -7,6 +7,7 @@ import {
 
 export type RegistrationAction =
   | { type: 'setDomainName'; payload: string }
+  | { type: 'setTargetId'; payload: ArweaveTransactionID }
   | { type: 'setRegistrationType'; payload: TRANSACTION_TYPES }
   | { type: 'setLeaseDuration'; payload: number }
   | { type: 'setANTID'; payload: ArweaveTransactionID | undefined }
@@ -35,6 +36,11 @@ export const registrationReducer = (
       return {
         ...state,
         domain: action.payload,
+      };
+    case 'setTargetId':
+      return {
+        ...state,
+        targetId: action.payload,
       };
     case 'setLeaseDuration':
       return {
