@@ -200,8 +200,9 @@ function ManageDomain() {
           ? // assume permabuy if missing timestamp
             +record.endTimestamp
           : 'Indefinite',
-        status: confirmations,
+        leaseDuration: `${getLeaseDurationString()}`,
         associatedNames: !names.length ? 'N/A' : names.join(', '),
+        status: confirmations,
         name: contract.name ?? 'N/A',
         contractTxId: contractTxId.toString(),
         targetID:
@@ -213,7 +214,7 @@ function ManageDomain() {
         controllers: contract.controllers.join(', ') ?? 'N/A',
         owner: contract.owner ?? 'N/A',
         ttlSeconds: contract.getRecord('@')?.ttlSeconds ?? DEFAULT_TTL_SECONDS,
-        leaseDuration: `${getLeaseDurationString()}`,
+
         // -1 because @ record is not counted
         undernames: `${getUndernameCount(contract.records)}/${(
           record?.undernames ?? DEFAULT_MAX_UNDERNAMES
