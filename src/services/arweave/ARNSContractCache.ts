@@ -1,4 +1,6 @@
+import { ArNSServiceError } from '@src/utils/errors';
 import fetchRetry from 'fetch-retry';
+import { chunk } from 'lodash';
 
 import {
   ANTContractDomainRecord,
@@ -21,7 +23,10 @@ import {
   isDomainReservedLength,
   lowerCaseDomain,
 } from '../../utils';
-import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
+import {
+  ARNS_REGISTRY_ADDRESS,
+  ARWEAVE_TX_LENGTH,
+} from '../../utils/constants';
 import { ContractInteractionCache } from '../caches/ContractInteractionCache';
 import { LocalStorageCache } from '../caches/LocalStorageCache';
 import { ANTContract } from './ANTContract';
@@ -438,18 +443,50 @@ export class ARNSContractCache implements SmartweaveContractCache {
     // TODO: this doesn't extend well, but allows multiple contractTxIds to be passed in
     // We'd want to create an array for any key that can be an array and then add it to the
     // array of [key, value]'s provided to URLSearchParams
-    const urlQueryParams = new URLSearchParams(
-      filters.contractTxId?.map((id) => ['contractTxId', id.toString()]),
+
+    /* NOTE: max url size is 2047, so need to be careful about how many contractTxIds are passed in and chunk accordingly.
+     * no parsing currently needed as only contractTxId is passed in and it is a string, but for other requests we may need to parse for safe url params
+     */
+    const contractTxIdSet = new Set([
+      ...(filters?.contractTxId
+        ? filters.contractTxId.map((id) => id.toString())
+        : []),
+    ]); // dedupe to reduce query size
+    const baseUrl = `${
+      this._url
+    }/v1/contract/${contractTxId.toString()}/records?`;
+    const urlMaxLength = 2047;
+    const urlParamSpace = urlMaxLength - baseUrl.length;
+    const paramLength = '&contractTxId='.length + ARWEAVE_TX_LENGTH;
+    const batchSize = Math.floor(urlParamSpace / paramLength);
+    const contractTxIdBatches = chunk([...contractTxIdSet], batchSize);
+    const urlQueryParamBatches = contractTxIdBatches.map((batch) => {
+      const urlQueryParams = new URLSearchParams(
+        batch.map((id) => ['contractTxId', id.toString()]),
+      );
+      return urlQueryParams.toString();
+    });
+
+    const batchResponses = await Promise.all(
+      urlQueryParamBatches.map((urlQueryParams) =>
+        this._http(`${baseUrl}${urlQueryParams.toString()}`),
+      ),
     );
 
-    const res = await this._http(
-      `${
-        this._url
-      }/v1/contract/${contractTxId.toString()}/records?${urlQueryParams.toString()}`,
+    const results = await batchResponses.reduce(
+      async (results, batchResult) => {
+        if (batchResult.ok) {
+          const { records } = await batchResult.json();
+          return { ...results, ...records };
+        }
+        throw new ArNSServiceError(
+          'Error getting records using ANT batch query',
+        );
+      },
+      {},
     );
-    const { records } =
-      res && res.ok ? await res.json() : { records: undefined };
-    const domains = Object.keys(records ?? {});
+
+    const domains = Object.keys(results ?? {});
 
     const cachedRegistrations = cachedInteractions.reduce(
       (acc: Record<string, T>, interaction: ContractInteraction) => {
@@ -472,7 +509,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
       },
       {},
     );
-    return { ...cachedRegistrations, ...records };
+    return { ...cachedRegistrations, ...results };
   }
 
   async getTokenBalance(
