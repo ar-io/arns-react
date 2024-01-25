@@ -1,4 +1,3 @@
-import ArLocal from 'arlocal';
 import Arweave from 'arweave';
 import { JWKInterface } from 'arweave/node/lib/wallet';
 import * as fs from 'fs';
@@ -20,7 +19,6 @@ export const arweave = Arweave.init({
   protocol: 'http',
 });
 export const warp = WarpFactory.forLocal(1984, arweave);
-export const arlocal = new ArLocal(1984, false);
 
 export const simpleArweaveProvider = new SimpleArweaveDataProvider(arweave);
 
