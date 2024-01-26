@@ -68,6 +68,12 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     this._walletConnector = walletConnector;
   }
 
+  syncStateUrlForContract(contractTxId: ArweaveTransactionID): string {
+    return `${ARNS_SERVICE_API}/v1/contract/${contractTxId.toString()}?${new URLSearchParams(
+      { validity: 'true' },
+    ).toString()}`;
+  }
+
   private async getContractManifest({
     contractTxId,
   }: {
@@ -122,7 +128,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       .setEvaluationOptions(evaluationOptions)
       .connect(this._walletConnector.signer)
       // TODO: add to our SmartweaveContractInterface a method that gets the full response of the service with `sortKey`
-      .syncState(`${ARNS_SERVICE_API}/v1/contract/${contractTxId.toString()}`);
+      .syncState(this.syncStateUrlForContract(contractTxId));
 
     if (dryWrite) {
       const dryWriteResults = await this.dryWrite({
@@ -359,7 +365,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       .setEvaluationOptions(evaluationOptions)
       .connect(this._walletConnector.signer)
       // TODO: add to our SmartweaveContractInterface a method that gets the full response of the service with `sortKey`
-      .syncState(`${ARNS_SERVICE_API}/v1/contract/${ARNS_REGISTRY_ADDRESS}`);
+      .syncState(this.syncStateUrlForContract(ARNS_REGISTRY_ADDRESS));
 
     // because we are manually constructing the tags, we want to verify them immediately and always
     const dryWriteResults = await this.dryWrite({
