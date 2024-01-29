@@ -86,7 +86,7 @@ function RegisterNameForm() {
       handleNext();
       return;
     }
-  }, [balances]);
+  }, [balances, fee]);
 
   useEffect(() => {
     if (!blockHeight) {

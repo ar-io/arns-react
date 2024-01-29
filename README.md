@@ -38,3 +38,7 @@ These rules are to help keep the repo tidy and help know where everything is. A 
 ### Notifications
 
 When using the notification API you can import the `eventEmitter` from the `events.ts` file. From the `errors.ts` file you can import `NotificationOnlyError` which will not emit the error to sentry, otherwise for errors that should be reported, such as unhandled errors, use the `Error` object or create a custom error that extends it in the `errors.ts` file.
+
+### Smartweave Contract Deploys
+
+We currently deploy contracts manually due to Warp Deploy Plugin not implementing tree shaking. This saves 2mb on the build size - once warp adds deploy functionality in the core package, we should switch to that, or when our deployment method becomes more complicated (e.g L2 usage)

@@ -9,6 +9,8 @@ import svgr from 'vite-plugin-svgr';
 export default defineConfig({
   build: {
     sourcemap: true,
+    minify: true,
+    cssMinify: true,
   },
   plugins: [
     svgr(),

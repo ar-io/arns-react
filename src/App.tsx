@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/react';
+import React, { Suspense } from 'react';
 import {
   Navigate,
   Route,
@@ -7,25 +8,50 @@ import {
   createRoutesFromElements,
 } from 'react-router-dom';
 
-import { Layout, ProtectedRoute } from './components/layout';
+import { Layout } from './components/layout';
 import { ANT_FLAG } from './components/layout/Breadcrumbs/Breadcrumbs';
-import ExtendLease from './components/layout/ExtendLease/ExtendLease';
-import UpgradeUndernames from './components/layout/UpgradeUndernames/UpgradeUndernames';
-import ViewAuction from './components/layout/ViewAuction/ViewAuction';
-import { ConnectWalletModal } from './components/modals';
-import {
-  Auctions,
-  Home,
-  Manage,
-  ManageANT,
-  ManageDomain,
-  NotFound,
-  Register,
-  Transaction,
-  Undernames,
-} from './components/pages';
+import PageLoader from './components/layout/progress/PageLoader/PageLoader';
 import useArconnectEvents from './hooks/useArconnectEvents/useArconnectEvents';
 import './index.css';
+
+const Home = React.lazy(() => import('./components/pages/Home/Home'));
+const Manage = React.lazy(() => import('./components/pages/Manage/Manage'));
+const ManageANT = React.lazy(
+  () => import('./components/pages/ManageANT/ManageANT'),
+);
+const ManageDomain = React.lazy(
+  () => import('./components/pages/ManageDomain/ManageDomain'),
+);
+const NotFound = React.lazy(
+  () => import('./components/pages/NotFound/NotFound'),
+);
+const Register = React.lazy(
+  () => import('./components/pages/Register/Register'),
+);
+const Transaction = React.lazy(
+  () => import('./components/pages/Transaction/Transaction'),
+);
+const Undernames = React.lazy(
+  () => import('./components/pages/Undernames/Undernames'),
+);
+const Auctions = React.lazy(
+  () => import('./components/pages/Auctions/Auctions'),
+);
+const ProtectedRoute = React.lazy(
+  () => import('./components/layout/ProtectedRoute/ProtectedRoute'),
+);
+const ConnectWalletModal = React.lazy(
+  () => import('./components/modals/ConnectWalletModal/ConnectWalletModal'),
+);
+const ExtendLease = React.lazy(
+  () => import('./components/layout/ExtendLease/ExtendLease'),
+);
+const UpgradeUndernames = React.lazy(
+  () => import('./components/layout/UpgradeUndernames/UpgradeUndernames'),
+);
+const ViewAuction = React.lazy(
+  () => import('./components/layout/ViewAuction/ViewAuction'),
+);
 
 const sentryCreateBrowserRouter =
   Sentry.wrapCreateBrowserRouter(createBrowserRouter);
@@ -36,26 +62,65 @@ function App() {
   const router = sentryCreateBrowserRouter(
     createRoutesFromElements(
       <Route element={<Layout />} errorElement={<NotFound />}>
-        <Route index element={<Home />} />
-        <Route path="connect" element={<ConnectWalletModal />} />
+        <Route
+          index
+          element={
+            <Suspense
+              fallback={
+                <PageLoader loading={true} message={'Loading, please wait'} />
+              }
+            >
+              <Home />
+            </Suspense>
+          }
+        />
+        <Route
+          path="connect"
+          element={
+            <Suspense
+              fallback={
+                <PageLoader loading={true} message={'Loading, please wait'} />
+              }
+            >
+              <ConnectWalletModal />
+            </Suspense>
+          }
+        />
         <Route path="manage">
           <Route index={true} element={<Navigate to="names" />} />
           <Route path=":path">
             <Route
               index={true}
               element={
-                <ProtectedRoute>
-                  <Manage />
-                </ProtectedRoute>
+                <Suspense
+                  fallback={
+                    <PageLoader
+                      loading={true}
+                      message={'Loading, please wait'}
+                    />
+                  }
+                >
+                  {' '}
+                  <ProtectedRoute>
+                    <Manage />
+                  </ProtectedRoute>
+                </Suspense>
               }
             />
           </Route>
           <Route
             path="ants/:id"
             element={
-              <ProtectedRoute>
-                <ManageANT />
-              </ProtectedRoute>
+              <Suspense
+                fallback={
+                  <PageLoader loading={true} message={'Loading, please wait'} />
+                }
+              >
+                {' '}
+                <ProtectedRoute>
+                  <ManageANT />
+                </ProtectedRoute>
+              </Suspense>
             }
             handle={{
               crumbs: (data: string) => [
@@ -70,9 +135,16 @@ function App() {
           <Route
             path="ants/:id/undernames"
             element={
-              <ProtectedRoute>
-                <Undernames />
-              </ProtectedRoute>
+              <Suspense
+                fallback={
+                  <PageLoader loading={true} message={'Loading, please wait'} />
+                }
+              >
+                {' '}
+                <ProtectedRoute>
+                  <Undernames />
+                </ProtectedRoute>
+              </Suspense>
             }
             handle={{
               crumbs: (data: string) => [
@@ -91,9 +163,16 @@ function App() {
           <Route
             path="names/:name"
             element={
-              <ProtectedRoute>
-                <ManageDomain />
-              </ProtectedRoute>
+              <Suspense
+                fallback={
+                  <PageLoader loading={true} message={'Loading, please wait'} />
+                }
+              >
+                {' '}
+                <ProtectedRoute>
+                  <ManageDomain />
+                </ProtectedRoute>
+              </Suspense>
             }
             handle={{
               crumbs: (data: string) => [
@@ -105,9 +184,16 @@ function App() {
           <Route
             path="names/:name/undernames"
             element={
-              <ProtectedRoute>
-                <UpgradeUndernames />
-              </ProtectedRoute>
+              <Suspense
+                fallback={
+                  <PageLoader loading={true} message={'Loading, please wait'} />
+                }
+              >
+                {' '}
+                <ProtectedRoute>
+                  <UpgradeUndernames />
+                </ProtectedRoute>
+              </Suspense>
             }
             handle={{
               crumbs: (data: string) => [
@@ -123,9 +209,15 @@ function App() {
           <Route
             path="names/:name/extend"
             element={
-              <ProtectedRoute>
-                <ExtendLease />
-              </ProtectedRoute>
+              <Suspense
+                fallback={
+                  <PageLoader loading={true} message={'Loading, please wait'} />
+                }
+              >
+                <ProtectedRoute>
+                  <ExtendLease />
+                </ProtectedRoute>
+              </Suspense>
             }
             handle={{
               crumbs: (data: string) => [
@@ -143,16 +235,67 @@ function App() {
         <Route
           path="transaction"
           element={
-            <ProtectedRoute>
-              <Transaction />
-            </ProtectedRoute>
+            <Suspense
+              fallback={
+                <PageLoader loading={true} message={'Loading, please wait'} />
+              }
+            >
+              <ProtectedRoute>
+                <Transaction />
+              </ProtectedRoute>
+            </Suspense>
           }
         />
         ,
-        <Route path="auctions" element={<Auctions />} />,
-        <Route path="auctions/:name" element={<ViewAuction />} />
-        <Route path="register/:name" element={<Register />} />
-        <Route path="*" element={<NotFound />} />
+        <Route
+          path="auctions"
+          element={
+            <Suspense
+              fallback={
+                <PageLoader loading={true} message={'Loading, please wait'} />
+              }
+            >
+              <Auctions />
+            </Suspense>
+          }
+        />
+        ,
+        <Route
+          path="auctions/:name"
+          element={
+            <Suspense
+              fallback={
+                <PageLoader loading={true} message={'Loading, please wait'} />
+              }
+            >
+              <ViewAuction />
+            </Suspense>
+          }
+        />
+        <Route
+          path="register/:name"
+          element={
+            <Suspense
+              fallback={
+                <PageLoader loading={true} message={'Loading, please wait'} />
+              }
+            >
+              <Register />
+            </Suspense>
+          }
+        />
+        <Route
+          path="*"
+          element={
+            <Suspense
+              fallback={
+                <PageLoader loading={true} message={'Loading, please wait'} />
+              }
+            >
+              <NotFound />
+            </Suspense>
+          }
+        />
       </Route>,
     ),
   );
