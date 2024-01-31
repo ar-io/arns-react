@@ -8,7 +8,6 @@ import { MANAGE_TABLE_NAMES } from '../../../types';
 import { getCustomPaginationButtons } from '../../../utils';
 import { CodeSandboxIcon, NotebookIcon, RefreshIcon } from '../../icons';
 import { Loader } from '../../layout/index';
-import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
 
 function Manage() {
@@ -33,7 +32,6 @@ function Manage() {
     rows: domainRows,
     sortAscending: domainSortAscending,
     sortField: domainSortField,
-    loadingManageDomain,
     refresh: refreshANTs,
   } = useWalletDomains();
 
@@ -298,16 +296,6 @@ function Manage() {
           )}
         </div>
       </div>
-      {loadingManageDomain ? (
-        <div className="modal-container">
-          <PageLoader
-            loading={true}
-            message={`Loading details for ${loadingManageDomain}`}
-          />
-        </div>
-      ) : (
-        <></>
-      )}
     </div>
   );
 }

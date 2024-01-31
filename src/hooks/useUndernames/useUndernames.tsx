@@ -22,11 +22,11 @@ import {
   UndernameMetadata,
   UndernameTableInteractionTypes,
 } from '../../types';
-import { isArweaveTransactionID } from '../../utils';
+import { isArweaveTransactionID, withExponentialBackoff } from '../../utils';
 import { ARNS_NAME_REGEX_PARTIAL } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 
-export function useUndernames(id?: ArweaveTransactionID) {
+export function useUndernames(id?: ArweaveTransactionID, name?: string) {
   const [{ gateway, arweaveDataProvider }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [sortAscending, setSortOrder] = useState(true);
@@ -47,12 +47,12 @@ export function useUndernames(id?: ArweaveTransactionID) {
   const [domain, setDomain] = useState<string>('');
 
   useEffect(() => {
-    if (!id) {
+    if (!id && !name) {
       return;
     }
     generateTableColumns();
-    fetchUndernameRows(id);
-  }, [id]);
+    fetchUndernameRows(id, name);
+  }, [id, name]);
 
   useEffect(() => {
     if (searchText) {
@@ -343,26 +343,49 @@ export function useUndernames(id?: ArweaveTransactionID) {
     return newColumns;
   }
 
-  async function fetchUndernameRows(id?: ArweaveTransactionID): Promise<void> {
-    if (!id) {
+  async function fetchUndernameRows(
+    id?: ArweaveTransactionID,
+    name?: string,
+  ): Promise<void> {
+    let contractTxId: ArweaveTransactionID | undefined = undefined;
+    if (id) {
+      contractTxId = id;
+    } else if (name) {
+      const record = await withExponentialBackoff({
+        fn: () =>
+          arweaveDataProvider.getRecord({
+            domain: name,
+          }),
+        maxTries: 5,
+        initialDelay: 1000,
+        shouldRetry: (res) => !res?.contractTxId,
+      });
+      if (record) contractTxId = new ArweaveTransactionID(record?.contractTxId);
+    }
+
+    if (!contractTxId) {
+      setIsLoading(false);
       return;
     }
     setIsLoading(true);
     const domain = await arweaveDataProvider
-      .getRecords({ filters: { contractTxId: [id] }, address: walletAddress })
+      .getRecords({
+        filters: { contractTxId: [contractTxId] },
+        address: walletAddress,
+      })
       .then((records) => Object.keys(records)[0])
       .catch((error) => {
-        console.debug('No domain found for ANT', id.toString());
+        console.debug('No domain found for ANT', contractTxId?.toString());
         eventEmitter.emit('error', error);
         return '';
       });
     setDomain(domain);
     const fetchedRows: UndernameMetadata[] = [];
     const [contract, confirmations] = await Promise.all([
-      arweaveDataProvider.buildANTContract(id),
+      arweaveDataProvider.buildANTContract(contractTxId),
       arweaveDataProvider
-        .getTransactionStatus(id)
-        .then((status) => status[id.toString()].confirmations),
+        .getTransactionStatus(contractTxId)
+        .then((status) => status[contractTxId!.toString()].confirmations),
     ]);
     const undernames = Object.entries(contract.records).filter(
       ([key]) => key !== '@',
@@ -402,6 +425,6 @@ export function useUndernames(id?: ArweaveTransactionID) {
     action,
     setAction: (action: UNDERNAME_TABLE_ACTIONS | undefined) =>
       setAction(action),
-    refresh: () => fetchUndernameRows(id),
+    refresh: () => fetchUndernameRows(id, name),
   };
 }
