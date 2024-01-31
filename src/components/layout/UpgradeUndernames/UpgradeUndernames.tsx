@@ -241,7 +241,7 @@ function UpgradeUndernames() {
                   });
                   // navigate to the transaction page, which will load the updated state of the transaction context
                   navigate('/transaction', {
-                    state: `/manage/names/${name}/undernames`,
+                    state: `/manage/names/${name}/upgrade-undernames`,
                   });
                 }
           }

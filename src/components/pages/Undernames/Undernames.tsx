@@ -17,6 +17,7 @@ import {
 import {
   getCustomPaginationButtons,
   isArweaveTransactionID,
+  withExponentialBackoff,
 } from '../../../utils';
 import eventEmitter from '../../../utils/events';
 import TransactionSuccessCard from '../../cards/TransactionSuccessCard/TransactionSuccessCard';
@@ -30,7 +31,7 @@ import './styles.css';
 
 function Undernames() {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id, name } = useParams();
   const [{ arweaveDataProvider }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [antId, setANTId] = useState<ArweaveTransactionID>();
@@ -50,7 +51,7 @@ function Undernames() {
     action,
     setAction,
     refresh,
-  } = useUndernames(antId);
+  } = useUndernames(antId, name);
   const [tableLoading, setTableLoading] = useState(true);
   const [tablePage, setTablePage] = useState<number>(1);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -65,53 +66,69 @@ function Undernames() {
     useState<ArweaveTransactionID>();
 
   useEffect(() => {
-    if (!id) {
+    if (!id && !name) {
       eventEmitter.emit('error', new Error('Missing ANT transaction ID.'));
       navigate('/manage/ants');
       return;
     }
 
-    if (!antId) {
-      setANTId(new ArweaveTransactionID(id));
-    }
+    setTableLoading(undernameTableLoading);
+    setPercentLoaded(percentUndernamesLoaded);
+    setSelectedRow(selectedUndernameRow);
 
-    if (isArweaveTransactionID(id)) {
-      setTableLoading(undernameTableLoading);
-      setPercentLoaded(percentUndernamesLoaded);
-      setSelectedRow(selectedUndernameRow);
-      load(new ArweaveTransactionID(id));
+    if (tableLoading) load();
 
-      setAction(action);
+    setAction(action);
 
-      if (
-        action === UNDERNAME_TABLE_ACTIONS.REMOVE &&
-        antId &&
-        selectedUndernameRow?.name
-      ) {
-        setTransactionData({
-          subDomain: selectedUndernameRow?.name,
-        });
-        setInteractionType(ANT_INTERACTION_TYPES.REMOVE_RECORD);
-      }
+    if (
+      action === UNDERNAME_TABLE_ACTIONS.REMOVE &&
+      antId &&
+      selectedUndernameRow?.name
+    ) {
+      setTransactionData({
+        subDomain: selectedUndernameRow?.name,
+      });
+      setInteractionType(ANT_INTERACTION_TYPES.REMOVE_RECORD);
     }
   }, [
     id,
+    name,
     undernameSortAscending,
     undernameSortField,
-    undernameRows,
     selectedUndernameRow,
-    undernameTableLoading,
-    percentUndernamesLoaded,
     action,
+    undernameRows,
   ]);
 
-  async function load(id: ArweaveTransactionID) {
+  async function load() {
     try {
-      const contract = await arweaveDataProvider.buildANTContract(id);
+      let contractTxId: ArweaveTransactionID | undefined = undefined;
+      if (isArweaveTransactionID(id)) {
+        contractTxId = new ArweaveTransactionID(id);
+      } else if (name) {
+        const record = await withExponentialBackoff({
+          fn: () =>
+            arweaveDataProvider.getRecord({
+              domain: name,
+            }),
+          maxTries: 5,
+          initialDelay: 1000,
+          shouldRetry: (res) => !res?.contractTxId,
+        });
+
+        contractTxId = new ArweaveTransactionID(record?.contractTxId);
+      }
+
+      if (!contractTxId) {
+        throw new Error('Unable to load undernames, cannot resolve ANT ID.');
+      }
+      setANTId(contractTxId);
+      const contract = await arweaveDataProvider.buildANTContract(contractTxId);
 
       setANTState(contract);
     } catch (error) {
       eventEmitter.emit('error', error);
+      navigate('/manage/ants');
     }
   }
 
@@ -139,28 +156,32 @@ function Undernames() {
               style={{ justifyContent: 'space-between' }}
             >
               <h2 className="white">Manage Undernames</h2>
-              <button
-                disabled={
-                  antState?.getOwnershipStatus(walletAddress) === undefined
-                }
-                className={'button-secondary center'}
-                style={{
-                  gap: '10px',
-                  padding: '9px 12px',
-                  fontSize: '14px',
-                  textAlign: 'center',
-                }}
-                onClick={() =>
-                  setSearchParams({ modal: UNDERNAME_TABLE_ACTIONS.CREATE })
-                }
-              >
-                <PlusIcon
-                  width={'16px'}
-                  height={'16px'}
-                  fill={'var(--accent)'}
-                />
-                Add Undername
-              </button>
+              {antState?.getOwnershipStatus(walletAddress) ? (
+                <button
+                  disabled={
+                    antState?.getOwnershipStatus(walletAddress) === undefined
+                  }
+                  className={'button-secondary center'}
+                  style={{
+                    gap: '10px',
+                    padding: '9px 12px',
+                    fontSize: '14px',
+                    textAlign: 'center',
+                  }}
+                  onClick={() =>
+                    setSearchParams({ modal: UNDERNAME_TABLE_ACTIONS.CREATE })
+                  }
+                >
+                  <PlusIcon
+                    width={'16px'}
+                    height={'16px'}
+                    fill={'var(--accent)'}
+                  />
+                  Add Undername
+                </button>
+              ) : (
+                <></>
+              )}
             </div>
           </div>
           {tableLoading ? (
@@ -221,27 +242,31 @@ function Undernames() {
                       className="flex flex-row center"
                       style={{ gap: '16px' }}
                     >
-                      <button
-                        className={'button-secondary center'}
-                        style={{
-                          gap: '10px',
-                          padding: '9px 12px',
-                          fontSize: '14px',
-                          textAlign: 'center',
-                        }}
-                        onClick={() =>
-                          setSearchParams({
-                            modal: UNDERNAME_TABLE_ACTIONS.CREATE,
-                          })
-                        }
-                      >
-                        <PlusIcon
-                          width={'16px'}
-                          height={'16px'}
-                          fill={'var(--accent)'}
-                        />
-                        Add Undername
-                      </button>
+                      {antState?.getOwnershipStatus(walletAddress) ? (
+                        <button
+                          className={'button-secondary center'}
+                          style={{
+                            gap: '10px',
+                            padding: '9px 12px',
+                            fontSize: '14px',
+                            textAlign: 'center',
+                          }}
+                          onClick={() =>
+                            setSearchParams({
+                              modal: UNDERNAME_TABLE_ACTIONS.CREATE,
+                            })
+                          }
+                        >
+                          <PlusIcon
+                            width={'16px'}
+                            height={'16px'}
+                            fill={'var(--accent)'}
+                          />
+                          Add Undername
+                        </button>
+                      ) : (
+                        <></>
+                      )}
                     </div>
                   </div>
                 ),

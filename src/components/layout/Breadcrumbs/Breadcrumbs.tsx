@@ -5,7 +5,11 @@ import { Link } from 'react-router-dom';
 
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { formatForMaxCharCount, isArweaveTransactionID } from '../../../utils';
+import {
+  formatForMaxCharCount,
+  isARNSDomainNameValid,
+  isArweaveTransactionID,
+} from '../../../utils';
 import { RESERVED_BREADCRUMB_TITLES } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { ChevronDownIcon } from '../../icons';
@@ -35,6 +39,7 @@ function Breadcrumbs() {
   async function handleCrumbs() {
     try {
       let contractId = '';
+      let name = '';
 
       const rawCrumbs = matches
         .filter(
@@ -44,6 +49,9 @@ function Breadcrumbs() {
         .map((match: any) => {
           if (match.params?.id) {
             contractId = match.params?.id;
+          }
+          if (match.params?.name) {
+            name = match.params?.name;
           }
           return match?.handle?.crumbs(Object.values(match.params)[0]);
         });
@@ -56,6 +64,14 @@ function Breadcrumbs() {
         const parsedCrumbs = rawCrumbs[0].map((crumb: NavItem) => {
           if (crumb.name == ANT_FLAG) {
             return { name: state.name, route: crumb.route };
+          }
+          return crumb;
+        });
+        setCrumbs(parsedCrumbs);
+      } else if (name.length && isARNSDomainNameValid({ name })) {
+        const parsedCrumbs = rawCrumbs[0].map((crumb: NavItem) => {
+          if (crumb.name == ANT_FLAG) {
+            return { name: name, route: crumb.route };
           }
           return crumb;
         });
