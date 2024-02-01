@@ -469,22 +469,22 @@ export class ARNSContractCache implements SmartweaveContractCache {
 
     const batchResponses = await Promise.all(
       urlQueryParamBatches.map((urlQueryParams) =>
-        this._http(`${baseUrl}${urlQueryParams.toString()}`),
+        this._http(`${baseUrl}${urlQueryParams.toString()}`).then(
+          (res: Response) => res.json(),
+        ),
       ),
-    );
+    ).catch((e) => {
+      throw new ArNSServiceError(e.message);
+    });
 
-    const results = await batchResponses.reduce(
-      async (results, batchResult) => {
-        if (batchResult.ok) {
-          const { records } = await batchResult.json();
-          return { ...results, ...records };
-        }
-        throw new ArNSServiceError(
-          'Error getting records using ANT batch query',
-        );
-      },
-      {},
-    );
+    const results: { [x: string]: T } = {};
+
+    batchResponses.forEach((batchResult) => {
+      const { records } = batchResult;
+      for (const [key, value] of Object.entries(records)) {
+        results[key] = value as any;
+      }
+    });
 
     const domains = Object.keys(results ?? {});
 
