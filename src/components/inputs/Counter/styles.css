@@ -40,11 +40,13 @@
   color: var(--text-white);
   overflow: hidden;
   height: 50px;
+  width: 50px;
 }
 
 input[type='number' i] {
   padding: 0px;
-  -webkit-appearance: none;
+  -webkit-appearance: textfield !important;
+  appearance: textfield;
 }
 
 input::-webkit-outer-spin-button,
