@@ -30,11 +30,19 @@ export function formatDate(
       }, {});
     return `${dateObj.year}-${dateObj.month}-${dateObj.day}`;
   }
-  return Intl.DateTimeFormat('en-US', {
+
+  const longDateObj = Intl.DateTimeFormat(undefined, {
     month: 'long',
     day: 'numeric',
     year: 'numeric',
-  }).format(new Date(epochMs));
+  })
+    .formatToParts(new Date(epochMs))
+    .filter((part) => part.type !== 'literal')
+    .reduce((acc: Record<string, string>, part) => {
+      acc[part.type] = part.value;
+      return acc;
+    }, {});
+  return `${longDateObj.year}, ${longDateObj.month} ${longDateObj.day}`;
 }
 
 export function tagsToObject(tags: TransactionTag[]): {
