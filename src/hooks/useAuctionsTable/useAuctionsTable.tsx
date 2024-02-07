@@ -11,7 +11,11 @@ import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionI
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useWalletState } from '../../state/contexts/WalletState';
 import { Auction, AuctionTableData, TRANSACTION_TYPES } from '../../types';
-import { getPriceByBlockHeight, handleTableSort } from '../../utils';
+import {
+  formatDate,
+  getPriceByBlockHeight,
+  handleTableSort,
+} from '../../utils';
 import {
   ARNS_REGISTRY_ADDRESS,
   AVERAGE_BLOCK_TIME_MS,
@@ -116,7 +120,7 @@ export function useAuctionsTable() {
         key: 'closingDate',
         width: 'fit-content',
         className: 'white assets-table-header',
-        render: (val: number) => Intl.DateTimeFormat('en-US').format(val),
+        render: (val: number) => formatDate(val, 'short'),
 
         onHeaderCell: () => {
           return {
