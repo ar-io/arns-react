@@ -298,13 +298,13 @@ export function useAuctionsTable() {
     blockHeight: number;
     auction: Auction;
   }): AuctionTableData {
-    const { name, type, initiator, startHeight, settings, isActive, prices } =
+    const { name, type, initiator, startHeight, endHeight, isActive, prices } =
       auction;
+    const auctionDuration = endHeight - startHeight;
 
     const expirationDateMilliseconds =
       Date.now() +
-      (startHeight + settings.auctionDuration - blockHeight) *
-        AVERAGE_BLOCK_TIME_MS; // approximate expiration date in milliseconds
+      (startHeight + auctionDuration - blockHeight) * AVERAGE_BLOCK_TIME_MS; // approximate expiration date in milliseconds
 
     const data = {
       name,

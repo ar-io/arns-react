@@ -57,7 +57,6 @@ export type AuctionParameters = {
   type: TRANSACTION_TYPES;
   initiator: string;
   years?: number;
-  settings: AuctionSettings;
 };
 
 export type Auction = AuctionParameters & {

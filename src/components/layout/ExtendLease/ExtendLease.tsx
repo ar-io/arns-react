@@ -13,6 +13,7 @@ import {
   TRANSACTION_TYPES,
 } from '../../../types';
 import {
+  formatDate,
   getLeaseDurationFromEndTimestamp,
   lowerCaseDomain,
   sleep,
@@ -174,8 +175,7 @@ function ExtendLease() {
             }}
           >
             <InfoIcon width={'22px'} height={'22px'} fill="var(--text-grey)" />
-            Expiring on{' '}
-            {Intl.DateTimeFormat('en-US').format(record.endTimestamp * 1000)}
+            Expiring on {formatDate(record.endTimestamp * 1000, 'long')}
           </div>
         </div>
         <div
@@ -241,13 +241,10 @@ function ExtendLease() {
             detail={
               <span>
                 until{' '}
-                {Intl.DateTimeFormat('en-US', {
-                  month: 'long',
-                  day: 'numeric',
-                  year: 'numeric',
-                }).format(
+                {formatDate(
                   record.endTimestamp * 1000 +
                     newLeaseDuration * YEAR_IN_MILLISECONDS,
+                  'long',
                 )}
               </span>
             }

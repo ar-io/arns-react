@@ -12,6 +12,31 @@ import {
 import { DEFAULT_MAX_UNDERNAMES, YEAR_IN_MILLISECONDS } from '../constants';
 import { fromB64Url } from '../encodings';
 
+export function formatDate(
+  epochMs: number,
+  format: 'short' | 'long' = 'short',
+): string {
+  if (format === 'short') {
+    const dateObj = Intl.DateTimeFormat(undefined, {
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+    })
+      .formatToParts(new Date(epochMs))
+      .filter((part) => part.type !== 'literal')
+      .reduce((acc: Record<string, string>, part) => {
+        acc[part.type] = part.value;
+        return acc;
+      }, {});
+    return `${dateObj.year}-${dateObj.month}-${dateObj.day}`;
+  }
+  return Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(new Date(epochMs));
+}
+
 export function tagsToObject(tags: TransactionTag[]): {
   [x: string]: string;
 } {

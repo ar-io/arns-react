@@ -545,7 +545,7 @@ function AuctionChart({
         >
           To ensure that everyone has a fair opportunity to register this name,
           it has an auction premium that will reduce gradually over a{' '}
-          {approximateDays(auctionInfo.settings.auctionDuration)}
+          {approximateDays(auctionInfo.endHeight - auctionInfo.startHeight)}
           -day period. This name has been on auction for{' '}
           {approximateDays(currentBlockHeight - auctionInfo.startHeight)} days
           and has {approximateDays(auctionInfo.endHeight - currentBlockHeight)}{' '}
