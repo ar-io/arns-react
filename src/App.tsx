@@ -209,9 +209,15 @@ function App() {
           <Route
             path="names/:name/undernames"
             element={
-              <ProtectedRoute>
-                <Undernames />
-              </ProtectedRoute>
+              <Suspense
+                fallback={
+                  <PageLoader loading={true} message={'Loading, please wait'} />
+                }
+              >
+                <ProtectedRoute>
+                  <Undernames />
+                </ProtectedRoute>
+              </Suspense>
             }
             handle={{
               crumbs: (data: string) => [
