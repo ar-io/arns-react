@@ -120,7 +120,7 @@ export function useAuctionsTable() {
         key: 'closingDate',
         width: 'fit-content',
         className: 'white assets-table-header',
-        render: (val: number) => formatDate(val, 'short'),
+        render: (val: number) => formatDate(val),
 
         onHeaderCell: () => {
           return {

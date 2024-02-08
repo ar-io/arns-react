@@ -492,7 +492,6 @@ function RegisterNameForm() {
                   valueName={leaseDuration > 1 ? 'years' : 'year'}
                   detail={`Until ${formatDate(
                     Date.now() + leaseDuration * 365 * 24 * 60 * 60 * 1000,
-                    'long',
                   )}`}
                   title={
                     <span

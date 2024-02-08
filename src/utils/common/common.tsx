@@ -12,29 +12,11 @@ import {
 import { DEFAULT_MAX_UNDERNAMES, YEAR_IN_MILLISECONDS } from '../constants';
 import { fromB64Url } from '../encodings';
 
-export function formatDate(
-  epochMs: number,
-  format: 'short' | 'long' = 'short',
-): string {
-  if (format === 'short') {
-    const dateObj = Intl.DateTimeFormat(undefined, {
-      year: 'numeric',
-      month: 'numeric',
-      day: 'numeric',
-    })
-      .formatToParts(new Date(epochMs))
-      .filter((part) => part.type !== 'literal')
-      .reduce((acc: Record<string, string>, part) => {
-        acc[part.type] = part.value;
-        return acc;
-      }, {});
-    return `${dateObj.year}-${dateObj.month}-${dateObj.day}`;
-  }
-
-  const longDateObj = Intl.DateTimeFormat(undefined, {
-    month: 'long',
-    day: 'numeric',
+export function formatDate(epochMs: number): string {
+  const dateObj = Intl.DateTimeFormat(undefined, {
     year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
   })
     .formatToParts(new Date(epochMs))
     .filter((part) => part.type !== 'literal')
@@ -42,7 +24,7 @@ export function formatDate(
       acc[part.type] = part.value;
       return acc;
     }, {});
-  return `${longDateObj.year}, ${longDateObj.month} ${longDateObj.day}`;
+  return `${dateObj.year}-${dateObj.month}-${dateObj.day}`;
 }
 
 export function tagsToObject(tags: TransactionTag[]): {

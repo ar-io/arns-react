@@ -175,7 +175,7 @@ function ExtendLease() {
             }}
           >
             <InfoIcon width={'22px'} height={'22px'} fill="var(--text-grey)" />
-            Expiring on {formatDate(record.endTimestamp * 1000, 'long')}
+            Expiring on {formatDate(record.endTimestamp * 1000)}
           </div>
         </div>
         <div
@@ -244,7 +244,6 @@ function ExtendLease() {
                 {formatDate(
                   record.endTimestamp * 1000 +
                     newLeaseDuration * YEAR_IN_MILLISECONDS,
-                  'long',
                 )}
               </span>
             }

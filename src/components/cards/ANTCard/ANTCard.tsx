@@ -268,7 +268,7 @@ function ANTCard({
                         &nbsp;
                         <span style={{ color: 'var(--text-grey)' }}>
                           (expires approximately{' '}
-                          {+value ? formatDate(numberValue, 'long') : 'N/A'})
+                          {+value ? formatDate(numberValue) : 'N/A'})
                         </span>
                       </>
                     )}

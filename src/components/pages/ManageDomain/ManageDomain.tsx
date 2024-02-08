@@ -477,7 +477,7 @@ function ManageDomain() {
                                 : 'var(--error-red)',
                           }}
                         >
-                          {formatDate(value * 1000, 'short')}
+                          {formatDate(value * 1000)}
                         </span>
                       );
                     }

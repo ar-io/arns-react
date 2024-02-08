@@ -601,7 +601,7 @@ export function useWalletDomains() {
               ? 'Controller'
               : 'N/A',
           expiration: record.endTimestamp
-            ? formatDate(record.endTimestamp * 1000, 'short')
+            ? formatDate(record.endTimestamp * 1000)
             : 'Indefinite',
           status:
             transactionBlockHeight && currentBlockHeight
