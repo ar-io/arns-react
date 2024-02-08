@@ -8,6 +8,7 @@ import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransacti
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ARNSMapping } from '../../../types';
 import {
+  formatDate,
   getLeaseDurationFromEndTimestamp,
   isArweaveTransactionID,
 } from '../../../utils';
@@ -267,14 +268,7 @@ function ANTCard({
                         &nbsp;
                         <span style={{ color: 'var(--text-grey)' }}>
                           (expires approximately{' '}
-                          {+value
-                            ? Intl.DateTimeFormat('en', {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric',
-                              }).format(numberValue)
-                            : 'N/A'}
-                          )
+                          {+value ? formatDate(numberValue) : 'N/A'})
                         </span>
                       </>
                     )}

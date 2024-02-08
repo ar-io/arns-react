@@ -27,6 +27,7 @@ import {
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import {
+  formatDate,
   getInteractionTypeFromField,
   getLeaseDurationFromEndTimestamp,
   getPendingInteractionsRowsForContract,
@@ -476,7 +477,7 @@ function ManageDomain() {
                                 : 'var(--error-red)',
                           }}
                         >
-                          {Intl.DateTimeFormat('en-US').format(value * 1000)}
+                          {formatDate(value * 1000)}
                         </span>
                       );
                     }
