@@ -27,6 +27,7 @@ import {
 } from '../../types';
 import {
   decodeDomainToASCII,
+  formatDate,
   getUndernameCount,
   handleTableSort,
 } from '../../utils';
@@ -353,8 +354,7 @@ export function useWalletDomains() {
         align: 'left',
         width: '18%',
         className: 'white manage-assets-table-header',
-        render: (val: Date | string) =>
-          typeof val === 'string' ? val : `${val?.toLocaleDateString()}`,
+        render: (val: string) => val,
       },
       {
         title: (
@@ -601,7 +601,7 @@ export function useWalletDomains() {
               ? 'Controller'
               : 'N/A',
           expiration: record.endTimestamp
-            ? new Date(record.endTimestamp * 1000)
+            ? formatDate(record.endTimestamp * 1000)
             : 'Indefinite',
           status:
             transactionBlockHeight && currentBlockHeight

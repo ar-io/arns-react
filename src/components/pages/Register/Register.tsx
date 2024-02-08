@@ -29,6 +29,7 @@ import {
 } from '../../../types';
 import {
   encodeDomainToASCII,
+  formatDate,
   isArweaveTransactionID,
   lowerCaseDomain,
   userHasSufficientBalance,
@@ -489,11 +490,7 @@ function RegisterNameForm() {
                   }
                   valueStyle={{ padding: '20px 120px' }}
                   valueName={leaseDuration > 1 ? 'years' : 'year'}
-                  detail={`Until ${Intl.DateTimeFormat('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  }).format(
+                  detail={`Until ${formatDate(
                     Date.now() + leaseDuration * 365 * 24 * 60 * 60 * 1000,
                   )}`}
                   title={

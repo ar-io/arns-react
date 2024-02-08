@@ -12,6 +12,10 @@ import {
 import { DEFAULT_MAX_UNDERNAMES, YEAR_IN_MILLISECONDS } from '../constants';
 import { fromB64Url } from '../encodings';
 
+export function formatDate(epochMs: number): string {
+  return new Date(epochMs).toISOString().split('T')[0];
+}
+
 export function tagsToObject(tags: TransactionTag[]): {
   [x: string]: string;
 } {

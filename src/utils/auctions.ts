@@ -1,3 +1,4 @@
+import { formatDate } from './common/common';
 import { APPROXIMATE_BLOCKS_PER_DAY, AVERAGE_BLOCK_TIME_MS } from './constants';
 
 /** Estimates the date of a targetBlockHeight based on the currentBlockHeight.
@@ -20,11 +21,7 @@ export const formattedEstimatedDateFromBlockHeight = (
     targetBlockHeight,
     currentBlockHeight,
   );
-  return new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  }).format(dateTime);
+  return formatDate(dateTime.valueOf());
 };
 
 export const approximateDays = (blockHeightDuration: number) => {
