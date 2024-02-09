@@ -1,6 +1,5 @@
 # ArNS Landing Page Project
 
-
 ## Project Structure
 
 - `index.html`: The main HTML document containing the structure and content of the landing page.
@@ -15,7 +14,6 @@
 - **HTML**: Adhere to HTML5 standards, ensuring your code is semantic and accessible.
 - **CSS**: This project uses Tailwind CSS. Utilize Tailwind's utility classes to maintain consistency and efficiency.
 - **JavaScript**: Write modular, well-commented code for maintainability and clarity.
-
 
 ## Resources
 
