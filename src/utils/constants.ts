@@ -173,6 +173,10 @@ export const SMARTWEAVE_TAG_SIZE = 250; // required tag size in bytes
 export const SMARTWEAVE_MAX_TAG_SPACE = 2048 - SMARTWEAVE_TAG_SIZE; // minimum tag size of smartweave tags from warp is 239, rounded it for wiggle room
 export const SMARTWEAVE_MAX_INPUT_SIZE = 1700;
 
+export const LANDING_PAGE_TXID = new ArweaveTransactionID(
+  'UyC5P5qKPZaltMmmZAWdakhlDXsBF6qmyrbWYFchRTk',
+);
+
 export const DEFAULT_ANT_CONTRACT_STATE: ANTContractJSON = {
   balances: {},
   evolve: undefined,
@@ -182,7 +186,7 @@ export const DEFAULT_ANT_CONTRACT_STATE: ANTContractJSON = {
   controllers: [],
   records: {
     '@': {
-      transactionId: '',
+      transactionId: LANDING_PAGE_TXID.toString(),
       ttlSeconds: DEFAULT_TTL_SECONDS,
     },
   },
