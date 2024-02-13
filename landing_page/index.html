@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      rel="icon"
+      type="image/svg"
+      href="https://arweave.net/DOwkxvmB8-6CthRSS1LsLP-0hAXHjYcS0y5EexyxOGs"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://arweave.net/RjXXBjP2GCZZUg4gSW1Hyr9GtLG-o59QCHrKiITtpQw"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          borderWidth: {
+            1: '1px',
+          },
+          extend: {
+            colors: {
+              primary: '#FFBB38',
+              background: '#141416',
+              surface: '#222224',
+              surfaceSecondary: '#2E2E30',
+              textPrimary: '#F5F5F5',
+              textSubtle: '#7A7A7C',
+            },
+          },
+        },
+      };
+      window.addEventListener('load', () => {
+        const domainText = document.getElementById('domain-name');
+        const fullDomain = window.location.origin.replace(/^https?:\/\//, '');
+        const arnsDomain = fullDomain.split('.')[0];
+        domainText.innerText = arnsDomain;
+      });
+    </script>
+    <title>ArNS - Arweave Name System</title>
+  </head>
+  <body
+    class="bg-background flex flex-row m-0 p-0 box-border h-screen w-screen fixed"
+  >
+    <div
+      id="rocket-image"
+      class="sm:w-full absolute md:w-fit md:relative h-full"
+    >
+      <img
+        src="https://arweave.net/0gKVk4wKDtPdgRwXt8ypIDH7Xj870i59n7kxeoAroOc"
+        alt="rocket"
+        class="sm:w-full md:w-fit h-full"
+      />
+
+      <div
+        id="logo-badge"
+        class="flex flex-col h-full md:w-65 justify-center absolute right-0 top-0"
+      >
+        <img
+          class="invisible md:visible rounded bg-surface p-4 h-fit relative -right-1/2"
+          src="https://arweave.net/DOwkxvmB8-6CthRSS1LsLP-0hAXHjYcS0y5EexyxOGs"
+          alt="logo"
+          width="65px"
+          height="65px"
+        />
+      </div>
+    </div>
+
+    <div
+      id="text-container"
+      class="absolute w-full md:static md:w-2/3 h-full flex flex-row justify-center content-center"
+      style="flex-wrap: wrap"
+    >
+      <!-- text area -->
+      <div
+        id="text-card"
+        class="bg-background relative md:static content-center m-5 p-5 h-4/5 gap-5 flex flex-col md:justify-between md:w-2/3 md:h-1/3 rounded"
+      >
+        <span
+          class="w-fit text-sm break-all text-wrap text-textPrimary border-1 border-surfaceSecondary p-3 rounded-full mx-auto md:m-0"
+        >
+          <a href="https://ar.io/docs/arcss#overview" class="text-primary"
+            >ar://</a
+          >
+          <span id="domain-name">arns</span>
+        </span>
+
+        <h2
+          class="text-textPrimary text-4xl md:text-5xl font-bold w-fit text-center md:text-start mx-auto md:m-0"
+        >
+          Future home of something quite cool.
+        </h2>
+        <p
+          class="text-textSubtle text-center md:text-start w-fit mx-auto md:m-0"
+        >
+          The Arweave Name System is a simple way to name and find things stored
+          on the permaweb. It's a smart contract based system that helps you
+          find your data, apps, or websites on Arweave easily.
+        </p>
+        <a
+          href="https://arns.app"
+          id="domain-link"
+          class="text-primary w-fit flex flex-row mx-auto md:m-0"
+        >
+          Get yours now&nbsp;
+          <svg
+            width="12"
+            height="10"
+            viewBox="0 0 12 10"
+            fill="current"
+            xmlns="http://www.w3.org/2000/svg"
+            class="fill-primary m-auto"
+          >
+            <path
+              d="M11.8538 5.35375L7.35375 9.85375C7.25993 9.94757 7.13268 10.0003 7 10.0003C6.86732 10.0003 6.74007 9.94757 6.64625 9.85375C6.55243 9.75993 6.49972 9.63269 6.49972 9.5C6.49972 9.36732 6.55243 9.24007 6.64625 9.14625L10.2931 5.5H0.5C0.367392 5.5 0.240215 5.44733 0.146447 5.35356C0.0526785 5.25979 0 5.13261 0 5C0 4.86739 0.0526785 4.74022 0.146447 4.64645C0.240215 4.55268 0.367392 4.5 0.5 4.5H10.2931L6.64625 0.853753C6.55243 0.759933 6.49972 0.632685 6.49972 0.500003C6.49972 0.367321 6.55243 0.240074 6.64625 0.146253C6.74007 0.052433 6.86732 -0.000274658 7 -0.000274658C7.13268 -0.000274658 7.25993 0.052433 7.35375 0.146253L11.8538 4.64625C11.9002 4.69269 11.9371 4.74783 11.9623 4.80853C11.9874 4.86923 12.0004 4.9343 12.0004 5C12.0004 5.06571 11.9874 5.13077 11.9623 5.19147C11.9371 5.25217 11.9002 5.30732 11.8538 5.35375Z"
+              fill="current"
+            />
+          </svg>
+        </a>
+        <img
+          class="md:hidden mx-auto absolute right-0 left-0 rounded bg-surface p-4 h-fit md:relative"
+          src="https://arweave.net/DOwkxvmB8-6CthRSS1LsLP-0hAXHjYcS0y5EexyxOGs"
+          alt="logo"
+          width="65px"
+          height="65px"
+          style="bottom: -30px"
+        />
+      </div>
+    </div>
+  </body>
+</html>
