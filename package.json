@@ -18,7 +18,6 @@
     "pre-commit": "lint-staged"
   },
   "dependencies": {
-    "@ar-io/sdk": "../ar-io-sdk",
     "@sentry/react": "^7.45.0",
     "@sentry/tracing": "^7.45.0",
     "@typescript-eslint/parser": "^6.19.0",

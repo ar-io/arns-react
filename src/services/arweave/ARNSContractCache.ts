@@ -1,3 +1,4 @@
+import { ArIO } from '@ar-io/sdk';
 import { ArNSServiceError } from '@src/utils/errors';
 import fetchRetry from 'fetch-retry';
 import { chunk } from 'lodash';
@@ -119,15 +120,20 @@ export class ARNSContractCache implements SmartweaveContractCache {
   }
 
   async getContractBalanceForWallet(
+    // eslint-disable-next-line
     contractTxId: ArweaveTransactionID,
     wallet: ArweaveTransactionID,
   ): Promise<number> {
-    const res = await this._http(
-      `${
-        this._url
-      }/v1/contract/${contractTxId.toString()}/balances/${wallet.toString()}`,
-    );
-    const { balance } = await res.json();
+    const client = new ArIO({}).testnet;
+    const balance = await client.getBalance({
+      address: wallet.toString(),
+    });
+    // const res = await this._http(
+    //   `${
+    //     this._url
+    //   }/v1/contract/${contractTxId.toString()}/balances/${wallet.toString()}`,
+    // );
+    // const { balance } = await res.json();
     return +balance ?? 0;
   }
 
