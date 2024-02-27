@@ -553,7 +553,7 @@ function AuctionChart({
           current price. If there is no buyer before the auction ends, the
           auction initiator will win the name at the floor price.
           <Link
-            to="https://ar.io/docs/arns/#bid-initiated-dutch-auctions-bida"
+            to="https://docs.ar.io/arns/#bid-initiated-dutch-auctions-bida"
             rel="noreferrer"
             target="_blank"
             className="link"
