@@ -137,7 +137,7 @@ function Footer() {
         >
           <button
             className="button grey text center hover pointer"
-            onClick={() => window.open('https://ar.io/docs/arns', '_blank')}
+            onClick={() => window.open('https://docs.ar.io/arns', '_blank')}
           >
             <QuestionCircleOutlined style={{ fontSize: 20 }} />
           </button>
