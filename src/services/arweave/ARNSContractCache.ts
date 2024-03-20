@@ -22,6 +22,7 @@ import {
   isArweaveTransactionID,
   isDomainReservedLength,
   lowerCaseDomain,
+  mioToIo,
 } from '../../utils';
 import {
   ARNS_REGISTRY_ADDRESS,
@@ -316,6 +317,18 @@ export class ARNSContractCache implements SmartweaveContractCache {
           }
         : {}),
     };
+    res.currentPrice = mioToIo(res.currentPrice);
+    res.floorPrice = mioToIo(res.floorPrice);
+    res.startPrice = mioToIo(res.startPrice);
+    res.prices = Object.entries(res.prices)
+      .map(([blockheight, price]) => {
+        return [blockheight, mioToIo(price as number)];
+      })
+      .reduce((acc: Record<number, number>, [blockheight, price]) => {
+        acc[blockheight as number] = price as number;
+        return acc;
+      }, {});
+
     return res;
   }
 
@@ -556,7 +569,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
       throw new Error(`Couldn't get price for ${interactionName}`);
     }
 
-    return price;
+    return mioToIo(price);
   }
   async buildANTContract(
     contractTxId: ArweaveTransactionID,
