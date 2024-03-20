@@ -6,3 +6,4 @@ vite.config.ts.*.mjs
 cache
 *.log
 .idea
+.DS_Store
