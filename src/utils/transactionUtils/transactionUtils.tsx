@@ -1000,3 +1000,7 @@ export const getPriceByBlockHeight = (
 
   throw Error(`Unable to find next block interval for bid ${currentHeight}`);
 };
+
+export function mioToIo(mio: number): number {
+  return mio / 1_000_000;
+}
