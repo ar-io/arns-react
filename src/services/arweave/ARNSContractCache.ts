@@ -118,7 +118,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
       return {} as T;
     }
   }
-
+  // TODO: replace with ArIO sdk implementation
   async getContractBalanceForWallet(
     contractTxId: ArweaveTransactionID,
     wallet: ArweaveTransactionID,
@@ -129,7 +129,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
       }/v1/contract/${contractTxId.toString()}/balances/${wallet.toString()}`,
     );
     const { balance } = await res.json();
-    return +balance ?? 0;
+    return mioToIo(+balance) ?? 0;
   }
 
   async getContractsForWallet(
@@ -541,7 +541,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
       .filter((interaction) => interaction.payload.qty)
       .reduce((acc, interaction) => acc + +interaction.payload.qty, 0);
 
-    return balance - cachedBalance;
+    return mioToIo(balance - cachedBalance);
   }
 
   async getPriceForInteraction(
