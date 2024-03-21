@@ -22,6 +22,7 @@ import {
   isArweaveTransactionID,
   isDomainReservedLength,
   lowerCaseDomain,
+  mioToIo,
 } from '../../utils';
 import {
   ARNS_REGISTRY_ADDRESS,
@@ -117,7 +118,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
       return {} as T;
     }
   }
-
+  // TODO: replace with ArIO sdk implementation
   async getContractBalanceForWallet(
     contractTxId: ArweaveTransactionID,
     wallet: ArweaveTransactionID,
@@ -128,7 +129,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
       }/v1/contract/${contractTxId.toString()}/balances/${wallet.toString()}`,
     );
     const { balance } = await res.json();
-    return +balance ?? 0;
+    return mioToIo(+balance) ?? 0;
   }
 
   async getContractsForWallet(
@@ -316,6 +317,18 @@ export class ARNSContractCache implements SmartweaveContractCache {
           }
         : {}),
     };
+    res.currentPrice = mioToIo(res.currentPrice);
+    res.floorPrice = mioToIo(res.floorPrice);
+    res.startPrice = mioToIo(res.startPrice);
+    res.prices = Object.entries(res.prices)
+      .map(([blockheight, price]) => {
+        return [blockheight, mioToIo(price as number)];
+      })
+      .reduce((acc: Record<number, number>, [blockheight, price]) => {
+        acc[blockheight as number] = price as number;
+        return acc;
+      }, {});
+
     return res;
   }
 
@@ -528,7 +541,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
       .filter((interaction) => interaction.payload.qty)
       .reduce((acc, interaction) => acc + +interaction.payload.qty, 0);
 
-    return balance - cachedBalance;
+    return mioToIo(balance - cachedBalance);
   }
 
   async getPriceForInteraction(
@@ -556,7 +569,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
       throw new Error(`Couldn't get price for ${interactionName}`);
     }
 
-    return price;
+    return mioToIo(price);
   }
   async buildANTContract(
     contractTxId: ArweaveTransactionID,
