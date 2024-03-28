@@ -145,3 +145,7 @@ export function getLegacyControllersFromState(
 
   return [];
 }
+
+export function shortTransactionId(id: string) {
+  return id.slice(0, 4) + '...' + id.slice(-4);
+}

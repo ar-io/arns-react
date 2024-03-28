@@ -818,8 +818,10 @@ export type ValidationObject = {
 
 export type ContractInteraction = {
   deployer: string;
+  owner?: string;
   contractTxId: string;
   id: string;
+  input?: SmartWeaveActionInput;
   payload: {
     function: string;
     [x: string]: string | number | boolean;

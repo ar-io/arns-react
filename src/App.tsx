@@ -53,6 +53,8 @@ const ViewAuction = React.lazy(
   () => import('./components/layout/ViewAuction/ViewAuction'),
 );
 
+const Profile = React.lazy(() => import('./components/pages/Profile/Profile'));
+
 const sentryCreateBrowserRouter =
   Sentry.wrapCreateBrowserRouter(createBrowserRouter);
 
@@ -308,6 +310,21 @@ function App() {
               }
             >
               <Register />
+            </Suspense>
+          }
+        />
+        <Route
+          path="profile/:address"
+          element={
+            <Suspense
+              fallback={
+                <PageLoader
+                  loading={true}
+                  message={'Loading profile, please wait'}
+                />
+              }
+            >
+              <Profile />
             </Suspense>
           }
         />

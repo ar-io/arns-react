@@ -1,3 +1,4 @@
+import { ConfigProvider, theme } from 'antd';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
@@ -15,14 +16,20 @@ import './utils/sentry';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <GlobalStateProvider reducer={reducer}>
-      <WalletStateProvider reducer={walletReducer}>
-        <TransactionStateProvider reducer={transactionReducer}>
-          <RegistrationStateProvider reducer={registrationReducer}>
-            <App />
-          </RegistrationStateProvider>
-        </TransactionStateProvider>
-      </WalletStateProvider>
-    </GlobalStateProvider>
+    <ConfigProvider
+      theme={{
+        algorithm: theme.darkAlgorithm,
+      }}
+    >
+      <GlobalStateProvider reducer={reducer}>
+        <WalletStateProvider reducer={walletReducer}>
+          <TransactionStateProvider reducer={transactionReducer}>
+            <RegistrationStateProvider reducer={registrationReducer}>
+              <App />
+            </RegistrationStateProvider>
+          </TransactionStateProvider>
+        </WalletStateProvider>
+      </GlobalStateProvider>
+    </ConfigProvider>
   </React.StrictMode>,
 );

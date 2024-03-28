@@ -272,6 +272,14 @@ function NavMenuCard() {
                         );
                     })
                   )}
+                  <NavBarLink
+                    path={`/profile/${walletAddress}`}
+                    linkText={'Profile'}
+                    key={`profile-${walletAddress}`}
+                    onClick={() => {
+                      setShowMenu(false);
+                    }}
+                  ></NavBarLink>
                   {
                     <button
                       className="navbar-link hover flex-row"

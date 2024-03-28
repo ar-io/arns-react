@@ -38,7 +38,8 @@
     "react-dom": "^18.2.0",
     "react-icons": "^5.0.1",
     "react-router-dom": "^6.4.2",
-    "warp-contracts": "^1.4.39"
+    "swr": "^2.2.5",
+    "warp-contracts": "1.4.26"
   },
   "devDependencies": {
     "@babel/core": "^7.19.6",

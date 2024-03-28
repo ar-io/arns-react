@@ -157,11 +157,25 @@ export class ARNSContractCache implements SmartweaveContractCache {
   async getContractInteractions(
     contractTxId: ArweaveTransactionID,
   ): Promise<ContractInteraction[]> {
-    const res = await this._http(
-      `${this._url}/v1/contract/${contractTxId.toString()}/interactions?page=1`,
-    );
+    let page = 1;
+    const interactions: ContractInteraction[] = [];
+    let hasNextPage = true;
+    while (hasNextPage) {
+      const res = await this._http(
+        `${
+          this._url
+        }/v1/contract/${contractTxId.toString()}/interactions?page=${page}&pageSize=1000`,
+      );
+      const {
+        interactions: pageInteractions,
+        pages: { hasNextPage: isLastPage },
+      } = await res.json();
+      hasNextPage = isLastPage;
+      interactions.push(...pageInteractions);
+      page++;
+    }
     // TODO: implement pagination and selective page query
-    const { interactions } = await res.json();
+
     return interactions;
   }
 
