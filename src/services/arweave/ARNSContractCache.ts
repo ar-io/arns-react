@@ -202,7 +202,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
   }: {
     domain: string;
     contractTxId: ArweaveTransactionID;
-  }): Promise<boolean> {
+  }): Promise<{ isReserved: boolean; reservee?: ArweaveTransactionID }> {
     const res = await this._http(
       `${
         this._url
@@ -210,13 +210,16 @@ export class ARNSContractCache implements SmartweaveContractCache {
         domain,
       )}`,
     );
-    const { reserved } = await res.json();
+    const { reserved, details } = await res.json();
     if (reserved === undefined) {
       throw new Error('Error checking if domain is reserved');
     }
 
     const isReserved = reserved || isDomainReservedLength(domain);
-    return isReserved;
+    return {
+      isReserved,
+      reservee: details ? new ArweaveTransactionID(details.target) : undefined,
+    };
   }
 
   async isDomainInAuction({

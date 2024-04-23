@@ -1,3 +1,4 @@
+import { useWalletState } from '@src/state/contexts/WalletState';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
@@ -17,11 +18,13 @@ import './styles.css';
 
 function Home() {
   const [{ arweaveDataProvider }] = useGlobalState();
+  const [{ walletAddress }] = useWalletState();
   const [searchParams, setSearchParams] = useSearchParams();
   const [{ domain, antID }, dispatchRegisterState] = useRegistrationState();
   const {
     isActiveAuction,
     isReserved,
+    reservee,
     loading: isValidatingRegistration,
   } = useRegistrationStatus(domain);
   const [featuredDomains, setFeaturedDomains] = useState<{
@@ -79,6 +82,7 @@ function Home() {
   function updateShowFeaturedDomains({
     auction,
     reserved,
+    reservee,
     domains,
     id,
     name,
@@ -88,8 +92,16 @@ function Home() {
     name: string | undefined;
     auction: boolean;
     reserved: boolean;
+    reservee?: ArweaveTransactionID;
   }): boolean {
-    if ((domains && !id && !reserved && !auction) || !name) {
+    if (
+      (domains &&
+        !id &&
+        !reserved &&
+        reservee?.toString() !== walletAddress?.toString() &&
+        !auction) ||
+      !name
+    ) {
       return true;
     }
 
@@ -127,22 +139,20 @@ function Home() {
         }}
       >
         <SearchBar placeholderText={'Search for a name'} />
-        {
-          //!isValidatingRegistration &&
-          updateShowFeaturedDomains({
-            auction: isActiveAuction,
-            reserved: isReserved,
-            domains: featuredDomains ?? {},
-            id: antID,
-            name: lowerCaseDomain(domain),
-          }) &&
-          featuredDomains &&
-          !isValidatingRegistration ? (
-            <FeaturedDomains domains={featuredDomains} />
-          ) : (
-            <></>
-          )
-        }
+        {updateShowFeaturedDomains({
+          auction: isActiveAuction,
+          reserved: isReserved,
+          reservee: reservee,
+          domains: featuredDomains ?? {},
+          id: antID,
+          name: lowerCaseDomain(domain),
+        }) &&
+        featuredDomains &&
+        !isValidatingRegistration ? (
+          <FeaturedDomains domains={featuredDomains} />
+        ) : (
+          <></>
+        )}
       </div>
     </div>
   );
