@@ -24,7 +24,7 @@ function Home() {
   const {
     isActiveAuction,
     isReserved,
-    reservee,
+    reservedFor,
     loading: isValidatingRegistration,
   } = useRegistrationStatus(domain);
   const [featuredDomains, setFeaturedDomains] = useState<{
@@ -82,7 +82,7 @@ function Home() {
   function updateShowFeaturedDomains({
     auction,
     reserved,
-    reservee,
+    reservedFor,
     domains,
     id,
     name,
@@ -92,13 +92,13 @@ function Home() {
     name: string | undefined;
     auction: boolean;
     reserved: boolean;
-    reservee?: ArweaveTransactionID;
+    reservedFor?: ArweaveTransactionID;
   }): boolean {
     if (
       (domains &&
         !id &&
         !reserved &&
-        reservee?.toString() !== walletAddress?.toString() &&
+        reservedFor?.toString() !== walletAddress?.toString() &&
         !auction) ||
       !name
     ) {
@@ -142,7 +142,7 @@ function Home() {
         {updateShowFeaturedDomains({
           auction: isActiveAuction,
           reserved: isReserved,
-          reservee: reservee,
+          reservedFor: reservedFor,
           domains: featuredDomains ?? {},
           id: antID,
           name: lowerCaseDomain(domain),

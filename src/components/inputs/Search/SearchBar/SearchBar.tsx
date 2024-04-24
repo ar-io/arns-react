@@ -67,7 +67,7 @@ function SearchBar(props: SearchBarProps) {
     isAvailable,
     isActiveAuction,
     isReserved,
-    reservee,
+    reservedFor,
     loading: isValidatingRegistration,
     validated,
   } = useRegistrationStatus(lowerCaseDomain(domain));
@@ -121,7 +121,7 @@ function SearchBar(props: SearchBarProps) {
         auction: isActiveAuction,
         available: isAvailable,
         reserved: isReserved,
-        reservee: reservee,
+        reservedFor: reservedFor,
         submitted: searchSubmitted,
         focused: isSearchbarFocused && !validated,
       });
@@ -255,7 +255,7 @@ function SearchBar(props: SearchBarProps) {
     auction,
     available,
     reserved,
-    reservee,
+    reservedFor,
     submitted,
     focused,
   }: {
@@ -263,7 +263,7 @@ function SearchBar(props: SearchBarProps) {
     auction: boolean;
     available: boolean;
     reserved: boolean;
-    reservee?: ArweaveTransactionID;
+    reservedFor?: ArweaveTransactionID;
     submitted: boolean;
     focused: boolean;
   }) {
@@ -300,7 +300,7 @@ function SearchBar(props: SearchBarProps) {
 
     switch (true) {
       case isTextSubmitted: {
-        if (reserved && reservee?.toString() !== walletAddress?.toString()) {
+        if (reserved && reservedFor?.toString() !== walletAddress?.toString()) {
           return greyBorderStyle;
         }
         if (auction) {
@@ -331,7 +331,7 @@ function SearchBar(props: SearchBarProps) {
         isAvailable={isAvailable}
         isActiveAuction={isActiveAuction}
         isReserved={isReserved}
-        reservee={reservee}
+        reservedFor={reservedFor}
         contractTxId={contractTxID}
       />
 
@@ -471,7 +471,8 @@ function SearchBar(props: SearchBarProps) {
 
       {searchSubmitted &&
       isAvailable &&
-      (!isReserved || !(reservee?.toString() !== walletAddress?.toString())) ? (
+      (!isReserved ||
+        !(reservedFor?.toString() !== walletAddress?.toString())) ? (
         <div
           className={`flex flex-row fade-in ${
             isActiveAuction ? 'flex-space-between' : 'flex-center'
@@ -542,7 +543,7 @@ function SearchBar(props: SearchBarProps) {
         isActiveAuction={isActiveAuction}
         isAvailable={isAvailable}
         isReserved={isReserved}
-        reservee={reservee}
+        reservedFor={reservedFor}
         domain={lowerCaseDomain(domain)}
         record={registeredDomainRecord}
         contractTxId={contractTxID}

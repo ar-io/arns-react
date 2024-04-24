@@ -13,7 +13,7 @@ function SearchBarHeader({
   isAvailable,
   isActiveAuction,
   isReserved,
-  reservee,
+  reservedFor,
 }: SearchBarHeaderProps): JSX.Element {
   const isMobile = useIsMobile();
   const [{ walletAddress }] = useWalletState();
@@ -40,7 +40,7 @@ function SearchBarHeader({
   if (
     domain &&
     (isReserved || isDomainReservedLength(domain)) &&
-    reservee?.toString() !== walletAddress?.toString()
+    reservedFor?.toString() !== walletAddress?.toString()
   ) {
     return (
       <div

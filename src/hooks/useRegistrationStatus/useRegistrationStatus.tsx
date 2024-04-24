@@ -5,7 +5,7 @@ import { useGlobalState } from '../../state/contexts/GlobalState';
 
 const defaultReserved = {
   isReserved: false,
-  reservee: undefined,
+  reservedFor: undefined,
 };
 
 export function useRegistrationStatus(domain: string) {
@@ -15,7 +15,7 @@ export function useRegistrationStatus(domain: string) {
   const [isAvailable, setIsAvailable] = useState<boolean>(false);
   const [isReserved, setIsReserved] = useState<{
     isReserved: boolean;
-    reservee?: ArweaveTransactionID;
+    reservedFor?: ArweaveTransactionID;
   }>(defaultReserved);
   const [validated, setValidated] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -89,8 +89,8 @@ export function useRegistrationStatus(domain: string) {
     isAvailable,
     isActiveAuction,
     isReserved: isReserved?.isReserved,
-    // reservee: isReserved.reservee,
-    reservee: isReserved?.reservee,
+    // reservedFor: isReserved.reservedFor,
+    reservedFor: isReserved?.reservedFor,
     loading,
     validated,
   };

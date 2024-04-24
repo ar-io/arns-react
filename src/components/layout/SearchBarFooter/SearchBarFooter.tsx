@@ -17,7 +17,7 @@ function SearchBarFooter({
   isAvailable,
   isActiveAuction,
   isReserved,
-  reservee,
+  reservedFor,
 }: SearchBarFooterProps): JSX.Element {
   const isMobile = useIsMobile();
   const { auction } = useAuctionInfo(domain);
@@ -48,7 +48,7 @@ function SearchBarFooter({
   if (
     domain &&
     (isReserved || isDomainReservedLength(lowerCaseDomain(domain))) &&
-    reservee?.toString() !== walletAddress?.toString()
+    reservedFor?.toString() !== walletAddress?.toString()
   ) {
     return (
       <div className="flex flex-row" style={{ marginTop: '30px' }}>

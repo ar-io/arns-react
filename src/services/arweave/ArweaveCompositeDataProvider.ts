@@ -242,7 +242,7 @@ export class ArweaveCompositeDataProvider
   }: {
     domain: string;
     contractTxId?: ArweaveTransactionID;
-  }): Promise<{ isReserved: boolean; reservee?: ArweaveTransactionID }> {
+  }): Promise<{ isReserved: boolean; reservedFor?: ArweaveTransactionID }> {
     return this._contractProvider.isDomainReserved({ domain, contractTxId });
   }
 

@@ -195,7 +195,7 @@ export interface SmartweaveContractCache {
   }: {
     domain: string;
     contractTxId?: ArweaveTransactionID;
-  }): Promise<{ isReserved: boolean; reservee?: ArweaveTransactionID }>;
+  }): Promise<{ isReserved: boolean; reservedFor?: ArweaveTransactionID }>;
   isDomainInAuction({
     contractTxId,
     domain,
@@ -411,7 +411,7 @@ export type SearchBarHeaderProps = {
   isAvailable: boolean;
   isActiveAuction: boolean;
   isReserved: boolean;
-  reservee?: ArweaveTransactionID;
+  reservedFor?: ArweaveTransactionID;
   isDefault?: boolean;
   domain?: string;
   contractTxId?: ArweaveTransactionID;
@@ -421,7 +421,7 @@ export type SearchBarFooterProps = {
   isAvailable: boolean;
   isActiveAuction: boolean;
   isReserved: boolean;
-  reservee?: ArweaveTransactionID;
+  reservedFor?: ArweaveTransactionID;
   domain?: string;
   record?: ARNSRecordEntry;
   contractTxId?: ArweaveTransactionID;
