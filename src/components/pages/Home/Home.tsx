@@ -80,27 +80,28 @@ function Home() {
   }
 
   function updateShowFeaturedDomains({
-    auction,
-    reserved,
+    inAuction,
+    isReserved,
     reservedFor,
-    domains,
-    id,
-    name,
+    currentFeaturedDomains,
+    antId,
+    domainName,
   }: {
-    domains: { [x: string]: string };
-    id: ArweaveTransactionID | undefined;
-    name: string | undefined;
-    auction: boolean;
-    reserved: boolean;
+    currentFeaturedDomains: { [x: string]: string };
+    antId: ArweaveTransactionID | undefined;
+    domainName: string | undefined;
+    inAuction: boolean;
+    isReserved: boolean;
     reservedFor?: ArweaveTransactionID;
   }): boolean {
     if (
-      (domains &&
-        !id &&
-        !reserved &&
-        reservedFor?.toString() !== walletAddress?.toString() &&
-        !auction) ||
-      !name
+      (currentFeaturedDomains &&
+        !antId &&
+        (!isReserved ||
+          (isReserved &&
+            reservedFor?.toString() === walletAddress?.toString())) &&
+        !inAuction) ||
+      !domainName
     ) {
       return true;
     }
@@ -140,12 +141,12 @@ function Home() {
       >
         <SearchBar placeholderText={'Search for a name'} />
         {updateShowFeaturedDomains({
-          auction: isActiveAuction,
-          reserved: isReserved,
+          inAuction: isActiveAuction,
+          isReserved: isReserved,
           reservedFor: reservedFor,
-          domains: featuredDomains ?? {},
-          id: antID,
-          name: lowerCaseDomain(domain),
+          currentFeaturedDomains: featuredDomains ?? {},
+          antId: antID,
+          domainName: lowerCaseDomain(domain),
         }) &&
         featuredDomains &&
         !isValidatingRegistration ? (

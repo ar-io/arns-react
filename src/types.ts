@@ -195,7 +195,7 @@ export interface SmartweaveContractCache {
   }: {
     domain: string;
     contractTxId?: ArweaveTransactionID;
-  }): Promise<{ isReserved: boolean; reservedFor?: ArweaveTransactionID }>;
+  }): Promise<{ isReserved: boolean; reservedFor?: string }>;
   isDomainInAuction({
     contractTxId,
     domain,

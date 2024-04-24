@@ -76,7 +76,12 @@ export function useRegistrationStatus(domain: string) {
 
       setIsAvailable(isAvailable);
       setIsActiveAuction(isActiveAuction);
-      setIsReserved(isReserved);
+      setIsReserved({
+        ...isReserved,
+        reservedFor: isReserved.reservedFor
+          ? new ArweaveTransactionID(isReserved.reservedFor)
+          : undefined,
+      });
       setValidated(true);
     } catch (error) {
       console.error(error);
@@ -89,7 +94,6 @@ export function useRegistrationStatus(domain: string) {
     isAvailable,
     isActiveAuction,
     isReserved: isReserved?.isReserved,
-    // reservedFor: isReserved.reservedFor,
     reservedFor: isReserved?.reservedFor,
     loading,
     validated,
