@@ -1,4 +1,5 @@
 import { ArrowDownOutlined, CheckCircleFilled } from '@ant-design/icons';
+import { useWalletState } from '@src/state/contexts/WalletState';
 
 import { useIsMobile } from '../../../hooks';
 import { SearchBarHeaderProps } from '../../../types';
@@ -12,8 +13,10 @@ function SearchBarHeader({
   isAvailable,
   isActiveAuction,
   isReserved,
+  reservedFor,
 }: SearchBarHeaderProps): JSX.Element {
   const isMobile = useIsMobile();
+  const [{ walletAddress }] = useWalletState();
 
   // unavailable condition
   if (domain && isActiveAuction) {
@@ -34,7 +37,11 @@ function SearchBarHeader({
   }
 
   // reserved condition
-  if (domain && (isReserved || isDomainReservedLength(domain))) {
+  if (
+    domain &&
+    (isReserved || isDomainReservedLength(domain)) &&
+    reservedFor?.toString() !== walletAddress?.toString()
+  ) {
     return (
       <div
         className="text-medium white center flex fade-in"

@@ -1,3 +1,4 @@
+import { useWalletState } from '@src/state/contexts/WalletState';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
@@ -17,11 +18,13 @@ import './styles.css';
 
 function Home() {
   const [{ arweaveDataProvider }] = useGlobalState();
+  const [{ walletAddress }] = useWalletState();
   const [searchParams, setSearchParams] = useSearchParams();
   const [{ domain, antID }, dispatchRegisterState] = useRegistrationState();
   const {
     isActiveAuction,
     isReserved,
+    reservedFor,
     loading: isValidatingRegistration,
   } = useRegistrationStatus(domain);
   const [featuredDomains, setFeaturedDomains] = useState<{
@@ -77,19 +80,29 @@ function Home() {
   }
 
   function updateShowFeaturedDomains({
-    auction,
-    reserved,
-    domains,
-    id,
-    name,
+    inAuction,
+    isReserved,
+    reservedFor,
+    currentFeaturedDomains,
+    antId,
+    domainName,
   }: {
-    domains: { [x: string]: string };
-    id: ArweaveTransactionID | undefined;
-    name: string | undefined;
-    auction: boolean;
-    reserved: boolean;
+    currentFeaturedDomains: { [x: string]: string };
+    antId: ArweaveTransactionID | undefined;
+    domainName: string | undefined;
+    inAuction: boolean;
+    isReserved: boolean;
+    reservedFor?: ArweaveTransactionID;
   }): boolean {
-    if ((domains && !id && !reserved && !auction) || !name) {
+    if (
+      (currentFeaturedDomains &&
+        !antId &&
+        (!isReserved ||
+          (isReserved &&
+            reservedFor?.toString() === walletAddress?.toString())) &&
+        !inAuction) ||
+      !domainName
+    ) {
       return true;
     }
 
@@ -127,22 +140,20 @@ function Home() {
         }}
       >
         <SearchBar placeholderText={'Search for a name'} />
-        {
-          //!isValidatingRegistration &&
-          updateShowFeaturedDomains({
-            auction: isActiveAuction,
-            reserved: isReserved,
-            domains: featuredDomains ?? {},
-            id: antID,
-            name: lowerCaseDomain(domain),
-          }) &&
-          featuredDomains &&
-          !isValidatingRegistration ? (
-            <FeaturedDomains domains={featuredDomains} />
-          ) : (
-            <></>
-          )
-        }
+        {updateShowFeaturedDomains({
+          inAuction: isActiveAuction,
+          isReserved: isReserved,
+          reservedFor: reservedFor,
+          currentFeaturedDomains: featuredDomains ?? {},
+          antId: antID,
+          domainName: lowerCaseDomain(domain),
+        }) &&
+        featuredDomains &&
+        !isValidatingRegistration ? (
+          <FeaturedDomains domains={featuredDomains} />
+        ) : (
+          <></>
+        )}
       </div>
     </div>
   );
