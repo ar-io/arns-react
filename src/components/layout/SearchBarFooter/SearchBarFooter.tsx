@@ -1,3 +1,5 @@
+import { useWalletState } from '@src/state/contexts/WalletState';
+
 import { useAuctionInfo, useIsMobile } from '../../../hooks';
 import { SearchBarFooterProps } from '../../../types';
 import { isDomainReservedLength, lowerCaseDomain } from '../../../utils';
@@ -15,9 +17,11 @@ function SearchBarFooter({
   isAvailable,
   isActiveAuction,
   isReserved,
+  reservedFor,
 }: SearchBarFooterProps): JSX.Element {
   const isMobile = useIsMobile();
   const { auction } = useAuctionInfo(domain);
+  const [{ walletAddress }] = useWalletState();
 
   if (isActiveAuction && domain) {
     return (
@@ -43,7 +47,8 @@ function SearchBarFooter({
 
   if (
     domain &&
-    (isReserved || isDomainReservedLength(lowerCaseDomain(domain)))
+    (isReserved || isDomainReservedLength(lowerCaseDomain(domain))) &&
+    reservedFor?.toString() !== walletAddress?.toString()
   ) {
     return (
       <div className="flex flex-row" style={{ marginTop: '30px' }}>

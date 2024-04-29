@@ -67,6 +67,7 @@ function SearchBar(props: SearchBarProps) {
     isAvailable,
     isActiveAuction,
     isReserved,
+    reservedFor,
     loading: isValidatingRegistration,
     validated,
   } = useRegistrationStatus(lowerCaseDomain(domain));
@@ -120,6 +121,7 @@ function SearchBar(props: SearchBarProps) {
         auction: isActiveAuction,
         available: isAvailable,
         reserved: isReserved,
+        reservedFor: reservedFor,
         submitted: searchSubmitted,
         focused: isSearchbarFocused && !validated,
       });
@@ -253,6 +255,7 @@ function SearchBar(props: SearchBarProps) {
     auction,
     available,
     reserved,
+    reservedFor,
     submitted,
     focused,
   }: {
@@ -260,6 +263,7 @@ function SearchBar(props: SearchBarProps) {
     auction: boolean;
     available: boolean;
     reserved: boolean;
+    reservedFor?: ArweaveTransactionID;
     submitted: boolean;
     focused: boolean;
   }) {
@@ -296,7 +300,7 @@ function SearchBar(props: SearchBarProps) {
 
     switch (true) {
       case isTextSubmitted: {
-        if (reserved) {
+        if (reserved && reservedFor?.toString() !== walletAddress?.toString()) {
           return greyBorderStyle;
         }
         if (auction) {
@@ -327,6 +331,7 @@ function SearchBar(props: SearchBarProps) {
         isAvailable={isAvailable}
         isActiveAuction={isActiveAuction}
         isReserved={isReserved}
+        reservedFor={reservedFor}
         contractTxId={contractTxID}
       />
 
@@ -464,7 +469,10 @@ function SearchBar(props: SearchBarProps) {
         )}
       </div>
 
-      {searchSubmitted && isAvailable && !isReserved ? (
+      {searchSubmitted &&
+      isAvailable &&
+      (!isReserved ||
+        !(reservedFor?.toString() !== walletAddress?.toString())) ? (
         <div
           className={`flex flex-row fade-in ${
             isActiveAuction ? 'flex-space-between' : 'flex-center'
@@ -535,6 +543,7 @@ function SearchBar(props: SearchBarProps) {
         isActiveAuction={isActiveAuction}
         isAvailable={isAvailable}
         isReserved={isReserved}
+        reservedFor={reservedFor}
         domain={lowerCaseDomain(domain)}
         record={registeredDomainRecord}
         contractTxId={contractTxID}

@@ -1,13 +1,22 @@
+import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useEffect, useState } from 'react';
 
 import { useGlobalState } from '../../state/contexts/GlobalState';
+
+const defaultReserved = {
+  isReserved: false,
+  reservedFor: undefined,
+};
 
 export function useRegistrationStatus(domain: string) {
   const [{ blockHeight, arweaveDataProvider }, dispatchGlobalState] =
     useGlobalState();
   const [isActiveAuction, setIsActiveAuction] = useState<boolean>(false);
   const [isAvailable, setIsAvailable] = useState<boolean>(false);
-  const [isReserved, setIsReserved] = useState<boolean>(false);
+  const [isReserved, setIsReserved] = useState<{
+    isReserved: boolean;
+    reservedFor?: ArweaveTransactionID;
+  }>(defaultReserved);
   const [validated, setValidated] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -23,7 +32,7 @@ export function useRegistrationStatus(domain: string) {
 
   function reset() {
     setIsAvailable(false);
-    setIsReserved(false);
+    setIsReserved(defaultReserved);
     setIsActiveAuction(false);
     setValidated(false);
   }
@@ -67,7 +76,12 @@ export function useRegistrationStatus(domain: string) {
 
       setIsAvailable(isAvailable);
       setIsActiveAuction(isActiveAuction);
-      setIsReserved(isReserved);
+      setIsReserved({
+        ...isReserved,
+        reservedFor: isReserved.reservedFor
+          ? new ArweaveTransactionID(isReserved.reservedFor)
+          : undefined,
+      });
       setValidated(true);
     } catch (error) {
       console.error(error);
@@ -76,5 +90,12 @@ export function useRegistrationStatus(domain: string) {
       setLoading(false);
     }
   }
-  return { isAvailable, isActiveAuction, isReserved, loading, validated };
+  return {
+    isAvailable,
+    isActiveAuction,
+    isReserved: isReserved?.isReserved,
+    reservedFor: isReserved?.reservedFor,
+    loading,
+    validated,
+  };
 }
