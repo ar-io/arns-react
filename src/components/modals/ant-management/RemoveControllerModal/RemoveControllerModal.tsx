@@ -1,19 +1,19 @@
 import { Checkbox, Table } from 'antd';
 import { useEffect, useState } from 'react';
 
-import { useIsMobile } from '../../../hooks';
-import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { ANTContractJSON, RemoveControllerPayload } from '../../../types';
+import { useIsMobile } from '../../../../hooks';
+import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
+import { useGlobalState } from '../../../../state/contexts/GlobalState';
+import { ANTContractJSON, RemoveControllerPayload } from '../../../../types';
 import {
   formatForMaxCharCount,
   getCustomPaginationButtons,
   getLegacyControllersFromState,
-} from '../../../utils';
-import eventEmitter from '../../../utils/events';
-import { Loader } from '../../layout';
-import TransactionCost from '../../layout/TransactionCost/TransactionCost';
-import DialogModal from '../DialogModal/DialogModal';
+} from '../../../../utils';
+import eventEmitter from '../../../../utils/events';
+import { Loader } from '../../../layout';
+import TransactionCost from '../../../layout/TransactionCost/TransactionCost';
+import DialogModal from '../../DialogModal/DialogModal';
 import './styles.css';
 
 function RemoveControllersModal({

@@ -1,3 +1,4 @@
+import { ConfigProvider, theme } from 'antd';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
@@ -19,7 +20,21 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
       <WalletStateProvider reducer={walletReducer}>
         <TransactionStateProvider reducer={transactionReducer}>
           <RegistrationStateProvider reducer={registrationReducer}>
-            <App />
+            <ConfigProvider
+              theme={{
+                algorithm: theme.darkAlgorithm,
+                token: {
+                  colorBgBase: 'var(--primary)',
+                },
+                components: {
+                  Button: {
+                    colorBgBase: 'var(--primary)',
+                  },
+                },
+              }}
+            >
+              <App />
+            </ConfigProvider>
           </RegistrationStateProvider>
         </TransactionStateProvider>
       </WalletStateProvider>

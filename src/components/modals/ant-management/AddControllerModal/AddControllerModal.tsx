@@ -1,19 +1,22 @@
 import { useEffect, useState } from 'react';
 
-import { useIsMobile } from '../../../hooks';
-import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { useIsMobile } from '../../../../hooks';
+import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
+import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import {
   ANTContractJSON,
   SetControllerPayload,
   VALIDATION_INPUT_TYPES,
-} from '../../../types';
-import { formatForMaxCharCount, isArweaveTransactionID } from '../../../utils';
-import eventEmitter from '../../../utils/events';
-import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
-import { Loader } from '../../layout';
-import TransactionCost from '../../layout/TransactionCost/TransactionCost';
-import DialogModal from '../DialogModal/DialogModal';
+} from '../../../../types';
+import {
+  formatForMaxCharCount,
+  isArweaveTransactionID,
+} from '../../../../utils';
+import eventEmitter from '../../../../utils/events';
+import ValidationInput from '../../../inputs/text/ValidationInput/ValidationInput';
+import { Loader } from '../../../layout';
+import TransactionCost from '../../../layout/TransactionCost/TransactionCost';
+import DialogModal from '../../DialogModal/DialogModal';
 
 function AddControllerModal({
   antId,

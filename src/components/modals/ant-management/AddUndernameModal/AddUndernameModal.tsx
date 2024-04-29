@@ -1,36 +1,36 @@
 import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
-import { useIsMobile } from '../../../hooks';
-import { ANTContract } from '../../../services/arweave/ANTContract';
-import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { useIsMobile } from '../../../../hooks';
+import { ANTContract } from '../../../../services/arweave/ANTContract';
+import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
+import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import {
   ANTContractJSON,
   ARNSRecordEntry,
   SetRecordPayload,
   VALIDATION_INPUT_TYPES,
-} from '../../../types';
+} from '../../../../types';
 import {
   isArweaveTransactionID,
   isUndernameValid,
   validateNoLeadingOrTrailingDashes,
   validateNoSpecialCharacters,
   validateTTLSeconds,
-} from '../../../utils';
+} from '../../../../utils';
 import {
   ARNS_TX_ID_ENTRY_REGEX,
   MAX_TTL_SECONDS,
   MAX_UNDERNAME_LENGTH,
   MIN_TTL_SECONDS,
   UNDERNAME_REGEX,
-} from '../../../utils/constants';
-import eventEmitter from '../../../utils/events';
-import WarningCard from '../../cards/WarningCard/WarningCard';
-import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
-import { Loader } from '../../layout';
-import TransactionCost from '../../layout/TransactionCost/TransactionCost';
-import DialogModal from '../DialogModal/DialogModal';
+} from '../../../../utils/constants';
+import eventEmitter from '../../../../utils/events';
+import WarningCard from '../../../cards/WarningCard/WarningCard';
+import ValidationInput from '../../../inputs/text/ValidationInput/ValidationInput';
+import { Loader } from '../../../layout';
+import TransactionCost from '../../../layout/TransactionCost/TransactionCost';
+import DialogModal from '../../DialogModal/DialogModal';
 
 function AddUndernameModal({
   antId,

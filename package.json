@@ -18,8 +18,10 @@
     "pre-commit": "lint-staged"
   },
   "dependencies": {
+    "@ar.io/sdk": "^1.0.3",
     "@sentry/react": "^7.45.0",
     "@sentry/tracing": "^7.45.0",
+    "@tanstack/react-query": "^5.32.0",
     "@typescript-eslint/parser": "^6.19.0",
     "antd": "5.2.1",
     "arconnect": "^0.4.2",
@@ -38,7 +40,7 @@
     "react-dom": "^18.2.0",
     "react-icons": "^5.0.1",
     "react-router-dom": "^6.4.2",
-    "warp-contracts": "^1.4.39"
+    "warp-contracts": "1.4.26"
   },
   "devDependencies": {
     "@babel/core": "^7.19.6",

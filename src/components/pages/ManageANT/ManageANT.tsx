@@ -49,11 +49,11 @@ import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import TransactionStatus from '../../layout/TransactionStatus/TransactionStatus';
 import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import { TransferANTModal } from '../../modals';
-import AddControllerModal from '../../modals/AddControllerModal/AddControllerModal';
 import ConfirmTransactionModal, {
   CONFIRM_TRANSACTION_PROPS_MAP,
 } from '../../modals/ConfirmTransactionModal/ConfirmTransactionModal';
-import RemoveControllersModal from '../../modals/RemoveControllerModal/RemoveControllerModal';
+import AddControllerModal from '../../modals/ant-management/AddControllerModal/AddControllerModal';
+import RemoveControllersModal from '../../modals/ant-management/RemoveControllerModal/RemoveControllerModal';
 import './styles.css';
 
 function ManageANT() {

@@ -1,21 +1,24 @@
 import { Checkbox } from 'antd';
 import { useEffect, useState } from 'react';
 
-import { useIsMobile } from '../../../hooks';
-import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { useIsMobile } from '../../../../hooks';
+import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
+import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import {
   ANTContractJSON,
   TransferANTPayload,
   VALIDATION_INPUT_TYPES,
-} from '../../../types';
-import { formatForMaxCharCount, isArweaveTransactionID } from '../../../utils';
-import eventEmitter from '../../../utils/events';
-import { InfoIcon } from '../../icons';
-import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
-import { Loader } from '../../layout';
-import TransactionCost from '../../layout/TransactionCost/TransactionCost';
-import DialogModal from '../DialogModal/DialogModal';
+} from '../../../../types';
+import {
+  formatForMaxCharCount,
+  isArweaveTransactionID,
+} from '../../../../utils';
+import eventEmitter from '../../../../utils/events';
+import { InfoIcon } from '../../../icons';
+import ValidationInput from '../../../inputs/text/ValidationInput/ValidationInput';
+import { Loader } from '../../../layout';
+import TransactionCost from '../../../layout/TransactionCost/TransactionCost';
+import DialogModal from '../../DialogModal/DialogModal';
 import './styles.css';
 
 function TransferANTModal({

@@ -1,11 +1,12 @@
 import TransactionSuccessCard from '@src/components/cards/TransactionSuccessCard/TransactionSuccessCard';
+import DomainSettings from '@src/components/forms/DomainSettings/DomainSettings';
 import ValidationInput from '@src/components/inputs/text/ValidationInput/ValidationInput';
 import { TransferANTModal } from '@src/components/modals';
-import AddControllerModal from '@src/components/modals/AddControllerModal/AddControllerModal';
 import ConfirmTransactionModal, {
   CONFIRM_TRANSACTION_PROPS_MAP,
 } from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
-import RemoveControllersModal from '@src/components/modals/RemoveControllerModal/RemoveControllerModal';
+import AddControllerModal from '@src/components/modals/ant-management/AddControllerModal/AddControllerModal';
+import RemoveControllersModal from '@src/components/modals/ant-management/RemoveControllerModal/RemoveControllerModal';
 import { ANTContract } from '@src/services/arweave/ANTContract';
 import { Tooltip } from 'antd';
 import { Table } from 'antd';
@@ -929,6 +930,7 @@ function ManageDomain() {
       ) : (
         <></>
       )}
+      <DomainSettings domain={name!} />
     </>
   );
 }
