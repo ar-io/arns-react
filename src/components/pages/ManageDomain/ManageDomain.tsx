@@ -149,13 +149,13 @@ function ManageDomain() {
       }
 
       const names = Object.keys(associatedRecords).filter(
-        (key) => key !== name,
+        (key) => key !== domainName,
       );
 
-      const record = name
+      const record = domainName
         ? await arweaveDataProvider
             .getRecord({
-              domain: lowerCaseDomain(name),
+              domain: lowerCaseDomain(domainName),
             })
             .catch(() => undefined)
         : undefined;
@@ -841,8 +841,9 @@ function ManageDomain() {
               ]}
               dataSource={rows}
             />
-          )}
+          )}{' '}
         </div>
+        <DomainSettings domain={'ardrive'} />
       </div>
       {showTransferANTModal && contractTxId ? (
         <TransferANTModal
@@ -930,7 +931,6 @@ function ManageDomain() {
       ) : (
         <></>
       )}
-      <DomainSettings domain={name!} />
     </>
   );
 }

@@ -1,28 +1,91 @@
+import { PencilIcon } from '@src/components/icons';
 import { List } from 'antd';
+
+import './styles.css';
 
 export default function DomainSettingsRow({
   label,
   value,
-  action,
+  action = [],
+  editable = false,
+  editing = false,
+  onCancel = () => console.log('Missing onCancel prop'),
+  onSave = () => console.log('Missing onSave prop'),
+  setEditing = () => console.log('Missing setEditing prop'),
 }: {
   label?: string;
   value?: React.ReactNode;
   action?: React.ReactNode[];
+  editable?: boolean;
+  editing?: boolean;
+  onCancel?: () => void;
+  onSave?: () => void;
+  setEditing?: () => void;
 }) {
   return (
     <>
       <List.Item
-        style={{
-          display: 'flex',
-          border: 'var(--text-faded) 1px solid',
-          borderRadius: '4px',
-          margin: '10px',
-          justifyContent: 'space-between',
-        }}
-        actions={action}
+        prefixCls="domain-settings-row"
+        actions={[
+          ...action,
+          <>
+            {editable && !editing ? (
+              <button
+                className="button pointer hover"
+                onClick={() => {
+                  setEditing();
+                }}
+                style={{ boxSizing: 'border-box' }}
+              >
+                <PencilIcon
+                  style={{
+                    width: '16px',
+                    height: '16px',
+                    fill: 'var(--text-grey)',
+                    boxSizing: 'border-box',
+                  }}
+                />
+              </button>
+            ) : (
+              editable && (
+                <span
+                  className="flex flex-row"
+                  style={{
+                    boxSizing: 'border-box',
+                    gap: '10px',
+                  }}
+                >
+                  <button
+                    className="button bold grey pointer hover"
+                    style={{
+                      padding: '6px',
+                      fontSize: '13px',
+                      boxSizing: 'border-box',
+                    }}
+                    onClick={() => onCancel()}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="button-primary hover"
+                    style={{
+                      padding: '9px 12px',
+                      fontSize: '13px',
+                      boxSizing: 'border-box',
+                    }}
+                    onClick={() => onSave()}
+                  >
+                    Save
+                  </button>
+                </span>
+              )
+            )}
+          </>,
+        ]}
       >
-        <List.Item.Meta description={label} />
-        <List.Item.Meta description={value} />
+        {/* item controls css of meta via positional css selectors */}
+        <List.Item.Meta prefixCls="domain-settings-meta" description={label} />
+        <List.Item.Meta prefixCls="domain-settings-meta" description={value} />
       </List.Item>
     </>
   );

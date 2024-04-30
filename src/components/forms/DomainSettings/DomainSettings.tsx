@@ -2,18 +2,17 @@ import LeaseDuration from '@src/components/data-display/LeaseDuration';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { formatDate } from '@src/utils';
 import { SECONDS_IN_GRACE_PERIOD } from '@src/utils/constants';
-import eventEmitter from '@src/utils/events';
-import { ConfigProvider, List, Skeleton } from 'antd';
-import { useEffect } from 'react';
+import { List, Skeleton } from 'antd';
 
+import ControllersRow from './ControllersRow';
 import DomainSettingsRow from './DomainSettingsRow';
+import NicknameRow from './NicknameRow';
+import TargetIDRow from './TargetIDRow';
+import TickerRow from './TickerRow';
+import './styles.css';
 
 function DomainSettings({ domain }: { domain: string }) {
-  const { data, error } = useDomainInfo(domain);
-
-  useEffect(() => {
-    eventEmitter.emit('error', error);
-  }, [error]);
+  const { data } = useDomainInfo(domain);
 
   function formatExpiryDate(endTimestamp?: number) {
     if (!endTimestamp) {
@@ -38,38 +37,28 @@ function DomainSettings({ domain }: { domain: string }) {
 
   return (
     <>
-      <ConfigProvider
-        theme={{
-          components: {
-            List: {
-              contentWidth: 0,
-              colorText: 'var(--text-faded)',
-            },
-          },
-        }}
-      >
-        <List
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            width: '100%',
-          }}
-        >
-          <DomainSettingsRow
-            label="Lease Duration"
-            value={formatExpiryDate(data?.arnsRecord.endTimestamp)}
-          />
-          <DomainSettingsRow
-            label="Lease Duration"
-            value={
-              <LeaseDuration
-                startTimestamp={data?.arnsRecord.startTimestamp}
-                endTimestamp={data?.arnsRecord.endTimestamp}
-              />
-            }
-          />
-        </List>
-      </ConfigProvider>
+      <List prefixCls="domain-settings-list">
+        <DomainSettingsRow
+          label="Expiry Date"
+          value={formatExpiryDate(data?.arnsRecord.endTimestamp)}
+        />
+        <DomainSettingsRow
+          label="Lease Duration"
+          value={
+            <LeaseDuration
+              startTimestamp={data?.arnsRecord.startTimestamp}
+              endTimestamp={data?.arnsRecord.endTimestamp}
+            />
+          }
+        />
+        <DomainSettingsRow label="Associated Names" value={'N/A'} />
+        <DomainSettingsRow label="Status" value={'N/A'} />
+        <NicknameRow nickname={data?.arnsRecord.nickname ?? 'N/A'} />
+        <DomainSettingsRow label="Contract ID" value={'N/A'} />
+        <TargetIDRow targetId={'N/A'} />
+        <TickerRow ticker={'N/A'} />
+        <ControllersRow controllers={data?.arnsRecord.controllers ?? []} />
+      </List>
     </>
   );
 }

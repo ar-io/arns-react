@@ -5,15 +5,17 @@ import {
   ArNSBaseNameData,
   ArNSLeaseData,
 } from '@ar.io/sdk';
-import { useQuery } from '@tanstack/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
 
 export default function useDomainInfo(domain: string) {
-  return useQuery({
+  const { data, isLoading, error } = useSuspenseQuery({
     queryKey: ['domainInfo', { domain }],
-    queryFn: () => getDomainInfo({ domain }),
+    queryFn: () => getDomainInfo({ domain }).catch((error) => error),
   });
 
   async function getDomainInfo({ domain }: { domain: string }): Promise<{
+    // arnsRecord: any;
+    // antState: any;
     arnsRecord: ArNSLeaseData & ArNSBaseNameData;
     antState: ANTState;
   }> {
@@ -31,4 +33,6 @@ export default function useDomainInfo(domain: string) {
       antState,
     };
   }
+
+  return { data, isLoading, error };
 }
