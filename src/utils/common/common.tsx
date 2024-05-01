@@ -1,3 +1,4 @@
+import { Skeleton } from 'antd';
 import { Buffer } from 'buffer';
 import { CSSProperties } from 'react';
 
@@ -9,7 +10,11 @@ import {
   TRANSACTION_TYPES,
   TransactionTag,
 } from '../../types';
-import { DEFAULT_MAX_UNDERNAMES, YEAR_IN_MILLISECONDS } from '../constants';
+import {
+  DEFAULT_MAX_UNDERNAMES,
+  SECONDS_IN_GRACE_PERIOD,
+  YEAR_IN_MILLISECONDS,
+} from '../constants';
 import { fromB64Url } from '../encodings';
 
 export function formatDate(epochMs: number): string {
@@ -247,3 +252,23 @@ export const fetchWithRetry = async (url: string, numRetries = 1) => {
   }
   return res;
 };
+
+export function formatExpiryDate(endTimestamp?: number) {
+  if (!endTimestamp) {
+    return <Skeleton.Input active />;
+  }
+  return (
+    <span
+      style={{
+        color:
+          endTimestamp * 1000 > Date.now()
+            ? 'var(--success-green)'
+            : endTimestamp * 1000 + SECONDS_IN_GRACE_PERIOD * 1000 < Date.now()
+            ? 'var(--accent)'
+            : 'var(--error-red)',
+      }}
+    >
+      {formatDate(endTimestamp * 1000)}
+    </span>
+  );
+}

@@ -4,25 +4,34 @@ import {
   ArIO,
   ArNSBaseNameData,
   ArNSLeaseData,
-} from '@ar.io/sdk';
+} from '@ar.io/sdk/web';
 import { useSuspenseQuery } from '@tanstack/react-query';
 
-export default function useDomainInfo(domain: string) {
+export default function useDomainInfo(domain?: string) {
   const { data, isLoading, error } = useSuspenseQuery({
     queryKey: ['domainInfo', { domain }],
     queryFn: () => getDomainInfo({ domain }).catch((error) => error),
   });
 
-  async function getDomainInfo({ domain }: { domain: string }): Promise<{
+  async function getDomainInfo({ domain }: { domain?: string }): Promise<{
     // arnsRecord: any;
     // antState: any;
     arnsRecord: ArNSLeaseData & ArNSBaseNameData;
     antState: ANTState;
   }> {
+    if (!domain) {
+      return {
+        arnsRecord: {} as ArNSLeaseData & ArNSBaseNameData,
+        antState: {} as ANTState,
+      };
+    }
     const arIOReadable = ArIO.init();
     const record = await arIOReadable.getArNSRecord({ domain });
     if (!record) {
-      throw new Error('Domain not found');
+      return {
+        arnsRecord: {} as ArNSLeaseData & ArNSBaseNameData,
+        antState: {} as ANTState,
+      };
     }
     const antReadable = ANT.init({
       contractTxId: record?.contractTxId.toString(),

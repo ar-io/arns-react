@@ -6,23 +6,22 @@ import { useState } from 'react';
 
 import DomainSettingsRow from './DomainSettingsRow';
 
-export default function TargetIDRow({ targetId }: { targetId: string }) {
+export default function TTLRow({ ttlSeconds }: { ttlSeconds: number }) {
   const [editing, setEditing] = useState<boolean>(false);
-  const [newTargetId, setNewTargetId] = useState<string>('');
-  const [{ arweaveDataProvider }] = useGlobalState();
+  const [newTTL, setNewTTL] = useState<number>(ttlSeconds);
 
-  function handleSave(transactionId: string) {}
+  function handleSave(ttl: number) {}
   return (
     <>
       <DomainSettingsRow
-        label="Target ID:"
+        label="TTL Seconds:"
         value={
           <ValidationInput
-            customPattern={ARNS_TX_ID_ENTRY_REGEX}
             catchInvalidInput={true}
             showValidationIcon={true}
-            onPressEnter={() => handleSave(newTargetId)}
+            onPressEnter={() => handleSave(newTTL)}
             inputClassName={'domain-settings-input'}
+            inputType="number"
             inputCustomStyle={{
               ...(editing
                 ? {
@@ -37,9 +36,9 @@ export default function TargetIDRow({ targetId }: { targetId: string }) {
                   }),
             }}
             disabled={!editing}
-            placeholder={editing ? `Enter a Target ID` : targetId}
-            value={newTargetId}
-            setValue={(e) => setNewTargetId(e)}
+            placeholder={editing ? `Enter a new TTL` : ttlSeconds.toString()}
+            value={newTTL}
+            setValue={(e) => setNewTTL(parseInt(e.toString()))}
             validationPredicates={{
               [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
                 fn: (id: string) => arweaveDataProvider.validateArweaveId(id),
@@ -51,10 +50,10 @@ export default function TargetIDRow({ targetId }: { targetId: string }) {
         editable={true}
         editing={editing}
         setEditing={() => setEditing(true)}
-        onSave={() => handleSave(newTargetId)}
+        onSave={() => handleSave(newTTL)}
         onCancel={() => {
           setEditing(false);
-          setNewTargetId('');
+          setNewTTL(ttlSeconds);
         }}
       />
     </>

@@ -7,7 +7,7 @@ import svgr from 'vite-plugin-svgr';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  //esbuild: false,
+  esbuild: false,
   build: {
     sourcemap: true,
     minify: true,

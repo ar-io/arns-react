@@ -26,6 +26,9 @@ export default function DomainSettingsRow({
     <>
       <List.Item
         prefixCls="domain-settings-row"
+        style={{
+          borderColor: editing ? 'var(--text-grey)' : undefined,
+        }}
         actions={[
           ...action,
           <>
