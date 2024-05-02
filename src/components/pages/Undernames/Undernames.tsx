@@ -1,3 +1,9 @@
+import { ANT, ArconnectSigner } from '@ar.io/sdk/web';
+import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModalV2';
+import useDomainInfo from '@src/hooks/useDomainInfo';
+import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
+import { useTransactionState } from '@src/state/contexts/TransactionState';
+import { DEFAULT_ARWEAVE } from '@src/utils/constants';
 import { Table } from 'antd';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -5,7 +11,6 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useUndernames } from '../../../hooks/useUndernames/useUndernames';
 import { ANTContract } from '../../../services/arweave/ANTContract';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import {
   ANT_INTERACTION_TYPES,
@@ -17,22 +22,21 @@ import {
 import {
   getCustomPaginationButtons,
   isArweaveTransactionID,
-  withExponentialBackoff,
 } from '../../../utils';
 import eventEmitter from '../../../utils/events';
 import TransactionSuccessCard from '../../cards/TransactionSuccessCard/TransactionSuccessCard';
 import { PlusIcon } from '../../icons';
 import { Loader } from '../../layout';
 import { AddUndernameModal, EditUndernameModal } from '../../modals';
-import ConfirmTransactionModal, {
-  CONFIRM_TRANSACTION_PROPS_MAP,
-} from '../../modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import './styles.css';
 
 function Undernames() {
   const navigate = useNavigate();
   const { id, name } = useParams();
-  const [{ arweaveDataProvider }] = useGlobalState();
+  const { data } = useDomainInfo({
+    domain: name,
+    antId: id ? new ArweaveTransactionID(id) : undefined,
+  });
   const [{ walletAddress }] = useWalletState();
   const [antId, setANTId] = useState<ArweaveTransactionID>();
   const [antState, setANTState] = useState<ANTContract>();
@@ -62,8 +66,8 @@ function Undernames() {
   >();
   const [interactionType, setInteractionType] =
     useState<ANT_INTERACTION_TYPES>();
-  const [deployedTransactionId, setDeployedTransactionId] =
-    useState<ArweaveTransactionID>();
+  const [{ interactionResult, workflowName }, dispatchTransactionState] =
+    useTransactionState();
 
   useEffect(() => {
     if (!id && !name) {
@@ -106,16 +110,7 @@ function Undernames() {
       if (isArweaveTransactionID(id)) {
         contractTxId = new ArweaveTransactionID(id);
       } else if (name) {
-        const record = await withExponentialBackoff({
-          fn: () =>
-            arweaveDataProvider.getRecord({
-              domain: name,
-            }),
-          maxTries: 5,
-          initialDelay: 1000,
-          shouldRetry: (res) => !res?.contractTxId,
-        });
-
+        const record = data.arnsRecord;
         contractTxId = new ArweaveTransactionID(record?.contractTxId);
       }
 
@@ -123,12 +118,47 @@ function Undernames() {
         throw new Error('Unable to load undernames, cannot resolve ANT ID.');
       }
       setANTId(contractTxId);
-      const contract = await arweaveDataProvider.buildANTContract(contractTxId);
-
-      setANTState(contract);
+      setANTState(new ANTContract(data.antState, contractTxId));
     } catch (error) {
       eventEmitter.emit('error', error);
       navigate('/manage/ants');
+    }
+  }
+
+  async function handleInteraction({
+    payload,
+    workflowName,
+    contractTxId,
+  }: {
+    payload: TransactionDataPayload;
+    workflowName: ANT_INTERACTION_TYPES;
+    contractTxId?: ArweaveTransactionID;
+  }) {
+    try {
+      if (!contractTxId) {
+        throw new Error('Unable to interact with ANT contract - missing ID.');
+      }
+      const antWritable = ANT.init({
+        contractTxId: contractTxId?.toString(),
+        signer: new ArconnectSigner(
+          window.arweaveWallet,
+          DEFAULT_ARWEAVE as any,
+        ),
+      });
+      const res = await dispatchANTInteraction({
+        contractTxId,
+        payload,
+        workflowName,
+        antProvider: antWritable,
+        dispatch: dispatchTransactionState,
+      });
+      console.debug('Interaction result:', res.id);
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    } finally {
+      setTransactionData(undefined);
+      setInteractionType(undefined);
+      refresh();
     }
   }
 
@@ -136,16 +166,15 @@ function Undernames() {
     <>
       <div className="page">
         <div className="flex-column">
-          {deployedTransactionId && interactionType ? (
+          {interactionResult ? (
             <TransactionSuccessCard
-              txId={deployedTransactionId}
+              txId={new ArweaveTransactionID(interactionResult.id)}
               close={() => {
-                setDeployedTransactionId(undefined);
-                setInteractionType(undefined);
+                dispatchTransactionState({
+                  type: 'reset',
+                });
               }}
-              title={
-                CONFIRM_TRANSACTION_PROPS_MAP[interactionType]?.successHeader
-              }
+              title={`${workflowName} completed`}
             />
           ) : (
             <></>
@@ -324,27 +353,20 @@ function Undernames() {
       interactionType &&
       antState?.getOwnershipStatus(walletAddress) ? (
         <ConfirmTransactionModal
-          setDeployedTransactionId={(id: ArweaveTransactionID) => {
-            setDeployedTransactionId(id);
-            setTransactionData(undefined);
-            refresh();
-          }}
           interactionType={interactionType}
-          payload={transactionData}
-          assetId={antId}
-          close={() => {
-            setTransactionData(undefined);
-            setSelectedRow(undefined);
-            setAction(undefined);
-          }}
+          confirm={() =>
+            handleInteraction({
+              payload: transactionData,
+              workflowName: interactionType,
+              contractTxId: antId,
+            })
+          }
           cancel={() => {
             setTransactionData(undefined);
             setInteractionType(undefined);
             setSelectedRow(undefined);
             setAction(undefined);
           }}
-          cancelText={'Cancel'}
-          confirmText="Confirm"
         />
       ) : (
         <></>

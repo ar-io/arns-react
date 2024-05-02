@@ -1,72 +1,42 @@
+import { ANTState } from '@ar.io/sdk/web';
 import { Checkbox, Table } from 'antd';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { useIsMobile } from '../../../../hooks';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
-import { useGlobalState } from '../../../../state/contexts/GlobalState';
-import { ANTContractJSON, RemoveControllerPayload } from '../../../../types';
+import { ANTContractJSON } from '../../../../types';
 import {
   formatForMaxCharCount,
   getCustomPaginationButtons,
   getLegacyControllersFromState,
 } from '../../../../utils';
-import eventEmitter from '../../../../utils/events';
-import { Loader } from '../../../layout';
 import TransactionCost from '../../../layout/TransactionCost/TransactionCost';
 import DialogModal from '../../DialogModal/DialogModal';
 import './styles.css';
 
 function RemoveControllersModal({
   antId,
+  state,
   closeModal,
   payloadCallback,
 }: {
   antId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
+  state: ANTState;
   closeModal: () => void;
-  payloadCallback: (payload: RemoveControllerPayload) => void;
+  payloadCallback: (payload: { controller: string }) => void;
 }) {
-  const [{ arweaveDataProvider }] = useGlobalState();
   const isMobile = useIsMobile();
   const [controllersToRemove, setControllersToRemove] = useState<
     ArweaveTransactionID[]
   >([]);
-  const [state, setState] = useState<ANTContractJSON>();
   const [tablePage, setTablePage] = useState<number>(1);
-  const [rows, setRows] = useState<{ controller: ArweaveTransactionID }[]>([]);
-
-  // TODO: add "transfer to another account" dropdown
-
-  useEffect(() => {
-    load(antId);
-  }, [antId]);
-
-  useEffect(() => {
-    const newRows = getControllerRows();
-    setRows(newRows);
-  }, [state]);
-
-  async function load(id: ArweaveTransactionID) {
-    try {
-      const contract = await arweaveDataProvider.buildANTContract(id);
-      setState(contract.state);
-      const newRows = getControllerRows();
-      setRows(newRows);
-    } catch (error) {
-      eventEmitter.emit('error', error);
-    }
-  }
-
-  if (!state) {
-    return (
-      <div className="modal-container">
-        <Loader size={80} />
-      </div>
-    );
-  }
+  const [rows] = useState<{ controller: ArweaveTransactionID }[]>(
+    getControllerRows(state),
+  );
 
   function handlePayloadCallback() {
     payloadCallback({
-      target: controllersToRemove[0].toString(),
+      controller: controllersToRemove[0].toString(),
     });
   }
 
@@ -74,13 +44,13 @@ function RemoveControllersModal({
     setTablePage(page);
   }
 
-  function getControllerRows() {
-    if (state?.controllers && Array.isArray(state.controllers)) {
-      return state.controllers.map((controller) => ({
+  function getControllerRows(antState?: ANTContractJSON) {
+    if (antState?.controllers && Array.isArray(antState.controllers)) {
+      return antState.controllers.map((controller) => ({
         controller: new ArweaveTransactionID(controller),
       }));
-    } else if (state?.controller) {
-      return [{ controller: new ArweaveTransactionID(state.controller) }];
+    } else if (antState?.controller) {
+      return [{ controller: new ArweaveTransactionID(antState.controller) }];
     }
     return [];
   }

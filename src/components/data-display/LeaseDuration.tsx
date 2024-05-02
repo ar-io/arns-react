@@ -1,5 +1,4 @@
 import { getLeaseDurationFromEndTimestamp } from '@src/utils';
-import { Skeleton } from 'antd';
 
 export const getLeaseDurationString = (
   startTimestamp: number,
@@ -26,6 +25,6 @@ export default function LeaseDuration({
   startTimestamp?: number;
   endTimestamp?: number;
 }) {
-  if (!startTimestamp || !endTimestamp) return <Skeleton.Input active />;
+  if (!startTimestamp || !endTimestamp) return 'Indefinite';
   return <>{getLeaseDurationString(startTimestamp, endTimestamp)}</>;
 }

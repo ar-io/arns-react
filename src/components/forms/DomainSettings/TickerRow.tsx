@@ -1,17 +1,35 @@
 import ValidationInput from '@src/components/inputs/text/ValidationInput/ValidationInput';
-import { useGlobalState } from '@src/state/contexts/GlobalState';
-import { VALIDATION_INPUT_TYPES } from '@src/types';
+import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModalV2';
+import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
 import { SMARTWEAVE_MAX_INPUT_SIZE } from '@src/utils/constants';
+import eventEmitter from '@src/utils/events';
 import { useState } from 'react';
 
 import DomainSettingsRow from './DomainSettingsRow';
 
-export default function TickerRow({ ticker }: { ticker: string }) {
+export default function TickerRow({
+  ticker,
+  confirm,
+}: {
+  ticker: string;
+  confirm: (ticker: string) => Promise<ContractInteraction>;
+}) {
   const [editing, setEditing] = useState<boolean>(false);
-  const [newTicker, setNewTicker] = useState<string>('');
-  const [{ arweaveDataProvider }] = useGlobalState();
+  const [newTicker, setNewTicker] = useState<string>(ticker);
+  const [showModal, setShowModal] = useState<boolean>(false);
 
-  function handleSave(newTicker: string) {}
+  async function handleSave(name: string) {
+    try {
+      const res = await confirm(name);
+      console.debug('deployed', res.id);
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    } finally {
+      setEditing(false);
+      setNewTicker(ticker);
+      setShowModal(false);
+    }
+  }
   return (
     <>
       <DomainSettingsRow
@@ -19,8 +37,8 @@ export default function TickerRow({ ticker }: { ticker: string }) {
         value={
           <ValidationInput
             catchInvalidInput={true}
-            showValidationIcon={true}
-            onPressEnter={() => handleSave(newTicker)}
+            showValidationIcon={editing}
+            onPressEnter={() => setShowModal(true)}
             inputClassName={'domain-settings-input'}
             inputCustomStyle={{
               ...(editing
@@ -39,23 +57,36 @@ export default function TickerRow({ ticker }: { ticker: string }) {
             placeholder={editing ? `Enter a Ticker` : ticker}
             value={newTicker}
             setValue={(e) => setNewTicker(e)}
-            validationPredicates={{
-              [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
-                fn: (id: string) => arweaveDataProvider.validateArweaveId(id),
-              },
-            }}
+            validationPredicates={{}}
             maxCharLength={(str) => str.length <= SMARTWEAVE_MAX_INPUT_SIZE}
           />
         }
         editable={true}
         editing={editing}
         setEditing={() => setEditing(true)}
-        onSave={() => handleSave(newTicker)}
+        onSave={() => setShowModal(true)}
         onCancel={() => {
           setEditing(false);
           setNewTicker('');
         }}
       />
+      {showModal && (
+        <ConfirmTransactionModal
+          cancel={() => setShowModal(false)}
+          confirm={() => handleSave(newTicker)}
+          interactionType={ANT_INTERACTION_TYPES.SET_TICKER}
+          content={
+            <>
+              <span>
+                By completing this action, you are going to change the ticker of
+                this token to <br />
+                <span className="text-color-warning">{`"${newTicker}"`}.</span>
+              </span>
+              <span>Are you sure you want to continue?</span>
+            </>
+          }
+        />
+      )}
     </>
   );
 }

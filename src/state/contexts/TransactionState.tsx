@@ -1,3 +1,4 @@
+import PageLoader from '@src/components/layout/progress/PageLoader/PageLoader';
 import { Dispatch, createContext, useContext, useReducer } from 'react';
 
 import { TRANSACTION_WORKFLOW_STATUS } from '../../components/layout/TransactionWorkflow/TransactionWorkflow';
@@ -10,6 +11,9 @@ export type TransactionState = {
   transactionData: TransactionData | undefined; // data that will be used to perform the transaction.
   interactionType: ExcludedValidInteractionType | undefined;
   workflowStage: TRANSACTION_WORKFLOW_STATUS;
+  workflowName?: string;
+  interactionResult?: any;
+  signing: boolean;
 };
 
 export type TransactionStateProviderProps = {
@@ -18,6 +22,7 @@ export type TransactionStateProviderProps = {
 };
 
 export const initialTransactionState: TransactionState = {
+  signing: false,
   transactionData: undefined,
   interactionType: undefined,
   workflowStage: TRANSACTION_WORKFLOW_STATUS.PENDING, // confirm deploy complete,
@@ -50,6 +55,12 @@ export default function TransactionStateProvider({
   return (
     <TransactionStateContext.Provider value={[state, dispatchTransactionState]}>
       {children}
+      <PageLoader
+        loading={state.signing}
+        message={`Deploying ${
+          state?.workflowName ?? ''
+        } interaction, please wait.`}
+      />
     </TransactionStateContext.Provider>
   );
 }

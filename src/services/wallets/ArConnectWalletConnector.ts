@@ -14,6 +14,7 @@ export const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [
   'ACCESS_PUBLIC_KEY',
   'SIGN_TRANSACTION',
   'ACCESS_ARWEAVE_CONFIG',
+  'SIGNATURE',
 ];
 
 export class ArConnectWalletConnector implements ArweaveWalletConnector {

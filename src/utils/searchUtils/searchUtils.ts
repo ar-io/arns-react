@@ -1,7 +1,6 @@
 import emojiRegex from 'emoji-regex';
 import { asciiToUnicode, unicodeToAscii } from 'puny-coder';
 
-import { ANTContractJSON } from '../../types';
 import {
   APPROVED_CHARACTERS_REGEX,
   ARNS_NAME_REGEX,
@@ -135,7 +134,7 @@ export function lowerCaseDomain(domain: string) {
 
 // controller vs controllers array
 export function getLegacyControllersFromState(
-  state: ANTContractJSON,
+  state: Record<string, any>,
 ): string[] {
   if (state.controller && !state.controllers) {
     return [state.controller];

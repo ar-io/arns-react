@@ -3,7 +3,7 @@ import {
   ANTWritable,
   ANT_CONTRACT_FUNCTIONS,
   ArconnectSigner,
-} from '@ar.io/sdk';
+} from '@ar.io/sdk/web';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { DEFAULT_ARWEAVE } from '@src/utils/constants';
 

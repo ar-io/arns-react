@@ -1,20 +1,78 @@
+import { ANTState } from '@ar.io/sdk/web';
 import { VerticalDotMenuIcon } from '@src/components/icons';
-import { Tooltip } from 'antd';
+import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModalV2';
+import AddControllerModal from '@src/components/modals/ant-management/AddControllerModal/AddControllerModal';
+import RemoveControllersModal from '@src/components/modals/ant-management/RemoveControllerModal/RemoveControllerModal';
+import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
+import { getLegacyControllersFromState } from '@src/utils';
+import { Skeleton, Tooltip } from 'antd';
+import { useState } from 'react';
 
 import DomainSettingsRow from './DomainSettingsRow';
 
 export default function ControllersRow({
-  controllers,
+  state,
+  contractTxId,
+  confirm,
 }: {
-  controllers: string[];
+  state: ANTState;
+  contractTxId?: string;
+  confirm: ({
+    payload,
+    workflowName,
+  }: {
+    payload: { controller: string };
+    workflowName:
+      | ANT_INTERACTION_TYPES.SET_CONTROLLER
+      | ANT_INTERACTION_TYPES.REMOVE_CONTROLLER;
+  }) => Promise<ContractInteraction>;
 }) {
-  async function add() {}
-  async function remove() {}
+  const [payload, setPayload] = useState<{ controller: string }>({
+    controller: '',
+  });
+  const [workflowName, setWorkflowName] = useState<
+    | ANT_INTERACTION_TYPES.SET_CONTROLLER
+    | ANT_INTERACTION_TYPES.REMOVE_CONTROLLER
+  >(ANT_INTERACTION_TYPES.SET_CONTROLLER);
+  const [showAddModal, setShowAddModal] = useState<boolean>(false);
+  const [showRemoveModal, setShowRemoveModal] = useState<boolean>(false);
+  const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
+
+  async function handleControllerInteraction({
+    payload,
+    workflowName,
+  }: {
+    payload: { controller: string };
+    workflowName:
+      | ANT_INTERACTION_TYPES.REMOVE_CONTROLLER
+      | ANT_INTERACTION_TYPES.SET_CONTROLLER;
+  }) {
+    try {
+      const res = await confirm({
+        payload,
+        workflowName,
+      });
+      console.debug('deployed', res.id);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setShowAddModal(false);
+      setShowRemoveModal(false);
+      setShowConfirmModal(false);
+    }
+  }
   return (
     <>
       <DomainSettingsRow
         label="Controllers(s):"
-        value={controllers.join(', ')}
+        value={
+          state ? (
+            getLegacyControllersFromState(state).join(', ')
+          ) : (
+            <Skeleton.Input active={true} />
+          )
+        }
         action={[
           <Tooltip
             key={1}
@@ -34,13 +92,13 @@ export default function ControllersRow({
               <div className="flex-column flex" style={{ gap: '10px' }}>
                 <button
                   className="flex flex-right white pointer button"
-                  onClick={() => add()}
+                  onClick={() => setShowAddModal(true)}
                 >
                   Add Controller
                 </button>
                 <button
                   className="flex flex-right white pointer button"
-                  onClick={() => remove()}
+                  onClick={() => setShowRemoveModal(true)}
                 >
                   Remove Controller
                 </button>
@@ -56,6 +114,60 @@ export default function ControllersRow({
           </Tooltip>,
         ]}
       />
+      {showAddModal && contractTxId && (
+        <AddControllerModal
+          closeModal={() => setShowAddModal(false)}
+          state={state}
+          antId={new ArweaveTransactionID(contractTxId)}
+          payloadCallback={(c) => {
+            setWorkflowName(ANT_INTERACTION_TYPES.SET_CONTROLLER);
+            setPayload(c);
+            setShowConfirmModal(true);
+            setShowAddModal(false);
+          }}
+        />
+      )}
+      {showRemoveModal && contractTxId && (
+        <RemoveControllersModal
+          closeModal={() => setShowRemoveModal(false)}
+          state={state}
+          antId={new ArweaveTransactionID(contractTxId)}
+          payloadCallback={(c) => {
+            setWorkflowName(ANT_INTERACTION_TYPES.REMOVE_CONTROLLER);
+            setPayload(c);
+            setShowConfirmModal(true);
+            setShowRemoveModal(false);
+          }}
+        />
+      )}
+      {showConfirmModal && (
+        <ConfirmTransactionModal
+          cancel={() => setShowConfirmModal(false)}
+          confirm={() => handleControllerInteraction({ payload, workflowName })}
+          interactionType={workflowName}
+          content={
+            workflowName === ANT_INTERACTION_TYPES.SET_CONTROLLER ? (
+              <>
+                <span>
+                  By completing this action, you are going to add{' '}
+                  <span className="text-color-warning">{`"${payload.controller}"`}</span>{' '}
+                  as a controller.
+                </span>
+                <span>Are you sure you want to continue?</span>
+              </>
+            ) : (
+              <>
+                <span>
+                  By completing this action, you are going to remove{' '}
+                  <span className="text-color-error">{`"${payload.controller}"`}</span>{' '}
+                  as a controller.
+                </span>
+                <span>Are you sure you want to continue?</span>
+              </>
+            )
+          }
+        />
+      )}
     </>
   );
 }

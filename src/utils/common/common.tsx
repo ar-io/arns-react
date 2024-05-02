@@ -1,4 +1,3 @@
-import { Skeleton } from 'antd';
 import { Buffer } from 'buffer';
 import { CSSProperties } from 'react';
 
@@ -253,9 +252,14 @@ export const fetchWithRetry = async (url: string, numRetries = 1) => {
   return res;
 };
 
+/**
+ * Formats a unix timestamp into a human-readable date string.
+ * @param endTimestamp unix timestamp in seconds
+ * @returns {@type JSX.Element} formatted date string
+ */
 export function formatExpiryDate(endTimestamp?: number) {
   if (!endTimestamp) {
-    return <Skeleton.Input active />;
+    return 'Indefinite';
   }
   return (
     <span

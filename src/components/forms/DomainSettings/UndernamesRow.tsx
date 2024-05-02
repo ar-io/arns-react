@@ -7,10 +7,12 @@ import DomainSettingsRow from './DomainSettingsRow';
 
 export default function UndernamesRow({
   domain,
+  antId,
   undernameCount,
   undernameSupport,
 }: {
   domain?: string;
+  antId?: string;
   undernameCount: number;
   undernameSupport: number;
 }) {
@@ -57,7 +59,9 @@ export default function UndernamesRow({
               <div className="flex-column flex" style={{ gap: '10px' }}>
                 <button
                   className="flex flex-right white pointer button"
-                  onClick={() => navigate(`/manage/names/${domain}/undernames`)}
+                  onClick={() =>
+                    navigate(`/manage/names/${domain || antId}/undernames`)
+                  }
                 >
                   Manage
                 </button>
@@ -70,7 +74,9 @@ export default function UndernamesRow({
                     });
                     navigate(
                       encodeURI(
-                        `/manage/names/${domain}/undernames?${params.toString()}`,
+                        `/manage/names/${
+                          domain || antId
+                        }/undernames?${params.toString()}`,
                       ),
                     );
                   }}

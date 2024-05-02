@@ -1,14 +1,11 @@
+import { ANTState } from '@ar.io/sdk/web';
 import { Checkbox } from 'antd';
 import { useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../../hooks';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
-import {
-  ANTContractJSON,
-  TransferANTPayload,
-  VALIDATION_INPUT_TYPES,
-} from '../../../../types';
+import { TransferANTPayload, VALIDATION_INPUT_TYPES } from '../../../../types';
 import {
   formatForMaxCharCount,
   isArweaveTransactionID,
@@ -23,10 +20,12 @@ import './styles.css';
 
 function TransferANTModal({
   antId,
+  state,
   closeModal,
   payloadCallback,
 }: {
   antId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
+  state: ANTState;
   closeModal: () => void;
   payloadCallback: (payload: TransferANTPayload) => void;
 }) {
@@ -35,7 +34,6 @@ function TransferANTModal({
   const [accepted, setAccepted] = useState<boolean>(false);
   const [toAddress, setToAddress] = useState<string>('');
   const [isValidAddress, setIsValidAddress] = useState<boolean>();
-  const [state, setState] = useState<ANTContractJSON>();
   const [associatedNames, setAssociatedNames] = useState<string[]>([]);
 
   // TODO: add "transfer to another account" dropdown
@@ -46,13 +44,8 @@ function TransferANTModal({
 
   async function fetchANTData(id: ArweaveTransactionID) {
     try {
-      const contract = await arweaveDataProvider.buildANTContract(id);
-      if (!contract.isValid()) {
-        throw new Error('Invalid ANT contract');
-      }
-      setState(contract.state);
       const associatedRecords = await arweaveDataProvider.getRecords({
-        filters: { contractTxId: [antId] },
+        filters: { contractTxId: [id] },
       });
       setAssociatedNames(Object.keys(associatedRecords));
     } catch (error) {
