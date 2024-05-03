@@ -1,6 +1,7 @@
 import { ContractInteractionError } from '@src/utils/errors';
 import eventEmitter from '@src/utils/events';
 import Arweave from 'arweave/node/common';
+import { Tag } from 'arweave/web/lib/transaction';
 import {
   ArWallet,
   Contract,
@@ -62,7 +63,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
         ...defaultCacheOptions,
       },
       true,
-      arweave,
+      arweave as any,
     );
     this._cache = cache;
     this._walletConnector = walletConnector;
@@ -168,7 +169,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
                 disableBundling: true,
                 tags: tags,
               })
-              .catch((error) => error),
+              .catch((error: any) => error),
           shouldRetry: (result, attempt, nextAttemptMs) => {
             if (result instanceof Error) {
               eventEmitter.emit(
@@ -295,8 +296,10 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     // Pulls out registration interaction and caches it
     // TODO: make this able to cache batch interactions on multiple contracts at once.
     if (tags && contractTxId) {
-      const input = tags.find((tag) => tag.name === 'Input')?.value;
-      const contractId = tags.find((tag) => tag.name === 'Contract')?.value;
+      const input = tags.find((tag: Tag) => tag.name === 'Input')?.value;
+      const contractId = tags.find(
+        (tag: Tag) => tag.name === 'Contract',
+      )?.value;
       if (!input || !contractId) {
         throw new Error(
           'Could not cache atomic transaction, missing info from tags.',
@@ -420,7 +423,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     const dryWriteResults = async () => {
       return await contract
         .dryWrite(payload, walletAddress.toString())
-        .catch((e) => e);
+        .catch((e: any) => e);
     };
 
     const results = await withExponentialBackoff<InteractionResult<any, any>>({

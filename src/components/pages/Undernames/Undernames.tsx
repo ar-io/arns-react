@@ -11,6 +11,7 @@ import { ANTContract } from '../../../services/arweave/ANTContract';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import {
+  ANTContractJSON,
   ANT_INTERACTION_TYPES,
   SetRecordPayload,
   TransactionDataPayload,
@@ -116,7 +117,9 @@ function Undernames() {
         throw new Error('Unable to load undernames, cannot resolve ANT ID.');
       }
       setANTId(contractTxId);
-      setANTState(new ANTContract(data.antState, contractTxId));
+      setANTState(
+        new ANTContract(data.antState as ANTContractJSON, contractTxId),
+      );
     } catch (error) {
       eventEmitter.emit('error', error);
       navigate('/manage/ants');

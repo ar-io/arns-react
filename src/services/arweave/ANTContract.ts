@@ -19,11 +19,11 @@ import { ArweaveTransactionID } from './ArweaveTransactionID';
  */
 export class ANTContract {
   id?: ArweaveTransactionID | typeof ATOMIC_FLAG;
-  contract: ANTContractJSON | ANTState;
+  contract: ANTContractJSON & ANTState;
   pendingInteractions: ContractInteraction[];
 
   constructor(
-    state?: ANTContractJSON | ANTState,
+    state?: ANTContractJSON & ANTState,
     id?: ArweaveTransactionID | typeof ATOMIC_FLAG,
     pendingInteractions: ContractInteraction[] = [],
   ) {

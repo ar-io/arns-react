@@ -1,4 +1,4 @@
-import { ArconnectSigner } from '@ar.io/sdk';
+import { ANTState, ArconnectSigner } from '@ar.io/sdk/web';
 import { ApiConfig } from 'arweave/node/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
 import {
@@ -121,7 +121,7 @@ export type ANTContractJSON = {
     [x: string]: ANTContractDomainRecord;
   };
   ticker: string;
-};
+} & ANTState;
 
 export type ANTContractFields = keyof ANTContractJSON;
 

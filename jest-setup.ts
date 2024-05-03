@@ -2,6 +2,7 @@
 // @ts-nocheck
 import '@testing-library/jest-dom';
 import 'core-js';
+import crypto from 'crypto';
 import 'jest-location-mock';
 // was needed for github actions environment
 import matchMediaMock from 'match-media-mock';
@@ -15,3 +16,4 @@ global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 global.performance.markResourceTiming = jest.fn();
 global.fetch = jest.fn();
+global.crypto = crypto.webcrypto;

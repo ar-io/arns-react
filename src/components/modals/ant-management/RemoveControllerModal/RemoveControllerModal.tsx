@@ -1,4 +1,3 @@
-import { ANTState } from '@ar.io/sdk/web';
 import { Checkbox, Table } from 'antd';
 import { useState } from 'react';
 
@@ -21,7 +20,7 @@ function RemoveControllersModal({
   payloadCallback,
 }: {
   antId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
-  state: ANTState;
+  state: ANTContractJSON;
   closeModal: () => void;
   payloadCallback: (payload: { controller: string }) => void;
 }) {

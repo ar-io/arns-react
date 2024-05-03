@@ -2,8 +2,8 @@ import { ArconnectSigner } from '@ar.io/sdk/web';
 import { ARWEAVE_APP_API } from '@src/utils/constants';
 import { ArweaveAppError } from '@src/utils/errors';
 import { PermissionType } from 'arconnect';
-import { ReactiveConnector } from 'arweave-wallet-connector/lib/browser/Reactive';
 import { ApiConfig } from 'arweave/node/lib/api';
+import { ReactiveConnector } from 'node_modules/arweave-wallet-connector/lib/browser/Reactive';
 import { CustomSignature, SignatureType, Transaction } from 'warp-contracts';
 
 import { ARCONNECT_UNRESPONSIVE_ERROR } from '../../components/layout/Notifications/Notifications';

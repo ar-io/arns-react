@@ -1,6 +1,5 @@
 import {
   ANT,
-  ANTState,
   ANTWritable,
   ArIO,
   ArNSBaseNameData,
@@ -10,6 +9,7 @@ import { ANTContract } from '@src/services/arweave/ANTContract';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
+import { ANTContractJSON } from '@src/types';
 import { ARNS_REGISTRY_ADDRESS } from '@src/utils/constants';
 import { RefetchOptions, useSuspenseQuery } from '@tanstack/react-query';
 
@@ -22,7 +22,7 @@ export default function useDomainInfo({
 }): {
   data: {
     arnsRecord?: ArNSLeaseData & ArNSBaseNameData;
-    antState?: ANTState;
+    antState?: ANTContractJSON;
     associatedNames?: string[];
     antProvider: ANTWritable;
     arioProvider?: ArIO;
@@ -49,7 +49,7 @@ export default function useDomainInfo({
     antId?: ArweaveTransactionID;
   }): Promise<{
     arnsRecord?: ArNSLeaseData & ArNSBaseNameData;
-    antState?: ANTState;
+    antState?: ANTContractJSON;
     associatedNames?: string[];
     antProvider: ANT;
     arioProvider?: ArIO;
@@ -86,7 +86,7 @@ export default function useDomainInfo({
     const pendingInteractions =
       await arweaveDataProvider.getPendingContractInteractions(contractTxId);
     const antContract = new ANTContract(
-      antState,
+      antState as ANTContractJSON,
       contractTxId,
       pendingInteractions,
     );
@@ -98,7 +98,7 @@ export default function useDomainInfo({
     );
     return {
       arnsRecord: record as ArNSLeaseData & ArNSBaseNameData,
-      antState: antContract.state as ANTState,
+      antState: antContract.state,
       associatedNames,
       antProvider,
       arioProvider,

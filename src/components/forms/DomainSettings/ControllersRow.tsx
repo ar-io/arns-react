@@ -1,10 +1,13 @@
-import { ANTState } from '@ar.io/sdk/web';
 import { VerticalDotMenuIcon } from '@src/components/icons';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import AddControllerModal from '@src/components/modals/ant-management/AddControllerModal/AddControllerModal';
 import RemoveControllersModal from '@src/components/modals/ant-management/RemoveControllerModal/RemoveControllerModal';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
-import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
+import {
+  ANTContractJSON,
+  ANT_INTERACTION_TYPES,
+  ContractInteraction,
+} from '@src/types';
 import { getLegacyControllersFromState } from '@src/utils';
 import { Skeleton, Tooltip } from 'antd';
 import { useState } from 'react';
@@ -16,7 +19,7 @@ export default function ControllersRow({
   contractTxId,
   confirm,
 }: {
-  state?: ANTState;
+  state?: ANTContractJSON;
   contractTxId?: string;
   confirm: ({
     payload,
