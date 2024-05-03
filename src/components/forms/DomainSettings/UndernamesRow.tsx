@@ -22,24 +22,28 @@ export default function UndernamesRow({
       <DomainSettingsRow
         label="Undernames:"
         value={
-          domain ? (
-            <span
-              className="flex center"
-              style={{
-                justifyContent: 'flex-start',
-                gap: '10px',
-              }}
-            >
-              {`${undernameCount} / ${undernameSupport.toLocaleString()}`}
-              <NewspaperIcon
-                width={'20px'}
-                height={'20px'}
-                fill="var(--text-grey)"
-              />
-            </span>
-          ) : (
-            <Skeleton.Input active />
-          )
+          <span
+            className="flex center"
+            style={{
+              justifyContent: 'flex-start',
+              gap: '10px',
+            }}
+          >
+            {`${
+              undernameCount ?? (
+                <Skeleton.Input active style={{ width: '100%' }} />
+              )
+            } / ${
+              undernameSupport.toLocaleString() ?? (
+                <Skeleton.Input active style={{ width: '100%' }} />
+              )
+            }`}
+            <NewspaperIcon
+              width={'20px'}
+              height={'20px'}
+              fill="var(--text-grey)"
+            />
+          </span>
         }
         action={[
           <Tooltip

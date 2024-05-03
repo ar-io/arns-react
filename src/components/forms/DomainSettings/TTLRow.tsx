@@ -1,12 +1,12 @@
 import ValidationInput from '@src/components/inputs/text/ValidationInput/ValidationInput';
-import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModalV2';
+import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import {
   ANT_INTERACTION_TYPES,
   ContractInteraction,
   VALIDATION_INPUT_TYPES,
 } from '@src/types';
 import { validateTTLSeconds } from '@src/utils';
-import { MAX_TTL_SECONDS } from '@src/utils/constants';
+import { DEFAULT_TTL_SECONDS, MAX_TTL_SECONDS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Skeleton } from 'antd';
 import { useState } from 'react';
@@ -17,11 +17,13 @@ export default function TTLRow({
   ttlSeconds,
   confirm,
 }: {
-  ttlSeconds: number;
+  ttlSeconds?: number;
   confirm: (ttlSeconds: number) => Promise<ContractInteraction>;
 }) {
   const [editing, setEditing] = useState<boolean>(false);
-  const [newTTL, setNewTTL] = useState<number>(ttlSeconds);
+  const [newTTL, setNewTTL] = useState<number>(
+    ttlSeconds ?? DEFAULT_TTL_SECONDS,
+  );
   const [showModal, setShowModal] = useState<boolean>(false);
 
   async function handleSave(ttl: number) {
@@ -80,7 +82,7 @@ export default function TTLRow({
         onSave={() => setShowModal(true)}
         onCancel={() => {
           setEditing(false);
-          setNewTTL(ttlSeconds);
+          setNewTTL(ttlSeconds ?? DEFAULT_TTL_SECONDS);
         }}
       />
       {showModal && (

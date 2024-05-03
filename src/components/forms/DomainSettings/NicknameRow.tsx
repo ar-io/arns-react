@@ -1,5 +1,5 @@
 import ValidationInput from '@src/components/inputs/text/ValidationInput/ValidationInput';
-import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModalV2';
+import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import {
   ANT_INTERACTION_TYPES,
   ContractInteraction,
@@ -8,7 +8,7 @@ import {
 import { validateMaxASCIILength } from '@src/utils';
 import { SMARTWEAVE_MAX_INPUT_SIZE } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import DomainSettingsRow from './DomainSettingsRow';
 
@@ -16,12 +16,16 @@ export default function NicknameRow({
   nickname,
   confirm,
 }: {
-  nickname: string;
+  nickname?: string;
   confirm: (name: string) => Promise<ContractInteraction>;
 }) {
   const [editing, setEditing] = useState<boolean>(false);
-  const [newNickname, setNewNickname] = useState<string>(nickname);
+  const [newNickname, setNewNickname] = useState<string>(nickname ?? '');
   const [showModal, setShowModal] = useState<boolean>(false);
+
+  useEffect(() => {
+    setNewNickname(nickname ?? '');
+  }, [nickname]);
 
   async function handleSave(name: string) {
     try {
@@ -31,7 +35,7 @@ export default function NicknameRow({
       eventEmitter.emit('error', error);
     } finally {
       setEditing(false);
-      setNewNickname(nickname);
+      setNewNickname(nickname ?? '');
       setShowModal(false);
     }
   }
@@ -78,7 +82,7 @@ export default function NicknameRow({
         onSave={() => setShowModal(true)}
         onCancel={() => {
           setEditing(false);
-          setNewNickname(nickname);
+          setNewNickname(nickname ?? '');
         }}
       />
       {showModal && (

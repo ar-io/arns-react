@@ -1,6 +1,6 @@
 import { ANTState } from '@ar.io/sdk/web';
 import { VerticalDotMenuIcon } from '@src/components/icons';
-import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModalV2';
+import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import AddControllerModal from '@src/components/modals/ant-management/AddControllerModal/AddControllerModal';
 import RemoveControllersModal from '@src/components/modals/ant-management/RemoveControllerModal/RemoveControllerModal';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
@@ -16,7 +16,7 @@ export default function ControllersRow({
   contractTxId,
   confirm,
 }: {
-  state: ANTState;
+  state?: ANTState;
   contractTxId?: string;
   confirm: ({
     payload,
@@ -93,12 +93,14 @@ export default function ControllersRow({
                 <button
                   className="flex flex-right white pointer button"
                   onClick={() => setShowAddModal(true)}
+                  disabled={!state}
                 >
                   Add Controller
                 </button>
                 <button
                   className="flex flex-right white pointer button"
                   onClick={() => setShowRemoveModal(true)}
+                  disabled={!state}
                 >
                   Remove Controller
                 </button>
@@ -114,7 +116,7 @@ export default function ControllersRow({
           </Tooltip>,
         ]}
       />
-      {showAddModal && contractTxId && (
+      {showAddModal && contractTxId && state && (
         <AddControllerModal
           closeModal={() => setShowAddModal(false)}
           state={state}
@@ -127,7 +129,7 @@ export default function ControllersRow({
           }}
         />
       )}
-      {showRemoveModal && contractTxId && (
+      {showRemoveModal && contractTxId && state && (
         <RemoveControllersModal
           closeModal={() => setShowRemoveModal(false)}
           state={state}

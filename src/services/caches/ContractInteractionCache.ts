@@ -13,6 +13,7 @@ export class ContractInteractionCache implements TransactionCache, KVCache {
   async getCachedNameTokens(
     address?: ArweaveTransactionID,
   ): Promise<ANTContract[]> {
+    this.clean();
     const cachedTokens = Object.entries(window.localStorage)
       .map(([contractTxId, interactions]) => {
         const parsedInteractions = jsonSerialize(interactions) ?? interactions;
@@ -42,6 +43,7 @@ export class ContractInteractionCache implements TransactionCache, KVCache {
   async getCachedInteractions(
     contractTxId: ArweaveTransactionID,
   ): Promise<ContractInteraction[]> {
+    this.clean();
     const cachedInteractions = await this._cache.get(contractTxId.toString());
 
     return cachedInteractions.filter(
@@ -50,8 +52,10 @@ export class ContractInteractionCache implements TransactionCache, KVCache {
   }
   async set(key: string, value: any): Promise<void> {
     this._cache.set(key, value);
+    this.clean();
   }
   async get(key: string): Promise<any> {
+    this.clean();
     return this._cache.get(key);
   }
   async del(
@@ -59,8 +63,13 @@ export class ContractInteractionCache implements TransactionCache, KVCache {
     filter?: { key: string; value: string } | undefined,
   ): Promise<void> {
     this._cache.del(key, filter);
+    this.clean();
   }
   async push(key: string, value: any): Promise<void> {
     this._cache.push(key, value);
+    this.clean();
+  }
+  async clean(): Promise<void> {
+    return this._cache.clean();
   }
 }

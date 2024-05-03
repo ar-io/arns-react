@@ -1,9 +1,7 @@
-import { ANT, ArconnectSigner } from '@ar.io/sdk/web';
-import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModalV2';
+import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
-import { DEFAULT_ARWEAVE } from '@src/utils/constants';
 import { Table } from 'antd';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -138,18 +136,11 @@ function Undernames() {
       if (!contractTxId) {
         throw new Error('Unable to interact with ANT contract - missing ID.');
       }
-      const antWritable = ANT.init({
-        contractTxId: contractTxId?.toString(),
-        signer: new ArconnectSigner(
-          window.arweaveWallet,
-          DEFAULT_ARWEAVE as any,
-        ),
-      });
       const res = await dispatchANTInteraction({
         contractTxId,
         payload,
         workflowName,
-        antProvider: antWritable,
+        antProvider: data.antProvider,
         dispatch: dispatchTransactionState,
       });
       console.debug('Interaction result:', res.id);

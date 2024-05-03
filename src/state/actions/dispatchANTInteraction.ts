@@ -4,6 +4,8 @@ import {
   WriteInteractionResult,
 } from '@ar.io/sdk/web';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import { ContractInteractionCache } from '@src/services/caches/ContractInteractionCache';
+import { LocalStorageCache } from '@src/services/caches/LocalStorageCache';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
 import eventEmitter from '@src/utils/events';
@@ -119,7 +121,14 @@ export default async function dispatchANTInteraction({
       ...payload,
       function: functionName,
     },
+    type: 'interaction',
   };
+  const contractCache = new ContractInteractionCache(new LocalStorageCache());
+  await contractCache.push(contractTxId.toString(), interaction);
+  const interactionFromCache = await contractCache.getCachedInteractions(
+    contractTxId,
+  );
+  console.log('interactionFromCache', interactionFromCache);
 
   dispatch({
     type: 'setWorkflowName',

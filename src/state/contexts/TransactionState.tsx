@@ -26,6 +26,7 @@ export const initialTransactionState: TransactionState = {
   transactionData: undefined,
   interactionType: undefined,
   workflowStage: TRANSACTION_WORKFLOW_STATUS.PENDING, // confirm deploy complete,
+  interactionResult: undefined,
 };
 
 const TransactionStateContext = createContext<

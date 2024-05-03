@@ -1,7 +1,7 @@
 import { ANTState } from '@ar.io/sdk';
 import { ANTCard } from '@src/components/cards';
 import { TransferANTModal } from '@src/components/modals';
-import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModalV2';
+import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
 import eventEmitter from '@src/utils/events';
@@ -16,7 +16,7 @@ export default function OwnerRow({
   state,
 }: {
   contractTxId: string;
-  state: ANTState;
+  state?: ANTState;
   confirm: ({ target }: { target: string }) => Promise<ContractInteraction>;
 }) {
   const [payload, setTransactionData] = useState<{
@@ -47,6 +47,7 @@ export default function OwnerRow({
           <button
             key={1}
             onClick={() => setShowTransferANTModal(true)}
+            disabled={!state}
             className="button-secondary"
             style={{
               padding: '9px 12px',
@@ -60,7 +61,7 @@ export default function OwnerRow({
           </button>,
         ]}
       />
-      {showTransferANTModal && (
+      {showTransferANTModal && state && (
         <TransferANTModal
           closeModal={() => setShowTransferANTModal(false)}
           antId={new ArweaveTransactionID(contractTxId)}

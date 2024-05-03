@@ -1,3 +1,5 @@
+import { ArconnectSigner } from '@ar.io/sdk/web';
+import { DEFAULT_ARWEAVE } from '@src/utils/constants';
 import { ArconnectError, WalletNotInstalledError } from '@src/utils/errors';
 import { PermissionType } from 'arconnect';
 import { ApiConfig } from 'arweave/node/lib/api';
@@ -20,9 +22,13 @@ export const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [
 export class ArConnectWalletConnector implements ArweaveWalletConnector {
   private _wallet: Window['arweaveWallet'];
   signer: CustomSignature;
-
+  arconnectSigner: ArconnectSigner;
   constructor() {
     this._wallet = window?.arweaveWallet;
+    this.arconnectSigner = new ArconnectSigner(
+      this._wallet,
+      DEFAULT_ARWEAVE as any,
+    );
     this.signer = {
       signer: async (transaction: Transaction) => {
         const signedTransaction = await this._wallet.sign(transaction);

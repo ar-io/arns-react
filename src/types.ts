@@ -1,3 +1,4 @@
+import { ArconnectSigner } from '@ar.io/sdk';
 import { ApiConfig } from 'arweave/node/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
 import {
@@ -346,6 +347,7 @@ export interface ArweaveWalletConnector {
   getWalletAddress(): Promise<ArweaveTransactionID>;
   getGatewayConfig(): Promise<ApiConfig>;
   signer: CustomSignature;
+  arconnectSigner?: ArconnectSigner;
 }
 
 export enum WALLET_TYPES {
@@ -358,6 +360,7 @@ export interface KVCache {
   get(key: string): Promise<any>;
   del(key: string, filter?: { key: string; value: string }): Promise<void>;
   push(key: string, value: any): Promise<void>;
+  clean(): void;
 }
 
 export interface TransactionCache {

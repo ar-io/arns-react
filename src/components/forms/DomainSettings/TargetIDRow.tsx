@@ -1,5 +1,5 @@
 import ValidationInput from '@src/components/inputs/text/ValidationInput/ValidationInput';
-import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModalV2';
+import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import {
   ANT_INTERACTION_TYPES,
@@ -8,7 +8,8 @@ import {
 } from '@src/types';
 import { ARNS_TX_ID_ENTRY_REGEX } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
-import { useState } from 'react';
+import { Skeleton } from 'antd';
+import { useEffect, useState } from 'react';
 
 import DomainSettingsRow from './DomainSettingsRow';
 
@@ -16,13 +17,17 @@ export default function TargetIDRow({
   targetId,
   confirm,
 }: {
-  targetId: string;
+  targetId?: string;
   confirm: (targetId: string) => Promise<ContractInteraction>;
 }) {
   const [editing, setEditing] = useState<boolean>(false);
-  const [newTargetId, setNewTargetId] = useState<string>(targetId);
+  const [newTargetId, setNewTargetId] = useState<string>(targetId ?? '');
   const [{ arweaveDataProvider }] = useGlobalState();
   const [showModal, setShowModal] = useState<boolean>(false);
+
+  useEffect(() => {
+    setNewTargetId(newTargetId ?? '');
+  }, [targetId]);
 
   async function handleSave(transactionId: string) {
     try {
@@ -32,7 +37,7 @@ export default function TargetIDRow({
       eventEmitter.emit('error', error);
     } finally {
       setEditing(false);
-      setNewTargetId(targetId);
+      setNewTargetId(targetId ?? '');
       setShowModal(false);
     }
   }
@@ -41,36 +46,40 @@ export default function TargetIDRow({
       <DomainSettingsRow
         label="Target ID:"
         value={
-          <ValidationInput
-            customPattern={ARNS_TX_ID_ENTRY_REGEX}
-            catchInvalidInput={true}
-            showValidationIcon={editing}
-            onPressEnter={() => setShowModal(true)}
-            inputClassName={'domain-settings-input'}
-            inputCustomStyle={{
-              ...(editing
-                ? {
-                    background: 'var(--card-bg)',
-                    borderRadius: 'var(--corner-radius)',
-                    border: '1px solid var(--text-faded)',
-                    padding: '15px',
-                  }
-                : {
-                    border: 'none',
-                    background: 'transparent',
-                  }),
-            }}
-            disabled={!editing}
-            placeholder={editing ? `Enter a Target ID` : targetId}
-            value={newTargetId}
-            setValue={(e) => setNewTargetId(e)}
-            validationPredicates={{
-              [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
-                fn: (id: string) => arweaveDataProvider.validateArweaveId(id),
-              },
-            }}
-            maxCharLength={(str) => str.length <= 43}
-          />
+          targetId ? (
+            <ValidationInput
+              customPattern={ARNS_TX_ID_ENTRY_REGEX}
+              catchInvalidInput={true}
+              showValidationIcon={editing}
+              onPressEnter={() => setShowModal(true)}
+              inputClassName={'domain-settings-input'}
+              inputCustomStyle={{
+                ...(editing
+                  ? {
+                      background: 'var(--card-bg)',
+                      borderRadius: 'var(--corner-radius)',
+                      border: '1px solid var(--text-faded)',
+                      padding: '15px',
+                    }
+                  : {
+                      border: 'none',
+                      background: 'transparent',
+                    }),
+              }}
+              disabled={!editing}
+              placeholder={editing ? `Enter a Target ID` : targetId}
+              value={newTargetId}
+              setValue={(e) => setNewTargetId(e)}
+              validationPredicates={{
+                [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
+                  fn: (id: string) => arweaveDataProvider.validateArweaveId(id),
+                },
+              }}
+              maxCharLength={(str) => str.length <= 43}
+            />
+          ) : (
+            <Skeleton.Input active />
+          )
         }
         editable={true}
         editing={editing}
@@ -78,7 +87,7 @@ export default function TargetIDRow({
         onSave={() => setShowModal(true)}
         onCancel={() => {
           setEditing(false);
-          setNewTargetId(targetId);
+          setNewTargetId(targetId ?? '');
         }}
       />
       {showModal && (

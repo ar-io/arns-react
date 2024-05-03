@@ -40,16 +40,16 @@ function ManageDomain() {
       return;
     }
 
-    fetchDomainDetails(data);
+    fetchDomainDetails({ arnsRecord: data.arnsRecord });
   }, [data, interactionResult, isLoadingDomainDetails]);
 
   // TODO: [PE-4630] tech debt, refactor this into smaller pure functions
   async function fetchDomainDetails({
     arnsRecord,
   }: {
-    arnsRecord: ArNSLeaseData & ArNSBaseNameData;
+    arnsRecord?: ArNSLeaseData & ArNSBaseNameData;
   }) {
-    if (isLoadingDomainDetails) {
+    if (isLoadingDomainDetails || !arnsRecord) {
       return;
     }
     try {
@@ -177,14 +177,7 @@ function ManageDomain() {
           </div>
         </div>
         <div style={{ width: '100%' }}>
-          <DomainSettings
-            domain={name}
-            // rowFilter={[
-            //   DomainSettingsRowTypes.EXPIRY_DATE,
-            //   DomainSettingsRowTypes.LEASE_DURATION,
-            //   DomainSettingsRowTypes.ASSOCIATED_NAMES,
-            // ]}
-          />
+          <DomainSettings domain={name} />
         </div>
       </div>
     </>
