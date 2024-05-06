@@ -1,4 +1,3 @@
-import { ARNS_TESTNET_REGISTRY_TX } from '@ar.io/sdk/web';
 import Arweave from 'arweave';
 import { ArweaveWebWallet } from 'arweave-wallet-connector';
 
@@ -50,9 +49,8 @@ export const EMAIL_REGEX = new RegExp(
 export const TTL_SECONDS_REGEX = new RegExp('^[0-9]{3,7}$');
 export const TTL_SECONDS_ENTRY_REGEX = new RegExp('^[0-9]{1,7}$');
 export const ARNS_REGISTRY_ADDRESS = new ArweaveTransactionID(
-  // process.env.VITE_ARNS_REGISTRY_ADDRESS ??
-  //   '_NctcA2sRy1-J4OmIQZbYFPM17piNcbdBPH2ncX2RL8',
-  ARNS_TESTNET_REGISTRY_TX,
+  process.env.VITE_ARNS_REGISTRY_ADDRESS ??
+    '_NctcA2sRy1-J4OmIQZbYFPM17piNcbdBPH2ncX2RL8',
 );
 export const STUB_ANT_ID = '6dUiTQKJCVD7c9icQhbbzfI-Le_hC4sXRDx1OQQ6jMI';
 export const STUB_ARWEAVE_TXID = '2yHmORN-N12hM1B2f9-JPMpOfa59qhpsExFCzImrD30'; // arns spec pdf
