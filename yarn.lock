@@ -67,10 +67,10 @@
     resize-observer-polyfill "^1.5.1"
     throttle-debounce "^5.0.0"
 
-"@ar.io/sdk@1.0.6-alpha.1":
-  version "1.0.6-alpha.1"
-  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-1.0.6-alpha.1.tgz#2e58249900fec55803029deb820824ffffa91629"
-  integrity sha512-q615Ujb0Pbj29dax9GE7/pKN2ByFgirDriGex+mJbclG4TVhfk3FvFv6Rr3n31mYt7PrNEfVM0tNYNyvRxRdpg==
+"@ar.io/sdk@1.0.6":
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-1.0.6.tgz#2491803c717f692a729027f6d7d039a94eac4087"
+  integrity sha512-0UlfPDKrI9n3813BX7Wtpu1ZMmfXC2ArJJDMzdaHw9s0+2hdLsXTCCpQqNht5jGGd0iccurI1gINL0yo8WE3tA==
   dependencies:
     arbundles "0.11.0"
     arweave "1.14.4"
