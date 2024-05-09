@@ -21,7 +21,7 @@ export const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [
 
 export class ArweaveAppWalletConnector implements ArweaveWalletConnector {
   private _wallet: ReactiveConnector & { namespaces: any };
-  arconnectSigner?: ArconnectSigner | undefined;
+  arconnectSigner?: ArconnectSigner;
   signer: CustomSignature;
 
   constructor() {

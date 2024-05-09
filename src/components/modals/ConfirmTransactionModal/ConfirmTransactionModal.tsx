@@ -44,7 +44,7 @@ function ConfirmTransactionModal({
         onClose={cancel}
         nextText={confirmText}
         cancelText={cancelText}
-        onNext={() => confirm()}
+        onNext={confirm}
         footer={
           <div style={{ width: 'fit-content' }}>
             <TransactionCost

@@ -139,14 +139,13 @@ function Undernames() {
       if (!contractTxId) {
         throw new Error('Unable to interact with ANT contract - missing ID.');
       }
-      const res = await dispatchANTInteraction({
+      await dispatchANTInteraction({
         contractTxId,
         payload,
         workflowName,
         antProvider: data.antProvider,
         dispatch: dispatchTransactionState,
       });
-      console.debug('Interaction result:', res.id);
     } catch (error) {
       eventEmitter.emit('error', error);
     } finally {

@@ -29,8 +29,7 @@ export default function NicknameRow({
 
   async function handleSave(name: string) {
     try {
-      const res = await confirm(name);
-      console.debug('deployed', res.id);
+      await confirm(name);
     } catch (error) {
       eventEmitter.emit('error', error);
     } finally {
@@ -50,8 +49,8 @@ export default function NicknameRow({
             showValidationIcon={editing}
             onPressEnter={() => setShowModal(true)}
             inputClassName={'domain-settings-input'}
-            inputCustomStyle={{
-              ...(editing
+            inputCustomStyle={
+              editing
                 ? {
                     background: 'var(--card-bg)',
                     borderRadius: 'var(--corner-radius)',
@@ -61,8 +60,8 @@ export default function NicknameRow({
                 : {
                     border: 'none',
                     background: 'transparent',
-                  }),
-            }}
+                  }
+            }
             disabled={!editing}
             placeholder={editing ? `Enter a name` : nickname}
             value={newNickname}

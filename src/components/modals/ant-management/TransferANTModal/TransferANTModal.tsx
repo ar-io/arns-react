@@ -10,7 +10,6 @@ import {
   formatForMaxCharCount,
   isArweaveTransactionID,
 } from '../../../../utils';
-import eventEmitter from '../../../../utils/events';
 import { InfoIcon } from '../../../icons';
 import ValidationInput from '../../../inputs/text/ValidationInput/ValidationInput';
 import { Loader } from '../../../layout';
@@ -23,36 +22,19 @@ function TransferANTModal({
   state,
   closeModal,
   payloadCallback,
+  associatedNames,
 }: {
   antId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
   state: ANTState;
   closeModal: () => void;
   payloadCallback: (payload: TransferANTPayload) => void;
+  associatedNames: string[];
 }) {
   const [{ arweaveDataProvider }] = useGlobalState();
   const isMobile = useIsMobile();
   const [accepted, setAccepted] = useState<boolean>(false);
   const [toAddress, setToAddress] = useState<string>('');
   const [isValidAddress, setIsValidAddress] = useState<boolean>();
-  const [associatedNames, setAssociatedNames] = useState<string[]>([]);
-
-  // TODO: add "transfer to another account" dropdown
-
-  useEffect(() => {
-    fetchANTData(antId);
-  }, [antId]);
-
-  async function fetchANTData(id: ArweaveTransactionID) {
-    try {
-      const associatedRecords = await arweaveDataProvider.getRecords({
-        filters: { contractTxId: [id] },
-      });
-      setAssociatedNames(Object.keys(associatedRecords));
-    } catch (error) {
-      eventEmitter.emit('error', error);
-      closeModal();
-    }
-  }
 
   useEffect(() => {
     if (!isArweaveTransactionID(toAddress)) {

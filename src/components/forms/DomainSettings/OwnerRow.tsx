@@ -14,8 +14,10 @@ export default function OwnerRow({
   confirm,
   contractTxId,
   state,
+  associatedNames,
 }: {
   contractTxId: string;
+  associatedNames: string[];
   state?: ANTState;
   confirm: ({ target }: { target: string }) => Promise<ContractInteraction>;
 }) {
@@ -29,8 +31,7 @@ export default function OwnerRow({
 
   async function handleTransferANT(payload: { target: ArweaveTransactionID }) {
     try {
-      const res = await confirm({ target: payload.target.toString() });
-      console.debug('deployed', res.id);
+      await confirm({ target: payload.target.toString() });
     } catch (error) {
       eventEmitter.emit('error', error);
     } finally {
@@ -66,6 +67,7 @@ export default function OwnerRow({
           closeModal={() => setShowTransferANTModal(false)}
           antId={new ArweaveTransactionID(contractTxId)}
           state={state}
+          associatedNames={associatedNames}
           payloadCallback={(payload) => {
             setTransactionData({
               target: new ArweaveTransactionID(payload.target.toString()),

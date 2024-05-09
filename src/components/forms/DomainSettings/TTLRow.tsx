@@ -28,8 +28,7 @@ export default function TTLRow({
 
   async function handleSave(ttl: number) {
     try {
-      const res = await confirm(ttl);
-      console.debug('deployed', res.id);
+      await confirm(ttl);
     } catch (error) {
       eventEmitter.emit('error', error);
     }
@@ -46,8 +45,8 @@ export default function TTLRow({
               onPressEnter={() => setShowModal(true)}
               inputClassName={'domain-settings-input'}
               inputType="number"
-              inputCustomStyle={{
-                ...(editing
+              inputCustomStyle={
+                editing
                   ? {
                       background: 'var(--card-bg)',
                       borderRadius: 'var(--corner-radius)',
@@ -57,8 +56,8 @@ export default function TTLRow({
                   : {
                       border: 'none',
                       background: 'transparent',
-                    }),
-              }}
+                    }
+              }
               disabled={!editing}
               placeholder={editing ? `Enter a new TTL` : ttlSeconds.toString()}
               value={newTTL}

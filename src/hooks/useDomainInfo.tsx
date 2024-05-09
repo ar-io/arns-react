@@ -10,7 +10,6 @@ import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { ANTContractJSON } from '@src/types';
-import { ARNS_REGISTRY_ADDRESS } from '@src/utils/constants';
 import { RefetchOptions, useSuspenseQuery } from '@tanstack/react-query';
 
 export default function useDomainInfo({
@@ -32,7 +31,7 @@ export default function useDomainInfo({
   error: Error | null;
   refetch: (options?: RefetchOptions) => void;
 } {
-  const [{ arweaveDataProvider }] = useGlobalState();
+  const [{ arweaveDataProvider, arioProvider }] = useGlobalState();
   const [{ wallet }] = useWalletState();
   const { data, isLoading, error, refetch } = useSuspenseQuery({
     queryKey: ['domainInfo', { domain, antId }],
@@ -59,9 +58,6 @@ export default function useDomainInfo({
       throw new Error('No domain or antId provided');
     }
     const signer = wallet?.arconnectSigner;
-    const arioProvider = ArIO.init({
-      contractTxId: ARNS_REGISTRY_ADDRESS.toString(),
-    });
     const record = domain
       ? await arioProvider.getArNSRecord({ domain })
       : undefined;
@@ -90,7 +86,6 @@ export default function useDomainInfo({
       contractTxId,
       pendingInteractions,
     );
-    console.log('antContract', antContract);
     const associatedNames = Object.keys(
       await arweaveDataProvider.getRecords({
         filters: { contractTxId: [contractTxId] },

@@ -29,7 +29,7 @@ function RemoveControllersModal({
     ArweaveTransactionID[]
   >([]);
   const [tablePage, setTablePage] = useState<number>(1);
-  const [rows] = useState<{ controller: ArweaveTransactionID }[]>(
+  const [rows] = useState<{ controller: ArweaveTransactionID }[]>(() =>
     getControllerRows(state),
   );
 

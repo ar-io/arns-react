@@ -4,10 +4,9 @@ import {
   WriteInteractionResult,
 } from '@ar.io/sdk/web';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
-import { ContractInteractionCache } from '@src/services/caches/ContractInteractionCache';
-import { LocalStorageCache } from '@src/services/caches/LocalStorageCache';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
+import { DEFAULT_CONTRACT_CACHE } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Dispatch } from 'react';
 
@@ -100,7 +99,6 @@ export default async function dispatchANTInteraction({
         throw new Error(`Unsupported workflow name: ${workflowName}`);
     }
   } catch (error) {
-    console.log(payload, workflowName, antProvider, contractTxId);
     eventEmitter.emit('error', error);
   } finally {
     dispatch({
@@ -123,12 +121,8 @@ export default async function dispatchANTInteraction({
     },
     type: 'interaction',
   };
-  const contractCache = new ContractInteractionCache(new LocalStorageCache());
-  await contractCache.push(contractTxId.toString(), interaction);
-  const interactionFromCache = await contractCache.getCachedInteractions(
-    contractTxId,
-  );
-  console.log('interactionFromCache', interactionFromCache);
+
+  await DEFAULT_CONTRACT_CACHE.push(contractTxId.toString(), interaction);
 
   dispatch({
     type: 'setWorkflowName',

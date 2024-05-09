@@ -346,6 +346,7 @@ export interface ArweaveWalletConnector {
   disconnect(): Promise<void>;
   getWalletAddress(): Promise<ArweaveTransactionID>;
   getGatewayConfig(): Promise<ApiConfig>;
+  // TODO: remove CustomSignature and replace with ArConnectSigner once sdk is fully supported
   signer: CustomSignature;
   arconnectSigner?: ArconnectSigner;
 }

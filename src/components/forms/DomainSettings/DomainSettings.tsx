@@ -50,7 +50,6 @@ function DomainSettings({
   const { data, isLoading, refetch } = useDomainInfo({ domain, antId });
 
   useEffect(() => {
-    console.log('refection', interactionResult);
     refetch();
   }, [interactionResult]);
 
@@ -197,6 +196,7 @@ function DomainSettings({
               <OwnerRow
                 contractTxId={data?.contractTxId?.toString()}
                 state={data?.antState}
+                associatedNames={data?.associatedNames ?? []}
                 confirm={({ target }: { target: string }) =>
                   dispatchANTInteraction({
                     payload: { target },
@@ -241,6 +241,7 @@ function DomainSettings({
           }).map(([rowName, row]) =>
             rowFilter.includes(rowName as DomainSettingsRowTypes) ? <></> : row,
           )}
+        <DomainSettingsRow editable={true} />
       </List>
     </>
   );

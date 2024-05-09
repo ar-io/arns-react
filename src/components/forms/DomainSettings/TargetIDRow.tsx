@@ -31,8 +31,7 @@ export default function TargetIDRow({
 
   async function handleSave(transactionId: string) {
     try {
-      const res = await confirm(transactionId);
-      console.debug('deployed', res.id);
+      await confirm(transactionId);
     } catch (error) {
       eventEmitter.emit('error', error);
     } finally {
@@ -53,8 +52,8 @@ export default function TargetIDRow({
               showValidationIcon={editing}
               onPressEnter={() => setShowModal(true)}
               inputClassName={'domain-settings-input'}
-              inputCustomStyle={{
-                ...(editing
+              inputCustomStyle={
+                editing
                   ? {
                       background: 'var(--card-bg)',
                       borderRadius: 'var(--corner-radius)',
@@ -64,8 +63,8 @@ export default function TargetIDRow({
                   : {
                       border: 'none',
                       background: 'transparent',
-                    }),
-              }}
+                    }
+              }
               disabled={!editing}
               placeholder={editing ? `Enter a Target ID` : targetId}
               value={newTargetId}

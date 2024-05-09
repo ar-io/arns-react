@@ -1,3 +1,5 @@
+import { ArIOReadable, ArIOWritable } from '@ar.io/sdk';
+
 import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
 import { GlobalState } from '../contexts/GlobalState';
 
@@ -12,6 +14,10 @@ export type GlobalAction =
   | {
       type: 'setBlockHeight';
       payload: number;
+    }
+  | {
+      type: 'setArIOProvider';
+      payload: ArIOWritable | ArIOReadable;
     }
   | {
       type: 'setIoTicker';
@@ -39,6 +45,11 @@ export const reducer = (
       return {
         ...state,
         ioTicker: action.payload,
+      };
+    case 'setArIOProvider':
+      return {
+        ...state,
+        arioProvider: action.payload,
       };
     default:
       return state;

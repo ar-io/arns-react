@@ -25,8 +25,7 @@ export default function TickerRow({
 
   async function handleSave(name: string) {
     try {
-      const res = await confirm(name);
-      console.debug('deployed', res.id);
+      await confirm(name);
     } catch (error) {
       eventEmitter.emit('error', error);
     } finally {
@@ -46,8 +45,8 @@ export default function TickerRow({
               showValidationIcon={editing}
               onPressEnter={() => setShowModal(true)}
               inputClassName={'domain-settings-input'}
-              inputCustomStyle={{
-                ...(editing
+              inputCustomStyle={
+                editing
                   ? {
                       background: 'var(--card-bg)',
                       borderRadius: 'var(--corner-radius)',
@@ -57,8 +56,8 @@ export default function TickerRow({
                   : {
                       border: 'none',
                       background: 'transparent',
-                    }),
-              }}
+                    }
+              }
               disabled={!editing}
               placeholder={editing ? `Enter a Ticker` : ticker}
               value={newTicker}

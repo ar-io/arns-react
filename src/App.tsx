@@ -61,56 +61,36 @@ function App() {
 
   const router = sentryCreateBrowserRouter(
     createRoutesFromElements(
-      <>
-        <Route element={<Layout />} errorElement={<NotFound />}>
-          <Route
-            index
-            element={
-              <Suspense
-                fallback={
-                  <PageLoader loading={true} message={'Loading, please wait'} />
-                }
-              >
-                <Home />
-              </Suspense>
-            }
-          />
-          <Route
-            path="connect"
-            element={
-              <Suspense
-                fallback={
-                  <PageLoader loading={true} message={'Loading, please wait'} />
-                }
-              >
-                <ConnectWalletModal />
-              </Suspense>
-            }
-          />
-          <Route path="manage">
-            <Route index={true} element={<Navigate to="names" />} />
-            <Route path=":path">
-              <Route
-                index={true}
-                element={
-                  <Suspense
-                    fallback={
-                      <PageLoader
-                        loading={true}
-                        message={'Loading, please wait'}
-                      />
-                    }
-                  >
-                    {' '}
-                    <ProtectedRoute>
-                      <Manage />
-                    </ProtectedRoute>
-                  </Suspense>
-                }
-              />
-            </Route>
+      <Route element={<Layout />} errorElement={<NotFound />}>
+        <Route
+          index
+          element={
+            <Suspense
+              fallback={
+                <PageLoader loading={true} message={'Loading, please wait'} />
+              }
+            >
+              <Home />
+            </Suspense>
+          }
+        />
+        <Route
+          path="connect"
+          element={
+            <Suspense
+              fallback={
+                <PageLoader loading={true} message={'Loading, please wait'} />
+              }
+            >
+              <ConnectWalletModal />
+            </Suspense>
+          }
+        />
+        <Route path="manage">
+          <Route index={true} element={<Navigate to="names" />} />
+          <Route path=":path">
             <Route
-              path="ants/:id"
+              index={true}
               element={
                 <Suspense
                   fallback={
@@ -122,164 +102,112 @@ function App() {
                 >
                   {' '}
                   <ProtectedRoute>
-                    <ManageANT />
+                    <Manage />
                   </ProtectedRoute>
                 </Suspense>
               }
-              handle={{
-                crumbs: (data: string) => [
-                  { name: 'Manage Assets', route: '/manage/ants' },
-                  {
-                    name: ANT_FLAG,
-                    route: `/manage/ants/${data}`,
-                  },
-                ],
-              }}
-            />
-            <Route
-              path="ants/:id/undernames"
-              element={
-                <Suspense
-                  fallback={
-                    <PageLoader
-                      loading={true}
-                      message={'Loading, please wait'}
-                    />
-                  }
-                >
-                  {' '}
-                  <ProtectedRoute>
-                    <Undernames />
-                  </ProtectedRoute>
-                </Suspense>
-              }
-              handle={{
-                crumbs: (data: string) => [
-                  { name: 'Manage Assets', route: '/manage/ants' },
-                  {
-                    name: ANT_FLAG,
-                    route: `/manage/ants/${data}`,
-                  },
-                  {
-                    name: 'Manage Undernames',
-                    route: `/manage/ants/${data}/undernames`,
-                  },
-                ],
-              }}
-            />
-            <Route
-              path="names/:name"
-              element={
-                <Suspense
-                  fallback={
-                    <PageLoader
-                      loading={true}
-                      message={'Loading, please wait'}
-                    />
-                  }
-                >
-                  {' '}
-                  <ProtectedRoute>
-                    <ManageDomain />
-                  </ProtectedRoute>
-                </Suspense>
-              }
-              handle={{
-                crumbs: (data: string) => [
-                  { name: 'Manage Assets', route: '/manage/names' },
-                  { name: data, route: `/manage/names/${data}` },
-                ],
-              }}
-            />
-            <Route
-              path="names/:name/upgrade-undernames"
-              element={
-                <Suspense
-                  fallback={
-                    <PageLoader
-                      loading={true}
-                      message={'Loading, please wait'}
-                    />
-                  }
-                >
-                  {' '}
-                  <ProtectedRoute>
-                    <UpgradeUndernames />
-                  </ProtectedRoute>
-                </Suspense>
-              }
-              handle={{
-                crumbs: (data: string) => [
-                  { name: 'Manage Assets', route: '/manage/names' },
-                  { name: data, route: `/manage/names/${data}` },
-                  {
-                    name: 'Increase Undernames',
-                    route: `/manage/names/${data}/undernames`,
-                  },
-                ],
-              }}
-            />
-            <Route
-              path="names/:name/undernames"
-              element={
-                <Suspense
-                  fallback={
-                    <PageLoader
-                      loading={true}
-                      message={'Loading, please wait'}
-                    />
-                  }
-                >
-                  <ProtectedRoute>
-                    <Undernames />
-                  </ProtectedRoute>
-                </Suspense>
-              }
-              handle={{
-                crumbs: (data: string) => [
-                  { name: 'Manage Assets', route: '/manage/names' },
-                  {
-                    name: ANT_FLAG,
-                    route: `/manage/names/${data}`,
-                  },
-                  {
-                    name: 'Manage Undernames',
-                    route: `/manage/names/${data}/undernames`,
-                  },
-                ],
-              }}
-            />
-            <Route
-              path="names/:name/extend"
-              element={
-                <Suspense
-                  fallback={
-                    <PageLoader
-                      loading={true}
-                      message={'Loading, please wait'}
-                    />
-                  }
-                >
-                  <ProtectedRoute>
-                    <ExtendLease />
-                  </ProtectedRoute>
-                </Suspense>
-              }
-              handle={{
-                crumbs: (data: string) => [
-                  { name: 'Manage Assets', route: '/manage/names' },
-                  { name: data, route: `/manage/names/${data}` },
-                  {
-                    name: 'Extend Lease',
-                    route: `/manage/names/${data}/extend`,
-                  },
-                ],
-              }}
             />
           </Route>
-          ,
           <Route
-            path="transaction"
+            path="ants/:id"
+            element={
+              <Suspense
+                fallback={
+                  <PageLoader loading={true} message={'Loading, please wait'} />
+                }
+              >
+                {' '}
+                <ProtectedRoute>
+                  <ManageANT />
+                </ProtectedRoute>
+              </Suspense>
+            }
+            handle={{
+              crumbs: (data: string) => [
+                { name: 'Manage Assets', route: '/manage/ants' },
+                {
+                  name: ANT_FLAG,
+                  route: `/manage/ants/${data}`,
+                },
+              ],
+            }}
+          />
+          <Route
+            path="ants/:id/undernames"
+            element={
+              <Suspense
+                fallback={
+                  <PageLoader loading={true} message={'Loading, please wait'} />
+                }
+              >
+                {' '}
+                <ProtectedRoute>
+                  <Undernames />
+                </ProtectedRoute>
+              </Suspense>
+            }
+            handle={{
+              crumbs: (data: string) => [
+                { name: 'Manage Assets', route: '/manage/ants' },
+                {
+                  name: ANT_FLAG,
+                  route: `/manage/ants/${data}`,
+                },
+                {
+                  name: 'Manage Undernames',
+                  route: `/manage/ants/${data}/undernames`,
+                },
+              ],
+            }}
+          />
+          <Route
+            path="names/:name"
+            element={
+              <Suspense
+                fallback={
+                  <PageLoader loading={true} message={'Loading, please wait'} />
+                }
+              >
+                {' '}
+                <ProtectedRoute>
+                  <ManageDomain />
+                </ProtectedRoute>
+              </Suspense>
+            }
+            handle={{
+              crumbs: (data: string) => [
+                { name: 'Manage Assets', route: '/manage/names' },
+                { name: data, route: `/manage/names/${data}` },
+              ],
+            }}
+          />
+          <Route
+            path="names/:name/upgrade-undernames"
+            element={
+              <Suspense
+                fallback={
+                  <PageLoader loading={true} message={'Loading, please wait'} />
+                }
+              >
+                {' '}
+                <ProtectedRoute>
+                  <UpgradeUndernames />
+                </ProtectedRoute>
+              </Suspense>
+            }
+            handle={{
+              crumbs: (data: string) => [
+                { name: 'Manage Assets', route: '/manage/names' },
+                { name: data, route: `/manage/names/${data}` },
+                {
+                  name: 'Increase Undernames',
+                  route: `/manage/names/${data}/undernames`,
+                },
+              ],
+            }}
+          />
+          <Route
+            path="names/:name/undernames"
             element={
               <Suspense
                 fallback={
@@ -287,64 +215,115 @@ function App() {
                 }
               >
                 <ProtectedRoute>
-                  <Transaction />
+                  <Undernames />
                 </ProtectedRoute>
               </Suspense>
             }
+            handle={{
+              crumbs: (data: string) => [
+                { name: 'Manage Assets', route: '/manage/names' },
+                {
+                  name: ANT_FLAG,
+                  route: `/manage/names/${data}`,
+                },
+                {
+                  name: 'Manage Undernames',
+                  route: `/manage/names/${data}/undernames`,
+                },
+              ],
+            }}
           />
-          ,
           <Route
-            path="auctions"
+            path="names/:name/extend"
             element={
               <Suspense
                 fallback={
                   <PageLoader loading={true} message={'Loading, please wait'} />
                 }
               >
-                <Auctions />
+                <ProtectedRoute>
+                  <ExtendLease />
+                </ProtectedRoute>
               </Suspense>
             }
-          />
-          ,
-          <Route
-            path="auctions/:name"
-            element={
-              <Suspense
-                fallback={
-                  <PageLoader loading={true} message={'Loading, please wait'} />
-                }
-              >
-                <ViewAuction />
-              </Suspense>
-            }
-          />
-          <Route
-            path="register/:name"
-            element={
-              <Suspense
-                fallback={
-                  <PageLoader loading={true} message={'Loading, please wait'} />
-                }
-              >
-                <Register />
-              </Suspense>
-            }
-          />
-          <Route
-            path="*"
-            element={
-              <Suspense
-                fallback={
-                  <PageLoader loading={true} message={'Loading, please wait'} />
-                }
-              >
-                <NotFound />
-              </Suspense>
-            }
+            handle={{
+              crumbs: (data: string) => [
+                { name: 'Manage Assets', route: '/manage/names' },
+                { name: data, route: `/manage/names/${data}` },
+                {
+                  name: 'Extend Lease',
+                  route: `/manage/names/${data}/extend`,
+                },
+              ],
+            }}
           />
         </Route>
         ,
-      </>,
+        <Route
+          path="transaction"
+          element={
+            <Suspense
+              fallback={
+                <PageLoader loading={true} message={'Loading, please wait'} />
+              }
+            >
+              <ProtectedRoute>
+                <Transaction />
+              </ProtectedRoute>
+            </Suspense>
+          }
+        />
+        ,
+        <Route
+          path="auctions"
+          element={
+            <Suspense
+              fallback={
+                <PageLoader loading={true} message={'Loading, please wait'} />
+              }
+            >
+              <Auctions />
+            </Suspense>
+          }
+        />
+        ,
+        <Route
+          path="auctions/:name"
+          element={
+            <Suspense
+              fallback={
+                <PageLoader loading={true} message={'Loading, please wait'} />
+              }
+            >
+              <ViewAuction />
+            </Suspense>
+          }
+        />
+        <Route
+          path="register/:name"
+          element={
+            <Suspense
+              fallback={
+                <PageLoader loading={true} message={'Loading, please wait'} />
+              }
+            >
+              <Register />
+            </Suspense>
+          }
+        />
+        <Route
+          path="*"
+          element={
+            <Suspense
+              fallback={
+                <PageLoader loading={true} message={'Loading, please wait'} />
+              }
+            >
+              <NotFound />
+            </Suspense>
+          }
+        />
+      </Route>,
     ),
   );
 

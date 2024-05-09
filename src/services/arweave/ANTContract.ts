@@ -1,4 +1,4 @@
-import { ANTState } from '@ar.io/sdk';
+import { ANTState } from '@ar.io/sdk/web';
 
 import {
   ANTContractDomainRecord,

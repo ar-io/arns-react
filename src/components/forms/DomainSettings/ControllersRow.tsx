@@ -52,11 +52,10 @@ export default function ControllersRow({
       | ANT_INTERACTION_TYPES.SET_CONTROLLER;
   }) {
     try {
-      const res = await confirm({
+      await confirm({
         payload,
         workflowName,
       });
-      console.debug('deployed', res.id);
     } catch (error) {
       console.error(error);
     } finally {

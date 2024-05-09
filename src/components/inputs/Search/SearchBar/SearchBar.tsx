@@ -154,7 +154,6 @@ function SearchBar(props: SearchBarProps) {
       setAuctionInfo(auction);
     } catch (error: any) {
       setSearchBarText('');
-      console.debug('Could not get auction info', error.message);
       eventEmitter.emit('error', error);
     }
   }

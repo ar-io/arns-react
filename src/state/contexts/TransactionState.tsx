@@ -8,8 +8,8 @@ import { TransactionAction } from '../reducers/TransactionReducer';
 
 export type TransactionState = {
   deployedTransactionId?: ArweaveTransactionID;
-  transactionData: TransactionData | undefined; // data that will be used to perform the transaction.
-  interactionType: ExcludedValidInteractionType | undefined;
+  transactionData?: TransactionData; // data that will be used to perform the transaction.
+  interactionType?: ExcludedValidInteractionType;
   workflowStage: TRANSACTION_WORKFLOW_STATUS;
   workflowName?: string;
   interactionResult?: any;
@@ -23,10 +23,7 @@ export type TransactionStateProviderProps = {
 
 export const initialTransactionState: TransactionState = {
   signing: false,
-  transactionData: undefined,
-  interactionType: undefined,
   workflowStage: TRANSACTION_WORKFLOW_STATUS.PENDING, // confirm deploy complete,
-  interactionResult: undefined,
 };
 
 const TransactionStateContext = createContext<
