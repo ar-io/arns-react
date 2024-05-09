@@ -110,18 +110,10 @@ export type ANTContractDomainRecord = {
   transactionId: string;
 };
 
-export type ANTContractJSON = {
-  balances: { [x: string]: number };
-  evolve: boolean | undefined;
-  name: string;
-  owner: string;
+export type ANTContractJSON = ANTState & {
   controller?: string;
-  controllers: string[];
-  records: {
-    [x: string]: ANTContractDomainRecord;
-  };
-  ticker: string;
-} & ANTState;
+  evolve?: string;
+};
 
 export type ANTContractFields = keyof ANTContractJSON;
 
