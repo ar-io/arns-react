@@ -1,10 +1,9 @@
-import { ANTState } from '@ar.io/sdk/web';
 import { useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../../hooks';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
-import { VALIDATION_INPUT_TYPES } from '../../../../types';
+import { ANTContractJSON, VALIDATION_INPUT_TYPES } from '../../../../types';
 import {
   formatForMaxCharCount,
   isArweaveTransactionID,
@@ -20,7 +19,7 @@ function AddControllerModal({
   payloadCallback,
 }: {
   antId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
-  state: ANTState;
+  state: ANTContractJSON;
   closeModal: () => void;
   payloadCallback: (payload: { controller: string }) => void;
 }) {

@@ -16,7 +16,7 @@ export type GlobalAction =
       payload: number;
     }
   | {
-      type: 'setArIOProvider';
+      type: 'setArIOContract';
       payload: ArIOWritable | ArIOReadable;
     }
   | {
@@ -46,10 +46,10 @@ export const reducer = (
         ...state,
         ioTicker: action.payload,
       };
-    case 'setArIOProvider':
+    case 'setArIOContract':
       return {
         ...state,
-        arioProvider: action.payload,
+        arioContract: action.payload,
       };
     default:
       return state;

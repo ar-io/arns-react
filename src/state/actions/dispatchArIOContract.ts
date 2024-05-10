@@ -3,7 +3,7 @@ import { Dispatch } from 'react';
 
 import { GlobalAction } from '../reducers';
 
-export function dispatchArIOProvider({
+export function dispatchArIOContract({
   provider,
   dispatch,
 }: {
@@ -11,7 +11,7 @@ export function dispatchArIOProvider({
   dispatch: Dispatch<GlobalAction>;
 }) {
   dispatch({
-    type: 'setArIOProvider',
+    type: 'setArIOContract',
     payload: provider,
   });
 }

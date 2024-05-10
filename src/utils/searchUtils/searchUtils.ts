@@ -135,7 +135,7 @@ export function lowerCaseDomain(domain: string) {
 
 // controller vs controllers array
 export function getLegacyControllersFromState(
-  state: ANTContractJSON & ({ controller: string } | { controllers: string[] }),
+  state: ANTContractJSON,
 ): string[] {
   if (state.controller && !state.controllers) {
     return [state.controller];

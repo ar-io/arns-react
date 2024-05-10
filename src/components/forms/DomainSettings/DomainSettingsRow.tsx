@@ -37,7 +37,7 @@ export default function DomainSettingsRow({
           {editable && !editing ? (
             <button
               className="button pointer hover"
-              onClick={() => (setEditing ? setEditing() : null)}
+              onClick={setEditing}
               style={{ boxSizing: 'border-box' }}
             >
               <PencilIcon
@@ -65,7 +65,7 @@ export default function DomainSettingsRow({
                     fontSize: '13px',
                     boxSizing: 'border-box',
                   }}
-                  onClick={() => (onCancel ? onCancel() : null)}
+                  onClick={onCancel}
                 >
                   Cancel
                 </button>
@@ -76,7 +76,7 @@ export default function DomainSettingsRow({
                     fontSize: '13px',
                     boxSizing: 'border-box',
                   }}
-                  onClick={() => (onSave ? onSave() : null)}
+                  onClick={onSave}
                 >
                   Save
                 </button>

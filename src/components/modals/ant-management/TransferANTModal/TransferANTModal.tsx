@@ -1,11 +1,14 @@
-import { ANTState } from '@ar.io/sdk/web';
 import { Checkbox } from 'antd';
 import { useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../../hooks';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
-import { TransferANTPayload, VALIDATION_INPUT_TYPES } from '../../../../types';
+import {
+  ANTContractJSON,
+  TransferANTPayload,
+  VALIDATION_INPUT_TYPES,
+} from '../../../../types';
 import {
   formatForMaxCharCount,
   isArweaveTransactionID,
@@ -25,7 +28,7 @@ function TransferANTModal({
   associatedNames,
 }: {
   antId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
-  state: ANTState;
+  state: ANTContractJSON;
   closeModal: () => void;
   payloadCallback: (payload: TransferANTPayload) => void;
   associatedNames: string[];

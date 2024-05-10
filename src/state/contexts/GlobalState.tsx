@@ -45,7 +45,7 @@ export type GlobalState = {
   blockHeight?: number;
   lastBlockUpdateTimestamp?: number;
   arweaveDataProvider: ArweaveCompositeDataProvider;
-  arioProvider: ArIOWritable | ArIOReadable;
+  arioContract: ArIOWritable | ArIOReadable;
 };
 
 const initialState: GlobalState = {
@@ -59,7 +59,7 @@ const initialState: GlobalState = {
     defaultWarp,
     defaultContractCache,
   ),
-  arioProvider: defaultArIO,
+  arioContract: defaultArIO,
 };
 
 const GlobalStateContext = createContext<[GlobalState, Dispatch<GlobalAction>]>(

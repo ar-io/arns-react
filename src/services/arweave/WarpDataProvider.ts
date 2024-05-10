@@ -1,6 +1,6 @@
 import { ContractInteractionError } from '@src/utils/errors';
 import eventEmitter from '@src/utils/events';
-import Arweave from 'arweave/node/common';
+import Arweave from 'arweave';
 import { Tag } from 'arweave/web/lib/transaction';
 import {
   ArWallet,

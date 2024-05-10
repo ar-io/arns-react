@@ -31,7 +31,8 @@ export default function useDomainInfo({
   error: Error | null;
   refetch: (options?: RefetchOptions) => void;
 } {
-  const [{ arweaveDataProvider, arioProvider }] = useGlobalState();
+  const [{ arweaveDataProvider, arioContract: arioProvider }] =
+    useGlobalState();
   const [{ wallet }] = useWalletState();
   const { data, isLoading, error, refetch } = useSuspenseQuery({
     queryKey: ['domainInfo', { domain, antId }],

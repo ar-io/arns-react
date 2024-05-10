@@ -18,7 +18,7 @@ import {
   DEFAULT_ARNS_REGISTRY_STATE,
 } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
-import { dispatchArIOProvider } from '../actions/dispatchArIOProvider';
+import { dispatchArIOContract } from '../actions/dispatchArIOProvider';
 import { WalletAction } from '../reducers/WalletReducer';
 import { useGlobalState } from './GlobalState';
 
@@ -72,7 +72,7 @@ export default function WalletStateProvider({
       return;
     }
     if (wallet?.arconnectSigner) {
-      dispatchArIOProvider({
+      dispatchArIOContract({
         provider: ArIO.init({
           contractTxId: ARNS_REGISTRY_ADDRESS.toString(),
           signer: wallet.arconnectSigner,
@@ -80,7 +80,7 @@ export default function WalletStateProvider({
         dispatch: dispatchGlobalState,
       });
     } else {
-      dispatchArIOProvider({
+      dispatchArIOContract({
         provider: ArIO.init({
           contractTxId: ARNS_REGISTRY_ADDRESS.toString(),
         }),

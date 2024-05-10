@@ -1,5 +1,3 @@
-import { ANTState } from '@ar.io/sdk/web';
-
 import {
   ANTContractDomainRecord,
   ANTContractJSON,
@@ -19,11 +17,11 @@ import { ArweaveTransactionID } from './ArweaveTransactionID';
  */
 export class ANTContract {
   id?: ArweaveTransactionID | typeof ATOMIC_FLAG;
-  contract: ANTContractJSON & ANTState;
+  contract: ANTContractJSON;
   pendingInteractions: ContractInteraction[];
 
   constructor(
-    state?: ANTContractJSON & ANTState,
+    state?: ANTContractJSON,
     id?: ArweaveTransactionID | typeof ATOMIC_FLAG,
     pendingInteractions: ContractInteraction[] = [],
   ) {
