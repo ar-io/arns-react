@@ -18,7 +18,7 @@ import {
   DEFAULT_ARNS_REGISTRY_STATE,
 } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
-import { dispatchArIOContract } from '../actions/dispatchArIOProvider';
+import { dispatchArIOContract } from '../actions/dispatchArIOContract';
 import { WalletAction } from '../reducers/WalletReducer';
 import { useGlobalState } from './GlobalState';
 
