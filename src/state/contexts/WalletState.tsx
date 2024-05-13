@@ -73,7 +73,7 @@ export default function WalletStateProvider({
     }
     if (wallet?.arconnectSigner) {
       dispatchArIOContract({
-        provider: ArIO.init({
+        contract: ArIO.init({
           contractTxId: ARNS_REGISTRY_ADDRESS.toString(),
           signer: wallet.arconnectSigner,
         }),
@@ -81,7 +81,7 @@ export default function WalletStateProvider({
       });
     } else {
       dispatchArIOContract({
-        provider: ArIO.init({
+        contract: ArIO.init({
           contractTxId: ARNS_REGISTRY_ADDRESS.toString(),
         }),
         dispatch: dispatchGlobalState,

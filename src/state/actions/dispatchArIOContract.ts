@@ -4,14 +4,14 @@ import { Dispatch } from 'react';
 import { GlobalAction } from '../reducers';
 
 export function dispatchArIOContract({
-  provider,
+  contract,
   dispatch,
 }: {
-  provider: ArIOWritable | ArIOReadable;
+  contract: ArIOWritable | ArIOReadable;
   dispatch: Dispatch<GlobalAction>;
 }) {
   dispatch({
     type: 'setArIOContract',
-    payload: provider,
+    payload: contract,
   });
 }
