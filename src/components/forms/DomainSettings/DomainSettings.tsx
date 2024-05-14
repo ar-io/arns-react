@@ -241,7 +241,6 @@ function DomainSettings({
           }).map(([rowName, row]) =>
             rowFilter.includes(rowName as DomainSettingsRowTypes) ? <></> : row,
           )}
-        <DomainSettingsRow editable={true} />
       </List>
     </>
   );
