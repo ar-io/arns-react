@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ConfigProvider, theme } from 'antd';
+import { ConfigProvider } from 'antd';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
@@ -24,7 +24,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
             <RegistrationStateProvider reducer={registrationReducer}>
               <ConfigProvider
                 theme={{
-                  algorithm: theme.darkAlgorithm,
+                  // algorithm: theme.darkAlgorithm,
                   token: {
                     colorBgBase: 'var(--primary)',
                   },
