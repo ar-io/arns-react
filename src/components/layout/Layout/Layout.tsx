@@ -1,6 +1,6 @@
+import DevTools from '@src/components/devtools/DevTools';
 import { Outlet } from 'react-router-dom';
 
-import DevTools from '../../devtools/Devtools';
 import Footer from '../Footer/Footer';
 import NavBar from '../Navbar/Navbar';
 import Notifications from '../Notifications/Notifications';
