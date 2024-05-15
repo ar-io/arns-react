@@ -478,6 +478,15 @@ export enum ANT_INTERACTION_TYPES {
   REMOVE_RECORD = 'Delete Record',
   TRANSFER = 'Transfer ANT',
 }
+
+export enum ARNS_INTERACTION_TYPES {
+  BUY_RECORD = 'Buy ARNS Name',
+  EXTEND_LEASE = 'Extend Lease',
+  INCREASE_UNDERNAMES = 'Increase Undernames',
+  SUBMIT_AUCTION_BID = 'Submit Bid',
+  TRANSFER = 'Transfer IO',
+}
+
 export enum INTERACTION_TYPES {
   // Registry interaction types
   BUY_RECORD = 'Buy ARNS Name',
