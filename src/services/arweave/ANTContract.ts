@@ -68,6 +68,9 @@ export class ANTContract {
   get controllers() {
     return (
       this.contract.controllers ?? [
+        // legacy support for contracts that have only one controller
+        // eslint-disable-next-line
+        // @ts-ignore
         this.contract.controller ?? this.contract.owner,
       ]
     );
@@ -169,11 +172,11 @@ export class ANTContract {
         this.owner = interaction.payload.target.toString();
         break;
       case 'setController':
-        this.addController(interaction.payload.target.toString());
+        this.addController(interaction.payload.controller.toString());
         break;
       case 'removeController':
         this.controllers = this.controllers.filter(
-          (c: string) => c !== interaction.payload.target.toString(),
+          (c: string) => c !== interaction.payload.controller.toString(),
         );
         break;
       case 'setRecord':

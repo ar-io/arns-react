@@ -1,6 +1,10 @@
 import { TRANSACTION_WORKFLOW_STATUS } from '../../components/layout/TransactionWorkflow/TransactionWorkflow';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
-import { ExcludedValidInteractionType, TransactionData } from '../../types';
+import {
+  ContractInteraction,
+  ExcludedValidInteractionType,
+  TransactionData,
+} from '../../types';
 import {
   TransactionState,
   initialTransactionState,
@@ -11,11 +15,27 @@ export type TransactionAction =
       type: 'setWorkflowStage';
       payload: TRANSACTION_WORKFLOW_STATUS;
     }
+  | {
+      type: 'setWorkflowName';
+      payload: string;
+    }
+  | {
+      type: 'setInteractionResult';
+      payload: ContractInteraction;
+    }
+  | {
+      type: 'setWorkflowStage';
+      payload: TRANSACTION_WORKFLOW_STATUS;
+    }
   | { type: 'setTransactionData'; payload: TransactionData }
   | { type: 'setDeployedTransactionId'; payload?: ArweaveTransactionID }
   | {
       type: 'setInteractionType';
       payload?: ExcludedValidInteractionType;
+    }
+  | {
+      type: 'setSigning';
+      payload: boolean;
     }
   | { type: 'reset' };
 
@@ -24,10 +44,28 @@ export const transactionReducer = (
   action: TransactionAction,
 ): TransactionState => {
   switch (action.type) {
+    case 'setSigning': {
+      return {
+        ...state,
+        signing: action.payload,
+      };
+    }
     case 'setWorkflowStage': {
       return {
         ...state,
         workflowStage: action.payload,
+      };
+    }
+    case 'setWorkflowName': {
+      return {
+        ...state,
+        workflowName: action.payload,
+      };
+    }
+    case 'setInteractionResult': {
+      return {
+        ...state,
+        interactionResult: action.payload,
       };
     }
     case 'setTransactionData': {

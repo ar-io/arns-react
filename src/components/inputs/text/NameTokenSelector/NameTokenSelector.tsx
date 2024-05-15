@@ -107,8 +107,7 @@ function NameTokenSelector({
       }
       const { contractTxIds: fetchedContractTxIds } = await arweaveDataProvider
         .getContractsForWallet(address, 'ant')
-        .catch((e) => {
-          console.debug(e);
+        .catch(() => {
           throw new Error('Unable to get contracts for wallet');
         });
 

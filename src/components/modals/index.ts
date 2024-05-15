@@ -1,12 +1,10 @@
-import AddUndernameModal from './AddUndernameModal/AddUndernameModal';
 import ConnectWalletModal from './ConnectWalletModal/ConnectWalletModal';
-import EditUndernameModal from './EditUndernameModal/EditUndernameModal';
-import TransactionModal from './TransactionModal/TransactionModal';
-import TransferANTModal from './TransferANTModal/TransferANTModal';
+import AddUndernameModal from './ant-management/AddUndernameModal/AddUndernameModal';
+import EditUndernameModal from './ant-management/EditUndernameModal/EditUndernameModal';
+import TransferANTModal from './ant-management/TransferANTModal/TransferANTModal';
 
 export {
   ConnectWalletModal,
-  TransactionModal,
   TransferANTModal,
   AddUndernameModal,
   EditUndernameModal,

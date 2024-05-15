@@ -11,9 +11,9 @@ import {
   Tooltip,
   TooltipModel,
 } from 'chart.js';
+import type { ChartJSOrUndefined } from 'node_modules/react-chartjs-2/dist/types';
 import { CSSProperties, useEffect, useRef, useState } from 'react';
 import { Chart } from 'react-chartjs-2';
-import { ChartJSOrUndefined } from 'react-chartjs-2/dist/types';
 import { Link } from 'react-router-dom';
 
 import { useGlobalState } from '../../../state/contexts/GlobalState';

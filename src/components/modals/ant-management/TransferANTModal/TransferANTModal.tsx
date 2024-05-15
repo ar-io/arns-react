@@ -1,62 +1,43 @@
 import { Checkbox } from 'antd';
 import { useEffect, useState } from 'react';
 
-import { useIsMobile } from '../../../hooks';
-import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { useIsMobile } from '../../../../hooks';
+import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
+import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import {
   ANTContractJSON,
   TransferANTPayload,
   VALIDATION_INPUT_TYPES,
-} from '../../../types';
-import { formatForMaxCharCount, isArweaveTransactionID } from '../../../utils';
-import eventEmitter from '../../../utils/events';
-import { InfoIcon } from '../../icons';
-import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
-import { Loader } from '../../layout';
-import TransactionCost from '../../layout/TransactionCost/TransactionCost';
-import DialogModal from '../DialogModal/DialogModal';
+} from '../../../../types';
+import {
+  formatForMaxCharCount,
+  isArweaveTransactionID,
+} from '../../../../utils';
+import { InfoIcon } from '../../../icons';
+import ValidationInput from '../../../inputs/text/ValidationInput/ValidationInput';
+import { Loader } from '../../../layout';
+import TransactionCost from '../../../layout/TransactionCost/TransactionCost';
+import DialogModal from '../../DialogModal/DialogModal';
 import './styles.css';
 
 function TransferANTModal({
   antId,
+  state,
   closeModal,
   payloadCallback,
+  associatedNames,
 }: {
   antId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
+  state: ANTContractJSON;
   closeModal: () => void;
   payloadCallback: (payload: TransferANTPayload) => void;
+  associatedNames: string[];
 }) {
   const [{ arweaveDataProvider }] = useGlobalState();
   const isMobile = useIsMobile();
   const [accepted, setAccepted] = useState<boolean>(false);
   const [toAddress, setToAddress] = useState<string>('');
   const [isValidAddress, setIsValidAddress] = useState<boolean>();
-  const [state, setState] = useState<ANTContractJSON>();
-  const [associatedNames, setAssociatedNames] = useState<string[]>([]);
-
-  // TODO: add "transfer to another account" dropdown
-
-  useEffect(() => {
-    fetchANTData(antId);
-  }, [antId]);
-
-  async function fetchANTData(id: ArweaveTransactionID) {
-    try {
-      const contract = await arweaveDataProvider.buildANTContract(id);
-      if (!contract.isValid()) {
-        throw new Error('Invalid ANT contract');
-      }
-      setState(contract.state);
-      const associatedRecords = await arweaveDataProvider.getRecords({
-        filters: { contractTxId: [antId] },
-      });
-      setAssociatedNames(Object.keys(associatedRecords));
-    } catch (error) {
-      eventEmitter.emit('error', error);
-      closeModal();
-    }
-  }
 
   useEffect(() => {
     if (!isArweaveTransactionID(toAddress)) {

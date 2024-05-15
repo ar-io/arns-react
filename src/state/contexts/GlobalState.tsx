@@ -1,3 +1,4 @@
+import { ArIO, ArIOReadable, ArIOWritable } from '@ar.io/sdk';
 import { ArConnectWalletConnector } from '@src/services/wallets';
 import React, {
   Dispatch,
@@ -33,6 +34,10 @@ const defaultContractCache = new ARNSContractCache({
   arweave: defaultArweave,
 });
 
+const defaultArIO = ArIO.init({
+  contractTxId: ARNS_REGISTRY_ADDRESS.toString(),
+});
+
 export type GlobalState = {
   ioTicker: string;
   gateway: string;
@@ -40,6 +45,7 @@ export type GlobalState = {
   blockHeight?: number;
   lastBlockUpdateTimestamp?: number;
   arweaveDataProvider: ArweaveCompositeDataProvider;
+  arioContract: ArIOWritable | ArIOReadable;
 };
 
 const initialState: GlobalState = {
@@ -53,6 +59,7 @@ const initialState: GlobalState = {
     defaultWarp,
     defaultContractCache,
   ),
+  arioContract: defaultArIO,
 };
 
 const GlobalStateContext = createContext<[GlobalState, Dispatch<GlobalAction>]>(

@@ -1,3 +1,4 @@
+import { ANTState, ArconnectSigner } from '@ar.io/sdk/web';
 import { ApiConfig } from 'arweave/node/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
 import {
@@ -109,17 +110,9 @@ export type ANTContractDomainRecord = {
   transactionId: string;
 };
 
-export type ANTContractJSON = {
-  balances: { [x: string]: number };
-  evolve: boolean | undefined;
-  name: string;
-  owner: string;
+export type ANTContractJSON = ANTState & {
   controller?: string;
-  controllers: string[];
-  records: {
-    [x: string]: ANTContractDomainRecord;
-  };
-  ticker: string;
+  evolve?: string;
 };
 
 export type ANTContractFields = keyof ANTContractJSON;
@@ -345,7 +338,9 @@ export interface ArweaveWalletConnector {
   disconnect(): Promise<void>;
   getWalletAddress(): Promise<ArweaveTransactionID>;
   getGatewayConfig(): Promise<ApiConfig>;
+  // TODO: remove CustomSignature and replace with ArConnectSigner once sdk is fully supported
   signer: CustomSignature;
+  arconnectSigner?: ArconnectSigner;
 }
 
 export enum WALLET_TYPES {
@@ -358,6 +353,7 @@ export interface KVCache {
   get(key: string): Promise<any>;
   del(key: string, filter?: { key: string; value: string }): Promise<void>;
   push(key: string, value: any): Promise<void>;
+  clean(): void;
 }
 
 export interface TransactionCache {
