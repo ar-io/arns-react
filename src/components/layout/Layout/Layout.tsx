@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom';
 
+import DevTools from '../../devtools/Devtools';
 import Footer from '../Footer/Footer';
 import NavBar from '../Navbar/Navbar';
 import Notifications from '../Notifications/Notifications';
@@ -44,6 +45,7 @@ function Layout() {
       >
         <Footer />
       </div>
+      <DevTools />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { ANTState } from '@ar.io/sdk';
+import { ANTState } from '@ar.io/sdk/web';
 import { ANTCard } from '@src/components/cards';
 import { TransferANTModal } from '@src/components/modals';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';

@@ -1,4 +1,4 @@
-import { ArIO, ArIOReadable, ArIOWritable } from '@ar.io/sdk';
+import { ArIO, ArIOReadable, ArIOWritable } from '@ar.io/sdk/web';
 import { ArConnectWalletConnector } from '@src/services/wallets';
 import React, {
   Dispatch,
