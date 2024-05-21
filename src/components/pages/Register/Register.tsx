@@ -101,7 +101,7 @@ function RegisterNameForm() {
     if (!loadingAuctionInfo && auction) {
       dispatchRegisterState({
         type: 'setRegistrationType',
-        payload: auction.type,
+        payload: auction.type as TRANSACTION_TYPES,
       });
     }
   }, [loadingAuctionInfo, domain]);
@@ -143,7 +143,8 @@ function RegisterNameForm() {
                 payload: {
                   name: domain,
                   years: leaseDuration,
-                  type: auction.type,
+                  // TODO: gross, will clean this up in refactor
+                  type: auction.type as TRANSACTION_TYPES,
                   contractTxId: ATOMIC_FLAG,
                 },
               })

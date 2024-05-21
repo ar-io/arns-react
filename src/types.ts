@@ -1,4 +1,4 @@
-import { ANTState, ArconnectSigner } from '@ar.io/sdk/web';
+import { ANTState, ArNSAuctionData, ArconnectSigner } from '@ar.io/sdk/web';
 import { ApiConfig } from 'arweave/node/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
 import {
@@ -60,7 +60,7 @@ export type AuctionParameters = {
   years?: number;
 };
 
-export type Auction = AuctionParameters & {
+export type Auction = ArNSAuctionData & {
   name: string;
   prices: Record<string | number, number>;
   currentPrice: number;
