@@ -10,6 +10,7 @@ import { useWalletState } from '../../../state/contexts/WalletState';
 import {
   ANTInteractionType,
   BuyRecordPayload,
+  ContractInteraction,
   ExcludedValidInteractionType,
   ExtendLeasePayload,
   INTERACTION_TYPES,
@@ -38,7 +39,7 @@ import {
 import eventEmitter from '../../../utils/events';
 import { ANTCard } from '../../cards';
 import { InfoIcon } from '../../icons';
-import TransactionComplete from '../TransactionComplete/TransactionComplete';
+import TransactionComplete from '../../pages/Transaction/TransactionComplete';
 import TransactionCost from '../TransactionCost/TransactionCost';
 import Workflow, { WorkflowStage } from '../Workflow/Workflow';
 import PageLoader from '../progress/PageLoader/PageLoader';
@@ -193,6 +194,22 @@ function TransactionWorkflow({
       if (!originalTxId) {
         throw Error('Unable to create transaction');
       }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { deployedTransactionId, ...interactionPayload } = payload;
+      const result: ContractInteraction = {
+        deployer: walletAddress.toString(),
+        contractTxId: assetId,
+        id: originalTxId,
+        payload: {
+          ...interactionPayload,
+          function: functionName,
+        } as any,
+        type: 'interaction',
+      };
+      dispatchTransactionState({
+        type: 'setInteractionResult',
+        payload: result,
+      });
       return originalTxId;
     } catch (error) {
       eventEmitter.emit('error', error);
@@ -283,13 +300,7 @@ function TransactionWorkflow({
           onBack: () => navigate(-1),
         },
         successful: {
-          component: (
-            <TransactionComplete
-              transactionId={deployedTransactionId}
-              interactionType={interactionType}
-              transactionData={transactionData}
-            />
-          ),
+          component: <TransactionComplete />,
           header: (
             <div
               className="flex flex-row center radius"
@@ -313,13 +324,7 @@ function TransactionWorkflow({
           ),
         },
         failed: {
-          component: (
-            <TransactionComplete
-              transactionId={deployedTransactionId}
-              interactionType={interactionType}
-              transactionData={transactionData}
-            />
-          ),
+          component: <TransactionComplete />,
         },
       };
     }
@@ -380,13 +385,7 @@ function TransactionWorkflow({
             onBack: () => navigate(-1),
           },
           successful: {
-            component: (
-              <TransactionComplete
-                transactionId={deployedTransactionId}
-                interactionType={interactionType}
-                transactionData={transactionData}
-              />
-            ),
+            component: <TransactionComplete />,
             header: (
               <div
                 className="flex flex-row center radius"
@@ -439,13 +438,7 @@ function TransactionWorkflow({
             ),
           },
           failed: {
-            component: (
-              <TransactionComplete
-                transactionId={deployedTransactionId}
-                interactionType={interactionType}
-                transactionData={transactionData}
-              />
-            ),
+            component: <TransactionComplete />,
           },
         };
       }
@@ -508,13 +501,7 @@ function TransactionWorkflow({
             onBack: () => navigate(-1),
           },
           successful: {
-            component: (
-              <TransactionComplete
-                transactionId={deployedTransactionId}
-                interactionType={interactionType}
-                transactionData={transactionData}
-              />
-            ),
+            component: <TransactionComplete />,
             header: (
               <div
                 className="flex flex-row center radius"
@@ -539,13 +526,7 @@ function TransactionWorkflow({
             ),
           },
           failed: {
-            component: (
-              <TransactionComplete
-                transactionId={deployedTransactionId}
-                interactionType={interactionType}
-                transactionData={transactionData}
-              />
-            ),
+            component: <TransactionComplete />,
           },
         };
       }
@@ -609,13 +590,7 @@ function TransactionWorkflow({
             onBack: () => navigate(-1),
           },
           successful: {
-            component: (
-              <TransactionComplete
-                transactionId={deployedTransactionId}
-                interactionType={interactionType}
-                transactionData={transactionData}
-              />
-            ),
+            component: <TransactionComplete />,
             header: (
               <div
                 className="flex flex-row center radius"
@@ -640,13 +615,7 @@ function TransactionWorkflow({
             ),
           },
           failed: {
-            component: (
-              <TransactionComplete
-                transactionId={deployedTransactionId}
-                interactionType={interactionType}
-                transactionData={transactionData}
-              />
-            ),
+            component: <TransactionComplete />,
           },
         };
       }

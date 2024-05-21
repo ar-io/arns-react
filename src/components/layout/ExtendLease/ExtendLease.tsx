@@ -7,6 +7,7 @@ import { useTransactionState } from '../../../state/contexts/TransactionState';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import {
   ARNSRecordEntry,
+  ARNS_INTERACTION_TYPES,
   ExtendLeasePayload,
   INTERACTION_NAMES,
   INTERACTION_TYPES,
@@ -299,7 +300,11 @@ function ExtendLease() {
                       interactionPrice: ioFee,
                     },
                   });
-                  navigate('/transaction', {
+                  dispatchTransactionState({
+                    type: 'setWorkflowName',
+                    payload: ARNS_INTERACTION_TYPES.EXTEND_LEASE,
+                  });
+                  navigate('/transaction/review', {
                     state: `/manage/names/${name}/extend`,
                   });
                 }

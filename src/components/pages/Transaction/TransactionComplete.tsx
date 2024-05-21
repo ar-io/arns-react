@@ -2,74 +2,62 @@ import { PlusOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ARNSMapping,
   TransactionData,
   ValidInteractionType,
 } from '../../../types';
-import eventEmitter from '../../../utils/events';
 import {
   getARNSMappingByInteractionType,
   getLinkId,
 } from '../../../utils/transactionUtils/transactionUtils';
 import { ANTCard } from '../../cards';
+import ActionCard from '../../cards/ActionCard/ActionCard';
 import { ArrowLeft, SettingsIcon } from '../../icons';
-import PageLoader from '../progress/PageLoader/PageLoader';
-import ActionCard from './ActionCard';
+import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 
-function TransactionComplete({
-  transactionId,
-  interactionType,
-  transactionData,
-}: {
-  transactionId?: ArweaveTransactionID;
-  interactionType: ValidInteractionType;
-  transactionData: TransactionData;
-}) {
-  const [{ deployedTransactionId }] = useTransactionState();
+function TransactionComplete() {
+  const [
+    { interactionResult, interactionType, workflowName, transactionData },
+    dispatchTransactionState,
+  ] = useTransactionState();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState<boolean>(true);
+
   const [antProps, setAntProps] = useState<ARNSMapping>();
+  const [localData, setLocalData] = useState<any>();
 
   useEffect(() => {
-    if (transactionId && transactionId === deployedTransactionId) {
-      onLoad();
-    }
-  }, [transactionId]);
-
-  function onLoad() {
-    try {
-      setLoading(true);
-      // reset transaction state upon succesfull deployment
-      if (!transactionId) {
-        throw new Error('Unable to set ANT properties.');
-      }
-      const newProps = getARNSMappingByInteractionType({
+    if (!antProps) {
+      setLocalData({
+        transactionData,
         interactionType,
-        transactionData: {
-          ...transactionData,
-          deployedTransactionId: transactionId,
-        },
+        interactionResult,
       });
-      if (!newProps) {
-        throw new Error('Unable to set ANT properties.', newProps);
-      }
-      setAntProps(newProps);
-    } catch (error) {
-      eventEmitter.emit('error', error);
-      navigate(-1);
-    } finally {
-      setLoading(false);
+      setAntProps(
+        getARNSMappingByInteractionType({
+          interactionType: interactionType as ValidInteractionType,
+          transactionData: {
+            ...transactionData,
+            deployedTransactionId: interactionResult?.id,
+          } as TransactionData,
+        }) as ARNSMapping,
+      );
+    } else {
+      dispatchTransactionState({
+        type: 'reset',
+      });
     }
+  }, [antProps]);
+
+  if (!antProps || !localData) {
+    return <PageLoader loading={true} message={'Loading...'} />;
   }
 
-  if (!antProps) {
-    return (
-      <PageLoader loading={loading} message={'Loading transaction data.'} />
-    );
-  }
+  const link = getLinkId(workflowName as ValidInteractionType, {
+    ...localData.transactionData,
+    deployedTransactionId: localData.interactionResult.id,
+  }).trim();
 
   return (
     <div className="flex-column center" style={{ gap: '20px', width: '700px' }}>
@@ -83,10 +71,7 @@ function TransactionComplete({
           }}
         >
           <ActionCard
-            to={`/manage/ants/${getLinkId(interactionType, {
-              ...transactionData,
-              deployedTransactionId: transactionId,
-            }).trim()}`}
+            to={`/manage/ants/${link}`}
             body={
               <div className="flex flex-column center" style={{ gap: '15px' }}>
                 <SettingsIcon width={'20px'} fill={'var(--text-grey)'} />
@@ -95,10 +80,7 @@ function TransactionComplete({
             }
           />
           <ActionCard
-            to={`/manage/ants/${getLinkId(interactionType, {
-              ...transactionData,
-              deployedTransactionId: transactionId,
-            }).trim()}/undernames`}
+            to={`/manage/ants/${link}/undernames`}
             body={
               <div className="flex flex-column center" style={{ gap: '15px' }}>
                 <PlusOutlined

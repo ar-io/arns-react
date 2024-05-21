@@ -217,8 +217,9 @@ export const TRANSACTION_DATA_KEYS: Record<
 };
 
 export const getWorkflowStepsForInteraction = (
-  interaction: ExcludedValidInteractionType,
-): StepProps[] => {
+  interaction?: ExcludedValidInteractionType,
+): StepProps[] | undefined => {
+  if (!interaction) return undefined;
   return structuredClone(WorkflowStepsForInteractions[interaction]);
 };
 

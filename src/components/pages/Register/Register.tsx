@@ -1,4 +1,5 @@
 import { CheckCircleFilled } from '@ant-design/icons';
+import { ANT } from '@ar.io/sdk';
 import { InsufficientFundsError, ValidationError } from '@src/utils/errors';
 import { Tooltip } from 'antd';
 import emojiRegex from 'emoji-regex';
@@ -21,6 +22,7 @@ import { useRegistrationState } from '../../../state/contexts/RegistrationState'
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import {
+  ARNS_INTERACTION_TYPES,
   BuyRecordPayload,
   INTERACTION_NAMES,
   INTERACTION_TYPES,
@@ -30,6 +32,7 @@ import {
 import {
   encodeDomainToASCII,
   formatDate,
+  generateAtomicState,
   isArweaveTransactionID,
   lowerCaseDomain,
   userHasSufficientBalance,
@@ -58,8 +61,10 @@ function RegisterNameForm() {
     { domain, fee, leaseDuration, registrationType, antID, targetId },
     dispatchRegisterState,
   ] = useRegistrationState();
-  const [{ blockHeight, arweaveDataProvider, ioTicker }, dispatchGlobalState] =
-    useGlobalState();
+  const [
+    { blockHeight, arweaveDataProvider, ioTicker, arioContract },
+    dispatchGlobalState,
+  ] = useGlobalState();
   const [{ walletAddress, balances }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const { name } = useParams();
@@ -200,11 +205,15 @@ function RegisterNameForm() {
         return;
       }
 
+      const ioBalance = await arioContract.getBalance({
+        address: walletAddress.toString(),
+      });
+
       const balanceErrors = userHasSufficientBalance<{
         [x: string]: number;
         AR: number;
       }>({
-        balances: { AR: balances.ar, [ioTicker]: balances[ioTicker] },
+        balances: { AR: balances.ar, [ioTicker]: ioBalance },
         costs: { AR: fee.ar, [ioTicker]: fee[ioTicker] } as {
           [x: string]: number;
           AR: number;
@@ -255,6 +264,9 @@ function RegisterNameForm() {
         assetId: ARNS_REGISTRY_ADDRESS.toString(),
         functionName: 'buyRecord',
         ...buyRecordPayload,
+        state: antID
+          ? await ANT.init({ contractTxId: antID.toString() }).getState()
+          : generateAtomicState(domain, walletAddress),
         interactionPrice: fee?.[ioTicker],
       },
     });
@@ -265,8 +277,12 @@ function RegisterNameForm() {
     dispatchRegisterState({
       type: 'reset',
     });
+    dispatchTransactionState({
+      type: 'setWorkflowName',
+      payload: ARNS_INTERACTION_TYPES.BUY_RECORD,
+    });
     // navigate to the transaction page, which will load the updated state of the transaction context
-    navigate('/transaction', {
+    navigate('/transaction/review', {
       state: `/register/${domain}`,
     });
   }

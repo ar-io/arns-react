@@ -33,6 +33,7 @@ export default async function dispatchArIOInteraction({
       payload: true,
     });
     switch (workflowName) {
+      // TODO: add the cases for extend lease and increase undernames from sdk
       case ARNS_INTERACTION_TYPES.EXTEND_LEASE:
         result = await arioContract.transfer({
           target: payload.target,
