@@ -478,6 +478,15 @@ export enum ANT_INTERACTION_TYPES {
   REMOVE_RECORD = 'Delete Record',
   TRANSFER = 'Transfer ANT',
 }
+
+export enum ARNS_INTERACTION_TYPES {
+  BUY_RECORD = 'Buy ARNS Name',
+  EXTEND_LEASE = 'Extend Lease',
+  INCREASE_UNDERNAMES = 'Increase Undernames',
+  SUBMIT_AUCTION_BID = 'Submit Bid',
+  TRANSFER = 'Transfer IO',
+}
+
 export enum INTERACTION_TYPES {
   // Registry interaction types
   BUY_RECORD = 'Buy ARNS Name',
@@ -561,10 +570,9 @@ export const antInteractionTypes = [
 ] as const;
 export const registryInteractionTypes = [
   ...commonInteractionTypeNames,
-  INTERACTION_TYPES.BUY_RECORD,
-  INTERACTION_TYPES.EXTEND_LEASE,
-  INTERACTION_TYPES.SUBMIT_AUCTION_BID,
-  INTERACTION_TYPES.INCREASE_UNDERNAMES,
+  ARNS_INTERACTION_TYPES.BUY_RECORD,
+  ARNS_INTERACTION_TYPES.EXTEND_LEASE,
+  ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES,
 ] as const;
 
 export const interactionTypeNames = [

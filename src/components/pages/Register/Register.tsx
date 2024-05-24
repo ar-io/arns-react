@@ -1,4 +1,5 @@
 import { CheckCircleFilled } from '@ant-design/icons';
+import { ANT, mIOToken } from '@ar.io/sdk/web';
 import { InsufficientFundsError, ValidationError } from '@src/utils/errors';
 import { Tooltip } from 'antd';
 import emojiRegex from 'emoji-regex';
@@ -21,15 +22,16 @@ import { useRegistrationState } from '../../../state/contexts/RegistrationState'
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import {
+  ARNS_INTERACTION_TYPES,
   BuyRecordPayload,
   INTERACTION_NAMES,
-  INTERACTION_TYPES,
   TRANSACTION_TYPES,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import {
   encodeDomainToASCII,
   formatDate,
+  generateAtomicState,
   isArweaveTransactionID,
   lowerCaseDomain,
   userHasSufficientBalance,
@@ -58,8 +60,10 @@ function RegisterNameForm() {
     { domain, fee, leaseDuration, registrationType, antID, targetId },
     dispatchRegisterState,
   ] = useRegistrationState();
-  const [{ blockHeight, arweaveDataProvider, ioTicker }, dispatchGlobalState] =
-    useGlobalState();
+  const [
+    { blockHeight, arweaveDataProvider, ioTicker, arioContract },
+    dispatchGlobalState,
+  ] = useGlobalState();
   const [{ walletAddress, balances }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const { name } = useParams();
@@ -76,6 +80,7 @@ function RegisterNameForm() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [hasValidationErrors, setHasValidationErrors] =
     useState<boolean>(false);
+  const [validatingNext, setValidatingNext] = useState<boolean>(false);
   const ioFee = fee?.[ioTicker];
   const feeError = ioFee && ioFee < 0;
 
@@ -200,11 +205,19 @@ function RegisterNameForm() {
         return;
       }
 
+      setValidatingNext(true);
+
+      const ioBalance = await arioContract
+        .getBalance({
+          address: walletAddress.toString(),
+        })
+        .then((balance) => new mIOToken(balance).toIO());
+
       const balanceErrors = userHasSufficientBalance<{
         [x: string]: number;
         AR: number;
       }>({
-        balances: { AR: balances.ar, [ioTicker]: balances[ioTicker] },
+        balances: { AR: balances.ar, [ioTicker]: ioBalance.valueOf() },
         costs: { AR: fee.ar, [ioTicker]: fee[ioTicker] } as {
           [x: string]: number;
           AR: number;
@@ -226,7 +239,10 @@ function RegisterNameForm() {
       }
     } catch (error: any) {
       eventEmitter.emit('error', error);
+      setValidatingNext(false);
       return;
+    } finally {
+      setValidatingNext(false);
     }
 
     const leaseDurationType = auction?.isRequiredToBeAuctioned
@@ -252,21 +268,29 @@ function RegisterNameForm() {
     dispatchTransactionState({
       type: 'setTransactionData',
       payload: {
+        walletAddress,
         assetId: ARNS_REGISTRY_ADDRESS.toString(),
         functionName: 'buyRecord',
         ...buyRecordPayload,
+        state: antID
+          ? await ANT.init({ contractTxId: antID.toString() }).getState()
+          : generateAtomicState(domain, walletAddress),
         interactionPrice: fee?.[ioTicker],
-      },
+      } as any, // TODO: after buyRecord is added with the sdk refactor this to the correct type
     });
     dispatchTransactionState({
       type: 'setInteractionType',
-      payload: INTERACTION_TYPES.BUY_RECORD,
+      payload: ARNS_INTERACTION_TYPES.BUY_RECORD,
     });
     dispatchRegisterState({
       type: 'reset',
     });
+    dispatchTransactionState({
+      type: 'setWorkflowName',
+      payload: ARNS_INTERACTION_TYPES.BUY_RECORD,
+    });
     // navigate to the transaction page, which will load the updated state of the transaction context
-    navigate('/transaction', {
+    navigate('/transaction/review', {
       state: `/register/${domain}`,
     });
   }
@@ -660,6 +684,10 @@ function RegisterNameForm() {
           </div>
         </div>
       </div>
+      <PageLoader
+        loading={validatingNext}
+        message={'Validating transaction parameters...'}
+      />
     </div>
   );
 }

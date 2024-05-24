@@ -28,8 +28,11 @@ const NotFound = React.lazy(
 const Register = React.lazy(
   () => import('./components/pages/Register/Register'),
 );
-const Transaction = React.lazy(
-  () => import('./components/pages/Transaction/Transaction'),
+const TransactionReview = React.lazy(
+  () => import('./components/pages/Transaction/TransactionReview'),
+);
+const TransactionComplete = React.lazy(
+  () => import('./components/pages/Transaction/TransactionComplete'),
 );
 const Undernames = React.lazy(
   () => import('./components/pages/Undernames/Undernames'),
@@ -259,20 +262,32 @@ function App() {
           />
         </Route>
         ,
-        <Route
-          path="transaction"
-          element={
-            <Suspense
-              fallback={
-                <PageLoader loading={true} message={'Loading, please wait'} />
-              }
-            >
-              <ProtectedRoute>
-                <Transaction />
-              </ProtectedRoute>
-            </Suspense>
-          }
-        />
+        <Route path="transaction">
+          <Route
+            path="review"
+            element={
+              <Suspense
+                fallback={
+                  <PageLoader loading={true} message={'Loading, please wait'} />
+                }
+              >
+                <TransactionReview />
+              </Suspense>
+            }
+          />
+          <Route
+            path="complete"
+            element={
+              <Suspense
+                fallback={
+                  <PageLoader loading={true} message={'Loading, please wait'} />
+                }
+              >
+                <TransactionComplete />
+              </Suspense>
+            }
+          />
+        </Route>
         ,
         <Route
           path="auctions"

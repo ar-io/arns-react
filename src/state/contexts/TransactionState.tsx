@@ -1,7 +1,6 @@
 import PageLoader from '@src/components/layout/progress/PageLoader/PageLoader';
 import { Dispatch, createContext, useContext, useReducer } from 'react';
 
-import { TRANSACTION_WORKFLOW_STATUS } from '../../components/layout/TransactionWorkflow/TransactionWorkflow';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { ExcludedValidInteractionType, TransactionData } from '../../types';
 import { TransactionAction } from '../reducers/TransactionReducer';
@@ -10,7 +9,6 @@ export type TransactionState = {
   deployedTransactionId?: ArweaveTransactionID;
   transactionData?: TransactionData; // data that will be used to perform the transaction.
   interactionType?: ExcludedValidInteractionType;
-  workflowStage: TRANSACTION_WORKFLOW_STATUS;
   workflowName?: string;
   interactionResult?: any;
   signing: boolean;
@@ -23,7 +21,6 @@ export type TransactionStateProviderProps = {
 
 export const initialTransactionState: TransactionState = {
   signing: false,
-  workflowStage: TRANSACTION_WORKFLOW_STATUS.PENDING, // confirm deploy complete,
 };
 
 const TransactionStateContext = createContext<
