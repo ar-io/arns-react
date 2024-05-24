@@ -25,7 +25,6 @@ import {
   ARNS_INTERACTION_TYPES,
   BuyRecordPayload,
   INTERACTION_NAMES,
-  INTERACTION_TYPES,
   TRANSACTION_TYPES,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
@@ -261,6 +260,7 @@ function RegisterNameForm() {
     dispatchTransactionState({
       type: 'setTransactionData',
       payload: {
+        walletAddress,
         assetId: ARNS_REGISTRY_ADDRESS.toString(),
         functionName: 'buyRecord',
         ...buyRecordPayload,
@@ -268,11 +268,11 @@ function RegisterNameForm() {
           ? await ANT.init({ contractTxId: antID.toString() }).getState()
           : generateAtomicState(domain, walletAddress),
         interactionPrice: fee?.[ioTicker],
-      },
+      } as any, // TODO: after buyRecord is added with the sdk refactor this to the correct type
     });
     dispatchTransactionState({
       type: 'setInteractionType',
-      payload: INTERACTION_TYPES.BUY_RECORD,
+      payload: ARNS_INTERACTION_TYPES.BUY_RECORD,
     });
     dispatchRegisterState({
       type: 'reset',

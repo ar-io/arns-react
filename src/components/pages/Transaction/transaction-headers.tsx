@@ -18,7 +18,7 @@ export function getTransactionHeader({
         </h1>
       );
     case ARNS_INTERACTION_TYPES.BUY_RECORD:
-      return `Review your purchase`;
+      return `Review your ${params.auction ? 'Auction' : 'Purchase'}`;
     default:
       return undefined;
   }

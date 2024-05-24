@@ -10,7 +10,6 @@ import {
   ARNSRecordEntry,
   ARNS_INTERACTION_TYPES,
   INTERACTION_NAMES,
-  INTERACTION_TYPES,
   IncreaseUndernamesPayload,
 } from '../../../types';
 import { isARNSDomainNameValid, lowerCaseDomain, sleep } from '../../../utils';
@@ -238,7 +237,7 @@ function UpgradeUndernames() {
                   });
                   dispatchTransactionState({
                     type: 'setInteractionType',
-                    payload: INTERACTION_TYPES.INCREASE_UNDERNAMES,
+                    payload: ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES,
                   });
                   dispatchTransactionState({
                     type: 'setWorkflowName',

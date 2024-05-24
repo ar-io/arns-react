@@ -570,10 +570,9 @@ export const antInteractionTypes = [
 ] as const;
 export const registryInteractionTypes = [
   ...commonInteractionTypeNames,
-  INTERACTION_TYPES.BUY_RECORD,
-  INTERACTION_TYPES.EXTEND_LEASE,
-  INTERACTION_TYPES.SUBMIT_AUCTION_BID,
-  INTERACTION_TYPES.INCREASE_UNDERNAMES,
+  ARNS_INTERACTION_TYPES.BUY_RECORD,
+  ARNS_INTERACTION_TYPES.EXTEND_LEASE,
+  ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES,
 ] as const;
 
 export const interactionTypeNames = [

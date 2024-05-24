@@ -32,7 +32,8 @@ import { getTransactionHeader } from './transaction-headers';
 // on completion routes to transaction/complete
 function TransactionReview() {
   const navigate = useNavigate();
-  const [{ ioTicker, arioContract, arnsContractId }] = useGlobalState();
+  const [{ ioTicker, arioContract, arnsContractId, arweaveDataProvider }] =
+    useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [
     { workflowName, interactionType, transactionData, interactionResult },
@@ -56,8 +57,8 @@ function TransactionReview() {
   );
 
   useEffect(() => {
-    if (!transactionData) {
-      navigate(-1);
+    if (!transactionData && !workflowName) {
+      navigate('/');
     }
     setAntProps(
       getARNSMappingByInteractionType({
@@ -78,6 +79,7 @@ function TransactionReview() {
     setHeader(
       getTransactionHeader({
         workflowName: workflowName as ARNS_INTERACTION_TYPES,
+        auction: { ...(transactionData as any) }?.auction,
       }),
     );
   }, [
@@ -96,15 +98,14 @@ function TransactionReview() {
       if (!transactionData || !workflowName) {
         throw new Error('Transaction data is missing');
       }
-      const res = await dispatchArIOInteraction({
+      await dispatchArIOInteraction({
         arioContract,
+        arweaveCompositeProvider: arweaveDataProvider,
         workflowName: workflowName as ARNS_INTERACTION_TYPES,
         payload: transactionData,
         contractTxId: arnsContractId,
         dispatch: dispatchTransactionState,
       });
-
-      console.log(res);
 
       navigate('/transaction/complete');
     } catch (error) {

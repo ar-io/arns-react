@@ -10,7 +10,6 @@ import {
   ARNS_INTERACTION_TYPES,
   ExtendLeasePayload,
   INTERACTION_NAMES,
-  INTERACTION_TYPES,
   TRANSACTION_TYPES,
 } from '../../../types';
 import {
@@ -289,7 +288,7 @@ function ExtendLease() {
 
                   dispatchTransactionState({
                     type: 'setInteractionType',
-                    payload: INTERACTION_TYPES.EXTEND_LEASE,
+                    payload: ARNS_INTERACTION_TYPES.EXTEND_LEASE,
                   });
                   dispatchTransactionState({
                     type: 'setTransactionData',
