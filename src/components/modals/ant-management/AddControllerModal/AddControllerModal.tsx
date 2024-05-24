@@ -1,68 +1,43 @@
 import { useEffect, useState } from 'react';
 
-import { useIsMobile } from '../../../hooks';
-import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
+import { useIsMobile } from '../../../../hooks';
+import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
+import { useGlobalState } from '../../../../state/contexts/GlobalState';
+import { ANTContractJSON, VALIDATION_INPUT_TYPES } from '../../../../types';
 import {
-  ANTContractJSON,
-  SetControllerPayload,
-  VALIDATION_INPUT_TYPES,
-} from '../../../types';
-import { formatForMaxCharCount, isArweaveTransactionID } from '../../../utils';
-import eventEmitter from '../../../utils/events';
-import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
-import { Loader } from '../../layout';
-import TransactionCost from '../../layout/TransactionCost/TransactionCost';
-import DialogModal from '../DialogModal/DialogModal';
+  formatForMaxCharCount,
+  isArweaveTransactionID,
+} from '../../../../utils';
+import ValidationInput from '../../../inputs/text/ValidationInput/ValidationInput';
+import TransactionCost from '../../../layout/TransactionCost/TransactionCost';
+import DialogModal from '../../DialogModal/DialogModal';
 
 function AddControllerModal({
   antId,
+  state,
   closeModal,
   payloadCallback,
 }: {
   antId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
+  state: ANTContractJSON;
   closeModal: () => void;
-  payloadCallback: (payload: SetControllerPayload) => void;
+  payloadCallback: (payload: { controller: string }) => void;
 }) {
   const [{ arweaveDataProvider }] = useGlobalState();
   const isMobile = useIsMobile();
-  const [toAddress, setToAddress] = useState<string>('');
+  const [newController, setNewController] = useState<string>('');
   const [isValidAddress, setIsValidAddress] = useState<boolean>();
-  const [state, setState] = useState<ANTContractJSON>();
-
-  // TODO: add "transfer to another account" dropdown
 
   useEffect(() => {
-    load(antId);
-  }, [antId]);
-
-  async function load(id: ArweaveTransactionID) {
-    try {
-      const contract = await arweaveDataProvider.buildANTContract(id);
-      setState(contract.state);
-    } catch (error) {
-      eventEmitter.emit('error', error);
-    }
-  }
-
-  useEffect(() => {
-    if (!toAddress.length) {
+    if (!newController.length) {
       setIsValidAddress(undefined);
       return;
     }
-  }, [toAddress]);
-
-  if (!state) {
-    return (
-      <div className="modal-container">
-        <Loader size={80} />
-      </div>
-    );
-  }
+  }, [newController]);
 
   function handlePayloadCallback() {
     payloadCallback({
-      target: toAddress,
+      controller: newController,
     });
   }
 
@@ -106,8 +81,8 @@ function AddControllerModal({
                   validationListStyle={{ display: 'none' }}
                   catchInvalidInput={true}
                   maxCharLength={43}
-                  value={toAddress}
-                  setValue={setToAddress}
+                  value={newController}
+                  setValue={setNewController}
                   validityCallback={(validity: boolean) =>
                     setIsValidAddress(validity)
                   }
@@ -128,7 +103,7 @@ function AddControllerModal({
         onCancel={closeModal}
         onClose={closeModal}
         onNext={
-          isArweaveTransactionID(toAddress)
+          isArweaveTransactionID(newController)
             ? () => handlePayloadCallback()
             : undefined
         }

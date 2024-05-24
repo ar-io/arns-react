@@ -11,7 +11,12 @@ import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransa
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../../state/contexts/RegistrationState';
 import { useWalletState } from '../../../../state/contexts/WalletState';
-import { ARNSRecordEntry, Auction, SearchBarProps } from '../../../../types';
+import {
+  ARNSRecordEntry,
+  Auction,
+  SearchBarProps,
+  TRANSACTION_TYPES,
+} from '../../../../types';
 import {
   decodeDomainToASCII,
   encodeDomainToASCII,
@@ -154,7 +159,6 @@ function SearchBar(props: SearchBarProps) {
       setAuctionInfo(auction);
     } catch (error: any) {
       setSearchBarText('');
-      console.debug('Could not get auction info', error.message);
       eventEmitter.emit('error', error);
     }
   }
@@ -224,7 +228,7 @@ function SearchBar(props: SearchBarProps) {
       if (auctionInfo?.type) {
         dispatchRegisterState({
           type: 'setRegistrationType',
-          payload: auctionInfo.type,
+          payload: auctionInfo.type as TRANSACTION_TYPES,
         });
       }
     } else if (record && searchBarText) {

@@ -1,3 +1,4 @@
+import { ArIO, ArIOReadable, ArIOWritable } from '@ar.io/sdk';
 import { ArNSServiceError } from '@src/utils/errors';
 import fetchRetry from 'fetch-retry';
 import { chunk } from 'lodash';
@@ -40,6 +41,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
   protected _cache: TransactionCache & KVCache;
   protected _arweave: ArweaveDataProvider;
   protected _http;
+  protected _arioContract: ArIOReadable | ArIOWritable;
 
   constructor({
     url,
@@ -63,16 +65,21 @@ export class ARNSContractCache implements SmartweaveContractCache {
         return Math.pow(2, attempt) * 500; // 500, 1000, 2000
       },
     }),
+    arioContract = ArIO.init({
+      contractTxId: ARNS_REGISTRY_ADDRESS.toString(),
+    }),
   }: {
     url: string;
     arweave: ArweaveDataProvider;
     cache?: TransactionCache & KVCache;
     http?: any;
+    arioContract?: ArIOReadable | ArIOWritable;
   }) {
     this._url = url;
     this._cache = cache;
     this._arweave = arweave;
     this._http = http;
+    this._arioContract = arioContract;
   }
 
   async getContractState<T extends ANTContractJSON | ARNSContractJSON>(
@@ -232,7 +239,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
     type: 'lease' | 'permabuy';
   }): Promise<boolean> {
     return this.getAuction({ contractTxId, domain, type })
-      .then((auction: Auction) => auction.isActive)
+      .then((auction) => (auction?.isActive ? true : false))
       .catch((e) => {
         console.error(e);
         return false;
@@ -286,22 +293,10 @@ export class ARNSContractCache implements SmartweaveContractCache {
       })
       .sort((a, b) => +b.timestamp - +a.timestamp)[0];
 
-    const urlParams =
-      type || cachedAuction?.payload?.type
-        ? new URLSearchParams({
-            type: type ?? cachedAuction!.payload?.type.toString(),
-          })
-        : '';
-
-    const auctionRes = await this._http(
-      `${
-        this._url
-      }/v1/contract/${contractTxId.toString()}/auctions/${domain}?${urlParams.toString()}`,
-    ).catch(() => undefined);
-    const { result: auction } =
-      auctionRes && auctionRes.ok
-        ? await auctionRes.json()
-        : { result: undefined };
+    const auction = await this._arioContract.getAuction({
+      domain,
+      type: type ?? (cachedAuction!.payload?.type.toString() as any),
+    });
 
     if (!auction) {
       throw new Error(
@@ -309,7 +304,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
       );
     }
 
-    const res = {
+    const res: Auction = {
       ...auction,
       ...(cachedAuction?.payload
         ? {
@@ -319,8 +314,8 @@ export class ARNSContractCache implements SmartweaveContractCache {
             initiator: cachedAuction.deployer,
           }
         : {}),
-    };
-    res.currentPrice = mioToIo(res.currentPrice);
+    } as unknown as Auction;
+    res.currentPrice = mioToIo(res.currentPrice ?? 0);
     res.floorPrice = mioToIo(res.floorPrice);
     res.startPrice = mioToIo(res.startPrice);
     res.prices = Object.entries(res.prices)
@@ -360,10 +355,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
     address?: ArweaveTransactionID;
     contractTxId: ArweaveTransactionID;
   }): Promise<string[]> {
-    const res = await this._http(
-      `${this._url}/v1/contract/${contractTxId.toString()}/auctions`,
-    );
-    const { auctions } = await res.json();
+    const auctions = await this._arioContract.getAuctions();
     const domainsInAuction = new Set(Object.keys(auctions));
 
     if (address) {
