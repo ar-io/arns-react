@@ -1,5 +1,5 @@
 import { CheckCircleFilled } from '@ant-design/icons';
-import { ANT } from '@ar.io/sdk';
+import { ANT, mIOToken } from '@ar.io/sdk';
 import { InsufficientFundsError, ValidationError } from '@src/utils/errors';
 import { Tooltip } from 'antd';
 import emojiRegex from 'emoji-regex';
@@ -80,6 +80,7 @@ function RegisterNameForm() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [hasValidationErrors, setHasValidationErrors] =
     useState<boolean>(false);
+  const [validatingNext, setValidatingNext] = useState<boolean>(false);
   const ioFee = fee?.[ioTicker];
   const feeError = ioFee && ioFee < 0;
 
@@ -204,15 +205,19 @@ function RegisterNameForm() {
         return;
       }
 
-      const ioBalance = await arioContract.getBalance({
-        address: walletAddress.toString(),
-      });
+      setValidatingNext(true);
+
+      const ioBalance = await arioContract
+        .getBalance({
+          address: walletAddress.toString(),
+        })
+        .then((balance) => new mIOToken(balance).toIO());
 
       const balanceErrors = userHasSufficientBalance<{
         [x: string]: number;
         AR: number;
       }>({
-        balances: { AR: balances.ar, [ioTicker]: ioBalance },
+        balances: { AR: balances.ar, [ioTicker]: ioBalance.valueOf() },
         costs: { AR: fee.ar, [ioTicker]: fee[ioTicker] } as {
           [x: string]: number;
           AR: number;
@@ -234,7 +239,10 @@ function RegisterNameForm() {
       }
     } catch (error: any) {
       eventEmitter.emit('error', error);
+      setValidatingNext(false);
       return;
+    } finally {
+      setValidatingNext(false);
     }
 
     const leaseDurationType = auction?.isRequiredToBeAuctioned
@@ -676,6 +684,10 @@ function RegisterNameForm() {
           </div>
         </div>
       </div>
+      <PageLoader
+        loading={validatingNext}
+        message={'Validating transaction parameters...'}
+      />
     </div>
   );
 }
