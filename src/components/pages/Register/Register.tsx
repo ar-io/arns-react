@@ -1,5 +1,5 @@
 import { CheckCircleFilled } from '@ant-design/icons';
-import { ANT, mIOToken } from '@ar.io/sdk';
+import { ANT, mIOToken } from '@ar.io/sdk/web';
 import { InsufficientFundsError, ValidationError } from '@src/utils/errors';
 import { Tooltip } from 'antd';
 import emojiRegex from 'emoji-regex';

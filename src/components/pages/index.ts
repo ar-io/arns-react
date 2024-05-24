@@ -1,4 +1,3 @@
-import About from './About/About';
 import Auctions from './Auctions/Auctions';
 import Home from './Home/Home';
 import Manage from './Manage/Manage';
@@ -9,7 +8,6 @@ import Register from './Register/Register';
 import Undernames from './Undernames/Undernames';
 
 export {
-  About,
   Auctions,
   Home,
   Manage,
