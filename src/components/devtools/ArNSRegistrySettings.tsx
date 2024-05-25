@@ -3,13 +3,19 @@ import {
   ARNS_TESTNET_REGISTRY_TX,
   ArIO,
 } from '@ar.io/sdk/web';
+import { ARNSContractCache } from '@src/services/arweave/ARNSContractCache';
+import { ArweaveCompositeDataProvider } from '@src/services/arweave/ArweaveCompositeDataProvider';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import { SimpleArweaveDataProvider } from '@src/services/arweave/SimpleArweaveDataProvider';
+import { WarpDataProvider } from '@src/services/arweave/WarpDataProvider';
+import { ArConnectWalletConnector } from '@src/services/wallets';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { VALIDATION_INPUT_TYPES } from '@src/types';
 import { isArweaveTransactionID } from '@src/utils';
-import { ARNS_REGISTRY_ADDRESS } from '@src/utils/constants';
+import { ARNS_REGISTRY_ADDRESS, ARNS_SERVICE_API } from '@src/utils/constants';
 import { Collapse, Space } from 'antd';
+import Arweave from 'arweave';
 import { useEffect, useState } from 'react';
 
 import ValidationInput from '../inputs/text/ValidationInput/ValidationInput';
@@ -36,14 +42,41 @@ function ArNSRegistrySettings() {
         type: 'setArNSContractId',
         payload: new ArweaveTransactionID(id.trim()),
       });
+
+      const arIOContract = ArIO.init({
+        contractTxId: id.trim(),
+        ...(wallet?.arconnectSigner ? { signer: wallet.arconnectSigner } : {}),
+      });
       dispatchGlobalState({
         type: 'setArIOContract',
-        payload: ArIO.init({
-          contractTxId: id.trim(),
-          ...(wallet?.arconnectSigner
-            ? { signer: wallet.arconnectSigner }
-            : {}),
-        }),
+        payload: arIOContract,
+      });
+
+      const gateway = 'ar-io.dev';
+      const arweave = new Arweave({
+        host: gateway,
+        protocol: 'https',
+      });
+      const warpDataProvider = new WarpDataProvider(
+        arweave,
+        wallet ?? new ArConnectWalletConnector(),
+      );
+      const arweaveDataProvider = new SimpleArweaveDataProvider(arweave);
+      const contractCacheProviders = new ARNSContractCache({
+        url: ARNS_SERVICE_API,
+        arweave: arweaveDataProvider,
+        arioContract: arIOContract,
+      });
+
+      const provider = new ArweaveCompositeDataProvider(
+        arweaveDataProvider,
+        warpDataProvider,
+        contractCacheProviders,
+      );
+
+      dispatchGlobalState({
+        type: 'setGateway',
+        payload: { gateway, provider },
       });
     }
   }
