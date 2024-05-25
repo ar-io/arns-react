@@ -8,8 +8,8 @@ import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ARNSRecordEntry,
+  ARNS_INTERACTION_TYPES,
   INTERACTION_NAMES,
-  INTERACTION_TYPES,
   IncreaseUndernamesPayload,
 } from '../../../types';
 import { isARNSDomainNameValid, lowerCaseDomain, sleep } from '../../../utils';
@@ -237,10 +237,14 @@ function UpgradeUndernames() {
                   });
                   dispatchTransactionState({
                     type: 'setInteractionType',
-                    payload: INTERACTION_TYPES.INCREASE_UNDERNAMES,
+                    payload: ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES,
+                  });
+                  dispatchTransactionState({
+                    type: 'setWorkflowName',
+                    payload: ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES,
                   });
                   // navigate to the transaction page, which will load the updated state of the transaction context
-                  navigate('/transaction', {
+                  navigate('/transaction/review', {
                     state: `/manage/names/${name}/upgrade-undernames`,
                   });
                 }

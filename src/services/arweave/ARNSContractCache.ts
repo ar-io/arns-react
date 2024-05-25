@@ -15,6 +15,7 @@ import {
   INTERACTION_PRICE_PARAMS,
   KVCache,
   SmartweaveContractCache,
+  TRANSACTION_TYPES,
   TransactionCache,
 } from '../../types';
 import {
@@ -295,7 +296,10 @@ export class ARNSContractCache implements SmartweaveContractCache {
 
     const auction = await this._arioContract.getAuction({
       domain,
-      type: type ?? (cachedAuction!.payload?.type.toString() as any),
+      type:
+        type ??
+        (cachedAuction?.payload?.type.toString() as any) ??
+        TRANSACTION_TYPES.LEASE,
     });
 
     if (!auction) {
@@ -311,7 +315,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
             ...cachedAuction.payload,
             currentPrice: auction.startPrice,
             isActive: !cachedAuction?.isBid,
-            initiator: cachedAuction.deployer,
+            initiator: cachedAuction.deployer.toString(),
           }
         : {}),
     } as unknown as Auction;

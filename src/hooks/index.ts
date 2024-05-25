@@ -2,7 +2,6 @@ export * from './useIsMobile/useIsMobile';
 export * from './useLongPress/useLongPress';
 export * from './useWalletDomains/useWalletDomains';
 export * from './useWalletANTs/useWalletANTs';
-export * from './useTransactionData/useTransactionData';
 export * from './useAuctionInfo/useAuctionInfo';
 export * from './useIsFocused/useIsFocused';
 export * from './useRegistrationStatus/useRegistrationStatus';

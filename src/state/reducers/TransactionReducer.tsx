@@ -1,4 +1,3 @@
-import { TRANSACTION_WORKFLOW_STATUS } from '../../components/layout/TransactionWorkflow/TransactionWorkflow';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import {
   ContractInteraction,
@@ -12,20 +11,12 @@ import {
 
 export type TransactionAction =
   | {
-      type: 'setWorkflowStage';
-      payload: TRANSACTION_WORKFLOW_STATUS;
-    }
-  | {
       type: 'setWorkflowName';
       payload: string;
     }
   | {
       type: 'setInteractionResult';
       payload: ContractInteraction;
-    }
-  | {
-      type: 'setWorkflowStage';
-      payload: TRANSACTION_WORKFLOW_STATUS;
     }
   | { type: 'setTransactionData'; payload: TransactionData }
   | { type: 'setDeployedTransactionId'; payload?: ArweaveTransactionID }
@@ -48,12 +39,6 @@ export const transactionReducer = (
       return {
         ...state,
         signing: action.payload,
-      };
-    }
-    case 'setWorkflowStage': {
-      return {
-        ...state,
-        workflowStage: action.payload,
       };
     }
     case 'setWorkflowName': {

@@ -5,6 +5,7 @@ import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionI
 import {
   ANTContractJSON,
   ARNSMapping,
+  ARNS_INTERACTION_TYPES,
   BuyRecordPayload,
   CONTRACT_TYPES,
   ContractInteraction,
@@ -21,7 +22,6 @@ import {
   SetTickerPayload,
   SmartWeaveActionInput,
   SmartWeaveActionTags,
-  SubmitAuctionBidPayload,
   TRANSACTION_TYPES,
   TransactionData,
   TransactionDataConfig,
@@ -70,15 +70,6 @@ export const WorkflowStepsForInteractions: Record<
   StepProps[]
 > = {
   [INTERACTION_TYPES.BUY_RECORD]: [
-    { title: 'Choose', description: 'Pick a name', status: 'finish' },
-    {
-      title: 'Configure',
-      description: 'Registration Period',
-      status: 'finish',
-    },
-    { title: 'Confirm', description: 'Review Transaction', status: 'process' },
-  ],
-  [INTERACTION_TYPES.SUBMIT_AUCTION_BID]: [
     { title: 'Choose', description: 'Pick a name', status: 'finish' },
     {
       title: 'Configure',
@@ -154,10 +145,6 @@ export const TRANSACTION_DATA_KEYS: Record<
     functionName: 'buyRecord',
     keys: ['name', 'contractTxId', 'auction', 'type'],
   },
-  [INTERACTION_TYPES.SUBMIT_AUCTION_BID]: {
-    functionName: 'submitAuctionBid',
-    keys: ['name', 'contractTxId', 'qty'],
-  },
   [INTERACTION_TYPES.INCREASE_UNDERNAMES]: {
     functionName: 'increaseUndernames',
     keys: ['name', 'qty'],
@@ -217,8 +204,9 @@ export const TRANSACTION_DATA_KEYS: Record<
 };
 
 export const getWorkflowStepsForInteraction = (
-  interaction: ExcludedValidInteractionType,
-): StepProps[] => {
+  interaction?: ExcludedValidInteractionType,
+): StepProps[] | undefined => {
+  if (!interaction) return undefined;
   return structuredClone(WorkflowStepsForInteractions[interaction]);
 };
 
@@ -233,7 +221,7 @@ export function getARNSMappingByInteractionType(
   },
 ): ARNSMapping | undefined {
   switch (interactionType) {
-    case INTERACTION_TYPES.BUY_RECORD: {
+    case ARNS_INTERACTION_TYPES.BUY_RECORD: {
       if (
         !isObjectOfTransactionPayloadType<BuyRecordPayload>(
           transactionData,
@@ -277,40 +265,7 @@ export function getARNSMappingByInteractionType(
       };
     }
 
-    case INTERACTION_TYPES.SUBMIT_AUCTION_BID: {
-      if (
-        !isObjectOfTransactionPayloadType<SubmitAuctionBidPayload>(
-          transactionData,
-          TRANSACTION_DATA_KEYS[INTERACTION_TYPES.SUBMIT_AUCTION_BID].keys,
-        )
-      ) {
-        throw new Error(
-          'transaction data not of correct payload type <SubmitAuctionBidPayload>',
-        );
-      }
-      if (
-        transactionData.contractTxId === ATOMIC_FLAG &&
-        !transactionData.state
-      ) {
-        throw new Error(
-          'Atomic transaction detected but no state present, add the state to continue.',
-        );
-      }
-      return {
-        domain: transactionData.name,
-        contractTxId:
-          transactionData.contractTxId === ATOMIC_FLAG
-            ? transactionData.deployedTransactionId
-            : new ArweaveTransactionID(transactionData.contractTxId),
-        state: transactionData.state ?? undefined,
-        // TODO: set qty for the auction bid based on the auction data
-        overrides: {
-          maxUndernames: `Up to ${DEFAULT_MAX_UNDERNAMES}`,
-        },
-      };
-    }
-
-    case INTERACTION_TYPES.INCREASE_UNDERNAMES: {
+    case ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES: {
       if (
         !isObjectOfTransactionPayloadType<IncreaseUndernamesPayload>(
           transactionData,
@@ -343,7 +298,7 @@ export function getARNSMappingByInteractionType(
         compact: false,
       };
     }
-    case INTERACTION_TYPES.EXTEND_LEASE: {
+    case ARNS_INTERACTION_TYPES.EXTEND_LEASE: {
       if (
         !isObjectOfTransactionPayloadType<ExtendLeasePayload>(
           transactionData,
@@ -727,21 +682,21 @@ export function getLinkId(
   transactionData: TransactionData,
 ): string {
   const isBuyRecord =
-    interactionType === INTERACTION_TYPES.BUY_RECORD &&
+    interactionType === ARNS_INTERACTION_TYPES.BUY_RECORD &&
     isObjectOfTransactionPayloadType<BuyRecordPayload>(
       transactionData,
       TRANSACTION_DATA_KEYS[INTERACTION_TYPES.BUY_RECORD].keys,
     );
 
   const isExtendLease =
-    interactionType === INTERACTION_TYPES.EXTEND_LEASE &&
+    interactionType === ARNS_INTERACTION_TYPES.EXTEND_LEASE &&
     isObjectOfTransactionPayloadType<ExtendLeasePayload>(
       transactionData,
       TRANSACTION_DATA_KEYS[INTERACTION_TYPES.EXTEND_LEASE].keys,
     );
 
   const isIncreaseUndernames =
-    interactionType === INTERACTION_TYPES.INCREASE_UNDERNAMES &&
+    interactionType === ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES &&
     isObjectOfTransactionPayloadType<IncreaseUndernamesPayload>(
       transactionData,
       TRANSACTION_DATA_KEYS[INTERACTION_TYPES.INCREASE_UNDERNAMES].keys,
