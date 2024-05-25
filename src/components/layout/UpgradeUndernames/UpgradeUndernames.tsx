@@ -1,3 +1,4 @@
+import { ArNSNameData } from '@ar.io/sdk';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -7,7 +8,6 @@ import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransacti
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
-  ARNSRecordEntry,
   ARNS_INTERACTION_TYPES,
   INTERACTION_NAMES,
   IncreaseUndernamesPayload,
@@ -31,7 +31,7 @@ function UpgradeUndernames() {
   const [{ arweaveDataProvider, ioTicker }] = useGlobalState();
   const name = location.pathname.split('/').at(-2);
   const [, dispatchTransactionState] = useTransactionState();
-  const [record, setRecord] = useState<ARNSRecordEntry>();
+  const [record, setRecord] = useState<ArNSNameData>();
   const [antContract, setAntContract] = useState<ANTContract>();
   // min count of 1 ~ contract rule
   const [newUndernameCount, setNewUndernameCount] = useState<number>(0);

@@ -1,10 +1,10 @@
+import { ArNSNameData } from '@ar.io/sdk/web';
 import { Buffer } from 'buffer';
 import { CSSProperties } from 'react';
 
 import { ChevronLeftIcon, ChevronRightIcon } from '../../components/icons';
 import {
   ANTContractDomainRecord,
-  ARNSRecordEntry,
   ContractInteraction,
   TRANSACTION_TYPES,
   TransactionTag,
@@ -190,8 +190,8 @@ export function getUndernameCount(records: Record<string, any>): number {
 
 export function buildPendingArNSRecord(
   cachedRecord: ContractInteraction,
-): ARNSRecordEntry {
-  const record: ARNSRecordEntry = {
+): ArNSNameData {
+  const record: ArNSNameData = {
     type:
       cachedRecord.payload.type === TRANSACTION_TYPES.LEASE
         ? TRANSACTION_TYPES.LEASE
@@ -207,6 +207,7 @@ export function buildPendingArNSRecord(
           Math.max(1, +cachedRecord.payload.years) * YEAR_IN_MILLISECONDS
         : undefined,
     undernames: DEFAULT_MAX_UNDERNAMES,
+    purchasePrice: 0,
   };
   return record;
 }

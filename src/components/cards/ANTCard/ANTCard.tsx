@@ -1,3 +1,4 @@
+import { ArNSLeaseData } from '@ar.io/sdk';
 import { Descriptions } from 'antd';
 import { startCase } from 'lodash';
 import { isValidElement, useEffect, useState } from 'react';
@@ -113,8 +114,8 @@ function ANTCard({
 
       let leaseDuration = 'N/A';
       if (record) {
-        leaseDuration = record.endTimestamp
-          ? `${record.endTimestamp * 1000}`
+        leaseDuration = (record as ArNSLeaseData).endTimestamp
+          ? `${(record as ArNSLeaseData).endTimestamp * 1000}`
           : 'Indefinite';
       }
 
