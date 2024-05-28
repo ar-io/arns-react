@@ -1,4 +1,4 @@
-import { ArNSNameData } from '@ar.io/sdk';
+import { ArNSNameData } from '@ar.io/sdk/web';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 

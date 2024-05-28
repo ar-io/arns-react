@@ -1,4 +1,4 @@
-import { ArNSLeaseData, ArNSNameData } from '@ar.io/sdk';
+import { ArNSLeaseData, ArNSNameData } from '@ar.io/sdk/web';
 import ManageAssetButtons from '@src/components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
 import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';

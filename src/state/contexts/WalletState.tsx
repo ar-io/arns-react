@@ -1,4 +1,4 @@
-import { ArIO } from '@ar.io/sdk';
+import { ArIO } from '@ar.io/sdk/web';
 import { ArweaveAppError } from '@src/utils/errors';
 import React, {
   Dispatch,

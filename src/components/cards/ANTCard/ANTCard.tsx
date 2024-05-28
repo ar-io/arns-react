@@ -1,4 +1,4 @@
-import { ArNSLeaseData } from '@ar.io/sdk';
+import { ArNSLeaseData } from '@ar.io/sdk/web';
 import { Descriptions } from 'antd';
 import { startCase } from 'lodash';
 import { isValidElement, useEffect, useState } from 'react';

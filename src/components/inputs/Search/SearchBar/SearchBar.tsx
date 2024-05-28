@@ -1,5 +1,5 @@
 import { CheckCircleFilled, InfoCircleOutlined } from '@ant-design/icons';
-import { ArNSNameData } from '@ar.io/sdk';
+import { ArNSNameData } from '@ar.io/sdk/web';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 

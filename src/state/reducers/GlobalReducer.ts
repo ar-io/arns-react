@@ -1,4 +1,4 @@
-import { ArIOReadable, ArIOWritable } from '@ar.io/sdk';
+import { ArIOReadable, ArIOWritable } from '@ar.io/sdk/web';
 
 import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
 import { GlobalState } from '../contexts/GlobalState';

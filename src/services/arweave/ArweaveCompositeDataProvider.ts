@@ -1,4 +1,4 @@
-import { ArNSNameData } from '@ar.io/sdk';
+import { ArNSNameData } from '@ar.io/sdk/web';
 import { Contract, InteractionResult, Tags } from 'warp-contracts';
 
 import {
