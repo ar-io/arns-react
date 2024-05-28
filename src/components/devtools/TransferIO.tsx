@@ -2,7 +2,7 @@ import { ArIOWritable } from '@ar.io/sdk/web';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { VALIDATION_INPUT_TYPES } from '@src/types';
-import { isArweaveTransactionID, mioToIo } from '@src/utils';
+import { formatIO, isArweaveTransactionID, mioToIo } from '@src/utils';
 import eventEmitter from '@src/utils/events';
 import { Collapse, Space } from 'antd';
 import { useEffect, useState } from 'react';
@@ -50,7 +50,7 @@ function TransferIO() {
           target: toAddress.trim(),
           qty: quantity,
         });
-        console.log(tx);
+        alert(`Transfer of ${quantity} successful: ${tx.id}`);
       }
     } catch (error) {
       eventEmitter.emit('error', error);
@@ -110,7 +110,9 @@ function TransferIO() {
               ) : (
                 <></>
               )}
-              <span className="grey text-medium">Amount: {quantity}</span>
+              <span className="grey text-medium">
+                Amount: {formatIO(quantity)}
+              </span>
               <ValidationInput
                 catchInvalidInput={true}
                 inputClassName={'domain-settings-input'}
@@ -129,7 +131,7 @@ function TransferIO() {
               <span style={{ color: 'var(--accent)' }}>
                 {loading
                   ? 'Loading balance...'
-                  : `Balance: ${Math.round(mioToIo(ioBalance))} IO`}
+                  : `Balance: ${formatIO(Math.round(mioToIo(ioBalance)))} IO`}
               </span>
               <button
                 className="button-secondary center"
