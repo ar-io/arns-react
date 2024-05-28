@@ -1,4 +1,10 @@
-import { ArIO, ArIOReadable, ArIOWritable, ArNSNameData } from '@ar.io/sdk/web';
+import {
+  ArIO,
+  ArIOReadable,
+  ArIOWritable,
+  ArNSNameData,
+  mIOToken,
+} from '@ar.io/sdk/web/web';
 import fetchRetry from 'fetch-retry';
 
 import {
@@ -120,16 +126,13 @@ export class ARNSContractCache implements SmartweaveContractCache {
   }
   // TODO: replace with ArIO sdk implementation
   async getContractBalanceForWallet(
-    contractTxId: ArweaveTransactionID,
     wallet: ArweaveTransactionID,
   ): Promise<number> {
-    const res = await this._http(
-      `${
-        this._url
-      }/v1/contract/${contractTxId.toString()}/balances/${wallet.toString()}`,
-    );
-    const { balance } = await res.json();
-    return mioToIo(+balance) ?? 0;
+    return await this._arioContract
+      .getBalance({
+        address: wallet.toString(),
+      })
+      .then((b) => new mIOToken(b).toIO().valueOf());
   }
 
   async getContractsForWallet(
@@ -480,19 +483,10 @@ export class ARNSContractCache implements SmartweaveContractCache {
     return { ...cachedRegistrations, ...results };
   }
 
-  async getTokenBalance(
-    address: ArweaveTransactionID,
-    contractTxId: ArweaveTransactionID,
-  ): Promise<number> {
-    const res = await this._http(
-      `${
-        this._url
-      }/v1/contract/${contractTxId.toString()}/balances/${address.toString()}`,
-    ).catch(() => undefined);
-
-    const { balance } =
-      res && res.ok ? await res.json() : { balance: undefined };
-
+  async getTokenBalance(address: ArweaveTransactionID): Promise<number> {
+    const balance = await this._arioContract.getBalance({
+      address: address.toString(),
+    });
     const cachedRegistryInteractions = await this._cache.getCachedInteractions(
       ARNS_REGISTRY_ADDRESS,
     );
@@ -501,7 +495,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
       .filter((interaction) => interaction.payload.qty)
       .reduce((acc, interaction) => acc + +interaction.payload.qty, 0);
 
-    return mioToIo(balance - cachedBalance);
+    return new mIOToken(balance - cachedBalance).toIO().valueOf();
   }
 
   async getPriceForInteraction(

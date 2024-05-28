@@ -1,4 +1,5 @@
 import { ArIOReadable, ArIOWritable } from '@ar.io/sdk/web';
+import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 
 import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
 import { GlobalState } from '../contexts/GlobalState';
@@ -10,6 +11,10 @@ export type GlobalAction =
         gateway: string;
         provider: ArweaveCompositeDataProvider;
       };
+    }
+  | {
+      type: 'setArNSContractId';
+      payload: ArweaveTransactionID;
     }
   | {
       type: 'setBlockHeight';
@@ -50,6 +55,11 @@ export const reducer = (
       return {
         ...state,
         arioContract: action.payload,
+      };
+    case 'setArNSContractId':
+      return {
+        ...state,
+        arnsContractId: action.payload,
       };
     default:
       return state;

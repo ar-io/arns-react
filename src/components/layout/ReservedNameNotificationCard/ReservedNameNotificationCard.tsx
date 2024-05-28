@@ -1,30 +1,10 @@
-import { ARIO_DISCORD_LINK } from '../../../utils/constants';
 import { BellIcon } from '../../icons';
 
 const ReservedNameNotificationCard = () => {
   const message = (
     <span>
-      This name is currently reserved. Please reach out to us on{' '}
-      <a
-        target="_blank"
-        href={ARIO_DISCORD_LINK}
-        rel="noreferrer"
-        className="link text-medium"
-        style={{ display: 'inline' }}
-      >
-        Discord
-      </a>{' '}
-      or sign up for our{' '}
-      <a
-        target="_blank"
-        href={`https://ar.io/newsletter/`}
-        rel="noreferrer"
-        className="link text-medium"
-        style={{ display: 'inline' }}
-      >
-        newsletter
-      </a>{' '}
-      for additional information.
+      Names that are 4 characters or less are currently not available for
+      purchase.
     </span>
   );
 

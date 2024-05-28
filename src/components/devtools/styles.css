@@ -1,0 +1,24 @@
+.ario-collapse-content-box {
+  background: var(--text-faded);
+  border-radius: 5px;
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+}
+
+.ario-collapse-header {
+  background: var(--text-faded);
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+}
+.ario-collapse-header-text {
+  color: var(--accent);
+  font-weight: bold;
+  fill: var(--accent);
+}
+
+.ario-collapse,
+.ario-collapse-item {
+  background: var(--text-faded);
+  border-radius: 5px;
+  height: fit-content;
+}
