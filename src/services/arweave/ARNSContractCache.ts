@@ -1,4 +1,4 @@
-import { ArIO, ArIOReadable, ArIOWritable, mIOToken } from '@ar.io/sdk';
+import { ArIO, ArIOReadable, ArIOWritable, mIOToken } from '@ar.io/sdk/web';
 import { ArNSServiceError } from '@src/utils/errors';
 import fetchRetry from 'fetch-retry';
 import { chunk } from 'lodash';

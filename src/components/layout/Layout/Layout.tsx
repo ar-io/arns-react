@@ -1,3 +1,4 @@
+import DevTools from '@src/components/devtools/DevTools';
 import { Outlet } from 'react-router-dom';
 
 import Footer from '../Footer/Footer';
@@ -44,6 +45,7 @@ function Layout() {
       >
         <Footer />
       </div>
+      <DevTools />
     </div>
   );
 }
