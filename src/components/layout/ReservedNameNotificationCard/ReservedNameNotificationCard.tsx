@@ -3,7 +3,7 @@ import { BellIcon } from '../../icons';
 const ReservedNameNotificationCard = () => {
   const message = (
     <span>
-      Names that are 4 characters and less are currently not available for
+      Names that are 4 characters or less are currently not available for
       purchase.
     </span>
   );
