@@ -1,3 +1,5 @@
+import NeedTokens from '@src/components/modals/NeedTokens';
+
 import { useIsMobile } from '../../../../hooks';
 import { useWalletState } from '../../../../state/contexts/WalletState';
 import { ROUTES } from '../../../../utils/routes';
@@ -17,11 +19,8 @@ const NavGroup = () => {
     >
       {!isMobile ? (
         <>
-          <NavBarLink
-            path={'https://ar.io/arns'}
-            linkText={'Need test tokens?'}
-            target={'_blank'}
-          />
+          <NeedTokens />
+
           {Object.entries(ROUTES).map(([key, value]) => {
             if (!value.index && !value.protected)
               return (
