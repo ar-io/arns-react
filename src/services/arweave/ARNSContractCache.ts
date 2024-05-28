@@ -4,7 +4,7 @@ import {
   ArIOWritable,
   ArNSNameData,
   mIOToken,
-} from '@ar.io/sdk/web/web';
+} from '@ar.io/sdk/web';
 import fetchRetry from 'fetch-retry';
 
 import {
