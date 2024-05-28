@@ -420,7 +420,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
     throw new Error('Error getting record');
   }
 
-  async getRecords<ArNSNameData>({
+  async getRecords({
     contractTxId = ARNS_REGISTRY_ADDRESS,
     filters,
   }: {
@@ -443,18 +443,20 @@ export class ARNSContractCache implements SmartweaveContractCache {
       );
 
     const contractTxIdSet = new Set([
-      ...(filters?.contractTxId
-        ? filters.contractTxId.map((id) => id.toString())
-        : []),
+      ...(filters?.contractTxId?.map((id) => id.toString()) ?? []),
     ]);
 
-    const records = Object.entries(await this._arioContract.getArNSRecords());
+    const records = Object.entries(
+      (await this._arioContract.getArNSRecords()) as Record<
+        string,
+        ArNSNameData
+      >,
+    );
 
     const results = records.reduce(
       (acc: Record<string, ArNSNameData>, [domain, record]) => {
         if (contractTxIdSet.has(record.contractTxId.toString())) {
-          // got an error saying that record could be instantiated with a type not equal to ArNSName data or some such.
-          acc[domain] = record as ArNSNameData;
+          return { ...acc, [domain]: record };
         }
         return acc;
       },
@@ -471,9 +473,8 @@ export class ARNSContractCache implements SmartweaveContractCache {
             value: interaction.id,
           });
         } else if (contractTxId === ARNS_REGISTRY_ADDRESS) {
-          acc[interaction.payload.name as string] = buildPendingArNSRecord(
-            interaction,
-          ) as ArNSNameData;
+          acc[interaction.payload.name as string] =
+            buildPendingArNSRecord(interaction);
         }
 
         return acc;
