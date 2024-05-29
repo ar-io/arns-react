@@ -471,8 +471,11 @@ export class ARNSContractCache implements SmartweaveContractCache {
             value: interaction.id,
           });
         } else if (contractTxId === ARNS_REGISTRY_ADDRESS) {
-          acc[interaction.payload.name as string] =
-            buildPendingArNSRecord(interaction);
+          return {
+            ...acc,
+            [interaction.payload.name as string]:
+              buildPendingArNSRecord(interaction),
+          };
         }
 
         return acc;
