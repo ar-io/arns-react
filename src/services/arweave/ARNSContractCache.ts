@@ -12,7 +12,6 @@ import {
   Auction,
   AuctionSettings,
   ContractInteraction,
-  INTERACTION_PRICE_PARAMS,
   KVCache,
   SmartweaveContractCache,
   TRANSACTION_TYPES,
@@ -531,33 +530,6 @@ export class ARNSContractCache implements SmartweaveContractCache {
     return new mIOToken(balance - cachedBalance).toIO().valueOf();
   }
 
-  async getPriceForInteraction(
-    { interactionName, payload }: INTERACTION_PRICE_PARAMS,
-    contractTxId: ArweaveTransactionID,
-  ): Promise<number> {
-    const params = new URLSearchParams(
-      Object.entries({
-        interactionName: interactionName,
-        ...payload,
-      }).map(([key, value]) => [key, value.toString()]),
-    );
-
-    const res = await this._http(
-      `${
-        this._url
-      }/v1/contract/${contractTxId.toString()}/read/priceForInteraction?${params.toString()}`,
-    ).catch(() => undefined);
-
-    const {
-      result: { price },
-    } = res && res.ok ? await res.json() : { result: { price: undefined } };
-
-    if (!price) {
-      throw new Error(`Couldn't get price for ${interactionName}`);
-    }
-
-    return mioToIo(price);
-  }
   async buildANTContract(
     contractTxId: ArweaveTransactionID,
   ): Promise<ANTContract> {

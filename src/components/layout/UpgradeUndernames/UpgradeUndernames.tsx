@@ -1,3 +1,4 @@
+import { AR_IO_CONTRACT_FUNCTIONS, mIOToken } from '@ar.io/sdk/web';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -9,7 +10,6 @@ import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ARNSRecordEntry,
   ARNS_INTERACTION_TYPES,
-  INTERACTION_NAMES,
   IncreaseUndernamesPayload,
 } from '../../../types';
 import { isARNSDomainNameValid, lowerCaseDomain, sleep } from '../../../utils';
@@ -28,7 +28,7 @@ function UpgradeUndernames() {
   const isMobile = useIsMobile();
   const location = useLocation();
   const navigate = useNavigate();
-  const [{ arweaveDataProvider, ioTicker }] = useGlobalState();
+  const [{ arweaveDataProvider, arioContract, ioTicker }] = useGlobalState();
   const name = location.pathname.split('/').at(-2);
   const [, dispatchTransactionState] = useTransactionState();
   const [record, setRecord] = useState<ARNSRecordEntry>();
@@ -58,14 +58,15 @@ function UpgradeUndernames() {
           new Error('Invalid undername count, must be a number greater than 0'),
         );
       }
-      const price = await arweaveDataProvider
+      const price = await arioContract
         .getPriceForInteraction({
-          interactionName: INTERACTION_NAMES.INCREASE_UNDERNAME_COUNT,
+          interactionName: AR_IO_CONTRACT_FUNCTIONS.INCREASE_UNDERNAME_COUNT,
           payload: {
             name: name,
             qty: newUndernameCount,
           },
         })
+        .then((price) => new mIOToken(price).toIO().valueOf())
         .catch(() => {
           eventEmitter.emit(
             'error',

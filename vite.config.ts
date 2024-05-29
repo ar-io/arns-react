@@ -52,7 +52,7 @@ export default defineConfig({
   },
   // required for warp-contracts
   optimizeDeps: {
-    exclude: ['vm2'],
+    exclude: ['vm2', 'buffer'],
   },
   resolve: {
     alias: {

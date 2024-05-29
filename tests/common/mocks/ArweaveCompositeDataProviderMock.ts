@@ -38,7 +38,6 @@ const ArweaveCompositeDataProviderMock = jest.fn(() => ({
   getAuctionSettings: jest.fn(() => Promise.resolve()),
   getDomainsInAuction: jest.fn(() => Promise.resolve()),
   getTokenBalance: jest.fn(() => Promise.resolve()),
-  getPriceForInteraction: jest.fn(() => Promise.resolve()),
   buildANTContract: jest.fn(() => Promise.resolve()),
   getStateField: jest.fn(() => Promise.resolve()),
 }));

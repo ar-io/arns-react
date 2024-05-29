@@ -9,7 +9,6 @@ import {
   Auction,
   AuctionSettings,
   ContractInteraction,
-  INTERACTION_PRICE_PARAMS,
   SmartweaveContractCache,
   SmartweaveContractInteractionProvider,
   TRANSACTION_TYPES,
@@ -338,15 +337,6 @@ export class ArweaveCompositeDataProvider
     return this._contractProvider.getTokenBalance(address, contractTxId);
   }
 
-  getPriceForInteraction(
-    interaction: INTERACTION_PRICE_PARAMS,
-    contractTxId = ARNS_REGISTRY_ADDRESS,
-  ): Promise<number> {
-    return this._contractProvider.getPriceForInteraction(
-      interaction,
-      contractTxId,
-    );
-  }
   async buildANTContract(
     contractTxId: ArweaveTransactionID,
   ): Promise<ANTContract> {

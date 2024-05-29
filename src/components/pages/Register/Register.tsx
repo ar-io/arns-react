@@ -142,7 +142,7 @@ function RegisterNameForm() {
             const gas = await arweaveDataProvider.getArPrice(
               SMARTWEAVE_TAG_SIZE,
             );
-            const price = await arweaveDataProvider
+            const price = await arioContract
               .getPriceForInteraction({
                 interactionName: INTERACTION_NAMES.BUY_RECORD,
                 payload: {
@@ -153,6 +153,7 @@ function RegisterNameForm() {
                   contractTxId: ATOMIC_FLAG,
                 },
               })
+              .then((price) => new mIOToken(price).toIO().valueOf())
               .catch(() => {
                 throw new Error('Unable to get purchase price for domain');
               });

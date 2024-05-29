@@ -240,10 +240,6 @@ export interface SmartweaveContractCache {
     };
     address?: ArweaveTransactionID;
   }): Promise<{ [x: string]: T }>;
-  getPriceForInteraction(
-    interaction: INTERACTION_PRICE_PARAMS,
-    contractTxId?: ArweaveTransactionID,
-  ): Promise<number>;
   buildANTContract(contractTxId: ArweaveTransactionID): Promise<ANTContract>;
   getStateField({
     contractTxId,

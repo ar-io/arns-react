@@ -1,3 +1,4 @@
+import { AR_IO_CONTRACT_FUNCTIONS, mIOToken } from '@ar.io/sdk/web';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -9,7 +10,6 @@ import {
   ARNSRecordEntry,
   ARNS_INTERACTION_TYPES,
   ExtendLeasePayload,
-  INTERACTION_NAMES,
   TRANSACTION_TYPES,
 } from '../../../types';
 import {
@@ -35,7 +35,7 @@ import PageLoader from '../progress/PageLoader/PageLoader';
 
 function ExtendLease() {
   // TODO: remove use of source contract
-  const [{ arweaveDataProvider, ioTicker }] = useGlobalState();
+  const [{ arweaveDataProvider, arioContract, ioTicker }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const location = useLocation();
@@ -63,14 +63,15 @@ function ExtendLease() {
 
     setIoFee(undefined);
     const updateIoFee = async () => {
-      const price = await arweaveDataProvider
+      const price = await arioContract
         .getPriceForInteraction({
-          interactionName: INTERACTION_NAMES.EXTEND_RECORD,
+          interactionName: AR_IO_CONTRACT_FUNCTIONS.EXTEND_RECORD,
           payload: {
             name: name,
             years: newLeaseDuration,
           },
         })
+        .then((price) => new mIOToken(price).toIO().valueOf())
         .catch(() => {
           eventEmitter.emit(
             'error',
