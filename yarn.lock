@@ -67,13 +67,13 @@
     resize-observer-polyfill "^1.5.1"
     throttle-debounce "^5.0.0"
 
-"@ar.io/sdk@1.0.7":
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-1.0.7.tgz#8e00d707aaff5ef51165978892f59bdd7730ec7c"
-  integrity sha512-8wjIWBU6r3amKhO3oMdYXYIE+wian1LX0ozzll6mHlzw27ARa4qETGMEkNm+bkLPcYXgkntNG9C/zL9Srhg7sA==
+"@ar.io/sdk@1.0.8-alpha.4":
+  version "1.0.8-alpha.4"
+  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-1.0.8-alpha.4.tgz#2fa5ee89f598fa0aebbc235f3c752749c7a57fea"
+  integrity sha512-6mCUfu3GyYKRHDG30eMtRA6JtQBAo/6C0oxHlctobSnM9LZbQ+dbDlqykLbcAOA5YhLNn18qjb1TatArIbCpHA==
   dependencies:
     arbundles "0.11.0"
-    arweave "1.15.1"
+    arweave "1.14.4"
     axios "1.4.0"
     bunyan "^1.8.15"
     warp-arbundles "^1.0.4"
@@ -3435,20 +3435,20 @@ arweave@1.14.4:
     base64-js "^1.5.1"
     bignumber.js "^9.0.2"
 
-arweave@1.15.1, arweave@^1.15.1:
-  version "1.15.1"
-  resolved "https://registry.yarnpkg.com/arweave/-/arweave-1.15.1.tgz#c6183136b20980c81a8cb77ce6fd9fb333e1a174"
-  integrity sha512-rT7FOwqdudd5npqp4xOYdDT2035LtpcqePjwirh4wjRiEtVsz1FZkRiM2Yj+fOAwYzOm/hNG0GDOipDSaiEGGQ==
+arweave@^1.10.13, arweave@^1.13.7:
+  version "1.13.7"
+  resolved "https://registry.yarnpkg.com/arweave/-/arweave-1.13.7.tgz#cda8534c833baec372a7052c61f53b4e39a886d7"
+  integrity sha512-Hv+x2bSI6UyBHpuVbUDMMpMje1ETfpJWj52kKfz44O0IqDRi/LukOkkDUptup1p6OT6KP1/DdpnUnsNHoskFeA==
   dependencies:
     arconnect "^0.4.2"
     asn1.js "^5.4.1"
     base64-js "^1.5.1"
     bignumber.js "^9.0.2"
 
-arweave@^1.10.13, arweave@^1.13.7:
-  version "1.13.7"
-  resolved "https://registry.yarnpkg.com/arweave/-/arweave-1.13.7.tgz#cda8534c833baec372a7052c61f53b4e39a886d7"
-  integrity sha512-Hv+x2bSI6UyBHpuVbUDMMpMje1ETfpJWj52kKfz44O0IqDRi/LukOkkDUptup1p6OT6KP1/DdpnUnsNHoskFeA==
+arweave@^1.15.1:
+  version "1.15.1"
+  resolved "https://registry.yarnpkg.com/arweave/-/arweave-1.15.1.tgz#c6183136b20980c81a8cb77ce6fd9fb333e1a174"
+  integrity sha512-rT7FOwqdudd5npqp4xOYdDT2035LtpcqePjwirh4wjRiEtVsz1FZkRiM2Yj+fOAwYzOm/hNG0GDOipDSaiEGGQ==
   dependencies:
     arconnect "^0.4.2"
     asn1.js "^5.4.1"

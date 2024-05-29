@@ -1,4 +1,4 @@
-import { ArNSNameData } from '@ar.io/sdk';
+import { ArNSNameData } from '@ar.io/sdk/web';
 
 const ArweaveCompositeDataProviderMock = jest.fn(() => ({
   getArBalance: jest.fn(() => Promise.resolve()),
