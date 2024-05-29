@@ -41,7 +41,7 @@ function ExtendLease() {
   const location = useLocation();
   const navigate = useNavigate();
   const name = location.pathname.split('/').at(-2);
-  const [record, setRecord] = useState<ArNSNameData & ArNSLeaseData>();
+  const [record, setRecord] = useState<ArNSLeaseData>();
   const [registrationType, setRegistrationType] = useState<TRANSACTION_TYPES>();
   const [newLeaseDuration, setNewLeaseDuration] = useState<number>(1);
   const [maxIncrease, setMaxIncrease] = useState<number>(0);
@@ -94,7 +94,7 @@ function ExtendLease() {
       }
       setRegistrationType(domainRecord.type as TRANSACTION_TYPES);
 
-      setRecord(domainRecord as ArNSNameData & ArNSLeaseData);
+      setRecord(domainRecord);
 
       if (!(record as ArNSLeaseData).endTimestamp) {
         setRegistrationType(TRANSACTION_TYPES.BUY);

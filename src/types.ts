@@ -16,16 +16,7 @@ import {
 import { ANTContract } from './services/arweave/ANTContract';
 import { ArweaveTransactionID } from './services/arweave/ArweaveTransactionID';
 
-export type ARNSRecordEntry = {
-  contractTxId: string;
-  startTimestamp: number;
-  endTimestamp?: number;
-  type: TRANSACTION_TYPES;
-  undernames: number;
-  purchasePrice?: number;
-};
-
-export type ARNSDomains = { [x: string]: ARNSRecordEntry };
+export type ARNSDomains = { [x: string]: ArNSNameData };
 
 export type TransactionHeaders = {
   id: string;
