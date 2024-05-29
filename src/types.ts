@@ -235,7 +235,7 @@ export interface SmartweaveContractCache {
       contractTxId?: ArweaveTransactionID[];
     };
     address?: ArweaveTransactionID;
-  }): Promise<{ [x: string]: ArNSNameData }>;
+  }): Promise<ARNSDomains>;
   getPriceForInteraction(
     interaction: INTERACTION_PRICE_PARAMS,
     contractTxId?: ArweaveTransactionID,

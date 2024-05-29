@@ -1,4 +1,3 @@
-import { ArNSNameData } from '@ar.io/sdk/web';
 import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
@@ -8,6 +7,7 @@ import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransa
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import {
   ANTContractJSON,
+  ARNSDomains,
   SetRecordPayload,
   VALIDATION_INPUT_TYPES,
 } from '../../../../types';
@@ -51,9 +51,7 @@ function AddUndernameModal({
   const [undername, setUndername] = useState<string>('');
   const [targetId, setTargetId] = useState<string>('');
   const [ttlSeconds, setTtlSeconds] = useState<number>(MIN_TTL_SECONDS);
-  const [associatedRecords, setAssociatedRecords] = useState<
-    Record<string, ArNSNameData>
-  >({});
+  const [associatedRecords, setAssociatedRecords] = useState<ARNSDomains>({});
   const [maxUndernameLength, setMaxUndernameLength] =
     useState<number>(MAX_UNDERNAME_LENGTH);
 
@@ -107,7 +105,7 @@ function AddUndernameModal({
 
   function getIncompatibleNames(
     undername: string,
-    records: Record<string, ArNSNameData>,
+    records: ARNSDomains,
   ): string[] {
     return Object.keys(records).filter(
       (name: string) => undername.length + name.length > MAX_UNDERNAME_LENGTH,

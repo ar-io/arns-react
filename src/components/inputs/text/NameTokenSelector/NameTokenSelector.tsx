@@ -1,4 +1,3 @@
-import { ArNSNameData } from '@ar.io/sdk/web';
 import { Pagination, PaginationProps, Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
@@ -7,7 +6,11 @@ import { ANTContract } from '../../../../services/arweave/ANTContract';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../../state/contexts/WalletState';
-import { ANTContractJSON, VALIDATION_INPUT_TYPES } from '../../../../types';
+import {
+  ANTContractJSON,
+  ARNSDomains,
+  VALIDATION_INPUT_TYPES,
+} from '../../../../types';
 import { isArweaveTransactionID } from '../../../../utils';
 import { SMARTWEAVE_MAX_INPUT_SIZE } from '../../../../utils/constants';
 import eventEmitter from '../../../../utils/events';
@@ -157,8 +160,7 @@ function NameTokenSelector({
         },
       });
       const contracts: Array<
-        | [ArweaveTransactionID, ANTContractJSON, Record<string, ArNSNameData>]
-        | undefined
+        [ArweaveTransactionID, ANTContractJSON, ARNSDomains] | undefined
       > = await Promise.all(
         contractTxIds.map(async (contractTxId) => {
           const contract = await arweaveDataProvider
@@ -171,7 +173,7 @@ function NameTokenSelector({
             throw new Error('Invalid ANT Contract.');
           }
           const names = Object.keys(associatedRecords).reduce(
-            (acc: Record<string, ArNSNameData>, id: string) => {
+            (acc: ARNSDomains, id: string) => {
               if (
                 associatedRecords[id].contractTxId === contractTxId.toString()
               ) {

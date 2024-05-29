@@ -4,6 +4,7 @@ import { Contract, InteractionResult, Tags } from 'warp-contracts';
 import {
   ANTContractJSON,
   ARNSContractJSON,
+  ARNSDomains,
   ArweaveDataProvider,
   Auction,
   AuctionSettings,
@@ -322,7 +323,7 @@ export class ArweaveCompositeDataProvider
       contractTxId?: ArweaveTransactionID[];
     };
     address?: ArweaveTransactionID;
-  }): Promise<{ [x: string]: ArNSNameData }> {
+  }): Promise<ARNSDomains> {
     return this._contractProvider.getRecords({
       contractTxId,
       filters,

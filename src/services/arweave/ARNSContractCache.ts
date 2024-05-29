@@ -10,6 +10,7 @@ import fetchRetry from 'fetch-retry';
 import {
   ANTContractJSON,
   ARNSContractJSON,
+  ARNSDomains,
   ArweaveDataProvider,
   Auction,
   AuctionSettings,
@@ -429,7 +430,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
     filters: {
       contractTxId?: ArweaveTransactionID[];
     };
-  }): Promise<{ [x: string]: ArNSNameData }> {
+  }): Promise<ARNSDomains> {
     const cachedInteractions = await this._cache
       .getCachedInteractions(contractTxId)
       .then((interactions) =>
@@ -453,20 +454,17 @@ export class ARNSContractCache implements SmartweaveContractCache {
       >,
     );
 
-    const results = records.reduce(
-      (acc: Record<string, ArNSNameData>, [domain, record]) => {
-        if (contractTxIdSet.has(record.contractTxId.toString())) {
-          return { ...acc, [domain]: record };
-        }
-        return acc;
-      },
-      {},
-    );
+    const results = records.reduce((acc: ARNSDomains, [domain, record]) => {
+      if (contractTxIdSet.has(record.contractTxId.toString())) {
+        return { ...acc, [domain]: record };
+      }
+      return acc;
+    }, {});
 
     const domains = Object.keys(results);
 
     const cachedRegistrations = cachedInteractions.reduce(
-      (acc: Record<string, ArNSNameData>, interaction: ContractInteraction) => {
+      (acc: ARNSDomains, interaction: ContractInteraction) => {
         if (domains.includes(interaction.payload.name.toString())) {
           this._cache.del(contractTxId.toString(), {
             key: 'id',

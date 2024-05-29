@@ -1,7 +1,6 @@
-import { ArNSNameData } from '@ar.io/sdk/web';
-import { TRANSACTION_TYPES } from '@src/types';
+import { ARNSDomains, TRANSACTION_TYPES } from '@src/types';
 
-const TEST_RECORDS: Record<string, ArNSNameData> = {
+const TEST_RECORDS: ARNSDomains = {
   ardrive: {
     contractTxId: 'I-cxQhfh0Zb9UqQNizC9PiLC41KpUeA9hjiVV02rQRw',
     startTimestamp: 1711122719,
