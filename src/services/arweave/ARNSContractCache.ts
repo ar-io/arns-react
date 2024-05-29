@@ -203,27 +203,17 @@ export class ARNSContractCache implements SmartweaveContractCache {
   // TODO: implement arns service query for the following 3 functions
   async isDomainReserved({
     domain,
-    contractTxId = ARNS_REGISTRY_ADDRESS,
   }: {
     domain: string;
-    contractTxId: ArweaveTransactionID;
   }): Promise<{ isReserved: boolean; reservedFor?: string }> {
-    const res = await this._http(
-      `${
-        this._url
-      }/v1/contract/${contractTxId.toString()}/reserved/${lowerCaseDomain(
-        domain,
-      )}`,
-    );
-    const { reserved, details } = await res.json();
-    if (reserved === undefined) {
-      throw new Error('Error checking if domain is reserved');
-    }
+    const reservedData = await this._arioContract.getArNSReservedName({
+      domain,
+    });
 
-    const isReserved = reserved || isDomainReservedLength(domain);
+    const isReserved = !!reservedData || isDomainReservedLength(domain);
     return {
       isReserved,
-      reservedFor: details && details.target,
+      reservedFor: reservedData && reservedData.target,
     };
   }
 
