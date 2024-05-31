@@ -1,3 +1,4 @@
+import { mIOToken } from '@ar.io/sdk/web';
 import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
@@ -16,7 +17,7 @@ import { WalletAddress } from '../../layout/WalletAddress/WalletAddress';
 import './styles.css';
 
 function NavMenuCard() {
-  const [{ arnsContractId, arweaveDataProvider, ioTicker }] = useGlobalState();
+  const [{ arweaveDataProvider, arioContract, ioTicker }] = useGlobalState();
   const [showMenu, setShowMenu] = useState(false);
   const [walletDetails, setWalletDetails] = useState<{
     AR: number | undefined | string;
@@ -53,10 +54,11 @@ function NavMenuCard() {
   }
 
   async function fetchWalletDetails(walletAddress: ArweaveTransactionID) {
-    const ioBalance = await arweaveDataProvider.getContractBalanceForWallet(
-      arnsContractId,
-      walletAddress,
-    );
+    const ioBalance = await arioContract
+      .getBalance({
+        address: walletAddress.toString(),
+      })
+      .then((balance) => new mIOToken(balance).toIO().valueOf());
     const arBalance = await arweaveDataProvider.getArBalance(walletAddress);
     const [formattedBalance, formattedIOBalance] = [arBalance, ioBalance].map(
       (balance: string | number) =>
