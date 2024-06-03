@@ -67,16 +67,16 @@
     resize-observer-polyfill "^1.5.1"
     throttle-debounce "^5.0.0"
 
-"@ar.io/sdk@1.0.8":
-  version "1.0.8"
-  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-1.0.8.tgz#920609d6048b75a7b80e5dd66aeb50b7c20c238a"
-  integrity sha512-YHSy2F+W1jPRhxflpXdU5kEJqAfPxM1f0ncX4FgNLMR6cjpdhXCIJfMuvrPUiaQf1UBobQX4QZ0EUx88Muys1g==
+"@ar.io/sdk@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-1.1.0.tgz#b9519823f3f43c6be694d99900687eeb68774b8b"
+  integrity sha512-f/GAG0bSsrFj9NuSYar5WIXl8Tsgq+hV8svgzdaP3a9iTxjcYdV9sEOyujiNjFPlp8TqREKKl381n7IcHBYOgg==
   dependencies:
     arbundles "0.11.0"
     arweave "1.14.4"
-    axios "1.4.0"
+    axios "1.6.0"
+    axios-retry "^4.3.0"
     bunyan "^1.8.15"
-    warp-arbundles "^1.0.4"
     warp-contracts "1.4.45"
 
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.10.4", "@babel/code-frame@^7.12.13", "@babel/code-frame@^7.16.7", "@babel/code-frame@^7.22.13", "@babel/code-frame@^7.23.5":
@@ -3534,10 +3534,17 @@ axe-core@=4.7.0:
   resolved "https://registry.yarnpkg.com/axe-core/-/axe-core-4.7.0.tgz#34ba5a48a8b564f67e103f0aa5768d76e15bbbbf"
   integrity sha512-M0JtH+hlOL5pLQwHOLNYZaXuhqmvS8oExsqB1SBYgA4Dk7u/xx+YdGHXaK5pyUfed5mYXdlYiphWq3G8cRi5JQ==
 
-axios@1.4.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-1.4.0.tgz#38a7bf1224cd308de271146038b551d725f0be1f"
-  integrity sha512-S4XCWMEmzvo64T9GfvQDOXgYRDJ/wsSZc7Jvdgx5u1sd0JwsuPLqb3SYmusag+edF6ziyMensPVqLTSc1PiSEA==
+axios-retry@^4.3.0:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/axios-retry/-/axios-retry-4.3.0.tgz#43d10bb3675286d116e0a37350ff73aec36ebb80"
+  integrity sha512-vUAQ3bi02Q++b8aAn3fuM03qRKFLZ6BPcqSVsOpgWeww2jrYFpu9SKb9VuctvxrJuRCWM/voDuuRAD7v3A1G5g==
+  dependencies:
+    is-retry-allowed "^2.2.0"
+
+axios@1.6.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.6.0.tgz#f1e5292f26b2fd5c2e66876adc5b06cdbd7d2102"
+  integrity sha512-EZ1DYihju9pwVB+jg67ogm+Tmqc6JmhamRN6I4Zt8DfZu5lbcQGw3ozH9lFejSJgs/ibaef3A9PMXPLeefFGJg==
   dependencies:
     follow-redirects "^1.15.0"
     form-data "^4.0.0"
@@ -6006,6 +6013,11 @@ is-regex@^1.1.4:
   dependencies:
     call-bind "^1.0.2"
     has-tostringtag "^1.0.0"
+
+is-retry-allowed@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/is-retry-allowed/-/is-retry-allowed-2.2.0.tgz#88f34cbd236e043e71b6932d09b0c65fb7b4d71d"
+  integrity sha512-XVm7LOeLpTW4jV19QSH38vkswxoLud8sQ57YwJVTPWdiaI9I8keEhGFpBlslyVsgdQy4Opg8QOLb8YRgsyZiQg==
 
 is-set@^2.0.1, is-set@^2.0.2:
   version "2.0.2"
