@@ -1,10 +1,10 @@
+import { ArNSNameData } from '@ar.io/sdk/web';
 import { Contract, InteractionResult, Tags } from 'warp-contracts';
 
 import {
-  ANTContractDomainRecord,
   ANTContractJSON,
   ARNSContractJSON,
-  ARNSRecordEntry,
+  ARNSDomains,
   ArweaveDataProvider,
   Auction,
   AuctionSettings,
@@ -309,11 +309,11 @@ export class ArweaveCompositeDataProvider
   }: {
     domain: string;
     contractTxId?: ArweaveTransactionID;
-  }): Promise<ARNSRecordEntry> {
+  }): Promise<ArNSNameData> {
     return this._contractProvider.getRecord({ domain, contractTxId });
   }
 
-  async getRecords<T extends ARNSRecordEntry | ANTContractDomainRecord>({
+  async getRecords({
     contractTxId = ARNS_REGISTRY_ADDRESS,
     filters,
     address,
@@ -323,8 +323,8 @@ export class ArweaveCompositeDataProvider
       contractTxId?: ArweaveTransactionID[];
     };
     address?: ArweaveTransactionID;
-  }): Promise<{ [x: string]: T }> {
-    return this._contractProvider.getRecords<T>({
+  }): Promise<ARNSDomains> {
+    return this._contractProvider.getRecords({
       contractTxId,
       filters,
       address,

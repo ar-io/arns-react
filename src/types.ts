@@ -1,4 +1,9 @@
-import { ANTState, ArNSAuctionData, ArconnectSigner } from '@ar.io/sdk/web';
+import {
+  ANTState,
+  ArNSAuctionData,
+  ArNSNameData,
+  ArconnectSigner,
+} from '@ar.io/sdk/web';
 import { ApiConfig } from 'arweave/node/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
 import {
@@ -11,16 +16,7 @@ import {
 import { ANTContract } from './services/arweave/ANTContract';
 import { ArweaveTransactionID } from './services/arweave/ArweaveTransactionID';
 
-export type ARNSRecordEntry = {
-  contractTxId: string;
-  startTimestamp: number;
-  endTimestamp?: number;
-  type: TRANSACTION_TYPES;
-  undernames: number;
-  purchasePrice?: number;
-};
-
-export type ARNSDomains = { [x: string]: ARNSRecordEntry };
+export type ARNSDomains = Record<string, ArNSNameData>;
 
 export type TransactionHeaders = {
   id: string;
@@ -119,7 +115,7 @@ export type ANTContractFields = keyof ANTContractJSON;
 
 export type ARNSMapping = {
   domain: string;
-  record?: ARNSRecordEntry;
+  record?: ArNSNameData;
   contractTxId?: ArweaveTransactionID | 'atomic';
   state?: ANTContractJSON;
   overrides?: { [x: string]: JSX.Element | string | number };
@@ -223,12 +219,12 @@ export interface SmartweaveContractCache {
   }: {
     domain: string;
     contractTxId?: ArweaveTransactionID;
-  }): Promise<ARNSRecordEntry>;
+  }): Promise<ArNSNameData>;
   getTokenBalance(
     address: ArweaveTransactionID,
     contractTxId: ArweaveTransactionID,
   ): Promise<number>;
-  getRecords<T extends ARNSRecordEntry | ANTContractDomainRecord>({
+  getRecords({
     contractTxId,
     filters,
     address,
@@ -239,7 +235,7 @@ export interface SmartweaveContractCache {
       contractTxId?: ArweaveTransactionID[];
     };
     address?: ArweaveTransactionID;
-  }): Promise<{ [x: string]: T }>;
+  }): Promise<ARNSDomains>;
   getPriceForInteraction(
     interaction: INTERACTION_PRICE_PARAMS,
     contractTxId?: ArweaveTransactionID,
@@ -419,7 +415,7 @@ export type SearchBarFooterProps = {
   isReserved: boolean;
   reservedFor?: ArweaveTransactionID;
   domain?: string;
-  record?: ARNSRecordEntry;
+  record?: ArNSNameData;
   contractTxId?: ArweaveTransactionID;
 };
 

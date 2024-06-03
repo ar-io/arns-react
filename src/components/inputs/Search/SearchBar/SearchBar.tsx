@@ -1,4 +1,5 @@
 import { CheckCircleFilled, InfoCircleOutlined } from '@ant-design/icons';
+import { ArNSNameData } from '@ar.io/sdk/web';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -11,12 +12,7 @@ import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransa
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../../state/contexts/RegistrationState';
 import { useWalletState } from '../../../../state/contexts/WalletState';
-import {
-  ARNSRecordEntry,
-  Auction,
-  SearchBarProps,
-  TRANSACTION_TYPES,
-} from '../../../../types';
+import { Auction, SearchBarProps, TRANSACTION_TYPES } from '../../../../types';
 import {
   decodeDomainToASCII,
   encodeDomainToASCII,
@@ -78,7 +74,7 @@ function SearchBar(props: SearchBarProps) {
   } = useRegistrationStatus(lowerCaseDomain(domain));
   const [auctionInfo, setAuctionInfo] = useState<Auction>();
   const [registeredDomainRecord, setRegisteredDomainRecord] =
-    useState<ARNSRecordEntry>();
+    useState<ArNSNameData>();
 
   const contractTxID = registeredDomainRecord
     ? new ArweaveTransactionID(registeredDomainRecord.contractTxId)

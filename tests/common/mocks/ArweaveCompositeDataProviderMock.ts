@@ -1,4 +1,4 @@
-import { ARNSRecordEntry } from '@src/types';
+import { ArNSNameData } from '@ar.io/sdk/web';
 
 const ArweaveCompositeDataProviderMock = jest.fn(() => ({
   getArBalance: jest.fn(() => Promise.resolve()),
@@ -27,7 +27,7 @@ const ArweaveCompositeDataProviderMock = jest.fn(() => ({
   getContractInteractionsByTimestamp: jest.fn(() => Promise.resolve()),
   getContractInteractionsByTransactionId: jest.fn(() => Promise.resolve()),
   getContractInteractionsByWalletAddress: jest.fn(() => Promise.resolve()),
-  getRecord: jest.fn<Promise<ARNSRecordEntry>, any[]>(() => {
+  getRecord: jest.fn<Promise<ArNSNameData>, any[]>(() => {
     throw new Error('Not implemented');
   }),
   getRecords: jest.fn(() => Promise.resolve()),

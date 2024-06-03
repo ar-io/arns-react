@@ -1,13 +1,16 @@
-import { ArIO, ArIOReadable, ArIOWritable, mIOToken } from '@ar.io/sdk/web';
-import { ArNSServiceError } from '@src/utils/errors';
+import {
+  ArIO,
+  ArIOReadable,
+  ArIOWritable,
+  ArNSNameData,
+  mIOToken,
+} from '@ar.io/sdk/web';
 import fetchRetry from 'fetch-retry';
-import { chunk } from 'lodash';
 
 import {
-  ANTContractDomainRecord,
   ANTContractJSON,
   ARNSContractJSON,
-  ARNSRecordEntry,
+  ARNSDomains,
   ArweaveDataProvider,
   Auction,
   AuctionSettings,
@@ -19,17 +22,12 @@ import {
   TransactionCache,
 } from '../../types';
 import {
-  buildPendingANTRecord,
   buildPendingArNSRecord,
   isArweaveTransactionID,
   isDomainReservedLength,
-  lowerCaseDomain,
   mioToIo,
 } from '../../utils';
-import {
-  ARNS_REGISTRY_ADDRESS,
-  ARWEAVE_TX_LENGTH,
-} from '../../utils/constants';
+import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
 import { ContractInteractionCache } from '../caches/ContractInteractionCache';
 import { LocalStorageCache } from '../caches/LocalStorageCache';
 import { ANTContract } from './ANTContract';
@@ -372,15 +370,10 @@ export class ARNSContractCache implements SmartweaveContractCache {
   }: {
     domain: string;
     contractTxId: ArweaveTransactionID;
-  }): Promise<ARNSRecordEntry> {
-    const res = await this._http(
-      `${
-        this._url
-      }/v1/contract/${contractTxId.toString()}/records/${lowerCaseDomain(
-        domain,
-      )}`,
-    ).catch(() => undefined);
-    const { record } = res && res.ok ? await res.json() : { record: undefined };
+  }): Promise<ArNSNameData> {
+    const record = await this._arioContract.getArNSRecord({
+      domain,
+    });
 
     const cachedInteractions = await this._cache.getCachedInteractions(
       contractTxId,
@@ -417,7 +410,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
     throw new Error('Error getting record');
   }
 
-  async getRecords<T extends ARNSRecordEntry | ANTContractDomainRecord>({
+  async getRecords({
     contractTxId = ARNS_REGISTRY_ADDRESS,
     filters,
   }: {
@@ -426,7 +419,7 @@ export class ARNSContractCache implements SmartweaveContractCache {
     filters: {
       contractTxId?: ArweaveTransactionID[];
     };
-  }): Promise<{ [x: string]: T }> {
+  }): Promise<ARNSDomains> {
     const cachedInteractions = await this._cache
       .getCachedInteractions(contractTxId)
       .then((interactions) =>
@@ -439,64 +432,39 @@ export class ARNSContractCache implements SmartweaveContractCache {
         ),
       );
 
-    // TODO: this doesn't extend well, but allows multiple contractTxIds to be passed in
-    // We'd want to create an array for any key that can be an array and then add it to the
-    // array of [key, value]'s provided to URLSearchParams
-
-    /* NOTE: max url size is 2047, so need to be careful about how many contractTxIds are passed in and chunk accordingly.
-     * no parsing currently needed as only contractTxId is passed in and it is a string, but for other requests we may need to parse for safe url params
-     */
     const contractTxIdSet = new Set([
-      ...(filters?.contractTxId
-        ? filters.contractTxId.map((id) => id.toString())
-        : []),
-    ]); // dedupe to reduce query size
-    const baseUrl = `${
-      this._url
-    }/v1/contract/${contractTxId.toString()}/records?`;
-    const urlMaxLength = 2047;
-    const urlParamSpace = urlMaxLength - baseUrl.length;
-    const paramLength = '&contractTxId='.length + ARWEAVE_TX_LENGTH;
-    const batchSize = Math.floor(urlParamSpace / paramLength);
-    const contractTxIdBatches = chunk([...contractTxIdSet], batchSize);
-    const urlQueryParamBatches = contractTxIdBatches.map((batch) => {
-      const urlQueryParams = new URLSearchParams(
-        batch.map((id) => ['contractTxId', id.toString()]),
-      );
-      return urlQueryParams.toString();
-    });
+      ...(filters?.contractTxId?.map((id) => id.toString()) ?? []),
+    ]);
 
-    const results: { [x: string]: T } = {};
-    await Promise.all(
-      urlQueryParamBatches.map(async (urlQueryParams) => {
-        const { records } = await this._http(
-          `${baseUrl}${urlQueryParams.toString()}`,
-        ).then(async (res: Response) => await res.json());
-        for (const [key, value] of Object.entries(records)) {
-          results[key] = value as any;
-        }
-      }),
-    ).catch((e) => {
-      throw new ArNSServiceError(e.message);
-    });
+    const records = Object.entries(
+      (await this._arioContract.getArNSRecords()) as Record<
+        string,
+        ArNSNameData
+      >,
+    );
 
-    const domains = Object.keys(results ?? {});
+    const results = records.reduce((acc: ARNSDomains, [domain, record]) => {
+      if (contractTxIdSet.has(record.contractTxId.toString())) {
+        return { ...acc, [domain]: record };
+      }
+      return acc;
+    }, {});
+
+    const domains = Object.keys(results);
 
     const cachedRegistrations = cachedInteractions.reduce(
-      (acc: Record<string, T>, interaction: ContractInteraction) => {
+      (acc: ARNSDomains, interaction: ContractInteraction) => {
         if (domains.includes(interaction.payload.name.toString())) {
           this._cache.del(contractTxId.toString(), {
             key: 'id',
             value: interaction.id,
           });
         } else if (contractTxId === ARNS_REGISTRY_ADDRESS) {
-          // arns specific entry
-          const domainName = interaction.payload.name as string;
-          acc[domainName] = buildPendingArNSRecord(interaction) as T;
-        } else {
-          const subdomain = interaction.payload.subdomain as string;
-          // ant specific entry
-          acc[subdomain] = buildPendingANTRecord(interaction) as T;
+          return {
+            ...acc,
+            [interaction.payload.name as string]:
+              buildPendingArNSRecord(interaction),
+          };
         }
 
         return acc;
