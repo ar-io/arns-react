@@ -8,7 +8,7 @@ import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../../state/contexts/WalletState';
 import {
   ANTContractJSON,
-  ARNSRecordEntry,
+  ARNSDomains,
   VALIDATION_INPUT_TYPES,
 } from '../../../../types';
 import { isArweaveTransactionID } from '../../../../utils';
@@ -154,19 +154,13 @@ function NameTokenSelector({
       }
 
       const contractTxIds = fetchedContractTxIds.concat(validImports);
-      const associatedRecords =
-        await arweaveDataProvider.getRecords<ARNSRecordEntry>({
-          filters: {
-            contractTxId: contractTxIds,
-          },
-        });
+      const associatedRecords = await arweaveDataProvider.getRecords({
+        filters: {
+          contractTxId: contractTxIds,
+        },
+      });
       const contracts: Array<
-        | [
-            ArweaveTransactionID,
-            ANTContractJSON,
-            Record<string, ARNSRecordEntry>,
-          ]
-        | undefined
+        [ArweaveTransactionID, ANTContractJSON, ARNSDomains] | undefined
       > = await Promise.all(
         contractTxIds.map(async (contractTxId) => {
           const contract = await arweaveDataProvider
@@ -179,7 +173,7 @@ function NameTokenSelector({
             throw new Error('Invalid ANT Contract.');
           }
           const names = Object.keys(associatedRecords).reduce(
-            (acc: Record<string, ARNSRecordEntry>, id: string) => {
+            (acc: ARNSDomains, id: string) => {
               if (
                 associatedRecords[id].contractTxId === contractTxId.toString()
               ) {

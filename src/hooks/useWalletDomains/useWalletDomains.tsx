@@ -1,3 +1,4 @@
+import { ArNSLeaseData, ArNSNameData } from '@ar.io/sdk/web';
 import ManageAssetButtons from '@src/components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
 import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
@@ -21,7 +22,6 @@ import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useWalletState } from '../../state/contexts/WalletState';
 import {
   ANTContractJSON,
-  ARNSRecordEntry,
   ARNSTableRow,
   ContractInteraction,
 } from '../../types';
@@ -35,7 +35,7 @@ import { DEFAULT_MAX_UNDERNAMES } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 
 type DomainData = {
-  record: ARNSRecordEntry & { domain: string };
+  record: ArNSNameData & { domain: string };
   state?: ANTContractJSON;
   transactionBlockHeight?: number;
   pendingContractInteractions?: ContractInteraction[];
@@ -506,11 +506,10 @@ export function useWalletDomains() {
     const tokenIds = new Set(ids);
     let datas: DomainData[] = [];
     try {
-      const registrations =
-        await arweaveDataProvider.getRecords<ARNSRecordEntry>({
-          filters: { contractTxId: [...tokenIds] },
-          address,
-        });
+      const registrations = await arweaveDataProvider.getRecords({
+        filters: { contractTxId: [...tokenIds] },
+        address,
+      });
       const consolidatedRecords = Object.entries(registrations).map(
         ([domain, record]) => ({ ...record, domain }),
       );
@@ -600,8 +599,8 @@ export function useWalletDomains() {
               : contract.controllers.includes(address.toString())
               ? 'Controller'
               : 'N/A',
-          expiration: record.endTimestamp
-            ? formatDate(record.endTimestamp * 1000)
+          expiration: (record as ArNSLeaseData).endTimestamp
+            ? formatDate((record as ArNSLeaseData).endTimestamp * 1000)
             : 'Indefinite',
           status:
             transactionBlockHeight && currentBlockHeight

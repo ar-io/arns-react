@@ -1,3 +1,4 @@
+import { ArNSLeaseData, ArNSNameData } from '@ar.io/sdk/web';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -6,10 +7,9 @@ import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import {
-  ARNSRecordEntry,
+  ARNS_INTERACTION_TYPES,
   ExtendLeasePayload,
   INTERACTION_NAMES,
-  INTERACTION_TYPES,
   TRANSACTION_TYPES,
 } from '../../../types';
 import {
@@ -41,7 +41,7 @@ function ExtendLease() {
   const location = useLocation();
   const navigate = useNavigate();
   const name = location.pathname.split('/').at(-2);
-  const [record, setRecord] = useState<ARNSRecordEntry>();
+  const [record, setRecord] = useState<ArNSLeaseData>();
   const [registrationType, setRegistrationType] = useState<TRANSACTION_TYPES>();
   const [newLeaseDuration, setNewLeaseDuration] = useState<number>(1);
   const [maxIncrease, setMaxIncrease] = useState<number>(0);
@@ -86,15 +86,17 @@ function ExtendLease() {
 
   async function onLoad(domain: string) {
     try {
-      const domainRecord = await arweaveDataProvider.getRecord({ domain });
+      const domainRecord = (await arweaveDataProvider.getRecord({
+        domain,
+      })) as ArNSLeaseData & ArNSNameData;
       if (!domainRecord?.type) {
         throw new Error(`Unable to get record for ${domain}`);
       }
-      setRegistrationType(domainRecord.type);
+      setRegistrationType(domainRecord.type as TRANSACTION_TYPES);
 
       setRecord(domainRecord);
 
-      if (!domainRecord.endTimestamp) {
+      if (!(record as ArNSLeaseData).endTimestamp) {
         setRegistrationType(TRANSACTION_TYPES.BUY);
         return;
       }
@@ -111,10 +113,11 @@ function ExtendLease() {
           MAX_LEASE_DURATION -
             getLeaseDurationFromEndTimestamp(
               // TODO: remove this when state in contract is fixed. (currently was backfilled incorrectly with ms timestamps)
-              domainRecord.startTimestamp > domainRecord.endTimestamp
+              domainRecord.startTimestamp >
+                (record as ArNSLeaseData).endTimestamp
                 ? domainRecord.startTimestamp
                 : domainRecord.startTimestamp * 1000,
-              domainRecord.endTimestamp * 1000,
+              (record as ArNSLeaseData).endTimestamp * 1000,
             ),
         ),
       );
@@ -288,7 +291,7 @@ function ExtendLease() {
 
                   dispatchTransactionState({
                     type: 'setInteractionType',
-                    payload: INTERACTION_TYPES.EXTEND_LEASE,
+                    payload: ARNS_INTERACTION_TYPES.EXTEND_LEASE,
                   });
                   dispatchTransactionState({
                     type: 'setTransactionData',
@@ -299,7 +302,11 @@ function ExtendLease() {
                       interactionPrice: ioFee,
                     },
                   });
-                  navigate('/transaction', {
+                  dispatchTransactionState({
+                    type: 'setWorkflowName',
+                    payload: ARNS_INTERACTION_TYPES.EXTEND_LEASE,
+                  });
+                  navigate('/transaction/review', {
                     state: `/manage/names/${name}/extend`,
                   });
                 }

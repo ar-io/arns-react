@@ -67,17 +67,17 @@
     resize-observer-polyfill "^1.5.1"
     throttle-debounce "^5.0.0"
 
-"@ar.io/sdk@1.0.6":
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-1.0.6.tgz#2491803c717f692a729027f6d7d039a94eac4087"
-  integrity sha512-0UlfPDKrI9n3813BX7Wtpu1ZMmfXC2ArJJDMzdaHw9s0+2hdLsXTCCpQqNht5jGGd0iccurI1gINL0yo8WE3tA==
+"@ar.io/sdk@1.0.8":
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-1.0.8.tgz#920609d6048b75a7b80e5dd66aeb50b7c20c238a"
+  integrity sha512-YHSy2F+W1jPRhxflpXdU5kEJqAfPxM1f0ncX4FgNLMR6cjpdhXCIJfMuvrPUiaQf1UBobQX4QZ0EUx88Muys1g==
   dependencies:
     arbundles "0.11.0"
     arweave "1.14.4"
     axios "1.4.0"
     bunyan "^1.8.15"
     warp-arbundles "^1.0.4"
-    warp-contracts "1.4.43"
+    warp-contracts "1.4.45"
 
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.10.4", "@babel/code-frame@^7.12.13", "@babel/code-frame@^7.16.7", "@babel/code-frame@^7.22.13", "@babel/code-frame@^7.23.5":
   version "7.23.5"
@@ -3553,9 +3553,9 @@ axios@^1.1.3:
     proxy-from-env "^1.1.0"
 
 axios@^1.4.0:
-  version "1.6.8"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-1.6.8.tgz#66d294951f5d988a00e87a0ffb955316a619ea66"
-  integrity sha512-v/ZHtJDU39mDpyBoFVkETcd/uNdxrWRrg3bKpOKzXFA6Bvqopts6ALSMU3y6ijYxbw2B+wPrIv46egTzJXCLGQ==
+  version "1.7.2"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.7.2.tgz#b625db8a7051fbea61c35a3cbb3a1daa7b9c7621"
+  integrity sha512-2A8QhOMrbomlDuiLeK9XibIBzuHeRcqqNOHp0Cyp5EoJ1IFDh+XZH3A6BkXtv0K4gFGCI0Y4BM7B1wOEi0Rmgw==
   dependencies:
     follow-redirects "^1.15.6"
     form-data "^4.0.0"
@@ -9762,10 +9762,10 @@ warp-arbundles@^1.0.4:
     buffer "^6.0.3"
     warp-isomorphic "^1.0.7"
 
-warp-contracts@1.4.43:
-  version "1.4.43"
-  resolved "https://registry.yarnpkg.com/warp-contracts/-/warp-contracts-1.4.43.tgz#070023842f11501aa9e4787a267db213505ef3e1"
-  integrity sha512-72mbYH7opfPoreTOLIWqOqOw8chhvd3iR4cAztaz+JawV7enY3SnpVyAW+erlu+/OoEb2TX2Ap4xNeShdp/paw==
+warp-contracts@1.4.45:
+  version "1.4.45"
+  resolved "https://registry.yarnpkg.com/warp-contracts/-/warp-contracts-1.4.45.tgz#918ede8cdc272bb6c0e9d9334a31107071b8b894"
+  integrity sha512-v4asbKIofCmQjH+1Q+yTyJmGUFwaL11zNnfaipRsxQ488MB7lGfQGNeadMfYhhc2yvUDhcVok1UcSfvfgugPaQ==
   dependencies:
     archiver "^5.3.0"
     arweave "1.14.4"
