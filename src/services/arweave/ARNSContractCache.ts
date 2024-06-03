@@ -25,7 +25,6 @@ import {
   buildPendingArNSRecord,
   isArweaveTransactionID,
   isDomainReservedLength,
-  lowerCaseDomain,
   mioToIo,
 } from '../../utils';
 import { ARNS_REGISTRY_ADDRESS } from '../../utils/constants';
