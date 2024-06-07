@@ -10,6 +10,7 @@ import {
 
 import { Layout } from './components/layout';
 import { ANT_FLAG } from './components/layout/Breadcrumbs/Breadcrumbs';
+import Redirect from './components/layout/Redirect/Redirect';
 import PageLoader from './components/layout/progress/PageLoader/PageLoader';
 import useArconnectEvents from './hooks/useArconnectEvents/useArconnectEvents';
 import './index.css';
@@ -37,9 +38,9 @@ const TransactionComplete = React.lazy(
 const Undernames = React.lazy(
   () => import('./components/pages/Undernames/Undernames'),
 );
-const Auctions = React.lazy(
-  () => import('./components/pages/Auctions/Auctions'),
-);
+// const Auctions = React.lazy(
+//   () => import('./components/pages/Auctions/Auctions'),
+// );
 const ProtectedRoute = React.lazy(
   () => import('./components/layout/ProtectedRoute/ProtectedRoute'),
 );
@@ -52,9 +53,9 @@ const ExtendLease = React.lazy(
 const UpgradeUndernames = React.lazy(
   () => import('./components/layout/UpgradeUndernames/UpgradeUndernames'),
 );
-const ViewAuction = React.lazy(
-  () => import('./components/layout/ViewAuction/ViewAuction'),
-);
+// const ViewAuction = React.lazy(
+//   () => import('./components/layout/ViewAuction/ViewAuction'),
+// );
 
 const sentryCreateBrowserRouter =
   Sentry.wrapCreateBrowserRouter(createBrowserRouter);
@@ -289,7 +290,9 @@ function App() {
           />
         </Route>
         ,
-        <Route
+        <Route path="auctions" element={<Redirect url="/" />} />,
+        <Route path="auctions/:name" element={<Redirect url="/" />} />,
+        {/* <Route
           path="auctions"
           element={
             <Suspense
@@ -313,7 +316,7 @@ function App() {
               <ViewAuction />
             </Suspense>
           }
-        />
+        /> */}
         <Route
           path="register/:name"
           element={

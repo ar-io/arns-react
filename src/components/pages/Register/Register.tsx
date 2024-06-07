@@ -4,12 +4,7 @@ import { InsufficientFundsError, ValidationError } from '@src/utils/errors';
 import { Tooltip } from 'antd';
 import emojiRegex from 'emoji-regex';
 import { useEffect, useState } from 'react';
-import {
-  Link,
-  useNavigate,
-  useParams,
-  useSearchParams,
-} from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import {
   useAuctionInfo,
@@ -632,7 +627,7 @@ function RegisterNameForm() {
               fee={fee}
               feeWrapperStyle={{ alignItems: 'flex-start' }}
             />
-            {domain &&
+            {/* {domain &&
             auction &&
             auction.isRequiredToBeAuctioned &&
             fee?.[ioTicker] ? (
@@ -671,7 +666,7 @@ function RegisterNameForm() {
               </div>
             ) : (
               <></>
-            )}{' '}
+            )} */}
             <div style={{ marginTop: '30px' }}>
               <WorkflowButtons
                 nextText="Next"
