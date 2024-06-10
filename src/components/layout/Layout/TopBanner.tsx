@@ -11,8 +11,9 @@ const TopBanner = () => {
         fontSize: '14px',
       }}
     >
-      Expect disruptions as we migrate to AO. &apos;Purchase&apos; interactions
-      are temporarily paused, but you can still manage assets during this time.{' '}
+      Expect service disruptions as ArNS is migrated to AO. New name
+      registrations and lease extensions are temporarily paused, but you may be
+      able to manage existing assets during this time.{' '}
       <Link
         to="https://twitter.com/ar_io_network"
         target="_blank"
