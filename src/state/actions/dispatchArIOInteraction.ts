@@ -21,6 +21,7 @@ import {
   DEFAULT_ANT_SOURCE_CODE_TX,
   DEFAULT_CONTRACT_CACHE,
   MIN_TTL_SECONDS,
+  WRITE_OPTIONS,
 } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Dispatch } from 'react';
@@ -119,17 +120,23 @@ export default async function dispatchArIOInteraction({
         break;
       }
       case ARNS_INTERACTION_TYPES.EXTEND_LEASE:
-        result = await arioContract.extendLease({
-          domain: payload.name,
-          years: payload.years,
-        });
+        result = await arioContract.extendLease(
+          {
+            domain: payload.name,
+            years: payload.years,
+          },
+          WRITE_OPTIONS,
+        );
         functionName = AR_IO_CONTRACT_FUNCTIONS.EXTEND_RECORD;
         break;
       case ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES:
-        result = await arioContract.increaseUndernameLimit({
-          domain: payload.name,
-          qty: payload.qty,
-        });
+        result = await arioContract.increaseUndernameLimit(
+          {
+            domain: payload.name,
+            qty: payload.qty,
+          },
+          WRITE_OPTIONS,
+        );
         functionName = AR_IO_CONTRACT_FUNCTIONS.INCREASE_UNDERNAME_COUNT;
         break;
       default:
