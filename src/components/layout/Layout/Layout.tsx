@@ -4,6 +4,7 @@ import { Outlet } from 'react-router-dom';
 import Footer from '../Footer/Footer';
 import NavBar from '../Navbar/Navbar';
 import Notifications from '../Notifications/Notifications';
+import TopBanner from './TopBanner';
 import './styles.css';
 
 function Layout() {
@@ -17,6 +18,7 @@ function Layout() {
         height: '100vh',
       }}
     >
+      <TopBanner />
       <div
         id="layout"
         className="flex flex-row"
