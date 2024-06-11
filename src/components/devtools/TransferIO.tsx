@@ -3,6 +3,7 @@ import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { VALIDATION_INPUT_TYPES } from '@src/types';
 import { formatIO, isArweaveTransactionID, mioToIo } from '@src/utils';
+import { WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Collapse, Space } from 'antd';
 import { useEffect, useState } from 'react';
@@ -46,10 +47,13 @@ function TransferIO() {
       if (isArweaveTransactionID(toAddress.trim())) {
         console.log('transfering', toAddress.trim(), quantity);
         const contract = arioContract as ArIOWritable;
-        const tx = await contract.transfer({
-          target: toAddress.trim(),
-          qty: quantity,
-        });
+        const tx = await contract.transfer(
+          {
+            target: toAddress.trim(),
+            qty: quantity,
+          },
+          WRITE_OPTIONS,
+        );
         alert(`Transfer of ${quantity} successful: ${tx.id}`);
       }
     } catch (error) {
