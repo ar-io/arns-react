@@ -6,7 +6,7 @@ import { ArweaveWebWallet } from 'arweave-wallet-connector';
 import { ArweaveTransactionID } from '../services/arweave/ArweaveTransactionID';
 import { ANTContractJSON, ARNSContractJSON } from '../types';
 
-export const APP_NAME = 'AR-IO-ARNS-PORTAL';
+export const APP_NAME = 'AR-IO-ArNS-App';
 export const APP_VERSION = '1.0.0';
 export const WRITE_OPTIONS = {
   tags: [
