@@ -3,17 +3,20 @@
   "testEnvironment": "jsdom",
   "setupFilesAfterEnv": ["<rootDir>/jest-setup.ts"],
   "collectCoverage": false,
+  "collectCoverageFrom": ["src/**/*.{ts,tsx,js,jsx}", "!src/**/*.d.ts"],
   "moduleNameMapper": {
     "\\.(css|gif|png)$": "jest-transform-stub",
     "\\.svg": "<rootDir>/tests/common/mocks/svg.js",
     "^@tests/(.*)$": "<rootDir>/tests/$1",
-    "^@src/(.*)$": "<rootDir>/src/$1"
+    "^@src/(.*)$": "<rootDir>/src/$1",
+    "@ar.io/sdk/web": "<rootDir>/node_modules/@ar.io/sdk/lib/cjs/web/index.js",
+    "warp-contracts": "<rootDir>/node_modules/warp-contracts/lib/cjs/index.js"
   },
   "transform": {
-    "^.+\\.(ts|tsx|js)$": ["ts-jest", { "useESM": true }]
+    "^.+\\.(ts|tsx|js|jsx|mjs)$": ["ts-jest", { "useESM": true }]
   },
   "transformIgnorePatterns": [
-    "/node_modules/(?!arbundles|arweave-wallet-connector|@ar.io/sdk|warp-contracts).+\\.js$"
+    "/node_modules/(?!arbundles|arweave-wallet-connector).+\\.js$"
   ],
   "moduleDirectories": ["node_modules", "assets"],
   "testPathIgnorePatterns": ["tests/common/"],
