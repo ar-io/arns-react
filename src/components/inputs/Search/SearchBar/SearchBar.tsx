@@ -430,7 +430,7 @@ function SearchBar(props: SearchBarProps) {
       (!isReserved ||
         !(reservedFor?.toString() !== walletAddress?.toString())) ? (
         <div
-          className={`flex flex-row fade-in 'flex-center'`}
+          className={`flex flex-row fade-in flex-center`}
           style={{
             alignItems: 'center',
             marginTop: isMobile ? '20px' : '50px',
