@@ -37,9 +37,6 @@ const TransactionComplete = React.lazy(
 const Undernames = React.lazy(
   () => import('./components/pages/Undernames/Undernames'),
 );
-const Auctions = React.lazy(
-  () => import('./components/pages/Auctions/Auctions'),
-);
 const ProtectedRoute = React.lazy(
   () => import('./components/layout/ProtectedRoute/ProtectedRoute'),
 );
@@ -51,9 +48,6 @@ const ExtendLease = React.lazy(
 );
 const UpgradeUndernames = React.lazy(
   () => import('./components/layout/UpgradeUndernames/UpgradeUndernames'),
-);
-const ViewAuction = React.lazy(
-  () => import('./components/layout/ViewAuction/ViewAuction'),
 );
 
 const sentryCreateBrowserRouter =
@@ -289,31 +283,6 @@ function App() {
           />
         </Route>
         ,
-        <Route
-          path="auctions"
-          element={
-            <Suspense
-              fallback={
-                <PageLoader loading={true} message={'Loading, please wait'} />
-              }
-            >
-              <Auctions />
-            </Suspense>
-          }
-        />
-        ,
-        <Route
-          path="auctions/:name"
-          element={
-            <Suspense
-              fallback={
-                <PageLoader loading={true} message={'Loading, please wait'} />
-              }
-            >
-              <ViewAuction />
-            </Suspense>
-          }
-        />
         <Route
           path="register/:name"
           element={

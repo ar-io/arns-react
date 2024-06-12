@@ -93,9 +93,7 @@ export default async function dispatchArIOInteraction({
                 domain: payload.name,
                 type: payload.type,
                 years: payload.years,
-                auction: payload.auction ?? false,
                 qty: payload.qty,
-                isBid: payload.isBid ?? false,
               })
             : await arweaveCompositeProvider.writeTransaction({
                 walletAddress: payload.walletAddress,

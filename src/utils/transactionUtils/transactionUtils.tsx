@@ -143,7 +143,7 @@ export const TRANSACTION_DATA_KEYS: Record<
 > = {
   [INTERACTION_TYPES.BUY_RECORD]: {
     functionName: 'buyRecord',
-    keys: ['name', 'contractTxId', 'auction', 'type'],
+    keys: ['name', 'contractTxId', 'type'],
   },
   [INTERACTION_TYPES.INCREASE_UNDERNAMES]: {
     functionName: 'increaseUndernames',
@@ -928,33 +928,6 @@ export function userHasSufficientBalance<T extends Record<string, number>>({
     return acc;
   }, []);
 }
-
-// TODO: maybe use binary search?
-export const getPriceByBlockHeight = (
-  prices: Record<string, number>,
-  currentHeight: number,
-) => {
-  const heightKeys = Object.keys(prices).map((k) => +k);
-  if (!heightKeys.length) {
-    throw new Error(`No prices found for auction`);
-  }
-
-  if (currentHeight < heightKeys[1]) {
-    return prices[heightKeys[0].toString()];
-  }
-
-  if (currentHeight >= heightKeys[heightKeys.length - 1]) {
-    return prices[heightKeys[heightKeys.length - 1].toString()];
-  }
-
-  for (let i = 0; i < heightKeys.length - 1; i++) {
-    if (currentHeight < heightKeys[i + 1]) {
-      return prices[heightKeys[i].toString()];
-    }
-  }
-
-  throw Error(`Unable to find next block interval for bid ${currentHeight}`);
-};
 
 export function mioToIo(mio: number): number {
   return mio / 1_000_000;

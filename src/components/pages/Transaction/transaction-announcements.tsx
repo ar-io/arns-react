@@ -1,7 +1,6 @@
 import { CheckCircleFilled } from '@ant-design/icons';
 import { ANT_INTERACTION_TYPES, ARNS_INTERACTION_TYPES } from '@src/types';
-import { decodeDomainToASCII, lowerCaseDomain } from '@src/utils';
-import { Link } from 'react-router-dom';
+import { decodeDomainToASCII } from '@src/utils';
 
 export const getTransactionCompleteAnnouncement = ({
   interactionType,
@@ -42,29 +41,7 @@ export const getTransactionCompleteAnnouncement = ({
             />
           </span>
           &nbsp;
-          {params?.auction && !params?.isBid ? (
-            <span
-              className="flex center"
-              style={{ width: '100%', justifyContent: 'space-between' }}
-            >
-              Auction started for {decodeDomainToASCII(params?.name)}{' '}
-              <Link
-                className="outline-button"
-                style={{
-                  color: 'var(--text-black)',
-                  background: 'var(--text-white)',
-                  borderColor: 'var(--text-black)',
-                }}
-                to={`/auctions/${lowerCaseDomain(params?.name)}`}
-              >
-                View Auction
-              </Link>
-            </span>
-          ) : (
-            <>
-              <b>{decodeDomainToASCII(params?.name)}</b> is yours!
-            </>
-          )}
+          <b>{decodeDomainToASCII(params?.name)}</b> is yours!
         </span>
       );
     }

@@ -11,7 +11,6 @@ const defaultReserved = {
 export function useRegistrationStatus(domain: string) {
   const [{ blockHeight, arweaveDataProvider }, dispatchGlobalState] =
     useGlobalState();
-  const [isActiveAuction, setIsActiveAuction] = useState<boolean>(false);
   const [isAvailable, setIsAvailable] = useState<boolean>(false);
   const [isReserved, setIsReserved] = useState<{
     isReserved: boolean;
@@ -33,7 +32,6 @@ export function useRegistrationStatus(domain: string) {
   function reset() {
     setIsAvailable(false);
     setIsReserved(defaultReserved);
-    setIsActiveAuction(false);
     setValidated(false);
   }
 
@@ -61,21 +59,16 @@ export function useRegistrationStatus(domain: string) {
       const availablePromise = arweaveDataProvider.isDomainAvailable({
         domain,
       });
-      const auctionPromise = arweaveDataProvider.isDomainInAuction({
-        domain,
-      });
       const reservedPromise = arweaveDataProvider.isDomainReserved({
         domain,
       });
 
-      const [isAvailable, isActiveAuction, isReserved] = await Promise.all([
+      const [isAvailable, isReserved] = await Promise.all([
         availablePromise,
-        auctionPromise,
         reservedPromise,
       ]);
 
       setIsAvailable(isAvailable);
-      setIsActiveAuction(isActiveAuction);
       setIsReserved({
         ...isReserved,
         reservedFor: isReserved.reservedFor
@@ -92,7 +85,6 @@ export function useRegistrationStatus(domain: string) {
   }
   return {
     isAvailable,
-    isActiveAuction,
     isReserved: isReserved?.isReserved,
     reservedFor: isReserved?.reservedFor,
     loading,

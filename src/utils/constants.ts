@@ -212,12 +212,6 @@ export const DEFAULT_ARNS_REGISTRY_STATE: ARNSContractJSON = {
   controllers: [],
   evolve: undefined,
   reserved: {},
-  settings: {
-    auctions: {
-      current: '',
-      history: [],
-    },
-  },
   name: '',
   owner: undefined,
   ticker: 'Test IO',

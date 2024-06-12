@@ -277,3 +277,11 @@ export function formatExpiryDate(endTimestamp?: number) {
     </span>
   );
 }
+
+export const formatIO = (io: number) => {
+  return Intl.NumberFormat('en-US', {
+    notation: 'compact',
+    maximumFractionDigits: 2,
+    compactDisplay: 'short',
+  }).format(io);
+};

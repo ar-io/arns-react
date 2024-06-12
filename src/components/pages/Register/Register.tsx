@@ -4,18 +4,9 @@ import { InsufficientFundsError, ValidationError } from '@src/utils/errors';
 import { Tooltip } from 'antd';
 import emojiRegex from 'emoji-regex';
 import { useEffect, useState } from 'react';
-import {
-  Link,
-  useNavigate,
-  useParams,
-  useSearchParams,
-} from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
-import {
-  useAuctionInfo,
-  useIsFocused,
-  useRegistrationStatus,
-} from '../../../hooks';
+import { useIsFocused, useRegistrationStatus } from '../../../hooks';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
@@ -24,7 +15,6 @@ import { useWalletState } from '../../../state/contexts/WalletState';
 import {
   ARNS_INTERACTION_TYPES,
   BuyRecordPayload,
-  INTERACTION_NAMES,
   TRANSACTION_TYPES,
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
@@ -33,7 +23,6 @@ import {
   formatDate,
   generateAtomicState,
   isArweaveTransactionID,
-  lowerCaseDomain,
   userHasSufficientBalance,
 } from '../../../utils';
 import {
@@ -41,10 +30,8 @@ import {
   ATOMIC_FLAG,
   MAX_LEASE_DURATION,
   MIN_LEASE_DURATION,
-  SMARTWEAVE_TAG_SIZE,
 } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
-import { LockIcon } from '../../icons';
 import Counter from '../../inputs/Counter/Counter';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
 import NameTokenSelector from '../../inputs/text/NameTokenSelector/NameTokenSelector';
@@ -60,17 +47,10 @@ function RegisterNameForm() {
     { domain, fee, leaseDuration, registrationType, antID, targetId },
     dispatchRegisterState,
   ] = useRegistrationState();
-  const [
-    { blockHeight, arweaveDataProvider, ioTicker, arioContract },
-    dispatchGlobalState,
-  ] = useGlobalState();
+  const [{ arweaveDataProvider, ioTicker, arioContract }] = useGlobalState();
   const [{ walletAddress, balances }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const { name } = useParams();
-  const { auction, loadingAuctionInfo } = useAuctionInfo(
-    lowerCaseDomain(name ?? domain),
-    registrationType,
-  );
   const { loading: isValidatingRegistration } = useRegistrationStatus(
     name ?? domain,
   );
@@ -95,79 +75,13 @@ function RegisterNameForm() {
   }, [balances, fee]);
 
   useEffect(() => {
-    if (!blockHeight) {
-      arweaveDataProvider.getCurrentBlockHeight().then((height) => {
-        dispatchGlobalState({
-          type: 'setBlockHeight',
-          payload: height,
-        });
-      });
-    }
-    if (!loadingAuctionInfo && auction) {
-      dispatchRegisterState({
-        type: 'setRegistrationType',
-        payload: auction.type as TRANSACTION_TYPES,
-      });
-    }
-  }, [loadingAuctionInfo, domain]);
-
-  useEffect(() => {
     if (name && domain !== name) {
       dispatchRegisterState({
         type: 'setDomainName',
         payload: name,
       });
     }
-    if (
-      auction &&
-      (auction.isRequiredToBeAuctioned || auction.isActive) &&
-      domain &&
-      blockHeight
-    ) {
-      dispatchRegisterState({
-        type: 'setFee',
-        payload: { ar: fee.ar, [ioTicker]: auction.currentPrice },
-      });
-    } else {
-      if (!auction) {
-        return;
-      }
-      const update = async () => {
-        if (domain) {
-          try {
-            dispatchRegisterState({
-              type: 'setFee',
-              payload: { ar: fee.ar, [ioTicker]: undefined },
-            });
-            const gas = await arweaveDataProvider.getArPrice(
-              SMARTWEAVE_TAG_SIZE,
-            );
-            const price = await arweaveDataProvider
-              .getPriceForInteraction({
-                interactionName: INTERACTION_NAMES.BUY_RECORD,
-                payload: {
-                  name: domain,
-                  years: leaseDuration,
-                  // TODO: gross, will clean this up in refactor
-                  type: auction.type as TRANSACTION_TYPES,
-                  contractTxId: ATOMIC_FLAG,
-                },
-              })
-              .catch(() => {
-                throw new Error('Unable to get purchase price for domain');
-              });
-            dispatchRegisterState({
-              type: 'setFee',
-              payload: { ar: gas, [ioTicker]: price },
-            });
-          } catch (e) {
-            eventEmitter.emit('error', e);
-          }
-        }
-      };
-      update();
-    }
-  }, [leaseDuration, domain, auction]);
+  }, [name, domain]);
 
   async function handleANTId(id: string) {
     try {
@@ -245,9 +159,6 @@ function RegisterNameForm() {
       setValidatingNext(false);
     }
 
-    const leaseDurationType = auction?.isRequiredToBeAuctioned
-      ? 1
-      : leaseDuration;
     const buyRecordPayload: BuyRecordPayload = {
       name:
         domain && emojiRegex().test(domain)
@@ -257,11 +168,9 @@ function RegisterNameForm() {
       // TODO: move this to a helper function
       years:
         registrationType === TRANSACTION_TYPES.LEASE
-          ? leaseDurationType
+          ? leaseDuration
           : undefined,
       type: registrationType,
-      auction: (auction?.isRequiredToBeAuctioned || auction?.isActive) ?? false,
-      isBid: auction?.isActive ?? false,
       targetId,
     };
 
@@ -299,7 +208,7 @@ function RegisterNameForm() {
     <div className="page center">
       <PageLoader
         message={'Loading Domain info, please wait.'}
-        loading={loadingAuctionInfo || isValidatingRegistration}
+        loading={isValidatingRegistration}
       />
       <div
         className="flex flex-column flex-center"
@@ -363,11 +272,6 @@ function RegisterNameForm() {
             >
               <button
                 className="flex flex-row center text-medium bold pointer"
-                // TODO: add a tool tip explaining why when it is an active auction you cannot change the type
-                disabled={
-                  auction?.isActive &&
-                  registrationType === TRANSACTION_TYPES.BUY
-                }
                 onClick={() =>
                   dispatchRegisterState({
                     type: 'setRegistrationType',
@@ -391,18 +295,6 @@ function RegisterNameForm() {
                 }}
               >
                 Lease{' '}
-                {(registrationType === TRANSACTION_TYPES.LEASE ||
-                  auction?.type === TRANSACTION_TYPES.LEASE) &&
-                auction?.isActive ? (
-                  <LockIcon
-                    width={'20px'}
-                    height={'20px'}
-                    fill={'var(--text-black)'}
-                    style={{ position: 'absolute', right: '20px' }}
-                  />
-                ) : (
-                  <></>
-                )}
                 {registrationType === TRANSACTION_TYPES.LEASE ? (
                   <div
                     style={{
@@ -421,11 +313,6 @@ function RegisterNameForm() {
               </button>
               <button
                 className="flex flex-row center text-medium bold pointer"
-                // TODO: add a tool tip explaining why when it is an active auction you cannot change the type
-                disabled={
-                  auction?.isActive &&
-                  registrationType === TRANSACTION_TYPES.LEASE
-                }
                 style={{
                   position: 'relative',
                   background:
@@ -449,18 +336,6 @@ function RegisterNameForm() {
                 }
               >
                 Buy{' '}
-                {(registrationType === TRANSACTION_TYPES.BUY ||
-                  auction?.type === TRANSACTION_TYPES.BUY) &&
-                auction?.isActive ? (
-                  <LockIcon
-                    width={'20px'}
-                    height={'20px'}
-                    fill={'var(--text-black)'}
-                    style={{ position: 'absolute', right: '20px' }}
-                  />
-                ) : (
-                  <></>
-                )}
                 {registrationType === TRANSACTION_TYPES.BUY ? (
                   <div
                     style={{
@@ -503,16 +378,8 @@ function RegisterNameForm() {
                     });
                   }}
                   // TODO: move this to a helper function
-                  minValue={
-                    auction?.isActive || auction?.isRequiredToBeAuctioned
-                      ? 1
-                      : MIN_LEASE_DURATION
-                  }
-                  maxValue={
-                    auction?.isActive || auction?.isRequiredToBeAuctioned
-                      ? 1
-                      : MAX_LEASE_DURATION
-                  }
+                  minValue={MIN_LEASE_DURATION}
+                  maxValue={MAX_LEASE_DURATION}
                   valueStyle={{ padding: '20px 120px' }}
                   valueName={leaseDuration > 1 ? 'years' : 'year'}
                   detail={`Until ${formatDate(
@@ -632,46 +499,6 @@ function RegisterNameForm() {
               fee={fee}
               feeWrapperStyle={{ alignItems: 'flex-start' }}
             />
-            {domain &&
-            auction &&
-            auction.isRequiredToBeAuctioned &&
-            fee?.[ioTicker] ? (
-              <div
-                className="flex flex-row warning-container"
-                style={{
-                  gap: '1em',
-                  justifyContent: 'flex-start',
-                  alignItems: 'flex-start',
-                  boxSizing: 'border-box',
-                  position: 'relative',
-                }}
-              >
-                <span
-                  className="flex flex-column"
-                  style={{ textAlign: 'left', fontSize: '13px', gap: '1em' }}
-                >
-                  Buying this name involves a Dutch auction. You start by
-                  bidding at the floor price of{' '}
-                  {fee?.[ioTicker]?.toLocaleString()} {ioTicker}. The
-                  name&apos;s price begins at 10 times your bid and decreases
-                  over 2 weeks until it matches your bid, securing your win. You
-                  can also buy instantly at the ongoing price throughout the
-                  auction; if someone else does, you will lose the auction and
-                  have your initial bid returned.
-                  <Link
-                    to="https://docs.ar.io/arns/#bid-initiated-dutch-auctions-bida"
-                    rel="noreferrer"
-                    target="_blank"
-                    className="link"
-                    style={{ textDecoration: 'underline', color: 'inherit' }}
-                  >
-                    Learn more.
-                  </Link>
-                </span>
-              </div>
-            ) : (
-              <></>
-            )}{' '}
             <div style={{ marginTop: '30px' }}>
               <WorkflowButtons
                 nextText="Next"

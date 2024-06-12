@@ -42,8 +42,6 @@ function TransferIO() {
   async function confirmTransfer() {
     try {
       setTransfering(true);
-      console.log(isArweaveTransactionID(toAddress.trim()));
-      console.log(arioContract);
       if (isArweaveTransactionID(toAddress.trim())) {
         console.log('transfering', toAddress.trim(), quantity);
         const contract = arioContract as ArIOWritable;

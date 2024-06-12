@@ -1,5 +1,5 @@
 import { SettingsIcon } from '../components/icons';
-import { Auctions, Home, Manage } from '../components/pages';
+import { Home, Manage } from '../components/pages';
 
 export type Route = {
   text: string;
@@ -18,13 +18,6 @@ export const ROUTES: { [x: string]: Route } = {
     component: Home,
     protected: false,
     index: true,
-  },
-  auctions: {
-    text: 'Live Auctions',
-    path: '/auctions',
-    component: Auctions,
-    protected: false,
-    index: false,
   },
   manage: {
     text: 'Manage Assets',

@@ -11,30 +11,11 @@ function SearchBarHeader({
   domain,
   contractTxId,
   isAvailable,
-  isActiveAuction,
   isReserved,
   reservedFor,
 }: SearchBarHeaderProps): JSX.Element {
   const isMobile = useIsMobile();
   const [{ walletAddress }] = useWalletState();
-
-  // unavailable condition
-  if (domain && isActiveAuction) {
-    return (
-      <div
-        className="text-medium white center flex fade-in"
-        style={{
-          fontWeight: 500,
-          fontSize: '23px',
-          flexDirection: isMobile ? 'column' : 'row',
-          minHeight: '45px',
-        }}
-      >
-        <span className="in-auction">{domain}&nbsp;</span>
-        is currently in auction.
-      </div>
-    );
-  }
 
   // reserved condition
   if (
