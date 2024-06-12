@@ -79,7 +79,6 @@ function TransactionReview() {
     setHeader(
       getTransactionHeader({
         workflowName: workflowName as ARNS_INTERACTION_TYPES,
-        auction: { ...(transactionData as any) }?.auction,
       }),
     );
   }, [

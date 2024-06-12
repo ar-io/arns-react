@@ -249,7 +249,6 @@ export class ARNSContractCache implements SmartweaveContractCache {
         interaction.payload?.name === domain &&
         interaction.payload?.function === 'buyRecord',
     );
-    // its possible for their to be multiple interactions because of bid and auction initialization so we need to get the most recent one.
     const cachedRecord = cachedRecords.sort(
       (a, b) => +b.timestamp - +a.timestamp,
     )[0];
@@ -285,9 +284,9 @@ export class ARNSContractCache implements SmartweaveContractCache {
         interactions.filter(
           (interaction: ContractInteraction) =>
             interaction.payload.function ===
-              (contractTxId.toString() === ARNS_REGISTRY_ADDRESS.toString()
-                ? 'buyRecord'
-                : 'setRecord') && !interaction.payload?.auction,
+            (contractTxId.toString() === ARNS_REGISTRY_ADDRESS.toString()
+              ? 'buyRecord'
+              : 'setRecord'),
         ),
       );
 

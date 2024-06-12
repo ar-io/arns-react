@@ -25,12 +25,3 @@
   height: fit-content;
   text-align: center;
 }
-
-.in-auction {
-  color: var(--accent);
-  font-weight: inherit;
-  font-size: inherit;
-  font-family: 'Rubik';
-  height: fit-content;
-  text-align: center;
-}

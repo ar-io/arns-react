@@ -395,7 +395,6 @@ export enum ARNS_INTERACTION_TYPES {
   BUY_RECORD = 'Buy ARNS Name',
   EXTEND_LEASE = 'Extend Lease',
   INCREASE_UNDERNAMES = 'Increase Undernames',
-  SUBMIT_AUCTION_BID = 'Submit Bid',
   TRANSFER = 'Transfer IO',
 }
 
@@ -404,7 +403,6 @@ export enum INTERACTION_TYPES {
   BUY_RECORD = 'Buy ARNS Name',
   EXTEND_LEASE = 'Extend Lease',
   INCREASE_UNDERNAMES = 'Increase Undernames',
-  SUBMIT_AUCTION_BID = 'Submit Bid',
 
   // ANT interaction types
   SET_CONTROLLER = 'Edit Controller',
@@ -527,14 +525,6 @@ export type BuyRecordPayload = {
   targetId?: ArweaveTransactionID;
 };
 
-export type SubmitAuctionBidPayload = {
-  name: string;
-  contractTxId: string;
-  type?: TRANSACTION_TYPES;
-  qty: number; // the bid required to start or win the auction
-  state?: ANTContractJSON;
-};
-
 export type ExtendLeasePayload = {
   name: string;
   years: number;
@@ -606,12 +596,10 @@ export const ALL_TRANSACTION_DATA_KEYS = [
   'initialState',
   'tags',
   'type',
-  'auction',
 ];
 
 export type TransactionDataPayload =
   | BuyRecordPayload
-  | SubmitAuctionBidPayload
   | ExtendLeasePayload
   | IncreaseUndernamesPayload
   | TransferIOPayload
