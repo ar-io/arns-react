@@ -27,11 +27,3 @@ export const formattedEstimatedDateFromBlockHeight = (
 export const approximateDays = (blockHeightDuration: number) => {
   return Math.round(blockHeightDuration / APPROXIMATE_BLOCKS_PER_DAY);
 };
-
-export const formatIO = (io: number) => {
-  return Intl.NumberFormat('en-US', {
-    notation: 'compact',
-    maximumFractionDigits: 2,
-    compactDisplay: 'short',
-  }).format(io);
-};

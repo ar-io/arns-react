@@ -327,7 +327,6 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     domain,
     type,
     years,
-    auction,
     qty,
     isBid,
   }: {
@@ -338,7 +337,6 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     domain: string;
     type: TRANSACTION_TYPES;
     years?: number;
-    auction: boolean;
     qty: number;
     isBid: boolean;
   }): Promise<string | undefined> {
@@ -351,7 +349,6 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       name: domain,
       type,
       years,
-      auction,
       qty,
     };
     const tags = buildSmartweaveInteractionTags({

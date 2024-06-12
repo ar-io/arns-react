@@ -22,7 +22,6 @@ function Home() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [{ domain, antID }, dispatchRegisterState] = useRegistrationState();
   const {
-    isActiveAuction,
     isReserved,
     reservedFor,
     loading: isValidatingRegistration,
@@ -80,7 +79,6 @@ function Home() {
   }
 
   function updateShowFeaturedDomains({
-    inAuction,
     isReserved,
     reservedFor,
     currentFeaturedDomains,
@@ -90,7 +88,6 @@ function Home() {
     currentFeaturedDomains: { [x: string]: string };
     antId: ArweaveTransactionID | undefined;
     domainName: string | undefined;
-    inAuction: boolean;
     isReserved: boolean;
     reservedFor?: ArweaveTransactionID;
   }): boolean {
@@ -99,8 +96,7 @@ function Home() {
         !antId &&
         (!isReserved ||
           (isReserved &&
-            reservedFor?.toString() === walletAddress?.toString())) &&
-        !inAuction) ||
+            reservedFor?.toString() === walletAddress?.toString()))) ||
       !domainName
     ) {
       return true;
@@ -141,7 +137,6 @@ function Home() {
       >
         <SearchBar placeholderText={'Search for a name'} />
         {updateShowFeaturedDomains({
-          inAuction: isActiveAuction,
           isReserved: isReserved,
           reservedFor: reservedFor,
           currentFeaturedDomains: featuredDomains ?? {},

@@ -6,8 +6,6 @@ import {
   ARNSContractJSON,
   ARNSDomains,
   ArweaveDataProvider,
-  Auction,
-  AuctionSettings,
   ContractInteraction,
   INTERACTION_PRICE_PARAMS,
   SmartweaveContractCache,
@@ -187,9 +185,7 @@ export class ArweaveCompositeDataProvider
     domain,
     type,
     years,
-    auction,
     qty,
-    isBid,
   }: {
     walletAddress: ArweaveTransactionID;
     registryId: ArweaveTransactionID;
@@ -198,9 +194,7 @@ export class ArweaveCompositeDataProvider
     domain: string;
     type: TRANSACTION_TYPES;
     years?: number;
-    auction: boolean;
     qty?: number;
-    isBid: boolean;
   }): Promise<string | undefined> {
     return await this._interactionProvider.registerAtomicName({
       walletAddress,
@@ -210,9 +204,7 @@ export class ArweaveCompositeDataProvider
       domain,
       type,
       years,
-      auction,
       qty,
-      isBid,
     });
   }
 
@@ -246,16 +238,6 @@ export class ArweaveCompositeDataProvider
     return this._contractProvider.isDomainReserved({ domain, contractTxId });
   }
 
-  async isDomainInAuction({
-    contractTxId = ARNS_REGISTRY_ADDRESS,
-    domain,
-  }: {
-    contractTxId?: ArweaveTransactionID;
-    domain: string;
-  }): Promise<boolean> {
-    return this._contractProvider.isDomainInAuction({ contractTxId, domain });
-  }
-
   async isDomainAvailable({
     domain,
     contractTxId,
@@ -264,43 +246,6 @@ export class ArweaveCompositeDataProvider
     contractTxId?: ArweaveTransactionID;
   }): Promise<boolean> {
     return this._contractProvider.isDomainAvailable({ domain, contractTxId });
-  }
-
-  async getAuction({
-    contractTxId = ARNS_REGISTRY_ADDRESS,
-    domain,
-    type,
-  }: {
-    contractTxId?: ArweaveTransactionID;
-    domain: string;
-    type?: 'lease' | 'permabuy';
-  }): Promise<Auction> {
-    return this._contractProvider.getAuction({
-      contractTxId,
-      domain,
-      type,
-    });
-  }
-
-  async getAuctionSettings({
-    contractTxId,
-  }: {
-    contractTxId: ArweaveTransactionID;
-  }): Promise<AuctionSettings> {
-    return this._contractProvider.getAuctionSettings({ contractTxId });
-  }
-
-  async getDomainsInAuction({
-    address,
-    contractTxId,
-  }: {
-    address?: ArweaveTransactionID;
-    contractTxId: ArweaveTransactionID;
-  }): Promise<string[]> {
-    return this._contractProvider.getDomainsInAuction({
-      address,
-      contractTxId,
-    });
   }
 
   async getRecord({

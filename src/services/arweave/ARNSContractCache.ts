@@ -12,13 +12,10 @@ import {
   ARNSContractJSON,
   ARNSDomains,
   ArweaveDataProvider,
-  Auction,
-  AuctionSettings,
   ContractInteraction,
   INTERACTION_PRICE_PARAMS,
   KVCache,
   SmartweaveContractCache,
-  TRANSACTION_TYPES,
   TransactionCache,
 } from '../../types';
 import {
@@ -215,23 +212,6 @@ export class ARNSContractCache implements SmartweaveContractCache {
     };
   }
 
-  async isDomainInAuction({
-    contractTxId,
-    domain,
-    type = 'lease',
-  }: {
-    contractTxId: ArweaveTransactionID;
-    domain: string;
-    type: 'lease' | 'permabuy';
-  }): Promise<boolean> {
-    return this.getAuction({ contractTxId, domain, type })
-      .then((auction) => (auction?.isActive ? true : false))
-      .catch((e) => {
-        console.error(e);
-        return false;
-      });
-  }
-
   async isDomainAvailable({
     domain,
     contractTxId = ARNS_REGISTRY_ADDRESS,
@@ -247,121 +227,6 @@ export class ARNSContractCache implements SmartweaveContractCache {
       return false;
     }
     return true;
-  }
-
-  async getAuction({
-    contractTxId,
-    domain,
-    type,
-  }: {
-    contractTxId: ArweaveTransactionID;
-    domain: string;
-    type?: 'lease' | 'permabuy';
-  }): Promise<Auction> {
-    const cachedInteractions = await this._cache.getCachedInteractions(
-      contractTxId,
-    );
-    const cachedAuction = cachedInteractions
-      .filter((interaction: ContractInteraction) => {
-        if (
-          interaction.payload?.name === domain &&
-          interaction.payload?.auction === true
-        ) {
-          return {
-            ...interaction,
-            payload: {
-              ...interaction.payload,
-              contractTxId: interaction.id.toString(),
-              initiator: interaction.deployer,
-            },
-          };
-        }
-      })
-      .sort((a, b) => +b.timestamp - +a.timestamp)[0];
-
-    const auction = await this._arioContract.getAuction({
-      domain,
-      type:
-        type ??
-        (cachedAuction?.payload?.type.toString() as any) ??
-        TRANSACTION_TYPES.LEASE,
-    });
-
-    if (!auction) {
-      throw new Error(
-        `Failed to get auction for ${domain} on contract ${contractTxId.toString()}`,
-      );
-    }
-
-    const res: Auction = {
-      ...auction,
-      ...(cachedAuction?.payload
-        ? {
-            ...cachedAuction.payload,
-            currentPrice: auction.startPrice,
-            isActive: !cachedAuction?.isBid,
-            initiator: cachedAuction.deployer.toString(),
-          }
-        : {}),
-    } as unknown as Auction;
-    res.currentPrice = mioToIo(res.currentPrice ?? 0);
-    res.floorPrice = mioToIo(res.floorPrice);
-    res.startPrice = mioToIo(res.startPrice);
-    res.prices = Object.entries(res.prices)
-      .map(([blockheight, price]) => {
-        return [blockheight, mioToIo(price as number)];
-      })
-      .reduce((acc: Record<number, number>, [blockheight, price]) => {
-        acc[blockheight as number] = price as number;
-        return acc;
-      }, {});
-
-    return res;
-  }
-
-  async getAuctionSettings({
-    contractTxId,
-  }: {
-    contractTxId: ArweaveTransactionID;
-  }): Promise<AuctionSettings> {
-    const res = await this._http(
-      `${this._url}/v1/contract/${contractTxId.toString()}/settings`,
-    );
-    const { settings } = await res.json();
-    const { auctions } = settings;
-    if (!auctions) {
-      throw new Error(
-        `Auction settings not found for contract ${contractTxId.toString()}`,
-      );
-    }
-    return auctions;
-  }
-
-  async getDomainsInAuction({
-    address,
-    contractTxId,
-  }: {
-    address?: ArweaveTransactionID;
-    contractTxId: ArweaveTransactionID;
-  }): Promise<string[]> {
-    const auctions = await this._arioContract.getAuctions();
-    const domainsInAuction = new Set(Object.keys(auctions));
-
-    if (address) {
-      const cachedInteractions = await this._cache.getCachedInteractions(
-        contractTxId,
-      );
-      cachedInteractions.forEach((interaction: any) => {
-        if (
-          interaction.payload?.auction === true &&
-          interaction.deployer === address.toString() &&
-          !domainsInAuction.has(interaction.payload.name)
-        ) {
-          domainsInAuction.add(interaction.payload.name);
-        }
-      });
-    }
-    return [...domainsInAuction];
   }
 
   async getRecord({
@@ -397,14 +262,8 @@ export class ARNSContractCache implements SmartweaveContractCache {
       }
       return record;
     }
-    // check if cached record is an auction bid
-    const auction = cachedRecord?.payload.auction
-      ? await this.getAuction({
-          contractTxId,
-          domain,
-        })
-      : undefined;
-    if ((cachedRecord && !auction) || cachedRecord?.isBid) {
+    // check if cached record
+    if (cachedRecord) {
       return buildPendingArNSRecord(cachedRecord);
     }
     throw new Error('Error getting record');

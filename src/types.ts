@@ -1,9 +1,4 @@
-import {
-  ANTState,
-  ArNSAuctionData,
-  ArNSNameData,
-  ArconnectSigner,
-} from '@ar.io/sdk/web';
+import { ANTState, ArNSNameData, ArconnectSigner } from '@ar.io/sdk/web';
 import { ApiConfig } from 'arweave/node/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
 import {
@@ -37,60 +32,15 @@ export type TransactionTag = {
   value: string;
 };
 
-export type AuctionSettings = {
-  floorPriceMultiplier: number;
-  startPriceMultiplier: number;
-  auctionDuration: number;
-  decayRate: number;
-  decayInterval: number;
-};
-
-export type AuctionParameters = {
-  floorPrice: number;
-  startPrice: number;
-  contractTxId: string;
-  startHeight: number;
-  endHeight: number;
-  type: TRANSACTION_TYPES;
-  initiator: string;
-  years?: number;
-};
-
-export type Auction = ArNSAuctionData & {
-  name: string;
-  prices: Record<string | number, number>;
-  currentPrice: number;
-  isActive: boolean;
-  isAvailableForAuction: boolean;
-  isRequiredToBeAuctioned: boolean; // TODO: this may be optional
-};
-
-export type AuctionTableData = Pick<
-  Auction,
-  'name' | 'currentPrice' | 'isActive' | 'initiator' | 'type'
-> & {
-  closingDate: number;
-};
-
 export type ARNSContractJSON = {
   records: ARNSDomains;
   fees: { [x: number]: number };
-  auctions?: {
-    [x: string]: AuctionParameters;
-  };
   reserved: {
     [x: string]: {
       [x: string]: string | number;
       target: string;
       endTimestamp: number;
     };
-  };
-  settings: {
-    auctions: {
-      current: string;
-      history: AuctionSettings[];
-    };
-    [x: string]: any;
   };
   balances: { [x: string]: number };
   controllers: ArweaveTransactionID[];
@@ -185,34 +135,6 @@ export interface SmartweaveContractCache {
     domain: string;
     contractTxId?: ArweaveTransactionID;
   }): Promise<{ isReserved: boolean; reservedFor?: string }>;
-  isDomainInAuction({
-    contractTxId,
-    domain,
-  }: {
-    contractTxId: ArweaveTransactionID;
-    domain: string;
-  }): Promise<boolean>;
-  getAuction({
-    contractTxId,
-    domain,
-    type,
-  }: {
-    contractTxId: ArweaveTransactionID;
-    domain: string;
-    type?: 'lease' | 'permabuy';
-  }): Promise<Auction>;
-  getAuctionSettings({
-    contractTxId,
-  }: {
-    contractTxId: ArweaveTransactionID;
-  }): Promise<AuctionSettings>;
-  getDomainsInAuction({
-    address,
-    contractTxId,
-  }: {
-    address?: ArweaveTransactionID;
-    contractTxId: ArweaveTransactionID;
-  }): Promise<string[]>;
   getRecord({
     domain,
     contractTxId,
@@ -300,9 +222,7 @@ export interface SmartweaveContractInteractionProvider {
     domain,
     type,
     years,
-    auction,
     qty,
-    isBid,
   }: {
     walletAddress: ArweaveTransactionID;
     registryId: ArweaveTransactionID;
@@ -311,9 +231,7 @@ export interface SmartweaveContractInteractionProvider {
     domain: string;
     type: TRANSACTION_TYPES;
     years?: number;
-    auction: boolean;
     qty?: number;
-    isBid: boolean;
   }): Promise<string | undefined>;
   dryWrite({
     walletAddress,
@@ -401,7 +319,6 @@ export type SearchBarProps = {
 export type SearchBarHeaderProps = {
   defaultText: string;
   isAvailable: boolean;
-  isActiveAuction: boolean;
   isReserved: boolean;
   reservedFor?: ArweaveTransactionID;
   isDefault?: boolean;
@@ -411,7 +328,6 @@ export type SearchBarHeaderProps = {
 
 export type SearchBarFooterProps = {
   isAvailable: boolean;
-  isActiveAuction: boolean;
   isReserved: boolean;
   reservedFor?: ArweaveTransactionID;
   domain?: string;
@@ -608,9 +524,7 @@ export type BuyRecordPayload = {
   type: TRANSACTION_TYPES;
   state?: ANTContractJSON;
   qty?: number; // the cost displayed to the user when buying a record
-  auction?: boolean;
   targetId?: ArweaveTransactionID;
-  isBid?: boolean;
 };
 
 export type SubmitAuctionBidPayload = {

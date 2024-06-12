@@ -12,7 +12,7 @@ import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransa
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../../state/contexts/RegistrationState';
 import { useWalletState } from '../../../../state/contexts/WalletState';
-import { Auction, SearchBarProps, TRANSACTION_TYPES } from '../../../../types';
+import { SearchBarProps } from '../../../../types';
 import {
   decodeDomainToASCII,
   encodeDomainToASCII,
@@ -27,10 +27,8 @@ import {
   ARNS_NAME_REGEX_PARTIAL,
   MAX_ARNS_NAME_LENGTH,
 } from '../../../../utils/constants';
-import eventEmitter from '../../../../utils/events';
 import { SearchIcon } from '../../../icons';
 import { Loader, SearchBarFooter, SearchBarHeader } from '../../../layout';
-import ArweaveID, { ArweaveIdTypes } from '../../../layout/ArweaveID/ArweaveID';
 import ValidationInput from '../../text/ValidationInput/ValidationInput';
 import './styles.css';
 
@@ -51,7 +49,7 @@ const searchBarValidationPredicate = ({
 function SearchBar(props: SearchBarProps) {
   const { disabled = false, placeholderText } = props;
   const navigate = useNavigate();
-  const [{ arweaveDataProvider, ioTicker }] = useGlobalState();
+  const [{ arweaveDataProvider }] = useGlobalState();
   const [{ domain }, dispatchRegisterState] = useRegistrationState();
   const [{ walletAddress }] = useWalletState();
   const isMobile = useIsMobile();
@@ -66,13 +64,11 @@ function SearchBar(props: SearchBarProps) {
   const isSearchbarFocused = useIsFocused('searchbar-input-id');
   const {
     isAvailable,
-    isActiveAuction,
     isReserved,
     reservedFor,
     loading: isValidatingRegistration,
     validated,
   } = useRegistrationStatus(lowerCaseDomain(domain));
-  const [auctionInfo, setAuctionInfo] = useState<Auction>();
   const [registeredDomainRecord, setRegisteredDomainRecord] =
     useState<ArNSNameData>();
 
@@ -119,7 +115,6 @@ function SearchBar(props: SearchBarProps) {
     ) {
       const style = handleSearchbarBorderStyle({
         domain: domain,
-        auction: isActiveAuction,
         available: isAvailable,
         reserved: isReserved,
         reservedFor: reservedFor,
@@ -127,9 +122,6 @@ function SearchBar(props: SearchBarProps) {
         focused: isSearchbarFocused && !validated,
       });
       setSearchBarBorder(style);
-    }
-    if (isActiveAuction) {
-      updateAuctionInfo(domain);
     }
   }, [
     searchBarText,
@@ -139,25 +131,6 @@ function SearchBar(props: SearchBarProps) {
     validated,
     isValidatingRegistration,
   ]);
-
-  async function updateAuctionInfo(domain: string) {
-    if (!domain.length) {
-      setAuctionInfo(undefined);
-      return;
-    }
-    try {
-      const auction = await arweaveDataProvider.getAuction({
-        domain: lowerCaseDomain(domain),
-      });
-      if (!auction) {
-        return;
-      }
-      setAuctionInfo(auction);
-    } catch (error: any) {
-      setSearchBarText('');
-      eventEmitter.emit('error', error);
-    }
-  }
 
   function _onChange(e: string) {
     setSearchSubmitted(false);
@@ -221,12 +194,6 @@ function SearchBar(props: SearchBarProps) {
         type: 'setANTID',
         payload: undefined,
       });
-      if (auctionInfo?.type) {
-        dispatchRegisterState({
-          type: 'setRegistrationType',
-          payload: auctionInfo.type as TRANSACTION_TYPES,
-        });
-      }
     } else if (record && searchBarText) {
       setRegisteredDomainRecord(record);
       dispatchRegisterState({
@@ -252,7 +219,6 @@ function SearchBar(props: SearchBarProps) {
 
   function handleSearchbarBorderStyle({
     domain,
-    auction,
     available,
     reserved,
     reservedFor,
@@ -260,7 +226,6 @@ function SearchBar(props: SearchBarProps) {
     focused,
   }: {
     domain: string;
-    auction: boolean;
     available: boolean;
     reserved: boolean;
     reservedFor?: ArweaveTransactionID;
@@ -287,11 +252,6 @@ function SearchBar(props: SearchBarProps) {
       border: '2px solid var(--error-red)',
       marginBottom: '30px',
     };
-    const accentBorderStyle = {
-      border: '2px solid var(--accent)',
-      marginBottom: '30px',
-    };
-
     // Named variables for the cases
     const isTextSubmitted = domain && submitted;
     const isTextNotSubmitted = domain && !submitted;
@@ -302,9 +262,6 @@ function SearchBar(props: SearchBarProps) {
       case isTextSubmitted: {
         if (reserved && reservedFor?.toString() !== walletAddress?.toString()) {
           return greyBorderStyle;
-        }
-        if (auction) {
-          return accentBorderStyle;
         }
 
         return available ? greenBorderStyle : redBorderStyle;
@@ -329,7 +286,6 @@ function SearchBar(props: SearchBarProps) {
         defaultText="Find a name"
         domain={searchSubmitted ? searchBarText : undefined}
         isAvailable={isAvailable}
-        isActiveAuction={isActiveAuction}
         isReserved={isReserved}
         reservedFor={reservedFor}
         contractTxId={contractTxID}
@@ -474,9 +430,7 @@ function SearchBar(props: SearchBarProps) {
       (!isReserved ||
         !(reservedFor?.toString() !== walletAddress?.toString())) ? (
         <div
-          className={`flex flex-row fade-in ${
-            isActiveAuction ? 'flex-space-between' : 'flex-center'
-          }`}
+          className={`flex flex-row fade-in 'flex-center'`}
           style={{
             alignItems: 'center',
             marginTop: isMobile ? '20px' : '50px',
@@ -484,44 +438,6 @@ function SearchBar(props: SearchBarProps) {
             flexDirection: isMobile ? 'column-reverse' : 'row',
           }}
         >
-          {isActiveAuction && auctionInfo?.currentPrice ? (
-            <div
-              className="flex flex-column"
-              style={{
-                gap: '8px',
-                justifyContent: 'center',
-                width: 'fit-content',
-              }}
-            >
-              <span
-                className="white left"
-                style={{ fontSize: '16px', width: 'fit-content' }}
-              >
-                Current auction price for instant buy:{' '}
-                <span
-                  className="bold"
-                  style={{
-                    color: 'var(--accent)',
-                  }}
-                >
-                  {auctionInfo?.currentPrice.toLocaleString() ?? 0} {ioTicker}
-                </span>
-              </span>
-              <span
-                className="flex grey left"
-                style={{ fontSize: '13px', width: 'fit-content' }}
-              >
-                Started by:&nbsp;
-                <ArweaveID
-                  id={new ArweaveTransactionID(auctionInfo!.initiator)}
-                  type={ArweaveIdTypes.ADDRESS}
-                  shouldLink={true}
-                />
-              </span>
-            </div>
-          ) : (
-            <></>
-          )}
           <button
             className="accent-button center"
             onClick={_onSubmitButton}
@@ -540,7 +456,6 @@ function SearchBar(props: SearchBarProps) {
       )}
 
       <SearchBarFooter
-        isActiveAuction={isActiveAuction}
         isAvailable={isAvailable}
         isReserved={isReserved}
         reservedFor={reservedFor}

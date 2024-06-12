@@ -1,4 +1,3 @@
-import Auctions from './Auctions/Auctions';
 import Home from './Home/Home';
 import Manage from './Manage/Manage';
 import ManageANT from './ManageANT/ManageANT';
@@ -8,7 +7,6 @@ import Register from './Register/Register';
 import Undernames from './Undernames/Undernames';
 
 export {
-  Auctions,
   Home,
   Manage,
   NotFound,
