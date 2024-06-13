@@ -1,4 +1,4 @@
-import { ArNSLeaseData } from '@ar.io/sdk/web';
+import { isLeasedRecord } from '@src/components/layout/ExtendLease/ExtendLease';
 import { Descriptions } from 'antd';
 import { startCase } from 'lodash';
 import { isValidElement, useEffect, useState } from 'react';
@@ -6,14 +6,12 @@ import { isValidElement, useEffect, useState } from 'react';
 import { useIsMobile } from '../../../hooks';
 import { ANTContract } from '../../../services/arweave/ANTContract';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ARNSMapping } from '../../../types';
 import {
   formatDate,
   getLeaseDurationFromEndTimestamp,
   isArweaveTransactionID,
 } from '../../../utils';
-import { ATOMIC_FLAG } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { Loader } from '../../layout';
 import ArweaveID, { ArweaveIdTypes } from '../../layout/ArweaveID/ArweaveID';
@@ -104,8 +102,8 @@ function ANTCard({
 
       let leaseDuration = 'N/A';
       if (record) {
-        leaseDuration = (record as ArNSLeaseData).endTimestamp
-          ? `${(record as ArNSLeaseData).endTimestamp * 1000}`
+        leaseDuration = isLeasedRecord(record)
+          ? record.endTimestamp.toString()
           : 'Indefinite';
       }
 

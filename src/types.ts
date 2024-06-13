@@ -1,9 +1,4 @@
-import {
-  ANTState,
-  AoArNSNameData,
-  ArconnectSigner,
-  ArweaveSigner,
-} from '@ar.io/sdk/web';
+import { ANTState, AoArNSNameData, ArconnectSigner } from '@ar.io/sdk/web';
 import { ApiConfig } from 'arweave/node/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
 

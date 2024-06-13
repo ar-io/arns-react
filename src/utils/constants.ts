@@ -1,5 +1,3 @@
-import { ContractInteractionCache } from '@src/services/caches/ContractInteractionCache';
-import { LocalStorageCache } from '@src/services/caches/LocalStorageCache';
 import Arweave from 'arweave';
 import { ArweaveWebWallet } from 'arweave-wallet-connector';
 
@@ -240,7 +238,3 @@ export const RESERVED_BREADCRUMB_TITLES = new Set([
 
 export const ARIO_DISCORD_LINK = 'https://discord.gg/YZGfvxb4az';
 export const APPROXIMATE_BLOCKS_PER_DAY = 720;
-
-export const DEFAULT_CONTRACT_CACHE = new ContractInteractionCache(
-  new LocalStorageCache(),
-);

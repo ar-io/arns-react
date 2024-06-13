@@ -3,8 +3,6 @@ import { useEffect, useState } from 'react';
 import { useLocation, useMatches } from 'react-router';
 import { Link } from 'react-router-dom';
 
-import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
   formatForMaxCharCount,
   isARNSDomainNameValid,

@@ -1,4 +1,4 @@
-import { AoIOWrite, ArIOWritable } from '@ar.io/sdk/web';
+import { AoIOWrite } from '@ar.io/sdk/web';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { VALIDATION_INPUT_TYPES } from '@src/types';
@@ -43,7 +43,6 @@ function TransferIO() {
     try {
       setTransfering(true);
       if (isArweaveTransactionID(toAddress.trim())) {
-        console.log('transfering', toAddress.trim(), quantity);
         // TODO: check that is a write contract
         const contract = arioContract as AoIOWrite;
         const tx = await contract.transfer(
