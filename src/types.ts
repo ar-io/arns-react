@@ -1,12 +1,11 @@
-import { ANTState, AoArNSNameData, ArconnectSigner } from '@ar.io/sdk/web';
+import {
+  ANTState,
+  AoArNSNameData,
+  ArconnectSigner,
+  ArweaveSigner,
+} from '@ar.io/sdk/web';
 import { ApiConfig } from 'arweave/node/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
-import {
-  Contract,
-  CustomSignature,
-  InteractionResult,
-  Tags,
-} from 'warp-contracts';
 
 import { ANTContract } from './services/arweave/ANTContract';
 import { ArweaveTransactionID } from './services/arweave/ArweaveTransactionID';
@@ -107,8 +106,7 @@ export interface ArweaveWalletConnector {
   disconnect(): Promise<void>;
   getWalletAddress(): Promise<ArweaveTransactionID>;
   getGatewayConfig(): Promise<ApiConfig>;
-  // TODO: remove CustomSignature and replace with ArConnectSigner once sdk is fully supported
-  signer: CustomSignature;
+  signer: ArweaveSigner | ArconnectSigner;
   arconnectSigner?: ArconnectSigner;
 }
 

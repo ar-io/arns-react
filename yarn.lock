@@ -9841,26 +9841,6 @@ warp-contracts@1.4.45:
     warp-isomorphic "^1.0.7"
     warp-wasm-metering "1.0.1"
 
-warp-contracts@^1.4.44:
-  version "1.4.44"
-  resolved "https://registry.yarnpkg.com/warp-contracts/-/warp-contracts-1.4.44.tgz#77c85abd507c447623991939d439f1f28d055e4b"
-  integrity sha512-aMPIPqFdpln4pfv3/LQ/LIoI4ErspsVKN1zyyrfEPIGkK5DGMKJyXXf0P3KOJ+1eSPWtwOekX+Bt0Dfna7JdGA==
-  dependencies:
-    archiver "^5.3.0"
-    arweave "1.14.4"
-    async-mutex "^0.4.0"
-    bignumber.js "9.1.1"
-    events "3.3.0"
-    fast-copy "^3.0.0"
-    level "^8.0.0"
-    memory-level "^1.0.0"
-    safe-stable-stringify "2.4.1"
-    stream-buffers "^3.0.2"
-    unzipit "^1.4.0"
-    warp-arbundles "^1.0.4"
-    warp-isomorphic "^1.0.7"
-    warp-wasm-metering "1.0.1"
-
 warp-isomorphic@1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/warp-isomorphic/-/warp-isomorphic-1.0.0.tgz#dccccfc046bc6ac77919f8be1024ced1385c70ea"
