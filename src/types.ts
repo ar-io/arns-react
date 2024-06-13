@@ -106,7 +106,6 @@ export interface ArweaveWalletConnector {
   disconnect(): Promise<void>;
   getWalletAddress(): Promise<ArweaveTransactionID>;
   getGatewayConfig(): Promise<ApiConfig>;
-  signer: ArweaveSigner | ArconnectSigner;
   arconnectSigner?: ArconnectSigner;
 }
 
@@ -154,14 +153,6 @@ export interface ArweaveDataProvider {
   getArBalance(wallet: ArweaveTransactionID): Promise<number>;
   getArPrice(data: number): Promise<number>;
   getCurrentBlockHeight(): Promise<number>;
-}
-
-export interface ANTInteractionProvider {
-  setOwner(id: ArweaveTransactionID): Promise<string>;
-  setControllers(ids: ArweaveTransactionID[]): Promise<string>;
-  setTargetId(id: ArweaveTransactionID): Promise<string>;
-  setUndername(name: string): Promise<string>;
-  removeUndername(name: string): Promise<string>;
 }
 
 export type SearchBarProps = {
