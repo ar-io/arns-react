@@ -42,7 +42,7 @@ export default async function dispatchArIOInteraction({
         // TODO: Replace this once the ArIO SDK supports this interaction
         if (payload.processId === ATOMIC_FLAG) {
           // spawn an ao process
-          processId = 'TODO: SPAWN AO PROCESS';
+          processId = 'SPAWN-AO-PROCESS-FOR-USING-A-VALID-AOMODULE';
         }
 
         const buyRecordResult = await arioContract.buyRecord({

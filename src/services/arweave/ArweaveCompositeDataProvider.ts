@@ -38,7 +38,8 @@ export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
   async getContractsForWallet(): Promise<{
     processIds: ArweaveTransactionID[];
   }> {
-    throw new Error('Not implemented yet');
+    // TODO: use utility to fetch ant contracts owned by wallet
+    return { processIds: [] };
   }
 
   async getTransactionStatus(
@@ -105,11 +106,12 @@ export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
     return !record && !reserved.isReserved;
   }
 
-  async getRecord({ domain }: { domain: string }): Promise<AoArNSNameData> {
+  async getRecord({
+    domain,
+  }: {
+    domain: string;
+  }): Promise<AoArNSNameData | undefined> {
     const record = await this.contract.getArNSRecord({ name: domain });
-    if (!record) {
-      throw new Error(`Couldn't get record for ${domain}`);
-    }
     return record;
   }
 
