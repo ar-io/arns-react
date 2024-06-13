@@ -21,7 +21,7 @@ import './styles.css';
 
 export const ANT_TRANSACTION_DETAILS = {
   deployedTransactionId: 'Transaction ID',
-  contractTxId: 'Contract ID',
+  processId: 'Contract ID',
 };
 export const ARNS_METADATA_DETAILS = {
   domain: 'Domain',
@@ -57,7 +57,7 @@ export function mapKeyToAttribute(key: AntDetailKey) {
 }
 
 export const DEFAULT_PRIMARY_KEYS: Partial<AntDetailKey>[] = [
-  'contractTxId',
+  'processId',
   'domain',
   'leaseDuration',
   'name',
@@ -67,7 +67,7 @@ export const DEFAULT_PRIMARY_KEYS: Partial<AntDetailKey>[] = [
 
 function ANTCard({
   state,
-  contractTxId,
+  processId,
   domain,
   record,
   compact = true,
@@ -79,7 +79,6 @@ function ANTCard({
   bordered = false,
 }: ARNSMapping) {
   const isMobile = useIsMobile();
-  const [{ arweaveDataProvider }] = useGlobalState();
   const [antDetails, setANTDetails] = useState<{ [x: string]: any }>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [limitDetails, setLimitDetails] = useState<boolean>(true);
@@ -98,16 +97,7 @@ function ANTCard({
       if (state) {
         contract = new ANTContract(state);
       }
-      if (contractTxId && contractTxId !== ATOMIC_FLAG && !state) {
-        contract = await arweaveDataProvider
-          .buildANTContract(contractTxId)
-          .catch(() => {
-            throw new Error(
-              `Unable to fetch ANT contract state for ${contractTxId}`,
-            );
-          });
-      }
-
+      // TODO: get contract state from ar.io/sdk
       if (!contract?.isValid()) {
         throw new Error('Invalid ANT contract');
       }
@@ -123,7 +113,7 @@ function ANTCard({
         deployedTransactionId: deployedTransactionId
           ? deployedTransactionId.toString()
           : undefined,
-        contractTxId: contractTxId?.toString() ?? 'N/A',
+        processId: processId?.toString() ?? 'N/A',
         domain: domain,
         // TODO: add the # of associated names that point to this ANT
         leaseDuration: leaseDuration,

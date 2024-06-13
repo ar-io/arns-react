@@ -1,3 +1,4 @@
+import { AoArNSNameData } from '@ar.io/sdk/web';
 import { Pagination, PaginationProps, Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
@@ -6,11 +7,7 @@ import { ANTContract } from '../../../../services/arweave/ANTContract';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../../state/contexts/WalletState';
-import {
-  ANTContractJSON,
-  ARNSDomains,
-  VALIDATION_INPUT_TYPES,
-} from '../../../../types';
+import { ANTContractJSON, VALIDATION_INPUT_TYPES } from '../../../../types';
 import { isArweaveTransactionID } from '../../../../utils';
 import { SMARTWEAVE_MAX_INPUT_SIZE } from '../../../../utils/constants';
 import eventEmitter from '../../../../utils/events';
@@ -105,8 +102,8 @@ function NameTokenSelector({
       if (!address) {
         throw new Error('No address provided');
       }
-      const { contractTxIds: fetchedContractTxIds } = await arweaveDataProvider
-        .getContractsForWallet(address, 'ant')
+      const { processIds: fetchedprocessIds } = await arweaveDataProvider
+        .getContractsForWallet()
         .catch(() => {
           throw new Error('Unable to get contracts for wallet');
         });
@@ -125,10 +122,8 @@ function NameTokenSelector({
                   .catch(() => {
                     throw new Error(`Import is not a SmartWeave Contract`);
                   });
-                const state =
-                  await arweaveDataProvider.getContractState<ANTContractJSON>(
-                    id,
-                  );
+                // TODO: get contract state from @ar.io/sdk
+                const state = {} as any;
                 if (!Object.keys(state).length) {
                   throw new Error(`Unable to get Contract State`);
                 }
@@ -149,34 +144,30 @@ function NameTokenSelector({
           )
         : [];
 
-      if (!fetchedContractTxIds.length && !validImports.length) {
+      if (!fetchedprocessIds.length && !validImports.length) {
         return;
       }
 
-      const contractTxIds = fetchedContractTxIds.concat(validImports);
+      const processIds = fetchedprocessIds.concat(validImports);
       const associatedRecords = await arweaveDataProvider.getRecords({
         filters: {
-          contractTxId: contractTxIds,
+          processId: processIds,
         },
       });
       const contracts: Array<
-        [ArweaveTransactionID, ANTContractJSON, ARNSDomains] | undefined
+        | [
+            ArweaveTransactionID,
+            ANTContractJSON,
+            Record<string, AoArNSNameData>,
+          ]
+        | undefined
       > = await Promise.all(
-        contractTxIds.map(async (contractTxId) => {
-          const contract = await arweaveDataProvider
-            .buildANTContract(contractTxId)
-            .catch(() => {
-              throw new Error(`Unable to get Contract State`);
-            });
-
-          if (!contract.isValid()) {
-            throw new Error('Invalid ANT Contract.');
-          }
+        processIds.map(async (processId) => {
+          // TODO: get ant contract from @ar.io/sdk
+          const contract = {} as any;
           const names = Object.keys(associatedRecords).reduce(
-            (acc: ARNSDomains, id: string) => {
-              if (
-                associatedRecords[id].contractTxId === contractTxId.toString()
-              ) {
+            (acc: Record<string, AoArNSNameData>, id: string) => {
+              if (associatedRecords[id].processId === processId.toString()) {
                 acc[id] = associatedRecords[id];
               }
               return acc;
@@ -184,7 +175,7 @@ function NameTokenSelector({
             {},
           );
 
-          return [contractTxId, contract.state, names];
+          return [processId, contract.state, names];
         }),
       );
       if (!contracts.length) {

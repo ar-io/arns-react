@@ -12,11 +12,11 @@ import DomainSettingsRow from './DomainSettingsRow';
 
 export default function OwnerRow({
   confirm,
-  contractTxId,
+  processId,
   state,
   associatedNames,
 }: {
-  contractTxId: string;
+  processId: string;
   associatedNames: string[];
   state?: ANTState;
   confirm: ({ target }: { target: string }) => Promise<ContractInteraction>;
@@ -65,7 +65,7 @@ export default function OwnerRow({
       {showTransferANTModal && state && (
         <TransferANTModal
           closeModal={() => setShowTransferANTModal(false)}
-          antId={new ArweaveTransactionID(contractTxId)}
+          antId={new ArweaveTransactionID(processId)}
           state={state}
           associatedNames={associatedNames}
           payloadCallback={(payload) => {
@@ -88,7 +88,7 @@ export default function OwnerRow({
               <ANTCard
                 domain={payload.associatedNames?.[0] ?? ''}
                 mobileView
-                contractTxId={new ArweaveTransactionID(contractTxId)}
+                processId={new ArweaveTransactionID(processId)}
                 overrides={{
                   'New Owner': payload.target.toString(),
                 }}

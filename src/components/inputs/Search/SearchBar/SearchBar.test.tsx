@@ -81,7 +81,7 @@ describe('SearchBar', () => {
       expect.anything(),
       expect.objectContaining({
         type: 'setANTID',
-        payload: new ArweaveTransactionID(TEST_RECORDS['ardrive'].contractTxId),
+        payload: new ArweaveTransactionID(TEST_RECORDS['ardrive'].processId),
       }),
     );
     expect(lowerCaseDomain(searchInput.value)).toEqual(lowerCaseDomain(domain));
@@ -105,7 +105,7 @@ describe('SearchBar', () => {
       expect.anything(),
       expect.objectContaining({
         type: 'setANTID',
-        payload: new ArweaveTransactionID(TEST_RECORDS['ardrive'].contractTxId),
+        payload: new ArweaveTransactionID(TEST_RECORDS['ardrive'].processId),
       }),
     );
     expect(lowerCaseDomain(searchInput.value)).toEqual(lowerCaseDomain(domain));

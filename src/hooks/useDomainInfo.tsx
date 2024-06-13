@@ -1,11 +1,4 @@
-import {
-  ANT,
-  ANTWritable,
-  ArIO,
-  ArNSBaseNameData,
-  ArNSLeaseData,
-} from '@ar.io/sdk/web';
-import { ANTContract } from '@src/services/arweave/ANTContract';
+import { ANT, ANTWritable, AoArNSNameData, ArIO } from '@ar.io/sdk/web';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
@@ -20,12 +13,12 @@ export default function useDomainInfo({
   antId?: ArweaveTransactionID;
 }): {
   data: {
-    arnsRecord?: ArNSLeaseData & ArNSBaseNameData;
+    arnsRecord?: AoArNSNameData;
     antState?: ANTContractJSON;
     associatedNames?: string[];
     antProvider: ANTWritable;
     arioProvider?: ArIO;
-    contractTxId: ArweaveTransactionID;
+    processId: ArweaveTransactionID;
   };
   isLoading: boolean;
   error: Error | null;
@@ -48,57 +41,50 @@ export default function useDomainInfo({
     domain?: string;
     antId?: ArweaveTransactionID;
   }): Promise<{
-    arnsRecord?: ArNSLeaseData & ArNSBaseNameData;
+    arnsRecord?: AoArNSNameData;
     antState?: ANTContractJSON;
     associatedNames?: string[];
     antProvider: ANT;
     arioProvider?: ArIO;
-    contractTxId: ArweaveTransactionID;
+    processId: ArweaveTransactionID;
   }> {
     if (!domain && !antId) {
       throw new Error('No domain or antId provided');
     }
     const signer = wallet?.arconnectSigner;
     const record = domain
-      ? await arioProvider.getArNSRecord({ domain })
+      ? await arioProvider.getArNSRecord({ name: domain })
       : undefined;
 
-    let contractTxId = antId || record?.contractTxId;
+    let processId = antId || record?.processId;
 
     const antProvider =
-      contractTxId && signer
-        ? ANT.init({
-            contractTxId: contractTxId.toString(),
+      processId && signer
+        ? // TODO: use ar.io/sdk to create ant contract
+          ANT.init({
+            contractTxId: processId.toString(),
             signer,
           })
         : undefined;
 
-    if (!antProvider || !contractTxId) {
-      throw new Error('No contractTxId found');
+    if (!antProvider || !processId) {
+      throw new Error('No processId found');
     }
     // TODO: get cached domain interactions as well.
-    contractTxId = new ArweaveTransactionID(contractTxId.toString());
+    processId = new ArweaveTransactionID(processId.toString());
 
-    const antState = await antProvider.getState();
-    const pendingInteractions =
-      await arweaveDataProvider.getPendingContractInteractions(contractTxId);
-    const antContract = new ANTContract(
-      antState as ANTContractJSON,
-      contractTxId,
-      pendingInteractions,
-    );
     const associatedNames = Object.keys(
       await arweaveDataProvider.getRecords({
-        filters: { contractTxId: [contractTxId] },
+        filters: { processId: [processId] },
       }),
     );
     return {
-      arnsRecord: record as ArNSLeaseData & ArNSBaseNameData,
-      antState: antContract.state,
+      arnsRecord: record,
+      antState: {} as any,
       associatedNames,
       antProvider,
       arioProvider,
-      contractTxId: new ArweaveTransactionID(contractTxId.toString()),
+      processId: new ArweaveTransactionID(processId.toString()),
     };
   }
 

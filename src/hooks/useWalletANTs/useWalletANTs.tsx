@@ -100,12 +100,10 @@ export function useWalletANTs() {
       if (walletAddress) {
         const height =
           blockHeight ?? (await arweaveDataProvider.getCurrentBlockHeight());
-        const { contractTxIds } =
-          await arweaveDataProvider.getContractsForWallet(
-            walletAddress,
-            'ant', // only fetches contracts that have a state that matches ant spec
-          );
-        const data = await fetchANTData(contractTxIds, height);
+        const { processIds } =
+          // TODO: get contracts from ar.io/sdk
+          await arweaveDataProvider.getContractsForWallet();
+        const data = await fetchANTData(processIds, height);
         const newRows = buildANTRows(data, walletAddress, height);
         setRows(newRows);
       }
@@ -443,13 +441,13 @@ export function useWalletANTs() {
   }
 
   async function fetchANTData(
-    contractTxIds: ArweaveTransactionID[],
+    processIds: ArweaveTransactionID[],
     currentBlockHeight?: number,
   ): Promise<ANTData[]> {
     let datas: ANTData[] = [];
     try {
       itemsLoaded.current = 0;
-      const tokenIds: Set<ArweaveTransactionID> = new Set(contractTxIds);
+      const tokenIds: Set<ArweaveTransactionID> = new Set(processIds);
 
       itemCount.current = tokenIds.size;
 
@@ -457,20 +455,17 @@ export function useWalletANTs() {
         .getTransactionStatus([...tokenIds], currentBlockHeight)
         .catch((e) => console.error(e));
       const newDatas = [...tokenIds].map(
-        async (contractTxId: ArweaveTransactionID) => {
+        async (processId: ArweaveTransactionID) => {
           const errors = [];
-          const [contract, confirmations, pendingContractInteractions] =
-            await Promise.all([
-              arweaveDataProvider.buildANTContract(contractTxId),
-              allTransactionBlockHeights
-                ? allTransactionBlockHeights[contractTxId.toString()]
-                    ?.blockHeight
-                : 0,
-              arweaveDataProvider.getPendingContractInteractions(contractTxId),
-            ]);
+          const [contract, confirmations] = await Promise.all([
+            {} as any, // TODO: get contract state from ar.io/sdk
+            allTransactionBlockHeights
+              ? allTransactionBlockHeights[processId.toString()]?.blockHeight
+              : 0,
+          ]);
 
           if (!contract.state) {
-            errors.push(`Failed to load contract: ${contractTxId.toString()}`);
+            errors.push(`Failed to load contract: ${processId.toString()}`);
           }
 
           // simple check that it is ANT shaped contract
@@ -492,17 +487,18 @@ export function useWalletANTs() {
             contract,
             status: confirmations ?? 0,
             transactionBlockHeight: allTransactionBlockHeights?.[
-              contractTxId.toString()
+              processId.toString()
             ]?.blockHeight
-              ? allTransactionBlockHeights[contractTxId.toString()].blockHeight
+              ? allTransactionBlockHeights[processId.toString()].blockHeight
               : 0,
-            pendingContractInteractions,
             errors,
-          } as ANTData;
+          };
         },
       );
 
-      datas = (await Promise.all(newDatas)).filter((d) => !!d) as ANTData[];
+      datas = (await Promise.all(newDatas)).filter(
+        (d) => d !== undefined,
+      ) as ANTData[];
     } catch (error) {
       console.error(error);
     }

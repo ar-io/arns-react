@@ -1,6 +1,7 @@
-import { ArNSBaseNameData, ArNSLeaseData } from '@ar.io/sdk/web';
+import { AoArNSNameData } from '@ar.io/sdk/web';
 import TransactionSuccessCard from '@src/components/cards/TransactionSuccessCard/TransactionSuccessCard';
 import DomainSettings from '@src/components/forms/DomainSettings/DomainSettings';
+import { isLeasedRecord } from '@src/components/layout/ExtendLease/ExtendLease';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
 import { Tooltip } from 'antd';
@@ -47,19 +48,19 @@ function ManageDomain() {
   async function fetchDomainDetails({
     arnsRecord,
   }: {
-    arnsRecord?: ArNSLeaseData & ArNSBaseNameData;
+    arnsRecord?: AoArNSNameData;
   }) {
     if (isLoadingDomainDetails || !arnsRecord) {
       return;
     }
     try {
       setLoading(true);
-      const txId = arnsRecord?.contractTxId;
+      const txId = arnsRecord?.processId;
       if (!txId) {
         throw Error('This name is not registered');
       }
 
-      const duration = arnsRecord?.endTimestamp
+      const duration = isLeasedRecord(arnsRecord)
         ? getLeaseDurationFromEndTimestamp(
             arnsRecord.startTimestamp * 1000,
             arnsRecord.endTimestamp * 1000,

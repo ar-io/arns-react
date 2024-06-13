@@ -1,4 +1,4 @@
-import { ArNSLeaseData, ArNSNameData } from '@ar.io/sdk/web';
+import { AoArNSNameData, ArNSLeaseData } from '@ar.io/sdk/web';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -9,7 +9,6 @@ import { useWalletState } from '../../../state/contexts/WalletState';
 import {
   ARNS_INTERACTION_TYPES,
   ExtendLeasePayload,
-  INTERACTION_NAMES,
   TRANSACTION_TYPES,
 } from '../../../types';
 import {
@@ -33,6 +32,13 @@ import DialogModal from '../../modals/DialogModal/DialogModal';
 import TransactionCost from '../TransactionCost/TransactionCost';
 import PageLoader from '../progress/PageLoader/PageLoader';
 
+export const isLeasedRecord = function (
+  obj: AoArNSNameData,
+): obj is Omit<ArNSLeaseData, 'processId'> & { processId: string } {
+  return (
+    (obj as any).endTimestamp !== undefined && (obj as any).type === 'lease'
+  );
+};
 function ExtendLease() {
   // TODO: remove use of source contract
   const [{ arweaveDataProvider, ioTicker }] = useGlobalState();
@@ -41,7 +47,7 @@ function ExtendLease() {
   const location = useLocation();
   const navigate = useNavigate();
   const name = location.pathname.split('/').at(-2);
-  const [record, setRecord] = useState<ArNSLeaseData>();
+  const [record, setRecord] = useState<AoArNSNameData>();
   const [registrationType, setRegistrationType] = useState<TRANSACTION_TYPES>();
   const [newLeaseDuration, setNewLeaseDuration] = useState<number>(1);
   const [maxIncrease, setMaxIncrease] = useState<number>(0);
@@ -57,28 +63,14 @@ function ExtendLease() {
   }, [name]);
 
   useEffect(() => {
-    if (!record || !record.endTimestamp || !name) {
+    if (!record || !name || !isLeasedRecord(record)) {
       return;
     }
 
     setIoFee(undefined);
     const updateIoFee = async () => {
-      const price = await arweaveDataProvider
-        .getPriceForInteraction({
-          interactionName: INTERACTION_NAMES.EXTEND_RECORD,
-          payload: {
-            name: name,
-            years: newLeaseDuration,
-          },
-        })
-        .catch(() => {
-          eventEmitter.emit(
-            'error',
-            new Error('Unable to get price for extend lease'),
-          );
-          return -1;
-        });
-
+      // TODO: use price from contract
+      const price = 0;
       setIoFee(price);
     };
     updateIoFee();
@@ -86,25 +78,22 @@ function ExtendLease() {
 
   async function onLoad(domain: string) {
     try {
-      const domainRecord = (await arweaveDataProvider.getRecord({
+      // TODO: make this generic so we get back the correct type
+      const domainRecord = await arweaveDataProvider.getRecord({
         domain,
-      })) as ArNSLeaseData & ArNSNameData;
-      if (!domainRecord?.type) {
-        throw new Error(`Unable to get record for ${domain}`);
-      }
+      });
       setRegistrationType(domainRecord.type as TRANSACTION_TYPES);
-
       setRecord(domainRecord);
 
-      if (!(record as ArNSLeaseData).endTimestamp) {
+      if (!record) {
+        throw new Error(`Unable to get record for ${name}`);
+      }
+
+      if (!isLeasedRecord(record)) {
         setRegistrationType(TRANSACTION_TYPES.BUY);
         return;
       }
-      const balance = await arweaveDataProvider.getTokenBalance(
-        walletAddress!,
-        ARNS_REGISTRY_ADDRESS,
-      );
-
+      const balance = await arweaveDataProvider.getTokenBalance(walletAddress!);
       setIoBalance(balance ?? 0);
 
       setMaxIncrease(
@@ -113,11 +102,10 @@ function ExtendLease() {
           MAX_LEASE_DURATION -
             getLeaseDurationFromEndTimestamp(
               // TODO: remove this when state in contract is fixed. (currently was backfilled incorrectly with ms timestamps)
-              domainRecord.startTimestamp >
-                (record as ArNSLeaseData).endTimestamp
+              domainRecord.startTimestamp > record.endTimestamp
                 ? domainRecord.startTimestamp
                 : domainRecord.startTimestamp * 1000,
-              (record as ArNSLeaseData).endTimestamp * 1000,
+              record.endTimestamp * 1000,
             ),
         ),
       );
@@ -135,7 +123,7 @@ function ExtendLease() {
     );
   }
 
-  if (!record.endTimestamp || registrationType === TRANSACTION_TYPES.BUY) {
+  if (!isLeasedRecord(record) || registrationType === TRANSACTION_TYPES.BUY) {
     return (
       <div className="page center">
         <DialogModal
@@ -285,7 +273,7 @@ function ExtendLease() {
                   const payload: ExtendLeasePayload = {
                     name,
                     years: newLeaseDuration,
-                    contractTxId: new ArweaveTransactionID(record.contractTxId),
+                    processId: new ArweaveTransactionID(record.processId),
                     qty: ioFee,
                   };
 

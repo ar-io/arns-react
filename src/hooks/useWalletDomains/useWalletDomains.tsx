@@ -1,5 +1,6 @@
-import { ArNSLeaseData, ArNSNameData } from '@ar.io/sdk/web';
+import { AoArNSNameData } from '@ar.io/sdk/web';
 import ManageAssetButtons from '@src/components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
+import { isLeasedRecord } from '@src/components/layout/ExtendLease/ExtendLease';
 import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
@@ -35,7 +36,7 @@ import { DEFAULT_MAX_UNDERNAMES } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 
 type DomainData = {
-  record: ArNSNameData & { domain: string };
+  record: AoArNSNameData & { domain: string };
   state?: ANTContractJSON;
   transactionBlockHeight?: number;
   pendingContractInteractions?: ContractInteraction[];
@@ -112,16 +113,10 @@ export function useWalletDomains() {
       if (walletAddress) {
         const height =
           blockHeight ?? (await arweaveDataProvider.getCurrentBlockHeight());
-        const { contractTxIds } =
-          await arweaveDataProvider.getContractsForWallet(
-            walletAddress,
-            'ant', // only fetches contracts that have a state that matches ant spec
-          );
-        const data = await fetchDomainData(
-          contractTxIds,
-          walletAddress,
-          height,
-        );
+        const { processIds } =
+          // TODO: utility function in ar.io/sdk
+          await arweaveDataProvider.getContractsForWallet();
+        const data = await fetchDomainData(processIds, walletAddress, height);
         const newRows = buildDomainRows(data, walletAddress, height);
         setRows(newRows);
       }
@@ -507,8 +502,7 @@ export function useWalletDomains() {
     let datas: DomainData[] = [];
     try {
       const registrations = await arweaveDataProvider.getRecords({
-        filters: { contractTxId: [...tokenIds] },
-        address,
+        filters: { processId: [...tokenIds] },
       });
       const consolidatedRecords = Object.entries(registrations).map(
         ([domain, record]) => ({ ...record, domain }),
@@ -521,28 +515,11 @@ export function useWalletDomains() {
 
       const newDatas = consolidatedRecords.map(async (record) => {
         const errors = [];
-        const [contract, pendingContractInteractions] = await Promise.all([
-          arweaveDataProvider
-            .buildANTContract(new ArweaveTransactionID(record.contractTxId))
-            .catch((e) => console.error(e)),
-          arweaveDataProvider
-            .getPendingContractInteractions(
-              new ArweaveTransactionID(record.contractTxId),
-            )
-            .catch((e) => {
-              console.error(e);
-            }),
-        ]);
-
-        if (!contract?.state) {
-          errors.push(
-            `Failed to load contract: ${record.contractTxId.toString()}`,
-          );
-        }
+        const contract = {} as any;
         // simple check that it is ANT shaped contract
 
         if (!contract?.isValid()) {
-          errors.push(`Invalid contract: ${record.contractTxId.toString()}`);
+          errors.push(`Invalid contract: ${record.processId.toString()}`);
         }
         // TODO: react strict mode makes this increment twice in dev
         if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
@@ -556,9 +533,8 @@ export function useWalletDomains() {
         const data: DomainData = {
           record,
           state: contract?.state,
-          pendingContractInteractions: pendingContractInteractions ?? undefined,
           transactionBlockHeight:
-            allTransactionBlockHeights?.[record.contractTxId.toString()]
+            allTransactionBlockHeights?.[record.processId.toString()]
               ?.blockHeight,
           errors,
         };
@@ -587,20 +563,20 @@ export function useWalletDomains() {
         const { record, state, transactionBlockHeight } = data;
         const contract = new ANTContract(
           state,
-          new ArweaveTransactionID(record.contractTxId),
+          new ArweaveTransactionID(record.processId),
         );
 
         return {
           name: decodeDomainToASCII(data.record.domain),
-          id: data.record.contractTxId,
+          id: data.record.processId,
           role:
             contract.owner === walletAddress?.toString()
               ? 'Owner'
               : contract.controllers.includes(address.toString())
               ? 'Controller'
               : 'N/A',
-          expiration: (record as ArNSLeaseData).endTimestamp
-            ? formatDate((record as ArNSLeaseData).endTimestamp * 1000)
+          expiration: isLeasedRecord(record)
+            ? formatDate(record.endTimestamp)
             : 'Indefinite',
           status:
             transactionBlockHeight && currentBlockHeight
@@ -613,7 +589,7 @@ export function useWalletDomains() {
           ).toLocaleString()} / ${(
             record?.undernames ?? DEFAULT_MAX_UNDERNAMES
           ).toLocaleString()}`,
-          key: `${record.domain}-${record.contractTxId}`,
+          key: `${record.domain}-${record.processId}`,
           hasPending: !!data.pendingContractInteractions?.length,
           errors: data.errors,
         };

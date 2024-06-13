@@ -1,4 +1,4 @@
-import { ArIOReadable, ArIOWritable } from '@ar.io/sdk/web';
+import { AoIORead, AoIOWrite } from '@ar.io/sdk/web';
 import { Dispatch } from 'react';
 
 import { GlobalAction } from '../reducers';
@@ -7,7 +7,7 @@ export function dispatchArIOContract({
   contract,
   dispatch,
 }: {
-  contract: ArIOWritable | ArIOReadable;
+  contract: AoIORead | AoIOWrite;
   dispatch: Dispatch<GlobalAction>;
 }) {
   dispatch({

@@ -22,7 +22,6 @@ export type NavItem = {
 export const ANT_FLAG = 'ant-flag';
 
 function Breadcrumbs() {
-  const [{ arweaveDataProvider }] = useGlobalState();
   const { Item } = Breadcrumb;
   const location = useLocation();
   const path = location.pathname.split('/');
@@ -57,10 +56,8 @@ function Breadcrumbs() {
         });
       // check for ant flag
       if (isArweaveTransactionID(contractId)) {
-        const state = await arweaveDataProvider.getContractState(
-          new ArweaveTransactionID(contractId),
-        );
-
+        // TODO: get contract from ar.io/sdk
+        const state = {} as any;
         const parsedCrumbs = rawCrumbs[0].map((crumb: NavItem) => {
           if (crumb.name == ANT_FLAG) {
             return { name: state.name, route: crumb.route };

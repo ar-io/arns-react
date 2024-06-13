@@ -1,4 +1,4 @@
-import { ArNSNameData } from '@ar.io/sdk/web';
+import { AoArNSNameData } from '@ar.io/sdk/web';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -9,7 +9,6 @@ import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ARNS_INTERACTION_TYPES,
-  INTERACTION_NAMES,
   IncreaseUndernamesPayload,
 } from '../../../types';
 import { isARNSDomainNameValid, lowerCaseDomain, sleep } from '../../../utils';
@@ -31,7 +30,7 @@ function UpgradeUndernames() {
   const [{ arweaveDataProvider, ioTicker }] = useGlobalState();
   const name = location.pathname.split('/').at(-2);
   const [, dispatchTransactionState] = useTransactionState();
-  const [record, setRecord] = useState<ArNSNameData>();
+  const [record, setRecord] = useState<AoArNSNameData>();
   const [antContract, setAntContract] = useState<ANTContract>();
   // min count of 1 ~ contract rule
   const [newUndernameCount, setNewUndernameCount] = useState<number>(0);
@@ -58,22 +57,8 @@ function UpgradeUndernames() {
           new Error('Invalid undername count, must be a number greater than 0'),
         );
       }
-      const price = await arweaveDataProvider
-        .getPriceForInteraction({
-          interactionName: INTERACTION_NAMES.INCREASE_UNDERNAME_COUNT,
-          payload: {
-            name: name,
-            qty: newUndernameCount,
-          },
-        })
-        .catch(() => {
-          eventEmitter.emit(
-            'error',
-            new Error('Unable to get price for undername increase'),
-          );
-          return -1;
-        });
-
+      // TODO; implement
+      const price = 0;
       setFee(price);
     };
 
@@ -91,10 +76,9 @@ function UpgradeUndernames() {
           throw new Error(`Unable to get record for ${name}`);
         }
         setRecord(record);
-        const contractTxId = new ArweaveTransactionID(record?.contractTxId);
-        const contract = await arweaveDataProvider.buildANTContract(
-          contractTxId,
-        );
+        const processId = new ArweaveTransactionID(record?.processId);
+        // TODO: fix this
+        const contract = new ANTContract(undefined, processId);
         if (!contract.state) {
           throw new Error(`Unable to get contract state for ${name}`);
         }
@@ -224,7 +208,7 @@ function UpgradeUndernames() {
                     name: lowerCaseDomain(name),
                     qty: newUndernameCount,
                     oldQty: record.undernames,
-                    contractTxId: record.contractTxId,
+                    processId: record.processId,
                   };
                   dispatchTransactionState({
                     type: 'setTransactionData',

@@ -55,7 +55,7 @@ function EditUndernameModal({
 
   async function load(id: ArweaveTransactionID) {
     try {
-      const contract = await arweaveDataProvider.buildANTContract(id);
+      const contract = { id: id.toString() } as any; // TODO: use ar.io/sdk to fetch ant state
       setState(contract.state);
       if (
         isArweaveTransactionID(

@@ -105,21 +105,19 @@ function Undernames() {
 
   async function load() {
     try {
-      let contractTxId: ArweaveTransactionID | undefined = undefined;
+      let processId: ArweaveTransactionID | undefined = undefined;
       if (isArweaveTransactionID(id)) {
-        contractTxId = new ArweaveTransactionID(id);
+        processId = new ArweaveTransactionID(id);
       } else if (name) {
         const record = data.arnsRecord;
-        contractTxId = new ArweaveTransactionID(record?.contractTxId);
+        processId = new ArweaveTransactionID(record?.processId);
       }
 
-      if (!contractTxId) {
+      if (!processId) {
         throw new Error('Unable to load undernames, cannot resolve ANT ID.');
       }
-      setANTId(contractTxId);
-      setANTState(
-        new ANTContract(data.antState as ANTContractJSON, contractTxId),
-      );
+      setANTId(processId);
+      setANTState(new ANTContract(data.antState as ANTContractJSON, processId));
     } catch (error) {
       eventEmitter.emit('error', error);
       navigate('/manage/ants');
@@ -129,18 +127,18 @@ function Undernames() {
   async function handleInteraction({
     payload,
     workflowName,
-    contractTxId,
+    processId,
   }: {
     payload: TransactionDataPayload;
     workflowName: ANT_INTERACTION_TYPES;
-    contractTxId?: ArweaveTransactionID;
+    processId?: ArweaveTransactionID;
   }) {
     try {
-      if (!contractTxId) {
+      if (!processId) {
         throw new Error('Unable to interact with ANT contract - missing ID.');
       }
       await dispatchANTInteraction({
-        contractTxId,
+        processId,
         payload,
         workflowName,
         antProvider: data.antProvider,
@@ -351,7 +349,7 @@ function Undernames() {
             handleInteraction({
               payload: transactionData,
               workflowName: interactionType,
-              contractTxId: antId,
+              processId: antId,
             })
           }
           cancel={() => {

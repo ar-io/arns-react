@@ -1,4 +1,5 @@
 import LeaseDuration from '@src/components/data-display/LeaseDuration';
+import { isLeasedRecord } from '@src/components/layout/ExtendLease/ExtendLease';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
@@ -28,7 +29,7 @@ export enum DomainSettingsRowTypes {
   ASSOCIATED_NAMES = 'Associated Names',
   STATUS = 'Status',
   NICKNAME = 'Nickname',
-  CONTRACT_ID = 'Contract ID',
+  PROCESS_ID = 'Process ID',
   TARGET_ID = 'Target ID',
   TICKER = 'Ticker',
   CONTROLLERS = 'Controllers',
@@ -59,10 +60,10 @@ function DomainSettings({
       return 'Active';
     }
     const now = Date.now();
-    if (endTimestamp * 1000 < now) {
+    if (endTimestamp < now) {
       return 'Expired';
     }
-    if (endTimestamp - SECONDS_IN_GRACE_PERIOD < now / 1000) {
+    if (endTimestamp - SECONDS_IN_GRACE_PERIOD * 1000 < now / 1000) {
       return 'In Grace Period';
     }
     return 'Active';
@@ -79,8 +80,10 @@ function DomainSettings({
                 value={
                   isLoading ? (
                     <Skeleton.Input active />
-                  ) : (
+                  ) : data.arnsRecord && isLeasedRecord(data.arnsRecord) ? (
                     formatExpiryDate(data.arnsRecord?.endTimestamp)
+                  ) : (
+                    'N/A'
                   )
                 }
               />
@@ -94,7 +97,11 @@ function DomainSettings({
                   ) : (
                     <LeaseDuration
                       startTimestamp={data.arnsRecord?.startTimestamp}
-                      endTimestamp={data.arnsRecord?.endTimestamp}
+                      endTimestamp={
+                        data.arnsRecord && isLeasedRecord(data.arnsRecord)
+                          ? data.arnsRecord?.endTimestamp
+                          : 0
+                      }
                     />
                   )
                 }
@@ -109,7 +116,11 @@ function DomainSettings({
             [DomainSettingsRowTypes.STATUS]: (
               <DomainSettingsRow
                 label="Status"
-                value={getStatus(data.arnsRecord?.endTimestamp)}
+                value={
+                  data.arnsRecord && isLeasedRecord(data.arnsRecord)
+                    ? getStatus(data.arnsRecord?.endTimestamp)
+                    : 'Active'
+                }
               />
             ),
             [DomainSettingsRowTypes.NICKNAME]: (
@@ -120,18 +131,18 @@ function DomainSettings({
                     payload: { name },
                     workflowName: ANT_INTERACTION_TYPES.SET_NAME,
                     antProvider: data.antProvider,
-                    contractTxId: data.contractTxId,
+                    processId: data.processId,
                     dispatch,
                   })
                 }
               />
             ),
-            [DomainSettingsRowTypes.CONTRACT_ID]: (
+            [DomainSettingsRowTypes.PROCESS_ID]: (
               <DomainSettingsRow
-                label="Contract ID"
+                label="Process ID"
                 value={
-                  data?.contractTxId ? (
-                    data.contractTxId.toString()
+                  data?.processId ? (
+                    data.processId.toString()
                   ) : (
                     <Skeleton.Input active />
                   )
@@ -149,7 +160,7 @@ function DomainSettings({
                     },
                     workflowName: ANT_INTERACTION_TYPES.SET_TARGET_ID,
                     antProvider: data.antProvider,
-                    contractTxId: data.contractTxId,
+                    processId: data.processId,
                     dispatch,
                   })
                 }
@@ -163,7 +174,7 @@ function DomainSettings({
                     payload: { ticker },
                     workflowName: ANT_INTERACTION_TYPES.SET_TICKER,
                     antProvider: data.antProvider,
-                    contractTxId: data.contractTxId,
+                    processId: data.processId,
                     dispatch,
                   })
                 }
@@ -172,7 +183,7 @@ function DomainSettings({
             [DomainSettingsRowTypes.CONTROLLERS]: (
               <ControllersRow
                 state={data?.antState}
-                contractTxId={data?.contractTxId?.toString()}
+                processId={data?.processId?.toString()}
                 confirm={({
                   payload,
                   workflowName,
@@ -186,7 +197,7 @@ function DomainSettings({
                     payload,
                     workflowName,
                     antProvider: data.antProvider,
-                    contractTxId: data.contractTxId,
+                    processId: data.processId,
                     dispatch,
                   })
                 }
@@ -194,7 +205,7 @@ function DomainSettings({
             ),
             [DomainSettingsRowTypes.OWNER]: (
               <OwnerRow
-                contractTxId={data?.contractTxId?.toString()}
+                processId={data?.processId?.toString()}
                 state={data?.antState}
                 associatedNames={data?.associatedNames ?? []}
                 confirm={({ target }: { target: string }) =>
@@ -202,7 +213,7 @@ function DomainSettings({
                     payload: { target },
                     workflowName: ANT_INTERACTION_TYPES.TRANSFER,
                     antProvider: data.antProvider,
-                    contractTxId: data.contractTxId,
+                    processId: data.processId,
                     dispatch,
                   })
                 }
@@ -220,7 +231,7 @@ function DomainSettings({
                     },
                     workflowName: ANT_INTERACTION_TYPES.SET_TTL_SECONDS,
                     antProvider: data.antProvider,
-                    contractTxId: data.contractTxId,
+                    processId: data.processId,
                     dispatch,
                   })
                 }
@@ -229,7 +240,7 @@ function DomainSettings({
             [DomainSettingsRowTypes.UNDERNAMES]: (
               <UndernamesRow
                 domain={domain}
-                antId={data?.contractTxId?.toString()}
+                antId={data?.processId?.toString()}
                 undernameCount={getUndernameCount(
                   data?.antState?.records ?? {},
                 )}

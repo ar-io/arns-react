@@ -69,17 +69,17 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     this._walletConnector = walletConnector;
   }
 
-  syncStateUrlForContract(contractTxId: ArweaveTransactionID): string {
-    return `${ARNS_SERVICE_API}/v1/contract/${contractTxId.toString()}`;
+  syncStateUrlForContract(processId: ArweaveTransactionID): string {
+    return `${ARNS_SERVICE_API}/v1/contract/${processId.toString()}`;
   }
 
   private async getContractManifest({
-    contractTxId,
+    processId,
   }: {
-    contractTxId: ArweaveTransactionID;
+    processId: ArweaveTransactionID;
   }): Promise<EvaluationManifest> {
     const { tags: encodedTags } = await this._arweave.transactions
-      .get(contractTxId.toString())
+      .get(processId.toString())
       .catch(() => ({
         tags: undefined,
       }));
@@ -91,14 +91,14 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
 
   async writeTransaction({
     walletAddress,
-    contractTxId,
+    processId,
     payload,
     dryWrite = true,
     tags,
     interactionDetails,
   }: {
     walletAddress: ArweaveTransactionID;
-    contractTxId: ArweaveTransactionID;
+    processId: ArweaveTransactionID;
     payload: {
       function: string;
       [x: string]: any;
@@ -119,15 +119,15 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     }
 
     const { evaluationOptions = {} } = await this.getContractManifest({
-      contractTxId,
+      processId,
     });
 
     const contract = await this._warp
-      .contract(contractTxId.toString())
+      .contract(processId.toString())
       .setEvaluationOptions(evaluationOptions)
       .connect(this._walletConnector.signer)
       // TODO: add to our SmartweaveContractInterface a method that gets the full response of the service with `sortKey`
-      .syncState(this.syncStateUrlForContract(contractTxId), {
+      .syncState(this.syncStateUrlForContract(processId), {
         validity: true,
       });
 
@@ -159,7 +159,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     }
 
     const result = useUnsafe
-      ? await this.unsafeWriteTransaction({ contractTxId, payload }).then(
+      ? await this.unsafeWriteTransaction({ processId, payload }).then(
           (id: ArweaveTransactionID) => ({ originalTxId: id.toString() }),
         )
       : await withExponentialBackoff<WriteInteractionResponse | null>({
@@ -175,7 +175,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
               eventEmitter.emit(
                 'error',
                 new ContractInteractionError(
-                  `Write interaction failed for contract ${contractTxId.toString()} with error: ${
+                  `Write interaction failed for contract ${processId.toString()} with error: ${
                     result.message
                   }. Retrying in ${nextAttemptMs / 1000} seconds...`,
                 ),
@@ -196,9 +196,9 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     if (!originalTxId) {
       throw Error('No transaction ID from write interaction');
     }
-    this._cache.push(contractTxId.toString(), {
+    this._cache.push(processId.toString(), {
       id: originalTxId,
-      contractTxId: contractTxId.toString(),
+      processId: processId.toString(),
       payload,
       type: 'interaction',
       deployer: walletAddress.toString(),
@@ -279,23 +279,23 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       maxTries: 3,
       initialDelay: 300,
     });
-    const contractTxId = new ArweaveTransactionID(transaction.id);
+    const processId = new ArweaveTransactionID(transaction.id);
 
     if (!deployRes || (deployRes.status !== 200 && deployRes.status !== 208)) {
       // 200 success, 208 already posted tx
       throw new Error('Deploy failed.');
     }
 
-    this._cache.push(contractTxId.toString(), {
-      contractTxId: contractTxId.toString(),
-      id: contractTxId.toString(),
+    this._cache.push(processId.toString(), {
+      processId: processId.toString(),
+      id: processId.toString(),
       payload: deploymentPayload,
       type: 'deploy',
       deployer: walletAddress.toString(),
     });
     // Pulls out registration interaction and caches it
     // TODO: make this able to cache batch interactions on multiple contracts at once.
-    if (tags && contractTxId) {
+    if (tags && processId) {
       const input = tags.find((tag: Tag) => tag.name === 'Input')?.value;
       const contractId = tags.find(
         (tag: Tag) => tag.name === 'Contract',
@@ -307,8 +307,8 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       }
       const interactionPayload = JSON.parse(input);
       this._cache.push(contractId, {
-        id: contractTxId.toString(),
-        contractTxId: contractId,
+        id: processId.toString(),
+        processId: contractId,
         payload: interactionPayload,
         type: 'interaction',
         deployer: walletAddress.toString(),
@@ -316,7 +316,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
       });
     }
 
-    return contractTxId.toString();
+    return processId.toString();
   }
 
   async registerAtomicName({
@@ -357,7 +357,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     });
 
     const { evaluationOptions = {} } = await this.getContractManifest({
-      contractTxId: registryId,
+      processId: registryId,
     });
 
     const contract = await this._warp
@@ -452,12 +452,12 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
   }
 
   async unsafeWriteTransaction({
-    contractTxId,
+    processId,
     payload,
     data,
     tags = [],
   }: {
-    contractTxId: ArweaveTransactionID;
+    processId: ArweaveTransactionID;
     payload: {
       function: string;
       [x: string]: any;
@@ -466,7 +466,7 @@ export class WarpDataProvider implements SmartweaveContractInteractionProvider {
     tags?: Tags;
   }): Promise<ArweaveTransactionID> {
     const interactionTags = buildSmartweaveInteractionTags({
-      contractId: contractTxId,
+      contractId: processId,
       input: payload,
     });
     const transaction = await this._arweave.createTransaction(

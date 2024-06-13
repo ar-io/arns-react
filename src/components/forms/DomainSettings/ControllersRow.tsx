@@ -16,11 +16,11 @@ import DomainSettingsRow from './DomainSettingsRow';
 
 export default function ControllersRow({
   state,
-  contractTxId,
+  processId,
   confirm,
 }: {
   state?: ANTContractJSON;
-  contractTxId?: string;
+  processId?: string;
   confirm: ({
     payload,
     workflowName,
@@ -118,11 +118,11 @@ export default function ControllersRow({
           </Tooltip>,
         ]}
       />
-      {showAddModal && contractTxId && state && (
+      {showAddModal && processId && state && (
         <AddControllerModal
           closeModal={() => setShowAddModal(false)}
           state={state}
-          antId={new ArweaveTransactionID(contractTxId)}
+          antId={new ArweaveTransactionID(processId)}
           payloadCallback={(c) => {
             setWorkflowName(ANT_INTERACTION_TYPES.SET_CONTROLLER);
             setPayload(c);
@@ -131,11 +131,11 @@ export default function ControllersRow({
           }}
         />
       )}
-      {showRemoveModal && contractTxId && state && (
+      {showRemoveModal && processId && state && (
         <RemoveControllersModal
           closeModal={() => setShowRemoveModal(false)}
           state={state}
-          antId={new ArweaveTransactionID(contractTxId)}
+          antId={new ArweaveTransactionID(processId)}
           payloadCallback={(c) => {
             setWorkflowName(ANT_INTERACTION_TYPES.REMOVE_CONTROLLER);
             setPayload(c);

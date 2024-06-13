@@ -227,7 +227,7 @@ export const ATOMIC_FLAG = 'atomic' as const;
 export const ATOMIC_REGISTRATION_INPUT = {
   function: 'buyRecord',
   name: '',
-  contractTxId: ATOMIC_FLAG,
+  processId: ATOMIC_FLAG,
   qty: 0,
 };
 

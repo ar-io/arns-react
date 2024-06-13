@@ -9,7 +9,7 @@ import './styles.css';
 function SearchBarHeader({
   defaultText,
   domain,
-  contractTxId,
+  processId,
   isAvailable,
   isReserved,
   reservedFor,
@@ -39,7 +39,7 @@ function SearchBarHeader({
     );
   }
   // unavailable condition
-  if (contractTxId && domain) {
+  if (processId && domain) {
     return (
       <div
         className="text-medium white center flex fade-in"

@@ -1,5 +1,5 @@
 import { CheckCircleFilled } from '@ant-design/icons';
-import { ANT, mIOToken } from '@ar.io/sdk/web';
+import { mIOToken } from '@ar.io/sdk/web';
 import { InsufficientFundsError, ValidationError } from '@src/utils/errors';
 import { Tooltip } from 'antd';
 import emojiRegex from 'emoji-regex';
@@ -21,7 +21,6 @@ import {
 import {
   encodeDomainToASCII,
   formatDate,
-  generateAtomicState,
   isArweaveTransactionID,
   userHasSufficientBalance,
 } from '../../../utils';
@@ -91,11 +90,9 @@ function RegisterNameForm() {
         payload: txId,
       });
 
-      const contract = await arweaveDataProvider.buildANTContract(txId);
-
-      if (!contract.isValid()) {
-        throw Error('ANT contract state does not match required schema.');
-      }
+      // TODO: fetch contract from ar.io/sdk
+      const contract = {} as any;
+      if (!contract) throw new Error('Contract not found');
     } catch (error: any) {
       console.error(error);
     }
@@ -164,7 +161,7 @@ function RegisterNameForm() {
         domain && emojiRegex().test(domain)
           ? encodeDomainToASCII(domain)
           : domain,
-      contractTxId: antID ? antID.toString() : ATOMIC_FLAG,
+      processId: antID ? antID.toString() : ATOMIC_FLAG,
       // TODO: move this to a helper function
       years:
         registrationType === TRANSACTION_TYPES.LEASE
@@ -177,15 +174,12 @@ function RegisterNameForm() {
     dispatchTransactionState({
       type: 'setTransactionData',
       payload: {
-        walletAddress,
         assetId: ARNS_REGISTRY_ADDRESS.toString(),
         functionName: 'buyRecord',
         ...buyRecordPayload,
-        state: antID
-          ? await ANT.init({ contractTxId: antID.toString() }).getState()
-          : generateAtomicState(domain, walletAddress),
+        state: {} as any,
         interactionPrice: fee?.[ioTicker],
-      } as any, // TODO: after buyRecord is added with the sdk refactor this to the correct type
+      },
     });
     dispatchTransactionState({
       type: 'setInteractionType',

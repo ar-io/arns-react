@@ -18,28 +18,17 @@ import { ArweaveTransactionID } from './ArweaveTransactionID';
 export class ANTContract {
   id?: ArweaveTransactionID | typeof ATOMIC_FLAG;
   contract: ANTContractJSON;
-  pendingInteractions: ContractInteraction[];
 
   constructor(
     state?: ANTContractJSON,
     id?: ArweaveTransactionID | typeof ATOMIC_FLAG,
-    pendingInteractions: ContractInteraction[] = [],
   ) {
     this.id = id;
-    this.pendingInteractions = pendingInteractions;
     if (state) {
       this.contract = { ...state };
     } else {
       this.contract = { ...DEFAULT_ANT_CONTRACT_STATE };
     }
-    this.pendingInteractions
-      .sort(
-        (a: ContractInteraction, b: ContractInteraction) =>
-          +a.timestamp - +b.timestamp,
-      )
-      .forEach((interaction: ContractInteraction) =>
-        this.handleInteraction(interaction),
-      );
   }
   get owner() {
     return this.contract.owner;

@@ -6,7 +6,6 @@ import {
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
-import { DEFAULT_CONTRACT_CACHE } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Dispatch } from 'react';
 
@@ -14,13 +13,13 @@ export default async function dispatchANTInteraction({
   payload,
   workflowName,
   antProvider,
-  contractTxId,
+  processId,
   dispatch,
 }: {
   payload: Record<string, any>;
   workflowName: ANT_INTERACTION_TYPES;
   antProvider?: ANTWritable;
-  contractTxId: ArweaveTransactionID;
+  processId: ArweaveTransactionID;
   dispatch: Dispatch<TransactionAction>;
 }): Promise<ContractInteraction> {
   let result: WriteInteractionResult | undefined = undefined;
@@ -113,7 +112,7 @@ export default async function dispatchANTInteraction({
 
   const interaction: ContractInteraction = {
     deployer: result.owner,
-    contractTxId: contractTxId.toString(),
+    processId: processId.toString(),
     id: await result.id,
     payload: {
       ...payload,
@@ -121,8 +120,6 @@ export default async function dispatchANTInteraction({
     },
     type: 'interaction',
   };
-
-  await DEFAULT_CONTRACT_CACHE.push(contractTxId.toString(), interaction);
 
   dispatch({
     type: 'setWorkflowName',

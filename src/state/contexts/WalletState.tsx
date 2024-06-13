@@ -1,4 +1,4 @@
-import { ArIO } from '@ar.io/sdk/web';
+import { IO, ioDevnetProcessId } from '@ar.io/sdk/web';
 import { ArweaveAppError } from '@src/utils/errors';
 import React, {
   Dispatch,
@@ -13,7 +13,6 @@ import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionI
 import { ArConnectWalletConnector } from '../../services/wallets';
 import { ArweaveWalletConnector, WALLET_TYPES } from '../../types';
 import {
-  ARNS_REGISTRY_ADDRESS,
   ARWEAVE_APP_API,
   DEFAULT_ARNS_REGISTRY_STATE,
 } from '../../utils/constants';
@@ -73,16 +72,16 @@ export default function WalletStateProvider({
     }
     if (wallet?.arconnectSigner) {
       dispatchArIOContract({
-        contract: ArIO.init({
-          contractTxId: ARNS_REGISTRY_ADDRESS.toString(),
+        contract: IO.init({
+          processId: ioDevnetProcessId,
           signer: wallet.arconnectSigner,
         }),
         dispatch: dispatchGlobalState,
       });
     } else {
       dispatchArIOContract({
-        contract: ArIO.init({
-          contractTxId: ARNS_REGISTRY_ADDRESS.toString(),
+        contract: IO.init({
+          processId: ioDevnetProcessId.toString(),
         }),
         dispatch: dispatchGlobalState,
       });
@@ -147,7 +146,7 @@ export default function WalletStateProvider({
   async function updateBalances(address: ArweaveTransactionID) {
     try {
       const [ioBalance, arBalance] = await Promise.all([
-        arweaveDataProvider.getTokenBalance(address, ARNS_REGISTRY_ADDRESS),
+        arweaveDataProvider.getTokenBalance(address),
         arweaveDataProvider.getArBalance(address),
       ]);
 

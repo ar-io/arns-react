@@ -9,7 +9,7 @@ import './styles.css';
 function SearchBarFooter({
   domain,
   record,
-  contractTxId,
+  processId,
   isAvailable,
   isReserved,
   reservedFor,
@@ -32,14 +32,14 @@ function SearchBarFooter({
       className="flex flex-column"
       style={{ marginTop: '30px', boxSizing: 'border-box' }}
     >
-      {!isAvailable && record && contractTxId && domain ? (
+      {!isAvailable && record && processId && domain ? (
         <>
           <span className="flex flex-row white text-medium flex-left">
             Ownership Details:
           </span>
           <ANTCard
             domain={domain}
-            contractTxId={contractTxId}
+            processId={processId}
             record={record}
             compact={true}
             bordered

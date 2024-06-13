@@ -1,4 +1,4 @@
-import { ArIOWritable } from '@ar.io/sdk/web';
+import { AoIOWrite, ArIOWritable } from '@ar.io/sdk/web';
 import { ANTCard } from '@src/components/cards';
 import { InfoIcon } from '@src/components/icons';
 import WorkflowButtons from '@src/components/inputs/buttons/WorkflowButtons/WorkflowButtons';
@@ -32,8 +32,7 @@ import { getTransactionHeader } from './transaction-headers';
 // on completion routes to transaction/complete
 function TransactionReview() {
   const navigate = useNavigate();
-  const [{ ioTicker, arioContract, arnsContractId, arweaveDataProvider }] =
-    useGlobalState();
+  const [{ ioTicker, arioContract, arnsContractId }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [
     { workflowName, interactionType, transactionData, interactionResult },
@@ -97,12 +96,12 @@ function TransactionReview() {
       if (!transactionData || !workflowName) {
         throw new Error('Transaction data is missing');
       }
+      // TODO: check that it's connected
       await dispatchArIOInteraction({
-        arioContract,
-        arweaveCompositeProvider: arweaveDataProvider,
+        arioContract: arioContract as AoIOWrite,
         workflowName: workflowName as ARNS_INTERACTION_TYPES,
         payload: transactionData,
-        contractTxId: arnsContractId,
+        processId: arnsContractId,
         dispatch: dispatchTransactionState,
       });
 

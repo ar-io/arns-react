@@ -16,7 +16,6 @@ import ArweaveID, {
 } from '../../components/layout/ArweaveID/ArweaveID';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../state/contexts/GlobalState';
-import { useWalletState } from '../../state/contexts/WalletState';
 import {
   UNDERNAME_TABLE_ACTIONS,
   UndernameMetadata,
@@ -28,7 +27,6 @@ import eventEmitter from '../../utils/events';
 
 export function useUndernames(id?: ArweaveTransactionID, name?: string) {
   const [{ gateway, arweaveDataProvider }] = useGlobalState();
-  const [{ walletAddress }] = useWalletState();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] = useState<keyof UndernameMetadata>('name');
   const [selectedRow, setSelectedRow] = useState<UndernameMetadata>();
@@ -347,9 +345,9 @@ export function useUndernames(id?: ArweaveTransactionID, name?: string) {
     id?: ArweaveTransactionID,
     name?: string,
   ): Promise<void> {
-    let contractTxId: ArweaveTransactionID | undefined = undefined;
+    let processId: ArweaveTransactionID | undefined = undefined;
     if (id) {
-      contractTxId = id;
+      processId = id;
     } else if (name) {
       const record = await withExponentialBackoff({
         fn: () =>
@@ -358,45 +356,37 @@ export function useUndernames(id?: ArweaveTransactionID, name?: string) {
           }),
         maxTries: 5,
         initialDelay: 1000,
-        shouldRetry: (res) => !res?.contractTxId,
+        shouldRetry: (res) => !res?.processId,
       });
-      if (record) contractTxId = new ArweaveTransactionID(record?.contractTxId);
+      if (record) processId = new ArweaveTransactionID(record?.processId);
     }
 
-    if (!contractTxId) {
+    if (!processId) {
       setIsLoading(false);
       return;
     }
     setIsLoading(true);
     const domain = await arweaveDataProvider
       .getRecords({
-        filters: { contractTxId: [contractTxId] },
-        address: walletAddress,
+        filters: { processId: [processId] },
       })
       .then((records) => Object.keys(records)[0])
       .catch((error) => {
-        console.debug('No domain found for ANT', contractTxId?.toString());
+        console.debug('No domain found for ANT', processId?.toString());
         eventEmitter.emit('error', error);
         return '';
       });
     setDomain(domain);
     const fetchedRows: UndernameMetadata[] = [];
-    const [contract, confirmations] = await Promise.all([
-      arweaveDataProvider.buildANTContract(contractTxId),
-      arweaveDataProvider
-        .getTransactionStatus(contractTxId)
-        .then((status) => status[contractTxId!.toString()].confirmations),
-    ]);
-    const undernames = Object.entries(contract.records).filter(
-      ([key]) => key !== '@',
-    );
+    // TODO: get ANTs via ar.io/sdk
+    const undernames = [] as any;
     for (const [name, record] of undernames) {
       try {
         const rowData = {
           name: name,
           targetID: record.transactionId,
           ttlSeconds: record.ttlSeconds.toString(),
-          status: confirmations ?? 0,
+          status: 0,
           key: name,
         };
         // sort by confirmation count (ASC) by default

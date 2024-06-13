@@ -63,9 +63,7 @@ function Home() {
           const record = await arweaveDataProvider
             .getRecord({ domain })
             .catch(() => undefined);
-          const res = record?.contractTxId
-            ? [domain, record?.contractTxId]
-            : [];
+          const res = record?.processId ? [domain, record?.processId] : [];
           return res;
         }),
       );

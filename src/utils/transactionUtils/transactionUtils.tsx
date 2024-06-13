@@ -8,7 +8,6 @@ import {
   ARNS_INTERACTION_TYPES,
   BuyRecordPayload,
   CONTRACT_TYPES,
-  ContractInteraction,
   ContractTypes,
   ExcludedValidInteractionType,
   ExtendLeasePayload,
@@ -143,7 +142,7 @@ export const TRANSACTION_DATA_KEYS: Record<
 > = {
   [INTERACTION_TYPES.BUY_RECORD]: {
     functionName: 'buyRecord',
-    keys: ['name', 'contractTxId', 'type'],
+    keys: ['name', 'processId', 'type'],
   },
   [INTERACTION_TYPES.INCREASE_UNDERNAMES]: {
     functionName: 'increaseUndernames',
@@ -232,10 +231,7 @@ export function getARNSMappingByInteractionType(
           'transaction data not of correct payload type <BuyRecordPayload>',
         );
       }
-      if (
-        transactionData.contractTxId === ATOMIC_FLAG &&
-        !transactionData.state
-      ) {
+      if (transactionData.processId === ATOMIC_FLAG && !transactionData.state) {
         throw new Error(
           'Atomic transaction detected but no state present, add the state to continue.',
         );
@@ -246,16 +242,11 @@ export function getARNSMappingByInteractionType(
           ? Date.now() + YEAR_IN_MILLISECONDS * transactionData.years
           : 'Indefinite';
 
-      const contractTxId =
-        transactionData.contractTxId === ATOMIC_FLAG
-          ? transactionData.deployedTransactionId
-            ? transactionData.deployedTransactionId
-            : ATOMIC_FLAG
-          : new ArweaveTransactionID(transactionData.contractTxId);
+      const processId = new ArweaveTransactionID(transactionData.processId);
 
       return {
         domain: transactionData.name,
-        contractTxId: contractTxId,
+        processId: processId,
         deployedTransactionId: transactionData.deployedTransactionId,
         state: transactionData.state ?? undefined,
         overrides: {
@@ -279,7 +270,7 @@ export function getARNSMappingByInteractionType(
 
       return {
         domain: transactionData.name,
-        contractTxId: new ArweaveTransactionID(transactionData.contractTxId),
+        processId: new ArweaveTransactionID(transactionData.processId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           maxUndernames: transactionData.deployedTransactionId ? (
@@ -312,7 +303,7 @@ export function getARNSMappingByInteractionType(
 
       return {
         domain: transactionData.name,
-        contractTxId: transactionData.contractTxId,
+        processId: transactionData.processId,
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           leaseDuration: transactionData.deployedTransactionId ? (
@@ -345,7 +336,7 @@ export function getARNSMappingByInteractionType(
       }
       return {
         domain: '',
-        contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        processId: new ArweaveTransactionID(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           name: transactionData.name,
@@ -375,7 +366,7 @@ export function getARNSMappingByInteractionType(
       }
       return {
         domain: '',
-        contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        processId: new ArweaveTransactionID(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           ticker: transactionData.ticker,
@@ -405,7 +396,7 @@ export function getARNSMappingByInteractionType(
       }
       return {
         domain: '',
-        contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        processId: new ArweaveTransactionID(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           undername: transactionData.subDomain,
@@ -434,7 +425,7 @@ export function getARNSMappingByInteractionType(
       }
       return {
         domain: '',
-        contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        processId: new ArweaveTransactionID(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           undername: transactionData.subDomain,
@@ -465,7 +456,7 @@ export function getARNSMappingByInteractionType(
       }
       return {
         domain: '',
-        contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        processId: new ArweaveTransactionID(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           targetId: transactionData.transactionId,
@@ -495,7 +486,7 @@ export function getARNSMappingByInteractionType(
       }
       return {
         domain: '',
-        contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        processId: new ArweaveTransactionID(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           ttlSeconds: transactionData.ttlSeconds,
@@ -525,7 +516,7 @@ export function getARNSMappingByInteractionType(
       }
       return {
         domain: '',
-        contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        processId: new ArweaveTransactionID(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           controllers: <span>{transactionData.target}</span>,
@@ -554,7 +545,7 @@ export function getARNSMappingByInteractionType(
       }
       return {
         domain: '',
-        contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        processId: new ArweaveTransactionID(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           'New Owner': transactionData.target,
@@ -578,7 +569,7 @@ export function getARNSMappingByInteractionType(
       }
       return {
         domain: '',
-        contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        processId: new ArweaveTransactionID(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           'New Owner': transactionData.target,
@@ -703,10 +694,10 @@ export function getLinkId(
     );
 
   if (isBuyRecord || isExtendLease || isIncreaseUndernames) {
-    return transactionData.contractTxId === ATOMIC_FLAG &&
+    return transactionData.processId === ATOMIC_FLAG &&
       transactionData.deployedTransactionId
       ? transactionData.deployedTransactionId.toString()
-      : transactionData.contractTxId?.toString() ?? '';
+      : transactionData.processId?.toString() ?? '';
   }
 
   return transactionData.assetId.toString();
@@ -728,42 +719,6 @@ export async function validateTTLSeconds(ttl: number): Promise<void> {
   }
 }
 
-export function getPendingInteractionsRowsForContract(
-  pendingContractInteractions: ContractInteraction[],
-  existingValues: any,
-): {
-  attribute: string;
-  value: string | number | boolean;
-  id: string;
-  valid: boolean | undefined;
-}[] {
-  // find all pending interactions for the contract, find relevant ones related to row attributes
-  const pendingTxRowData: {
-    attribute: string;
-    value: string | number | boolean;
-    id: string;
-    valid: boolean | undefined;
-  }[] = [];
-  for (const i of pendingContractInteractions) {
-    const attributes = getAttributesFromInteractionFunction(i.payload.function);
-    // TODO: this is not pretty, and could be avoided if we rework the ANT contract to allow `setTTL` and `setTransaction` rather than all of them
-    // relying only on setRecord.
-    for (const attribute of attributes) {
-      // the payload value may be different then the attribute name
-      const payloadAttribute = getInteractionAttributeNameFromField(attribute);
-      const nonConfirmedTx = {
-        attribute,
-        value: i.payload[payloadAttribute],
-        id: i.id,
-        valid: i.valid,
-      };
-      if (existingValues[attribute] !== nonConfirmedTx.value) {
-        pendingTxRowData.push(nonConfirmedTx);
-      }
-    }
-  }
-  return pendingTxRowData;
-}
 export function generateAtomicState(
   domain: string,
   walletAddress: ArweaveTransactionID,

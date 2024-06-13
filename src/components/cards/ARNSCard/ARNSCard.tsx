@@ -17,12 +17,12 @@ import './styles.css';
 
 const protocol = 'https';
 
-function ARNSCard({ domain, contractTxId }: ARNSMapping) {
+function ARNSCard({ domain, processId }: ARNSMapping) {
   const [{ gateway }] = useGlobalState();
   const isMobile = useIsMobile();
   const [antDetails, setANTDetails] = useState<ARNSDomain>({
     domain,
-    contractTxId,
+    processId,
     image: ARNSDefault,
   });
   const [loading, setLoading] = useState(true);
