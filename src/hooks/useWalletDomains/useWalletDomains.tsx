@@ -1,4 +1,4 @@
-import { AoArNSNameData } from '@ar.io/sdk/web';
+import { ANT, AoArNSNameData } from '@ar.io/sdk/web';
 import ManageAssetButtons from '@src/components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
 import { isLeasedRecord } from '@src/components/layout/ExtendLease/ExtendLease';
 import { Tooltip } from 'antd';
@@ -17,7 +17,6 @@ import ArweaveID, {
   ArweaveIdTypes,
 } from '../../components/layout/ArweaveID/ArweaveID';
 import TransactionStatus from '../../components/layout/TransactionStatus/TransactionStatus';
-import { ANTContract } from '../../services/arweave/ANTContract';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useWalletState } from '../../state/contexts/WalletState';
@@ -116,8 +115,8 @@ export function useWalletDomains() {
         const { processIds } =
           // TODO: utility function in ar.io/sdk
           await arweaveDataProvider.getContractsForWallet();
-        const data = await fetchDomainData(processIds, walletAddress, height);
-        const newRows = buildDomainRows(data, walletAddress, height);
+        const data = await fetchDomainData(processIds, walletAddress, height); // TODO: not sure this is needed anymore
+        const newRows = await buildDomainRows(data, walletAddress, height);
         setRows(newRows);
       }
     } catch (error) {
@@ -551,7 +550,7 @@ export function useWalletDomains() {
     return datas;
   }
 
-  function buildDomainRows(
+  async function buildDomainRows(
     datas: DomainData[],
     address: ArweaveTransactionID,
     currentBlockHeight?: number,
@@ -559,41 +558,47 @@ export function useWalletDomains() {
     const fetchedRows: ARNSTableRow[] = [];
 
     try {
-      const rowData = datas.map((data: DomainData) => {
-        const { record, state, transactionBlockHeight } = data;
-        const contract = new ANTContract(
-          state,
-          new ArweaveTransactionID(record.processId),
-        );
+      const rowData = await Promise.all(
+        datas.map(async (data: DomainData) => {
+          const { record, transactionBlockHeight } = data;
+          const contract = ANT.init({
+            processId: record.processId.toString(),
+          });
 
-        return {
-          name: decodeDomainToASCII(data.record.domain),
-          id: data.record.processId,
-          role:
-            contract.owner === walletAddress?.toString()
-              ? 'Owner'
-              : contract.controllers.includes(address.toString())
-              ? 'Controller'
-              : 'N/A',
-          expiration: isLeasedRecord(record)
-            ? formatDate(record.endTimestamp)
-            : 'Indefinite',
-          status:
-            transactionBlockHeight && currentBlockHeight
-              ? currentBlockHeight - transactionBlockHeight
-              : 0,
-          undernameSupport: record?.undernames ?? DEFAULT_MAX_UNDERNAMES,
-          undernameCount: getUndernameCount(contract.records),
-          undernames: `${getUndernameCount(
-            contract.records,
-          ).toLocaleString()} / ${(
-            record?.undernames ?? DEFAULT_MAX_UNDERNAMES
-          ).toLocaleString()}`,
-          key: `${record.domain}-${record.processId}`,
-          hasPending: !!data.pendingContractInteractions?.length,
-          errors: data.errors,
-        };
-      });
+          const [owner, controllers, records] = await Promise.all([
+            contract.getOwner(),
+            contract.getControllers(),
+            contract.getRecords(),
+          ]);
+
+          return {
+            name: decodeDomainToASCII(data.record.domain),
+            id: data.record.processId,
+            role:
+              // TODO: use a utility function in ar.io/sdk
+              owner === walletAddress?.toString()
+                ? 'Owner'
+                : controllers.includes(address.toString())
+                ? 'Controller'
+                : 'N/A',
+            expiration: isLeasedRecord(record)
+              ? formatDate(record.endTimestamp)
+              : 'Indefinite',
+            status:
+              transactionBlockHeight && currentBlockHeight
+                ? currentBlockHeight - transactionBlockHeight
+                : 0,
+            undernameSupport: record?.undernames ?? DEFAULT_MAX_UNDERNAMES,
+            undernameCount: getUndernameCount(records),
+            undernames: `${getUndernameCount(records).toLocaleString()} / ${(
+              record?.undernames ?? DEFAULT_MAX_UNDERNAMES
+            ).toLocaleString()}`,
+            key: `${record.domain}-${record.processId}`,
+            hasPending: !!data.pendingContractInteractions?.length,
+            errors: data.errors,
+          };
+        }),
+      );
       fetchedRows.push(...rowData);
     } catch (error) {
       eventEmitter.emit('error', error);

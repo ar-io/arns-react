@@ -1,9 +1,8 @@
-import { AoArNSNameData } from '@ar.io/sdk/web';
+import { ANT, AoArNSNameData } from '@ar.io/sdk/web';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { useIsMobile } from '../../../hooks';
-import { ANTContract } from '../../../services/arweave/ANTContract';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
@@ -31,7 +30,8 @@ function UpgradeUndernames() {
   const name = location.pathname.split('/').at(-2);
   const [, dispatchTransactionState] = useTransactionState();
   const [record, setRecord] = useState<AoArNSNameData>();
-  const [antContract, setAntContract] = useState<ANTContract>();
+  const [antContract, setAntContract] = useState<ANT>();
+  const [undernameCount, setUndernameCount] = useState<number>(0);
   // min count of 1 ~ contract rule
   const [newUndernameCount, setNewUndernameCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
@@ -77,15 +77,13 @@ function UpgradeUndernames() {
         }
         setRecord(record);
         const processId = new ArweaveTransactionID(record?.processId);
-        // TODO: fix this
-        const contract = new ANTContract(undefined, processId);
-        if (!contract.state) {
-          throw new Error(`Unable to get contract state for ${name}`);
-        }
-
-        if (!contract.isValid) {
-          throw new Error(`Invalid contract for ${name}`);
-        }
+        const contract = ANT.init({
+          processId: processId.toString(),
+        });
+        const existingUndernameCount = await contract.getRecords().then((r) => {
+          return Object.keys(r).length - 1; // exclude @ record
+        });
+        setUndernameCount(existingUndernameCount);
         setAntContract(contract);
       }
     } catch (error) {
@@ -136,9 +134,7 @@ function UpgradeUndernames() {
             </span>
             <span className="flex grey">
               Used:&nbsp;
-              <span className="white">
-                {Object.keys(antContract.records).length - 1}
-              </span>
+              <span className="white"> {undernameCount}</span>
             </span>
           </div>
           <Counter

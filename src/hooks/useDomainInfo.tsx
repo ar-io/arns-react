@@ -60,9 +60,8 @@ export default function useDomainInfo({
 
     const antProvider =
       processId && signer
-        ? // TODO: use ar.io/sdk to create ant contract
-          ANT.init({
-            contractTxId: processId.toString(),
+        ? ANT.init({
+            processId: processId.toString(),
             signer,
           })
         : undefined;

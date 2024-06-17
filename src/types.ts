@@ -2,7 +2,6 @@ import { ANTState, AoArNSNameData, ArconnectSigner } from '@ar.io/sdk/web';
 import { ApiConfig } from 'arweave/node/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
 
-import { ANTContract } from './services/arweave/ANTContract';
 import { ArweaveTransactionID } from './services/arweave/ArweaveTransactionID';
 
 export type ARNSDomains = Record<string, AoArNSNameData>;
@@ -115,13 +114,6 @@ export interface KVCache {
   del(key: string, filter?: { key: string; value: string }): Promise<void>;
   push(key: string, value: any): Promise<void>;
   clean(): void;
-}
-
-export interface TransactionCache {
-  getCachedNameTokens(address?: ArweaveTransactionID): Promise<ANTContract[]>;
-  getCachedInteractions(
-    processId: ArweaveTransactionID,
-  ): Promise<ContractInteraction[]>;
 }
 
 export interface ArweaveDataProvider {
@@ -476,10 +468,10 @@ export type ARNSTableRow = {
 export type ANTMetadata = {
   name: string;
   id: string;
+  ticker: string;
   targetID: string;
   role: string;
   status: number;
-  state: ANTContractJSON;
   errors?: string[];
   key: number;
   hasPending: boolean;

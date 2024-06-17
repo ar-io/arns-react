@@ -82,6 +82,9 @@ function ExtendLease() {
       const domainRecord = await arweaveDataProvider.getRecord({
         domain,
       });
+      if (!domainRecord) {
+        throw new Error(`Unable to get record for ${name}`);
+      }
       setRegistrationType(domainRecord.type as TRANSACTION_TYPES);
       setRecord(domainRecord);
 

@@ -1,3 +1,4 @@
+import { ANT } from '@ar.io/sdk/web';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
@@ -7,11 +8,9 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { useUndernames } from '../../../hooks/useUndernames/useUndernames';
-import { ANTContract } from '../../../services/arweave/ANTContract';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import {
-  ANTContractJSON,
   ANT_INTERACTION_TYPES,
   SetRecordPayload,
   TransactionDataPayload,
@@ -38,7 +37,6 @@ function Undernames() {
   });
   const [{ walletAddress }] = useWalletState();
   const [antId, setANTId] = useState<ArweaveTransactionID>();
-  const [antState, setANTState] = useState<ANTContract>();
   const [selectedRow, setSelectedRow] = useState<
     UndernameMetadata | undefined
   >();
@@ -58,6 +56,9 @@ function Undernames() {
   const [tableLoading, setTableLoading] = useState(true);
   const [tablePage, setTablePage] = useState<number>(1);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [ownershipStatus, setOwnershipStatus] = useState<
+    'controller' | 'owner' | undefined
+  >();
 
   // modal state
   const [transactionData, setTransactionData] = useState<
@@ -83,6 +84,12 @@ function Undernames() {
 
     setAction(action);
 
+    if (id && walletAddress) {
+      getOwnershipStatus(id, walletAddress?.toString()).then((status) =>
+        setOwnershipStatus(status),
+      );
+    }
+
     if (
       action === UNDERNAME_TABLE_ACTIONS.REMOVE &&
       antId &&
@@ -103,6 +110,28 @@ function Undernames() {
     undernameRows,
   ]);
 
+  async function getOwnershipStatus(
+    id: string,
+    walletAddress: string,
+  ): Promise<'controller' | 'owner' | undefined> {
+    const ant = ANT.init({
+      processId: id,
+    });
+    const [owner, controllers] = await Promise.all([
+      ant.getOwner(),
+      ant.getControllers(),
+    ]);
+
+    if (owner === walletAddress) {
+      return 'owner';
+    }
+
+    if (controllers.includes(walletAddress)) {
+      return 'controller';
+    }
+    return undefined;
+  }
+
   async function load() {
     try {
       let processId: ArweaveTransactionID | undefined = undefined;
@@ -117,7 +146,6 @@ function Undernames() {
         throw new Error('Unable to load undernames, cannot resolve ANT ID.');
       }
       setANTId(processId);
-      setANTState(new ANTContract(data.antState as ANTContractJSON, processId));
     } catch (error) {
       eventEmitter.emit('error', error);
       navigate('/manage/ants');
@@ -176,11 +204,9 @@ function Undernames() {
               style={{ justifyContent: 'space-between' }}
             >
               <h2 className="white">Manage Undernames</h2>
-              {antState?.getOwnershipStatus(walletAddress) ? (
+              {ownershipStatus ? (
                 <button
-                  disabled={
-                    antState?.getOwnershipStatus(walletAddress) === undefined
-                  }
+                  disabled={ownershipStatus === undefined}
                   className={'button-secondary center'}
                   style={{
                     gap: '10px',
@@ -262,7 +288,7 @@ function Undernames() {
                       className="flex flex-row center"
                       style={{ gap: '16px' }}
                     >
-                      {antState?.getOwnershipStatus(walletAddress) ? (
+                      {ownershipStatus ? (
                         <button
                           className={'button-secondary center'}
                           style={{
@@ -295,9 +321,7 @@ function Undernames() {
           )}
         </div>
       </div>
-      {searchParams.has('modal') &&
-      antId &&
-      antState?.getOwnershipStatus(walletAddress) ? (
+      {searchParams.has('modal') && antId && ownershipStatus ? (
         <AddUndernameModal
           closeModal={() => {
             setSearchParams({});
@@ -320,7 +344,7 @@ function Undernames() {
       {action === UNDERNAME_TABLE_ACTIONS.EDIT &&
       antId &&
       selectedRow?.name &&
-      antState?.getOwnershipStatus(walletAddress) ? (
+      ownershipStatus ? (
         <EditUndernameModal
           closeModal={() => {
             setAction(undefined);
@@ -339,10 +363,7 @@ function Undernames() {
         <> </>
       )}
 
-      {antId &&
-      transactionData &&
-      interactionType &&
-      antState?.getOwnershipStatus(walletAddress) ? (
+      {antId && transactionData && interactionType && ownershipStatus ? (
         <ConfirmTransactionModal
           interactionType={interactionType}
           confirm={() =>

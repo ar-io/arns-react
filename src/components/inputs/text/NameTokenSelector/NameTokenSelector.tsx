@@ -3,7 +3,6 @@ import { Pagination, PaginationProps, Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
 import { useIsFocused } from '../../../../hooks';
-import { ANTContract } from '../../../../services/arweave/ANTContract';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../../state/contexts/WalletState';
@@ -126,10 +125,6 @@ function NameTokenSelector({
                 const state = {} as any;
                 if (!Object.keys(state).length) {
                   throw new Error(`Unable to get Contract State`);
-                }
-
-                if (!new ANTContract(state).isValid()) {
-                  throw new Error('Invalid ANT Contract.');
                 }
 
                 setValidImport(true);

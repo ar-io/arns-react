@@ -1,10 +1,10 @@
+import { ANT } from '@ar.io/sdk/web';
 import { isLeasedRecord } from '@src/components/layout/ExtendLease/ExtendLease';
 import { Descriptions } from 'antd';
 import { startCase } from 'lodash';
 import { isValidElement, useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../hooks';
-import { ANTContract } from '../../../services/arweave/ANTContract';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { ARNSMapping } from '../../../types';
 import {
@@ -93,13 +93,10 @@ function ANTCard({
       setIsLoading(true);
       let contract = undefined;
       if (state) {
-        contract = new ANTContract(state);
+        contract = ANT.init({
+          processId: processId?.toString(),
+        });
       }
-      // TODO: get contract state from ar.io/sdk
-      if (!contract?.isValid()) {
-        throw new Error('Invalid ANT contract');
-      }
-
       let leaseDuration = 'N/A';
       if (record) {
         leaseDuration = isLeasedRecord(record)
@@ -117,12 +114,16 @@ function ANTCard({
         leaseDuration: leaseDuration,
         // TODO: undernames are associated with the record, not the ANT - how do we want to represent this
         maxUndernames: 'Up to ' + record?.undernames,
-        name: contract.name,
-        ticker: contract.ticker,
-        owner: contract.owner,
-        controllers: contract.controllers.join(', '),
-        targetId: contract.getRecord('@')?.transactionId,
-        ttlSeconds: contract.getRecord('@')?.ttlSeconds,
+        name: await contract?.getName(),
+        ticker: await contract?.getTicker(),
+        owner: await contract?.getOwner(),
+        controllers: ((await contract?.getControllers()) || []).join(', '),
+        targetId: await contract
+          ?.getRecord({ name: '@' })
+          .then((record) => record?.transactionId),
+        ttlSeconds: await contract
+          ?.getRecord({ name: '@' })
+          .then((record) => (record ? record?.ttlSeconds : 'N/A')),
         ...overrides,
       };
 

@@ -3,14 +3,9 @@ import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
 import { useIsMobile } from '../../../../hooks';
-import { ANTContract } from '../../../../services/arweave/ANTContract';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
-import {
-  ANTContractJSON,
-  SetRecordPayload,
-  VALIDATION_INPUT_TYPES,
-} from '../../../../types';
+import { SetRecordPayload, VALIDATION_INPUT_TYPES } from '../../../../types';
 import {
   isArweaveTransactionID,
   isUndernameValid,
@@ -28,7 +23,6 @@ import {
 import eventEmitter from '../../../../utils/events';
 import WarningCard from '../../../cards/WarningCard/WarningCard';
 import ValidationInput from '../../../inputs/text/ValidationInput/ValidationInput';
-import { Loader } from '../../../layout';
 import TransactionCost from '../../../layout/TransactionCost/TransactionCost';
 import DialogModal from '../../DialogModal/DialogModal';
 
@@ -43,7 +37,6 @@ function AddUndernameModal({
 }) {
   const [{ arweaveDataProvider }] = useGlobalState();
   const isMobile = useIsMobile();
-  const [state, setState] = useState<ANTContractJSON>();
 
   const targetIdRef = useRef<HTMLInputElement>(null);
   const ttlRef = useRef<HTMLInputElement>(null);
@@ -60,18 +53,13 @@ function AddUndernameModal({
   useEffect(() => {
     loadDetails();
     nameRef.current?.focus();
-  }, [antId]);
+  }, [antId.toString()]);
 
   async function loadDetails() {
     try {
-      const [arnsRecords] = await Promise.all([
-        arweaveDataProvider.getRecords({
-          filters: { processId: [antId] },
-        }),
-      ]);
-      const contract = new ANTContract(state, antId);
-
-      setState(contract.state);
+      const arnsRecords = await arweaveDataProvider.getRecords({
+        filters: { processId: [antId] },
+      });
       setAssociatedRecords(arnsRecords);
       const shortestAssociatedName = Object.keys(arnsRecords).length
         ? Math.min(...Object.keys(arnsRecords).map((name) => name.length))
@@ -88,14 +76,6 @@ function AddUndernameModal({
       transactionId: targetId,
       ttlSeconds,
     });
-  }
-
-  if (!state) {
-    return (
-      <div className="modal-container">
-        <Loader size={80} />
-      </div>
-    );
   }
 
   function getIncompatibleNames(
