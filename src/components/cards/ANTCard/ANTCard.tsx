@@ -104,6 +104,15 @@ function ANTCard({
           : 'Indefinite';
       }
 
+      const [owner, controllers = [], ticker, name, apexRecord] =
+        await Promise.all([
+          contract?.getOwner(),
+          contract?.getControllers(),
+          contract?.getTicker(),
+          contract?.getName(),
+          contract?.getRecord({ name: '@' }),
+        ]);
+
       const allANTDetails: Record<AntDetailKey, any> = {
         deployedTransactionId: deployedTransactionId
           ? deployedTransactionId.toString()
@@ -114,16 +123,12 @@ function ANTCard({
         leaseDuration: leaseDuration,
         // TODO: undernames are associated with the record, not the ANT - how do we want to represent this
         maxUndernames: 'Up to ' + record?.undernames,
-        name: await contract?.getName(),
-        ticker: await contract?.getTicker(),
-        owner: await contract?.getOwner(),
-        controllers: ((await contract?.getControllers()) || []).join(', '),
-        targetId: await contract
-          ?.getRecord({ name: '@' })
-          .then((record) => record?.transactionId),
-        ttlSeconds: await contract
-          ?.getRecord({ name: '@' })
-          .then((record) => (record ? record?.ttlSeconds : 'N/A')),
+        name,
+        ticker,
+        owner,
+        controllers: controllers.join(', '),
+        targetId: apexRecord?.transactionId,
+        ttlSeconds: apexRecord?.ttlSeconds,
         ...overrides,
       };
 
