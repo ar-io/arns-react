@@ -1,4 +1,5 @@
 import { ANT } from '@ar.io/sdk';
+import { useANT } from '@src/hooks/useANT/useANT';
 import { Checkbox, Table } from 'antd';
 import { useEffect, useState } from 'react';
 
@@ -14,12 +15,10 @@ import './styles.css';
 
 function RemoveControllersModal({
   antId,
-  name,
   closeModal,
   payloadCallback,
 }: {
   antId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
-  name: string;
   closeModal: () => void;
   payloadCallback: (payload: { controller: string }) => void;
 }) {
@@ -29,6 +28,7 @@ function RemoveControllersModal({
   >([]);
   const [tablePage, setTablePage] = useState<number>(1);
   const [rows, setRows] = useState<ArweaveTransactionID[]>([]);
+  const { name } = useANT(antId.toString());
 
   useEffect(() => {
     getControllerRows(antId).then((rows: ArweaveTransactionID[]) => {

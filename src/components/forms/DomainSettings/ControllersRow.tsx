@@ -131,7 +131,6 @@ export default function ControllersRow({
         <RemoveControllersModal
           closeModal={() => setShowRemoveModal(false)}
           antId={new ArweaveTransactionID(processId)}
-          name={'TODO'}
           payloadCallback={(c) => {
             setWorkflowName(ANT_INTERACTION_TYPES.REMOVE_CONTROLLER);
             setPayload(c);
