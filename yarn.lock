@@ -67,10 +67,10 @@
     resize-observer-polyfill "^1.5.1"
     throttle-debounce "^5.0.0"
 
-"@ar.io/sdk@1.2.0-alpha.3":
-  version "1.2.0-alpha.3"
-  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-1.2.0-alpha.3.tgz#0e7f84b6f2c1f17fbcae763107447d564f44006d"
-  integrity sha512-NOvvbruWadd+kmCLcSUocfKccnkQ0dVrIgbVSa/NcbzX525RcuHDZKg26Ais5j6N06d4QdUk80rOP2aqWiqfNA==
+"@ar.io/sdk@1.2.0-alpha.5":
+  version "1.2.0-alpha.5"
+  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-1.2.0-alpha.5.tgz#51f74b6d989326e5f4d8da75464f08e3b3f4a9ad"
+  integrity sha512-WjhjwdlJJ7YUDLMlqtz1u9OylVp63WC0RkBd/tDGmIBORonKCkFHsJc229/tiZIdy6kMUx7fnZNBfi6Q6MzSVA==
   dependencies:
     "@permaweb/aoconnect" "^0.0.55"
     arbundles "0.11.0"

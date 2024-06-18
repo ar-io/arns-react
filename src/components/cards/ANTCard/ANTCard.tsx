@@ -1,5 +1,4 @@
-import { ANT } from '@ar.io/sdk/web';
-import { isLeasedRecord } from '@src/components/layout/ExtendLease/ExtendLease';
+import { ANT, isLeasedArNSRecord } from '@ar.io/sdk';
 import { Descriptions } from 'antd';
 import { startCase } from 'lodash';
 import { isValidElement, useEffect, useState } from 'react';
@@ -64,7 +63,6 @@ export const DEFAULT_PRIMARY_KEYS: Partial<AntDetailKey>[] = [
 ];
 
 function ANTCard({
-  state,
   processId,
   domain,
   record,
@@ -85,21 +83,20 @@ function ANTCard({
   );
 
   useEffect(() => {
-    setDetails();
-  }, []);
+    if (processId) {
+      setDetails(processId.toString());
+    }
+  }, [processId]);
 
-  async function setDetails() {
+  async function setDetails(id: string) {
     try {
       setIsLoading(true);
-      let contract = undefined;
-      if (state) {
-        contract = ANT.init({
-          processId: processId?.toString(),
-        });
-      }
+      const contract = ANT.init({
+        processId: id,
+      });
       let leaseDuration = 'N/A';
       if (record) {
-        leaseDuration = isLeasedRecord(record)
+        leaseDuration = isLeasedArNSRecord(record)
           ? record.endTimestamp.toString()
           : 'Indefinite';
       }
@@ -110,7 +107,7 @@ function ANTCard({
           contract?.getControllers(),
           contract?.getTicker(),
           contract?.getName(),
-          contract?.getRecord({ name: '@' }),
+          contract?.getRecord({ undername: '@' }),
         ]);
 
       const allANTDetails: Record<AntDetailKey, any> = {
@@ -122,7 +119,7 @@ function ANTCard({
         // TODO: add the # of associated names that point to this ANT
         leaseDuration: leaseDuration,
         // TODO: undernames are associated with the record, not the ANT - how do we want to represent this
-        maxUndernames: 'Up to ' + record?.undernames,
+        maxUndernames: 'Up to ' + record?.undernameLimit,
         name,
         ticker,
         owner,

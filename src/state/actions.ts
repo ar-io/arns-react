@@ -1,4 +1,4 @@
-import { IO, ioDevnetProcessId } from '@ar.io/sdk/web';
+import { IO, ioDevnetProcessId } from '@ar.io/sdk';
 import { ArweaveWalletConnector } from '@src/types';
 import Arweave from 'arweave';
 import { Dispatch } from 'react';

@@ -246,7 +246,7 @@ function Manage() {
                           Arweave Name Tokens (ANTs) provide ownership and
                           control of ArNS names. With ANTs you can easily
                           manage, transfer, and adjust your domains, as well as
-                          create undernames.
+                          create undernameLimit.
                         </span>
                       </>
                     ) : (

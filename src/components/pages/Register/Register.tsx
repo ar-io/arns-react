@@ -1,5 +1,5 @@
 import { CheckCircleFilled } from '@ant-design/icons';
-import { mIOToken } from '@ar.io/sdk/web';
+import { mIOToken } from '@ar.io/sdk';
 import { InsufficientFundsError, ValidationError } from '@src/utils/errors';
 import { Tooltip } from 'antd';
 import emojiRegex from 'emoji-regex';
@@ -177,7 +177,6 @@ function RegisterNameForm() {
         assetId: ARNS_REGISTRY_ADDRESS.toString(),
         functionName: 'buyRecord',
         ...buyRecordPayload,
-        state: {} as any,
         interactionPrice: fee?.[ioTicker],
       },
     });

@@ -6,14 +6,14 @@ const TEST_RECORDS: Record<string, AoArNSNameData> = {
     processId: 'I-cxQhfh0Zb9UqQNizC9PiLC41KpUeA9hjiVV02rQRw',
     startTimestamp: 1711122719,
     type: TRANSACTION_TYPES.BUY,
-    undernames: 10,
+    undernameLimit: 10,
     purchasePrice: 0,
   },
   'xn--go8h6v': {
     processId: 'I-cxQhfh0Zb9UqQNizC9PiLC41KpUeA9hjiVV02rQRw',
     startTimestamp: 1711122719,
     type: TRANSACTION_TYPES.BUY,
-    undernames: 10,
+    undernameLimit: 10,
     purchasePrice: 0,
   },
 };

@@ -1,4 +1,4 @@
-import { AoIOWrite, ArIOWritable } from '@ar.io/sdk/web';
+import { AoIOWrite, ArIOWritable } from '@ar.io/sdk';
 import { ANTCard } from '@src/components/cards';
 import { InfoIcon } from '@src/components/icons';
 import WorkflowButtons from '@src/components/inputs/buttons/WorkflowButtons/WorkflowButtons';

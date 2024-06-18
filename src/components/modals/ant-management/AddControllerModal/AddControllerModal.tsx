@@ -1,9 +1,10 @@
+import { useANT } from '@src/hooks/useANT/useANT';
 import { useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../../hooks';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
-import { ANTContractJSON, VALIDATION_INPUT_TYPES } from '../../../../types';
+import { VALIDATION_INPUT_TYPES } from '../../../../types';
 import {
   formatForMaxCharCount,
   isArweaveTransactionID,
@@ -14,12 +15,10 @@ import DialogModal from '../../DialogModal/DialogModal';
 
 function AddControllerModal({
   antId,
-  state,
   closeModal,
   payloadCallback,
 }: {
   antId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
-  state: ANTContractJSON;
   closeModal: () => void;
   payloadCallback: (payload: { controller: string }) => void;
 }) {
@@ -27,6 +26,7 @@ function AddControllerModal({
   const isMobile = useIsMobile();
   const [newController, setNewController] = useState<string>('');
   const [isValidAddress, setIsValidAddress] = useState<boolean>();
+  const { name = 'N/A' } = useANT(antId.toString());
 
   useEffect(() => {
     if (!newController.length) {
@@ -60,9 +60,7 @@ function AddControllerModal({
             </div>
             <div className="flex flex-column" style={{ gap: '10px' }}>
               <span className="grey">Nickname:</span>
-              <span className="white">
-                {formatForMaxCharCount(state.name, 40)}
-              </span>
+              <span className="white">{formatForMaxCharCount(name, 40)}</span>
             </div>
             <div className="flex flex-column" style={{ paddingBottom: '30px' }}>
               <div className="flex flex-column" style={{ gap: '10px' }}>

@@ -1,4 +1,4 @@
-import { ANTState, AoArNSNameData, ArconnectSigner } from '@ar.io/sdk/web';
+import { AoArNSNameData, ArconnectSigner } from '@ar.io/sdk';
 import { ApiConfig } from 'arweave/node/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
 
@@ -49,18 +49,10 @@ export type ANTContractDomainRecord = {
   transactionId: string;
 };
 
-export type ANTContractJSON = ANTState & {
-  controller?: string;
-  evolve?: string;
-};
-
-export type ANTContractFields = keyof ANTContractJSON;
-
 export type ARNSMapping = {
   domain: string;
   record?: AoArNSNameData;
   processId?: ArweaveTransactionID;
-  state?: ANTContractJSON;
   overrides?: { [x: string]: JSX.Element | string | number };
   disabledKeys?: string[];
   compact?: boolean;
@@ -351,7 +343,6 @@ export type BuyRecordPayload = {
   processId: string;
   years?: number;
   type: TRANSACTION_TYPES;
-  state?: ANTContractJSON;
   qty?: number; // the cost displayed to the user when buying a record
   targetId?: ArweaveTransactionID;
 };
@@ -456,13 +447,11 @@ export type ARNSTableRow = {
   role: string;
   undernameSupport: number;
   undernameCount: number;
-  undernames: string;
+  undernameLimit: string;
   id: string;
   expiration: Date | string;
-  status: number;
   key: string | number;
-  hasPending: boolean;
-  errors?: string[];
+  startTimestamp: number;
 };
 
 export type ANTMetadata = {
@@ -470,11 +459,10 @@ export type ANTMetadata = {
   id: string;
   ticker: string;
   targetID: string;
-  role: string;
   status: number;
+  role: string;
   errors?: string[];
   key: number;
-  hasPending: boolean;
 };
 
 export type ManageANTRow = {
@@ -503,7 +491,7 @@ export type ANTDetails = {
   targetID: string;
   ttlSeconds: number;
   controllers: string;
-  undernames: string;
+  undernameLimit: string;
   owner: string;
   processId: string;
 };
@@ -518,14 +506,14 @@ export type DomainDetails = {
   targetID: string;
   ttlSeconds: number;
   controllers: string;
-  undernames: string;
+  undernameLimit: string;
   owner: string;
 };
 
 export type UndernameMetadata = {
   name: string;
   targetID: string;
-  ttlSeconds: string;
+  ttlSeconds: number;
   status: number;
   error?: string;
   key: string;

@@ -1,4 +1,4 @@
-import { ArconnectSigner } from '@ar.io/sdk/web';
+import { ArconnectSigner } from '@ar.io/sdk';
 import { ARWEAVE_APP_API } from '@src/utils/constants';
 import { ArweaveAppError } from '@src/utils/errors';
 import { PermissionType } from 'arconnect';

@@ -1,4 +1,4 @@
-import { IO, ioDevnetProcessId } from '@ar.io/sdk/web';
+import { IO, ioDevnetProcessId } from '@ar.io/sdk';
 import { ArweaveAppError } from '@src/utils/errors';
 import React, {
   Dispatch,

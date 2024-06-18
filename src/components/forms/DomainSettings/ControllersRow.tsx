@@ -1,25 +1,19 @@
+import { ANT } from '@ar.io/sdk';
 import { VerticalDotMenuIcon } from '@src/components/icons';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import AddControllerModal from '@src/components/modals/ant-management/AddControllerModal/AddControllerModal';
 import RemoveControllersModal from '@src/components/modals/ant-management/RemoveControllerModal/RemoveControllerModal';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
-import {
-  ANTContractJSON,
-  ANT_INTERACTION_TYPES,
-  ContractInteraction,
-} from '@src/types';
-import { getLegacyControllersFromState } from '@src/utils';
-import { Skeleton, Tooltip } from 'antd';
-import { useState } from 'react';
+import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
+import { Tooltip } from 'antd';
+import { useEffect, useState } from 'react';
 
 import DomainSettingsRow from './DomainSettingsRow';
 
 export default function ControllersRow({
-  state,
   processId,
   confirm,
 }: {
-  state?: ANTContractJSON;
   processId?: string;
   confirm: ({
     payload,
@@ -41,6 +35,17 @@ export default function ControllersRow({
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
   const [showRemoveModal, setShowRemoveModal] = useState<boolean>(false);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
+  const [controllers, setControllers] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (processId) {
+      ANT.init({ processId })
+        .getControllers()
+        .then((c) => {
+          setControllers(c);
+        });
+    }
+  }, [processId]);
 
   async function handleControllerInteraction({
     payload,
@@ -68,13 +73,7 @@ export default function ControllersRow({
     <>
       <DomainSettingsRow
         label="Controllers(s):"
-        value={
-          state ? (
-            getLegacyControllersFromState(state).join(', ')
-          ) : (
-            <Skeleton.Input active={true} />
-          )
-        }
+        value={controllers}
         action={[
           <Tooltip
             key={1}
@@ -95,14 +94,12 @@ export default function ControllersRow({
                 <button
                   className="flex flex-right white pointer button"
                   onClick={() => setShowAddModal(true)}
-                  disabled={!state}
                 >
                   Add Controller
                 </button>
                 <button
                   className="flex flex-right white pointer button"
                   onClick={() => setShowRemoveModal(true)}
-                  disabled={!state}
                 >
                   Remove Controller
                 </button>
@@ -118,10 +115,9 @@ export default function ControllersRow({
           </Tooltip>,
         ]}
       />
-      {showAddModal && processId && state && (
+      {showAddModal && processId && (
         <AddControllerModal
           closeModal={() => setShowAddModal(false)}
-          state={state}
           antId={new ArweaveTransactionID(processId)}
           payloadCallback={(c) => {
             setWorkflowName(ANT_INTERACTION_TYPES.SET_CONTROLLER);
@@ -131,11 +127,11 @@ export default function ControllersRow({
           }}
         />
       )}
-      {showRemoveModal && processId && state && (
+      {showRemoveModal && processId && (
         <RemoveControllersModal
           closeModal={() => setShowRemoveModal(false)}
-          state={state}
           antId={new ArweaveTransactionID(processId)}
+          name={'TODO'}
           payloadCallback={(c) => {
             setWorkflowName(ANT_INTERACTION_TYPES.REMOVE_CONTROLLER);
             setPayload(c);

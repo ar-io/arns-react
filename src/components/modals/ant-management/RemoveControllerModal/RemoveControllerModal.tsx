@@ -1,13 +1,12 @@
+import { ANT } from '@ar.io/sdk';
 import { Checkbox, Table } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../../hooks';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
-import { ANTContractJSON } from '../../../../types';
 import {
   formatForMaxCharCount,
   getCustomPaginationButtons,
-  getLegacyControllersFromState,
 } from '../../../../utils';
 import TransactionCost from '../../../layout/TransactionCost/TransactionCost';
 import DialogModal from '../../DialogModal/DialogModal';
@@ -15,12 +14,12 @@ import './styles.css';
 
 function RemoveControllersModal({
   antId,
-  state,
+  name,
   closeModal,
   payloadCallback,
 }: {
   antId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
-  state: ANTContractJSON;
+  name: string;
   closeModal: () => void;
   payloadCallback: (payload: { controller: string }) => void;
 }) {
@@ -29,9 +28,13 @@ function RemoveControllersModal({
     ArweaveTransactionID[]
   >([]);
   const [tablePage, setTablePage] = useState<number>(1);
-  const [rows] = useState<{ controller: ArweaveTransactionID }[]>(() =>
-    getControllerRows(state),
-  );
+  const [rows, setRows] = useState<ArweaveTransactionID[]>([]);
+
+  useEffect(() => {
+    getControllerRows(antId).then((rows: ArweaveTransactionID[]) => {
+      setRows(rows);
+    });
+  }, [antId]);
 
   function handlePayloadCallback() {
     payloadCallback({
@@ -43,15 +46,17 @@ function RemoveControllersModal({
     setTablePage(page);
   }
 
-  function getControllerRows(antState?: ANTContractJSON) {
-    if (antState?.controllers && Array.isArray(antState.controllers)) {
-      return antState.controllers.map((controller) => ({
-        controller: new ArweaveTransactionID(controller),
-      }));
-    } else if (antState?.controller) {
-      return [{ controller: new ArweaveTransactionID(antState.controller) }];
+  async function getControllerRows(
+    id?: ArweaveTransactionID,
+  ): Promise<ArweaveTransactionID[]> {
+    if (!id) {
+      return [];
     }
-    return [];
+    const ant = ANT.init({ processId: id?.toString() });
+    const controllers = await ant.getControllers();
+    return controllers.map(
+      (controller) => new ArweaveTransactionID(controller),
+    );
   }
 
   return (
@@ -77,9 +82,7 @@ function RemoveControllersModal({
                 style={{ gap: '10px', width: 'fit-content' }}
               >
                 <span className="grey">Nickname</span>
-                <span className="white">
-                  {formatForMaxCharCount(state.name, 20)}
-                </span>
+                <span className="white">{formatForMaxCharCount(name, 20)}</span>
               </div>
               <div
                 className="flex flex-column"
@@ -88,10 +91,7 @@ function RemoveControllersModal({
                 <span className="grey" style={{ whiteSpace: 'nowrap' }}>
                   Total Controllers
                 </span>
-                <span className="white">
-                  {/* legacy contract state check */}
-                  {getLegacyControllersFromState(state).length ?? 'N/A'}
-                </span>
+                <span className="white">{rows.length ?? 'N/A'}</span>
               </div>
               <div
                 className="flex flex-column"

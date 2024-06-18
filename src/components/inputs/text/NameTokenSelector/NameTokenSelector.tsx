@@ -1,4 +1,4 @@
-import { AoArNSNameData } from '@ar.io/sdk/web';
+import { ANT, AoArNSNameData } from '@ar.io/sdk';
 import { Pagination, PaginationProps, Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
@@ -6,7 +6,7 @@ import { useIsFocused } from '../../../../hooks';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../../state/contexts/WalletState';
-import { ANTContractJSON, VALIDATION_INPUT_TYPES } from '../../../../types';
+import { VALIDATION_INPUT_TYPES } from '../../../../types';
 import { isArweaveTransactionID } from '../../../../utils';
 import { SMARTWEAVE_MAX_INPUT_SIZE } from '../../../../utils/constants';
 import eventEmitter from '../../../../utils/events';
@@ -16,10 +16,13 @@ import ValidationInput from '../ValidationInput/ValidationInput';
 import './styles.css';
 
 type NameTokenDetails = {
-  [x: string]: Pick<
-    ANTContractJSON,
-    'name' | 'ticker' | 'owner' | 'controller'
-  > & { names?: string[] };
+  [id: string]: {
+    owner: string;
+    controllers: string[];
+    name: string;
+    ticker: string;
+    names: string[];
+  };
 };
 
 function NameTokenSelector({
@@ -101,8 +104,10 @@ function NameTokenSelector({
       if (!address) {
         throw new Error('No address provided');
       }
-      const { processIds: fetchedprocessIds } = await arweaveDataProvider
-        .getContractsForWallet()
+      const fetchedprocessIds = await arweaveDataProvider
+        .getContractsForWallet({
+          address,
+        })
         .catch(() => {
           throw new Error('Unable to get contracts for wallet');
         });
@@ -149,17 +154,19 @@ function NameTokenSelector({
           processId: processIds,
         },
       });
-      const contracts: Array<
-        | [
-            ArweaveTransactionID,
-            ANTContractJSON,
-            Record<string, AoArNSNameData>,
-          ]
-        | undefined
-      > = await Promise.all(
+      const contracts: {
+        processId: ArweaveTransactionID;
+        names: Record<string, AoArNSNameData>;
+        owner: string;
+        controllers: string[];
+        ticker: string;
+        name: string;
+      }[] = await Promise.all(
         processIds.map(async (processId) => {
           // TODO: get ant contract from @ar.io/sdk
-          const contract = {} as any;
+          const contract = ANT.init({
+            processId: processId.toString(),
+          });
           const names = Object.keys(associatedRecords).reduce(
             (acc: Record<string, AoArNSNameData>, id: string) => {
               if (associatedRecords[id].processId === processId.toString()) {
@@ -170,7 +177,23 @@ function NameTokenSelector({
             {},
           );
 
-          return [processId, contract.state, names];
+          const [owner, controllers, ticker, name] = await Promise.all([
+            contract.getOwner(),
+            contract.getControllers(),
+            contract.getTicker(),
+            contract.getName(),
+          ]).catch(() => {
+            throw new Error('Unable to get contract details');
+          });
+
+          return {
+            processId,
+            names,
+            owner,
+            controllers,
+            ticker,
+            name,
+          };
         }),
       );
       if (!contracts.length) {
@@ -178,18 +201,18 @@ function NameTokenSelector({
       }
 
       const newTokens: NameTokenDetails = contracts.reduce(
-        (result, contract) => {
+        async (result, contract) => {
           if (!contract) {
             return { ...result };
           }
-          const [id, state, names] = contract;
-          const { owner, controller, name, ticker } = state;
+          const { processId, owner, controllers, name, ticker, names } =
+            contract;
 
           return {
             ...result,
-            [id.toString()]: {
+            [processId.toString()]: {
               owner,
-              controller,
+              controllers,
               name,
               ticker,
               names: Object.keys(names),
@@ -231,8 +254,8 @@ function NameTokenSelector({
       }
       const filteredResults = Object.keys(tokens)
         .filter((id) => {
-          const { owner, controller, name, ticker } = tokens[id];
-          const queryResult = [owner, controller, name, ticker, id].some(
+          const { owner, controllers, name, ticker } = tokens[id];
+          const queryResult = [owner, controllers, name, ticker, id].some(
             (term) =>
               term &&
               term.toString().toLowerCase().includes(query.toLowerCase()),

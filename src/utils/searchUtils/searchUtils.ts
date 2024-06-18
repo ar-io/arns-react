@@ -1,4 +1,3 @@
-import { ANTContractJSON } from '@src/types';
 import emojiRegex from 'emoji-regex';
 import { asciiToUnicode, unicodeToAscii } from 'puny-coder';
 
@@ -131,17 +130,4 @@ export function sleep(ms: number) {
 
 export function lowerCaseDomain(domain: string) {
   return encodeDomainToASCII(domain.trim()).toLowerCase();
-}
-
-// controller vs controllers array
-export function getLegacyControllersFromState(
-  state: ANTContractJSON,
-): string[] {
-  if (state.controller && !state.controllers) {
-    return [state.controller];
-  } else if (state.controllers) {
-    return state.controllers;
-  }
-
-  return [];
 }

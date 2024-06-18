@@ -1,4 +1,4 @@
-import { ANTState } from '@ar.io/sdk/web';
+import { ANTState } from '@ar.io/sdk';
 import { ANTCard } from '@src/components/cards';
 import { TransferANTModal } from '@src/components/modals';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
@@ -66,7 +66,6 @@ export default function OwnerRow({
         <TransferANTModal
           closeModal={() => setShowTransferANTModal(false)}
           antId={new ArweaveTransactionID(processId)}
-          state={state}
           associatedNames={associatedNames}
           payloadCallback={(payload) => {
             setTransactionData({

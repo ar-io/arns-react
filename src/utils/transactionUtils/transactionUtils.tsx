@@ -3,7 +3,6 @@ import { Tag, Tags } from 'warp-contracts';
 
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import {
-  ANTContractJSON,
   ARNSMapping,
   ARNS_INTERACTION_TYPES,
   BuyRecordPayload,
@@ -231,11 +230,7 @@ export function getARNSMappingByInteractionType(
           'transaction data not of correct payload type <BuyRecordPayload>',
         );
       }
-      if (transactionData.processId === ATOMIC_FLAG && !transactionData.state) {
-        throw new Error(
-          'Atomic transaction detected but no state present, add the state to continue.',
-        );
-      }
+
       const years =
         transactionData.type === TRANSACTION_TYPES.LEASE &&
         transactionData.years
@@ -248,7 +243,6 @@ export function getARNSMappingByInteractionType(
         domain: transactionData.name,
         processId: processId,
         deployedTransactionId: transactionData.deployedTransactionId,
-        state: transactionData.state ?? undefined,
         overrides: {
           maxUndernames: `Up to ${DEFAULT_MAX_UNDERNAMES}`,
           leaseDuration: years,
@@ -642,7 +636,7 @@ export function getAttributesFromInteractionFunction(f: string) {
 
 export function mapTransactionDataKeyToPayload(
   interactionType: ValidInteractionType,
-  data: string | number | Array<string | number | ANTContractJSON>,
+  data: string | number | Array<string | number>,
 ): TransactionData | undefined {
   const txData = typeof data === 'object' ? data : [data];
   if (!data) {
@@ -722,7 +716,7 @@ export async function validateTTLSeconds(ttl: number): Promise<void> {
 export function generateAtomicState(
   domain: string,
   walletAddress: ArweaveTransactionID,
-): ANTContractJSON {
+) {
   return {
     ...DEFAULT_ANT_CONTRACT_STATE,
     name: `ANT-${domain.toUpperCase()}`,
@@ -757,18 +751,6 @@ export function buildSmartweaveContractTags({
       name: 'Contract-Src',
       value: contractSrc.toString(),
     },
-
-    // ...(initState
-    //   ? [
-    //       {
-    //         name: 'Init-State',
-    //         value:
-    //           typeof initState === 'string'
-    //             ? initState
-    //             : JSON.stringify(initState),
-    //       },
-    //     ]
-    //   : []),
   ];
   return tags.map((t) => new Tag(t?.name, t?.value));
 }

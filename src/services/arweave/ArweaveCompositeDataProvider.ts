@@ -1,4 +1,4 @@
-import { AoArNSNameData, AoIORead, mIOToken } from '@ar.io/sdk/web';
+import { AoArNSNameData, AoIORead, mIOToken } from '@ar.io/sdk';
 
 import { ArweaveDataProvider } from '../../types';
 import { ArweaveTransactionID } from './ArweaveTransactionID';
@@ -32,14 +32,17 @@ export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
       .getBalance({
         address: wallet.toString(),
       })
-      .then((balance) => new mIOToken(balance).toIO().valueOf());
+      .then((balance: number) => new mIOToken(balance).toIO().valueOf());
   }
 
-  async getContractsForWallet(): Promise<{
-    processIds: ArweaveTransactionID[];
-  }> {
-    // TODO: use utility to fetch ant contracts owned by wallet
-    return { processIds: [] };
+  async getContractsForWallet({
+    address,
+  }: {
+    address: ArweaveTransactionID;
+  }): Promise<ArweaveTransactionID[]> {
+    const processIds = ['LGN8MUAMvTvr6i-WGdXBu1z9jz01LZVnVwklp9z7D6U'];
+    const processIdSet = new Set([...processIds]);
+    return [...processIdSet].map((id) => new ArweaveTransactionID(id));
   }
 
   async getTransactionStatus(

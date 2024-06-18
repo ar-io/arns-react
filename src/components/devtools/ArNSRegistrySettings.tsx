@@ -1,4 +1,4 @@
-import { IO, ioDevnetProcessId } from '@ar.io/sdk/web';
+import { IO, ioDevnetProcessId } from '@ar.io/sdk';
 import { ArweaveCompositeDataProvider } from '@src/services/arweave/ArweaveCompositeDataProvider';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { SimpleArweaveDataProvider } from '@src/services/arweave/SimpleArweaveDataProvider';

@@ -1,4 +1,4 @@
-import { AoANTRead } from '@ar.io/sdk/web';
+import { AoANTRead, AoANTReadable } from '@ar.io/sdk';
 import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
@@ -101,9 +101,9 @@ export function useWalletANTs() {
       if (walletAddress) {
         const height =
           blockHeight ?? (await arweaveDataProvider.getCurrentBlockHeight());
-        const { processIds } =
-          // TODO: get contracts from ar.io/sdk
-          await arweaveDataProvider.getContractsForWallet();
+        const processIds = await arweaveDataProvider.getContractsForWallet({
+          address: walletAddress,
+        });
         const data = await fetchANTData(processIds, height); // TODO: not sure this is relevant
         const newRows = await buildANTRows(data, walletAddress, height);
         setRows(newRows);
@@ -337,7 +337,7 @@ export function useWalletANTs() {
           <TransactionStatus
             confirmations={val}
             errorMessage={
-              !val && !row.hasPending && val !== 0
+              !val
                 ? row.errors?.length
                   ? row.errors?.join(', ')
                   : 'Unable to get confirmations for ANT Contract'
@@ -431,7 +431,7 @@ export function useWalletANTs() {
             <ManageAssetButtons
               id={val.id}
               assetType="ants"
-              disabled={!row.status}
+              disabled={row.id == undefined}
             />
           </span>
         ),
@@ -457,22 +457,12 @@ export function useWalletANTs() {
         .catch((e) => console.error(e));
       const newDatas = [...tokenIds].map(
         async (processId: ArweaveTransactionID) => {
-          const errors = [];
-          const [contract, confirmations] = await Promise.all([
-            {} as any, // TODO: get contract state from ar.io/sdk
-            allTransactionBlockHeights
-              ? allTransactionBlockHeights[processId.toString()]?.blockHeight
-              : 0,
-          ]);
-
-          if (!contract.state) {
-            errors.push(`Failed to load contract: ${processId.toString()}`);
-          }
-
-          // simple check that it is ANT shaped contract
-          if (!contract.isValid()) {
-            errors.push('Invalid contract');
-          }
+          const contract = new AoANTReadable({
+            processId: processId.toString(),
+          });
+          const confirmations = allTransactionBlockHeights
+            ? allTransactionBlockHeights[processId.toString()]?.blockHeight
+            : 0;
 
           // TODO: react strict mode makes this increment twice in dev
           if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
@@ -480,9 +470,6 @@ export function useWalletANTs() {
           setPercentLoaded(
             Math.round((itemsLoaded.current / itemCount.current) * 100),
           );
-          if (!contract.getOwnershipStatus(walletAddress)) {
-            return;
-          }
 
           return {
             contract,
@@ -493,7 +480,7 @@ export function useWalletANTs() {
             ]?.blockHeight
               ? allTransactionBlockHeights[processId.toString()].blockHeight
               : 0,
-            errors,
+            errors: [],
           };
         },
       );
@@ -527,8 +514,13 @@ export function useWalletANTs() {
             contract.getOwner(),
             contract.getTicker(),
             contract.getControllers(),
-            contract.getRecord({ name: '@' }),
+            contract.getRecord({ undername: '@' }),
           ]);
+
+        // const status = await arweaveDataProvider.getTransactionStatus(
+        //   new ArweaveTransactionID(data.processId),
+        //   currentBlockHeight,
+        // );
 
         const rowData = {
           name: name ?? 'N/A',

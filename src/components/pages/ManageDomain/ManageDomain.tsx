@@ -1,7 +1,6 @@
-import { AoArNSNameData } from '@ar.io/sdk/web';
+import { AoArNSNameData, isLeasedArNSRecord } from '@ar.io/sdk';
 import TransactionSuccessCard from '@src/components/cards/TransactionSuccessCard/TransactionSuccessCard';
 import DomainSettings from '@src/components/forms/DomainSettings/DomainSettings';
-import { isLeasedRecord } from '@src/components/layout/ExtendLease/ExtendLease';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
 import { Tooltip } from 'antd';
@@ -60,7 +59,7 @@ function ManageDomain() {
         throw Error('This name is not registered');
       }
 
-      const duration = isLeasedRecord(arnsRecord)
+      const duration = isLeasedArNSRecord(arnsRecord)
         ? getLeaseDurationFromEndTimestamp(
             arnsRecord.startTimestamp * 1000,
             arnsRecord.endTimestamp * 1000,
@@ -73,9 +72,9 @@ function ManageDomain() {
           duration >= MAX_LEASE_DURATION) ||
           duration === 'Indefinite',
       );
-      setUndernameCount(arnsRecord.undernames);
+      setUndernameCount(arnsRecord.undernameLimit);
       setIsMaxUndernameCount(
-        !!undernameCount && arnsRecord.undernames >= MAX_UNDERNAME_COUNT,
+        !!undernameCount && arnsRecord.undernameLimit >= MAX_UNDERNAME_COUNT,
       );
 
       setLoading(false);
@@ -141,7 +140,7 @@ function ManageDomain() {
                   fontFamily: 'Rubik',
                 }}
                 onClick={() =>
-                  navigate(`/manage/names/${name}/upgrade-undernames`)
+                  navigate(`/manage/names/${name}/upgrade-undernameLimit`)
                 }
               >
                 Increase Undernames

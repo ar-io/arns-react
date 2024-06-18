@@ -2,7 +2,7 @@ import Arweave from 'arweave';
 import { ArweaveWebWallet } from 'arweave-wallet-connector';
 
 import { ArweaveTransactionID } from '../services/arweave/ArweaveTransactionID';
-import { ANTContractJSON, ARNSContractJSON } from '../types';
+import { ARNSContractJSON } from '../types';
 
 export const APP_NAME = 'AR-IO-ArNS-App';
 export const APP_VERSION = '1.0.0';
@@ -189,9 +189,8 @@ export const LANDING_PAGE_TXID = new ArweaveTransactionID(
   'UyC5P5qKPZaltMmmZAWdakhlDXsBF6qmyrbWYFchRTk',
 );
 
-export const DEFAULT_ANT_CONTRACT_STATE: ANTContractJSON = {
+export const DEFAULT_ANT_CONTRACT_STATE = {
   balances: {},
-  evolve: undefined,
   name: '',
   ticker: '',
   owner: '',
@@ -203,6 +202,7 @@ export const DEFAULT_ANT_CONTRACT_STATE: ANTContractJSON = {
     },
   },
 };
+
 export const DEFAULT_ARNS_REGISTRY_STATE: ARNSContractJSON = {
   records: {},
   fees: {},

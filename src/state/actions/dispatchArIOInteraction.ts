@@ -2,7 +2,7 @@ import {
   AR_IO_CONTRACT_FUNCTIONS,
   AoIOWrite,
   AoMessageResult,
-} from '@ar.io/sdk/web';
+} from '@ar.io/sdk';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
 import { ARNS_INTERACTION_TYPES, ContractInteraction } from '@src/types';

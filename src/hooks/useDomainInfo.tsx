@@ -1,8 +1,7 @@
-import { ANT, ANTWritable, AoArNSNameData, ArIO } from '@ar.io/sdk/web';
+import { ANT, AoANTWrite, AoArNSNameData } from '@ar.io/sdk';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
-import { ANTContractJSON } from '@src/types';
 import { RefetchOptions, useSuspenseQuery } from '@tanstack/react-query';
 
 export default function useDomainInfo({
@@ -14,11 +13,18 @@ export default function useDomainInfo({
 }): {
   data: {
     arnsRecord?: AoArNSNameData;
-    antState?: ANTContractJSON;
     associatedNames?: string[];
-    antProvider: ANTWritable;
-    arioProvider?: ArIO;
     processId: ArweaveTransactionID;
+    antProcess: AoANTWrite;
+    name: string;
+    ticker: string;
+    owner: string;
+    controllers: string[];
+    undernameCount?: number;
+    apexRecord: {
+      transactionId: string;
+      ttlSeconds: number;
+    };
   };
   isLoading: boolean;
   error: Error | null;
@@ -42,48 +48,74 @@ export default function useDomainInfo({
     antId?: ArweaveTransactionID;
   }): Promise<{
     arnsRecord?: AoArNSNameData;
-    antState?: ANTContractJSON;
     associatedNames?: string[];
-    antProvider: ANT;
-    arioProvider?: ArIO;
     processId: ArweaveTransactionID;
+    antProcess: AoANTWrite;
+    name: string;
+    ticker: string;
+    owner: string;
+    controllers: string[];
+    undernameCount: number;
+    apexRecord: {
+      transactionId: string;
+      ttlSeconds: number;
+    };
   }> {
     if (!domain && !antId) {
       throw new Error('No domain or antId provided');
     }
-    const signer = wallet?.arconnectSigner;
     const record = domain
       ? await arioProvider.getArNSRecord({ name: domain })
       : undefined;
 
-    let processId = antId || record?.processId;
-
-    const antProvider =
-      processId && signer
-        ? ANT.init({
-            processId: processId.toString(),
-            signer,
-          })
-        : undefined;
-
-    if (!antProvider || !processId) {
+    if (antId && !record?.processId) {
       throw new Error('No processId found');
     }
-    // TODO: get cached domain interactions as well.
-    processId = new ArweaveTransactionID(processId.toString());
+    const processId = antId || new ArweaveTransactionID(record?.processId);
+    const signer = wallet?.arconnectSigner;
+    if (!signer) {
+      throw new Error('No signer found');
+    }
+    const antProcess = ANT.init({
+      processId: processId.toString(),
+      signer,
+    });
 
     const associatedNames = Object.keys(
       await arweaveDataProvider.getRecords({
         filters: { processId: [processId] },
       }),
     );
+
+    const [name, ticker, owner, controllers, undernameCount, apexRecord] =
+      await Promise.all([
+        antProcess.getName(),
+        antProcess.getTicker(),
+        antProcess.getOwner(),
+        antProcess.getControllers(),
+        antProcess
+          .getRecords()
+          .then((r: Record<string, any>) => Object.keys(r).length - 1),
+        antProcess.getRecord({ undername: '@' }),
+      ]);
+
+    if (!apexRecord) {
+      throw new Error('No apexRecord found');
+    }
+
+    console.log(apexRecord);
+
     return {
       arnsRecord: record,
-      antState: {} as any,
       associatedNames,
-      antProvider,
-      arioProvider,
-      processId: new ArweaveTransactionID(processId.toString()),
+      processId,
+      antProcess,
+      name,
+      ticker,
+      owner,
+      controllers,
+      undernameCount,
+      apexRecord,
     };
   }
 

@@ -1,14 +1,11 @@
+import { ANT } from '@ar.io/sdk';
 import { clamp } from 'lodash';
 import { useEffect, useRef, useState } from 'react';
 
 import { useIsMobile } from '../../../../hooks';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
-import {
-  ANTContractJSON,
-  SetRecordPayload,
-  VALIDATION_INPUT_TYPES,
-} from '../../../../types';
+import { SetRecordPayload, VALIDATION_INPUT_TYPES } from '../../../../types';
 import {
   formatForMaxCharCount,
   isARNSDomainNameValid,
@@ -22,7 +19,6 @@ import {
 } from '../../../../utils/constants';
 import eventEmitter from '../../../../utils/events';
 import ValidationInput from '../../../inputs/text/ValidationInput/ValidationInput';
-import { Loader } from '../../../layout';
 import TransactionCost from '../../../layout/TransactionCost/TransactionCost';
 import DialogModal from '../../DialogModal/DialogModal';
 
@@ -39,7 +35,6 @@ function EditUndernameModal({
 }) {
   const [{ arweaveDataProvider }] = useGlobalState();
   const isMobile = useIsMobile();
-  const [state, setState] = useState<ANTContractJSON>();
 
   const targetIdRef = useRef<HTMLInputElement>(null);
   const ttlRef = useRef<HTMLInputElement>(null);
@@ -55,25 +50,17 @@ function EditUndernameModal({
 
   async function load(id: ArweaveTransactionID) {
     try {
-      const contract = { id: id.toString() } as any; // TODO: use ar.io/sdk to fetch ant state
-      setState(contract.state);
-      if (
-        isArweaveTransactionID(
-          contract.state?.records?.[undername]?.transactionId,
-        )
-      ) {
-        setTargetId(contract.state?.records?.[undername]?.transactionId);
+      const contract = ANT.init({
+        processId: id.toString(),
+      });
+      const record = await contract.getRecord({ undername: undername });
+      if (!record) {
+        throw new Error('Undername not found');
       }
-
-      if (contract.state?.records?.[undername]?.ttlSeconds) {
-        setTtlSeconds(
-          clamp(
-            contract.state?.records?.[undername]?.ttlSeconds,
-            MIN_TTL_SECONDS,
-            MAX_TTL_SECONDS,
-          ),
-        );
-      }
+      setTargetId(record?.transactionId);
+      setTtlSeconds(
+        clamp(record?.ttlSeconds, MIN_TTL_SECONDS, MAX_TTL_SECONDS),
+      );
     } catch (error) {
       eventEmitter.emit('error', error);
     }
@@ -84,16 +71,8 @@ function EditUndernameModal({
       subDomain: undername,
       transactionId: targetId,
       ttlSeconds,
-      previousRecord: state?.records?.[undername],
+      previousRecord: /* previousRecord */ undefined,
     });
-  }
-
-  if (!state) {
-    return (
-      <div className="modal-container">
-        <Loader size={80} />
-      </div>
-    );
   }
 
   return (

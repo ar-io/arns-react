@@ -1,4 +1,4 @@
-import { ANT, AoArNSNameData } from '@ar.io/sdk/web';
+import { ANT, AoArNSNameData } from '@ar.io/sdk';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -127,7 +127,7 @@ function UpgradeUndernames() {
               style={{ gap: '8px', whiteSpace: 'nowrap' }}
             >
               Total Undernames:{' '}
-              <span className="white">{record.undernames}</span>
+              <span className="white">{record.undernameLimit}</span>
               <span className="flex add-box center" style={{}}>
                 +{newUndernameCount}
               </span>
@@ -138,7 +138,7 @@ function UpgradeUndernames() {
             </span>
           </div>
           <Counter
-            maxValue={MAX_UNDERNAME_COUNT - record.undernames}
+            maxValue={MAX_UNDERNAME_COUNT - record.undernameLimit}
             minValue={0}
             value={newUndernameCount}
             setValue={setNewUndernameCount}
@@ -186,8 +186,8 @@ function UpgradeUndernames() {
                 className="flex flex-column flex-left grey text"
                 style={{ textAlign: 'left', lineHeight: '1.5em' }}
               >
-                Increasing your undernames is paid in {ioTicker} tokens, and an
-                Arweave network fee paid in AR tokens.
+                Increasing the undername limit is paid in {ioTicker} tokens, and
+                an Arweave network fee paid in AR tokens.
               </span>
             </div>
           }
@@ -203,7 +203,7 @@ function UpgradeUndernames() {
                   const increaseUndernamePayload: IncreaseUndernamesPayload = {
                     name: lowerCaseDomain(name),
                     qty: newUndernameCount,
-                    oldQty: record.undernames,
+                    oldQty: record.undernameLimit,
                     processId: record.processId,
                   };
                   dispatchTransactionState({
@@ -225,7 +225,7 @@ function UpgradeUndernames() {
                   });
                   // navigate to the transaction page, which will load the updated state of the transaction context
                   navigate('/transaction/review', {
-                    state: `/manage/names/${name}/upgrade-undernames`,
+                    state: `/manage/names/${name}/upgrade-undernameLimit`,
                   });
                 }
           }

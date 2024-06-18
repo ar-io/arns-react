@@ -16,7 +16,6 @@ function ManageANT() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [{ walletAddress }] = useWalletState();
-
   const { data } = useDomainInfo({ antId: new ArweaveTransactionID(id) });
 
   const [{ interactionResult, workflowName }, dispatchTransactionState] =
@@ -27,6 +26,8 @@ function ManageANT() {
       navigate('/manage/ants');
       return;
     }
+
+    // fetch all relevant ant information
   }, [id]);
 
   return (
@@ -52,7 +53,7 @@ function ManageANT() {
               height={'24px'}
               fill="var(--text-white)"
             />
-            {data.antState?.name ?? id}
+            {data.name ?? id}
           </h2>
         </div>
         <div className="flex-row">

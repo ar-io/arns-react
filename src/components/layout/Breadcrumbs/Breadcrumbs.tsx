@@ -1,3 +1,4 @@
+import { ANT } from '@ar.io/sdk';
 import { Breadcrumb, Tooltip } from 'antd';
 import { useEffect, useState } from 'react';
 import { useLocation, useMatches } from 'react-router';
@@ -35,7 +36,7 @@ function Breadcrumbs() {
 
   async function handleCrumbs() {
     try {
-      let contractId = '';
+      let processId = '';
       let name = '';
 
       const rawCrumbs = matches
@@ -45,7 +46,7 @@ function Breadcrumbs() {
         )
         .map((match: any) => {
           if (match.params?.id) {
-            contractId = match.params?.id;
+            processId = match.params?.id;
           }
           if (match.params?.name) {
             name = match.params?.name;
@@ -53,12 +54,17 @@ function Breadcrumbs() {
           return match?.handle?.crumbs(Object.values(match.params)[0]);
         });
       // check for ant flag
-      if (isArweaveTransactionID(contractId)) {
+      if (isArweaveTransactionID(processId)) {
         // TODO: get contract from ar.io/sdk
-        const state = {} as any;
+        const contract = ANT.init({
+          processId,
+        });
+
+        const name = await contract.getName();
+
         const parsedCrumbs = rawCrumbs[0].map((crumb: NavItem) => {
           if (crumb.name == ANT_FLAG) {
-            return { name: state.name, route: crumb.route };
+            return { name: name, route: crumb.route };
           }
           return crumb;
         });

@@ -1,4 +1,4 @@
-import { AoIORead, AoIOWrite, IO, ioDevnetProcessId } from '@ar.io/sdk/web';
+import { AoIORead, AoIOWrite, IO, ioDevnetProcessId } from '@ar.io/sdk';
 import React, {
   Dispatch,
   createContext,

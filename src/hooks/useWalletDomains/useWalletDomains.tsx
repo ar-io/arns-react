@@ -1,13 +1,10 @@
-import { ANT, AoArNSNameData } from '@ar.io/sdk/web';
+import { ANT, AoArNSNameData, isLeasedArNSRecord } from '@ar.io/sdk';
 import ManageAssetButtons from '@src/components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
-import { isLeasedRecord } from '@src/components/layout/ExtendLease/ExtendLease';
-import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 
 import {
   ChevronUpIcon,
-  CirclePending,
   CircleXFilled,
   ExternalLinkIcon,
   SearchIcon,
@@ -16,37 +13,20 @@ import ValidationInput from '../../components/inputs/text/ValidationInput/Valida
 import ArweaveID, {
   ArweaveIdTypes,
 } from '../../components/layout/ArweaveID/ArweaveID';
-import TransactionStatus from '../../components/layout/TransactionStatus/TransactionStatus';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useWalletState } from '../../state/contexts/WalletState';
-import {
-  ANTContractJSON,
-  ARNSTableRow,
-  ContractInteraction,
-} from '../../types';
-import {
-  decodeDomainToASCII,
-  formatDate,
-  getUndernameCount,
-  handleTableSort,
-} from '../../utils';
+import { ARNSTableRow } from '../../types';
+import { decodeDomainToASCII, formatDate, handleTableSort } from '../../utils';
 import { DEFAULT_MAX_UNDERNAMES } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 
-type DomainData = {
-  record: AoArNSNameData & { domain: string };
-  state?: ANTContractJSON;
-  transactionBlockHeight?: number;
-  pendingContractInteractions?: ContractInteraction[];
-  errors?: string[];
-};
-
 export function useWalletDomains() {
-  const [{ gateway, blockHeight, arweaveDataProvider }] = useGlobalState();
+  const [{ gateway, arweaveDataProvider }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [sortAscending, setSortAscending] = useState(true);
-  const [sortField, setSortField] = useState<keyof ARNSTableRow>('status');
+  const [sortField, setSortField] =
+    useState<keyof ARNSTableRow>('startTimestamp');
   const [selectedRow] = useState<ARNSTableRow>();
   const [rows, setRows] = useState<ARNSTableRow[]>([]);
   const [filteredResults, setFilteredResults] = useState<ARNSTableRow[]>([]);
@@ -110,13 +90,11 @@ export function useWalletDomains() {
     try {
       setIsLoading(true);
       if (walletAddress) {
-        const height =
-          blockHeight ?? (await arweaveDataProvider.getCurrentBlockHeight());
-        const { processIds } =
-          // TODO: utility function in ar.io/sdk
-          await arweaveDataProvider.getContractsForWallet();
-        const data = await fetchDomainData(processIds, walletAddress, height); // TODO: not sure this is needed anymore
-        const newRows = await buildDomainRows(data, walletAddress, height);
+        const processIds = await arweaveDataProvider.getContractsForWallet({
+          address: walletAddress,
+        });
+        const domainData = await fetchDomainData(processIds);
+        const newRows = await buildDomainRows(domainData, walletAddress);
         setRows(newRows);
       }
     } catch (error) {
@@ -128,43 +106,6 @@ export function useWalletDomains() {
 
   function generateTableColumns(): any[] {
     return [
-      {
-        title: '',
-        dataIndex: 'hasPending',
-        key: 'hasPending',
-        align: 'left',
-        width: '1%',
-        className: 'grey manage-assets-table-header',
-        render: (hasPending: boolean, row: any) => {
-          if (hasPending) {
-            return (
-              <Tooltip
-                placement="right"
-                title={
-                  <Link
-                    className="link white text underline"
-                    to={`/manage/ants/${row.id}`}
-                  >
-                    This contract has pending transactions.
-                    <ExternalLinkIcon
-                      height={12}
-                      width={12}
-                      fill={'var(--text-white)'}
-                    />
-                  </Link>
-                }
-                showArrow={true}
-                overlayStyle={{
-                  maxWidth: 'fit-content',
-                }}
-              >
-                <CirclePending height={20} width={20} fill={'var(--accent)'} />
-              </Tooltip>
-            );
-          }
-          return <></>;
-        },
-      },
       {
         title: (
           <button
@@ -291,10 +232,10 @@ export function useWalletDomains() {
             className="flex-row pointer grey"
             style={{ gap: '0.5em' }}
             onClick={() => {
-              if (sortField == 'undernames') {
+              if (sortField == 'undernameLimit') {
                 setSortAscending(!sortAscending);
               }
-              sortRows('undernames', !sortAscending);
+              sortRows('undernameLimit', !sortAscending);
             }}
           >
             <span>Undernames</span>{' '}
@@ -303,20 +244,20 @@ export function useWalletDomains() {
               height={10}
               fill={'var(--text-grey)'}
               style={
-                sortField === 'undernames' && !sortAscending
+                sortField === 'undernameLimit' && !sortAscending
                   ? { transform: 'rotate(180deg)' }
-                  : { display: sortField === 'undernames' ? '' : 'none' }
+                  : { display: sortField === 'undernameLimit' ? '' : 'none' }
               }
             />
           </button>
         ),
-        dataIndex: 'undernames',
-        key: 'undernames',
+        dataIndex: 'undernameLimit',
+        key: 'undernameLimit',
         width: '18%',
         className: 'white manage-assets-table-header',
         align: 'left',
         ellipsis: true,
-        render: (undernames: number | string) => undernames,
+        render: (undernameLimit: number | string) => undernameLimit,
       },
       {
         title: (
@@ -349,49 +290,6 @@ export function useWalletDomains() {
         width: '18%',
         className: 'white manage-assets-table-header',
         render: (val: string) => val,
-      },
-      {
-        title: (
-          <button
-            className="flex-row pointer grey"
-            style={{ gap: '0.5em' }}
-            onClick={() => {
-              if (sortField == 'status') {
-                setSortAscending(!sortAscending);
-              }
-              sortRows('status', !sortAscending);
-            }}
-          >
-            <span>Status</span>{' '}
-            <ChevronUpIcon
-              width={10}
-              height={10}
-              fill={'var(--text-grey)'}
-              style={
-                sortField === 'status' && !sortAscending
-                  ? { transform: 'rotate(180deg)' }
-                  : { display: sortField === 'status' ? '' : 'none' }
-              }
-            />
-          </button>
-        ),
-        dataIndex: 'status',
-        key: 'status',
-        align: 'left',
-        width: '18%',
-        className: 'white manage-assets-table-header',
-        render: (val: number, row: ARNSTableRow) => (
-          <TransactionStatus
-            confirmations={val}
-            errorMessage={
-              !val && !row.hasPending && val !== 0
-                ? row.errors
-                  ? row.errors?.join(', ')
-                  : 'Unable to get confirmations for ANT Contract'
-                : undefined
-            }
-          />
-        ),
       },
       {
         title: (
@@ -480,7 +378,7 @@ export function useWalletDomains() {
             <ManageAssetButtons
               id={record.name}
               assetType="names"
-              disabled={!record.status}
+              disabled={false}
             />
           </span>
         ),
@@ -490,121 +388,137 @@ export function useWalletDomains() {
     ];
   }
 
-  async function fetchDomainData(
-    ids: ArweaveTransactionID[],
-    address: ArweaveTransactionID,
-    currentBlockHeight?: number,
-  ): Promise<DomainData[]> {
+  async function fetchDomainData(ids: ArweaveTransactionID[]): Promise<
+    {
+      ant: {
+        owner: string;
+        controllers: string[];
+        name: string;
+        ticker: string;
+        undernameCount: number;
+      };
+      record: AoArNSNameData & { name: string };
+    }[]
+  > {
     setPercentLoaded(0);
     itemsLoaded.current = 0;
     const tokenIds = new Set(ids);
-    let datas: DomainData[] = [];
     try {
       const registrations = await arweaveDataProvider.getRecords({
         filters: { processId: [...tokenIds] },
       });
       const consolidatedRecords = Object.entries(registrations).map(
-        ([domain, record]) => ({ ...record, domain }),
+        ([name, record]) => ({ ...record, name }),
       );
-      const allTransactionBlockHeights = await arweaveDataProvider
-        .getTransactionStatus([...tokenIds], currentBlockHeight)
-        .catch((e) => console.error(e));
-
       itemCount.current = consolidatedRecords.length;
 
-      const newDatas = consolidatedRecords.map(async (record) => {
-        const errors = [];
-        const contract = {} as any;
-        // simple check that it is ANT shaped contract
+      const newDatas = await Promise.all(
+        consolidatedRecords.map(async (record) => {
+          const contract = ANT.init({
+            processId: record.processId,
+          });
+          // TODO: react strict mode makes this increment twice in dev
+          if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
+          setPercentLoaded(
+            Math.round((itemsLoaded.current / itemCount.current) * 100),
+          );
 
-        if (!contract?.isValid()) {
-          errors.push(`Invalid contract: ${record.processId.toString()}`);
-        }
-        // TODO: react strict mode makes this increment twice in dev
-        if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
-        setPercentLoaded(
-          Math.round((itemsLoaded.current / itemCount.current) * 100),
-        );
-        if (!contract?.getOwnershipStatus(walletAddress)) {
-          return;
-        }
+          // fetch contract information
+          const [owner, controllers, name, ticker, totalUndernames] =
+            await Promise.all([
+              contract.getOwner(),
+              contract.getControllers(),
+              contract.getName(),
+              contract.getTicker(),
+              contract
+                .getRecords()
+                .then(
+                  (records: Record<string, any>) =>
+                    Object.keys(records).length - 1,
+                ),
+            ]);
 
-        const data: DomainData = {
-          record,
-          state: contract?.state,
-          transactionBlockHeight:
-            allTransactionBlockHeights?.[record.processId.toString()]
-              ?.blockHeight,
-          errors,
-        };
-
-        return data;
-      });
-
-      datas = (await Promise.all(newDatas)).filter(
-        (data) => !!data,
-      ) as DomainData[];
+          return {
+            ant: {
+              owner,
+              controllers,
+              name,
+              ticker,
+              undernameCount: totalUndernames,
+            },
+            record,
+          };
+        }),
+      );
+      return newDatas;
     } catch (error) {
       console.error(error);
+      return [];
     }
-    return datas;
   }
 
   async function buildDomainRows(
-    datas: DomainData[],
+    data: {
+      ant: {
+        owner: string;
+        controllers: string[];
+        name: string;
+        ticker: string;
+        undernameCount: number;
+      };
+      record: AoArNSNameData & { name: string };
+    }[],
     address: ArweaveTransactionID,
-    currentBlockHeight?: number,
   ) {
     const fetchedRows: ARNSTableRow[] = [];
 
     try {
       const rowData = await Promise.all(
-        datas.map(async (data: DomainData) => {
-          const { record, transactionBlockHeight } = data;
-          const contract = ANT.init({
-            processId: record.processId.toString(),
-          });
-
-          const [owner, controllers, records] = await Promise.all([
-            contract.getOwner(),
-            contract.getControllers(),
-            contract.getRecords(),
-          ]);
-
-          return {
-            name: decodeDomainToASCII(data.record.domain),
-            id: data.record.processId,
-            role:
-              // TODO: use a utility function in ar.io/sdk
-              owner === walletAddress?.toString()
-                ? 'Owner'
-                : controllers.includes(address.toString())
-                ? 'Controller'
-                : 'N/A',
-            expiration: isLeasedRecord(record)
-              ? formatDate(record.endTimestamp)
-              : 'Indefinite',
-            status:
-              transactionBlockHeight && currentBlockHeight
-                ? currentBlockHeight - transactionBlockHeight
-                : 0,
-            undernameSupport: record?.undernames ?? DEFAULT_MAX_UNDERNAMES,
-            undernameCount: getUndernameCount(records),
-            undernames: `${getUndernameCount(records).toLocaleString()} / ${(
-              record?.undernames ?? DEFAULT_MAX_UNDERNAMES
-            ).toLocaleString()}`,
-            key: `${record.domain}-${record.processId}`,
-            hasPending: !!data.pendingContractInteractions?.length,
-            errors: data.errors,
-          };
-        }),
+        data.map(
+          async (data: {
+            ant: {
+              owner: string;
+              controllers: string[];
+              name: string;
+              ticker: string;
+              undernameCount: number;
+            };
+            record: AoArNSNameData & { name: string };
+          }) => {
+            return {
+              name: decodeDomainToASCII(data.record.name),
+              id: data.record.processId,
+              role:
+                // TODO: use a utility function in ar.io/sdk
+                data.ant.owner === walletAddress?.toString()
+                  ? 'Owner'
+                  : data.ant.controllers.includes(address.toString())
+                  ? 'Controller'
+                  : 'N/A',
+              expiration: isLeasedArNSRecord(data.record)
+                ? formatDate(data.record.endTimestamp)
+                : 'Indefinite',
+              startTimestamp: data.record.startTimestamp,
+              undernameSupport:
+                data.record?.undernameLimit ?? DEFAULT_MAX_UNDERNAMES,
+              undernameCount: data.ant.undernameCount,
+              undernameLimit: `${data.ant.undernameCount.toLocaleString()} / ${(
+                data.record?.undernameLimit ?? DEFAULT_MAX_UNDERNAMES
+              ).toLocaleString()}`,
+              key: `${data.record.name}-${data.record.processId}`,
+              errors: [],
+            };
+          },
+        ),
       );
       fetchedRows.push(...rowData);
     } catch (error) {
       eventEmitter.emit('error', error);
     }
+
+    // sort by start timestamp desc by default
     handleTableSort<ARNSTableRow>({
-      key: 'status',
+      key: 'startTimestamp',
       isAsc: false,
       rows: fetchedRows,
     });

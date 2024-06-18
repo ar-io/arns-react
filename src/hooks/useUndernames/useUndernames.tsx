@@ -1,3 +1,4 @@
+import { ANT } from '@ar.io/sdk';
 import { Tooltip } from 'antd';
 import { ColumnType } from 'antd/es/table';
 import { useEffect, useRef, useState } from 'react';
@@ -379,13 +380,15 @@ export function useUndernames(id?: ArweaveTransactionID, name?: string) {
     setDomain(domain);
     const fetchedRows: UndernameMetadata[] = [];
     // TODO: get ANTs via ar.io/sdk
-    const undernames = [] as any;
-    for (const [name, record] of undernames) {
+    const undernames = await ANT.init({
+      processId: processId.toString(),
+    }).getRecords();
+    for (const [name, record] of Object.entries(undernames)) {
       try {
         const rowData = {
           name: name,
           targetID: record.transactionId,
-          ttlSeconds: record.ttlSeconds.toString(),
+          ttlSeconds: record.ttlSeconds,
           status: 0,
           key: name,
         };
@@ -396,7 +399,7 @@ export function useUndernames(id?: ArweaveTransactionID, name?: string) {
         eventEmitter.emit('error', error);
       } finally {
         setPercentLoaded(
-          ((undernames.indexOf([name, record]) + 1) / undernames.length) * 100,
+          (fetchedRows.length / Object.keys(undernames).length) * 100,
         );
       }
     }

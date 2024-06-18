@@ -1,4 +1,4 @@
-import { AoIORead, AoIOWrite } from '@ar.io/sdk/web';
+import { AoIORead, AoIOWrite } from '@ar.io/sdk';
 import { Dispatch } from 'react';
 
 import { GlobalAction } from '../reducers';

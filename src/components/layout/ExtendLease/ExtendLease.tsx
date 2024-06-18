@@ -1,4 +1,4 @@
-import { AoArNSNameData, ArNSLeaseData } from '@ar.io/sdk/web';
+import { AoArNSNameData, isLeasedArNSRecord } from '@ar.io/sdk';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -32,13 +32,6 @@ import DialogModal from '../../modals/DialogModal/DialogModal';
 import TransactionCost from '../TransactionCost/TransactionCost';
 import PageLoader from '../progress/PageLoader/PageLoader';
 
-export const isLeasedRecord = function (
-  obj: AoArNSNameData,
-): obj is Omit<ArNSLeaseData, 'processId'> & { processId: string } {
-  return (
-    (obj as any).endTimestamp !== undefined && (obj as any).type === 'lease'
-  );
-};
 function ExtendLease() {
   // TODO: remove use of source contract
   const [{ arweaveDataProvider, ioTicker }] = useGlobalState();
@@ -63,7 +56,7 @@ function ExtendLease() {
   }, [name]);
 
   useEffect(() => {
-    if (!record || !name || !isLeasedRecord(record)) {
+    if (!record || !name || !isLeasedArNSRecord(record)) {
       return;
     }
 
@@ -92,7 +85,7 @@ function ExtendLease() {
         throw new Error(`Unable to get record for ${name}`);
       }
 
-      if (!isLeasedRecord(record)) {
+      if (!isLeasedArNSRecord(record)) {
         setRegistrationType(TRANSACTION_TYPES.BUY);
         return;
       }
@@ -126,7 +119,10 @@ function ExtendLease() {
     );
   }
 
-  if (!isLeasedRecord(record) || registrationType === TRANSACTION_TYPES.BUY) {
+  if (
+    !isLeasedArNSRecord(record) ||
+    registrationType === TRANSACTION_TYPES.BUY
+  ) {
     return (
       <div className="page center">
         <DialogModal

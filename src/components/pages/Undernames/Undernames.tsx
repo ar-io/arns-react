@@ -1,4 +1,4 @@
-import { ANT } from '@ar.io/sdk/web';
+import { ANT } from '@ar.io/sdk';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
@@ -35,7 +35,7 @@ function Undernames() {
     domain: name,
     antId: id ? new ArweaveTransactionID(id) : undefined,
   });
-  const [{ walletAddress }] = useWalletState();
+  const [{ walletAddress, wallet }] = useWalletState();
   const [antId, setANTId] = useState<ArweaveTransactionID>();
   const [selectedRow, setSelectedRow] = useState<
     UndernameMetadata | undefined
@@ -165,11 +165,19 @@ function Undernames() {
       if (!processId) {
         throw new Error('Unable to interact with ANT contract - missing ID.');
       }
+
+      if (!wallet?.arconnectSigner || !walletAddress) {
+        throw new Error(
+          'Unable to interact with ANT contract - missing signer.',
+        );
+      }
+
       await dispatchANTInteraction({
         processId,
         payload,
         workflowName,
-        antProvider: data.antProvider,
+        signer: wallet?.arconnectSigner,
+        owner: walletAddress?.toString(),
         dispatch: dispatchTransactionState,
       });
     } catch (error) {

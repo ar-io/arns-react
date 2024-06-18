@@ -1,34 +1,28 @@
+import { useANT } from '@src/hooks/useANT/useANT';
 import { Checkbox } from 'antd';
 import { useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../../hooks';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
-import {
-  ANTContractJSON,
-  TransferANTPayload,
-  VALIDATION_INPUT_TYPES,
-} from '../../../../types';
+import { TransferANTPayload, VALIDATION_INPUT_TYPES } from '../../../../types';
 import {
   formatForMaxCharCount,
   isArweaveTransactionID,
 } from '../../../../utils';
 import { InfoIcon } from '../../../icons';
 import ValidationInput from '../../../inputs/text/ValidationInput/ValidationInput';
-import { Loader } from '../../../layout';
 import TransactionCost from '../../../layout/TransactionCost/TransactionCost';
 import DialogModal from '../../DialogModal/DialogModal';
 import './styles.css';
 
 function TransferANTModal({
   antId,
-  state,
   closeModal,
   payloadCallback,
   associatedNames,
 }: {
   antId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
-  state: ANTContractJSON;
   closeModal: () => void;
   payloadCallback: (payload: TransferANTPayload) => void;
   associatedNames: string[];
@@ -38,6 +32,7 @@ function TransferANTModal({
   const [accepted, setAccepted] = useState<boolean>(false);
   const [toAddress, setToAddress] = useState<string>('');
   const [isValidAddress, setIsValidAddress] = useState<boolean>();
+  const { name = 'N/A' } = useANT(antId.toString());
 
   useEffect(() => {
     if (!isArweaveTransactionID(toAddress)) {
@@ -48,14 +43,6 @@ function TransferANTModal({
       return;
     }
   }, [toAddress]);
-
-  if (!state) {
-    return (
-      <div className="modal-container">
-        <Loader size={80} />
-      </div>
-    );
-  }
 
   function handlePayloadCallback() {
     payloadCallback({
@@ -83,9 +70,7 @@ function TransferANTModal({
             </div>
             <div className="flex flex-column" style={{ gap: '10px' }}>
               <span className="grey">Nickname:</span>
-              <span className="white">
-                {formatForMaxCharCount(state.name, 40)}
-              </span>
+              <span className="white">{formatForMaxCharCount(name, 40)}</span>
             </div>
             <div className="flex flex-column" style={{ paddingBottom: '30px' }}>
               <div className="flex flex-column" style={{ gap: '15px' }}>
