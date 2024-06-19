@@ -18,7 +18,7 @@ function RemoveControllersModal({
   closeModal,
   payloadCallback,
 }: {
-  antId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
+  antId: ArweaveTransactionID;
   closeModal: () => void;
   payloadCallback: (payload: { controller: string }) => void;
 }) {
@@ -28,7 +28,7 @@ function RemoveControllersModal({
   >([]);
   const [tablePage, setTablePage] = useState<number>(1);
   const [rows, setRows] = useState<ArweaveTransactionID[]>([]);
-  const { name } = useANT(antId.toString());
+  const { name = 'N/A' } = useANT(antId.toString());
 
   useEffect(() => {
     getControllerRows(antId).then((rows: ArweaveTransactionID[]) => {

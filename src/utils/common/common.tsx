@@ -174,7 +174,7 @@ export function jsonSerialize(obj: any) {
   }
 }
 
-export function getUndernameCount(records: Record<string, any>): number {
+export function getundernameLimit(records: Record<string, any>): number {
   return Object.keys(records).filter((key) => key !== '@').length;
 }
 

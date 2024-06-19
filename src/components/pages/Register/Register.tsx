@@ -1,5 +1,5 @@
 import { CheckCircleFilled } from '@ant-design/icons';
-import { mIOToken } from '@ar.io/sdk';
+import { ANT, mIOToken } from '@ar.io/sdk';
 import { InsufficientFundsError, ValidationError } from '@src/utils/errors';
 import { Tooltip } from 'antd';
 import emojiRegex from 'emoji-regex';
@@ -26,7 +26,6 @@ import {
 } from '../../../utils';
 import {
   ARNS_REGISTRY_ADDRESS,
-  ATOMIC_FLAG,
   MAX_LEASE_DURATION,
   MIN_LEASE_DURATION,
 } from '../../../utils/constants';
@@ -82,20 +81,23 @@ function RegisterNameForm() {
     }
   }, [name, domain]);
 
-  async function handleANTId(id: string) {
-    try {
-      const txId = new ArweaveTransactionID(id.toString());
+  async function handleANTId(id?: ArweaveTransactionID) {
+    if (!id) {
       dispatchRegisterState({
         type: 'setANTID',
-        payload: txId,
+        payload: undefined,
       });
-
-      // TODO: fetch contract from ar.io/sdk
-      const contract = {} as any;
-      if (!contract) throw new Error('Contract not found');
-    } catch (error: any) {
-      console.error(error);
+      return;
     }
+    dispatchRegisterState({
+      type: 'setANTID',
+      payload: id,
+    });
+
+    const contract = ANT.init({
+      processId: id.toString(),
+    });
+    if (!contract) throw new Error('Contract not found');
   }
 
   if (!registrationType) {
@@ -161,7 +163,7 @@ function RegisterNameForm() {
         domain && emojiRegex().test(domain)
           ? encodeDomainToASCII(domain)
           : domain,
-      processId: antID ? antID.toString() : ATOMIC_FLAG,
+      processId: antID!.toString(),
       // TODO: move this to a helper function
       years:
         registrationType === TRANSACTION_TYPES.LEASE
@@ -405,14 +407,7 @@ function RegisterNameForm() {
           </div>
           <div className="flex flex-column" style={{ gap: '1em' }}>
             <NameTokenSelector
-              selectedTokenCallback={(id) =>
-                id
-                  ? handleANTId(id.toString())
-                  : dispatchRegisterState({
-                      type: 'setANTID',
-                      payload: undefined,
-                    })
-              }
+              selectedTokenCallback={(id) => handleANTId(id)}
             />
             <div
               className="name-token-input-wrapper"

@@ -55,7 +55,6 @@ function Breadcrumbs() {
         });
       // check for ant flag
       if (isArweaveTransactionID(processId)) {
-        // TODO: get contract from ar.io/sdk
         const contract = ANT.init({
           processId,
         });

@@ -22,7 +22,7 @@ export const ARWEAVE_APP_API = new ArweaveWebWallet(
 );
 export const ARNS_SERVICE_API =
   process.env.VITE_ARNS_SERVICE_API ?? 'https://dev.arns.app';
-export const ARWEAVE_HOST = process.env.VITE_ARWEAVE_HOST ?? 'ar-io.dev';
+export const ARWEAVE_HOST = process.env.VITE_ARWEAVE_HOST ?? 'arweave.net';
 
 export const DEFAULT_ARWEAVE = new Arweave({
   host: ARWEAVE_HOST,
@@ -219,15 +219,6 @@ export const DEFAULT_ARNS_REGISTRY_STATE: ARNSContractJSON = {
 export const WARP_CONTRACT_BASE_URL = 'https://sonar.warp.cc/#/app/contract/';
 export const WARP_INTERACTION_BASE_URL =
   'https://sonar.warp.cc/#/app/interaction/';
-
-export const ATOMIC_FLAG = 'atomic' as const;
-
-export const ATOMIC_REGISTRATION_INPUT = {
-  function: 'buyRecord',
-  name: '',
-  processId: ATOMIC_FLAG,
-  qty: 0,
-};
 
 export const RESERVED_BREADCRUMB_TITLES = new Set([
   'Manage Assets',

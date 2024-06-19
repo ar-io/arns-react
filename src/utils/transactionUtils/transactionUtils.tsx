@@ -30,7 +30,6 @@ import {
 } from '../../types';
 import {
   ARNS_TX_ID_REGEX,
-  ATOMIC_FLAG,
   DEFAULT_ANT_CONTRACT_STATE,
   DEFAULT_MAX_UNDERNAMES,
   MAX_TTL_SECONDS,
@@ -688,10 +687,10 @@ export function getLinkId(
     );
 
   if (isBuyRecord || isExtendLease || isIncreaseUndernames) {
-    return transactionData.processId === ATOMIC_FLAG &&
-      transactionData.deployedTransactionId
-      ? transactionData.deployedTransactionId.toString()
-      : transactionData.processId?.toString() ?? '';
+    if (!transactionData.processId) {
+      throw new Error('No processId found');
+    }
+    return transactionData.processId?.toString();
   }
 
   return transactionData.assetId.toString();

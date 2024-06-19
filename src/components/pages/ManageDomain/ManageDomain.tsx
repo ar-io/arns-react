@@ -23,9 +23,9 @@ function ManageDomain() {
   const location = useLocation();
   const [{ walletAddress }] = useWalletState();
   const [isMaxLeaseDuration, setIsMaxLeaseDuration] = useState<boolean>(false);
-  const [isMaxUndernameCount, setIsMaxUndernameCount] =
+  const [isMaxundernameLimit, setIsMaxundernameLimit] =
     useState<boolean>(false);
-  const [undernameCount, setUndernameCount] = useState<number>();
+  const [undernameLimit, setundernameLimit] = useState<number>();
   const [loading, setLoading] = useState<boolean>(true);
 
   const { data, isLoading: isLoadingDomainDetails } = useDomainInfo({
@@ -72,9 +72,9 @@ function ManageDomain() {
           duration >= MAX_LEASE_DURATION) ||
           duration === 'Indefinite',
       );
-      setUndernameCount(arnsRecord.undernameLimit);
-      setIsMaxUndernameCount(
-        !!undernameCount && arnsRecord.undernameLimit >= MAX_UNDERNAME_COUNT,
+      setundernameLimit(arnsRecord.undernameLimit);
+      setIsMaxundernameLimit(
+        !!undernameLimit && arnsRecord.undernameLimit >= MAX_UNDERNAME_COUNT,
       );
 
       setLoading(false);
@@ -119,7 +119,7 @@ function ManageDomain() {
             <Tooltip
               trigger={['hover']}
               title={
-                isMaxUndernameCount
+                isMaxundernameLimit
                   ? 'Max undername support reached'
                   : 'Increase undername support'
               }
@@ -128,12 +128,12 @@ function ManageDomain() {
               rootClassName="notification-tooltip"
             >
               <button
-                disabled={loading || isMaxUndernameCount}
+                disabled={loading || isMaxundernameLimit}
                 className={`button-secondary ${
-                  loading || isMaxUndernameCount ? 'disabled-button' : 'hover'
+                  loading || isMaxundernameLimit ? 'disabled-button' : 'hover'
                 }`}
                 style={{
-                  padding: loading || isMaxUndernameCount ? '0px' : '9px',
+                  padding: loading || isMaxundernameLimit ? '0px' : '9px',
                   gap: '8px',
                   fontSize: '14px',
                   color: 'var(--accent)',

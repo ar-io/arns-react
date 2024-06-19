@@ -20,7 +20,7 @@ export default function useDomainInfo({
     ticker: string;
     owner: string;
     controllers: string[];
-    undernameCount?: number;
+    undernameLimit?: number;
     apexRecord: {
       transactionId: string;
       ttlSeconds: number;
@@ -55,7 +55,7 @@ export default function useDomainInfo({
     ticker: string;
     owner: string;
     controllers: string[];
-    undernameCount: number;
+    undernameLimit: number;
     apexRecord: {
       transactionId: string;
       ttlSeconds: number;
@@ -87,7 +87,7 @@ export default function useDomainInfo({
       }),
     );
 
-    const [name, ticker, owner, controllers, undernameCount, apexRecord] =
+    const [name, ticker, owner, controllers, undernameLimit, apexRecord] =
       await Promise.all([
         antProcess.getName(),
         antProcess.getTicker(),
@@ -112,7 +112,7 @@ export default function useDomainInfo({
       ticker,
       owner,
       controllers,
-      undernameCount,
+      undernameLimit,
       apexRecord,
     };
   }

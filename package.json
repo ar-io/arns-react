@@ -35,6 +35,7 @@
     "eventemitter3": "^5.0.0",
     "fetch-retry": "^5.0.6",
     "lodash": "^4.17.21",
+    "p-limit": "^5.0.0",
     "puny-coder": "^1.0.1",
     "react": "^18.2.0",
     "react-chartjs-2": "^5.2.0",

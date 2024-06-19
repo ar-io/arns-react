@@ -1,4 +1,5 @@
 import { AoANTRead, AoANTReadable } from '@ar.io/sdk';
+import { DEFAULT_TTL_SECONDS } from '@src/utils/constants';
 import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
@@ -533,7 +534,7 @@ export function useWalletANTs() {
               ? 'Controller'
               : 'N/A',
           targetID: apexRecord?.transactionId || 'N/A',
-          ttlSeconds: apexRecord?.ttlSeconds, // TODO: use default TTL seconds
+          ttlSeconds: apexRecord?.ttlSeconds || DEFAULT_TTL_SECONDS, // TODO: use default TTL seconds
           status:
             transactionBlockHeight && currentBlockHeight
               ? currentBlockHeight - transactionBlockHeight

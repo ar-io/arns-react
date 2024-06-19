@@ -6,7 +6,7 @@ import {
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
 import { ARNS_INTERACTION_TYPES, ContractInteraction } from '@src/types';
-import { ATOMIC_FLAG, WRITE_OPTIONS } from '@src/utils/constants';
+import { WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Dispatch } from 'react';
 
@@ -17,18 +17,22 @@ import { Dispatch } from 'react';
 export default async function dispatchArIOInteraction({
   payload,
   workflowName,
+  owner,
   arioContract,
   processId,
   dispatch,
 }: {
   payload: Record<string, any>;
   workflowName: ARNS_INTERACTION_TYPES;
+  owner: ArweaveTransactionID;
   arioContract?: AoIOWrite;
   processId: ArweaveTransactionID;
   dispatch: Dispatch<TransactionAction>;
 }): Promise<ContractInteraction> {
   let result: AoMessageResult | undefined = undefined;
   let functionName;
+
+  console.log(payload, workflowName);
 
   try {
     if (!arioContract) throw new Error('ArIO provider is not defined');
@@ -40,7 +44,7 @@ export default async function dispatchArIOInteraction({
       case ARNS_INTERACTION_TYPES.BUY_RECORD: {
         let processId = payload.processId;
         // TODO: Replace this once the ArIO SDK supports this interaction
-        if (payload.processId === ATOMIC_FLAG) {
+        if (payload.processId === 'atomic') {
           // spawn an ao process
           processId = 'SPAWN-AO-PROCESS-FOR-USING-A-VALID-AOMODULE';
         }
@@ -90,10 +94,11 @@ export default async function dispatchArIOInteraction({
   if (!result) {
     throw new Error('Failed to dispatch ArIO interaction');
   }
+
   if (!functionName) throw new Error('Failed to set workflow name');
 
   const interaction: ContractInteraction = {
-    deployer: payload.walletAddress.toString(),
+    deployer: owner.toString(),
     processId: processId.toString(),
     id: result.id,
     payload: {

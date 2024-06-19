@@ -249,7 +249,7 @@ export enum INTERACTION_TYPES {
 export enum INTERACTION_NAMES {
   BUY_RECORD = 'buyRecord',
   EXTEND_RECORD = 'extendRecord',
-  INCREASE_UNDERNAME_COUNT = 'increaseUndernameCount',
+  INCREASE_UNDERNAME_COUNT = 'increaseundernameLimit',
 }
 
 export enum UNDERNAME_TABLE_ACTIONS {
@@ -446,7 +446,7 @@ export type ARNSTableRow = {
   name: string;
   role: string;
   undernameSupport: number;
-  undernameCount: number;
+  undernameLimit: number;
   undernameLimit: string;
   id: string;
   expiration: Date | string;

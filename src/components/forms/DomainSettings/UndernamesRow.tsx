@@ -8,12 +8,12 @@ import DomainSettingsRow from './DomainSettingsRow';
 export default function UndernamesRow({
   domain,
   antId,
-  undernameCount,
+  undernameLimit,
   undernameSupport,
 }: {
   domain?: string;
   antId?: string;
-  undernameCount: number;
+  undernameLimit: number;
   undernameSupport: number;
 }) {
   const navigate = useNavigate();
@@ -29,7 +29,7 @@ export default function UndernamesRow({
           }}
         >
           {`${
-            undernameCount ?? (
+            undernameLimit ?? (
               <Skeleton.Input active style={{ width: '100%' }} />
             )
           } / ${

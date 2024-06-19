@@ -45,7 +45,7 @@ function ArNSRegistrySettings() {
         payload: arIOContract,
       });
 
-      const gateway = 'ar-io.dev';
+      const gateway = 'arweave.net';
       const arweave = new Arweave({
         host: gateway,
         protocol: 'https',

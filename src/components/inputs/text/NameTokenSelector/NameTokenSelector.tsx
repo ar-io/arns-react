@@ -116,20 +116,16 @@ function NameTokenSelector({
         ? await Promise.all(
             imports.map(async (id: ArweaveTransactionID) => {
               try {
-                await arweaveDataProvider
-                  .validateTransactionTags({
-                    id: id.toString(),
-                    requiredTags: {
-                      'App-Name': ['SmartWeaveContract'],
-                    },
-                  })
-                  .catch(() => {
-                    throw new Error(`Import is not a SmartWeave Contract`);
-                  });
-                // TODO: get contract state from @ar.io/sdk
-                const state = {} as any;
-                if (!Object.keys(state).length) {
-                  throw new Error(`Unable to get Contract State`);
+                const contract = ANT.init({
+                  processId: id.toString(),
+                });
+
+                const info = await contract.getInfo();
+
+                // TODO: further validate that contract exists and has valid state
+
+                if (!contract || info) {
+                  throw new Error('Unable to get contract');
                 }
 
                 setValidImport(true);
@@ -154,6 +150,7 @@ function NameTokenSelector({
           processId: processIds,
         },
       });
+
       const contracts: {
         processId: ArweaveTransactionID;
         names: Record<string, AoArNSNameData>;
@@ -163,7 +160,6 @@ function NameTokenSelector({
         name: string;
       }[] = await Promise.all(
         processIds.map(async (processId) => {
-          // TODO: get ant contract from @ar.io/sdk
           const contract = ANT.init({
             processId: processId.toString(),
           });
@@ -185,7 +181,6 @@ function NameTokenSelector({
           ]).catch(() => {
             throw new Error('Unable to get contract details');
           });
-
           return {
             processId,
             names,
@@ -195,16 +190,16 @@ function NameTokenSelector({
             name,
           };
         }),
-      );
+      ).then((contracts) => contracts.filter((contract) => !!contract));
+
       if (!contracts.length) {
         throw new Error('Unable to get details for Name Tokens');
       }
 
+      console.log(contracts);
+
       const newTokens: NameTokenDetails = contracts.reduce(
         async (result, contract) => {
-          if (!contract) {
-            return { ...result };
-          }
           const { processId, owner, controllers, name, ticker, names } =
             contract;
 
@@ -221,7 +216,8 @@ function NameTokenSelector({
         },
         {},
       );
-      setTokens(newTokens);
+
+      setTokens(await newTokens);
       if (validImports.length) {
         const details = newTokens[validImports[0].toString()];
         setSelectedToken({
@@ -249,6 +245,8 @@ function NameTokenSelector({
       }
       setSearchText(query);
 
+      console.log(tokens);
+
       if (!tokens) {
         throw new Error('No Name Tokens Found');
       }
@@ -270,6 +268,8 @@ function NameTokenSelector({
       if (!filteredResults.length) {
         throw new Error('No ANT tokens found for that search');
       }
+
+      console.log(filteredResults);
 
       setFilteredTokens(filteredResults);
     } catch (error) {
@@ -378,17 +378,9 @@ function NameTokenSelector({
               : 'Add an Arweave Name Token (ANT)'
           }
           validationPredicates={{
-            [VALIDATION_INPUT_TYPES.SMARTWEAVE_CONTRACT]: {
-              fn: (id: string) =>
-                arweaveDataProvider.validateTransactionTags({
-                  id,
-                  requiredTags: {
-                    'App-Name': ['SmartWeaveContract'],
-                  },
-                }),
-            },
-            [VALIDATION_INPUT_TYPES.TRANSACTION_CONFIRMATIONS]: {
-              fn: (id: string) => arweaveDataProvider.validateConfirmations(id),
+            [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
+              fn: async (id: string) =>
+                Promise.resolve(isArweaveTransactionID(id)),
             },
           }}
           validityCallback={(validity) => validity}

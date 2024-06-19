@@ -1,5 +1,6 @@
 import { ANT, AoArNSNameData, isLeasedArNSRecord } from '@ar.io/sdk';
 import ManageAssetButtons from '@src/components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
+import pLimit from 'p-limit';
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 
@@ -20,6 +21,8 @@ import { ARNSTableRow } from '../../types';
 import { decodeDomainToASCII, formatDate, handleTableSort } from '../../utils';
 import { DEFAULT_MAX_UNDERNAMES } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
+
+const pLimitThrottle = pLimit(20);
 
 export function useWalletDomains() {
   const [{ gateway, arweaveDataProvider }] = useGlobalState();
@@ -93,6 +96,7 @@ export function useWalletDomains() {
         const processIds = await arweaveDataProvider.getContractsForWallet({
           address: walletAddress,
         });
+        console.log(processIds);
         const domainData = await fetchDomainData(processIds);
         const newRows = await buildDomainRows(domainData, walletAddress);
         setRows(newRows);
@@ -395,61 +399,75 @@ export function useWalletDomains() {
         controllers: string[];
         name: string;
         ticker: string;
-        undernameCount: number;
+        undernameLimit: number;
       };
       record: AoArNSNameData & { name: string };
     }[]
   > {
     setPercentLoaded(0);
     itemsLoaded.current = 0;
-    const tokenIds = new Set(ids);
+    const processIds = new Set(ids);
     try {
       const registrations = await arweaveDataProvider.getRecords({
-        filters: { processId: [...tokenIds] },
+        filters: { processId: [...processIds] },
       });
       const consolidatedRecords = Object.entries(registrations).map(
         ([name, record]) => ({ ...record, name }),
       );
       itemCount.current = consolidatedRecords.length;
 
-      const newDatas = await Promise.all(
-        consolidatedRecords.map(async (record) => {
-          const contract = ANT.init({
-            processId: record.processId,
-          });
-          // TODO: react strict mode makes this increment twice in dev
-          if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
-          setPercentLoaded(
-            Math.round((itemsLoaded.current / itemCount.current) * 100),
-          );
+      const uniqueAntData = await Promise.all(
+        [...processIds].map((processId: ArweaveTransactionID) =>
+          pLimitThrottle(async () => {
+            const contract = ANT.init({
+              processId: processId.toString(),
+            });
+            // TODO: react strict mode makes this increment twice in dev
+            if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
+            setPercentLoaded(
+              Math.round((itemsLoaded.current / itemCount.current) * 100),
+            );
 
-          // fetch contract information
-          const [owner, controllers, name, ticker, totalUndernames] =
-            await Promise.all([
-              contract.getOwner(),
-              contract.getControllers(),
-              contract.getName(),
-              contract.getTicker(),
-              contract
-                .getRecords()
-                .then(
-                  (records: Record<string, any>) =>
-                    Object.keys(records).length - 1,
-                ),
-            ]);
+            // fetch contract information
+            const [owner, controllers, name, ticker, totalUndernames] =
+              await Promise.all([
+                contract.getOwner(),
+                contract.getControllers(),
+                contract.getName(),
+                contract.getTicker(),
+                contract
+                  .getRecords()
+                  .then(
+                    (records: Record<string, any>) =>
+                      Object.keys(records).length - 1,
+                  ),
+              ]);
 
-          return {
-            ant: {
+            return {
+              processId: processId.toString(),
               owner,
               controllers,
-              name,
               ticker,
-              undernameCount: totalUndernames,
-            },
-            record,
-          };
-        }),
+              name,
+              undernameLimit: totalUndernames,
+            };
+          }),
+        ),
       );
+
+      const newDatas = consolidatedRecords.map((record) => {
+        const antDataForRecord = uniqueAntData.find(
+          (ant) => ant.processId === record.processId,
+        ) as {
+          owner: string;
+          controllers: string[];
+          name: string;
+          ticker: string;
+          undernameLimit: number;
+        };
+        return { ant: antDataForRecord, record };
+      });
+
       return newDatas;
     } catch (error) {
       console.error(error);
@@ -464,7 +482,7 @@ export function useWalletDomains() {
         controllers: string[];
         name: string;
         ticker: string;
-        undernameCount: number;
+        undernameLimit: number;
       };
       record: AoArNSNameData & { name: string };
     }[],
@@ -481,7 +499,7 @@ export function useWalletDomains() {
               controllers: string[];
               name: string;
               ticker: string;
-              undernameCount: number;
+              undernameLimit: number;
             };
             record: AoArNSNameData & { name: string };
           }) => {
@@ -501,8 +519,8 @@ export function useWalletDomains() {
               startTimestamp: data.record.startTimestamp,
               undernameSupport:
                 data.record?.undernameLimit ?? DEFAULT_MAX_UNDERNAMES,
-              undernameCount: data.ant.undernameCount,
-              undernameLimit: `${data.ant.undernameCount.toLocaleString()} / ${(
+              undernameLimit: data.ant.undernameLimit,
+              undernameCount: `${data.ant.undernameLimit.toLocaleString()} / ${(
                 data.record?.undernameLimit ?? DEFAULT_MAX_UNDERNAMES
               ).toLocaleString()}`,
               key: `${data.record.name}-${data.record.processId}`,

@@ -31,9 +31,9 @@ function UpgradeUndernames() {
   const [, dispatchTransactionState] = useTransactionState();
   const [record, setRecord] = useState<AoArNSNameData>();
   const [antContract, setAntContract] = useState<ANT>();
-  const [undernameCount, setUndernameCount] = useState<number>(0);
+  const [undernameLimit, setundernameLimit] = useState<number>(0);
   // min count of 1 ~ contract rule
-  const [newUndernameCount, setNewUndernameCount] = useState<number>(0);
+  const [newundernameLimit, setNewundernameLimit] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [fee, setFee] = useState<number | undefined>(0);
 
@@ -47,11 +47,11 @@ function UpgradeUndernames() {
     }
     setFee(undefined);
     const updateFee = async () => {
-      if (newUndernameCount === 0) {
+      if (newundernameLimit === 0) {
         setFee(0);
         return;
       }
-      if (Number.isNaN(newUndernameCount)) {
+      if (Number.isNaN(newundernameLimit)) {
         eventEmitter.emit(
           'error',
           new Error('Invalid undername count, must be a number greater than 0'),
@@ -63,7 +63,7 @@ function UpgradeUndernames() {
     };
 
     updateFee();
-  }, [newUndernameCount, record, name]);
+  }, [newundernameLimit, record, name]);
 
   async function onLoad() {
     try {
@@ -80,15 +80,14 @@ function UpgradeUndernames() {
         const contract = ANT.init({
           processId: processId.toString(),
         });
-        const existingUndernameCount = await contract.getRecords().then((r) => {
+        const existingundernameLimit = await contract.getRecords().then((r) => {
           return Object.keys(r).length - 1; // exclude @ record
         });
-        setUndernameCount(existingUndernameCount);
+        setundernameLimit(existingundernameLimit);
         setAntContract(contract);
       }
     } catch (error) {
       eventEmitter.emit('error', error);
-      await sleep(2000); // TODO: why are we sleeping for 2 seconds?
       navigate(`/manage/names`);
     } finally {
       setLoading(false);
@@ -129,19 +128,19 @@ function UpgradeUndernames() {
               Total Undernames:{' '}
               <span className="white">{record.undernameLimit}</span>
               <span className="flex add-box center" style={{}}>
-                +{newUndernameCount}
+                +{newundernameLimit}
               </span>
             </span>
             <span className="flex grey">
               Used:&nbsp;
-              <span className="white"> {undernameCount}</span>
+              <span className="white"> {undernameLimit}</span>
             </span>
           </div>
           <Counter
             maxValue={MAX_UNDERNAME_COUNT - record.undernameLimit}
             minValue={0}
-            value={newUndernameCount}
-            setValue={setNewUndernameCount}
+            value={newundernameLimit}
+            setValue={setNewundernameLimit}
             containerStyle={{
               width: 'fit-content',
               justifyContent: 'center',
@@ -202,7 +201,7 @@ function UpgradeUndernames() {
               : () => {
                   const increaseUndernamePayload: IncreaseUndernamesPayload = {
                     name: lowerCaseDomain(name),
-                    qty: newUndernameCount,
+                    qty: newundernameLimit,
                     oldQty: record.undernameLimit,
                     processId: record.processId,
                   };
@@ -210,7 +209,7 @@ function UpgradeUndernames() {
                     type: 'setTransactionData',
                     payload: {
                       assetId: ARNS_REGISTRY_ADDRESS.toString(),
-                      functionName: 'increaseUndernameCount',
+                      functionName: 'increaseundernameLimit',
                       ...increaseUndernamePayload,
                       interactionPrice: fee,
                     },

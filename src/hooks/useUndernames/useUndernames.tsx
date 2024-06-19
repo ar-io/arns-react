@@ -379,7 +379,6 @@ export function useUndernames(id?: ArweaveTransactionID, name?: string) {
       });
     setDomain(domain);
     const fetchedRows: UndernameMetadata[] = [];
-    // TODO: get ANTs via ar.io/sdk
     const undernames = await ANT.init({
       processId: processId.toString(),
     }).getRecords();

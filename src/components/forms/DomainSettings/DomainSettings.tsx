@@ -236,7 +236,7 @@ function DomainSettings({
                 key={DomainSettingsRowTypes.UNDERNAMES}
                 domain={domain}
                 antId={data?.processId?.toString()}
-                undernameCount={data?.undernameCount ?? 0}
+                undernameLimit={data?.undernameLimit ?? 0}
                 undernameSupport={
                   data?.arnsRecord?.undernameLimit ?? DEFAULT_MAX_UNDERNAMES
                 }
