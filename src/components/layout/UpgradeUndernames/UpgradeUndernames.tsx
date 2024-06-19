@@ -10,7 +10,7 @@ import {
   ARNS_INTERACTION_TYPES,
   IncreaseUndernamesPayload,
 } from '../../../types';
-import { isARNSDomainNameValid, lowerCaseDomain, sleep } from '../../../utils';
+import { isARNSDomainNameValid, lowerCaseDomain } from '../../../utils';
 import {
   ARNS_REGISTRY_ADDRESS,
   MAX_UNDERNAME_COUNT,
