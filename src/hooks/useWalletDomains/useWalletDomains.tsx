@@ -1,6 +1,6 @@
 import { ANT, AoArNSNameData, isLeasedArNSRecord } from '@ar.io/sdk';
 import ManageAssetButtons from '@src/components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
-import pLimit from 'p-limit';
+import { pLimit } from 'plimit-lit';
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 
@@ -22,7 +22,7 @@ import { decodeDomainToASCII, formatDate, handleTableSort } from '../../utils';
 import { DEFAULT_MAX_UNDERNAMES } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 
-const pLimitThrottle = pLimit(20);
+const throttle = pLimit(20);
 
 export function useWalletDomains() {
   const [{ gateway, arweaveDataProvider }] = useGlobalState();
@@ -417,7 +417,7 @@ export function useWalletDomains() {
 
       const uniqueAntData = await Promise.all(
         [...processIds].map((processId: ArweaveTransactionID) =>
-          pLimitThrottle(async () => {
+          throttle(async () => {
             const contract = ANT.init({
               processId: processId.toString(),
             });

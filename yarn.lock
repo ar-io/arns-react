@@ -67,10 +67,10 @@
     resize-observer-polyfill "^1.5.1"
     throttle-debounce "^5.0.0"
 
-"@ar.io/sdk@1.2.0-alpha.6":
-  version "1.2.0-alpha.6"
-  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-1.2.0-alpha.6.tgz#06ca89720069e1b47509f00b5d695e24ec1f4c30"
-  integrity sha512-LtUiQ0Fbr4jlmQS4sL7ugqeH/QVmUdonfvebF/q8iW6RkVyGvwEI73ekGrr+tbnCiLWELoXrN9m9MzHz2d4Zow==
+"@ar.io/sdk@1.2.0-alpha.7":
+  version "1.2.0-alpha.7"
+  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-1.2.0-alpha.7.tgz#bfdd231e05b5c141d49654d9b979a21023240372"
+  integrity sha512-fHVQp2dMRZ2+zN+T+NllcB5v/MOZauQ/mlMgvKfhatp/+HuF/79HX5oQ3buU62TNGxkNekXFZHRDbrBB9f/6DQ==
   dependencies:
     "@permaweb/aoconnect" "^0.0.55"
     arbundles "0.11.0"
@@ -78,6 +78,7 @@
     axios "1.7.2"
     axios-retry "^4.3.0"
     bunyan "^1.8.15"
+    plimit-lit "^3.0.1"
     warp-contracts "1.4.45"
 
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.10.4", "@babel/code-frame@^7.12.13", "@babel/code-frame@^7.16.7", "@babel/code-frame@^7.22.13", "@babel/code-frame@^7.23.5":
@@ -7677,13 +7678,6 @@ p-limit@^3.0.2, p-limit@^3.1.0:
   dependencies:
     yocto-queue "^0.1.0"
 
-p-limit@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/p-limit/-/p-limit-5.0.0.tgz#6946d5b7140b649b7a33a027d89b4c625b3a5985"
-  integrity sha512-/Eaoq+QyLSiXQ4lyYV23f14mZRQcXnxfHrN0vCai+ak9G0pp9iEQukIIZq5NccEvwRB8PUnZT0KsOoDCINS1qQ==
-  dependencies:
-    yocto-queue "^1.0.0"
-
 p-locate@^4.1.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/p-locate/-/p-locate-4.1.0.tgz#a3428bb7088b3a60292f66919278b7c297ad4f07"
@@ -7848,6 +7842,13 @@ pkg-dir@^5.0.0:
   dependencies:
     find-up "^5.0.0"
 
+plimit-lit@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/plimit-lit/-/plimit-lit-3.0.1.tgz#45a2aee1a7249aa9c2eafc67b6a27bc927e3aa39"
+  integrity sha512-EyTTdP5LMX6WbHihG8R9w6DS+c3pyMpeKooOFuGDCyuVBogQjYNtoYwKLRD6hM1+VkHzGcfIuyLoWi6l5JA3iA==
+  dependencies:
+    queue-lit "^3.0.0"
+
 portfinder@^1.0.28:
   version "1.0.32"
   resolved "https://registry.yarnpkg.com/portfinder/-/portfinder-1.0.32.tgz#2fe1b9e58389712429dc2bea5beb2146146c7f81"
@@ -8010,6 +8011,11 @@ querystringify@^2.1.1:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/querystringify/-/querystringify-2.2.0.tgz#3345941b4153cb9d082d8eee4cda2016a9aef7f6"
   integrity sha512-FIqgj2EUvTa7R50u0rGsyTftzjYmv/a3hO345bZNrqabNqjtgiDMgmo4mkUjd+nzU5oF3dClKqFIPUKybUyqoQ==
+
+queue-lit@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/queue-lit/-/queue-lit-3.0.0.tgz#5062f815e49c28759a2dc12124ab1723d563b932"
+  integrity sha512-iyVL2X5G58kICVGLW/nseYmdHxBoAp2Gav16H23NPtIllyEJ+UheHlYZqBjO+lJHRYoZRSrX7chH8tMrH9MB/A==
 
 queue-microtask@^1.2.2, queue-microtask@^1.2.3:
   version "1.2.3"
@@ -10153,11 +10159,6 @@ yocto-queue@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-0.1.0.tgz#0294eb3dee05028d31ee1a5fa2c556a6aaf10a1b"
   integrity sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==
-
-yocto-queue@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-1.0.0.tgz#7f816433fb2cbc511ec8bf7d263c3b58a1a3c251"
-  integrity sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==
 
 zip-stream@^4.1.0:
   version "4.1.1"
