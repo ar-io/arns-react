@@ -522,18 +522,26 @@ function SearchBar(props: SearchBarProps) {
           ) : (
             <></>
           )}
-          <button
-            className="accent-button center"
-            onClick={_onSubmitButton}
-            style={{
-              padding: '0px',
-              height: '50px',
-              width: '130px',
-              fontSize: '14px',
-            }}
-          >
-            Register Now
-          </button>
+          <div className="flex-row" style={{ flexDirection: 'column' }}>
+            <button
+              className="accent-button disabled-button center"
+              disabled={true}
+              onClick={_onSubmitButton}
+              style={{
+                padding: '0px',
+                height: '50px',
+                width: '130px',
+                fontSize: '14px',
+                backgroundColor: 'var(--text-grey)',
+              }}
+            >
+              Register Now
+            </button>
+            <div className="text" style={{ color: 'var(--accent)' }}>
+              Note: Registrations are currently disabled during the AO
+              migration.
+            </div>
+          </div>
         </div>
       ) : (
         <></>
