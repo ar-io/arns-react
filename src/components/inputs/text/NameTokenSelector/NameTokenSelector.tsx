@@ -196,8 +196,6 @@ function NameTokenSelector({
         throw new Error('Unable to get details for Name Tokens');
       }
 
-      console.log(contracts);
-
       const newTokens: NameTokenDetails = contracts.reduce(
         async (result, contract) => {
           const { processId, owner, controllers, name, ticker, names } =
@@ -217,6 +215,7 @@ function NameTokenSelector({
         {},
       );
 
+      // HACK: we have nested all Promise.all so await twice to resolve
       setTokens(await newTokens);
       if (validImports.length) {
         const details = newTokens[validImports[0].toString()];
@@ -245,8 +244,6 @@ function NameTokenSelector({
       }
       setSearchText(query);
 
-      console.log(tokens);
-
       if (!tokens) {
         throw new Error('No Name Tokens Found');
       }
@@ -268,8 +265,6 @@ function NameTokenSelector({
       if (!filteredResults.length) {
         throw new Error('No ANT tokens found for that search');
       }
-
-      console.log(filteredResults);
 
       setFilteredTokens(filteredResults);
     } catch (error) {

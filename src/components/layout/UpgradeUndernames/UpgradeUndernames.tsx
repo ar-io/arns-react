@@ -31,9 +31,9 @@ function UpgradeUndernames() {
   const [, dispatchTransactionState] = useTransactionState();
   const [record, setRecord] = useState<AoArNSNameData>();
   const [antContract, setAntContract] = useState<ANT>();
-  const [undernameLimit, setundernameLimit] = useState<number>(0);
+  const [undernameCount, setUndernameCount] = useState<number>(0);
   // min count of 1 ~ contract rule
-  const [newundernameLimit, setNewundernameLimit] = useState<number>(0);
+  const [newUndernameCount, setNewUndernameCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [fee, setFee] = useState<number | undefined>(0);
 
@@ -47,11 +47,11 @@ function UpgradeUndernames() {
     }
     setFee(undefined);
     const updateFee = async () => {
-      if (newundernameLimit === 0) {
+      if (newUndernameCount === 0) {
         setFee(0);
         return;
       }
-      if (Number.isNaN(newundernameLimit)) {
+      if (Number.isNaN(newUndernameCount)) {
         eventEmitter.emit(
           'error',
           new Error('Invalid undername count, must be a number greater than 0'),
@@ -63,7 +63,7 @@ function UpgradeUndernames() {
     };
 
     updateFee();
-  }, [newundernameLimit, record, name]);
+  }, [newUndernameCount, record, name]);
 
   async function onLoad() {
     try {
@@ -80,10 +80,10 @@ function UpgradeUndernames() {
         const contract = ANT.init({
           processId: processId.toString(),
         });
-        const existingundernameLimit = await contract.getRecords().then((r) => {
-          return Object.keys(r).length - 1; // exclude @ record
+        const existingUndernameCount = await contract.getRecords().then((r) => {
+          return Object.keys(r).filter((k) => k === '@').length; // exclude @ record
         });
-        setundernameLimit(existingundernameLimit);
+        setUndernameCount(existingUndernameCount);
         setAntContract(contract);
       }
     } catch (error) {
@@ -128,19 +128,19 @@ function UpgradeUndernames() {
               Total Undernames:{' '}
               <span className="white">{record.undernameLimit}</span>
               <span className="flex add-box center" style={{}}>
-                +{newundernameLimit}
+                +{newUndernameCount}
               </span>
             </span>
             <span className="flex grey">
               Used:&nbsp;
-              <span className="white"> {undernameLimit}</span>
+              <span className="white"> {undernameCount}</span>
             </span>
           </div>
           <Counter
             maxValue={MAX_UNDERNAME_COUNT - record.undernameLimit}
             minValue={0}
-            value={newundernameLimit}
-            setValue={setNewundernameLimit}
+            value={newUndernameCount}
+            setValue={setNewUndernameCount}
             containerStyle={{
               width: 'fit-content',
               justifyContent: 'center',
@@ -201,7 +201,7 @@ function UpgradeUndernames() {
               : () => {
                   const increaseUndernamePayload: IncreaseUndernamesPayload = {
                     name: lowerCaseDomain(name),
-                    qty: newundernameLimit,
+                    qty: newUndernameCount,
                     oldQty: record.undernameLimit,
                     processId: record.processId,
                   };
@@ -224,7 +224,7 @@ function UpgradeUndernames() {
                   });
                   // navigate to the transaction page, which will load the updated state of the transaction context
                   navigate('/transaction/review', {
-                    state: `/manage/names/${name}/upgrade-undernameLimit`,
+                    state: `/manage/names/${name}/upgrade-undernames`,
                   });
                 }
           }

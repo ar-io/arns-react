@@ -89,7 +89,13 @@ function ExtendLease() {
         setRegistrationType(TRANSACTION_TYPES.BUY);
         return;
       }
-      const balance = await arweaveDataProvider.getTokenBalance(walletAddress!);
+
+      if (!walletAddress) {
+        // TODO: navigate to connect
+        throw new Error('Wallet address not found');
+      }
+
+      const balance = await arweaveDataProvider.getTokenBalance(walletAddress);
       setIoBalance(balance ?? 0);
 
       setMaxIncrease(
@@ -100,8 +106,8 @@ function ExtendLease() {
               // TODO: remove this when state in contract is fixed. (currently was backfilled incorrectly with ms timestamps)
               domainRecord.startTimestamp > record.endTimestamp
                 ? domainRecord.startTimestamp
-                : domainRecord.startTimestamp * 1000,
-              record.endTimestamp * 1000,
+                : domainRecord.startTimestamp,
+              record.endTimestamp,
             ),
         ),
       );

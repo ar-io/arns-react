@@ -32,8 +32,6 @@ export default async function dispatchArIOInteraction({
   let result: AoMessageResult | undefined = undefined;
   let functionName;
 
-  console.log(payload, workflowName);
-
   try {
     if (!arioContract) throw new Error('ArIO provider is not defined');
     dispatch({

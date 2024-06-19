@@ -23,7 +23,7 @@ function ManageDomain() {
   const location = useLocation();
   const [{ walletAddress }] = useWalletState();
   const [isMaxLeaseDuration, setIsMaxLeaseDuration] = useState<boolean>(false);
-  const [isMaxundernameLimit, setIsMaxundernameLimit] =
+  const [isMaxUndernameCount, setisMaxUndernameCount] =
     useState<boolean>(false);
   const [undernameLimit, setundernameLimit] = useState<number>();
   const [loading, setLoading] = useState<boolean>(true);
@@ -73,7 +73,7 @@ function ManageDomain() {
           duration === 'Indefinite',
       );
       setundernameLimit(arnsRecord.undernameLimit);
-      setIsMaxundernameLimit(
+      setisMaxUndernameCount(
         !!undernameLimit && arnsRecord.undernameLimit >= MAX_UNDERNAME_COUNT,
       );
 
@@ -119,7 +119,7 @@ function ManageDomain() {
             <Tooltip
               trigger={['hover']}
               title={
-                isMaxundernameLimit
+                isMaxUndernameCount
                   ? 'Max undername support reached'
                   : 'Increase undername support'
               }
@@ -128,19 +128,19 @@ function ManageDomain() {
               rootClassName="notification-tooltip"
             >
               <button
-                disabled={loading || isMaxundernameLimit}
+                disabled={loading || isMaxUndernameCount}
                 className={`button-secondary ${
-                  loading || isMaxundernameLimit ? 'disabled-button' : 'hover'
+                  loading || isMaxUndernameCount ? 'disabled-button' : 'hover'
                 }`}
                 style={{
-                  padding: loading || isMaxundernameLimit ? '0px' : '9px',
+                  padding: loading || isMaxUndernameCount ? '0px' : '9px',
                   gap: '8px',
                   fontSize: '14px',
                   color: 'var(--accent)',
                   fontFamily: 'Rubik',
                 }}
                 onClick={() =>
-                  navigate(`/manage/names/${name}/upgrade-undernameLimit`)
+                  navigate(`/manage/names/${name}/upgrade-undernames`)
                 }
               >
                 Increase Undernames

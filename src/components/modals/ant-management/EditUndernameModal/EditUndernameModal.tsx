@@ -1,4 +1,4 @@
-import { ANT } from '@ar.io/sdk';
+import { ANT, ANTRecord } from '@ar.io/sdk';
 import { clamp } from 'lodash';
 import { useEffect, useRef, useState } from 'react';
 
@@ -35,11 +35,11 @@ function EditUndernameModal({
 }) {
   const [{ arweaveDataProvider }] = useGlobalState();
   const isMobile = useIsMobile();
-
   const targetIdRef = useRef<HTMLInputElement>(null);
   const ttlRef = useRef<HTMLInputElement>(null);
   const [targetId, setTargetId] = useState<string>('');
   const [ttlSeconds, setTtlSeconds] = useState<number>(MIN_TTL_SECONDS);
+  const [record, setRecord] = useState<ANTRecord>();
 
   useEffect(() => {
     load(antId);
@@ -53,14 +53,17 @@ function EditUndernameModal({
       const contract = ANT.init({
         processId: id.toString(),
       });
-      const record = await contract.getRecord({ undername: undername });
-      if (!record) {
+      const undernameRecord = await contract.getRecord({
+        undername: undername,
+      });
+      if (!undernameRecord) {
         throw new Error('Undername not found');
       }
-      setTargetId(record?.transactionId);
+      setTargetId(undernameRecord?.transactionId);
       setTtlSeconds(
-        clamp(record?.ttlSeconds, MIN_TTL_SECONDS, MAX_TTL_SECONDS),
+        clamp(undernameRecord?.ttlSeconds, MIN_TTL_SECONDS, MAX_TTL_SECONDS),
       );
+      setRecord(record);
     } catch (error) {
       eventEmitter.emit('error', error);
     }
@@ -71,7 +74,7 @@ function EditUndernameModal({
       subDomain: undername,
       transactionId: targetId,
       ttlSeconds,
-      previousRecord: /* previousRecord */ undefined,
+      previousRecord: record,
     });
   }
 

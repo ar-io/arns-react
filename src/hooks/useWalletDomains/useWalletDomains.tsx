@@ -96,7 +96,6 @@ export function useWalletDomains() {
         const processIds = await arweaveDataProvider.getContractsForWallet({
           address: walletAddress,
         });
-        console.log(processIds);
         const domainData = await fetchDomainData(processIds);
         const newRows = await buildDomainRows(domainData, walletAddress);
         setRows(newRows);
