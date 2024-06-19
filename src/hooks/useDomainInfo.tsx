@@ -20,7 +20,7 @@ export default function useDomainInfo({
     ticker: string;
     owner: string;
     controllers: string[];
-    undernameLimit?: number;
+    undernameCount?: number;
     apexRecord: {
       transactionId: string;
       ttlSeconds: number;
@@ -55,7 +55,7 @@ export default function useDomainInfo({
     ticker: string;
     owner: string;
     controllers: string[];
-    undernameLimit: number;
+    undernameCount: number;
     apexRecord: {
       transactionId: string;
       ttlSeconds: number;
@@ -68,7 +68,7 @@ export default function useDomainInfo({
       ? await arioProvider.getArNSRecord({ name: domain })
       : undefined;
 
-    if (antId && !record?.processId) {
+    if (!antId && !record?.processId) {
       throw new Error('No processId found');
     }
     const processId = antId || new ArweaveTransactionID(record?.processId);
@@ -87,7 +87,7 @@ export default function useDomainInfo({
       }),
     );
 
-    const [name, ticker, owner, controllers, undernameLimit, apexRecord] =
+    const [name, ticker, owner, controllers, undernameCount, apexRecord] =
       await Promise.all([
         antProcess.getName(),
         antProcess.getTicker(),
@@ -95,9 +95,14 @@ export default function useDomainInfo({
         antProcess.getControllers(),
         antProcess
           .getRecords()
-          .then((r: Record<string, any>) => Object.keys(r).length - 1),
+          .then(
+            (r: Record<string, any>) =>
+              Object.keys(r).filter((k) => k !== '@').length,
+          ),
         antProcess.getRecord({ undername: '@' }),
       ]);
+
+    console.log(name, ticker, owner, controllers, undernameCount, apexRecord);
 
     if (!apexRecord) {
       throw new Error('No apexRecord found');
@@ -112,7 +117,7 @@ export default function useDomainInfo({
       ticker,
       owner,
       controllers,
-      undernameLimit,
+      undernameCount,
       apexRecord,
     };
   }

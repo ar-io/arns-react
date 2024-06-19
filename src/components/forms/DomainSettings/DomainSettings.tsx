@@ -59,8 +59,18 @@ function DomainSettings({
     return;
   }
 
-  if (!data) {
-    return <Skeleton.Input active />;
+  if (isLoading) {
+    return (
+      <List prefixCls="domain-settings-list">
+        {Object.values(DomainSettingsRowTypes).map((row) => (
+          <DomainSettingsRow
+            key={row}
+            label={row}
+            value={<Skeleton.Input active />}
+          />
+        ))}
+      </List>
+    );
   }
 
   return (
@@ -200,6 +210,7 @@ function DomainSettings({
             ),
             [DomainSettingsRowTypes.OWNER]: (
               <OwnerRow
+                owner={data.owner}
                 processId={data.processId?.toString()}
                 key={DomainSettingsRowTypes.OWNER}
                 associatedNames={data.associatedNames ?? []}
@@ -239,7 +250,7 @@ function DomainSettings({
                 key={DomainSettingsRowTypes.UNDERNAMES}
                 domain={domain}
                 antId={data.processId?.toString()}
-                undernameLimit={data.undernameLimit ?? 0}
+                undernameLimit={data.undernameCount ?? 0}
                 undernameSupport={
                   data.arnsRecord?.undernameLimit ?? DEFAULT_MAX_UNDERNAMES
                 }

@@ -1,4 +1,3 @@
-import { ANTState } from '@ar.io/sdk';
 import { ANTCard } from '@src/components/cards';
 import { TransferANTModal } from '@src/components/modals';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
@@ -13,12 +12,12 @@ import DomainSettingsRow from './DomainSettingsRow';
 export default function OwnerRow({
   confirm,
   processId,
-  state,
+  owner,
   associatedNames,
 }: {
   processId: string;
+  owner: string;
   associatedNames: string[];
-  state?: ANTState;
   confirm: ({ target }: { target: string }) => Promise<ContractInteraction>;
 }) {
   const [payload, setTransactionData] = useState<{
@@ -43,12 +42,11 @@ export default function OwnerRow({
     <>
       <DomainSettingsRow
         label="Owner:"
-        value={state?.owner ?? <Skeleton.Input active />}
+        value={owner ?? <Skeleton.Input active />}
         action={[
           <button
             key={1}
             onClick={() => setShowTransferANTModal(true)}
-            disabled={!state}
             className="button-secondary"
             style={{
               padding: '9px 12px',
@@ -62,7 +60,7 @@ export default function OwnerRow({
           </button>,
         ]}
       />
-      {showTransferANTModal && state && (
+      {showTransferANTModal && (
         <TransferANTModal
           closeModal={() => setShowTransferANTModal(false)}
           antId={new ArweaveTransactionID(processId)}

@@ -120,11 +120,11 @@ function App() {
               </Suspense>
             }
             handle={{
-              crumbs: (id: string) => [
+              crumbs: (data: string) => [
                 { name: 'Manage Assets', route: '/manage/ants' },
                 {
                   name: ANT_FLAG,
-                  route: `/manage/ants/${id}`,
+                  route: `/manage/ants/${data}`,
                 },
               ],
             }}
@@ -144,15 +144,15 @@ function App() {
               </Suspense>
             }
             handle={{
-              crumbs: (id: string) => [
+              crumbs: (data: string) => [
                 { name: 'Manage Assets', route: '/manage/ants' },
                 {
                   name: ANT_FLAG,
-                  route: `/manage/ants/${id}`,
+                  route: `/manage/ants/${data}`,
                 },
                 {
                   name: 'Manage Undernames',
-                  route: `/manage/ants/${id}/undernames`,
+                  route: `/manage/ants/${data}/undernames`,
                 },
               ],
             }}
