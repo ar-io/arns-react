@@ -1,13 +1,11 @@
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { Tooltip } from 'antd';
-import { useState } from 'react';
 import { FaGithub } from 'react-icons/fa';
 import { FaDiscord } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
-import { useIsMobile } from '../../../hooks';
 import { ARIO_DISCORD_LINK } from '../../../utils/constants';
-import { BrandLogo, CloseIcon } from '../../icons';
+import { BrandLogo } from '../../icons';
 import './styles.css';
 
 function Footer() {
