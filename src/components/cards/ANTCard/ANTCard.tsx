@@ -18,7 +18,7 @@ import './styles.css';
 
 export const ANT_TRANSACTION_DETAILS = {
   deployedTransactionId: 'Transaction ID',
-  processId: 'Contract ID',
+  processId: 'Process ID',
 };
 export const ARNS_METADATA_DETAILS = {
   domain: 'Domain',
