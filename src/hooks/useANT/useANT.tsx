@@ -8,6 +8,7 @@ export function useANT(id: string) {
     name: string;
     owner: string;
     ticker: string;
+    controllers: string[];
   } | null>(null);
 
   useEffect(() => {
@@ -29,11 +30,12 @@ export function useANT(id: string) {
       processId: id,
     });
 
-    const [records, name, owner, ticker] = await Promise.all([
+    const [records, name, owner, ticker, controllers = []] = await Promise.all([
       contract.getRecords(),
       contract.getName(),
       contract.getOwner(),
       contract.getTicker(),
+      contract.getControllers(),
     ]);
 
     return {
@@ -41,6 +43,7 @@ export function useANT(id: string) {
       name,
       owner,
       ticker,
+      controllers,
     };
   }
 

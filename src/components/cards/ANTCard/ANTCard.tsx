@@ -1,4 +1,5 @@
-import { ANT, isLeasedArNSRecord } from '@ar.io/sdk';
+import { isLeasedArNSRecord } from '@ar.io/sdk';
+import { useANT } from '@src/hooks/useANT/useANT';
 import { Descriptions } from 'antd';
 import { startCase } from 'lodash';
 import { isValidElement, useEffect, useState } from 'react';
@@ -76,39 +77,31 @@ function ANTCard({
 }: ARNSMapping) {
   const isMobile = useIsMobile();
   const [antDetails, setANTDetails] = useState<{ [x: string]: any }>();
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const {
+    loading,
+    owner,
+    ticker,
+    name,
+    controllers = [],
+    records,
+  } = useANT(processId.toString());
   const [limitDetails, setLimitDetails] = useState<boolean>(true);
   const mappedKeys = DEFAULT_PRIMARY_KEYS.map((key: AntDetailKey) =>
     mapKeyToAttribute(key),
   );
 
   useEffect(() => {
-    if (processId) {
-      setDetails(processId.toString());
-    }
+    setDetails();
   }, [processId]);
 
-  async function setDetails(id: string) {
+  async function setDetails() {
     try {
-      setIsLoading(true);
-      const contract = ANT.init({
-        processId: id,
-      });
       let leaseDuration = 'N/A';
       if (record) {
         leaseDuration = isLeasedArNSRecord(record)
           ? record.endTimestamp.toString()
           : 'Indefinite';
       }
-
-      const [owner, controllers = [], ticker, name, apexRecord] =
-        await Promise.all([
-          contract?.getOwner(),
-          contract?.getControllers(),
-          contract?.getTicker(),
-          contract?.getName(),
-          contract?.getRecord({ undername: '@' }),
-        ]);
 
       const allANTDetails: Record<AntDetailKey, any> = {
         deployedTransactionId: deployedTransactionId
@@ -124,8 +117,8 @@ function ANTCard({
         ticker,
         owner,
         controllers: controllers.join(', '),
-        targetId: apexRecord?.transactionId,
-        ttlSeconds: apexRecord?.ttlSeconds,
+        targetId: records['@']?.transactionId,
+        ttlSeconds: records['@']?.ttlSeconds,
         ...overrides,
       };
 
@@ -159,8 +152,6 @@ function ANTCard({
     } catch (error) {
       eventEmitter.emit('error', error);
       setANTDetails(undefined);
-    } finally {
-      setIsLoading(false);
     }
   }
 
@@ -172,13 +163,13 @@ function ANTCard({
     if (key === 'Controllers' || key === 'Owner') {
       return ArweaveIdTypes.ADDRESS;
     }
-    if (key === 'Contract ID') {
+    if (key === 'Process ID') {
       return ArweaveIdTypes.CONTRACT;
     }
     return ArweaveIdTypes.TRANSACTION;
   }
 
-  if (isLoading) {
+  if (loading) {
     return <Loader size={80} />;
   }
 

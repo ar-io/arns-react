@@ -52,7 +52,7 @@ export type ANTContractDomainRecord = {
 export type ARNSMapping = {
   domain: string;
   record?: AoArNSNameData;
-  processId?: ArweaveTransactionID;
+  processId: ArweaveTransactionID;
   overrides?: { [x: string]: JSX.Element | string | number };
   disabledKeys?: string[];
   compact?: boolean;
