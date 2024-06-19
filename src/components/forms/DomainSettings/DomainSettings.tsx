@@ -59,6 +59,10 @@ function DomainSettings({
     return;
   }
 
+  if (!data) {
+    return <Skeleton.Input active />;
+  }
+
   return (
     <>
       <List prefixCls="domain-settings-list">
@@ -71,9 +75,8 @@ function DomainSettings({
                 value={
                   isLoading ? (
                     <Skeleton.Input active />
-                  ) : data?.arnsRecord &&
-                    isLeasedArNSRecord(data?.arnsRecord) ? (
-                    formatExpiryDate(data?.arnsRecord?.endTimestamp)
+                  ) : data.arnsRecord && isLeasedArNSRecord(data.arnsRecord) ? (
+                    formatExpiryDate(data.arnsRecord?.endTimestamp)
                   ) : (
                     'N/A'
                   )
@@ -89,10 +92,10 @@ function DomainSettings({
                     <Skeleton.Input active />
                   ) : (
                     <LeaseDuration
-                      startTimestamp={data?.arnsRecord?.startTimestamp}
+                      startTimestamp={data.arnsRecord?.startTimestamp}
                       endTimestamp={
-                        data?.arnsRecord && isLeasedArNSRecord(data?.arnsRecord)
-                          ? data?.arnsRecord?.endTimestamp
+                        data.arnsRecord && isLeasedArNSRecord(data.arnsRecord)
+                          ? data.arnsRecord?.endTimestamp
                           : 0
                       }
                     />
@@ -103,19 +106,19 @@ function DomainSettings({
             [DomainSettingsRowTypes.ASSOCIATED_NAMES]: (
               <DomainSettingsRow
                 label="Associated Names"
-                value={data?.associatedNames ?? 'N/A'}
+                value={data.associatedNames ?? 'N/A'}
                 key={DomainSettingsRowTypes.ASSOCIATED_NAMES}
               />
             ),
             [DomainSettingsRowTypes.NICKNAME]: (
               <NicknameRow
-                nickname={data?.name}
+                nickname={data.name}
                 key={DomainSettingsRowTypes.NICKNAME}
                 confirm={(name: string) =>
                   dispatchANTInteraction({
                     payload: { name },
                     workflowName: ANT_INTERACTION_TYPES.SET_NAME,
-                    processId: data?.processId,
+                    processId: data.processId,
                     signer: wallet.arconnectSigner!,
                     owner: walletAddress.toString(),
                     dispatch,
@@ -128,8 +131,8 @@ function DomainSettings({
                 label="Process ID"
                 key={DomainSettingsRowTypes.PROCESS_ID}
                 value={
-                  data?.processId ? (
-                    data?.processId.toString()
+                  data.processId ? (
+                    data.processId.toString()
                   ) : (
                     <Skeleton.Input active />
                   )
@@ -138,18 +141,18 @@ function DomainSettings({
             ),
             [DomainSettingsRowTypes.TARGET_ID]: (
               <TargetIDRow
-                targetId={data?.apexRecord.transactionId}
+                targetId={data.apexRecord.transactionId}
                 key={DomainSettingsRowTypes.TARGET_ID}
                 confirm={(targetId: string) =>
                   dispatchANTInteraction({
                     payload: {
                       transactionId: targetId,
-                      ttlSeconds: data?.apexRecord.ttlSeconds,
+                      ttlSeconds: data.apexRecord.ttlSeconds,
                     },
                     workflowName: ANT_INTERACTION_TYPES.SET_TARGET_ID,
                     signer: wallet.arconnectSigner!,
                     owner: walletAddress.toString(),
-                    processId: data?.processId,
+                    processId: data.processId,
                     dispatch,
                   })
                 }
@@ -157,7 +160,7 @@ function DomainSettings({
             ),
             [DomainSettingsRowTypes.TICKER]: (
               <TickerRow
-                ticker={data?.ticker}
+                ticker={data.ticker}
                 key={DomainSettingsRowTypes.TICKER}
                 confirm={(ticker: string) =>
                   dispatchANTInteraction({
@@ -165,7 +168,7 @@ function DomainSettings({
                     workflowName: ANT_INTERACTION_TYPES.SET_TICKER,
                     signer: wallet.arconnectSigner!,
                     owner: walletAddress.toString(),
-                    processId: data?.processId,
+                    processId: data.processId,
                     dispatch,
                   })
                 }
@@ -174,7 +177,7 @@ function DomainSettings({
             [DomainSettingsRowTypes.CONTROLLERS]: (
               <ControllersRow
                 key={DomainSettingsRowTypes.CONTROLLERS}
-                processId={data?.processId?.toString()}
+                processId={data.processId?.toString()}
                 confirm={({
                   payload,
                   workflowName,
@@ -189,7 +192,7 @@ function DomainSettings({
                     workflowName,
                     signer: wallet.arconnectSigner!,
                     owner: walletAddress.toString(),
-                    processId: data?.processId,
+                    processId: data.processId,
                     dispatch,
                   })
                 }
@@ -197,16 +200,16 @@ function DomainSettings({
             ),
             [DomainSettingsRowTypes.OWNER]: (
               <OwnerRow
-                processId={data?.processId?.toString()}
+                processId={data.processId?.toString()}
                 key={DomainSettingsRowTypes.OWNER}
-                associatedNames={data?.associatedNames ?? []}
+                associatedNames={data.associatedNames ?? []}
                 confirm={({ target }: { target: string }) =>
                   dispatchANTInteraction({
                     payload: { target },
                     workflowName: ANT_INTERACTION_TYPES.TRANSFER,
                     signer: wallet.arconnectSigner!,
                     owner: walletAddress.toString(),
-                    processId: data?.processId,
+                    processId: data.processId,
                     dispatch,
                   })
                 }
@@ -214,18 +217,18 @@ function DomainSettings({
             ),
             [DomainSettingsRowTypes.TTL]: (
               <TTLRow
-                ttlSeconds={data?.apexRecord.ttlSeconds}
+                ttlSeconds={data.apexRecord.ttlSeconds}
                 key={DomainSettingsRowTypes.TTL}
                 confirm={(ttlSeconds: number) =>
                   dispatchANTInteraction({
                     payload: {
                       ttlSeconds,
-                      transactionId: data?.apexRecord.transactionId,
+                      transactionId: data.apexRecord.transactionId,
                     },
                     workflowName: ANT_INTERACTION_TYPES.SET_TTL_SECONDS,
                     signer: wallet.arconnectSigner!,
                     owner: walletAddress.toString(),
-                    processId: data?.processId,
+                    processId: data.processId,
                     dispatch,
                   })
                 }
@@ -235,10 +238,10 @@ function DomainSettings({
               <UndernamesRow
                 key={DomainSettingsRowTypes.UNDERNAMES}
                 domain={domain}
-                antId={data?.processId?.toString()}
-                undernameLimit={data?.undernameLimit ?? 0}
+                antId={data.processId?.toString()}
+                undernameLimit={data.undernameLimit ?? 0}
                 undernameSupport={
-                  data?.arnsRecord?.undernameLimit ?? DEFAULT_MAX_UNDERNAMES
+                  data.arnsRecord?.undernameLimit ?? DEFAULT_MAX_UNDERNAMES
                 }
               />
             ),
