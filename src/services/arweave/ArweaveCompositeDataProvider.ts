@@ -1,4 +1,9 @@
-import { AoArNSNameData, AoIORead, mIOToken } from '@ar.io/sdk';
+import {
+  AoArNSNameData,
+  AoIORead,
+  getANTProcessesOwnedByWallet,
+  mIOToken,
+} from '@ar.io/sdk';
 
 import { ArweaveDataProvider } from '../../types';
 import { ArweaveTransactionID } from './ArweaveTransactionID';
@@ -40,9 +45,10 @@ export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
   }: {
     address: ArweaveTransactionID;
   }): Promise<ArweaveTransactionID[]> {
-    const processIds = ['LGN8MUAMvTvr6i-WGdXBu1z9jz01LZVnVwklp9z7D6U'];
-    const processIdSet = new Set([...processIds]);
-    return [...processIdSet].map((id) => new ArweaveTransactionID(id));
+    const processIds = await getANTProcessesOwnedByWallet({
+      address: address.toString(),
+    });
+    return [...processIds].map((id) => new ArweaveTransactionID(id));
   }
 
   async getTransactionStatus(
