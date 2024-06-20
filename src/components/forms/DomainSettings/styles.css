@@ -18,6 +18,7 @@
   min-height: 50px;
   max-height: 50px;
   color: var(--text-grey);
+  overflow: scroll;
 }
 
 .domain-settings-row-item-action {
@@ -49,6 +50,7 @@
 .domain-settings-meta-item-meta-description {
   width: 100%;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .domain-settings-input {

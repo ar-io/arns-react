@@ -43,7 +43,6 @@ function Undernames() {
   const [percent, setPercentLoaded] = useState<number>(0);
   const {
     isLoading: undernameTableLoading,
-    percent: percentUndernamesLoaded,
     columns: undernameColumns,
     rows: undernameRows,
     selectedRow: selectedUndernameRow,
@@ -77,7 +76,6 @@ function Undernames() {
     }
 
     setTableLoading(undernameTableLoading);
-    setPercentLoaded(percentUndernamesLoaded);
     setSelectedRow(selectedUndernameRow);
 
     if (tableLoading) load();
@@ -243,9 +241,7 @@ function Undernames() {
               className="flex center"
               style={{ paddingTop: '10%', justifyContent: 'center' }}
             >
-              <Loader
-                message={`Loading undernames... ${Math.round(percent)}%`}
-              />
+              <Loader message={`Loading undernames...`} />
             </div>
           ) : (
             <Table

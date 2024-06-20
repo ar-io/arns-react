@@ -350,7 +350,7 @@ export type BuyRecordPayload = {
 export type ExtendLeasePayload = {
   name: string;
   years: number;
-  processId?: ArweaveTransactionID;
+  processId: ArweaveTransactionID;
   qty?: number;
 };
 
@@ -362,7 +362,7 @@ export type IncreaseUndernamesPayload = {
   name: string;
   qty: number;
   oldQty?: number;
-  processId?: string;
+  processId: string;
 };
 //end registry transaction payload types
 

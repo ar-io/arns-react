@@ -413,7 +413,9 @@ export function useWalletDomains() {
       const consolidatedRecords = Object.entries(registrations).map(
         ([name, record]) => ({ ...record, name }),
       );
-      itemCount.current = consolidatedRecords.length;
+
+      // based on # of contracts tied to names, not # of names
+      itemCount.current = processIds.size;
 
       const uniqueAntData = await Promise.all(
         [...processIds].map((processId: ArweaveTransactionID) =>
@@ -421,11 +423,6 @@ export function useWalletDomains() {
             const contract = ANT.init({
               processId: processId.toString(),
             });
-            // TODO: react strict mode makes this increment twice in dev
-            if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
-            setPercentLoaded(
-              Math.round((itemsLoaded.current / itemCount.current) * 100),
-            );
 
             // fetch contract information
             const [owner, controllers, name, ticker, totalUndernames] =
@@ -441,6 +438,12 @@ export function useWalletDomains() {
                       Object.keys(records).length - 1,
                   ),
               ]);
+
+            // TODO: react strict mode makes this increment twice in dev
+            if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
+            setPercentLoaded(
+              Math.round((itemsLoaded.current / itemCount.current) * 100),
+            );
 
             return {
               processId: processId.toString(),

@@ -36,7 +36,6 @@ export function useUndernames(id?: ArweaveTransactionID, name?: string) {
     [],
   );
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [percent, setPercentLoaded] = useState<number>(0);
   const [action, setAction] = useState<
     UndernameTableInteractionTypes | undefined
   >();
@@ -378,37 +377,25 @@ export function useUndernames(id?: ArweaveTransactionID, name?: string) {
         return '';
       });
     setDomain(domain);
-    const fetchedRows: UndernameMetadata[] = [];
     const undernames = await ANT.init({
       processId: processId.toString(),
     }).getRecords();
-    for (const [name, record] of Object.entries(undernames)) {
-      try {
-        const rowData = {
-          name: name,
-          targetID: record.transactionId,
-          ttlSeconds: record.ttlSeconds,
-          status: 0,
-          key: name,
-        };
-        // sort by confirmation count (ASC) by default
-        fetchedRows.sort((a, b) => a.status - b.status);
-        fetchedRows.push(rowData);
-      } catch (error) {
-        eventEmitter.emit('error', error);
-      } finally {
-        setPercentLoaded(
-          (fetchedRows.length / Object.keys(undernames).length) * 100,
-        );
-      }
-    }
-    setRows(fetchedRows);
+
+    const rows = Object.entries(undernames)
+      .map(([name, record]) => ({
+        name,
+        targetID: record.transactionId,
+        ttlSeconds: record.ttlSeconds,
+        status: 0,
+        key: name,
+      }))
+      .sort((a, b) => a.status - b.status);
+    setRows(rows);
     setIsLoading(false);
   }
 
   return {
     isLoading,
-    percent,
     columns: generateTableColumns(),
     rows: filteredResults.length ? filteredResults : rows,
     sortField,
