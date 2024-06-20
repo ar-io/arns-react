@@ -1,4 +1,3 @@
-import { ANT } from '@ar.io/sdk/web';
 import { VerticalDotMenuIcon } from '@src/components/icons';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import AddControllerModal from '@src/components/modals/ant-management/AddControllerModal/AddControllerModal';
@@ -6,15 +5,17 @@ import RemoveControllersModal from '@src/components/modals/ant-management/Remove
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
 import { Tooltip } from 'antd';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import DomainSettingsRow from './DomainSettingsRow';
 
 export default function ControllersRow({
+  controllers = [],
   processId,
   confirm,
 }: {
-  processId?: string;
+  controllers: string[];
+  processId: string;
   confirm: ({
     payload,
     workflowName,
@@ -35,17 +36,6 @@ export default function ControllersRow({
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
   const [showRemoveModal, setShowRemoveModal] = useState<boolean>(false);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
-  const [controllers, setControllers] = useState<string[]>([]);
-
-  useEffect(() => {
-    if (processId) {
-      ANT.init({ processId })
-        .getControllers()
-        .then((c) => {
-          setControllers(c);
-        });
-    }
-  }, [processId]);
 
   async function handleControllerInteraction({
     payload,

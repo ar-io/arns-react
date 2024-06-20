@@ -8,7 +8,10 @@ import { useTransactionState } from '@src/state/contexts/TransactionState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { ANT_INTERACTION_TYPES } from '@src/types';
 import { formatExpiryDate } from '@src/utils';
-import { DEFAULT_MAX_UNDERNAMES } from '@src/utils/constants';
+import {
+  DEFAULT_MAX_UNDERNAMES,
+  SECONDS_IN_GRACE_PERIOD,
+} from '@src/utils/constants';
 import { List, Skeleton } from 'antd';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
@@ -27,6 +30,7 @@ export enum DomainSettingsRowTypes {
   EXPIRY_DATE = 'Expiry Date',
   LEASE_DURATION = 'Lease Duration',
   ASSOCIATED_NAMES = 'Associated Names',
+  STATUS = 'Status',
   NICKNAME = 'Nickname',
   PROCESS_ID = 'Process ID',
   TARGET_ID = 'Target ID',
@@ -62,6 +66,20 @@ function DomainSettings({
 
   if (isLoading) {
     return <Loader />;
+  }
+
+  function getStatus(endTimestamp?: number) {
+    if (!endTimestamp) {
+      return 'Active';
+    }
+    const now = Date.now();
+    if (endTimestamp < now) {
+      return 'Expired';
+    }
+    if (endTimestamp - SECONDS_IN_GRACE_PERIOD < now) {
+      return 'In Grace Period';
+    }
+    return 'Active';
   }
 
   return (
@@ -109,6 +127,16 @@ function DomainSettings({
                 label="Associated Names"
                 value={data.associatedNames ?? 'N/A'}
                 key={DomainSettingsRowTypes.ASSOCIATED_NAMES}
+              />
+            ),
+            [DomainSettingsRowTypes.STATUS]: (
+              <DomainSettingsRow
+                label="Status"
+                value={
+                  data.arnsRecord && isLeasedArNSRecord(data.arnsRecord)
+                    ? data.arnsRecord?.endTimestamp
+                    : 'Active'
+                }
               />
             ),
             [DomainSettingsRowTypes.NICKNAME]: (
@@ -179,6 +207,7 @@ function DomainSettings({
               <ControllersRow
                 key={DomainSettingsRowTypes.CONTROLLERS}
                 processId={data.processId?.toString()}
+                controllers={data.controllers}
                 confirm={({
                   payload,
                   workflowName,
