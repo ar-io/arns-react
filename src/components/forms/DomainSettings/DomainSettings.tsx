@@ -134,7 +134,7 @@ function DomainSettings({
                 label="Status"
                 value={
                   data.arnsRecord && isLeasedArNSRecord(data.arnsRecord)
-                    ? data.arnsRecord?.endTimestamp
+                    ? getStatus(data.arnsRecord?.endTimestamp)
                     : 'Active'
                 }
               />

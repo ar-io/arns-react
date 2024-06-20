@@ -22,7 +22,7 @@ export async function dispatchNewGateway(
     const arweaveDataProvider = new SimpleArweaveDataProvider(arweave);
     const contract = IO.init({
       processId: ioDevnetProcessId,
-      // TOOD: allow signer to be added
+      signer: walletConnector.arconnectSigner,
     });
 
     const provider = new ArweaveCompositeDataProvider({

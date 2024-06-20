@@ -1,4 +1,3 @@
-import { ANT } from '@ar.io/sdk/web';
 import { useANT } from '@src/hooks/useANT/useANT';
 import { Checkbox, Table } from 'antd';
 import { useEffect, useState } from 'react';
@@ -15,10 +14,12 @@ import './styles.css';
 
 function RemoveControllersModal({
   antId,
+  controllers = [],
   closeModal,
   payloadCallback,
 }: {
   antId: ArweaveTransactionID;
+  controllers: string[];
   closeModal: () => void;
   payloadCallback: (payload: { controller: string }) => void;
 }) {
@@ -27,14 +28,16 @@ function RemoveControllersModal({
     ArweaveTransactionID[]
   >([]);
   const [tablePage, setTablePage] = useState<number>(1);
-  const [rows, setRows] = useState<ArweaveTransactionID[]>([]);
   const { name = 'N/A' } = useANT(antId.toString());
+  const [rows, setRows] = useState<ArweaveTransactionID[]>(
+    controllers.map((controller) => new ArweaveTransactionID(controller)),
+  );
 
   useEffect(() => {
-    getControllerRows(antId).then((rows: ArweaveTransactionID[]) => {
-      setRows(rows);
-    });
-  }, [antId]);
+    setRows(
+      controllers.map((controller) => new ArweaveTransactionID(controller)),
+    );
+  }, [controllers]);
 
   function handlePayloadCallback() {
     payloadCallback({
@@ -44,19 +47,6 @@ function RemoveControllersModal({
 
   function updatePage(page: number) {
     setTablePage(page);
-  }
-
-  async function getControllerRows(
-    id?: ArweaveTransactionID,
-  ): Promise<ArweaveTransactionID[]> {
-    if (!id) {
-      return [];
-    }
-    const ant = ANT.init({ processId: id?.toString() });
-    const controllers = await ant.getControllers();
-    return controllers.map(
-      (controller) => new ArweaveTransactionID(controller),
-    );
   }
 
   return (
@@ -165,7 +155,7 @@ function RemoveControllersModal({
                                   : 'grey'
                               }
                             >
-                              {value.toString()}
+                              {value?.toString()}
                             </span>
                           ),
                         },

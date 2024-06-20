@@ -70,22 +70,13 @@ export default function WalletStateProvider({
       wallet?.disconnect();
       return;
     }
-    if (wallet?.arconnectSigner) {
-      dispatchArIOContract({
-        contract: IO.init({
-          processId: ioDevnetProcessId,
-          signer: wallet.arconnectSigner,
-        }),
-        dispatch: dispatchGlobalState,
-      });
-    } else {
-      dispatchArIOContract({
-        contract: IO.init({
-          processId: ioDevnetProcessId.toString(),
-        }),
-        dispatch: dispatchGlobalState,
-      });
-    }
+    dispatchArIOContract({
+      contract: IO.init({
+        processId: ioDevnetProcessId,
+        signer: wallet?.arconnectSigner,
+      }),
+      dispatch: dispatchGlobalState,
+    });
 
     const removeWalletState = () => {
       if (walletAddress) {

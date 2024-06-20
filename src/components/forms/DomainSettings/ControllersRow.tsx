@@ -63,7 +63,7 @@ export default function ControllersRow({
     <>
       <DomainSettingsRow
         label="Controllers(s):"
-        value={controllers}
+        value={controllers.join(', ')}
         action={[
           <Tooltip
             key={1}
@@ -121,6 +121,7 @@ export default function ControllersRow({
         <RemoveControllersModal
           closeModal={() => setShowRemoveModal(false)}
           antId={new ArweaveTransactionID(processId)}
+          controllers={controllers}
           payloadCallback={(c) => {
             setWorkflowName(ANT_INTERACTION_TYPES.REMOVE_CONTROLLER);
             setPayload(c);
