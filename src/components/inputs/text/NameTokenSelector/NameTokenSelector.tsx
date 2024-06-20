@@ -64,12 +64,13 @@ function NameTokenSelector({
     setListPage(1);
   }, [selectedToken]);
 
-  useEffect(() => {
-    if (!walletAddress) {
-      return;
-    }
-    getTokenList(walletAddress);
-  }, [walletAddress]);
+  // FIXME: disabled to avoid too many requests
+  // useEffect(() => {
+  //   if (!walletAddress) {
+  //     return;
+  //   }
+  //   getTokenList(walletAddress);
+  // }, [walletAddress]);
 
   useEffect(() => {
     if (!listRef.current) {
