@@ -1,4 +1,4 @@
-import { ANT, AoArNSNameData, isLeasedArNSRecord } from '@ar.io/sdk';
+import { ANT, AoArNSNameData, isLeasedArNSRecord } from '@ar.io/sdk/web';
 import ManageAssetButtons from '@src/components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
 import { pLimit } from 'plimit-lit';
 import { useEffect, useRef, useState } from 'react';

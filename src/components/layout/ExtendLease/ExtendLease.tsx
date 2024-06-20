@@ -1,4 +1,4 @@
-import { AoArNSNameData, isLeasedArNSRecord } from '@ar.io/sdk';
+import { AoArNSNameData, isLeasedArNSRecord } from '@ar.io/sdk/web';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 

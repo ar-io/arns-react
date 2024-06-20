@@ -3,7 +3,7 @@ import {
   AoIORead,
   getANTProcessesOwnedByWallet,
   mIOToken,
-} from '@ar.io/sdk';
+} from '@ar.io/sdk/web';
 
 import { ArweaveDataProvider } from '../../types';
 import { ArweaveTransactionID } from './ArweaveTransactionID';

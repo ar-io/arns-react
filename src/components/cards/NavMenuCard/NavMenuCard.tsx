@@ -1,4 +1,4 @@
-import { mIOToken } from '@ar.io/sdk';
+import { mIOToken } from '@ar.io/sdk/web';
 import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 

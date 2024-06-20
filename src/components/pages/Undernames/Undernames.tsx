@@ -1,4 +1,4 @@
-import { ANT } from '@ar.io/sdk';
+import { ANT } from '@ar.io/sdk/web';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';

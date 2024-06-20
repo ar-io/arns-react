@@ -1,4 +1,4 @@
-import { isLeasedArNSRecord } from '@ar.io/sdk';
+import { isLeasedArNSRecord } from '@ar.io/sdk/web';
 import LeaseDuration from '@src/components/data-display/LeaseDuration';
 import { Loader } from '@src/components/layout';
 import useDomainInfo from '@src/hooks/useDomainInfo';

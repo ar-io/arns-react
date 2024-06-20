@@ -1,4 +1,4 @@
-import { ANT, AoArNSNameData } from '@ar.io/sdk';
+import { ANT, AoArNSNameData } from '@ar.io/sdk/web';
 import { Pagination, PaginationProps, Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 

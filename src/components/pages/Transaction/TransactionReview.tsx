@@ -1,4 +1,4 @@
-import { IOWriteable } from '@ar.io/sdk';
+import { IOWriteable } from '@ar.io/sdk/web';
 import { ANTCard } from '@src/components/cards';
 import { InfoIcon } from '@src/components/icons';
 import WorkflowButtons from '@src/components/inputs/buttons/WorkflowButtons/WorkflowButtons';

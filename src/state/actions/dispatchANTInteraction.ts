@@ -3,7 +3,7 @@ import {
   ANT_CONTRACT_FUNCTIONS,
   AoMessageResult,
   ArconnectSigner,
-} from '@ar.io/sdk';
+} from '@ar.io/sdk/web';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';

@@ -1,4 +1,4 @@
-import { ANT } from '@ar.io/sdk';
+import { ANT } from '@ar.io/sdk/web';
 import { Tooltip } from 'antd';
 import { ColumnType } from 'antd/es/table';
 import { useEffect, useRef, useState } from 'react';

@@ -1,4 +1,4 @@
-import { AoIORead, AoIOWrite } from '@ar.io/sdk';
+import { AoIORead, AoIOWrite } from '@ar.io/sdk/web';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 
 import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';

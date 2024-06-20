@@ -1,4 +1,4 @@
-import { AoIOWrite } from '@ar.io/sdk';
+import { AoIOWrite } from '@ar.io/sdk/web';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { VALIDATION_INPUT_TYPES } from '@src/types';

@@ -1,4 +1,4 @@
-import { ANT } from '@ar.io/sdk';
+import { ANT } from '@ar.io/sdk/web';
 import { VerticalDotMenuIcon } from '@src/components/icons';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import AddControllerModal from '@src/components/modals/ant-management/AddControllerModal/AddControllerModal';

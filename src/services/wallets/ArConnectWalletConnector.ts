@@ -1,4 +1,4 @@
-import { ArconnectSigner } from '@ar.io/sdk';
+import { ArconnectSigner } from '@ar.io/sdk/web';
 import { DEFAULT_ARWEAVE } from '@src/utils/constants';
 import { ArconnectError, WalletNotInstalledError } from '@src/utils/errors';
 import { PermissionType } from 'arconnect';

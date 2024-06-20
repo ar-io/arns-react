@@ -1,4 +1,4 @@
-import { ANT } from '@ar.io/sdk';
+import { ANT } from '@ar.io/sdk/web';
 import { useANT } from '@src/hooks/useANT/useANT';
 import { Checkbox, Table } from 'antd';
 import { useEffect, useState } from 'react';

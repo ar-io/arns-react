@@ -1,4 +1,4 @@
-import { AoArNSNameData } from '@ar.io/sdk';
+import { AoArNSNameData } from '@ar.io/sdk/web';
 import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 

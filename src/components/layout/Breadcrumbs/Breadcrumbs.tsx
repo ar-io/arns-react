@@ -1,4 +1,4 @@
-import { ANT } from '@ar.io/sdk';
+import { ANT } from '@ar.io/sdk/web';
 import { Breadcrumb, Tooltip } from 'antd';
 import { useEffect, useState } from 'react';
 import { useLocation, useMatches } from 'react-router';

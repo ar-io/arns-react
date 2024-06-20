@@ -1,4 +1,4 @@
-import { AoArNSNameData, isLeasedArNSRecord } from '@ar.io/sdk';
+import { AoArNSNameData, isLeasedArNSRecord } from '@ar.io/sdk/web';
 import TransactionSuccessCard from '@src/components/cards/TransactionSuccessCard/TransactionSuccessCard';
 import DomainSettings from '@src/components/forms/DomainSettings/DomainSettings';
 import useDomainInfo from '@src/hooks/useDomainInfo';

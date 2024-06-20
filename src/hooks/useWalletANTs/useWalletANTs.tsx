@@ -1,4 +1,4 @@
-import { AoANTRead, AoANTReadable } from '@ar.io/sdk';
+import { AoANTRead, AoANTReadable } from '@ar.io/sdk/web';
 import { DEFAULT_TTL_SECONDS } from '@src/utils/constants';
 import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';

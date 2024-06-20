@@ -1,4 +1,4 @@
-import { ANT, ANTRecord } from '@ar.io/sdk';
+import { ANT, ANTRecord } from '@ar.io/sdk/web';
 import { useEffect, useState } from 'react';
 
 export function useANT(id: string) {

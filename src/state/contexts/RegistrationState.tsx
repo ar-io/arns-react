@@ -1,4 +1,4 @@
-import { AoANTRead } from '@ar.io/sdk';
+import { AoANTRead } from '@ar.io/sdk/web';
 import {
   Dispatch,
   createContext,

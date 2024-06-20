@@ -1,4 +1,4 @@
-import { ANT, ANTRecord } from '@ar.io/sdk';
+import { ANT, ANTRecord } from '@ar.io/sdk/web';
 import { clamp } from 'lodash';
 import { useEffect, useRef, useState } from 'react';
 

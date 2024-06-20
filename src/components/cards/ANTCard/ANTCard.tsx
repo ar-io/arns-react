@@ -1,4 +1,4 @@
-import { isLeasedArNSRecord } from '@ar.io/sdk';
+import { isLeasedArNSRecord } from '@ar.io/sdk/web';
 import { useANT } from '@src/hooks/useANT/useANT';
 import { Descriptions } from 'antd';
 import { startCase } from 'lodash';
