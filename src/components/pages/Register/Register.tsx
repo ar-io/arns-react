@@ -73,6 +73,37 @@ function RegisterNameForm() {
   }, [balances, fee]);
 
   useEffect(() => {
+    if (!arioContract || !domain || !ioTicker || !registrationType) return;
+
+    const update = async () => {
+      dispatchRegisterState({
+        type: 'setFee',
+        payload: { ar: 0, [ioTicker]: undefined },
+      });
+
+      const cost = await arioContract.getTokenCost({
+        intent: 'BuyRecord',
+        name: domain,
+        purchaseType: registrationType,
+        years: leaseDuration,
+      });
+
+      dispatchRegisterState({
+        type: 'setFee',
+        payload: { ar: 0, [ioTicker]: cost },
+      });
+    };
+    update();
+  }, [
+    arioContract,
+    dispatchRegisterState,
+    domain,
+    ioTicker,
+    leaseDuration,
+    registrationType,
+  ]);
+
+  useEffect(() => {
     if (name && domain !== name) {
       dispatchRegisterState({
         type: 'setDomainName',

@@ -160,8 +160,4 @@ export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
       })
       .then((balance) => new mIOToken(balance).toIO().valueOf());
   }
-
-  getPriceForInteraction(): Promise<number> {
-    throw new Error('Not implemented yet');
-  }
 }

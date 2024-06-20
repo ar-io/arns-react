@@ -34,7 +34,6 @@ const ArweaveCompositeDataProviderMock = jest.fn(() => ({
   isDomainReserved: jest.fn(() => Promise.resolve()),
   isDomainAvailable: jest.fn(() => Promise.resolve()),
   getTokenBalance: jest.fn(() => Promise.resolve()),
-  getPriceForInteraction: jest.fn(() => Promise.resolve()),
 }));
 
 export default ArweaveCompositeDataProviderMock;
