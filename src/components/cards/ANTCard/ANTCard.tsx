@@ -1,7 +1,7 @@
 import { isLeasedArNSRecord } from '@ar.io/sdk';
 import { useANT } from '@src/hooks/useANT/useANT';
 import { Descriptions } from 'antd';
-import { set, startCase } from 'lodash';
+import { startCase } from 'lodash';
 import { isValidElement, useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../hooks';
