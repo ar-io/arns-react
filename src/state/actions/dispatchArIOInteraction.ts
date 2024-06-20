@@ -1,7 +1,10 @@
 import {
+  AOProcess,
   AR_IO_CONTRACT_FUNCTIONS,
   AoIOWrite,
   AoMessageResult,
+  ArconnectSigner,
+  spawnANT,
 } from '@ar.io/sdk/web';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
@@ -9,6 +12,8 @@ import { ARNS_INTERACTION_TYPES, ContractInteraction } from '@src/types';
 import { WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Dispatch } from 'react';
+
+const LUA_CODE_TX_ID = '45xZyI2JDmxHe1lvNQCQBdXprrY0KU6hpzJbOfaEJPc';
 
 /**
  *
@@ -21,6 +26,7 @@ export default async function dispatchArIOInteraction({
   arioContract,
   processId,
   dispatch,
+  signer,
 }: {
   payload: Record<string, any>;
   workflowName: ARNS_INTERACTION_TYPES;
@@ -28,12 +34,14 @@ export default async function dispatchArIOInteraction({
   arioContract?: AoIOWrite;
   processId: ArweaveTransactionID;
   dispatch: Dispatch<TransactionAction>;
+  signer?: ArconnectSigner;
 }): Promise<ContractInteraction> {
   let result: AoMessageResult | undefined = undefined;
   let functionName;
 
   try {
     if (!arioContract) throw new Error('ArIO provider is not defined');
+    if (!signer) throw new Error('signer is not defined');
     dispatch({
       type: 'setSigning',
       payload: true,
@@ -43,8 +51,16 @@ export default async function dispatchArIOInteraction({
         let processId = payload.processId;
         // TODO: Replace this once the ArIO SDK supports this interaction
         if (payload.processId === 'atomic') {
-          // spawn an ao process
-          processId = 'SPAWN-AO-PROCESS-FOR-USING-A-VALID-AOMODULE';
+          // const aoSigner = await AOProcess.createAoSigner(
+          //   signer,
+          // );
+          processId = await spawnANT({
+            signer: signer,
+            luaCodeTxId: LUA_CODE_TX_ID,
+          });
+
+          // // spawn an ao process
+          // processId = 'SPAWN-AO-PROCESS-FOR-USING-A-VALID-AOMODULE';
         }
 
         const buyRecordResult = await arioContract.buyRecord({

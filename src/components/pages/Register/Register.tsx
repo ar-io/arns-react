@@ -163,7 +163,7 @@ function RegisterNameForm() {
         domain && emojiRegex().test(domain)
           ? encodeDomainToASCII(domain)
           : domain,
-      processId: antID!.toString(),
+      processId: antID?.toString() ?? 'atomic',
       // TODO: move this to a helper function
       years:
         registrationType === TRANSACTION_TYPES.LEASE
