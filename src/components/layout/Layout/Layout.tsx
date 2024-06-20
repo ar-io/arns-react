@@ -1,12 +1,17 @@
 import DevTools from '@src/components/devtools/DevTools';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 
 import Footer from '../Footer/Footer';
 import NavBar from '../Navbar/Navbar';
 import Notifications from '../Notifications/Notifications';
+import TopBanner from './TopBanner';
 import './styles.css';
 
 function Layout() {
+  const location = useLocation();
+  const homeOrRegister =
+    location.pathname === '/' || location.pathname.startsWith('/register');
+
   return (
     <div
       className="flex flex-column"
@@ -17,6 +22,7 @@ function Layout() {
         height: '100vh',
       }}
     >
+      {homeOrRegister && <TopBanner />}
       <div
         id="layout"
         className="flex flex-row"
