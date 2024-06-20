@@ -40,7 +40,6 @@ function Undernames() {
   const [selectedRow, setSelectedRow] = useState<
     UndernameMetadata | undefined
   >();
-  const [percent, setPercentLoaded] = useState<number>(0);
   const {
     isLoading: undernameTableLoading,
     columns: undernameColumns,

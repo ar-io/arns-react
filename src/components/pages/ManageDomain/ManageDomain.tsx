@@ -61,8 +61,8 @@ function ManageDomain() {
 
       const duration = isLeasedArNSRecord(arnsRecord)
         ? getLeaseDurationFromEndTimestamp(
-            arnsRecord.startTimestamp * 1000,
-            arnsRecord.endTimestamp * 1000,
+            arnsRecord.startTimestamp,
+            arnsRecord.endTimestamp,
           )
         : 'Indefinite';
 

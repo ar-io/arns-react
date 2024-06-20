@@ -3,7 +3,6 @@ import { useWalletState } from '@src/state/contexts/WalletState';
 
 import { useIsMobile } from '../../../hooks';
 import { SearchBarHeaderProps } from '../../../types';
-import { isDomainReservedLength } from '../../../utils';
 import './styles.css';
 
 function SearchBarHeader({

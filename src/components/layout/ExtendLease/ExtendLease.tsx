@@ -143,7 +143,10 @@ function ExtendLease() {
             >
               This domain is permanently registered and its lease cannot be
               extended.
-              <ARNSCard domain={name} />
+              <ARNSCard
+                processId={new ArweaveTransactionID(record.processId)}
+                domain={name}
+              />
             </span>
           }
         />
@@ -171,7 +174,7 @@ function ExtendLease() {
             }}
           >
             <InfoIcon width={'22px'} height={'22px'} fill="var(--text-grey)" />
-            Expiring on {formatDate(record.endTimestamp * 1000)}
+            Expiring on {formatDate(record.endTimestamp)}
           </div>
         </div>
         <div
@@ -238,8 +241,7 @@ function ExtendLease() {
               <span>
                 until{' '}
                 {formatDate(
-                  record.endTimestamp * 1000 +
-                    newLeaseDuration * YEAR_IN_MILLISECONDS,
+                  record.endTimestamp + newLeaseDuration * YEAR_IN_MILLISECONDS,
                 )}
               </span>
             }

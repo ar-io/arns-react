@@ -218,14 +218,14 @@ export function formatExpiryDate(endTimestamp?: number) {
     <span
       style={{
         color:
-          endTimestamp * 1000 > Date.now()
+          endTimestamp > Date.now()
             ? 'var(--success-green)'
-            : endTimestamp * 1000 + SECONDS_IN_GRACE_PERIOD * 1000 < Date.now()
+            : endTimestamp + SECONDS_IN_GRACE_PERIOD * 1000 < Date.now()
             ? 'var(--accent)'
             : 'var(--error-red)',
       }}
     >
-      {formatDate(endTimestamp * 1000)}
+      {formatDate(endTimestamp)}
     </span>
   );
 }
