@@ -1,5 +1,6 @@
 import { isLeasedArNSRecord } from '@ar.io/sdk';
 import LeaseDuration from '@src/components/data-display/LeaseDuration';
+import { Loader } from '@src/components/layout';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
@@ -60,17 +61,7 @@ function DomainSettings({
   }
 
   if (isLoading) {
-    return (
-      <List prefixCls="domain-settings-list">
-        {Object.values(DomainSettingsRowTypes).map((row) => (
-          <DomainSettingsRow
-            key={row}
-            label={row}
-            value={<Skeleton.Input active />}
-          />
-        ))}
-      </List>
-    );
+    return <Loader />;
   }
 
   return (

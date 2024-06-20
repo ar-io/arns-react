@@ -4,7 +4,6 @@ import { asciiToUnicode, unicodeToAscii } from 'puny-coder';
 import {
   APPROVED_CHARACTERS_REGEX,
   ARNS_NAME_REGEX,
-  RESERVED_NAME_LENGTH,
   TRAILING_DASH_UNDERSCORE_REGEX,
   UNDERNAME_REGEX,
   YEAR_IN_MILLISECONDS,
@@ -115,13 +114,6 @@ export function getLeaseDurationFromEndTimestamp(start: number, end: number) {
   const years = Math.max(0, differenceInYears);
 
   return years;
-}
-
-export function isDomainReservedLength(domain: string): boolean {
-  if (encodeDomainToASCII(domain).length <= RESERVED_NAME_LENGTH) {
-    return true;
-  }
-  return false;
 }
 
 export function sleep(ms: number) {

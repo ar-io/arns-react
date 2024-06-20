@@ -16,7 +16,9 @@ function ManageANT() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [{ walletAddress }] = useWalletState();
-  const { data } = useDomainInfo({ antId: new ArweaveTransactionID(id) });
+  const { isLoading, data } = useDomainInfo({
+    antId: new ArweaveTransactionID(id),
+  });
 
   const [{ interactionResult, workflowName }, dispatchTransactionState] =
     useTransactionState();
@@ -29,6 +31,10 @@ function ManageANT() {
 
     // fetch all relevant ant information
   }, [id]);
+
+  if (isLoading) {
+    return <></>;
+  }
 
   return (
     <>

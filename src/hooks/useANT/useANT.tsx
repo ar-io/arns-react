@@ -1,10 +1,10 @@
-import { ANT } from '@ar.io/sdk';
+import { ANT, ANTRecord } from '@ar.io/sdk';
 import { useEffect, useState } from 'react';
 
 export function useANT(id: string) {
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [data, setData] = useState<{
-    records: any;
+    records: Record<string, ANTRecord>;
     name: string;
     owner: string;
     ticker: string;

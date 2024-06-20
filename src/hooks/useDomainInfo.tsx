@@ -33,11 +33,11 @@ export default function useDomainInfo({
   const [{ arweaveDataProvider, arioContract: arioProvider }] =
     useGlobalState();
   const [{ wallet }] = useWalletState();
+
+  // TODO: this should be modified or removed
   const { data, isLoading, error, refetch } = useSuspenseQuery({
     queryKey: ['domainInfo', { domain, antId }],
     queryFn: () => getDomainInfo({ domain, antId }).catch((error) => error),
-    staleTime: 1000 * 60 * 2,
-    refetchInterval: 1000 * 60 * 2, // every block
   });
 
   async function getDomainInfo({
@@ -101,8 +101,6 @@ export default function useDomainInfo({
           ),
         antProcess.getRecord({ undername: '@' }),
       ]);
-
-    console.log(name, ticker, owner, controllers, undernameCount, apexRecord);
 
     if (!apexRecord) {
       throw new Error('No apexRecord found');

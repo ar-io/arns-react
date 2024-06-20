@@ -1,7 +1,7 @@
 import { isLeasedArNSRecord } from '@ar.io/sdk';
 import { useANT } from '@src/hooks/useANT/useANT';
 import { Descriptions } from 'antd';
-import { startCase } from 'lodash';
+import { set, startCase } from 'lodash';
 import { isValidElement, useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../hooks';
@@ -77,6 +77,7 @@ function ANTCard({
 }: ARNSMapping) {
   const isMobile = useIsMobile();
   const [antDetails, setANTDetails] = useState<{ [x: string]: any }>();
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const {
     loading,
     owner,
@@ -92,16 +93,19 @@ function ANTCard({
 
   useEffect(() => {
     setDetails();
-  }, [processId]);
+  }, [processId, loading]);
 
   async function setDetails() {
     try {
+      setIsLoading(true);
       let leaseDuration = 'N/A';
       if (record) {
         leaseDuration = isLeasedArNSRecord(record)
           ? record.endTimestamp.toString()
           : 'Indefinite';
       }
+
+      const apexRecord = records ? records['@'] : undefined;
 
       const allANTDetails: Record<AntDetailKey, any> = {
         deployedTransactionId: deployedTransactionId
@@ -117,8 +121,8 @@ function ANTCard({
         ticker,
         owner,
         controllers: controllers.join(', '),
-        targetId: records['@']?.transactionId,
-        ttlSeconds: records['@']?.ttlSeconds,
+        targetId: apexRecord?.transactionId ?? 'N/A',
+        ttlSeconds: apexRecord?.ttlSeconds ?? 'N/A',
         ...overrides,
       };
 
@@ -152,6 +156,8 @@ function ANTCard({
     } catch (error) {
       eventEmitter.emit('error', error);
       setANTDetails(undefined);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -169,7 +175,7 @@ function ANTCard({
     return ArweaveIdTypes.TRANSACTION;
   }
 
-  if (loading) {
+  if (isLoading || loading) {
     return <Loader size={80} />;
   }
 

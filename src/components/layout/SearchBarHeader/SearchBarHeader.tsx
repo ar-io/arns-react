@@ -20,7 +20,7 @@ function SearchBarHeader({
   // reserved condition
   if (
     domain &&
-    (isReserved || isDomainReservedLength(domain)) &&
+    isReserved &&
     reservedFor?.toString() !== walletAddress?.toString()
   ) {
     return (
