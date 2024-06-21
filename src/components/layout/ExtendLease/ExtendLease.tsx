@@ -34,7 +34,7 @@ import PageLoader from '../progress/PageLoader/PageLoader';
 
 function ExtendLease() {
   // TODO: remove use of source contract
-  const [{ arweaveDataProvider, ioTicker }] = useGlobalState();
+  const [{ arweaveDataProvider, ioTicker, arioContract }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const location = useLocation();
@@ -62,8 +62,11 @@ function ExtendLease() {
 
     setIoFee(undefined);
     const updateIoFee = async () => {
-      // TODO: use price from contract
-      const price = 0;
+      const price = await arioContract.getTokenCost({
+        intent: 'ExtendLease',
+        name: name,
+        years: newLeaseDuration,
+      });
       setIoFee(price);
     };
     updateIoFee();

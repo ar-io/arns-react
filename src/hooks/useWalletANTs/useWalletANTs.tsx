@@ -23,6 +23,7 @@ import { useWalletState } from '../../state/contexts/WalletState';
 import { ANTMetadata, ContractInteraction } from '../../types';
 import { handleTableSort, isArweaveTransactionID } from '../../utils';
 import eventEmitter from '../../utils/events';
+import useARNS from '../useARNS';
 
 type ANTData = {
   processId: string;
@@ -49,6 +50,7 @@ export function useWalletANTs() {
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const { path } = useParams();
+  const { result } = useARNS(walletAddress?.toString());
 
   if (searchRef.current && searchOpen) {
     searchRef.current.focus();
@@ -102,10 +104,8 @@ export function useWalletANTs() {
       if (walletAddress) {
         const height =
           blockHeight ?? (await arweaveDataProvider.getCurrentBlockHeight());
-        const processIds = await arweaveDataProvider.getContractsForWallet({
-          address: walletAddress,
-        });
-        const data = await fetchANTData(processIds, height); // TODO: not sure this is relevant
+
+        const data = await fetchANTData(height); // TODO: not sure this is relevant
         const newRows = await buildANTRows(data, walletAddress, height);
         setRows(newRows);
       }
@@ -442,14 +442,15 @@ export function useWalletANTs() {
     ];
   }
 
-  async function fetchANTData(
-    processIds: ArweaveTransactionID[],
-    currentBlockHeight?: number,
-  ): Promise<ANTData[]> {
+  async function fetchANTData(currentBlockHeight?: number): Promise<ANTData[]> {
     let datas: ANTData[] = [];
     try {
       itemsLoaded.current = 0;
-      const tokenIds: Set<ArweaveTransactionID> = new Set(processIds);
+      const tokenIds: Set<ArweaveTransactionID> = new Set(
+        Object.keys(result.data.ants).map(
+          (processId) => new ArweaveTransactionID(processId),
+        ),
+      );
 
       itemCount.current = tokenIds.size;
 
@@ -508,20 +509,15 @@ export function useWalletANTs() {
           pendingContractInteractions,
           errors,
         } = data;
-
+        const info = await contract.getInfo();
         const [name, owner, ticker, controllers, apexRecord] =
           await Promise.all([
-            contract.getName(),
-            contract.getOwner(),
-            contract.getTicker(),
+            info.Name,
+            info.Owner,
+            info.Ticker,
             contract.getControllers(),
             contract.getRecord({ undername: '@' }),
           ]);
-
-        // const status = await arweaveDataProvider.getTransactionStatus(
-        //   new ArweaveTransactionID(data.processId),
-        //   currentBlockHeight,
-        // );
 
         const rowData = {
           name: name ?? 'N/A',

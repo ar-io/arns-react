@@ -18,7 +18,7 @@
   min-height: 50px;
   max-height: 50px;
   color: var(--text-grey);
-  overflow: scroll;
+  overflow: auto;
 }
 
 .domain-settings-row-item-action {

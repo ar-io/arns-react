@@ -1,6 +1,5 @@
-import { ANT, AoArNSNameData, isLeasedArNSRecord } from '@ar.io/sdk/web';
+import { AoArNSNameData, isLeasedArNSRecord } from '@ar.io/sdk/web';
 import ManageAssetButtons from '@src/components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
-import { pLimit } from 'plimit-lit';
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 
@@ -21,11 +20,10 @@ import { ARNSTableRow } from '../../types';
 import { decodeDomainToASCII, formatDate, handleTableSort } from '../../utils';
 import { DEFAULT_MAX_UNDERNAMES } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
-
-const throttle = pLimit(20);
+import useARNS from '../useARNS';
 
 export function useWalletDomains() {
-  const [{ gateway, arweaveDataProvider }] = useGlobalState();
+  const [{ gateway }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [sortAscending, setSortAscending] = useState(true);
   const [sortField, setSortField] =
@@ -43,6 +41,7 @@ export function useWalletDomains() {
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const { path } = useParams();
+  const { result } = useARNS(walletAddress?.toString());
 
   if (searchRef.current && searchOpen) {
     searchRef.current.focus();
@@ -93,10 +92,7 @@ export function useWalletDomains() {
     try {
       setIsLoading(true);
       if (walletAddress) {
-        const processIds = await arweaveDataProvider.getContractsForWallet({
-          address: walletAddress,
-        });
-        const domainData = await fetchDomainData(processIds);
+        const domainData = await fetchDomainData();
         const newRows = await buildDomainRows(domainData, walletAddress);
         setRows(newRows);
       }
@@ -391,7 +387,7 @@ export function useWalletDomains() {
     ];
   }
 
-  async function fetchDomainData(ids: ArweaveTransactionID[]): Promise<
+  async function fetchDomainData(): Promise<
     {
       ant: {
         owner: string;
@@ -400,61 +396,48 @@ export function useWalletDomains() {
         ticker: string;
         undernameLimit: number;
       };
-      record: AoArNSNameData & { name: string };
+      record: AoArNSNameData & { name: string; processId: string };
     }[]
   > {
     setPercentLoaded(0);
     itemsLoaded.current = 0;
-    const processIds = new Set(ids);
+    const processIds = new Set(
+      Object.values(result.data.domains).map((record: any) => record.processId),
+    );
     try {
-      const registrations = await arweaveDataProvider.getRecords({
-        filters: { processId: [...processIds] },
-      });
-      const consolidatedRecords = Object.entries(registrations).map(
-        ([name, record]) => ({ ...record, name }),
-      );
+      const registrations = result.data.domains;
+      const consolidatedRecords: { name: string; processId: string }[] =
+        Object.entries(registrations).map(([name, record]: any) => ({
+          ...record,
+          name,
+        }));
 
       // based on # of contracts tied to names, not # of names
       itemCount.current = processIds.size;
 
-      const uniqueAntData = await Promise.all(
-        [...processIds].map((processId: ArweaveTransactionID) =>
-          throttle(async () => {
-            const contract = ANT.init({
-              processId: processId.toString(),
-            });
+      const uniqueAntData = [...processIds].map(
+        (processId: ArweaveTransactionID) => {
+          // fetch contract information
+          console.log(result.data);
+          const { owner, controllers, name, ticker, totalUndernames } = (
+            result.data.ants as any
+          )[processId.toString()];
 
-            // fetch contract information
-            const [owner, controllers, name, ticker, totalUndernames] =
-              await Promise.all([
-                contract.getOwner(),
-                contract.getControllers(),
-                contract.getName(),
-                contract.getTicker(),
-                contract
-                  .getRecords()
-                  .then(
-                    (records: Record<string, any>) =>
-                      Object.keys(records).length - 1,
-                  ),
-              ]);
+          // TODO: react strict mode makes this increment twice in dev
+          if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
+          setPercentLoaded(
+            Math.round((itemsLoaded.current / itemCount.current) * 100),
+          );
 
-            // TODO: react strict mode makes this increment twice in dev
-            if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
-            setPercentLoaded(
-              Math.round((itemsLoaded.current / itemCount.current) * 100),
-            );
-
-            return {
-              processId: processId.toString(),
-              owner,
-              controllers,
-              ticker,
-              name,
-              undernameLimit: totalUndernames,
-            };
-          }),
-        ),
+          return {
+            processId: processId.toString(),
+            owner,
+            controllers,
+            ticker,
+            name,
+            undernameLimit: totalUndernames,
+          };
+        },
       );
 
       const newDatas = consolidatedRecords.map((record) => {
@@ -470,7 +453,7 @@ export function useWalletDomains() {
         return { ant: antDataForRecord, record };
       });
 
-      return newDatas;
+      return newDatas as any;
     } catch (error) {
       console.error(error);
       return [];
@@ -493,43 +476,41 @@ export function useWalletDomains() {
     const fetchedRows: ARNSTableRow[] = [];
 
     try {
-      const rowData = await Promise.all(
-        data.map(
-          async (data: {
-            ant: {
-              owner: string;
-              controllers: string[];
-              name: string;
-              ticker: string;
-              undernameLimit: number;
-            };
-            record: AoArNSNameData & { name: string };
-          }) => {
-            return {
-              name: decodeDomainToASCII(data.record.name),
-              id: data.record.processId,
-              role:
-                // TODO: use a utility function in ar.io/sdk
-                data.ant.owner === walletAddress?.toString()
-                  ? 'Owner'
-                  : data.ant.controllers.includes(address.toString())
-                  ? 'Controller'
-                  : 'N/A',
-              expiration: isLeasedArNSRecord(data.record)
-                ? formatDate(data.record.endTimestamp)
-                : 'Indefinite',
-              startTimestamp: data.record.startTimestamp,
-              undernameSupport:
-                data.record?.undernameLimit ?? DEFAULT_MAX_UNDERNAMES,
-              undernameLimit: data.ant.undernameLimit,
-              undernameCount: `${data.ant.undernameLimit.toLocaleString()} / ${(
-                data.record?.undernameLimit ?? DEFAULT_MAX_UNDERNAMES
-              ).toLocaleString()}`,
-              key: `${data.record.name}-${data.record.processId}`,
-              errors: [],
-            };
-          },
-        ),
+      const rowData = data.map(
+        (data: {
+          ant: {
+            owner: string;
+            controllers: string[];
+            name: string;
+            ticker: string;
+            undernameLimit: number;
+          };
+          record: AoArNSNameData & { name: string };
+        }) => {
+          return {
+            name: decodeDomainToASCII(data.record.name),
+            id: data.record.processId,
+            role:
+              // TODO: use a utility function in ar.io/sdk
+              data.ant.owner === walletAddress?.toString()
+                ? 'Owner'
+                : data.ant.controllers.includes(address.toString())
+                ? 'Controller'
+                : 'N/A',
+            expiration: isLeasedArNSRecord(data.record)
+              ? formatDate(data.record.endTimestamp)
+              : 'Indefinite',
+            startTimestamp: data.record.startTimestamp,
+            undernameSupport:
+              data.record?.undernameLimit ?? DEFAULT_MAX_UNDERNAMES,
+            undernameLimit: data.ant.undernameLimit,
+            undernameCount: `${data.ant.undernameLimit.toLocaleString()} / ${(
+              data.record?.undernameLimit ?? DEFAULT_MAX_UNDERNAMES
+            ).toLocaleString()}`,
+            key: `${data.record.name}-${data.record.processId}`,
+            errors: [],
+          };
+        },
       );
       fetchedRows.push(...rowData);
     } catch (error) {
