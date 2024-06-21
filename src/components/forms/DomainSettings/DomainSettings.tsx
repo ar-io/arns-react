@@ -137,6 +137,7 @@ function DomainSettings({
                     ? getStatus(data.arnsRecord?.endTimestamp)
                     : 'Active'
                 }
+                key={DomainSettingsRowTypes.STATUS}
               />
             ),
             [DomainSettingsRowTypes.NICKNAME]: (
