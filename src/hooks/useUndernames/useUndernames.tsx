@@ -382,15 +382,20 @@ export function useUndernames(id?: ArweaveTransactionID, name?: string) {
     }).getRecords();
 
     const rows = Object.entries(undernames)
-      .map(([name, record]) => ({
-        name,
-        targetID: record.transactionId,
-        ttlSeconds: record.ttlSeconds,
-        status: 0,
-        key: name,
-      }))
-      .sort((a, b) => a.status - b.status);
-    setRows(rows);
+      .map(([name, record]) =>
+        name === '@'
+          ? undefined
+          : {
+              name,
+              targetID: record.transactionId,
+              ttlSeconds: record.ttlSeconds,
+              status: 0,
+              key: name,
+            },
+      )
+      .filter((row) => row !== undefined)
+      .sort((a, b) => a!.status - b!.status);
+    setRows(rows as UndernameMetadata[]);
     setIsLoading(false);
   }
 

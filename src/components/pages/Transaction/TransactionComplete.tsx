@@ -11,6 +11,7 @@ import {
 import {
   getARNSMappingByInteractionType,
   getLinkId,
+  isArweaveTransactionID,
 } from '../../../utils/transactionUtils/transactionUtils';
 import { ANTCard } from '../../cards';
 import ActionCard from '../../cards/ActionCard/ActionCard';
@@ -62,7 +63,7 @@ function TransactionComplete() {
     return <PageLoader loading={true} message={'Loading...'} />;
   }
 
-  const link = getLinkId(workflowName as ValidInteractionType, {
+  const link = getLinkId(localData.interactionType as ValidInteractionType, {
     ...localData.transactionData,
     deployedTransactionId: localData.interactionResult.id,
   }).trim();
@@ -100,7 +101,11 @@ function TransactionComplete() {
             }}
           >
             <ActionCard
-              to={`/manage/ants/${link}`}
+              to={
+                isArweaveTransactionID(link)
+                  ? `/manage/ants/${link}`
+                  : `/manage/names/${link}`
+              }
               body={
                 <div
                   className="flex flex-column center"
@@ -112,7 +117,11 @@ function TransactionComplete() {
               }
             />
             <ActionCard
-              to={`/manage/ants/${link}/undernames`}
+              to={
+                isArweaveTransactionID(link)
+                  ? `/manage/ants/${link}/undernames`
+                  : `/manage/names/${link}/undernames`
+              }
               body={
                 <div
                   className="flex flex-column center"

@@ -1,4 +1,4 @@
-import { mIOToken } from '@ar.io/sdk/web';
+import { IOToken, mIOToken } from '@ar.io/sdk/web';
 import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
@@ -58,7 +58,7 @@ function NavMenuCard() {
       .getBalance({
         address: walletAddress.toString(),
       })
-      .then((balance) => new mIOToken(balance).toIO().valueOf());
+      .then((balance) => new IOToken(balance).valueOf());
     const arBalance = await arweaveDataProvider.getArBalance(walletAddress);
     const [formattedBalance, formattedIOBalance] = [arBalance, ioBalance].map(
       (balance: string | number) =>

@@ -87,20 +87,22 @@ export default function useDomainInfo({
       }),
     );
 
-    const [name, ticker, owner, controllers, undernameCount, apexRecord] =
-      await Promise.all([
-        antProcess.getName(),
-        antProcess.getTicker(),
-        antProcess.getOwner(),
-        antProcess.getControllers(),
-        antProcess
-          .getRecords()
-          .then(
-            (r: Record<string, any>) =>
-              Object.keys(r).filter((k) => k !== '@').length,
-          ),
-        antProcess.getRecord({ undername: '@' }),
-      ]);
+    const [
+      { Name: name, Ticker: ticker, Owner: owner },
+      controllers,
+      undernameCount,
+      apexRecord,
+    ] = await Promise.all([
+      antProcess.getInfo(),
+      antProcess.getControllers(),
+      antProcess
+        .getRecords()
+        .then(
+          (r: Record<string, any>) =>
+            Object.keys(r).filter((k) => k !== '@').length,
+        ),
+      antProcess.getRecord({ undername: '@' }),
+    ]);
 
     if (!apexRecord) {
       throw new Error('No apexRecord found');

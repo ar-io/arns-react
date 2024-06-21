@@ -170,7 +170,7 @@ function DomainSettings({
             ),
             [DomainSettingsRowTypes.TARGET_ID]: (
               <TargetIDRow
-                targetId={data.apexRecord.transactionId}
+                targetId={data?.apexRecord?.transactionId}
                 key={DomainSettingsRowTypes.TARGET_ID}
                 confirm={(targetId: string) =>
                   dispatchANTInteraction({
@@ -248,13 +248,13 @@ function DomainSettings({
             ),
             [DomainSettingsRowTypes.TTL]: (
               <TTLRow
-                ttlSeconds={data.apexRecord.ttlSeconds}
+                ttlSeconds={data.apexRecord?.ttlSeconds}
                 key={DomainSettingsRowTypes.TTL}
                 confirm={(ttlSeconds: number) =>
                   dispatchANTInteraction({
                     payload: {
                       ttlSeconds,
-                      transactionId: data.apexRecord.transactionId,
+                      transactionId: data.apexRecord?.transactionId,
                     },
                     workflowName: ANT_INTERACTION_TYPES.SET_TTL_SECONDS,
                     signer: wallet.arconnectSigner!,

@@ -1,4 +1,4 @@
-import { ANT } from '@ar.io/sdk/web';
+import { ANT, AoANTRead } from '@ar.io/sdk/web';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
@@ -81,10 +81,12 @@ function Undernames() {
 
     setAction(action);
 
-    if (id && walletAddress) {
-      getOwnershipStatus(id, walletAddress?.toString()).then((status) =>
-        setOwnershipStatus(status),
-      );
+    if (data.owner && data.controllers && walletAddress) {
+      getOwnershipStatus(
+        data.owner,
+        data.controllers,
+        walletAddress.toString(),
+      ).then((status) => setOwnershipStatus(status));
     }
 
     if (
@@ -105,20 +107,14 @@ function Undernames() {
     selectedUndernameRow,
     action,
     undernameRows,
+    walletAddress,
   ]);
 
   async function getOwnershipStatus(
-    id: string,
+    owner: string,
+    controllers: string[],
     walletAddress: string,
   ): Promise<'controller' | 'owner' | undefined> {
-    const ant = ANT.init({
-      processId: id,
-    });
-    const [owner, controllers] = await Promise.all([
-      ant.getOwner(),
-      ant.getControllers(),
-    ]);
-
     if (owner === walletAddress) {
       return 'owner';
     }

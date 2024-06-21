@@ -34,7 +34,7 @@ import PageLoader from '../progress/PageLoader/PageLoader';
 
 function ExtendLease() {
   // TODO: remove use of source contract
-  const [{ arweaveDataProvider, ioTicker, arioContract }] = useGlobalState();
+  const [{ ioTicker, arioContract }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const location = useLocation();
@@ -75,20 +75,18 @@ function ExtendLease() {
   async function onLoad(domain: string) {
     try {
       // TODO: make this generic so we get back the correct type
-      const domainRecord = await arweaveDataProvider.getRecord({
-        domain,
+
+      const domainRecord = await arioContract.getArNSRecord({
+        name: domain,
       });
+      console.log({ domainRecord });
       if (!domainRecord) {
-        throw new Error(`Unable to get record for ${name}`);
+        throw new Error(`Unable to get record for ${domain}`);
       }
       setRegistrationType(domainRecord.type as TRANSACTION_TYPES);
       setRecord(domainRecord);
 
-      if (!record) {
-        throw new Error(`Unable to get record for ${name}`);
-      }
-
-      if (!isLeasedArNSRecord(record)) {
+      if (!isLeasedArNSRecord(domainRecord)) {
         setRegistrationType(TRANSACTION_TYPES.BUY);
         return;
       }
@@ -98,7 +96,9 @@ function ExtendLease() {
         throw new Error('Wallet address not found');
       }
 
-      const balance = await arweaveDataProvider.getTokenBalance(walletAddress);
+      const balance = await arioContract.getBalance({
+        address: walletAddress.toString(),
+      });
       setIoBalance(balance ?? 0);
 
       setMaxIncrease(
@@ -106,11 +106,8 @@ function ExtendLease() {
           0,
           MAX_LEASE_DURATION -
             getLeaseDurationFromEndTimestamp(
-              // TODO: remove this when state in contract is fixed. (currently was backfilled incorrectly with ms timestamps)
-              domainRecord.startTimestamp > record.endTimestamp
-                ? domainRecord.startTimestamp
-                : domainRecord.startTimestamp,
-              record.endTimestamp,
+              domainRecord.startTimestamp,
+              domainRecord.endTimestamp,
             ),
         ),
       );

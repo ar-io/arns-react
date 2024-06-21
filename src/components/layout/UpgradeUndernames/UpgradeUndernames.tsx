@@ -26,7 +26,7 @@ function UpgradeUndernames() {
   const isMobile = useIsMobile();
   const location = useLocation();
   const navigate = useNavigate();
-  const [{ arweaveDataProvider, ioTicker }] = useGlobalState();
+  const [{ arweaveDataProvider, ioTicker, arioContract }] = useGlobalState();
   const name = location.pathname.split('/').at(-2);
   const [, dispatchTransactionState] = useTransactionState();
   const [record, setRecord] = useState<AoArNSNameData>();
@@ -58,7 +58,12 @@ function UpgradeUndernames() {
         );
       }
       // TODO; implement
-      const price = 0;
+      const price = await arioContract.getTokenCost({
+        intent: 'IncreaseUndernameLimit',
+        name: lowerCaseDomain(name),
+        quantity: newUndernameCount,
+      });
+      console.log(price);
       setFee(price);
     };
 

@@ -668,32 +668,18 @@ export function getLinkId(
   interactionType: ValidInteractionType,
   transactionData: TransactionData,
 ): string {
-  const isBuyRecord =
-    interactionType === ARNS_INTERACTION_TYPES.BUY_RECORD &&
-    isObjectOfTransactionPayloadType<BuyRecordPayload>(
-      transactionData,
-      TRANSACTION_DATA_KEYS[INTERACTION_TYPES.BUY_RECORD].keys,
-    );
+  const isBuyRecord = interactionType === ARNS_INTERACTION_TYPES.BUY_RECORD;
 
-  const isExtendLease =
-    interactionType === ARNS_INTERACTION_TYPES.EXTEND_LEASE &&
-    isObjectOfTransactionPayloadType<ExtendLeasePayload>(
-      transactionData,
-      TRANSACTION_DATA_KEYS[INTERACTION_TYPES.EXTEND_LEASE].keys,
-    );
+  const isExtendLease = interactionType === ARNS_INTERACTION_TYPES.EXTEND_LEASE;
 
   const isIncreaseUndernames =
-    interactionType === ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES &&
-    isObjectOfTransactionPayloadType<IncreaseUndernamesPayload>(
-      transactionData,
-      TRANSACTION_DATA_KEYS[INTERACTION_TYPES.INCREASE_UNDERNAMES].keys,
-    );
+    interactionType === ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES;
 
   if (isBuyRecord || isExtendLease || isIncreaseUndernames) {
-    if (!transactionData.processId) {
+    if (!(transactionData as any).processId) {
       throw new Error('No processId found');
     }
-    return transactionData.processId?.toString();
+    return (transactionData as any).name?.toString();
   }
 
   return transactionData.assetId.toString();
