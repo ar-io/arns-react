@@ -21,7 +21,7 @@ import { getTransactionCompleteAnnouncement } from './transaction-announcements'
 
 function TransactionComplete() {
   const [
-    { interactionResult, interactionType, workflowName, transactionData },
+    { interactionResult, interactionType, transactionData },
     dispatchTransactionState,
   ] = useTransactionState();
   const navigate = useNavigate();

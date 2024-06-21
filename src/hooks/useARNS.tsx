@@ -1,10 +1,7 @@
 import { ANT } from '@ar.io/sdk/web';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
-import { pLimit } from 'plimit-lit';
 
 import { useGlobalState } from '../state/contexts/GlobalState';
-
-const throttle = pLimit(5);
 
 // if wallet provided, use it to fetch ARNS assets for the wallet, else fetch all
 function useARNS(walletAddress?: string) {

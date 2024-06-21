@@ -1,4 +1,3 @@
-import { useTransactionState } from '@src/state/contexts/TransactionState';
 import { useEffect, useRef } from 'react';
 
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
@@ -14,13 +13,9 @@ function TransactionSuccessCard({
   close?: () => void;
   title?: string;
 }) {
-  const [_, dispatchTransactionState] = useTransactionState();
   const cardRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     cardRef.current?.scrollIntoView({ behavior: 'smooth' });
-    window.onbeforeunload = () => {
-      dispatchTransactionState({ type: 'reset' });
-    };
   }, [txId, cardRef]);
 
   return (

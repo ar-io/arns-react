@@ -1,7 +1,6 @@
 import {
   AoArNSNameData,
   AoIORead,
-  IOToken,
   getANTProcessesOwnedByWallet,
   mIOToken,
 } from '@ar.io/sdk/web';
@@ -159,6 +158,6 @@ export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
       .getBalance({
         address: address.toString(),
       })
-      .then((balance) => new IOToken(balance).valueOf());
+      .then((balance) => new mIOToken(balance).toIO().valueOf());
   }
 }

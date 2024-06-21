@@ -1,4 +1,3 @@
-import useARNS from '@src/hooks/useARNS';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
