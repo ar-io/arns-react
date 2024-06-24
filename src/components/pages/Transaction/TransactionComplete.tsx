@@ -49,6 +49,7 @@ function TransactionComplete() {
           transactionData: {
             ...transactionData,
             deployedTransactionId: interactionResult?.id,
+            processId: interactionResult?.payload.processId,
           } as TransactionData,
         }) as ARNSMapping,
       );

@@ -17,7 +17,6 @@ function useARNS(walletAddress?: string) {
       const processIds: string[] = [
         ...new Set(Object.values(records).map((record) => record.processId)),
       ].filter((processId) => processId !== undefined);
-      console.log(processIds);
       // process ANT data for each processId
       const antDatas = await Promise.all(
         processIds.map(async (processId: string) => {

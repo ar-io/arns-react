@@ -74,6 +74,7 @@ function ANTCard({
   deployedTransactionId,
   mobileView,
   bordered = false,
+  state,
 }: ARNSMapping) {
   const isMobile = useIsMobile();
   const [antDetails, setANTDetails] = useState<{ [x: string]: any }>();
@@ -85,7 +86,11 @@ function ANTCard({
     name,
     controllers = [],
     records,
-  } = useANT(processId.toString());
+  } = {
+    ...useANT(processId.toString()),
+    ...(processId.toString() === 'atomic' ? state : {}),
+  };
+
   const [limitDetails, setLimitDetails] = useState<boolean>(true);
   const mappedKeys = DEFAULT_PRIMARY_KEYS.map((key: AntDetailKey) =>
     mapKeyToAttribute(key),

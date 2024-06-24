@@ -249,6 +249,7 @@ export function getARNSMappingByInteractionType(
           maxUndernames: `Up to ${DEFAULT_MAX_UNDERNAMES}`,
           leaseDuration: years,
         },
+        state: transactionData.state,
       };
     }
 

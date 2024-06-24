@@ -21,6 +21,7 @@ import {
 import {
   encodeDomainToASCII,
   formatDate,
+  generateAtomicState,
   isArweaveTransactionID,
   userHasSufficientBalance,
 } from '../../../utils';
@@ -191,11 +192,12 @@ function RegisterNameForm() {
       setValidatingNext(false);
     }
 
+    const name =
+      domain && emojiRegex().test(domain)
+        ? encodeDomainToASCII(domain)
+        : domain;
     const buyRecordPayload: BuyRecordPayload = {
-      name:
-        domain && emojiRegex().test(domain)
-          ? encodeDomainToASCII(domain)
-          : domain,
+      name,
       processId: antID?.toString() ?? 'atomic',
       // TODO: move this to a helper function
       years:
@@ -204,6 +206,7 @@ function RegisterNameForm() {
           : undefined,
       type: registrationType,
       targetId,
+      state: generateAtomicState(name, walletAddress, targetId),
     };
 
     dispatchTransactionState({

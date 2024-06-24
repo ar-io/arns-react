@@ -81,7 +81,6 @@ function ExtendLease() {
       const domainRecord = await arioContract.getArNSRecord({
         name: domain,
       });
-      console.log({ domainRecord });
       if (!domainRecord) {
         throw new Error(`Unable to get record for ${domain}`);
       }

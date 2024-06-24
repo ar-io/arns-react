@@ -418,7 +418,6 @@ export function useWalletDomains() {
       const uniqueAntData = [...processIds].map(
         (processId: ArweaveTransactionID) => {
           // fetch contract information
-          console.log(result.data);
           const { owner, controllers, name, ticker, totalUndernames } = (
             result.data.ants as any
           )[processId.toString()];

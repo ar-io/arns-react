@@ -1,4 +1,4 @@
-import { AoArNSNameData, ArconnectSigner } from '@ar.io/sdk/web';
+import { ANTState, AoArNSNameData, ArconnectSigner } from '@ar.io/sdk/web';
 import { ApiConfig } from 'arweave/node/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
 
@@ -60,6 +60,7 @@ export type ARNSMapping = {
   deployedTransactionId?: ArweaveTransactionID | string;
   mobileView?: boolean;
   bordered?: boolean;
+  state?: ANTState;
 };
 
 export type ARNSMetaData = {
@@ -345,6 +346,7 @@ export type BuyRecordPayload = {
   type: TRANSACTION_TYPES;
   qty?: number; // the cost displayed to the user when buying a record
   targetId?: ArweaveTransactionID;
+  state?: ANTState;
 };
 
 export type ExtendLeasePayload = {

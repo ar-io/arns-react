@@ -8,16 +8,11 @@ import {
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
 import { ARNS_INTERACTION_TYPES, ContractInteraction } from '@src/types';
-import { generateAtomicState } from '@src/utils';
 import { WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Dispatch } from 'react';
 
 const LUA_CODE_TX_ID = 'sUmUX2EqBBaree0NXXvY_GNcFhkycFdbGApmUXjpLsM';
-/**
- *
- * @param arweaveCompositeProvider - Temporary while the ArIO sdk does not support certain interactions
- */
 export default async function dispatchArIOInteraction({
   payload,
   workflowName,
@@ -48,11 +43,11 @@ export default async function dispatchArIOInteraction({
     switch (workflowName) {
       case ARNS_INTERACTION_TYPES.BUY_RECORD: {
         const { name, type, years } = payload;
-        let processId = payload.processId;
+        let antProcessId: string = payload.processId;
 
-        if (payload.processId === 'atomic') {
-          processId = await spawnANT({
-            state: generateAtomicState(payload.name, owner, payload.targetId),
+        if (antProcessId === 'atomic') {
+          antProcessId = await spawnANT({
+            state: payload.state,
             signer: signer,
             luaCodeTxId: LUA_CODE_TX_ID,
           });
@@ -62,8 +57,10 @@ export default async function dispatchArIOInteraction({
           name,
           type,
           years,
-          processId: processId,
+          processId: antProcessId,
         });
+
+        payload.processId = antProcessId;
 
         result = buyRecordResult;
         functionName = AR_IO_CONTRACT_FUNCTIONS.BUY_RECORD;
