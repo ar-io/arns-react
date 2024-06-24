@@ -81,12 +81,14 @@ function RegisterNameForm() {
         payload: { ar: 0, [ioTicker]: undefined },
       });
 
-      const cost = await arioContract.getTokenCost({
-        intent: 'BuyRecord',
-        name: domain,
-        purchaseType: registrationType,
-        years: leaseDuration,
-      });
+      const cost = await arioContract
+        .getTokenCost({
+          intent: 'BuyRecord',
+          name: domain,
+          purchaseType: registrationType,
+          years: leaseDuration,
+        })
+        .then((c) => new mIOToken(c).toIO().valueOf());
 
       dispatchRegisterState({
         type: 'setFee',

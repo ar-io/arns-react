@@ -107,7 +107,7 @@ export default function useDomainInfo({
     if (!apexRecord) {
       throw new Error('No apexRecord found');
     }
-
+    console.log(record);
     return {
       arnsRecord: record,
       associatedNames,

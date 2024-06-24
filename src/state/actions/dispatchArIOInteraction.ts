@@ -12,7 +12,7 @@ import { WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Dispatch } from 'react';
 
-const LUA_CODE_TX_ID = '45xZyI2JDmxHe1lvNQCQBdXprrY0KU6hpzJbOfaEJPc';
+const LUA_CODE_TX_ID = 'BI5Ww2k6MDsW_N6CV5LkYkOt9EYwZI-JsRX2_91nsFw';
 
 /**
  *
@@ -47,25 +47,20 @@ export default async function dispatchArIOInteraction({
     });
     switch (workflowName) {
       case ARNS_INTERACTION_TYPES.BUY_RECORD: {
+        const { name, type, years } = payload;
         let processId = payload.processId;
-        // TODO: Replace this once the ArIO SDK supports this interaction
+
         if (payload.processId === 'atomic') {
-          // const aoSigner = await AOProcess.createAoSigner(
-          //   signer,
-          // );
           processId = await spawnANT({
             signer: signer,
             luaCodeTxId: LUA_CODE_TX_ID,
           });
-
-          // // spawn an ao process
-          // processId = 'SPAWN-AO-PROCESS-FOR-USING-A-VALID-AOMODULE';
         }
 
         const buyRecordResult = await arioContract.buyRecord({
-          name: payload.name,
-          type: payload.type,
-          years: payload.years,
+          name,
+          type,
+          years,
           processId: processId,
         });
 
