@@ -8,6 +8,7 @@ import {
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
 import { ARNS_INTERACTION_TYPES, ContractInteraction } from '@src/types';
+import { generateAtomicState } from '@src/utils';
 import { WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Dispatch } from 'react';
@@ -52,6 +53,7 @@ export default async function dispatchArIOInteraction({
 
         if (payload.processId === 'atomic') {
           processId = await spawnANT({
+            state: generateAtomicState(payload.name, owner, payload.targetId),
             signer: signer,
             luaCodeTxId: LUA_CODE_TX_ID,
           });

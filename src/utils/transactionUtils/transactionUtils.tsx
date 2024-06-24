@@ -704,14 +704,22 @@ export async function validateTTLSeconds(ttl: number): Promise<void> {
 export function generateAtomicState(
   domain: string,
   walletAddress: ArweaveTransactionID,
+  targetId?: ArweaveTransactionID,
 ) {
+  const records = { ...DEFAULT_ANT_CONTRACT_STATE.records };
+
+  if (targetId) {
+    records['@'].transactionId = targetId.toString();
+  }
+
   return {
     ...DEFAULT_ANT_CONTRACT_STATE,
-    name: `ANT-${domain.toUpperCase()}`,
-    ticker: 'ANT',
+    name: domain,
+    ticker: `ANT-${domain.toUpperCase()}`,
     owner: walletAddress.toString(),
     controllers: [walletAddress.toString()],
     balances: { [walletAddress.toString()]: 1 },
+    records,
   };
 }
 
