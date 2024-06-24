@@ -1,4 +1,4 @@
-import { AoArNSNameData, isLeasedArNSRecord } from '@ar.io/sdk/web';
+import { AoArNSNameData, isLeasedArNSRecord, mIOToken } from '@ar.io/sdk/web';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -62,11 +62,13 @@ function ExtendLease() {
 
     setIoFee(undefined);
     const updateIoFee = async () => {
-      const price = await arioContract.getTokenCost({
-        intent: 'ExtendLease',
-        name: name,
-        years: newLeaseDuration,
-      });
+      const price = await arioContract
+        .getTokenCost({
+          intent: 'ExtendLease',
+          name: name,
+          years: newLeaseDuration,
+        })
+        .then((p) => new mIOToken(p).toIO().valueOf());
       setIoFee(price);
     };
     updateIoFee();

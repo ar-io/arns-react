@@ -1,4 +1,4 @@
-import { ANT, AoArNSNameData } from '@ar.io/sdk/web';
+import { ANT, AoArNSNameData, mIOToken } from '@ar.io/sdk/web';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -58,12 +58,13 @@ function UpgradeUndernames() {
         );
       }
       // TODO; implement
-      const price = await arioContract.getTokenCost({
-        intent: 'IncreaseUndernameLimit',
-        name: lowerCaseDomain(name),
-        quantity: newUndernameCount,
-      });
-      console.log(price);
+      const price = await arioContract
+        .getTokenCost({
+          intent: 'IncreaseUndernameLimit',
+          name: lowerCaseDomain(name),
+          quantity: newUndernameCount,
+        })
+        .then((p) => new mIOToken(p).toIO().valueOf());
       setFee(price);
     };
 

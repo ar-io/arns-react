@@ -41,7 +41,7 @@ export function useWalletDomains() {
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const { path } = useParams();
-  const { result } = useARNS(walletAddress?.toString());
+  const { result, invalidate } = useARNS(walletAddress?.toString());
 
   if (searchRef.current && searchOpen) {
     searchRef.current.focus();
@@ -534,6 +534,6 @@ export function useWalletDomains() {
     sortField,
     sortAscending,
     selectedRow,
-    refresh: load,
+    refresh: invalidate,
   };
 }
