@@ -13,8 +13,7 @@ import { WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Dispatch } from 'react';
 
-const LUA_CODE_TX_ID = 'c4-NodvKhnK6n0ztdHkCtqmVMNvBytB6bj0ZtSVjcCU';
-
+const LUA_CODE_TX_ID = 'MG9R2zCBRI_YKPhiCEzfIFYP0OnI96TPcJyoOM-Lp1o';
 /**
  *
  * @param arweaveCompositeProvider - Temporary while the ArIO sdk does not support certain interactions
