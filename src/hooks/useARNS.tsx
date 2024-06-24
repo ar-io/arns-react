@@ -43,7 +43,9 @@ function useARNS(walletAddress?: string) {
               processId,
               owner,
               controllers,
-              totalUndernames: Object.keys(undernames).length,
+              totalUndernames: Object.keys(undernames).filter(
+                (key) => key !== '@',
+              ).length,
               ticker,
               name,
             };
