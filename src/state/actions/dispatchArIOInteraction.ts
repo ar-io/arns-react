@@ -13,7 +13,7 @@ import { WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Dispatch } from 'react';
 
-const LUA_CODE_TX_ID = '3OlGzE5mrsN2GsxCYM0Tae1KzWepGOr5a94deOWmApM';
+const LUA_CODE_TX_ID = 'c4-NodvKhnK6n0ztdHkCtqmVMNvBytB6bj0ZtSVjcCU';
 
 /**
  *
