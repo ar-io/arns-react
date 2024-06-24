@@ -8,7 +8,10 @@ import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../../state/contexts/WalletState';
 import { VALIDATION_INPUT_TYPES } from '../../../../types';
 import { isArweaveTransactionID } from '../../../../utils';
-import { SMARTWEAVE_MAX_INPUT_SIZE } from '../../../../utils/constants';
+import {
+  ARWEAVE_TX_LENGTH,
+  SMARTWEAVE_MAX_INPUT_SIZE,
+} from '../../../../utils/constants';
 import eventEmitter from '../../../../utils/events';
 import { CloseIcon, HamburgerOutlineIcon } from '../../../icons';
 import { Loader } from '../../../layout';
@@ -105,13 +108,15 @@ function NameTokenSelector({
       if (!address) {
         throw new Error('No address provided');
       }
-      const fetchedprocessIds = await arweaveDataProvider
-        .getContractsForWallet({
-          address,
-        })
-        .catch(() => {
-          throw new Error('Unable to get contracts for wallet');
-        });
+
+      const fetchedprocessIds: Array<ArweaveTransactionID> = [];
+      // const fetchedprocessIds = await arweaveDataProvider
+      //   .getContractsForWallet({
+      //     address,
+      //   })
+      //   .catch(() => {
+      //     throw new Error('Unable to get contracts for wallet');
+      //   });
 
       const validImports = imports.length
         ? await Promise.all(
@@ -125,7 +130,7 @@ function NameTokenSelector({
 
                 // TODO: further validate that contract exists and has valid state
 
-                if (!contract || info) {
+                if (!contract || !info) {
                   throw new Error('Unable to get contract');
                 }
 
@@ -358,14 +363,14 @@ function NameTokenSelector({
         <ValidationInput
           inputId="name-token-input"
           onClick={() => setSearchActive(true)}
-          showValidationIcon={validImport !== undefined}
+          showValidationIcon={true}
           setValue={(v) =>
             handleTokenSearch(
               v.length === SMARTWEAVE_MAX_INPUT_SIZE ? v.trim() : v,
             )
           }
           value={searchText ?? ''}
-          maxCharLength={SMARTWEAVE_MAX_INPUT_SIZE}
+          maxCharLength={ARWEAVE_TX_LENGTH}
           placeholder={
             selectedToken
               ? selectedToken.name?.length
@@ -375,8 +380,9 @@ function NameTokenSelector({
           }
           validationPredicates={{
             [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
-              fn: async (id: string) =>
-                Promise.resolve(isArweaveTransactionID(id)),
+              fn: (id: string) => {
+                return arweaveDataProvider.validateArweaveId(id);
+              },
             },
           }}
           validityCallback={(validity) => validity}
