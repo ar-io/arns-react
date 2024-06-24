@@ -140,7 +140,9 @@ export function useWalletDomains() {
           <a
             className="link"
             target="_blank"
-            href={`https://${name}.${gateway}`}
+            href={`https://${name}.${
+              gateway === 'arweave.net' ? 'ar-io.dev' : gateway
+            }`}
             rel="noreferrer"
           >
             {name}
