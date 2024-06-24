@@ -216,10 +216,6 @@ export const DEFAULT_ARNS_REGISTRY_STATE: ARNSContractJSON = {
   approvedANTSourceCodeTxs: [],
 };
 
-export const WARP_CONTRACT_BASE_URL = 'https://sonar.warp.cc/#/app/contract/';
-export const WARP_INTERACTION_BASE_URL =
-  'https://sonar.warp.cc/#/app/interaction/';
-
 export const RESERVED_BREADCRUMB_TITLES = new Set([
   'Manage Assets',
   'Increase Undernames',

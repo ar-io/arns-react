@@ -166,13 +166,14 @@ function ANTCard({
   }
 
   function handleLinkType(key: string) {
-    if (key === 'Controllers' || key === 'Owner') {
+    if (key === 'Controller(s)' || key === 'Owner') {
       return ArweaveIdTypes.ADDRESS;
-    }
-    if (key === 'Process ID') {
+    } else if (key === 'Process ID') {
       return ArweaveIdTypes.CONTRACT;
+    } else if (key === 'Target ID') {
+      return ArweaveIdTypes.TRANSACTION;
     }
-    return ArweaveIdTypes.TRANSACTION;
+    return ArweaveIdTypes.INTERACTION;
   }
 
   if (isLoading || loading) {
