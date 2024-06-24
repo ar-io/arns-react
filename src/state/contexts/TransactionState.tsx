@@ -1,9 +1,18 @@
 import PageLoader from '@src/components/layout/progress/PageLoader/PageLoader';
-import { Dispatch, createContext, useContext, useReducer } from 'react';
+import { rootKey } from '@src/hooks/useARNS';
+import { useQueryClient } from '@tanstack/react-query';
+import {
+  Dispatch,
+  createContext,
+  useContext,
+  useEffect,
+  useReducer,
+} from 'react';
 
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { ExcludedValidInteractionType, TransactionData } from '../../types';
 import { TransactionAction } from '../reducers/TransactionReducer';
+import { useWalletState } from './WalletState';
 
 export type TransactionState = {
   deployedTransactionId?: ArweaveTransactionID;
@@ -41,6 +50,17 @@ export default function TransactionStateProvider({
     reducer,
     initialTransactionState,
   );
+
+  const queryClient = useQueryClient();
+  const [walletAddress] = useWalletState();
+  useEffect(() => {
+    if (walletAddress && queryClient && state.interactionResult) {
+      queryClient.invalidateQueries({
+        queryKey: [rootKey, walletAddress.toString()],
+      });
+    }
+  }, [state.interactionResult, queryClient, walletAddress]);
+
   /**
    * TODO: cache workflows in case connection lost, gives ability to continue interrupted workflows. To cache, simply add state as the value under a timestamp key.
    * TODO: prompt user if they want to continue a workflow, if no, clear workflow from cache

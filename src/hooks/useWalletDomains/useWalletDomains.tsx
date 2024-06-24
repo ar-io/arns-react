@@ -49,7 +49,7 @@ export function useWalletDomains() {
 
   useEffect(() => {
     load();
-  }, [walletAddress]);
+  }, [walletAddress, result.data]);
 
   useEffect(() => {
     const searchQuery = searchParams.get('search');
@@ -526,7 +526,8 @@ export function useWalletDomains() {
   }
 
   return {
-    isLoading,
+    isLoading:
+      isLoading || result.isRefetching || result.isLoading || result.isFetching,
     percent,
     columns: generateTableColumns(),
     rows: searchText.length && searchOpen ? filteredResults : rows,

@@ -1,3 +1,4 @@
+import { useWalletState } from '@src/state/contexts/WalletState';
 import { ARIO_DISCORD_LINK } from '@src/utils/constants';
 import { Table } from 'antd';
 import { useEffect, useState } from 'react';
@@ -16,6 +17,8 @@ function Manage() {
   const { path } = useParams();
   const location = useLocation();
 
+  const [{ walletAddress }] = useWalletState();
+
   const [percent, setPercentLoaded] = useState<number | undefined>();
   const {
     isLoading: antTableLoading,
@@ -24,7 +27,7 @@ function Manage() {
     rows: antRows,
     sortAscending: antSortAscending,
     sortField: antSortField,
-    refresh: refreshDomains,
+    refresh: refreshANTs,
   } = useWalletANTs();
   const {
     isLoading: domainTableLoading,
@@ -33,7 +36,7 @@ function Manage() {
     rows: domainRows,
     sortAscending: domainSortAscending,
     sortField: domainSortField,
-    refresh: refreshANTs,
+    refresh: refreshDomains,
   } = useWalletDomains();
 
   const [tableLoading, setTableLoading] = useState(true);
@@ -192,7 +195,9 @@ function Manage() {
                   : 'button center pointer'
               }
               onClick={() =>
-                path === 'ants' ? refreshANTs() : refreshDomains()
+                path === 'ants'
+                  ? refreshANTs()
+                  : refreshDomains(walletAddress?.toString())
               }
               style={{
                 position: 'absolute',

@@ -3,9 +3,10 @@ import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 
 import { useGlobalState } from '../state/contexts/GlobalState';
 
+export const rootKey = 'arns-assets';
+
 // if wallet provided, use it to fetch ARNS assets for the wallet, else fetch all
 function useARNS(walletAddress?: string) {
-  const rootKey = 'arns-assets';
   const [{ arioContract }] = useGlobalState();
   const queryClient = useQueryClient();
   const res = useSuspenseQuery({
@@ -81,16 +82,11 @@ function useARNS(walletAddress?: string) {
   async function invalidate(address?: string) {
     queryClient.invalidateQueries({
       queryKey: [rootKey, address],
+      refetchType: 'all',
     });
   }
 
-  async function refetch(address?: string) {
-    queryClient.refetchQueries({
-      queryKey: [rootKey, address],
-    });
-  }
-
-  return { result: res, invalidate, refetch };
+  return { result: res, invalidate };
 }
 
 export default useARNS;
