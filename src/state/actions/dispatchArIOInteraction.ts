@@ -12,7 +12,7 @@ import { WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Dispatch } from 'react';
 
-const LUA_CODE_TX_ID = 'sUmUX2EqBBaree0NXXvY_GNcFhkycFdbGApmUXjpLsM';
+const LUA_CODE_TX_ID = 'g58jI1db4VNi8KsceIEa5qQRMkicKCMjRr9M7fBxeYo';
 export default async function dispatchArIOInteraction({
   payload,
   workflowName,
