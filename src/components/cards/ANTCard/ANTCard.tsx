@@ -166,7 +166,7 @@ function ANTCard({
   }
 
   function handleLinkType(key: string) {
-    if (key === 'Controller(s)' || key === 'Owner') {
+    if (key === 'Controller(s)' || key === 'Owner' || key === 'New Owner') {
       return ArweaveIdTypes.ADDRESS;
     } else if (key === 'Process ID') {
       return ArweaveIdTypes.CONTRACT;
