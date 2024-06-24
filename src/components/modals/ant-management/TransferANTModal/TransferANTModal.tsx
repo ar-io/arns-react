@@ -22,7 +22,7 @@ function TransferANTModal({
   payloadCallback,
   associatedNames,
 }: {
-  antId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
+  antId: ArweaveTransactionID; // process ID if asset type is a contract interaction
   closeModal: () => void;
   payloadCallback: (payload: TransferANTPayload) => void;
   associatedNames: string[];
@@ -65,7 +65,7 @@ function TransferANTModal({
             style={{ fontSize: '14px', maxWidth: '575px' }}
           >
             <div className="flex flex-column" style={{ gap: '10px' }}>
-              <span className="grey">Contract ID:</span>
+              <span className="grey">Process ID:</span>
               <span className="white">{antId.toString()}</span>
             </div>
             <div className="flex flex-column" style={{ gap: '10px' }}>

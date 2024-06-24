@@ -197,7 +197,7 @@ export function useWalletDomains() {
               sortRows('id', !sortAscending);
             }}
           >
-            <span>Contract ID</span>{' '}
+            <span>Process ID</span>{' '}
             <ChevronUpIcon
               width={10}
               height={10}

@@ -468,7 +468,7 @@ function NameTokenSelector({
                 padding: '15px',
               }}
               title={
-                'You can import an ANT by entering its contract ID, or search for one of your own by name, ticker, owner, or controller status, as well is its own contract ID'
+                'You can import an ANT by entering its process ID, or search for one of your own by name, ticker, owner, or controller status, as well is its own process ID'
               }
             >
               Optional

@@ -28,7 +28,7 @@ function EditUndernameModal({
   closeModal,
   payloadCallback,
 }: {
-  antId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
+  antId: ArweaveTransactionID; // process ID if asset type is a contract interaction
   undername: string;
   closeModal: () => void;
   payloadCallback: (payload: SetRecordPayload) => void;
