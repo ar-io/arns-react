@@ -29,13 +29,17 @@ function RemoveControllersModal({
   >([]);
   const [tablePage, setTablePage] = useState<number>(1);
   const { name = 'N/A' } = useANT(antId.toString());
-  const [rows, setRows] = useState<ArweaveTransactionID[]>(
-    controllers.map((controller) => new ArweaveTransactionID(controller)),
+  const [rows, setRows] = useState<{ controller: ArweaveTransactionID }[]>(
+    controllers.map((controller) => ({
+      controller: new ArweaveTransactionID(controller),
+    })),
   );
 
   useEffect(() => {
     setRows(
-      controllers.map((controller) => new ArweaveTransactionID(controller)),
+      controllers.map((controller) => ({
+        controller: new ArweaveTransactionID(controller),
+      })),
     );
   }, [controllers]);
 
@@ -122,6 +126,7 @@ function RemoveControllersModal({
                           // eslint-disable-next-line
                           render: (value: string, row: any) => (
                             <Checkbox
+                              key={row.controller}
                               prefixCls="remove-controller-checkbox"
                               // TODO: remove once we have support for multi remove of controllers
                               checked={controllersToRemove
