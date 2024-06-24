@@ -60,7 +60,7 @@ function UpgradeUndernames() {
       // TODO; implement
       const price = await arioContract
         .getTokenCost({
-          intent: 'IncreaseUndernameLimit',
+          intent: 'Increase-Undername-Limit',
           name: lowerCaseDomain(name),
           quantity: newUndernameCount,
         })

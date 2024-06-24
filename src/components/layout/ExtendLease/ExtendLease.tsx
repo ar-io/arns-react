@@ -64,7 +64,7 @@ function ExtendLease() {
     const updateIoFee = async () => {
       const price = await arioContract
         .getTokenCost({
-          intent: 'ExtendLease',
+          intent: 'Extend-Lease',
           name: name,
           years: newLeaseDuration,
         })

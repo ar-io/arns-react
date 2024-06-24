@@ -83,7 +83,7 @@ function RegisterNameForm() {
 
       const cost = await arioContract
         .getTokenCost({
-          intent: 'BuyRecord',
+          intent: 'Buy-Record',
           name: domain,
           purchaseType: registrationType,
           years: leaseDuration,
