@@ -26,7 +26,7 @@ export default function TargetIDRow({
   const [showModal, setShowModal] = useState<boolean>(false);
 
   useEffect(() => {
-    setNewTargetId(newTargetId ?? '');
+    setNewTargetId(targetId ?? '');
   }, [targetId]);
 
   async function handleSave(transactionId: string) {
