@@ -2,6 +2,7 @@
 // @ts-nocheck
 import '@testing-library/jest-dom';
 import 'core-js';
+import { indexedDB } from 'fake-indexeddb';
 import 'jest-location-mock';
 // was needed for github actions environment
 import matchMediaMock from 'match-media-mock';
@@ -16,3 +17,4 @@ global.TextDecoder = TextDecoder;
 global.performance.markResourceTiming = jest.fn();
 global.fetch = require('node-fetch');
 global.crypto = jest.fn();
+global.indexedDB = indexedDB;

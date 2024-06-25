@@ -1,6 +1,8 @@
 import { ArweaveCompositeDataProvider } from '@src/services/arweave/ArweaveCompositeDataProvider';
 import GlobalStateProvider from '@src/state/contexts/GlobalState';
 import { reducer as globalReducer } from '@src/state/reducers/GlobalReducer';
+import { createIDBPersister, queryClient } from '@src/utils/network';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { act, cleanup, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import TEST_RECORDS from '@tests/common/fixtures/TestRecords';
@@ -16,6 +18,17 @@ import {
 } from '../../../../state/reducers';
 import { lowerCaseDomain } from '../../../../utils';
 import SearchBar from './SearchBar';
+
+// jest.mock('@tanstack/react-query', () => ({
+//   ...jest.requireActual('@tanstack/react-query'),
+//   useSuspenseQuery: jest.fn().mockReturnValue({
+//     data: null,
+//     isLoading: false,
+//     isRefetching: false,
+//     isFetching: false,
+//   }),
+//   useQueryClient: jest.fn(),
+// }));
 
 const providerMock = new ArweaveCompositeDataProviderMock();
 
@@ -35,16 +48,23 @@ describe('SearchBar', () => {
   );
 
   const searchBar = (
-    <GlobalStateProvider
-      reducer={globalReducer}
-      arweaveDataProvider={
-        providerMock as unknown as ArweaveCompositeDataProvider
-      }
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{
+        persister: createIDBPersister(),
+      }}
     >
-      <RegistrationStateProvider reducer={reducer}>
-        <SearchBar placeholderText={'Find a name'} />
-      </RegistrationStateProvider>
-    </GlobalStateProvider>
+      <GlobalStateProvider
+        reducer={globalReducer}
+        arweaveDataProvider={
+          providerMock as unknown as ArweaveCompositeDataProvider
+        }
+      >
+        <RegistrationStateProvider reducer={reducer}>
+          <SearchBar placeholderText={'Find a name'} />
+        </RegistrationStateProvider>
+      </GlobalStateProvider>
+    </PersistQueryClientProvider>
   );
 
   beforeEach(async () => {

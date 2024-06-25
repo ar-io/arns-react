@@ -1,8 +1,10 @@
-import { ANT, ANTRecord } from '@ar.io/sdk/web';
+import { ANTRecord } from '@ar.io/sdk/web';
+import { buildAntStateQuery, queryClient } from '@src/utils/network';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 
 export function useANT(id: string) {
-  const [loading, setLoading] = useState<boolean>(true);
+  const result = useSuspenseQuery(buildAntStateQuery({ processId: id }));
   const [data, setData] = useState<{
     records: Record<string, ANTRecord>;
     name: string;
@@ -12,43 +14,21 @@ export function useANT(id: string) {
   } | null>(null);
 
   useEffect(() => {
-    setLoading(true);
-    fetchAntData(id)
-      .then((data) => {
-        setData(data);
-      })
-      .catch((error) => {
-        console.error(error);
-      })
-      .finally(() => {
-        setLoading(false);
+    if (result.data !== null) {
+      const { Records, Name, Owner, Ticker, Controllers } = result.data;
+
+      setData({
+        records: Records,
+        name: Name,
+        owner: Owner,
+        ticker: Ticker,
+        controllers: Controllers,
       });
-  }, [id]);
-
-  async function fetchAntData(id: string) {
-    const contract = ANT.init({
-      processId: id,
-    });
-
-    const [records, name, owner, ticker, controllers = []] = await Promise.all([
-      contract.getRecords(),
-      contract.getName(),
-      contract.getOwner(),
-      contract.getTicker(),
-      contract.getControllers(),
-    ]);
-
-    return {
-      records,
-      name,
-      owner,
-      ticker,
-      controllers,
-    };
-  }
+    }
+  }, [result.data, id]);
 
   return {
     ...data,
-    loading,
+    loading: result.isLoading || result.isFetching || result.isRefetching,
   };
 }

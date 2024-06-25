@@ -67,10 +67,10 @@
     resize-observer-polyfill "^1.5.1"
     throttle-debounce "^5.0.0"
 
-"@ar.io/sdk@1.2.0-alpha.12":
-  version "1.2.0-alpha.12"
-  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-1.2.0-alpha.12.tgz#0db304ea9c2a8e11ce990ba7559ced7473874647"
-  integrity sha512-0W01xGr3yspo+B+Odw5P6edBmxwaonxDdxSYwOrZOnHmkbO/yDm9gpFXtqfOz2T8qqmEr0PqO4nGYx85SyF/pQ==
+"@ar.io/sdk@1.2.0-alpha.15":
+  version "1.2.0-alpha.15"
+  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-1.2.0-alpha.15.tgz#7713be9680ba110d800be1bee0e8bcb6c6726ac9"
+  integrity sha512-Ya9yTBiHHCr2AOx7UQc5wRGhX9QIbM8jZhfaqSWP1iVKJTMujKsb0tf2TvfInHhgegS2FMhcnLGfgTRqAOGA2A==
   dependencies:
     "@permaweb/aoconnect" "^0.0.55"
     arbundles "0.11.0"
@@ -2480,10 +2480,31 @@
     "@svgr/hast-util-to-babel-ast" "^6.5.1"
     svg-parser "^2.0.4"
 
+"@tanstack/query-async-storage-persister@^5.45.0":
+  version "5.45.0"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-async-storage-persister/-/query-async-storage-persister-5.45.0.tgz#0360da1a44c8729ad26aa62ba3e3a3d57b573243"
+  integrity sha512-vy8ZRAp/q7MTkfy9La8T+VJSaVX9ogfgNEKLF42nfldgZWLuHd2Zcxclu9hZNMHapSB5wp4sX2bhYIum8xptUQ==
+  dependencies:
+    "@tanstack/query-persist-client-core" "5.45.0"
+
 "@tanstack/query-core@5.45.0":
   version "5.45.0"
   resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.45.0.tgz#47a662d311c2588867341238960ec21dc7f0714e"
   integrity sha512-RVfIZQmFUTdjhSAAblvueimfngYyfN6HlwaJUPK71PKd7yi43Vs1S/rdimmZedPWX/WGppcq/U1HOj7O7FwYxw==
+
+"@tanstack/query-persist-client-core@5.45.0":
+  version "5.45.0"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-persist-client-core/-/query-persist-client-core-5.45.0.tgz#395439f8c93053a177dd483f85565a8e7d6896f5"
+  integrity sha512-iAETglkRB6FR1//185TcWGnMxkisJPnCrlvIhLpHzT4eKLmh4n4vq1Cys42YIJzM2il4YWf8P4refzdq4D5Vdw==
+  dependencies:
+    "@tanstack/query-core" "5.45.0"
+
+"@tanstack/react-query-persist-client@^5.45.1":
+  version "5.45.1"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-query-persist-client/-/react-query-persist-client-5.45.1.tgz#26ecf14dc8972e36e08236a1b5772d7123ff7a5d"
+  integrity sha512-Hk5rh2ov7YdHSP16HWnDbHcEAS19yJIvjQWGNXP6JiwZWbNJgXpKOriEOvHxLC5FPfEXl5MnA8cHTWj31kJv8Q==
+  dependencies:
+    "@tanstack/query-persist-client-core" "5.45.0"
 
 "@tanstack/react-query@^5.45.1":
   version "5.45.1"
@@ -3046,6 +3067,11 @@ acorn@^8.1.0, acorn@^8.4.1, acorn@^8.8.1, acorn@^8.9.0:
   version "8.11.3"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.11.3.tgz#71e0b14e13a4ec160724b38fb7b0f233b1b81d7a"
   integrity sha512-Y9rRfJG5jcKOE0CLisYbojUjIrIEE7AGMzA/Sm4BslANhbS+cDMpgBdcPT91oJ7OuJ9hYJBx59RjbhxVnrF8Xg==
+
+add@^2.0.6:
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/add/-/add-2.0.6.tgz#248f0a9f6e5a528ef2295dbeec30532130ae2235"
+  integrity sha512-j5QzrmsokwWWp6kUcJQySpbG+xfOBqqKnup3OIk1pz+kB/80SLorZ9V8zHFLO92Lcd+hbvq8bT+zOGoPkmBV0Q==
 
 aes-js@3.0.0:
   version "3.0.0"
@@ -5225,6 +5251,11 @@ exponential-backoff@^3.1.0:
   resolved "https://registry.yarnpkg.com/exponential-backoff/-/exponential-backoff-3.1.1.tgz#64ac7526fe341ab18a39016cd22c787d01e00bf6"
   integrity sha512-dX7e/LHVJ6W3DE1MHWi9S1EYzDESENfLrYohG2G++ovZrYOkm4Knwa0mc1cn84xJOR4KEU0WSchhLbd0UklbHw==
 
+fake-indexeddb@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/fake-indexeddb/-/fake-indexeddb-6.0.0.tgz#3173d5ad141436dace95f8de6e9ecdc3d9787d5d"
+  integrity sha512-YEboHE5VfopUclOck7LncgIqskAqnv4q0EWbYCaxKKjAvO93c+TJIaBuGy8CBFdbg9nKdpN3AuPRwVBJ4k7NrQ==
+
 fast-copy@^3.0.0:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/fast-copy/-/fast-copy-3.0.1.tgz#9e89ef498b8c04c1cd76b33b8e14271658a732aa"
@@ -5792,6 +5823,11 @@ iconv-lite@0.6.3:
   integrity sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==
   dependencies:
     safer-buffer ">= 2.1.2 < 3.0.0"
+
+idb-keyval@^6.2.1:
+  version "6.2.1"
+  resolved "https://registry.yarnpkg.com/idb-keyval/-/idb-keyval-6.2.1.tgz#94516d625346d16f56f3b33855da11bfded2db33"
+  integrity sha512-8Sb3veuYCyrZL+VBt9LJfZjLUPWVvqn8tG28VqYNFCo43KHcKuq+b4EiXGeuaLAQWL2YmyDgMp2aSpH9JHsEQg==
 
 ieee754@^1.1.13, ieee754@^1.2.1:
   version "1.2.1"
@@ -10149,6 +10185,11 @@ yargs@^17.0.0, yargs@^17.3.1:
     string-width "^4.2.3"
     y18n "^5.0.5"
     yargs-parser "^21.1.1"
+
+yarn@^1.22.22:
+  version "1.22.22"
+  resolved "https://registry.yarnpkg.com/yarn/-/yarn-1.22.22.tgz#ac34549e6aa8e7ead463a7407e1c7390f61a6610"
+  integrity sha512-prL3kGtyG7o9Z9Sv8IPfBNrWTDmXB4Qbes8A9rEzt6wkJV8mUvoirjU0Mp3GGAU06Y0XQyA3/2/RQFVuK7MTfg==
 
 yn@3.1.1:
   version "3.1.1"

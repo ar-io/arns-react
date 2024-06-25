@@ -1,5 +1,6 @@
 import { isLeasedArNSRecord } from '@ar.io/sdk/web';
 import { useANT } from '@src/hooks/useANT/useANT';
+import { useQueryClient } from '@tanstack/react-query';
 import { Descriptions } from 'antd';
 import { startCase } from 'lodash';
 import { isValidElement, useEffect, useState } from 'react';
@@ -76,6 +77,7 @@ function ANTCard({
   bordered = false,
   state,
 }: ARNSMapping) {
+  const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   const [antDetails, setANTDetails] = useState<{ [x: string]: any }>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -98,7 +100,7 @@ function ANTCard({
 
   useEffect(() => {
     setDetails();
-  }, [processId, loading]);
+  }, [processId, loading, owner]);
 
   async function setDetails() {
     try {

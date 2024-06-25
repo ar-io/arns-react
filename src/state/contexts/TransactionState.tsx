@@ -10,7 +10,11 @@ import {
 } from 'react';
 
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
-import { ExcludedValidInteractionType, TransactionData } from '../../types';
+import {
+  ExcludedValidInteractionType,
+  INTERACTION_TYPES,
+  TransactionData,
+} from '../../types';
 import { TransactionAction } from '../reducers/TransactionReducer';
 import { useWalletState } from './WalletState';
 
@@ -55,8 +59,11 @@ export default function TransactionStateProvider({
   const [walletAddress] = useWalletState();
   useEffect(() => {
     if (walletAddress && queryClient && state.interactionResult) {
-      queryClient.invalidateQueries({
-        queryKey: [rootKey, walletAddress.toString()],
+      ['ant', 'arns-records', 'arns-record', 'arns-assets'].map((key) => {
+        queryClient.invalidateQueries({
+          queryKey: [key],
+          refetchType: 'all',
+        });
       });
     }
   }, [state.interactionResult, queryClient, walletAddress]);
