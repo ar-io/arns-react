@@ -1,19 +1,21 @@
 import { ARIO_DISCORD_LINK } from '@src/utils/constants';
 import { Link } from 'react-router-dom';
 
-const TopBanner = () => {
+const CalloutBanner = () => {
   return (
     <div
       style={{
         textAlign: 'center',
-        backgroundColor: 'var(--success-green)',
+        backgroundColor: 'var(--accent)',
         color: 'var(--text-black)',
         padding: '12px 18px',
         fontSize: '14px',
+        borderRadius: 'var(--corner-radius)',
       }}
     >
-      AO migration is complete! All functionality should now be returned to
-      normal. Please let us know in{' '}
+      ANTs associated with registered names will soon be migrated as-is from
+      Smartweave to AO using a new standardized format. If you have customized
+      or additional ANTs you would like to migrate, contact us via{' '}
       <Link
         to={ARIO_DISCORD_LINK}
         target="_blank"
@@ -28,9 +30,9 @@ const TopBanner = () => {
       >
         Discord
       </Link>{' '}
-      if you encounter any bugs or issues.
+      for assistance.
     </div>
   );
 };
 
-export default TopBanner;
+export default CalloutBanner;
