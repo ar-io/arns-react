@@ -19,17 +19,6 @@ import {
 import { lowerCaseDomain } from '../../../../utils';
 import SearchBar from './SearchBar';
 
-// jest.mock('@tanstack/react-query', () => ({
-//   ...jest.requireActual('@tanstack/react-query'),
-//   useSuspenseQuery: jest.fn().mockReturnValue({
-//     data: null,
-//     isLoading: false,
-//     isRefetching: false,
-//     isFetching: false,
-//   }),
-//   useQueryClient: jest.fn(),
-// }));
-
 const providerMock = new ArweaveCompositeDataProviderMock();
 
 providerMock.getRecord.mockReturnValue(

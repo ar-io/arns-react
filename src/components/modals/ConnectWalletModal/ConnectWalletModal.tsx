@@ -143,7 +143,6 @@ function ConnectWalletModal(): JSX.Element {
         {/* disabling for now since does not work with current sdk signers */}
         <button
           className="wallet-connect-button disabled-button h2"
-          style={{ borderColor: 'var(--text-grey)' }}
           disabled={true}
           onClick={() => {
             connect(new ArweaveAppWalletConnector());
