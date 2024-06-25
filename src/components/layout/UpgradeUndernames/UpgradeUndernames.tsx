@@ -191,8 +191,7 @@ function UpgradeUndernames() {
                 className="flex flex-column flex-left grey text"
                 style={{ textAlign: 'left', lineHeight: '1.5em' }}
               >
-                Increasing the undername limit is paid in {ioTicker} tokens, and
-                an Arweave network fee paid in AR tokens.
+                Increasing the undername limit is paid in {ioTicker} tokens.
               </span>
             </div>
           }

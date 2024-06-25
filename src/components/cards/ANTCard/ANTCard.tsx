@@ -111,7 +111,7 @@ function ANTCard({
       }
 
       const apexRecord = records ? records['@'] : undefined;
-
+      console.log(record);
       const allANTDetails: Record<AntDetailKey, any> = {
         deployedTransactionId: deployedTransactionId
           ? deployedTransactionId.toString()

@@ -8,7 +8,6 @@ import {
   formatForMaxCharCount,
   getCustomPaginationButtons,
 } from '../../../../utils';
-import TransactionCost from '../../../layout/TransactionCost/TransactionCost';
 import DialogModal from '../../DialogModal/DialogModal';
 import './styles.css';
 
@@ -208,11 +207,11 @@ function RemoveControllersModal({
         }
         footer={
           <div className="flex">
-            <TransactionCost
+            {/* <TransactionCost
               fee={{}}
               feeWrapperStyle={{ alignItems: 'flex-start' }}
               showBorder={false}
-            />
+            /> */}
           </div>
         }
         nextText="Remove"

@@ -302,6 +302,7 @@ export function getARNSMappingByInteractionType(
         domain: transactionData.name,
         processId: transactionData.processId,
         deployedTransactionId: transactionData.deployedTransactionId,
+        record: transactionData.arnsRecord,
         overrides: {
           leaseDuration: transactionData.deployedTransactionId ? (
             <span className="white">

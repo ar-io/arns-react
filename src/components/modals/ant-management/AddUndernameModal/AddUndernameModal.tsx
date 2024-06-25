@@ -23,7 +23,6 @@ import {
 import eventEmitter from '../../../../utils/events';
 import WarningCard from '../../../cards/WarningCard/WarningCard';
 import ValidationInput from '../../../inputs/text/ValidationInput/ValidationInput';
-import TransactionCost from '../../../layout/TransactionCost/TransactionCost';
 import DialogModal from '../../DialogModal/DialogModal';
 
 function AddUndernameModal({
@@ -298,11 +297,11 @@ function AddUndernameModal({
         }
         footer={
           <div className="flex">
-            <TransactionCost
+            {/* <TransactionCost
               fee={{}}
               feeWrapperStyle={{ alignItems: 'flex-start' }}
               showBorder={false}
-            />
+            /> */}
           </div>
         }
         nextText="Next"

@@ -31,7 +31,6 @@ export function useWalletANTs() {
   const [filteredResults, setFilteredResults] = useState<ANTMetadata[]>([]);
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [percent, setPercentLoaded] = useState<number | undefined>();
   const searchRef = useRef<HTMLInputElement>(null);
   const [searchText, setSearchText] = useState<string>('');
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
@@ -465,7 +464,7 @@ export function useWalletANTs() {
 
   return {
     isLoading,
-    percent,
+    percent: 0,
     columns: generateTableColumns(),
     rows: searchText.length && searchOpen ? filteredResults : rows,
     sortField,

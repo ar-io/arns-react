@@ -1,4 +1,3 @@
-import { useWalletState } from '@src/state/contexts/WalletState';
 import { Table } from 'antd';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -15,9 +14,6 @@ function Manage() {
   const navigate = useNavigate();
   const { path } = useParams();
   const location = useLocation();
-
-  const [{ walletAddress }] = useWalletState();
-
   const [percent, setPercentLoaded] = useState<number | undefined>();
   const {
     isLoading: antTableLoading,
