@@ -1,6 +1,6 @@
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { ARIO_DISCORD_LINK } from '@src/utils/constants';
-import { Spin, Table } from 'antd';
+import { Table } from 'antd';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 
@@ -191,9 +191,7 @@ function Manage() {
               disabled={tableLoading}
               className={'button center pointer'}
               onClick={() =>
-                path === 'ants'
-                  ? refreshANTs()
-                  : refreshDomains(walletAddress?.toString())
+                path === 'ants' ? refreshANTs() : refreshDomains()
               }
               style={{
                 position: 'absolute',

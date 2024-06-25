@@ -44,7 +44,7 @@ export function buildAntStateQuery({ processId }: { processId: string }): {
     return {
       queryKey: ['ant', processId],
       queryFn: async () => {
-        return await ant.getState().catch((err: any) => null);
+        return await ant.getState().catch(() => null);
       },
       staleTime: Infinity,
     };

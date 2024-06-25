@@ -71,7 +71,7 @@ function useARNS(walletAddress?: string) {
     },
   });
 
-  async function invalidate(address?: string) {
+  async function invalidate() {
     ['ant', 'arns-records', 'arns-record', 'arns-assets'].map((key) => {
       queryClient.invalidateQueries({
         queryKey: [key],
