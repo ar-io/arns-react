@@ -1,6 +1,5 @@
 import { useWalletState } from '@src/state/contexts/WalletState';
-import { ARIO_DISCORD_LINK } from '@src/utils/constants';
-import { Spin, Table } from 'antd';
+import { Table } from 'antd';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 

@@ -1,3 +1,4 @@
+import { ARIO_DISCORD_LINK } from '@src/utils/constants';
 import { Link } from 'react-router-dom';
 
 const TopBanner = () => {
@@ -5,17 +6,16 @@ const TopBanner = () => {
     <div
       style={{
         textAlign: 'center',
-        backgroundColor: 'var(--accent)',
+        backgroundColor: 'var(--success-green)',
         color: 'var(--text-black)',
         padding: '12px 18px',
         fontSize: '14px',
       }}
     >
-      Expect service disruptions as ArNS is migrated to AO. New name
-      registrations and lease extensions are temporarily paused, but you may be
-      able to manage existing assets during this time.{' '}
+      AO migration is complete! All functionality should now be returned to
+      normal. Please let us know in{' '}
       <Link
-        to="https://twitter.com/ar_io_network"
+        to={ARIO_DISCORD_LINK}
         target="_blank"
         rel="noreferrer"
         className="link hover"
@@ -26,9 +26,9 @@ const TopBanner = () => {
           fontWeight: 600,
         }}
       >
-        Follow along
+        Discord
       </Link>{' '}
-      for updates.
+      if you encounter any bugs or issues.
     </div>
   );
 };
