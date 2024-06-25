@@ -1,4 +1,4 @@
-import { IO, ioDevnetProcessId } from '@ar.io/sdk/web';
+import { IO } from '@ar.io/sdk/web';
 import { ArweaveCompositeDataProvider } from '@src/services/arweave/ArweaveCompositeDataProvider';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { SimpleArweaveDataProvider } from '@src/services/arweave/SimpleArweaveDataProvider';
@@ -6,7 +6,7 @@ import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { VALIDATION_INPUT_TYPES } from '@src/types';
 import { isArweaveTransactionID } from '@src/utils';
-import { ARNS_REGISTRY_ADDRESS } from '@src/utils/constants';
+import { ARNS_REGISTRY_ADDRESS, IO_PROCESS_ID } from '@src/utils/constants';
 import { Collapse, Space } from 'antd';
 import Arweave from 'arweave';
 import { useEffect, useState } from 'react';
@@ -83,24 +83,24 @@ function ArNSRegistrySettings() {
                   <button
                     className={
                       'center ' +
-                      (arnsContractId?.toString() === ioDevnetProcessId
+                      (arnsContractId?.toString() === IO_PROCESS_ID
                         ? 'button-primary'
                         : 'button-secondary')
                     }
                     style={{ padding: '4px' }}
-                    onClick={() => confirmSetting(ioDevnetProcessId)}
+                    onClick={() => confirmSetting(IO_PROCESS_ID)}
                   >
                     devnet
                   </button>
                   <button
                     className={
                       'center ' +
-                      (arnsContractId?.toString() === ioDevnetProcessId
+                      (arnsContractId?.toString() === IO_PROCESS_ID
                         ? 'button-primary'
                         : 'button-secondary')
                     }
                     style={{ padding: '4px' }}
-                    onClick={() => confirmSetting(ioDevnetProcessId)}
+                    onClick={() => confirmSetting(IO_PROCESS_ID)}
                   >
                     testnet
                   </button>

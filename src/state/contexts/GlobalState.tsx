@@ -1,4 +1,4 @@
-import { AoIORead, AoIOWrite, IO, ioDevnetProcessId } from '@ar.io/sdk/web';
+import { AoIORead, AoIOWrite, IO } from '@ar.io/sdk/web';
 import React, {
   Dispatch,
   createContext,
@@ -15,12 +15,13 @@ import {
   ARNS_REGISTRY_ADDRESS,
   DEFAULT_ARNS_REGISTRY_STATE,
   DEFAULT_ARWEAVE,
+  IO_PROCESS_ID,
 } from '../../utils/constants';
 import type { GlobalAction } from '../reducers/GlobalReducer';
 
 const defaultArweave = new SimpleArweaveDataProvider(DEFAULT_ARWEAVE);
 const defaultArIO = IO.init({
-  processId: ioDevnetProcessId,
+  processId: IO_PROCESS_ID,
 });
 
 export type GlobalState = {

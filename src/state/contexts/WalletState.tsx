@@ -1,4 +1,4 @@
-import { IO, ioDevnetProcessId } from '@ar.io/sdk/web';
+import { IO } from '@ar.io/sdk/web';
 import { ArweaveAppError } from '@src/utils/errors';
 import React, {
   Dispatch,
@@ -15,6 +15,7 @@ import { ArweaveWalletConnector, WALLET_TYPES } from '../../types';
 import {
   ARWEAVE_APP_API,
   DEFAULT_ARNS_REGISTRY_STATE,
+  IO_PROCESS_ID,
 } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 import { dispatchArIOContract } from '../actions/dispatchArIOContract';
@@ -72,7 +73,7 @@ export default function WalletStateProvider({
     }
     dispatchArIOContract({
       contract: IO.init({
-        processId: ioDevnetProcessId,
+        processId: IO_PROCESS_ID,
         signer: wallet?.arconnectSigner,
       }),
       dispatch: dispatchGlobalState,
