@@ -1,5 +1,4 @@
 import { ANT_INTERACTION_TYPES } from '../../../types';
-import TransactionCost from '../../layout/TransactionCost/TransactionCost';
 import DialogModal from '../DialogModal/DialogModal';
 
 function ConfirmTransactionModal({
@@ -9,7 +8,6 @@ function ConfirmTransactionModal({
   ),
   cancel,
   confirm,
-  fee,
   cancelText = 'Cancel',
   confirmText = 'Confirm',
 }: {
@@ -47,11 +45,11 @@ function ConfirmTransactionModal({
         onNext={confirm}
         footer={
           <div style={{ width: 'fit-content' }}>
-            <TransactionCost
+            {/* <TransactionCost
               fee={fee}
               showBorder={false}
               feeWrapperStyle={{ alignItems: 'flex-start' }}
-            />
+            /> */}
           </div>
         }
       />

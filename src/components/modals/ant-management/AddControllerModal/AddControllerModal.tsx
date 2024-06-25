@@ -10,7 +10,6 @@ import {
   isArweaveTransactionID,
 } from '../../../../utils';
 import ValidationInput from '../../../inputs/text/ValidationInput/ValidationInput';
-import TransactionCost from '../../../layout/TransactionCost/TransactionCost';
 import DialogModal from '../../DialogModal/DialogModal';
 
 function AddControllerModal({
@@ -107,11 +106,11 @@ function AddControllerModal({
         }
         footer={
           <div className="flex">
-            <TransactionCost
+            {/* <TransactionCost
               fee={{}}
               feeWrapperStyle={{ alignItems: 'flex-start' }}
               showBorder={false}
-            />
+            /> */}
           </div>
         }
         nextText="Add"

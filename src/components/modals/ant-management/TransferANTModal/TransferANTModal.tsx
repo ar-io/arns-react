@@ -12,7 +12,6 @@ import {
 } from '../../../../utils';
 import { InfoIcon } from '../../../icons';
 import ValidationInput from '../../../inputs/text/ValidationInput/ValidationInput';
-import TransactionCost from '../../../layout/TransactionCost/TransactionCost';
 import DialogModal from '../../DialogModal/DialogModal';
 import './styles.css';
 
@@ -182,11 +181,11 @@ function TransferANTModal({
         }
         footer={
           <div className="flex">
-            <TransactionCost
+            {/* <TransactionCost
               fee={{}}
               feeWrapperStyle={{ alignItems: 'flex-start' }}
               showBorder={false}
-            />
+            /> */}
           </div>
         }
         nextText="Next"

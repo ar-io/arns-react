@@ -19,7 +19,6 @@ import {
 } from '../../../../utils/constants';
 import eventEmitter from '../../../../utils/events';
 import ValidationInput from '../../../inputs/text/ValidationInput/ValidationInput';
-import TransactionCost from '../../../layout/TransactionCost/TransactionCost';
 import DialogModal from '../../DialogModal/DialogModal';
 
 function EditUndernameModal({
@@ -179,11 +178,11 @@ function EditUndernameModal({
         }
         footer={
           <div className="flex">
-            <TransactionCost
+            {/* <TransactionCost
               fee={{}}
               feeWrapperStyle={{ alignItems: 'flex-start' }}
               showBorder={false}
-            />
+            /> */}
           </div>
         }
         nextText="Next"

@@ -336,6 +336,7 @@ export type TransactionDataBasePayload = {
   functionName: string;
   deployedTransactionId?: ArweaveTransactionID;
   interactionPrice?: number;
+  arnsRecord?: AoArNSNameData;
 };
 
 // registry transaction payload types

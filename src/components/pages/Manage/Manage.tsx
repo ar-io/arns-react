@@ -1,4 +1,3 @@
-import { useWalletState } from '@src/state/contexts/WalletState';
 import { ARIO_DISCORD_LINK } from '@src/utils/constants';
 import { Table } from 'antd';
 import { useEffect, useState } from 'react';
@@ -16,9 +15,6 @@ function Manage() {
   const navigate = useNavigate();
   const { path } = useParams();
   const location = useLocation();
-
-  const [{ walletAddress }] = useWalletState();
-
   const [percent, setPercentLoaded] = useState<number | undefined>();
   const {
     isLoading: antTableLoading,
