@@ -24,6 +24,13 @@ function ManageANT() {
     useTransactionState();
 
   useEffect(() => {
+    // removes banner from page by calling rest
+    return () => {
+      dispatchTransactionState({ type: 'reset' });
+    };
+  }, []);
+
+  useEffect(() => {
     if (!id || !walletAddress) {
       navigate('/manage/ants');
       return;

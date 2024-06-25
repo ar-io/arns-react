@@ -4,8 +4,13 @@ import DomainSettings from '@src/components/forms/DomainSettings/DomainSettings'
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
 import { Tooltip } from 'antd';
-import { useEffect, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react';
+import {
+  useBeforeUnload,
+  useLocation,
+  useNavigate,
+  useParams,
+} from 'react-router-dom';
 
 import { useWalletState } from '../../../state/contexts/WalletState';
 import {
@@ -37,6 +42,12 @@ function ManageDomain() {
   });
   const [{ workflowName, interactionResult }, dispatchTransactionState] =
     useTransactionState();
+
+  useEffect(() => {
+    return () => {
+      dispatchTransactionState({ type: 'reset' });
+    };
+  }, []);
 
   useEffect(() => {
     if (!name || !walletAddress) {
