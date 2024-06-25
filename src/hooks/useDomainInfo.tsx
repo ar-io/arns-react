@@ -92,8 +92,8 @@ export default function useDomainInfo({
       buildArNSRecordsQuery({ arioContract: arioProvider }),
     );
     const associatedNames = Object.entries(arnsRecords)
-      .filter(([_, r]) => r.processId == processId.toString())
-      .map(([d, _]) => d);
+      .filter(([, r]) => r.processId == processId.toString())
+      .map(([d]) => d);
 
     const state = await queryClient.fetchQuery(
       buildAntStateQuery({ processId: processId.toString() }),
