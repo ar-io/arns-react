@@ -1,5 +1,4 @@
 import PageLoader from '@src/components/layout/progress/PageLoader/PageLoader';
-import { rootKey } from '@src/hooks/useARNS';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   Dispatch,
@@ -10,11 +9,7 @@ import {
 } from 'react';
 
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
-import {
-  ExcludedValidInteractionType,
-  INTERACTION_TYPES,
-  TransactionData,
-} from '../../types';
+import { ExcludedValidInteractionType, TransactionData } from '../../types';
 import { TransactionAction } from '../reducers/TransactionReducer';
 import { useWalletState } from './WalletState';
 

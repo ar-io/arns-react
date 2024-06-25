@@ -15,13 +15,12 @@ import {
 } from '../../../utils/searchUtils/searchUtils';
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import { FeaturedDomains } from '../../layout';
-import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
 
 function Home() {
   const queryClient = useQueryClient();
 
-  const [{ arweaveDataProvider, arioContract }] = useGlobalState();
+  const [{ arioContract }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [searchParams, setSearchParams] = useSearchParams();
   const [{ domain, antID }, dispatchRegisterState] = useRegistrationState();

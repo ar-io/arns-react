@@ -2,11 +2,7 @@ import { ANT, AoANTWrite, AoArNSNameData } from '@ar.io/sdk/web';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
-import {
-  RefetchOptions,
-  useQueryClient,
-  useSuspenseQuery,
-} from '@tanstack/react-query';
+import { RefetchOptions, useSuspenseQuery } from '@tanstack/react-query';
 
 export default function useDomainInfo({
   domain,
@@ -34,7 +30,6 @@ export default function useDomainInfo({
   error: Error | null;
   refetch: (options?: RefetchOptions) => void;
 } {
-  const queryClient = useQueryClient();
   const [{ arweaveDataProvider, arioContract: arioProvider }] =
     useGlobalState();
   const [{ wallet }] = useWalletState();

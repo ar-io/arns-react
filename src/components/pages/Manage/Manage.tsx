@@ -160,9 +160,7 @@ function Manage() {
               disabled={tableLoading}
               className={'button center pointer'}
               onClick={() =>
-                path === 'ants'
-                  ? refreshANTs()
-                  : refreshDomains(walletAddress?.toString())
+                path === 'ants' ? refreshANTs() : refreshDomains()
               }
               style={{
                 position: 'absolute',

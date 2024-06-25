@@ -21,7 +21,7 @@ function Footer() {
         <BrandLogo width={'30px'} height={'30px'} fill={'var(--text-grey)'} />
         <Link
           className="grey text"
-          to={'https://ar.io/terms-and-conditions/'}
+          to={'https://ar.io/legal/terms-of-service-and-privacy-policy'}
           rel="noreferrer"
           target={'_blank'}
         >

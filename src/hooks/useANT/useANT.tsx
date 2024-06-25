@@ -1,5 +1,5 @@
 import { ANTRecord } from '@ar.io/sdk/web';
-import { buildAntStateQuery, queryClient } from '@src/utils/network';
+import { buildAntStateQuery } from '@src/utils/network';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 

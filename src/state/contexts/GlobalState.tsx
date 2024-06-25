@@ -13,11 +13,9 @@ import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionI
 import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
 import {
   ARNS_REGISTRY_ADDRESS,
-  AVERAGE_BLOCK_TIME_MS,
   DEFAULT_ARNS_REGISTRY_STATE,
   DEFAULT_ARWEAVE,
 } from '../../utils/constants';
-import eventEmitter from '../../utils/events';
 import type { GlobalAction } from '../reducers/GlobalReducer';
 
 const defaultArweave = new SimpleArweaveDataProvider(DEFAULT_ARWEAVE);

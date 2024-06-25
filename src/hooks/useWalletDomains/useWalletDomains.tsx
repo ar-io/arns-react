@@ -33,7 +33,6 @@ export function useWalletDomains() {
   const [filteredResults, setFilteredResults] = useState<ARNSTableRow[]>([]);
   // loading info
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [percent, setPercentLoaded] = useState<number | undefined>();
   const searchRef = useRef<HTMLInputElement>(null);
   const [searchText, setSearchText] = useState<string>('');
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
@@ -374,7 +373,7 @@ export function useWalletDomains() {
         ),
         className: 'white manage-assets-table-header',
         // eslint-disable-next-line
-        render: (val: any, record: ARNSTableRow) => (
+        render: (_: any, record: ARNSTableRow) => (
           <span className="flex" style={{ justifyContent: 'flex-end' }}>
             <ManageAssetButtons
               id={record.name}
@@ -450,7 +449,7 @@ export function useWalletDomains() {
   return {
     isLoading:
       isLoading || result.isRefetching || result.isLoading || result.isFetching,
-    percent,
+    percent: 0,
     columns: generateTableColumns(),
     rows: searchText.length && searchOpen ? filteredResults : rows,
     sortField,
