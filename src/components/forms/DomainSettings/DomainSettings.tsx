@@ -125,7 +125,7 @@ function DomainSettings({
             [DomainSettingsRowTypes.ASSOCIATED_NAMES]: (
               <DomainSettingsRow
                 label="Associated Names"
-                value={data.associatedNames ?? 'N/A'}
+                value={data.associatedNames?.join(', ') ?? 'N/A'}
                 key={DomainSettingsRowTypes.ASSOCIATED_NAMES}
               />
             ),
