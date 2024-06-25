@@ -1,5 +1,6 @@
-import { IO, ioDevnetProcessId } from '@ar.io/sdk/web';
+import { IO } from '@ar.io/sdk/web';
 import { ArweaveWalletConnector } from '@src/types';
+import { IO_PROCESS_ID } from '@src/utils/constants';
 import Arweave from 'arweave';
 import { Dispatch } from 'react';
 
@@ -21,7 +22,7 @@ export async function dispatchNewGateway(
 
     const arweaveDataProvider = new SimpleArweaveDataProvider(arweave);
     const contract = IO.init({
-      processId: ioDevnetProcessId,
+      processId: IO_PROCESS_ID,
       signer: walletConnector.arconnectSigner,
     });
 

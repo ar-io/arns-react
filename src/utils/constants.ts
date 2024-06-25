@@ -1,3 +1,4 @@
+import { ioDevnetProcessId } from '@ar.io/sdk/web';
 import Arweave from 'arweave';
 import { ArweaveWebWallet } from 'arweave-wallet-connector';
 
@@ -64,6 +65,8 @@ export const ARNS_REGISTRY_ADDRESS = new ArweaveTransactionID(
   process.env.VITE_ARNS_REGISTRY_ADDRESS ??
     '_NctcA2sRy1-J4OmIQZbYFPM17piNcbdBPH2ncX2RL8',
 );
+export const IO_PROCESS_ID =
+  process.env.VITE_IO_PROCESS_ID || ioDevnetProcessId;
 export const STUB_ANT_ID = '6dUiTQKJCVD7c9icQhbbzfI-Le_hC4sXRDx1OQQ6jMI';
 export const STUB_ARWEAVE_TXID = '2yHmORN-N12hM1B2f9-JPMpOfa59qhpsExFCzImrD30'; // arns spec pdf
 export const DEFAULT_ANT_SOURCE_CODE_TX =
