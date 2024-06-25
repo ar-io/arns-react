@@ -13,7 +13,6 @@ import { ANT_FLAG } from './components/layout/Breadcrumbs/Breadcrumbs';
 import PageLoader from './components/layout/progress/PageLoader/PageLoader';
 import useArconnectEvents from './hooks/useArconnectEvents/useArconnectEvents';
 import './index.css';
-import { decodeDomainToASCII, lowerCaseDomain } from './utils';
 
 const Home = React.lazy(() => import('./components/pages/Home/Home'));
 const Manage = React.lazy(() => import('./components/pages/Manage/Manage'));
