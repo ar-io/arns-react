@@ -1,4 +1,3 @@
-import { mIOToken } from '@ar.io/sdk/web';
 import { buildARBalanceQuery, buildIOBalanceQuery } from '@src/utils/network';
 import { useQueryClient } from '@tanstack/react-query';
 import { Tooltip } from 'antd';

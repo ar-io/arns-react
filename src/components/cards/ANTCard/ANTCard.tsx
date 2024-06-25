@@ -8,6 +8,7 @@ import { useIsMobile } from '../../../hooks';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { ARNSMapping } from '../../../types';
 import {
+  decodeDomainToASCII,
   formatDate,
   getLeaseDurationFromEndTimestamp,
   isArweaveTransactionID,
@@ -111,19 +112,19 @@ function ANTCard({
       }
 
       const apexRecord = records ? records['@'] : undefined;
-      console.log(record);
+
       const allANTDetails: Record<AntDetailKey, any> = {
         deployedTransactionId: deployedTransactionId
           ? deployedTransactionId.toString()
           : undefined,
         processId: processId?.toString() ?? 'N/A',
-        domain: domain,
+        domain: decodeDomainToASCII(domain),
         // TODO: add the # of associated names that point to this ANT
         leaseDuration: leaseDuration,
         // TODO: undernames are associated with the record, not the ANT - how do we want to represent this
         maxUndernames: 'Up to ' + record?.undernameLimit,
-        name,
-        ticker,
+        name: decodeDomainToASCII(name ?? 'N/A'),
+        ticker: decodeDomainToASCII(ticker ?? 'N/A'),
         owner,
         controllers: controllers.join(', '),
         targetId: apexRecord?.transactionId ?? 'N/A',

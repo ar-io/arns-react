@@ -271,7 +271,7 @@ function ExtendLease() {
             color: maxIncrease < 1 && 'var(--text-white)',
           }}
           onBack={() => {
-            navigate(`/manage/names/${name}`);
+            navigate(`/manage/names/${lowerCaseDomain(name)}`);
           }}
           onNext={
             !ioFee || ioFee < 0

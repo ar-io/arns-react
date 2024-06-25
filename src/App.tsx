@@ -13,7 +13,7 @@ import { ANT_FLAG } from './components/layout/Breadcrumbs/Breadcrumbs';
 import PageLoader from './components/layout/progress/PageLoader/PageLoader';
 import useArconnectEvents from './hooks/useArconnectEvents/useArconnectEvents';
 import './index.css';
-import { lowerCaseDomain } from './utils';
+import { decodeDomainToASCII, lowerCaseDomain } from './utils';
 
 const Home = React.lazy(() => import('./components/pages/Home/Home'));
 const Manage = React.lazy(() => import('./components/pages/Manage/Manage'));
@@ -175,7 +175,10 @@ function App() {
             handle={{
               crumbs: (data: string) => [
                 { name: 'Manage Assets', route: '/manage/names' },
-                { name: data, route: `/manage/names/${data}` },
+                {
+                  name: data,
+                  route: `/manage/names/${data}`,
+                },
               ],
             }}
           />
@@ -196,10 +199,10 @@ function App() {
             handle={{
               crumbs: (data: string) => [
                 { name: 'Manage Assets', route: '/manage/names' },
-                { name: data, route: `/manage/names/${lowerCaseDomain(data)}` },
+                { name: data, route: `/manage/names/${data}` },
                 {
                   name: 'Increase Undernames',
-                  route: `/manage/names/${lowerCaseDomain(data)}/undernames`,
+                  route: `/manage/names/${data}/undernames`,
                 },
               ],
             }}
@@ -222,11 +225,11 @@ function App() {
                 { name: 'Manage Assets', route: '/manage/names' },
                 {
                   name: ANT_FLAG,
-                  route: `/manage/names/${lowerCaseDomain(data)}`,
+                  route: `/manage/names/${data}`,
                 },
                 {
                   name: 'Manage Undernames',
-                  route: `/manage/names/${lowerCaseDomain(data)}/undernames`,
+                  route: `/manage/names/${data}/undernames`,
                 },
               ],
             }}
@@ -247,10 +250,10 @@ function App() {
             handle={{
               crumbs: (data: string) => [
                 { name: 'Manage Assets', route: '/manage/names' },
-                { name: data, route: `/manage/names/${lowerCaseDomain(data)}` },
+                { name: data, route: `/manage/names/${data}` },
                 {
                   name: 'Extend Lease',
-                  route: `/manage/names/${lowerCaseDomain(data)}/extend`,
+                  route: `/manage/names/${data}/extend`,
                 },
               ],
             }}

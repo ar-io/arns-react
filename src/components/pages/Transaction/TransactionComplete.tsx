@@ -106,7 +106,7 @@ function TransactionComplete() {
               to={
                 isArweaveTransactionID(link)
                   ? `/manage/ants/${link}`
-                  : `/manage/names/${link}`
+                  : `/manage/names/${lowerCaseDomain(link)}`
               }
               body={
                 <div

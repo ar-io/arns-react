@@ -1,5 +1,6 @@
 import { NewspaperIcon, VerticalDotMenuIcon } from '@src/components/icons';
 import { UNDERNAME_TABLE_ACTIONS } from '@src/types';
+import { lowerCaseDomain } from '@src/utils';
 import { Skeleton, Tooltip } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
@@ -63,7 +64,11 @@ export default function UndernamesRow({
               <button
                 className="flex flex-right white pointer button"
                 onClick={() =>
-                  navigate(`/manage/names/${domain || antId}/undernames`)
+                  navigate(
+                    `/manage/names/${
+                      domain ? lowerCaseDomain(domain) : antId
+                    }/undernames`,
+                  )
                 }
               >
                 Manage

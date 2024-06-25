@@ -7,7 +7,7 @@ import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { ANT_INTERACTION_TYPES } from '@src/types';
-import { formatExpiryDate } from '@src/utils';
+import { decodeDomainToASCII, formatExpiryDate } from '@src/utils';
 import {
   DEFAULT_MAX_UNDERNAMES,
   SECONDS_IN_GRACE_PERIOD,
@@ -125,7 +125,11 @@ function DomainSettings({
             [DomainSettingsRowTypes.ASSOCIATED_NAMES]: (
               <DomainSettingsRow
                 label="Associated Names"
-                value={data.associatedNames?.join(', ') ?? 'N/A'}
+                value={
+                  data.associatedNames
+                    ?.map((d) => decodeDomainToASCII(d))
+                    .join(', ') ?? 'N/A'
+                }
                 key={DomainSettingsRowTypes.ASSOCIATED_NAMES}
               />
             ),
@@ -142,7 +146,7 @@ function DomainSettings({
             ),
             [DomainSettingsRowTypes.NICKNAME]: (
               <NicknameRow
-                nickname={data.name}
+                nickname={decodeDomainToASCII(data.name ?? '')}
                 key={DomainSettingsRowTypes.NICKNAME}
                 confirm={(name: string) =>
                   dispatchANTInteraction({

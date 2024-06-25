@@ -199,7 +199,7 @@ function UpgradeUndernames() {
         <WorkflowButtons
           backText="Cancel"
           nextText="Confirm"
-          onBack={() => navigate(`/manage/names/${name}`)}
+          onBack={() => navigate(`/manage/names/${lowerCaseDomain(name)}`)}
           onNext={
             !fee || fee < 0
               ? undefined
@@ -229,7 +229,9 @@ function UpgradeUndernames() {
                   });
                   // navigate to the transaction page, which will load the updated state of the transaction context
                   navigate('/transaction/review', {
-                    state: `/manage/names/${name}/upgrade-undernames`,
+                    state: `/manage/names/${lowerCaseDomain(
+                      name,
+                    )}/upgrade-undernames`,
                   });
                 }
           }

@@ -17,7 +17,12 @@ import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionI
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useWalletState } from '../../state/contexts/WalletState';
 import { ARNSTableRow } from '../../types';
-import { decodeDomainToASCII, formatDate, handleTableSort } from '../../utils';
+import {
+  decodeDomainToASCII,
+  formatDate,
+  handleTableSort,
+  lowerCaseDomain,
+} from '../../utils';
 import { DEFAULT_MAX_UNDERNAMES } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 import useARNS from '../useARNS';
@@ -139,7 +144,7 @@ export function useWalletDomains() {
           <a
             className="link"
             target="_blank"
-            href={`https://${name}.${
+            href={`https://${decodeDomainToASCII(name)}.${
               gateway === 'arweave.net' ? 'ar-io.dev' : gateway
             }`}
             rel="noreferrer"
@@ -376,7 +381,7 @@ export function useWalletDomains() {
         render: (_: any, record: ARNSTableRow) => (
           <span className="flex" style={{ justifyContent: 'flex-end' }}>
             <ManageAssetButtons
-              id={record.name}
+              id={lowerCaseDomain(record.name)}
               assetType="names"
               disabled={false}
             />

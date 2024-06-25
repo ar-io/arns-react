@@ -9,6 +9,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { useWalletState } from '../../../state/contexts/WalletState';
 import {
+  decodeDomainToASCII,
   getLeaseDurationFromEndTimestamp,
   lowerCaseDomain,
 } from '../../../utils';
@@ -113,7 +114,7 @@ function ManageDomain() {
               height={'20px'}
               fill="var(--text-white)"
             />
-            {name}
+            {decodeDomainToASCII(name!)}
           </h2>
           <div
             className="flex flex-row"
@@ -143,7 +144,11 @@ function ManageDomain() {
                   fontFamily: 'Rubik',
                 }}
                 onClick={() =>
-                  navigate(`/manage/names/${name}/upgrade-undernames`)
+                  navigate(
+                    `/manage/names/${lowerCaseDomain(
+                      name!,
+                    )}/upgrade-undernames`,
+                  )
                 }
               >
                 Increase Undernames

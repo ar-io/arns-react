@@ -1,10 +1,12 @@
-import { ANT } from '@ar.io/sdk/web';
+import { buildAntStateQuery } from '@src/utils/network';
+import { useQueryClient } from '@tanstack/react-query';
 import { Breadcrumb, Tooltip } from 'antd';
 import { useEffect, useState } from 'react';
 import { useLocation, useMatches } from 'react-router';
 import { Link } from 'react-router-dom';
 
 import {
+  decodeDomainToASCII,
   formatForMaxCharCount,
   isARNSDomainNameValid,
   isArweaveTransactionID,
@@ -21,6 +23,7 @@ export type NavItem = {
 export const ANT_FLAG = 'ant-flag';
 
 function Breadcrumbs() {
+  const queryClient = useQueryClient();
   const { Item } = Breadcrumb;
   const location = useLocation();
   const path = location.pathname.split('/');
@@ -55,11 +58,10 @@ function Breadcrumbs() {
         });
       // check for ant flag
       if (isArweaveTransactionID(processId)) {
-        const contract = ANT.init({
-          processId,
-        });
-
-        const name = await contract.getName();
+        const state = await queryClient.fetchQuery(
+          buildAntStateQuery({ processId }),
+        );
+        const name = state?.Name;
 
         const parsedCrumbs = rawCrumbs[0].map((crumb: NavItem) => {
           if (crumb.name == ANT_FLAG) {
@@ -137,7 +139,7 @@ function Breadcrumbs() {
                 }}
                 to={item?.route ?? '/'}
               >
-                {crumbTitle}
+                {decodeDomainToASCII(crumbTitle)}
               </Link>
             );
 
