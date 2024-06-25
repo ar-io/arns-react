@@ -31,6 +31,10 @@ export default function TTLRow({
       await confirm(ttl);
     } catch (error) {
       eventEmitter.emit('error', error);
+    } finally {
+      setEditing(false);
+      setNewTTL(ttl ?? DEFAULT_TTL_SECONDS);
+      setShowModal(false);
     }
   }
   return (

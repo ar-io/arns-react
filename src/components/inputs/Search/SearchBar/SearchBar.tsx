@@ -1,5 +1,5 @@
 import { CheckCircleFilled, InfoCircleOutlined } from '@ant-design/icons';
-import { ArNSNameData } from '@ar.io/sdk/web';
+import { AoArNSNameData } from '@ar.io/sdk/web';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -70,10 +70,10 @@ function SearchBar(props: SearchBarProps) {
     validated,
   } = useRegistrationStatus(lowerCaseDomain(domain));
   const [registeredDomainRecord, setRegisteredDomainRecord] =
-    useState<ArNSNameData>();
+    useState<AoArNSNameData>();
 
-  const contractTxID = registeredDomainRecord
-    ? new ArweaveTransactionID(registeredDomainRecord.contractTxId)
+  const processId = registeredDomainRecord
+    ? new ArweaveTransactionID(registeredDomainRecord.processId)
     : undefined;
 
   function reset() {
@@ -202,7 +202,7 @@ function SearchBar(props: SearchBarProps) {
       });
       dispatchRegisterState({
         type: 'setANTID',
-        payload: new ArweaveTransactionID(record.contractTxId),
+        payload: new ArweaveTransactionID(record.processId),
       });
     }
   }
@@ -288,7 +288,7 @@ function SearchBar(props: SearchBarProps) {
         isAvailable={isAvailable}
         isReserved={isReserved}
         reservedFor={reservedFor}
-        contractTxId={contractTxID}
+        processId={processId}
       />
 
       <div
@@ -461,7 +461,7 @@ function SearchBar(props: SearchBarProps) {
         reservedFor={reservedFor}
         domain={lowerCaseDomain(domain)}
         record={registeredDomainRecord}
-        contractTxId={contractTxID}
+        processId={processId}
       />
     </div>
   );

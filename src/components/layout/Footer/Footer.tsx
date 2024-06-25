@@ -1,20 +1,14 @@
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { Tooltip } from 'antd';
-import { useState } from 'react';
 import { FaGithub } from 'react-icons/fa';
 import { FaDiscord } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
-import { useIsMobile } from '../../../hooks';
 import { ARIO_DISCORD_LINK } from '../../../utils/constants';
-import { BrandLogo, CloseIcon } from '../../icons';
+import { BrandLogo } from '../../icons';
 import './styles.css';
 
 function Footer() {
-  const isMobile = useIsMobile();
-
-  const [showTestnetBanner, setShowTestnetBanner] = useState(true);
-
   return (
     <div
       className={'flex-row app-footer'}
@@ -27,7 +21,7 @@ function Footer() {
         <BrandLogo width={'30px'} height={'30px'} fill={'var(--text-grey)'} />
         <Link
           className="grey text"
-          to={'https://ar.io/terms-and-conditions/'}
+          to={'https://ar.io/legal/terms-of-service-and-privacy-policy'}
           rel="noreferrer"
           target={'_blank'}
         >
@@ -38,59 +32,9 @@ function Footer() {
       <div
         className="flex-space-between"
         style={{
-          color: 'var(--text-subtle)',
-          fontSize: '14px',
           width: '100%',
-          textAlign: 'center',
         }}
-      >
-        {showTestnetBanner && !isMobile && (
-          <div>
-            <div
-              className="flex-row"
-              style={{
-                margin: 'auto',
-                width: 'fit-content',
-                borderRadius: 6,
-                backgroundColor: 'var(--accent)',
-                color: 'var(--text-black)',
-                padding: '12px 18px',
-                gap: '16px',
-              }}
-            >
-              <div>
-                Please help improve ArNS by taking this 2 minute{' '}
-                <Link
-                  to="https://pds-inc.typeform.com/arns-test-app"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="link hover"
-                  style={{
-                    display: 'inline',
-                    color: 'var(--text-black)',
-                    textDecoration: 'underline',
-                    fontWeight: 600,
-                  }}
-                >
-                  survey
-                </Link>
-                .
-              </div>
-              <button
-                className="flex center pointer"
-                style={{ padding: 0 }}
-                onClick={() => setShowTestnetBanner(false)}
-              >
-                <CloseIcon
-                  width={'16px'}
-                  height={'16px'}
-                  fill="var(--text-black)"
-                />
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
+      ></div>
 
       <div
         className="flex-row flex-right"

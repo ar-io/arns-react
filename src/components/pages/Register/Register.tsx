@@ -27,7 +27,6 @@ import {
 } from '../../../utils';
 import {
   ARNS_REGISTRY_ADDRESS,
-  ATOMIC_FLAG,
   MAX_LEASE_DURATION,
   MIN_LEASE_DURATION,
 } from '../../../utils/constants';
@@ -75,6 +74,41 @@ function RegisterNameForm() {
   }, [balances, fee]);
 
   useEffect(() => {
+    if (!arioContract || !domain || !ioTicker || !registrationType) return;
+
+    const update = async () => {
+      dispatchRegisterState({
+        type: 'setFee',
+        payload: { ar: 0, [ioTicker]: undefined },
+      });
+      setValidatingNext(true);
+      const cost = await arioContract
+        .getTokenCost({
+          intent: 'Buy-Record',
+          name: domain,
+          purchaseType: registrationType,
+          years: leaseDuration,
+        })
+        .then((c) => new mIOToken(c).toIO().valueOf())
+        .catch(() => undefined);
+      setValidatingNext(false);
+
+      dispatchRegisterState({
+        type: 'setFee',
+        payload: { ar: 0, [ioTicker]: cost },
+      });
+    };
+    update();
+  }, [
+    arioContract,
+    dispatchRegisterState,
+    domain,
+    ioTicker,
+    leaseDuration,
+    registrationType,
+  ]);
+
+  useEffect(() => {
     if (name && domain !== name) {
       dispatchRegisterState({
         type: 'setDomainName',
@@ -83,22 +117,23 @@ function RegisterNameForm() {
     }
   }, [name, domain]);
 
-  async function handleANTId(id: string) {
-    try {
-      const txId = new ArweaveTransactionID(id.toString());
+  async function handleANTId(id?: ArweaveTransactionID) {
+    if (!id) {
       dispatchRegisterState({
         type: 'setANTID',
-        payload: txId,
+        payload: undefined,
       });
-
-      const contract = await arweaveDataProvider.buildANTContract(txId);
-
-      if (!contract.isValid()) {
-        throw Error('ANT contract state does not match required schema.');
-      }
-    } catch (error: any) {
-      console.error(error);
+      return;
     }
+    dispatchRegisterState({
+      type: 'setANTID',
+      payload: id,
+    });
+
+    const contract = ANT.init({
+      processId: id.toString(),
+    });
+    if (!contract) throw new Error('Contract not found');
   }
 
   if (!registrationType) {
@@ -159,12 +194,13 @@ function RegisterNameForm() {
       setValidatingNext(false);
     }
 
+    const name =
+      domain && emojiRegex().test(domain)
+        ? encodeDomainToASCII(domain)
+        : domain;
     const buyRecordPayload: BuyRecordPayload = {
-      name:
-        domain && emojiRegex().test(domain)
-          ? encodeDomainToASCII(domain)
-          : domain,
-      contractTxId: antID ? antID.toString() : ATOMIC_FLAG,
+      name,
+      processId: antID?.toString() ?? 'atomic',
       // TODO: move this to a helper function
       years:
         registrationType === TRANSACTION_TYPES.LEASE
@@ -172,20 +208,17 @@ function RegisterNameForm() {
           : undefined,
       type: registrationType,
       targetId,
+      state: generateAtomicState(name, walletAddress, targetId),
     };
 
     dispatchTransactionState({
       type: 'setTransactionData',
       payload: {
-        walletAddress,
         assetId: ARNS_REGISTRY_ADDRESS.toString(),
         functionName: 'buyRecord',
         ...buyRecordPayload,
-        state: antID
-          ? await ANT.init({ contractTxId: antID.toString() }).getState()
-          : generateAtomicState(domain, walletAddress),
         interactionPrice: fee?.[ioTicker],
-      } as any, // TODO: after buyRecord is added with the sdk refactor this to the correct type
+      },
     });
     dispatchTransactionState({
       type: 'setInteractionType',
@@ -412,14 +445,7 @@ function RegisterNameForm() {
           </div>
           <div className="flex flex-column" style={{ gap: '1em' }}>
             <NameTokenSelector
-              selectedTokenCallback={(id) =>
-                id
-                  ? handleANTId(id.toString())
-                  : dispatchRegisterState({
-                      type: 'setANTID',
-                      payload: undefined,
-                    })
-              }
+              selectedTokenCallback={(id) => handleANTId(id)}
             />
             <div
               className="name-token-input-wrapper"
@@ -503,7 +529,7 @@ function RegisterNameForm() {
               <WorkflowButtons
                 nextText="Next"
                 backText="Back"
-                onNext={handleNext}
+                onNext={validatingNext ? undefined : handleNext}
                 onBack={() => navigate('/', { state: `/register/${domain}` })}
                 customNextStyle={{ width: '100px' }}
               />
@@ -511,10 +537,6 @@ function RegisterNameForm() {
           </div>
         </div>
       </div>
-      <PageLoader
-        loading={validatingNext}
-        message={'Validating transaction parameters...'}
-      />
     </div>
   );
 }

@@ -1,126 +1,76 @@
 import {
   AR_IO_CONTRACT_FUNCTIONS,
-  ArIOWritable,
-  WriteInteractionResult,
+  AoIOWrite,
+  AoMessageResult,
+  ArconnectSigner,
+  spawnANT,
 } from '@ar.io/sdk/web';
-import { ArweaveCompositeDataProvider } from '@src/services/arweave/ArweaveCompositeDataProvider';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
-import {
-  ARNS_INTERACTION_TYPES,
-  ContractInteraction,
-  TransactionDataPayload,
-} from '@src/types';
-import {
-  buildSmartweaveInteractionTags,
-  pruneExtraDataFromTransactionPayload,
-} from '@src/utils';
-import {
-  ARNS_REGISTRY_ADDRESS,
-  ATOMIC_FLAG,
-  DEFAULT_ANT_SOURCE_CODE_TX,
-  DEFAULT_CONTRACT_CACHE,
-  MIN_TTL_SECONDS,
-  WRITE_OPTIONS,
-} from '@src/utils/constants';
+import { ARNS_INTERACTION_TYPES, ContractInteraction } from '@src/types';
+import { lowerCaseDomain } from '@src/utils';
+import { WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Dispatch } from 'react';
 
-/**
- *
- * @param arweaveCompositeProvider - Temporary while the ArIO sdk does not support certain interactions
- */
+const LUA_CODE_TX_ID = 'rYRd9foqUVvMScTnX63FuyUOaP5tmlJx5tG1btCx6sg';
 export default async function dispatchArIOInteraction({
   payload,
   workflowName,
+  owner,
   arioContract,
-  arweaveCompositeProvider,
-  contractTxId,
+  processId,
   dispatch,
+  signer,
 }: {
   payload: Record<string, any>;
   workflowName: ARNS_INTERACTION_TYPES;
-  arioContract?: ArIOWritable;
-  arweaveCompositeProvider: ArweaveCompositeDataProvider;
-  contractTxId: ArweaveTransactionID;
+  owner: ArweaveTransactionID;
+  arioContract?: AoIOWrite;
+  processId: ArweaveTransactionID;
   dispatch: Dispatch<TransactionAction>;
+  signer?: ArconnectSigner;
 }): Promise<ContractInteraction> {
-  let result: WriteInteractionResult | undefined = undefined;
+  let result: AoMessageResult | undefined = undefined;
   let functionName;
 
   try {
     if (!arioContract) throw new Error('ArIO provider is not defined');
+    if (!signer) throw new Error('signer is not defined');
     dispatch({
       type: 'setSigning',
       payload: true,
     });
     switch (workflowName) {
       case ARNS_INTERACTION_TYPES.BUY_RECORD: {
-        // TODO: Replace this once the ArIO SDK supports this interaction
-        let tags = undefined;
-        if (payload.contractTxId === ATOMIC_FLAG) {
-          if (payload.targetId && payload.state) {
-            payload.state.records['@'] = {
-              transactionId: payload.targetId,
-              ttlSeconds: MIN_TTL_SECONDS,
-            };
-          }
-        } else if (payload.targetId) {
-          tags = buildSmartweaveInteractionTags({
-            contractId: new ArweaveTransactionID(payload.contractTxId),
-            input: {
-              function: 'setRecord',
-              subDomain: '@',
-              transactionId: payload.targetId,
-              ttlSeconds: MIN_TTL_SECONDS,
-            },
+        const { name, type, years } = payload;
+        let antProcessId: string = payload.processId;
+
+        if (antProcessId === 'atomic') {
+          antProcessId = await spawnANT({
+            state: payload.state,
+            signer: signer,
+            luaCodeTxId: LUA_CODE_TX_ID,
           });
         }
 
-        const cleanPayload = pruneExtraDataFromTransactionPayload(
-          ARNS_INTERACTION_TYPES.BUY_RECORD,
-          payload as TransactionDataPayload,
-        );
-        const writeInteractionId =
-          payload.contractTxId === ATOMIC_FLAG
-            ? await arweaveCompositeProvider.registerAtomicName({
-                walletAddress: payload.walletAddress,
-                registryId: ARNS_REGISTRY_ADDRESS,
-                srcCodeTransactionId: new ArweaveTransactionID(
-                  DEFAULT_ANT_SOURCE_CODE_TX,
-                ),
-                initialState: payload.state,
-                domain: payload.name,
-                type: payload.type,
-                years: payload.years,
-                qty: payload.qty,
-              })
-            : await arweaveCompositeProvider.writeTransaction({
-                walletAddress: payload.walletAddress,
-                contractTxId: ARNS_REGISTRY_ADDRESS,
-                dryWrite: true,
-                payload: {
-                  function: AR_IO_CONTRACT_FUNCTIONS.BUY_RECORD,
-                  ...cleanPayload,
-                },
-                tags,
-                interactionDetails: {
-                  isBid: payload.isBid ? payload.isBid : false,
-                },
-              });
+        const buyRecordResult = await arioContract.buyRecord({
+          name: lowerCaseDomain(name),
+          type,
+          years,
+          processId: antProcessId,
+        });
 
-        result = {
-          id: writeInteractionId as any as string,
-          owner: payload.walletAddress,
-        } as any;
+        payload.processId = antProcessId;
+
+        result = buyRecordResult;
         functionName = AR_IO_CONTRACT_FUNCTIONS.BUY_RECORD;
-
         break;
       }
       case ARNS_INTERACTION_TYPES.EXTEND_LEASE:
         result = await arioContract.extendLease(
           {
-            domain: payload.name,
+            name: lowerCaseDomain(payload.name),
             years: payload.years,
           },
           WRITE_OPTIONS,
@@ -130,8 +80,8 @@ export default async function dispatchArIOInteraction({
       case ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES:
         result = await arioContract.increaseUndernameLimit(
           {
-            domain: payload.name,
-            qty: payload.qty,
+            name: lowerCaseDomain(payload.name),
+            increaseCount: payload.qty,
           },
           WRITE_OPTIONS,
         );
@@ -151,20 +101,19 @@ export default async function dispatchArIOInteraction({
   if (!result) {
     throw new Error('Failed to dispatch ArIO interaction');
   }
+
   if (!functionName) throw new Error('Failed to set workflow name');
 
   const interaction: ContractInteraction = {
-    deployer: payload.walletAddress.toString(),
-    contractTxId: contractTxId.toString(),
-    id: await result.id,
+    deployer: owner.toString(),
+    processId: processId.toString(),
+    id: result.id,
     payload: {
       ...payload,
       function: functionName,
     },
     type: 'interaction',
   };
-
-  await DEFAULT_CONTRACT_CACHE.push(contractTxId.toString(), interaction);
 
   dispatch({
     type: 'setWorkflowName',

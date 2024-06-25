@@ -1,10 +1,9 @@
-import { ContractInteractionCache } from '@src/services/caches/ContractInteractionCache';
-import { LocalStorageCache } from '@src/services/caches/LocalStorageCache';
+import { ioDevnetProcessId } from '@ar.io/sdk/web';
 import Arweave from 'arweave';
 import { ArweaveWebWallet } from 'arweave-wallet-connector';
 
 import { ArweaveTransactionID } from '../services/arweave/ArweaveTransactionID';
-import { ANTContractJSON, ARNSContractJSON } from '../types';
+import { ARNSContractJSON } from '../types';
 
 export const APP_NAME = 'AR-IO-ArNS-App';
 export const APP_VERSION = '1.0.0';
@@ -24,7 +23,7 @@ export const ARWEAVE_APP_API = new ArweaveWebWallet(
 );
 export const ARNS_SERVICE_API =
   process.env.VITE_ARNS_SERVICE_API ?? 'https://dev.arns.app';
-export const ARWEAVE_HOST = process.env.VITE_ARWEAVE_HOST ?? 'ar-io.dev';
+export const ARWEAVE_HOST = process.env.VITE_ARWEAVE_HOST ?? 'arweave.net';
 
 export const DEFAULT_ARWEAVE = new Arweave({
   host: ARWEAVE_HOST,
@@ -66,6 +65,8 @@ export const ARNS_REGISTRY_ADDRESS = new ArweaveTransactionID(
   process.env.VITE_ARNS_REGISTRY_ADDRESS ??
     '_NctcA2sRy1-J4OmIQZbYFPM17piNcbdBPH2ncX2RL8',
 );
+export const IO_PROCESS_ID =
+  process.env.VITE_IO_PROCESS_ID || ioDevnetProcessId;
 export const STUB_ANT_ID = '6dUiTQKJCVD7c9icQhbbzfI-Le_hC4sXRDx1OQQ6jMI';
 export const STUB_ARWEAVE_TXID = '2yHmORN-N12hM1B2f9-JPMpOfa59qhpsExFCzImrD30'; // arns spec pdf
 export const DEFAULT_ANT_SOURCE_CODE_TX =
@@ -191,9 +192,8 @@ export const LANDING_PAGE_TXID = new ArweaveTransactionID(
   'UyC5P5qKPZaltMmmZAWdakhlDXsBF6qmyrbWYFchRTk',
 );
 
-export const DEFAULT_ANT_CONTRACT_STATE: ANTContractJSON = {
+export const DEFAULT_ANT_CONTRACT_STATE = {
   balances: {},
-  evolve: undefined,
   name: '',
   ticker: '',
   owner: '',
@@ -205,6 +205,7 @@ export const DEFAULT_ANT_CONTRACT_STATE: ANTContractJSON = {
     },
   },
 };
+
 export const DEFAULT_ARNS_REGISTRY_STATE: ARNSContractJSON = {
   records: {},
   fees: {},
@@ -218,19 +219,6 @@ export const DEFAULT_ARNS_REGISTRY_STATE: ARNSContractJSON = {
   approvedANTSourceCodeTxs: [],
 };
 
-export const WARP_CONTRACT_BASE_URL = 'https://sonar.warp.cc/#/app/contract/';
-export const WARP_INTERACTION_BASE_URL =
-  'https://sonar.warp.cc/#/app/interaction/';
-
-export const ATOMIC_FLAG = 'atomic' as const;
-
-export const ATOMIC_REGISTRATION_INPUT = {
-  function: 'buyRecord',
-  name: '',
-  contractTxId: ATOMIC_FLAG,
-  qty: 0,
-};
-
 export const RESERVED_BREADCRUMB_TITLES = new Set([
   'Manage Assets',
   'Increase Undernames',
@@ -238,9 +226,5 @@ export const RESERVED_BREADCRUMB_TITLES = new Set([
   'Manage Undernames',
 ]);
 
-export const ARIO_DISCORD_LINK = 'https://discord.gg/YZGfvxb4az';
+export const ARIO_DISCORD_LINK = 'https://discord.com/invite/HGG52EtTc2';
 export const APPROXIMATE_BLOCKS_PER_DAY = 720;
-
-export const DEFAULT_CONTRACT_CACHE = new ContractInteractionCache(
-  new LocalStorageCache(),
-);

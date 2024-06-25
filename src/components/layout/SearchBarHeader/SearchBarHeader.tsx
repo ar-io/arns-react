@@ -3,13 +3,12 @@ import { useWalletState } from '@src/state/contexts/WalletState';
 
 import { useIsMobile } from '../../../hooks';
 import { SearchBarHeaderProps } from '../../../types';
-import { isDomainReservedLength } from '../../../utils';
 import './styles.css';
 
 function SearchBarHeader({
   defaultText,
   domain,
-  contractTxId,
+  processId,
   isAvailable,
   isReserved,
   reservedFor,
@@ -20,7 +19,7 @@ function SearchBarHeader({
   // reserved condition
   if (
     domain &&
-    (isReserved || isDomainReservedLength(domain)) &&
+    isReserved &&
     reservedFor?.toString() !== walletAddress?.toString()
   ) {
     return (
@@ -39,7 +38,7 @@ function SearchBarHeader({
     );
   }
   // unavailable condition
-  if (contractTxId && domain) {
+  if (processId && domain) {
     return (
       <div
         className="text-medium white center flex fade-in"

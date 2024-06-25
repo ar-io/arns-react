@@ -3,7 +3,6 @@ import { DEFAULT_ARWEAVE } from '@src/utils/constants';
 import { ArconnectError, WalletNotInstalledError } from '@src/utils/errors';
 import { PermissionType } from 'arconnect';
 import { ApiConfig } from 'arweave/node/lib/api';
-import { CustomSignature, SignatureType, Transaction } from 'warp-contracts';
 
 import { ARCONNECT_UNRESPONSIVE_ERROR } from '../../components/layout/Notifications/Notifications';
 import { ArweaveWalletConnector, WALLET_TYPES } from '../../types';
@@ -21,7 +20,6 @@ export const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [
 
 export class ArConnectWalletConnector implements ArweaveWalletConnector {
   private _wallet: Window['arweaveWallet'];
-  signer: CustomSignature;
   arconnectSigner: ArconnectSigner;
   constructor() {
     this._wallet = window?.arweaveWallet;
@@ -29,13 +27,6 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
       this._wallet,
       DEFAULT_ARWEAVE as any,
     );
-    this.signer = {
-      signer: async (transaction: Transaction) => {
-        const signedTransaction = await this._wallet.sign(transaction);
-        Object.assign(transaction, signedTransaction);
-      },
-      type: 'arweave' as SignatureType,
-    };
   }
 
   // The API has been shown to be unreliable, so we call each function with a timeout
@@ -92,7 +83,6 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
         console.error(err);
         throw new ArconnectError('User cancelled authentication.');
       });
-    this.signer.signer.bind(this);
   }
 
   async disconnect(): Promise<void> {

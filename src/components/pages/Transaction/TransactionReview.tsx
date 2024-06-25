@@ -1,4 +1,4 @@
-import { ArIOWritable } from '@ar.io/sdk/web';
+import { IOWriteable } from '@ar.io/sdk/web';
 import { ANTCard } from '@src/components/cards';
 import { InfoIcon } from '@src/components/icons';
 import WorkflowButtons from '@src/components/inputs/buttons/WorkflowButtons/WorkflowButtons';
@@ -32,9 +32,8 @@ import { getTransactionHeader } from './transaction-headers';
 // on completion routes to transaction/complete
 function TransactionReview() {
   const navigate = useNavigate();
-  const [{ ioTicker, arioContract, arnsContractId, arweaveDataProvider }] =
-    useGlobalState();
-  const [{ walletAddress }] = useWalletState();
+  const [{ ioTicker, arioContract, arnsContractId }] = useGlobalState();
+  const [{ walletAddress, wallet }] = useWalletState();
   const [
     { workflowName, interactionType, transactionData, interactionResult },
     dispatchTransactionState,
@@ -59,6 +58,7 @@ function TransactionReview() {
   useEffect(() => {
     if (!transactionData && !workflowName) {
       navigate('/');
+      return;
     }
     setAntProps(
       getARNSMappingByInteractionType({
@@ -91,19 +91,25 @@ function TransactionReview() {
 
   async function handleNext() {
     try {
-      if (!(arioContract instanceof ArIOWritable)) {
+      if (!(arioContract instanceof IOWriteable)) {
         throw new Error('Wallet must be connected to dispatch transactions.');
       }
       if (!transactionData || !workflowName) {
         throw new Error('Transaction data is missing');
       }
+
+      if (!walletAddress) {
+        throw new Error('Wallet address is missing');
+      }
+      // TODO: check that it's connected
       await dispatchArIOInteraction({
-        arioContract,
-        arweaveCompositeProvider: arweaveDataProvider,
+        arioContract: arioContract,
         workflowName: workflowName as ARNS_INTERACTION_TYPES,
         payload: transactionData,
-        contractTxId: arnsContractId,
+        owner: walletAddress,
+        processId: arnsContractId,
         dispatch: dispatchTransactionState,
+        signer: wallet?.arconnectSigner,
       });
 
       navigate('/transaction/complete');

@@ -1,11 +1,9 @@
-import { ANTContractJSON } from '@src/types';
 import emojiRegex from 'emoji-regex';
 import { asciiToUnicode, unicodeToAscii } from 'puny-coder';
 
 import {
   APPROVED_CHARACTERS_REGEX,
   ARNS_NAME_REGEX,
-  RESERVED_NAME_LENGTH,
   TRAILING_DASH_UNDERSCORE_REGEX,
   UNDERNAME_REGEX,
   YEAR_IN_MILLISECONDS,
@@ -118,30 +116,10 @@ export function getLeaseDurationFromEndTimestamp(start: number, end: number) {
   return years;
 }
 
-export function isDomainReservedLength(domain: string): boolean {
-  if (encodeDomainToASCII(domain).length <= RESERVED_NAME_LENGTH) {
-    return true;
-  }
-  return false;
-}
-
 export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export function lowerCaseDomain(domain: string) {
   return encodeDomainToASCII(domain.trim()).toLowerCase();
-}
-
-// controller vs controllers array
-export function getLegacyControllersFromState(
-  state: ANTContractJSON,
-): string[] {
-  if (state.controller && !state.controllers) {
-    return [state.controller];
-  } else if (state.controllers) {
-    return state.controllers;
-  }
-
-  return [];
 }

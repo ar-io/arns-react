@@ -1,5 +1,4 @@
-import { ArIO, ArIOReadable, ArIOWritable } from '@ar.io/sdk/web';
-import { ArConnectWalletConnector } from '@src/services/wallets';
+import { AoIORead, AoIOWrite, IO } from '@ar.io/sdk/web';
 import React, {
   Dispatch,
   createContext,
@@ -9,33 +8,20 @@ import React, {
   useState,
 } from 'react';
 
-import { ARNSContractCache } from '../../services/arweave/ARNSContractCache';
 import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
-import { WarpDataProvider } from '../../services/arweave/WarpDataProvider';
 import {
   ARNS_REGISTRY_ADDRESS,
-  ARNS_SERVICE_API,
-  AVERAGE_BLOCK_TIME_MS,
   DEFAULT_ARNS_REGISTRY_STATE,
   DEFAULT_ARWEAVE,
+  IO_PROCESS_ID,
 } from '../../utils/constants';
-import eventEmitter from '../../utils/events';
 import type { GlobalAction } from '../reducers/GlobalReducer';
 
-const defaultWarp = new WarpDataProvider(
-  DEFAULT_ARWEAVE,
-  new ArConnectWalletConnector(),
-);
 const defaultArweave = new SimpleArweaveDataProvider(DEFAULT_ARWEAVE);
-const defaultContractCache = new ARNSContractCache({
-  url: ARNS_SERVICE_API,
-  arweave: defaultArweave,
-});
-
-const defaultArIO = ArIO.init({
-  contractTxId: ARNS_REGISTRY_ADDRESS.toString(),
+const defaultArIO = IO.init({
+  processId: IO_PROCESS_ID,
 });
 
 export type GlobalState = {
@@ -45,20 +31,19 @@ export type GlobalState = {
   blockHeight?: number;
   lastBlockUpdateTimestamp?: number;
   arweaveDataProvider: ArweaveCompositeDataProvider;
-  arioContract: ArIOWritable | ArIOReadable;
+  arioContract: AoIORead | AoIOWrite;
 };
 
 const initialState: GlobalState = {
   arnsContractId: ARNS_REGISTRY_ADDRESS,
   ioTicker: DEFAULT_ARNS_REGISTRY_STATE.ticker,
-  gateway: 'ar-io.dev',
+  gateway: 'arweave.net',
   blockHeight: undefined,
   lastBlockUpdateTimestamp: undefined,
-  arweaveDataProvider: new ArweaveCompositeDataProvider(
-    defaultArweave,
-    defaultWarp,
-    defaultContractCache,
-  ),
+  arweaveDataProvider: new ArweaveCompositeDataProvider({
+    arweave: defaultArweave,
+    contract: defaultArIO,
+  }),
   arioContract: defaultArIO,
 };
 
@@ -93,36 +78,12 @@ export default function GlobalStateProvider({
     if (state.ioTicker === initialState.ioTicker && !updatingTicker) {
       updateTicker();
     }
-    const updateBlockHeight = () => {
-      state.arweaveDataProvider
-        .getCurrentBlockHeight()
-        .then((newBlockHeight: number) => {
-          dispatchGlobalState({
-            type: 'setBlockHeight',
-            payload: newBlockHeight,
-          });
-        })
-        .catch((error) => eventEmitter.emit('error', error));
-    };
-
-    if (!state.blockHeight) {
-      updateBlockHeight();
-    }
-
-    const blockInterval = setInterval(updateBlockHeight, AVERAGE_BLOCK_TIME_MS); // get block height every 2 minutes or if registry or if wallet changes.
-
-    return () => {
-      clearInterval(blockInterval);
-    };
   }, []);
 
   async function updateTicker() {
     try {
       setUpdatingTicker(true);
-      const ticker = await state.arweaveDataProvider.getStateField({
-        contractTxId: ARNS_REGISTRY_ADDRESS,
-        field: 'ticker',
-      });
+      const ticker = 'dIO'; // TODO, use contract to get ticker
       dispatchGlobalState({ type: 'setIoTicker', payload: ticker });
     } catch (error) {
       console.error(error);

@@ -1,15 +1,13 @@
-import {
-  ANT,
-  ANTWritable,
-  ArIO,
-  ArNSBaseNameData,
-  ArNSLeaseData,
-} from '@ar.io/sdk/web';
-import { ANTContract } from '@src/services/arweave/ANTContract';
+import { ANT, AoANTWrite, AoArNSNameData } from '@ar.io/sdk/web';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
-import { ANTContractJSON } from '@src/types';
+import {
+  buildAntStateQuery,
+  buildArNSRecordQuery,
+  buildArNSRecordsQuery,
+  queryClient,
+} from '@src/utils/network';
 import { RefetchOptions, useSuspenseQuery } from '@tanstack/react-query';
 
 export default function useDomainInfo({
@@ -20,25 +18,31 @@ export default function useDomainInfo({
   antId?: ArweaveTransactionID;
 }): {
   data: {
-    arnsRecord?: ArNSLeaseData & ArNSBaseNameData;
-    antState?: ANTContractJSON;
+    arnsRecord?: AoArNSNameData;
     associatedNames?: string[];
-    antProvider: ANTWritable;
-    arioProvider?: ArIO;
-    contractTxId: ArweaveTransactionID;
+    processId: ArweaveTransactionID;
+    antProcess: AoANTWrite;
+    name: string;
+    ticker: string;
+    owner: string;
+    controllers: string[];
+    undernameCount?: number;
+    apexRecord: {
+      transactionId: string;
+      ttlSeconds: number;
+    };
   };
   isLoading: boolean;
   error: Error | null;
   refetch: (options?: RefetchOptions) => void;
 } {
-  const [{ arweaveDataProvider, arioContract: arioProvider }] =
-    useGlobalState();
+  const [{ arioContract: arioProvider }] = useGlobalState();
   const [{ wallet }] = useWalletState();
+
+  // TODO: this should be modified or removed
   const { data, isLoading, error, refetch } = useSuspenseQuery({
     queryKey: ['domainInfo', { domain, antId }],
     queryFn: () => getDomainInfo({ domain, antId }).catch((error) => error),
-    staleTime: 1000 * 60 * 2,
-    refetchInterval: 1000 * 60 * 2, // every block
   });
 
   async function getDomainInfo({
@@ -48,57 +52,77 @@ export default function useDomainInfo({
     domain?: string;
     antId?: ArweaveTransactionID;
   }): Promise<{
-    arnsRecord?: ArNSLeaseData & ArNSBaseNameData;
-    antState?: ANTContractJSON;
+    arnsRecord?: AoArNSNameData;
     associatedNames?: string[];
-    antProvider: ANT;
-    arioProvider?: ArIO;
-    contractTxId: ArweaveTransactionID;
+    processId: ArweaveTransactionID;
+    antProcess: AoANTWrite;
+    name: string;
+    ticker: string;
+    owner: string;
+    controllers: string[];
+    undernameCount: number;
+    apexRecord: {
+      transactionId: string;
+      ttlSeconds: number;
+    };
   }> {
     if (!domain && !antId) {
       throw new Error('No domain or antId provided');
     }
-    const signer = wallet?.arconnectSigner;
     const record = domain
-      ? await arioProvider.getArNSRecord({ domain })
+      ? await queryClient.fetchQuery(
+          buildArNSRecordQuery({ domain, arioContract: arioProvider }),
+        )
       : undefined;
 
-    let contractTxId = antId || record?.contractTxId;
-
-    const antProvider =
-      contractTxId && signer
-        ? ANT.init({
-            contractTxId: contractTxId.toString(),
-            signer,
-          })
-        : undefined;
-
-    if (!antProvider || !contractTxId) {
-      throw new Error('No contractTxId found');
+    if (!antId && !record?.processId) {
+      throw new Error('No processId found');
     }
-    // TODO: get cached domain interactions as well.
-    contractTxId = new ArweaveTransactionID(contractTxId.toString());
+    const processId = antId || new ArweaveTransactionID(record?.processId);
+    const signer = wallet?.arconnectSigner;
+    if (!signer) {
+      throw new Error('No signer found');
+    }
+    const antProcess = ANT.init({
+      processId: processId.toString(),
+      signer,
+    });
 
-    const antState = await antProvider.getState();
-    const pendingInteractions =
-      await arweaveDataProvider.getPendingContractInteractions(contractTxId);
-    const antContract = new ANTContract(
-      antState as ANTContractJSON,
-      contractTxId,
-      pendingInteractions,
+    const arnsRecords = await queryClient.fetchQuery(
+      buildArNSRecordsQuery({ arioContract: arioProvider }),
     );
-    const associatedNames = Object.keys(
-      await arweaveDataProvider.getRecords({
-        filters: { contractTxId: [contractTxId] },
-      }),
+    const associatedNames = Object.entries(arnsRecords)
+      .filter(([, r]) => r.processId == processId.toString())
+      .map(([d]) => d);
+
+    const state = await queryClient.fetchQuery(
+      buildAntStateQuery({ processId: processId.toString() }),
     );
+    if (!state) throw new Error('State not found for ANT contract');
+    const {
+      Name: name,
+      Ticker: ticker,
+      Owner: owner,
+      Controllers: controllers,
+      Records: records,
+    } = state;
+    const apexRecord = records['@'];
+    const undernameCount = Object.keys(records).filter((k) => k !== '@').length;
+
+    if (!apexRecord) {
+      throw new Error('No apexRecord found');
+    }
     return {
-      arnsRecord: record as ArNSLeaseData & ArNSBaseNameData,
-      antState: antContract.state,
+      arnsRecord: record,
       associatedNames,
-      antProvider,
-      arioProvider,
-      contractTxId: new ArweaveTransactionID(contractTxId.toString()),
+      processId,
+      antProcess,
+      name,
+      ticker,
+      owner,
+      controllers,
+      undernameCount,
+      apexRecord,
     };
   }
 

@@ -1,6 +1,8 @@
 import { ArweaveCompositeDataProvider } from '@src/services/arweave/ArweaveCompositeDataProvider';
 import GlobalStateProvider from '@src/state/contexts/GlobalState';
 import { reducer as globalReducer } from '@src/state/reducers/GlobalReducer';
+import { createIDBPersister, queryClient } from '@src/utils/network';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { act, cleanup, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import TEST_RECORDS from '@tests/common/fixtures/TestRecords';
@@ -35,16 +37,23 @@ describe('SearchBar', () => {
   );
 
   const searchBar = (
-    <GlobalStateProvider
-      reducer={globalReducer}
-      arweaveDataProvider={
-        providerMock as unknown as ArweaveCompositeDataProvider
-      }
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{
+        persister: createIDBPersister(),
+      }}
     >
-      <RegistrationStateProvider reducer={reducer}>
-        <SearchBar placeholderText={'Find a name'} />
-      </RegistrationStateProvider>
-    </GlobalStateProvider>
+      <GlobalStateProvider
+        reducer={globalReducer}
+        arweaveDataProvider={
+          providerMock as unknown as ArweaveCompositeDataProvider
+        }
+      >
+        <RegistrationStateProvider reducer={reducer}>
+          <SearchBar placeholderText={'Find a name'} />
+        </RegistrationStateProvider>
+      </GlobalStateProvider>
+    </PersistQueryClientProvider>
   );
 
   beforeEach(async () => {
@@ -81,7 +90,7 @@ describe('SearchBar', () => {
       expect.anything(),
       expect.objectContaining({
         type: 'setANTID',
-        payload: new ArweaveTransactionID(TEST_RECORDS['ardrive'].contractTxId),
+        payload: new ArweaveTransactionID(TEST_RECORDS['ardrive'].processId),
       }),
     );
     expect(lowerCaseDomain(searchInput.value)).toEqual(lowerCaseDomain(domain));
@@ -105,7 +114,7 @@ describe('SearchBar', () => {
       expect.anything(),
       expect.objectContaining({
         type: 'setANTID',
-        payload: new ArweaveTransactionID(TEST_RECORDS['ardrive'].contractTxId),
+        payload: new ArweaveTransactionID(TEST_RECORDS['ardrive'].processId),
       }),
     );
     expect(lowerCaseDomain(searchInput.value)).toEqual(lowerCaseDomain(domain));

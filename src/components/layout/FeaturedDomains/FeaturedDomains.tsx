@@ -42,7 +42,7 @@ function FeaturedDomains(props: { domains: { [x: string]: string } }) {
           return (
             <ARNSCard
               domain={domain}
-              contractTxId={new ArweaveTransactionID(domains[domain])}
+              processId={new ArweaveTransactionID(domains[domain])}
               key={index}
             />
           );

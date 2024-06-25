@@ -1,16 +1,20 @@
+import { isLeasedArNSRecord } from '@ar.io/sdk/web';
 import LeaseDuration from '@src/components/data-display/LeaseDuration';
+import { Loader } from '@src/components/layout';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
+import { useWalletState } from '@src/state/contexts/WalletState';
 import { ANT_INTERACTION_TYPES } from '@src/types';
-import { formatExpiryDate, getUndernameCount } from '@src/utils';
+import { decodeDomainToASCII, formatExpiryDate } from '@src/utils';
 import {
   DEFAULT_MAX_UNDERNAMES,
   SECONDS_IN_GRACE_PERIOD,
 } from '@src/utils/constants';
 import { List, Skeleton } from 'antd';
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router';
 
 import ControllersRow from './ControllersRow';
 import DomainSettingsRow from './DomainSettingsRow';
@@ -28,7 +32,7 @@ export enum DomainSettingsRowTypes {
   ASSOCIATED_NAMES = 'Associated Names',
   STATUS = 'Status',
   NICKNAME = 'Nickname',
-  CONTRACT_ID = 'Contract ID',
+  PROCESS_ID = 'Process ID',
   TARGET_ID = 'Target ID',
   TICKER = 'Ticker',
   CONTROLLERS = 'Controllers',
@@ -47,22 +51,32 @@ function DomainSettings({
   rowFilter?: DomainSettingsRowTypes[];
 }) {
   const [{ interactionResult }, dispatch] = useTransactionState();
+  const navigate = useNavigate();
   const { data, isLoading, refetch } = useDomainInfo({ domain, antId });
+  const [{ wallet, walletAddress }] = useWalletState();
 
   useEffect(() => {
     refetch();
   }, [interactionResult]);
 
+  if (!wallet?.arconnectSigner || !walletAddress) {
+    navigate('/connect');
+    return;
+  }
+
+  if (isLoading) {
+    return <Loader />;
+  }
+
   function getStatus(endTimestamp?: number) {
     if (!endTimestamp) {
-      // assumes permabuy
       return 'Active';
     }
     const now = Date.now();
-    if (endTimestamp * 1000 < now) {
+    if (endTimestamp < now) {
       return 'Expired';
     }
-    if (endTimestamp - SECONDS_IN_GRACE_PERIOD < now / 1000) {
+    if (endTimestamp - SECONDS_IN_GRACE_PERIOD < now) {
       return 'In Grace Period';
     }
     return 'Active';
@@ -76,11 +90,14 @@ function DomainSettings({
             [DomainSettingsRowTypes.EXPIRY_DATE]: (
               <DomainSettingsRow
                 label="Expiry Date"
+                key={DomainSettingsRowTypes.EXPIRY_DATE}
                 value={
                   isLoading ? (
                     <Skeleton.Input active />
-                  ) : (
+                  ) : data.arnsRecord && isLeasedArNSRecord(data.arnsRecord) ? (
                     formatExpiryDate(data.arnsRecord?.endTimestamp)
+                  ) : (
+                    'N/A'
                   )
                 }
               />
@@ -88,13 +105,18 @@ function DomainSettings({
             [DomainSettingsRowTypes.LEASE_DURATION]: (
               <DomainSettingsRow
                 label="Lease Duration"
+                key={DomainSettingsRowTypes.LEASE_DURATION}
                 value={
                   isLoading ? (
                     <Skeleton.Input active />
                   ) : (
                     <LeaseDuration
                       startTimestamp={data.arnsRecord?.startTimestamp}
-                      endTimestamp={data.arnsRecord?.endTimestamp}
+                      endTimestamp={
+                        data.arnsRecord && isLeasedArNSRecord(data.arnsRecord)
+                          ? data.arnsRecord?.endTimestamp
+                          : 0
+                      }
                     />
                   )
                 }
@@ -103,35 +125,48 @@ function DomainSettings({
             [DomainSettingsRowTypes.ASSOCIATED_NAMES]: (
               <DomainSettingsRow
                 label="Associated Names"
-                value={data.associatedNames ?? 'N/A'}
+                value={
+                  data.associatedNames
+                    ?.map((d) => decodeDomainToASCII(d))
+                    .join(', ') ?? 'N/A'
+                }
+                key={DomainSettingsRowTypes.ASSOCIATED_NAMES}
               />
             ),
             [DomainSettingsRowTypes.STATUS]: (
               <DomainSettingsRow
                 label="Status"
-                value={getStatus(data.arnsRecord?.endTimestamp)}
+                value={
+                  data.arnsRecord && isLeasedArNSRecord(data.arnsRecord)
+                    ? getStatus(data.arnsRecord?.endTimestamp)
+                    : 'Active'
+                }
+                key={DomainSettingsRowTypes.STATUS}
               />
             ),
             [DomainSettingsRowTypes.NICKNAME]: (
               <NicknameRow
-                nickname={data?.antState?.name}
+                nickname={decodeDomainToASCII(data.name ?? '')}
+                key={DomainSettingsRowTypes.NICKNAME}
                 confirm={(name: string) =>
                   dispatchANTInteraction({
                     payload: { name },
                     workflowName: ANT_INTERACTION_TYPES.SET_NAME,
-                    antProvider: data.antProvider,
-                    contractTxId: data.contractTxId,
+                    processId: data.processId,
+                    signer: wallet.arconnectSigner!,
+                    owner: walletAddress.toString(),
                     dispatch,
                   })
                 }
               />
             ),
-            [DomainSettingsRowTypes.CONTRACT_ID]: (
+            [DomainSettingsRowTypes.PROCESS_ID]: (
               <DomainSettingsRow
-                label="Contract ID"
+                label="Process ID"
+                key={DomainSettingsRowTypes.PROCESS_ID}
                 value={
-                  data?.contractTxId ? (
-                    data.contractTxId.toString()
+                  data.processId ? (
+                    data.processId.toString()
                   ) : (
                     <Skeleton.Input active />
                   )
@@ -140,16 +175,18 @@ function DomainSettings({
             ),
             [DomainSettingsRowTypes.TARGET_ID]: (
               <TargetIDRow
-                targetId={data.antState?.records?.['@'].transactionId}
+                targetId={data?.apexRecord?.transactionId}
+                key={DomainSettingsRowTypes.TARGET_ID}
                 confirm={(targetId: string) =>
                   dispatchANTInteraction({
                     payload: {
                       transactionId: targetId,
-                      ttlSeconds: data.antState?.records?.['@'].ttlSeconds,
+                      ttlSeconds: data.apexRecord.ttlSeconds,
                     },
                     workflowName: ANT_INTERACTION_TYPES.SET_TARGET_ID,
-                    antProvider: data.antProvider,
-                    contractTxId: data.contractTxId,
+                    signer: wallet.arconnectSigner!,
+                    owner: walletAddress.toString(),
+                    processId: data.processId,
                     dispatch,
                   })
                 }
@@ -157,13 +194,15 @@ function DomainSettings({
             ),
             [DomainSettingsRowTypes.TICKER]: (
               <TickerRow
-                ticker={data.antState?.ticker}
+                ticker={data.ticker}
+                key={DomainSettingsRowTypes.TICKER}
                 confirm={(ticker: string) =>
                   dispatchANTInteraction({
                     payload: { ticker },
                     workflowName: ANT_INTERACTION_TYPES.SET_TICKER,
-                    antProvider: data.antProvider,
-                    contractTxId: data.contractTxId,
+                    signer: wallet.arconnectSigner!,
+                    owner: walletAddress.toString(),
+                    processId: data.processId,
                     dispatch,
                   })
                 }
@@ -171,8 +210,9 @@ function DomainSettings({
             ),
             [DomainSettingsRowTypes.CONTROLLERS]: (
               <ControllersRow
-                state={data?.antState}
-                contractTxId={data?.contractTxId?.toString()}
+                key={DomainSettingsRowTypes.CONTROLLERS}
+                processId={data.processId?.toString()}
+                controllers={data.controllers}
                 confirm={({
                   payload,
                   workflowName,
@@ -185,8 +225,9 @@ function DomainSettings({
                   dispatchANTInteraction({
                     payload,
                     workflowName,
-                    antProvider: data.antProvider,
-                    contractTxId: data.contractTxId,
+                    signer: wallet.arconnectSigner!,
+                    owner: walletAddress.toString(),
+                    processId: data.processId,
                     dispatch,
                   })
                 }
@@ -194,15 +235,17 @@ function DomainSettings({
             ),
             [DomainSettingsRowTypes.OWNER]: (
               <OwnerRow
-                contractTxId={data?.contractTxId?.toString()}
-                state={data?.antState}
-                associatedNames={data?.associatedNames ?? []}
+                owner={data.owner}
+                processId={data.processId?.toString()}
+                key={DomainSettingsRowTypes.OWNER}
+                associatedNames={data.associatedNames ?? []}
                 confirm={({ target }: { target: string }) =>
                   dispatchANTInteraction({
                     payload: { target },
                     workflowName: ANT_INTERACTION_TYPES.TRANSFER,
-                    antProvider: data.antProvider,
-                    contractTxId: data.contractTxId,
+                    signer: wallet.arconnectSigner!,
+                    owner: walletAddress.toString(),
+                    processId: data.processId,
                     dispatch,
                   })
                 }
@@ -210,17 +253,18 @@ function DomainSettings({
             ),
             [DomainSettingsRowTypes.TTL]: (
               <TTLRow
-                ttlSeconds={data?.antState?.records?.['@'].ttlSeconds}
+                ttlSeconds={data.apexRecord?.ttlSeconds}
+                key={DomainSettingsRowTypes.TTL}
                 confirm={(ttlSeconds: number) =>
                   dispatchANTInteraction({
                     payload: {
                       ttlSeconds,
-                      transactionId:
-                        data?.antState?.records?.['@'].transactionId,
+                      transactionId: data.apexRecord?.transactionId,
                     },
                     workflowName: ANT_INTERACTION_TYPES.SET_TTL_SECONDS,
-                    antProvider: data.antProvider,
-                    contractTxId: data.contractTxId,
+                    signer: wallet.arconnectSigner!,
+                    owner: walletAddress.toString(),
+                    processId: data.processId,
                     dispatch,
                   })
                 }
@@ -228,13 +272,12 @@ function DomainSettings({
             ),
             [DomainSettingsRowTypes.UNDERNAMES]: (
               <UndernamesRow
+                key={DomainSettingsRowTypes.UNDERNAMES}
                 domain={domain}
-                antId={data?.contractTxId?.toString()}
-                undernameCount={getUndernameCount(
-                  data?.antState?.records ?? {},
-                )}
+                antId={data.processId?.toString()}
+                undernameLimit={data.undernameCount ?? 0}
                 undernameSupport={
-                  data?.arnsRecord?.undernames ?? DEFAULT_MAX_UNDERNAMES
+                  data.arnsRecord?.undernameLimit ?? DEFAULT_MAX_UNDERNAMES
                 }
               />
             ),

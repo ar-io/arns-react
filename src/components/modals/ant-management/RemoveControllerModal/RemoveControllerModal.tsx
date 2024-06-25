@@ -1,26 +1,24 @@
+import { useANT } from '@src/hooks/useANT/useANT';
 import { Checkbox, Table } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../../hooks';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
-import { ANTContractJSON } from '../../../../types';
 import {
   formatForMaxCharCount,
   getCustomPaginationButtons,
-  getLegacyControllersFromState,
 } from '../../../../utils';
-import TransactionCost from '../../../layout/TransactionCost/TransactionCost';
 import DialogModal from '../../DialogModal/DialogModal';
 import './styles.css';
 
 function RemoveControllersModal({
   antId,
-  state,
+  controllers = [],
   closeModal,
   payloadCallback,
 }: {
-  antId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
-  state: ANTContractJSON;
+  antId: ArweaveTransactionID;
+  controllers: string[];
   closeModal: () => void;
   payloadCallback: (payload: { controller: string }) => void;
 }) {
@@ -29,9 +27,20 @@ function RemoveControllersModal({
     ArweaveTransactionID[]
   >([]);
   const [tablePage, setTablePage] = useState<number>(1);
-  const [rows] = useState<{ controller: ArweaveTransactionID }[]>(() =>
-    getControllerRows(state),
+  const { name = 'N/A' } = useANT(antId.toString());
+  const [rows, setRows] = useState<{ controller: ArweaveTransactionID }[]>(
+    controllers.map((controller) => ({
+      controller: new ArweaveTransactionID(controller),
+    })),
   );
+
+  useEffect(() => {
+    setRows(
+      controllers.map((controller) => ({
+        controller: new ArweaveTransactionID(controller),
+      })),
+    );
+  }, [controllers]);
 
   function handlePayloadCallback() {
     payloadCallback({
@@ -41,17 +50,6 @@ function RemoveControllersModal({
 
   function updatePage(page: number) {
     setTablePage(page);
-  }
-
-  function getControllerRows(antState?: ANTContractJSON) {
-    if (antState?.controllers && Array.isArray(antState.controllers)) {
-      return antState.controllers.map((controller) => ({
-        controller: new ArweaveTransactionID(controller),
-      }));
-    } else if (antState?.controller) {
-      return [{ controller: new ArweaveTransactionID(antState.controller) }];
-    }
-    return [];
   }
 
   return (
@@ -68,7 +66,7 @@ function RemoveControllersModal({
             style={{ fontSize: '14px', maxWidth: '575px', minWidth: '475px' }}
           >
             <div className="flex flex-column" style={{ gap: '10px' }}>
-              <span className="grey">Contract ID</span>
+              <span className="grey">Process ID</span>
               <span className="white">{antId.toString()}</span>
             </div>
             <div className="flex flex-row">
@@ -77,9 +75,7 @@ function RemoveControllersModal({
                 style={{ gap: '10px', width: 'fit-content' }}
               >
                 <span className="grey">Nickname</span>
-                <span className="white">
-                  {formatForMaxCharCount(state.name, 20)}
-                </span>
+                <span className="white">{formatForMaxCharCount(name, 20)}</span>
               </div>
               <div
                 className="flex flex-column"
@@ -88,10 +84,7 @@ function RemoveControllersModal({
                 <span className="grey" style={{ whiteSpace: 'nowrap' }}>
                   Total Controllers
                 </span>
-                <span className="white">
-                  {/* legacy contract state check */}
-                  {getLegacyControllersFromState(state).length ?? 'N/A'}
-                </span>
+                <span className="white">{rows.length ?? 'N/A'}</span>
               </div>
               <div
                 className="flex flex-column"
@@ -132,6 +125,7 @@ function RemoveControllersModal({
                           // eslint-disable-next-line
                           render: (value: string, row: any) => (
                             <Checkbox
+                              key={row.controller}
                               prefixCls="remove-controller-checkbox"
                               // TODO: remove once we have support for multi remove of controllers
                               checked={controllersToRemove
@@ -165,7 +159,7 @@ function RemoveControllersModal({
                                   : 'grey'
                               }
                             >
-                              {value.toString()}
+                              {value?.toString()}
                             </span>
                           ),
                         },
@@ -213,11 +207,11 @@ function RemoveControllersModal({
         }
         footer={
           <div className="flex">
-            <TransactionCost
+            {/* <TransactionCost
               fee={{}}
               feeWrapperStyle={{ alignItems: 'flex-start' }}
               showBorder={false}
-            />
+            /> */}
           </div>
         }
         nextText="Remove"

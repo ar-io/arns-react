@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { ConfigProvider } from 'antd';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -12,12 +12,18 @@ import WalletStateProvider from './state/contexts/WalletState';
 import { reducer, registrationReducer } from './state/reducers';
 import { transactionReducer } from './state/reducers/TransactionReducer';
 import { walletReducer } from './state/reducers/WalletReducer';
+import { createIDBPersister, queryClient } from './utils/network';
 // setup sentry
 import './utils/sentry';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <QueryClientProvider client={new QueryClient()}>
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{
+        persister: createIDBPersister(),
+      }}
+    >
       <GlobalStateProvider reducer={reducer}>
         <WalletStateProvider reducer={walletReducer}>
           <TransactionStateProvider reducer={transactionReducer}>
@@ -41,6 +47,6 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
           </TransactionStateProvider>
         </WalletStateProvider>
       </GlobalStateProvider>
-    </QueryClientProvider>
+    </PersistQueryClientProvider>
   </React.StrictMode>,
 );

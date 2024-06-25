@@ -174,7 +174,10 @@ function App() {
             handle={{
               crumbs: (data: string) => [
                 { name: 'Manage Assets', route: '/manage/names' },
-                { name: data, route: `/manage/names/${data}` },
+                {
+                  name: data,
+                  route: `/manage/names/${data}`,
+                },
               ],
             }}
           />

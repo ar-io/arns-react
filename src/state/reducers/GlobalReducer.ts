@@ -1,4 +1,4 @@
-import { ArIOReadable, ArIOWritable } from '@ar.io/sdk/web';
+import { AoIORead, AoIOWrite } from '@ar.io/sdk/web';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 
 import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
@@ -22,7 +22,7 @@ export type GlobalAction =
     }
   | {
       type: 'setArIOContract';
-      payload: ArIOWritable | ArIOReadable;
+      payload: AoIORead | AoIOWrite;
     }
   | {
       type: 'setIoTicker';

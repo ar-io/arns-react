@@ -1,3 +1,4 @@
+import { AoANTRead } from '@ar.io/sdk/web';
 import {
   Dispatch,
   createContext,
@@ -6,7 +7,6 @@ import {
   useReducer,
 } from 'react';
 
-import { ANTContract } from '../../services/arweave/ANTContract';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { TRANSACTION_TYPES } from '../../types';
 import { RegistrationAction } from '../reducers/RegistrationReducer';
@@ -16,7 +16,7 @@ export type RegistrationState = {
   resolvedTxID?: ArweaveTransactionID;
   domain: string;
   leaseDuration: number;
-  antContract?: ANTContract;
+  antContract?: AoANTRead;
   targetID?: ArweaveTransactionID;
   antID?: ArweaveTransactionID;
   fee: { ar: number; [x: string]: number | undefined };
@@ -36,8 +36,8 @@ export const initialRegistrationState: RegistrationState = {
   resolvedTxID: undefined,
   domain: '',
   leaseDuration: 1,
-  antContract: new ANTContract(),
-  fee: { ar: 0, ['Test IO']: 0 },
+  antContract: undefined,
+  fee: { ar: 0, ['dIO']: 0 },
   antID: undefined,
   isRegistered: false,
   stage: 0,
@@ -73,7 +73,7 @@ export default function RegistrationStateProvider({
         payload: { ar, [ioTicker]: Object.values(ioFee)[0] },
       });
     }
-  }, [ioTicker]);
+  }, [ioTicker, state.fee]);
 
   return (
     <RegistrationStateContext.Provider value={[state, dispatchRegisterState]}>

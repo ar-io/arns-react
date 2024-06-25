@@ -238,7 +238,7 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
         requiredNumberOfConfirmations
       ) {
         throw Error(
-          `Contract ID does not have required number of confirmations. Current confirmations: ${confirmations}. Required number of confirmations: ${requiredNumberOfConfirmations}.`,
+          `Process ID does not have required number of confirmations. Current confirmations: ${confirmations}. Required number of confirmations: ${requiredNumberOfConfirmations}.`,
         );
       }
     }

@@ -1,4 +1,5 @@
 import { PlusOutlined } from '@ant-design/icons';
+import { lowerCaseDomain } from '@src/utils';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -11,6 +12,7 @@ import {
 import {
   getARNSMappingByInteractionType,
   getLinkId,
+  isArweaveTransactionID,
 } from '../../../utils/transactionUtils/transactionUtils';
 import { ANTCard } from '../../cards';
 import ActionCard from '../../cards/ActionCard/ActionCard';
@@ -20,7 +22,7 @@ import { getTransactionCompleteAnnouncement } from './transaction-announcements'
 
 function TransactionComplete() {
   const [
-    { interactionResult, interactionType, workflowName, transactionData },
+    { interactionResult, interactionType, transactionData },
     dispatchTransactionState,
   ] = useTransactionState();
   const navigate = useNavigate();
@@ -48,6 +50,7 @@ function TransactionComplete() {
           transactionData: {
             ...transactionData,
             deployedTransactionId: interactionResult?.id,
+            processId: interactionResult?.payload.processId,
           } as TransactionData,
         }) as ARNSMapping,
       );
@@ -62,7 +65,7 @@ function TransactionComplete() {
     return <PageLoader loading={true} message={'Loading...'} />;
   }
 
-  const link = getLinkId(workflowName as ValidInteractionType, {
+  const link = getLinkId(localData.interactionType as ValidInteractionType, {
     ...localData.transactionData,
     deployedTransactionId: localData.interactionResult.id,
   }).trim();
@@ -100,7 +103,11 @@ function TransactionComplete() {
             }}
           >
             <ActionCard
-              to={`/manage/ants/${link}`}
+              to={
+                isArweaveTransactionID(link)
+                  ? `/manage/ants/${link}`
+                  : `/manage/names/${lowerCaseDomain(link)}`
+              }
               body={
                 <div
                   className="flex flex-column center"
@@ -112,7 +119,11 @@ function TransactionComplete() {
               }
             />
             <ActionCard
-              to={`/manage/ants/${link}/undernames`}
+              to={
+                isArweaveTransactionID(link)
+                  ? `/manage/ants/${link}/undernames`
+                  : `/manage/names/${lowerCaseDomain(link)}/undernames`
+              }
               body={
                 <div
                   className="flex flex-column center"

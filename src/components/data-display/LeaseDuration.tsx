@@ -7,10 +7,7 @@ export const getLeaseDurationString = (
   if (endTimestamp) {
     const duration = Math.max(
       1,
-      getLeaseDurationFromEndTimestamp(
-        startTimestamp * 1000,
-        endTimestamp * 1000,
-      ),
+      getLeaseDurationFromEndTimestamp(startTimestamp, endTimestamp),
     );
     const y = duration > 1 ? 'years' : 'year';
     return `${duration} ${y}`;

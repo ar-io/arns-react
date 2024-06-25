@@ -1,16 +1,11 @@
+import { AoArNSNameData } from '@ar.io/sdk/web';
 import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
 import { useIsMobile } from '../../../../hooks';
-import { ANTContract } from '../../../../services/arweave/ANTContract';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
-import {
-  ANTContractJSON,
-  ARNSDomains,
-  SetRecordPayload,
-  VALIDATION_INPUT_TYPES,
-} from '../../../../types';
+import { SetRecordPayload, VALIDATION_INPUT_TYPES } from '../../../../types';
 import {
   isArweaveTransactionID,
   isUndernameValid,
@@ -28,8 +23,6 @@ import {
 import eventEmitter from '../../../../utils/events';
 import WarningCard from '../../../cards/WarningCard/WarningCard';
 import ValidationInput from '../../../inputs/text/ValidationInput/ValidationInput';
-import { Loader } from '../../../layout';
-import TransactionCost from '../../../layout/TransactionCost/TransactionCost';
 import DialogModal from '../../DialogModal/DialogModal';
 
 function AddUndernameModal({
@@ -37,13 +30,12 @@ function AddUndernameModal({
   closeModal,
   payloadCallback,
 }: {
-  antId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
+  antId: ArweaveTransactionID; // process ID if asset type is a contract interaction
   closeModal: () => void;
   payloadCallback: (payload: SetRecordPayload) => void;
 }) {
   const [{ arweaveDataProvider }] = useGlobalState();
   const isMobile = useIsMobile();
-  const [state, setState] = useState<ANTContractJSON>();
 
   const targetIdRef = useRef<HTMLInputElement>(null);
   const ttlRef = useRef<HTMLInputElement>(null);
@@ -51,32 +43,22 @@ function AddUndernameModal({
   const [undername, setUndername] = useState<string>('');
   const [targetId, setTargetId] = useState<string>('');
   const [ttlSeconds, setTtlSeconds] = useState<number>(MIN_TTL_SECONDS);
-  const [associatedRecords, setAssociatedRecords] = useState<ARNSDomains>({});
+  const [associatedRecords, setAssociatedRecords] = useState<
+    Record<string, AoArNSNameData>
+  >({});
   const [maxUndernameLength, setMaxUndernameLength] =
     useState<number>(MAX_UNDERNAME_LENGTH);
 
   useEffect(() => {
     loadDetails();
     nameRef.current?.focus();
-  }, [antId]);
+  }, [antId.toString()]);
 
   async function loadDetails() {
     try {
-      const [state, arnsRecords, pendingContractInteractions] =
-        await Promise.all([
-          arweaveDataProvider.getContractState<ANTContractJSON>(antId),
-          arweaveDataProvider.getRecords({
-            filters: { contractTxId: [antId] },
-          }),
-          arweaveDataProvider.getPendingContractInteractions(antId),
-        ]);
-      const contract = new ANTContract(
-        state,
-        antId,
-        pendingContractInteractions,
-      );
-
-      setState(contract.state);
+      const arnsRecords = await arweaveDataProvider.getRecords({
+        filters: { processId: [antId] },
+      });
       setAssociatedRecords(arnsRecords);
       const shortestAssociatedName = Object.keys(arnsRecords).length
         ? Math.min(...Object.keys(arnsRecords).map((name) => name.length))
@@ -95,17 +77,9 @@ function AddUndernameModal({
     });
   }
 
-  if (!state) {
-    return (
-      <div className="modal-container">
-        <Loader size={80} />
-      </div>
-    );
-  }
-
   function getIncompatibleNames(
     undername: string,
-    records: ARNSDomains,
+    records: Record<string, AoArNSNameData>,
   ): string[] {
     return Object.keys(records).filter(
       (name: string) => undername.length + name.length > MAX_UNDERNAME_LENGTH,
@@ -323,11 +297,11 @@ function AddUndernameModal({
         }
         footer={
           <div className="flex">
-            <TransactionCost
+            {/* <TransactionCost
               fee={{}}
               feeWrapperStyle={{ alignItems: 'flex-start' }}
               showBorder={false}
-            />
+            /> */}
           </div>
         }
         nextText="Next"

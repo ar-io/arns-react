@@ -1,4 +1,3 @@
-import { ANTState } from '@ar.io/sdk/web';
 import { ANTCard } from '@src/components/cards';
 import { TransferANTModal } from '@src/components/modals';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
@@ -12,13 +11,13 @@ import DomainSettingsRow from './DomainSettingsRow';
 
 export default function OwnerRow({
   confirm,
-  contractTxId,
-  state,
+  processId,
+  owner,
   associatedNames,
 }: {
-  contractTxId: string;
+  processId: string;
+  owner: string;
   associatedNames: string[];
-  state?: ANTState;
   confirm: ({ target }: { target: string }) => Promise<ContractInteraction>;
 }) {
   const [payload, setTransactionData] = useState<{
@@ -43,12 +42,11 @@ export default function OwnerRow({
     <>
       <DomainSettingsRow
         label="Owner:"
-        value={state?.owner ?? <Skeleton.Input active />}
+        value={owner ?? <Skeleton.Input active />}
         action={[
           <button
             key={1}
             onClick={() => setShowTransferANTModal(true)}
-            disabled={!state}
             className="button-secondary"
             style={{
               padding: '9px 12px',
@@ -62,11 +60,10 @@ export default function OwnerRow({
           </button>,
         ]}
       />
-      {showTransferANTModal && state && (
+      {showTransferANTModal && (
         <TransferANTModal
           closeModal={() => setShowTransferANTModal(false)}
-          antId={new ArweaveTransactionID(contractTxId)}
-          state={state}
+          antId={new ArweaveTransactionID(processId)}
           associatedNames={associatedNames}
           payloadCallback={(payload) => {
             setTransactionData({
@@ -88,7 +85,7 @@ export default function OwnerRow({
               <ANTCard
                 domain={payload.associatedNames?.[0] ?? ''}
                 mobileView
-                contractTxId={new ArweaveTransactionID(contractTxId)}
+                processId={new ArweaveTransactionID(processId)}
                 overrides={{
                   'New Owner': payload.target.toString(),
                 }}

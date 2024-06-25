@@ -1,19 +1,12 @@
-import {
-  ARNS_DEVNET_REGISTRY_TX,
-  ARNS_TESTNET_REGISTRY_TX,
-  ArIO,
-} from '@ar.io/sdk/web';
-import { ARNSContractCache } from '@src/services/arweave/ARNSContractCache';
+import { IO } from '@ar.io/sdk/web';
 import { ArweaveCompositeDataProvider } from '@src/services/arweave/ArweaveCompositeDataProvider';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { SimpleArweaveDataProvider } from '@src/services/arweave/SimpleArweaveDataProvider';
-import { WarpDataProvider } from '@src/services/arweave/WarpDataProvider';
-import { ArConnectWalletConnector } from '@src/services/wallets';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { VALIDATION_INPUT_TYPES } from '@src/types';
 import { isArweaveTransactionID } from '@src/utils';
-import { ARNS_REGISTRY_ADDRESS, ARNS_SERVICE_API } from '@src/utils/constants';
+import { ARNS_REGISTRY_ADDRESS, IO_PROCESS_ID } from '@src/utils/constants';
 import { Collapse, Space } from 'antd';
 import Arweave from 'arweave';
 import { useEffect, useState } from 'react';
@@ -43,8 +36,8 @@ function ArNSRegistrySettings() {
         payload: new ArweaveTransactionID(id.trim()),
       });
 
-      const arIOContract = ArIO.init({
-        contractTxId: id.trim(),
+      const arIOContract = IO.init({
+        processId: id.trim(),
         ...(wallet?.arconnectSigner ? { signer: wallet.arconnectSigner } : {}),
       });
       dispatchGlobalState({
@@ -52,27 +45,20 @@ function ArNSRegistrySettings() {
         payload: arIOContract,
       });
 
-      const gateway = 'ar-io.dev';
+      const gateway = 'arweave.net';
       const arweave = new Arweave({
         host: gateway,
         protocol: 'https',
       });
-      const warpDataProvider = new WarpDataProvider(
-        arweave,
-        wallet ?? new ArConnectWalletConnector(),
-      );
       const arweaveDataProvider = new SimpleArweaveDataProvider(arweave);
-      const contractCacheProviders = new ARNSContractCache({
-        url: ARNS_SERVICE_API,
-        arweave: arweaveDataProvider,
-        arioContract: arIOContract,
+      const contract = IO.init({
+        processId: id.trim(),
+        // TODO: add signer,
       });
-
-      const provider = new ArweaveCompositeDataProvider(
-        arweaveDataProvider,
-        warpDataProvider,
-        contractCacheProviders,
-      );
+      const provider = new ArweaveCompositeDataProvider({
+        contract,
+        arweave: arweaveDataProvider,
+      });
 
       dispatchGlobalState({
         type: 'setGateway',
@@ -97,24 +83,24 @@ function ArNSRegistrySettings() {
                   <button
                     className={
                       'center ' +
-                      (arnsContractId?.toString() === ARNS_DEVNET_REGISTRY_TX
+                      (arnsContractId?.toString() === IO_PROCESS_ID
                         ? 'button-primary'
                         : 'button-secondary')
                     }
                     style={{ padding: '4px' }}
-                    onClick={() => confirmSetting(ARNS_DEVNET_REGISTRY_TX)}
+                    onClick={() => confirmSetting(IO_PROCESS_ID)}
                   >
                     devnet
                   </button>
                   <button
                     className={
                       'center ' +
-                      (arnsContractId?.toString() === ARNS_TESTNET_REGISTRY_TX
+                      (arnsContractId?.toString() === IO_PROCESS_ID
                         ? 'button-primary'
                         : 'button-secondary')
                     }
                     style={{ padding: '4px' }}
-                    onClick={() => confirmSetting(ARNS_TESTNET_REGISTRY_TX)}
+                    onClick={() => confirmSetting(IO_PROCESS_ID)}
                   >
                     testnet
                   </button>
