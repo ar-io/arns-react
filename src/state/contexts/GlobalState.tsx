@@ -79,27 +79,6 @@ export default function GlobalStateProvider({
     if (state.ioTicker === initialState.ioTicker && !updatingTicker) {
       updateTicker();
     }
-    const updateBlockHeight = () => {
-      state.arweaveDataProvider
-        .getCurrentBlockHeight()
-        .then((newBlockHeight: number) => {
-          dispatchGlobalState({
-            type: 'setBlockHeight',
-            payload: newBlockHeight,
-          });
-        })
-        .catch((error) => eventEmitter.emit('error', error));
-    };
-
-    if (!state.blockHeight) {
-      updateBlockHeight();
-    }
-
-    const blockInterval = setInterval(updateBlockHeight, AVERAGE_BLOCK_TIME_MS); // get block height every 2 minutes or if registry or if wallet changes.
-
-    return () => {
-      clearInterval(blockInterval);
-    };
   }, []);
 
   async function updateTicker() {

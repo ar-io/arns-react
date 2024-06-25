@@ -1,4 +1,6 @@
 import { useWalletState } from '@src/state/contexts/WalletState';
+import { buildArNSRecordQuery } from '@src/utils/network';
+import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
@@ -17,7 +19,9 @@ import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
 
 function Home() {
-  const [{ arweaveDataProvider }] = useGlobalState();
+  const queryClient = useQueryClient();
+
+  const [{ arweaveDataProvider, arioContract }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [searchParams, setSearchParams] = useSearchParams();
   const [{ domain, antID }, dispatchRegisterState] = useRegistrationState();
@@ -60,9 +64,9 @@ function Home() {
     try {
       const results = await Promise.all(
         FEATURED_DOMAINS.map(async (domain: string) => {
-          const record = await arweaveDataProvider
-            .getRecord({ domain })
-            .catch(() => undefined);
+          const record = await queryClient.fetchQuery(
+            buildArNSRecordQuery({ domain, arioContract }),
+          );
           const res = record?.processId ? [domain, record?.processId] : [];
           return res;
         }),
@@ -101,10 +105,6 @@ function Home() {
     }
 
     return false;
-  }
-
-  if (!featuredDomains) {
-    return <PageLoader loading message={'Loading Home'} />;
   }
 
   return (

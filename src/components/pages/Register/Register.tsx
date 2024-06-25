@@ -81,7 +81,7 @@ function RegisterNameForm() {
         type: 'setFee',
         payload: { ar: 0, [ioTicker]: undefined },
       });
-
+      setValidatingNext(true);
       const cost = await arioContract
         .getTokenCost({
           intent: 'Buy-Record',
@@ -89,7 +89,9 @@ function RegisterNameForm() {
           purchaseType: registrationType,
           years: leaseDuration,
         })
-        .then((c) => new mIOToken(c).toIO().valueOf());
+        .then((c) => new mIOToken(c).toIO().valueOf())
+        .catch(() => undefined);
+      setValidatingNext(false);
 
       dispatchRegisterState({
         type: 'setFee',
@@ -527,7 +529,7 @@ function RegisterNameForm() {
               <WorkflowButtons
                 nextText="Next"
                 backText="Back"
-                onNext={handleNext}
+                onNext={validatingNext ? undefined : handleNext}
                 onBack={() => navigate('/', { state: `/register/${domain}` })}
                 customNextStyle={{ width: '100px' }}
               />
@@ -535,10 +537,6 @@ function RegisterNameForm() {
           </div>
         </div>
       </div>
-      <PageLoader
-        loading={validatingNext}
-        message={'Validating transaction parameters...'}
-      />
     </div>
   );
 }

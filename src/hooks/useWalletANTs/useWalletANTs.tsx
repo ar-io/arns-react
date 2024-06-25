@@ -1,4 +1,3 @@
-import { AoANTRead, AoANTReadable } from '@ar.io/sdk/web';
 import { DEFAULT_TTL_SECONDS } from '@src/utils/constants';
 import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
@@ -18,23 +17,13 @@ import ArweaveID, {
 } from '../../components/layout/ArweaveID/ArweaveID';
 import TransactionStatus from '../../components/layout/TransactionStatus/TransactionStatus';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
-import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useWalletState } from '../../state/contexts/WalletState';
-import { ANTMetadata, ContractInteraction } from '../../types';
+import { ANTMetadata } from '../../types';
 import { handleTableSort, isArweaveTransactionID } from '../../utils';
 import eventEmitter from '../../utils/events';
 import useARNS from '../useARNS';
 
-type ANTData = {
-  processId: string;
-  contract: AoANTRead;
-  transactionBlockHeight?: number;
-  pendingContractInteractions?: ContractInteraction[];
-  errors?: string[];
-};
-
 export function useWalletANTs() {
-  const [{ blockHeight, arweaveDataProvider }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [sortAscending, setSortAscending] = useState<boolean>(true);
   const [sortField, setSortField] = useState<keyof ANTMetadata>('status');
@@ -42,8 +31,6 @@ export function useWalletANTs() {
   const [filteredResults, setFilteredResults] = useState<ANTMetadata[]>([]);
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const itemCount = useRef<number>(0);
-  const itemsLoaded = useRef<number>(0);
   const [percent, setPercentLoaded] = useState<number | undefined>();
   const searchRef = useRef<HTMLInputElement>(null);
   const [searchText, setSearchText] = useState<string>('');
@@ -102,11 +89,7 @@ export function useWalletANTs() {
     try {
       setIsLoading(true);
       if (walletAddress) {
-        const height =
-          blockHeight ?? (await arweaveDataProvider.getCurrentBlockHeight());
-
-        const data = await fetchANTData(height); // TODO: not sure this is relevant
-        const newRows = await buildANTRows(data, walletAddress, height);
+        const newRows = await buildANTRows();
         setRows(newRows);
       }
     } catch (error) {
@@ -442,106 +425,36 @@ export function useWalletANTs() {
     ];
   }
 
-  async function fetchANTData(currentBlockHeight?: number): Promise<ANTData[]> {
-    let datas: ANTData[] = [];
-    try {
-      itemsLoaded.current = 0;
-      const tokenIds: Set<ArweaveTransactionID> = new Set(
-        Object.keys(result.data.ants).map(
-          (processId) => new ArweaveTransactionID(processId),
-        ),
-      );
-
-      itemCount.current = tokenIds.size;
-
-      const allTransactionBlockHeights = await arweaveDataProvider
-        .getTransactionStatus([...tokenIds], currentBlockHeight)
-        .catch((e) => console.error(e));
-      const newDatas = [...tokenIds].map(
-        async (processId: ArweaveTransactionID) => {
-          const contract = new AoANTReadable({
-            processId: processId.toString(),
-          });
-          const confirmations = allTransactionBlockHeights
-            ? allTransactionBlockHeights[processId.toString()]?.blockHeight
-            : 0;
-
-          // TODO: react strict mode makes this increment twice in dev
-          if (itemsLoaded.current < itemCount.current) itemsLoaded.current++;
-
-          setPercentLoaded(
-            Math.round((itemsLoaded.current / itemCount.current) * 100),
-          );
-
-          return {
-            contract,
-            processId: processId.toString(),
-            status: confirmations ?? 0,
-            transactionBlockHeight: allTransactionBlockHeights?.[
-              processId.toString()
-            ]?.blockHeight
-              ? allTransactionBlockHeights[processId.toString()].blockHeight
-              : 0,
-            errors: [],
-          };
-        },
-      );
-
-      datas = (await Promise.all(newDatas)).filter(
-        (d) => d !== undefined,
-      ) as ANTData[];
-    } catch (error) {
-      console.error(error);
-    }
-    return datas;
-  }
-
-  async function buildANTRows(
-    datas: ANTData[],
-    address: ArweaveTransactionID,
-    currentBlockHeight?: number,
-  ) {
-    const fetchedRows: ANTMetadata[] = await Promise.all(
-      datas.map(async (data, i) => {
-        const {
-          contract,
-          transactionBlockHeight,
-          pendingContractInteractions,
-          errors,
-        } = data;
-        const info = await contract.getInfo();
-        const [name, owner, ticker, controllers, apexRecord] =
-          await Promise.all([
-            info.Name,
-            info.Owner,
-            info.Ticker,
-            contract.getControllers(),
-            contract.getRecord({ undername: '@' }),
-          ]);
+  async function buildANTRows() {
+    const fetchedRows: ANTMetadata[] = Object.entries(result.data.ants)
+      .map(([processId, state], i) => {
+        const { Name, Ticker, Owner, Controllers, Records } = state;
+        if (!Owner || !Controllers || !Records || !state) {
+          return;
+        }
+        const apexRecord = Records?.['@'];
 
         const rowData = {
-          name: name ?? 'N/A',
-          id: data.processId,
-          ticker: ticker ?? 'N/A',
+          name: Name ?? 'N/A',
+          id: processId,
+          ticker: Ticker ?? 'N/A',
           role:
-            owner === address.toString()
+            Owner === walletAddress?.toString()
               ? 'Owner'
-              : controllers.includes(address.toString())
+              : Controllers.includes(walletAddress?.toString() ?? '')
               ? 'Controller'
               : 'N/A',
           targetID: apexRecord?.transactionId || 'N/A',
-          ttlSeconds: apexRecord?.ttlSeconds || DEFAULT_TTL_SECONDS, // TODO: use default TTL seconds
-          status:
-            transactionBlockHeight && currentBlockHeight
-              ? currentBlockHeight - transactionBlockHeight
-              : 0,
-          hasPending: !!pendingContractInteractions?.length,
-          errors,
+          ttlSeconds: apexRecord?.ttlSeconds || DEFAULT_TTL_SECONDS,
+          status: 50,
+          hasPending: false,
+          errors: [],
           key: i,
         };
+
         return rowData;
-      }),
-    );
+      })
+      .filter((row) => row !== undefined) as ANTMetadata[];
     handleTableSort<ANTMetadata>({
       key: 'status',
       isAsc: false,
