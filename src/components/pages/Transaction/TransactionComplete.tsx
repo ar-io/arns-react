@@ -1,4 +1,5 @@
 import { PlusOutlined } from '@ant-design/icons';
+import { lowerCaseDomain } from '@src/utils';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -121,7 +122,7 @@ function TransactionComplete() {
               to={
                 isArweaveTransactionID(link)
                   ? `/manage/ants/${link}/undernames`
-                  : `/manage/names/${link}/undernames`
+                  : `/manage/names/${lowerCaseDomain(link)}/undernames`
               }
               body={
                 <div

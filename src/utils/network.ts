@@ -1,4 +1,12 @@
-import { ANT, AoANTState, AoArNSNameData, AoIORead } from '@ar.io/sdk/web';
+import {
+  ANT,
+  AoANTState,
+  AoArNSNameData,
+  AoIORead,
+  mIOToken,
+} from '@ar.io/sdk/web';
+import { ArweaveCompositeDataProvider } from '@src/services/arweave/ArweaveCompositeDataProvider';
+import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { QueryClient } from '@tanstack/react-query';
 import {
   PersistedClient,
@@ -6,7 +14,7 @@ import {
 } from '@tanstack/react-query-persist-client';
 import { del, get, set } from 'idb-keyval';
 
-import { isArweaveTransactionID } from '.';
+import { isArweaveTransactionID, lowerCaseDomain } from '.';
 
 /**
  * Creates an Indexed DB persister
@@ -71,14 +79,61 @@ export function buildArNSRecordQuery({
   staleTime: number;
 } {
   return {
-    queryKey: ['arns-record', domain],
+    queryKey: ['arns-record', lowerCaseDomain(domain)],
     queryFn: async () => {
-      return await arioContract.getArNSRecord({ name: domain });
+      return await arioContract.getArNSRecord({
+        name: lowerCaseDomain(domain),
+      });
     },
     staleTime: Infinity,
   };
 }
 
+export function buildIOBalanceQuery({
+  arioContract,
+  address,
+}: {
+  arioContract: AoIORead;
+  address: string;
+}): {
+  queryKey: ['io-balance', string];
+  queryFn: () => Promise<number>;
+  staleTime: number;
+} {
+  return {
+    queryKey: ['io-balance', address],
+    queryFn: async () => {
+      return await arioContract
+        .getBalance({
+          address,
+        })
+        .then((balance) => {
+          return new mIOToken(balance).toIO().valueOf();
+        })
+        .catch(() => 0);
+    },
+    staleTime: 1000 * 60 * 60, // one hour
+  };
+}
+export function buildARBalanceQuery({
+  provider,
+  address,
+}: {
+  provider: ArweaveCompositeDataProvider;
+  address: ArweaveTransactionID;
+}): {
+  queryKey: ['ar-balance', string];
+  queryFn: () => Promise<number>;
+  staleTime: number;
+} {
+  return {
+    queryKey: ['ar-balance', address.toString()],
+    queryFn: async () => {
+      return await provider.getArBalance(address).catch(() => 0);
+    },
+    staleTime: 1000 * 60 * 60, // one hour
+  };
+}
 /**
  * Consumes a list of ARNS records and caches them in the query cache
  */
@@ -90,7 +145,10 @@ export async function cacheArNSRecords({
   records: Record<string, AoArNSNameData>;
 }): Promise<void> {
   for (const [domain, record] of Object.entries(records)) {
-    await queryClient.setQueryData(['arns-record', domain], record);
+    await queryClient.setQueryData(
+      ['arns-record', lowerCaseDomain(domain)],
+      record,
+    );
   }
 }
 

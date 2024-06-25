@@ -79,7 +79,7 @@ function ExtendLease() {
       // TODO: make this generic so we get back the correct type
 
       const domainRecord = await arioContract.getArNSRecord({
-        name: domain,
+        name: lowerCaseDomain(domain),
       });
       if (!domainRecord) {
         throw new Error(`Unable to get record for ${domain}`);
@@ -304,7 +304,7 @@ function ExtendLease() {
                     payload: ARNS_INTERACTION_TYPES.EXTEND_LEASE,
                   });
                   navigate('/transaction/review', {
-                    state: `/manage/names/${name}/extend`,
+                    state: `/manage/names/${lowerCaseDomain(name)}/extend`,
                   });
                 }
               : undefined

@@ -72,12 +72,14 @@ function useARNS(walletAddress?: string) {
   });
 
   async function invalidate() {
-    ['ant', 'arns-records', 'arns-record', 'arns-assets'].map((key) => {
-      queryClient.invalidateQueries({
-        queryKey: [key],
-        refetchType: 'all',
-      });
-    });
+    ['ant', 'arns-records', 'arns-record', 'arns-assets', 'io-balance'].map(
+      (key) => {
+        queryClient.invalidateQueries({
+          queryKey: [key],
+          refetchType: 'all',
+        });
+      },
+    );
   }
 
   return { result: res, invalidate };

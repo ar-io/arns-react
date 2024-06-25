@@ -8,7 +8,10 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { useWalletState } from '../../../state/contexts/WalletState';
-import { getLeaseDurationFromEndTimestamp } from '../../../utils';
+import {
+  getLeaseDurationFromEndTimestamp,
+  lowerCaseDomain,
+} from '../../../utils';
 import {
   MAX_LEASE_DURATION,
   MAX_UNDERNAME_COUNT,
@@ -169,7 +172,9 @@ function ManageDomain() {
                   color: 'var(--text-black)',
                   fontFamily: 'Rubik',
                 }}
-                onClick={() => navigate(`/manage/names/${name}/extend`)}
+                onClick={() =>
+                  navigate(`/manage/names/${lowerCaseDomain(name!)}/extend`)
+                }
               >
                 Extend Lease
               </button>

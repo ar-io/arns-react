@@ -2,6 +2,7 @@ import { ANT, AoANTWrite, AoArNSNameData } from '@ar.io/sdk/web';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
+import { lowerCaseDomain } from '@src/utils';
 import { RefetchOptions, useSuspenseQuery } from '@tanstack/react-query';
 
 export default function useDomainInfo({
@@ -65,7 +66,7 @@ export default function useDomainInfo({
       throw new Error('No domain or antId provided');
     }
     const record = domain
-      ? await arioProvider.getArNSRecord({ name: domain })
+      ? await arioProvider.getArNSRecord({ name: lowerCaseDomain(domain) })
       : undefined;
 
     if (!antId && !record?.processId) {

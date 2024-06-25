@@ -8,6 +8,7 @@ import {
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
 import { ARNS_INTERACTION_TYPES, ContractInteraction } from '@src/types';
+import { lowerCaseDomain } from '@src/utils';
 import { WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Dispatch } from 'react';
@@ -54,7 +55,7 @@ export default async function dispatchArIOInteraction({
         }
 
         const buyRecordResult = await arioContract.buyRecord({
-          name,
+          name: lowerCaseDomain(name),
           type,
           years,
           processId: antProcessId,
@@ -69,7 +70,7 @@ export default async function dispatchArIOInteraction({
       case ARNS_INTERACTION_TYPES.EXTEND_LEASE:
         result = await arioContract.extendLease(
           {
-            name: payload.name,
+            name: lowerCaseDomain(payload.name),
             years: payload.years,
           },
           WRITE_OPTIONS,
@@ -79,7 +80,7 @@ export default async function dispatchArIOInteraction({
       case ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES:
         result = await arioContract.increaseUndernameLimit(
           {
-            name: payload.name,
+            name: lowerCaseDomain(payload.name),
             increaseCount: payload.qty,
           },
           WRITE_OPTIONS,

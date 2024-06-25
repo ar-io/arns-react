@@ -13,6 +13,7 @@ import { ANT_FLAG } from './components/layout/Breadcrumbs/Breadcrumbs';
 import PageLoader from './components/layout/progress/PageLoader/PageLoader';
 import useArconnectEvents from './hooks/useArconnectEvents/useArconnectEvents';
 import './index.css';
+import { lowerCaseDomain } from './utils';
 
 const Home = React.lazy(() => import('./components/pages/Home/Home'));
 const Manage = React.lazy(() => import('./components/pages/Manage/Manage'));
@@ -195,10 +196,10 @@ function App() {
             handle={{
               crumbs: (data: string) => [
                 { name: 'Manage Assets', route: '/manage/names' },
-                { name: data, route: `/manage/names/${data}` },
+                { name: data, route: `/manage/names/${lowerCaseDomain(data)}` },
                 {
                   name: 'Increase Undernames',
-                  route: `/manage/names/${data}/undernames`,
+                  route: `/manage/names/${lowerCaseDomain(data)}/undernames`,
                 },
               ],
             }}
@@ -221,11 +222,11 @@ function App() {
                 { name: 'Manage Assets', route: '/manage/names' },
                 {
                   name: ANT_FLAG,
-                  route: `/manage/names/${data}`,
+                  route: `/manage/names/${lowerCaseDomain(data)}`,
                 },
                 {
                   name: 'Manage Undernames',
-                  route: `/manage/names/${data}/undernames`,
+                  route: `/manage/names/${lowerCaseDomain(data)}/undernames`,
                 },
               ],
             }}
@@ -246,10 +247,10 @@ function App() {
             handle={{
               crumbs: (data: string) => [
                 { name: 'Manage Assets', route: '/manage/names' },
-                { name: data, route: `/manage/names/${data}` },
+                { name: data, route: `/manage/names/${lowerCaseDomain(data)}` },
                 {
                   name: 'Extend Lease',
-                  route: `/manage/names/${data}/extend`,
+                  route: `/manage/names/${lowerCaseDomain(data)}/extend`,
                 },
               ],
             }}

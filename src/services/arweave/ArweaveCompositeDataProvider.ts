@@ -4,6 +4,7 @@ import {
   getANTProcessesOwnedByWallet,
   mIOToken,
 } from '@ar.io/sdk/web';
+import { lowerCaseDomain } from '@src/utils';
 
 import { ArweaveDataProvider } from '../../types';
 import { ArweaveTransactionID } from './ArweaveTransactionID';
@@ -120,7 +121,9 @@ export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
   }: {
     domain: string;
   }): Promise<AoArNSNameData | undefined> {
-    const record = await this.contract.getArNSRecord({ name: domain });
+    const record = await this.contract.getArNSRecord({
+      name: lowerCaseDomain(domain),
+    });
     return record;
   }
 
