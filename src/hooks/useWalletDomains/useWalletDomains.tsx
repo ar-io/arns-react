@@ -94,7 +94,7 @@ export function useWalletDomains() {
     try {
       setIsLoading(true);
       if (walletAddress && result.data?.domains && result.data?.ants) {
-        const newRows = await buildDomainRows({
+        const newRows = buildDomainRows({
           domains: result.data?.domains,
           ants: result.data?.ants,
         });
@@ -393,7 +393,7 @@ export function useWalletDomains() {
     ];
   }
 
-  async function buildDomainRows({
+  function buildDomainRows({
     domains,
     ants,
   }: {

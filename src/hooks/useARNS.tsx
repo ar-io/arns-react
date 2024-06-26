@@ -6,11 +6,12 @@ import {
   queryClient,
 } from '@src/utils/network';
 import { useSuspenseQuery } from '@tanstack/react-query';
+import { pLimit } from 'plimit-lit';
 
 import { useGlobalState } from '../state/contexts/GlobalState';
 
 export const rootKey = 'arns-assets';
-
+const throttle = pLimit(20); // load 20 processes at a time to avoid overwhelming the browser
 // if wallet provided, use it to fetch ARNS assets for the wallet, else fetch all
 function useARNS(walletAddress?: string) {
   const [{ arioContract }] = useGlobalState();
@@ -33,12 +34,14 @@ function useARNS(walletAddress?: string) {
 
       const antDatas = await Promise.all(
         processIds.map(
-          async (processId: string): Promise<[string, AoANTState]> => {
-            const state = await queryClient.fetchQuery(
-              buildAntStateQuery({ processId }),
-            );
-            return [processId, state as AoANTState] as const;
-          },
+          (processId: string): Promise<[string, AoANTState]> =>
+            // throttle to avoid overwhelming the browser
+            throttle(async () => {
+              const state = await queryClient.fetchQuery(
+                buildAntStateQuery({ processId }),
+              );
+              return [processId, state as AoANTState] as const;
+            }),
         ),
       ).then((res) =>
         res.reduce((acc: Record<string, AoANTState>, [processId, state]) => {
