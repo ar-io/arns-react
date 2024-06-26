@@ -2,12 +2,7 @@ import { ANT, AoANTWrite, AoArNSNameData } from '@ar.io/sdk/web';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
-import {
-  buildAntStateQuery,
-  buildArNSRecordQuery,
-  buildArNSRecordsQuery,
-  queryClient,
-} from '@src/utils/network';
+import { lowerCaseDomain } from '@src/utils';
 import { RefetchOptions, useSuspenseQuery } from '@tanstack/react-query';
 
 export default function useDomainInfo({
@@ -36,7 +31,8 @@ export default function useDomainInfo({
   error: Error | null;
   refetch: (options?: RefetchOptions) => void;
 } {
-  const [{ arioContract: arioProvider }] = useGlobalState();
+  const [{ arweaveDataProvider, arioContract: arioProvider }] =
+    useGlobalState();
   const [{ wallet }] = useWalletState();
 
   // TODO: this should be modified or removed
@@ -70,9 +66,7 @@ export default function useDomainInfo({
       throw new Error('No domain or antId provided');
     }
     const record = domain
-      ? await queryClient.fetchQuery(
-          buildArNSRecordQuery({ domain, arioContract: arioProvider }),
-        )
+      ? await arioProvider.getArNSRecord({ name: lowerCaseDomain(domain) })
       : undefined;
 
     if (!antId && !record?.processId) {
@@ -88,26 +82,28 @@ export default function useDomainInfo({
       signer,
     });
 
-    const arnsRecords = await queryClient.fetchQuery(
-      buildArNSRecordsQuery({ arioContract: arioProvider }),
+    const associatedNames = Object.keys(
+      await arweaveDataProvider.getRecords({
+        filters: { processId: [processId] },
+      }),
     );
-    const associatedNames = Object.entries(arnsRecords)
-      .filter(([_, r]) => r.processId == processId.toString())
-      .map(([d, _]) => d);
 
-    const state = await queryClient.fetchQuery(
-      buildAntStateQuery({ processId: processId.toString() }),
-    );
-    if (!state) throw new Error('State not found for ANT contract');
-    const {
-      Name: name,
-      Ticker: ticker,
-      Owner: owner,
-      Controllers: controllers,
-      Records: records,
-    } = state;
-    const apexRecord = records['@'];
-    const undernameCount = Object.keys(records).filter((k) => k !== '@').length;
+    const [
+      { Name: name, Ticker: ticker, Owner: owner },
+      controllers,
+      undernameCount,
+      apexRecord,
+    ] = await Promise.all([
+      antProcess.getInfo(),
+      antProcess.getControllers(),
+      antProcess
+        .getRecords()
+        .then(
+          (r: Record<string, any>) =>
+            Object.keys(r).filter((k) => k !== '@').length,
+        ),
+      antProcess.getRecord({ undername: '@' }),
+    ]);
 
     if (!apexRecord) {
       throw new Error('No apexRecord found');

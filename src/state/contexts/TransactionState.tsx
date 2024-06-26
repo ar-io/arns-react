@@ -9,12 +9,7 @@ import {
 } from 'react';
 
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
-import {
-  ANT_INTERACTION_TYPES,
-  ARNS_INTERACTION_TYPES,
-  ExcludedValidInteractionType,
-  TransactionData,
-} from '../../types';
+import { ExcludedValidInteractionType, TransactionData } from '../../types';
 import { TransactionAction } from '../reducers/TransactionReducer';
 import { useWalletState } from './WalletState';
 
@@ -58,21 +53,7 @@ export default function TransactionStateProvider({
   const queryClient = useQueryClient();
   const [walletAddress] = useWalletState();
   useEffect(() => {
-    const refreshableInteractionTypes: string[] = [
-      ARNS_INTERACTION_TYPES.BUY_RECORD,
-      ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES,
-      ARNS_INTERACTION_TYPES.EXTEND_LEASE,
-      ARNS_INTERACTION_TYPES.TRANSFER,
-      ANT_INTERACTION_TYPES.TRANSFER,
-      ANT_INTERACTION_TYPES.SET_CONTROLLER,
-      ANT_INTERACTION_TYPES.REMOVE_CONTROLLER,
-    ];
-    if (
-      walletAddress &&
-      queryClient &&
-      state.interactionResult &&
-      refreshableInteractionTypes.includes(state?.workflowName ?? '')
-    ) {
+    if (walletAddress && queryClient && state.interactionResult) {
       ['ant', 'arns-records', 'arns-record', 'arns-assets', 'io-balance'].map(
         (key) => {
           queryClient.invalidateQueries({
