@@ -9,8 +9,7 @@ const defaultReserved = {
 };
 
 export function useRegistrationStatus(domain: string) {
-  const [{ blockHeight, arweaveDataProvider }, dispatchGlobalState] =
-    useGlobalState();
+  const [{ arweaveDataProvider }] = useGlobalState();
   const [isAvailable, setIsAvailable] = useState<boolean>(false);
   const [isReserved, setIsReserved] = useState<{
     isReserved: boolean;

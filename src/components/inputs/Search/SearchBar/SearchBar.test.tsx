@@ -8,7 +8,6 @@ import userEvent from '@testing-library/user-event';
 import TEST_RECORDS from '@tests/common/fixtures/TestRecords';
 import ArweaveCompositeDataProviderMock from '@tests/common/mocks/ArweaveCompositeDataProviderMock';
 
-import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import RegistrationStateProvider, {
   RegistrationState,
 } from '../../../../state/contexts/RegistrationState';
