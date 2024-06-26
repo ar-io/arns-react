@@ -88,7 +88,7 @@ export function useWalletANTs() {
     try {
       setIsLoading(true);
       if (walletAddress) {
-        const newRows = await buildANTRows();
+        const newRows = buildANTRows();
         setRows(newRows);
       }
     } catch (error) {
@@ -424,7 +424,7 @@ export function useWalletANTs() {
     ];
   }
 
-  async function buildANTRows() {
+  function buildANTRows() {
     const fetchedRows: ANTMetadata[] = Object.entries(result.data.ants)
       .map(([processId, state], i) => {
         const { Name, Ticker, Owner, Controllers, Records } = state;
