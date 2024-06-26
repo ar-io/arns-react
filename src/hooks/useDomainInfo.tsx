@@ -9,6 +9,7 @@ import {
   queryClient,
 } from '@src/utils/network';
 import { RefetchOptions, useSuspenseQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 
 export default function useDomainInfo({
   domain,
@@ -39,6 +40,9 @@ export default function useDomainInfo({
   const [{ arioContract: arioProvider }] = useGlobalState();
   const [{ wallet }] = useWalletState();
 
+  // using this to have useDomainInfo hook trigger updates for React
+  const [refreshing, setRefreshing] = useState(false);
+
   // TODO: this should be modified or removed
   const { data, isLoading, error, refetch } = useSuspenseQuery({
     queryKey: ['domainInfo', { domain, antId }],
@@ -66,64 +70,74 @@ export default function useDomainInfo({
       ttlSeconds: number;
     };
   }> {
-    if (!domain && !antId) {
-      throw new Error('No domain or antId provided');
+    if (refreshing) {
+      throw new Error('Already refreshing');
     }
-    const record = domain
-      ? await queryClient.fetchQuery(
-          buildArNSRecordQuery({ domain, arioContract: arioProvider }),
-        )
-      : undefined;
+    try {
+      setRefreshing(true);
+      if (!domain && !antId) {
+        throw new Error('No domain or antId provided');
+      }
+      const record = domain
+        ? await queryClient.fetchQuery(
+            buildArNSRecordQuery({ domain, arioContract: arioProvider }),
+          )
+        : undefined;
 
-    if (!antId && !record?.processId) {
-      throw new Error('No processId found');
+      if (!antId && !record?.processId) {
+        throw new Error('No processId found');
+      }
+      const processId = antId || new ArweaveTransactionID(record?.processId);
+      const signer = wallet?.arconnectSigner;
+      if (!signer) {
+        throw new Error('No signer found');
+      }
+      const antProcess = ANT.init({
+        processId: processId.toString(),
+        signer,
+      });
+
+      const arnsRecords = await queryClient.fetchQuery(
+        buildArNSRecordsQuery({ arioContract: arioProvider }),
+      );
+      const associatedNames = Object.entries(arnsRecords)
+        .filter(([, r]) => r.processId == processId.toString())
+        .map(([d]) => d);
+
+      const state = await queryClient.fetchQuery(
+        buildAntStateQuery({ processId: processId.toString() }),
+      );
+      if (!state) throw new Error('State not found for ANT contract');
+      const {
+        Name: name,
+        Ticker: ticker,
+        Owner: owner,
+        Controllers: controllers,
+        Records: records,
+      } = state;
+      const apexRecord = records['@'];
+      const undernameCount = Object.keys(records).filter(
+        (k) => k !== '@',
+      ).length;
+
+      if (!apexRecord) {
+        throw new Error('No apexRecord found');
+      }
+      return {
+        arnsRecord: record,
+        associatedNames,
+        processId,
+        antProcess,
+        name,
+        ticker,
+        owner,
+        controllers,
+        undernameCount,
+        apexRecord,
+      };
+    } finally {
+      setRefreshing(false);
     }
-    const processId = antId || new ArweaveTransactionID(record?.processId);
-    const signer = wallet?.arconnectSigner;
-    if (!signer) {
-      throw new Error('No signer found');
-    }
-    const antProcess = ANT.init({
-      processId: processId.toString(),
-      signer,
-    });
-
-    const arnsRecords = await queryClient.fetchQuery(
-      buildArNSRecordsQuery({ arioContract: arioProvider }),
-    );
-    const associatedNames = Object.entries(arnsRecords)
-      .filter(([, r]) => r.processId == processId.toString())
-      .map(([d]) => d);
-
-    const state = await queryClient.fetchQuery(
-      buildAntStateQuery({ processId: processId.toString() }),
-    );
-    if (!state) throw new Error('State not found for ANT contract');
-    const {
-      Name: name,
-      Ticker: ticker,
-      Owner: owner,
-      Controllers: controllers,
-      Records: records,
-    } = state;
-    const apexRecord = records['@'];
-    const undernameCount = Object.keys(records).filter((k) => k !== '@').length;
-
-    if (!apexRecord) {
-      throw new Error('No apexRecord found');
-    }
-    return {
-      arnsRecord: record,
-      associatedNames,
-      processId,
-      antProcess,
-      name,
-      ticker,
-      owner,
-      controllers,
-      undernameCount,
-      apexRecord,
-    };
   }
 
   return { data, isLoading, error, refetch };

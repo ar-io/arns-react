@@ -12,6 +12,7 @@ import {
   DEFAULT_MAX_UNDERNAMES,
   SECONDS_IN_GRACE_PERIOD,
 } from '@src/utils/constants';
+import { useQueryClient } from '@tanstack/react-query';
 import { List, Skeleton } from 'antd';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
@@ -50,13 +51,41 @@ function DomainSettings({
   antId?: ArweaveTransactionID;
   rowFilter?: DomainSettingsRowTypes[];
 }) {
+  const queryClient = useQueryClient();
+
   const [{ interactionResult }, dispatch] = useTransactionState();
   const navigate = useNavigate();
   const { data, isLoading, refetch } = useDomainInfo({ domain, antId });
   const [{ wallet, walletAddress }] = useWalletState();
 
   useEffect(() => {
-    refetch();
+    if (interactionResult) {
+      queryClient.invalidateQueries({
+        queryKey: ['arns-records'],
+        refetchType: 'all',
+      });
+
+      if (domain) {
+        queryClient.invalidateQueries({
+          queryKey: ['arns-record', { domain }],
+          refetchType: 'all',
+        });
+      }
+
+      if (data?.processId) {
+        queryClient.invalidateQueries({
+          queryKey: ['ant', data.processId.toString()],
+          refetchType: 'all',
+        });
+      }
+
+      queryClient.invalidateQueries({
+        queryKey: ['domainInfo'],
+        refetchType: 'all',
+      });
+
+      refetch();
+    }
   }, [interactionResult]);
 
   if (!wallet?.arconnectSigner || !walletAddress) {

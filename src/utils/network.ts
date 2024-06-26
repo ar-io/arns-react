@@ -14,7 +14,7 @@ import {
 } from '@tanstack/react-query-persist-client';
 import { del, get, set } from 'idb-keyval';
 
-import { isArweaveTransactionID, lowerCaseDomain } from '.';
+import { lowerCaseDomain } from '.';
 
 /**
  * Creates an Indexed DB persister
@@ -44,27 +44,17 @@ export const queryClient = new QueryClient({
 
 export function buildAntStateQuery({ processId }: { processId: string }): {
   queryKey: ['ant', string];
-  queryFn: () => Promise<AoANTState | null>;
+  queryFn: () => Promise<AoANTState>;
   staleTime: number;
 } {
-  if (isArweaveTransactionID(processId)) {
-    const ant = ANT.init({ processId });
-    return {
-      queryKey: ['ant', processId],
-      queryFn: async () => {
-        return await ant.getState().catch(() => null);
-      },
-      staleTime: Infinity,
-    };
-  } else {
-    return {
-      queryKey: ['ant', processId],
-      queryFn: async () => {
-        return null;
-      },
-      staleTime: 1,
-    };
-  }
+  return {
+    queryKey: ['ant', processId],
+    queryFn: async () => {
+      const ant = ANT.init({ processId });
+      return await ant.getState();
+    },
+    staleTime: Infinity,
+  };
 }
 
 export function buildArNSRecordQuery({
