@@ -1,6 +1,5 @@
 import { ANT, AoANTState, AoArNSNameData } from '@ar.io/sdk/web';
 import eventEmitter from '@src/utils/events';
-import { set } from 'lodash';
 // import {
 //   buildAntStateQuery,
 //   buildArNSRecordsQuery,

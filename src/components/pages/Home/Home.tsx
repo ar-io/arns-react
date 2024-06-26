@@ -1,5 +1,5 @@
 import { useWalletState } from '@src/state/contexts/WalletState';
-import { buildArNSRecordQuery } from '@src/utils/network';
+// import { buildArNSRecordQuery } from '@src/utils/network';
 // import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';

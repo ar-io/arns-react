@@ -1,5 +1,4 @@
 import { ANT } from '@ar.io/sdk/web';
-import { useGlobalState } from '@src/state/contexts/GlobalState';
 // import { buildAntStateQuery } from '@src/utils/network';
 // import { useQueryClient } from '@tanstack/react-query';
 import { Breadcrumb, Tooltip } from 'antd';
@@ -31,7 +30,6 @@ function Breadcrumbs() {
   const path = location.pathname.split('/');
   const matches = useMatches();
   const [crumbs, setCrumbs] = useState<NavItem[]>([]);
-  const [{ arioContract }] = useGlobalState();
 
   useEffect(() => {
     if (!matches) {

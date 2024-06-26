@@ -1,22 +1,10 @@
 import PageLoader from '@src/components/layout/progress/PageLoader/PageLoader';
 // import { useQueryClient } from '@tanstack/react-query';
-import {
-  Dispatch,
-  createContext,
-  useContext,
-  useEffect,
-  useReducer,
-} from 'react';
+import { Dispatch, createContext, useContext, useReducer } from 'react';
 
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
-import {
-  ANT_INTERACTION_TYPES,
-  ARNS_INTERACTION_TYPES,
-  ExcludedValidInteractionType,
-  TransactionData,
-} from '../../types';
+import { ExcludedValidInteractionType, TransactionData } from '../../types';
 import { TransactionAction } from '../reducers/TransactionReducer';
-import { useWalletState } from './WalletState';
 
 export type TransactionState = {
   deployedTransactionId?: ArweaveTransactionID;
