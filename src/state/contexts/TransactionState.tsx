@@ -82,7 +82,12 @@ export default function TransactionStateProvider({
         },
       );
     }
-  }, [state.interactionResult, queryClient, walletAddress]);
+  }, [
+    state.interactionResult,
+    queryClient,
+    walletAddress,
+    state?.workflowName,
+  ]);
 
   /**
    * TODO: cache workflows in case connection lost, gives ability to continue interrupted workflows. To cache, simply add state as the value under a timestamp key.
