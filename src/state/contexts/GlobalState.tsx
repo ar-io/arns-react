@@ -37,7 +37,7 @@ export type GlobalState = {
 const initialState: GlobalState = {
   arnsContractId: ARNS_REGISTRY_ADDRESS,
   ioTicker: DEFAULT_ARNS_REGISTRY_STATE.ticker,
-  gateway: 'arweave.net',
+  gateway: 'ar-io.dev',
   blockHeight: undefined,
   lastBlockUpdateTimestamp: undefined,
   arweaveDataProvider: new ArweaveCompositeDataProvider({

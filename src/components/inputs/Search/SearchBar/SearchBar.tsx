@@ -1,5 +1,7 @@
 import { CheckCircleFilled, InfoCircleOutlined } from '@ant-design/icons';
 import { AoArNSNameData } from '@ar.io/sdk/web';
+import { buildArNSRecordQuery } from '@src/utils/network';
+import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -48,9 +50,11 @@ const searchBarValidationPredicate = ({
 
 function SearchBar(props: SearchBarProps) {
   const { disabled = false, placeholderText } = props;
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const [{ arweaveDataProvider }] = useGlobalState();
-  const [{ domain }, dispatchRegisterState] = useRegistrationState();
+  const [{ arioContract }] = useGlobalState();
+  const [{ domain, isSearching }, dispatchRegisterState] =
+    useRegistrationState();
   const [{ walletAddress }] = useWalletState();
   const isMobile = useIsMobile();
   const [isSearchValid, setIsSearchValid] = useState(true);
@@ -158,6 +162,10 @@ function SearchBar(props: SearchBarProps) {
       payload: true,
     });
     if (next) {
+      dispatchRegisterState({
+        type: 'setIsSearching',
+        payload: false,
+      });
       navigate(`/register/${decodeDomainToASCII(searchBarText)}`, {
         state: { from: `/?search=${searchBarText}` },
       });
@@ -169,6 +177,10 @@ function SearchBar(props: SearchBarProps) {
     });
     setIsSearchValid(searchValid);
     if (!searchValid) {
+      dispatchRegisterState({
+        type: 'setIsSearching',
+        payload: false,
+      });
       return;
     }
 
@@ -179,9 +191,12 @@ function SearchBar(props: SearchBarProps) {
       setSearchParams(serializeSearchParams);
     }
     // show updated states based on search result
-    const record = await arweaveDataProvider
-      .getRecord({ domain: lowerCaseDomain(searchBarText ?? '') })
-      .catch(() => null);
+    const record = await queryClient.fetchQuery(
+      buildArNSRecordQuery({
+        arioContract,
+        domain: lowerCaseDomain(searchBarText),
+      }),
+    );
     setSearchSubmitted(true);
     if (!record && searchBarText) {
       setRegisteredDomainRecord(undefined);
@@ -205,6 +220,10 @@ function SearchBar(props: SearchBarProps) {
         payload: new ArweaveTransactionID(record.processId),
       });
     }
+    dispatchRegisterState({
+      type: 'setIsSearching',
+      payload: false,
+    });
   }
 
   function _onSubmitButton() {
@@ -365,7 +384,7 @@ function SearchBar(props: SearchBarProps) {
           }}
         />
         {searchBarText && searchSubmitted ? (
-          isValidatingRegistration ? (
+          isValidatingRegistration || isSearching ? (
             <Loader size={30} color="var(--text-grey)" />
           ) : (
             <button

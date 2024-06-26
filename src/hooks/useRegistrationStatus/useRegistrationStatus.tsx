@@ -44,18 +44,6 @@ export function useRegistrationStatus(domain: string) {
       if (!domain.length) {
         return reset();
       }
-
-      if (!blockHeight) {
-        const block = await arweaveDataProvider.getCurrentBlockHeight();
-        if (!block) {
-          throw new Error('Could not get current block height');
-        }
-        dispatchGlobalState({
-          type: 'setBlockHeight',
-          payload: block,
-        });
-        return;
-      }
       const availablePromise = arweaveDataProvider.isDomainAvailable({
         domain,
       });

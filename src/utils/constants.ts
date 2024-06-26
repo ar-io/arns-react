@@ -23,7 +23,7 @@ export const ARWEAVE_APP_API = new ArweaveWebWallet(
 );
 export const ARNS_SERVICE_API =
   process.env.VITE_ARNS_SERVICE_API ?? 'https://dev.arns.app';
-export const ARWEAVE_HOST = process.env.VITE_ARWEAVE_HOST ?? 'arweave.net';
+export const ARWEAVE_HOST = process.env.VITE_ARWEAVE_HOST ?? 'ar-io.dev';
 
 export const DEFAULT_ARWEAVE = new Arweave({
   host: ARWEAVE_HOST,
