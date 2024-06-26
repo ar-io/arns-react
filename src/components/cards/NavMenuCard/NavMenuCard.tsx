@@ -1,5 +1,6 @@
 // import { buildARBalanceQuery, buildIOBalanceQuery } from '@src/utils/network';
 // import { useQueryClient } from '@tanstack/react-query';
+import { mIOToken } from '@ar.io/sdk/web';
 import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
@@ -65,9 +66,11 @@ function NavMenuCard() {
     //     provider: arweaveDataProvider,
     //   }),
     // );
-    const ioBalance = await arioContract.getBalance({
-      address: walletAddress.toString(),
-    });
+    const ioBalance = await arioContract
+      .getBalance({
+        address: walletAddress.toString(),
+      })
+      .then((balance) => new mIOToken(balance).toIO().valueOf());
     const arBalance = await arweaveDataProvider.getArBalance(walletAddress);
 
     const [formattedBalance, formattedIOBalance] = [arBalance, ioBalance].map(
