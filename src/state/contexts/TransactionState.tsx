@@ -1,5 +1,5 @@
 import PageLoader from '@src/components/layout/progress/PageLoader/PageLoader';
-import { useQueryClient } from '@tanstack/react-query';
+// import { useQueryClient } from '@tanstack/react-query';
 import {
   Dispatch,
   createContext,
@@ -55,34 +55,34 @@ export default function TransactionStateProvider({
     initialTransactionState,
   );
 
-  const queryClient = useQueryClient();
-  const [walletAddress] = useWalletState();
-  useEffect(() => {
-    const refreshableInteractionTypes: string[] = [
-      ARNS_INTERACTION_TYPES.BUY_RECORD,
-      ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES,
-      ARNS_INTERACTION_TYPES.EXTEND_LEASE,
-      ARNS_INTERACTION_TYPES.TRANSFER,
-      ANT_INTERACTION_TYPES.TRANSFER,
-      ANT_INTERACTION_TYPES.SET_CONTROLLER,
-      ANT_INTERACTION_TYPES.REMOVE_CONTROLLER,
-    ];
-    if (
-      walletAddress &&
-      queryClient &&
-      state.interactionResult &&
-      refreshableInteractionTypes.includes(state?.workflowName ?? '')
-    ) {
-      ['ant', 'arns-records', 'arns-record', 'arns-assets', 'io-balance'].map(
-        (key) => {
-          queryClient.invalidateQueries({
-            queryKey: [key],
-            refetchType: 'all',
-          });
-        },
-      );
-    }
-  }, [state.interactionResult, queryClient, walletAddress]);
+  // const queryClient = useQueryClient();
+  // const [walletAddress] = useWalletState();
+  // useEffect(() => {
+  //   const refreshableInteractionTypes: string[] = [
+  //     ARNS_INTERACTION_TYPES.BUY_RECORD,
+  //     ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES,
+  //     ARNS_INTERACTION_TYPES.EXTEND_LEASE,
+  //     ARNS_INTERACTION_TYPES.TRANSFER,
+  //     ANT_INTERACTION_TYPES.TRANSFER,
+  //     ANT_INTERACTION_TYPES.SET_CONTROLLER,
+  //     ANT_INTERACTION_TYPES.REMOVE_CONTROLLER,
+  //   ];
+  //   if (
+  //     walletAddress &&
+  //     queryClient &&
+  //     state.interactionResult &&
+  //     refreshableInteractionTypes.includes(state?.workflowName ?? '')
+  //   ) {
+  //     ['ant', 'arns-records', 'arns-record', 'arns-assets', 'io-balance'].map(
+  //       (key) => {
+  //         queryClient.invalidateQueries({
+  //           queryKey: [key],
+  //           refetchType: 'all',
+  //         });
+  //       },
+  //     );
+  //   }
+  // }, [state.interactionResult, queryClient, walletAddress]);
 
   /**
    * TODO: cache workflows in case connection lost, gives ability to continue interrupted workflows. To cache, simply add state as the value under a timestamp key.

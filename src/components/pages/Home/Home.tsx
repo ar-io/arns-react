@@ -1,6 +1,6 @@
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { buildArNSRecordQuery } from '@src/utils/network';
-import { useQueryClient } from '@tanstack/react-query';
+// import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
@@ -18,7 +18,7 @@ import { FeaturedDomains } from '../../layout';
 import './styles.css';
 
 function Home() {
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
 
   const [{ arioContract }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
@@ -63,9 +63,7 @@ function Home() {
     try {
       const results = await Promise.all(
         FEATURED_DOMAINS.map(async (domain: string) => {
-          const record = await queryClient.fetchQuery(
-            buildArNSRecordQuery({ domain, arioContract }),
-          );
+          const record = await arioContract.getArNSRecord({ name: domain });
           const res = record?.processId ? [domain, record?.processId] : [];
           return res;
         }),

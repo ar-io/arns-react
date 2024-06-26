@@ -2,13 +2,13 @@ import { ANT, AoANTWrite, AoArNSNameData } from '@ar.io/sdk/web';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
-import {
-  buildAntStateQuery,
-  buildArNSRecordQuery,
-  buildArNSRecordsQuery,
-  queryClient,
-} from '@src/utils/network';
-import { RefetchOptions, useSuspenseQuery } from '@tanstack/react-query';
+// import {
+//   buildAntStateQuery,
+//   buildArNSRecordQuery,
+//   buildArNSRecordsQuery,
+//   queryClient,
+// } from '@src/utils/network';
+import { RefetchOptions, useQuery } from '@tanstack/react-query';
 
 export default function useDomainInfo({
   domain,
@@ -40,7 +40,7 @@ export default function useDomainInfo({
   const [{ wallet }] = useWalletState();
 
   // TODO: this should be modified or removed
-  const { data, isLoading, error, refetch } = useSuspenseQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['domainInfo', { domain, antId }],
     queryFn: () => getDomainInfo({ domain, antId }).catch((error) => error),
   });
@@ -70,9 +70,7 @@ export default function useDomainInfo({
       throw new Error('No domain or antId provided');
     }
     const record = domain
-      ? await queryClient.fetchQuery(
-          buildArNSRecordQuery({ domain, arioContract: arioProvider }),
-        )
+      ? await arioProvider.getArNSRecord({ name: domain })
       : undefined;
 
     if (!antId && !record?.processId) {
@@ -88,16 +86,14 @@ export default function useDomainInfo({
       signer,
     });
 
-    const arnsRecords = await queryClient.fetchQuery(
-      buildArNSRecordsQuery({ arioContract: arioProvider }),
-    );
+    const arnsRecords = await arioProvider.getArNSRecords();
     const associatedNames = Object.entries(arnsRecords)
       .filter(([, r]) => r.processId == processId.toString())
       .map(([d]) => d);
 
-    const state = await queryClient.fetchQuery(
-      buildAntStateQuery({ processId: processId.toString() }),
-    );
+    const ant = ANT.init({ processId: processId.toString() });
+    const state = await ant.getState();
+
     if (!state) throw new Error('State not found for ANT contract');
     const {
       Name: name,

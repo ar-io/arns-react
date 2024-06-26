@@ -1,12 +1,15 @@
-import { AoANTState, AoArNSNameData } from '@ar.io/sdk/web';
-import {
-  buildAntStateQuery,
-  buildArNSRecordsQuery,
-  cacheArNSRecords,
-  queryClient,
-} from '@src/utils/network';
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { ANT, AoANTState, AoArNSNameData } from '@ar.io/sdk/web';
+import eventEmitter from '@src/utils/events';
+import { set } from 'lodash';
+// import {
+//   buildAntStateQuery,
+//   buildArNSRecordsQuery,
+//   cacheArNSRecords,
+//   queryClient,
+// } from '@src/utils/network';
+// import { useSuspenseQuery } from '@tanstack/react-query';
 import { pLimit } from 'plimit-lit';
+import { useEffect, useState } from 'react';
 
 import { useGlobalState } from '../state/contexts/GlobalState';
 
@@ -15,77 +18,81 @@ const throttle = pLimit(20); // load 20 processes at a time to avoid overwhelmin
 // if wallet provided, use it to fetch ARNS assets for the wallet, else fetch all
 function useARNS(walletAddress?: string) {
   const [{ arioContract }] = useGlobalState();
-  const res = useSuspenseQuery({
-    staleTime: Infinity,
-    queryKey: [rootKey, walletAddress],
-    queryFn: async (): Promise<{
-      domains: Record<string, AoArNSNameData>;
-      ants: Record<string, AoANTState>;
-    }> => {
-      const records = await queryClient.fetchQuery(
-        buildArNSRecordsQuery({ arioContract }),
-      );
-      await cacheArNSRecords({ queryClient, records });
-      // get all processIds and remove duplicates
-      const processIds: string[] = [
-        ...new Set(Object.values(records).map((record) => record.processId)),
-      ].filter((processId) => processId !== undefined);
-      // process ANT data for each processId
+  const [isLoading, setIsLoading] = useState(false);
+  const [isFetching] = useState(false);
+  const [data, setData] = useState<{
+    domains: Record<string, AoArNSNameData>;
+    ants: Record<string, AoANTState>;
+  }>({ domains: {}, ants: {} });
 
-      const antDatas = await Promise.all(
-        processIds.map(
-          (processId: string): Promise<[string, AoANTState]> =>
-            // throttle to avoid overwhelming the browser
-            throttle(async () => {
-              const state = await queryClient.fetchQuery(
-                buildAntStateQuery({ processId }),
-              );
-              return [processId, state as AoANTState] as const;
-            }),
-        ),
-      ).then((res) =>
-        res.reduce((acc: Record<string, AoANTState>, [processId, state]) => {
-          if (state) {
-            if (
-              (walletAddress && state.Owner !== walletAddress) ||
-              (walletAddress &&
-                state.Controllers?.length &&
-                !state.Controllers.includes(walletAddress))
-            ) {
-              return acc;
+  useEffect(() => {
+    if (!isLoading && walletAddress) {
+      fetchArnsData(walletAddress).then((d) => setData(d));
+    }
+  }, [walletAddress]);
+
+  async function fetchArnsData(wallet: string) {
+    setIsLoading(true);
+
+    // get all ARNS records
+    const records = await arioContract.getArNSRecords().catch((e) => {
+      eventEmitter.emit('error', e);
+    });
+    if (!records) {
+      setIsLoading(false);
+      return { domains: {}, ants: {} };
+    }
+
+    const domains: Record<string, AoArNSNameData> = {};
+    const ants: Record<string, AoANTState> = {};
+    try {
+      // set domain and ant data
+      await Promise.all(
+        Object.entries(records).map(async ([domain, record]) => {
+          await throttle(async () => {
+            const ant = ANT.init({ processId: record.processId });
+            const state = await ant.getState();
+            if (state) {
+              if (
+                state.Owner !== wallet ||
+                (state.Controllers?.length &&
+                  !state.Controllers.includes(wallet))
+              ) {
+                return;
+              }
+              ants[record.processId] = state;
+              domains[domain] = record;
             }
-            acc[processId] = state;
-          }
-          return acc;
-        }, {}),
+          });
+        }),
       );
-      // process domain data
-      const domains = Object.entries(records).reduce(
-        (acc: Record<string, AoArNSNameData>, [domain, record]: any) => {
-          // this should filter out invalid ANT's and return only valid ones
-          if (antDatas[record.processId]) {
-            acc[domain] = record;
-          }
-          return acc;
-        },
-        {},
-      );
-      return { domains: domains, ants: antDatas };
-    },
-  });
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    } finally {
+      setIsLoading(false);
+    }
 
-  async function invalidate() {
-    ['ant', 'arns-records', 'arns-record', 'arns-assets', 'io-balance'].map(
-      (key) => {
-        queryClient.invalidateQueries({
-          queryKey: [key],
-          refetchType: 'all',
-        });
-      },
-    );
+    return { domains, ants };
   }
 
-  return { result: res, invalidate };
+  async function invalidate() {
+    // TODO: implement this with caching
+    return;
+    // ['ant', 'arns-records', 'arns-record', 'arns-assets', 'io-balance'].map(
+    //   (key) => {
+    //     queryClient.invalidateQueries({
+    //       queryKey: [key],
+    //       refetchType: 'all',
+    //     });
+    //   },
+    // );
+  }
+
+  // returning in this format to avoid refactoring other point of integration with the caching logic
+  return {
+    result: { data, isLoading, isFetching, isRefetching: false },
+    invalidate,
+  };
 }
 
 export default useARNS;

@@ -1,5 +1,7 @@
-import { buildAntStateQuery } from '@src/utils/network';
-import { useQueryClient } from '@tanstack/react-query';
+import { ANT } from '@ar.io/sdk/web';
+import { useGlobalState } from '@src/state/contexts/GlobalState';
+// import { buildAntStateQuery } from '@src/utils/network';
+// import { useQueryClient } from '@tanstack/react-query';
 import { Breadcrumb, Tooltip } from 'antd';
 import { useEffect, useState } from 'react';
 import { useLocation, useMatches } from 'react-router';
@@ -23,12 +25,13 @@ export type NavItem = {
 export const ANT_FLAG = 'ant-flag';
 
 function Breadcrumbs() {
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
   const { Item } = Breadcrumb;
   const location = useLocation();
   const path = location.pathname.split('/');
   const matches = useMatches();
   const [crumbs, setCrumbs] = useState<NavItem[]>([]);
+  const [{ arioContract }] = useGlobalState();
 
   useEffect(() => {
     if (!matches) {
@@ -58,9 +61,11 @@ function Breadcrumbs() {
         });
       // check for ant flag
       if (isArweaveTransactionID(processId)) {
-        const state = await queryClient.fetchQuery(
-          buildAntStateQuery({ processId }),
-        );
+        // const state = await queryClient.fetchQuery(
+        //   buildAntStateQuery({ processId }),
+        // );
+        const ant = ANT.init({ processId });
+        const state = await ant.getState();
         const name = state?.Name;
 
         const parsedCrumbs = rawCrumbs[0].map((crumb: NavItem) => {

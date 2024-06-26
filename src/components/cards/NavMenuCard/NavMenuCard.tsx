@@ -1,5 +1,5 @@
 import { buildARBalanceQuery, buildIOBalanceQuery } from '@src/utils/network';
-import { useQueryClient } from '@tanstack/react-query';
+// import { useQueryClient } from '@tanstack/react-query';
 import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
@@ -19,7 +19,7 @@ import './styles.css';
 
 function NavMenuCard() {
   const [{ arweaveDataProvider, arioContract, ioTicker }] = useGlobalState();
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
   const [showMenu, setShowMenu] = useState(false);
   const [walletDetails, setWalletDetails] = useState<{
     AR: number | undefined | string;
@@ -56,15 +56,20 @@ function NavMenuCard() {
   }
 
   async function fetchWalletDetails(walletAddress: ArweaveTransactionID) {
-    const ioBalance = await queryClient.fetchQuery(
-      buildIOBalanceQuery({ address: walletAddress.toString(), arioContract }),
-    );
-    const arBalance = await queryClient.fetchQuery(
-      buildARBalanceQuery({
-        address: walletAddress,
-        provider: arweaveDataProvider,
-      }),
-    );
+    // const ioBalance = await queryClient.fetchQuery(
+    //   buildIOBalanceQuery({ address: walletAddress.toString(), arioContract }),
+    // );
+    // const arBalance = await queryClient.fetchQuery(
+    //   buildARBalanceQuery({
+    //     address: walletAddress,
+    //     provider: arweaveDataProvider,
+    //   }),
+    // );
+    const ioBalance = await arioContract.getBalance({
+      address: walletAddress.toString(),
+    });
+    const arBalance = await arweaveDataProvider.getArBalance(walletAddress);
+
     const [formattedBalance, formattedIOBalance] = [arBalance, ioBalance].map(
       (balance: string | number) =>
         Intl.NumberFormat('en-US', {

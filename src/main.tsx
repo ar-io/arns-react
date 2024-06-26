@@ -1,4 +1,5 @@
-import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+//import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ConfigProvider } from 'antd';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -12,18 +13,20 @@ import WalletStateProvider from './state/contexts/WalletState';
 import { reducer, registrationReducer } from './state/reducers';
 import { transactionReducer } from './state/reducers/TransactionReducer';
 import { walletReducer } from './state/reducers/WalletReducer';
-import { createIDBPersister, queryClient } from './utils/network';
+//import { createIDBPersister, queryClient } from './utils/network';
 // setup sentry
 import './utils/sentry';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <PersistQueryClientProvider
+    {/* TODO: re-implement persisted caching */}
+    {/* <PersistQueryClientProvider
       client={queryClient}
       persistOptions={{
         persister: createIDBPersister(),
       }}
-    >
+    > */}
+    <QueryClientProvider client={new QueryClient()}>
       <GlobalStateProvider reducer={reducer}>
         <WalletStateProvider reducer={walletReducer}>
           <TransactionStateProvider reducer={transactionReducer}>
@@ -47,6 +50,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
           </TransactionStateProvider>
         </WalletStateProvider>
       </GlobalStateProvider>
-    </PersistQueryClientProvider>
+    </QueryClientProvider>
+    {/* </PersistQueryClientProvider> */}
   </React.StrictMode>,
 );

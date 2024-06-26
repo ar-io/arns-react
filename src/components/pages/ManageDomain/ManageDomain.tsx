@@ -50,7 +50,7 @@ function ManageDomain() {
       return;
     }
 
-    fetchDomainDetails({ arnsRecord: data.arnsRecord });
+    fetchDomainDetails({ arnsRecord: data?.arnsRecord });
   }, [data, interactionResult, isLoadingDomainDetails]);
 
   // TODO: [PE-4630] tech debt, refactor this into smaller pure functions
