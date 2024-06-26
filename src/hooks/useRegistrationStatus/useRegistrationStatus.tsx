@@ -9,8 +9,7 @@ const defaultReserved = {
 };
 
 export function useRegistrationStatus(domain: string) {
-  const [{ blockHeight, arweaveDataProvider }, dispatchGlobalState] =
-    useGlobalState();
+  const [{ arweaveDataProvider }] = useGlobalState();
   const [isAvailable, setIsAvailable] = useState<boolean>(false);
   const [isReserved, setIsReserved] = useState<{
     isReserved: boolean;
@@ -43,18 +42,6 @@ export function useRegistrationStatus(domain: string) {
 
       if (!domain.length) {
         return reset();
-      }
-
-      if (!blockHeight) {
-        const block = await arweaveDataProvider.getCurrentBlockHeight();
-        if (!block) {
-          throw new Error('Could not get current block height');
-        }
-        dispatchGlobalState({
-          type: 'setBlockHeight',
-          payload: block,
-        });
-        return;
       }
       const availablePromise = arweaveDataProvider.isDomainAvailable({
         domain,

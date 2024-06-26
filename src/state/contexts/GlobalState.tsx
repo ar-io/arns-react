@@ -13,6 +13,7 @@ import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionI
 import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
 import {
   ARNS_REGISTRY_ADDRESS,
+  ARWEAVE_HOST,
   DEFAULT_ARNS_REGISTRY_STATE,
   DEFAULT_ARWEAVE,
   IO_PROCESS_ID,
@@ -37,7 +38,7 @@ export type GlobalState = {
 const initialState: GlobalState = {
   arnsContractId: ARNS_REGISTRY_ADDRESS,
   ioTicker: DEFAULT_ARNS_REGISTRY_STATE.ticker,
-  gateway: 'arweave.net',
+  gateway: ARWEAVE_HOST,
   blockHeight: undefined,
   lastBlockUpdateTimestamp: undefined,
   arweaveDataProvider: new ArweaveCompositeDataProvider({
