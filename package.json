@@ -19,7 +19,7 @@
     "docs:serve": "rm -rf docs && typedoc --out docs src/**/**/* && http-server docs"
   },
   "dependencies": {
-    "@ar.io/sdk": "1.2.0-alpha.15",
+    "@ar.io/sdk": "1.2.0-alpha.16",
     "@sentry/react": "^7.45.0",
     "@sentry/tracing": "^7.45.0",
     "@tanstack/query-async-storage-persister": "^5.45.0",
