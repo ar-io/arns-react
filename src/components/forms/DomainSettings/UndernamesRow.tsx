@@ -21,6 +21,7 @@ export default function UndernamesRow({
   return (
     <DomainSettingsRow
       label="Undernames:"
+      editable={true}
       value={
         <span
           className="flex center"

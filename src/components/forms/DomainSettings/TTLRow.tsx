@@ -16,9 +16,11 @@ import DomainSettingsRow from './DomainSettingsRow';
 export default function TTLRow({
   ttlSeconds,
   confirm,
+  editable = false,
 }: {
   ttlSeconds?: number;
   confirm: (ttlSeconds: number) => Promise<ContractInteraction>;
+  editable?: boolean;
 }) {
   const [editing, setEditing] = useState<boolean>(false);
   const [newTTL, setNewTTL] = useState<number>(
@@ -79,7 +81,7 @@ export default function TTLRow({
             <Skeleton.Input active={true} />
           )
         }
-        editable={true}
+        editable={editable}
         editing={editing}
         setEditing={() => setEditing(true)}
         onSave={() => setShowModal(true)}

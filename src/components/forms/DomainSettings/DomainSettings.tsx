@@ -4,6 +4,7 @@ import { Loader } from '@src/components/layout';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
+import { useArNSState } from '@src/state/contexts/ArNSState';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { ANT_INTERACTION_TYPES } from '@src/types';
@@ -57,6 +58,15 @@ function DomainSettings({
   const navigate = useNavigate();
   const { data, isLoading, refetch } = useDomainInfo({ domain, antId });
   const [{ wallet, walletAddress }] = useWalletState();
+
+  // permissions check
+  const [{ ants }] = useArNSState();
+  const isOwner =
+    ants[data.processId.toString()]?.Owner === walletAddress?.toString();
+  const isController = ants[data.processId.toString()]?.Controllers?.includes(
+    walletAddress?.toString() ?? '',
+  );
+  const isAuthorized = isOwner ?? isController;
 
   useEffect(() => {
     if (interactionResult) {
@@ -177,6 +187,7 @@ function DomainSettings({
               <NicknameRow
                 nickname={decodeDomainToASCII(data.name ?? '')}
                 key={DomainSettingsRowTypes.NICKNAME}
+                editable={isAuthorized}
                 confirm={(name: string) =>
                   dispatchANTInteraction({
                     payload: { name },
@@ -206,6 +217,7 @@ function DomainSettings({
               <TargetIDRow
                 targetId={data?.apexRecord?.transactionId}
                 key={DomainSettingsRowTypes.TARGET_ID}
+                editable={isAuthorized}
                 confirm={(targetId: string) =>
                   dispatchANTInteraction({
                     payload: {
@@ -225,6 +237,7 @@ function DomainSettings({
               <TickerRow
                 ticker={data.ticker}
                 key={DomainSettingsRowTypes.TICKER}
+                editable={isAuthorized}
                 confirm={(ticker: string) =>
                   dispatchANTInteraction({
                     payload: { ticker },
@@ -241,6 +254,7 @@ function DomainSettings({
               <ControllersRow
                 key={DomainSettingsRowTypes.CONTROLLERS}
                 processId={data.processId?.toString()}
+                editable={isAuthorized}
                 controllers={data.controllers}
                 confirm={({
                   payload,
@@ -268,6 +282,7 @@ function DomainSettings({
                 processId={data.processId?.toString()}
                 key={DomainSettingsRowTypes.OWNER}
                 associatedNames={data.associatedNames ?? []}
+                editable={isAuthorized}
                 confirm={({ target }: { target: string }) =>
                   dispatchANTInteraction({
                     payload: { target },
@@ -283,6 +298,7 @@ function DomainSettings({
             [DomainSettingsRowTypes.TTL]: (
               <TTLRow
                 ttlSeconds={data.apexRecord?.ttlSeconds}
+                editable={isAuthorized}
                 key={DomainSettingsRowTypes.TTL}
                 confirm={(ttlSeconds: number) =>
                   dispatchANTInteraction({
