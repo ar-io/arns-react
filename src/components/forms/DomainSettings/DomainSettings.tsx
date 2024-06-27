@@ -62,8 +62,8 @@ function DomainSettings({
   // permissions check
   const [{ ants }] = useArNSState();
   const isOwner =
-    ants[data.processId.toString()]?.Owner === walletAddress?.toString();
-  const isController = ants[data.processId.toString()]?.Controllers?.includes(
+    ants[data.processId?.toString()]?.Owner === walletAddress?.toString();
+  const isController = ants[data.processId?.toString()]?.Controllers?.includes(
     walletAddress?.toString() ?? '',
   );
   const isAuthorized = isOwner ?? isController;
@@ -187,7 +187,7 @@ function DomainSettings({
               <NicknameRow
                 nickname={decodeDomainToASCII(data.name ?? '')}
                 key={DomainSettingsRowTypes.NICKNAME}
-                editable={isAuthorized}
+                editable={isController}
                 confirm={(name: string) =>
                   dispatchANTInteraction({
                     payload: { name },
@@ -217,7 +217,7 @@ function DomainSettings({
               <TargetIDRow
                 targetId={data?.apexRecord?.transactionId}
                 key={DomainSettingsRowTypes.TARGET_ID}
-                editable={isAuthorized}
+                editable={isController}
                 confirm={(targetId: string) =>
                   dispatchANTInteraction({
                     payload: {
@@ -237,7 +237,7 @@ function DomainSettings({
               <TickerRow
                 ticker={data.ticker}
                 key={DomainSettingsRowTypes.TICKER}
-                editable={isAuthorized}
+                editable={isController}
                 confirm={(ticker: string) =>
                   dispatchANTInteraction({
                     payload: { ticker },
@@ -254,7 +254,7 @@ function DomainSettings({
               <ControllersRow
                 key={DomainSettingsRowTypes.CONTROLLERS}
                 processId={data.processId?.toString()}
-                editable={isAuthorized}
+                editable={isController}
                 controllers={data.controllers}
                 confirm={({
                   payload,
@@ -282,7 +282,7 @@ function DomainSettings({
                 processId={data.processId?.toString()}
                 key={DomainSettingsRowTypes.OWNER}
                 associatedNames={data.associatedNames ?? []}
-                editable={isAuthorized}
+                editable={isOwner}
                 confirm={({ target }: { target: string }) =>
                   dispatchANTInteraction({
                     payload: { target },
@@ -298,7 +298,7 @@ function DomainSettings({
             [DomainSettingsRowTypes.TTL]: (
               <TTLRow
                 ttlSeconds={data.apexRecord?.ttlSeconds}
-                editable={isAuthorized}
+                editable={isController}
                 key={DomainSettingsRowTypes.TTL}
                 confirm={(ttlSeconds: number) =>
                   dispatchANTInteraction({
