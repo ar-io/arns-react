@@ -14,7 +14,6 @@ import {
 } from 'react';
 
 import { ArNSAction } from '../reducers/ArNSReducer';
-import { useGlobalState } from './GlobalState';
 import { useWalletState } from './WalletState';
 
 export type ArNSState = {
@@ -56,7 +55,6 @@ export default function ArNSStateProvider({
   children,
 }: ArNSStateProviderProps): JSX.Element {
   const [state, dispatchArNSState] = useReducer(reducer, initialArNSState);
-  const [{ arioContract }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const queryClient = useQueryClient();
 

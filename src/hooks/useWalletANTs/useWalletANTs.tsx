@@ -35,8 +35,7 @@ export function useWalletANTs() {
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const { path } = useParams();
-  const [{ ants, loading, percentLoaded, arnsEmitter }, dispatchArNSState] =
-    useArNSState();
+  const [{ ants, loading, percentLoaded }, dispatchArNSState] = useArNSState();
 
   if (searchRef.current && searchOpen) {
     searchRef.current.focus();

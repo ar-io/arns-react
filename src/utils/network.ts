@@ -14,7 +14,7 @@ import {
 } from '@tanstack/react-query-persist-client';
 import { del, get, set } from 'idb-keyval';
 
-import { isArweaveTransactionID, lowerCaseDomain } from '.';
+import { lowerCaseDomain } from '.';
 
 /**
  * Creates an Indexed DB persister

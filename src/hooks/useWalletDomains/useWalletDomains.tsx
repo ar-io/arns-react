@@ -37,16 +37,13 @@ export function useWalletDomains() {
   const [rows, setRows] = useState<ARNSTableRow[]>([]);
   const [filteredResults, setFilteredResults] = useState<ARNSTableRow[]>([]);
   // loading info
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const searchRef = useRef<HTMLInputElement>(null);
   const [searchText, setSearchText] = useState<string>('');
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const { path } = useParams();
-  const [
-    { domains, ants, loading, percentLoaded, arnsEmitter },
-    dispatchArNSState,
-  ] = useArNSState();
+  const [{ domains, ants, loading, percentLoaded }, dispatchArNSState] =
+    useArNSState();
 
   if (searchRef.current && searchOpen) {
     searchRef.current.focus();
@@ -95,7 +92,6 @@ export function useWalletDomains() {
 
   async function load() {
     try {
-      setIsLoading(true);
       if (walletAddress && domains && ants) {
         const newRows = buildDomainRows({
           domains,
@@ -105,8 +101,6 @@ export function useWalletDomains() {
       }
     } catch (error) {
       eventEmitter.emit('error', error);
-    } finally {
-      setIsLoading(false);
     }
   }
 
