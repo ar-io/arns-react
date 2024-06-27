@@ -1,9 +1,10 @@
-import { AoANTState, AoArNSNameData } from '@ar.io/sdk';
+import { AoANTState, AoArNSNameData, ArNSEventEmitter } from '@ar.io/sdk';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 
 import { ArNSState, initialArNSState } from '../contexts/ArNSState';
 
 export type ArNSAction =
+  | { type: 'setArNSEmitter'; payload: ArNSEventEmitter }
   | { type: 'setDomains'; payload: Record<string, AoArNSNameData> }
   | { type: 'addDomains'; payload: Record<string, AoArNSNameData> }
   | { type: 'setAnts'; payload: Record<string, AoANTState> }
@@ -24,6 +25,11 @@ export const arnsReducer = (
       return {
         ...state,
         domains: action.payload,
+      };
+    case 'setArNSEmitter':
+      return {
+        ...state,
+        arnsEmitter: action.payload,
       };
     case 'addDomains':
       return {

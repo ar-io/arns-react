@@ -14,6 +14,7 @@ import {
 } from 'react';
 
 import { ArNSAction } from '../reducers/ArNSReducer';
+import { useGlobalState } from './GlobalState';
 import { useWalletState } from './WalletState';
 
 export type ArNSState = {
@@ -54,9 +55,20 @@ export default function ArNSStateProvider({
   reducer,
   children,
 }: ArNSStateProviderProps): JSX.Element {
+  const [{ arioContract }] = useGlobalState();
   const [state, dispatchArNSState] = useReducer(reducer, initialArNSState);
   const [{ walletAddress }] = useWalletState();
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    dispatchArNSState({
+      type: 'setArNSEmitter',
+      payload: new ArNSEventEmitter({
+        timeoutMs: 10000,
+        contract: arioContract,
+      }),
+    });
+  }, [arioContract]);
 
   useEffect(() => {
     const arnsEmitter = state.arnsEmitter;

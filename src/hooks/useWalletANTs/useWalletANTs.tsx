@@ -43,7 +43,7 @@ export function useWalletANTs() {
 
   useEffect(() => {
     load();
-  }, [walletAddress]);
+  }, [walletAddress, ants]);
 
   useEffect(() => {
     const searchQuery = searchParams.get('search');
