@@ -1,6 +1,8 @@
 import { AoANTState, AoArNSNameData, isLeasedArNSRecord } from '@ar.io/sdk/web';
 import ManageAssetButtons from '@src/components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
+import { dispatchArNSUpdate } from '@src/state/actions/dispatchArNSUpdate';
 import { useArNSState } from '@src/state/contexts/ArNSState';
+import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 
@@ -28,6 +30,7 @@ import { DEFAULT_MAX_UNDERNAMES } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 
 export function useWalletDomains() {
+  const queryClient = useQueryClient();
   const [{ gateway }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [sortAscending, setSortAscending] = useState(true);
@@ -42,8 +45,10 @@ export function useWalletDomains() {
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const { path } = useParams();
-  const [{ domains, ants, loading, percentLoaded }, dispatchArNSState] =
-    useArNSState();
+  const [
+    { domains, ants, loading, percentLoaded, arnsEmitter },
+    dispatchArNSState,
+  ] = useArNSState();
 
   if (searchRef.current && searchOpen) {
     searchRef.current.focus();
@@ -458,7 +463,13 @@ export function useWalletDomains() {
     selectedRow,
     refresh: () => {
       setRows([]);
-      dispatchArNSState({ type: 'refresh', payload: walletAddress! });
+      if (!walletAddress) return;
+      dispatchArNSUpdate({
+        dispatch: dispatchArNSState,
+        emitter: arnsEmitter,
+        queryClient,
+        walletAddress,
+      });
     },
   };
 }

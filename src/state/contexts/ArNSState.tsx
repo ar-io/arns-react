@@ -4,7 +4,8 @@ import {
   AoArNSNameData,
   ArNSEventEmitter,
 } from '@ar.io/sdk/web';
-import { useQueryClient } from '@tanstack/react-query';
+import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import {
   Dispatch,
   createContext,
@@ -13,6 +14,7 @@ import {
   useReducer,
 } from 'react';
 
+import { dispatchArNSUpdate } from '../actions/dispatchArNSUpdate';
 import { ArNSAction } from '../reducers/ArNSReducer';
 import { useGlobalState } from './GlobalState';
 import { useWalletState } from './WalletState';
@@ -71,56 +73,14 @@ export default function ArNSStateProvider({
   }, [arioContract]);
 
   useEffect(() => {
-    const arnsEmitter = state.arnsEmitter;
-    arnsEmitter.on('process', (id, process) => {
-      queryClient.setQueryData(['ant', id], () => {
-        const ant = ANT.init({ processId: id });
-        return ant.getState();
-      });
-      dispatchArNSState({
-        type: 'addDomains',
-        payload: process.names,
-      });
-      dispatchArNSState({
-        type: 'addAnts',
-        payload: { [id]: process.state },
-      });
+    if (!walletAddress) return;
+    dispatchArNSUpdate({
+      dispatch: dispatchArNSState,
+      emitter: state.arnsEmitter,
+      queryClient,
+      walletAddress: walletAddress!,
     });
-    arnsEmitter.on('progress', (itemIndex, totalIds) => {
-      dispatchArNSState({
-        type: 'incrementAntCount',
-      });
-      dispatchArNSState({
-        type: 'setPercentLoaded',
-        payload: totalIds,
-      });
-    });
-    arnsEmitter.on('end', (ids: string[]) => {
-      dispatchArNSState({
-        type: 'setLoading',
-        payload: false,
-      });
-      dispatchArNSState({
-        type: 'setPercentLoaded',
-        payload: undefined,
-      });
-      queryClient.setQueryData(['ant-ids', walletAddress], () => [...ids]);
-    });
-    // initial load of assets
-    if (walletAddress && !state.loading && !Object.keys(state.domains).length) {
-      dispatchArNSState({
-        type: 'setLoading',
-        payload: true,
-      });
-      arnsEmitter.fetchProcessesOwnedByWallet({
-        address: walletAddress.toString(),
-      });
-    }
-
-    return () => {
-      arnsEmitter.removeAllListeners();
-    };
-  }, [walletAddress]);
+  }, [walletAddress, state.arnsEmitter]);
 
   return (
     <ArNSStateContext.Provider value={[state, dispatchArNSState]}>

@@ -1,4 +1,5 @@
 import { Loader } from '@src/components/layout';
+import { useArNSState } from '@src/state/contexts/ArNSState';
 import { Progress, Table } from 'antd';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -14,27 +15,18 @@ function Manage() {
   const navigate = useNavigate();
   const { path } = useParams();
   const location = useLocation();
-  const [percent, setPercentLoaded] = useState<number | undefined>();
   const {
-    isLoading: antTableLoading,
-    percent: percentANTsLoaded,
     columns: antColumns,
     rows: antRows,
-    sortAscending: antSortAscending,
-    sortField: antSortField,
     refresh: refreshANTs,
   } = useWalletANTs();
   const {
-    isLoading: domainTableLoading,
-    percent: percentDomainsLoaded,
     columns: domainColumns,
     rows: domainRows,
-    sortAscending: domainSortAscending,
-    sortField: domainSortField,
     refresh: refreshDomains,
   } = useWalletDomains();
+  const [{ percentLoaded: percent, loading: tableLoading }] = useArNSState();
 
-  const [tableLoading, setTableLoading] = useState(true);
   const [tablePage, setTablePage] = useState<number>(1);
 
   useEffect(() => {
@@ -44,33 +36,6 @@ function Manage() {
     }
     setTablePage(1);
   }, [path]);
-
-  useEffect(() => {
-    if (path === 'ants') {
-      setPercentLoaded(percentANTsLoaded);
-    } else {
-      setPercentLoaded(percentDomainsLoaded);
-    }
-    setTableLoading(domainTableLoading || antTableLoading);
-  }, [
-    path,
-    domainSortAscending,
-    domainSortField,
-    domainTableLoading,
-    domainRows,
-    percentDomainsLoaded,
-    antSortAscending,
-    antSortField,
-    antRows,
-    antTableLoading,
-    percentANTsLoaded,
-  ]);
-
-  useEffect(() => {
-    if (percent === 100) {
-      setPercentLoaded(undefined);
-    }
-  }, [percent]);
 
   function updatePage(page: number) {
     setTablePage(page);
@@ -152,7 +117,7 @@ function Manage() {
                 ),
               )}
             </div>
-            {tableLoading && percent && percent > 0 ? (
+            {tableLoading && percent > 0 && percent < 100 ? (
               <div
                 className="flex flex-row center"
                 style={{

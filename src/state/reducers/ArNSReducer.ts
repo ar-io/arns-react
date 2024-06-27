@@ -75,11 +75,14 @@ export const arnsReducer = (
       state.arnsEmitter.fetchProcessesOwnedByWallet({
         address: action.payload.toString(),
       });
+      console.log('emitters', state.arnsEmitter);
       return {
         ...state,
         loading: true,
         percentLoaded: 0,
         antCount: 0,
+        ants: {},
+        domains: {},
       };
     }
 
