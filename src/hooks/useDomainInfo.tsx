@@ -2,12 +2,8 @@ import { ANT, AoANTWrite, AoArNSNameData } from '@ar.io/sdk/web';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
-import {
-  buildAntStateQuery,
-  buildArNSRecordQuery,
-  buildArNSRecordsQuery,
-  queryClient,
-} from '@src/utils/network';
+import { lowerCaseDomain } from '@src/utils';
+import { buildArNSRecordsQuery, queryClient } from '@src/utils/network';
 import { RefetchOptions, useSuspenseQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 
@@ -78,10 +74,11 @@ export default function useDomainInfo({
       if (!domain && !antId) {
         throw new Error('No domain or antId provided');
       }
+
       const record = domain
-        ? await queryClient.fetchQuery(
-            buildArNSRecordQuery({ domain, arioContract: arioProvider }),
-          )
+        ? await arioProvider.getArNSRecord({
+            name: lowerCaseDomain(domain),
+          })
         : undefined;
 
       if (!antId && !record?.processId) {
@@ -97,6 +94,9 @@ export default function useDomainInfo({
         signer,
       });
 
+      const state = await antProcess.getState();
+      if (!state) throw new Error('State not found for ANT contract');
+
       const arnsRecords = await queryClient.fetchQuery(
         buildArNSRecordsQuery({ arioContract: arioProvider }),
       );
@@ -104,10 +104,6 @@ export default function useDomainInfo({
         .filter(([, r]) => r.processId == processId.toString())
         .map(([d]) => d);
 
-      const state = await queryClient.fetchQuery(
-        buildAntStateQuery({ processId: processId.toString() }),
-      );
-      if (!state) throw new Error('State not found for ANT contract');
       const {
         Name: name,
         Ticker: ticker,
