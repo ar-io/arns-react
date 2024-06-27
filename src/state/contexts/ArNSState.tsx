@@ -1,5 +1,4 @@
 import { AoANTState, AoArNSNameData, ArNSEventEmitter } from '@ar.io/sdk/web';
-import { useQueryClient } from '@tanstack/react-query';
 import {
   Dispatch,
   createContext,
@@ -54,7 +53,6 @@ export default function ArNSStateProvider({
   const [{ arioContract }] = useGlobalState();
   const [state, dispatchArNSState] = useReducer(reducer, initialArNSState);
   const [{ walletAddress }] = useWalletState();
-  const queryClient = useQueryClient();
 
   useEffect(() => {
     dispatchArNSState({
@@ -71,7 +69,6 @@ export default function ArNSStateProvider({
     dispatchArNSUpdate({
       dispatch: dispatchArNSState,
       emitter: state.arnsEmitter,
-      queryClient,
       walletAddress: walletAddress!,
     });
   }, [walletAddress, state.arnsEmitter]);

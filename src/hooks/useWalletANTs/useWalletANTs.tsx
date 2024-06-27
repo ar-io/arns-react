@@ -1,7 +1,6 @@
 import { dispatchArNSUpdate } from '@src/state/actions/dispatchArNSUpdate';
 import { useArNSState } from '@src/state/contexts/ArNSState';
 import { DEFAULT_TTL_SECONDS } from '@src/utils/constants';
-import { useQueryClient } from '@tanstack/react-query';
 import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
@@ -27,7 +26,6 @@ import eventEmitter from '../../utils/events';
 
 export function useWalletANTs() {
   const [{ walletAddress }] = useWalletState();
-  const queryClient = useQueryClient();
   const [sortAscending, setSortAscending] = useState<boolean>(true);
   const [sortField, setSortField] = useState<keyof ANTMetadata>('status');
   const [rows, setRows] = useState<ANTMetadata[]>([]);
@@ -470,11 +468,11 @@ export function useWalletANTs() {
     sortAscending,
     refresh: () => {
       setRows([]);
+      setFilteredResults([]);
       if (!walletAddress) return;
       dispatchArNSUpdate({
         dispatch: dispatchArNSState,
         emitter: arnsEmitter,
-        queryClient,
         walletAddress,
       });
     },
