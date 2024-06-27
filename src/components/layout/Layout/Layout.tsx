@@ -9,6 +9,7 @@ import './styles.css';
 
 function Layout() {
   const location = useLocation();
+
   const homeOrRegister =
     location.pathname === '/' || location.pathname.startsWith('/register');
 

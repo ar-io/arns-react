@@ -47,24 +47,17 @@ export function buildAntStateQuery({ processId }: { processId: string }): {
   queryFn: () => Promise<AoANTState | null>;
   staleTime: number;
 } {
-  if (isArweaveTransactionID(processId)) {
-    const ant = ANT.init({ processId });
-    return {
-      queryKey: ['ant', processId],
-      queryFn: async () => {
-        return await ant.getState().catch(() => null);
-      },
-      staleTime: Infinity,
-    };
-  } else {
-    return {
-      queryKey: ['ant', processId],
-      queryFn: async () => {
-        return null;
-      },
-      staleTime: 1,
-    };
-  }
+  return {
+    queryKey: ['ant', processId],
+    queryFn: async () => {
+      if (isArweaveTransactionID(processId)) {
+        const ant = ANT.init({ processId });
+        return await ant.getState();
+      }
+      return null;
+    },
+    staleTime: Infinity,
+  };
 }
 
 export function buildArNSRecordQuery({
@@ -168,4 +161,22 @@ export function buildArNSRecordsQuery({
     },
     staleTime: Infinity,
   };
+}
+
+export async function getArNSRecordsFromCache({
+  queryClient,
+}: {
+  queryClient: QueryClient;
+}): Promise<Record<string, AoArNSNameData> | undefined> {
+  const records = await queryClient.getQueriesData({
+    queryKey: ['arns-record'],
+  });
+  if (!records?.length) return;
+  return records.reduce(
+    (acc: Record<string, AoArNSNameData>, [cacheKey, record]: any) => {
+      acc[cacheKey[1]] = record;
+      return acc;
+    },
+    {},
+  );
 }

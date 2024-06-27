@@ -1,4 +1,6 @@
-import { Table } from 'antd';
+import { Loader } from '@src/components/layout';
+import { useArNSState } from '@src/state/contexts/ArNSState';
+import { Progress, Table } from 'antd';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 
@@ -7,34 +9,24 @@ import { ManageTable } from '../../../types';
 import { MANAGE_TABLE_NAMES } from '../../../types';
 import { getCustomPaginationButtons } from '../../../utils';
 import { CodeSandboxIcon, NotebookIcon, RefreshIcon } from '../../icons';
-import { Loader } from '../../layout/index';
 import './styles.css';
 
 function Manage() {
   const navigate = useNavigate();
   const { path } = useParams();
   const location = useLocation();
-  const [percent, setPercentLoaded] = useState<number | undefined>();
   const {
-    isLoading: antTableLoading,
-    percent: percentANTsLoaded,
     columns: antColumns,
     rows: antRows,
-    sortAscending: antSortAscending,
-    sortField: antSortField,
     refresh: refreshANTs,
   } = useWalletANTs();
   const {
-    isLoading: domainTableLoading,
-    percent: percentDomainsLoaded,
     columns: domainColumns,
     rows: domainRows,
-    sortAscending: domainSortAscending,
-    sortField: domainSortField,
     refresh: refreshDomains,
   } = useWalletDomains();
+  const [{ percentLoaded: percent, loading: tableLoading }] = useArNSState();
 
-  const [tableLoading, setTableLoading] = useState(true);
   const [tablePage, setTablePage] = useState<number>(1);
 
   useEffect(() => {
@@ -44,33 +36,6 @@ function Manage() {
     }
     setTablePage(1);
   }, [path]);
-
-  useEffect(() => {
-    if (path === 'ants') {
-      setPercentLoaded(percentANTsLoaded);
-    } else {
-      setPercentLoaded(percentDomainsLoaded);
-    }
-    setTableLoading(domainTableLoading || antTableLoading);
-  }, [
-    path,
-    domainSortAscending,
-    domainSortField,
-    domainTableLoading,
-    domainRows,
-    percentDomainsLoaded,
-    antSortAscending,
-    antSortField,
-    antRows,
-    antTableLoading,
-    percentANTsLoaded,
-  ]);
-
-  useEffect(() => {
-    if (percent === 100) {
-      setPercentLoaded(undefined);
-    }
-  }, [percent]);
 
   function updatePage(page: number) {
     setTablePage(page);
@@ -152,25 +117,42 @@ function Manage() {
                 ),
               )}
             </div>
-            <button
-              disabled={tableLoading}
-              className={'button center pointer'}
-              onClick={() =>
-                path === 'ants' ? refreshANTs() : refreshDomains()
-              }
-              style={{
-                position: 'absolute',
-                right: '20px',
-                top: '0px',
-                bottom: '0px',
-              }}
-            >
-              {tableLoading ? (
-                <Loader size={20} color="var(--accent)" />
-              ) : (
+            {tableLoading && percent > 0 && percent < 100 ? (
+              <div
+                className="flex flex-row center"
+                style={{
+                  padding: '0px 100px',
+                }}
+              >
+                <Progress
+                  type={'line'}
+                  percent={percent}
+                  strokeColor={{
+                    '0%': '#F7C3A1',
+                    '100%': '#DF9BE8',
+                  }}
+                  trailColor="var(--text-faded)"
+                  format={(p) => `${p} / 100`}
+                  strokeWidth={10}
+                />
+              </div>
+            ) : (
+              <button
+                disabled={tableLoading}
+                className={'button center pointer'}
+                onClick={() =>
+                  path === 'ants' ? refreshANTs() : refreshDomains()
+                }
+                style={{
+                  position: 'absolute',
+                  right: '20px',
+                  top: '0px',
+                  bottom: '0px',
+                }}
+              >
                 <RefreshIcon height={16} width={16} fill="var(--text-grey)" />
-              )}
-            </button>
+              </button>
+            )}
           </div>
 
           <Table
@@ -194,7 +176,14 @@ function Manage() {
               current: tablePage,
             }}
             locale={{
-              emptyText: (
+              emptyText: tableLoading ? (
+                <div
+                  className="flex flex-column center white"
+                  style={{ padding: '100px', boxSizing: 'border-box' }}
+                >
+                  <Loader message="Loading assets..." />
+                </div>
+              ) : (
                 <div
                   className="flex flex-column center"
                   style={{ padding: '100px', boxSizing: 'border-box' }}
