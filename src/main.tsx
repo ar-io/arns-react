@@ -42,7 +42,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
                         colorBgBase: 'var(--primary)',
                       },
                       Progress: {
-                        colorText: 'var(--accent)',
+                        colorText: 'var(--text-white)',
                       },
                     },
                   }}

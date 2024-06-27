@@ -1,3 +1,4 @@
+import { Loader } from '@src/components/layout';
 import { Progress, Table } from 'antd';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -162,13 +163,11 @@ function Manage() {
                   type={'line'}
                   percent={percent}
                   strokeColor={{
-                    // '0%': 'var(--text-warning) ',
-                    '0%': 'var(--accent)',
-                    '50%': 'var(--error-red)',
-                    '100%': 'purple',
+                    '0%': '#F7C3A1',
+                    '100%': '#DF9BE8',
                   }}
                   trailColor="var(--text-faded)"
-                  format={(p) => `${p}% of assets searched`}
+                  format={(p) => `${p} / 100`}
                   strokeWidth={10}
                 />
               </div>
@@ -212,7 +211,14 @@ function Manage() {
               current: tablePage,
             }}
             locale={{
-              emptyText: (
+              emptyText: tableLoading ? (
+                <div
+                  className="flex flex-column center white"
+                  style={{ padding: '100px', boxSizing: 'border-box' }}
+                >
+                  <Loader message="Loading assets..." />
+                </div>
+              ) : (
                 <div
                   className="flex flex-column center"
                   style={{ padding: '100px', boxSizing: 'border-box' }}

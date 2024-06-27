@@ -1,4 +1,9 @@
-import { ANT, AoANTState, AoArNSNameData, ArNSNameEmitter } from '@ar.io/sdk';
+import {
+  ANT,
+  AoANTState,
+  AoArNSNameData,
+  ArNSEventEmitter,
+} from '@ar.io/sdk/web';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   Dispatch,
@@ -18,7 +23,7 @@ export type ArNSState = {
   loading: boolean;
   percentLoaded: number;
   antCount: number;
-  arnsEmitter: ArNSNameEmitter;
+  arnsEmitter: ArNSEventEmitter;
 };
 
 export type ArNSStateProviderProps = {
@@ -27,7 +32,7 @@ export type ArNSStateProviderProps = {
 };
 
 export const initialArNSState: ArNSState = {
-  arnsEmitter: new ArNSNameEmitter({ timeoutMs: 10000 }),
+  arnsEmitter: new ArNSEventEmitter({ timeoutMs: 10000 }),
   domains: {},
   ants: {},
   loading: false,
@@ -91,14 +96,12 @@ export default function ArNSStateProvider({
       });
       queryClient.setQueryData(['ant-ids', walletAddress], () => [...ids]);
     });
-    console.log(state);
     // initial load of assets
     if (walletAddress && !state.loading && !Object.keys(state.domains).length) {
       dispatchArNSState({
         type: 'setLoading',
         payload: true,
       });
-      console.log('fetching processes owned by wallet', walletAddress);
       arnsEmitter.fetchProcessesOwnedByWallet({
         address: walletAddress.toString(),
       });
