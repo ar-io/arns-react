@@ -1,4 +1,4 @@
-import { Table } from 'antd';
+import { Progress, Table } from 'antd';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 
@@ -7,7 +7,6 @@ import { ManageTable } from '../../../types';
 import { MANAGE_TABLE_NAMES } from '../../../types';
 import { getCustomPaginationButtons } from '../../../utils';
 import { CodeSandboxIcon, NotebookIcon, RefreshIcon } from '../../icons';
-import { Loader } from '../../layout/index';
 import './styles.css';
 
 function Manage() {
@@ -152,25 +151,44 @@ function Manage() {
                 ),
               )}
             </div>
-            <button
-              disabled={tableLoading}
-              className={'button center pointer'}
-              onClick={() =>
-                path === 'ants' ? refreshANTs() : refreshDomains()
-              }
-              style={{
-                position: 'absolute',
-                right: '20px',
-                top: '0px',
-                bottom: '0px',
-              }}
-            >
-              {tableLoading ? (
-                <Loader size={20} color="var(--accent)" />
-              ) : (
+            {tableLoading && percent && percent > 0 ? (
+              <div
+                className="flex flex-row center"
+                style={{
+                  padding: '0px 100px',
+                }}
+              >
+                <Progress
+                  type={'line'}
+                  percent={percent}
+                  strokeColor={{
+                    // '0%': 'var(--text-warning) ',
+                    '0%': 'var(--accent)',
+                    '50%': 'var(--error-red)',
+                    '100%': 'purple',
+                  }}
+                  trailColor="var(--text-faded)"
+                  format={(p) => `${p}% of assets searched`}
+                  strokeWidth={10}
+                />
+              </div>
+            ) : (
+              <button
+                disabled={tableLoading}
+                className={'button center pointer'}
+                onClick={() =>
+                  path === 'ants' ? refreshANTs() : refreshDomains()
+                }
+                style={{
+                  position: 'absolute',
+                  right: '20px',
+                  top: '0px',
+                  bottom: '0px',
+                }}
+              >
                 <RefreshIcon height={16} width={16} fill="var(--text-grey)" />
-              )}
-            </button>
+              </button>
+            )}
           </div>
 
           <Table
