@@ -1,14 +1,11 @@
+import { ANT, ANTRecord } from '@ar.io/sdk/web';
 import { clamp } from 'lodash';
 import { useEffect, useRef, useState } from 'react';
 
 import { useIsMobile } from '../../../../hooks';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
-import {
-  ANTContractJSON,
-  SetRecordPayload,
-  VALIDATION_INPUT_TYPES,
-} from '../../../../types';
+import { SetRecordPayload, VALIDATION_INPUT_TYPES } from '../../../../types';
 import {
   formatForMaxCharCount,
   isARNSDomainNameValid,
@@ -22,8 +19,6 @@ import {
 } from '../../../../utils/constants';
 import eventEmitter from '../../../../utils/events';
 import ValidationInput from '../../../inputs/text/ValidationInput/ValidationInput';
-import { Loader } from '../../../layout';
-import TransactionCost from '../../../layout/TransactionCost/TransactionCost';
 import DialogModal from '../../DialogModal/DialogModal';
 
 function EditUndernameModal({
@@ -32,19 +27,18 @@ function EditUndernameModal({
   closeModal,
   payloadCallback,
 }: {
-  antId: ArweaveTransactionID; // contract ID if asset type is a contract interaction
+  antId: ArweaveTransactionID; // process ID if asset type is a contract interaction
   undername: string;
   closeModal: () => void;
   payloadCallback: (payload: SetRecordPayload) => void;
 }) {
   const [{ arweaveDataProvider }] = useGlobalState();
   const isMobile = useIsMobile();
-  const [state, setState] = useState<ANTContractJSON>();
-
   const targetIdRef = useRef<HTMLInputElement>(null);
   const ttlRef = useRef<HTMLInputElement>(null);
   const [targetId, setTargetId] = useState<string>('');
   const [ttlSeconds, setTtlSeconds] = useState<number>(MIN_TTL_SECONDS);
+  const [record, setRecord] = useState<ANTRecord>();
 
   useEffect(() => {
     load(antId);
@@ -55,25 +49,20 @@ function EditUndernameModal({
 
   async function load(id: ArweaveTransactionID) {
     try {
-      const contract = await arweaveDataProvider.buildANTContract(id);
-      setState(contract.state);
-      if (
-        isArweaveTransactionID(
-          contract.state?.records?.[undername]?.transactionId,
-        )
-      ) {
-        setTargetId(contract.state?.records?.[undername]?.transactionId);
+      const contract = ANT.init({
+        processId: id.toString(),
+      });
+      const undernameRecord = await contract.getRecord({
+        undername: undername,
+      });
+      if (!undernameRecord) {
+        throw new Error('Undername not found');
       }
-
-      if (contract.state?.records?.[undername]?.ttlSeconds) {
-        setTtlSeconds(
-          clamp(
-            contract.state?.records?.[undername]?.ttlSeconds,
-            MIN_TTL_SECONDS,
-            MAX_TTL_SECONDS,
-          ),
-        );
-      }
+      setTargetId(undernameRecord?.transactionId);
+      setTtlSeconds(
+        clamp(undernameRecord?.ttlSeconds, MIN_TTL_SECONDS, MAX_TTL_SECONDS),
+      );
+      setRecord(record);
     } catch (error) {
       eventEmitter.emit('error', error);
     }
@@ -84,16 +73,8 @@ function EditUndernameModal({
       subDomain: undername,
       transactionId: targetId,
       ttlSeconds,
-      previousRecord: state?.records?.[undername],
+      previousRecord: record,
     });
-  }
-
-  if (!state) {
-    return (
-      <div className="modal-container">
-        <Loader size={80} />
-      </div>
-    );
   }
 
   return (
@@ -197,11 +178,11 @@ function EditUndernameModal({
         }
         footer={
           <div className="flex">
-            <TransactionCost
+            {/* <TransactionCost
               fee={{}}
               feeWrapperStyle={{ alignItems: 'flex-start' }}
               showBorder={false}
-            />
+            /> */}
           </div>
         }
         nextText="Next"

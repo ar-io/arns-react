@@ -2,8 +2,6 @@ import { CSSProperties } from 'react';
 
 import { useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
-import { SMARTWEAVE_TAG_SIZE } from '../../../utils/constants';
-import ArPrice from '../ArPrice/ArPrice';
 
 function TransactionCost({
   fee,
@@ -63,11 +61,11 @@ function TransactionCost({
             ) : (
               <>
                 {ioFee !== undefined && ioFee >= 0
-                  ? `${ioFee.toLocaleString()} ${ioTicker} + `
+                  ? `${ioFee.toLocaleString()} ${ioTicker} `
                   : ioRequired
-                  ? `Calculating ${ioTicker} + `
+                  ? `Calculating ${ioTicker}  `
                   : ''}
-                <ArPrice dataSize={SMARTWEAVE_TAG_SIZE} />
+                {/* <ArPrice dataSize={SMARTWEAVE_TAG_SIZE} /> */}
               </>
             )}
           </span>

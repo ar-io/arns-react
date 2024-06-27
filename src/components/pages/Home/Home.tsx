@@ -1,4 +1,6 @@
 import { useWalletState } from '@src/state/contexts/WalletState';
+import { buildArNSRecordQuery } from '@src/utils/network';
+import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
@@ -13,16 +15,16 @@ import {
 } from '../../../utils/searchUtils/searchUtils';
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import { FeaturedDomains } from '../../layout';
-import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
 
 function Home() {
-  const [{ arweaveDataProvider }] = useGlobalState();
+  const queryClient = useQueryClient();
+
+  const [{ arioContract }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [searchParams, setSearchParams] = useSearchParams();
   const [{ domain, antID }, dispatchRegisterState] = useRegistrationState();
   const {
-    isActiveAuction,
     isReserved,
     reservedFor,
     loading: isValidatingRegistration,
@@ -61,12 +63,10 @@ function Home() {
     try {
       const results = await Promise.all(
         FEATURED_DOMAINS.map(async (domain: string) => {
-          const record = await arweaveDataProvider
-            .getRecord({ domain })
-            .catch(() => undefined);
-          const res = record?.contractTxId
-            ? [domain, record?.contractTxId]
-            : [];
+          const record = await queryClient.fetchQuery(
+            buildArNSRecordQuery({ domain, arioContract }),
+          );
+          const res = record?.processId ? [domain, record?.processId] : [];
           return res;
         }),
       );
@@ -80,7 +80,6 @@ function Home() {
   }
 
   function updateShowFeaturedDomains({
-    inAuction,
     isReserved,
     reservedFor,
     currentFeaturedDomains,
@@ -90,7 +89,6 @@ function Home() {
     currentFeaturedDomains: { [x: string]: string };
     antId: ArweaveTransactionID | undefined;
     domainName: string | undefined;
-    inAuction: boolean;
     isReserved: boolean;
     reservedFor?: ArweaveTransactionID;
   }): boolean {
@@ -99,18 +97,13 @@ function Home() {
         !antId &&
         (!isReserved ||
           (isReserved &&
-            reservedFor?.toString() === walletAddress?.toString())) &&
-        !inAuction) ||
+            reservedFor?.toString() === walletAddress?.toString()))) ||
       !domainName
     ) {
       return true;
     }
 
     return false;
-  }
-
-  if (!featuredDomains) {
-    return <PageLoader loading message={'Loading Home'} />;
   }
 
   return (
@@ -141,7 +134,6 @@ function Home() {
       >
         <SearchBar placeholderText={'Search for a name'} />
         {updateShowFeaturedDomains({
-          inAuction: isActiveAuction,
           isReserved: isReserved,
           reservedFor: reservedFor,
           currentFeaturedDomains: featuredDomains ?? {},

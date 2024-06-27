@@ -1,19 +1,9 @@
-import { ArNSNameData } from '@ar.io/sdk/web';
 import { Buffer } from 'buffer';
 import { CSSProperties } from 'react';
 
 import { ChevronLeftIcon, ChevronRightIcon } from '../../components/icons';
-import {
-  ANTContractDomainRecord,
-  ContractInteraction,
-  TRANSACTION_TYPES,
-  TransactionTag,
-} from '../../types';
-import {
-  DEFAULT_MAX_UNDERNAMES,
-  SECONDS_IN_GRACE_PERIOD,
-  YEAR_IN_MILLISECONDS,
-} from '../constants';
+import { TransactionTag } from '../../types';
+import { SECONDS_IN_GRACE_PERIOD } from '../constants';
 import { fromB64Url } from '../encodings';
 
 export function formatDate(epochMs: number): string {
@@ -184,46 +174,8 @@ export function jsonSerialize(obj: any) {
   }
 }
 
-export function getUndernameCount(records: Record<string, any>): number {
+export function getundernameLimit(records: Record<string, any>): number {
   return Object.keys(records).filter((key) => key !== '@').length;
-}
-
-export function buildPendingArNSRecord(
-  cachedRecord: ContractInteraction,
-): ArNSNameData {
-  const record: ArNSNameData = {
-    type:
-      cachedRecord.payload.type === TRANSACTION_TYPES.LEASE
-        ? TRANSACTION_TYPES.LEASE
-        : TRANSACTION_TYPES.BUY,
-    contractTxId:
-      cachedRecord.payload.contractTxId === 'atomic'
-        ? cachedRecord.id.toString()
-        : cachedRecord.payload.contractTxId.toString(),
-    startTimestamp: Math.round(cachedRecord.timestamp / 1000),
-    endTimestamp:
-      cachedRecord.type === TRANSACTION_TYPES.LEASE
-        ? cachedRecord.timestamp +
-          Math.max(1, +cachedRecord.payload.years) * YEAR_IN_MILLISECONDS
-        : undefined,
-    undernames: DEFAULT_MAX_UNDERNAMES,
-    purchasePrice: 0,
-  };
-  return record;
-}
-
-export function buildPendingANTRecord(
-  cachedRecord: ContractInteraction,
-): ANTContractDomainRecord {
-  if (cachedRecord.payload.function !== 'setRecord') {
-    throw new Error('Invalid ANT setRecord interaction');
-  }
-
-  const { transactionId, ttlSeconds } = cachedRecord.payload;
-  return {
-    transactionId: transactionId.toString(),
-    ttlSeconds: +ttlSeconds,
-  };
 }
 
 export const executeWithTimeout = async (fn: () => any, ms: number) => {
@@ -266,14 +218,22 @@ export function formatExpiryDate(endTimestamp?: number) {
     <span
       style={{
         color:
-          endTimestamp * 1000 > Date.now()
+          endTimestamp > Date.now()
             ? 'var(--success-green)'
-            : endTimestamp * 1000 + SECONDS_IN_GRACE_PERIOD * 1000 < Date.now()
+            : endTimestamp + SECONDS_IN_GRACE_PERIOD * 1000 < Date.now()
             ? 'var(--accent)'
             : 'var(--error-red)',
       }}
     >
-      {formatDate(endTimestamp * 1000)}
+      {formatDate(endTimestamp)}
     </span>
   );
 }
+
+export const formatIO = (io: number) => {
+  return Intl.NumberFormat('en-US', {
+    notation: 'compact',
+    maximumFractionDigits: 2,
+    compactDisplay: 'short',
+  }).format(io);
+};

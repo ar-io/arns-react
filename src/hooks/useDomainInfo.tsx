@@ -1,16 +1,11 @@
-import {
-  ANT,
-  ANTWritable,
-  ArIO,
-  ArNSBaseNameData,
-  ArNSLeaseData,
-} from '@ar.io/sdk/web';
-import { ANTContract } from '@src/services/arweave/ANTContract';
+import { ANT, AoANTWrite, AoArNSNameData } from '@ar.io/sdk/web';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
-import { ANTContractJSON } from '@src/types';
+import { lowerCaseDomain } from '@src/utils';
+import { buildArNSRecordsQuery, queryClient } from '@src/utils/network';
 import { RefetchOptions, useSuspenseQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 
 export default function useDomainInfo({
   domain,
@@ -20,25 +15,34 @@ export default function useDomainInfo({
   antId?: ArweaveTransactionID;
 }): {
   data: {
-    arnsRecord?: ArNSLeaseData & ArNSBaseNameData;
-    antState?: ANTContractJSON;
+    arnsRecord?: AoArNSNameData;
     associatedNames?: string[];
-    antProvider: ANTWritable;
-    arioProvider?: ArIO;
-    contractTxId: ArweaveTransactionID;
+    processId: ArweaveTransactionID;
+    antProcess: AoANTWrite;
+    name: string;
+    ticker: string;
+    owner: string;
+    controllers: string[];
+    undernameCount?: number;
+    apexRecord: {
+      transactionId: string;
+      ttlSeconds: number;
+    };
   };
   isLoading: boolean;
   error: Error | null;
   refetch: (options?: RefetchOptions) => void;
 } {
-  const [{ arweaveDataProvider, arioContract: arioProvider }] =
-    useGlobalState();
+  const [{ arioContract: arioProvider }] = useGlobalState();
   const [{ wallet }] = useWalletState();
+
+  // using this to have useDomainInfo hook trigger updates for React
+  const [refreshing, setRefreshing] = useState(false);
+
+  // TODO: this should be modified or removed
   const { data, isLoading, error, refetch } = useSuspenseQuery({
     queryKey: ['domainInfo', { domain, antId }],
     queryFn: () => getDomainInfo({ domain, antId }).catch((error) => error),
-    staleTime: 1000 * 60 * 2,
-    refetchInterval: 1000 * 60 * 2, // every block
   });
 
   async function getDomainInfo({
@@ -48,58 +52,88 @@ export default function useDomainInfo({
     domain?: string;
     antId?: ArweaveTransactionID;
   }): Promise<{
-    arnsRecord?: ArNSLeaseData & ArNSBaseNameData;
-    antState?: ANTContractJSON;
+    arnsRecord?: AoArNSNameData;
     associatedNames?: string[];
-    antProvider: ANT;
-    arioProvider?: ArIO;
-    contractTxId: ArweaveTransactionID;
+    processId: ArweaveTransactionID;
+    antProcess: AoANTWrite;
+    name: string;
+    ticker: string;
+    owner: string;
+    controllers: string[];
+    undernameCount: number;
+    apexRecord: {
+      transactionId: string;
+      ttlSeconds: number;
+    };
   }> {
-    if (!domain && !antId) {
-      throw new Error('No domain or antId provided');
+    if (refreshing) {
+      throw new Error('Already refreshing');
     }
-    const signer = wallet?.arconnectSigner;
-    const record = domain
-      ? await arioProvider.getArNSRecord({ domain })
-      : undefined;
+    try {
+      setRefreshing(true);
+      if (!domain && !antId) {
+        throw new Error('No domain or antId provided');
+      }
 
-    let contractTxId = antId || record?.contractTxId;
-
-    const antProvider =
-      contractTxId && signer
-        ? ANT.init({
-            contractTxId: contractTxId.toString(),
-            signer,
+      const record = domain
+        ? await arioProvider.getArNSRecord({
+            name: lowerCaseDomain(domain),
           })
         : undefined;
 
-    if (!antProvider || !contractTxId) {
-      throw new Error('No contractTxId found');
-    }
-    // TODO: get cached domain interactions as well.
-    contractTxId = new ArweaveTransactionID(contractTxId.toString());
+      if (!antId && !record?.processId) {
+        throw new Error('No processId found');
+      }
+      const processId = antId || new ArweaveTransactionID(record?.processId);
+      const signer = wallet?.arconnectSigner;
+      if (!signer) {
+        throw new Error('No signer found');
+      }
+      const antProcess = ANT.init({
+        processId: processId.toString(),
+        signer,
+      });
 
-    const antState = await antProvider.getState();
-    const pendingInteractions =
-      await arweaveDataProvider.getPendingContractInteractions(contractTxId);
-    const antContract = new ANTContract(
-      antState as ANTContractJSON,
-      contractTxId,
-      pendingInteractions,
-    );
-    const associatedNames = Object.keys(
-      await arweaveDataProvider.getRecords({
-        filters: { contractTxId: [contractTxId] },
-      }),
-    );
-    return {
-      arnsRecord: record as ArNSLeaseData & ArNSBaseNameData,
-      antState: antContract.state,
-      associatedNames,
-      antProvider,
-      arioProvider,
-      contractTxId: new ArweaveTransactionID(contractTxId.toString()),
-    };
+      const state = await antProcess.getState();
+      if (!state) throw new Error('State not found for ANT contract');
+
+      const arnsRecords = await queryClient.fetchQuery(
+        buildArNSRecordsQuery({ arioContract: arioProvider }),
+      );
+      const associatedNames = Object.entries(arnsRecords)
+        .filter(([, r]) => r.processId == processId.toString())
+        .map(([d]) => d);
+
+      const {
+        Name: name,
+        Ticker: ticker,
+        Owner: owner,
+        Controllers: controllers,
+        Records: records,
+      } = state;
+      const apexRecord = records['@'];
+      const undernameCount = Object.keys(records).filter(
+        (k) => k !== '@',
+      ).length;
+
+      if (!apexRecord) {
+        throw new Error('No apexRecord found');
+      }
+      return {
+        arnsRecord: record,
+        associatedNames,
+        processId,
+        antProcess,
+        name,
+        ticker,
+        owner,
+        controllers,
+        undernameCount,
+        apexRecord,
+      };
+    } finally {
+      setRefreshing(false);
+    }
   }
 
   return { data, isLoading, error, refetch };

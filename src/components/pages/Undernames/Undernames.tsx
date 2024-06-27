@@ -7,11 +7,9 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { useUndernames } from '../../../hooks/useUndernames/useUndernames';
-import { ANTContract } from '../../../services/arweave/ANTContract';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import {
-  ANTContractJSON,
   ANT_INTERACTION_TYPES,
   SetRecordPayload,
   TransactionDataPayload,
@@ -36,16 +34,13 @@ function Undernames() {
     domain: name,
     antId: id ? new ArweaveTransactionID(id) : undefined,
   });
-  const [{ walletAddress }] = useWalletState();
+  const [{ walletAddress, wallet }] = useWalletState();
   const [antId, setANTId] = useState<ArweaveTransactionID>();
-  const [antState, setANTState] = useState<ANTContract>();
   const [selectedRow, setSelectedRow] = useState<
     UndernameMetadata | undefined
   >();
-  const [percent, setPercentLoaded] = useState<number>(0);
   const {
     isLoading: undernameTableLoading,
-    percent: percentUndernamesLoaded,
     columns: undernameColumns,
     rows: undernameRows,
     selectedRow: selectedUndernameRow,
@@ -58,6 +53,9 @@ function Undernames() {
   const [tableLoading, setTableLoading] = useState(true);
   const [tablePage, setTablePage] = useState<number>(1);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [ownershipStatus, setOwnershipStatus] = useState<
+    'controller' | 'owner' | undefined
+  >();
 
   // modal state
   const [transactionData, setTransactionData] = useState<
@@ -76,12 +74,19 @@ function Undernames() {
     }
 
     setTableLoading(undernameTableLoading);
-    setPercentLoaded(percentUndernamesLoaded);
     setSelectedRow(selectedUndernameRow);
 
     if (tableLoading) load();
 
     setAction(action);
+
+    if (data.owner && data.controllers && walletAddress) {
+      getOwnershipStatus(
+        data.owner,
+        data.controllers,
+        walletAddress.toString(),
+      ).then((status) => setOwnershipStatus(status));
+    }
 
     if (
       action === UNDERNAME_TABLE_ACTIONS.REMOVE &&
@@ -101,25 +106,38 @@ function Undernames() {
     selectedUndernameRow,
     action,
     undernameRows,
+    walletAddress,
   ]);
+
+  async function getOwnershipStatus(
+    owner: string,
+    controllers: string[],
+    walletAddress: string,
+  ): Promise<'controller' | 'owner' | undefined> {
+    if (owner === walletAddress) {
+      return 'owner';
+    }
+
+    if (controllers.includes(walletAddress)) {
+      return 'controller';
+    }
+    return undefined;
+  }
 
   async function load() {
     try {
-      let contractTxId: ArweaveTransactionID | undefined = undefined;
+      let processId: ArweaveTransactionID | undefined = undefined;
       if (isArweaveTransactionID(id)) {
-        contractTxId = new ArweaveTransactionID(id);
+        processId = new ArweaveTransactionID(id);
       } else if (name) {
         const record = data.arnsRecord;
-        contractTxId = new ArweaveTransactionID(record?.contractTxId);
+        processId = new ArweaveTransactionID(record?.processId);
       }
 
-      if (!contractTxId) {
+      if (!processId) {
         throw new Error('Unable to load undernames, cannot resolve ANT ID.');
       }
-      setANTId(contractTxId);
-      setANTState(
-        new ANTContract(data.antState as ANTContractJSON, contractTxId),
-      );
+      setANTId(processId);
     } catch (error) {
       eventEmitter.emit('error', error);
       navigate('/manage/ants');
@@ -129,21 +147,29 @@ function Undernames() {
   async function handleInteraction({
     payload,
     workflowName,
-    contractTxId,
+    processId,
   }: {
     payload: TransactionDataPayload;
     workflowName: ANT_INTERACTION_TYPES;
-    contractTxId?: ArweaveTransactionID;
+    processId?: ArweaveTransactionID;
   }) {
     try {
-      if (!contractTxId) {
+      if (!processId) {
         throw new Error('Unable to interact with ANT contract - missing ID.');
       }
+
+      if (!wallet?.arconnectSigner || !walletAddress) {
+        throw new Error(
+          'Unable to interact with ANT contract - missing signer.',
+        );
+      }
+
       await dispatchANTInteraction({
-        contractTxId,
+        processId,
         payload,
         workflowName,
-        antProvider: data.antProvider,
+        signer: wallet?.arconnectSigner,
+        owner: walletAddress?.toString(),
         dispatch: dispatchTransactionState,
       });
     } catch (error) {
@@ -178,11 +204,9 @@ function Undernames() {
               style={{ justifyContent: 'space-between' }}
             >
               <h2 className="white">Manage Undernames</h2>
-              {antState?.getOwnershipStatus(walletAddress) ? (
+              {ownershipStatus ? (
                 <button
-                  disabled={
-                    antState?.getOwnershipStatus(walletAddress) === undefined
-                  }
+                  disabled={ownershipStatus === undefined}
                   className={'button-secondary center'}
                   style={{
                     gap: '10px',
@@ -211,9 +235,7 @@ function Undernames() {
               className="flex center"
               style={{ paddingTop: '10%', justifyContent: 'center' }}
             >
-              <Loader
-                message={`Loading undernames... ${Math.round(percent)}%`}
-              />
+              <Loader message={`Loading undernames...`} />
             </div>
           ) : (
             <Table
@@ -264,7 +286,7 @@ function Undernames() {
                       className="flex flex-row center"
                       style={{ gap: '16px' }}
                     >
-                      {antState?.getOwnershipStatus(walletAddress) ? (
+                      {ownershipStatus ? (
                         <button
                           className={'button-secondary center'}
                           style={{
@@ -297,9 +319,7 @@ function Undernames() {
           )}
         </div>
       </div>
-      {searchParams.has('modal') &&
-      antId &&
-      antState?.getOwnershipStatus(walletAddress) ? (
+      {searchParams.has('modal') && antId && ownershipStatus ? (
         <AddUndernameModal
           closeModal={() => {
             setSearchParams({});
@@ -322,7 +342,7 @@ function Undernames() {
       {action === UNDERNAME_TABLE_ACTIONS.EDIT &&
       antId &&
       selectedRow?.name &&
-      antState?.getOwnershipStatus(walletAddress) ? (
+      ownershipStatus ? (
         <EditUndernameModal
           closeModal={() => {
             setAction(undefined);
@@ -341,17 +361,14 @@ function Undernames() {
         <> </>
       )}
 
-      {antId &&
-      transactionData &&
-      interactionType &&
-      antState?.getOwnershipStatus(walletAddress) ? (
+      {antId && transactionData && interactionType && ownershipStatus ? (
         <ConfirmTransactionModal
           interactionType={interactionType}
           confirm={() =>
             handleInteraction({
               payload: transactionData,
               workflowName: interactionType,
-              contractTxId: antId,
+              processId: antId,
             })
           }
           cancel={() => {

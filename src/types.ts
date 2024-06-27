@@ -1,22 +1,10 @@
-import {
-  ANTState,
-  ArNSAuctionData,
-  ArNSNameData,
-  ArconnectSigner,
-} from '@ar.io/sdk/web';
+import { ANTState, AoArNSNameData, ArconnectSigner } from '@ar.io/sdk/web';
 import { ApiConfig } from 'arweave/node/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
-import {
-  Contract,
-  CustomSignature,
-  InteractionResult,
-  Tags,
-} from 'warp-contracts';
 
-import { ANTContract } from './services/arweave/ANTContract';
 import { ArweaveTransactionID } from './services/arweave/ArweaveTransactionID';
 
-export type ARNSDomains = Record<string, ArNSNameData>;
+export type ARNSDomains = Record<string, AoArNSNameData>;
 
 export type TransactionHeaders = {
   id: string;
@@ -37,60 +25,15 @@ export type TransactionTag = {
   value: string;
 };
 
-export type AuctionSettings = {
-  floorPriceMultiplier: number;
-  startPriceMultiplier: number;
-  auctionDuration: number;
-  decayRate: number;
-  decayInterval: number;
-};
-
-export type AuctionParameters = {
-  floorPrice: number;
-  startPrice: number;
-  contractTxId: string;
-  startHeight: number;
-  endHeight: number;
-  type: TRANSACTION_TYPES;
-  initiator: string;
-  years?: number;
-};
-
-export type Auction = ArNSAuctionData & {
-  name: string;
-  prices: Record<string | number, number>;
-  currentPrice: number;
-  isActive: boolean;
-  isAvailableForAuction: boolean;
-  isRequiredToBeAuctioned: boolean; // TODO: this may be optional
-};
-
-export type AuctionTableData = Pick<
-  Auction,
-  'name' | 'currentPrice' | 'isActive' | 'initiator' | 'type'
-> & {
-  closingDate: number;
-};
-
 export type ARNSContractJSON = {
   records: ARNSDomains;
   fees: { [x: number]: number };
-  auctions?: {
-    [x: string]: AuctionParameters;
-  };
   reserved: {
     [x: string]: {
       [x: string]: string | number;
       target: string;
       endTimestamp: number;
     };
-  };
-  settings: {
-    auctions: {
-      current: string;
-      history: AuctionSettings[];
-    };
-    [x: string]: any;
   };
   balances: { [x: string]: number };
   controllers: ArweaveTransactionID[];
@@ -106,18 +49,10 @@ export type ANTContractDomainRecord = {
   transactionId: string;
 };
 
-export type ANTContractJSON = ANTState & {
-  controller?: string;
-  evolve?: string;
-};
-
-export type ANTContractFields = keyof ANTContractJSON;
-
 export type ARNSMapping = {
   domain: string;
-  record?: ArNSNameData;
-  contractTxId?: ArweaveTransactionID | 'atomic';
-  state?: ANTContractJSON;
+  record?: AoArNSNameData;
+  processId: ArweaveTransactionID | 'atomic';
   overrides?: { [x: string]: JSX.Element | string | number };
   disabledKeys?: string[];
   compact?: boolean;
@@ -125,6 +60,7 @@ export type ARNSMapping = {
   deployedTransactionId?: ArweaveTransactionID | string;
   mobileView?: boolean;
   bordered?: boolean;
+  state?: ANTState;
 };
 
 export type ARNSMetaData = {
@@ -152,190 +88,11 @@ export type INTERACTION_PRICE_PARAMS =
       payload: IncreaseUndernamesPayload;
     };
 
-// TODO: we could break this up into separate interfaces
-export interface SmartweaveContractCache {
-  getContractState<T extends ANTContractJSON | ARNSContractJSON>(
-    contractTxId: ArweaveTransactionID,
-  ): Promise<T>;
-  getContractBalanceForWallet(
-    contractTxId: ArweaveTransactionID,
-    wallet: ArweaveTransactionID,
-  ): Promise<number>;
-  getContractsForWallet(
-    address: ArweaveTransactionID,
-    type?: 'ant', // TODO: we may broaden this for other contract types
-  ): Promise<{ contractTxIds: ArweaveTransactionID[] }>;
-  getContractInteractions(
-    contractTxId: ArweaveTransactionID,
-  ): Promise<ContractInteraction[]>;
-  getPendingContractInteractions(
-    contractTxId: ArweaveTransactionID,
-  ): Promise<ContractInteraction[]>;
-  isDomainAvailable({
-    domain,
-    contractTxId,
-  }: {
-    domain: string;
-    contractTxId?: ArweaveTransactionID;
-  }): Promise<boolean>;
-  isDomainReserved({
-    domain,
-    contractTxId,
-  }: {
-    domain: string;
-    contractTxId?: ArweaveTransactionID;
-  }): Promise<{ isReserved: boolean; reservedFor?: string }>;
-  isDomainInAuction({
-    contractTxId,
-    domain,
-  }: {
-    contractTxId: ArweaveTransactionID;
-    domain: string;
-  }): Promise<boolean>;
-  getAuction({
-    contractTxId,
-    domain,
-    type,
-  }: {
-    contractTxId: ArweaveTransactionID;
-    domain: string;
-    type?: 'lease' | 'permabuy';
-  }): Promise<Auction>;
-  getAuctionSettings({
-    contractTxId,
-  }: {
-    contractTxId: ArweaveTransactionID;
-  }): Promise<AuctionSettings>;
-  getDomainsInAuction({
-    address,
-    contractTxId,
-  }: {
-    address?: ArweaveTransactionID;
-    contractTxId: ArweaveTransactionID;
-  }): Promise<string[]>;
-  getRecord({
-    domain,
-    contractTxId,
-  }: {
-    domain: string;
-    contractTxId?: ArweaveTransactionID;
-  }): Promise<ArNSNameData>;
-  getTokenBalance(
-    address: ArweaveTransactionID,
-    contractTxId: ArweaveTransactionID,
-  ): Promise<number>;
-  getRecords({
-    contractTxId,
-    filters,
-    address,
-  }: {
-    contractTxId?: ArweaveTransactionID;
-    filters: {
-      // TODO: add other filters when the API supports it
-      contractTxId?: ArweaveTransactionID[];
-    };
-    address?: ArweaveTransactionID;
-  }): Promise<ARNSDomains>;
-  getPriceForInteraction(
-    interaction: INTERACTION_PRICE_PARAMS,
-    contractTxId?: ArweaveTransactionID,
-  ): Promise<number>;
-  buildANTContract(contractTxId: ArweaveTransactionID): Promise<ANTContract>;
-  getStateField({
-    contractTxId,
-    field,
-  }: {
-    contractTxId: ArweaveTransactionID;
-    field: string;
-  }): Promise<any>;
-}
-
-export interface SmartweaveContractInteractionProvider {
-  writeTransaction({
-    walletAddress,
-    contractTxId,
-    payload,
-    dryWrite,
-    tags,
-    interactionDetails,
-  }: {
-    walletAddress: ArweaveTransactionID;
-    contractTxId: ArweaveTransactionID;
-    payload: {
-      function: string;
-      [x: string]: any;
-    };
-    dryWrite?: boolean;
-    tags?: Tags;
-    interactionDetails?: Record<string, any>;
-  }): Promise<ArweaveTransactionID | undefined>;
-  unsafeWriteTransaction({
-    contractTxId,
-    payload,
-  }: {
-    contractTxId: ArweaveTransactionID;
-    payload: {
-      function: string;
-      [x: string]: any;
-    };
-  }): Promise<ArweaveTransactionID | undefined>;
-  deployContract({
-    walletAddress,
-    srcCodeTransactionId,
-    initialState,
-    tags,
-    interactionDetails,
-  }: {
-    walletAddress: ArweaveTransactionID;
-    srcCodeTransactionId: ArweaveTransactionID;
-    initialState: ANTContractJSON;
-    tags?: Tags;
-    interactionDetails?: Record<string, any>;
-  }): Promise<string>;
-  registerAtomicName({
-    walletAddress,
-    registryId,
-    srcCodeTransactionId,
-    initialState,
-    domain,
-    type,
-    years,
-    auction,
-    qty,
-    isBid,
-  }: {
-    walletAddress: ArweaveTransactionID;
-    registryId: ArweaveTransactionID;
-    srcCodeTransactionId: ArweaveTransactionID;
-    initialState: ANTContractJSON;
-    domain: string;
-    type: TRANSACTION_TYPES;
-    years?: number;
-    auction: boolean;
-    qty?: number;
-    isBid: boolean;
-  }): Promise<string | undefined>;
-  dryWrite({
-    walletAddress,
-    contract,
-    payload,
-  }: {
-    walletAddress: ArweaveTransactionID;
-    contract: Contract<any>;
-    payload: {
-      function: string;
-      [x: string]: any;
-    };
-  }): Promise<InteractionResult<any, any> | undefined>;
-}
-
 export interface ArweaveWalletConnector {
   connect(): Promise<void>;
   disconnect(): Promise<void>;
   getWalletAddress(): Promise<ArweaveTransactionID>;
   getGatewayConfig(): Promise<ApiConfig>;
-  // TODO: remove CustomSignature and replace with ArConnectSigner once sdk is fully supported
-  signer: CustomSignature;
   arconnectSigner?: ArconnectSigner;
 }
 
@@ -350,13 +107,6 @@ export interface KVCache {
   del(key: string, filter?: { key: string; value: string }): Promise<void>;
   push(key: string, value: any): Promise<void>;
   clean(): void;
-}
-
-export interface TransactionCache {
-  getCachedNameTokens(address?: ArweaveTransactionID): Promise<ANTContract[]>;
-  getCachedInteractions(
-    contractTxId: ArweaveTransactionID,
-  ): Promise<ContractInteraction[]>;
 }
 
 export interface ArweaveDataProvider {
@@ -385,14 +135,6 @@ export interface ArweaveDataProvider {
   getCurrentBlockHeight(): Promise<number>;
 }
 
-export interface ANTInteractionProvider {
-  setOwner(id: ArweaveTransactionID): Promise<string>;
-  setControllers(ids: ArweaveTransactionID[]): Promise<string>;
-  setTargetId(id: ArweaveTransactionID): Promise<string>;
-  setUndername(name: string): Promise<string>;
-  removeUndername(name: string): Promise<string>;
-}
-
 export type SearchBarProps = {
   disabled?: boolean;
   placeholderText?: string;
@@ -401,22 +143,20 @@ export type SearchBarProps = {
 export type SearchBarHeaderProps = {
   defaultText: string;
   isAvailable: boolean;
-  isActiveAuction: boolean;
   isReserved: boolean;
   reservedFor?: ArweaveTransactionID;
   isDefault?: boolean;
   domain?: string;
-  contractTxId?: ArweaveTransactionID;
+  processId?: ArweaveTransactionID;
 };
 
 export type SearchBarFooterProps = {
   isAvailable: boolean;
-  isActiveAuction: boolean;
   isReserved: boolean;
   reservedFor?: ArweaveTransactionID;
   domain?: string;
-  record?: ArNSNameData;
-  contractTxId?: ArweaveTransactionID;
+  record?: AoArNSNameData;
+  processId?: ArweaveTransactionID;
 };
 
 export type ConnectWalletModalProps = {
@@ -479,7 +219,6 @@ export enum ARNS_INTERACTION_TYPES {
   BUY_RECORD = 'Buy ARNS Name',
   EXTEND_LEASE = 'Extend Lease',
   INCREASE_UNDERNAMES = 'Increase Undernames',
-  SUBMIT_AUCTION_BID = 'Submit Bid',
   TRANSFER = 'Transfer IO',
 }
 
@@ -488,7 +227,6 @@ export enum INTERACTION_TYPES {
   BUY_RECORD = 'Buy ARNS Name',
   EXTEND_LEASE = 'Extend Lease',
   INCREASE_UNDERNAMES = 'Increase Undernames',
-  SUBMIT_AUCTION_BID = 'Submit Bid',
 
   // ANT interaction types
   SET_CONTROLLER = 'Edit Controller',
@@ -598,33 +336,24 @@ export type TransactionDataBasePayload = {
   functionName: string;
   deployedTransactionId?: ArweaveTransactionID;
   interactionPrice?: number;
+  arnsRecord?: AoArNSNameData;
 };
 
 // registry transaction payload types
 export type BuyRecordPayload = {
   name: string;
-  contractTxId: string;
+  processId: string;
   years?: number;
   type: TRANSACTION_TYPES;
-  state?: ANTContractJSON;
   qty?: number; // the cost displayed to the user when buying a record
-  auction?: boolean;
   targetId?: ArweaveTransactionID;
-  isBid?: boolean;
-};
-
-export type SubmitAuctionBidPayload = {
-  name: string;
-  contractTxId: string;
-  type?: TRANSACTION_TYPES;
-  qty: number; // the bid required to start or win the auction
-  state?: ANTContractJSON;
+  state?: ANTState;
 };
 
 export type ExtendLeasePayload = {
   name: string;
   years: number;
-  contractTxId?: ArweaveTransactionID;
+  processId: ArweaveTransactionID;
   qty?: number;
 };
 
@@ -636,7 +365,7 @@ export type IncreaseUndernamesPayload = {
   name: string;
   qty: number;
   oldQty?: number;
-  contractTxId?: string;
+  processId: string;
 };
 //end registry transaction payload types
 
@@ -680,7 +409,7 @@ export const ALL_TRANSACTION_DATA_KEYS = [
   'functionName',
   'deployedTransactionId',
   'name',
-  'contractTxId',
+  'processId',
   'years',
   'target',
   'qty',
@@ -692,12 +421,10 @@ export const ALL_TRANSACTION_DATA_KEYS = [
   'initialState',
   'tags',
   'type',
-  'auction',
 ];
 
 export type TransactionDataPayload =
   | BuyRecordPayload
-  | SubmitAuctionBidPayload
   | ExtendLeasePayload
   | IncreaseUndernamesPayload
   | TransferIOPayload
@@ -722,26 +449,23 @@ export type ARNSTableRow = {
   name: string;
   role: string;
   undernameSupport: number;
-  undernameCount: number;
-  undernames: string;
+  undernameCount: string;
+  undernameLimit: number;
   id: string;
   expiration: Date | string;
-  status: number;
   key: string | number;
-  hasPending: boolean;
-  errors?: string[];
+  startTimestamp: number;
 };
 
 export type ANTMetadata = {
   name: string;
   id: string;
+  ticker: string;
   targetID: string;
-  role: string;
   status: number;
-  state: ANTContractJSON;
+  role: string;
   errors?: string[];
   key: number;
-  hasPending: boolean;
 };
 
 export type ManageANTRow = {
@@ -770,9 +494,9 @@ export type ANTDetails = {
   targetID: string;
   ttlSeconds: number;
   controllers: string;
-  undernames: string;
+  undernameLimit: string;
   owner: string;
-  contractTxId: string;
+  processId: string;
 };
 export type DomainDetails = {
   expiryDate: string | number;
@@ -781,18 +505,18 @@ export type DomainDetails = {
   status: number;
   name: string;
   ticker: string;
-  contractTxId: string;
+  processId: string;
   targetID: string;
   ttlSeconds: number;
   controllers: string;
-  undernames: string;
+  undernameLimit: string;
   owner: string;
 };
 
 export type UndernameMetadata = {
   name: string;
   targetID: string;
-  ttlSeconds: string;
+  ttlSeconds: number;
   status: number;
   error?: string;
   key: string;
@@ -820,7 +544,7 @@ export type ValidationObject = {
 
 export type ContractInteraction = {
   deployer: string;
-  contractTxId: string;
+  processId: string;
   id: string;
   payload: {
     function: string;

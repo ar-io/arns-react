@@ -494,6 +494,7 @@ a:active {
 .disabled-button {
   opacity: 50%;
   cursor: not-allowed;
+  pointer-events: none;
 }
 
 .data-input {

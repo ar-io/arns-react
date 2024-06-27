@@ -1,4 +1,4 @@
-import { ArNSNameData } from '@ar.io/sdk/web';
+import { AoArNSNameData } from '@ar.io/sdk/web';
 
 const ArweaveCompositeDataProviderMock = jest.fn(() => ({
   getArBalance: jest.fn(() => Promise.resolve()),
@@ -27,20 +27,13 @@ const ArweaveCompositeDataProviderMock = jest.fn(() => ({
   getContractInteractionsByTimestamp: jest.fn(() => Promise.resolve()),
   getContractInteractionsByTransactionId: jest.fn(() => Promise.resolve()),
   getContractInteractionsByWalletAddress: jest.fn(() => Promise.resolve()),
-  getRecord: jest.fn<Promise<ArNSNameData>, any[]>(() => {
+  getRecord: jest.fn<Promise<AoArNSNameData>, any[]>(() => {
     throw new Error('Not implemented');
   }),
   getRecords: jest.fn(() => Promise.resolve()),
   isDomainReserved: jest.fn(() => Promise.resolve()),
-  isDomainInAuction: jest.fn(() => Promise.resolve()),
   isDomainAvailable: jest.fn(() => Promise.resolve()),
-  getAuction: jest.fn(() => Promise.resolve()),
-  getAuctionSettings: jest.fn(() => Promise.resolve()),
-  getDomainsInAuction: jest.fn(() => Promise.resolve()),
   getTokenBalance: jest.fn(() => Promise.resolve()),
-  getPriceForInteraction: jest.fn(() => Promise.resolve()),
-  buildANTContract: jest.fn(() => Promise.resolve()),
-  getStateField: jest.fn(() => Promise.resolve()),
 }));
 
 export default ArweaveCompositeDataProviderMock;

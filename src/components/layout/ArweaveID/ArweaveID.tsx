@@ -14,8 +14,8 @@ export enum ArweaveIdTypes {
 
 export const ARWEAVE_ID_MAPPING = {
   [ArweaveIdTypes.TRANSACTION]: 'https://viewblock.io/arweave/tx/',
-  [ArweaveIdTypes.CONTRACT]: 'https://sonar.warp.cc/#/app/contract/',
-  [ArweaveIdTypes.INTERACTION]: 'https://sonar.warp.cc/#/app/interaction/',
+  [ArweaveIdTypes.CONTRACT]: 'https://www.ao.link/#/entity/',
+  [ArweaveIdTypes.INTERACTION]: 'https://www.ao.link/#/message/',
   [ArweaveIdTypes.ADDRESS]: 'https://viewblock.io/arweave/address/',
 };
 

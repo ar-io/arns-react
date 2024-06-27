@@ -1,18 +1,16 @@
-import { ArNSNameData } from '@ar.io/sdk/web';
+import { ANT, AoArNSNameData, mIOToken } from '@ar.io/sdk/web';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { useIsMobile } from '../../../hooks';
-import { ANTContract } from '../../../services/arweave/ANTContract';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ARNS_INTERACTION_TYPES,
-  INTERACTION_NAMES,
   IncreaseUndernamesPayload,
 } from '../../../types';
-import { isARNSDomainNameValid, lowerCaseDomain, sleep } from '../../../utils';
+import { isARNSDomainNameValid, lowerCaseDomain } from '../../../utils';
 import {
   ARNS_REGISTRY_ADDRESS,
   MAX_UNDERNAME_COUNT,
@@ -28,11 +26,12 @@ function UpgradeUndernames() {
   const isMobile = useIsMobile();
   const location = useLocation();
   const navigate = useNavigate();
-  const [{ arweaveDataProvider, ioTicker }] = useGlobalState();
+  const [{ arweaveDataProvider, ioTicker, arioContract }] = useGlobalState();
   const name = location.pathname.split('/').at(-2);
   const [, dispatchTransactionState] = useTransactionState();
-  const [record, setRecord] = useState<ArNSNameData>();
-  const [antContract, setAntContract] = useState<ANTContract>();
+  const [record, setRecord] = useState<AoArNSNameData>();
+  const [antContract, setAntContract] = useState<ANT>();
+  const [undernameCount, setUndernameCount] = useState<number>(0);
   // min count of 1 ~ contract rule
   const [newUndernameCount, setNewUndernameCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
@@ -58,22 +57,14 @@ function UpgradeUndernames() {
           new Error('Invalid undername count, must be a number greater than 0'),
         );
       }
-      const price = await arweaveDataProvider
-        .getPriceForInteraction({
-          interactionName: INTERACTION_NAMES.INCREASE_UNDERNAME_COUNT,
-          payload: {
-            name: name,
-            qty: newUndernameCount,
-          },
+      // TODO; implement
+      const price = await arioContract
+        .getTokenCost({
+          intent: 'Increase-Undername-Limit',
+          name: lowerCaseDomain(name),
+          quantity: newUndernameCount,
         })
-        .catch(() => {
-          eventEmitter.emit(
-            'error',
-            new Error('Unable to get price for undername increase'),
-          );
-          return -1;
-        });
-
+        .then((p) => new mIOToken(p).toIO().valueOf());
       setFee(price);
     };
 
@@ -91,22 +82,18 @@ function UpgradeUndernames() {
           throw new Error(`Unable to get record for ${name}`);
         }
         setRecord(record);
-        const contractTxId = new ArweaveTransactionID(record?.contractTxId);
-        const contract = await arweaveDataProvider.buildANTContract(
-          contractTxId,
-        );
-        if (!contract.state) {
-          throw new Error(`Unable to get contract state for ${name}`);
-        }
-
-        if (!contract.isValid) {
-          throw new Error(`Invalid contract for ${name}`);
-        }
+        const processId = new ArweaveTransactionID(record?.processId);
+        const contract = ANT.init({
+          processId: processId.toString(),
+        });
+        const existingUndernameCount = await contract.getRecords().then((r) => {
+          return Object.keys(r).filter((k) => k === '@').length; // exclude @ record
+        });
+        setUndernameCount(existingUndernameCount);
         setAntContract(contract);
       }
     } catch (error) {
       eventEmitter.emit('error', error);
-      await sleep(2000); // TODO: why are we sleeping for 2 seconds?
       navigate(`/manage/names`);
     } finally {
       setLoading(false);
@@ -145,20 +132,18 @@ function UpgradeUndernames() {
               style={{ gap: '8px', whiteSpace: 'nowrap' }}
             >
               Total Undernames:{' '}
-              <span className="white">{record.undernames}</span>
+              <span className="white">{record.undernameLimit}</span>
               <span className="flex add-box center" style={{}}>
                 +{newUndernameCount}
               </span>
             </span>
             <span className="flex grey">
               Used:&nbsp;
-              <span className="white">
-                {Object.keys(antContract.records).length - 1}
-              </span>
+              <span className="white"> {undernameCount}</span>
             </span>
           </div>
           <Counter
-            maxValue={MAX_UNDERNAME_COUNT - record.undernames}
+            maxValue={MAX_UNDERNAME_COUNT - record.undernameLimit}
             minValue={0}
             value={newUndernameCount}
             setValue={setNewUndernameCount}
@@ -206,8 +191,7 @@ function UpgradeUndernames() {
                 className="flex flex-column flex-left grey text"
                 style={{ textAlign: 'left', lineHeight: '1.5em' }}
               >
-                Increasing your undernames is paid in {ioTicker} tokens, and an
-                Arweave network fee paid in AR tokens.
+                Increasing the undername limit is paid in {ioTicker} tokens.
               </span>
             </div>
           }
@@ -215,7 +199,7 @@ function UpgradeUndernames() {
         <WorkflowButtons
           backText="Cancel"
           nextText="Confirm"
-          onBack={() => navigate(`/manage/names/${name}`)}
+          onBack={() => navigate(`/manage/names/${lowerCaseDomain(name)}`)}
           onNext={
             !fee || fee < 0
               ? undefined
@@ -223,14 +207,14 @@ function UpgradeUndernames() {
                   const increaseUndernamePayload: IncreaseUndernamesPayload = {
                     name: lowerCaseDomain(name),
                     qty: newUndernameCount,
-                    oldQty: record.undernames,
-                    contractTxId: record.contractTxId,
+                    oldQty: record.undernameLimit,
+                    processId: record.processId,
                   };
                   dispatchTransactionState({
                     type: 'setTransactionData',
                     payload: {
                       assetId: ARNS_REGISTRY_ADDRESS.toString(),
-                      functionName: 'increaseUndernameCount',
+                      functionName: 'increaseundernameLimit',
                       ...increaseUndernamePayload,
                       interactionPrice: fee,
                     },
@@ -245,7 +229,9 @@ function UpgradeUndernames() {
                   });
                   // navigate to the transaction page, which will load the updated state of the transaction context
                   navigate('/transaction/review', {
-                    state: `/manage/names/${name}/upgrade-undernames`,
+                    state: `/manage/names/${lowerCaseDomain(
+                      name,
+                    )}/upgrade-undernames`,
                   });
                 }
           }

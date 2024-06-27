@@ -3,12 +3,10 @@ import { Tag, Tags } from 'warp-contracts';
 
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import {
-  ANTContractJSON,
   ARNSMapping,
   ARNS_INTERACTION_TYPES,
   BuyRecordPayload,
   CONTRACT_TYPES,
-  ContractInteraction,
   ContractTypes,
   ExcludedValidInteractionType,
   ExtendLeasePayload,
@@ -32,7 +30,6 @@ import {
 } from '../../types';
 import {
   ARNS_TX_ID_REGEX,
-  ATOMIC_FLAG,
   DEFAULT_ANT_CONTRACT_STATE,
   DEFAULT_MAX_UNDERNAMES,
   MAX_TTL_SECONDS,
@@ -143,7 +140,7 @@ export const TRANSACTION_DATA_KEYS: Record<
 > = {
   [INTERACTION_TYPES.BUY_RECORD]: {
     functionName: 'buyRecord',
-    keys: ['name', 'contractTxId', 'auction', 'type'],
+    keys: ['name', 'processId', 'type'],
   },
   [INTERACTION_TYPES.INCREASE_UNDERNAMES]: {
     functionName: 'increaseUndernames',
@@ -232,36 +229,27 @@ export function getARNSMappingByInteractionType(
           'transaction data not of correct payload type <BuyRecordPayload>',
         );
       }
-      if (
-        transactionData.contractTxId === ATOMIC_FLAG &&
-        !transactionData.state
-      ) {
-        throw new Error(
-          'Atomic transaction detected but no state present, add the state to continue.',
-        );
-      }
+
       const years =
         transactionData.type === TRANSACTION_TYPES.LEASE &&
         transactionData.years
           ? Date.now() + YEAR_IN_MILLISECONDS * transactionData.years
           : 'Indefinite';
 
-      const contractTxId =
-        transactionData.contractTxId === ATOMIC_FLAG
-          ? transactionData.deployedTransactionId
-            ? transactionData.deployedTransactionId
-            : ATOMIC_FLAG
-          : new ArweaveTransactionID(transactionData.contractTxId);
+      const processId =
+        transactionData.processId === 'atomic'
+          ? 'atomic'
+          : new ArweaveTransactionID(transactionData.processId);
 
       return {
         domain: transactionData.name,
-        contractTxId: contractTxId,
+        processId: processId,
         deployedTransactionId: transactionData.deployedTransactionId,
-        state: transactionData.state ?? undefined,
         overrides: {
           maxUndernames: `Up to ${DEFAULT_MAX_UNDERNAMES}`,
           leaseDuration: years,
         },
+        state: transactionData.state,
       };
     }
 
@@ -279,7 +267,7 @@ export function getARNSMappingByInteractionType(
 
       return {
         domain: transactionData.name,
-        contractTxId: new ArweaveTransactionID(transactionData.contractTxId),
+        processId: new ArweaveTransactionID(transactionData.processId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           maxUndernames: transactionData.deployedTransactionId ? (
@@ -312,8 +300,9 @@ export function getARNSMappingByInteractionType(
 
       return {
         domain: transactionData.name,
-        contractTxId: transactionData.contractTxId,
+        processId: transactionData.processId,
         deployedTransactionId: transactionData.deployedTransactionId,
+        record: transactionData.arnsRecord,
         overrides: {
           leaseDuration: transactionData.deployedTransactionId ? (
             <span className="white">
@@ -345,7 +334,7 @@ export function getARNSMappingByInteractionType(
       }
       return {
         domain: '',
-        contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        processId: new ArweaveTransactionID(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           name: transactionData.name,
@@ -375,7 +364,7 @@ export function getARNSMappingByInteractionType(
       }
       return {
         domain: '',
-        contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        processId: new ArweaveTransactionID(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           ticker: transactionData.ticker,
@@ -405,7 +394,7 @@ export function getARNSMappingByInteractionType(
       }
       return {
         domain: '',
-        contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        processId: new ArweaveTransactionID(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           undername: transactionData.subDomain,
@@ -434,7 +423,7 @@ export function getARNSMappingByInteractionType(
       }
       return {
         domain: '',
-        contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        processId: new ArweaveTransactionID(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           undername: transactionData.subDomain,
@@ -465,7 +454,7 @@ export function getARNSMappingByInteractionType(
       }
       return {
         domain: '',
-        contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        processId: new ArweaveTransactionID(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           targetId: transactionData.transactionId,
@@ -495,7 +484,7 @@ export function getARNSMappingByInteractionType(
       }
       return {
         domain: '',
-        contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        processId: new ArweaveTransactionID(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           ttlSeconds: transactionData.ttlSeconds,
@@ -525,7 +514,7 @@ export function getARNSMappingByInteractionType(
       }
       return {
         domain: '',
-        contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        processId: new ArweaveTransactionID(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           controllers: <span>{transactionData.target}</span>,
@@ -554,7 +543,7 @@ export function getARNSMappingByInteractionType(
       }
       return {
         domain: '',
-        contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        processId: new ArweaveTransactionID(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           'New Owner': transactionData.target,
@@ -578,7 +567,7 @@ export function getARNSMappingByInteractionType(
       }
       return {
         domain: '',
-        contractTxId: new ArweaveTransactionID(transactionData.assetId),
+        processId: new ArweaveTransactionID(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           'New Owner': transactionData.target,
@@ -651,7 +640,7 @@ export function getAttributesFromInteractionFunction(f: string) {
 
 export function mapTransactionDataKeyToPayload(
   interactionType: ValidInteractionType,
-  data: string | number | Array<string | number | ANTContractJSON>,
+  data: string | number | Array<string | number>,
 ): TransactionData | undefined {
   const txData = typeof data === 'object' ? data : [data];
   if (!data) {
@@ -681,32 +670,18 @@ export function getLinkId(
   interactionType: ValidInteractionType,
   transactionData: TransactionData,
 ): string {
-  const isBuyRecord =
-    interactionType === ARNS_INTERACTION_TYPES.BUY_RECORD &&
-    isObjectOfTransactionPayloadType<BuyRecordPayload>(
-      transactionData,
-      TRANSACTION_DATA_KEYS[INTERACTION_TYPES.BUY_RECORD].keys,
-    );
+  const isBuyRecord = interactionType === ARNS_INTERACTION_TYPES.BUY_RECORD;
 
-  const isExtendLease =
-    interactionType === ARNS_INTERACTION_TYPES.EXTEND_LEASE &&
-    isObjectOfTransactionPayloadType<ExtendLeasePayload>(
-      transactionData,
-      TRANSACTION_DATA_KEYS[INTERACTION_TYPES.EXTEND_LEASE].keys,
-    );
+  const isExtendLease = interactionType === ARNS_INTERACTION_TYPES.EXTEND_LEASE;
 
   const isIncreaseUndernames =
-    interactionType === ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES &&
-    isObjectOfTransactionPayloadType<IncreaseUndernamesPayload>(
-      transactionData,
-      TRANSACTION_DATA_KEYS[INTERACTION_TYPES.INCREASE_UNDERNAMES].keys,
-    );
+    interactionType === ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES;
 
   if (isBuyRecord || isExtendLease || isIncreaseUndernames) {
-    return transactionData.contractTxId === ATOMIC_FLAG &&
-      transactionData.deployedTransactionId
-      ? transactionData.deployedTransactionId.toString()
-      : transactionData.contractTxId?.toString() ?? '';
+    if (!(transactionData as any).processId) {
+      throw new Error('No processId found');
+    }
+    return (transactionData as any).name?.toString();
   }
 
   return transactionData.assetId.toString();
@@ -728,53 +703,25 @@ export async function validateTTLSeconds(ttl: number): Promise<void> {
   }
 }
 
-export function getPendingInteractionsRowsForContract(
-  pendingContractInteractions: ContractInteraction[],
-  existingValues: any,
-): {
-  attribute: string;
-  value: string | number | boolean;
-  id: string;
-  valid: boolean | undefined;
-}[] {
-  // find all pending interactions for the contract, find relevant ones related to row attributes
-  const pendingTxRowData: {
-    attribute: string;
-    value: string | number | boolean;
-    id: string;
-    valid: boolean | undefined;
-  }[] = [];
-  for (const i of pendingContractInteractions) {
-    const attributes = getAttributesFromInteractionFunction(i.payload.function);
-    // TODO: this is not pretty, and could be avoided if we rework the ANT contract to allow `setTTL` and `setTransaction` rather than all of them
-    // relying only on setRecord.
-    for (const attribute of attributes) {
-      // the payload value may be different then the attribute name
-      const payloadAttribute = getInteractionAttributeNameFromField(attribute);
-      const nonConfirmedTx = {
-        attribute,
-        value: i.payload[payloadAttribute],
-        id: i.id,
-        valid: i.valid,
-      };
-      if (existingValues[attribute] !== nonConfirmedTx.value) {
-        pendingTxRowData.push(nonConfirmedTx);
-      }
-    }
-  }
-  return pendingTxRowData;
-}
 export function generateAtomicState(
   domain: string,
   walletAddress: ArweaveTransactionID,
-): ANTContractJSON {
+  targetId?: ArweaveTransactionID,
+) {
+  const records = { ...DEFAULT_ANT_CONTRACT_STATE.records };
+
+  if (targetId) {
+    records['@'].transactionId = targetId.toString();
+  }
+
   return {
     ...DEFAULT_ANT_CONTRACT_STATE,
-    name: `ANT-${domain.toUpperCase()}`,
-    ticker: 'ANT',
+    name: domain,
+    ticker: `ANT-${domain.toUpperCase()}`,
     owner: walletAddress.toString(),
     controllers: [walletAddress.toString()],
     balances: { [walletAddress.toString()]: 1 },
+    records,
   };
 }
 
@@ -802,18 +749,6 @@ export function buildSmartweaveContractTags({
       name: 'Contract-Src',
       value: contractSrc.toString(),
     },
-
-    // ...(initState
-    //   ? [
-    //       {
-    //         name: 'Init-State',
-    //         value:
-    //           typeof initState === 'string'
-    //             ? initState
-    //             : JSON.stringify(initState),
-    //       },
-    //     ]
-    //   : []),
   ];
   return tags.map((t) => new Tag(t?.name, t?.value));
 }
@@ -928,33 +863,6 @@ export function userHasSufficientBalance<T extends Record<string, number>>({
     return acc;
   }, []);
 }
-
-// TODO: maybe use binary search?
-export const getPriceByBlockHeight = (
-  prices: Record<string, number>,
-  currentHeight: number,
-) => {
-  const heightKeys = Object.keys(prices).map((k) => +k);
-  if (!heightKeys.length) {
-    throw new Error(`No prices found for auction`);
-  }
-
-  if (currentHeight < heightKeys[1]) {
-    return prices[heightKeys[0].toString()];
-  }
-
-  if (currentHeight >= heightKeys[heightKeys.length - 1]) {
-    return prices[heightKeys[heightKeys.length - 1].toString()];
-  }
-
-  for (let i = 0; i < heightKeys.length - 1; i++) {
-    if (currentHeight < heightKeys[i + 1]) {
-      return prices[heightKeys[i].toString()];
-    }
-  }
-
-  throw Error(`Unable to find next block interval for bid ${currentHeight}`);
-};
 
 export function mioToIo(mio: number): number {
   return mio / 1_000_000;

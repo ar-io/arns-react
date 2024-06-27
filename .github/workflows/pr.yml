@@ -43,6 +43,7 @@ jobs:
           VITE_ARWEAVE_HOST: ${{ vars.ARWEAVE_HOST }}
           VITE_ARNS_SERVICE_API: ${{ vars.ARNS_SERVICE_API }}
           VITE_ARNS_REGISTRY_ADDRESS: ${{ vars.VITE_ARNS_REGISTRY_ADDRESS }}
+          VITE_IO_PROCESS_ID: ${{ vars.VITE_IO_PROCESS_ID }}
 
       # Disribute to Firebase
       - name: Deploy 🚀

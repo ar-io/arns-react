@@ -1,18 +1,17 @@
+import { ANT, AoArNSNameData } from '@ar.io/sdk/web';
 import { Pagination, PaginationProps, Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
 import { useIsFocused } from '../../../../hooks';
-import { ANTContract } from '../../../../services/arweave/ANTContract';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../../state/contexts/WalletState';
-import {
-  ANTContractJSON,
-  ARNSDomains,
-  VALIDATION_INPUT_TYPES,
-} from '../../../../types';
+import { VALIDATION_INPUT_TYPES } from '../../../../types';
 import { isArweaveTransactionID } from '../../../../utils';
-import { SMARTWEAVE_MAX_INPUT_SIZE } from '../../../../utils/constants';
+import {
+  ARWEAVE_TX_LENGTH,
+  SMARTWEAVE_MAX_INPUT_SIZE,
+} from '../../../../utils/constants';
 import eventEmitter from '../../../../utils/events';
 import { CloseIcon, HamburgerOutlineIcon } from '../../../icons';
 import { Loader } from '../../../layout';
@@ -20,10 +19,13 @@ import ValidationInput from '../ValidationInput/ValidationInput';
 import './styles.css';
 
 type NameTokenDetails = {
-  [x: string]: Pick<
-    ANTContractJSON,
-    'name' | 'ticker' | 'owner' | 'controller'
-  > & { names?: string[] };
+  [id: string]: {
+    owner: string;
+    controllers: string[];
+    name: string;
+    ticker: string;
+    names: string[];
+  };
 };
 
 function NameTokenSelector({
@@ -65,12 +67,13 @@ function NameTokenSelector({
     setListPage(1);
   }, [selectedToken]);
 
-  useEffect(() => {
-    if (!walletAddress) {
-      return;
-    }
-    getTokenList(walletAddress);
-  }, [walletAddress]);
+  // FIXME: disabled to avoid too many requests
+  // useEffect(() => {
+  //   if (!walletAddress) {
+  //     return;
+  //   }
+  //   getTokenList(walletAddress);
+  // }, [walletAddress]);
 
   useEffect(() => {
     if (!listRef.current) {
@@ -105,36 +108,30 @@ function NameTokenSelector({
       if (!address) {
         throw new Error('No address provided');
       }
-      const { contractTxIds: fetchedContractTxIds } = await arweaveDataProvider
-        .getContractsForWallet(address, 'ant')
-        .catch(() => {
-          throw new Error('Unable to get contracts for wallet');
-        });
+
+      const fetchedprocessIds: Array<ArweaveTransactionID> = [];
+      // const fetchedprocessIds = await arweaveDataProvider
+      //   .getContractsForWallet({
+      //     address,
+      //   })
+      //   .catch(() => {
+      //     throw new Error('Unable to get contracts for wallet');
+      //   });
 
       const validImports = imports.length
         ? await Promise.all(
             imports.map(async (id: ArweaveTransactionID) => {
               try {
-                await arweaveDataProvider
-                  .validateTransactionTags({
-                    id: id.toString(),
-                    requiredTags: {
-                      'App-Name': ['SmartWeaveContract'],
-                    },
-                  })
-                  .catch(() => {
-                    throw new Error(`Import is not a SmartWeave Contract`);
-                  });
-                const state =
-                  await arweaveDataProvider.getContractState<ANTContractJSON>(
-                    id,
-                  );
-                if (!Object.keys(state).length) {
-                  throw new Error(`Unable to get Contract State`);
-                }
+                const contract = ANT.init({
+                  processId: id.toString(),
+                });
 
-                if (!new ANTContract(state).isValid()) {
-                  throw new Error('Invalid ANT Contract.');
+                const info = await contract.getInfo();
+
+                // TODO: further validate that contract exists and has valid state
+
+                if (!contract || !info) {
+                  throw new Error('Unable to get contract');
                 }
 
                 setValidImport(true);
@@ -149,34 +146,32 @@ function NameTokenSelector({
           )
         : [];
 
-      if (!fetchedContractTxIds.length && !validImports.length) {
+      if (!fetchedprocessIds.length && !validImports.length) {
         return;
       }
 
-      const contractTxIds = fetchedContractTxIds.concat(validImports);
+      const processIds = fetchedprocessIds.concat(validImports);
       const associatedRecords = await arweaveDataProvider.getRecords({
         filters: {
-          contractTxId: contractTxIds,
+          processId: processIds,
         },
       });
-      const contracts: Array<
-        [ArweaveTransactionID, ANTContractJSON, ARNSDomains] | undefined
-      > = await Promise.all(
-        contractTxIds.map(async (contractTxId) => {
-          const contract = await arweaveDataProvider
-            .buildANTContract(contractTxId)
-            .catch(() => {
-              throw new Error(`Unable to get Contract State`);
-            });
 
-          if (!contract.isValid()) {
-            throw new Error('Invalid ANT Contract.');
-          }
+      const contracts: {
+        processId: ArweaveTransactionID;
+        names: Record<string, AoArNSNameData>;
+        owner: string;
+        controllers: string[];
+        ticker: string;
+        name: string;
+      }[] = await Promise.all(
+        processIds.map(async (processId) => {
+          const contract = ANT.init({
+            processId: processId.toString(),
+          });
           const names = Object.keys(associatedRecords).reduce(
-            (acc: ARNSDomains, id: string) => {
-              if (
-                associatedRecords[id].contractTxId === contractTxId.toString()
-              ) {
+            (acc: Record<string, AoArNSNameData>, id: string) => {
+              if (associatedRecords[id].processId === processId.toString()) {
                 acc[id] = associatedRecords[id];
               }
               return acc;
@@ -184,26 +179,39 @@ function NameTokenSelector({
             {},
           );
 
-          return [contractTxId, contract.state, names];
+          const [owner, controllers, ticker, name] = await Promise.all([
+            contract.getOwner(),
+            contract.getControllers(),
+            contract.getTicker(),
+            contract.getName(),
+          ]).catch(() => {
+            throw new Error('Unable to get contract details');
+          });
+          return {
+            processId,
+            names,
+            owner,
+            controllers,
+            ticker,
+            name,
+          };
         }),
-      );
+      ).then((contracts) => contracts.filter((contract) => !!contract));
+
       if (!contracts.length) {
         throw new Error('Unable to get details for Name Tokens');
       }
 
       const newTokens: NameTokenDetails = contracts.reduce(
-        (result, contract) => {
-          if (!contract) {
-            return { ...result };
-          }
-          const [id, state, names] = contract;
-          const { owner, controller, name, ticker } = state;
+        async (result, contract) => {
+          const { processId, owner, controllers, name, ticker, names } =
+            contract;
 
           return {
             ...result,
-            [id.toString()]: {
+            [processId.toString()]: {
               owner,
-              controller,
+              controllers,
               name,
               ticker,
               names: Object.keys(names),
@@ -212,7 +220,9 @@ function NameTokenSelector({
         },
         {},
       );
-      setTokens(newTokens);
+
+      // HACK: we have nested all Promise.all so await twice to resolve
+      setTokens(await newTokens);
       if (validImports.length) {
         const details = newTokens[validImports[0].toString()];
         setSelectedToken({
@@ -245,8 +255,8 @@ function NameTokenSelector({
       }
       const filteredResults = Object.keys(tokens)
         .filter((id) => {
-          const { owner, controller, name, ticker } = tokens[id];
-          const queryResult = [owner, controller, name, ticker, id].some(
+          const { owner, controllers, name, ticker } = tokens[id];
+          const queryResult = [owner, controllers, name, ticker, id].some(
             (term) =>
               term &&
               term.toString().toLowerCase().includes(query.toLowerCase()),
@@ -353,14 +363,14 @@ function NameTokenSelector({
         <ValidationInput
           inputId="name-token-input"
           onClick={() => setSearchActive(true)}
-          showValidationIcon={validImport !== undefined}
+          showValidationIcon={true}
           setValue={(v) =>
             handleTokenSearch(
               v.length === SMARTWEAVE_MAX_INPUT_SIZE ? v.trim() : v,
             )
           }
           value={searchText ?? ''}
-          maxCharLength={SMARTWEAVE_MAX_INPUT_SIZE}
+          maxCharLength={ARWEAVE_TX_LENGTH}
           placeholder={
             selectedToken
               ? selectedToken.name?.length
@@ -369,17 +379,10 @@ function NameTokenSelector({
               : 'Add an Arweave Name Token (ANT)'
           }
           validationPredicates={{
-            [VALIDATION_INPUT_TYPES.SMARTWEAVE_CONTRACT]: {
-              fn: (id: string) =>
-                arweaveDataProvider.validateTransactionTags({
-                  id,
-                  requiredTags: {
-                    'App-Name': ['SmartWeaveContract'],
-                  },
-                }),
-            },
-            [VALIDATION_INPUT_TYPES.TRANSACTION_CONFIRMATIONS]: {
-              fn: (id: string) => arweaveDataProvider.validateConfirmations(id),
+            [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
+              fn: (id: string) => {
+                return arweaveDataProvider.validateArweaveId(id);
+              },
             },
           }}
           validityCallback={(validity) => validity}
@@ -465,7 +468,7 @@ function NameTokenSelector({
                 padding: '15px',
               }}
               title={
-                'You can import an ANT by entering its contract ID, or search for one of your own by name, ticker, owner, or controller status, as well is its own contract ID'
+                'You can import an ANT by entering its process ID, or search for one of your own by name, ticker, owner, or controller status, as well is its own process ID'
               }
             >
               Optional

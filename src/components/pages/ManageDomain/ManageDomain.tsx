@@ -1,4 +1,4 @@
-import { ArNSBaseNameData, ArNSLeaseData } from '@ar.io/sdk/web';
+import { AoArNSNameData, isLeasedArNSRecord } from '@ar.io/sdk/web';
 import TransactionSuccessCard from '@src/components/cards/TransactionSuccessCard/TransactionSuccessCard';
 import DomainSettings from '@src/components/forms/DomainSettings/DomainSettings';
 import useDomainInfo from '@src/hooks/useDomainInfo';
@@ -8,7 +8,11 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { useWalletState } from '../../../state/contexts/WalletState';
-import { getLeaseDurationFromEndTimestamp } from '../../../utils';
+import {
+  decodeDomainToASCII,
+  getLeaseDurationFromEndTimestamp,
+  lowerCaseDomain,
+} from '../../../utils';
 import {
   MAX_LEASE_DURATION,
   MAX_UNDERNAME_COUNT,
@@ -23,9 +27,9 @@ function ManageDomain() {
   const location = useLocation();
   const [{ walletAddress }] = useWalletState();
   const [isMaxLeaseDuration, setIsMaxLeaseDuration] = useState<boolean>(false);
-  const [isMaxUndernameCount, setIsMaxUndernameCount] =
+  const [isMaxUndernameCount, setisMaxUndernameCount] =
     useState<boolean>(false);
-  const [undernameCount, setUndernameCount] = useState<number>();
+  const [undernameLimit, setundernameLimit] = useState<number>();
   const [loading, setLoading] = useState<boolean>(true);
 
   const { data, isLoading: isLoadingDomainDetails } = useDomainInfo({
@@ -33,6 +37,12 @@ function ManageDomain() {
   });
   const [{ workflowName, interactionResult }, dispatchTransactionState] =
     useTransactionState();
+
+  useEffect(() => {
+    return () => {
+      dispatchTransactionState({ type: 'reset' });
+    };
+  }, []);
 
   useEffect(() => {
     if (!name || !walletAddress) {
@@ -47,22 +57,22 @@ function ManageDomain() {
   async function fetchDomainDetails({
     arnsRecord,
   }: {
-    arnsRecord?: ArNSLeaseData & ArNSBaseNameData;
+    arnsRecord?: AoArNSNameData;
   }) {
     if (isLoadingDomainDetails || !arnsRecord) {
       return;
     }
     try {
       setLoading(true);
-      const txId = arnsRecord?.contractTxId;
+      const txId = arnsRecord?.processId;
       if (!txId) {
         throw Error('This name is not registered');
       }
 
-      const duration = arnsRecord?.endTimestamp
+      const duration = isLeasedArNSRecord(arnsRecord)
         ? getLeaseDurationFromEndTimestamp(
-            arnsRecord.startTimestamp * 1000,
-            arnsRecord.endTimestamp * 1000,
+            arnsRecord.startTimestamp,
+            arnsRecord.endTimestamp,
           )
         : 'Indefinite';
 
@@ -72,9 +82,9 @@ function ManageDomain() {
           duration >= MAX_LEASE_DURATION) ||
           duration === 'Indefinite',
       );
-      setUndernameCount(arnsRecord.undernames);
-      setIsMaxUndernameCount(
-        !!undernameCount && arnsRecord.undernames >= MAX_UNDERNAME_COUNT,
+      setundernameLimit(arnsRecord.undernameLimit);
+      setisMaxUndernameCount(
+        !!undernameLimit && arnsRecord.undernameLimit >= MAX_UNDERNAME_COUNT,
       );
 
       setLoading(false);
@@ -110,7 +120,7 @@ function ManageDomain() {
               height={'20px'}
               fill="var(--text-white)"
             />
-            {name}
+            {decodeDomainToASCII(name!)}
           </h2>
           <div
             className="flex flex-row"
@@ -140,7 +150,11 @@ function ManageDomain() {
                   fontFamily: 'Rubik',
                 }}
                 onClick={() =>
-                  navigate(`/manage/names/${name}/upgrade-undernames`)
+                  navigate(
+                    `/manage/names/${lowerCaseDomain(
+                      name!,
+                    )}/upgrade-undernames`,
+                  )
                 }
               >
                 Increase Undernames
@@ -169,7 +183,9 @@ function ManageDomain() {
                   color: 'var(--text-black)',
                   fontFamily: 'Rubik',
                 }}
-                onClick={() => navigate(`/manage/names/${name}/extend`)}
+                onClick={() =>
+                  navigate(`/manage/names/${lowerCaseDomain(name!)}/extend`)
+                }
               >
                 Extend Lease
               </button>

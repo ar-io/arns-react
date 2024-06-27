@@ -1,12 +1,11 @@
+import { IO } from '@ar.io/sdk/web';
 import { ArweaveWalletConnector } from '@src/types';
+import { IO_PROCESS_ID } from '@src/utils/constants';
 import Arweave from 'arweave';
 import { Dispatch } from 'react';
 
-import { ARNSContractCache } from '../services/arweave/ARNSContractCache';
 import { ArweaveCompositeDataProvider } from '../services/arweave/ArweaveCompositeDataProvider';
 import { SimpleArweaveDataProvider } from '../services/arweave/SimpleArweaveDataProvider';
-import { WarpDataProvider } from '../services/arweave/WarpDataProvider';
-import { ARNS_SERVICE_API } from '../utils/constants';
 import eventEmitter from '../utils/events';
 import { GlobalAction } from './reducers';
 
@@ -21,18 +20,16 @@ export async function dispatchNewGateway(
       protocol: 'https',
     });
 
-    const warpDataProvider = new WarpDataProvider(arweave, walletConnector);
     const arweaveDataProvider = new SimpleArweaveDataProvider(arweave);
-    const contractCacheProviders = new ARNSContractCache({
-      url: ARNS_SERVICE_API,
-      arweave: arweaveDataProvider,
+    const contract = IO.init({
+      processId: IO_PROCESS_ID,
+      signer: walletConnector.arconnectSigner,
     });
 
-    const provider = new ArweaveCompositeDataProvider(
-      arweaveDataProvider,
-      warpDataProvider,
-      contractCacheProviders,
-    );
+    const provider = new ArweaveCompositeDataProvider({
+      arweave: arweaveDataProvider,
+      contract: contract,
+    });
     const blockHeight = await provider.getCurrentBlockHeight();
     dispatch({
       type: 'setBlockHeight',

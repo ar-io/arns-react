@@ -16,18 +16,32 @@ function ManageANT() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [{ walletAddress }] = useWalletState();
-
-  const { data } = useDomainInfo({ antId: new ArweaveTransactionID(id) });
+  const { isLoading, data } = useDomainInfo({
+    antId: new ArweaveTransactionID(id),
+  });
 
   const [{ interactionResult, workflowName }, dispatchTransactionState] =
     useTransactionState();
+
+  useEffect(() => {
+    // removes banner from page by calling rest
+    return () => {
+      dispatchTransactionState({ type: 'reset' });
+    };
+  }, []);
 
   useEffect(() => {
     if (!id || !walletAddress) {
       navigate('/manage/ants');
       return;
     }
+
+    // fetch all relevant ant information
   }, [id]);
+
+  if (isLoading) {
+    return <></>;
+  }
 
   return (
     <>
@@ -52,7 +66,7 @@ function ManageANT() {
               height={'24px'}
               fill="var(--text-white)"
             />
-            {data.antState?.name ?? id}
+            {data.name ?? id}
           </h2>
         </div>
         <div className="flex-row">

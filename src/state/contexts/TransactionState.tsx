@@ -1,9 +1,17 @@
 import PageLoader from '@src/components/layout/progress/PageLoader/PageLoader';
-import { Dispatch, createContext, useContext, useReducer } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import {
+  Dispatch,
+  createContext,
+  useContext,
+  useEffect,
+  useReducer,
+} from 'react';
 
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { ExcludedValidInteractionType, TransactionData } from '../../types';
 import { TransactionAction } from '../reducers/TransactionReducer';
+import { useWalletState } from './WalletState';
 
 export type TransactionState = {
   deployedTransactionId?: ArweaveTransactionID;
@@ -41,6 +49,40 @@ export default function TransactionStateProvider({
     reducer,
     initialTransactionState,
   );
+
+  const queryClient = useQueryClient();
+  const [walletAddress] = useWalletState();
+  useEffect(() => {
+    // const refreshableInteractionTypes: string[] = [
+    //   ARNS_INTERACTION_TYPES.BUY_RECORD,
+    //   ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES,
+    //   ARNS_INTERACTION_TYPES.EXTEND_LEASE,
+    //   ARNS_INTERACTION_TYPES.TRANSFER,
+    //   ANT_INTERACTION_TYPES.TRANSFER,
+    //   ANT_INTERACTION_TYPES.SET_CONTROLLER,
+    //   ANT_INTERACTION_TYPES.REMOVE_CONTROLLER,
+    // ];
+    if (
+      walletAddress &&
+      queryClient &&
+      state.interactionResult //&&
+      // refreshableInteractionTypes.includes(state?.workflowName ?? '')
+    ) {
+      queryClient.invalidateQueries({
+        queryKey: ['domainInfo'],
+        refetchType: 'all',
+      });
+      // ['ant', 'arns-records', 'arns-record', 'arns-assets', 'io-balance'].map(
+      //   (key) => {
+      //     queryClient.invalidateQueries({
+      //       queryKey: [key],
+      //       refetchType: 'all',
+      //     });
+      //   },
+      // );
+    }
+  }, [state.interactionResult, queryClient, walletAddress]);
+
   /**
    * TODO: cache workflows in case connection lost, gives ability to continue interrupted workflows. To cache, simply add state as the value under a timestamp key.
    * TODO: prompt user if they want to continue a workflow, if no, clear workflow from cache

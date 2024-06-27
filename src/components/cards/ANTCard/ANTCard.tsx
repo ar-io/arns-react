@@ -1,19 +1,18 @@
-import { ArNSLeaseData } from '@ar.io/sdk/web';
+import { isLeasedArNSRecord } from '@ar.io/sdk/web';
+import { useANT } from '@src/hooks/useANT/useANT';
 import { Descriptions } from 'antd';
 import { startCase } from 'lodash';
 import { isValidElement, useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../hooks';
-import { ANTContract } from '../../../services/arweave/ANTContract';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { ARNSMapping } from '../../../types';
 import {
+  decodeDomainToASCII,
   formatDate,
   getLeaseDurationFromEndTimestamp,
   isArweaveTransactionID,
 } from '../../../utils';
-import { ATOMIC_FLAG } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { Loader } from '../../layout';
 import ArweaveID, { ArweaveIdTypes } from '../../layout/ArweaveID/ArweaveID';
@@ -21,7 +20,7 @@ import './styles.css';
 
 export const ANT_TRANSACTION_DETAILS = {
   deployedTransactionId: 'Transaction ID',
-  contractTxId: 'Contract ID',
+  processId: 'Process ID',
 };
 export const ARNS_METADATA_DETAILS = {
   domain: 'Domain',
@@ -57,7 +56,7 @@ export function mapKeyToAttribute(key: AntDetailKey) {
 }
 
 export const DEFAULT_PRIMARY_KEYS: Partial<AntDetailKey>[] = [
-  'contractTxId',
+  'processId',
   'domain',
   'leaseDuration',
   'name',
@@ -66,8 +65,7 @@ export const DEFAULT_PRIMARY_KEYS: Partial<AntDetailKey>[] = [
 ];
 
 function ANTCard({
-  state,
-  contractTxId,
+  processId,
   domain,
   record,
   compact = true,
@@ -77,11 +75,23 @@ function ANTCard({
   deployedTransactionId,
   mobileView,
   bordered = false,
+  state,
 }: ARNSMapping) {
   const isMobile = useIsMobile();
-  const [{ arweaveDataProvider }] = useGlobalState();
   const [antDetails, setANTDetails] = useState<{ [x: string]: any }>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const {
+    loading,
+    owner,
+    ticker,
+    name,
+    controllers = [],
+    records,
+  } = {
+    ...useANT(processId.toString()),
+    ...(processId.toString() === 'atomic' ? state : {}),
+  };
+
   const [limitDetails, setLimitDetails] = useState<boolean>(true);
   const mappedKeys = DEFAULT_PRIMARY_KEYS.map((key: AntDetailKey) =>
     mapKeyToAttribute(key),
@@ -89,52 +99,36 @@ function ANTCard({
 
   useEffect(() => {
     setDetails();
-  }, []);
+  }, [processId, loading, owner]);
 
   async function setDetails() {
     try {
       setIsLoading(true);
-      let contract = undefined;
-      if (state) {
-        contract = new ANTContract(state);
-      }
-      if (contractTxId && contractTxId !== ATOMIC_FLAG && !state) {
-        contract = await arweaveDataProvider
-          .buildANTContract(contractTxId)
-          .catch(() => {
-            throw new Error(
-              `Unable to fetch ANT contract state for ${contractTxId}`,
-            );
-          });
-      }
-
-      if (!contract?.isValid()) {
-        throw new Error('Invalid ANT contract');
-      }
-
       let leaseDuration = 'N/A';
       if (record) {
-        leaseDuration = (record as ArNSLeaseData).endTimestamp
-          ? `${(record as ArNSLeaseData).endTimestamp * 1000}`
+        leaseDuration = isLeasedArNSRecord(record)
+          ? record.endTimestamp.toString()
           : 'Indefinite';
       }
+
+      const apexRecord = records ? records['@'] : undefined;
 
       const allANTDetails: Record<AntDetailKey, any> = {
         deployedTransactionId: deployedTransactionId
           ? deployedTransactionId.toString()
           : undefined,
-        contractTxId: contractTxId?.toString() ?? 'N/A',
-        domain: domain,
+        processId: processId?.toString() ?? 'N/A',
+        domain: decodeDomainToASCII(domain),
         // TODO: add the # of associated names that point to this ANT
         leaseDuration: leaseDuration,
         // TODO: undernames are associated with the record, not the ANT - how do we want to represent this
-        maxUndernames: 'Up to ' + record?.undernames,
-        name: contract.name,
-        ticker: contract.ticker,
-        owner: contract.owner,
-        controllers: contract.controllers.join(', '),
-        targetId: contract.getRecord('@')?.transactionId,
-        ttlSeconds: contract.getRecord('@')?.ttlSeconds,
+        maxUndernames: 'Up to ' + record?.undernameLimit,
+        name: decodeDomainToASCII(name ?? 'N/A'),
+        ticker: decodeDomainToASCII(ticker ?? 'N/A'),
+        owner,
+        controllers: controllers.join(', '),
+        targetId: apexRecord?.transactionId ?? 'N/A',
+        ttlSeconds: apexRecord?.ttlSeconds ?? 'N/A',
         ...overrides,
       };
 
@@ -178,16 +172,17 @@ function ANTCard({
   }
 
   function handleLinkType(key: string) {
-    if (key === 'Controllers' || key === 'Owner') {
+    if (key === 'Controller(s)' || key === 'Owner' || key === 'New Owner') {
       return ArweaveIdTypes.ADDRESS;
-    }
-    if (key === 'Contract ID') {
+    } else if (key === 'Process ID') {
       return ArweaveIdTypes.CONTRACT;
+    } else if (key === 'Target ID') {
+      return ArweaveIdTypes.TRANSACTION;
     }
-    return ArweaveIdTypes.TRANSACTION;
+    return ArweaveIdTypes.INTERACTION;
   }
 
-  if (isLoading) {
+  if (isLoading || loading) {
     return <Loader size={80} />;
   }
 

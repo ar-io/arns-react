@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -17,15 +18,16 @@ import './styles.css';
 
 const protocol = 'https';
 
-function ARNSCard({ domain, contractTxId }: ARNSMapping) {
+function ARNSCard({ domain, processId }: ARNSMapping) {
   const [{ gateway }] = useGlobalState();
   const isMobile = useIsMobile();
   const [antDetails, setANTDetails] = useState<ARNSDomain>({
     domain,
-    contractTxId,
+    processId,
     image: ARNSDefault,
   });
   const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     getANTDetailsFromName(domain);
@@ -33,7 +35,12 @@ function ARNSCard({ domain, contractTxId }: ARNSMapping) {
 
   async function getANTDetailsFromName(domain: string) {
     setLoading(true);
-    const image = await getMetaImage();
+
+    const image = await queryClient.fetchQuery({
+      queryKey: ['meta-image', domain],
+      queryFn: getMetaImage,
+      staleTime: Infinity,
+    });
     setANTDetails({
       ...antDetails,
       domain,

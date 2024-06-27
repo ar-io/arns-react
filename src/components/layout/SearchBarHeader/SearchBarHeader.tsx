@@ -3,43 +3,23 @@ import { useWalletState } from '@src/state/contexts/WalletState';
 
 import { useIsMobile } from '../../../hooks';
 import { SearchBarHeaderProps } from '../../../types';
-import { isDomainReservedLength } from '../../../utils';
 import './styles.css';
 
 function SearchBarHeader({
   defaultText,
   domain,
-  contractTxId,
+  processId,
   isAvailable,
-  isActiveAuction,
   isReserved,
   reservedFor,
 }: SearchBarHeaderProps): JSX.Element {
   const isMobile = useIsMobile();
   const [{ walletAddress }] = useWalletState();
 
-  // unavailable condition
-  if (domain && isActiveAuction) {
-    return (
-      <div
-        className="text-medium white center flex fade-in"
-        style={{
-          fontWeight: 500,
-          fontSize: '23px',
-          flexDirection: isMobile ? 'column' : 'row',
-          minHeight: '45px',
-        }}
-      >
-        <span className="in-auction">{domain}&nbsp;</span>
-        is currently in auction.
-      </div>
-    );
-  }
-
   // reserved condition
   if (
     domain &&
-    (isReserved || isDomainReservedLength(domain)) &&
+    isReserved &&
     reservedFor?.toString() !== walletAddress?.toString()
   ) {
     return (
@@ -58,7 +38,7 @@ function SearchBarHeader({
     );
   }
   // unavailable condition
-  if (contractTxId && domain) {
+  if (processId && domain) {
     return (
       <div
         className="text-medium white center flex fade-in"

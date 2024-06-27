@@ -1,11 +1,12 @@
+import { buildAntStateQuery } from '@src/utils/network';
+import { useQueryClient } from '@tanstack/react-query';
 import { Breadcrumb, Tooltip } from 'antd';
 import { useEffect, useState } from 'react';
 import { useLocation, useMatches } from 'react-router';
 import { Link } from 'react-router-dom';
 
-import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
 import {
+  decodeDomainToASCII,
   formatForMaxCharCount,
   isARNSDomainNameValid,
   isArweaveTransactionID,
@@ -22,7 +23,7 @@ export type NavItem = {
 export const ANT_FLAG = 'ant-flag';
 
 function Breadcrumbs() {
-  const [{ arweaveDataProvider }] = useGlobalState();
+  const queryClient = useQueryClient();
   const { Item } = Breadcrumb;
   const location = useLocation();
   const path = location.pathname.split('/');
@@ -38,7 +39,7 @@ function Breadcrumbs() {
 
   async function handleCrumbs() {
     try {
-      let contractId = '';
+      let processId = '';
       let name = '';
 
       const rawCrumbs = matches
@@ -48,7 +49,7 @@ function Breadcrumbs() {
         )
         .map((match: any) => {
           if (match.params?.id) {
-            contractId = match.params?.id;
+            processId = match.params?.id;
           }
           if (match.params?.name) {
             name = match.params?.name;
@@ -56,14 +57,15 @@ function Breadcrumbs() {
           return match?.handle?.crumbs(Object.values(match.params)[0]);
         });
       // check for ant flag
-      if (isArweaveTransactionID(contractId)) {
-        const state = await arweaveDataProvider.getContractState(
-          new ArweaveTransactionID(contractId),
+      if (isArweaveTransactionID(processId)) {
+        const state = await queryClient.fetchQuery(
+          buildAntStateQuery({ processId }),
         );
+        const name = state?.Name;
 
         const parsedCrumbs = rawCrumbs[0].map((crumb: NavItem) => {
           if (crumb.name == ANT_FLAG) {
-            return { name: state.name, route: crumb.route };
+            return { name: name, route: crumb.route };
           }
           return crumb;
         });
@@ -137,7 +139,7 @@ function Breadcrumbs() {
                 }}
                 to={item?.route ?? '/'}
               >
-                {crumbTitle}
+                {decodeDomainToASCII(crumbTitle)}
               </Link>
             );
 

@@ -1,4 +1,4 @@
-import { ArIO } from '@ar.io/sdk/web';
+import { IO } from '@ar.io/sdk/web';
 import { ArweaveAppError } from '@src/utils/errors';
 import React, {
   Dispatch,
@@ -13,9 +13,9 @@ import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionI
 import { ArConnectWalletConnector } from '../../services/wallets';
 import { ArweaveWalletConnector, WALLET_TYPES } from '../../types';
 import {
-  ARNS_REGISTRY_ADDRESS,
   ARWEAVE_APP_API,
   DEFAULT_ARNS_REGISTRY_STATE,
+  IO_PROCESS_ID,
 } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 import { dispatchArIOContract } from '../actions/dispatchArIOContract';
@@ -71,22 +71,13 @@ export default function WalletStateProvider({
       wallet?.disconnect();
       return;
     }
-    if (wallet?.arconnectSigner) {
-      dispatchArIOContract({
-        contract: ArIO.init({
-          contractTxId: ARNS_REGISTRY_ADDRESS.toString(),
-          signer: wallet.arconnectSigner,
-        }),
-        dispatch: dispatchGlobalState,
-      });
-    } else {
-      dispatchArIOContract({
-        contract: ArIO.init({
-          contractTxId: ARNS_REGISTRY_ADDRESS.toString(),
-        }),
-        dispatch: dispatchGlobalState,
-      });
-    }
+    dispatchArIOContract({
+      contract: IO.init({
+        processId: IO_PROCESS_ID,
+        signer: wallet?.arconnectSigner,
+      }),
+      dispatch: dispatchGlobalState,
+    });
 
     const removeWalletState = () => {
       if (walletAddress) {
@@ -147,7 +138,7 @@ export default function WalletStateProvider({
   async function updateBalances(address: ArweaveTransactionID) {
     try {
       const [ioBalance, arBalance] = await Promise.all([
-        arweaveDataProvider.getTokenBalance(address, ARNS_REGISTRY_ADDRESS),
+        arweaveDataProvider.getTokenBalance(address),
         arweaveDataProvider.getArBalance(address),
       ]);
 

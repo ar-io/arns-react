@@ -3,24 +3,19 @@ import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionMo
 import AddControllerModal from '@src/components/modals/ant-management/AddControllerModal/AddControllerModal';
 import RemoveControllersModal from '@src/components/modals/ant-management/RemoveControllerModal/RemoveControllerModal';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
-import {
-  ANTContractJSON,
-  ANT_INTERACTION_TYPES,
-  ContractInteraction,
-} from '@src/types';
-import { getLegacyControllersFromState } from '@src/utils';
-import { Skeleton, Tooltip } from 'antd';
+import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
+import { Tooltip } from 'antd';
 import { useState } from 'react';
 
 import DomainSettingsRow from './DomainSettingsRow';
 
 export default function ControllersRow({
-  state,
-  contractTxId,
+  controllers = [],
+  processId,
   confirm,
 }: {
-  state?: ANTContractJSON;
-  contractTxId?: string;
+  controllers: string[];
+  processId: string;
   confirm: ({
     payload,
     workflowName,
@@ -68,13 +63,7 @@ export default function ControllersRow({
     <>
       <DomainSettingsRow
         label="Controllers(s):"
-        value={
-          state ? (
-            getLegacyControllersFromState(state).join(', ')
-          ) : (
-            <Skeleton.Input active={true} />
-          )
-        }
+        value={controllers.join(', ')}
         action={[
           <Tooltip
             key={1}
@@ -95,14 +84,12 @@ export default function ControllersRow({
                 <button
                   className="flex flex-right white pointer button"
                   onClick={() => setShowAddModal(true)}
-                  disabled={!state}
                 >
                   Add Controller
                 </button>
                 <button
                   className="flex flex-right white pointer button"
                   onClick={() => setShowRemoveModal(true)}
-                  disabled={!state}
                 >
                   Remove Controller
                 </button>
@@ -118,11 +105,10 @@ export default function ControllersRow({
           </Tooltip>,
         ]}
       />
-      {showAddModal && contractTxId && state && (
+      {showAddModal && processId && (
         <AddControllerModal
           closeModal={() => setShowAddModal(false)}
-          state={state}
-          antId={new ArweaveTransactionID(contractTxId)}
+          antId={new ArweaveTransactionID(processId)}
           payloadCallback={(c) => {
             setWorkflowName(ANT_INTERACTION_TYPES.SET_CONTROLLER);
             setPayload(c);
@@ -131,11 +117,11 @@ export default function ControllersRow({
           }}
         />
       )}
-      {showRemoveModal && contractTxId && state && (
+      {showRemoveModal && processId && (
         <RemoveControllersModal
           closeModal={() => setShowRemoveModal(false)}
-          state={state}
-          antId={new ArweaveTransactionID(contractTxId)}
+          antId={new ArweaveTransactionID(processId)}
+          controllers={controllers}
           payloadCallback={(c) => {
             setWorkflowName(ANT_INTERACTION_TYPES.REMOVE_CONTROLLER);
             setPayload(c);

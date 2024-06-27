@@ -1,3 +1,5 @@
+import { createIDBPersister, queryClient } from '@src/utils/network';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { cleanup, render } from '@testing-library/react';
 import { HashRouter as Router } from 'react-router-dom';
 
@@ -8,9 +10,16 @@ describe('Home', () => {
 
   test('render Home', () => {
     render(
-      <Router>
-        <Home />
-      </Router>,
+      <PersistQueryClientProvider
+        client={queryClient}
+        persistOptions={{
+          persister: createIDBPersister(),
+        }}
+      >
+        <Router>
+          <Home />
+        </Router>
+      </PersistQueryClientProvider>,
     );
   });
 });
