@@ -1,11 +1,5 @@
-import {
-  ANT,
-  AoANTState,
-  AoArNSNameData,
-  ArNSEventEmitter,
-} from '@ar.io/sdk/web';
-import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
-import { QueryClient, useQueryClient } from '@tanstack/react-query';
+import { AoANTState, AoArNSNameData, ArNSEventEmitter } from '@ar.io/sdk/web';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   Dispatch,
   createContext,
