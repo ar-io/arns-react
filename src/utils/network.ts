@@ -162,3 +162,21 @@ export function buildArNSRecordsQuery({
     staleTime: Infinity,
   };
 }
+
+export async function getArNSRecordsFromCache({
+  queryClient,
+}: {
+  queryClient: QueryClient;
+}): Promise<Record<string, AoArNSNameData> | undefined> {
+  const records = await queryClient.getQueriesData({
+    queryKey: ['arns-record'],
+  });
+  if (!records?.length) return;
+  return records.reduce(
+    (acc: Record<string, AoArNSNameData>, [cacheKey, record]: any) => {
+      acc[cacheKey[1]] = record;
+      return acc;
+    },
+    {},
+  );
+}

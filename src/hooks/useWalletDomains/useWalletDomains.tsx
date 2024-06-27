@@ -1,5 +1,8 @@
 import { AoANTState, AoArNSNameData, isLeasedArNSRecord } from '@ar.io/sdk/web';
 import ManageAssetButtons from '@src/components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
+import { dispatchArNSUpdate } from '@src/state/actions/dispatchArNSUpdate';
+import { useArNSState } from '@src/state/contexts/ArNSState';
+import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 
@@ -25,9 +28,9 @@ import {
 } from '../../utils';
 import { DEFAULT_MAX_UNDERNAMES } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
-import useARNS from '../useARNS';
 
 export function useWalletDomains() {
+  const queryClient = useQueryClient();
   const [{ gateway }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [sortAscending, setSortAscending] = useState(true);
@@ -37,13 +40,15 @@ export function useWalletDomains() {
   const [rows, setRows] = useState<ARNSTableRow[]>([]);
   const [filteredResults, setFilteredResults] = useState<ARNSTableRow[]>([]);
   // loading info
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const searchRef = useRef<HTMLInputElement>(null);
   const [searchText, setSearchText] = useState<string>('');
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const { path } = useParams();
-  const { result, invalidate } = useARNS(walletAddress?.toString());
+  const [
+    { domains, ants, loading, percentLoaded, arnsEmitter },
+    dispatchArNSState,
+  ] = useArNSState();
 
   if (searchRef.current && searchOpen) {
     searchRef.current.focus();
@@ -51,7 +56,7 @@ export function useWalletDomains() {
 
   useEffect(() => {
     load();
-  }, [walletAddress, result.data]);
+  }, [walletAddress, domains]);
 
   useEffect(() => {
     const searchQuery = searchParams.get('search');
@@ -92,18 +97,15 @@ export function useWalletDomains() {
 
   async function load() {
     try {
-      setIsLoading(true);
-      if (walletAddress && result.data?.domains && result.data?.ants) {
+      if (walletAddress && domains && ants) {
         const newRows = buildDomainRows({
-          domains: result.data?.domains,
-          ants: result.data?.ants,
+          domains,
+          ants,
         });
         setRows(newRows);
       }
     } catch (error) {
       eventEmitter.emit('error', error);
-    } finally {
-      setIsLoading(false);
     }
   }
 
@@ -452,14 +454,22 @@ export function useWalletDomains() {
   }
 
   return {
-    isLoading:
-      isLoading || result.isRefetching || result.isLoading || result.isFetching,
-    percent: 0,
+    isLoading: loading,
+    percent: percentLoaded,
     columns: generateTableColumns(),
     rows: searchText.length && searchOpen ? filteredResults : rows,
     sortField,
     sortAscending,
     selectedRow,
-    refresh: invalidate,
+    refresh: () => {
+      setRows([]);
+      if (!walletAddress) return;
+      dispatchArNSUpdate({
+        dispatch: dispatchArNSState,
+        emitter: arnsEmitter,
+        queryClient,
+        walletAddress,
+      });
+    },
   };
 }

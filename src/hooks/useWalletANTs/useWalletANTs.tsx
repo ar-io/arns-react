@@ -1,4 +1,7 @@
+import { dispatchArNSUpdate } from '@src/state/actions/dispatchArNSUpdate';
+import { useArNSState } from '@src/state/contexts/ArNSState';
 import { DEFAULT_TTL_SECONDS } from '@src/utils/constants';
+import { useQueryClient } from '@tanstack/react-query';
 import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
@@ -21,22 +24,22 @@ import { useWalletState } from '../../state/contexts/WalletState';
 import { ANTMetadata } from '../../types';
 import { handleTableSort, isArweaveTransactionID } from '../../utils';
 import eventEmitter from '../../utils/events';
-import useARNS from '../useARNS';
 
 export function useWalletANTs() {
   const [{ walletAddress }] = useWalletState();
+  const queryClient = useQueryClient();
   const [sortAscending, setSortAscending] = useState<boolean>(true);
   const [sortField, setSortField] = useState<keyof ANTMetadata>('status');
   const [rows, setRows] = useState<ANTMetadata[]>([]);
   const [filteredResults, setFilteredResults] = useState<ANTMetadata[]>([]);
 
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const searchRef = useRef<HTMLInputElement>(null);
   const [searchText, setSearchText] = useState<string>('');
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const { path } = useParams();
-  const { result } = useARNS(walletAddress?.toString());
+  const [{ ants, loading, percentLoaded, arnsEmitter }, dispatchArNSState] =
+    useArNSState();
 
   if (searchRef.current && searchOpen) {
     searchRef.current.focus();
@@ -44,7 +47,7 @@ export function useWalletANTs() {
 
   useEffect(() => {
     load();
-  }, [walletAddress]);
+  }, [walletAddress, ants]);
 
   useEffect(() => {
     const searchQuery = searchParams.get('search');
@@ -78,7 +81,6 @@ export function useWalletANTs() {
     handleTableSort<ANTMetadata>({
       key,
       isAsc,
-
       rows: newRows,
     });
     setRows([...newRows]);
@@ -86,15 +88,12 @@ export function useWalletANTs() {
 
   async function load() {
     try {
-      setIsLoading(true);
       if (walletAddress) {
         const newRows = buildANTRows();
         setRows(newRows);
       }
     } catch (error) {
       eventEmitter.emit('error', error);
-    } finally {
-      setIsLoading(false);
     }
   }
 
@@ -425,7 +424,7 @@ export function useWalletANTs() {
   }
 
   function buildANTRows() {
-    const fetchedRows: ANTMetadata[] = Object.entries(result.data.ants)
+    const fetchedRows: ANTMetadata[] = Object.entries(ants)
       .map(([processId, state], i) => {
         const { Name, Ticker, Owner, Controllers, Records } = state;
         if (!Owner || !Controllers || !Records || !state) {
@@ -463,12 +462,21 @@ export function useWalletANTs() {
   }
 
   return {
-    isLoading,
-    percent: 0,
+    isLoading: loading,
+    percent: percentLoaded,
     columns: generateTableColumns(),
     rows: searchText.length && searchOpen ? filteredResults : rows,
     sortField,
     sortAscending,
-    refresh: load,
+    refresh: () => {
+      setRows([]);
+      if (!walletAddress) return;
+      dispatchArNSUpdate({
+        dispatch: dispatchArNSState,
+        emitter: arnsEmitter,
+        queryClient,
+        walletAddress,
+      });
+    },
   };
 }
