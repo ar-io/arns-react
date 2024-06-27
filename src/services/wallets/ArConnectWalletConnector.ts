@@ -1,6 +1,7 @@
 import { ArconnectSigner } from '@ar.io/sdk/web';
 import { DEFAULT_ARWEAVE } from '@src/utils/constants';
 import { ArconnectError, WalletNotInstalledError } from '@src/utils/errors';
+import eventEmitter from '@src/utils/events';
 import { PermissionType } from 'arconnect';
 import { ApiConfig } from 'arweave/node/lib/api';
 
@@ -103,5 +104,30 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
       this._wallet?.getArweaveConfig,
     );
     return config as unknown as ApiConfig;
+  }
+
+  async updatePermissions(): Promise<void> {
+    // check we have the necessary permissions
+    const permissions = await this._wallet.getPermissions();
+    if (
+      permissions &&
+      !ARCONNECT_WALLET_PERMISSIONS.every((permission) =>
+        permissions.includes(permission),
+      )
+    ) {
+      const missingPermissions = ARCONNECT_WALLET_PERMISSIONS.filter(
+        (permission) => !permissions.includes(permission),
+      );
+      eventEmitter.emit(
+        'error',
+        new Error(
+          `Missing permissions (${missingPermissions.join(
+            ', ',
+          )}), please re-authorize permissions.`,
+        ),
+      );
+      await this.disconnect();
+      await this.connect();
+    }
   }
 }

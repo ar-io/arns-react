@@ -161,6 +161,7 @@ export default function WalletStateProvider({
       if (walletType === WALLET_TYPES.ARCONNECT) {
         const connector = new ArConnectWalletConnector();
         const address = await connector?.getWalletAddress();
+        await connector.updatePermissions();
 
         dispatchWalletState({
           type: 'setWalletAddress',
