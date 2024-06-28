@@ -132,7 +132,7 @@ function Manage() {
                     '100%': '#DF9BE8',
                   }}
                   trailColor="var(--text-faded)"
-                  format={(p) => `${p} / 100`}
+                  format={(p) => `${p}%`}
                   strokeWidth={10}
                 />
               </div>
