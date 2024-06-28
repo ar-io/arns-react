@@ -4,7 +4,6 @@ import { Loader } from '@src/components/layout';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
-import { useArNSState } from '@src/state/contexts/ArNSState';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { ANT_INTERACTION_TYPES } from '@src/types';
@@ -60,12 +59,19 @@ function DomainSettings({
   const [{ wallet, walletAddress }] = useWalletState();
 
   // permissions check
-  const [{ ants }] = useArNSState();
-  const isOwner =
-    ants[data.processId?.toString()]?.Owner === walletAddress?.toString();
-  const isController = ants[data.processId?.toString()]?.Controllers?.includes(
-    walletAddress?.toString() ?? '',
-  );
+  const isOwner = walletAddress
+    ? data?.owner === walletAddress.toString()
+    : false;
+  const isController = walletAddress
+    ? data.controllers?.includes(walletAddress.toString() ?? '')
+    : false;
+  const isAuthorized = isOwner || isController;
+
+  useEffect(() => {
+    if (!domain) {
+      navigate('/manage/names');
+    }
+  }, [domain]);
   useEffect(() => {
     if (interactionResult) {
       queryClient.invalidateQueries({
@@ -96,13 +102,12 @@ function DomainSettings({
     }
   }, [interactionResult]);
 
-  if (!wallet?.arconnectSigner || !walletAddress) {
-    navigate('/connect');
-    return;
-  }
-
-  if (isLoading) {
-    return <Loader />;
+  if (isLoading || !data.arnsRecord || !data.owner) {
+    return (
+      <div className="page" style={{ height: '100%' }}>
+        <Loader message="Loading domain data..." />
+      </div>
+    );
   }
 
   function getStatus(endTimestamp?: number) {
@@ -185,14 +190,14 @@ function DomainSettings({
               <NicknameRow
                 nickname={decodeDomainToASCII(data.name ?? '')}
                 key={DomainSettingsRowTypes.NICKNAME}
-                editable={isController}
+                editable={isAuthorized}
                 confirm={(name: string) =>
                   dispatchANTInteraction({
                     payload: { name },
                     workflowName: ANT_INTERACTION_TYPES.SET_NAME,
                     processId: data.processId,
-                    signer: wallet.arconnectSigner!,
-                    owner: walletAddress.toString(),
+                    signer: wallet!.arconnectSigner!,
+                    owner: walletAddress!.toString(),
                     dispatch,
                   })
                 }
@@ -215,7 +220,7 @@ function DomainSettings({
               <TargetIDRow
                 targetId={data?.apexRecord?.transactionId}
                 key={DomainSettingsRowTypes.TARGET_ID}
-                editable={isController}
+                editable={isAuthorized}
                 confirm={(targetId: string) =>
                   dispatchANTInteraction({
                     payload: {
@@ -223,8 +228,8 @@ function DomainSettings({
                       ttlSeconds: data.apexRecord.ttlSeconds,
                     },
                     workflowName: ANT_INTERACTION_TYPES.SET_TARGET_ID,
-                    signer: wallet.arconnectSigner!,
-                    owner: walletAddress.toString(),
+                    signer: wallet!.arconnectSigner!,
+                    owner: walletAddress!.toString(),
                     processId: data.processId,
                     dispatch,
                   })
@@ -235,13 +240,13 @@ function DomainSettings({
               <TickerRow
                 ticker={data.ticker}
                 key={DomainSettingsRowTypes.TICKER}
-                editable={isController}
+                editable={isAuthorized}
                 confirm={(ticker: string) =>
                   dispatchANTInteraction({
                     payload: { ticker },
                     workflowName: ANT_INTERACTION_TYPES.SET_TICKER,
-                    signer: wallet.arconnectSigner!,
-                    owner: walletAddress.toString(),
+                    signer: wallet!.arconnectSigner!,
+                    owner: walletAddress!.toString(),
                     processId: data.processId,
                     dispatch,
                   })
@@ -252,7 +257,7 @@ function DomainSettings({
               <ControllersRow
                 key={DomainSettingsRowTypes.CONTROLLERS}
                 processId={data.processId?.toString()}
-                editable={isController}
+                editable={isAuthorized}
                 controllers={data.controllers}
                 confirm={({
                   payload,
@@ -266,8 +271,8 @@ function DomainSettings({
                   dispatchANTInteraction({
                     payload,
                     workflowName,
-                    signer: wallet.arconnectSigner!,
-                    owner: walletAddress.toString(),
+                    signer: wallet!.arconnectSigner!,
+                    owner: walletAddress!.toString(),
                     processId: data.processId,
                     dispatch,
                   })
@@ -285,8 +290,8 @@ function DomainSettings({
                   dispatchANTInteraction({
                     payload: { target },
                     workflowName: ANT_INTERACTION_TYPES.TRANSFER,
-                    signer: wallet.arconnectSigner!,
-                    owner: walletAddress.toString(),
+                    signer: wallet!.arconnectSigner!,
+                    owner: walletAddress!.toString(),
                     processId: data.processId,
                     dispatch,
                   })
@@ -296,7 +301,7 @@ function DomainSettings({
             [DomainSettingsRowTypes.TTL]: (
               <TTLRow
                 ttlSeconds={data.apexRecord?.ttlSeconds}
-                editable={isController}
+                editable={isAuthorized}
                 key={DomainSettingsRowTypes.TTL}
                 confirm={(ttlSeconds: number) =>
                   dispatchANTInteraction({
@@ -305,8 +310,8 @@ function DomainSettings({
                       transactionId: data.apexRecord?.transactionId,
                     },
                     workflowName: ANT_INTERACTION_TYPES.SET_TTL_SECONDS,
-                    signer: wallet.arconnectSigner!,
-                    owner: walletAddress.toString(),
+                    signer: wallet!.arconnectSigner!,
+                    owner: walletAddress!.toString(),
                     processId: data.processId,
                     dispatch,
                   })
@@ -322,6 +327,7 @@ function DomainSettings({
                 undernameSupport={
                   data.arnsRecord?.undernameLimit ?? DEFAULT_MAX_UNDERNAMES
                 }
+                editable={isAuthorized}
               />
             ),
           }).map(([rowName, row]) =>

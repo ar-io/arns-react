@@ -7,7 +7,6 @@ import { Tooltip } from 'antd';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
-import { useWalletState } from '../../../state/contexts/WalletState';
 import {
   decodeDomainToASCII,
   getLeaseDurationFromEndTimestamp,
@@ -25,7 +24,6 @@ function ManageDomain() {
   const { name } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const [{ walletAddress }] = useWalletState();
   const [isMaxLeaseDuration, setIsMaxLeaseDuration] = useState<boolean>(false);
   const [isMaxUndernameCount, setisMaxUndernameCount] =
     useState<boolean>(false);
@@ -39,19 +37,20 @@ function ManageDomain() {
     useTransactionState();
 
   useEffect(() => {
+    // Reset transaction state on unmount - clears transaction success banner
     return () => {
       dispatchTransactionState({ type: 'reset' });
     };
   }, []);
 
   useEffect(() => {
-    if (!name || !walletAddress) {
+    if (!name) {
       navigate('/manage/names');
       return;
     }
 
     fetchDomainDetails({ arnsRecord: data.arnsRecord });
-  }, [data, interactionResult, isLoadingDomainDetails]);
+  }, [data.arnsRecord, interactionResult, isLoadingDomainDetails]);
 
   // TODO: [PE-4630] tech debt, refactor this into smaller pure functions
   async function fetchDomainDetails({

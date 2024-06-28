@@ -22,9 +22,6 @@ export default function DomainSettingsRow({
   onSave?: () => void;
   setEditing?: () => void;
 }) {
-  // if (editable && (!onCancel || !onSave || !setEditing)) {
-  //   throw new Error('Missing prop for editable DomainSettingsRow');
-  // }
   return (
     <List.Item
       prefixCls="domain-settings-row"
