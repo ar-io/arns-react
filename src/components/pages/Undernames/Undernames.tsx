@@ -80,11 +80,11 @@ function Undernames() {
 
     setAction(action);
 
-    if (data.owner && data.controllers && walletAddress) {
+    if (data.owner && data.controllers) {
       getOwnershipStatus(
         data.owner,
         data.controllers,
-        walletAddress.toString(),
+        walletAddress?.toString(),
       ).then((status) => setOwnershipStatus(status));
     }
 
@@ -112,13 +112,13 @@ function Undernames() {
   async function getOwnershipStatus(
     owner: string,
     controllers: string[],
-    walletAddress: string,
+    walletAddress?: string,
   ): Promise<'controller' | 'owner' | undefined> {
     if (owner === walletAddress) {
       return 'owner';
     }
 
-    if (controllers.includes(walletAddress)) {
+    if (walletAddress && controllers.includes(walletAddress)) {
       return 'controller';
     }
     return undefined;

@@ -11,16 +11,19 @@ export default function UndernamesRow({
   antId,
   undernameLimit,
   undernameSupport,
+  editable,
 }: {
   domain?: string;
   antId?: string;
   undernameLimit: number;
   undernameSupport: number;
+  editable: boolean;
 }) {
   const navigate = useNavigate();
   return (
     <DomainSettingsRow
       label="Undernames:"
+      editable={true}
       value={
         <span
           className="flex center"
@@ -73,24 +76,25 @@ export default function UndernamesRow({
               >
                 Manage
               </button>
-
-              <button
-                className="flex flex-right white pointer button"
-                onClick={() => {
-                  const params = new URLSearchParams({
-                    modal: UNDERNAME_TABLE_ACTIONS.CREATE,
-                  });
-                  navigate(
-                    encodeURI(
-                      `/manage/names/${
-                        domain || antId
-                      }/undernames?${params.toString()}`,
-                    ),
-                  );
-                }}
-              >
-                Add Undername
-              </button>
+              {editable && (
+                <button
+                  className="flex flex-right white pointer button"
+                  onClick={() => {
+                    const params = new URLSearchParams({
+                      modal: UNDERNAME_TABLE_ACTIONS.CREATE,
+                    });
+                    navigate(
+                      encodeURI(
+                        `/manage/names/${
+                          domain || antId
+                        }/undernames?${params.toString()}`,
+                      ),
+                    );
+                  }}
+                >
+                  Add Undername
+                </button>
+              )}
             </div>
           }
         >

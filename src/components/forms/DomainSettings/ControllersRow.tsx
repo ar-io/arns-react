@@ -13,6 +13,7 @@ export default function ControllersRow({
   controllers = [],
   processId,
   confirm,
+  editable = false,
 }: {
   controllers: string[];
   processId: string;
@@ -25,6 +26,7 @@ export default function ControllersRow({
       | ANT_INTERACTION_TYPES.SET_CONTROLLER
       | ANT_INTERACTION_TYPES.REMOVE_CONTROLLER;
   }) => Promise<ContractInteraction>;
+  editable?: boolean;
 }) {
   const [payload, setPayload] = useState<{ controller: string }>({
     controller: '',
@@ -64,6 +66,7 @@ export default function ControllersRow({
       <DomainSettingsRow
         label="Controllers(s):"
         value={controllers.join(', ')}
+        editable={editable}
         action={[
           <Tooltip
             key={1}

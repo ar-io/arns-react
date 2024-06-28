@@ -14,11 +14,13 @@ export default function OwnerRow({
   processId,
   owner,
   associatedNames,
+  editable = false,
 }: {
   processId: string;
   owner: string;
   associatedNames: string[];
   confirm: ({ target }: { target: string }) => Promise<ContractInteraction>;
+  editable?: boolean;
 }) {
   const [payload, setTransactionData] = useState<{
     target: ArweaveTransactionID;
@@ -43,6 +45,7 @@ export default function OwnerRow({
       <DomainSettingsRow
         label="Owner:"
         value={owner ?? <Skeleton.Input active />}
+        editable={editable}
         action={[
           <button
             key={1}

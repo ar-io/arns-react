@@ -15,9 +15,11 @@ import DomainSettingsRow from './DomainSettingsRow';
 export default function NicknameRow({
   nickname,
   confirm,
+  editable = false,
 }: {
   nickname?: string;
   confirm: (name: string) => Promise<ContractInteraction>;
+  editable?: boolean;
 }) {
   const [editing, setEditing] = useState<boolean>(false);
   const [newNickname, setNewNickname] = useState<string>(nickname ?? '');
@@ -75,7 +77,7 @@ export default function NicknameRow({
             maxCharLength={(str) => str.length <= SMARTWEAVE_MAX_INPUT_SIZE}
           />
         }
-        editable={true}
+        editable={editable}
         editing={editing}
         setEditing={() => setEditing(true)}
         onSave={() => setShowModal(true)}

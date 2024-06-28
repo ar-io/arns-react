@@ -1,4 +1,4 @@
-import { ANT, AoANTWrite, AoArNSNameData } from '@ar.io/sdk/web';
+import { ANT, AoANTRead, AoANTWrite, AoArNSNameData } from '@ar.io/sdk/web';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
@@ -18,7 +18,7 @@ export default function useDomainInfo({
     arnsRecord?: AoArNSNameData;
     associatedNames?: string[];
     processId: ArweaveTransactionID;
-    antProcess: AoANTWrite;
+    antProcess: AoANTWrite | AoANTRead;
     name: string;
     ticker: string;
     owner: string;
@@ -55,7 +55,7 @@ export default function useDomainInfo({
     arnsRecord?: AoArNSNameData;
     associatedNames?: string[];
     processId: ArweaveTransactionID;
-    antProcess: AoANTWrite;
+    antProcess: AoANTWrite | AoANTRead;
     name: string;
     ticker: string;
     owner: string;
@@ -86,12 +86,10 @@ export default function useDomainInfo({
       }
       const processId = antId || new ArweaveTransactionID(record?.processId);
       const signer = wallet?.arconnectSigner;
-      if (!signer) {
-        throw new Error('No signer found');
-      }
+
       const antProcess = ANT.init({
         processId: processId.toString(),
-        signer,
+        ...(signer !== undefined ? { signer: signer as any } : {}),
       });
 
       const state = await antProcess.getState();
