@@ -84,7 +84,7 @@ export default function GlobalStateProvider({
   async function updateTicker() {
     try {
       setUpdatingTicker(true);
-      const ticker = 'dIO'; // TODO, use contract to get ticker
+      const ticker = 'tIO'; // TODO, use contract to get ticker
       dispatchGlobalState({ type: 'setIoTicker', payload: ticker });
     } catch (error) {
       console.error(error);

@@ -37,7 +37,7 @@ export const initialRegistrationState: RegistrationState = {
   domain: '',
   leaseDuration: 1,
   antContract: undefined,
-  fee: { ar: 0, ['dIO']: 0 },
+  fee: { ar: 0, ['tIO']: 0 },
   antID: undefined,
   isRegistered: false,
   stage: 0,
