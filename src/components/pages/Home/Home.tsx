@@ -1,3 +1,4 @@
+import DomainSearch from '@src/components/inputs/Search/DomainSearch/DomainSearch';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { buildArNSRecordQuery } from '@src/utils/network';
 import { useQueryClient } from '@tanstack/react-query';
@@ -132,6 +133,7 @@ function Home() {
           minWidth: isMobile ? '100%' : '750px',
         }}
       >
+        <DomainSearch domainCb={console.log} registrationCb={console.log} />
         <SearchBar placeholderText={'Search for a name'} />
         {updateShowFeaturedDomains({
           isReserved: isReserved,

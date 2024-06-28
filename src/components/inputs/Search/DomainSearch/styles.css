@@ -1,0 +1,25 @@
+/* prefix class name is domain-search */
+
+.domain-search,
+.domain-search-input {
+  background-color: var(--card-bg);
+}
+
+.domain-search {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 75px;
+}
+
+.domain-search-input {
+  display: flex;
+  height: 70px;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  color: var(--text-white);
+}
+.domain-search-input::placeholder {
+  color: var(--text-grey);
+}
