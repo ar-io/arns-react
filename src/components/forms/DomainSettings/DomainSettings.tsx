@@ -66,8 +66,6 @@ function DomainSettings({
   const isController = ants[data.processId?.toString()]?.Controllers?.includes(
     walletAddress?.toString() ?? '',
   );
-  const isAuthorized = isOwner ?? isController;
-
   useEffect(() => {
     if (interactionResult) {
       queryClient.invalidateQueries({
