@@ -11,9 +11,11 @@ import DomainSettingsRow from './DomainSettingsRow';
 export default function TickerRow({
   ticker,
   confirm,
+  editable = false,
 }: {
   ticker?: string;
   confirm: (ticker: string) => Promise<ContractInteraction>;
+  editable?: boolean;
 }) {
   const [editing, setEditing] = useState<boolean>(false);
   const [newTicker, setNewTicker] = useState<string>(ticker ?? '');
@@ -69,7 +71,7 @@ export default function TickerRow({
             <Skeleton.Input active={true} />
           )
         }
-        editable={true}
+        editable={editable}
         editing={editing}
         setEditing={() => setEditing(true)}
         onSave={() => setShowModal(true)}

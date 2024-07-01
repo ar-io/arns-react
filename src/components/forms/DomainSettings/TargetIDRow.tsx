@@ -16,9 +16,11 @@ import DomainSettingsRow from './DomainSettingsRow';
 export default function TargetIDRow({
   targetId,
   confirm,
+  editable = false,
 }: {
   targetId?: string;
   confirm: (targetId: string) => Promise<ContractInteraction>;
+  editable?: boolean;
 }) {
   const [editing, setEditing] = useState<boolean>(false);
   const [newTargetId, setNewTargetId] = useState<string>(targetId ?? '');
@@ -44,6 +46,7 @@ export default function TargetIDRow({
     <>
       <DomainSettingsRow
         label="Target ID:"
+        editable={editable}
         value={
           targetId ? (
             <ValidationInput
@@ -80,7 +83,6 @@ export default function TargetIDRow({
             <Skeleton.Input active />
           )
         }
-        editable={true}
         editing={editing}
         setEditing={() => setEditing(true)}
         onSave={() => setShowModal(true)}

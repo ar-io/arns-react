@@ -1,4 +1,5 @@
 import { ANT } from '@ar.io/sdk/web';
+import { useWalletState } from '@src/state/contexts/WalletState';
 import { Tooltip } from 'antd';
 import { ColumnType } from 'antd/es/table';
 import { useEffect, useRef, useState } from 'react';
@@ -28,10 +29,12 @@ import eventEmitter from '../../utils/events';
 
 export function useUndernames(id?: ArweaveTransactionID, name?: string) {
   const [{ gateway, arweaveDataProvider }] = useGlobalState();
+  const [{ walletAddress }] = useWalletState();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] = useState<keyof UndernameMetadata>('name');
   const [selectedRow, setSelectedRow] = useState<UndernameMetadata>();
   const [rows, setRows] = useState<UndernameMetadata[]>([]);
+  const [columns, setColumns] = useState<ColumnType<UndernameMetadata>[]>([]);
   const [filteredResults, setFilteredResults] = useState<UndernameMetadata[]>(
     [],
   );
@@ -43,14 +46,17 @@ export function useUndernames(id?: ArweaveTransactionID, name?: string) {
   const [searchText, setSearchText] = useState<string>('');
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
   const [domain, setDomain] = useState<string>('');
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
     if (!id && !name) {
       return;
     }
-    generateTableColumns();
     fetchUndernameRows(id, name);
-  }, [id, name]);
+  }, [id, name, walletAddress]);
+  useEffect(() => {
+    setColumns(generateTableColumns());
+  }, [isAuthorized]);
 
   useEffect(() => {
     if (searchText) {
@@ -61,7 +67,7 @@ export function useUndernames(id?: ArweaveTransactionID, name?: string) {
     } else {
       setFilteredResults([]);
     }
-  }, [searchText]);
+  }, [searchText, walletAddress]);
 
   function generateTableColumns(): ColumnType<UndernameMetadata>[] {
     const newColumns: ColumnType<UndernameMetadata>[] = [
@@ -295,41 +301,53 @@ export function useUndernames(id?: ArweaveTransactionID, name?: string) {
             className="flex flex-row action-buttons fade-in"
             style={{ gap: '10px', justifyContent: 'flex-end' }}
           >
-            <Tooltip
-              trigger={['hover']}
-              title={'Edit'}
-              color="var(--card-bg)"
-              placement="top"
-              rootClassName="notification-tooltip"
-            >
-              <button
-                className="button pointer"
-                onClick={() => {
-                  setSelectedRow(row);
-                  setAction(UNDERNAME_TABLE_ACTIONS.EDIT);
-                }}
-              >
-                <PencilIcon width={18} height={18} fill={'var(--text-grey)'} />
-              </button>
-            </Tooltip>
+            {isAuthorized && (
+              <>
+                <Tooltip
+                  trigger={['hover']}
+                  title={'Edit'}
+                  color="var(--card-bg)"
+                  placement="top"
+                  rootClassName="notification-tooltip"
+                >
+                  <button
+                    className="button pointer"
+                    onClick={() => {
+                      setSelectedRow(row);
+                      setAction(UNDERNAME_TABLE_ACTIONS.EDIT);
+                    }}
+                  >
+                    <PencilIcon
+                      width={18}
+                      height={18}
+                      fill={'var(--text-grey)'}
+                    />
+                  </button>
+                </Tooltip>
 
-            <Tooltip
-              trigger={['hover']}
-              title={'Delete'}
-              color="#222224"
-              placement="top"
-              rootClassName="notification-tooltip"
-            >
-              <button
-                className="button pointer"
-                onClick={() => {
-                  setSelectedRow(row);
-                  setAction(UNDERNAME_TABLE_ACTIONS.REMOVE);
-                }}
-              >
-                <TrashIcon width={18} height={18} fill={'var(--text-grey)'} />
-              </button>
-            </Tooltip>
+                <Tooltip
+                  trigger={['hover']}
+                  title={'Delete'}
+                  color="#222224"
+                  placement="top"
+                  rootClassName="notification-tooltip"
+                >
+                  <button
+                    className="button pointer"
+                    onClick={() => {
+                      setSelectedRow(row);
+                      setAction(UNDERNAME_TABLE_ACTIONS.REMOVE);
+                    }}
+                  >
+                    <TrashIcon
+                      width={18}
+                      height={18}
+                      fill={'var(--text-grey)'}
+                    />
+                  </button>
+                </Tooltip>
+              </>
+            )}
           </div>
         ),
         align: 'right',
@@ -377,11 +395,11 @@ export function useUndernames(id?: ArweaveTransactionID, name?: string) {
         return '';
       });
     setDomain(domain);
-    const undernames = await ANT.init({
+    const state = await ANT.init({
       processId: processId.toString(),
-    }).getRecords();
+    }).getState();
 
-    const rows = Object.entries(undernames)
+    const rows = Object.entries(state.Records)
       .map(([name, record]) =>
         name === '@'
           ? undefined
@@ -396,12 +414,17 @@ export function useUndernames(id?: ArweaveTransactionID, name?: string) {
       .filter((row) => row !== undefined)
       .sort((a, b) => a!.status - b!.status);
     setRows(rows as UndernameMetadata[]);
+    const authorized = walletAddress
+      ? state.Controllers.includes(walletAddress.toString()) ||
+        state.Owner === walletAddress.toString()
+      : false;
+    setIsAuthorized(authorized);
     setIsLoading(false);
   }
 
   return {
     isLoading,
-    columns: generateTableColumns(),
+    columns,
     rows: filteredResults.length ? filteredResults : rows,
     sortField,
     sortAscending,

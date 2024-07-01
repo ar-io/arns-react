@@ -15,6 +15,7 @@ import {
 } from '../../../../utils';
 import {
   ARNS_TX_ID_ENTRY_REGEX,
+  LANDING_PAGE_TXID,
   MAX_TTL_SECONDS,
   MAX_UNDERNAME_LENGTH,
   MIN_TTL_SECONDS,
@@ -41,7 +42,9 @@ function AddUndernameModal({
   const ttlRef = useRef<HTMLInputElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
   const [undername, setUndername] = useState<string>('');
-  const [targetId, setTargetId] = useState<string>('');
+  const [targetId, setTargetId] = useState<string>(
+    LANDING_PAGE_TXID.toString(),
+  );
   const [ttlSeconds, setTtlSeconds] = useState<number>(MIN_TTL_SECONDS);
   const [associatedRecords, setAssociatedRecords] = useState<
     Record<string, AoArNSNameData>

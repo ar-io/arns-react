@@ -46,9 +46,15 @@
   color: var(--text-white);
 }
 .domain-settings-meta-item-meta:nth-child(2),
-.domain-settings-meta-item-meta-content,
-.domain-settings-meta-item-meta-description {
+.domain-settings-meta-item-meta-content {
   width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.domain-settings-row-item > .domain-settings-meta-item-meta:nth-child(1) {
+  min-width: 250px;
+  max-width: 250px;
   box-sizing: border-box;
   overflow: hidden;
 }

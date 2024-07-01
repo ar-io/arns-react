@@ -37,9 +37,7 @@ const TransactionComplete = React.lazy(
 const Undernames = React.lazy(
   () => import('./components/pages/Undernames/Undernames'),
 );
-const ProtectedRoute = React.lazy(
-  () => import('./components/layout/ProtectedRoute/ProtectedRoute'),
-);
+
 const ConnectWalletModal = React.lazy(
   () => import('./components/modals/ConnectWalletModal/ConnectWalletModal'),
 );
@@ -97,10 +95,7 @@ function App() {
                     />
                   }
                 >
-                  {' '}
-                  <ProtectedRoute>
-                    <Manage />
-                  </ProtectedRoute>
+                  <Manage />
                 </Suspense>
               }
             />
@@ -113,10 +108,7 @@ function App() {
                   <PageLoader loading={true} message={'Loading, please wait'} />
                 }
               >
-                {' '}
-                <ProtectedRoute>
-                  <ManageANT />
-                </ProtectedRoute>
+                <ManageANT />
               </Suspense>
             }
             handle={{
@@ -137,10 +129,7 @@ function App() {
                   <PageLoader loading={true} message={'Loading, please wait'} />
                 }
               >
-                {' '}
-                <ProtectedRoute>
-                  <Undernames />
-                </ProtectedRoute>
+                <Undernames />
               </Suspense>
             }
             handle={{
@@ -165,10 +154,7 @@ function App() {
                   <PageLoader loading={true} message={'Loading, please wait'} />
                 }
               >
-                {' '}
-                <ProtectedRoute>
-                  <ManageDomain />
-                </ProtectedRoute>
+                <ManageDomain />
               </Suspense>
             }
             handle={{
@@ -189,10 +175,7 @@ function App() {
                   <PageLoader loading={true} message={'Loading, please wait'} />
                 }
               >
-                {' '}
-                <ProtectedRoute>
-                  <UpgradeUndernames />
-                </ProtectedRoute>
+                <UpgradeUndernames />
               </Suspense>
             }
             handle={{
@@ -214,9 +197,7 @@ function App() {
                   <PageLoader loading={true} message={'Loading, please wait'} />
                 }
               >
-                <ProtectedRoute>
-                  <Undernames />
-                </ProtectedRoute>
+                <Undernames />
               </Suspense>
             }
             handle={{
@@ -241,9 +222,7 @@ function App() {
                   <PageLoader loading={true} message={'Loading, please wait'} />
                 }
               >
-                <ProtectedRoute>
-                  <ExtendLease />
-                </ProtectedRoute>
+                <ExtendLease />
               </Suspense>
             }
             handle={{
