@@ -7,8 +7,8 @@ exports[`SearchBar handles a capitalized name correctly 1`] = `
     style="max-width: 787px;"
   >
     <div
-      class="flex flex-column flex-center white fade-in"
-      style="gap: 5px; min-height: 45px; font-size: 14px;"
+      class="flex flex-column flex-center white fade-in "
+      style="gap: 5px; min-height: 45px; font-size: 16px; max-width: 500px; text-align: center;"
     >
       ArNS names are censorship-resistant domain names for permaweb dApps, web pages, data, and identities
     </div>
@@ -201,8 +201,8 @@ exports[`SearchBar handles a lowercase name correctly 1`] = `
     style="max-width: 787px;"
   >
     <div
-      class="flex flex-column flex-center white fade-in"
-      style="gap: 5px; min-height: 45px; font-size: 14px;"
+      class="flex flex-column flex-center white fade-in "
+      style="gap: 5px; min-height: 45px; font-size: 16px; max-width: 500px; text-align: center;"
     >
       ArNS names are censorship-resistant domain names for permaweb dApps, web pages, data, and identities
     </div>
@@ -395,8 +395,8 @@ exports[`SearchBar renders correctly 1`] = `
     style="max-width: 787px;"
   >
     <div
-      class="flex flex-column flex-center white fade-in"
-      style="gap: 5px; min-height: 45px; font-size: 14px;"
+      class="flex flex-column flex-center white fade-in "
+      style="gap: 5px; min-height: 45px; font-size: 16px; max-width: 500px; text-align: center;"
     >
       ArNS names are censorship-resistant domain names for permaweb dApps, web pages, data, and identities
     </div>

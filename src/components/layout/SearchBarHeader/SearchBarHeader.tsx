@@ -80,8 +80,15 @@ function SearchBarHeader({
 
   return (
     <div
-      className="flex flex-column flex-center white fade-in"
-      style={{ gap: '5px', minHeight: '45px', fontSize: '14px' }}
+      className="flex flex-column flex-center white fade-in "
+      style={{
+        gap: '5px',
+        minHeight: '45px',
+        fontSize: '16px',
+        color: 'var(--text-grey)',
+        maxWidth: '500px',
+        textAlign: 'center',
+      }}
     >
       {defaultText}
     </div>
