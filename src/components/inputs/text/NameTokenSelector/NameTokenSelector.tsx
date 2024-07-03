@@ -1,4 +1,5 @@
 import { ANT, AoArNSNameData } from '@ar.io/sdk/web';
+import InfoTip from '@src/components/data-display/InfoTip';
 import { Pagination, PaginationProps, Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
@@ -454,25 +455,7 @@ function NameTokenSelector({
               Remove
             </button>
           ) : (
-            <Tooltip
-              placement={'right'}
-              autoAdjustOverflow={true}
-              arrow={false}
-              overlayInnerStyle={{
-                width: '190px',
-                color: 'var(--text-black)',
-                textAlign: 'center',
-                fontFamily: 'Rubik-Bold',
-                fontSize: '14px',
-                backgroundColor: 'var(--text-white)',
-                padding: '15px',
-              }}
-              title={
-                'You can import an ANT by entering its process ID, or search for one of your own by name, ticker, owner, or controller status, as well is its own process ID'
-              }
-            >
-              Optional
-            </Tooltip>
+            <InfoTip message="You can import an ANT by entering its process ID, or search for one of your own by name, ticker, owner, or controller status, as well is its own process ID" />
           )}
         </span>
       </div>

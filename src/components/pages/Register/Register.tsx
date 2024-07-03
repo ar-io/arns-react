@@ -1,5 +1,6 @@
 import { CheckCircleFilled } from '@ant-design/icons';
 import { ANT, mIOToken } from '@ar.io/sdk/web';
+import InfoTip from '@src/components/data-display/InfoTip';
 import { InsufficientFundsError, ValidationError } from '@src/utils/errors';
 import { Tooltip } from 'antd';
 import emojiRegex from 'emoji-regex';
@@ -499,25 +500,7 @@ function RegisterNameForm() {
                 }}
               />
               <span className="grey pointer hover" style={{ fontSize: '12px' }}>
-                <Tooltip
-                  placement={'right'}
-                  autoAdjustOverflow={true}
-                  arrow={false}
-                  overlayInnerStyle={{
-                    width: '190px',
-                    color: 'var(--text-black)',
-                    textAlign: 'center',
-                    fontFamily: 'Rubik-Bold',
-                    fontSize: '14px',
-                    backgroundColor: 'var(--text-white)',
-                    padding: '15px',
-                  }}
-                  title={
-                    'The Target ID is the arweave ID that will be resolved by the ArNS name.'
-                  }
-                >
-                  Optional
-                </Tooltip>
+                <InfoTip message="The Target ID is the arweave ID that will be resolved by the ArNS name." />
               </span>
             </div>
             <TransactionCost
