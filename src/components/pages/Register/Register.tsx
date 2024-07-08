@@ -498,8 +498,16 @@ function RegisterNameForm() {
                   setHasValidationErrors(!validity);
                 }}
               />
-              <span className="grey pointer hover" style={{ fontSize: '12px' }}>
-                <InfoTip message="The Target ID is the arweave ID that will be resolved by the ArNS name." />
+              <span
+                className="flex flex-row text grey flex-center"
+                style={{
+                  width: 'fit-content',
+                  height: 'fit-content',
+                  wordBreak: 'keep-all',
+                  // padding: '1px',
+                }}
+              >
+                <InfoTip message="The Target ID is the Arweave Transaction ID that will be resolved at the root of this ArNS name" />
               </span>
             </div>
             <TransactionCost

@@ -354,6 +354,7 @@ function NameTokenSelector({
             ? `1px solid var(--text-white)`
             : `1px solid var(--text-faded)`,
         gap: 0,
+        boxSizing: 'border-box',
       }}
     >
       {/* input wrapper */}
@@ -455,7 +456,7 @@ function NameTokenSelector({
               Remove
             </button>
           ) : (
-            <InfoTip message="You can import an ANT by entering its process ID, or search for one of your own by name, ticker, owner, or controller status, as well is its own process ID" />
+            <InfoTip message="You can import an ANT by entering its process ID" />
           )}
         </span>
       </div>
