@@ -2,7 +2,6 @@ import { CheckCircleFilled } from '@ant-design/icons';
 import { ANT, mIOToken } from '@ar.io/sdk/web';
 import InfoTip from '@src/components/data-display/InfoTip';
 import { InsufficientFundsError, ValidationError } from '@src/utils/errors';
-import { Tooltip } from 'antd';
 import emojiRegex from 'emoji-regex';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
