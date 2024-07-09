@@ -302,7 +302,7 @@ function SearchBar(props: SearchBarProps) {
       style={{ maxWidth: '787px' }}
     >
       <SearchBarHeader
-        defaultText="Find a name"
+        defaultText="ArNS names are censorship-resistant domain names for permaweb dApps, web pages, data, and identities"
         domain={searchSubmitted ? searchBarText : undefined}
         isAvailable={isAvailable}
         isReserved={isReserved}

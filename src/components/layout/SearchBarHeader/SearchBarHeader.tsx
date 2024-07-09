@@ -1,4 +1,4 @@
-import { ArrowDownOutlined, CheckCircleFilled } from '@ant-design/icons';
+import { CheckCircleFilled } from '@ant-design/icons';
 import { useWalletState } from '@src/state/contexts/WalletState';
 
 import { useIsMobile } from '../../../hooks';
@@ -80,10 +80,17 @@ function SearchBarHeader({
 
   return (
     <div
-      className="flex flex-column flex-center text-medium white fade-in"
-      style={{ gap: '5px', minHeight: '45px' }}
+      className="flex flex-column flex-center white fade-in "
+      style={{
+        gap: '5px',
+        minHeight: '45px',
+        fontSize: '16px',
+        color: 'var(--text-grey)',
+        maxWidth: '500px',
+        textAlign: 'center',
+      }}
     >
-      {defaultText} <ArrowDownOutlined />
+      {defaultText}
     </div>
   );
 }
