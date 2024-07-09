@@ -21,6 +21,7 @@ function Tooltip({
         title={message}
         color="var(--card-bg)"
         className="pointer"
+        overlayInnerStyle={{ padding: '15px' }}
         {...tooltipOverrides}
       >
         {icon}
