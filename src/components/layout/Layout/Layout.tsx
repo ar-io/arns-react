@@ -12,6 +12,8 @@ function Layout() {
 
   const homeOrRegister =
     location.pathname === '/' || location.pathname.startsWith('/register');
+  const julyEigth2024 = new Date('2024-07-08T00:00:00Z').getTime();
+  const showBanner = homeOrRegister && Date.now() < julyEigth2024;
 
   return (
     <div
@@ -23,7 +25,7 @@ function Layout() {
         height: '100vh',
       }}
     >
-      {homeOrRegister && <TopBanner />}
+      {showBanner && <TopBanner />}
       <div
         id="layout"
         className="flex flex-row"
