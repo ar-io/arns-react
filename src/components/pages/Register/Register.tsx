@@ -1,6 +1,6 @@
 import { CheckCircleFilled } from '@ant-design/icons';
 import { ANT, mIOToken } from '@ar.io/sdk/web';
-import InfoTip from '@src/components/data-display/InfoTip';
+import Tooltip from '@src/components/data-display/Tooltip';
 import { InsufficientFundsError, ValidationError } from '@src/utils/errors';
 import emojiRegex from 'emoji-regex';
 import { useEffect, useState } from 'react';
@@ -507,7 +507,7 @@ function RegisterNameForm() {
                   // padding: '1px',
                 }}
               >
-                <InfoTip message="The Target ID is the Arweave Transaction ID that will be resolved at the root of this ArNS name" />
+                <Tooltip message="The Target ID is the Arweave Transaction ID that will be resolved at the root of this ArNS name" />
               </span>
             </div>
             <TransactionCost

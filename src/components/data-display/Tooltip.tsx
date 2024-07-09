@@ -1,8 +1,8 @@
-import { Tooltip, TooltipProps } from 'antd';
+import { Tooltip as AntdTooltip, TooltipProps } from 'antd';
 
 import { InfoIcon } from '../icons';
 
-function InfoTip({
+function Tooltip({
   message,
   icon = (
     <InfoIcon
@@ -17,16 +17,16 @@ function InfoTip({
 }) {
   return (
     <>
-      <Tooltip
+      <AntdTooltip
         title={message}
         color="var(--card-bg)"
         className="pointer"
         {...tooltipOverrides}
       >
         {icon}
-      </Tooltip>
+      </AntdTooltip>
     </>
   );
 }
 
-export default InfoTip;
+export default Tooltip;

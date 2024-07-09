@@ -1,6 +1,6 @@
 import { ANT, AoArNSNameData } from '@ar.io/sdk/web';
-import InfoTip from '@src/components/data-display/InfoTip';
-import { Pagination, PaginationProps, Tooltip } from 'antd';
+import Tooltip from '@src/components/data-display/Tooltip';
+import { Tooltip as AntdTooltip, Pagination, PaginationProps } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
 import { useIsFocused } from '../../../../hooks';
@@ -456,7 +456,7 @@ function NameTokenSelector({
               Remove
             </button>
           ) : (
-            <InfoTip message="You can import an ANT by entering its process ID" />
+            <Tooltip message="You can import an ANT by entering its process ID" />
           )}
         </span>
       </div>
@@ -516,7 +516,7 @@ function NameTokenSelector({
                         }`
                       : token.id}
                     {token.names?.length ? (
-                      <Tooltip
+                      <AntdTooltip
                         key={index}
                         title={
                           <div
@@ -541,7 +541,7 @@ function NameTokenSelector({
                           height={20}
                           fill="var(--text-grey)"
                         />{' '}
-                      </Tooltip>
+                      </AntdTooltip>
                     ) : (
                       <></>
                     )}
@@ -580,7 +580,7 @@ function NameTokenSelector({
                         } (${ticker}) - ${id}`
                       : id}
                     {names?.length ? (
-                      <Tooltip
+                      <AntdTooltip
                         title={
                           <div
                             className="flex flex-column"
@@ -603,7 +603,7 @@ function NameTokenSelector({
                           height={20}
                           fill="var(--text-grey)"
                         />{' '}
-                      </Tooltip>
+                      </AntdTooltip>
                     ) : (
                       <></>
                     )}
