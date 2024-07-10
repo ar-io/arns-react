@@ -1,6 +1,6 @@
 import { ANT, AoArNSNameData } from '@ar.io/sdk/web';
 import Tooltip from '@src/components/data-display/Tooltip';
-import { Tooltip as AntdTooltip, Pagination, PaginationProps } from 'antd';
+import { Pagination, PaginationProps } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
 import { useIsFocused } from '../../../../hooks';
@@ -516,9 +516,16 @@ function NameTokenSelector({
                         }`
                       : token.id}
                     {token.names?.length ? (
-                      <AntdTooltip
+                      <Tooltip
                         key={index}
-                        title={
+                        icon={
+                          <HamburgerOutlineIcon
+                            width={20}
+                            height={20}
+                            fill="var(--text-grey)"
+                          />
+                        }
+                        message={
                           <div
                             className="flex flex-column"
                             style={{
@@ -532,16 +539,7 @@ function NameTokenSelector({
                             ))}
                           </div>
                         }
-                        color="var(--card-bg)"
-                        placement="top"
-                        showArrow={true}
-                      >
-                        <HamburgerOutlineIcon
-                          width={20}
-                          height={20}
-                          fill="var(--text-grey)"
-                        />{' '}
-                      </AntdTooltip>
+                      />
                     ) : (
                       <></>
                     )}
@@ -580,8 +578,15 @@ function NameTokenSelector({
                         } (${ticker}) - ${id}`
                       : id}
                     {names?.length ? (
-                      <AntdTooltip
-                        title={
+                      <Tooltip
+                        icon={
+                          <HamburgerOutlineIcon
+                            width={20}
+                            height={20}
+                            fill="var(--text-grey)"
+                          />
+                        }
+                        message={
                           <div
                             className="flex flex-column"
                             style={{
@@ -594,16 +599,7 @@ function NameTokenSelector({
                             ))}
                           </div>
                         }
-                        color="var(--card-bg)"
-                        placement="top"
-                        showArrow={true}
-                      >
-                        <HamburgerOutlineIcon
-                          width={20}
-                          height={20}
-                          fill="var(--text-grey)"
-                        />{' '}
-                      </AntdTooltip>
+                      />
                     ) : (
                       <></>
                     )}

@@ -11,7 +11,7 @@ function Tooltip({
   ),
   tooltipOverrides,
 }: {
-  message: string;
+  message: JSX.Element | string;
   icon?: JSX.Element;
   tooltipOverrides?: Partial<TooltipProps>;
 }) {
