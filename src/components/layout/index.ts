@@ -7,7 +7,6 @@ import NavBar from './Navbar/Navbar';
 import ProtectedRoute from './ProtectedRoute/ProtectedRoute';
 import SearchBarFooter from './SearchBarFooter/SearchBarFooter';
 import SearchBarHeader from './SearchBarHeader/SearchBarHeader';
-import { Tooltip } from './Tooltip/Tooltip';
 
 export {
   FeaturedDomains,
@@ -19,5 +18,4 @@ export {
   ProtectedRoute,
   SearchBarFooter,
   SearchBarHeader,
-  Tooltip,
 };

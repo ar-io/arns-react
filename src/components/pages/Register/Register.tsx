@@ -1,7 +1,7 @@
 import { CheckCircleFilled } from '@ant-design/icons';
 import { ANT, mIOToken } from '@ar.io/sdk/web';
+import Tooltip from '@src/components/data-display/Tooltip';
 import { InsufficientFundsError, ValidationError } from '@src/utils/errors';
-import { Tooltip } from 'antd';
 import emojiRegex from 'emoji-regex';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -498,26 +498,16 @@ function RegisterNameForm() {
                   setHasValidationErrors(!validity);
                 }}
               />
-              <span className="grey pointer hover" style={{ fontSize: '12px' }}>
-                <Tooltip
-                  placement={'right'}
-                  autoAdjustOverflow={true}
-                  arrow={false}
-                  overlayInnerStyle={{
-                    width: '190px',
-                    color: 'var(--text-black)',
-                    textAlign: 'center',
-                    fontFamily: 'Rubik-Bold',
-                    fontSize: '14px',
-                    backgroundColor: 'var(--text-white)',
-                    padding: '15px',
-                  }}
-                  title={
-                    'The Target ID is the arweave ID that will be resolved by the ArNS name.'
-                  }
-                >
-                  Optional
-                </Tooltip>
+              <span
+                className="flex flex-row text grey flex-center"
+                style={{
+                  width: 'fit-content',
+                  height: 'fit-content',
+                  wordBreak: 'keep-all',
+                  // padding: '1px',
+                }}
+              >
+                <Tooltip message="The Target ID is the Arweave Transaction ID that will be resolved at the root of this ArNS name" />
               </span>
             </div>
             <TransactionCost
