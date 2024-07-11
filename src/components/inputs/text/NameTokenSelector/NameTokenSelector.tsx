@@ -1,5 +1,6 @@
 import { ANT, AoArNSNameData } from '@ar.io/sdk/web';
-import { Pagination, PaginationProps, Tooltip } from 'antd';
+import Tooltip from '@src/components/data-display/Tooltip';
+import { Pagination, PaginationProps } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
 import { useIsFocused } from '../../../../hooks';
@@ -353,6 +354,7 @@ function NameTokenSelector({
             ? `1px solid var(--text-white)`
             : `1px solid var(--text-faded)`,
         gap: 0,
+        boxSizing: 'border-box',
       }}
     >
       {/* input wrapper */}
@@ -454,25 +456,7 @@ function NameTokenSelector({
               Remove
             </button>
           ) : (
-            <Tooltip
-              placement={'right'}
-              autoAdjustOverflow={true}
-              arrow={false}
-              overlayInnerStyle={{
-                width: '190px',
-                color: 'var(--text-black)',
-                textAlign: 'center',
-                fontFamily: 'Rubik-Bold',
-                fontSize: '14px',
-                backgroundColor: 'var(--text-white)',
-                padding: '15px',
-              }}
-              title={
-                'You can import an ANT by entering its process ID, or search for one of your own by name, ticker, owner, or controller status, as well is its own process ID'
-              }
-            >
-              Optional
-            </Tooltip>
+            <Tooltip message="For advanced use cases only, you can register this name with a custom ANT by entering its Process ID." />
           )}
         </span>
       </div>
@@ -534,7 +518,14 @@ function NameTokenSelector({
                     {token.names?.length ? (
                       <Tooltip
                         key={index}
-                        title={
+                        icon={
+                          <HamburgerOutlineIcon
+                            width={20}
+                            height={20}
+                            fill="var(--text-grey)"
+                          />
+                        }
+                        message={
                           <div
                             className="flex flex-column"
                             style={{
@@ -548,16 +539,7 @@ function NameTokenSelector({
                             ))}
                           </div>
                         }
-                        color="var(--card-bg)"
-                        placement="top"
-                        showArrow={true}
-                      >
-                        <HamburgerOutlineIcon
-                          width={20}
-                          height={20}
-                          fill="var(--text-grey)"
-                        />{' '}
-                      </Tooltip>
+                      />
                     ) : (
                       <></>
                     )}
@@ -597,7 +579,14 @@ function NameTokenSelector({
                       : id}
                     {names?.length ? (
                       <Tooltip
-                        title={
+                        icon={
+                          <HamburgerOutlineIcon
+                            width={20}
+                            height={20}
+                            fill="var(--text-grey)"
+                          />
+                        }
+                        message={
                           <div
                             className="flex flex-column"
                             style={{
@@ -610,16 +599,7 @@ function NameTokenSelector({
                             ))}
                           </div>
                         }
-                        color="var(--card-bg)"
-                        placement="top"
-                        showArrow={true}
-                      >
-                        <HamburgerOutlineIcon
-                          width={20}
-                          height={20}
-                          fill="var(--text-grey)"
-                        />{' '}
-                      </Tooltip>
+                      />
                     ) : (
                       <></>
                     )}
