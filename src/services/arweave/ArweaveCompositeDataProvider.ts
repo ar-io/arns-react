@@ -135,7 +135,7 @@ export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
       processId?: ArweaveTransactionID[];
     };
   }): Promise<Record<string, AoArNSNameData>> {
-    // we have to fetch all the records to find unique ones
+    // TODO: check the cache for existing records and only fetch new ones
     const records: Record<string, AoArNSNameData> = await fetchAllArNSRecords({
       contract: this.contract,
     });

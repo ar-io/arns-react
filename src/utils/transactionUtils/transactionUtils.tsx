@@ -1,5 +1,4 @@
 import { StepProps } from 'antd';
-import { Tag, Tags } from 'warp-contracts';
 
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import {
@@ -18,8 +17,6 @@ import {
   SetNamePayload,
   SetRecordPayload,
   SetTickerPayload,
-  SmartWeaveActionInput,
-  SmartWeaveActionTags,
   TRANSACTION_TYPES,
   TransactionData,
   TransactionDataConfig,
@@ -723,58 +720,6 @@ export function generateAtomicState(
     balances: { [walletAddress.toString()]: 1 },
     records,
   };
-}
-
-export function buildSmartweaveContractTags({
-  contractSrc,
-}: //initState, TODO: add init state support for atomic assets
-{
-  contractSrc: ArweaveTransactionID;
-  // initState?: Record<any, any> | string;
-}): Tags {
-  const tags = [
-    {
-      name: 'Content-Type',
-      value: 'application/json',
-    },
-    {
-      name: 'App-Name',
-      value: 'SmartWeaveContract',
-    },
-    {
-      name: 'App-Version',
-      value: '0.3.0',
-    },
-    {
-      name: 'Contract-Src',
-      value: contractSrc.toString(),
-    },
-  ];
-  return tags.map((t) => new Tag(t?.name, t?.value));
-}
-
-export function buildSmartweaveInteractionTags({
-  contractId,
-  input,
-}: {
-  contractId: ArweaveTransactionID;
-  input: SmartWeaveActionInput;
-}): Tags {
-  const tags: SmartWeaveActionTags = [
-    {
-      name: 'App-Name',
-      value: 'SmartWeaveAction',
-    },
-    {
-      name: 'Contract',
-      value: contractId.toString(),
-    },
-    {
-      name: 'Input',
-      value: JSON.stringify(input),
-    },
-  ];
-  return tags.map((t) => new Tag(t.name, t.value));
 }
 
 export async function withExponentialBackoff<T>({

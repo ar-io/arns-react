@@ -1,3 +1,4 @@
+import { Logger } from '@ar.io/sdk';
 import * as Sentry from '@sentry/react';
 import React, { Suspense } from 'react';
 import {
@@ -13,6 +14,9 @@ import { ANT_FLAG } from './components/layout/Breadcrumbs/Breadcrumbs';
 import PageLoader from './components/layout/progress/PageLoader/PageLoader';
 import useArconnectEvents from './hooks/useArconnectEvents/useArconnectEvents';
 import './index.css';
+
+// set the log level of ar-io-sdk
+Logger.default.setLogLevel('none');
 
 const Home = React.lazy(() => import('./components/pages/Home/Home'));
 const Manage = React.lazy(() => import('./components/pages/Manage/Manage'));

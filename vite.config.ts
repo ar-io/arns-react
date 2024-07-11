@@ -42,10 +42,6 @@ export default defineConfig({
       version: JSON.stringify(process.env.npm_package_version),
     },
   },
-  // required for warp-contracts
-  optimizeDeps: {
-    exclude: ['vm2'],
-  },
   resolve: {
     alias: {
       '@tests': path.resolve(__dirname) + '/tests',
