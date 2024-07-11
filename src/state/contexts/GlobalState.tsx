@@ -14,7 +14,6 @@ import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveD
 import {
   ARNS_REGISTRY_ADDRESS,
   ARWEAVE_HOST,
-  DEFAULT_ARNS_REGISTRY_STATE,
   DEFAULT_ARWEAVE,
   IO_PROCESS_ID,
 } from '../../utils/constants';
@@ -37,7 +36,7 @@ export type GlobalState = {
 
 const initialState: GlobalState = {
   arnsContractId: ARNS_REGISTRY_ADDRESS,
-  ioTicker: DEFAULT_ARNS_REGISTRY_STATE.ticker,
+  ioTicker: '',
   gateway: ARWEAVE_HOST,
   blockHeight: undefined,
   lastBlockUpdateTimestamp: undefined,
