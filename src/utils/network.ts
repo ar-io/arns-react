@@ -3,6 +3,7 @@ import {
   AoANTState,
   AoArNSNameData,
   AoIORead,
+  fetchAllArNSRecords,
   mIOToken,
 } from '@ar.io/sdk/web';
 import { ArweaveCompositeDataProvider } from '@src/services/arweave/ArweaveCompositeDataProvider';
@@ -156,8 +157,10 @@ export function buildArNSRecordsQuery({
 } {
   return {
     queryKey: ['arns-records'],
-    queryFn: async () => {
-      return await arioContract.getArNSRecords();
+    queryFn: () => {
+      return fetchAllArNSRecords({
+        contract: arioContract,
+      });
     },
     staleTime: Infinity,
   };
