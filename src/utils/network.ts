@@ -53,7 +53,7 @@ export function buildAntStateQuery({ processId }: { processId: string }): {
     queryFn: async () => {
       if (isArweaveTransactionID(processId)) {
         const ant = ANT.init({ processId });
-        return await ant.getState();
+        return ant.getState();
       }
       return null;
     },
@@ -75,7 +75,7 @@ export function buildArNSRecordQuery({
   return {
     queryKey: ['arns-record', lowerCaseDomain(domain)],
     queryFn: async () => {
-      return await arioContract.getArNSRecord({
+      return arioContract.getArNSRecord({
         name: lowerCaseDomain(domain),
       });
     },

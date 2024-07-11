@@ -64,7 +64,7 @@ export class ArweaveAppWalletConnector implements ArweaveWalletConnector {
 
   async disconnect(): Promise<void> {
     localStorage.removeItem('walletType');
-    return await this._wallet.disconnect();
+    return this._wallet.disconnect();
   }
 
   async getWalletAddress(): Promise<ArweaveTransactionID> {
