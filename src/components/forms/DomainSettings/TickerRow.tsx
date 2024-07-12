@@ -1,7 +1,6 @@
 import ValidationInput from '@src/components/inputs/text/ValidationInput/ValidationInput';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
-import { SMARTWEAVE_MAX_INPUT_SIZE } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Skeleton } from 'antd';
 import { useEffect, useState } from 'react';
@@ -65,7 +64,7 @@ export default function TickerRow({
               value={newTicker}
               setValue={(e) => setNewTicker(e)}
               validationPredicates={{}}
-              maxCharLength={(str) => str.length <= SMARTWEAVE_MAX_INPUT_SIZE}
+              maxCharLength={(str) => str.length <= 100}
             />
           ) : (
             <Skeleton.Input active={true} />

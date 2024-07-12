@@ -6,7 +6,6 @@ import {
   VALIDATION_INPUT_TYPES,
 } from '@src/types';
 import { validateMaxASCIILength } from '@src/utils';
-import { SMARTWEAVE_MAX_INPUT_SIZE } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { useEffect, useState } from 'react';
 
@@ -70,11 +69,10 @@ export default function NicknameRow({
             setValue={(e) => setNewNickname(e)}
             validationPredicates={{
               [VALIDATION_INPUT_TYPES.VALID_ANT_NAME]: {
-                fn: (name: any) =>
-                  validateMaxASCIILength(name, SMARTWEAVE_MAX_INPUT_SIZE),
+                fn: (name: any) => validateMaxASCIILength(name, 100),
               },
             }}
-            maxCharLength={(str) => str.length <= SMARTWEAVE_MAX_INPUT_SIZE}
+            maxCharLength={(str) => str.length <= 100}
           />
         }
         editable={editable}

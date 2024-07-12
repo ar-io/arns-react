@@ -1,6 +1,7 @@
 import {
   AoArNSNameData,
   AoIORead,
+  fetchAllArNSRecords,
   getANTProcessesOwnedByWallet,
   mIOToken,
 } from '@ar.io/sdk/web';
@@ -134,26 +135,21 @@ export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
       processId?: ArweaveTransactionID[];
     };
   }): Promise<Record<string, AoArNSNameData>> {
-    const records = await this.contract.getArNSRecords();
+    // TODO: check the cache for existing records and only fetch new ones
+    const records: Record<string, AoArNSNameData> = await fetchAllArNSRecords({
+      contract: this.contract,
+    });
 
-    const filtered = Object.keys(records).reduce(
-      (acc: Record<string, AoArNSNameData>, key: string) => {
-        const record = records[key];
-        if (filters.processId) {
-          if (
-            filters.processId
-              .map((id) => id.toString())
-              .includes(record.processId)
-          ) {
-            acc[key] = records[key];
-          }
-        }
-        return acc;
-      },
-      {},
+    // filter by processId
+    return Object.fromEntries(
+      Object.entries(records).filter(
+        ([, record]) =>
+          filters.processId === undefined ||
+          filters.processId.includes(
+            new ArweaveTransactionID(record.processId),
+          ),
+      ),
     );
-
-    return filtered;
   }
 
   async getTokenBalance(address: ArweaveTransactionID): Promise<number> {

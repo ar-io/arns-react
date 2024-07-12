@@ -15,7 +15,7 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { List, Skeleton } from 'antd';
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 
 import ControllersRow from './ControllersRow';
 import DomainSettingsRow from './DomainSettingsRow';

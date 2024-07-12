@@ -3,6 +3,7 @@ import {
   AoANTState,
   AoArNSNameData,
   AoIORead,
+  fetchAllArNSRecords,
   mIOToken,
 } from '@ar.io/sdk/web';
 import { ArweaveCompositeDataProvider } from '@src/services/arweave/ArweaveCompositeDataProvider';
@@ -15,6 +16,7 @@ import {
 import { del, get, set } from 'idb-keyval';
 
 import { isArweaveTransactionID, lowerCaseDomain } from '.';
+import eventEmitter from './events';
 
 /**
  * Creates an Indexed DB persister
@@ -52,7 +54,13 @@ export function buildAntStateQuery({ processId }: { processId: string }): {
     queryFn: async () => {
       if (isArweaveTransactionID(processId)) {
         const ant = ANT.init({ processId });
-        return await ant.getState();
+        return ant.getState().catch((e) => {
+          eventEmitter.emit(
+            'error',
+            new Error(`Failed to fetch ANT state: ${e.message}`),
+          );
+          return null;
+        });
       }
       return null;
     },
@@ -74,7 +82,7 @@ export function buildArNSRecordQuery({
   return {
     queryKey: ['arns-record', lowerCaseDomain(domain)],
     queryFn: async () => {
-      return await arioContract.getArNSRecord({
+      return arioContract.getArNSRecord({
         name: lowerCaseDomain(domain),
       });
     },
@@ -156,8 +164,11 @@ export function buildArNSRecordsQuery({
 } {
   return {
     queryKey: ['arns-records'],
-    queryFn: async () => {
-      return await arioContract.getArNSRecords();
+    queryFn: () => {
+      // TODO: we should add the last cursor retrieved and only fetch new records to avoid loading all of them on reload
+      return fetchAllArNSRecords({
+        contract: arioContract,
+      });
     },
     staleTime: Infinity,
   };

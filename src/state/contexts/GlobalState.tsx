@@ -14,14 +14,13 @@ import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveD
 import {
   ARNS_REGISTRY_ADDRESS,
   ARWEAVE_HOST,
-  DEFAULT_ARNS_REGISTRY_STATE,
   DEFAULT_ARWEAVE,
   IO_PROCESS_ID,
 } from '../../utils/constants';
 import type { GlobalAction } from '../reducers/GlobalReducer';
 
-const defaultArweave = new SimpleArweaveDataProvider(DEFAULT_ARWEAVE);
-const defaultArIO = IO.init({
+export const defaultArweave = new SimpleArweaveDataProvider(DEFAULT_ARWEAVE);
+export const defaultArIO = IO.init({
   processId: IO_PROCESS_ID,
 });
 
@@ -37,7 +36,7 @@ export type GlobalState = {
 
 const initialState: GlobalState = {
   arnsContractId: ARNS_REGISTRY_ADDRESS,
-  ioTicker: DEFAULT_ARNS_REGISTRY_STATE.ticker,
+  ioTicker: '',
   gateway: ARWEAVE_HOST,
   blockHeight: undefined,
   lastBlockUpdateTimestamp: undefined,
