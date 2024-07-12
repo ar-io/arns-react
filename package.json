@@ -84,6 +84,7 @@
     "lint-staged": "^13.1.0",
     "match-media-mock": "^0.1.1",
     "nyc": "^15.1.0",
+    "permaweb-deploy": "^1.1.5",
     "prettier": "^2.7.1",
     "react-hooks": "^1.0.1",
     "react-test-renderer": "^18.2.0",
