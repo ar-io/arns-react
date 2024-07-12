@@ -8,3 +8,6 @@ cache
 .idea
 docs
 .DS_Store
+dist-id.txt
+dist-manifest.csv
+dist-manifest.json
