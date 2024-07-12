@@ -5,7 +5,7 @@ import {
   AoIORead,
   fetchAllArNSRecords,
   mIOToken,
-} from '@ar.io/sdk/web';
+} from '@ar.io/sdk';
 import { ArweaveCompositeDataProvider } from '@src/services/arweave/ArweaveCompositeDataProvider';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { QueryClient } from '@tanstack/react-query';
@@ -53,7 +53,7 @@ export function buildAntStateQuery({ processId }: { processId: string }): {
     queryFn: async () => {
       if (isArweaveTransactionID(processId)) {
         const ant = ANT.init({ processId });
-        return ant.getState();
+        return ant.getState().catch(() => null);
       }
       return null;
     },
