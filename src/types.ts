@@ -1,4 +1,4 @@
-import { ANTState, AoArNSNameData } from '@ar.io/sdk/web';
+import { AoANTRecord, AoArNSNameData } from '@ar.io/sdk/web';
 import { ApiConfig } from 'arweave/web/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
 
@@ -26,11 +26,6 @@ export type TransactionTag = {
   value: string;
 };
 
-export type ANTContractDomainRecord = {
-  ttlSeconds: number;
-  transactionId: string;
-};
-
 export type ARNSMapping = {
   domain: string;
   record?: AoArNSNameData;
@@ -42,8 +37,14 @@ export type ARNSMapping = {
   deployedTransactionId?: ArweaveTransactionID | string;
   mobileView?: boolean;
   bordered?: boolean;
-  state?: ANTState;
   primaryDefaultKeys?: Partial<AntDetailKey>[];
+  state?: {
+    owner: string;
+    ticker: string;
+    name: string;
+    controllers: string[];
+    records: Record<string, AoANTRecord>;
+  };
 };
 
 export type ARNSMetaData = {
@@ -330,7 +331,6 @@ export type BuyRecordPayload = {
   type: TRANSACTION_TYPES;
   qty?: number; // the cost displayed to the user when buying a record
   targetId?: ArweaveTransactionID;
-  state?: ANTState;
 };
 
 export type ExtendLeasePayload = {
@@ -373,7 +373,7 @@ export type SetRecordPayload = {
   subDomain: string;
   transactionId: string;
   ttlSeconds: number;
-  previousRecord?: ANTContractDomainRecord;
+  previousRecord?: AoANTRecord;
 };
 
 export type RemoveRecordPayload = {
@@ -531,10 +531,6 @@ export type ContractInteraction = {
   deployer: string;
   processId: string;
   id: string;
-  payload: {
-    function: string;
-    [x: string]: string | number | boolean;
-  };
   valid?: boolean;
   [x: string]: any;
 };

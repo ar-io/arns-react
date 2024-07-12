@@ -209,7 +209,6 @@ function RegisterNameForm() {
           : undefined,
       type: registrationType,
       targetId,
-      state: generateAtomicState(name, walletAddress, targetId),
     };
 
     dispatchTransactionState({
