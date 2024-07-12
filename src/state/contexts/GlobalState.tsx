@@ -19,8 +19,8 @@ import {
 } from '../../utils/constants';
 import type { GlobalAction } from '../reducers/GlobalReducer';
 
-const defaultArweave = new SimpleArweaveDataProvider(DEFAULT_ARWEAVE);
-const defaultArIO = IO.init({
+export const defaultArweave = new SimpleArweaveDataProvider(DEFAULT_ARWEAVE);
+export const defaultArIO = IO.init({
   processId: IO_PROCESS_ID,
 });
 

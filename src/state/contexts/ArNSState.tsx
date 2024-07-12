@@ -9,7 +9,7 @@ import {
 
 import { dispatchArNSUpdate } from '../actions/dispatchArNSUpdate';
 import { ArNSAction } from '../reducers/ArNSReducer';
-import { useGlobalState } from './GlobalState';
+import { defaultArIO, useGlobalState } from './GlobalState';
 import { useWalletState } from './WalletState';
 
 export type ArNSState = {
@@ -27,7 +27,7 @@ export type ArNSStateProviderProps = {
 };
 
 export const initialArNSState: ArNSState = {
-  arnsEmitter: new ArNSEventEmitter({ timeoutMs: 10000 }),
+  arnsEmitter: new ArNSEventEmitter({ contract: defaultArIO }),
   domains: {},
   ants: {},
   loading: false,
@@ -58,7 +58,6 @@ export default function ArNSStateProvider({
     dispatchArNSState({
       type: 'setArNSEmitter',
       payload: new ArNSEventEmitter({
-        timeoutMs: 10000,
         contract: arioContract,
       }),
     });
