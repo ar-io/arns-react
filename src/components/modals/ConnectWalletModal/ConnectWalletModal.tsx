@@ -1,7 +1,7 @@
 import { ArConnectWalletConnector } from '@src/services/wallets';
 import { ArweaveAppWalletConnector } from '@src/services/wallets/ArweaveAppWalletConnector';
 import { useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { dispatchNewGateway } from '../../../state/actions';
