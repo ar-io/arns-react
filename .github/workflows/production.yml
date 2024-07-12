@@ -70,4 +70,4 @@ jobs:
       - run: yarn publish:arweave
         env:
           DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
-          ANT_PROCESS: ${{ vars.ANT_PROCESS }}
+          ANT_PROCESS: ${{ vars.DEPLOY_ANT_PROCESS_ID }}
