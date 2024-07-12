@@ -5,7 +5,7 @@ import {
   AoIORead,
   fetchAllArNSRecords,
   mIOToken,
-} from '@ar.io/sdk';
+} from '@ar.io/sdk/web';
 import { ArweaveCompositeDataProvider } from '@src/services/arweave/ArweaveCompositeDataProvider';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { QueryClient } from '@tanstack/react-query';
@@ -16,6 +16,7 @@ import {
 import { del, get, set } from 'idb-keyval';
 
 import { isArweaveTransactionID, lowerCaseDomain } from '.';
+import eventEmitter from './events';
 
 /**
  * Creates an Indexed DB persister
@@ -53,7 +54,13 @@ export function buildAntStateQuery({ processId }: { processId: string }): {
     queryFn: async () => {
       if (isArweaveTransactionID(processId)) {
         const ant = ANT.init({ processId });
-        return ant.getState().catch(() => null);
+        return ant.getState().catch((e) => {
+          eventEmitter.emit(
+            'error',
+            new Error(`Failed to fetch ANT state: ${e.message}`),
+          );
+          return null;
+        });
       }
       return null;
     },
