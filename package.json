@@ -5,7 +5,7 @@
   "homepage": ".",
   "scripts": {
     "build": "yarn clean && tsc --build tsconfig.json && NODE_OPTIONS=--max-old-space-size=32768 vite build",
-    "publish:arweave": "yarn build && permaweb-deploy --ant-process $DEPLOY_ANT_PROCESS_ID ",
+    "publish:arweave": "permaweb-deploy --ant-process $DEPLOY_ANT_PROCESS_ID ",
     "clean": "rimraf dist",
     "dev": "NODE_ENV=prod VITE_GITHUB_HASH=local vite",
     "format": "prettier --write .",
