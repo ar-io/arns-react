@@ -60,7 +60,9 @@ jobs:
           firebaseServiceAccount: '${{ secrets.FIREBASE_CI_SERVICE_ACCOUNT }}'
           channelId: live
   publish:
+    needs: build
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v2
@@ -70,4 +72,4 @@ jobs:
       - run: yarn publish:arweave
         env:
           DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
-          DEPLOY_ANT_PROCESS_ID: ${{ vars.DEPLOY_ANT_PROCESS_ID }}
+          DEPLOY_ANT_PROCESS_ID: ${{ secrets.DEPLOY_ANT_PROCESS_ID }}
