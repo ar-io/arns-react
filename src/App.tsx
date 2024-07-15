@@ -5,7 +5,7 @@ import {
   Navigate,
   Route,
   RouterProvider,
-  createBrowserRouter,
+  createHashRouter,
   createRoutesFromElements,
 } from 'react-router-dom';
 
@@ -53,7 +53,7 @@ const UpgradeUndernames = React.lazy(
 );
 
 const sentryCreateBrowserRouter =
-  Sentry.wrapCreateBrowserRouter(createBrowserRouter);
+  Sentry.wrapCreateBrowserRouter(createHashRouter);
 
 function App() {
   useArconnectEvents();
