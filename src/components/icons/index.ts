@@ -52,6 +52,7 @@ import { ReactComponent as RefreshAlertIcon } from './RefreshAlert.svg';
 import { ReactComponent as SearchIcon } from './Search.svg';
 import { ReactComponent as SettingsIcon } from './Settings.svg';
 import { ReactComponent as TargetIcon } from './Target.svg';
+import { ReactComponent as TokenIcon } from './TokenIcon.svg';
 import { ReactComponent as TrashIcon } from './Trash.svg';
 import { ReactComponent as UploadIcon } from './Upload.svg';
 import { ReactComponent as BellIcon } from './bell-simple.svg';
@@ -120,6 +121,7 @@ export {
   SunIcon,
   TargetIcon,
   TrashIcon,
+  TokenIcon,
   UploadIcon,
   VerticalDotMenuIcon,
 };

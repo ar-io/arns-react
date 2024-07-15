@@ -10,7 +10,7 @@ import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import eventEmitter from '../../../utils/events';
 import { ROUTES } from '../../../utils/routes';
-import { BrandLogo, LogoutIcon, MenuIcon } from '../../icons';
+import { LogoutIcon, MenuIcon, TokenIcon } from '../../icons';
 import ConnectButton from '../../inputs/buttons/ConnectButton/ConnectButton';
 import MenuButton from '../../inputs/buttons/MenuButton/MenuButton';
 import { Loader, NavBarLink } from '../../layout';
@@ -281,7 +281,11 @@ function NavMenuCard() {
                     })
                   )}
                   <span className="flex flex-row" style={{ gap: '10px' }}>
-                    <BrandLogo fill={'white'} width={'16px'} height={'16px'} />{' '}
+                    <TokenIcon
+                      fill={'var(--text-grey)'}
+                      width={'16px'}
+                      height={'16px'}
+                    />{' '}
                     <NeedTokens />
                   </span>
                   {

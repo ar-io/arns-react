@@ -1,5 +1,6 @@
 import { CheckCircleFilled } from '@ant-design/icons';
 import { ANT, mIOToken } from '@ar.io/sdk/web';
+import { Accordian } from '@src/components/data-display';
 import Tooltip from '@src/components/data-display/Tooltip';
 import { InsufficientFundsError, ValidationError } from '@src/utils/errors';
 import emojiRegex from 'emoji-regex';
@@ -444,72 +445,77 @@ function RegisterNameForm() {
             </div>
           </div>
           <div className="flex flex-column" style={{ gap: '1em' }}>
-            <NameTokenSelector
-              selectedTokenCallback={(id) => handleANTId(id)}
-            />
-            <div
-              className="name-token-input-wrapper"
-              style={{
-                border:
-                  targetIdFocused || newTargetId
-                    ? 'solid 1px var(--text-white)'
-                    : 'solid 1px var(--text-faded)',
-                position: 'relative',
-              }}
-            >
-              <ValidationInput
-                inputId={'target-id-input'}
-                value={newTargetId ?? ''}
-                setValue={(v: string) => {
-                  setNewTargetId(v.trim());
-                  if (isArweaveTransactionID(v.trim())) {
-                    dispatchRegisterState({
-                      type: 'setTargetId',
-                      payload: new ArweaveTransactionID(v.trim()),
-                    });
-                  }
-                  if (v.trim().length === 0) {
-                    setHasValidationErrors(false);
-                  }
-                }}
-                wrapperCustomStyle={{
-                  width: '100%',
-                  hieght: '45px',
-                  borderRadius: '0px',
-                  backgroundColor: 'var(--card-bg)',
-                  boxSizing: 'border-box',
-                }}
-                inputClassName={`white name-token-input`}
-                inputCustomStyle={{
-                  paddingLeft: '10px',
-                  background: 'transparent',
-                }}
-                maxCharLength={43}
-                placeholder={'Arweave Transaction ID (Target ID)'}
-                validationPredicates={{
-                  [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
-                    fn: (id: string) =>
-                      arweaveDataProvider.validateArweaveId(id),
-                  },
-                }}
-                showValidationChecklist={false}
-                showValidationIcon={true}
-                validityCallback={(validity: boolean) => {
-                  setHasValidationErrors(!validity);
-                }}
-              />
-              <span
-                className="flex flex-row text grey flex-center"
-                style={{
-                  width: 'fit-content',
-                  height: 'fit-content',
-                  wordBreak: 'keep-all',
-                  // padding: '1px',
-                }}
-              >
-                <Tooltip message="The Target ID is the Arweave Transaction ID that will be resolved at the root of this ArNS name" />
-              </span>
-            </div>
+            <Accordian title={<span>Advanced</span>} key="1">
+              <div className="flex flex-column" style={{ gap: '1em' }}>
+                <NameTokenSelector
+                  selectedTokenCallback={(id) => handleANTId(id)}
+                />
+                <div
+                  className="name-token-input-wrapper"
+                  style={{
+                    border:
+                      targetIdFocused || newTargetId
+                        ? 'solid 1px var(--text-white)'
+                        : 'solid 1px var(--text-faded)',
+                    position: 'relative',
+                  }}
+                >
+                  <ValidationInput
+                    inputId={'target-id-input'}
+                    value={newTargetId ?? ''}
+                    setValue={(v: string) => {
+                      setNewTargetId(v.trim());
+                      if (isArweaveTransactionID(v.trim())) {
+                        dispatchRegisterState({
+                          type: 'setTargetId',
+                          payload: new ArweaveTransactionID(v.trim()),
+                        });
+                      }
+                      if (v.trim().length === 0) {
+                        setHasValidationErrors(false);
+                      }
+                    }}
+                    wrapperCustomStyle={{
+                      width: '100%',
+                      hieght: '45px',
+                      borderRadius: '0px',
+                      backgroundColor: 'var(--card-bg)',
+                      boxSizing: 'border-box',
+                    }}
+                    inputClassName={`white name-token-input`}
+                    inputCustomStyle={{
+                      paddingLeft: '10px',
+                      background: 'transparent',
+                    }}
+                    maxCharLength={43}
+                    placeholder={'Arweave Transaction ID (Target ID)'}
+                    validationPredicates={{
+                      [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
+                        fn: (id: string) =>
+                          arweaveDataProvider.validateArweaveId(id),
+                      },
+                    }}
+                    showValidationChecklist={false}
+                    showValidationIcon={true}
+                    validityCallback={(validity: boolean) => {
+                      setHasValidationErrors(!validity);
+                    }}
+                  />
+                  <span
+                    className="flex flex-row text grey flex-center"
+                    style={{
+                      width: 'fit-content',
+                      height: 'fit-content',
+                      wordBreak: 'keep-all',
+                      // padding: '1px',
+                    }}
+                  >
+                    <Tooltip message="The Target ID is the Arweave Transaction ID that will be resolved at the root of this ArNS name" />
+                  </span>
+                </div>
+              </div>
+            </Accordian>
+
             <TransactionCost
               ioRequired={true}
               fee={fee}

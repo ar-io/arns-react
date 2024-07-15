@@ -1,0 +1,38 @@
+.ario-accordian {
+  border: none;
+  border-bottom: 1px solid var(--text-faded);
+}
+
+.ario-accordian,
+.ario-accordian-item {
+  background: transparent;
+  border-radius: 0px;
+  height: fit-content;
+}
+
+.ario-accordian-header {
+  background: transparent;
+  border-radius: 0px;
+}
+.ario-accordian-header-text {
+  color: var(--text-white);
+  font-weight: bold;
+  fill: var(--text-white);
+  border-radius: 0px;
+}
+
+.ario-accordian-expand-icon {
+  color: var(--text-white);
+}
+.ario-accordian-content {
+  border-radius: 0px;
+}
+.ario-accordian-content,
+.ario-accordian-content-active {
+  border: none;
+}
+.ario-accordian-content-box {
+  background: var(--bg-color);
+  border-radius: 0px;
+  border-top: 1px solid var(--text-faded);
+}
