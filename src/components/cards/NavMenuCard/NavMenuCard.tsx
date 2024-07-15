@@ -1,3 +1,4 @@
+import NeedTokens from '@src/components/modals/NeedTokens';
 import { buildARBalanceQuery, buildIOBalanceQuery } from '@src/utils/network';
 import { useQueryClient } from '@tanstack/react-query';
 import { Tooltip } from 'antd';
@@ -9,7 +10,7 @@ import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import eventEmitter from '../../../utils/events';
 import { ROUTES } from '../../../utils/routes';
-import { LogoutIcon, MenuIcon } from '../../icons';
+import { BrandLogo, LogoutIcon, MenuIcon } from '../../icons';
 import ConnectButton from '../../inputs/buttons/ConnectButton/ConnectButton';
 import MenuButton from '../../inputs/buttons/MenuButton/MenuButton';
 import { Loader, NavBarLink } from '../../layout';
@@ -279,6 +280,10 @@ function NavMenuCard() {
                         );
                     })
                   )}
+                  <span className="flex flex-row" style={{ gap: '10px' }}>
+                    <BrandLogo fill={'white'} width={'16px'} height={'16px'} />{' '}
+                    <NeedTokens />
+                  </span>
                   {
                     <button
                       className="navbar-link hover flex-row"

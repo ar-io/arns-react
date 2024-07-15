@@ -11,6 +11,9 @@ function NeedTokens() {
         style={{
           whiteSpace: 'nowrap',
           width: 'fit-content',
+          fontSize: '14px',
+          margin: '0',
+          padding: '0',
         }}
         onClick={() => setShowModal(true)}
       >
