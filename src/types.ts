@@ -1,5 +1,5 @@
 import { ANTState, AoArNSNameData, ArconnectSigner } from '@ar.io/sdk/web';
-import { ApiConfig } from 'arweave/node/lib/api';
+import { ApiConfig } from 'arweave/web/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
 
 import { ArweaveTransactionID } from './services/arweave/ArweaveTransactionID';
@@ -23,25 +23,6 @@ export type TransactionHeaders = {
 export type TransactionTag = {
   name: string;
   value: string;
-};
-
-export type ARNSContractJSON = {
-  records: ARNSDomains;
-  fees: { [x: number]: number };
-  reserved: {
-    [x: string]: {
-      [x: string]: string | number;
-      target: string;
-      endTimestamp: number;
-    };
-  };
-  balances: { [x: string]: number };
-  controllers: ArweaveTransactionID[];
-  evolve: boolean | undefined;
-  name: string;
-  owner: ArweaveTransactionID | undefined;
-  ticker: string;
-  approvedANTSourceCodeTxs: string[];
 };
 
 export type ANTContractDomainRecord = {
@@ -553,24 +534,3 @@ export type ContractInteraction = {
   valid?: boolean;
   [x: string]: any;
 };
-
-export type SmartWeaveActionInput = {
-  function: string;
-  [x: string]: any;
-};
-
-export type SmartWeaveActionTags = [
-  {
-    name: 'App-Name';
-    value: 'SmartWeaveAction';
-  },
-  {
-    name: 'Contract';
-    value: string;
-  },
-  {
-    name: 'Input';
-    value: string;
-  },
-] &
-  TransactionTag[];

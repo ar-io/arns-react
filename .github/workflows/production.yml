@@ -59,3 +59,15 @@ jobs:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_CI_SERVICE_ACCOUNT }}'
           channelId: live
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 20.x
+      - run: yarn --frozen-lockfile
+      - run: yarn publish:arweave
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+          DEPLOY_ANT_PROCESS_ID: ${{ vars.DEPLOY_ANT_PROCESS_ID }}

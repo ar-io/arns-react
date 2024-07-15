@@ -9,10 +9,7 @@ import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../../state/contexts/WalletState';
 import { VALIDATION_INPUT_TYPES } from '../../../../types';
 import { isArweaveTransactionID } from '../../../../utils';
-import {
-  ARWEAVE_TX_LENGTH,
-  SMARTWEAVE_MAX_INPUT_SIZE,
-} from '../../../../utils/constants';
+import { ARWEAVE_TX_LENGTH } from '../../../../utils/constants';
 import eventEmitter from '../../../../utils/events';
 import { CloseIcon, HamburgerOutlineIcon } from '../../../icons';
 import { Loader } from '../../../layout';
@@ -366,11 +363,7 @@ function NameTokenSelector({
           inputId="name-token-input"
           onClick={() => setSearchActive(true)}
           showValidationIcon={true}
-          setValue={(v) =>
-            handleTokenSearch(
-              v.length === SMARTWEAVE_MAX_INPUT_SIZE ? v.trim() : v,
-            )
-          }
+          setValue={(v) => handleTokenSearch(v)}
           value={searchText ?? ''}
           maxCharLength={ARWEAVE_TX_LENGTH}
           placeholder={

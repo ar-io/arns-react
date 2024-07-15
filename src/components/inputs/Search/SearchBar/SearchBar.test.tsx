@@ -1,3 +1,4 @@
+import { Logger } from '@ar.io/sdk';
 import { ArweaveCompositeDataProvider } from '@src/services/arweave/ArweaveCompositeDataProvider';
 import GlobalStateProvider from '@src/state/contexts/GlobalState';
 import { reducer as globalReducer } from '@src/state/reducers/GlobalReducer';
@@ -17,6 +18,8 @@ import {
 } from '../../../../state/reducers';
 import { lowerCaseDomain } from '../../../../utils';
 import SearchBar from './SearchBar';
+
+Logger.default.setLogLevel('none');
 
 const providerMock = new ArweaveCompositeDataProviderMock();
 

@@ -12,11 +12,7 @@ import { useEffectOnce } from '../../hooks/useEffectOnce/useEffectOnce';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { ArConnectWalletConnector } from '../../services/wallets';
 import { ArweaveWalletConnector, WALLET_TYPES } from '../../types';
-import {
-  ARWEAVE_APP_API,
-  DEFAULT_ARNS_REGISTRY_STATE,
-  IO_PROCESS_ID,
-} from '../../utils/constants';
+import { ARWEAVE_APP_API, IO_PROCESS_ID } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 import { dispatchArIOContract } from '../actions/dispatchArIOContract';
 import { WalletAction } from '../reducers/WalletReducer';
@@ -37,7 +33,6 @@ const initialState: WalletState = {
   wallet: undefined,
   balances: {
     ar: 0,
-    [DEFAULT_ARNS_REGISTRY_STATE.ticker]: 0,
   },
   walletStateInitialized: false,
 };
