@@ -434,6 +434,7 @@ export type ARNSTableRow = {
   undernameLimit: number;
   id: string;
   expiration: Date | string;
+  status: string;
   key: string | number;
   startTimestamp: number;
 };
@@ -443,7 +444,7 @@ export type ANTMetadata = {
   id: string;
   ticker: string;
   targetID: string;
-  status: number;
+  status: string;
   role: string;
   errors?: string[];
   key: number;
@@ -483,7 +484,6 @@ export type DomainDetails = {
   expiryDate: string | number;
   leaseDuration: string;
   associatedNames: string;
-  status: number;
   name: string;
   ticker: string;
   processId: string;
@@ -491,6 +491,7 @@ export type DomainDetails = {
   ttlSeconds: number;
   controllers: string;
   undernameLimit: string;
+  status: string;
   owner: string;
 };
 

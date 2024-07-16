@@ -1,12 +1,17 @@
+import { isLeasedArNSRecord } from '@ar.io/sdk';
+import { Tooltip } from '@src/components/data-display';
+import RegistrationTip from '@src/components/data-display/RegistrationTip';
 import { dispatchArNSUpdate } from '@src/state/actions/dispatchArNSUpdate';
 import { useArNSState } from '@src/state/contexts/ArNSState';
 import { DEFAULT_TTL_SECONDS } from '@src/utils/constants';
-import { Tooltip } from 'antd';
+import { Tooltip as AntdTooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
+import { CiWarning } from 'react-icons/ci';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 
 import {
   ChevronUpIcon,
+  CircleCheck,
   CirclePending,
   CircleXFilled,
   ExternalLinkIcon,
@@ -17,7 +22,6 @@ import ValidationInput from '../../components/inputs/text/ValidationInput/Valida
 import ArweaveID, {
   ArweaveIdTypes,
 } from '../../components/layout/ArweaveID/ArweaveID';
-import TransactionStatus from '../../components/layout/TransactionStatus/TransactionStatus';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { useWalletState } from '../../state/contexts/WalletState';
 import { ANTMetadata } from '../../types';
@@ -36,8 +40,10 @@ export function useWalletANTs() {
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const { path } = useParams();
-  const [{ ants, loading, percentLoaded, arnsEmitter }, dispatchArNSState] =
-    useArNSState();
+  const [
+    { ants, domains, loading, percentLoaded, arnsEmitter },
+    dispatchArNSState,
+  ] = useArNSState();
 
   if (searchRef.current && searchOpen) {
     searchRef.current.focus();
@@ -107,7 +113,7 @@ export function useWalletANTs() {
         render: (hasPending: boolean, row: any) => {
           if (hasPending) {
             return (
-              <Tooltip
+              <AntdTooltip
                 placement="right"
                 title={
                   <Link
@@ -128,7 +134,7 @@ export function useWalletANTs() {
                 }}
               >
                 <CirclePending height={20} width={20} fill={'var(--accent)'} />
-              </Tooltip>
+              </AntdTooltip>
             );
           }
           return <></>;
@@ -308,23 +314,19 @@ export function useWalletANTs() {
             />
           </button>
         ),
+        render: (_: any, row: ANTMetadata) => {
+          const domain = Object.keys(domains).find(
+            (domain) => domains[domain].processId === row.id,
+          );
+          return (
+            <RegistrationTip domain={domain ? domains[domain] : undefined} />
+          );
+        },
         dataIndex: 'status',
         key: 'status',
         align: 'left',
         width: '18%',
         className: 'white manage-assets-table-header',
-        render: (val: number, row: ANTMetadata) => (
-          <TransactionStatus
-            confirmations={val}
-            errorMessage={
-              !val
-                ? row.errors?.length
-                  ? row.errors?.join(', ')
-                  : 'Unable to get confirmations for ANT Contract'
-                : undefined
-            }
-          />
-        ),
       },
       {
         title: (
@@ -429,6 +431,10 @@ export function useWalletANTs() {
           return;
         }
         const apexRecord = Records?.['@'];
+        const domain = Object.keys(domains).find(
+          (domain) => domains[domain].processId === processId,
+        );
+        const record = domains[domain ?? ''];
 
         const rowData = {
           name: Name ?? 'N/A',
@@ -442,7 +448,10 @@ export function useWalletANTs() {
               : 'N/A',
           targetID: apexRecord?.transactionId || 'N/A',
           ttlSeconds: apexRecord?.ttlSeconds || DEFAULT_TTL_SECONDS,
-          status: 50,
+          // status is now based on registration, we use endTimestamp to sort appropriately
+          status: isLeasedArNSRecord(record)
+            ? record.endTimestamp
+            : 'Indefinite',
           hasPending: false,
           errors: [],
           key: i,

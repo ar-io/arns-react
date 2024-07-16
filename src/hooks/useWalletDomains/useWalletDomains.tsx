@@ -1,4 +1,5 @@
 import { AoANTState, AoArNSNameData, isLeasedArNSRecord } from '@ar.io/sdk/web';
+import RegistrationTip from '@src/components/data-display/RegistrationTip';
 import ManageAssetButtons from '@src/components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
 import { dispatchArNSUpdate } from '@src/state/actions/dispatchArNSUpdate';
 import { useArNSState } from '@src/state/contexts/ArNSState';
@@ -18,7 +19,7 @@ import ArweaveID, {
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useWalletState } from '../../state/contexts/WalletState';
-import { ARNSTableRow } from '../../types';
+import { ARNSTableRow, DomainDetails } from '../../types';
 import {
   decodeDomainToASCII,
   formatDate,
@@ -298,6 +299,40 @@ export function useWalletDomains() {
       },
       {
         title: (
+          <button
+            className="flex-row pointer grey"
+            style={{ gap: '0.5em' }}
+            onClick={() => {
+              if (sortField == 'status') {
+                setSortAscending(!sortAscending);
+              }
+              sortRows('status', !sortAscending);
+            }}
+          >
+            <span>Status</span>{' '}
+            <ChevronUpIcon
+              width={10}
+              height={10}
+              fill={'var(--text-grey)'}
+              style={
+                sortField === 'status' && !sortAscending
+                  ? { transform: 'rotate(180deg)' }
+                  : { display: sortField === 'status' ? '' : 'none' }
+              }
+            />
+          </button>
+        ),
+        render: (_: any, row: DomainDetails) => {
+          return <RegistrationTip domain={domains[row.name]} />;
+        },
+        dataIndex: 'status',
+        key: 'status',
+        align: 'left',
+        width: '18%',
+        className: 'white manage-assets-table-header',
+      },
+      {
+        title: (
           <div
             className="flex flex-row center undername-search-wrapper"
             style={{
@@ -432,6 +467,10 @@ export function useWalletDomains() {
             undernameCount: `${recordCount?.toLocaleString()} / ${(
               record?.undernameLimit ?? DEFAULT_MAX_UNDERNAMES
             )?.toLocaleString()}`,
+            // status is now based on registration, we use endTimestamp to sort appropriately
+            status: isLeasedArNSRecord(record)
+              ? record.endTimestamp
+              : 'Indefinite',
             key: `${domain}-${record.processId}`,
             errors: [],
           };
