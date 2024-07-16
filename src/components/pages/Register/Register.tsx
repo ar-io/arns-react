@@ -445,7 +445,7 @@ function RegisterNameForm() {
             </div>
           </div>
           <div className="flex flex-column" style={{ gap: '1em' }}>
-            <Accordian title={<span>Advanced</span>} key="1">
+            <Accordian title={<span>Advanced Options</span>} key="1">
               <div className="flex flex-column" style={{ gap: '1em' }}>
                 <NameTokenSelector
                   selectedTokenCallback={(id) => handleANTId(id)}

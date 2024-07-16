@@ -9,9 +9,11 @@ const Panel = Collapse.Panel;
 function Accordian({
   children,
   title,
+  bordered = false,
 }: {
   children: ReactNode;
   title: ReactNode;
+  bordered?: boolean;
 }) {
   const [activeKey, setActiveKey] = useState('1');
   return (
@@ -22,6 +24,7 @@ function Accordian({
           prefixCls="ario-accordian"
           onChange={(c) => setActiveKey(c[0])}
           activeKey={activeKey}
+          bordered={bordered}
         >
           <Panel
             showArrow={false}
