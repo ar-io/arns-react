@@ -40,6 +40,7 @@ function TransactionCost({
           gap: '1em',
           width: isMobile ? '100%' : 'fit-content',
           alignItems: 'flex-start',
+          height: '100%',
         }}
       >
         <div
@@ -53,7 +54,11 @@ function TransactionCost({
         >
           <span
             className="flex flex-row text white flex-right"
-            style={{ gap: '5px', width: 'fit-content', fontSize: '18px' }}
+            style={{
+              gap: '5px',
+              width: 'fit-content',
+              fontSize: '18px',
+            }}
           >
             {feeError ? (
               'Unable to calculate fee'

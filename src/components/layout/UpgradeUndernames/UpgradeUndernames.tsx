@@ -1,4 +1,6 @@
 import { ANT, AoArNSNameData, mIOToken } from '@ar.io/sdk/web';
+import WarningCard from '@src/components/cards/WarningCard/WarningCard';
+import { getTransactionDescription } from '@src/components/pages/Transaction/transaction-descriptions';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -167,32 +169,32 @@ function UpgradeUndernames() {
           />
         </div>
         <TransactionCost
+          feeWrapperStyle={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100%',
+          }}
           ioRequired={true}
           fee={{
             [ioTicker]: fee,
             ar: 0,
           }}
           info={
-            <div
-              className="flex flex-row flex-left"
-              style={{
-                gap: '10px',
-                maxWidth: '50%',
-                justifyContent: 'flex-start',
-                alignItems: 'flex-start',
-              }}
-            >
-              <InfoIcon
-                width={'20px'}
-                height={'20px'}
-                fill="var(--text-grey)"
+            <div>
+              <WarningCard
+                wrapperStyle={{
+                  padding: '10px',
+                  fontSize: '14px',
+                  alignItems: 'center',
+                }}
+                customIcon={<InfoIcon width={'20px'} fill={'var(--accent)'} />}
+                text={
+                  getTransactionDescription({
+                    workflowName: ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES,
+                    ioTicker,
+                  }) || ''
+                }
               />
-              <span
-                className="flex flex-column flex-left grey text"
-                style={{ textAlign: 'left', lineHeight: '1.5em' }}
-              >
-                Increasing the undername limit is paid in {ioTicker} tokens.
-              </span>
             </div>
           }
         />

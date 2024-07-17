@@ -247,6 +247,12 @@ export function getARNSMappingByInteractionType(
           leaseDuration: years,
         },
         state: transactionData.state,
+        primaryDefaultKeys: [
+          'domain',
+          'leaseDuration',
+          'maxUndernames',
+          'owner',
+        ],
       };
     }
 
@@ -280,7 +286,12 @@ export function getARNSMappingByInteractionType(
             </span>
           ),
         },
-        compact: false,
+        primaryDefaultKeys: [
+          'domain',
+          'leaseDuration',
+          'maxUndernames',
+          'owner',
+        ],
       };
     }
     case ARNS_INTERACTION_TYPES.EXTEND_LEASE: {
@@ -314,7 +325,12 @@ export function getARNSMappingByInteractionType(
             </span>
           ),
         },
-        compact: false,
+        primaryDefaultKeys: [
+          'domain',
+          'leaseDuration',
+          'maxUndernames',
+          'owner',
+        ],
       };
     }
 

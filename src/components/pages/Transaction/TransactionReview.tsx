@@ -1,5 +1,6 @@
 import { IOWriteable } from '@ar.io/sdk/web';
 import { ANTCard } from '@src/components/cards';
+import WarningCard from '@src/components/cards/WarningCard/WarningCard';
 import { InfoIcon } from '@src/components/icons';
 import WorkflowButtons from '@src/components/inputs/buttons/WorkflowButtons/WorkflowButtons';
 import TransactionCost from '@src/components/layout/TransactionCost/TransactionCost';
@@ -158,33 +159,30 @@ function TransactionReview() {
         ) : (
           header
         )}
-        <ANTCard {...antProps} bordered compact={false} />
+        <ANTCard {...antProps} bordered compact={true} />
         <TransactionCost
+          feeWrapperStyle={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100%',
+          }}
           fee={{
             [ioTicker]: transactionData?.interactionPrice,
           }}
           info={
             transactionDescription && (
-              <div
-                className="flex flex-row flex-left"
-                style={{
-                  gap: '10px',
-                  maxWidth: '50%',
-                  justifyContent: 'flex-start',
-                  alignItems: 'flex-start',
-                }}
-              >
-                <InfoIcon
-                  width={'20px'}
-                  height={'20px'}
-                  fill="var(--text-grey)"
+              <div>
+                <WarningCard
+                  wrapperStyle={{
+                    padding: '10px',
+                    fontSize: '14px',
+                    alignItems: 'center',
+                  }}
+                  customIcon={
+                    <InfoIcon width={'20px'} fill={'var(--accent)'} />
+                  }
+                  text={transactionDescription}
                 />
-                <span
-                  className="flex flex-column flex-left grey text"
-                  style={{ textAlign: 'left', lineHeight: '1.5em' }}
-                >
-                  {transactionDescription}
-                </span>
               </div>
             )
           }

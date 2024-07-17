@@ -15,7 +15,7 @@ function Accordian({
   title: ReactNode;
   bordered?: boolean;
 }) {
-  const [activeKey, setActiveKey] = useState('1');
+  const [activeKey, setActiveKey] = useState<string>();
   return (
     <>
       <Space direction="vertical" style={{ width: '100%' }}>

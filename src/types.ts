@@ -2,6 +2,7 @@ import { ANTState, AoArNSNameData, ArconnectSigner } from '@ar.io/sdk/web';
 import { ApiConfig } from 'arweave/web/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
 
+import { AntDetailKey } from './components/cards/ANTCard/ANTCard';
 import { ArweaveTransactionID } from './services/arweave/ArweaveTransactionID';
 
 export type ARNSDomains = Record<string, AoArNSNameData>;
@@ -42,6 +43,7 @@ export type ARNSMapping = {
   mobileView?: boolean;
   bordered?: boolean;
   state?: ANTState;
+  primaryDefaultKeys?: Partial<AntDetailKey>[];
 };
 
 export type ARNSMetaData = {
