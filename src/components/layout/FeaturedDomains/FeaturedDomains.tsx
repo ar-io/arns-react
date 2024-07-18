@@ -73,19 +73,21 @@ function FeaturedDomains() {
             fontSize: '15px',
             width: '100%',
             height: 50,
+            color: 'var(--text-white)',
           }}
         >
           Shuffle Gateways
         </button>
         <button
-          className="outline-button center faded"
+          className="button-secondary center faded"
           onClick={displayCount < MAX_COUNT ? showMore : showLess}
           style={{
             padding: 0,
             fontSize: '15px',
             width: '100%',
             height: 50,
-            backgroundColor: 'var(--card-bg)',
+            color: 'var(--text-white)',
+            // backgroundColor: 'var(--text-faded)',
           }}
         >
           {displayCount < MAX_COUNT ? 'View More Domains' : 'View Less Domains'}
