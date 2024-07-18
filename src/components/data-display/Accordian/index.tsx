@@ -1,4 +1,4 @@
-import { ArrowLeft, ChevronDownIcon } from '@src/components/icons';
+import { ChevronDownIcon } from '@src/components/icons';
 import { Collapse, Space } from 'antd';
 import { ReactNode, useState } from 'react';
 

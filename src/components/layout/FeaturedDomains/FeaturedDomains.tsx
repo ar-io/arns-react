@@ -1,17 +1,24 @@
+import { shuffleArray } from '@src/utils';
+import { FEATURED_DOMAINS } from '@src/utils/constants';
 import { useState } from 'react';
 
-import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { ARNSCard } from '../../cards';
 import './styles.css';
 
-function FeaturedDomains(props: { domains: { [x: string]: string } }) {
-  const { domains } = props;
+const featuredGateways = ['permagate.io', 'g8way.io', 'ar-io.dev'];
+const defaultGateways = [
+  ...featuredGateways,
+  ...featuredGateways,
+  ...featuredGateways,
+];
 
+function FeaturedDomains() {
   // show three at a time by default
   const DEFAULT_INCREMENT = 3;
   // how many rows of cards to display
   const MAX_COUNT = DEFAULT_INCREMENT * 3;
   const [displayCount, setDisplayCount] = useState(DEFAULT_INCREMENT);
+  const [gateways, setGateways] = useState<string[]>(defaultGateways);
 
   function showMore(e: any) {
     e.preventDefault();
@@ -21,6 +28,10 @@ function FeaturedDomains(props: { domains: { [x: string]: string } }) {
   function showLess(e: any) {
     e.preventDefault();
     setDisplayCount(DEFAULT_INCREMENT);
+  }
+
+  function shuffleGateways() {
+    setGateways(shuffleArray(gateways));
   }
 
   return (
@@ -36,17 +47,36 @@ function FeaturedDomains(props: { domains: { [x: string]: string } }) {
         FEATURED DOMAINS
       </span>
       <div className="card-container flex-center">
-        {Object.keys(domains).map((domain, index) => {
-          if (index >= displayCount || index >= Object.keys(domains).length)
-            return;
-          return (
-            <ARNSCard
-              domain={domain}
-              processId={new ArweaveTransactionID(domains[domain])}
-              key={index}
-            />
-          );
-        })}
+        {gateways &&
+          Object.keys(FEATURED_DOMAINS).map((domain, index) => {
+            if (
+              index >= displayCount ||
+              index >= Object.keys(FEATURED_DOMAINS).length
+            )
+              return;
+            return (
+              <ARNSCard
+                domain={domain}
+                key={index}
+                gateway={gateways[index]}
+                imageUrl={FEATURED_DOMAINS[domain].imageUrl}
+              />
+            );
+          })}
+      </div>
+      <div className="flex flex-row" style={{ gap: '10px', maxWidth: '790px' }}>
+        <button
+          className="outline-button center faded"
+          onClick={() => shuffleGateways()}
+          style={{
+            padding: 0,
+            fontSize: '15px',
+            width: '100%',
+            height: 50,
+          }}
+        >
+          Shuffle Gateways
+        </button>
         <button
           className="outline-button center faded"
           onClick={displayCount < MAX_COUNT ? showMore : showLess}
@@ -55,10 +85,10 @@ function FeaturedDomains(props: { domains: { [x: string]: string } }) {
             fontSize: '15px',
             width: '100%',
             height: 50,
-            margin: '0em 0.5em',
+            backgroundColor: 'var(--card-bg)',
           }}
         >
-          {displayCount < MAX_COUNT ? 'View More' : 'View Less'}
+          {displayCount < MAX_COUNT ? 'View More Domains' : 'View Less Domains'}
         </button>
       </div>
     </div>

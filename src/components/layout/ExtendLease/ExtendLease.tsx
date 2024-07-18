@@ -26,7 +26,6 @@ import {
   YEAR_IN_MILLISECONDS,
 } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
-import { ARNSCard } from '../../cards';
 import { InfoIcon } from '../../icons';
 import Counter from '../../inputs/Counter/Counter';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
@@ -146,10 +145,6 @@ function ExtendLease() {
             >
               This domain is permanently registered and its lease cannot be
               extended.
-              <ARNSCard
-                processId={new ArweaveTransactionID(record.processId)}
-                domain={name}
-              />
             </span>
           }
         />

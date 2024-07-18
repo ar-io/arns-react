@@ -2,6 +2,15 @@ import { ioDevnetProcessId } from '@ar.io/sdk/web';
 import Arweave from 'arweave';
 import { ArweaveWebWallet } from 'arweave-wallet-connector';
 
+import ALEX_IMAGE from '../../assets/images/featured-domains/alex.png';
+import AO_IMAGE from '../../assets/images/featured-domains/ao.png';
+import ARDRIVE_IMAGE from '../../assets/images/featured-domains/ardrive.png';
+import ARWIKI_IMAGE from '../../assets/images/featured-domains/arwiki.png';
+import COOKBOOK_IMAGE from '../../assets/images/featured-domains/cookbook.png';
+import AR_FEES_IMAGE from '../../assets/images/featured-domains/fees.png';
+import MFERS_IMAGE from '../../assets/images/featured-domains/mfers.png';
+import PERMASWAP_IMAGE from '../../assets/images/featured-domains/permaswap.png';
+import SAM_IMAGE from '../../assets/images/featured-domains/sam.png';
 import { ArweaveTransactionID } from '../services/arweave/ArweaveTransactionID';
 
 export const APP_NAME = 'AR-IO-ArNS-App';
@@ -80,18 +89,17 @@ export const YEAR_IN_MILLISECONDS = 31536000000;
 export const YEAR_IN_SECONDS = 31536000;
 export const AVERAGE_BLOCK_TIME_MS = 120_000; // 2 mins
 
-// TODO: pull from contract
-export const FEATURED_DOMAINS = [
-  'arcode',
-  'ardrive',
-  'arns',
-  'blog',
-  'connect',
-  'permapages',
-  'pst',
-  'sam',
-  'search',
-];
+export const FEATURED_DOMAINS: { [x: string]: { imageUrl: string } } = {
+  ao: { imageUrl: AO_IMAGE },
+  arwiki: { imageUrl: ARWIKI_IMAGE },
+  ardrive: { imageUrl: ARDRIVE_IMAGE },
+  permaswap: { imageUrl: PERMASWAP_IMAGE },
+  'ar-fees': { imageUrl: AR_FEES_IMAGE },
+  alex: { imageUrl: ALEX_IMAGE },
+  cookbook: { imageUrl: COOKBOOK_IMAGE },
+  sam: { imageUrl: SAM_IMAGE },
+  mfers: { imageUrl: MFERS_IMAGE },
+};
 
 export const NAME_PRICE_INFO =
   'Registration fees are determined by the character length of the domain, and what lease duration you choose.';

@@ -1,26 +1,18 @@
 import { useWalletState } from '@src/state/contexts/WalletState';
-import { buildArNSRecordQuery } from '@src/utils/network';
-import { useQueryClient } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { useIsMobile, useRegistrationStatus } from '../../../hooks';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
-import { FEATURED_DOMAINS } from '../../../utils/constants';
 import {
   decodeDomainToASCII,
   lowerCaseDomain,
 } from '../../../utils/searchUtils/searchUtils';
 import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
 import { FeaturedDomains } from '../../layout';
-import './styles.css';
 
 function Home() {
-  const queryClient = useQueryClient();
-
-  const [{ arioContract }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [searchParams, setSearchParams] = useSearchParams();
   const [{ domain, antID }, dispatchRegisterState] = useRegistrationState();
@@ -29,9 +21,6 @@ function Home() {
     reservedFor,
     loading: isValidatingRegistration,
   } = useRegistrationStatus(domain);
-  const [featuredDomains, setFeaturedDomains] = useState<{
-    [x: string]: string;
-  }>();
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -55,46 +44,20 @@ function Home() {
     }
   }, [searchParams]);
 
-  useEffect(() => {
-    fetchFeaturedDomains();
-  }, []);
-
-  async function fetchFeaturedDomains() {
-    try {
-      const results = await Promise.all(
-        FEATURED_DOMAINS.map(async (domain: string) => {
-          const record = await queryClient.fetchQuery(
-            buildArNSRecordQuery({ domain, arioContract }),
-          );
-          const res = record?.processId ? [domain, record?.processId] : [];
-          return res;
-        }),
-      );
-      const newFeaturedDomains = Object.fromEntries(
-        results.filter((x) => x.length),
-      );
-      setFeaturedDomains(newFeaturedDomains);
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
   function updateShowFeaturedDomains({
     isReserved,
     reservedFor,
-    currentFeaturedDomains,
+
     antId,
     domainName,
   }: {
-    currentFeaturedDomains: { [x: string]: string };
     antId: ArweaveTransactionID | undefined;
     domainName: string | undefined;
     isReserved: boolean;
     reservedFor?: ArweaveTransactionID;
   }): boolean {
     if (
-      (currentFeaturedDomains &&
-        !antId &&
+      (!antId &&
         (!isReserved ||
           (isReserved &&
             reservedFor?.toString() === walletAddress?.toString()))) ||
@@ -127,8 +90,8 @@ function Home() {
         className="flex flex-column flex-center"
         style={{
           width: '100%',
+          maxWidth: 'fit-content',
           gap: 0,
-          maxWidth: '900px',
           minWidth: isMobile ? '100%' : '750px',
         }}
       >
@@ -136,13 +99,10 @@ function Home() {
         {updateShowFeaturedDomains({
           isReserved: isReserved,
           reservedFor: reservedFor,
-          currentFeaturedDomains: featuredDomains ?? {},
           antId: antID,
           domainName: lowerCaseDomain(domain),
-        }) &&
-        featuredDomains &&
-        !isValidatingRegistration ? (
-          <FeaturedDomains domains={featuredDomains} />
+        }) && !isValidatingRegistration ? (
+          <FeaturedDomains />
         ) : (
           <></>
         )}

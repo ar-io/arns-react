@@ -8,7 +8,6 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 
 import {
-  ArrowLeft,
   ChevronUpIcon,
   CircleXFilled,
   ExternalLinkIcon,
@@ -21,7 +20,7 @@ import ArweaveID, {
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useWalletState } from '../../state/contexts/WalletState';
-import { ANTMetadata, ARNSTableRow, DomainDetails } from '../../types';
+import { ARNSTableRow, DomainDetails } from '../../types';
 import {
   decodeDomainToASCII,
   formatDate,

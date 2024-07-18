@@ -1,4 +1,3 @@
-import { AoArNSNameData } from '@ar.io/sdk';
 import { Tooltip } from '@src/components/data-display';
 import { CiWarning } from 'react-icons/ci';
 

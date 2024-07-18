@@ -1,17 +1,14 @@
 import { isLeasedArNSRecord } from '@ar.io/sdk';
-import { Tooltip } from '@src/components/data-display';
 import RegistrationTip from '@src/components/data-display/RegistrationTip';
 import { dispatchArNSUpdate } from '@src/state/actions/dispatchArNSUpdate';
 import { useArNSState } from '@src/state/contexts/ArNSState';
 import { DEFAULT_TTL_SECONDS } from '@src/utils/constants';
 import { Tooltip as AntdTooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
-import { CiWarning } from 'react-icons/ci';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 
 import {
   ChevronUpIcon,
-  CircleCheck,
   CirclePending,
   CircleXFilled,
   ExternalLinkIcon,
