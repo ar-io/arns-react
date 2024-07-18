@@ -1,7 +1,7 @@
 .featured-domains {
   display: flex;
   flex-direction: column;
-  gap: 1em;
+  gap: 2em;
   max-width: 900px;
 }
 
@@ -10,7 +10,7 @@
   flex-direction: row;
   width: fit-content;
   flex-wrap: wrap;
-  gap: 1.75em;
+  gap: 2em;
 }
 
 @media screen and (max-width: 600px) {
