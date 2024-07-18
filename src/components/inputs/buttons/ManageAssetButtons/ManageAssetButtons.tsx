@@ -20,7 +20,7 @@ function ManageAssetButtons({
   return (
     <>
       <div className="flex-row center" style={{ gap: '0.5em' }}>
-        <button
+        {/* <button
           className={
             disabled
               ? 'assets-see-more-button disabled-button'
@@ -38,7 +38,7 @@ function ManageAssetButtons({
           }}
         >
           Undernames
-        </button>
+        </button> */}
         <Tooltip
           title="Manage"
           placement={'top'}

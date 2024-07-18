@@ -5,8 +5,10 @@ import { dispatchArNSUpdate } from '@src/state/actions/dispatchArNSUpdate';
 import { useArNSState } from '@src/state/contexts/ArNSState';
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import {
+  ArrowLeft,
   ChevronUpIcon,
   CircleXFilled,
   ExternalLinkIcon,
@@ -19,7 +21,7 @@ import ArweaveID, {
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useWalletState } from '../../state/contexts/WalletState';
-import { ARNSTableRow, DomainDetails } from '../../types';
+import { ANTMetadata, ARNSTableRow, DomainDetails } from '../../types';
 import {
   decodeDomainToASCII,
   formatDate,
@@ -263,7 +265,16 @@ export function useWalletDomains() {
         className: 'white manage-assets-table-header',
         align: 'left',
         ellipsis: true,
-        render: (undernameLimit: number | string) => undernameLimit,
+        render: (undernameLimit: number | string, row: ARNSTableRow) => {
+          return (
+            <Link
+              to={`/manage/names/${row.name}/upgrade-undernames`}
+              className="link hover"
+            >
+              {undernameLimit} / {row.undernameSupport}
+            </Link>
+          );
+        },
       },
       {
         title: (
@@ -467,7 +478,7 @@ export function useWalletDomains() {
             undernameCount: `${recordCount?.toLocaleString()} / ${(
               record?.undernameLimit ?? DEFAULT_MAX_UNDERNAMES
             )?.toLocaleString()}`,
-            // status is now based on registration, we use endTimestamp to sort appropriately
+            // is based on registration, we use endTimestamp to sort appropriately
             status: isLeasedArNSRecord(record)
               ? record.endTimestamp
               : 'Indefinite',
