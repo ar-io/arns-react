@@ -1,8 +1,8 @@
-import NeedTokens from '@src/components/modals/NeedTokens';
 import { buildARBalanceQuery, buildIOBalanceQuery } from '@src/utils/network';
 import { useQueryClient } from '@tanstack/react-query';
 import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import { useIsMobile } from '../../../hooks';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
@@ -234,8 +234,8 @@ function NavMenuCard() {
                   {isMobile ? (
                     <>
                       <NavBarLink
-                        path={'https://ar.io/arns'}
-                        linkText={'Need test tokens?'}
+                        path={'https://ar.io/test-io'}
+                        linkText={'What are test tokens?'}
                         target={'_blank'}
                       />
                       {Object.entries(ROUTES).map(([key, route]) => {
@@ -286,7 +286,19 @@ function NavMenuCard() {
                       width={'16px'}
                       height={'16px'}
                     />{' '}
-                    <NeedTokens />
+                    <Link
+                      to={'https://ar.io/test-io'}
+                      target={'_blank'}
+                      className={'flex-row navbar-link hover'}
+                      style={{
+                        gap: '10px',
+                        alignItems: 'center',
+                        color: 'var(--text-white)',
+                        fontSize: '14px',
+                      }}
+                    >
+                      What are test tokens?
+                    </Link>
                   </span>
                   {
                     <button
