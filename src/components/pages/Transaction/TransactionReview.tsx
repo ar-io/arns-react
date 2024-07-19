@@ -135,7 +135,7 @@ function TransactionReview() {
           <div
             className="flex flex-row"
             style={{
-              marginBottom: '30px',
+              marginBottom: '20px',
               width: '100%',
             }}
           >
@@ -150,7 +150,7 @@ function TransactionReview() {
             className="flex flex-row text-large white bold center"
             style={{
               height: '100%',
-              padding: '80px 0px',
+              padding: '50px 0px',
               borderTop: steps?.length ? 'solid 1px var(--text-faded)' : '',
             }}
           >

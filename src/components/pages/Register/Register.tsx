@@ -253,15 +253,15 @@ function RegisterNameForm() {
           maxWidth: '900px',
           width: '100%',
           padding: '0px',
-          margin: '50px',
-          gap: '80px',
+
+          gap: '50px',
           boxSizing: 'border-box',
         }}
       >
         <div
           className="flex flex-row flex-center"
           style={{
-            paddingBottom: '40px',
+            paddingBottom: '20px',
             borderBottom: 'solid 1px var(--text-faded)',
           }}
         >
@@ -300,7 +300,7 @@ function RegisterNameForm() {
             style={{
               width: '100%',
               height: 'fit-content',
-              gap: '25px',
+              gap: '15px',
             }}
           >
             <div
@@ -398,7 +398,7 @@ function RegisterNameForm() {
                 minHeight: '0px',
                 height: 'fit-content',
                 maxWidth: 'unset',
-                padding: '35px',
+                padding: '25px',
                 boxSizing: 'border-box',
                 borderTopWidth: '0.2px',
                 borderRadius: 'var(--corner-radius)',
@@ -548,7 +548,7 @@ function RegisterNameForm() {
                 </div>
               }
             />
-            <div style={{ marginTop: '30px' }}>
+            <div style={{ marginTop: '0px' }}>
               <WorkflowButtons
                 nextText="Next"
                 backText="Back"
