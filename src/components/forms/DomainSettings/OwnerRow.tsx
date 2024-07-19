@@ -52,7 +52,7 @@ export default function OwnerRow({
             onClick={() => setShowTransferANTModal(true)}
             className="button-secondary"
             style={{
-              padding: '9px 12px',
+              padding: '5px 7px',
               fontSize: '13px',
               boxSizing: 'border-box',
               letterSpacing: '0.5px',

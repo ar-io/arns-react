@@ -3,16 +3,18 @@
   flex-direction: row;
   color: var(--text-grey);
   fill: var(--text-faded);
-  width: 77px;
+  width: 60px;
   height: 100%;
   align-items: flex-start;
-  gap: 8px;
   cursor: pointer;
   box-sizing: border-box;
   font-size: 16px;
   border: none;
   border-color: transparent;
   position: relative;
+  padding: 0px;
+  justify-content: space-between;
+  align-items: center;
 }
 .table-selector:hover {
   color: var(--text-grey);
@@ -38,6 +40,7 @@
   width: fit-content;
   position: relative;
   height: 100%;
+  gap: 20px;
 }
 
 #manage-table-wrapper {
@@ -55,8 +58,8 @@
   border-bottom: none;
   border-bottom-left-radius: 0px;
   border-bottom-right-radius: 0px;
-  height: 53px;
-  padding: 0px 48px;
+  height: 46px;
+  padding: 0px 20px;
   justify-content: space-between;
 }
 
@@ -67,6 +70,8 @@
 th[class~='manage-assets-table-header'] {
   background: var(--bg-color) !important;
   border-radius: 0px !important;
+  padding: 0px 20px !important;
+  height: 20px !important;
 }
 
 thead > tr > td[class~='manage-assets-table-header'] {
@@ -81,7 +86,7 @@ thead > tr > td[class~='manage-assets-table-header'] {
 
 .manage-table-content > table {
   border-spacing: 0px;
-  width: 100%;
+  width: 100% !important;
   background-color: var(--bg-color);
   border: none !important;
 }
@@ -100,7 +105,7 @@ thead > tr > td[class~='manage-assets-table-header'] {
 .manage-table-thead {
   font-size: 16px;
   font-weight: 800;
-  height: 50px;
+  height: 46px;
 }
 
 .manage-table-thead > tr > th {
@@ -143,7 +148,7 @@ thead > tr > td[class~='manage-assets-table-header'] {
   font-size: 14px;
   font-weight: 400;
   border-bottom: 1px solid #323232 !important;
-  height: 53px !important;
+  /* height: 33px !important; */
   overflow: hidden;
 }
 
@@ -179,6 +184,11 @@ thead > tr > td[class~='manage-assets-table-header'] {
 .manage-table-placeholder {
   color: white;
   text-align: center;
+}
+
+.manage-table-cell {
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .manage-table-cell::before {

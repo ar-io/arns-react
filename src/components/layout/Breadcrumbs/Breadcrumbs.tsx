@@ -101,7 +101,7 @@ function Breadcrumbs() {
           className="flex flex-row center"
           style={{
             background: 'black',
-            height: '50px',
+            height: '35px',
             justifyContent: 'flex-start',
             paddingLeft: '100px',
             fontSize: '16px',

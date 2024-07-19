@@ -139,7 +139,7 @@ export function useWalletDomains() {
         dataIndex: 'name',
         key: 'name',
         align: 'left',
-        width: '18%',
+        width: '25%',
         className: 'white manage-assets-table-header',
         ellipsis: true,
         render: (name: string) => (
@@ -188,7 +188,7 @@ export function useWalletDomains() {
         ),
         dataIndex: 'role',
         key: 'role',
-        width: '18%',
+        width: '15%',
         align: 'left',
         className: 'white manage-assets-table-header',
         ellipsis: true,
@@ -220,7 +220,7 @@ export function useWalletDomains() {
         ),
         dataIndex: 'id',
         key: 'id',
-        width: '18%',
+        width: '15%',
         className: 'white manage-assets-table-header',
         align: 'left',
         ellipsis: true,
@@ -433,7 +433,7 @@ export function useWalletDomains() {
           </span>
         ),
         align: 'right',
-        width: '20%',
+        width: '10%',
       },
     ];
   }

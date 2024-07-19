@@ -19,26 +19,10 @@ function ManageAssetButtons({
 
   return (
     <>
-      <div className="flex-row center" style={{ gap: '0.5em' }}>
-        {/* <button
-          className={
-            disabled
-              ? 'assets-see-more-button disabled-button'
-              : 'assets-see-more-button center'
-          }
-          disabled={disabled}
-          onClick={() =>
-            navigate(`/manage/${assetType}/${id.toString()}/undernames`)
-          }
-          style={{
-            padding: '8px 12px',
-            textAlign: 'center',
-            width: 'fit-content',
-            height: 'fit-content',
-          }}
-        >
-          Undernames
-        </button> */}
+      <div
+        className="flex-row"
+        style={{ gap: '0.5em', justifyContent: 'flex-end' }}
+      >
         <Tooltip
           title="Manage"
           placement={'top'}
