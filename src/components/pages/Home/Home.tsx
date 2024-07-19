@@ -91,7 +91,7 @@ function Home() {
         className="flex flex-column flex-center"
         style={{
           width: '100%',
-          maxWidth: 'fit-content',
+          maxWidth: '900px',
           gap: 0,
           minWidth: isMobile ? '100%' : '750px',
         }}

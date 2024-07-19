@@ -251,24 +251,25 @@ function SearchBar(props: SearchBarProps) {
     submitted: boolean;
     focused: boolean;
   }) {
+    const borderSize = '0.5px';
     const noTextBorderStyle = {
-      border: '2px solid var(--text-faded)',
+      border: `${borderSize} solid var(--text-faded)`,
       marginBottom: '30px',
     };
     const whiteBorderStyle = {
-      border: '2px solid var(--text-white)',
+      border: `${borderSize} solid var(--text-white)`,
       marginBottom: '30px',
     };
     const greyBorderStyle = {
-      border: '2px solid var(--text-grey)',
+      border: `${borderSize} solid var(--text-grey)`,
       marginBottom: '30px',
     };
     const greenBorderStyle = {
-      border: '2px solid var(--success-green)',
+      border: `${borderSize} solid var(--success-green)`,
       marginBottom: '0px',
     };
     const redBorderStyle = {
-      border: '2px solid var(--error-red)',
+      border: `${borderSize} solid var(--error-red)`,
       marginBottom: '30px',
     };
     // Named variables for the cases
