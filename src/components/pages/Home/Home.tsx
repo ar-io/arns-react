@@ -78,7 +78,8 @@ function Home() {
         className={'white'}
         style={{
           fontSize: isMobile ? 26 : 57,
-          padding: isMobile ? '10px' : '30px',
+          padding: isMobile ? '10px' : '20px',
+          paddingTop: '0px',
           fontWeight: 500,
           whiteSpace: isMobile ? undefined : 'nowrap',
         }}

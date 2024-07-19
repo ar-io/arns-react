@@ -124,7 +124,7 @@ export type SearchBarProps = {
 };
 
 export type SearchBarHeaderProps = {
-  defaultText: string;
+  defaultText: React.ReactNode;
   isAvailable: boolean;
   isReserved: boolean;
   reservedFor?: ArweaveTransactionID;

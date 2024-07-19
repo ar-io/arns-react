@@ -41,7 +41,6 @@ function FeaturedDomains() {
         style={{
           letterSpacing: '0.3em',
           fontWeight: 500,
-          marginBottom: 20,
         }}
       >
         FEATURED DOMAINS

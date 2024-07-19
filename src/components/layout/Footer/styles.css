@@ -1,9 +1,9 @@
 .app-footer {
-  padding: 30px 100px;
+  padding: 20px 100px;
 }
 
 @media screen and (max-width: 600px) {
   .app-footer {
-    padding: 20px 15px;
+    padding: 15px 15px;
   }
 }

@@ -7,7 +7,7 @@
   width: 245px;
   min-width: 200px;
   max-width: 250px;
-  height: 230px;
+  /* height: 230px; */
   background: var(--card-bg);
   box-shadow: 0px 0px 1px #0d0d0d, 0px 8px 16px rgba(13, 13, 13, 0.9);
   border-radius: var(--corner-radius);
@@ -19,10 +19,10 @@
   border-radius: var(--corner-radius);
   border-bottom-left-radius: 0px;
   border-bottom-right-radius: 0px;
-  object-fit: cover;
+
   align-items: center;
   width: 100%;
-  height: 80%;
+  height: fit-content;
   box-sizing: border-box;
 }
 
@@ -36,7 +36,7 @@
   }
 
   .arns-preview {
-    width: 100px;
+    width: 200px;
     height: 66px;
     border-radius: 8px;
     border-top-right-radius: 0px;
