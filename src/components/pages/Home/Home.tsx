@@ -79,7 +79,7 @@ function Home() {
         style={{
           fontSize: isMobile ? 26 : 57,
           padding: isMobile ? '10px' : '20px',
-          paddingTop: '0px',
+          paddingTop: '10px',
           fontWeight: 500,
           whiteSpace: isMobile ? undefined : 'nowrap',
         }}
