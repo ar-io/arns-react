@@ -45,7 +45,10 @@ function ManageANT() {
 
   return (
     <>
-      <div className="page" style={{ gap: '30px' }}>
+      <div
+        className="page"
+        style={{ gap: '0px', paddingTop: '10px', paddingBottom: '10px' }}
+      >
         {interactionResult ? (
           <TransactionSuccessCard
             txId={new ArweaveTransactionID(interactionResult.id)}
