@@ -101,43 +101,6 @@ export function useWalletANTs() {
   function generateTableColumns(): any[] {
     return [
       {
-        title: '',
-        dataIndex: 'hasPending',
-        key: 'hasPending',
-        align: 'left',
-        width: '1%',
-        className: 'grey manage-assets-table-header',
-        render: (hasPending: boolean, row: any) => {
-          if (hasPending) {
-            return (
-              <AntdTooltip
-                placement="right"
-                title={
-                  <Link
-                    className="link white text underline"
-                    to={`/manage/ants/${row.id}`}
-                  >
-                    This contract has pending transactions.
-                    <ExternalLinkIcon
-                      height={12}
-                      width={12}
-                      fill={'var(--text-white)'}
-                    />
-                  </Link>
-                }
-                showArrow={true}
-                overlayStyle={{
-                  maxWidth: 'fit-content',
-                }}
-              >
-                <CirclePending height={20} width={20} fill={'var(--accent)'} />
-              </AntdTooltip>
-            );
-          }
-          return <></>;
-        },
-      },
-      {
         title: (
           <button
             className="flex-row pointer grey"

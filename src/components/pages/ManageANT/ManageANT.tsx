@@ -32,7 +32,6 @@ function ManageANT() {
 
   useEffect(() => {
     if (!id) {
-      console.log(id);
       navigate('/manage/ants');
       return;
     }

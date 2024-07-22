@@ -1,4 +1,4 @@
-import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { ConfigProvider } from 'antd';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -20,11 +20,11 @@ import './utils/sentry';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <PersistQueryClientProvider
+    <QueryClientProvider
       client={queryClient}
-      persistOptions={{
-        persister: createIDBPersister(),
-      }}
+      // persistOptions={{
+      //   persister: createIDBPersister(),
+      // }}
     >
       <GlobalStateProvider reducer={reducer}>
         <WalletStateProvider reducer={walletReducer}>
@@ -54,6 +54,6 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
           </ArNSStateProvider>
         </WalletStateProvider>
       </GlobalStateProvider>
-    </PersistQueryClientProvider>
+    </QueryClientProvider>
   </React.StrictMode>,
 );

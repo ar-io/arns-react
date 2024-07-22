@@ -25,7 +25,9 @@ import eventEmitter from './events';
 export function createIDBPersister(idbValidKey: IDBValidKey = 'reactQuery') {
   return {
     persistClient: async (client: PersistedClient) => {
-      await set(idbValidKey, client);
+      await set(idbValidKey, client).catch((e) => {
+        console.log(e);
+      });
     },
     restoreClient: async () => {
       return await get<PersistedClient>(idbValidKey);
