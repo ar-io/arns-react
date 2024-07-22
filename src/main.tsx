@@ -14,7 +14,7 @@ import { reducer, registrationReducer } from './state/reducers';
 import { arnsReducer } from './state/reducers/ArNSReducer';
 import { transactionReducer } from './state/reducers/TransactionReducer';
 import { walletReducer } from './state/reducers/WalletReducer';
-import { createIDBPersister, queryClient } from './utils/network';
+import { queryClient } from './utils/network';
 // setup sentry
 import './utils/sentry';
 

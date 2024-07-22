@@ -3,15 +3,12 @@ import RegistrationTip from '@src/components/data-display/RegistrationTip';
 import { dispatchArNSUpdate } from '@src/state/actions/dispatchArNSUpdate';
 import { useArNSState } from '@src/state/contexts/ArNSState';
 import { DEFAULT_TTL_SECONDS } from '@src/utils/constants';
-import { Tooltip as AntdTooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 
 import {
   ChevronUpIcon,
-  CirclePending,
   CircleXFilled,
-  ExternalLinkIcon,
   SearchIcon,
 } from '../../components/icons/index';
 import ManageAssetButtons from '../../components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
