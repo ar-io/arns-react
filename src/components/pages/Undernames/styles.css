@@ -1,4 +1,4 @@
-.table-selector {
+/* .table-selector {
   display: flex;
   flex-direction: row;
   color: var(--text-grey);
@@ -13,13 +13,13 @@
   border: none;
   border-color: transparent;
   position: relative;
-}
+} */
 .table-selector:hover {
   color: var(--text-grey);
   fill: var(--text-grey);
   transition: all 0.2s ease-in-out;
 }
-.table-selector-indicator {
+/* .table-selector-indicator {
   width: 100%;
   border-color: inherit;
   height: 4px;
@@ -30,7 +30,7 @@
   position: absolute;
   bottom: 0;
   box-sizing: border-box;
-}
+} */
 
 .table-selector-group {
   display: flex;

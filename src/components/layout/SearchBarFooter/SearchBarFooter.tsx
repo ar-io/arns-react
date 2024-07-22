@@ -11,7 +11,7 @@ function SearchBarFooter({
   return (
     <div
       className="flex flex-column"
-      style={{ marginTop: '30px', boxSizing: 'border-box' }}
+      style={{ marginTop: '20px', boxSizing: 'border-box' }}
     >
       {!isAvailable && record && processId && domain ? (
         <>
@@ -24,6 +24,12 @@ function SearchBarFooter({
             record={record}
             compact={true}
             bordered
+            primaryDefaultKeys={[
+              'processId',
+              'domain',
+              'leaseDuration',
+              'owner',
+            ]}
           />
         </>
       ) : (

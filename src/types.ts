@@ -2,6 +2,7 @@ import { ANTState, AoArNSNameData, ArconnectSigner } from '@ar.io/sdk/web';
 import { ApiConfig } from 'arweave/web/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
 
+import { AntDetailKey } from './components/cards/ANTCard/ANTCard';
 import { ArweaveTransactionID } from './services/arweave/ArweaveTransactionID';
 
 export type ARNSDomains = Record<string, AoArNSNameData>;
@@ -42,6 +43,7 @@ export type ARNSMapping = {
   mobileView?: boolean;
   bordered?: boolean;
   state?: ANTState;
+  primaryDefaultKeys?: Partial<AntDetailKey>[];
 };
 
 export type ARNSMetaData = {
@@ -122,7 +124,7 @@ export type SearchBarProps = {
 };
 
 export type SearchBarHeaderProps = {
-  defaultText: string;
+  defaultText: React.ReactNode;
   isAvailable: boolean;
   isReserved: boolean;
   reservedFor?: ArweaveTransactionID;
@@ -434,6 +436,7 @@ export type ARNSTableRow = {
   undernameLimit: number;
   id: string;
   expiration: Date | string;
+  status: string;
   key: string | number;
   startTimestamp: number;
 };
@@ -443,7 +446,7 @@ export type ANTMetadata = {
   id: string;
   ticker: string;
   targetID: string;
-  status: number;
+  status: string;
   role: string;
   errors?: string[];
   key: number;
@@ -483,7 +486,6 @@ export type DomainDetails = {
   expiryDate: string | number;
   leaseDuration: string;
   associatedNames: string;
-  status: number;
   name: string;
   ticker: string;
   processId: string;
@@ -491,6 +493,7 @@ export type DomainDetails = {
   ttlSeconds: number;
   controllers: string;
   undernameLimit: string;
+  status: string;
   owner: string;
 };
 

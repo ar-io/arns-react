@@ -14,7 +14,7 @@ exports[`SearchBar handles a capitalized name correctly 1`] = `
     </div>
     <div
       class="searchbar"
-      style="margin-bottom: 30px; width: 100%; position: relative;"
+      style="margin-bottom: 15px; width: 100%; position: relative;"
     >
       <div
         class=""
@@ -188,7 +188,7 @@ exports[`SearchBar handles a capitalized name correctly 1`] = `
     </div>
     <div
       class="flex flex-column"
-      style="margin-top: 30px; box-sizing: border-box;"
+      style="margin-top: 20px; box-sizing: border-box;"
     />
   </div>
 </DocumentFragment>
@@ -208,7 +208,7 @@ exports[`SearchBar handles a lowercase name correctly 1`] = `
     </div>
     <div
       class="searchbar"
-      style="margin-bottom: 30px; width: 100%; position: relative;"
+      style="margin-bottom: 15px; width: 100%; position: relative;"
     >
       <div
         class=""
@@ -382,7 +382,7 @@ exports[`SearchBar handles a lowercase name correctly 1`] = `
     </div>
     <div
       class="flex flex-column"
-      style="margin-top: 30px; box-sizing: border-box;"
+      style="margin-top: 20px; box-sizing: border-box;"
     />
   </div>
 </DocumentFragment>
@@ -402,7 +402,7 @@ exports[`SearchBar renders correctly 1`] = `
     </div>
     <div
       class="searchbar"
-      style="margin-bottom: 30px; width: 100%; position: relative;"
+      style="margin-bottom: 15px; width: 100%; position: relative;"
     >
       <div
         class=""
@@ -451,7 +451,7 @@ exports[`SearchBar renders correctly 1`] = `
     </div>
     <div
       class="flex flex-column"
-      style="margin-top: 30px; box-sizing: border-box;"
+      style="margin-top: 20px; box-sizing: border-box;"
     />
   </div>
 </DocumentFragment>

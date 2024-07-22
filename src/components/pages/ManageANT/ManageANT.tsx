@@ -7,7 +7,6 @@ import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
-import { useWalletState } from '../../../state/contexts/WalletState';
 import TransactionSuccessCard from '../../cards/TransactionSuccessCard/TransactionSuccessCard';
 import { CodeSandboxIcon } from '../../icons';
 import './styles.css';
@@ -15,9 +14,10 @@ import './styles.css';
 function ManageANT() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [{ walletAddress }] = useWalletState();
+
   const { isLoading, data } = useDomainInfo({
     antId: new ArweaveTransactionID(id),
+    domain: '',
   });
 
   const [{ interactionResult, workflowName }, dispatchTransactionState] =
@@ -31,7 +31,7 @@ function ManageANT() {
   }, []);
 
   useEffect(() => {
-    if (!id || !walletAddress) {
+    if (!id) {
       navigate('/manage/ants');
       return;
     }
@@ -45,7 +45,10 @@ function ManageANT() {
 
   return (
     <>
-      <div className="page" style={{ gap: '30px' }}>
+      <div
+        className="page"
+        style={{ gap: '0px', paddingTop: '10px', paddingBottom: '10px' }}
+      >
         {interactionResult ? (
           <TransactionSuccessCard
             txId={new ArweaveTransactionID(interactionResult.id)}

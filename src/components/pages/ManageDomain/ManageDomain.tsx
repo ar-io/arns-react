@@ -95,7 +95,10 @@ function ManageDomain() {
 
   return (
     <>
-      <div className="page" style={{ gap: '30px' }}>
+      <div
+        className="page"
+        style={{ gap: '0px', paddingTop: '10px', paddingBottom: '10px' }}
+      >
         {interactionResult ? (
           <TransactionSuccessCard
             txId={interactionResult.id}
@@ -111,7 +114,10 @@ function ManageDomain() {
         )}
         <div
           className="flex flex-row"
-          style={{ justifyContent: 'space-between', width: '100%' }}
+          style={{
+            justifyContent: 'space-between',
+            width: '100%',
+          }}
         >
           <h2 className="flex white center" style={{ gap: '16px' }}>
             <HamburgerOutlineIcon
@@ -191,9 +197,7 @@ function ManageDomain() {
             </Tooltip>
           </div>
         </div>
-        <div style={{ width: '100%' }}>
-          <DomainSettings domain={name} />
-        </div>
+        <DomainSettings domain={name} />
       </div>
     </>
   );

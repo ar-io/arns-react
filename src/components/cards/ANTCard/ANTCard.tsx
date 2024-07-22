@@ -76,6 +76,7 @@ function ANTCard({
   mobileView,
   bordered = false,
   state,
+  primaryDefaultKeys = DEFAULT_PRIMARY_KEYS,
 }: ARNSMapping) {
   const isMobile = useIsMobile();
   const [antDetails, setANTDetails] = useState<{ [x: string]: any }>();
@@ -93,7 +94,7 @@ function ANTCard({
   };
 
   const [limitDetails, setLimitDetails] = useState<boolean>(true);
-  const mappedKeys = DEFAULT_PRIMARY_KEYS.map((key: AntDetailKey) =>
+  const mappedKeys = primaryDefaultKeys.map((key: AntDetailKey) =>
     mapKeyToAttribute(key),
   );
 

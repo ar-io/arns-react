@@ -1,9 +1,11 @@
 import { AoANTState, AoArNSNameData, isLeasedArNSRecord } from '@ar.io/sdk/web';
+import RegistrationTip from '@src/components/data-display/RegistrationTip';
 import ManageAssetButtons from '@src/components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
 import { dispatchArNSUpdate } from '@src/state/actions/dispatchArNSUpdate';
 import { useArNSState } from '@src/state/contexts/ArNSState';
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import {
   ChevronUpIcon,
@@ -18,7 +20,7 @@ import ArweaveID, {
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useWalletState } from '../../state/contexts/WalletState';
-import { ARNSTableRow } from '../../types';
+import { ARNSTableRow, DomainDetails } from '../../types';
 import {
   decodeDomainToASCII,
   formatDate,
@@ -137,7 +139,7 @@ export function useWalletDomains() {
         dataIndex: 'name',
         key: 'name',
         align: 'left',
-        width: '18%',
+        width: '25%',
         className: 'white manage-assets-table-header',
         ellipsis: true,
         render: (name: string) => (
@@ -186,7 +188,7 @@ export function useWalletDomains() {
         ),
         dataIndex: 'role',
         key: 'role',
-        width: '18%',
+        width: '15%',
         align: 'left',
         className: 'white manage-assets-table-header',
         ellipsis: true,
@@ -218,7 +220,7 @@ export function useWalletDomains() {
         ),
         dataIndex: 'id',
         key: 'id',
-        width: '18%',
+        width: '15%',
         className: 'white manage-assets-table-header',
         align: 'left',
         ellipsis: true,
@@ -262,7 +264,16 @@ export function useWalletDomains() {
         className: 'white manage-assets-table-header',
         align: 'left',
         ellipsis: true,
-        render: (undernameLimit: number | string) => undernameLimit,
+        render: (undernameLimit: number | string, row: ARNSTableRow) => {
+          return (
+            <Link
+              to={`/manage/names/${row.name}/upgrade-undernames`}
+              className="link hover"
+            >
+              {undernameLimit} / {row.undernameSupport}
+            </Link>
+          );
+        },
       },
       {
         title: (
@@ -295,6 +306,40 @@ export function useWalletDomains() {
         width: '18%',
         className: 'white manage-assets-table-header',
         render: (val: string) => val,
+      },
+      {
+        title: (
+          <button
+            className="flex-row pointer grey"
+            style={{ gap: '0.5em' }}
+            onClick={() => {
+              if (sortField == 'status') {
+                setSortAscending(!sortAscending);
+              }
+              sortRows('status', !sortAscending);
+            }}
+          >
+            <span>Status</span>{' '}
+            <ChevronUpIcon
+              width={10}
+              height={10}
+              fill={'var(--text-grey)'}
+              style={
+                sortField === 'status' && !sortAscending
+                  ? { transform: 'rotate(180deg)' }
+                  : { display: sortField === 'status' ? '' : 'none' }
+              }
+            />
+          </button>
+        ),
+        render: (_: any, row: DomainDetails) => {
+          return <RegistrationTip domain={domains[row.name]} />;
+        },
+        dataIndex: 'status',
+        key: 'status',
+        align: 'left',
+        width: '10%',
+        className: 'white manage-assets-table-header',
       },
       {
         title: (
@@ -388,7 +433,7 @@ export function useWalletDomains() {
           </span>
         ),
         align: 'right',
-        width: '20%',
+        width: '5%',
       },
     ];
   }
@@ -432,6 +477,10 @@ export function useWalletDomains() {
             undernameCount: `${recordCount?.toLocaleString()} / ${(
               record?.undernameLimit ?? DEFAULT_MAX_UNDERNAMES
             )?.toLocaleString()}`,
+            // is based on registration, we use endTimestamp to sort appropriately
+            status: isLeasedArNSRecord(record)
+              ? record.endTimestamp
+              : 'Indefinite',
             key: `${domain}-${record.processId}`,
             errors: [],
           };

@@ -2,6 +2,7 @@ import { buildARBalanceQuery, buildIOBalanceQuery } from '@src/utils/network';
 import { useQueryClient } from '@tanstack/react-query';
 import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import { useIsMobile } from '../../../hooks';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
@@ -9,7 +10,7 @@ import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import eventEmitter from '../../../utils/events';
 import { ROUTES } from '../../../utils/routes';
-import { LogoutIcon, MenuIcon } from '../../icons';
+import { LogoutIcon, MenuIcon, TokenIcon } from '../../icons';
 import ConnectButton from '../../inputs/buttons/ConnectButton/ConnectButton';
 import MenuButton from '../../inputs/buttons/MenuButton/MenuButton';
 import { Loader, NavBarLink } from '../../layout';
@@ -233,8 +234,8 @@ function NavMenuCard() {
                   {isMobile ? (
                     <>
                       <NavBarLink
-                        path={'https://ar.io/arns'}
-                        linkText={'Need test tokens?'}
+                        path={'https://ar.io/test-io'}
+                        linkText={'What are test tokens?'}
                         target={'_blank'}
                       />
                       {Object.entries(ROUTES).map(([key, route]) => {
@@ -279,6 +280,26 @@ function NavMenuCard() {
                         );
                     })
                   )}
+                  <span className="flex flex-row" style={{ gap: '10px' }}>
+                    <TokenIcon
+                      fill={'var(--text-grey)'}
+                      width={'16px'}
+                      height={'16px'}
+                    />{' '}
+                    <Link
+                      to={'https://ar.io/test-io'}
+                      target={'_blank'}
+                      className={'flex-row navbar-link hover'}
+                      style={{
+                        gap: '10px',
+                        alignItems: 'center',
+                        color: 'var(--text-white)',
+                        fontSize: '14px',
+                      }}
+                    >
+                      What are test tokens?
+                    </Link>
+                  </span>
                   {
                     <button
                       className="navbar-link hover flex-row"
