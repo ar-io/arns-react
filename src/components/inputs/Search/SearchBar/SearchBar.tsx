@@ -251,24 +251,25 @@ function SearchBar(props: SearchBarProps) {
     submitted: boolean;
     focused: boolean;
   }) {
+    const borderSize = '0.5px';
     const noTextBorderStyle = {
-      border: 'solid 1px var(--text-faded)',
+      border: `${borderSize} solid var(--text-faded)`,
       marginBottom: '30px',
     };
     const whiteBorderStyle = {
-      border: 'var(--text-white) solid 2px',
+      border: `${borderSize} solid var(--text-white)`,
       marginBottom: '30px',
     };
     const greyBorderStyle = {
-      border: '2px solid var(--text-grey)',
+      border: `${borderSize} solid var(--text-grey)`,
       marginBottom: '30px',
     };
     const greenBorderStyle = {
-      border: '2px solid var(--success-green)',
+      border: `${borderSize} solid var(--success-green)`,
       marginBottom: '0px',
     };
     const redBorderStyle = {
-      border: '2px solid var(--error-red)',
+      border: `${borderSize} solid var(--error-red)`,
       marginBottom: '30px',
     };
     // Named variables for the cases
@@ -302,7 +303,9 @@ function SearchBar(props: SearchBarProps) {
       style={{ maxWidth: '787px' }}
     >
       <SearchBarHeader
-        defaultText="ArNS names are censorship-resistant domain names for permaweb dApps, web pages, data, and identities"
+        defaultText={
+          'ArNS names are censorship-resistant domain names for permaweb dApps, web pages, data, and identities'
+        }
         domain={searchSubmitted ? searchBarText : undefined}
         isAvailable={isAvailable}
         isReserved={isReserved}
@@ -314,8 +317,7 @@ function SearchBar(props: SearchBarProps) {
         className="searchbar"
         style={{
           ...searchBarBorder,
-          marginBottom:
-            searchBarText && searchBarText === 'www' ? '80px' : '30px',
+          marginBottom: '15px',
           width: '100%',
           position: 'relative',
         }}
@@ -351,7 +353,7 @@ function SearchBar(props: SearchBarProps) {
             flexDirection: 'row',
             justifyContent: 'space-between',
             marginTop:
-              searchBarText && searchBarText === 'www' ? '90px' : '15px',
+              searchBarText && searchBarText === 'www' ? '40px' : '15px',
             gap: 15,
             color: searchBarText ? 'var(--text-white)' : 'var(--text-grey)',
           }}
@@ -424,17 +426,20 @@ function SearchBar(props: SearchBarProps) {
         )}
         {searchBarText && searchBarText === 'www' ? (
           <div
-            className="warning-container flex"
+            className="flex"
             style={{
               width: '100%',
               gap: '15px',
               boxSizing: 'border-box',
+
               position: 'absolute',
-              top: '80px',
+              maxWidth: '787px',
+              top: '75px',
+              color: 'var(--accent)',
             }}
           >
             <InfoCircleOutlined />
-            <span className="warning-text" style={{ fontSize: '14px' }}>
+            <span style={{ fontSize: '14px' }}>
               This name can not be registered, as &apos;www&apos; is a reserved
               domain in browsers.
             </span>

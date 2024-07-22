@@ -1,4 +1,6 @@
 import { AoArNSNameData, isLeasedArNSRecord, mIOToken } from '@ar.io/sdk/web';
+import WarningCard from '@src/components/cards/WarningCard/WarningCard';
+import { getTransactionDescription } from '@src/components/pages/Transaction/transaction-descriptions';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -24,7 +26,6 @@ import {
   YEAR_IN_MILLISECONDS,
 } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
-import { ARNSCard } from '../../cards';
 import { InfoIcon } from '../../icons';
 import Counter from '../../inputs/Counter/Counter';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
@@ -144,10 +145,6 @@ function ExtendLease() {
             >
               This domain is permanently registered and its lease cannot be
               extended.
-              <ARNSCard
-                processId={new ArweaveTransactionID(record.processId)}
-                domain={name}
-              />
             </span>
           }
         />
@@ -258,10 +255,33 @@ function ExtendLease() {
         </div>
         {/* TODO: [PE-4563] implement contract read api for extend record */}
         <TransactionCost
+          feeWrapperStyle={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100%',
+          }}
           fee={{
             [ioTicker]: ioFee,
           }}
           ioRequired={true}
+          info={
+            <div>
+              <WarningCard
+                wrapperStyle={{
+                  padding: '10px',
+                  fontSize: '14px',
+                  alignItems: 'center',
+                }}
+                customIcon={<InfoIcon width={'20px'} fill={'var(--accent)'} />}
+                text={
+                  getTransactionDescription({
+                    workflowName: ARNS_INTERACTION_TYPES.EXTEND_LEASE,
+                    ioTicker,
+                  }) || ''
+                }
+              />
+            </div>
+          }
         />
         <WorkflowButtons
           backText="Cancel"

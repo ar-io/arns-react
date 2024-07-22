@@ -1,6 +1,9 @@
 import { CheckCircleFilled } from '@ant-design/icons';
 import { ANT, mIOToken } from '@ar.io/sdk/web';
+import WarningCard from '@src/components/cards/WarningCard/WarningCard';
+import { Accordion } from '@src/components/data-display';
 import Tooltip from '@src/components/data-display/Tooltip';
+import { InfoIcon } from '@src/components/icons';
 import { InsufficientFundsError, ValidationError } from '@src/utils/errors';
 import emojiRegex from 'emoji-regex';
 import { useEffect, useState } from 'react';
@@ -39,6 +42,7 @@ import Loader from '../../layout/Loader/Loader';
 import TransactionCost from '../../layout/TransactionCost/TransactionCost';
 import { StepProgressBar } from '../../layout/progress';
 import PageLoader from '../../layout/progress/PageLoader/PageLoader';
+import { getTransactionDescription } from '../Transaction/transaction-descriptions';
 import './styles.css';
 
 function RegisterNameForm() {
@@ -249,15 +253,15 @@ function RegisterNameForm() {
           maxWidth: '900px',
           width: '100%',
           padding: '0px',
-          margin: '50px',
-          gap: '80px',
+
+          gap: '50px',
           boxSizing: 'border-box',
         }}
       >
         <div
           className="flex flex-row flex-center"
           style={{
-            paddingBottom: '40px',
+            paddingBottom: '20px',
             borderBottom: 'solid 1px var(--text-faded)',
           }}
         >
@@ -296,7 +300,7 @@ function RegisterNameForm() {
             style={{
               width: '100%',
               height: 'fit-content',
-              gap: '25px',
+              gap: '15px',
             }}
           >
             <div
@@ -394,7 +398,7 @@ function RegisterNameForm() {
                 minHeight: '0px',
                 height: 'fit-content',
                 maxWidth: 'unset',
-                padding: '35px',
+                padding: '25px',
                 boxSizing: 'border-box',
                 borderTopWidth: '0.2px',
                 borderRadius: 'var(--corner-radius)',
@@ -444,78 +448,107 @@ function RegisterNameForm() {
             </div>
           </div>
           <div className="flex flex-column" style={{ gap: '1em' }}>
-            <NameTokenSelector
-              selectedTokenCallback={(id) => handleANTId(id)}
-            />
-            <div
-              className="name-token-input-wrapper"
-              style={{
-                border:
-                  targetIdFocused || newTargetId
-                    ? 'solid 1px var(--text-white)'
-                    : 'solid 1px var(--text-faded)',
-                position: 'relative',
-              }}
-            >
-              <ValidationInput
-                inputId={'target-id-input'}
-                value={newTargetId ?? ''}
-                setValue={(v: string) => {
-                  setNewTargetId(v.trim());
-                  if (isArweaveTransactionID(v.trim())) {
-                    dispatchRegisterState({
-                      type: 'setTargetId',
-                      payload: new ArweaveTransactionID(v.trim()),
-                    });
-                  }
-                  if (v.trim().length === 0) {
-                    setHasValidationErrors(false);
-                  }
-                }}
-                wrapperCustomStyle={{
-                  width: '100%',
-                  hieght: '45px',
-                  borderRadius: '0px',
-                  backgroundColor: 'var(--card-bg)',
-                  boxSizing: 'border-box',
-                }}
-                inputClassName={`white name-token-input`}
-                inputCustomStyle={{
-                  paddingLeft: '10px',
-                  background: 'transparent',
-                }}
-                maxCharLength={43}
-                placeholder={'Arweave Transaction ID (Target ID)'}
-                validationPredicates={{
-                  [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
-                    fn: (id: string) =>
-                      arweaveDataProvider.validateArweaveId(id),
-                  },
-                }}
-                showValidationChecklist={false}
-                showValidationIcon={true}
-                validityCallback={(validity: boolean) => {
-                  setHasValidationErrors(!validity);
-                }}
-              />
-              <span
-                className="flex flex-row text grey flex-center"
-                style={{
-                  width: 'fit-content',
-                  height: 'fit-content',
-                  wordBreak: 'keep-all',
-                  // padding: '1px',
-                }}
-              >
-                <Tooltip message="The Target ID is the Arweave Transaction ID that will be resolved at the root of this ArNS name" />
-              </span>
-            </div>
+            <Accordion title={<span>Advanced Options</span>} key="1">
+              <div className="flex flex-column" style={{ gap: '1em' }}>
+                <NameTokenSelector
+                  selectedTokenCallback={(id) => handleANTId(id)}
+                />
+                <div
+                  className="name-token-input-wrapper"
+                  style={{
+                    border:
+                      targetIdFocused || newTargetId
+                        ? 'solid 1px var(--text-white)'
+                        : 'solid 1px var(--text-faded)',
+                    position: 'relative',
+                  }}
+                >
+                  <ValidationInput
+                    inputId={'target-id-input'}
+                    value={newTargetId ?? ''}
+                    setValue={(v: string) => {
+                      setNewTargetId(v.trim());
+                      if (isArweaveTransactionID(v.trim())) {
+                        dispatchRegisterState({
+                          type: 'setTargetId',
+                          payload: new ArweaveTransactionID(v.trim()),
+                        });
+                      }
+                      if (v.trim().length === 0) {
+                        setHasValidationErrors(false);
+                      }
+                    }}
+                    wrapperCustomStyle={{
+                      width: '100%',
+                      hieght: '45px',
+                      borderRadius: '0px',
+                      backgroundColor: 'var(--card-bg)',
+                      boxSizing: 'border-box',
+                    }}
+                    inputClassName={`white name-token-input`}
+                    inputCustomStyle={{
+                      paddingLeft: '10px',
+                      background: 'transparent',
+                    }}
+                    maxCharLength={43}
+                    placeholder={'Arweave Transaction ID (Target ID)'}
+                    validationPredicates={{
+                      [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
+                        fn: (id: string) =>
+                          arweaveDataProvider.validateArweaveId(id),
+                      },
+                    }}
+                    showValidationChecklist={false}
+                    showValidationIcon={true}
+                    validityCallback={(validity: boolean) => {
+                      setHasValidationErrors(!validity);
+                    }}
+                  />
+                  <span
+                    className="flex flex-row text grey flex-center"
+                    style={{
+                      width: 'fit-content',
+                      height: 'fit-content',
+                      wordBreak: 'keep-all',
+                      // padding: '1px',
+                    }}
+                  >
+                    <Tooltip message="The Target ID is the Arweave Transaction ID that will be resolved at the root of this ArNS name" />
+                  </span>
+                </div>
+              </div>
+            </Accordion>
+
             <TransactionCost
               ioRequired={true}
               fee={fee}
-              feeWrapperStyle={{ alignItems: 'flex-start' }}
+              feeWrapperStyle={{
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100%',
+              }}
+              info={
+                <div>
+                  <WarningCard
+                    wrapperStyle={{
+                      padding: '10px',
+                      fontSize: '14px',
+                      alignItems: 'center',
+                    }}
+                    customIcon={
+                      <InfoIcon width={'20px'} fill={'var(--accent)'} />
+                    }
+                    text={
+                      getTransactionDescription({
+                        workflowName: ARNS_INTERACTION_TYPES.BUY_RECORD,
+                        ioTicker,
+                      }) || ''
+                    }
+                  />
+                </div>
+              }
             />
-            <div style={{ marginTop: '30px' }}>
+            <div style={{ marginTop: '0px' }}>
               <WorkflowButtons
                 nextText="Next"
                 backText="Back"

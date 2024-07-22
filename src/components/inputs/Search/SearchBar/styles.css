@@ -5,7 +5,7 @@
   max-width: 1200px;
   justify-content: center;
   align-items: center;
-  gap: 2em;
+  gap: 3em;
 }
 
 .searchbar {
@@ -21,9 +21,7 @@
   justify-content: space-between;
   box-sizing: border-box;
 }
-.searchbar:hover {
-  box-shadow: 0px 0px 4px 1px rgba(255, 255, 255, 0.72);
-}
+
 .searchbar input {
   box-sizing: border-box;
   display: flex;
@@ -31,6 +29,7 @@
   font-size: 16px;
   font-weight: 400;
   border: none;
+  border-radius: 5px;
   outline: none;
   padding-left: 26px;
   padding-right: 26px;

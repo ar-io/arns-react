@@ -1,5 +1,6 @@
 import { Loader } from '@src/components/layout';
 import { useArNSState } from '@src/state/contexts/ArNSState';
+import { useWalletState } from '@src/state/contexts/WalletState';
 import { Progress, Table } from 'antd';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -26,6 +27,7 @@ function Manage() {
     refresh: refreshDomains,
   } = useWalletDomains();
   const [{ percentLoaded: percent, loading: tableLoading }] = useArNSState();
+  const [{ walletAddress }] = useWalletState();
 
   const [tablePage, setTablePage] = useState<number>(1);
 
@@ -42,7 +44,7 @@ function Manage() {
   }
 
   return (
-    <div className="page">
+    <div className="page" style={{ overflow: 'auto' }}>
       <div className="flex-column" style={{ gap: '10px' }}>
         <div className="flex flex-start">
           <h1
@@ -50,6 +52,7 @@ function Manage() {
             style={{
               width: 'fit-content',
               whiteSpace: 'nowrap',
+              marginTop: '0px',
             }}
           >
             Manage Assets
@@ -59,22 +62,19 @@ function Manage() {
           id="manage-table-wrapper"
           style={{
             position: 'relative',
-            border: tableLoading ? '1px solid var(--text-faded)' : '',
+            border: 'none',
             borderRadius: 'var(--corner-radius)',
             height: '100%',
             minHeight: '400px',
           }}
         >
-          <div
-            id="manage-table-toolbar"
-            style={{ border: tableLoading ? 'none' : '' }}
-          >
+          <div id="manage-table-toolbar">
             <div className="table-selector-group">
               {Object.keys(MANAGE_TABLE_NAMES).map(
                 (t: string, index: number) => (
                   <button
                     key={index}
-                    className="table-selector text bold center"
+                    className="table-selector text bold"
                     onClick={() => {
                       navigate(`/manage/${t}${location.search.toString()}`);
                     }}
@@ -173,10 +173,38 @@ function Manage() {
               onChange: updatePage,
               showPrevNextJumpers: true,
               showSizeChanger: false,
+              pageSize: 10,
               current: tablePage,
             }}
             locale={{
-              emptyText: tableLoading ? (
+              emptyText: !walletAddress ? (
+                <div
+                  className="flex flex-column text-medium center white"
+                  style={{
+                    padding: '100px',
+                    boxSizing: 'border-box',
+                    gap: '20px',
+                  }}
+                >
+                  <button
+                    onClick={() =>
+                      navigate('/connect', {
+                        // redirect logic for connect page to use
+                        state: { from: '/manage', to: '/manage' },
+                      })
+                    }
+                    className="button-secondary center"
+                    style={{
+                      boxSizing: 'border-box',
+                      padding: '10px',
+                      width: 'fit-content',
+                    }}
+                  >
+                    Connect
+                  </button>
+                  &nbsp; Connect your wallet to view your assets.
+                </div>
+              ) : tableLoading ? (
                 <div
                   className="flex flex-column center white"
                   style={{ padding: '100px', boxSizing: 'border-box' }}

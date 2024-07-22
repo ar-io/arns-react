@@ -24,7 +24,7 @@ export const ROUTES: { [x: string]: Route } = {
     icon: SettingsIcon,
     path: '/manage',
     component: Manage,
-    protected: true,
+    protected: false,
     index: false,
   },
 };

@@ -63,15 +63,16 @@ function DomainSettings({
     ? data?.owner === walletAddress.toString()
     : false;
   const isController = walletAddress
-    ? data.controllers?.includes(walletAddress.toString() ?? '')
+    ? data?.controllers?.includes(walletAddress.toString() ?? '')
     : false;
   const isAuthorized = isOwner || isController;
 
   useEffect(() => {
-    if (!domain) {
+    if (!domain && !antId) {
       navigate('/manage/names');
     }
-  }, [domain]);
+  }, [domain, antId]);
+
   useEffect(() => {
     if (interactionResult) {
       queryClient.invalidateQueries({
@@ -102,7 +103,7 @@ function DomainSettings({
     }
   }, [interactionResult]);
 
-  if (isLoading || !data.arnsRecord || !data.owner) {
+  if (isLoading || !data?.owner) {
     return (
       <div className="page" style={{ height: '100%' }}>
         <Loader message="Loading domain data..." />
@@ -327,7 +328,7 @@ function DomainSettings({
                 undernameSupport={
                   data.arnsRecord?.undernameLimit ?? DEFAULT_MAX_UNDERNAMES
                 }
-                editable={isAuthorized}
+                editable={isAuthorized || false}
               />
             ),
           }).map(([rowName, row]) =>

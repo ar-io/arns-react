@@ -1,0 +1,38 @@
+.ario-Accordion {
+  border: none;
+  border-bottom: 0px solid var(--text-faded);
+}
+
+.ario-Accordion,
+.ario-Accordion-item {
+  background: transparent;
+  border-radius: 0px;
+  height: fit-content;
+}
+
+.ario-Accordion-header {
+  background: transparent;
+  border-radius: 0px;
+}
+.ario-Accordion-header-text {
+  color: var(--text-white);
+  font-weight: bold;
+  fill: var(--text-white);
+  border-radius: 0px;
+}
+
+.ario-Accordion-expand-icon {
+  color: var(--text-white);
+}
+.ario-Accordion-content {
+  border-radius: 0px;
+}
+.ario-Accordion-content,
+.ario-Accordion-content-active {
+  border: none;
+}
+.ario-Accordion-content-box {
+  background: var(--bg-color);
+  border-radius: 0px;
+  border-top: 0px solid var(--text-faded);
+}

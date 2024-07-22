@@ -4,10 +4,12 @@ function WarningCard({
   showIcon = true,
   customIcon,
   text,
+  wrapperStyle,
 }: {
   text: JSX.Element | string;
   customIcon?: JSX.Element;
   showIcon?: boolean;
+  wrapperStyle?: React.CSSProperties;
 }) {
   return (
     <div
@@ -18,6 +20,7 @@ function WarningCard({
         boxSizing: 'border-box',
         fontSize: 'inherit',
         gap: '10px',
+        ...wrapperStyle,
       }}
     >
       {showIcon || customIcon ? (
