@@ -1,5 +1,5 @@
-import Accordian from './Accordian/index';
+import Accordion from './Accordion/index';
 import LeaseDuration from './LeaseDuration';
 import Tooltip from './Tooltip';
 
-export { Accordian, Tooltip, LeaseDuration };
+export { Accordion, Tooltip, LeaseDuration };

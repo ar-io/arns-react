@@ -1,7 +1,7 @@
 import { CheckCircleFilled } from '@ant-design/icons';
 import { ANT, mIOToken } from '@ar.io/sdk/web';
 import WarningCard from '@src/components/cards/WarningCard/WarningCard';
-import { Accordian } from '@src/components/data-display';
+import { Accordion } from '@src/components/data-display';
 import Tooltip from '@src/components/data-display/Tooltip';
 import { InfoIcon } from '@src/components/icons';
 import { InsufficientFundsError, ValidationError } from '@src/utils/errors';
@@ -448,7 +448,7 @@ function RegisterNameForm() {
             </div>
           </div>
           <div className="flex flex-column" style={{ gap: '1em' }}>
-            <Accordian title={<span>Advanced Options</span>} key="1">
+            <Accordion title={<span>Advanced Options</span>} key="1">
               <div className="flex flex-column" style={{ gap: '1em' }}>
                 <NameTokenSelector
                   selectedTokenCallback={(id) => handleANTId(id)}
@@ -517,7 +517,7 @@ function RegisterNameForm() {
                   </span>
                 </div>
               </div>
-            </Accordian>
+            </Accordion>
 
             <TransactionCost
               ioRequired={true}

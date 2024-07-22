@@ -6,7 +6,7 @@ import './styles.css';
 
 const Panel = Collapse.Panel;
 
-function Accordian({
+function Accordion({
   children,
   title,
   bordered = false,
@@ -21,7 +21,7 @@ function Accordian({
       <Space direction="vertical" style={{ width: '100%' }}>
         <Collapse
           style={{ width: '100%' }}
-          prefixCls="ario-accordian"
+          prefixCls="ario-Accordion"
           onChange={(c) => setActiveKey(c[0])}
           activeKey={activeKey}
           bordered={bordered}
@@ -54,4 +54,4 @@ function Accordian({
   );
 }
 
-export default Accordian;
+export default Accordion;
