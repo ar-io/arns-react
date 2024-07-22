@@ -338,7 +338,7 @@ export function useWalletDomains() {
         dataIndex: 'status',
         key: 'status',
         align: 'left',
-        width: '18%',
+        width: '10%',
         className: 'white manage-assets-table-header',
       },
       {
@@ -433,7 +433,7 @@ export function useWalletDomains() {
           </span>
         ),
         align: 'right',
-        width: '10%',
+        width: '5%',
       },
     ];
   }

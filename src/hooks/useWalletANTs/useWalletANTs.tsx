@@ -125,7 +125,7 @@ export function useWalletANTs() {
         dataIndex: 'name',
         key: 'name',
         align: 'left',
-        width: '18%',
+        width: '25%',
         className: 'white manage-assets-table-header',
         ellipsis: true,
       },
@@ -157,7 +157,7 @@ export function useWalletANTs() {
         dataIndex: 'role',
         key: 'role',
         align: 'left',
-        width: '18%',
+        width: '15%',
         className: 'white manage-assets-table-header',
         ellipsis: true,
       },
@@ -189,7 +189,7 @@ export function useWalletANTs() {
         dataIndex: 'id',
         key: 'id',
         align: 'left',
-        width: '18%',
+        width: '20%',
         className: 'white manage-assets-table-header',
         ellipsis: true,
         render: (val: string) =>
@@ -232,7 +232,7 @@ export function useWalletANTs() {
         dataIndex: 'targetID',
         key: 'targetID',
         align: 'left',
-        width: '18%',
+        width: '20%',
         className: 'white manage-assets-table-header',
         render: (val: string) =>
           !isArweaveTransactionID(val) ? (
@@ -282,7 +282,7 @@ export function useWalletANTs() {
         dataIndex: 'status',
         key: 'status',
         align: 'left',
-        width: '18%',
+        width: '10%',
         className: 'white manage-assets-table-header',
       },
       {
@@ -375,7 +375,7 @@ export function useWalletANTs() {
           </span>
         ),
         align: 'right',
-        width: '20%',
+        width: '10%',
       },
     ];
   }
