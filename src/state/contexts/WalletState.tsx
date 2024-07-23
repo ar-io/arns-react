@@ -71,6 +71,7 @@ export default function WalletStateProvider({
         processId: IO_PROCESS_ID,
         signer: wallet?.arconnectSigner,
       }),
+      ioProcessId: new ArweaveTransactionID(IO_PROCESS_ID),
       dispatch: dispatchGlobalState,
     });
 

@@ -2,6 +2,7 @@ import { isLeasedArNSRecord } from '@ar.io/sdk';
 import RegistrationTip from '@src/components/data-display/RegistrationTip';
 import { dispatchArNSUpdate } from '@src/state/actions/dispatchArNSUpdate';
 import { useArNSState } from '@src/state/contexts/ArNSState';
+import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { DEFAULT_TTL_SECONDS } from '@src/utils/constants';
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
@@ -23,6 +24,7 @@ import { handleTableSort, isArweaveTransactionID } from '../../utils';
 import eventEmitter from '../../utils/events';
 
 export function useWalletANTs() {
+  const [{ arnsContractId }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [sortAscending, setSortAscending] = useState<boolean>(true);
   const [sortField, setSortField] = useState<keyof ANTMetadata>('status');
@@ -440,6 +442,7 @@ export function useWalletANTs() {
         dispatch: dispatchArNSState,
         emitter: arnsEmitter,
         walletAddress,
+        registryId: arnsContractId,
       });
     },
   };
