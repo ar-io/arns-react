@@ -10,12 +10,12 @@ export function dispatchArNSUpdate({
   emitter,
   dispatch,
   walletAddress,
-  registryId,
+  ioProcessId,
 }: {
   emitter: ArNSEventEmitter;
   dispatch: Dispatch<ArNSAction>;
   walletAddress: ArweaveTransactionID;
-  registryId: ArweaveTransactionID;
+  ioProcessId: ArweaveTransactionID;
 }) {
   dispatch({ type: 'setDomains', payload: {} });
   dispatch({ type: 'setAnts', payload: {} });
@@ -50,7 +50,6 @@ export function dispatchArNSUpdate({
         'error',
         new Error('Unable to load ArNS records. Please refresh to try again.'),
       );
-      // Behaviour note: this will only stop the loading UI, it will still display the
       dispatch({
         type: 'setLoading',
         payload: false,
@@ -64,14 +63,14 @@ export function dispatchArNSUpdate({
       captureException(new Error(e), {
         tags: {
           walletAddress: walletAddress.toString(),
-          registryId: registryId.toString(),
+          ioProcessId: ioProcessId.toString(),
         },
       });
     } else if (!e.includes('does not support provided action.')) {
       eventEmitter.emit('error', new Error(e));
     }
   };
-  // error listnener handles timeout
+  // error listener handles timeout
   emitter.on('error', errorHandler);
   // arns:error listener handles errors from graphql communications
   emitter.on('arns:error', errorHandler);
@@ -89,6 +88,6 @@ export function dispatchArNSUpdate({
   emitter
     .fetchProcessesOwnedByWallet({ address: walletAddress.toString() })
     .catch((e) =>
-      errorHandler('Error getting processes owned by wallet: ' + e.message),
+      errorHandler('Error getting assets owned by wallet: ' + e.message),
     );
 }

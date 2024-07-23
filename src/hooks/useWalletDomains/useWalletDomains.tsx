@@ -31,7 +31,7 @@ import { DEFAULT_MAX_UNDERNAMES } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 
 export function useWalletDomains() {
-  const [{ gateway, arnsContractId }] = useGlobalState();
+  const [{ gateway, ioProcessId }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [sortAscending, setSortAscending] = useState(true);
   const [sortField, setSortField] =
@@ -516,7 +516,7 @@ export function useWalletDomains() {
         dispatch: dispatchArNSState,
         emitter: arnsEmitter,
         walletAddress,
-        registryId: arnsContractId,
+        ioProcessId: ioProcessId,
       });
     },
   };

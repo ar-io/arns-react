@@ -13,7 +13,7 @@ export type GlobalAction =
       };
     }
   | {
-      type: 'setArNSContractId';
+      type: 'setioProcessId';
       payload: ArweaveTransactionID;
     }
   | {
@@ -56,10 +56,10 @@ export const reducer = (
         ...state,
         arioContract: action.payload,
       };
-    case 'setArNSContractId':
+    case 'setioProcessId':
       return {
         ...state,
-        arnsContractId: action.payload,
+        ioProcessId: action.payload,
       };
     default:
       return state;

@@ -33,7 +33,7 @@ import { getTransactionHeader } from './transaction-headers';
 // on completion routes to transaction/complete
 function TransactionReview() {
   const navigate = useNavigate();
-  const [{ ioTicker, arioContract, arnsContractId }] = useGlobalState();
+  const [{ ioTicker, arioContract, ioProcessId }] = useGlobalState();
   const [{ walletAddress, wallet }] = useWalletState();
   const [
     { workflowName, interactionType, transactionData, interactionResult },
@@ -108,7 +108,7 @@ function TransactionReview() {
         workflowName: workflowName as ARNS_INTERACTION_TYPES,
         payload: transactionData,
         owner: walletAddress,
-        processId: arnsContractId,
+        processId: ioProcessId,
         dispatch: dispatchTransactionState,
         signer: wallet?.arconnectSigner,
       });

@@ -24,7 +24,7 @@ import { handleTableSort, isArweaveTransactionID } from '../../utils';
 import eventEmitter from '../../utils/events';
 
 export function useWalletANTs() {
-  const [{ arnsContractId }] = useGlobalState();
+  const [{ ioProcessId }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [sortAscending, setSortAscending] = useState<boolean>(true);
   const [sortField, setSortField] = useState<keyof ANTMetadata>('status');
@@ -442,7 +442,7 @@ export function useWalletANTs() {
         dispatch: dispatchArNSState,
         emitter: arnsEmitter,
         walletAddress,
-        registryId: arnsContractId,
+        ioProcessId: ioProcessId,
       });
     },
   };
