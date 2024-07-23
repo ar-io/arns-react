@@ -29,7 +29,7 @@ export type ArNSStateProviderProps = {
 export const initialArNSState: ArNSState = {
   arnsEmitter: new ArNSEventEmitter({
     contract: defaultArIO,
-    timeoutMs: 1000 * 60 * 5,
+    timeoutMs: 1000 * 60 * 10,
   }),
   domains: {},
   ants: {},
@@ -62,7 +62,7 @@ export default function ArNSStateProvider({
       type: 'setArNSEmitter',
       payload: new ArNSEventEmitter({
         contract: arioContract,
-        timeoutMs: 1000 * 60 * 5,
+        timeoutMs: 1000 * 60 * 10,
       }),
     });
   }, [arioContract]);
