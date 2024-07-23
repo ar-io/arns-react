@@ -32,7 +32,7 @@ function ArNSRegistrySettings() {
   function confirmSetting(id: string) {
     if (isArweaveTransactionID(id)) {
       dispatchGlobalState({
-        type: 'setioProcessId',
+        type: 'setIoProcessId',
         payload: new ArweaveTransactionID(id.trim()),
       });
 

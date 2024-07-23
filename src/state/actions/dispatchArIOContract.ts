@@ -18,7 +18,7 @@ export function dispatchArIOContract({
     payload: contract,
   });
   dispatch({
-    type: 'setioProcessId',
+    type: 'setIoProcessId',
     payload: ioProcessId,
   });
 }
