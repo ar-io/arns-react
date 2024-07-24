@@ -17,22 +17,22 @@ import './styles.css';
 const Panel = Collapse.Panel;
 
 function ArNSRegistrySettings() {
-  const [{ arweaveDataProvider, arnsContractId }, dispatchGlobalState] =
+  const [{ arweaveDataProvider, ioProcessId }, dispatchGlobalState] =
     useGlobalState();
   const [{ wallet }] = useWalletState();
   const [registryAddress, setRegistryAddress] = useState<string>(
-    arnsContractId?.toString(),
+    ioProcessId?.toString(),
   );
   const [isValidAddress, setIsValidAddress] = useState<boolean>();
 
   useEffect(() => {
-    setRegistryAddress(arnsContractId?.toString());
-  }, [arnsContractId]);
+    setRegistryAddress(ioProcessId?.toString());
+  }, [ioProcessId]);
 
   function confirmSetting(id: string) {
     if (isArweaveTransactionID(id)) {
       dispatchGlobalState({
-        type: 'setArNSContractId',
+        type: 'setIoProcessId',
         payload: new ArweaveTransactionID(id.trim()),
       });
 
@@ -83,7 +83,7 @@ function ArNSRegistrySettings() {
                   <button
                     className={
                       'center ' +
-                      (arnsContractId?.toString() === IO_PROCESS_ID
+                      (ioProcessId?.toString() === IO_PROCESS_ID
                         ? 'button-primary'
                         : 'button-secondary')
                     }
@@ -95,7 +95,7 @@ function ArNSRegistrySettings() {
                   <button
                     className={
                       'center ' +
-                      (arnsContractId?.toString() === IO_PROCESS_ID
+                      (ioProcessId?.toString() === IO_PROCESS_ID
                         ? 'button-primary'
                         : 'button-secondary')
                     }
@@ -123,7 +123,7 @@ function ArNSRegistrySettings() {
           >
             <>
               <span className="grey text-medium">
-                ArNS Registry: {arnsContractId?.toString()}
+                ArNS Registry: {ioProcessId?.toString()}
               </span>
               <ValidationInput
                 placeholder="Enter recipient wallet address"

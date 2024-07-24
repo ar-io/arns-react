@@ -27,7 +27,7 @@ export const defaultArIO = IO.init({
 export type GlobalState = {
   ioTicker: string;
   gateway: string;
-  arnsContractId: ArweaveTransactionID;
+  ioProcessId: ArweaveTransactionID;
   blockHeight?: number;
   lastBlockUpdateTimestamp?: number;
   arweaveDataProvider: ArweaveCompositeDataProvider;
@@ -35,7 +35,7 @@ export type GlobalState = {
 };
 
 const initialState: GlobalState = {
-  arnsContractId: ARNS_REGISTRY_ADDRESS,
+  ioProcessId: ARNS_REGISTRY_ADDRESS,
   ioTicker: '',
   gateway: ARWEAVE_HOST,
   blockHeight: undefined,

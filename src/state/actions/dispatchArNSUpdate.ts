@@ -1,5 +1,7 @@
 import { ArNSEventEmitter } from '@ar.io/sdk';
+import { captureException } from '@sentry/react';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import eventEmitter from '@src/utils/events';
 import { Dispatch } from 'react';
 
 import { ArNSAction } from '../reducers/ArNSReducer';
@@ -8,10 +10,12 @@ export function dispatchArNSUpdate({
   emitter,
   dispatch,
   walletAddress,
+  ioProcessId,
 }: {
   emitter: ArNSEventEmitter;
   dispatch: Dispatch<ArNSAction>;
   walletAddress: ArweaveTransactionID;
+  ioProcessId: ArweaveTransactionID;
 }) {
   dispatch({ type: 'setDomains', payload: {} });
   dispatch({ type: 'setAnts', payload: {} });
@@ -40,6 +44,36 @@ export function dispatchArNSUpdate({
       payload: totalIds,
     });
   });
+  const errorHandler = (e: string) => {
+    if (e.startsWith('Error getting ArNS records')) {
+      eventEmitter.emit(
+        'error',
+        new Error('Unable to load ArNS records. Please refresh to try again.'),
+      );
+      dispatch({
+        type: 'setLoading',
+        payload: false,
+      });
+      dispatch({
+        type: 'setPercentLoaded',
+        payload: undefined,
+      });
+    } else if (e.includes('Timeout')) {
+      // capture and report the exception, but do not emit error notification
+      captureException(new Error(e), {
+        tags: {
+          walletAddress: walletAddress.toString(),
+          ioProcessId: ioProcessId.toString(),
+        },
+      });
+    } else if (!e.includes('does not support provided action.')) {
+      eventEmitter.emit('error', new Error(e));
+    }
+  };
+  // error listener handles timeout
+  emitter.on('error', errorHandler);
+  // arns:error listener handles errors from graphql communications
+  emitter.on('arns:error', errorHandler);
   emitter.on('end', () => {
     dispatch({
       type: 'setLoading',
@@ -51,5 +85,9 @@ export function dispatchArNSUpdate({
     });
   });
 
-  emitter.fetchProcessesOwnedByWallet({ address: walletAddress.toString() });
+  emitter
+    .fetchProcessesOwnedByWallet({ address: walletAddress.toString() })
+    .catch((e) =>
+      errorHandler('Error getting assets owned by wallet: ' + e.message),
+    );
 }
