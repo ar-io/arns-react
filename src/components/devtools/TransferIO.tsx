@@ -14,8 +14,7 @@ import './styles.css';
 const Panel = Collapse.Panel;
 
 function TransferIO() {
-  const [{ arweaveDataProvider, arioContract, arnsContractId }] =
-    useGlobalState();
+  const [{ arweaveDataProvider, arioContract, ioProcessId }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [ioBalance, setIoBalance] = useState<number>(0);
   const [toAddress, setToAddress] = useState<string>('');
@@ -37,7 +36,7 @@ function TransferIO() {
           setLoading(false);
         });
     }
-  }, [arnsContractId, walletAddress, arioContract]);
+  }, [ioProcessId, walletAddress, arioContract]);
 
   async function confirmTransfer() {
     try {

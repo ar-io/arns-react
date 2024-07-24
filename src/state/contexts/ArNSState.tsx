@@ -53,7 +53,7 @@ export default function ArNSStateProvider({
   reducer,
   children,
 }: ArNSStateProviderProps): JSX.Element {
-  const [{ arioContract }] = useGlobalState();
+  const [{ arioContract, ioProcessId }] = useGlobalState();
   const [state, dispatchArNSState] = useReducer(reducer, initialArNSState);
   const [{ walletAddress }] = useWalletState();
 
@@ -73,6 +73,7 @@ export default function ArNSStateProvider({
       dispatch: dispatchArNSState,
       emitter: state.arnsEmitter,
       walletAddress: walletAddress!,
+      ioProcessId: ioProcessId,
     });
   }, [walletAddress, state.arnsEmitter]);
 
