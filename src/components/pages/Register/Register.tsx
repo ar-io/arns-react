@@ -448,11 +448,11 @@ function RegisterNameForm() {
             </div>
           </div>
           <div className="flex flex-column" style={{ gap: '1em' }}>
-            <Accordion title={<span>Advanced Options</span>} key="1">
+            <Accordion
+              title={<span className="text-medium">Advanced Options</span>}
+              key="1"
+            >
               <div className="flex flex-column" style={{ gap: '1em' }}>
-                <NameTokenSelector
-                  selectedTokenCallback={(id) => handleANTId(id)}
-                />
                 <div
                   className="name-token-input-wrapper"
                   style={{
@@ -504,6 +504,7 @@ function RegisterNameForm() {
                       setHasValidationErrors(!validity);
                     }}
                   />
+
                   <span
                     className="flex flex-row text grey flex-center"
                     style={{
@@ -516,6 +517,9 @@ function RegisterNameForm() {
                     <Tooltip message="The Target ID is the Arweave Transaction ID that will be resolved at the root of this ArNS name" />
                   </span>
                 </div>
+                <NameTokenSelector
+                  selectedTokenCallback={(id) => handleANTId(id)}
+                />
               </div>
             </Accordion>
 
@@ -527,26 +531,6 @@ function RegisterNameForm() {
                 justifyContent: 'center',
                 height: '100%',
               }}
-              info={
-                <div>
-                  <WarningCard
-                    wrapperStyle={{
-                      padding: '10px',
-                      fontSize: '14px',
-                      alignItems: 'center',
-                    }}
-                    customIcon={
-                      <InfoIcon width={'20px'} fill={'var(--accent)'} />
-                    }
-                    text={
-                      getTransactionDescription({
-                        workflowName: ARNS_INTERACTION_TYPES.BUY_RECORD,
-                        ioTicker,
-                      }) || ''
-                    }
-                  />
-                </div>
-              }
             />
             <div style={{ marginTop: '0px' }}>
               <WorkflowButtons
