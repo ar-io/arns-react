@@ -1,9 +1,7 @@
 import { CheckCircleFilled } from '@ant-design/icons';
 import { ANT, mIOToken } from '@ar.io/sdk/web';
-import WarningCard from '@src/components/cards/WarningCard/WarningCard';
 import { Accordion } from '@src/components/data-display';
 import Tooltip from '@src/components/data-display/Tooltip';
-import { InfoIcon } from '@src/components/icons';
 import { InsufficientFundsError, ValidationError } from '@src/utils/errors';
 import emojiRegex from 'emoji-regex';
 import { useEffect, useState } from 'react';
@@ -42,7 +40,6 @@ import Loader from '../../layout/Loader/Loader';
 import TransactionCost from '../../layout/TransactionCost/TransactionCost';
 import { StepProgressBar } from '../../layout/progress';
 import PageLoader from '../../layout/progress/PageLoader/PageLoader';
-import { getTransactionDescription } from '../Transaction/transaction-descriptions';
 import './styles.css';
 
 function RegisterNameForm() {
