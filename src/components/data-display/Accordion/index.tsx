@@ -30,7 +30,10 @@ function Accordion({
             showArrow={false}
             header={
               <div className="flex flex-row center">
-                <div style={{ position: 'relative' }}>
+                <div
+                  className="flex flex-row center"
+                  style={{ position: 'relative', width: 'fit-content' }}
+                >
                   {title}{' '}
                   <ChevronDownIcon
                     width={'12px'}

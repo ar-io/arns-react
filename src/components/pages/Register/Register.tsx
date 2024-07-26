@@ -1,9 +1,7 @@
 import { CheckCircleFilled } from '@ant-design/icons';
 import { ANT, mIOToken } from '@ar.io/sdk/web';
-import WarningCard from '@src/components/cards/WarningCard/WarningCard';
 import { Accordion } from '@src/components/data-display';
 import Tooltip from '@src/components/data-display/Tooltip';
-import { InfoIcon } from '@src/components/icons';
 import { InsufficientFundsError, ValidationError } from '@src/utils/errors';
 import emojiRegex from 'emoji-regex';
 import { useEffect, useState } from 'react';
@@ -42,7 +40,6 @@ import Loader from '../../layout/Loader/Loader';
 import TransactionCost from '../../layout/TransactionCost/TransactionCost';
 import { StepProgressBar } from '../../layout/progress';
 import PageLoader from '../../layout/progress/PageLoader/PageLoader';
-import { getTransactionDescription } from '../Transaction/transaction-descriptions';
 import './styles.css';
 
 function RegisterNameForm() {
@@ -448,11 +445,11 @@ function RegisterNameForm() {
             </div>
           </div>
           <div className="flex flex-column" style={{ gap: '1em' }}>
-            <Accordion title={<span>Advanced Options</span>} key="1">
+            <Accordion
+              title={<span className="text-medium">Advanced Options</span>}
+              key="1"
+            >
               <div className="flex flex-column" style={{ gap: '1em' }}>
-                <NameTokenSelector
-                  selectedTokenCallback={(id) => handleANTId(id)}
-                />
                 <div
                   className="name-token-input-wrapper"
                   style={{
@@ -504,6 +501,7 @@ function RegisterNameForm() {
                       setHasValidationErrors(!validity);
                     }}
                   />
+
                   <span
                     className="flex flex-row text grey flex-center"
                     style={{
@@ -516,6 +514,9 @@ function RegisterNameForm() {
                     <Tooltip message="The Target ID is the Arweave Transaction ID that will be resolved at the root of this ArNS name" />
                   </span>
                 </div>
+                <NameTokenSelector
+                  selectedTokenCallback={(id) => handleANTId(id)}
+                />
               </div>
             </Accordion>
 
@@ -527,26 +528,6 @@ function RegisterNameForm() {
                 justifyContent: 'center',
                 height: '100%',
               }}
-              info={
-                <div>
-                  <WarningCard
-                    wrapperStyle={{
-                      padding: '10px',
-                      fontSize: '14px',
-                      alignItems: 'center',
-                    }}
-                    customIcon={
-                      <InfoIcon width={'20px'} fill={'var(--accent)'} />
-                    }
-                    text={
-                      getTransactionDescription({
-                        workflowName: ARNS_INTERACTION_TYPES.BUY_RECORD,
-                        ioTicker,
-                      }) || ''
-                    }
-                  />
-                </div>
-              }
             />
             <div style={{ marginTop: '0px' }}>
               <WorkflowButtons
