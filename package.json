@@ -20,7 +20,7 @@
     "docs:serve": "rm -rf docs && typedoc --out docs src/**/**/* && http-server docs"
   },
   "dependencies": {
-    "@ar.io/sdk": "2.1.0-alpha.3",
+    "@ar.io/sdk": "2.1.0-alpha.5",
     "@sentry/react": "^7.45.0",
     "@tanstack/react-query": "^5.45.1",
     "@tanstack/react-query-persist-client": "^5.45.1",
