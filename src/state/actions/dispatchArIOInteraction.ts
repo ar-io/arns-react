@@ -5,7 +5,7 @@ import {
   ContractSigner,
   createAoSigner,
   spawnANT,
-} from '@ar.io/sdk';
+} from '@ar.io/sdk/web';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
 import { ARNS_INTERACTION_TYPES, ContractInteraction } from '@src/types';

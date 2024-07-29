@@ -23,7 +23,6 @@ export class ArweaveAppWalletConnector implements ArweaveWalletConnector {
 
   constructor() {
     this._wallet = ARWEAVE_APP_API as any;
-    console.log(this._wallet);
     this.arconnectSigner = this._wallet as any;
   }
 

@@ -18,7 +18,7 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'yarn'
 
-      - run: yarn install --frozen-lockfile
+      - run: yarn --frozen-lockfile --ignore-engines
       - run: yarn ${{ matrix.step }}
 
   deploy-to-github:
@@ -36,7 +36,7 @@ jobs:
 
       - name: Install and Build 🔧
         run: |
-          yarn install --frozen-lockfile
+          yarn --frozen-lockfile --ignore-engines
           yarn build
         env:
           # FOR BUILD
