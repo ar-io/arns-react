@@ -1,5 +1,3 @@
-import { ArconnectSigner } from '@ar.io/sdk/web';
-import { DEFAULT_ARWEAVE } from '@src/utils/constants';
 import { ArconnectError, WalletNotInstalledError } from '@src/utils/errors';
 import eventEmitter from '@src/utils/events';
 import { PermissionType } from 'arconnect';
@@ -21,13 +19,10 @@ export const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [
 
 export class ArConnectWalletConnector implements ArweaveWalletConnector {
   private _wallet: Window['arweaveWallet'];
-  arconnectSigner: ArconnectSigner;
+  arconnectSigner: Window['arweaveWallet'];
   constructor() {
     this._wallet = window?.arweaveWallet;
-    this.arconnectSigner = new ArconnectSigner(
-      this._wallet,
-      DEFAULT_ARWEAVE as any,
-    );
+    this.arconnectSigner = window?.arweaveWallet;
   }
 
   // The API has been shown to be unreliable, so we call each function with a timeout

@@ -1,4 +1,4 @@
-import { ANTState, AoArNSNameData, ArconnectSigner } from '@ar.io/sdk/web';
+import { ANTState, AoArNSNameData } from '@ar.io/sdk/web';
 import { ApiConfig } from 'arweave/web/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
 
@@ -76,7 +76,7 @@ export interface ArweaveWalletConnector {
   disconnect(): Promise<void>;
   getWalletAddress(): Promise<ArweaveTransactionID>;
   getGatewayConfig(): Promise<ApiConfig>;
-  arconnectSigner?: ArconnectSigner;
+  arconnectSigner?: Window['arweaveWallet'];
 }
 
 export enum WALLET_TYPES {

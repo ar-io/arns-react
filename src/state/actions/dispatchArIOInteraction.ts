@@ -2,7 +2,8 @@ import {
   AR_IO_CONTRACT_FUNCTIONS,
   AoIOWrite,
   AoMessageResult,
-  ArconnectSigner,
+  ContractSigner,
+  createAoSigner,
   spawnANT,
 } from '@ar.io/sdk/web';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
@@ -29,7 +30,7 @@ export default async function dispatchArIOInteraction({
   arioContract?: AoIOWrite;
   processId: ArweaveTransactionID;
   dispatch: Dispatch<TransactionAction>;
-  signer?: ArconnectSigner;
+  signer?: ContractSigner;
 }): Promise<ContractInteraction> {
   let result: AoMessageResult | undefined = undefined;
   let functionName;
@@ -49,7 +50,7 @@ export default async function dispatchArIOInteraction({
         if (antProcessId === 'atomic') {
           antProcessId = await spawnANT({
             state: payload.state,
-            signer: signer,
+            signer: createAoSigner(signer),
             luaCodeTxId: LUA_CODE_TX_ID,
           });
         }

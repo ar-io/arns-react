@@ -1,4 +1,4 @@
-import { AoANTState, AoArNSNameData, ArNSEventEmitter } from '@ar.io/sdk';
+import { AoANTState, AoArNSNameData, ArNSEventEmitter } from '@ar.io/sdk/web';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 
 import { ArNSState, initialArNSState } from '../contexts/ArNSState';
