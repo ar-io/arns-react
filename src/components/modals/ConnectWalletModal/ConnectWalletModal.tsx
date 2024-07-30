@@ -140,17 +140,15 @@ function ConnectWalletModal(): JSX.Element {
           />
           Connect via ArConnect
         </button>
-        {/* disabling for now since does not work with current sdk signers */}
+
         <button
-          className="wallet-connect-button disabled-button h2"
-          disabled={true}
+          className="wallet-connect-button h2"
           onClick={() => {
             connect(new ArweaveAppWalletConnector());
           }}
         >
           <img className="external-icon" src={ArweaveAppIcon} alt="" />
           Connect using Arweave.app
-          <span style={{ color: 'var(--text-grey)' }}>(Coming Soon)</span>
         </button>
         <span
           className="flex flex-row white flex-center"

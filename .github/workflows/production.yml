@@ -17,7 +17,7 @@ jobs:
         with:
           node-version-file: '.nvmrc'
           cache: 'yarn'
-      - run: yarn install --frozen-lockfile
+      - run: yarn --frozen-lockfile --ignore-engines
       - run: yarn ${{ matrix.step }}
 
   deploy-to-firebase:
@@ -34,7 +34,7 @@ jobs:
 
       - name: Install and Build 🔧
         run: |
-          yarn install --frozen-lockfile
+          yarn --frozen-lockfile --ignore-engines
           yarn build
         env:
           # FOR BUILD
@@ -68,7 +68,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 20.x
-      - run: yarn --frozen-lockfile
+      - run: yarn --frozen-lockfile --ignore-engines
       - run: yarn publish:arweave
         env:
           DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}

@@ -1,5 +1,4 @@
-import { ArconnectSigner } from '@ar.io/sdk/web';
-import { ARWEAVE_APP_API, DEFAULT_ARWEAVE } from '@src/utils/constants';
+import { ARWEAVE_APP_API } from '@src/utils/constants';
 import { ArweaveAppError } from '@src/utils/errors';
 import { PermissionType } from 'arconnect';
 import { ApiConfig } from 'arweave/node/lib/api';
@@ -20,15 +19,11 @@ export const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [
 
 export class ArweaveAppWalletConnector implements ArweaveWalletConnector {
   private _wallet: ReactiveConnector & { namespaces: any };
-  arconnectSigner?: ArconnectSigner;
+  arconnectSigner?: Window['arweaveWallet'];
 
   constructor() {
     this._wallet = ARWEAVE_APP_API as any;
-    // TODO: ar.io/sdk does not support arweaveWallet.signature() as it is deprecated
-    this.arconnectSigner = new ArconnectSigner(
-      this._wallet.namespaces.arweaveWallet,
-      DEFAULT_ARWEAVE as any,
-    );
+    this.arconnectSigner = this._wallet as any;
   }
 
   // The API has been shown to be unreliable, so we call each function with a timeout

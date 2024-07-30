@@ -1,4 +1,4 @@
-import { ArNSEventEmitter } from '@ar.io/sdk';
+import { ArNSEventEmitter } from '@ar.io/sdk/web';
 import { captureException } from '@sentry/react';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import eventEmitter from '@src/utils/events';

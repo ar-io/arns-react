@@ -1,4 +1,4 @@
-import { Logger } from '@ar.io/sdk';
+import { Logger } from '@ar.io/sdk/web';
 import * as Sentry from '@sentry/react';
 import React, { Suspense } from 'react';
 import {

@@ -2,7 +2,7 @@ import {
   ANT,
   ANT_CONTRACT_FUNCTIONS,
   AoMessageResult,
-  ArconnectSigner,
+  ContractSigner,
 } from '@ar.io/sdk/web';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
@@ -20,7 +20,7 @@ export default async function dispatchANTInteraction({
 }: {
   payload: Record<string, any>;
   workflowName: ANT_INTERACTION_TYPES;
-  signer: ArconnectSigner;
+  signer: ContractSigner;
   owner: string;
   processId: ArweaveTransactionID;
   dispatch: Dispatch<TransactionAction>;

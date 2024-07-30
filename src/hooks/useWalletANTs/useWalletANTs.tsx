@@ -1,4 +1,4 @@
-import { isLeasedArNSRecord } from '@ar.io/sdk';
+import { isLeasedArNSRecord } from '@ar.io/sdk/web';
 import RegistrationTip from '@src/components/data-display/RegistrationTip';
 import { dispatchArNSUpdate } from '@src/state/actions/dispatchArNSUpdate';
 import { useArNSState } from '@src/state/contexts/ArNSState';
