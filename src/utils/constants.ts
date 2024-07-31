@@ -54,15 +54,15 @@ export const ARNS_NAME_REGEX_PARTIAL = new RegExp(
   `^[a-zA-Z0-9-]{0,${MAX_ARNS_NAME_LENGTH}}$`,
 );
 export const UNDERNAME_REGEX = new RegExp(
-  `^([a-zA-Z0-9][a-zA-Z0-9-_]{0,${
+  `^([a-zA-Z0-9][a-zA-Z0-9_-]{0,${
     MAX_UNDERNAME_LENGTH - 2
   }}[a-zA-Z0-9]|[a-zA-Z0-9]{1})$`,
 );
 
-export const APPROVED_CHARACTERS_REGEX = new RegExp(`^[a-zA-Z0-9-_]{0,61}$`);
+export const APPROVED_CHARACTERS_REGEX = new RegExp(`^[a-zA-Z0-9_-]{0,61}$`);
 export const ALPHA_NUMERIC_REGEX = new RegExp('^[a-zA-Z0-9]$');
-export const ARNS_TX_ID_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{43}$');
-export const ARNS_TX_ID_ENTRY_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{1,43}$');
+export const ARNS_TX_ID_REGEX = new RegExp('^[a-zA-Z0-9_-s+]{43}$');
+export const ARNS_TX_ID_ENTRY_REGEX = new RegExp('^[a-zA-Z0-9_-s+]{1,43}$');
 export const ARWEAVE_TX_LENGTH = 43;
 export const EMAIL_REGEX = new RegExp(
   "([!#-'*+/-9=?A-Z^-~-]+(.[!#-'*+/-9=?A-Z^-~-]+)*|\"([]!#-[^-~ \t]|(\\[\t -~]))+\")@([!#-'*+/-9=?A-Z^-~-]+(.[!#-'*+/-9=?A-Z^-~-]+)*|[[\t -Z^-~]*])", // eslint-disable-line
