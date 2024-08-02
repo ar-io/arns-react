@@ -1,4 +1,5 @@
 import { ANT } from '@ar.io/sdk/web';
+import { useArNSState } from '@src/state/contexts/ArNSState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { Tooltip } from 'antd';
 import { ColumnType } from 'antd/es/table';
@@ -23,12 +24,12 @@ import {
   UndernameMetadata,
   UndernameTableInteractionTypes,
 } from '../../types';
-import { isArweaveTransactionID, withExponentialBackoff } from '../../utils';
+import { isArweaveTransactionID } from '../../utils';
 import { ARNS_NAME_REGEX_PARTIAL } from '../../utils/constants';
-import eventEmitter from '../../utils/events';
 
 export function useUndernames(id?: ArweaveTransactionID, name?: string) {
-  const [{ gateway, arweaveDataProvider }] = useGlobalState();
+  const [{ gateway }] = useGlobalState();
+  const [{ domains }] = useArNSState();
   const [{ walletAddress }] = useWalletState();
   const [sortAscending, setSortOrder] = useState(true);
   const [sortField, setSortField] = useState<keyof UndernameMetadata>('name');
@@ -45,7 +46,6 @@ export function useUndernames(id?: ArweaveTransactionID, name?: string) {
   const searchRef = useRef<HTMLInputElement>(null);
   const [searchText, setSearchText] = useState<string>('');
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
-  const [domain, setDomain] = useState<string>('');
   const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
@@ -67,7 +67,7 @@ export function useUndernames(id?: ArweaveTransactionID, name?: string) {
     } else {
       setFilteredResults([]);
     }
-  }, [searchText, walletAddress]);
+  }, [searchText, walletAddress, name]);
 
   function generateTableColumns(): ColumnType<UndernameMetadata>[] {
     const newColumns: ColumnType<UndernameMetadata>[] = [
@@ -112,12 +112,13 @@ export function useUndernames(id?: ArweaveTransactionID, name?: string) {
             },
           };
         },
-        render: (val: string) => (
+        render: (val: string, row: UndernameMetadata) => (
           <Link
-            to={`https://${val}_${domain}.${gateway}`}
+            to={`https://${val}_${row.domain}.${gateway}`}
             rel="noreferrer"
             target="_blank"
             className="link"
+            aria-disabled={row.domain == undefined}
           >
             {val}
           </Link>
@@ -367,16 +368,9 @@ export function useUndernames(id?: ArweaveTransactionID, name?: string) {
     if (id) {
       processId = id;
     } else if (name) {
-      const record = await withExponentialBackoff({
-        fn: () =>
-          arweaveDataProvider.getRecord({
-            domain: name,
-          }),
-        maxTries: 5,
-        initialDelay: 1000,
-        shouldRetry: (res) => !res?.processId,
-      });
-      if (record) processId = new ArweaveTransactionID(record?.processId);
+      const arnsRecord = domains[name];
+      if (arnsRecord)
+        processId = new ArweaveTransactionID(arnsRecord.processId);
     }
 
     if (!processId) {
@@ -384,17 +378,9 @@ export function useUndernames(id?: ArweaveTransactionID, name?: string) {
       return;
     }
     setIsLoading(true);
-    const domain = await arweaveDataProvider
-      .getRecords({
-        filters: { processId: [processId] },
-      })
-      .then((records) => Object.keys(records)[0])
-      .catch((error) => {
-        console.debug('No domain found for ANT', processId?.toString());
-        eventEmitter.emit('error', error);
-        return '';
-      });
-    setDomain(domain);
+    const domain = Object.keys(domains).find(
+      (d) => domains[d].processId === processId?.toString(),
+    );
     const state = await ANT.init({
       processId: processId.toString(),
     }).getState();
@@ -404,6 +390,7 @@ export function useUndernames(id?: ArweaveTransactionID, name?: string) {
         name === '@'
           ? undefined
           : {
+              domain,
               name,
               targetID: record.transactionId,
               ttlSeconds: record.ttlSeconds,
