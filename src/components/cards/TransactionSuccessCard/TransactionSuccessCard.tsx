@@ -1,4 +1,3 @@
-import Ar from 'arweave/node/ar';
 import { useEffect, useRef } from 'react';
 
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
