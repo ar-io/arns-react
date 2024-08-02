@@ -498,6 +498,7 @@ export type DomainDetails = {
 };
 
 export type UndernameMetadata = {
+  domain?: string;
   name: string;
   targetID: string;
   ttlSeconds: number;

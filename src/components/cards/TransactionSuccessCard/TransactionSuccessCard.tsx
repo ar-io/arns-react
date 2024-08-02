@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { CircleCheckFilled, CloseIcon } from '../../icons';
-import ArweaveID from '../../layout/ArweaveID/ArweaveID';
+import ArweaveID, { ArweaveIdTypes } from '../../layout/ArweaveID/ArweaveID';
 
 function TransactionSuccessCard({
   txId,
@@ -41,6 +41,7 @@ function TransactionSuccessCard({
         <span className="white">{title ?? 'Transaction Complete'}</span>
         <ArweaveID
           id={txId}
+          type={ArweaveIdTypes.INTERACTION}
           shouldLink={true}
           linkStyle={{ color: 'var(--success-green)' }}
         />
