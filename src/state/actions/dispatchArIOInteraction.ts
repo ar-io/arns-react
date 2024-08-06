@@ -31,7 +31,6 @@ export default async function dispatchArIOInteraction({
   signer?: ContractSigner;
 }): Promise<ContractInteraction> {
   let result: AoMessageResult | undefined = undefined;
-  let functionName;
 
   try {
     if (!arioContract) throw new Error('ArIO provider is not defined');
@@ -97,13 +96,12 @@ export default async function dispatchArIOInteraction({
     throw new Error('Failed to dispatch ArIO interaction');
   }
 
-  if (!functionName) throw new Error('Failed to set workflow name');
-
   const interaction: ContractInteraction = {
     deployer: owner.toString(),
     processId: processId.toString(),
     id: result.id,
     type: 'interaction',
+    payload,
   };
 
   dispatch({
