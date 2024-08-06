@@ -101,9 +101,7 @@ export default async function dispatchArIOInteraction({
     processId: processId.toString(),
     id: result.id,
     type: 'interaction',
-    payload: {
-      ...payload,
-    },
+    payload,
   };
 
   dispatch({

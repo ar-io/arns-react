@@ -106,9 +106,7 @@ export default async function dispatchANTInteraction({
     processId: processId.toString(),
     id: result.id,
     type: 'interaction',
-    payload: {
-      ...payload,
-    },
+    payload,
   };
 
   dispatch({
