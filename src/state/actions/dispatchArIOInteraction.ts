@@ -1,5 +1,4 @@
 import {
-  AR_IO_CONTRACT_FUNCTIONS,
   AoIOWrite,
   AoMessageResult,
   ContractSigner,
@@ -14,7 +13,6 @@ import { WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Dispatch } from 'react';
 
-const LUA_CODE_TX_ID = 'rYRd9foqUVvMScTnX63FuyUOaP5tmlJx5tG1btCx6sg';
 export default async function dispatchArIOInteraction({
   payload,
   workflowName,
@@ -51,7 +49,6 @@ export default async function dispatchArIOInteraction({
           antProcessId = await spawnANT({
             state: payload.state,
             signer: createAoSigner(signer),
-            luaCodeTxId: LUA_CODE_TX_ID,
           });
         }
 
@@ -65,7 +62,6 @@ export default async function dispatchArIOInteraction({
         payload.processId = antProcessId;
 
         result = buyRecordResult;
-        functionName = AR_IO_CONTRACT_FUNCTIONS.BUY_RECORD;
         break;
       }
       case ARNS_INTERACTION_TYPES.EXTEND_LEASE:
@@ -76,7 +72,6 @@ export default async function dispatchArIOInteraction({
           },
           WRITE_OPTIONS,
         );
-        functionName = AR_IO_CONTRACT_FUNCTIONS.EXTEND_RECORD;
         break;
       case ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES:
         result = await arioContract.increaseUndernameLimit(
@@ -86,7 +81,6 @@ export default async function dispatchArIOInteraction({
           },
           WRITE_OPTIONS,
         );
-        functionName = AR_IO_CONTRACT_FUNCTIONS.INCREASE_UNDERNAME_COUNT;
         break;
       default:
         throw new Error(`Unsupported workflow name: ${workflowName}`);
@@ -109,10 +103,6 @@ export default async function dispatchArIOInteraction({
     deployer: owner.toString(),
     processId: processId.toString(),
     id: result.id,
-    payload: {
-      ...payload,
-      function: functionName,
-    },
     type: 'interaction',
   };
 
