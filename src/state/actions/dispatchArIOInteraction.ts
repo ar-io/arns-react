@@ -13,7 +13,6 @@ import { WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Dispatch } from 'react';
 
-const LUA_CODE_TX_ID = 'rYRd9foqUVvMScTnX63FuyUOaP5tmlJx5tG1btCx6sg';
 export default async function dispatchArIOInteraction({
   payload,
   workflowName,
@@ -50,7 +49,6 @@ export default async function dispatchArIOInteraction({
           antProcessId = await spawnANT({
             state: payload.state,
             signer: createAoSigner(signer),
-            luaCodeTxId: LUA_CODE_TX_ID,
           });
         }
 

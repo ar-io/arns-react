@@ -246,16 +246,12 @@ export function getARNSMappingByInteractionType(
           maxUndernames: `Up to ${DEFAULT_MAX_UNDERNAMES}`,
           leaseDuration: years,
         },
-<<<<<<< HEAD
-        state: transactionData.state,
         primaryDefaultKeys: [
           'domain',
           'leaseDuration',
           'maxUndernames',
           'owner',
         ],
-=======
->>>>>>> 46c96dbd (fix(types): update to use current contract types)
       };
     }
 

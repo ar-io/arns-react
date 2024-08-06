@@ -22,7 +22,6 @@ import {
 import {
   encodeDomainToASCII,
   formatDate,
-  generateAtomicState,
   isArweaveTransactionID,
   userHasSufficientBalance,
 } from '../../../utils';
