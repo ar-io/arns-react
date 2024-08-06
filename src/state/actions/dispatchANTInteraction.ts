@@ -21,7 +21,6 @@ export default async function dispatchANTInteraction({
   dispatch: Dispatch<TransactionAction>;
 }): Promise<ContractInteraction> {
   let result: AoMessageResult | undefined = undefined;
-  let functionName;
 
   const antProcess = ANT.init({
     processId: processId.toString(),
@@ -101,13 +100,15 @@ export default async function dispatchANTInteraction({
   if (!result) {
     throw new Error('Failed to dispatch ANT interaction');
   }
-  if (!functionName) throw new Error('Failed to set workflow name');
 
   const interaction: ContractInteraction = {
     deployer: owner,
     processId: processId.toString(),
     id: result.id,
     type: 'interaction',
+    payload: {
+      ...payload,
+    },
   };
 
   dispatch({
