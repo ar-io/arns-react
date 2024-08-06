@@ -82,10 +82,10 @@
     plimit-lit "^3.0.1"
     warp-contracts "1.4.45"
 
-"@ar.io/sdk@2.1.0-alpha.5":
-  version "2.1.0-alpha.5"
-  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-2.1.0-alpha.5.tgz#61924576b1db13d829246b4f2a1ebdf7d8570402"
-  integrity sha512-5uJU+N17E8xuuzWK5XKaCpN2OmxdufJ1VQ4AJPDGz5tuHUBg3m6enh70p3Ra5e1IefaHDEgKoelhD9AiGw0eMw==
+"@ar.io/sdk@2.1.0-alpha.8":
+  version "2.1.0-alpha.8"
+  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-2.1.0-alpha.8.tgz#d22044fd3e80ffc0ae2f588eda5cd333e6c9d1af"
+  integrity sha512-1peLvu3rt3+vx4+AK7seoErqLJbKlMP6Yzas14QlTt1oYFppWDsFPUjJMZWQECnmPNEN7xvj8XyqaFpm5ZeVpA==
   dependencies:
     "@permaweb/aoconnect" "^0.0.57"
     arbundles "0.11.0"
@@ -2381,9 +2381,9 @@
     zod "^3.23.5"
 
 "@permaweb/ao-scheduler-utils@~0.0.20":
-  version "0.0.20"
-  resolved "https://registry.yarnpkg.com/@permaweb/ao-scheduler-utils/-/ao-scheduler-utils-0.0.20.tgz#5cee9650ef9234a01ecf3a57e8e0870f1f431076"
-  integrity sha512-bJkcmnQm/rCGqklJt46q5TnHfWkFzSBcSf9Z3uy8ylHRAheS9NyR1BJMAj3EXDjHCpg7JfnLRo6Uc3Xdw1lmOA==
+  version "0.0.21"
+  resolved "https://registry.yarnpkg.com/@permaweb/ao-scheduler-utils/-/ao-scheduler-utils-0.0.21.tgz#ac3efd0c77b883988ef6dd5d52222accf7a30a08"
+  integrity sha512-VWl/xAJGzOKlfwJ983eYewd7Lo1t0XVgv6iRPVpKQEKAqL9MZaERPzPMbNFZwBy8NjEIzse3/KtgUAnMNgzVtg==
   dependencies:
     lru-cache "^10.2.2"
     ramda "^0.30.0"
