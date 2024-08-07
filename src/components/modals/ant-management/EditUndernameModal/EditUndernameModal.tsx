@@ -1,4 +1,4 @@
-import { ANT, ANTRecord } from '@ar.io/sdk/web';
+import { ANT, AoANTRecord } from '@ar.io/sdk/web';
 import { clamp } from 'lodash';
 import { useEffect, useRef, useState } from 'react';
 
@@ -38,7 +38,7 @@ function EditUndernameModal({
   const ttlRef = useRef<HTMLInputElement>(null);
   const [targetId, setTargetId] = useState<string>('');
   const [ttlSeconds, setTtlSeconds] = useState<number>(MIN_TTL_SECONDS);
-  const [record, setRecord] = useState<ANTRecord>();
+  const [record, setRecord] = useState<AoANTRecord>();
 
   useEffect(() => {
     load(antId);

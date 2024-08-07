@@ -1,4 +1,4 @@
-import { ANTRecord } from '@ar.io/sdk/web';
+import { AoANTRecord } from '@ar.io/sdk/web';
 import { buildAntStateQuery } from '@src/utils/network';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 export function useANT(id: string) {
   const result = useSuspenseQuery(buildAntStateQuery({ processId: id }));
   const [data, setData] = useState<{
-    records: Record<string, ANTRecord>;
+    records: Record<string, AoANTRecord>;
     name: string;
     owner: string;
     ticker: string;

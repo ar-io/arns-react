@@ -44,6 +44,7 @@ function TransactionComplete() {
         interactionType,
         interactionResult,
       });
+
       setAntProps(
         getARNSMappingByInteractionType({
           interactionType: interactionType as ValidInteractionType,
