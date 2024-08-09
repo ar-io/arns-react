@@ -72,6 +72,7 @@ th[class~='manage-assets-table-header'] {
   border-radius: 0px !important;
   padding: 0px 20px;
   height: 20px !important;
+  font-size: 14px;
 }
 
 thead > tr > td[class~='manage-assets-table-header'] {

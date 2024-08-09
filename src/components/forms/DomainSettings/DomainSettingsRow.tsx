@@ -61,7 +61,7 @@ export default function DomainSettingsRow({
                       <button
                         className="button bold grey pointer hover"
                         style={{
-                          padding: '6px',
+                          padding: '3px 7px',
                           fontSize: '13px',
                           boxSizing: 'border-box',
                         }}
@@ -72,7 +72,7 @@ export default function DomainSettingsRow({
                       <button
                         className="button-primary hover"
                         style={{
-                          padding: '9px 12px',
+                          padding: '3px 7px',
                           fontSize: '13px',
                           boxSizing: 'border-box',
                         }}
