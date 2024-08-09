@@ -97,32 +97,9 @@ function Breadcrumbs() {
   return (
     <>
       {crumbs?.length ? (
-        <Breadcrumb
-          className="center flex flex-row"
-          style={{
-            background: 'black',
-            height: '35px',
-            justifyContent: 'flex-start',
-            paddingLeft: '100px',
-            fontSize: '16px',
-            color: 'var(--text-faded)',
-          }}
-          separator={
-            <span
-              style={{
-                height: '100%',
-                width: '30px',
-                alignContent: 'center',
-              }}
-            >
-              <ChevronDownIcon
-                width={'10px'}
-                height={'10px'}
-                fill={'var(--text-grey)'}
-                style={{ transform: 'rotate(-90deg)' }}
-              />
-            </span>
-          }
+        <nav
+          style={{ gap: '0px' }}
+          className="flex h-[35px] flex-row items-center justify-start bg-black p-2 pl-[100px]"
         >
           {crumbs.map((item, index) => {
             const crumbTitle = handleCrumbTitle(item.name);
@@ -144,26 +121,42 @@ function Breadcrumbs() {
             );
 
             return (
-              <Item key={index} className="center faded">
+              <span key={index} className="center faded flex">
                 {crumbTitle === item.name ? (
                   crumbLink
                 ) : (
                   <Tooltip
-                    title={<span className="center flex">{item.name}</span>}
+                    title={
+                      <span className="center text-md flex w-fit">
+                        {item.name}
+                      </span>
+                    }
                     placement={'top'}
                     autoAdjustOverflow={true}
-                    color="var(--text-faded)"
+                    overlayClassName="w-fit max-w-fit h-fit"
+                    color="var(--bg-color)"
                   >
                     {crumbLink}
                   </Tooltip>
                 )}
-              </Item>
+                {index < crumbs.length - 1 && (
+                  <span
+                    className="flex items-center justify-center"
+                    style={{ padding: '0 8px' }} // Add some padding between breadcrumbs
+                  >
+                    <ChevronDownIcon
+                      width={'10px'}
+                      height={'10px'}
+                      fill={'var(--text-grey)'}
+                      style={{ transform: 'rotate(-90deg)' }}
+                    />
+                  </span>
+                )}
+              </span>
             );
           })}
-        </Breadcrumb>
-      ) : (
-        <></>
-      )}
+        </nav>
+      ) : null}
     </>
   );
 }

@@ -29,7 +29,7 @@ export default {
       warning: '#ffb938',
       link: '#6c97b5',
       white: '#fafafa',
-      black: '#121212',
+      black: 'black',
       grey: '#7d7d85',
       ['dark-grey']: '#38393b',
     },

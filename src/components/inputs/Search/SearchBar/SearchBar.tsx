@@ -411,7 +411,7 @@ function SearchBar(props: SearchBarProps) {
         ) : (
           <button
             data-testid="search-button"
-            className="button pointer"
+            className="button pointer flex items-center justify-center"
             style={{
               width: `${65}px`,
               height: `${65}px`,
