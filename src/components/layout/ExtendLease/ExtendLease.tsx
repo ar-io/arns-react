@@ -297,37 +297,37 @@ function ExtendLease() {
             !ioFee || ioFee < 0
               ? undefined
               : maxIncrease >= 1 || ioFee <= ioBalance
-                ? () => {
-                    const payload: ExtendLeasePayload = {
-                      name,
-                      years: newLeaseDuration,
-                      processId: new ArweaveTransactionID(record.processId),
-                      qty: ioFee,
-                    };
+              ? () => {
+                  const payload: ExtendLeasePayload = {
+                    name,
+                    years: newLeaseDuration,
+                    processId: new ArweaveTransactionID(record.processId),
+                    qty: ioFee,
+                  };
 
-                    dispatchTransactionState({
-                      type: 'setInteractionType',
-                      payload: ARNS_INTERACTION_TYPES.EXTEND_LEASE,
-                    });
-                    dispatchTransactionState({
-                      type: 'setTransactionData',
-                      payload: {
-                        assetId: ARNS_REGISTRY_ADDRESS.toString(),
-                        functionName: 'extendRecord',
-                        ...payload,
-                        arnsRecord: record,
-                        interactionPrice: ioFee,
-                      },
-                    });
-                    dispatchTransactionState({
-                      type: 'setWorkflowName',
-                      payload: ARNS_INTERACTION_TYPES.EXTEND_LEASE,
-                    });
-                    navigate('/transaction/review', {
-                      state: `/manage/names/${lowerCaseDomain(name)}/extend`,
-                    });
-                  }
-                : undefined
+                  dispatchTransactionState({
+                    type: 'setInteractionType',
+                    payload: ARNS_INTERACTION_TYPES.EXTEND_LEASE,
+                  });
+                  dispatchTransactionState({
+                    type: 'setTransactionData',
+                    payload: {
+                      assetId: ARNS_REGISTRY_ADDRESS.toString(),
+                      functionName: 'extendRecord',
+                      ...payload,
+                      arnsRecord: record,
+                      interactionPrice: ioFee,
+                    },
+                  });
+                  dispatchTransactionState({
+                    type: 'setWorkflowName',
+                    payload: ARNS_INTERACTION_TYPES.EXTEND_LEASE,
+                  });
+                  navigate('/transaction/review', {
+                    state: `/manage/names/${lowerCaseDomain(name)}/extend`,
+                  });
+                }
+              : undefined
           }
           detail={
             ioFee && ioFee > ioBalance && maxIncrease > 0 ? (

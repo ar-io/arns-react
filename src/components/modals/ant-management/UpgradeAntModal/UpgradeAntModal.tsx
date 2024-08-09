@@ -188,14 +188,22 @@ function UpgradeAntModal({
         <div>
           <button
             disabled={!accepted}
-            className={`${!accepted ? 'bg-background text-grey' : `animate-pulse ${progress < 0 ? 'bg-primary-thin text-primary' : 'bg-link text-white hover:bg-primary hover:text-black'} `} w-full rounded-b-lg p-3 transition-all`}
+            className={`${
+              !accepted
+                ? 'bg-background text-grey'
+                : `animate-pulse ${
+                    progress < 0
+                      ? 'bg-primary-thin text-primary'
+                      : 'bg-link text-white hover:bg-primary hover:text-black'
+                  } `
+            } w-full rounded-b-lg p-3 transition-all`}
             onClick={() => upgradeAnts()}
           >
             {!accepted && progress < 0
               ? 'Verify you understand before proceeding'
               : progress >= 0
-                ? 'Evolving, please wait...'
-                : 'Upgrade'}
+              ? 'Evolving, please wait...'
+              : 'Upgrade'}
           </button>
         </div>
       </div>

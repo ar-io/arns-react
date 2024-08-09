@@ -403,8 +403,8 @@ export function useWalletANTs() {
             Owner === walletAddress?.toString()
               ? 'Owner'
               : Controllers.includes(walletAddress?.toString() ?? '')
-                ? 'Controller'
-                : 'N/A',
+              ? 'Controller'
+              : 'N/A',
           targetID: apexRecord?.transactionId || 'N/A',
           ttlSeconds: apexRecord?.ttlSeconds || DEFAULT_TTL_SECONDS,
           // status is now based on registration, we use endTimestamp to sort appropriately

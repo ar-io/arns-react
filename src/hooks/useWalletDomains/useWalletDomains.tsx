@@ -466,8 +466,8 @@ export function useWalletDomains() {
               ant.Owner === walletAddress?.toString()
                 ? 'Owner'
                 : ant.Controllers?.includes(walletAddress?.toString() ?? '')
-                  ? 'Controller'
-                  : 'N/A',
+                ? 'Controller'
+                : 'N/A',
             expiration: isLeasedArNSRecord(record)
               ? formatDate(record.endTimestamp)
               : 'Indefinite',

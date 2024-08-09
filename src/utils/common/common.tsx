@@ -222,8 +222,8 @@ export function formatExpiryDate(endTimestamp?: number) {
           endTimestamp > Date.now()
             ? 'var(--success-green)'
             : endTimestamp + SECONDS_IN_GRACE_PERIOD * 1000 < Date.now()
-              ? 'var(--accent)'
-              : 'var(--error-red)',
+            ? 'var(--accent)'
+            : 'var(--error-red)',
       }}
     >
       {formatDate(endTimestamp)}
