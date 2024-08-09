@@ -172,6 +172,7 @@ function NavMenuCard() {
                     wrapperStyle={{
                       width: '100%',
                       justifyContent: 'space-between',
+                      alignItems: 'center',
                       boxSizing: 'border-box',
                     }}
                   />

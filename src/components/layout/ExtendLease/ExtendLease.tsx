@@ -159,7 +159,7 @@ function ExtendLease() {
           className="center flex flex-row"
           style={{ justifyContent: 'space-between' }}
         >
-          <h1 className="white">Extend Lease</h1>
+          <h1 className="white text-2xl">Extend Lease</h1>
 
           <div
             className="center white flex flex-row"

@@ -46,7 +46,7 @@ function ArweaveID({
               to={ARWEAVE_ID_MAPPING[type] + id.toString()}
               target="_blank"
               rel="noreferrer"
-              className="link hover"
+              className="link hover flex"
               style={linkStyle}
             >
               {formatForMaxCharCount(id.toString(), characterCount)}
@@ -60,8 +60,7 @@ function ArweaveID({
           fill: 'var(--text-grey)',
           color: 'inherit',
           position: 'static',
-          alignItems: 'center',
-          justifyContent: 'center',
+
           ...wrapperStyle,
         }}
         copyButtonStyle={copyButtonStyle}
