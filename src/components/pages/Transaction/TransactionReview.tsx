@@ -113,7 +113,7 @@ function TransactionReview() {
         owner: walletAddress,
         processId: ioProcessId,
         dispatch: dispatchTransactionState,
-        signer: wallet?.arconnectSigner,
+        signer: wallet?.contractSigner,
         ao: aoClient,
         scheduler: aoNetwork.SCHEDULER,
       });

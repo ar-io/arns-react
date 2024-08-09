@@ -33,7 +33,7 @@ function useArconnectEvents() {
           processId: ioProcessId,
           ao: aoClient,
         }),
-        signer: newWallet.arconnectSigner!,
+        signer: newWallet.contractSigner!,
       });
       dispatchNewGateway(e?.host, contract, dispatchGlobalState);
     };

@@ -7,7 +7,7 @@ import { useIsFocused } from '../../../../hooks';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../../state/contexts/WalletState';
-import { VALIDATION_INPUT_TYPES } from '../../../../types';
+import { AoAddress, VALIDATION_INPUT_TYPES } from '../../../../types';
 import { isArweaveTransactionID } from '../../../../utils';
 import { ARWEAVE_TX_LENGTH } from '../../../../utils/constants';
 import eventEmitter from '../../../../utils/events';
@@ -98,7 +98,7 @@ function NameTokenSelector({
   }
 
   async function getTokenList(
-    address: ArweaveTransactionID | undefined,
+    address: AoAddress | undefined,
     imports: ArweaveTransactionID[] = [],
   ) {
     try {

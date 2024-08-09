@@ -1,14 +1,14 @@
 import { AOProcess, IO } from '@ar.io/sdk';
+import { WalletButton } from '@rainbow-me/rainbowkit';
 import { ArConnectWalletConnector } from '@src/services/wallets';
 import { ArweaveAppWalletConnector } from '@src/services/wallets/ArweaveAppWalletConnector';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { dispatchNewGateway } from '../../../state/actions';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../state/contexts/WalletState';
-import { ArweaveWalletConnector } from '../../../types';
+import { AoAddress, ArNSWalletConnector } from '../../../types';
 import eventEmitter from '../../../utils/events';
 import { ArConnectIcon, ArweaveAppIcon, CloseIcon } from '../../icons';
 import PageLoader from '../../layout/progress/PageLoader/PageLoader';
@@ -55,7 +55,7 @@ function ConnectWalletModal(): JSX.Element {
     address,
   }: {
     next: boolean;
-    address?: ArweaveTransactionID;
+    address?: AoAddress;
   }) {
     if (!address) {
       navigate(state?.from ?? '/', { state: { from: state?.from ?? '/' } });
@@ -69,7 +69,7 @@ function ConnectWalletModal(): JSX.Element {
     }
   }
 
-  async function connect(walletConnector: ArweaveWalletConnector) {
+  async function connect(walletConnector: ArNSWalletConnector) {
     try {
       setConnecting(true);
       await walletConnector.connect();
@@ -79,7 +79,7 @@ function ConnectWalletModal(): JSX.Element {
           processId: ioProcessId,
           ao: aoClient,
         }),
-        signer: walletConnector.arconnectSigner!,
+        signer: walletConnector.contractSigner!,
       });
       if (arweaveGate?.host) {
         await dispatchNewGateway(
@@ -158,6 +158,42 @@ function ConnectWalletModal(): JSX.Element {
           <img className="external-icon" src={ArweaveAppIcon} alt="" />
           Connect using Arweave.app
         </button>
+
+        <p
+          className="section-header"
+          style={{ marginBottom: '1em', fontFamily: 'Rubik-Bold' }}
+        >
+          Connect with an Ethereum wallet
+        </p>
+        <WalletButton.Custom wallet="metamask">
+          {({ ready, connect }) => {
+            return (
+              <button
+                type="button"
+                className="wallet-connect-button h2"
+                disabled={!ready}
+                onClick={connect}
+              >
+                Connect Metamask
+              </button>
+            );
+          }}
+        </WalletButton.Custom>
+        <WalletButton.Custom wallet="coinbase">
+          {({ ready, connect }) => {
+            return (
+              <button
+                type="button"
+                className="wallet-connect-button h2"
+                disabled={!ready}
+                onClick={connect}
+              >
+                Connect Coinbase
+              </button>
+            );
+          }}
+        </WalletButton.Custom>
+
         <span
           className="flex flex-row white flex-center"
           style={{ whiteSpace: 'nowrap', gap: '5px', paddingTop: '16px' }}

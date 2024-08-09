@@ -7,7 +7,7 @@ import {
   mIOToken,
 } from '@ar.io/sdk/web';
 import { ArweaveCompositeDataProvider } from '@src/services/arweave/ArweaveCompositeDataProvider';
-import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import { AoAddress } from '@src/types';
 import { QueryClient } from '@tanstack/react-query';
 import {
   PersistedClient,
@@ -109,7 +109,7 @@ export function buildARBalanceQuery({
   meta,
 }: {
   provider: ArweaveCompositeDataProvider;
-  address: ArweaveTransactionID;
+  address: AoAddress;
   meta?: string[];
 }): {
   queryKey: ['ar-balance', string] | string[];
