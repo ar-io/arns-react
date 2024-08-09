@@ -34,7 +34,7 @@ const DevTools = () => {
             title={<h2 className="white">ArNS Devtools</h2>}
             body={
               <div
-                className="flex flex-column white"
+                className="flex-column white flex"
                 style={{
                   gap: '20px',
                   fontSize: '13px',

@@ -29,9 +29,9 @@ function Accordion({
           <Panel
             showArrow={false}
             header={
-              <div className="flex flex-row center">
+              <div className="center flex flex-row">
                 <div
-                  className="flex flex-row center"
+                  className="center flex flex-row"
                   style={{ position: 'relative', width: 'fit-content' }}
                 >
                   {title}{' '}

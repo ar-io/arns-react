@@ -20,12 +20,12 @@ function WorkflowButtons({
   return (
     <>
       <div
-        className="flex-row flex flex-space-between"
+        className="flex-space-between flex flex-row"
         style={{ boxSizing: 'border-box' }}
       >
         {detail}
         <div
-          className="flex-row flex-right"
+          className="flex-right flex-row"
           style={{ padding: '0', boxSizing: 'border-box', gap: '20px' }}
         >
           {backText && backText.length ? (

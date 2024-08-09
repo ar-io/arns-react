@@ -32,7 +32,7 @@ export const getTransactionCompleteAnnouncement = ({
     case ARNS_INTERACTION_TYPES.BUY_RECORD: {
       return (
         <span
-          className="flex white center"
+          className="white center flex"
           style={{ gap: '8px', width: '100%', padding: '0px 24px' }}
         >
           <span>
@@ -46,7 +46,7 @@ export const getTransactionCompleteAnnouncement = ({
       );
     }
     default: {
-      return <span className="flex white center">Transaction Success</span>;
+      return <span className="white center flex">Transaction Success</span>;
     }
   }
 };

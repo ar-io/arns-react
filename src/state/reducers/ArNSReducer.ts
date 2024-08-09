@@ -1,5 +1,6 @@
 import { AoANTState, AoArNSNameData, ArNSEventEmitter } from '@ar.io/sdk/web';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import Transaction from 'arweave/node/lib/transaction';
 
 import { ArNSState, initialArNSState } from '../contexts/ArNSState';
 
@@ -8,6 +9,7 @@ export type ArNSAction =
   | { type: 'setDomains'; payload: Record<string, AoArNSNameData> }
   | { type: 'addDomains'; payload: Record<string, AoArNSNameData> }
   | { type: 'setAnts'; payload: Record<string, AoANTState> }
+  | { type: 'setAntSourceTx'; payload: Transaction }
   | { type: 'addAnts'; payload: Record<string, AoANTState> }
   | { type: 'setAntCount'; payload: number }
   | { type: 'incrementAntCount' }
@@ -40,6 +42,11 @@ export const arnsReducer = (
       return {
         ...state,
         ants: action.payload,
+      };
+    case 'setAntSourceTx':
+      return {
+        ...state,
+        luaSourceTx: action.payload,
       };
     case 'addAnts':
       return {

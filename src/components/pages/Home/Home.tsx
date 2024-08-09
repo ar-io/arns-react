@@ -88,7 +88,7 @@ function Home() {
       </div>
 
       <div
-        className="flex flex-column flex-center"
+        className="flex-column flex-center flex"
         style={{
           width: '100%',
           maxWidth: '900px',

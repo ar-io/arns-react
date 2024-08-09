@@ -114,7 +114,7 @@ export function useWalletDomains() {
       {
         title: (
           <button
-            className="flex-row pointer grey"
+            className="pointer grey flex-row"
             style={{ gap: '0.5em' }}
             onClick={() => {
               if (sortField == 'name') {
@@ -164,7 +164,7 @@ export function useWalletDomains() {
       {
         title: (
           <button
-            className="flex-row pointer grey"
+            className="pointer grey flex-row"
             style={{ gap: '0.5em' }}
             onClick={() => {
               if (sortField == 'role') {
@@ -196,7 +196,7 @@ export function useWalletDomains() {
       {
         title: (
           <button
-            className="flex-row pointer grey"
+            className="pointer grey flex-row"
             style={{ gap: '0.5em' }}
             onClick={() => {
               if (sortField == 'id') {
@@ -236,7 +236,7 @@ export function useWalletDomains() {
       {
         title: (
           <button
-            className="flex-row pointer grey"
+            className="pointer grey flex-row"
             style={{ gap: '0.5em' }}
             onClick={() => {
               if (sortField == 'undernameLimit') {
@@ -278,7 +278,7 @@ export function useWalletDomains() {
       {
         title: (
           <button
-            className="flex-row pointer grey "
+            className="pointer grey flex-row"
             style={{ gap: '0.5em' }}
             onClick={() => {
               if (sortField == 'expiration') {
@@ -310,7 +310,7 @@ export function useWalletDomains() {
       {
         title: (
           <button
-            className="flex-row pointer grey"
+            className="pointer grey flex-row"
             style={{ gap: '0.5em' }}
             onClick={() => {
               if (sortField == 'status') {
@@ -344,7 +344,7 @@ export function useWalletDomains() {
       {
         title: (
           <div
-            className="flex flex-row center undername-search-wrapper"
+            className="center undername-search-wrapper flex flex-row"
             style={{
               gap: '1px',
               justifyContent: 'flex-end',
@@ -352,7 +352,7 @@ export function useWalletDomains() {
             }}
           >
             <button
-              className="flex button center pointer"
+              className="button center pointer flex"
               style={{ zIndex: 10 }}
               onClick={() => setSearchOpen(!searchOpen)}
             >
@@ -364,7 +364,7 @@ export function useWalletDomains() {
             </button>
             {searchOpen ? (
               <span
-                className="flex flex-row center"
+                className="center flex flex-row"
                 style={{
                   gap: '1px',
                   justifyContent: 'flex-end',
@@ -402,7 +402,7 @@ export function useWalletDomains() {
                   validationPredicates={{}}
                 />
                 <button
-                  className="flex button center pointer"
+                  className="button center pointer flex"
                   onClick={() => {
                     setSearchText('');
                     setSearchParams({});
@@ -422,7 +422,7 @@ export function useWalletDomains() {
           </div>
         ),
         className: 'white manage-assets-table-header',
-        // eslint-disable-next-line
+
         render: (_: any, record: ARNSTableRow) => (
           <span className="flex" style={{ justifyContent: 'flex-end' }}>
             <ManageAssetButtons
@@ -466,8 +466,8 @@ export function useWalletDomains() {
               ant.Owner === walletAddress?.toString()
                 ? 'Owner'
                 : ant.Controllers?.includes(walletAddress?.toString() ?? '')
-                ? 'Controller'
-                : 'N/A',
+                  ? 'Controller'
+                  : 'N/A',
             expiration: isLeasedArNSRecord(record)
               ? formatDate(record.endTimestamp)
               : 'Indefinite',

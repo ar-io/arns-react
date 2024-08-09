@@ -243,7 +243,7 @@ function RegisterNameForm() {
         loading={isValidatingRegistration}
       />
       <div
-        className="flex flex-column flex-center"
+        className="flex-column flex-center flex"
         style={{
           maxWidth: '900px',
           width: '100%',
@@ -254,7 +254,7 @@ function RegisterNameForm() {
         }}
       >
         <div
-          className="flex flex-row flex-center"
+          className="flex-center flex flex-row"
           style={{
             paddingBottom: '20px',
             borderBottom: 'solid 1px var(--text-faded)',
@@ -289,9 +289,9 @@ function RegisterNameForm() {
             style={{ fontSize: '20px', color: 'var(--success-green)' }}
           />
         </span>
-        <div className="flex flex-column flex-center">
+        <div className="flex-column flex-center flex">
           <div
-            className="flex flex-column flex-center"
+            className="flex-column flex-center flex"
             style={{
               width: '100%',
               height: 'fit-content',
@@ -299,11 +299,11 @@ function RegisterNameForm() {
             }}
           >
             <div
-              className="flex flex-row flex-space-between"
+              className="flex-space-between flex flex-row"
               style={{ gap: '25px' }}
             >
               <button
-                className="flex flex-row center text-medium bold pointer"
+                className="center text-medium bold pointer flex flex-row"
                 onClick={() =>
                   dispatchRegisterState({
                     type: 'setRegistrationType',
@@ -344,7 +344,7 @@ function RegisterNameForm() {
                 )}
               </button>
               <button
-                className="flex flex-row center text-medium bold pointer"
+                className="center text-medium bold pointer flex flex-row"
                 style={{
                   position: 'relative',
                   background:
@@ -387,7 +387,7 @@ function RegisterNameForm() {
             </div>
 
             <div
-              className="flex flex-column flex-center card"
+              className="flex-column flex-center card flex"
               style={{
                 width: '100%',
                 minHeight: '0px',
@@ -429,7 +429,7 @@ function RegisterNameForm() {
                 />
               ) : registrationType === TRANSACTION_TYPES.BUY ? (
                 <div
-                  className="flex flex-column flex-center"
+                  className="flex-column flex-center flex"
                   style={{ gap: '1em' }}
                 >
                   <span className="text-medium grey center">
@@ -442,12 +442,12 @@ function RegisterNameForm() {
               )}
             </div>
           </div>
-          <div className="flex flex-column" style={{ gap: '1em' }}>
+          <div className="flex-column flex" style={{ gap: '1em' }}>
             <Accordion
               title={<span className="text-medium">Advanced Options</span>}
               key="1"
             >
-              <div className="flex flex-column" style={{ gap: '1em' }}>
+              <div className="flex-column flex" style={{ gap: '1em' }}>
                 <div
                   className="name-token-input-wrapper"
                   style={{
@@ -501,7 +501,7 @@ function RegisterNameForm() {
                   />
 
                   <span
-                    className="flex flex-row text grey flex-center"
+                    className="text grey flex-center flex flex-row"
                     style={{
                       width: 'fit-content',
                       height: 'fit-content',

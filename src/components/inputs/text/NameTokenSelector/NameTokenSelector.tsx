@@ -321,7 +321,7 @@ function NameTokenSelector({
     if (type === 'page') {
       return (
         <span
-          className="flex flex-row hover center"
+          className="hover center flex flex-row"
           style={{
             color: listPage == page ? 'white' : 'var(--text-grey)',
             width: '32px',
@@ -341,7 +341,7 @@ function NameTokenSelector({
   return (
     <div
       ref={listRef}
-      className="flex flex-column radius"
+      className="flex-column radius flex"
       style={{
         position: 'relative',
         height: 'fit-content',
@@ -394,7 +394,7 @@ function NameTokenSelector({
           }`}
         />
         <span
-          className={`flex flex-row text grey flex-center ${
+          className={`text grey flex-center flex flex-row ${
             selectedToken ? 'bold' : ''
           } hover`}
           style={{
@@ -411,7 +411,7 @@ function NameTokenSelector({
             isArweaveTransactionID(searchText) &&
             !Object.keys(tokens ?? []).includes(searchText) ? (
             <button
-              className="outline-button flex flex-row center pointer"
+              className="outline-button center pointer flex flex-row"
               style={{
                 borderRadius: '50px',
                 width: 'fit-content',
@@ -430,7 +430,7 @@ function NameTokenSelector({
             </button>
           ) : selectedToken ? (
             <button
-              className="outline-button flex flex-row center pointer"
+              className="outline-button center pointer flex flex-row"
               style={{
                 gap: '3px',
                 borderRadius: '50px',
@@ -456,7 +456,7 @@ function NameTokenSelector({
       {/* selector dropdown */}
       {tokens && searchActive ? (
         <div
-          className="flex flex-column"
+          className="flex-column flex"
           style={{
             alignItems: 'flex-start',
             justifyContent: 'flex-start',
@@ -520,7 +520,7 @@ function NameTokenSelector({
                         }
                         message={
                           <div
-                            className="flex flex-column"
+                            className="flex-column flex"
                             style={{
                               padding: '5px',
                               gap: '5px',
@@ -581,7 +581,7 @@ function NameTokenSelector({
                         }
                         message={
                           <div
-                            className="flex flex-column"
+                            className="flex-column flex"
                             style={{
                               padding: '5px',
                               boxSizing: 'border-box',
@@ -601,7 +601,7 @@ function NameTokenSelector({
               })
           )}
           <div
-            className="custom-next-pagination flex flex-column"
+            className="custom-next-pagination flex-column flex"
             style={{
               padding: '10px 25px',
               boxSizing: 'border-box',
@@ -615,8 +615,8 @@ function NameTokenSelector({
                   Object.keys(tokens).length && !filteredTokens
                     ? Object.keys(tokens).length
                     : filteredTokens
-                    ? filteredTokens.length
-                    : 0
+                      ? filteredTokens.length
+                      : 0
                 }
                 itemRender={customPreviousAndNextButtons}
                 showPrevNextJumpers={true}

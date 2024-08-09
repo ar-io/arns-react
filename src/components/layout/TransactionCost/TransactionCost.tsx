@@ -44,7 +44,7 @@ function TransactionCost({
         }}
       >
         <div
-          className="flex flex-column"
+          className="flex-column flex"
           style={{
             gap: '0.2em',
             alignItems: 'flex-end',
@@ -53,7 +53,7 @@ function TransactionCost({
           }}
         >
           <span
-            className="flex flex-row text white flex-right"
+            className="text white flex-right flex flex-row"
             style={{
               gap: '5px',
               width: 'fit-content',
@@ -67,8 +67,8 @@ function TransactionCost({
                 {ioFee !== undefined && ioFee >= 0
                   ? `${ioFee.toLocaleString()} ${ioTicker} `
                   : ioRequired
-                  ? `Calculating ${ioTicker}  `
-                  : ''}
+                    ? `Calculating ${ioTicker}  `
+                    : ''}
                 {/* <ArPrice dataSize={SMARTWEAVE_TAG_SIZE} /> */}
               </>
             )}

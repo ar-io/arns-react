@@ -10,7 +10,7 @@ function PageLoader({
   return loading ? (
     <div className="modal-container center">
       <div
-        className="flex flex-column center white"
+        className="flex-column center white flex"
         style={{
           padding: '30px',
           width: 'fit-content',

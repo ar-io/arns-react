@@ -10,12 +10,12 @@ function SearchBarFooter({
 }: SearchBarFooterProps): JSX.Element {
   return (
     <div
-      className="flex flex-column"
+      className="flex-column flex"
       style={{ marginTop: '20px', boxSizing: 'border-box' }}
     >
       {!isAvailable && record && processId && domain ? (
         <>
-          <span className="flex flex-row white text-medium flex-left">
+          <span className="white text-medium flex-left flex flex-row">
             Ownership Details:
           </span>
           <ANTCard

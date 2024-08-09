@@ -45,7 +45,7 @@ export function getCustomPaginationButtons({
 }) {
   if (type === 'prev') {
     return (
-      <span className="flex flex-center" style={prevStyle}>
+      <span className="flex-center flex" style={prevStyle}>
         <ChevronLeftIcon
           width={'24px'}
           height={'24px'}
@@ -56,7 +56,7 @@ export function getCustomPaginationButtons({
   }
   if (type === 'next') {
     return (
-      <span className="flex flex-center" style={nextStyle}>
+      <span className="flex-center flex" style={nextStyle}>
         <ChevronRightIcon
           width={'24px'}
           height={'24px'}
@@ -68,7 +68,7 @@ export function getCustomPaginationButtons({
   if (type === 'page') {
     return (
       <span
-        className="flex flex-row hover center"
+        className="hover center flex flex-row"
         style={
           pageStyle ?? {
             color: currentPage == page ? 'white' : 'var(--text-grey)',
@@ -170,6 +170,7 @@ export function jsonSerialize(obj: any) {
   try {
     return JSON.parse(obj);
   } catch (error) {
+    console.error(error);
     return undefined;
   }
 }
@@ -221,8 +222,8 @@ export function formatExpiryDate(endTimestamp?: number) {
           endTimestamp > Date.now()
             ? 'var(--success-green)'
             : endTimestamp + SECONDS_IN_GRACE_PERIOD * 1000 < Date.now()
-            ? 'var(--accent)'
-            : 'var(--error-red)',
+              ? 'var(--accent)'
+              : 'var(--error-red)',
       }}
     >
       {formatDate(endTimestamp)}

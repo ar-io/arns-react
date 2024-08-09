@@ -26,7 +26,7 @@ export default function UndernamesRow({
       editable={true}
       value={
         <span
-          className="flex center"
+          className="center flex"
           style={{
             justifyContent: 'flex-start',
             gap: '10px',
@@ -65,7 +65,7 @@ export default function UndernamesRow({
           title={
             <div className="flex-column flex" style={{ gap: '10px' }}>
               <button
-                className="flex flex-right white pointer button"
+                className="flex-right white pointer button flex"
                 onClick={() =>
                   navigate(
                     `/manage/names/${
@@ -78,7 +78,7 @@ export default function UndernamesRow({
               </button>
               {editable && (
                 <button
-                  className="flex flex-right white pointer button"
+                  className="flex-right white pointer button flex"
                   onClick={() => {
                     const params = new URLSearchParams({
                       modal: UNDERNAME_TABLE_ACTIONS.CREATE,

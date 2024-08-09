@@ -5,15 +5,20 @@ import ReactDOM from 'react-dom/client';
 
 import App from './App';
 import './index.css';
-import ArNSStateProvider from './state/contexts/ArNSState';
-import GlobalStateProvider from './state/contexts/GlobalState';
-import RegistrationStateProvider from './state/contexts/RegistrationState';
-import TransactionStateProvider from './state/contexts/TransactionState';
-import WalletStateProvider from './state/contexts/WalletState';
-import { reducer, registrationReducer } from './state/reducers';
-import { arnsReducer } from './state/reducers/ArNSReducer';
-import { transactionReducer } from './state/reducers/TransactionReducer';
-import { walletReducer } from './state/reducers/WalletReducer';
+import {
+  ArNSStateProvider,
+  GlobalStateProvider,
+  ModalStateProvider,
+  RegistrationStateProvider,
+  TransactionStateProvider,
+  WalletStateProvider,
+  arnsReducer,
+  modalReducer,
+  reducer,
+  registrationReducer,
+  transactionReducer,
+  walletReducer,
+} from './state';
 import { queryClient } from './utils/network';
 // setup sentry
 import './utils/sentry';
@@ -47,7 +52,9 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
                     },
                   }}
                 >
-                  <App />
+                  <ModalStateProvider reducer={modalReducer}>
+                    <App />
+                  </ModalStateProvider>
                 </ConfigProvider>
               </RegistrationStateProvider>
             </TransactionStateProvider>

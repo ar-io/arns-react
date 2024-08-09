@@ -98,7 +98,7 @@ function Breadcrumbs() {
     <>
       {crumbs?.length ? (
         <Breadcrumb
-          className="flex flex-row center"
+          className="center flex flex-row"
           style={{
             background: 'black',
             height: '35px',
@@ -149,7 +149,7 @@ function Breadcrumbs() {
                   crumbLink
                 ) : (
                   <Tooltip
-                    title={<span className=" flex center">{item.name}</span>}
+                    title={<span className="center flex">{item.name}</span>}
                     placement={'top'}
                     autoAdjustOverflow={true}
                     color="var(--text-faded)"

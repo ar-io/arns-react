@@ -40,7 +40,7 @@ function CopyTextButton({
   return (
     <div className="flex" style={{ position, ...wrapperStyle }}>
       <button
-        className="flex flex-space-between button"
+        className="flex-space-between button flex"
         style={{
           ...wrapperStyle,
           cursor: 'pointer',
@@ -49,7 +49,7 @@ function CopyTextButton({
         }}
         onClick={() => handleCopy()}
       >
-        <span className="flex white center" style={{ fontSize: 'inherit' }}>
+        <span className="white center flex" style={{ fontSize: 'inherit' }}>
           {body}&nbsp;
         </span>
         <Tooltip

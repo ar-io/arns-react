@@ -25,7 +25,7 @@ function DialogModal({
   return (
     <>
       <div
-        className="flex flex-column radius fade-in"
+        className="flex-column radius flex fade-in"
         style={{
           backgroundColor: '#1B1B1D',
           width: 'fit-content',
@@ -56,7 +56,7 @@ function DialogModal({
           </span>
           {showClose ? (
             <button
-              className="outline-button flex flex-center hover"
+              className="outline-button flex-center hover flex"
               style={{
                 border: 'none',
                 padding: '0px',
@@ -73,7 +73,7 @@ function DialogModal({
         {/* body */}
         {body ? (
           <div
-            className="flex flex-column flex-center"
+            className="flex-column flex-center flex"
             style={{ gap: 15, padding: '15px 0px', boxSizing: 'border-box' }}
           >
             {body}
@@ -110,7 +110,7 @@ function DialogModal({
           )}
           {/* buttonainer */}
           <div
-            className="flex flex-row center"
+            className="center flex flex-row"
             style={{ width: 'fit-content', gap: '10px' }}
           >
             <WorkflowButtons

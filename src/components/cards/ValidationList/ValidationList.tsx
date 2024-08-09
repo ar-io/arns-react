@@ -16,13 +16,13 @@ function ValidationList({
   const isMobile = useIsMobile();
   return (
     <div
-      className={!isMobile ? 'flex flex-column' : 'flex flex-column left'}
+      className={!isMobile ? 'flex-column flex' : 'flex-column left flex'}
       style={{ fontSize: '12px', ...wrapperCustomStyle, zIndex: '1001' }}
     >
       {validations?.map((validationItem: ValidationObject, index: number) => (
         <span
           key={index}
-          className="flex flex-column flex-left text white"
+          className="flex-column flex-left text white flex"
           style={{
             gap: '0px',
             alignItems: 'flex-start',
@@ -60,7 +60,7 @@ function ValidationList({
           </span>
           {validationItem.error ? (
             <span
-              className="flex faded center"
+              className="faded center flex"
               style={{
                 gap: '15px',
                 alignItems: 'center',

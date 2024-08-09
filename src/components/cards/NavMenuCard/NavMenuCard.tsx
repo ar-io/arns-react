@@ -119,12 +119,12 @@ function NavMenuCard() {
         overlayStyle={{ width: 'fit-content', minWidth: '180px' }}
         title={
           <div
-            className="flex flex-column"
+            className="flex-column flex"
             ref={menuRef}
             style={{ minWidth: '200px', gap: '15px', paddingBottom: '15px' }}
           >
             {!walletAddress || !wallet ? (
-              <div className="flex flex-column" style={{ padding: '15px' }}>
+              <div className="flex-column flex" style={{ padding: '15px' }}>
                 {Object.entries(ROUTES).map(([key, route]) => {
                   if (!route.protected)
                     return (
@@ -156,7 +156,7 @@ function NavMenuCard() {
             ) : (
               <>
                 <div
-                  className="flex flex-column"
+                  className="flex-column flex"
                   style={{ padding: '15px', boxSizing: 'border-box' }}
                 >
                   <ArweaveID
@@ -176,7 +176,7 @@ function NavMenuCard() {
                     }}
                   />
                   <div
-                    className="flex flex-column"
+                    className="flex-column flex"
                     style={{
                       background: 'var(--box-color)',
                       borderRadius: '5px',
@@ -190,7 +190,7 @@ function NavMenuCard() {
                       return (
                         <span
                           key={key}
-                          className="flex-row grey"
+                          className="grey flex-row"
                           style={{
                             fontSize: '13px',
                             gap: '10px',
@@ -224,7 +224,7 @@ function NavMenuCard() {
                 ></span>
 
                 <div
-                  className="flex flex-column"
+                  className="flex-column flex"
                   style={{
                     padding: '0px 15px',
                     boxSizing: 'border-box',
@@ -289,7 +289,7 @@ function NavMenuCard() {
                     <Link
                       to={'https://ar.io/test-io'}
                       target={'_blank'}
-                      className={'flex-row navbar-link hover'}
+                      className={'navbar-link hover flex-row'}
                       style={{
                         gap: '10px',
                         alignItems: 'center',

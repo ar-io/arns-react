@@ -112,10 +112,10 @@ function UpgradeUndernames() {
 
   return (
     <div className="page center">
-      <div className="flex flex-column" style={{ maxWidth: '1000px' }}>
-        <h1 className="flex white">Increase Undernames</h1>
+      <div className="flex-column flex" style={{ maxWidth: '1000px' }}>
+        <h1 className="white flex">Increase Undernames</h1>
         <div
-          className="flex center"
+          className="center flex"
           style={{
             justifyContent: 'space-between',
             border: '1px solid var(--text-faded)',
@@ -126,20 +126,20 @@ function UpgradeUndernames() {
           }}
         >
           <div
-            className="flex flex-column"
+            className="flex-column flex"
             style={{ fontSize: '16px', width: 'fit-content', gap: '5px' }}
           >
             <span
-              className="flex grey center"
+              className="grey center flex"
               style={{ gap: '8px', whiteSpace: 'nowrap' }}
             >
               Total Undernames:{' '}
               <span className="white">{record.undernameLimit}</span>
-              <span className="flex add-box center" style={{}}>
+              <span className="add-box center flex" style={{}}>
                 +{newUndernameCount}
               </span>
             </span>
-            <span className="flex grey">
+            <span className="grey flex">
               Used:&nbsp;
               <span className="white"> {undernameCount}</span>
             </span>

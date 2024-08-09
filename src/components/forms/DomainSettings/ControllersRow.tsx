@@ -85,13 +85,13 @@ export default function ControllersRow({
             title={
               <div className="flex-column flex" style={{ gap: '10px' }}>
                 <button
-                  className="flex flex-right white pointer button"
+                  className="flex-right white pointer button flex"
                   onClick={() => setShowAddModal(true)}
                 >
                   Add Controller
                 </button>
                 <button
-                  className="flex flex-right white pointer button"
+                  className="flex-right white pointer button flex"
                   onClick={() => setShowRemoveModal(true)}
                 >
                   Remove Controller

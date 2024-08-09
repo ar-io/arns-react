@@ -119,7 +119,7 @@ function ManageDomain() {
             width: '100%',
           }}
         >
-          <h2 className="flex white center" style={{ gap: '16px' }}>
+          <h2 className="white center flex" style={{ gap: '16px' }}>
             <HamburgerOutlineIcon
               width={'20px'}
               height={'20px'}

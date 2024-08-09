@@ -176,7 +176,7 @@ const ValidationInput = forwardRef<HTMLInputElement, ValidationInputProps>(
 
     return (
       <>
-        {/* eslint-disable-next-line */}
+        {}
         <div
           id={'validation-input'}
           className={wrapperClassName}
@@ -211,15 +211,15 @@ const ValidationInput = forwardRef<HTMLInputElement, ValidationInputProps>(
                       border: warning
                         ? '1px solid var(--accent)'
                         : valid === true
-                        ? '1px solid var(--success-green)'
-                        : '1px solid var(--error-red)',
+                          ? '1px solid var(--success-green)'
+                          : '1px solid var(--error-red)',
                     }
                   : { ...inputCustomStyle }
               }
               pattern={customPattern?.source}
             />
             <div
-              className="flex center"
+              className="center flex"
               style={{
                 position: 'absolute',
                 right: '10px',

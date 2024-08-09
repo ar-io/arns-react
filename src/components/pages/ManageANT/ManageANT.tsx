@@ -62,8 +62,8 @@ function ManageANT() {
         ) : (
           <></>
         )}
-        <div className="flex-row flex-space-between">
-          <h2 className="flex white center" style={{ gap: '15px' }}>
+        <div className="flex-space-between flex-row">
+          <h2 className="white center flex" style={{ gap: '15px' }}>
             <CodeSandboxIcon
               width={'24px'}
               height={'24px'}

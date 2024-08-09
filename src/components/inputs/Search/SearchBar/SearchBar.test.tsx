@@ -1,6 +1,5 @@
 import { Logger } from '@ar.io/sdk/web';
 import { ArweaveCompositeDataProvider } from '@src/services/arweave/ArweaveCompositeDataProvider';
-import GlobalStateProvider from '@src/state/contexts/GlobalState';
 import { reducer as globalReducer } from '@src/state/reducers/GlobalReducer';
 import { createIDBPersister, queryClient } from '@src/utils/network';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
@@ -9,9 +8,11 @@ import userEvent from '@testing-library/user-event';
 import TEST_RECORDS from '@tests/common/fixtures/TestRecords';
 import ArweaveCompositeDataProviderMock from '@tests/common/mocks/ArweaveCompositeDataProviderMock';
 
-import RegistrationStateProvider, {
+import {
+  GlobalStateProvider,
   RegistrationState,
-} from '../../../../state/contexts/RegistrationState';
+  RegistrationStateProvider,
+} from '../../../../state';
 import {
   RegistrationAction,
   registrationReducer,

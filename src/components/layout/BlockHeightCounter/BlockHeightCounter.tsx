@@ -35,7 +35,7 @@ const BlockHeightCounter = ({
   }, [blockHeight, lastBlockUpdateTimestamp]);
 
   return (
-    <div className="flex flex-row grey" style={{ gap: '8px' }}>
+    <div className="grey flex flex-row" style={{ gap: '8px' }}>
       <div style={{ whiteSpace: 'nowrap' }}>{prefixText}</div>
       <div
         className="flex flex-row"

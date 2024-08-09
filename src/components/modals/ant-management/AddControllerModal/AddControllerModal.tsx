@@ -50,19 +50,19 @@ function AddControllerModal({
         title={<h2 className="white">Add Controller</h2>}
         body={
           <div
-            className="flex flex-column"
+            className="flex-column flex"
             style={{ fontSize: '14px', maxWidth: '575px', minWidth: '475px' }}
           >
-            <div className="flex flex-column" style={{ gap: '10px' }}>
+            <div className="flex-column flex" style={{ gap: '10px' }}>
               <span className="grey">Process ID:</span>
               <span className="white">{antId.toString()}</span>
             </div>
-            <div className="flex flex-column" style={{ gap: '10px' }}>
+            <div className="flex-column flex" style={{ gap: '10px' }}>
               <span className="grey">Nickname:</span>
               <span className="white">{formatForMaxCharCount(name, 40)}</span>
             </div>
-            <div className="flex flex-column" style={{ paddingBottom: '30px' }}>
-              <div className="flex flex-column" style={{ gap: '10px' }}>
+            <div className="flex-column flex" style={{ paddingBottom: '30px' }}>
+              <div className="flex-column flex" style={{ gap: '10px' }}>
                 <span className="grey">Controller wallet address:</span>
                 <ValidationInput
                   inputClassName="name-token-input white"

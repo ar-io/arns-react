@@ -17,7 +17,7 @@ function Layout() {
 
   return (
     <div
-      className="flex flex-column"
+      className="flex-column flex"
       style={{
         gap: 0,
         position: 'relative',

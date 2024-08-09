@@ -102,7 +102,7 @@ export function useWalletANTs() {
       {
         title: (
           <button
-            className="flex-row pointer grey"
+            className="pointer grey flex-row"
             style={{ gap: '0.5em' }}
             onClick={() => {
               if (sortField == 'name') {
@@ -134,7 +134,7 @@ export function useWalletANTs() {
       {
         title: (
           <button
-            className="flex-row pointer grey"
+            className="pointer grey flex-row"
             style={{ gap: '0.5em' }}
             onClick={() => {
               if (sortField == 'role') {
@@ -166,7 +166,7 @@ export function useWalletANTs() {
       {
         title: (
           <button
-            className="flex-row pointer grey"
+            className="pointer grey flex-row"
             style={{ gap: '0.5em' }}
             onClick={() => {
               if (sortField == 'id') {
@@ -209,7 +209,7 @@ export function useWalletANTs() {
       {
         title: (
           <button
-            className="flex-row pointer grey"
+            className="pointer grey flex-row"
             style={{ gap: '0.5em' }}
             onClick={() => {
               if (sortField == 'targetID') {
@@ -251,7 +251,7 @@ export function useWalletANTs() {
       {
         title: (
           <button
-            className="flex-row pointer grey"
+            className="pointer grey flex-row"
             style={{ gap: '0.5em' }}
             onClick={() => {
               if (sortField == 'status') {
@@ -290,7 +290,7 @@ export function useWalletANTs() {
       {
         title: (
           <div
-            className="flex flex-row center undername-search-wrapper"
+            className="center undername-search-wrapper flex flex-row"
             style={{
               gap: '1px',
               justifyContent: 'flex-end',
@@ -298,7 +298,7 @@ export function useWalletANTs() {
             }}
           >
             <button
-              className="flex button center pointer"
+              className="button center pointer flex"
               style={{ zIndex: 10 }}
               onClick={() => setSearchOpen(!searchOpen)}
             >
@@ -310,7 +310,7 @@ export function useWalletANTs() {
             </button>
             {searchOpen ? (
               <span
-                className="flex flex-row center"
+                className="center flex flex-row"
                 style={{
                   gap: '1px',
                   justifyContent: 'flex-end',
@@ -347,7 +347,7 @@ export function useWalletANTs() {
                   validationPredicates={{}}
                 />
                 <button
-                  className="flex button center pointer"
+                  className="button center pointer flex"
                   onClick={() => {
                     setSearchText('');
                     setSearchParams({});
@@ -403,8 +403,8 @@ export function useWalletANTs() {
             Owner === walletAddress?.toString()
               ? 'Owner'
               : Controllers.includes(walletAddress?.toString() ?? '')
-              ? 'Controller'
-              : 'N/A',
+                ? 'Controller'
+                : 'N/A',
           targetID: apexRecord?.transactionId || 'N/A',
           ttlSeconds: apexRecord?.ttlSeconds || DEFAULT_TTL_SECONDS,
           // status is now based on registration, we use endTimestamp to sort appropriately

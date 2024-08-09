@@ -22,7 +22,7 @@ export const defaultError = ({
   key: key,
   message: (
     <h4
-      className="flex flex-row white"
+      className="white flex flex-row"
       style={{ marginTop: '0px', justifyContent: 'space-between' }}
     >
       {title}

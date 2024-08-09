@@ -107,7 +107,6 @@ function ConnectWalletModal(): JSX.Element {
   }
 
   return (
-    // eslint-disable-next-line
     <div
       className="modal-container"
       ref={modalRef}
@@ -151,7 +150,7 @@ function ConnectWalletModal(): JSX.Element {
           Connect using Arweave.app
         </button>
         <span
-          className="flex flex-row white flex-center"
+          className="white flex-center flex flex-row"
           style={{ whiteSpace: 'nowrap', gap: '5px', paddingTop: '16px' }}
         >
           Don&apos;t have a wallet?&nbsp;

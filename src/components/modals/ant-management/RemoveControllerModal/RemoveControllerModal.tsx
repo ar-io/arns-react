@@ -62,23 +62,23 @@ function RemoveControllersModal({
         title={<h2 className="white">Remove Controller</h2>}
         body={
           <div
-            className="flex flex-column"
+            className="flex-column flex"
             style={{ fontSize: '14px', maxWidth: '575px', minWidth: '475px' }}
           >
-            <div className="flex flex-column" style={{ gap: '10px' }}>
+            <div className="flex-column flex" style={{ gap: '10px' }}>
               <span className="grey">Process ID</span>
               <span className="white">{antId.toString()}</span>
             </div>
             <div className="flex flex-row">
               <div
-                className="flex flex-column"
+                className="flex-column flex"
                 style={{ gap: '10px', width: 'fit-content' }}
               >
                 <span className="grey">Nickname</span>
                 <span className="white">{formatForMaxCharCount(name, 20)}</span>
               </div>
               <div
-                className="flex flex-column"
+                className="flex-column flex"
                 style={{ gap: '10px', width: 'fit-content' }}
               >
                 <span className="grey" style={{ whiteSpace: 'nowrap' }}>
@@ -87,7 +87,7 @@ function RemoveControllersModal({
                 <span className="white">{rows.length ?? 'N/A'}</span>
               </div>
               <div
-                className="flex flex-column"
+                className="flex-column flex"
                 style={{
                   gap: '10px',
                   height: '100%',
@@ -108,8 +108,8 @@ function RemoveControllersModal({
                 </span>
               </div>
             </div>
-            <div className="flex flex-column" style={{ paddingBottom: '30px' }}>
-              <div className="flex flex-column" style={{ gap: '10px' }}>
+            <div className="flex-column flex" style={{ paddingBottom: '30px' }}>
+              <div className="flex-column flex" style={{ gap: '10px' }}>
                 {rows.length ? (
                   <>
                     <Table
@@ -122,7 +122,7 @@ function RemoveControllersModal({
                           align: 'left',
                           width: '5%',
                           className: 'grey whitespace-no-wrap',
-                          // eslint-disable-next-line
+
                           render: (value: string, row: any) => (
                             <Checkbox
                               key={row.controller}
@@ -185,9 +185,9 @@ function RemoveControllersModal({
                     />
                   </>
                 ) : (
-                  <div className="flex flex-column flex-center">
+                  <div className="flex-column flex-center flex">
                     <span
-                      className="flex flex-row warning-container center"
+                      className="warning-container center flex flex-row"
                       style={{ boxSizing: 'border-box' }}
                     >
                       {`This ANT token has no controllers to remove.`}

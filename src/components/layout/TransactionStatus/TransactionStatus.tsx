@@ -68,7 +68,7 @@ function TransactionStatus({
     >
       <Tooltip
         title={
-          <span className=" flex center">
+          <span className="center flex">
             {getTooltipText(confirmations, errorMessage)}
           </span>
         }

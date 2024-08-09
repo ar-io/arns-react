@@ -2,7 +2,8 @@ import { sentryVitePlugin } from '@sentry/vite-plugin';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import { defineConfig } from 'vite';
-import { nodePolyfills } from 'vite-plugin-node-polyfills';
+// import { nodePolyfills } from 'vite-plugin-node-polyfills';
+import nodePolyfills from 'vite-plugin-node-stdlib-browser';
 import svgr from 'vite-plugin-svgr';
 
 // https://vitejs.dev/config/

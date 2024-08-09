@@ -74,7 +74,7 @@ export function useUndernames(id?: ArweaveTransactionID, name?: string) {
       {
         title: (
           <button
-            className="flex-row pointer grey"
+            className="pointer grey flex-row"
             style={{ gap: '0.5em' }}
             onClick={() => setSortField('name')}
           >
@@ -127,7 +127,7 @@ export function useUndernames(id?: ArweaveTransactionID, name?: string) {
       {
         title: (
           <button
-            className="flex-row pointer grey"
+            className="pointer grey flex-row"
             style={{ gap: '0.5em' }}
             onClick={() => setSortField('targetID')}
           >
@@ -178,7 +178,7 @@ export function useUndernames(id?: ArweaveTransactionID, name?: string) {
       {
         title: (
           <button
-            className="flex-row pointer grey"
+            className="pointer grey flex-row"
             style={{ gap: '0.5em' }}
             onClick={() => setSortField('ttlSeconds')}
           >
@@ -219,7 +219,7 @@ export function useUndernames(id?: ArweaveTransactionID, name?: string) {
       {
         title: (
           <div
-            className="flex flex-row center undername-search-wrapper"
+            className="center undername-search-wrapper flex flex-row"
             style={{
               gap: '1px',
               justifyContent: 'flex-end',
@@ -227,7 +227,7 @@ export function useUndernames(id?: ArweaveTransactionID, name?: string) {
             }}
           >
             <button
-              className="flex button center pointer"
+              className="button center pointer flex"
               style={{ zIndex: 10 }}
               onClick={() => setSearchOpen(!searchOpen)}
             >
@@ -239,7 +239,7 @@ export function useUndernames(id?: ArweaveTransactionID, name?: string) {
             </button>
             {searchOpen ? (
               <span
-                className="flex flex-row center"
+                className="center flex flex-row"
                 style={{
                   gap: '1px',
                   justifyContent: 'flex-end',
@@ -278,7 +278,7 @@ export function useUndernames(id?: ArweaveTransactionID, name?: string) {
                   validationPredicates={{}}
                 />
                 <button
-                  className="flex button center pointer"
+                  className="button center pointer flex"
                   onClick={() => {
                     setSearchText('');
                     setSearchOpen(false);
@@ -299,7 +299,7 @@ export function useUndernames(id?: ArweaveTransactionID, name?: string) {
         className: 'manage-assets-table-header',
         render: (value, row) => (
           <div
-            className="flex flex-row action-buttons fade-in"
+            className="action-buttons flex flex-row fade-in"
             style={{ gap: '10px', justifyContent: 'flex-end' }}
           >
             {isAuthorized && (

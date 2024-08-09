@@ -138,7 +138,7 @@ function ExtendLease() {
           cancelText="Manage"
           body={
             <span
-              className="flex flex-column white center"
+              className="flex-column white center flex"
               style={{
                 height: '100%',
               }}
@@ -154,15 +154,15 @@ function ExtendLease() {
 
   return (
     <div className="page center">
-      <div className="flex flex-column" style={{ maxWidth: '1000px' }}>
+      <div className="flex-column flex" style={{ maxWidth: '1000px' }}>
         <div
-          className="flex flex-row center"
+          className="center flex flex-row"
           style={{ justifyContent: 'space-between' }}
         >
           <h1 className="white">Extend Lease</h1>
 
           <div
-            className="flex flex-row center white"
+            className="center white flex flex-row"
             style={{
               border: 'solid 1px var(--text-faded)',
               borderRadius: 'var(--corner-radius)',
@@ -176,7 +176,7 @@ function ExtendLease() {
           </div>
         </div>
         <div
-          className="flex flex-column"
+          className="flex-column flex"
           style={{
             width: '100%',
             height: '100%',
@@ -190,7 +190,7 @@ function ExtendLease() {
           {/* maxxed out duration overlay */}
           {maxIncrease < 1 ? (
             <div
-              className="flex flex-column center modal-container"
+              className="flex-column center modal-container flex"
               style={{
                 position: 'absolute',
                 top: '0',
@@ -203,7 +203,7 @@ function ExtendLease() {
               }}
             >
               <div
-                className="flex flex-row center"
+                className="center flex flex-row"
                 style={{
                   width: 'fit-content',
                   height: 'fit-content',
@@ -297,42 +297,42 @@ function ExtendLease() {
             !ioFee || ioFee < 0
               ? undefined
               : maxIncrease >= 1 || ioFee <= ioBalance
-              ? () => {
-                  const payload: ExtendLeasePayload = {
-                    name,
-                    years: newLeaseDuration,
-                    processId: new ArweaveTransactionID(record.processId),
-                    qty: ioFee,
-                  };
+                ? () => {
+                    const payload: ExtendLeasePayload = {
+                      name,
+                      years: newLeaseDuration,
+                      processId: new ArweaveTransactionID(record.processId),
+                      qty: ioFee,
+                    };
 
-                  dispatchTransactionState({
-                    type: 'setInteractionType',
-                    payload: ARNS_INTERACTION_TYPES.EXTEND_LEASE,
-                  });
-                  dispatchTransactionState({
-                    type: 'setTransactionData',
-                    payload: {
-                      assetId: ARNS_REGISTRY_ADDRESS.toString(),
-                      functionName: 'extendRecord',
-                      ...payload,
-                      arnsRecord: record,
-                      interactionPrice: ioFee,
-                    },
-                  });
-                  dispatchTransactionState({
-                    type: 'setWorkflowName',
-                    payload: ARNS_INTERACTION_TYPES.EXTEND_LEASE,
-                  });
-                  navigate('/transaction/review', {
-                    state: `/manage/names/${lowerCaseDomain(name)}/extend`,
-                  });
-                }
-              : undefined
+                    dispatchTransactionState({
+                      type: 'setInteractionType',
+                      payload: ARNS_INTERACTION_TYPES.EXTEND_LEASE,
+                    });
+                    dispatchTransactionState({
+                      type: 'setTransactionData',
+                      payload: {
+                        assetId: ARNS_REGISTRY_ADDRESS.toString(),
+                        functionName: 'extendRecord',
+                        ...payload,
+                        arnsRecord: record,
+                        interactionPrice: ioFee,
+                      },
+                    });
+                    dispatchTransactionState({
+                      type: 'setWorkflowName',
+                      payload: ARNS_INTERACTION_TYPES.EXTEND_LEASE,
+                    });
+                    navigate('/transaction/review', {
+                      state: `/manage/names/${lowerCaseDomain(name)}/extend`,
+                    });
+                  }
+                : undefined
           }
           detail={
             ioFee && ioFee > ioBalance && maxIncrease > 0 ? (
               <div
-                className="flex flex-row center"
+                className="center flex flex-row"
                 style={{
                   width: 'fit-content',
                   height: 'fit-content',

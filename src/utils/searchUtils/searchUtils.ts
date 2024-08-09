@@ -1,3 +1,4 @@
+import Transaction from 'arweave/node/lib/transaction';
 import emojiRegex from 'emoji-regex';
 import { asciiToUnicode, unicodeToAscii } from 'puny-coder';
 
@@ -122,4 +123,23 @@ export function sleep(ms: number) {
 
 export function lowerCaseDomain(domain: string) {
   return encodeDomainToASCII(domain.trim()).toLowerCase();
+}
+
+export function doAntsRequireUpdate({
+  ants,
+  luaSourceTx,
+}: {
+  ants: Record<string, any>;
+  luaSourceTx?: Transaction;
+}) {
+  if (!luaSourceTx) return false;
+  const acceptableIds = [
+    luaSourceTx.id,
+    luaSourceTx.tags.find((tag) => tag.name == 'Original-Tx-Id')?.value,
+  ];
+  console.log(luaSourceTx);
+
+  return Object.values(ants).some(
+    (ant) => !acceptableIds.includes(ant?.['Source-Code-TX-ID']),
+  );
 }

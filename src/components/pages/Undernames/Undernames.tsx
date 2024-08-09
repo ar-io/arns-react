@@ -198,7 +198,7 @@ function Undernames() {
           ) : (
             <></>
           )}
-          <div className="flex flex-justify-between">
+          <div className="flex-justify-between flex">
             <div
               className="flex flex-row"
               style={{ justifyContent: 'space-between' }}
@@ -232,7 +232,7 @@ function Undernames() {
           </div>
           {tableLoading ? (
             <div
-              className="flex center"
+              className="center flex"
               style={{ paddingTop: '10%', justifyContent: 'center' }}
             >
               <Loader message={`Loading undernames...`} />
@@ -263,7 +263,7 @@ function Undernames() {
               locale={{
                 emptyText: (
                   <div
-                    className="flex flex-column center"
+                    className="flex-column center flex"
                     style={{
                       padding: '100px',
                       boxSizing: 'border-box',
@@ -283,7 +283,7 @@ function Undernames() {
                     </span>
 
                     <div
-                      className="flex flex-row center"
+                      className="center flex flex-row"
                       style={{ gap: '16px' }}
                     >
                       {ownershipStatus ? (

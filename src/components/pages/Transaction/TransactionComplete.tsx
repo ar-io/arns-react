@@ -78,7 +78,7 @@ function TransactionComplete() {
         style={{ gap: '20px', width: '700px' }}
       >
         <div
-          className="flex flex-row center radius"
+          className="center radius flex flex-row"
           style={{
             width: '700px',
             height: '90px',
@@ -96,7 +96,7 @@ function TransactionComplete() {
 
         <div className="flex-column center" style={{ gap: '20px' }}>
           <div
-            className="flex flex-row center"
+            className="center flex flex-row"
             style={{
               justifyContent: 'space-between',
               boxSizing: 'border-box',
@@ -111,7 +111,7 @@ function TransactionComplete() {
               }
               body={
                 <div
-                  className="flex flex-column center"
+                  className="flex-column center flex"
                   style={{ gap: '15px' }}
                 >
                   <SettingsIcon width={'20px'} fill={'var(--text-grey)'} />
@@ -127,7 +127,7 @@ function TransactionComplete() {
               }
               body={
                 <div
-                  className="flex flex-column center"
+                  className="flex-column center flex"
                   style={{ gap: '15px' }}
                 >
                   <PlusOutlined
@@ -147,13 +147,13 @@ function TransactionComplete() {
             bordered
           />
           <div
-            className="flex flex-row center"
+            className="center flex flex-row"
             style={{
               justifyContent: 'flex-start',
             }}
           >
             <button
-              className="flex button hover center white"
+              className="button hover center white flex"
               onClick={() => navigate('/manage')}
               style={{ gap: '10px' }}
             >

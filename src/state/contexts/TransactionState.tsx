@@ -41,7 +41,7 @@ export const useTransactionState = (): [
 ] => useContext(TransactionStateContext);
 
 /** Create provider to wrap app in */
-export default function TransactionStateProvider({
+export function TransactionStateProvider({
   reducer,
   children,
 }: TransactionStateProviderProps): JSX.Element {
@@ -53,33 +53,11 @@ export default function TransactionStateProvider({
   const queryClient = useQueryClient();
   const [walletAddress] = useWalletState();
   useEffect(() => {
-    // const refreshableInteractionTypes: string[] = [
-    //   ARNS_INTERACTION_TYPES.BUY_RECORD,
-    //   ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES,
-    //   ARNS_INTERACTION_TYPES.EXTEND_LEASE,
-    //   ARNS_INTERACTION_TYPES.TRANSFER,
-    //   ANT_INTERACTION_TYPES.TRANSFER,
-    //   ANT_INTERACTION_TYPES.SET_CONTROLLER,
-    //   ANT_INTERACTION_TYPES.REMOVE_CONTROLLER,
-    // ];
-    if (
-      walletAddress &&
-      queryClient &&
-      state.interactionResult //&&
-      // refreshableInteractionTypes.includes(state?.workflowName ?? '')
-    ) {
+    if (walletAddress && queryClient && state.interactionResult) {
       queryClient.invalidateQueries({
         queryKey: ['domainInfo'],
         refetchType: 'all',
       });
-      // ['ant', 'arns-records', 'arns-record', 'arns-assets', 'io-balance'].map(
-      //   (key) => {
-      //     queryClient.invalidateQueries({
-      //       queryKey: [key],
-      //       refetchType: 'all',
-      //     });
-      //   },
-      // );
     }
   }, [state.interactionResult, queryClient, walletAddress]);
 

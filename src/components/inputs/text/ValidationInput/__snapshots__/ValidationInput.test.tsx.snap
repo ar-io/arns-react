@@ -21,7 +21,7 @@ exports[`ValidationInput renders correctly 1`] = `
         value=""
       />
       <div
-        class="flex center"
+        class="center flex"
         style="position: absolute; right: 10px; top: 0px; bottom: 0px; display: flex;"
       >
         <span />

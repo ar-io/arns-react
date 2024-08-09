@@ -7,7 +7,7 @@ exports[`SearchBar handles a capitalized name correctly 1`] = `
     style="max-width: 787px;"
   >
     <div
-      class="flex flex-column flex-center white fade-in "
+      class="flex-column flex-center white flex fade-in"
       style="gap: 5px; min-height: 45px; font-size: 16px; max-width: 500px; text-align: center;"
     >
       ArNS names are censorship-resistant domain names for permaweb dApps, web pages, data, and identities
@@ -38,18 +38,18 @@ exports[`SearchBar handles a capitalized name correctly 1`] = `
             value="ARDRIVE"
           />
           <div
-            class="flex center"
+            class="center flex"
             style="position: absolute; right: 10px; top: 0px; bottom: 0px; display: flex;"
           >
             <span />
           </div>
         </div>
         <div
-          class="flex flex-column"
+          class="flex-column flex"
           style="font-size: 12px; display: flex; flex-direction: row; justify-content: space-between; margin-top: 15px; gap: 15px; z-index: 1001;"
         >
           <span
-            class="flex flex-column flex-left text white"
+            class="flex-column flex-left text white flex"
             style="gap: 0px; align-items: flex-start; justify-content: flex-start;"
           >
             <span
@@ -80,7 +80,7 @@ exports[`SearchBar handles a capitalized name correctly 1`] = `
             </span>
           </span>
           <span
-            class="flex flex-column flex-left text white"
+            class="flex-column flex-left text white flex"
             style="gap: 0px; align-items: flex-start; justify-content: flex-start;"
           >
             <span
@@ -111,7 +111,7 @@ exports[`SearchBar handles a capitalized name correctly 1`] = `
             </span>
           </span>
           <span
-            class="flex flex-column flex-left text white"
+            class="flex-column flex-left text white flex"
             style="gap: 0px; align-items: flex-start; justify-content: flex-start;"
           >
             <span
@@ -142,7 +142,7 @@ exports[`SearchBar handles a capitalized name correctly 1`] = `
             </span>
           </span>
           <span
-            class="flex flex-column flex-left text white"
+            class="flex-column flex-left text white flex"
             style="gap: 0px; align-items: flex-start; justify-content: flex-start;"
           >
             <span
@@ -187,7 +187,7 @@ exports[`SearchBar handles a capitalized name correctly 1`] = `
       </button>
     </div>
     <div
-      class="flex flex-column"
+      class="flex-column flex"
       style="margin-top: 20px; box-sizing: border-box;"
     />
   </div>
@@ -201,7 +201,7 @@ exports[`SearchBar handles a lowercase name correctly 1`] = `
     style="max-width: 787px;"
   >
     <div
-      class="flex flex-column flex-center white fade-in "
+      class="flex-column flex-center white flex fade-in"
       style="gap: 5px; min-height: 45px; font-size: 16px; max-width: 500px; text-align: center;"
     >
       ArNS names are censorship-resistant domain names for permaweb dApps, web pages, data, and identities
@@ -232,18 +232,18 @@ exports[`SearchBar handles a lowercase name correctly 1`] = `
             value="ardrive"
           />
           <div
-            class="flex center"
+            class="center flex"
             style="position: absolute; right: 10px; top: 0px; bottom: 0px; display: flex;"
           >
             <span />
           </div>
         </div>
         <div
-          class="flex flex-column"
+          class="flex-column flex"
           style="font-size: 12px; display: flex; flex-direction: row; justify-content: space-between; margin-top: 15px; gap: 15px; z-index: 1001;"
         >
           <span
-            class="flex flex-column flex-left text white"
+            class="flex-column flex-left text white flex"
             style="gap: 0px; align-items: flex-start; justify-content: flex-start;"
           >
             <span
@@ -274,7 +274,7 @@ exports[`SearchBar handles a lowercase name correctly 1`] = `
             </span>
           </span>
           <span
-            class="flex flex-column flex-left text white"
+            class="flex-column flex-left text white flex"
             style="gap: 0px; align-items: flex-start; justify-content: flex-start;"
           >
             <span
@@ -305,7 +305,7 @@ exports[`SearchBar handles a lowercase name correctly 1`] = `
             </span>
           </span>
           <span
-            class="flex flex-column flex-left text white"
+            class="flex-column flex-left text white flex"
             style="gap: 0px; align-items: flex-start; justify-content: flex-start;"
           >
             <span
@@ -336,7 +336,7 @@ exports[`SearchBar handles a lowercase name correctly 1`] = `
             </span>
           </span>
           <span
-            class="flex flex-column flex-left text white"
+            class="flex-column flex-left text white flex"
             style="gap: 0px; align-items: flex-start; justify-content: flex-start;"
           >
             <span
@@ -381,7 +381,7 @@ exports[`SearchBar handles a lowercase name correctly 1`] = `
       </button>
     </div>
     <div
-      class="flex flex-column"
+      class="flex-column flex"
       style="margin-top: 20px; box-sizing: border-box;"
     />
   </div>
@@ -395,7 +395,7 @@ exports[`SearchBar renders correctly 1`] = `
     style="max-width: 787px;"
   >
     <div
-      class="flex flex-column flex-center white fade-in "
+      class="flex-column flex-center white flex fade-in"
       style="gap: 5px; min-height: 45px; font-size: 16px; max-width: 500px; text-align: center;"
     >
       ArNS names are censorship-resistant domain names for permaweb dApps, web pages, data, and identities
@@ -426,14 +426,14 @@ exports[`SearchBar renders correctly 1`] = `
             value=""
           />
           <div
-            class="flex center"
+            class="center flex"
             style="position: absolute; right: 10px; top: 0px; bottom: 0px; display: flex;"
           >
             <span />
           </div>
         </div>
         <div
-          class="flex flex-column"
+          class="flex-column flex"
           style="font-size: 12px; display: flex; flex-direction: row; justify-content: space-between; margin-top: 15px; gap: 15px; z-index: 1001;"
         />
       </div>
@@ -450,7 +450,7 @@ exports[`SearchBar renders correctly 1`] = `
       </button>
     </div>
     <div
-      class="flex flex-column"
+      class="flex-column flex"
       style="margin-top: 20px; box-sizing: border-box;"
     />
   </div>

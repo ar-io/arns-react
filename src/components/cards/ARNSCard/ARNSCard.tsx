@@ -28,7 +28,7 @@ function ARNSCard({
       />
 
       <div
-        className="flex flex-column link"
+        className="flex-column link flex"
         style={{
           gap: '10px',
           padding: '13px',
@@ -38,7 +38,7 @@ function ARNSCard({
           justifyContent: 'center',
         }}
       >
-        <span className="flex white">{`${domain}.${gateway}`}</span>
+        <span className="white flex">{`${domain}.${gateway}`}</span>
       </div>
     </Link>
   );

@@ -1,4 +1,6 @@
+import { Tooltip } from '@src/components/data-display';
 import { Loader } from '@src/components/layout';
+import { useModalState } from '@src/state';
 import { useArNSState } from '@src/state/contexts/ArNSState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { Progress, Table } from 'antd';
@@ -8,11 +10,15 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useWalletANTs, useWalletDomains } from '../../../hooks';
 import { ManageTable } from '../../../types';
 import { MANAGE_TABLE_NAMES } from '../../../types';
-import { getCustomPaginationButtons } from '../../../utils';
+import {
+  doAntsRequireUpdate,
+  getCustomPaginationButtons,
+} from '../../../utils';
 import { CodeSandboxIcon, NotebookIcon, RefreshIcon } from '../../icons';
 import './styles.css';
 
 function Manage() {
+  const [, dispatchModalState] = useModalState();
   const navigate = useNavigate();
   const { path } = useParams();
   const location = useLocation();
@@ -26,7 +32,8 @@ function Manage() {
     rows: domainRows,
     refresh: refreshDomains,
   } = useWalletDomains();
-  const [{ percentLoaded: percent, loading: tableLoading }] = useArNSState();
+  const [{ percentLoaded: percent, loading: tableLoading, ants, luaSourceTx }] =
+    useArNSState();
   const [{ walletAddress }] = useWalletState();
 
   const [tablePage, setTablePage] = useState<number>(1);
@@ -46,9 +53,9 @@ function Manage() {
   return (
     <div className="page" style={{ overflow: 'auto' }}>
       <div className="flex-column" style={{ gap: '10px' }}>
-        <div className="flex flex-start">
+        <div className="flex-start flex">
           <h1
-            className="flex white"
+            className="white flex text-2xl"
             style={{
               width: 'fit-content',
               whiteSpace: 'nowrap',
@@ -119,7 +126,7 @@ function Manage() {
             </div>
             {tableLoading && percent > 0 && percent < 100 ? (
               <div
-                className="flex flex-row center"
+                className="center flex flex-row"
                 style={{
                   padding: '0px 100px',
                 }}
@@ -137,21 +144,41 @@ function Manage() {
                 />
               </div>
             ) : (
-              <button
-                disabled={tableLoading}
-                className={'button center pointer'}
-                onClick={() =>
-                  path === 'ants' ? refreshANTs() : refreshDomains()
-                }
-                style={{
-                  position: 'absolute',
-                  right: '20px',
-                  top: '0px',
-                  bottom: '0px',
-                }}
-              >
-                <RefreshIcon height={16} width={16} fill="var(--text-grey)" />
-              </button>
+              <div className="flex max-w-fit flex-row pr-10">
+                {doAntsRequireUpdate({ ants, luaSourceTx }) && (
+                  <Tooltip
+                    message={'Your ANTs require an update'}
+                    icon={
+                      <button
+                        onClick={() =>
+                          dispatchModalState({
+                            type: 'setModalOpen',
+                            payload: { showUpgradeAntModal: true },
+                          })
+                        }
+                        className="h-fit animate-pulse rounded-md bg-primary-thin px-4 py-1 text-sm text-primary transition-all hover:bg-primary hover:text-black"
+                      >
+                        Upgrade ANTs
+                      </button>
+                    }
+                  />
+                )}
+                <button
+                  disabled={tableLoading}
+                  className={'button center pointer'}
+                  onClick={() =>
+                    path === 'ants' ? refreshANTs() : refreshDomains()
+                  }
+                  style={{
+                    position: 'absolute',
+                    right: '20px',
+                    top: '0px',
+                    bottom: '0px',
+                  }}
+                >
+                  <RefreshIcon height={16} width={16} fill="var(--text-grey)" />
+                </button>
+              </div>
             )}
           </div>
 
@@ -179,7 +206,7 @@ function Manage() {
             locale={{
               emptyText: !walletAddress ? (
                 <div
-                  className="flex flex-column text-medium center white"
+                  className="flex-column text-medium center white flex"
                   style={{
                     padding: '100px',
                     boxSizing: 'border-box',
@@ -206,14 +233,14 @@ function Manage() {
                 </div>
               ) : tableLoading ? (
                 <div
-                  className="flex flex-column center white"
+                  className="flex-column center white flex"
                   style={{ padding: '100px', boxSizing: 'border-box' }}
                 >
                   <Loader message="Loading assets..." />
                 </div>
               ) : (
                 <div
-                  className="flex flex-column center"
+                  className="flex-column center flex"
                   style={{ padding: '100px', boxSizing: 'border-box' }}
                 >
                   {path === 'ants' ? (
@@ -246,7 +273,7 @@ function Manage() {
                       </span>
                     </>
                   )}
-                  <div className="flex flex-row center" style={{ gap: '16px' }}>
+                  <div className="center flex flex-row" style={{ gap: '16px' }}>
                     <Link
                       to="/"
                       className="button-primary center hover"

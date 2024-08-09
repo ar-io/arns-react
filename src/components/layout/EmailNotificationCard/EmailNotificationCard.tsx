@@ -10,7 +10,7 @@ function EmailNotificationCard() {
 
   return (
     <div
-      className="flex flex-column flex-center radius"
+      className="flex-column flex-center radius flex"
       style={{
         border: 'solid 1px var(--text-faded)',
         padding: 50,
@@ -19,9 +19,9 @@ function EmailNotificationCard() {
     >
       <BellIcon width={'30px'} height={'30px'} fill="var(--text-grey)" />
 
-      <div className="flex flex-column" style={{ maxWidth: '400px' }}>
+      <div className="flex-column flex" style={{ maxWidth: '400px' }}>
         <div
-          className="flex flex-row flex-center"
+          className="flex-center flex flex-row"
           style={{ gap: '10px', position: 'relative' }}
         >
           <EnvelopeIcon

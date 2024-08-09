@@ -22,12 +22,12 @@ function NavBar() {
 
   return (
     <div
-      className="flex flex-column"
+      className="flex-column flex"
       style={{ gap: '0px', position: 'relative' }}
     >
       {online ? null : (
         <div
-          className="flex flex-row center"
+          className="center flex flex-row"
           style={{
             backgroundColor: 'var(--accent)',
             padding: '10px',
@@ -40,7 +40,7 @@ function NavBar() {
         </div>
       )}
       <div className="navbar" style={{ position: 'relative' }}>
-        <div className="flex-row flex-left" style={{ width: 'fit-content' }}>
+        <div className="flex-left flex-row" style={{ width: 'fit-content' }}>
           <Link
             className="hover"
             to="/"

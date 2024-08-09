@@ -11,13 +11,13 @@ import './styles.css';
 function Footer() {
   return (
     <div
-      className={'flex-row app-footer'}
+      className={'app-footer flex-row'}
       style={{
         borderTop: '1px solid var(--text-faded)',
         boxSizing: 'border-box',
       }}
     >
-      <div className={'flex-row flex-left'} style={{ width: 'fit-content' }}>
+      <div className={'flex-left flex-row'} style={{ width: 'fit-content' }}>
         <BrandLogo width={'30px'} height={'30px'} fill={'var(--text-grey)'} />
         <Link
           className="grey text"
@@ -37,11 +37,11 @@ function Footer() {
       ></div>
 
       <div
-        className="flex-row flex-right"
+        className="flex-right flex-row"
         style={{ width: 'fit-content', gap: '15px' }}
       >
         <span
-          className="flex flex-row flex-right text grey center"
+          className="flex-right text grey center flex flex-row"
           style={{ whiteSpace: 'nowrap' }}
         >
           v{process.env.npm_package_version}-

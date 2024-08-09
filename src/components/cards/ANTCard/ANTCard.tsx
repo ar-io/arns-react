@@ -194,12 +194,12 @@ function ANTCard({
   return (
     <div
       className={
-        hover ? 'flex flex-column hover fade-in' : 'flex flex-column fade-in'
+        hover ? 'flex-column hover flex fade-in' : 'flex-column flex fade-in'
       }
       style={{ gap: '20px' }}
     >
       <div
-        className="flex flex-center"
+        className="flex-center flex"
         style={{ width: '100%', height: 'fit-content' }}
       >
         <Descriptions
@@ -282,7 +282,7 @@ function ANTCard({
       </div>
 
       <div
-        className={`flex flex-space-between`}
+        className={`flex-space-between flex`}
         style={{ display: 'flex', width: '100%', boxSizing: 'border-box' }}
       >
         {compact ? (

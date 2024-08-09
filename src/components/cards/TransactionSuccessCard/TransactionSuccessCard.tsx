@@ -21,7 +21,7 @@ function TransactionSuccessCard({
   return (
     <div
       ref={cardRef}
-      className="flex flex-row success-container center fade-in"
+      className="success-container center flex flex-row fade-in"
     >
       <CircleCheckFilled
         width={'20px'}
@@ -47,7 +47,7 @@ function TransactionSuccessCard({
         />
       </div>
       {close ? (
-        <button className="button flex center pointer" onClick={close}>
+        <button className="button center pointer flex" onClick={close}>
           <CloseIcon width={'20px'} height={'20px'} fill="white" />
         </button>
       ) : (

@@ -128,7 +128,7 @@ function TransactionReview() {
   return (
     <div className="page">
       <div
-        className="flex flex-column center"
+        className="flex-column center flex"
         style={isMobile ? {} : { gap: '0px', maxWidth: '900px', width: '100%' }}
       >
         {steps && steps.length ? (
@@ -147,7 +147,7 @@ function TransactionReview() {
 
         {typeof header === 'string' ? (
           <div
-            className="flex flex-row text-large white bold center"
+            className="text-large white bold center flex flex-row"
             style={{
               height: '100%',
               padding: '50px 0px',
