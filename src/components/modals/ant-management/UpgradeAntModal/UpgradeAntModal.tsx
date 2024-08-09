@@ -56,6 +56,7 @@ function UpgradeAntModal({
   }
 
   async function upgradeAnts() {
+    if (progress > -1) return;
     try {
       setProgress(0);
       if (!wallet?.arconnectSigner) {
@@ -64,25 +65,23 @@ function UpgradeAntModal({
       if (!luaCodeTx) {
         throw new Error('No Lua Code Transaction found');
       }
-      const antIds = Object.keys(ants);
 
-      await Promise.all(
-        antIds.map(async (antId) => {
-          if (
-            !doAntsRequireUpdate({
-              ants: { [antId]: ants[antId] },
-              luaSourceTx: luaCodeTx,
-            })
-          ) {
-            return;
-          }
-          await evolveANT({
-            processId: antId,
-            luaCodeTxId: ANT_LUA_ID,
-            signer: createAoSigner(wallet?.arconnectSigner as ContractSigner),
-          });
+      const antIds = Object.keys(ants).filter((antId) =>
+        doAntsRequireUpdate({
+          ants: { [antId]: ants[antId] },
+          luaSourceTx: luaCodeTx,
         }),
       );
+      const signer = createAoSigner(wallet?.arconnectSigner as ContractSigner);
+      // deliberately not using concurrency here for UX reasons
+      for (const antId of antIds) {
+        await evolveANT({
+          processId: antId,
+          luaCodeTxId: ANT_LUA_ID,
+          signer,
+        });
+        setProgress((prev) => Math.round(prev + 100 / antIds.length));
+      }
     } catch (error) {
       eventEmitter.emit('error', error);
     } finally {
@@ -189,7 +188,7 @@ function UpgradeAntModal({
         <div>
           <button
             disabled={!accepted}
-            className={`${!accepted ? 'bg-background text-grey' : `animate-pulse ${progress < 0 ? 'bg-primary-thin text-primary' : 'bg-link text-white'} hover:bg-primary hover:text-black`} w-full rounded-b-lg p-3 transition-all`}
+            className={`${!accepted ? 'bg-background text-grey' : `animate-pulse ${progress < 0 ? 'bg-primary-thin text-primary' : 'bg-link text-white hover:bg-primary hover:text-black'} `} w-full rounded-b-lg p-3 transition-all`}
             onClick={() => upgradeAnts()}
           >
             {!accepted && progress < 0
