@@ -50,7 +50,7 @@ type StateProviderProps = {
 };
 
 /** Create provider to wrap app in */
-export default function WalletStateProvider({
+export function WalletStateProvider({
   reducer,
   children,
 }: StateProviderProps): JSX.Element {

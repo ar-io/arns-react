@@ -33,8 +33,9 @@
     "prettier/prettier": ["error", {}, { "usePrettierrc": true }], // Use our .prettierrc file as source
     "react/react-in-jsx-scope": "off",
     "no-unused-vars": "off",
-    "@typescript-eslint/no-unused-vars": ["error"],
+    "@typescript-eslint/no-unused-vars": ["error", {}],
     "@typescript-eslint/no-explicit-any": "off",
-    "no-useless-escape": "off"
+    "no-useless-escape": "off",
+    "react/no-children-prop": "off"
   }
 }

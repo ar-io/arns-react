@@ -61,7 +61,7 @@ type StateProviderProps = {
 };
 
 /** Create provider to wrap app in */
-export default function GlobalStateProvider({
+export function GlobalStateProvider({
   reducer,
   children,
   arweaveDataProvider,

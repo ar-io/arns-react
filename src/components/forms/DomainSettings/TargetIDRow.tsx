@@ -61,7 +61,7 @@ export default function TargetIDRow({
                       background: 'var(--card-bg)',
                       borderRadius: 'var(--corner-radius)',
                       border: '1px solid var(--text-faded)',
-                      padding: '7px',
+                      padding: '3px',
                     }
                   : {
                       border: 'none',

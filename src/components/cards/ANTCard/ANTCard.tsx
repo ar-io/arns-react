@@ -236,6 +236,7 @@ function ANTCard({
                   borderLeft: 'none',
                   borderRight: 'none',
                   textAlign: 'left',
+                  alignContent: 'left',
                 }}
               >
                 {isArweaveTransactionID(value) ? (

@@ -4,10 +4,10 @@ import { IO_PROCESS_ID } from '@src/utils/constants';
 import Arweave from 'arweave';
 import { Dispatch } from 'react';
 
-import { ArweaveCompositeDataProvider } from '../services/arweave/ArweaveCompositeDataProvider';
-import { SimpleArweaveDataProvider } from '../services/arweave/SimpleArweaveDataProvider';
-import eventEmitter from '../utils/events';
-import { GlobalAction } from './reducers';
+import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
+import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
+import eventEmitter from '../../utils/events';
+import { GlobalAction } from '../reducers';
 
 export async function dispatchNewGateway(
   gateway: string,

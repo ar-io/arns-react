@@ -175,7 +175,7 @@ exports[`SearchBar handles a capitalized name correctly 1`] = `
         </div>
       </div>
       <button
-        class="button pointer"
+        class="button pointer flex justify-center items-center"
         data-testid="search-button"
         style="width: 65px; height: 65px; border-left: 1px solid #38393B;"
       >
@@ -369,7 +369,7 @@ exports[`SearchBar handles a lowercase name correctly 1`] = `
         </div>
       </div>
       <button
-        class="button pointer"
+        class="button pointer flex justify-center items-center"
         data-testid="search-button"
         style="width: 65px; height: 65px; border-left: 1px solid #38393B;"
       >
@@ -438,7 +438,7 @@ exports[`SearchBar renders correctly 1`] = `
         />
       </div>
       <button
-        class="button pointer"
+        class="button pointer flex justify-center items-center"
         data-testid="search-button"
         style="width: 65px; height: 65px; border-left: 1px solid #38393B;"
       >

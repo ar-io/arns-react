@@ -1,3 +1,13 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@layer base {
+  body {
+    @apply bg-background;
+  }
+}
+
 @font-face {
   font-family: 'Rubik';
   src: url('../assets/fonts/Rubik1/Rubik-Regular.ttf');

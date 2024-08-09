@@ -1,6 +1,6 @@
+import { Tooltip } from '@src/components/data-display';
 import { Loader } from '@src/components/layout';
-import { useArNSState } from '@src/state/contexts/ArNSState';
-import { useWalletState } from '@src/state/contexts/WalletState';
+import { useArNSState, useModalState, useWalletState } from '@src/state';
 import { Progress, Table } from 'antd';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -8,7 +8,10 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useWalletANTs, useWalletDomains } from '../../../hooks';
 import { ManageTable } from '../../../types';
 import { MANAGE_TABLE_NAMES } from '../../../types';
-import { getCustomPaginationButtons } from '../../../utils';
+import {
+  doAntsRequireUpdate,
+  getCustomPaginationButtons,
+} from '../../../utils';
 import { CodeSandboxIcon, NotebookIcon, RefreshIcon } from '../../icons';
 import './styles.css';
 
@@ -26,8 +29,10 @@ function Manage() {
     rows: domainRows,
     refresh: refreshDomains,
   } = useWalletDomains();
-  const [{ percentLoaded: percent, loading: tableLoading }] = useArNSState();
+  const [{ percentLoaded: percent, loading: tableLoading, ants, luaSourceTx }] =
+    useArNSState();
   const [{ walletAddress }] = useWalletState();
+  const [, dispatchModalState] = useModalState();
 
   const [tablePage, setTablePage] = useState<number>(1);
 
@@ -48,7 +53,7 @@ function Manage() {
       <div className="flex-column" style={{ gap: '10px' }}>
         <div className="flex flex-start">
           <h1
-            className="flex white"
+            className="flex white text-2xl"
             style={{
               width: 'fit-content',
               whiteSpace: 'nowrap',
@@ -137,21 +142,41 @@ function Manage() {
                 />
               </div>
             ) : (
-              <button
-                disabled={tableLoading}
-                className={'button center pointer'}
-                onClick={() =>
-                  path === 'ants' ? refreshANTs() : refreshDomains()
-                }
-                style={{
-                  position: 'absolute',
-                  right: '20px',
-                  top: '0px',
-                  bottom: '0px',
-                }}
-              >
-                <RefreshIcon height={16} width={16} fill="var(--text-grey)" />
-              </button>
+              <div className="flex max-w-fit flex-row pr-10">
+                {doAntsRequireUpdate({ ants, luaSourceTx }) && (
+                  <Tooltip
+                    message={'Your ANTs require an update'}
+                    icon={
+                      <button
+                        onClick={() =>
+                          dispatchModalState({
+                            type: 'setModalOpen',
+                            payload: { showUpgradeAntModal: true },
+                          })
+                        }
+                        className="h-fit animate-pulse rounded-md bg-primary-thin px-4 py-1 text-sm text-primary transition-all hover:bg-primary hover:text-black"
+                      >
+                        Upgrade ANTs
+                      </button>
+                    }
+                  />
+                )}
+                <button
+                  disabled={tableLoading}
+                  className={'button center pointer'}
+                  onClick={() =>
+                    path === 'ants' ? refreshANTs() : refreshDomains()
+                  }
+                  style={{
+                    position: 'absolute',
+                    right: '20px',
+                    top: '0px',
+                    bottom: '0px',
+                  }}
+                >
+                  <RefreshIcon height={16} width={16} fill="var(--text-grey)" />
+                </button>
+              </div>
             )}
           </div>
 

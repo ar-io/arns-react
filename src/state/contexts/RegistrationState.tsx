@@ -55,7 +55,7 @@ export const useRegistrationState = (): [
 ] => useContext(RegistrationStateContext);
 
 /** Create provider to wrap app in */
-export default function RegistrationStateProvider({
+export function RegistrationStateProvider({
   reducer,
   children,
 }: RegistrationStateProviderProps): JSX.Element {
