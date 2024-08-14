@@ -452,7 +452,13 @@ export function useWalletDomains() {
         .map(([domain, record]) => {
           const ant = ants[record.processId];
           const { Owner, Controllers, Records, Ticker, Name } = ant;
-          if (!Owner || !Controllers || !Records || !Ticker || !Name) {
+          if (
+            Owner === undefined ||
+            Controllers === undefined ||
+            Records === undefined ||
+            Ticker === undefined ||
+            Name === undefined
+          ) {
             return;
           }
           const recordCount = Object.keys(Records).filter(
