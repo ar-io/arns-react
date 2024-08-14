@@ -40,7 +40,7 @@ export default function TickerRow({
       <DomainSettingsRow
         label="Ticker:"
         value={
-          ticker ? (
+          typeof ticker === 'string' ? (
             <ValidationInput
               catchInvalidInput={true}
               showValidationIcon={editing}

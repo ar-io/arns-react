@@ -48,7 +48,7 @@ export default function TargetIDRow({
         label="Target ID:"
         editable={editable}
         value={
-          targetId ? (
+          typeof targetId == 'string' ? (
             <ValidationInput
               customPattern={ARNS_TX_ID_ENTRY_REGEX}
               catchInvalidInput={true}
