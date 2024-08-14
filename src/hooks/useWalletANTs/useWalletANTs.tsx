@@ -386,7 +386,13 @@ export function useWalletANTs() {
     const fetchedRows: ANTMetadata[] = Object.entries(ants)
       .map(([processId, state], i) => {
         const { Name, Ticker, Owner, Controllers, Records } = state;
-        if (!Owner || !Controllers || !Records || !state) {
+
+        if (
+          Owner === undefined ||
+          Controllers === undefined ||
+          Records === undefined ||
+          !state
+        ) {
           return;
         }
         const apexRecord = Records?.['@'];
