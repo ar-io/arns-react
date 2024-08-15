@@ -48,6 +48,7 @@ export default async function dispatchArIOInteraction({
           antProcessId = await spawnANT({
             state: payload.state,
             signer: createAoSigner(signer),
+            luaCodeTxId: 'LvUzh7U2UKmPqqwuZ-L49IAhQWn0WSCsMlCvPxIEWD0',
           });
         }
 
