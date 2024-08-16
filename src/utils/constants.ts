@@ -137,9 +137,15 @@ export const transactionByOwnerQuery = (address: ArweaveTransactionID) => {
   };
   return queryObject;
 };
+// 4rq6KnLwQnYY_sSJskHTXPv4QdCSmHYwFJ4VvrFWWjo
+
+// original landing
+// export const LANDING_PAGE_TXID = new ArweaveTransactionID(
+//   'UyC5P5qKPZaltMmmZAWdakhlDXsBF6qmyrbWYFchRTk',
+// );
 
 export const LANDING_PAGE_TXID = new ArweaveTransactionID(
-  'UyC5P5qKPZaltMmmZAWdakhlDXsBF6qmyrbWYFchRTk',
+  '4rq6KnLwQnYY_sSJskHTXPv4QdCSmHYwFJ4VvrFWWjo',
 );
 
 export const DEFAULT_ANT_CONTRACT_STATE = {
