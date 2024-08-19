@@ -127,7 +127,7 @@ function ANTCard({
         name: decodeDomainToASCII(name ?? 'N/A'),
         ticker: decodeDomainToASCII(ticker ?? 'N/A'),
         owner,
-        controllers: controllers.join(', '),
+        controllers: controllers?.join(', '),
         targetId: apexRecord?.transactionId ?? 'N/A',
         ttlSeconds: apexRecord?.ttlSeconds ?? 'N/A',
         ...overrides,
