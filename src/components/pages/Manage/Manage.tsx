@@ -126,7 +126,7 @@ function Manage() {
               <div
                 className="flex flex-row center"
                 style={{
-                  padding: '0px 100px',
+                  padding: '20px 100px',
                 }}
               >
                 <Progress
@@ -154,7 +154,7 @@ function Manage() {
                             payload: { showUpgradeAntModal: true },
                           })
                         }
-                        className="h-fit animate-pulse rounded-md bg-primary-thin px-4 py-1 text-sm text-primary transition-all hover:bg-primary hover:text-black"
+                        className="h-fit animate-pulse rounded-[4px] bg-primary-thin px-4 py-1 text-sm text-primary transition-all hover:bg-primary hover:text-black"
                       >
                         Upgrade ANTs
                       </button>

@@ -125,6 +125,26 @@ export function lowerCaseDomain(domain: string) {
   return encodeDomainToASCII(domain.trim()).toLowerCase();
 }
 
+export function getAntsRequiringUpdate({
+  ants,
+  luaSourceTx,
+}: {
+  ants: Record<string, any>;
+  luaSourceTx?: Transaction;
+}): string[] {
+  if (!luaSourceTx) return [];
+  const acceptableIds = [
+    luaSourceTx.id,
+    luaSourceTx.tags.find((tag) => tag.name == 'Original-Tx-Id')?.value,
+  ];
+
+  return Object.entries(ants)
+    .map(([id, ant]) => {
+      if (!acceptableIds.includes(ant?.['Source-Code-TX-ID'])) return id;
+    })
+    .filter((id) => id !== undefined) as string[];
+}
+
 export function doAntsRequireUpdate({
   ants,
   luaSourceTx,
@@ -133,13 +153,6 @@ export function doAntsRequireUpdate({
   luaSourceTx?: Transaction;
 }) {
   if (!luaSourceTx) return false;
-  const acceptableIds = [
-    luaSourceTx.id,
-    luaSourceTx.tags.find((tag) => tag.name == 'Original-Tx-Id')?.value,
-  ];
-  console.log(luaSourceTx);
 
-  return Object.values(ants).some(
-    (ant) => !acceptableIds.includes(ant?.['Source-Code-TX-ID']),
-  );
+  return getAntsRequiringUpdate({ ants, luaSourceTx }).length > 0;
 }

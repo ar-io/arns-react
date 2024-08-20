@@ -7,13 +7,22 @@ import {
 import { Tooltip } from '@src/components/data-display';
 import { CloseIcon } from '@src/components/icons';
 import { Loader } from '@src/components/layout';
+import ArweaveID, {
+  ArweaveIdTypes,
+} from '@src/components/layout/ArweaveID/ArweaveID';
+import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useArNSState, useWalletState } from '@src/state';
-import { doAntsRequireUpdate, formatForMaxCharCount } from '@src/utils';
+import {
+  doAntsRequireUpdate,
+  formatForMaxCharCount,
+  getAntsRequiringUpdate,
+  sleep,
+} from '@src/utils';
 import { DEFAULT_ARWEAVE } from '@src/utils/constants';
 import { fromB64Url } from '@src/utils/encodings';
 import eventEmitter from '@src/utils/events';
 import { useQuery } from '@tanstack/react-query';
-import { Checkbox, Progress } from 'antd';
+import { Checkbox } from 'antd';
 import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 
@@ -29,6 +38,7 @@ function UpgradeAntModal({
   const [{ wallet, walletAddress }] = useWalletState();
   const [accepted, setAccepted] = useState(false);
   const [changelog, setChangelog] = useState('default changelog');
+  const [antsToUpgrade, setAntsToUpgrade] = useState<string[]>([]);
   const [{ ants }, dispatchArNSState] = useArNSState();
   // 0 or greater means loading, -1 means not loading
   const [progress, setProgress] = useState(-1);
@@ -46,7 +56,13 @@ function UpgradeAntModal({
     setChangelog(
       newChanges?.value ? fromB64Url(newChanges.value) : 'No changelog found',
     );
-  }, [luaCodeTx]);
+
+    if (luaCodeTx) {
+      setAntsToUpgrade(
+        getAntsRequiringUpdate({ ants, luaSourceTx: luaCodeTx }),
+      );
+    }
+  }, [luaCodeTx, ants]);
 
   function handleClose() {
     setVisible(false);
@@ -71,6 +87,7 @@ function UpgradeAntModal({
           luaSourceTx: luaCodeTx,
         }),
       );
+
       const signer = createAoSigner(wallet?.arconnectSigner as ContractSigner);
       // deliberately not using concurrency here for UX reasons
       for (const antId of antIds) {
@@ -81,6 +98,22 @@ function UpgradeAntModal({
         });
         setProgress((prev) => Math.round(prev + 100 / antIds.length));
       }
+      eventEmitter.emit('success', {
+        message: (
+          <span>
+            Updated {antIds.length} ANTs to source code{' '}
+            <ArweaveID
+              characterCount={8}
+              shouldLink={true}
+              type={ArweaveIdTypes.TRANSACTION}
+              id={new ArweaveTransactionID(ANT_LUA_ID)}
+            />
+          </span>
+        ),
+        name: 'ANTs successfully updated!',
+      });
+      // slight delay for UX so the stage is visible on shorter updates
+      await sleep(3000);
     } catch (error) {
       eventEmitter.emit('error', error);
     } finally {
@@ -101,52 +134,64 @@ function UpgradeAntModal({
 
   return (
     <div className="modal-container items-center justify-center">
-      <div className="flex h-[70%] w-[500px] flex-col rounded-lg bg-foreground shadow-one">
+      <div className="flex h-fit max-h-[70%] w-[500px] justify-between flex-col rounded-lg bg-foreground shadow-one">
         <div className="flex flex-row justify-between border-b-[1px] border-dark-grey p-4">
           <h1
             className="flex flex-row text-2xl text-white"
             style={{ gap: '10px' }}
           >
-            Upgrade your ANT&apos;s
+            {progress < 0 ? (
+              <>Upgrade {antsToUpgrade.length} of your ANT&apos;s</>
+            ) : (
+              <>Updating... {progress}%</>
+            )}
           </h1>
-          <button className="text-md text-white" onClick={() => handleClose()}>
+          <button
+            disabled={progress >= 0}
+            className="text-md text-white"
+            onClick={() => handleClose()}
+          >
             <CloseIcon width={'20px'} fill={'white'} />
           </button>
         </div>
         {progress < 0 ? (
           <>
-            <div className="flex h-full w-full flex-col p-4 text-sm text-white">
-              <ReactMarkdown
-                className={'h-full'}
-                children={changelog}
-                components={{
-                  h1: ({ children }) => (
-                    <h1 className="pb-2 text-2xl">{children}</h1>
-                  ),
-                  h2: ({ children }) => (
-                    <h2 className="p-2 text-xl">{children}</h2>
-                  ),
-                  h3: ({ children }) => (
-                    <h3 className="p-2 text-lg">{children}</h3>
-                  ),
-                  li: ({ children }) => (
-                    <li className="ml-8 list-disc text-sm text-grey">
-                      {children}
-                    </li>
-                  ),
-                }}
-              />
-              <span className="pt-2 text-lg">
-                View the code:{' '}
-                <a
-                  className="text-link"
-                  href={`https://arscan.io/tx/${ANT_LUA_ID}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {formatForMaxCharCount(ANT_LUA_ID, 8)}
-                </a>
-              </span>
+            <div className="flex box-border h-full overflow-hidden w-full flex-col p-4 text-sm text-white">
+              <div className="flex scrollbar h-full min-h-[120px] border-b-[1px] border-dark-grey pb-4 mb-4 overflow-y-scroll scrollbar-thumb-primary-thin scrollbar-thumb-rounded-full scrollbar-w-2">
+                <ReactMarkdown
+                  className={'h-full'}
+                  children={
+                    changelog
+                    //   .padEnd(
+                    //   900,
+                    //   '1123412342134234123412412341234\n',
+                    // )
+                  }
+                  components={{
+                    h1: ({ children }) => (
+                      <div>
+                        {children == 'Changelog' ? (
+                          <></>
+                        ) : (
+                          <h1 className="pb-4 text-2xl">{children}</h1>
+                        )}
+                      </div>
+                    ),
+                    h2: ({ children }) => (
+                      <h2 className="p-2 text-xl">{children}</h2>
+                    ),
+                    h3: ({ children }) => (
+                      <h3 className="pl-2 text-lg">{children}</h3>
+                    ),
+                    li: ({ children }) => (
+                      <li className="ml-8 list-disc text-sm text-grey">
+                        {children}
+                      </li>
+                    ),
+                  }}
+                />
+              </div>
+
               <span
                 className="flex flex-row items-center py-4"
                 style={{ gap: '10px' }}
@@ -159,26 +204,37 @@ function UpgradeAntModal({
                 I understand and wish to proceed{' '}
                 <Tooltip
                   message={
-                    'This will conduct an `Eval` Action on your ANT processes to upgrade the code to the latest version'
+                    <div className="flex flex-col">
+                      <span>
+                        This will conduct an "Eval" Action on your ANT processes
+                        to upgrade the code to the latest version
+                      </span>
+                      <span className="pt-2 text-primary">
+                        View the code:{' '}
+                        <a
+                          className="text-link"
+                          href={`https://arscan.io/tx/${ANT_LUA_ID}`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {formatForMaxCharCount(ANT_LUA_ID, 8)}
+                        </a>
+                      </span>
+                    </div>
                   }
+                  // tooltipOverrides={{
+                  //   placement: 'right',
+                  // }}
                 />
               </span>
             </div>
           </>
         ) : (
           <div className="flex h-full w-full flex-col items-center justify-center">
-            <Progress
-              type={'circle'}
-              percent={progress}
-              strokeColor={{
-                '0%': '#F7C3A1',
-                '100%': '#DF9BE8',
-              }}
-              trailColor="var(--text-faded)"
-              format={(p) => `${p}%`}
-              strokeWidth={5}
-              strokeLinecap="square"
-              width={300}
+            <img
+              src="/images/ario-spinner.gif"
+              width={'150px'}
+              height={'150px'}
             />
           </div>
         )}
@@ -201,7 +257,7 @@ function UpgradeAntModal({
             {!accepted && progress < 0
               ? 'Verify you understand before proceeding'
               : progress >= 0
-              ? 'Evolving, please wait...'
+              ? 'Updating, please wait...'
               : 'Upgrade'}
           </button>
         </div>

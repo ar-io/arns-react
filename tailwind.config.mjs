@@ -21,7 +21,6 @@ export default {
     colors: {
       primary: '#ffb938',
       ['primary-thin']: 'rgba(255, 185, 56, 0.1)',
-
       background: '#131314',
       foreground: '#222224',
       success: '#44af69',
