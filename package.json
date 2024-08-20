@@ -20,7 +20,7 @@
     "docs:serve": "rm -rf docs && typedoc --out docs src/**/**/* && http-server docs"
   },
   "dependencies": {
-    "@ant-design/icons": "5.3.2",
+    "@ant-design/icons": "5.4.0",
     "@ar.io/sdk": "2.1.0-alpha.11",
     "@sentry/react": "^7.45.0",
     "@tanstack/react-query": "^5.45.1",
@@ -114,5 +114,5 @@
       "prettier --write ."
     ]
   },
-  "packageManager": "yarn@4.4.0"
+  "packageManager": "yarn@1.22.22"
 }
