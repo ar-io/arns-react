@@ -23,9 +23,11 @@ import { fromB64Url } from '@src/utils/encodings';
 import eventEmitter from '@src/utils/events';
 import { useQuery } from '@tanstack/react-query';
 import { Checkbox } from 'antd';
+import Lottie from 'lottie-react';
 import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 
+import arioLoading from '../../../icons/ario-spinner.json';
 import './styles.css';
 
 function UpgradeAntModal({
@@ -222,20 +224,17 @@ function UpgradeAntModal({
                       </span>
                     </div>
                   }
-                  // tooltipOverrides={{
-                  //   placement: 'right',
-                  // }}
                 />
               </span>
             </div>
           </>
         ) : (
           <div className="flex h-full w-full flex-col items-center justify-center">
-            <img
-              src="/images/ario-spinner.gif"
-              width={'150px'}
-              height={'150px'}
-              alt="ARIO SPINNER"
+            <Lottie
+              animationData={arioLoading}
+              loop={true}
+              width={24}
+              height={24}
             />
           </div>
         )}
