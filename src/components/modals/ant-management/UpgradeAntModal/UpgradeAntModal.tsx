@@ -206,8 +206,8 @@ function UpgradeAntModal({
                   message={
                     <div className="flex flex-col">
                       <span>
-                        This will conduct an "Eval" Action on your ANT processes
-                        to upgrade the code to the latest version
+                        This will conduct an &apos;Eval&apos; Action on your ANT
+                        processes to upgrade the code to the latest version
                       </span>
                       <span className="pt-2 text-primary">
                         View the code:{' '}
@@ -235,6 +235,7 @@ function UpgradeAntModal({
               src="/images/ario-spinner.gif"
               width={'150px'}
               height={'150px'}
+              alt="ARIO SPINNER"
             />
           </div>
         )}
