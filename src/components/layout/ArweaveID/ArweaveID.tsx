@@ -60,6 +60,7 @@ function ArweaveID({
           fill: 'var(--text-grey)',
           color: 'inherit',
           position: 'static',
+          alignItems: 'center',
           ...wrapperStyle,
         }}
         copyButtonStyle={copyButtonStyle}
