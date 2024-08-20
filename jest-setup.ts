@@ -3,6 +3,7 @@
 import '@testing-library/jest-dom';
 import 'core-js';
 import { indexedDB } from 'fake-indexeddb';
+import 'jest-canvas-mock';
 import 'jest-location-mock';
 // was needed for github actions environment
 import matchMediaMock from 'match-media-mock';
