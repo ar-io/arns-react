@@ -86,15 +86,15 @@
     plimit-lit "^3.0.1"
     winston "^3.13.0"
 
-"@ar.io/sdk@^1.2.2":
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-1.2.2.tgz#2d3a0fa1d19ad5bb0caf34dc4cd78e88def0eb5f"
-  integrity sha512-by/UFQzvqFCbiOWA2T0n3ENIVBDrXAcQSmRAcdBjwVCesRDNrMRAGAIqAGVfVbLGAiuv41pZ7oYWGSBMMYv9mQ==
+"@ar.io/sdk@2.1.0-alpha.11":
+  version "2.1.0-alpha.11"
+  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-2.1.0-alpha.11.tgz#fef87ff19c2f45a618293eabb70af21c5883903c"
+  integrity sha512-HwRYHnUOAr+CWbK6f6kcO0g2O5r6I0Oukrw5Z3VyMzda9WgLxvm9YEboPcIGnqCMFfElvcxntLqJmA+OJBezBw==
   dependencies:
-    "@permaweb/aoconnect" "^0.0.55"
+    "@permaweb/aoconnect" "^0.0.57"
     arbundles "0.11.0"
     arweave "1.14.4"
-    axios "1.7.2"
+    axios "1.7.3"
     axios-retry "^4.3.0"
     bunyan "^1.8.15"
     eventemitter3 "^5.0.1"
@@ -3963,7 +3963,7 @@ axios@1.7.2:
     form-data "^4.0.0"
     proxy-from-env "^1.1.0"
 
-axios@1.7.3:
+axios@1.7.3, axios@^1.1.3, axios@^1.4.0:
   version "1.7.3"
   resolved "https://registry.yarnpkg.com/axios/-/axios-1.7.3.tgz#a1125f2faf702bc8e8f2104ec3a76fab40257d85"
   integrity sha512-Ar7ND9pU99eJ9GpoGQKhKf58GpUOgnzuaB7ueNQ5BMi0p+LZ5oaEnfF999fAArcTIBwXTCHAmGcHOZJaWPq9Nw==

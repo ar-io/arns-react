@@ -74,3 +74,7 @@ jobs:
           DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
           DEPLOY_ANT_PROCESS_ID: ${{ secrets.DEPLOY_ANT_PROCESS_ID }}
           VITE_GITHUB_HASH: ${{ github.sha }}
+          VITE_IO_PROCESS_ID: ${{ vars.VITE_IO_PROCESS_ID }}
+          VITE_ARNS_REGISTRY_ADDRESS: ${{ vars.VITE_ARNS_REGISTRY_ADDRESS }}
+          VITE_ARWEAVE_HOST: ${{ vars.ARWEAVE_HOST }}
+          VITE_NODE_ENV: production
