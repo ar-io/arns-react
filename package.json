@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "5.4.0",
-    "@ar.io/sdk": "2.1.0-alpha.11",
+    "@ar.io/sdk": "2.1.0-alpha.13",
     "@sentry/react": "^7.45.0",
     "@tanstack/react-query": "^5.45.1",
     "@tanstack/react-query-persist-client": "^5.45.1",
