@@ -98,7 +98,7 @@ function UpgradeAntModal({
           processId: antId,
           luaCodeTxId: ANT_LUA_ID,
           signer,
-        }).catch((e) => {
+        }).catch(() => {
           failedUpgrades.push(antId);
           eventEmitter.emit('error', {
             name: 'Upgrade Error',
