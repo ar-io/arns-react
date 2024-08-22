@@ -203,7 +203,7 @@ function Undernames() {
               className="flex flex-row"
               style={{ justifyContent: 'space-between' }}
             >
-              <h2 className="white text-2xl">Manage Undernames</h2>
+              <h2 className="white text-[2rem]">Manage Undernames</h2>
               {ownershipStatus ? (
                 <button
                   disabled={ownershipStatus === undefined}

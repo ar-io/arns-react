@@ -139,7 +139,7 @@ function UpgradeAntModal({
       <div className="flex h-fit max-h-[70%] w-[500px] justify-between flex-col rounded-lg bg-foreground shadow-one">
         <div className="flex flex-row justify-between border-b-[1px] border-dark-grey p-4">
           <h1
-            className="flex flex-row text-2xl text-white"
+            className="flex flex-row text-[2rem] text-white"
             style={{ gap: '10px' }}
           >
             {progress < 0 ? (
@@ -175,7 +175,7 @@ function UpgradeAntModal({
                         {children == 'Changelog' ? (
                           <></>
                         ) : (
-                          <h1 className="pb-4 text-2xl">{children}</h1>
+                          <h1 className="pb-4 text-[2rem]">{children}</h1>
                         )}
                       </div>
                     ),

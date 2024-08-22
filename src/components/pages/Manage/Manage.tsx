@@ -53,7 +53,7 @@ function Manage() {
       <div className="flex-column" style={{ gap: '10px' }}>
         <div className="flex flex-start">
           <h1
-            className="flex white text-2xl"
+            className="flex white text-[2rem]"
             style={{
               width: 'fit-content',
               whiteSpace: 'nowrap',
