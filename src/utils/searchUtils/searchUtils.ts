@@ -140,7 +140,8 @@ export function getAntsRequiringUpdate({
 
   return Object.entries(ants)
     .map(([id, ant]) => {
-      if (!acceptableIds.includes(ant?.['Source-Code-TX-ID'])) return id;
+      const srcId = ant?.['Source-Code-TX-ID'];
+      if (!srcId || !acceptableIds.includes(srcId)) return id;
     })
     .filter((id) => id !== undefined) as string[];
 }
