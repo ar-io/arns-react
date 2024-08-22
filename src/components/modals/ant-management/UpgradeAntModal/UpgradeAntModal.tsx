@@ -92,28 +92,42 @@ function UpgradeAntModal({
 
       const signer = createAoSigner(wallet?.arconnectSigner as ContractSigner);
       // deliberately not using concurrency here for UX reasons
+      const failedUpgrades = [];
       for (const antId of antIds) {
         await evolveANT({
           processId: antId,
           luaCodeTxId: ANT_LUA_ID,
           signer,
+        }).catch((e) => {
+          failedUpgrades.push(antId);
+          eventEmitter.emit('error', {
+            name: 'Upgrade Error',
+            message: `Issue upgrading ANT ${antId}, please try again later`,
+          });
         });
         setProgress((prev) => Math.round(prev + 100 / antIds.length));
       }
-      eventEmitter.emit('success', {
-        message: (
-          <span>
-            Updated {antIds.length} ANTs to source code{' '}
-            <ArweaveID
-              characterCount={8}
-              shouldLink={true}
-              type={ArweaveIdTypes.TRANSACTION}
-              id={new ArweaveTransactionID(ANT_LUA_ID)}
-            />
-          </span>
-        ),
-        name: 'ANTs successfully updated!',
-      });
+      if (failedUpgrades.length < antIds.length) {
+        eventEmitter.emit('success', {
+          message: (
+            <div>
+              <span>
+                Updated {antIds.length - failedUpgrades.length} ANTs to source
+                code{' '}
+                <ArweaveID
+                  characterCount={8}
+                  shouldLink={true}
+                  type={ArweaveIdTypes.TRANSACTION}
+                  id={new ArweaveTransactionID(ANT_LUA_ID)}
+                />
+              </span>
+            </div>
+          ),
+          name: `${antIds.length - failedUpgrades.length} of ${
+            antIds.length
+          } ANTs successfully updated!'`,
+        });
+      }
       // slight delay for UX so the stage is visible on shorter updates
       await sleep(3000);
     } catch (error) {
