@@ -72,7 +72,7 @@ function CopyTextButton({
           }}
         >
           <div
-            className="flex tems-center justify-center"
+            className="flex items-center justify-center"
             style={{
               cursor: 'pointer',
               scale: size,
