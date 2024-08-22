@@ -13,7 +13,7 @@ import {
   useReducer,
 } from 'react';
 
-import { dispatchAntSourceTx } from '../actions/dispatchAntSorceCodeTx';
+import { dispatchAntSourceTx } from '../actions/dispatchAntSourceCodeTx';
 import { dispatchArNSUpdate } from '../actions/dispatchArNSUpdate';
 import { ArNSAction } from '../reducers/ArNSReducer';
 import { defaultArIO, useGlobalState } from './GlobalState';
