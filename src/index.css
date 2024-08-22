@@ -6,6 +6,9 @@
   body {
     @apply bg-background;
   }
+  button {
+    @apply leading-4;
+  }
 }
 
 @font-face {

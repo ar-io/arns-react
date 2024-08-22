@@ -10,7 +10,7 @@ export default {
         sans: ['Rubik', 'sans-serif'],
       },
       boxShadow: {
-        one: ' 0px 0px 4px rgba(0, 0, 0, 0.5)',
+        one: '0px 0px 4px rgba(0, 0, 0, 0.5)',
       },
       text: {
         // TODO: add typography tokens
