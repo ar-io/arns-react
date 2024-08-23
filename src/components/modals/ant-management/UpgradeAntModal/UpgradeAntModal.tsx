@@ -157,7 +157,7 @@ function UpgradeAntModal({
             style={{ gap: '10px' }}
           >
             {progress < 0 ? (
-              <>Upgrade {antsToUpgrade.length} of your ANT&apos;s</>
+              <>Upgrade {antsToUpgrade.length} of your ANTs</>
             ) : (
               <>Updating... {progress}%</>
             )}
@@ -247,8 +247,7 @@ function UpgradeAntModal({
             <Lottie
               animationData={arioLoading}
               loop={true}
-              width={24}
-              height={24}
+              className="h-[250px]"
             />
           </div>
         )}
