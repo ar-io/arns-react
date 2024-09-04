@@ -115,7 +115,7 @@ const DomainsTable = ({
             used: Object.keys(ant?.Records)?.length ?? 0,
             supported: record.undernameLimit,
           },
-          expiryDate: (record as any).endTimestamp,
+          expiryDate: (record as any).endTimestamp ?? 'Indefinite',
           status: isLeasedArNSRecord(record)
             ? record.endTimestamp
             : 'Indefinite',
@@ -288,15 +288,23 @@ const DomainsTable = ({
             );
           }
           case 'expiryDate': {
+            if (rowValue == 'Indefinite') {
+              return (
+                <Tooltip
+                  message={
+                    'This domain is permanently registered and will never expire'
+                  }
+                  icon={<>Indefinite</>}
+                />
+              );
+            }
             return (
               <Tooltip
                 message={
-                  rowValue
-                    ? 'Enters grace period on approximately ' +
-                      formatVerboseDate(rowValue)
-                    : 'This domain is permanently registered and will never expire'
+                  'Enters grace period on approximately ' +
+                  formatVerboseDate(rowValue)
                 }
-                icon={<>{formatExpiryDate(rowValue)} </>}
+                icon={<>{formatExpiryDate(rowValue)}</>}
               />
             );
           }

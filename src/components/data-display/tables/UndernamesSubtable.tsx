@@ -193,14 +193,7 @@ const UndernamesSubtable = ({
         rowClass={(props) => {
           if (props?.row !== undefined) {
             const expanded = props.row.getIsExpanded();
-            return expanded ? '' : 'hover:bg-primary-thin' + ' *:pl-10';
-          }
-
-          return '';
-        }}
-        dataClass={(props) => {
-          if (props?.headerGroup !== undefined) {
-            return ' *:pl-6';
+            return expanded ? '' : 'hover:bg-primary-thin' + '';
           }
 
           return '';
