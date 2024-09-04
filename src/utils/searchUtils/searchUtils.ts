@@ -2,7 +2,6 @@ import Transaction from 'arweave/node/lib/transaction';
 import emojiRegex from 'emoji-regex';
 import { asciiToUnicode, unicodeToAscii } from 'puny-coder';
 
-import { formatExpiryDate } from '..';
 import {
   APPROVED_CHARACTERS_REGEX,
   ARNS_NAME_REGEX,

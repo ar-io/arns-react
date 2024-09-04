@@ -46,7 +46,7 @@ const UndernamesSubtable = ({
   const [{ gateway, ioProcessId }] = useGlobalState();
   const [{ arnsEmitter }, dispatchArNSState] = useArNSState();
   const [{ wallet, walletAddress }] = useWalletState();
-  const [_, dispatchTransactionState] = useTransactionState();
+  const [, dispatchTransactionState] = useTransactionState();
   const [tableData, setTableData] = useState<Array<TableData>>([]);
   // modal state
   const [transactionData, setTransactionData] = useState<
@@ -147,6 +147,7 @@ const UndernamesSubtable = ({
               <Tooltip
                 message={
                   <iframe
+                    title={'target-id-frame'}
                     src={`https://${gateway}/${rowValue}`}
                     className="rounded-md"
                   />

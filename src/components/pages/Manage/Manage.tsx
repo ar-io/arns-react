@@ -1,5 +1,4 @@
 import { Tooltip } from '@src/components/data-display';
-import ValidationInput from '@src/components/inputs/text/ValidationInput/ValidationInput';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import {
   dispatchArNSUpdate,

@@ -50,7 +50,7 @@ function filterTableData(filter: string, data: TableData[]): TableData[] {
   data.forEach((d) => {
     let matchFound = false;
 
-    Object.entries(d).forEach(([k, v]) => {
+    Object.entries(d).forEach(([, v]) => {
       if (typeof v === 'object' && v !== null) {
         // Recurse into nested objects
         const nestedResults = filterTableData(filter, [v]);
@@ -171,7 +171,7 @@ const DomainsTable = ({
       sortDescFirst: true,
       sortingFn:
         key == 'undernames'
-          ? (rowA, rowB, columnId) => {
+          ? (rowA, rowB) => {
               return (
                 rowA.original.undernames.used - rowB.original.undernames.used
               );
@@ -245,6 +245,7 @@ const DomainsTable = ({
               <Tooltip
                 message={
                   <iframe
+                    title={'target-id-frame'}
                     src={`https://${gateway}/${rowValue}`}
                     className="rounded-md"
                   />
