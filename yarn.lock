@@ -72,21 +72,6 @@
     resize-observer-polyfill "^1.5.1"
     throttle-debounce "^5.0.0"
 
-"@ar.io/sdk@2.1.0-alpha.13":
-  version "2.1.0-alpha.13"
-  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-2.1.0-alpha.13.tgz#8f7df4b1df9e420722a54d7d6caa94d2ff05786f"
-  integrity sha512-pPpYgeWYB8wRiUayX0/psJd9bUfK9BB4ZFzGaXRtYrhrp41tet9/aytDEE5pvzN51OOIDr/pVEkH5AchC45KGw==
-  dependencies:
-    "@permaweb/aoconnect" "^0.0.57"
-    arbundles "0.11.0"
-    arweave "1.14.4"
-    axios "1.7.3"
-    axios-retry "^4.3.0"
-    eventemitter3 "^5.0.1"
-    plimit-lit "^3.0.1"
-    winston "^3.13.0"
-    zod "^3.23.8"
-
 "@ar.io/sdk@^1.2.2":
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-1.2.2.tgz#2d3a0fa1d19ad5bb0caf34dc4cd78e88def0eb5f"
@@ -101,6 +86,20 @@
     eventemitter3 "^5.0.1"
     plimit-lit "^3.0.1"
     warp-contracts "1.4.45"
+
+"@ar.io/sdk@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-2.1.0.tgz#3d33fd9f7db6b0e66c0abcd1aadf593b2f4be850"
+  integrity sha512-bJBzAOhiMGHJIX6YtJFK2qEgFabtF73669UDXHhuj+M7lUYAUINzqC4ZkBB3jCJMjV7nwHboNQqs/c4bRs8mjQ==
+  dependencies:
+    "@permaweb/aoconnect" "^0.0.57"
+    arbundles "0.11.0"
+    arweave "1.14.4"
+    axios "1.7.2"
+    axios-retry "^4.3.0"
+    eventemitter3 "^5.0.1"
+    plimit-lit "^3.0.1"
+    winston "^3.13.0"
 
 "@ardrive/turbo-sdk@^1.9.0":
   version "1.10.0"
@@ -2733,6 +2732,18 @@
   dependencies:
     "@tanstack/query-core" "5.52.0"
 
+"@tanstack/react-table@^8.20.5":
+  version "8.20.5"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-table/-/react-table-8.20.5.tgz#19987d101e1ea25ef5406dce4352cab3932449d8"
+  integrity sha512-WEHopKw3znbUZ61s9i0+i9g8drmDo6asTWbrQh8Us63DAk/M0FkmIqERew6P71HI75ksZ2Pxyuf4vvKh9rAkiA==
+  dependencies:
+    "@tanstack/table-core" "8.20.5"
+
+"@tanstack/table-core@8.20.5":
+  version "8.20.5"
+  resolved "https://registry.yarnpkg.com/@tanstack/table-core/-/table-core-8.20.5.tgz#3974f0b090bed11243d4107283824167a395cf1d"
+  integrity sha512-P9dF7XbibHph2PFRz8gfBKEXEY/HJPOhym8CHmjF8y3q5mWpKx9xtZapXQUWCgkqvsK0R46Azuz+VaxD4Xl+Tg==
+
 "@testing-library/dom@^9.0.0":
   version "9.3.4"
   resolved "https://registry.yarnpkg.com/@testing-library/dom/-/dom-9.3.4.tgz#50696ec28376926fec0a1bf87d9dbac5e27f60ce"
@@ -3959,15 +3970,6 @@ axios@1.7.2:
   version "1.7.2"
   resolved "https://registry.yarnpkg.com/axios/-/axios-1.7.2.tgz#b625db8a7051fbea61c35a3cbb3a1daa7b9c7621"
   integrity sha512-2A8QhOMrbomlDuiLeK9XibIBzuHeRcqqNOHp0Cyp5EoJ1IFDh+XZH3A6BkXtv0K4gFGCI0Y4BM7B1wOEi0Rmgw==
-  dependencies:
-    follow-redirects "^1.15.6"
-    form-data "^4.0.0"
-    proxy-from-env "^1.1.0"
-
-axios@1.7.3:
-  version "1.7.3"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-1.7.3.tgz#a1125f2faf702bc8e8f2104ec3a76fab40257d85"
-  integrity sha512-Ar7ND9pU99eJ9GpoGQKhKf58GpUOgnzuaB7ueNQ5BMi0p+LZ5oaEnfF999fAArcTIBwXTCHAmGcHOZJaWPq9Nw==
   dependencies:
     follow-redirects "^1.15.6"
     form-data "^4.0.0"

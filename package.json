@@ -21,10 +21,11 @@
   },
   "dependencies": {
     "@ant-design/icons": "5.4.0",
-    "@ar.io/sdk": "2.1.0-alpha.13",
+    "@ar.io/sdk": "^2.1.0",
     "@sentry/react": "^7.45.0",
     "@tanstack/react-query": "^5.45.1",
     "@tanstack/react-query-persist-client": "^5.45.1",
+    "@tanstack/react-table": "^8.20.5",
     "antd": "5.2.1",
     "arweave": "^1.15.1",
     "arweave-wallet-connector": "^1.0.2",

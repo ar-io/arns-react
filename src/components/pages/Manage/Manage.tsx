@@ -1,52 +1,38 @@
 import { Tooltip } from '@src/components/data-display';
-import { Loader } from '@src/components/layout';
-import { useArNSState, useModalState, useWalletState } from '@src/state';
-import { Progress, Table } from 'antd';
-import { useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
-
-import { useWalletANTs, useWalletDomains } from '../../../hooks';
-import { ManageTable } from '../../../types';
-import { MANAGE_TABLE_NAMES } from '../../../types';
+import ValidationInput from '@src/components/inputs/text/ValidationInput/ValidationInput';
+import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import {
-  doAntsRequireUpdate,
-  getCustomPaginationButtons,
-} from '../../../utils';
-import { CodeSandboxIcon, NotebookIcon, RefreshIcon } from '../../icons';
+  dispatchArNSUpdate,
+  useArNSState,
+  useGlobalState,
+  useModalState,
+  useWalletState,
+} from '@src/state';
+import eventEmitter from '@src/utils/events';
+import { Progress } from 'antd';
+import { useState } from 'react';
+
+import { doAntsRequireUpdate } from '../../../utils';
+import DomainsTable from '../../data-display/tables/DomainsTable';
+import { RefreshIcon, SearchIcon } from '../../icons';
 import './styles.css';
 
 function Manage() {
-  const navigate = useNavigate();
-  const { path } = useParams();
-  const location = useLocation();
-  const {
-    columns: antColumns,
-    rows: antRows,
-    refresh: refreshANTs,
-  } = useWalletANTs();
-  const {
-    columns: domainColumns,
-    rows: domainRows,
-    refresh: refreshDomains,
-  } = useWalletDomains();
-  const [{ percentLoaded: percent, loading: tableLoading, ants, luaSourceTx }] =
-    useArNSState();
+  const [{ ioProcessId }] = useGlobalState();
+  const [
+    {
+      percentLoaded: percent,
+      loading: loadingArnsState,
+      domains,
+      ants,
+      luaSourceTx,
+      arnsEmitter,
+    },
+    dispatchArNSState,
+  ] = useArNSState();
   const [{ walletAddress }] = useWalletState();
   const [, dispatchModalState] = useModalState();
-
-  const [tablePage, setTablePage] = useState<number>(1);
-
-  useEffect(() => {
-    if (!path) {
-      navigate('names');
-      return;
-    }
-    setTablePage(1);
-  }, [path]);
-
-  function updatePage(page: number) {
-    setTablePage(page);
-  }
+  const [search, setSearch] = useState<string>('');
 
   return (
     <div className="page" style={{ overflow: 'auto' }}>
@@ -74,55 +60,7 @@ function Manage() {
           }}
         >
           <div id="manage-table-toolbar">
-            <div className="table-selector-group">
-              {Object.keys(MANAGE_TABLE_NAMES).map(
-                (t: string, index: number) => (
-                  <button
-                    key={index}
-                    className="table-selector text bold"
-                    onClick={() => {
-                      navigate(`/manage/${t}${location.search.toString()}`);
-                    }}
-                    style={
-                      path === t
-                        ? {
-                            color: 'var(--text-white)',
-                            fill: 'var(--text-white)',
-                            borderColor: 'var(--text-white)',
-                          }
-                        : {
-                            borderColor: 'transparent',
-                          }
-                    }
-                  >
-                    {t === 'names' ? (
-                      <NotebookIcon width="16px" height="16px" />
-                    ) : (
-                      <CodeSandboxIcon width="16px" height="16px" />
-                    )}
-                    {MANAGE_TABLE_NAMES[t as ManageTable]}
-                    <div
-                      className="table-selector-indicator"
-                      style={
-                        path === t
-                          ? {
-                              color: 'var(--text-white)',
-                              fill: 'var(--text-white)',
-                              borderColor: 'var(--text-white)',
-                              backgroundColor: 'var(--text-white)',
-                            }
-                          : {
-                              color: 'var(--text-grey)',
-                              fill: 'var(--text-grey)',
-                              borderColor: 'transparent',
-                            }
-                      }
-                    ></div>
-                  </button>
-                ),
-              )}
-            </div>
-            {tableLoading && percent > 0 && percent < 100 ? (
+            {loadingArnsState && percent >= 0 ? (
               <div
                 className="flex flex-row center"
                 style={{
@@ -142,7 +80,21 @@ function Manage() {
                 />
               </div>
             ) : (
-              <div className="flex max-w-fit flex-row pr-10">
+              <div className="flex w-full flex-row pr-10">
+                <div className="flex w-full border-b-[1px] border-dark-grey p-[5px]">
+                  <SearchIcon
+                    width={'18px'}
+                    height={'18px'}
+                    className="fill-white"
+                  />
+                  <input
+                    className="flex bg-background pl-2 w-full focus:outline-none text-white placeholder:text-dark-grey"
+                    onChange={(e) => setSearch(e.target.value)}
+                    value={search}
+                    placeholder="Search your assets"
+                  />
+                </div>
+
                 {doAntsRequireUpdate({ ants, luaSourceTx }) && (
                   <Tooltip
                     message={'Your ANTs require an update'}
@@ -162,10 +114,22 @@ function Manage() {
                   />
                 )}
                 <button
-                  disabled={tableLoading}
+                  disabled={loadingArnsState}
                   className={'button center pointer'}
                   onClick={() =>
-                    path === 'ants' ? refreshANTs() : refreshDomains()
+                    walletAddress
+                      ? dispatchArNSUpdate({
+                          emitter: arnsEmitter,
+                          dispatch: dispatchArNSState,
+                          walletAddress: new ArweaveTransactionID(
+                            walletAddress?.toString(),
+                          ),
+                          ioProcessId,
+                        })
+                      : eventEmitter.emit('error', {
+                          name: 'Manage Assets',
+                          message: 'Connect wallet before refreshing',
+                        })
                   }
                   style={{
                     position: 'absolute',
@@ -180,118 +144,10 @@ function Manage() {
             )}
           </div>
 
-          <Table
-            prefixCls="manage-table"
-            scroll={antRows.length ? { x: true } : {}}
-            columns={path === 'ants' ? antColumns : domainColumns}
-            dataSource={(path === 'ants' ? antRows : domainRows) as any}
-            pagination={{
-              position: ['bottomCenter'],
-              rootClassName: 'table-pagination',
-              itemRender: (page, type, originalElement) =>
-                getCustomPaginationButtons({
-                  page,
-                  type,
-                  originalElement,
-                  currentPage: tablePage,
-                }),
-              onChange: updatePage,
-              showPrevNextJumpers: true,
-              showSizeChanger: false,
-              pageSize: 10,
-              current: tablePage,
-            }}
-            locale={{
-              emptyText: !walletAddress ? (
-                <div
-                  className="flex flex-column text-medium center white"
-                  style={{
-                    padding: '100px',
-                    boxSizing: 'border-box',
-                    gap: '20px',
-                  }}
-                >
-                  <button
-                    onClick={() =>
-                      navigate('/connect', {
-                        // redirect logic for connect page to use
-                        state: { from: '/manage', to: '/manage' },
-                      })
-                    }
-                    className="button-secondary center"
-                    style={{
-                      boxSizing: 'border-box',
-                      padding: '10px',
-                      width: 'fit-content',
-                    }}
-                  >
-                    Connect
-                  </button>
-                  &nbsp; Connect your wallet to view your assets.
-                </div>
-              ) : tableLoading ? (
-                <div
-                  className="flex flex-column center white"
-                  style={{ padding: '100px', boxSizing: 'border-box' }}
-                >
-                  <Loader message="Loading assets..." />
-                </div>
-              ) : (
-                <div
-                  className="flex flex-column center"
-                  style={{ padding: '100px', boxSizing: 'border-box' }}
-                >
-                  {path === 'ants' ? (
-                    <>
-                      <span className="white bold" style={{ fontSize: '16px' }}>
-                        No Name Tokens Found
-                      </span>
-                      <span
-                        className={'grey'}
-                        style={{ fontSize: '13px', maxWidth: '400px' }}
-                      >
-                        Arweave Name Tokens (ANTs) provide ownership and control
-                        of ArNS names. With ANTs you can easily manage,
-                        transfer, and adjust your domains, as well as create
-                        undernames.
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="white bold" style={{ fontSize: '16px' }}>
-                        No Registered Names Found
-                      </span>
-                      <span
-                        className={'grey'}
-                        style={{ fontSize: '13px', maxWidth: '400px' }}
-                      >
-                        Arweave Names are friendly names for data on the Arweave
-                        blockchain. They serve to improve finding, sharing, and
-                        access to data, resistant to takedowns or losses.
-                      </span>
-                    </>
-                  )}
-                  <div className="flex flex-row center" style={{ gap: '16px' }}>
-                    <Link
-                      to="/"
-                      className="button-primary center hover"
-                      style={{
-                        gap: '8px',
-                        minWidth: '105px',
-                        height: '22px',
-                        padding: '10px 16px',
-                        boxSizing: 'content-box',
-                        fontSize: '14px',
-                        flexWrap: 'nowrap',
-                        color: 'var(--text-black)',
-                      }}
-                    >
-                      Search for a Name
-                    </Link>
-                  </div>
-                </div>
-              ),
-            }}
+          <DomainsTable
+            domainData={{ names: domains, ants }}
+            loading={loadingArnsState}
+            filter={search}
           />
         </div>
       </div>

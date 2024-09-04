@@ -10,6 +10,23 @@ export function formatDate(epochMs: number): string {
   return new Date(epochMs).toISOString().split('T')[0];
 }
 
+export function formatVerboseDate(timestamp: number | string): string {
+  try {
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'long',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      timeZoneName: 'short',
+    }).format(new Date(timestamp));
+  } catch (error) {
+    return '';
+  }
+}
+
 export function tagsToObject(tags: TransactionTag[]): {
   [x: string]: string;
 } {

@@ -2,6 +2,7 @@ import Transaction from 'arweave/node/lib/transaction';
 import emojiRegex from 'emoji-regex';
 import { asciiToUnicode, unicodeToAscii } from 'puny-coder';
 
+import { formatExpiryDate } from '..';
 import {
   APPROVED_CHARACTERS_REGEX,
   ARNS_NAME_REGEX,
@@ -156,4 +157,24 @@ export function doAntsRequireUpdate({
   if (!luaSourceTx) return false;
 
   return getAntsRequiringUpdate({ ants, luaSourceTx }).length > 0;
+}
+
+export function camelToReadable(camel: string) {
+  const words = camel.replace(/([A-Z])/g, ' $1').toLowerCase();
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+export function getOwnershipStatus(
+  owner: string,
+  controllers: string[],
+  walletAddress?: string,
+): 'controller' | 'owner' | undefined {
+  if (owner === walletAddress) {
+    return 'owner';
+  }
+
+  if (walletAddress && controllers.includes(walletAddress)) {
+    return 'controller';
+  }
+  return undefined;
 }

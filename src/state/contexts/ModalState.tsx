@@ -5,6 +5,7 @@ import { ModalAction } from '../reducers/ModalReducer';
 
 export type ModalState = {
   showUpgradeAntModal: boolean;
+  showEditUndernameModal: boolean;
 };
 
 export type ModalStateProviderProps = {
@@ -14,6 +15,7 @@ export type ModalStateProviderProps = {
 
 export const initialModalState: ModalState = {
   showUpgradeAntModal: false,
+  showEditUndernameModal: false,
 };
 
 const ModalStateContext = createContext<[ModalState, Dispatch<ModalAction>]>([
