@@ -12,6 +12,7 @@ import {
   formatForMaxCharCount,
   formatVerboseDate,
   getOwnershipStatus,
+  isArweaveTransactionID,
   lowerCaseDomain,
 } from '@src/utils';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
@@ -61,6 +62,13 @@ function filterTableData(filter: string, data: TableData[]): TableData[] {
         matchFound = true;
       }
     });
+    if (!matchFound && d.antRecords) {
+      Object.keys(d?.antRecords).forEach((undername) => {
+        if (undername?.toLowerCase()?.includes(filter.toLowerCase())) {
+          matchFound = true;
+        }
+      });
+    }
 
     if (matchFound) {
       results.push(d);
@@ -109,25 +117,19 @@ const DomainsTable = ({
               walletAddress?.toString(),
             ) ?? 'N/A',
           processId: record.processId,
-          targetId: ant.Records?.['@'].transactionId,
+          targetId: ant.Records?.['@']?.transactionId ?? 'N/A',
           sourceCode: (ant as any)?.['Source-Code-TX-ID'],
           undernames: {
-            used: Object.keys(ant?.Records)?.length ?? 0,
+            used:
+              Object.keys(ant?.Records).filter((undername) => undername !== '@')
+                ?.length ?? 0,
             supported: record.undernameLimit,
           },
           expiryDate: (record as any).endTimestamp ?? 'Indefinite',
           status: isLeasedArNSRecord(record)
             ? record.endTimestamp
             : 'Indefinite',
-          action: (
-            <span className="flex justify-end pr-3 w-fit">
-              <ManageAssetButtons
-                id={lowerCaseDomain(domain)}
-                assetType="names"
-                disabled={false}
-              />
-            </span>
-          ),
+          action: <></>,
           // metadata used for search and other purposes
           antRecords: ant.Records,
           domainRecord: record,
@@ -167,6 +169,8 @@ const DomainsTable = ({
           ? 'Process ID'
           : key == 'targetId'
           ? 'Target ID'
+          : key == 'sourceCode'
+          ? 'ANT Source Code'
           : camelToReadable(key),
       sortDescFirst: true,
       sortingFn:
@@ -241,29 +245,15 @@ const DomainsTable = ({
             );
           }
           case 'targetId': {
-            return (
-              <Tooltip
-                message={
-                  <iframe
-                    title={'target-id-frame'}
-                    src={`https://${gateway}/${rowValue}`}
-                    className="rounded-md"
-                  />
-                }
-                tooltipOverrides={{
-                  overlayInnerStyle: { width: 'fit-content' },
-                }}
-                icon={
-                  <>
-                    <ArweaveID
-                      id={rowValue}
-                      shouldLink={true}
-                      characterCount={8}
-                      type={ArweaveIdTypes.TRANSACTION}
-                    />
-                  </>
-                }
+            return isArweaveTransactionID(rowValue) ? (
+              <ArweaveID
+                id={rowValue}
+                shouldLink={true}
+                characterCount={8}
+                type={ArweaveIdTypes.TRANSACTION}
               />
+            ) : (
+              rowValue
             );
           }
           case 'sourceCode': {
@@ -279,12 +269,59 @@ const DomainsTable = ({
           case 'undernames': {
             const { used, supported } = rowValue as Record<string, number>;
             return (
-              <Link
-                className="link"
-                to={`/manage/names/${row.getValue('name')}/increase-undernames`}
-              >
-                {used} / {supported}
-              </Link>
+              <Tooltip
+                tooltipOverrides={{
+                  overlayClassName: 'w-fit',
+                  overlayInnerStyle: { width: 'fit-content' },
+                }}
+                message={
+                  used >= supported ? (
+                    <span className="flex flex-column" style={{ gap: '8px' }}>
+                      <span className="w-fit items-center text-center">
+                        You've exceeded your undername support by{' '}
+                        {used - supported} undername
+                        {used - supported > 1 ? 's' : ''}.{' '}
+                      </span>
+                      <Link
+                        className="w-full whitespace-nowrap bg-primary rounded-md text-black hover:text-black center hover px-2"
+                        to={`/manage/names/${row.getValue(
+                          'name',
+                        )}/upgrade-undernames`}
+                      >
+                        Increase your undername support.
+                      </Link>
+                    </span>
+                  ) : (
+                    <span className="justify-center items-center whitespace-nowrap flex flex-col">
+                      <span className="w-fit">
+                        You have used{' '}
+                        <span className="font-bold">
+                          {used}/{supported}
+                        </span>{' '}
+                        of your supported undernames.
+                      </span>
+                      <Link
+                        to="https://docs.ar.io/arns/#under-names"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="link w-fit m-auto"
+                      >
+                        Learn more about Under_names
+                      </Link>
+                    </span>
+                  )
+                }
+                icon={
+                  <Link
+                    className={`${used >= supported ? 'text-warning' : 'link'}`}
+                    to={`/manage/names/${row.getValue(
+                      'name',
+                    )}/upgrade-undernames`}
+                  >
+                    {used} / {supported}
+                  </Link>
+                }
+              />
             );
           }
           case 'expiryDate': {
@@ -313,6 +350,17 @@ const DomainsTable = ({
               <span>
                 <RegistrationTip
                   domain={domainData.names[row.getValue('name') as string]}
+                />
+              </span>
+            );
+          }
+          case 'action': {
+            return (
+              <span className="flex justify-end pr-3 w-full">
+                <ManageAssetButtons
+                  id={lowerCaseDomain(row.getValue('name') as string)}
+                  assetType="names"
+                  disabled={false}
                 />
               </span>
             );

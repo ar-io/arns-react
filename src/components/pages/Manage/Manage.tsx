@@ -8,7 +8,6 @@ import {
   useWalletState,
 } from '@src/state';
 import eventEmitter from '@src/utils/events';
-import { Progress } from 'antd';
 import { useState } from 'react';
 
 import { doAntsRequireUpdate } from '../../../utils';
@@ -19,14 +18,7 @@ import './styles.css';
 function Manage() {
   const [{ ioProcessId }] = useGlobalState();
   const [
-    {
-      percentLoaded: percent,
-      loading: loadingArnsState,
-      domains,
-      ants,
-      luaSourceTx,
-      arnsEmitter,
-    },
+    { loading: loadingArnsState, domains, ants, luaSourceTx, arnsEmitter },
     dispatchArNSState,
   ] = useArNSState();
   const [{ walletAddress }] = useWalletState();
@@ -34,7 +26,7 @@ function Manage() {
   const [search, setSearch] = useState<string>('');
 
   return (
-    <div className="page" style={{ overflow: 'auto' }}>
+    <div className="page" style={{ overflow: 'auto', paddingTop: '0px' }}>
       <div className="flex-column" style={{ gap: '10px' }}>
         <div className="flex flex-start">
           <h1
@@ -58,36 +50,17 @@ function Manage() {
             minHeight: '400px',
           }}
         >
-          <div id="manage-table-toolbar">
-            {loadingArnsState && percent >= 0 ? (
-              <div
-                className="flex flex-row center"
-                style={{
-                  padding: '20px 100px',
-                }}
-              >
-                <Progress
-                  type={'line'}
-                  percent={percent}
-                  strokeColor={{
-                    '0%': '#F7C3A1',
-                    '100%': '#DF9BE8',
-                  }}
-                  trailColor="var(--text-faded)"
-                  format={(p) => `${p}%`}
-                  strokeWidth={10}
-                />
-              </div>
-            ) : (
-              <div className="flex w-full flex-row pr-10">
-                <div className="flex w-full border-b-[1px] border-dark-grey p-[5px]">
+          <div className="flex flex-row border-[1px] border-b-0 border-dark-grey h-fit px-3 py-1 rounded-t-[2px]">
+            {
+              <div className="flex w-full flex-row">
+                <div className="flex w-full p-[5px]">
                   <SearchIcon
                     width={'18px'}
                     height={'18px'}
-                    className="fill-white"
+                    className="fill-white absolute top-[12.5px]"
                   />
                   <input
-                    className="flex bg-background pl-2 w-full focus:outline-none text-white placeholder:text-dark-grey"
+                    className="pl-7 flex bg-background w-full focus:outline-none text-white placeholder:text-dark-grey"
                     onChange={(e) => setSearch(e.target.value)}
                     value={search}
                     placeholder="Search your assets"
@@ -130,17 +103,15 @@ function Manage() {
                           message: 'Connect wallet before refreshing',
                         })
                   }
-                  style={{
-                    position: 'absolute',
-                    right: '20px',
-                    top: '0px',
-                    bottom: '0px',
-                  }}
                 >
-                  <RefreshIcon height={16} width={16} fill="var(--text-grey)" />
+                  <RefreshIcon
+                    height={16}
+                    width={16}
+                    fill="var(--text-white)"
+                  />
                 </button>
               </div>
-            )}
+            }
           </div>
 
           <DomainsTable

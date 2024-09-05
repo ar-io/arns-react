@@ -17,6 +17,14 @@
   max-height: 104px;
 }
 
+.arns-state-progress {
+  line-height: 0.5;
+}
+.arns-state-progress-outer {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
 @media screen and (max-width: 600px) {
   .brand-logo {
     height: 45px;

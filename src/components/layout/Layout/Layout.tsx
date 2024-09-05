@@ -1,4 +1,6 @@
 import DevTools from '@src/components/devtools/DevTools';
+import { useArNSState } from '@src/state';
+import { Progress } from 'antd';
 import { Outlet, useLocation } from 'react-router-dom';
 
 import Footer from '../Footer/Footer';
@@ -9,6 +11,7 @@ import './styles.css';
 
 function Layout() {
   const location = useLocation();
+  const [{ percentLoaded, loading }] = useArNSState();
 
   const homeOrRegister =
     location.pathname === '/' || location.pathname.startsWith('/register');
@@ -38,11 +41,25 @@ function Layout() {
       >
         <NavBar />
       </div>
+
+      <Progress
+        prefixCls="arns-state-progress"
+        type={'line'}
+        percent={percentLoaded}
+        strokeColor={{
+          '0%': '#F7C3A1',
+          '100%': '#DF9BE8',
+        }}
+        strokeLinecap="square"
+        trailColor={'transparent'}
+        format={() => <></>}
+        strokeWidth={5}
+      />
+
       <div className="body">
         <Outlet />
         <Notifications />
       </div>
-
       <div
         className="flex flex-row"
         style={{

@@ -18,6 +18,7 @@ import { ANT_INTERACTION_TYPES, TransactionDataPayload } from '@src/types';
 import { camelToReadable, formatForMaxCharCount } from '@src/utils';
 import eventEmitter from '@src/utils/events';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
+import { CornerDownRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ReactNode } from 'react-markdown';
 import { Link } from 'react-router-dom';
@@ -126,10 +127,11 @@ const UndernamesSubtable = ({
                 }
                 icon={
                   <Link
-                    className="link gap-2"
+                    className="link gap-2 items-center"
                     to={`https://${rowValue}_${arnsDomain}.${gateway}`}
                     target="_blank"
                   >
+                    <CornerDownRight className="text-dark-grey w-[18px]" />
                     {formatForMaxCharCount(rowValue, 12)}{' '}
                     <ExternalLinkIcon
                       width={'12px'}
@@ -144,27 +146,11 @@ const UndernamesSubtable = ({
 
           case 'targetId': {
             return (
-              <Tooltip
-                message={
-                  <iframe
-                    title={'target-id-frame'}
-                    src={`https://${gateway}/${rowValue}`}
-                    className="rounded-md"
-                  />
-                }
-                tooltipOverrides={{
-                  overlayInnerStyle: { width: 'fit-content' },
-                }}
-                icon={
-                  <>
-                    <ArweaveID
-                      id={rowValue}
-                      shouldLink={true}
-                      characterCount={8}
-                      type={ArweaveIdTypes.TRANSACTION}
-                    />
-                  </>
-                }
+              <ArweaveID
+                id={rowValue}
+                shouldLink={true}
+                characterCount={8}
+                type={ArweaveIdTypes.TRANSACTION}
               />
             );
           }
@@ -191,9 +177,14 @@ const UndernamesSubtable = ({
         defaultSortingState={{ id: 'undername', desc: true }}
         tableClass="bg-metallic-grey"
         rowClass={(props) => {
+          const pad = '*:pl-[60px]';
           if (props?.row !== undefined) {
             const expanded = props.row.getIsExpanded();
-            return expanded ? '' : 'hover:bg-primary-thin' + '';
+            return expanded ? '' : 'hover:bg-primary-thin ' + pad;
+          }
+
+          if (props?.headerGroup !== undefined) {
+            return pad;
           }
 
           return '';
