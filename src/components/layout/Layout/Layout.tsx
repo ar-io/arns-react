@@ -11,7 +11,7 @@ import './styles.css';
 
 function Layout() {
   const location = useLocation();
-  const [{ percentLoaded, loading }] = useArNSState();
+  const [{ percentLoaded }] = useArNSState();
 
   const homeOrRegister =
     location.pathname === '/' || location.pathname.startsWith('/register');

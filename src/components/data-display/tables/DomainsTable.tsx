@@ -278,7 +278,7 @@ const DomainsTable = ({
                   used >= supported ? (
                     <span className="flex flex-column" style={{ gap: '8px' }}>
                       <span className="w-fit items-center text-center">
-                        You've exceeded your undername support by{' '}
+                        You&apos;ve exceeded your undername support by{' '}
                         {used - supported} undername
                         {used - supported > 1 ? 's' : ''}.{' '}
                       </span>
