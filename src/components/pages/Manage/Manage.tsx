@@ -26,9 +26,9 @@ function Manage() {
   const [search, setSearch] = useState<string>('');
 
   return (
-    <div className="page" style={{ overflow: 'auto', paddingTop: '0px' }}>
-      <div className="flex-column" style={{ gap: '10px' }}>
-        <div className="flex flex-start">
+    <div className="overflow-auto px-[100px] pb-[30px]">
+      <div className="flex flex-col gap-[10px]">
+        <div className="flex justify-start">
           <h1
             className="flex white text-[2rem]"
             style={{

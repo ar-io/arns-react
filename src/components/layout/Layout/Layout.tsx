@@ -42,19 +42,23 @@ function Layout() {
         <NavBar />
       </div>
 
-      <Progress
-        prefixCls="arns-state-progress"
-        type={'line'}
-        percent={percentLoaded}
-        strokeColor={{
-          '0%': '#F7C3A1',
-          '100%': '#DF9BE8',
-        }}
-        strokeLinecap="square"
-        trailColor={'transparent'}
-        format={() => <></>}
-        strokeWidth={5}
-      />
+      {percentLoaded > 0 && percentLoaded < 100 ? (
+        <Progress
+          prefixCls="arns-state-progress"
+          type={'line'}
+          percent={percentLoaded}
+          strokeColor={{
+            '0%': '#F7C3A1',
+            '100%': '#DF9BE8',
+          }}
+          strokeLinecap="square"
+          trailColor={'transparent'}
+          format={() => <></>}
+          strokeWidth={5}
+        />
+      ) : (
+        <div className="p-[11.5px]" />
+      )}
 
       <div className="body">
         <Outlet />

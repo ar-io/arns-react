@@ -144,6 +144,8 @@ const DomainsTable = ({
   useEffect(() => {
     if (filter) {
       setFilteredTableData(filterTableData(filter, tableData));
+    } else {
+      setFilteredTableData([]);
     }
   }, [filter, tableData]);
   // Define columns for the table

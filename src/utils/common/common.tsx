@@ -9,7 +9,11 @@ import { fromB64Url } from '../encodings';
 export function formatDate(epochMs: number): string {
   return new Date(epochMs).toISOString().split('T')[0];
 }
-
+/**
+ *
+ * @param timestamp
+ * @example "Friday, August 22, 2025 at 9:22:20 AM CST"
+ */
 export function formatVerboseDate(timestamp: number | string): string {
   try {
     return new Intl.DateTimeFormat('en-US', {

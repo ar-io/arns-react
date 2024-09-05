@@ -55,14 +55,6 @@
   --mobile-button-height: 30px;
 }
 
-.ant-progress {
-  line-height: 0.5;
-}
-.ant-progress-outer {
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
 html {
   scroll-behavior: smooth;
   display: flex;
