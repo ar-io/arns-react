@@ -173,6 +173,7 @@ function NavMenuCard() {
                       width: '100%',
                       justifyContent: 'space-between',
                       boxSizing: 'border-box',
+                      alignItems: 'center',
                     }}
                   />
                   <div

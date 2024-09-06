@@ -96,7 +96,7 @@ function AddUndernameModal({
     >
       {/**modal header */}
       <DialogModal
-        title={<h2 className="white">Add Undername</h2>}
+        title={<h2 className="white text-xl">Add Undername</h2>}
         body={
           <form>
             <div

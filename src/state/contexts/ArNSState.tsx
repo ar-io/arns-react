@@ -1,4 +1,10 @@
-import { AoANTState, AoArNSNameData, ArNSEventEmitter } from '@ar.io/sdk/web';
+import {
+  ANT_LUA_ID,
+  AoANTState,
+  AoArNSNameData,
+  ArNSEventEmitter,
+} from '@ar.io/sdk/web';
+import Transaction from 'arweave/node/lib/transaction';
 import {
   Dispatch,
   createContext,
@@ -7,6 +13,7 @@ import {
   useReducer,
 } from 'react';
 
+import { dispatchAntSourceTx } from '../actions/dispatchAntSourceCodeTx';
 import { dispatchArNSUpdate } from '../actions/dispatchArNSUpdate';
 import { ArNSAction } from '../reducers/ArNSReducer';
 import { defaultArIO, useGlobalState } from './GlobalState';
@@ -19,6 +26,7 @@ export type ArNSState = {
   percentLoaded: number;
   antCount: number;
   arnsEmitter: ArNSEventEmitter;
+  luaSourceTx?: Transaction;
 };
 
 export type ArNSStateProviderProps = {
@@ -49,7 +57,7 @@ export const useArNSState = (): [ArNSState, Dispatch<ArNSAction>] =>
   useContext(ArNSStateContext);
 
 /** Create provider to wrap app in */
-export default function ArNSStateProvider({
+export function ArNSStateProvider({
   reducer,
   children,
 }: ArNSStateProviderProps): JSX.Element {
@@ -64,6 +72,10 @@ export default function ArNSStateProvider({
         contract: arioContract,
         timeoutMs: 1000 * 60 * 5,
       }),
+    });
+    dispatchAntSourceTx({
+      id: ANT_LUA_ID,
+      dispatch: dispatchArNSState,
     });
   }, [arioContract]);
 

@@ -19,7 +19,7 @@ function Tooltip({
     <>
       <AntdTooltip
         title={message}
-        color="var(--card-bg)"
+        color="var(--box-color)"
         className="pointer"
         overlayInnerStyle={{ padding: '15px' }}
         {...tooltipOverrides}

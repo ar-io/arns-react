@@ -22,7 +22,7 @@ function ConfirmTransactionModal({
   return (
     <div className="modal-container">
       <DialogModal
-        title={<h2 className="white">{interactionType}</h2>}
+        title={<h2 className="white text-xl">{interactionType}</h2>}
         body={
           <div
             className="flex flex-column white"

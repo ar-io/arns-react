@@ -65,7 +65,6 @@ function NavBar() {
             </div>
           </Link>
         </div>
-
         <NavGroup />
       </div>
       <Breadcrumbs />

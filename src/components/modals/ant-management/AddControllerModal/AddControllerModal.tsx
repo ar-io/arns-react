@@ -47,7 +47,7 @@ function AddControllerModal({
     >
       {/**modal header */}
       <DialogModal
-        title={<h2 className="white">Add Controller</h2>}
+        title={<h2 className="white text-xl">Add Controller</h2>}
         body={
           <div
             className="flex flex-column"

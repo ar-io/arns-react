@@ -2,11 +2,12 @@ import * as Sentry from '@sentry/react';
 import { NotificationOnlyError } from '@src/utils/errors';
 import { notification } from 'antd';
 import { ArgsProps } from 'antd/es/notification/interface';
-import { useEffect } from 'react';
+import { ReactNode, useEffect } from 'react';
 
 import eventEmitter from '../../../utils/events';
 import { defaultError } from './error';
 import './styles.css';
+import { defaultSuccess } from './success';
 
 export type NotificationType = 'success' | 'info' | 'warning' | 'error';
 
@@ -32,6 +33,20 @@ export default function Notifications() {
     });
   }
 
+  function handleSuccess({
+    message,
+    name,
+  }: {
+    message: ReactNode;
+    name: string;
+  }) {
+    showNotification({
+      type: 'success',
+      title: name,
+      description: message,
+    });
+  }
+
   function getNotificationProps({
     type,
     title,
@@ -40,7 +55,7 @@ export default function Notifications() {
   }: {
     type: NotificationType;
     title: string;
-    description: string;
+    description: ReactNode;
     key: string;
   }): ArgsProps {
     switch (type) {
@@ -54,6 +69,14 @@ export default function Notifications() {
             ? () => location.reload()
             : () => notificationApi.destroy(),
           actionText: arconnectUnresponsive ? 'Reload' : 'Close',
+          title,
+          description,
+          key,
+        });
+      }
+      case 'success': {
+        return defaultSuccess({
+          closeCallback: () => notificationApi.destroy(),
           title,
           description,
           key,
@@ -73,11 +96,12 @@ export default function Notifications() {
   }: {
     type: NotificationType;
     title: string;
-    description: string;
+    description: ReactNode;
   }) {
-    if (!title?.length && !description?.length) {
+    if (!title?.length) {
       return;
     }
+    //if (typeof description == 'string' && !description.length) return;
     const key = `open${Date.now()}`;
     const notificationProps = getNotificationProps({
       type,
@@ -90,10 +114,12 @@ export default function Notifications() {
 
   // error notifications
   useEffect(() => {
+    eventEmitter.on('success', handleSuccess);
     eventEmitter.on('error', handleError);
 
     return () => {
       eventEmitter.off('error', handleError);
+      eventEmitter.off('success', handleSuccess);
     };
   });
 

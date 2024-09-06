@@ -85,7 +85,9 @@ function EditUndernameModal({
       {/**modal header */}
       <DialogModal
         title={
-          <h2 className="white">Edit {formatForMaxCharCount(undername, 40)}</h2>
+          <h2 className="white text-xl">
+            Edit {formatForMaxCharCount(undername, 40)}
+          </h2>
         }
         body={
           <div

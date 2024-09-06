@@ -1,5 +1,6 @@
 import { AoANTState, AoArNSNameData, ArNSEventEmitter } from '@ar.io/sdk/web';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import Transaction from 'arweave/node/lib/transaction';
 
 import { ArNSState, initialArNSState } from '../contexts/ArNSState';
 
@@ -14,6 +15,7 @@ export type ArNSAction =
   | { type: 'setLoading'; payload: boolean }
   | { type: 'setPercentLoaded'; payload?: number }
   | { type: 'reset' }
+  | { type: 'setAntSourceTx'; payload: Transaction }
   | { type: 'refresh'; payload: ArweaveTransactionID };
 
 export const arnsReducer = (
@@ -21,6 +23,11 @@ export const arnsReducer = (
   action: ArNSAction,
 ): ArNSState => {
   switch (action.type) {
+    case 'setAntSourceTx':
+      return {
+        ...state,
+        luaSourceTx: action.payload,
+      };
     case 'setDomains':
       return {
         ...state,

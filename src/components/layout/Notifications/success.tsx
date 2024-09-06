@@ -1,9 +1,9 @@
 import { ArgsProps } from 'antd/es/notification/interface';
 import { ReactNode } from 'react';
 
-import { CircleXIcon, CloseIcon } from '../../icons';
+import { CircleCheckFilled, CloseIcon } from '../../icons';
 
-export const defaultError = ({
+export const defaultSuccess = ({
   actionCallback,
   actionText,
   closeCallback,
@@ -12,8 +12,8 @@ export const defaultError = ({
   key,
   icon,
 }: {
-  actionCallback: () => void;
-  actionText: string;
+  actionCallback?: () => void;
+  actionText?: string;
   closeCallback: () => void;
   title: string;
   description: ReactNode;
@@ -37,7 +37,7 @@ export const defaultError = ({
     </h4>
   ),
   description: <div className="grey">{description}</div>,
-  btn: (
+  btn: actionCallback ? (
     <button
       className="button-primary"
       style={{ padding: '9px 12px' }}
@@ -45,10 +45,15 @@ export const defaultError = ({
     >
       {actionText}
     </button>
-  ),
+  ) : undefined,
   closeIcon: false,
   icon: icon ?? (
-    <CircleXIcon width={'25px'} height={'25px'} fill={'var(--error-red)'} />
+    <CircleCheckFilled
+      className="mt-[2px]"
+      width={'20px'}
+      height={'20px'}
+      fill={'var(--success-green)'}
+    />
   ),
   placement: 'bottomRight',
   duration: 30,
