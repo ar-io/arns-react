@@ -2,7 +2,9 @@ import { ModalState } from '../contexts/ModalState';
 
 export type ModalAction = {
   type: 'setModalOpen';
-  payload: Record<keyof ModalState, boolean>;
+  payload:
+    | { showUpgradeAntModal: boolean }
+    | { showEditUndernameModal: boolean };
 };
 
 export const modalReducer = (

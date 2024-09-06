@@ -30,6 +30,7 @@ export default {
       white: '#fafafa',
       black: 'black',
       grey: '#7d7d85',
+      'metallic-grey': '#18191a',
       ['dark-grey']: '#38393b',
     },
   },

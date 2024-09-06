@@ -36,6 +36,7 @@
     "@typescript-eslint/no-unused-vars": ["error", {}],
     "@typescript-eslint/no-explicit-any": "off",
     "no-useless-escape": "off",
-    "react/no-children-prop": "off"
+    "react/no-children-prop": "off",
+    "react/prop-types": "off"
   }
 }

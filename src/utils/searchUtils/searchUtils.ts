@@ -157,3 +157,20 @@ export function doAntsRequireUpdate({
 
   return getAntsRequiringUpdate({ ants, luaSourceTx }).length > 0;
 }
+
+export function camelToReadable(camel: string) {
+  const words = camel.replace(/([A-Z])/g, ' $1').toLowerCase();
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+export function getOwnershipStatus(
+  owner: string,
+  controllers: string[],
+  walletAddress?: string,
+): 'controller' | 'owner' | undefined {
+  return owner === walletAddress
+    ? 'owner'
+    : walletAddress && controllers.includes(walletAddress)
+    ? 'controller'
+    : undefined;
+}
