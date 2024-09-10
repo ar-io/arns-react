@@ -1,6 +1,7 @@
 import { Buffer } from 'buffer';
-import { CSSProperties } from 'react';
+import { CSSProperties, ReactNode } from 'react';
 
+import { getLeaseDurationFromEndTimestamp } from '..';
 import { ChevronLeftIcon, ChevronRightIcon } from '../../components/icons';
 import { TransactionTag } from '../../types';
 import { SECONDS_IN_GRACE_PERIOD } from '../constants';
@@ -8,6 +9,28 @@ import { fromB64Url } from '../encodings';
 
 export function formatDate(epochMs: number): string {
   return new Date(epochMs).toISOString().split('T')[0];
+}
+
+export function formatLeaseDurationFromEndTimestamp(
+  endTimestamp?: number,
+): ReactNode {
+  if (!endTimestamp) {
+    return 'Indefinite';
+  }
+  const leaseDuration = getLeaseDurationFromEndTimestamp(
+    Date.now(),
+    endTimestamp,
+  );
+  return (
+    <>
+      {' '}
+      {leaseDuration} year
+      {leaseDuration > 1 ? 's' : ''} &nbsp;
+      <span style={{ color: 'var(--text-grey)' }}>
+        (est. expiry {+endTimestamp ? formatDate(endTimestamp) : 'N/A'})
+      </span>
+    </>
+  );
 }
 /**
  *

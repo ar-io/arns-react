@@ -44,14 +44,15 @@ export const queryClient = new QueryClient({
   },
 });
 
-export function buildAntStateQuery({ processId }: { processId: string }): {
+export function buildAntStateQuery({ processId }: { processId?: string }): {
   queryKey: ['ant', string];
   queryFn: () => Promise<AoANTState | null>;
   staleTime: number;
 } {
   return {
-    queryKey: ['ant', processId],
+    queryKey: ['ant', processId ?? 'null'],
     queryFn: async () => {
+      if (!processId) return null;
       if (isArweaveTransactionID(processId)) {
         const ant = ANT.init({ processId });
         return ant.getState().catch((e) => {

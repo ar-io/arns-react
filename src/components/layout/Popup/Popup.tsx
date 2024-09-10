@@ -54,7 +54,7 @@ export const Popup: React.FunctionComponent<PopupProps> = ({
         padding: '9px 12px',
       }}
       overlayStyle={{ width: 'fit-content' }}
-      trigger={trigger}
+      trigger={trigger as any}
       title={popupContents}
     >
       {children}
