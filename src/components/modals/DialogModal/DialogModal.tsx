@@ -43,7 +43,7 @@ function DialogModal({
           style={{
             justifyContent: showClose ? 'space-between' : 'flex-start',
             alignItems: 'center',
-            padding: '15px 0px',
+            padding: '20px 0px',
             boxSizing: 'border-box',
           }}
         >

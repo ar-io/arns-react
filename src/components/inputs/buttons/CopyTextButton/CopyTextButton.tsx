@@ -38,9 +38,9 @@ function CopyTextButton({
   }
 
   return (
-    <div className="flex" style={{ position, ...wrapperStyle }}>
+    <div className="flex-row" style={{ position, ...wrapperStyle }}>
       <button
-        className="flex flex-space-between button"
+        className="button flex"
         style={{
           ...wrapperStyle,
           cursor: 'pointer',
@@ -71,18 +71,21 @@ function CopyTextButton({
             padding: '4px 8px',
           }}
         >
-          <CopyIcon
-            className="flex"
-            height={size ?? '15px'}
-            width={size ?? '15px'}
-            fill={'inherit'}
+          <div
+            className="flex items-center justify-center"
             style={{
               cursor: 'pointer',
               scale: size,
               overflow: 'visible',
               ...copyButtonStyle,
             }}
-          />
+          >
+            <CopyIcon
+              height={size ?? '15px'}
+              width={size ?? '15px'}
+              fill={'inherit'}
+            />
+          </div>
         </Tooltip>
       </button>
     </div>

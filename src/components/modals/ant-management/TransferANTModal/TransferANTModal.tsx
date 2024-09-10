@@ -57,7 +57,7 @@ function TransferANTModal({
     >
       {/**modal header */}
       <DialogModal
-        title={<h2 className="white">Transfer ANT</h2>}
+        title={<h2 className="white text-xl">Transfer ANT</h2>}
         body={
           <div
             className="flex flex-column"

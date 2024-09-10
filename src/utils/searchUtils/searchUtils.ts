@@ -1,3 +1,4 @@
+import Transaction from 'arweave/node/lib/transaction';
 import emojiRegex from 'emoji-regex';
 import { asciiToUnicode, unicodeToAscii } from 'puny-coder';
 
@@ -122,4 +123,54 @@ export function sleep(ms: number) {
 
 export function lowerCaseDomain(domain: string) {
   return encodeDomainToASCII(domain.trim()).toLowerCase();
+}
+
+export function getAntsRequiringUpdate({
+  ants,
+  luaSourceTx,
+}: {
+  ants: Record<string, any>;
+  luaSourceTx?: Transaction;
+}): string[] {
+  if (!luaSourceTx) return [];
+  const acceptableIds = [
+    luaSourceTx.id,
+    luaSourceTx.tags.find((tag) => tag.name == 'Original-Tx-Id')?.value,
+  ];
+
+  return Object.entries(ants)
+    .map(([id, ant]) => {
+      const srcId = ant?.['Source-Code-TX-ID'];
+      if (!srcId || !acceptableIds.includes(srcId)) return id;
+    })
+    .filter((id) => id !== undefined) as string[];
+}
+
+export function doAntsRequireUpdate({
+  ants,
+  luaSourceTx,
+}: {
+  ants: Record<string, any>;
+  luaSourceTx?: Transaction;
+}) {
+  if (!luaSourceTx) return false;
+
+  return getAntsRequiringUpdate({ ants, luaSourceTx }).length > 0;
+}
+
+export function camelToReadable(camel: string) {
+  const words = camel.replace(/([A-Z])/g, ' $1').toLowerCase();
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+export function getOwnershipStatus(
+  owner: string,
+  controllers: string[],
+  walletAddress?: string,
+): 'controller' | 'owner' | undefined {
+  return owner === walletAddress
+    ? 'owner'
+    : walletAddress && controllers.includes(walletAddress)
+    ? 'controller'
+    : undefined;
 }

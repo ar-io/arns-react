@@ -113,7 +113,7 @@ function UpgradeUndernames() {
   return (
     <div className="page center">
       <div className="flex flex-column" style={{ maxWidth: '1000px' }}>
-        <h1 className="flex white">Increase Undernames</h1>
+        <h1 className="flex white text-[2rem]">Increase Undernames</h1>
         <div
           className="flex center"
           style={{
