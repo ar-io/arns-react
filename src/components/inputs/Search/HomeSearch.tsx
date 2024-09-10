@@ -3,11 +3,7 @@ import { AoArNSNameData } from '@ar.io/sdk';
 import DomainDetailsTip from '@src/components/data-display/DomainDetailsTip';
 import { CircleCheckFilled, SearchIcon } from '@src/components/icons';
 import { useGlobalState, useWalletState } from '@src/state';
-import {
-  decodeDomainToASCII,
-  encodeDomainToASCII,
-  lowerCaseDomain,
-} from '@src/utils';
+import { decodeDomainToASCII, lowerCaseDomain } from '@src/utils';
 import Lottie from 'lottie-react';
 import { ChevronRight, XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -254,8 +250,9 @@ function HomeSearch() {
             style={{ rowGap: '4px' }}
           >
             {domainQuery.length ? (
-              Object.entries(validations).map(([name, isValid]) => (
+              Object.entries(validations).map(([name, isValid], index) => (
                 <span
+                  key={index}
                   className={
                     `flex flex-row justify-center items-center whitespace-nowrap text-sm  ` +
                     (isValid ? 'text-white' : 'animate-pulse text-grey')

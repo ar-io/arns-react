@@ -35,7 +35,7 @@ function DomainDetailsTip({
         overlayInnerStyle: { width: 'fit-content' },
       }}
       message={
-        antState && domainRecord ? (
+        antState && domainRecord && !loadingAntState ? (
           <div className="flex flex-col p-2">
             <span className="text-xl text-white pb-2 border-b-[1px] border-dark-grey">
               {decodeDomainToASCII(domain)}
