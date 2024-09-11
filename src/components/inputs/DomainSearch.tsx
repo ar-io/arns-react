@@ -127,8 +127,13 @@ function DomainSearch({
           value={decodeDomainToASCII(searchQuery)}
           onChange={(e) => inputHandler(e.target.value)}
           className={`${inputClass}`}
+          data-testid="domain-search-input"
         />
-        <button className={`${buttonClass}`} onClick={() => reset()}>
+        <button
+          className={`${buttonClass}`}
+          data-testid="domain-search-button"
+          onClick={() => reset()}
+        >
           {searchQuery.length ? clearIcon : searchIcon}
         </button>
       </div>

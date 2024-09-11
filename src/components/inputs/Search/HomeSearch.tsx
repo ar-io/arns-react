@@ -111,15 +111,22 @@ function HomeSearch() {
       >
         <div className="flex flex-col w-full h-full">
           {!isValidDomain && domainQuery.length ? (
-            <div className="flex flex-row min-h-[50px] pb-2 text-xl font-semibold text-grey justify-center items-center">
+            <div
+              className="flex flex-row min-h-[50px] pb-2 text-xl font-semibold text-grey justify-center items-center"
+              data-testid="home-search-invalid-header"
+            >
               Invalid ArNS domain, {validationError}
             </div>
           ) : isSearching || domainQuery.length == 0 || !isAvailable ? (
-            <div className="min-h-[50px]" />
+            <div
+              className="min-h-[50px]"
+              data-testid="home-search-spacer-header"
+            />
           ) : (
             <div
               className="flex flex-row min-h-[50px] pb-2 text-2xl font-semibold text-white justify-center items-center"
               style={{ gap: 0 }}
+              data-testid="home-search-available-header"
             >
               <span style={{ color: 'var(--success-green)' }}>
                 {decodeDomainToASCII(domainQuery)}
@@ -165,7 +172,10 @@ function HomeSearch() {
             }
           >
             {domainQuery.length ? (
-              <div className="flex flex-col w-full p-6 pt-4 border-t-[1px] border-dark-grey">
+              <div
+                className="flex flex-col w-full p-6 pt-4 border-t-[1px] border-dark-grey"
+                data-testid="home-search-child-container"
+              >
                 <div className="flex flew-row w-full justify-between">
                   <span className="text-grey text-sm">
                     {isSearching ? (
