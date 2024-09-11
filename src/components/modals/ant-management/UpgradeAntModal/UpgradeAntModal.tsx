@@ -4,6 +4,7 @@ import {
   createAoSigner,
   evolveANT,
 } from '@ar.io/sdk';
+import { connect } from '@permaweb/aoconnect';
 import { Tooltip } from '@src/components/data-display';
 import { CloseIcon } from '@src/components/icons';
 import { Loader } from '@src/components/layout';
@@ -11,7 +12,7 @@ import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
-import { useArNSState, useWalletState } from '@src/state';
+import { useArNSState, useGlobalState, useWalletState } from '@src/state';
 import {
   doAntsRequireUpdate,
   formatForMaxCharCount,
@@ -37,6 +38,7 @@ function UpgradeAntModal({
   visible: boolean;
   setVisible: (visible: boolean) => void;
 }) {
+  const [{ aoNetwork, gateway }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const [accepted, setAccepted] = useState(false);
   const [changelog, setChangelog] = useState('default changelog');
@@ -98,6 +100,11 @@ function UpgradeAntModal({
           processId: antId,
           luaCodeTxId: ANT_LUA_ID,
           signer,
+          ao: connect({
+            GATEWAY_URL: 'https://' + gateway,
+            CU_URL: aoNetwork.CU_URL,
+            MU_URL: aoNetwork.MU_URL,
+          }),
         }).catch(() => {
           failedUpgrades.push(antId);
           eventEmitter.emit('error', {

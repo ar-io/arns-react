@@ -1,7 +1,9 @@
 import {
+  AoClient,
   AoIOWrite,
   AoMessageResult,
   ContractSigner,
+  DEFAULT_SCHEDULER_ID,
   createAoSigner,
   spawnANT,
 } from '@ar.io/sdk/web';
@@ -21,6 +23,8 @@ export default async function dispatchArIOInteraction({
   processId,
   dispatch,
   signer,
+  ao,
+  scheduler = DEFAULT_SCHEDULER_ID,
 }: {
   payload: Record<string, any>;
   workflowName: ARNS_INTERACTION_TYPES;
@@ -29,6 +33,8 @@ export default async function dispatchArIOInteraction({
   processId: ArweaveTransactionID;
   dispatch: Dispatch<TransactionAction>;
   signer?: ContractSigner;
+  ao?: AoClient;
+  scheduler?: string;
 }): Promise<ContractInteraction> {
   let result: AoMessageResult | undefined = undefined;
 
@@ -48,6 +54,8 @@ export default async function dispatchArIOInteraction({
           antProcessId = await spawnANT({
             state: payload.state,
             signer: createAoSigner(signer),
+            ao: ao,
+            scheduler: scheduler,
           });
         }
 
