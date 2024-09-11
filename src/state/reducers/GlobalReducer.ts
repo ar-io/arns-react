@@ -13,6 +13,14 @@ export type GlobalAction =
       };
     }
   | {
+      type: 'setAONetwork';
+      payload: {
+        CU_URL?: string;
+        MU_URL?: string;
+        SCHEDULER?: string;
+      };
+    }
+  | {
       type: 'setIoProcessId';
       payload: ArweaveTransactionID;
     }
@@ -39,6 +47,14 @@ export const reducer = (
         ...state,
         gateway: action.payload.gateway,
         arweaveDataProvider: action.payload.provider,
+      };
+    case 'setAONetwork':
+      return {
+        ...state,
+        aoNetwork: {
+          ...state.aoNetwork,
+          ...action.payload,
+        },
       };
     case 'setBlockHeight':
       return {

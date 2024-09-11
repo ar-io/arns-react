@@ -5,6 +5,7 @@ import { asciiToUnicode, unicodeToAscii } from 'puny-coder';
 import {
   APPROVED_CHARACTERS_REGEX,
   ARNS_NAME_REGEX,
+  FQDN_REGEX,
   TRAILING_DASH_UNDERSCORE_REGEX,
   UNDERNAME_REGEX,
   YEAR_IN_MILLISECONDS,
@@ -173,4 +174,21 @@ export function getOwnershipStatus(
     : walletAddress && controllers.includes(walletAddress)
     ? 'controller'
     : undefined;
+}
+
+export function isValidGateway(gateway: string) {
+  return gateway ? FQDN_REGEX.test(gateway) : false;
+}
+
+const URL_REGEX = new RegExp(
+  '^((https?|ftp)://)?' +
+    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
+    '((\\d{1,3}\\.){3}\\d{1,3}))' +
+    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
+    '(\\?[;&a-z\\d%_.~+=-]*)?' +
+    '(\\#[-a-z\\d_]*)?$',
+  'i',
+);
+export function isValidURL(url: string) {
+  return url ? URL_REGEX.test(url) : false;
 }

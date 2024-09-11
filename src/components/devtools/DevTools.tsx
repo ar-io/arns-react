@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import DialogModal from '../modals/DialogModal/DialogModal';
 import ArNSRegistrySettings from './ArNSRegistrySettings';
+import NetworkSettings from './NetworkSettings';
 import TransferIO from './TransferIO';
 import './styles.css';
 
@@ -31,7 +32,7 @@ const DevTools = () => {
       {isOpen && (
         <div className="modal-container">
           <DialogModal
-            title={<h2 className="white">ArNS Devtools</h2>}
+            title={<h2 className="text-white text-2xl">ArNS Devtools</h2>}
             body={
               <div
                 className="flex flex-column white"
@@ -49,6 +50,7 @@ const DevTools = () => {
               >
                 <TransferIO />
                 <ArNSRegistrySettings />
+                <NetworkSettings />
               </div>
             }
             onCancel={toggleModal}

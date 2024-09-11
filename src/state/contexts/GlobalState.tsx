@@ -16,6 +16,7 @@ import {
   ARWEAVE_HOST,
   DEFAULT_ARWEAVE,
   IO_PROCESS_ID,
+  NETWORK_DEFAULTS,
 } from '../../utils/constants';
 import type { GlobalAction } from '../reducers/GlobalReducer';
 
@@ -27,6 +28,11 @@ export const defaultArIO = IO.init({
 export type GlobalState = {
   ioTicker: string;
   gateway: string;
+  aoNetwork: {
+    CU_URL: string;
+    MU_URL: string;
+    SCHEDULER: string;
+  };
   ioProcessId: ArweaveTransactionID;
   blockHeight?: number;
   lastBlockUpdateTimestamp?: number;
@@ -38,6 +44,7 @@ const initialState: GlobalState = {
   ioProcessId: ARNS_REGISTRY_ADDRESS,
   ioTicker: '',
   gateway: ARWEAVE_HOST,
+  aoNetwork: NETWORK_DEFAULTS.AO,
   blockHeight: undefined,
   lastBlockUpdateTimestamp: undefined,
   arweaveDataProvider: new ArweaveCompositeDataProvider({

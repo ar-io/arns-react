@@ -1,4 +1,8 @@
-import { ioDevnetProcessId } from '@ar.io/sdk/web';
+import {
+  DEFAULT_SCHEDULER_ID,
+  IO_TESTNET_PROCESS_ID,
+  ioDevnetProcessId,
+} from '@ar.io/sdk/web';
 import Arweave from 'arweave';
 import { ArweaveWebWallet } from 'arweave-wallet-connector';
 
@@ -29,9 +33,21 @@ export const ARWEAVE_APP_API = new ArweaveWebWallet(
   { name: 'ArNS' },
   { state: { url: 'arweave.app' } },
 );
-export const ARNS_SERVICE_API =
-  process.env.VITE_ARNS_SERVICE_API ?? 'https://dev.arns.app';
+
 export const ARWEAVE_HOST = process.env.VITE_ARWEAVE_HOST ?? 'ar-io.dev';
+
+export const NETWORK_DEFAULTS = {
+  AO: {
+    CU_URL: 'https://cu.ar-io.dev', // ao public cu: https://cu.ao-testnet.xyz
+    MU_URL: 'https://mu.ao-testnet.xyz',
+    SCHEDULER: DEFAULT_SCHEDULER_ID,
+  },
+  ARWEAVE: {
+    HOST: ARWEAVE_HOST,
+    PORT: 443,
+    PROTOCOL: 'https',
+  },
+};
 
 export const DEFAULT_ARWEAVE = new Arweave({
   host: ARWEAVE_HOST,
@@ -69,16 +85,16 @@ export const EMAIL_REGEX = new RegExp(
 );
 export const TTL_SECONDS_REGEX = new RegExp('^[0-9]{3,7}$');
 export const TTL_SECONDS_ENTRY_REGEX = new RegExp('^[0-9]{1,7}$');
+
+export const FQDN_REGEX = new RegExp(
+  '^(?:(?!-)[A-Za-z0-9-]{1,63}(?<!-)\\.)+[A-Za-z]{1,63}$',
+);
 export const ARNS_REGISTRY_ADDRESS = new ArweaveTransactionID(
-  process.env.VITE_ARNS_REGISTRY_ADDRESS ??
-    '_NctcA2sRy1-J4OmIQZbYFPM17piNcbdBPH2ncX2RL8',
+  process.env.VITE_ARNS_REGISTRY_ADDRESS ?? IO_TESTNET_PROCESS_ID,
 );
 export const IO_PROCESS_ID =
   process.env.VITE_IO_PROCESS_ID || ioDevnetProcessId;
-export const STUB_ANT_ID = '6dUiTQKJCVD7c9icQhbbzfI-Le_hC4sXRDx1OQQ6jMI';
-export const STUB_ARWEAVE_TXID = '2yHmORN-N12hM1B2f9-JPMpOfa59qhpsExFCzImrD30'; // arns spec pdf
-export const DEFAULT_ANT_SOURCE_CODE_TX =
-  'H2uxnw_oVIEzXeBeYmxDgJuxPqwBCGPO4OmQzdWQu3U';
+
 export const RECOMMENDED_TRANSACTION_CONFIRMATIONS = 50;
 export const DEFAULT_TTL_SECONDS = 3600;
 export const DEFAULT_MAX_UNDERNAMES = 10;
@@ -86,7 +102,7 @@ export const MAX_UNDERNAME_COUNT = 10_000;
 
 // seconds / milliseconds in 365 days (not leap year aware)
 export const YEAR_IN_MILLISECONDS = 31536000000;
-export const YEAR_IN_SECONDS = 31536000;
+
 export const AVERAGE_BLOCK_TIME_MS = 120_000; // 2 mins
 
 export const FEATURED_DOMAINS: { [x: string]: { imageUrl: string } } = {
@@ -102,11 +118,8 @@ export const FEATURED_DOMAINS: { [x: string]: { imageUrl: string } } = {
   mfers: { imageUrl: MFERS_IMAGE },
 };
 
-export const NAME_PRICE_INFO =
-  'Registration fees are determined by the character length of the domain, and what lease duration you choose.';
 export const MAX_TTL_SECONDS = 2_592_000;
 export const MIN_TTL_SECONDS = 900;
-export const MIN_SAFE_EDIT_CONFIRMATIONS = 15;
 export const MAX_LEASE_DURATION = 5;
 export const MIN_LEASE_DURATION = 1;
 export const SECONDS_IN_GRACE_PERIOD = 1814400;
