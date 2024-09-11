@@ -35,12 +35,11 @@ const DevTools = () => {
             title={<h2 className="text-white text-2xl">ArNS Devtools</h2>}
             body={
               <div
-                className="flex flex-column white"
+                className="flex flex-column white scrollbar scrollbar-w-2 scrollbar-thumb-dark-grey scrollbar-thumb-rounded-md p-2"
                 style={{
                   gap: '20px',
                   fontSize: '13px',
-                  padding: '15px 0px',
-                  paddingTop: '0px',
+
                   lineHeight: '1.5',
                   fontWeight: 160,
                   width: '600px',
@@ -48,9 +47,11 @@ const DevTools = () => {
                   overflowY: 'auto',
                 }}
               >
-                <TransferIO />
-                <ArNSRegistrySettings />
-                <NetworkSettings />
+                <div className="flex flex-column" style={{ gap: '10px' }}>
+                  <TransferIO />
+                  <ArNSRegistrySettings />
+                  <NetworkSettings />
+                </div>
               </div>
             }
             onCancel={toggleModal}

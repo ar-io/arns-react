@@ -2,7 +2,6 @@ import {
   IO,
   IO_DEVNET_PROCESS_ID,
   IO_TESTNET_PROCESS_ID,
-  ioDevnetProcessId,
 } from '@ar.io/sdk/web';
 import { ArweaveCompositeDataProvider } from '@src/services/arweave/ArweaveCompositeDataProvider';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';

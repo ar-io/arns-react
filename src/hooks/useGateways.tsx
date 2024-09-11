@@ -3,10 +3,10 @@ import { useGlobalState } from '@src/state';
 import { useQuery } from '@tanstack/react-query';
 
 const useGateways = () => {
-  const [{ arioContract }] = useGlobalState();
+  const [{ arioContract, ioProcessId }] = useGlobalState();
 
   return useQuery({
-    queryKey: ['gateways'],
+    queryKey: ['gateways', ioProcessId?.toString()],
     queryFn: async () => {
       const result = await arioContract.getGateways({ limit: 10_000 });
       const gateways = result.items.reduce((acc, gateway) => {

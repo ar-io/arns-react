@@ -1,6 +1,5 @@
 import { AOProcess, IO } from '@ar.io/sdk';
 import { connect } from '@permaweb/aoconnect';
-import useGateways from '@src/hooks/useGateways';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import {
   dispatchArIOContract,
@@ -12,20 +11,19 @@ import { isArweaveTransactionID, isValidGateway, isValidURL } from '@src/utils';
 import { NETWORK_DEFAULTS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Collapse, Input, Space } from 'antd';
+import { List } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import ArweaveID, { ArweaveIdTypes } from '../layout/ArweaveID/ArweaveID';
+import SelectGatewayModal from './SelectGatewayModal/SelectGatewayModal';
 import './styles.css';
 
 const Panel = Collapse.Panel;
 
 function NetworkSettings() {
-  const [
-    { arweaveDataProvider, gateway, aoNetwork, ioProcessId },
-    dispatchGlobalState,
-  ] = useGlobalState();
+  const [{ gateway, aoNetwork, ioProcessId }, dispatchGlobalState] =
+    useGlobalState();
   const [{ wallet }] = useWalletState();
-  const { data: gateways } = useGateways();
   const [newGateway, setNewGateway] = useState<string>(gateway);
   const [validGateway, setValidGateway] = useState<boolean>(true);
   const [newCuUrl, setNewCuUrl] = useState<string>(NETWORK_DEFAULTS.AO.CU_URL);
@@ -36,6 +34,7 @@ function NetworkSettings() {
     NETWORK_DEFAULTS.AO.SCHEDULER,
   );
   const [validSuAddress, setValidSuAddress] = useState<boolean>(true);
+  const [showGatewayModal, setShowGatewayModal] = useState<boolean>(false);
 
   function reset() {
     // gateway
@@ -70,14 +69,25 @@ function NetworkSettings() {
     setValidSuAddress(true);
   }, [aoNetwork]);
 
-  function updateGateway(gate: string) {
+  async function updateGateway(gate: string) {
     try {
       if (!isValidGateway(gate)) {
         throw new Error('Invalid gateway: ' + gate);
       }
+      // test gateway
+      await fetch(`https://${gate}/info`).catch((error) => {
+        console.error(error);
+        throw new Error('Gateway not available: ' + gate);
+      });
       if (wallet) dispatchNewGateway(gate, wallet, dispatchGlobalState);
     } catch (error) {
       eventEmitter.emit('error', error);
+      eventEmitter.emit('error', {
+        name: 'Devtools',
+        message: 'Invalid gateway: ' + gate,
+      });
+      setNewGateway(gateway);
+      updateGateway(gateway);
     }
   }
 
@@ -97,7 +107,7 @@ function NetworkSettings() {
         payload: newConfig,
       });
       const ao = connect({
-        GATEWAY_URL: gateway,
+        GATEWAY_URL: 'https://' + gateway,
         CU_URL: newConfig.CU_URL,
         MU_URL: newConfig.MU_URL,
       });
@@ -129,9 +139,21 @@ function NetworkSettings() {
             key="1"
           >
             <>
-              <span className="flex w-fit justify-center items-center bg-primary-thin rounded-t-md px-4 py-1 border-x-2 border-t-2 border-primary text-md text-primary font-semibold mt-2">
-                Gateway: <span className="text-white pl-2">{gateway}</span>
-              </span>
+              <div className="flex flex-row justify-between items-center text-white">
+                {' '}
+                <span className="flex w-fit justify-center items-center bg-primary-thin rounded-t-md px-4 py-1 border-x-2 border-t-2 border-primary text-md text-primary font-semibold mt-2">
+                  Gateway: <span className="text-white pl-2">{gateway}</span>
+                </span>
+                <button
+                  className="border-2 border-primary flex flex-row bg-metallic-grey max-w-fit p-1 rounded-md text-white font-semibold "
+                  onClick={() => setShowGatewayModal(true)}
+                  style={{ gap: '5px' }}
+                >
+                  <List width={'18px'} height={'18px'} className="fill-white" />{' '}
+                  Choose ArIO Gateway
+                </button>
+              </div>
+
               <Input
                 className="bg-background justify-center items-center"
                 addonBefore="https://"
@@ -164,6 +186,17 @@ function NetworkSettings() {
                     >
                       reset
                     </button>
+
+                    <SelectGatewayModal
+                      show={showGatewayModal}
+                      setShow={setShowGatewayModal}
+                      setGateway={(g: string) => {
+                        setNewGateway(g);
+                        setValidGateway(true);
+                        updateGateway(g);
+                        setShowGatewayModal(false);
+                      }}
+                    />
                   </div>
                 }
               />
