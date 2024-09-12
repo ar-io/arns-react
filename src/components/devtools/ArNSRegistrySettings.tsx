@@ -10,7 +10,6 @@ import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { VALIDATION_INPUT_TYPES } from '@src/types';
 import { isArweaveTransactionID } from '@src/utils';
-import { IO_PROCESS_ID } from '@src/utils/constants';
 import { Collapse, Space } from 'antd';
 import Arweave from 'arweave';
 import { useEffect, useState } from 'react';
@@ -73,7 +72,7 @@ function ArNSRegistrySettings() {
   }
 
   function reset() {
-    confirmSetting(IO_PROCESS_ID?.toString());
+    confirmSetting(ioProcessId);
   }
 
   return (

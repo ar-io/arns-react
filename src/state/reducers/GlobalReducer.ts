@@ -59,6 +59,11 @@ export const reducer = (
           ...action.payload,
         },
       };
+    case 'setAoClient':
+      return {
+        ...state,
+        aoClient: action.payload,
+      };
     case 'setBlockHeight':
       return {
         ...state,
