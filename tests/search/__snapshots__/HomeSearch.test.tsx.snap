@@ -12,37 +12,12 @@ exports[`HomeSearch handles a capitalized name correctly 1`] = `
         class="flex flex-col w-full h-full"
       >
         <div
-          class="flex flex-row min-h-[50px] pb-2 text-2xl font-semibold text-white justify-center items-center"
-          data-testid="home-search-available-header"
-          style="gap: 0;"
-        >
-          <span>
-            ardrive
-          </span>
-           is available! 
-          <span
-            aria-label="check-circle"
-            class="anticon anticon-check-circle"
-            role="img"
-            style="font-size: 20px;"
-          >
-            <svg
-              aria-hidden="true"
-              data-icon="check-circle"
-              fill="currentColor"
-              focusable="false"
-              height="1em"
-              viewBox="64 64 896 896"
-              width="1em"
-            >
-              <path
-                d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm193.5 301.7l-210.6 292a31.8 31.8 0 01-51.7 0L318.5 484.9c-3.8-5.3 0-12.7 6.5-12.7h46.9c10.2 0 19.9 4.9 25.9 13.3l71.2 98.8 157.2-218c6-8.3 15.6-13.3 25.9-13.3H699c6.5 0 10.3 7.4 6.5 12.7z"
-              />
-            </svg>
-          </span>
-        </div>
+          class="min-h-[50px]"
+          data-testid="home-search-spacer-header"
+          style=""
+        />
         <div
-          class="flex flex-col w-full rounded-[4px] bg-foreground border-[1px] border-success"
+          class="flex flex-col w-full rounded-[4px] bg-foreground border-[1px] border-error"
         >
           <div
             class="flex flex-row w-full p-2 pr-[100px] relative gap-2"
@@ -92,32 +67,63 @@ exports[`HomeSearch handles a capitalized name correctly 1`] = `
                 <span
                   class="whitespace-nowrap flex items-center gap-2"
                 >
-                  AVAILABLE 
-                  <div
-                    class="fill-success"
+                  NOT AVAILABLE
+                  <span
+                    aria-label="info-circle"
+                    class="anticon anticon-info-circle fill-grey pointer"
                     height="14px"
+                    role="img"
                     width="14px"
-                  />
+                  >
+                    <svg
+                      aria-hidden="true"
+                      data-icon="info-circle"
+                      fill="currentColor"
+                      focusable="false"
+                      height="1em"
+                      viewBox="64 64 896 896"
+                      width="1em"
+                    >
+                      <path
+                        d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
+                      />
+                      <path
+                        d="M464 336a48 48 0 1096 0 48 48 0 10-96 0zm72 112h-48c-4.4 0-8 3.6-8 8v272c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V456c0-4.4-3.6-8-8-8z"
+                      />
+                    </svg>
+                  </span>
                 </span>
-              </span>
-              <span
-                class="text-sm text-white align-center"
-              >
-                Lease from 0 IO per year, or permabuy for 0 IO
               </span>
             </div>
             <div
               class="flex flex-row w-full justify-between mt-4"
             >
               <span
-                class="text-xl text-white"
+                class="text-xl text-grey"
               >
-                ar://ardrive
+                ardrive.ar-io.dev
               </span>
               <button
-                class="py-2 px-3 text-sm bg-primary font-bold rounded-[4px] text-black disabled:opacity-50 disabled:bg-grey"
+                class="text-[12px] text-white whitespace-nowrap flex items-center"
+                style="gap: 0;"
               >
-                Register
+                View Details 
+                <svg
+                  class="lucide lucide-chevron-right"
+                  fill="none"
+                  height="18px"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="18px"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="m9 18 6-6-6-6"
+                  />
+                </svg>
               </button>
             </div>
           </div>
@@ -178,37 +184,12 @@ exports[`HomeSearch handles a emoji name correctly 1`] = `
         class="flex flex-col w-full h-full"
       >
         <div
-          class="flex flex-row min-h-[50px] pb-2 text-2xl font-semibold text-white justify-center items-center"
-          data-testid="home-search-available-header"
-          style="gap: 0;"
-        >
-          <span>
-            🐘🕸
-          </span>
-           is available! 
-          <span
-            aria-label="check-circle"
-            class="anticon anticon-check-circle"
-            role="img"
-            style="font-size: 20px;"
-          >
-            <svg
-              aria-hidden="true"
-              data-icon="check-circle"
-              fill="currentColor"
-              focusable="false"
-              height="1em"
-              viewBox="64 64 896 896"
-              width="1em"
-            >
-              <path
-                d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm193.5 301.7l-210.6 292a31.8 31.8 0 01-51.7 0L318.5 484.9c-3.8-5.3 0-12.7 6.5-12.7h46.9c10.2 0 19.9 4.9 25.9 13.3l71.2 98.8 157.2-218c6-8.3 15.6-13.3 25.9-13.3H699c6.5 0 10.3 7.4 6.5 12.7z"
-              />
-            </svg>
-          </span>
-        </div>
+          class="min-h-[50px]"
+          data-testid="home-search-spacer-header"
+          style=""
+        />
         <div
-          class="flex flex-col w-full rounded-[4px] bg-foreground border-[1px] border-success"
+          class="flex flex-col w-full rounded-[4px] bg-foreground border-[1px] border-error"
         >
           <div
             class="flex flex-row w-full p-2 pr-[100px] relative gap-2"
@@ -258,32 +239,63 @@ exports[`HomeSearch handles a emoji name correctly 1`] = `
                 <span
                   class="whitespace-nowrap flex items-center gap-2"
                 >
-                  AVAILABLE 
-                  <div
-                    class="fill-success"
+                  NOT AVAILABLE
+                  <span
+                    aria-label="info-circle"
+                    class="anticon anticon-info-circle fill-grey pointer"
                     height="14px"
+                    role="img"
                     width="14px"
-                  />
+                  >
+                    <svg
+                      aria-hidden="true"
+                      data-icon="info-circle"
+                      fill="currentColor"
+                      focusable="false"
+                      height="1em"
+                      viewBox="64 64 896 896"
+                      width="1em"
+                    >
+                      <path
+                        d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
+                      />
+                      <path
+                        d="M464 336a48 48 0 1096 0 48 48 0 10-96 0zm72 112h-48c-4.4 0-8 3.6-8 8v272c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V456c0-4.4-3.6-8-8-8z"
+                      />
+                    </svg>
+                  </span>
                 </span>
-              </span>
-              <span
-                class="text-sm text-white align-center"
-              >
-                Lease from 0 IO per year, or permabuy for 0 IO
               </span>
             </div>
             <div
               class="flex flex-row w-full justify-between mt-4"
             >
               <span
-                class="text-xl text-white"
+                class="text-xl text-grey"
               >
-                ar://🐘🕸
+                🐘🕸.ar-io.dev
               </span>
               <button
-                class="py-2 px-3 text-sm bg-primary font-bold rounded-[4px] text-black disabled:opacity-50 disabled:bg-grey"
+                class="text-[12px] text-white whitespace-nowrap flex items-center"
+                style="gap: 0;"
               >
-                Register
+                View Details 
+                <svg
+                  class="lucide lucide-chevron-right"
+                  fill="none"
+                  height="18px"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="18px"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="m9 18 6-6-6-6"
+                  />
+                </svg>
               </button>
             </div>
           </div>
@@ -344,37 +356,12 @@ exports[`HomeSearch handles a lowercase name correctly 1`] = `
         class="flex flex-col w-full h-full"
       >
         <div
-          class="flex flex-row min-h-[50px] pb-2 text-2xl font-semibold text-white justify-center items-center"
-          data-testid="home-search-available-header"
-          style="gap: 0;"
-        >
-          <span>
-            ardrive
-          </span>
-           is available! 
-          <span
-            aria-label="check-circle"
-            class="anticon anticon-check-circle"
-            role="img"
-            style="font-size: 20px;"
-          >
-            <svg
-              aria-hidden="true"
-              data-icon="check-circle"
-              fill="currentColor"
-              focusable="false"
-              height="1em"
-              viewBox="64 64 896 896"
-              width="1em"
-            >
-              <path
-                d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm193.5 301.7l-210.6 292a31.8 31.8 0 01-51.7 0L318.5 484.9c-3.8-5.3 0-12.7 6.5-12.7h46.9c10.2 0 19.9 4.9 25.9 13.3l71.2 98.8 157.2-218c6-8.3 15.6-13.3 25.9-13.3H699c6.5 0 10.3 7.4 6.5 12.7z"
-              />
-            </svg>
-          </span>
-        </div>
+          class="min-h-[50px]"
+          data-testid="home-search-spacer-header"
+          style=""
+        />
         <div
-          class="flex flex-col w-full rounded-[4px] bg-foreground border-[1px] border-success"
+          class="flex flex-col w-full rounded-[4px] bg-foreground border-[1px] border-error"
         >
           <div
             class="flex flex-row w-full p-2 pr-[100px] relative gap-2"
@@ -424,32 +411,63 @@ exports[`HomeSearch handles a lowercase name correctly 1`] = `
                 <span
                   class="whitespace-nowrap flex items-center gap-2"
                 >
-                  AVAILABLE 
-                  <div
-                    class="fill-success"
+                  NOT AVAILABLE
+                  <span
+                    aria-label="info-circle"
+                    class="anticon anticon-info-circle fill-grey pointer"
                     height="14px"
+                    role="img"
                     width="14px"
-                  />
+                  >
+                    <svg
+                      aria-hidden="true"
+                      data-icon="info-circle"
+                      fill="currentColor"
+                      focusable="false"
+                      height="1em"
+                      viewBox="64 64 896 896"
+                      width="1em"
+                    >
+                      <path
+                        d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
+                      />
+                      <path
+                        d="M464 336a48 48 0 1096 0 48 48 0 10-96 0zm72 112h-48c-4.4 0-8 3.6-8 8v272c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V456c0-4.4-3.6-8-8-8z"
+                      />
+                    </svg>
+                  </span>
                 </span>
-              </span>
-              <span
-                class="text-sm text-white align-center"
-              >
-                Lease from 0 IO per year, or permabuy for 0 IO
               </span>
             </div>
             <div
               class="flex flex-row w-full justify-between mt-4"
             >
               <span
-                class="text-xl text-white"
+                class="text-xl text-grey"
               >
-                ar://ardrive
+                ardrive.ar-io.dev
               </span>
               <button
-                class="py-2 px-3 text-sm bg-primary font-bold rounded-[4px] text-black disabled:opacity-50 disabled:bg-grey"
+                class="text-[12px] text-white whitespace-nowrap flex items-center"
+                style="gap: 0;"
               >
-                Register
+                View Details 
+                <svg
+                  class="lucide lucide-chevron-right"
+                  fill="none"
+                  height="18px"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="18px"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="m9 18 6-6-6-6"
+                  />
+                </svg>
               </button>
             </div>
           </div>
@@ -599,9 +617,9 @@ exports[`HomeSearch renders available header 1`] = `
                 </span>
               </span>
               <span
-                class="text-sm text-white align-center"
+                class="text-sm text-white align-center animate-pulse"
               >
-                Lease from 0 IO per year, or permabuy for 0 IO
+                Loading prices...
               </span>
             </div>
             <div
@@ -1286,37 +1304,12 @@ exports[`HomeSearch renders unavailable header 1`] = `
         class="flex flex-col w-full h-full"
       >
         <div
-          class="flex flex-row min-h-[50px] pb-2 text-2xl font-semibold text-white justify-center items-center"
-          data-testid="home-search-available-header"
-          style="gap: 0;"
-        >
-          <span>
-            ardrive
-          </span>
-           is available! 
-          <span
-            aria-label="check-circle"
-            class="anticon anticon-check-circle"
-            role="img"
-            style="font-size: 20px;"
-          >
-            <svg
-              aria-hidden="true"
-              data-icon="check-circle"
-              fill="currentColor"
-              focusable="false"
-              height="1em"
-              viewBox="64 64 896 896"
-              width="1em"
-            >
-              <path
-                d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm193.5 301.7l-210.6 292a31.8 31.8 0 01-51.7 0L318.5 484.9c-3.8-5.3 0-12.7 6.5-12.7h46.9c10.2 0 19.9 4.9 25.9 13.3l71.2 98.8 157.2-218c6-8.3 15.6-13.3 25.9-13.3H699c6.5 0 10.3 7.4 6.5 12.7z"
-              />
-            </svg>
-          </span>
-        </div>
+          class="min-h-[50px]"
+          data-testid="home-search-spacer-header"
+          style=""
+        />
         <div
-          class="flex flex-col w-full rounded-[4px] bg-foreground border-[1px] border-success"
+          class="flex flex-col w-full rounded-[4px] bg-foreground border-[1px] border-error"
         >
           <div
             class="flex flex-row w-full p-2 pr-[100px] relative gap-2"
@@ -1366,32 +1359,63 @@ exports[`HomeSearch renders unavailable header 1`] = `
                 <span
                   class="whitespace-nowrap flex items-center gap-2"
                 >
-                  AVAILABLE 
-                  <div
-                    class="fill-success"
+                  NOT AVAILABLE
+                  <span
+                    aria-label="info-circle"
+                    class="anticon anticon-info-circle fill-grey pointer"
                     height="14px"
+                    role="img"
                     width="14px"
-                  />
+                  >
+                    <svg
+                      aria-hidden="true"
+                      data-icon="info-circle"
+                      fill="currentColor"
+                      focusable="false"
+                      height="1em"
+                      viewBox="64 64 896 896"
+                      width="1em"
+                    >
+                      <path
+                        d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
+                      />
+                      <path
+                        d="M464 336a48 48 0 1096 0 48 48 0 10-96 0zm72 112h-48c-4.4 0-8 3.6-8 8v272c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V456c0-4.4-3.6-8-8-8z"
+                      />
+                    </svg>
+                  </span>
                 </span>
-              </span>
-              <span
-                class="text-sm text-white align-center"
-              >
-                Lease from 0 IO per year, or permabuy for 0 IO
               </span>
             </div>
             <div
               class="flex flex-row w-full justify-between mt-4"
             >
               <span
-                class="text-xl text-white"
+                class="text-xl text-grey"
               >
-                ar://ardrive
+                ardrive.ar-io.dev
               </span>
               <button
-                class="py-2 px-3 text-sm bg-primary font-bold rounded-[4px] text-black disabled:opacity-50 disabled:bg-grey"
+                class="text-[12px] text-white whitespace-nowrap flex items-center"
+                style="gap: 0;"
               >
-                Register
+                View Details 
+                <svg
+                  class="lucide lucide-chevron-right"
+                  fill="none"
+                  height="18px"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="18px"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="m9 18 6-6-6-6"
+                  />
+                </svg>
               </button>
             </div>
           </div>
