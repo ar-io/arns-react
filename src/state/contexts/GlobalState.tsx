@@ -1,4 +1,5 @@
-import { AoIORead, AoIOWrite, IO } from '@ar.io/sdk/web';
+import { AOProcess, AoIORead, AoIOWrite, IO } from '@ar.io/sdk/web';
+import { connect } from '@permaweb/aoconnect';
 import React, {
   Dispatch,
   createContext,
@@ -12,6 +13,7 @@ import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveComp
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
 import {
+  AO_CU_URL,
   ARNS_REGISTRY_ADDRESS,
   ARWEAVE_HOST,
   DEFAULT_ARWEAVE,
@@ -21,7 +23,12 @@ import type { GlobalAction } from '../reducers/GlobalReducer';
 
 export const defaultArweave = new SimpleArweaveDataProvider(DEFAULT_ARWEAVE);
 export const defaultArIO = IO.init({
-  processId: IO_PROCESS_ID,
+  process: new AOProcess({
+    processId: IO_PROCESS_ID,
+    ao: connect({
+      CU_URL: AO_CU_URL,
+    }),
+  }),
 });
 
 export type GlobalState = {
