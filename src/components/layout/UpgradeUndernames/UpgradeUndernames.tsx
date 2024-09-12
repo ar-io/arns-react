@@ -13,10 +13,7 @@ import {
   IncreaseUndernamesPayload,
 } from '../../../types';
 import { isARNSDomainNameValid, lowerCaseDomain } from '../../../utils';
-import {
-  ARNS_REGISTRY_ADDRESS,
-  MAX_UNDERNAME_COUNT,
-} from '../../../utils/constants';
+import { MAX_UNDERNAME_COUNT } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { InfoIcon } from '../../icons';
 import Counter from '../../inputs/Counter/Counter';
@@ -28,7 +25,8 @@ function UpgradeUndernames() {
   const isMobile = useIsMobile();
   const location = useLocation();
   const navigate = useNavigate();
-  const [{ arweaveDataProvider, ioTicker, arioContract }] = useGlobalState();
+  const [{ arweaveDataProvider, ioTicker, arioContract, ioProcessId }] =
+    useGlobalState();
   const name = location.pathname.split('/').at(-2);
   const [, dispatchTransactionState] = useTransactionState();
   const [record, setRecord] = useState<AoArNSNameData>();
@@ -215,7 +213,7 @@ function UpgradeUndernames() {
                   dispatchTransactionState({
                     type: 'setTransactionData',
                     payload: {
-                      assetId: ARNS_REGISTRY_ADDRESS.toString(),
+                      assetId: ioProcessId,
                       functionName: 'increaseundernameLimit',
                       ...increaseUndernamePayload,
                       interactionPrice: fee,

@@ -10,11 +10,9 @@ import React, {
 } from 'react';
 
 import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
-import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
 import {
   AO_CU_URL,
-  ARNS_REGISTRY_ADDRESS,
   ARWEAVE_HOST,
   DEFAULT_ARWEAVE,
   IO_PROCESS_ID,
@@ -40,7 +38,7 @@ export type GlobalState = {
     MU_URL: string;
     SCHEDULER: string;
   };
-  ioProcessId: ArweaveTransactionID;
+  ioProcessId: string;
   blockHeight?: number;
   lastBlockUpdateTimestamp?: number;
   arweaveDataProvider: ArweaveCompositeDataProvider;
@@ -48,7 +46,7 @@ export type GlobalState = {
 };
 
 const initialState: GlobalState = {
-  ioProcessId: ARNS_REGISTRY_ADDRESS,
+  ioProcessId: IO_PROCESS_ID,
   ioTicker: '',
   gateway: ARWEAVE_HOST,
   aoNetwork: NETWORK_DEFAULTS.AO,

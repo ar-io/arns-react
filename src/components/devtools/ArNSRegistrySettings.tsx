@@ -4,7 +4,6 @@ import {
   IO_TESTNET_PROCESS_ID,
 } from '@ar.io/sdk/web';
 import { ArweaveCompositeDataProvider } from '@src/services/arweave/ArweaveCompositeDataProvider';
-import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { SimpleArweaveDataProvider } from '@src/services/arweave/SimpleArweaveDataProvider';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
@@ -37,7 +36,7 @@ function ArNSRegistrySettings() {
     if (isArweaveTransactionID(id)) {
       dispatchGlobalState({
         type: 'setIoProcessId',
-        payload: new ArweaveTransactionID(id.trim()),
+        payload: id.trim(),
       });
 
       const arIOContract = IO.init({

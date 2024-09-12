@@ -26,7 +26,6 @@ import {
   userHasSufficientBalance,
 } from '../../../utils';
 import {
-  ARNS_REGISTRY_ADDRESS,
   MAX_LEASE_DURATION,
   MIN_LEASE_DURATION,
 } from '../../../utils/constants';
@@ -46,7 +45,8 @@ function RegisterNameForm() {
     { domain, fee, leaseDuration, registrationType, antID, targetId },
     dispatchRegisterState,
   ] = useRegistrationState();
-  const [{ arweaveDataProvider, ioTicker, arioContract }] = useGlobalState();
+  const [{ arweaveDataProvider, ioTicker, arioContract, ioProcessId }] =
+    useGlobalState();
   const [{ walletAddress, balances }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const { name } = useParams();
@@ -213,7 +213,7 @@ function RegisterNameForm() {
     dispatchTransactionState({
       type: 'setTransactionData',
       payload: {
-        assetId: ARNS_REGISTRY_ADDRESS.toString(),
+        assetId: ioProcessId,
         functionName: 'buyRecord',
         ...buyRecordPayload,
         interactionPrice: fee?.[ioTicker],

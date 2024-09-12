@@ -61,8 +61,10 @@ export function WalletStateProvider({
 }: StateProviderProps): JSX.Element {
   const [state, dispatchWalletState] = useReducer(reducer, initialState);
 
-  const [{ arweaveDataProvider, blockHeight, ioTicker }, dispatchGlobalState] =
-    useGlobalState();
+  const [
+    { arweaveDataProvider, blockHeight, ioTicker, ioProcessId },
+    dispatchGlobalState,
+  ] = useGlobalState();
 
   const { walletAddress, wallet } = state;
 
@@ -81,7 +83,7 @@ export function WalletStateProvider({
         }),
         signer: wallet?.arconnectSigner as ContractSigner,
       }),
-      ioProcessId: new ArweaveTransactionID(IO_PROCESS_ID),
+      ioProcessId,
       dispatch: dispatchGlobalState,
     });
 

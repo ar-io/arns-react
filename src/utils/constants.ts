@@ -1,8 +1,4 @@
-import {
-  DEFAULT_SCHEDULER_ID,
-  IO_TESTNET_PROCESS_ID,
-  ioDevnetProcessId,
-} from '@ar.io/sdk/web';
+import { DEFAULT_SCHEDULER_ID, ioDevnetProcessId } from '@ar.io/sdk/web';
 import Arweave from 'arweave';
 import { ArweaveWebWallet } from 'arweave-wallet-connector';
 
@@ -75,9 +71,6 @@ export const TTL_SECONDS_ENTRY_REGEX = new RegExp('^[0-9]{1,7}$');
 
 export const FQDN_REGEX = new RegExp(
   '^(?:(?!-)[A-Za-z0-9-]{1,63}(?<!-)\\.)+[A-Za-z]{1,63}$',
-);
-export const ARNS_REGISTRY_ADDRESS = new ArweaveTransactionID(
-  process.env.VITE_ARNS_REGISTRY_ADDRESS ?? IO_TESTNET_PROCESS_ID,
 );
 export const IO_PROCESS_ID =
   process.env.VITE_IO_PROCESS_ID || ioDevnetProcessId;

@@ -114,7 +114,7 @@ function NetworkSettings() {
       dispatchArIOContract({
         contract: IO.init({
           process: new AOProcess({
-            processId: ioProcessId.toString(),
+            processId: ioProcessId,
             ao,
           }),
         }),

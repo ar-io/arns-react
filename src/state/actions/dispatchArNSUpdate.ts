@@ -15,7 +15,7 @@ export function dispatchArNSUpdate({
   emitter: ArNSEventEmitter;
   dispatch: Dispatch<ArNSAction>;
   walletAddress: ArweaveTransactionID;
-  ioProcessId: ArweaveTransactionID;
+  ioProcessId: string;
 }) {
   dispatch({ type: 'setDomains', payload: {} });
   dispatch({ type: 'setAnts', payload: {} });
@@ -63,7 +63,7 @@ export function dispatchArNSUpdate({
       captureException(new Error(e), {
         tags: {
           walletAddress: walletAddress.toString(),
-          ioProcessId: ioProcessId.toString(),
+          ioProcessId: ioProcessId,
         },
       });
     } else if (!e.includes('does not support provided action.')) {

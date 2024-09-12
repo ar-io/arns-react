@@ -30,7 +30,7 @@ export default async function dispatchArIOInteraction({
   workflowName: ARNS_INTERACTION_TYPES;
   owner: ArweaveTransactionID;
   arioContract?: AoIOWrite;
-  processId: ArweaveTransactionID;
+  processId: string;
   dispatch: Dispatch<TransactionAction>;
   signer?: ContractSigner;
   ao?: AoClient;

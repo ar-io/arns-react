@@ -1,5 +1,4 @@
 import { AoIORead, AoIOWrite } from '@ar.io/sdk/web';
-import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 
 import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
 import { GlobalState } from '../contexts/GlobalState';
@@ -22,7 +21,7 @@ export type GlobalAction =
     }
   | {
       type: 'setIoProcessId';
-      payload: ArweaveTransactionID;
+      payload: string;
     }
   | {
       type: 'setBlockHeight';
