@@ -4,7 +4,6 @@ import {
   createAoSigner,
   evolveANT,
 } from '@ar.io/sdk';
-import { connect } from '@permaweb/aoconnect';
 import { Tooltip } from '@src/components/data-display';
 import { CloseIcon } from '@src/components/icons';
 import { Loader } from '@src/components/layout';
@@ -38,7 +37,7 @@ function UpgradeAntModal({
   visible: boolean;
   setVisible: (visible: boolean) => void;
 }) {
-  const [{ aoNetwork, gateway, aoClient }] = useGlobalState();
+  const [{ aoClient }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const [accepted, setAccepted] = useState(false);
   const [changelog, setChangelog] = useState('default changelog');

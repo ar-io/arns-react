@@ -72,6 +72,15 @@ export const TTL_SECONDS_ENTRY_REGEX = new RegExp('^[0-9]{1,7}$');
 export const FQDN_REGEX = new RegExp(
   '^(?:(?!-)[A-Za-z0-9-]{1,63}(?<!-)\\.)+[A-Za-z]{1,63}$',
 );
+export const URL_REGEX = new RegExp(
+  '^((https?|ftp)://)?' +
+    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
+    '((\\d{1,3}\\.){3}\\d{1,3}))' +
+    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
+    '(\\?[;&a-z\\d%_.~+=-]*)?' +
+    '(\\#[-a-z\\d_]*)?$',
+  'i',
+);
 export const IO_PROCESS_ID =
   process.env.VITE_IO_PROCESS_ID || ioDevnetProcessId;
 export const AO_CU_URL =

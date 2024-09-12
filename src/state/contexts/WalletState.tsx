@@ -1,5 +1,4 @@
 import { AOProcess, ContractSigner, IO } from '@ar.io/sdk/web';
-import { connect } from '@permaweb/aoconnect';
 import { ArweaveAppError } from '@src/utils/errors';
 import React, {
   Dispatch,
@@ -13,11 +12,7 @@ import { useEffectOnce } from '../../hooks/useEffectOnce/useEffectOnce';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { ArConnectWalletConnector } from '../../services/wallets';
 import { ArweaveWalletConnector, WALLET_TYPES } from '../../types';
-import {
-  AO_CU_URL,
-  ARWEAVE_APP_API,
-  IO_PROCESS_ID,
-} from '../../utils/constants';
+import { ARWEAVE_APP_API } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 import { dispatchArIOContract } from '../actions/dispatchArIOContract';
 import { WalletAction } from '../reducers/WalletReducer';
