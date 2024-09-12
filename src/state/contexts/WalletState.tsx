@@ -1,5 +1,4 @@
 import { AOProcess, ContractSigner, IO } from '@ar.io/sdk/web';
-import { connect } from '@permaweb/aoconnect';
 import { ArweaveAppError } from '@src/utils/errors';
 import React, {
   Dispatch,
@@ -13,11 +12,7 @@ import { useEffectOnce } from '../../hooks/useEffectOnce/useEffectOnce';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { ArConnectWalletConnector } from '../../services/wallets';
 import { ArweaveWalletConnector, WALLET_TYPES } from '../../types';
-import {
-  AO_CU_URL,
-  ARWEAVE_APP_API,
-  IO_PROCESS_ID,
-} from '../../utils/constants';
+import { ARWEAVE_APP_API } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 import { dispatchArIOContract } from '../actions/dispatchArIOContract';
 import { WalletAction } from '../reducers/WalletReducer';
@@ -61,8 +56,10 @@ export function WalletStateProvider({
 }: StateProviderProps): JSX.Element {
   const [state, dispatchWalletState] = useReducer(reducer, initialState);
 
-  const [{ arweaveDataProvider, blockHeight, ioTicker }, dispatchGlobalState] =
-    useGlobalState();
+  const [
+    { arweaveDataProvider, blockHeight, ioTicker, ioProcessId, aoClient },
+    dispatchGlobalState,
+  ] = useGlobalState();
 
   const { walletAddress, wallet } = state;
 
@@ -74,14 +71,12 @@ export function WalletStateProvider({
     dispatchArIOContract({
       contract: IO.init({
         process: new AOProcess({
-          processId: IO_PROCESS_ID,
-          ao: connect({
-            CU_URL: AO_CU_URL,
-          }),
+          processId: ioProcessId,
+          ao: aoClient,
         }),
         signer: wallet?.arconnectSigner as ContractSigner,
       }),
-      ioProcessId: new ArweaveTransactionID(IO_PROCESS_ID),
+      ioProcessId,
       dispatch: dispatchGlobalState,
     });
 
@@ -107,7 +102,7 @@ export function WalletStateProvider({
     ARWEAVE_APP_API.on('disconnect', removeWalletState);
 
     return () => ARWEAVE_APP_API.off('disconnect', removeWalletState);
-  }, [walletAddress, wallet]);
+  }, [walletAddress, wallet, aoClient]);
 
   useEffect(() => {
     if (!Object.keys(state.balances).includes(ioTicker)) {

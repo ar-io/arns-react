@@ -11,7 +11,7 @@ import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
-import { useArNSState, useWalletState } from '@src/state';
+import { useArNSState, useGlobalState, useWalletState } from '@src/state';
 import {
   doAntsRequireUpdate,
   formatForMaxCharCount,
@@ -37,6 +37,7 @@ function UpgradeAntModal({
   visible: boolean;
   setVisible: (visible: boolean) => void;
 }) {
+  const [{ aoClient }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const [accepted, setAccepted] = useState(false);
   const [changelog, setChangelog] = useState('default changelog');
@@ -98,6 +99,7 @@ function UpgradeAntModal({
           processId: antId,
           luaCodeTxId: ANT_LUA_ID,
           signer,
+          ao: aoClient,
         }).catch(() => {
           failedUpgrades.push(antId);
           eventEmitter.emit('error', {

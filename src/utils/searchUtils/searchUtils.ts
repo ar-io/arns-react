@@ -5,8 +5,10 @@ import { asciiToUnicode, unicodeToAscii } from 'puny-coder';
 import {
   APPROVED_CHARACTERS_REGEX,
   ARNS_NAME_REGEX,
+  FQDN_REGEX,
   TRAILING_DASH_UNDERSCORE_REGEX,
   UNDERNAME_REGEX,
+  URL_REGEX,
   YEAR_IN_MILLISECONDS,
 } from '../constants';
 
@@ -173,4 +175,12 @@ export function getOwnershipStatus(
     : walletAddress && controllers.includes(walletAddress)
     ? 'controller'
     : undefined;
+}
+
+export function isValidGateway(gateway: string) {
+  return gateway ? FQDN_REGEX.test(gateway) : false;
+}
+
+export function isValidURL(url: string) {
+  return url ? URL_REGEX.test(url) : false;
 }

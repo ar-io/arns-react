@@ -1,4 +1,4 @@
-import { AoIOWrite } from '@ar.io/sdk/web';
+import { AoIOWrite, IOToken, mIOToken } from '@ar.io/sdk/web';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { VALIDATION_INPUT_TYPES } from '@src/types';
@@ -19,6 +19,7 @@ function TransferIO() {
   const [ioBalance, setIoBalance] = useState<number>(0);
   const [toAddress, setToAddress] = useState<string>('');
   const [isValidAddress, setIsValidAddress] = useState<boolean>();
+  // store as mio, display as io
   const [quantity, setQuantity] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [transfering, setTransfering] = useState<boolean>(false);
@@ -51,7 +52,12 @@ function TransferIO() {
           },
           WRITE_OPTIONS,
         );
-        alert(`Transfer of ${quantity} successful: ${tx.id}`);
+        eventEmitter.emit('success', {
+          name: 'IO Transfer',
+          message: `Transfer of ${new mIOToken(quantity)
+            .toIO()
+            .valueOf()} successful: ${tx.id}`,
+        });
       }
     } catch (error) {
       eventEmitter.emit('error', error);
@@ -112,7 +118,7 @@ function TransferIO() {
                 <></>
               )}
               <span className="grey text-medium">
-                Amount: {formatIO(quantity)}
+                Amount: {formatIO(new mIOToken(quantity).toIO().valueOf())}
               </span>
               <ValidationInput
                 catchInvalidInput={true}
@@ -125,8 +131,12 @@ function TransferIO() {
                   padding: '15px',
                 }}
                 placeholder={'Quantity in IO to send'}
-                value={quantity}
-                setValue={(e) => setQuantity(parseInt(e?.toString()))}
+                value={new mIOToken(quantity).toIO().valueOf()}
+                setValue={(e) =>
+                  setQuantity(
+                    new IOToken(parseInt(e?.toString())).toMIO().valueOf(),
+                  )
+                }
                 validationPredicates={{}}
               />
               <span style={{ color: 'var(--accent)' }}>

@@ -1,6 +1,4 @@
-import { IO } from '@ar.io/sdk/web';
-import { ArweaveWalletConnector } from '@src/types';
-import { IO_PROCESS_ID } from '@src/utils/constants';
+import { AoIORead, AoIOWrite } from '@ar.io/sdk/web';
 import Arweave from 'arweave';
 import { Dispatch } from 'react';
 
@@ -11,7 +9,7 @@ import { GlobalAction } from '../reducers';
 
 export async function dispatchNewGateway(
   gateway: string,
-  walletConnector: ArweaveWalletConnector,
+  contract: AoIORead | AoIOWrite,
   dispatch: Dispatch<GlobalAction>,
 ): Promise<void> {
   try {
@@ -21,11 +19,6 @@ export async function dispatchNewGateway(
     });
 
     const arweaveDataProvider = new SimpleArweaveDataProvider(arweave);
-    const contract = IO.init({
-      processId: IO_PROCESS_ID,
-      signer: walletConnector.arconnectSigner,
-    });
-
     const provider = new ArweaveCompositeDataProvider({
       arweave: arweaveDataProvider,
       contract: contract,
