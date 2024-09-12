@@ -94,7 +94,12 @@ export const ARNS_REGISTRY_ADDRESS = new ArweaveTransactionID(
 );
 export const IO_PROCESS_ID =
   process.env.VITE_IO_PROCESS_ID || ioDevnetProcessId;
-
+export const AO_CU_URL =
+  process.env.VITE_AO_CU_URL || 'https://cu.ao-testnet.xyz';
+export const STUB_ANT_ID = '6dUiTQKJCVD7c9icQhbbzfI-Le_hC4sXRDx1OQQ6jMI';
+export const STUB_ARWEAVE_TXID = '2yHmORN-N12hM1B2f9-JPMpOfa59qhpsExFCzImrD30'; // arns spec pdf
+export const DEFAULT_ANT_SOURCE_CODE_TX =
+  'H2uxnw_oVIEzXeBeYmxDgJuxPqwBCGPO4OmQzdWQu3U';
 export const RECOMMENDED_TRANSACTION_CONFIRMATIONS = 50;
 export const DEFAULT_TTL_SECONDS = 3600;
 export const DEFAULT_MAX_UNDERNAMES = 10;

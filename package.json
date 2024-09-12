@@ -21,7 +21,8 @@
   },
   "dependencies": {
     "@ant-design/icons": "5.4.0",
-    "@ar.io/sdk": "^2.1.0",
+    "@ar.io/sdk": "2.1.0",
+    "@permaweb/aoconnect": "^0.0.59",
     "@sentry/react": "^7.45.0",
     "@tanstack/react-query": "^5.45.1",
     "@tanstack/react-query-persist-client": "^5.45.1",
@@ -109,6 +110,9 @@
     "vite-plugin-node-stdlib-browser": "^0.2.1",
     "vite-plugin-package-version": "^1.0.2",
     "vite-plugin-svgr": "^2.2.2"
+  },
+  "resolutions": {
+    "@permaweb/aoconnect": "0.0.59"
   },
   "lint-staged": {
     "{lib,packages}/**/src/**/*.{ts,tsx}": [
