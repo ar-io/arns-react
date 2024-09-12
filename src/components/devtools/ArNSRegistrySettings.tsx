@@ -1,4 +1,5 @@
 import {
+  AOProcess,
   IO,
   IO_DEVNET_PROCESS_ID,
   IO_TESTNET_PROCESS_ID,
@@ -20,7 +21,7 @@ import './styles.css';
 const Panel = Collapse.Panel;
 
 function ArNSRegistrySettings() {
-  const [{ arweaveDataProvider, ioProcessId }, dispatchGlobalState] =
+  const [{ arweaveDataProvider, ioProcessId, aoClient }, dispatchGlobalState] =
     useGlobalState();
   const [{ wallet }] = useWalletState();
   const [registryAddress, setRegistryAddress] = useState<string>(
@@ -40,7 +41,10 @@ function ArNSRegistrySettings() {
       });
 
       const arIOContract = IO.init({
-        processId: id.trim(),
+        process: new AOProcess({
+          processId: id.trim(),
+          ao: aoClient,
+        }),
         ...(wallet?.arconnectSigner ? { signer: wallet.arconnectSigner } : {}),
       });
       dispatchGlobalState({

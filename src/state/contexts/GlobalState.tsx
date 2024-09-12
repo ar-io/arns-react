@@ -1,4 +1,4 @@
-import { AOProcess, AoIORead, AoIOWrite, IO } from '@ar.io/sdk/web';
+import { AOProcess, AoClient, AoIORead, AoIOWrite, IO } from '@ar.io/sdk/web';
 import { connect } from '@permaweb/aoconnect';
 import React, {
   Dispatch,
@@ -38,6 +38,7 @@ export type GlobalState = {
     MU_URL: string;
     SCHEDULER: string;
   };
+  aoClient: AoClient;
   ioProcessId: string;
   blockHeight?: number;
   lastBlockUpdateTimestamp?: number;
@@ -50,6 +51,7 @@ const initialState: GlobalState = {
   ioTicker: '',
   gateway: ARWEAVE_HOST,
   aoNetwork: NETWORK_DEFAULTS.AO,
+  aoClient: connect(NETWORK_DEFAULTS.AO),
   blockHeight: undefined,
   lastBlockUpdateTimestamp: undefined,
   arweaveDataProvider: new ArweaveCompositeDataProvider({

@@ -62,7 +62,7 @@ export function WalletStateProvider({
   const [state, dispatchWalletState] = useReducer(reducer, initialState);
 
   const [
-    { arweaveDataProvider, blockHeight, ioTicker, ioProcessId },
+    { arweaveDataProvider, blockHeight, ioTicker, ioProcessId, aoClient },
     dispatchGlobalState,
   ] = useGlobalState();
 
@@ -76,10 +76,8 @@ export function WalletStateProvider({
     dispatchArIOContract({
       contract: IO.init({
         process: new AOProcess({
-          processId: IO_PROCESS_ID,
-          ao: connect({
-            CU_URL: AO_CU_URL,
-          }),
+          processId: ioProcessId,
+          ao: aoClient,
         }),
         signer: wallet?.arconnectSigner as ContractSigner,
       }),
@@ -109,7 +107,7 @@ export function WalletStateProvider({
     ARWEAVE_APP_API.on('disconnect', removeWalletState);
 
     return () => ARWEAVE_APP_API.off('disconnect', removeWalletState);
-  }, [walletAddress, wallet]);
+  }, [walletAddress, wallet, aoClient]);
 
   useEffect(() => {
     if (!Object.keys(state.balances).includes(ioTicker)) {

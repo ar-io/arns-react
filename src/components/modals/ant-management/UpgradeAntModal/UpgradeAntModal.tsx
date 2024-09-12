@@ -38,7 +38,7 @@ function UpgradeAntModal({
   visible: boolean;
   setVisible: (visible: boolean) => void;
 }) {
-  const [{ aoNetwork, gateway }] = useGlobalState();
+  const [{ aoNetwork, gateway, aoClient }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const [accepted, setAccepted] = useState(false);
   const [changelog, setChangelog] = useState('default changelog');
@@ -100,11 +100,7 @@ function UpgradeAntModal({
           processId: antId,
           luaCodeTxId: ANT_LUA_ID,
           signer,
-          ao: connect({
-            GATEWAY_URL: 'https://' + gateway,
-            CU_URL: aoNetwork.CU_URL,
-            MU_URL: aoNetwork.MU_URL,
-          }),
+          ao: aoClient,
         }).catch(() => {
           failedUpgrades.push(antId);
           eventEmitter.emit('error', {

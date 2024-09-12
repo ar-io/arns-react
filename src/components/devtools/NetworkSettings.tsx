@@ -106,10 +106,15 @@ function NetworkSettings() {
         type: 'setAONetwork',
         payload: newConfig,
       });
+
       const ao = connect({
         GATEWAY_URL: 'https://' + gateway,
         CU_URL: newConfig.CU_URL,
         MU_URL: newConfig.MU_URL,
+      });
+      dispatchGlobalState({
+        type: 'setAoClient',
+        payload: ao,
       });
       dispatchArIOContract({
         contract: IO.init({

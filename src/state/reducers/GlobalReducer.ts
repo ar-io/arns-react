@@ -1,4 +1,4 @@
-import { AoIORead, AoIOWrite } from '@ar.io/sdk/web';
+import { AoClient, AoIORead, AoIOWrite } from '@ar.io/sdk/web';
 
 import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
 import { GlobalState } from '../contexts/GlobalState';
@@ -18,6 +18,10 @@ export type GlobalAction =
         MU_URL?: string;
         SCHEDULER?: string;
       };
+    }
+  | {
+      type: 'setAoClient';
+      payload: AoClient;
     }
   | {
       type: 'setIoProcessId';

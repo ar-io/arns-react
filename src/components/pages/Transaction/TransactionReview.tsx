@@ -1,5 +1,4 @@
 import { IOWriteable } from '@ar.io/sdk/web';
-import { connect } from '@permaweb/aoconnect';
 import { ANTCard } from '@src/components/cards';
 import WarningCard from '@src/components/cards/WarningCard/WarningCard';
 import { InfoIcon } from '@src/components/icons';
@@ -34,7 +33,7 @@ import { getTransactionHeader } from './transaction-headers';
 // on completion routes to transaction/complete
 function TransactionReview() {
   const navigate = useNavigate();
-  const [{ ioTicker, arioContract, ioProcessId, gateway, aoNetwork }] =
+  const [{ ioTicker, arioContract, ioProcessId, aoNetwork, aoClient }] =
     useGlobalState();
   const [{ walletAddress, wallet }] = useWalletState();
   const [
@@ -113,11 +112,7 @@ function TransactionReview() {
         processId: ioProcessId,
         dispatch: dispatchTransactionState,
         signer: wallet?.arconnectSigner,
-        ao: connect({
-          GATEWAY_URL: 'https://' + gateway,
-          CU_URL: aoNetwork.CU_URL,
-          MU_URL: aoNetwork.MU_URL,
-        }),
+        ao: aoClient,
         scheduler: aoNetwork.SCHEDULER,
       });
 
