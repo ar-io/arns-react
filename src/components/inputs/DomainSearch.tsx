@@ -98,12 +98,14 @@ function DomainSearch({
   // handle search param changes
   useEffect(() => {
     const search = searchParams.get('search');
-    inputHandler(search ?? '');
-  }, [searchParams, location.search]);
+    if (searchQuery !== search) {
+      inputHandler(search ?? '');
+    }
+  }, [location.search]);
 
   // handle domain availability and price changes
   useEffect(() => {
-    const domainsObject = arnsDomains?.items.reduce(
+    const domainsObject = arnsDomains?.items?.reduce(
       (acc: Record<string, AoArNSNameData>, domain) => {
         acc[domain.name] = domain;
         return acc;
