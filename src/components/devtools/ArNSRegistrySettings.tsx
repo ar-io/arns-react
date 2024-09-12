@@ -21,8 +21,10 @@ import './styles.css';
 const Panel = Collapse.Panel;
 
 function ArNSRegistrySettings() {
-  const [{ arweaveDataProvider, ioProcessId, aoClient }, dispatchGlobalState] =
-    useGlobalState();
+  const [
+    { arweaveDataProvider, ioProcessId, aoClient, gateway },
+    dispatchGlobalState,
+  ] = useGlobalState();
   const [{ wallet }] = useWalletState();
   const [registryAddress, setRegistryAddress] = useState<string>(
     ioProcessId?.toString(),
@@ -52,18 +54,14 @@ function ArNSRegistrySettings() {
         payload: arIOContract,
       });
 
-      const gateway = 'ar-io.dev';
       const arweave = new Arweave({
         host: gateway,
         protocol: 'https',
       });
       const arweaveDataProvider = new SimpleArweaveDataProvider(arweave);
-      const contract = IO.init({
-        processId: id.trim(),
-        // TODO: add signer,
-      });
+
       const provider = new ArweaveCompositeDataProvider({
-        contract,
+        contract: arIOContract,
         arweave: arweaveDataProvider,
       });
 
