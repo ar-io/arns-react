@@ -1,3 +1,4 @@
+import { AOProcess, IO } from '@ar.io/sdk';
 import { ArConnectWalletConnector } from '@src/services/wallets';
 import { ArweaveAppWalletConnector } from '@src/services/wallets/ArweaveAppWalletConnector';
 import { useEffect, useRef, useState } from 'react';
@@ -15,7 +16,7 @@ import './styles.css';
 
 function ConnectWalletModal(): JSX.Element {
   const modalRef = useRef<HTMLDivElement>(null);
-  const [, dispatchGlobalState] = useGlobalState();
+  const [{ ioProcessId, aoClient }, dispatchGlobalState] = useGlobalState();
   const [
     { wallet, walletAddress, walletStateInitialized },
     dispatchWalletState,
@@ -73,10 +74,17 @@ function ConnectWalletModal(): JSX.Element {
       setConnecting(true);
       await walletConnector.connect();
       const arweaveGate = await walletConnector.getGatewayConfig();
+      const contract = IO.init({
+        process: new AOProcess({
+          processId: ioProcessId,
+          ao: aoClient,
+        }),
+        signer: walletConnector.arconnectSigner!,
+      });
       if (arweaveGate?.host) {
         await dispatchNewGateway(
           arweaveGate.host,
-          walletConnector,
+          contract,
           dispatchGlobalState,
         );
       }

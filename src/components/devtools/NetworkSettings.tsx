@@ -21,8 +21,10 @@ import './styles.css';
 const Panel = Collapse.Panel;
 
 function NetworkSettings() {
-  const [{ gateway, aoNetwork, ioProcessId }, dispatchGlobalState] =
-    useGlobalState();
+  const [
+    { gateway, aoNetwork, ioProcessId, arioContract },
+    dispatchGlobalState,
+  ] = useGlobalState();
   const [{ wallet }] = useWalletState();
   const [newGateway, setNewGateway] = useState<string>(gateway);
   const [validGateway, setValidGateway] = useState<boolean>(true);
@@ -79,7 +81,7 @@ function NetworkSettings() {
         console.error(error);
         throw new Error('Gateway not available: ' + gate);
       });
-      if (wallet) dispatchNewGateway(gate, wallet, dispatchGlobalState);
+      if (wallet) dispatchNewGateway(gate, arioContract, dispatchGlobalState);
     } catch (error) {
       eventEmitter.emit('error', error);
       eventEmitter.emit('error', {
