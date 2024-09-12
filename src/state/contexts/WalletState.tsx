@@ -1,4 +1,5 @@
-import { IO } from '@ar.io/sdk/web';
+import { AOProcess, ContractSigner, IO } from '@ar.io/sdk/web';
+import { connect } from '@permaweb/aoconnect';
 import { ArweaveAppError } from '@src/utils/errors';
 import React, {
   Dispatch,
@@ -12,7 +13,11 @@ import { useEffectOnce } from '../../hooks/useEffectOnce/useEffectOnce';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { ArConnectWalletConnector } from '../../services/wallets';
 import { ArweaveWalletConnector, WALLET_TYPES } from '../../types';
-import { ARWEAVE_APP_API, IO_PROCESS_ID } from '../../utils/constants';
+import {
+  AO_CU_URL,
+  ARWEAVE_APP_API,
+  IO_PROCESS_ID,
+} from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 import { dispatchArIOContract } from '../actions/dispatchArIOContract';
 import { WalletAction } from '../reducers/WalletReducer';
@@ -68,8 +73,13 @@ export function WalletStateProvider({
     }
     dispatchArIOContract({
       contract: IO.init({
-        processId: IO_PROCESS_ID,
-        signer: wallet?.arconnectSigner,
+        process: new AOProcess({
+          processId: IO_PROCESS_ID,
+          ao: connect({
+            CU_URL: AO_CU_URL,
+          }),
+        }),
+        signer: wallet?.arconnectSigner as ContractSigner,
       }),
       ioProcessId: new ArweaveTransactionID(IO_PROCESS_ID),
       dispatch: dispatchGlobalState,
