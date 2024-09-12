@@ -36,19 +36,6 @@ export const ARWEAVE_APP_API = new ArweaveWebWallet(
 
 export const ARWEAVE_HOST = process.env.VITE_ARWEAVE_HOST ?? 'ar-io.dev';
 
-export const NETWORK_DEFAULTS = {
-  AO: {
-    CU_URL: 'https://cu.ar-io.dev', // ao public cu: https://cu.ao-testnet.xyz
-    MU_URL: 'https://mu.ao-testnet.xyz',
-    SCHEDULER: DEFAULT_SCHEDULER_ID,
-  },
-  ARWEAVE: {
-    HOST: ARWEAVE_HOST,
-    PORT: 443,
-    PROTOCOL: 'https',
-  },
-};
-
 export const DEFAULT_ARWEAVE = new Arweave({
   host: ARWEAVE_HOST,
   protocol: 'https',
@@ -96,6 +83,19 @@ export const IO_PROCESS_ID =
   process.env.VITE_IO_PROCESS_ID || ioDevnetProcessId;
 export const AO_CU_URL =
   process.env.VITE_AO_CU_URL || 'https://cu.ao-testnet.xyz';
+
+export const NETWORK_DEFAULTS = {
+  AO: {
+    CU_URL: AO_CU_URL, // ao public cu: https://cu.ao-testnet.xyz
+    MU_URL: 'https://mu.ao-testnet.xyz',
+    SCHEDULER: DEFAULT_SCHEDULER_ID,
+  },
+  ARWEAVE: {
+    HOST: ARWEAVE_HOST,
+    PORT: 443,
+    PROTOCOL: 'https',
+  },
+};
 export const STUB_ANT_ID = '6dUiTQKJCVD7c9icQhbbzfI-Le_hC4sXRDx1OQQ6jMI';
 export const STUB_ARWEAVE_TXID = '2yHmORN-N12hM1B2f9-JPMpOfa59qhpsExFCzImrD30'; // arns spec pdf
 export const DEFAULT_ANT_SOURCE_CODE_TX =
