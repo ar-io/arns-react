@@ -2,6 +2,7 @@ import { CheckCircleFilled } from '@ant-design/icons';
 import { AoArNSNameData } from '@ar.io/sdk';
 import DomainDetailsTip from '@src/components/data-display/DomainDetailsTip';
 import { CircleCheckFilled, SearchIcon } from '@src/components/icons';
+import useDebounce from '@src/hooks/useDebounce';
 import { useGlobalState, useWalletState } from '@src/state';
 import { decodeDomainToASCII, lowerCaseDomain } from '@src/utils';
 import Lottie from 'lottie-react';
@@ -29,7 +30,8 @@ function HomeSearch() {
     useState<typeof defaultValidations>(defaultValidations);
   const [validationError, setValidationError] = useState('');
   const [isValidDomain, setIsValidDomain] = useState(false);
-  const [domainQuery, setDomainQuery] = useState('');
+  const [query, setDomainQuery] = useState('');
+  const domainQuery = useDebounce(query ?? '', query.length <= 1 ? 0 : 800);
   const [domainRecord, setDomainRecord] = useState<AoArNSNameData>();
 
   useEffect(() => {
@@ -117,7 +119,10 @@ function HomeSearch() {
             >
               Invalid ArNS domain, {validationError}
             </div>
-          ) : isSearching || domainQuery.length == 0 || !isAvailable ? (
+          ) : isSearching ||
+            query !== domainQuery ||
+            domainQuery.length == 0 ||
+            !isAvailable ? (
             <div
               className="min-h-[50px]"
               data-testid="home-search-spacer-header"
@@ -141,7 +146,7 @@ function HomeSearch() {
             className={`flex flex-col w-full rounded-[4px] bg-foreground border-[1px] ${getBorderStyle(
               {
                 availability: isAvailable,
-                searching: isSearching,
+                searching: isSearching || query !== domainQuery,
                 domain: domainQuery,
                 validDomain: isValidDomain,
               },
@@ -178,7 +183,7 @@ function HomeSearch() {
               >
                 <div className="flex flew-row w-full justify-between">
                   <span className="text-grey text-sm">
-                    {isSearching ? (
+                    {isSearching || query !== domainQuery ? (
                       <span>Searching...</span>
                     ) : isAvailable ? (
                       <span className="whitespace-nowrap flex items-center gap-2">
@@ -203,7 +208,7 @@ function HomeSearch() {
                     <DomainPiceList domain={domainQuery} />
                   )}
                 </div>
-                {isSearching ? (
+                {isSearching || query !== domainQuery ? (
                   <Lottie
                     animationData={arioLoading}
                     loop={true}

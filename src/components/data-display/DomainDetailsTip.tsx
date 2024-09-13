@@ -42,12 +42,16 @@ function DomainDetailsTip({
             </span>
             <span className="flex gap-2 text-sm text-grey py-4 border-b-[1px] border-dark-grey whitespace-nowrap">
               Process ID:
-              <ArweaveID
-                id={new ArweaveTransactionID(domainRecord.processId)}
-                shouldLink={true}
-                characterCount={16}
-                type={ArweaveIdTypes.CONTRACT}
-              />
+              {isArweaveTransactionID(domainRecord.processId) ? (
+                <ArweaveID
+                  id={new ArweaveTransactionID(domainRecord.processId)}
+                  shouldLink={true}
+                  characterCount={16}
+                  type={ArweaveIdTypes.CONTRACT}
+                />
+              ) : (
+                'N/A'
+              )}
             </span>
             <span className="flex text-sm gap-2 text-grey py-4 border-b-[1px] border-dark-grey whitespace-nowrap">
               Lease Duration:
