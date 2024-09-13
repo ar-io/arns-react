@@ -59,7 +59,6 @@ describe('HomeSearch', () => {
     const domain = 'ARDRIVE';
 
     await userEvent.type(searchInput, domain);
-    console.log(searchInput.value);
     expect(lowerCaseDomain(searchInput.value)).toEqual(lowerCaseDomain(domain));
     expect(renderSearchBar()).toMatchSnapshot();
   });

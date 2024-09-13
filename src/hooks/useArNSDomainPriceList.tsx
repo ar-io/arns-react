@@ -48,6 +48,7 @@ export function useArNSDomainPriceList(domain: string) {
       }
       return prices;
     },
-    staleTime: 60 * 1000, // 1 minute
+    staleTime: 60 * 1000 * 5, // 5 minutes ~ demand factor changes once daily.
+    // TODO: use stale time as next demand factor timestamp - current timestamp
   });
 }

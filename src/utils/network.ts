@@ -44,13 +44,19 @@ export const queryClient = new QueryClient({
   },
 });
 
-export function buildAntStateQuery({ processId }: { processId?: string }): {
-  queryKey: ['ant', string];
+export function buildAntStateQuery({
+  processId,
+  meta,
+}: {
+  processId: string;
+  meta?: string[];
+}): {
+  queryKey: ['ant', string] | string[];
   queryFn: () => Promise<AoANTState | null>;
   staleTime: number;
 } {
   return {
-    queryKey: ['ant', processId ?? 'null'],
+    queryKey: ['ant', processId, ...(meta || [])],
     queryFn: async () => {
       if (!processId) return null;
       if (isArweaveTransactionID(processId)) {
@@ -72,16 +78,18 @@ export function buildAntStateQuery({ processId }: { processId?: string }): {
 export function buildArNSRecordQuery({
   arioContract,
   domain,
+  meta,
 }: {
   arioContract: AoIORead;
   domain: string;
+  meta?: string[];
 }): {
-  queryKey: ['arns-record', string];
+  queryKey: ['arns-record', string] | string[];
   queryFn: () => Promise<AoArNSNameData | undefined>;
   staleTime: number;
 } {
   return {
-    queryKey: ['arns-record', lowerCaseDomain(domain)],
+    queryKey: ['arns-record', lowerCaseDomain(domain), ...(meta || [])],
     queryFn: async () => {
       return arioContract.getArNSRecord({
         name: lowerCaseDomain(domain),
@@ -94,16 +102,18 @@ export function buildArNSRecordQuery({
 export function buildIOBalanceQuery({
   arioContract,
   address,
+  meta,
 }: {
   arioContract: AoIORead;
   address: string;
+  meta?: string[];
 }): {
-  queryKey: ['io-balance', string];
+  queryKey: ['io-balance', string] | string[];
   queryFn: () => Promise<number>;
   staleTime: number;
 } {
   return {
-    queryKey: ['io-balance', address],
+    queryKey: ['io-balance', address, ...(meta || [])],
     queryFn: async () => {
       return await arioContract
         .getBalance({
@@ -120,16 +130,18 @@ export function buildIOBalanceQuery({
 export function buildARBalanceQuery({
   provider,
   address,
+  meta,
 }: {
   provider: ArweaveCompositeDataProvider;
   address: ArweaveTransactionID;
+  meta?: string[];
 }): {
-  queryKey: ['ar-balance', string];
+  queryKey: ['ar-balance', string] | string[];
   queryFn: () => Promise<number>;
   staleTime: number;
 } {
   return {
-    queryKey: ['ar-balance', address.toString()],
+    queryKey: ['ar-balance', address.toString(), ...(meta || [])],
     queryFn: async () => {
       return await provider.getArBalance(address).catch(() => 0);
     },
@@ -156,15 +168,17 @@ export async function cacheArNSRecords({
 
 export function buildArNSRecordsQuery({
   arioContract,
+  meta,
 }: {
   arioContract: AoIORead;
+  meta?: string[];
 }): {
-  queryKey: ['arns-records'];
+  queryKey: ['arns-records'] | string[];
   queryFn: () => Promise<Record<string, AoArNSNameData>>;
   staleTime: number;
 } {
   return {
-    queryKey: ['arns-records'],
+    queryKey: ['arns-records', ...(meta || [])],
     queryFn: () => {
       // TODO: we should add the last cursor retrieved and only fetch new records to avoid loading all of them on reload
       return fetchAllArNSRecords({
