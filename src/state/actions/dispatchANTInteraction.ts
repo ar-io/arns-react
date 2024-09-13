@@ -1,5 +1,4 @@
 import { ANT, AoMessageResult, ContractSigner } from '@ar.io/sdk/web';
-import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
 import eventEmitter from '@src/utils/events';
@@ -17,13 +16,13 @@ export default async function dispatchANTInteraction({
   workflowName: ANT_INTERACTION_TYPES;
   signer: ContractSigner;
   owner: string;
-  processId: ArweaveTransactionID;
+  processId: string;
   dispatch: Dispatch<TransactionAction>;
 }): Promise<ContractInteraction> {
   let result: AoMessageResult | undefined = undefined;
 
   const antProcess = ANT.init({
-    processId: processId.toString(),
+    processId: processId,
     signer,
   });
 

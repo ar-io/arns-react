@@ -1,10 +1,9 @@
 import { AoArNSNameData } from '@ar.io/sdk/web';
+import { useArNSRegistryDomains } from '@src/hooks/useArNSRegistryDomains';
 import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
 import { useIsMobile } from '../../../../hooks';
-import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
-import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { SetRecordPayload, VALIDATION_INPUT_TYPES } from '../../../../types';
 import {
   isArweaveTransactionID,
@@ -31,11 +30,11 @@ function AddUndernameModal({
   closeModal,
   payloadCallback,
 }: {
-  antId: ArweaveTransactionID; // process ID if asset type is a contract interaction
+  antId: string; // process ID if asset type is a contract interaction
   closeModal: () => void;
   payloadCallback: (payload: SetRecordPayload) => void;
 }) {
-  const [{ arweaveDataProvider }] = useGlobalState();
+  const { data: registeredDomains } = useArNSRegistryDomains();
   const isMobile = useIsMobile();
 
   const targetIdRef = useRef<HTMLInputElement>(null);
@@ -53,15 +52,25 @@ function AddUndernameModal({
     useState<number>(MAX_UNDERNAME_LENGTH);
 
   useEffect(() => {
-    loadDetails();
+    if (registeredDomains) {
+      const arnsRecords = registeredDomains?.items?.reduce(
+        (acc: Record<string, AoArNSNameData>, record) => {
+          acc[record.name] = record;
+          return acc;
+        },
+        {},
+      );
+      loadDetails({ arnsRecords });
+    }
     nameRef.current?.focus();
   }, [antId.toString()]);
 
-  async function loadDetails() {
+  async function loadDetails({
+    arnsRecords,
+  }: {
+    arnsRecords: Record<string, AoArNSNameData>;
+  }) {
     try {
-      const arnsRecords = await arweaveDataProvider.getRecords({
-        filters: { processId: [antId] },
-      });
       setAssociatedRecords(arnsRecords);
       const shortestAssociatedName = Object.keys(arnsRecords).length
         ? Math.min(...Object.keys(arnsRecords).map((name) => name.length))
@@ -241,8 +250,12 @@ function AddUndernameModal({
                     customPattern={ARNS_TX_ID_ENTRY_REGEX}
                     validationPredicates={{
                       [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
-                        fn: (id: string) =>
-                          arweaveDataProvider.validateArweaveId(id),
+                        fn: async (id: string) => {
+                          if (!isArweaveTransactionID(id)) {
+                            throw new Error('Invalid Arweave ID');
+                          }
+                          return true;
+                        },
                       },
                     }}
                   />

@@ -1,4 +1,10 @@
-import { ANT, AoANTRead, AoANTWrite, AoArNSNameData } from '@ar.io/sdk/web';
+import {
+  ANT,
+  AoANTRead,
+  AoANTRecord,
+  AoANTWrite,
+  AoArNSNameData,
+} from '@ar.io/sdk/web';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
@@ -28,6 +34,7 @@ export default function useDomainInfo({
       transactionId: string;
       ttlSeconds: number;
     };
+    records: Record<string, AoANTRecord>;
   };
   isLoading: boolean;
   error: Error | null;
@@ -65,6 +72,7 @@ export default function useDomainInfo({
       transactionId: string;
       ttlSeconds: number;
     };
+    records: Record<string, AoANTRecord>;
   }> {
     if (refreshing) {
       throw new Error('Already refreshing');
@@ -128,6 +136,7 @@ export default function useDomainInfo({
         controllers,
         undernameCount,
         apexRecord,
+        records: state.Records,
       };
     } finally {
       setRefreshing(false);
