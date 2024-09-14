@@ -14,10 +14,13 @@ import arioLoading from '../../icons/ario-spinner.json';
 import DomainSearch from '../DomainSearch';
 import DomainPiceList from './DomainPriceList';
 
+const maxCharValidation = 'Max. 51 characters';
+const noSpecialCharsValidation = 'No special characters or underscores';
+const dashesValidation = 'Dashes cannot be leading or trailing';
 const defaultValidations = {
-  ['Max. 51 characters']: false,
-  ['No special characters or underscores']: false,
-  ['Dashes cannot be leading or trailing']: false,
+  [maxCharValidation]: false,
+  [noSpecialCharsValidation]: false,
+  [dashesValidation]: false,
 };
 
 function HomeSearch() {
@@ -47,11 +50,9 @@ function HomeSearch() {
     const safeDomain = lowerCaseDomain(domain.trim());
 
     const validations: typeof defaultValidations = {
-      ['Max. 51 characters']: safeDomain.length <= 51,
-      ['No special characters or underscores']: /^[a-zA-Z0-9-]*$/.test(
-        safeDomain,
-      ),
-      ['Dashes cannot be leading or trailing']: !/^-|-$/g.test(safeDomain),
+      [maxCharValidation]: safeDomain.length <= 51,
+      [noSpecialCharsValidation]: /^[a-zA-Z0-9-]*$/.test(safeDomain),
+      [dashesValidation]: !/^-|-$/g.test(safeDomain),
     };
     let validDomain = true;
     Object.entries(validations).forEach(([name, isValid]) => {

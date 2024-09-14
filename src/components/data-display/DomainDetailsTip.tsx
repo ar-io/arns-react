@@ -2,16 +2,13 @@ import { InfoCircleOutlined } from '@ant-design/icons';
 import { AoArNSNameData } from '@ar.io/sdk';
 import { useANT } from '@src/hooks/useANT/useANT';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
-import {
-  decodeDomainToASCII,
-  formatLeaseDurationFromEndTimestamp,
-  isArweaveTransactionID,
-} from '@src/utils';
+import { decodeDomainToASCII, isArweaveTransactionID } from '@src/utils';
 import { ReactNode } from 'react';
 
 import { Tooltip } from '.';
 import { Loader } from '../layout';
 import ArweaveID, { ArweaveIdTypes } from '../layout/ArweaveID/ArweaveID';
+import LeaseDurationFromEndTimestamp from './LeaseDurationFromEndTimestamp';
 
 function DomainDetailsTip({
   domain,
@@ -56,9 +53,9 @@ function DomainDetailsTip({
             <span className="flex text-sm gap-2 text-grey py-4 border-b-[1px] border-dark-grey whitespace-nowrap">
               Lease Duration:
               <span className="text-white">
-                {formatLeaseDurationFromEndTimestamp(
-                  (domainRecord as any).endTimestamp,
-                )}
+                <LeaseDurationFromEndTimestamp
+                  endTimestamp={(domainRecord as any).endTimestamp}
+                />
               </span>
             </span>
             <span className="flex gap-2 text-sm text-grey py-4 border-b-[1px] border-dark-grey whitespace-nowrap">
