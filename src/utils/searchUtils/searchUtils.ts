@@ -125,10 +125,7 @@ export function sleep(ms: number) {
 }
 
 export function lowerCaseDomain(domain: string) {
-  if (domain.includes('%')) {
-    domain = decodeURIComponent(domain);
-  }
-  return encodeDomainToASCII(domain.trim()).toLowerCase();
+  return encodeDomainToASCII(decodeURIComponent(domain.trim())).toLowerCase();
 }
 
 export function getAntsRequiringUpdate({

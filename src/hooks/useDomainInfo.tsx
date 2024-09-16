@@ -40,7 +40,8 @@ export default function useDomainInfo({
   error: Error | null;
   refetch: (options?: RefetchOptions) => void;
 } {
-  const [{ arioContract: arioProvider }] = useGlobalState();
+  const [{ arioContract: arioProvider, ioProcessId, aoNetwork }] =
+    useGlobalState();
   const [{ wallet }] = useWalletState();
 
   // using this to have useDomainInfo hook trigger updates for React
@@ -104,7 +105,10 @@ export default function useDomainInfo({
       if (!state) throw new Error('State not found for ANT contract');
 
       const arnsRecords = await queryClient.fetchQuery(
-        buildArNSRecordsQuery({ arioContract: arioProvider }),
+        buildArNSRecordsQuery({
+          arioContract: arioProvider,
+          meta: [ioProcessId, aoNetwork.CU_URL],
+        }),
       );
       const associatedNames = Object.entries(arnsRecords)
         .filter(([, r]) => r.processId == processId.toString())
