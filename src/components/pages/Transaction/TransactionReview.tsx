@@ -7,6 +7,7 @@ import TransactionCost from '@src/components/layout/TransactionCost/TransactionC
 import { StepProgressBar } from '@src/components/layout/progress';
 import PageLoader from '@src/components/layout/progress/PageLoader/PageLoader';
 import { useIsMobile } from '@src/hooks';
+import { dispatchArNSUpdate, useArNSState } from '@src/state';
 import dispatchArIOInteraction from '@src/state/actions/dispatchArIOInteraction';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
@@ -35,6 +36,7 @@ function TransactionReview() {
   const navigate = useNavigate();
   const [{ ioTicker, arioContract, ioProcessId, aoNetwork, aoClient }] =
     useGlobalState();
+  const [{ arnsEmitter }, dispatchArNSState] = useArNSState();
   const [{ walletAddress, wallet }] = useWalletState();
   const [
     { workflowName, interactionType, transactionData, interactionResult },
@@ -119,6 +121,15 @@ function TransactionReview() {
       navigate('/transaction/complete');
     } catch (error) {
       eventEmitter.emit('error', error);
+    } finally {
+      if (walletAddress) {
+        dispatchArNSUpdate({
+          emitter: arnsEmitter,
+          dispatch: dispatchArNSState,
+          ioProcessId,
+          walletAddress,
+        });
+      }
     }
   }
 
