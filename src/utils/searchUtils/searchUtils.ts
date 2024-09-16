@@ -1,3 +1,4 @@
+import { AoANTState } from '@ar.io/sdk';
 import Transaction from 'arweave/node/lib/transaction';
 import emojiRegex from 'emoji-regex';
 import { asciiToUnicode, unicodeToAscii } from 'puny-coder';
@@ -129,9 +130,11 @@ export function lowerCaseDomain(domain: string) {
 
 export function getAntsRequiringUpdate({
   ants,
+  userAddress,
   luaSourceTx,
 }: {
-  ants: Record<string, any>;
+  ants: Record<string, AoANTState>;
+  userAddress: string;
   luaSourceTx?: Transaction;
 }): string[] {
   if (!luaSourceTx) return [];
@@ -142,7 +145,9 @@ export function getAntsRequiringUpdate({
 
   return Object.entries(ants)
     .map(([id, ant]) => {
-      const srcId = ant?.['Source-Code-TX-ID'];
+      const srcId = (ant as any)?.['Source-Code-TX-ID'];
+      // if user is not the owner, skip
+      if (!ant.Owner || ant?.Owner !== userAddress) return;
       if (!srcId || !acceptableIds.includes(srcId)) return id;
     })
     .filter((id) => id !== undefined) as string[];
@@ -150,14 +155,16 @@ export function getAntsRequiringUpdate({
 
 export function doAntsRequireUpdate({
   ants,
+  userAddress,
   luaSourceTx,
 }: {
-  ants: Record<string, any>;
+  ants: Record<string, AoANTState>;
+  userAddress: string;
   luaSourceTx?: Transaction;
 }) {
   if (!luaSourceTx) return false;
 
-  return getAntsRequiringUpdate({ ants, luaSourceTx }).length > 0;
+  return getAntsRequiringUpdate({ ants, userAddress, luaSourceTx }).length > 0;
 }
 
 export function camelToReadable(camel: string) {

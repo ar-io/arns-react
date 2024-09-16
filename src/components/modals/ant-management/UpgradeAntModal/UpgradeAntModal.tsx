@@ -60,9 +60,13 @@ function UpgradeAntModal({
       newChanges?.value ? fromB64Url(newChanges.value) : 'No changelog found',
     );
 
-    if (luaCodeTx) {
+    if (luaCodeTx && walletAddress) {
       setAntsToUpgrade(
-        getAntsRequiringUpdate({ ants, luaSourceTx: luaCodeTx }),
+        getAntsRequiringUpdate({
+          ants,
+          userAddress: walletAddress.toString(),
+          luaSourceTx: luaCodeTx,
+        }),
       );
     }
   }, [luaCodeTx, ants]);
@@ -77,7 +81,7 @@ function UpgradeAntModal({
     if (progress > -1) return;
     try {
       setProgress(0);
-      if (!wallet?.arconnectSigner) {
+      if (!wallet?.arconnectSigner || !walletAddress) {
         throw new Error('No ArConnect Signer found');
       }
       if (!luaCodeTx) {
@@ -87,6 +91,7 @@ function UpgradeAntModal({
       const antIds = Object.keys(ants).filter((antId) =>
         doAntsRequireUpdate({
           ants: { [antId]: ants[antId] },
+          userAddress: walletAddress?.toString(),
           luaSourceTx: luaCodeTx,
         }),
       );
