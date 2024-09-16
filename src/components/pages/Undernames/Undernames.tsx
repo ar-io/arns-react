@@ -1,11 +1,9 @@
 import UndernamesTable from '@src/components/data-display/tables/UndernamesTable';
 import { SearchIcon } from '@src/components/icons';
 import useDomainInfo from '@src/hooks/useDomainInfo';
-import { useTransactionState } from '@src/state/contexts/TransactionState';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import {
   formatForMaxCharCount,
@@ -13,7 +11,6 @@ import {
   isArweaveTransactionID,
 } from '../../../utils';
 import eventEmitter from '../../../utils/events';
-import TransactionSuccessCard from '../../cards/TransactionSuccessCard/TransactionSuccessCard';
 import './styles.css';
 
 function Undernames() {
@@ -28,8 +25,6 @@ function Undernames() {
     antId: isArweaveTransactionID(id) ? id : undefined,
   });
   const [{ walletAddress }] = useWalletState();
-  const [{ interactionResult, workflowName }, dispatchTransactionState] =
-    useTransactionState();
   const [ownershipStatus, setOwnershipStatus] = useState<
     'controller' | 'owner' | undefined
   >(undefined);
@@ -50,25 +45,14 @@ function Undernames() {
     <>
       <div className="px-[100px]">
         <div className="flex-column">
-          {interactionResult ? (
-            <TransactionSuccessCard
-              txId={new ArweaveTransactionID(interactionResult.id)}
-              close={() => {
-                dispatchTransactionState({
-                  type: 'reset',
-                });
-              }}
-              title={`${workflowName} completed`}
-            />
-          ) : (
-            <></>
-          )}
           <div className="flex flex-justify-between">
             <div
               className="flex flex-row"
               style={{ justifyContent: 'space-between' }}
             >
-              <h2 className="white text-[2rem]">Manage Undernames</h2>
+              <h2 className="white text-[2rem] whitespace-nowrap">
+                Manage Undernames
+              </h2>
             </div>
           </div>
 
@@ -96,6 +80,7 @@ function Undernames() {
               isLoading={isLoadingDomainInfo}
               filter={search}
               refresh={() => {
+                if (isLoadingDomainInfo) return;
                 refetch();
               }}
             />

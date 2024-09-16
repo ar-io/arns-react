@@ -5,13 +5,11 @@ import {
   AoANTWrite,
   AoArNSNameData,
 } from '@ar.io/sdk/web';
-import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { lowerCaseDomain } from '@src/utils';
 import { buildArNSRecordsQuery, queryClient } from '@src/utils/network';
 import { RefetchOptions, useSuspenseQuery } from '@tanstack/react-query';
-import { useState } from 'react';
 
 export default function useDomainInfo({
   domain,
@@ -44,12 +42,9 @@ export default function useDomainInfo({
     useGlobalState();
   const [{ wallet }] = useWalletState();
 
-  // using this to have useDomainInfo hook trigger updates for React
-  const [refreshing, setRefreshing] = useState(false);
-
   // TODO: this should be modified or removed
   const { data, isLoading, isRefetching, error, refetch } = useSuspenseQuery({
-    queryKey: ['domainInfo', { domain, antId }],
+    queryKey: ['domainInfo', { domain, antId, ioProcessId, aoNetwork }],
     queryFn: () => getDomainInfo({ domain, antId }).catch((error) => error),
   });
 
@@ -75,77 +70,83 @@ export default function useDomainInfo({
     };
     records: Record<string, AoANTRecord>;
   }> {
-    if (refreshing) {
-      throw new Error('Already refreshing');
+    if (!domain && !antId) {
+      throw new Error('No domain or antId provided');
     }
-    try {
-      setRefreshing(true);
-      if (!domain && !antId) {
-        throw new Error('No domain or antId provided');
-      }
 
-      const record = domain
-        ? await arioProvider.getArNSRecord({
-            name: lowerCaseDomain(domain),
-          })
-        : undefined;
+    const record = domain
+      ? await arioProvider.getArNSRecord({
+          name: lowerCaseDomain(domain),
+        })
+      : undefined;
 
-      if (!antId || !record) {
-        throw new Error('No processId found');
-      }
-      const processId = antId || record.processId;
-      const signer = wallet?.arconnectSigner;
-
-      const antProcess = ANT.init({
-        processId: processId,
-        ...(signer !== undefined ? { signer: signer as any } : {}),
-      });
-
-      const state = await antProcess.getState();
-      if (!state) throw new Error('State not found for ANT contract');
-
-      const arnsRecords = await queryClient.fetchQuery(
-        buildArNSRecordsQuery({
-          arioContract: arioProvider,
-          meta: [ioProcessId, aoNetwork.CU_URL],
-        }),
-      );
-      const associatedNames = Object.entries(arnsRecords)
-        .filter(([, r]) => r.processId == processId.toString())
-        .map(([d]) => d);
-
-      const {
-        Name: name,
-        Ticker: ticker,
-        Owner: owner,
-        Controllers: controllers,
-        Records: records,
-      } = state;
-      const apexRecord = records['@'];
-      const undernameCount = Object.keys(records).filter(
-        (k) => k !== '@',
-      ).length;
-
-      if (!apexRecord) {
-        throw new Error('No apexRecord found');
-      }
-      return {
-        arnsRecord: record,
-        associatedNames,
-        processId,
-        antProcess,
-        name,
-        ticker,
-        owner,
-        controllers,
-        undernameCount,
-        apexRecord,
-        records: state.Records,
-      };
-    } finally {
-      setRefreshing(false);
+    if (!antId && !record?.processId) {
+      console.log(record);
+      throw new Error('No ANT id or record found');
     }
+    const processId = antId || record?.processId;
+    const signer = wallet?.arconnectSigner;
+
+    if (!processId) {
+      throw new Error('No processId found');
+    }
+
+    const antProcess = ANT.init({
+      processId: processId,
+      ...(signer !== undefined ? { signer: signer as any } : {}),
+    });
+
+    const state = await antProcess.getState();
+    if (!state) throw new Error('State not found for ANT contract');
+
+    const arnsRecords = await queryClient.fetchQuery(
+      buildArNSRecordsQuery({
+        arioContract: arioProvider,
+        meta: [ioProcessId, aoNetwork.CU_URL],
+      }),
+    );
+    const associatedNames = Object.entries(arnsRecords)
+      .filter(([, r]) => r.processId == processId.toString())
+      .map(([d]) => d);
+
+    const {
+      Name: name,
+      Ticker: ticker,
+      Owner: owner,
+      Controllers: controllers,
+      Records: records,
+    } = state;
+    const apexRecord = records['@'];
+    const undernameCount = Object.keys(records).filter((k) => k !== '@').length;
+
+    if (!apexRecord) {
+      throw new Error('No apexRecord found');
+    }
+    return {
+      arnsRecord: record,
+      associatedNames,
+      processId,
+      antProcess,
+      name,
+      ticker,
+      owner,
+      controllers,
+      undernameCount,
+      apexRecord,
+      records: state.Records,
+    };
   }
 
-  return { data, isLoading: isLoading || isRefetching, error, refetch };
+  return {
+    data,
+    isLoading: isLoading || isRefetching,
+    error,
+    refetch: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['domainInfo', { domain, antId }],
+        refetchType: 'all',
+      });
+      refetch();
+    },
+  };
 }

@@ -148,7 +148,7 @@ function ManageDomain() {
                   loading || isMaxUndernameCount ? 'disabled-button' : 'hover'
                 }`}
                 style={{
-                  padding: loading || isMaxUndernameCount ? '0px' : '9px',
+                  padding: '9px',
                   gap: '8px',
                   fontSize: '14px',
                   color: 'var(--accent)',
@@ -182,7 +182,7 @@ function ManageDomain() {
                   loading || isMaxLeaseDuration ? 'disabled-button' : 'hover'
                 }`}
                 style={{
-                  padding: loading || isMaxLeaseDuration ? '0px' : '9px',
+                  padding: '9px',
                   gap: '8px',
                   fontSize: '14px',
                   color: 'var(--text-black)',

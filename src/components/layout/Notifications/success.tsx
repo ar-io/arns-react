@@ -62,5 +62,6 @@ export const defaultSuccess = ({
     background: 'var(--card-bg)',
     color: 'var(--text-white)',
     boxShadow: 'var(--shadow)',
+    borderRadius: 'var(--border-radius)',
   },
 });

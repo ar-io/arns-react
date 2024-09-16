@@ -1,6 +1,5 @@
 import { AoANTRecord } from '@ar.io/sdk';
 import { ExternalLinkIcon, PencilIcon, TrashIcon } from '@src/components/icons';
-import { Loader } from '@src/components/layout';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
@@ -23,12 +22,14 @@ import {
 import { camelToReadable, formatForMaxCharCount } from '@src/utils';
 import eventEmitter from '@src/utils/events';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
+import Lottie from 'lottie-react';
 import { Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ReactNode } from 'react-markdown';
 import { Link, useSearchParams } from 'react-router-dom';
 
 import { Tooltip } from '..';
+import arioLoading from '../../icons/ario-spinner.json';
 import TableView from './TableView';
 
 interface TableData {
@@ -122,13 +123,30 @@ const UndernamesTable = ({
         );
       }
 
-      await dispatchANTInteraction({
+      const { id } = await dispatchANTInteraction({
         processId,
         payload,
         workflowName,
         signer: wallet?.arconnectSigner,
         owner: walletAddress?.toString(),
         dispatch: dispatchTransactionState,
+      });
+      eventEmitter.emit('success', {
+        name: 'Manage Undernames',
+        message: (
+          <span
+            className="flex flex-row whitespace-nowrap"
+            style={{ gap: '10px' }}
+          >
+            {workflowName} complete.{' '}
+            <ArweaveID
+              id={new ArweaveTransactionID(id)}
+              type={ArweaveIdTypes.INTERACTION}
+              shouldLink
+              characterCount={8}
+            />
+          </span>
+        ),
       });
       refresh && refresh();
     } catch (error) {
@@ -188,6 +206,10 @@ const UndernamesTable = ({
         });
 
       setTableData(newTableData as TableData[]);
+    }
+
+    if (!undernames || !Object.keys(undernames).length) {
+      setTableData([]);
     }
   }, [undernames]);
 
@@ -287,8 +309,13 @@ const UndernamesTable = ({
         isLoading={false}
         noDataFoundText={
           isLoading ? (
-            <span className="h-20 flex w-full items-center p-5 justify-center">
-              <Loader message="Loading Undernames..." />
+            <span className="h-fit flex flex-col text-white w-full items-center p-5 justify-center">
+              <Lottie
+                animationData={arioLoading}
+                loop={true}
+                className="h-[100px]"
+              />
+              <span>Loading Undernames...</span>
             </span>
           ) : (
             <span className="h-20 flex w-full items-center justify-center">
