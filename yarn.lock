@@ -88,20 +88,6 @@
     resize-observer-polyfill "^1.5.1"
     throttle-debounce "^5.0.0"
 
-"@ar.io/sdk@2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-2.1.0.tgz#3d33fd9f7db6b0e66c0abcd1aadf593b2f4be850"
-  integrity sha512-bJBzAOhiMGHJIX6YtJFK2qEgFabtF73669UDXHhuj+M7lUYAUINzqC4ZkBB3jCJMjV7nwHboNQqs/c4bRs8mjQ==
-  dependencies:
-    "@permaweb/aoconnect" "^0.0.57"
-    arbundles "0.11.0"
-    arweave "1.14.4"
-    axios "1.7.2"
-    axios-retry "^4.3.0"
-    eventemitter3 "^5.0.1"
-    plimit-lit "^3.0.1"
-    winston "^3.13.0"
-
 "@ar.io/sdk@^1.2.2":
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-1.2.2.tgz#2d3a0fa1d19ad5bb0caf34dc4cd78e88def0eb5f"
@@ -116,6 +102,21 @@
     eventemitter3 "^5.0.1"
     plimit-lit "^3.0.1"
     warp-contracts "1.4.45"
+
+"@ar.io/sdk@^2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-2.2.0.tgz#a3c04b33624238c6dadb568b36fd1fa358c0d7ad"
+  integrity sha512-p+vaF5Tp2R18MHqo/LbJY/ZonPJEvvldefw3RpF9DLGlR3GHpcjC3reHRlpOS+EfSgHUtBHe7/Kfk0ijbk3ieA==
+  dependencies:
+    "@permaweb/aoconnect" "^0.0.57"
+    arbundles "0.11.0"
+    arweave "1.14.4"
+    axios "1.7.3"
+    axios-retry "^4.3.0"
+    eventemitter3 "^5.0.1"
+    plimit-lit "^3.0.1"
+    winston "^3.13.0"
+    zod "^3.23.8"
 
 "@ardrive/turbo-sdk@^1.9.0":
   version "1.10.0"
@@ -4014,6 +4015,15 @@ axios@1.7.2:
   version "1.7.2"
   resolved "https://registry.yarnpkg.com/axios/-/axios-1.7.2.tgz#b625db8a7051fbea61c35a3cbb3a1daa7b9c7621"
   integrity sha512-2A8QhOMrbomlDuiLeK9XibIBzuHeRcqqNOHp0Cyp5EoJ1IFDh+XZH3A6BkXtv0K4gFGCI0Y4BM7B1wOEi0Rmgw==
+  dependencies:
+    follow-redirects "^1.15.6"
+    form-data "^4.0.0"
+    proxy-from-env "^1.1.0"
+
+axios@1.7.3:
+  version "1.7.3"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.7.3.tgz#a1125f2faf702bc8e8f2104ec3a76fab40257d85"
+  integrity sha512-Ar7ND9pU99eJ9GpoGQKhKf58GpUOgnzuaB7ueNQ5BMi0p+LZ5oaEnfF999fAArcTIBwXTCHAmGcHOZJaWPq9Nw==
   dependencies:
     follow-redirects "^1.15.6"
     form-data "^4.0.0"
