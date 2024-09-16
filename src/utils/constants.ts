@@ -83,8 +83,7 @@ export const URL_REGEX = new RegExp(
 );
 export const IO_PROCESS_ID =
   process.env.VITE_IO_PROCESS_ID || ioDevnetProcessId;
-export const AO_CU_URL =
-  process.env.VITE_AO_CU_URL || 'https://cu.ao-testnet.xyz';
+export const AO_CU_URL = process.env.VITE_AO_CU_URL || 'https://cu.ar-io.dev';
 
 export const NETWORK_DEFAULTS = {
   AO: {
