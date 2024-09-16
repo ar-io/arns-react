@@ -49,6 +49,20 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
                       Progress: {
                         colorText: 'var(--text-white)',
                       },
+                      Input: {
+                        addonBg: 'var(--box-color)',
+                        colorBgContainer: 'var(--bg-color)',
+                        activeBg: 'var(--box-color)',
+                        hoverBg: 'var(--box-color)',
+                        colorText: 'var(--text-white)',
+                        colorTextPlaceholder: 'var(--text-grey)',
+                        activeBorderColor: 'var(--primary)',
+                        hoverBorderColor: 'var(--bg-color)',
+                        colorIcon: 'var(--text-grey)',
+                        colorPrimary: 'var(--primary)',
+                        borderRadius: 3,
+                        lineWidth: 0.5,
+                      },
                     },
                   }}
                 >

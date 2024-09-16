@@ -33,7 +33,8 @@ import { getTransactionHeader } from './transaction-headers';
 // on completion routes to transaction/complete
 function TransactionReview() {
   const navigate = useNavigate();
-  const [{ ioTicker, arioContract, ioProcessId }] = useGlobalState();
+  const [{ ioTicker, arioContract, ioProcessId, aoNetwork, aoClient }] =
+    useGlobalState();
   const [{ walletAddress, wallet }] = useWalletState();
   const [
     { workflowName, interactionType, transactionData, interactionResult },
@@ -111,6 +112,8 @@ function TransactionReview() {
         processId: ioProcessId,
         dispatch: dispatchTransactionState,
         signer: wallet?.arconnectSigner,
+        ao: aoClient,
+        scheduler: aoNetwork.SCHEDULER,
       });
 
       navigate('/transaction/complete');

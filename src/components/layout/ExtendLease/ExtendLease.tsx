@@ -20,7 +20,6 @@ import {
   sleep,
 } from '../../../utils';
 import {
-  ARNS_REGISTRY_ADDRESS,
   MAX_LEASE_DURATION,
   MIN_LEASE_DURATION,
   YEAR_IN_MILLISECONDS,
@@ -35,7 +34,7 @@ import PageLoader from '../progress/PageLoader/PageLoader';
 
 function ExtendLease() {
   // TODO: remove use of source contract
-  const [{ ioTicker, arioContract }] = useGlobalState();
+  const [{ ioTicker, arioContract, ioProcessId }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const location = useLocation();
@@ -312,7 +311,7 @@ function ExtendLease() {
                   dispatchTransactionState({
                     type: 'setTransactionData',
                     payload: {
-                      assetId: ARNS_REGISTRY_ADDRESS.toString(),
+                      assetId: ioProcessId,
                       functionName: 'extendRecord',
                       ...payload,
                       arnsRecord: record,

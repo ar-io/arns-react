@@ -1,5 +1,4 @@
-import { AoIORead, AoIOWrite } from '@ar.io/sdk/web';
-import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import { AoClient, AoIORead, AoIOWrite } from '@ar.io/sdk/web';
 
 import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
 import { GlobalState } from '../contexts/GlobalState';
@@ -13,8 +12,20 @@ export type GlobalAction =
       };
     }
   | {
+      type: 'setAONetwork';
+      payload: {
+        CU_URL?: string;
+        MU_URL?: string;
+        SCHEDULER?: string;
+      };
+    }
+  | {
+      type: 'setAoClient';
+      payload: AoClient;
+    }
+  | {
       type: 'setIoProcessId';
-      payload: ArweaveTransactionID;
+      payload: string;
     }
   | {
       type: 'setBlockHeight';
@@ -39,6 +50,19 @@ export const reducer = (
         ...state,
         gateway: action.payload.gateway,
         arweaveDataProvider: action.payload.provider,
+      };
+    case 'setAONetwork':
+      return {
+        ...state,
+        aoNetwork: {
+          ...state.aoNetwork,
+          ...action.payload,
+        },
+      };
+    case 'setAoClient':
+      return {
+        ...state,
+        aoClient: action.payload,
       };
     case 'setBlockHeight':
       return {

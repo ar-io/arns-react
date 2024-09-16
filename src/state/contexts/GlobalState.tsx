@@ -1,4 +1,4 @@
-import { AOProcess, AoIORead, AoIOWrite, IO } from '@ar.io/sdk/web';
+import { AOProcess, AoClient, AoIORead, AoIOWrite, IO } from '@ar.io/sdk/web';
 import { connect } from '@permaweb/aoconnect';
 import React, {
   Dispatch,
@@ -10,14 +10,13 @@ import React, {
 } from 'react';
 
 import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
-import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
 import {
   AO_CU_URL,
-  ARNS_REGISTRY_ADDRESS,
   ARWEAVE_HOST,
   DEFAULT_ARWEAVE,
   IO_PROCESS_ID,
+  NETWORK_DEFAULTS,
 } from '../../utils/constants';
 import type { GlobalAction } from '../reducers/GlobalReducer';
 
@@ -34,7 +33,13 @@ export const defaultArIO = IO.init({
 export type GlobalState = {
   ioTicker: string;
   gateway: string;
-  ioProcessId: ArweaveTransactionID;
+  aoNetwork: {
+    CU_URL: string;
+    MU_URL: string;
+    SCHEDULER: string;
+  };
+  aoClient: AoClient;
+  ioProcessId: string;
   blockHeight?: number;
   lastBlockUpdateTimestamp?: number;
   arweaveDataProvider: ArweaveCompositeDataProvider;
@@ -42,9 +47,11 @@ export type GlobalState = {
 };
 
 const initialState: GlobalState = {
-  ioProcessId: ARNS_REGISTRY_ADDRESS,
+  ioProcessId: IO_PROCESS_ID,
   ioTicker: '',
   gateway: ARWEAVE_HOST,
+  aoNetwork: NETWORK_DEFAULTS.AO,
+  aoClient: connect(NETWORK_DEFAULTS.AO),
   blockHeight: undefined,
   lastBlockUpdateTimestamp: undefined,
   arweaveDataProvider: new ArweaveCompositeDataProvider({

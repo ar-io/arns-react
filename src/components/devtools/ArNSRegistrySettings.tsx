@@ -1,12 +1,15 @@
-import { IO } from '@ar.io/sdk/web';
+import {
+  AOProcess,
+  IO,
+  IO_DEVNET_PROCESS_ID,
+  IO_TESTNET_PROCESS_ID,
+} from '@ar.io/sdk/web';
 import { ArweaveCompositeDataProvider } from '@src/services/arweave/ArweaveCompositeDataProvider';
-import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { SimpleArweaveDataProvider } from '@src/services/arweave/SimpleArweaveDataProvider';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { VALIDATION_INPUT_TYPES } from '@src/types';
 import { isArweaveTransactionID } from '@src/utils';
-import { ARNS_REGISTRY_ADDRESS, IO_PROCESS_ID } from '@src/utils/constants';
 import { Collapse, Space } from 'antd';
 import Arweave from 'arweave';
 import { useEffect, useState } from 'react';
@@ -17,8 +20,10 @@ import './styles.css';
 const Panel = Collapse.Panel;
 
 function ArNSRegistrySettings() {
-  const [{ arweaveDataProvider, ioProcessId }, dispatchGlobalState] =
-    useGlobalState();
+  const [
+    { arweaveDataProvider, ioProcessId, aoClient, gateway },
+    dispatchGlobalState,
+  ] = useGlobalState();
   const [{ wallet }] = useWalletState();
   const [registryAddress, setRegistryAddress] = useState<string>(
     ioProcessId?.toString(),
@@ -33,11 +38,14 @@ function ArNSRegistrySettings() {
     if (isArweaveTransactionID(id)) {
       dispatchGlobalState({
         type: 'setIoProcessId',
-        payload: new ArweaveTransactionID(id.trim()),
+        payload: id.trim(),
       });
 
       const arIOContract = IO.init({
-        processId: id.trim(),
+        process: new AOProcess({
+          processId: id.trim(),
+          ao: aoClient,
+        }),
         ...(wallet?.arconnectSigner ? { signer: wallet.arconnectSigner } : {}),
       });
       dispatchGlobalState({
@@ -45,18 +53,14 @@ function ArNSRegistrySettings() {
         payload: arIOContract,
       });
 
-      const gateway = 'ar-io.dev';
       const arweave = new Arweave({
         host: gateway,
         protocol: 'https',
       });
       const arweaveDataProvider = new SimpleArweaveDataProvider(arweave);
-      const contract = IO.init({
-        processId: id.trim(),
-        // TODO: add signer,
-      });
+
       const provider = new ArweaveCompositeDataProvider({
-        contract,
+        contract: arIOContract,
         arweave: arweaveDataProvider,
       });
 
@@ -68,7 +72,7 @@ function ArNSRegistrySettings() {
   }
 
   function reset() {
-    confirmSetting(ARNS_REGISTRY_ADDRESS?.toString());
+    confirmSetting(ioProcessId);
   }
 
   return (
@@ -79,49 +83,49 @@ function ArNSRegistrySettings() {
             header={
               <div className="flex" style={{ justifyContent: 'space-between' }}>
                 <span>ArNS Registry Settings</span>
-                <div className="flex" style={{ gap: '4px' }}>
-                  <button
-                    className={
-                      'center ' +
-                      (ioProcessId?.toString() === IO_PROCESS_ID
-                        ? 'button-primary'
-                        : 'button-secondary')
-                    }
-                    style={{ padding: '4px' }}
-                    onClick={() => confirmSetting(IO_PROCESS_ID)}
-                  >
-                    devnet
-                  </button>
-                  <button
-                    className={
-                      'center ' +
-                      (ioProcessId?.toString() === IO_PROCESS_ID
-                        ? 'button-primary'
-                        : 'button-secondary')
-                    }
-                    style={{ padding: '4px' }}
-                    onClick={() => confirmSetting(IO_PROCESS_ID)}
-                  >
-                    testnet
-                  </button>
-                  <button
-                    className="outline-button center"
-                    style={{
-                      borderColor: 'white',
-                      padding: '4px',
-                      width: 'fit-content',
-                      minWidth: '0',
-                    }}
-                    onClick={reset}
-                  >
-                    reset
-                  </button>
-                </div>
               </div>
             }
             key="1"
           >
             <>
+              <div className="flex" style={{ gap: '4px' }}>
+                <button
+                  className={
+                    'center ' +
+                    (ioProcessId?.toString() === IO_DEVNET_PROCESS_ID
+                      ? 'button-primary'
+                      : 'button-secondary')
+                  }
+                  style={{ padding: '4px' }}
+                  onClick={() => confirmSetting(IO_DEVNET_PROCESS_ID)}
+                >
+                  devnet
+                </button>
+                <button
+                  className={
+                    'center ' +
+                    (ioProcessId?.toString() === IO_TESTNET_PROCESS_ID
+                      ? 'button-primary'
+                      : 'button-secondary')
+                  }
+                  style={{ padding: '4px' }}
+                  onClick={() => confirmSetting(IO_TESTNET_PROCESS_ID)}
+                >
+                  testnet
+                </button>
+                <button
+                  className="outline-button center"
+                  style={{
+                    borderColor: 'white',
+                    padding: '4px',
+                    width: 'fit-content',
+                    minWidth: '0',
+                  }}
+                  onClick={reset}
+                >
+                  reset
+                </button>
+              </div>
               <span className="grey text-medium">
                 ArNS Registry: {ioProcessId?.toString()}
               </span>

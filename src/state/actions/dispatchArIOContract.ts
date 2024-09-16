@@ -1,5 +1,4 @@
 import { AoIORead, AoIOWrite } from '@ar.io/sdk/web';
-import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { Dispatch } from 'react';
 
 import { GlobalAction } from '../reducers';
@@ -10,7 +9,7 @@ export function dispatchArIOContract({
   dispatch,
 }: {
   contract: AoIORead | AoIOWrite;
-  ioProcessId: ArweaveTransactionID;
+  ioProcessId: string;
   dispatch: Dispatch<GlobalAction>;
 }) {
   dispatch({
