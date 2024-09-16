@@ -70,6 +70,8 @@ describe('HomeSearch', () => {
 
     await userEvent.type(searchInput, domain);
 
+    // debounce time
+    await new Promise((resolve) => setTimeout(resolve, 4000));
     expect(lowerCaseDomain(searchInput.value)).toEqual(lowerCaseDomain(domain));
     expect(renderSearchBar()).toMatchSnapshot();
   });
@@ -78,7 +80,8 @@ describe('HomeSearch', () => {
     const domain = 'xn--go8h6v';
 
     await userEvent.type(searchInput, decodeDomainToASCII(domain));
-
+    // debounce time
+    await new Promise((resolve) => setTimeout(resolve, 4000));
     expect(lowerCaseDomain(searchInput.value)).toEqual(lowerCaseDomain(domain));
     expect(renderSearchBar()).toMatchSnapshot();
   });

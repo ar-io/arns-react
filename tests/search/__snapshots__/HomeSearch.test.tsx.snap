@@ -17,7 +17,7 @@ exports[`HomeSearch handles a capitalized name correctly 1`] = `
           style=""
         />
         <div
-          class="flex flex-col w-full rounded-[4px] bg-foreground border-[1px] border-white"
+          class="flex flex-col w-full rounded-[4px] bg-foreground border-[1px] border-error"
         >
           <div
             class="flex flex-row w-full p-2 pr-[100px] relative gap-2"
@@ -64,346 +64,67 @@ exports[`HomeSearch handles a capitalized name correctly 1`] = `
               <span
                 class="text-grey text-sm"
               >
-                <span>
-                  Searching...
+                <span
+                  class="whitespace-nowrap flex items-center gap-2"
+                >
+                  NOT AVAILABLE
+                  <span
+                    aria-label="info-circle"
+                    class="anticon anticon-info-circle fill-grey pointer"
+                    height="14px"
+                    role="img"
+                    width="14px"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      data-icon="info-circle"
+                      fill="currentColor"
+                      focusable="false"
+                      height="1em"
+                      viewBox="64 64 896 896"
+                      width="1em"
+                    >
+                      <path
+                        d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
+                      />
+                      <path
+                        d="M464 336a48 48 0 1096 0 48 48 0 10-96 0zm72 112h-48c-4.4 0-8 3.6-8 8v272c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V456c0-4.4-3.6-8-8-8z"
+                      />
+                    </svg>
+                  </span>
                 </span>
               </span>
             </div>
             <div
-              class="h-[60px]"
+              class="flex flex-row w-full justify-between mt-4"
             >
-              <svg
-                height="400"
-                preserveAspectRatio="xMidYMid meet"
-                style="width: 100%; height: 100%; transform: translate3d(0,0,0);"
-                viewBox="0 0 400 400"
-                width="400"
-                xmlns="http://www.w3.org/2000/svg"
-                xmlns:xlink="http://www.w3.org/1999/xlink"
+              <span
+                class="text-xl text-grey"
               >
-                <defs>
-                  <clippath
-                    id="__lottie_element_2"
-                  >
-                    <rect
-                      height="400"
-                      width="400"
-                      x="0"
-                      y="0"
-                    />
-                  </clippath>
-                  <clippath
-                    id="__lottie_element_4"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <clippath
-                    id="__lottie_element_8"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <clippath
-                    id="__lottie_element_12"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <lineargradient
-                    gradientUnits="userSpaceOnUse"
-                    id="__lottie_element_18"
-                    spreadMethod="pad"
-                    x1="-140"
-                    x2="140"
-                    y1="0"
-                    y2="0"
-                  >
-                    <stop
-                      offset="0%"
-                      stop-color="rgb(247,196,161)"
-                      stop-opacity="1"
-                    />
-                    <stop
-                      offset="49%"
-                      stop-color="rgb(235,173,199)"
-                      stop-opacity="1"
-                    />
-                    <stop
-                      offset="100%"
-                      stop-color="rgb(224,156,232)"
-                      stop-opacity="1"
-                    />
-                  </lineargradient>
-                  <clippath
-                    id="__lottie_element_20"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <clippath
-                    id="__lottie_element_24"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <clippath
-                    id="__lottie_element_28"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <g
-                    id="__lottie_element_31"
-                  >
-                    <g
-                      clip-path="url(#__lottie_element_32)"
-                      id="precomp_ZtOb0OCgqiQQYswd_bYsZ9"
-                      opacity="1"
-                      style="display: block;"
-                      transform="matrix(1,0,0,1,0,0)"
-                    >
-                      <g
-                        id="_GIj9ZeA7rwWCuRAnwK0b10"
-                        opacity="1"
-                        style="display: block;"
-                        transform="matrix(1,0,0,1,50000,50000)"
-                      >
-                        <g
-                          opacity="1"
-                          transform="matrix(1,0,0,1,0,0)"
-                        >
-                          <path
-                            d=" M91,-73.87999725341797 C91,-73.87999725341797 -91,-73.87999725341797 -91,-73.87999725341797 C-91,-73.87999725341797 -91,73.87999725341797 -91,73.87999725341797 C-91,73.87999725341797 91,73.87999725341797 91,73.87999725341797 C91,73.87999725341797 91,-73.87999725341797 91,-73.87999725341797z"
-                            fill="rgb(0,0,0)"
-                            fill-opacity="1"
-                          />
-                        </g>
-                      </g>
-                    </g>
-                  </g>
-                  <clippath
-                    id="__lottie_element_32"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <clippath
-                    id="__lottie_element_39"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <mask
-                    id="__lottie_element_31_1"
-                    mask-type="alpha"
-                  >
-                    <use
-                      href="#__lottie_element_31"
-                    />
-                  </mask>
-                  <clippath
-                    id="__lottie_element_46"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <clippath
-                    id="__lottie_element_50"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <clippath
-                    id="__lottie_element_54"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <clippath
-                    id="__lottie_element_58"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <clippath
-                    id="__lottie_element_62"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                </defs>
-                <g
-                  clip-path="url(#__lottie_element_2)"
+                ardrive.ar-io.dev
+              </span>
+              <button
+                class="text-[12px] text-white whitespace-nowrap flex items-center"
+                style="gap: 0;"
+              >
+                View Details 
+                <svg
+                  class="lucide lucide-chevron-right"
+                  fill="none"
+                  height="18px"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="18px"
+                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <g
-                    clip-path="url(#__lottie_element_4)"
-                    id="precomp_19:2220"
-                    opacity="1"
-                    style="display: block;"
-                    transform="matrix(1,0,0,1,-49800,-49800)"
-                  >
-                    <g
-                      clip-path="url(#__lottie_element_62)"
-                      id="precomp_EUwLytwoOE93GiW7MQYMh15"
-                      opacity="1"
-                      style="display: block;"
-                      transform="matrix(1,0,0,1,0,0)"
-                    />
-                    <g
-                      clip-path="url(#__lottie_element_58)"
-                      id="precomp_xSOdPSa5U7L0QXvotJz_N14"
-                      opacity="1"
-                      style="display: block;"
-                      transform="matrix(1,0,0,1,0,0)"
-                    />
-                    <g
-                      clip-path="url(#__lottie_element_8)"
-                      id="precomp_Zche5tnE1"
-                      opacity="1"
-                      style="display: block;"
-                      transform="matrix(1,0,0,1,0,0)"
-                    >
-                      <g
-                        clip-path="url(#__lottie_element_54)"
-                        id="precomp_Z6TzdKXLEm4izCTbzf9_H13"
-                        opacity="1"
-                        style="display: block;"
-                        transform="matrix(1,0,0,1,0,0)"
-                      />
-                      <g
-                        clip-path="url(#__lottie_element_50)"
-                        id="precomp_iOD4psOXBXQeK5pSsY_7E12"
-                        opacity="1"
-                        style="display: block;"
-                        transform="matrix(1,0,0,1,0,0)"
-                      />
-                      <g
-                        clip-path="url(#__lottie_element_20)"
-                        id="precomp_62:864"
-                        opacity="1"
-                        style="display: block;"
-                        transform="matrix(0.00006504396151285619,-0.000017428477804060094,0.000017428477804060094,0.00006504396151285619,49992.875,49983.62109375)"
-                      >
-                        <g
-                          clip-path="url(#__lottie_element_46)"
-                          id="precomp_la5YlE_GV_4BPZbinraQb11"
-                          opacity="1"
-                          style="display: block;"
-                          transform="matrix(1,0,0,1,0,0)"
-                        />
-                        <g
-                          clip-path="url(#__lottie_element_28)"
-                          id="precomp_5oZ83-FT3oshDyBMTbHvB6"
-                          opacity="1"
-                          style="display: block;"
-                          transform="matrix(1,0,0,1,0,0)"
-                        >
-                          <g
-                            mask="url(#__lottie_element_31_1)"
-                            style="display: block;"
-                          >
-                            <g
-                              clip-path="url(#__lottie_element_39)"
-                              id="precomp_5oZ83-FT3oshDyBMTbHvB7"
-                              opacity="1"
-                              transform="matrix(1,0,0,1,0,0)"
-                            >
-                              <g
-                                id="LM8zQfJDxZS-UAa5GEA3z8"
-                                opacity="1"
-                                style="display: block;"
-                                transform="matrix(11.555266380310059,0,0,11.588729858398438,49909,49926.12109375)"
-                              >
-                                <g
-                                  opacity="1"
-                                  transform="matrix(1,0,0,1,0,0)"
-                                >
-                                  <g
-                                    opacity="1"
-                                    transform="matrix(1,0,0,1,0,0)"
-                                  >
-                                    <g
-                                      opacity="1"
-                                      transform="matrix(1,0,0,1,0,0)"
-                                    >
-                                      <path
-                                        d=" M4.630000114440918,5.800000190734863 C4.53000020980835,5.96999979019165 4.389999866485596,6.110000133514404 4.21999979019165,6.210000038146973 C3.930000066757202,6.380000114440918 3.5799999237060547,6.400000095367432 3.259999990463257,6.289999961853027 C3.2100000381469727,6.28000020980835 3.1700000762939453,6.25 3.130000114440918,6.230000019073486 C2.7699999809265137,6.03000020980835 2.5399999618530273,5.639999866485596 2.5399999618530273,5.230000019073486 C2.5399999618530273,4.820000171661377 2.7699999809265137,4.429999828338623 3.130000114440918,4.230000019073486 C3.1700000762939453,4.199999809265137 3.2200000286102295,4.190000057220459 3.2699999809265137,4.179999828338623 C3.680000066757202,4.03000020980835 4.139999866485596,4.139999866485596 4.449999809265137,4.440000057220459 C4.670000076293945,4.650000095367432 4.789999961853027,4.929999828338623 4.789999961853027,5.230000019073486 C4.789999961853027,5.429999828338623 4.739999771118164,5.630000114440918 4.630000114440918,5.800000190734863 C4.630000114440918,5.800000190734863 4.630000114440918,5.800000190734863 4.630000114440918,5.800000190734863z M14.600000381469727,7.28000020980835 C14.600000381469727,3.450000047683716 11.520000457763672,0.3400000035762787 7.710000038146973,0.3400000035762787 C3.9000000953674316,0.3400000035762787 0.6600000262260437,3.450000047683716 0.6600000262260437,7.28000020980835 C0.6600000262260437,7.28000020980835 0.6600000262260437,11.609999656677246 0.6600000262260437,11.609999656677246 C0.6600000262260437,11.760000228881836 0.7200000286102295,11.890000343322754 0.8199999928474426,12 C0.9200000166893005,12.100000381469727 1.059999942779541,12.15999984741211 1.2100000381469727,12.15999984741211 C1.2100000381469727,12.15999984741211 2,12.15999984741211 2,12.15999984741211 C2.140000104904175,12.15999984741211 2.2799999713897705,12.100000381469727 2.380000114440918,12 C2.490000009536743,11.890000343322754 2.549999952316284,11.760000228881836 2.549999952316284,11.609999656677246 C2.549999952316284,11.609999656677246 2.549999952316284,8.010000228881836 2.549999952316284,8.010000228881836 C2.549999952316284,7.699999809265137 2.7899999618530273,7.460000038146973 3.0899999141693115,7.460000038146973 C3.0899999141693115,7.460000038146973 4.210000038146973,7.460000038146973 4.210000038146973,7.460000038146973 C4.510000228881836,7.460000038146973 4.769999980926514,7.699999809265137 4.769999980926514,8.010000228881836 C4.769999980926514,8.010000228881836 4.769999980926514,11.609999656677246 4.769999980926514,11.609999656677246 C4.769999980926514,11.760000228881836 4.820000171661377,11.890000343322754 4.929999828338623,12 C5.03000020980835,12.100000381469727 5.170000076293945,12.15999984741211 5.309999942779541,12.15999984741211 C5.309999942779541,12.15999984741211 6.099999904632568,12.15999984741211 6.099999904632568,12.15999984741211 C6.25,12.15999984741211 6.389999866485596,12.100000381469727 6.489999771118164,12 C6.599999904632568,11.890000343322754 6.650000095367432,11.760000228881836 6.650000095367432,11.609999656677246 C6.650000095367432,11.609999656677246 6.650000095367432,10.520000457763672 6.650000095367432,10.520000457763672 C6.650000095367432,9.430000305175781 7.230000019073486,8.420000076293945 8.170000076293945,7.869999885559082 C9.109999656677246,7.320000171661377 10.270000457763672,7.320000171661377 11.210000038146973,7.869999885559082 C12.149999618530273,8.420000076293945 12.729999542236328,9.430000305175781 12.729999542236328,10.520000457763672 C12.729999542236328,10.520000457763672 12.729999542236328,11.609999656677246 12.729999542236328,11.609999656677246 C12.729999542236328,11.920000076293945 12.979999542236328,12.15999984741211 13.279999732971191,12.15999984741211 C13.279999732971191,12.15999984741211 14.050000190734863,12.15999984741211 14.050000190734863,12.15999984741211 C14.350000381469727,12.15999984741211 14.609999656677246,11.920000076293945 14.609999656677246,11.609999656677246 C14.609999656677246,11.609999656677246 14.600000381469727,7.28000020980835 14.600000381469727,7.28000020980835z"
-                                        fill="rgb(219,219,219)"
-                                        fill-opacity="1"
-                                      />
-                                    </g>
-                                  </g>
-                                  <g
-                                    opacity="1"
-                                    transform="matrix(1,0,0,1,0,0)"
-                                  >
-                                    <g
-                                      opacity="1"
-                                      transform="matrix(1,0,0,1,0,0)"
-                                    >
-                                      <path
-                                        d=" M5.239999771118164,5.800000190734863 C5.139999866485596,5.96999979019165 5,6.110000133514404 4.829999923706055,6.210000038146973 C4.539999961853027,6.380000114440918 4.190000057220459,6.400000095367432 3.869999885559082,6.289999961853027 C3.819999933242798,6.28000020980835 3.7799999713897705,6.25 3.740000009536743,6.230000019073486 C3.380000114440918,6.03000020980835 3.1500000953674316,5.639999866485596 3.1500000953674316,5.230000019073486 C3.1500000953674316,4.820000171661377 3.380000114440918,4.429999828338623 3.740000009536743,4.230000019073486 C3.7799999713897705,4.199999809265137 3.8299999237060547,4.190000057220459 3.880000114440918,4.179999828338623 C4.289999961853027,4.03000020980835 4.75,4.139999866485596 5.059999942779541,4.440000057220459 C5.28000020980835,4.650000095367432 5.400000095367432,4.929999828338623 5.400000095367432,5.230000019073486 C5.400000095367432,5.429999828338623 5.349999904632568,5.630000114440918 5.239999771118164,5.800000190734863 C5.239999771118164,5.800000190734863 5.239999771118164,5.800000190734863 5.239999771118164,5.800000190734863z M15.210000038146973,7.28000020980835 C15.210000038146973,3.450000047683716 12.130000114440918,0.3400000035762787 8.319999694824219,0.3400000035762787 C4.510000228881836,0.3400000035762787 1.2699999809265137,3.450000047683716 1.2699999809265137,7.28000020980835 C1.2699999809265137,7.28000020980835 1.2699999809265137,11.609999656677246 1.2699999809265137,11.609999656677246 C1.2699999809265137,11.760000228881836 1.3300000429153442,11.890000343322754 1.4299999475479126,12 C1.5299999713897705,12.100000381469727 1.6699999570846558,12.15999984741211 1.8200000524520874,12.15999984741211 C1.8200000524520874,12.15999984741211 2.609999895095825,12.15999984741211 2.609999895095825,12.15999984741211 C2.75,12.15999984741211 2.9000000953674316,12.100000381469727 3,12 C3.109999895095825,11.890000343322754 3.1600000858306885,11.760000228881836 3.1600000858306885,11.609999656677246 C3.1600000858306885,11.609999656677246 3.1600000858306885,8.010000228881836 3.1600000858306885,8.010000228881836 C3.1600000858306885,7.699999809265137 3.4100000858306885,7.460000038146973 3.7100000381469727,7.460000038146973 C3.7100000381469727,7.460000038146973 4.829999923706055,7.460000038146973 4.829999923706055,7.460000038146973 C5.130000114440918,7.460000038146973 5.380000114440918,7.699999809265137 5.380000114440918,8.010000228881836 C5.380000114440918,8.010000228881836 5.380000114440918,11.609999656677246 5.380000114440918,11.609999656677246 C5.380000114440918,11.760000228881836 5.429999828338623,11.890000343322754 5.539999961853027,12 C5.639999866485596,12.100000381469727 5.789999961853027,12.15999984741211 5.929999828338623,12.15999984741211 C5.929999828338623,12.15999984741211 6.710000038146973,12.15999984741211 6.710000038146973,12.15999984741211 C6.860000133514404,12.15999984741211 7,12.100000381469727 7.099999904632568,12 C7.210000038146973,11.890000343322754 7.260000228881836,11.760000228881836 7.260000228881836,11.609999656677246 C7.260000228881836,11.609999656677246 7.260000228881836,10.520000457763672 7.260000228881836,10.520000457763672 C7.260000228881836,9.430000305175781 7.840000152587891,8.420000076293945 8.779999732971191,7.869999885559082 C9.720000267028809,7.320000171661377 10.880000114440918,7.320000171661377 11.819999694824219,7.869999885559082 C12.760000228881836,8.420000076293945 13.34000015258789,9.430000305175781 13.34000015258789,10.520000457763672 C13.34000015258789,10.520000457763672 13.34000015258789,11.609999656677246 13.34000015258789,11.609999656677246 C13.34000015258789,11.920000076293945 13.59000015258789,12.15999984741211 13.890000343322754,12.15999984741211 C13.890000343322754,12.15999984741211 14.670000076293945,12.15999984741211 14.670000076293945,12.15999984741211 C14.970000267028809,12.15999984741211 15.220000267028809,11.920000076293945 15.220000267028809,11.609999656677246 C15.220000267028809,11.609999656677246 15.210000038146973,7.28000020980835 15.210000038146973,7.28000020980835z"
-                                        fill="rgb(252,252,252)"
-                                        fill-opacity="1"
-                                      />
-                                    </g>
-                                  </g>
-                                </g>
-                              </g>
-                            </g>
-                          </g>
-                        </g>
-                        <g
-                          clip-path="url(#__lottie_element_24)"
-                          id="precomp_axBdqkXukWmZZtt1lLTYO5"
-                          opacity="1"
-                          style="display: block;"
-                          transform="matrix(1,0,0,1,0,0)"
-                        />
-                      </g>
-                      <g
-                        clip-path="url(#__lottie_element_12)"
-                        id="precomp_19:2262"
-                        opacity="1"
-                        style="display: block;"
-                        transform="matrix(1,0,0,1,0,0)"
-                      >
-                        <g
-                          id="egJ6b2M31YpjHtKmwPaKM3"
-                          opacity="1"
-                          style="display: block;"
-                          transform="matrix(1,0,0,1,50000,50000)"
-                        >
-                          <g
-                            opacity="1"
-                            transform="matrix(1,0,0,1,0,0)"
-                          >
-                            <path
-                              d=" M0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 M0,140 C0,0 0,0 0,140 C0,140 0,128.8000030517578 0,128.8000030517578 C0,0 0,0 0,128.8000030517578 C0,128.8000030517578 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140"
-                              fill="url(#__lottie_element_18)"
-                              fill-opacity="1"
-                            />
-                          </g>
-                        </g>
-                      </g>
-                    </g>
-                  </g>
-                </g>
-              </svg>
+                  <path
+                    d="m9 18 6-6-6-6"
+                  />
+                </svg>
+              </button>
             </div>
           </div>
         </div>
@@ -463,13 +184,11 @@ exports[`HomeSearch handles a emoji name correctly 1`] = `
         class="flex flex-col w-full h-full"
       >
         <div
-          class="flex flex-row min-h-[50px] pb-2 text-xl font-semibold text-grey justify-center items-center"
-          data-testid="home-search-invalid-header"
-        >
-          Invalid ArNS domain, remove '�'
-        </div>
+          class="min-h-[50px]"
+          data-testid="home-search-spacer-header"
+        />
         <div
-          class="flex flex-col w-full rounded-[4px] bg-foreground border-[1px] border-grey"
+          class="flex flex-col w-full rounded-[4px] bg-foreground border-[1px] border-error"
         >
           <div
             class="flex flex-row w-full p-2 pr-[100px] relative gap-2"
@@ -516,346 +235,67 @@ exports[`HomeSearch handles a emoji name correctly 1`] = `
               <span
                 class="text-grey text-sm"
               >
-                <span>
-                  Searching...
+                <span
+                  class="whitespace-nowrap flex items-center gap-2"
+                >
+                  NOT AVAILABLE
+                  <span
+                    aria-label="info-circle"
+                    class="anticon anticon-info-circle fill-grey pointer"
+                    height="14px"
+                    role="img"
+                    width="14px"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      data-icon="info-circle"
+                      fill="currentColor"
+                      focusable="false"
+                      height="1em"
+                      viewBox="64 64 896 896"
+                      width="1em"
+                    >
+                      <path
+                        d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
+                      />
+                      <path
+                        d="M464 336a48 48 0 1096 0 48 48 0 10-96 0zm72 112h-48c-4.4 0-8 3.6-8 8v272c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V456c0-4.4-3.6-8-8-8z"
+                      />
+                    </svg>
+                  </span>
                 </span>
               </span>
             </div>
             <div
-              class="h-[60px]"
+              class="flex flex-row w-full justify-between mt-4"
             >
-              <svg
-                height="400"
-                preserveAspectRatio="xMidYMid meet"
-                style="width: 100%; height: 100%; transform: translate3d(0,0,0);"
-                viewBox="0 0 400 400"
-                width="400"
-                xmlns="http://www.w3.org/2000/svg"
-                xmlns:xlink="http://www.w3.org/1999/xlink"
+              <span
+                class="text-xl text-grey"
               >
-                <defs>
-                  <clippath
-                    id="__lottie_element_130"
-                  >
-                    <rect
-                      height="400"
-                      width="400"
-                      x="0"
-                      y="0"
-                    />
-                  </clippath>
-                  <clippath
-                    id="__lottie_element_132"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <clippath
-                    id="__lottie_element_136"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <clippath
-                    id="__lottie_element_140"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <lineargradient
-                    gradientUnits="userSpaceOnUse"
-                    id="__lottie_element_146"
-                    spreadMethod="pad"
-                    x1="-140"
-                    x2="140"
-                    y1="0"
-                    y2="0"
-                  >
-                    <stop
-                      offset="0%"
-                      stop-color="rgb(247,196,161)"
-                      stop-opacity="1"
-                    />
-                    <stop
-                      offset="49%"
-                      stop-color="rgb(235,173,199)"
-                      stop-opacity="1"
-                    />
-                    <stop
-                      offset="100%"
-                      stop-color="rgb(224,156,232)"
-                      stop-opacity="1"
-                    />
-                  </lineargradient>
-                  <clippath
-                    id="__lottie_element_148"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <clippath
-                    id="__lottie_element_152"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <clippath
-                    id="__lottie_element_156"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <g
-                    id="__lottie_element_159"
-                  >
-                    <g
-                      clip-path="url(#__lottie_element_160)"
-                      id="precomp_ZtOb0OCgqiQQYswd_bYsZ9"
-                      opacity="1"
-                      style="display: block;"
-                      transform="matrix(1,0,0,1,0,0)"
-                    >
-                      <g
-                        id="_GIj9ZeA7rwWCuRAnwK0b10"
-                        opacity="1"
-                        style="display: block;"
-                        transform="matrix(1,0,0,1,50000,50000)"
-                      >
-                        <g
-                          opacity="1"
-                          transform="matrix(1,0,0,1,0,0)"
-                        >
-                          <path
-                            d=" M91,-73.87999725341797 C91,-73.87999725341797 -91,-73.87999725341797 -91,-73.87999725341797 C-91,-73.87999725341797 -91,73.87999725341797 -91,73.87999725341797 C-91,73.87999725341797 91,73.87999725341797 91,73.87999725341797 C91,73.87999725341797 91,-73.87999725341797 91,-73.87999725341797z"
-                            fill="rgb(0,0,0)"
-                            fill-opacity="1"
-                          />
-                        </g>
-                      </g>
-                    </g>
-                  </g>
-                  <clippath
-                    id="__lottie_element_160"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <clippath
-                    id="__lottie_element_167"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <mask
-                    id="__lottie_element_159_1"
-                    mask-type="alpha"
-                  >
-                    <use
-                      href="#__lottie_element_159"
-                    />
-                  </mask>
-                  <clippath
-                    id="__lottie_element_174"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <clippath
-                    id="__lottie_element_178"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <clippath
-                    id="__lottie_element_182"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <clippath
-                    id="__lottie_element_186"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <clippath
-                    id="__lottie_element_190"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                </defs>
-                <g
-                  clip-path="url(#__lottie_element_130)"
+                🐘🕸.ar-io.dev
+              </span>
+              <button
+                class="text-[12px] text-white whitespace-nowrap flex items-center"
+                style="gap: 0;"
+              >
+                View Details 
+                <svg
+                  class="lucide lucide-chevron-right"
+                  fill="none"
+                  height="18px"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="18px"
+                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <g
-                    clip-path="url(#__lottie_element_132)"
-                    id="precomp_19:2220"
-                    opacity="1"
-                    style="display: block;"
-                    transform="matrix(1,0,0,1,-49800,-49800)"
-                  >
-                    <g
-                      clip-path="url(#__lottie_element_190)"
-                      id="precomp_EUwLytwoOE93GiW7MQYMh15"
-                      opacity="1"
-                      style="display: block;"
-                      transform="matrix(1,0,0,1,0,0)"
-                    />
-                    <g
-                      clip-path="url(#__lottie_element_186)"
-                      id="precomp_xSOdPSa5U7L0QXvotJz_N14"
-                      opacity="1"
-                      style="display: block;"
-                      transform="matrix(1,0,0,1,0,0)"
-                    />
-                    <g
-                      clip-path="url(#__lottie_element_136)"
-                      id="precomp_Zche5tnE1"
-                      opacity="1"
-                      style="display: block;"
-                      transform="matrix(1,0,0,1,0,0)"
-                    >
-                      <g
-                        clip-path="url(#__lottie_element_182)"
-                        id="precomp_Z6TzdKXLEm4izCTbzf9_H13"
-                        opacity="1"
-                        style="display: block;"
-                        transform="matrix(1,0,0,1,0,0)"
-                      />
-                      <g
-                        clip-path="url(#__lottie_element_178)"
-                        id="precomp_iOD4psOXBXQeK5pSsY_7E12"
-                        opacity="1"
-                        style="display: block;"
-                        transform="matrix(1,0,0,1,0,0)"
-                      />
-                      <g
-                        clip-path="url(#__lottie_element_148)"
-                        id="precomp_62:864"
-                        opacity="1"
-                        style="display: block;"
-                        transform="matrix(0.00006504396151285619,-0.000017428477804060094,0.000017428477804060094,0.00006504396151285619,49992.875,49983.62109375)"
-                      >
-                        <g
-                          clip-path="url(#__lottie_element_174)"
-                          id="precomp_la5YlE_GV_4BPZbinraQb11"
-                          opacity="1"
-                          style="display: block;"
-                          transform="matrix(1,0,0,1,0,0)"
-                        />
-                        <g
-                          clip-path="url(#__lottie_element_156)"
-                          id="precomp_5oZ83-FT3oshDyBMTbHvB6"
-                          opacity="1"
-                          style="display: block;"
-                          transform="matrix(1,0,0,1,0,0)"
-                        >
-                          <g
-                            mask="url(#__lottie_element_159_1)"
-                            style="display: block;"
-                          >
-                            <g
-                              clip-path="url(#__lottie_element_167)"
-                              id="precomp_5oZ83-FT3oshDyBMTbHvB7"
-                              opacity="1"
-                              transform="matrix(1,0,0,1,0,0)"
-                            >
-                              <g
-                                id="LM8zQfJDxZS-UAa5GEA3z8"
-                                opacity="1"
-                                style="display: block;"
-                                transform="matrix(11.555266380310059,0,0,11.588729858398438,49909,49926.12109375)"
-                              >
-                                <g
-                                  opacity="1"
-                                  transform="matrix(1,0,0,1,0,0)"
-                                >
-                                  <g
-                                    opacity="1"
-                                    transform="matrix(1,0,0,1,0,0)"
-                                  >
-                                    <g
-                                      opacity="1"
-                                      transform="matrix(1,0,0,1,0,0)"
-                                    >
-                                      <path
-                                        d=" M4.630000114440918,5.800000190734863 C4.53000020980835,5.96999979019165 4.389999866485596,6.110000133514404 4.21999979019165,6.210000038146973 C3.930000066757202,6.380000114440918 3.5799999237060547,6.400000095367432 3.259999990463257,6.289999961853027 C3.2100000381469727,6.28000020980835 3.1700000762939453,6.25 3.130000114440918,6.230000019073486 C2.7699999809265137,6.03000020980835 2.5399999618530273,5.639999866485596 2.5399999618530273,5.230000019073486 C2.5399999618530273,4.820000171661377 2.7699999809265137,4.429999828338623 3.130000114440918,4.230000019073486 C3.1700000762939453,4.199999809265137 3.2200000286102295,4.190000057220459 3.2699999809265137,4.179999828338623 C3.680000066757202,4.03000020980835 4.139999866485596,4.139999866485596 4.449999809265137,4.440000057220459 C4.670000076293945,4.650000095367432 4.789999961853027,4.929999828338623 4.789999961853027,5.230000019073486 C4.789999961853027,5.429999828338623 4.739999771118164,5.630000114440918 4.630000114440918,5.800000190734863 C4.630000114440918,5.800000190734863 4.630000114440918,5.800000190734863 4.630000114440918,5.800000190734863z M14.600000381469727,7.28000020980835 C14.600000381469727,3.450000047683716 11.520000457763672,0.3400000035762787 7.710000038146973,0.3400000035762787 C3.9000000953674316,0.3400000035762787 0.6600000262260437,3.450000047683716 0.6600000262260437,7.28000020980835 C0.6600000262260437,7.28000020980835 0.6600000262260437,11.609999656677246 0.6600000262260437,11.609999656677246 C0.6600000262260437,11.760000228881836 0.7200000286102295,11.890000343322754 0.8199999928474426,12 C0.9200000166893005,12.100000381469727 1.059999942779541,12.15999984741211 1.2100000381469727,12.15999984741211 C1.2100000381469727,12.15999984741211 2,12.15999984741211 2,12.15999984741211 C2.140000104904175,12.15999984741211 2.2799999713897705,12.100000381469727 2.380000114440918,12 C2.490000009536743,11.890000343322754 2.549999952316284,11.760000228881836 2.549999952316284,11.609999656677246 C2.549999952316284,11.609999656677246 2.549999952316284,8.010000228881836 2.549999952316284,8.010000228881836 C2.549999952316284,7.699999809265137 2.7899999618530273,7.460000038146973 3.0899999141693115,7.460000038146973 C3.0899999141693115,7.460000038146973 4.210000038146973,7.460000038146973 4.210000038146973,7.460000038146973 C4.510000228881836,7.460000038146973 4.769999980926514,7.699999809265137 4.769999980926514,8.010000228881836 C4.769999980926514,8.010000228881836 4.769999980926514,11.609999656677246 4.769999980926514,11.609999656677246 C4.769999980926514,11.760000228881836 4.820000171661377,11.890000343322754 4.929999828338623,12 C5.03000020980835,12.100000381469727 5.170000076293945,12.15999984741211 5.309999942779541,12.15999984741211 C5.309999942779541,12.15999984741211 6.099999904632568,12.15999984741211 6.099999904632568,12.15999984741211 C6.25,12.15999984741211 6.389999866485596,12.100000381469727 6.489999771118164,12 C6.599999904632568,11.890000343322754 6.650000095367432,11.760000228881836 6.650000095367432,11.609999656677246 C6.650000095367432,11.609999656677246 6.650000095367432,10.520000457763672 6.650000095367432,10.520000457763672 C6.650000095367432,9.430000305175781 7.230000019073486,8.420000076293945 8.170000076293945,7.869999885559082 C9.109999656677246,7.320000171661377 10.270000457763672,7.320000171661377 11.210000038146973,7.869999885559082 C12.149999618530273,8.420000076293945 12.729999542236328,9.430000305175781 12.729999542236328,10.520000457763672 C12.729999542236328,10.520000457763672 12.729999542236328,11.609999656677246 12.729999542236328,11.609999656677246 C12.729999542236328,11.920000076293945 12.979999542236328,12.15999984741211 13.279999732971191,12.15999984741211 C13.279999732971191,12.15999984741211 14.050000190734863,12.15999984741211 14.050000190734863,12.15999984741211 C14.350000381469727,12.15999984741211 14.609999656677246,11.920000076293945 14.609999656677246,11.609999656677246 C14.609999656677246,11.609999656677246 14.600000381469727,7.28000020980835 14.600000381469727,7.28000020980835z"
-                                        fill="rgb(219,219,219)"
-                                        fill-opacity="1"
-                                      />
-                                    </g>
-                                  </g>
-                                  <g
-                                    opacity="1"
-                                    transform="matrix(1,0,0,1,0,0)"
-                                  >
-                                    <g
-                                      opacity="1"
-                                      transform="matrix(1,0,0,1,0,0)"
-                                    >
-                                      <path
-                                        d=" M5.239999771118164,5.800000190734863 C5.139999866485596,5.96999979019165 5,6.110000133514404 4.829999923706055,6.210000038146973 C4.539999961853027,6.380000114440918 4.190000057220459,6.400000095367432 3.869999885559082,6.289999961853027 C3.819999933242798,6.28000020980835 3.7799999713897705,6.25 3.740000009536743,6.230000019073486 C3.380000114440918,6.03000020980835 3.1500000953674316,5.639999866485596 3.1500000953674316,5.230000019073486 C3.1500000953674316,4.820000171661377 3.380000114440918,4.429999828338623 3.740000009536743,4.230000019073486 C3.7799999713897705,4.199999809265137 3.8299999237060547,4.190000057220459 3.880000114440918,4.179999828338623 C4.289999961853027,4.03000020980835 4.75,4.139999866485596 5.059999942779541,4.440000057220459 C5.28000020980835,4.650000095367432 5.400000095367432,4.929999828338623 5.400000095367432,5.230000019073486 C5.400000095367432,5.429999828338623 5.349999904632568,5.630000114440918 5.239999771118164,5.800000190734863 C5.239999771118164,5.800000190734863 5.239999771118164,5.800000190734863 5.239999771118164,5.800000190734863z M15.210000038146973,7.28000020980835 C15.210000038146973,3.450000047683716 12.130000114440918,0.3400000035762787 8.319999694824219,0.3400000035762787 C4.510000228881836,0.3400000035762787 1.2699999809265137,3.450000047683716 1.2699999809265137,7.28000020980835 C1.2699999809265137,7.28000020980835 1.2699999809265137,11.609999656677246 1.2699999809265137,11.609999656677246 C1.2699999809265137,11.760000228881836 1.3300000429153442,11.890000343322754 1.4299999475479126,12 C1.5299999713897705,12.100000381469727 1.6699999570846558,12.15999984741211 1.8200000524520874,12.15999984741211 C1.8200000524520874,12.15999984741211 2.609999895095825,12.15999984741211 2.609999895095825,12.15999984741211 C2.75,12.15999984741211 2.9000000953674316,12.100000381469727 3,12 C3.109999895095825,11.890000343322754 3.1600000858306885,11.760000228881836 3.1600000858306885,11.609999656677246 C3.1600000858306885,11.609999656677246 3.1600000858306885,8.010000228881836 3.1600000858306885,8.010000228881836 C3.1600000858306885,7.699999809265137 3.4100000858306885,7.460000038146973 3.7100000381469727,7.460000038146973 C3.7100000381469727,7.460000038146973 4.829999923706055,7.460000038146973 4.829999923706055,7.460000038146973 C5.130000114440918,7.460000038146973 5.380000114440918,7.699999809265137 5.380000114440918,8.010000228881836 C5.380000114440918,8.010000228881836 5.380000114440918,11.609999656677246 5.380000114440918,11.609999656677246 C5.380000114440918,11.760000228881836 5.429999828338623,11.890000343322754 5.539999961853027,12 C5.639999866485596,12.100000381469727 5.789999961853027,12.15999984741211 5.929999828338623,12.15999984741211 C5.929999828338623,12.15999984741211 6.710000038146973,12.15999984741211 6.710000038146973,12.15999984741211 C6.860000133514404,12.15999984741211 7,12.100000381469727 7.099999904632568,12 C7.210000038146973,11.890000343322754 7.260000228881836,11.760000228881836 7.260000228881836,11.609999656677246 C7.260000228881836,11.609999656677246 7.260000228881836,10.520000457763672 7.260000228881836,10.520000457763672 C7.260000228881836,9.430000305175781 7.840000152587891,8.420000076293945 8.779999732971191,7.869999885559082 C9.720000267028809,7.320000171661377 10.880000114440918,7.320000171661377 11.819999694824219,7.869999885559082 C12.760000228881836,8.420000076293945 13.34000015258789,9.430000305175781 13.34000015258789,10.520000457763672 C13.34000015258789,10.520000457763672 13.34000015258789,11.609999656677246 13.34000015258789,11.609999656677246 C13.34000015258789,11.920000076293945 13.59000015258789,12.15999984741211 13.890000343322754,12.15999984741211 C13.890000343322754,12.15999984741211 14.670000076293945,12.15999984741211 14.670000076293945,12.15999984741211 C14.970000267028809,12.15999984741211 15.220000267028809,11.920000076293945 15.220000267028809,11.609999656677246 C15.220000267028809,11.609999656677246 15.210000038146973,7.28000020980835 15.210000038146973,7.28000020980835z"
-                                        fill="rgb(252,252,252)"
-                                        fill-opacity="1"
-                                      />
-                                    </g>
-                                  </g>
-                                </g>
-                              </g>
-                            </g>
-                          </g>
-                        </g>
-                        <g
-                          clip-path="url(#__lottie_element_152)"
-                          id="precomp_axBdqkXukWmZZtt1lLTYO5"
-                          opacity="1"
-                          style="display: block;"
-                          transform="matrix(1,0,0,1,0,0)"
-                        />
-                      </g>
-                      <g
-                        clip-path="url(#__lottie_element_140)"
-                        id="precomp_19:2262"
-                        opacity="1"
-                        style="display: block;"
-                        transform="matrix(1,0,0,1,0,0)"
-                      >
-                        <g
-                          id="egJ6b2M31YpjHtKmwPaKM3"
-                          opacity="1"
-                          style="display: block;"
-                          transform="matrix(1,0,0,1,50000,50000)"
-                        >
-                          <g
-                            opacity="1"
-                            transform="matrix(1,0,0,1,0,0)"
-                          >
-                            <path
-                              d=" M0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 M0,140 C0,0 0,0 0,140 C0,140 0,128.8000030517578 0,128.8000030517578 C0,0 0,0 0,128.8000030517578 C0,128.8000030517578 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140"
-                              fill="url(#__lottie_element_146)"
-                              fill-opacity="1"
-                            />
-                          </g>
-                        </g>
-                      </g>
-                    </g>
-                  </g>
-                </g>
-              </svg>
+                  <path
+                    d="m9 18 6-6-6-6"
+                  />
+                </svg>
+              </button>
             </div>
           </div>
         </div>
@@ -875,11 +315,11 @@ exports[`HomeSearch handles a emoji name correctly 1`] = `
              Max. 51 characters
           </span>
           <span
-            class="flex flex-row justify-center items-center whitespace-nowrap text-sm  animate-pulse text-grey"
+            class="flex flex-row justify-center items-center whitespace-nowrap text-sm  text-white"
             style="gap: 5px;"
           >
             <div
-              fill="var(--text-grey)"
+              fill="var(--success-green)"
               height="14px"
               width="14px"
             />
@@ -920,7 +360,7 @@ exports[`HomeSearch handles a lowercase name correctly 1`] = `
           style=""
         />
         <div
-          class="flex flex-col w-full rounded-[4px] bg-foreground border-[1px] border-white"
+          class="flex flex-col w-full rounded-[4px] bg-foreground border-[1px] border-error"
         >
           <div
             class="flex flex-row w-full p-2 pr-[100px] relative gap-2"
@@ -967,346 +407,67 @@ exports[`HomeSearch handles a lowercase name correctly 1`] = `
               <span
                 class="text-grey text-sm"
               >
-                <span>
-                  Searching...
+                <span
+                  class="whitespace-nowrap flex items-center gap-2"
+                >
+                  NOT AVAILABLE
+                  <span
+                    aria-label="info-circle"
+                    class="anticon anticon-info-circle fill-grey pointer"
+                    height="14px"
+                    role="img"
+                    width="14px"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      data-icon="info-circle"
+                      fill="currentColor"
+                      focusable="false"
+                      height="1em"
+                      viewBox="64 64 896 896"
+                      width="1em"
+                    >
+                      <path
+                        d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
+                      />
+                      <path
+                        d="M464 336a48 48 0 1096 0 48 48 0 10-96 0zm72 112h-48c-4.4 0-8 3.6-8 8v272c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V456c0-4.4-3.6-8-8-8z"
+                      />
+                    </svg>
+                  </span>
                 </span>
               </span>
             </div>
             <div
-              class="h-[60px]"
+              class="flex flex-row w-full justify-between mt-4"
             >
-              <svg
-                height="400"
-                preserveAspectRatio="xMidYMid meet"
-                style="width: 100%; height: 100%; transform: translate3d(0,0,0);"
-                viewBox="0 0 400 400"
-                width="400"
-                xmlns="http://www.w3.org/2000/svg"
-                xmlns:xlink="http://www.w3.org/1999/xlink"
+              <span
+                class="text-xl text-grey"
               >
-                <defs>
-                  <clippath
-                    id="__lottie_element_66"
-                  >
-                    <rect
-                      height="400"
-                      width="400"
-                      x="0"
-                      y="0"
-                    />
-                  </clippath>
-                  <clippath
-                    id="__lottie_element_68"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <clippath
-                    id="__lottie_element_72"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <clippath
-                    id="__lottie_element_76"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <lineargradient
-                    gradientUnits="userSpaceOnUse"
-                    id="__lottie_element_82"
-                    spreadMethod="pad"
-                    x1="-140"
-                    x2="140"
-                    y1="0"
-                    y2="0"
-                  >
-                    <stop
-                      offset="0%"
-                      stop-color="rgb(247,196,161)"
-                      stop-opacity="1"
-                    />
-                    <stop
-                      offset="49%"
-                      stop-color="rgb(235,173,199)"
-                      stop-opacity="1"
-                    />
-                    <stop
-                      offset="100%"
-                      stop-color="rgb(224,156,232)"
-                      stop-opacity="1"
-                    />
-                  </lineargradient>
-                  <clippath
-                    id="__lottie_element_84"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <clippath
-                    id="__lottie_element_88"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <clippath
-                    id="__lottie_element_92"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <g
-                    id="__lottie_element_95"
-                  >
-                    <g
-                      clip-path="url(#__lottie_element_96)"
-                      id="precomp_ZtOb0OCgqiQQYswd_bYsZ9"
-                      opacity="1"
-                      style="display: block;"
-                      transform="matrix(1,0,0,1,0,0)"
-                    >
-                      <g
-                        id="_GIj9ZeA7rwWCuRAnwK0b10"
-                        opacity="1"
-                        style="display: block;"
-                        transform="matrix(1,0,0,1,50000,50000)"
-                      >
-                        <g
-                          opacity="1"
-                          transform="matrix(1,0,0,1,0,0)"
-                        >
-                          <path
-                            d=" M91,-73.87999725341797 C91,-73.87999725341797 -91,-73.87999725341797 -91,-73.87999725341797 C-91,-73.87999725341797 -91,73.87999725341797 -91,73.87999725341797 C-91,73.87999725341797 91,73.87999725341797 91,73.87999725341797 C91,73.87999725341797 91,-73.87999725341797 91,-73.87999725341797z"
-                            fill="rgb(0,0,0)"
-                            fill-opacity="1"
-                          />
-                        </g>
-                      </g>
-                    </g>
-                  </g>
-                  <clippath
-                    id="__lottie_element_96"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <clippath
-                    id="__lottie_element_103"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <mask
-                    id="__lottie_element_95_1"
-                    mask-type="alpha"
-                  >
-                    <use
-                      href="#__lottie_element_95"
-                    />
-                  </mask>
-                  <clippath
-                    id="__lottie_element_110"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <clippath
-                    id="__lottie_element_114"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <clippath
-                    id="__lottie_element_118"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <clippath
-                    id="__lottie_element_122"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                  <clippath
-                    id="__lottie_element_126"
-                  >
-                    <path
-                      d="M0,0 L100000,0 L100000,100000 L0,100000z"
-                    />
-                  </clippath>
-                </defs>
-                <g
-                  clip-path="url(#__lottie_element_66)"
+                ardrive.ar-io.dev
+              </span>
+              <button
+                class="text-[12px] text-white whitespace-nowrap flex items-center"
+                style="gap: 0;"
+              >
+                View Details 
+                <svg
+                  class="lucide lucide-chevron-right"
+                  fill="none"
+                  height="18px"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="18px"
+                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <g
-                    clip-path="url(#__lottie_element_68)"
-                    id="precomp_19:2220"
-                    opacity="1"
-                    style="display: block;"
-                    transform="matrix(1,0,0,1,-49800,-49800)"
-                  >
-                    <g
-                      clip-path="url(#__lottie_element_126)"
-                      id="precomp_EUwLytwoOE93GiW7MQYMh15"
-                      opacity="1"
-                      style="display: block;"
-                      transform="matrix(1,0,0,1,0,0)"
-                    />
-                    <g
-                      clip-path="url(#__lottie_element_122)"
-                      id="precomp_xSOdPSa5U7L0QXvotJz_N14"
-                      opacity="1"
-                      style="display: block;"
-                      transform="matrix(1,0,0,1,0,0)"
-                    />
-                    <g
-                      clip-path="url(#__lottie_element_72)"
-                      id="precomp_Zche5tnE1"
-                      opacity="1"
-                      style="display: block;"
-                      transform="matrix(1,0,0,1,0,0)"
-                    >
-                      <g
-                        clip-path="url(#__lottie_element_118)"
-                        id="precomp_Z6TzdKXLEm4izCTbzf9_H13"
-                        opacity="1"
-                        style="display: block;"
-                        transform="matrix(1,0,0,1,0,0)"
-                      />
-                      <g
-                        clip-path="url(#__lottie_element_114)"
-                        id="precomp_iOD4psOXBXQeK5pSsY_7E12"
-                        opacity="1"
-                        style="display: block;"
-                        transform="matrix(1,0,0,1,0,0)"
-                      />
-                      <g
-                        clip-path="url(#__lottie_element_84)"
-                        id="precomp_62:864"
-                        opacity="1"
-                        style="display: block;"
-                        transform="matrix(0.00006504396151285619,-0.000017428477804060094,0.000017428477804060094,0.00006504396151285619,49992.875,49983.62109375)"
-                      >
-                        <g
-                          clip-path="url(#__lottie_element_110)"
-                          id="precomp_la5YlE_GV_4BPZbinraQb11"
-                          opacity="1"
-                          style="display: block;"
-                          transform="matrix(1,0,0,1,0,0)"
-                        />
-                        <g
-                          clip-path="url(#__lottie_element_92)"
-                          id="precomp_5oZ83-FT3oshDyBMTbHvB6"
-                          opacity="1"
-                          style="display: block;"
-                          transform="matrix(1,0,0,1,0,0)"
-                        >
-                          <g
-                            mask="url(#__lottie_element_95_1)"
-                            style="display: block;"
-                          >
-                            <g
-                              clip-path="url(#__lottie_element_103)"
-                              id="precomp_5oZ83-FT3oshDyBMTbHvB7"
-                              opacity="1"
-                              transform="matrix(1,0,0,1,0,0)"
-                            >
-                              <g
-                                id="LM8zQfJDxZS-UAa5GEA3z8"
-                                opacity="1"
-                                style="display: block;"
-                                transform="matrix(11.555266380310059,0,0,11.588729858398438,49909,49926.12109375)"
-                              >
-                                <g
-                                  opacity="1"
-                                  transform="matrix(1,0,0,1,0,0)"
-                                >
-                                  <g
-                                    opacity="1"
-                                    transform="matrix(1,0,0,1,0,0)"
-                                  >
-                                    <g
-                                      opacity="1"
-                                      transform="matrix(1,0,0,1,0,0)"
-                                    >
-                                      <path
-                                        d=" M4.630000114440918,5.800000190734863 C4.53000020980835,5.96999979019165 4.389999866485596,6.110000133514404 4.21999979019165,6.210000038146973 C3.930000066757202,6.380000114440918 3.5799999237060547,6.400000095367432 3.259999990463257,6.289999961853027 C3.2100000381469727,6.28000020980835 3.1700000762939453,6.25 3.130000114440918,6.230000019073486 C2.7699999809265137,6.03000020980835 2.5399999618530273,5.639999866485596 2.5399999618530273,5.230000019073486 C2.5399999618530273,4.820000171661377 2.7699999809265137,4.429999828338623 3.130000114440918,4.230000019073486 C3.1700000762939453,4.199999809265137 3.2200000286102295,4.190000057220459 3.2699999809265137,4.179999828338623 C3.680000066757202,4.03000020980835 4.139999866485596,4.139999866485596 4.449999809265137,4.440000057220459 C4.670000076293945,4.650000095367432 4.789999961853027,4.929999828338623 4.789999961853027,5.230000019073486 C4.789999961853027,5.429999828338623 4.739999771118164,5.630000114440918 4.630000114440918,5.800000190734863 C4.630000114440918,5.800000190734863 4.630000114440918,5.800000190734863 4.630000114440918,5.800000190734863z M14.600000381469727,7.28000020980835 C14.600000381469727,3.450000047683716 11.520000457763672,0.3400000035762787 7.710000038146973,0.3400000035762787 C3.9000000953674316,0.3400000035762787 0.6600000262260437,3.450000047683716 0.6600000262260437,7.28000020980835 C0.6600000262260437,7.28000020980835 0.6600000262260437,11.609999656677246 0.6600000262260437,11.609999656677246 C0.6600000262260437,11.760000228881836 0.7200000286102295,11.890000343322754 0.8199999928474426,12 C0.9200000166893005,12.100000381469727 1.059999942779541,12.15999984741211 1.2100000381469727,12.15999984741211 C1.2100000381469727,12.15999984741211 2,12.15999984741211 2,12.15999984741211 C2.140000104904175,12.15999984741211 2.2799999713897705,12.100000381469727 2.380000114440918,12 C2.490000009536743,11.890000343322754 2.549999952316284,11.760000228881836 2.549999952316284,11.609999656677246 C2.549999952316284,11.609999656677246 2.549999952316284,8.010000228881836 2.549999952316284,8.010000228881836 C2.549999952316284,7.699999809265137 2.7899999618530273,7.460000038146973 3.0899999141693115,7.460000038146973 C3.0899999141693115,7.460000038146973 4.210000038146973,7.460000038146973 4.210000038146973,7.460000038146973 C4.510000228881836,7.460000038146973 4.769999980926514,7.699999809265137 4.769999980926514,8.010000228881836 C4.769999980926514,8.010000228881836 4.769999980926514,11.609999656677246 4.769999980926514,11.609999656677246 C4.769999980926514,11.760000228881836 4.820000171661377,11.890000343322754 4.929999828338623,12 C5.03000020980835,12.100000381469727 5.170000076293945,12.15999984741211 5.309999942779541,12.15999984741211 C5.309999942779541,12.15999984741211 6.099999904632568,12.15999984741211 6.099999904632568,12.15999984741211 C6.25,12.15999984741211 6.389999866485596,12.100000381469727 6.489999771118164,12 C6.599999904632568,11.890000343322754 6.650000095367432,11.760000228881836 6.650000095367432,11.609999656677246 C6.650000095367432,11.609999656677246 6.650000095367432,10.520000457763672 6.650000095367432,10.520000457763672 C6.650000095367432,9.430000305175781 7.230000019073486,8.420000076293945 8.170000076293945,7.869999885559082 C9.109999656677246,7.320000171661377 10.270000457763672,7.320000171661377 11.210000038146973,7.869999885559082 C12.149999618530273,8.420000076293945 12.729999542236328,9.430000305175781 12.729999542236328,10.520000457763672 C12.729999542236328,10.520000457763672 12.729999542236328,11.609999656677246 12.729999542236328,11.609999656677246 C12.729999542236328,11.920000076293945 12.979999542236328,12.15999984741211 13.279999732971191,12.15999984741211 C13.279999732971191,12.15999984741211 14.050000190734863,12.15999984741211 14.050000190734863,12.15999984741211 C14.350000381469727,12.15999984741211 14.609999656677246,11.920000076293945 14.609999656677246,11.609999656677246 C14.609999656677246,11.609999656677246 14.600000381469727,7.28000020980835 14.600000381469727,7.28000020980835z"
-                                        fill="rgb(219,219,219)"
-                                        fill-opacity="1"
-                                      />
-                                    </g>
-                                  </g>
-                                  <g
-                                    opacity="1"
-                                    transform="matrix(1,0,0,1,0,0)"
-                                  >
-                                    <g
-                                      opacity="1"
-                                      transform="matrix(1,0,0,1,0,0)"
-                                    >
-                                      <path
-                                        d=" M5.239999771118164,5.800000190734863 C5.139999866485596,5.96999979019165 5,6.110000133514404 4.829999923706055,6.210000038146973 C4.539999961853027,6.380000114440918 4.190000057220459,6.400000095367432 3.869999885559082,6.289999961853027 C3.819999933242798,6.28000020980835 3.7799999713897705,6.25 3.740000009536743,6.230000019073486 C3.380000114440918,6.03000020980835 3.1500000953674316,5.639999866485596 3.1500000953674316,5.230000019073486 C3.1500000953674316,4.820000171661377 3.380000114440918,4.429999828338623 3.740000009536743,4.230000019073486 C3.7799999713897705,4.199999809265137 3.8299999237060547,4.190000057220459 3.880000114440918,4.179999828338623 C4.289999961853027,4.03000020980835 4.75,4.139999866485596 5.059999942779541,4.440000057220459 C5.28000020980835,4.650000095367432 5.400000095367432,4.929999828338623 5.400000095367432,5.230000019073486 C5.400000095367432,5.429999828338623 5.349999904632568,5.630000114440918 5.239999771118164,5.800000190734863 C5.239999771118164,5.800000190734863 5.239999771118164,5.800000190734863 5.239999771118164,5.800000190734863z M15.210000038146973,7.28000020980835 C15.210000038146973,3.450000047683716 12.130000114440918,0.3400000035762787 8.319999694824219,0.3400000035762787 C4.510000228881836,0.3400000035762787 1.2699999809265137,3.450000047683716 1.2699999809265137,7.28000020980835 C1.2699999809265137,7.28000020980835 1.2699999809265137,11.609999656677246 1.2699999809265137,11.609999656677246 C1.2699999809265137,11.760000228881836 1.3300000429153442,11.890000343322754 1.4299999475479126,12 C1.5299999713897705,12.100000381469727 1.6699999570846558,12.15999984741211 1.8200000524520874,12.15999984741211 C1.8200000524520874,12.15999984741211 2.609999895095825,12.15999984741211 2.609999895095825,12.15999984741211 C2.75,12.15999984741211 2.9000000953674316,12.100000381469727 3,12 C3.109999895095825,11.890000343322754 3.1600000858306885,11.760000228881836 3.1600000858306885,11.609999656677246 C3.1600000858306885,11.609999656677246 3.1600000858306885,8.010000228881836 3.1600000858306885,8.010000228881836 C3.1600000858306885,7.699999809265137 3.4100000858306885,7.460000038146973 3.7100000381469727,7.460000038146973 C3.7100000381469727,7.460000038146973 4.829999923706055,7.460000038146973 4.829999923706055,7.460000038146973 C5.130000114440918,7.460000038146973 5.380000114440918,7.699999809265137 5.380000114440918,8.010000228881836 C5.380000114440918,8.010000228881836 5.380000114440918,11.609999656677246 5.380000114440918,11.609999656677246 C5.380000114440918,11.760000228881836 5.429999828338623,11.890000343322754 5.539999961853027,12 C5.639999866485596,12.100000381469727 5.789999961853027,12.15999984741211 5.929999828338623,12.15999984741211 C5.929999828338623,12.15999984741211 6.710000038146973,12.15999984741211 6.710000038146973,12.15999984741211 C6.860000133514404,12.15999984741211 7,12.100000381469727 7.099999904632568,12 C7.210000038146973,11.890000343322754 7.260000228881836,11.760000228881836 7.260000228881836,11.609999656677246 C7.260000228881836,11.609999656677246 7.260000228881836,10.520000457763672 7.260000228881836,10.520000457763672 C7.260000228881836,9.430000305175781 7.840000152587891,8.420000076293945 8.779999732971191,7.869999885559082 C9.720000267028809,7.320000171661377 10.880000114440918,7.320000171661377 11.819999694824219,7.869999885559082 C12.760000228881836,8.420000076293945 13.34000015258789,9.430000305175781 13.34000015258789,10.520000457763672 C13.34000015258789,10.520000457763672 13.34000015258789,11.609999656677246 13.34000015258789,11.609999656677246 C13.34000015258789,11.920000076293945 13.59000015258789,12.15999984741211 13.890000343322754,12.15999984741211 C13.890000343322754,12.15999984741211 14.670000076293945,12.15999984741211 14.670000076293945,12.15999984741211 C14.970000267028809,12.15999984741211 15.220000267028809,11.920000076293945 15.220000267028809,11.609999656677246 C15.220000267028809,11.609999656677246 15.210000038146973,7.28000020980835 15.210000038146973,7.28000020980835z"
-                                        fill="rgb(252,252,252)"
-                                        fill-opacity="1"
-                                      />
-                                    </g>
-                                  </g>
-                                </g>
-                              </g>
-                            </g>
-                          </g>
-                        </g>
-                        <g
-                          clip-path="url(#__lottie_element_88)"
-                          id="precomp_axBdqkXukWmZZtt1lLTYO5"
-                          opacity="1"
-                          style="display: block;"
-                          transform="matrix(1,0,0,1,0,0)"
-                        />
-                      </g>
-                      <g
-                        clip-path="url(#__lottie_element_76)"
-                        id="precomp_19:2262"
-                        opacity="1"
-                        style="display: block;"
-                        transform="matrix(1,0,0,1,0,0)"
-                      >
-                        <g
-                          id="egJ6b2M31YpjHtKmwPaKM3"
-                          opacity="1"
-                          style="display: block;"
-                          transform="matrix(1,0,0,1,50000,50000)"
-                        >
-                          <g
-                            opacity="1"
-                            transform="matrix(1,0,0,1,0,0)"
-                          >
-                            <path
-                              d=" M0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 M0,140 C0,0 0,0 0,140 C0,140 0,128.8000030517578 0,128.8000030517578 C0,0 0,0 0,128.8000030517578 C0,128.8000030517578 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140"
-                              fill="url(#__lottie_element_82)"
-                              fill-opacity="1"
-                            />
-                          </g>
-                        </g>
-                      </g>
-                    </g>
-                  </g>
-                </g>
-              </svg>
+                  <path
+                    d="m9 18 6-6-6-6"
+                  />
+                </svg>
+              </button>
             </div>
           </div>
         </div>
@@ -1655,7 +816,7 @@ exports[`HomeSearch renders available header 1`] = `
                         id="precomp_62:864"
                         opacity="1"
                         style="display: block;"
-                        transform="matrix(0.12661835551261902,-0.03290950879454613,0.03290950879454613,0.12661835551261902,42020.609375,45300.55859375)"
+                        transform="matrix(0.06081589311361313,-0.016112498939037323,0.016112498939037323,0.06081589311361313,46150.58203125,47750.83203125)"
                       >
                         <g
                           clip-path="url(#__lottie_element_238)"
@@ -1752,7 +913,7 @@ exports[`HomeSearch renders available header 1`] = `
                             transform="matrix(1,0,0,1,0,0)"
                           >
                             <path
-                              d=" M-8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75 M-8.329999923706055,139.75 C-13.890000343322754,139.4199981689453 -19.43000030517578,138.75999450683594 -24.90999984741211,137.77000427246094 C-24.90999984741211,137.77000427246094 -22.920000076293945,126.73999786376953 -22.920000076293945,126.73999786376953 C-17.8700008392334,127.6500015258789 -12.779999732971191,128.27000427246094 -7.659999847412109,128.57000732421875 C-7.659999847412109,128.57000732421875 -8.329999923706055,139.75 -8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75"
+                              d=" M0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 M0,140 C0,0 0,0 0,140 C0,140 0,128.8000030517578 0,128.8000030517578 C0,0 0,0 0,128.8000030517578 C0,128.8000030517578 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140"
                               fill="url(#__lottie_element_210)"
                               fill-opacity="1"
                             />
@@ -2621,7 +1782,7 @@ exports[`HomeSearch renders invalid domain header 2`] = `
                         id="precomp_62:864"
                         opacity="1"
                         style="display: block;"
-                        transform="matrix(0.06480718404054642,-0.017153829336166382,0.017153829336166382,0.06480718404054642,45898.94921875,47603.33203125)"
+                        transform="matrix(0.00006504396151285619,-0.000017428477804060094,0.000017428477804060094,0.00006504396151285619,49992.875,49983.62109375)"
                       >
                         <g
                           clip-path="url(#__lottie_element_430)"
@@ -2718,7 +1879,7 @@ exports[`HomeSearch renders invalid domain header 2`] = `
                             transform="matrix(1,0,0,1,0,0)"
                           >
                             <path
-                              d=" M-3.5399999618530273,139.9600067138672 C-3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 C-3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 C-3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 C-3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 C-3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 C-3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 C-3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 C-3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 C-3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 C-3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 M-3.5399999618530273,139.9600067138672 C-5.889999866485596,139.89999389648438 -8.229999542236328,139.77999877929688 -10.569999694824219,139.60000610351562 C-10.569999694824219,139.60000610351562 -9.720000267028809,128.42999267578125 -9.720000267028809,128.42999267578125 C-7.570000171661377,128.58999633789062 -5.420000076293945,128.7100067138672 -3.259999990463257,128.75999450683594 C-3.259999990463257,128.75999450683594 -3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 C-3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 C-3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 C-3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 C-3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 C-3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 C-3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672 -3.5399999618530273,139.9600067138672"
+                              d=" M0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 M0,140 C0,0 0,0 0,140 C0,140 0,128.8000030517578 0,128.8000030517578 C0,0 0,0 0,128.8000030517578 C0,128.8000030517578 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140"
                               fill="url(#__lottie_element_402)"
                               fill-opacity="1"
                             />
@@ -3077,7 +2238,7 @@ exports[`HomeSearch renders invalid domain header 3`] = `
                         id="precomp_62:864"
                         opacity="1"
                         style="display: block;"
-                        transform="matrix(0.1290232390165329,-0.03350568190217018,0.03350568190217018,0.1290232390165329,41870.5546875,45210.12109375)"
+                        transform="matrix(0.00006504396151285619,-0.000017428477804060094,0.000017428477804060094,0.00006504396151285619,49992.875,49983.62109375)"
                       >
                         <g
                           clip-path="url(#__lottie_element_494)"
@@ -3174,7 +2335,7 @@ exports[`HomeSearch renders invalid domain header 3`] = `
                             transform="matrix(1,0,0,1,0,0)"
                           >
                             <path
-                              d=" M-8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75 M-8.329999923706055,139.75 C-13.890000343322754,139.4199981689453 -19.43000030517578,138.75999450683594 -24.90999984741211,137.77000427246094 C-24.90999984741211,137.77000427246094 -22.920000076293945,126.73999786376953 -22.920000076293945,126.73999786376953 C-17.8700008392334,127.6500015258789 -12.779999732971191,128.27000427246094 -7.659999847412109,128.57000732421875 C-7.659999847412109,128.57000732421875 -8.329999923706055,139.75 -8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75 C-8.329999923706055,139.75 -8.329999923706055,139.75 -8.329999923706055,139.75"
+                              d=" M0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 M0,140 C0,0 0,0 0,140 C0,140 0,128.8000030517578 0,128.8000030517578 C0,0 0,0 0,128.8000030517578 C0,128.8000030517578 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140 C0,140 0,140 0,140"
                               fill="url(#__lottie_element_466)"
                               fill-opacity="1"
                             />
