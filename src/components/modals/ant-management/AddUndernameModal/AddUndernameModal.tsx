@@ -117,7 +117,7 @@ function AddUndernameModal({
                 style={{ paddingBottom: '30px' }}
               >
                 <div className="flex flex-column" style={{ gap: '15px' }}>
-                  <span className="grey">Undername Title:</span>
+                  <span className="grey">Undername:</span>
                   <span
                     className="flex flex-row"
                     style={{ position: 'relative' }}
