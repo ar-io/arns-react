@@ -129,9 +129,9 @@ function App() {
             path="ants/:id/undernames"
             element={
               <Suspense
-                fallback={
-                  <PageLoader loading={true} message={'Loading, please wait'} />
-                }
+              // fallback={
+              //   <PageLoader loading={true} message={'Loading, please wait'} />
+              // }
               >
                 <Undernames />
               </Suspense>

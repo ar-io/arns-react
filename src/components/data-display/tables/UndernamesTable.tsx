@@ -1,5 +1,6 @@
 import { AoANTRecord } from '@ar.io/sdk';
 import { ExternalLinkIcon, PencilIcon, TrashIcon } from '@src/components/icons';
+import { Loader } from '@src/components/layout';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
@@ -7,7 +8,6 @@ import { AddUndernameModal, EditUndernameModal } from '@src/components/modals';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import {
-  useArNSState,
   useGlobalState,
   useTransactionState,
   useWalletState,
@@ -72,18 +72,20 @@ const UndernamesTable = ({
   antId,
   ownershipStatus,
   filter,
+  refresh,
+  isLoading,
 }: {
   undernames: Record<string, AoANTRecord>;
+  isLoading?: boolean;
   arnsDomain?: string;
   antId?: string;
   ownershipStatus?: 'owner' | 'controller';
   filter?: string;
+  refresh?: () => void;
 }) => {
-  const [{ gateway, ioProcessId }] = useGlobalState();
-  const [{ arnsEmitter }, dispatchArNSState] = useArNSState();
+  const [{ gateway }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
-  const [{ interactionResult, workflowName }, dispatchTransactionState] =
-    useTransactionState();
+  const [, dispatchTransactionState] = useTransactionState();
   const [searchParams, setSearchParams] = useSearchParams();
   const [tableData, setTableData] = useState<Array<TableData>>([]);
   const [filteredTableData, setFilteredTableData] = useState<Array<TableData>>(
@@ -128,6 +130,7 @@ const UndernamesTable = ({
         owner: walletAddress?.toString(),
         dispatch: dispatchTransactionState,
       });
+      refresh && refresh();
     } catch (error) {
       eventEmitter.emit('error', error);
     } finally {
@@ -170,6 +173,10 @@ const UndernamesTable = ({
                       subDomain: undername,
                     });
                     setInteractionType(ANT_INTERACTION_TYPES.REMOVE_RECORD);
+                    dispatchTransactionState({
+                      type: 'setWorkflowName',
+                      payload: ANT_INTERACTION_TYPES.REMOVE_RECORD,
+                    });
                   }}
                 >
                   <TrashIcon width={'16px'} height={'16px'} fill="inherit" />
@@ -269,7 +276,9 @@ const UndernamesTable = ({
       <TableView
         columns={columns}
         data={
-          filteredTableData.length
+          isLoading
+            ? []
+            : filteredTableData.length
             ? filteredTableData
             : tableData.length
             ? tableData
@@ -277,9 +286,15 @@ const UndernamesTable = ({
         }
         isLoading={false}
         noDataFoundText={
-          <span className="h-20 flex w-full items-center justify-center">
-            No Undernames Found
-          </span>
+          isLoading ? (
+            <span className="h-20 flex w-full items-center p-5 justify-center">
+              <Loader message="Loading Undernames..." />
+            </span>
+          ) : (
+            <span className="h-20 flex w-full items-center justify-center">
+              No Undernames Found
+            </span>
+          )
         }
         defaultSortingState={{ id: 'undername', desc: true }}
         tableClass="bg-background border-[1px] border-dark-grey rounded border-collapse"
@@ -329,7 +344,12 @@ const UndernamesTable = ({
           }}
           payloadCallback={(payload: SetRecordPayload) => {
             setTransactionData(payload);
-            setSearchParams({ ...searchParams, modal: undefined });
+            setInteractionType(ANT_INTERACTION_TYPES.SET_RECORD);
+            dispatchTransactionState({
+              type: 'setWorkflowName',
+              payload: ANT_INTERACTION_TYPES.SET_RECORD,
+            });
+            setAction(undefined);
           }}
           antId={antId}
         />
@@ -349,6 +369,10 @@ const UndernamesTable = ({
             payloadCallback={(p) => {
               setTransactionData(p);
               setInteractionType(ANT_INTERACTION_TYPES.EDIT_RECORD);
+              dispatchTransactionState({
+                type: 'setWorkflowName',
+                payload: ANT_INTERACTION_TYPES.EDIT_RECORD,
+              });
               setSelectedUndername(undefined);
               setAction(undefined);
             }}

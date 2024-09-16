@@ -3,7 +3,7 @@ import { SearchIcon } from '@src/components/icons';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useWalletState } from '../../../state/contexts/WalletState';
@@ -21,16 +21,20 @@ function Undernames() {
   const { id, name } = useParams();
   const {
     data: { arnsRecord, records, owner, controllers },
+    isLoading: isLoadingDomainInfo,
+    refetch,
   } = useDomainInfo({
     domain: name,
     antId: isArweaveTransactionID(id)
       ? new ArweaveTransactionID(id)
       : undefined,
   });
-  const [{ walletAddress, wallet }] = useWalletState();
+  const [{ walletAddress }] = useWalletState();
   const [{ interactionResult, workflowName }, dispatchTransactionState] =
     useTransactionState();
-  const [antId, setANTId] = useState<string>();
+  const [ownershipStatus, setOwnershipStatus] = useState<
+    'controller' | 'owner' | undefined
+  >(undefined);
   const [search, setSearch] = useState<string>('');
 
   useEffect(() => {
@@ -39,7 +43,10 @@ function Undernames() {
       navigate('/manage/ants');
       return;
     }
-  }, [id, name, walletAddress]);
+    setOwnershipStatus(
+      getOwnershipStatus(owner, controllers, walletAddress?.toString() ?? ''),
+    );
+  }, [id, name, owner, controllers, walletAddress, isLoadingDomainInfo]);
 
   return (
     <>
@@ -87,12 +94,12 @@ function Undernames() {
               undernames={records}
               arnsDomain={name}
               antId={arnsRecord?.processId}
-              ownershipStatus={getOwnershipStatus(
-                owner,
-                controllers,
-                walletAddress?.toString() ?? '',
-              )}
+              ownershipStatus={ownershipStatus}
+              isLoading={isLoadingDomainInfo}
               filter={search}
+              refresh={() => {
+                refetch();
+              }}
             />
           </div>
         </div>

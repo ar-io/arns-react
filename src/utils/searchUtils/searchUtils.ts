@@ -175,7 +175,7 @@ export function getOwnershipStatus(
 ): 'controller' | 'owner' | undefined {
   return owner === walletAddress
     ? 'owner'
-    : walletAddress && controllers.includes(walletAddress)
+    : walletAddress && controllers?.includes(walletAddress)
     ? 'controller'
     : undefined;
 }

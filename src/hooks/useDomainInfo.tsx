@@ -47,7 +47,7 @@ export default function useDomainInfo({
   const [refreshing, setRefreshing] = useState(false);
 
   // TODO: this should be modified or removed
-  const { data, isLoading, error, refetch } = useSuspenseQuery({
+  const { data, isLoading, isRefetching, error, refetch } = useSuspenseQuery({
     queryKey: ['domainInfo', { domain, antId }],
     queryFn: () => getDomainInfo({ domain, antId }).catch((error) => error),
   });
@@ -143,5 +143,5 @@ export default function useDomainInfo({
     }
   }
 
-  return { data, isLoading, error, refetch };
+  return { data, isLoading: isLoading || isRefetching, error, refetch };
 }
