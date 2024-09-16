@@ -1,7 +1,6 @@
 import { Buffer } from 'buffer';
-import { CSSProperties, ReactNode } from 'react';
+import { CSSProperties } from 'react';
 
-import { getLeaseDurationFromEndTimestamp } from '..';
 import { ChevronLeftIcon, ChevronRightIcon } from '../../components/icons';
 import { TransactionTag } from '../../types';
 import { SECONDS_IN_GRACE_PERIOD } from '../constants';

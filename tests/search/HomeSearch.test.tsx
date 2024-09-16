@@ -59,6 +59,8 @@ describe('HomeSearch', () => {
     const domain = 'ARDRIVE';
 
     await userEvent.type(searchInput, domain);
+    // debounce time
+    await new Promise((resolve) => setTimeout(resolve, 4000));
     expect(lowerCaseDomain(searchInput.value)).toEqual(lowerCaseDomain(domain));
     expect(renderSearchBar()).toMatchSnapshot();
   });
@@ -89,6 +91,8 @@ describe('HomeSearch', () => {
     expect(lowerCaseDomain(searchInput.value)).toEqual(lowerCaseDomain(domain));
     expect(renderSearchBar()).toMatchSnapshot();
 
+    // debounce time
+    await new Promise((resolve) => setTimeout(resolve, 4000));
     const availableHeader = screen.getByTestId('home-search-available-header');
     expect(availableHeader).toBeDefined();
   });
@@ -100,7 +104,8 @@ describe('HomeSearch', () => {
 
     expect(lowerCaseDomain(searchInput.value)).toEqual(lowerCaseDomain(domain));
     expect(renderSearchBar()).toMatchSnapshot();
-
+    // debounce time
+    await new Promise((resolve) => setTimeout(resolve, 4000));
     const unavailableHeader = screen.getByTestId('home-search-spacer-header');
     expect(unavailableHeader).toBeDefined();
   });
@@ -114,7 +119,8 @@ describe('HomeSearch', () => {
         lowerCaseDomain(domain),
       );
       expect(renderSearchBar()).toMatchSnapshot();
-
+      // debounce time
+      await new Promise((resolve) => setTimeout(resolve, 4000));
       const invalidHeader = screen.getByTestId('home-search-invalid-header');
       expect(invalidHeader).toBeDefined();
     },
