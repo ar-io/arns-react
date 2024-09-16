@@ -22,9 +22,12 @@ function NavGroup() {
     function getActivityDot(routeName: string): boolean | undefined {
       switch (routeName) {
         case 'manage':
-          return luaSourceTx
-            ? doAntsRequireUpdate({ ants, luaSourceTx }) &&
-                location.pathname.split('/')[1] !== 'manage'
+          return luaSourceTx && walletAddress
+            ? doAntsRequireUpdate({
+                ants,
+                userAddress: walletAddress?.toString(),
+                luaSourceTx,
+              }) && location.pathname.split('/')[1] !== 'manage'
             : false;
         default:
           return undefined;
