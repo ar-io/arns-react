@@ -48,7 +48,7 @@ function DomainSettings({
   rowFilter = [],
 }: {
   domain?: string;
-  antId?: ArweaveTransactionID;
+  antId?: string;
   rowFilter?: DomainSettingsRowTypes[];
 }) {
   const queryClient = useQueryClient();

@@ -18,12 +18,12 @@ export default function useDomainInfo({
   antId,
 }: {
   domain?: string;
-  antId?: ArweaveTransactionID;
+  antId?: string;
 }): {
   data: {
     arnsRecord?: AoArNSNameData;
     associatedNames?: string[];
-    processId: ArweaveTransactionID;
+    processId: string;
     antProcess: AoANTWrite | AoANTRead;
     name: string;
     ticker: string;
@@ -58,11 +58,11 @@ export default function useDomainInfo({
     antId,
   }: {
     domain?: string;
-    antId?: ArweaveTransactionID;
+    antId?: string;
   }): Promise<{
     arnsRecord?: AoArNSNameData;
     associatedNames?: string[];
-    processId: ArweaveTransactionID;
+    processId: string;
     antProcess: AoANTWrite | AoANTRead;
     name: string;
     ticker: string;
@@ -90,14 +90,14 @@ export default function useDomainInfo({
           })
         : undefined;
 
-      if (!antId && !record?.processId) {
+      if (!antId || !record) {
         throw new Error('No processId found');
       }
-      const processId = antId || new ArweaveTransactionID(record?.processId);
+      const processId = antId || record.processId;
       const signer = wallet?.arconnectSigner;
 
       const antProcess = ANT.init({
-        processId: processId.toString(),
+        processId: processId,
         ...(signer !== undefined ? { signer: signer as any } : {}),
       });
 

@@ -25,9 +25,7 @@ function Undernames() {
     refetch,
   } = useDomainInfo({
     domain: name,
-    antId: isArweaveTransactionID(id)
-      ? new ArweaveTransactionID(id)
-      : undefined,
+    antId: isArweaveTransactionID(id) ? id : undefined,
   });
   const [{ walletAddress }] = useWalletState();
   const [{ interactionResult, workflowName }, dispatchTransactionState] =
