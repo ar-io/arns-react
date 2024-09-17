@@ -4,7 +4,7 @@ import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { lowerCaseDomain } from '@src/utils';
 import { buildArNSRecordsQuery, queryClient } from '@src/utils/network';
-import { RefetchOptions, useSuspenseQuery } from '@tanstack/react-query';
+import { RefetchOptions, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 
 export default function useDomainInfo({
@@ -41,7 +41,7 @@ export default function useDomainInfo({
   const [refreshing, setRefreshing] = useState(false);
 
   // TODO: this should be modified or removed
-  const { data, isLoading, error, refetch } = useSuspenseQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['domainInfo', { domain, antId }],
     queryFn: () => getDomainInfo({ domain, antId }).catch((error) => error),
   });

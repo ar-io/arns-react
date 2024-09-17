@@ -1,6 +1,9 @@
+import { AoArNSNameData } from '@ar.io/sdk';
+import { useArNSRegistryDomains } from '@src/hooks/useArNSRegistryDomains';
 import { shuffleArray } from '@src/utils';
 import { FEATURED_DOMAINS } from '@src/utils/constants';
-import { useState } from 'react';
+import { Skeleton } from 'antd';
+import { Suspense, useState } from 'react';
 
 import { ARNSCard } from '../../cards';
 import './styles.css';
@@ -13,6 +16,7 @@ const defaultGateways = [
 ];
 
 function FeaturedDomains() {
+  const { data: domainRecords } = useArNSRegistryDomains();
   // show three at a time by default
   const DEFAULT_INCREMENT = 3;
   // how many rows of cards to display
@@ -54,12 +58,27 @@ function FeaturedDomains() {
             )
               return;
             return (
-              <ARNSCard
-                domain={domain}
-                key={index}
-                gateway={gateways[index]}
-                imageUrl={FEATURED_DOMAINS[domain].imageUrl}
-              />
+              <Suspense
+                fallback={
+                  <Skeleton.Avatar
+                    active
+                    shape="square"
+                    className="flex flex-1 w-[300px] h-[300px]"
+                  />
+                }
+              >
+                <ARNSCard
+                  domain={domain}
+                  domainRecord={
+                    domainRecords?.items.find(
+                      (d) => d.name === domain,
+                    ) as AoArNSNameData
+                  }
+                  key={index}
+                  gateway={gateways[index]}
+                  imageUrl={FEATURED_DOMAINS[domain].imageUrl}
+                />
+              </Suspense>
             );
           })}
       </div>
