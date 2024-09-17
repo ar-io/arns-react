@@ -15,7 +15,7 @@ import {
 } from '@tanstack/react-query-persist-client';
 import { del, get, set } from 'idb-keyval';
 
-import { isArweaveTransactionID, lowerCaseDomain } from '.';
+import { isArweaveTransactionID } from '.';
 import eventEmitter from './events';
 
 /**
@@ -75,30 +75,6 @@ export function buildAntStateQuery({
   };
 }
 
-export function buildArNSRecordQuery({
-  arioContract,
-  domain,
-  meta,
-}: {
-  arioContract: AoIORead;
-  domain: string;
-  meta?: string[];
-}): {
-  queryKey: ['arns-record', string] | string[];
-  queryFn: () => Promise<AoArNSNameData | undefined>;
-  staleTime: number;
-} {
-  return {
-    queryKey: ['arns-record', lowerCaseDomain(domain), ...(meta || [])],
-    queryFn: async () => {
-      return arioContract.getArNSRecord({
-        name: lowerCaseDomain(domain),
-      });
-    },
-    staleTime: Infinity,
-  };
-}
-
 export function buildIOBalanceQuery({
   arioContract,
   address,
@@ -148,23 +124,6 @@ export function buildARBalanceQuery({
     staleTime: 1000 * 60 * 60, // one hour
   };
 }
-/**
- * Consumes a list of ARNS records and caches them in the query cache
- */
-export async function cacheArNSRecords({
-  queryClient,
-  records,
-}: {
-  queryClient: QueryClient;
-  records: Record<string, AoArNSNameData>;
-}): Promise<void> {
-  for (const [domain, record] of Object.entries(records)) {
-    await queryClient.setQueryData(
-      ['arns-record', lowerCaseDomain(domain)],
-      record,
-    );
-  }
-}
 
 export function buildArNSRecordsQuery({
   arioContract,
@@ -187,22 +146,4 @@ export function buildArNSRecordsQuery({
     },
     staleTime: Infinity,
   };
-}
-
-export async function getArNSRecordsFromCache({
-  queryClient,
-}: {
-  queryClient: QueryClient;
-}): Promise<Record<string, AoArNSNameData> | undefined> {
-  const records = await queryClient.getQueriesData({
-    queryKey: ['arns-record'],
-  });
-  if (!records?.length) return;
-  return records.reduce(
-    (acc: Record<string, AoArNSNameData>, [cacheKey, record]: any) => {
-      acc[cacheKey[1]] = record;
-      return acc;
-    },
-    {},
-  );
 }

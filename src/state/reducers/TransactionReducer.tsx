@@ -28,6 +28,10 @@ export type TransactionAction =
       type: 'setSigning';
       payload: boolean;
     }
+  | {
+      type: 'setSigningMessage';
+      payload: string | undefined;
+    }
   | { type: 'reset' };
 
 export const transactionReducer = (
@@ -39,6 +43,13 @@ export const transactionReducer = (
       return {
         ...state,
         signing: action.payload,
+      };
+    }
+    case 'setSigningMessage': {
+      return {
+        ...state,
+        signingMessage: action.payload,
+        signing: action.payload ? true : false,
       };
     }
     case 'setWorkflowName': {

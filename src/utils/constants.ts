@@ -97,10 +97,7 @@ export const NETWORK_DEFAULTS = {
     PROTOCOL: 'https',
   },
 };
-export const STUB_ANT_ID = '6dUiTQKJCVD7c9icQhbbzfI-Le_hC4sXRDx1OQQ6jMI';
-export const STUB_ARWEAVE_TXID = '2yHmORN-N12hM1B2f9-JPMpOfa59qhpsExFCzImrD30'; // arns spec pdf
-export const DEFAULT_ANT_SOURCE_CODE_TX =
-  'H2uxnw_oVIEzXeBeYmxDgJuxPqwBCGPO4OmQzdWQu3U';
+
 export const RECOMMENDED_TRANSACTION_CONFIRMATIONS = 50;
 export const DEFAULT_TTL_SECONDS = 3600;
 export const DEFAULT_MAX_UNDERNAMES = 10;
@@ -161,20 +158,6 @@ export const LANDING_PAGE_TXID = new ArweaveTransactionID(
   'UyC5P5qKPZaltMmmZAWdakhlDXsBF6qmyrbWYFchRTk',
 );
 
-export const DEFAULT_ANT_CONTRACT_STATE = {
-  balances: {},
-  name: '',
-  ticker: '',
-  owner: '',
-  controllers: [],
-  records: {
-    '@': {
-      transactionId: LANDING_PAGE_TXID.toString(),
-      ttlSeconds: DEFAULT_TTL_SECONDS,
-    },
-  },
-};
-
 export const RESERVED_BREADCRUMB_TITLES = new Set([
   'Manage Assets',
   'Increase Undernames',
@@ -183,4 +166,3 @@ export const RESERVED_BREADCRUMB_TITLES = new Set([
 ]);
 
 export const ARIO_DISCORD_LINK = 'https://discord.com/invite/HGG52EtTc2';
-export const APPROXIMATE_BLOCKS_PER_DAY = 720;

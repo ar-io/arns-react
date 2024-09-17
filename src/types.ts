@@ -167,11 +167,11 @@ export enum ANT_INTERACTION_TYPES {
   REMOVE_CONTROLLER = 'Remove Controller',
   SET_TICKER = 'Edit Ticker',
   SET_NAME = 'Edit Name',
-  SET_RECORD = 'Add Record',
-  EDIT_RECORD = 'Edit Record',
+  SET_RECORD = 'Add Undername',
+  EDIT_RECORD = 'Edit Undername',
   SET_TARGET_ID = 'Edit Target ID',
   SET_TTL_SECONDS = 'Edit TTL Seconds',
-  REMOVE_RECORD = 'Delete Record',
+  REMOVE_RECORD = 'Delete Undername',
   TRANSFER = 'Transfer ANT',
 }
 

@@ -16,7 +16,7 @@ function ManageANT() {
   const navigate = useNavigate();
 
   const { isLoading, data } = useDomainInfo({
-    antId: new ArweaveTransactionID(id),
+    antId: id,
     domain: '',
   });
 
@@ -74,7 +74,7 @@ function ManageANT() {
         </div>
         <div className="flex-row">
           <DomainSettings
-            antId={new ArweaveTransactionID(id)}
+            antId={id}
             rowFilter={[
               DomainSettingsRowTypes.EXPIRY_DATE,
               DomainSettingsRowTypes.LEASE_DURATION,

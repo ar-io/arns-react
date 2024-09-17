@@ -2,7 +2,6 @@ import { isLeasedArNSRecord } from '@ar.io/sdk/web';
 import LeaseDuration from '@src/components/data-display/LeaseDuration';
 import { Loader } from '@src/components/layout';
 import useDomainInfo from '@src/hooks/useDomainInfo';
-import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
 import { useWalletState } from '@src/state/contexts/WalletState';
@@ -48,7 +47,7 @@ function DomainSettings({
   rowFilter = [],
 }: {
   domain?: string;
-  antId?: ArweaveTransactionID;
+  antId?: string;
   rowFilter?: DomainSettingsRowTypes[];
 }) {
   const queryClient = useQueryClient();
