@@ -7,6 +7,7 @@ import {
   APPROVED_CHARACTERS_REGEX,
   ARNS_NAME_REGEX,
   FQDN_REGEX,
+  MAX_LEASE_DURATION,
   TRAILING_DASH_UNDERSCORE_REGEX,
   UNDERNAME_REGEX,
   URL_REGEX,
@@ -140,7 +141,7 @@ export function getAntsRequiringUpdate({
   if (!luaSourceTx) return [];
   const acceptableIds = [
     luaSourceTx.id,
-    luaSourceTx.tags.find((tag) => tag.name == 'Original-Tx-Id')?.value,
+    luaSourceTx?.tags?.find((tag) => tag.name == 'Original-Tx-Id')?.value,
   ];
 
   return Object.entries(ants)
@@ -190,4 +191,13 @@ export function isValidGateway(gateway: string) {
 
 export function isValidURL(url: string) {
   return url ? URL_REGEX.test(url) : false;
+}
+
+export function isMaxLeaseDuration(duration: number | string) {
+  return (
+    (duration &&
+      typeof duration === 'number' &&
+      duration >= MAX_LEASE_DURATION) ||
+    duration === 'Indefinite'
+  );
 }

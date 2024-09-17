@@ -50,14 +50,7 @@ export default function OwnerRow({
           <button
             key={1}
             onClick={() => setShowTransferANTModal(true)}
-            className="button-secondary"
-            style={{
-              padding: '3px 7px',
-              fontSize: '13px',
-              boxSizing: 'border-box',
-              letterSpacing: '0.5px',
-              fontWeight: 500,
-            }}
+            className="px-2 py-[3px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all"
           >
             Transfer
           </button>,

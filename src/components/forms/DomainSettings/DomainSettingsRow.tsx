@@ -15,7 +15,7 @@ export default function DomainSettingsRow({
 }: {
   label?: string;
   value?: React.ReactNode;
-  action?: React.ReactNode[];
+  action?: React.ReactNode[] | React.ReactNode;
   editable?: boolean;
   editing?: boolean;
   onCancel?: () => void;
@@ -27,11 +27,12 @@ export default function DomainSettingsRow({
       prefixCls="domain-settings-row"
       style={{
         borderColor: editing ? 'var(--text-grey)' : undefined,
+        overflow: 'hidden',
       }}
       actions={
         editable
           ? [
-              ...action,
+              ...(Array.isArray(action) ? action : [action]),
               <>
                 {!editing && setEditing ? (
                   <button

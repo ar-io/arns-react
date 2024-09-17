@@ -1,7 +1,6 @@
-import { NewspaperIcon, VerticalDotMenuIcon } from '@src/components/icons';
-import { UNDERNAME_TABLE_ACTIONS } from '@src/types';
+import { NewspaperIcon } from '@src/components/icons';
 import { lowerCaseDomain } from '@src/utils';
-import { Skeleton, Tooltip } from 'antd';
+import { Skeleton } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
 import DomainSettingsRow from './DomainSettingsRow';
@@ -11,13 +10,11 @@ export default function UndernamesRow({
   antId,
   undernameLimit,
   undernameSupport,
-  editable,
 }: {
   domain?: string;
   antId?: string;
   undernameLimit: number;
   undernameSupport: number;
-  editable: boolean;
 }) {
   const navigate = useNavigate();
   return (
@@ -49,62 +46,19 @@ export default function UndernamesRow({
         </span>
       }
       action={[
-        <Tooltip
+        <button
           key={1}
-          placement="bottomRight"
-          color="var(--card-bg)"
-          autoAdjustOverflow
-          arrow={false}
-          overlayInnerStyle={{
-            width: 'fit-content',
-            border: '1px solid var(--text-faded)',
-            padding: '9px 12px',
-          }}
-          overlayStyle={{ width: 'fit-content' }}
-          trigger={'click'}
-          title={
-            <div className="flex-column flex" style={{ gap: '10px' }}>
-              <button
-                className="flex flex-right white pointer button"
-                onClick={() =>
-                  navigate(
-                    `/manage/names/${
-                      domain ? lowerCaseDomain(domain) : antId
-                    }/undernames`,
-                  )
-                }
-              >
-                Manage
-              </button>
-              {editable && (
-                <button
-                  className="flex flex-right white pointer button"
-                  onClick={() => {
-                    const params = new URLSearchParams({
-                      modal: UNDERNAME_TABLE_ACTIONS.CREATE,
-                    });
-                    navigate(
-                      encodeURI(
-                        `/manage/names/${
-                          domain || antId
-                        }/undernames?${params.toString()}`,
-                      ),
-                    );
-                  }}
-                >
-                  Add Undername
-                </button>
-              )}
-            </div>
+          className="flex flex-row justify-center whitespace-nowrap items-center px-2 py-[3px] rounded-[4px] border border-dark-grey hover:border-white text-grey hover:text-white transition-all"
+          onClick={() =>
+            navigate(
+              `/manage/names/${
+                domain ? lowerCaseDomain(domain) : antId
+              }/undernames`,
+            )
           }
         >
-          <VerticalDotMenuIcon
-            width={'18px'}
-            height={'18px'}
-            fill="var(--text-grey)"
-            className="pointer"
-          />
-        </Tooltip>,
+          Manage Undernames
+        </button>,
       ]}
     />
   );

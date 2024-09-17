@@ -28,6 +28,7 @@ export default function useDomainInfo({
     owner: string;
     controllers: string[];
     undernameCount?: number;
+    sourceCodeTxId?: string;
     apexRecord: {
       transactionId: string;
       ttlSeconds: number;
@@ -64,6 +65,7 @@ export default function useDomainInfo({
     owner: string;
     controllers: string[];
     undernameCount: number;
+    sourceCodeTxId?: string;
     apexRecord: {
       transactionId: string;
       ttlSeconds: number;
@@ -132,6 +134,7 @@ export default function useDomainInfo({
       controllers,
       undernameCount,
       apexRecord,
+      sourceCodeTxId: (state as any)?.['Source-Code-TX-ID'],
       records: state.Records,
     };
   }
