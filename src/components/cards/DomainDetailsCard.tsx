@@ -2,7 +2,6 @@ import { AoArNSNameData } from '@ar.io/sdk';
 import { useANT } from '@src/hooks/useANT/useANT';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { isArweaveTransactionID } from '@src/utils';
-import { useEffect } from 'react';
 
 import LeaseDurationFromEndTimestamp from '../data-display/LeaseDurationFromEndTimestamp';
 import { Loader } from '../layout';
@@ -15,13 +14,7 @@ function DomainDetailsCard({
   domainRecord?: AoArNSNameData;
   className?: string;
 }) {
-  const { loading: loadingAntState, ...antState } = useANT(
-    domainRecord?.processId,
-  );
-
-  useEffect(() => {
-    console.log('antState', antState);
-  }, [antState]);
+  const antState = useANT(domainRecord?.processId);
 
   return (
     <div className={className}>

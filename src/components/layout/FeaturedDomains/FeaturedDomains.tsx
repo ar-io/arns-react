@@ -59,6 +59,7 @@ function FeaturedDomains() {
               return;
             return (
               <Suspense
+                key={index}
                 fallback={
                   <Skeleton.Avatar
                     active
