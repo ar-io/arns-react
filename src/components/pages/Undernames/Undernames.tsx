@@ -18,7 +18,6 @@ function Undernames() {
   const { id, name } = useParams();
   const {
     data,
-    // data: { arnsRecord, records, owner, controllers },
     isLoading: isLoadingDomainInfo,
     refetch,
   } = useDomainInfo({
