@@ -18,6 +18,12 @@ export default {
         scale: 1.2,
       },
     },
+    fontWeight: {
+      light: 300,
+      normal: 400,
+      medium: 500,
+      bold: 700,
+    },
     colors: {
       primary: '#ffb938',
       ['primary-thin']: 'rgba(255, 185, 56, 0.1)',

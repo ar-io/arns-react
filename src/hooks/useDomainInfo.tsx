@@ -4,7 +4,7 @@ import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { lowerCaseDomain } from '@src/utils';
 import { buildArNSRecordsQuery, queryClient } from '@src/utils/network';
-import { RefetchOptions, useSuspenseQuery } from '@tanstack/react-query';
+import { RefetchOptions, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 
 export default function useDomainInfo({
@@ -33,14 +33,15 @@ export default function useDomainInfo({
   error: Error | null;
   refetch: (options?: RefetchOptions) => void;
 } {
-  const [{ arioContract: arioProvider }] = useGlobalState();
+  const [{ arioContract: arioProvider, ioProcessId, aoNetwork }] =
+    useGlobalState();
   const [{ wallet }] = useWalletState();
 
   // using this to have useDomainInfo hook trigger updates for React
   const [refreshing, setRefreshing] = useState(false);
 
   // TODO: this should be modified or removed
-  const { data, isLoading, error, refetch } = useSuspenseQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['domainInfo', { domain, antId }],
     queryFn: () => getDomainInfo({ domain, antId }).catch((error) => error),
   });
@@ -96,7 +97,10 @@ export default function useDomainInfo({
       if (!state) throw new Error('State not found for ANT contract');
 
       const arnsRecords = await queryClient.fetchQuery(
-        buildArNSRecordsQuery({ arioContract: arioProvider }),
+        buildArNSRecordsQuery({
+          arioContract: arioProvider,
+          meta: [ioProcessId, aoNetwork.CU_URL],
+        }),
       );
       const associatedNames = Object.entries(arnsRecords)
         .filter(([, r]) => r.processId == processId.toString())

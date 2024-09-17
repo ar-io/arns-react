@@ -9,6 +9,7 @@ import { fromB64Url } from '../encodings';
 export function formatDate(epochMs: number): string {
   return new Date(epochMs).toISOString().split('T')[0];
 }
+
 /**
  *
  * @param timestamp

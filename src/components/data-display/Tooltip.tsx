@@ -1,4 +1,5 @@
 import { Tooltip as AntdTooltip, TooltipProps } from 'antd';
+import { ReactNode } from 'react';
 
 import { InfoIcon } from '../icons';
 
@@ -12,7 +13,7 @@ function Tooltip({
   tooltipOverrides,
 }: {
   message: JSX.Element | string;
-  icon?: JSX.Element;
+  icon?: ReactNode;
   tooltipOverrides?: Partial<TooltipProps>;
 }) {
   return (
@@ -23,6 +24,7 @@ function Tooltip({
         className="pointer"
         overlayInnerStyle={{ padding: '15px' }}
         {...tooltipOverrides}
+        destroyTooltipOnHide={true}
       >
         {icon}
       </AntdTooltip>

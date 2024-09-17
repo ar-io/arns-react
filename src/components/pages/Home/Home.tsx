@@ -1,84 +1,20 @@
-import { useWalletState } from '@src/state/contexts/WalletState';
-import { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import HomeSearch from '@src/components/inputs/Search/HomeSearch';
 
-import { useIsMobile, useRegistrationStatus } from '../../../hooks';
-import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
-import { useRegistrationState } from '../../../state/contexts/RegistrationState';
-import {
-  decodeDomainToASCII,
-  lowerCaseDomain,
-} from '../../../utils/searchUtils/searchUtils';
-import SearchBar from '../../inputs/Search/SearchBar/SearchBar';
+import { useIsMobile } from '../../../hooks';
 import { FeaturedDomains } from '../../layout';
 
 function Home() {
-  const [{ walletAddress }] = useWalletState();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [{ domain, antID }, dispatchRegisterState] = useRegistrationState();
-  const {
-    isReserved,
-    reservedFor,
-    loading: isValidatingRegistration,
-  } = useRegistrationStatus(domain);
   const isMobile = useIsMobile();
-
-  useEffect(() => {
-    if (domain && domain !== searchParams.get('search')) {
-      const serializeSearchParams: Record<string, string> = {
-        search: decodeDomainToASCII(domain),
-      };
-      setSearchParams(serializeSearchParams);
-      return;
-    }
-  }, [domain]);
-
-  useEffect(() => {
-    const searchDomain = searchParams.get('search');
-    if (searchDomain && searchDomain !== domain) {
-      dispatchRegisterState({
-        type: 'setDomainName',
-        payload: searchDomain,
-      });
-      return;
-    }
-  }, [searchParams]);
-
-  function updateShowFeaturedDomains({
-    isReserved,
-    reservedFor,
-
-    antId,
-    domainName,
-  }: {
-    antId: ArweaveTransactionID | undefined;
-    domainName: string | undefined;
-    isReserved: boolean;
-    reservedFor?: ArweaveTransactionID;
-  }): boolean {
-    if (
-      (!antId &&
-        (!isReserved ||
-          (isReserved &&
-            reservedFor?.toString() === walletAddress?.toString()))) ||
-      !domainName
-    ) {
-      return true;
-    }
-
-    return false;
-  }
 
   return (
     <div
       className="page"
-      style={{ padding: isMobile ? '15px' : '', boxSizing: 'border-box' }}
+      style={{ padding: isMobile ? '15px' : '0px', boxSizing: 'border-box' }}
     >
       <div
-        className={'white'}
+        className={'white pb-2'}
         style={{
-          fontSize: isMobile ? 26 : 57,
-          padding: isMobile ? '10px' : '20px',
+          fontSize: isMobile ? 26 : 50,
           paddingTop: '10px',
           fontWeight: 500,
           whiteSpace: isMobile ? undefined : 'nowrap',
@@ -86,7 +22,10 @@ function Home() {
       >
         Arweave Name System
       </div>
-
+      <span className="flex flex-col items-center pb-2 justify-center align-center text-center gap-[5px] text-md min-h-[45px] text-grey max-w-[500px]">
+        ArNS names are censorship-resistant domain names for permaweb dApps, web
+        pages, data, and identities.
+      </span>
       <div
         className="flex flex-column flex-center"
         style={{
@@ -96,17 +35,11 @@ function Home() {
           minWidth: isMobile ? '100%' : '750px',
         }}
       >
-        <SearchBar placeholderText={'Search for a name'} />
-        {updateShowFeaturedDomains({
-          isReserved: isReserved,
-          reservedFor: reservedFor,
-          antId: antID,
-          domainName: lowerCaseDomain(domain),
-        }) && !isValidatingRegistration ? (
-          <FeaturedDomains />
-        ) : (
-          <></>
-        )}
+        <div className="flex flex-col w-full max-w-[800px] h-[200px]">
+          <HomeSearch />
+        </div>
+
+        <FeaturedDomains />
       </div>
     </div>
   );

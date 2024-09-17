@@ -65,6 +65,8 @@ function NavBar() {
             </div>
           </Link>
         </div>
+        <div className="flex px-4"></div>
+
         <NavGroup />
       </div>
       <Breadcrumbs />

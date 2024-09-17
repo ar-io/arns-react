@@ -119,30 +119,6 @@ export interface ArweaveDataProvider {
   getCurrentBlockHeight(): Promise<number>;
 }
 
-export type SearchBarProps = {
-  disabled?: boolean;
-  placeholderText?: string;
-};
-
-export type SearchBarHeaderProps = {
-  defaultText: React.ReactNode;
-  isAvailable: boolean;
-  isReserved: boolean;
-  reservedFor?: ArweaveTransactionID;
-  isDefault?: boolean;
-  domain?: string;
-  processId?: ArweaveTransactionID;
-};
-
-export type SearchBarFooterProps = {
-  isAvailable: boolean;
-  isReserved: boolean;
-  reservedFor?: ArweaveTransactionID;
-  domain?: string;
-  record?: AoArNSNameData;
-  processId?: ArweaveTransactionID;
-};
-
 export type ConnectWalletModalProps = {
   setShowModal: Dispatch<SetStateAction<boolean>>;
 };
