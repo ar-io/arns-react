@@ -49,8 +49,10 @@ function ManageDomain() {
       return;
     }
 
-    fetchDomainDetails({ arnsRecord: data.arnsRecord });
-  }, [data.arnsRecord, interactionResult, isLoadingDomainDetails]);
+    if (data?.arnsRecord) {
+      fetchDomainDetails({ arnsRecord: data.arnsRecord });
+    }
+  }, [data?.arnsRecord, interactionResult, isLoadingDomainDetails]);
 
   // TODO: [PE-4630] tech debt, refactor this into smaller pure functions
   async function fetchDomainDetails({

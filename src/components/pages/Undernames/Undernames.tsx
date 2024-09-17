@@ -17,7 +17,8 @@ function Undernames() {
   const navigate = useNavigate();
   const { id, name } = useParams();
   const {
-    data: { arnsRecord, records, owner, controllers },
+    data,
+    // data: { arnsRecord, records, owner, controllers },
     isLoading: isLoadingDomainInfo,
     refetch,
   } = useDomainInfo({
@@ -36,10 +37,23 @@ function Undernames() {
       navigate('/manage/ants');
       return;
     }
-    setOwnershipStatus(
-      getOwnershipStatus(owner, controllers, walletAddress?.toString() ?? ''),
-    );
-  }, [id, name, owner, controllers, walletAddress, isLoadingDomainInfo]);
+    if (data?.owner && data?.controllers) {
+      setOwnershipStatus(
+        getOwnershipStatus(
+          data?.owner,
+          data?.controllers,
+          walletAddress?.toString() ?? '',
+        ),
+      );
+    }
+  }, [
+    id,
+    name,
+    data?.owner,
+    data?.controllers,
+    walletAddress,
+    isLoadingDomainInfo,
+  ]);
 
   return (
     <>
@@ -73,9 +87,9 @@ function Undernames() {
               />
             </div>
             <UndernamesTable
-              undernames={records}
+              undernames={data?.records ?? {}}
               arnsDomain={name}
-              antId={arnsRecord?.processId}
+              antId={data?.arnsRecord?.processId}
               ownershipStatus={ownershipStatus}
               isLoading={isLoadingDomainInfo}
               filter={search}
