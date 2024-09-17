@@ -229,7 +229,7 @@ function DomainSettings({
             <SourceCodeIdRow
               antId={data?.processId?.toString()}
               sourceCodeTxId={data?.sourceCodeTxId}
-              editable={isAuthorized && data?.sourceCodeTxId !== undefined}
+              editable={isAuthorized}
             />
           ),
           [DomainSettingsRowTypes.NICKNAME]: (

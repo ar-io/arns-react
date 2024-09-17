@@ -19,9 +19,14 @@ export function useANTLuaSourceCode(id: string = ANT_LUA_ID) {
             tag.get('name', { decode: true, string: true }) === 'Changelog',
         )
         ?.get('value', { decode: true, string: true });
-      // console.log('luaCodeTx', luaCodeTx);
-      console.log('changelog', changelog);
-      return { luaCodeTx, luaCode, changelog };
+      const originalTxId = luaCodeTx?.tags
+        ?.find(
+          (tag: any) =>
+            tag.get('name', { decode: true, string: true }) ===
+            'Original-Tx-Id',
+        )
+        ?.get('value', { decode: true, string: true });
+      return { luaCodeTx, luaCode, changelog, originalTxId };
     },
   });
 }

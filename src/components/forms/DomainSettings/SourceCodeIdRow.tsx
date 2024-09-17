@@ -1,8 +1,10 @@
+import { ANT_LUA_ID } from '@ar.io/sdk';
 import { Tooltip } from '@src/components/data-display';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
 import UpgradeAntModal from '@src/components/modals/ant-management/UpgradeAntModal/UpgradeAntModal';
+import { useANTLuaSourceCode } from '@src/hooks/useANTLuaSourceCode';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useState } from 'react';
 
@@ -17,6 +19,7 @@ export default function SourceCodeIdRow({
   sourceCodeTxId?: string;
   editable: boolean;
 }) {
+  const { data } = useANTLuaSourceCode();
   const [showUpgradeAntModal, setShowUpgradeAntModal] = useState(false);
   return (
     <>
@@ -43,7 +46,11 @@ export default function SourceCodeIdRow({
           </span>
         }
         action={
-          editable && [
+          editable &&
+          sourceCodeTxId &&
+          ![ANT_LUA_ID, data?.originalTxId]
+            .filter((id) => id !== undefined)
+            .includes(sourceCodeTxId) && [
             <Tooltip
               key={1}
               message={'Your ANT requires an update'}
