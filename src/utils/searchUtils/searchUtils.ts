@@ -177,7 +177,6 @@ export function getOwnershipStatus(
   controllers: string[],
   walletAddress?: string,
 ): 'controller' | 'owner' | undefined {
-  console.log(owner, controllers, walletAddress);
   return owner === walletAddress
     ? 'owner'
     : walletAddress && controllers?.includes(walletAddress)

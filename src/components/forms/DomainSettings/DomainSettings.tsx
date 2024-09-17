@@ -103,8 +103,6 @@ function DomainSettings({
   }, [interactionResult]);
 
   if (isLoading || !data?.owner) {
-    console.log('loading', isLoading);
-    console.log('data', data);
     return (
       <div className="page" style={{ height: '100%' }}>
         <Loader message="Loading domain data..." />

@@ -81,7 +81,6 @@ export default function useDomainInfo({
       : undefined;
 
     if (!antId && !record?.processId) {
-      console.log(record);
       throw new Error('No ANT id or record found');
     }
     const processId = antId || record?.processId;

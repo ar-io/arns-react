@@ -42,7 +42,7 @@ function Undernames() {
         getOwnershipStatus(
           data?.owner,
           data?.controllers,
-          walletAddress?.toString() ?? '',
+          walletAddress?.toString(),
         ),
       );
     }
