@@ -24,7 +24,7 @@ import eventEmitter from '@src/utils/events';
 import { useQuery } from '@tanstack/react-query';
 import { Checkbox } from 'antd';
 import Lottie from 'lottie-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 
 import arioLoading from '../../../icons/ario-spinner.json';
@@ -45,6 +45,7 @@ function UpgradeAntsModal({
   const [{ ants }, dispatchArNSState] = useArNSState();
   // 0 or greater means loading, -1 means not loading
   const [progress, setProgress] = useState(-1);
+  const isUpdatingAnts = useCallback(() => progress >= 0, [progress]);
   const { data: luaCodeTx, isLoading } = useQuery({
     queryKey: [ANT_LUA_ID],
     queryFn: async () => {
@@ -79,7 +80,7 @@ function UpgradeAntsModal({
   }
 
   async function upgradeAnts() {
-    if (progress > -1) return;
+    if (isUpdatingAnts()) return;
     try {
       setProgress(0);
       if (!wallet?.arconnectSigner || !walletAddress) {

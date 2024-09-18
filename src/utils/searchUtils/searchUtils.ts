@@ -8,6 +8,7 @@ import {
   ARNS_NAME_REGEX,
   FQDN_REGEX,
   MAX_LEASE_DURATION,
+  PERMANENT_DOMAIN_MESSAGE,
   TRAILING_DASH_UNDERSCORE_REGEX,
   UNDERNAME_REGEX,
   URL_REGEX,
@@ -198,6 +199,6 @@ export function isMaxLeaseDuration(duration: number | string) {
     (duration &&
       typeof duration === 'number' &&
       duration >= MAX_LEASE_DURATION) ||
-    duration === 'Indefinite'
+    duration === PERMANENT_DOMAIN_MESSAGE
   );
 }

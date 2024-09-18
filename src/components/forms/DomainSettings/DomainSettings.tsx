@@ -15,6 +15,7 @@ import {
 } from '@src/utils';
 import {
   DEFAULT_MAX_UNDERNAMES,
+  PERMANENT_DOMAIN_MESSAGE,
   SECONDS_IN_GRACE_PERIOD,
 } from '@src/utils/constants';
 import { useQueryClient } from '@tanstack/react-query';
@@ -80,7 +81,7 @@ function DomainSettings({
           data?.arnsRecord.startTimestamp,
           data?.arnsRecord?.endTimestamp,
         )
-      : 'Indefinite',
+      : PERMANENT_DOMAIN_MESSAGE,
   );
 
   useEffect(() => {
@@ -167,7 +168,7 @@ function DomainSettings({
                   icon={
                     <button
                       disabled={isLoading || maxLeaseDuration}
-                      className={`flex flex-row bg-primary text-black rounded-[3px] whitespace-nowrap px-2 py-[3px] text-[13px] ${
+                      className={`flex flex-row bg-primary text-black rounded-[3px] whitespace-nowrap px-3 py-[5px] text-[13px] ${
                         isLoading || maxLeaseDuration
                           ? 'disabled-button'
                           : 'hover'

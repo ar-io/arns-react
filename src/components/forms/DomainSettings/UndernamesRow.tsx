@@ -48,7 +48,7 @@ export default function UndernamesRow({
       action={[
         <button
           key={1}
-          className="flex flex-row justify-center whitespace-nowrap items-center px-2 py-[3px] rounded-[4px] border border-dark-grey hover:border-white text-grey hover:text-white transition-all"
+          className="flex flex-row justify-center whitespace-nowrap items-center px-3 py-[5px] rounded-[4px] bg-primary text-black transition-all"
           onClick={() =>
             navigate(
               `/manage/names/${

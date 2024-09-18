@@ -57,7 +57,7 @@ export default function SourceCodeIdRow({
               icon={
                 <button
                   onClick={() => setShowUpgradeAntModal(true)}
-                  className="h-fit animate-pulse whitespace-nowrap rounded-[4px] bg-primary-thin px-2 py-[4px] text-[13px] text-primary transition-all hover:bg-primary hover:text-black"
+                  className="h-fit animate-pulse whitespace-nowrap rounded-[4px] bg-primary-thin px-3 py-[5px] text-[13px] text-primary transition-all hover:bg-primary hover:text-black"
                 >
                   Upgrade ANT
                 </button>

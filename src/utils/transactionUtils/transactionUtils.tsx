@@ -27,6 +27,7 @@ import {
   DEFAULT_MAX_UNDERNAMES,
   MAX_TTL_SECONDS,
   MIN_TTL_SECONDS,
+  PERMANENT_DOMAIN_MESSAGE,
   TTL_SECONDS_REGEX,
   YEAR_IN_MILLISECONDS,
 } from '../constants';
@@ -223,7 +224,7 @@ export function getARNSMappingByInteractionType(
         transactionData.type === TRANSACTION_TYPES.LEASE &&
         transactionData.years
           ? Date.now() + YEAR_IN_MILLISECONDS * transactionData.years
-          : 'Indefinite';
+          : PERMANENT_DOMAIN_MESSAGE;
 
       const processId =
         transactionData.processId === 'atomic'

@@ -28,7 +28,7 @@ function Undernames() {
     antId: isArweaveTransactionID(id) ? id : undefined,
   });
   const [{ walletAddress }] = useWalletState();
-  const [isMaxUndernameCount, setisMaxUndernameCount] =
+  const [isMaxUndernameCount, setIsMaxUndernameCount] =
     useState<boolean>(false);
   const [ownershipStatus, setOwnershipStatus] = useState<
     'controller' | 'owner' | undefined
@@ -51,7 +51,7 @@ function Undernames() {
       );
     }
 
-    setisMaxUndernameCount(
+    setIsMaxUndernameCount(
       !!data?.arnsRecord?.undernameLimit &&
         data?.arnsRecord?.undernameLimit >= MAX_UNDERNAME_COUNT,
     );

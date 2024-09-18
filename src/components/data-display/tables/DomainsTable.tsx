@@ -15,6 +15,7 @@ import {
   isArweaveTransactionID,
   lowerCaseDomain,
 } from '@src/utils';
+import { PERMANENT_DOMAIN_MESSAGE } from '@src/utils/constants';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { capitalize } from 'lodash';
 import { useEffect, useState } from 'react';
@@ -125,10 +126,10 @@ const DomainsTable = ({
                 ?.length ?? 0,
             supported: record.undernameLimit,
           },
-          expiryDate: (record as any).endTimestamp ?? 'Indefinite',
+          expiryDate: (record as any).endTimestamp ?? PERMANENT_DOMAIN_MESSAGE,
           status: isLeasedArNSRecord(record)
             ? record.endTimestamp
-            : 'Indefinite',
+            : PERMANENT_DOMAIN_MESSAGE,
           action: <></>,
           // metadata used for search and other purposes
           antRecords: ant.Records,
@@ -327,7 +328,7 @@ const DomainsTable = ({
             );
           }
           case 'expiryDate': {
-            if (rowValue == 'Indefinite') {
+            if (rowValue == PERMANENT_DOMAIN_MESSAGE) {
               return (
                 <Tooltip
                   message={
