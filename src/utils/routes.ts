@@ -1,3 +1,6 @@
+import Settings from '@src/components/pages/Settings/Settings';
+import { Settings2Icon } from 'lucide-react';
+
 import { SettingsIcon } from '../components/icons';
 import { Home, Manage } from '../components/pages';
 
@@ -24,6 +27,14 @@ export const ROUTES: { [x: string]: Route } = {
     icon: SettingsIcon,
     path: '/manage',
     component: Manage,
+    protected: false,
+    index: false,
+  },
+  settings: {
+    text: 'Settings',
+    icon: Settings2Icon,
+    path: '/settings',
+    component: Settings,
     protected: false,
     index: false,
   },

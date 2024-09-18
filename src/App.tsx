@@ -52,6 +52,10 @@ const UpgradeUndernames = React.lazy(
   () => import('./components/layout/UpgradeUndernames/UpgradeUndernames'),
 );
 
+const Settings = React.lazy(
+  () => import('./components/pages/Settings/Settings'),
+);
+
 const sentryCreateBrowserRouter =
   Sentry.wrapCreateBrowserRouter(createHashRouter);
 
@@ -278,6 +282,18 @@ function App() {
               }
             >
               <Register />
+            </Suspense>
+          }
+        />
+        <Route
+          path="settings"
+          element={
+            <Suspense
+              fallback={
+                <PageLoader loading={true} message={'Loading, please wait'} />
+              }
+            >
+              <Settings />
             </Suspense>
           }
         />

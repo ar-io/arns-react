@@ -35,7 +35,7 @@ function NavGroup() {
     }
 
     const newLinks = Object.entries(ROUTES).map(([key, value]) => {
-      if (!value.index && !value.protected)
+      if (!value.index && !value.protected && key !== 'settings')
         return (
           <NavBarLink
             key={key}
