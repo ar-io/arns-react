@@ -5,8 +5,6 @@ import NavBarLink from './Navbar/NavBarLink/NavBarLink';
 import NavGroup from './Navbar/NavGroup/NavGroup';
 import NavBar from './Navbar/Navbar';
 import ProtectedRoute from './ProtectedRoute/ProtectedRoute';
-import SearchBarFooter from './SearchBarFooter/SearchBarFooter';
-import SearchBarHeader from './SearchBarHeader/SearchBarHeader';
 
 export {
   FeaturedDomains,
@@ -16,6 +14,4 @@ export {
   NavBarLink,
   NavGroup,
   ProtectedRoute,
-  SearchBarFooter,
-  SearchBarHeader,
 };

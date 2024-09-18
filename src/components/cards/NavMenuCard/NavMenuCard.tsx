@@ -19,7 +19,16 @@ import { WalletAddress } from '../../layout/WalletAddress/WalletAddress';
 import './styles.css';
 
 function NavMenuCard() {
-  const [{ arweaveDataProvider, arioContract, ioTicker }] = useGlobalState();
+  const [
+    {
+      arweaveDataProvider,
+      arioContract,
+      ioTicker,
+      ioProcessId,
+      aoNetwork,
+      gateway,
+    },
+  ] = useGlobalState();
   const queryClient = useQueryClient();
   const [showMenu, setShowMenu] = useState(false);
   const [walletDetails, setWalletDetails] = useState<{
@@ -58,12 +67,17 @@ function NavMenuCard() {
 
   async function fetchWalletDetails(walletAddress: ArweaveTransactionID) {
     const ioBalance = await queryClient.fetchQuery(
-      buildIOBalanceQuery({ address: walletAddress.toString(), arioContract }),
+      buildIOBalanceQuery({
+        address: walletAddress.toString(),
+        arioContract,
+        meta: [ioProcessId, aoNetwork.CU_URL],
+      }),
     );
     const arBalance = await queryClient.fetchQuery(
       buildARBalanceQuery({
         address: walletAddress,
         provider: arweaveDataProvider,
+        meta: [gateway],
       }),
     );
     const [formattedBalance, formattedIOBalance] = [arBalance, ioBalance].map(

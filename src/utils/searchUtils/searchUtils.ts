@@ -125,7 +125,7 @@ export function sleep(ms: number) {
 }
 
 export function lowerCaseDomain(domain: string) {
-  return encodeDomainToASCII(domain.trim()).toLowerCase();
+  return encodeDomainToASCII(decodeURIComponent(domain.trim())).toLowerCase();
 }
 
 export function getAntsRequiringUpdate({
@@ -179,7 +179,7 @@ export function getOwnershipStatus(
 ): 'controller' | 'owner' | undefined {
   return owner === walletAddress
     ? 'owner'
-    : walletAddress && controllers.includes(walletAddress)
+    : walletAddress && controllers?.includes(walletAddress)
     ? 'controller'
     : undefined;
 }

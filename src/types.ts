@@ -119,30 +119,6 @@ export interface ArweaveDataProvider {
   getCurrentBlockHeight(): Promise<number>;
 }
 
-export type SearchBarProps = {
-  disabled?: boolean;
-  placeholderText?: string;
-};
-
-export type SearchBarHeaderProps = {
-  defaultText: React.ReactNode;
-  isAvailable: boolean;
-  isReserved: boolean;
-  reservedFor?: ArweaveTransactionID;
-  isDefault?: boolean;
-  domain?: string;
-  processId?: ArweaveTransactionID;
-};
-
-export type SearchBarFooterProps = {
-  isAvailable: boolean;
-  isReserved: boolean;
-  reservedFor?: ArweaveTransactionID;
-  domain?: string;
-  record?: AoArNSNameData;
-  processId?: ArweaveTransactionID;
-};
-
 export type ConnectWalletModalProps = {
   setShowModal: Dispatch<SetStateAction<boolean>>;
 };
@@ -191,11 +167,11 @@ export enum ANT_INTERACTION_TYPES {
   REMOVE_CONTROLLER = 'Remove Controller',
   SET_TICKER = 'Edit Ticker',
   SET_NAME = 'Edit Name',
-  SET_RECORD = 'Add Record',
-  EDIT_RECORD = 'Edit Record',
+  SET_RECORD = 'Add Undername',
+  EDIT_RECORD = 'Edit Undername',
   SET_TARGET_ID = 'Edit Target ID',
   SET_TTL_SECONDS = 'Edit TTL Seconds',
-  REMOVE_RECORD = 'Delete Record',
+  REMOVE_RECORD = 'Delete Undername',
   TRANSFER = 'Transfer ANT',
 }
 
