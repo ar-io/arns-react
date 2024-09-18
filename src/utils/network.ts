@@ -15,7 +15,7 @@ import {
 } from '@tanstack/react-query-persist-client';
 import { del, get, set } from 'idb-keyval';
 
-import { isArweaveTransactionID, lowerCaseDomain } from '.';
+import { isArweaveTransactionID } from '.';
 import eventEmitter from './events';
 
 /**
@@ -44,14 +44,21 @@ export const queryClient = new QueryClient({
   },
 });
 
-export function buildAntStateQuery({ processId }: { processId: string }): {
-  queryKey: ['ant', string];
+export function buildAntStateQuery({
+  processId,
+  meta,
+}: {
+  processId: string;
+  meta?: string[];
+}): {
+  queryKey: ['ant', string] | string[];
   queryFn: () => Promise<AoANTState | null>;
   staleTime: number;
 } {
   return {
-    queryKey: ['ant', processId],
+    queryKey: ['ant', processId, ...(meta || [])],
     queryFn: async () => {
+      if (!processId) return null;
       if (isArweaveTransactionID(processId)) {
         const ant = ANT.init({ processId });
         return ant.getState().catch((e) => {
@@ -68,41 +75,21 @@ export function buildAntStateQuery({ processId }: { processId: string }): {
   };
 }
 
-export function buildArNSRecordQuery({
-  arioContract,
-  domain,
-}: {
-  arioContract: AoIORead;
-  domain: string;
-}): {
-  queryKey: ['arns-record', string];
-  queryFn: () => Promise<AoArNSNameData | undefined>;
-  staleTime: number;
-} {
-  return {
-    queryKey: ['arns-record', lowerCaseDomain(domain)],
-    queryFn: async () => {
-      return arioContract.getArNSRecord({
-        name: lowerCaseDomain(domain),
-      });
-    },
-    staleTime: Infinity,
-  };
-}
-
 export function buildIOBalanceQuery({
   arioContract,
   address,
+  meta,
 }: {
   arioContract: AoIORead;
   address: string;
+  meta?: string[];
 }): {
-  queryKey: ['io-balance', string];
+  queryKey: ['io-balance', string] | string[];
   queryFn: () => Promise<number>;
   staleTime: number;
 } {
   return {
-    queryKey: ['io-balance', address],
+    queryKey: ['io-balance', address, ...(meta || [])],
     queryFn: async () => {
       return await arioContract
         .getBalance({
@@ -119,51 +106,38 @@ export function buildIOBalanceQuery({
 export function buildARBalanceQuery({
   provider,
   address,
+  meta,
 }: {
   provider: ArweaveCompositeDataProvider;
   address: ArweaveTransactionID;
+  meta?: string[];
 }): {
-  queryKey: ['ar-balance', string];
+  queryKey: ['ar-balance', string] | string[];
   queryFn: () => Promise<number>;
   staleTime: number;
 } {
   return {
-    queryKey: ['ar-balance', address.toString()],
+    queryKey: ['ar-balance', address.toString(), ...(meta || [])],
     queryFn: async () => {
       return await provider.getArBalance(address).catch(() => 0);
     },
     staleTime: 1000 * 60 * 60, // one hour
   };
 }
-/**
- * Consumes a list of ARNS records and caches them in the query cache
- */
-export async function cacheArNSRecords({
-  queryClient,
-  records,
-}: {
-  queryClient: QueryClient;
-  records: Record<string, AoArNSNameData>;
-}): Promise<void> {
-  for (const [domain, record] of Object.entries(records)) {
-    await queryClient.setQueryData(
-      ['arns-record', lowerCaseDomain(domain)],
-      record,
-    );
-  }
-}
 
 export function buildArNSRecordsQuery({
   arioContract,
+  meta,
 }: {
   arioContract: AoIORead;
+  meta?: string[];
 }): {
-  queryKey: ['arns-records'];
+  queryKey: ['arns-records'] | string[];
   queryFn: () => Promise<Record<string, AoArNSNameData>>;
   staleTime: number;
 } {
   return {
-    queryKey: ['arns-records'],
+    queryKey: ['arns-records', ...(meta || [])],
     queryFn: () => {
       // TODO: we should add the last cursor retrieved and only fetch new records to avoid loading all of them on reload
       return fetchAllArNSRecords({
@@ -172,22 +146,4 @@ export function buildArNSRecordsQuery({
     },
     staleTime: Infinity,
   };
-}
-
-export async function getArNSRecordsFromCache({
-  queryClient,
-}: {
-  queryClient: QueryClient;
-}): Promise<Record<string, AoArNSNameData> | undefined> {
-  const records = await queryClient.getQueriesData({
-    queryKey: ['arns-record'],
-  });
-  if (!records?.length) return;
-  return records.reduce(
-    (acc: Record<string, AoArNSNameData>, [cacheKey, record]: any) => {
-      acc[cacheKey[1]] = record;
-      return acc;
-    },
-    {},
-  );
 }

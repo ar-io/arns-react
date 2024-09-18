@@ -1,3 +1,4 @@
+import { useGlobalState } from '@src/state';
 import { buildAntStateQuery } from '@src/utils/network';
 import { useQueryClient } from '@tanstack/react-query';
 import { Tooltip } from 'antd';
@@ -23,6 +24,7 @@ export type NavItem = {
 export const ANT_FLAG = 'ant-flag';
 
 function Breadcrumbs() {
+  const [{ gateway, aoNetwork }] = useGlobalState();
   const queryClient = useQueryClient();
   const location = useLocation();
   const path = location.pathname.split('/');
@@ -58,7 +60,7 @@ function Breadcrumbs() {
       // check for ant flag
       if (isArweaveTransactionID(processId)) {
         const state = await queryClient.fetchQuery(
-          buildAntStateQuery({ processId }),
+          buildAntStateQuery({ processId, meta: [gateway, aoNetwork.CU_URL] }),
         );
         const name = state?.Name;
 

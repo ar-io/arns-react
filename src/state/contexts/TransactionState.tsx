@@ -20,6 +20,7 @@ export type TransactionState = {
   workflowName?: string;
   interactionResult?: any;
   signing: boolean;
+  signingMessage?: string;
 };
 
 export type TransactionStateProviderProps = {
@@ -77,9 +78,10 @@ export function TransactionStateProvider({
       {children}
       <PageLoader
         loading={state.signing}
-        message={`Deploying ${
-          state?.workflowName ?? ''
-        } interaction, please wait.`}
+        message={
+          state.signingMessage ??
+          `Deploying ${state?.workflowName ?? ''} interaction, please wait.`
+        }
       />
     </TransactionStateContext.Provider>
   );

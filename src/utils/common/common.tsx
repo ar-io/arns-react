@@ -1,4 +1,3 @@
-import { Buffer } from 'buffer';
 import { CSSProperties } from 'react';
 
 import { ChevronLeftIcon, ChevronRightIcon } from '../../components/icons';
@@ -9,6 +8,7 @@ import { fromB64Url } from '../encodings';
 export function formatDate(epochMs: number): string {
   return new Date(epochMs).toISOString().split('T')[0];
 }
+
 /**
  *
  * @param timestamp
@@ -41,10 +41,6 @@ export function tagsToObject(tags: TransactionTag[]): {
     }),
     {},
   );
-}
-
-export function byteSize(data: string): number {
-  return Buffer.byteLength(data);
 }
 
 export function getCustomPaginationButtons({
@@ -107,47 +103,6 @@ export function getCustomPaginationButtons({
   return originalElement;
 }
 
-export function handleTableSort<T extends Record<string, any>>({
-  key,
-  isAsc,
-  rows,
-}: {
-  key: keyof T;
-  isAsc: boolean;
-  rows: T[];
-}) {
-  if (!isAsc) {
-    rows.sort((a: T, b: T) => {
-      if (typeof a[key] === 'object' && typeof b[key] === 'object') {
-        return JSON.stringify(a[key]).localeCompare(JSON.stringify(b[key]));
-      }
-      if (typeof a[key] === 'string' && typeof b[key] === 'string') {
-        return a[key].localeCompare(b[key]);
-      }
-      if (typeof a[key] === 'number' && typeof b[key] === 'number') {
-        return a[key] - b[key];
-      }
-    });
-  } else {
-    // if not ascending order sort in other direction
-    rows.sort((a: T, b: T) => {
-      if (typeof a[key] === 'object' && typeof b[key] === 'object') {
-        return JSON.stringify(b[key]).localeCompare(JSON.stringify(a[key]));
-      }
-      if (typeof a[key] === 'string' && typeof b[key] === 'string') {
-        return b[key].localeCompare(a[key]);
-      }
-      if (typeof a[key] === 'number' && typeof b[key] === 'number') {
-        return b[key] - a[key];
-      }
-    });
-  }
-}
-
-export function getRandomInteger(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
 /**
  * Splits a string into two segments, each containing a specified number of characters, and separates them with an ellipsis ('...'). If the `maxCharCount` parameter is not provided or if the string length is less than `maxCharCount`, the original string is returned.
  *
@@ -178,15 +133,6 @@ export function formatForMaxCharCount(
   return str;
 }
 
-export function isJsonSerializable(obj: any): boolean {
-  try {
-    JSON.parse(obj);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 export function jsonSerialize(obj: any) {
   try {
     return JSON.parse(obj);
@@ -195,35 +141,11 @@ export function jsonSerialize(obj: any) {
   }
 }
 
-export function getundernameLimit(records: Record<string, any>): number {
-  return Object.keys(records).filter((key) => key !== '@').length;
-}
-
 export const executeWithTimeout = async (fn: () => any, ms: number) => {
   return await Promise.race([
     fn(),
     new Promise((resolve) => setTimeout(() => resolve('timeout'), ms)),
   ]);
-};
-
-export const fetchWithRetry = async (url: string, numRetries = 1) => {
-  let lastException = undefined;
-  const exceptionHandler = (e: any) => {
-    lastException = e;
-    return undefined;
-  };
-
-  let res = await fetch(url).catch(exceptionHandler);
-  let i = 0;
-
-  while ((!res || !res.ok) && i < numRetries) {
-    res = await fetch(url).catch(exceptionHandler);
-    i++;
-  }
-  if ((!res || !res.ok) && lastException) {
-    throw lastException;
-  }
-  return res;
 };
 
 /**

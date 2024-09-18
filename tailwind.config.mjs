@@ -5,7 +5,12 @@ export default {
   darkMode: 'selector', // or 'media' or 'class'
   theme: {
     extend: {
-      backgroundImage: {},
+      backgroundImage: {
+        'primary-gradient':
+          'linear-gradient(90deg, rgba(255, 185, 56, 0.1), #ffb938 100%)',
+        'primary-gradient-thin':
+          'linear-gradient(90deg, rgb(0,0,0,0.1), rgba(255, 185, 56, 0.3))',
+      },
       fontFamily: {
         sans: ['Rubik', 'sans-serif'],
       },
@@ -17,6 +22,12 @@ export default {
         base: '14px',
         scale: 1.2,
       },
+    },
+    fontWeight: {
+      light: 300,
+      normal: 400,
+      medium: 500,
+      bold: 700,
     },
     colors: {
       primary: '#ffb938',
