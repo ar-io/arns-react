@@ -35,6 +35,11 @@ const TableView = <T, S>({
   headerClass,
   rowClass = () => '',
   dataClass = () => '',
+  addOnAfterTable,
+  paginationConfig = {
+    pageIndex: 0, //initial page index
+    pageSize: 10, //default page size
+  },
 }: {
   columns: ColumnDef<T, S>[];
   data: T[];
@@ -51,12 +56,17 @@ const TableView = <T, S>({
     row?: Row<T>;
     headerGroup?: HeaderGroup<T>;
   }) => string;
+  addOnAfterTable?: ReactNode;
+  paginationConfig?: {
+    pageIndex?: number;
+    pageSize?: number;
+  };
 }) => {
   const [sorting, setSorting] = useState<SortingState>([defaultSortingState]);
   const [expanded, setExpanded] = useState<ExpandedState>({});
   const [pagination, setPagination] = useState({
-    pageIndex: 0, //initial page index
-    pageSize: 10, //default page size
+    pageIndex: paginationConfig.pageIndex ?? 0,
+    pageSize: paginationConfig.pageSize ?? 10,
   });
 
   const table = useReactTable({
@@ -82,7 +92,10 @@ const TableView = <T, S>({
     <>
       <div className="overflow-x-auto scrollbar">
         <table className={'w-full table-auto' + ' ' + tableClass}>
-          <thead className={`text-[14px] text-grey ${headerClass}`}>
+          <thead
+            className={`text-[14px] text-grey ${headerClass}`}
+            style={{ borderRadius: '10px' }}
+          >
             {table.getHeaderGroups().map((headerGroup) => (
               <tr
                 key={headerGroup.id}
@@ -194,6 +207,7 @@ const TableView = <T, S>({
           {noDataFoundText}
         </div>
       )}
+      {addOnAfterTable}
       {/* pagination start */}
       {table.getPageCount() > 1 && (
         <div className="flex flex-row w-full py-4 items-center justify-center">

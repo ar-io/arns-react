@@ -203,7 +203,7 @@ const UndernamesSubtable = ({
           interactionType={ANT_INTERACTION_TYPES.EDIT_RECORD}
           confirm={() =>
             dispatchANTInteraction({
-              processId: new ArweaveTransactionID(antId),
+              processId: antId,
               payload: transactionData,
               workflowName: ANT_INTERACTION_TYPES.EDIT_RECORD,
               signer: wallet.arconnectSigner!,
