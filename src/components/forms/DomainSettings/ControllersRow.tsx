@@ -68,7 +68,7 @@ export default function ControllersRow({
   return (
     <>
       <DomainSettingsRow
-        label="Controllers(s):"
+        label="Controller(s):"
         value={
           <div className="flex flex-row w-fit">
             {controllers.map((c, index) => {
