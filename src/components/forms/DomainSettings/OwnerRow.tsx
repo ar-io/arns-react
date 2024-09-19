@@ -1,8 +1,12 @@
 import { ANTCard } from '@src/components/cards';
+import ArweaveID, {
+  ArweaveIdTypes,
+} from '@src/components/layout/ArweaveID/ArweaveID';
 import { TransferANTModal } from '@src/components/modals';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
+import { isArweaveTransactionID } from '@src/utils';
 import eventEmitter from '@src/utils/events';
 import { Skeleton } from 'antd';
 import { useState } from 'react';
@@ -44,13 +48,23 @@ export default function OwnerRow({
     <>
       <DomainSettingsRow
         label="Owner:"
-        value={owner ?? <Skeleton.Input active />}
+        value={
+          owner && isArweaveTransactionID(owner) ? (
+            <ArweaveID
+              id={new ArweaveTransactionID(owner)}
+              shouldLink
+              type={ArweaveIdTypes.ADDRESS}
+            />
+          ) : (
+            <Skeleton.Input active />
+          )
+        }
         editable={editable}
         action={[
           <button
             key={1}
             onClick={() => setShowTransferANTModal(true)}
-            className="px-3 py-[5px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all"
+            className="p-[6px] px-[10px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all"
           >
             Transfer
           </button>,

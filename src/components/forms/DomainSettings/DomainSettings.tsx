@@ -1,7 +1,11 @@
 import { isLeasedArNSRecord } from '@ar.io/sdk/web';
 import { Tooltip } from '@src/components/data-display';
 import LeaseDuration from '@src/components/data-display/LeaseDuration';
+import ArweaveID, {
+  ArweaveIdTypes,
+} from '@src/components/layout/ArweaveID/ArweaveID';
 import useDomainInfo from '@src/hooks/useDomainInfo';
+import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
 import { useWalletState } from '@src/state/contexts/WalletState';
@@ -168,7 +172,7 @@ function DomainSettings({
                   icon={
                     <button
                       disabled={isLoading || maxLeaseDuration}
-                      className={`flex flex-row bg-primary text-black rounded-[3px] whitespace-nowrap px-3 py-[5px] text-[13px] ${
+                      className={`p-[6px] px-[10px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all whitespace-nowrap ${
                         isLoading || maxLeaseDuration
                           ? 'disabled-button'
                           : 'hover'
@@ -256,7 +260,11 @@ function DomainSettings({
               key={DomainSettingsRowTypes.PROCESS_ID}
               value={
                 data?.processId ? (
-                  data?.processId.toString()
+                  <ArweaveID
+                    id={new ArweaveTransactionID(data.processId.toString())}
+                    shouldLink
+                    type={ArweaveIdTypes.CONTRACT}
+                  />
                 ) : (
                   <Skeleton.Input active />
                 )

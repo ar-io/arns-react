@@ -46,18 +46,19 @@ export default function SourceCodeIdRow({
           </span>
         }
         action={
-          editable &&
-          sourceCodeTxId &&
-          ![ANT_LUA_ID, data?.originalTxId]
-            .filter((id) => id !== undefined)
-            .includes(sourceCodeTxId) && [
+          // editable &&
+          // sourceCodeTxId &&
+          // ![ANT_LUA_ID, data?.originalTxId]
+          //   .filter((id) => id !== undefined)
+          //   .includes(sourceCodeTxId)
+          true && [
             <Tooltip
               key={1}
               message={'Your ANT requires an update'}
               icon={
                 <button
                   onClick={() => setShowUpgradeAntModal(true)}
-                  className="h-fit animate-pulse whitespace-nowrap rounded-[4px] bg-primary-thin px-3 py-[5px] text-[13px] text-primary transition-all hover:bg-primary hover:text-black"
+                  className="p-[6px] px-[10px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all whitespace-nowrap"
                 >
                   Upgrade ANT
                 </button>

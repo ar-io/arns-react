@@ -1,9 +1,13 @@
 import { VerticalDotMenuIcon } from '@src/components/icons';
+import ArweaveID, {
+  ArweaveIdTypes,
+} from '@src/components/layout/ArweaveID/ArweaveID';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import AddControllerModal from '@src/components/modals/ant-management/AddControllerModal/AddControllerModal';
 import RemoveControllersModal from '@src/components/modals/ant-management/RemoveControllerModal/RemoveControllerModal';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
+import { isArweaveTransactionID } from '@src/utils';
 import { Tooltip } from 'antd';
 import { useState } from 'react';
 
@@ -65,7 +69,26 @@ export default function ControllersRow({
     <>
       <DomainSettingsRow
         label="Controllers(s):"
-        value={controllers.join(', ')}
+        value={
+          <div className="flex flex-row w-fit">
+            {controllers.map((c) => {
+              if (isArweaveTransactionID(c)) {
+                return (
+                  <ArweaveID
+                    id={new ArweaveTransactionID(c)}
+                    shouldLink
+                    type={ArweaveIdTypes.ADDRESS}
+                    characterCount={8}
+                    wrapperStyle={{
+                      width: 'fit-content',
+                      whiteSpace: 'nowrap',
+                    }}
+                  />
+                );
+              } else return c;
+            })}
+          </div>
+        }
         editable={editable}
         action={[
           <Tooltip
