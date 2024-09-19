@@ -9,14 +9,14 @@
 .domain-settings-row-item {
   display: flex;
   flex-direction: row !important;
-  border: var(--text-faded) 1px solid;
+  border: var(--disabled-grey) 1px solid;
   border-radius: 4px;
   margin: 10px 0px;
-  padding: 2px 15px;
+  padding: 5px 15px;
   justify-content: space-between;
   align-items: center;
-  min-height: 35px;
-  max-height: 35px;
+  min-height: 40px;
+  max-height: 40px;
   color: var(--text-grey);
   overflow: auto;
 }
