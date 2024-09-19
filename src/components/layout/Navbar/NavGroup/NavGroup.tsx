@@ -9,6 +9,7 @@ import { ROUTES } from '../../../../utils/routes';
 import NavMenuCard from '../../../cards/NavMenuCard/NavMenuCard';
 import ConnectButton from '../../../inputs/buttons/ConnectButton/ConnectButton';
 import NavBarLink from '../NavBarLink/NavBarLink';
+import NotificationMenu from '../NotificationMenu/NotificationMenu';
 import './styles.css';
 
 function NavGroup() {
@@ -56,6 +57,8 @@ function NavGroup() {
     >
       {!isMobile ? (
         <>
+          {' '}
+          <NotificationMenu />
           {links}
           {!wallet || !walletAddress ? <ConnectButton /> : <NavMenuCard />}
         </>

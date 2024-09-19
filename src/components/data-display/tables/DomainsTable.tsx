@@ -19,7 +19,7 @@ import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { capitalize } from 'lodash';
 import { useEffect, useState } from 'react';
 import { ReactNode } from 'react-markdown';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { Tooltip } from '..';
 import RegistrationTip from '../RegistrationTip';
@@ -90,12 +90,17 @@ const DomainsTable = ({
   loading: boolean;
   filter?: string;
 }) => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [{ walletAddress }] = useWalletState();
   const [{ gateway }] = useGlobalState();
   const [tableData, setTableData] = useState<Array<TableData>>([]);
   const [filteredTableData, setFilteredTableData] = useState<TableData[]>([]);
-  const navigate = useNavigate();
+  const [sortBy, setSortBy] = useState(searchParams.get('sortBy') ?? 'name');
 
+  useEffect(() => {
+    setSortBy(searchParams.get('sortBy') ?? 'name');
+  }, [searchParams]);
   useEffect(() => {
     if (loading) {
       setTableData([]);
@@ -432,7 +437,10 @@ const DomainsTable = ({
             </div>
           )
         }
-        defaultSortingState={{ id: 'name', desc: true }}
+        defaultSortingState={{
+          id: sortBy,
+          desc: sortBy == 'expiryDate' ? false : true,
+        }}
         renderSubComponent={({ row }) => (
           <UndernamesSubtable
             undernames={
