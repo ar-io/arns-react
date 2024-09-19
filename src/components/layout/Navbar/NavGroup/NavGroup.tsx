@@ -1,5 +1,4 @@
 import { useArNSState } from '@src/state';
-import { doAntsRequireUpdate } from '@src/utils';
 import { ReactNode, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
@@ -22,14 +21,9 @@ function NavGroup() {
   useEffect(() => {
     function getActivityDot(routeName: string): boolean | undefined {
       switch (routeName) {
-        case 'manage':
-          return luaSourceTx && walletAddress
-            ? doAntsRequireUpdate({
-                ants,
-                userAddress: walletAddress?.toString(),
-                luaSourceTx,
-              }) && location.pathname.split('/')[1] !== 'manage'
-            : false;
+        // return true to display activity dot on a link
+        //example:
+        // case 'manage': return true;
         default:
           return undefined;
       }
