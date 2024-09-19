@@ -46,12 +46,11 @@ export default function SourceCodeIdRow({
           </span>
         }
         action={
-          // editable &&
-          // sourceCodeTxId &&
-          // ![ANT_LUA_ID, data?.originalTxId]
-          //   .filter((id) => id !== undefined)
-          //   .includes(sourceCodeTxId)
-          true && [
+          editable &&
+          sourceCodeTxId &&
+          ![ANT_LUA_ID, data?.originalTxId]
+            .filter((id) => id !== undefined)
+            .includes(sourceCodeTxId) && [
             <Tooltip
               key={1}
               message={'Your ANT requires an update'}

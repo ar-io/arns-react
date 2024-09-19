@@ -71,10 +71,11 @@ export default function ControllersRow({
         label="Controllers(s):"
         value={
           <div className="flex flex-row w-fit">
-            {controllers.map((c) => {
+            {controllers.map((c, index) => {
               if (isArweaveTransactionID(c)) {
                 return (
                   <ArweaveID
+                    key={index}
                     id={new ArweaveTransactionID(c)}
                     shouldLink
                     type={ArweaveIdTypes.ADDRESS}
