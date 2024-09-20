@@ -71,10 +71,6 @@ function UpgradeAntModal({
         ao: aoClient,
       }).catch(() => {
         failedUpgrades.push(antId);
-        eventEmitter.emit('error', {
-          name: 'Upgrade Error',
-          message: `Issue upgrading ANT ${antId}, please try again later`,
-        });
       });
 
       if (failedUpgrades.length) {
