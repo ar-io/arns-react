@@ -6,6 +6,7 @@ import ArweaveID, {
 import UpgradeAntModal from '@src/components/modals/ant-management/UpgradeAntModal/UpgradeAntModal';
 import { useANTLuaSourceCode } from '@src/hooks/useANTLuaSourceCode';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import { isArweaveTransactionID } from '@src/utils';
 import { useState } from 'react';
 
 import DomainSettingsRow from './DomainSettingsRow';
@@ -34,7 +35,7 @@ export default function SourceCodeIdRow({
               gap: '10px',
             }}
           >
-            {sourceCodeTxId ? (
+            {sourceCodeTxId && isArweaveTransactionID(sourceCodeTxId) ? (
               <ArweaveID
                 id={new ArweaveTransactionID(sourceCodeTxId)}
                 shouldLink
@@ -46,11 +47,16 @@ export default function SourceCodeIdRow({
           </span>
         }
         action={
+          // editable controls if user has permission to upgrade
           editable &&
-          sourceCodeTxId &&
-          ![ANT_LUA_ID, data?.originalTxId]
-            .filter((id) => id !== undefined)
-            .includes(sourceCodeTxId) && [
+          // if source code id is defined and a txid check if its a valid version
+          ((sourceCodeTxId &&
+            isArweaveTransactionID(sourceCodeTxId) &&
+            ![ANT_LUA_ID, data?.originalTxId]
+              .filter((id) => id !== undefined)
+              .includes(sourceCodeTxId)) ||
+            // if no source code ID we need to upgrade it.
+            !isArweaveTransactionID(sourceCodeTxId)) && [
             <Tooltip
               key={1}
               message={'Your ANT requires an update'}
