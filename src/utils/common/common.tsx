@@ -2,7 +2,10 @@ import { CSSProperties } from 'react';
 
 import { ChevronLeftIcon, ChevronRightIcon } from '../../components/icons';
 import { TransactionTag } from '../../types';
-import { SECONDS_IN_GRACE_PERIOD } from '../constants';
+import {
+  PERMANENT_DOMAIN_MESSAGE,
+  SECONDS_IN_GRACE_PERIOD,
+} from '../constants';
 import { fromB64Url } from '../encodings';
 
 export function formatDate(epochMs: number): string {
@@ -155,7 +158,7 @@ export const executeWithTimeout = async (fn: () => any, ms: number) => {
  */
 export function formatExpiryDate(endTimestamp?: number) {
   if (!endTimestamp) {
-    return 'Indefinite';
+    return PERMANENT_DOMAIN_MESSAGE;
   }
   return (
     <span
