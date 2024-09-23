@@ -1,6 +1,6 @@
 import { ANT_LUA_ID, AoANTState, AoArNSNameData } from '@ar.io/sdk';
 import { Tooltip } from '@src/components/data-display';
-import { useArweaveTransaction } from '@src/hooks/useLuaSourceTx';
+import { useArweaveTransaction } from '@src/hooks/useArweaveTransaction';
 import { useArNSState, useWalletState } from '@src/state';
 import { getAntsRequiringUpdate } from '@src/utils';
 import { MILLISECONDS_IN_GRACE_PERIOD } from '@src/utils/constants';
