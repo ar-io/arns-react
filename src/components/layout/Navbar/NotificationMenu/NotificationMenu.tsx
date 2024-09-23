@@ -105,7 +105,7 @@ export function createNamesExceedingUndernameLimitNotification({
   if (!domainsRequiringUndernameSupportUpgrade) return;
 
   return {
-    type: 'success',
+    type: 'warning',
     message: (
       <span className="w-full">
         <span className="text-bold">
