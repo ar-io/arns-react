@@ -73,9 +73,8 @@ export function createUpdateAntsNotification({
     type: 'warning',
     message: (
       <span className="w-full">
-        <span className="text-bold">{antsRequiringUpdate}</span> ANT
-        {antsRequiringUpdate > 1 ? 's' : ''} need
-        {antsRequiringUpdate > 1 ? '' : 's'} updating.
+        <span className="text-bold">{antsRequiringUpdate}</span>{' '}
+        {antsRequiringUpdate > 1 ? 'ANTs need updating' : ' ANT needs updating'}
       </span>
     ),
     link:
