@@ -18,7 +18,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 
 import Placeholder from './Placeholder';
 
@@ -87,6 +87,10 @@ const TableView = <T, S>({
     },
     getSubRows,
   });
+
+  useEffect(() => {
+    setSorting([defaultSortingState]);
+  }, [defaultSortingState]);
 
   return (
     <>
