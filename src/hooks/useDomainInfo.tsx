@@ -47,6 +47,7 @@ export default function useDomainInfo({
   const { data, isLoading, isRefetching, error, refetch } = useQuery({
     queryKey: ['domainInfo', { domain, antId, ioProcessId, aoNetwork }],
     queryFn: () => getDomainInfo({ domain, antId }).catch((error) => error),
+    refetchOnWindowFocus: false,
   });
 
   async function getDomainInfo({
