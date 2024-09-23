@@ -1,4 +1,4 @@
-import UpgradeAntModal from '@src/components/modals/ant-management/UpgradeAntModal/UpgradeAntModal';
+import UpgradeAntModal from '@src/components/modals/ant-management/UpgradeAntsModal/UpgradeAntsModal';
 import { Dispatch, createContext, useContext, useReducer } from 'react';
 
 import { ModalAction } from '../reducers/ModalReducer';
