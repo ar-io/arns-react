@@ -1,6 +1,8 @@
+import { Tooltip } from '@src/components/data-display';
 import UndernamesTable from '@src/components/data-display/tables/UndernamesTable';
 import { SearchIcon } from '@src/components/icons';
 import useDomainInfo from '@src/hooks/useDomainInfo';
+import { MAX_UNDERNAME_COUNT } from '@src/utils/constants';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -9,6 +11,7 @@ import {
   formatForMaxCharCount,
   getOwnershipStatus,
   isArweaveTransactionID,
+  lowerCaseDomain,
 } from '../../../utils';
 import eventEmitter from '../../../utils/events';
 import './styles.css';
@@ -25,6 +28,8 @@ function Undernames() {
     antId: isArweaveTransactionID(id) ? id : undefined,
   });
   const [{ walletAddress }] = useWalletState();
+  const [isMaxUndernameCount, setIsMaxUndernameCount] =
+    useState<boolean>(false);
   const [ownershipStatus, setOwnershipStatus] = useState<
     'controller' | 'owner' | undefined
   >(undefined);
@@ -45,6 +50,11 @@ function Undernames() {
         ),
       );
     }
+
+    setIsMaxUndernameCount(
+      !!data?.arnsRecord?.undernameLimit &&
+        data?.arnsRecord?.undernameLimit >= MAX_UNDERNAME_COUNT,
+    );
   }, [
     id,
     name,
@@ -57,7 +67,7 @@ function Undernames() {
   return (
     <>
       <div className="px-[100px]">
-        <div className="flex-column">
+        <div className="flex flex-col gap-4">
           <div className="flex flex-justify-between">
             <div
               className="flex flex-row"
@@ -66,6 +76,39 @@ function Undernames() {
               <h2 className="white text-[2rem] whitespace-nowrap">
                 Manage Undernames
               </h2>
+              <Tooltip
+                message={
+                  isMaxUndernameCount
+                    ? 'Max undername support reached'
+                    : 'Increase undername support'
+                }
+                icon={
+                  <button
+                    disabled={isLoadingDomainInfo || isMaxUndernameCount}
+                    className={`button-secondary ${
+                      isLoadingDomainInfo || isMaxUndernameCount
+                        ? 'disabled-button'
+                        : 'hover'
+                    }`}
+                    style={{
+                      padding: '9px',
+                      gap: '8px',
+                      fontSize: '14px',
+                      color: 'var(--accent)',
+                      fontFamily: 'Rubik',
+                    }}
+                    onClick={() =>
+                      navigate(
+                        `/manage/names/${lowerCaseDomain(
+                          name!,
+                        )}/upgrade-undernames`,
+                      )
+                    }
+                  >
+                    Increase Undernames
+                  </button>
+                }
+              />
             </div>
           </div>
 

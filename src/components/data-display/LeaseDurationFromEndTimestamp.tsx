@@ -1,4 +1,5 @@
 import { formatDate, getLeaseDurationFromEndTimestamp } from '@src/utils';
+import { PERMANENT_DOMAIN_MESSAGE } from '@src/utils/constants';
 import { ReactNode } from 'react';
 
 function LeaseDurationFromEndTimestamp({
@@ -7,7 +8,7 @@ function LeaseDurationFromEndTimestamp({
   endTimestamp?: number;
 }): ReactNode {
   if (!endTimestamp) {
-    return 'Indefinite';
+    return PERMANENT_DOMAIN_MESSAGE;
   }
   const leaseDuration = getLeaseDurationFromEndTimestamp(
     Date.now(),

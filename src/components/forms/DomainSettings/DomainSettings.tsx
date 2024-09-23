@@ -1,14 +1,25 @@
 import { isLeasedArNSRecord } from '@ar.io/sdk/web';
+import { Tooltip } from '@src/components/data-display';
 import LeaseDuration from '@src/components/data-display/LeaseDuration';
-import { Loader } from '@src/components/layout';
+import ArweaveID, {
+  ArweaveIdTypes,
+} from '@src/components/layout/ArweaveID/ArweaveID';
 import useDomainInfo from '@src/hooks/useDomainInfo';
+import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { ANT_INTERACTION_TYPES } from '@src/types';
-import { decodeDomainToASCII, formatExpiryDate } from '@src/utils';
+import {
+  decodeDomainToASCII,
+  formatExpiryDate,
+  getLeaseDurationFromEndTimestamp,
+  isMaxLeaseDuration,
+  lowerCaseDomain,
+} from '@src/utils';
 import {
   DEFAULT_MAX_UNDERNAMES,
+  PERMANENT_DOMAIN_MESSAGE,
   SECONDS_IN_GRACE_PERIOD,
 } from '@src/utils/constants';
 import { useQueryClient } from '@tanstack/react-query';
@@ -20,6 +31,7 @@ import ControllersRow from './ControllersRow';
 import DomainSettingsRow from './DomainSettingsRow';
 import NicknameRow from './NicknameRow';
 import OwnerRow from './OwnerRow';
+import SourceCodeIdRow from './SourceCodeIdRow';
 import TTLRow from './TTLRow';
 import TargetIDRow from './TargetIDRow';
 import TickerRow from './TickerRow';
@@ -31,6 +43,7 @@ export enum DomainSettingsRowTypes {
   LEASE_DURATION = 'Lease Duration',
   ASSOCIATED_NAMES = 'Associated Names',
   STATUS = 'Status',
+  SOURCE_CODE_TX_ID = 'Source Code TX ID',
   NICKNAME = 'Nickname',
   PROCESS_ID = 'Process ID',
   TARGET_ID = 'Target ID',
@@ -66,6 +79,15 @@ function DomainSettings({
     : false;
   const isAuthorized = isOwner || isController;
 
+  const maxLeaseDuration = isMaxLeaseDuration(
+    data?.arnsRecord && isLeasedArNSRecord(data?.arnsRecord)
+      ? getLeaseDurationFromEndTimestamp(
+          data?.arnsRecord.startTimestamp,
+          data?.arnsRecord?.endTimestamp,
+        )
+      : PERMANENT_DOMAIN_MESSAGE,
+  );
+
   useEffect(() => {
     if (!domain && !antId) {
       navigate('/manage/names');
@@ -88,7 +110,7 @@ function DomainSettings({
 
       if (data?.processId) {
         queryClient.invalidateQueries({
-          queryKey: ['ant', data.processId.toString()],
+          queryKey: ['ant', data?.processId.toString()],
           refetchType: 'all',
         });
       }
@@ -101,14 +123,6 @@ function DomainSettings({
       refetch();
     }
   }, [interactionResult]);
-
-  if (isLoading || !data?.owner) {
-    return (
-      <div className="page" style={{ height: '100%' }}>
-        <Loader message="Loading domain data..." />
-      </div>
-    );
-  }
 
   function getStatus(endTimestamp?: number) {
     if (!endTimestamp) {
@@ -127,212 +141,252 @@ function DomainSettings({
   return (
     <>
       <List prefixCls="domain-settings-list">
-        {data &&
-          Object.entries({
-            [DomainSettingsRowTypes.EXPIRY_DATE]: (
-              <DomainSettingsRow
-                label="Expiry Date"
-                key={DomainSettingsRowTypes.EXPIRY_DATE}
-                value={
-                  isLoading ? (
-                    <Skeleton.Input active />
-                  ) : data.arnsRecord && isLeasedArNSRecord(data.arnsRecord) ? (
-                    formatExpiryDate(data.arnsRecord?.endTimestamp)
-                  ) : (
-                    'N/A'
-                  )
-                }
-              />
-            ),
-            [DomainSettingsRowTypes.LEASE_DURATION]: (
-              <DomainSettingsRow
-                label="Lease Duration"
-                key={DomainSettingsRowTypes.LEASE_DURATION}
-                value={
-                  isLoading ? (
-                    <Skeleton.Input active />
-                  ) : (
-                    <LeaseDuration
-                      startTimestamp={data.arnsRecord?.startTimestamp}
-                      endTimestamp={
-                        data.arnsRecord && isLeasedArNSRecord(data.arnsRecord)
-                          ? data.arnsRecord?.endTimestamp
-                          : 0
+        {Object.entries({
+          [DomainSettingsRowTypes.EXPIRY_DATE]: (
+            <DomainSettingsRow
+              label="Expiry Date"
+              key={DomainSettingsRowTypes.EXPIRY_DATE}
+              value={
+                isLoading ? (
+                  <Skeleton.Input active />
+                ) : data?.arnsRecord && isLeasedArNSRecord(data?.arnsRecord) ? (
+                  formatExpiryDate(data?.arnsRecord?.endTimestamp)
+                ) : (
+                  'N/A'
+                )
+              }
+            />
+          ),
+          [DomainSettingsRowTypes.LEASE_DURATION]: (
+            <DomainSettingsRow
+              label="Lease Duration"
+              key={DomainSettingsRowTypes.LEASE_DURATION}
+              editable={true}
+              action={
+                <Tooltip
+                  message={
+                    maxLeaseDuration
+                      ? 'Max lease duration reached'
+                      : 'Extend lease'
+                  }
+                  icon={
+                    <button
+                      disabled={isLoading || maxLeaseDuration}
+                      className={`p-[6px] px-[10px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all whitespace-nowrap ${
+                        isLoading || maxLeaseDuration
+                          ? 'disabled-button'
+                          : 'hover'
+                      }`}
+                      onClick={() =>
+                        navigate(
+                          `/manage/names/${lowerCaseDomain(domain!)}/extend`,
+                        )
                       }
-                    />
-                  )
-                }
-              />
-            ),
-            [DomainSettingsRowTypes.ASSOCIATED_NAMES]: (
-              <DomainSettingsRow
-                label="Associated Names"
-                value={
-                  data.associatedNames
-                    ?.map((d) => decodeDomainToASCII(d))
+                    >
+                      Extend Lease
+                    </button>
+                  }
+                />
+              }
+              value={
+                isLoading ? (
+                  <Skeleton.Input active />
+                ) : (
+                  <LeaseDuration
+                    startTimestamp={data?.arnsRecord?.startTimestamp}
+                    endTimestamp={
+                      data?.arnsRecord && isLeasedArNSRecord(data?.arnsRecord)
+                        ? data?.arnsRecord?.endTimestamp
+                        : 0
+                    }
+                  />
+                )
+              }
+            />
+          ),
+          [DomainSettingsRowTypes.ASSOCIATED_NAMES]: (
+            <DomainSettingsRow
+              label="Associated Names"
+              value={
+                data?.associatedNames ? (
+                  data?.associatedNames
+                    .map((d) => decodeDomainToASCII(d))
                     .join(', ') ?? 'N/A'
-                }
-                key={DomainSettingsRowTypes.ASSOCIATED_NAMES}
-              />
-            ),
-            [DomainSettingsRowTypes.STATUS]: (
-              <DomainSettingsRow
-                label="Status"
-                value={
-                  data.arnsRecord && isLeasedArNSRecord(data.arnsRecord)
-                    ? getStatus(data.arnsRecord?.endTimestamp)
-                    : 'Active'
-                }
-                key={DomainSettingsRowTypes.STATUS}
-              />
-            ),
-            [DomainSettingsRowTypes.NICKNAME]: (
-              <NicknameRow
-                nickname={decodeDomainToASCII(data.name ?? '')}
-                key={DomainSettingsRowTypes.NICKNAME}
-                editable={isAuthorized}
-                confirm={(name: string) =>
-                  dispatchANTInteraction({
-                    payload: { name },
-                    workflowName: ANT_INTERACTION_TYPES.SET_NAME,
-                    processId: data.processId,
-                    signer: wallet!.arconnectSigner!,
-                    owner: walletAddress!.toString(),
-                    dispatch,
-                  })
-                }
-              />
-            ),
-            [DomainSettingsRowTypes.PROCESS_ID]: (
-              <DomainSettingsRow
-                label="Process ID"
-                key={DomainSettingsRowTypes.PROCESS_ID}
-                value={
-                  data.processId ? (
-                    data.processId.toString()
-                  ) : (
-                    <Skeleton.Input active />
-                  )
-                }
-              />
-            ),
-            [DomainSettingsRowTypes.TARGET_ID]: (
-              <TargetIDRow
-                targetId={data?.apexRecord?.transactionId}
-                key={DomainSettingsRowTypes.TARGET_ID}
-                editable={isAuthorized}
-                confirm={(targetId: string) =>
-                  dispatchANTInteraction({
-                    payload: {
-                      transactionId: targetId,
-                      ttlSeconds: data.apexRecord.ttlSeconds,
-                    },
-                    workflowName: ANT_INTERACTION_TYPES.SET_TARGET_ID,
-                    signer: wallet!.arconnectSigner!,
-                    owner: walletAddress!.toString(),
-                    processId: data.processId,
-                    dispatch,
-                  })
-                }
-              />
-            ),
-            [DomainSettingsRowTypes.TICKER]: (
-              <TickerRow
-                ticker={data.ticker}
-                key={DomainSettingsRowTypes.TICKER}
-                editable={isAuthorized}
-                confirm={(ticker: string) =>
-                  dispatchANTInteraction({
-                    payload: { ticker },
-                    workflowName: ANT_INTERACTION_TYPES.SET_TICKER,
-                    signer: wallet!.arconnectSigner!,
-                    owner: walletAddress!.toString(),
-                    processId: data.processId,
-                    dispatch,
-                  })
-                }
-              />
-            ),
-            [DomainSettingsRowTypes.CONTROLLERS]: (
-              <ControllersRow
-                key={DomainSettingsRowTypes.CONTROLLERS}
-                processId={data.processId?.toString()}
-                editable={isAuthorized}
-                controllers={data.controllers}
-                confirm={({
+                ) : (
+                  <Skeleton.Input active />
+                )
+              }
+              key={DomainSettingsRowTypes.ASSOCIATED_NAMES}
+            />
+          ),
+          [DomainSettingsRowTypes.STATUS]: (
+            <DomainSettingsRow
+              label="Status"
+              value={
+                data?.arnsRecord && isLeasedArNSRecord(data?.arnsRecord)
+                  ? getStatus(data?.arnsRecord?.endTimestamp)
+                  : 'Active'
+              }
+              key={DomainSettingsRowTypes.STATUS}
+            />
+          ),
+          [DomainSettingsRowTypes.SOURCE_CODE_TX_ID]: (
+            <SourceCodeIdRow
+              antId={data?.processId?.toString()}
+              sourceCodeTxId={data?.sourceCodeTxId}
+              editable={isAuthorized}
+            />
+          ),
+          [DomainSettingsRowTypes.NICKNAME]: (
+            <NicknameRow
+              nickname={decodeDomainToASCII(data?.name ?? '')}
+              key={DomainSettingsRowTypes.NICKNAME}
+              editable={isAuthorized}
+              confirm={(name: string) =>
+                dispatchANTInteraction({
+                  payload: { name },
+                  workflowName: ANT_INTERACTION_TYPES.SET_NAME,
+                  processId: data?.processId,
+                  signer: wallet!.arconnectSigner!,
+                  owner: walletAddress!.toString(),
+                  dispatch,
+                })
+              }
+            />
+          ),
+          [DomainSettingsRowTypes.PROCESS_ID]: (
+            <DomainSettingsRow
+              label="Process ID"
+              key={DomainSettingsRowTypes.PROCESS_ID}
+              value={
+                data?.processId ? (
+                  <ArweaveID
+                    id={new ArweaveTransactionID(data.processId.toString())}
+                    shouldLink
+                    type={ArweaveIdTypes.CONTRACT}
+                  />
+                ) : (
+                  <Skeleton.Input active />
+                )
+              }
+            />
+          ),
+          [DomainSettingsRowTypes.TARGET_ID]: (
+            <TargetIDRow
+              targetId={data?.apexRecord?.transactionId}
+              key={DomainSettingsRowTypes.TARGET_ID}
+              editable={isAuthorized}
+              confirm={(targetId: string) =>
+                dispatchANTInteraction({
+                  payload: {
+                    transactionId: targetId,
+                    ttlSeconds: data?.apexRecord.ttlSeconds,
+                  },
+                  workflowName: ANT_INTERACTION_TYPES.SET_TARGET_ID,
+                  signer: wallet!.arconnectSigner!,
+                  owner: walletAddress!.toString(),
+                  processId: data?.processId,
+                  dispatch,
+                })
+              }
+            />
+          ),
+          [DomainSettingsRowTypes.TICKER]: (
+            <TickerRow
+              ticker={data?.ticker}
+              key={DomainSettingsRowTypes.TICKER}
+              editable={isAuthorized}
+              confirm={(ticker: string) =>
+                dispatchANTInteraction({
+                  payload: { ticker },
+                  workflowName: ANT_INTERACTION_TYPES.SET_TICKER,
+                  signer: wallet!.arconnectSigner!,
+                  owner: walletAddress!.toString(),
+                  processId: data?.processId,
+                  dispatch,
+                })
+              }
+            />
+          ),
+          [DomainSettingsRowTypes.CONTROLLERS]: (
+            <ControllersRow
+              key={DomainSettingsRowTypes.CONTROLLERS}
+              processId={data?.processId?.toString()}
+              editable={isAuthorized}
+              controllers={data?.controllers}
+              confirm={({
+                payload,
+                workflowName,
+              }: {
+                payload: { controller: string };
+                workflowName:
+                  | ANT_INTERACTION_TYPES.SET_CONTROLLER
+                  | ANT_INTERACTION_TYPES.REMOVE_CONTROLLER;
+              }) =>
+                dispatchANTInteraction({
                   payload,
                   workflowName,
-                }: {
-                  payload: { controller: string };
-                  workflowName:
-                    | ANT_INTERACTION_TYPES.SET_CONTROLLER
-                    | ANT_INTERACTION_TYPES.REMOVE_CONTROLLER;
-                }) =>
-                  dispatchANTInteraction({
-                    payload,
-                    workflowName,
-                    signer: wallet!.arconnectSigner!,
-                    owner: walletAddress!.toString(),
-                    processId: data.processId,
-                    dispatch,
-                  })
-                }
-              />
-            ),
-            [DomainSettingsRowTypes.OWNER]: (
-              <OwnerRow
-                owner={data.owner}
-                processId={data.processId?.toString()}
-                key={DomainSettingsRowTypes.OWNER}
-                associatedNames={data.associatedNames ?? []}
-                editable={isOwner}
-                confirm={({ target }: { target: string }) =>
-                  dispatchANTInteraction({
-                    payload: { target },
-                    workflowName: ANT_INTERACTION_TYPES.TRANSFER,
-                    signer: wallet!.arconnectSigner!,
-                    owner: walletAddress!.toString(),
-                    processId: data.processId,
-                    dispatch,
-                  })
-                }
-              />
-            ),
-            [DomainSettingsRowTypes.TTL]: (
-              <TTLRow
-                ttlSeconds={data.apexRecord?.ttlSeconds}
-                editable={isAuthorized}
-                key={DomainSettingsRowTypes.TTL}
-                confirm={(ttlSeconds: number) =>
-                  dispatchANTInteraction({
-                    payload: {
-                      ttlSeconds,
-                      transactionId: data.apexRecord?.transactionId,
-                    },
-                    workflowName: ANT_INTERACTION_TYPES.SET_TTL_SECONDS,
-                    signer: wallet!.arconnectSigner!,
-                    owner: walletAddress!.toString(),
-                    processId: data.processId,
-                    dispatch,
-                  })
-                }
-              />
-            ),
-            [DomainSettingsRowTypes.UNDERNAMES]: (
-              <UndernamesRow
-                key={DomainSettingsRowTypes.UNDERNAMES}
-                domain={domain}
-                antId={data.processId?.toString()}
-                undernameLimit={data.undernameCount ?? 0}
-                undernameSupport={
-                  data.arnsRecord?.undernameLimit ?? DEFAULT_MAX_UNDERNAMES
-                }
-                editable={isAuthorized || false}
-              />
-            ),
-          }).map(([rowName, row]) =>
-            rowFilter.includes(rowName as DomainSettingsRowTypes) ? <></> : row,
-          )}
+                  signer: wallet!.arconnectSigner!,
+                  owner: walletAddress!.toString(),
+                  processId: data?.processId,
+                  dispatch,
+                })
+              }
+            />
+          ),
+          [DomainSettingsRowTypes.OWNER]: (
+            <OwnerRow
+              owner={data?.owner}
+              processId={data?.processId?.toString()}
+              key={DomainSettingsRowTypes.OWNER}
+              associatedNames={data?.associatedNames ?? []}
+              editable={isOwner}
+              confirm={({ target }: { target: string }) =>
+                dispatchANTInteraction({
+                  payload: { target },
+                  workflowName: ANT_INTERACTION_TYPES.TRANSFER,
+                  signer: wallet!.arconnectSigner!,
+                  owner: walletAddress!.toString(),
+                  processId: data?.processId,
+                  dispatch,
+                })
+              }
+            />
+          ),
+          [DomainSettingsRowTypes.TTL]: (
+            <TTLRow
+              ttlSeconds={data?.apexRecord?.ttlSeconds}
+              editable={isAuthorized}
+              key={DomainSettingsRowTypes.TTL}
+              confirm={(ttlSeconds: number) =>
+                dispatchANTInteraction({
+                  payload: {
+                    ttlSeconds,
+                    transactionId: data?.apexRecord?.transactionId,
+                  },
+                  workflowName: ANT_INTERACTION_TYPES.SET_TTL_SECONDS,
+                  signer: wallet!.arconnectSigner!,
+                  owner: walletAddress!.toString(),
+                  processId: data?.processId,
+                  dispatch,
+                })
+              }
+            />
+          ),
+          [DomainSettingsRowTypes.UNDERNAMES]: (
+            <UndernamesRow
+              key={DomainSettingsRowTypes.UNDERNAMES}
+              domain={domain}
+              antId={data?.processId?.toString()}
+              undernameLimit={data?.undernameCount ?? 0}
+              undernameSupport={
+                data?.arnsRecord?.undernameLimit ?? DEFAULT_MAX_UNDERNAMES
+              }
+            />
+          ),
+        }).map(([rowName, row]) =>
+          rowFilter.includes(rowName as DomainSettingsRowTypes) ? <></> : row,
+        )}
       </List>
     </>
   );

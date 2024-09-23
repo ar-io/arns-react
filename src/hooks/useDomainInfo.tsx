@@ -28,6 +28,7 @@ export default function useDomainInfo({
     owner: string;
     controllers: string[];
     undernameCount?: number;
+    sourceCodeTxId?: string;
     apexRecord: {
       transactionId: string;
       ttlSeconds: number;
@@ -46,6 +47,7 @@ export default function useDomainInfo({
   const { data, isLoading, isRefetching, error, refetch } = useQuery({
     queryKey: ['domainInfo', { domain, antId, ioProcessId, aoNetwork }],
     queryFn: () => getDomainInfo({ domain, antId }).catch((error) => error),
+    refetchOnWindowFocus: false,
   });
 
   async function getDomainInfo({
@@ -64,6 +66,7 @@ export default function useDomainInfo({
     owner: string;
     controllers: string[];
     undernameCount: number;
+    sourceCodeTxId?: string;
     apexRecord: {
       transactionId: string;
       ttlSeconds: number;
@@ -132,6 +135,7 @@ export default function useDomainInfo({
       controllers,
       undernameCount,
       apexRecord,
+      sourceCodeTxId: (state as any)?.['Source-Code-TX-ID'],
       records: state.Records,
     };
   }
