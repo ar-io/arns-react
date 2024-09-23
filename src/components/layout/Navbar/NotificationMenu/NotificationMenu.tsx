@@ -113,7 +113,9 @@ export function createNamesExceedingUndernameLimitNotification({
         names have exceeded their under_name capacity.
       </span>
     ),
-    link: '/manage/names?' + new URLSearchParams({ sortBy: 'undernames' }),
+    link:
+      '/manage/names?' +
+      new URLSearchParams({ sortBy: 'undernames' }).toString(),
   };
 }
 
