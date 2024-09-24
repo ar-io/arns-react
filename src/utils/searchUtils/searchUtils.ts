@@ -144,11 +144,7 @@ export function getAntsRequiringUpdate({
     luaSourceTx.id,
     luaSourceTx?.tags?.find((tag) => tag.name == 'Original-Tx-Id')?.value,
   ];
-  console.log(
-    'luaSourceTx',
-    luaSourceTx.tags.map((tag) => ({ [tag.name]: tag.value })),
-  );
-  console.log('acceptableIds', acceptableIds);
+
   return Object.entries(ants)
     .map(([id, ant]) => {
       const srcId = (ant as any)?.['Source-Code-TX-ID'];

@@ -4,7 +4,6 @@ import { useWalletState } from '@src/state/contexts/WalletState';
 import { VALIDATION_INPUT_TYPES } from '@src/types';
 import { isArweaveTransactionID } from '@src/utils';
 import { Collapse, Space } from 'antd';
-import { set } from 'lodash';
 import { useState } from 'react';
 
 import ValidationInput from '../inputs/text/ValidationInput/ValidationInput';
