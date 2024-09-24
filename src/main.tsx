@@ -50,10 +50,10 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
                         colorText: 'var(--text-white)',
                       },
                       Input: {
-                        addonBg: 'var(--box-color)',
+                        addonBg: 'var(--card-bg)',
                         colorBgContainer: 'var(--bg-color)',
-                        activeBg: 'var(--box-color)',
-                        hoverBg: 'var(--box-color)',
+                        activeBg: 'var(--bg-color)',
+                        hoverBg: 'var(--bg-color)',
                         colorText: 'var(--text-white)',
                         colorTextPlaceholder: 'var(--text-grey)',
                         activeBorderColor: 'var(--primary)',
@@ -62,6 +62,8 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
                         colorPrimary: 'var(--primary)',
                         borderRadius: 3,
                         lineWidth: 0.5,
+                        lineWidthFocus: 1,
+                        lineWidthBold: 0,
                       },
                     },
                   }}

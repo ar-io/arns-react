@@ -2257,7 +2257,7 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@permaweb/ao-scheduler-utils@~0.0.23":
+"@permaweb/ao-scheduler-utils@^0.0.24", "@permaweb/ao-scheduler-utils@~0.0.23":
   version "0.0.24"
   resolved "https://registry.yarnpkg.com/@permaweb/ao-scheduler-utils/-/ao-scheduler-utils-0.0.24.tgz#a7d2c1e09f9b6ea5d45127fa395bbbcef6688452"
   integrity sha512-G6109Nz8+dQFPuG7mV8mz66kLVA+gl2uTSqU7qpaRwfujrWi6obM94CpmvyvAnrLo3dB29EYiuv7+KOKcns8ig==

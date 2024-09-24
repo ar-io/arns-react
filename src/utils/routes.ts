@@ -1,4 +1,4 @@
-import Settings from '@src/components/pages/Settings/Settings';
+import Settings from '@src/components/pages/Settings/SettingsLayout';
 import { Settings2Icon } from 'lucide-react';
 
 import { SettingsIcon } from '../components/icons';
