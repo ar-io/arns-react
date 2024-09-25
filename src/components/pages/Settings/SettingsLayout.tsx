@@ -13,7 +13,7 @@ const settingsRoutes = [
   {
     name: 'Network',
     path: 'network',
-    icon: <NetworkIcon width={'20px'} height={'20px'} fill={'inherit'} />,
+    icon: <NetworkIcon width={'20px'} height={'20px'} fill={'none'} />,
   },
 ];
 
@@ -64,8 +64,8 @@ function SettingsLayout() {
                   className={`${
                     location?.pathname?.split('/')?.at(-1) == route.path
                       ? 'bg-primary text-black fill-black'
-                      : 'bg-primary-thin text-primary fill-primary opacity-[0.4]'
-                  } flex flex-row py-1.5 px-4 items-center justify-start whitespace-nowrap rounded-md hover:opacity-100 hover:scale-105 transition-all`}
+                      : ' text-white fill-white  opacity-[0.4]'
+                  } flex  flex-row py-1.5 px-4 items-center justify-start whitespace-nowrap rounded-md hover:opacity-100 hover:scale-105 transition-all`}
                   style={{ gap: '5px' }}
                 >
                   {route.icon}

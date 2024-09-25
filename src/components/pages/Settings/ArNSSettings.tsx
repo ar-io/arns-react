@@ -70,13 +70,15 @@ function ArNSSettings() {
   }
 
   const labelClass =
-    'flex w-fit justify-center items-center bg-background rounded-md px-4 py-1 border border-primary-thin text-md text-primary whitespace-nowrap gap-2';
+    'flex w-fit justify-center items-center bg-background rounded-md px-4 py-1 border border-primary-thin text-inherit text-primary whitespace-nowrap gap-2';
 
-  const inputClass = 'bg-foreground justify-center items-center outline-none';
+  const inputClass =
+    'bg-foreground justify-center items-center outline-none text-[16px]';
   const inputContainerClass =
     'flex flex-col gap-2 border border-primary-thin p-2 rounded-md bg-metallic-grey';
   const setButtonClass =
     'bg-primary-thin text-primary hover:bg-primary hover:text-black transition-all text-black h-full flex w-fit py-1 px-3 rounded-sm text-xs font-semibold';
+  const resetIconClass = 'py-1 px-3 text-grey';
   return (
     <div className="flex flex-col w-full h-full p-3">
       <div className="flex flex-col w-full h-full bg-background gap-5 p-2 rounded-xl border border-dark-grey">
@@ -138,7 +140,7 @@ function ArNSSettings() {
                   Set
                 </button>
                 <button
-                  className="text-grey"
+                  className={resetIconClass}
                   onClick={() => {
                     setRegistryAddress(IO_PROCESS_ID);
                     setIsValidAddress(true);

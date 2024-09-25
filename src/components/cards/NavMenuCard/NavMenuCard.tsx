@@ -318,7 +318,7 @@ function NavMenuCard() {
                   </span>{' '}
                   <span className="flex flex-row" style={{ gap: '10px' }}>
                     <Settings2Icon
-                      fill={'var(--text-grey)'}
+                      className="text-grey"
                       width={'16px'}
                       height={'16px'}
                     />{' '}
