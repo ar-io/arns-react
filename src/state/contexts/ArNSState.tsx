@@ -1,9 +1,5 @@
-import {
-  ANT_LUA_ID,
-  AoANTState,
-  AoArNSNameData,
-  ArNSEventEmitter,
-} from '@ar.io/sdk/web';
+import { AoANTState, AoArNSNameData, ArNSEventEmitter } from '@ar.io/sdk/web';
+import { DEFAULT_ANT_LUA_ID } from '@src/utils/constants';
 import Transaction from 'arweave/node/lib/transaction';
 import {
   Dispatch,
@@ -74,7 +70,7 @@ export function ArNSStateProvider({
       }),
     });
     dispatchAntSourceTx({
-      id: ANT_LUA_ID,
+      id: DEFAULT_ANT_LUA_ID,
       dispatch: dispatchArNSState,
     });
   }, [arioContract]);
