@@ -55,6 +55,9 @@ const UpgradeUndernames = React.lazy(
 const SettingsLayout = React.lazy(
   () => import('./components/pages/Settings/SettingsLayout'),
 );
+const SettingsOverview = React.lazy(
+  () => import('./components/pages/Settings/SettingsOverview'),
+);
 const ArNSSettings = React.lazy(
   () => import('./components/pages/Settings/ArNSSettings'),
 );
@@ -343,8 +346,42 @@ function App() {
             </Suspense>
           }
         >
-          <Route path={'arns'} element={<ArNSSettings />} />
-          <Route path={'network'} element={<NetworkSettings />} />
+          <Route
+            index
+            element={
+              <Suspense
+                fallback={
+                  <PageLoader loading={true} message={'Loading, please wait'} />
+                }
+              >
+                <SettingsOverview />
+              </Suspense>
+            }
+          />
+          <Route
+            path={'arns'}
+            element={
+              <Suspense
+                fallback={
+                  <PageLoader loading={true} message={'Loading, please wait'} />
+                }
+              >
+                <ArNSSettings />
+              </Suspense>
+            }
+          />
+          <Route
+            path={'network'}
+            element={
+              <Suspense
+                fallback={
+                  <PageLoader loading={true} message={'Loading, please wait'} />
+                }
+              >
+                <NetworkSettings />
+              </Suspense>
+            }
+          />
         </Route>
       </>,
     ),

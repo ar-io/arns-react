@@ -1,8 +1,8 @@
 import { BrandLogo } from '@src/components/icons';
 import { NavBar } from '@src/components/layout';
 import Footer from '@src/components/layout/Footer/Footer';
-import { NetworkIcon, Settings2Icon } from 'lucide-react';
-import { Link, Outlet, useLocation, useResolvedPath } from 'react-router-dom';
+import { NetworkIcon } from 'lucide-react';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 
 const settingsRoutes = [
   {
