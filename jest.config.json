@@ -13,7 +13,7 @@
     "^.+\\.(ts|tsx|js|jsx|mjs)$": ["ts-jest", { "useESM": true }]
   },
   "transformIgnorePatterns": [
-    "/node_modules/(?!arbundles|arweave-wallet-connector|@permaweb).+\\.js$"
+    "/node_modules/(?!@dha-team/arbundles|arbundles|arweave-wallet-connector|@permaweb).+\\.js$"
   ],
   "moduleDirectories": ["node_modules", "assets"],
   "testPathIgnorePatterns": ["tests/common/"],
