@@ -1,4 +1,3 @@
-import { ANT_LUA_ID } from '@ar.io/sdk';
 import { Tooltip } from '@src/components/data-display';
 import ArweaveID, {
   ArweaveIdTypes,
@@ -52,7 +51,7 @@ export default function SourceCodeIdRow({
           // if source code id is defined and a txid check if its a valid version
           ((sourceCodeTxId &&
             isArweaveTransactionID(sourceCodeTxId) &&
-            ![ANT_LUA_ID, data?.originalTxId]
+            ![DEFAULT_ANT_LUA_ID, data?.originalTxId]
               .filter((id) => id !== undefined)
               .includes(sourceCodeTxId)) ||
             // if no source code ID we need to upgrade it.

@@ -1,8 +1,7 @@
-import { ANT_LUA_ID } from '@ar.io/sdk';
 import { DEFAULT_ARWEAVE } from '@src/utils/constants';
 import { useQuery } from '@tanstack/react-query';
 
-export function useANTLuaSourceCode(id: string = ANT_LUA_ID) {
+export function useANTLuaSourceCode(id: string = DEFAULT_ANT_LUA_ID) {
   return useQuery({
     queryKey: ['ant_lua_source_code', id],
     queryFn: async () => {
