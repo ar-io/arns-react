@@ -6,6 +6,7 @@ import UpgradeAntModal from '@src/components/modals/ant-management/UpgradeAntMod
 import { useANTLuaSourceCode } from '@src/hooks/useANTLuaSourceCode';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { isArweaveTransactionID } from '@src/utils';
+import { DEFAULT_ANT_LUA_ID } from '@src/utils/constants';
 import { useState } from 'react';
 
 import DomainSettingsRow from './DomainSettingsRow';
@@ -73,7 +74,6 @@ export default function SourceCodeIdRow({
       />
       {antId && (
         <UpgradeAntModal
-          antId={antId}
           visible={showUpgradeAntModal}
           setVisible={(b: boolean) => setShowUpgradeAntModal(b)}
         />

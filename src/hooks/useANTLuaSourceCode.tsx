@@ -1,4 +1,4 @@
-import { DEFAULT_ARWEAVE } from '@src/utils/constants';
+import { DEFAULT_ANT_LUA_ID, DEFAULT_ARWEAVE } from '@src/utils/constants';
 import { useQuery } from '@tanstack/react-query';
 
 export function useANTLuaSourceCode(id: string = DEFAULT_ANT_LUA_ID) {
