@@ -1,5 +1,5 @@
 import { useGlobalState } from '@src/state';
-import { isARNSDomainNameValid } from '@src/utils';
+import { isARNSDomainNameValid, lowerCaseDomain } from '@src/utils';
 import eventEmitter from '@src/utils/events';
 import { useQuery } from '@tanstack/react-query';
 
@@ -22,9 +22,23 @@ export function useArNSDomainPriceList(domain: string) {
           domain.length > 0 &&
           isARNSDomainNameValid({ name: domain })
         ) {
-          const fees = await arioContract.getRegistrationFees();
-          prices.lease = fees[domain.length].lease[1]; // 1 year lease
-          prices.buy = fees[domain.length].permabuy;
+          const sharedOptions: any = {
+            intent: 'Buy-Record',
+            name: lowerCaseDomain(domain),
+          };
+          const [leasePrice, buyPrice] = await Promise.all([
+            arioContract.getTokenCost({
+              ...sharedOptions,
+              years: 1,
+              purchaseType: 'lease',
+            }),
+            arioContract.getTokenCost({
+              ...sharedOptions,
+              purchaseType: 'permabuy',
+            }),
+          ]);
+          prices.lease = leasePrice;
+          prices.buy = buyPrice;
         }
       } catch (error) {
         eventEmitter.emit('error', {
