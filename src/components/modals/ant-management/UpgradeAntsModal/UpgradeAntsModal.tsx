@@ -5,6 +5,7 @@ import { Loader } from '@src/components/layout';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
+import { useANTLuaSourceCode } from '@src/hooks/useANTLuaSourceCode';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useArNSState, useGlobalState, useWalletState } from '@src/state';
 import {
@@ -13,10 +14,8 @@ import {
   getAntsRequiringUpdate,
   sleep,
 } from '@src/utils';
-import { DEFAULT_ANT_LUA_ID, DEFAULT_ARWEAVE } from '@src/utils/constants';
-import { fromB64Url } from '@src/utils/encodings';
+import { DEFAULT_ANT_LUA_ID } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
-import { useQuery } from '@tanstack/react-query';
 import { Checkbox } from 'antd';
 import Lottie from 'lottie-react';
 import { useCallback, useEffect, useState } from 'react';
@@ -35,28 +34,15 @@ function UpgradeAntsModal({
   const [{ aoClient }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const [accepted, setAccepted] = useState(false);
-  const [changelog, setChangelog] = useState('default changelog');
   const [antsToUpgrade, setAntsToUpgrade] = useState<string[]>([]);
   const [{ ants }, dispatchArNSState] = useArNSState();
   // 0 or greater means loading, -1 means not loading
   const [progress, setProgress] = useState(-1);
   const isUpdatingAnts = useCallback(() => progress >= 0, [progress]);
-  const { data: luaCodeTx, isLoading } = useQuery({
-    queryKey: [DEFAULT_ANT_LUA_ID],
-    queryFn: async () => {
-      return await DEFAULT_ARWEAVE.transactions.get(DEFAULT_ANT_LUA_ID);
-    },
-    staleTime: Infinity,
-  });
+  const { data, isLoading } = useANTLuaSourceCode();
+  const { luaCodeTx, changelog } = data ?? {};
 
   useEffect(() => {
-    const newChanges = luaCodeTx?.tags?.find(
-      (tag: any) => fromB64Url(tag.name) === 'Changelog',
-    );
-    setChangelog(
-      newChanges?.value ? fromB64Url(newChanges.value) : 'No changelog found',
-    );
-
     if (luaCodeTx && walletAddress) {
       setAntsToUpgrade(
         getAntsRequiringUpdate({
@@ -180,13 +166,7 @@ function UpgradeAntsModal({
               <div className="flex scrollbar h-full min-h-[120px] border-b-[1px] border-dark-grey pb-4 mb-4 overflow-y-scroll scrollbar-thumb-primary-thin scrollbar-thumb-rounded-full scrollbar-w-2">
                 <ReactMarkdown
                   className={'h-full'}
-                  children={
-                    changelog
-                    //   .padEnd(
-                    //   900,
-                    //   '1123412342134234123412412341234\n',
-                    // )
-                  }
+                  children={changelog ?? '# No changelog'}
                   components={{
                     h1: ({ children }) => (
                       <div>
