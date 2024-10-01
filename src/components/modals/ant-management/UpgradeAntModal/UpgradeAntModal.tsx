@@ -238,7 +238,7 @@ function UpgradeAntModal({
             } w-full rounded-b-lg p-3 transition-all`}
             onClick={() => upgradeAnts()}
           >
-            {!accepted && !upgrading
+            {!accepted
               ? 'Verify you understand before proceeding'
               : upgrading
               ? 'Updating, please wait...'
