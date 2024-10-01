@@ -4,6 +4,7 @@ import DialogModal from '../modals/DialogModal/DialogModal';
 import ArNSRegistrySettings from './ArNSRegistrySettings';
 import NetworkSettings from './NetworkSettings';
 import TransferIO from './TransferIO';
+import UserAddress from './UserAddress';
 import './styles.css';
 
 const DevTools = () => {
@@ -48,6 +49,7 @@ const DevTools = () => {
                 }}
               >
                 <div className="flex flex-column" style={{ gap: '10px' }}>
+                  <UserAddress />
                   <TransferIO />
                   <ArNSRegistrySettings />
                   <NetworkSettings />
