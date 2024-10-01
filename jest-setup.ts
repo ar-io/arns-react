@@ -17,5 +17,16 @@ global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 global.performance.markResourceTiming = jest.fn();
 global.fetch = require('node-fetch');
-global.crypto = jest.fn();
 global.indexedDB = indexedDB;
+// forcefully mock crypto
+Object.defineProperty(global, 'crypto', {
+  value: {
+    subtle: {
+      digest: jest.fn(),
+      generateKey: jest.fn(),
+      importKey: jest.fn(),
+      exportKey: jest.fn(),
+      sign: jest.fn(),
+    },
+  },
+});

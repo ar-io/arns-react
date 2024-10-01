@@ -1,9 +1,4 @@
-import {
-  ANT_LUA_ID,
-  ContractSigner,
-  createAoSigner,
-  evolveANT,
-} from '@ar.io/sdk';
+import { ContractSigner, createAoSigner, evolveANT } from '@ar.io/sdk';
 import { Tooltip } from '@src/components/data-display';
 import { CloseIcon } from '@src/components/icons';
 import { Loader } from '@src/components/layout';
@@ -18,7 +13,7 @@ import {
   getAntsRequiringUpdate,
   sleep,
 } from '@src/utils';
-import { DEFAULT_ARWEAVE } from '@src/utils/constants';
+import { DEFAULT_ANT_LUA_ID, DEFAULT_ARWEAVE } from '@src/utils/constants';
 import { fromB64Url } from '@src/utils/encodings';
 import eventEmitter from '@src/utils/events';
 import { useQuery } from '@tanstack/react-query';
@@ -47,9 +42,9 @@ function UpgradeAntsModal({
   const [progress, setProgress] = useState(-1);
   const isUpdatingAnts = useCallback(() => progress >= 0, [progress]);
   const { data: luaCodeTx, isLoading } = useQuery({
-    queryKey: [ANT_LUA_ID],
+    queryKey: [DEFAULT_ANT_LUA_ID],
     queryFn: async () => {
-      return await DEFAULT_ARWEAVE.transactions.get(ANT_LUA_ID);
+      return await DEFAULT_ARWEAVE.transactions.get(DEFAULT_ANT_LUA_ID);
     },
     staleTime: Infinity,
   });
@@ -104,7 +99,7 @@ function UpgradeAntsModal({
       for (const antId of antIds) {
         await evolveANT({
           processId: antId,
-          luaCodeTxId: ANT_LUA_ID,
+          luaCodeTxId: DEFAULT_ANT_LUA_ID,
           signer,
           ao: aoClient,
         }).catch(() => {
@@ -127,7 +122,7 @@ function UpgradeAntsModal({
                   characterCount={8}
                   shouldLink={true}
                   type={ArweaveIdTypes.TRANSACTION}
-                  id={new ArweaveTransactionID(ANT_LUA_ID)}
+                  id={new ArweaveTransactionID(DEFAULT_ANT_LUA_ID)}
                 />
               </span>
             </div>
@@ -238,11 +233,11 @@ function UpgradeAntsModal({
                         View the code:{' '}
                         <a
                           className="text-link"
-                          href={`https://arscan.io/tx/${ANT_LUA_ID}`}
+                          href={`https://arscan.io/tx/${DEFAULT_ANT_LUA_ID}`}
                           target="_blank"
                           rel="noreferrer"
                         >
-                          {formatForMaxCharCount(ANT_LUA_ID, 8)}
+                          {formatForMaxCharCount(DEFAULT_ANT_LUA_ID, 8)}
                         </a>
                       </span>
                     </div>
