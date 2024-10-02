@@ -1,8 +1,4 @@
-import {
-  ANT_LUA_ID,
-  DEFAULT_SCHEDULER_ID,
-  ioDevnetProcessId,
-} from '@ar.io/sdk/web';
+import { DEFAULT_SCHEDULER_ID, ioDevnetProcessId } from '@ar.io/sdk/web';
 import Arweave from 'arweave';
 import { ArweaveWebWallet } from 'arweave-wallet-connector';
 
