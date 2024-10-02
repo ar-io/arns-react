@@ -88,15 +88,15 @@
     resize-observer-polyfill "^1.5.1"
     throttle-debounce "^5.0.0"
 
-"@ar.io/sdk@2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-2.2.0.tgz#a3c04b33624238c6dadb568b36fd1fa358c0d7ad"
-  integrity sha512-p+vaF5Tp2R18MHqo/LbJY/ZonPJEvvldefw3RpF9DLGlR3GHpcjC3reHRlpOS+EfSgHUtBHe7/Kfk0ijbk3ieA==
+"@ar.io/sdk@2.3.0-alpha.5":
+  version "2.3.0-alpha.5"
+  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-2.3.0-alpha.5.tgz#97163de1aacdf8b875e4341bc0cf803e0d316ed1"
+  integrity sha512-PLI6rmJXOgM/Sy/XHEivmITtsUDPk0yzAoVYMPnXWj9UVkoqJsPWNujG66FDgwjvFFQEgK58dpw8qBZD6AXliw==
   dependencies:
+    "@dha-team/arbundles" "^1.0.1"
     "@permaweb/aoconnect" "^0.0.57"
-    arbundles "0.11.0"
     arweave "1.14.4"
-    axios "1.7.3"
+    axios "1.7.7"
     axios-retry "^4.3.0"
     eventemitter3 "^5.0.1"
     plimit-lit "^3.0.1"
@@ -1453,6 +1453,30 @@
     colorspace "1.1.x"
     enabled "2.0.x"
     kuler "^2.0.0"
+
+"@dha-team/arbundles@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@dha-team/arbundles/-/arbundles-1.0.1.tgz#5e81039b74da241cf0e2b074ae77e489eec7887d"
+  integrity sha512-cgVxhZJLK1HG2+vcRBZ0CYGpxz7mA2QvLaspcw2gOzb2V/ZUxlifUu1aufBK3iz63Ww2OhgO0j9DstRJqrG1uA==
+  dependencies:
+    "@ethersproject/bytes" "^5.7.0"
+    "@ethersproject/hash" "^5.7.0"
+    "@ethersproject/providers" "^5.7.2"
+    "@ethersproject/signing-key" "^5.7.0"
+    "@ethersproject/transactions" "^5.7.0"
+    "@ethersproject/wallet" "^5.7.0"
+    "@noble/ed25519" "^1.6.1"
+    arweave "^1.15.1"
+    base64url "^3.0.1"
+    bs58 "^4.0.1"
+    keccak "^3.0.2"
+    secp256k1 "^5.0.0"
+  optionalDependencies:
+    "@randlabs/myalgo-connect" "^1.1.2"
+    algosdk "^1.13.1"
+    arweave-stream-tx "^1.1.0"
+    multistream "^4.1.0"
+    tmp-promise "^3.0.2"
 
 "@emotion/hash@^0.8.0":
   version "0.8.0"
@@ -4020,10 +4044,10 @@ axios@1.7.2:
     form-data "^4.0.0"
     proxy-from-env "^1.1.0"
 
-axios@1.7.3:
-  version "1.7.3"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-1.7.3.tgz#a1125f2faf702bc8e8f2104ec3a76fab40257d85"
-  integrity sha512-Ar7ND9pU99eJ9GpoGQKhKf58GpUOgnzuaB7ueNQ5BMi0p+LZ5oaEnfF999fAArcTIBwXTCHAmGcHOZJaWPq9Nw==
+axios@1.7.7:
+  version "1.7.7"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.7.7.tgz#2f554296f9892a72ac8d8e4c5b79c14a91d0a47f"
+  integrity sha512-S4kL7XrjgBmvdGut0sN3yJxqYzrDOnivkBiN0OFs6hLiUam3UPvswUo0kqGyhqUZGEOytHyumEdXsAkgCOUf3Q==
   dependencies:
     follow-redirects "^1.15.6"
     form-data "^4.0.0"
