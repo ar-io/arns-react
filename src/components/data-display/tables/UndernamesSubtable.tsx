@@ -118,7 +118,7 @@ const UndernamesSubtable = ({
                   overlayInnerStyle: { width: 'fit-content' },
                 }}
                 message={
-                  <span className="w-fit whitespace-nowrap text-primary">
+                  <span className="w-fit whitespace-nowrap text-white">
                     {rowValue}
                   </span>
                 }
