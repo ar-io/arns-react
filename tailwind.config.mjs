@@ -13,6 +13,7 @@ export default {
       },
       fontFamily: {
         sans: ['Rubik', 'sans-serif'],
+        ['sans-bold']: ['Rubik-Bold', 'sans-serif'],
       },
       boxShadow: {
         one: '0px 0px 4px rgba(0, 0, 0, 0.5)',
