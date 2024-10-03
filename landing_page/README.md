@@ -1,3 +1,5 @@
+### Current version is -k7t8xMoB8hW482609Z9F4bTFMC3MnuW8bTvTyT8pFI
+
 # ArNS Landing Page Project
 
 ## Project Structure
