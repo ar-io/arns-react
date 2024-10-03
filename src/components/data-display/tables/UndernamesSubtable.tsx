@@ -124,12 +124,12 @@ const UndernamesSubtable = ({
                 }
                 icon={
                   <Link
-                    className="link gap-2 items-center"
+                    className="link gap-2 items-center w-fit"
                     to={`https://${rowValue}_${arnsDomain}.${gateway}`}
                     target="_blank"
                   >
                     <CornerDownRight className="text-dark-grey w-[18px]" />
-                    {formatForMaxCharCount(rowValue, 12)}{' '}
+                    {formatForMaxCharCount(rowValue, 30)}{' '}
                     <ExternalLinkIcon
                       width={'12px'}
                       height={'12px'}

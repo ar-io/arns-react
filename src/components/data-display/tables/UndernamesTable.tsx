@@ -259,11 +259,11 @@ const UndernamesTable = ({
                 }
                 icon={
                   <Link
-                    className="link gap-2 items-center"
+                    className="link gap-2 items-center w-fit"
                     to={`https://${rowValue}_${arnsDomain}.${gateway}`}
                     target="_blank"
                   >
-                    {formatForMaxCharCount(rowValue, 12)}{' '}
+                    {formatForMaxCharCount(rowValue, 30)}{' '}
                     <ExternalLinkIcon
                       width={'12px'}
                       height={'12px'}

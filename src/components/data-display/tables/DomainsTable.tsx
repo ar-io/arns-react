@@ -226,7 +226,7 @@ const DomainsTable = ({
                 }
                 icon={
                   <Link
-                    className="link gap-2"
+                    className="link gap-2 w-fit"
                     to={`https://${row.getValue('name')}.${gateway}`}
                     target="_blank"
                   >
