@@ -1,6 +1,7 @@
 import { ANT, AoMessageResult, ContractSigner } from '@ar.io/sdk/web';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
+import { lowerCaseDomain } from '@src/utils';
 import eventEmitter from '@src/utils/events';
 import { Dispatch } from 'react';
 
@@ -78,7 +79,7 @@ export default async function dispatchANTInteraction({
       case ANT_INTERACTION_TYPES.SET_RECORD:
         dispatchSigningMessage('Setting Undername, please wait...');
         result = await antProcess.setRecord({
-          undername: payload.subDomain,
+          undername: lowerCaseDomain(payload.subDomain),
           transactionId: payload.transactionId,
           ttlSeconds: payload.ttlSeconds,
         });
@@ -86,7 +87,7 @@ export default async function dispatchANTInteraction({
       case ANT_INTERACTION_TYPES.EDIT_RECORD:
         dispatchSigningMessage('Editing Undername, please wait...');
         result = await antProcess.setRecord({
-          undername: payload.subDomain,
+          undername: lowerCaseDomain(payload.subDomain),
           transactionId: payload.transactionId,
           ttlSeconds: payload.ttlSeconds,
         });
@@ -94,7 +95,7 @@ export default async function dispatchANTInteraction({
       case ANT_INTERACTION_TYPES.REMOVE_RECORD:
         dispatchSigningMessage('Removing Undername, please wait...');
         result = await antProcess.removeRecord({
-          undername: payload.subDomain,
+          undername: lowerCaseDomain(payload.subDomain),
         });
         break;
       default:
