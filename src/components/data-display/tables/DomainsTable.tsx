@@ -101,7 +101,6 @@ const DomainsTable = ({
 
   useEffect(() => {
     setSortBy(searchParams.get('sortBy') ?? 'name');
-    console.log('searchParams', searchParams);
   }, [searchParams]);
 
   useEffect(() => {
