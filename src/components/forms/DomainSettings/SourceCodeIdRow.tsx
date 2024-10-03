@@ -74,6 +74,7 @@ export default function SourceCodeIdRow({
       />
       {antId && (
         <UpgradeAntModal
+          antId={antId}
           visible={showUpgradeAntModal}
           setVisible={(b: boolean) => setShowUpgradeAntModal(b)}
         />

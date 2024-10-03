@@ -128,6 +128,7 @@ export const MIN_TTL_SECONDS = 900;
 export const MAX_LEASE_DURATION = 5;
 export const MIN_LEASE_DURATION = 1;
 export const SECONDS_IN_GRACE_PERIOD = 1814400;
+export const MILLISECONDS_IN_GRACE_PERIOD = SECONDS_IN_GRACE_PERIOD * 1000;
 
 export const transactionByOwnerQuery = (address: ArweaveTransactionID) => {
   const queryObject = {
