@@ -220,13 +220,13 @@ const DomainsTable = ({
                   overlayInnerStyle: { width: 'fit-content' },
                 }}
                 message={
-                  <span className="w-fit whitespace-nowrap text-primary">
+                  <span className="w-fit whitespace-nowrap text-white">
                     {rowValue}
                   </span>
                 }
                 icon={
                   <Link
-                    className="link gap-2"
+                    className="link gap-2 w-fit"
                     to={`https://${row.getValue('name')}.${gateway}`}
                     target="_blank"
                   >
