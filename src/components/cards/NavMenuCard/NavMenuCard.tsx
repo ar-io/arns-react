@@ -1,7 +1,7 @@
 import { buildARBalanceQuery, buildIOBalanceQuery } from '@src/utils/network';
 import { useQueryClient } from '@tanstack/react-query';
 import { Tooltip } from 'antd';
-import { PanelRightIcon, Settings2Icon } from 'lucide-react';
+import { Settings2Icon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 

@@ -25,8 +25,10 @@ function Toggle({
     leftLabel.length > rightLabel.length ? leftLabel : rightLabel;
 
   return (
+    // eslint-disable-next-line jsx-a11y/label-has-associated-control
     <label className={`flex items-center ${className}`}>
       <input
+        id="toggle"
         type="checkbox"
         className={`sr-only ${inputClassName}`}
         onChange={handleChange}
