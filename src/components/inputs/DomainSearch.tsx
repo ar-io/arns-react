@@ -2,7 +2,6 @@ import { AoArNSNameData } from '@ar.io/sdk';
 import { useArNSRegistryDomains } from '@src/hooks/useArNSRegistryDomains';
 import { decodeDomainToASCII, lowerCaseDomain } from '@src/utils';
 import { MAX_ARNS_NAME_LENGTH } from '@src/utils/constants';
-import { input } from '@testing-library/user-event/dist/cjs/event/input.js';
 import { SearchIcon, XIcon } from 'lucide-react';
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
@@ -16,7 +15,7 @@ function DomainSearch({
   setDomainRecord = () => null,
   setIsValidDomain = () => null,
   setValidationError = () => null,
-  onClickOutside = (e: MouseEvent) => null,
+  onClickOutside = () => null,
   onFocus = () => null,
   className,
   inputWrapperClass,

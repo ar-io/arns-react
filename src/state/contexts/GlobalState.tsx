@@ -17,6 +17,7 @@ import {
   DEFAULT_ARWEAVE,
   IO_PROCESS_ID,
   NETWORK_DEFAULTS,
+  defaultLogger,
 } from '../../utils/constants';
 import type { GlobalAction } from '../reducers/GlobalReducer';
 
@@ -27,6 +28,7 @@ export const defaultArIO = IO.init({
     ao: connect({
       CU_URL: AO_CU_URL,
     }),
+    logger: defaultLogger as any,
   }),
 });
 
@@ -100,7 +102,7 @@ export function GlobalStateProvider({
       const ticker = 'tIO'; // TODO, use contract to get ticker
       dispatchGlobalState({ type: 'setIoTicker', payload: ticker });
     } catch (error) {
-      console.error(error);
+      defaultLogger.error(error);
     } finally {
       setUpdatingTicker(false);
     }

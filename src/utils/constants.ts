@@ -1,6 +1,7 @@
 import { DEFAULT_SCHEDULER_ID, ioDevnetProcessId } from '@ar.io/sdk/web';
 import Arweave from 'arweave';
 import { ArweaveWebWallet } from 'arweave-wallet-connector';
+import BunyanLogger from 'bunyan';
 
 import ALEX_IMAGE from '../../assets/images/featured-domains/alex.png';
 import AO_IMAGE from '../../assets/images/featured-domains/ao.png';
@@ -32,10 +33,16 @@ export const ARWEAVE_APP_API = new ArweaveWebWallet(
 
 export const ARWEAVE_HOST = process.env.VITE_ARWEAVE_HOST ?? 'ar-io.dev';
 
+export const defaultLogger = BunyanLogger.createLogger({
+  level: 'info',
+  name: APP_NAME,
+});
+
 export const DEFAULT_ARWEAVE = new Arweave({
   host: ARWEAVE_HOST,
   protocol: 'https',
   port: 443,
+  logger: defaultLogger.warn,
 });
 
 export const TRAILING_DASH_UNDERSCORE_REGEX = new RegExp('^[-_]|[-_]$');

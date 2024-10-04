@@ -8,6 +8,7 @@ import RemoveControllersModal from '@src/components/modals/ant-management/Remove
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
 import { isArweaveTransactionID } from '@src/utils';
+import { defaultLogger } from '@src/utils/constants';
 import { Tooltip } from 'antd';
 import { useState } from 'react';
 
@@ -58,7 +59,7 @@ export default function ControllersRow({
         workflowName,
       });
     } catch (error) {
-      console.error(error);
+      defaultLogger.error(error);
     } finally {
       setShowAddModal(false);
       setShowRemoveModal(false);

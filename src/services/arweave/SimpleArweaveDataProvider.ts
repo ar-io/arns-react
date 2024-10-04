@@ -6,6 +6,7 @@ import { ArweaveDataProvider, TransactionHeaders } from '../../types';
 import { tagsToObject, withExponentialBackoff } from '../../utils';
 import {
   RECOMMENDED_TRANSACTION_CONFIRMATIONS,
+  defaultLogger,
   transactionByOwnerQuery,
 } from '../../utils/constants';
 import { ArweaveTransactionID } from './ArweaveTransactionID';
@@ -250,7 +251,7 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
 
       return +this._arweave.ar.winstonToAr(result.data, { formatted: true });
     } catch (error) {
-      console.error(error);
+      defaultLogger.error(error);
       return 0;
     }
   }
@@ -287,7 +288,7 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
           hasNextPage = false;
         }
       } catch (error) {
-        console.error('Error fetching paginated data:', error);
+        defaultLogger.error('Error fetching paginated data:', error);
         hasNextPage = false;
       }
     }

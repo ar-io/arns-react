@@ -1,3 +1,4 @@
+import { defaultLogger } from '@src/utils/constants';
 import { ArconnectError, WalletNotInstalledError } from '@src/utils/errors';
 import eventEmitter from '@src/utils/events';
 import { PermissionType } from 'arconnect';
@@ -76,7 +77,7 @@ export class ArConnectWalletConnector implements ArweaveWalletConnector {
       )
       .catch((err) => {
         localStorage.removeItem('walletType');
-        console.error(err);
+        defaultLogger.error(err);
         throw new ArconnectError('User cancelled authentication.');
       });
   }

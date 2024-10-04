@@ -12,7 +12,7 @@ import { useEffectOnce } from '../../hooks/useEffectOnce/useEffectOnce';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { ArConnectWalletConnector } from '../../services/wallets';
 import { ArweaveWalletConnector, WALLET_TYPES } from '../../types';
-import { ARWEAVE_APP_API } from '../../utils/constants';
+import { ARWEAVE_APP_API, defaultLogger } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 import { dispatchArIOContract } from '../actions/dispatchArIOContract';
 import { WalletAction } from '../reducers/WalletReducer';
@@ -73,6 +73,7 @@ export function WalletStateProvider({
         process: new AOProcess({
           processId: ioProcessId,
           ao: aoClient,
+          logger: defaultLogger as any,
         }),
         signer: wallet?.arconnectSigner as ContractSigner,
       }),
