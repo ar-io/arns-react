@@ -1,3 +1,5 @@
+import { queryClient } from '@src/utils/network';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { act, cleanup, render } from '@testing-library/react';
 import { HashRouter as Router } from 'react-router-dom';
 
@@ -9,9 +11,11 @@ describe('NavGroup', () => {
   test('render NavGroup', async () => {
     await act(() =>
       render(
-        <Router>
-          <NavGroup />
-        </Router>,
+        <QueryClientProvider client={queryClient}>
+          <Router>
+            <NavGroup />
+          </Router>
+        </QueryClientProvider>,
       ),
     );
   });

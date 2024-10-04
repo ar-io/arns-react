@@ -1,7 +1,6 @@
 import {
   ANTRegistry,
   ANT_REGISTRY_ID,
-  AoANTRegistryWrite,
   AoClient,
   AoIOWrite,
   AoMessageResult,
@@ -64,7 +63,7 @@ export default async function dispatchArIOInteraction({
           const antRegistry = ANTRegistry.init({
             signer,
             processId: ANT_REGISTRY_ID,
-          }) as AoANTRegistryWrite;
+          });
           await antRegistry
             .register({
               processId: antProcessId,

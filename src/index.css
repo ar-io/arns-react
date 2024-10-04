@@ -88,10 +88,6 @@ b {
   font-family: 'Rubik-Bold';
 }
 
-button {
-  background-color: transparent;
-  border: none;
-}
 input[type='text']:disabled {
   padding-right: 40px;
   width: '100%';

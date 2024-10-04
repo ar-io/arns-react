@@ -8,96 +8,102 @@ import ArweaveID, {
 import { useANTLuaSourceCode } from '@src/hooks/useANTLuaSourceCode';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useArNSState, useGlobalState, useWalletState } from '@src/state';
-import { dispatchANTUpdate } from '@src/state/actions/dispatchANTUpdate';
-import { formatForMaxCharCount, sleep } from '@src/utils';
+import {
+  doAntsRequireUpdate,
+  formatForMaxCharCount,
+  getAntsRequiringUpdate,
+  sleep,
+} from '@src/utils';
 import { DEFAULT_ANT_LUA_ID } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
-import { useQueryClient } from '@tanstack/react-query';
 import { Checkbox } from 'antd';
 import Lottie from 'lottie-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 
 import arioLoading from '../../../icons/ario-spinner.json';
 import './styles.css';
 
-function UpgradeAntModal({
+function UpgradeAntsModal({
   visible,
   setVisible,
-  antId,
 }: {
   visible: boolean;
   setVisible: (visible: boolean) => void;
-  antId: string;
 }) {
-  const queryClient = useQueryClient();
   const [{ aoClient }] = useGlobalState();
-  const [, dispatchArNSState] = useArNSState();
   const [{ wallet, walletAddress }] = useWalletState();
-  const { data, isLoading } = useANTLuaSourceCode();
   const [accepted, setAccepted] = useState(false);
-  const [changelog, setChangelog] = useState('');
-  const [upgrading, setUpgrading] = useState(false);
+  const [antsToUpgrade, setAntsToUpgrade] = useState<string[]>([]);
+  const [{ ants }, dispatchArNSState] = useArNSState();
+  // 0 or greater means loading, -1 means not loading
+  const [progress, setProgress] = useState(-1);
+  const isUpdatingAnts = useCallback(() => progress >= 0, [progress]);
+  const { data, isLoading } = useANTLuaSourceCode();
+  const { luaCodeTx, changelog } = data ?? {};
 
   useEffect(() => {
-    if (data?.changelog) {
-      setChangelog(data.changelog);
+    if (luaCodeTx && walletAddress) {
+      setAntsToUpgrade(
+        getAntsRequiringUpdate({
+          ants,
+          userAddress: walletAddress.toString(),
+          luaSourceTx: luaCodeTx,
+        }),
+      );
     }
-  }, [data?.changelog]);
+  }, [luaCodeTx, ants]);
+
   function handleClose() {
     setVisible(false);
     setAccepted(false);
-    setUpgrading(false);
+    setProgress(-1);
   }
 
   async function upgradeAnts() {
+    if (isUpdatingAnts()) return;
     try {
+      setProgress(0);
       if (!wallet?.arconnectSigner || !walletAddress) {
         throw new Error('No ArConnect Signer found');
       }
-      if (!data?.luaCodeTx) {
+      if (!luaCodeTx) {
         throw new Error('No Lua Code Transaction found');
       }
-      setUpgrading(true);
+
+      const antIds = Object.keys(ants).filter((antId) =>
+        doAntsRequireUpdate({
+          ants: { [antId]: ants[antId] },
+          userAddress: walletAddress?.toString(),
+          luaSourceTx: luaCodeTx,
+        }),
+      );
 
       const signer = createAoSigner(wallet?.arconnectSigner as ContractSigner);
       // deliberately not using concurrency here for UX reasons
       const failedUpgrades = [];
-
-      await evolveANT({
-        processId: antId,
-        luaCodeTxId: DEFAULT_ANT_LUA_ID,
-        signer,
-        ao: aoClient,
-      }).catch(() => {
-        failedUpgrades.push(antId);
-      });
-      dispatchANTUpdate({
-        processId: antId,
-        queryClient,
-        walletAddress,
-        dispatch: dispatchArNSState,
-      });
-      queryClient.invalidateQueries(
-        {
-          queryKey: ['domainInfo'],
-          refetchType: 'all',
-          exact: false,
-        },
-        { cancelRefetch: true },
-      );
-
-      if (failedUpgrades.length) {
-        eventEmitter.emit('error', {
-          name: 'Upgrade Error',
-          message: `Issue upgrading ANT ${antId}, please try again later`,
+      for (const antId of antIds) {
+        await evolveANT({
+          processId: antId,
+          luaCodeTxId: DEFAULT_ANT_LUA_ID,
+          signer,
+          ao: aoClient,
+        }).catch(() => {
+          failedUpgrades.push(antId);
+          eventEmitter.emit('error', {
+            name: 'Upgrade Error',
+            message: `Issue upgrading ANT ${antId}, please try again later`,
+          });
         });
-      } else {
+        setProgress((prev) => Math.round(prev + 100 / antIds.length));
+      }
+      if (failedUpgrades.length < antIds.length) {
         eventEmitter.emit('success', {
           message: (
             <div>
               <span>
-                Updated ANT to source code{' '}
+                Updated {antIds.length - failedUpgrades.length} ANTs to source
+                code{' '}
                 <ArweaveID
                   characterCount={8}
                   shouldLink={true}
@@ -107,7 +113,9 @@ function UpgradeAntModal({
               </span>
             </div>
           ),
-          name: `ANT successfully updated!`,
+          name: `${antIds.length - failedUpgrades.length} of ${
+            antIds.length
+          } ANTs successfully updated!'`,
         });
       }
       // slight delay for UX so the stage is visible on shorter updates
@@ -115,6 +123,7 @@ function UpgradeAntModal({
     } catch (error) {
       eventEmitter.emit('error', error);
     } finally {
+      dispatchArNSState({ type: 'refresh', payload: walletAddress! });
       handleClose();
     }
   }
@@ -137,23 +146,27 @@ function UpgradeAntModal({
             className="flex flex-row text-2xl text-white"
             style={{ gap: '10px' }}
           >
-            Upgrade ANT
+            {progress < 0 ? (
+              <>Upgrade {antsToUpgrade.length} of your ANTs</>
+            ) : (
+              <>Updating... {progress}%</>
+            )}
           </h1>
           <button
-            disabled={upgrading}
+            disabled={progress >= 0}
             className="text-md text-white"
             onClick={() => handleClose()}
           >
             <CloseIcon width={'20px'} fill={'white'} />
           </button>
         </div>
-        {!upgrading ? (
+        {progress < 0 ? (
           <>
             <div className="flex box-border h-full overflow-hidden w-full flex-col p-4 text-sm text-white">
               <div className="flex scrollbar h-full min-h-[120px] border-b-[1px] border-dark-grey pb-4 mb-4 overflow-y-scroll scrollbar-thumb-primary-thin scrollbar-thumb-rounded-full scrollbar-w-2">
                 <ReactMarkdown
                   className={'h-full'}
-                  children={changelog}
+                  children={changelog ?? '# No changelog'}
                   components={{
                     h1: ({ children }) => (
                       <div>
@@ -194,7 +207,7 @@ function UpgradeAntModal({
                     <div className="flex flex-col">
                       <span>
                         This will conduct an &apos;Eval&apos; Action on your ANT
-                        process to upgrade the code to the latest version
+                        processes to upgrade the code to the latest version
                       </span>
                       <span className="pt-2 text-primary">
                         View the code:{' '}
@@ -231,16 +244,16 @@ function UpgradeAntModal({
               !accepted
                 ? 'bg-background text-grey'
                 : `animate-pulse ${
-                    !upgrading
+                    progress < 0
                       ? 'bg-primary-thin text-primary'
                       : 'bg-link text-white hover:bg-primary hover:text-black'
                   } `
             } w-full rounded-b-lg p-3 transition-all`}
             onClick={() => upgradeAnts()}
           >
-            {!accepted
+            {!accepted && progress < 0
               ? 'Verify you understand before proceeding'
-              : upgrading
+              : progress >= 0
               ? 'Updating, please wait...'
               : 'Upgrade'}
           </button>
@@ -250,4 +263,4 @@ function UpgradeAntModal({
   );
 }
 
-export default UpgradeAntModal;
+export default UpgradeAntsModal;

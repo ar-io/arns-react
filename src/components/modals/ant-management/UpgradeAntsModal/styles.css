@@ -1,0 +1,53 @@
+.accept-checkbox > span > .ant-checkbox-inner {
+  background-color: transparent;
+  border: var(--text-faded) 1px solid;
+}
+
+.ant-checkbox:not(.ant-checkbox-disabled):hover {
+  background-color: transparent;
+  border-color: var(--accent) 1px solid;
+}
+
+.ant-checkbox-wrapper:not(.ant-checkbox-wrapper-disabled):hover
+  .ant-checkbox-checked:not(.ant-checkbox-disabled)
+  .ant-checkbox-inner {
+  background-color: transparent !important;
+}
+.ant-checkbox-wrapper-checked:not(.ant-checkbox-wrapper-disabled):hover
+  .ant-checkbox-inner,
+.ant-checkbox-checked:not(.ant-checkbox-disabled):hover .ant-checkbox-inner {
+  background-color: transparent !important;
+}
+
+.ant-checkbox:not(.ant-checkbox-disabled):hover .ant-checkbox-inner {
+  border-color: var(--accent) !important;
+}
+
+.ant-checkbox-wrapper:not(.ant-checkbox-wrapper-disabled):hover
+  .ant-checkbox-checked:not(.ant-checkbox-disabled):after {
+  border-color: var(--accent) !important;
+}
+
+.ant-checkbox-inner:hover {
+  border-color: var(--accent) !important;
+}
+
+.ant-checkbox-checked {
+  background-color: transparent;
+  border-color: var(--accent) !important;
+}
+
+.ant-checkbox-wrapper-disabled:hover {
+  background-color: transparent;
+  border-color: var(--accent) !important;
+}
+
+.ant-checkbox-wrapper {
+  background-color: transparent;
+  border-color: var(--accent) !important;
+  top: 0;
+}
+
+.ant-checkbox-checked::after {
+  border-color: var(--accent) !important;
+}

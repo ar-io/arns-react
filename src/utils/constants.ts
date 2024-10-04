@@ -128,6 +128,7 @@ export const MIN_TTL_SECONDS = 900;
 export const MAX_LEASE_DURATION = 5;
 export const MIN_LEASE_DURATION = 1;
 export const SECONDS_IN_GRACE_PERIOD = 1814400;
+export const MILLISECONDS_IN_GRACE_PERIOD = SECONDS_IN_GRACE_PERIOD * 1000;
 
 export const transactionByOwnerQuery = (address: ArweaveTransactionID) => {
   const queryObject = {
@@ -157,7 +158,7 @@ export const transactionByOwnerQuery = (address: ArweaveTransactionID) => {
 };
 
 export const LANDING_PAGE_TXID = new ArweaveTransactionID(
-  'UyC5P5qKPZaltMmmZAWdakhlDXsBF6qmyrbWYFchRTk',
+  '-k7t8xMoB8hW482609Z9F4bTFMC3MnuW8bTvTyT8pFI',
 );
 
 export const RESERVED_BREADCRUMB_TITLES = new Set([
@@ -168,3 +169,5 @@ export const RESERVED_BREADCRUMB_TITLES = new Set([
 ]);
 
 export const ARIO_DISCORD_LINK = 'https://discord.com/invite/HGG52EtTc2';
+
+export const PERMANENT_DOMAIN_MESSAGE = 'Indefinite';

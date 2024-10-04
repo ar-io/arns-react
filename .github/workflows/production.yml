@@ -78,3 +78,4 @@ jobs:
           VITE_IO_PROCESS_ID: ${{ vars.VITE_IO_PROCESS_ID }}
           VITE_ARNS_REGISTRY_ADDRESS: ${{ vars.VITE_ARNS_REGISTRY_ADDRESS }}
           VITE_ARWEAVE_HOST: ${{ vars.ARWEAVE_HOST }}
+          VITE_NODE_ENV: production
