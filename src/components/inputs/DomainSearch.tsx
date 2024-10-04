@@ -2,8 +2,9 @@ import { AoArNSNameData } from '@ar.io/sdk';
 import { useArNSRegistryDomains } from '@src/hooks/useArNSRegistryDomains';
 import { decodeDomainToASCII, lowerCaseDomain } from '@src/utils';
 import { MAX_ARNS_NAME_LENGTH } from '@src/utils/constants';
+import { input } from '@testing-library/user-event/dist/cjs/event/input.js';
 import { SearchIcon, XIcon } from 'lucide-react';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 
 function DomainSearch({
@@ -15,6 +16,8 @@ function DomainSearch({
   setDomainRecord = () => null,
   setIsValidDomain = () => null,
   setValidationError = () => null,
+  onClickOutside = (e: MouseEvent) => null,
+  onFocus = () => null,
   className,
   inputWrapperClass,
   inputClass,
@@ -32,6 +35,8 @@ function DomainSearch({
   setDomainRecord?: (domainRecord: AoArNSNameData | undefined) => void;
   setIsValidDomain?: (isValidDomain: boolean) => void;
   setValidationError?: (validationError: string) => void;
+  onClickOutside?: (e: MouseEvent) => void;
+  onFocus?: () => void;
   className?: string;
   inputWrapperClass?: string;
   inputClass?: string;
@@ -44,6 +49,8 @@ function DomainSearch({
   const { data: arnsDomains, isLoading: loadingArnsRegistryDomains } =
     useArNSRegistryDomains();
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   function reset() {
     setSearchParams({ ...searchParams, search: '' });
@@ -120,10 +127,32 @@ function DomainSearch({
     setIsSearching(loadingArnsRegistryDomains);
   }, [searchQuery, arnsDomains, loadingArnsRegistryDomains]);
 
+  // add listeners to trigger focus and click out callbacks
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        onClickOutside(e);
+      }
+    }
+    function handleFocus() {
+      onFocus();
+    }
+    document.addEventListener('click', handleClickOutside);
+    document.addEventListener('focus', handleFocus, true);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener('focus', handleFocus, true);
+    };
+  }, []);
+
   return (
-    <div className={`${className}`}>
+    <div ref={containerRef} className={`${className}`}>
       <div className={`${inputWrapperClass}`}>
         <input
+          ref={inputRef}
           type="text"
           placeholder={placeholder}
           value={decodeDomainToASCII(searchQuery)}
