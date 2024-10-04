@@ -79,3 +79,4 @@ jobs:
           VITE_ARNS_REGISTRY_ADDRESS: ${{ vars.VITE_ARNS_REGISTRY_ADDRESS }}
           VITE_ARWEAVE_HOST: ${{ vars.ARWEAVE_HOST }}
           VITE_NODE_ENV: production
+          VITE_AO_CU_URL: ${{ vars.VITE_AO_CU_URL }}
