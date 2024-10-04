@@ -173,6 +173,7 @@ export enum ANT_INTERACTION_TYPES {
   SET_TTL_SECONDS = 'Edit TTL Seconds',
   REMOVE_RECORD = 'Delete Undername',
   TRANSFER = 'Transfer ANT',
+  EVOLVE = 'Upgrade ANT',
 }
 
 export enum ARNS_INTERACTION_TYPES {

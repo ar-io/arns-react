@@ -1,7 +1,6 @@
 import {
   ANTRegistry,
   ANT_REGISTRY_ID,
-  AoANTRegistryWrite,
   AoClient,
   AoIOWrite,
   AoMessageResult,
@@ -14,7 +13,7 @@ import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
 import { ARNS_INTERACTION_TYPES, ContractInteraction } from '@src/types';
 import { lowerCaseDomain } from '@src/utils';
-import { WRITE_OPTIONS } from '@src/utils/constants';
+import { DEFAULT_ANT_LUA_ID, WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Dispatch } from 'react';
 
@@ -59,11 +58,12 @@ export default async function dispatchArIOInteraction({
             signer: createAoSigner(signer),
             ao: ao,
             scheduler: scheduler,
+            luaCodeTxId: DEFAULT_ANT_LUA_ID,
           });
           const antRegistry = ANTRegistry.init({
             signer,
             processId: ANT_REGISTRY_ID,
-          }) as AoANTRegistryWrite;
+          });
           await antRegistry
             .register({
               processId: antProcessId,

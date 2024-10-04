@@ -83,6 +83,8 @@ export const URL_REGEX = new RegExp(
 );
 export const IO_PROCESS_ID =
   process.env.VITE_IO_PROCESS_ID || ioDevnetProcessId;
+
+export const DEFAULT_ANT_LUA_ID = 'pOh2yupSaQCrLI_-ah8tVTiusUdVNTxxeWTQQHNdf30'; // ANT_LUA_ID;
 export const AO_CU_URL = process.env.VITE_AO_CU_URL || 'https://cu.ar-io.dev';
 
 export const NETWORK_DEFAULTS = {
@@ -126,6 +128,7 @@ export const MIN_TTL_SECONDS = 900;
 export const MAX_LEASE_DURATION = 5;
 export const MIN_LEASE_DURATION = 1;
 export const SECONDS_IN_GRACE_PERIOD = 1814400;
+export const MILLISECONDS_IN_GRACE_PERIOD = SECONDS_IN_GRACE_PERIOD * 1000;
 
 export const transactionByOwnerQuery = (address: ArweaveTransactionID) => {
   const queryObject = {
@@ -155,7 +158,7 @@ export const transactionByOwnerQuery = (address: ArweaveTransactionID) => {
 };
 
 export const LANDING_PAGE_TXID = new ArweaveTransactionID(
-  'UyC5P5qKPZaltMmmZAWdakhlDXsBF6qmyrbWYFchRTk',
+  '-k7t8xMoB8hW482609Z9F4bTFMC3MnuW8bTvTyT8pFI',
 );
 
 export const RESERVED_BREADCRUMB_TITLES = new Set([

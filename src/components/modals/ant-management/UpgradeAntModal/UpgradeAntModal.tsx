@@ -1,9 +1,4 @@
-import {
-  ANT_LUA_ID,
-  ContractSigner,
-  createAoSigner,
-  evolveANT,
-} from '@ar.io/sdk';
+import { ContractSigner, createAoSigner, evolveANT } from '@ar.io/sdk';
 import { Tooltip } from '@src/components/data-display';
 import { CloseIcon } from '@src/components/icons';
 import { Loader } from '@src/components/layout';
@@ -12,9 +7,12 @@ import ArweaveID, {
 } from '@src/components/layout/ArweaveID/ArweaveID';
 import { useANTLuaSourceCode } from '@src/hooks/useANTLuaSourceCode';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
-import { useGlobalState, useWalletState } from '@src/state';
+import { useArNSState, useGlobalState, useWalletState } from '@src/state';
+import { dispatchANTUpdate } from '@src/state/actions/dispatchANTUpdate';
 import { formatForMaxCharCount, sleep } from '@src/utils';
+import { DEFAULT_ANT_LUA_ID } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
+import { useQueryClient } from '@tanstack/react-query';
 import { Checkbox } from 'antd';
 import Lottie from 'lottie-react';
 import { useEffect, useState } from 'react';
@@ -32,7 +30,9 @@ function UpgradeAntModal({
   setVisible: (visible: boolean) => void;
   antId: string;
 }) {
+  const queryClient = useQueryClient();
   const [{ aoClient }] = useGlobalState();
+  const [, dispatchArNSState] = useArNSState();
   const [{ wallet, walletAddress }] = useWalletState();
   const { data, isLoading } = useANTLuaSourceCode();
   const [accepted, setAccepted] = useState(false);
@@ -66,12 +66,26 @@ function UpgradeAntModal({
 
       await evolveANT({
         processId: antId,
-        luaCodeTxId: ANT_LUA_ID,
+        luaCodeTxId: DEFAULT_ANT_LUA_ID,
         signer,
         ao: aoClient,
       }).catch(() => {
         failedUpgrades.push(antId);
       });
+      dispatchANTUpdate({
+        processId: antId,
+        queryClient,
+        walletAddress,
+        dispatch: dispatchArNSState,
+      });
+      queryClient.invalidateQueries(
+        {
+          queryKey: ['domainInfo'],
+          refetchType: 'all',
+          exact: false,
+        },
+        { cancelRefetch: true },
+      );
 
       if (failedUpgrades.length) {
         eventEmitter.emit('error', {
@@ -88,7 +102,7 @@ function UpgradeAntModal({
                   characterCount={8}
                   shouldLink={true}
                   type={ArweaveIdTypes.TRANSACTION}
-                  id={new ArweaveTransactionID(ANT_LUA_ID)}
+                  id={new ArweaveTransactionID(DEFAULT_ANT_LUA_ID)}
                 />
               </span>
             </div>
@@ -186,11 +200,11 @@ function UpgradeAntModal({
                         View the code:{' '}
                         <a
                           className="text-link"
-                          href={`https://arscan.io/tx/${ANT_LUA_ID}`}
+                          href={`https://arscan.io/tx/${DEFAULT_ANT_LUA_ID}`}
                           target="_blank"
                           rel="noreferrer"
                         >
-                          {formatForMaxCharCount(ANT_LUA_ID, 8)}
+                          {formatForMaxCharCount(DEFAULT_ANT_LUA_ID, 8)}
                         </a>
                       </span>
                     </div>
@@ -224,7 +238,7 @@ function UpgradeAntModal({
             } w-full rounded-b-lg p-3 transition-all`}
             onClick={() => upgradeAnts()}
           >
-            {!accepted && !upgrading
+            {!accepted
               ? 'Verify you understand before proceeding'
               : upgrading
               ? 'Updating, please wait...'

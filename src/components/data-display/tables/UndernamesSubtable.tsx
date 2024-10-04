@@ -7,8 +7,6 @@ import { EditUndernameModal } from '@src/components/modals';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import {
-  dispatchArNSUpdate,
-  useArNSState,
   useGlobalState,
   useTransactionState,
   useWalletState,
@@ -44,8 +42,7 @@ const UndernamesSubtable = ({
   arnsDomain: string;
   antId: string;
 }) => {
-  const [{ gateway, ioProcessId }] = useGlobalState();
-  const [{ arnsEmitter }, dispatchArNSState] = useArNSState();
+  const [{ gateway }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const [tableData, setTableData] = useState<Array<TableData>>([]);
@@ -218,12 +215,7 @@ const UndernamesSubtable = ({
                 ),
                 name: 'Edit Undername',
               });
-              dispatchArNSUpdate({
-                emitter: arnsEmitter,
-                walletAddress: walletAddress,
-                ioProcessId,
-                dispatch: dispatchArNSState,
-              });
+
               setTransactionData(undefined);
               setSelectedUndername(undefined);
               setShowEditUndernameModal(false);
