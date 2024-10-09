@@ -19,6 +19,8 @@ import Arweave from 'arweave';
 import { RotateCcw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+import './styles.css';
+
 function ArNSSettings() {
   const [{ ioProcessId, aoClient, gateway }, dispatchGlobalState] =
     useGlobalState();
@@ -70,18 +72,18 @@ function ArNSSettings() {
   }
 
   const labelClass =
-    'flex w-fit justify-center items-center bg-background rounded-md px-4 py-1 border border-primary-thin text-inherit text-primary whitespace-nowrap gap-2';
+    'flex w-fit justify-center items-center bg-background rounded-md px-4 py-1 border border-primary-thin text-md whitespace-nowrap text-light-grey gap-2';
 
-  const inputClass =
-    'bg-foreground justify-center items-center outline-none text-[16px]';
+  const inputClass = 'bg-foreground justify-center items-center outline-none';
   const inputContainerClass =
     'flex flex-col gap-2 border border-primary-thin p-2 rounded-md bg-metallic-grey';
   const setButtonClass =
     'bg-primary-thin text-primary hover:bg-primary hover:text-black transition-all text-black h-full flex w-fit py-1 px-3 rounded-sm text-xs font-semibold';
-  const resetIconClass = 'py-1 px-3 text-grey';
+  const resetIconClass = 'py-1 px-3 text-grey hover:text-white transition-all';
+
   return (
     <div className="flex flex-col w-full h-full p-3">
-      <div className="flex flex-col w-full h-full bg-background gap-5 p-2 rounded-xl border border-dark-grey">
+      <div className="flex flex-col w-full h-full bg-background gap-5 p-2 rounded-xl">
         <div className={inputContainerClass}>
           <div
             className="flex flex-row justify-between items-center"
@@ -100,7 +102,7 @@ function ArNSSettings() {
                 'N/A'
               )}
             </span>
-            <div className="flex flex-row max-w-fit" style={{ gap: '10px' }}>
+            <div className="flex flex-row max-w-fit" style={{ gap: '4px' }}>
               <Toggle
                 leftLabel="devnet"
                 rightLabel="testnet"
@@ -117,6 +119,7 @@ function ArNSSettings() {
 
           <Input
             className={inputClass}
+            prefixCls="settings-input"
             placeholder="Enter custom ArNS Registry Address"
             value={registryAddress}
             onChange={(e) => {
@@ -131,7 +134,7 @@ function ArNSSettings() {
             variant="outlined"
             status={isValidAddress ? '' : 'error'}
             addonAfter={
-              <div className="flex flex-row" style={{ gap: '10px' }}>
+              <div className="flex flex-row" style={{ gap: '4px' }}>
                 <button
                   disabled={!isValidAddress}
                   className={setButtonClass}

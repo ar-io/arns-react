@@ -4,6 +4,8 @@ import Footer from '@src/components/layout/Footer/Footer';
 import { NetworkIcon } from 'lucide-react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 
+import './styles.css';
+
 const settingsRoutes = [
   {
     name: 'ArNS Registry',
@@ -56,7 +58,7 @@ function SettingsLayout() {
           style={{ gap: 0 }}
         >
           <div className="flex flex-col w-fit h-full text-white max-w-[300px] bg-metallic-grey border-r-[1px] border-dark-grey rounded-bl-xl">
-            <div className="flex flex-col py-2 px-4 gap-3">
+            <div className="flex flex-col py-2 pt-4 px-4 gap-3">
               {settingsRoutes.map((route) => (
                 <Link
                   key={route.path}

@@ -36,7 +36,7 @@ function Toggle({
       />
       <div className="flex items-center cursor-pointer">
         <div
-          className={`relative h-8 bg-primary-thin rounded-full flex items-center justify-between p-1 px-2`}
+          className={`relative h-8 bg-primary-thin rounded-sm flex items-center justify-between p-1 px-2`}
           style={{
             width: longLabel.length * 2 * 11.5,
           }}
@@ -49,7 +49,7 @@ function Toggle({
             {leftLabel}
           </span>
           <motion.div
-            className={`absolute h-6 bg-primary rounded-full`}
+            className={`absolute h-6 bg-primary rounded-sm`}
             layout
             initial={false}
             animate={{

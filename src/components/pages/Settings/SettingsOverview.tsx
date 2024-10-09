@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 function SettingsOverview() {
   return (
     <div className="flex flex-col w-full h-full p-3">
-      <div className="flex flex-col w-full h-full bg-background gap-5 p-2 rounded-xl border border-dark-grey">
+      <div className="flex flex-col w-full h-full bg-background gap-5 p-2 rounded-xl">
         <Link
           className="flex flex-row justify-between p-4 bg-metallic-grey hover:bg-primary-thin border border-primary-thin text-white rounded-md text-lg font-semibold"
           to={'/settings/arns'}
