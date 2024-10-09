@@ -46,6 +46,7 @@ export function dispatchArNSUpdate({
   });
   const errorHandler = (e: string) => {
     if (e.startsWith('Error getting ArNS records')) {
+      eventEmitter.emit('network:ao:congested', true);
       eventEmitter.emit(
         'error',
         new Error('Unable to load ArNS records. Please refresh to try again.'),
@@ -59,6 +60,7 @@ export function dispatchArNSUpdate({
         payload: undefined,
       });
     } else if (e.includes('Timeout')) {
+      eventEmitter.emit('network:ao:congested', true);
       // capture and report the exception, but do not emit error notification
       captureException(new Error(e), {
         tags: {

@@ -21,7 +21,12 @@ export default async function dispatchANTInteraction({
   dispatch: Dispatch<TransactionAction>;
 }): Promise<ContractInteraction> {
   let result: AoMessageResult | undefined = undefined;
-
+  const aoCongestedTimeout = setTimeout(
+    () => {
+      eventEmitter.emit('network:ao:congested', true);
+    }, // if it is taking longer than 10 seconds, consider the network congested
+    1000 * 10,
+  );
   const antProcess = ANT.init({
     processId: processId,
     signer,
@@ -105,6 +110,7 @@ export default async function dispatchANTInteraction({
     eventEmitter.emit('error', error);
   } finally {
     dispatchSigningMessage(undefined);
+    clearTimeout(aoCongestedTimeout);
   }
   if (!result) {
     throw new Error('Failed to dispatch ANT interaction');
