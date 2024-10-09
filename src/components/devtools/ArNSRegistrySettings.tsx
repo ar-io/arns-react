@@ -10,6 +10,7 @@ import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { VALIDATION_INPUT_TYPES } from '@src/types';
 import { isArweaveTransactionID } from '@src/utils';
+import { defaultLogger } from '@src/utils/constants';
 import { Collapse, Space } from 'antd';
 import Arweave from 'arweave';
 import { useEffect, useState } from 'react';
@@ -45,6 +46,7 @@ function ArNSRegistrySettings() {
         process: new AOProcess({
           processId: id.trim(),
           ao: aoClient,
+          logger: defaultLogger as any,
         }),
         ...(wallet?.arconnectSigner ? { signer: wallet.arconnectSigner } : {}),
       });

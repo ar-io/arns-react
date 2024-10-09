@@ -1,5 +1,6 @@
 import { AOProcess, IO } from '@ar.io/sdk';
 import { ArConnectWalletConnector } from '@src/services/wallets';
+import { defaultLogger } from '@src/utils/constants';
 import { useEffect, useState } from 'react';
 
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
@@ -32,6 +33,7 @@ function useArconnectEvents() {
         process: new AOProcess({
           processId: ioProcessId,
           ao: aoClient,
+          logger: defaultLogger as any,
         }),
         signer: newWallet.arconnectSigner!,
       });
