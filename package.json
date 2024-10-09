@@ -17,11 +17,12 @@
     "test:coverage": "NODE_ENV=test jest --coverage",
     "prepare": "husky install",
     "pre-commit": "lint-staged",
-    "docs:serve": "rm -rf docs && typedoc --out docs src/**/**/* && http-server docs"
+    "docs:serve": "rm -rf docs && typedoc --out docs src/**/**/* && http-server docs",
+    "landing:serve": "http-server ./landing_page"
   },
   "dependencies": {
     "@ant-design/icons": "5.4.0",
-    "@ar.io/sdk": "^2.3.0-alpha.4",
+    "@ar.io/sdk": "2.3.0-alpha.5",
     "@permaweb/aoconnect": "^0.0.59",
     "@sentry/react": "^7.45.0",
     "@tanstack/react-query": "^5.45.1",
