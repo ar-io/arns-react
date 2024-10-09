@@ -6,7 +6,7 @@ import useDebounce from '@src/hooks/useDebounce';
 import { useGlobalState, useWalletState } from '@src/state';
 import { decodeDomainToASCII, lowerCaseDomain } from '@src/utils';
 import Lottie from 'lottie-react';
-import { ChevronRight, XIcon } from 'lucide-react';
+import { ChevronRight, CircleAlert, XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -187,14 +187,25 @@ function HomeSearch() {
                     {isSearching || query !== domainQuery ? (
                       <span>Searching...</span>
                     ) : isAvailable ? (
-                      <span className="whitespace-nowrap flex items-center gap-2">
-                        AVAILABLE{' '}
-                        <CircleCheckFilled
-                          className="fill-success"
-                          width={'14px'}
-                          height={'14px'}
-                        />
-                      </span>
+                      !isValidDomain ? (
+                        <span className="whitespace-nowrap flex items-start justify-center gap-2 text-error">
+                          INVALID{' '}
+                          <CircleAlert
+                            className="m-[2px]"
+                            width={'14px'}
+                            height={'14px'}
+                          />
+                        </span>
+                      ) : (
+                        <span className="whitespace-nowrap flex items-center gap-2">
+                          AVAILABLE{' '}
+                          <CircleCheckFilled
+                            className="fill-success"
+                            width={'14px'}
+                            height={'14px'}
+                          />
+                        </span>
+                      )
                     ) : (
                       <span className="whitespace-nowrap flex items-center gap-2">
                         NOT AVAILABLE

@@ -55,7 +55,9 @@ function AddUndernameModal({
     if (registeredDomains) {
       const arnsRecords = registeredDomains?.items?.reduce(
         (acc: Record<string, AoArNSNameData>, record) => {
-          acc[record.name] = record;
+          if (record.processId == antId.toString()) {
+            acc[record.name] = record;
+          }
           return acc;
         },
         {},
@@ -63,7 +65,7 @@ function AddUndernameModal({
       loadDetails({ arnsRecords });
     }
     nameRef.current?.focus();
-  }, [antId.toString()]);
+  }, [antId.toString(), registeredDomains]);
 
   async function loadDetails({
     arnsRecords,

@@ -25,7 +25,7 @@ function DomainPiceList({ domain }: { domain: string }) {
       {priceList && priceList.lease > 0 ? (
         <span className="text-sm text-white align-center">
           Lease from {formatIO(new mIOToken(priceList.lease).toIO().valueOf())}{' '}
-          {ioTicker} per year, or permabuy for{' '}
+          {ioTicker} for one year, or permabuy for{' '}
           {formatIO(new mIOToken(priceList.buy).toIO().valueOf())} {ioTicker}
         </span>
       ) : (
