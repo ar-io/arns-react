@@ -2,15 +2,6 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
-@layer base {
-  body {
-    @apply bg-background;
-  }
-  button {
-    @apply leading-4;
-  }
-}
-
 @font-face {
   font-family: 'Rubik';
   src: url('../assets/fonts/Rubik1/Rubik-Regular.ttf');
@@ -26,6 +17,16 @@
   font-style: monospace;
   font-display: block;
 }
+
+@layer base {
+  body {
+    @apply bg-background;
+  }
+  button {
+    @apply leading-4;
+  }
+}
+
 :root {
   --bg-color: #131314;
   --box-color: #18191a;

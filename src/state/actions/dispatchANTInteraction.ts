@@ -1,6 +1,7 @@
 import { ANT, AoMessageResult, ContractSigner } from '@ar.io/sdk/web';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
+import { lowerCaseDomain } from '@src/utils';
 import eventEmitter from '@src/utils/events';
 import { Dispatch } from 'react';
 
@@ -20,7 +21,12 @@ export default async function dispatchANTInteraction({
   dispatch: Dispatch<TransactionAction>;
 }): Promise<ContractInteraction> {
   let result: AoMessageResult | undefined = undefined;
-
+  const aoCongestedTimeout = setTimeout(
+    () => {
+      eventEmitter.emit('network:ao:congested', true);
+    }, // if it is taking longer than 10 seconds, consider the network congested
+    1000 * 10,
+  );
   const antProcess = ANT.init({
     processId: processId,
     signer,
@@ -78,7 +84,7 @@ export default async function dispatchANTInteraction({
       case ANT_INTERACTION_TYPES.SET_RECORD:
         dispatchSigningMessage('Setting Undername, please wait...');
         result = await antProcess.setRecord({
-          undername: payload.subDomain,
+          undername: lowerCaseDomain(payload.subDomain),
           transactionId: payload.transactionId,
           ttlSeconds: payload.ttlSeconds,
         });
@@ -86,7 +92,7 @@ export default async function dispatchANTInteraction({
       case ANT_INTERACTION_TYPES.EDIT_RECORD:
         dispatchSigningMessage('Editing Undername, please wait...');
         result = await antProcess.setRecord({
-          undername: payload.subDomain,
+          undername: lowerCaseDomain(payload.subDomain),
           transactionId: payload.transactionId,
           ttlSeconds: payload.ttlSeconds,
         });
@@ -94,7 +100,7 @@ export default async function dispatchANTInteraction({
       case ANT_INTERACTION_TYPES.REMOVE_RECORD:
         dispatchSigningMessage('Removing Undername, please wait...');
         result = await antProcess.removeRecord({
-          undername: payload.subDomain,
+          undername: lowerCaseDomain(payload.subDomain),
         });
         break;
       default:
@@ -104,6 +110,7 @@ export default async function dispatchANTInteraction({
     eventEmitter.emit('error', error);
   } finally {
     dispatchSigningMessage(undefined);
+    clearTimeout(aoCongestedTimeout);
   }
   if (!result) {
     throw new Error('Failed to dispatch ANT interaction');
