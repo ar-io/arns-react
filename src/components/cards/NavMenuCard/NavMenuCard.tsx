@@ -1,6 +1,7 @@
 import { buildARBalanceQuery, buildIOBalanceQuery } from '@src/utils/network';
 import { useQueryClient } from '@tanstack/react-query';
 import { Tooltip } from 'antd';
+import { Settings2Icon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -313,6 +314,25 @@ function NavMenuCard() {
                       }}
                     >
                       What are test tokens?
+                    </Link>
+                  </span>{' '}
+                  <span className="flex flex-row" style={{ gap: '10px' }}>
+                    <Settings2Icon
+                      className="text-grey"
+                      width={'16px'}
+                      height={'16px'}
+                    />{' '}
+                    <Link
+                      to={'/settings'}
+                      className={'flex-row navbar-link hover'}
+                      style={{
+                        gap: '10px',
+                        alignItems: 'center',
+                        color: 'var(--text-white)',
+                        fontSize: '14px',
+                      }}
+                    >
+                      Settings
                     </Link>
                   </span>
                   {
