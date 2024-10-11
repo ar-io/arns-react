@@ -36,14 +36,14 @@ function Toggle({
       />
       <div className="flex items-center cursor-pointer">
         <div
-          className={`relative h-8 bg-primary-thin rounded-sm flex items-center justify-between p-1 px-2`}
+          className={`relative h-8 bg-dark-grey rounded-sm flex items-center justify-between p-1 px-2`}
           style={{
             width: longLabel.length * 2 * 11.5,
           }}
         >
           <span
             className={`z-10 pl-2 transition-all ${
-              !checked ? 'text-black' : 'text-primary'
+              !checked ? 'text-black' : 'text-light-grey'
             }`}
           >
             {leftLabel}
@@ -60,7 +60,7 @@ function Toggle({
           />
           <span
             className={`z-10 pr-2 transition-all ${
-              checked ? 'text-black' : 'text-primary'
+              checked ? 'text-black' : 'text-light-grey'
             }`}
           >
             {rightLabel}

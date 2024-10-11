@@ -164,7 +164,7 @@ function NetworkSettings() {
   const resetIconClass = 'py-1 px-3 text-grey hover:text-white transition-all';
   return (
     <div className="flex flex-col w-full h-full p-3">
-      <div className="flex flex-col w-full h-full bg-background gap-5 p-2 rounded-xl">
+      <div className="flex flex-col w-full h-full  gap-5 p-2 rounded-xl">
         <>
           <div className={inputContainerClass}>
             <div className="flex flex-row justify-between items-center text-white">
