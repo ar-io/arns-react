@@ -1,6 +1,7 @@
 import { AoArNSNameData, isLeasedArNSRecord, mIOToken } from '@ar.io/sdk/web';
 import WarningCard from '@src/components/cards/WarningCard/WarningCard';
 import { getTransactionDescription } from '@src/components/pages/Transaction/transaction-descriptions';
+import Lottie from 'lottie-react';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -26,6 +27,7 @@ import {
 } from '../../../utils/constants';
 import eventEmitter from '../../../utils/events';
 import { InfoIcon } from '../../icons';
+import arioLoading from '../../icons/ario-spinner.json';
 import Counter from '../../inputs/Counter/Counter';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
 import DialogModal from '../../modals/DialogModal/DialogModal';
@@ -46,6 +48,7 @@ function ExtendLease() {
   const [maxIncrease, setMaxIncrease] = useState<number>(0);
   const [ioFee, setIoFee] = useState<number | undefined>();
   const [ioBalance, setIoBalance] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (!name) {
@@ -76,6 +79,7 @@ function ExtendLease() {
 
   async function onLoad(domain: string) {
     try {
+      setLoading(true);
       // TODO: make this generic so we get back the correct type
 
       const domainRecord = await arioContract.getArNSRecord({
@@ -117,6 +121,8 @@ function ExtendLease() {
       // sleep 2000 to make page transition less jarring
       await sleep(2000);
       navigate(`/manage/names`);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -174,47 +180,23 @@ function ExtendLease() {
             Expiring on {formatDate(record.endTimestamp)}
           </div>
         </div>
-        <div
-          className="flex flex-column"
-          style={{
-            width: '100%',
-            height: '100%',
-            background: 'var(--card-bg)',
-            borderRadius: 'var(--corner-radius)',
-            padding: '30px',
-            boxSizing: 'border-box',
-            position: 'relative',
-          }}
-        >
+        <div className="flex flex-col relative p-[30px] w-full h-full bg-foreground box-border rounded-md ">
+          {/* loading overlay */}
+          {loading && (
+            <div className="flex flex-col items-center justify-center rounded-md bg-foreground h-full w-full absolute top-0 left-0">
+              <div className="flex flex-row items-center justify-center">
+                <Lottie
+                  animationData={arioLoading}
+                  loop={true}
+                  className="h-[150px]"
+                />
+              </div>
+            </div>
+          )}
           {/* maxxed out duration overlay */}
-          {maxIncrease < 1 ? (
-            <div
-              className="flex flex-column center modal-container"
-              style={{
-                position: 'absolute',
-                top: '0',
-                left: '0',
-                width: '100%',
-                height: '100%',
-                background: 'rgba(0,0,0,0.5)',
-                borderRadius: 'var(--corner-radius)',
-                zIndex: 1,
-              }}
-            >
-              <div
-                className="flex flex-row center"
-                style={{
-                  width: 'fit-content',
-                  height: 'fit-content',
-                  borderRadius: 'var(--corner-radius)',
-                  border: 'solid 1px var(--error-red)',
-                  background: '#1D1314',
-                  padding: '10px',
-                  boxSizing: 'border-box',
-                  color: 'var(--error-red)',
-                  gap: '10px',
-                }}
-              >
+          {!loading && maxIncrease < 1 && (
+            <div className="flex flex-col center  rounded-md  bg-[rgb(0,0,0,0.5)] h-full w-full absolute top-0 left-0">
+              <div className="flex flex-row items-center justify-center max-w-fit h-fit rounded-md border border-error text-white bg-foreground p-6 gap-2">
                 {' '}
                 <InfoIcon
                   width={'24px'}
@@ -224,8 +206,6 @@ function ExtendLease() {
                 <span className="center">Maximum lease extension reached</span>
               </div>
             </div>
-          ) : (
-            <></>
           )}
           <Counter
             setValue={setNewLeaseDuration}

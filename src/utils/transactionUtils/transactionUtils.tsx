@@ -5,13 +5,10 @@ import {
   ARNSMapping,
   ARNS_INTERACTION_TYPES,
   BuyRecordPayload,
-  CONTRACT_TYPES,
-  ContractTypes,
   ExcludedValidInteractionType,
   ExtendLeasePayload,
   INTERACTION_TYPES,
   IncreaseUndernamesPayload,
-  InteractionTypes,
   RemoveRecordPayload,
   SetControllerPayload,
   SetNamePayload,
@@ -27,10 +24,10 @@ import {
 } from '../../types';
 import {
   ARNS_TX_ID_REGEX,
-  DEFAULT_ANT_CONTRACT_STATE,
   DEFAULT_MAX_UNDERNAMES,
   MAX_TTL_SECONDS,
   MIN_TTL_SECONDS,
+  PERMANENT_DOMAIN_MESSAGE,
   TTL_SECONDS_REGEX,
   YEAR_IN_MILLISECONDS,
 } from '../constants';
@@ -44,10 +41,6 @@ export function isArweaveTransactionID(id?: string) {
     return false;
   }
   return true;
-}
-
-export function isContractType(x: any): x is ContractTypes {
-  return Object.values(CONTRACT_TYPES).includes(x);
 }
 
 export function isObjectOfTransactionPayloadType<
@@ -231,7 +224,7 @@ export function getARNSMappingByInteractionType(
         transactionData.type === TRANSACTION_TYPES.LEASE &&
         transactionData.years
           ? Date.now() + YEAR_IN_MILLISECONDS * transactionData.years
-          : 'Indefinite';
+          : PERMANENT_DOMAIN_MESSAGE;
 
       const processId =
         transactionData.processId === 'atomic'
@@ -591,93 +584,6 @@ export function getARNSMappingByInteractionType(
   }
 }
 
-export const FieldToInteractionMap: {
-  [x: string]: {
-    title: ExcludedValidInteractionType;
-    function: string;
-    name?: string;
-  };
-} = {
-  name: {
-    title: INTERACTION_TYPES.SET_NAME,
-    function: 'setName',
-  },
-  ticker: {
-    title: INTERACTION_TYPES.SET_TICKER,
-    function: 'setTicker',
-  },
-  targetID: {
-    title: INTERACTION_TYPES.SET_TARGET_ID,
-    function: 'setRecord',
-    name: 'transactionId',
-  },
-  ttlSeconds: {
-    title: INTERACTION_TYPES.SET_TTL_SECONDS,
-    function: 'setRecord',
-  },
-  controller: {
-    title: INTERACTION_TYPES.SET_CONTROLLER,
-    function: 'setController',
-    name: 'target',
-  },
-  owner: {
-    title: INTERACTION_TYPES.TRANSFER,
-    function: 'transfer',
-    name: 'target',
-  },
-  // TODO: add other interactions
-};
-
-export function getInteractionTypeFromField(field: string) {
-  return FieldToInteractionMap[field]?.title;
-}
-
-export function getInteractionFunctionFromField(field: string) {
-  return FieldToInteractionMap[field]?.function;
-}
-
-export function getInteractionAttributeNameFromField(field: string) {
-  return FieldToInteractionMap[field]?.name ?? field;
-}
-
-export function getAttributesFromInteractionFunction(f: string) {
-  const attributes: string[] = [];
-  for (const key in FieldToInteractionMap) {
-    if (getInteractionFunctionFromField(key) === f) {
-      attributes.push(key);
-    }
-  }
-  return attributes;
-}
-
-export function mapTransactionDataKeyToPayload(
-  interactionType: ValidInteractionType,
-  data: string | number | Array<string | number>,
-): TransactionData | undefined {
-  const txData = typeof data === 'object' ? data : [data];
-  if (!data) {
-    throw new Error('No data provided, data is required to build the payload');
-  }
-
-  const payload = TRANSACTION_DATA_KEYS[interactionType].keys.reduce(
-    (accum: any, k: string, index: number) => {
-      if (!txData[index]) {
-        // if missing transaction data from the url, throw an error
-        throw new Error(
-          `Missing key (${k}) from transaction data in the url. This may be due to the order of the data, the current order is [${txData}], the correct order is [${TRANSACTION_DATA_KEYS[interactionType].keys}]`,
-        );
-      }
-      accum[k] = txData[index];
-      return accum;
-    },
-    {},
-  );
-  return {
-    ...payload,
-    functionName: TRANSACTION_DATA_KEYS[interactionType].functionName,
-  };
-}
-
 export function getLinkId(
   interactionType: ValidInteractionType,
   transactionData: TransactionData,
@@ -715,28 +621,6 @@ export async function validateTTLSeconds(ttl: number): Promise<void> {
   }
 }
 
-export function generateAtomicState(
-  domain: string,
-  walletAddress: ArweaveTransactionID,
-  targetId?: ArweaveTransactionID,
-) {
-  const records = { ...DEFAULT_ANT_CONTRACT_STATE.records };
-
-  if (targetId) {
-    records['@'].transactionId = targetId.toString();
-  }
-
-  return {
-    ...DEFAULT_ANT_CONTRACT_STATE,
-    name: domain,
-    ticker: `ANT-${domain.toUpperCase()}`,
-    owner: walletAddress.toString(),
-    controllers: [walletAddress.toString()],
-    balances: { [walletAddress.toString()]: 1 },
-    records,
-  };
-}
-
 export async function withExponentialBackoff<T>({
   fn,
   shouldRetry,
@@ -764,23 +648,6 @@ export async function withExponentialBackoff<T>({
     }
   }
   throw new Error('Maximum retry attempts reached');
-}
-
-export function pruneExtraDataFromTransactionPayload(
-  interactionType: InteractionTypes,
-  payload: TransactionDataPayload,
-): TransactionDataPayload {
-  const requiredKeys = TRANSACTION_DATA_KEYS[interactionType].keys;
-  const cleanPayload = Object.entries(payload).reduce<TransactionDataPayload>(
-    (accum: TransactionDataPayload, [k, v]: [any, any]) => {
-      if (requiredKeys.includes(k)) {
-        accum[k as keyof TransactionDataPayload] = v as keyof typeof accum;
-      }
-      return accum;
-    },
-    {} as TransactionDataPayload,
-  );
-  return cleanPayload;
 }
 
 /**

@@ -1,5 +1,4 @@
 import { useArNSState } from '@src/state';
-import { doAntsRequireUpdate } from '@src/utils';
 import { ReactNode, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
@@ -9,6 +8,7 @@ import { ROUTES } from '../../../../utils/routes';
 import NavMenuCard from '../../../cards/NavMenuCard/NavMenuCard';
 import ConnectButton from '../../../inputs/buttons/ConnectButton/ConnectButton';
 import NavBarLink from '../NavBarLink/NavBarLink';
+import NotificationMenu from '../NotificationMenu/NotificationMenu';
 import './styles.css';
 
 function NavGroup() {
@@ -21,14 +21,9 @@ function NavGroup() {
   useEffect(() => {
     function getActivityDot(routeName: string): boolean | undefined {
       switch (routeName) {
-        case 'manage':
-          return luaSourceTx && walletAddress
-            ? doAntsRequireUpdate({
-                ants,
-                userAddress: walletAddress?.toString(),
-                luaSourceTx,
-              }) && location.pathname.split('/')[1] !== 'manage'
-            : false;
+        // return true to display activity dot on a link
+        //example:
+        // case 'manage': return true;
         default:
           return undefined;
       }
@@ -56,6 +51,8 @@ function NavGroup() {
     >
       {!isMobile ? (
         <>
+          {' '}
+          <NotificationMenu />
           {links}
           {!wallet || !walletAddress ? <ConnectButton /> : <NavMenuCard />}
         </>

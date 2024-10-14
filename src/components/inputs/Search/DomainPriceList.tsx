@@ -1,9 +1,11 @@
 import { mIOToken } from '@ar.io/sdk';
 import { RefreshAlertIcon } from '@src/components/icons';
 import { useArNSDomainPriceList } from '@src/hooks/useArNSDomainPriceList';
+import { useGlobalState } from '@src/state';
 import { formatIO } from '@src/utils';
 
 function DomainPiceList({ domain }: { domain: string }) {
+  const [{ ioTicker }] = useGlobalState();
   const {
     data: priceList,
     isLoading: isLoadingPriceList,
@@ -23,8 +25,8 @@ function DomainPiceList({ domain }: { domain: string }) {
       {priceList && priceList.lease > 0 ? (
         <span className="text-sm text-white align-center">
           Lease from {formatIO(new mIOToken(priceList.lease).toIO().valueOf())}{' '}
-          IO per year, or permabuy for{' '}
-          {formatIO(new mIOToken(priceList.buy).toIO().valueOf())} IO
+          {ioTicker} for one year, or permabuy for{' '}
+          {formatIO(new mIOToken(priceList.buy).toIO().valueOf())} {ioTicker}
         </span>
       ) : (
         domain.length &&

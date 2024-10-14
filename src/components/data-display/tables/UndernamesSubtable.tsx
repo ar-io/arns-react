@@ -7,8 +7,6 @@ import { EditUndernameModal } from '@src/components/modals';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import {
-  dispatchArNSUpdate,
-  useArNSState,
   useGlobalState,
   useTransactionState,
   useWalletState,
@@ -44,8 +42,7 @@ const UndernamesSubtable = ({
   arnsDomain: string;
   antId: string;
 }) => {
-  const [{ gateway, ioProcessId }] = useGlobalState();
-  const [{ arnsEmitter }, dispatchArNSState] = useArNSState();
+  const [{ gateway }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const [tableData, setTableData] = useState<Array<TableData>>([]);
@@ -121,18 +118,18 @@ const UndernamesSubtable = ({
                   overlayInnerStyle: { width: 'fit-content' },
                 }}
                 message={
-                  <span className="w-fit whitespace-nowrap text-primary">
+                  <span className="w-fit whitespace-nowrap text-white">
                     {rowValue}
                   </span>
                 }
                 icon={
                   <Link
-                    className="link gap-2 items-center"
+                    className="link gap-2 items-center w-fit"
                     to={`https://${rowValue}_${arnsDomain}.${gateway}`}
                     target="_blank"
                   >
                     <CornerDownRight className="text-dark-grey w-[18px]" />
-                    {formatForMaxCharCount(rowValue, 12)}{' '}
+                    {formatForMaxCharCount(rowValue, 30)}{' '}
                     <ExternalLinkIcon
                       width={'12px'}
                       height={'12px'}
@@ -203,7 +200,7 @@ const UndernamesSubtable = ({
           interactionType={ANT_INTERACTION_TYPES.EDIT_RECORD}
           confirm={() =>
             dispatchANTInteraction({
-              processId: new ArweaveTransactionID(antId),
+              processId: antId,
               payload: transactionData,
               workflowName: ANT_INTERACTION_TYPES.EDIT_RECORD,
               signer: wallet.arconnectSigner!,
@@ -218,12 +215,7 @@ const UndernamesSubtable = ({
                 ),
                 name: 'Edit Undername',
               });
-              dispatchArNSUpdate({
-                emitter: arnsEmitter,
-                walletAddress: walletAddress,
-                ioProcessId,
-                dispatch: dispatchArNSState,
-              });
+
               setTransactionData(undefined);
               setSelectedUndername(undefined);
               setShowEditUndernameModal(false);

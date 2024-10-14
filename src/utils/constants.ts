@@ -83,6 +83,8 @@ export const URL_REGEX = new RegExp(
 );
 export const IO_PROCESS_ID =
   process.env.VITE_IO_PROCESS_ID || ioDevnetProcessId;
+
+export const DEFAULT_ANT_LUA_ID = 'pOh2yupSaQCrLI_-ah8tVTiusUdVNTxxeWTQQHNdf30'; // ANT_LUA_ID;
 export const AO_CU_URL = process.env.VITE_AO_CU_URL || 'https://cu.ar-io.dev';
 
 export const NETWORK_DEFAULTS = {
@@ -97,10 +99,7 @@ export const NETWORK_DEFAULTS = {
     PROTOCOL: 'https',
   },
 };
-export const STUB_ANT_ID = '6dUiTQKJCVD7c9icQhbbzfI-Le_hC4sXRDx1OQQ6jMI';
-export const STUB_ARWEAVE_TXID = '2yHmORN-N12hM1B2f9-JPMpOfa59qhpsExFCzImrD30'; // arns spec pdf
-export const DEFAULT_ANT_SOURCE_CODE_TX =
-  'H2uxnw_oVIEzXeBeYmxDgJuxPqwBCGPO4OmQzdWQu3U';
+
 export const RECOMMENDED_TRANSACTION_CONFIRMATIONS = 50;
 export const DEFAULT_TTL_SECONDS = 3600;
 export const DEFAULT_MAX_UNDERNAMES = 10;
@@ -129,6 +128,7 @@ export const MIN_TTL_SECONDS = 900;
 export const MAX_LEASE_DURATION = 5;
 export const MIN_LEASE_DURATION = 1;
 export const SECONDS_IN_GRACE_PERIOD = 1814400;
+export const MILLISECONDS_IN_GRACE_PERIOD = SECONDS_IN_GRACE_PERIOD * 1000;
 
 export const transactionByOwnerQuery = (address: ArweaveTransactionID) => {
   const queryObject = {
@@ -158,22 +158,8 @@ export const transactionByOwnerQuery = (address: ArweaveTransactionID) => {
 };
 
 export const LANDING_PAGE_TXID = new ArweaveTransactionID(
-  'UyC5P5qKPZaltMmmZAWdakhlDXsBF6qmyrbWYFchRTk',
+  '-k7t8xMoB8hW482609Z9F4bTFMC3MnuW8bTvTyT8pFI',
 );
-
-export const DEFAULT_ANT_CONTRACT_STATE = {
-  balances: {},
-  name: '',
-  ticker: '',
-  owner: '',
-  controllers: [],
-  records: {
-    '@': {
-      transactionId: LANDING_PAGE_TXID.toString(),
-      ttlSeconds: DEFAULT_TTL_SECONDS,
-    },
-  },
-};
 
 export const RESERVED_BREADCRUMB_TITLES = new Set([
   'Manage Assets',
@@ -183,4 +169,5 @@ export const RESERVED_BREADCRUMB_TITLES = new Set([
 ]);
 
 export const ARIO_DISCORD_LINK = 'https://discord.com/invite/HGG52EtTc2';
-export const APPROXIMATE_BLOCKS_PER_DAY = 720;
+
+export const PERMANENT_DOMAIN_MESSAGE = 'Indefinite';

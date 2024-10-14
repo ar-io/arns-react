@@ -1,4 +1,6 @@
 import {
+  ANTRegistry,
+  ANT_REGISTRY_ID,
   AoClient,
   AoIOWrite,
   AoMessageResult,
@@ -11,7 +13,7 @@ import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
 import { ARNS_INTERACTION_TYPES, ContractInteraction } from '@src/types';
 import { lowerCaseDomain } from '@src/utils';
-import { WRITE_OPTIONS } from '@src/utils/constants';
+import { DEFAULT_ANT_LUA_ID, WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Dispatch } from 'react';
 
@@ -37,7 +39,12 @@ export default async function dispatchArIOInteraction({
   scheduler?: string;
 }): Promise<ContractInteraction> {
   let result: AoMessageResult | undefined = undefined;
-
+  const aoCongestedTimeout = setTimeout(
+    () => {
+      eventEmitter.emit('network:ao:congested', true);
+    }, // if it is taking longer than 10 seconds, consider the network congested
+    1000 * 10,
+  );
   try {
     if (!arioContract) throw new Error('ArIO provider is not defined');
     if (!signer) throw new Error('signer is not defined');
@@ -56,7 +63,25 @@ export default async function dispatchArIOInteraction({
             signer: createAoSigner(signer),
             ao: ao,
             scheduler: scheduler,
+            luaCodeTxId: DEFAULT_ANT_LUA_ID,
           });
+
+          const antRegistry = ANTRegistry.init({
+            signer,
+            processId: ANT_REGISTRY_ID,
+          });
+          await antRegistry
+            .register({
+              processId: antProcessId,
+            })
+            .catch((error) => {
+              eventEmitter.emit(
+                'error',
+                new Error(
+                  `Failed to register ANT process: ${error}. You may need to manually register the process`,
+                ),
+              );
+            });
         }
 
         const buyRecordResult = await arioContract.buyRecord({
@@ -99,6 +124,7 @@ export default async function dispatchArIOInteraction({
       type: 'setSigning',
       payload: false,
     });
+    clearTimeout(aoCongestedTimeout);
   }
   if (!result) {
     throw new Error('Failed to dispatch ArIO interaction');

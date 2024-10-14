@@ -8,8 +8,14 @@ import {
   useReducer,
 } from 'react';
 
+import { useArNSState } from '.';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
-import { ExcludedValidInteractionType, TransactionData } from '../../types';
+import {
+  ANT_INTERACTION_TYPES,
+  ExcludedValidInteractionType,
+  TransactionData,
+} from '../../types';
+import { dispatchANTUpdate } from '../actions/dispatchANTUpdate';
 import { TransactionAction } from '../reducers/TransactionReducer';
 import { useWalletState } from './WalletState';
 
@@ -20,6 +26,7 @@ export type TransactionState = {
   workflowName?: string;
   interactionResult?: any;
   signing: boolean;
+  signingMessage?: string;
 };
 
 export type TransactionStateProviderProps = {
@@ -51,20 +58,42 @@ export function TransactionStateProvider({
   );
 
   const queryClient = useQueryClient();
-  const [walletAddress] = useWalletState();
+  const [walletState] = useWalletState();
+  const [, dispatchArNSState] = useArNSState();
+
   useEffect(() => {
     if (
-      walletAddress &&
+      walletState &&
       queryClient &&
       state.interactionResult //&&
       // refreshableInteractionTypes.includes(state?.workflowName ?? '')
     ) {
-      queryClient.invalidateQueries({
-        queryKey: ['domainInfo'],
-        refetchType: 'all',
+      queryClient.invalidateQueries(
+        {
+          queryKey: ['domainInfo'],
+          refetchType: 'all',
+          exact: false,
+        },
+        { cancelRefetch: true },
+      );
+    }
+
+    if (
+      walletState.walletAddress &&
+      state?.workflowName &&
+      Object.values(ANT_INTERACTION_TYPES).includes(
+        state.workflowName as ANT_INTERACTION_TYPES,
+      ) &&
+      state.interactionResult
+    ) {
+      dispatchANTUpdate({
+        queryClient,
+        processId: state.interactionResult?.processId,
+        walletAddress: walletState.walletAddress,
+        dispatch: dispatchArNSState,
       });
     }
-  }, [state.interactionResult, queryClient, walletAddress]);
+  }, [state.interactionResult, queryClient, walletState]);
 
   /**
    * TODO: cache workflows in case connection lost, gives ability to continue interrupted workflows. To cache, simply add state as the value under a timestamp key.
@@ -77,9 +106,10 @@ export function TransactionStateProvider({
       {children}
       <PageLoader
         loading={state.signing}
-        message={`Deploying ${
-          state?.workflowName ?? ''
-        } interaction, please wait.`}
+        message={
+          state.signingMessage ??
+          `Deploying ${state?.workflowName ?? ''} interaction, please wait.`
+        }
       />
     </TransactionStateContext.Provider>
   );

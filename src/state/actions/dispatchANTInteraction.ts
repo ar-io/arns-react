@@ -1,7 +1,7 @@
 import { ANT, AoMessageResult, ContractSigner } from '@ar.io/sdk/web';
-import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
+import { lowerCaseDomain } from '@src/utils';
 import eventEmitter from '@src/utils/events';
 import { Dispatch } from 'react';
 
@@ -17,27 +17,36 @@ export default async function dispatchANTInteraction({
   workflowName: ANT_INTERACTION_TYPES;
   signer: ContractSigner;
   owner: string;
-  processId: ArweaveTransactionID;
+  processId: string;
   dispatch: Dispatch<TransactionAction>;
 }): Promise<ContractInteraction> {
   let result: AoMessageResult | undefined = undefined;
-
+  const aoCongestedTimeout = setTimeout(
+    () => {
+      eventEmitter.emit('network:ao:congested', true);
+    }, // if it is taking longer than 10 seconds, consider the network congested
+    1000 * 10,
+  );
   const antProcess = ANT.init({
-    processId: processId.toString(),
+    processId: processId,
     signer,
   });
-
+  const dispatchSigningMessage = (message?: string) => {
+    dispatch({
+      type: 'setSigningMessage',
+      payload: message,
+    });
+  };
   try {
     if (!antProcess) throw new Error('ANT provider is not defined');
-    dispatch({
-      type: 'setSigning',
-      payload: true,
-    });
+
     switch (workflowName) {
       case ANT_INTERACTION_TYPES.SET_NAME:
+        dispatchSigningMessage('Setting Name, please wait...');
         result = await antProcess.setName({ name: payload.name });
         break;
       case ANT_INTERACTION_TYPES.SET_TARGET_ID:
+        dispatchSigningMessage('Setting Target ID, please wait...');
         result = await antProcess.setRecord({
           undername: '@',
           transactionId: payload.transactionId,
@@ -45,6 +54,7 @@ export default async function dispatchANTInteraction({
         });
         break;
       case ANT_INTERACTION_TYPES.SET_TTL_SECONDS:
+        dispatchSigningMessage('Setting TTL Seconds, please wait...');
         result = await antProcess.setRecord({
           undername: '@',
           transactionId: payload.transactionId,
@@ -52,38 +62,45 @@ export default async function dispatchANTInteraction({
         });
         break;
       case ANT_INTERACTION_TYPES.SET_TICKER:
+        dispatchSigningMessage('Setting Ticker, please wait...');
         result = await antProcess.setTicker({ ticker: payload.ticker });
         break;
       case ANT_INTERACTION_TYPES.SET_CONTROLLER:
+        dispatchSigningMessage('Setting Controller, please wait...');
         result = await antProcess.addController({
           controller: payload.controller,
         });
         break;
       case ANT_INTERACTION_TYPES.REMOVE_CONTROLLER:
+        dispatchSigningMessage('Removing Controller, please wait...');
         result = await antProcess.removeController({
           controller: payload.controller,
         });
         break;
       case ANT_INTERACTION_TYPES.TRANSFER:
+        dispatchSigningMessage('Transferring Ownership, please wait...');
         result = await antProcess.transfer({ target: payload.target });
         break;
       case ANT_INTERACTION_TYPES.SET_RECORD:
+        dispatchSigningMessage('Setting Undername, please wait...');
         result = await antProcess.setRecord({
-          undername: payload.subDomain,
+          undername: lowerCaseDomain(payload.subDomain),
           transactionId: payload.transactionId,
           ttlSeconds: payload.ttlSeconds,
         });
         break;
       case ANT_INTERACTION_TYPES.EDIT_RECORD:
+        dispatchSigningMessage('Editing Undername, please wait...');
         result = await antProcess.setRecord({
-          undername: payload.subDomain,
+          undername: lowerCaseDomain(payload.subDomain),
           transactionId: payload.transactionId,
           ttlSeconds: payload.ttlSeconds,
         });
         break;
       case ANT_INTERACTION_TYPES.REMOVE_RECORD:
+        dispatchSigningMessage('Removing Undername, please wait...');
         result = await antProcess.removeRecord({
-          undername: payload.subDomain,
+          undername: lowerCaseDomain(payload.subDomain),
         });
         break;
       default:
@@ -92,10 +109,8 @@ export default async function dispatchANTInteraction({
   } catch (error) {
     eventEmitter.emit('error', error);
   } finally {
-    dispatch({
-      type: 'setSigning',
-      payload: false,
-    });
+    dispatchSigningMessage(undefined);
+    clearTimeout(aoCongestedTimeout);
   }
   if (!result) {
     throw new Error('Failed to dispatch ANT interaction');

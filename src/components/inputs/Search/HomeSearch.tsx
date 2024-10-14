@@ -6,7 +6,7 @@ import useDebounce from '@src/hooks/useDebounce';
 import { useGlobalState, useWalletState } from '@src/state';
 import { decodeDomainToASCII, lowerCaseDomain } from '@src/utils';
 import Lottie from 'lottie-react';
-import { ChevronRight, XIcon } from 'lucide-react';
+import { ChevronRight, CircleAlert, XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -36,6 +36,7 @@ function HomeSearch() {
   const [query, setDomainQuery] = useState('');
   const domainQuery = useDebounce(query ?? '', query.length <= 1 ? 0 : 800);
   const [domainRecord, setDomainRecord] = useState<AoArNSNameData>();
+  const [showResults, setShowResults] = useState(true);
 
   useEffect(() => {
     validateDomain(domainQuery);
@@ -106,7 +107,13 @@ function HomeSearch() {
     }
   }
   return (
-    <div className={domainQuery.length == 0 ? `` : `modal-container relative`}>
+    <div
+      className={
+        domainQuery.length == 0 || !showResults
+          ? ``
+          : `modal-container relative`
+      }
+    >
       <div
         className={`flex flex-col w-full max-w-[800px] h-[200px] ${
           domainQuery.length == 0 ? `` : `absolute mx-0 top-[240px]`
@@ -159,6 +166,12 @@ function HomeSearch() {
             setIsAvailable={(v) => setIsAvailable(v)}
             setDomainQuery={(v) => setDomainQuery(v)}
             setDomainRecord={(v) => setDomainRecord(v)}
+            onClickOutside={() => {
+              setShowResults(false);
+            }}
+            onFocus={() => {
+              setShowResults(true);
+            }}
             placeholder="Search for a name"
             searchIcon={
               <span className="flex w-full h-full items-center justify-center border-l-[1px] border-dark-grey">
@@ -177,7 +190,7 @@ function HomeSearch() {
               />
             }
           >
-            {domainQuery.length ? (
+            {domainQuery.length && showResults ? (
               <div
                 className="flex flex-col w-full p-6 pt-4 border-t-[1px] border-dark-grey"
                 data-testid="home-search-child-container"
@@ -187,14 +200,25 @@ function HomeSearch() {
                     {isSearching || query !== domainQuery ? (
                       <span>Searching...</span>
                     ) : isAvailable ? (
-                      <span className="whitespace-nowrap flex items-center gap-2">
-                        AVAILABLE{' '}
-                        <CircleCheckFilled
-                          className="fill-success"
-                          width={'14px'}
-                          height={'14px'}
-                        />
-                      </span>
+                      !isValidDomain ? (
+                        <span className="whitespace-nowrap flex items-start justify-center gap-2 text-error">
+                          INVALID{' '}
+                          <CircleAlert
+                            className="m-[2px]"
+                            width={'14px'}
+                            height={'14px'}
+                          />
+                        </span>
+                      ) : (
+                        <span className="whitespace-nowrap flex items-center gap-2">
+                          AVAILABLE{' '}
+                          <CircleCheckFilled
+                            className="fill-success"
+                            width={'14px'}
+                            height={'14px'}
+                          />
+                        </span>
+                      )
                     ) : (
                       <span className="whitespace-nowrap flex items-center gap-2">
                         NOT AVAILABLE

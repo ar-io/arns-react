@@ -5,9 +5,15 @@ export default {
   darkMode: 'selector', // or 'media' or 'class'
   theme: {
     extend: {
-      backgroundImage: {},
+      backgroundImage: {
+        'primary-gradient':
+          'linear-gradient(90deg, rgba(255, 185, 56, 0.1), #ffb938 100%)',
+        'primary-gradient-thin':
+          'linear-gradient(90deg, rgb(0,0,0,0.1), rgba(255, 185, 56, 0.3))',
+      },
       fontFamily: {
         sans: ['Rubik', 'sans-serif'],
+        ['sans-bold']: ['Rubik-Bold', 'sans-serif'],
       },
       boxShadow: {
         one: '0px 0px 4px rgba(0, 0, 0, 0.5)',

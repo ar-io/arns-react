@@ -1,5 +1,6 @@
 import { isLeasedArNSRecord } from '@ar.io/sdk/web';
 import { useANT } from '@src/hooks/useANT/useANT';
+import { PERMANENT_DOMAIN_MESSAGE } from '@src/utils/constants';
 import { Descriptions } from 'antd';
 import { startCase } from 'lodash';
 import { isValidElement, useEffect, useState } from 'react';
@@ -109,7 +110,7 @@ function ANTCard({
       if (record) {
         leaseDuration = isLeasedArNSRecord(record)
           ? record.endTimestamp.toString()
-          : 'Indefinite';
+          : PERMANENT_DOMAIN_MESSAGE;
       }
 
       const apexRecord = records ? records['@'] : undefined;

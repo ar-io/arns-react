@@ -1,4 +1,5 @@
 import { getLeaseDurationFromEndTimestamp } from '@src/utils';
+import { PERMANENT_DOMAIN_MESSAGE } from '@src/utils/constants';
 
 export const getLeaseDurationString = (
   startTimestamp: number,
@@ -12,7 +13,7 @@ export const getLeaseDurationString = (
     const y = duration > 1 ? 'years' : 'year';
     return `${duration} ${y}`;
   }
-  return 'Indefinite';
+  return PERMANENT_DOMAIN_MESSAGE;
 };
 
 export default function LeaseDuration({
@@ -22,6 +23,6 @@ export default function LeaseDuration({
   startTimestamp?: number;
   endTimestamp?: number;
 }) {
-  if (!startTimestamp || !endTimestamp) return 'Indefinite';
+  if (!startTimestamp || !endTimestamp) return PERMANENT_DOMAIN_MESSAGE;
   return <>{getLeaseDurationString(startTimestamp, endTimestamp)}</>;
 }
