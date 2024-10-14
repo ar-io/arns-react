@@ -160,7 +160,7 @@ function NetworkSettings() {
   const inputContainerClass =
     'flex flex-col gap-2 border border-primary-thin p-2 rounded-md bg-metallic-grey';
   const setButtonClass =
-    'bg-primary-thin text-primary hover:bg-primary hover:text-black transition-all text-black h-full flex w-fit py-1 px-3 rounded-sm text-xs font-semibold';
+    'text-grey border-[0.5px] border-dark-grey rounded hover:border-white hover:text-white transition-all h-full flex w-fit py-1 px-3 rounded-sm text-xs font-semibold';
   const resetIconClass = 'py-1 px-3 text-grey hover:text-white transition-all';
   return (
     <div className="flex flex-col w-full h-full p-3">

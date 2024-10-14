@@ -4,7 +4,6 @@ import {
   IO_DEVNET_PROCESS_ID,
   IO_TESTNET_PROCESS_ID,
 } from '@ar.io/sdk';
-import Toggle from '@src/components/inputs/toggle/Toggle';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
@@ -102,18 +101,29 @@ function ArNSSettings() {
                 'N/A'
               )}
             </span>
-            <div className="flex flex-row max-w-fit" style={{ gap: '4px' }}>
-              <Toggle
-                leftLabel="devnet"
-                rightLabel="testnet"
-                check={(b) => {
-                  if (b) {
-                    confirmSetting(IO_TESTNET_PROCESS_ID);
-                  } else {
-                    confirmSetting(IO_DEVNET_PROCESS_ID);
-                  }
-                }}
-              />
+            <div className="flex flex-row max-w-fit" style={{ gap: '10px' }}>
+              <button
+                className={
+                  (ioProcessId == IO_TESTNET_PROCESS_ID
+                    ? 'bg-primary text-black'
+                    : ' bg-dark-grey  text-light-grey') +
+                  ` flex px-3 py-2 rounded  hover:bg-primary-thin hover:text-primary transition-all`
+                }
+                onClick={() => confirmSetting(IO_TESTNET_PROCESS_ID)}
+              >
+                Testnet
+              </button>
+              <button
+                className={
+                  (ioProcessId == IO_DEVNET_PROCESS_ID
+                    ? 'bg-primary text-black'
+                    : ' bg-dark-grey  text-light-grey') +
+                  ` flex px-3 py-2 rounded hover:bg-primary-thin hover:text-primary transition-all`
+                }
+                onClick={() => confirmSetting(IO_DEVNET_PROCESS_ID)}
+              >
+                Devnet
+              </button>
             </div>
           </div>
 

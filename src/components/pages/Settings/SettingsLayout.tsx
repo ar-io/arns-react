@@ -21,6 +21,7 @@ const settingsRoutes = [
 
 function SettingsLayout() {
   const location = useLocation();
+  const isSettingsRoot = location?.pathname?.split('/')?.at(-1) == 'settings';
 
   return (
     <div className="flex flex-col w-full h-screen box-border">
@@ -36,16 +37,14 @@ function SettingsLayout() {
             <Link
               to={'/settings'}
               className={
-                location?.pathname?.split('/')?.at(-1) == 'settings'
+                isSettingsRoot
                   ? ''
                   : 'text-grey' + ' hover:text-primary transition-all'
               }
             >
               Settings
             </Link>{' '}
-            <span className="text-dark-grey">
-              {location?.pathname?.split('/')?.at(-1) == 'settings' ? '' : '>'}
-            </span>{' '}
+            <span className="text-dark-grey">{isSettingsRoot ? '' : '>'}</span>{' '}
             {
               settingsRoutes.find(
                 (route) => location?.pathname?.split('/')?.at(-1) == route.path,
