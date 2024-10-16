@@ -41,6 +41,7 @@ export default {
       link: '#6c97b5',
       white: '#fafafa',
       black: 'black',
+      ['light-grey']: '#A3A3AD',
       grey: '#7d7d85',
       'metallic-grey': '#18191a',
       ['dark-grey']: '#38393b',
