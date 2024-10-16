@@ -3,7 +3,7 @@ import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { VALIDATION_INPUT_TYPES } from '@src/types';
 import { formatIO, isArweaveTransactionID, mioToIo } from '@src/utils';
-import { WRITE_OPTIONS } from '@src/utils/constants';
+import { WRITE_OPTIONS, defaultLogger } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Collapse, Space } from 'antd';
 import { useEffect, useState } from 'react';
@@ -32,7 +32,7 @@ function TransferIO() {
         .then((balance) => {
           setIoBalance(balance);
         })
-        .catch((e) => console.error(e))
+        .catch((e) => defaultLogger.error(e))
         .finally(() => {
           setLoading(false);
         });
@@ -61,7 +61,7 @@ function TransferIO() {
       }
     } catch (error) {
       eventEmitter.emit('error', error);
-      console.error(error);
+      defaultLogger.error(error);
     } finally {
       setTransfering(false);
     }

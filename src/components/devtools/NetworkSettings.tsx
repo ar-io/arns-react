@@ -8,7 +8,7 @@ import {
 } from '@src/state';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { isArweaveTransactionID, isValidGateway, isValidURL } from '@src/utils';
-import { NETWORK_DEFAULTS } from '@src/utils/constants';
+import { NETWORK_DEFAULTS, defaultLogger } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Collapse, Input, Space } from 'antd';
 import { List } from 'lucide-react';
@@ -78,7 +78,7 @@ function NetworkSettings() {
       }
       // test gateway
       await fetch(`https://${gate}/info`).catch((error) => {
-        console.error(error);
+        defaultLogger.error(error);
         throw new Error('Gateway not available: ' + gate);
       });
       if (wallet) dispatchNewGateway(gate, arioContract, dispatchGlobalState);
@@ -123,6 +123,7 @@ function NetworkSettings() {
           process: new AOProcess({
             processId: ioProcessId,
             ao,
+            logger: defaultLogger as any,
           }),
         }),
         ioProcessId,
