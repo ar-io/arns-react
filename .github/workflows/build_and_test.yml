@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        step: ['lint:check', 'test', 'build', 'test:playwright']
+        step: ['lint:check', 'test', 'build']
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v2
@@ -19,6 +19,29 @@ jobs:
           cache: 'yarn'
 
       - run: yarn --frozen-lockfile
+      - run: yarn ${{ matrix.step }}
+
+  test-playwright:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+      - run: yarn --frozen-lockfile
+
+      # Cache Playwright browsers
+      - name: Cache Playwright browsers
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-browsers-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            playwright-browsers-${{ runner.os }}-
+
+      # Install Playwright browsers if not cached
+      - run: yarn playwright install
+
+      - run: yarn build
+
       - run: yarn ${{ matrix.step }}
 
   deploy-to-github:
