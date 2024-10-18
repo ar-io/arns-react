@@ -4,7 +4,6 @@ import { Settings2Icon } from 'lucide-react';
 import { SettingsIcon } from '../components/icons';
 import { Home, Manage } from '../components/pages';
 
-// stupid thing necessary to get the icon to render on mobile
 const WrappedSettings2Icon: React.FC<React.SVGProps<SVGSVGElement>> = (
   props,
 ) => {
