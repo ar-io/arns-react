@@ -15,7 +15,7 @@
     "test": "NODE_ENV=test jest",
     "test:updateSnapshot": "NODE_ENV=test jest --updateSnapshot",
     "test:coverage": "NODE_ENV=test jest --coverage",
-    "test:playwright": "playwright test",
+    "test:playwright": "NODE_ENV=test playwright test",
     "prepare": "husky install",
     "pre-commit": "lint-staged",
     "docs:serve": "rm -rf docs && typedoc --out docs src/**/**/* && http-server docs",

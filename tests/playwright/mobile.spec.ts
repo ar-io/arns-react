@@ -9,8 +9,10 @@ test.use({
     'Mozilla/5.0 (Linux; Android 8.0.0; SM-G955U Build/R16NW) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36',
   browserName: 'chromium',
 });
+
 test('test', async ({ page }) => {
   test.setTimeout(60000); // Set a custom timeout for this test (e.g., 60 seconds)
+
   await page.goto(url);
   await expect(page.getByText('Arweave Name System')).toBeVisible();
   const notFoundPage = await page.getByTestId('404-page');

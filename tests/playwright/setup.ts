@@ -1,10 +1,9 @@
 // global-setup.ts
-import { FullConfig } from '@playwright/test';
 import { spawn } from 'child_process';
 
 let previewProcess: any;
 
-async function globalSetup(config: FullConfig) {
+async function globalSetup() {
   // Start the Vite preview server as a child process
   console.log('Starting Vite preview server...');
   previewProcess = spawn('yarn', ['preview'], {
