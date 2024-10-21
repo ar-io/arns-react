@@ -40,9 +40,7 @@ jobs:
       # Install Playwright browsers if not cached
       - run: yarn playwright install
 
-      - run: yarn build
-
-      - run: yarn ${{ matrix.step }}
+      - run: yarn test:playwright
 
   deploy-to-github:
     runs-on: ubuntu-latest
