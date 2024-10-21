@@ -14,7 +14,7 @@ test('test', async ({ page }) => {
   test.setTimeout(60000); // Set a custom timeout for this test (e.g., 60 seconds)
 
   await page.goto(url);
-  await expect(page.getByText('Arweave Name System')).toBeVisible();
   const notFoundPage = await page.getByTestId('404-page');
   await expect(notFoundPage).not.toBeVisible();
+  await expect(page.getByText('Arweave Name System')).toBeVisible();
 });

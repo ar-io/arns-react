@@ -34,7 +34,7 @@ jobs:
 
       # Install Playwright browsers if not cached
       - run: yarn playwright install
-
+      - run: yarn build
       - run: yarn test:playwright
 
   deploy-to-firebase:
