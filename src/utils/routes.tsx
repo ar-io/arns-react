@@ -4,6 +4,13 @@ import { Settings2Icon } from 'lucide-react';
 import { SettingsIcon } from '../components/icons';
 import { Home, Manage } from '../components/pages';
 
+// stupid thing necessary to get the icon to render on mobile
+const WrappedSettings2Icon: React.FC<React.SVGProps<SVGSVGElement>> = (
+  props,
+) => {
+  return <Settings2Icon {...props} />;
+};
+
 export type Route = {
   text: string;
   path: string;
@@ -32,7 +39,7 @@ export const ROUTES: { [x: string]: Route } = {
   },
   settings: {
     text: 'Settings',
-    icon: Settings2Icon,
+    icon: WrappedSettings2Icon,
     path: '/settings',
     component: Settings,
     protected: false,
