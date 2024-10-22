@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build_ant_test:
+  build_and_test:
     uses: ar-io/arns-react/.github/workflows/build_and_test.yml
     secrets: inherit
   deploy-to-firebase:
