@@ -1,18 +1,18 @@
-name: PR deploy
+name: Staging deploy
 
 on:
-  pull_request:
-    branches-ignore:
-      - main
+  push:
+    branches:
+      - develop
 
 jobs:
   build_and_test:
-    uses: ar-io/arns-react/.github/workflows/build_and_test.yml
-    secrets: inherit
-  deploy-to-firebase:
+    use: ar-io/arns-react/.github/workflows/build_and_test.yml
+  deploy-to-github:
     runs-on: ubuntu-latest
-    needs: build_ant_test
+    needs: build_and_test
     environment: develop
+    if: ${{ github.ref == 'refs/heads/develop' }}
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
@@ -20,6 +20,7 @@ jobs:
         with:
           node-version-file: '.nvmrc'
           cache: 'yarn'
+
       - name: Install and Build 🔧
         run: |
           yarn --frozen-lockfile
@@ -27,11 +28,13 @@ jobs:
         env:
           # FOR BUILD
           VITE_NODE_ENV: develop
-
           VITE_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          VITE_SENTRY_RELEASE: ${{ github.sha }}
           VITE_SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           VITE_SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
-
+          VITE_SENTRY_DSN_PUBLIC_KEY: ${{ secrets.SENTRY_DSN_PUBLIC_KEY }}
+          VITE_SENTRY_DSN_PROJECT_URI: ${{ secrets.SENTRY_DSN_PROJECT_URI }}
+          VITE_SENTRY_DSN_PROJECT_ID: ${{ secrets.SENTRY_DSN_PROJECT_ID }}
           VITE_GITHUB_HASH: ${{ github.sha }}
           VITE_ARWEAVE_HOST: ${{ vars.ARWEAVE_HOST }}
           VITE_ARNS_SERVICE_API: ${{ vars.ARNS_SERVICE_API }}
@@ -39,10 +42,13 @@ jobs:
           VITE_IO_PROCESS_ID: ${{ vars.VITE_IO_PROCESS_ID }}
           VITE_AO_CU_URL: ${{ vars.VITE_AO_CU_URL }}
 
-      # Disribute to Firebase
+      - name: Add CNAME Record
+        run: |
+          echo ${{ vars.DOMAIN_NAME }} > dist/CNAME
+          cp ./404.html ./dist
+
       - name: Deploy 🚀
-        uses: FirebaseExtended/action-hosting-deploy@v0
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_CI_SERVICE_ACCOUNT }}'
-          expires: 14d
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: dist
