@@ -148,7 +148,12 @@ function UpgradeUndernames() {
           }}
           ioRequired={true}
           fee={{
-            [ioTicker]: fee ? new mIOToken(fee).toIO().valueOf() : undefined,
+            [ioTicker]:
+              newUndernameCount === 0
+                ? 0
+                : fee
+                ? new mIOToken(fee).toIO().valueOf()
+                : undefined,
             ar: 0,
           }}
           info={
