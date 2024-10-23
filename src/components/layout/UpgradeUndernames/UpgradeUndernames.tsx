@@ -61,7 +61,7 @@ function UpgradeUndernames() {
           processId: processId.toString(),
         });
         const existingUndernameCount = await contract.getRecords().then((r) => {
-          return Object.keys(r).filter((k) => k === '@').length; // exclude @ record
+          return Object.keys(r).filter((k) => k !== '@').length; // exclude @ record
         });
         setUndernameCount(existingUndernameCount);
         setAntContract(contract);
