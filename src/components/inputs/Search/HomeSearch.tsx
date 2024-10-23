@@ -248,13 +248,7 @@ function HomeSearch() {
                       className={`py-2 px-3 text-sm bg-primary font-bold rounded-[4px] text-black disabled:opacity-50 disabled:bg-grey`}
                       disabled={!isValidDomain}
                       onClick={() => {
-                        if (!walletAddress?.toString()) {
-                          navigate('/connect', {
-                            state: `/?search=${lowerCaseDomain(domainQuery)}`,
-                          });
-                        } else {
-                          navigate(`/register/${lowerCaseDomain(domainQuery)}`);
-                        }
+                        navigate(`/register/${lowerCaseDomain(domainQuery)}`);
                       }}
                     >
                       Register
