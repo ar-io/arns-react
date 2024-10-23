@@ -6,7 +6,6 @@ import { TransactionTag } from '../../types';
 import {
   MILLISECONDS_IN_GRACE_PERIOD,
   PERMANENT_DOMAIN_MESSAGE,
-  SECONDS_IN_GRACE_PERIOD,
 } from '../constants';
 import { fromB64Url } from '../encodings';
 
