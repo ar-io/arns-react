@@ -12,7 +12,7 @@ import {
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
 import { ARNS_INTERACTION_TYPES, ContractInteraction } from '@src/types';
-import { lowerCaseDomain } from '@src/utils';
+import { createAntStateForOwner, lowerCaseDomain } from '@src/utils';
 import { DEFAULT_ANT_LUA_ID, WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Dispatch } from 'react';
@@ -58,8 +58,16 @@ export default async function dispatchArIOInteraction({
         let antProcessId: string = payload.processId;
 
         if (antProcessId === 'atomic') {
+          const state =
+            payload.state ||
+            (payload.targetId
+              ? createAntStateForOwner(
+                  owner.toString(),
+                  payload?.targetId?.toString(),
+                )
+              : undefined);
           antProcessId = await spawnANT({
-            state: payload.state,
+            state,
             signer: createAoSigner(signer),
             ao: ao,
             scheduler: scheduler,
