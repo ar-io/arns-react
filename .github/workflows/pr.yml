@@ -7,11 +7,11 @@ on:
 
 jobs:
   build_and_test:
-    uses: ar-io/arns-react/.github/workflows/build_and_test.yml
+    uses: ./.github/workflows/build_and_test.yml
     secrets: inherit
   deploy-to-firebase:
     runs-on: ubuntu-latest
-    needs: build_ant_test
+    needs: build_and_test
     environment: develop
     steps:
       - name: Checkout 🛎️
