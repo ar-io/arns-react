@@ -7,7 +7,7 @@ on:
 
 jobs:
   build_and_test:
-    use: ar-io/arns-react/.github/workflows/build_and_test.yml
+    uses: ./.github/workflows/build_and_test.yml
   deploy-to-github:
     runs-on: ubuntu-latest
     needs: build_and_test

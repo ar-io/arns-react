@@ -3,7 +3,7 @@ import { AoArNSNameData } from '@ar.io/sdk';
 import DomainDetailsTip from '@src/components/data-display/DomainDetailsTip';
 import { CircleCheckFilled, SearchIcon } from '@src/components/icons';
 import useDebounce from '@src/hooks/useDebounce';
-import { useGlobalState, useWalletState } from '@src/state';
+import { useGlobalState } from '@src/state';
 import { decodeDomainToASCII, lowerCaseDomain } from '@src/utils';
 import Lottie from 'lottie-react';
 import { ChevronRight, CircleAlert, XIcon } from 'lucide-react';
@@ -25,7 +25,6 @@ const defaultValidations = {
 
 function HomeSearch() {
   const navigate = useNavigate();
-  const [{ walletAddress }] = useWalletState();
   const [{ gateway }] = useGlobalState();
   const [isSearching, setIsSearching] = useState(false);
   const [isAvailable, setIsAvailable] = useState(false);
