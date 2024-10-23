@@ -1,6 +1,7 @@
 import { ANT, AoArNSNameData, mIOToken } from '@ar.io/sdk/web';
 import WarningCard from '@src/components/cards/WarningCard/WarningCard';
 import { getTransactionDescription } from '@src/components/pages/Transaction/transaction-descriptions';
+import { useIncreaseUndernameCost } from '@src/hooks/useIncreaseUndernameCost';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -25,8 +26,7 @@ function UpgradeUndernames() {
   const isMobile = useIsMobile();
   const location = useLocation();
   const navigate = useNavigate();
-  const [{ arweaveDataProvider, ioTicker, arioContract, ioProcessId }] =
-    useGlobalState();
+  const [{ arweaveDataProvider, ioTicker, ioProcessId }] = useGlobalState();
   const name = location.pathname.split('/').at(-2);
   const [, dispatchTransactionState] = useTransactionState();
   const [record, setRecord] = useState<AoArNSNameData>();
@@ -34,42 +34,16 @@ function UpgradeUndernames() {
   const [undernameCount, setUndernameCount] = useState<number>(0);
   // min count of 1 ~ contract rule
   const [newUndernameCount, setNewUndernameCount] = useState<number>(0);
+
+  const { data: fee } = useIncreaseUndernameCost({
+    name: lowerCaseDomain(name ?? ''),
+    quantity: newUndernameCount,
+  });
   const [loading, setLoading] = useState<boolean>(false);
-  const [fee, setFee] = useState<number | undefined>(0);
 
   useEffect(() => {
     onLoad();
   }, [name]);
-
-  useEffect(() => {
-    if (!name || !record) {
-      return;
-    }
-    setFee(undefined);
-    const updateFee = async () => {
-      if (newUndernameCount === 0) {
-        setFee(0);
-        return;
-      }
-      if (Number.isNaN(newUndernameCount)) {
-        eventEmitter.emit(
-          'error',
-          new Error('Invalid undername count, must be a number greater than 0'),
-        );
-      }
-      // TODO; implement
-      const price = await arioContract
-        .getTokenCost({
-          intent: 'Increase-Undername-Limit',
-          name: lowerCaseDomain(name),
-          quantity: newUndernameCount,
-        })
-        .then((p) => new mIOToken(p).toIO().valueOf());
-      setFee(price);
-    };
-
-    updateFee();
-  }, [newUndernameCount, record, name]);
 
   async function onLoad() {
     try {
@@ -174,7 +148,7 @@ function UpgradeUndernames() {
           }}
           ioRequired={true}
           fee={{
-            [ioTicker]: fee,
+            [ioTicker]: fee ? new mIOToken(fee).toIO().valueOf() : undefined,
             ar: 0,
           }}
           info={
