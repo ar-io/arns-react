@@ -1,4 +1,5 @@
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import { defaultLogger } from '@src/utils/constants';
 import { useEffect, useState } from 'react';
 
 import { useGlobalState } from '../../state/contexts/GlobalState';
@@ -64,7 +65,7 @@ export function useRegistrationStatus(domain: string) {
       });
       setValidated(true);
     } catch (error) {
-      console.error(error);
+      defaultLogger.error(error);
       reset();
     } finally {
       setLoading(false);

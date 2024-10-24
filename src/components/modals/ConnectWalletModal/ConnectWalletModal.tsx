@@ -1,6 +1,7 @@
 import { AOProcess, IO } from '@ar.io/sdk';
 import { ArConnectWalletConnector } from '@src/services/wallets';
 import { ArweaveAppWalletConnector } from '@src/services/wallets/ArweaveAppWalletConnector';
+import { defaultLogger } from '@src/utils/constants';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -78,6 +79,7 @@ function ConnectWalletModal(): JSX.Element {
         process: new AOProcess({
           processId: ioProcessId,
           ao: aoClient,
+          logger: defaultLogger as any,
         }),
         signer: walletConnector.arconnectSigner!,
       });

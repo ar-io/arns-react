@@ -1,3 +1,4 @@
+import { defaultLogger } from '@src/utils/constants';
 import { useEffect, useState } from 'react';
 
 export function useIsFocused(id: string) {
@@ -11,7 +12,7 @@ export function useIsFocused(id: string) {
     const element = document.getElementById(id);
 
     if (!element) {
-      console.error(`No element found with id: ${id}`);
+      defaultLogger.info(`Element with id ${id} not found`);
       return;
     }
 
