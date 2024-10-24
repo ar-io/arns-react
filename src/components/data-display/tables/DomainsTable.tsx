@@ -230,7 +230,7 @@ const DomainsTable = ({
                     to={`https://${row.getValue('name')}.${gateway}`}
                     target="_blank"
                   >
-                    {formatForMaxCharCount(rowValue, 12)}{' '}
+                    {formatForMaxCharCount(rowValue, 20)}{' '}
                     <ExternalLinkIcon
                       width={'12px'}
                       height={'12px'}

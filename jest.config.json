@@ -16,7 +16,7 @@
     "/node_modules/(?!@dha-team/arbundles|arbundles|arweave-wallet-connector|@permaweb|@ar.io).+\\.js$"
   ],
   "moduleDirectories": ["node_modules", "assets"],
-  "testPathIgnorePatterns": ["tests/common/"],
+  "testPathIgnorePatterns": ["tests/common/", "tests/playwright"],
   "coverageThreshold": {
     "global": {
       "branches": 80,
