@@ -705,7 +705,7 @@ export function createDefaultAntState(state: any) {
     owner: '',
     records: {
       ['@']: {
-        transactionId: LANDING_PAGE_TXID,
+        transactionId: LANDING_PAGE_TXID.toString(),
         ttlSeconds: 3600,
       },
     },
@@ -713,14 +713,14 @@ export function createDefaultAntState(state: any) {
   };
 }
 
-export function createAntStateForOwner(owner: string, targetId: string) {
+export function createAntStateForOwner(owner: string, targetId?: string) {
   return createDefaultAntState({
-    owner: owner.toString(),
-    controllers: [owner.toString()],
-    balances: { [owner.toString()]: 1 },
+    owner: owner,
+    controllers: [owner],
+    balances: { [owner]: 1 },
     records: {
       ['@']: {
-        transactionId: targetId ?? LANDING_PAGE_TXID,
+        transactionId: targetId ?? LANDING_PAGE_TXID.toString(),
         ttlSeconds: 3600,
       },
     },

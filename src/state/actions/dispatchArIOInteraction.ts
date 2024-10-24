@@ -60,12 +60,10 @@ export default async function dispatchArIOInteraction({
         if (antProcessId === 'atomic') {
           const state =
             payload.state ||
-            (payload.targetId
-              ? createAntStateForOwner(
-                  owner.toString(),
-                  payload?.targetId?.toString(),
-                )
-              : undefined);
+            createAntStateForOwner(
+              owner.toString(),
+              payload.targetId?.toString(),
+            );
           antProcessId = await spawnANT({
             state,
             signer: createAoSigner(signer),
