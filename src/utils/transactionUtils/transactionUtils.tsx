@@ -25,6 +25,7 @@ import {
 import {
   ARNS_TX_ID_REGEX,
   DEFAULT_MAX_UNDERNAMES,
+  LANDING_PAGE_TXID,
   MAX_TTL_SECONDS,
   MIN_TTL_SECONDS,
   PERMANENT_DOMAIN_MESSAGE,
@@ -693,4 +694,35 @@ export function userHasSufficientBalance<T extends Record<string, number>>({
 
 export function mioToIo(mio: number): number {
   return mio / 1_000_000;
+}
+
+export function createDefaultAntState(state: any) {
+  return {
+    ticker: 'aos',
+    name: 'ANT',
+    controllers: [],
+    balances: {},
+    owner: '',
+    records: {
+      ['@']: {
+        transactionId: LANDING_PAGE_TXID.toString(),
+        ttlSeconds: 3600,
+      },
+    },
+    ...state,
+  };
+}
+
+export function createAntStateForOwner(owner: string, targetId?: string) {
+  return createDefaultAntState({
+    owner: owner,
+    controllers: [owner],
+    balances: { [owner]: 1 },
+    records: {
+      ['@']: {
+        transactionId: targetId ?? LANDING_PAGE_TXID.toString(),
+        ttlSeconds: 3600,
+      },
+    },
+  });
 }

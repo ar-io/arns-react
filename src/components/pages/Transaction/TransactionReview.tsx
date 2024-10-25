@@ -173,7 +173,15 @@ function TransactionReview() {
         ) : (
           header
         )}
-        <ANTCard {...antProps} bordered compact={true} />
+        <ANTCard
+          {...antProps}
+          bordered
+          compact={true}
+          overrides={{
+            ...antProps.overrides,
+            targetId: (transactionData as any)?.targetId?.toString(),
+          }}
+        />
         <TransactionCost
           feeWrapperStyle={{
             alignItems: 'center',
