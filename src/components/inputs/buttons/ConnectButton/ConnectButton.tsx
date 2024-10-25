@@ -8,6 +8,7 @@ function ConnectButton(): JSX.Element {
 
   return (
     <button
+      data-testid="connect-button"
       className="connect-button"
       style={{ textDecoration: 'none' }}
       onClick={() => {

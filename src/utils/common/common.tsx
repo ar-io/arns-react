@@ -1,10 +1,11 @@
+import { Tooltip } from '@src/components/data-display';
 import { CSSProperties } from 'react';
 
 import { ChevronLeftIcon, ChevronRightIcon } from '../../components/icons';
 import { TransactionTag } from '../../types';
 import {
+  MILLISECONDS_IN_GRACE_PERIOD,
   PERMANENT_DOMAIN_MESSAGE,
-  SECONDS_IN_GRACE_PERIOD,
 } from '../constants';
 import { fromB64Url } from '../encodings';
 
@@ -160,19 +161,36 @@ export function formatExpiryDate(endTimestamp?: number) {
   if (!endTimestamp) {
     return PERMANENT_DOMAIN_MESSAGE;
   }
+  const isGracePeriod =
+    Date.now() > endTimestamp &&
+    Date.now() < endTimestamp + MILLISECONDS_IN_GRACE_PERIOD;
+  const isExpired = endTimestamp < Date.now();
+
   return (
-    <span
-      style={{
-        color:
-          endTimestamp > Date.now()
-            ? 'var(--success-green)'
-            : endTimestamp + SECONDS_IN_GRACE_PERIOD * 1000 < Date.now()
-            ? 'var(--accent)'
-            : 'var(--error-red)',
-      }}
-    >
-      {formatDate(endTimestamp)}
-    </span>
+    <Tooltip
+      message={
+        isGracePeriod
+          ? 'Name is in Grace Period'
+          : isExpired
+          ? 'Name is Expired'
+          : 'Enters grace period on approximately ' +
+            formatVerboseDate(endTimestamp)
+      }
+      icon={
+        <span
+          style={{
+            color:
+              endTimestamp > Date.now()
+                ? 'var(--success-green)'
+                : isGracePeriod
+                ? 'var(--accent)'
+                : 'var(--error-red)',
+          }}
+        >
+          {formatDate(endTimestamp)}
+        </span>
+      }
+    />
   );
 }
 
