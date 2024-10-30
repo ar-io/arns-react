@@ -1,8 +1,8 @@
 import { AOProcess, IO } from '@ar.io/sdk';
 import { ArConnectWalletConnector } from '@src/services/wallets';
+import { AoAddress } from '@src/types';
 import { useEffect, useState } from 'react';
 
-import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import { dispatchNewGateway } from '../../state/actions';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useWalletState } from '../../state/contexts/WalletState';
@@ -39,7 +39,7 @@ function useArconnectEvents() {
     };
 
     const addressListener = () => {
-      wallet?.getWalletAddress().then((address: ArweaveTransactionID) => {
+      wallet?.getWalletAddress().then((address: AoAddress) => {
         dispatchWalletState({
           type: 'setWalletAddress',
           payload: address,
