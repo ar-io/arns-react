@@ -157,7 +157,7 @@ function NetworkSettings() {
                   style={{ gap: '5px' }}
                 >
                   <List width={'18px'} height={'18px'} className="fill-white" />{' '}
-                  Choose ArIO Gateway
+                  Choose AR.IO Gateway
                 </button>
               </div>
 
