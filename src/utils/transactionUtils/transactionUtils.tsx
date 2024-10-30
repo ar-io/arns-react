@@ -1,4 +1,5 @@
 import { StepProps } from 'antd';
+import { isAddress } from 'viem';
 
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import {
@@ -42,6 +43,12 @@ export function isArweaveTransactionID(id?: string) {
     return false;
   }
   return true;
+}
+
+export function isEthAddress(address: string) {
+  return isAddress(address, {
+    strict: true,
+  });
 }
 
 export function isObjectOfTransactionPayloadType<

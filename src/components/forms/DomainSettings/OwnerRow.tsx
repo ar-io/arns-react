@@ -49,12 +49,16 @@ export default function OwnerRow({
       <DomainSettingsRow
         label="Owner:"
         value={
-          owner && isArweaveTransactionID(owner) ? (
-            <ArweaveID
-              id={new ArweaveTransactionID(owner)}
-              shouldLink
-              type={ArweaveIdTypes.ADDRESS}
-            />
+          owner ? (
+            isArweaveTransactionID(owner) ? (
+              <ArweaveID
+                id={new ArweaveTransactionID(owner)}
+                shouldLink
+                type={ArweaveIdTypes.ADDRESS}
+              />
+            ) : (
+              <div>{owner}</div>
+            )
           ) : (
             <Skeleton.Input active />
           )

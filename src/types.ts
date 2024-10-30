@@ -484,6 +484,7 @@ export type UndernameMetadata = {
 export enum VALIDATION_INPUT_TYPES {
   ARWEAVE_ID = 'Is valid Arweave Transaction (TX) ID.',
   ARWEAVE_ADDRESS = 'Is likely an Arweave wallet address.',
+  AO_ADDRESS = 'Is a valid AO Address.',
   ARNS_NAME = 'ARNS Name.',
   UNDERNAME = 'Is a valid Undername.',
   ANT_CONTRACT_ID = 'Is a valid Arweave Name Token (ANT).',
