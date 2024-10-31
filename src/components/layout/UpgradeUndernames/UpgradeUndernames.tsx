@@ -195,7 +195,7 @@ function UpgradeUndernames() {
                       assetId: ioProcessId,
                       functionName: 'increaseundernameLimit',
                       ...increaseUndernamePayload,
-                      interactionPrice: fee,
+                      interactionPrice: new mIOToken(fee).toIO().valueOf(),
                     },
                   });
                   dispatchTransactionState({
