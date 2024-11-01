@@ -1,8 +1,9 @@
-import { ContractSigner } from '@ar.io/sdk/web';
+import { AoSigner, ContractSigner } from '@ar.io/sdk/web';
 import { ArweaveAppError } from '@src/utils/errors';
-import { InjectedEthereumSigner } from 'arbundles';
+import { InjectedEthereumSigner, createData } from 'arbundles';
 import { PermissionType } from 'arconnect';
 import { ApiConfig } from 'arweave/node/lib/api';
+import { hashMessage, recoverPublicKey, toBytes } from 'viem';
 import {
   Config,
   Connector,
@@ -59,7 +60,41 @@ export class EthWalletConnector implements ArNSWalletConnector {
       }),
     };
     const signer = new InjectedEthereumSigner(provider as any);
-    this.contractSigner = signer;
+    signer.setPublicKey = async () => {
+      const message = 'Sign this message to connect to ArNS.app';
+      const signature = await signMessage.signMessageAsync({
+        message: message,
+        account: ethAccount.address,
+        connector: this.connector,
+      });
+      const hash = await hashMessage(message);
+      const recoveredKey = await recoverPublicKey({
+        hash,
+        signature,
+      });
+      signer.publicKey = Buffer.from(toBytes(recoveredKey));
+    };
+
+    const aoSigner: AoSigner = async ({ data, tags, target }) => {
+      if (!signer.publicKey) {
+        await signer.setPublicKey();
+      }
+      const dataItem = createData(data, signer, {
+        tags,
+        target,
+        anchor: Math.round(Date.now() / 1000)
+          .toString()
+          .padStart(32, Math.floor(Math.random() * 10).toString()),
+      });
+
+      const res = await dataItem.sign(signer).then(async () => ({
+        id: dataItem.id,
+        raw: dataItem.getRaw(),
+      }));
+      return res;
+    };
+
+    this.contractSigner = aoSigner;
   }
 
   async connect(): Promise<void> {
