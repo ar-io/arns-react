@@ -16,7 +16,7 @@ import eventEmitter from '@src/utils/events';
 import { useQueryClient } from '@tanstack/react-query';
 import { Checkbox } from 'antd';
 import Lottie from 'lottie-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import arioLoading from '../../../icons/ario-spinner.json';
 import './styles.css';
@@ -36,14 +36,8 @@ function UpgradeAntModal({
   const [{ wallet, walletAddress }] = useWalletState();
   const { data, isLoading } = useANTLuaSourceCode();
   const [accepted, setAccepted] = useState(false);
-  const [changelog, setChangelog] = useState('');
   const [upgrading, setUpgrading] = useState(false);
 
-  useEffect(() => {
-    if (data?.changelog) {
-      setChangelog(data.changelog);
-    }
-  }, [data?.changelog]);
   function handleClose() {
     setVisible(false);
     setAccepted(false);

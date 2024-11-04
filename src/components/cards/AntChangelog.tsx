@@ -11,9 +11,9 @@ function AntChangelog({ className }: { className?: string }) {
     ANT_CHANGELOG.indexOf('## [Unreleased]') + 16,
   )
     .trim()
-    .replace(/\[([\d.]+)\]/g, (match, text) => `v${text}`)
-    .replace(/<!--.*?-->/g, (match, text) => ``) // remove comments
-    .replace(/\[([A-Za-z0-9_-]{43})\]/g, (match, text) => `${text}`);
+    .replace(/\[([\d.]+)\]/g, (_, text) => `v${text}`)
+    .replace(/<!--.*?-->/g, () => ``) // remove comments
+    .replace(/\[([A-Za-z0-9_-]{43})\]/g, (_, text) => `${text}`);
 
   const headerRegex = /(v\d.)/g;
 

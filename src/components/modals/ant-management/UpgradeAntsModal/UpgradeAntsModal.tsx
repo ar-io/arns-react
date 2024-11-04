@@ -40,7 +40,7 @@ function UpgradeAntsModal({
   const [progress, setProgress] = useState(-1);
   const isUpdatingAnts = useCallback(() => progress >= 0, [progress]);
   const { data, isLoading } = useANTLuaSourceCode();
-  const { luaCodeTx, changelog } = data ?? {};
+  const { luaCodeTx } = data ?? {};
 
   useEffect(() => {
     if (luaCodeTx && walletAddress) {

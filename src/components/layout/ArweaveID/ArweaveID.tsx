@@ -1,5 +1,4 @@
 import { CSSProperties } from 'react';
-import { Link } from 'react-router-dom';
 
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { formatForMaxCharCount } from '../../../utils';

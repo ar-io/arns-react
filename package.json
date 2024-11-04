@@ -120,8 +120,8 @@
     "vite-plugin-svgr": "^2.2.2"
   },
   "lint-staged": {
-    "{lib,packages}/**/src/**/*.{ts,tsx}": [
-      "eslint --fix ."
+    "src/**/*.{ts,tsx}": [
+      "eslint ."
     ],
     "**/*.{ts,tsx,js,md,json}": [
       "prettier --write ."
