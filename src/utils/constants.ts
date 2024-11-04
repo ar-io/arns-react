@@ -11,6 +11,7 @@ import AR_FEES_IMAGE from '../../assets/images/featured-domains/fees.png';
 import MFERS_IMAGE from '../../assets/images/featured-domains/mfers.png';
 import PERMASWAP_IMAGE from '../../assets/images/featured-domains/permaswap.png';
 import SAM_IMAGE from '../../assets/images/featured-domains/sam.png';
+import antChangelog from '../ant-changelog.md?raw';
 import { ArweaveTransactionID } from '../services/arweave/ArweaveTransactionID';
 
 export const APP_NAME = 'AR-IO-ArNS-App';
@@ -171,3 +172,5 @@ export const RESERVED_BREADCRUMB_TITLES = new Set([
 export const ARIO_DISCORD_LINK = 'https://discord.com/invite/HGG52EtTc2';
 
 export const PERMANENT_DOMAIN_MESSAGE = 'Indefinite';
+
+export const ANT_CHANGELOG = antChangelog;
