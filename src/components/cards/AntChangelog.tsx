@@ -6,7 +6,6 @@ import ReactMarkdown from 'react-markdown';
 import ArweaveID, { ArweaveIdTypes } from '../layout/ArweaveID/ArweaveID';
 
 function AntChangelog({ className }: { className?: string }) {
-  console.log(ANT_CHANGELOG);
   const FORMATTED_CHANGELOG = ANT_CHANGELOG.substring(
     ANT_CHANGELOG.indexOf('## [Unreleased]') + 16,
   )
