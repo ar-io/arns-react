@@ -2,6 +2,7 @@ import { DEFAULT_SCHEDULER_ID, ioDevnetProcessId } from '@ar.io/sdk/web';
 import Arweave from 'arweave';
 import { ArweaveWebWallet } from 'arweave-wallet-connector';
 
+import antChangelog from '../../assets/ant-changelog.md?raw';
 import ALEX_IMAGE from '../../assets/images/featured-domains/alex.png';
 import AO_IMAGE from '../../assets/images/featured-domains/ao.png';
 import ARDRIVE_IMAGE from '../../assets/images/featured-domains/ardrive.png';
@@ -171,3 +172,5 @@ export const RESERVED_BREADCRUMB_TITLES = new Set([
 export const ARIO_DISCORD_LINK = 'https://discord.com/invite/HGG52EtTc2';
 
 export const PERMANENT_DOMAIN_MESSAGE = 'Indefinite';
+
+export const ANT_CHANGELOG = antChangelog;

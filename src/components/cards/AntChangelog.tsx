@@ -1,9 +1,8 @@
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { isArweaveTransactionID } from '@src/utils';
-import { DEFAULT_ANT_LUA_ID } from '@src/utils/constants';
+import { ANT_CHANGELOG, DEFAULT_ANT_LUA_ID } from '@src/utils/constants';
 import ReactMarkdown from 'react-markdown';
 
-import ANT_CHANGELOG from '../../../assets/ant-changelog.md?raw';
 import ArweaveID, { ArweaveIdTypes } from '../layout/ArweaveID/ArweaveID';
 
 function AntChangelog({ className }: { className?: string }) {
