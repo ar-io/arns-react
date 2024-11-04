@@ -3,7 +3,6 @@
   "private": true,
   "version": "0.0.1",
   "homepage": ".",
-  "type": "module",
   "scripts": {
     "build": "yarn clean && tsc --build tsconfig.json && NODE_OPTIONS=--max-old-space-size=32768 vite build",
     "publish:arweave": "yarn build && permaweb-deploy --ant-process $DEPLOY_ANT_PROCESS_ID ",
