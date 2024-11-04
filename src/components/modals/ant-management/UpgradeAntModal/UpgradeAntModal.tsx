@@ -17,7 +17,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Checkbox } from 'antd';
 import Lottie from 'lottie-react';
 import { useEffect, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
 
 import arioLoading from '../../../icons/ario-spinner.json';
 import './styles.css';

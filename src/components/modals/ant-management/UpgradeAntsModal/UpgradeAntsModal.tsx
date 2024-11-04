@@ -15,12 +15,11 @@ import {
   getAntsRequiringUpdate,
   sleep,
 } from '@src/utils';
-import { ANT_CHANGELOG, DEFAULT_ANT_LUA_ID } from '@src/utils/constants';
+import { DEFAULT_ANT_LUA_ID } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Checkbox } from 'antd';
 import Lottie from 'lottie-react';
 import { useCallback, useEffect, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
 
 import arioLoading from '../../../icons/ario-spinner.json';
 import './styles.css';

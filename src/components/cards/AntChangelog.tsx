@@ -1,11 +1,13 @@
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { isArweaveTransactionID } from '@src/utils';
-import { ANT_CHANGELOG, DEFAULT_ANT_LUA_ID } from '@src/utils/constants';
+import { DEFAULT_ANT_LUA_ID } from '@src/utils/constants';
 import ReactMarkdown from 'react-markdown';
 
+import ANT_CHANGELOG from '../../../assets/ant-changelog.md?raw';
 import ArweaveID, { ArweaveIdTypes } from '../layout/ArweaveID/ArweaveID';
 
 function AntChangelog({ className }: { className?: string }) {
+  console.log(ANT_CHANGELOG);
   const FORMATTED_CHANGELOG = ANT_CHANGELOG.substring(
     ANT_CHANGELOG.indexOf('## [Unreleased]') + 16,
   )
@@ -43,7 +45,7 @@ function AntChangelog({ className }: { className?: string }) {
             const [version, id, date] = (children[0] as string)
               .trim()
               .split(' - ');
-            const isFirstHeader = index == 0;
+            const isFirstHeader = index == 0 && id == DEFAULT_ANT_LUA_ID;
 
             if (!isArweaveTransactionID(id)) {
               return <></>;
