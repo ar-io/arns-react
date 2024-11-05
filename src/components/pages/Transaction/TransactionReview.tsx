@@ -93,6 +93,12 @@ function TransactionReview() {
     walletAddress,
   ]);
 
+  useEffect(() => {
+    if (interactionResult?.id) {
+      navigate('/transaction/complete');
+    }
+  }, [interactionResult, navigate]);
+
   async function handleNext() {
     try {
       if (!(arioContract instanceof IOWriteable)) {
@@ -117,8 +123,7 @@ function TransactionReview() {
         ao: aoClient,
         scheduler: aoNetwork.SCHEDULER,
       });
-
-      navigate('/transaction/complete');
+      // navigate('/transaction/complete');
     } catch (error) {
       eventEmitter.emit('error', error);
     } finally {
