@@ -19,8 +19,7 @@
     "prepare": "husky install",
     "pre-commit": "lint-staged",
     "docs:serve": "rm -rf docs && typedoc --out docs src/**/**/* && http-server docs",
-    "landing:serve": "http-server ./landing_page",
-    "check-ant-changelog": "NODE_OPTIONS=\"--import=./register.mjs\" node ./src/tools/check-ant-changelog.ts"
+    "landing:serve": "http-server ./landing_page"
   },
   "dependencies": {
     "@ant-design/icons": "5.4.0",
