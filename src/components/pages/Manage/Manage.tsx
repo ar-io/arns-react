@@ -1,5 +1,4 @@
 import { Tooltip } from '@src/components/data-display';
-import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import {
   dispatchArNSUpdate,
   useArNSState,
@@ -98,9 +97,7 @@ function Manage() {
                       ? dispatchArNSUpdate({
                           emitter: arnsEmitter,
                           dispatch: dispatchArNSState,
-                          walletAddress: new ArweaveTransactionID(
-                            walletAddress?.toString(),
-                          ),
+                          walletAddress: walletAddress,
                           ioProcessId,
                         })
                       : eventEmitter.emit('error', {

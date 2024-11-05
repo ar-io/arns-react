@@ -267,7 +267,6 @@ function App() {
               }}
             />
           </Route>
-          ,
           <Route path="transaction">
             <Route
               path="review"
@@ -300,7 +299,6 @@ function App() {
               }
             />
           </Route>
-          ,
           <Route
             path="register/:name"
             element={
@@ -326,7 +324,6 @@ function App() {
             }
           />
         </Route>
-        ,
         <Route
           path="settings"
           element={
