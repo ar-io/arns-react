@@ -4,6 +4,7 @@ import {
   EthWalletConnector,
 } from '@src/services/wallets';
 import { ArweaveAppWalletConnector } from '@src/services/wallets/ArweaveAppWalletConnector';
+import { METAMASK_URL } from '@src/utils/constants';
 import { MetamaskError } from '@src/utils/errors';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -19,7 +20,12 @@ import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import { AoAddress, ArNSWalletConnector } from '../../../types';
 import eventEmitter from '../../../utils/events';
-import { ArConnectIcon, ArweaveAppIcon, CloseIcon } from '../../icons';
+import {
+  ArConnectIcon,
+  ArweaveAppIcon,
+  CloseIcon,
+  MetamaskIcon,
+} from '../../icons';
 import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
 
@@ -39,6 +45,8 @@ function ConnectWalletModal(): JSX.Element {
   const { disconnectAsync: ethDisconnect } = useDisconnect();
   const signMessage = useSignMessage();
   const connectors = useConnectors();
+
+  const viemConnector = connectors.find((conn) => conn.name === 'MetaMask');
 
   useEffect(() => {
     if (walletStateInitialized) {
@@ -128,8 +136,6 @@ function ConnectWalletModal(): JSX.Element {
       if (!ethAccount?.address) {
         return;
       }
-      const viemConnector = connectors.find((conn) => conn.name === 'MetaMask');
-
       if (!viemConnector) {
         throw new Error('Unable to find Viem connector for Metamask');
       }
@@ -209,11 +215,7 @@ function ConnectWalletModal(): JSX.Element {
             connect(new ArConnectWalletConnector());
           }}
         >
-          <ArConnectIcon
-            className="external-icon"
-            width={'47px'}
-            height={'47px'}
-          />
+          <ArConnectIcon className="external-icon size-12" />
           Connect via ArConnect
         </button>
 
@@ -223,7 +225,11 @@ function ConnectWalletModal(): JSX.Element {
             connect(new ArweaveAppWalletConnector());
           }}
         >
-          <img className="external-icon" src={ArweaveAppIcon} alt="" />
+          <img
+            className="external-icon size-12 p-3"
+            src={ArweaveAppIcon}
+            alt=""
+          />
           Connect using Arweave.app
         </button>
 
@@ -236,14 +242,14 @@ function ConnectWalletModal(): JSX.Element {
         <button
           type="button"
           className="wallet-connect-button h2"
-          // disabled={!ready}
           onClick={async () => {
-            const viemConnector = connectors.find(
-              (conn) => conn.name === 'MetaMask',
-            );
-
             if (!viemConnector) {
               throw new Error('Unable to find Viem connector for Metamask');
+            }
+
+            if (!window.ethereum?.isMetaMask) {
+              window.open(METAMASK_URL, '_blank', 'noopener,noreferrer');
+              return;
             }
 
             try {
@@ -256,7 +262,10 @@ function ConnectWalletModal(): JSX.Element {
             }
           }}
         >
-          Connect Metamask
+          <MetamaskIcon className="external-icon size-12 p-3" />
+          {window.ethereum?.isMetaMask
+            ? 'Connect Metamask'
+            : 'Install Metamask'}
         </button>
 
         <span

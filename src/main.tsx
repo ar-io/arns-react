@@ -29,7 +29,7 @@ import './utils/sentry';
 // Wagmi setup
 const config = createConfig({
   chains: [mainnet],
-  connectors: [metaMask({ extensionOnly: true })],
+  connectors: [metaMask({ extensionOnly: true, injectProvider: false })],
   transports: {
     [mainnet.id]: http(),
   },
