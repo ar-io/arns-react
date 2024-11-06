@@ -170,5 +170,3 @@ export const RESERVED_BREADCRUMB_TITLES = new Set([
 
 export const ARIO_DISCORD_LINK = 'https://discord.com/invite/HGG52EtTc2';
 export const PERMANENT_DOMAIN_MESSAGE = 'Indefinite';
-export const WALLETCONNECT_PROJECT_ID =
-  process.env.VITE_WALLETCONNECT_PROJECT_ID;

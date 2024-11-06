@@ -1,5 +1,5 @@
 import { AoSigner, ContractSigner } from '@ar.io/sdk/web';
-import { ArweaveAppError } from '@src/utils/errors';
+import { MetamaskError } from '@src/utils/errors';
 import { InjectedEthereumSigner, createData } from 'arbundles';
 import { PermissionType } from 'arconnect';
 import { ApiConfig } from 'arweave/node/lib/api';
@@ -98,16 +98,13 @@ export class EthWalletConnector implements ArNSWalletConnector {
   }
 
   async connect(): Promise<void> {
-    // confirm they have the extension installed
     try {
       localStorage.setItem('walletType', WALLET_TYPES.ETHEREUM);
 
-      // await this._wallet.connect({
-      //   name: 'ARNS - ar.io',
-      // });
+      await this.connector.connect();
     } catch (error) {
       localStorage.removeItem('walletType');
-      throw new ArweaveAppError('User cancelled authentication.');
+      throw new MetamaskError('User cancelled authentication.');
     }
   }
 

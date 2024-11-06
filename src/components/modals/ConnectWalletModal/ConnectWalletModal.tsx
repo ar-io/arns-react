@@ -1,9 +1,18 @@
 import { AOProcess, IO } from '@ar.io/sdk';
-import { WalletButton } from '@rainbow-me/rainbowkit';
-import { ArConnectWalletConnector } from '@src/services/wallets';
+import {
+  ArConnectWalletConnector,
+  EthWalletConnector,
+} from '@src/services/wallets';
 import { ArweaveAppWalletConnector } from '@src/services/wallets/ArweaveAppWalletConnector';
+import { MetamaskError } from '@src/utils/errors';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import {
+  useAccount,
+  useConnectors,
+  useDisconnect,
+  useSignMessage,
+} from 'wagmi';
 
 import { dispatchNewGateway } from '../../../state/actions';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
@@ -25,6 +34,11 @@ function ConnectWalletModal(): JSX.Element {
   const { state } = useLocation();
   const [connecting, setConnecting] = useState(false);
   const [loading, setLoading] = useState(!walletStateInitialized);
+
+  const ethAccount = useAccount();
+  const { disconnectAsync: ethDisconnect } = useDisconnect();
+  const signMessage = useSignMessage();
+  const connectors = useConnectors();
 
   useEffect(() => {
     if (walletStateInitialized) {
@@ -90,7 +104,6 @@ function ConnectWalletModal(): JSX.Element {
       }
 
       const address = await walletConnector.getWalletAddress();
-
       dispatchWalletState({
         type: 'setWalletAddress',
         payload: address,
@@ -109,6 +122,61 @@ function ConnectWalletModal(): JSX.Element {
       setConnecting(false);
     }
   }
+
+  useEffect(() => {
+    const handleEthAccount = async () => {
+      if (!ethAccount?.address) {
+        return;
+      }
+      const viemConnector = connectors.find((conn) => conn.name === 'MetaMask');
+
+      if (!viemConnector) {
+        throw new Error('Unable to find Viem connector for Metamask');
+      }
+
+      try {
+        const connector = new EthWalletConnector(
+          ethAccount,
+          ethAccount.address,
+          ethDisconnect,
+          signMessage,
+          viemConnector,
+        );
+
+        const arweaveGate = await connector.getGatewayConfig();
+        const contract = IO.init({
+          process: new AOProcess({
+            processId: ioProcessId,
+            ao: aoClient,
+          }),
+          signer: connector.contractSigner!,
+        });
+        if (arweaveGate?.host) {
+          await dispatchNewGateway(
+            arweaveGate.host,
+            contract,
+            dispatchGlobalState,
+          );
+        }
+
+        const address = await connector.getWalletAddress();
+        dispatchWalletState({
+          type: 'setWalletAddress',
+          payload: address,
+        });
+        dispatchWalletState({
+          type: 'setWallet',
+          payload: connector,
+        });
+
+        closeModal({ next: true, address });
+      } catch (error: any) {
+        eventEmitter.emit('error', error);
+      }
+    };
+
+    handleEthAccount();
+  }, [ethAccount]);
 
   if (loading) {
     return <PageLoader loading={true} message={'Connecting to Wallet'} />; // Replace with your loading component
@@ -165,34 +233,31 @@ function ConnectWalletModal(): JSX.Element {
         >
           Connect with an Ethereum wallet
         </p>
-        <WalletButton.Custom wallet="metamask">
-          {({ ready, connect }) => {
-            return (
-              <button
-                type="button"
-                className="wallet-connect-button h2"
-                disabled={!ready}
-                onClick={connect}
-              >
-                Connect Metamask
-              </button>
+        <button
+          type="button"
+          className="wallet-connect-button h2"
+          // disabled={!ready}
+          onClick={async () => {
+            const viemConnector = connectors.find(
+              (conn) => conn.name === 'MetaMask',
             );
+
+            if (!viemConnector) {
+              throw new Error('Unable to find Viem connector for Metamask');
+            }
+
+            try {
+              setConnecting(true);
+              await viemConnector.connect();
+            } catch {
+              throw new MetamaskError('Metamask not connected');
+            } finally {
+              setConnecting(false);
+            }
           }}
-        </WalletButton.Custom>
-        <WalletButton.Custom wallet="coinbase">
-          {({ ready, connect }) => {
-            return (
-              <button
-                type="button"
-                className="wallet-connect-button h2"
-                disabled={!ready}
-                onClick={connect}
-              >
-                Connect Coinbase
-              </button>
-            );
-          }}
-        </WalletButton.Custom>
+        >
+          Connect Metamask
+        </button>
 
         <span
           className="flex flex-row white flex-center"

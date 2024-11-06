@@ -78,12 +78,6 @@ export function WalletStateProvider({
   const connectors = useConnectors();
 
   useEffect(() => {
-    if (!walletAddress && ethAccount.isConnected) {
-      updateIfConnected();
-    }
-  }, [walletAddress, ethAccount]);
-
-  useEffect(() => {
     if (!walletAddress) {
       wallet?.disconnect();
       return;
@@ -197,8 +191,6 @@ export function WalletStateProvider({
         });
       } else if (ethAccount || walletType === WALLET_TYPES.ETHEREUM) {
         if (ethAccount?.isConnected && ethAccount?.address) {
-          console.log('ETH ACCOUNT: ', ethAccount);
-
           const viemConnector = connectors.find(
             (conn) => conn.id === ethAccount.connector?.id,
           );
