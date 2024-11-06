@@ -19,7 +19,7 @@ function AntChangelog({ className }: { className?: string }) {
   return (
     <div
       data-testid="ant-changelog-card"
-      className="flex flex-col scrollbar h-full min-h-[120px] mb-4 overflow-y-scroll overflow-x-hidden scrollbar-thumb-primary-thin scrollbar-thumb-rounded-full scrollbar-w-2"
+      className="flex flex-col scrollbar h-full min-h-[7.5rem] mb-4 overflow-y-scroll overflow-x-hidden scrollbar-thumb-primary-thin scrollbar-thumb-rounded-full scrollbar-w-2"
     >
       <ReactMarkdown
         includeElementIndex
@@ -62,7 +62,7 @@ function AntChangelog({ className }: { className?: string }) {
                 )}
                 <h2
                   className={
-                    'flex flex-row p-3 text-[16px] whitespace-nowrap border-l rounded justify-between items-center mb-2  ' +
+                    'flex flex-row p-3 text-base whitespace-nowrap border-l rounded justify-between items-center mb-2  ' +
                     (isFirstHeader
                       ? 'bg-primary-thin border-primary text-primary '
                       : 'border-grey mt-2 bg-background text-grey')
@@ -74,7 +74,7 @@ function AntChangelog({ className }: { className?: string }) {
 
                     <span
                       className={
-                        'text-[16px] w-fit italic ' +
+                        'text-base w-fit italic ' +
                         (isFirstHeader ? 'text-white' : 'text-grey')
                       }
                     >
@@ -97,9 +97,7 @@ function AntChangelog({ className }: { className?: string }) {
           },
           h3: ({ children }) => {
             return (
-              <h3 className={'p-3 text-[16px] whitespace-nowrap'}>
-                {children}
-              </h3>
+              <h3 className={'p-3 text-base whitespace-nowrap'}>{children}</h3>
             );
           },
           li: ({ children }) => {
@@ -109,7 +107,7 @@ function AntChangelog({ className }: { className?: string }) {
               const id = match[2];
               const date = match[3];
               return (
-                <li className="ml-8 py-2 list-disc text-[16px] text-grey">
+                <li className="ml-8 py-2 list-disc text-base text-grey">
                   <div>Version: {version}</div>
                   <div>ID: {id}</div>
                   <div>Date: {date}</div>
@@ -117,7 +115,7 @@ function AntChangelog({ className }: { className?: string }) {
               );
             }
             return (
-              <li className="ml-8 py-2 list-disc text-[16px] text-grey">
+              <li className="ml-8 py-2 list-disc text-base text-grey">
                 {children}
               </li>
             );

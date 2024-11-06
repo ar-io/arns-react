@@ -140,7 +140,7 @@ function UpgradeAntsModal({
 
   return (
     <div className="modal-container items-center justify-center">
-      <div className="flex h-fit max-h-[70%] w-[550px] justify-between flex-col rounded-lg bg-foreground shadow-one">
+      <div className="flex h-fit max-h-[40rem] w-[35rem] justify-between flex-col rounded-lg bg-foreground shadow-one">
         <div className="flex flex-row justify-between border-b-[1px] border-dark-grey p-4">
           <h1
             className="flex flex-row text-2xl text-white"
@@ -168,7 +168,7 @@ function UpgradeAntsModal({
               </div>
 
               <span
-                className="flex flex-row items-center text-[16px] py-4"
+                className="flex flex-row items-center text-base py-4"
                 style={{ gap: '10px' }}
               >
                 <Checkbox
