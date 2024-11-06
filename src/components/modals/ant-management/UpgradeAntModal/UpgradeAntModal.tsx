@@ -6,7 +6,7 @@ import { Loader } from '@src/components/layout';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
-import { useANTLuaSourceCode } from '@src/hooks/useANTLuaSourceCode';
+import { useArweaveTransaction } from '@src/hooks/useArweaveTransaction';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useArNSState, useGlobalState, useWalletState } from '@src/state';
 import { dispatchANTUpdate } from '@src/state/actions/dispatchANTUpdate';
@@ -34,7 +34,7 @@ function UpgradeAntModal({
   const [{ aoClient }] = useGlobalState();
   const [, dispatchArNSState] = useArNSState();
   const [{ wallet, walletAddress }] = useWalletState();
-  const { data, isLoading } = useANTLuaSourceCode();
+  const { data, isLoading } = useArweaveTransaction(DEFAULT_ANT_LUA_ID);
   const [accepted, setAccepted] = useState(false);
   const [upgrading, setUpgrading] = useState(false);
 

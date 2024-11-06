@@ -6,7 +6,7 @@ import { Loader } from '@src/components/layout';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
-import { useANTLuaSourceCode } from '@src/hooks/useANTLuaSourceCode';
+import { useArweaveTransaction } from '@src/hooks/useArweaveTransaction';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useArNSState, useGlobalState, useWalletState } from '@src/state';
 import {
@@ -18,6 +18,7 @@ import {
 import { DEFAULT_ANT_LUA_ID } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Checkbox } from 'antd';
+import Transaction from 'arweave/web/lib/transaction';
 import Lottie from 'lottie-react';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -39,8 +40,8 @@ function UpgradeAntsModal({
   // 0 or greater means loading, -1 means not loading
   const [progress, setProgress] = useState(-1);
   const isUpdatingAnts = useCallback(() => progress >= 0, [progress]);
-  const { data, isLoading } = useANTLuaSourceCode();
-  const { luaCodeTx } = data ?? {};
+  const { data, isLoading } = useArweaveTransaction(DEFAULT_ANT_LUA_ID);
+  const luaCodeTx = data ?? ({} as Transaction);
 
   useEffect(() => {
     if (luaCodeTx && walletAddress) {
