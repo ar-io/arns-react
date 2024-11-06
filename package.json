@@ -19,7 +19,9 @@
     "prepare": "husky install",
     "pre-commit": "lint-staged",
     "docs:serve": "rm -rf docs && typedoc --out docs src/**/**/* && http-server docs",
-    "landing:serve": "http-server ./landing_page"
+    "landing:serve": "http-server ./landing_page",
+    "validate-ant-changelog": "curl -o assets/latest-changelog.md https://raw.githubusercontent.com/ar-io/ar-io-ant-process/refs/heads/develop/CHANGELOG.md && git diff --exit-code assets/ant-changelog.md assets/latest-changelog.md && rm assets/latest-changelog.md",
+    "update-ant-changelog": "curl -o assets/ant-changelog.md https://raw.githubusercontent.com/ar-io/ar-io-ant-process/refs/heads/main/CHANGELOG.md"
   },
   "dependencies": {
     "@ant-design/icons": "5.4.0",
@@ -123,6 +125,9 @@
     ],
     "**/*.{ts,tsx,js,md,json}": [
       "prettier --write ."
+    ],
+    "ant-changelog.md": [
+      "yarn validate-ant-changelog"
     ]
   },
   "packageManager": "yarn@1.22.22"
