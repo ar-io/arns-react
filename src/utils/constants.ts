@@ -1,7 +1,12 @@
-import { DEFAULT_SCHEDULER_ID, ioDevnetProcessId } from '@ar.io/sdk/web';
+import {
+  ANT_LUA_ID,
+  DEFAULT_SCHEDULER_ID,
+  ioDevnetProcessId,
+} from '@ar.io/sdk/web';
 import Arweave from 'arweave';
 import { ArweaveWebWallet } from 'arweave-wallet-connector';
 
+import antChangelog from '../../assets/ant-changelog.md?raw';
 import ALEX_IMAGE from '../../assets/images/featured-domains/alex.png';
 import AO_IMAGE from '../../assets/images/featured-domains/ao.png';
 import ARDRIVE_IMAGE from '../../assets/images/featured-domains/ardrive.png';
@@ -84,7 +89,7 @@ export const URL_REGEX = new RegExp(
 export const IO_PROCESS_ID =
   process.env.VITE_IO_PROCESS_ID || ioDevnetProcessId;
 
-export const DEFAULT_ANT_LUA_ID = 'pOh2yupSaQCrLI_-ah8tVTiusUdVNTxxeWTQQHNdf30'; // ANT_LUA_ID;
+export const DEFAULT_ANT_LUA_ID = ANT_LUA_ID; // ANT_LUA_ID;
 export const AO_CU_URL = process.env.VITE_AO_CU_URL || 'https://cu.ar-io.dev';
 
 export const NETWORK_DEFAULTS = {
@@ -171,3 +176,5 @@ export const RESERVED_BREADCRUMB_TITLES = new Set([
 export const ARIO_DISCORD_LINK = 'https://discord.com/invite/HGG52EtTc2';
 
 export const PERMANENT_DOMAIN_MESSAGE = 'Indefinite';
+
+export const ANT_CHANGELOG = antChangelog;
