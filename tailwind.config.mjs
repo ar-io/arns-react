@@ -37,6 +37,7 @@ export default {
       foreground: '#222224',
       success: '#44af69',
       error: '#ef6461',
+      ['error-thin']: 'rgba(239, 100, 97, 0.1)',
       warning: '#ffb938',
       link: '#6c97b5',
       white: '#fafafa',

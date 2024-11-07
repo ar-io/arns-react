@@ -4,6 +4,7 @@ import LeaseDuration from '@src/components/data-display/LeaseDuration';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
+import { ReturnNameModal } from '@src/components/modals/ant-management/ReturnNameModal/ReturnNameModal';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
@@ -24,7 +25,7 @@ import {
 } from '@src/utils/constants';
 import { useQueryClient } from '@tanstack/react-query';
 import { List, Skeleton } from 'antd';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import ControllersRow from './ControllersRow';
@@ -64,11 +65,12 @@ function DomainSettings({
   rowFilter?: DomainSettingsRowTypes[];
 }) {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const [{ interactionResult }, dispatch] = useTransactionState();
-  const navigate = useNavigate();
-  const { data, isLoading, refetch } = useDomainInfo({ domain, antId });
   const [{ wallet, walletAddress }] = useWalletState();
+  const { data, isLoading, refetch } = useDomainInfo({ domain, antId });
+  const [showReturnNameModal, setShowReturnNameModal] = useState(false);
 
   // permissions check
   const isOwner = walletAddress
@@ -162,32 +164,55 @@ function DomainSettings({
               label="Lease Duration"
               key={DomainSettingsRowTypes.LEASE_DURATION}
               editable={true}
-              action={
-                <Tooltip
-                  message={
-                    maxLeaseDuration
-                      ? 'Max lease duration reached'
-                      : 'Extend lease'
-                  }
-                  icon={
-                    <button
-                      disabled={isLoading || maxLeaseDuration}
-                      className={`p-[6px] px-[10px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all whitespace-nowrap ${
-                        isLoading || maxLeaseDuration
-                          ? 'disabled-button'
-                          : 'hover'
-                      }`}
-                      onClick={() =>
-                        navigate(
-                          `/manage/names/${lowerCaseDomain(domain!)}/extend`,
-                        )
+              action={[
+                <div className="flex flex-row gap-1" style={{ gap: '10px' }}>
+                  {' '}
+                  <Tooltip
+                    message={
+                      maxLeaseDuration
+                        ? 'Max lease duration reached'
+                        : 'Extend lease'
+                    }
+                    icon={
+                      <button
+                        disabled={isLoading || maxLeaseDuration}
+                        className={`p-[6px] px-[10px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all whitespace-nowrap ${
+                          isLoading || maxLeaseDuration
+                            ? 'disabled-button'
+                            : 'hover'
+                        }`}
+                        onClick={() =>
+                          navigate(
+                            `/manage/names/${lowerCaseDomain(domain!)}/extend`,
+                          )
+                        }
+                      >
+                        Extend Lease
+                      </button>
+                    }
+                  />{' '}
+                  {data?.arnsRecord?.type == 'permabuy' ? (
+                    <Tooltip
+                      message={'Returns the name to the ArNS protocol'}
+                      icon={
+                        <button
+                          onClick={() => setShowReturnNameModal(true)}
+                          className={`flex flex-row text-[12px] rounded-[4px] p-[6px] px-[10px] border border-error bg-error-thin text-error whitespace-nowrap ${
+                            isLoading || maxLeaseDuration
+                              ? 'disabled-button'
+                              : 'hover'
+                          }`}
+                        >
+                          Return Name
+                        </button>
                       }
-                    >
-                      Extend Lease
-                    </button>
-                  }
-                />
-              }
+                    />
+                  ) : (
+                    <></>
+                  )}
+                </div>,
+                ,
+              ]}
               value={
                 isLoading ? (
                   <Skeleton.Input active />
@@ -388,6 +413,14 @@ function DomainSettings({
           rowFilter.includes(rowName as DomainSettingsRowTypes) ? <></> : row,
         )}
       </List>
+      {domain && antId && (
+        <ReturnNameModal
+          show={showReturnNameModal}
+          setShow={setShowReturnNameModal}
+          name={domain}
+          processId={antId}
+        />
+      )}
     </>
   );
 }

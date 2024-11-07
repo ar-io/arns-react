@@ -103,21 +103,6 @@
     plimit-lit "^3.0.1"
     warp-contracts "1.4.45"
 
-"@ar.io/sdk@^2.3.2":
-  version "2.3.2"
-  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-2.3.2.tgz#afac6c5cb38f517f53af6c9d70eeea9175fc70c4"
-  integrity sha512-O1BX951DzwRB3/9hc8O8PulxE84qe6wSN3ADqlJT4W0k9RcWLN/rbGMdSPaoN8dMgnxwtnIkXkHw6CG9Fu+V3g==
-  dependencies:
-    "@dha-team/arbundles" "^1.0.1"
-    "@permaweb/aoconnect" "^0.0.57"
-    arweave "1.14.4"
-    axios "1.7.7"
-    axios-retry "^4.3.0"
-    eventemitter3 "^5.0.1"
-    plimit-lit "^3.0.1"
-    winston "^3.13.0"
-    zod "^3.23.8"
-
 "@ardrive/turbo-sdk@^1.9.0":
   version "1.10.0"
   resolved "https://registry.yarnpkg.com/@ardrive/turbo-sdk/-/turbo-sdk-1.10.0.tgz#63deda43c77becac8fc7d55ad3cb6cec817ec745"
@@ -1468,30 +1453,6 @@
     enabled "2.0.x"
     kuler "^2.0.0"
 
-"@dha-team/arbundles@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@dha-team/arbundles/-/arbundles-1.0.1.tgz#5e81039b74da241cf0e2b074ae77e489eec7887d"
-  integrity sha512-cgVxhZJLK1HG2+vcRBZ0CYGpxz7mA2QvLaspcw2gOzb2V/ZUxlifUu1aufBK3iz63Ww2OhgO0j9DstRJqrG1uA==
-  dependencies:
-    "@ethersproject/bytes" "^5.7.0"
-    "@ethersproject/hash" "^5.7.0"
-    "@ethersproject/providers" "^5.7.2"
-    "@ethersproject/signing-key" "^5.7.0"
-    "@ethersproject/transactions" "^5.7.0"
-    "@ethersproject/wallet" "^5.7.0"
-    "@noble/ed25519" "^1.6.1"
-    arweave "^1.15.1"
-    base64url "^3.0.1"
-    bs58 "^4.0.1"
-    keccak "^3.0.2"
-    secp256k1 "^5.0.0"
-  optionalDependencies:
-    "@randlabs/myalgo-connect" "^1.1.2"
-    algosdk "^1.13.1"
-    arweave-stream-tx "^1.1.0"
-    multistream "^4.1.0"
-    tmp-promise "^3.0.2"
-
 "@emotion/hash@^0.8.0":
   version "0.8.0"
   resolved "https://registry.yarnpkg.com/@emotion/hash/-/hash-0.8.0.tgz#bbbff68978fefdbe68ccb533bc8cbe1d1afb5413"
@@ -2300,7 +2261,7 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@permaweb/ao-scheduler-utils@~0.0.16", "@permaweb/ao-scheduler-utils@~0.0.20", "@permaweb/ao-scheduler-utils@~0.0.23":
+"@permaweb/ao-scheduler-utils@~0.0.16", "@permaweb/ao-scheduler-utils@~0.0.23":
   version "0.0.24"
   resolved "https://registry.yarnpkg.com/@permaweb/ao-scheduler-utils/-/ao-scheduler-utils-0.0.24.tgz#a7d2c1e09f9b6ea5d45127fa395bbbcef6688452"
   integrity sha512-G6109Nz8+dQFPuG7mV8mz66kLVA+gl2uTSqU7qpaRwfujrWi6obM94CpmvyvAnrLo3dB29EYiuv7+KOKcns8ig==
@@ -2322,20 +2283,6 @@
     ramda "^0.29.1"
     warp-arbundles "^1.0.4"
     zod "^3.22.4"
-
-"@permaweb/aoconnect@^0.0.57":
-  version "0.0.57"
-  resolved "https://registry.yarnpkg.com/@permaweb/aoconnect/-/aoconnect-0.0.57.tgz#dd779563e1b994e78509251b74df64dc89ea62ea"
-  integrity sha512-l1+47cZuQ8pOIMOdRXymcegCmefXjqR8Bc2MY6jIzWv9old/tG6mfCue2W1QviGyhjP3zEVQgr7YofkY2lq35Q==
-  dependencies:
-    "@permaweb/ao-scheduler-utils" "~0.0.20"
-    buffer "^6.0.3"
-    debug "^4.3.5"
-    hyper-async "^1.1.2"
-    mnemonist "^0.39.8"
-    ramda "^0.30.1"
-    warp-arbundles "^1.0.4"
-    zod "^3.23.8"
 
 "@permaweb/aoconnect@^0.0.59":
   version "0.0.59"
@@ -4110,15 +4057,6 @@ axios@1.7.2:
     form-data "^4.0.0"
     proxy-from-env "^1.1.0"
 
-axios@1.7.7:
-  version "1.7.7"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-1.7.7.tgz#2f554296f9892a72ac8d8e4c5b79c14a91d0a47f"
-  integrity sha512-S4kL7XrjgBmvdGut0sN3yJxqYzrDOnivkBiN0OFs6hLiUam3UPvswUo0kqGyhqUZGEOytHyumEdXsAkgCOUf3Q==
-  dependencies:
-    follow-redirects "^1.15.6"
-    form-data "^4.0.0"
-    proxy-from-env "^1.1.0"
-
 axios@^0.27.2:
   version "0.27.2"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.27.2.tgz#207658cc8621606e586c85db4b41a750e756d972"
@@ -5170,7 +5108,7 @@ debug@^3.2.7:
   dependencies:
     ms "^2.1.1"
 
-debug@^4.3.5, debug@^4.3.6:
+debug@^4.3.6:
   version "4.3.7"
   resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.7.tgz#87945b4151a011d76d95a198d7111c865c360a52"
   integrity sha512-Er2nc/H7RrMXZBFCEim6TCmMk02Z8vLC2Rbi1KEBggpo0fS6l0S1nnapwmIi3yW/+GOJap1Krg4w0Hg80oCqgQ==
@@ -11483,7 +11421,7 @@ winston-transport@^4.7.0:
     readable-stream "^3.6.2"
     triple-beam "^1.3.0"
 
-winston@^3.13.0, winston@^3.14.1:
+winston@^3.14.1:
   version "3.14.2"
   resolved "https://registry.yarnpkg.com/winston/-/winston-3.14.2.tgz#94ce5fd26d374f563c969d12f0cd9c641065adab"
   integrity sha512-CO8cdpBB2yqzEf8v895L+GNKYJiEq8eKlHU38af3snQBQ+sdAIUepjMSguOIJC7ICbzm0ZI+Af2If4vIJrtmOg==
