@@ -12,6 +12,7 @@ export default function DomainSettingsRow({
   onCancel,
   onSave,
   setEditing,
+  className,
 }: {
   label?: string;
   value?: React.ReactNode;
@@ -21,10 +22,12 @@ export default function DomainSettingsRow({
   onCancel?: () => void;
   onSave?: () => void;
   setEditing?: () => void;
+  className?: string;
 }) {
   return (
     <List.Item
       prefixCls="domain-settings-row"
+      className={className}
       style={{
         borderColor: editing ? 'var(--text-grey)' : undefined,
         overflow: 'hidden',

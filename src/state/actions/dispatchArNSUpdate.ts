@@ -68,7 +68,10 @@ export function dispatchArNSUpdate({
           ioProcessId: ioProcessId,
         },
       });
-    } else if (!e.includes('does not support provided action.')) {
+    } else if (
+      !e.includes('does not support provided action.') &&
+      !e.includes('_errors')
+    ) {
       eventEmitter.emit('error', new Error(e));
     }
   };

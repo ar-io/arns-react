@@ -293,6 +293,7 @@ function DomainSettings({
           ),
           [DomainSettingsRowTypes.TICKER]: (
             <TickerRow
+              validation={data?.validations?.setTicker}
               ticker={data?.ticker}
               key={DomainSettingsRowTypes.TICKER}
               editable={isAuthorized}

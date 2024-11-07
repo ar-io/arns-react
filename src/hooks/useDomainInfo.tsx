@@ -4,7 +4,9 @@ import {
   AoANTRecord,
   AoANTWrite,
   AoArNSNameData,
+  validateAnt,
 } from '@ar.io/sdk/web';
+import { connect } from '@permaweb/aoconnect';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { lowerCaseDomain } from '@src/utils';
@@ -34,6 +36,7 @@ export default function useDomainInfo({
       ttlSeconds: number;
     };
     records: Record<string, AoANTRecord>;
+    validations: Awaited<ReturnType<typeof validateAnt>>;
   };
   isLoading: boolean;
   error: Error | null;
@@ -72,6 +75,7 @@ export default function useDomainInfo({
       ttlSeconds: number;
     };
     records: Record<string, AoANTRecord>;
+    validations: Awaited<ReturnType<typeof validateAnt>>;
   }> {
     if (!domain && !antId) {
       throw new Error('No domain or antId provided');
@@ -92,6 +96,10 @@ export default function useDomainInfo({
     if (!processId) {
       throw new Error('No processId found');
     }
+    const validations = validateAnt({
+      processId,
+      ao: connect(aoNetwork),
+    });
 
     const antProcess = ANT.init({
       processId: processId,
@@ -124,6 +132,7 @@ export default function useDomainInfo({
     if (!apexRecord) {
       throw new Error('No apexRecord found');
     }
+
     return {
       arnsRecord: record,
       associatedNames,
@@ -137,6 +146,7 @@ export default function useDomainInfo({
       apexRecord,
       sourceCodeTxId: (state as any)?.['Source-Code-TX-ID'],
       records: state.Records,
+      validations: await validations,
     };
   }
 
