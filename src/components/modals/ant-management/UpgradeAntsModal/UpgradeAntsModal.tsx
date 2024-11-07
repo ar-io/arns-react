@@ -1,11 +1,12 @@
 import { ContractSigner, createAoSigner, evolveANT } from '@ar.io/sdk';
+import AntChangelog from '@src/components/cards/AntChangelog';
 import { Tooltip } from '@src/components/data-display';
 import { CloseIcon } from '@src/components/icons';
 import { Loader } from '@src/components/layout';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
-import { useANTLuaSourceCode } from '@src/hooks/useANTLuaSourceCode';
+import { useArweaveTransaction } from '@src/hooks/useArweaveTransaction';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useArNSState, useGlobalState, useWalletState } from '@src/state';
 import {
@@ -17,9 +18,9 @@ import {
 import { DEFAULT_ANT_LUA_ID } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Checkbox } from 'antd';
+import Transaction from 'arweave/web/lib/transaction';
 import Lottie from 'lottie-react';
 import { useCallback, useEffect, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
 
 import arioLoading from '../../../icons/ario-spinner.json';
 import './styles.css';
@@ -39,8 +40,8 @@ function UpgradeAntsModal({
   // 0 or greater means loading, -1 means not loading
   const [progress, setProgress] = useState(-1);
   const isUpdatingAnts = useCallback(() => progress >= 0, [progress]);
-  const { data, isLoading } = useANTLuaSourceCode();
-  const { luaCodeTx, changelog } = data ?? {};
+  const { data, isLoading } = useArweaveTransaction(DEFAULT_ANT_LUA_ID);
+  const luaCodeTx = data ?? ({} as Transaction);
 
   useEffect(() => {
     if (luaCodeTx && walletAddress) {
@@ -140,7 +141,7 @@ function UpgradeAntsModal({
 
   return (
     <div className="modal-container items-center justify-center">
-      <div className="flex h-fit max-h-[70%] w-[500px] justify-between flex-col rounded-lg bg-foreground shadow-one">
+      <div className="flex h-fit max-h-[40rem] w-[35rem] justify-between flex-col rounded-lg bg-foreground shadow-one">
         <div className="flex flex-row justify-between border-b-[1px] border-dark-grey p-4">
           <h1
             className="flex flex-row text-2xl text-white"
@@ -164,36 +165,11 @@ function UpgradeAntsModal({
           <>
             <div className="flex box-border h-full overflow-hidden w-full flex-col p-4 text-sm text-white">
               <div className="flex scrollbar h-full min-h-[120px] border-b-[1px] border-dark-grey pb-4 mb-4 overflow-y-scroll scrollbar-thumb-primary-thin scrollbar-thumb-rounded-full scrollbar-w-2">
-                <ReactMarkdown
-                  className={'h-full'}
-                  children={changelog ?? '# No changelog'}
-                  components={{
-                    h1: ({ children }) => (
-                      <div>
-                        {children == 'Changelog' ? (
-                          <></>
-                        ) : (
-                          <h1 className="pb-4 text-2xl">{children}</h1>
-                        )}
-                      </div>
-                    ),
-                    h2: ({ children }) => (
-                      <h2 className="p-2 text-xl">{children}</h2>
-                    ),
-                    h3: ({ children }) => (
-                      <h3 className="pl-2 text-lg">{children}</h3>
-                    ),
-                    li: ({ children }) => (
-                      <li className="ml-8 list-disc text-sm text-grey">
-                        {children}
-                      </li>
-                    ),
-                  }}
-                />
+                <AntChangelog />
               </div>
 
               <span
-                className="flex flex-row items-center py-4"
+                className="flex flex-row items-center text-base py-4"
                 style={{ gap: '10px' }}
               >
                 <Checkbox
@@ -248,7 +224,7 @@ function UpgradeAntsModal({
                       ? 'bg-primary-thin text-primary'
                       : 'bg-link text-white hover:bg-primary hover:text-black'
                   } `
-            } w-full rounded-b-lg p-3 transition-all`}
+            } w-full rounded-b-lg p-4 transition-all`}
             onClick={() => upgradeAnts()}
           >
             {!accepted && progress < 0

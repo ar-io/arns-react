@@ -19,11 +19,13 @@
     "prepare": "husky install",
     "pre-commit": "lint-staged",
     "docs:serve": "rm -rf docs && typedoc --out docs src/**/**/* && http-server docs",
-    "landing:serve": "http-server ./landing_page"
+    "landing:serve": "http-server ./landing_page",
+    "validate-ant-changelog": "echo '\nChecking ANT Changelog\n' && curl -o assets/latest-changelog.md https://raw.githubusercontent.com/ar-io/ar-io-ant-process/refs/heads/develop/CHANGELOG.md && git diff --exit-code assets/ant-changelog.md assets/latest-changelog.md && rm assets/latest-changelog.md",
+    "update-ant-changelog": "curl -o assets/ant-changelog.md https://raw.githubusercontent.com/ar-io/ar-io-ant-process/refs/heads/main/CHANGELOG.md"
   },
   "dependencies": {
     "@ant-design/icons": "5.4.0",
-    "@ar.io/sdk": "2.3.0-alpha.5",
+    "@ar.io/sdk": "^2.3.2",
     "@permaweb/aoconnect": "^0.0.59",
     "@sentry/react": "^7.45.0",
     "@tanstack/react-query": "^5.45.1",
@@ -55,6 +57,7 @@
     "@babel/preset-typescript": "^7.18.6",
     "@commitlint/cli": "^17.6.7",
     "@commitlint/config-conventional": "^17.6.7",
+    "@glen/jest-raw-loader": "^2.0.0",
     "@playwright/test": "^1.48.1",
     "@sentry/vite-plugin": "^0.7.2",
     "@testing-library/jest-dom": "^6.1.5",
@@ -107,6 +110,7 @@
     "tailwindcss-animate": "^1.0.7",
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0",
     "typedoc": "^0.25.13",
     "typescript": "^5.4.5",
     "vite": "^4.3.3",
@@ -116,8 +120,8 @@
     "vite-plugin-svgr": "^2.2.2"
   },
   "lint-staged": {
-    "{lib,packages}/**/src/**/*.{ts,tsx}": [
-      "eslint --fix ."
+    "src/**/*.{ts,tsx}": [
+      "eslint ."
     ],
     "**/*.{ts,tsx,js,md,json}": [
       "prettier --write ."

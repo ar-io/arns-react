@@ -3,3 +3,4 @@
 
 yarn test
 yarn build
+yarn validate-ant-changelog

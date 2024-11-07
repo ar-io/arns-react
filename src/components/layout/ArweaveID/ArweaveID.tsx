@@ -1,5 +1,4 @@
 import { CSSProperties } from 'react';
-import { Link } from 'react-router-dom';
 
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { formatForMaxCharCount } from '../../../utils';
@@ -42,15 +41,15 @@ function ArweaveID({
         copyText={id.toString()}
         body={
           shouldLink ? (
-            <Link
-              to={ARWEAVE_ID_MAPPING[type] + id.toString()}
+            <a
+              href={ARWEAVE_ID_MAPPING[type] + id.toString()}
               target="_blank"
               rel="noreferrer"
               className="link hover flex"
               style={linkStyle}
             >
               {formatForMaxCharCount(id.toString(), characterCount)}
-            </Link>
+            </a>
           ) : (
             formatForMaxCharCount(id.toString(), characterCount)
           )
