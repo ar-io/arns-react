@@ -216,7 +216,7 @@ function ConnectWalletModal(): JSX.Element {
           }}
         >
           <ArConnectIcon className="external-icon size-12" />
-          Connect via ArConnect
+          ArConnect
         </button>
 
         <button
@@ -230,7 +230,7 @@ function ConnectWalletModal(): JSX.Element {
             src={ArweaveAppIcon}
             alt=""
           />
-          Connect using Arweave.app
+          Arweave.app
         </button>
 
         <p
@@ -263,9 +263,7 @@ function ConnectWalletModal(): JSX.Element {
           }}
         >
           <MetamaskIcon className="external-icon size-12 p-3" />
-          {window.ethereum?.isMetaMask
-            ? 'Connect Metamask'
-            : 'Install Metamask'}
+          {window.ethereum?.isMetaMask ? 'Metamask' : 'Install Metamask'}
         </button>
 
         <span
