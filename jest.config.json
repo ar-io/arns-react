@@ -6,6 +6,7 @@
   "moduleNameMapper": {
     "\\.(css|gif|png)$": "jest-transform-stub",
     "\\.svg": "<rootDir>/tests/common/mocks/svg.js",
+    ".*\\.md\\?raw": "@glen/jest-raw-loader",
     "^@tests/(.*)$": "<rootDir>/tests/$1",
     "^@src/(.*)$": "<rootDir>/src/$1"
   },
