@@ -49,7 +49,7 @@ function UpgradeAntModal({
       if (!wallet?.arconnectSigner || !walletAddress) {
         throw new Error('No ArConnect Signer found');
       }
-      if (!data?.luaCodeTx) {
+      if (!data) {
         throw new Error('No Lua Code Transaction found');
       }
       setUpgrading(true);

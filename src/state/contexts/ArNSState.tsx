@@ -34,6 +34,7 @@ export const initialArNSState: ArNSState = {
   arnsEmitter: new ArNSEventEmitter({
     contract: defaultArIO,
     timeoutMs: 1000 * 60 * 5,
+    strict: false,
   }),
   domains: {},
   ants: {},
@@ -67,6 +68,7 @@ export function ArNSStateProvider({
       payload: new ArNSEventEmitter({
         contract: arioContract,
         timeoutMs: 1000 * 60 * 5,
+        strict: false,
       }),
     });
     dispatchAntSourceTx({

@@ -18,7 +18,6 @@ import {
 import { DEFAULT_ANT_LUA_ID } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Checkbox } from 'antd';
-import Transaction from 'arweave/web/lib/transaction';
 import Lottie from 'lottie-react';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -41,19 +40,18 @@ function UpgradeAntsModal({
   const [progress, setProgress] = useState(-1);
   const isUpdatingAnts = useCallback(() => progress >= 0, [progress]);
   const { data, isLoading } = useArweaveTransaction(DEFAULT_ANT_LUA_ID);
-  const luaCodeTx = data ?? ({} as Transaction);
 
   useEffect(() => {
-    if (luaCodeTx && walletAddress) {
+    if (data && walletAddress) {
       setAntsToUpgrade(
         getAntsRequiringUpdate({
           ants,
           userAddress: walletAddress.toString(),
-          luaSourceTx: luaCodeTx,
+          luaSourceTx: data,
         }),
       );
     }
-  }, [luaCodeTx, ants]);
+  }, [ants]);
 
   function handleClose() {
     setVisible(false);
@@ -68,7 +66,7 @@ function UpgradeAntsModal({
       if (!wallet?.arconnectSigner || !walletAddress) {
         throw new Error('No ArConnect Signer found');
       }
-      if (!luaCodeTx) {
+      if (!DataView) {
         throw new Error('No Lua Code Transaction found');
       }
 
@@ -76,7 +74,7 @@ function UpgradeAntsModal({
         doAntsRequireUpdate({
           ants: { [antId]: ants[antId] },
           userAddress: walletAddress?.toString(),
-          luaSourceTx: luaCodeTx,
+          luaSourceTx: data,
         }),
       );
 

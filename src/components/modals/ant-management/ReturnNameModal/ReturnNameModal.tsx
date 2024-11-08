@@ -2,7 +2,6 @@ import { ANT, AOProcess, createAoSigner } from '@ar.io/sdk';
 import { connect } from '@permaweb/aoconnect';
 import WarningCard from '@src/components/cards/WarningCard/WarningCard';
 import { Tooltip } from '@src/components/data-display';
-import WorkflowButtons from '@src/components/inputs/buttons/WorkflowButtons/WorkflowButtons';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
@@ -17,6 +16,7 @@ import {
 import { encodeDomainToASCII, lowerCaseDomain, sleep } from '@src/utils';
 import eventEmitter from '@src/utils/events';
 import { Checkbox } from 'antd';
+import { TriangleAlert } from 'lucide-react';
 import { useState } from 'react';
 
 import DialogModal from '../../DialogModal/DialogModal';
@@ -130,14 +130,14 @@ export function ReturnNameModal({
   return (
     <div className="modal-container">
       <DialogModal
-        title="Permanent Name Return"
+        title={<h1 className="text-2xl text-white">Permanent Name Return</h1>}
         body={
-          <div>
+          <div className="flex flex-col text-white max-w-[32rem] max-h-[40rem] gap-8">
             <span>
               You are about to return your permanently registered name back to
               the protocol. Once completed:
             </span>
-            <ul>
+            <ul className="flex flex-col gap-2 pl-6 list-disc">
               <li>
                 The name will enter the Return Initiated Dutch Auction process
                 and become available for public re-registration.
@@ -152,12 +152,13 @@ export function ReturnNameModal({
             </ul>
 
             <WarningCard
+              customIcon={<TriangleAlert />}
               text={
                 <div className="flex flex-row size-full">
-                  <span className="whitespace-nowrap">
+                  <span>
                     Be sure that you no longer need this name or its associated
-                    features before proceeding.
-                    <span className="font-bold">
+                    features before proceeding.{' '}
+                    <span className="text-bold">
                       This action is irreversible.
                     </span>
                   </span>
@@ -165,7 +166,7 @@ export function ReturnNameModal({
               }
             />
             <span
-              className="flex flex-row items-center text-base py-4"
+              className="flex flex-row text-grey items-center text-base py-4"
               style={{ gap: '10px' }}
             >
               <Checkbox
@@ -173,7 +174,7 @@ export function ReturnNameModal({
                 onChange={(checked) => setAccepted(checked.target.checked)}
                 value={accepted}
               />
-              I understand and wish to proceed{' '}
+              I understand that this action cannot be undone{' '}
               <Tooltip
                 message={
                   <div className="flex flex-col">
@@ -186,14 +187,11 @@ export function ReturnNameModal({
             <span>Do you wish to continue with the name return?</span>
           </div>
         }
-        footer={
-          <WorkflowButtons
-            backText="Cancel"
-            nextText="Confirm"
-            onBack={() => setShow(false)}
-            onNext={() => handleReturn()}
-          />
-        }
+        cancelText="Cancel"
+        nextText="Confirm"
+        onCancel={!signing ? () => setShow(false) : undefined}
+        onClose={!signing ? () => setShow(false) : undefined}
+        onNext={accepted ? () => handleReturn() : undefined}
       />
     </div>
   );

@@ -164,7 +164,7 @@ function DomainSettings({
               label="Lease Duration"
               key={DomainSettingsRowTypes.LEASE_DURATION}
               editable={true}
-              action={[
+              action={
                 <div className="flex flex-row gap-1" style={{ gap: '10px' }}>
                   {' '}
                   <Tooltip
@@ -197,11 +197,7 @@ function DomainSettings({
                       icon={
                         <button
                           onClick={() => setShowReturnNameModal(true)}
-                          className={`flex flex-row text-[12px] rounded-[4px] p-[6px] px-[10px] border border-error bg-error-thin text-error whitespace-nowrap ${
-                            isLoading || maxLeaseDuration
-                              ? 'disabled-button'
-                              : 'hover'
-                          }`}
+                          className={`flex flex-row text-[12px] rounded-[4px] p-[6px] px-[10px] border border-error bg-error-thin text-error whitespace-nowrap`}
                         >
                           Return Name
                         </button>
@@ -210,9 +206,8 @@ function DomainSettings({
                   ) : (
                     <></>
                   )}
-                </div>,
-                ,
-              ]}
+                </div>
+              }
               value={
                 isLoading ? (
                   <Skeleton.Input active />
@@ -413,12 +408,13 @@ function DomainSettings({
           rowFilter.includes(rowName as DomainSettingsRowTypes) ? <></> : row,
         )}
       </List>
-      {domain && antId && (
+
+      {domain && data?.processId && (
         <ReturnNameModal
           show={showReturnNameModal}
           setShow={setShowReturnNameModal}
           name={domain}
-          processId={antId}
+          processId={data.processId}
         />
       )}
     </>
