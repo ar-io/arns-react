@@ -123,7 +123,6 @@ function TransactionReview() {
         ao: aoClient,
         scheduler: aoNetwork.SCHEDULER,
       });
-      // navigate('/transaction/complete');
     } catch (error) {
       eventEmitter.emit('error', error);
     } finally {
