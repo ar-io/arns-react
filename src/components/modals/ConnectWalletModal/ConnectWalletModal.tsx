@@ -263,7 +263,7 @@ function ConnectWalletModal(): JSX.Element {
           }}
         >
           <MetamaskIcon className="external-icon size-12 p-3" />
-          {window.ethereum?.isMetaMask ? 'Metamask' : 'Install Metamask'}
+          {window?.ethereum?.isMetaMask ? 'Metamask' : 'Install Metamask'}
         </button>
 
         <span
