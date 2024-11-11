@@ -51,6 +51,10 @@ export function isEthAddress(address: string) {
   });
 }
 
+export function isValidAoAddress(address: string) {
+  return isEthAddress(address) || isArweaveTransactionID(address);
+}
+
 export function isObjectOfTransactionPayloadType<
   T extends TransactionDataPayload,
 >(x: Record<string, unknown>, requiredKeys: string[]): x is T {
