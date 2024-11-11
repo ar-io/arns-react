@@ -1,7 +1,6 @@
 import { AoSigner, ContractSigner } from '@ar.io/sdk/web';
 import { MetamaskError } from '@src/utils/errors';
 import { InjectedEthereumSigner, createData } from 'arbundles';
-import { PermissionType } from 'arconnect';
 import { ApiConfig } from 'arweave/node/lib/api';
 import { hashMessage, recoverPublicKey, toBytes } from 'viem';
 import {
@@ -18,14 +17,6 @@ import {
   EthAddress,
   WALLET_TYPES,
 } from '../../types';
-
-export const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [
-  'ACCESS_ADDRESS',
-  'ACCESS_ALL_ADDRESSES',
-  'ACCESS_PUBLIC_KEY',
-  'SIGN_TRANSACTION',
-  'ACCESS_ARWEAVE_CONFIG',
-];
 
 export class EthWalletConnector implements ArNSWalletConnector {
   ethAccount: UseAccountReturnType<Config>;

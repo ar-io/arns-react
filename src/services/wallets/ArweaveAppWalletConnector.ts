@@ -1,6 +1,5 @@
 import { ARWEAVE_APP_API } from '@src/utils/constants';
 import { ArweaveAppError } from '@src/utils/errors';
-import { PermissionType } from 'arconnect';
 import { ApiConfig } from 'arweave/node/lib/api';
 import { ReactiveConnector } from 'node_modules/arweave-wallet-connector/lib/browser/Reactive';
 
@@ -8,14 +7,6 @@ import { ARCONNECT_UNRESPONSIVE_ERROR } from '../../components/layout/Notificati
 import { ArNSWalletConnector, WALLET_TYPES } from '../../types';
 import { executeWithTimeout } from '../../utils';
 import { ArweaveTransactionID } from '../arweave/ArweaveTransactionID';
-
-export const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [
-  'ACCESS_ADDRESS',
-  'ACCESS_ALL_ADDRESSES',
-  'ACCESS_PUBLIC_KEY',
-  'SIGN_TRANSACTION',
-  'ACCESS_ARWEAVE_CONFIG',
-];
 
 export class ArweaveAppWalletConnector implements ArNSWalletConnector {
   private _wallet: ReactiveConnector & { namespaces: any };
