@@ -86,7 +86,7 @@ function RegisterNameForm() {
         .getTokenCost({
           intent: 'Buy-Record',
           name: domain,
-          purchaseType: registrationType,
+          type: registrationType,
           years: leaseDuration,
         })
         .then((c) => new mIOToken(c).toIO().valueOf())
