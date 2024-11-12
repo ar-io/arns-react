@@ -5,15 +5,9 @@ import {
 } from '@src/services/wallets';
 import { ArweaveAppWalletConnector } from '@src/services/wallets/ArweaveAppWalletConnector';
 import { METAMASK_URL } from '@src/utils/constants';
-import { MetamaskError } from '@src/utils/errors';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import {
-  useAccount,
-  useConnectors,
-  useDisconnect,
-  useSignMessage,
-} from 'wagmi';
+import { useConfig } from 'wagmi';
 
 import { dispatchNewGateway } from '../../../state/actions';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
@@ -41,12 +35,7 @@ function ConnectWalletModal(): JSX.Element {
   const [connecting, setConnecting] = useState(false);
   const [loading, setLoading] = useState(!walletStateInitialized);
 
-  const ethAccount = useAccount();
-  const { disconnectAsync: ethDisconnect } = useDisconnect();
-  const signMessage = useSignMessage();
-  const connectors = useConnectors();
-
-  const viemConnector = connectors.find((conn) => conn.name === 'MetaMask');
+  const config = useConfig();
 
   useEffect(() => {
     if (walletStateInitialized) {
@@ -131,59 +120,6 @@ function ConnectWalletModal(): JSX.Element {
     }
   }
 
-  useEffect(() => {
-    const handleEthAccount = async () => {
-      if (!ethAccount?.address) {
-        return;
-      }
-      if (!viemConnector) {
-        throw new Error('Unable to find Viem connector for Metamask');
-      }
-
-      try {
-        const connector = new EthWalletConnector(
-          ethAccount,
-          ethAccount.address,
-          ethDisconnect,
-          signMessage,
-          viemConnector,
-        );
-
-        const arweaveGate = await connector.getGatewayConfig();
-        const contract = IO.init({
-          process: new AOProcess({
-            processId: ioProcessId,
-            ao: aoClient,
-          }),
-          signer: connector.contractSigner!,
-        });
-        if (arweaveGate?.host) {
-          await dispatchNewGateway(
-            arweaveGate.host,
-            contract,
-            dispatchGlobalState,
-          );
-        }
-
-        const address = await connector.getWalletAddress();
-        dispatchWalletState({
-          type: 'setWalletAddress',
-          payload: address,
-        });
-        dispatchWalletState({
-          type: 'setWallet',
-          payload: connector,
-        });
-
-        closeModal({ next: true, address });
-      } catch (error: any) {
-        eventEmitter.emit('error', error);
-      }
-    };
-
-    handleEthAccount();
-  }, [ethAccount]);
-
   if (loading) {
     return <PageLoader loading={true} message={'Connecting to Wallet'} />; // Replace with your loading component
   }
@@ -243,8 +179,10 @@ function ConnectWalletModal(): JSX.Element {
           type="button"
           className="wallet-connect-button h2"
           onClick={async () => {
-            if (!viemConnector) {
-              throw new Error('Unable to find Viem connector for Metamask');
+            if (!config) {
+              throw new Error(
+                'Application is not not properly configured for Metamask.',
+              );
             }
 
             if (!window.ethereum?.isMetaMask) {
@@ -252,14 +190,7 @@ function ConnectWalletModal(): JSX.Element {
               return;
             }
 
-            try {
-              setConnecting(true);
-              await viemConnector.connect();
-            } catch {
-              throw new MetamaskError('Metamask not connected');
-            } finally {
-              setConnecting(false);
-            }
+            connect(new EthWalletConnector(config));
           }}
         >
           <MetamaskIcon className="external-icon size-12 p-3" />

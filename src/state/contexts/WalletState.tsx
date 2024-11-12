@@ -7,12 +7,7 @@ import React, {
   useEffect,
   useReducer,
 } from 'react';
-import {
-  useAccount,
-  useConnectors,
-  useDisconnect,
-  useSignMessage,
-} from 'wagmi';
+import { useAccount, useConfig } from 'wagmi';
 
 import { useEffectOnce } from '../../hooks/useEffectOnce/useEffectOnce';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
@@ -72,10 +67,8 @@ export function WalletStateProvider({
 
   const { walletAddress, wallet } = state;
 
+  const config = useConfig();
   const ethAccount = useAccount();
-  const { disconnectAsync: ethDisconnect } = useDisconnect();
-  const signMessage = useSignMessage();
-  const connectors = useConnectors();
 
   useEffect(() => {
     if (!walletAddress) {
@@ -191,27 +184,7 @@ export function WalletStateProvider({
         });
       } else if (ethAccount || walletType === WALLET_TYPES.ETHEREUM) {
         if (ethAccount?.isConnected && ethAccount?.address) {
-          const viemConnector = connectors.find(
-            (conn) => conn.id === ethAccount.connector?.id,
-          );
-
-          if (!viemConnector) {
-            throw new Error(
-              `Unable to find Viem connector for connector ID ${ethAccount.connector?.id}`,
-            );
-          }
-
-          const connector = new EthWalletConnector(
-            ethAccount,
-            ethAccount.address,
-            ethDisconnect,
-            signMessage,
-            viemConnector,
-          );
-
-          // await (
-          //   connector.contractSigner as InjectedEthereumSigner
-          // ).setPublicKey();
+          const connector = new EthWalletConnector(config);
 
           dispatchWalletState({
             type: 'setWalletAddress',

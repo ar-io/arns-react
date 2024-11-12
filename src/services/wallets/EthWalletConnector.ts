@@ -3,38 +3,23 @@ import { MetamaskError } from '@src/utils/errors';
 import { InjectedEthereumSigner, createData } from 'arbundles';
 import { ApiConfig } from 'arweave/node/lib/api';
 import { hashMessage, recoverPublicKey, toBytes } from 'viem';
-import {
-  Config,
-  Connector,
-  UseAccountReturnType,
-  UseSignMessageReturnType,
-} from 'wagmi';
-import { DisconnectMutateAsync } from 'wagmi/query';
+import { Config, Connector } from 'wagmi';
+import { connect, disconnect, getAccount, signMessage } from 'wagmi/actions';
 
-import {
-  AoAddress,
-  ArNSWalletConnector,
-  EthAddress,
-  WALLET_TYPES,
-} from '../../types';
+import { AoAddress, ArNSWalletConnector, WALLET_TYPES } from '../../types';
 
 export class EthWalletConnector implements ArNSWalletConnector {
-  ethAccount: UseAccountReturnType<Config>;
   contractSigner?: ContractSigner;
-  address: EthAddress;
-  disconnectCallback: DisconnectMutateAsync<unknown>;
   connector: Connector;
+  config: Config;
 
-  constructor(
-    ethAccount: UseAccountReturnType<Config>,
-    address: EthAddress,
-    disconnectAsync: DisconnectMutateAsync<unknown>,
-    signMessage: UseSignMessageReturnType<unknown>,
-    connector: Connector,
-  ) {
-    this.disconnectCallback = disconnectAsync;
-    this.address = address;
-    this.ethAccount = ethAccount;
+  constructor(config: Config) {
+    const connector = config.connectors.find((c) => c.name === 'MetaMask');
+
+    if (!connector) {
+      throw new MetamaskError('MetaMask connector not found.');
+    }
+
     this.connector = connector;
 
     const provider = {
@@ -42,7 +27,9 @@ export class EthWalletConnector implements ArNSWalletConnector {
         signMessage: async (message: any) => {
           const arg = message instanceof String ? message : { raw: message };
 
-          return await signMessage.signMessageAsync({
+          const ethAccount = getAccount(config);
+
+          return await signMessage(config, {
             message: arg as any,
             account: ethAccount.address,
             connector: this.connector,
@@ -53,7 +40,9 @@ export class EthWalletConnector implements ArNSWalletConnector {
     const signer = new InjectedEthereumSigner(provider as any);
     signer.setPublicKey = async () => {
       const message = 'Sign this message to connect to ArNS.app';
-      const signature = await signMessage.signMessageAsync({
+      const ethAccount = getAccount(config);
+
+      const signature = await signMessage(config, {
         message: message,
         account: ethAccount.address,
         connector: this.connector,
@@ -85,6 +74,7 @@ export class EthWalletConnector implements ArNSWalletConnector {
       return res;
     };
 
+    this.config = config;
     this.contractSigner = aoSigner;
   }
 
@@ -92,7 +82,7 @@ export class EthWalletConnector implements ArNSWalletConnector {
     try {
       localStorage.setItem('walletType', WALLET_TYPES.ETHEREUM);
 
-      await this.connector.connect();
+      await connect(this.config, { connector: this.connector });
     } catch (error) {
       localStorage.removeItem('walletType');
       throw new MetamaskError('User cancelled authentication.');
@@ -101,11 +91,15 @@ export class EthWalletConnector implements ArNSWalletConnector {
 
   async disconnect(): Promise<void> {
     localStorage.removeItem('walletType');
-    await this.disconnectCallback();
+    await disconnect(this.config, { connector: this.connector });
   }
 
   async getWalletAddress(): Promise<AoAddress> {
-    return this.address;
+    const address = getAccount(this.config).address;
+    if (!address) {
+      throw new MetamaskError('No address found');
+    }
+    return address;
   }
 
   async getGatewayConfig(): Promise<ApiConfig> {
