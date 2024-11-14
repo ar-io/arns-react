@@ -126,7 +126,7 @@ function NavMenuCard() {
         placement="bottomRight"
         color="var(--card-bg)"
         autoAdjustOverflow
-        arrow={{ arrowPointAtCenter: true }}
+        arrow={{ pointAtCenter: true }}
         overlayInnerStyle={{
           width: 'fit-content',
           border: '1px solid var(--text-faded)',

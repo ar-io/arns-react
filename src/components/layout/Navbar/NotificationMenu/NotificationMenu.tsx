@@ -1,4 +1,4 @@
-import { AoANTState, AoArNSNameData } from '@ar.io/sdk';
+import { AoANTState, AoArNSNameData } from '@ar.io/sdk/web';
 import { Tooltip } from '@src/components/data-display';
 import { useArweaveTransaction } from '@src/hooks/useArweaveTransaction';
 import { useArNSState, useWalletState } from '@src/state';

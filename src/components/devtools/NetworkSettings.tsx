@@ -1,4 +1,4 @@
-import { AOProcess, IO } from '@ar.io/sdk';
+import { AOProcess, IO } from '@ar.io/sdk/web';
 import { connect } from '@permaweb/aoconnect';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import {

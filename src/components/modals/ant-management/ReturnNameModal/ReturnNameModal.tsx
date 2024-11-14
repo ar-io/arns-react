@@ -1,4 +1,4 @@
-import { ANT, AOProcess, createAoSigner } from '@ar.io/sdk';
+import { ANT, AOProcess, createAoSigner } from '@ar.io/sdk/web';
 import { connect } from '@permaweb/aoconnect';
 import WarningCard from '@src/components/cards/WarningCard/WarningCard';
 import { Tooltip } from '@src/components/data-display';

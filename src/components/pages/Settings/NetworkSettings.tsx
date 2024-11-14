@@ -1,4 +1,4 @@
-import { AOProcess, IO } from '@ar.io/sdk';
+import { AOProcess, IO } from '@ar.io/sdk/web';
 import { connect as suConnect } from '@permaweb/ao-scheduler-utils';
 import { connect } from '@permaweb/aoconnect';
 import SelectGatewayModal from '@src/components/devtools/SelectGatewayModal/SelectGatewayModal';

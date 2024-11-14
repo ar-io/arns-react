@@ -3,7 +3,7 @@ import {
   IO,
   IO_DEVNET_PROCESS_ID,
   IO_TESTNET_PROCESS_ID,
-} from '@ar.io/sdk';
+} from '@ar.io/sdk/web';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';

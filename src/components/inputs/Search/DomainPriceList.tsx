@@ -1,4 +1,4 @@
-import { mIOToken } from '@ar.io/sdk';
+import { mIOToken } from '@ar.io/sdk/web';
 import { RefreshAlertIcon } from '@src/components/icons';
 import { useArNSDomainPriceList } from '@src/hooks/useArNSDomainPriceList';
 import { useGlobalState } from '@src/state';

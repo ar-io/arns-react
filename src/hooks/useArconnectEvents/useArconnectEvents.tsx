@@ -1,4 +1,4 @@
-import { AOProcess, IO } from '@ar.io/sdk';
+import { AOProcess, IO } from '@ar.io/sdk/web';
 import { ArConnectWalletConnector } from '@src/services/wallets';
 import { useEffect, useState } from 'react';
 

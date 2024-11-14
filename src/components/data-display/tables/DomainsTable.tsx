@@ -1,4 +1,4 @@
-import { AoANTState, AoArNSNameData, isLeasedArNSRecord } from '@ar.io/sdk';
+import { AoANTState, AoArNSNameData, isLeasedArNSRecord } from '@ar.io/sdk/web';
 import { ChevronRightIcon, ExternalLinkIcon } from '@src/components/icons';
 import ManageAssetButtons from '@src/components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
 import { Loader } from '@src/components/layout';

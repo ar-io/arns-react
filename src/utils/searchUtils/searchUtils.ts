@@ -1,4 +1,4 @@
-import { AoANTState } from '@ar.io/sdk';
+import { AoANTState } from '@ar.io/sdk/web';
 import Transaction from 'arweave/node/lib/transaction';
 import emojiRegex from 'emoji-regex';
 import { asciiToUnicode, unicodeToAscii } from 'puny-coder';
