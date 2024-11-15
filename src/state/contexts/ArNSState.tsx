@@ -1,6 +1,6 @@
 import { AoANTState, AoArNSNameData, ArNSEventEmitter } from '@ar.io/sdk/web';
+import { useANTLuaSourceCode } from '@src/hooks/useANTLuaSourceCode';
 import { DEFAULT_ANT_LUA_ID } from '@src/utils/constants';
-import Transaction from 'arweave/node/lib/transaction';
 import {
   Dispatch,
   createContext,
@@ -9,7 +9,6 @@ import {
   useReducer,
 } from 'react';
 
-import { dispatchAntSourceTx } from '../actions/dispatchAntSourceCodeTx';
 import { dispatchArNSUpdate } from '../actions/dispatchArNSUpdate';
 import { ArNSAction } from '../reducers/ArNSReducer';
 import { defaultArIO, useGlobalState } from './GlobalState';
@@ -22,7 +21,7 @@ export type ArNSState = {
   percentLoaded: number;
   antCount: number;
   arnsEmitter: ArNSEventEmitter;
-  luaSourceTx?: Transaction;
+  luaSourceTx?: { id: string; tags: { name: string; value: string }[] };
 };
 
 export type ArNSStateProviderProps = {
@@ -60,6 +59,16 @@ export function ArNSStateProvider({
   const [{ arioContract, ioProcessId }] = useGlobalState();
   const [state, dispatchArNSState] = useReducer(reducer, initialArNSState);
   const [{ walletAddress }] = useWalletState();
+  const { data: luaSourceTxRes } = useANTLuaSourceCode(DEFAULT_ANT_LUA_ID);
+
+  useEffect(() => {
+    if (luaSourceTxRes?.luaCodeTx) {
+      dispatchArNSState({
+        type: 'setAntSourceTx',
+        payload: luaSourceTxRes.luaCodeTx,
+      });
+    }
+  }, [luaSourceTxRes?.luaCodeTx]);
 
   useEffect(() => {
     dispatchArNSState({
@@ -68,10 +77,6 @@ export function ArNSStateProvider({
         contract: arioContract,
         timeoutMs: 1000 * 60 * 5,
       }),
-    });
-    dispatchAntSourceTx({
-      id: DEFAULT_ANT_LUA_ID,
-      dispatch: dispatchArNSState,
     });
   }, [arioContract]);
 

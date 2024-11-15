@@ -1,13 +1,8 @@
 import { AoANTState, AoArNSNameData } from '@ar.io/sdk';
 import { Tooltip } from '@src/components/data-display';
-import { useArweaveTransaction } from '@src/hooks/useArweaveTransaction';
 import { useArNSState, useWalletState } from '@src/state';
 import { getAntsRequiringUpdate } from '@src/utils';
-import {
-  DEFAULT_ANT_LUA_ID,
-  MILLISECONDS_IN_GRACE_PERIOD,
-} from '@src/utils/constants';
-import Transaction from 'arweave/web/lib/transaction';
+import { MILLISECONDS_IN_GRACE_PERIOD } from '@src/utils/constants';
 import { BellIcon, Circle, CircleAlert, Settings } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ReactNode } from 'react-markdown';
@@ -62,7 +57,7 @@ export function createUpdateAntsNotification({
 }: {
   ants: Record<string, AoANTState>;
   userAddress: string;
-  luaSourceTx: Transaction;
+  luaSourceTx: { id: string; tags: { name: string; value: string }[] };
 }): Notification | undefined {
   const antsRequiringUpdate = getAntsRequiringUpdate({
     ants,
@@ -124,8 +119,7 @@ export function createNamesExceedingUndernameLimitNotification({
 
 function NotificationMenu() {
   const [{ walletAddress }] = useWalletState();
-  const [{ domains, ants }] = useArNSState();
-  const { data: luaSourceTx } = useArweaveTransaction(DEFAULT_ANT_LUA_ID);
+  const [{ domains, ants, luaSourceTx }] = useArNSState();
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   useEffect(() => {

@@ -1,5 +1,4 @@
 import { AoANTState } from '@ar.io/sdk';
-import Transaction from 'arweave/node/lib/transaction';
 import emojiRegex from 'emoji-regex';
 import { asciiToUnicode, unicodeToAscii } from 'puny-coder';
 
@@ -137,7 +136,7 @@ export function getAntsRequiringUpdate({
 }: {
   ants: Record<string, AoANTState>;
   userAddress: string;
-  luaSourceTx?: Transaction;
+  luaSourceTx?: { id: string; tags: { name: string; value: string }[] };
 }): string[] {
   if (!luaSourceTx) return [];
   const acceptableIds = [
@@ -162,11 +161,14 @@ export function doAntsRequireUpdate({
 }: {
   ants: Record<string, AoANTState>;
   userAddress: string;
-  luaSourceTx?: Transaction;
+  luaSourceTx?: { id: string; tags: { name: string; value: string }[] };
 }) {
   if (!luaSourceTx) return false;
 
-  return getAntsRequiringUpdate({ ants, userAddress, luaSourceTx }).length > 0;
+  const antReq =
+    getAntsRequiringUpdate({ ants, userAddress, luaSourceTx }).length > 0;
+
+  return antReq;
 }
 
 export function camelToReadable(camel: string) {
