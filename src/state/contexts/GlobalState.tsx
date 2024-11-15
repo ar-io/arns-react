@@ -57,6 +57,10 @@ const initialState: GlobalState = {
   arweaveDataProvider: new ArweaveCompositeDataProvider({
     arweave: defaultArweave,
     contract: defaultArIO,
+    graphqlUrls: [
+      'https://arweave.net/graphql',
+      `https://${ARWEAVE_HOST}/graphql`,
+    ],
   }),
   arioContract: defaultArIO,
 };

@@ -62,6 +62,10 @@ function ArNSRegistrySettings() {
       const provider = new ArweaveCompositeDataProvider({
         contract: arIOContract,
         arweave: arweaveDataProvider,
+        graphqlUrls: [
+          'https://arweave.net/graphql',
+          `https://${gateway}/graphql`,
+        ],
       });
 
       dispatchGlobalState({
