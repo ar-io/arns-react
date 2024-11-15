@@ -17,7 +17,7 @@ export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
   private contract: AoIORead;
   private arweave: ArweaveDataProvider;
 
-  private gqlProviders;
+  private gqlProviders: Record<string, ReturnType<typeof arweaveGraphql>>;
 
   // TODO: implement strategy methods
   constructor({
