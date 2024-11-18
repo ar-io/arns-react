@@ -1,4 +1,9 @@
-import { AoANTState, AoArNSNameData, isLeasedArNSRecord } from '@ar.io/sdk';
+import {
+  AoANTHandler,
+  AoANTState,
+  AoArNSNameData,
+  isLeasedArNSRecord,
+} from '@ar.io/sdk';
 import { ChevronRightIcon, ExternalLinkIcon } from '@src/components/icons';
 import ManageAssetButtons from '@src/components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
 import { Loader } from '@src/components/layout';
@@ -86,7 +91,7 @@ const DomainsTable = ({
 }: {
   domainData: {
     names: Record<string, AoArNSNameData>;
-    ants: Record<string, AoANTState>;
+    ants: Record<string, { state: AoANTState; handlers: AoANTHandler[] }>;
   };
   loading: boolean;
   filter?: string;
@@ -119,17 +124,18 @@ const DomainsTable = ({
           name: domain,
           role:
             getOwnershipStatus(
-              ant?.Owner,
-              ant?.Controllers,
+              ant?.state?.Owner,
+              ant?.state?.Controllers,
               walletAddress?.toString(),
             ) ?? 'N/A',
           processId: record.processId,
-          targetId: ant.Records?.['@']?.transactionId ?? 'N/A',
-          sourceCode: (ant as any)?.['Source-Code-TX-ID'],
+          targetId: ant?.state?.Records?.['@']?.transactionId ?? 'N/A',
+          sourceCode: (ant as any)?.state?.['Source-Code-TX-ID'],
           undernames: {
             used:
-              Object.keys(ant?.Records).filter((undername) => undername !== '@')
-                ?.length ?? 0,
+              Object.keys(ant?.state?.Records ?? {}).filter(
+                (undername) => undername !== '@',
+              )?.length ?? 0,
             supported: record.undernameLimit,
           },
           expiryDate: (record as any).endTimestamp ?? PERMANENT_DOMAIN_MESSAGE,
@@ -138,7 +144,7 @@ const DomainsTable = ({
             : PERMANENT_DOMAIN_MESSAGE,
           action: <></>,
           // metadata used for search and other purposes
-          antRecords: ant.Records,
+          antRecords: ant?.state?.Records,
           domainRecord: record,
         };
         newTableData.push(data);
@@ -446,8 +452,8 @@ const DomainsTable = ({
         renderSubComponent={({ row }) => (
           <UndernamesSubtable
             undernames={
-              domainData.ants?.[row.getValue('processId') as string]?.Records ??
-              {}
+              domainData.ants?.[row.getValue('processId') as string]?.state
+                ?.Records ?? {}
             }
             arnsDomain={row.getValue('name')}
             antId={row.getValue('processId')}

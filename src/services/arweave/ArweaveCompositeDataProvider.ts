@@ -5,8 +5,6 @@ import {
   mIOToken,
 } from '@ar.io/sdk/web';
 import { lowerCaseDomain } from '@src/utils';
-import eventEmitter from '@src/utils/events';
-import arweaveGraphql from 'arweave-graphql';
 
 import { ArweaveDataProvider } from '../../types';
 import { ArweaveTransactionID } from './ArweaveTransactionID';
@@ -17,13 +15,10 @@ export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
   private contract: AoIORead;
   private arweave: ArweaveDataProvider;
 
-  private gqlProviders: Record<string, ReturnType<typeof arweaveGraphql>>;
-
   // TODO: implement strategy methods
   constructor({
     contract,
     arweave,
-    graphqlUrls = ['https://arweave.net/graphql'],
   }: {
     arweave: ArweaveDataProvider;
     contract: AoIORead;
@@ -31,31 +26,6 @@ export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
   }) {
     this.contract = contract;
     this.arweave = arweave;
-    this.gqlProviders = graphqlUrls.reduce(
-      (acc: Record<string, ReturnType<typeof arweaveGraphql>>, url) => {
-        acc[url] = arweaveGraphql(url);
-        return acc;
-      },
-      {},
-    );
-  }
-
-  async getGraphqlTransactions(
-    args: Parameters<ReturnType<typeof arweaveGraphql>['getTransactions']>[0],
-    requestHeaders?: Parameters<
-      ReturnType<typeof arweaveGraphql>['getTransactions']
-    >[1],
-  ) {
-    const results = await Promise.all(
-      Object.values(this.gqlProviders).map((gql) =>
-        gql.getTransactions(args, requestHeaders).catch((e) => {
-          eventEmitter.emit('error', e);
-          return { transactions: { edges: [] } };
-        }),
-      ),
-    );
-
-    return results.find((r) => r?.transactions?.edges?.length > 0);
   }
 
   async getArBalance(wallet: ArweaveTransactionID): Promise<number> {

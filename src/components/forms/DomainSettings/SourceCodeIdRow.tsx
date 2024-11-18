@@ -3,10 +3,8 @@ import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
 import UpgradeAntModal from '@src/components/modals/ant-management/UpgradeAntModal/UpgradeAntModal';
-import { useANTLuaSourceCode } from '@src/hooks/useANTLuaSourceCode';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { isArweaveTransactionID } from '@src/utils';
-import { DEFAULT_ANT_LUA_ID } from '@src/utils/constants';
 import { useState } from 'react';
 
 import DomainSettingsRow from './DomainSettingsRow';
@@ -15,12 +13,13 @@ export default function SourceCodeIdRow({
   sourceCodeTxId,
   editable,
   antId,
+  requiresUpdate,
 }: {
   antId?: string;
+  requiresUpdate: boolean;
   sourceCodeTxId?: string;
   editable: boolean;
 }) {
-  const { data } = useANTLuaSourceCode();
   const [showUpgradeAntModal, setShowUpgradeAntModal] = useState(false);
   return (
     <>
@@ -50,13 +49,7 @@ export default function SourceCodeIdRow({
           // editable controls if user has permission to upgrade
           editable &&
           // if source code id is defined and a txid check if its a valid version
-          ((sourceCodeTxId &&
-            isArweaveTransactionID(sourceCodeTxId) &&
-            ![DEFAULT_ANT_LUA_ID, data?.originalTxId]
-              .filter((id) => id !== undefined)
-              .includes(sourceCodeTxId)) ||
-            // if no source code ID we need to upgrade it.
-            !isArweaveTransactionID(sourceCodeTxId)) && [
+          requiresUpdate && [
             <Tooltip
               key={1}
               message={'Your ANT requires an update'}

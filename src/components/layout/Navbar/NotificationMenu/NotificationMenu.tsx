@@ -1,4 +1,4 @@
-import { AoANTState, AoArNSNameData } from '@ar.io/sdk';
+import { AoANTHandler, AoANTState, AoArNSNameData } from '@ar.io/sdk';
 import { Tooltip } from '@src/components/data-display';
 import { useArNSState, useWalletState } from '@src/state';
 import { getAntsRequiringUpdate } from '@src/utils';
@@ -53,16 +53,13 @@ export function createExpirationNotification(
 export function createUpdateAntsNotification({
   ants,
   userAddress,
-  luaSourceTx,
 }: {
-  ants: Record<string, AoANTState>;
+  ants: Record<string, { state: AoANTState; handlers: AoANTHandler[] }>;
   userAddress: string;
-  luaSourceTx: { id: string; tags: { name: string; value: string }[] };
 }): Notification | undefined {
   const antsRequiringUpdate = getAntsRequiringUpdate({
     ants,
     userAddress,
-    luaSourceTx,
   }).length;
 
   if (!antsRequiringUpdate) return;
@@ -86,12 +83,12 @@ export function createNamesExceedingUndernameLimitNotification({
   ants,
 }: {
   domains: Record<string, AoArNSNameData>;
-  ants: Record<string, AoANTState>;
+  ants: Record<string, { state: AoANTState; handlers: AoANTHandler[] }>;
 }): Notification | undefined {
   const domainsRequiringUndernameSupportUpgrade = Object.values(domains).reduce(
     (acc: number, record: AoArNSNameData) => {
       const undernameCount = Object.keys(
-        ants?.[record.processId]?.Records,
+        ants?.[record.processId]?.state?.Records ?? {},
       ).filter((key) => key !== '@')?.length;
       if (undernameCount > record.undernameLimit) ++acc;
       return acc;
@@ -119,11 +116,11 @@ export function createNamesExceedingUndernameLimitNotification({
 
 function NotificationMenu() {
   const [{ walletAddress }] = useWalletState();
-  const [{ domains, ants, luaSourceTx }] = useArNSState();
+  const [{ domains, ants }] = useArNSState();
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   useEffect(() => {
-    if (domains && ants && walletAddress && luaSourceTx) {
+    if (domains && ants && walletAddress) {
       setNotifications(
         [
           createExpirationNotification(domains),
@@ -131,14 +128,13 @@ function NotificationMenu() {
           createUpdateAntsNotification({
             ants,
             userAddress: walletAddress.toString(),
-            luaSourceTx,
           }),
         ].filter(
           (notification) => notification !== undefined,
         ) as Notification[],
       );
     }
-  }, [domains, ants, walletAddress, luaSourceTx]);
+  }, [domains, ants, walletAddress]);
 
   return (
     <Tooltip

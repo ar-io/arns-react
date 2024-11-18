@@ -1,4 +1,9 @@
-import { AoANTState, AoArNSNameData, ArNSEventEmitter } from '@ar.io/sdk/web';
+import {
+  AoANTHandler,
+  AoANTState,
+  AoArNSNameData,
+  ArNSEventEmitter,
+} from '@ar.io/sdk/web';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 
 import { ArNSState, initialArNSState } from '../contexts/ArNSState';
@@ -7,17 +12,19 @@ export type ArNSAction =
   | { type: 'setArNSEmitter'; payload: ArNSEventEmitter }
   | { type: 'setDomains'; payload: Record<string, AoArNSNameData> }
   | { type: 'addDomains'; payload: Record<string, AoArNSNameData> }
-  | { type: 'setAnts'; payload: Record<string, AoANTState> }
-  | { type: 'addAnts'; payload: Record<string, AoANTState> }
+  | {
+      type: 'setAnts';
+      payload: Record<string, { state: AoANTState; handlers: AoANTHandler[] }>;
+    }
+  | {
+      type: 'addAnts';
+      payload: Record<string, { state: AoANTState; handlers: AoANTHandler[] }>;
+    }
   | { type: 'setAntCount'; payload: number }
   | { type: 'incrementAntCount' }
   | { type: 'setLoading'; payload: boolean }
   | { type: 'setPercentLoaded'; payload?: number }
   | { type: 'reset' }
-  | {
-      type: 'setAntSourceTx';
-      payload?: { id: string; tags: { name: string; value: string }[] };
-    }
   | { type: 'refresh'; payload: ArweaveTransactionID };
 
 export const arnsReducer = (
@@ -25,11 +32,6 @@ export const arnsReducer = (
   action: ArNSAction,
 ): ArNSState => {
   switch (action.type) {
-    case 'setAntSourceTx':
-      return {
-        ...state,
-        luaSourceTx: action.payload,
-      };
     case 'setDomains':
       return {
         ...state,

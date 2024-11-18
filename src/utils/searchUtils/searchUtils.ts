@@ -1,4 +1,4 @@
-import { AoANTState } from '@ar.io/sdk';
+import { AntHandlerNames, AoANTHandler, AoANTState } from '@ar.io/sdk';
 import emojiRegex from 'emoji-regex';
 import { asciiToUnicode, unicodeToAscii } from 'puny-coder';
 
@@ -132,24 +132,16 @@ export function lowerCaseDomain(domain: string) {
 export function getAntsRequiringUpdate({
   ants,
   userAddress,
-  luaSourceTx,
 }: {
-  ants: Record<string, AoANTState>;
+  ants: Record<string, { state: AoANTState; handlers: AoANTHandler[] }>;
   userAddress: string;
-  luaSourceTx?: { id: string; tags: { name: string; value: string }[] };
 }): string[] {
-  if (!luaSourceTx) return [];
-  const acceptableIds = [
-    luaSourceTx.id,
-    luaSourceTx?.tags?.find((tag) => tag.name == 'Original-Tx-Id')?.value,
-  ];
-
   return Object.entries(ants)
     .map(([id, ant]) => {
-      const srcId = (ant as any)?.['Source-Code-TX-ID'];
       // if user is not the owner, skip
-      if (!ant.Owner || ant?.Owner !== userAddress) return;
-      if (!srcId || !acceptableIds.includes(srcId)) return id;
+      if (!ant.state?.Owner || ant?.state.Owner !== userAddress) return;
+      if (!AntHandlerNames.every((handler) => ant.handlers?.includes(handler)))
+        return id;
     })
     .filter((id) => id !== undefined) as string[];
 }
@@ -157,16 +149,11 @@ export function getAntsRequiringUpdate({
 export function doAntsRequireUpdate({
   ants,
   userAddress,
-  luaSourceTx,
 }: {
-  ants: Record<string, AoANTState>;
+  ants: Record<string, { state: AoANTState; handlers: AoANTHandler[] }>;
   userAddress: string;
-  luaSourceTx?: { id: string; tags: { name: string; value: string }[] };
 }) {
-  if (!luaSourceTx) return false;
-
-  const antReq =
-    getAntsRequiringUpdate({ ants, userAddress, luaSourceTx }).length > 0;
+  const antReq = getAntsRequiringUpdate({ ants, userAddress }).length > 0;
 
   return antReq;
 }

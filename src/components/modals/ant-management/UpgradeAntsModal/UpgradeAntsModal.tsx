@@ -33,22 +33,21 @@ function UpgradeAntsModal({
   const [{ wallet, walletAddress }] = useWalletState();
   const [accepted, setAccepted] = useState(false);
   const [antsToUpgrade, setAntsToUpgrade] = useState<string[]>([]);
-  const [{ ants, luaSourceTx }, dispatchArNSState] = useArNSState();
+  const [{ ants }, dispatchArNSState] = useArNSState();
   // 0 or greater means loading, -1 means not loading
   const [progress, setProgress] = useState(-1);
   const isUpdatingAnts = useCallback(() => progress >= 0, [progress]);
 
   useEffect(() => {
-    if (luaSourceTx && walletAddress) {
+    if (walletAddress) {
       setAntsToUpgrade(
         getAntsRequiringUpdate({
           ants,
           userAddress: walletAddress.toString(),
-          luaSourceTx: luaSourceTx,
         }),
       );
     }
-  }, [luaSourceTx, ants, walletAddress]);
+  }, [ants, walletAddress]);
 
   function handleClose() {
     setVisible(false);
@@ -63,15 +62,11 @@ function UpgradeAntsModal({
       if (!wallet?.arconnectSigner || !walletAddress) {
         throw new Error('No ArConnect Signer found');
       }
-      if (!luaSourceTx) {
-        throw new Error('No Lua Code Transaction found');
-      }
 
       const antIds = Object.keys(ants).filter((antId) =>
         doAntsRequireUpdate({
           ants: { [antId]: ants[antId] },
           userAddress: walletAddress?.toString(),
-          luaSourceTx: luaSourceTx,
         }),
       );
 

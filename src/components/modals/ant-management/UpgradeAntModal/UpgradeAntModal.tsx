@@ -30,7 +30,7 @@ function UpgradeAntModal({
 }) {
   const queryClient = useQueryClient();
   const [{ aoClient }] = useGlobalState();
-  const [{ luaSourceTx }, dispatchArNSState] = useArNSState();
+  const [, dispatchArNSState] = useArNSState();
   const [{ wallet, walletAddress }] = useWalletState();
   const [accepted, setAccepted] = useState(false);
   const [upgrading, setUpgrading] = useState(false);
@@ -46,9 +46,7 @@ function UpgradeAntModal({
       if (!wallet?.arconnectSigner || !walletAddress) {
         throw new Error('No ArConnect Signer found');
       }
-      if (!luaSourceTx) {
-        throw new Error('No Lua Code Transaction found');
-      }
+
       setUpgrading(true);
 
       const signer = createAoSigner(wallet?.arconnectSigner as ContractSigner);

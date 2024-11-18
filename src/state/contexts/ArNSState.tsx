@@ -1,6 +1,9 @@
-import { AoANTState, AoArNSNameData, ArNSEventEmitter } from '@ar.io/sdk/web';
-import { useANTLuaSourceCode } from '@src/hooks/useANTLuaSourceCode';
-import { DEFAULT_ANT_LUA_ID } from '@src/utils/constants';
+import {
+  AoANTHandler,
+  AoANTState,
+  AoArNSNameData,
+  ArNSEventEmitter,
+} from '@ar.io/sdk/web';
 import {
   Dispatch,
   createContext,
@@ -16,12 +19,11 @@ import { useWalletState } from './WalletState';
 
 export type ArNSState = {
   domains: Record<string, AoArNSNameData>;
-  ants: Record<string, AoANTState>;
+  ants: Record<string, { state: AoANTState; handlers: AoANTHandler[] }>;
   loading: boolean;
   percentLoaded: number;
   antCount: number;
   arnsEmitter: ArNSEventEmitter;
-  luaSourceTx?: { id: string; tags: { name: string; value: string }[] };
 };
 
 export type ArNSStateProviderProps = {
@@ -59,16 +61,6 @@ export function ArNSStateProvider({
   const [{ arioContract, ioProcessId }] = useGlobalState();
   const [state, dispatchArNSState] = useReducer(reducer, initialArNSState);
   const [{ walletAddress }] = useWalletState();
-  const { data: luaSourceTxRes } = useANTLuaSourceCode(DEFAULT_ANT_LUA_ID);
-
-  useEffect(() => {
-    if (luaSourceTxRes?.luaCodeTx) {
-      dispatchArNSState({
-        type: 'setAntSourceTx',
-        payload: luaSourceTxRes.luaCodeTx,
-      });
-    }
-  }, [luaSourceTxRes?.luaCodeTx]);
 
   useEffect(() => {
     dispatchArNSState({
