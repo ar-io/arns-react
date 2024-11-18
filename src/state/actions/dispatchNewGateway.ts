@@ -22,10 +22,6 @@ export async function dispatchNewGateway(
     const provider = new ArweaveCompositeDataProvider({
       arweave: arweaveDataProvider,
       contract: contract,
-      graphqlUrls: [
-        'https://arweave.net/graphql',
-        `https://${gateway}/graphql`,
-      ],
     });
     const blockHeight = await provider.getCurrentBlockHeight();
     dispatch({

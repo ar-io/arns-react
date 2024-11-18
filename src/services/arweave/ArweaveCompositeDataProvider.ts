@@ -22,7 +22,6 @@ export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
   }: {
     arweave: ArweaveDataProvider;
     contract: AoIORead;
-    graphqlUrls?: string[];
   }) {
     this.contract = contract;
     this.arweave = arweave;
