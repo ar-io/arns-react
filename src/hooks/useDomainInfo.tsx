@@ -27,6 +27,7 @@ export default function useDomainInfo({
     ticker: string;
     owner: string;
     controllers: string[];
+    logo: string;
     undernameCount?: number;
     sourceCodeTxId?: string;
     apexRecord: {
@@ -65,6 +66,7 @@ export default function useDomainInfo({
     ticker: string;
     owner: string;
     controllers: string[];
+    logo: string;
     undernameCount: number;
     sourceCodeTxId?: string;
     apexRecord: {
@@ -133,6 +135,7 @@ export default function useDomainInfo({
       ticker,
       owner,
       controllers,
+      logo: state.Logo ?? '',
       undernameCount,
       apexRecord,
       sourceCodeTxId: (state as any)?.['Source-Code-TX-ID'],

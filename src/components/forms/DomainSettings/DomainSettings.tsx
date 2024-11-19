@@ -29,6 +29,7 @@ import { useNavigate } from 'react-router-dom';
 
 import ControllersRow from './ControllersRow';
 import DomainSettingsRow from './DomainSettingsRow';
+import LogoRow from './LogoRow';
 import NicknameRow from './NicknameRow';
 import OwnerRow from './OwnerRow';
 import SourceCodeIdRow from './SourceCodeIdRow';
@@ -52,6 +53,7 @@ export enum DomainSettingsRowTypes {
   OWNER = 'Owner',
   TTL = 'TTL Seconds',
   UNDERNAMES = 'Undernames',
+  LOGO_TX_ID = 'Logo TX ID',
 }
 
 function DomainSettings({
@@ -381,6 +383,24 @@ function DomainSettings({
               undernameLimit={data?.undernameCount ?? 0}
               undernameSupport={
                 data?.arnsRecord?.undernameLimit ?? DEFAULT_MAX_UNDERNAMES
+              }
+            />
+          ),
+          [DomainSettingsRowTypes.LOGO_TX_ID]: (
+            <LogoRow
+              key={DomainSettingsRowTypes.LOGO_TX_ID}
+              logoTxId={data?.logo}
+              confirm={(logo: string) =>
+                dispatchANTInteraction({
+                  payload: {
+                    logo,
+                  },
+                  workflowName: ANT_INTERACTION_TYPES.SET_LOGO,
+                  signer: wallet!.arconnectSigner!,
+                  owner: walletAddress!.toString(),
+                  processId: data?.processId,
+                  dispatch,
+                })
               }
             />
           ),

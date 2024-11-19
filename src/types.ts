@@ -174,6 +174,7 @@ export enum ANT_INTERACTION_TYPES {
   REMOVE_RECORD = 'Delete Undername',
   TRANSFER = 'Transfer ANT',
   EVOLVE = 'Upgrade ANT',
+  SET_LOGO = 'Set Logo',
 }
 
 export enum ARNS_INTERACTION_TYPES {
