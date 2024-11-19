@@ -31,9 +31,9 @@ import { useNavigate } from 'react-router-dom';
 
 import ControllersRow from './ControllersRow';
 import DomainSettingsRow from './DomainSettingsRow';
+import IOCompatibleRow from './IOCompatibleRow';
 import NicknameRow from './NicknameRow';
 import OwnerRow from './OwnerRow';
-import SourceCodeIdRow from './SourceCodeIdRow';
 import TTLRow from './TTLRow';
 import TargetIDRow from './TargetIDRow';
 import TickerRow from './TickerRow';
@@ -45,7 +45,7 @@ export enum DomainSettingsRowTypes {
   LEASE_DURATION = 'Lease Duration',
   ASSOCIATED_NAMES = 'Associated Names',
   STATUS = 'Status',
-  SOURCE_CODE_TX_ID = 'Source Code TX ID',
+  IO_COMPATIBLE = 'IO Compatible',
   NICKNAME = 'Nickname',
   PROCESS_ID = 'Process ID',
   TARGET_ID = 'Target ID',
@@ -233,10 +233,9 @@ function DomainSettings({
               key={DomainSettingsRowTypes.STATUS}
             />
           ),
-          [DomainSettingsRowTypes.SOURCE_CODE_TX_ID]: (
-            <SourceCodeIdRow
+          [DomainSettingsRowTypes.IO_COMPATIBLE]: (
+            <IOCompatibleRow
               antId={data?.processId?.toString()}
-              sourceCodeTxId={data?.sourceCodeTxId}
               editable={isAuthorized}
               requiresUpdate={
                 data?.processId && ants[data.processId] && walletAddress

@@ -1,49 +1,31 @@
 import { Tooltip } from '@src/components/data-display';
-import ArweaveID, {
-  ArweaveIdTypes,
-} from '@src/components/layout/ArweaveID/ArweaveID';
 import UpgradeAntModal from '@src/components/modals/ant-management/UpgradeAntModal/UpgradeAntModal';
-import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
-import { isArweaveTransactionID } from '@src/utils';
+import { CircleCheck, CircleX } from 'lucide-react';
 import { useState } from 'react';
 
 import DomainSettingsRow from './DomainSettingsRow';
 
-export default function SourceCodeIdRow({
-  sourceCodeTxId,
+export default function IOCompatibleRow({
   editable,
   antId,
   requiresUpdate,
 }: {
   antId?: string;
   requiresUpdate: boolean;
-  sourceCodeTxId?: string;
   editable: boolean;
 }) {
   const [showUpgradeAntModal, setShowUpgradeAntModal] = useState(false);
   return (
     <>
       <DomainSettingsRow
-        label="Source Code TX ID:"
+        label="AR.IO Compatible:"
         editable={true}
         value={
-          <span
-            className="flex center"
-            style={{
-              justifyContent: 'flex-start',
-              gap: '10px',
-            }}
-          >
-            {sourceCodeTxId && isArweaveTransactionID(sourceCodeTxId) ? (
-              <ArweaveID
-                id={new ArweaveTransactionID(sourceCodeTxId)}
-                shouldLink
-                type={ArweaveIdTypes.TRANSACTION}
-              />
-            ) : (
-              'N/A'
-            )}
-          </span>
+          !requiresUpdate ? (
+            <CircleCheck className="text-success w-[16px]" />
+          ) : (
+            <CircleX className="text-error w-[16px]" />
+          )
         }
         action={
           // editable controls if user has permission to upgrade
