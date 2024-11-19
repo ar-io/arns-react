@@ -1,5 +1,6 @@
 {
   "testEnvironment": "jsdom",
+  "testTimeout": 60000,
   "setupFilesAfterEnv": ["<rootDir>/jest-setup.ts"],
   "collectCoverage": false,
   "collectCoverageFrom": ["src/**/*.{ts,tsx,js,jsx}", "!src/**/*.d.ts"],

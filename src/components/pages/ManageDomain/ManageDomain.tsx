@@ -3,49 +3,88 @@ import DomainSettings from '@src/components/forms/DomainSettings/DomainSettings'
 import { useGlobalState } from '@src/state';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
 import eventEmitter from '@src/utils/events';
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { ReactNode, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { decodeDomainToASCII } from '../../../utils';
 import { HamburgerOutlineIcon } from '../../icons';
 import './styles.css';
 
-function AntLogoIcon({ id, className }: { id?: string; className?: string }) {
+function AntLogoIcon({
+  id,
+  className,
+  icon = (
+    <HamburgerOutlineIcon
+      width={'20px'}
+      height={'20px'}
+      fill="var(--text-white)"
+    />
+  ),
+}: {
+  id?: string;
+  className?: string;
+  icon?: ReactNode;
+}) {
   const [{ gateway }] = useGlobalState();
-  const [logoImage, setLogoImage] = useState<string | undefined>();
 
-  useEffect(() => {
-    async function updateImage(imageId: string) {
+  const { data: logoImage } = useQuery({
+    queryKey: ['ant-logo', id, gateway],
+    queryFn: async () => {
       try {
-        const imageRes = await fetch(`https://${gateway}/${imageId}`);
-        const imageData = await imageRes.blob();
+        if (!id) return;
+        const imageRes = await fetch(`https://${gateway}/${id}`);
+        const buffer = await imageRes.arrayBuffer();
+        const arr = new Uint8Array(buffer).subarray(0, 4);
+        const header = Array.from(arr)
+          .map((byte) => byte.toString(16))
+          .join('');
 
-        const fileUrl = URL.createObjectURL(imageData);
+        const imageHeaders = {
+          '89504e47': 'image/png', // PNG
+          '47494638': 'image/gif', // GIF
+          ffd8ffe0: 'image/jpeg', // JPEG
+          ffd8ffe1: 'image/jpeg', // JPEG
+          ffd8ffe2: 'image/jpeg', // JPEG
+          ffd8ffe3: 'image/jpeg', // JPEG
+          ffd8ffe8: 'image/jpeg', // JPEG
+        };
 
-        setLogoImage(fileUrl);
+        if (!Object.keys(imageHeaders).includes(header)) {
+          console.warn('Invalid image data header:', header);
+          return;
+        }
+
+        const blob = new Blob([buffer], {
+          type: imageHeaders[header as keyof typeof imageHeaders],
+        });
+        const fileUrl = URL.createObjectURL(blob);
+
+        return fileUrl;
       } catch (error) {
         eventEmitter.emit('error', error);
       }
-    }
-    if (id) {
-      updateImage(id);
-    }
-  }, [id, gateway]);
+    },
+  });
+
+  useEffect(() => {
+    return () => {
+      if (logoImage) {
+        URL.revokeObjectURL(logoImage);
+      }
+    };
+  }, [logoImage]);
 
   return (
     <>
       {logoImage ? (
         <img
-          className={className ?? 'w-[30px]'}
+          className={className ?? 'w-[30px] rounded-full'}
           src={logoImage}
           alt="ant-logo"
         />
       ) : (
-        <HamburgerOutlineIcon
-          width={'20px'}
-          height={'20px'}
-          fill="var(--text-white)"
-        />
+        icon
       )}
     </>
   );
