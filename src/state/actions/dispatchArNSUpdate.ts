@@ -1,4 +1,4 @@
-import { ArNSEventEmitter } from '@ar.io/sdk/web';
+import { ANT, AoANTState, ArNSEventEmitter } from '@ar.io/sdk/web';
 import { captureException } from '@sentry/react';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import eventEmitter from '@src/utils/events';
@@ -25,14 +25,21 @@ export function dispatchArNSUpdate({
     type: 'setLoading',
     payload: true,
   });
-  emitter.on('process', (id, process) => {
+  emitter.on('process', async (id, process) => {
+    const handlers = await ANT.init({
+      processId: id,
+    })
+      .getHandlers()
+      .catch(console.error);
     dispatch({
       type: 'addDomains',
       payload: process.names,
     });
     dispatch({
       type: 'addAnts',
-      payload: { [id]: process.state },
+      payload: {
+        [id]: { state: process.state as AoANTState, handlers: handlers ?? [] },
+      },
     });
   });
   emitter.on('progress', (itemIndex, totalIds) => {

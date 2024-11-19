@@ -2,11 +2,9 @@ import { ContractSigner, createAoSigner, evolveANT } from '@ar.io/sdk';
 import AntChangelog from '@src/components/cards/AntChangelog';
 import { Tooltip } from '@src/components/data-display';
 import { CloseIcon } from '@src/components/icons';
-import { Loader } from '@src/components/layout';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
-import { useArweaveTransaction } from '@src/hooks/useArweaveTransaction';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useArNSState, useGlobalState, useWalletState } from '@src/state';
 import { dispatchANTUpdate } from '@src/state/actions/dispatchANTUpdate';
@@ -34,7 +32,6 @@ function UpgradeAntModal({
   const [{ aoClient }] = useGlobalState();
   const [, dispatchArNSState] = useArNSState();
   const [{ wallet, walletAddress }] = useWalletState();
-  const { data, isLoading } = useArweaveTransaction(DEFAULT_ANT_LUA_ID);
   const [accepted, setAccepted] = useState(false);
   const [upgrading, setUpgrading] = useState(false);
 
@@ -49,9 +46,7 @@ function UpgradeAntModal({
       if (!wallet?.arconnectSigner || !walletAddress) {
         throw new Error('No ArConnect Signer found');
       }
-      if (!data?.luaCodeTx) {
-        throw new Error('No Lua Code Transaction found');
-      }
+
       setUpgrading(true);
 
       const signer = createAoSigner(wallet?.arconnectSigner as ContractSigner);
@@ -114,14 +109,6 @@ function UpgradeAntModal({
   }
 
   if (!visible) return <></>;
-
-  if (isLoading) {
-    return (
-      <div className="modal-container items-center justify-center">
-        <Loader />
-      </div>
-    );
-  }
 
   return (
     <div className="modal-container items-center justify-center">

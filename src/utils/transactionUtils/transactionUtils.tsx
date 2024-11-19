@@ -703,6 +703,8 @@ export function createDefaultAntState(state: any) {
     controllers: [],
     balances: {},
     owner: '',
+    description: '',
+    keywords: [],
     records: {
       ['@']: {
         transactionId: LANDING_PAGE_TXID.toString(),

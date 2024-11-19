@@ -2,7 +2,6 @@ import {
   AoArNSNameData,
   AoIORead,
   fetchAllArNSRecords,
-  getANTProcessesOwnedByWallet,
   mIOToken,
 } from '@ar.io/sdk/web';
 import { lowerCaseDomain } from '@src/utils';
@@ -40,17 +39,6 @@ export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
         address: wallet.toString(),
       })
       .then((balance: number) => new mIOToken(balance).toIO().valueOf());
-  }
-
-  async getContractsForWallet({
-    address,
-  }: {
-    address: ArweaveTransactionID;
-  }): Promise<ArweaveTransactionID[]> {
-    const processIds = await getANTProcessesOwnedByWallet({
-      address: address.toString(),
-    });
-    return [...processIds].map((id) => new ArweaveTransactionID(id));
   }
 
   async getTransactionStatus(
