@@ -103,6 +103,12 @@ export default async function dispatchANTInteraction({
           undername: lowerCaseDomain(payload.subDomain),
         });
         break;
+      case ANT_INTERACTION_TYPES.SET_LOGO:
+        dispatchSigningMessage('Setting Logo, please wait...');
+        result = await antProcess.setLogo({
+          txId: payload.logo,
+        });
+        break;
       default:
         throw new Error(`Unsupported workflow name: ${workflowName}`);
     }

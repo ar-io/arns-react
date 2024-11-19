@@ -60,10 +60,12 @@ function DomainSettings({
   domain,
   antId,
   rowFilter = [],
+  setLogo,
 }: {
   domain?: string;
   antId?: string;
   rowFilter?: DomainSettingsRowTypes[];
+  setLogo?: (id?: string) => void;
 }) {
   const queryClient = useQueryClient();
 
@@ -95,6 +97,11 @@ function DomainSettings({
       navigate('/manage/names');
     }
   }, [domain, antId]);
+
+  // callback to set logo
+  useEffect(() => {
+    if (setLogo && data?.logo) setLogo(data.logo);
+  }, [data?.logo, setLogo]);
 
   useEffect(() => {
     if (interactionResult) {
@@ -390,6 +397,7 @@ function DomainSettings({
             <LogoRow
               key={DomainSettingsRowTypes.LOGO_TX_ID}
               logoTxId={data?.logo}
+              editable={isAuthorized}
               confirm={(logo: string) =>
                 dispatchANTInteraction({
                   payload: {

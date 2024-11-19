@@ -53,7 +53,7 @@ function UpgradeAntsModal({
         }),
       );
     }
-  }, [luaCodeTx, ants]);
+  }, [ants]);
 
   function handleClose() {
     setVisible(false);
