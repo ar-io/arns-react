@@ -56,9 +56,7 @@ export default function OwnerRow({
           owner ? (
             isArweaveTransactionID(owner) ? (
               <ArweaveID
-                id={
-                  isEthAddress(owner) ? owner : new ArweaveTransactionID(owner)
-                }
+                id={new ArweaveTransactionID(owner)}
                 shouldLink
                 type={ArweaveIdTypes.ADDRESS}
               />
