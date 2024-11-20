@@ -2,6 +2,7 @@ import { ANT, AoANTState, ArNSEventEmitter } from '@ar.io/sdk/web';
 import { captureException } from '@sentry/react';
 import { AoAddress } from '@src/types';
 import eventEmitter from '@src/utils/events';
+import { queryClient } from '@src/utils/network';
 import { Dispatch } from 'react';
 
 import { ArNSAction } from '../reducers/ArNSReducer';
@@ -26,11 +27,18 @@ export function dispatchArNSUpdate({
     payload: true,
   });
   emitter.on('process', async (id, process) => {
-    const handlers = await ANT.init({
-      processId: id,
-    })
-      .getHandlers()
-      .catch(console.error);
+    const handlers = await queryClient.fetchQuery({
+      queryKey: ['handlers', id],
+      queryFn: async () => {
+        return await ANT.init({
+          processId: id,
+        })
+          .getHandlers()
+          .catch(console.error);
+      },
+      staleTime: Infinity,
+    });
+
     dispatch({
       type: 'addDomains',
       payload: process.names,

@@ -15,6 +15,7 @@ import {
 } from '@src/utils';
 import { DEFAULT_ANT_LUA_ID } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
+import { queryClient } from '@src/utils/network';
 import { Checkbox } from 'antd';
 import Lottie from 'lottie-react';
 import { useCallback, useEffect, useState } from 'react';
@@ -86,6 +87,14 @@ function UpgradeAntsModal({
             message: `Issue upgrading ANT ${antId}, please try again later`,
           });
         });
+        queryClient.invalidateQueries(
+          {
+            queryKey: ['handlers'],
+            refetchType: 'all',
+            exact: false,
+          },
+          { cancelRefetch: true },
+        );
         setProgress((prev) => Math.round(prev + 100 / antIds.length));
       }
       if (failedUpgrades.length < antIds.length) {

@@ -69,6 +69,14 @@ function UpgradeAntModal({
       });
       queryClient.invalidateQueries(
         {
+          queryKey: ['handlers'],
+          refetchType: 'all',
+          exact: false,
+        },
+        { cancelRefetch: true },
+      );
+      queryClient.invalidateQueries(
+        {
           queryKey: ['domainInfo'],
           refetchType: 'all',
           exact: false,
