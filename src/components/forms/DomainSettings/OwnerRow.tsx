@@ -5,8 +5,12 @@ import ArweaveID, {
 import { TransferANTModal } from '@src/components/modals';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
-import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
-import { isArweaveTransactionID } from '@src/utils';
+import {
+  ANT_INTERACTION_TYPES,
+  AoAddress,
+  ContractInteraction,
+} from '@src/types';
+import { isEthAddress, isValidAoAddress } from '@src/utils';
 import eventEmitter from '@src/utils/events';
 import { Skeleton } from 'antd';
 import { useState } from 'react';
@@ -27,14 +31,14 @@ export default function OwnerRow({
   editable?: boolean;
 }) {
   const [payload, setTransactionData] = useState<{
-    target: ArweaveTransactionID;
+    target: AoAddress;
     associatedNames?: string[];
   }>();
   const [showTransferANTModal, setShowTransferANTModal] =
     useState<boolean>(false);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
 
-  async function handleTransferANT(payload: { target: ArweaveTransactionID }) {
+  async function handleTransferANT(payload: { target: AoAddress }) {
     try {
       await confirm({ target: payload.target.toString() });
     } catch (error) {
@@ -50,9 +54,11 @@ export default function OwnerRow({
         label="Owner:"
         value={
           owner ? (
-            isArweaveTransactionID(owner) ? (
+            isValidAoAddress(owner) ? (
               <ArweaveID
-                id={new ArweaveTransactionID(owner)}
+                id={
+                  isEthAddress(owner) ? owner : new ArweaveTransactionID(owner)
+                }
                 shouldLink
                 type={ArweaveIdTypes.ADDRESS}
               />
@@ -81,7 +87,9 @@ export default function OwnerRow({
           associatedNames={associatedNames}
           payloadCallback={(payload) => {
             setTransactionData({
-              target: new ArweaveTransactionID(payload.target.toString()),
+              target: isEthAddress(payload.target)
+                ? payload.target
+                : new ArweaveTransactionID(payload.target.toString()),
               associatedNames: payload.associatedNames,
             });
             setShowConfirmModal(true);

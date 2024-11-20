@@ -2,7 +2,7 @@ import { AoIOWrite, IOToken, mIOToken } from '@ar.io/sdk/web';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { VALIDATION_INPUT_TYPES } from '@src/types';
-import { formatIO, isEthAddress, isValidAoAddress, mioToIo } from '@src/utils';
+import { formatIO, isValidAoAddress, mioToIo } from '@src/utils';
 import { WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Collapse, Space } from 'antd';
@@ -98,9 +98,8 @@ function TransferIO() {
                 validationPredicates={{
                   [VALIDATION_INPUT_TYPES.AO_ADDRESS]: {
                     fn: async (id: string) =>
-                      isEthAddress(id) ||
-                      ((await arweaveDataProvider.validateArweaveId(id)) &&
-                        (await arweaveDataProvider.validateArweaveId(id))),
+                      isValidAoAddress(id) ||
+                      (await arweaveDataProvider.validateArweaveId(id)),
                   },
                 }}
               />

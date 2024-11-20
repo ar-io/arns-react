@@ -1,4 +1,5 @@
 import { useANT } from '@src/hooks/useANT/useANT';
+import { AoAddress } from '@src/types';
 import { Checkbox, Table } from 'antd';
 import { useEffect, useState } from 'react';
 
@@ -7,6 +8,7 @@ import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransa
 import {
   formatForMaxCharCount,
   getCustomPaginationButtons,
+  isEthAddress,
 } from '../../../../utils';
 import DialogModal from '../../DialogModal/DialogModal';
 import './styles.css';
@@ -23,21 +25,25 @@ function RemoveControllersModal({
   payloadCallback: (payload: { controller: string }) => void;
 }) {
   const isMobile = useIsMobile();
-  const [controllersToRemove, setControllersToRemove] = useState<
-    ArweaveTransactionID[]
-  >([]);
+  const [controllersToRemove, setControllersToRemove] = useState<AoAddress[]>(
+    [],
+  );
   const [tablePage, setTablePage] = useState<number>(1);
   const { name = 'N/A' } = useANT(antId.toString());
-  const [rows, setRows] = useState<{ controller: ArweaveTransactionID }[]>(
+  const [rows, setRows] = useState<{ controller: AoAddress }[]>(
     controllers.map((controller) => ({
-      controller: new ArweaveTransactionID(controller),
+      controller: isEthAddress(controller)
+        ? controller
+        : new ArweaveTransactionID(controller),
     })),
   );
 
   useEffect(() => {
     setRows(
       controllers.map((controller) => ({
-        controller: new ArweaveTransactionID(controller),
+        controller: isEthAddress(controller)
+          ? controller
+          : new ArweaveTransactionID(controller),
       })),
     );
   }, [controllers]);
@@ -151,7 +157,7 @@ function RemoveControllersModal({
                           align: 'left',
                           width: '00%',
                           className: 'grey whitespace-no-wrap',
-                          render: (value: ArweaveTransactionID) => (
+                          render: (value: AoAddress) => (
                             <span
                               className={
                                 controllersToRemove.includes(value)

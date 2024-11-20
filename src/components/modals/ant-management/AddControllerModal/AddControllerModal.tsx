@@ -5,10 +5,7 @@ import { useIsMobile } from '../../../../hooks';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { VALIDATION_INPUT_TYPES } from '../../../../types';
-import {
-  formatForMaxCharCount,
-  isArweaveTransactionID,
-} from '../../../../utils';
+import { formatForMaxCharCount, isValidAoAddress } from '../../../../utils';
 import ValidationInput from '../../../inputs/text/ValidationInput/ValidationInput';
 import DialogModal from '../../DialogModal/DialogModal';
 
@@ -84,9 +81,10 @@ function AddControllerModal({
                     setIsValidAddress(validity)
                   }
                   validationPredicates={{
-                    [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
-                      fn: (id: string) =>
-                        arweaveDataProvider.validateArweaveId(id),
+                    [VALIDATION_INPUT_TYPES.AO_ADDRESS]: {
+                      fn: async (id: string) =>
+                        isValidAoAddress(id) ||
+                        (await arweaveDataProvider.validateArweaveId(id)),
                     },
                   }}
                 />
@@ -100,7 +98,7 @@ function AddControllerModal({
         onCancel={closeModal}
         onClose={closeModal}
         onNext={
-          isArweaveTransactionID(newController)
+          isValidAoAddress(newController)
             ? () => handlePayloadCallback()
             : undefined
         }
