@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../../hooks';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
-import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { VALIDATION_INPUT_TYPES } from '../../../../types';
 import { formatForMaxCharCount, isValidAoAddress } from '../../../../utils';
 import ValidationInput from '../../../inputs/text/ValidationInput/ValidationInput';
@@ -18,7 +17,6 @@ function AddControllerModal({
   closeModal: () => void;
   payloadCallback: (payload: { controller: string }) => void;
 }) {
-  const [{ arweaveDataProvider }] = useGlobalState();
   const isMobile = useIsMobile();
   const [newController, setNewController] = useState<string>('');
   const [isValidAddress, setIsValidAddress] = useState<boolean>();
@@ -82,9 +80,11 @@ function AddControllerModal({
                   }
                   validationPredicates={{
                     [VALIDATION_INPUT_TYPES.AO_ADDRESS]: {
-                      fn: async (id: string) =>
-                        isValidAoAddress(id) ||
-                        (await arweaveDataProvider.validateArweaveId(id)),
+                      fn: async (id: string) => {
+                        if (!isValidAoAddress(id)) {
+                          throw new Error('Invalid address');
+                        }
+                      },
                     },
                   }}
                 />

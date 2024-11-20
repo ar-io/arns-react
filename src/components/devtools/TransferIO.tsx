@@ -14,7 +14,7 @@ import './styles.css';
 const Panel = Collapse.Panel;
 
 function TransferIO() {
-  const [{ arweaveDataProvider, arioContract, ioProcessId }] = useGlobalState();
+  const [{ arioContract, ioProcessId }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [ioBalance, setIoBalance] = useState<number>(0);
   const [toAddress, setToAddress] = useState<string>('');
@@ -97,9 +97,11 @@ function TransferIO() {
                 }
                 validationPredicates={{
                   [VALIDATION_INPUT_TYPES.AO_ADDRESS]: {
-                    fn: async (id: string) =>
-                      isValidAoAddress(id) ||
-                      (await arweaveDataProvider.validateArweaveId(id)),
+                    fn: async (id: string) => {
+                      if (!isValidAoAddress(id)) {
+                        throw new Error('Invalid address');
+                      }
+                    },
                   },
                 }}
               />

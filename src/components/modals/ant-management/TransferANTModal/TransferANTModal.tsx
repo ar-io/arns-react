@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../../hooks';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
-import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { TransferANTPayload, VALIDATION_INPUT_TYPES } from '../../../../types';
 import { formatForMaxCharCount, isValidAoAddress } from '../../../../utils';
 import { InfoIcon } from '../../../icons';
@@ -23,7 +22,6 @@ function TransferANTModal({
   payloadCallback: (payload: TransferANTPayload) => void;
   associatedNames: string[];
 }) {
-  const [{ arweaveDataProvider }] = useGlobalState();
   const isMobile = useIsMobile();
   const [accepted, setAccepted] = useState<boolean>(false);
   const [toAddress, setToAddress] = useState<string>('');
@@ -91,9 +89,11 @@ function TransferANTModal({
                   }
                   validationPredicates={{
                     [VALIDATION_INPUT_TYPES.AO_ADDRESS]: {
-                      fn: async (id: string) =>
-                        isValidAoAddress(id) ||
-                        (await arweaveDataProvider.validateArweaveId(id)),
+                      fn: async (id: string) => {
+                        if (!isValidAoAddress(id)) {
+                          throw new Error('Invalid address');
+                        }
+                      },
                     },
                   }}
                 />
