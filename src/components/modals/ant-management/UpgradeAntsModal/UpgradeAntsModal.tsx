@@ -59,7 +59,7 @@ function UpgradeAntsModal({
     if (isUpdatingAnts()) return;
     try {
       setProgress(0);
-      if (!wallet?.arconnectSigner || !walletAddress) {
+      if (!wallet?.contractSigner || !walletAddress) {
         throw new Error('No ArConnect Signer found');
       }
 
@@ -70,7 +70,7 @@ function UpgradeAntsModal({
         }),
       );
 
-      const signer = createAoSigner(wallet?.arconnectSigner as ContractSigner);
+      const signer = createAoSigner(wallet?.contractSigner as ContractSigner);
       // deliberately not using concurrency here for UX reasons
       const failedUpgrades = [];
       for (const antId of antIds) {

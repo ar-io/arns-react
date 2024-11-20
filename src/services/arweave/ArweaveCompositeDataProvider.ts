@@ -6,7 +6,7 @@ import {
 } from '@ar.io/sdk/web';
 import { lowerCaseDomain } from '@src/utils';
 
-import { ArweaveDataProvider } from '../../types';
+import { AoAddress, ArweaveDataProvider } from '../../types';
 import { ArweaveTransactionID } from './ArweaveTransactionID';
 
 export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
@@ -27,8 +27,10 @@ export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
     this.arweave = arweave;
   }
 
-  async getArBalance(wallet: ArweaveTransactionID): Promise<number> {
-    return this.arweave.getArBalance(wallet);
+  async getArBalance(wallet: AoAddress): Promise<number> {
+    return wallet instanceof ArweaveTransactionID
+      ? this.arweave.getArBalance(wallet)
+      : 0;
   }
 
   async getContractBalanceForWallet(
@@ -140,7 +142,7 @@ export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
     );
   }
 
-  async getTokenBalance(address: ArweaveTransactionID): Promise<number> {
+  async getTokenBalance(address: AoAddress): Promise<number> {
     return this.contract
       .getBalance({
         address: address.toString(),

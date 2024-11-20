@@ -1,12 +1,14 @@
-import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
-import { ArweaveWalletConnector } from '../../types';
+import { AoAddress, ArNSWalletConnector } from '../../types';
 import { WalletState } from '../contexts/WalletState';
 
 export type WalletAction =
-  | { type: 'setWalletAddress'; payload: ArweaveTransactionID | undefined }
+  | {
+      type: 'setWalletAddress';
+      payload: AoAddress | undefined;
+    }
   | {
       type: 'setWallet';
-      payload: ArweaveWalletConnector | undefined;
+      payload: ArNSWalletConnector | undefined;
     }
   | { type: 'setBalances'; payload: { [x: string]: number; ar: number } }
   | { type: 'setWalletStateInitialized' };

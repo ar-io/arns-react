@@ -9,9 +9,12 @@ import {
   createAoSigner,
   spawnANT,
 } from '@ar.io/sdk/web';
-import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
-import { ARNS_INTERACTION_TYPES, ContractInteraction } from '@src/types';
+import {
+  ARNS_INTERACTION_TYPES,
+  AoAddress,
+  ContractInteraction,
+} from '@src/types';
 import { createAntStateForOwner, lowerCaseDomain } from '@src/utils';
 import { DEFAULT_ANT_LUA_ID, WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
@@ -30,7 +33,7 @@ export default async function dispatchArIOInteraction({
 }: {
   payload: Record<string, any>;
   workflowName: ARNS_INTERACTION_TYPES;
-  owner: ArweaveTransactionID;
+  owner: AoAddress;
   arioContract?: AoIOWrite;
   processId: string;
   dispatch: Dispatch<TransactionAction>;

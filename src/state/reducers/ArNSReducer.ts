@@ -4,7 +4,7 @@ import {
   AoArNSNameData,
   ArNSEventEmitter,
 } from '@ar.io/sdk/web';
-import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import { AoAddress } from '@src/types';
 
 import { ArNSState, initialArNSState } from '../contexts/ArNSState';
 
@@ -25,7 +25,7 @@ export type ArNSAction =
   | { type: 'setLoading'; payload: boolean }
   | { type: 'setPercentLoaded'; payload?: number }
   | { type: 'reset' }
-  | { type: 'refresh'; payload: ArweaveTransactionID };
+  | { type: 'refresh'; payload: AoAddress };
 
 export const arnsReducer = (
   state: ArNSState,

@@ -174,7 +174,7 @@ export const RESERVED_BREADCRUMB_TITLES = new Set([
 ]);
 
 export const ARIO_DISCORD_LINK = 'https://discord.com/invite/HGG52EtTc2';
-
 export const PERMANENT_DOMAIN_MESSAGE = 'Indefinite';
 
+export const METAMASK_URL = 'https://metamask.io/';
 export const ANT_CHANGELOG = antChangelog;

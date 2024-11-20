@@ -117,7 +117,7 @@ const UndernamesTable = ({
         throw new Error('Unable to interact with ANT contract - missing ID.');
       }
 
-      if (!wallet?.arconnectSigner || !walletAddress) {
+      if (!wallet?.contractSigner || !walletAddress) {
         throw new Error(
           'Unable to interact with ANT contract - missing signer.',
         );
@@ -127,7 +127,7 @@ const UndernamesTable = ({
         processId,
         payload,
         workflowName,
-        signer: wallet?.arconnectSigner,
+        signer: wallet?.contractSigner,
         owner: walletAddress?.toString(),
         dispatch: dispatchTransactionState,
       });
