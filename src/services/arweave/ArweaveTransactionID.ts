@@ -1,6 +1,8 @@
-import { Equatable } from '../../types';
-
 const ARWEAVE_TX_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{43}$');
+
+export interface Equatable<T> {
+  equals(other: T): boolean;
+}
 
 export class ArweaveTransactionID implements Equatable<ArweaveTransactionID> {
   constructor(private readonly transactionId?: string) {

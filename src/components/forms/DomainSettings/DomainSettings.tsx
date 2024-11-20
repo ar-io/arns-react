@@ -247,7 +247,7 @@ function DomainSettings({
                   payload: { name },
                   workflowName: ANT_INTERACTION_TYPES.SET_NAME,
                   processId: data?.processId,
-                  signer: wallet!.arconnectSigner!,
+                  signer: wallet!.contractSigner!,
                   owner: walletAddress!.toString(),
                   dispatch,
                 })
@@ -283,7 +283,7 @@ function DomainSettings({
                     ttlSeconds: data?.apexRecord.ttlSeconds,
                   },
                   workflowName: ANT_INTERACTION_TYPES.SET_TARGET_ID,
-                  signer: wallet!.arconnectSigner!,
+                  signer: wallet!.contractSigner!,
                   owner: walletAddress!.toString(),
                   processId: data?.processId,
                   dispatch,
@@ -300,7 +300,7 @@ function DomainSettings({
                 dispatchANTInteraction({
                   payload: { ticker },
                   workflowName: ANT_INTERACTION_TYPES.SET_TICKER,
-                  signer: wallet!.arconnectSigner!,
+                  signer: wallet!.contractSigner!,
                   owner: walletAddress!.toString(),
                   processId: data?.processId,
                   dispatch,
@@ -326,7 +326,7 @@ function DomainSettings({
                 dispatchANTInteraction({
                   payload,
                   workflowName,
-                  signer: wallet!.arconnectSigner!,
+                  signer: wallet!.contractSigner!,
                   owner: walletAddress!.toString(),
                   processId: data?.processId,
                   dispatch,
@@ -345,7 +345,7 @@ function DomainSettings({
                 dispatchANTInteraction({
                   payload: { target },
                   workflowName: ANT_INTERACTION_TYPES.TRANSFER,
-                  signer: wallet!.arconnectSigner!,
+                  signer: wallet!.contractSigner!,
                   owner: walletAddress!.toString(),
                   processId: data?.processId,
                   dispatch,
@@ -365,7 +365,7 @@ function DomainSettings({
                     transactionId: data?.apexRecord?.transactionId,
                   },
                   workflowName: ANT_INTERACTION_TYPES.SET_TTL_SECONDS,
-                  signer: wallet!.arconnectSigner!,
+                  signer: wallet!.contractSigner!,
                   owner: walletAddress!.toString(),
                   processId: data?.processId,
                   dispatch,

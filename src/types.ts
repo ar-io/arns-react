@@ -1,4 +1,4 @@
-import { AoANTRecord, AoArNSNameData } from '@ar.io/sdk/web';
+import { AoANTRecord, AoArNSNameData, ContractSigner } from '@ar.io/sdk/web';
 import { ApiConfig } from 'arweave/web/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
 
@@ -72,17 +72,18 @@ export type INTERACTION_PRICE_PARAMS =
       payload: IncreaseUndernamesPayload;
     };
 
-export interface ArweaveWalletConnector {
+export interface ArNSWalletConnector {
   connect(): Promise<void>;
   disconnect(): Promise<void>;
-  getWalletAddress(): Promise<ArweaveTransactionID>;
+  getWalletAddress(): Promise<AoAddress>;
   getGatewayConfig(): Promise<ApiConfig>;
-  arconnectSigner?: Window['arweaveWallet'];
+  contractSigner?: ContractSigner;
 }
 
 export enum WALLET_TYPES {
   ARCONNECT = 'ArConnect',
   ARWEAVE_APP = 'ArweaveApp',
+  ETHEREUM = 'Ethereum',
 }
 
 export interface KVCache {
@@ -401,10 +402,6 @@ export type TransactionData = TransactionDataBasePayload &
 
 export type TransactionDataConfig = { functionName: string; keys: string[] };
 
-export interface Equatable<T> {
-  equals(other: T): boolean;
-}
-
 export type ARNSTableRow = {
   name: string;
   role: string;
@@ -487,6 +484,7 @@ export type UndernameMetadata = {
 export enum VALIDATION_INPUT_TYPES {
   ARWEAVE_ID = 'Is valid Arweave Transaction (TX) ID.',
   ARWEAVE_ADDRESS = 'Is likely an Arweave wallet address.',
+  AO_ADDRESS = 'Is a valid AO Address.',
   ARNS_NAME = 'ARNS Name.',
   UNDERNAME = 'Is a valid Undername.',
   ANT_CONTRACT_ID = 'Is a valid Arweave Name Token (ANT).',
@@ -511,3 +509,7 @@ export type ContractInteraction = {
   valid?: boolean;
   [x: string]: any;
 };
+
+export type EthAddress = `0x${string}`;
+
+export type AoAddress = EthAddress | ArweaveTransactionID;

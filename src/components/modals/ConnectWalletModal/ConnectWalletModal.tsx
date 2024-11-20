@@ -1,16 +1,25 @@
 import { AOProcess, IO } from '@ar.io/sdk';
-import { ArConnectWalletConnector } from '@src/services/wallets';
+import {
+  ArConnectWalletConnector,
+  EthWalletConnector,
+} from '@src/services/wallets';
 import { ArweaveAppWalletConnector } from '@src/services/wallets/ArweaveAppWalletConnector';
+import { METAMASK_URL } from '@src/utils/constants';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useConfig } from 'wagmi';
 
-import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { dispatchNewGateway } from '../../../state/actions';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../state/contexts/WalletState';
-import { ArweaveWalletConnector } from '../../../types';
+import { AoAddress, ArNSWalletConnector } from '../../../types';
 import eventEmitter from '../../../utils/events';
-import { ArConnectIcon, ArweaveAppIcon, CloseIcon } from '../../icons';
+import {
+  ArConnectIcon,
+  ArweaveAppIcon,
+  CloseIcon,
+  MetamaskIcon,
+} from '../../icons';
 import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
 
@@ -25,6 +34,8 @@ function ConnectWalletModal(): JSX.Element {
   const { state } = useLocation();
   const [connecting, setConnecting] = useState(false);
   const [loading, setLoading] = useState(!walletStateInitialized);
+
+  const config = useConfig();
 
   useEffect(() => {
     if (walletStateInitialized) {
@@ -55,7 +66,7 @@ function ConnectWalletModal(): JSX.Element {
     address,
   }: {
     next: boolean;
-    address?: ArweaveTransactionID;
+    address?: AoAddress;
   }) {
     if (!address) {
       navigate(state?.from ?? '/', { state: { from: state?.from ?? '/' } });
@@ -69,7 +80,7 @@ function ConnectWalletModal(): JSX.Element {
     }
   }
 
-  async function connect(walletConnector: ArweaveWalletConnector) {
+  async function connect(walletConnector: ArNSWalletConnector) {
     try {
       setConnecting(true);
       await walletConnector.connect();
@@ -79,7 +90,7 @@ function ConnectWalletModal(): JSX.Element {
           processId: ioProcessId,
           ao: aoClient,
         }),
-        signer: walletConnector.arconnectSigner!,
+        signer: walletConnector.contractSigner!,
       });
       if (arweaveGate?.host) {
         await dispatchNewGateway(
@@ -90,7 +101,6 @@ function ConnectWalletModal(): JSX.Element {
       }
 
       const address = await walletConnector.getWalletAddress();
-
       dispatchWalletState({
         type: 'setWalletAddress',
         payload: address,
@@ -141,12 +151,8 @@ function ConnectWalletModal(): JSX.Element {
             connect(new ArConnectWalletConnector());
           }}
         >
-          <ArConnectIcon
-            className="external-icon"
-            width={'47px'}
-            height={'47px'}
-          />
-          Connect via ArConnect
+          <ArConnectIcon className="external-icon size-12" />
+          ArConnect
         </button>
 
         <button
@@ -155,9 +161,42 @@ function ConnectWalletModal(): JSX.Element {
             connect(new ArweaveAppWalletConnector());
           }}
         >
-          <img className="external-icon" src={ArweaveAppIcon} alt="" />
-          Connect using Arweave.app
+          <img
+            className="external-icon size-12 p-3"
+            src={ArweaveAppIcon}
+            alt=""
+          />
+          Arweave.app
         </button>
+
+        <p
+          className="section-header"
+          style={{ marginBottom: '1em', fontFamily: 'Rubik-Bold' }}
+        >
+          Connect with an Ethereum wallet
+        </p>
+        <button
+          type="button"
+          className="wallet-connect-button h2"
+          onClick={async () => {
+            if (!config) {
+              throw new Error(
+                'Application is not not properly configured for Metamask.',
+              );
+            }
+
+            if (!window.ethereum?.isMetaMask) {
+              window.open(METAMASK_URL, '_blank', 'noopener,noreferrer');
+              return;
+            }
+
+            connect(new EthWalletConnector(config));
+          }}
+        >
+          <MetamaskIcon className="external-icon size-12 p-3" />
+          {window?.ethereum?.isMetaMask ? 'Metamask' : 'Install Metamask'}
+        </button>
+
         <span
           className="flex flex-row white flex-center"
           style={{ whiteSpace: 'nowrap', gap: '5px', paddingTop: '16px' }}
