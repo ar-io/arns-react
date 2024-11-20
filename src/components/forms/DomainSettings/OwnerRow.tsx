@@ -10,7 +10,7 @@ import {
   AoAddress,
   ContractInteraction,
 } from '@src/types';
-import { isEthAddress, isValidAoAddress } from '@src/utils';
+import { isArweaveTransactionID, isEthAddress } from '@src/utils';
 import eventEmitter from '@src/utils/events';
 import { Skeleton } from 'antd';
 import { useState } from 'react';
@@ -54,7 +54,7 @@ export default function OwnerRow({
         label="Owner:"
         value={
           owner ? (
-            isValidAoAddress(owner) ? (
+            isArweaveTransactionID(owner) ? (
               <ArweaveID
                 id={
                   isEthAddress(owner) ? owner : new ArweaveTransactionID(owner)
