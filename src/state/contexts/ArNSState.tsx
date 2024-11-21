@@ -1,6 +1,9 @@
-import { AoANTState, AoArNSNameData, ArNSEventEmitter } from '@ar.io/sdk/web';
-import { DEFAULT_ANT_LUA_ID } from '@src/utils/constants';
-import Transaction from 'arweave/node/lib/transaction';
+import {
+  AoANTHandler,
+  AoANTState,
+  AoArNSNameData,
+  ArNSEventEmitter,
+} from '@ar.io/sdk/web';
 import {
   Dispatch,
   createContext,
@@ -9,7 +12,6 @@ import {
   useReducer,
 } from 'react';
 
-import { dispatchAntSourceTx } from '../actions/dispatchAntSourceCodeTx';
 import { dispatchArNSUpdate } from '../actions/dispatchArNSUpdate';
 import { ArNSAction } from '../reducers/ArNSReducer';
 import { defaultArIO, useGlobalState } from './GlobalState';
@@ -17,12 +19,11 @@ import { useWalletState } from './WalletState';
 
 export type ArNSState = {
   domains: Record<string, AoArNSNameData>;
-  ants: Record<string, AoANTState>;
+  ants: Record<string, { state: AoANTState; handlers: AoANTHandler[] }>;
   loading: boolean;
   percentLoaded: number;
   antCount: number;
   arnsEmitter: ArNSEventEmitter;
-  luaSourceTx?: Transaction;
 };
 
 export type ArNSStateProviderProps = {
@@ -69,10 +70,6 @@ export function ArNSStateProvider({
         timeoutMs: 1000 * 60 * 5,
       }),
     });
-    dispatchAntSourceTx({
-      id: DEFAULT_ANT_LUA_ID,
-      dispatch: dispatchArNSState,
-    });
   }, [arioContract]);
 
   useEffect(() => {
@@ -80,7 +77,7 @@ export function ArNSStateProvider({
     dispatchArNSUpdate({
       dispatch: dispatchArNSState,
       emitter: state.arnsEmitter,
-      walletAddress: walletAddress!,
+      walletAddress: walletAddress,
       ioProcessId: ioProcessId,
     });
   }, [walletAddress, state.arnsEmitter]);

@@ -6,12 +6,14 @@ import ArweaveID, {
 } from '@src/components/layout/ArweaveID/ArweaveID';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import { useArNSState } from '@src/state';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { ANT_INTERACTION_TYPES } from '@src/types';
 import {
   decodeDomainToASCII,
+  doAntsRequireUpdate,
   formatExpiryDate,
   getLeaseDurationFromEndTimestamp,
   isMaxLeaseDuration,
@@ -29,9 +31,9 @@ import { useNavigate } from 'react-router-dom';
 
 import ControllersRow from './ControllersRow';
 import DomainSettingsRow from './DomainSettingsRow';
+import IOCompatibleRow from './IOCompatibleRow';
 import NicknameRow from './NicknameRow';
 import OwnerRow from './OwnerRow';
-import SourceCodeIdRow from './SourceCodeIdRow';
 import TTLRow from './TTLRow';
 import TargetIDRow from './TargetIDRow';
 import TickerRow from './TickerRow';
@@ -43,7 +45,7 @@ export enum DomainSettingsRowTypes {
   LEASE_DURATION = 'Lease Duration',
   ASSOCIATED_NAMES = 'Associated Names',
   STATUS = 'Status',
-  SOURCE_CODE_TX_ID = 'Source Code TX ID',
+  IO_COMPATIBLE = 'IO Compatible',
   NICKNAME = 'Nickname',
   PROCESS_ID = 'Process ID',
   TARGET_ID = 'Target ID',
@@ -68,6 +70,7 @@ function DomainSettings({
   const [{ interactionResult }, dispatch] = useTransactionState();
   const navigate = useNavigate();
   const { data, isLoading, refetch } = useDomainInfo({ domain, antId });
+  const [{ ants }] = useArNSState();
   const [{ wallet, walletAddress }] = useWalletState();
 
   // permissions check
@@ -230,11 +233,18 @@ function DomainSettings({
               key={DomainSettingsRowTypes.STATUS}
             />
           ),
-          [DomainSettingsRowTypes.SOURCE_CODE_TX_ID]: (
-            <SourceCodeIdRow
+          [DomainSettingsRowTypes.IO_COMPATIBLE]: (
+            <IOCompatibleRow
               antId={data?.processId?.toString()}
-              sourceCodeTxId={data?.sourceCodeTxId}
               editable={isAuthorized}
+              requiresUpdate={
+                data?.processId && ants[data.processId] && walletAddress
+                  ? doAntsRequireUpdate({
+                      ants: { [data.processId]: ants[data.processId] },
+                      userAddress: walletAddress.toString(),
+                    })
+                  : false
+              }
             />
           ),
           [DomainSettingsRowTypes.NICKNAME]: (
@@ -247,7 +257,7 @@ function DomainSettings({
                   payload: { name },
                   workflowName: ANT_INTERACTION_TYPES.SET_NAME,
                   processId: data?.processId,
-                  signer: wallet!.arconnectSigner!,
+                  signer: wallet!.contractSigner!,
                   owner: walletAddress!.toString(),
                   dispatch,
                 })
@@ -283,7 +293,7 @@ function DomainSettings({
                     ttlSeconds: data?.apexRecord.ttlSeconds,
                   },
                   workflowName: ANT_INTERACTION_TYPES.SET_TARGET_ID,
-                  signer: wallet!.arconnectSigner!,
+                  signer: wallet!.contractSigner!,
                   owner: walletAddress!.toString(),
                   processId: data?.processId,
                   dispatch,
@@ -300,7 +310,7 @@ function DomainSettings({
                 dispatchANTInteraction({
                   payload: { ticker },
                   workflowName: ANT_INTERACTION_TYPES.SET_TICKER,
-                  signer: wallet!.arconnectSigner!,
+                  signer: wallet!.contractSigner!,
                   owner: walletAddress!.toString(),
                   processId: data?.processId,
                   dispatch,
@@ -326,7 +336,7 @@ function DomainSettings({
                 dispatchANTInteraction({
                   payload,
                   workflowName,
-                  signer: wallet!.arconnectSigner!,
+                  signer: wallet!.contractSigner!,
                   owner: walletAddress!.toString(),
                   processId: data?.processId,
                   dispatch,
@@ -345,7 +355,7 @@ function DomainSettings({
                 dispatchANTInteraction({
                   payload: { target },
                   workflowName: ANT_INTERACTION_TYPES.TRANSFER,
-                  signer: wallet!.arconnectSigner!,
+                  signer: wallet!.contractSigner!,
                   owner: walletAddress!.toString(),
                   processId: data?.processId,
                   dispatch,
@@ -365,7 +375,7 @@ function DomainSettings({
                     transactionId: data?.apexRecord?.transactionId,
                   },
                   workflowName: ANT_INTERACTION_TYPES.SET_TTL_SECONDS,
-                  signer: wallet!.arconnectSigner!,
+                  signer: wallet!.contractSigner!,
                   owner: walletAddress!.toString(),
                   processId: data?.processId,
                   dispatch,

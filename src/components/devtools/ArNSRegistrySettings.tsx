@@ -46,7 +46,7 @@ function ArNSRegistrySettings() {
           processId: id.trim(),
           ao: aoClient,
         }),
-        ...(wallet?.arconnectSigner ? { signer: wallet.arconnectSigner } : {}),
+        ...(wallet?.contractSigner ? { signer: wallet.contractSigner } : {}),
       });
       dispatchGlobalState({
         type: 'setArIOContract',

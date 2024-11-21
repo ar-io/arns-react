@@ -1,5 +1,4 @@
 import { Tooltip } from '@src/components/data-display';
-import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import {
   dispatchArNSUpdate,
   useArNSState,
@@ -18,7 +17,7 @@ import './styles.css';
 function Manage() {
   const [{ ioProcessId }] = useGlobalState();
   const [
-    { loading: loadingArnsState, domains, ants, luaSourceTx, arnsEmitter },
+    { loading: loadingArnsState, domains, ants, arnsEmitter },
     dispatchArNSState,
   ] = useArNSState();
   const [{ walletAddress }] = useWalletState();
@@ -71,7 +70,6 @@ function Manage() {
                   doAntsRequireUpdate({
                     ants,
                     userAddress: walletAddress.toString(),
-                    luaSourceTx,
                   }) && (
                     <Tooltip
                       message={'Your ANTs require an update'}
@@ -98,9 +96,7 @@ function Manage() {
                       ? dispatchArNSUpdate({
                           emitter: arnsEmitter,
                           dispatch: dispatchArNSState,
-                          walletAddress: new ArweaveTransactionID(
-                            walletAddress?.toString(),
-                          ),
+                          walletAddress: walletAddress,
                           ioProcessId,
                         })
                       : eventEmitter.emit('error', {

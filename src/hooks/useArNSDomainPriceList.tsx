@@ -30,11 +30,11 @@ export function useArNSDomainPriceList(domain: string) {
             arioContract.getTokenCost({
               ...sharedOptions,
               years: 1,
-              purchaseType: 'lease',
+              type: 'lease',
             }),
             arioContract.getTokenCost({
               ...sharedOptions,
-              purchaseType: 'permabuy',
+              type: 'permabuy',
             }),
           ]);
           prices.lease = leasePrice;

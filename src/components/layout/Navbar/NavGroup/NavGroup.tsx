@@ -14,7 +14,7 @@ import './styles.css';
 function NavGroup() {
   const isMobile = useIsMobile();
   const [{ wallet, walletAddress }] = useWalletState();
-  const [{ ants, luaSourceTx }] = useArNSState();
+  const [{ ants }] = useArNSState();
   const [links, setLinks] = useState<ReactNode[]>([]);
   const location = useLocation();
 
@@ -42,7 +42,7 @@ function NavGroup() {
         );
     });
     setLinks(newLinks);
-  }, [luaSourceTx, ants, location.pathname]);
+  }, [ants, location.pathname]);
 
   return (
     <div

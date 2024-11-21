@@ -195,7 +195,7 @@ const UndernamesSubtable = ({
           payloadCallback={(p) => setTransactionData(p)}
         />
       )}
-      {transactionData && wallet?.arconnectSigner && walletAddress ? (
+      {transactionData && wallet?.contractSigner && walletAddress ? (
         <ConfirmTransactionModal
           interactionType={ANT_INTERACTION_TYPES.EDIT_RECORD}
           confirm={() =>
@@ -203,7 +203,7 @@ const UndernamesSubtable = ({
               processId: antId,
               payload: transactionData,
               workflowName: ANT_INTERACTION_TYPES.EDIT_RECORD,
-              signer: wallet.arconnectSigner!,
+              signer: wallet.contractSigner!,
               owner: walletAddress.toString(),
               dispatch: dispatchTransactionState,
             }).then(() => {

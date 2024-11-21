@@ -1,4 +1,5 @@
 import { StepProps } from 'antd';
+import { isAddress } from 'viem';
 
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import {
@@ -42,6 +43,16 @@ export function isArweaveTransactionID(id?: string) {
     return false;
   }
   return true;
+}
+
+export function isEthAddress(address: string) {
+  return isAddress(address, {
+    strict: true,
+  });
+}
+
+export function isValidAoAddress(address: string) {
+  return isEthAddress(address) || isArweaveTransactionID(address);
 }
 
 export function isObjectOfTransactionPayloadType<
@@ -703,6 +714,8 @@ export function createDefaultAntState(state: any) {
     controllers: [],
     balances: {},
     owner: '',
+    description: '',
+    keywords: [],
     records: {
       ['@']: {
         transactionId: LANDING_PAGE_TXID.toString(),

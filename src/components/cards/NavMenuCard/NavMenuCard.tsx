@@ -1,3 +1,4 @@
+import { AoAddress } from '@src/types';
 import { buildARBalanceQuery, buildIOBalanceQuery } from '@src/utils/network';
 import { useQueryClient } from '@tanstack/react-query';
 import { Tooltip } from 'antd';
@@ -6,7 +7,6 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { useIsMobile } from '../../../hooks';
-import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import eventEmitter from '../../../utils/events';
@@ -66,7 +66,7 @@ function NavMenuCard() {
     });
   }
 
-  async function fetchWalletDetails(walletAddress: ArweaveTransactionID) {
+  async function fetchWalletDetails(walletAddress: AoAddress) {
     const ioBalance = await queryClient.fetchQuery(
       buildIOBalanceQuery({
         address: walletAddress.toString(),
