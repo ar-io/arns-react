@@ -17,7 +17,7 @@ import './styles.css';
 function Manage() {
   const [{ ioProcessId }] = useGlobalState();
   const [
-    { loading: loadingArnsState, domains, ants, luaSourceTx, arnsEmitter },
+    { loading: loadingArnsState, domains, ants, arnsEmitter },
     dispatchArNSState,
   ] = useArNSState();
   const [{ walletAddress }] = useWalletState();
@@ -70,7 +70,6 @@ function Manage() {
                   doAntsRequireUpdate({
                     ants,
                     userAddress: walletAddress.toString(),
-                    luaSourceTx,
                   }) && (
                     <Tooltip
                       message={'Your ANTs require an update'}
