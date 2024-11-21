@@ -1,4 +1,3 @@
-import { ANT, AOProcess, createAoSigner } from '@ar.io/sdk/web';
 import { connect } from '@permaweb/aoconnect';
 import WarningCard from '@src/components/cards/WarningCard/WarningCard';
 import { Tooltip } from '@src/components/data-display';
@@ -13,6 +12,8 @@ import {
   useTransactionState,
   useWalletState,
 } from '@src/state';
+import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
+import { ANT_INTERACTION_TYPES } from '@src/types';
 import { encodeDomainToASCII, lowerCaseDomain, sleep } from '@src/utils';
 import eventEmitter from '@src/utils/events';
 import { Checkbox } from 'antd';
@@ -47,21 +48,23 @@ export function ReturnNameModal({
         payload: `Releasing ${encodeDomainToASCII(name)}`,
       });
       dispatchTransactionState({ type: 'setSigning', payload: true });
-      if (!wallet?.arconnectSigner) {
+      if (!wallet?.contractSigner) {
         throw new Error('No ArConnect Signer found');
       }
-      const signer = createAoSigner(wallet.arconnectSigner);
+      if (!walletAddress) throw new Error('Must connect to release the ANT');
+
       const aoClient = connect(aoNetwork);
-      const ant = ANT.init({
-        process: new AOProcess({
-          processId,
-          ao: aoClient,
-        }),
-        signer,
-      });
-      const tx = await ant.releaseName({
-        name: lowerCaseDomain(name),
-        ioProcessId,
+
+      const tx = await dispatchANTInteraction({
+        signer: wallet.contractSigner,
+        payload: {
+          name,
+          ioProcessId,
+        },
+        processId,
+        workflowName: ANT_INTERACTION_TYPES.RELEASE_NAME,
+        dispatch: dispatchTransactionState,
+        owner: walletAddress.toString(),
       });
 
       await aoClient.result({ message: tx.id, process: processId });
@@ -81,8 +84,11 @@ export function ReturnNameModal({
           .getArNSRecord({
             name: lowerCaseDomain(name),
           })
-          .catch(console.error);
-        if (record?.processId !== processId) {
+          .catch((e) => {
+            console.error(e);
+            return new Error(e.message);
+          });
+        if (!(record instanceof Error) && record?.processId !== processId) {
           released = true;
         }
       }

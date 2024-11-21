@@ -1,4 +1,4 @@
-import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import { AoAddress } from '@src/types';
 import eventEmitter from '@src/utils/events';
 import { buildAntStateQuery } from '@src/utils/network';
 import { QueryClient } from '@tanstack/react-query';
@@ -14,7 +14,7 @@ export async function dispatchANTUpdate({
 }: {
   queryClient: QueryClient;
   processId: string;
-  walletAddress: ArweaveTransactionID;
+  walletAddress: AoAddress;
   dispatch: Dispatch<ArNSAction>;
 }) {
   try {

@@ -82,7 +82,7 @@ export function ArNSStateProvider({
     dispatchArNSUpdate({
       dispatch: dispatchArNSState,
       emitter: state.arnsEmitter,
-      walletAddress: walletAddress!,
+      walletAddress: walletAddress,
       ioProcessId: ioProcessId,
     });
   }, [walletAddress, state.arnsEmitter]);

@@ -1,6 +1,6 @@
 import { ArNSEventEmitter } from '@ar.io/sdk/web';
 import { captureException } from '@sentry/react';
-import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import { AoAddress } from '@src/types';
 import eventEmitter from '@src/utils/events';
 import { Dispatch } from 'react';
 
@@ -14,7 +14,7 @@ export function dispatchArNSUpdate({
 }: {
   emitter: ArNSEventEmitter;
   dispatch: Dispatch<ArNSAction>;
-  walletAddress: ArweaveTransactionID;
+  walletAddress: AoAddress;
   ioProcessId: string;
 }) {
   dispatch({ type: 'setDomains', payload: {} });

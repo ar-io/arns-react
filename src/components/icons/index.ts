@@ -60,6 +60,7 @@ import ElephantOne from './elephant1.png';
 import ElephantTwo from './elephant2.png';
 import ElephantThree from './elephant3.png';
 import { ReactComponent as EnvelopeIcon } from './envelope.svg';
+import { ReactComponent as MetamaskIcon } from './metamask_logo_flat.svg';
 
 export {
   AccountIcon,
@@ -108,6 +109,7 @@ export {
   LockIcon,
   LogoutIcon,
   MenuIcon,
+  MetamaskIcon,
   NotebookIcon,
   NewspaperIcon,
   PencilIcon,

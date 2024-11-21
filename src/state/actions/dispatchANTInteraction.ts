@@ -103,6 +103,14 @@ export default async function dispatchANTInteraction({
           undername: lowerCaseDomain(payload.subDomain),
         });
         break;
+
+      case ANT_INTERACTION_TYPES.RELEASE_NAME:
+        dispatchSigningMessage('Release ArNS Name, please wait...');
+        result = await antProcess.releaseName({
+          name: payload.name,
+          ioProcessId: payload.ioProcessId,
+        });
+        break;
       default:
         throw new Error(`Unsupported workflow name: ${workflowName}`);
     }
