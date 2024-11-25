@@ -1,4 +1,6 @@
+import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import { AoAddress } from '@src/types';
+import { shortPrimaryName } from '@src/utils';
 import { buildARBalanceQuery, buildIOBalanceQuery } from '@src/utils/network';
 import { useQueryClient } from '@tanstack/react-query';
 import { Tooltip } from 'antd';
@@ -20,6 +22,7 @@ import { WalletAddress } from '../../layout/WalletAddress/WalletAddress';
 import './styles.css';
 
 function NavMenuCard() {
+  const queryClient = useQueryClient();
   const [
     {
       arweaveDataProvider,
@@ -30,7 +33,10 @@ function NavMenuCard() {
       gateway,
     },
   ] = useGlobalState();
-  const queryClient = useQueryClient();
+  const [{ wallet, walletAddress }, dispatchWalletState] = useWalletState();
+  const { data: primaryNameData } = usePrimaryName();
+  const isMobile = useIsMobile();
+
   const [showMenu, setShowMenu] = useState(false);
   const [walletDetails, setWalletDetails] = useState<{
     AR: number | undefined | string;
@@ -40,8 +46,6 @@ function NavMenuCard() {
     [ioTicker]: undefined,
   });
   const menuRef = useRef<HTMLDivElement>(null);
-  const isMobile = useIsMobile();
-  const [{ wallet, walletAddress }, dispatchWalletState] = useWalletState();
 
   useEffect(() => {
     if (walletAddress) {
@@ -174,23 +178,28 @@ function NavMenuCard() {
                   className="flex flex-column"
                   style={{ padding: '15px', boxSizing: 'border-box' }}
                 >
-                  <ArweaveID
-                    id={walletAddress}
-                    type={ArweaveIdTypes.ADDRESS}
-                    characterCount={14}
-                    copyButtonStyle={{
-                      padding: '10px',
-                      background: 'var(--text-faded)',
-                      borderRadius: '5px',
-                      fill: 'var(--text-white)',
-                    }}
-                    wrapperStyle={{
-                      width: '100%',
-                      justifyContent: 'space-between',
-                      boxSizing: 'border-box',
-                      alignItems: 'center',
-                    }}
-                  />
+                  {primaryNameData?.name ? (
+                    shortPrimaryName(primaryNameData.name)
+                  ) : (
+                    <ArweaveID
+                      id={walletAddress}
+                      type={ArweaveIdTypes.ADDRESS}
+                      characterCount={14}
+                      copyButtonStyle={{
+                        padding: '10px',
+                        background: 'var(--text-faded)',
+                        borderRadius: '5px',
+                        fill: 'var(--text-white)',
+                      }}
+                      wrapperStyle={{
+                        width: '100%',
+                        justifyContent: 'space-between',
+                        boxSizing: 'border-box',
+                        alignItems: 'center',
+                      }}
+                    />
+                  )}
+
                   <div
                     className="flex flex-column"
                     style={{
@@ -380,7 +389,9 @@ function NavMenuCard() {
               : {}
           }
         >
-          {walletAddress ? (
+          {primaryNameData?.name ? (
+            <>{shortPrimaryName(primaryNameData.name)}</>
+          ) : walletAddress ? (
             <WalletAddress characterCount={4} />
           ) : (
             <MenuIcon

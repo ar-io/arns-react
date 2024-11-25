@@ -5,18 +5,24 @@ import ArweaveID, {
 } from '@src/components/layout/ArweaveID/ArweaveID';
 import { EditUndernameModal } from '@src/components/modals';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
+import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import {
   useGlobalState,
+  useModalState,
   useTransactionState,
   useWalletState,
 } from '@src/state';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
 import { ANT_INTERACTION_TYPES, TransactionDataPayload } from '@src/types';
-import { camelToReadable, formatForMaxCharCount } from '@src/utils';
+import {
+  camelToReadable,
+  encodePrimaryName,
+  formatForMaxCharCount,
+} from '@src/utils';
 import eventEmitter from '@src/utils/events';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
-import { CornerDownRight } from 'lucide-react';
+import { CornerDownRight, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ReactNode } from 'react-markdown';
 import { Link } from 'react-router-dom';
@@ -42,9 +48,11 @@ const UndernamesSubtable = ({
   arnsDomain: string;
   antId: string;
 }) => {
-  const [{ gateway }] = useGlobalState();
+  const [{ gateway, ioProcessId }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
+  const [, dispatchModalState] = useModalState();
+  const { data: primaryNameData } = usePrimaryName();
   const [tableData, setTableData] = useState<Array<TableData>>([]);
   // modal state
   const [transactionData, setTransactionData] = useState<
@@ -66,7 +74,54 @@ const UndernamesSubtable = ({
             targetId: record.transactionId,
             ttlSeconds: record.ttlSeconds,
             action: (
-              <span className="flex justify-end pr-3">
+              <span className="flex justify-end pr-3 gap-3">
+                <button
+                  onClick={() => {
+                    if (!arnsDomain || !antId) return;
+                    const targetName = encodePrimaryName(
+                      undername + '_' + arnsDomain,
+                    );
+                    if (primaryNameData?.name === targetName) {
+                      // remove primary name payload
+                      dispatchTransactionState({
+                        type: 'setTransactionData',
+                        payload: {
+                          names: [targetName],
+                          ioProcessId,
+                          assetId: antId,
+                          functionName: 'removePrimaryNames',
+                        },
+                      });
+                    } else {
+                      dispatchTransactionState({
+                        type: 'setTransactionData',
+                        payload: {
+                          name: targetName,
+                          ioProcessId,
+                          assetId: ioProcessId,
+                          functionName: 'primaryNameRequest',
+                        },
+                      });
+                    }
+
+                    dispatchModalState({
+                      type: 'setModalOpen',
+                      payload: { showPrimaryNameModal: true },
+                    });
+                  }}
+                >
+                  <Star
+                    className={
+                      (encodePrimaryName(undername + '_' + arnsDomain) ==
+                      primaryNameData?.name
+                        ? 'text-primary'
+                        : 'text-grey') +
+                      ` 
+                    w-[18px]
+                    `
+                    }
+                  />
+                </button>
                 <button
                   className="fill-grey hover:fill-white"
                   onClick={() => {

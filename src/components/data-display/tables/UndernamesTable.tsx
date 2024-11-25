@@ -5,9 +5,11 @@ import ArweaveID, {
 } from '@src/components/layout/ArweaveID/ArweaveID';
 import { AddUndernameModal, EditUndernameModal } from '@src/components/modals';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
+import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import {
   useGlobalState,
+  useModalState,
   useTransactionState,
   useWalletState,
 } from '@src/state';
@@ -19,11 +21,15 @@ import {
   UNDERNAME_TABLE_ACTIONS,
   UndernameTableInteractionTypes,
 } from '@src/types';
-import { camelToReadable, formatForMaxCharCount } from '@src/utils';
+import {
+  camelToReadable,
+  encodePrimaryName,
+  formatForMaxCharCount,
+} from '@src/utils';
 import eventEmitter from '@src/utils/events';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import Lottie from 'lottie-react';
-import { Plus } from 'lucide-react';
+import { Plus, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ReactNode } from 'react-markdown';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -84,10 +90,13 @@ const UndernamesTable = ({
   filter?: string;
   refresh?: () => void;
 }) => {
-  const [{ gateway }] = useGlobalState();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [{ gateway, ioProcessId }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [, dispatchModalState] = useModalState();
+  const { data: primaryNameData } = usePrimaryName();
+
   const [tableData, setTableData] = useState<Array<TableData>>([]);
   const [filteredTableData, setFilteredTableData] = useState<Array<TableData>>(
     [],
@@ -170,9 +179,56 @@ const UndernamesTable = ({
             ttlSeconds: record.ttlSeconds,
             action: (
               <span
-                className="flex flex-row justify-end pr-3"
+                className="flex flex-row justify-end pr-3 gap-3"
                 style={{ gap: '15px' }}
               >
+                <button
+                  onClick={() => {
+                    if (!arnsDomain || !antId) return;
+                    const targetName = encodePrimaryName(
+                      undername + '_' + arnsDomain,
+                    );
+                    if (primaryNameData?.name === targetName) {
+                      // remove primary name payload
+                      dispatchTransactionState({
+                        type: 'setTransactionData',
+                        payload: {
+                          names: [targetName],
+                          ioProcessId,
+                          assetId: antId,
+                          functionName: 'removePrimaryNames',
+                        },
+                      });
+                    } else {
+                      dispatchTransactionState({
+                        type: 'setTransactionData',
+                        payload: {
+                          name: targetName,
+                          ioProcessId,
+                          assetId: ioProcessId,
+                          functionName: 'primaryNameRequest',
+                        },
+                      });
+                    }
+
+                    dispatchModalState({
+                      type: 'setModalOpen',
+                      payload: { showPrimaryNameModal: true },
+                    });
+                  }}
+                >
+                  <Star
+                    className={
+                      (encodePrimaryName(undername + '_' + arnsDomain) ==
+                      primaryNameData?.name
+                        ? 'text-primary'
+                        : 'text-grey') +
+                      ` 
+                    w-[18px]
+                    `
+                    }
+                  />
+                </button>
                 <button
                   className="fill-grey hover:fill-white"
                   onClick={() => {

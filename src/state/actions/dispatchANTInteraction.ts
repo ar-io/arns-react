@@ -103,6 +103,25 @@ export default async function dispatchANTInteraction({
           undername: lowerCaseDomain(payload.subDomain),
         });
         break;
+      case ANT_INTERACTION_TYPES.APPROVE_PRIMARY_NAME:
+        dispatchSigningMessage(
+          'Approving Primary Name request, please wait...',
+        );
+        result = await antProcess.approvePrimaryNameRequest({
+          name: payload.name,
+          address: owner.toString(),
+          ioProcessId: payload.ioProcessId,
+        });
+        break;
+      case ANT_INTERACTION_TYPES.REMOVE_PRIMARY_NAMES:
+        dispatchSigningMessage('Removing Primary Names, please wait...');
+
+        result = await antProcess.removePrimaryNames({
+          names: payload.names,
+          ioProcessId: payload.ioProcessId,
+        });
+        break;
+
       default:
         throw new Error(`Unsupported workflow name: ${workflowName}`);
     }
