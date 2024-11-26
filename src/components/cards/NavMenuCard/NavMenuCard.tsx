@@ -178,27 +178,23 @@ function NavMenuCard() {
                   className="flex flex-column"
                   style={{ padding: '15px', boxSizing: 'border-box' }}
                 >
-                  {primaryNameData?.name ? (
-                    shortPrimaryName(primaryNameData.name)
-                  ) : (
-                    <ArweaveID
-                      id={walletAddress}
-                      type={ArweaveIdTypes.ADDRESS}
-                      characterCount={14}
-                      copyButtonStyle={{
-                        padding: '10px',
-                        background: 'var(--text-faded)',
-                        borderRadius: '5px',
-                        fill: 'var(--text-white)',
-                      }}
-                      wrapperStyle={{
-                        width: '100%',
-                        justifyContent: 'space-between',
-                        boxSizing: 'border-box',
-                        alignItems: 'center',
-                      }}
-                    />
-                  )}
+                  <ArweaveID
+                    id={walletAddress}
+                    type={ArweaveIdTypes.ADDRESS}
+                    characterCount={14}
+                    copyButtonStyle={{
+                      padding: '10px',
+                      background: 'var(--text-faded)',
+                      borderRadius: '5px',
+                      fill: 'var(--text-white)',
+                    }}
+                    wrapperStyle={{
+                      width: '100%',
+                      justifyContent: 'space-between',
+                      boxSizing: 'border-box',
+                      alignItems: 'center',
+                    }}
+                  />
 
                   <div
                     className="flex flex-column"
@@ -390,7 +386,12 @@ function NavMenuCard() {
           }
         >
           {primaryNameData?.name ? (
-            <>{shortPrimaryName(primaryNameData.name)}</>
+            <span className="flex text-link fill-success gap-2 items-center">
+              <svg width="8px" height="8px">
+                <circle cx="4" cy="4" r="4" fill="current" />
+              </svg>
+              {shortPrimaryName(primaryNameData.name)}
+            </span>
           ) : walletAddress ? (
             <WalletAddress characterCount={4} />
           ) : (

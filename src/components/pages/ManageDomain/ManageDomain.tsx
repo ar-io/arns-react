@@ -76,7 +76,7 @@ function ManageDomain() {
           </h2>
           <button
             className={
-              'flex flex-row text-primary rounded border border-primary px-4 py-3 gap-3'
+              'flex text-primary bg-primary-thin max-w-fit rounded border border-primary px-3 py-1 gap-3 text-[16px] items-center'
             }
             onClick={() => {
               if (!name) return;
@@ -109,7 +109,7 @@ function ManageDomain() {
               });
             }}
           >
-            <Star className={`w-[18px]`} />{' '}
+            <Star className={`w-[16px]`} />{' '}
             {name == primaryNameData?.name ? 'Remove Primary' : 'Make Primary'}
           </button>
         </div>

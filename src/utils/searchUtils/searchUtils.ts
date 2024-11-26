@@ -246,7 +246,7 @@ export function shortPrimaryName(name: string, limit = 20) {
   const decoded = decodePrimaryName(name);
 
   if (decoded.length > limit) {
-    return decoded.slice(limit) + '...';
+    return decoded.slice(0, limit) + '...';
   }
   return decoded;
 }

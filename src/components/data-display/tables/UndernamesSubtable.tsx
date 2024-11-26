@@ -139,7 +139,7 @@ const UndernamesSubtable = ({
 
       setTableData(newTableData as TableData[]);
     }
-  }, [undernames]);
+  }, [undernames, primaryNameData]);
 
   // Define columns for the table
   const columns: ColumnDef<TableData, any>[] = [

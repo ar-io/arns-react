@@ -17,6 +17,13 @@ export function usePrimaryName() {
           console.error(e);
           return null;
         });
+      // we do this so useQuery refreshes
+      if (!primaryNameData)
+        return {
+          owner: undefined,
+          name: undefined,
+          startTimestamp: Date.now(),
+        };
 
       return primaryNameData;
     },

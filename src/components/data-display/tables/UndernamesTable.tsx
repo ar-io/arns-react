@@ -267,7 +267,7 @@ const UndernamesTable = ({
     if (!undernames || !Object.keys(undernames).length) {
       setTableData([]);
     }
-  }, [undernames]);
+  }, [undernames, primaryNameData]);
 
   useEffect(() => {
     if (filter) {
@@ -275,7 +275,7 @@ const UndernamesTable = ({
     } else {
       setFilteredTableData([]);
     }
-  }, [filter, tableData]);
+  }, [filter, tableData, primaryNameData]);
 
   // Define columns for the table
   const columns: ColumnDef<TableData, any>[] = [
