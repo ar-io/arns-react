@@ -191,6 +191,7 @@ export default async function dispatchArIOInteraction({
           address: owner.toString(),
           ioProcessId: payload.ioProcessId,
         });
+
         break;
       }
       default:

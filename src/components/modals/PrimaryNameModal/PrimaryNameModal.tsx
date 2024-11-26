@@ -186,6 +186,10 @@ function PrimaryNameModal({
             },
             dispatch: dispatchTransactionState,
           });
+          queryClient.resetQueries({
+            queryKey: ['primary-name'],
+            exact: false,
+          });
           break;
         }
         default:
@@ -213,6 +217,7 @@ function PrimaryNameModal({
         queryKey: ['primary-name'],
         exact: false,
       });
+
       closeModal();
     } catch (error) {
       eventEmitter.emit('error', error);

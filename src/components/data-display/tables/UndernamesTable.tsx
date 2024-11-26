@@ -23,6 +23,8 @@ import {
 } from '@src/types';
 import {
   camelToReadable,
+  decodeDomainToASCII,
+  encodeDomainToASCII,
   encodePrimaryName,
   formatForMaxCharCount,
 } from '@src/utils';
@@ -316,10 +318,12 @@ const UndernamesTable = ({
                 icon={
                   <Link
                     className="link gap-2 items-center w-fit"
-                    to={`https://${rowValue}_${arnsDomain}.${gateway}`}
+                    to={`https://${encodeDomainToASCII(
+                      rowValue,
+                    )}_${encodeDomainToASCII(arnsDomain ?? '')}.${gateway}`}
                     target="_blank"
                   >
-                    {formatForMaxCharCount(rowValue, 30)}{' '}
+                    {formatForMaxCharCount(decodeDomainToASCII(rowValue), 30)}{' '}
                     <ExternalLinkIcon
                       width={'12px'}
                       height={'12px'}

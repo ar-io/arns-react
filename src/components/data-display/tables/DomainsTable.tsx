@@ -20,7 +20,9 @@ import {
 } from '@src/state';
 import {
   camelToReadable,
+  decodeDomainToASCII,
   doAntsRequireUpdate,
+  encodeDomainToASCII,
   formatExpiryDate,
   formatForMaxCharCount,
   formatVerboseDate,
@@ -264,10 +266,12 @@ const DomainsTable = ({
                 icon={
                   <Link
                     className="link gap-2 w-fit"
-                    to={`https://${row.getValue('name')}.${gateway}`}
+                    to={`https://${encodeDomainToASCII(
+                      row.getValue('name'),
+                    )}.${gateway}`}
                     target="_blank"
                   >
-                    {formatForMaxCharCount(rowValue, 20)}{' '}
+                    {formatForMaxCharCount(decodeDomainToASCII(rowValue), 20)}{' '}
                     <ExternalLinkIcon
                       width={'12px'}
                       height={'12px'}

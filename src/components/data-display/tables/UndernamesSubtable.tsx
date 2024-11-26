@@ -17,12 +17,14 @@ import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
 import { ANT_INTERACTION_TYPES, TransactionDataPayload } from '@src/types';
 import {
   camelToReadable,
+  decodeDomainToASCII,
+  encodeDomainToASCII,
   encodePrimaryName,
   formatForMaxCharCount,
 } from '@src/utils';
 import eventEmitter from '@src/utils/events';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
-import { CornerDownRight, Star } from 'lucide-react';
+import { Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ReactNode } from 'react-markdown';
 import { Link } from 'react-router-dom';
@@ -180,11 +182,12 @@ const UndernamesSubtable = ({
                 icon={
                   <Link
                     className="link gap-2 items-center w-fit"
-                    to={`https://${rowValue}_${arnsDomain}.${gateway}`}
+                    to={`https://${encodeDomainToASCII(
+                      rowValue,
+                    )}_${encodeDomainToASCII(arnsDomain ?? '')}.${gateway}`}
                     target="_blank"
                   >
-                    <CornerDownRight className="text-dark-grey w-[18px]" />
-                    {formatForMaxCharCount(rowValue, 30)}{' '}
+                    {formatForMaxCharCount(decodeDomainToASCII(rowValue), 30)}{' '}
                     <ExternalLinkIcon
                       width={'12px'}
                       height={'12px'}
