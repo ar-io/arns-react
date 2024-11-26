@@ -140,7 +140,11 @@ export function getAntsRequiringUpdate({
     .map(([id, ant]) => {
       // if user is not the owner, skip
       if (!ant.state?.Owner || ant?.state.Owner !== userAddress) return;
-      if (!AntHandlerNames.every((handler) => ant.handlers?.includes(handler)))
+      if (
+        !AntHandlerNames.filter((h) => h !== 'evolve').every((handler) =>
+          ant.handlers?.includes(handler),
+        )
+      )
         return id;
     })
     .filter((id) => id !== undefined) as string[];
