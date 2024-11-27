@@ -79,11 +79,11 @@ function PrimaryNameModal({
 
   const [{ transactionData }, dispatchTransactionState] = useTransactionState();
 
-  const transactionPayload = isRemovePrimaryNamesPayload(transactionData)
-    ? (transactionData as RemovePrimaryNamesPayload)
-    : isPrimaryNameRequest(transactionData)
-    ? (transactionData as PrimaryNameRequestPayload)
-    : undefined;
+  const transactionPayload =
+    isRemovePrimaryNamesPayload(transactionData) ||
+    isPrimaryNameRequest(transactionData)
+      ? transactionData
+      : undefined;
 
   const targetName = isRemovePrimaryNamesPayload(transactionData)
     ? transactionData.names[0]
