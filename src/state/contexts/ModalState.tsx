@@ -53,7 +53,6 @@ export function ModalStateProvider({
       />
       <PrimaryNameModal
         visible={modalStates.showPrimaryNameModal}
-        //visible={true}
         setVisible={(b) =>
           dispatchModalState({
             type: 'setModalOpen',
