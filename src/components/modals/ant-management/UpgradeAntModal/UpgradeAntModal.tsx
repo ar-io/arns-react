@@ -43,13 +43,13 @@ function UpgradeAntModal({
 
   async function upgradeAnts() {
     try {
-      if (!wallet?.arconnectSigner || !walletAddress) {
+      if (!wallet?.contractSigner || !walletAddress) {
         throw new Error('No ArConnect Signer found');
       }
 
       setUpgrading(true);
 
-      const signer = createAoSigner(wallet?.arconnectSigner as ContractSigner);
+      const signer = createAoSigner(wallet?.contractSigner as ContractSigner);
       // deliberately not using concurrency here for UX reasons
       const failedUpgrades = [];
 
@@ -67,6 +67,14 @@ function UpgradeAntModal({
         walletAddress,
         dispatch: dispatchArNSState,
       });
+      queryClient.invalidateQueries(
+        {
+          queryKey: ['handlers'],
+          refetchType: 'all',
+          exact: false,
+        },
+        { cancelRefetch: true },
+      );
       queryClient.invalidateQueries(
         {
           queryKey: ['domainInfo'],

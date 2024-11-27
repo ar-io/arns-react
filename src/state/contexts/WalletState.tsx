@@ -1,4 +1,4 @@
-import { AOProcess, ContractSigner, IO } from '@ar.io/sdk/web';
+import { AOProcess, IO } from '@ar.io/sdk/web';
 import { ArweaveAppError } from '@src/utils/errors';
 import React, {
   Dispatch,
@@ -7,11 +7,15 @@ import React, {
   useEffect,
   useReducer,
 } from 'react';
+import { useAccount, useConfig } from 'wagmi';
 
 import { useEffectOnce } from '../../hooks/useEffectOnce/useEffectOnce';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
-import { ArConnectWalletConnector } from '../../services/wallets';
-import { ArweaveWalletConnector, WALLET_TYPES } from '../../types';
+import {
+  ArConnectWalletConnector,
+  EthWalletConnector,
+} from '../../services/wallets';
+import { AoAddress, ArNSWalletConnector, WALLET_TYPES } from '../../types';
 import { ARWEAVE_APP_API } from '../../utils/constants';
 import eventEmitter from '../../utils/events';
 import { dispatchArIOContract } from '../actions/dispatchArIOContract';
@@ -19,8 +23,8 @@ import { WalletAction } from '../reducers/WalletReducer';
 import { useGlobalState } from './GlobalState';
 
 export type WalletState = {
-  walletAddress?: ArweaveTransactionID;
-  wallet?: ArweaveWalletConnector;
+  walletAddress?: AoAddress;
+  wallet?: ArNSWalletConnector;
   balances: {
     ar: number;
     [x: string]: number;
@@ -63,18 +67,22 @@ export function WalletStateProvider({
 
   const { walletAddress, wallet } = state;
 
+  const config = useConfig();
+  const ethAccount = useAccount();
+
   useEffect(() => {
     if (!walletAddress) {
       wallet?.disconnect();
       return;
     }
+
     dispatchArIOContract({
       contract: IO.init({
         process: new AOProcess({
           processId: ioProcessId,
           ao: aoClient,
         }),
-        signer: wallet?.arconnectSigner as ContractSigner,
+        signer: wallet!.contractSigner!,
       }),
       ioProcessId,
       dispatch: dispatchGlobalState,
@@ -136,11 +144,13 @@ export function WalletStateProvider({
     }
   }, [walletAddress, blockHeight]);
 
-  async function updateBalances(address: ArweaveTransactionID) {
+  async function updateBalances(address: AoAddress) {
     try {
       const [ioBalance, arBalance] = await Promise.all([
         arweaveDataProvider.getTokenBalance(address),
-        arweaveDataProvider.getArBalance(address),
+        address instanceof ArweaveTransactionID
+          ? arweaveDataProvider.getArBalance(address)
+          : Promise.resolve(0),
       ]);
 
       dispatchWalletState({
@@ -172,6 +182,19 @@ export function WalletStateProvider({
           type: 'setWallet',
           payload: connector,
         });
+      } else if (ethAccount || walletType === WALLET_TYPES.ETHEREUM) {
+        if (ethAccount?.isConnected && ethAccount?.address) {
+          const connector = new EthWalletConnector(config);
+
+          dispatchWalletState({
+            type: 'setWalletAddress',
+            payload: ethAccount.address,
+          });
+          dispatchWalletState({
+            type: 'setWallet',
+            payload: connector,
+          });
+        }
       }
     } catch (error) {
       eventEmitter.emit('error', error);

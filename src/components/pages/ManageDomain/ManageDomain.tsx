@@ -1,9 +1,11 @@
 import TransactionSuccessCard from '@src/components/cards/TransactionSuccessCard/TransactionSuccessCard';
 import DomainSettings from '@src/components/forms/DomainSettings/DomainSettings';
-import { useGlobalState } from '@src/state';
+import { usePrimaryName } from '@src/hooks/usePrimaryName';
+import { useGlobalState, useModalState } from '@src/state';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
 import eventEmitter from '@src/utils/events';
 import { useQuery } from '@tanstack/react-query';
+import { Star } from 'lucide-react';
 import { ReactNode, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -93,9 +95,11 @@ function AntLogoIcon({
 function ManageDomain() {
   const { name } = useParams();
   const navigate = useNavigate();
-
+  const [{ ioProcessId }] = useGlobalState();
   const [{ workflowName, interactionResult }, dispatchTransactionState] =
     useTransactionState();
+  const [, dispatchModalState] = useModalState();
+  const { data: primaryNameData } = usePrimaryName();
 
   const [logoId, setLogoId] = useState<string | undefined>();
 
@@ -139,7 +143,52 @@ function ManageDomain() {
           <h2 className="flex white center" style={{ gap: '16px' }}>
             <AntLogoIcon id={logoId} />
             {decodeDomainToASCII(name!)}
+            <Star
+              className={
+                (name == primaryNameData?.name
+                  ? 'text-primary fill-primary'
+                  : 'text-grey') + ` w-[18px]`
+              }
+            />
           </h2>
+          <button
+            className={
+              'flex text-primary bg-primary-thin max-w-fit rounded border border-primary px-3 py-1 gap-3 text-[16px] items-center'
+            }
+            onClick={() => {
+              if (!name) return;
+              if (primaryNameData?.name === name) {
+                // remove primary name payload
+                dispatchTransactionState({
+                  type: 'setTransactionData',
+                  payload: {
+                    names: [name],
+                    ioProcessId,
+                    assetId: '',
+                    functionName: 'removePrimaryNames',
+                  },
+                });
+              } else {
+                dispatchTransactionState({
+                  type: 'setTransactionData',
+                  payload: {
+                    name,
+                    ioProcessId,
+                    assetId: ioProcessId,
+                    functionName: 'primaryNameRequest',
+                  },
+                });
+              }
+
+              dispatchModalState({
+                type: 'setModalOpen',
+                payload: { showPrimaryNameModal: true },
+              });
+            }}
+          >
+            <Star className={`w-[16px]`} />{' '}
+            {name == primaryNameData?.name ? 'Remove Primary' : 'Make Primary'}
+          </button>
         </div>
         <DomainSettings
           domain={name}

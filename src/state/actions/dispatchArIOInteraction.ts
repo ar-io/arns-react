@@ -1,18 +1,24 @@
 import {
+  ANT,
   ANTRegistry,
   ANT_REGISTRY_ID,
+  AOProcess,
   AoClient,
   AoIOWrite,
   AoMessageResult,
+  AoPrimaryNameRequest,
   ContractSigner,
   DEFAULT_SCHEDULER_ID,
   createAoSigner,
   spawnANT,
 } from '@ar.io/sdk/web';
-import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
-import { ARNS_INTERACTION_TYPES, ContractInteraction } from '@src/types';
-import { createAntStateForOwner, lowerCaseDomain } from '@src/utils';
+import {
+  ARNS_INTERACTION_TYPES,
+  AoAddress,
+  ContractInteraction,
+} from '@src/types';
+import { createAntStateForOwner, lowerCaseDomain, sleep } from '@src/utils';
 import { DEFAULT_ANT_LUA_ID, WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Dispatch } from 'react';
@@ -30,7 +36,7 @@ export default async function dispatchArIOInteraction({
 }: {
   payload: Record<string, any>;
   workflowName: ARNS_INTERACTION_TYPES;
-  owner: ArweaveTransactionID;
+  owner: AoAddress;
   arioContract?: AoIOWrite;
   processId: string;
   dispatch: Dispatch<TransactionAction>;
@@ -120,6 +126,74 @@ export default async function dispatchArIOInteraction({
           WRITE_OPTIONS,
         );
         break;
+      case ARNS_INTERACTION_TYPES.PRIMARY_NAME_REQUEST: {
+        dispatch({
+          type: 'setSigningMessage',
+          payload: 'Confirming Primary Name 1/2',
+        });
+
+        await arioContract.requestPrimaryName({
+          name: payload.name,
+        });
+
+        let storedNameRequest: AoPrimaryNameRequest | boolean | undefined =
+          undefined;
+        // do to latency we retry for some time here - may need to adjust time
+        const storeRequestTimeout = setTimeout(() => {
+          if (storedNameRequest === undefined) storedNameRequest = false;
+        }, 1000 * 60 * 3);
+
+        while (storedNameRequest === undefined) {
+          const primaryNameRequest = await arioContract
+            .getPrimaryNameRequest({
+              initiator: owner.toString(),
+            })
+            .catch((e) => {
+              console.error(e);
+              return undefined;
+            });
+          if (
+            primaryNameRequest?.name &&
+            primaryNameRequest.name !== payload.name
+          ) {
+            throw new Error(
+              'Another Primary Name request for ' +
+                primaryNameRequest.name +
+                ' is conflicting with this request.',
+            );
+          }
+          storedNameRequest = primaryNameRequest;
+        }
+        clearTimeout(storeRequestTimeout);
+
+        if (!storedNameRequest) {
+          throw new Error(
+            `Unable to request ${payload.name} as Primary Name, try again later`,
+          );
+        }
+        await sleep(2000);
+
+        const antProcess = ANT.init({
+          signer,
+          process: new AOProcess({
+            ao,
+            processId: payload.antProcessId,
+          }),
+        });
+
+        dispatch({
+          type: 'setSigningMessage',
+          payload: 'Confirming Primary Name 2/2',
+        });
+        await sleep(2000);
+        result = await antProcess.approvePrimaryNameRequest({
+          name: payload.name,
+          address: owner.toString(),
+          ioProcessId: payload.ioProcessId,
+        });
+
+        break;
+      }
       default:
         throw new Error(`Unsupported workflow name: ${workflowName}`);
     }

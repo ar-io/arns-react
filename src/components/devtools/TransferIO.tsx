@@ -2,7 +2,7 @@ import { AoIOWrite, IOToken, mIOToken } from '@ar.io/sdk/web';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { VALIDATION_INPUT_TYPES } from '@src/types';
-import { formatIO, isArweaveTransactionID, mioToIo } from '@src/utils';
+import { formatIO, isValidAoAddress, mioToIo } from '@src/utils';
 import { WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Collapse, Space } from 'antd';
@@ -14,7 +14,7 @@ import './styles.css';
 const Panel = Collapse.Panel;
 
 function TransferIO() {
-  const [{ arweaveDataProvider, arioContract, ioProcessId }] = useGlobalState();
+  const [{ arioContract, ioProcessId }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [ioBalance, setIoBalance] = useState<number>(0);
   const [toAddress, setToAddress] = useState<string>('');
@@ -42,7 +42,7 @@ function TransferIO() {
   async function confirmTransfer() {
     try {
       setTransfering(true);
-      if (isArweaveTransactionID(toAddress.trim())) {
+      if (isValidAoAddress(toAddress.trim())) {
         // TODO: check that is a write contract
         const contract = arioContract as AoIOWrite;
         const tx = await contract.transfer(
@@ -96,14 +96,12 @@ function TransferIO() {
                   setIsValidAddress(validity)
                 }
                 validationPredicates={{
-                  [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
-                    fn: (id: string) =>
-                      arweaveDataProvider.validateArweaveId(id),
-                  },
-                  [VALIDATION_INPUT_TYPES.ARWEAVE_ADDRESS]: {
-                    fn: (id: string) =>
-                      arweaveDataProvider.validateArweaveAddress(id),
-                    required: false,
+                  [VALIDATION_INPUT_TYPES.AO_ADDRESS]: {
+                    fn: async (id: string) => {
+                      if (!isValidAoAddress(id)) {
+                        throw new Error('Invalid address');
+                      }
+                    },
                   },
                 }}
               />

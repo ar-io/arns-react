@@ -1,6 +1,6 @@
+import { AoAddress } from '@src/types';
 import { CSSProperties } from 'react';
 
-import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { formatForMaxCharCount } from '../../../utils';
 import CopyTextButton from '../../inputs/buttons/CopyTextButton/CopyTextButton';
 
@@ -27,7 +27,7 @@ function ArweaveID({
   wrapperStyle,
   linkStyle,
 }: {
-  id: ArweaveTransactionID;
+  id: AoAddress;
   type?: ArweaveIdTypes;
   characterCount?: number;
   shouldLink?: boolean;

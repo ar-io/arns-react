@@ -4,7 +4,7 @@ import { PermissionType } from 'arconnect';
 import { ApiConfig } from 'arweave/node/lib/api';
 
 import { ARCONNECT_UNRESPONSIVE_ERROR } from '../../components/layout/Notifications/Notifications';
-import { ArweaveWalletConnector, WALLET_TYPES } from '../../types';
+import { ArNSWalletConnector, WALLET_TYPES } from '../../types';
 import { executeWithTimeout } from '../../utils';
 import { ArweaveTransactionID } from '../arweave/ArweaveTransactionID';
 
@@ -17,12 +17,12 @@ export const ARCONNECT_WALLET_PERMISSIONS: PermissionType[] = [
   'SIGNATURE',
 ];
 
-export class ArConnectWalletConnector implements ArweaveWalletConnector {
+export class ArConnectWalletConnector implements ArNSWalletConnector {
   private _wallet: Window['arweaveWallet'];
-  arconnectSigner: Window['arweaveWallet'];
+  contractSigner: Window['arweaveWallet'];
   constructor() {
     this._wallet = window?.arweaveWallet;
-    this.arconnectSigner = window?.arweaveWallet;
+    this.contractSigner = window?.arweaveWallet;
   }
 
   // The API has been shown to be unreliable, so we call each function with a timeout

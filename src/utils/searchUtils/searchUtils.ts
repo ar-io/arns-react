@@ -191,3 +191,62 @@ export function isMaxLeaseDuration(duration: number | string) {
     duration === PERMANENT_DOMAIN_MESSAGE
   );
 }
+
+/**
+ * @description - Formats the ArNS domain as ascii with the appropriate underscore seperator
+ * @param name - unicode representation of the arns name
+ * @returns ascii representation of the domain
+ */
+export function encodePrimaryName(name: string) {
+  // we need to account for undernames.
+  const isUndername = name.includes('_');
+  let encoded = '';
+  if (isUndername) {
+    // undernames can include underscores
+    const pieces = name.split('_');
+    const baseName = pieces.pop()!; // eslint-disable-line
+    const undername = pieces.slice(-2).join('_');
+    encoded = [
+      encodeDomainToASCII(undername),
+      encodeDomainToASCII(baseName),
+    ].join('_');
+  } else {
+    encoded = encodeDomainToASCII(name);
+  }
+
+  return encoded;
+}
+
+/**
+ * @description - Formats the ArNS domain as unicode with the appropriate underscore seperator
+ * @param name - ascii representation of the arns name
+ * @returns unicode representation of the domain
+ */
+export function decodePrimaryName(name: string) {
+  // we need to account for undernames.
+  const isUndername = name.includes('_');
+  let decoded = '';
+  if (isUndername) {
+    // undernames can include underscores
+    const pieces = name.split('_');
+    const baseName = pieces.pop()!; // eslint-disable-line
+    const undername = pieces.slice(-2).join('_');
+    decoded = [
+      decodeDomainToASCII(undername),
+      decodeDomainToASCII(baseName),
+    ].join('_');
+  } else {
+    decoded = decodeDomainToASCII(name);
+  }
+
+  return decoded;
+}
+
+export function shortPrimaryName(name: string, limit = 20) {
+  const decoded = decodePrimaryName(name);
+
+  if (decoded.length > limit) {
+    return decoded.slice(0, limit) + '...';
+  }
+  return decoded;
+}

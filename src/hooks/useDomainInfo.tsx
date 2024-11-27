@@ -89,7 +89,7 @@ export default function useDomainInfo({
       throw new Error('No ANT id or record found');
     }
     const processId = antId || record?.processId;
-    const signer = wallet?.arconnectSigner;
+    const signer = wallet?.contractSigner;
 
     if (!processId) {
       throw new Error('No processId found');
