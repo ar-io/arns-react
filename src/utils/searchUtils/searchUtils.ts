@@ -1,5 +1,4 @@
-import { AoANTState } from '@ar.io/sdk/web';
-import Transaction from 'arweave/node/lib/transaction';
+import { AntHandlerNames, AoANTHandler, AoANTState } from '@ar.io/sdk';
 import emojiRegex from 'emoji-regex';
 import { asciiToUnicode, unicodeToAscii } from 'puny-coder';
 
@@ -133,24 +132,16 @@ export function lowerCaseDomain(domain: string) {
 export function getAntsRequiringUpdate({
   ants,
   userAddress,
-  luaSourceTx,
 }: {
-  ants: Record<string, AoANTState>;
+  ants: Record<string, { state: AoANTState; handlers: AoANTHandler[] }>;
   userAddress: string;
-  luaSourceTx?: Transaction;
 }): string[] {
-  if (!luaSourceTx) return [];
-  const acceptableIds = [
-    luaSourceTx.id,
-    luaSourceTx?.tags?.find((tag) => tag.name == 'Original-Tx-Id')?.value,
-  ];
-
   return Object.entries(ants)
     .map(([id, ant]) => {
-      const srcId = (ant as any)?.['Source-Code-TX-ID'];
       // if user is not the owner, skip
-      if (!ant.Owner || ant?.Owner !== userAddress) return;
-      if (!srcId || !acceptableIds.includes(srcId)) return id;
+      if (!ant.state?.Owner || ant?.state.Owner !== userAddress) return;
+      if (!AntHandlerNames.every((handler) => ant.handlers?.includes(handler)))
+        return id;
     })
     .filter((id) => id !== undefined) as string[];
 }
@@ -158,15 +149,13 @@ export function getAntsRequiringUpdate({
 export function doAntsRequireUpdate({
   ants,
   userAddress,
-  luaSourceTx,
 }: {
-  ants: Record<string, AoANTState>;
+  ants: Record<string, { state: AoANTState; handlers: AoANTHandler[] }>;
   userAddress: string;
-  luaSourceTx?: Transaction;
 }) {
-  if (!luaSourceTx) return false;
+  const antReq = getAntsRequiringUpdate({ ants, userAddress }).length > 0;
 
-  return getAntsRequiringUpdate({ ants, userAddress, luaSourceTx }).length > 0;
+  return antReq;
 }
 
 export function camelToReadable(camel: string) {
@@ -201,4 +190,63 @@ export function isMaxLeaseDuration(duration: number | string) {
       duration >= MAX_LEASE_DURATION) ||
     duration === PERMANENT_DOMAIN_MESSAGE
   );
+}
+
+/**
+ * @description - Formats the ArNS domain as ascii with the appropriate underscore seperator
+ * @param name - unicode representation of the arns name
+ * @returns ascii representation of the domain
+ */
+export function encodePrimaryName(name: string) {
+  // we need to account for undernames.
+  const isUndername = name.includes('_');
+  let encoded = '';
+  if (isUndername) {
+    // undernames can include underscores
+    const pieces = name.split('_');
+    const baseName = pieces.pop()!; // eslint-disable-line
+    const undername = pieces.slice(-2).join('_');
+    encoded = [
+      encodeDomainToASCII(undername),
+      encodeDomainToASCII(baseName),
+    ].join('_');
+  } else {
+    encoded = encodeDomainToASCII(name);
+  }
+
+  return encoded;
+}
+
+/**
+ * @description - Formats the ArNS domain as unicode with the appropriate underscore seperator
+ * @param name - ascii representation of the arns name
+ * @returns unicode representation of the domain
+ */
+export function decodePrimaryName(name: string) {
+  // we need to account for undernames.
+  const isUndername = name.includes('_');
+  let decoded = '';
+  if (isUndername) {
+    // undernames can include underscores
+    const pieces = name.split('_');
+    const baseName = pieces.pop()!; // eslint-disable-line
+    const undername = pieces.slice(-2).join('_');
+    decoded = [
+      decodeDomainToASCII(undername),
+      decodeDomainToASCII(baseName),
+    ].join('_');
+  } else {
+    decoded = decodeDomainToASCII(name);
+  }
+
+  return decoded;
+}
+
+export function shortPrimaryName(name: string, limit = 20) {
+  const decoded = decodePrimaryName(name);
+
+  if (decoded.length > limit) {
+    return decoded.slice(0, limit) + '...';
+  }
+  return decoded;
 }

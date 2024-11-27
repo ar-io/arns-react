@@ -176,6 +176,8 @@ export enum ANT_INTERACTION_TYPES {
   TRANSFER = 'Transfer ANT',
   EVOLVE = 'Upgrade ANT',
   RELEASE_NAME = 'Release Name',
+  APPROVE_PRIMARY_NAME = 'Approve Primary Name',
+  REMOVE_PRIMARY_NAMES = 'Remove Primary Names',
 }
 
 export enum ARNS_INTERACTION_TYPES {
@@ -183,6 +185,7 @@ export enum ARNS_INTERACTION_TYPES {
   EXTEND_LEASE = 'Extend Lease',
   INCREASE_UNDERNAMES = 'Increase Undernames',
   TRANSFER = 'Transfer IO',
+  PRIMARY_NAME_REQUEST = 'Primary Name Request', // two part interaction since the ant is the authority to approve the request
 }
 
 export enum INTERACTION_TYPES {
@@ -364,6 +367,16 @@ export type TransferANTPayload = {
   associatedNames?: string[];
 };
 
+export type PrimaryNameRequestPayload = {
+  name: string;
+  ioProcessId: string;
+};
+
+export type RemovePrimaryNamesPayload = {
+  names: string[];
+  ioProcessId: string;
+};
+
 // end ant transaction payload types
 
 export const ALL_TRANSACTION_DATA_KEYS = [
@@ -396,7 +409,9 @@ export type TransactionDataPayload =
   | SetNamePayload
   | SetRecordPayload
   | RemoveRecordPayload
-  | TransferANTPayload;
+  | TransferANTPayload
+  | PrimaryNameRequestPayload
+  | RemovePrimaryNamesPayload;
 
 export type TransactionData = TransactionDataBasePayload &
   TransactionDataPayload;

@@ -53,7 +53,7 @@ function TransactionCost({
           }}
         >
           <span
-            className="flex flex-row text white flex-right"
+            className="flex flex-row text white flex-right whitespace-nowrap"
             style={{
               gap: '5px',
               width: 'fit-content',

@@ -1,3 +1,4 @@
+import { ANT } from '@ar.io/sdk';
 import { AoAddress } from '@src/types';
 import eventEmitter from '@src/utils/events';
 import { buildAntStateQuery } from '@src/utils/network';
@@ -24,11 +25,17 @@ export async function dispatchANTUpdate({
     });
     const antStateQuery = buildAntStateQuery({ processId });
     const state = await queryClient.fetchQuery(antStateQuery);
+    const handlers = await queryClient.fetchQuery({
+      queryKey: [processId, 'getHandlers'],
+      queryFn: async () => {
+        return await ANT.init({ processId }).getHandlers().catch(console.error);
+      },
+    });
 
     if (state) {
       dispatch({
         type: 'addAnts',
-        payload: { [processId]: state },
+        payload: { [processId]: { state, handlers: handlers ?? [] } },
       });
     } else {
       dispatch({

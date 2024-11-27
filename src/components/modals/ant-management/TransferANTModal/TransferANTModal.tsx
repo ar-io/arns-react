@@ -4,12 +4,8 @@ import { useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../../hooks';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
-import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { TransferANTPayload, VALIDATION_INPUT_TYPES } from '../../../../types';
-import {
-  formatForMaxCharCount,
-  isArweaveTransactionID,
-} from '../../../../utils';
+import { formatForMaxCharCount, isValidAoAddress } from '../../../../utils';
 import { InfoIcon } from '../../../icons';
 import ValidationInput from '../../../inputs/text/ValidationInput/ValidationInput';
 import DialogModal from '../../DialogModal/DialogModal';
@@ -26,7 +22,6 @@ function TransferANTModal({
   payloadCallback: (payload: TransferANTPayload) => void;
   associatedNames: string[];
 }) {
-  const [{ arweaveDataProvider }] = useGlobalState();
   const isMobile = useIsMobile();
   const [accepted, setAccepted] = useState<boolean>(false);
   const [toAddress, setToAddress] = useState<string>('');
@@ -34,7 +29,7 @@ function TransferANTModal({
   const { name = 'N/A' } = useANT(antId.toString());
 
   useEffect(() => {
-    if (!isArweaveTransactionID(toAddress)) {
+    if (!isValidAoAddress(toAddress)) {
       setAccepted(false);
     }
     if (!toAddress.length) {
@@ -93,14 +88,12 @@ function TransferANTModal({
                     setIsValidAddress(validity)
                   }
                   validationPredicates={{
-                    [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
-                      fn: (id: string) =>
-                        arweaveDataProvider.validateArweaveId(id),
-                    },
-                    [VALIDATION_INPUT_TYPES.ARWEAVE_ADDRESS]: {
-                      fn: (id: string) =>
-                        arweaveDataProvider.validateArweaveAddress(id),
-                      required: false,
+                    [VALIDATION_INPUT_TYPES.AO_ADDRESS]: {
+                      fn: async (id: string) => {
+                        if (!isValidAoAddress(id)) {
+                          throw new Error('Invalid address');
+                        }
+                      },
                     },
                   }}
                 />
@@ -162,9 +155,9 @@ function TransferANTModal({
                   <Checkbox
                     rootClassName="accept-checkbox"
                     onChange={(e) => setAccepted(e.target.checked)}
-                    checked={accepted && isArweaveTransactionID(toAddress)}
+                    checked={accepted && isValidAoAddress(toAddress)}
                     style={{ color: 'white' }}
-                    disabled={!isArweaveTransactionID(toAddress)}
+                    disabled={!isValidAoAddress(toAddress)}
                   />
                   I understand that this action cannot be undone.
                 </span>
@@ -175,7 +168,7 @@ function TransferANTModal({
         onCancel={closeModal}
         onClose={closeModal}
         onNext={
-          accepted && isArweaveTransactionID(toAddress)
+          accepted && isValidAoAddress(toAddress)
             ? () => handlePayloadCallback()
             : undefined
         }

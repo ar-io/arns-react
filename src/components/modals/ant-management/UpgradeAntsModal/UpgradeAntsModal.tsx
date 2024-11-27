@@ -2,11 +2,9 @@ import { ContractSigner, createAoSigner, evolveANT } from '@ar.io/sdk/web';
 import AntChangelog from '@src/components/cards/AntChangelog';
 import { Tooltip } from '@src/components/data-display';
 import { CloseIcon } from '@src/components/icons';
-import { Loader } from '@src/components/layout';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
-import { useArweaveTransaction } from '@src/hooks/useArweaveTransaction';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useArNSState, useGlobalState, useWalletState } from '@src/state';
 import {
@@ -17,6 +15,7 @@ import {
 } from '@src/utils';
 import { DEFAULT_ANT_LUA_ID } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
+import { queryClient } from '@src/utils/network';
 import { Checkbox } from 'antd';
 import Lottie from 'lottie-react';
 import { useCallback, useEffect, useState } from 'react';
@@ -39,19 +38,17 @@ function UpgradeAntsModal({
   // 0 or greater means loading, -1 means not loading
   const [progress, setProgress] = useState(-1);
   const isUpdatingAnts = useCallback(() => progress >= 0, [progress]);
-  const { data, isLoading } = useArweaveTransaction(DEFAULT_ANT_LUA_ID);
 
   useEffect(() => {
-    if (data && walletAddress) {
+    if (walletAddress) {
       setAntsToUpgrade(
         getAntsRequiringUpdate({
           ants,
           userAddress: walletAddress.toString(),
-          luaSourceTx: data,
         }),
       );
     }
-  }, [ants]);
+  }, [ants, walletAddress]);
 
   function handleClose() {
     setVisible(false);
@@ -66,15 +63,11 @@ function UpgradeAntsModal({
       if (!wallet?.contractSigner || !walletAddress) {
         throw new Error('No ArConnect Signer found');
       }
-      if (!DataView) {
-        throw new Error('No Lua Code Transaction found');
-      }
 
       const antIds = Object.keys(ants).filter((antId) =>
         doAntsRequireUpdate({
           ants: { [antId]: ants[antId] },
           userAddress: walletAddress?.toString(),
-          luaSourceTx: data,
         }),
       );
 
@@ -94,6 +87,14 @@ function UpgradeAntsModal({
             message: `Issue upgrading ANT ${antId}, please try again later`,
           });
         });
+        queryClient.invalidateQueries(
+          {
+            queryKey: ['handlers'],
+            refetchType: 'all',
+            exact: false,
+          },
+          { cancelRefetch: true },
+        );
         setProgress((prev) => Math.round(prev + 100 / antIds.length));
       }
       if (failedUpgrades.length < antIds.length) {
@@ -128,14 +129,6 @@ function UpgradeAntsModal({
   }
 
   if (!visible) return <></>;
-
-  if (isLoading) {
-    return (
-      <div className="modal-container items-center justify-center">
-        <Loader />
-      </div>
-    );
-  }
 
   return (
     <div className="modal-container items-center justify-center">

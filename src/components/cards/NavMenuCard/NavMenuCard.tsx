@@ -1,4 +1,6 @@
+import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import { AoAddress } from '@src/types';
+import { shortPrimaryName } from '@src/utils';
 import { buildARBalanceQuery, buildIOBalanceQuery } from '@src/utils/network';
 import { useQueryClient } from '@tanstack/react-query';
 import { Tooltip } from 'antd';
@@ -20,6 +22,7 @@ import { WalletAddress } from '../../layout/WalletAddress/WalletAddress';
 import './styles.css';
 
 function NavMenuCard() {
+  const queryClient = useQueryClient();
   const [
     {
       arweaveDataProvider,
@@ -30,7 +33,10 @@ function NavMenuCard() {
       gateway,
     },
   ] = useGlobalState();
-  const queryClient = useQueryClient();
+  const [{ wallet, walletAddress }, dispatchWalletState] = useWalletState();
+  const { data: primaryNameData } = usePrimaryName();
+  const isMobile = useIsMobile();
+
   const [showMenu, setShowMenu] = useState(false);
   const [walletDetails, setWalletDetails] = useState<{
     AR: number | undefined | string;
@@ -40,8 +46,6 @@ function NavMenuCard() {
     [ioTicker]: undefined,
   });
   const menuRef = useRef<HTMLDivElement>(null);
-  const isMobile = useIsMobile();
-  const [{ wallet, walletAddress }, dispatchWalletState] = useWalletState();
 
   useEffect(() => {
     if (walletAddress) {
@@ -191,6 +195,7 @@ function NavMenuCard() {
                       alignItems: 'center',
                     }}
                   />
+
                   <div
                     className="flex flex-column"
                     style={{
@@ -380,7 +385,14 @@ function NavMenuCard() {
               : {}
           }
         >
-          {walletAddress ? (
+          {primaryNameData?.name ? (
+            <span className="flex text-link fill-success gap-2 items-center text-[14px]">
+              <svg width="8px" height="8px">
+                <circle cx="4" cy="4" r="4" fill="current" />
+              </svg>
+              {shortPrimaryName(primaryNameData.name)}
+            </span>
+          ) : walletAddress ? (
             <WalletAddress characterCount={4} />
           ) : (
             <MenuIcon
