@@ -131,10 +131,28 @@ export default async function dispatchArIOInteraction({
           type: 'setSigningMessage',
           payload: 'Confirming Primary Name 1/2',
         });
+        const existingPrimaryNameRequest = await arioContract
+          .getPrimaryNameRequest({
+            initiator: owner.toString(),
+          })
+          .catch((e) => {
+            console.error(e);
+            return undefined;
+          });
 
-        await arioContract.requestPrimaryName({
-          name: payload.name,
-        });
+        if (!existingPrimaryNameRequest) {
+          await arioContract
+            .requestPrimaryName({
+              name: payload.name,
+            })
+            .catch((e) => {
+              throw new Error('Unable to request Primary name: ' + e.message);
+            });
+        } else if (existingPrimaryNameRequest.initiator !== owner.toString()) {
+          throw new Error(
+            `Primary name is currently being requested by ${existingPrimaryNameRequest.initiator}`,
+          );
+        }
 
         let storedNameRequest: AoPrimaryNameRequest | boolean | undefined =
           undefined;
