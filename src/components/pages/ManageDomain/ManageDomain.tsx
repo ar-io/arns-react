@@ -69,8 +69,9 @@ function ManageDomain() {
             {decodeDomainToASCII(name!)}
             <Star
               className={
-                (name == primaryNameData?.name ? 'text-primary' : 'text-grey') +
-                ` w-[18px]`
+                (name == primaryNameData?.name
+                  ? 'text-primary fill-primary'
+                  : 'text-grey') + ` w-[18px]`
               }
             />
           </h2>

@@ -114,7 +114,7 @@ export default async function dispatchANTInteraction({
         });
         break;
       case ANT_INTERACTION_TYPES.REMOVE_PRIMARY_NAMES:
-        dispatchSigningMessage('Removing Primary Names, please wait...');
+        dispatchSigningMessage('Removing Primary Name, please wait...');
 
         result = await antProcess.removePrimaryNames({
           names: payload.names,

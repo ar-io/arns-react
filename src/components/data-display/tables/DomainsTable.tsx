@@ -411,56 +411,58 @@ const DomainsTable = ({
           }
           case 'action': {
             return (
-              <span className="flex justify-end pr-3 w-full gap-3">
-                <button
-                  onClick={() => {
-                    const targetName = row.getValue('name') as string;
-                    if (primaryNameData?.name === targetName) {
-                      // remove primary name payload
-                      dispatchTransactionState({
-                        type: 'setTransactionData',
-                        payload: {
-                          names: [targetName],
-                          ioProcessId,
-                          assetId: row.getValue('processId'),
-                          functionName: 'removePrimaryNames',
-                        },
-                      });
-                    } else {
-                      dispatchTransactionState({
-                        type: 'setTransactionData',
-                        payload: {
-                          name: targetName,
-                          ioProcessId,
-                          assetId: ioProcessId,
-                          functionName: 'primaryNameRequest',
-                        },
-                      });
-                    }
+              <div className="flex justify-end w-full">
+                <span className="flex  pr-3 w-fit gap-3">
+                  <button
+                    onClick={() => {
+                      const targetName = row.getValue('name') as string;
+                      if (primaryNameData?.name === targetName) {
+                        // remove primary name payload
+                        dispatchTransactionState({
+                          type: 'setTransactionData',
+                          payload: {
+                            names: [targetName],
+                            ioProcessId,
+                            assetId: row.getValue('processId'),
+                            functionName: 'removePrimaryNames',
+                          },
+                        });
+                      } else {
+                        dispatchTransactionState({
+                          type: 'setTransactionData',
+                          payload: {
+                            name: targetName,
+                            ioProcessId,
+                            assetId: ioProcessId,
+                            functionName: 'primaryNameRequest',
+                          },
+                        });
+                      }
 
-                    dispatchModalState({
-                      type: 'setModalOpen',
-                      payload: { showPrimaryNameModal: true },
-                    });
-                  }}
-                >
-                  <Star
-                    className={
-                      (row.getValue('name') == primaryNameData?.name
-                        ? 'text-primary'
-                        : 'text-grey') +
-                      ` 
+                      dispatchModalState({
+                        type: 'setModalOpen',
+                        payload: { showPrimaryNameModal: true },
+                      });
+                    }}
+                  >
+                    <Star
+                      className={
+                        (row.getValue('name') == primaryNameData?.name
+                          ? 'text-primary fill-primary'
+                          : 'text-grey') +
+                        ` 
                     w-[18px]
                     `
-                    }
+                      }
+                    />
+                  </button>
+                  <ManageAssetButtons
+                    id={lowerCaseDomain(row.getValue('name') as string)}
+                    assetType="names"
+                    disabled={false}
                   />
-                </button>
-                <ManageAssetButtons
-                  id={lowerCaseDomain(row.getValue('name') as string)}
-                  assetType="names"
-                  disabled={false}
-                />
-              </span>
+                </span>
+              </div>
             );
           }
 

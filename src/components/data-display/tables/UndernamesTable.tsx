@@ -223,7 +223,7 @@ const UndernamesTable = ({
                     className={
                       (encodePrimaryName(undername + '_' + arnsDomain) ==
                       primaryNameData?.name
-                        ? 'text-primary'
+                        ? 'text-primary fill-primary'
                         : 'text-grey') +
                       ` 
                     w-[18px]

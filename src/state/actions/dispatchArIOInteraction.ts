@@ -129,7 +129,7 @@ export default async function dispatchArIOInteraction({
       case ARNS_INTERACTION_TYPES.PRIMARY_NAME_REQUEST: {
         dispatch({
           type: 'setSigningMessage',
-          payload: 'Confirming Primary Name request. Please wait.',
+          payload: 'Confirming Primary Name request 1/2',
         });
 
         await arioContract.requestPrimaryName({
@@ -183,7 +183,7 @@ export default async function dispatchArIOInteraction({
 
         dispatch({
           type: 'setSigningMessage',
-          payload: 'Approving Primary Name request',
+          payload: 'Confirming Primary Name request 2/2',
         });
         await sleep(2000);
         result = await antProcess.approvePrimaryNameRequest({
