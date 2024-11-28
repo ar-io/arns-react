@@ -6,7 +6,6 @@ import {
   AoClient,
   AoIOWrite,
   AoMessageResult,
-  AoPrimaryNameRequest,
   ContractSigner,
   DEFAULT_SCHEDULER_ID,
   createAoSigner,
@@ -140,7 +139,10 @@ export default async function dispatchArIOInteraction({
             return undefined;
           });
 
-        if (!existingPrimaryNameRequest) {
+        if (
+          !existingPrimaryNameRequest ||
+          existingPrimaryNameRequest.name !== payload.name
+        ) {
           await arioContract
             .requestPrimaryName({
               name: payload.name,
@@ -148,47 +150,8 @@ export default async function dispatchArIOInteraction({
             .catch((e) => {
               throw new Error('Unable to request Primary name: ' + e.message);
             });
-        } else if (existingPrimaryNameRequest.initiator !== owner.toString()) {
-          throw new Error(
-            `Primary name is currently being requested by ${existingPrimaryNameRequest.initiator}`,
-          );
         }
-
-        let storedNameRequest: AoPrimaryNameRequest | boolean | undefined =
-          undefined;
-        // do to latency we retry for some time here - may need to adjust time
-        const storeRequestTimeout = setTimeout(() => {
-          if (storedNameRequest === undefined) storedNameRequest = false;
-        }, 1000 * 60 * 3);
-
-        while (storedNameRequest === undefined) {
-          const primaryNameRequest = await arioContract
-            .getPrimaryNameRequest({
-              initiator: owner.toString(),
-            })
-            .catch((e) => {
-              console.error(e);
-              return undefined;
-            });
-          if (
-            primaryNameRequest?.name &&
-            primaryNameRequest.name !== payload.name
-          ) {
-            throw new Error(
-              'Another Primary Name request for ' +
-                primaryNameRequest.name +
-                ' is conflicting with this request.',
-            );
-          }
-          storedNameRequest = primaryNameRequest;
-        }
-        clearTimeout(storeRequestTimeout);
-
-        if (!storedNameRequest) {
-          throw new Error(
-            `Unable to request ${payload.name} as Primary Name, try again later`,
-          );
-        }
+        // UX sleep between transactions
         await sleep(2000);
 
         const antProcess = ANT.init({
