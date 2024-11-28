@@ -1,7 +1,6 @@
 import {
   ANT_LUA_ID,
   DEFAULT_SCHEDULER_ID,
-  IOToken,
   ioDevnetProcessId,
 } from '@ar.io/sdk/web';
 import Arweave from 'arweave';
@@ -179,5 +178,3 @@ export const PERMANENT_DOMAIN_MESSAGE = 'Indefinite';
 
 export const METAMASK_URL = 'https://metamask.io/';
 export const ANT_CHANGELOG = antChangelog;
-
-export const PRIMARY_NAME_COST = new IOToken(100);
