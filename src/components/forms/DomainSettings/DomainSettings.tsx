@@ -354,7 +354,16 @@ function DomainSettings({
               editable={isOwner}
               confirm={({ target }: { target: string }) =>
                 dispatchANTInteraction({
-                  payload: { target, arnsDomain: domain, ioProcessId },
+                  payload: {
+                    target,
+                    ...((
+                      data?.info.Handlers ??
+                      data?.info?.HandlerNames ??
+                      []
+                    ).includes('removePrimaryNames')
+                      ? { arnsDomain: domain, ioProcessId }
+                      : {}),
+                  },
                   workflowName: ANT_INTERACTION_TYPES.TRANSFER,
                   signer: wallet!.contractSigner!,
                   owner: walletAddress!.toString(),
