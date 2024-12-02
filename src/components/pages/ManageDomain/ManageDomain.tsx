@@ -1,5 +1,7 @@
 import TransactionSuccessCard from '@src/components/cards/TransactionSuccessCard/TransactionSuccessCard';
+import { Tooltip } from '@src/components/data-display';
 import DomainSettings from '@src/components/forms/DomainSettings/DomainSettings';
+import useDomainInfo from '@src/hooks/useDomainInfo';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import { useGlobalState, useModalState } from '@src/state';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
@@ -15,6 +17,8 @@ function ManageDomain() {
   const { name } = useParams();
   const navigate = useNavigate();
   const [{ ioProcessId }] = useGlobalState();
+  const { data } = useDomainInfo({ domain: name });
+  const antHandlers = data?.info?.Handlers ?? data?.info?.HandlerNames ?? [];
   const [{ workflowName, interactionResult }, dispatchTransactionState] =
     useTransactionState();
   const [, dispatchModalState] = useModalState();
@@ -75,44 +79,62 @@ function ManageDomain() {
               }
             />
           </h2>
-          <button
-            className={
-              'flex text-primary bg-primary-thin max-w-fit rounded border border-primary px-3 py-1 gap-3 text-[16px] items-center'
+          <Tooltip
+            message={
+              !antHandlers?.includes('approvePrimaryName') ||
+              !antHandlers?.includes('removePrimaryNames')
+                ? 'Update ANT to access Primary Names workflow'
+                : primaryNameData?.name === name
+                ? 'Remove Primary Name'
+                : 'Set Primary Name'
             }
-            onClick={() => {
-              if (!name) return;
-              if (primaryNameData?.name === name) {
-                // remove primary name payload
-                dispatchTransactionState({
-                  type: 'setTransactionData',
-                  payload: {
-                    names: [name],
-                    ioProcessId,
-                    assetId: '',
-                    functionName: 'removePrimaryNames',
-                  },
-                });
-              } else {
-                dispatchTransactionState({
-                  type: 'setTransactionData',
-                  payload: {
-                    name,
-                    ioProcessId,
-                    assetId: ioProcessId,
-                    functionName: 'primaryNameRequest',
-                  },
-                });
-              }
+            icon={
+              <button
+                disabled={
+                  !antHandlers?.includes('approvePrimaryName') ||
+                  !antHandlers?.includes('removePrimaryNames')
+                }
+                className={
+                  'flex text-primary bg-primary-thin max-w-fit rounded border border-primary px-3 py-1 gap-3 text-[16px] items-center'
+                }
+                onClick={() => {
+                  if (!name) return;
+                  if (primaryNameData?.name === name) {
+                    // remove primary name payload
+                    dispatchTransactionState({
+                      type: 'setTransactionData',
+                      payload: {
+                        names: [name],
+                        ioProcessId,
+                        assetId: '',
+                        functionName: 'removePrimaryNames',
+                      },
+                    });
+                  } else {
+                    dispatchTransactionState({
+                      type: 'setTransactionData',
+                      payload: {
+                        name,
+                        ioProcessId,
+                        assetId: ioProcessId,
+                        functionName: 'primaryNameRequest',
+                      },
+                    });
+                  }
 
-              dispatchModalState({
-                type: 'setModalOpen',
-                payload: { showPrimaryNameModal: true },
-              });
-            }}
-          >
-            <Star className={`w-[16px]`} />{' '}
-            {name == primaryNameData?.name ? 'Remove Primary' : 'Make Primary'}
-          </button>
+                  dispatchModalState({
+                    type: 'setModalOpen',
+                    payload: { showPrimaryNameModal: true },
+                  });
+                }}
+              >
+                <Star className={`w-[16px]`} />{' '}
+                {name == primaryNameData?.name
+                  ? 'Remove Primary'
+                  : 'Make Primary'}
+              </button>
+            }
+          />
         </div>
         <DomainSettings domain={name} />
       </div>
