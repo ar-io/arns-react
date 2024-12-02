@@ -80,10 +80,15 @@ export default async function dispatchANTInteraction({
       case ANT_INTERACTION_TYPES.TRANSFER:
         dispatchSigningMessage('Transferring Ownership, please wait...');
         if (payload.arnsDomain && payload.ioProcessId) {
-          await antProcess.removePrimaryNames({
-            names: [payload.arnsDomain],
-            ioProcessId: payload.ioProcessId,
-          });
+          dispatchSigningMessage(
+            'Clearing Primary Names associated with ANT...',
+          );
+          await antProcess
+            .removePrimaryNames({
+              names: [payload.arnsDomain],
+              ioProcessId: payload.ioProcessId,
+            })
+            .catch((e) => eventEmitter.emit('error', e));
         }
         result = await antProcess.transfer({ target: payload.target });
         break;
