@@ -1,3 +1,4 @@
+import { mIOToken } from '@ar.io/sdk';
 import { Loader } from '@src/components/layout';
 import ArweaveID, {
   ArweaveIdTypes,
@@ -5,6 +6,7 @@ import ArweaveID, {
 import TransactionCost from '@src/components/layout/TransactionCost/TransactionCost';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
+import { useTokenCost } from '@src/hooks/useTokenCost';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import {
   useGlobalState,
@@ -21,7 +23,6 @@ import {
   RemovePrimaryNamesPayload,
 } from '@src/types';
 import { decodePrimaryName, encodePrimaryName } from '@src/utils';
-import { PRIMARY_NAME_COST } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { useQueryClient } from '@tanstack/react-query';
 import { ArrowDown } from 'lucide-react';
@@ -90,6 +91,11 @@ function PrimaryNameModal({
     : isPrimaryNameRequest(transactionData)
     ? transactionData.name
     : undefined;
+
+  const { data: ioFee } = useTokenCost({
+    intent: 'Primary-Name-Request',
+    name: targetName ?? '',
+  });
 
   // if undername, pop the base name, else target name is ArNS name and can be used for querying domain info
   const baseName = targetName?.includes('_')
@@ -285,7 +291,9 @@ function PrimaryNameModal({
                   fee={{
                     [ioTicker]: isRemovePrimaryNamesPayload(transactionData)
                       ? 0
-                      : PRIMARY_NAME_COST.valueOf(),
+                      : ioFee
+                      ? new mIOToken(ioFee).toIO().valueOf()
+                      : undefined,
                   }}
                   showBorder={false}
                   feeWrapperStyle={{
