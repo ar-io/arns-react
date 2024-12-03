@@ -108,15 +108,15 @@
     plimit-lit "^3.0.1"
     warp-contracts "1.4.45"
 
-"@ar.io/sdk@^2.5.3-alpha.1":
-  version "2.5.3-alpha.1"
-  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-2.5.3-alpha.1.tgz#f8ecbfd592dbe73850ee3bcd04fb33a16c3cf156"
-  integrity sha512-xPSBYJ+N/qQCwyH3UmTiPmhuTFAJwp8os7qnLARdwy4X1b3SlstNp6YVORBQlQVBmFPYpGD98PCReuHbId5xjA==
+"@ar.io/sdk@^2.5.3-alpha.4":
+  version "2.5.3-alpha.4"
+  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-2.5.3-alpha.4.tgz#cef25bc425429debec997c3501a217611e200376"
+  integrity sha512-gckJgfFZqO9uOx4Hk5u3On9bHJeVqxTqIhFsVAXU6BcNrj24Lehlxg++jT0216GDfQhKut9/1hO/+PdWvoNA0g==
   dependencies:
     "@dha-team/arbundles" "^1.0.1"
     "@permaweb/aoconnect" "^0.0.57"
     arweave "1.14.4"
-    axios "1.7.7"
+    axios "1.7.8"
     axios-retry "^4.3.0"
     eventemitter3 "^5.0.1"
     plimit-lit "^3.0.1"
@@ -5060,10 +5060,10 @@ axios@1.7.2:
     form-data "^4.0.0"
     proxy-from-env "^1.1.0"
 
-axios@1.7.7:
-  version "1.7.7"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-1.7.7.tgz#2f554296f9892a72ac8d8e4c5b79c14a91d0a47f"
-  integrity sha512-S4kL7XrjgBmvdGut0sN3yJxqYzrDOnivkBiN0OFs6hLiUam3UPvswUo0kqGyhqUZGEOytHyumEdXsAkgCOUf3Q==
+axios@1.7.8:
+  version "1.7.8"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.7.8.tgz#1997b1496b394c21953e68c14aaa51b7b5de3d6e"
+  integrity sha512-Uu0wb7KNqK2t5K+YQyVCLM76prD5sRFjKHbJYCP1J7JFGEQ6nN7HWn9+04LAeiJ3ji54lgS/gZCH1oxyrf1SPw==
   dependencies:
     follow-redirects "^1.15.6"
     form-data "^4.0.0"

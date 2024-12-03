@@ -1,13 +1,15 @@
-import { AoANTRecord } from '@ar.io/sdk';
+import { AoANTInfo, AoANTRecord } from '@ar.io/sdk';
 import { ExternalLinkIcon, PencilIcon, TrashIcon } from '@src/components/icons';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
 import { AddUndernameModal, EditUndernameModal } from '@src/components/modals';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
+import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import {
   useGlobalState,
+  useModalState,
   useTransactionState,
   useWalletState,
 } from '@src/state';
@@ -19,11 +21,17 @@ import {
   UNDERNAME_TABLE_ACTIONS,
   UndernameTableInteractionTypes,
 } from '@src/types';
-import { camelToReadable, formatForMaxCharCount } from '@src/utils';
+import {
+  camelToReadable,
+  decodeDomainToASCII,
+  encodeDomainToASCII,
+  encodePrimaryName,
+  formatForMaxCharCount,
+} from '@src/utils';
 import eventEmitter from '@src/utils/events';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import Lottie from 'lottie-react';
-import { Plus } from 'lucide-react';
+import { Plus, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ReactNode } from 'react-markdown';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -70,6 +78,7 @@ function filterTableData(filter: string, data: TableData[]): TableData[] {
 const UndernamesTable = ({
   undernames,
   arnsDomain,
+  info,
   antId,
   ownershipStatus,
   filter,
@@ -77,6 +86,7 @@ const UndernamesTable = ({
   isLoading,
 }: {
   undernames: Record<string, AoANTRecord>;
+  info?: AoANTInfo;
   isLoading?: boolean;
   arnsDomain?: string;
   antId?: string;
@@ -84,10 +94,13 @@ const UndernamesTable = ({
   filter?: string;
   refresh?: () => void;
 }) => {
-  const [{ gateway }] = useGlobalState();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [{ gateway, ioProcessId }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [, dispatchModalState] = useModalState();
+  const { data: primaryNameData } = usePrimaryName();
+
   const [tableData, setTableData] = useState<Array<TableData>>([]);
   const [filteredTableData, setFilteredTableData] = useState<Array<TableData>>(
     [],
@@ -164,15 +177,82 @@ const UndernamesTable = ({
       Object.entries(undernames)
         .filter(([u]) => u !== '@')
         .map(([undername, record]: any) => {
+          const antHandlers = info?.Handlers ?? info?.HandlerNames ?? [];
           const data = {
             undername,
             targetId: record.transactionId,
             ttlSeconds: record.ttlSeconds,
             action: (
               <span
-                className="flex flex-row justify-end pr-3"
+                className="flex flex-row justify-end pr-3 gap-3"
                 style={{ gap: '15px' }}
               >
+                <Tooltip
+                  message={
+                    !arnsDomain
+                      ? 'Loading...'
+                      : !antHandlers?.includes('approvePrimaryName') ||
+                        !antHandlers?.includes('removePrimaryNames')
+                      ? 'Update ANT to access Primary Names workflow'
+                      : primaryNameData?.name ===
+                        encodePrimaryName(undername + '_' + arnsDomain)
+                      ? 'Remove Primary Name'
+                      : 'Set Primary Name'
+                  }
+                  icon={
+                    <button
+                      disabled={
+                        !antHandlers?.includes('approvePrimaryName') ||
+                        !antHandlers?.includes('removePrimaryNames')
+                      }
+                      onClick={() => {
+                        if (!arnsDomain || !antId) return;
+                        const targetName = encodePrimaryName(
+                          undername + '_' + arnsDomain,
+                        );
+                        if (primaryNameData?.name === targetName) {
+                          // remove primary name payload
+                          dispatchTransactionState({
+                            type: 'setTransactionData',
+                            payload: {
+                              names: [targetName],
+                              ioProcessId,
+                              assetId: antId,
+                              functionName: 'removePrimaryNames',
+                            },
+                          });
+                        } else {
+                          dispatchTransactionState({
+                            type: 'setTransactionData',
+                            payload: {
+                              name: targetName,
+                              ioProcessId,
+                              assetId: ioProcessId,
+                              functionName: 'primaryNameRequest',
+                            },
+                          });
+                        }
+
+                        dispatchModalState({
+                          type: 'setModalOpen',
+                          payload: { showPrimaryNameModal: true },
+                        });
+                      }}
+                    >
+                      <Star
+                        className={
+                          (encodePrimaryName(undername + '_' + arnsDomain) ==
+                          primaryNameData?.name
+                            ? 'text-primary fill-primary'
+                            : 'text-grey') +
+                          ` 
+                    w-[18px]
+                    `
+                        }
+                      />
+                    </button>
+                  }
+                />
                 <button
                   className="fill-grey hover:fill-white"
                   onClick={() => {
@@ -211,7 +291,7 @@ const UndernamesTable = ({
     if (!undernames || !Object.keys(undernames).length) {
       setTableData([]);
     }
-  }, [undernames]);
+  }, [undernames, primaryNameData]);
 
   useEffect(() => {
     if (filter) {
@@ -219,7 +299,7 @@ const UndernamesTable = ({
     } else {
       setFilteredTableData([]);
     }
-  }, [filter, tableData]);
+  }, [filter, tableData, primaryNameData]);
 
   // Define columns for the table
   const columns: ColumnDef<TableData, any>[] = [
@@ -244,6 +324,7 @@ const UndernamesTable = ({
         if (!rowValue) {
           return '';
         }
+
         switch (key) {
           case 'undername': {
             return (
@@ -260,10 +341,12 @@ const UndernamesTable = ({
                 icon={
                   <Link
                     className="link gap-2 items-center w-fit"
-                    to={`https://${rowValue}_${arnsDomain}.${gateway}`}
+                    to={`https://${encodeDomainToASCII(
+                      rowValue,
+                    )}_${encodeDomainToASCII(arnsDomain ?? '')}.${gateway}`}
                     target="_blank"
                   >
-                    {formatForMaxCharCount(rowValue, 30)}{' '}
+                    {formatForMaxCharCount(decodeDomainToASCII(rowValue), 30)}{' '}
                     <ExternalLinkIcon
                       width={'12px'}
                       height={'12px'}

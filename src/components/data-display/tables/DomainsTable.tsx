@@ -11,10 +11,18 @@ import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
 import UpgradeAntModal from '@src/components/modals/ant-management/UpgradeAntModal/UpgradeAntModal';
-import { useGlobalState, useWalletState } from '@src/state';
+import { usePrimaryName } from '@src/hooks/usePrimaryName';
+import {
+  useGlobalState,
+  useModalState,
+  useTransactionState,
+  useWalletState,
+} from '@src/state';
 import {
   camelToReadable,
+  decodeDomainToASCII,
   doAntsRequireUpdate,
+  encodeDomainToASCII,
   formatExpiryDate,
   formatForMaxCharCount,
   formatVerboseDate,
@@ -25,7 +33,7 @@ import {
 import { PERMANENT_DOMAIN_MESSAGE } from '@src/utils/constants';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { capitalize } from 'lodash';
-import { CircleCheck } from 'lucide-react';
+import { CircleCheck, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ReactNode } from 'react-markdown';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
@@ -47,7 +55,7 @@ type TableData = {
     supported: number;
   };
   expiryDate: string;
-
+  handlers: AoANTHandler[];
   status: string | number;
   action: ReactNode;
 } & Record<string, any>;
@@ -102,7 +110,10 @@ const DomainsTable = ({
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [{ walletAddress }] = useWalletState();
-  const [{ gateway }] = useGlobalState();
+  const [{ gateway, ioProcessId }] = useGlobalState();
+  const [, dispatchModalState] = useModalState();
+  const [, dispatchTransactionState] = useTransactionState();
+  const { data: primaryNameData } = usePrimaryName();
   const [tableData, setTableData] = useState<Array<TableData>>([]);
   const [filteredTableData, setFilteredTableData] = useState<TableData[]>([]);
   const [sortBy, setSortBy] = useState(searchParams.get('sortBy') ?? 'name');
@@ -168,13 +179,14 @@ const DomainsTable = ({
           // metadata used for search and other purposes
           antRecords: ant?.state?.Records,
           domainRecord: record,
+          handlers: ant.handlers,
         };
         newTableData.push(data);
       });
 
       setTableData(newTableData);
     }
-  }, [domainData, loading]);
+  }, [domainData, loading, primaryNameData]);
 
   useEffect(() => {
     if (filter) {
@@ -223,6 +235,7 @@ const DomainsTable = ({
         if (rowValue === undefined || rowValue === null) {
           return '';
         }
+        const antHandlers = row.original.handlers;
         switch (key) {
           case 'openRow': {
             return (
@@ -255,10 +268,12 @@ const DomainsTable = ({
                 icon={
                   <Link
                     className="link gap-2 w-fit"
-                    to={`https://${row.getValue('name')}.${gateway}`}
+                    to={`https://${encodeDomainToASCII(
+                      row.getValue('name'),
+                    )}.${gateway}`}
                     target="_blank"
                   >
-                    {formatForMaxCharCount(rowValue, 20)}{' '}
+                    {formatForMaxCharCount(decodeDomainToASCII(rowValue), 20)}{' '}
                     <ExternalLinkIcon
                       width={'12px'}
                       height={'12px'}
@@ -398,13 +413,74 @@ const DomainsTable = ({
           }
           case 'action': {
             return (
-              <span className="flex justify-end pr-3 w-full">
-                <ManageAssetButtons
-                  id={lowerCaseDomain(row.getValue('name') as string)}
-                  assetType="names"
-                  disabled={false}
-                />
-              </span>
+              <div className="flex justify-end w-full">
+                <span className="flex  pr-3 w-fit gap-3">
+                  <Tooltip
+                    message={
+                      !antHandlers?.includes('approvePrimaryName') ||
+                      !antHandlers?.includes('removePrimaryNames')
+                        ? 'Update ANT to access Primary Names workflow'
+                        : primaryNameData?.name === row.getValue('name')
+                        ? 'Remove Primary Name'
+                        : 'Set Primary Name'
+                    }
+                    icon={
+                      <button
+                        disabled={
+                          !antHandlers?.includes('approvePrimaryName') ||
+                          !antHandlers?.includes('removePrimaryNames')
+                        }
+                        onClick={() => {
+                          const targetName = row.getValue('name') as string;
+                          if (primaryNameData?.name === targetName) {
+                            // remove primary name payload
+                            dispatchTransactionState({
+                              type: 'setTransactionData',
+                              payload: {
+                                names: [targetName],
+                                ioProcessId,
+                                assetId: row.getValue('processId'),
+                                functionName: 'removePrimaryNames',
+                              },
+                            });
+                          } else {
+                            dispatchTransactionState({
+                              type: 'setTransactionData',
+                              payload: {
+                                name: targetName,
+                                ioProcessId,
+                                assetId: ioProcessId,
+                                functionName: 'primaryNameRequest',
+                              },
+                            });
+                          }
+
+                          dispatchModalState({
+                            type: 'setModalOpen',
+                            payload: { showPrimaryNameModal: true },
+                          });
+                        }}
+                      >
+                        <Star
+                          className={
+                            (row.getValue('name') == primaryNameData?.name
+                              ? 'text-primary fill-primary'
+                              : 'text-grey') +
+                            ` 
+                    w-[18px]
+                    `
+                          }
+                        />
+                      </button>
+                    }
+                  />
+                  <ManageAssetButtons
+                    id={lowerCaseDomain(row.getValue('name') as string)}
+                    assetType="names"
+                    disabled={false}
+                  />
+                </span>
+              </div>
             );
           }
 
@@ -485,6 +561,7 @@ const DomainsTable = ({
               }
               arnsDomain={row.getValue('name')}
               antId={row.getValue('processId')}
+              handlers={row.original.handlers}
             />
           )}
           tableClass="border-[1px] border-dark-grey"

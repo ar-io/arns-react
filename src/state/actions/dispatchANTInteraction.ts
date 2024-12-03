@@ -3,6 +3,7 @@ import { TransactionAction } from '@src/state/reducers/TransactionReducer';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
 import { lowerCaseDomain } from '@src/utils';
 import eventEmitter from '@src/utils/events';
+import { queryClient } from '@src/utils/network';
 import { Dispatch } from 'react';
 
 export default async function dispatchANTInteraction({
@@ -79,7 +80,20 @@ export default async function dispatchANTInteraction({
         break;
       case ANT_INTERACTION_TYPES.TRANSFER:
         dispatchSigningMessage('Transferring Ownership, please wait...');
+        if (payload.arnsDomain && payload.ioProcessId) {
+          dispatchSigningMessage(
+            'Clearing Primary Names associated with ANT...',
+          );
+          await antProcess
+            .removePrimaryNames({
+              names: [payload.arnsDomain],
+              ioProcessId: payload.ioProcessId,
+            })
+            .catch((e) => eventEmitter.emit('error', e));
+          queryClient.resetQueries({ queryKey: ['primary-name'] });
+        }
         result = await antProcess.transfer({ target: payload.target });
+
         break;
       case ANT_INTERACTION_TYPES.SET_RECORD:
         dispatchSigningMessage('Setting Undername, please wait...');
@@ -103,6 +117,25 @@ export default async function dispatchANTInteraction({
           undername: lowerCaseDomain(payload.subDomain),
         });
         break;
+      case ANT_INTERACTION_TYPES.APPROVE_PRIMARY_NAME:
+        dispatchSigningMessage(
+          'Approving Primary Name request, please wait...',
+        );
+        result = await antProcess.approvePrimaryNameRequest({
+          name: payload.name,
+          address: owner.toString(),
+          ioProcessId: payload.ioProcessId,
+        });
+        break;
+      case ANT_INTERACTION_TYPES.REMOVE_PRIMARY_NAMES:
+        dispatchSigningMessage('Removing Primary Name, please wait...');
+
+        result = await antProcess.removePrimaryNames({
+          names: payload.names,
+          ioProcessId: payload.ioProcessId,
+        });
+        break;
+
       default:
         throw new Error(`Unsupported workflow name: ${workflowName}`);
     }

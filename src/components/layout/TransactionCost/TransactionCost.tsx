@@ -9,12 +9,14 @@ function TransactionCost({
   showBorder = true,
   ioRequired = false,
   feeWrapperStyle,
+  style,
 }: {
   fee?: { [x: string]: number | undefined };
   info?: JSX.Element | string;
   showBorder?: boolean;
   ioRequired?: boolean;
   feeWrapperStyle?: CSSProperties;
+  style?: CSSProperties;
 }) {
   const isMobile = useIsMobile();
   const [{ ioTicker }] = useGlobalState();
@@ -31,6 +33,7 @@ function TransactionCost({
         alignItems: isMobile ? 'center' : 'flex-start',
         width: '100%',
         flexDirection: isMobile ? 'column' : 'row',
+        ...(style ?? {}),
       }}
     >
       {info}
@@ -53,7 +56,7 @@ function TransactionCost({
           }}
         >
           <span
-            className="flex flex-row text white flex-right"
+            className="flex flex-row text white flex-right whitespace-nowrap"
             style={{
               gap: '5px',
               width: 'fit-content',

@@ -90,7 +90,7 @@ export const IO_PROCESS_ID =
   process.env.VITE_IO_PROCESS_ID || ioDevnetProcessId;
 
 export const DEFAULT_ANT_LUA_ID = ANT_LUA_ID;
-export const AO_CU_URL = process.env.VITE_AO_CU_URL || 'https://cu.ar-io.dev';
+export const AO_CU_URL = process.env.VITE_AO_CU_URL || 'https://cu.ardrive.io';
 
 export const NETWORK_DEFAULTS = {
   AO: {

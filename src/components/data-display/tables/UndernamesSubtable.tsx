@@ -1,22 +1,30 @@
-import { AoANTRecord } from '@ar.io/sdk';
+import { AoANTHandler, AoANTRecord } from '@ar.io/sdk';
 import { ExternalLinkIcon, PencilIcon } from '@src/components/icons';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
 import { EditUndernameModal } from '@src/components/modals';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
+import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import {
   useGlobalState,
+  useModalState,
   useTransactionState,
   useWalletState,
 } from '@src/state';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
 import { ANT_INTERACTION_TYPES, TransactionDataPayload } from '@src/types';
-import { camelToReadable, formatForMaxCharCount } from '@src/utils';
+import {
+  camelToReadable,
+  decodeDomainToASCII,
+  encodeDomainToASCII,
+  encodePrimaryName,
+  formatForMaxCharCount,
+} from '@src/utils';
 import eventEmitter from '@src/utils/events';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
-import { CornerDownRight } from 'lucide-react';
+import { Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ReactNode } from 'react-markdown';
 import { Link } from 'react-router-dom';
@@ -37,14 +45,18 @@ const UndernamesSubtable = ({
   undernames,
   arnsDomain,
   antId,
+  handlers,
 }: {
   undernames: Record<string, AoANTRecord>;
   arnsDomain: string;
+  handlers?: AoANTHandler[];
   antId: string;
 }) => {
-  const [{ gateway }] = useGlobalState();
+  const [{ gateway, ioProcessId }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
+  const [, dispatchModalState] = useModalState();
+  const { data: primaryNameData } = usePrimaryName();
   const [tableData, setTableData] = useState<Array<TableData>>([]);
   // modal state
   const [transactionData, setTransactionData] = useState<
@@ -66,7 +78,73 @@ const UndernamesSubtable = ({
             targetId: record.transactionId,
             ttlSeconds: record.ttlSeconds,
             action: (
-              <span className="flex justify-end pr-3">
+              <span className="flex justify-end pr-3 gap-3">
+                <Tooltip
+                  message={
+                    !arnsDomain
+                      ? 'Loading...'
+                      : !handlers?.includes('approvePrimaryName') ||
+                        !handlers?.includes('removePrimaryNames')
+                      ? 'Update ANT to access Primary Names workflow'
+                      : primaryNameData?.name ===
+                        encodePrimaryName(undername + '_' + arnsDomain)
+                      ? 'Remove Primary Name'
+                      : 'Set Primary Name'
+                  }
+                  icon={
+                    <button
+                      disabled={
+                        !handlers?.includes('approvePrimaryName') ||
+                        !handlers?.includes('removePrimaryNames')
+                      }
+                      onClick={() => {
+                        if (!arnsDomain || !antId) return;
+                        const targetName = encodePrimaryName(
+                          undername + '_' + arnsDomain,
+                        );
+                        if (primaryNameData?.name === targetName) {
+                          // remove primary name payload
+                          dispatchTransactionState({
+                            type: 'setTransactionData',
+                            payload: {
+                              names: [targetName],
+                              ioProcessId,
+                              assetId: antId,
+                              functionName: 'removePrimaryNames',
+                            },
+                          });
+                        } else {
+                          dispatchTransactionState({
+                            type: 'setTransactionData',
+                            payload: {
+                              name: targetName,
+                              ioProcessId,
+                              assetId: ioProcessId,
+                              functionName: 'primaryNameRequest',
+                            },
+                          });
+                        }
+
+                        dispatchModalState({
+                          type: 'setModalOpen',
+                          payload: { showPrimaryNameModal: true },
+                        });
+                      }}
+                    >
+                      <Star
+                        className={
+                          (encodePrimaryName(undername + '_' + arnsDomain) ==
+                          primaryNameData?.name
+                            ? 'text-primary fill-primary'
+                            : 'text-grey') +
+                          ` 
+                    w-[18px]
+                    `
+                        }
+                      />
+                    </button>
+                  }
+                />
                 <button
                   className="fill-grey hover:fill-white"
                   onClick={() => {
@@ -84,7 +162,7 @@ const UndernamesSubtable = ({
 
       setTableData(newTableData as TableData[]);
     }
-  }, [undernames]);
+  }, [undernames, primaryNameData]);
 
   // Define columns for the table
   const columns: ColumnDef<TableData, any>[] = [
@@ -125,11 +203,12 @@ const UndernamesSubtable = ({
                 icon={
                   <Link
                     className="link gap-2 items-center w-fit"
-                    to={`https://${rowValue}_${arnsDomain}.${gateway}`}
+                    to={`https://${encodeDomainToASCII(
+                      rowValue,
+                    )}_${encodeDomainToASCII(arnsDomain ?? '')}.${gateway}`}
                     target="_blank"
                   >
-                    <CornerDownRight className="text-dark-grey w-[18px]" />
-                    {formatForMaxCharCount(rowValue, 30)}{' '}
+                    {formatForMaxCharCount(decodeDomainToASCII(rowValue), 30)}{' '}
                     <ExternalLinkIcon
                       width={'12px'}
                       height={'12px'}
