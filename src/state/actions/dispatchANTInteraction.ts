@@ -1,4 +1,4 @@
-import { ANT, AoMessageResult, ContractSigner } from '@ar.io/sdk/web';
+import { ANT, AoMessageResult, ContractSigner, IO } from '@ar.io/sdk/web';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
 import { lowerCaseDomain } from '@src/utils';
@@ -118,13 +118,24 @@ export default async function dispatchANTInteraction({
         });
         break;
 
-      case ANT_INTERACTION_TYPES.RELEASE_NAME:
-        dispatchSigningMessage('Release ArNS Name, please wait...');
+      case ANT_INTERACTION_TYPES.RELEASE_NAME: {
+        dispatchSigningMessage('Releasing ArNS Name, please wait...');
+        const arioContract = IO.init({ processId: payload.ioProcessId });
+
         result = await antProcess.releaseName({
           name: payload.name,
           ioProcessId: payload.ioProcessId,
         });
+        dispatchSigningMessage('Verifying Release, please wait...');
+        const released = await arioContract
+          .getArNSRecord({ name })
+          .catch((e: Error) => e);
+
+        if (released instanceof Error) {
+          throw new Error('Failed to realease ArNS Name: ' + released.message);
+        }
         break;
+      }
       case ANT_INTERACTION_TYPES.APPROVE_PRIMARY_NAME:
         dispatchSigningMessage(
           'Approving Primary Name request, please wait...',

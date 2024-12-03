@@ -1,4 +1,4 @@
-import { isLeasedArNSRecord } from '@ar.io/sdk/web';
+import { AoANTHandler, isLeasedArNSRecord } from '@ar.io/sdk/web';
 import { Tooltip } from '@src/components/data-display';
 import LeaseDuration from '@src/components/data-display/LeaseDuration';
 import ArweaveID, {
@@ -84,6 +84,9 @@ function DomainSettings({
     ? data?.controllers?.includes(walletAddress.toString() ?? '')
     : false;
   const isAuthorized = isOwner || isController;
+  const antHandlers =
+    data?.info?.Handlers ?? data?.info?.HandlerNames ?? ([] as AoANTHandler[]);
+  console.log(antHandlers);
 
   const maxLeaseDuration = isMaxLeaseDuration(
     data?.arnsRecord && isLeasedArNSRecord(data?.arnsRecord)
@@ -167,39 +170,19 @@ function DomainSettings({
             <DomainSettingsRow
               label="Lease Duration"
               key={DomainSettingsRowTypes.LEASE_DURATION}
-              editable={true}
+              editable={isAuthorized}
               action={
                 <div className="flex flex-row gap-1" style={{ gap: '10px' }}>
-                  {' '}
-                  <Tooltip
-                    message={
-                      maxLeaseDuration
-                        ? 'Max lease duration reached'
-                        : 'Extend lease'
-                    }
-                    icon={
-                      <button
-                        disabled={isLoading || maxLeaseDuration}
-                        className={`p-[6px] px-[10px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all whitespace-nowrap ${
-                          isLoading || maxLeaseDuration
-                            ? 'disabled-button'
-                            : 'hover'
-                        }`}
-                        onClick={() =>
-                          navigate(
-                            `/manage/names/${lowerCaseDomain(domain!)}/extend`,
-                          )
-                        }
-                      >
-                        Extend Lease
-                      </button>
-                    }
-                  />{' '}
                   {data?.arnsRecord?.type == 'permabuy' ? (
                     <Tooltip
-                      message={'Returns the name to the ArNS protocol'}
+                      message={
+                        !antHandlers.includes('releaseName')
+                          ? 'Update ANT to access Release Name workflow'
+                          : 'Returns the name to the ArNS protocol'
+                      }
                       icon={
                         <button
+                          disabled={!antHandlers.includes('releaseName')}
                           onClick={() => setShowReturnNameModal(true)}
                           className={`flex flex-row text-[12px] rounded-[4px] p-[6px] px-[10px] border border-error bg-error-thin text-error whitespace-nowrap`}
                         >
@@ -208,7 +191,32 @@ function DomainSettings({
                       }
                     />
                   ) : (
-                    <></>
+                    <Tooltip
+                      message={
+                        maxLeaseDuration
+                          ? 'Max lease duration reached'
+                          : 'Extend lease'
+                      }
+                      icon={
+                        <button
+                          disabled={isLoading || maxLeaseDuration}
+                          className={`p-[6px] px-[10px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all whitespace-nowrap ${
+                            isLoading || maxLeaseDuration
+                              ? 'disabled-button'
+                              : 'hover'
+                          }`}
+                          onClick={() =>
+                            navigate(
+                              `/manage/names/${lowerCaseDomain(
+                                domain!,
+                              )}/extend`,
+                            )
+                          }
+                        >
+                          Extend Lease
+                        </button>
+                      }
+                    />
                   )}
                 </div>
               }

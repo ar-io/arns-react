@@ -1,4 +1,3 @@
-import { connect } from '@permaweb/aoconnect';
 import WarningCard from '@src/components/cards/WarningCard/WarningCard';
 import { Tooltip } from '@src/components/data-display';
 import ArweaveID, {
@@ -14,11 +13,12 @@ import {
 } from '@src/state';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
 import { ANT_INTERACTION_TYPES } from '@src/types';
-import { encodeDomainToASCII, lowerCaseDomain, sleep } from '@src/utils';
 import eventEmitter from '@src/utils/events';
+import { useQueryClient } from '@tanstack/react-query';
 import { Checkbox } from 'antd';
 import { TriangleAlert } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import DialogModal from '../../DialogModal/DialogModal';
 
@@ -33,29 +33,23 @@ export function ReturnNameModal({
   processId: string;
   name: string;
 }) {
-  const [{ ioProcessId, arioContract, aoNetwork }] = useGlobalState();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const [{ ioProcessId }] = useGlobalState();
   const [{ arnsEmitter }, dispatchArNSState] = useArNSState();
   const [{ signing }, dispatchTransactionState] = useTransactionState();
   const [{ wallet, walletAddress }] = useWalletState();
+
   const [accepted, setAccepted] = useState(false);
 
   async function handleReturn() {
-    let released = undefined;
-    let releasedTimeout: NodeJS.Timeout | undefined = undefined;
     try {
-      dispatchTransactionState({
-        type: 'setSigningMessage',
-        payload: `Releasing ${encodeDomainToASCII(name)}`,
-      });
-      dispatchTransactionState({ type: 'setSigning', payload: true });
       if (!wallet?.contractSigner) {
         throw new Error('No ArConnect Signer found');
       }
       if (!walletAddress) throw new Error('Must connect to release the ANT');
 
-      const aoClient = connect(aoNetwork);
-
-      const tx = await dispatchANTInteraction({
+      const result = await dispatchANTInteraction({
         signer: wallet.contractSigner,
         payload: {
           name,
@@ -66,68 +60,39 @@ export function ReturnNameModal({
         dispatch: dispatchTransactionState,
         owner: walletAddress.toString(),
       });
-
-      await aoClient.result({ message: tx.id, process: processId });
-
-      releasedTimeout = setTimeout(() => {
-        released = false;
-      }, 10_000);
-
-      dispatchTransactionState({
-        type: 'setSigningMessage',
-        payload: `Verifying ${encodeDomainToASCII(name)} release`,
+      eventEmitter.emit('success', {
+        message: (
+          <div>
+            <span>
+              Release Name completed with transaction ID:{' '}
+              <ArweaveID
+                characterCount={8}
+                shouldLink={true}
+                type={ArweaveIdTypes.INTERACTION}
+                id={new ArweaveTransactionID(result.id)}
+              />
+            </span>
+          </div>
+        ),
+        name: ANT_INTERACTION_TYPES.RELEASE_NAME,
+      });
+      queryClient.resetQueries({
+        queryKey: ['handlers', processId],
+      });
+      queryClient.resetQueries({
+        queryKey: ['domainInfo', processId],
       });
 
-      while (released !== false) {
-        await sleep(3000);
-        const record = await arioContract
-          .getArNSRecord({
-            name: lowerCaseDomain(name),
-          })
-          .catch((e) => {
-            console.error(e);
-            return new Error(e.message);
-          });
-        if (!(record instanceof Error) && record?.processId !== processId) {
-          released = true;
-        }
-      }
-      if (!released) {
-        eventEmitter.emit('error', new Error('Name return failed'));
-      } else {
-        eventEmitter.emit(
-          'success',
-          <span
-            className="flex flex-row whitespace-nowrap"
-            style={{ gap: '10px' }}
-          >
-            Name return complete. Transaction ID:{' '}
-            <ArweaveID
-              id={new ArweaveTransactionID(tx.id)}
-              type={ArweaveIdTypes.INTERACTION}
-              shouldLink
-              characterCount={8}
-            />
-          </span>,
-        );
-      }
+      dispatchArNSUpdate({
+        walletAddress: walletAddress,
+        ioProcessId,
+        dispatch: dispatchArNSState,
+        emitter: arnsEmitter,
+      });
+      setShow(false);
+      navigate('/manage');
     } catch (error) {
       eventEmitter.emit('error', error);
-    } finally {
-      if (releasedTimeout) clearTimeout(releasedTimeout);
-      if (walletAddress) {
-        dispatchArNSUpdate({
-          walletAddress: walletAddress,
-          ioProcessId,
-          dispatch: dispatchArNSState,
-          emitter: arnsEmitter,
-        });
-      }
-      dispatchTransactionState({ type: 'setSigning', payload: false });
-      dispatchTransactionState({
-        type: 'setSigningMessage',
-        payload: undefined,
-      });
     }
   }
 
