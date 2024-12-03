@@ -7,7 +7,7 @@ import ArweaveID, {
 import { ReturnNameModal } from '@src/components/modals/ant-management/ReturnNameModal/ReturnNameModal';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
-import { useArNSState } from '@src/state';
+import { useArNSState, useGlobalState } from '@src/state';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
 import { useWalletState } from '@src/state/contexts/WalletState';
@@ -69,6 +69,7 @@ function DomainSettings({
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
+  const [{ ioProcessId }] = useGlobalState();
   const [{ interactionResult }, dispatch] = useTransactionState();
   const [{ wallet, walletAddress }] = useWalletState();
   const { data, isLoading, refetch } = useDomainInfo({ domain, antId });
@@ -373,7 +374,16 @@ function DomainSettings({
               editable={isOwner}
               confirm={({ target }: { target: string }) =>
                 dispatchANTInteraction({
-                  payload: { target },
+                  payload: {
+                    target,
+                    ...((
+                      data?.info.Handlers ??
+                      data?.info?.HandlerNames ??
+                      []
+                    ).includes('removePrimaryNames')
+                      ? { arnsDomain: domain, ioProcessId }
+                      : {}),
+                  },
                   workflowName: ANT_INTERACTION_TYPES.TRANSFER,
                   signer: wallet!.contractSigner!,
                   owner: walletAddress!.toString(),

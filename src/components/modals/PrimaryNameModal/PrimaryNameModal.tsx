@@ -1,3 +1,4 @@
+import { mIOToken } from '@ar.io/sdk';
 import { Loader } from '@src/components/layout';
 import ArweaveID, {
   ArweaveIdTypes,
@@ -5,6 +6,7 @@ import ArweaveID, {
 import TransactionCost from '@src/components/layout/TransactionCost/TransactionCost';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
+import { useTokenCost } from '@src/hooks/useTokenCost';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import {
   useGlobalState,
@@ -20,15 +22,10 @@ import {
   PrimaryNameRequestPayload,
   RemovePrimaryNamesPayload,
 } from '@src/types';
-import {
-  decodePrimaryName,
-  encodePrimaryName,
-  shortPrimaryName,
-} from '@src/utils';
-import { PRIMARY_NAME_COST } from '@src/utils/constants';
+import { decodePrimaryName, encodePrimaryName } from '@src/utils';
 import eventEmitter from '@src/utils/events';
 import { useQueryClient } from '@tanstack/react-query';
-import { ArrowRight } from 'lucide-react';
+import { ArrowDown } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import DialogModal from '../DialogModal/DialogModal';
@@ -46,7 +43,7 @@ import DialogModal from '../DialogModal/DialogModal';
  */
 
 enum PRIMARY_NAME_WORKFLOWS {
-  REQUEST = 'Request Primary Name',
+  REQUEST = 'Set Primary Name',
   CHANGE = 'Change Primary Name',
   REMOVE = 'Remove Primary Name',
 }
@@ -83,17 +80,22 @@ function PrimaryNameModal({
 
   const [{ transactionData }, dispatchTransactionState] = useTransactionState();
 
-  const transactionPayload = isRemovePrimaryNamesPayload(transactionData)
-    ? transactionData
-    : isPrimaryNameRequest(transactionData)
-    ? transactionData
-    : undefined;
+  const transactionPayload =
+    isRemovePrimaryNamesPayload(transactionData) ||
+    isPrimaryNameRequest(transactionData)
+      ? transactionData
+      : undefined;
 
   const targetName = isRemovePrimaryNamesPayload(transactionData)
     ? transactionData.names[0]
     : isPrimaryNameRequest(transactionData)
     ? transactionData.name
     : undefined;
+
+  const { data: ioFee } = useTokenCost({
+    intent: 'Primary-Name-Request',
+    name: targetName ?? '',
+  });
 
   // if undername, pop the base name, else target name is ArNS name and can be used for querying domain info
   const baseName = targetName?.includes('_')
@@ -245,58 +247,65 @@ function PrimaryNameModal({
               <Loader message={'Loading Primary Name info, please wait'} />
             </div>
           ) : (
-            <div className="flex flex-column white justify-center items-center w-full min-w-[350px]">
-              <div className="flex flex-row w-full justify-center">
+            <div className="flex flex-col white justify-center items-center w-full min-w-[350px]">
+              <div className="flex flex-col w-full justify-center items-center gap-3">
                 {isPrimaryNameRequest(transactionData) &&
                   primaryNameData?.name && (
                     <>
-                      <div
-                        className={`border-success text-success bg-success-thin flex justify-center items-center border rounded p-3 px-8`}
-                      >
-                        {decodePrimaryName(primaryNameData.name)}
+                      {' '}
+                      <div className="flex flex-col gap-2 w-full">
+                        <span className=" text-xl w-full text-center">
+                          Current
+                        </span>
+                        <div
+                          className={`border-dark-grey text-grey bg-background flex justify-center items-center border rounded p-3 px-8`}
+                        >
+                          {decodePrimaryName(primaryNameData.name)}
+                        </div>
                       </div>
-                      <ArrowRight className="w-[30px]" />
+                      <ArrowDown className="w-[30px]" />
                     </>
                   )}
-                <div
-                  className={
-                    (isRemovePrimaryNamesPayload(transactionData)
-                      ? 'border-error  text-error bg-error-thin'
-                      : 'border-success  text-success bg-success-thin') +
-                    ` flex justify-center items-center border rounded p-3 px-8`
-                  }
-                >
-                  {targetName && decodePrimaryName(targetName)}
+                <div className="flex flex-col gap-2 w-full">
+                  <span className=" text-xl w-full text-center">
+                    {isRemovePrimaryNamesPayload(transactionData)
+                      ? 'Current'
+                      : 'New'}
+                  </span>
+                  <div
+                    className={
+                      (isRemovePrimaryNamesPayload(transactionData)
+                        ? 'border-error  text-error bg-error-thin'
+                        : 'border-success  text-success bg-success-thin') +
+                      ` flex justify-center items-center border rounded p-3 px-8`
+                    }
+                  >
+                    {targetName && decodePrimaryName(targetName)}
+                  </div>
                 </div>
               </div>
 
               {/* transaction details */}
-              <div className="flex flex-col max-w-[500px]">
+              <div className="flex flex-col w-full">
                 <TransactionCost
-                  fee={{ [ioTicker]: PRIMARY_NAME_COST.valueOf() }}
+                  fee={{
+                    [ioTicker]: isRemovePrimaryNamesPayload(transactionData)
+                      ? 0
+                      : ioFee
+                      ? new mIOToken(ioFee).toIO().valueOf()
+                      : undefined,
+                  }}
                   showBorder={false}
                   feeWrapperStyle={{
                     alignItems: 'flex-start',
                     padding: 0,
                     justifyContent: 'space-between',
                   }}
+                  style={{ paddingBottom: 0, paddingTop: 40 }}
                   info={
-                    <div className="text-grey text-[14px]">
-                      This will{' '}
-                      {!targetName
-                        ? ''
-                        : isRemovePrimaryNamesPayload(transactionData)
-                        ? `remove ${shortPrimaryName(targetName)}`
-                        : primaryNameData?.name &&
-                          isPrimaryNameRequest(transactionData)
-                        ? `change  ${shortPrimaryName(
-                            primaryNameData?.name,
-                          )} as your Primary name and set ${shortPrimaryName(
-                            targetName,
-                          )}`
-                        : `set ${shortPrimaryName(targetName)}`}{' '}
-                      as your Primary Name
-                    </div>
+                    <span className="text-grey text-sm">
+                      This will change your Primary Name.
+                    </span>
                   }
                 />
               </div>

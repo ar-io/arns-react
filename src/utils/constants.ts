@@ -1,7 +1,6 @@
 import {
-  //ANT_LUA_ID,
+  ANT_LUA_ID,
   DEFAULT_SCHEDULER_ID,
-  IOToken,
   ioDevnetProcessId,
 } from '@ar.io/sdk/web';
 import Arweave from 'arweave';
@@ -90,8 +89,8 @@ export const URL_REGEX = new RegExp(
 export const IO_PROCESS_ID =
   process.env.VITE_IO_PROCESS_ID || ioDevnetProcessId;
 
-export const DEFAULT_ANT_LUA_ID = 'EsBHYpEngIiuTlQgs7K_c05kFjeTGWxJsZSiSBDfwtU'; //ANT_LUA_ID;
-export const AO_CU_URL = process.env.VITE_AO_CU_URL || 'https://cu.ar-io.dev';
+export const DEFAULT_ANT_LUA_ID = ANT_LUA_ID;
+export const AO_CU_URL = process.env.VITE_AO_CU_URL || 'https://cu.ardrive.io';
 
 export const NETWORK_DEFAULTS = {
   AO: {
@@ -179,5 +178,3 @@ export const PERMANENT_DOMAIN_MESSAGE = 'Indefinite';
 
 export const METAMASK_URL = 'https://metamask.io/';
 export const ANT_CHANGELOG = antChangelog;
-
-export const PRIMARY_NAME_COST = new IOToken(100);
