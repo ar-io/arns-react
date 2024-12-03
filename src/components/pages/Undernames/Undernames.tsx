@@ -131,6 +131,7 @@ function Undernames() {
             <UndernamesTable
               undernames={data?.records ?? {}}
               arnsDomain={name}
+              info={data?.info}
               antId={data?.arnsRecord?.processId}
               ownershipStatus={ownershipStatus}
               isLoading={isLoadingDomainInfo}

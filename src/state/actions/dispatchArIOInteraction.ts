@@ -1,6 +1,8 @@
 import {
+  ANT,
   ANTRegistry,
   ANT_REGISTRY_ID,
+  AOProcess,
   AoClient,
   AoIOWrite,
   AoMessageResult,
@@ -15,7 +17,7 @@ import {
   AoAddress,
   ContractInteraction,
 } from '@src/types';
-import { createAntStateForOwner, lowerCaseDomain } from '@src/utils';
+import { createAntStateForOwner, lowerCaseDomain, sleep } from '@src/utils';
 import { DEFAULT_ANT_LUA_ID, WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Dispatch } from 'react';
@@ -123,6 +125,56 @@ export default async function dispatchArIOInteraction({
           WRITE_OPTIONS,
         );
         break;
+      case ARNS_INTERACTION_TYPES.PRIMARY_NAME_REQUEST: {
+        dispatch({
+          type: 'setSigningMessage',
+          payload: 'Confirming Primary Name 1/2',
+        });
+        const existingPrimaryNameRequest = await arioContract
+          .getPrimaryNameRequest({
+            initiator: owner.toString(),
+          })
+          .catch((e) => {
+            console.error(e);
+            return undefined;
+          });
+
+        if (
+          !existingPrimaryNameRequest ||
+          existingPrimaryNameRequest.name !== payload.name
+        ) {
+          await arioContract
+            .requestPrimaryName({
+              name: payload.name,
+            })
+            .catch((e) => {
+              throw new Error('Unable to request Primary name: ' + e.message);
+            });
+        }
+        // UX sleep between transactions
+        await sleep(2000);
+
+        const antProcess = ANT.init({
+          signer,
+          process: new AOProcess({
+            ao,
+            processId: payload.antProcessId,
+          }),
+        });
+
+        dispatch({
+          type: 'setSigningMessage',
+          payload: 'Confirming Primary Name 2/2',
+        });
+        await sleep(2000);
+        result = await antProcess.approvePrimaryNameRequest({
+          name: payload.name,
+          address: owner.toString(),
+          ioProcessId: payload.ioProcessId,
+        });
+
+        break;
+      }
       default:
         throw new Error(`Unsupported workflow name: ${workflowName}`);
     }

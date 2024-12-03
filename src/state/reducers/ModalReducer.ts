@@ -4,7 +4,8 @@ export type ModalAction = {
   type: 'setModalOpen';
   payload:
     | { showUpgradeAntModal: boolean }
-    | { showEditUndernameModal: boolean };
+    | { showEditUndernameModal: boolean }
+    | { showPrimaryNameModal: boolean };
 };
 
 export const modalReducer = (
