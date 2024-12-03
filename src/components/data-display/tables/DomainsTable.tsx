@@ -55,7 +55,7 @@ type TableData = {
     supported: number;
   };
   expiryDate: string;
-
+  handlers: AoANTHandler[];
   status: string | number;
   action: ReactNode;
 } & Record<string, any>;
@@ -179,6 +179,7 @@ const DomainsTable = ({
           // metadata used for search and other purposes
           antRecords: ant?.state?.Records,
           domainRecord: record,
+          handlers: ant.handlers,
         };
         newTableData.push(data);
       });
@@ -234,6 +235,7 @@ const DomainsTable = ({
         if (rowValue === undefined || rowValue === null) {
           return '';
         }
+        const antHandlers = row.original.handlers;
         switch (key) {
           case 'openRow': {
             return (
@@ -413,49 +415,65 @@ const DomainsTable = ({
             return (
               <div className="flex justify-end w-full">
                 <span className="flex  pr-3 w-fit gap-3">
-                  <button
-                    onClick={() => {
-                      const targetName = row.getValue('name') as string;
-                      if (primaryNameData?.name === targetName) {
-                        // remove primary name payload
-                        dispatchTransactionState({
-                          type: 'setTransactionData',
-                          payload: {
-                            names: [targetName],
-                            ioProcessId,
-                            assetId: row.getValue('processId'),
-                            functionName: 'removePrimaryNames',
-                          },
-                        });
-                      } else {
-                        dispatchTransactionState({
-                          type: 'setTransactionData',
-                          payload: {
-                            name: targetName,
-                            ioProcessId,
-                            assetId: ioProcessId,
-                            functionName: 'primaryNameRequest',
-                          },
-                        });
-                      }
+                  <Tooltip
+                    message={
+                      !antHandlers?.includes('approvePrimaryName') ||
+                      !antHandlers?.includes('removePrimaryNames')
+                        ? 'Update ANT to access Primary Names workflow'
+                        : primaryNameData?.name === row.getValue('name')
+                        ? 'Remove Primary Name'
+                        : 'Set Primary Name'
+                    }
+                    icon={
+                      <button
+                        disabled={
+                          !antHandlers?.includes('approvePrimaryName') ||
+                          !antHandlers?.includes('removePrimaryNames')
+                        }
+                        onClick={() => {
+                          const targetName = row.getValue('name') as string;
+                          if (primaryNameData?.name === targetName) {
+                            // remove primary name payload
+                            dispatchTransactionState({
+                              type: 'setTransactionData',
+                              payload: {
+                                names: [targetName],
+                                ioProcessId,
+                                assetId: row.getValue('processId'),
+                                functionName: 'removePrimaryNames',
+                              },
+                            });
+                          } else {
+                            dispatchTransactionState({
+                              type: 'setTransactionData',
+                              payload: {
+                                name: targetName,
+                                ioProcessId,
+                                assetId: ioProcessId,
+                                functionName: 'primaryNameRequest',
+                              },
+                            });
+                          }
 
-                      dispatchModalState({
-                        type: 'setModalOpen',
-                        payload: { showPrimaryNameModal: true },
-                      });
-                    }}
-                  >
-                    <Star
-                      className={
-                        (row.getValue('name') == primaryNameData?.name
-                          ? 'text-primary fill-primary'
-                          : 'text-grey') +
-                        ` 
+                          dispatchModalState({
+                            type: 'setModalOpen',
+                            payload: { showPrimaryNameModal: true },
+                          });
+                        }}
+                      >
+                        <Star
+                          className={
+                            (row.getValue('name') == primaryNameData?.name
+                              ? 'text-primary fill-primary'
+                              : 'text-grey') +
+                            ` 
                     w-[18px]
                     `
-                      }
-                    />
-                  </button>
+                          }
+                        />
+                      </button>
+                    }
+                  />
                   <ManageAssetButtons
                     id={lowerCaseDomain(row.getValue('name') as string)}
                     assetType="names"
@@ -543,6 +561,7 @@ const DomainsTable = ({
               }
               arnsDomain={row.getValue('name')}
               antId={row.getValue('processId')}
+              handlers={row.original.handlers}
             />
           )}
           tableClass="border-[1px] border-dark-grey"

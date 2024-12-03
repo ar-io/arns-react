@@ -386,7 +386,7 @@ function NavMenuCard() {
           }
         >
           {primaryNameData?.name ? (
-            <span className="flex text-link fill-success gap-2 items-center text-[14px]">
+            <span className="flex text-white fill-success gap-2 items-center text-[14px]">
               <svg width="8px" height="8px">
                 <circle cx="4" cy="4" r="4" fill="current" />
               </svg>

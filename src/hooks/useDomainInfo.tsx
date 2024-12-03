@@ -1,5 +1,6 @@
 import {
   ANT,
+  AoANTInfo,
   AoANTRead,
   AoANTRecord,
   AoANTWrite,
@@ -19,6 +20,7 @@ export default function useDomainInfo({
   antId?: string;
 }): {
   data: {
+    info: AoANTInfo;
     arnsRecord?: AoArNSNameData;
     associatedNames?: string[];
     processId: string;
@@ -58,6 +60,7 @@ export default function useDomainInfo({
     domain?: string;
     antId?: string;
   }): Promise<{
+    info: AoANTInfo;
     arnsRecord?: AoArNSNameData;
     associatedNames?: string[];
     processId: string;
@@ -126,7 +129,9 @@ export default function useDomainInfo({
     if (!apexRecord) {
       throw new Error('No apexRecord found');
     }
+    const info = await antProcess.getInfo();
     return {
+      info,
       arnsRecord: record,
       associatedNames,
       processId,
