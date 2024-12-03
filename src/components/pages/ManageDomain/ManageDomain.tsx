@@ -3,10 +3,8 @@ import DomainSettings from '@src/components/forms/DomainSettings/DomainSettings'
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import { useGlobalState, useModalState } from '@src/state';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
-import eventEmitter from '@src/utils/events';
-import { useQuery } from '@tanstack/react-query';
 import { Star } from 'lucide-react';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { decodeDomainToASCII } from '../../../utils';
@@ -29,65 +27,35 @@ function AntLogoIcon({
   icon?: ReactNode;
 }) {
   const [{ gateway }] = useGlobalState();
-
-  const { data: logoImage } = useQuery({
-    queryKey: ['ant-logo', id, gateway],
-    queryFn: async () => {
-      try {
-        if (!id) return;
-        const imageRes = await fetch(`https://${gateway}/${id}`);
-        const buffer = await imageRes.arrayBuffer();
-        const arr = new Uint8Array(buffer).subarray(0, 4);
-        const header = Array.from(arr)
-          .map((byte) => byte.toString(16))
-          .join('');
-
-        const imageHeaders = {
-          '89504e47': 'image/png', // PNG
-          '47494638': 'image/gif', // GIF
-          ffd8ffe0: 'image/jpeg', // JPEG
-          ffd8ffe1: 'image/jpeg', // JPEG
-          ffd8ffe2: 'image/jpeg', // JPEG
-          ffd8ffe3: 'image/jpeg', // JPEG
-          ffd8ffe8: 'image/jpeg', // JPEG
-        };
-
-        if (!Object.keys(imageHeaders).includes(header)) {
-          console.warn('Invalid image data header:', header);
-          return;
-        }
-
-        const blob = new Blob([buffer], {
-          type: imageHeaders[header as keyof typeof imageHeaders],
-        });
-        const fileUrl = URL.createObjectURL(blob);
-
-        return fileUrl;
-      } catch (error) {
-        eventEmitter.emit('error', error);
-      }
-    },
-  });
+  const [validImage, setValidImage] = useState(true);
+  const logoRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
+    if (!logoRef.current || !id) return;
+
+    const img = logoRef.current;
+
+    const handleError = () => setValidImage(false);
+
+    img.addEventListener('error', handleError);
+
     return () => {
-      if (logoImage) {
-        URL.revokeObjectURL(logoImage);
-      }
+      img.removeEventListener('error', handleError);
     };
-  }, [logoImage]);
+  }, [logoRef, id]);
+
+  if (!id) return <>{icon}</>;
 
   return (
     <>
-      {logoImage ? (
-        <img
-          className={className ?? 'w-[30px] rounded-full'}
-          src={logoImage}
-          alt="ant-logo"
-        />
-      ) : (
-        icon
-      )}
+      <img
+        ref={logoRef}
+        className={className ?? 'w-[30px] rounded-full'}
+        src={`https://${gateway}/${id}`}
+        alt="ant-logo"
+        style={{ display: validImage ? 'block' : 'none' }}
+      />
+      {!validImage && icon}
     </>
   );
 }
