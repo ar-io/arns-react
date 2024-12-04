@@ -132,7 +132,7 @@ export default async function dispatchANTInteraction({
           .catch((e: Error) => e);
 
         if (released instanceof Error) {
-          throw new Error('Failed to realease ArNS Name: ' + released.message);
+          throw new Error('Failed to release ArNS Name: ' + released.message);
         }
         break;
       }
