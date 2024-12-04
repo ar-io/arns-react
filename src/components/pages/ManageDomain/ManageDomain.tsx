@@ -4,12 +4,61 @@ import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import { useGlobalState, useModalState } from '@src/state';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
 import { Star } from 'lucide-react';
-import { useEffect } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { decodeDomainToASCII } from '../../../utils';
 import { HamburgerOutlineIcon } from '../../icons';
 import './styles.css';
+
+function AntLogoIcon({
+  id,
+  className,
+  icon = (
+    <HamburgerOutlineIcon
+      width={'20px'}
+      height={'20px'}
+      fill="var(--text-white)"
+    />
+  ),
+}: {
+  id?: string;
+  className?: string;
+  icon?: ReactNode;
+}) {
+  const [{ gateway }] = useGlobalState();
+  const [validImage, setValidImage] = useState(true);
+  const logoRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    if (!logoRef.current || !id) return;
+
+    const img = logoRef.current;
+
+    const handleError = () => setValidImage(false);
+
+    img.addEventListener('error', handleError);
+
+    return () => {
+      img.removeEventListener('error', handleError);
+    };
+  }, [logoRef, id]);
+
+  if (!id) return <>{icon}</>;
+
+  return (
+    <>
+      <img
+        ref={logoRef}
+        className={className ?? 'w-[30px] rounded-full'}
+        src={`https://${gateway}/${id}`}
+        alt="ant-logo"
+        style={{ display: validImage ? 'block' : 'none' }}
+      />
+      {!validImage && icon}
+    </>
+  );
+}
 
 function ManageDomain() {
   const { name } = useParams();
@@ -20,18 +69,17 @@ function ManageDomain() {
   const [, dispatchModalState] = useModalState();
   const { data: primaryNameData } = usePrimaryName();
 
-  useEffect(() => {
-    // Reset transaction state on unmount - clears transaction success banner
-    return () => {
-      dispatchTransactionState({ type: 'reset' });
-    };
-  }, []);
+  const [logoId, setLogoId] = useState<string | undefined>();
 
   useEffect(() => {
     if (!name) {
       navigate('/manage/names');
       return;
     }
+    // Reset transaction state on unmount - clears transaction success banner
+    return () => {
+      dispatchTransactionState({ type: 'reset' });
+    };
   }, [name]);
 
   return (
@@ -61,11 +109,7 @@ function ManageDomain() {
           }}
         >
           <h2 className="flex white center" style={{ gap: '16px' }}>
-            <HamburgerOutlineIcon
-              width={'20px'}
-              height={'20px'}
-              fill="var(--text-white)"
-            />
+            <AntLogoIcon id={logoId} />
             {decodeDomainToASCII(name!)}
             <Star
               className={
@@ -114,7 +158,10 @@ function ManageDomain() {
             {name == primaryNameData?.name ? 'Remove Primary' : 'Make Primary'}
           </button>
         </div>
-        <DomainSettings domain={name} />
+        <DomainSettings
+          domain={name}
+          setLogo={(id?: string) => setLogoId(id)}
+        />
       </div>
     </>
   );

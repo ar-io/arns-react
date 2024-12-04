@@ -32,6 +32,7 @@ import { useNavigate } from 'react-router-dom';
 import ControllersRow from './ControllersRow';
 import DomainSettingsRow from './DomainSettingsRow';
 import IOCompatibleRow from './IOCompatibleRow';
+import LogoRow from './LogoRow';
 import NicknameRow from './NicknameRow';
 import OwnerRow from './OwnerRow';
 import TTLRow from './TTLRow';
@@ -54,16 +55,19 @@ export enum DomainSettingsRowTypes {
   OWNER = 'Owner',
   TTL = 'TTL Seconds',
   UNDERNAMES = 'Undernames',
+  LOGO_TX_ID = 'Logo TX ID',
 }
 
 function DomainSettings({
   domain,
   antId,
   rowFilter = [],
+  setLogo,
 }: {
   domain?: string;
   antId?: string;
   rowFilter?: DomainSettingsRowTypes[];
+  setLogo?: (id?: string) => void;
 }) {
   const queryClient = useQueryClient();
 
@@ -97,6 +101,11 @@ function DomainSettings({
       navigate('/manage/names');
     }
   }, [domain, antId]);
+
+  // callback to set logo
+  useEffect(() => {
+    if (setLogo && data?.logo) setLogo(data.logo);
+  }, [data?.logo, setLogo]);
 
   useEffect(() => {
     if (interactionResult) {
@@ -401,6 +410,25 @@ function DomainSettings({
               undernameLimit={data?.undernameCount ?? 0}
               undernameSupport={
                 data?.arnsRecord?.undernameLimit ?? DEFAULT_MAX_UNDERNAMES
+              }
+            />
+          ),
+          [DomainSettingsRowTypes.LOGO_TX_ID]: (
+            <LogoRow
+              key={DomainSettingsRowTypes.LOGO_TX_ID}
+              logoTxId={data?.logo}
+              editable={isAuthorized}
+              confirm={(logo: string) =>
+                dispatchANTInteraction({
+                  payload: {
+                    logo,
+                  },
+                  workflowName: ANT_INTERACTION_TYPES.SET_LOGO,
+                  signer: wallet!.contractSigner!,
+                  owner: walletAddress!.toString(),
+                  processId: data?.processId,
+                  dispatch,
+                })
               }
             />
           ),
