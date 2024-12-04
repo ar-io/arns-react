@@ -136,6 +136,12 @@ export default async function dispatchANTInteraction({
         }
         break;
       }
+      case ANT_INTERACTION_TYPES.SET_LOGO:
+        dispatchSigningMessage('Setting Logo, please wait...');
+        result = await antProcess.setLogo({
+          txId: payload.logo,
+        });
+        break;
       case ANT_INTERACTION_TYPES.APPROVE_PRIMARY_NAME:
         dispatchSigningMessage(
           'Approving Primary Name request, please wait...',

@@ -178,6 +178,7 @@ export enum ANT_INTERACTION_TYPES {
   RELEASE_NAME = 'Release Name',
   APPROVE_PRIMARY_NAME = 'Approve Primary Name',
   REMOVE_PRIMARY_NAMES = 'Remove Primary Names',
+  SET_LOGO = 'Set Logo',
 }
 
 export enum ARNS_INTERACTION_TYPES {
