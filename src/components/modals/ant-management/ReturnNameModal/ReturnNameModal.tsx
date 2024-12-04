@@ -1,5 +1,4 @@
 import WarningCard from '@src/components/cards/WarningCard/WarningCard';
-import { Tooltip } from '@src/components/data-display';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
@@ -123,39 +122,32 @@ export function ReturnNameModal({
             </ul>
 
             <WarningCard
-              customIcon={<TriangleAlert />}
+              customIcon={<TriangleAlert size={'18px'} />}
               text={
                 <div className="flex flex-row size-full">
                   <span>
                     Be sure that you no longer need this name or its associated
                     features before proceeding.{' '}
-                    <span className="text-bold">
-                      This action is irreversible.
-                    </span>
+                    <span className="bold">This action is irreversible.</span>
                   </span>
                 </div>
               }
             />
-            <span
-              className="flex flex-row text-grey items-center text-base py-4"
-              style={{ gap: '10px' }}
-            >
-              <Checkbox
-                rootClassName="accept-checkbox"
-                onChange={(checked) => setAccepted(checked.target.checked)}
-                value={accepted}
-              />
-              I understand that this action cannot be undone{' '}
-              <Tooltip
-                message={
-                  <div className="flex flex-col">
-                    You are about to return your permanently registered name
-                    back to the protocol. This action is irreversible.
-                  </div>
-                }
-              />
-            </span>
-            <span>Do you wish to continue with the name return?</span>
+            <div className="flex flex-col gap-4">
+              {' '}
+              <span>Do you wish to continue with the name return?</span>
+              <span
+                className="flex flex-row text-grey items-center text-base py-4"
+                style={{ gap: '10px' }}
+              >
+                <Checkbox
+                  rootClassName="accept-checkbox"
+                  onChange={(checked) => setAccepted(checked.target.checked)}
+                  value={accepted}
+                />
+                I understand that this action cannot be undone{' '}
+              </span>
+            </div>
           </div>
         }
         cancelText="Cancel"
@@ -163,6 +155,7 @@ export function ReturnNameModal({
         onCancel={!signing ? () => setShow(false) : undefined}
         onClose={!signing ? () => setShow(false) : undefined}
         onNext={accepted ? () => handleReturn() : undefined}
+        footerClass={'py-10'}
       />
     </div>
   );
