@@ -11,7 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 
 - Added Ethereum address support.
-- Added Allow-Unsafe-Addresses flag to allow skipping of address validation for future compatibility with different signature algorithms on the below API's.
+- Added Allow-Unsafe-Addresses flag to allow skipping of address validation for future compatibility with different signature algorithms for the following API methods:
   - Transfer
   - Add-Controller
   - Balance
