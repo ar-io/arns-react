@@ -5,6 +5,7 @@ function DialogModal({
   title = '',
   body,
   footer,
+  footerClass,
   showClose = true,
   cancelText,
   nextText,
@@ -15,6 +16,7 @@ function DialogModal({
   title?: string | JSX.Element;
   body?: string | JSX.Element;
   footer?: JSX.Element;
+  footerClass?: string;
   showClose?: boolean; // shows x and divider for title
   cancelText?: string;
   nextText?: string;
@@ -84,14 +86,12 @@ function DialogModal({
 
         {/* footer */}
         <div
-          className="flex flex-row"
+          className={
+            (footerClass ?? '') +
+            ` flex flex-row items-center border-t border-dark-grey py-6`
+          }
           style={{
             justifyContent: footer ? 'space-between' : 'flex-end',
-            alignItems: 'center',
-            borderTop: '1px solid var(--text-faded)',
-            boxSizing: 'border-box',
-            bottom: 0,
-            padding: '20px 0px',
           }}
         >
           {footer ? (

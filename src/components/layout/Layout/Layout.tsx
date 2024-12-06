@@ -54,7 +54,7 @@ function Layout() {
           strokeLinecap="square"
           trailColor={'transparent'}
           format={() => <></>}
-          strokeWidth={5}
+          size={5}
         />
       ) : (
         <div className="p-[11.5px]" />
