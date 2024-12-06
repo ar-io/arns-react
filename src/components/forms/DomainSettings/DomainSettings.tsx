@@ -1,9 +1,10 @@
-import { isLeasedArNSRecord } from '@ar.io/sdk/web';
+import { AoANTHandler, isLeasedArNSRecord } from '@ar.io/sdk/web';
 import { Tooltip } from '@src/components/data-display';
 import LeaseDuration from '@src/components/data-display/LeaseDuration';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
+import { ReturnNameModal } from '@src/components/modals/ant-management/ReturnNameModal/ReturnNameModal';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useArNSState, useGlobalState } from '@src/state';
@@ -26,7 +27,7 @@ import {
 } from '@src/utils/constants';
 import { useQueryClient } from '@tanstack/react-query';
 import { List, Skeleton } from 'antd';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import ControllersRow from './ControllersRow';
@@ -70,13 +71,14 @@ function DomainSettings({
   setLogo?: (id?: string) => void;
 }) {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const [{ ioProcessId }] = useGlobalState();
   const [{ interactionResult }, dispatch] = useTransactionState();
-  const navigate = useNavigate();
+  const [{ wallet, walletAddress }] = useWalletState();
   const { data, isLoading, refetch } = useDomainInfo({ domain, antId });
   const [{ ants }] = useArNSState();
-  const [{ wallet, walletAddress }] = useWalletState();
+  const [showReturnNameModal, setShowReturnNameModal] = useState(false);
 
   // permissions check
   const isOwner = walletAddress
@@ -86,6 +88,9 @@ function DomainSettings({
     ? data?.controllers?.includes(walletAddress.toString() ?? '')
     : false;
   const isAuthorized = isOwner || isController;
+  const antHandlers =
+    data?.info?.Handlers ?? data?.info?.HandlerNames ?? ([] as AoANTHandler[]);
+  console.log(antHandlers);
 
   const maxLeaseDuration = isMaxLeaseDuration(
     data?.arnsRecord && isLeasedArNSRecord(data?.arnsRecord)
@@ -174,32 +179,55 @@ function DomainSettings({
             <DomainSettingsRow
               label="Lease Duration"
               key={DomainSettingsRowTypes.LEASE_DURATION}
-              editable={true}
+              editable={isAuthorized}
               action={
-                <Tooltip
-                  message={
-                    maxLeaseDuration
-                      ? 'Max lease duration reached'
-                      : 'Extend lease'
-                  }
-                  icon={
-                    <button
-                      disabled={isLoading || maxLeaseDuration}
-                      className={`p-[6px] px-[10px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all whitespace-nowrap ${
-                        isLoading || maxLeaseDuration
-                          ? 'disabled-button'
-                          : 'hover'
-                      }`}
-                      onClick={() =>
-                        navigate(
-                          `/manage/names/${lowerCaseDomain(domain!)}/extend`,
-                        )
+                <div className="flex flex-row gap-1" style={{ gap: '10px' }}>
+                  {data?.arnsRecord?.type == 'permabuy' ? (
+                    <Tooltip
+                      message={
+                        !antHandlers.includes('releaseName')
+                          ? 'Update ANT to access Release Name workflow'
+                          : 'Returns the name to the ArNS protocol'
                       }
-                    >
-                      Extend Lease
-                    </button>
-                  }
-                />
+                      icon={
+                        <button
+                          disabled={!antHandlers.includes('releaseName')}
+                          onClick={() => setShowReturnNameModal(true)}
+                          className={`flex flex-row text-[12px] rounded-[4px] p-[6px] px-[10px] border border-error bg-error-thin text-error whitespace-nowrap`}
+                        >
+                          Return Name
+                        </button>
+                      }
+                    />
+                  ) : (
+                    <Tooltip
+                      message={
+                        maxLeaseDuration
+                          ? 'Max lease duration reached'
+                          : 'Extend lease'
+                      }
+                      icon={
+                        <button
+                          disabled={isLoading || maxLeaseDuration}
+                          className={`p-[6px] px-[10px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all whitespace-nowrap ${
+                            isLoading || maxLeaseDuration
+                              ? 'disabled-button'
+                              : 'hover'
+                          }`}
+                          onClick={() =>
+                            navigate(
+                              `/manage/names/${lowerCaseDomain(
+                                domain!,
+                              )}/extend`,
+                            )
+                          }
+                        >
+                          Extend Lease
+                        </button>
+                      }
+                    />
+                  )}
+                </div>
               }
               value={
                 isLoading ? (
@@ -436,6 +464,15 @@ function DomainSettings({
           rowFilter.includes(rowName as DomainSettingsRowTypes) ? <></> : row,
         )}
       </List>
+
+      {domain && data?.processId && (
+        <ReturnNameModal
+          show={showReturnNameModal}
+          setShow={setShowReturnNameModal}
+          name={domain}
+          processId={data.processId}
+        />
+      )}
     </>
   );
 }

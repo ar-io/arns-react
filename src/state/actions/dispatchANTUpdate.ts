@@ -26,7 +26,7 @@ export async function dispatchANTUpdate({
     const antStateQuery = buildAntStateQuery({ processId });
     const state = await queryClient.fetchQuery(antStateQuery);
     const handlers = await queryClient.fetchQuery({
-      queryKey: [processId, 'getHandlers'],
+      queryKey: ['handlers', processId],
       queryFn: async () => {
         return await ANT.init({ processId }).getHandlers().catch(console.error);
       },

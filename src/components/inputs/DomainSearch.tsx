@@ -1,4 +1,4 @@
-import { AoArNSNameData } from '@ar.io/sdk';
+import { AoArNSNameData } from '@ar.io/sdk/web';
 import { useArNSRegistryDomains } from '@src/hooks/useArNSRegistryDomains';
 import { decodeDomainToASCII, lowerCaseDomain } from '@src/utils';
 import { MAX_ARNS_NAME_LENGTH } from '@src/utils/constants';
