@@ -8,8 +8,8 @@ import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { SetRecordPayload, VALIDATION_INPUT_TYPES } from '../../../../types';
 import {
   formatForMaxCharCount,
-  isARNSDomainNameValid,
   isArweaveTransactionID,
+  isUndernameValid,
   validateTTLSeconds,
 } from '../../../../utils';
 import {
@@ -172,7 +172,7 @@ function EditUndernameModal({
         onClose={closeModal}
         onNext={
           isArweaveTransactionID(targetId) &&
-          isARNSDomainNameValid({ name: undername }) &&
+          isUndernameValid(undername) &&
           ttlSeconds >= MIN_TTL_SECONDS &&
           ttlSeconds <= MAX_TTL_SECONDS
             ? () => handlePayloadCallback()
