@@ -108,18 +108,20 @@
     plimit-lit "^3.0.1"
     warp-contracts "1.4.45"
 
-"@ar.io/sdk@^2.6.0-alpha.2":
-  version "2.6.0-alpha.2"
-  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-2.6.0-alpha.2.tgz#64892e2a299ed5454e61db48beb0d3941bd6570b"
-  integrity sha512-2mggP1Mi3g/kbJoldtYTXNN/4ea2Mfo2JZZOt5+HSWkS0Jvf7sWMftNPP6GTwNiPzkyHNqUk2uTZZADo4fUUTg==
+"@ar.io/sdk@^2.7.0-alpha.4":
+  version "2.7.0-alpha.4"
+  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-2.7.0-alpha.4.tgz#7e322082c0c693b90ea9b935fd529722199999cd"
+  integrity sha512-4EHJYtY9dBYJWwBzOnRAPZTHtdu+OT4COrEmsjeTQsuYiHvy3cgUfbEI1C255BSJGapI9dcvFB0VMsrQjMnBCQ==
   dependencies:
     "@dha-team/arbundles" "^1.0.1"
     "@permaweb/aoconnect" "^0.0.57"
     arweave "1.14.4"
     axios "1.7.8"
     axios-retry "^4.3.0"
+    commander "^12.1.0"
     eventemitter3 "^5.0.1"
     plimit-lit "^3.0.1"
+    prompts "^2.4.2"
     winston "^3.13.0"
     zod "^3.23.8"
 
@@ -5810,6 +5812,11 @@ commander@11.0.0:
   resolved "https://registry.yarnpkg.com/commander/-/commander-11.0.0.tgz#43e19c25dbedc8256203538e8d7e9346877a6f67"
   integrity sha512-9HMlXtt/BNoYr8ooyjjNRdIilOTkVJXB+GhxMTtOKwk0R4j4lS4NpjuqmRxroBfnfTSHQIHQB7wryHhXarNjmQ==
 
+commander@^12.1.0:
+  version "12.1.0"
+  resolved "https://registry.yarnpkg.com/commander/-/commander-12.1.0.tgz#01423b36f501259fdaac4d0e4d60c96c991585d3"
+  integrity sha512-Vw8qHK3bZM9y/P10u3Vib8o/DdkvA2OtPtZvD871QKjy74Wj1WSKFILMPRPSdUSx5RFK1arlJzEtA4PkFgnbuA==
+
 commander@^2.20.3:
   version "2.20.3"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.20.3.tgz#fd485e84c03eb4881c20722ba48035e8531aeb33"
@@ -10668,7 +10675,7 @@ progress@^2.0.3:
   resolved "https://registry.yarnpkg.com/progress/-/progress-2.0.3.tgz#7e8cf8d8f5b8f239c1bc68beb4eb78567d572ef8"
   integrity sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==
 
-prompts@^2.0.1:
+prompts@^2.0.1, prompts@^2.4.2:
   version "2.4.2"
   resolved "https://registry.yarnpkg.com/prompts/-/prompts-2.4.2.tgz#7b57e73b3a48029ad10ebd44f74b01722a4cb069"
   integrity sha512-NxNv/kLguCA7p3jE8oL2aEBsrJWgAakBpgmgK6lpPWV+WuOmY6r2/zbAVnP+T8bQlA0nzHXSJSJW0Hq7ylaD2Q==
