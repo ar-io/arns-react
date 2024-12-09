@@ -1,4 +1,4 @@
-import { IOWriteable } from '@ar.io/sdk/web';
+import { ARIOWriteable, AoARIOWrite } from '@ar.io/sdk/web';
 import { ANTCard } from '@src/components/cards';
 import WarningCard from '@src/components/cards/WarningCard/WarningCard';
 import { InfoIcon } from '@src/components/icons';
@@ -34,7 +34,7 @@ import { getTransactionHeader } from './transaction-headers';
 // on completion routes to transaction/complete
 function TransactionReview() {
   const navigate = useNavigate();
-  const [{ ioTicker, arioContract, ioProcessId, aoNetwork, aoClient }] =
+  const [{ ioTicker, arioContract, arioProcessId, aoNetwork, aoClient }] =
     useGlobalState();
   const [{ arnsEmitter }, dispatchArNSState] = useArNSState();
   const [{ walletAddress, wallet }] = useWalletState();
@@ -101,7 +101,7 @@ function TransactionReview() {
 
   async function handleNext() {
     try {
-      if (!(arioContract instanceof IOWriteable)) {
+      if (!(arioContract instanceof ARIOWriteable)) {
         throw new Error('Wallet must be connected to dispatch transactions.');
       }
       if (!transactionData || !workflowName) {
@@ -113,11 +113,11 @@ function TransactionReview() {
       }
       // TODO: check that it's connected
       await dispatchArIOInteraction({
-        arioContract: arioContract,
+        arioContract: arioContract as AoARIOWrite,
         workflowName: workflowName as ARNS_INTERACTION_TYPES,
         payload: transactionData,
         owner: walletAddress,
-        processId: ioProcessId,
+        processId: arioProcessId,
         dispatch: dispatchTransactionState,
         signer: wallet?.contractSigner,
         ao: aoClient,
@@ -130,7 +130,7 @@ function TransactionReview() {
         dispatchArNSUpdate({
           emitter: arnsEmitter,
           dispatch: dispatchArNSState,
-          ioProcessId,
+          arioProcessId,
           walletAddress,
         });
       }

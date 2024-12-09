@@ -4,10 +4,13 @@ import eventEmitter from '@src/utils/events';
 import { useQuery } from '@tanstack/react-query';
 
 export function useArNSDomainPriceList(domain: string) {
-  const [{ arioContract, ioProcessId }] = useGlobalState();
+  const [{ arioContract, arioProcessId }] = useGlobalState();
 
   return useQuery({
-    queryKey: [`arnsDomainPriceList-${domain.length}`, ioProcessId.toString()],
+    queryKey: [
+      `arnsDomainPriceList-${domain.length}`,
+      arioProcessId.toString(),
+    ],
     queryFn: async () => {
       const prices: {
         lease: number; // lease of 1 year

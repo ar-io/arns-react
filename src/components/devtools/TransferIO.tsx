@@ -1,4 +1,4 @@
-import { AoIOWrite, IOToken, mIOToken } from '@ar.io/sdk/web';
+import { ARIOToken, AoARIOWrite, mARIOToken } from '@ar.io/sdk/web';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { VALIDATION_INPUT_TYPES } from '@src/types';
@@ -14,7 +14,7 @@ import './styles.css';
 const Panel = Collapse.Panel;
 
 function TransferIO() {
-  const [{ arioContract, ioProcessId }] = useGlobalState();
+  const [{ arioContract, arioProcessId }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [ioBalance, setIoBalance] = useState<number>(0);
   const [toAddress, setToAddress] = useState<string>('');
@@ -37,14 +37,14 @@ function TransferIO() {
           setLoading(false);
         });
     }
-  }, [ioProcessId, walletAddress, arioContract]);
+  }, [arioProcessId, walletAddress, arioContract]);
 
   async function confirmTransfer() {
     try {
       setTransfering(true);
       if (isValidAoAddress(toAddress.trim())) {
         // TODO: check that is a write contract
-        const contract = arioContract as AoIOWrite;
+        const contract = arioContract as AoARIOWrite;
         const tx = await contract.transfer(
           {
             target: toAddress.trim(),
@@ -53,9 +53,9 @@ function TransferIO() {
           WRITE_OPTIONS,
         );
         eventEmitter.emit('success', {
-          name: 'IO Transfer',
-          message: `Transfer of ${new mIOToken(quantity)
-            .toIO()
+          name: 'ARIO Transfer',
+          message: `Transfer of ${new mARIOToken(quantity)
+            .toARIO()
             .valueOf()} successful: ${tx.id}`,
         });
       }
@@ -71,7 +71,7 @@ function TransferIO() {
     <div className="flex" style={{ width: '100%' }}>
       <Space direction="vertical" style={{ width: '100%' }}>
         <Collapse style={{ width: '100%' }} prefixCls="ario-collapse">
-          <Panel header={<span>Transfer IO</span>} key="1">
+          <Panel header={<span>Transfer ARIO</span>} key="1">
             <>
               <span className="grey text-medium">
                 Recipient wallet address:
@@ -116,7 +116,7 @@ function TransferIO() {
                 <></>
               )}
               <span className="grey text-medium">
-                Amount: {formatIO(new mIOToken(quantity).toIO().valueOf())}
+                Amount: {formatIO(new mARIOToken(quantity).toARIO().valueOf())}
               </span>
               <ValidationInput
                 catchInvalidInput={true}
@@ -128,11 +128,11 @@ function TransferIO() {
                   border: '1px solid var(--text-faded)',
                   padding: '15px',
                 }}
-                placeholder={'Quantity in IO to send'}
-                value={new mIOToken(quantity).toIO().valueOf()}
+                placeholder={'Quantity in ARIO to send'}
+                value={new mARIOToken(quantity).toARIO().valueOf()}
                 setValue={(e) =>
                   setQuantity(
-                    new IOToken(parseInt(e?.toString())).toMIO().valueOf(),
+                    new ARIOToken(parseInt(e?.toString())).toMARIO().valueOf(),
                   )
                 }
                 validationPredicates={{}}
@@ -140,7 +140,7 @@ function TransferIO() {
               <span style={{ color: 'var(--accent)' }}>
                 {loading
                   ? 'Loading balance...'
-                  : `Balance: ${formatIO(Math.round(mioToIo(ioBalance)))} IO`}
+                  : `Balance: ${formatIO(Math.round(mioToIo(ioBalance)))} ARIO`}
               </span>
               <button
                 className="button-secondary center"

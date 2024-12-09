@@ -11,12 +11,12 @@ export function dispatchArNSUpdate({
   emitter,
   dispatch,
   walletAddress,
-  ioProcessId,
+  arioProcessId,
 }: {
   emitter: ArNSEventEmitter;
   dispatch: Dispatch<ArNSAction>;
   walletAddress: AoAddress;
-  ioProcessId: string;
+  arioProcessId: string;
 }) {
   dispatch({ type: 'setDomains', payload: {} });
   dispatch({ type: 'setAnts', payload: {} });
@@ -80,7 +80,7 @@ export function dispatchArNSUpdate({
       captureException(new Error(e), {
         tags: {
           walletAddress: walletAddress.toString(),
-          ioProcessId: ioProcessId,
+          arioProcessId: arioProcessId,
         },
       });
     } else if (!e.includes('does not support provided action.')) {

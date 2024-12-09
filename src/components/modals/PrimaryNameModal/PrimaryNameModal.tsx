@@ -1,4 +1,4 @@
-import { mIOToken } from '@ar.io/sdk';
+import { mARIOToken } from '@ar.io/sdk';
 import { Loader } from '@src/components/layout';
 import ArweaveID, {
   ArweaveIdTypes,
@@ -61,7 +61,7 @@ function isRemovePrimaryNamesPayload(
     typeof payload?.names == 'object' &&
     Array.isArray(payload.names) &&
     payload.names.every((s: unknown) => typeof s === 'string') &&
-    typeof payload?.ioProcessId == 'string'
+    typeof payload?.arioProcessId == 'string'
   );
 }
 
@@ -73,7 +73,7 @@ function PrimaryNameModal({
   setVisible: (visible: boolean) => void;
 }) {
   const queryClient = useQueryClient();
-  const [{ ioTicker, ioProcessId, arioContract }] = useGlobalState();
+  const [{ ioTicker, arioProcessId, arioContract }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const { data: primaryNameData, isLoading: isLoadingPrimaryNameData } =
     usePrimaryName();
@@ -170,7 +170,7 @@ function PrimaryNameModal({
             },
             owner: walletAddress,
             arioContract: arioContract as any,
-            processId: ioProcessId,
+            processId: arioProcessId,
             dispatch: dispatchTransactionState,
           });
 
@@ -183,7 +183,7 @@ function PrimaryNameModal({
             processId: domainData.processId,
             workflowName: ANT_INTERACTION_TYPES.REMOVE_PRIMARY_NAMES,
             payload: {
-              ioProcessId: transactionPayload.ioProcessId,
+              arioProcessId: transactionPayload.arioProcessId,
               names: [encodePrimaryName(targetName)],
             },
             dispatch: dispatchTransactionState,
@@ -292,7 +292,7 @@ function PrimaryNameModal({
                     [ioTicker]: isRemovePrimaryNamesPayload(transactionData)
                       ? 0
                       : ioFee
-                      ? new mIOToken(ioFee).toIO().valueOf()
+                      ? new mARIOToken(ioFee).toARIO().valueOf()
                       : undefined,
                   }}
                   showBorder={false}

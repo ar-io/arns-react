@@ -42,13 +42,13 @@ export default function useDomainInfo({
   error: Error | null;
   refetch: (options?: RefetchOptions) => void;
 } {
-  const [{ arioContract: arioProvider, ioProcessId, aoNetwork }] =
+  const [{ arioContract: arioProvider, arioProcessId, aoNetwork }] =
     useGlobalState();
   const [{ wallet }] = useWalletState();
 
   // TODO: this should be modified or removed
   const { data, isLoading, isRefetching, error, refetch } = useQuery({
-    queryKey: ['domainInfo', { domain, antId, ioProcessId, aoNetwork }],
+    queryKey: ['domainInfo', { domain, antId, arioProcessId, aoNetwork }],
     queryFn: () => getDomainInfo({ domain, antId }).catch((error) => error),
     refetchOnWindowFocus: false,
   });
@@ -109,7 +109,7 @@ export default function useDomainInfo({
     const arnsRecords = await queryClient.fetchQuery(
       buildArNSRecordsQuery({
         arioContract: arioProvider,
-        meta: [ioProcessId, aoNetwork.CU_URL],
+        meta: [arioProcessId, aoNetwork.CU_URL],
       }),
     );
     const associatedNames = Object.entries(arnsRecords)

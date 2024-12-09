@@ -1,8 +1,8 @@
 import {
   AOProcess,
-  IO,
-  IO_DEVNET_PROCESS_ID,
-  IO_TESTNET_PROCESS_ID,
+  ARIO,
+  ARIO_DEVNET_PROCESS_ID,
+  ARIO_TESTNET_PROCESS_ID,
 } from '@ar.io/sdk/web';
 import ArweaveID, {
   ArweaveIdTypes,
@@ -21,17 +21,17 @@ import { useEffect, useState } from 'react';
 import './styles.css';
 
 function ArNSSettings() {
-  const [{ ioProcessId, aoClient, gateway }, dispatchGlobalState] =
+  const [{ arioProcessId, aoClient, gateway }, dispatchGlobalState] =
     useGlobalState();
   const [{ wallet }] = useWalletState();
   const [registryAddress, setRegistryAddress] = useState<string>(
-    ioProcessId?.toString(),
+    arioProcessId?.toString(),
   );
   const [isValidAddress, setIsValidAddress] = useState<boolean>(true);
 
   useEffect(() => {
-    setRegistryAddress(ioProcessId?.toString());
-  }, [ioProcessId]);
+    setRegistryAddress(arioProcessId?.toString());
+  }, [arioProcessId]);
 
   function confirmSetting(id: string) {
     if (isArweaveTransactionID(id)) {
@@ -40,7 +40,7 @@ function ArNSSettings() {
         payload: id.trim(),
       });
 
-      const arIOContract = IO.init({
+      const arIOContract = ARIO.init({
         process: new AOProcess({
           processId: id.trim(),
           ao: aoClient,
@@ -90,9 +90,9 @@ function ArNSSettings() {
           >
             <span className={labelClass}>
               Current ArNS Registry:{' '}
-              {ioProcessId ? (
+              {arioProcessId ? (
                 <ArweaveID
-                  id={new ArweaveTransactionID(ioProcessId)}
+                  id={new ArweaveTransactionID(arioProcessId)}
                   characterCount={10}
                   shouldLink
                   type={ArweaveIdTypes.CONTRACT}
@@ -104,23 +104,23 @@ function ArNSSettings() {
             <div className="flex flex-row max-w-fit" style={{ gap: '10px' }}>
               <button
                 className={
-                  (ioProcessId == IO_TESTNET_PROCESS_ID
+                  (arioProcessId == ARIO_TESTNET_PROCESS_ID
                     ? 'bg-primary text-black'
                     : ' bg-dark-grey  text-light-grey') +
                   ` flex px-3 py-2 rounded  hover:bg-primary-thin hover:text-primary transition-all`
                 }
-                onClick={() => confirmSetting(IO_TESTNET_PROCESS_ID)}
+                onClick={() => confirmSetting(ARIO_TESTNET_PROCESS_ID)}
               >
                 Testnet
               </button>
               <button
                 className={
-                  (ioProcessId == IO_DEVNET_PROCESS_ID
+                  (arioProcessId == ARIO_DEVNET_PROCESS_ID
                     ? 'bg-primary text-black'
                     : ' bg-dark-grey  text-light-grey') +
                   ` flex px-3 py-2 rounded hover:bg-primary-thin hover:text-primary transition-all`
                 }
-                onClick={() => confirmSetting(IO_DEVNET_PROCESS_ID)}
+                onClick={() => confirmSetting(ARIO_DEVNET_PROCESS_ID)}
               >
                 Devnet
               </button>

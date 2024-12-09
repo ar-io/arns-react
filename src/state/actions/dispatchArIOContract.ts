@@ -1,15 +1,15 @@
-import { AoIORead, AoIOWrite } from '@ar.io/sdk/web';
+import { AoARIORead, AoARIOWrite } from '@ar.io/sdk/web';
 import { Dispatch } from 'react';
 
 import { GlobalAction } from '../reducers';
 
 export function dispatchArIOContract({
   contract,
-  ioProcessId,
+  arioProcessId,
   dispatch,
 }: {
-  contract: AoIORead | AoIOWrite;
-  ioProcessId: string;
+  contract: AoARIORead | AoARIOWrite;
+  arioProcessId: string;
   dispatch: Dispatch<GlobalAction>;
 }) {
   dispatch({
@@ -18,6 +18,6 @@ export function dispatchArIOContract({
   });
   dispatch({
     type: 'setIoProcessId',
-    payload: ioProcessId,
+    payload: arioProcessId,
   });
 }

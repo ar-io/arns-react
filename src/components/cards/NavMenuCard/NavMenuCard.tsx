@@ -28,7 +28,7 @@ function NavMenuCard() {
       arweaveDataProvider,
       arioContract,
       ioTicker,
-      ioProcessId,
+      arioProcessId,
       aoNetwork,
       gateway,
     },
@@ -75,7 +75,7 @@ function NavMenuCard() {
       buildIOBalanceQuery({
         address: walletAddress.toString(),
         arioContract,
-        meta: [ioProcessId, aoNetwork.CU_URL],
+        meta: [arioProcessId, aoNetwork.CU_URL],
       }),
     );
     const arBalance = await queryClient.fetchQuery(

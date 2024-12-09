@@ -1,4 +1,4 @@
-import { ANT, AoMessageResult, ContractSigner, IO } from '@ar.io/sdk/web';
+import { ANT, ARIO, AoMessageResult, ContractSigner } from '@ar.io/sdk/web';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
 import { lowerCaseDomain } from '@src/utils';
@@ -80,14 +80,14 @@ export default async function dispatchANTInteraction({
         break;
       case ANT_INTERACTION_TYPES.TRANSFER:
         dispatchSigningMessage('Transferring Ownership, please wait...');
-        if (payload.arnsDomain && payload.ioProcessId) {
+        if (payload.arnsDomain && payload.arioProcessId) {
           dispatchSigningMessage(
             'Clearing Primary Names associated with ANT...',
           );
           await antProcess
             .removePrimaryNames({
               names: [payload.arnsDomain],
-              ioProcessId: payload.ioProcessId,
+              arioProcessId: payload.arioProcessId,
             })
             .catch((e) => eventEmitter.emit('error', e));
           queryClient.resetQueries({ queryKey: ['primary-name'] });
@@ -120,11 +120,11 @@ export default async function dispatchANTInteraction({
 
       case ANT_INTERACTION_TYPES.RELEASE_NAME: {
         dispatchSigningMessage('Releasing ArNS Name, please wait...');
-        const arioContract = IO.init({ processId: payload.ioProcessId });
+        const arioContract = ARIO.init({ processId: payload.arioProcessId });
 
         result = await antProcess.releaseName({
           name: payload.name,
-          ioProcessId: payload.ioProcessId,
+          arioProcessId: payload.arioProcessId,
         });
         dispatchSigningMessage('Verifying Release, please wait...');
         const released = await arioContract
@@ -149,7 +149,7 @@ export default async function dispatchANTInteraction({
         result = await antProcess.approvePrimaryNameRequest({
           name: payload.name,
           address: owner.toString(),
-          ioProcessId: payload.ioProcessId,
+          arioProcessId: payload.arioProcessId,
         });
         break;
       case ANT_INTERACTION_TYPES.REMOVE_PRIMARY_NAMES:
@@ -157,7 +157,7 @@ export default async function dispatchANTInteraction({
 
         result = await antProcess.removePrimaryNames({
           names: payload.names,
-          ioProcessId: payload.ioProcessId,
+          arioProcessId: payload.arioProcessId,
         });
         break;
 

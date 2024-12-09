@@ -1,4 +1,4 @@
-import { AoArNSNameData, isLeasedArNSRecord, mIOToken } from '@ar.io/sdk/web';
+import { AoArNSNameData, isLeasedArNSRecord, mARIOToken } from '@ar.io/sdk/web';
 import WarningCard from '@src/components/cards/WarningCard/WarningCard';
 import { getTransactionDescription } from '@src/components/pages/Transaction/transaction-descriptions';
 import Lottie from 'lottie-react';
@@ -36,7 +36,7 @@ import PageLoader from '../progress/PageLoader/PageLoader';
 
 function ExtendLease() {
   // TODO: remove use of source contract
-  const [{ ioTicker, arioContract, ioProcessId }] = useGlobalState();
+  const [{ ioTicker, arioContract, arioProcessId }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const location = useLocation();
@@ -71,7 +71,7 @@ function ExtendLease() {
           name: name,
           years: newLeaseDuration,
         })
-        .then((p) => new mIOToken(p).toIO().valueOf());
+        .then((p) => new mARIOToken(p).toARIO().valueOf());
       setIoFee(price);
     };
     updateIoFee();
@@ -291,7 +291,7 @@ function ExtendLease() {
                   dispatchTransactionState({
                     type: 'setTransactionData',
                     payload: {
-                      assetId: ioProcessId,
+                      assetId: arioProcessId,
                       functionName: 'extendRecord',
                       ...payload,
                       arnsRecord: record,

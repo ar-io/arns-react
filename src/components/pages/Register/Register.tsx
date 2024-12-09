@@ -1,5 +1,5 @@
 import { CheckCircleFilled } from '@ant-design/icons';
-import { ANT, mIOToken } from '@ar.io/sdk/web';
+import { ANT, mARIOToken } from '@ar.io/sdk/web';
 import { Accordion } from '@src/components/data-display';
 import Tooltip from '@src/components/data-display/Tooltip';
 import { InsufficientFundsError, ValidationError } from '@src/utils/errors';
@@ -45,7 +45,7 @@ function RegisterNameForm() {
     { domain, fee, leaseDuration, registrationType, antID, targetId },
     dispatchRegisterState,
   ] = useRegistrationState();
-  const [{ arweaveDataProvider, ioTicker, arioContract, ioProcessId }] =
+  const [{ arweaveDataProvider, ioTicker, arioContract, arioProcessId }] =
     useGlobalState();
   const [{ walletAddress, balances }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
@@ -89,7 +89,7 @@ function RegisterNameForm() {
           type: registrationType,
           years: leaseDuration,
         })
-        .then((c) => new mIOToken(c).toIO().valueOf())
+        .then((c) => new mARIOToken(c).toARIO().valueOf())
         .catch(() => undefined);
       setValidatingNext(false);
 
@@ -160,7 +160,7 @@ function RegisterNameForm() {
         .getBalance({
           address: walletAddress.toString(),
         })
-        .then((balance) => new mIOToken(balance).toIO());
+        .then((balance) => new mARIOToken(balance).toARIO());
 
       const balanceErrors = userHasSufficientBalance<{
         [x: string]: number;
@@ -213,7 +213,7 @@ function RegisterNameForm() {
     dispatchTransactionState({
       type: 'setTransactionData',
       payload: {
-        assetId: ioProcessId,
+        assetId: arioProcessId,
         functionName: 'buyRecord',
         ...buyRecordPayload,
         interactionPrice: fee?.[ioTicker],
