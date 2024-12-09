@@ -1,5 +1,5 @@
 import { InfoCircleOutlined } from '@ant-design/icons';
-import { AoArNSNameData } from '@ar.io/sdk';
+import { AoArNSNameData } from '@ar.io/sdk/web';
 import { useANT } from '@src/hooks/useANT/useANT';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { decodeDomainToASCII, isArweaveTransactionID } from '@src/utils';

@@ -1,4 +1,4 @@
-import { ContractSigner, createAoSigner, evolveANT } from '@ar.io/sdk';
+import { ContractSigner, createAoSigner, evolveANT } from '@ar.io/sdk/web';
 import AntChangelog from '@src/components/cards/AntChangelog';
 import { Tooltip } from '@src/components/data-display';
 import { CloseIcon } from '@src/components/icons';

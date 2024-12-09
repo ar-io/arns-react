@@ -1,4 +1,4 @@
-import { AoANTInfo, AoANTRecord } from '@ar.io/sdk';
+import { AoANTInfo, AoANTRecord } from '@ar.io/sdk/web';
 import { ExternalLinkIcon, PencilIcon, TrashIcon } from '@src/components/icons';
 import ArweaveID, {
   ArweaveIdTypes,

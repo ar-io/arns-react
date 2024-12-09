@@ -1,5 +1,5 @@
 import { CheckCircleFilled } from '@ant-design/icons';
-import { AoArNSNameData } from '@ar.io/sdk';
+import { AoArNSNameData } from '@ar.io/sdk/web';
 import DomainDetailsTip from '@src/components/data-display/DomainDetailsTip';
 import { CircleCheckFilled, SearchIcon } from '@src/components/icons';
 import useDebounce from '@src/hooks/useDebounce';

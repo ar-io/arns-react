@@ -1,4 +1,4 @@
-import { AOProcess, IO } from '@ar.io/sdk';
+import { AOProcess, IO } from '@ar.io/sdk/web';
 import {
   ArConnectWalletConnector,
   EthWalletConnector,
