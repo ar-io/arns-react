@@ -36,7 +36,7 @@ function TransactionReview() {
   const navigate = useNavigate();
   const [{ ioTicker, arioContract, ioProcessId, aoNetwork, aoClient }] =
     useGlobalState();
-  const [{ arnsEmitter }, dispatchArNSState] = useArNSState();
+  const [, dispatchArNSState] = useArNSState();
   const [{ walletAddress, wallet }] = useWalletState();
   const [
     { workflowName, interactionType, transactionData, interactionResult },
@@ -128,7 +128,6 @@ function TransactionReview() {
     } finally {
       if (walletAddress) {
         dispatchArNSUpdate({
-          emitter: arnsEmitter,
           dispatch: dispatchArNSState,
           ioProcessId,
           walletAddress,

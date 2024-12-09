@@ -55,7 +55,7 @@ type TableData = {
     supported: number;
   };
   expiryDate: string;
-  handlers: AoANTHandler[];
+  handlers: AoANTHandler[] | null;
   status: string | number;
   action: ReactNode;
 } & Record<string, any>;
@@ -102,7 +102,10 @@ const DomainsTable = ({
 }: {
   domainData: {
     names: Record<string, AoArNSNameData>;
-    ants: Record<string, { state: AoANTState; handlers: AoANTHandler[] }>;
+    ants: Record<
+      string,
+      { state: AoANTState | null; handlers: AoANTHandler[] | null }
+    >;
   };
   loading: boolean;
   filter?: string;
@@ -129,11 +132,6 @@ const DomainsTable = ({
   }, [searchParams]);
 
   useEffect(() => {
-    // if (loading) {
-    //   setTableData([]);
-    //   setFilteredTableData([]);
-    //   return;
-    // }
     if (domainData) {
       const newTableData: TableData[] = [];
 
@@ -186,7 +184,7 @@ const DomainsTable = ({
 
       setTableData(newTableData);
     }
-  }, [domainData, loading, primaryNameData]);
+  }, [domainData.names, loading, primaryNameData]);
 
   useEffect(() => {
     if (filter) {

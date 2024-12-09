@@ -35,7 +35,7 @@ export function ReturnNameModal({
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [{ ioProcessId }] = useGlobalState();
-  const [{ arnsEmitter }, dispatchArNSState] = useArNSState();
+  const [, dispatchArNSState] = useArNSState();
   const [{ signing }, dispatchTransactionState] = useTransactionState();
   const [{ wallet, walletAddress }] = useWalletState();
 
@@ -86,7 +86,6 @@ export function ReturnNameModal({
         walletAddress: walletAddress,
         ioProcessId,
         dispatch: dispatchArNSState,
-        emitter: arnsEmitter,
       });
       setShow(false);
       navigate('/manage');
