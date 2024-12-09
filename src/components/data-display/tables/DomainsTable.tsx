@@ -129,11 +129,11 @@ const DomainsTable = ({
   }, [searchParams]);
 
   useEffect(() => {
-    if (loading) {
-      setTableData([]);
-      setFilteredTableData([]);
-      return;
-    }
+    // if (loading) {
+    //   setTableData([]);
+    //   setFilteredTableData([]);
+    //   return;
+    // }
     if (domainData) {
       const newTableData: TableData[] = [];
 

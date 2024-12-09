@@ -1,4 +1,10 @@
-import { ANT, AoANTState, ArNSEventEmitter } from '@ar.io/sdk/web';
+import {
+  ANT,
+  ANTRegistry,
+  AoANTState,
+  ArNSEventEmitter,
+  IO,
+} from '@ar.io/sdk/web';
 import { captureException } from '@sentry/react';
 import { AoAddress } from '@src/types';
 import eventEmitter from '@src/utils/events';
@@ -26,6 +32,10 @@ export function dispatchArNSUpdate({
     type: 'setLoading',
     payload: true,
   });
+  const arioContract = IO.init({
+    processId: ioProcessId,
+  });
+  const antRegistry = new ANTRegistry();
   emitter.on('process', async (id, process) => {
     const handlers = await queryClient.fetchQuery({
       queryKey: ['handlers', id],
