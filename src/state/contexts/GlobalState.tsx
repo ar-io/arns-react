@@ -48,7 +48,7 @@ export type GlobalState = {
 
 const initialState: GlobalState = {
   ioProcessId: IO_PROCESS_ID,
-  ioTicker: '',
+  ioTicker: 'tIO',
   gateway: ARWEAVE_HOST,
   aoNetwork: NETWORK_DEFAULTS.AO,
   aoClient: connect(NETWORK_DEFAULTS.AO),
@@ -89,7 +89,7 @@ export function GlobalStateProvider({
   const [updatingTicker, setUpdatingTicker] = useState(false);
 
   useEffect(() => {
-    if (state.ioTicker === initialState.ioTicker && !updatingTicker) {
+    if (!updatingTicker) {
       updateTicker();
     }
   }, []);
@@ -97,7 +97,7 @@ export function GlobalStateProvider({
   async function updateTicker() {
     try {
       setUpdatingTicker(true);
-      const ticker = 'tIO'; // TODO, use contract to get ticker
+      const ticker = (await state.arioContract.getInfo()).Ticker;
       dispatchGlobalState({ type: 'setIoTicker', payload: ticker });
     } catch (error) {
       console.error(error);
