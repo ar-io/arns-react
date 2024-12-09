@@ -1,12 +1,12 @@
 import { AOProcess, AoClient, AoIORead, AoIOWrite, IO } from '@ar.io/sdk/web';
 import { connect } from '@permaweb/aoconnect';
+import eventEmitter from '@src/utils/events';
 import React, {
   Dispatch,
   createContext,
   useContext,
   useEffect,
   useReducer,
-  useState,
 } from 'react';
 
 import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
@@ -48,7 +48,7 @@ export type GlobalState = {
 
 const initialState: GlobalState = {
   ioProcessId: IO_PROCESS_ID,
-  ioTicker: 'tIO',
+  ioTicker: 'ARIO',
   gateway: ARWEAVE_HOST,
   aoNetwork: NETWORK_DEFAULTS.AO,
   aoClient: connect(NETWORK_DEFAULTS.AO),
@@ -86,25 +86,24 @@ export function GlobalStateProvider({
       ? { ...initialState, arweaveDataProvider }
       : initialState,
   );
-  const [updatingTicker, setUpdatingTicker] = useState(false);
 
   useEffect(() => {
-    if (!updatingTicker) {
-      updateTicker();
+    async function updateTicker() {
+      try {
+        const ticker = (await state.arioContract.getInfo()).Ticker;
+        dispatchGlobalState({ type: 'setIoTicker', payload: ticker });
+      } catch (error: any) {
+        eventEmitter.emit(
+          'error',
+          new Error(
+            'Unable to fetch ticker from network process: ' + error.message,
+          ),
+        );
+      }
     }
-  }, []);
 
-  async function updateTicker() {
-    try {
-      setUpdatingTicker(true);
-      const ticker = (await state.arioContract.getInfo()).Ticker;
-      dispatchGlobalState({ type: 'setIoTicker', payload: ticker });
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setUpdatingTicker(false);
-    }
-  }
+    updateTicker();
+  }, [state.arioContract]);
 
   return (
     <GlobalStateContext.Provider value={[state, dispatchGlobalState]}>
