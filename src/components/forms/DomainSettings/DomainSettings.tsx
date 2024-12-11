@@ -31,8 +31,10 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import ControllersRow from './ControllersRow';
+import DescriptionRow from './DescriptionRow';
 import DomainSettingsRow from './DomainSettingsRow';
 import IOCompatibleRow from './IOCompatibleRow';
+import KeywordsRow from './KeywordRow';
 import LogoRow from './LogoRow';
 import NicknameRow from './NicknameRow';
 import OwnerRow from './OwnerRow';
@@ -57,6 +59,8 @@ export enum DomainSettingsRowTypes {
   TTL = 'TTL Seconds',
   UNDERNAMES = 'Undernames',
   LOGO_TX_ID = 'Logo TX ID',
+  DESCRIPTION = 'Description',
+  KEYWORDS = 'Keywords',
 }
 
 function DomainSettings({
@@ -452,6 +456,44 @@ function DomainSettings({
                     logo,
                   },
                   workflowName: ANT_INTERACTION_TYPES.SET_LOGO,
+                  signer: wallet!.contractSigner!,
+                  owner: walletAddress!.toString(),
+                  processId: data?.processId,
+                  dispatch,
+                })
+              }
+            />
+          ),
+          [DomainSettingsRowTypes.DESCRIPTION]: (
+            <DescriptionRow
+              key={DomainSettingsRowTypes.DESCRIPTION}
+              description={data?.info.Description}
+              editable={isAuthorized}
+              confirm={(description: string) =>
+                dispatchANTInteraction({
+                  payload: {
+                    description,
+                  },
+                  workflowName: ANT_INTERACTION_TYPES.SET_DESCRIPTION,
+                  signer: wallet!.contractSigner!,
+                  owner: walletAddress!.toString(),
+                  processId: data?.processId,
+                  dispatch,
+                })
+              }
+            />
+          ),
+          [DomainSettingsRowTypes.KEYWORDS]: (
+            <KeywordsRow
+              key={DomainSettingsRowTypes.KEYWORDS}
+              keywords={data?.info.Keywords}
+              editable={isAuthorized}
+              confirm={(keywords: string[]) =>
+                dispatchANTInteraction({
+                  payload: {
+                    keywords,
+                  },
+                  workflowName: ANT_INTERACTION_TYPES.SET_KEYWORDS,
                   signer: wallet!.contractSigner!,
                   owner: walletAddress!.toString(),
                   processId: data?.processId,
