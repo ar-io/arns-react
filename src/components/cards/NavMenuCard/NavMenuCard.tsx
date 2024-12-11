@@ -27,7 +27,7 @@ function NavMenuCard() {
     {
       arweaveDataProvider,
       arioContract,
-      ioTicker,
+      arioTicker,
       arioProcessId,
       aoNetwork,
       gateway,
@@ -43,7 +43,7 @@ function NavMenuCard() {
     [x: string]: number | undefined | string;
   }>({
     AR: undefined,
-    [ioTicker]: undefined,
+    [arioTicker]: undefined,
   });
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -65,7 +65,7 @@ function NavMenuCard() {
 
   function resetWalletDetails() {
     setWalletDetails({
-      [ioTicker]: undefined,
+      [arioTicker]: undefined,
       AR: undefined,
     });
   }
@@ -95,7 +95,7 @@ function NavMenuCard() {
     );
     setWalletDetails({
       AR: formattedBalance,
-      [ioTicker]: formattedIOBalance,
+      [arioTicker]: formattedIOBalance,
     });
   }
 

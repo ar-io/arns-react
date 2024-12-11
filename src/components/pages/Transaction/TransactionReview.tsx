@@ -34,7 +34,7 @@ import { getTransactionHeader } from './transaction-headers';
 // on completion routes to transaction/complete
 function TransactionReview() {
   const navigate = useNavigate();
-  const [{ ioTicker, arioContract, arioProcessId, aoNetwork, aoClient }] =
+  const [{ arioTicker, arioContract, arioProcessId, aoNetwork, aoClient }] =
     useGlobalState();
   const [{ arnsEmitter }, dispatchArNSState] = useArNSState();
   const [{ walletAddress, wallet }] = useWalletState();
@@ -55,7 +55,7 @@ function TransactionReview() {
   const [transactionDescription, setTransactionDescription] = useState(
     getTransactionDescription({
       workflowName: workflowName as ARNS_INTERACTION_TYPES,
-      ioTicker,
+      arioTicker,
     }),
   );
 
@@ -76,7 +76,7 @@ function TransactionReview() {
     setTransactionDescription(
       getTransactionDescription({
         workflowName: workflowName as ARNS_INTERACTION_TYPES,
-        ioTicker,
+        arioTicker,
       }),
     );
     setSteps(getWorkflowStepsForInteraction(interactionType));
@@ -194,7 +194,7 @@ function TransactionReview() {
             height: '100%',
           }}
           fee={{
-            [ioTicker]: transactionData?.interactionPrice,
+            [arioTicker]: transactionData?.interactionPrice,
           }}
           info={
             transactionDescription && (

@@ -26,7 +26,7 @@ function UpgradeUndernames() {
   const isMobile = useIsMobile();
   const location = useLocation();
   const navigate = useNavigate();
-  const [{ arweaveDataProvider, ioTicker, arioProcessId }] = useGlobalState();
+  const [{ arweaveDataProvider, arioTicker, arioProcessId }] = useGlobalState();
   const name = location.pathname.split('/').at(-2);
   const [, dispatchTransactionState] = useTransactionState();
   const [record, setRecord] = useState<AoArNSNameData>();
@@ -148,7 +148,7 @@ function UpgradeUndernames() {
           }}
           ioRequired={true}
           fee={{
-            [ioTicker]:
+            [arioTicker]:
               newUndernameCount === 0
                 ? 0
                 : fee
@@ -168,7 +168,7 @@ function UpgradeUndernames() {
                 text={
                   getTransactionDescription({
                     workflowName: ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES,
-                    ioTicker,
+                    arioTicker,
                   }) || ''
                 }
               />
