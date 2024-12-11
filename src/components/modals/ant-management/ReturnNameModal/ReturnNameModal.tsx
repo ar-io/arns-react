@@ -34,7 +34,7 @@ export function ReturnNameModal({
 }) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const [{ arioProcessId }] = useGlobalState();
+  const [{ arioProcessId, aoClient }] = useGlobalState();
   const [{ arnsEmitter }, dispatchArNSState] = useArNSState();
   const [{ signing }, dispatchTransactionState] = useTransactionState();
   const [{ wallet, walletAddress }] = useWalletState();
@@ -83,6 +83,7 @@ export function ReturnNameModal({
       });
 
       dispatchArNSUpdate({
+        ao: aoClient,
         walletAddress: walletAddress,
         arioProcessId,
         dispatch: dispatchArNSState,
