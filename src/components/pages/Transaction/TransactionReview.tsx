@@ -128,6 +128,7 @@ function TransactionReview() {
     } finally {
       if (walletAddress) {
         dispatchArNSUpdate({
+          ao: aoClient,
           emitter: arnsEmitter,
           dispatch: dispatchArNSState,
           arioProcessId,
