@@ -1,5 +1,5 @@
+import { PlusCircleFilled } from '@ant-design/icons';
 import { Pill } from '@src/components/data-display/Pill';
-import { GoldPlusIcon } from '@src/components/icons';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
 import eventEmitter from '@src/utils/events';
@@ -50,7 +50,11 @@ function AddKeywordInput({ addCb }: { addCb: (word: string) => void }) {
           className="flex flex-row rounded-full bg-background border border-dark-grey shadow-3xl py-1 items-center justify-center px-[10px] max-w-fit h-fit text-grey hover:text-white hover:border-grey transition-all"
           style={{ gap: '10px' }}
         >
-          <GoldPlusIcon className="scale-150" />{' '}
+          <PlusCircleFilled
+            width={'18px'}
+            height={'18px'}
+            className="text-success"
+          />{' '}
           <span className="flex flex-row max-w-fit h-fit font-semibold items-center">
             add
           </span>
@@ -146,13 +150,8 @@ export default function KeywordsRow({
                 >
                   {keywords?.map((word: string, index: number) => {
                     return (
-                      <Pill
-                        className=""
-                        key={index}
-                        closeIcon={<></>}
-                        closeButtonClass="pl-0"
-                      >
-                        <span className="text-[14px] p-0">{word}</span>
+                      <Pill className="" key={index}>
+                        <span className="text-[14px] p-0 w-full">{word}</span>
                       </Pill>
                     );
                   })}
@@ -174,7 +173,7 @@ export default function KeywordsRow({
                           );
                         }}
                       >
-                        <span className="text-[14px] p-0">{word}</span>
+                        <span className="text-[14px] p-0 w-full">{word}</span>
                       </Pill>
                     );
                   })}

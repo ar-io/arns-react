@@ -29,12 +29,16 @@ export function Pill({
       style={{ gap: '0px' }}
     >
       {children}
-      <button
-        onClick={onClose}
-        className={(closeButtonClass ?? '') + ` flex flex-row w-fit h-fit pl-2`}
-      >
-        {closeIcon}
-      </button>
+      {onClose && (
+        <button
+          onClick={onClose}
+          className={
+            (closeButtonClass ?? '') + ` flex flex-row w-fit h-fit pl-2`
+          }
+        >
+          {closeIcon}
+        </button>
+      )}
     </div>
   );
 }
