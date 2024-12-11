@@ -1,5 +1,5 @@
+import { PlusCircleFilled } from '@ant-design/icons';
 import { Pill } from '@src/components/data-display/Pill';
-import { GoldPlusIcon } from '@src/components/icons';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
 import eventEmitter from '@src/utils/events';
@@ -47,19 +47,26 @@ function AddKeywordInput({ addCb }: { addCb: (word: string) => void }) {
       {!edit ? (
         <button
           onClick={() => setEdit(true)}
-          className="flex flex-row rounded-full bg-background border border-dark-grey shadow-3xl py-1 items-center justify-center px-[10px] max-w-fit h-fit text-grey hover:text-white hover:border-grey transition-all"
-          style={{ gap: '10px' }}
+          className="flex flex-row rounded-full bg-background border border-dark-grey shadow-3xl py-1 items-center justify-center px-[0.625rem] max-w-fit h-fit text-grey hover:text-white hover:border-grey transition-all"
+          style={{ gap: '0.625rem' }}
         >
-          <GoldPlusIcon className="scale-150" />{' '}
+          <PlusCircleFilled
+            width={'1.125rem'}
+            height={'1.125rem'}
+            className="text-success"
+          />{' '}
           <span className="flex flex-row max-w-fit h-fit font-semibold items-center">
             add
           </span>
         </button>
       ) : (
-        <div className="flex flex-row max-w-[330px]" style={{ gap: '10px' }}>
+        <div
+          className="flex flex-row max-w-[20.625rem]"
+          style={{ gap: '0.625rem' }}
+        >
           <input
             ref={inputRef}
-            className={`flex flex-row rounded-full bg-background border border-dark-grey shadow-3xl py-[2px] items-center justify-center px-[10px] w-fit w-fit text-white transition-all`}
+            className={`flex flex-row rounded-full bg-background border border-dark-grey shadow-3xl py-[0.125rem] items-center justify-center px-[0.625rem] w-fit text-white transition-all`}
             onChange={(e) => handleChange(e.target.value)}
             value={keyword}
             onKeyDown={(e) => {
@@ -70,7 +77,7 @@ function AddKeywordInput({ addCb }: { addCb: (word: string) => void }) {
           />
           <div
             className="flex flex-row text-grey max-w-fit"
-            style={{ gap: '10px' }}
+            style={{ gap: '0.625rem' }}
           >
             <button
               onClick={() => {
@@ -79,8 +86,8 @@ function AddKeywordInput({ addCb }: { addCb: (word: string) => void }) {
             >
               <Check
                 className="hover:text-white"
-                width={'16px'}
-                height={'16px'}
+                width={'1rem'}
+                height={'1rem'}
               />
             </button>
             <button
@@ -89,7 +96,7 @@ function AddKeywordInput({ addCb }: { addCb: (word: string) => void }) {
                 setEdit(false);
               }}
             >
-              <X className="hover:text-white" width={'16px'} height={'16px'} />
+              <X className="hover:text-white" width={'1rem'} height={'1rem'} />
             </button>
           </div>
         </div>
@@ -142,17 +149,14 @@ export default function KeywordsRow({
               <div className="flex flex-row">
                 <div
                   className="flex flex-row top-0 bottom-0 left-0 flex-wrap"
-                  style={{ gap: '10px' }}
+                  style={{ gap: '0.625rem' }}
                 >
                   {keywords?.map((word: string, index: number) => {
                     return (
-                      <Pill
-                        className=""
-                        key={index}
-                        closeIcon={<></>}
-                        closeButtonClass="pl-0"
-                      >
-                        <span className="text-[14px] p-0">{word}</span>
+                      <Pill className="" key={index}>
+                        <span className="text-[0.875rem] p-0 w-full">
+                          {word}
+                        </span>
                       </Pill>
                     );
                   })}
@@ -162,7 +166,7 @@ export default function KeywordsRow({
               <div className="flex flex-row relative">
                 <div
                   className="flex flex-row top-0 bottom-0 left-0 flex-wrap"
-                  style={{ gap: '10px' }}
+                  style={{ gap: '0.625rem' }}
                 >
                   {newKeywords.map((word: string, index: number) => {
                     return (
@@ -174,7 +178,9 @@ export default function KeywordsRow({
                           );
                         }}
                       >
-                        <span className="text-[14px] p-0">{word}</span>
+                        <span className="text-[0.875rem] p-0 w-full">
+                          {word}
+                        </span>
                       </Pill>
                     );
                   })}
