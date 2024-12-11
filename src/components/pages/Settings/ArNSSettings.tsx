@@ -12,7 +12,7 @@ import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID
 import { SimpleArweaveDataProvider } from '@src/services/arweave/SimpleArweaveDataProvider';
 import { useGlobalState, useWalletState } from '@src/state';
 import { isArweaveTransactionID } from '@src/utils';
-import { IO_PROCESS_ID } from '@src/utils/constants';
+import { ARIO_PROCESS_ID } from '@src/utils/constants';
 import { Input } from 'antd';
 import Arweave from 'arweave';
 import { RotateCcw } from 'lucide-react';
@@ -155,9 +155,9 @@ function ArNSSettings() {
                 <button
                   className={resetIconClass}
                   onClick={() => {
-                    setRegistryAddress(IO_PROCESS_ID);
+                    setRegistryAddress(ARIO_PROCESS_ID);
                     setIsValidAddress(true);
-                    confirmSetting(IO_PROCESS_ID);
+                    confirmSetting(ARIO_PROCESS_ID);
                   }}
                 >
                   <RotateCcw width={'16px'} />

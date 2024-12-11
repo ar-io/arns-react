@@ -86,7 +86,7 @@ export const URL_REGEX = new RegExp(
     '(\\#[-a-z\\d_]*)?$',
   'i',
 );
-export const IO_PROCESS_ID =
+export const ARIO_PROCESS_ID =
   process.env.VITE_ARIO_PROCESS_ID || arioDevnetProcessId;
 
 export const DEFAULT_ANT_LUA_ID = ANT_LUA_ID;
