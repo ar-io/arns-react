@@ -15,7 +15,7 @@ import { RefreshIcon, SearchIcon } from '../../icons';
 import './styles.css';
 
 function Manage() {
-  const [{ ioProcessId }] = useGlobalState();
+  const [{ arioProcessId }] = useGlobalState();
   const [
     { loading: loadingArnsState, domains, ants, arnsEmitter },
     dispatchArNSState,
@@ -97,7 +97,7 @@ function Manage() {
                           emitter: arnsEmitter,
                           dispatch: dispatchArNSState,
                           walletAddress: walletAddress,
-                          ioProcessId,
+                          arioProcessId,
                         })
                       : eventEmitter.emit('error', {
                           name: 'Manage Assets',

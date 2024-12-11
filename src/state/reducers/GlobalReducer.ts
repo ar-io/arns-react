@@ -1,4 +1,4 @@
-import { AoClient, AoIORead, AoIOWrite } from '@ar.io/sdk/web';
+import { AoARIORead, AoARIOWrite, AoClient } from '@ar.io/sdk/web';
 
 import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
 import { GlobalState } from '../contexts/GlobalState';
@@ -33,7 +33,7 @@ export type GlobalAction =
     }
   | {
       type: 'setArIOContract';
-      payload: AoIORead | AoIOWrite;
+      payload: AoARIORead | AoARIOWrite;
     }
   | {
       type: 'setIoTicker';
@@ -73,7 +73,7 @@ export const reducer = (
     case 'setIoTicker':
       return {
         ...state,
-        ioTicker: action.payload,
+        arioTicker: action.payload,
       };
     case 'setArIOContract':
       return {
@@ -83,7 +83,7 @@ export const reducer = (
     case 'setIoProcessId':
       return {
         ...state,
-        ioProcessId: action.payload,
+        arioProcessId: action.payload,
       };
     default:
       return state;

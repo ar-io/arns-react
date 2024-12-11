@@ -8,10 +8,10 @@ export function getTransactionDescription({
 } & Record<string, any>) {
   switch (workflowName) {
     case ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES:
-      return `Increasing your undernames is paid in ${params.ioTicker} tokens.`;
+      return `Increasing your undernames is paid in ${params.arioTicker} tokens.`;
     case ARNS_INTERACTION_TYPES.EXTEND_LEASE:
     case ARNS_INTERACTION_TYPES.BUY_RECORD:
-      return `This includes a registration fee (paid in ${params.ioTicker} tokens).`;
+      return `This includes a registration fee (paid in ${params.arioTicker} tokens).`;
     default:
       return undefined;
   }
