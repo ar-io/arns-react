@@ -1,10 +1,10 @@
 import {
   ANT,
   AoANTState,
+  AoARIORead,
   AoArNSNameData,
-  AoIORead,
   fetchAllArNSRecords,
-  mIOToken,
+  mARIOToken,
 } from '@ar.io/sdk/web';
 import { ArweaveCompositeDataProvider } from '@src/services/arweave/ArweaveCompositeDataProvider';
 import { AoAddress } from '@src/types';
@@ -80,7 +80,7 @@ export function buildIOBalanceQuery({
   address,
   meta,
 }: {
-  arioContract: AoIORead;
+  arioContract: AoARIORead;
   address: string;
   meta?: string[];
 }): {
@@ -96,7 +96,7 @@ export function buildIOBalanceQuery({
           address,
         })
         .then((balance) => {
-          return new mIOToken(balance).toIO().valueOf();
+          return new mARIOToken(balance).toARIO().valueOf();
         })
         .catch(() => 0);
     },
@@ -129,7 +129,7 @@ export function buildArNSRecordsQuery({
   arioContract,
   meta,
 }: {
-  arioContract: AoIORead;
+  arioContract: AoARIORead;
   meta?: string[];
 }): {
   queryKey: ['arns-records'] | string[];

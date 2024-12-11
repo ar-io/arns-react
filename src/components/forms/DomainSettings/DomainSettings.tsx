@@ -73,7 +73,7 @@ function DomainSettings({
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  const [{ ioProcessId }] = useGlobalState();
+  const [{ arioProcessId }] = useGlobalState();
   const [{ interactionResult }, dispatch] = useTransactionState();
   const [{ wallet, walletAddress }] = useWalletState();
   const { data, isLoading, refetch } = useDomainInfo({ domain, antId });
@@ -398,7 +398,7 @@ function DomainSettings({
                       data?.info?.HandlerNames ??
                       []
                     ).includes('removePrimaryNames')
-                      ? { arnsDomain: domain, ioProcessId }
+                      ? { arnsDomain: domain, arioProcessId }
                       : {}),
                   },
                   workflowName: ANT_INTERACTION_TYPES.TRANSFER,

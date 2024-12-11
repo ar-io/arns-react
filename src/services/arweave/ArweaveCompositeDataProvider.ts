@@ -1,8 +1,8 @@
 import {
+  AoARIORead,
   AoArNSNameData,
-  AoIORead,
   fetchAllArNSRecords,
-  mIOToken,
+  mARIOToken,
 } from '@ar.io/sdk/web';
 import { lowerCaseDomain } from '@src/utils';
 
@@ -12,7 +12,7 @@ import { ArweaveTransactionID } from './ArweaveTransactionID';
 export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
   // NOTE: this class should not have any logic for performing queries itself, but rather logic for getting results from
   // an array of providers, using different strategies such as Promise.race or Promise.all.
-  private contract: AoIORead;
+  private contract: AoARIORead;
   private arweave: ArweaveDataProvider;
 
   // TODO: implement strategy methods
@@ -21,7 +21,7 @@ export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
     arweave,
   }: {
     arweave: ArweaveDataProvider;
-    contract: AoIORead;
+    contract: AoARIORead;
   }) {
     this.contract = contract;
     this.arweave = arweave;
@@ -40,7 +40,7 @@ export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
       .getBalance({
         address: wallet.toString(),
       })
-      .then((balance: number) => new mIOToken(balance).toIO().valueOf());
+      .then((balance: number) => new mARIOToken(balance).toARIO().valueOf());
   }
 
   async getTransactionStatus(
@@ -147,6 +147,6 @@ export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
       .getBalance({
         address: address.toString(),
       })
-      .then((balance) => new mIOToken(balance).toIO().valueOf());
+      .then((balance) => new mARIOToken(balance).toARIO().valueOf());
   }
 }

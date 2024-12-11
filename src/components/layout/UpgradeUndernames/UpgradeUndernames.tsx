@@ -1,4 +1,4 @@
-import { ANT, AoArNSNameData, mIOToken } from '@ar.io/sdk/web';
+import { ANT, AoArNSNameData, mARIOToken } from '@ar.io/sdk/web';
 import WarningCard from '@src/components/cards/WarningCard/WarningCard';
 import { getTransactionDescription } from '@src/components/pages/Transaction/transaction-descriptions';
 import { useIncreaseUndernameCost } from '@src/hooks/useIncreaseUndernameCost';
@@ -26,7 +26,7 @@ function UpgradeUndernames() {
   const isMobile = useIsMobile();
   const location = useLocation();
   const navigate = useNavigate();
-  const [{ arweaveDataProvider, ioTicker, ioProcessId }] = useGlobalState();
+  const [{ arweaveDataProvider, arioTicker, arioProcessId }] = useGlobalState();
   const name = location.pathname.split('/').at(-2);
   const [, dispatchTransactionState] = useTransactionState();
   const [record, setRecord] = useState<AoArNSNameData>();
@@ -148,11 +148,11 @@ function UpgradeUndernames() {
           }}
           ioRequired={true}
           fee={{
-            [ioTicker]:
+            [arioTicker]:
               newUndernameCount === 0
                 ? 0
                 : fee
-                ? new mIOToken(fee).toIO().valueOf()
+                ? new mARIOToken(fee).toARIO().valueOf()
                 : undefined,
             ar: 0,
           }}
@@ -168,7 +168,7 @@ function UpgradeUndernames() {
                 text={
                   getTransactionDescription({
                     workflowName: ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES,
-                    ioTicker,
+                    arioTicker,
                   }) || ''
                 }
               />
@@ -192,10 +192,10 @@ function UpgradeUndernames() {
                   dispatchTransactionState({
                     type: 'setTransactionData',
                     payload: {
-                      assetId: ioProcessId,
+                      assetId: arioProcessId,
                       functionName: 'increaseundernameLimit',
                       ...increaseUndernamePayload,
-                      interactionPrice: new mIOToken(fee).toIO().valueOf(),
+                      interactionPrice: new mARIOToken(fee).toARIO().valueOf(),
                     },
                   });
                   dispatchTransactionState({

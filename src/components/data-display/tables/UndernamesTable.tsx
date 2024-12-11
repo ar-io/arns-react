@@ -95,7 +95,7 @@ const UndernamesTable = ({
   refresh?: () => void;
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [{ gateway, ioProcessId }] = useGlobalState();
+  const [{ gateway, arioProcessId }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const [, dispatchModalState] = useModalState();
@@ -216,7 +216,7 @@ const UndernamesTable = ({
                             type: 'setTransactionData',
                             payload: {
                               names: [targetName],
-                              ioProcessId,
+                              arioProcessId,
                               assetId: antId,
                               functionName: 'removePrimaryNames',
                             },
@@ -226,8 +226,8 @@ const UndernamesTable = ({
                             type: 'setTransactionData',
                             payload: {
                               name: targetName,
-                              ioProcessId,
-                              assetId: ioProcessId,
+                              arioProcessId,
+                              assetId: arioProcessId,
                               functionName: 'primaryNameRequest',
                             },
                           });

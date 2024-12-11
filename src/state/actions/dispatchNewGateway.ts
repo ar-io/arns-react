@@ -1,4 +1,4 @@
-import { AoIORead, AoIOWrite } from '@ar.io/sdk/web';
+import { AoARIORead, AoARIOWrite } from '@ar.io/sdk/web';
 import Arweave from 'arweave';
 import { Dispatch } from 'react';
 
@@ -9,7 +9,7 @@ import { GlobalAction } from '../reducers';
 
 export async function dispatchNewGateway(
   gateway: string,
-  contract: AoIORead | AoIOWrite,
+  contract: AoARIORead | AoARIOWrite,
   dispatch: Dispatch<GlobalAction>,
 ): Promise<void> {
   try {

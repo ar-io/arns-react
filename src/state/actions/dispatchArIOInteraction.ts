@@ -3,8 +3,8 @@ import {
   ANTRegistry,
   ANT_REGISTRY_ID,
   AOProcess,
+  AoARIOWrite,
   AoClient,
-  AoIOWrite,
   AoMessageResult,
   ContractSigner,
   DEFAULT_SCHEDULER_ID,
@@ -36,7 +36,7 @@ export default async function dispatchArIOInteraction({
   payload: Record<string, any>;
   workflowName: ARNS_INTERACTION_TYPES;
   owner: AoAddress;
-  arioContract?: AoIOWrite;
+  arioContract?: AoARIOWrite;
   processId: string;
   dispatch: Dispatch<TransactionAction>;
   signer?: ContractSigner;
@@ -170,7 +170,7 @@ export default async function dispatchArIOInteraction({
         result = await antProcess.approvePrimaryNameRequest({
           name: payload.name,
           address: owner.toString(),
-          ioProcessId: payload.ioProcessId,
+          arioProcessId: payload.arioProcessId,
         });
 
         break;

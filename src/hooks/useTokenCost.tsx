@@ -1,4 +1,4 @@
-import { AoIORead } from '@ar.io/sdk';
+import { AoARIORead } from '@ar.io/sdk';
 import { useGlobalState } from '@src/state';
 import { useQuery } from '@tanstack/react-query';
 
@@ -8,10 +8,10 @@ export function useTokenCost({
   intent,
   type,
   years,
-}: Parameters<AoIORead['getTokenCost']>[0]) {
-  const [{ ioProcessId, arioContract }] = useGlobalState();
+}: Parameters<AoARIORead['getTokenCost']>[0]) {
+  const [{ arioProcessId, arioContract }] = useGlobalState();
   return useQuery({
-    queryKey: [intent, quantity, ioProcessId.toString()],
+    queryKey: [intent, quantity, arioProcessId.toString()],
     queryFn: async () => {
       return await arioContract.getTokenCost({
         intent,

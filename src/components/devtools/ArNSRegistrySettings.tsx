@@ -1,8 +1,8 @@
 import {
   AOProcess,
-  IO,
-  IO_DEVNET_PROCESS_ID,
-  IO_TESTNET_PROCESS_ID,
+  ARIO,
+  ARIO_DEVNET_PROCESS_ID,
+  ARIO_TESTNET_PROCESS_ID,
 } from '@ar.io/sdk/web';
 import { ArweaveCompositeDataProvider } from '@src/services/arweave/ArweaveCompositeDataProvider';
 import { SimpleArweaveDataProvider } from '@src/services/arweave/SimpleArweaveDataProvider';
@@ -21,18 +21,18 @@ const Panel = Collapse.Panel;
 
 function ArNSRegistrySettings() {
   const [
-    { arweaveDataProvider, ioProcessId, aoClient, gateway },
+    { arweaveDataProvider, arioProcessId, aoClient, gateway },
     dispatchGlobalState,
   ] = useGlobalState();
   const [{ wallet }] = useWalletState();
   const [registryAddress, setRegistryAddress] = useState<string>(
-    ioProcessId?.toString(),
+    arioProcessId?.toString(),
   );
   const [isValidAddress, setIsValidAddress] = useState<boolean>();
 
   useEffect(() => {
-    setRegistryAddress(ioProcessId?.toString());
-  }, [ioProcessId]);
+    setRegistryAddress(arioProcessId?.toString());
+  }, [arioProcessId]);
 
   function confirmSetting(id: string) {
     if (isArweaveTransactionID(id)) {
@@ -41,7 +41,7 @@ function ArNSRegistrySettings() {
         payload: id.trim(),
       });
 
-      const arIOContract = IO.init({
+      const arIOContract = ARIO.init({
         process: new AOProcess({
           processId: id.trim(),
           ao: aoClient,
@@ -72,7 +72,7 @@ function ArNSRegistrySettings() {
   }
 
   function reset() {
-    confirmSetting(ioProcessId);
+    confirmSetting(arioProcessId);
   }
 
   return (
@@ -92,24 +92,24 @@ function ArNSRegistrySettings() {
                 <button
                   className={
                     'center ' +
-                    (ioProcessId?.toString() === IO_DEVNET_PROCESS_ID
+                    (arioProcessId?.toString() === ARIO_DEVNET_PROCESS_ID
                       ? 'button-primary'
                       : 'button-secondary')
                   }
                   style={{ padding: '4px' }}
-                  onClick={() => confirmSetting(IO_DEVNET_PROCESS_ID)}
+                  onClick={() => confirmSetting(ARIO_DEVNET_PROCESS_ID)}
                 >
                   devnet
                 </button>
                 <button
                   className={
                     'center ' +
-                    (ioProcessId?.toString() === IO_TESTNET_PROCESS_ID
+                    (arioProcessId?.toString() === ARIO_TESTNET_PROCESS_ID
                       ? 'button-primary'
                       : 'button-secondary')
                   }
                   style={{ padding: '4px' }}
-                  onClick={() => confirmSetting(IO_TESTNET_PROCESS_ID)}
+                  onClick={() => confirmSetting(ARIO_TESTNET_PROCESS_ID)}
                 >
                   testnet
                 </button>
@@ -127,7 +127,7 @@ function ArNSRegistrySettings() {
                 </button>
               </div>
               <span className="grey text-medium">
-                ArNS Registry: {ioProcessId?.toString()}
+                ArNS Registry: {arioProcessId?.toString()}
               </span>
               <ValidationInput
                 placeholder="Enter recipient wallet address"

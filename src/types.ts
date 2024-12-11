@@ -185,7 +185,7 @@ export enum ARNS_INTERACTION_TYPES {
   BUY_RECORD = 'Buy ARNS Name',
   EXTEND_LEASE = 'Extend Lease',
   INCREASE_UNDERNAMES = 'Increase Undernames',
-  TRANSFER = 'Transfer IO',
+  TRANSFER = 'Transfer ARIO',
   PRIMARY_NAME_REQUEST = 'Primary Name Request', // two part interaction since the ant is the authority to approve the request
 }
 
@@ -370,12 +370,12 @@ export type TransferANTPayload = {
 
 export type PrimaryNameRequestPayload = {
   name: string;
-  ioProcessId: string;
+  arioProcessId: string;
 };
 
 export type RemovePrimaryNamesPayload = {
   names: string[];
-  ioProcessId: string;
+  arioProcessId: string;
 };
 
 // end ant transaction payload types
