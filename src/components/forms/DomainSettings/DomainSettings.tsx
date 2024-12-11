@@ -94,7 +94,6 @@ function DomainSettings({
   const isAuthorized = isOwner || isController;
   const antHandlers =
     data?.info?.Handlers ?? data?.info?.HandlerNames ?? ([] as AoANTHandler[]);
-  console.log(antHandlers);
 
   const maxLeaseDuration = isMaxLeaseDuration(
     data?.arnsRecord && isLeasedArNSRecord(data?.arnsRecord)
