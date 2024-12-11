@@ -7,8 +7,8 @@ export function Pill({
   closeIcon = (
     <XIcon
       className="bg-error rounded-full text-black"
-      height={'12px'}
-      width={'12px'}
+      height={'0.75rem'}
+      width={'0.75rem'}
     />
   ),
   closeButtonClass,
@@ -24,16 +24,17 @@ export function Pill({
     <div
       className={
         (className ?? '') +
-        ` flex flex-row rounded-full bg-grey-gradient py-[2px] items-center justify-center px-[10px] max-w-fit h-fit shadow backdrop-blur-[3.19px]`
+        ` flex flex-row rounded-full bg-grey-gradient py-[0.125rem] items-center justify-center px-[0.625rem] max-w-fit h-fit shadow backdrop-blur-[0.199375rem]`
       }
-      style={{ gap: '0px' }}
+      style={{ gap: '0rem' }}
     >
       {children}
       {onClose && (
         <button
           onClick={onClose}
           className={
-            (closeButtonClass ?? '') + ` flex flex-row w-fit h-fit pl-2`
+            (closeButtonClass ?? '') +
+            ` flex flex-row w-fit h-fit pl-[0.125rem]`
           }
         >
           {closeIcon}
