@@ -4,6 +4,7 @@ import LeaseDuration from '@src/components/data-display/LeaseDuration';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
+import { ReassignNameModal } from '@src/components/modals/ant-management/ReassignNameModal/ReassignNameModal';
 import { ReturnNameModal } from '@src/components/modals/ant-management/ReturnNameModal/ReturnNameModal';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
@@ -79,6 +80,7 @@ function DomainSettings({
   const { data, isLoading, refetch } = useDomainInfo({ domain, antId });
   const [{ ants }] = useArNSState();
   const [showReturnNameModal, setShowReturnNameModal] = useState(false);
+  const [showReassignNameModal, setShowReassignNameModal] = useState(false);
 
   // permissions check
   const isOwner = walletAddress
@@ -317,6 +319,25 @@ function DomainSettings({
                   <Skeleton.Input active />
                 )
               }
+              editable={isAuthorized}
+              action={
+                <Tooltip
+                  message={
+                    !antHandlers.includes('reassignName')
+                      ? 'Update ANT to access Reassign Name workflow'
+                      : 'Reassigns what ANT is registered to the ArNS Name'
+                  }
+                  icon={
+                    <button
+                      disabled={!antHandlers.includes('reassignName')}
+                      onClick={() => setShowReassignNameModal(true)}
+                      className={`flex flex-row text-[12px] rounded-[4px] p-[6px] px-[10px] border border-error bg-error-thin text-error whitespace-nowrap`}
+                    >
+                      Reassign Name
+                    </button>
+                  }
+                />
+              }
             />
           ),
           [DomainSettingsRowTypes.TARGET_ID]: (
@@ -469,6 +490,14 @@ function DomainSettings({
         <ReturnNameModal
           show={showReturnNameModal}
           setShow={setShowReturnNameModal}
+          name={domain}
+          processId={data.processId}
+        />
+      )}
+      {domain && data?.processId && (
+        <ReassignNameModal
+          show={showReassignNameModal}
+          setShow={setShowReassignNameModal}
           name={domain}
           processId={data.processId}
         />
