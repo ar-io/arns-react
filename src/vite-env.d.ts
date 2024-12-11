@@ -11,7 +11,7 @@ interface ImportMetaEnv {
   readonly VITE_ARWEAVE_HOST: string;
   readonly VITE_ARNS_SERVICE_API: string;
   readonly VITE_ARNS_REGISTRY_ADDRESS: string;
-  readonly VITE_IO_PROCESS_ID: string;
+  readonly VITE_ARIO_PROCESS_ID: string;
   readonly VITE_AO_CU_URL: string;
 }
 

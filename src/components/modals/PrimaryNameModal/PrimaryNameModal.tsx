@@ -73,7 +73,7 @@ function PrimaryNameModal({
   setVisible: (visible: boolean) => void;
 }) {
   const queryClient = useQueryClient();
-  const [{ ioTicker, arioProcessId, arioContract }] = useGlobalState();
+  const [{ arioTicker, arioProcessId, arioContract }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const { data: primaryNameData, isLoading: isLoadingPrimaryNameData } =
     usePrimaryName();
@@ -289,7 +289,7 @@ function PrimaryNameModal({
               <div className="flex flex-col w-full">
                 <TransactionCost
                   fee={{
-                    [ioTicker]: isRemovePrimaryNamesPayload(transactionData)
+                    [arioTicker]: isRemovePrimaryNamesPayload(transactionData)
                       ? 0
                       : ioFee
                       ? new mARIOToken(ioFee).toARIO().valueOf()

@@ -36,7 +36,7 @@ import PageLoader from '../progress/PageLoader/PageLoader';
 
 function ExtendLease() {
   // TODO: remove use of source contract
-  const [{ ioTicker, arioContract, arioProcessId }] = useGlobalState();
+  const [{ arioTicker, arioContract, arioProcessId }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const location = useLocation();
@@ -240,7 +240,7 @@ function ExtendLease() {
             height: '100%',
           }}
           fee={{
-            [ioTicker]: ioFee,
+            [arioTicker]: ioFee,
           }}
           ioRequired={true}
           info={
@@ -255,7 +255,7 @@ function ExtendLease() {
                 text={
                   getTransactionDescription({
                     workflowName: ARNS_INTERACTION_TYPES.EXTEND_LEASE,
-                    ioTicker,
+                    arioTicker,
                   }) || ''
                 }
               />

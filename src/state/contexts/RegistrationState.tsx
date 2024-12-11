@@ -63,17 +63,17 @@ export function RegistrationStateProvider({
     reducer,
     initialRegistrationState,
   );
-  const [{ ioTicker }] = useGlobalState();
+  const [{ arioTicker }] = useGlobalState();
 
   useEffect(() => {
-    if (!Object.keys(state.fee).includes(ioTicker)) {
+    if (!Object.keys(state.fee).includes(arioTicker)) {
       const { ar, ...ioFee } = state.fee;
       dispatchRegisterState({
         type: 'setFee',
-        payload: { ar, [ioTicker]: Object.values(ioFee)[0] },
+        payload: { ar, [arioTicker]: Object.values(ioFee)[0] },
       });
     }
-  }, [ioTicker, state.fee]);
+  }, [arioTicker, state.fee]);
 
   return (
     <RegistrationStateContext.Provider value={[state, dispatchRegisterState]}>

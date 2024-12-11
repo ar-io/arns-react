@@ -45,7 +45,7 @@ function RegisterNameForm() {
     { domain, fee, leaseDuration, registrationType, antID, targetId },
     dispatchRegisterState,
   ] = useRegistrationState();
-  const [{ arweaveDataProvider, ioTicker, arioContract, arioProcessId }] =
+  const [{ arweaveDataProvider, arioTicker, arioContract, arioProcessId }] =
     useGlobalState();
   const [{ walletAddress, balances }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
@@ -60,13 +60,13 @@ function RegisterNameForm() {
   const [hasValidationErrors, setHasValidationErrors] =
     useState<boolean>(false);
   const [validatingNext, setValidatingNext] = useState<boolean>(false);
-  const ioFee = fee?.[ioTicker];
+  const ioFee = fee?.[arioTicker];
   const feeError = ioFee && ioFee < 0;
 
   useEffect(() => {
     const redirect = searchParams.get('redirect');
     if (redirect && name) {
-      if (!balances[ioTicker]) return;
+      if (!balances[arioTicker]) return;
       setSearchParams();
       handleNext();
       return;
@@ -74,12 +74,12 @@ function RegisterNameForm() {
   }, [balances, fee]);
 
   useEffect(() => {
-    if (!arioContract || !domain || !ioTicker || !registrationType) return;
+    if (!arioContract || !domain || !arioTicker || !registrationType) return;
 
     const update = async () => {
       dispatchRegisterState({
         type: 'setFee',
-        payload: { ar: 0, [ioTicker]: undefined },
+        payload: { ar: 0, [arioTicker]: undefined },
       });
       setValidatingNext(true);
       const cost = await arioContract
@@ -95,7 +95,7 @@ function RegisterNameForm() {
 
       dispatchRegisterState({
         type: 'setFee',
-        payload: { ar: 0, [ioTicker]: cost },
+        payload: { ar: 0, [arioTicker]: cost },
       });
     };
     update();
@@ -103,7 +103,7 @@ function RegisterNameForm() {
     arioContract,
     dispatchRegisterState,
     domain,
-    ioTicker,
+    arioTicker,
     leaseDuration,
     registrationType,
   ]);
@@ -166,8 +166,8 @@ function RegisterNameForm() {
         [x: string]: number;
         AR: number;
       }>({
-        balances: { AR: balances.ar, [ioTicker]: ioBalance.valueOf() },
-        costs: { AR: fee.ar, [ioTicker]: fee[ioTicker] } as {
+        balances: { AR: balances.ar, [arioTicker]: ioBalance.valueOf() },
+        costs: { AR: fee.ar, [arioTicker]: fee[arioTicker] } as {
           [x: string]: number;
           AR: number;
         },
@@ -216,7 +216,7 @@ function RegisterNameForm() {
         assetId: arioProcessId,
         functionName: 'buyRecord',
         ...buyRecordPayload,
-        interactionPrice: fee?.[ioTicker],
+        interactionPrice: fee?.[arioTicker],
       },
     });
     dispatchTransactionState({

@@ -73,7 +73,7 @@ export const reducer = (
     case 'setIoTicker':
       return {
         ...state,
-        ioTicker: action.payload,
+        arioTicker: action.payload,
       };
     case 'setArIOContract':
       return {

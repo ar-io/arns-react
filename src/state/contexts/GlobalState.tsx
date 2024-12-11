@@ -37,7 +37,7 @@ export const defaultArIO = ARIO.init({
 });
 
 export type GlobalState = {
-  ioTicker: string;
+  arioTicker: string;
   gateway: string;
   aoNetwork: {
     CU_URL: string;
@@ -54,7 +54,7 @@ export type GlobalState = {
 
 const initialState: GlobalState = {
   arioProcessId: IO_PROCESS_ID,
-  ioTicker: 'ARIO',
+  arioTicker: 'ARIO',
   gateway: ARWEAVE_HOST,
   aoNetwork: NETWORK_DEFAULTS.AO,
   aoClient: connect(NETWORK_DEFAULTS.AO),

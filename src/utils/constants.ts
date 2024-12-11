@@ -87,7 +87,7 @@ export const URL_REGEX = new RegExp(
   'i',
 );
 export const IO_PROCESS_ID =
-  process.env.VITE_IO_PROCESS_ID || arioDevnetProcessId;
+  process.env.VITE_ARIO_PROCESS_ID || arioDevnetProcessId;
 
 export const DEFAULT_ANT_LUA_ID = ANT_LUA_ID;
 export const AO_CU_URL = process.env.VITE_AO_CU_URL || 'https://cu.ardrive.io';

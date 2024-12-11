@@ -5,7 +5,7 @@ import { useGlobalState } from '@src/state';
 import { formatIO } from '@src/utils';
 
 function DomainPiceList({ domain }: { domain: string }) {
-  const [{ ioTicker }] = useGlobalState();
+  const [{ arioTicker }] = useGlobalState();
   const {
     data: priceList,
     isLoading: isLoadingPriceList,
@@ -26,9 +26,9 @@ function DomainPiceList({ domain }: { domain: string }) {
         <span className="text-sm text-white align-center">
           Lease from{' '}
           {formatIO(new mARIOToken(priceList.lease).toARIO().valueOf())}{' '}
-          {ioTicker} for one year, or permabuy for{' '}
+          {arioTicker} for one year, or permabuy for{' '}
           {formatIO(new mARIOToken(priceList.buy).toARIO().valueOf())}{' '}
-          {ioTicker}
+          {arioTicker}
         </span>
       ) : (
         domain.length &&

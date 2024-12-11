@@ -14,7 +14,7 @@ import './styles.css';
 const Panel = Collapse.Panel;
 
 function TransferIO() {
-  const [{ arioContract, arioProcessId }] = useGlobalState();
+  const [{ arioContract, arioProcessId, arioTicker }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const [ioBalance, setIoBalance] = useState<number>(0);
   const [toAddress, setToAddress] = useState<string>('');
@@ -140,7 +140,9 @@ function TransferIO() {
               <span style={{ color: 'var(--accent)' }}>
                 {loading
                   ? 'Loading balance...'
-                  : `Balance: ${formatIO(Math.round(mioToIo(ioBalance)))} ARIO`}
+                  : `Balance: ${formatIO(
+                      Math.round(mioToIo(ioBalance)),
+                    )} ${arioTicker}`}
               </span>
               <button
                 className="button-secondary center"
