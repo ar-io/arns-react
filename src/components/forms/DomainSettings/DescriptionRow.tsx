@@ -102,10 +102,10 @@ export default function DescriptionRow({
           interactionType={ANT_INTERACTION_TYPES.SET_DESCRIPTION}
           content={
             <>
-              <span>
+              <span className="max-w-[32rem]">
                 By completing this action, you are going to change the
                 Description of this token to <br />
-                <span className="text-color-warning">
+                <span className="text-color-warning break-all max-w-[32rem]">
                   {`"${newDescription}"`}.
                 </span>
               </span>
