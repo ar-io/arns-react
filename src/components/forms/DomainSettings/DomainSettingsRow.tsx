@@ -1,5 +1,6 @@
 import { PencilIcon } from '@src/components/icons';
 import { List } from 'antd';
+import { CSSProperties } from 'react';
 
 import './styles.css';
 
@@ -9,6 +10,7 @@ export default function DomainSettingsRow({
   action = [],
   editable,
   editing = false,
+  customStyle = {},
   onCancel,
   onSave,
   setEditing,
@@ -18,6 +20,7 @@ export default function DomainSettingsRow({
   action?: React.ReactNode[] | React.ReactNode;
   editable?: boolean;
   editing?: boolean;
+  customStyle?: CSSProperties;
   onCancel?: () => void;
   onSave?: () => void;
   setEditing?: () => void;
@@ -28,6 +31,7 @@ export default function DomainSettingsRow({
       style={{
         borderColor: editing ? 'var(--text-grey)' : undefined,
         overflow: 'hidden',
+        ...customStyle,
       }}
       actions={
         editable

@@ -179,6 +179,8 @@ export enum ANT_INTERACTION_TYPES {
   APPROVE_PRIMARY_NAME = 'Approve Primary Name',
   REMOVE_PRIMARY_NAMES = 'Remove Primary Names',
   SET_LOGO = 'Set Logo',
+  SET_DESCRIPTION = 'Set Description',
+  SET_KEYWORDS = 'Set Keywords',
 }
 
 export enum ARNS_INTERACTION_TYPES {

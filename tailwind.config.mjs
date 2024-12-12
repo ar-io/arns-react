@@ -10,6 +10,7 @@ export default {
           'linear-gradient(90deg, rgba(255, 185, 56, 0.1), #ffb938 100%)',
         'primary-gradient-thin':
           'linear-gradient(90deg, rgb(0,0,0,0.1), rgba(255, 185, 56, 0.3))',
+        ['grey-gradient']: 'linear-gradient(90deg, #48484CBF, #48484C80)',
       },
       fontFamily: {
         sans: ['Rubik', 'sans-serif'],

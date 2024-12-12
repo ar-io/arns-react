@@ -63,6 +63,8 @@ export const UNDERNAME_REGEX = new RegExp(
   }}[a-zA-Z0-9]|[a-zA-Z0-9]{1})$`,
 );
 
+export const KEYWORD_REGEX = new RegExp('^[a-zA-Z0-9\\-_@#s+]{1,32}$');
+
 export const APPROVED_CHARACTERS_REGEX = new RegExp(`^[a-zA-Z0-9\-_]{0,61}$`);
 export const ALPHA_NUMERIC_REGEX = new RegExp('^[a-zA-Z0-9]$');
 export const ARNS_TX_ID_REGEX = new RegExp('^[a-zA-Z0-9\\-_s+]{43}$');
