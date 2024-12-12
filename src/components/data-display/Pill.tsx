@@ -34,7 +34,7 @@ export function Pill({
           onClick={onClose}
           className={
             (closeButtonClass ?? '') +
-            ` flex flex-row w-fit h-fit pl-[0.125rem]`
+            ` flex flex-row w-fit h-fit pl-[0.425rem]`
           }
         >
           {closeIcon}
