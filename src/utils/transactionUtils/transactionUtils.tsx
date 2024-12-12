@@ -134,6 +134,11 @@ export const WorkflowStepsForInteractions: Record<
     { title: 'Deploy TTL Seconds Change', status: 'wait' },
     { title: 'Complete', status: 'wait' },
   ],
+  [ARNS_INTERACTION_TYPES.UPGRADE_NAME]: [
+    { title: 'Confirm Upgrade Name', status: 'process' },
+    { title: 'Deploy Upgrade Name', status: 'wait' },
+    { title: 'Complete', status: 'wait' },
+  ],
 };
 
 export const TRANSACTION_DATA_KEYS: Record<
@@ -199,6 +204,10 @@ export const TRANSACTION_DATA_KEYS: Record<
   [INTERACTION_TYPES.REMOVE_RECORD]: {
     functionName: 'removeRecord',
     keys: ['subDomain'],
+  },
+  [ARNS_INTERACTION_TYPES.UPGRADE_NAME]: {
+    functionName: 'upgradeName',
+    keys: ['name'],
   },
 };
 
@@ -289,6 +298,34 @@ export function getARNSMappingByInteractionType(
               {transactionData.qty + transactionData.oldQty!}
             </span>
           ),
+        },
+        primaryDefaultKeys: [
+          'domain',
+          'leaseDuration',
+          'maxUndernames',
+          'owner',
+        ],
+      };
+    }
+    case ARNS_INTERACTION_TYPES.UPGRADE_NAME: {
+      if (
+        !isObjectOfTransactionPayloadType<ExtendLeasePayload>(
+          transactionData,
+          TRANSACTION_DATA_KEYS[ARNS_INTERACTION_TYPES.UPGRADE_NAME].keys,
+        )
+      ) {
+        throw new Error(
+          'transaction data not of correct payload type <ExtendLeasePayload>',
+        );
+      }
+
+      return {
+        domain: transactionData.name,
+        processId: transactionData.processId,
+        deployedTransactionId: transactionData.deployedTransactionId,
+        record: transactionData.arnsRecord,
+        overrides: {
+          leaseDuration: 'Indefinite',
         },
         primaryDefaultKeys: [
           'domain',
@@ -600,6 +637,7 @@ export function getLinkId(
   interactionType: ValidInteractionType,
   transactionData: TransactionData,
 ): string {
+  const isUpgradeName = interactionType === ARNS_INTERACTION_TYPES.UPGRADE_NAME;
   const isBuyRecord = interactionType === ARNS_INTERACTION_TYPES.BUY_RECORD;
 
   const isExtendLease = interactionType === ARNS_INTERACTION_TYPES.EXTEND_LEASE;
@@ -607,7 +645,7 @@ export function getLinkId(
   const isIncreaseUndernames =
     interactionType === ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES;
 
-  if (isBuyRecord || isExtendLease || isIncreaseUndernames) {
+  if (isBuyRecord || isExtendLease || isIncreaseUndernames || isUpgradeName) {
     if (!(transactionData as any).processId) {
       throw new Error('No processId found');
     }

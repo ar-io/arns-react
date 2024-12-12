@@ -126,6 +126,7 @@ export function formatForMaxCharCount(
   str: string,
   maxCharCount?: number,
 ): string {
+  if (!str?.length) return '';
   if (maxCharCount && str.length > maxCharCount) {
     const shownCount = Math.round(maxCharCount / 2);
     return `${str.slice(0, shownCount)}...${str.slice(
