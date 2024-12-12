@@ -2,6 +2,7 @@ import { PlusCircleFilled } from '@ant-design/icons';
 import { Pill } from '@src/components/data-display/Pill';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
+import { KEYWORD_REGEX } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Skeleton } from 'antd';
 import { Check, X } from 'lucide-react';
@@ -22,15 +23,18 @@ function AddKeywordInput({ addCb }: { addCb: (word: string) => void }) {
   }, [edit]);
 
   function handleChange(word: string) {
-    const trimmed = word.trim();
-    if (trimmed.length <= 32) {
-      setKeyword(word.trim());
+    const trimmed = word?.trim() ?? '';
+    if (KEYWORD_REGEX.test(trimmed) || !trimmed.length) {
+      setKeyword(trimmed);
     }
   }
 
   function handleAdd(word: string) {
     try {
-      addCb(word);
+      if (word.length) {
+        addCb(word);
+      }
+
       setKeyword('');
       setEdit(false);
     } catch (error: any) {
