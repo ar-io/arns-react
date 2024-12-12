@@ -40,6 +40,7 @@ export default {
       error: '#ef6461',
       'error-thin': ' rgba(239, 68, 68, 0.1)',
       warning: '#ffb938',
+      ['warning-light']: '#FFD688BF',
       link: '#6c97b5',
       white: '#fafafa',
       black: 'black',

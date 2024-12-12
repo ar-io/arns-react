@@ -15,9 +15,15 @@ import {
 } from '@src/state';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
 import { ANT_INTERACTION_TYPES, VALIDATION_INPUT_TYPES } from '@src/types';
-import { encodeDomainToASCII, isArweaveTransactionID } from '@src/utils';
+import {
+  encodeDomainToASCII,
+  isArweaveTransactionID,
+  isEthAddress,
+  isValidAoAddress,
+} from '@src/utils';
 import eventEmitter from '@src/utils/events';
 import { useQueryClient } from '@tanstack/react-query';
+import { Checkbox, Skeleton } from 'antd';
 import { TriangleAlert, XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -54,12 +60,25 @@ export function ReassignNameModal({
     undefined,
   );
   const [targetANTID, setTargetANTID] = useState<string>('');
-  const [isValidTargetANTID, setIsValidTargetANTID] = useState<boolean>();
+  const { data: targetAntInfo, isLoading: loadingTargetAntInfo } =
+    useDomainInfo(
+      isArweaveTransactionID(targetANTID)
+        ? {
+            antId: targetANTID,
+          }
+        : {},
+    );
+
+  const [antType, setAntType] = useState<
+    | REASSIGN_NAME_WORKFLOWS.NEW_BLANK
+    | REASSIGN_NAME_WORKFLOWS.NEW_EXISTING
+    | REASSIGN_NAME_WORKFLOWS.EXISTING
+  >(REASSIGN_NAME_WORKFLOWS.NEW_BLANK);
+  const [accepted, setAccepted] = useState<boolean>(false);
 
   function handleClose() {
     setWorkflow(undefined);
     setTargetANTID('');
-    setIsValidTargetANTID(undefined);
     setShow(false);
   }
 
@@ -123,7 +142,7 @@ export function ReassignNameModal({
   if (!workflow) {
     return (
       <div className="modal-container">
-        <div className="flex flex-col rounded-md border border-dark-grey bg-foreground p-8 w-[475px] gap-8 text-white">
+        <div className="flex flex-col rounded-md border border-dark-grey bg-foreground p-6 w-[32rem] gap-8 text-white">
           <div className="flex flex-row justify-between items-center">
             <h2 className="text-[24px]">Name Reassignment</h2>
             <button onClick={() => handleClose()}>
@@ -183,36 +202,173 @@ export function ReassignNameModal({
         <DialogModal
           title={<h1 className="text-2xl text-white">Name Reassignment</h1>}
           body={
-            <div className="flex flex-col">
-              <div className="flex flex-col">
-                <span className="text-[14px] text-grey">Name</span>
-                <span className="text-[14px] text-white">
-                  {encodeDomainToASCII(name)}
+            <div className="flex flex-col gap-8 w-[32rem] pb-8">
+              <div className="flex flex-col gap-8">
+                <div className="flex flex-col gap-1">
+                  <span className="text-[14px] text-grey">Name</span>
+                  <span className="text-[14px] text-white">
+                    {encodeDomainToASCII(name)}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-[14px] text-grey">
+                    Old ANT Process ID
+                  </span>
+                  <span className="text-[14px] text-white">
+                    {domainData?.processId ? (
+                      <ArweaveID
+                        id={new ArweaveTransactionID(domainData.processId)}
+                        type={ArweaveIdTypes.CONTRACT}
+                        shouldLink
+                      />
+                    ) : (
+                      'N/A'
+                    )}
+                  </span>
+                </div>
+
+                <div className="flex flex-col  gap-1">
+                  <span className="text-[14px] text-grey">New ANT Type</span>
+                  <span className="text-[14px] text-white">{antType}</span>
+                </div>
+
+                {antType === REASSIGN_NAME_WORKFLOWS.EXISTING && (
+                  <>
+                    <div className="flex flex-col  gap-1">
+                      <span className="text-[14px] text-grey">
+                        Destination Process ID
+                      </span>
+                      <span className="text-[14px] text-white">
+                        <ArweaveID
+                          id={new ArweaveTransactionID(targetANTID)}
+                          type={ArweaveIdTypes.CONTRACT}
+                          shouldLink
+                        />
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-1 w-full">
+                      <span className="text-[14px] text-grey">
+                        Destination ANT Owner
+                      </span>
+                      {loadingTargetAntInfo ? (
+                        <Skeleton.Input
+                          size="small"
+                          className="w-full bg-[rgb(255,255,255,0.05)] rounded"
+                          active
+                          style={{
+                            width: '100%',
+                          }}
+                        />
+                      ) : (
+                        <span className="text-[14px] text-white">
+                          {isValidAoAddress(targetAntInfo?.owner) ? (
+                            <ArweaveID
+                              id={new ArweaveTransactionID(targetAntInfo.owner)}
+                              type={ArweaveIdTypes.ADDRESS}
+                              shouldLink
+                              linkStyle={{
+                                color:
+                                  targetAntInfo?.owner !==
+                                  walletAddress?.toString()
+                                    ? '#FFD688BF'
+                                    : '#6c97b5',
+                              }}
+                            />
+                          ) : (
+                            'N/A'
+                          )}
+                        </span>
+                      )}
+                    </div>
+
+                    {targetAntInfo?.owner !== walletAddress?.toString() && (
+                      <div className="flex gap-2 items-center rounded text-warning-light bg-primary-thin p-3">
+                        <TriangleAlert size={'18px'} />
+                        <span>
+                          This is not the same wallet you are logged-in with.
+                        </span>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {antType === REASSIGN_NAME_WORKFLOWS.NEW_EXISTING && (
+                  <>
+                    <div className="flex flex-col  gap-1">
+                      <span className="text-[14px] text-grey">Controllers</span>
+                      <span className="text-[14px] text-white">
+                        {domainData.controllers ? (
+                          domainData.controllers.map((c, index) => {
+                            if (isValidAoAddress(c)) {
+                              return (
+                                <ArweaveID
+                                  key={index}
+                                  id={
+                                    isEthAddress(c)
+                                      ? c
+                                      : new ArweaveTransactionID(c)
+                                  }
+                                  shouldLink={isArweaveTransactionID(c)}
+                                  type={ArweaveIdTypes.ADDRESS}
+                                  characterCount={8}
+                                  wrapperStyle={{
+                                    width: 'fit-content',
+                                    whiteSpace: 'nowrap',
+                                  }}
+                                />
+                              );
+                            } else return c;
+                          })
+                        ) : (
+                          <Skeleton.Input
+                            size="small"
+                            className="w-full bg-[rgb(255,255,255,0.05)] rounded"
+                            active
+                            style={{
+                              width: '100%',
+                            }}
+                          />
+                        )}
+                      </span>
+                    </div>
+                  </>
+                )}
+                <span className="text-white">
+                  This action cannot be undone. Do you wish to continue with the
+                  reassignment?
                 </span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[14px] text-grey">
-                  Old ANT Process ID
-                </span>
-                <span className="text-[14px] text-white">
-                  {domainData?.processId ? (
-                    <ArweaveID
-                      id={new ArweaveTransactionID(domainData.processId)}
-                      type={ArweaveIdTypes.CONTRACT}
-                      shouldLink
-                    />
-                  ) : (
-                    'N/A'
-                  )}
+                <span
+                  className={`flex flex-row ${accepted ? 'white' : 'grey'}`}
+                  style={{
+                    gap: 10,
+                    alignItems: 'center',
+                  }}
+                >
+                  <Checkbox
+                    rootClassName="accept-checkbox"
+                    onChange={(e) => setAccepted(e.target.checked)}
+                    checked={accepted && isArweaveTransactionID(targetANTID)}
+                    style={{ color: 'white' }}
+                    disabled={!isArweaveTransactionID(targetANTID)}
+                  />
+                  I understand that this action cannot be undone.
                 </span>
               </div>
             </div>
           }
-          cancelText="Cancel"
-          nextText="Next"
-          onCancel={!signing ? () => handleClose() : undefined}
+          cancelText="Back"
+          nextText="Confirm"
+          onCancel={() => {
+            setWorkflow(antType);
+          }}
           onClose={!signing ? () => handleClose() : undefined}
-          onNext={isValidTargetANTID ? () => handleReassign() : undefined}
+          onNext={
+            isArweaveTransactionID(targetANTID) &&
+            !loadingTargetAntInfo &&
+            accepted
+              ? () => handleReassign()
+              : undefined
+          }
           footerClass={'py-11'}
         />
       </div>
@@ -263,11 +419,7 @@ export function ReassignNameModal({
                   value={targetANTID}
                   setValue={(t) => {
                     setTargetANTID(t);
-                    if (!t.length) setIsValidTargetANTID(undefined);
                   }}
-                  validityCallback={(validity: boolean) =>
-                    setIsValidTargetANTID(validity)
-                  }
                   validationPredicates={{
                     [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
                       fn: async (id: string) => {
@@ -278,7 +430,7 @@ export function ReassignNameModal({
                     },
                   }}
                 />
-                {isValidTargetANTID === false ? (
+                {isArweaveTransactionID(targetANTID) === false ? (
                   <span className="text-error h-[10px]">
                     Invalid ANT Configuration
                   </span>
@@ -408,16 +560,24 @@ export function ReassignNameModal({
             </div>
           )
         }
-        cancelText="Cancel"
+        cancelText="Back"
         nextText="Next"
-        onCancel={!signing ? () => handleClose() : undefined}
+        onCancel={() => {
+          setWorkflow(undefined);
+        }}
         onClose={!signing ? () => handleClose() : undefined}
         onNext={
           workflow === REASSIGN_NAME_WORKFLOWS.EXISTING
-            ? isValidTargetANTID
-              ? () => setWorkflow(REASSIGN_NAME_WORKFLOWS.REVIEW)
+            ? isArweaveTransactionID(targetANTID)
+              ? () => {
+                  setAntType(workflow);
+                  setWorkflow(REASSIGN_NAME_WORKFLOWS.REVIEW);
+                }
               : undefined
-            : () => setWorkflow(REASSIGN_NAME_WORKFLOWS.REVIEW)
+            : () => {
+                setAntType(workflow);
+                setWorkflow(REASSIGN_NAME_WORKFLOWS.REVIEW);
+              }
         }
         footerClass={'py-11'}
       />
