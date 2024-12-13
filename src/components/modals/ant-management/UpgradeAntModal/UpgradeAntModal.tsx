@@ -29,7 +29,7 @@ function UpgradeAntModal({
   antId: string;
 }) {
   const queryClient = useQueryClient();
-  const [{ aoClient }] = useGlobalState();
+  const [{ aoClient, antAoClient }] = useGlobalState();
   const [, dispatchArNSState] = useArNSState();
   const [{ wallet, walletAddress }] = useWalletState();
   const [accepted, setAccepted] = useState(false);
@@ -66,6 +66,7 @@ function UpgradeAntModal({
         queryClient,
         walletAddress,
         dispatch: dispatchArNSState,
+        ao: antAoClient,
       });
       queryClient.invalidateQueries(
         {

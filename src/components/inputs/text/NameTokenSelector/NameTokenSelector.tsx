@@ -1,4 +1,4 @@
-import { ANT, AoArNSNameData } from '@ar.io/sdk/web';
+import { ANT, AOProcess, AoArNSNameData } from '@ar.io/sdk/web';
 import Tooltip from '@src/components/data-display/Tooltip';
 import { Pagination, PaginationProps } from 'antd';
 import { useEffect, useRef, useState } from 'react';
@@ -31,7 +31,7 @@ function NameTokenSelector({
 }: {
   selectedTokenCallback: (id: ArweaveTransactionID | undefined) => void;
 }) {
-  const [{ arweaveDataProvider }] = useGlobalState();
+  const [{ arweaveDataProvider, antAoClient }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
 
   const [searchText, setSearchText] = useState<string>();
@@ -121,7 +121,10 @@ function NameTokenSelector({
             imports.map(async (id: ArweaveTransactionID) => {
               try {
                 const contract = ANT.init({
-                  processId: id.toString(),
+                  process: new AOProcess({
+                    processId: id.toString(),
+                    ao: antAoClient,
+                  }),
                 });
 
                 const info = await contract.getInfo();
@@ -165,7 +168,10 @@ function NameTokenSelector({
       }[] = await Promise.all(
         processIds.map(async (processId) => {
           const contract = ANT.init({
-            processId: processId.toString(),
+            process: new AOProcess({
+              processId: processId.toString(),
+              ao: antAoClient,
+            }),
           });
           const names = Object.keys(associatedRecords).reduce(
             (acc: Record<string, AoArNSNameData>, id: string) => {

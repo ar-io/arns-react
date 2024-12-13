@@ -1,4 +1,4 @@
-import { ANT, AoANTRecord } from '@ar.io/sdk/web';
+import { ANT, AOProcess, AoANTRecord } from '@ar.io/sdk/web';
 import { clamp } from 'lodash';
 import { useEffect, useRef, useState } from 'react';
 
@@ -32,7 +32,7 @@ function EditUndernameModal({
   closeModal: () => void;
   payloadCallback: (payload: SetRecordPayload) => void;
 }) {
-  const [{ arweaveDataProvider }] = useGlobalState();
+  const [{ arweaveDataProvider, antAoClient }] = useGlobalState();
   const isMobile = useIsMobile();
   const targetIdRef = useRef<HTMLInputElement>(null);
   const ttlRef = useRef<HTMLInputElement>(null);
@@ -50,7 +50,10 @@ function EditUndernameModal({
   async function load(id: ArweaveTransactionID) {
     try {
       const contract = ANT.init({
-        processId: id.toString(),
+        process: new AOProcess({
+          processId: id.toString(),
+          ao: antAoClient,
+        }),
       });
       const undernameRecord = await contract.getRecord({
         undername: undername,

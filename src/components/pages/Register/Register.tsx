@@ -1,5 +1,5 @@
 import { CheckCircleFilled } from '@ant-design/icons';
-import { ANT, mARIOToken } from '@ar.io/sdk/web';
+import { ANT, AOProcess, mARIOToken } from '@ar.io/sdk/web';
 import { Accordion } from '@src/components/data-display';
 import Tooltip from '@src/components/data-display/Tooltip';
 import { InsufficientFundsError, ValidationError } from '@src/utils/errors';
@@ -45,8 +45,15 @@ function RegisterNameForm() {
     { domain, fee, leaseDuration, registrationType, antID, targetId },
     dispatchRegisterState,
   ] = useRegistrationState();
-  const [{ arweaveDataProvider, arioTicker, arioContract, arioProcessId }] =
-    useGlobalState();
+  const [
+    {
+      arweaveDataProvider,
+      arioTicker,
+      arioContract,
+      arioProcessId,
+      antAoClient,
+    },
+  ] = useGlobalState();
   const [{ walletAddress, balances }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const { name } = useParams();
@@ -131,7 +138,10 @@ function RegisterNameForm() {
     });
 
     const contract = ANT.init({
-      processId: id.toString(),
+      process: new AOProcess({
+        processId: id.toString(),
+        ao: antAoClient,
+      }),
     });
     if (!contract) throw new Error('Contract not found');
   }

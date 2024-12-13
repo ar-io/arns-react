@@ -1,4 +1,4 @@
-import { ANT, AoArNSNameData, mARIOToken } from '@ar.io/sdk/web';
+import { ANT, AOProcess, AoArNSNameData, mARIOToken } from '@ar.io/sdk/web';
 import WarningCard from '@src/components/cards/WarningCard/WarningCard';
 import { getTransactionDescription } from '@src/components/pages/Transaction/transaction-descriptions';
 import { useIncreaseUndernameCost } from '@src/hooks/useIncreaseUndernameCost';
@@ -26,7 +26,8 @@ function UpgradeUndernames() {
   const isMobile = useIsMobile();
   const location = useLocation();
   const navigate = useNavigate();
-  const [{ arweaveDataProvider, arioTicker, arioProcessId }] = useGlobalState();
+  const [{ arweaveDataProvider, arioTicker, arioProcessId, antAoClient }] =
+    useGlobalState();
   const name = location.pathname.split('/').at(-2);
   const [, dispatchTransactionState] = useTransactionState();
   const [record, setRecord] = useState<AoArNSNameData>();
@@ -58,7 +59,10 @@ function UpgradeUndernames() {
         setRecord(record);
         const processId = new ArweaveTransactionID(record?.processId);
         const contract = ANT.init({
-          processId: processId.toString(),
+          process: new AOProcess({
+            processId: processId.toString(),
+            ao: antAoClient,
+          }),
         });
         const existingUndernameCount = await contract.getRecords().then((r) => {
           return Object.keys(r).filter((k) => k !== '@').length; // exclude @ record
