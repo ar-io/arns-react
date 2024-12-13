@@ -3,6 +3,7 @@ import {
   AoANTInfo,
   AoANTRead,
   AoANTRecord,
+  AoANTState,
   AoANTWrite,
   AoArNSNameData,
 } from '@ar.io/sdk/web';
@@ -37,6 +38,7 @@ export default function useDomainInfo({
       ttlSeconds: number;
     };
     records: Record<string, AoANTRecord>;
+    state: AoANTState;
   };
   isLoading: boolean;
   error: Error | null;
@@ -47,7 +49,15 @@ export default function useDomainInfo({
   const [{ wallet }] = useWalletState();
 
   // TODO: this should be modified or removed
-  const { data, isLoading, isRefetching, error, refetch } = useQuery({
+  const {
+    data,
+    isLoading,
+    isRefetching,
+    isFetching,
+    isPending,
+    error,
+    refetch,
+  } = useQuery({
     queryKey: ['domainInfo', { domain, antId, arioProcessId, aoNetwork }],
     queryFn: () => getDomainInfo({ domain, antId }).catch((error) => error),
     refetchOnWindowFocus: false,
@@ -77,6 +87,7 @@ export default function useDomainInfo({
       ttlSeconds: number;
     };
     records: Record<string, AoANTRecord>;
+    state: AoANTState;
   }> {
     if (!domain && !antId) {
       throw new Error('No domain or antId provided');
@@ -145,12 +156,13 @@ export default function useDomainInfo({
       apexRecord,
       sourceCodeTxId: (state as any)?.['Source-Code-TX-ID'],
       records: state.Records,
+      state,
     };
   }
 
   return {
     data,
-    isLoading: isLoading || isRefetching,
+    isLoading: isLoading || isRefetching || isFetching || isPending,
     error,
     refetch: () => {
       queryClient.invalidateQueries({

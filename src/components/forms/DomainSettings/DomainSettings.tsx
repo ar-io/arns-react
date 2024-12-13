@@ -8,7 +8,7 @@ import { ReassignNameModal } from '@src/components/modals/ant-management/Reassig
 import { ReturnNameModal } from '@src/components/modals/ant-management/ReturnNameModal/ReturnNameModal';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
-import { useArNSState, useGlobalState } from '@src/state';
+import { useGlobalState } from '@src/state';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
 import { useWalletState } from '@src/state/contexts/WalletState';
@@ -74,11 +74,11 @@ function DomainSettings({
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  const [{ arioProcessId }] = useGlobalState();
+  const [{ arioProcessId, aoClient }] = useGlobalState();
   const [{ interactionResult }, dispatch] = useTransactionState();
   const [{ wallet, walletAddress }] = useWalletState();
   const { data, isLoading, refetch } = useDomainInfo({ domain, antId });
-  const [{ ants }] = useArNSState();
+
   const [showReturnNameModal, setShowReturnNameModal] = useState(false);
   const [showReassignNameModal, setShowReassignNameModal] = useState(false);
 
@@ -90,9 +90,9 @@ function DomainSettings({
     ? data?.controllers?.includes(walletAddress.toString() ?? '')
     : false;
   const isAuthorized = isOwner || isController;
-  const antHandlers =
-    data?.info?.Handlers ?? data?.info?.HandlerNames ?? ([] as AoANTHandler[]);
-  console.log(antHandlers);
+  const antHandlers = (data?.info?.Handlers ??
+    data?.info?.HandlerNames ??
+    []) as AoANTHandler[];
 
   const maxLeaseDuration = isMaxLeaseDuration(
     data?.arnsRecord && isLeasedArNSRecord(data?.arnsRecord)
@@ -278,9 +278,14 @@ function DomainSettings({
               antId={data?.processId?.toString()}
               editable={isAuthorized}
               requiresUpdate={
-                data?.processId && ants[data.processId] && walletAddress
+                data?.processId && data?.state && walletAddress
                   ? doAntsRequireUpdate({
-                      ants: { [data.processId]: ants[data.processId] },
+                      ants: {
+                        [data.processId]: {
+                          state: data.state,
+                          handlers: antHandlers,
+                        },
+                      },
                       userAddress: walletAddress.toString(),
                     })
                   : false
@@ -300,6 +305,7 @@ function DomainSettings({
                   signer: wallet!.contractSigner!,
                   owner: walletAddress!.toString(),
                   dispatch,
+                  ao: aoClient,
                 })
               }
             />
@@ -309,7 +315,7 @@ function DomainSettings({
               label="Process ID"
               key={DomainSettingsRowTypes.PROCESS_ID}
               value={
-                data?.processId ? (
+                data?.processId && !isLoading ? (
                   <ArweaveID
                     id={new ArweaveTransactionID(data.processId.toString())}
                     shouldLink
@@ -356,6 +362,7 @@ function DomainSettings({
                   owner: walletAddress!.toString(),
                   processId: data?.processId,
                   dispatch,
+                  ao: aoClient,
                 })
               }
             />
@@ -373,6 +380,7 @@ function DomainSettings({
                   owner: walletAddress!.toString(),
                   processId: data?.processId,
                   dispatch,
+                  ao: aoClient,
                 })
               }
             />
@@ -399,6 +407,7 @@ function DomainSettings({
                   owner: walletAddress!.toString(),
                   processId: data?.processId,
                   dispatch,
+                  ao: aoClient,
                 })
               }
             />
@@ -427,6 +436,7 @@ function DomainSettings({
                   owner: walletAddress!.toString(),
                   processId: data?.processId,
                   dispatch,
+                  ao: aoClient,
                 })
               }
             />
@@ -447,6 +457,7 @@ function DomainSettings({
                   owner: walletAddress!.toString(),
                   processId: data?.processId,
                   dispatch,
+                  ao: aoClient,
                 })
               }
             />
@@ -477,6 +488,7 @@ function DomainSettings({
                   owner: walletAddress!.toString(),
                   processId: data?.processId,
                   dispatch,
+                  ao: aoClient,
                 })
               }
             />

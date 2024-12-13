@@ -34,7 +34,7 @@ export function ReturnNameModal({
 }) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const [{ arioProcessId }] = useGlobalState();
+  const [{ arioProcessId, aoClient }] = useGlobalState();
   const [{ arnsEmitter }, dispatchArNSState] = useArNSState();
   const [{ signing }, dispatchTransactionState] = useTransactionState();
   const [{ wallet, walletAddress }] = useWalletState();
@@ -58,6 +58,7 @@ export function ReturnNameModal({
         workflowName: ANT_INTERACTION_TYPES.RELEASE_NAME,
         dispatch: dispatchTransactionState,
         owner: walletAddress.toString(),
+        ao: aoClient,
       });
       eventEmitter.emit('success', {
         message: (

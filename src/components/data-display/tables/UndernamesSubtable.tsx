@@ -52,7 +52,7 @@ const UndernamesSubtable = ({
   handlers?: AoANTHandler[];
   antId: string;
 }) => {
-  const [{ gateway, arioProcessId }] = useGlobalState();
+  const [{ gateway, arioProcessId, aoClient }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const [, dispatchModalState] = useModalState();
@@ -285,6 +285,7 @@ const UndernamesSubtable = ({
               signer: wallet.contractSigner!,
               owner: walletAddress.toString(),
               dispatch: dispatchTransactionState,
+              ao: aoClient,
             }).then(() => {
               eventEmitter.emit('success', {
                 message: (

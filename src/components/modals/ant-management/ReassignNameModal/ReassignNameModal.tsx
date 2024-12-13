@@ -1,3 +1,4 @@
+import { SpawnANTState } from '@ar.io/sdk';
 import WarningCard from '@src/components/cards/WarningCard/WarningCard';
 import RadioGroup from '@src/components/inputs/RadioGroup';
 import ValidationInput from '@src/components/inputs/text/ValidationInput/ValidationInput';
@@ -21,12 +22,15 @@ import {
   isEthAddress,
   isValidAoAddress,
 } from '@src/utils';
+import {
+  ARNS_TX_ID_ENTRY_REGEX,
+  DEFAULT_ANT_LUA_ID,
+} from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { useQueryClient } from '@tanstack/react-query';
 import { Checkbox, Skeleton } from 'antd';
 import { TriangleAlert, XIcon } from 'lucide-react';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import DialogModal from '../../DialogModal/DialogModal';
 
@@ -49,8 +53,7 @@ export function ReassignNameModal({
   name: string;
 }) {
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
-  const [{ arioProcessId }] = useGlobalState();
+  const [{ arioProcessId, aoClient }] = useGlobalState();
   const [{ arnsEmitter }, dispatchArNSState] = useArNSState();
   const [{ signing }, dispatchTransactionState] = useTransactionState();
   const [{ wallet, walletAddress }] = useWalletState();
@@ -59,15 +62,14 @@ export function ReassignNameModal({
   const [workflow, setWorkflow] = useState<REASSIGN_NAME_WORKFLOWS | undefined>(
     undefined,
   );
-  const [targetANTID, setTargetANTID] = useState<string>('');
-  const { data: targetAntInfo, isLoading: loadingTargetAntInfo } =
-    useDomainInfo(
-      isArweaveTransactionID(targetANTID)
-        ? {
-            antId: targetANTID,
-          }
-        : {},
-    );
+  const [newAntProcessId, setNewAntProcessId] = useState<string>('');
+  const { data: newAntInfo, isLoading: loadingNewAntInfo } = useDomainInfo(
+    isArweaveTransactionID(newAntProcessId)
+      ? {
+          antId: newAntProcessId,
+        }
+      : {},
+  );
 
   const [antType, setAntType] = useState<
     | REASSIGN_NAME_WORKFLOWS.NEW_BLANK
@@ -78,7 +80,7 @@ export function ReassignNameModal({
 
   function handleClose() {
     setWorkflow(undefined);
-    setTargetANTID('');
+    setNewAntProcessId('');
     setShow(false);
   }
 
@@ -88,18 +90,40 @@ export function ReassignNameModal({
         throw new Error('No ArConnect Signer found');
       }
       if (!walletAddress)
-        throw new Error('Must connect to reassign the domain');
+        throw new Error('Must connect to Reassign the domain');
+
+      const previousState: SpawnANTState = {
+        controllers: domainData.controllers,
+        records: domainData.records,
+        owner: walletAddress.toString(),
+        ticker: domainData.info.Ticker,
+        name: domainData.info.Name,
+        description: domainData.info.Description,
+        keywords: domainData.info.Keywords,
+        balances: domainData.state.Balances,
+      };
 
       const result = await dispatchANTInteraction({
         signer: wallet.contractSigner,
         payload: {
           name,
           arioProcessId,
+          // if we provide newAntProcessId it will skip spawning the ant and ignore previousState
+          newAntProcessId:
+            antType === REASSIGN_NAME_WORKFLOWS.EXISTING
+              ? newAntProcessId
+              : undefined,
+          previousState:
+            antType === REASSIGN_NAME_WORKFLOWS.NEW_BLANK
+              ? undefined
+              : previousState,
+          luaCodeTxId: DEFAULT_ANT_LUA_ID,
         },
         processId,
         workflowName: ANT_INTERACTION_TYPES.REASSIGN_NAME,
         dispatch: dispatchTransactionState,
         owner: walletAddress.toString(),
+        ao: aoClient,
       });
       eventEmitter.emit('success', {
         message: (
@@ -121,6 +145,9 @@ export function ReassignNameModal({
         queryKey: ['handlers', processId],
       });
       queryClient.resetQueries({
+        queryKey: ['domainInfo', name],
+      });
+      queryClient.resetQueries({
         queryKey: ['domainInfo', processId],
       });
 
@@ -130,8 +157,7 @@ export function ReassignNameModal({
         dispatch: dispatchArNSState,
         emitter: arnsEmitter,
       });
-      setShow(false);
-      navigate('/manage');
+      handleClose();
     } catch (error) {
       eventEmitter.emit('error', error);
     }
@@ -171,30 +197,6 @@ export function ReassignNameModal({
       </div>
     );
   }
-  /** Blank slate new ant
-   * Name
-   * Old ANT Process ID
-   * New ANT Type (should be === workflow?)
-   */
-
-  /** Existing config new ant
-   * Name
-   * Old ANT Process ID
-   * New ANT Type (should be === workflow?)
-   *
-   * controllers
-   * data pointer
-   * Undernames
-   */
-
-  /** Existing config new ant
-   * Name
-   * Old ANT Process ID
-   * New ANT Type (should be === workflow?)
-   *
-   * Destination ANT Process ID
-   * Destination ANT Owner
-   */
 
   if (workflow === REASSIGN_NAME_WORKFLOWS.REVIEW) {
     return (
@@ -203,7 +205,7 @@ export function ReassignNameModal({
           title={<h1 className="text-2xl text-white">Name Reassignment</h1>}
           body={
             <div className="flex flex-col gap-8 w-[32rem] pb-8">
-              <div className="flex flex-col gap-8">
+              <div className="flex flex-col gap-6">
                 <div className="flex flex-col gap-1">
                   <span className="text-[14px] text-grey">Name</span>
                   <span className="text-[14px] text-white">
@@ -240,7 +242,7 @@ export function ReassignNameModal({
                       </span>
                       <span className="text-[14px] text-white">
                         <ArweaveID
-                          id={new ArweaveTransactionID(targetANTID)}
+                          id={new ArweaveTransactionID(newAntProcessId)}
                           type={ArweaveIdTypes.CONTRACT}
                           shouldLink
                         />
@@ -250,7 +252,7 @@ export function ReassignNameModal({
                       <span className="text-[14px] text-grey">
                         Destination ANT Owner
                       </span>
-                      {loadingTargetAntInfo ? (
+                      {loadingNewAntInfo ? (
                         <Skeleton.Input
                           size="small"
                           className="w-full bg-[rgb(255,255,255,0.05)] rounded"
@@ -261,33 +263,34 @@ export function ReassignNameModal({
                         />
                       ) : (
                         <span className="text-[14px] text-white">
-                          {isValidAoAddress(targetAntInfo?.owner) ? (
+                          {isValidAoAddress(newAntInfo?.owner) ? (
                             <ArweaveID
-                              id={new ArweaveTransactionID(targetAntInfo.owner)}
+                              id={new ArweaveTransactionID(newAntInfo.owner)}
                               type={ArweaveIdTypes.ADDRESS}
                               shouldLink
                               linkStyle={{
                                 color:
-                                  targetAntInfo?.owner !==
+                                  newAntInfo?.owner !==
                                   walletAddress?.toString()
                                     ? '#FFD688BF'
                                     : '#6c97b5',
                               }}
                             />
                           ) : (
-                            'N/A'
+                            <span className="text-error">No Owner found!</span>
                           )}
                         </span>
                       )}
                     </div>
 
-                    {targetAntInfo?.owner !== walletAddress?.toString() && (
-                      <div className="flex gap-2 items-center rounded text-warning-light bg-primary-thin p-3">
-                        <TriangleAlert size={'18px'} />
-                        <span>
-                          This is not the same wallet you are logged-in with.
-                        </span>
-                      </div>
+                    {newAntInfo?.owner !== walletAddress?.toString() && (
+                      <WarningCard
+                        customIcon={<TriangleAlert size={'18px'} />}
+                        wrapperStyle={{ border: 'none' }}
+                        text={
+                          'This is not the same wallet you are logged-in with.'
+                        }
+                      />
                     )}
                   </>
                 )}
@@ -296,7 +299,7 @@ export function ReassignNameModal({
                   <>
                     <div className="flex flex-col  gap-1">
                       <span className="text-[14px] text-grey">Controllers</span>
-                      <span className="text-[14px] text-white">
+                      <div className="flex gap-3 text-[14px] text-white">
                         {domainData.controllers ? (
                           domainData.controllers.map((c, index) => {
                             if (isValidAoAddress(c)) {
@@ -310,7 +313,11 @@ export function ReassignNameModal({
                                   }
                                   shouldLink={isArweaveTransactionID(c)}
                                   type={ArweaveIdTypes.ADDRESS}
-                                  characterCount={8}
+                                  characterCount={
+                                    domainData.controllers.length > 1
+                                      ? 8
+                                      : undefined
+                                  }
                                   wrapperStyle={{
                                     width: 'fit-content',
                                     whiteSpace: 'nowrap',
@@ -320,6 +327,46 @@ export function ReassignNameModal({
                             } else return c;
                           })
                         ) : (
+                          <Skeleton.Input
+                            size="small"
+                            className="w-full bg-[rgb(255,255,255,0.05)] rounded"
+                            active
+                            style={{
+                              width: '100%',
+                            }}
+                          />
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex flex-col  gap-1">
+                      <span className="text-[14px] text-grey">Target ID</span>
+                      <span className="text-[14px] text-white">
+                        {domainData?.apexRecord.transactionId ? (
+                          <ArweaveID
+                            id={
+                              new ArweaveTransactionID(
+                                domainData.apexRecord.transactionId,
+                              )
+                            }
+                            type={ArweaveIdTypes.TRANSACTION}
+                            shouldLink
+                          />
+                        ) : (
+                          <Skeleton.Input
+                            size="small"
+                            className="w-full bg-[rgb(255,255,255,0.05)] rounded"
+                            active
+                            style={{
+                              width: '100%',
+                            }}
+                          />
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex flex-col  gap-1">
+                      <span className="text-[14px] text-grey">Undernames</span>
+                      <span className="text-[14px] text-white">
+                        {domainData?.undernameCount ?? (
                           <Skeleton.Input
                             size="small"
                             className="w-full bg-[rgb(255,255,255,0.05)] rounded"
@@ -347,9 +394,12 @@ export function ReassignNameModal({
                   <Checkbox
                     rootClassName="accept-checkbox"
                     onChange={(e) => setAccepted(e.target.checked)}
-                    checked={accepted && isArweaveTransactionID(targetANTID)}
+                    checked={accepted}
                     style={{ color: 'white' }}
-                    disabled={!isArweaveTransactionID(targetANTID)}
+                    disabled={
+                      !isArweaveTransactionID(newAntProcessId) &&
+                      antType === REASSIGN_NAME_WORKFLOWS.EXISTING
+                    }
                   />
                   I understand that this action cannot be undone.
                 </span>
@@ -363,8 +413,8 @@ export function ReassignNameModal({
           }}
           onClose={!signing ? () => handleClose() : undefined}
           onNext={
-            isArweaveTransactionID(targetANTID) &&
-            !loadingTargetAntInfo &&
+            ((isArweaveTransactionID(newAntProcessId) && !loadingNewAntInfo) ||
+              antType !== REASSIGN_NAME_WORKFLOWS.EXISTING) &&
             accepted
               ? () => handleReassign()
               : undefined
@@ -386,7 +436,7 @@ export function ReassignNameModal({
                 You are about to reassign your name registration from one ANT
                 (Arweave Name Token) to another. Once completed:
               </span>
-              <ul className="flex flex-col gap-2 pl-6 list-disc">
+              <ul className="flex flex-col pl-6 list-disc gap-2">
                 <li>
                   Ownership of the name will be fully reassigned to the new ANT.
                 </li>
@@ -416,9 +466,11 @@ export function ReassignNameModal({
                   showValidationChecklist={true}
                   validationListStyle={{ display: 'none' }}
                   maxCharLength={43}
-                  value={targetANTID}
+                  value={newAntProcessId}
+                  catchInvalidInput={true}
+                  customPattern={ARNS_TX_ID_ENTRY_REGEX}
                   setValue={(t) => {
-                    setTargetANTID(t);
+                    setNewAntProcessId(t);
                   }}
                   validationPredicates={{
                     [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
@@ -430,7 +482,8 @@ export function ReassignNameModal({
                     },
                   }}
                 />
-                {isArweaveTransactionID(targetANTID) === false ? (
+                {isArweaveTransactionID(newAntProcessId) === false &&
+                newAntProcessId.length ? (
                   <span className="text-error h-[10px]">
                     Invalid ANT Configuration
                   </span>
@@ -440,6 +493,7 @@ export function ReassignNameModal({
               </div>
               <WarningCard
                 customIcon={<TriangleAlert size={'18px'} />}
+                wrapperStyle={{ border: 'none' }}
                 text={
                   <div className="flex flex-row size-full">
                     <span>
@@ -459,6 +513,7 @@ export function ReassignNameModal({
                 (Arweave Name Token) to a new ANT.
               </span>
               <RadioGroup
+                value={workflow ?? REASSIGN_NAME_WORKFLOWS.NEW_EXISTING}
                 onChange={(v) => setWorkflow(v)}
                 className="flex flex-col gap-2.5"
                 indicatorClass={`
@@ -551,6 +606,7 @@ export function ReassignNameModal({
 
               <WarningCard
                 customIcon={<TriangleAlert size={'18px'} />}
+                wrapperStyle={{ border: 'none' }}
                 text={
                   <div className="flex flex-row size-full">
                     <span>This action is irreversible.</span>
@@ -568,7 +624,7 @@ export function ReassignNameModal({
         onClose={!signing ? () => handleClose() : undefined}
         onNext={
           workflow === REASSIGN_NAME_WORKFLOWS.EXISTING
-            ? isArweaveTransactionID(targetANTID)
+            ? isArweaveTransactionID(newAntProcessId)
               ? () => {
                   setAntType(workflow);
                   setWorkflow(REASSIGN_NAME_WORKFLOWS.REVIEW);

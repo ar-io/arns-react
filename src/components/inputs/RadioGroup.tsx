@@ -1,5 +1,5 @@
 import * as RadixRadioGroup from '@radix-ui/react-radio-group';
-import { ReactNode, useState } from 'react';
+import { ReactNode } from 'react';
 
 function RadioGroup({
   items,
@@ -8,6 +8,7 @@ function RadioGroup({
   groupLabel,
   indicatorClass,
   onChange,
+  value,
 }: {
   items?: { label?: ReactNode; value?: any; className?: string }[];
   className?: string;
@@ -15,11 +16,9 @@ function RadioGroup({
   groupLabel?: string;
   indicatorClass?: string;
   onChange?: (val: any) => void;
+  value?: any;
 }) {
-  const [value, setValue] = useState(defaultValue);
-
   function handleValueChange(v: any) {
-    setValue(v);
     onChange?.(v);
   }
   return (
