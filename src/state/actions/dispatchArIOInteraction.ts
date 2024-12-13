@@ -175,6 +175,16 @@ export default async function dispatchArIOInteraction({
 
         break;
       }
+      case ARNS_INTERACTION_TYPES.UPGRADE_NAME: {
+        dispatch({
+          type: 'setSigningMessage',
+          payload: 'Upgrading Name to Permabuy',
+        });
+        result = await arioContract.upgradeRecord({
+          name: payload.name,
+        });
+        break;
+      }
       default:
         throw new Error(`Unsupported workflow name: ${workflowName}`);
     }
