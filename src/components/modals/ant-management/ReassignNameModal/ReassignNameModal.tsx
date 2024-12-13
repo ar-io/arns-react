@@ -156,6 +156,7 @@ export function ReassignNameModal({
         arioProcessId,
         dispatch: dispatchArNSState,
         emitter: arnsEmitter,
+        ao: aoClient,
       });
       handleClose();
     } catch (error) {

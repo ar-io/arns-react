@@ -512,6 +512,7 @@ function DomainSettings({
                   owner: walletAddress!.toString(),
                   processId: data?.processId,
                   dispatch,
+                  ao: aoClient,
                 })
               }
             />
@@ -531,44 +532,7 @@ function DomainSettings({
                   owner: walletAddress!.toString(),
                   processId: data?.processId,
                   dispatch,
-                })
-              }
-            />
-          ),
-          [DomainSettingsRowTypes.DESCRIPTION]: (
-            <DescriptionRow
-              key={DomainSettingsRowTypes.DESCRIPTION}
-              description={data?.info.Description}
-              editable={isAuthorized}
-              confirm={(description: string) =>
-                dispatchANTInteraction({
-                  payload: {
-                    description,
-                  },
-                  workflowName: ANT_INTERACTION_TYPES.SET_DESCRIPTION,
-                  signer: wallet!.contractSigner!,
-                  owner: walletAddress!.toString(),
-                  processId: data?.processId,
-                  dispatch,
-                })
-              }
-            />
-          ),
-          [DomainSettingsRowTypes.KEYWORDS]: (
-            <KeywordsRow
-              key={DomainSettingsRowTypes.KEYWORDS}
-              keywords={data?.info.Keywords}
-              editable={isAuthorized}
-              confirm={(keywords: string[]) =>
-                dispatchANTInteraction({
-                  payload: {
-                    keywords,
-                  },
-                  workflowName: ANT_INTERACTION_TYPES.SET_KEYWORDS,
-                  signer: wallet!.contractSigner!,
-                  owner: walletAddress!.toString(),
-                  processId: data?.processId,
-                  dispatch,
+                  ao: aoClient,
                 })
               }
             />
