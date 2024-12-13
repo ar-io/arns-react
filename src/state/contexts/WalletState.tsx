@@ -140,13 +140,13 @@ export function WalletStateProvider({
 
   useEffect(() => {
     if (walletAddress) {
-      updateBalances(walletAddress);
+      updateBalances(walletAddress, arioTicker);
     }
-  }, [walletAddress, blockHeight]);
+  }, [walletAddress, blockHeight, arioTicker]);
 
-  async function updateBalances(address: AoAddress) {
+  async function updateBalances(address: AoAddress, arioTicker: string) {
     try {
-      const [ioBalance, arBalance] = await Promise.all([
+      const [arioBalance, arBalance] = await Promise.all([
         arweaveDataProvider.getTokenBalance(address),
         address instanceof ArweaveTransactionID
           ? arweaveDataProvider.getArBalance(address)
@@ -156,7 +156,7 @@ export function WalletStateProvider({
       dispatchWalletState({
         type: 'setBalances',
         payload: {
-          [arioTicker]: ioBalance,
+          [arioTicker]: arioBalance,
           ar: arBalance,
         },
       });
