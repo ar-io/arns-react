@@ -8,9 +8,9 @@ export function useIncreaseUndernameCost({
   name: string;
   quantity: number;
 }) {
-  const [{ ioProcessId, arioContract }] = useGlobalState();
+  const [{ arioProcessId, arioContract }] = useGlobalState();
   return useQuery({
-    queryKey: ['increaseUndernameCost', quantity, ioProcessId.toString()],
+    queryKey: ['increaseUndernameCost', quantity, arioProcessId.toString()],
     queryFn: async () => {
       return await arioContract.getTokenCost({
         intent: 'Increase-Undername-Limit',

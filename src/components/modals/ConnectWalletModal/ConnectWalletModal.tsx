@@ -1,4 +1,4 @@
-import { AOProcess, IO } from '@ar.io/sdk/web';
+import { AOProcess, ARIO } from '@ar.io/sdk/web';
 import {
   ArConnectWalletConnector,
   EthWalletConnector,
@@ -25,7 +25,7 @@ import './styles.css';
 
 function ConnectWalletModal(): JSX.Element {
   const modalRef = useRef<HTMLDivElement>(null);
-  const [{ ioProcessId, aoClient }, dispatchGlobalState] = useGlobalState();
+  const [{ arioProcessId, aoClient }, dispatchGlobalState] = useGlobalState();
   const [
     { wallet, walletAddress, walletStateInitialized },
     dispatchWalletState,
@@ -85,9 +85,9 @@ function ConnectWalletModal(): JSX.Element {
       setConnecting(true);
       await walletConnector.connect();
       const arweaveGate = await walletConnector.getGatewayConfig();
-      const contract = IO.init({
+      const contract = ARIO.init({
         process: new AOProcess({
-          processId: ioProcessId,
+          processId: arioProcessId,
           ao: aoClient,
         }),
         signer: walletConnector.contractSigner!,

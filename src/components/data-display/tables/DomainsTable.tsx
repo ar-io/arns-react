@@ -113,7 +113,7 @@ const DomainsTable = ({
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [{ walletAddress }] = useWalletState();
-  const [{ gateway, ioProcessId }] = useGlobalState();
+  const [{ gateway, arioProcessId }] = useGlobalState();
   const [, dispatchModalState] = useModalState();
   const [, dispatchTransactionState] = useTransactionState();
   const { data: primaryNameData } = usePrimaryName();
@@ -436,7 +436,7 @@ const DomainsTable = ({
                               type: 'setTransactionData',
                               payload: {
                                 names: [targetName],
-                                ioProcessId,
+                                arioProcessId,
                                 assetId: row.getValue('processId'),
                                 functionName: 'removePrimaryNames',
                               },
@@ -446,8 +446,8 @@ const DomainsTable = ({
                               type: 'setTransactionData',
                               payload: {
                                 name: targetName,
-                                ioProcessId,
-                                assetId: ioProcessId,
+                                arioProcessId,
+                                assetId: arioProcessId,
                                 functionName: 'primaryNameRequest',
                               },
                             });

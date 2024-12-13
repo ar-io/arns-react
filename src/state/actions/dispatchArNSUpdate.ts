@@ -1,4 +1,12 @@
-import { ANT, ANTRegistry, AoArNSNameData, AoIORead, IO } from '@ar.io/sdk/web';
+import {
+  ANT,
+  ANTRegistry,
+  AOProcess,
+  ARIO,
+  AoARIORead,
+  AoArNSNameData,
+  AoClient,
+} from '@ar.io/sdk/web';
 import { captureException } from '@sentry/react';
 import { AoAddress } from '@src/types';
 import eventEmitter from '@src/utils/events';
@@ -10,11 +18,13 @@ import { ArNSAction } from '../reducers/ArNSReducer';
 export async function dispatchArNSUpdate({
   dispatch,
   walletAddress,
-  ioProcessId,
+  arioProcessId,
+  ao,
 }: {
   dispatch: Dispatch<ArNSAction>;
   walletAddress: AoAddress;
-  ioProcessId: string;
+  arioProcessId: string;
+  ao: AoClient;
 }) {
   dispatch({ type: 'setDomains', payload: {} });
   dispatch({ type: 'setAnts', payload: {} });
@@ -24,9 +34,9 @@ export async function dispatchArNSUpdate({
     type: 'setLoading',
     payload: true,
   });
-  const arioContract = IO.init({
-    processId: ioProcessId,
-  }) as AoIORead;
+  const arioContract = ARIO.init({
+    process: new AOProcess({ processId: arioProcessId, ao }),
+  }) as AoARIORead;
   const antRegistry = ANTRegistry.init();
   const [arnsRecords, userAnts] = await Promise.all([
     arioContract.getArNSRecords(),
@@ -115,7 +125,7 @@ export async function dispatchArNSUpdate({
             captureException(new Error(e), {
               tags: {
                 walletAddress: walletAddress.toString(),
-                ioProcessId: ioProcessId,
+                arioProcessId: arioProcessId,
               },
             });
           } else if (!e.includes('does not support provided action.')) {

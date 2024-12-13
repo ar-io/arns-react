@@ -1,7 +1,7 @@
 import {
   ANT_LUA_ID,
   DEFAULT_SCHEDULER_ID,
-  ioDevnetProcessId,
+  arioDevnetProcessId,
 } from '@ar.io/sdk/web';
 import Arweave from 'arweave';
 import { ArweaveWebWallet } from 'arweave-wallet-connector';
@@ -63,6 +63,8 @@ export const UNDERNAME_REGEX = new RegExp(
   }}[a-zA-Z0-9]|[a-zA-Z0-9]{1})$`,
 );
 
+export const KEYWORD_REGEX = new RegExp('^[a-zA-Z0-9\\-_@#s+]{1,32}$');
+
 export const APPROVED_CHARACTERS_REGEX = new RegExp(`^[a-zA-Z0-9\-_]{0,61}$`);
 export const ALPHA_NUMERIC_REGEX = new RegExp('^[a-zA-Z0-9]$');
 export const ARNS_TX_ID_REGEX = new RegExp('^[a-zA-Z0-9\\-_s+]{43}$');
@@ -86,8 +88,8 @@ export const URL_REGEX = new RegExp(
     '(\\#[-a-z\\d_]*)?$',
   'i',
 );
-export const IO_PROCESS_ID =
-  process.env.VITE_IO_PROCESS_ID || ioDevnetProcessId;
+export const ARIO_PROCESS_ID =
+  process.env.VITE_ARIO_PROCESS_ID || arioDevnetProcessId;
 
 export const DEFAULT_ANT_LUA_ID = ANT_LUA_ID;
 export const AO_CU_URL = process.env.VITE_AO_CU_URL || 'https://cu.ardrive.io';

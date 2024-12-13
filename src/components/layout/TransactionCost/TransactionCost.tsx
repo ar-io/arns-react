@@ -19,8 +19,8 @@ function TransactionCost({
   style?: CSSProperties;
 }) {
   const isMobile = useIsMobile();
-  const [{ ioTicker }] = useGlobalState();
-  const ioFee = fee?.[ioTicker];
+  const [{ arioTicker }] = useGlobalState();
+  const ioFee = fee?.[arioTicker];
   const feeError = ioFee && ioFee < 0;
 
   return (
@@ -68,9 +68,9 @@ function TransactionCost({
             ) : (
               <>
                 {ioFee !== undefined && ioFee >= 0
-                  ? `${ioFee.toLocaleString()} ${ioTicker} `
+                  ? `${ioFee.toLocaleString()} ${arioTicker} `
                   : ioRequired
-                  ? `Calculating ${ioTicker}  `
+                  ? `Calculating ${arioTicker}  `
                   : ''}
                 {/* <ArPrice dataSize={SMARTWEAVE_TAG_SIZE} /> */}
               </>

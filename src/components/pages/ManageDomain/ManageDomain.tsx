@@ -63,7 +63,7 @@ function AntLogoIcon({
 function ManageDomain() {
   const { name } = useParams();
   const navigate = useNavigate();
-  const [{ ioProcessId }] = useGlobalState();
+  const [{ arioProcessId }] = useGlobalState();
   const [{ workflowName, interactionResult }, dispatchTransactionState] =
     useTransactionState();
   const [, dispatchModalState] = useModalState();
@@ -131,7 +131,7 @@ function ManageDomain() {
                   type: 'setTransactionData',
                   payload: {
                     names: [name],
-                    ioProcessId,
+                    arioProcessId,
                     assetId: '',
                     functionName: 'removePrimaryNames',
                   },
@@ -141,8 +141,8 @@ function ManageDomain() {
                   type: 'setTransactionData',
                   payload: {
                     name,
-                    ioProcessId,
-                    assetId: ioProcessId,
+                    arioProcessId,
+                    assetId: arioProcessId,
                     functionName: 'primaryNameRequest',
                   },
                 });

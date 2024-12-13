@@ -1,4 +1,4 @@
-import { AOProcess, IO } from '@ar.io/sdk/web';
+import { AOProcess, ARIO } from '@ar.io/sdk/web';
 import { ArConnectWalletConnector } from '@src/services/wallets';
 import { AoAddress } from '@src/types';
 import { useEffect, useState } from 'react';
@@ -8,7 +8,7 @@ import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useWalletState } from '../../state/contexts/WalletState';
 
 function useArconnectEvents() {
-  const [{ ioProcessId, aoClient }, dispatchGlobalState] = useGlobalState();
+  const [{ arioProcessId, aoClient }, dispatchGlobalState] = useGlobalState();
   const [{ wallet }, dispatchWalletState] = useWalletState();
   const [eventEmitter, setEventEmitter] = useState<any>();
 
@@ -28,9 +28,9 @@ function useArconnectEvents() {
       protocol: string;
     }) => {
       const newWallet = wallet ?? new ArConnectWalletConnector();
-      const contract = IO.init({
+      const contract = ARIO.init({
         process: new AOProcess({
-          processId: ioProcessId,
+          processId: arioProcessId,
           ao: aoClient,
         }),
         signer: newWallet.contractSigner!,

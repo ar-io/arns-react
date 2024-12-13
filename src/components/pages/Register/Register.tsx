@@ -1,5 +1,5 @@
 import { CheckCircleFilled } from '@ant-design/icons';
-import { ANT, mIOToken } from '@ar.io/sdk/web';
+import { ANT, mARIOToken } from '@ar.io/sdk/web';
 import { Accordion } from '@src/components/data-display';
 import Tooltip from '@src/components/data-display/Tooltip';
 import { InsufficientFundsError, ValidationError } from '@src/utils/errors';
@@ -45,7 +45,7 @@ function RegisterNameForm() {
     { domain, fee, leaseDuration, registrationType, antID, targetId },
     dispatchRegisterState,
   ] = useRegistrationState();
-  const [{ arweaveDataProvider, ioTicker, arioContract, ioProcessId }] =
+  const [{ arweaveDataProvider, arioTicker, arioContract, arioProcessId }] =
     useGlobalState();
   const [{ walletAddress, balances }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
@@ -60,13 +60,13 @@ function RegisterNameForm() {
   const [hasValidationErrors, setHasValidationErrors] =
     useState<boolean>(false);
   const [validatingNext, setValidatingNext] = useState<boolean>(false);
-  const ioFee = fee?.[ioTicker];
+  const ioFee = fee?.[arioTicker];
   const feeError = ioFee && ioFee < 0;
 
   useEffect(() => {
     const redirect = searchParams.get('redirect');
     if (redirect && name) {
-      if (!balances[ioTicker]) return;
+      if (!balances[arioTicker]) return;
       setSearchParams();
       handleNext();
       return;
@@ -74,12 +74,12 @@ function RegisterNameForm() {
   }, [balances, fee]);
 
   useEffect(() => {
-    if (!arioContract || !domain || !ioTicker || !registrationType) return;
+    if (!arioContract || !domain || !arioTicker || !registrationType) return;
 
     const update = async () => {
       dispatchRegisterState({
         type: 'setFee',
-        payload: { ar: 0, [ioTicker]: undefined },
+        payload: { ar: 0, [arioTicker]: undefined },
       });
       setValidatingNext(true);
       const cost = await arioContract
@@ -89,13 +89,13 @@ function RegisterNameForm() {
           type: registrationType,
           years: leaseDuration,
         })
-        .then((c) => new mIOToken(c).toIO().valueOf())
+        .then((c) => new mARIOToken(c).toARIO().valueOf())
         .catch(() => undefined);
       setValidatingNext(false);
 
       dispatchRegisterState({
         type: 'setFee',
-        payload: { ar: 0, [ioTicker]: cost },
+        payload: { ar: 0, [arioTicker]: cost },
       });
     };
     update();
@@ -103,7 +103,7 @@ function RegisterNameForm() {
     arioContract,
     dispatchRegisterState,
     domain,
-    ioTicker,
+    arioTicker,
     leaseDuration,
     registrationType,
   ]);
@@ -160,14 +160,14 @@ function RegisterNameForm() {
         .getBalance({
           address: walletAddress.toString(),
         })
-        .then((balance) => new mIOToken(balance).toIO());
+        .then((balance) => new mARIOToken(balance).toARIO());
 
       const balanceErrors = userHasSufficientBalance<{
         [x: string]: number;
         AR: number;
       }>({
-        balances: { AR: balances.ar, [ioTicker]: ioBalance.valueOf() },
-        costs: { AR: fee.ar, [ioTicker]: fee[ioTicker] } as {
+        balances: { AR: balances.ar, [arioTicker]: ioBalance.valueOf() },
+        costs: { AR: fee.ar, [arioTicker]: fee[arioTicker] } as {
           [x: string]: number;
           AR: number;
         },
@@ -213,10 +213,10 @@ function RegisterNameForm() {
     dispatchTransactionState({
       type: 'setTransactionData',
       payload: {
-        assetId: ioProcessId,
+        assetId: arioProcessId,
         functionName: 'buyRecord',
         ...buyRecordPayload,
-        interactionPrice: fee?.[ioTicker],
+        interactionPrice: fee?.[arioTicker],
       },
     });
     dispatchTransactionState({

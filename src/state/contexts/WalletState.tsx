@@ -1,4 +1,4 @@
-import { AOProcess, IO } from '@ar.io/sdk/web';
+import { AOProcess, ARIO } from '@ar.io/sdk/web';
 import { ArweaveAppError } from '@src/utils/errors';
 import React, {
   Dispatch,
@@ -61,7 +61,7 @@ export function WalletStateProvider({
   const [state, dispatchWalletState] = useReducer(reducer, initialState);
 
   const [
-    { arweaveDataProvider, blockHeight, ioTicker, ioProcessId, aoClient },
+    { arweaveDataProvider, blockHeight, arioTicker, arioProcessId, aoClient },
     dispatchGlobalState,
   ] = useGlobalState();
 
@@ -77,14 +77,14 @@ export function WalletStateProvider({
     }
 
     dispatchArIOContract({
-      contract: IO.init({
+      contract: ARIO.init({
         process: new AOProcess({
-          processId: ioProcessId,
+          processId: arioProcessId,
           ao: aoClient,
         }),
         signer: wallet!.contractSigner!,
       }),
-      ioProcessId,
+      arioProcessId,
       dispatch: dispatchGlobalState,
     });
 
@@ -113,14 +113,14 @@ export function WalletStateProvider({
   }, [walletAddress, wallet, aoClient]);
 
   useEffect(() => {
-    if (!Object.keys(state.balances).includes(ioTicker)) {
+    if (!Object.keys(state.balances).includes(arioTicker)) {
       const { ar, ...ioFee } = state.balances;
       dispatchWalletState({
         type: 'setBalances',
-        payload: { ar, [ioTicker]: Object.values(ioFee)[0] },
+        payload: { ar, [arioTicker]: Object.values(ioFee)[0] },
       });
     }
-  }, [ioTicker]);
+  }, [arioTicker]);
 
   useEffect(() => {
     window.addEventListener('arweaveWalletLoaded', updateIfConnected);
@@ -156,7 +156,7 @@ export function WalletStateProvider({
       dispatchWalletState({
         type: 'setBalances',
         payload: {
-          [ioTicker]: ioBalance,
+          [arioTicker]: ioBalance,
           ar: arBalance,
         },
       });

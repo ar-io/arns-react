@@ -15,7 +15,7 @@ import { RefreshIcon, SearchIcon } from '../../icons';
 import './styles.css';
 
 function Manage() {
-  const [{ ioProcessId }] = useGlobalState();
+  const [{ arioProcessId, aoClient }] = useGlobalState();
   const [{ loading: loadingArnsState, domains, ants }, dispatchArNSState] =
     useArNSState();
   const [{ walletAddress }] = useWalletState();
@@ -92,9 +92,10 @@ function Manage() {
                   onClick={() =>
                     walletAddress
                       ? dispatchArNSUpdate({
+                          ao: aoClient,
                           dispatch: dispatchArNSState,
                           walletAddress: walletAddress,
-                          ioProcessId,
+                          arioProcessId,
                         })
                       : eventEmitter.emit('error', {
                           name: 'Manage Assets',

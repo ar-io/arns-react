@@ -52,7 +52,7 @@ const UndernamesSubtable = ({
   handlers?: AoANTHandler[] | null;
   antId: string;
 }) => {
-  const [{ gateway, ioProcessId }] = useGlobalState();
+  const [{ gateway, arioProcessId }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const [, dispatchModalState] = useModalState();
@@ -108,7 +108,7 @@ const UndernamesSubtable = ({
                             type: 'setTransactionData',
                             payload: {
                               names: [targetName],
-                              ioProcessId,
+                              arioProcessId,
                               assetId: antId,
                               functionName: 'removePrimaryNames',
                             },
@@ -118,8 +118,8 @@ const UndernamesSubtable = ({
                             type: 'setTransactionData',
                             payload: {
                               name: targetName,
-                              ioProcessId,
-                              assetId: ioProcessId,
+                              arioProcessId,
+                              assetId: arioProcessId,
                               functionName: 'primaryNameRequest',
                             },
                           });
