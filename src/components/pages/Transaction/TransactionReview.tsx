@@ -34,8 +34,16 @@ import { getTransactionHeader } from './transaction-headers';
 // on completion routes to transaction/complete
 function TransactionReview() {
   const navigate = useNavigate();
-  const [{ arioTicker, arioContract, arioProcessId, aoNetwork, aoClient }] =
-    useGlobalState();
+  const [
+    {
+      arioTicker,
+      arioContract,
+      arioProcessId,
+      aoNetwork,
+      aoClient,
+      antAoClient,
+    },
+  ] = useGlobalState();
   const [{ arnsEmitter }, dispatchArNSState] = useArNSState();
   const [{ walletAddress, wallet }] = useWalletState();
   const [
@@ -121,7 +129,7 @@ function TransactionReview() {
         dispatch: dispatchTransactionState,
         signer: wallet?.contractSigner,
         ao: aoClient,
-        scheduler: aoNetwork.SCHEDULER,
+        scheduler: aoNetwork.ARIO.SCHEDULER,
       });
     } catch (error) {
       eventEmitter.emit('error', error);
@@ -129,6 +137,7 @@ function TransactionReview() {
       if (walletAddress) {
         dispatchArNSUpdate({
           ao: aoClient,
+          antAo: antAoClient,
           emitter: arnsEmitter,
           dispatch: dispatchArNSState,
           arioProcessId,

@@ -1,5 +1,6 @@
 import {
   ANT,
+  AOProcess,
   AoANTHandler,
   AoANTState,
   AoClient,
@@ -20,12 +21,14 @@ export function dispatchArNSUpdate({
   walletAddress,
   arioProcessId,
   ao,
+  antAo,
 }: {
   emitter: ArNSEventEmitter;
   dispatch: Dispatch<ArNSAction>;
   walletAddress: AoAddress;
   arioProcessId: string;
   ao: AoClient;
+  antAo: AoClient;
 }) {
   dispatch({ type: 'setDomains', payload: {} });
   dispatch({ type: 'setAnts', payload: {} });
@@ -64,7 +67,7 @@ export function dispatchArNSUpdate({
         }
 
         return await ANT.init({
-          processId: id,
+          process: new AOProcess({ processId: id, ao: antAo }),
         })
           .getHandlers()
           .catch(console.error);

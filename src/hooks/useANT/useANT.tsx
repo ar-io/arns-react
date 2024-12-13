@@ -5,9 +5,13 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 
 export function useANT(id?: string) {
-  const [{ gateway, aoNetwork }] = useGlobalState();
+  const [{ gateway, aoNetwork, antAoClient }] = useGlobalState();
   const result = useQuery(
-    buildAntStateQuery({ processId: id!, meta: [gateway, aoNetwork.CU_URL] }),
+    buildAntStateQuery({
+      processId: id!,
+      meta: [gateway, aoNetwork.ARIO.CU_URL],
+      ao: antAoClient,
+    }),
   );
   const [data, setData] = useState<{
     records: Record<string, AoANTRecord>;

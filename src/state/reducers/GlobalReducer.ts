@@ -14,13 +14,16 @@ export type GlobalAction =
   | {
       type: 'setAONetwork';
       payload: {
-        CU_URL?: string;
-        MU_URL?: string;
-        SCHEDULER?: string;
+        ARIO?: { CU_URL: string; MU_URL: string; SCHEDULER: string };
+        ANT?: { CU_URL: string };
       };
     }
   | {
-      type: 'setAoClient';
+      type: 'setARIOAoClient';
+      payload: AoClient;
+    }
+  | {
+      type: 'setANTAoClient';
       payload: AoClient;
     }
   | {
@@ -59,10 +62,15 @@ export const reducer = (
           ...action.payload,
         },
       };
-    case 'setAoClient':
+    case 'setARIOAoClient':
       return {
         ...state,
         aoClient: action.payload,
+      };
+    case 'setANTAoClient':
+      return {
+        ...state,
+        antAoClient: action.payload,
       };
     case 'setBlockHeight':
       return {

@@ -31,6 +31,7 @@ export default async function dispatchArIOInteraction({
   dispatch,
   signer,
   ao,
+  antAo,
   scheduler = DEFAULT_SCHEDULER_ID,
 }: {
   payload: Record<string, any>;
@@ -41,6 +42,7 @@ export default async function dispatchArIOInteraction({
   dispatch: Dispatch<TransactionAction>;
   signer?: ContractSigner;
   ao?: AoClient;
+  antAo?: AoClient;
   scheduler?: string;
 }): Promise<ContractInteraction> {
   let result: AoMessageResult | undefined = undefined;
@@ -157,7 +159,7 @@ export default async function dispatchArIOInteraction({
         const antProcess = ANT.init({
           signer,
           process: new AOProcess({
-            ao,
+            ao: antAo,
             processId: payload.antProcessId,
           }),
         });

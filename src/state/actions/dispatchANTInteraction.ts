@@ -1,4 +1,11 @@
-import { ANT, ARIO, AoMessageResult, ContractSigner } from '@ar.io/sdk/web';
+import {
+  ANT,
+  AOProcess,
+  ARIO,
+  AoClient,
+  AoMessageResult,
+  ContractSigner,
+} from '@ar.io/sdk/web';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
 import { lowerCaseDomain } from '@src/utils';
@@ -13,6 +20,7 @@ export default async function dispatchANTInteraction({
   signer,
   owner,
   dispatch,
+  ao,
 }: {
   payload: Record<string, any>;
   workflowName: ANT_INTERACTION_TYPES;
@@ -20,6 +28,7 @@ export default async function dispatchANTInteraction({
   owner: string;
   processId: string;
   dispatch: Dispatch<TransactionAction>;
+  ao: AoClient;
 }): Promise<ContractInteraction> {
   let result: AoMessageResult | undefined = undefined;
   const aoCongestedTimeout = setTimeout(
@@ -29,7 +38,7 @@ export default async function dispatchANTInteraction({
     1000 * 10,
   );
   const antProcess = ANT.init({
-    processId: processId,
+    process: new AOProcess({ processId, ao }),
     signer,
   });
   const dispatchSigningMessage = (message?: string) => {

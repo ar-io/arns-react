@@ -15,7 +15,7 @@ import { RefreshIcon, SearchIcon } from '../../icons';
 import './styles.css';
 
 function Manage() {
-  const [{ arioProcessId, aoClient }] = useGlobalState();
+  const [{ arioProcessId, aoClient, antAoClient }] = useGlobalState();
   const [
     { loading: loadingArnsState, domains, ants, arnsEmitter },
     dispatchArNSState,
@@ -95,6 +95,7 @@ function Manage() {
                     walletAddress
                       ? dispatchArNSUpdate({
                           ao: aoClient,
+                          antAo: antAoClient,
                           emitter: arnsEmitter,
                           dispatch: dispatchArNSState,
                           walletAddress: walletAddress,
