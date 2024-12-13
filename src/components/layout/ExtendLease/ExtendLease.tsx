@@ -1,6 +1,5 @@
 import { AoArNSNameData, isLeasedArNSRecord, mARIOToken } from '@ar.io/sdk/web';
-import WarningCard from '@src/components/cards/WarningCard/WarningCard';
-import { getTransactionDescription } from '@src/components/pages/Transaction/transaction-descriptions';
+import { useTokenCost } from '@src/hooks/useTokenCost';
 import Lottie from 'lottie-react';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -46,9 +45,21 @@ function ExtendLease() {
   const [registrationType, setRegistrationType] = useState<TRANSACTION_TYPES>();
   const [newLeaseDuration, setNewLeaseDuration] = useState<number>(1);
   const [maxIncrease, setMaxIncrease] = useState<number>(0);
-  const [ioFee, setIoFee] = useState<number | undefined>();
   const [ioBalance, setIoBalance] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
+  const { data: ioFee } = useTokenCost(
+    registrationType === 'permabuy'
+      ? {
+          intent: 'Upgrade-Name',
+          name: name as string,
+        }
+      : {
+          intent: 'Extend-Lease',
+          years: newLeaseDuration,
+          type: registrationType?.toString() as any,
+          name: name as string,
+        },
+  );
 
   useEffect(() => {
     if (!name) {
@@ -57,25 +68,6 @@ function ExtendLease() {
     }
     onLoad(lowerCaseDomain(name));
   }, [name]);
-
-  useEffect(() => {
-    if (!record || !name || !isLeasedArNSRecord(record)) {
-      return;
-    }
-
-    setIoFee(undefined);
-    const updateIoFee = async () => {
-      const price = await arioContract
-        .getTokenCost({
-          intent: 'Extend-Lease',
-          name: name,
-          years: newLeaseDuration,
-        })
-        .then((p) => new mARIOToken(p).toARIO().valueOf());
-      setIoFee(price);
-    };
-    updateIoFee();
-  }, [newLeaseDuration, maxIncrease, record, name]);
 
   async function onLoad(domain: string) {
     try {
@@ -96,15 +88,12 @@ function ExtendLease() {
         return;
       }
 
-      if (!walletAddress) {
-        // TODO: navigate to connect
-        throw new Error('Wallet address not found');
+      if (walletAddress) {
+        const balance = await arioContract.getBalance({
+          address: walletAddress.toString(),
+        });
+        setIoBalance(balance ?? 0);
       }
-
-      const balance = await arioContract.getBalance({
-        address: walletAddress.toString(),
-      });
-      setIoBalance(balance ?? 0);
 
       setMaxIncrease(
         Math.max(
@@ -132,10 +121,7 @@ function ExtendLease() {
     );
   }
 
-  if (
-    !isLeasedArNSRecord(record) ||
-    registrationType === TRANSACTION_TYPES.BUY
-  ) {
+  if (!isLeasedArNSRecord(record)) {
     return (
       <div className="page center">
         <DialogModal
@@ -179,58 +165,154 @@ function ExtendLease() {
             <InfoIcon width={'22px'} height={'22px'} fill="var(--text-grey)" />
             Expiring on {formatDate(record.endTimestamp)}
           </div>
+        </div>{' '}
+        <div
+          className="flex flex-row flex-space-between"
+          style={{ gap: '25px' }}
+        >
+          <button
+            className="flex flex-row center text-medium bold pointer"
+            onClick={() => setRegistrationType(TRANSACTION_TYPES.LEASE)}
+            style={{
+              position: 'relative',
+              background:
+                registrationType === TRANSACTION_TYPES.LEASE
+                  ? 'var(--text-white)'
+                  : '',
+              color:
+                registrationType === TRANSACTION_TYPES.LEASE
+                  ? 'var(--text-black)'
+                  : 'var(--text-white)',
+              border: 'solid 2px var(--text-faded)',
+              borderRadius: 'var(--corner-radius)',
+              height: '56px',
+              borderBottomWidth: '0.5px',
+            }}
+          >
+            Extend Lease{' '}
+            {registrationType === TRANSACTION_TYPES.LEASE ? (
+              <div
+                style={{
+                  position: 'absolute',
+                  bottom: '-6px',
+                  left: '50%',
+                  transform: 'rotate(45deg)',
+                  width: '11px',
+                  height: '11px',
+                  background: 'var(--text-white)',
+                }}
+              ></div>
+            ) : (
+              <></>
+            )}
+          </button>
+          <button
+            className="flex flex-row center text-medium bold pointer"
+            style={{
+              position: 'relative',
+              background:
+                registrationType === TRANSACTION_TYPES.BUY
+                  ? 'var(--text-white)'
+                  : '',
+              color:
+                registrationType === TRANSACTION_TYPES.BUY
+                  ? 'var(--text-black)'
+                  : 'var(--text-white)',
+              border: 'solid 2px var(--text-faded)',
+              borderRadius: 'var(--corner-radius)',
+              height: '56px',
+              borderBottomWidth: '0.5px',
+            }}
+            onClick={() => setRegistrationType(TRANSACTION_TYPES.BUY)}
+          >
+            Permanently Buy{' '}
+            {registrationType === TRANSACTION_TYPES.BUY ? (
+              <div
+                style={{
+                  position: 'absolute',
+                  bottom: -6,
+                  left: '50%',
+                  transform: 'rotate(45deg)',
+                  width: '11px',
+                  height: '11px',
+                  background: 'var(--text-white)',
+                }}
+              ></div>
+            ) : (
+              <></>
+            )}
+          </button>
         </div>
-        <div className="flex flex-col relative p-[30px] w-full h-full bg-foreground box-border rounded-md ">
-          {/* loading overlay */}
-          {loading && (
-            <div className="flex flex-col items-center justify-center rounded-md bg-foreground h-full w-full absolute top-0 left-0">
-              <div className="flex flex-row items-center justify-center">
-                <Lottie
-                  animationData={arioLoading}
-                  loop={true}
-                  className="h-[150px]"
-                />
-              </div>
-            </div>
-          )}
-          {/* maxxed out duration overlay */}
-          {!loading && maxIncrease < 1 && (
-            <div className="flex flex-col center  rounded-md  bg-[rgb(0,0,0,0.5)] h-full w-full absolute top-0 left-0">
-              <div className="flex flex-row items-center justify-center max-w-fit h-fit rounded-md border border-error text-white bg-foreground p-6 gap-2">
-                {' '}
-                <InfoIcon
-                  width={'24px'}
-                  height={'24px'}
-                  fill="var(--error-red)"
-                />
-                <span className="center">Maximum lease extension reached</span>
-              </div>
-            </div>
-          )}
-          <Counter
-            setValue={setNewLeaseDuration}
-            value={newLeaseDuration}
-            maxValue={maxIncrease}
-            minValue={MIN_LEASE_DURATION}
-            valueName={newLeaseDuration > 1 ? 'years' : 'year'}
-            valueStyle={{ padding: '10px 80px' }}
-            detail={
-              <span>
-                until{' '}
-                {formatDate(
-                  record.endTimestamp + newLeaseDuration * YEAR_IN_MILLISECONDS,
-                )}
+        <div className="flex flex-col relative p-[30px] w-full h-[200px] bg-foreground box-border rounded-md items-center justify-center ">
+          {registrationType === TRANSACTION_TYPES.LEASE ? (
+            <>
+              {' '}
+              {/* loading overlay */}
+              {loading && (
+                <div className="flex flex-col items-center justify-center rounded-md bg-foreground h-full w-full absolute top-0 left-0">
+                  <div className="flex flex-row items-center justify-center">
+                    <Lottie
+                      animationData={arioLoading}
+                      loop={true}
+                      className="h-[150px]"
+                    />
+                  </div>
+                </div>
+              )}
+              {/* maxxed out duration overlay */}
+              {!loading && maxIncrease < 1 && (
+                <div className="flex flex-col center  rounded-md  bg-[rgb(0,0,0,0.5)] h-full w-full absolute top-0 left-0">
+                  <div className="flex flex-row items-center justify-center max-w-fit h-fit rounded-md border border-error text-white bg-foreground p-6 gap-2">
+                    {' '}
+                    <InfoIcon
+                      width={'24px'}
+                      height={'24px'}
+                      fill="var(--error-red)"
+                    />
+                    <span className="center">
+                      Maximum lease extension reached
+                    </span>
+                  </div>
+                </div>
+              )}
+              <Counter
+                setValue={setNewLeaseDuration}
+                value={newLeaseDuration}
+                maxValue={maxIncrease}
+                minValue={MIN_LEASE_DURATION}
+                valueName={newLeaseDuration > 1 ? 'years' : 'year'}
+                valueStyle={{ padding: '10px 80px' }}
+                detail={
+                  <span>
+                    until{' '}
+                    {formatDate(
+                      record.endTimestamp +
+                        newLeaseDuration * YEAR_IN_MILLISECONDS,
+                    )}
+                  </span>
+                }
+                title={
+                  <span
+                    className="white"
+                    style={{ padding: '0px 10px 10px 10px', fontWeight: '500' }}
+                  >{`Extension Duration ( up to ${Math.max(
+                    1,
+                    maxIncrease,
+                  )} year${maxIncrease > 1 ? 's' : ''} )`}</span>
+                }
+              />
+            </>
+          ) : (
+            <div
+              className="flex flex-column flex-center"
+              style={{ gap: '1em' }}
+            >
+              <span className="text-medium grey center">
+                Registration Period
               </span>
-            }
-            title={
-              <span
-                className="white"
-                style={{ padding: '0px 10px 10px 10px', fontWeight: '500' }}
-              >{`Extension Duration ( up to ${Math.max(1, maxIncrease)} year${
-                maxIncrease > 1 ? 's' : ''
-              } )`}</span>
-            }
-          />
+              <span className="text-medium white center">Permanent</span>
+            </div>
+          )}
         </div>
         {/* TODO: [PE-4563] implement contract read api for extend record */}
         <TransactionCost
@@ -240,27 +322,11 @@ function ExtendLease() {
             height: '100%',
           }}
           fee={{
-            [arioTicker]: ioFee,
+            [arioTicker]: ioFee
+              ? new mARIOToken(ioFee).toARIO().valueOf()
+              : undefined,
           }}
           ioRequired={true}
-          info={
-            <div>
-              <WarningCard
-                wrapperStyle={{
-                  padding: '10px',
-                  fontSize: '14px',
-                  alignItems: 'center',
-                }}
-                customIcon={<InfoIcon width={'20px'} fill={'var(--accent)'} />}
-                text={
-                  getTransactionDescription({
-                    workflowName: ARNS_INTERACTION_TYPES.EXTEND_LEASE,
-                    arioTicker,
-                  }) || ''
-                }
-              />
-            </div>
-          }
         />
         <WorkflowButtons
           backText="Cancel"
@@ -277,31 +343,59 @@ function ExtendLease() {
               ? undefined
               : maxIncrease >= 1 || ioFee <= ioBalance
               ? () => {
-                  const payload: ExtendLeasePayload = {
-                    name,
-                    years: newLeaseDuration,
-                    processId: new ArweaveTransactionID(record.processId),
-                    qty: ioFee,
-                  };
+                  if (registrationType === TRANSACTION_TYPES.LEASE) {
+                    const payload: ExtendLeasePayload = {
+                      name,
+                      years: newLeaseDuration,
+                      processId: new ArweaveTransactionID(record.processId),
+                      qty: ioFee,
+                    };
 
-                  dispatchTransactionState({
-                    type: 'setInteractionType',
-                    payload: ARNS_INTERACTION_TYPES.EXTEND_LEASE,
-                  });
-                  dispatchTransactionState({
-                    type: 'setTransactionData',
-                    payload: {
-                      assetId: arioProcessId,
-                      functionName: 'extendRecord',
-                      ...payload,
-                      arnsRecord: record,
-                      interactionPrice: ioFee,
-                    },
-                  });
-                  dispatchTransactionState({
-                    type: 'setWorkflowName',
-                    payload: ARNS_INTERACTION_TYPES.EXTEND_LEASE,
-                  });
+                    dispatchTransactionState({
+                      type: 'setInteractionType',
+                      payload: ARNS_INTERACTION_TYPES.EXTEND_LEASE,
+                    });
+                    dispatchTransactionState({
+                      type: 'setWorkflowName',
+                      payload: ARNS_INTERACTION_TYPES.EXTEND_LEASE,
+                    });
+                    dispatchTransactionState({
+                      type: 'setTransactionData',
+                      payload: {
+                        assetId: arioProcessId,
+                        functionName: 'extendRecord',
+                        ...payload,
+                        arnsRecord: record,
+                        interactionPrice: new mARIOToken(ioFee)
+                          .toARIO()
+                          .valueOf(),
+                      },
+                    });
+                  } else {
+                    dispatchTransactionState({
+                      type: 'setInteractionType',
+                      payload: ARNS_INTERACTION_TYPES.UPGRADE_NAME,
+                    });
+                    dispatchTransactionState({
+                      type: 'setWorkflowName',
+                      payload: ARNS_INTERACTION_TYPES.UPGRADE_NAME,
+                    });
+                    dispatchTransactionState({
+                      type: 'setTransactionData',
+                      payload: {
+                        assetId: arioProcessId,
+                        functionName: 'upgradeName',
+                        name,
+                        processId: new ArweaveTransactionID(record.processId),
+                        qty: ioFee,
+                        arnsRecord: record,
+                        interactionPrice: new mARIOToken(ioFee)
+                          .toARIO()
+                          .valueOf(),
+                      },
+                    });
+                  }
+
                   navigate('/transaction/review', {
                     state: `/manage/names/${lowerCaseDomain(name)}/extend`,
                   });
@@ -309,7 +403,9 @@ function ExtendLease() {
               : undefined
           }
           detail={
-            ioFee && ioFee > ioBalance && maxIncrease > 0 ? (
+            ioFee &&
+            new mARIOToken(ioFee).toARIO().valueOf() >= ioBalance &&
+            maxIncrease > 0 ? (
               <div
                 className="flex flex-row center"
                 style={{

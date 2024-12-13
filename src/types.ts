@@ -180,19 +180,22 @@ export enum ANT_INTERACTION_TYPES {
   APPROVE_PRIMARY_NAME = 'Approve Primary Name',
   REMOVE_PRIMARY_NAMES = 'Remove Primary Names',
   SET_LOGO = 'Set Logo',
+  SET_DESCRIPTION = 'Set Description',
+  SET_KEYWORDS = 'Set Keywords',
 }
 
 export enum ARNS_INTERACTION_TYPES {
-  BUY_RECORD = 'Buy ARNS Name',
+  BUY_RECORD = 'Buy ArNS Name',
   EXTEND_LEASE = 'Extend Lease',
   INCREASE_UNDERNAMES = 'Increase Undernames',
   TRANSFER = 'Transfer ARIO',
   PRIMARY_NAME_REQUEST = 'Primary Name Request', // two part interaction since the ant is the authority to approve the request
+  UPGRADE_NAME = 'Upgrade ArNS Name',
 }
 
 export enum INTERACTION_TYPES {
   // Registry interaction types
-  BUY_RECORD = 'Buy ARNS Name',
+  BUY_RECORD = 'Buy ArNS Name',
   EXTEND_LEASE = 'Extend Lease',
   INCREASE_UNDERNAMES = 'Increase Undernames',
 
@@ -275,6 +278,7 @@ export const registryInteractionTypes = [
   ARNS_INTERACTION_TYPES.BUY_RECORD,
   ARNS_INTERACTION_TYPES.EXTEND_LEASE,
   ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES,
+  ARNS_INTERACTION_TYPES.UPGRADE_NAME,
 ] as const;
 
 export const interactionTypeNames = [

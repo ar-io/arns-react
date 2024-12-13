@@ -176,6 +176,18 @@ export default async function dispatchANTInteraction({
           txId: payload.logo,
         });
         break;
+      case ANT_INTERACTION_TYPES.SET_DESCRIPTION:
+        dispatchSigningMessage('Setting Description, please wait...');
+        result = await antProcess.setDescription({
+          description: payload.description,
+        });
+        break;
+      case ANT_INTERACTION_TYPES.SET_KEYWORDS:
+        dispatchSigningMessage('Setting Keywords, please wait...');
+        result = await antProcess.setKeywords({
+          keywords: payload.keywords,
+        });
+        break;
       case ANT_INTERACTION_TYPES.APPROVE_PRIMARY_NAME:
         dispatchSigningMessage(
           'Approving Primary Name request, please wait...',

@@ -84,6 +84,7 @@ export function ReturnNameModal({
       });
 
       dispatchArNSUpdate({
+        ao: aoClient,
         walletAddress: walletAddress,
         arioProcessId,
         dispatch: dispatchArNSState,

@@ -17,6 +17,7 @@ export function getTransactionHeader({
           Review
         </h1>
       );
+    case ARNS_INTERACTION_TYPES.UPGRADE_NAME:
     case ARNS_INTERACTION_TYPES.BUY_RECORD:
       return `Review your Purchase`;
     default:

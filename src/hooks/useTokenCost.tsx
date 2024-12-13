@@ -11,7 +11,7 @@ export function useTokenCost({
 }: Parameters<AoARIORead['getTokenCost']>[0]) {
   const [{ arioProcessId, arioContract }] = useGlobalState();
   return useQuery({
-    queryKey: [intent, quantity, arioProcessId.toString()],
+    queryKey: [intent, quantity, arioProcessId.toString(), years, name, type],
     queryFn: async () => {
       return await arioContract.getTokenCost({
         intent,
