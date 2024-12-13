@@ -188,7 +188,7 @@ function DomainSettings({
               editable={isAuthorized}
               action={
                 <div className="flex flex-row gap-1" style={{ gap: '10px' }}>
-                  {data?.arnsRecord?.type == 'permabuy' ? (
+                  {data?.arnsRecord?.type == 'permabuy' && isOwner ? (
                     <Tooltip
                       message={
                         !antHandlers.includes('releaseName')
@@ -329,7 +329,7 @@ function DomainSettings({
                   <Skeleton.Input active />
                 )
               }
-              editable={isAuthorized}
+              editable={isOwner}
               action={
                 <Tooltip
                   message={
@@ -500,7 +500,7 @@ function DomainSettings({
           [DomainSettingsRowTypes.DESCRIPTION]: (
             <DescriptionRow
               key={DomainSettingsRowTypes.DESCRIPTION}
-              description={data?.info.Description}
+              description={data?.info?.Description}
               editable={isAuthorized}
               confirm={(description: string) =>
                 dispatchANTInteraction({
@@ -520,7 +520,7 @@ function DomainSettings({
           [DomainSettingsRowTypes.KEYWORDS]: (
             <KeywordsRow
               key={DomainSettingsRowTypes.KEYWORDS}
-              keywords={data?.info.Keywords}
+              keywords={data?.info?.Keywords}
               editable={isAuthorized}
               confirm={(keywords: string[]) =>
                 dispatchANTInteraction({

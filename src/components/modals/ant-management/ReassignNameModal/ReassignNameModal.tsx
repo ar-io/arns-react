@@ -176,7 +176,7 @@ export function ReassignNameModal({
               <XIcon className="text-white" width={'24px'} height={'24px'} />
             </button>
           </div>
-          <span className="text-[14px]">
+          <span className="">
             You are about to reassign your name registration from one ANT
             (Arweave Name Token) to another.
           </span>
@@ -208,16 +208,14 @@ export function ReassignNameModal({
             <div className="flex flex-col gap-8 w-[32rem] pb-8">
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col gap-1">
-                  <span className="text-[14px] text-grey">Name</span>
-                  <span className="text-[14px] text-white">
+                  <span className=" text-grey">Name</span>
+                  <span className=" text-white">
                     {encodeDomainToASCII(name)}
                   </span>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="text-[14px] text-grey">
-                    Old ANT Process ID
-                  </span>
-                  <span className="text-[14px] text-white">
+                  <span className=" text-grey">Old ANT Process ID</span>
+                  <span className=" text-white">
                     {domainData?.processId ? (
                       <ArweaveID
                         id={new ArweaveTransactionID(domainData.processId)}
@@ -231,17 +229,15 @@ export function ReassignNameModal({
                 </div>
 
                 <div className="flex flex-col  gap-1">
-                  <span className="text-[14px] text-grey">New ANT Type</span>
-                  <span className="text-[14px] text-white">{antType}</span>
+                  <span className=" text-grey">New ANT Type</span>
+                  <span className=" text-white">{antType}</span>
                 </div>
 
                 {antType === REASSIGN_NAME_WORKFLOWS.EXISTING && (
                   <>
                     <div className="flex flex-col  gap-1">
-                      <span className="text-[14px] text-grey">
-                        Destination Process ID
-                      </span>
-                      <span className="text-[14px] text-white">
+                      <span className=" text-grey">Destination Process ID</span>
+                      <span className=" text-white">
                         <ArweaveID
                           id={new ArweaveTransactionID(newAntProcessId)}
                           type={ArweaveIdTypes.CONTRACT}
@@ -250,9 +246,7 @@ export function ReassignNameModal({
                       </span>
                     </div>
                     <div className="flex flex-col gap-1 w-full">
-                      <span className="text-[14px] text-grey">
-                        Destination ANT Owner
-                      </span>
+                      <span className=" text-grey">Destination ANT Owner</span>
                       {loadingNewAntInfo ? (
                         <Skeleton.Input
                           size="small"
@@ -263,7 +257,7 @@ export function ReassignNameModal({
                           }}
                         />
                       ) : (
-                        <span className="text-[14px] text-white">
+                        <span className=" text-white">
                           {isValidAoAddress(newAntInfo?.owner) ? (
                             <ArweaveID
                               id={new ArweaveTransactionID(newAntInfo.owner)}
@@ -299,8 +293,8 @@ export function ReassignNameModal({
                 {antType === REASSIGN_NAME_WORKFLOWS.NEW_EXISTING && (
                   <>
                     <div className="flex flex-col  gap-1">
-                      <span className="text-[14px] text-grey">Controllers</span>
-                      <div className="flex gap-3 text-[14px] text-white">
+                      <span className=" text-grey">Controllers</span>
+                      <div className="flex gap-3  text-white">
                         {domainData.controllers ? (
                           domainData.controllers.map((c, index) => {
                             if (isValidAoAddress(c)) {
@@ -340,8 +334,8 @@ export function ReassignNameModal({
                       </div>
                     </div>
                     <div className="flex flex-col  gap-1">
-                      <span className="text-[14px] text-grey">Target ID</span>
-                      <span className="text-[14px] text-white">
+                      <span className="text-grey">Target ID</span>
+                      <span className="text-white">
                         {domainData?.apexRecord.transactionId ? (
                           <ArweaveID
                             id={
@@ -365,8 +359,8 @@ export function ReassignNameModal({
                       </span>
                     </div>
                     <div className="flex flex-col  gap-1">
-                      <span className="text-[14px] text-grey">Undernames</span>
-                      <span className="text-[14px] text-white">
+                      <span className=" text-grey">Undernames</span>
+                      <span className=" text-white">
                         {domainData?.undernameCount ?? (
                           <Skeleton.Input
                             size="small"
