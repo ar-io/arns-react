@@ -54,7 +54,10 @@ export function createUpdateAntsNotification({
   ants,
   userAddress,
 }: {
-  ants: Record<string, { state: AoANTState; handlers: AoANTHandler[] }>;
+  ants: Record<
+    string,
+    { state: AoANTState | null; handlers: AoANTHandler[] | null }
+  >;
   userAddress: string;
 }): Notification | undefined {
   const antsRequiringUpdate = getAntsRequiringUpdate({
@@ -83,7 +86,10 @@ export function createNamesExceedingUndernameLimitNotification({
   ants,
 }: {
   domains: Record<string, AoArNSNameData>;
-  ants: Record<string, { state: AoANTState; handlers: AoANTHandler[] }>;
+  ants: Record<
+    string,
+    { state: AoANTState | null; handlers: AoANTHandler[] | null }
+  >;
 }): Notification | undefined {
   const domainsRequiringUndernameSupportUpgrade = Object.values(domains).reduce(
     (acc: number, record: AoArNSNameData) => {

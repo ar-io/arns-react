@@ -19,7 +19,10 @@ import { useWalletState } from './WalletState';
 
 export type ArNSState = {
   domains: Record<string, AoArNSNameData>;
-  ants: Record<string, { state: AoANTState; handlers: AoANTHandler[] }>;
+  ants: Record<
+    string,
+    { state: AoANTState | null; handlers: AoANTHandler[] | null }
+  >;
   loading: boolean;
   percentLoaded: number;
   antCount: number;
@@ -81,7 +84,6 @@ export function ArNSStateProvider({
       ao: aoClient,
       antAo: antAoClient,
       dispatch: dispatchArNSState,
-      emitter: state.arnsEmitter,
       walletAddress: walletAddress,
       arioProcessId: arioProcessId,
     });

@@ -16,10 +16,8 @@ import './styles.css';
 
 function Manage() {
   const [{ arioProcessId, aoClient, antAoClient }] = useGlobalState();
-  const [
-    { loading: loadingArnsState, domains, ants, arnsEmitter },
-    dispatchArNSState,
-  ] = useArNSState();
+  const [{ loading: loadingArnsState, domains, ants }, dispatchArNSState] =
+    useArNSState();
   const [{ walletAddress }] = useWalletState();
   const [, dispatchModalState] = useModalState();
   const [search, setSearch] = useState<string>('');
@@ -96,7 +94,6 @@ function Manage() {
                       ? dispatchArNSUpdate({
                           ao: aoClient,
                           antAo: antAoClient,
-                          emitter: arnsEmitter,
                           dispatch: dispatchArNSState,
                           walletAddress: walletAddress,
                           arioProcessId,
