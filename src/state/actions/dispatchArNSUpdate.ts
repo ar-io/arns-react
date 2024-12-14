@@ -3,6 +3,7 @@ import {
   ANTRegistry,
   AOProcess,
   ARIO,
+  AoANTHandler,
   AoARIORead,
   AoArNSNameData,
   AoClient,
@@ -11,6 +12,7 @@ import { captureException } from '@sentry/react';
 import { AoAddress } from '@src/types';
 import eventEmitter from '@src/utils/events';
 import { buildAntStateQuery, queryClient } from '@src/utils/network';
+import { Tag } from 'arweave/node/lib/transaction';
 import { Dispatch } from 'react';
 
 import { ArNSAction } from '../reducers/ArNSReducer';
@@ -80,6 +82,29 @@ export async function dispatchArNSUpdate({
         const handlers = await queryClient.fetchQuery({
           queryKey: ['handlers', id],
           queryFn: async () => {
+            const dryTransferRes = await ao
+              .dryrun({
+                process: id,
+                Owner: walletAddress.toString(),
+                From: walletAddress.toString(),
+                tags: [
+                  { name: 'Action', value: 'Transfer' },
+                  { name: 'Recipient', value: '0x'.padEnd(42, '0') },
+                ],
+              })
+              .catch(() => {
+                return {} as ReturnType<typeof ao.dryrun>;
+              });
+
+            const hasError =
+              dryTransferRes?.Messages?.find((msg) => {
+                return msg.Tags.find((t: Tag) => t.name === 'Error');
+              }) !== undefined;
+
+            if (hasError) {
+              return [] as AoANTHandler[];
+            }
+
             return await ANT.init({
               process: new AOProcess({ processId: id, ao: antAo }),
             })
@@ -131,7 +156,7 @@ export async function dispatchArNSUpdate({
               },
             });
           } else if (!e.includes('does not support provided action.')) {
-            eventEmitter.emit('error', new Error(e));
+            console.error(new Error(e));
           }
         };
         errorHandler(error.message);
