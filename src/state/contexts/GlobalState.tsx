@@ -18,7 +18,7 @@ import React, {
 import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
 import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
 import {
-  AO_CU_URL,
+  ARIO_AO_CU_URL,
   ARIO_PROCESS_ID,
   ARWEAVE_HOST,
   DEFAULT_ARWEAVE,
@@ -31,7 +31,7 @@ export const defaultArIO = ARIO.init({
   process: new AOProcess({
     processId: ARIO_PROCESS_ID,
     ao: connect({
-      CU_URL: AO_CU_URL,
+      CU_URL: ARIO_AO_CU_URL,
     }),
   }),
 });
@@ -40,11 +40,17 @@ export type GlobalState = {
   arioTicker: string;
   gateway: string;
   aoNetwork: {
-    CU_URL: string;
-    MU_URL: string;
-    SCHEDULER: string;
+    ARIO: {
+      CU_URL: string;
+      MU_URL: string;
+      SCHEDULER: string;
+    };
+    ANT: {
+      CU_URL: string;
+    };
   };
   aoClient: AoClient;
+  antAoClient: AoClient;
   arioProcessId: string;
   blockHeight?: number;
   lastBlockUpdateTimestamp?: number;
@@ -57,7 +63,8 @@ const initialState: GlobalState = {
   arioTicker: 'ARIO',
   gateway: ARWEAVE_HOST,
   aoNetwork: NETWORK_DEFAULTS.AO,
-  aoClient: connect(NETWORK_DEFAULTS.AO),
+  aoClient: connect(NETWORK_DEFAULTS.AO.ARIO),
+  antAoClient: connect(NETWORK_DEFAULTS.AO.ANT),
   blockHeight: undefined,
   lastBlockUpdateTimestamp: undefined,
   arweaveDataProvider: new ArweaveCompositeDataProvider({

@@ -20,11 +20,13 @@ export async function dispatchArNSUpdate({
   walletAddress,
   arioProcessId,
   ao,
+  antAo,
 }: {
   dispatch: Dispatch<ArNSAction>;
   walletAddress: AoAddress;
   arioProcessId: string;
   ao: AoClient;
+  antAo: AoClient;
 }) {
   dispatch({ type: 'setDomains', payload: {} });
   dispatch({ type: 'setAnts', payload: {} });
@@ -79,7 +81,7 @@ export async function dispatchArNSUpdate({
           queryKey: ['handlers', id],
           queryFn: async () => {
             return await ANT.init({
-              processId: id,
+              process: new AOProcess({ processId: id, ao: antAo }),
             })
               .getHandlers()
               .catch((e) => {
@@ -91,7 +93,7 @@ export async function dispatchArNSUpdate({
         });
 
         const state = await queryClient
-          .fetchQuery(buildAntStateQuery({ processId: id }))
+          .fetchQuery(buildAntStateQuery({ processId: id, ao: antAo }))
           .catch((e) => {
             console.error(e);
             return null;

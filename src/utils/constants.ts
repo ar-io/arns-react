@@ -92,13 +92,25 @@ export const ARIO_PROCESS_ID =
   process.env.VITE_ARIO_PROCESS_ID || arioDevnetProcessId;
 
 export const DEFAULT_ANT_LUA_ID = ANT_LUA_ID;
-export const AO_CU_URL = process.env.VITE_AO_CU_URL || 'https://cu.ardrive.io';
+export const ARIO_AO_CU_URL =
+  process.env.VITE_ARIO_AO_CU_URL || 'https://cu.ardrive.io';
+
+export const ANT_AO_CU_URL =
+  process.env.VITE_ARIO_AO_CU_URL || 'https://cu.ao-testnet.xyz';
 
 export const NETWORK_DEFAULTS = {
   AO: {
-    CU_URL: AO_CU_URL, // ao public cu: https://cu.ao-testnet.xyz
-    MU_URL: 'https://mu.ao-testnet.xyz',
-    SCHEDULER: DEFAULT_SCHEDULER_ID,
+    ARIO: {
+      CU_URL: ARIO_AO_CU_URL, // ao public cu: https://cu.ao-testnet.xyz
+      MU_URL: 'https://mu.ao-testnet.xyz',
+      SCHEDULER: DEFAULT_SCHEDULER_ID,
+    },
+
+    ANT: {
+      CU_URL: ANT_AO_CU_URL,
+      MU_URL: 'https://mu.ao-testnet.xyz',
+      SCHEDULER: DEFAULT_SCHEDULER_ID,
+    },
   },
   ARWEAVE: {
     HOST: ARWEAVE_HOST,
