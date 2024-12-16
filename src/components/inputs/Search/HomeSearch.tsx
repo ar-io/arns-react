@@ -3,8 +3,8 @@ import { AoArNSNameData } from '@ar.io/sdk/web';
 import DomainDetailsTip from '@src/components/data-display/DomainDetailsTip';
 import { CircleCheckFilled, SearchIcon } from '@src/components/icons';
 import useDebounce from '@src/hooks/useDebounce';
-import { useGlobalState } from '@src/state';
 import { decodeDomainToASCII, lowerCaseDomain } from '@src/utils';
+import { NETWORK_DEFAULTS } from '@src/utils/constants';
 import Lottie from 'lottie-react';
 import { ChevronRight, CircleAlert, XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -25,7 +25,6 @@ const defaultValidations = {
 
 function HomeSearch() {
   const navigate = useNavigate();
-  const [{ gateway }] = useGlobalState();
   const [isSearching, setIsSearching] = useState(false);
   const [isAvailable, setIsAvailable] = useState(false);
   const [validations, setValidations] =
@@ -256,7 +255,8 @@ function HomeSearch() {
                 ) : (
                   <div className="flex flex-row w-full justify-between mt-4">
                     <span className="text-xl text-grey">
-                      {decodeDomainToASCII(domainQuery)}.{gateway}
+                      {decodeDomainToASCII(domainQuery)}.
+                      {NETWORK_DEFAULTS.ARNS.RESOLVER}
                     </span>
                     <button
                       className="text-[12px] text-white whitespace-nowrap flex items-center"
