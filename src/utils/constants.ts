@@ -110,7 +110,7 @@ export const NETWORK_DEFAULTS = {
     GRAPHQL_URL: ARWEAVE_GRAPHQL_URL,
   },
   ARNS: {
-    RESOLVER: 'ar.io',
+    HOST: 'ar.io',
   },
 };
 

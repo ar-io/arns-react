@@ -207,7 +207,7 @@ const UndernamesSubtable = ({
                     to={`https://${encodeDomainToASCII(
                       rowValue,
                     )}_${encodeDomainToASCII(arnsDomain ?? '')}.${
-                      NETWORK_DEFAULTS.ARNS.RESOLVER
+                      NETWORK_DEFAULTS.ARNS.HOST
                     }`}
                     target="_blank"
                   >

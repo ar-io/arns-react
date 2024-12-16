@@ -256,7 +256,7 @@ function HomeSearch() {
                   <div className="flex flex-row w-full justify-between mt-4">
                     <span className="text-xl text-grey">
                       {decodeDomainToASCII(domainQuery)}.
-                      {NETWORK_DEFAULTS.ARNS.RESOLVER}
+                      {NETWORK_DEFAULTS.ARNS.HOST}
                     </span>
                     <button
                       className="text-[12px] text-white whitespace-nowrap flex items-center"

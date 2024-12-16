@@ -8,7 +8,7 @@ const protocol = 'https';
 
 function ARNSCard({
   domain,
-  gateway = NETWORK_DEFAULTS.ARNS.RESOLVER,
+  gateway = NETWORK_DEFAULTS.ARNS.HOST,
   imageUrl,
 }: Omit<ARNSMapping, 'processId'> & { gateway?: string; imageUrl: string }) {
   return (

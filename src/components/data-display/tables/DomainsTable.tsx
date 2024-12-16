@@ -272,7 +272,7 @@ const DomainsTable = ({
                   <Link
                     className="link gap-2 w-fit"
                     to={`https://${encodeDomainToASCII(row.getValue('name'))}.${
-                      NETWORK_DEFAULTS.ARNS.RESOLVER
+                      NETWORK_DEFAULTS.ARNS.HOST
                     }`}
                     target="_blank"
                   >
