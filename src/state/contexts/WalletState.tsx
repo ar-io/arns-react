@@ -113,16 +113,6 @@ export function WalletStateProvider({
   }, [walletAddress, wallet, aoClient]);
 
   useEffect(() => {
-    if (!Object.keys(state.balances).includes(arioTicker)) {
-      const { ar, ...ioFee } = state.balances;
-      dispatchWalletState({
-        type: 'setBalances',
-        payload: { ar, [arioTicker]: Object.values(ioFee)[0] },
-      });
-    }
-  }, [arioTicker]);
-
-  useEffect(() => {
     window.addEventListener('arweaveWalletLoaded', updateIfConnected);
 
     return () => {
