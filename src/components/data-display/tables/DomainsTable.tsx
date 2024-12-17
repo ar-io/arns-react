@@ -30,7 +30,10 @@ import {
   isArweaveTransactionID,
   lowerCaseDomain,
 } from '@src/utils';
-import { PERMANENT_DOMAIN_MESSAGE } from '@src/utils/constants';
+import {
+  NETWORK_DEFAULTS,
+  PERMANENT_DOMAIN_MESSAGE,
+} from '@src/utils/constants';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { capitalize } from 'lodash';
 import { CircleCheck, Star } from 'lucide-react';
@@ -110,7 +113,7 @@ const DomainsTable = ({
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [{ walletAddress }] = useWalletState();
-  const [{ gateway, arioProcessId }] = useGlobalState();
+  const [{ arioProcessId }] = useGlobalState();
   const [, dispatchModalState] = useModalState();
   const [, dispatchTransactionState] = useTransactionState();
   const { data: primaryNameData } = usePrimaryName();
@@ -268,9 +271,9 @@ const DomainsTable = ({
                 icon={
                   <Link
                     className="link gap-2 w-fit"
-                    to={`https://${encodeDomainToASCII(
-                      row.getValue('name'),
-                    )}.${gateway}`}
+                    to={`https://${encodeDomainToASCII(row.getValue('name'))}.${
+                      NETWORK_DEFAULTS.ARNS.HOST
+                    }`}
                     target="_blank"
                   >
                     {formatForMaxCharCount(decodeDomainToASCII(rowValue), 20)}{' '}

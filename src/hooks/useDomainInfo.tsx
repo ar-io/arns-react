@@ -51,6 +51,7 @@ export default function useDomainInfo({
     queryKey: ['domainInfo', { domain, antId, arioProcessId, aoNetwork }],
     queryFn: () => getDomainInfo({ domain, antId }).catch((error) => error),
     refetchOnWindowFocus: false,
+    staleTime: Infinity,
   });
 
   async function getDomainInfo({
