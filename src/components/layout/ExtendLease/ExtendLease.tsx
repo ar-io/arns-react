@@ -1,4 +1,9 @@
-import { AoArNSNameData, isLeasedArNSRecord, mARIOToken } from '@ar.io/sdk/web';
+import {
+  AoArNSLeaseData,
+  isLeasedArNSRecord,
+  mARIOToken,
+} from '@ar.io/sdk/web';
+import useDomainInfo from '@src/hooks/useDomainInfo';
 import { useTokenCost } from '@src/hooks/useTokenCost';
 import Lottie from 'lottie-react';
 import { useEffect, useState } from 'react';
@@ -17,37 +22,41 @@ import {
   formatDate,
   getLeaseDurationFromEndTimestamp,
   lowerCaseDomain,
-  sleep,
 } from '../../../utils';
 import {
   MAX_LEASE_DURATION,
   MIN_LEASE_DURATION,
   YEAR_IN_MILLISECONDS,
 } from '../../../utils/constants';
-import eventEmitter from '../../../utils/events';
 import { InfoIcon } from '../../icons';
 import arioLoading from '../../icons/ario-spinner.json';
 import Counter from '../../inputs/Counter/Counter';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
 import DialogModal from '../../modals/DialogModal/DialogModal';
 import TransactionCost from '../TransactionCost/TransactionCost';
-import PageLoader from '../progress/PageLoader/PageLoader';
 
 function ExtendLease() {
   // TODO: remove use of source contract
-  const [{ arioTicker, arioContract, arioProcessId }] = useGlobalState();
-  const [{ walletAddress }] = useWalletState();
+  const [{ arioTicker, arioProcessId }] = useGlobalState();
+  const [{ balances }] = useWalletState();
+  const ioBalance = balances[arioTicker] ?? 0;
   const [, dispatchTransactionState] = useTransactionState();
   const location = useLocation();
   const navigate = useNavigate();
   const name = location.pathname.split('/').at(-2);
-  const [record, setRecord] = useState<AoArNSNameData>();
-  const [registrationType, setRegistrationType] = useState<TRANSACTION_TYPES>();
+  const { data: domainData, isLoading: loadingDomainData } = useDomainInfo({
+    domain: name,
+  });
+  const leasedArnsRecord = domainData?.arnsRecord as
+    | undefined
+    | AoArNSLeaseData;
+
+  const [registrationType, setRegistrationType] = useState<TRANSACTION_TYPES>(
+    TRANSACTION_TYPES.LEASE,
+  );
   const [newLeaseDuration, setNewLeaseDuration] = useState<number>(1);
   const [maxIncrease, setMaxIncrease] = useState<number>(0);
-  const [ioBalance, setIoBalance] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(false);
-  const { data: ioFee } = useTokenCost(
+  const { data: mARIOFee, isLoading: loadingArioFee } = useTokenCost(
     registrationType === 'permabuy'
       ? {
           intent: 'Upgrade-Name',
@@ -60,68 +69,38 @@ function ExtendLease() {
           name: name as string,
         },
   );
+  const arioFee = mARIOFee
+    ? new mARIOToken(mARIOFee).toARIO().valueOf()
+    : undefined;
 
   useEffect(() => {
     if (!name) {
       navigate(`/manage/names`);
       return;
     }
-    onLoad(lowerCaseDomain(name));
-  }, [name]);
+    if (domainData?.arnsRecord) {
+      setRegistrationType(domainData.arnsRecord?.type as TRANSACTION_TYPES);
 
-  async function onLoad(domain: string) {
-    try {
-      setLoading(true);
-      // TODO: make this generic so we get back the correct type
-
-      const domainRecord = await arioContract.getArNSRecord({
-        name: lowerCaseDomain(domain),
-      });
-      if (!domainRecord) {
-        throw new Error(`Unable to get record for ${domain}`);
-      }
-      setRegistrationType(domainRecord.type as TRANSACTION_TYPES);
-      setRecord(domainRecord);
-
-      if (!isLeasedArNSRecord(domainRecord)) {
+      if (!isLeasedArNSRecord(domainData?.arnsRecord)) {
         setRegistrationType(TRANSACTION_TYPES.BUY);
+        setMaxIncrease(0);
         return;
+      } else {
+        setMaxIncrease(
+          Math.max(
+            0,
+            MAX_LEASE_DURATION -
+              getLeaseDurationFromEndTimestamp(
+                domainData.arnsRecord.startTimestamp,
+                domainData.arnsRecord.endTimestamp,
+              ),
+          ),
+        );
       }
-
-      if (walletAddress) {
-        const balance = await arioContract.getBalance({
-          address: walletAddress.toString(),
-        });
-        setIoBalance(balance ?? 0);
-      }
-
-      setMaxIncrease(
-        Math.max(
-          0,
-          MAX_LEASE_DURATION -
-            getLeaseDurationFromEndTimestamp(
-              domainRecord.startTimestamp,
-              domainRecord.endTimestamp,
-            ),
-        ),
-      );
-    } catch (error) {
-      eventEmitter.emit('error', error);
-      // sleep 2000 to make page transition less jarring
-      await sleep(2000);
-      navigate(`/manage/names`);
-    } finally {
-      setLoading(false);
     }
-  }
+  }, [name, domainData]);
 
-  if (!record || !name) {
-    return (
-      <PageLoader loading={!record} message={`Loading info for ${name}`} />
-    );
-  }
-
-  if (!isLeasedArNSRecord(record)) {
+  if (domainData?.arnsRecord && !isLeasedArNSRecord(domainData.arnsRecord)) {
     return (
       <div className="page center">
         <DialogModal
@@ -163,7 +142,10 @@ function ExtendLease() {
             }}
           >
             <InfoIcon width={'22px'} height={'22px'} fill="var(--text-grey)" />
-            Expiring on {formatDate(record.endTimestamp)}
+            Expiring on{' '}
+            {leasedArnsRecord?.endTimestamp
+              ? formatDate(leasedArnsRecord.endTimestamp)
+              : 'N/A'}
           </div>
         </div>{' '}
         <div
@@ -248,7 +230,7 @@ function ExtendLease() {
             <>
               {' '}
               {/* loading overlay */}
-              {loading && (
+              {loadingDomainData && (
                 <div className="flex flex-col items-center justify-center rounded-md bg-foreground h-full w-full absolute top-0 left-0">
                   <div className="flex flex-row items-center justify-center">
                     <Lottie
@@ -260,7 +242,7 @@ function ExtendLease() {
                 </div>
               )}
               {/* maxxed out duration overlay */}
-              {!loading && maxIncrease < 1 && (
+              {!loadingDomainData && maxIncrease < 1 && (
                 <div className="flex flex-col center  rounded-md  bg-[rgb(0,0,0,0.5)] h-full w-full absolute top-0 left-0">
                   <div className="flex flex-row items-center justify-center max-w-fit h-fit rounded-md border border-error text-white bg-foreground p-6 gap-2">
                     {' '}
@@ -285,10 +267,12 @@ function ExtendLease() {
                 detail={
                   <span>
                     until{' '}
-                    {formatDate(
-                      record.endTimestamp +
-                        newLeaseDuration * YEAR_IN_MILLISECONDS,
-                    )}
+                    {leasedArnsRecord?.endTimestamp
+                      ? formatDate(
+                          leasedArnsRecord?.endTimestamp +
+                            newLeaseDuration * YEAR_IN_MILLISECONDS,
+                        )
+                      : 'N/A'}
                   </span>
                 }
                 title={
@@ -321,34 +305,52 @@ function ExtendLease() {
             justifyContent: 'center',
             height: '100%',
           }}
-          fee={{
-            [arioTicker]: ioFee
-              ? new mARIOToken(ioFee).toARIO().valueOf()
-              : undefined,
-          }}
+          fee={
+            loadingArioFee
+              ? { [arioTicker]: undefined }
+              : {
+                  [arioTicker]:
+                    maxIncrease < 1 &&
+                    registrationType === TRANSACTION_TYPES.LEASE
+                      ? 0
+                      : arioFee,
+                }
+          }
           ioRequired={true}
         />
         <WorkflowButtons
           backText="Cancel"
           nextText="Continue"
           customNextStyle={{
-            background: maxIncrease < 1 && 'var(--text-grey)',
-            color: maxIncrease < 1 && 'var(--text-white)',
+            background:
+              maxIncrease < 1 &&
+              registrationType === TRANSACTION_TYPES.LEASE &&
+              'var(--text-grey)',
+            color:
+              maxIncrease < 1 &&
+              registrationType === TRANSACTION_TYPES.LEASE &&
+              'var(--text-white)',
           }}
           onBack={() => {
-            navigate(`/manage/names/${lowerCaseDomain(name)}`);
+            navigate(`/manage/names/${lowerCaseDomain(name!)}`);
           }}
           onNext={
-            !ioFee || ioFee < 0
+            !arioFee || arioFee <= 0
               ? undefined
-              : maxIncrease >= 1 || ioFee <= ioBalance
+              : arioFee <= ioBalance
               ? () => {
-                  if (registrationType === TRANSACTION_TYPES.LEASE) {
+                  if (
+                    registrationType === TRANSACTION_TYPES.LEASE &&
+                    domainData?.arnsRecord &&
+                    name
+                  ) {
                     const payload: ExtendLeasePayload = {
                       name,
                       years: newLeaseDuration,
-                      processId: new ArweaveTransactionID(record.processId),
-                      qty: ioFee,
+                      processId: new ArweaveTransactionID(
+                        domainData?.arnsRecord.processId,
+                      ),
+                      qty: arioFee,
                     };
 
                     dispatchTransactionState({
@@ -365,13 +367,11 @@ function ExtendLease() {
                         assetId: arioProcessId,
                         functionName: 'extendRecord',
                         ...payload,
-                        arnsRecord: record,
-                        interactionPrice: new mARIOToken(ioFee)
-                          .toARIO()
-                          .valueOf(),
+                        arnsRecord: domainData.arnsRecord,
+                        interactionPrice: arioFee,
                       },
                     });
-                  } else {
+                  } else if (domainData?.arnsRecord && name) {
                     dispatchTransactionState({
                       type: 'setInteractionType',
                       payload: ARNS_INTERACTION_TYPES.UPGRADE_NAME,
@@ -386,26 +386,24 @@ function ExtendLease() {
                         assetId: arioProcessId,
                         functionName: 'upgradeName',
                         name,
-                        processId: new ArweaveTransactionID(record.processId),
-                        qty: ioFee,
-                        arnsRecord: record,
-                        interactionPrice: new mARIOToken(ioFee)
-                          .toARIO()
-                          .valueOf(),
+                        processId: new ArweaveTransactionID(
+                          domainData.arnsRecord.processId,
+                        ),
+                        qty: arioFee,
+                        arnsRecord: domainData.arnsRecord,
+                        interactionPrice: arioFee,
                       },
                     });
                   }
 
                   navigate('/transaction/review', {
-                    state: `/manage/names/${lowerCaseDomain(name)}/extend`,
+                    state: `/manage/names/${lowerCaseDomain(name!)}/extend`,
                   });
                 }
               : undefined
           }
           detail={
-            ioFee &&
-            new mARIOToken(ioFee).toARIO().valueOf() >= ioBalance &&
-            maxIncrease > 0 ? (
+            arioFee && arioFee > ioBalance ? (
               <div
                 className="flex flex-row center"
                 style={{
@@ -422,7 +420,6 @@ function ExtendLease() {
                   fontSize: '13px',
                 }}
               >
-                {' '}
                 <InfoIcon
                   width={'24px'}
                   height={'24px'}
@@ -434,7 +431,7 @@ function ExtendLease() {
               <></>
             )
           }
-        />
+        />{' '}
       </div>
     </div>
   );
