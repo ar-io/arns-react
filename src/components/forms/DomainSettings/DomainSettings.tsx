@@ -445,7 +445,7 @@ function DomainSettings({
           [DomainSettingsRowTypes.DESCRIPTION]: (
             <DescriptionRow
               key={DomainSettingsRowTypes.DESCRIPTION}
-              description={data?.info.Description}
+              description={data?.info?.Description}
               editable={isAuthorized}
               confirm={(description: string) =>
                 dispatchANTInteraction({
@@ -464,7 +464,7 @@ function DomainSettings({
           [DomainSettingsRowTypes.KEYWORDS]: (
             <KeywordsRow
               key={DomainSettingsRowTypes.KEYWORDS}
-              keywords={data?.info.Keywords}
+              keywords={data?.info?.Keywords}
               editable={isAuthorized}
               confirm={(keywords: string[]) =>
                 dispatchANTInteraction({
