@@ -17,13 +17,10 @@ import {
   decodeDomainToASCII,
   doAntsRequireUpdate,
   formatExpiryDate,
-  getLeaseDurationFromEndTimestamp,
-  isMaxLeaseDuration,
   lowerCaseDomain,
 } from '@src/utils';
 import {
   DEFAULT_MAX_UNDERNAMES,
-  PERMANENT_DOMAIN_MESSAGE,
   SECONDS_IN_GRACE_PERIOD,
 } from '@src/utils/constants';
 import { useQueryClient } from '@tanstack/react-query';
@@ -97,15 +94,6 @@ function DomainSettings({
   const antHandlers = (data?.info?.Handlers ??
     data?.info?.HandlerNames ??
     []) as AoANTHandler[];
-
-  const maxLeaseDuration = isMaxLeaseDuration(
-    data?.arnsRecord && isLeasedArNSRecord(data?.arnsRecord)
-      ? getLeaseDurationFromEndTimestamp(
-          data?.arnsRecord.startTimestamp,
-          data?.arnsRecord?.endTimestamp,
-        )
-      : PERMANENT_DOMAIN_MESSAGE,
-  );
 
   useEffect(() => {
     if (!domain && !antId) {
@@ -185,7 +173,7 @@ function DomainSettings({
             <DomainSettingsRow
               label="Lease Duration"
               key={DomainSettingsRowTypes.LEASE_DURATION}
-              editable={isAuthorized}
+              editable={true}
               action={
                 <div className="flex flex-row gap-1" style={{ gap: '10px' }}>
                   {data?.arnsRecord?.type == 'permabuy' && isOwner ? (
@@ -207,19 +195,10 @@ function DomainSettings({
                     />
                   ) : (
                     <Tooltip
-                      message={
-                        maxLeaseDuration
-                          ? 'Max lease duration reached'
-                          : 'Extend lease'
-                      }
+                      message={'Extend lease'}
                       icon={
                         <button
-                          disabled={isLoading || maxLeaseDuration}
-                          className={`p-[6px] px-[10px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all whitespace-nowrap ${
-                            isLoading || maxLeaseDuration
-                              ? 'disabled-button'
-                              : 'hover'
-                          }`}
+                          className={`p-[6px] px-[10px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all whitespace-nowrap hover `}
                           onClick={() =>
                             navigate(
                               `/manage/names/${lowerCaseDomain(

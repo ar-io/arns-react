@@ -1,4 +1,4 @@
-import { ARWEAVE_HOST } from '@src/utils/constants';
+import { NETWORK_DEFAULTS } from '@src/utils/constants';
 import { Link } from 'react-router-dom';
 
 import { ARNSMapping } from '../../../types';
@@ -8,7 +8,7 @@ const protocol = 'https';
 
 function ARNSCard({
   domain,
-  gateway = ARWEAVE_HOST,
+  gateway = NETWORK_DEFAULTS.ARNS.HOST,
   imageUrl,
 }: Omit<ARNSMapping, 'processId'> & { gateway?: string; imageUrl: string }) {
   return (

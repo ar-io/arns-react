@@ -28,6 +28,7 @@ import {
   encodePrimaryName,
   formatForMaxCharCount,
 } from '@src/utils';
+import { NETWORK_DEFAULTS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import Lottie from 'lottie-react';
@@ -95,7 +96,7 @@ const UndernamesTable = ({
   refresh?: () => void;
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [{ gateway, arioProcessId, aoClient }] = useGlobalState();
+  const [{ arioProcessId, aoClient }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const [, dispatchModalState] = useModalState();
@@ -344,7 +345,9 @@ const UndernamesTable = ({
                     className="link gap-2 items-center w-fit"
                     to={`https://${encodeDomainToASCII(
                       rowValue,
-                    )}_${encodeDomainToASCII(arnsDomain ?? '')}.${gateway}`}
+                    )}_${encodeDomainToASCII(arnsDomain ?? '')}.${
+                      NETWORK_DEFAULTS.ARNS.HOST
+                    }`}
                     target="_blank"
                   >
                     {formatForMaxCharCount(decodeDomainToASCII(rowValue), 30)}{' '}
