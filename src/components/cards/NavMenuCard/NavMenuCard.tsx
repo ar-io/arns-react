@@ -398,13 +398,13 @@ function NavMenuCard() {
             {primaryNameData?.name ? (
               <>
                 <AntLogoIcon
-                  className="rounded-full max-h-[30px]"
+                  className="rounded-full max-h-[1.875rem] border border-grey"
                   id={domainDomain?.info?.Logo}
                   icon={
                     <User
-                      width={'20px'}
-                      height={'20px'}
-                      className="rounded-full"
+                      width={'1.5625rem'}
+                      height={'1.5625rem'}
+                      className="rounded-full border border-grey"
                     />
                   }
                 />

@@ -1,5 +1,5 @@
 import { useGlobalState } from '@src/state';
-import { useEffect, useRef, useState } from 'react';
+import { CSSProperties, useEffect, useRef, useState } from 'react';
 import { ReactNode } from 'react-markdown';
 
 import { HamburgerOutlineIcon } from '../icons';
@@ -7,6 +7,7 @@ import { HamburgerOutlineIcon } from '../icons';
 export function AntLogoIcon({
   id,
   className,
+  style,
   icon = (
     <HamburgerOutlineIcon
       width={'20px'}
@@ -18,6 +19,7 @@ export function AntLogoIcon({
   id?: string;
   className?: string;
   icon?: ReactNode;
+  style?: CSSProperties;
 }) {
   const [{ gateway }] = useGlobalState();
   const [validImage, setValidImage] = useState(true);
@@ -46,7 +48,7 @@ export function AntLogoIcon({
         className={className ?? 'w-[30px] rounded-full'}
         src={`https://${gateway}/${id}`}
         alt="ant-logo"
-        style={{ display: validImage ? 'block' : 'none' }}
+        style={{ display: validImage ? 'block' : 'none', ...(style ?? {}) }}
       />
       {!validImage && icon}
     </>
