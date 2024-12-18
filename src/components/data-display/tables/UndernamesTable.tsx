@@ -96,7 +96,7 @@ const UndernamesTable = ({
   refresh?: () => void;
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [{ arioProcessId }] = useGlobalState();
+  const [{ arioProcessId, aoClient }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const [, dispatchModalState] = useModalState();
@@ -144,6 +144,7 @@ const UndernamesTable = ({
         signer: wallet?.contractSigner,
         owner: walletAddress?.toString(),
         dispatch: dispatchTransactionState,
+        ao: aoClient,
       });
       eventEmitter.emit('success', {
         name: 'Manage Undernames',

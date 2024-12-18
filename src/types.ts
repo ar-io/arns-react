@@ -176,6 +176,7 @@ export enum ANT_INTERACTION_TYPES {
   TRANSFER = 'Transfer ANT',
   EVOLVE = 'Upgrade ANT',
   RELEASE_NAME = 'Release Name',
+  REASSIGN_NAME = 'Reassign Name',
   APPROVE_PRIMARY_NAME = 'Approve Primary Name',
   REMOVE_PRIMARY_NAMES = 'Remove Primary Names',
   SET_LOGO = 'Set Logo',

@@ -4,10 +4,11 @@ import LeaseDuration from '@src/components/data-display/LeaseDuration';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
+import { ReassignNameModal } from '@src/components/modals/ant-management/ReassignNameModal/ReassignNameModal';
 import { ReturnNameModal } from '@src/components/modals/ant-management/ReturnNameModal/ReturnNameModal';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
-import { useArNSState, useGlobalState } from '@src/state';
+import { useGlobalState } from '@src/state';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
 import { useWalletState } from '@src/state/contexts/WalletState';
@@ -74,12 +75,13 @@ function DomainSettings({
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  const [{ arioProcessId }] = useGlobalState();
+  const [{ arioProcessId, aoClient }] = useGlobalState();
   const [{ interactionResult }, dispatch] = useTransactionState();
   const [{ wallet, walletAddress }] = useWalletState();
   const { data, isLoading, refetch } = useDomainInfo({ domain, antId });
-  const [{ ants }] = useArNSState();
+
   const [showReturnNameModal, setShowReturnNameModal] = useState(false);
+  const [showReassignNameModal, setShowReassignNameModal] = useState(false);
 
   // permissions check
   const isOwner = walletAddress
@@ -89,8 +91,9 @@ function DomainSettings({
     ? data?.controllers?.includes(walletAddress.toString() ?? '')
     : false;
   const isAuthorized = isOwner || isController;
-  const antHandlers =
-    data?.info?.Handlers ?? data?.info?.HandlerNames ?? ([] as AoANTHandler[]);
+  const antHandlers = (data?.info?.Handlers ??
+    data?.info?.HandlerNames ??
+    []) as AoANTHandler[];
 
   useEffect(() => {
     if (!domain && !antId) {
@@ -173,7 +176,7 @@ function DomainSettings({
               editable={true}
               action={
                 <div className="flex flex-row gap-1" style={{ gap: '10px' }}>
-                  {data?.arnsRecord?.type == 'permabuy' ? (
+                  {data?.arnsRecord?.type == 'permabuy' && isOwner ? (
                     <Tooltip
                       message={
                         !antHandlers.includes('releaseName')
@@ -258,9 +261,14 @@ function DomainSettings({
               antId={data?.processId?.toString()}
               editable={isAuthorized}
               requiresUpdate={
-                data?.processId && ants[data.processId] && walletAddress
+                data?.processId && data?.state && walletAddress
                   ? doAntsRequireUpdate({
-                      ants: { [data.processId]: ants[data.processId] },
+                      ants: {
+                        [data.processId]: {
+                          state: data.state,
+                          handlers: antHandlers,
+                        },
+                      },
                       userAddress: walletAddress.toString(),
                     })
                   : false
@@ -280,6 +288,7 @@ function DomainSettings({
                   signer: wallet!.contractSigner!,
                   owner: walletAddress!.toString(),
                   dispatch,
+                  ao: aoClient,
                 })
               }
             />
@@ -289,7 +298,7 @@ function DomainSettings({
               label="Process ID"
               key={DomainSettingsRowTypes.PROCESS_ID}
               value={
-                data?.processId ? (
+                data?.processId && !isLoading ? (
                   <ArweaveID
                     id={new ArweaveTransactionID(data.processId.toString())}
                     shouldLink
@@ -298,6 +307,30 @@ function DomainSettings({
                 ) : (
                   <Skeleton.Input active />
                 )
+              }
+              editable={isOwner}
+              action={
+                <Tooltip
+                  message={
+                    !antHandlers.includes('reassignName')
+                      ? 'Update ANT to access Reassign Name workflow'
+                      : data?.isInGracePeriod
+                      ? 'Lease must be extended before ANT can be Reassigned'
+                      : 'Reassigns what ANT is registered to the ArNS Name'
+                  }
+                  icon={
+                    <button
+                      disabled={
+                        !antHandlers.includes('reassignName') ||
+                        data?.isInGracePeriod
+                      }
+                      onClick={() => setShowReassignNameModal(true)}
+                      className={`flex flex-row text-[12px] rounded-[4px] p-[6px] px-[10px] border border-error bg-error-thin text-error whitespace-nowrap`}
+                    >
+                      Reassign Name
+                    </button>
+                  }
+                />
               }
             />
           ),
@@ -317,6 +350,7 @@ function DomainSettings({
                   owner: walletAddress!.toString(),
                   processId: data?.processId,
                   dispatch,
+                  ao: aoClient,
                 })
               }
             />
@@ -334,6 +368,7 @@ function DomainSettings({
                   owner: walletAddress!.toString(),
                   processId: data?.processId,
                   dispatch,
+                  ao: aoClient,
                 })
               }
             />
@@ -360,6 +395,7 @@ function DomainSettings({
                   owner: walletAddress!.toString(),
                   processId: data?.processId,
                   dispatch,
+                  ao: aoClient,
                 })
               }
             />
@@ -388,6 +424,7 @@ function DomainSettings({
                   owner: walletAddress!.toString(),
                   processId: data?.processId,
                   dispatch,
+                  ao: aoClient,
                 })
               }
             />
@@ -408,6 +445,7 @@ function DomainSettings({
                   owner: walletAddress!.toString(),
                   processId: data?.processId,
                   dispatch,
+                  ao: aoClient,
                 })
               }
             />
@@ -438,6 +476,7 @@ function DomainSettings({
                   owner: walletAddress!.toString(),
                   processId: data?.processId,
                   dispatch,
+                  ao: aoClient,
                 })
               }
             />
@@ -457,6 +496,7 @@ function DomainSettings({
                   owner: walletAddress!.toString(),
                   processId: data?.processId,
                   dispatch,
+                  ao: aoClient,
                 })
               }
             />
@@ -476,6 +516,7 @@ function DomainSettings({
                   owner: walletAddress!.toString(),
                   processId: data?.processId,
                   dispatch,
+                  ao: aoClient,
                 })
               }
             />
@@ -489,6 +530,14 @@ function DomainSettings({
         <ReturnNameModal
           show={showReturnNameModal}
           setShow={setShowReturnNameModal}
+          name={domain}
+          processId={data.processId}
+        />
+      )}
+      {domain && data?.processId && (
+        <ReassignNameModal
+          show={showReassignNameModal}
+          setShow={setShowReassignNameModal}
           name={domain}
           processId={data.processId}
         />
