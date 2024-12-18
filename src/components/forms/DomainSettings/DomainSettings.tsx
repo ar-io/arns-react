@@ -314,11 +314,16 @@ function DomainSettings({
                   message={
                     !antHandlers.includes('reassignName')
                       ? 'Update ANT to access Reassign Name workflow'
+                      : data?.isInGracePeriod
+                      ? 'Lease must be extended before ANT can be Reassigned'
                       : 'Reassigns what ANT is registered to the ArNS Name'
                   }
                   icon={
                     <button
-                      disabled={!antHandlers.includes('reassignName')}
+                      disabled={
+                        !antHandlers.includes('reassignName') ||
+                        data?.isInGracePeriod
+                      }
                       onClick={() => setShowReassignNameModal(true)}
                       className={`flex flex-row text-[12px] rounded-[4px] p-[6px] px-[10px] border border-error bg-error-thin text-error whitespace-nowrap`}
                     >
