@@ -5,6 +5,8 @@
   "homepage": ".",
   "scripts": {
     "build": "yarn clean && tsc --build tsconfig.json && NODE_OPTIONS=--max-old-space-size=32768 vite build",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
     "publish:arweave": "yarn build && permaweb-deploy --ant-process $DEPLOY_ANT_PROCESS_ID ",
     "clean": "rimraf dist",
     "dev": "NODE_ENV=prod VITE_GITHUB_HASH=local vite",
@@ -53,6 +55,14 @@
     "wagmi": "^2.12.2"
   },
   "devDependencies": {
+    "storybook": "^7.0.22",
+    "@storybook/addon-actions": "^7.0.22",
+    "@storybook/addon-essentials": "^7.0.22",
+    "@storybook/addon-interactions": "^7.0.22",
+    "@storybook/addon-links": "^7.0.22",
+    "@storybook/react": "^7.0.22",
+    "@storybook/react-vite": "^7.0.22",
+    "@storybook/testing-library": "^0.1.0",
     "@babel/core": "^7.19.6",
     "@babel/preset-env": "^7.19.4",
     "@babel/preset-react": "^7.18.6",
