@@ -24,13 +24,7 @@ function WarningCard({
       }}
     >
       {showIcon || customIcon ? (
-        <span
-          style={{
-            height: '100%',
-            display: 'flex',
-            lineHeight: '150%',
-          }}
-        >
+        <span className="flex items-center justify-center h-full pt-[2px]">
           {customIcon ? (
             customIcon
           ) : (
