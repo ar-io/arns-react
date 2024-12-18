@@ -6,7 +6,7 @@ import { shortPrimaryName } from '@src/utils';
 import { buildARBalanceQuery, buildIOBalanceQuery } from '@src/utils/network';
 import { useQueryClient } from '@tanstack/react-query';
 import { Tooltip } from 'antd';
-import { Settings2Icon, User } from 'lucide-react';
+import { Settings2Icon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -16,6 +16,7 @@ import { useWalletState } from '../../../state/contexts/WalletState';
 import eventEmitter from '../../../utils/events';
 import { ROUTES } from '../../../utils/routes';
 import { LogoutIcon, MenuIcon, TokenIcon } from '../../icons';
+import { BrandLogo } from '../../icons';
 import ConnectButton from '../../inputs/buttons/ConnectButton/ConnectButton';
 import MenuButton from '../../inputs/buttons/MenuButton/MenuButton';
 import { Loader, NavBarLink } from '../../layout';
@@ -394,18 +395,16 @@ function NavMenuCard() {
               : {}
           }
         >
-          <span className="flex text-white fill-success gap-2 items-center justify-center text-[14px] h-[2.5rem] p-2">
+          <span className="flex text-white gap-2 items-center justify-center text-[14px] h-[2.5rem] p-2">
             {primaryNameData?.name ? (
               <>
                 <AntLogoIcon
-                  className="rounded-full max-h-[1.875rem] border border-grey"
+                  className="rounded-full max-h-[1.875rem] border border-dark-grey"
                   id={domainDomain?.info?.Logo}
                   icon={
-                    <User
-                      width={'1.5625rem'}
-                      height={'1.5625rem'}
-                      className="rounded-full border border-grey"
-                    />
+                    <div className="flex items-center justify-center rounded-full fill-white p-[5px]">
+                      <BrandLogo width={'20px'} height={'20px'} />
+                    </div>
                   }
                 />
                 {shortPrimaryName(primaryNameData.name)}
