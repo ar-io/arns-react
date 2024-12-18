@@ -1,64 +1,15 @@
 import TransactionSuccessCard from '@src/components/cards/TransactionSuccessCard/TransactionSuccessCard';
+import { AntLogoIcon } from '@src/components/data-display/AntLogoIcon';
 import DomainSettings from '@src/components/forms/DomainSettings/DomainSettings';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import { useGlobalState, useModalState, useWalletState } from '@src/state';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
 import { Star } from 'lucide-react';
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { decodeDomainToASCII } from '../../../utils';
-import { HamburgerOutlineIcon } from '../../icons';
 import './styles.css';
-
-function AntLogoIcon({
-  id,
-  className,
-  icon = (
-    <HamburgerOutlineIcon
-      width={'20px'}
-      height={'20px'}
-      fill="var(--text-white)"
-    />
-  ),
-}: {
-  id?: string;
-  className?: string;
-  icon?: ReactNode;
-}) {
-  const [{ gateway }] = useGlobalState();
-  const [validImage, setValidImage] = useState(true);
-  const logoRef = useRef<HTMLImageElement>(null);
-
-  useEffect(() => {
-    if (!logoRef.current || !id) return;
-
-    const img = logoRef.current;
-
-    const handleError = () => setValidImage(false);
-
-    img.addEventListener('error', handleError);
-
-    return () => {
-      img.removeEventListener('error', handleError);
-    };
-  }, [logoRef, id]);
-
-  if (!id) return <>{icon}</>;
-
-  return (
-    <>
-      <img
-        ref={logoRef}
-        className={className ?? 'w-[30px] rounded-full'}
-        src={`https://${gateway}/${id}`}
-        alt="ant-logo"
-        style={{ display: validImage ? 'block' : 'none' }}
-      />
-      {!validImage && icon}
-    </>
-  );
-}
 
 function ManageDomain() {
   const { name } = useParams();
