@@ -29,6 +29,7 @@ export function AntLogoIcon({
     if (!logoRef.current || !id) return;
 
     const img = logoRef.current;
+    setValidImage(true);
 
     const handleError = () => setValidImage(false);
 
