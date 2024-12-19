@@ -1,7 +1,15 @@
-import { ANT, ARIO, AoMessageResult, ContractSigner } from '@ar.io/sdk/web';
+import {
+  ANT,
+  ARIO,
+  AoClient,
+  AoMessageResult,
+  ContractSigner,
+  createAoSigner,
+  spawnANT,
+} from '@ar.io/sdk/web';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
-import { lowerCaseDomain } from '@src/utils';
+import { lowerCaseDomain, sleep } from '@src/utils';
 import eventEmitter from '@src/utils/events';
 import { queryClient } from '@src/utils/network';
 import { Dispatch } from 'react';
@@ -13,6 +21,7 @@ export default async function dispatchANTInteraction({
   signer,
   owner,
   dispatch,
+  ao,
 }: {
   payload: Record<string, any>;
   workflowName: ANT_INTERACTION_TYPES;
@@ -20,6 +29,7 @@ export default async function dispatchANTInteraction({
   owner: string;
   processId: string;
   dispatch: Dispatch<TransactionAction>;
+  ao: AoClient;
 }): Promise<ContractInteraction> {
   let result: AoMessageResult | undefined = undefined;
   const aoCongestedTimeout = setTimeout(
@@ -134,6 +144,30 @@ export default async function dispatchANTInteraction({
         if (released instanceof Error) {
           throw new Error('Failed to release ArNS Name: ' + released.message);
         }
+        break;
+      }
+      case ANT_INTERACTION_TYPES.REASSIGN_NAME: {
+        let newAntProcessId = payload.newAntProcessId;
+        if (!newAntProcessId) {
+          dispatchSigningMessage('Spawning new ANT, please wait... 1/2');
+          newAntProcessId = await spawnANT({
+            ao,
+            signer: createAoSigner(signer),
+            state: payload.previousState,
+            luaCodeTxId: payload.luaCodeTxId,
+          });
+        }
+        dispatchSigningMessage(
+          'Reassigning ArNS name, please wait... ' +
+            (payload.newAntProcessId ? '' : '2/2'),
+        );
+        // for UX so the user sees the signing message
+        await sleep(2000);
+        result = await antProcess.reassignName({
+          name: payload.name,
+          arioProcessId: payload.arioProcessId,
+          antProcessId: newAntProcessId,
+        });
         break;
       }
       case ANT_INTERACTION_TYPES.SET_LOGO:

@@ -58,6 +58,7 @@ export function ReturnNameModal({
         workflowName: ANT_INTERACTION_TYPES.RELEASE_NAME,
         dispatch: dispatchTransactionState,
         owner: walletAddress.toString(),
+        ao: aoClient,
       });
       eventEmitter.emit('success', {
         message: (
