@@ -73,7 +73,8 @@ function PrimaryNameModal({
   setVisible: (visible: boolean) => void;
 }) {
   const queryClient = useQueryClient();
-  const [{ arioTicker, arioProcessId, arioContract }] = useGlobalState();
+  const [{ arioTicker, arioProcessId, arioContract, aoClient }] =
+    useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const { data: primaryNameData, isLoading: isLoadingPrimaryNameData } =
     usePrimaryName();
@@ -187,6 +188,7 @@ function PrimaryNameModal({
               names: [encodePrimaryName(targetName)],
             },
             dispatch: dispatchTransactionState,
+            ao: aoClient,
           });
           queryClient.resetQueries({
             queryKey: ['primary-name'],

@@ -3,14 +3,26 @@ import {
   AoANTInfo,
   AoANTRead,
   AoANTRecord,
+  AoANTState,
   AoANTWrite,
   AoArNSNameData,
 } from '@ar.io/sdk/web';
+import { isInGracePeriod } from '@src/components/layout/Navbar/NotificationMenu/NotificationMenu';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { lowerCaseDomain } from '@src/utils';
 import { buildArNSRecordsQuery, queryClient } from '@src/utils/network';
 import { RefetchOptions, useQuery } from '@tanstack/react-query';
+
+/**
+ * TODO: This hook is pretty gross in how it returns and types its data, needs a refactor.
+ * 1. We want to return *only* the result of useQuery hook
+ * 2. We want to intelligently set the stale time
+ * 3. We want to calculate certain data like isInGracePeriod and other states accurately and return them accurately (eg, set the stale time to update on a timestamp so they get updated appropriately)
+ * 4. We want individual cache keys for each request and leverage exist ones (we currently refetch all these when elsewhere they maybe were fetched, looking at arns records and ANT state, info, handlers)
+ * 5. We want to return primary name data for the addresses associated with the domain (owner and controllers)
+ * 6. We want to return the transactions history associated with the domain and ANT
+ */
 
 export default function useDomainInfo({
   domain,
@@ -37,6 +49,8 @@ export default function useDomainInfo({
       ttlSeconds: number;
     };
     records: Record<string, AoANTRecord>;
+    state: AoANTState;
+    isInGracePeriod: boolean;
   };
   isLoading: boolean;
   error: Error | null;
@@ -47,10 +61,19 @@ export default function useDomainInfo({
   const [{ wallet }] = useWalletState();
 
   // TODO: this should be modified or removed
-  const { data, isLoading, isRefetching, error, refetch } = useQuery({
+  const {
+    data,
+    isLoading,
+    isRefetching,
+    isFetching,
+    isPending,
+    error,
+    refetch,
+  } = useQuery({
     queryKey: ['domainInfo', { domain, antId, arioProcessId, aoNetwork }],
     queryFn: () => getDomainInfo({ domain, antId }).catch((error) => error),
     refetchOnWindowFocus: false,
+    staleTime: Infinity,
   });
 
   async function getDomainInfo({
@@ -77,6 +100,8 @@ export default function useDomainInfo({
       ttlSeconds: number;
     };
     records: Record<string, AoANTRecord>;
+    state: AoANTState;
+    isInGracePeriod: boolean;
   }> {
     if (!domain && !antId) {
       throw new Error('No domain or antId provided');
@@ -130,6 +155,7 @@ export default function useDomainInfo({
       throw new Error('No apexRecord found');
     }
     const info = await antProcess.getInfo();
+
     return {
       info,
       arnsRecord: record,
@@ -143,14 +169,18 @@ export default function useDomainInfo({
       logo: state.Logo ?? '',
       undernameCount,
       apexRecord,
+      // TODO: remove - not used
       sourceCodeTxId: (state as any)?.['Source-Code-TX-ID'],
       records: state.Records,
+      state,
+      // TODO: staletime for this hook can be configured around the endTimestamp on the record
+      isInGracePeriod: record ? isInGracePeriod(record) : false,
     };
   }
 
   return {
     data,
-    isLoading: isLoading || isRefetching,
+    isLoading: isLoading || isRefetching || isFetching || isPending,
     error,
     refetch: () => {
       queryClient.invalidateQueries({
