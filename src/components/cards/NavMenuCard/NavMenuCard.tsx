@@ -1,3 +1,5 @@
+import { AntLogoIcon } from '@src/components/data-display/AntLogoIcon';
+import useDomainInfo from '@src/hooks/useDomainInfo';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import { AoAddress } from '@src/types';
 import { shortPrimaryName } from '@src/utils';
@@ -14,6 +16,7 @@ import { useWalletState } from '../../../state/contexts/WalletState';
 import eventEmitter from '../../../utils/events';
 import { ROUTES } from '../../../utils/routes';
 import { LogoutIcon, MenuIcon, TokenIcon } from '../../icons';
+import { BrandLogo } from '../../icons';
 import ConnectButton from '../../inputs/buttons/ConnectButton/ConnectButton';
 import MenuButton from '../../inputs/buttons/MenuButton/MenuButton';
 import { Loader, NavBarLink } from '../../layout';
@@ -35,6 +38,9 @@ function NavMenuCard() {
   ] = useGlobalState();
   const [{ wallet, walletAddress }, dispatchWalletState] = useWalletState();
   const { data: primaryNameData } = usePrimaryName();
+  const { data: domainDomain } = useDomainInfo({
+    domain: primaryNameData?.name,
+  });
   const isMobile = useIsMobile();
 
   const [showMenu, setShowMenu] = useState(false);
@@ -371,13 +377,17 @@ function NavMenuCard() {
         <MenuButton
           setShow={setShowMenu}
           show={showMenu}
-          className={walletAddress ? 'outline-button' : ''}
+          className={
+            walletAddress
+              ? 'outline-button items-center justify-center'
+              : 'items-center justify-center'
+          }
           style={
             walletAddress
               ? {
                   borderRadius: 'var(--corner-radius',
                   borderWidth: '1px',
-                  padding: '10px',
+                  padding: '0px',
                   borderColor: 'var(--text-faded)',
                   width: 'fit-content',
                   minWidth: 'unset',
@@ -385,22 +395,30 @@ function NavMenuCard() {
               : {}
           }
         >
-          {primaryNameData?.name ? (
-            <span className="flex text-white fill-success gap-2 items-center text-[14px]">
-              <svg width="8px" height="8px">
-                <circle cx="4" cy="4" r="4" fill="current" />
-              </svg>
-              {shortPrimaryName(primaryNameData.name)}
-            </span>
-          ) : walletAddress ? (
-            <WalletAddress characterCount={4} />
-          ) : (
-            <MenuIcon
-              width={'24px'}
-              height={'24px'}
-              fill={'var(--text-white)'}
-            />
-          )}
+          <span className="flex text-white gap-2 items-center justify-center text-[14px] h-[2.5rem] p-2">
+            {primaryNameData?.name ? (
+              <>
+                <AntLogoIcon
+                  className="rounded-full max-h-[1.875rem] border border-dark-grey"
+                  id={domainDomain?.info?.Logo}
+                  icon={
+                    <div className="flex items-center justify-center rounded-full fill-white p-[5px]">
+                      <BrandLogo width={'20px'} height={'20px'} />
+                    </div>
+                  }
+                />
+                {shortPrimaryName(primaryNameData.name)}
+              </>
+            ) : walletAddress ? (
+              <WalletAddress characterCount={4} />
+            ) : (
+              <MenuIcon
+                width={'24px'}
+                height={'24px'}
+                fill={'var(--text-white)'}
+              />
+            )}
+          </span>
         </MenuButton>
       </Tooltip>
     </>
