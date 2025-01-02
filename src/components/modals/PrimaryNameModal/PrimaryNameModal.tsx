@@ -1,12 +1,12 @@
-import { mARIOToken } from '@ar.io/sdk';
+import { AoGetCostDetailsParams } from '@ar.io/sdk';
+import { TransactionDetails } from '@src/components/data-display/TransactionDetails/TransactionDetails';
 import { Loader } from '@src/components/layout';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
-import TransactionCost from '@src/components/layout/TransactionCost/TransactionCost';
+import { useCostDetails } from '@src/hooks/useCostDetails';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
-import { useTokenCost } from '@src/hooks/useTokenCost';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import {
   useGlobalState,
@@ -73,13 +73,20 @@ function PrimaryNameModal({
   setVisible: (visible: boolean) => void;
 }) {
   const queryClient = useQueryClient();
-  const [{ arioTicker, arioProcessId, arioContract, aoClient }] =
-    useGlobalState();
+  const [{ arioProcessId, arioContract, aoClient }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const { data: primaryNameData, isLoading: isLoadingPrimaryNameData } =
     usePrimaryName();
 
   const [{ transactionData }, dispatchTransactionState] = useTransactionState();
+  const [fundingSource, setFundingSource] =
+    useState<AoGetCostDetailsParams['fundFrom']>('balance');
+  const { data: costDetail } = useCostDetails({
+    ...((transactionData ?? {}) as any),
+    intent: 'Primary-Name-Request',
+    fromAddress: walletAddress?.toString(),
+    fundFrom: fundingSource,
+  });
 
   const transactionPayload =
     isRemovePrimaryNamesPayload(transactionData) ||
@@ -92,11 +99,6 @@ function PrimaryNameModal({
     : isPrimaryNameRequest(transactionData)
     ? transactionData.name
     : undefined;
-
-  const { data: ioFee } = useTokenCost({
-    intent: 'Primary-Name-Request',
-    name: targetName ?? '',
-  });
 
   // if undername, pop the base name, else target name is ArNS name and can be used for querying domain info
   const baseName = targetName?.includes('_')
@@ -289,36 +291,35 @@ function PrimaryNameModal({
 
               {/* transaction details */}
               <div className="flex flex-col w-full">
-                <TransactionCost
-                  fee={{
-                    [arioTicker]: isRemovePrimaryNamesPayload(transactionData)
-                      ? 0
-                      : ioFee
-                      ? new mARIOToken(ioFee).toARIO().valueOf()
-                      : undefined,
-                  }}
-                  showBorder={false}
-                  feeWrapperStyle={{
-                    alignItems: 'flex-start',
-                    padding: 0,
-                    justifyContent: 'space-between',
-                  }}
-                  style={{ paddingBottom: 0, paddingTop: 40 }}
-                  info={
-                    <span className="text-grey text-sm">
-                      This will change your Primary Name.
-                    </span>
-                  }
-                />
+                {workflow !== PRIMARY_NAME_WORKFLOWS.REMOVE && (
+                  <div className="flex w-full pt-10">
+                    <TransactionDetails
+                      details={{
+                        intent: 'Primary-Name-Request',
+                        ...((transactionData ?? {}) as any),
+                        fromAddress: walletAddress?.toString(),
+                      }}
+                      fundingSourceCallback={(v) => setFundingSource(v)}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           )
         }
         onCancel={closeModal}
         onClose={closeModal}
-        onNext={!isLoading ? confirm : undefined}
+        onNext={
+          (!isLoading &&
+            costDetail &&
+            costDetail.fundingPlan!.shortfall === 0) ||
+          workflow === PRIMARY_NAME_WORKFLOWS.REMOVE
+            ? confirm
+            : undefined
+        }
         nextText="Confirm"
         cancelText="Cancel"
+        footerClass="border-t-0"
       />
     </div>
   );

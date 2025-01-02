@@ -6,8 +6,9 @@ export function useCostDetails(
   params: Parameters<AoARIORead['getCostDetails']>[0],
 ) {
   const [{ arioProcessId, arioContract }] = useGlobalState();
+  // we are verbose here to enable predictable keys. Passing in the entire params as a single object can have unpredictable side effects
   return useQuery({
-    queryKey: [params, arioProcessId.toString()],
+    queryKey: ['getCostDetails', params, arioProcessId.toString()],
     queryFn: async () => {
       return await arioContract.getCostDetails(params);
     },

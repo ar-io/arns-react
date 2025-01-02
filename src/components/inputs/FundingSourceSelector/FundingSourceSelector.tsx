@@ -3,7 +3,7 @@ import { Tooltip } from '@src/components/data-display';
 import { CircleXFilled } from '@src/components/icons';
 import { useCostDetails } from '@src/hooks/useCostDetails';
 import { useGlobalState, useWalletState } from '@src/state';
-import { formatIO } from '@src/utils';
+import { formatARIO } from '@src/utils';
 import { InsufficientFundsError } from '@src/utils/errors';
 import { CircleCheck, Loader2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -16,9 +16,11 @@ const fundingSources = ['balance', 'stakes', 'any'] as const;
 export function FundingSourceSelector({
   details,
   costDetailsCallback,
+  onChange,
 }: {
   details: CostDetailsParams;
-  costDetailsCallback: (deets?: CostDetailsResult) => void;
+  costDetailsCallback?: (deets?: CostDetailsResult) => void;
+  onChange?: (t: (typeof fundingSources)[number]) => void;
 }) {
   const [{ arioTicker }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
@@ -87,7 +89,7 @@ export function FundingSourceSelector({
       if (costDetails.fundingPlan?.shortfall) {
         setError(
           new InsufficientFundsError(
-            `You lack sufficient ${arioTicker} to pay for this transaction - you need ${formatIO(
+            `You lack sufficient ${arioTicker} to pay for this transaction - you need ${formatARIO(
               new mARIOToken(costDetails.fundingPlan.shortfall)
                 .toARIO()
                 .valueOf(),
@@ -97,15 +99,20 @@ export function FundingSourceSelector({
       }
     }
 
-    setTotalBalanceUsed(costDetails?.tokenCost ?? 0);
-    setTotalStakeUsed(
-      costDetails?.fundingPlan?.stakes
-        ? Object.values(costDetails?.fundingPlan?.stakes).reduce(
-            (acc, stake) => acc + stake.delegatedStake,
-            0,
-          )
-        : 0,
-    );
+    setTotalBalanceUsed(costDetails?.fundingPlan?.balance ?? 0);
+    const stakeUsed = costDetails?.fundingPlan
+      ? Object.values(costDetails.fundingPlan.stakes).reduce((acc, stake) => {
+          acc = acc + stake.delegatedStake;
+          acc =
+            acc +
+            Object.values(stake.vaults as any as Record<string, number>).reduce(
+              (acc, vault) => acc + vault,
+              0,
+            );
+          return acc;
+        }, 0)
+      : 0;
+    setTotalStakeUsed(stakeUsed);
   }, [
     fundFrom,
     anyCostDetails,
@@ -124,9 +131,9 @@ export function FundingSourceSelector({
       position="popper"
       className={{
         trigger:
-          'bg-foreground text-white flex gap-2 items-center p-3 rounded-lg border border-[#A7A7A759] outline-none justify-between h-fit w-fit min-w-[25rem]',
+          'bg-foreground text-white flex gap-2 items-center p-3 rounded-lg border border-[#A7A7A759] outline-none justify-between h-fit w--full max-w-[25rem]',
         item: 'min-w-[24.725rem] flex items-center gap-3 cursor-pointer bg-foreground rounded p-1 px-3 border border-dark-grey text-grey fill-grey hover:fill-white  hover:text-white hover:border-grey outline-none w-full transition-all',
-        content: 'flex bg-transparent p-1 box-border w-full',
+        content: 'flex bg-transparent p-1 box-border w-full z-[100]',
         group: 'flex flex-col gap-1 w-full',
         viewport: 'flex w-full',
       }}
@@ -137,7 +144,7 @@ export function FundingSourceSelector({
           ) : (
             <span>
               Liquid Balance (
-              {formatIO(new mARIOToken(totalBalanceUsed).toARIO().valueOf())}{' '}
+              {formatARIO(new mARIOToken(totalBalanceUsed).toARIO().valueOf())}{' '}
               {arioTicker})
             </span>
           ),
@@ -149,7 +156,7 @@ export function FundingSourceSelector({
           ) : (
             <span>
               Staked Balance (
-              {formatIO(new mARIOToken(totalStakeUsed).toARIO().valueOf())}{' '}
+              {formatARIO(new mARIOToken(totalStakeUsed).toARIO().valueOf())}{' '}
               {arioTicker})
             </span>
           ),
@@ -161,16 +168,21 @@ export function FundingSourceSelector({
           ) : (
             <span>
               Liquid + Staked Balances (
-              {formatIO(new mARIOToken(totalBalanceUsed).toARIO().valueOf())}
+              {formatARIO(new mARIOToken(totalBalanceUsed).toARIO().valueOf())}
               &nbsp;+&nbsp;
-              {formatIO(new mARIOToken(totalStakeUsed).toARIO().valueOf())}{' '}
+              {formatARIO(
+                new mARIOToken(totalStakeUsed).toARIO().valueOf(),
+              )}{' '}
               {arioTicker})
             </span>
           ),
           value: 'any',
         },
       ]}
-      onChange={(e) => setFundFrom(e as any)}
+      onChange={(e) => {
+        setFundFrom(e as any);
+        onChange?.(e as any);
+      }}
       value={fundFrom}
       renderValue={(v) => (
         <Tooltip
@@ -191,7 +203,7 @@ export function FundingSourceSelector({
                 <div className="flex flex-col whitespace-nowrap">
                   <span className="text-white whitespace-nowrap">
                     <span className="text-grey">Liquid Balance to spend:</span>{' '}
-                    {formatIO(
+                    {formatARIO(
                       new mARIOToken(totalBalanceUsed).toARIO().valueOf(),
                     )}{' '}
                     {arioTicker}
@@ -199,7 +211,7 @@ export function FundingSourceSelector({
 
                   <span className="text-white whitespace-nowrap">
                     <span className="text-grey">Delegated Stake to spend:</span>{' '}
-                    {formatIO(
+                    {formatARIO(
                       new mARIOToken(totalStakeUsed).toARIO().valueOf(),
                     )}{' '}
                     {arioTicker}

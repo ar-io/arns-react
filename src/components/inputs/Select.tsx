@@ -84,7 +84,7 @@ export const SelectDropdown = ({
         {triggerIcon}
       </Select.Icon>
     </Select.Trigger>
-    <Select.Portal>
+    <Select.Portal container={document.getElementById('root')}>
       <Select.Content
         side={side}
         position={position}

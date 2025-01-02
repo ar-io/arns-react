@@ -195,13 +195,19 @@ export function formatExpiryDate(endTimestamp?: number) {
   );
 }
 
-export const formatIO = (io: number) => {
+export const formatARIO = (ario: number) => {
   return Intl.NumberFormat('en-US', {
     notation: 'compact',
     maximumFractionDigits: 2,
     compactDisplay: 'short',
-  }).format(io);
+  }).format(ario);
 };
+
+export function formatARIOWithCommas(ario: number) {
+  return ario.toLocaleString('en-US', {
+    maximumFractionDigits: 3,
+  });
+}
 
 export function shuffleArray(array: any[]) {
   const arrayCopy = [...array];

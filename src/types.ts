@@ -1,4 +1,9 @@
-import { AoANTRecord, AoArNSNameData, ContractSigner } from '@ar.io/sdk/web';
+import {
+  AoANTRecord,
+  AoArNSNameData,
+  AoGetCostDetailsParams,
+  ContractSigner,
+} from '@ar.io/sdk/web';
 import { ApiConfig } from 'arweave/web/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
 
@@ -192,6 +197,15 @@ export enum ARNS_INTERACTION_TYPES {
   PRIMARY_NAME_REQUEST = 'Primary Name Request', // two part interaction since the ant is the authority to approve the request
   UPGRADE_NAME = 'Upgrade ArNS Name',
 }
+export const ArNSInteractionTypeToIntentMap: Partial<
+  Record<ARNS_INTERACTION_TYPES, AoGetCostDetailsParams['intent']>
+> = {
+  [ARNS_INTERACTION_TYPES.BUY_RECORD]: 'Buy-Record',
+  [ARNS_INTERACTION_TYPES.EXTEND_LEASE]: 'Extend-Lease',
+  [ARNS_INTERACTION_TYPES.UPGRADE_NAME]: 'Upgrade-Name',
+  [ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES]: 'Increase-Undername-Limit',
+  [ARNS_INTERACTION_TYPES.PRIMARY_NAME_REQUEST]: 'Primary-Name-Request',
+};
 
 export enum INTERACTION_TYPES {
   // Registry interaction types
