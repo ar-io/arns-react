@@ -71,15 +71,6 @@ body {
   box-sizing: border-box;
   height: 100%;
   width: 100%;
-  box-sizing: border-box;
-}
-
-/* radix locks scrolling causing some ugliness and layout shift on select, so we handle that case here to enforce scroll and page size */
-
-html body[data-scroll-locked] {
-  overflow-y: scroll !important;
-  --removed-body-scroll-bar-size: 0 !important;
-  margin-right: 0 !important;
 }
 
 .page {

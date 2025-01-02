@@ -65,7 +65,7 @@ function TransactionReview() {
       ArNSInteractionTypeToIntentMap[workflowName as ARNS_INTERACTION_TYPES],
     fromAddress: walletAddress?.toString(),
     fundFrom: fundingSource,
-    quantity: (transactionData as any).qty,
+    quantity: (transactionData as any)?.qty,
   };
   const { data: costDetail } = useCostDetails(costDetailsParams);
 
