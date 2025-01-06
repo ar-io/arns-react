@@ -1,8 +1,4 @@
-import {
-  ARIOWriteable,
-  AoARIOWrite,
-  AoGetCostDetailsParams,
-} from '@ar.io/sdk/web';
+import { ARIOWriteable, AoARIOWrite, FundFrom } from '@ar.io/sdk/web';
 import { ANTCard } from '@src/components/cards';
 import { TransactionDetails } from '@src/components/data-display/TransactionDetails/TransactionDetails';
 import WorkflowButtons from '@src/components/inputs/buttons/WorkflowButtons/WorkflowButtons';
@@ -56,8 +52,9 @@ function TransactionReview() {
     }),
   );
 
-  const [fundingSource, setFundingSource] =
-    useState<AoGetCostDetailsParams['fundFrom']>('balance');
+  const [fundingSource, setFundingSource] = useState<FundFrom | undefined>(
+    'balance',
+  );
 
   const costDetailsParams = {
     ...((transactionData ?? {}) as any),
@@ -212,8 +209,8 @@ function TransactionReview() {
           <WorkflowButtons
             onNext={
               !costDetail ||
-              (costDetail?.fundingPlan?.shortfall &&
-                costDetail?.fundingPlan?.shortfall > 0)
+              (costDetail.fundingPlan?.shortfall &&
+                costDetail.fundingPlan?.shortfall > 0)
                 ? undefined
                 : () => handleNext()
             }

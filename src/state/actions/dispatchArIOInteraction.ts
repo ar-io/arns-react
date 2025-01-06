@@ -5,10 +5,10 @@ import {
   AOProcess,
   AoARIOWrite,
   AoClient,
-  AoGetCostDetailsParams,
   AoMessageResult,
   ContractSigner,
   DEFAULT_SCHEDULER_ID,
+  FundFrom,
   createAoSigner,
   spawnANT,
 } from '@ar.io/sdk/web';
@@ -44,7 +44,7 @@ export default async function dispatchArIOInteraction({
   signer?: ContractSigner;
   ao?: AoClient;
   scheduler?: string;
-  fundFrom?: AoGetCostDetailsParams['fundFrom'];
+  fundFrom?: FundFrom;
 }): Promise<ContractInteraction> {
   let result: AoMessageResult | undefined = undefined;
   const aoCongestedTimeout = setTimeout(

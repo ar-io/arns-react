@@ -1,10 +1,8 @@
-import { AoARIORead } from '@ar.io/sdk';
+import { AoGetCostDetailsParams } from '@ar.io/sdk';
 import { useGlobalState } from '@src/state';
 import { useQuery } from '@tanstack/react-query';
 
-export function useCostDetails(
-  params: Parameters<AoARIORead['getCostDetails']>[0],
-) {
+export function useCostDetails(params: AoGetCostDetailsParams) {
   const [{ arioProcessId, arioContract }] = useGlobalState();
   // we are verbose here to enable predictable keys. Passing in the entire params as a single object can have unpredictable side effects
   return useQuery({

@@ -1,4 +1,4 @@
-import { AoGetCostDetailsParams } from '@ar.io/sdk';
+import { FundFrom } from '@ar.io/sdk';
 import { TransactionDetails } from '@src/components/data-display/TransactionDetails/TransactionDetails';
 import { Loader } from '@src/components/layout';
 import ArweaveID, {
@@ -79,8 +79,9 @@ function PrimaryNameModal({
     usePrimaryName();
 
   const [{ transactionData }, dispatchTransactionState] = useTransactionState();
-  const [fundingSource, setFundingSource] =
-    useState<AoGetCostDetailsParams['fundFrom']>('balance');
+  const [fundingSource, setFundingSource] = useState<FundFrom | undefined>(
+    'balance',
+  );
   const { data: costDetail } = useCostDetails({
     ...((transactionData ?? {}) as any),
     intent: 'Primary-Name-Request',
