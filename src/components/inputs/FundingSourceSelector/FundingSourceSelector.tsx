@@ -167,15 +167,18 @@ export function FundingSourceSelector({
           label: loadingAnyCostDetails ? (
             'Loading...'
           ) : (
-            <span>
-              Liquid + Staked Balances (
-              {formatARIO(new mARIOToken(totalBalanceUsed).toARIO().valueOf())}
-              &nbsp;+&nbsp;
-              {formatARIO(
-                new mARIOToken(totalStakeUsed).toARIO().valueOf(),
-              )}{' '}
-              {arioTicker})
-            </span>
+            <div className="flex flex-wrap gap-2">
+              <span className="flex w-fit">Liquid + Staked Balances</span>
+              <span className="flex w-fit">
+                (
+                {formatARIO(
+                  new mARIOToken(totalBalanceUsed).toARIO().valueOf(),
+                )}
+                &nbsp;+&nbsp;{' '}
+                {formatARIO(new mARIOToken(totalStakeUsed).toARIO().valueOf())}{' '}
+                {arioTicker})
+              </span>
+            </div>
           ),
           value: 'any',
         },
