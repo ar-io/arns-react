@@ -131,9 +131,10 @@ export function FundingSourceSelector({
       position="popper"
       className={{
         trigger:
-          'bg-foreground text-white flex gap-2 items-center p-3 rounded-lg border border-[#A7A7A759] outline-none justify-between h-fit w-[22rem] min-w-fit',
-        item: 'min-w-fit w-[22rem] box-border flex items-center gap-3 cursor-pointer bg-foreground rounded p-1 px-3 border border-dark-grey text-grey fill-grey hover:fill-white  hover:text-white hover:border-grey outline-none  transition-all',
-        content: 'flex bg-transparent pt-1 w-full max-w-[25rem] z-[100]',
+          'bg-foreground text-white flex gap-2 items-center p-3 rounded-lg border border-[#A7A7A759] outline-none justify-between h-fit w-[25rem] data-[state=open]:border-b-0  data-[state=open]:rounded-b-none',
+        item: 'w-[25rem] box-border flex items-center gap-3 cursor-pointer bg-foreground hover:bg-dark-grey px-3 py-3 text-grey fill-grey hover:fill-white  hover:text-white hover:border-grey outline-none  transition-all',
+        content:
+          'flex bg-foreground pt-1 z-[100] rounded-b border border-t-0 w-[25rem] border-[#A7A7A759]',
         group: 'flex flex-col gap-1 w-full',
         viewport: 'flex border-1 pr-1 justify-start',
       }}
