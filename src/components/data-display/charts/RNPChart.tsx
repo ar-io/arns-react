@@ -73,21 +73,39 @@ export function RNPChart({
   useEffect(() => {}, [returnedNameData]);
 
   return (
-    <ResponsiveContainer width="100%" height="70%">
-      <LineChart data={data}>
-        <XAxis dataKey="timestamp" />
-        <YAxis dataKey="price" />
-        <Tooltip content={<CustomTooltip />} cursor={false} />
+    <div className="flex flex-col w-full">
+      <ResponsiveContainer
+        width="100%"
+        height="70%"
+        className={'border border-white'}
+      >
+        <LineChart
+          margin={{
+            top: 0,
+            left: -60,
+            right: 0,
+            bottom: -30,
+          }}
+          data={data}
+        >
+          <XAxis dataKey="timestamp" tick={false} />
+          <YAxis dataKey="price" tick={false} />
+          <Tooltip content={<CustomTooltip />} cursor={false} />
 
-        <Line
-          type="linear"
-          dataKey="price"
-          stroke="white"
-          activeDot={{ stroke: 'white', fill: 'white', strokeWidth: 2, r: 6 }}
-          dot={false}
-          strokeDasharray={'6'}
-        />
-      </LineChart>
-    </ResponsiveContainer>
+          <Line
+            type="linear"
+            dataKey="price"
+            stroke="white"
+            activeDot={{ stroke: 'white', fill: 'white', strokeWidth: 2, r: 6 }}
+            dot={false}
+            strokeDasharray={'6'}
+          />
+        </LineChart>
+      </ResponsiveContainer>{' '}
+      <div className="flex justify-between px-2 text-white">
+        <span>woop</span>
+        <span>woop</span>
+      </div>
+    </div>
   );
 }
