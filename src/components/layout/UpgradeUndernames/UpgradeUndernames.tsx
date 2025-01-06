@@ -28,10 +28,6 @@ function UpgradeUndernames() {
   const [{ arioTicker, arioProcessId }] = useGlobalState();
   const name = location.pathname.split('/').at(-2);
   const [, dispatchTransactionState] = useTransactionState();
-  // const [record, setRecord] = useState<AoArNSNameData>();
-  // const [antContract, setAntContract] = useState<ANT>();
-  // const [undernameCount, setUndernameCount] = useState<number>(0);
-  // min count of 1 ~ contract rule
   const [newUndernameCount, setNewUndernameCount] = useState<number>(0);
   const {
     data: { arnsRecord: record, antProcess: antContract, undernameCount },
