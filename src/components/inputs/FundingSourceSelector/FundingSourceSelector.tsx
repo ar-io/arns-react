@@ -128,15 +128,15 @@ export function FundingSourceSelector({
 
   return (
     <SelectDropdown
-      position="popper"
+      position="item-aligned"
       className={{
         trigger:
-          'bg-foreground text-white flex gap-2 items-center p-3 rounded-lg border border-[#A7A7A759] outline-none justify-between h-fit w-[25rem] data-[state=open]:border-b-0  data-[state=open]:rounded-b-none',
-        item: 'w-[25rem] box-border flex items-center gap-3 cursor-pointer bg-foreground hover:bg-dark-grey px-3 py-3 text-grey fill-grey hover:fill-white  hover:text-white hover:border-grey outline-none  transition-all',
+          'bg-foreground text-white flex gap-2 items-center p-3 rounded-lg border border-[#A7A7A759] outline-none justify-between h-fit w-[23rem] ',
+        item: 'w-[24rem] flex items-center gap-3 cursor-pointer bg-foreground hover:bg-dark-grey px-3 py-3 text-grey fill-grey hover:fill-white  hover:text-white outline-none  transition-all',
         content:
-          'flex bg-foreground pt-1 z-[100] rounded-b overflow-hidden border border-t-0 w-[25rem] border-[#A7A7A759]',
-        group: 'flex flex-col gap-1 w-full',
-        viewport: 'flex border-1 pr-1 justify-start',
+          'flex bg-foreground z-[100] rounded overflow-hidden border py-2 w-[24rem] border-[#A7A7A759] absolute left-[-2.5rem]',
+        group: 'flex flex-col  bg-foreground',
+        viewport: 'flex pr-1 justify-start',
       }}
       options={[
         {
