@@ -106,21 +106,19 @@ export const SelectDropdown = ({
         >
           <Select.Viewport className={className.viewport ?? ''}>
             <Select.Group className={className?.group}>
-              {options
-                .filter((o) => o.value !== value)
-                .map((option) => (
-                  <SelectItem
-                    key={option.value}
-                    value={option.value}
-                    className={classnames(
-                      className.item ??
-                        'relative flex h-[25px] select-none items-center rounded-[3px] pl-[25px] pr-[35px] text-[13px] leading-none text-violet11 data-[disabled]:pointer-events-none data-[highlighted]:bg-violet9 data-[disabled]:text-mauve8 data-[highlighted]:text-violet1 data-[highlighted]:outline-none',
-                      option.className,
-                    )}
-                  >
-                    {option.label}
-                  </SelectItem>
-                ))}
+              {options.map((option) => (
+                <SelectItem
+                  key={option.value}
+                  value={option.value}
+                  className={classnames(
+                    className.item ??
+                      'relative flex h-[25px] select-none items-center rounded-[3px] pl-[25px] pr-[35px] text-[13px] leading-none text-violet11 data-[disabled]:pointer-events-none data-[highlighted]:bg-violet9 data-[disabled]:text-mauve8 data-[highlighted]:text-violet1 data-[highlighted]:outline-none',
+                    option.className,
+                  )}
+                >
+                  {option.label}
+                </SelectItem>
+              ))}
             </Select.Group>
           </Select.Viewport>
         </Select.Content>
