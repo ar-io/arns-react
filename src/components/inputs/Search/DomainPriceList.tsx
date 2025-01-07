@@ -2,7 +2,7 @@ import { mARIOToken } from '@ar.io/sdk/web';
 import { RefreshAlertIcon } from '@src/components/icons';
 import { useArNSDomainPriceList } from '@src/hooks/useArNSDomainPriceList';
 import { useGlobalState } from '@src/state';
-import { formatIO } from '@src/utils';
+import { formatARIO } from '@src/utils';
 
 function DomainPiceList({ domain }: { domain: string }) {
   const [{ arioTicker }] = useGlobalState();
@@ -25,9 +25,9 @@ function DomainPiceList({ domain }: { domain: string }) {
       {priceList && priceList.lease > 0 ? (
         <span className="text-sm text-white align-center">
           Lease from{' '}
-          {formatIO(new mARIOToken(priceList.lease).toARIO().valueOf())}{' '}
+          {formatARIO(new mARIOToken(priceList.lease).toARIO().valueOf())}{' '}
           {arioTicker} for one year, or permabuy for{' '}
-          {formatIO(new mARIOToken(priceList.buy).toARIO().valueOf())}{' '}
+          {formatARIO(new mARIOToken(priceList.buy).toARIO().valueOf())}{' '}
           {arioTicker}
         </span>
       ) : (
