@@ -12,3 +12,5 @@ dist-id.txt
 dist-manifest.csv
 dist-manifest.json
 test-results
+storybook-static
+*storybook.log

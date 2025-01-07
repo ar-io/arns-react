@@ -2,7 +2,7 @@ import { ARIOToken, AoARIOWrite, mARIOToken } from '@ar.io/sdk/web';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { VALIDATION_INPUT_TYPES } from '@src/types';
-import { formatIO, isValidAoAddress, mioToIo } from '@src/utils';
+import { formatARIO, isValidAoAddress, mioToIo } from '@src/utils';
 import { WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Collapse, Space } from 'antd';
@@ -116,7 +116,8 @@ function TransferIO() {
                 <></>
               )}
               <span className="grey text-medium">
-                Amount: {formatIO(new mARIOToken(quantity).toARIO().valueOf())}
+                Amount:{' '}
+                {formatARIO(new mARIOToken(quantity).toARIO().valueOf())}
               </span>
               <ValidationInput
                 catchInvalidInput={true}
@@ -140,7 +141,7 @@ function TransferIO() {
               <span style={{ color: 'var(--accent)' }}>
                 {loading
                   ? 'Loading balance...'
-                  : `Balance: ${formatIO(
+                  : `Balance: ${formatARIO(
                       Math.round(mioToIo(ioBalance)),
                     )} ${arioTicker}`}
               </span>
