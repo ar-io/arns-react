@@ -11,6 +11,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { CategoricalChartState } from 'recharts/types/chart/types';
 import { Coordinate } from 'recharts/types/util/types';
 
 const START_RNP_PREMIUM = 50;
@@ -42,9 +43,21 @@ export function RNPChart({
   const [defaultTooltip, setDefaultTooltip] = useState<any>(null);
   const [defaultTooltipCoords, setDefaultTooltipCoords] =
     useState<Partial<Coordinate> | null>(null);
+  const [defaultTooltipIndex, setDefaultTooltipIndex] = useState<any>(0);
   const [tooltipData, setTooltipData] = useState<any>(null);
 
-  const chartRef = useRef<any>(null);
+  const chartRef = useRef<{ state: CategoricalChartState }>(null);
+  const [refReady, setRefReady] = useState(false);
+
+  // NOTE: there is *SOMETHING* wrong with chartRef in that it only *sometimes* triggers the below effect that positions the tooltip.
+  // moving that effect up in the order helps some, but not perfectly. This was the only way to ensure reliable (if slow) triggering of that effect to set the position.
+
+  // TODO: get rid of this nasty garbage and find a better solution.
+  useEffect(() => {
+    if (chartRef.current) {
+      setRefReady(!!chartRef.current); // Mark the ref as ready
+    }
+  }, [chartRef.current]);
 
   useEffect(() => {
     try {
@@ -107,20 +120,24 @@ export function RNPChart({
       setDefaultTooltip(tipData);
       setTooltipData(tipData);
 
+      // Calculate the index of the default tooltip point
+      const index = chartData.findIndex((d) => d.timestamp === point.timestamp);
+      setDefaultTooltipIndex(index);
+
       if (
         chartRef.current?.state?.xAxisMap &&
         chartRef.current?.state?.yAxisMap
       ) {
         const { xAxisMap, yAxisMap } = chartRef.current.state;
-        const xScale = xAxisMap[0].scale;
-        const yScale = yAxisMap[0].scale;
+        const xScale = xAxisMap[0].scale as any;
+        const yScale = yAxisMap[0].scale as any;
         setDefaultTooltipCoords({
           x: xScale(point.timestamp),
           y: yScale(point.price),
         });
       }
     }
-  }, [chartData, chartRef.current]);
+  }, [refReady, chartData]);
 
   const CustomTooltip = ({ data }: { data: any }) => {
     const [{ arioTicker }] = useGlobalState();
@@ -171,7 +188,7 @@ export function RNPChart({
     <div className="flex flex-col size-full">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
-          ref={chartRef}
+          ref={chartRef as any}
           margin={{
             top: 0,
             left: -60,
@@ -216,7 +233,9 @@ export function RNPChart({
           />
           <Tooltip
             content={<CustomTooltip data={tooltipData} />}
+            wrapperStyle={{ visibility: 'visible' }}
             cursor={false}
+            defaultIndex={activePayload ? undefined : defaultTooltipIndex}
             active={activePayload ? undefined : true}
             position={
               activePayload !== null || !defaultTooltipCoords
@@ -226,6 +245,7 @@ export function RNPChart({
           />
 
           <Line
+            animationDuration={200}
             type="linear"
             dataKey="price"
             data={chartData.filter(
@@ -236,6 +256,7 @@ export function RNPChart({
             dot={(props) => renderActiveDot(props)}
           />
           <Line
+            animationDuration={200}
             type="linear"
             dataKey="price"
             data={chartData.filter(
