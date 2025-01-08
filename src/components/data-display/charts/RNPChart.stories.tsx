@@ -16,6 +16,7 @@ const meta = {
     (Story, { parameters }) => {
       switch (true) {
         default: {
+          // TODO: add correct test data
           const queryClient = new QueryClient({
             defaultOptions: {
               queries: {
@@ -50,7 +51,7 @@ const stubData: AoReturnedName = {
 
 export const Chart: Story = {
   args: {
-    name: 'ardrive',
+    name: 'hsdlkjfhlskdjfhlksdjhflksdjhflkjhsdflkhdlfkjshdflkj',
   },
   parameters: {
     rnpDetails: stubData,

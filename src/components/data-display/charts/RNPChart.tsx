@@ -1,9 +1,8 @@
 import { AoGetCostDetailsParams, mARIOToken } from '@ar.io/sdk';
 import { useCostDetails } from '@src/hooks/useCostDetails';
-import { useReturnedName } from '@src/hooks/useReturnedNames';
 import { useGlobalState, useWalletState } from '@src/state';
 import { formatARIOWithCommas, formatDateMDY } from '@src/utils';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Line,
   LineChart,
@@ -12,38 +11,9 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { Coordinate } from 'recharts/types/util/types';
 
-const data = [
-  {
-    timestamp: Date.now(),
-    price: 1000000 * 50,
-  },
-  {
-    timestamp: Date.now() + 1 ** 9,
-    price: 1000000,
-  },
-];
-
-const CustomTooltip = ({ active, payload, label, position }: any) => {
-  const [{ arioTicker }] = useGlobalState();
-
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-foreground rounded p-2 text-white flex flex-col items-center justify-center">
-        <p className="label">{formatDateMDY(label)}</p>
-
-        <p className="desc">
-          {formatARIOWithCommas(
-            new mARIOToken(payload[0].value).toARIO().valueOf(),
-          )}{' '}
-          {arioTicker}
-        </p>
-      </div>
-    );
-  }
-
-  return null;
-};
+const START_RNP_PREMIUM = 50;
 
 export function RNPChart({
   name,
@@ -61,7 +31,6 @@ export function RNPChart({
     name,
     ...(purchaseDetails ?? {}),
   });
-  const { data: returnedNameData } = useReturnedName(name);
 
   type ChartData = {
     timestamp: number;
@@ -69,42 +38,222 @@ export function RNPChart({
   }[];
 
   const [chartData, setChartData] = useState<ChartData>([]);
+  const [activePayload, setActivePayload] = useState<any>(null);
+  const [defaultTooltip, setDefaultTooltip] = useState<any>(null);
+  const [defaultTooltipCoords, setDefaultTooltipCoords] =
+    useState<Partial<Coordinate> | null>(null);
+  const [tooltipData, setTooltipData] = useState<any>(null);
 
-  useEffect(() => {}, [returnedNameData]);
+  const chartRef = useRef<any>(null);
+
+  useEffect(() => {
+    try {
+      if (costDetails?.returnedNameDetails) {
+        const startPrice =
+          costDetails.returnedNameDetails.basePrice * START_RNP_PREMIUM;
+        const endPrice = costDetails.returnedNameDetails.basePrice;
+        const startTimestamp = costDetails.returnedNameDetails.startTimestamp;
+        const endTimestamp = costDetails.returnedNameDetails.endTimestamp;
+        const pricePointCount = 14;
+
+        const newChartData: ChartData = new Array(pricePointCount)
+          .fill(true)
+          .map((_, i) => {
+            const timestamp =
+              startTimestamp +
+              ((endTimestamp - startTimestamp) / (pricePointCount - 1)) * i;
+
+            const percentageOfPeriodPassed =
+              (timestamp - startTimestamp) / (endTimestamp - startTimestamp);
+            const price =
+              startPrice + percentageOfPeriodPassed * (endPrice - startPrice);
+
+            return {
+              price: Math.round(price),
+              timestamp,
+            };
+          });
+
+        setChartData(
+          [
+            ...newChartData,
+            // Add the current price for tooltip orientation on default position
+            {
+              timestamp: Date.now(),
+              price: costDetails.tokenCost,
+            },
+          ].sort((a, b) => a.timestamp - b.timestamp),
+        );
+        return;
+      }
+    } catch (error) {
+      console.error(error);
+    }
+    setChartData([]);
+  }, [costDetails]);
+
+  useEffect(() => {
+    const point = chartData?.find((d) => d.price === costDetails?.tokenCost);
+    if (point) {
+      const tipData = {
+        payload: [
+          {
+            value: point.price,
+            timestamp: point.timestamp,
+          },
+        ],
+        label: point.timestamp,
+      };
+      setDefaultTooltip(tipData);
+      setTooltipData(tipData);
+
+      if (
+        chartRef.current?.state?.xAxisMap &&
+        chartRef.current?.state?.yAxisMap
+      ) {
+        const { xAxisMap, yAxisMap } = chartRef.current.state;
+        const xScale = xAxisMap[0].scale;
+        const yScale = yAxisMap[0].scale;
+        setDefaultTooltipCoords({
+          x: xScale(point.timestamp),
+          y: yScale(point.price),
+        });
+      }
+    }
+  }, [chartData, chartRef.current]);
+
+  const CustomTooltip = ({ data }: { data: any }) => {
+    const [{ arioTicker }] = useGlobalState();
+
+    if (data?.payload?.length) {
+      return (
+        <div className="flex flex-col bg-dark-grey rounded p-2 text-white items-center justify-center">
+          <p>{formatDateMDY(data.label)}</p>
+          <p>
+            {formatARIOWithCommas(
+              new mARIOToken(data.payload[0].value).toARIO().valueOf(),
+            )}{' '}
+            {arioTicker}
+          </p>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
+  const renderActiveDot = (props: any) => {
+    const { cx, cy, payload } = props;
+
+    const isActive = tooltipData?.payload?.[0]?.value === payload.price;
+
+    if (isActive) {
+      return (
+        <circle
+          cx={cx}
+          cy={cy}
+          r={6}
+          fill="white"
+          stroke="black"
+          strokeWidth={1}
+        />
+      );
+    }
+
+    return <></>;
+  };
+
+  if (!chartData.length) return <></>;
+
+  if (!costDetails?.returnedNameDetails) return <></>;
 
   return (
-    <div className="flex flex-col w-full">
-      <ResponsiveContainer
-        width="100%"
-        height="70%"
-        className={'border border-white'}
-      >
+    <div className="flex flex-col size-full">
+      <ResponsiveContainer width="100%" height="100%">
         <LineChart
+          ref={chartRef}
           margin={{
             top: 0,
             left: -60,
             right: 0,
             bottom: -30,
           }}
-          data={data}
+          onMouseMove={(state) => {
+            if (state?.activePayload?.length) {
+              const currentPayload = state.activePayload[0];
+              setActivePayload(currentPayload);
+              setTooltipData({
+                payload: [currentPayload],
+                label: currentPayload.payload.timestamp,
+              });
+            } else {
+              setActivePayload(null);
+              setTooltipData(defaultTooltip);
+            }
+          }}
+          onMouseLeave={() => {
+            setActivePayload(null);
+            setTooltipData(defaultTooltip);
+          }}
         >
-          <XAxis dataKey="timestamp" tick={false} />
-          <YAxis dataKey="price" tick={false} />
-          <Tooltip content={<CustomTooltip />} cursor={false} />
+          <XAxis
+            dataKey="timestamp"
+            type="number"
+            domain={['dataMin', 'dataMax']}
+            tick={false}
+            padding={{ left: 10, right: 10 }}
+            allowDataOverflow={false}
+            allowDuplicatedCategory={false}
+          />
+          <YAxis
+            dataKey="price"
+            tick={false}
+            domain={['dataMin', 'dataMax']}
+            type="number"
+            padding={{ bottom: 10, top: 10 }}
+            allowDataOverflow={false}
+            allowDuplicatedCategory={false}
+          />
+          <Tooltip
+            content={<CustomTooltip data={tooltipData} />}
+            cursor={false}
+            active={activePayload ? undefined : true}
+            position={
+              activePayload !== null || !defaultTooltipCoords
+                ? undefined
+                : defaultTooltipCoords
+            }
+          />
 
           <Line
             type="linear"
             dataKey="price"
+            data={chartData.filter(
+              (point) => point.price >= costDetails.tokenCost,
+            )}
             stroke="white"
-            activeDot={{ stroke: 'white', fill: 'white', strokeWidth: 2, r: 6 }}
-            dot={false}
-            strokeDasharray={'6'}
+            dot={(props) => renderActiveDot(props)}
+          />
+          <Line
+            type="linear"
+            dataKey="price"
+            data={chartData.filter(
+              (point) => point.price <= costDetails.tokenCost,
+            )}
+            stroke="white"
+            strokeDasharray="6 6"
+            dot={(props) => renderActiveDot(props)}
           />
         </LineChart>
       </ResponsiveContainer>{' '}
-      <div className="flex justify-between px-2 text-white">
-        <span>woop</span>
-        <span>woop</span>
+      <div className="flex justify-between pt-2 text-[14px] text-white">
+        <span>
+          {formatDateMDY(costDetails.returnedNameDetails.startTimestamp)}
+        </span>
+        <span>
+          {' '}
+          {formatDateMDY(costDetails.returnedNameDetails.endTimestamp)}
+        </span>
       </div>
     </div>
   );
