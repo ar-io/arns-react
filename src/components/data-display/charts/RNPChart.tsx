@@ -232,6 +232,7 @@ export function RNPChart({
               (point) => point.price >= costDetails.tokenCost,
             )}
             stroke="white"
+            strokeWidth={2}
             dot={(props) => renderActiveDot(props)}
           />
           <Line
@@ -241,7 +242,8 @@ export function RNPChart({
               (point) => point.price <= costDetails.tokenCost,
             )}
             stroke="white"
-            strokeDasharray="6 6"
+            strokeWidth={2}
+            strokeDasharray="5 5"
             dot={(props) => renderActiveDot(props)}
           />
         </LineChart>
