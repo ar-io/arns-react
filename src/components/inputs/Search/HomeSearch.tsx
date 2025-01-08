@@ -259,10 +259,9 @@ function HomeSearch() {
                       </span>
                     )}
                   </span>
-                  {!isReturnedName &&
-                    isAvailable &&
-                    !isSearching &&
-                    isValidDomain && <DomainPiceList domain={domainQuery} />}
+                  {isAvailable && !isSearching && isValidDomain && (
+                    <DomainPiceList domain={domainQuery} />
+                  )}
                 </div>
                 {isSearching || query !== domainQuery ? (
                   <Lottie
@@ -274,11 +273,7 @@ function HomeSearch() {
                   <div className="flex flex-col w-full gap-2 mt-4 h-700px">
                     <div className="flex flex-row w-full justify-between ">
                       <span className="text-xl text-white">
-                        {isReturnedName ? (
-                          <DomainPiceList domain={domainQuery} />
-                        ) : (
-                          `ar://${decodeDomainToASCII(domainQuery)}`
-                        )}
+                        ar://{decodeDomainToASCII(domainQuery)}
                       </span>
                       <button
                         className={`py-2 px-3 text-sm bg-primary font-bold rounded-[4px] text-black disabled:opacity-50 disabled:bg-grey`}
