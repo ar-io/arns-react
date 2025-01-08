@@ -21,7 +21,7 @@ export function RNPChart({
   purchaseDetails,
 }: {
   name: string;
-  purchaseDetails?: AoGetCostDetailsParams;
+  purchaseDetails?: Partial<AoGetCostDetailsParams>;
 }) {
   const [{ walletAddress }] = useWalletState();
   const { data: costDetails } = useCostDetails({
