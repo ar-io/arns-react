@@ -1,6 +1,6 @@
 import RNPPage from '@src/components/pages/RNPPage/RNPPage';
 import Settings from '@src/components/pages/Settings/SettingsLayout';
-import { Settings2Icon } from 'lucide-react';
+import { Recycle, Settings2Icon } from 'lucide-react';
 
 import { SettingsIcon } from '../components/icons';
 import { Home, Manage } from '../components/pages';
@@ -47,7 +47,7 @@ export const ROUTES: { [x: string]: Route } = {
   },
   returnedNames: {
     text: 'Returned Names',
-    icon: WrappedSettings2Icon,
+    icon: Recycle,
     path: '/returned-names',
     component: RNPPage,
     protected: false,
