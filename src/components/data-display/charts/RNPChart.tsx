@@ -191,12 +191,7 @@ export function RNPChart({
       </span>
     );
 
-  if (!costDetails?.returnedNameDetails)
-    return (
-      <div className="flex text-white text-lg justify-center items-center m-auto">
-        This is not a returned name, unable to load chart.
-      </div>
-    );
+  if (!costDetails?.returnedNameDetails) return <></>;
 
   return (
     <div className="flex flex-col size-full">
