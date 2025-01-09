@@ -409,7 +409,7 @@ const ReturnedNamesTable = ({
 
   return (
     <>
-      <div className="w-full border border-dark-grey rounded">
+      <div className="w-full">
         <TableView
           columns={columns}
           data={
@@ -450,6 +450,7 @@ const ReturnedNamesTable = ({
           }}
           renderSubComponent={({ row }) => <RNPChartSubComponent row={row} />}
           tableClass="overflow-hidden rounded"
+          tableWrapperClassName="border border-dark-grey rounded"
           rowClass={(props) => {
             if (props?.headerGroup) {
               return 'rounded-t';

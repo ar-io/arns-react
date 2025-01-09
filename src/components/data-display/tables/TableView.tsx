@@ -32,6 +32,7 @@ const TableView = <T, S>({
   getSubRows,
   renderSubComponent,
   tableClass,
+  tableWrapperClassName,
   headerClass,
   rowClass = () => '',
   dataClass = () => '',
@@ -50,6 +51,7 @@ const TableView = <T, S>({
   getSubRows?: (row: T, index: number) => T[] | undefined;
   renderSubComponent?: (props: { row: Row<T> }) => ReactNode;
   tableClass?: string;
+  tableWrapperClassName?: string;
   headerClass?: string;
   rowClass?: (props?: { row?: Row<T>; headerGroup?: HeaderGroup<T> }) => string;
   dataClass?: (props?: {
@@ -94,7 +96,7 @@ const TableView = <T, S>({
 
   return (
     <>
-      <div className="overflow-x-auto scrollbar">
+      <div className={`overflow-x-auto scrollbar ${tableWrapperClassName}`}>
         <table className={'w-full table-auto' + ' ' + tableClass}>
           <thead className={`text-[14px] text-grey ${headerClass}`}>
             {table.getHeaderGroups().map((headerGroup) => (
