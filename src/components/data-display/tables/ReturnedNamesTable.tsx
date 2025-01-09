@@ -119,7 +119,7 @@ const ReturnedNamesTable = ({
           leasePrice: -1,
           permabuy: -1,
           returnType:
-            initiator === arioProcessId ? 'Lease expiry' : 'Permanent Return',
+            initiator === arioProcessId ? 'Lease Expiry' : 'Permanent Return',
 
           action: <></>,
           // metadata used for search and other purposes
@@ -232,8 +232,6 @@ const ReturnedNamesTable = ({
       header:
         key == 'action' || key == 'openRow'
           ? ''
-          : key == 'closingDate'
-          ? 'Closing Date'
           : key == 'leasePrice'
           ? 'Price for 1 Year'
           : camelToReadable(key),
@@ -352,7 +350,7 @@ const ReturnedNamesTable = ({
                       );
                     }}
                   >
-                    Buy
+                    Register
                   </button>
                 </span>
               </div>
