@@ -96,10 +96,7 @@ const TableView = <T, S>({
     <>
       <div className="overflow-x-auto scrollbar">
         <table className={'w-full table-auto' + ' ' + tableClass}>
-          <thead
-            className={`text-[14px] text-grey ${headerClass}`}
-            style={{ borderRadius: '10px' }}
-          >
+          <thead className={`text-[14px] text-grey ${headerClass}`}>
             {table.getHeaderGroups().map((headerGroup) => (
               <tr
                 key={headerGroup.id}

@@ -1,73 +1,44 @@
-import {
-  AoANTHandler,
-  AoANTState,
-  AoArNSNameData,
-  isLeasedArNSRecord,
-} from '@ar.io/sdk';
-import { ChevronRightIcon, ExternalLinkIcon } from '@src/components/icons';
+import { AoReturnedName, mARIOToken } from '@ar.io/sdk';
+import { ExternalLinkIcon } from '@src/components/icons';
 import Switch from '@src/components/inputs/Switch';
-import ManageAssetButtons from '@src/components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
 import { Loader } from '@src/components/layout';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
-import UpgradeAntModal from '@src/components/modals/ant-management/UpgradeAntModal/UpgradeAntModal';
-import { usePrimaryName } from '@src/hooks/usePrimaryName';
-import {
-  useGlobalState,
-  useModalState,
-  useTransactionState,
-  useWalletState,
-} from '@src/state';
+import { buildCostDetailsQuery } from '@src/hooks/useCostDetails';
+import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import { useGlobalState, useWalletState } from '@src/state';
 import { TRANSACTION_TYPES } from '@src/types';
 import {
   camelToReadable,
   decodeDomainToASCII,
-  doAntsRequireUpdate,
   encodeDomainToASCII,
-  formatExpiryDate,
+  formatARIOWithCommas,
+  formatDate,
   formatForMaxCharCount,
-  formatVerboseDate,
-  getOwnershipStatus,
   isArweaveTransactionID,
   lowerCaseDomain,
 } from '@src/utils';
-import {
-  NETWORK_DEFAULTS,
-  PERMANENT_DOMAIN_MESSAGE,
-} from '@src/utils/constants';
-import {
-  ColumnDef,
-  Row,
-  RowData,
-  createColumnHelper,
-} from '@tanstack/react-table';
-import { capitalize } from 'lodash';
-import { CircleCheck, Star } from 'lucide-react';
+import { NETWORK_DEFAULTS } from '@src/utils/constants';
+import { useQueryClient } from '@tanstack/react-query';
+import { ColumnDef, Row, createColumnHelper } from '@tanstack/react-table';
+import { CircleAlertIcon, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ReactNode } from 'react-markdown';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { Tooltip } from '..';
-import RegistrationTip from '../RegistrationTip';
 import { RNPChart } from '../charts/RNPChart';
 import TableView from './TableView';
-import UndernamesSubtable from './UndernamesSubtable';
 
 type TableData = {
   openRow: ReactNode;
   name: string;
-  role: string;
-  processId: string;
-  targetId: string;
-  ioCompatible?: boolean;
-  undernames: {
-    used: number;
-    supported: number;
-  };
-  expiryDate: string;
-  handlers: AoANTHandler[];
-  status: string | number;
+  closingDate: number;
+  initiator: string;
+  leasePrice: number | Error;
+  permabuy: number | Error;
+  returnType: string;
   action: ReactNode;
 } & Record<string, any>;
 
@@ -107,33 +78,23 @@ function filterTableData(filter: string, data: TableData[]): TableData[] {
 }
 
 const ReturnedNamesTable = ({
-  domainData,
+  returnedNames,
   loading,
   filter,
 }: {
-  domainData: {
-    names: Record<string, AoArNSNameData>;
-    ants: Record<string, { state: AoANTState; handlers: AoANTHandler[] }>;
-  };
+  returnedNames?: Array<AoReturnedName & { name: string }>;
   loading: boolean;
   filter?: string;
 }) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
+  const [{ arioProcessId, arioTicker, arioContract }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
-  const [{ arioProcessId }] = useGlobalState();
-  const [, dispatchModalState] = useModalState();
-  const [, dispatchTransactionState] = useTransactionState();
-  const { data: primaryNameData } = usePrimaryName();
+
   const [tableData, setTableData] = useState<Array<TableData>>([]);
   const [filteredTableData, setFilteredTableData] = useState<TableData[]>([]);
   const [sortBy, setSortBy] = useState(searchParams.get('sortBy') ?? 'name');
-
-  const [showUpgradeAntModal, setShowUpgradeAntModal] =
-    useState<boolean>(false);
-  const [antIdToUpgrade, setAntIdToUpgrade] = useState<string | undefined>(
-    undefined,
-  );
 
   useEffect(() => {
     setSortBy(searchParams.get('sortBy') ?? 'name');
@@ -145,59 +106,107 @@ const ReturnedNamesTable = ({
       setFilteredTableData([]);
       return;
     }
-    if (domainData) {
+    if (returnedNames) {
       const newTableData: TableData[] = [];
 
-      Object.entries(domainData.names).map(([domain, record]) => {
-        const ant = domainData.ants[record.processId];
-        const isIoCompatible =
-          walletAddress && ant?.state && record?.processId
-            ? !doAntsRequireUpdate({
-                ants: {
-                  [record.processId]: {
-                    state: ant.state,
-                    handlers: ant.handlers,
-                  },
-                },
-                userAddress: walletAddress.toString(),
-              })
-            : false;
-
+      returnedNames.map((nameData) => {
+        const { name, initiator, endTimestamp } = nameData;
         const data: TableData = {
           openRow: <></>,
-          name: domain,
-          role:
-            getOwnershipStatus(
-              ant?.state?.Owner,
-              ant?.state?.Controllers,
-              walletAddress?.toString(),
-            ) ?? 'N/A',
-          processId: record.processId,
-          targetId: ant?.state?.Records?.['@']?.transactionId ?? 'N/A',
-          ioCompatible: isIoCompatible,
-          undernames: {
-            used:
-              Object.keys(ant?.state?.Records ?? {}).filter(
-                (undername) => undername !== '@',
-              )?.length ?? 0,
-            supported: record.undernameLimit,
-          },
-          expiryDate: (record as any).endTimestamp ?? PERMANENT_DOMAIN_MESSAGE,
-          status: isLeasedArNSRecord(record)
-            ? record.endTimestamp
-            : PERMANENT_DOMAIN_MESSAGE,
+          name,
+          closingDate: endTimestamp,
+          initiator,
+          leasePrice: -1,
+          permabuy: -1,
+          returnType:
+            initiator === arioProcessId ? 'Lease expiry' : 'Permanent Return',
+
           action: <></>,
           // metadata used for search and other purposes
-          antRecords: ant?.state?.Records,
-          domainRecord: record,
-          handlers: ant.handlers,
+          returnNameData: nameData,
         };
         newTableData.push(data);
       });
 
       setTableData(newTableData);
     }
-  }, [domainData, loading, primaryNameData]);
+  }, [returnedNames, loading]);
+  async function fetchPrice(
+    name: string,
+    type: TRANSACTION_TYPES,
+  ): Promise<number | Error> {
+    try {
+      const res = await queryClient.fetchQuery(
+        buildCostDetailsQuery(
+          {
+            intent: 'Buy-Record',
+            name,
+            type,
+            years: 1,
+            fromAddress: walletAddress?.toString(),
+          },
+          { arioContract, arioProcessId },
+        ),
+      );
+
+      return res.tokenCost;
+    } catch (error: any) {
+      return new Error(error.message);
+    }
+  }
+  useEffect(() => {
+    async function updatePrices() {
+      // Filter rows that need price updates
+      const rowsToUpdate = tableData.filter(
+        (row) =>
+          row.leasePrice instanceof Error ||
+          row.leasePrice < 0 ||
+          row.permabuy instanceof Error ||
+          row.permabuy < 0,
+      );
+
+      if (rowsToUpdate.length === 0) {
+        // No rows need updates, exit early
+        return;
+      }
+
+      const updatedData = await Promise.all(
+        tableData.map(async (row) => {
+          if (
+            row.leasePrice instanceof Error ||
+            row.leasePrice < 0 ||
+            row.permabuy instanceof Error ||
+            row.permabuy < 0
+          ) {
+            // Fetch lease price
+            const leasePrice = await fetchPrice(
+              row.name,
+              TRANSACTION_TYPES.LEASE,
+            );
+            // Fetch permabuy price
+            const permabuyPrice = await fetchPrice(
+              row.name,
+              TRANSACTION_TYPES.BUY,
+            );
+
+            // Return updated row with fetched prices
+            return {
+              ...row,
+              leasePrice,
+              permabuy: permabuyPrice,
+            };
+          }
+          // Return the row unchanged if no update is needed
+          return row;
+        }),
+      );
+
+      // Set updated table data
+      setTableData(updatedData);
+    }
+
+    updatePrices();
+  }, [tableData]); // Re-run only when `tableData` changes
 
   useEffect(() => {
     if (filter) {
@@ -210,13 +219,11 @@ const ReturnedNamesTable = ({
   const columns: ColumnDef<TableData, any>[] = [
     'openRow',
     'name',
-    'role',
-    'processId',
-    'targetId',
-    'ioCompatible',
-    'undernames',
-    'expiryDate',
-    'status',
+    'closingDate',
+    'initiator',
+    'leasePrice',
+    'permabuy',
+    'returnType',
     'action',
   ].map((key) =>
     columnHelper.accessor(key as keyof TableData, {
@@ -225,43 +232,25 @@ const ReturnedNamesTable = ({
       header:
         key == 'action' || key == 'openRow'
           ? ''
-          : key == 'processId'
-          ? 'Process ID'
-          : key == 'targetId'
-          ? 'Target ID'
-          : key == 'ioCompatible'
-          ? 'AR.IO Compatible'
+          : key == 'closingDate'
+          ? 'Closing Date'
+          : key == 'leasePrice'
+          ? 'Price for 1 Year'
           : camelToReadable(key),
       sortDescFirst: true,
-      sortingFn:
-        key == 'undernames'
-          ? (rowA, rowB) => {
-              return (
-                rowA.original.undernames.used - rowB.original.undernames.used
-              );
-            }
-          : 'alphanumeric',
+      sortingFn: 'alphanumeric',
       cell: ({ row }) => {
         const rowValue = row.getValue(key) as any;
         if (rowValue === undefined || rowValue === null) {
           return '';
         }
-        const antHandlers = row.original.handlers;
+
         switch (key) {
           case 'openRow': {
-            return (
-              <button
-                onClick={() => row.toggleExpanded()}
-                style={{
-                  transform: row.getIsExpanded() ? 'rotate(90deg)' : undefined,
-                }}
-              >
-                <ChevronRightIcon
-                  width={'18px'}
-                  height={'18px'}
-                  fill={'var(--text-white)'}
-                />
-              </button>
+            return row.getIsExpanded() ? (
+              <Star width={'18px'} height={'18px'} fill={'var(--text-white)'} />
+            ) : (
+              <></>
             );
           }
           case 'name': {
@@ -295,201 +284,76 @@ const ReturnedNamesTable = ({
               />
             );
           }
-          case 'role':
-            return capitalize(row.getValue(key));
-          case 'processId': {
-            return (
-              <ArweaveID
-                id={row.getValue(key)}
-                shouldLink={true}
-                characterCount={8}
-                type={ArweaveIdTypes.CONTRACT}
-              />
-            );
+          case 'closingDate': {
+            return formatDate(rowValue);
           }
-          case 'targetId': {
+          case 'initiator': {
             return isArweaveTransactionID(rowValue) ? (
               <ArweaveID
-                id={rowValue}
-                shouldLink={true}
-                characterCount={8}
-                type={ArweaveIdTypes.TRANSACTION}
+                id={new ArweaveTransactionID(rowValue)}
+                shouldLink
+                characterCount={12}
+                type={ArweaveIdTypes.ADDRESS}
               />
             ) : (
               rowValue
             );
           }
-          case 'ioCompatible': {
-            return rowValue ? (
-              <CircleCheck className="text-success w-[16px]" />
-            ) : (
-              <button
-                onClick={() => {
-                  setAntIdToUpgrade(row.getValue('processId'));
-                  setShowUpgradeAntModal(true);
-                }}
-                className="p-[4px] px-[8px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all whitespace-nowrap"
-              >
-                Update
-              </button>
-            );
-          }
-          case 'undernames': {
-            const { used, supported } = rowValue as Record<string, number>;
-            return (
-              <Tooltip
-                tooltipOverrides={{
-                  overlayClassName: 'w-fit',
-                  overlayInnerStyle: { width: 'fit-content' },
-                }}
-                message={
-                  used >= supported ? (
-                    <span className="flex flex-column" style={{ gap: '8px' }}>
-                      <span className="w-fit items-center text-center">
-                        You&apos;ve exceeded your undername support by{' '}
-                        {used - supported} undername
-                        {used - supported > 1 ? 's' : ''}.{' '}
-                      </span>
-                      <Link
-                        className="w-full whitespace-nowrap bg-primary rounded-md text-black hover:text-black center hover px-2"
-                        to={`/manage/names/${row.getValue(
-                          'name',
-                        )}/upgrade-undernames`}
-                      >
-                        Increase your undername support.
-                      </Link>
-                    </span>
-                  ) : (
-                    <span className="justify-center items-center whitespace-nowrap flex flex-col">
-                      <span className="w-fit">
-                        You have used{' '}
-                        <span className="font-bold">
-                          {used}/{supported}
-                        </span>{' '}
-                        of your supported undernames.
-                      </span>
-                      <Link
-                        to="https://docs.ar.io/arns/#under-names"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="link w-fit m-auto"
-                      >
-                        Learn more about Under_names
-                      </Link>
-                    </span>
-                  )
-                }
-                icon={
-                  <Link
-                    className={`${used >= supported ? 'text-warning' : 'link'}`}
-                    to={`/manage/names/${row.getValue(
-                      'name',
-                    )}/upgrade-undernames`}
-                  >
-                    {used} / {supported}
-                  </Link>
-                }
-              />
-            );
-          }
-          case 'expiryDate': {
-            if (rowValue == PERMANENT_DOMAIN_MESSAGE) {
+          case 'leasePrice':
+          case 'permabuy': {
+            if (rowValue instanceof Error)
               return (
                 <Tooltip
-                  message={
-                    'This domain is permanently registered and will never expire'
+                  message={rowValue.message}
+                  icon={
+                    <span className="text-error">
+                      Price Error{' '}
+                      <CircleAlertIcon width={'18px'} height={'18px'} />
+                    </span>
                   }
-                  icon={<>Indefinite</>}
                 />
               );
-            }
-            return (
-              <Tooltip
-                message={
-                  'Enters grace period on approximately ' +
-                  formatVerboseDate(rowValue)
-                }
-                icon={<>{formatExpiryDate(rowValue)}</>}
-              />
-            );
+            if (rowValue < 0)
+              return (
+                <span className="text-white animate-pulse">Loading...</span>
+              );
+            return `${formatARIOWithCommas(
+              new mARIOToken(rowValue).toARIO().valueOf(),
+            )} ${arioTicker}`;
           }
-          case 'status': {
-            return (
-              <span>
-                <RegistrationTip
-                  domain={domainData.names[row.getValue('name') as string]}
-                />
-              </span>
-            );
+          case 'returnType': {
+            return rowValue;
           }
+
           case 'action': {
             return (
-              <div className="flex justify-end w-full">
-                <span className="flex  pr-3 w-fit gap-3">
-                  <Tooltip
-                    message={
-                      !antHandlers?.includes('approvePrimaryName') ||
-                      !antHandlers?.includes('removePrimaryNames')
-                        ? 'Update ANT to access Primary Names workflow'
-                        : primaryNameData?.name === row.getValue('name')
-                        ? 'Remove Primary Name'
-                        : 'Set Primary Name'
-                    }
-                    icon={
-                      <button
-                        disabled={
-                          !antHandlers?.includes('approvePrimaryName') ||
-                          !antHandlers?.includes('removePrimaryNames')
-                        }
-                        onClick={() => {
-                          const targetName = row.getValue('name') as string;
-                          if (primaryNameData?.name === targetName) {
-                            // remove primary name payload
-                            dispatchTransactionState({
-                              type: 'setTransactionData',
-                              payload: {
-                                names: [targetName],
-                                arioProcessId,
-                                assetId: row.getValue('processId'),
-                                functionName: 'removePrimaryNames',
-                              },
-                            });
-                          } else {
-                            dispatchTransactionState({
-                              type: 'setTransactionData',
-                              payload: {
-                                name: targetName,
-                                arioProcessId,
-                                assetId: arioProcessId,
-                                functionName: 'primaryNameRequest',
-                              },
-                            });
-                          }
-
-                          dispatchModalState({
-                            type: 'setModalOpen',
-                            payload: { showPrimaryNameModal: true },
-                          });
-                        }}
-                      >
-                        <Star
-                          className={
-                            (row.getValue('name') == primaryNameData?.name
-                              ? 'text-primary fill-primary'
-                              : 'text-grey') +
-                            ` 
-                    w-[18px]
-                    `
-                          }
-                        />
-                      </button>
-                    }
-                  />
-                  <ManageAssetButtons
-                    id={lowerCaseDomain(row.getValue('name') as string)}
-                    assetType="names"
-                    disabled={false}
-                  />
+              <div className="flex justify-end w-full ">
+                <span className="flex  pr-3 w-fit h-fit gap-3 items-center justify-center overflow-visible max-h-[15px]">
+                  {row.getIsExpanded() ? (
+                    <button
+                      className="p-2 py-[0.4rem] rounded text-white bg-[#303038]"
+                      onClick={() => row.toggleExpanded()}
+                    >
+                      Close
+                    </button>
+                  ) : (
+                    <button
+                      className="p-2 py-[0.4rem] rounded text-grey border border-dark-grey hover:border-grey hover:text-white whitespace-nowrap"
+                      onClick={() => row.toggleExpanded()}
+                    >
+                      View Chart
+                    </button>
+                  )}
+                  <button
+                    className="p-2 py-[0.4rem] text-center size-fit rounded text-black bg-primary"
+                    onClick={() => {
+                      navigate(
+                        `/register/${lowerCaseDomain(row.original.name)}`,
+                      );
+                    }}
+                  >
+                    Buy
+                  </button>
                 </span>
               </div>
             );
@@ -509,11 +373,15 @@ const ReturnedNamesTable = ({
     );
 
     return (
-      <div className="flex flex-col w-full gap-4">
+      <div className="flex flex-col w-full gap-6 h-[400px] p-6">
         <div className="flex justify-between items-center text-grey">
           <span>Returned Name</span>
-          <div className="flex gap-2 items-center justify-center">
-            <span>permanent</span>
+          <div className="flex gap-4 items-center justify-center">
+            <span>
+              {purchaseType === TRANSACTION_TYPES.LEASE
+                ? 'Lease for 1 Year'
+                : 'Permabuy'}
+            </span>
             <Switch
               checked={purchaseType === TRANSACTION_TYPES.BUY}
               onChange={(checked: boolean) =>
@@ -521,6 +389,11 @@ const ReturnedNamesTable = ({
                   checked ? TRANSACTION_TYPES.BUY : TRANSACTION_TYPES.LEASE,
                 )
               }
+              className={{
+                root: 'outline-none size-full w-[3rem] rounded-full border border-dark-grey',
+                thumb:
+                  'block size-[21px] translate-x-0.5 rounded-full bg-primary transition-transform duration-100 will-change-transform data-[state=checked]:translate-x-[1.43rem]',
+              }}
             />
           </div>
         </div>
@@ -536,7 +409,7 @@ const ReturnedNamesTable = ({
 
   return (
     <>
-      <div className="w-full">
+      <div className="w-full border border-dark-grey rounded">
         <TableView
           columns={columns}
           data={
@@ -548,22 +421,7 @@ const ReturnedNamesTable = ({
           }
           isLoading={false}
           noDataFoundText={
-            !walletAddress ? (
-              <div className="flex flex-column text-medium center white p-[100px] box-border gap-[20px]">
-                <button
-                  onClick={() =>
-                    navigate('/connect', {
-                      // redirect logic for connect page to use
-                      state: { from: '/manage', to: '/manage' },
-                    })
-                  }
-                  className="button-secondary center p-[10px] w-fit"
-                >
-                  Connect
-                </button>
-                &nbsp; Connect your wallet to view your assets.
-              </div>
-            ) : loading ? (
+            loading ? (
               <div className="flex flex-column center white p-[100px]">
                 <Loader message="Loading assets..." />
               </div>
@@ -571,12 +429,7 @@ const ReturnedNamesTable = ({
               <div className="flex flex-column center p-[100px]">
                 <>
                   <span className="white bold" style={{ fontSize: '16px' }}>
-                    No Registered Names Found
-                  </span>
-                  <span className={'grey text-sm max-w-[400px]'}>
-                    Arweave Names are friendly names for data on the Arweave
-                    blockchain. They serve to improve finding, sharing, and
-                    access to data, resistant to takedowns or losses.
+                    No Returned Names Found
                   </span>
                 </>
 
@@ -593,38 +446,34 @@ const ReturnedNamesTable = ({
           }
           defaultSortingState={{
             id: sortBy,
-            desc: sortBy == 'expiryDate' ? false : true,
+            desc: sortBy == 'closingData' ? false : true,
           }}
-          renderSubComponent={({ row }) => (
-            <div className="flex flex-col w-full gap-4">
-              <div className="flex justify-between items-center text-grey">
-                <span>Returned Name</span>
-                <div className="flex gap-2 items-center justify-center">
-                  <span>permanent</span>
-                  <Switch />
-                </div>
-              </div>
-              <RNPChart name={row.original.name} />
-            </div>
-          )}
-          tableClass="border-[1px] border-dark-grey"
+          renderSubComponent={({ row }) => <RNPChartSubComponent row={row} />}
+          tableClass="overflow-hidden rounded"
           rowClass={(props) => {
+            if (props?.headerGroup) {
+              return 'rounded-t';
+            }
             if (props?.row !== undefined) {
               return props.row.getIsExpanded()
-                ? 'bg-foreground border-l-2 border-link border-t-0'
-                : '' +
-                    ' hover:bg-primary-thin data-[id=renderSubComponent]:hover:bg-background';
+                ? 'bg-[#1B1B1D] '
+                : 'overflow-hidden' +
+                    '  data-[id=renderSubComponent]:hover:bg-background';
             }
 
             return '';
           }}
           dataClass={(props) => {
+            if (props?.headerGroup) {
+              return 'rounded-t whitespace-nowrap';
+            }
             if (props?.row !== undefined && props.row.getIsExpanded()) {
               return 'border-t-[1px] border-dark-grey border-b-0';
             }
 
             return '';
           }}
+          headerClass="bg-foreground rounded-t"
         />
       </div>
     </>

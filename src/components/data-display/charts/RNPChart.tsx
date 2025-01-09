@@ -2,6 +2,7 @@ import { AoGetCostDetailsParams, mARIOToken } from '@ar.io/sdk';
 import { useCostDetails } from '@src/hooks/useCostDetails';
 import { useGlobalState, useWalletState } from '@src/state';
 import { formatARIOWithCommas, formatDateMDY } from '@src/utils';
+import Lottie from 'lottie-react';
 import { useEffect, useRef, useState } from 'react';
 import {
   Line,
@@ -13,6 +14,8 @@ import {
 } from 'recharts';
 import { CategoricalChartState } from 'recharts/types/chart/types';
 import { Coordinate } from 'recharts/types/util/types';
+
+import arioLoading from '../../icons/ario-spinner.json';
 
 const START_RNP_PREMIUM = 50;
 
@@ -180,9 +183,20 @@ export function RNPChart({
     return <></>;
   };
 
-  if (!chartData.length) return <></>;
+  if (!chartData?.length)
+    return (
+      <span className="h-fit flex flex-col text-white w-full items-center p-5 justify-center m-auto">
+        <Lottie animationData={arioLoading} loop={true} className="h-[100px]" />
+        <span>Loading Price Chart...</span>
+      </span>
+    );
 
-  if (!costDetails?.returnedNameDetails) return <></>;
+  if (!costDetails?.returnedNameDetails)
+    return (
+      <div className="flex text-white text-lg justify-center items-center m-auto">
+        This is not a returned name, unable to load chart.
+      </div>
+    );
 
   return (
     <div className="flex flex-col size-full">
