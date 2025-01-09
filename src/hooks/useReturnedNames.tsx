@@ -9,6 +9,7 @@ export function useReturnedNames() {
     queryFn: async () => {
       return await arioContract.getArNSReturnedNames();
     },
+    staleTime: 1000 * 60 * 5,
   });
 }
 
@@ -22,5 +23,6 @@ export function useReturnedName(name?: string) {
       if (!name) throw new Error('Must provide name in hook');
       return await arioContract.getArNSReturnedName({ name });
     },
+    staleTime: 1000 * 60 * 5,
   });
 }
