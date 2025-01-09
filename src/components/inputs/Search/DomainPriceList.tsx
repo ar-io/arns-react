@@ -15,7 +15,7 @@ function DomainPiceList({ domain }: { domain: string }) {
 
   if (isLoadingPriceList || isRefetchingPriceList) {
     return (
-      <span className="text-sm text-white align-center animate-pulse">
+      <span className="text-white align-center animate-pulse">
         Loading prices...
       </span>
     );
@@ -23,7 +23,7 @@ function DomainPiceList({ domain }: { domain: string }) {
   return (
     <>
       {priceList && priceList.lease > 0 ? (
-        <span className="text-sm text-white align-center">
+        <span className="text-white align-center">
           Lease from{' '}
           {formatARIO(new mARIOToken(priceList.lease).toARIO().valueOf())}{' '}
           {arioTicker} for one year, or permabuy for{' '}

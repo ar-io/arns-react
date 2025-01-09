@@ -35,6 +35,23 @@ export function formatVerboseDate(timestamp: number | string): string {
   }
 }
 
+/**
+ *
+ * @param timestamp
+ * @example "May 13, 2024"
+ */
+export function formatDateMDY(timestamp: number | string): string {
+  try {
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }).format(new Date(timestamp));
+  } catch (error) {
+    return '';
+  }
+}
+
 export function tagsToObject(tags: TransactionTag[]): {
   [x: string]: string;
 } {

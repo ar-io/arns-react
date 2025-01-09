@@ -67,7 +67,10 @@ export function dispatchArNSUpdate({
           processId: id,
         })
           .getHandlers()
-          .catch(console.error);
+          .catch((e) => {
+            console.error(e);
+            return null;
+          });
       },
       staleTime: Infinity,
     });

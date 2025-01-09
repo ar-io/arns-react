@@ -1,8 +1,11 @@
 import { CheckCircleFilled } from '@ant-design/icons';
 import { AoArNSNameData } from '@ar.io/sdk/web';
+import { Tooltip } from '@src/components/data-display';
 import DomainDetailsTip from '@src/components/data-display/DomainDetailsTip';
+import { RNPChart } from '@src/components/data-display/charts/RNPChart';
 import { CircleCheckFilled, SearchIcon } from '@src/components/icons';
 import useDebounce from '@src/hooks/useDebounce';
+import { useReturnedNames } from '@src/hooks/useReturnedNames';
 import { decodeDomainToASCII, lowerCaseDomain } from '@src/utils';
 import { NETWORK_DEFAULTS } from '@src/utils/constants';
 import Lottie from 'lottie-react';
@@ -13,6 +16,8 @@ import { useNavigate } from 'react-router-dom';
 import arioLoading from '../../icons/ario-spinner.json';
 import DomainSearch from '../DomainSearch';
 import DomainPiceList from './DomainPriceList';
+
+const recentlyReturnedTooltipMessage = `Recently expired leases or returned permanent names are initially priced with a premium starting at a 50x multiplier. This premium decreases linearly over 14 days, eventually returning to the base registration price.`;
 
 const maxCharValidation = 'Max. 51 characters';
 const noSpecialCharsValidation = 'No special characters or underscores';
@@ -26,6 +31,7 @@ const defaultValidations = {
 function HomeSearch() {
   const navigate = useNavigate();
   const [isSearching, setIsSearching] = useState(false);
+  const { data: returnedNames } = useReturnedNames();
   const [isAvailable, setIsAvailable] = useState(false);
   const [validations, setValidations] =
     useState<typeof defaultValidations>(defaultValidations);
@@ -35,6 +41,12 @@ function HomeSearch() {
   const domainQuery = useDebounce(query ?? '', query.length <= 1 ? 0 : 800);
   const [domainRecord, setDomainRecord] = useState<AoArNSNameData>();
   const [showResults, setShowResults] = useState(true);
+
+  const isReturnedName = returnedNames
+    ? !!returnedNames.items.find(
+        (item) => item.name === lowerCaseDomain(domainQuery),
+      )
+    : false;
 
   useEffect(() => {
     validateDomain(domainQuery);
@@ -113,7 +125,7 @@ function HomeSearch() {
       }
     >
       <div
-        className={`flex flex-col w-full max-w-[800px] h-[200px] ${
+        className={`flex flex-col w-full max-w-[800px] min-h-fit ${
           domainQuery.length == 0 ? `` : `absolute mx-0 top-[240px]`
         }`}
       >
@@ -207,6 +219,26 @@ function HomeSearch() {
                             height={'14px'}
                           />
                         </span>
+                      ) : isReturnedName ? (
+                        <span className="whitespace-nowrap flex items-start justify-center gap-2 text-primary">
+                          RECENTLY RETURNED{' '}
+                          <Tooltip
+                            message={recentlyReturnedTooltipMessage}
+                            icon={
+                              <CircleAlert
+                                className="m-[2px]"
+                                width={'14px'}
+                                height={'14px'}
+                              />
+                            }
+                            tooltipOverrides={{
+                              overlayInnerStyle: {
+                                width: '338px',
+                                padding: '1rem',
+                              },
+                            }}
+                          />
+                        </span>
                       ) : (
                         <span className="whitespace-nowrap flex items-center gap-2">
                           AVAILABLE{' '}
@@ -237,6 +269,27 @@ function HomeSearch() {
                     loop={true}
                     className="h-[60px]"
                   />
+                ) : isReturnedName ? (
+                  <div className="flex flex-col w-full gap-2 mt-4 h-700px">
+                    <div className="flex flex-row w-full justify-between ">
+                      <span className="text-xl text-white">
+                        ar://{decodeDomainToASCII(domainQuery)}
+                      </span>
+                      <button
+                        className={`py-2 px-3 text-sm bg-primary font-bold rounded-[4px] text-black disabled:opacity-50 disabled:bg-grey`}
+                        disabled={!isValidDomain}
+                        onClick={() => {
+                          navigate(`/register/${lowerCaseDomain(domainQuery)}`);
+                        }}
+                      >
+                        Register
+                      </button>
+                    </div>
+                    <div className="h-[200px]">
+                      {' '}
+                      <RNPChart name={lowerCaseDomain(domainQuery)} />
+                    </div>
+                  </div>
                 ) : isAvailable ? (
                   <div className="flex flex-row w-full justify-between mt-4">
                     <span className="text-xl text-white">
