@@ -59,6 +59,8 @@ const SettingsLayout = React.lazy(
   () => import('./components/pages/Settings/SettingsLayout'),
 );
 
+const RNPPage = React.lazy(() => import('./components/pages/RNPPage/RNPPage'));
+
 const sentryCreateBrowserRouter =
   Sentry.wrapCreateBrowserRouter(createHashRouter);
 
@@ -320,6 +322,18 @@ function App() {
                 }
               >
                 <NotFound />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/returned-names"
+            element={
+              <Suspense
+                fallback={
+                  <PageLoader loading={true} message={'Loading, please wait'} />
+                }
+              >
+                <RNPPage />
               </Suspense>
             }
           />
