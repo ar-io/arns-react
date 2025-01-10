@@ -5,10 +5,15 @@ import { Recycle, Settings2Icon } from 'lucide-react';
 import { SettingsIcon } from '../components/icons';
 import { Home, Manage } from '../components/pages';
 
+// We have to wrap the icons like this due to lucide break on mobile when stored as a const like this
 const WrappedSettings2Icon: React.FC<React.SVGProps<SVGSVGElement>> = (
   props,
 ) => {
   return <Settings2Icon {...props} />;
+};
+
+const WrappedRecycleIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
+  return <Recycle {...props} />;
 };
 
 export type Route = {
@@ -47,7 +52,7 @@ export const ROUTES: { [x: string]: Route } = {
   },
   returnedNames: {
     text: 'Returned Names',
-    icon: Recycle,
+    icon: WrappedRecycleIcon,
     path: '/returned-names',
     component: RNPPage,
     protected: false,
