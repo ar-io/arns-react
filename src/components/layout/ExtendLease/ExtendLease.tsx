@@ -388,7 +388,7 @@ function ExtendLease() {
                         processId: new ArweaveTransactionID(
                           domainData.arnsRecord.processId,
                         ),
-                        qty: arioFee,
+
                         arnsRecord: domainData.arnsRecord,
                         interactionPrice: arioFee,
                       },
