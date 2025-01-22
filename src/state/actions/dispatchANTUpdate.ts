@@ -30,9 +30,11 @@ export async function dispatchANTUpdate({
     const handlers = await queryClient.fetchQuery({
       queryKey: ['handlers', processId],
       queryFn: async () => {
-        return await ANT.init({ process: new AOProcess({ processId, ao }) })
-          .getHandlers()
-          .catch(console.error);
+        return (
+          (await ANT.init({
+            process: new AOProcess({ processId, ao }),
+          }).getHandlers()) || null
+        );
       },
     });
 

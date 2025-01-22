@@ -64,7 +64,8 @@ function Manage() {
                   />
                 </div>
 
-                {walletAddress &&
+                {!loadingArnsState &&
+                  walletAddress &&
                   doAntsRequireUpdate({
                     ants,
                     userAddress: walletAddress.toString(),
@@ -87,22 +88,23 @@ function Manage() {
                     />
                   )}
                 <button
-                  disabled={loadingArnsState}
                   className={'button center pointer'}
-                  onClick={() =>
-                    walletAddress
-                      ? dispatchArNSUpdate({
-                          ao: aoClient,
-                          antAo: antAoClient,
-                          dispatch: dispatchArNSState,
-                          walletAddress: walletAddress,
-                          arioProcessId,
-                        })
-                      : eventEmitter.emit('error', {
-                          name: 'Manage Assets',
-                          message: 'Connect wallet before refreshing',
-                        })
-                  }
+                  onClick={() => {
+                    if (walletAddress) {
+                      dispatchArNSUpdate({
+                        ao: aoClient,
+                        antAo: antAoClient,
+                        dispatch: dispatchArNSState,
+                        walletAddress: walletAddress,
+                        arioProcessId,
+                      });
+                    } else {
+                      eventEmitter.emit('error', {
+                        name: 'Manage Assets',
+                        message: 'Connect wallet before refreshing',
+                      });
+                    }
+                  }}
                 >
                   <RefreshIcon
                     height={16}

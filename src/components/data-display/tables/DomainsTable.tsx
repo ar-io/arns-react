@@ -187,7 +187,7 @@ const DomainsTable = ({
 
       setTableData(newTableData);
     }
-  }, [domainData.names, loading, primaryNameData]);
+  }, [domainData, loading, primaryNameData]);
 
   useEffect(() => {
     if (filter) {
@@ -286,6 +286,10 @@ const DomainsTable = ({
             );
           }
           case 'role':
+            if (loading && row.getValue(key) === 'N/A')
+              return (
+                <span className="animate-pulse text-white">Loading...</span>
+              );
             return capitalize(row.getValue(key));
           case 'processId': {
             return (
@@ -298,6 +302,10 @@ const DomainsTable = ({
             );
           }
           case 'targetId': {
+            if (loading && row.getValue(key) === 'N/A')
+              return (
+                <span className="animate-pulse text-white">Loading...</span>
+              );
             return isArweaveTransactionID(rowValue) ? (
               <ArweaveID
                 id={rowValue}
@@ -326,6 +334,7 @@ const DomainsTable = ({
           }
           case 'undernames': {
             const { used, supported } = rowValue as Record<string, number>;
+
             return (
               <Tooltip
                 tooltipOverrides={{
