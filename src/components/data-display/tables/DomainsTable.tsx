@@ -418,68 +418,69 @@ const DomainsTable = ({
             return (
               <div className="flex justify-end w-full">
                 <span className="flex  pr-3 w-fit gap-3">
-                  <Tooltip
-                    message={
-                      row.getValue('role') === 'controller'
-                        ? 'Only Owners can use Primary Names'
-                        : !antHandlers?.includes('approvePrimaryName') ||
-                          !antHandlers?.includes('removePrimaryNames')
-                        ? 'Update ANT to access Primary Names workflow'
-                        : primaryNameData?.name === row.getValue('name')
-                        ? 'Remove Primary Name'
-                        : 'Set Primary Name'
-                    }
-                    icon={
-                      <button
-                        disabled={
-                          row.getValue('role') === 'controller' ||
-                          !antHandlers?.includes('approvePrimaryName') ||
-                          !antHandlers?.includes('removePrimaryNames')
-                        }
-                        onClick={() => {
-                          const targetName = row.getValue('name') as string;
-                          if (primaryNameData?.name === targetName) {
-                            // remove primary name payload
-                            dispatchTransactionState({
-                              type: 'setTransactionData',
-                              payload: {
-                                names: [targetName],
-                                arioProcessId,
-                                assetId: row.getValue('processId'),
-                                functionName: 'removePrimaryNames',
-                              },
-                            });
-                          } else {
-                            dispatchTransactionState({
-                              type: 'setTransactionData',
-                              payload: {
-                                name: targetName,
-                                arioProcessId,
-                                assetId: arioProcessId,
-                                functionName: 'primaryNameRequest',
-                              },
-                            });
+                  {row.getValue('role') === 'owner' ? (
+                    <Tooltip
+                      message={
+                        !antHandlers?.includes('approvePrimaryName') ||
+                        !antHandlers?.includes('removePrimaryNames')
+                          ? 'Update ANT to access Primary Names workflow'
+                          : primaryNameData?.name === row.getValue('name')
+                          ? 'Remove Primary Name'
+                          : 'Set Primary Name'
+                      }
+                      icon={
+                        <button
+                          disabled={
+                            !antHandlers?.includes('approvePrimaryName') ||
+                            !antHandlers?.includes('removePrimaryNames')
                           }
+                          onClick={() => {
+                            const targetName = row.getValue('name') as string;
+                            if (primaryNameData?.name === targetName) {
+                              // remove primary name payload
+                              dispatchTransactionState({
+                                type: 'setTransactionData',
+                                payload: {
+                                  names: [targetName],
+                                  arioProcessId,
+                                  assetId: row.getValue('processId'),
+                                  functionName: 'removePrimaryNames',
+                                },
+                              });
+                            } else {
+                              dispatchTransactionState({
+                                type: 'setTransactionData',
+                                payload: {
+                                  name: targetName,
+                                  arioProcessId,
+                                  assetId: arioProcessId,
+                                  functionName: 'primaryNameRequest',
+                                },
+                              });
+                            }
 
-                          dispatchModalState({
-                            type: 'setModalOpen',
-                            payload: { showPrimaryNameModal: true },
-                          });
-                        }}
-                      >
-                        <Star
-                          className={
-                            (row.getValue('name') == primaryNameData?.name
-                              ? 'text-primary fill-primary'
-                              : 'text-grey') +
-                            ` 
+                            dispatchModalState({
+                              type: 'setModalOpen',
+                              payload: { showPrimaryNameModal: true },
+                            });
+                          }}
+                        >
+                          <Star
+                            className={
+                              (row.getValue('name') == primaryNameData?.name
+                                ? 'text-primary fill-primary'
+                                : 'text-grey') +
+                              ` 
                     w-[18px]
                     `
-                          }
-                        />
-                      </button>
-                    }
-                  />
+                            }
+                          />
+                        </button>
+                      }
+                    />
+                  ) : (
+                    <></>
+                  )}
                   <ManageAssetButtons
                     id={lowerCaseDomain(row.getValue('name') as string)}
                     assetType="names"
