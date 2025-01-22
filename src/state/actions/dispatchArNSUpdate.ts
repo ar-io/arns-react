@@ -34,6 +34,13 @@ export async function dispatchArNSUpdate({
 }) {
   try {
     const limit = pLimit(20);
+    // reset queries
+    queryClient.resetQueries({
+      queryKey: ['ant'],
+    });
+    queryClient.resetQueries({
+      queryKey: ['handlers'],
+    });
     dispatch({ type: 'reset' });
     dispatch({ type: 'setDomains', payload: {} });
     dispatch({ type: 'setAnts', payload: {} });
