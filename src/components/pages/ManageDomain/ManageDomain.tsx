@@ -23,7 +23,9 @@ function ManageDomain() {
   const { data: domainData } = useDomainInfo({ domain: name });
   const [{ walletAddress }] = useWalletState();
 
-  const isOwner = walletAddress?.toString() === domainData?.info?.Owner;
+  const isOwner = walletAddress
+    ? walletAddress?.toString() === domainData?.info?.Owner
+    : false;
 
   const [logoId, setLogoId] = useState<string | undefined>();
 
