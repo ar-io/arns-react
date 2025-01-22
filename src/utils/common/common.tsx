@@ -35,6 +35,23 @@ export function formatVerboseDate(timestamp: number | string): string {
   }
 }
 
+/**
+ *
+ * @param timestamp
+ * @example "May 13, 2024"
+ */
+export function formatDateMDY(timestamp: number | string): string {
+  try {
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }).format(new Date(timestamp));
+  } catch (error) {
+    return '';
+  }
+}
+
 export function tagsToObject(tags: TransactionTag[]): {
   [x: string]: string;
 } {
@@ -195,13 +212,19 @@ export function formatExpiryDate(endTimestamp?: number) {
   );
 }
 
-export const formatIO = (io: number) => {
+export const formatARIO = (ario: number) => {
   return Intl.NumberFormat('en-US', {
     notation: 'compact',
     maximumFractionDigits: 2,
     compactDisplay: 'short',
-  }).format(io);
+  }).format(ario);
 };
+
+export function formatARIOWithCommas(ario: number) {
+  return ario.toLocaleString('en-US', {
+    maximumFractionDigits: 3,
+  });
+}
 
 export function shuffleArray(array: any[]) {
   const arrayCopy = [...array];

@@ -22,6 +22,7 @@ import {
   encodePrimaryName,
   formatForMaxCharCount,
 } from '@src/utils';
+import { NETWORK_DEFAULTS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { Star } from 'lucide-react';
@@ -52,7 +53,7 @@ const UndernamesSubtable = ({
   handlers?: AoANTHandler[];
   antId: string;
 }) => {
-  const [{ gateway, arioProcessId, antAoClient }] = useGlobalState();
+  const [{ arioProcessId, antAoClient }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const [, dispatchModalState] = useModalState();
@@ -205,7 +206,9 @@ const UndernamesSubtable = ({
                     className="link gap-2 items-center w-fit"
                     to={`https://${encodeDomainToASCII(
                       rowValue,
-                    )}_${encodeDomainToASCII(arnsDomain ?? '')}.${gateway}`}
+                    )}_${encodeDomainToASCII(arnsDomain ?? '')}.${
+                      NETWORK_DEFAULTS.ARNS.HOST
+                    }`}
                     target="_blank"
                   >
                     {formatForMaxCharCount(decodeDomainToASCII(rowValue), 30)}{' '}

@@ -30,18 +30,18 @@ export function useArNSDomainPriceList(domain: string) {
             name: lowerCaseDomain(domain),
           };
           const [leasePrice, buyPrice] = await Promise.all([
-            arioContract.getTokenCost({
+            arioContract.getCostDetails({
               ...sharedOptions,
               years: 1,
               type: 'lease',
             }),
-            arioContract.getTokenCost({
+            arioContract.getCostDetails({
               ...sharedOptions,
               type: 'permabuy',
             }),
           ]);
-          prices.lease = leasePrice;
-          prices.buy = buyPrice;
+          prices.lease = leasePrice.tokenCost;
+          prices.buy = buyPrice.tokenCost;
         }
       } catch (error) {
         eventEmitter.emit('error', {

@@ -62,6 +62,13 @@ html {
   height: 100%;
 }
 
+html body[data-scroll-locked] {
+  overflow-y: inherit !important;
+  overflow-x: inherit !important;
+  /* --removed-body-scroll-bar-size: 0 !important; */
+  margin-right: 0 !important;
+}
+
 body {
   display: flex;
   flex-direction: column;
@@ -71,7 +78,6 @@ body {
   box-sizing: border-box;
   height: 100%;
   width: 100%;
-  box-sizing: border-box;
 }
 
 .page {

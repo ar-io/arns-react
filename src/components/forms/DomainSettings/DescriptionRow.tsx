@@ -13,7 +13,7 @@ import { useEffect, useState } from 'react';
 import DomainSettingsRow from './DomainSettingsRow';
 
 export default function DescriptionRow({
-  description,
+  description = '',
   confirm,
   editable = false,
 }: {

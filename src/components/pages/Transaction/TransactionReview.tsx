@@ -1,12 +1,11 @@
-import { ARIOWriteable, AoARIOWrite } from '@ar.io/sdk/web';
+import { ARIOWriteable, AoARIOWrite, FundFrom } from '@ar.io/sdk/web';
 import { ANTCard } from '@src/components/cards';
-import WarningCard from '@src/components/cards/WarningCard/WarningCard';
-import { InfoIcon } from '@src/components/icons';
+import { TransactionDetails } from '@src/components/data-display/TransactionDetails/TransactionDetails';
 import WorkflowButtons from '@src/components/inputs/buttons/WorkflowButtons/WorkflowButtons';
-import TransactionCost from '@src/components/layout/TransactionCost/TransactionCost';
 import { StepProgressBar } from '@src/components/layout/progress';
 import PageLoader from '@src/components/layout/progress/PageLoader/PageLoader';
 import { useIsMobile } from '@src/hooks';
+import { useCostDetails } from '@src/hooks/useCostDetails';
 import { dispatchArNSUpdate, useArNSState } from '@src/state';
 import dispatchArIOInteraction from '@src/state/actions/dispatchArIOInteraction';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
@@ -15,6 +14,7 @@ import { useWalletState } from '@src/state/contexts/WalletState';
 import {
   ARNSMapping,
   ARNS_INTERACTION_TYPES,
+  ArNSInteractionTypeToIntentMap,
   TransactionData,
   ValidInteractionType,
 } from '@src/types';
@@ -27,23 +27,14 @@ import { StepProps } from 'antd';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { getTransactionDescription } from './transaction-descriptions';
 import { getTransactionHeader } from './transaction-headers';
 
 // page on route transaction/review
 // on completion routes to transaction/complete
 function TransactionReview() {
   const navigate = useNavigate();
-  const [
-    {
-      arioTicker,
-      arioContract,
-      arioProcessId,
-      aoNetwork,
-      aoClient,
-      antAoClient,
-    },
-  ] = useGlobalState();
+  const [{ arioContract, arioProcessId, aoNetwork, aoClient, antAoClient }] =
+    useGlobalState();
   const [{ arnsEmitter }, dispatchArNSState] = useArNSState();
   const [{ walletAddress, wallet }] = useWalletState();
   const [
@@ -60,12 +51,20 @@ function TransactionReview() {
       workflowName: workflowName as ARNS_INTERACTION_TYPES,
     }),
   );
-  const [transactionDescription, setTransactionDescription] = useState(
-    getTransactionDescription({
-      workflowName: workflowName as ARNS_INTERACTION_TYPES,
-      arioTicker,
-    }),
+
+  const [fundingSource, setFundingSource] = useState<FundFrom | undefined>(
+    'balance',
   );
+
+  const costDetailsParams = {
+    ...((transactionData ?? {}) as any),
+    intent:
+      ArNSInteractionTypeToIntentMap[workflowName as ARNS_INTERACTION_TYPES],
+    fromAddress: walletAddress?.toString(),
+    fundFrom: fundingSource,
+    quantity: (transactionData as any)?.qty,
+  };
+  const { data: costDetail } = useCostDetails(costDetailsParams);
 
   useEffect(() => {
     if (!transactionData && !workflowName) {
@@ -81,12 +80,7 @@ function TransactionReview() {
         } as any as TransactionData,
       }) as ARNSMapping,
     );
-    setTransactionDescription(
-      getTransactionDescription({
-        workflowName: workflowName as ARNS_INTERACTION_TYPES,
-        arioTicker,
-      }),
-    );
+
     setSteps(getWorkflowStepsForInteraction(interactionType));
     setHeader(
       getTransactionHeader({
@@ -130,6 +124,7 @@ function TransactionReview() {
         signer: wallet?.contractSigner,
         ao: aoClient,
         scheduler: aoNetwork.ARIO.SCHEDULER,
+        fundFrom: fundingSource,
       });
     } catch (error) {
       eventEmitter.emit('error', error);
@@ -196,33 +191,14 @@ function TransactionReview() {
             targetId: (transactionData as any)?.targetId?.toString(),
           }}
         />
-        <TransactionCost
-          feeWrapperStyle={{
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '100%',
-          }}
-          fee={{
-            [arioTicker]: transactionData?.interactionPrice,
-          }}
-          info={
-            transactionDescription && (
-              <div>
-                <WarningCard
-                  wrapperStyle={{
-                    padding: '10px',
-                    fontSize: '14px',
-                    alignItems: 'center',
-                  }}
-                  customIcon={
-                    <InfoIcon width={'20px'} fill={'var(--accent)'} />
-                  }
-                  text={transactionDescription}
-                />
-              </div>
-            )
-          }
-        />
+
+        <div className="flex w-full pt-10 box-border">
+          <TransactionDetails
+            details={costDetailsParams}
+            fundingSourceCallback={(v) => setFundingSource(v)}
+          />
+        </div>
+
         <div
           className="flex"
           style={{
@@ -232,7 +208,13 @@ function TransactionReview() {
           }}
         >
           <WorkflowButtons
-            onNext={() => handleNext()}
+            onNext={
+              !costDetail ||
+              (costDetail.fundingPlan?.shortfall &&
+                costDetail.fundingPlan?.shortfall > 0)
+                ? undefined
+                : () => handleNext()
+            }
             onBack={() => navigate(-1)}
             backText={'Back'}
             nextText={'Confirm'}

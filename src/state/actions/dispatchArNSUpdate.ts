@@ -70,7 +70,10 @@ export function dispatchArNSUpdate({
           process: new AOProcess({ processId: id, ao: antAo }),
         })
           .getHandlers()
-          .catch(console.error);
+          .catch((e) => {
+            console.error(e);
+            return null;
+          });
       },
       staleTime: Infinity,
     });

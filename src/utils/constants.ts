@@ -35,7 +35,9 @@ export const ARWEAVE_APP_API = new ArweaveWebWallet(
   { state: { url: 'arweave.app' } },
 );
 
-export const ARWEAVE_HOST = process.env.VITE_ARWEAVE_HOST ?? 'ar-io.dev';
+export const ARWEAVE_HOST = process.env.VITE_ARWEAVE_HOST ?? 'arweave.net';
+export const ARWEAVE_GRAPHQL_URL =
+  process.env.VITE_ARWEAVE_GRAPHQL_URL ?? 'https://arweave.net/graphql';
 
 export const DEFAULT_ARWEAVE = new Arweave({
   host: ARWEAVE_HOST,
@@ -110,12 +112,17 @@ export const NETWORK_DEFAULTS = {
       CU_URL: ANT_AO_CU_URL,
       MU_URL: 'https://mu.ao-testnet.xyz',
       SCHEDULER: DEFAULT_SCHEDULER_ID,
+      GRAPHQL_URL: ARWEAVE_GRAPHQL_URL,
     },
   },
   ARWEAVE: {
     HOST: ARWEAVE_HOST,
     PORT: 443,
     PROTOCOL: 'https',
+    GRAPHQL_URL: ARWEAVE_GRAPHQL_URL,
+  },
+  ARNS: {
+    HOST: 'ar.io',
   },
 };
 
