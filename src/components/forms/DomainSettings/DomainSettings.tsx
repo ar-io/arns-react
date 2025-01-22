@@ -4,10 +4,11 @@ import LeaseDuration from '@src/components/data-display/LeaseDuration';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
+import { ReassignNameModal } from '@src/components/modals/ant-management/ReassignNameModal/ReassignNameModal';
 import { ReturnNameModal } from '@src/components/modals/ant-management/ReturnNameModal/ReturnNameModal';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
-import { useArNSState, useGlobalState } from '@src/state';
+import { useGlobalState } from '@src/state';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
 import { useWalletState } from '@src/state/contexts/WalletState';
@@ -16,13 +17,10 @@ import {
   decodeDomainToASCII,
   doAntsRequireUpdate,
   formatExpiryDate,
-  getLeaseDurationFromEndTimestamp,
-  isMaxLeaseDuration,
   lowerCaseDomain,
 } from '@src/utils';
 import {
   DEFAULT_MAX_UNDERNAMES,
-  PERMANENT_DOMAIN_MESSAGE,
   SECONDS_IN_GRACE_PERIOD,
 } from '@src/utils/constants';
 import { useQueryClient } from '@tanstack/react-query';
@@ -81,8 +79,9 @@ function DomainSettings({
   const [{ interactionResult }, dispatch] = useTransactionState();
   const [{ wallet, walletAddress }] = useWalletState();
   const { data, isLoading, refetch } = useDomainInfo({ domain, antId });
-  const [{ ants }] = useArNSState();
+
   const [showReturnNameModal, setShowReturnNameModal] = useState(false);
+  const [showReassignNameModal, setShowReassignNameModal] = useState(false);
 
   // permissions check
   const isOwner = walletAddress
@@ -92,17 +91,9 @@ function DomainSettings({
     ? data?.controllers?.includes(walletAddress.toString() ?? '')
     : false;
   const isAuthorized = isOwner || isController;
-  const antHandlers =
-    data?.info?.Handlers ?? data?.info?.HandlerNames ?? ([] as AoANTHandler[]);
-
-  const maxLeaseDuration = isMaxLeaseDuration(
-    data?.arnsRecord && isLeasedArNSRecord(data?.arnsRecord)
-      ? getLeaseDurationFromEndTimestamp(
-          data?.arnsRecord.startTimestamp,
-          data?.arnsRecord?.endTimestamp,
-        )
-      : PERMANENT_DOMAIN_MESSAGE,
-  );
+  const antHandlers = (data?.info?.Handlers ??
+    data?.info?.HandlerNames ??
+    []) as AoANTHandler[];
 
   useEffect(() => {
     if (!domain && !antId) {
@@ -182,10 +173,10 @@ function DomainSettings({
             <DomainSettingsRow
               label="Lease Duration"
               key={DomainSettingsRowTypes.LEASE_DURATION}
-              editable={isAuthorized}
+              editable={true}
               action={
                 <div className="flex flex-row gap-1" style={{ gap: '10px' }}>
-                  {data?.arnsRecord?.type == 'permabuy' ? (
+                  {data?.arnsRecord?.type == 'permabuy' && isOwner ? (
                     <Tooltip
                       message={
                         !antHandlers.includes('releaseName')
@@ -204,19 +195,10 @@ function DomainSettings({
                     />
                   ) : (
                     <Tooltip
-                      message={
-                        maxLeaseDuration
-                          ? 'Max lease duration reached'
-                          : 'Extend lease'
-                      }
+                      message={'Extend lease'}
                       icon={
                         <button
-                          disabled={isLoading || maxLeaseDuration}
-                          className={`p-[6px] px-[10px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all whitespace-nowrap ${
-                            isLoading || maxLeaseDuration
-                              ? 'disabled-button'
-                              : 'hover'
-                          }`}
+                          className={`p-[6px] px-[10px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all whitespace-nowrap hover `}
                           onClick={() =>
                             navigate(
                               `/manage/names/${lowerCaseDomain(
@@ -279,9 +261,14 @@ function DomainSettings({
               antId={data?.processId?.toString()}
               editable={isAuthorized}
               requiresUpdate={
-                data?.processId && ants[data.processId] && walletAddress
+                data?.processId && data?.state && walletAddress
                   ? doAntsRequireUpdate({
-                      ants: { [data.processId]: ants[data.processId] },
+                      ants: {
+                        [data.processId]: {
+                          state: data.state,
+                          handlers: antHandlers,
+                        },
+                      },
                       userAddress: walletAddress.toString(),
                     })
                   : false
@@ -311,7 +298,7 @@ function DomainSettings({
               label="Process ID"
               key={DomainSettingsRowTypes.PROCESS_ID}
               value={
-                data?.processId ? (
+                data?.processId && !isLoading ? (
                   <ArweaveID
                     id={new ArweaveTransactionID(data.processId.toString())}
                     shouldLink
@@ -320,6 +307,30 @@ function DomainSettings({
                 ) : (
                   <Skeleton.Input active />
                 )
+              }
+              editable={isOwner}
+              action={
+                <Tooltip
+                  message={
+                    !antHandlers.includes('reassignName')
+                      ? 'Update ANT to access Reassign Name workflow'
+                      : data?.isInGracePeriod
+                      ? 'Lease must be extended before ANT can be Reassigned'
+                      : 'Reassigns what ANT is registered to the ArNS Name'
+                  }
+                  icon={
+                    <button
+                      disabled={
+                        !antHandlers.includes('reassignName') ||
+                        data?.isInGracePeriod
+                      }
+                      onClick={() => setShowReassignNameModal(true)}
+                      className={`flex flex-row text-[12px] rounded-[4px] p-[6px] px-[10px] border border-error bg-error-thin text-error whitespace-nowrap`}
+                    >
+                      Reassign Name
+                    </button>
+                  }
+                />
               }
             />
           ),
@@ -473,7 +484,7 @@ function DomainSettings({
           [DomainSettingsRowTypes.DESCRIPTION]: (
             <DescriptionRow
               key={DomainSettingsRowTypes.DESCRIPTION}
-              description={data?.info.Description}
+              description={data?.info?.Description}
               editable={isAuthorized}
               confirm={(description: string) =>
                 dispatchANTInteraction({
@@ -493,7 +504,7 @@ function DomainSettings({
           [DomainSettingsRowTypes.KEYWORDS]: (
             <KeywordsRow
               key={DomainSettingsRowTypes.KEYWORDS}
-              keywords={data?.info.Keywords}
+              keywords={data?.info?.Keywords}
               editable={isAuthorized}
               confirm={(keywords: string[]) =>
                 dispatchANTInteraction({
@@ -519,6 +530,14 @@ function DomainSettings({
         <ReturnNameModal
           show={showReturnNameModal}
           setShow={setShowReturnNameModal}
+          name={domain}
+          processId={data.processId}
+        />
+      )}
+      {domain && data?.processId && (
+        <ReassignNameModal
+          show={showReassignNameModal}
+          setShow={setShowReassignNameModal}
           name={domain}
           processId={data.processId}
         />

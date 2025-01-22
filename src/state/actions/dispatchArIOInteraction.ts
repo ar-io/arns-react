@@ -8,6 +8,7 @@ import {
   AoMessageResult,
   ContractSigner,
   DEFAULT_SCHEDULER_ID,
+  FundFrom,
   createAoSigner,
   spawnANT,
 } from '@ar.io/sdk/web';
@@ -18,7 +19,7 @@ import {
   ContractInteraction,
 } from '@src/types';
 import { createAntStateForOwner, lowerCaseDomain, sleep } from '@src/utils';
-import { DEFAULT_ANT_LUA_ID, WRITE_OPTIONS } from '@src/utils/constants';
+import { WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Dispatch } from 'react';
 
@@ -33,6 +34,7 @@ export default async function dispatchArIOInteraction({
   ao,
   antAo,
   scheduler = DEFAULT_SCHEDULER_ID,
+  fundFrom,
 }: {
   payload: Record<string, any>;
   workflowName: ARNS_INTERACTION_TYPES;
@@ -44,6 +46,7 @@ export default async function dispatchArIOInteraction({
   ao?: AoClient;
   antAo?: AoClient;
   scheduler?: string;
+  fundFrom?: FundFrom;
 }): Promise<ContractInteraction> {
   let result: AoMessageResult | undefined = undefined;
   const aoCongestedTimeout = setTimeout(
@@ -76,7 +79,6 @@ export default async function dispatchArIOInteraction({
             signer: createAoSigner(signer),
             ao: ao,
             scheduler: scheduler,
-            luaCodeTxId: DEFAULT_ANT_LUA_ID,
           });
 
           const antRegistry = ANTRegistry.init({
@@ -102,6 +104,7 @@ export default async function dispatchArIOInteraction({
           type,
           years,
           processId: antProcessId,
+          fundFrom,
         });
 
         payload.processId = antProcessId;
@@ -114,6 +117,7 @@ export default async function dispatchArIOInteraction({
           {
             name: lowerCaseDomain(payload.name),
             years: payload.years,
+            fundFrom,
           },
           WRITE_OPTIONS,
         );
@@ -123,6 +127,7 @@ export default async function dispatchArIOInteraction({
           {
             name: lowerCaseDomain(payload.name),
             increaseCount: payload.qty,
+            fundFrom,
           },
           WRITE_OPTIONS,
         );
@@ -148,6 +153,7 @@ export default async function dispatchArIOInteraction({
           await arioContract
             .requestPrimaryName({
               name: payload.name,
+              fundFrom,
             })
             .catch((e) => {
               throw new Error('Unable to request Primary name: ' + e.message);
@@ -184,6 +190,7 @@ export default async function dispatchArIOInteraction({
         });
         result = await arioContract.upgradeRecord({
           name: payload.name,
+          fundFrom,
         });
         break;
       }

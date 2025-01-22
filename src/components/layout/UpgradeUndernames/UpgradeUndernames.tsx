@@ -1,21 +1,20 @@
-import { ANT, AOProcess, AoArNSNameData, mARIOToken } from '@ar.io/sdk/web';
+import { mARIOToken } from '@ar.io/sdk/web';
 import WarningCard from '@src/components/cards/WarningCard/WarningCard';
 import { getTransactionDescription } from '@src/components/pages/Transaction/transaction-descriptions';
+import useDomainInfo from '@src/hooks/useDomainInfo';
 import { useIncreaseUndernameCost } from '@src/hooks/useIncreaseUndernameCost';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { useIsMobile } from '../../../hooks';
-import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import {
   ARNS_INTERACTION_TYPES,
   IncreaseUndernamesPayload,
 } from '../../../types';
-import { isARNSDomainNameValid, lowerCaseDomain } from '../../../utils';
+import { lowerCaseDomain } from '../../../utils';
 import { MAX_UNDERNAME_COUNT } from '../../../utils/constants';
-import eventEmitter from '../../../utils/events';
 import { InfoIcon } from '../../icons';
 import Counter from '../../inputs/Counter/Counter';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
@@ -26,59 +25,22 @@ function UpgradeUndernames() {
   const isMobile = useIsMobile();
   const location = useLocation();
   const navigate = useNavigate();
-  const [{ arweaveDataProvider, arioTicker, arioProcessId, antAoClient }] =
-    useGlobalState();
+  const [{ arioTicker, arioProcessId }] = useGlobalState();
   const name = location.pathname.split('/').at(-2);
   const [, dispatchTransactionState] = useTransactionState();
-  const [record, setRecord] = useState<AoArNSNameData>();
-  const [antContract, setAntContract] = useState<ANT>();
-  const [undernameCount, setUndernameCount] = useState<number>(0);
-  // min count of 1 ~ contract rule
   const [newUndernameCount, setNewUndernameCount] = useState<number>(0);
+  const { data: domainData } = useDomainInfo({ domain: name });
 
   const { data: fee } = useIncreaseUndernameCost({
     name: lowerCaseDomain(name ?? ''),
     quantity: newUndernameCount,
   });
-  const [loading, setLoading] = useState<boolean>(false);
-
-  useEffect(() => {
-    onLoad();
-  }, [name]);
-
-  async function onLoad() {
-    try {
-      setLoading(true);
-      if (name && isARNSDomainNameValid({ name: lowerCaseDomain(name) })) {
-        const record = await arweaveDataProvider.getRecord({
-          domain: lowerCaseDomain(name),
-        });
-        if (!record) {
-          throw new Error(`Unable to get record for ${name}`);
-        }
-        setRecord(record);
-        const processId = new ArweaveTransactionID(record?.processId);
-        const contract = ANT.init({
-          process: new AOProcess({
-            processId: processId.toString(),
-            ao: antAoClient,
-          }),
-        });
-        const existingUndernameCount = await contract.getRecords().then((r) => {
-          return Object.keys(r).filter((k) => k !== '@').length; // exclude @ record
-        });
-        setUndernameCount(existingUndernameCount);
-        setAntContract(contract);
-      }
-    } catch (error) {
-      eventEmitter.emit('error', error);
-      navigate(`/manage/names`);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  if (loading || !record || !antContract || !name) {
+  const {
+    arnsRecord,
+    antProcess: antContract,
+    undernameCount,
+  } = domainData ?? {};
+  if (!arnsRecord || !antContract || !name) {
     return (
       <div className="page center">
         <Loader size={80} message="Loading domain record" />
@@ -110,7 +72,7 @@ function UpgradeUndernames() {
               style={{ gap: '8px', whiteSpace: 'nowrap' }}
             >
               Total Undernames:{' '}
-              <span className="white">{record.undernameLimit}</span>
+              <span className="white">{arnsRecord.undernameLimit}</span>
               <span className="flex add-box center" style={{}}>
                 +{newUndernameCount}
               </span>
@@ -121,7 +83,7 @@ function UpgradeUndernames() {
             </span>
           </div>
           <Counter
-            maxValue={MAX_UNDERNAME_COUNT - record.undernameLimit}
+            maxValue={MAX_UNDERNAME_COUNT - arnsRecord.undernameLimit}
             minValue={0}
             value={newUndernameCount}
             setValue={setNewUndernameCount}
@@ -190,8 +152,8 @@ function UpgradeUndernames() {
                   const increaseUndernamePayload: IncreaseUndernamesPayload = {
                     name: lowerCaseDomain(name),
                     qty: newUndernameCount,
-                    oldQty: record.undernameLimit,
-                    processId: record.processId,
+                    oldQty: arnsRecord.undernameLimit,
+                    processId: arnsRecord.processId,
                   };
                   dispatchTransactionState({
                     type: 'setTransactionData',
