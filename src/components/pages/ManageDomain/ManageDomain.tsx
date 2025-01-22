@@ -1,6 +1,7 @@
 import TransactionSuccessCard from '@src/components/cards/TransactionSuccessCard/TransactionSuccessCard';
 import { AntLogoIcon } from '@src/components/data-display/AntLogoIcon';
 import DomainSettings from '@src/components/forms/DomainSettings/DomainSettings';
+import useDomainInfo from '@src/hooks/useDomainInfo';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import { useGlobalState, useModalState, useWalletState } from '@src/state';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
@@ -19,9 +20,10 @@ function ManageDomain() {
     useTransactionState();
   const [, dispatchModalState] = useModalState();
   const { data: primaryNameData } = usePrimaryName();
+  const { data: domainData } = useDomainInfo({ domain: name });
   const [{ walletAddress }] = useWalletState();
 
-  const isOwner = walletAddress?.toString() === primaryNameData?.owner;
+  const isOwner = walletAddress?.toString() === domainData?.info?.Owner;
 
   const [logoId, setLogoId] = useState<string | undefined>();
 

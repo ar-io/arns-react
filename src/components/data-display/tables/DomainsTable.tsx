@@ -420,8 +420,10 @@ const DomainsTable = ({
                 <span className="flex  pr-3 w-fit gap-3">
                   <Tooltip
                     message={
-                      !antHandlers?.includes('approvePrimaryName') ||
-                      !antHandlers?.includes('removePrimaryNames')
+                      row.getValue('role') === 'controller'
+                        ? 'Only Owners can use Primary Names'
+                        : !antHandlers?.includes('approvePrimaryName') ||
+                          !antHandlers?.includes('removePrimaryNames')
                         ? 'Update ANT to access Primary Names workflow'
                         : primaryNameData?.name === row.getValue('name')
                         ? 'Remove Primary Name'
@@ -430,6 +432,7 @@ const DomainsTable = ({
                     icon={
                       <button
                         disabled={
+                          row.getValue('role') === 'controller' ||
                           !antHandlers?.includes('approvePrimaryName') ||
                           !antHandlers?.includes('removePrimaryNames')
                         }
