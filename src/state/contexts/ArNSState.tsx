@@ -19,7 +19,10 @@ import { useWalletState } from './WalletState';
 
 export type ArNSState = {
   domains: Record<string, AoArNSNameData>;
-  ants: Record<string, { state: AoANTState; handlers: AoANTHandler[] }>;
+  ants: Record<
+    string,
+    { state: AoANTState | null; handlers: AoANTHandler[] | null }
+  >;
   loading: boolean;
   percentLoaded: number;
   antCount: number;
@@ -59,21 +62,9 @@ export function ArNSStateProvider({
   reducer,
   children,
 }: ArNSStateProviderProps): JSX.Element {
-  const [{ arioContract, arioProcessId, aoClient, antAoClient }] =
-    useGlobalState();
+  const [{ arioProcessId, aoClient, antAoClient }] = useGlobalState();
   const [state, dispatchArNSState] = useReducer(reducer, initialArNSState);
   const [{ walletAddress }] = useWalletState();
-
-  useEffect(() => {
-    dispatchArNSState({
-      type: 'setArNSEmitter',
-      payload: new ArNSEventEmitter({
-        contract: arioContract,
-        timeoutMs: 1000 * 60 * 5,
-        strict: false,
-      }),
-    });
-  }, [arioContract]);
 
   useEffect(() => {
     if (!walletAddress) return;
@@ -81,11 +72,10 @@ export function ArNSStateProvider({
       ao: aoClient,
       antAo: antAoClient,
       dispatch: dispatchArNSState,
-      emitter: state.arnsEmitter,
       walletAddress: walletAddress,
       arioProcessId: arioProcessId,
     });
-  }, [walletAddress, state.arnsEmitter]);
+  }, [walletAddress]);
 
   return (
     <ArNSStateContext.Provider value={[state, dispatchArNSState]}>

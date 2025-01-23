@@ -50,7 +50,7 @@ const UndernamesSubtable = ({
 }: {
   undernames: Record<string, AoANTRecord>;
   arnsDomain: string;
-  handlers?: AoANTHandler[];
+  handlers?: AoANTHandler[] | null;
   antId: string;
 }) => {
   const [{ arioProcessId, antAoClient }] = useGlobalState();
