@@ -4,6 +4,8 @@ import {
   AoArNSNameData,
   ArNSEventEmitter,
 } from '@ar.io/sdk/web';
+import { connect } from '@permaweb/aoconnect';
+import { NETWORK_DEFAULTS } from '@src/utils/constants';
 import {
   Dispatch,
   createContext,
@@ -36,6 +38,7 @@ export const initialArNSState: ArNSState = {
     contract: defaultArIO,
     timeoutMs: 1000 * 60 * 5,
     strict: false,
+    antAoClient: connect(NETWORK_DEFAULTS.AO.ANT),
   }),
   domains: {},
   ants: {},
@@ -71,9 +74,10 @@ export function ArNSStateProvider({
         contract: arioContract,
         timeoutMs: 1000 * 60 * 5,
         strict: false,
+        antAoClient: antAoClient,
       }),
     });
-  }, [arioContract]);
+  }, [arioContract, antAoClient]);
 
   useEffect(() => {
     if (!walletAddress) return;
