@@ -313,7 +313,7 @@ function NetworkSettings() {
                       disabled={!validANTCuUrl}
                       className="bg-primary text-black h-full flex w-fit p-1 rounded-sm text-xs"
                       onClick={() =>
-                        updateARIOAoNetwork({ CU_URL: newANTCuUrl.trim() })
+                        updateANTAoNetwork({ CU_URL: newANTCuUrl.trim() })
                       }
                     >
                       Set ANT CU url
