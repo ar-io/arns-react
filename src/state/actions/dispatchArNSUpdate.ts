@@ -43,7 +43,7 @@ export function dispatchArNSUpdate({
       queryKey: ['handlers', id],
       queryFn: async () => {
         // validate transfer supports eth addresses
-        const dryTransferRes = await ao
+        const dryTransferRes = await antAo
           .dryrun({
             process: id,
             Owner: walletAddress.toString(),
