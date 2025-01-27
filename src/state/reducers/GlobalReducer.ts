@@ -1,4 +1,5 @@
 import { AoARIORead, AoARIOWrite, AoClient } from '@ar.io/sdk/web';
+import { NETWORK_DEFAULTS } from '@src/utils/constants';
 
 import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
 import { GlobalState } from '../contexts/GlobalState';
@@ -13,14 +14,14 @@ export type GlobalAction =
     }
   | {
       type: 'setAONetwork';
-      payload: {
-        CU_URL?: string;
-        MU_URL?: string;
-        SCHEDULER?: string;
-      };
+      payload: typeof NETWORK_DEFAULTS.AO;
     }
   | {
-      type: 'setAoClient';
+      type: 'setARIOAoClient';
+      payload: AoClient;
+    }
+  | {
+      type: 'setANTAoClient';
       payload: AoClient;
     }
   | {
@@ -59,10 +60,15 @@ export const reducer = (
           ...action.payload,
         },
       };
-    case 'setAoClient':
+    case 'setARIOAoClient':
       return {
         ...state,
         aoClient: action.payload,
+      };
+    case 'setANTAoClient':
+      return {
+        ...state,
+        antAoClient: action.payload,
       };
     case 'setBlockHeight':
       return {

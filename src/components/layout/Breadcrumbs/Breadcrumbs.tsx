@@ -24,7 +24,7 @@ export type NavItem = {
 export const ANT_FLAG = 'ant-flag';
 
 function Breadcrumbs() {
-  const [{ gateway, aoNetwork }] = useGlobalState();
+  const [{ gateway, aoNetwork, antAoClient }] = useGlobalState();
   const queryClient = useQueryClient();
   const location = useLocation();
   const path = location.pathname.split('/');
@@ -60,7 +60,11 @@ function Breadcrumbs() {
       // check for ant flag
       if (isArweaveTransactionID(processId)) {
         const state = await queryClient.fetchQuery(
-          buildAntStateQuery({ processId, meta: [gateway, aoNetwork.CU_URL] }),
+          buildAntStateQuery({
+            processId,
+            meta: [gateway, aoNetwork.ANT.CU_URL],
+            ao: antAoClient,
+          }),
         );
         const name = state?.Name;
 

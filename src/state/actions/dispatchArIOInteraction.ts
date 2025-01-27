@@ -32,6 +32,7 @@ export default async function dispatchArIOInteraction({
   dispatch,
   signer,
   ao,
+  antAo,
   scheduler = DEFAULT_SCHEDULER_ID,
   fundFrom,
 }: {
@@ -43,6 +44,7 @@ export default async function dispatchArIOInteraction({
   dispatch: Dispatch<TransactionAction>;
   signer?: ContractSigner;
   ao?: AoClient;
+  antAo?: AoClient;
   scheduler?: string;
   fundFrom?: FundFrom;
 }): Promise<ContractInteraction> {
@@ -163,7 +165,7 @@ export default async function dispatchArIOInteraction({
         const antProcess = ANT.init({
           signer,
           process: new AOProcess({
-            ao,
+            ao: antAo,
             processId: payload.antProcessId,
           }),
         });

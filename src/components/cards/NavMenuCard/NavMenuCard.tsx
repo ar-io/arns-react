@@ -81,7 +81,7 @@ function NavMenuCard() {
       buildIOBalanceQuery({
         address: walletAddress.toString(),
         arioContract,
-        meta: [arioProcessId, aoNetwork.CU_URL],
+        meta: [arioProcessId, aoNetwork.ARIO.CU_URL],
       }),
     );
     const arBalance = await queryClient.fetchQuery(
