@@ -15,7 +15,8 @@ import { RefreshIcon, SearchIcon } from '../../icons';
 import './styles.css';
 
 function Manage() {
-  const [{ arioProcessId, aoClient, antAoClient }] = useGlobalState();
+  const [{ arioProcessId, aoClient, antAoClient, aoNetwork }] =
+    useGlobalState();
   const [
     { loading: loadingArnsState, domains, ants, arnsEmitter },
     dispatchArNSState,
@@ -100,6 +101,7 @@ function Manage() {
                           dispatch: dispatchArNSState,
                           walletAddress: walletAddress,
                           arioProcessId,
+                          aoNetworkSettings: aoNetwork,
                         })
                       : eventEmitter.emit('error', {
                           name: 'Manage Assets',

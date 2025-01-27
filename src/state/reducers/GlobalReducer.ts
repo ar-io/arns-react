@@ -1,4 +1,5 @@
 import { AoARIORead, AoARIOWrite, AoClient } from '@ar.io/sdk/web';
+import { NETWORK_DEFAULTS } from '@src/utils/constants';
 
 import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
 import { GlobalState } from '../contexts/GlobalState';
@@ -13,10 +14,7 @@ export type GlobalAction =
     }
   | {
       type: 'setAONetwork';
-      payload: {
-        ARIO?: { CU_URL: string; MU_URL: string; SCHEDULER: string };
-        ANT?: { CU_URL: string };
-      };
+      payload: typeof NETWORK_DEFAULTS.AO;
     }
   | {
       type: 'setARIOAoClient';
