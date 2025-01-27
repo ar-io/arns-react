@@ -28,12 +28,23 @@ function NetworkSettings() {
   const [{ wallet }] = useWalletState();
   const [newGateway, setNewGateway] = useState<string>(gateway);
   const [validGateway, setValidGateway] = useState<boolean>(true);
-  const [newCuUrl, setNewCuUrl] = useState<string>(NETWORK_DEFAULTS.AO.CU_URL);
-  const [validCuUrl, setValidCuUrl] = useState<boolean>(true);
-  const [newMuUrl, setNewMuUrl] = useState<string>(NETWORK_DEFAULTS.AO.MU_URL);
+
+  const [newARIOCuUrl, setNewARIOCuUrl] = useState<string>(
+    NETWORK_DEFAULTS.AO.ARIO.CU_URL,
+  );
+  const [validARIOCuUrl, setValidARIOCuUrl] = useState<boolean>(true);
+
+  const [newANTCuUrl, setNewANTCuUrl] = useState<string>(
+    NETWORK_DEFAULTS.AO.ANT.CU_URL,
+  );
+  const [validANTCuUrl, setValidANTCuUrl] = useState<boolean>(true);
+
+  const [newMuUrl, setNewMuUrl] = useState<string>(
+    NETWORK_DEFAULTS.AO.ARIO.MU_URL,
+  );
   const [validMuUrl, setValidMuUrl] = useState<boolean>(true);
   const [newSuAddress, setNewSuAddress] = useState<string>(
-    NETWORK_DEFAULTS.AO.SCHEDULER,
+    NETWORK_DEFAULTS.AO.ARIO.SCHEDULER,
   );
   const [validSuAddress, setValidSuAddress] = useState<boolean>(true);
   const [showGatewayModal, setShowGatewayModal] = useState<boolean>(false);
@@ -44,16 +55,16 @@ function NetworkSettings() {
     setValidGateway(true);
     updateGateway(NETWORK_DEFAULTS.ARWEAVE.HOST);
     // ao network
-    setNewCuUrl(NETWORK_DEFAULTS.AO.CU_URL);
-    setValidCuUrl(true);
-    setNewMuUrl(NETWORK_DEFAULTS.AO.MU_URL);
+    setNewARIOCuUrl(NETWORK_DEFAULTS.AO.ARIO.CU_URL);
+    setValidARIOCuUrl(true);
+    setNewMuUrl(NETWORK_DEFAULTS.AO.ARIO.MU_URL);
     setValidMuUrl(true);
-    setNewSuAddress(NETWORK_DEFAULTS.AO.SCHEDULER);
+    setNewSuAddress(NETWORK_DEFAULTS.AO.ARIO.SCHEDULER);
     setValidSuAddress(true);
-    updateAoNetwork({
-      CU_URL: NETWORK_DEFAULTS.AO.CU_URL,
-      MU_URL: NETWORK_DEFAULTS.AO.MU_URL,
-      SCHEDULER: NETWORK_DEFAULTS.AO.SCHEDULER,
+    updateARIOAoNetwork({
+      CU_URL: NETWORK_DEFAULTS.AO.ARIO.CU_URL,
+      MU_URL: NETWORK_DEFAULTS.AO.ARIO.MU_URL,
+      SCHEDULER: NETWORK_DEFAULTS.AO.ARIO.SCHEDULER,
     });
   }
 
@@ -63,13 +74,13 @@ function NetworkSettings() {
   }, [gateway]);
 
   useEffect(() => {
-    setNewCuUrl(aoNetwork.CU_URL);
-    setValidCuUrl(true);
-    setNewMuUrl(aoNetwork.MU_URL);
+    setNewARIOCuUrl(aoNetwork.ARIO.CU_URL);
+    setValidARIOCuUrl(true);
+    setNewMuUrl(aoNetwork.ARIO.MU_URL);
     setValidMuUrl(true);
-    setNewSuAddress(aoNetwork.SCHEDULER);
+    setNewSuAddress(aoNetwork.ARIO.SCHEDULER);
     setValidSuAddress(true);
-  }, [aoNetwork]);
+  }, [aoNetwork.ARIO]);
 
   async function updateGateway(gate: string) {
     try {
@@ -93,7 +104,7 @@ function NetworkSettings() {
     }
   }
 
-  function updateAoNetwork(config: {
+  function updateARIOAoNetwork(config: {
     CU_URL?: string;
     MU_URL?: string;
     SCHEDULER?: string;
@@ -101,8 +112,7 @@ function NetworkSettings() {
     try {
       const newConfig = {
         ...aoNetwork,
-        ...config,
-        GATEWAY_URL: gateway,
+        ...{ ARIO: { ...aoNetwork.ARIO, ...config, GATEWAY_URL: gateway } },
       };
       dispatchGlobalState({
         type: 'setAONetwork',
@@ -111,11 +121,11 @@ function NetworkSettings() {
 
       const ao = connect({
         GATEWAY_URL: 'https://' + gateway,
-        CU_URL: newConfig.CU_URL,
-        MU_URL: newConfig.MU_URL,
+        CU_URL: newConfig.ARIO.CU_URL,
+        MU_URL: newConfig.ARIO.MU_URL,
       });
       dispatchGlobalState({
-        type: 'setAoClient',
+        type: 'setARIOAoClient',
         payload: ao,
       });
       dispatchArIOContract({
@@ -127,6 +137,30 @@ function NetworkSettings() {
         }),
         arioProcessId,
         dispatch: dispatchGlobalState,
+      });
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    }
+  }
+
+  function updateANTAoNetwork(config: { CU_URL?: string }) {
+    try {
+      const newConfig = {
+        ...aoNetwork,
+        ...{ ANT: { ...aoNetwork.ANT, ...config } },
+      };
+      dispatchGlobalState({
+        type: 'setAONetwork',
+        payload: newConfig,
+      });
+
+      const ao = connect({
+        GATEWAY_URL: 'https://' + gateway,
+        CU_URL: newConfig.ANT.CU_URL,
+      });
+      dispatchGlobalState({
+        type: 'setANTAoClient',
+        payload: ao,
       });
     } catch (error) {
       eventEmitter.emit('error', error);
@@ -208,42 +242,90 @@ function NetworkSettings() {
                 }
               />
               <span className="flex w-fit justify-center items-center bg-primary-thin rounded-t-md px-4 py-1 border-x-2 border-t-2 border-primary text-md text-primary font-semibold mt-2">
-                CU URL:{' '}
-                <span className="text-white pl-2">{aoNetwork.CU_URL}</span>
+                ARIO CU URL:{' '}
+                <span className="text-white pl-2">{aoNetwork.ARIO.CU_URL}</span>
               </span>
               <Input
                 className="bg-background justify-center items-center"
                 placeholder="Enter custom CU url"
-                value={newCuUrl}
+                value={newARIOCuUrl}
                 onChange={(e) => {
-                  setValidCuUrl(isValidURL(e.target.value.trim()));
-                  setNewCuUrl(e.target.value.trim());
+                  setValidARIOCuUrl(isValidURL(e.target.value.trim()));
+                  setNewARIOCuUrl(e.target.value.trim());
                 }}
-                onClear={() => setNewCuUrl('')}
+                onClear={() => setNewARIOCuUrl('')}
                 onPressEnter={(e) =>
-                  updateAoNetwork({
+                  updateARIOAoNetwork({
                     CU_URL: e.currentTarget.value.trim(),
                   })
                 }
                 variant="outlined"
-                status={validCuUrl ? '' : 'error'}
+                status={validARIOCuUrl ? '' : 'error'}
                 addonAfter={
                   <div className="flex flex-row" style={{ gap: '5px' }}>
                     <button
-                      disabled={!validCuUrl}
+                      disabled={!validARIOCuUrl}
                       className="bg-primary text-black h-full flex w-fit p-1 rounded-sm text-xs"
                       onClick={() =>
-                        updateAoNetwork({ CU_URL: newCuUrl.trim() })
+                        updateARIOAoNetwork({ CU_URL: newARIOCuUrl.trim() })
                       }
                     >
-                      Set CU url
+                      Set ARIO CU url
                     </button>
                     <button
                       className="bg-primary-thin text-white h-full flex w-fit p-1 rounded-sm text-xs"
                       onClick={() => {
-                        setNewCuUrl(NETWORK_DEFAULTS.AO.CU_URL);
-                        setValidCuUrl(true);
-                        updateAoNetwork({ CU_URL: NETWORK_DEFAULTS.AO.CU_URL });
+                        setNewARIOCuUrl(NETWORK_DEFAULTS.AO.ARIO.CU_URL);
+                        setValidARIOCuUrl(true);
+                        updateARIOAoNetwork({
+                          CU_URL: NETWORK_DEFAULTS.AO.ARIO.CU_URL,
+                        });
+                      }}
+                    >
+                      reset
+                    </button>
+                  </div>
+                }
+              />
+              <span className="flex w-fit justify-center items-center bg-primary-thin rounded-t-md px-4 py-1 border-x-2 border-t-2 border-primary text-md text-primary font-semibold mt-2">
+                ANT CU URL:{' '}
+                <span className="text-white pl-2">{aoNetwork.ANT.CU_URL}</span>
+              </span>
+              <Input
+                className="bg-background justify-center items-center"
+                placeholder="Enter custom CU url"
+                value={newANTCuUrl}
+                onChange={(e) => {
+                  setValidANTCuUrl(isValidURL(e.target.value.trim()));
+                  setNewANTCuUrl(e.target.value.trim());
+                }}
+                onClear={() => setNewANTCuUrl('')}
+                onPressEnter={(e) =>
+                  updateANTAoNetwork({
+                    CU_URL: e.currentTarget.value.trim(),
+                  })
+                }
+                variant="outlined"
+                status={validANTCuUrl ? '' : 'error'}
+                addonAfter={
+                  <div className="flex flex-row" style={{ gap: '5px' }}>
+                    <button
+                      disabled={!validANTCuUrl}
+                      className="bg-primary text-black h-full flex w-fit p-1 rounded-sm text-xs"
+                      onClick={() =>
+                        updateANTAoNetwork({ CU_URL: newANTCuUrl.trim() })
+                      }
+                    >
+                      Set ANT CU url
+                    </button>
+                    <button
+                      className="bg-primary-thin text-white h-full flex w-fit p-1 rounded-sm text-xs"
+                      onClick={() => {
+                        setNewANTCuUrl(NETWORK_DEFAULTS.AO.ANT.CU_URL);
+                        setValidANTCuUrl(true);
+                        updateANTAoNetwork({
+                          CU_URL: NETWORK_DEFAULTS.AO.ANT.CU_URL,
+                        });
                       }}
                     >
                       reset
@@ -253,7 +335,7 @@ function NetworkSettings() {
               />
               <span className="flex w-fit justify-center items-center bg-primary-thin rounded-t-md px-4 py-1 border-x-2 border-t-2 border-primary text-md text-primary font-semibold mt-2">
                 MU URL:{' '}
-                <span className="text-white pl-2">{aoNetwork.MU_URL}</span>
+                <span className="text-white pl-2">{aoNetwork.ARIO.MU_URL}</span>
               </span>
               <Input
                 className="bg-background justify-center items-center"
@@ -263,9 +345,9 @@ function NetworkSettings() {
                   setValidMuUrl(isValidURL(e.target.value.trim()));
                   setNewMuUrl(e.target.value.trim());
                 }}
-                onClear={() => setNewCuUrl('')}
+                onClear={() => setNewARIOCuUrl('')}
                 onPressEnter={(e) =>
-                  updateAoNetwork({
+                  updateARIOAoNetwork({
                     MU_URL: e.currentTarget.value.trim(),
                   })
                 }
@@ -277,7 +359,7 @@ function NetworkSettings() {
                       disabled={!validMuUrl}
                       className="bg-primary text-black h-full flex w-fit p-1 rounded-sm text-xs"
                       onClick={() =>
-                        updateAoNetwork({ MU_URL: newMuUrl.trim() })
+                        updateARIOAoNetwork({ MU_URL: newMuUrl.trim() })
                       }
                     >
                       Set MU url
@@ -285,9 +367,11 @@ function NetworkSettings() {
                     <button
                       className="bg-primary-thin text-white h-full flex w-fit p-1 rounded-sm text-xs"
                       onClick={() => {
-                        setNewMuUrl(NETWORK_DEFAULTS.AO.MU_URL);
+                        setNewMuUrl(NETWORK_DEFAULTS.AO.ARIO.MU_URL);
                         setValidMuUrl(true);
-                        updateAoNetwork({ MU_URL: NETWORK_DEFAULTS.AO.MU_URL });
+                        updateARIOAoNetwork({
+                          MU_URL: NETWORK_DEFAULTS.AO.ARIO.MU_URL,
+                        });
                       }}
                     >
                       reset
@@ -299,7 +383,7 @@ function NetworkSettings() {
                 SU Address:{' '}
                 <span className="text-white pl-2">
                   <ArweaveID
-                    id={new ArweaveTransactionID(aoNetwork.SCHEDULER)}
+                    id={new ArweaveTransactionID(aoNetwork.ARIO.SCHEDULER)}
                     shouldLink
                     type={ArweaveIdTypes.ADDRESS}
                     characterCount={16}
@@ -318,7 +402,7 @@ function NetworkSettings() {
                 }}
                 onClear={() => setNewSuAddress('')}
                 onPressEnter={(e) =>
-                  updateAoNetwork({
+                  updateARIOAoNetwork({
                     SCHEDULER: e.currentTarget.value.trim(),
                   })
                 }
@@ -330,7 +414,7 @@ function NetworkSettings() {
                       disabled={!validSuAddress}
                       className="bg-primary text-black h-full flex w-fit p-1 rounded-sm text-xs"
                       onClick={() =>
-                        updateAoNetwork({ SCHEDULER: newSuAddress })
+                        updateARIOAoNetwork({ SCHEDULER: newSuAddress })
                       }
                     >
                       Set Scheduler Address
@@ -338,10 +422,10 @@ function NetworkSettings() {
                     <button
                       className="bg-primary-thin text-white h-full flex w-fit p-1 rounded-sm text-xs"
                       onClick={() => {
-                        setNewSuAddress(NETWORK_DEFAULTS.AO.SCHEDULER);
+                        setNewSuAddress(NETWORK_DEFAULTS.AO.ARIO.SCHEDULER);
                         setValidSuAddress(true);
-                        updateAoNetwork({
-                          SCHEDULER: NETWORK_DEFAULTS.AO.SCHEDULER,
+                        updateARIOAoNetwork({
+                          SCHEDULER: NETWORK_DEFAULTS.AO.ARIO.SCHEDULER,
                         });
                       }}
                     >

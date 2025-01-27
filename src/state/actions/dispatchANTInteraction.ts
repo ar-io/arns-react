@@ -1,5 +1,6 @@
 import {
   ANT,
+  AOProcess,
   ARIO,
   AoClient,
   AoMessageResult,
@@ -39,7 +40,7 @@ export default async function dispatchANTInteraction({
     1000 * 10,
   );
   const antProcess = ANT.init({
-    processId: processId,
+    process: new AOProcess({ processId, ao }),
     signer,
   });
   const dispatchSigningMessage = (message?: string) => {

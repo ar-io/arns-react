@@ -1,8 +1,10 @@
 import {
   ANT,
+  AOProcess,
   AoANTState,
   AoARIORead,
   AoArNSNameData,
+  AoClient,
   fetchAllArNSRecords,
   mARIOToken,
 } from '@ar.io/sdk/web';
@@ -46,9 +48,11 @@ export const queryClient = new QueryClient({
 
 export function buildAntStateQuery({
   processId,
+  ao,
   meta,
 }: {
   processId: string;
+  ao: AoClient;
   meta?: string[];
 }): {
   queryKey: ['ant', string] | string[];
@@ -60,7 +64,7 @@ export function buildAntStateQuery({
     queryFn: async () => {
       if (!processId) return null;
       if (isArweaveTransactionID(processId)) {
-        const ant = ANT.init({ processId });
+        const ant = ANT.init({ process: new AOProcess({ processId, ao }) });
         return ant.getState().catch((e) => {
           eventEmitter.emit(
             'error',

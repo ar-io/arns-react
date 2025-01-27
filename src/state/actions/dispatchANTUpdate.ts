@@ -1,4 +1,4 @@
-import { ANT } from '@ar.io/sdk';
+import { ANT, AOProcess, AoClient } from '@ar.io/sdk';
 import { AoAddress } from '@src/types';
 import eventEmitter from '@src/utils/events';
 import { buildAntStateQuery } from '@src/utils/network';
@@ -12,23 +12,27 @@ export async function dispatchANTUpdate({
   processId,
   walletAddress,
   dispatch,
+  ao,
 }: {
   queryClient: QueryClient;
   processId: string;
   walletAddress: AoAddress;
   dispatch: Dispatch<ArNSAction>;
+  ao: AoClient;
 }) {
   try {
     dispatch({
       type: 'setLoading',
       payload: true,
     });
-    const antStateQuery = buildAntStateQuery({ processId });
+    const antStateQuery = buildAntStateQuery({ processId, ao });
     const state = await queryClient.fetchQuery(antStateQuery);
     const handlers = await queryClient.fetchQuery({
       queryKey: ['handlers', processId],
       queryFn: async () => {
-        return await ANT.init({ processId }).getHandlers().catch(console.error);
+        return await ANT.init({ process: new AOProcess({ processId, ao }) })
+          .getHandlers()
+          .catch(console.error);
       },
     });
 

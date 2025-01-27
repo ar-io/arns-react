@@ -1,5 +1,6 @@
 import {
   ANT,
+  AOProcess,
   AoANTHandler,
   AoANTState,
   AoClient,
@@ -7,6 +8,7 @@ import {
 } from '@ar.io/sdk/web';
 import { captureException } from '@sentry/react';
 import { AoAddress } from '@src/types';
+import { NETWORK_DEFAULTS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { queryClient } from '@src/utils/network';
 import { Tag } from 'arweave/node/lib/transaction';
@@ -20,12 +22,16 @@ export function dispatchArNSUpdate({
   walletAddress,
   arioProcessId,
   ao,
+  antAo,
+  aoNetworkSettings,
 }: {
   emitter: ArNSEventEmitter;
   dispatch: Dispatch<ArNSAction>;
   walletAddress: AoAddress;
   arioProcessId: string;
   ao: AoClient;
+  antAo: AoClient;
+  aoNetworkSettings: typeof NETWORK_DEFAULTS.AO;
 }) {
   dispatch({ type: 'setDomains', payload: {} });
   dispatch({ type: 'setAnts', payload: {} });
@@ -37,10 +43,10 @@ export function dispatchArNSUpdate({
   });
   emitter.on('process', async (id, process) => {
     const handlers = await queryClient.fetchQuery({
-      queryKey: ['handlers', id],
+      queryKey: ['handlers', id, aoNetworkSettings.ANT],
       queryFn: async () => {
         // validate transfer supports eth addresses
-        const dryTransferRes = await ao
+        const dryTransferRes = await antAo
           .dryrun({
             process: id,
             Owner: walletAddress.toString(),
@@ -64,7 +70,7 @@ export function dispatchArNSUpdate({
         }
 
         return await ANT.init({
-          processId: id,
+          process: new AOProcess({ processId: id, ao: antAo }),
         })
           .getHandlers()
           .catch((e) => {
@@ -72,7 +78,6 @@ export function dispatchArNSUpdate({
             return null;
           });
       },
-      staleTime: Infinity,
     });
 
     dispatch({

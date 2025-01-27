@@ -8,7 +8,7 @@ import {
   useReducer,
 } from 'react';
 
-import { useArNSState } from '.';
+import { useArNSState, useGlobalState } from '.';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import {
   ANT_INTERACTION_TYPES,
@@ -58,6 +58,7 @@ export function TransactionStateProvider({
   );
 
   const queryClient = useQueryClient();
+  const [{ antAoClient }] = useGlobalState();
   const [walletState] = useWalletState();
   const [, dispatchArNSState] = useArNSState();
 
@@ -91,6 +92,7 @@ export function TransactionStateProvider({
         processId: state.interactionResult?.processId,
         walletAddress: walletState.walletAddress,
         dispatch: dispatchArNSState,
+        ao: antAoClient,
       });
     }
   }, [state.interactionResult, queryClient, walletState]);

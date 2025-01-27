@@ -1,5 +1,6 @@
 import {
   ANT,
+  AOProcess,
   AoANTInfo,
   AoANTRead,
   AoANTRecord,
@@ -56,8 +57,9 @@ export default function useDomainInfo({
   error: Error | null;
   refetch: (options?: RefetchOptions) => void;
 } {
-  const [{ arioContract: arioProvider, arioProcessId, aoNetwork }] =
-    useGlobalState();
+  const [
+    { arioContract: arioProvider, arioProcessId, aoNetwork, antAoClient },
+  ] = useGlobalState();
   const [{ wallet }] = useWalletState();
 
   // TODO: this should be modified or removed
@@ -124,7 +126,10 @@ export default function useDomainInfo({
     }
 
     const antProcess = ANT.init({
-      processId: processId,
+      process: new AOProcess({
+        processId,
+        ao: antAoClient,
+      }),
       ...(signer !== undefined ? { signer: signer as any } : {}),
     });
 
@@ -134,7 +139,7 @@ export default function useDomainInfo({
     const arnsRecords = await queryClient.fetchQuery(
       buildArNSRecordsQuery({
         arioContract: arioProvider,
-        meta: [arioProcessId, aoNetwork.CU_URL],
+        meta: [arioProcessId, aoNetwork.ARIO.CU_URL],
       }),
     );
     const associatedNames = Object.entries(arnsRecords)

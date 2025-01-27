@@ -31,12 +31,16 @@ function NetworkSettings() {
   const [{ wallet }] = useWalletState();
   const [newGateway, setNewGateway] = useState<string>(gateway);
   const [validGateway, setValidGateway] = useState<boolean>(true);
-  const [newCuUrl, setNewCuUrl] = useState<string>(NETWORK_DEFAULTS.AO.CU_URL);
+  const [newCuUrl, setNewCuUrl] = useState<string>(
+    NETWORK_DEFAULTS.AO.ARIO.CU_URL,
+  );
   const [validCuUrl, setValidCuUrl] = useState<boolean>(true);
-  const [newMuUrl, setNewMuUrl] = useState<string>(NETWORK_DEFAULTS.AO.MU_URL);
+  const [newMuUrl, setNewMuUrl] = useState<string>(
+    NETWORK_DEFAULTS.AO.ARIO.MU_URL,
+  );
   const [validMuUrl, setValidMuUrl] = useState<boolean>(true);
   const [newSuAddress, setNewSuAddress] = useState<string>(
-    NETWORK_DEFAULTS.AO.SCHEDULER,
+    NETWORK_DEFAULTS.AO.ARIO.SCHEDULER,
   );
   const [suUrl, setSuUrl] = useState<string>();
   const [validSuAddress, setValidSuAddress] = useState<boolean>(true);
@@ -48,16 +52,16 @@ function NetworkSettings() {
     setValidGateway(true);
     updateGateway(NETWORK_DEFAULTS.ARWEAVE.HOST);
     // ao network
-    setNewCuUrl(NETWORK_DEFAULTS.AO.CU_URL);
+    setNewCuUrl(NETWORK_DEFAULTS.AO.ARIO.CU_URL);
     setValidCuUrl(true);
-    setNewMuUrl(NETWORK_DEFAULTS.AO.MU_URL);
+    setNewMuUrl(NETWORK_DEFAULTS.AO.ARIO.MU_URL);
     setValidMuUrl(true);
-    setNewSuAddress(NETWORK_DEFAULTS.AO.SCHEDULER);
+    setNewSuAddress(NETWORK_DEFAULTS.AO.ARIO.SCHEDULER);
     setValidSuAddress(true);
     updateAoNetwork({
-      CU_URL: NETWORK_DEFAULTS.AO.CU_URL,
-      MU_URL: NETWORK_DEFAULTS.AO.MU_URL,
-      SCHEDULER: NETWORK_DEFAULTS.AO.SCHEDULER,
+      CU_URL: NETWORK_DEFAULTS.AO.ARIO.CU_URL,
+      MU_URL: NETWORK_DEFAULTS.AO.ARIO.MU_URL,
+      SCHEDULER: NETWORK_DEFAULTS.AO.ARIO.SCHEDULER,
     });
   }
 
@@ -67,11 +71,11 @@ function NetworkSettings() {
   }, [gateway]);
 
   useEffect(() => {
-    setNewCuUrl(aoNetwork.CU_URL);
+    setNewCuUrl(aoNetwork.ARIO.CU_URL);
     setValidCuUrl(true);
-    setNewMuUrl(aoNetwork.MU_URL);
+    setNewMuUrl(aoNetwork.ARIO.MU_URL);
     setValidMuUrl(true);
-    setNewSuAddress(aoNetwork.SCHEDULER);
+    setNewSuAddress(aoNetwork.ARIO.SCHEDULER);
     setValidSuAddress(true);
   }, [aoNetwork]);
 
@@ -87,8 +91,8 @@ function NetworkSettings() {
         eventEmitter.emit('error', error);
       }
     }
-    if (isArweaveTransactionID(aoNetwork.SCHEDULER)) {
-      updateSUUrl(aoNetwork.SCHEDULER);
+    if (isArweaveTransactionID(aoNetwork.ARIO.SCHEDULER)) {
+      updateSUUrl(aoNetwork.ARIO.SCHEDULER);
     }
   }, [aoNetwork]);
 
@@ -136,7 +140,7 @@ function NetworkSettings() {
         MU_URL: newConfig.MU_URL,
       });
       dispatchGlobalState({
-        type: 'setAoClient',
+        type: 'setARIOAoClient',
         payload: ao,
       });
       dispatchArIOContract({
@@ -234,7 +238,7 @@ function NetworkSettings() {
           <div className={inputContainerClass}>
             <span className={labelClass}>
               Current CU URL:{' '}
-              <span className="text-grey pl-2">{aoNetwork.CU_URL}</span>
+              <span className="text-grey pl-2">{aoNetwork.ARIO.CU_URL}</span>
             </span>
             <Input
               className={inputClass}
@@ -265,9 +269,11 @@ function NetworkSettings() {
                   <button
                     className={resetIconClass}
                     onClick={() => {
-                      setNewCuUrl(NETWORK_DEFAULTS.AO.CU_URL);
+                      setNewCuUrl(NETWORK_DEFAULTS.AO.ARIO.CU_URL);
                       setValidCuUrl(true);
-                      updateAoNetwork({ CU_URL: NETWORK_DEFAULTS.AO.CU_URL });
+                      updateAoNetwork({
+                        CU_URL: NETWORK_DEFAULTS.AO.ARIO.CU_URL,
+                      });
                     }}
                   >
                     <RotateCcw width={'16px'} />
@@ -280,7 +286,7 @@ function NetworkSettings() {
           <div className={inputContainerClass}>
             <span className={labelClass}>
               Current MU URL:{' '}
-              <span className="text-grey pl-2">{aoNetwork.MU_URL}</span>
+              <span className="text-grey pl-2">{aoNetwork.ARIO.MU_URL}</span>
             </span>
             <Input
               className={inputClass}
@@ -311,9 +317,11 @@ function NetworkSettings() {
                   <button
                     className={resetIconClass}
                     onClick={() => {
-                      setNewMuUrl(NETWORK_DEFAULTS.AO.MU_URL);
+                      setNewMuUrl(NETWORK_DEFAULTS.AO.ARIO.MU_URL);
                       setValidMuUrl(true);
-                      updateAoNetwork({ MU_URL: NETWORK_DEFAULTS.AO.MU_URL });
+                      updateAoNetwork({
+                        MU_URL: NETWORK_DEFAULTS.AO.ARIO.MU_URL,
+                      });
                     }}
                   >
                     <RotateCcw width={'16px'} />
@@ -330,7 +338,7 @@ function NetworkSettings() {
                 Current SU Address:{' '}
                 <span className="text-grey pl-2">
                   <ArweaveID
-                    id={new ArweaveTransactionID(aoNetwork.SCHEDULER)}
+                    id={new ArweaveTransactionID(aoNetwork.ARIO.SCHEDULER)}
                     shouldLink
                     type={ArweaveIdTypes.ADDRESS}
                     characterCount={16}
@@ -384,10 +392,10 @@ function NetworkSettings() {
                   <button
                     className={resetIconClass}
                     onClick={() => {
-                      setNewSuAddress(NETWORK_DEFAULTS.AO.SCHEDULER);
+                      setNewSuAddress(NETWORK_DEFAULTS.AO.ARIO.SCHEDULER);
                       setValidSuAddress(true);
                       updateAoNetwork({
-                        SCHEDULER: NETWORK_DEFAULTS.AO.SCHEDULER,
+                        SCHEDULER: NETWORK_DEFAULTS.AO.ARIO.SCHEDULER,
                       });
                     }}
                   >
