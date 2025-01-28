@@ -1,5 +1,7 @@
 import {
   ANT,
+  ANTRegistry,
+  ANT_REGISTRY_ID,
   AOProcess,
   AoARIOWrite,
   AoClient,
@@ -78,6 +80,30 @@ export default async function dispatchArIOInteraction({
             ao: ao,
             scheduler: scheduler,
           });
+          const antRegistry = ANTRegistry.init({
+            signer,
+            process: new AOProcess({
+              processId: ANT_REGISTRY_ID,
+              ao,
+            }),
+          });
+          let antRegistryUpdated = false;
+          let retries = 0;
+          const maxRetries = 10;
+          // We need to wait for the registration to get cranked
+          while (!antRegistryUpdated && retries <= maxRetries) {
+            await sleep(2000 * retries);
+            const aclRes = await antRegistry.accessControlList({
+              address: owner.toString(),
+            });
+
+            const antIdSet = new Set([...aclRes.Controlled, ...aclRes.Owned]);
+            antRegistryUpdated = antIdSet.has(antProcessId);
+            retries++;
+          }
+          if (!antRegistryUpdated) {
+            throw new Error('Failed to register ANT, please try again later.');
+          }
         }
 
         const buyRecordResult = await arioContract.buyRecord({

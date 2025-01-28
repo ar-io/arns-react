@@ -21,6 +21,7 @@ export function buildCostDetailsQuery(
       return await arioContract.getCostDetails(params);
     },
     staleTime: 1000 * 60 * 5,
+    enabled: params?.name?.length > 0,
   };
 }
 
