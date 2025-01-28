@@ -1,5 +1,7 @@
 import {
   ANT,
+  ANTRegistry,
+  ANT_REGISTRY_ID,
   AOProcess,
   AoANTHandler,
   AoANTState,
@@ -144,7 +146,15 @@ export function dispatchArNSUpdate({
   });
 
   emitter
-    .fetchProcessesOwnedByWallet({ address: walletAddress.toString() })
+    .fetchProcessesOwnedByWallet({
+      address: walletAddress.toString(),
+      antRegistry: ANTRegistry.init({
+        process: new AOProcess({
+          processId: ANT_REGISTRY_ID,
+          ao,
+        }),
+      }),
+    })
     .catch((e) =>
       errorHandler('Error getting assets owned by wallet: ' + e.message),
     );
