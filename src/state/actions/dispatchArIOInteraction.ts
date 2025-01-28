@@ -1,7 +1,5 @@
 import {
   ANT,
-  ANTRegistry,
-  ANT_REGISTRY_ID,
   AOProcess,
   AoARIOWrite,
   AoClient,
@@ -80,23 +78,6 @@ export default async function dispatchArIOInteraction({
             ao: ao,
             scheduler: scheduler,
           });
-
-          const antRegistry = ANTRegistry.init({
-            signer,
-            processId: ANT_REGISTRY_ID,
-          });
-          await antRegistry
-            .register({
-              processId: antProcessId,
-            })
-            .catch((error) => {
-              eventEmitter.emit(
-                'error',
-                new Error(
-                  `Failed to register ANT process: ${error}. You may need to manually register the process`,
-                ),
-              );
-            });
         }
 
         const buyRecordResult = await arioContract.buyRecord({
