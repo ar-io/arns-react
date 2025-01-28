@@ -757,7 +757,7 @@ export function createDefaultAntState(state: any) {
     records: {
       ['@']: {
         transactionId: LANDING_PAGE_TXID.toString(),
-        ttlSeconds: 3600,
+        ttlSeconds: 900,
       },
     },
     ...state,
@@ -772,7 +772,7 @@ export function createAntStateForOwner(owner: string, targetId?: string) {
     records: {
       ['@']: {
         transactionId: targetId ?? LANDING_PAGE_TXID.toString(),
-        ttlSeconds: 3600,
+        ttlSeconds: 900,
       },
     },
   });

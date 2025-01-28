@@ -83,7 +83,10 @@ export default async function dispatchArIOInteraction({
 
           const antRegistry = ANTRegistry.init({
             signer,
-            processId: ANT_REGISTRY_ID,
+            process: new AOProcess({
+              processId: ANT_REGISTRY_ID,
+              ao,
+            }),
           });
           await antRegistry
             .register({
