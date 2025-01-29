@@ -21,5 +21,10 @@ export function usePrimaryName() {
       return primaryNameData;
     },
     staleTime: 5 * 60 * 60 * 1000, // 6 minutes
+    enabled: walletAddress !== undefined && arioContract !== undefined,
+    retry: (_, error) => {
+      const validErrors = ['Primary name data not found'];
+      return validErrors.find((e) => error.message.includes(e)) !== undefined;
+    },
   });
 }
