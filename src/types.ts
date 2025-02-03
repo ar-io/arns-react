@@ -525,7 +525,7 @@ export enum VALIDATION_INPUT_TYPES {
 
   UNDERNAME = 'Is a valid Undername.',
   // unfortunately we cannot use computed values in enums, so be careful if we ever modify this number
-  VALID_TTL = `Minimum ttl allowed is ${MIN_TTL_SECONDS} and Maximum ttl allowed is ${MAX_TTL_SECONDS}.`,
+  VALID_TTL = `TTL must between ${MIN_TTL_SECONDS} and ${MAX_TTL_SECONDS} seconds`,
 
   VALID_ANT_NAME = `ANT name or ticker must be equal or less than 1798 characters.`,
 }
