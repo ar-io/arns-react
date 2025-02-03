@@ -90,14 +90,8 @@ export default function TTLRow({
         setEditing={() => setEditing(true)}
         onSave={() => {
           try {
-            if (newTTL < MIN_TTL_SECONDS)
-              throw new Error(
-                `TTL must be greater than ${MIN_TTL_SECONDS.toLocaleString()}`,
-              );
-            if (newTTL > MAX_TTL_SECONDS)
-              throw new Error(
-                `TTL must be less than ${MAX_TTL_SECONDS.toLocaleString()}`,
-              );
+            if (newTTL > MAX_TTL_SECONDS || newTTL < MIN_TTL_SECONDS)
+              throw new Error(VALIDATION_INPUT_TYPES.VALID_TTL);
             setShowModal(true);
           } catch (error) {
             eventEmitter.emit('error', error);
