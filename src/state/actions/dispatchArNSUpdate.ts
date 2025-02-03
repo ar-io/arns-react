@@ -47,15 +47,17 @@ export function dispatchArNSUpdate({
     const handlers = await queryClient.fetchQuery({
       queryKey: ['handlers', id, aoNetworkSettings.ANT],
       queryFn: async () => {
-        // validate transfer supports eth addresses
-        const dryTransferRes = await antAo
+        // validate transfer supports eth addresses and single char undername fix
+        const drySetRecordRes = await antAo
           .dryrun({
             process: id,
             Owner: walletAddress.toString(),
             From: walletAddress.toString(),
             tags: [
-              { name: 'Action', value: 'Transfer' },
-              { name: 'Recipient', value: '0x'.padEnd(42, '0') },
+              { name: 'Action', value: 'Set-Record' },
+              { name: 'Sub-Domain', value: 'a' },
+              { name: 'Transaction-Id', value: 'test-'.padEnd(43, '1') },
+              { name: 'TTL-Seconds', value: '900' },
             ],
           })
           .catch(() => {
@@ -63,7 +65,7 @@ export function dispatchArNSUpdate({
           });
 
         const hasError =
-          dryTransferRes.Messages.find((msg) => {
+          drySetRecordRes.Messages.find((msg) => {
             return msg.Tags.find((t: Tag) => t.name === 'Error');
           }) !== undefined;
 
