@@ -49,7 +49,7 @@ function TransferIO() {
 
         // Keystone may require data field
         const tx = await aoClient.message({
-          data: ' ',
+          data: '1234',
           process: arioProcessId,
           tags: [
             { name: 'Action', value: 'Transfer' },
