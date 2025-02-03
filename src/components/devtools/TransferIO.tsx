@@ -1,4 +1,4 @@
-import { ARIOToken, AoARIOWrite, mARIOToken } from '@ar.io/sdk/web';
+import { ARIOToken, createAoSigner, mARIOToken } from '@ar.io/sdk/web';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { VALIDATION_INPUT_TYPES } from '@src/types';
@@ -14,8 +14,9 @@ import './styles.css';
 const Panel = Collapse.Panel;
 
 function TransferIO() {
-  const [{ arioContract, arioProcessId, arioTicker }] = useGlobalState();
-  const [{ walletAddress }] = useWalletState();
+  const [{ arioContract, arioProcessId, arioTicker, aoClient }] =
+    useGlobalState();
+  const [{ walletAddress, wallet }] = useWalletState();
   const [ioBalance, setIoBalance] = useState<number>(0);
   const [toAddress, setToAddress] = useState<string>('');
   const [isValidAddress, setIsValidAddress] = useState<boolean>();
@@ -42,21 +43,34 @@ function TransferIO() {
   async function confirmTransfer() {
     try {
       setTransfering(true);
-      if (isValidAoAddress(toAddress.trim())) {
+      if (isValidAoAddress(toAddress.trim()) && wallet?.contractSigner) {
         // TODO: check that is a write contract
-        const contract = arioContract as AoARIOWrite;
-        const tx = await contract.transfer(
-          {
-            target: toAddress.trim(),
-            qty: quantity,
-          },
-          WRITE_OPTIONS,
-        );
+        // const contract = arioContract as AoARIOWrite;
+
+        // Keystone may require data field
+        const tx = await aoClient.message({
+          data: ' ',
+          process: arioProcessId,
+          tags: [
+            { name: 'Action', value: 'Transfer' },
+            { name: 'Recipient', value: toAddress.trim() },
+            { name: 'Quantity', value: quantity.toString() },
+            ...WRITE_OPTIONS.tags,
+          ],
+          signer: createAoSigner(wallet?.contractSigner) as any,
+        });
+        // const tx = await contract.transfer(
+        //   {
+        //     target: toAddress.trim(),
+        //     qty: quantity,
+        //   },
+        //   { ...WRITE_OPTIONS },
+        // );
         eventEmitter.emit('success', {
           name: 'ARIO Transfer',
           message: `Transfer of ${new mARIOToken(quantity)
             .toARIO()
-            .valueOf()} successful: ${tx.id}`,
+            .valueOf()} successful: ${tx}`,
         });
       }
     } catch (error) {
