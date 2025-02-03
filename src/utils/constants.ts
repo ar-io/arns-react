@@ -75,8 +75,6 @@ export const ARWEAVE_TX_LENGTH = 43;
 export const EMAIL_REGEX = new RegExp(
   "([!#-'*+/-9=?A-Z^-~-]+(.[!#-'*+/-9=?A-Z^-~-]+)*|\"([]!#-[^-~ \t]|(\\[\t -~]))+\")@([!#-'*+/-9=?A-Z^-~-]+(.[!#-'*+/-9=?A-Z^-~-]+)*|[[\t -Z^-~]*])", // eslint-disable-line
 );
-export const TTL_SECONDS_REGEX = new RegExp('^[0-9]{2,5}$');
-export const TTL_SECONDS_ENTRY_REGEX = new RegExp('^[0-9]{1,5}$');
 
 export const FQDN_REGEX = new RegExp(
   '^(?:(?!-)[A-Za-z0-9-]{1,63}(?<!-)\\.)+[A-Za-z]{1,63}$',
