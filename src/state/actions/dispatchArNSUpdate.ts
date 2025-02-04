@@ -47,7 +47,7 @@ export function dispatchArNSUpdate({
     const handlers = await queryClient.fetchQuery({
       queryKey: ['handlers', id, aoNetworkSettings.ANT],
       queryFn: async () => {
-        // validate transfer supports eth addresses and single char undername fix
+        // validate transfer supports eth addresses and single char undername fix and max ttl
         const drySetRecordRes = await antAo
           .dryrun({
             process: id,
@@ -57,7 +57,7 @@ export function dispatchArNSUpdate({
               { name: 'Action', value: 'Set-Record' },
               { name: 'Sub-Domain', value: 'a' },
               { name: 'Transaction-Id', value: 'test-'.padEnd(43, '1') },
-              { name: 'TTL-Seconds', value: '900' },
+              { name: 'TTL-Seconds', value: '86400' },
             ],
           })
           .catch(() => {
