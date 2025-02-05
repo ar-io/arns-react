@@ -98,7 +98,7 @@ export const ARIO_AO_CU_URL =
   process.env.VITE_ARIO_AO_CU_URL || 'https://cu.ardrive.io';
 
 export const ANT_AO_CU_URL =
-  process.env.VITE_ARIO_AO_CU_URL || 'https://cu.ao-testnet.xyz';
+  process.env.VITE_ARIO_AO_CU_URL || 'https://cu.ardrive.io';
 
 export const NETWORK_DEFAULTS = {
   AO: {
