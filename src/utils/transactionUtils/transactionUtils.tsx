@@ -30,7 +30,6 @@ import {
   MAX_TTL_SECONDS,
   MIN_TTL_SECONDS,
   PERMANENT_DOMAIN_MESSAGE,
-  TTL_SECONDS_REGEX,
   YEAR_IN_MILLISECONDS,
 } from '../constants';
 import eventEmitter from '../events';
@@ -665,9 +664,6 @@ export async function validateTTLSeconds(ttl: number): Promise<void> {
     throw new Error(
       `${ttl} is more than the maximum ttlSeconds requirement of ${MAX_TTL_SECONDS}`,
     );
-  }
-  if (!TTL_SECONDS_REGEX.test(ttl.toString())) {
-    throw new Error(`${ttl} is not a valid ttlSeconds value`);
   }
 }
 

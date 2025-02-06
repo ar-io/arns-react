@@ -9,6 +9,7 @@ import type { Dispatch, SetStateAction } from 'react';
 
 import { AntDetailKey } from './components/cards/ANTCard/ANTCard';
 import { ArweaveTransactionID } from './services/arweave/ArweaveTransactionID';
+import { MAX_TTL_SECONDS, MIN_TTL_SECONDS } from './utils/constants';
 
 export type ARNSDomains = Record<string, AoArNSNameData>;
 
@@ -521,14 +522,11 @@ export enum VALIDATION_INPUT_TYPES {
   ARWEAVE_ID = 'Is valid Arweave Transaction (TX) ID.',
   ARWEAVE_ADDRESS = 'Is likely an Arweave wallet address.',
   AO_ADDRESS = 'Is a valid AO Address.',
-  ARNS_NAME = 'ARNS Name.',
+
   UNDERNAME = 'Is a valid Undername.',
-  ANT_CONTRACT_ID = 'Is a valid Arweave Name Token (ANT).',
   // unfortunately we cannot use computed values in enums, so be careful if we ever modify this number
-  TRANSACTION_CONFIRMATIONS = `Has sufficient confirmations (50+).`,
-  VALID_TTL = `Minimum ttl allowed is 900 and Maximum ttl allowed is 2,592,000.`,
-  EMAIL = `Is a valid email`,
-  SMARTWEAVE_CONTRACT = `Is a SmartWeave Contract`,
+  VALID_TTL = `TTL must between ${MIN_TTL_SECONDS} and ${MAX_TTL_SECONDS} seconds`,
+
   VALID_ANT_NAME = `ANT name or ticker must be equal or less than 1798 characters.`,
 }
 
