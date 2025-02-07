@@ -17,10 +17,8 @@ import './styles.css';
 function Manage() {
   const [{ arioProcessId, aoClient, antAoClient, aoNetwork }] =
     useGlobalState();
-  const [
-    { loading: loadingArnsState, domains, ants, arnsEmitter },
-    dispatchArNSState,
-  ] = useArNSState();
+  const [{ loading: loadingArnsState, domains, ants }, dispatchArNSState] =
+    useArNSState();
   const [{ walletAddress }] = useWalletState();
   const [, dispatchModalState] = useModalState();
   const [search, setSearch] = useState<string>('');
@@ -67,7 +65,8 @@ function Manage() {
                   />
                 </div>
 
-                {walletAddress &&
+                {!loadingArnsState &&
+                  walletAddress &&
                   doAntsRequireUpdate({
                     ants,
                     userAddress: walletAddress.toString(),
@@ -90,14 +89,12 @@ function Manage() {
                     />
                   )}
                 <button
-                  disabled={loadingArnsState}
                   className={'button center pointer'}
                   onClick={() =>
                     walletAddress
                       ? dispatchArNSUpdate({
                           ao: aoClient,
                           antAo: antAoClient,
-                          emitter: arnsEmitter,
                           dispatch: dispatchArNSState,
                           walletAddress: walletAddress,
                           arioProcessId,

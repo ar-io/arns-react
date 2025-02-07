@@ -133,7 +133,10 @@ export function getAntsRequiringUpdate({
   ants,
   userAddress,
 }: {
-  ants: Record<string, { state: AoANTState; handlers: AoANTHandler[] }>;
+  ants: Record<
+    string,
+    { state: AoANTState | null; handlers: AoANTHandler[] | null }
+  >;
   userAddress: string;
 }): string[] {
   return Object.entries(ants)
@@ -150,7 +153,10 @@ export function doAntsRequireUpdate({
   ants,
   userAddress,
 }: {
-  ants: Record<string, { state: AoANTState; handlers: AoANTHandler[] }>;
+  ants: Record<
+    string,
+    { state: AoANTState | null; handlers: AoANTHandler[] | null }
+  >;
   userAddress: string;
 }) {
   const antReq = getAntsRequiringUpdate({ ants, userAddress }).length > 0;
@@ -164,8 +170,8 @@ export function camelToReadable(camel: string) {
 }
 
 export function getOwnershipStatus(
-  owner: string,
-  controllers: string[],
+  owner?: string,
+  controllers?: string[],
   walletAddress?: string,
 ): 'controller' | 'owner' | undefined {
   return owner === walletAddress

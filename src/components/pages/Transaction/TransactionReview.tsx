@@ -35,7 +35,7 @@ function TransactionReview() {
   const navigate = useNavigate();
   const [{ arioContract, arioProcessId, aoNetwork, aoClient, antAoClient }] =
     useGlobalState();
-  const [{ arnsEmitter }, dispatchArNSState] = useArNSState();
+  const [, dispatchArNSState] = useArNSState();
   const [{ walletAddress, wallet }] = useWalletState();
   const [
     { workflowName, interactionType, transactionData, interactionResult },
@@ -133,7 +133,6 @@ function TransactionReview() {
         dispatchArNSUpdate({
           ao: aoClient,
           antAo: antAoClient,
-          emitter: arnsEmitter,
           dispatch: dispatchArNSState,
           arioProcessId,
           walletAddress,
