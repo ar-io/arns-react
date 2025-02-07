@@ -39,16 +39,7 @@ export const defaultArIO = ARIO.init({
 export type GlobalState = {
   arioTicker: string;
   gateway: string;
-  aoNetwork: {
-    ARIO: {
-      CU_URL: string;
-      MU_URL: string;
-      SCHEDULER: string;
-    };
-    ANT: {
-      CU_URL: string;
-    };
-  };
+  aoNetwork: typeof NETWORK_DEFAULTS.AO;
   aoClient: AoClient;
   antAoClient: AoClient;
   arioProcessId: string;

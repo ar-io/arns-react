@@ -75,8 +75,6 @@ export const ARWEAVE_TX_LENGTH = 43;
 export const EMAIL_REGEX = new RegExp(
   "([!#-'*+/-9=?A-Z^-~-]+(.[!#-'*+/-9=?A-Z^-~-]+)*|\"([]!#-[^-~ \t]|(\\[\t -~]))+\")@([!#-'*+/-9=?A-Z^-~-]+(.[!#-'*+/-9=?A-Z^-~-]+)*|[[\t -Z^-~]*])", // eslint-disable-line
 );
-export const TTL_SECONDS_REGEX = new RegExp('^[0-9]{3,7}$');
-export const TTL_SECONDS_ENTRY_REGEX = new RegExp('^[0-9]{1,7}$');
 
 export const FQDN_REGEX = new RegExp(
   '^(?:(?!-)[A-Za-z0-9-]{1,63}(?<!-)\\.)+[A-Za-z]{1,63}$',
@@ -98,7 +96,7 @@ export const ARIO_AO_CU_URL =
   process.env.VITE_ARIO_AO_CU_URL || 'https://cu.ardrive.io';
 
 export const ANT_AO_CU_URL =
-  process.env.VITE_ARIO_AO_CU_URL || 'https://cu.ao-testnet.xyz';
+  process.env.VITE_ARIO_AO_CU_URL || 'https://cu.ardrive.io';
 
 export const NETWORK_DEFAULTS = {
   AO: {
@@ -127,7 +125,7 @@ export const NETWORK_DEFAULTS = {
 };
 
 export const RECOMMENDED_TRANSACTION_CONFIRMATIONS = 50;
-export const DEFAULT_TTL_SECONDS = 3600;
+
 export const DEFAULT_MAX_UNDERNAMES = 10;
 export const MAX_UNDERNAME_COUNT = 10_000;
 
@@ -149,8 +147,9 @@ export const FEATURED_DOMAINS: { [x: string]: { imageUrl: string } } = {
   mfers: { imageUrl: MFERS_IMAGE },
 };
 
-export const MAX_TTL_SECONDS = 2_592_000;
-export const MIN_TTL_SECONDS = 900;
+export const DEFAULT_TTL_SECONDS = 900;
+export const MAX_TTL_SECONDS = 86400;
+export const MIN_TTL_SECONDS = 60;
 export const MAX_LEASE_DURATION = 5;
 export const MIN_LEASE_DURATION = 1;
 export const SECONDS_IN_GRACE_PERIOD = 14 * 24 * 60 * 60; // 2 weeks

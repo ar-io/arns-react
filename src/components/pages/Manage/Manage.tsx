@@ -15,7 +15,8 @@ import { RefreshIcon, SearchIcon } from '../../icons';
 import './styles.css';
 
 function Manage() {
-  const [{ arioProcessId, aoClient, antAoClient }] = useGlobalState();
+  const [{ arioProcessId, aoClient, antAoClient, aoNetwork }] =
+    useGlobalState();
   const [{ loading: loadingArnsState, domains, ants }, dispatchArNSState] =
     useArNSState();
   const [{ walletAddress }] = useWalletState();
@@ -89,22 +90,22 @@ function Manage() {
                   )}
                 <button
                   className={'button center pointer'}
-                  onClick={() => {
-                    if (walletAddress) {
-                      dispatchArNSUpdate({
-                        ao: aoClient,
-                        antAo: antAoClient,
-                        dispatch: dispatchArNSState,
-                        walletAddress: walletAddress,
-                        arioProcessId,
-                      });
-                    } else {
-                      eventEmitter.emit('error', {
-                        name: 'Manage Assets',
-                        message: 'Connect wallet before refreshing',
-                      });
-                    }
-                  }}
+                  onClick={() =>
+                    walletAddress
+                      ? dispatchArNSUpdate({
+                          ao: aoClient,
+                          antAo: antAoClient,
+                          emitter: arnsEmitter,
+                          dispatch: dispatchArNSState,
+                          walletAddress: walletAddress,
+                          arioProcessId,
+                          aoNetworkSettings: aoNetwork,
+                        })
+                      : eventEmitter.emit('error', {
+                          name: 'Manage Assets',
+                          message: 'Connect wallet before refreshing',
+                        })
+                  }
                 >
                   <RefreshIcon
                     height={16}

@@ -9,8 +9,10 @@ import {
   AoArNSNameData,
   AoClient,
 } from '@ar.io/sdk/web';
+import { connect } from '@permaweb/aoconnect';
 import { captureException } from '@sentry/react';
 import { AoAddress } from '@src/types';
+import { NETWORK_DEFAULTS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { buildAntStateQuery, queryClient } from '@src/utils/network';
 import { Tag } from 'arweave/node/lib/transaction';
@@ -25,12 +27,14 @@ export async function dispatchArNSUpdate({
   arioProcessId,
   ao,
   antAo,
+  aoNetworkSettings,
 }: {
   dispatch: Dispatch<ArNSAction>;
   walletAddress: AoAddress;
   arioProcessId: string;
   ao: AoClient;
   antAo: AoClient;
+  aoNetworkSettings: typeof NETWORK_DEFAULTS.AO;
 }) {
   try {
     const limit = pLimit(20);
@@ -56,7 +60,7 @@ export async function dispatchArNSUpdate({
     const antRegistry = ANTRegistry.init({
       process: new AOProcess({
         processId: ANT_REGISTRY_ID,
-        ao,
+        ao: connect(aoNetworkSettings.ANT),
       }),
     });
     const [arnsRecords, allUserAnts] = await Promise.all([
@@ -108,14 +112,15 @@ export async function dispatchArNSUpdate({
           queryKey: ['handlers', id],
           queryFn: async () => {
             try {
-              const dryTransferRes = await antAo
+              const drySetRecordRes = await antAo
                 .dryrun({
                   process: id,
                   Owner: walletAddress.toString(),
                   From: walletAddress.toString(),
                   tags: [
-                    { name: 'Action', value: 'Transfer' },
-                    { name: 'Recipient', value: '0x'.padEnd(42, '0') },
+                    { name: 'Action', value: 'Set-Record' },
+                    { name: 'TTL-Seconds', value: '86400' },
+                    { name: 'Transaction-Id', value: ''.padEnd(43, '1') },
                   ],
                 })
                 .catch(() => {
@@ -123,7 +128,7 @@ export async function dispatchArNSUpdate({
                 });
 
               const hasError =
-                dryTransferRes?.Messages?.find((msg) => {
+                drySetRecordRes.Messages.find((msg) => {
                   return msg.Tags.find((t: Tag) => t.name === 'Error');
                 }) !== undefined;
 

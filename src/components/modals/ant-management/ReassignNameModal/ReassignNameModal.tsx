@@ -53,7 +53,8 @@ export function ReassignNameModal({
   name: string;
 }) {
   const queryClient = useQueryClient();
-  const [{ arioProcessId, aoClient, antAoClient }] = useGlobalState();
+  const [{ arioProcessId, aoClient, antAoClient, aoNetwork }] =
+    useGlobalState();
   const [, dispatchArNSState] = useArNSState();
   const [{ signing }, dispatchTransactionState] = useTransactionState();
   const [{ wallet, walletAddress }] = useWalletState();
@@ -157,6 +158,7 @@ export function ReassignNameModal({
         dispatch: dispatchArNSState,
         ao: aoClient,
         antAo: antAoClient,
+        aoNetworkSettings: aoNetwork,
       });
       handleClose();
     } catch (error) {

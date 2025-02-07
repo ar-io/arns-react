@@ -30,7 +30,6 @@ import {
   MAX_TTL_SECONDS,
   MIN_TTL_SECONDS,
   PERMANENT_DOMAIN_MESSAGE,
-  TTL_SECONDS_REGEX,
   YEAR_IN_MILLISECONDS,
 } from '../constants';
 import eventEmitter from '../events';
@@ -666,9 +665,6 @@ export async function validateTTLSeconds(ttl: number): Promise<void> {
       `${ttl} is more than the maximum ttlSeconds requirement of ${MAX_TTL_SECONDS}`,
     );
   }
-  if (!TTL_SECONDS_REGEX.test(ttl.toString())) {
-    throw new Error(`${ttl} is not a valid ttlSeconds value`);
-  }
 }
 
 export async function withExponentialBackoff<T>({
@@ -757,7 +753,7 @@ export function createDefaultAntState(state: any) {
     records: {
       ['@']: {
         transactionId: LANDING_PAGE_TXID.toString(),
-        ttlSeconds: 3600,
+        ttlSeconds: 900,
       },
     },
     ...state,
@@ -772,7 +768,7 @@ export function createAntStateForOwner(owner: string, targetId?: string) {
     records: {
       ['@']: {
         transactionId: targetId ?? LANDING_PAGE_TXID.toString(),
-        ttlSeconds: 3600,
+        ttlSeconds: 900,
       },
     },
   });

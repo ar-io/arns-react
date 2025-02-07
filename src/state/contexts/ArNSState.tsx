@@ -4,6 +4,8 @@ import {
   AoArNSNameData,
   ArNSEventEmitter,
 } from '@ar.io/sdk/web';
+import { connect } from '@permaweb/aoconnect';
+import { NETWORK_DEFAULTS } from '@src/utils/constants';
 import {
   Dispatch,
   createContext,
@@ -39,6 +41,7 @@ export const initialArNSState: ArNSState = {
     contract: defaultArIO,
     timeoutMs: 1000 * 60 * 5,
     strict: false,
+    antAoClient: connect(NETWORK_DEFAULTS.AO.ANT),
   }),
   domains: {},
   ants: {},
@@ -62,9 +65,22 @@ export function ArNSStateProvider({
   reducer,
   children,
 }: ArNSStateProviderProps): JSX.Element {
-  const [{ arioProcessId, aoClient, antAoClient }] = useGlobalState();
+  const [{ arioContract, arioProcessId, aoClient, antAoClient, aoNetwork }] =
+    useGlobalState();
   const [state, dispatchArNSState] = useReducer(reducer, initialArNSState);
   const [{ walletAddress }] = useWalletState();
+
+  useEffect(() => {
+    dispatchArNSState({
+      type: 'setArNSEmitter',
+      payload: new ArNSEventEmitter({
+        contract: arioContract,
+        timeoutMs: 1000 * 60 * 5,
+        strict: false,
+        antAoClient: antAoClient,
+      }),
+    });
+  }, [arioContract, antAoClient]);
 
   useEffect(() => {
     if (!walletAddress) return;
@@ -74,6 +90,7 @@ export function ArNSStateProvider({
       dispatch: dispatchArNSState,
       walletAddress: walletAddress,
       arioProcessId: arioProcessId,
+      aoNetworkSettings: aoNetwork,
     });
   }, [walletAddress]);
 

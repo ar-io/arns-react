@@ -34,8 +34,9 @@ export function ReturnNameModal({
 }) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const [{ arioProcessId, aoClient, antAoClient }] = useGlobalState();
-  const [, dispatchArNSState] = useArNSState();
+  const [{ arioProcessId, aoClient, antAoClient, aoNetwork }] =
+    useGlobalState();
+  const [{ arnsEmitter }, dispatchArNSState] = useArNSState();
   const [{ signing }, dispatchTransactionState] = useTransactionState();
   const [{ wallet, walletAddress }] = useWalletState();
 
@@ -89,6 +90,8 @@ export function ReturnNameModal({
         walletAddress: walletAddress,
         arioProcessId,
         dispatch: dispatchArNSState,
+        emitter: arnsEmitter,
+        aoNetworkSettings: aoNetwork,
       });
       setShow(false);
       navigate('/manage');

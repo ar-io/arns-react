@@ -6,7 +6,11 @@ import {
   VALIDATION_INPUT_TYPES,
 } from '@src/types';
 import { validateTTLSeconds } from '@src/utils';
-import { DEFAULT_TTL_SECONDS, MAX_TTL_SECONDS } from '@src/utils/constants';
+import {
+  DEFAULT_TTL_SECONDS,
+  MAX_TTL_SECONDS,
+  MIN_TTL_SECONDS,
+} from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Skeleton } from 'antd';
 import { useState } from 'react';
@@ -84,7 +88,15 @@ export default function TTLRow({
         editable={editable}
         editing={editing}
         setEditing={() => setEditing(true)}
-        onSave={() => setShowModal(true)}
+        onSave={() => {
+          try {
+            if (newTTL > MAX_TTL_SECONDS || newTTL < MIN_TTL_SECONDS)
+              throw new Error(VALIDATION_INPUT_TYPES.VALID_TTL);
+            setShowModal(true);
+          } catch (error) {
+            eventEmitter.emit('error', error);
+          }
+        }}
         onCancel={() => {
           setEditing(false);
           setNewTTL(ttlSeconds ?? DEFAULT_TTL_SECONDS);

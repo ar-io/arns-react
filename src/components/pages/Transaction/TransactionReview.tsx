@@ -136,6 +136,7 @@ function TransactionReview() {
           dispatch: dispatchArNSState,
           arioProcessId,
           walletAddress,
+          aoNetworkSettings: aoNetwork,
         });
       }
     }
