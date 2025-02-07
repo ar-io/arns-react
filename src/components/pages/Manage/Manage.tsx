@@ -95,7 +95,6 @@ function Manage() {
                       ? dispatchArNSUpdate({
                           ao: aoClient,
                           antAo: antAoClient,
-                          emitter: arnsEmitter,
                           dispatch: dispatchArNSState,
                           walletAddress: walletAddress,
                           arioProcessId,
