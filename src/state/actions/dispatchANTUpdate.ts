@@ -1,7 +1,8 @@
-import { ANT, AOProcess, AoClient } from '@ar.io/sdk';
+import { AoANTHandler } from '@ar.io/sdk';
+import { buildDomainInfoQuery } from '@src/hooks/useDomainInfo';
 import { AoAddress } from '@src/types';
+import { NETWORK_DEFAULTS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
-import { buildAntStateQuery } from '@src/utils/network';
 import { QueryClient } from '@tanstack/react-query';
 import { Dispatch } from 'react';
 
@@ -10,45 +11,85 @@ import { ArNSAction } from '..';
 export async function dispatchANTUpdate({
   queryClient,
   processId,
-  walletAddress,
   dispatch,
-  ao,
+  aoNetwork,
 }: {
   queryClient: QueryClient;
   processId: string;
   walletAddress: AoAddress;
   dispatch: Dispatch<ArNSAction>;
-  ao: AoClient;
+  aoNetwork: typeof NETWORK_DEFAULTS.AO;
 }) {
   try {
+    queryClient.resetQueries({
+      queryKey: ['domainInfo', processId],
+      exact: false,
+    });
+    queryClient.resetQueries({
+      queryKey: ['ant', processId],
+      exact: false,
+    });
+    queryClient.resetQueries({
+      queryKey: ['ant-info', processId],
+      exact: false,
+    });
     dispatch({
       type: 'setLoading',
       payload: true,
     });
-    const antStateQuery = buildAntStateQuery({ processId, ao });
-    const state = await queryClient.fetchQuery(antStateQuery);
-    const handlers = await queryClient.fetchQuery({
-      queryKey: ['handlers', processId],
-      queryFn: async () => {
-        return await ANT.init({ process: new AOProcess({ processId, ao }) })
-          .getHandlers()
-          .catch(console.error);
+    dispatch({
+      type: 'addAnts',
+      payload: {
+        [processId]: {
+          state: null,
+          handlers: null,
+          errors: [],
+        },
       },
     });
 
-    if (state) {
-      dispatch({
-        type: 'addAnts',
-        payload: { [processId]: { state, handlers: handlers ?? [] } },
-      });
-    } else {
-      dispatch({
-        type: 'refresh',
-        payload: walletAddress,
-      });
-    }
-  } catch (error) {
-    eventEmitter.emit('error', error);
+    const domainInfo = await queryClient
+      .fetchQuery(
+        buildDomainInfoQuery({
+          antId: processId,
+          aoNetwork,
+        }),
+      )
+      .catch((e) => console.error(e));
+    if (!domainInfo) throw new Error('Unable to fetch domain info');
+    dispatch({
+      type: 'addAnts',
+      payload: {
+        [processId]: {
+          state: domainInfo.state ?? null,
+          handlers: (domainInfo.info?.Handlers ?? null) as
+            | AoANTHandler[]
+            | null,
+          errors: domainInfo.errors ?? [],
+        },
+      },
+    });
+  } catch (error: any) {
+    const errorHandler = (e: string) => {
+      if (e.startsWith('Error getting ArNS records')) {
+        eventEmitter.emit('network:ao:congested', true);
+        eventEmitter.emit(
+          'error',
+          new Error(
+            'Unable to load ArNS records. Please refresh to try again.',
+          ),
+        );
+        dispatch({
+          type: 'setLoading',
+          payload: false,
+        });
+        dispatch({
+          type: 'setPercentLoaded',
+          payload: undefined,
+        });
+      }
+    };
+    errorHandler(error.message);
   } finally {
     dispatch({
       type: 'setLoading',

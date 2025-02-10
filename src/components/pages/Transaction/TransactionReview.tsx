@@ -33,9 +33,9 @@ import { getTransactionHeader } from './transaction-headers';
 // on completion routes to transaction/complete
 function TransactionReview() {
   const navigate = useNavigate();
-  const [{ arioContract, arioProcessId, aoNetwork, aoClient, antAoClient }] =
+  const [{ arioContract, arioProcessId, aoNetwork, aoClient }] =
     useGlobalState();
-  const [{ arnsEmitter }, dispatchArNSState] = useArNSState();
+  const [, dispatchArNSState] = useArNSState();
   const [{ walletAddress, wallet }] = useWalletState();
   const [
     { workflowName, interactionType, transactionData, interactionResult },
@@ -131,9 +131,6 @@ function TransactionReview() {
     } finally {
       if (walletAddress) {
         dispatchArNSUpdate({
-          ao: aoClient,
-          antAo: antAoClient,
-          emitter: arnsEmitter,
           dispatch: dispatchArNSState,
           arioProcessId,
           walletAddress,

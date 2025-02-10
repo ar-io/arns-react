@@ -18,7 +18,6 @@ import {
 import { del, get, set } from 'idb-keyval';
 
 import { isArweaveTransactionID } from '.';
-import eventEmitter from './events';
 
 /**
  * Creates an Indexed DB persister
@@ -62,18 +61,11 @@ export function buildAntStateQuery({
   return {
     queryKey: ['ant', processId, ...(meta || [])],
     queryFn: async () => {
-      if (!processId) return null;
-      if (isArweaveTransactionID(processId)) {
-        const ant = ANT.init({ process: new AOProcess({ processId, ao }) });
-        return ant.getState().catch((e) => {
-          eventEmitter.emit(
-            'error',
-            new Error(`Failed to fetch ANT state: ${e.message}`),
-          );
-          return null;
-        });
-      }
-      return null;
+      if (!processId || !isArweaveTransactionID(processId))
+        throw new Error('Must provide a valid process id');
+
+      const ant = ANT.init({ process: new AOProcess({ processId, ao }) });
+      return await ant.getState();
     },
     staleTime: Infinity,
   };

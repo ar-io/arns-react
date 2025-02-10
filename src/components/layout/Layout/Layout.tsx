@@ -44,7 +44,7 @@ function Layout() {
 
       {percentLoaded > 0 && percentLoaded < 100 ? (
         <Progress
-          prefixCls="arns-state-progress"
+          prefixCls="arns-state-progress animate-pulse"
           type={'line'}
           percent={percentLoaded}
           strokeColor={{
@@ -54,10 +54,9 @@ function Layout() {
           strokeLinecap="square"
           trailColor={'transparent'}
           format={() => <></>}
-          size={5}
         />
       ) : (
-        <div className="p-[11.5px]" />
+        <div className="p-[4px]" />
       )}
 
       <div className="body">
