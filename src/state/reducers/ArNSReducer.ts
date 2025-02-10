@@ -16,14 +16,22 @@ export type ArNSAction =
       type: 'setAnts';
       payload: Record<
         string,
-        { state: AoANTState | null; handlers: AoANTHandler[] | null }
+        {
+          state: AoANTState | null;
+          handlers: AoANTHandler[] | null;
+          errors?: Error[];
+        }
       >;
     }
   | {
       type: 'addAnts';
       payload: Record<
         string,
-        { state: AoANTState | null; handlers: AoANTHandler[] | null }
+        {
+          state: AoANTState | null;
+          handlers: AoANTHandler[] | null;
+          errors?: Error[];
+        }
       >;
     }
   | { type: 'setAntCount'; payload: number }

@@ -34,8 +34,7 @@ export function ReturnNameModal({
 }) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const [{ arioProcessId, aoClient, antAoClient, aoNetwork }] =
-    useGlobalState();
+  const [{ arioProcessId, antAoClient, aoNetwork }] = useGlobalState();
   const [, dispatchArNSState] = useArNSState();
   const [{ signing }, dispatchTransactionState] = useTransactionState();
   const [{ wallet, walletAddress }] = useWalletState();
@@ -77,16 +76,15 @@ export function ReturnNameModal({
         ),
         name: ANT_INTERACTION_TYPES.RELEASE_NAME,
       });
+
       queryClient.resetQueries({
-        queryKey: ['handlers', processId],
+        queryKey: ['domainInfo', name],
       });
       queryClient.resetQueries({
         queryKey: ['domainInfo', processId],
       });
 
       dispatchArNSUpdate({
-        ao: aoClient,
-        antAo: antAoClient,
         walletAddress: walletAddress,
         arioProcessId,
         dispatch: dispatchArNSState,

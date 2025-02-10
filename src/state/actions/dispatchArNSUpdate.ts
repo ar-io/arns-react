@@ -1,5 +1,4 @@
 import {
-  ANT,
   ANTRegistry,
   ANT_REGISTRY_ID,
   AOProcess,
@@ -7,49 +6,44 @@ import {
   AoANTHandler,
   AoARIORead,
   AoArNSNameData,
-  AoClient,
 } from '@ar.io/sdk/web';
 import { connect } from '@permaweb/aoconnect';
 import { captureException } from '@sentry/react';
+import { buildDomainInfoQuery } from '@src/hooks/useDomainInfo';
 import { AoAddress } from '@src/types';
 import { NETWORK_DEFAULTS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
-import { buildAntStateQuery, queryClient } from '@src/utils/network';
-import { Tag } from 'arweave/node/lib/transaction';
+import { queryClient } from '@src/utils/network';
 import { pLimit } from 'plimit-lit';
 import { Dispatch } from 'react';
 
 import { ArNSAction } from '../reducers/ArNSReducer';
 
+// TODO: pass in network config instead of separate AoClients
 export async function dispatchArNSUpdate({
   dispatch,
   walletAddress,
   arioProcessId,
-  ao,
-  antAo,
   aoNetworkSettings,
 }: {
   dispatch: Dispatch<ArNSAction>;
   walletAddress: AoAddress;
   arioProcessId: string;
-  ao: AoClient;
-  antAo: AoClient;
   aoNetworkSettings: typeof NETWORK_DEFAULTS.AO;
 }) {
   try {
-    const limit = pLimit(20);
+    const ao = connect(aoNetworkSettings.ARIO);
+    const throttle = pLimit(20);
     // reset queries
+    queryClient.resetQueries({ queryKey: ['domainInfo'] });
     queryClient.resetQueries({
       queryKey: ['ant'],
     });
     queryClient.resetQueries({
-      queryKey: ['handlers'],
+      queryKey: ['ant-info'],
     });
+
     dispatch({ type: 'reset' });
-    dispatch({ type: 'setDomains', payload: {} });
-    dispatch({ type: 'setAnts', payload: {} });
-    dispatch({ type: 'setPercentLoaded', payload: 0 });
-    dispatch({ type: 'setAntCount', payload: 0 });
     dispatch({
       type: 'setLoading',
       payload: true,
@@ -63,6 +57,7 @@ export async function dispatchArNSUpdate({
         ao: connect(aoNetworkSettings.ANT),
       }),
     });
+    // TODO: we should paginate or send a filter by process ID on the network process for the records we want
     const [arnsRecords, allUserAnts] = await Promise.all([
       arioContract.getArNSRecords({ limit: 100_000 }),
       antRegistry.accessControlList({ address: walletAddress.toString() }),
@@ -106,59 +101,26 @@ export async function dispatchArNSUpdate({
       ),
     });
 
+    // Can be useDomainInfo fetch here (from ant id, not domain)
     const fetchAntDetails = async (id: string) => {
       try {
-        const handlers = await queryClient.fetchQuery({
-          queryKey: ['handlers', id],
-          queryFn: async () => {
-            try {
-              const drySetRecordRes = await antAo
-                .dryrun({
-                  process: id,
-                  Owner: walletAddress.toString(),
-                  From: walletAddress.toString(),
-                  tags: [
-                    { name: 'Action', value: 'Set-Record' },
-                    { name: 'TTL-Seconds', value: '86400' },
-                    { name: 'Transaction-Id', value: ''.padEnd(43, '1') },
-                  ],
-                })
-                .catch(() => {
-                  return {} as ReturnType<typeof antAo.dryrun>;
-                });
-
-              const hasError =
-                drySetRecordRes.Messages.find((msg) => {
-                  return msg.Tags.find((t: Tag) => t.name === 'Error');
-                }) !== undefined;
-
-              if (hasError) {
-                return [] as AoANTHandler[];
-              }
-
-              const handlers = await ANT.init({
-                process: new AOProcess({ processId: id, ao: antAo }),
-              }).getHandlers();
-
-              return handlers ?? null;
-            } catch (error: any) {
-              captureException(error);
-              throw new Error(error);
-            }
-          },
-          staleTime: Infinity,
-        });
-
-        const state = await queryClient
-          .fetchQuery(buildAntStateQuery({ processId: id, ao: antAo }))
-          .catch((e) => {
-            captureException(e);
-            return null;
-          });
-
+        const domainInfo = await queryClient.fetchQuery(
+          buildDomainInfoQuery({
+            antId: id,
+            aoNetwork: aoNetworkSettings,
+          }),
+        );
         dispatch({
           type: 'addAnts',
-          payload: { [id]: { state, handlers } },
+          payload: {
+            [id]: {
+              state: domainInfo.state ?? null,
+              handlers: (domainInfo.info?.Handlers ?? null) as
+                | AoANTHandler[]
+                | null,
+              errors: domainInfo.errors ?? [],
+            },
+          },
         });
       } catch (error: any) {
         const errorHandler = (e: string) => {
@@ -188,6 +150,12 @@ export async function dispatchArNSUpdate({
               },
             });
           } else if (!e.includes('does not support provided action.')) {
+            captureException(new Error(e), {
+              tags: {
+                walletAddress: walletAddress.toString(),
+                arioProcessId: arioProcessId,
+              },
+            });
             console.error(new Error(e));
           }
         };
@@ -198,19 +166,18 @@ export async function dispatchArNSUpdate({
         });
         dispatch({
           type: 'setPercentLoaded',
-          payload: flatAntIds.size,
+          payload: registeredUserAnts.length,
         });
       }
     };
 
     await Promise.all(
-      registeredUserAnts.map((id) => limit(() => fetchAntDetails(id))),
+      registeredUserAnts.map((id) => throttle(() => fetchAntDetails(id))),
     );
   } catch (error) {
     captureException(error);
   } finally {
     /// cleanup states
-
     dispatch({
       type: 'setLoading',
       payload: false,

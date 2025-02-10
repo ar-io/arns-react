@@ -1,7 +1,7 @@
 import { CheckCircleFilled } from '@ant-design/icons';
 import { ANT, AOProcess, mARIOToken } from '@ar.io/sdk/web';
+import Tooltip from '@src/components/Tooltips/Tooltip';
 import { Accordion } from '@src/components/data-display';
-import Tooltip from '@src/components/data-display/Tooltip';
 import { InsufficientFundsError, ValidationError } from '@src/utils/errors';
 import emojiRegex from 'emoji-regex';
 import { useEffect, useState } from 'react';

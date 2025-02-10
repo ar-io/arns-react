@@ -1,5 +1,5 @@
 import { ANT, AOProcess, AoArNSNameData } from '@ar.io/sdk/web';
-import Tooltip from '@src/components/data-display/Tooltip';
+import Tooltip from '@src/components/Tooltips/Tooltip';
 import { Pagination, PaginationProps } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 

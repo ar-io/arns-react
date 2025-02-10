@@ -53,8 +53,7 @@ export function ReassignNameModal({
   name: string;
 }) {
   const queryClient = useQueryClient();
-  const [{ arioProcessId, aoClient, antAoClient, aoNetwork }] =
-    useGlobalState();
+  const [{ arioProcessId, aoClient, aoNetwork }] = useGlobalState();
   const [, dispatchArNSState] = useArNSState();
   const [{ signing }, dispatchTransactionState] = useTransactionState();
   const [{ wallet, walletAddress }] = useWalletState();
@@ -92,6 +91,8 @@ export function ReassignNameModal({
       }
       if (!walletAddress)
         throw new Error('Must connect to Reassign the domain');
+      if (!domainData?.info || !domainData?.state)
+        throw new Error('Unable to get domain data');
 
       const previousState: SpawnANTState = {
         controllers: domainData.controllers,
@@ -142,9 +143,7 @@ export function ReassignNameModal({
         ),
         name: ANT_INTERACTION_TYPES.REASSIGN_NAME,
       });
-      queryClient.resetQueries({
-        queryKey: ['handlers', processId],
-      });
+
       queryClient.resetQueries({
         queryKey: ['domainInfo', name],
       });
@@ -156,8 +155,6 @@ export function ReassignNameModal({
         walletAddress: walletAddress,
         arioProcessId,
         dispatch: dispatchArNSState,
-        ao: aoClient,
-        antAo: antAoClient,
         aoNetworkSettings: aoNetwork,
       });
       handleClose();
@@ -260,7 +257,7 @@ export function ReassignNameModal({
                         />
                       ) : (
                         <span className=" text-white">
-                          {isValidAoAddress(newAntInfo?.owner) ? (
+                          {newAntInfo && isValidAoAddress(newAntInfo?.owner) ? (
                             <ArweaveID
                               id={new ArweaveTransactionID(newAntInfo.owner)}
                               type={ArweaveIdTypes.ADDRESS}
@@ -297,7 +294,7 @@ export function ReassignNameModal({
                     <div className="flex flex-col  gap-1">
                       <span className=" text-grey">Controllers</span>
                       <div className="flex gap-3  text-white">
-                        {domainData.controllers ? (
+                        {domainData && domainData.controllers ? (
                           domainData.controllers.map((c, index) => {
                             if (isValidAoAddress(c)) {
                               return (

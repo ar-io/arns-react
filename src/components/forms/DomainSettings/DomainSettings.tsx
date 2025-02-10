@@ -90,7 +90,7 @@ function DomainSettings({
   const isController = walletAddress
     ? data?.controllers?.includes(walletAddress.toString() ?? '')
     : false;
-  const isAuthorized = isOwner || isController;
+  const isAuthorized = (isOwner || isController) ?? false;
   const antHandlers = (data?.info?.Handlers ??
     data?.info?.HandlerNames ??
     []) as AoANTHandler[];
@@ -113,22 +113,12 @@ function DomainSettings({
         refetchType: 'all',
       });
 
-      if (domain) {
-        queryClient.invalidateQueries({
-          queryKey: ['arns-record', { domain }],
-          refetchType: 'all',
-        });
-      }
-
-      if (data?.processId) {
-        queryClient.invalidateQueries({
-          queryKey: ['ant', data?.processId.toString()],
-          refetchType: 'all',
-        });
-      }
-
       queryClient.invalidateQueries({
-        queryKey: ['domainInfo'],
+        queryKey: ['domainInfo', data?.processId.toString(), domain],
+        refetchType: 'all',
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['domainInfo', data?.processId.toString()],
         refetchType: 'all',
       });
 
@@ -259,7 +249,7 @@ function DomainSettings({
           [DomainSettingsRowTypes.IO_COMPATIBLE]: (
             <IOCompatibleRow
               antId={data?.processId?.toString()}
-              editable={isAuthorized}
+              editable={data?.state ? isAuthorized : true}
               requiresUpdate={
                 data?.processId && data?.state && walletAddress
                   ? doAntsRequireUpdate({
@@ -271,6 +261,8 @@ function DomainSettings({
                       },
                       userAddress: walletAddress.toString(),
                     })
+                  : data?.processId
+                  ? true
                   : false
               }
             />
@@ -284,7 +276,7 @@ function DomainSettings({
                 dispatchANTInteraction({
                   payload: { name },
                   workflowName: ANT_INTERACTION_TYPES.SET_NAME,
-                  processId: data?.processId,
+                  processId: data!.processId,
                   signer: wallet!.contractSigner!,
                   owner: walletAddress!.toString(),
                   dispatch,
@@ -348,7 +340,7 @@ function DomainSettings({
                   workflowName: ANT_INTERACTION_TYPES.SET_TARGET_ID,
                   signer: wallet!.contractSigner!,
                   owner: walletAddress!.toString(),
-                  processId: data?.processId,
+                  processId: data!.processId,
                   dispatch,
                   ao: antAoClient,
                 })
@@ -366,7 +358,7 @@ function DomainSettings({
                   workflowName: ANT_INTERACTION_TYPES.SET_TICKER,
                   signer: wallet!.contractSigner!,
                   owner: walletAddress!.toString(),
-                  processId: data?.processId,
+                  processId: data!.processId,
                   dispatch,
                   ao: antAoClient,
                 })
@@ -376,9 +368,9 @@ function DomainSettings({
           [DomainSettingsRowTypes.CONTROLLERS]: (
             <ControllersRow
               key={DomainSettingsRowTypes.CONTROLLERS}
-              processId={data?.processId?.toString()}
+              processId={data?.processId?.toString() ?? ''}
               editable={isAuthorized}
-              controllers={data?.controllers}
+              controllers={data?.controllers ?? []}
               confirm={({
                 payload,
                 workflowName,
@@ -393,7 +385,7 @@ function DomainSettings({
                   workflowName,
                   signer: wallet!.contractSigner!,
                   owner: walletAddress!.toString(),
-                  processId: data?.processId,
+                  processId: data!.processId,
                   dispatch,
                   ao: antAoClient,
                 })
@@ -402,8 +394,8 @@ function DomainSettings({
           ),
           [DomainSettingsRowTypes.OWNER]: (
             <OwnerRow
-              owner={data?.owner}
-              processId={data?.processId?.toString()}
+              owner={data?.owner ?? 'N/A'}
+              processId={data?.processId?.toString() ?? ''}
               key={DomainSettingsRowTypes.OWNER}
               associatedNames={data?.associatedNames ?? []}
               editable={isOwner}
@@ -412,7 +404,7 @@ function DomainSettings({
                   payload: {
                     target,
                     ...((
-                      data?.info.Handlers ??
+                      data?.info?.Handlers ??
                       data?.info?.HandlerNames ??
                       []
                     ).includes('removePrimaryNames')
@@ -422,7 +414,7 @@ function DomainSettings({
                   workflowName: ANT_INTERACTION_TYPES.TRANSFER,
                   signer: wallet!.contractSigner!,
                   owner: walletAddress!.toString(),
-                  processId: data?.processId,
+                  processId: data!.processId,
                   dispatch,
                   ao: antAoClient,
                 })
@@ -443,7 +435,7 @@ function DomainSettings({
                   workflowName: ANT_INTERACTION_TYPES.SET_TTL_SECONDS,
                   signer: wallet!.contractSigner!,
                   owner: walletAddress!.toString(),
-                  processId: data?.processId,
+                  processId: data!.processId,
                   dispatch,
                   ao: antAoClient,
                 })
@@ -474,7 +466,7 @@ function DomainSettings({
                   workflowName: ANT_INTERACTION_TYPES.SET_LOGO,
                   signer: wallet!.contractSigner!,
                   owner: walletAddress!.toString(),
-                  processId: data?.processId,
+                  processId: data!.processId,
                   dispatch,
                   ao: antAoClient,
                 })
@@ -494,7 +486,7 @@ function DomainSettings({
                   workflowName: ANT_INTERACTION_TYPES.SET_DESCRIPTION,
                   signer: wallet!.contractSigner!,
                   owner: walletAddress!.toString(),
-                  processId: data?.processId,
+                  processId: data!.processId,
                   dispatch,
                   ao: antAoClient,
                 })
@@ -504,7 +496,7 @@ function DomainSettings({
           [DomainSettingsRowTypes.KEYWORDS]: (
             <KeywordsRow
               key={DomainSettingsRowTypes.KEYWORDS}
-              keywords={data?.info?.Keywords}
+              keywords={data?.info?.Keywords ?? []}
               editable={isAuthorized}
               confirm={(keywords: string[]) =>
                 dispatchANTInteraction({
@@ -514,7 +506,7 @@ function DomainSettings({
                   workflowName: ANT_INTERACTION_TYPES.SET_KEYWORDS,
                   signer: wallet!.contractSigner!,
                   owner: walletAddress!.toString(),
-                  processId: data?.processId,
+                  processId: data!.processId,
                   dispatch,
                   ao: antAoClient,
                 })

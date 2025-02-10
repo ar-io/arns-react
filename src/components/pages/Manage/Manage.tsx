@@ -15,8 +15,7 @@ import { RefreshIcon, SearchIcon } from '../../icons';
 import './styles.css';
 
 function Manage() {
-  const [{ arioProcessId, aoClient, antAoClient, aoNetwork }] =
-    useGlobalState();
+  const [{ arioProcessId, aoNetwork }] = useGlobalState();
   const [{ loading: loadingArnsState, domains, ants }, dispatchArNSState] =
     useArNSState();
   const [{ walletAddress }] = useWalletState();
@@ -24,7 +23,7 @@ function Manage() {
   const [search, setSearch] = useState<string>('');
 
   return (
-    <div className="overflow-auto px-[100px] pb-[30px]">
+    <div className="overflow-auto px-[100px] pb-[30px] pt-[10px]">
       <div className="flex flex-col gap-[10px]">
         <div className="flex justify-start">
           <h1
@@ -93,8 +92,6 @@ function Manage() {
                   onClick={() =>
                     walletAddress
                       ? dispatchArNSUpdate({
-                          ao: aoClient,
-                          antAo: antAoClient,
                           dispatch: dispatchArNSState,
                           walletAddress: walletAddress,
                           arioProcessId,
