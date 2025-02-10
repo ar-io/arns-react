@@ -348,13 +348,19 @@ const DomainsTable = ({
               return (
                 <button
                   className="flex whitespace-nowrap justify-center align-center gap-2 text-center"
-                  onClick={() => {
-                    dispatchANTUpdate({
+                  onClick={async () => {
+                    await dispatchANTUpdate({
                       processId,
                       aoNetwork,
                       queryClient,
                       walletAddress,
                       dispatch: dispatchArNSState,
+                    });
+                    queryClient.resetQueries({
+                      queryKey: [
+                        'domainInfo',
+                        lowerCaseDomain(row.original.name),
+                      ],
                     });
                   }}
                 >
@@ -367,9 +373,9 @@ const DomainsTable = ({
                 </button>
               );
             }
-            return rowValue ? (
-              <CircleCheck className="text-success w-[16px]" />
-            ) : (
+            return row.original.antErrors.find(
+              (e) => e instanceof UpgradeRequiredError,
+            ) ? (
               <ErrorsTip
                 errors={antErrors.filter(
                   (e) => e instanceof UpgradeRequiredError,
@@ -386,6 +392,8 @@ const DomainsTable = ({
                   </button>
                 }
               />
+            ) : (
+              <CircleCheck className="text-success w-[16px]" />
             );
           }
           case 'undernames': {

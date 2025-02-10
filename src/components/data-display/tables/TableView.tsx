@@ -95,6 +95,10 @@ const TableView = <T, S>({
     setSorting([defaultSortingState]);
   }, [defaultSortingState]);
 
+  useEffect(() => {
+    table.setPageIndex(0);
+  }, [data.length]);
+
   return (
     <>
       <div className={`overflow-x-auto scrollbar ${tableWrapperClassName}`}>

@@ -22,10 +22,12 @@ import './styles.css';
 function UpgradeAntModal({
   visible,
   setVisible,
+  domain,
   antId,
 }: {
   visible: boolean;
   setVisible: (visible: boolean) => void;
+  domain?: string;
   antId: string;
 }) {
   const queryClient = useQueryClient();
@@ -61,6 +63,17 @@ function UpgradeAntModal({
       }).catch(() => {
         failedUpgrades.push(antId);
       });
+      dispatchArNSState({
+        type: 'addAnts',
+        payload: {
+          [antId]: {
+            state: null,
+            handlers: null,
+            errors: [],
+          },
+        },
+      });
+
       dispatchANTUpdate({
         processId: antId,
         queryClient,
@@ -68,15 +81,6 @@ function UpgradeAntModal({
         dispatch: dispatchArNSState,
         aoNetwork,
       });
-
-      queryClient.invalidateQueries(
-        {
-          queryKey: ['domainInfo'],
-          refetchType: 'all',
-          exact: false,
-        },
-        { cancelRefetch: true },
-      );
 
       if (failedUpgrades.length) {
         eventEmitter.emit('error', {
@@ -106,6 +110,7 @@ function UpgradeAntModal({
     } catch (error) {
       eventEmitter.emit('error', error);
     } finally {
+      queryClient.resetQueries({ queryKey: ['domainInfo', domain] });
       handleClose();
     }
   }

@@ -115,9 +115,9 @@ export async function dispatchArNSUpdate({
           payload: {
             [id]: {
               state: domainInfo.state ?? null,
-              handlers: (domainInfo.info?.Handlers ?? null) as
-                | AoANTHandler[]
-                | null,
+              handlers: (domainInfo.info?.Handlers ??
+                domainInfo.info?.HandlerNames ??
+                null) as AoANTHandler[] | null,
               errors: domainInfo.errors ?? [],
             },
           },

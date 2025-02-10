@@ -114,7 +114,7 @@ function DomainSettings({
       });
 
       queryClient.invalidateQueries({
-        queryKey: ['domainInfo', data?.processId.toString(), domain],
+        queryKey: ['domainInfo', domain],
         refetchType: 'all',
       });
       queryClient.invalidateQueries({
@@ -248,6 +248,7 @@ function DomainSettings({
           ),
           [DomainSettingsRowTypes.IO_COMPATIBLE]: (
             <IOCompatibleRow
+              domain={domain}
               antId={data?.processId?.toString()}
               editable={data?.state ? isAuthorized : true}
               requiresUpdate={

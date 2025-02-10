@@ -21,6 +21,22 @@ export async function dispatchANTUpdate({
   aoNetwork: typeof NETWORK_DEFAULTS.AO;
 }) {
   try {
+    queryClient.resetQueries({
+      queryKey: ['domainInfo', processId],
+      exact: false,
+    });
+    queryClient.resetQueries({
+      queryKey: ['ant', processId],
+      exact: false,
+    });
+    queryClient.resetQueries({
+      queryKey: ['ant-info', processId],
+      exact: false,
+    });
+    dispatch({
+      type: 'setLoading',
+      payload: true,
+    });
     dispatch({
       type: 'addAnts',
       payload: {
@@ -31,24 +47,16 @@ export async function dispatchANTUpdate({
         },
       },
     });
-    dispatch({
-      type: 'setLoading',
-      payload: true,
-    });
-    queryClient.resetQueries({ queryKey: ['domainInfo', processId] });
-    queryClient.resetQueries({
-      queryKey: ['ant', processId],
-    });
-    queryClient.resetQueries({
-      queryKey: ['ant-info', processId],
-    });
 
-    const domainInfo = await queryClient.fetchQuery(
-      buildDomainInfoQuery({
-        antId: processId,
-        aoNetwork,
-      }),
-    );
+    const domainInfo = await queryClient
+      .fetchQuery(
+        buildDomainInfoQuery({
+          antId: processId,
+          aoNetwork,
+        }),
+      )
+      .catch((e) => console.error(e));
+    if (!domainInfo) throw new Error('Unable to fetch domain info');
     dispatch({
       type: 'addAnts',
       payload: {
