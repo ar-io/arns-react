@@ -1,8 +1,7 @@
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
-import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
-import { VALIDATION_INPUT_TYPES } from '@src/types';
-import { isArweaveTransactionID } from '@src/utils';
+import { AoAddress, VALIDATION_INPUT_TYPES } from '@src/types';
+import { isArweaveTransactionID, isValidAoAddress } from '@src/utils';
 import { Collapse, Space } from 'antd';
 import { useState } from 'react';
 
@@ -13,17 +12,18 @@ import './styles.css';
 const Panel = Collapse.Panel;
 
 function UserAddress() {
-  const [{ arweaveDataProvider }] = useGlobalState();
   const [{ wallet, walletAddress }, dispatchWalletState] = useWalletState();
   const [newUserAddress, setNewWalletAddress] = useState<string>(
     walletAddress?.toString() ?? '',
   );
   const [isValidAddress, setIsValidAddress] = useState<boolean>();
   function confirmSetting(id: string) {
-    if (isArweaveTransactionID(id)) {
+    if (isValidAoAddress(id)) {
       dispatchWalletState({
         type: 'setWalletAddress',
-        payload: new ArweaveTransactionID(id),
+        payload: isArweaveTransactionID(id)
+          ? new ArweaveTransactionID(id)
+          : (id as AoAddress),
       });
     }
   }
@@ -103,13 +103,11 @@ function UserAddress() {
                   setIsValidAddress(validity)
                 }
                 validationPredicates={{
-                  [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
-                    fn: (id: string) =>
-                      arweaveDataProvider.validateArweaveId(id),
-                  },
-                  [VALIDATION_INPUT_TYPES.ARWEAVE_ADDRESS]: {
-                    fn: (id: string) =>
-                      arweaveDataProvider.validateArweaveAddress(id),
+                  [VALIDATION_INPUT_TYPES.AO_ADDRESS]: {
+                    fn: async (id: string) => {
+                      if (!isValidAoAddress(id))
+                        throw new Error('not a valid id');
+                    },
                     required: false,
                   },
                 }}

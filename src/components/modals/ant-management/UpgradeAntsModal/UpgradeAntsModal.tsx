@@ -6,7 +6,12 @@ import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
-import { useArNSState, useGlobalState, useWalletState } from '@src/state';
+import {
+  dispatchArNSUpdate,
+  useArNSState,
+  useGlobalState,
+  useWalletState,
+} from '@src/state';
 import {
   doAntsRequireUpdate,
   formatForMaxCharCount,
@@ -30,7 +35,7 @@ function UpgradeAntsModal({
   visible: boolean;
   setVisible: (visible: boolean) => void;
 }) {
-  const [{ aoClient }] = useGlobalState();
+  const [{ aoClient, aoNetwork, arioProcessId }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const [accepted, setAccepted] = useState(false);
   const [antsToUpgrade, setAntsToUpgrade] = useState<string[]>([]);
@@ -89,7 +94,7 @@ function UpgradeAntsModal({
         });
         queryClient.invalidateQueries(
           {
-            queryKey: ['handlers'],
+            queryKey: ['domainInfo', antId],
             refetchType: 'all',
             exact: false,
           },
@@ -123,7 +128,12 @@ function UpgradeAntsModal({
     } catch (error) {
       eventEmitter.emit('error', error);
     } finally {
-      dispatchArNSState({ type: 'refresh', payload: walletAddress! });
+      dispatchArNSUpdate({
+        dispatch: dispatchArNSState,
+        walletAddress: walletAddress!,
+        arioProcessId: arioProcessId,
+        aoNetworkSettings: aoNetwork,
+      });
       handleClose();
     }
   }

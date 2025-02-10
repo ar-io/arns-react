@@ -1,142 +1,183 @@
 import {
-  ANT,
   ANTRegistry,
   ANT_REGISTRY_ID,
   AOProcess,
+  ARIO,
   AoANTHandler,
-  AoANTState,
-  AoClient,
-  ArNSEventEmitter,
+  AoARIORead,
+  AoArNSNameData,
 } from '@ar.io/sdk/web';
+import { connect } from '@permaweb/aoconnect';
 import { captureException } from '@sentry/react';
+import { buildDomainInfoQuery } from '@src/hooks/useDomainInfo';
 import { AoAddress } from '@src/types';
 import { NETWORK_DEFAULTS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { queryClient } from '@src/utils/network';
-import { Tag } from 'arweave/node/lib/transaction';
+import { pLimit } from 'plimit-lit';
 import { Dispatch } from 'react';
 
 import { ArNSAction } from '../reducers/ArNSReducer';
 
-export function dispatchArNSUpdate({
-  emitter,
+// TODO: pass in network config instead of separate AoClients
+export async function dispatchArNSUpdate({
   dispatch,
   walletAddress,
   arioProcessId,
-  ao,
-  antAo,
   aoNetworkSettings,
 }: {
-  emitter: ArNSEventEmitter;
   dispatch: Dispatch<ArNSAction>;
   walletAddress: AoAddress;
   arioProcessId: string;
-  ao: AoClient;
-  antAo: AoClient;
   aoNetworkSettings: typeof NETWORK_DEFAULTS.AO;
 }) {
-  dispatch({ type: 'setDomains', payload: {} });
-  dispatch({ type: 'setAnts', payload: {} });
-  dispatch({ type: 'setPercentLoaded', payload: 0 });
-  dispatch({ type: 'setAntCount', payload: 0 });
-  dispatch({
-    type: 'setLoading',
-    payload: true,
-  });
-  emitter.on('process', async (id, process) => {
-    const handlers = await queryClient.fetchQuery({
-      queryKey: ['handlers', id, aoNetworkSettings.ANT],
-      queryFn: async () => {
-        // validate transfer supports eth addresses and single char undername fix and max ttl
-        const drySetRecordRes = await antAo
-          .dryrun({
-            process: id,
-            Owner: walletAddress.toString(),
-            From: walletAddress.toString(),
-            tags: [
-              { name: 'Action', value: 'Set-Record' },
-              { name: 'Sub-Domain', value: 'a' },
-              { name: 'Transaction-Id', value: 'test-'.padEnd(43, '1') },
-              { name: 'TTL-Seconds', value: '86400' },
-            ],
-          })
-          .catch(() => {
-            return {} as ReturnType<typeof ao.dryrun>;
-          });
+  try {
+    const ao = connect(aoNetworkSettings.ARIO);
+    const throttle = pLimit(20);
+    // reset queries
+    queryClient.resetQueries({ queryKey: ['domainInfo'] });
+    queryClient.resetQueries({
+      queryKey: ['ant'],
+    });
+    queryClient.resetQueries({
+      queryKey: ['ant-info'],
+    });
 
-        const hasError =
-          drySetRecordRes.Messages.find((msg) => {
-            return msg.Tags.find((t: Tag) => t.name === 'Error');
-          }) !== undefined;
+    dispatch({ type: 'reset' });
+    dispatch({
+      type: 'setLoading',
+      payload: true,
+    });
+    const arioContract = ARIO.init({
+      process: new AOProcess({ processId: arioProcessId, ao }),
+    }) as AoARIORead;
+    const antRegistry = ANTRegistry.init({
+      process: new AOProcess({
+        processId: ANT_REGISTRY_ID,
+        ao: connect(aoNetworkSettings.ANT),
+      }),
+    });
+    // TODO: we should paginate or send a filter by process ID on the network process for the records we want
+    const [arnsRecords, allUserAnts] = await Promise.all([
+      arioContract.getArNSRecords({ limit: 100_000 }),
+      antRegistry.accessControlList({ address: walletAddress.toString() }),
+    ]);
 
-        if (hasError) {
-          return [] as AoANTHandler[];
+    const flatAntIds = new Set([
+      ...allUserAnts.Controlled,
+      ...allUserAnts.Owned,
+    ]);
+
+    const userDomains = arnsRecords.items.reduce(
+      (acc: Record<string, AoArNSNameData>, recordData) => {
+        const { name, ...record } = recordData;
+        if (flatAntIds.has(record.processId)) {
+          acc[name] = record;
         }
-
-        return await ANT.init({
-          process: new AOProcess({ processId: id, ao: antAo }),
-        })
-          .getHandlers()
-          .catch((e) => {
-            console.error(e);
-            return null;
-          });
+        return acc;
       },
-    });
+      {},
+    );
+
+    // ONLY QUERY FOR ANTS THAT WE ARE INTERESTED IN, EG REGISTERED ANTS
+    const registeredUserAnts = Array.from(
+      new Set(Object.values(userDomains).map((record) => record.processId)),
+    );
 
     dispatch({
-      type: 'addDomains',
-      payload: process.names,
+      type: 'setDomains',
+      payload: userDomains,
     });
+
+    // we set the default states to null so that they can match up in the tables
     dispatch({
-      type: 'addAnts',
-      payload: {
-        [id]: { state: process.state as AoANTState, handlers: handlers ?? [] },
-      },
-    });
-  });
-  emitter.on('progress', (itemIndex, totalIds) => {
-    dispatch({
-      type: 'incrementAntCount',
-    });
-    dispatch({
-      type: 'setPercentLoaded',
-      payload: totalIds,
-    });
-  });
-  const errorHandler = (e: string) => {
-    if (e.startsWith('Error getting ArNS records')) {
-      eventEmitter.emit('network:ao:congested', true);
-      eventEmitter.emit(
-        'error',
-        new Error('Unable to load ArNS records. Please refresh to try again.'),
-      );
-      dispatch({
-        type: 'setLoading',
-        payload: false,
-      });
-      dispatch({
-        type: 'setPercentLoaded',
-        payload: undefined,
-      });
-    } else if (e.includes('Timeout')) {
-      eventEmitter.emit('network:ao:congested', true);
-      // capture and report the exception, but do not emit error notification
-      captureException(new Error(e), {
-        tags: {
-          walletAddress: walletAddress.toString(),
-          arioProcessId: arioProcessId,
+      type: 'setAnts',
+      payload: [...flatAntIds].reduce(
+        (acc: Record<string, { state: null; handlers: null }>, id: string) => {
+          acc[id] = { state: null, handlers: null };
+          return acc;
         },
-      });
-    } else if (!e.includes('does not support provided action.')) {
-      eventEmitter.emit('error', new Error(e));
-    }
-  };
-  // error listener handles timeout
-  emitter.on('error', errorHandler);
-  // arns:error listener handles errors from graphql communications
-  emitter.on('arns:error', errorHandler);
-  emitter.on('end', () => {
+        {},
+      ),
+    });
+
+    // Can be useDomainInfo fetch here (from ant id, not domain)
+    const fetchAntDetails = async (id: string) => {
+      try {
+        const domainInfo = await queryClient.fetchQuery(
+          buildDomainInfoQuery({
+            antId: id,
+            aoNetwork: aoNetworkSettings,
+          }),
+        );
+        dispatch({
+          type: 'addAnts',
+          payload: {
+            [id]: {
+              state: domainInfo.state ?? null,
+              handlers: (domainInfo.info?.Handlers ??
+                domainInfo.info?.HandlerNames ??
+                null) as AoANTHandler[] | null,
+              errors: domainInfo.errors ?? [],
+            },
+          },
+        });
+      } catch (error: any) {
+        const errorHandler = (e: string) => {
+          if (e.startsWith('Error getting ArNS records')) {
+            eventEmitter.emit('network:ao:congested', true);
+            eventEmitter.emit(
+              'error',
+              new Error(
+                'Unable to load ArNS records. Please refresh to try again.',
+              ),
+            );
+            dispatch({
+              type: 'setLoading',
+              payload: false,
+            });
+            dispatch({
+              type: 'setPercentLoaded',
+              payload: undefined,
+            });
+          } else if (e.includes('Timeout')) {
+            eventEmitter.emit('network:ao:congested', true);
+            // capture and report the exception, but do not emit error notification
+            captureException(new Error(e), {
+              tags: {
+                walletAddress: walletAddress.toString(),
+                arioProcessId: arioProcessId,
+              },
+            });
+          } else if (!e.includes('does not support provided action.')) {
+            captureException(new Error(e), {
+              tags: {
+                walletAddress: walletAddress.toString(),
+                arioProcessId: arioProcessId,
+              },
+            });
+            console.error(new Error(e));
+          }
+        };
+        errorHandler(error.message);
+      } finally {
+        dispatch({
+          type: 'incrementAntCount',
+        });
+        dispatch({
+          type: 'setPercentLoaded',
+          payload: registeredUserAnts.length,
+        });
+      }
+    };
+
+    await Promise.all(
+      registeredUserAnts.map((id) => throttle(() => fetchAntDetails(id))),
+    );
+  } catch (error) {
+    captureException(error);
+  } finally {
+    /// cleanup states
     dispatch({
       type: 'setLoading',
       payload: false,
@@ -145,19 +186,5 @@ export function dispatchArNSUpdate({
       type: 'setPercentLoaded',
       payload: undefined,
     });
-  });
-
-  emitter
-    .fetchProcessesOwnedByWallet({
-      address: walletAddress.toString(),
-      antRegistry: ANTRegistry.init({
-        process: new AOProcess({
-          processId: ANT_REGISTRY_ID,
-          ao,
-        }),
-      }),
-    })
-    .catch((e) =>
-      errorHandler('Error getting assets owned by wallet: ' + e.message),
-    );
+  }
 }

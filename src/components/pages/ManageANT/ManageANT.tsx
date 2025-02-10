@@ -69,7 +69,7 @@ function ManageANT() {
               height={'24px'}
               fill="var(--text-white)"
             />
-            {data.name ?? id}
+            {data?.name ?? id}
           </h2>
         </div>
         <div className="flex-row">

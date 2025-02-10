@@ -15,18 +15,15 @@ import { RefreshIcon, SearchIcon } from '../../icons';
 import './styles.css';
 
 function Manage() {
-  const [{ arioProcessId, aoClient, antAoClient, aoNetwork }] =
-    useGlobalState();
-  const [
-    { loading: loadingArnsState, domains, ants, arnsEmitter },
-    dispatchArNSState,
-  ] = useArNSState();
+  const [{ arioProcessId, aoNetwork }] = useGlobalState();
+  const [{ loading: loadingArnsState, domains, ants }, dispatchArNSState] =
+    useArNSState();
   const [{ walletAddress }] = useWalletState();
   const [, dispatchModalState] = useModalState();
   const [search, setSearch] = useState<string>('');
 
   return (
-    <div className="overflow-auto px-[100px] pb-[30px]">
+    <div className="overflow-auto px-[100px] pb-[30px] pt-[10px]">
       <div className="flex flex-col gap-[10px]">
         <div className="flex justify-start">
           <h1
@@ -67,7 +64,8 @@ function Manage() {
                   />
                 </div>
 
-                {walletAddress &&
+                {!loadingArnsState &&
+                  walletAddress &&
                   doAntsRequireUpdate({
                     ants,
                     userAddress: walletAddress.toString(),
@@ -90,14 +88,10 @@ function Manage() {
                     />
                   )}
                 <button
-                  disabled={loadingArnsState}
                   className={'button center pointer'}
                   onClick={() =>
                     walletAddress
                       ? dispatchArNSUpdate({
-                          ao: aoClient,
-                          antAo: antAoClient,
-                          emitter: arnsEmitter,
                           dispatch: dispatchArNSState,
                           walletAddress: walletAddress,
                           arioProcessId,

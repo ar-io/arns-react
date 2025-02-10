@@ -6,24 +6,211 @@ import {
   AoANTRecord,
   AoANTState,
   AoANTWrite,
+  AoARIORead,
   AoArNSNameData,
 } from '@ar.io/sdk/web';
+import { connect } from '@permaweb/aoconnect';
+import { captureException } from '@sentry/react';
 import { isInGracePeriod } from '@src/components/layout/Navbar/NotificationMenu/NotificationMenu';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
-import { lowerCaseDomain } from '@src/utils';
-import { buildArNSRecordsQuery, queryClient } from '@src/utils/network';
-import { RefetchOptions, useQuery } from '@tanstack/react-query';
+import { ArNSWalletConnector } from '@src/types';
+import { NETWORK_DEFAULTS } from '@src/utils/constants';
+import { ANTStateError, UpgradeRequiredError } from '@src/utils/errors';
+import {
+  buildAntStateQuery,
+  buildArNSRecordsQuery,
+  queryClient,
+} from '@src/utils/network';
+import { useQuery } from '@tanstack/react-query';
+import { Tag } from 'arweave/node/lib/transaction';
 
-/**
- * TODO: This hook is pretty gross in how it returns and types its data, needs a refactor.
- * 1. We want to return *only* the result of useQuery hook
- * 2. We want to intelligently set the stale time
- * 3. We want to calculate certain data like isInGracePeriod and other states accurately and return them accurately (eg, set the stale time to update on a timestamp so they get updated appropriately)
- * 4. We want individual cache keys for each request and leverage exist ones (we currently refetch all these when elsewhere they maybe were fetched, looking at arns records and ANT state, info, handlers)
- * 5. We want to return primary name data for the addresses associated with the domain (owner and controllers)
- * 6. We want to return the transactions history associated with the domain and ANT
- */
+export type DomainInfo = {
+  info: AoANTInfo | null;
+  arnsRecord?: AoArNSNameData;
+  associatedNames: string[];
+  processId: string;
+  antProcess: AoANTWrite | AoANTRead;
+  name: string;
+  ticker: string;
+  owner: string;
+  controllers: string[];
+  logo: string;
+  undernameCount?: number;
+  sourceCodeTxId?: string;
+  apexRecord: {
+    transactionId: string;
+    ttlSeconds: number;
+  };
+  records: Record<string, AoANTRecord>;
+  state: AoANTState | null;
+  isInGracePeriod?: boolean;
+  errors: Error[];
+};
+
+export function buildDomainInfoQuery({
+  domain,
+  antId,
+  arioContract,
+  arioProcessId,
+  aoNetwork,
+  wallet,
+}: {
+  domain?: string;
+  antId?: string;
+  arioContract?: AoARIORead;
+  arioProcessId?: string;
+  aoNetwork: typeof NETWORK_DEFAULTS.AO;
+  wallet?: ArNSWalletConnector;
+}): Parameters<typeof useQuery<DomainInfo>>[0] {
+  return {
+    // we are verbose here to enable predictable keys. Passing in the entire params as a single object can have unpredictable side effects
+    queryKey: [
+      'domainInfo',
+      domain,
+      antId,
+      arioContract,
+      arioProcessId,
+      aoNetwork,
+    ],
+    queryFn: async () => {
+      const action = 'Set-Record';
+      const errors: Error[] = [];
+      const antAo = connect(aoNetwork.ANT);
+
+      const arnsRecords =
+        domain && arioContract && arioProcessId
+          ? await queryClient.fetchQuery(
+              buildArNSRecordsQuery({
+                arioContract,
+                meta: [arioProcessId, aoNetwork.ARIO.CU_URL],
+              }),
+            )
+          : undefined;
+
+      if (!domain && !antId) {
+        throw new Error('No domain or antId provided');
+      }
+
+      const record = domain && arnsRecords ? arnsRecords[domain] : undefined;
+
+      if (!antId && !record?.processId) {
+        throw new Error('No ANT id or record found');
+      }
+      const processId = antId || record?.processId;
+      const signer = wallet?.contractSigner;
+
+      if (!processId) {
+        throw new Error('No processId found');
+      }
+
+      const antProcess = ANT.init({
+        process: new AOProcess({
+          processId,
+          ao: antAo,
+        }),
+        ...(signer !== undefined ? { signer: signer as any } : {}),
+      });
+
+      const state = await queryClient
+        .fetchQuery(buildAntStateQuery({ processId, ao: antAo }))
+        .catch((e) => {
+          captureException(e);
+          errors.push(
+            new ANTStateError(
+              e?.message ?? 'Unknown Error - Unable to fetch ANT state',
+            ),
+          );
+          return null;
+        });
+
+      const info = await queryClient.fetchQuery({
+        queryKey: ['ant-info', processId],
+        queryFn: async () => {
+          try {
+            const drySetRecordRes = await antAo
+              .dryrun({
+                process: processId,
+                Owner: state?.Owner,
+                From: state?.Owner,
+                tags: [
+                  { name: 'Action', value: action },
+                  { name: 'TTL-Seconds', value: '86400' },
+                  { name: 'Transaction-Id', value: ''.padEnd(43, '1') },
+                  { name: 'Sub-Domain', value: '1' },
+                ],
+              })
+              .catch(() => {
+                return {} as ReturnType<typeof antAo.dryrun>;
+              });
+
+            const maybeError = drySetRecordRes?.Messages?.find((msg) => {
+              return msg?.Tags?.find((t: Tag) => t.name === 'Error');
+            });
+
+            if (maybeError !== undefined) {
+              errors.push(new UpgradeRequiredError(`Affected APIs: ${action}`));
+            }
+
+            const info = await ANT.init({
+              process: new AOProcess({ processId, ao: antAo }),
+            }).getInfo();
+            if (errors.length) info.Handlers = []; // for validation on api's, in order to update ant
+            return info;
+          } catch (error: any) {
+            captureException(error);
+            errors.push(
+              new Error(error?.message ?? 'Unknown Error fetching ANT Info'),
+            );
+            return null;
+          }
+        },
+        staleTime: Infinity,
+      });
+
+      const associatedNames = arnsRecords
+        ? Object.entries(arnsRecords)
+            .filter(([, r]) => r.processId == processId.toString())
+            .map(([d]) => d)
+        : [];
+
+      const {
+        Name: name,
+        Ticker: ticker,
+        Owner: owner,
+        Controllers: controllers,
+        Records: records,
+      } = state ?? {};
+      const apexRecord = records?.['@'];
+      const undernameCount = Object.keys(records ?? {}).filter(
+        (k) => k !== '@',
+      ).length;
+
+      return {
+        info,
+        arnsRecord: record,
+        associatedNames,
+        processId,
+        antProcess,
+        name,
+        ticker,
+        owner,
+        controllers,
+        logo: state?.Logo ?? '',
+        undernameCount,
+        apexRecord,
+        records: state?.Records,
+        state,
+        errors,
+        // TODO: staletime for this hook can be configured around the endTimestamp on the record
+        isInGracePeriod: record ? isInGracePeriod(record) : false,
+      } as DomainInfo;
+    },
+    refetchOnWindowFocus: false,
+    staleTime: Infinity,
+    enabled: !!(domain || antId),
+  };
+}
 
 export default function useDomainInfo({
   domain,
@@ -31,168 +218,37 @@ export default function useDomainInfo({
 }: {
   domain?: string;
   antId?: string;
-}): {
-  data: {
-    info: AoANTInfo;
-    arnsRecord?: AoArNSNameData;
-    associatedNames?: string[];
-    processId: string;
-    antProcess: AoANTWrite | AoANTRead;
-    name: string;
-    ticker: string;
-    owner: string;
-    controllers: string[];
-    logo: string;
-    undernameCount?: number;
-    sourceCodeTxId?: string;
-    apexRecord: {
-      transactionId: string;
-      ttlSeconds: number;
-    };
-    records: Record<string, AoANTRecord>;
-    state: AoANTState;
-    isInGracePeriod: boolean;
-  };
-  isLoading: boolean;
-  error: Error | null;
-  refetch: (options?: RefetchOptions) => void;
-} {
-  const [
-    { arioContract: arioProvider, arioProcessId, aoNetwork, antAoClient },
-  ] = useGlobalState();
+}) {
+  const [{ arioContract, arioProcessId, aoNetwork }] = useGlobalState();
   const [{ wallet }] = useWalletState();
 
   // TODO: this should be modified or removed
-  const {
-    data,
-    isLoading,
-    isRefetching,
-    isFetching,
-    isPending,
-    error,
-    refetch,
-  } = useQuery({
-    queryKey: ['domainInfo', { domain, antId, arioProcessId, aoNetwork }],
-    queryFn: () => getDomainInfo({ domain, antId }).catch((error) => error),
-    refetchOnWindowFocus: false,
-    staleTime: Infinity,
-  });
-
-  async function getDomainInfo({
-    domain,
-    antId,
-  }: {
-    domain?: string;
-    antId?: string;
-  }): Promise<{
-    info: AoANTInfo;
-    arnsRecord?: AoArNSNameData;
-    associatedNames?: string[];
-    processId: string;
-    antProcess: AoANTWrite | AoANTRead;
-    name: string;
-    ticker: string;
-    owner: string;
-    controllers: string[];
-    logo: string;
-    undernameCount: number;
-    sourceCodeTxId?: string;
-    apexRecord: {
-      transactionId: string;
-      ttlSeconds: number;
-    };
-    records: Record<string, AoANTRecord>;
-    state: AoANTState;
-    isInGracePeriod: boolean;
-  }> {
-    if (!domain && !antId) {
-      throw new Error('No domain or antId provided');
-    }
-
-    const record = domain
-      ? await arioProvider.getArNSRecord({
-          name: lowerCaseDomain(domain),
-        })
-      : undefined;
-
-    if (!antId && !record?.processId) {
-      throw new Error('No ANT id or record found');
-    }
-    const processId = antId || record?.processId;
-    const signer = wallet?.contractSigner;
-
-    if (!processId) {
-      throw new Error('No processId found');
-    }
-
-    const antProcess = ANT.init({
-      process: new AOProcess({
-        processId,
-        ao: antAoClient,
-      }),
-      ...(signer !== undefined ? { signer: signer as any } : {}),
-    });
-
-    const state = await antProcess.getState();
-    if (!state) throw new Error('State not found for ANT contract');
-
-    const arnsRecords = await queryClient.fetchQuery(
-      buildArNSRecordsQuery({
-        arioContract: arioProvider,
-        meta: [arioProcessId, aoNetwork.ARIO.CU_URL],
-      }),
-    );
-    const associatedNames = Object.entries(arnsRecords)
-      .filter(([, r]) => r.processId == processId.toString())
-      .map(([d]) => d);
-
-    const {
-      Name: name,
-      Ticker: ticker,
-      Owner: owner,
-      Controllers: controllers,
-      Records: records,
-    } = state;
-    const apexRecord = records['@'];
-    const undernameCount = Object.keys(records).filter((k) => k !== '@').length;
-
-    if (!apexRecord) {
-      throw new Error('No apexRecord found');
-    }
-    const info = await antProcess.getInfo();
-
-    return {
-      info,
-      arnsRecord: record,
-      associatedNames,
-      processId,
-      antProcess,
-      name,
-      ticker,
-      owner,
-      controllers,
-      logo: state.Logo ?? '',
-      undernameCount,
-      apexRecord,
-      // TODO: remove - not used
-      sourceCodeTxId: (state as any)?.['Source-Code-TX-ID'],
-      records: state.Records,
-      state,
-      // TODO: staletime for this hook can be configured around the endTimestamp on the record
-      isInGracePeriod: record ? isInGracePeriod(record) : false,
-    };
-  }
+  const query = useQuery(
+    buildDomainInfoQuery({
+      domain,
+      antId,
+      aoNetwork,
+      arioContract,
+      arioProcessId,
+      wallet,
+    }),
+  );
 
   return {
-    data,
-    isLoading: isLoading || isRefetching || isFetching || isPending,
-    error,
+    ...query,
     refetch: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['domainInfo', { domain, antId }],
-        refetchType: 'all',
+      queryClient.resetQueries({
+        queryKey: ['domainInfo', antId],
       });
-      refetch();
+      queryClient.resetQueries({
+        queryKey: ['domainInfo', domain],
+      });
+      queryClient.resetQueries({
+        queryKey: ['ant', antId],
+      });
+      queryClient.resetQueries({
+        queryKey: ['ant-info', antId],
+      });
     },
   };
 }

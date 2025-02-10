@@ -74,6 +74,7 @@ const TableView = <T, S>({
   const table = useReactTable({
     columns,
     data,
+    autoResetPageIndex: false,
     getCoreRowModel: getCoreRowModel<T>(),
     getSortedRowModel: getSortedRowModel(), //provide a sorting row model
     getExpandedRowModel: getExpandedRowModel(),
@@ -93,6 +94,10 @@ const TableView = <T, S>({
   useEffect(() => {
     setSorting([defaultSortingState]);
   }, [defaultSortingState]);
+
+  useEffect(() => {
+    table.setPageIndex(0);
+  }, [data.length]);
 
   return (
     <>
@@ -227,20 +232,116 @@ const TableView = <T, S>({
                 />
               </span>
             </button>
-            {Array.from({ length: table.getPageCount() }, (_, i) => (
-              <button
-                key={i}
-                onClick={() => table.setPageIndex(i)}
-                disabled={i === table.getState().pagination.pageIndex}
-                className={`w-[32px] h-[32px] items-center justify-center rounded text-sm ${
-                  i === table.getState().pagination.pageIndex
-                    ? 'bg-dark-grey text-white'
-                    : 'text-grey'
-                }`}
-              >
-                {i + 1}
-              </button>
-            ))}
+
+            {table.getPageCount() <= 6 ? (
+              Array.from({ length: table.getPageCount() }, (_, i) => (
+                <button
+                  key={i}
+                  onClick={() => table.setPageIndex(i)}
+                  disabled={i === table.getState().pagination.pageIndex}
+                  className={`w-[32px] h-[32px] items-center justify-center rounded text-sm ${
+                    i === table.getState().pagination.pageIndex
+                      ? 'bg-dark-grey text-white'
+                      : 'text-grey'
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))
+            ) : (
+              <>
+                {/* First 3 pages */}
+                {Array.from({ length: 3 }, (_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => table.setPageIndex(i)}
+                    disabled={i === table.getState().pagination.pageIndex}
+                    className={`w-[32px] h-[32px] items-center justify-center rounded text-sm ${
+                      i === table.getState().pagination.pageIndex
+                        ? 'bg-dark-grey text-white'
+                        : 'text-grey'
+                    }`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+
+                {/* Only render the middle pages if the current page is not in the first 3 or last 3 */}
+                {table.getState().pagination.pageIndex >= 2 &&
+                  table.getState().pagination.pageIndex <=
+                    table.getPageCount() - 3 && (
+                    <>
+                      <span className="text-grey">...</span>
+
+                      {/* Pages around current page: 2 before, current, 2 after */}
+                      {Array.from(
+                        { length: Math.min(5, table.getPageCount() - 6) },
+                        (_, i) => {
+                          const pageCount = table.getPageCount();
+                          const minPage = 3;
+                          const maxPage = pageCount - 3;
+                          const pageIndex =
+                            Math.max(
+                              minPage,
+                              table.getState().pagination.pageIndex - 2,
+                            ) + i;
+
+                          if (
+                            pageIndex >= pageCount ||
+                            pageIndex < 0 ||
+                            pageIndex < minPage ||
+                            pageIndex >= maxPage
+                          )
+                            return null; // Prevent exceeding page count
+                          return (
+                            <button
+                              key={pageIndex}
+                              onClick={() => table.setPageIndex(pageIndex)}
+                              disabled={
+                                pageIndex ===
+                                table.getState().pagination.pageIndex
+                              }
+                              className={`w-[32px] h-[32px] items-center justify-center rounded text-sm ${
+                                pageIndex ===
+                                table.getState().pagination.pageIndex
+                                  ? 'bg-dark-grey text-white'
+                                  : 'text-grey'
+                              }`}
+                            >
+                              {pageIndex + 1}
+                            </button>
+                          );
+                        },
+                      )}
+                    </>
+                  )}
+
+                <span className="text-grey">...</span>
+
+                {/* Last 3 pages */}
+                {Array.from({ length: 3 }, (_, i) => (
+                  <button
+                    key={table.getPageCount() - 3 + i}
+                    onClick={() =>
+                      table.setPageIndex(table.getPageCount() - 3 + i)
+                    }
+                    disabled={
+                      table.getPageCount() - 3 + i ===
+                      table.getState().pagination.pageIndex
+                    }
+                    className={`w-[32px] h-[32px] items-center justify-center rounded text-sm ${
+                      table.getPageCount() - 3 + i ===
+                      table.getState().pagination.pageIndex
+                        ? 'bg-dark-grey text-white'
+                        : 'text-grey'
+                    }`}
+                  >
+                    {table.getPageCount() - 3 + i + 1}
+                  </button>
+                ))}
+              </>
+            )}
+
             <button
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}

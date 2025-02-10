@@ -58,7 +58,7 @@ export function TransactionStateProvider({
   );
 
   const queryClient = useQueryClient();
-  const [{ antAoClient }] = useGlobalState();
+  const [{ aoNetwork }] = useGlobalState();
   const [walletState] = useWalletState();
   const [, dispatchArNSState] = useArNSState();
 
@@ -92,7 +92,7 @@ export function TransactionStateProvider({
         processId: state.interactionResult?.processId,
         walletAddress: walletState.walletAddress,
         dispatch: dispatchArNSState,
-        ao: antAoClient,
+        aoNetwork,
       });
     }
   }, [state.interactionResult, queryClient, walletState]);

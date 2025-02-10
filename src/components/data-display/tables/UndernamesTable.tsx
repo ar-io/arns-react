@@ -87,7 +87,7 @@ const UndernamesTable = ({
   isLoading,
 }: {
   undernames: Record<string, AoANTRecord>;
-  info?: AoANTInfo;
+  info?: AoANTInfo | null;
   isLoading?: boolean;
   arnsDomain?: string;
   antId?: string;

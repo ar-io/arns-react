@@ -21,7 +21,14 @@ import { useWalletState } from './WalletState';
 
 export type ArNSState = {
   domains: Record<string, AoArNSNameData>;
-  ants: Record<string, { state: AoANTState; handlers: AoANTHandler[] }>;
+  ants: Record<
+    string,
+    {
+      state: AoANTState | null;
+      handlers: AoANTHandler[] | null;
+      errors?: Error[];
+    }
+  >;
   loading: boolean;
   percentLoaded: number;
   antCount: number;
@@ -62,7 +69,7 @@ export function ArNSStateProvider({
   reducer,
   children,
 }: ArNSStateProviderProps): JSX.Element {
-  const [{ arioContract, arioProcessId, aoClient, antAoClient, aoNetwork }] =
+  const [{ arioContract, arioProcessId, antAoClient, aoNetwork }] =
     useGlobalState();
   const [state, dispatchArNSState] = useReducer(reducer, initialArNSState);
   const [{ walletAddress }] = useWalletState();
@@ -82,15 +89,12 @@ export function ArNSStateProvider({
   useEffect(() => {
     if (!walletAddress) return;
     dispatchArNSUpdate({
-      ao: aoClient,
-      antAo: antAoClient,
       dispatch: dispatchArNSState,
-      emitter: state.arnsEmitter,
       walletAddress: walletAddress,
       arioProcessId: arioProcessId,
       aoNetworkSettings: aoNetwork,
     });
-  }, [walletAddress, state.arnsEmitter]);
+  }, [walletAddress, aoNetwork, arioProcessId]);
 
   return (
     <ArNSStateContext.Provider value={[state, dispatchArNSState]}>

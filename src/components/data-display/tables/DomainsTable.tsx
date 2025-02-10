@@ -4,7 +4,12 @@ import {
   AoArNSNameData,
   isLeasedArNSRecord,
 } from '@ar.io/sdk';
-import { ChevronRightIcon, ExternalLinkIcon } from '@src/components/icons';
+import ErrorsTip from '@src/components/Tooltips/ErrorsTip';
+import {
+  ChevronRightIcon,
+  ExternalLinkIcon,
+  RefreshIcon,
+} from '@src/components/icons';
 import ManageAssetButtons from '@src/components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
 import { Loader } from '@src/components/layout';
 import ArweaveID, {
@@ -13,11 +18,13 @@ import ArweaveID, {
 import UpgradeAntModal from '@src/components/modals/ant-management/UpgradeAntModal/UpgradeAntModal';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import {
+  useArNSState,
   useGlobalState,
   useModalState,
   useTransactionState,
   useWalletState,
 } from '@src/state';
+import { dispatchANTUpdate } from '@src/state/actions/dispatchANTUpdate';
 import {
   camelToReadable,
   decodeDomainToASCII,
@@ -34,6 +41,8 @@ import {
   NETWORK_DEFAULTS,
   PERMANENT_DOMAIN_MESSAGE,
 } from '@src/utils/constants';
+import { ANTStateError, UpgradeRequiredError } from '@src/utils/errors';
+import { useQueryClient } from '@tanstack/react-query';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { capitalize } from 'lodash';
 import { CircleCheck, Star } from 'lucide-react';
@@ -42,7 +51,7 @@ import { ReactNode } from 'react-markdown';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { Tooltip } from '..';
-import RegistrationTip from '../RegistrationTip';
+import RegistrationTip from '../../Tooltips/RegistrationTip';
 import TableView from './TableView';
 import UndernamesSubtable from './UndernamesSubtable';
 
@@ -52,14 +61,15 @@ type TableData = {
   role: string;
   processId: string;
   targetId: string;
-  ioCompatible?: boolean;
+  ioCompatible?: boolean | ANTStateError | string;
   undernames: {
     used: number;
     supported: number;
   };
   expiryDate: string;
-  handlers: AoANTHandler[];
-  status: string | number;
+  handlers: AoANTHandler[] | null;
+  antErrors: Error[];
+  status: string | number | Error[];
   action: ReactNode;
 } & Record<string, any>;
 
@@ -105,15 +115,24 @@ const DomainsTable = ({
 }: {
   domainData: {
     names: Record<string, AoArNSNameData>;
-    ants: Record<string, { state: AoANTState; handlers: AoANTHandler[] }>;
+    ants: Record<
+      string,
+      {
+        state: AoANTState | null;
+        handlers: AoANTHandler[] | null;
+        errors?: Error[];
+      }
+    >;
   };
   loading: boolean;
   filter?: string;
 }) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const queryClient = useQueryClient();
   const [{ walletAddress }] = useWalletState();
-  const [{ arioProcessId }] = useGlobalState();
+  const [{ arioProcessId, aoNetwork }] = useGlobalState();
+  const [, dispatchArNSState] = useArNSState();
   const [, dispatchModalState] = useModalState();
   const [, dispatchTransactionState] = useTransactionState();
   const { data: primaryNameData } = usePrimaryName();
@@ -132,18 +151,14 @@ const DomainsTable = ({
   }, [searchParams]);
 
   useEffect(() => {
-    if (loading) {
-      setTableData([]);
-      setFilteredTableData([]);
-      return;
-    }
     if (domainData) {
       const newTableData: TableData[] = [];
 
       Object.entries(domainData.names).map(([domain, record]) => {
         const ant = domainData.ants[record.processId];
-        const isIoCompatible =
-          walletAddress && ant?.state && record?.processId
+        const ioCompatible =
+          ant?.errors?.find((e) => e instanceof ANTStateError) ??
+          (walletAddress && ant?.state && record?.processId
             ? !doAntsRequireUpdate({
                 ants: {
                   [record.processId]: {
@@ -153,7 +168,7 @@ const DomainsTable = ({
                 },
                 userAddress: walletAddress.toString(),
               })
-            : false;
+            : false);
 
         const data: TableData = {
           openRow: <></>,
@@ -166,7 +181,7 @@ const DomainsTable = ({
             ) ?? 'N/A',
           processId: record.processId,
           targetId: ant?.state?.Records?.['@']?.transactionId ?? 'N/A',
-          ioCompatible: isIoCompatible,
+          ioCompatible,
           undernames: {
             used:
               Object.keys(ant?.state?.Records ?? {}).filter(
@@ -175,7 +190,9 @@ const DomainsTable = ({
             supported: record.undernameLimit,
           },
           expiryDate: (record as any).endTimestamp ?? PERMANENT_DOMAIN_MESSAGE,
-          status: isLeasedArNSRecord(record)
+          status: ant?.errors?.length
+            ? ant.errors
+            : isLeasedArNSRecord(record)
             ? record.endTimestamp
             : PERMANENT_DOMAIN_MESSAGE,
           action: <></>,
@@ -183,6 +200,7 @@ const DomainsTable = ({
           antRecords: ant?.state?.Records,
           domainRecord: record,
           handlers: ant.handlers,
+          antErrors: ant.errors ?? [],
         };
         newTableData.push(data);
       });
@@ -232,13 +250,27 @@ const DomainsTable = ({
                 rowA.original.undernames.used - rowB.original.undernames.used
               );
             }
+          : key == 'ioCompatible'
+          ? (rowA) => {
+              return typeof rowA.original.ioCompatible === 'boolean' &&
+                rowA.original.ioCompatible === true
+                ? 1
+                : 0;
+            }
           : 'alphanumeric',
       cell: ({ row }) => {
+        const antHandlers = row.original.handlers;
+        const antErrors = row.original.antErrors;
+        const processId = row.original.processId;
         const rowValue = row.getValue(key) as any;
+
         if (rowValue === undefined || rowValue === null) {
           return '';
         }
-        const antHandlers = row.original.handlers;
+
+        if (loading && (rowValue === 'N/A' || rowValue instanceof Error)) {
+          return <span className="animate-pulse text-white">Loading...</span>;
+        }
         switch (key) {
           case 'openRow': {
             return (
@@ -270,7 +302,7 @@ const DomainsTable = ({
                 }
                 icon={
                   <Link
-                    className="link gap-2 w-fit"
+                    className="link gap-2 w-fit whitespace-nowrap"
                     to={`https://${encodeDomainToASCII(row.getValue('name'))}.${
                       NETWORK_DEFAULTS.ARNS.HOST
                     }`}
@@ -312,22 +344,61 @@ const DomainsTable = ({
             );
           }
           case 'ioCompatible': {
-            return rowValue ? (
-              <CircleCheck className="text-success w-[16px]" />
+            if (rowValue instanceof ANTStateError && walletAddress) {
+              return (
+                <button
+                  className="flex whitespace-nowrap justify-center align-center gap-2 text-center"
+                  onClick={async () => {
+                    await dispatchANTUpdate({
+                      processId,
+                      aoNetwork,
+                      queryClient,
+                      walletAddress,
+                      dispatch: dispatchArNSState,
+                    });
+                    queryClient.resetQueries({
+                      queryKey: [
+                        'domainInfo',
+                        lowerCaseDomain(row.original.name),
+                      ],
+                    });
+                  }}
+                >
+                  Retry
+                  <RefreshIcon
+                    height={16}
+                    width={16}
+                    fill="var(--text-white)"
+                  />
+                </button>
+              );
+            }
+            return row.original.antErrors.find(
+              (e) => e instanceof UpgradeRequiredError,
+            ) ? (
+              <ErrorsTip
+                errors={antErrors.filter(
+                  (e) => e instanceof UpgradeRequiredError,
+                )}
+                icon={
+                  <button
+                    onClick={() => {
+                      setAntIdToUpgrade(processId);
+                      setShowUpgradeAntModal(true);
+                    }}
+                    className="p-[4px] px-[8px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all whitespace-nowrap"
+                  >
+                    Update
+                  </button>
+                }
+              />
             ) : (
-              <button
-                onClick={() => {
-                  setAntIdToUpgrade(row.getValue('processId'));
-                  setShowUpgradeAntModal(true);
-                }}
-                className="p-[4px] px-[8px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all whitespace-nowrap"
-              >
-                Update
-              </button>
+              <CircleCheck className="text-success w-[16px]" />
             );
           }
           case 'undernames': {
             const { used, supported } = rowValue as Record<string, number>;
+
             return (
               <Tooltip
                 tooltipOverrides={{
@@ -373,7 +444,9 @@ const DomainsTable = ({
                 }
                 icon={
                   <Link
-                    className={`${used >= supported ? 'text-warning' : 'link'}`}
+                    className={`${
+                      used >= supported ? 'text-warning' : 'link'
+                    } max-w-fit`}
                     to={`/manage/names/${row.getValue(
                       'name',
                     )}/upgrade-undernames`}
@@ -406,6 +479,13 @@ const DomainsTable = ({
             );
           }
           case 'status': {
+            if (Array.isArray(rowValue) && rowValue.length > 0) {
+              return (
+                <span>
+                  <ErrorsTip errors={rowValue} />
+                </span>
+              );
+            }
             return (
               <span>
                 <RegistrationTip
