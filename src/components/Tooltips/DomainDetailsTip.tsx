@@ -5,10 +5,10 @@ import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID
 import { decodeDomainToASCII, isArweaveTransactionID } from '@src/utils';
 import { ReactNode } from 'react';
 
-import { Tooltip } from '.';
+import { Tooltip } from '../data-display';
+import LeaseDurationFromEndTimestamp from '../data-display/LeaseDurationFromEndTimestamp';
 import { Loader } from '../layout';
 import ArweaveID, { ArweaveIdTypes } from '../layout/ArweaveID/ArweaveID';
-import LeaseDurationFromEndTimestamp from './LeaseDurationFromEndTimestamp';
 
 function DomainDetailsTip({
   domain,

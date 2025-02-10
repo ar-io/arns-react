@@ -1,5 +1,5 @@
+import { buildDomainInfoQuery } from '@src/hooks/useDomainInfo';
 import { useGlobalState } from '@src/state';
-import { buildAntStateQuery } from '@src/utils/network';
 import { useQueryClient } from '@tanstack/react-query';
 import { Tooltip } from 'antd';
 import { useEffect, useState } from 'react';
@@ -24,7 +24,7 @@ export type NavItem = {
 export const ANT_FLAG = 'ant-flag';
 
 function Breadcrumbs() {
-  const [{ gateway, aoNetwork, antAoClient }] = useGlobalState();
+  const [{ aoNetwork }] = useGlobalState();
   const queryClient = useQueryClient();
   const location = useLocation();
   const path = location.pathname.split('/');
@@ -59,14 +59,13 @@ function Breadcrumbs() {
         });
       // check for ant flag
       if (isArweaveTransactionID(processId)) {
-        const state = await queryClient.fetchQuery(
-          buildAntStateQuery({
-            processId,
-            meta: [gateway, aoNetwork.ANT.CU_URL],
-            ao: antAoClient,
+        const domainInfo = await queryClient.fetchQuery(
+          buildDomainInfoQuery({
+            antId: processId,
+            aoNetwork,
           }),
         );
-        const name = state?.Name;
+        const name = domainInfo?.name;
 
         const parsedCrumbs = rawCrumbs[0].map((crumb: NavItem) => {
           if (crumb.name == ANT_FLAG) {

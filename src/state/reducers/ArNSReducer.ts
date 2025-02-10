@@ -14,11 +14,25 @@ export type ArNSAction =
   | { type: 'addDomains'; payload: Record<string, AoArNSNameData> }
   | {
       type: 'setAnts';
-      payload: Record<string, { state: AoANTState; handlers: AoANTHandler[] }>;
+      payload: Record<
+        string,
+        {
+          state: AoANTState | null;
+          handlers: AoANTHandler[] | null;
+          errors?: Error[];
+        }
+      >;
     }
   | {
       type: 'addAnts';
-      payload: Record<string, { state: AoANTState; handlers: AoANTHandler[] }>;
+      payload: Record<
+        string,
+        {
+          state: AoANTState | null;
+          handlers: AoANTHandler[] | null;
+          errors?: Error[];
+        }
+      >;
     }
   | { type: 'setAntCount'; payload: number }
   | { type: 'incrementAntCount' }

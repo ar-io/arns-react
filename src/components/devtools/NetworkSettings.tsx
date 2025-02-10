@@ -30,13 +30,11 @@ function NetworkSettings() {
   const [validGateway, setValidGateway] = useState<boolean>(true);
 
   const [newARIOCuUrl, setNewARIOCuUrl] = useState<string>(
-    NETWORK_DEFAULTS.AO.ARIO.CU_URL,
+    aoNetwork.ARIO.CU_URL,
   );
   const [validARIOCuUrl, setValidARIOCuUrl] = useState<boolean>(true);
 
-  const [newANTCuUrl, setNewANTCuUrl] = useState<string>(
-    NETWORK_DEFAULTS.AO.ANT.CU_URL,
-  );
+  const [newANTCuUrl, setNewANTCuUrl] = useState<string>(aoNetwork.ANT.CU_URL);
   const [validANTCuUrl, setValidANTCuUrl] = useState<boolean>(true);
 
   const [newMuUrl, setNewMuUrl] = useState<string>(

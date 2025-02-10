@@ -7,9 +7,11 @@ import DomainSettingsRow from './DomainSettingsRow';
 
 export default function IOCompatibleRow({
   editable,
+  domain,
   antId,
   requiresUpdate,
 }: {
+  domain?: string;
   antId?: string;
   requiresUpdate: boolean;
   editable: boolean;
@@ -49,6 +51,7 @@ export default function IOCompatibleRow({
       />
       {antId && (
         <UpgradeAntModal
+          domain={domain}
           antId={antId}
           visible={showUpgradeAntModal}
           setVisible={(b: boolean) => setShowUpgradeAntModal(b)}
