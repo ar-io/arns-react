@@ -1,4 +1,4 @@
-import { AoANTHandler, AoANTRecord } from '@ar.io/sdk';
+import { AoANTHandler, AoANTRecord, AoANTState } from '@ar.io/sdk';
 import { ExternalLinkIcon, PencilIcon } from '@src/components/icons';
 import ArweaveID, {
   ArweaveIdTypes,
@@ -47,14 +47,19 @@ const UndernamesSubtable = ({
   arnsDomain,
   antId,
   handlers,
+  state,
 }: {
   undernames: Record<string, AoANTRecord>;
   arnsDomain: string;
   handlers?: AoANTHandler[] | null;
   antId: string;
+  state?: AoANTState | null;
 }) => {
   const [{ arioProcessId, antAoClient }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
+  const isOwner = walletAddress
+    ? state?.Owner === walletAddress?.toString()
+    : false;
   const [, dispatchTransactionState] = useTransactionState();
   const [, dispatchModalState] = useModalState();
   const { data: primaryNameData } = usePrimaryName();
@@ -80,72 +85,74 @@ const UndernamesSubtable = ({
             ttlSeconds: record.ttlSeconds,
             action: (
               <span className="flex justify-end pr-3 gap-3">
-                <Tooltip
-                  message={
-                    !arnsDomain
-                      ? 'Loading...'
-                      : !handlers?.includes('approvePrimaryName') ||
-                        !handlers?.includes('removePrimaryNames')
-                      ? 'Update ANT to access Primary Names workflow'
-                      : primaryNameData?.name ===
-                        encodePrimaryName(undername + '_' + arnsDomain)
-                      ? 'Remove Primary Name'
-                      : 'Set Primary Name'
-                  }
-                  icon={
-                    <button
-                      disabled={
-                        !handlers?.includes('approvePrimaryName') ||
-                        !handlers?.includes('removePrimaryNames')
-                      }
-                      onClick={() => {
-                        if (!arnsDomain || !antId) return;
-                        const targetName = encodePrimaryName(
-                          undername + '_' + arnsDomain,
-                        );
-                        if (primaryNameData?.name === targetName) {
-                          // remove primary name payload
-                          dispatchTransactionState({
-                            type: 'setTransactionData',
-                            payload: {
-                              names: [targetName],
-                              arioProcessId,
-                              assetId: antId,
-                              functionName: 'removePrimaryNames',
-                            },
-                          });
-                        } else {
-                          dispatchTransactionState({
-                            type: 'setTransactionData',
-                            payload: {
-                              name: targetName,
-                              arioProcessId,
-                              assetId: arioProcessId,
-                              functionName: 'primaryNameRequest',
-                            },
-                          });
+                {isOwner && (
+                  <Tooltip
+                    message={
+                      !arnsDomain
+                        ? 'Loading...'
+                        : !handlers?.includes('approvePrimaryName') ||
+                          !handlers?.includes('removePrimaryNames')
+                        ? 'Update ANT to access Primary Names workflow'
+                        : primaryNameData?.name ===
+                          encodePrimaryName(undername + '_' + arnsDomain)
+                        ? 'Remove Primary Name'
+                        : 'Set Primary Name'
+                    }
+                    icon={
+                      <button
+                        disabled={
+                          !handlers?.includes('approvePrimaryName') ||
+                          !handlers?.includes('removePrimaryNames')
                         }
+                        onClick={() => {
+                          if (!arnsDomain || !antId) return;
+                          const targetName = encodePrimaryName(
+                            undername + '_' + arnsDomain,
+                          );
+                          if (primaryNameData?.name === targetName) {
+                            // remove primary name payload
+                            dispatchTransactionState({
+                              type: 'setTransactionData',
+                              payload: {
+                                names: [targetName],
+                                arioProcessId,
+                                assetId: antId,
+                                functionName: 'removePrimaryNames',
+                              },
+                            });
+                          } else {
+                            dispatchTransactionState({
+                              type: 'setTransactionData',
+                              payload: {
+                                name: targetName,
+                                arioProcessId,
+                                assetId: arioProcessId,
+                                functionName: 'primaryNameRequest',
+                              },
+                            });
+                          }
 
-                        dispatchModalState({
-                          type: 'setModalOpen',
-                          payload: { showPrimaryNameModal: true },
-                        });
-                      }}
-                    >
-                      <Star
-                        className={
-                          (encodePrimaryName(undername + '_' + arnsDomain) ==
-                          primaryNameData?.name
-                            ? 'text-primary fill-primary'
-                            : 'text-grey') +
-                          ` 
+                          dispatchModalState({
+                            type: 'setModalOpen',
+                            payload: { showPrimaryNameModal: true },
+                          });
+                        }}
+                      >
+                        <Star
+                          className={
+                            (encodePrimaryName(undername + '_' + arnsDomain) ==
+                            primaryNameData?.name
+                              ? 'text-primary fill-primary'
+                              : 'text-grey') +
+                            ` 
                     w-[18px]
                     `
-                        }
-                      />
-                    </button>
-                  }
-                />
+                          }
+                        />
+                      </button>
+                    }
+                  />
+                )}
                 <button
                   className="fill-grey hover:fill-white"
                   onClick={() => {

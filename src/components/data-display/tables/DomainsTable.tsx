@@ -649,6 +649,9 @@ const DomainsTable = ({
               arnsDomain={row.getValue('name')}
               antId={row.getValue('processId')}
               handlers={row.original.handlers}
+              state={
+                domainData.ants?.[row.getValue('processId') as string]?.state
+              }
             />
           )}
           tableClass="border-[1px] border-dark-grey"
