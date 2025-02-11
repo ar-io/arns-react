@@ -3,8 +3,8 @@ import {
   isLeasedArNSRecord,
   mARIOToken,
 } from '@ar.io/sdk/web';
+import { useCostDetails } from '@src/hooks/useCostDetails';
 import useDomainInfo from '@src/hooks/useDomainInfo';
-import { useTokenCost } from '@src/hooks/useTokenCost';
 import Lottie from 'lottie-react';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -38,8 +38,8 @@ import TransactionCost from '../TransactionCost/TransactionCost';
 function ExtendLease() {
   // TODO: remove use of source contract
   const [{ arioTicker, arioProcessId }] = useGlobalState();
-  const [{ balances }] = useWalletState();
-  const ioBalance = balances[arioTicker] ?? 0;
+  const [{ walletAddress }] = useWalletState();
+
   const [, dispatchTransactionState] = useTransactionState();
   const location = useLocation();
   const navigate = useNavigate();
@@ -56,22 +56,28 @@ function ExtendLease() {
   );
   const [newLeaseDuration, setNewLeaseDuration] = useState<number>(1);
   const [maxIncrease, setMaxIncrease] = useState<number>(0);
-  const { data: mARIOFee, isLoading: loadingArioFee } = useTokenCost(
+  const { data: costDetails, isLoading: loadingCostDetails } = useCostDetails(
     registrationType === 'permabuy'
       ? {
           intent: 'Upgrade-Name',
           name: name as string,
         }
       : {
+          fromAddress: walletAddress?.toString(),
           intent: 'Extend-Lease',
           years: newLeaseDuration,
           type: registrationType?.toString() as any,
           name: name as string,
+          fundFrom: 'any',
         },
   );
-  const arioFee = mARIOFee
-    ? new mARIOToken(mARIOFee).toARIO().valueOf()
+  const arioFee = costDetails?.tokenCost
+    ? new mARIOToken(costDetails.tokenCost).toARIO().valueOf()
     : undefined;
+
+  const hasInsufficientFunds = costDetails?.fundingPlan
+    ? costDetails.fundingPlan.shortfall > 0
+    : true;
 
   useEffect(() => {
     if (!name) {
@@ -306,7 +312,7 @@ function ExtendLease() {
             height: '100%',
           }}
           fee={
-            loadingArioFee
+            loadingCostDetails
               ? { [arioTicker]: undefined }
               : {
                   [arioTicker]:
@@ -335,10 +341,9 @@ function ExtendLease() {
             navigate(`/manage/names/${lowerCaseDomain(name!)}`);
           }}
           onNext={
-            !arioFee || arioFee <= 0
+            !arioFee || arioFee <= 0 || hasInsufficientFunds
               ? undefined
-              : arioFee <= ioBalance
-              ? () => {
+              : () => {
                   if (
                     registrationType === TRANSACTION_TYPES.LEASE &&
                     domainData?.arnsRecord &&
@@ -399,10 +404,9 @@ function ExtendLease() {
                     state: `/manage/names/${lowerCaseDomain(name!)}/extend`,
                   });
                 }
-              : undefined
           }
           detail={
-            arioFee && arioFee > ioBalance ? (
+            hasInsufficientFunds ? (
               <div
                 className="flex flex-row center"
                 style={{
