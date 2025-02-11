@@ -12,6 +12,7 @@ function DialogModal({
   onClose,
   onCancel,
   onNext,
+  showFooterBorder = true,
 }: {
   title?: string | JSX.Element;
   body?: string | JSX.Element;
@@ -23,6 +24,7 @@ function DialogModal({
   onClose?: () => void;
   onCancel?: () => void;
   onNext?: () => void;
+  showFooterBorder?: boolean;
 }) {
   return (
     <>
@@ -88,7 +90,9 @@ function DialogModal({
         <div
           className={
             (footerClass ?? '') +
-            ` flex flex-row items-center border-t border-dark-grey py-6`
+            ` flex flex-row items-center ${
+              showFooterBorder ? 'border-t border-dark-grey' : ''
+            } py-6`
           }
           style={{
             justifyContent: footer ? 'space-between' : 'flex-end',
