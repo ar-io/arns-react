@@ -15,6 +15,7 @@ import { isInGracePeriod } from '@src/components/layout/Navbar/NotificationMenu/
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { ArNSWalletConnector } from '@src/types';
+import { jsonSerialize } from '@src/utils';
 import { NETWORK_DEFAULTS } from '@src/utils/constants';
 import { ANTStateError, UpgradeRequiredError } from '@src/utils/errors';
 import {
@@ -138,17 +139,22 @@ export function buildDomainInfoQuery({
                   { name: 'TTL-Seconds', value: '86400' },
                   { name: 'Transaction-Id', value: ''.padEnd(43, '1') },
                   { name: 'Sub-Domain', value: '1' },
+                  { name: 'Priority', value: '1' },
                 ],
               })
               .catch(() => {
                 return {} as ReturnType<typeof antAo.dryrun>;
               });
-
             const maybeError = drySetRecordRes?.Messages?.find((msg) => {
               return msg?.Tags?.find((t: Tag) => t.name === 'Error');
             });
 
-            if (maybeError !== undefined) {
+            const priority: number | undefined =
+              drySetRecordRes?.Messages?.find((msg) => {
+                return jsonSerialize(msg.Data)?.priority;
+              });
+
+            if (maybeError !== undefined || !priority) {
               errors.push(new UpgradeRequiredError(`Affected APIs: ${action}`));
             }
 
