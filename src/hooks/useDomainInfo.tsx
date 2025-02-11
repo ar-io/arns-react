@@ -145,7 +145,6 @@ export function buildDomainInfoQuery({
               .catch(() => {
                 return {} as ReturnType<typeof antAo.dryrun>;
               });
-            console.log(drySetRecordRes);
             const maybeError = drySetRecordRes?.Messages?.find((msg) => {
               return msg?.Tags?.find((t: Tag) => t.name === 'Error');
             });
