@@ -6,12 +6,72 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [16] - [OO2ewZKq4AHoqGQmYUIl-NhJ-llQyFJ3ha4Uf4-w5RI] - (2025-2-10)
+
+## Changed
+
+- Increased stack memory and initial memory on modules to 3MiB and 4MiB
+  respectively.
+
+## [15] - [s9drxRd-ylbJVtAi14tGmF7e42kA69PgfKUtgtmvAmU] - (2025-2-10)
+
+## Added
+
+- Priority property on Set-Record API. Allows for Owner and Controllers to set
+  the Priority of the undername to be served by ar.io gateways, and will be used
+  to determine which undernames are served within the undername limit of the
+  base arns name.
+
+## [14] - [W2sHFPAZ86BJLrU-HPp2P7twdlmbFJbckbCe42ETX-4] - (2025-2-05)
+
+### Fixed
+
+- Added msg.reply to all APIs
+- Switch to Handlers.prepend instead of Handlers.once for backwards
+  compatibility in `_boot` Handler.
+
+## [13] - [zh4at_Y_GKJMD3SOkZ5Yx7mG2JRRLc89huEOspPtHq4] - (2025-1-29)
+
+### Fixed
+
+- Removed print with ID in Handler wrapper since ID can be null on dry runs.
+
+## [12] - [mwCMAjglwV_96oEMEIi5epg_QXElOMzEcLkCUeQyGGo] - (2025-1-28)
+
+### Changed
+
+- Adjusts min and max allowed TTLs to 60 (1 minute) and 86400 (1 day),
+  respetively. Defaults to 900 seconds (15 mins).
+- Removed limit on undernames of 10k records.
+
+### Added
+
+- Boot mechanism for initializing state and sending notices to ANT Registry and
+  Owner
+
+## [11] - [1YqVEdJDvcpQ6qEWXYBEaVqB_NzAz4qPAsnUqLf5m3I] - (2025-1-24)
+
+### Fixed
+
+- Undername creation has been fixed to enable creation of one character
+  undernames.
+- Token API responses updated to spec
+
+## [10] - [k9tQkbnFYZOGp6ist1yFuaqk_wOkzM5KUSNDtWzCLtg] - (2025-1-14)
+
+### Changed
+
+- Updated build process to compile a WASM binary as well as the bundled Lua code
+- Updated testing to use our own WASM binary instead of an AOS fixture
+
 ## [9] - [16_FyX-V2QU0RPSh1GIaEETSaUjNb0oVjCFpVbAfQq4] - (2024-12-4)
 
 ### Changed
 
 - Added Ethereum address support.
-- Added Allow-Unsafe-Addresses flag to allow skipping of address validation for future compatibility with different signature algorithms for the following API methods:
+- Added Allow-Unsafe-Addresses flag to allow skipping of address validation for
+  future compatibility with different signature algorithms for the following API
+  methods:
   - Transfer
   - Add-Controller
   - Balance
@@ -22,9 +82,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 - Release-Name Handler
-  - Calls the IO Network Process to release the specified ArNS name that is registered to the ANT.
+  - Calls the IO Network Process to release the specified ArNS name that is
+    registered to the ANT.
 - Reassign-Name Handler
-  - Calls the IO Network Process to assign a new ANT Process to the respective name - must be a name registered the ANT in question.
+  - Calls the IO Network Process to assign a new ANT Process to the respective
+    name - must be a name registered the ANT in question.
 - Set-Description Handler
   - Allows for setting the description of the ANT
 - Set-Keywords Handler
@@ -45,7 +107,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 
 - Fixed the Remove-Record api to return appropriate notices on calls.
-- Update ID checks to use appropriate regexs and check both arweave and ethereum addresses
+- Update ID checks to use appropriate regexs and check both arweave and ethereum
+  addresses
 
 <!-- eslint-disable-next-line -->
 
@@ -71,19 +134,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
-- Updated Credit and Debit notices to align with token spec [https://github.com/permaweb/aos/blob/main/blueprints/token.lua]
+- Updated Credit and Debit notices to align with token spec
+  [https://github.com/permaweb/aos/blob/main/blueprints/token.lua]
 
 ## [3] - [JqOo-V7uwJeRncbZrwLRGQUt2KO--RGDKI-mgfT7Bgc] - (2024-09-20)
 
 ### Fixed
 
-- Repaired permission handling in Evolve handler to disallow modification of the SourceCodeTxId field by non-owners.
+- Repaired permission handling in Evolve handler to disallow modification of the
+  SourceCodeTxId field by non-owners.
 
 ## [2] - [BVZZ0_ME8uq3zChN6bA6WsPmFhVpGDJ7Rb7l4qoGIDM] - (2024-08-20)
 
 ### Added
 
-- Update ANT Registry with ANT ownership and controller roles on changes of those states.
+- Update ANT Registry with ANT ownership and controller roles on changes of
+  those states.
 
 ## [1] - [Flwio4Lr08g6s6uim6lEJNnVGD9ylvz0_aafvpiL8FI] - (2024-07-12)
 
