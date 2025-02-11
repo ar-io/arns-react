@@ -13,6 +13,21 @@ import { SelectDropdown } from '../Select';
 type CostDetailsParams = Parameters<typeof useCostDetails>[0];
 
 const fundingSources = ['balance', 'stakes', 'any'] as const;
+
+function getStakeUsed(costDetails?: CostDetailsResult) {
+  return costDetails?.fundingPlan
+    ? Object.values(costDetails.fundingPlan.stakes).reduce((acc, stake) => {
+        acc = acc + stake.delegatedStake;
+        acc =
+          acc +
+          Object.values(stake.vaults as any as Record<string, number>).reduce(
+            (acc, vault) => acc + vault,
+            0,
+          );
+        return acc;
+      }, 0)
+    : 0;
+}
 export function FundingSourceSelector({
   details,
   costDetailsCallback,
@@ -100,19 +115,8 @@ export function FundingSourceSelector({
     }
 
     setTotalBalanceUsed(costDetails?.fundingPlan?.balance ?? 0);
-    const stakeUsed = costDetails?.fundingPlan
-      ? Object.values(costDetails.fundingPlan.stakes).reduce((acc, stake) => {
-          acc = acc + stake.delegatedStake;
-          acc =
-            acc +
-            Object.values(stake.vaults as any as Record<string, number>).reduce(
-              (acc, vault) => acc + vault,
-              0,
-            );
-          return acc;
-        }, 0)
-      : 0;
-    setTotalStakeUsed(stakeUsed);
+
+    setTotalStakeUsed(getStakeUsed(costDetails));
   }, [
     fundFrom,
     anyCostDetails,
@@ -145,7 +149,11 @@ export function FundingSourceSelector({
           ) : (
             <span>
               Liquid Balance (
-              {formatARIO(new mARIOToken(totalBalanceUsed).toARIO().valueOf())}{' '}
+              {formatARIO(
+                new mARIOToken(balanceCostDetails?.fundingPlan?.balance ?? 0)
+                  .toARIO()
+                  .valueOf(),
+              )}{' '}
               {arioTicker})
             </span>
           ),
@@ -157,7 +165,11 @@ export function FundingSourceSelector({
           ) : (
             <span>
               Staked Balance (
-              {formatARIO(new mARIOToken(totalStakeUsed).toARIO().valueOf())}{' '}
+              {formatARIO(
+                new mARIOToken(getStakeUsed(stakeCostDetails))
+                  .toARIO()
+                  .valueOf(),
+              )}{' '}
               {arioTicker})
             </span>
           ),
@@ -172,10 +184,16 @@ export function FundingSourceSelector({
               <span className="flex w-fit">
                 (
                 {formatARIO(
-                  new mARIOToken(totalBalanceUsed).toARIO().valueOf(),
+                  new mARIOToken(anyCostDetails?.fundingPlan?.balance ?? 0)
+                    .toARIO()
+                    .valueOf(),
                 )}
                 &nbsp;+&nbsp;{' '}
-                {formatARIO(new mARIOToken(totalStakeUsed).toARIO().valueOf())}{' '}
+                {formatARIO(
+                  new mARIOToken(getStakeUsed(anyCostDetails))
+                    .toARIO()
+                    .valueOf(),
+                )}{' '}
                 {arioTicker})
               </span>
             </div>
