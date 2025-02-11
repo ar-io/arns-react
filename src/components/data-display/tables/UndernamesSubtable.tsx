@@ -58,7 +58,7 @@ const UndernamesSubtable = ({
   const [{ arioProcessId, antAoClient }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const isOwner = walletAddress
-    ? state?.Owner === walletAddress?.toString()
+    ? state?.Owner === walletAddress.toString()
     : false;
   const [, dispatchTransactionState] = useTransactionState();
   const [, dispatchModalState] = useModalState();
