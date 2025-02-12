@@ -10,10 +10,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Changed
 
 - Changed ArConnect branding to Wander branding.
-
-## Changed
-
-- Changed ArConnect branding to Wander branding.
 - Added support for account switching with Metamask
 
 ### Fixed
