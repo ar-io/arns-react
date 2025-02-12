@@ -379,7 +379,7 @@ const DomainsTable = ({
             }
             return row.original.antErrors.find(
               (e) => e instanceof UpgradeRequiredError,
-            ) ? (
+            ) && row.original.role === 'owner' ? (
               <ErrorsTip
                 errors={antErrors.filter(
                   (e) => e instanceof UpgradeRequiredError,

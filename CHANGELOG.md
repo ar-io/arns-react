@@ -9,11 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Added support for account switching with Metamask
+- Added support for account switching with Metamask.
 
 ### Fixed
 
-- Fixed auto-reconnect issue when disconnecting with Metamask and refreshing page
+- Fixed auto-reconnect issue when disconnecting with Metamask and refreshing page.
+- Fixed displaying Update button to non-owners (controllers) in domains table.
 
 ## [1.0.0] - 2024-02-12
 
