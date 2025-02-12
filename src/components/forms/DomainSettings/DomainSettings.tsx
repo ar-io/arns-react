@@ -7,6 +7,7 @@ import ArweaveID, {
 import { ReassignNameModal } from '@src/components/modals/ant-management/ReassignNameModal/ReassignNameModal';
 import { ReturnNameModal } from '@src/components/modals/ant-management/ReturnNameModal/ReturnNameModal';
 import useDomainInfo from '@src/hooks/useDomainInfo';
+import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '@src/state';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
@@ -78,6 +79,7 @@ function DomainSettings({
   const [{ arioProcessId, antAoClient }] = useGlobalState();
   const [{ interactionResult }, dispatch] = useTransactionState();
   const [{ wallet, walletAddress }] = useWalletState();
+  const { data: primaryNameData } = usePrimaryName();
   const { data, isLoading, refetch } = useDomainInfo({ domain, antId });
 
   const [showReturnNameModal, setShowReturnNameModal] = useState(false);
@@ -169,13 +171,21 @@ function DomainSettings({
                   {data?.arnsRecord?.type == 'permabuy' && isOwner ? (
                     <Tooltip
                       message={
-                        !antHandlers.includes('releaseName')
+                        primaryNameData?.name === lowerCaseDomain(domain ?? '')
+                          ? 'Cannot return ArNS name while set as primary name. Remove name as primary name to enable return name workflow.'
+                          : !antHandlers.includes('releaseName')
                           ? 'Update ANT to access Release Name workflow'
                           : 'Returns the name to the ArNS protocol'
                       }
                       icon={
                         <button
-                          disabled={!antHandlers.includes('releaseName')}
+                          disabled={
+                            primaryNameData?.name ===
+                              lowerCaseDomain(domain ?? '') ||
+                            (!antHandlers.includes('releaseName') &&
+                              primaryNameData?.name !==
+                                lowerCaseDomain(domain ?? ''))
+                          }
                           onClick={() => setShowReturnNameModal(true)}
                           className={`flex flex-row text-[12px] rounded-[4px] p-[6px] px-[10px] border border-error bg-error-thin text-error whitespace-nowrap`}
                         >
