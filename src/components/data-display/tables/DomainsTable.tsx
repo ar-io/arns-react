@@ -348,11 +348,7 @@ const DomainsTable = ({
             );
           }
           case 'ioCompatible': {
-            if (
-              rowValue instanceof ANTStateError &&
-              walletAddress &&
-              row.original.role === 'owner'
-            ) {
+            if (rowValue instanceof ANTStateError && walletAddress) {
               return (
                 <button
                   className="flex whitespace-nowrap justify-center align-center gap-2 text-center"
@@ -383,7 +379,7 @@ const DomainsTable = ({
             }
             return row.original.antErrors.find(
               (e) => e instanceof UpgradeRequiredError,
-            ) ? (
+            ) && row.original.role === 'owner' ? (
               <ErrorsTip
                 errors={antErrors.filter(
                   (e) => e instanceof UpgradeRequiredError,
