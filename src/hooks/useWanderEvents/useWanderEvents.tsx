@@ -1,5 +1,5 @@
 import { AOProcess, ARIO } from '@ar.io/sdk/web';
-import { ArConnectWalletConnector } from '@src/services/wallets';
+import { WanderWalletConnector } from '@src/services/wallets';
 import { AoAddress } from '@src/types';
 import { useEffect, useState } from 'react';
 
@@ -7,14 +7,14 @@ import { dispatchNewGateway } from '../../state/actions';
 import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useWalletState } from '../../state/contexts/WalletState';
 
-function useArconnectEvents() {
+function useWanderEvents() {
   const [{ arioProcessId, aoClient }, dispatchGlobalState] = useGlobalState();
   const [{ wallet }, dispatchWalletState] = useWalletState();
   const [eventEmitter, setEventEmitter] = useState<any>();
 
   useEffect(() => {
     const arweaveWalletLoadedListener = () => {
-      const unknownApi = window.arweaveWallet as unknown as any; // TODO: when arconnect types are updated, remove this
+      const unknownApi = window.arweaveWallet as unknown as any; // TODO: when wander types are updated, remove this
       if (unknownApi?.events) {
         setEventEmitter(unknownApi.events);
       }
@@ -27,7 +27,7 @@ function useArconnectEvents() {
       port: number;
       protocol: string;
     }) => {
-      const newWallet = wallet ?? new ArConnectWalletConnector();
+      const newWallet = wallet ?? new WanderWalletConnector();
       const contract = ARIO.init({
         process: new AOProcess({
           processId: arioProcessId,
@@ -68,4 +68,4 @@ function useArconnectEvents() {
   return eventEmitter;
 }
 
-export default useArconnectEvents;
+export default useWanderEvents;

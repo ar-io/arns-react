@@ -3,7 +3,6 @@ import { ReactComponent as AccountIcon } from './Account.svg';
 import { ReactComponent as AlertCircle } from './AlertCircle.svg';
 import { ReactComponent as AlertOctagonIcon } from './AlertOctagon.svg';
 import { ReactComponent as AlertTriangleIcon } from './AlertTriangle.svg';
-import { ReactComponent as ArConnectIcon } from './ArConnectIcon.svg';
 import { ReactComponent as ArrowLeft } from './ArrowLeft.svg';
 import { ReactComponent as ArrowRightIcon } from './ArrowRight.svg';
 import { ReactComponent as ArrowUpRight } from './ArrowUpRight.svg';
@@ -55,6 +54,7 @@ import { ReactComponent as TargetIcon } from './Target.svg';
 import { ReactComponent as TokenIcon } from './TokenIcon.svg';
 import { ReactComponent as TrashIcon } from './Trash.svg';
 import { ReactComponent as UploadIcon } from './Upload.svg';
+import { ReactComponent as WanderIcon } from './WanderIcon.svg';
 import { ReactComponent as BellIcon } from './bell-simple.svg';
 import ElephantOne from './elephant1.png';
 import ElephantTwo from './elephant2.png';
@@ -66,7 +66,7 @@ export {
   AccountIcon,
   AlertOctagonIcon,
   AlertTriangleIcon,
-  ArConnectIcon,
+  WanderIcon,
   ArrowRightIcon,
   ARNSDefault,
   ArrowLeft,

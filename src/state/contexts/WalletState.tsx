@@ -12,8 +12,8 @@ import { useAccount, useConfig } from 'wagmi';
 import { useEffectOnce } from '../../hooks/useEffectOnce/useEffectOnce';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import {
-  ArConnectWalletConnector,
   EthWalletConnector,
+  WanderWalletConnector,
 } from '../../services/wallets';
 import { AoAddress, ArNSWalletConnector, WALLET_TYPES } from '../../types';
 import { ARWEAVE_APP_API } from '../../utils/constants';
@@ -159,8 +159,8 @@ export function WalletStateProvider({
     const walletType = window.localStorage.getItem('walletType');
 
     try {
-      if (walletType === WALLET_TYPES.ARCONNECT) {
-        const connector = new ArConnectWalletConnector();
+      if (walletType === WALLET_TYPES.WANDER) {
+        const connector = new WanderWalletConnector();
         const address = await connector?.getWalletAddress();
         await connector.updatePermissions();
 

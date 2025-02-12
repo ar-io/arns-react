@@ -11,8 +11,8 @@ import { defaultSuccess } from './success';
 
 export type NotificationType = 'success' | 'info' | 'warning' | 'error';
 
-export const ARCONNECT_UNRESPONSIVE_ERROR =
-  'There was an issue initializing ArConnect. Please reload the page to initialize.';
+export const WANDER_UNRESPONSIVE_ERROR =
+  'There was an issue initializing Wander. Please reload the page to initialize.';
 
 export default function Notifications() {
   const [notificationApi, contextHolder] = notification.useNotification({
@@ -60,15 +60,14 @@ export default function Notifications() {
   }): ArgsProps {
     switch (type) {
       case 'error': {
-        const arconnectUnresponsive =
-          description === ARCONNECT_UNRESPONSIVE_ERROR;
+        const wanderUnresponsive = description === WANDER_UNRESPONSIVE_ERROR;
 
         return defaultError({
           closeCallback: () => notificationApi.destroy(),
-          actionCallback: arconnectUnresponsive
+          actionCallback: wanderUnresponsive
             ? () => location.reload()
             : () => notificationApi.destroy(),
-          actionText: arconnectUnresponsive ? 'Reload' : 'Close',
+          actionText: wanderUnresponsive ? 'Reload' : 'Close',
           title,
           description,
           key,

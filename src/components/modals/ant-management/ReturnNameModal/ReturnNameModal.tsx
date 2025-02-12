@@ -44,7 +44,7 @@ export function ReturnNameModal({
   async function handleReturn() {
     try {
       if (!wallet?.contractSigner) {
-        throw new Error('No ArConnect Signer found');
+        throw new Error('No Wander Signer found');
       }
       if (!walletAddress) throw new Error('Must connect to release the ANT');
 
