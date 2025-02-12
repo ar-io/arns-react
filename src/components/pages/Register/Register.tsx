@@ -46,7 +46,7 @@ function RegisterNameForm() {
     dispatchRegisterState,
   ] = useRegistrationState();
   const { data: costDetails } = useCostDetails({
-    intent: 'Buy-Record',
+    intent: 'Buy-Name',
     name: domain,
     type: registrationType,
     years: leaseDuration,

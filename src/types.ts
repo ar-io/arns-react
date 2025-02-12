@@ -201,7 +201,7 @@ export enum ARNS_INTERACTION_TYPES {
 export const ArNSInteractionTypeToIntentMap: Partial<
   Record<ARNS_INTERACTION_TYPES, AoGetCostDetailsParams['intent']>
 > = {
-  [ARNS_INTERACTION_TYPES.BUY_RECORD]: 'Buy-Record',
+  [ARNS_INTERACTION_TYPES.BUY_RECORD]: 'Buy-Name',
   [ARNS_INTERACTION_TYPES.EXTEND_LEASE]: 'Extend-Lease',
   [ARNS_INTERACTION_TYPES.UPGRADE_NAME]: 'Upgrade-Name',
   [ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES]: 'Increase-Undername-Limit',
