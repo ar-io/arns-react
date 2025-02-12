@@ -348,7 +348,11 @@ const DomainsTable = ({
             );
           }
           case 'ioCompatible': {
-            if (rowValue instanceof ANTStateError && walletAddress) {
+            if (
+              rowValue instanceof ANTStateError &&
+              walletAddress &&
+              row.original.role === 'owner'
+            ) {
               return (
                 <button
                   className="flex whitespace-nowrap justify-center align-center gap-2 text-center"
