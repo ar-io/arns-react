@@ -99,7 +99,16 @@ export default function LogoRow({
         }
         editing={editing}
         setEditing={() => setEditing(true)}
-        onSave={() => setShowModal(true)}
+        onSave={() => {
+          if (!isArweaveTransactionID(newLogoTxId)) {
+            eventEmitter.emit('error', {
+              name: 'Set Logo',
+              message: 'Logo must be an arweave transaction ID',
+            });
+            return;
+          }
+          setShowModal(true);
+        }}
         onCancel={() => {
           setEditing(false);
           setNewLogoTxId(logoTxId ?? '');
