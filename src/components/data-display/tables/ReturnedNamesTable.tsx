@@ -139,7 +139,7 @@ const ReturnedNamesTable = ({
       const res = await queryClient.fetchQuery(
         buildCostDetailsQuery(
           {
-            intent: 'Buy-Record',
+            intent: 'Buy-Name',
             name,
             type,
             years: 1,

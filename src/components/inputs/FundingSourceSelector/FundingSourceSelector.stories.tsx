@@ -43,7 +43,7 @@ export const BuyRecord: Story = {
   args: {
     details: {
       name: 'ardrive',
-      intent: 'Buy-Record',
+      intent: 'Buy-Name',
       type: 'permabuy',
       fromAddress: '7waR8v4STuwPnTck1zFVkQqJh5K9q9Zik4Y5-5dV7nk',
     },

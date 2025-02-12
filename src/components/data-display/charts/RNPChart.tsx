@@ -28,7 +28,7 @@ export function RNPChart({
 }) {
   const [{ walletAddress }] = useWalletState();
   const { data: costDetails } = useCostDetails({
-    intent: 'Buy-Record',
+    intent: 'Buy-Name',
     years: 1,
     type: 'lease',
     fromAddress: walletAddress?.toString(),
