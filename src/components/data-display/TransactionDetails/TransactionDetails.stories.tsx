@@ -52,7 +52,7 @@ export const BalancesBuyRecord: Story = {
   args: {
     details: {
       name: 'ardrive',
-      intent: 'Buy-Record',
+      intent: 'Buy-Name',
       type: 'permabuy',
       fromAddress: '5Gru9gQCIiRaIPV7fU7RXcpaVShG4u9nIcPVmm2FJSM',
     },
@@ -82,7 +82,7 @@ export const BalancesDiscountBuyRecord: Story = {
   args: {
     details: {
       name: 'ardrive',
-      intent: 'Buy-Record',
+      intent: 'Buy-Name',
       type: 'permabuy',
       fromAddress: '5Gru9gQCIiRaIPV7fU7RXcpaVShG4u9nIcPVmm2FJSM',
     },
@@ -119,7 +119,7 @@ export const StakesDiscountBuyRecord: Story = {
   args: {
     details: {
       name: 'ardrive',
-      intent: 'Buy-Record',
+      intent: 'Buy-Name',
       type: 'permabuy',
       fromAddress: '5Gru9gQCIiRaIPV7fU7RXcpaVShG4u9nIcPVmm2FJSM',
     },
@@ -157,7 +157,7 @@ export const AnyDiscountBuyRecord: Story = {
   args: {
     details: {
       name: 'ardrive',
-      intent: 'Buy-Record',
+      intent: 'Buy-Name',
       type: 'permabuy',
       fromAddress: '5Gru9gQCIiRaIPV7fU7RXcpaVShG4u9nIcPVmm2FJSM',
     },

@@ -9,11 +9,13 @@ import useDomainInfo from '@src/hooks/useDomainInfo';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import {
+  useArNSState,
   useGlobalState,
   useTransactionState,
   useWalletState,
 } from '@src/state';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
+import { dispatchANTUpdate } from '@src/state/actions/dispatchANTUpdate';
 import dispatchArIOInteraction from '@src/state/actions/dispatchArIOInteraction';
 import {
   ANT_INTERACTION_TYPES,
@@ -73,12 +75,14 @@ function PrimaryNameModal({
   setVisible: (visible: boolean) => void;
 }) {
   const queryClient = useQueryClient();
-  const [{ arioProcessId, arioContract, aoClient }] = useGlobalState();
+  const [{ arioProcessId, arioContract, aoClient, aoNetwork }] =
+    useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const { data: primaryNameData, isLoading: isLoadingPrimaryNameData } =
     usePrimaryName();
 
   const [{ transactionData }, dispatchTransactionState] = useTransactionState();
+  const [, dispatchArNSState] = useArNSState();
   const [fundingSource, setFundingSource] = useState<FundFrom | undefined>(
     'balance',
   );
@@ -220,9 +224,17 @@ function PrimaryNameModal({
           name: workflow,
         });
       }
-      queryClient.invalidateQueries({
+      queryClient.resetQueries({
         queryKey: ['primary-name'],
         exact: false,
+      });
+
+      dispatchANTUpdate({
+        processId: domainData.processId,
+        dispatch: dispatchArNSState,
+        aoNetwork: aoNetwork,
+        walletAddress,
+        queryClient,
       });
 
       closeModal();

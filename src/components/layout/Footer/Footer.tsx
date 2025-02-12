@@ -1,14 +1,24 @@
 import { QuestionCircleOutlined } from '@ant-design/icons';
+import MarkdownModal from '@src/components/modals/MarkdownModal';
 import { Tooltip } from 'antd';
+import { useState } from 'react';
 import { FaGithub } from 'react-icons/fa';
 import { FaDiscord } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
+import changeLog from '../../../../CHANGELOG.md?raw';
 import { ARIO_DISCORD_LINK } from '../../../utils/constants';
 import { BrandLogo } from '../../icons';
 import './styles.css';
 
+const FORMATTED_CHANGELOG = changeLog
+  .substring(changeLog.indexOf('## [Unreleased]') + 16)
+  .trim()
+  .replace(/\[([\w.]+)\]/g, (match, text) => `v${text}`);
+
 function Footer() {
+  const [showChangeLogModal, setShowChangeLogModal] = useState(false);
+
   return (
     <div
       className={'flex-row app-footer'}
@@ -40,13 +50,21 @@ function Footer() {
         className="flex-row flex-right"
         style={{ width: 'fit-content', gap: '15px' }}
       >
-        <span
-          className="flex flex-row flex-right text grey center"
-          style={{ whiteSpace: 'nowrap' }}
+        <Tooltip
+          title="Show Changelog"
+          placement={'top'}
+          autoAdjustOverflow={true}
+          color="var(--text-faded)"
         >
-          v{process.env.npm_package_version}-
-          {process.env.VITE_GITHUB_HASH?.slice(0, 6)}
-        </span>
+          <button
+            className="flex flex-row flex-right text grey center"
+            style={{ whiteSpace: 'nowrap' }}
+            onClick={() => setShowChangeLogModal(true)}
+          >
+            v{process.env.npm_package_version}-
+            {process.env.VITE_GITHUB_HASH?.slice(0, 6)}
+          </button>
+        </Tooltip>
         <Tooltip
           title="Github"
           placement={'top'}
@@ -87,6 +105,13 @@ function Footer() {
           </button>
         </Tooltip>
       </div>
+      {showChangeLogModal ? (
+        <MarkdownModal
+          title="Changelog"
+          markdownText={FORMATTED_CHANGELOG}
+          onClose={() => setShowChangeLogModal(false)}
+        />
+      ) : null}
     </div>
   );
 }

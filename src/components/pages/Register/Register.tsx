@@ -2,7 +2,8 @@ import { CheckCircleFilled } from '@ant-design/icons';
 import { ANT, AOProcess, mARIOToken } from '@ar.io/sdk/web';
 import Tooltip from '@src/components/Tooltips/Tooltip';
 import { Accordion } from '@src/components/data-display';
-import { InsufficientFundsError, ValidationError } from '@src/utils/errors';
+import { useCostDetails } from '@src/hooks/useCostDetails';
+import { ValidationError } from '@src/utils/errors';
 import emojiRegex from 'emoji-regex';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -23,7 +24,6 @@ import {
   encodeDomainToASCII,
   formatDate,
   isArweaveTransactionID,
-  userHasSufficientBalance,
 } from '../../../utils';
 import {
   MAX_LEASE_DURATION,
@@ -42,18 +42,17 @@ import './styles.css';
 
 function RegisterNameForm() {
   const [
-    { domain, fee, leaseDuration, registrationType, antID, targetId },
+    { domain, leaseDuration, registrationType, antID, targetId },
     dispatchRegisterState,
   ] = useRegistrationState();
-  const [
-    {
-      arweaveDataProvider,
-      arioTicker,
-      arioContract,
-      arioProcessId,
-      antAoClient,
-    },
-  ] = useGlobalState();
+  const { data: costDetails } = useCostDetails({
+    intent: 'Buy-Name',
+    name: domain,
+    type: registrationType,
+    years: leaseDuration,
+  });
+  const [{ arweaveDataProvider, arioTicker, arioProcessId, antAoClient }] =
+    useGlobalState();
   const [{ walletAddress, balances }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const { name } = useParams();
@@ -67,8 +66,6 @@ function RegisterNameForm() {
   const [hasValidationErrors, setHasValidationErrors] =
     useState<boolean>(false);
   const [validatingNext, setValidatingNext] = useState<boolean>(false);
-  const ioFee = fee?.[arioTicker];
-  const feeError = ioFee && ioFee < 0;
 
   useEffect(() => {
     const redirect = searchParams.get('redirect');
@@ -78,42 +75,7 @@ function RegisterNameForm() {
       handleNext();
       return;
     }
-  }, [balances, fee]);
-
-  useEffect(() => {
-    if (!arioContract || !domain || !arioTicker || !registrationType) return;
-
-    const update = async () => {
-      dispatchRegisterState({
-        type: 'setFee',
-        payload: { ar: 0, [arioTicker]: undefined },
-      });
-      setValidatingNext(true);
-      const cost = await arioContract
-        .getTokenCost({
-          intent: 'Buy-Record',
-          name: domain,
-          type: registrationType,
-          years: leaseDuration,
-        })
-        .then((c) => new mARIOToken(c).toARIO().valueOf())
-        .catch(() => undefined);
-      setValidatingNext(false);
-
-      dispatchRegisterState({
-        type: 'setFee',
-        payload: { ar: 0, [arioTicker]: cost },
-      });
-    };
-    update();
-  }, [
-    arioContract,
-    dispatchRegisterState,
-    domain,
-    arioTicker,
-    leaseDuration,
-    registrationType,
-  ]);
+  }, [balances]);
 
   useEffect(() => {
     if (name && domain !== name) {
@@ -166,31 +128,6 @@ function RegisterNameForm() {
 
       setValidatingNext(true);
 
-      const ioBalance = await arioContract
-        .getBalance({
-          address: walletAddress.toString(),
-        })
-        .then((balance) => new mARIOToken(balance).toARIO());
-
-      const balanceErrors = userHasSufficientBalance<{
-        [x: string]: number;
-        AR: number;
-      }>({
-        balances: { AR: balances.ar, [arioTicker]: ioBalance.valueOf() },
-        costs: { AR: fee.ar, [arioTicker]: fee[arioTicker] } as {
-          [x: string]: number;
-          AR: number;
-        },
-      });
-
-      if (balanceErrors.length) {
-        balanceErrors.forEach((error: any) => {
-          eventEmitter.emit('error', new InsufficientFundsError(error.message));
-        });
-        return;
-      }
-
-      if (feeError) throw new Error('Issue calculating transaction cost.');
       if (hasValidationErrors) {
         throw new ValidationError(
           'Please fix the errors above before continuing.',
@@ -226,7 +163,7 @@ function RegisterNameForm() {
         assetId: arioProcessId,
         functionName: 'buyRecord',
         ...buyRecordPayload,
-        interactionPrice: fee?.[arioTicker],
+        interactionPrice: costDetails?.tokenCost,
       },
     });
     dispatchTransactionState({
@@ -530,7 +467,11 @@ function RegisterNameForm() {
 
             <TransactionCost
               ioRequired={true}
-              fee={fee}
+              fee={{
+                [arioTicker]: costDetails?.tokenCost
+                  ? new mARIOToken(costDetails.tokenCost).toARIO().valueOf()
+                  : undefined,
+              }}
               feeWrapperStyle={{
                 alignItems: 'center',
                 justifyContent: 'center',

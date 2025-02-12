@@ -26,7 +26,7 @@ export function useArNSDomainPriceList(domain: string) {
           isARNSDomainNameValid({ name: domain })
         ) {
           const sharedOptions: any = {
-            intent: 'Buy-Record',
+            intent: 'Buy-Name',
             name: lowerCaseDomain(domain),
           };
           const [leasePrice, buyPrice] = await Promise.all([

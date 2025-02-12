@@ -271,6 +271,10 @@ const DomainsTable = ({
         if (loading && (rowValue === 'N/A' || rowValue instanceof Error)) {
           return <span className="animate-pulse text-white">Loading...</span>;
         }
+
+        if (rowValue === 'N/A') {
+          return rowValue;
+        }
         switch (key) {
           case 'openRow': {
             return (
@@ -649,6 +653,9 @@ const DomainsTable = ({
               arnsDomain={row.getValue('name')}
               antId={row.getValue('processId')}
               handlers={row.original.handlers}
+              state={
+                domainData.ants?.[row.getValue('processId') as string]?.state
+              }
             />
           )}
           tableClass="border-[1px] border-dark-grey"

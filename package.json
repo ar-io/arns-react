@@ -1,7 +1,7 @@
 {
   "name": "arns-vite-react",
   "private": true,
-  "version": "0.0.1",
+  "version": "1.0.0",
   "homepage": ".",
   "scripts": {
     "build": "yarn clean && tsc --build tsconfig.json && NODE_OPTIONS=--max-old-space-size=32768 vite build",
@@ -79,6 +79,7 @@
     "@storybook/react": "^8.4.7",
     "@storybook/react-vite": "^8.4.7",
     "@storybook/test": "^8.4.7",
+    "@tailwindcss/typography": "^0.5.16",
     "@testing-library/jest-dom": "^6.1.5",
     "@testing-library/react": "^14.1.2",
     "@testing-library/user-event": "^14.5.1",

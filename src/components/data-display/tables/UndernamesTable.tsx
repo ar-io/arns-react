@@ -98,6 +98,9 @@ const UndernamesTable = ({
   const [searchParams, setSearchParams] = useSearchParams();
   const [{ arioProcessId, antAoClient }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
+  const isOwner = walletAddress
+    ? info?.Owner === walletAddress.toString()
+    : false;
   const [, dispatchTransactionState] = useTransactionState();
   const [, dispatchModalState] = useModalState();
   const { data: primaryNameData } = usePrimaryName();
@@ -189,72 +192,74 @@ const UndernamesTable = ({
                 className="flex flex-row justify-end pr-3 gap-3"
                 style={{ gap: '15px' }}
               >
-                <Tooltip
-                  message={
-                    !arnsDomain
-                      ? 'Loading...'
-                      : !antHandlers?.includes('approvePrimaryName') ||
-                        !antHandlers?.includes('removePrimaryNames')
-                      ? 'Update ANT to access Primary Names workflow'
-                      : primaryNameData?.name ===
-                        encodePrimaryName(undername + '_' + arnsDomain)
-                      ? 'Remove Primary Name'
-                      : 'Set Primary Name'
-                  }
-                  icon={
-                    <button
-                      disabled={
-                        !antHandlers?.includes('approvePrimaryName') ||
-                        !antHandlers?.includes('removePrimaryNames')
-                      }
-                      onClick={() => {
-                        if (!arnsDomain || !antId) return;
-                        const targetName = encodePrimaryName(
-                          undername + '_' + arnsDomain,
-                        );
-                        if (primaryNameData?.name === targetName) {
-                          // remove primary name payload
-                          dispatchTransactionState({
-                            type: 'setTransactionData',
-                            payload: {
-                              names: [targetName],
-                              arioProcessId,
-                              assetId: antId,
-                              functionName: 'removePrimaryNames',
-                            },
-                          });
-                        } else {
-                          dispatchTransactionState({
-                            type: 'setTransactionData',
-                            payload: {
-                              name: targetName,
-                              arioProcessId,
-                              assetId: arioProcessId,
-                              functionName: 'primaryNameRequest',
-                            },
-                          });
+                {isOwner && (
+                  <Tooltip
+                    message={
+                      !arnsDomain
+                        ? 'Loading...'
+                        : !antHandlers?.includes('approvePrimaryName') ||
+                          !antHandlers?.includes('removePrimaryNames')
+                        ? 'Update ANT to access Primary Names workflow'
+                        : primaryNameData?.name ===
+                          encodePrimaryName(undername + '_' + arnsDomain)
+                        ? 'Remove Primary Name'
+                        : 'Set Primary Name'
+                    }
+                    icon={
+                      <button
+                        disabled={
+                          !antHandlers?.includes('approvePrimaryName') ||
+                          !antHandlers?.includes('removePrimaryNames')
                         }
+                        onClick={() => {
+                          if (!arnsDomain || !antId) return;
+                          const targetName = encodePrimaryName(
+                            undername + '_' + arnsDomain,
+                          );
+                          if (primaryNameData?.name === targetName) {
+                            // remove primary name payload
+                            dispatchTransactionState({
+                              type: 'setTransactionData',
+                              payload: {
+                                names: [targetName],
+                                arioProcessId,
+                                assetId: antId,
+                                functionName: 'removePrimaryNames',
+                              },
+                            });
+                          } else {
+                            dispatchTransactionState({
+                              type: 'setTransactionData',
+                              payload: {
+                                name: targetName,
+                                arioProcessId,
+                                assetId: arioProcessId,
+                                functionName: 'primaryNameRequest',
+                              },
+                            });
+                          }
 
-                        dispatchModalState({
-                          type: 'setModalOpen',
-                          payload: { showPrimaryNameModal: true },
-                        });
-                      }}
-                    >
-                      <Star
-                        className={
-                          (encodePrimaryName(undername + '_' + arnsDomain) ==
-                          primaryNameData?.name
-                            ? 'text-primary fill-primary'
-                            : 'text-grey') +
-                          ` 
+                          dispatchModalState({
+                            type: 'setModalOpen',
+                            payload: { showPrimaryNameModal: true },
+                          });
+                        }}
+                      >
+                        <Star
+                          className={
+                            (encodePrimaryName(undername + '_' + arnsDomain) ==
+                            primaryNameData?.name
+                              ? 'text-primary fill-primary'
+                              : 'text-grey') +
+                            ` 
                     w-[18px]
                     `
-                        }
-                      />
-                    </button>
-                  }
-                />
+                          }
+                        />
+                      </button>
+                    }
+                  />
+                )}
                 <button
                   className="fill-grey hover:fill-white"
                   onClick={() => {
