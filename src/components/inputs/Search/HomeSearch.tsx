@@ -22,10 +22,12 @@ const recentlyReturnedTooltipMessage = `Recently expired leases or returned perm
 const maxCharValidation = 'Max. 51 characters';
 const noSpecialCharsValidation = 'No special characters or underscores';
 const dashesValidation = 'Dashes cannot be leading or trailing';
+const wwwValidation = 'Cannot be www';
 const defaultValidations = {
   [maxCharValidation]: false,
   [noSpecialCharsValidation]: false,
   [dashesValidation]: false,
+  [wwwValidation]: false,
 };
 
 function HomeSearch() {
@@ -64,6 +66,7 @@ function HomeSearch() {
       [maxCharValidation]: safeDomain.length <= 51,
       [noSpecialCharsValidation]: /^[a-zA-Z0-9-]*$/.test(safeDomain),
       [dashesValidation]: !/^-|-$/g.test(safeDomain),
+      [wwwValidation]: safeDomain !== 'www',
     };
     let validDomain = true;
     Object.entries(validations).forEach(([name, isValid]) => {
@@ -81,6 +84,13 @@ function HomeSearch() {
             validDomain = false;
             setValidationError('dashes cannot be leading or trailing');
           }
+          return;
+        case 'Cannot be www':
+          if (!isValid) {
+            validDomain = false;
+            setValidationError('cannot be www');
+          }
+
           return;
         default:
           break;
