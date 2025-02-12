@@ -172,7 +172,7 @@ export function WalletStateProvider({
           type: 'setWallet',
           payload: connector,
         });
-      } else if (ethAccount || walletType === WALLET_TYPES.ETHEREUM) {
+      } else if (walletType === WALLET_TYPES.ETHEREUM) {
         if (ethAccount?.isConnected && ethAccount?.address) {
           const connector = new EthWalletConnector(config);
 
@@ -194,6 +194,17 @@ export function WalletStateProvider({
       });
     }
   }
+
+  useEffect(() => {
+    if (
+      walletAddress &&
+      ethAccount.address !== walletAddress &&
+      ethAccount.isConnected &&
+      wallet instanceof EthWalletConnector
+    ) {
+      updateIfConnected();
+    }
+  }, [ethAccount, wallet, walletAddress]);
 
   return (
     <WalletStateContext.Provider value={[state, dispatchWalletState]}>
