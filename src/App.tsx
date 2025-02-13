@@ -15,7 +15,7 @@ import PageLoader from './components/layout/progress/PageLoader/PageLoader';
 import ArNSSettings from './components/pages/Settings/ArNSSettings';
 import NetworkSettings from './components/pages/Settings/NetworkSettings';
 import SettingsOverview from './components/pages/Settings/SettingsOverview';
-import useArconnectEvents from './hooks/useArconnectEvents/useArconnectEvents';
+import useWanderEvents from './hooks/useWanderEvents/useWanderEvents';
 import './index.css';
 
 // set the log level of ar-io-sdk
@@ -65,7 +65,7 @@ const sentryCreateBrowserRouter =
   Sentry.wrapCreateBrowserRouter(createHashRouter);
 
 function App() {
-  useArconnectEvents();
+  useWanderEvents();
 
   const router = sentryCreateBrowserRouter(
     createRoutesFromElements(

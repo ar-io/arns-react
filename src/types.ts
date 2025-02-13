@@ -87,7 +87,7 @@ export interface ArNSWalletConnector {
 }
 
 export enum WALLET_TYPES {
-  ARCONNECT = 'ArConnect',
+  WANDER = 'Wander',
   ARWEAVE_APP = 'ArweaveApp',
   ETHEREUM = 'Ethereum',
 }

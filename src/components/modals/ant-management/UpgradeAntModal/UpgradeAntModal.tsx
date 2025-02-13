@@ -46,7 +46,7 @@ function UpgradeAntModal({
   async function upgradeAnts() {
     try {
       if (!wallet?.contractSigner || !walletAddress) {
-        throw new Error('No ArConnect Signer found');
+        throw new Error('No Wander Signer found');
       }
 
       setUpgrading(true);
