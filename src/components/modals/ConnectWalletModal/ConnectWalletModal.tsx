@@ -151,7 +151,7 @@ function ConnectWalletModal(): JSX.Element {
             connect(new WanderWalletConnector());
           }}
         >
-          <WanderIcon className="external-icon size-12" />
+          <WanderIcon className="external-icon size-12 p-3" />
           Wander
         </button>
 
