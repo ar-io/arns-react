@@ -53,10 +53,10 @@ function AddUndernameModal({
 
   useEffect(() => {
     if (registeredDomains) {
-      const arnsRecords = registeredDomains?.items?.reduce(
-        (acc: Record<string, AoArNSNameData>, record) => {
+      const arnsRecords = Object.entries(registeredDomains).reduce(
+        (acc: Record<string, AoArNSNameData>, [name, record]) => {
           if (record.processId == antId.toString()) {
-            acc[record.name] = record;
+            acc[name] = record;
           }
           return acc;
         },
