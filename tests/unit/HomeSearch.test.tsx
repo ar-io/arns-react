@@ -9,24 +9,20 @@ import { act } from 'react';
 jest.mock('@src/hooks/useArNSRegistryDomains', () => ({
   useArNSRegistryDomains: jest.fn().mockReturnValue({
     data: {
-      items: [
-        {
-          processId: 'I-cxQhfh0Zb9UqQNizC9PiLC41KpUeA9hjiVV02rQRw',
-          startTimestamp: 1711122719,
-          type: 'permabuy',
-          undernameLimit: 10,
-          purchasePrice: 0,
-          name: 'ardrive',
-        },
-        {
-          processId: 'I-cxQhfh0Zb9UqQNizC9PiLC41KpUeA9hjiVV02rQRw',
-          startTimestamp: 1711122719,
-          type: 'lease',
-          undernameLimit: 10,
-          purchasePrice: 0,
-          name: 'xn--go8h6v',
-        },
-      ],
+      ardrive: {
+        processId: 'I-cxQhfh0Zb9UqQNizC9PiLC41KpUeA9hjiVV02rQRw',
+        startTimestamp: 1711122719,
+        type: 'permabuy',
+        undernameLimit: 10,
+        purchasePrice: 0,
+      },
+      'xn--go8h6v': {
+        processId: 'I-cxQhfh0Zb9UqQNizC9PiLC41KpUeA9hjiVV02rQRw',
+        startTimestamp: 1711122719,
+        type: 'lease',
+        undernameLimit: 10,
+        purchasePrice: 0,
+      },
     },
     isLoading: false,
   }),
