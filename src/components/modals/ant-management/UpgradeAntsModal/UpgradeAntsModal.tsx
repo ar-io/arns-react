@@ -66,7 +66,7 @@ function UpgradeAntsModal({
     try {
       setProgress(0);
       if (!wallet?.contractSigner || !walletAddress) {
-        throw new Error('No ArConnect Signer found');
+        throw new Error('No Wander Signer found');
       }
 
       const antIds = Object.keys(ants).filter((antId) =>

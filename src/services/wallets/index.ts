@@ -1,9 +1,5 @@
-import { ArConnectWalletConnector } from './ArConnectWalletConnector';
 import { ArweaveAppWalletConnector } from './ArweaveAppWalletConnector';
 import { EthWalletConnector } from './EthWalletConnector';
+import { WanderWalletConnector } from './WanderWalletConnector';
 
-export {
-  ArConnectWalletConnector,
-  ArweaveAppWalletConnector,
-  EthWalletConnector,
-};
+export { WanderWalletConnector, ArweaveAppWalletConnector, EthWalletConnector };

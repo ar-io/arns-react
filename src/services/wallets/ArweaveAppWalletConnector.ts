@@ -3,7 +3,7 @@ import { ArweaveAppError } from '@src/utils/errors';
 import { ApiConfig } from 'arweave/node/lib/api';
 import { ReactiveConnector } from 'node_modules/arweave-wallet-connector/lib/browser/Reactive';
 
-import { ARCONNECT_UNRESPONSIVE_ERROR } from '../../components/layout/Notifications/Notifications';
+import { WANDER_UNRESPONSIVE_ERROR } from '../../components/layout/Notifications/Notifications';
 import { ArNSWalletConnector, WALLET_TYPES } from '../../types';
 import { executeWithTimeout } from '../../utils';
 import { ArweaveTransactionID } from '../arweave/ArweaveTransactionID';
@@ -18,18 +18,18 @@ export class ArweaveAppWalletConnector implements ArNSWalletConnector {
   }
 
   // The API has been shown to be unreliable, so we call each function with a timeout
-  async safeArconnectApiExecutor<T>(fn: () => T): Promise<T> {
+  async safeWanderApiExecutor<T>(fn: () => T): Promise<T> {
     /**
-     * This is here because occasionally arconnect injects but does not initialize internally properly,
+     * This is here because occasionally wander injects but does not initialize internally properly,
      * allowing the api to be called but then hanging.
      * This is a workaround to check that and emit appropriate errors,
-     * and to trigger the workaround workflow of reloading the page and re-initializing arconnect.
+     * and to trigger the workaround workflow of reloading the page and re-initializing wander.
      */
 
     const res = await executeWithTimeout(() => fn(), 20_000);
 
     if (res === 'timeout') {
-      throw new Error(ARCONNECT_UNRESPONSIVE_ERROR);
+      throw new Error(WANDER_UNRESPONSIVE_ERROR);
     }
     return res as T;
   }

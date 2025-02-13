@@ -15,10 +15,10 @@ export class ValidationError extends NotificationOnlyError {
   }
 }
 
-export class ArconnectError extends NotificationOnlyError {
+export class WanderError extends NotificationOnlyError {
   constructor(message: string) {
     super(message);
-    this.name = 'ArConnect';
+    this.name = 'Wander';
   }
 }
 

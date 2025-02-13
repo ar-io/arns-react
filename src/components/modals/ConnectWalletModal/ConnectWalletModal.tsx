@@ -1,7 +1,7 @@
 import { AOProcess, ARIO } from '@ar.io/sdk/web';
 import {
-  ArConnectWalletConnector,
   EthWalletConnector,
+  WanderWalletConnector,
 } from '@src/services/wallets';
 import { ArweaveAppWalletConnector } from '@src/services/wallets/ArweaveAppWalletConnector';
 import { METAMASK_URL } from '@src/utils/constants';
@@ -15,10 +15,10 @@ import { useWalletState } from '../../../state/contexts/WalletState';
 import { AoAddress, ArNSWalletConnector } from '../../../types';
 import eventEmitter from '../../../utils/events';
 import {
-  ArConnectIcon,
   ArweaveAppIcon,
   CloseIcon,
   MetamaskIcon,
+  WanderIcon,
 } from '../../icons';
 import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
@@ -148,11 +148,11 @@ function ConnectWalletModal(): JSX.Element {
           disabled={connecting}
           className="wallet-connect-button h2"
           onClick={() => {
-            connect(new ArConnectWalletConnector());
+            connect(new WanderWalletConnector());
           }}
         >
-          <ArConnectIcon className="external-icon size-12" />
-          ArConnect
+          <WanderIcon className="external-icon size-12 p-3" />
+          Wander
         </button>
 
         <button

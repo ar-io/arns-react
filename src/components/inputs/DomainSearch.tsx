@@ -111,16 +111,9 @@ function DomainSearch({
 
   // handle domain availability and price changes
   useEffect(() => {
-    const domainsObject = arnsDomains?.items?.reduce(
-      (acc: Record<string, AoArNSNameData>, domain) => {
-        acc[domain.name] = domain;
-        return acc;
-      },
-      {},
-    );
     availabilityHandler({
       domain: searchQuery,
-      registeredDomains: domainsObject ?? {},
+      registeredDomains: arnsDomains ?? {},
     });
 
     setIsSearching(loadingArnsRegistryDomains);
