@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2025-02-13
+
 ## Changed
 
 - Changed ArConnect branding to Wander branding.
@@ -16,8 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed auto-reconnect issue when disconnecting with Metamask and refreshing page.
 - Fixed displaying Update button to non-owners (controllers) in domains table.
+- Disallow WWW on search page.
 
-## [1.0.0] - 2024-02-12
+## [1.0.0] - 2025-02-12
 
 ### Added
 
