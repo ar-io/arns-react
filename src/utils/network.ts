@@ -138,6 +138,7 @@ export function buildArNSRecordsQuery({
       // TODO: we should add the last cursor retrieved and only fetch new records to avoid loading all of them on reload
       return fetchAllArNSRecords({
         contract: arioContract,
+        pageSize: 1000,
       });
     },
     staleTime: Infinity,
