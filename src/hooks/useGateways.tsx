@@ -8,7 +8,7 @@ const useGateways = () => {
   return useQuery({
     queryKey: ['gateways', arioProcessId?.toString()],
     queryFn: async () => {
-      const result = await arioContract.getGateways({ limit: 10_000 });
+      const result = await arioContract.getGateways({ limit: 1000 });
       const gateways = result.items.reduce((acc, gateway) => {
         acc[gateway.gatewayAddress] = gateway;
         return acc;

@@ -6,6 +6,7 @@ import {
   AoANTHandler,
   AoARIORead,
   AoArNSNameData,
+  fetchAllArNSRecords,
 } from '@ar.io/sdk/web';
 import { connect } from '@permaweb/aoconnect';
 import { captureException } from '@sentry/react';
@@ -59,7 +60,7 @@ export async function dispatchArNSUpdate({
     });
     // TODO: we should paginate or send a filter by process ID on the network process for the records we want
     const [arnsRecords, allUserAnts] = await Promise.all([
-      arioContract.getArNSRecords({ limit: 100_000 }),
+      fetchAllArNSRecords({ contract: arioContract, pageSize: 1000 }),
       antRegistry.accessControlList({ address: walletAddress.toString() }),
     ]);
 
@@ -68,9 +69,9 @@ export async function dispatchArNSUpdate({
       ...allUserAnts.Owned,
     ]);
 
-    const userDomains = arnsRecords.items.reduce(
+    const userDomains = Object.entries(arnsRecords).reduce(
       (acc: Record<string, AoArNSNameData>, recordData) => {
-        const { name, ...record } = recordData;
+        const [name, record] = recordData;
         if (flatAntIds.has(record.processId)) {
           acc[name] = record;
         }
