@@ -63,7 +63,10 @@ function FeaturedDomains() {
             );
           })}
       </div>
-      <div className="flex flex-row" style={{ gap: '10px', maxWidth: '800px' }}>
+      <div
+        className="flex flex-row mb-8"
+        style={{ gap: '10px', maxWidth: '800px' }}
+      >
         <button
           className="outline-button center faded"
           onClick={() => shuffleGateways()}

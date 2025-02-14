@@ -7,9 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Added
+
+- Added Start Date column in Return Name Table
+
+## Changed
+
+- Updated Return Name Table to use left-hand arrow button for expand/collapse of chart
+
 ### Fixed
 
 - Fixed funding source option for primary name requests.
+- Minor visual improvements (spacing, colors, etc.)
 
 ## [1.0.1] - 2025-02-13
 

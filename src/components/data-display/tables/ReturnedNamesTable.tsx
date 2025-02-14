@@ -1,5 +1,5 @@
 import { AoReturnedName, mARIOToken } from '@ar.io/sdk';
-import { ExternalLinkIcon } from '@src/components/icons';
+import { ChevronRightIcon, ExternalLinkIcon } from '@src/components/icons';
 import Switch from '@src/components/inputs/Switch';
 import { Loader } from '@src/components/layout';
 import ArweaveID, {
@@ -22,7 +22,7 @@ import {
 import { NETWORK_DEFAULTS } from '@src/utils/constants';
 import { useQueryClient } from '@tanstack/react-query';
 import { ColumnDef, Row, createColumnHelper } from '@tanstack/react-table';
-import { CircleAlertIcon, Star } from 'lucide-react';
+import { CircleAlertIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ReactNode } from 'react-markdown';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
@@ -34,6 +34,7 @@ import TableView from './TableView';
 type TableData = {
   openRow: ReactNode;
   name: string;
+  startDate: number;
   closingDate: number;
   initiator: string;
   leasePrice: number | Error;
@@ -110,10 +111,11 @@ const ReturnedNamesTable = ({
       const newTableData: TableData[] = [];
 
       returnedNames.map((nameData) => {
-        const { name, initiator, endTimestamp } = nameData;
+        const { name, initiator, startTimestamp, endTimestamp } = nameData;
         const data: TableData = {
           openRow: <></>,
           name,
+          startDate: startTimestamp,
           closingDate: endTimestamp,
           initiator,
           leasePrice: -1,
@@ -219,6 +221,7 @@ const ReturnedNamesTable = ({
   const columns: ColumnDef<TableData, any>[] = [
     'openRow',
     'name',
+    'startDate',
     'closingDate',
     'initiator',
     'leasePrice',
@@ -245,10 +248,19 @@ const ReturnedNamesTable = ({
 
         switch (key) {
           case 'openRow': {
-            return row.getIsExpanded() ? (
-              <Star width={'18px'} height={'18px'} fill={'var(--text-white)'} />
-            ) : (
-              <></>
+            return (
+              <button
+                onClick={() => row.toggleExpanded()}
+                style={{
+                  transform: row.getIsExpanded() ? 'rotate(90deg)' : undefined,
+                }}
+              >
+                <ChevronRightIcon
+                  width={'18px'}
+                  height={'18px'}
+                  fill={'var(--text-white)'}
+                />
+              </button>
             );
           }
           case 'name': {
@@ -281,6 +293,9 @@ const ReturnedNamesTable = ({
                 }
               />
             );
+          }
+          case 'startDate': {
+            return formatDate(rowValue);
           }
           case 'closingDate': {
             return formatDate(rowValue);
@@ -326,22 +341,7 @@ const ReturnedNamesTable = ({
           case 'action': {
             return (
               <div className="flex justify-end w-full ">
-                <span className="flex  pr-3 w-fit h-fit gap-3 items-center justify-center overflow-visible max-h-[15px]">
-                  {row.getIsExpanded() ? (
-                    <button
-                      className="p-2 py-[0.4rem] rounded text-white bg-[#303038]"
-                      onClick={() => row.toggleExpanded()}
-                    >
-                      Close
-                    </button>
-                  ) : (
-                    <button
-                      className="p-2 py-[0.4rem] rounded text-grey border border-dark-grey hover:border-grey hover:text-white whitespace-nowrap"
-                      onClick={() => row.toggleExpanded()}
-                    >
-                      View Chart
-                    </button>
-                  )}
+                <span className="flex pr-3 w-fit h-fit gap-3 items-center justify-center overflow-visible max-h-[15px]">
                   <button
                     className="p-2 py-[0.4rem] text-center size-fit rounded text-black bg-primary"
                     onClick={() => {

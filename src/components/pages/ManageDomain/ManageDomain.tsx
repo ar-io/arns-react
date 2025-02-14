@@ -46,18 +46,18 @@ function ManageDomain() {
         className="page"
         style={{ gap: '0px', paddingTop: '10px', paddingBottom: '10px' }}
       >
-        {interactionResult ? (
-          <TransactionSuccessCard
-            txId={interactionResult.id}
-            title={`${workflowName} completed`}
-            close={() => {
-              dispatchTransactionState({
-                type: 'reset',
-              });
-            }}
-          />
-        ) : (
-          <></>
+        {interactionResult && (
+          <div className="mb-4 w-full">
+            <TransactionSuccessCard
+              txId={interactionResult.id}
+              title={`${workflowName} completed`}
+              close={() => {
+                dispatchTransactionState({
+                  type: 'reset',
+                });
+              }}
+            />
+          </div>
         )}
         <div
           className="flex flex-row"

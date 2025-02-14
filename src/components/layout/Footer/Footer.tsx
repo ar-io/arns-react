@@ -30,7 +30,7 @@ function Footer() {
       <div className={'flex-row flex-left'} style={{ width: 'fit-content' }}>
         <BrandLogo width={'30px'} height={'30px'} fill={'var(--text-grey)'} />
         <Link
-          className="grey text"
+          className="grey text hover:text-primary"
           to={'https://ar.io/legal/terms-of-service-and-privacy-policy'}
           rel="noreferrer"
           target={'_blank'}
