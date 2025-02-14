@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed funding source option for primary name requests.
+
 ## [1.0.1] - 2025-02-13
 
 ## Changed
