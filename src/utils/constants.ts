@@ -93,7 +93,7 @@ export const URL_REGEX = new RegExp(
 //   process.env.VITE_ARIO_PROCESS_ID || arioDevnetProcessId;
 
 // TODO: change this to mainnet process id
-export const ARIO_PROCESS_ID = 'vGBEeCYVq03RC_Di_x865nGelN5WIxl3sSEyvGu0AWY';
+export const ARIO_PROCESS_ID = 'oIiRrqvW7ZaX7wZbaz2YMmPJED_0aJLHsjTq_lZceKo';
 
 export const DEFAULT_ANT_LUA_ID = ANT_LUA_ID;
 export const ARIO_AO_CU_URL =
