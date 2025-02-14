@@ -1,7 +1,6 @@
 import {
   ANT_LUA_ID,
-  DEFAULT_SCHEDULER_ID,
-  arioDevnetProcessId,
+  DEFAULT_SCHEDULER_ID, //arioDevnetProcessId,
 } from '@ar.io/sdk/web';
 import Arweave from 'arweave';
 import { ArweaveWebWallet } from 'arweave-wallet-connector';
@@ -88,8 +87,11 @@ export const URL_REGEX = new RegExp(
     '(\\#[-a-z\\d_]*)?$',
   'i',
 );
-export const ARIO_PROCESS_ID =
-  process.env.VITE_ARIO_PROCESS_ID || arioDevnetProcessId;
+// export const ARIO_PROCESS_ID =
+//   process.env.VITE_ARIO_PROCESS_ID || arioDevnetProcessId;
+
+// TODO: change this to mainnet process id
+export const ARIO_PROCESS_ID = 'vGBEeCYVq03RC_Di_x865nGelN5WIxl3sSEyvGu0AWY';
 
 export const DEFAULT_ANT_LUA_ID = ANT_LUA_ID;
 export const ARIO_AO_CU_URL =
