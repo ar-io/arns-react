@@ -34,6 +34,7 @@ import TableView from './TableView';
 type TableData = {
   openRow: ReactNode;
   name: string;
+  startDate: number;
   closingDate: number;
   initiator: string;
   leasePrice: number | Error;
@@ -110,10 +111,11 @@ const ReturnedNamesTable = ({
       const newTableData: TableData[] = [];
 
       returnedNames.map((nameData) => {
-        const { name, initiator, endTimestamp } = nameData;
+        const { name, initiator, startTimestamp, endTimestamp } = nameData;
         const data: TableData = {
           openRow: <></>,
           name,
+          startDate: startTimestamp,
           closingDate: endTimestamp,
           initiator,
           leasePrice: -1,
@@ -219,6 +221,7 @@ const ReturnedNamesTable = ({
   const columns: ColumnDef<TableData, any>[] = [
     'openRow',
     'name',
+    'startDate',
     'closingDate',
     'initiator',
     'leasePrice',
@@ -290,6 +293,9 @@ const ReturnedNamesTable = ({
                 }
               />
             );
+          }
+          case 'startDate': {
+            return formatDate(rowValue);
           }
           case 'closingDate': {
             return formatDate(rowValue);
