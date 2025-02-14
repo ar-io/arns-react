@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed funding source option for primary name requests.
-- Other minor visual improvements
+- Minor visual improvements (spacing, colors, etc.)
 
 ## [1.0.1] - 2025-02-13
 
