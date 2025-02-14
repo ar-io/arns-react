@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.2] - 2025-02-14
+
 ## Added
 
 - Added Start Date column in Return Name Table
@@ -18,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed funding source option for primary name requests.
+- Fixed incorrect insufficient funds message on extend lease page
 - Minor visual improvements (spacing, colors, etc.)
 
 ## [1.0.1] - 2025-02-13
