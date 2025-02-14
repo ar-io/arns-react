@@ -61,6 +61,8 @@ function ExtendLease() {
       ? {
           intent: 'Upgrade-Name',
           name: name as string,
+          fundFrom: 'any',
+          fromAddress: walletAddress?.toString(),
         }
       : {
           fromAddress: walletAddress?.toString(),
