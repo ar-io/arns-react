@@ -17,6 +17,8 @@ import PERMASWAP_IMAGE from '../../assets/images/featured-domains/permaswap.png'
 import SAM_IMAGE from '../../assets/images/featured-domains/sam.png';
 import { ArweaveTransactionID } from '../services/arweave/ArweaveTransactionID';
 
+0;
+
 export const APP_NAME = 'AR-IO-ArNS-App';
 export const APP_VERSION = '1.0.0';
 export const WRITE_OPTIONS = {
@@ -95,10 +97,10 @@ export const ARIO_PROCESS_ID = 'vGBEeCYVq03RC_Di_x865nGelN5WIxl3sSEyvGu0AWY';
 
 export const DEFAULT_ANT_LUA_ID = ANT_LUA_ID;
 export const ARIO_AO_CU_URL =
-  process.env.VITE_ARIO_AO_CU_URL || 'https://cu.ardrive.io';
+  process.env.VITE_ARIO_AO_CU_URL || 'https://cu.ar-io.dev';
 
 export const ANT_AO_CU_URL =
-  process.env.VITE_ARIO_AO_CU_URL || 'https://cu.ardrive.io';
+  process.env.VITE_ARIO_AO_CU_URL || 'https://cu.ar-io.dev';
 
 export const NETWORK_DEFAULTS = {
   AO: {
