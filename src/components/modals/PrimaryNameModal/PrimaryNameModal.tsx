@@ -173,12 +173,14 @@ function PrimaryNameModal({
             signer: wallet.contractSigner,
             payload: {
               ...transactionPayload,
+
               name: encodePrimaryName(targetName),
               antProcessId: domainData.processId,
             },
             owner: walletAddress,
             arioContract: arioContract as any,
             processId: arioProcessId,
+            fundFrom: fundingSource,
             dispatch: dispatchTransactionState,
           });
 
