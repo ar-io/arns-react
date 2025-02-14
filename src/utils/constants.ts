@@ -100,7 +100,7 @@ export const ARIO_AO_CU_URL =
   process.env.VITE_ARIO_AO_CU_URL || 'https://cu.ar-io.dev';
 
 export const ANT_AO_CU_URL =
-  process.env.VITE_ARIO_AO_CU_URL || 'https://cu.ar-io.dev';
+  process.env.VITE_ARIO_AO_CU_URL || 'https://cu.ardrive.io';
 
 export const NETWORK_DEFAULTS = {
   AO: {
