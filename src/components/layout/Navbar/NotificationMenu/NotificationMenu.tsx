@@ -77,7 +77,7 @@ export function createUpdateAntsNotification({
     ),
     link:
       '/manage/names?' +
-      new URLSearchParams({ sortBy: 'sourceCode' }).toString(),
+      new URLSearchParams({ sortBy: 'ioCompatible' }).toString(),
   };
 }
 
