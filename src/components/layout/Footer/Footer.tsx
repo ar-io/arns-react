@@ -30,7 +30,7 @@ function Footer() {
       <div className={'flex-row flex-left'} style={{ width: 'fit-content' }}>
         <BrandLogo width={'30px'} height={'30px'} fill={'var(--text-grey)'} />
         <Link
-          className="grey text hover:text-primary"
+          className="grey text hover:text-white"
           to={'https://ar.io/legal/terms-of-service-and-privacy-policy'}
           rel="noreferrer"
           target={'_blank'}
@@ -47,8 +47,8 @@ function Footer() {
       ></div>
 
       <div
-        className="flex-row flex-right"
-        style={{ width: 'fit-content', gap: '15px' }}
+        className="flex-row flex-right w-fit"
+        style={{ width: 'fit-content' }}
       >
         <Tooltip
           title="Show Changelog"
@@ -57,7 +57,7 @@ function Footer() {
           color="var(--text-faded)"
         >
           <button
-            className="flex flex-row flex-right text grey center"
+            className="flex flex-row flex-right text grey center hover:text-white"
             style={{ whiteSpace: 'nowrap' }}
             onClick={() => setShowChangeLogModal(true)}
           >
@@ -75,7 +75,7 @@ function Footer() {
             className="button grey text center hover pointer"
             onClick={() => window.open('https://github.com/ar-io/', '_blank')}
           >
-            <FaGithub style={{ fontSize: 20 }} />
+            <FaGithub className="size-4 stroke-grey fill-grey hover:stroke-white hover:fill-white" />
           </button>
         </Tooltip>
         <Tooltip
@@ -88,7 +88,7 @@ function Footer() {
             className="button grey text center hover pointer"
             onClick={() => window.open(ARIO_DISCORD_LINK, '_blank')}
           >
-            <FaDiscord style={{ fontSize: 20 }} />
+            <FaDiscord className="size-4 stroke-grey fill-grey hover:stroke-white hover:fill-white" />
           </button>
         </Tooltip>
         <Tooltip
@@ -98,10 +98,10 @@ function Footer() {
           color="var(--text-faded)"
         >
           <button
-            className="button grey text center hover pointer"
+            className="button grey text center hover pointer hover:text-white"
             onClick={() => window.open('https://docs.ar.io/arns', '_blank')}
           >
-            <QuestionCircleOutlined style={{ fontSize: 20 }} />
+            <QuestionCircleOutlined className="text-base" />
           </button>
         </Tooltip>
       </div>

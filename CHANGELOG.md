@@ -7,13 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Landing page header and sub-title text updated
+- Header navigation links now icons
+- Footer links re-styled
+- Other minor visual improvements (icon sizing/coloring)
+
+### Fixed
+
+- Removed duplicate menu options in Profile menu on mobile
+
 ## [1.0.2] - 2025-02-14
 
-## Added
+### Added
 
 - Added Start Date column in Return Name Table
 
-## Changed
+### Changed
 
 - Updated Return Name Table to use left-hand arrow button for expand/collapse of chart
 
@@ -25,7 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.1] - 2025-02-13
 
-## Changed
+### Changed
 
 - Changed ArConnect branding to Wander branding.
 - Added support for account switching with Metamask.

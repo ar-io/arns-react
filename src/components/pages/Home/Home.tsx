@@ -20,11 +20,11 @@ function Home() {
           whiteSpace: isMobile ? undefined : 'nowrap',
         }}
       >
-        Arweave Name System
+        Get your own smart domain
       </div>
       <span className="flex flex-col items-center pb-2 justify-center align-center text-center gap-[5px] text-md min-h-[45px] text-grey max-w-[500px]">
-        ArNS names are censorship-resistant domain names for permaweb dApps, web
-        pages, data, and identities.
+        The Arweave Name System (ArNS) connects friendly names to permanent
+        applications, pages, data, or identities.
       </span>
       <div
         className="flex flex-column flex-center"
