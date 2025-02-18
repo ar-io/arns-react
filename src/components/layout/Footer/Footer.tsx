@@ -47,7 +47,7 @@ function Footer() {
       ></div>
 
       <div
-        className="flex-row flex-right gap-4"
+        className="flex-row flex-right w-fit"
         style={{ width: 'fit-content' }}
       >
         <Tooltip
