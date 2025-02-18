@@ -276,7 +276,9 @@ function NavMenuCard() {
                                 {route.icon && (
                                   <route.icon className="grey size-3" />
                                 )}
-                                <span className="text-sm">{route.text}</span>
+                                <span className="text-sm pl-[.125rem]">
+                                  {route.text}
+                                </span>
                               </>
                             </NavBarLink>
                           );
