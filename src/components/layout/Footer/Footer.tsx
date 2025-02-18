@@ -47,8 +47,8 @@ function Footer() {
       ></div>
 
       <div
-        className="flex-row flex-right"
-        style={{ width: 'fit-content', gap: '15px' }}
+        className="flex-row flex-right gap-4"
+        style={{ width: 'fit-content' }}
       >
         <Tooltip
           title="Show Changelog"
@@ -75,7 +75,7 @@ function Footer() {
             className="button grey text center hover pointer"
             onClick={() => window.open('https://github.com/ar-io/', '_blank')}
           >
-            <FaGithub className="size-5 stroke-grey fill-grey hover:stroke-white hover:fill-white" />
+            <FaGithub className="size-4 stroke-grey fill-grey hover:stroke-white hover:fill-white" />
           </button>
         </Tooltip>
         <Tooltip
@@ -88,7 +88,7 @@ function Footer() {
             className="button grey text center hover pointer"
             onClick={() => window.open(ARIO_DISCORD_LINK, '_blank')}
           >
-            <FaDiscord className="size-5 stroke-grey fill-grey hover:stroke-white hover:fill-white" />
+            <FaDiscord className="size-4 stroke-grey fill-grey hover:stroke-white hover:fill-white" />
           </button>
         </Tooltip>
         <Tooltip
@@ -101,7 +101,7 @@ function Footer() {
             className="button grey text center hover pointer hover:text-white"
             onClick={() => window.open('https://docs.ar.io/arns', '_blank')}
           >
-            <QuestionCircleOutlined className="text-xl " />
+            <QuestionCircleOutlined className="text-base" />
           </button>
         </Tooltip>
       </div>
