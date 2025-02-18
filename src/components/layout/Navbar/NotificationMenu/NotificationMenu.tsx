@@ -156,11 +156,7 @@ function NotificationMenu() {
         <div className="flex flex-col w-full gap-3 text-white items-center justify-center">
           {notifications.length ? (
             notifications.map((notification, index) => (
-              <div
-                className="flex flex-row"
-                style={{ gap: '20px' }}
-                key={index}
-              >
+              <div className="flex flex-row size-4" key={index}>
                 <span
                   className="flex flex-row justify-center items-start"
                   style={{ gap: '20px' }}
@@ -192,7 +188,7 @@ function NotificationMenu() {
                   to={notification.link}
                   className="p-2 rounded bg-dark-grey text-bg-dark-grey"
                 >
-                  <Settings width={'18px'} height={'18px'} />
+                  <Settings className="size-4" />
                 </Link>
               </div>
             ))
@@ -203,12 +199,10 @@ function NotificationMenu() {
       }
       icon={
         <BellIcon
-          width={'20px'}
-          height={'20px'}
           className={
             notifications.length
-              ? `text-primary fill-primary animate-pulse`
-              : `text-white fill-white`
+              ? `text-primary fill-primary animate-pulse size-4 m-2`
+              : `text-white fill-white size-4 m-2`
           }
         />
       }
