@@ -199,11 +199,11 @@ function NotificationMenu() {
       }
       icon={
         <BellIcon
-          className={
+          className={`${
             notifications.length
-              ? `text-primary fill-primary animate-pulse size-4 m-2`
-              : `text-white fill-white size-4 m-2`
-          }
+              ? 'text-primary fill-primary animate-pulse'
+              : 'text-white fill-white'
+          } size-4 m-2 cursor-pointer`}
         />
       }
     />
