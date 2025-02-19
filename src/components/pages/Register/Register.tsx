@@ -484,7 +484,12 @@ function RegisterNameForm() {
                 backText="Back"
                 onNext={validatingNext ? undefined : handleNext}
                 onBack={() => navigate('/', { state: `/register/${domain}` })}
-                customNextStyle={{ width: '100px' }}
+                customBackStyle={{ fontSize: '.875rem', padding: '.625rem' }}
+                customNextStyle={{
+                  width: '100px',
+                  fontSize: '.875rem',
+                  padding: '.625rem',
+                }}
               />
             </div>
           </div>
