@@ -435,17 +435,13 @@ const UndernamesTable = ({
           ownershipStatus === undefined ? (
             <></>
           ) : (
-            <div className="w-full flex flex-row text-primary font-semibold rounded-b-md border-b-[1px] border-x-[1px] border-dark-grey">
+            <div className="w-full flex flex-row text-primary font-semibold rounded-b-md border-b-[1px] border-x-[1px] border-dark-grey text-sm">
               <button
                 className="flex flex-row w-full justify-start items-center p-3 rounded-b-md bg-background hover:bg-primary-gradient text-primary hover:text-primary fill-primary hover:fill-black transition-all"
                 style={{ gap: '10px' }}
                 onClick={() => setAction(UNDERNAME_TABLE_ACTIONS.CREATE)}
               >
-                <Plus
-                  width={'20px'}
-                  height={'20px'}
-                  className="text-primary fill-black"
-                />
+                <Plus className="size-4 text-primary fill-black" />
                 Add Undername
               </button>
             </div>

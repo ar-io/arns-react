@@ -119,10 +119,10 @@ function UpgradeAntModal({
 
   return (
     <div className="modal-container items-center justify-center">
-      <div className="flex h-fit max-h-[40rem] w-[35rem]  justify-between flex-col rounded-lg bg-foreground shadow-one">
-        <div className="flex flex-row justify-between border-b-[1px] border-dark-grey p-4">
+      <div className="flex h-fit max-h-[40rem] w-[35rem]  justify-between flex-col rounded-lg bg-[#1B1B1D] shadow-one">
+        <div className="flex flex-row justify-between border-b-[1px] border-dark-grey px-8 py-4">
           <h1
-            className="flex flex-row text-2xl text-white"
+            className="flex flex-row text-xl text-white"
             style={{ gap: '10px' }}
           >
             Upgrade ANT
@@ -137,13 +137,13 @@ function UpgradeAntModal({
         </div>
         {!upgrading ? (
           <>
-            <div className="flex box-border h-full overflow-hidden w-full flex-col p-4 text-sm text-white">
+            <div className="flex box-border h-full overflow-hidden w-full flex-col px-8 py-4 text-sm text-white">
               <div className="flex scrollbar h-full min-h-[7.5rem] border-b-[1px] border-dark-grey pb-4 mb-4 overflow-y-scroll scrollbar-thumb-primary-thin scrollbar-thumb-rounded-full scrollbar-w-2">
                 <AntChangelog />
               </div>
 
               <span
-                className="flex flex-row items-center text-base py-4"
+                className="flex flex-row items-center text-sm"
                 style={{ gap: '10px' }}
               >
                 <Checkbox
@@ -198,7 +198,7 @@ function UpgradeAntModal({
                       ? 'bg-primary-thin text-primary'
                       : 'bg-link text-white hover:bg-primary hover:text-black'
                   } `
-            } w-full rounded-b-lg p-4 text-base transition-all`}
+            } w-full rounded-b-lg p-4 text-sm transition-all`}
             onClick={() => upgradeAnts()}
           >
             {!accepted

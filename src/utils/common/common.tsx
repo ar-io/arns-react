@@ -84,29 +84,21 @@ export function getCustomPaginationButtons({
   if (type === 'prev') {
     return (
       <span className="flex flex-center" style={prevStyle}>
-        <ChevronLeftIcon
-          width={'24px'}
-          height={'24px'}
-          fill="var(--text-grey)"
-        />
+        <ChevronLeftIcon className="fill-grey size-4" />
       </span>
     );
   }
   if (type === 'next') {
     return (
       <span className="flex flex-center" style={nextStyle}>
-        <ChevronRightIcon
-          width={'24px'}
-          height={'24px'}
-          fill="var(--text-grey)"
-        />
+        <ChevronRightIcon className="fill-grey size-4" />
       </span>
     );
   }
   if (type === 'page') {
     return (
       <span
-        className="flex flex-row hover center"
+        className="flex flex-row hover center text-sm font-sans"
         style={
           pageStyle ?? {
             color: currentPage == page ? 'white' : 'var(--text-grey)',

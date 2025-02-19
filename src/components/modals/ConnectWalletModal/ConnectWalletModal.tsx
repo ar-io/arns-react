@@ -132,21 +132,19 @@ function ConnectWalletModal(): JSX.Element {
       onClick={handleClickOutside}
     >
       <div className="connect-wallet-modal">
-        <p
-          className="section-header"
-          style={{ marginBottom: '1em', fontFamily: 'Rubik-Bold' }}
-        >
+        <p className="section-header mb-4 font-bold">
           Connect with an Arweave wallet
         </p>
         <button
-          className="modal-close-button"
+          // className="modal-close-button"
+          className="absolute top-5 right-[1.875rem]"
           onClick={() => closeModal({ next: false })}
         >
-          <CloseIcon width="30px" height={'30px'} fill="var(--text-white)" />
+          <CloseIcon className="fill-white size-6" />
         </button>
         <button
           disabled={connecting}
-          className="wallet-connect-button h2"
+          className="wallet-connect-button text-base"
           onClick={() => {
             connect(new WanderWalletConnector());
           }}
@@ -156,7 +154,7 @@ function ConnectWalletModal(): JSX.Element {
         </button>
 
         <button
-          className="wallet-connect-button h2"
+          className="wallet-connect-button text-base"
           onClick={() => {
             connect(new ArweaveAppWalletConnector());
           }}
@@ -169,15 +167,10 @@ function ConnectWalletModal(): JSX.Element {
           Arweave.app
         </button>
 
-        <p
-          className="section-header"
-          style={{ marginBottom: '1em', fontFamily: 'Rubik-Bold' }}
-        >
-          Connect with an Ethereum wallet
-        </p>
+        <p className="section-header mb-4">Connect with an Ethereum wallet</p>
         <button
           type="button"
-          className="wallet-connect-button h2"
+          className="wallet-connect-button text-base"
           onClick={async () => {
             if (!config) {
               throw new Error(
@@ -198,7 +191,7 @@ function ConnectWalletModal(): JSX.Element {
         </button>
 
         <span
-          className="flex flex-row white flex-center"
+          className="flex flex-row white flex-center text-sm"
           style={{ whiteSpace: 'nowrap', gap: '5px', paddingTop: '16px' }}
         >
           Don&apos;t have a wallet?&nbsp;
@@ -210,7 +203,6 @@ function ConnectWalletModal(): JSX.Element {
               textDecoration: 'underline',
             }}
             rel="noreferrer"
-            className="bold"
           >
             Get one here.
           </a>
