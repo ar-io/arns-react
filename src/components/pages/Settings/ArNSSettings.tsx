@@ -71,7 +71,7 @@ function ArNSSettings() {
   }
 
   const labelClass =
-    'flex w-fit justify-center items-center bg-background rounded-md px-4 py-1 border border-primary-thin text-md whitespace-nowrap text-light-grey gap-2';
+    'flex w-fit justify-center items-center bg-background rounded-md px-4 py-1 border border-primary-thin text-sm whitespace-nowrap text-light-grey gap-2';
 
   const inputClass = 'bg-foreground justify-center items-center outline-none';
   const inputContainerClass =
@@ -101,7 +101,10 @@ function ArNSSettings() {
                 'N/A'
               )}
             </span>
-            <div className="flex flex-row max-w-fit" style={{ gap: '10px' }}>
+            <div
+              className="flex flex-row max-w-fit text-sm"
+              style={{ gap: '10px' }}
+            >
               <button
                 className={
                   (arioProcessId == ARIO_TESTNET_PROCESS_ID
