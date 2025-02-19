@@ -156,7 +156,7 @@ function NotificationMenu() {
         <div className="flex flex-col w-full gap-3 text-white items-center justify-center">
           {notifications.length ? (
             notifications.map((notification, index) => (
-              <div className="flex flex-row size-4" key={index}>
+              <div className="flex flex-row size-fit" key={index}>
                 <span
                   className="flex flex-row justify-center items-start"
                   style={{ gap: '20px' }}
@@ -193,7 +193,7 @@ function NotificationMenu() {
               </div>
             ))
           ) : (
-            <span className="text-lg text-grey p-2">No Notifications</span>
+            <span className="text-sm text-grey p-2">No Notifications</span>
           )}
         </div>
       }
