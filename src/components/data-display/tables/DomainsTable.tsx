@@ -306,18 +306,14 @@ const DomainsTable = ({
                 }
                 icon={
                   <Link
-                    className="link gap-2 w-fit whitespace-nowrap"
+                    className="link gap-2 w-fit whitespace-nowrap items-center"
                     to={`https://${encodeDomainToASCII(row.getValue('name'))}.${
                       NETWORK_DEFAULTS.ARNS.HOST
                     }`}
                     target="_blank"
                   >
                     {formatForMaxCharCount(decodeDomainToASCII(rowValue), 20)}{' '}
-                    <ExternalLinkIcon
-                      width={'12px'}
-                      height={'12px'}
-                      fill={'var(--text-white)'}
-                    />
+                    <ExternalLinkIcon className="size-3 fill-grey" />
                   </Link>
                 }
               />
