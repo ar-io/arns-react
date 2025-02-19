@@ -46,6 +46,7 @@ export default function ControllersRow({
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
   const [showRemoveModal, setShowRemoveModal] = useState<boolean>(false);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
+  const [showTooltip, setShowTooltip] = useState<boolean>(false);
 
   async function handleControllerInteraction({
     payload,
@@ -98,7 +99,8 @@ export default function ControllersRow({
         action={[
           <Tooltip
             key={1}
-            open={undefined}
+            open={showTooltip}
+            onOpenChange={setShowTooltip}
             placement="bottomRight"
             color="var(--card-bg)"
             autoAdjustOverflow
@@ -114,13 +116,19 @@ export default function ControllersRow({
               <div className="flex-column flex" style={{ gap: '10px' }}>
                 <button
                   className="flex flex-right white pointer button"
-                  onClick={() => setShowAddModal(true)}
+                  onClick={() => {
+                    setShowAddModal(true);
+                    setShowTooltip(false);
+                  }}
                 >
                   Add Controller
                 </button>
                 <button
                   className="flex flex-right white pointer button"
-                  onClick={() => setShowRemoveModal(true)}
+                  onClick={() => {
+                    setShowRemoveModal(true);
+                    setShowTooltip(false);
+                  }}
                 >
                   Remove Controller
                 </button>

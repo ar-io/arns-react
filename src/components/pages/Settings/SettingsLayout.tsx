@@ -10,12 +10,12 @@ const settingsRoutes = [
   {
     name: 'ArNS Registry',
     path: 'arns',
-    icon: <BrandLogo width={'20px'} height={'20px'} fill={'inherit'} />,
+    icon: <BrandLogo className="size-4" fill={'inherit'} />,
   },
   {
     name: 'Network',
     path: 'network',
-    icon: <NetworkIcon width={'20px'} height={'20px'} fill={'none'} />,
+    icon: <NetworkIcon className="size-4" fill={'none'} />,
   },
 ];
 
@@ -30,8 +30,8 @@ function SettingsLayout() {
       </div>
       <div className="flex flex-col w-full h-full px-[100px] py-[30px]">
         <div className="flex flex-col w-full rounded-t-xl  border-x-[1px] border-t-[1px] border-dark-grey p-2">
-          <h1
-            className="flex flex-row text-white text-md pl-3 "
+          <div
+            className="flex flex-row text-white text-sm pl-3"
             style={{ gap: '15px' }}
           >
             <Link
@@ -50,7 +50,7 @@ function SettingsLayout() {
                 (route) => location?.pathname?.split('/')?.at(-1) == route.path,
               )?.name
             }
-          </h1>
+          </div>
         </div>
         <div
           className="flex flex-row w-full h-full rounded-xl rounded-t-none border-dark-grey border-[1px]"
@@ -66,7 +66,7 @@ function SettingsLayout() {
                     location?.pathname?.split('/')?.at(-1) == route.path
                       ? 'bg-[#222224] text-white fill-white'
                       : ' text-white fill-white  opacity-[0.4]'
-                  } flex  flex-row py-1.5 px-4 items-center justify-start whitespace-nowrap rounded-md hover:opacity-100 transition-all`}
+                  } flex  flex-row py-1.5 px-4 items-center justify-start whitespace-nowrap rounded-md hover:opacity-100 transition-all text-sm`}
                   style={{ gap: '5px' }}
                 >
                   {route.icon}

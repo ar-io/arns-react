@@ -49,7 +49,7 @@
   color: var(--text-white);
   font-family: 'Rubik';
   font-weight: 500;
-  font-size: 18px;
+  font-size: 1rem;
   justify-content: flex-start;
   align-items: center;
   padding: 0em 1em;

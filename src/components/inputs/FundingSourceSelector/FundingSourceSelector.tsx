@@ -135,11 +135,11 @@ export function FundingSourceSelector({
       position="item-aligned"
       className={{
         trigger:
-          'bg-foreground text-white flex gap-2 items-center p-3 rounded-lg border border-[#A7A7A759] outline-none justify-between h-fit w-[23rem] ',
+          'bg-foreground text-white flex gap-2 items-center p-3 rounded-lg border border-[#A7A7A759] outline-none justify-between h-fit w-fit text-sm',
         item: 'w-[24rem] flex items-center gap-3 cursor-pointer bg-foreground hover:bg-dark-grey px-3 py-3 text-grey fill-grey hover:fill-white  hover:text-white outline-none  transition-all',
         content:
           'flex bg-foreground z-[100] rounded overflow-hidden border py-2 w-[24rem] border-[#A7A7A759] absolute left-[-2.5rem]',
-        group: 'flex flex-col  bg-foreground',
+        group: 'flex flex-col  bg-foreground text-sm',
         viewport: 'flex pr-1 justify-start',
       }}
       options={[
@@ -164,7 +164,7 @@ export function FundingSourceSelector({
             'Loading...'
           ) : (
             <span>
-              Staked Balance (
+              Withdrawing/Staked Balance (
               {formatARIO(
                 new mARIOToken(getStakeUsed(stakeCostDetails))
                   .toARIO()
@@ -180,7 +180,9 @@ export function FundingSourceSelector({
             'Loading...'
           ) : (
             <div className="flex flex-wrap gap-2">
-              <span className="flex w-fit">Liquid + Staked Balances</span>
+              <span className="flex w-fit">
+                Liquid + Withdrawing/Staked Balances
+              </span>
               <span className="flex w-fit">
                 (
                 {formatARIO(

@@ -1,3 +1,9 @@
+import {
+  ARIO_DEVNET_PROCESS_ID,
+  ARIO_TESTNET_PROCESS_ID,
+} from '@ar.io/sdk/web';
+import { useGlobalState } from '@src/state';
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
@@ -8,7 +14,17 @@ import NetworkStatusBanner from './NetworkStatusBanner/NetworkStatusBanner';
 import './styles.css';
 
 function NavBar() {
+  const [{ arioProcessId }] = useGlobalState();
   const [, dispatchRegisterState] = useRegistrationState();
+
+  const bannerText = useMemo(() => {
+    if (arioProcessId == ARIO_DEVNET_PROCESS_ID) {
+      return `Devnet`;
+    } else if (arioProcessId == ARIO_TESTNET_PROCESS_ID) {
+      return `Testnet`;
+    }
+    return undefined;
+  }, [arioProcessId]);
 
   return (
     <div
@@ -28,17 +44,19 @@ function NavBar() {
             <div style={{ position: 'relative' }}>
               <BrandLogo width={'36px'} height={'36px'} fill={'white'} />
 
-              {/* TODO: Conditionally show testnet depending on environment when mainnet becomes available */}
-              <div
-                className="testnet"
-                style={{
-                  position: 'absolute',
-                  top: '-6px',
-                  left: '24px',
-                }}
-              >
-                Testnet
-              </div>
+              {/* TODO: Conditionally show tesnet/devnet depending on process id */}
+              {bannerText && (
+                <div
+                  className="testnet"
+                  style={{
+                    position: 'absolute',
+                    top: '-6px',
+                    left: '24px',
+                  }}
+                >
+                  {bannerText}
+                </div>
+              )}
             </div>
           </Link>
         </div>

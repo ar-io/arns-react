@@ -25,14 +25,11 @@ function ConfirmTransactionModal({
         title={<h2 className="white text-xl">{interactionType}</h2>}
         body={
           <div
-            className="flex flex-column white"
+            className="flex flex-column white text-sm"
             style={{
               gap: '20px',
-              fontSize: '13px',
               padding: '15px 0px',
               paddingTop: '0px',
-              lineHeight: '1.5',
-              fontWeight: 160,
             }}
           >
             {content}

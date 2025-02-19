@@ -9,9 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Featured Domains
+  - Updated for metalinks and arlink
+  - Replaced ar-io.dev with ar.io gateway
 - Landing page header and sub-title text updated
 - Header navigation links now icons
 - Footer links re-styled
+- Modal dialog styling normalized
 - Other minor visual improvements (icon sizing/coloring)
 
 ### Fixed

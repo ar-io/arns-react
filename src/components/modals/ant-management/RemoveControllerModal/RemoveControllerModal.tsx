@@ -71,31 +71,24 @@ function RemoveControllersModal({
             className="flex flex-column"
             style={{ fontSize: '14px', maxWidth: '575px', minWidth: '475px' }}
           >
-            <div className="flex flex-column" style={{ gap: '10px' }}>
+            <div className="flex flex-col gap-2">
               <span className="grey">Process ID</span>
               <span className="white">{antId.toString()}</span>
             </div>
             <div className="flex flex-row">
-              <div
-                className="flex flex-column"
-                style={{ gap: '10px', width: 'fit-content' }}
-              >
+              <div className="flex flex-col gap-2">
                 <span className="grey">Nickname</span>
                 <span className="white">{formatForMaxCharCount(name, 20)}</span>
               </div>
-              <div
-                className="flex flex-column"
-                style={{ gap: '10px', width: 'fit-content' }}
-              >
+              <div className="flex flex-col gap-2">
                 <span className="grey" style={{ whiteSpace: 'nowrap' }}>
                   Total Controllers
                 </span>
                 <span className="white">{rows.length ?? 'N/A'}</span>
               </div>
               <div
-                className="flex flex-column"
+                className="flex flex-col gap-2"
                 style={{
-                  gap: '10px',
                   height: '100%',
                   justifyContent: 'flex-start',
                   width: 'fit-content',
