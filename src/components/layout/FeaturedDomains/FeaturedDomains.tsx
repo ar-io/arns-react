@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { ARNSCard } from '../../cards';
 import './styles.css';
 
-const featuredGateways = ['permagate.io', 'g8way.io', 'ar-io.dev'];
+const featuredGateways = ['permagate.io', 'g8way.io', 'ar.io'];
 const defaultGateways = [
   ...featuredGateways,
   ...featuredGateways,

@@ -19,7 +19,7 @@ function MarkdownModal({ title, markdownText, onClose }: MarkdownModalProps) {
     >
       {/**modal header */}
       <DialogModal
-        title={<h2 className="white text-xl">{title}</h2>}
+        title={<div className="white text-xl">{title}</div>}
         body={
           <div
             className="flex flex-col scrollbar h-full min-h-[7.5rem] max-h-96 overflow-y-scroll overflow-x-hidden scrollbar-thumb-primary-thin scrollbar-thumb-rounded-full scrollbar-w-2"

@@ -168,18 +168,18 @@ export function ReassignNameModal({
   if (!workflow) {
     return (
       <div className="modal-container">
-        <div className="flex flex-col rounded-md border border-dark-grey bg-foreground p-6 w-[32rem] gap-8 text-white">
+        <div className="flex flex-col rounded-md border border-dark-grey bg-[#1B1B1D] p-6 w-[32rem] gap-8 text-white">
           <div className="flex flex-row justify-between items-center">
-            <h2 className="text-[24px]">Name Reassignment</h2>
+            <h2 className="text-xl">Name Reassignment</h2>
             <button onClick={() => handleClose()}>
-              <XIcon className="text-white" width={'24px'} height={'24px'} />
+              <XIcon className="text-white size-5" />
             </button>
           </div>
-          <span className="">
+          <span className="text-sm">
             You are about to reassign your name registration from one ANT
             (Arweave Name Token) to another.
           </span>
-          <div className="flex flex-row w-full items-center justify-center">
+          <div className="flex flex-row w-full items-center justify-center text-sm">
             <button
               className="bg-primary-thin p-3 rounded"
               onClick={() => setWorkflow(REASSIGN_NAME_WORKFLOWS.NEW_EXISTING)}

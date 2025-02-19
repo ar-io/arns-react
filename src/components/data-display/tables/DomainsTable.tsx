@@ -628,7 +628,7 @@ const DomainsTable = ({
                 <div className="flex flex-row center" style={{ gap: '16px' }}>
                   <Link
                     to="/"
-                    className="bg-primary rounded-md text-black center hover px-4 py-3"
+                    className="bg-primary rounded-md text-black center hover px-4 py-3 text-sm"
                   >
                     Search for a Name
                   </Link>

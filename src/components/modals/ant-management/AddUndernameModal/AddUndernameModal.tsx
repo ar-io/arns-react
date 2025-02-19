@@ -118,7 +118,7 @@ function AddUndernameModal({
                 className="flex flex-column"
                 style={{ paddingBottom: '30px' }}
               >
-                <div className="flex flex-column" style={{ gap: '15px' }}>
+                <div className="flex flex-col gap-2">
                   <span className="grey">Undername:</span>
                   <span
                     className="flex flex-row"
@@ -225,7 +225,7 @@ function AddUndernameModal({
                   )}
                 </div>
 
-                <div className="flex flex-column" style={{ gap: '15px' }}>
+                <div className="flex flex-col gap-2">
                   <span className="grey">Target ID:</span>
                   <ValidationInput
                     key={'targetId'}
@@ -263,7 +263,7 @@ function AddUndernameModal({
                   />
                 </div>
 
-                <div className="flex flex-column" style={{ gap: '15px' }}>
+                <div className="flex flex-col gap-2">
                   <span className="grey">TTL:</span>
                   <ValidationInput
                     key={'ttlSeconds'}

@@ -144,7 +144,7 @@ function TransferANTModal({
                 )}
 
                 <span
-                  className={`flex flex-row text ${
+                  className={`flex flex-row text-sm ${
                     accepted ? 'white' : 'grey'
                   }`}
                   style={{

@@ -48,11 +48,11 @@ function AddControllerModal({
             className="flex flex-column"
             style={{ fontSize: '14px', maxWidth: '575px', minWidth: '475px' }}
           >
-            <div className="flex flex-column" style={{ gap: '10px' }}>
+            <div className="flex flex-col gap-2">
               <span className="grey">Process ID:</span>
               <span className="white">{antId.toString()}</span>
             </div>
-            <div className="flex flex-column" style={{ gap: '10px' }}>
+            <div className="flex flex-col gap-2">
               <span className="grey">Nickname:</span>
               <span className="white">{formatForMaxCharCount(name, 40)}</span>
             </div>

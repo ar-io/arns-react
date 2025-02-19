@@ -98,7 +98,7 @@ function EditUndernameModal({
             style={{ fontSize: '14px', maxWidth: '575px', minWidth: '475px' }}
           >
             <div className="flex flex-column" style={{ paddingBottom: '30px' }}>
-              <div className="flex flex-column" style={{ gap: '15px' }}>
+              <div className="flex flex-col gap-2">
                 <span className="grey">Target ID:</span>
                 <ValidationInput
                   key={'targetId'}
@@ -132,7 +132,7 @@ function EditUndernameModal({
                 />
               </div>
 
-              <div className="flex flex-column" style={{ gap: '15px' }}>
+              <div className="flex flex-col gap-2">
                 <span className="grey">TTL:</span>
                 <ValidationInput
                   key={'ttlSeconds'}

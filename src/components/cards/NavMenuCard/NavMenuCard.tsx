@@ -318,7 +318,7 @@ function NavMenuCard() {
                       height={'16px'}
                     />{' '}
                     <Link
-                      to={'https://ar.io/test-ario'}
+                      to={'https://ar.io/token'}
                       target={'_blank'}
                       className={'flex-row navbar-link hover'}
                       style={{

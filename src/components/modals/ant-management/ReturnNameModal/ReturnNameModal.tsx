@@ -102,9 +102,9 @@ export function ReturnNameModal({
   return (
     <div className="modal-container">
       <DialogModal
-        title={<h1 className="text-2xl text-white">Permanent Name Return</h1>}
+        title={<h1 className="text-xl text-white">Permanent Name Return</h1>}
         body={
-          <div className="flex flex-col text-white max-w-[32rem] max-h-[40rem] gap-8">
+          <div className="flex flex-col text-white max-w-[32rem] max-h-[40rem] gap-8 text-sm">
             <span>
               You are about to return your permanently registered name back to
               the protocol. Once completed:
@@ -139,7 +139,7 @@ export function ReturnNameModal({
               {' '}
               <span>Do you wish to continue with the name return?</span>
               <span
-                className="flex flex-row text-grey items-center text-base py-4"
+                className="flex flex-row text-grey items-center text-sm py-4"
                 style={{ gap: '10px' }}
               >
                 <Checkbox
