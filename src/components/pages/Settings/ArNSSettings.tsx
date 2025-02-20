@@ -12,7 +12,7 @@ import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID
 import { SimpleArweaveDataProvider } from '@src/services/arweave/SimpleArweaveDataProvider';
 import { useGlobalState, useWalletState } from '@src/state';
 import { isArweaveTransactionID } from '@src/utils';
-import { ARIO_PROCESS_ID } from '@src/utils/constants';
+import { ARIO_MAINNET_PROCESS_ID, ARIO_PROCESS_ID } from '@src/utils/constants';
 import { Input } from 'antd';
 import Arweave from 'arweave';
 import { RotateCcw } from 'lucide-react';
@@ -71,7 +71,7 @@ function ArNSSettings() {
   }
 
   const labelClass =
-    'flex w-fit justify-center items-center bg-background rounded-md px-4 py-1 border border-primary-thin text-md whitespace-nowrap text-light-grey gap-2';
+    'flex w-fit justify-center items-center bg-background rounded-md px-4 py-1 border border-primary-thin text-sm whitespace-nowrap text-light-grey gap-2';
 
   const inputClass = 'bg-foreground justify-center items-center outline-none';
   const inputContainerClass =
@@ -101,7 +101,21 @@ function ArNSSettings() {
                 'N/A'
               )}
             </span>
-            <div className="flex flex-row max-w-fit" style={{ gap: '10px' }}>
+            <div
+              className="flex flex-row max-w-fit text-sm"
+              style={{ gap: '10px' }}
+            >
+              <button
+                className={
+                  (arioProcessId == ARIO_DEVNET_PROCESS_ID
+                    ? 'bg-primary text-black'
+                    : ' bg-dark-grey  text-light-grey') +
+                  ` flex px-3 py-2 rounded hover:bg-primary-thin hover:text-primary transition-all`
+                }
+                onClick={() => confirmSetting(ARIO_DEVNET_PROCESS_ID)}
+              >
+                Devnet
+              </button>
               <button
                 className={
                   (arioProcessId == ARIO_TESTNET_PROCESS_ID
@@ -113,16 +127,17 @@ function ArNSSettings() {
               >
                 Testnet
               </button>
+
               <button
                 className={
-                  (arioProcessId == ARIO_DEVNET_PROCESS_ID
+                  (arioProcessId == ARIO_MAINNET_PROCESS_ID
                     ? 'bg-primary text-black'
                     : ' bg-dark-grey  text-light-grey') +
-                  ` flex px-3 py-2 rounded hover:bg-primary-thin hover:text-primary transition-all`
+                  ` flex px-3 py-2 rounded  hover:bg-primary-thin hover:text-primary transition-all`
                 }
-                onClick={() => confirmSetting(ARIO_DEVNET_PROCESS_ID)}
+                onClick={() => confirmSetting(ARIO_MAINNET_PROCESS_ID)}
               >
-                Devnet
+                Mainnet
               </button>
             </div>
           </div>

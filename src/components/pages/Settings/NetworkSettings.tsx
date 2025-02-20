@@ -167,7 +167,7 @@ function NetworkSettings() {
     'text-grey border-[0.5px] border-dark-grey rounded hover:border-white hover:text-white transition-all h-full flex w-fit py-1 px-3 rounded-sm text-xs font-semibold';
   const resetIconClass = 'py-1 px-3 text-grey hover:text-white transition-all';
   return (
-    <div className="flex flex-col w-full h-full p-3">
+    <div className="flex flex-col w-full h-full p-3 text-sm">
       <div className="flex flex-col w-full h-full  gap-5 p-2 rounded-xl">
         <>
           <div className={inputContainerClass}>
@@ -177,7 +177,7 @@ function NetworkSettings() {
                 <span className="text-grey pl-2">{gateway}</span>
               </span>
               <button
-                className="border border-dark-grey flex flex-row bg-metallic-grey max-w-fit p-1 rounded-md text-white font-semibold hover:scale-105 transition-all"
+                className="border border-dark-grey flex flex-row bg-metallic-grey max-w-fit p-1 rounded-md text-white font-semibold hover:scale-105 transition-all text-sm p-2"
                 onClick={() => setShowGatewayModal(true)}
                 style={{ gap: '4px' }}
               >

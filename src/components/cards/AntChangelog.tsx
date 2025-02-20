@@ -89,6 +89,7 @@ function AntChangelog({ className }: { className?: string }) {
                     shouldLink={true}
                     wrapperStyle={{
                       width: 'fit-content',
+                      fontSize: '14px',
                     }}
                   />
                 </h2>
@@ -107,7 +108,7 @@ function AntChangelog({ className }: { className?: string }) {
               const id = match[2];
               const date = match[3];
               return (
-                <li className="ml-8 py-2 list-disc text-base text-grey">
+                <li className="ml-8 py-2 list-disc text-sm text-grey">
                   <div>Version: {version}</div>
                   <div>ID: {id}</div>
                   <div>Date: {date}</div>
@@ -115,7 +116,7 @@ function AntChangelog({ className }: { className?: string }) {
               );
             }
             return (
-              <li className="ml-8 py-2 list-disc text-base text-grey">
+              <li className="ml-8 py-2 list-disc text-sm text-grey">
                 {children}
               </li>
             );

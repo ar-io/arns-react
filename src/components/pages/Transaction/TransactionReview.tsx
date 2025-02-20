@@ -216,6 +216,12 @@ function TransactionReview() {
             onBack={() => navigate(-1)}
             backText={'Back'}
             nextText={'Confirm'}
+            customBackStyle={{ fontSize: '.875rem', padding: '.625rem' }}
+            customNextStyle={{
+              width: '100px',
+              fontSize: '.875rem',
+              padding: '.625rem',
+            }}
           />
         </div>
       </div>

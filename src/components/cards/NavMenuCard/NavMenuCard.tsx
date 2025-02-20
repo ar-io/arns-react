@@ -260,23 +260,27 @@ function NavMenuCard() {
                 >
                   {isMobile ? (
                     <>
-                      <NavBarLink
-                        path={'https://ar.io/test-io'}
-                        linkText={'What are test tokens?'}
-                        target={'_blank'}
-                      />
                       {Object.entries(ROUTES).map(([key, route]) => {
                         if (!route.index && (!route.protected || walletAddress))
                           return (
                             <NavBarLink
                               path={route.path}
-                              linkText={route.text}
+                              linkText=""
                               target={route.external ? '_blank' : '_self'}
                               key={key}
                               onClick={() => {
                                 setShowMenu(false);
                               }}
-                            />
+                            >
+                              <>
+                                {route.icon && (
+                                  <route.icon className="grey size-3" />
+                                )}
+                                <span className="text-sm pl-[.125rem]">
+                                  {route.text}
+                                </span>
+                              </>
+                            </NavBarLink>
                           );
                       })}
                     </>
@@ -314,7 +318,7 @@ function NavMenuCard() {
                       height={'16px'}
                     />{' '}
                     <Link
-                      to={'https://ar.io/test-io'}
+                      to={'https://ar.io/token'}
                       target={'_blank'}
                       className={'flex-row navbar-link hover'}
                       style={{
@@ -324,7 +328,7 @@ function NavMenuCard() {
                         fontSize: '14px',
                       }}
                     >
-                      What are test tokens?
+                      What are ARIO tokens?
                     </Link>
                   </span>{' '}
                   <span className="flex flex-row" style={{ gap: '10px' }}>

@@ -167,7 +167,10 @@ function DomainSettings({
               key={DomainSettingsRowTypes.LEASE_DURATION}
               editable={true}
               action={
-                <div className="flex flex-row gap-1" style={{ gap: '10px' }}>
+                <div
+                  className="flex flex-row flex-right gap-1"
+                  style={{ gap: '10px' }}
+                >
                   {data?.arnsRecord?.type == 'permabuy' && isOwner ? (
                     <Tooltip
                       message={
@@ -187,9 +190,9 @@ function DomainSettings({
                                 lowerCaseDomain(domain ?? ''))
                           }
                           onClick={() => setShowReturnNameModal(true)}
-                          className={`flex flex-row text-[12px] rounded-[4px] p-[6px] px-[10px] border border-error bg-error-thin text-error whitespace-nowrap`}
+                          className={`text-xs rounded-[4px] py-[.375rem] px-[.625rem]  border border-error bg-error-thin text-error whitespace-nowrap`}
                         >
-                          Return Name
+                          Return
                         </button>
                       }
                     />
@@ -330,7 +333,7 @@ function DomainSettings({
                       onClick={() => setShowReassignNameModal(true)}
                       className={`flex flex-row text-[12px] rounded-[4px] p-[6px] px-[10px] border border-error bg-error-thin text-error whitespace-nowrap`}
                     >
-                      Reassign Name
+                      Reassign
                     </button>
                   }
                 />

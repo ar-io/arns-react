@@ -7,12 +7,12 @@ import Arweave from 'arweave';
 import { ArweaveWebWallet } from 'arweave-wallet-connector';
 
 import antChangelog from '../../assets/ant-changelog.md?raw';
-import ALEX_IMAGE from '../../assets/images/featured-domains/alex.png';
 import AO_IMAGE from '../../assets/images/featured-domains/ao.png';
 import ARDRIVE_IMAGE from '../../assets/images/featured-domains/ardrive.png';
+import ARLINK_IMAGE from '../../assets/images/featured-domains/arlink.png';
 import ARWIKI_IMAGE from '../../assets/images/featured-domains/arwiki.png';
-import COOKBOOK_IMAGE from '../../assets/images/featured-domains/cookbook.png';
 import AR_FEES_IMAGE from '../../assets/images/featured-domains/fees.png';
+import METALINKS_IMAGE from '../../assets/images/featured-domains/metalinks.png';
 import MFERS_IMAGE from '../../assets/images/featured-domains/mfers.png';
 import PERMASWAP_IMAGE from '../../assets/images/featured-domains/permaswap.png';
 import SAM_IMAGE from '../../assets/images/featured-domains/sam.png';
@@ -141,8 +141,10 @@ export const FEATURED_DOMAINS: { [x: string]: { imageUrl: string } } = {
 
   permaswap: { imageUrl: PERMASWAP_IMAGE },
   'ar-fees': { imageUrl: AR_FEES_IMAGE },
-  alex: { imageUrl: ALEX_IMAGE },
-  cookbook: { imageUrl: COOKBOOK_IMAGE },
+  // alex: { imageUrl: ALEX_IMAGE },
+  // cookbook: { imageUrl: COOKBOOK_IMAGE },
+  arlink: { imageUrl: ARLINK_IMAGE },
+  metalinks: { imageUrl: METALINKS_IMAGE },
   sam: { imageUrl: SAM_IMAGE },
   mfers: { imageUrl: MFERS_IMAGE },
 };
@@ -198,3 +200,7 @@ export const PERMANENT_DOMAIN_MESSAGE = 'Indefinite';
 
 export const METAMASK_URL = 'https://metamask.io/';
 export const ANT_CHANGELOG = antChangelog;
+
+// TODO: Replace with final mainnet process ID from SDK
+export const ARIO_MAINNET_PROCESS_ID =
+  'qNvAoz0TgcH7DMg8BCVn8jF32QH5L6T29VjHxhHqqGE';
