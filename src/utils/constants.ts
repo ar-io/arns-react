@@ -203,4 +203,4 @@ export const ANT_CHANGELOG = antChangelog;
 
 // TODO: Replace with final mainnet process ID from SDK
 export const ARIO_MAINNET_PROCESS_ID =
-  'PklI5-ORsL310QNAwh-LMcFycFxPkJ67MmoriUCaL3I';
+  'qNvAoz0TgcH7DMg8BCVn8jF32QH5L6T29VjHxhHqqGE';
