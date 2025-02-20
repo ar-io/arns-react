@@ -7,8 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2025-02-20
+
 ### Changed
 
+- Application configured for mainnet process
 - Featured Domains
   - Updated for metalinks and arlink
   - Replaced ar-io.dev with ar.io gateway
