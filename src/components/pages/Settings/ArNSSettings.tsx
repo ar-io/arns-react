@@ -2,6 +2,7 @@ import {
   AOProcess,
   ARIO,
   ARIO_DEVNET_PROCESS_ID,
+  ARIO_MAINNET_PROCESS_ID,
   ARIO_TESTNET_PROCESS_ID,
 } from '@ar.io/sdk/web';
 import ArweaveID, {
@@ -12,7 +13,7 @@ import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID
 import { SimpleArweaveDataProvider } from '@src/services/arweave/SimpleArweaveDataProvider';
 import { useGlobalState, useWalletState } from '@src/state';
 import { isArweaveTransactionID } from '@src/utils';
-import { ARIO_MAINNET_PROCESS_ID, ARIO_PROCESS_ID } from '@src/utils/constants';
+import { ARIO_PROCESS_ID } from '@src/utils/constants';
 import { Input } from 'antd';
 import Arweave from 'arweave';
 import { RotateCcw } from 'lucide-react';
