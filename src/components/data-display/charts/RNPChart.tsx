@@ -2,6 +2,7 @@ import { AoGetCostDetailsParams, mARIOToken } from '@ar.io/sdk';
 import { useCostDetails } from '@src/hooks/useCostDetails';
 import { useGlobalState, useWalletState } from '@src/state';
 import { formatARIOWithCommas, formatDateMDY } from '@src/utils';
+import { START_RNP_PREMIUM } from '@src/utils/constants';
 import Lottie from 'lottie-react';
 import { useEffect, useRef, useState } from 'react';
 import {
@@ -17,14 +18,14 @@ import { Coordinate } from 'recharts/types/util/types';
 
 import arioLoading from '../../icons/ario-spinner.json';
 
-const START_RNP_PREMIUM = 50;
-
 export function RNPChart({
   name,
   purchaseDetails,
+  dateNow,
 }: {
   name: string;
   purchaseDetails?: Partial<AoGetCostDetailsParams>;
+  dateNow: number;
 }) {
   const [{ walletAddress }] = useWalletState();
   const { data: costDetails } = useCostDetails({
@@ -101,10 +102,9 @@ export function RNPChart({
             };
           });
 
-        const now = Date.now();
         const currentPricePoint = {
-          price: Math.round(priceAtTime(now)),
-          timestamp: now,
+          price: Math.round(priceAtTime(dateNow)),
+          timestamp: dateNow,
         };
 
         setCurrentPricePoint(currentPricePoint);

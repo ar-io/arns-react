@@ -157,6 +157,8 @@ export const MIN_LEASE_DURATION = 1;
 export const SECONDS_IN_GRACE_PERIOD = 14 * 24 * 60 * 60; // 2 weeks
 export const MILLISECONDS_IN_GRACE_PERIOD = SECONDS_IN_GRACE_PERIOD * 1000;
 
+export const START_RNP_PREMIUM = 50;
+
 export const transactionByOwnerQuery = (address: ArweaveTransactionID) => {
   const queryObject = {
     query: `
