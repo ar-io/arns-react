@@ -25,7 +25,7 @@ export function RNPChart({
 }: {
   name: string;
   purchaseDetails?: Partial<AoGetCostDetailsParams>;
-  dateNow: number;
+  dateNow?: number;
 }) {
   const [{ walletAddress }] = useWalletState();
   const { data: costDetails } = useCostDetails({
@@ -102,9 +102,11 @@ export function RNPChart({
             };
           });
 
+        const now = dateNow ?? Date.now();
+
         const currentPricePoint = {
-          price: Math.round(priceAtTime(dateNow)),
-          timestamp: dateNow,
+          price: Math.round(priceAtTime(now)),
+          timestamp: now,
         };
 
         setCurrentPricePoint(currentPricePoint);
