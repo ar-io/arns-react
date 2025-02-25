@@ -200,7 +200,3 @@ export const PERMANENT_DOMAIN_MESSAGE = 'Indefinite';
 
 export const METAMASK_URL = 'https://metamask.io/';
 export const ANT_CHANGELOG = antChangelog;
-
-// TODO: Replace with final mainnet process ID from SDK
-export const ARIO_MAINNET_PROCESS_ID =
-  'qNvAoz0TgcH7DMg8BCVn8jF32QH5L6T29VjHxhHqqGE';
