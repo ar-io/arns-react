@@ -58,6 +58,7 @@ const UpgradeUndernames = React.lazy(
 const SettingsLayout = React.lazy(
   () => import('./components/pages/Settings/SettingsLayout'),
 );
+const Prices = React.lazy(() => import('./components/pages/Prices/Prices'));
 
 const RNPPage = React.lazy(() => import('./components/pages/RNPPage/RNPPage'));
 
@@ -336,8 +337,21 @@ function App() {
                 <RNPPage />
               </Suspense>
             }
+          />{' '}
+          <Route
+            path="/prices"
+            element={
+              <Suspense
+                fallback={
+                  <PageLoader loading={true} message={'Loading, please wait'} />
+                }
+              >
+                <Prices />
+              </Suspense>
+            }
           />
         </Route>
+
         <Route
           path="settings"
           element={
