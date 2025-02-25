@@ -20,8 +20,8 @@ type TableData = {
   renewalFee: number;
   oneYearLeaseFee: number;
   permabuyFee: number;
-  undernameIncreaseFee: number;
-  permabuyUndernameIncreaseFee: number;
+  undernameFee: number;
+  permabuyUndernameFee: number;
 } & Record<string, any>;
 
 const columnHelper = createColumnHelper<TableData>();
@@ -68,8 +68,8 @@ export default function Prices() {
           renewalFee: af,
           oneYearLeaseFee: arf + af * 1,
           permabuyFee: arf + af * 20,
-          undernameIncreaseFee: baseFee * demandFactor * 0.001,
-          permabuyUndernameIncreaseFee: baseFee * demandFactor * 0.005,
+          undernameFee: baseFee * demandFactor * 0.001,
+          permabuyUndernameFee: baseFee * demandFactor * 0.005,
         };
         return data;
       },
@@ -79,17 +79,19 @@ export default function Prices() {
 
   const columns = [
     'characters',
-    'baseFee',
-    'adjustedRegistrationFee',
-    'renewalFee',
+    // 'baseFee',
+    //  'adjustedRegistrationFee',
     'oneYearLeaseFee',
+    'renewalFee',
     'permabuyFee',
-    'undernameIncreaseFee',
-    'permabuyUndernameIncreaseFee',
+    'undernameFee',
+    'permabuyUndernameFee',
   ].map((key) => {
     return columnHelper.accessor(key, {
       id: key,
-      header: camelToReadable(key),
+      header: () => {
+        return <span className=""> {camelToReadable(key)}</span>;
+      },
       cell: ({ row }) => {
         const numVal = Number(row.getValue(key));
         if (key === 'characters') return numVal.toString();
@@ -99,9 +101,16 @@ export default function Prices() {
   });
 
   return (
-    <div className="page">
+    <div className="page sm:px-10 lg:px-[100px]">
+      <div className="flex justify-between w-full items-center">
+        <h1 className="text-white text-3xl w-full">Prices</h1>{' '}
+        <span className="flex p-2 bg-foreground border border-dark-grey rounded text-white whitespace-nowrap">
+          Demand Factor:{' '}
+          {isLoading ? 'Loading...' : error ? error.message : demandFactor}
+        </span>
+      </div>
+
       <div className="flex w-full py-2 justify-between  items-center gap-5">
-        <h1 className="text-white text-3xl">Prices</h1>
         <input
           className="flex w-full p-2 bg-background border-b border-dark-grey outline-none text-white"
           placeholder="Enter an ArNS Name to see its fee"
@@ -119,10 +128,6 @@ export default function Prices() {
             setDomain(trimmed);
           }}
         />
-        <span className="flex p-2 bg-foreground border border-dark-grey rounded text-white whitespace-nowrap">
-          Demand Factor:{' '}
-          {isLoading ? 'Loading...' : error ? error.message : demandFactor}
-        </span>
       </div>
 
       <div className="flex flex-col size-full gap-2">
