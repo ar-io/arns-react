@@ -11,7 +11,7 @@ import {
 } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { createColumnHelper } from '@tanstack/react-table';
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 type TableData = {
   characters: number;
@@ -53,10 +53,8 @@ export default function Prices() {
   const { data: demandFactor, isLoading, error } = useDemandFactor();
   const [domain, setDomain] = useState('');
 
-  const [tableData, setTableData] = useState<TableData[]>([]);
-
-  useEffect(() => {
-    if (!demandFactor) return;
+  const tableData = useMemo(() => {
+    if (!demandFactor) return [];
     const newData = Object.entries(BASE_NAME_FEES).map(
       ([characters, baseFee]) => {
         const arf = baseFee * demandFactor;
@@ -74,13 +72,11 @@ export default function Prices() {
         return data;
       },
     );
-    setTableData(newData);
+    return newData;
   }, [demandFactor, isLoading, error]);
 
   const columns = [
     'characters',
-    // 'baseFee',
-    //  'adjustedRegistrationFee',
     'oneYearLeaseFee',
     'renewalFee',
     'permabuyFee',
