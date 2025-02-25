@@ -90,12 +90,12 @@ export default function Prices() {
     return columnHelper.accessor(key, {
       id: key,
       header: () => {
-        return <span className=""> {camelToReadable(key)}</span>;
+        return <span className="">{camelToReadable(key)} </span>;
       },
       cell: ({ row }) => {
         const numVal = Number(row.getValue(key));
         if (key === 'characters') return numVal.toString();
-        return formatARIOWithCommas(Number(numVal.toFixed(3)));
+        return formatARIOWithCommas(Number(numVal.toFixed(1)));
       },
     });
   });
@@ -103,7 +103,7 @@ export default function Prices() {
   return (
     <div className="page sm:px-10 lg:px-[100px]">
       <div className="flex justify-between w-full items-center">
-        <h1 className="text-white text-3xl w-full">Prices</h1>{' '}
+        <h1 className="text-white text-3xl w-full">Prices ($ARIO)</h1>{' '}
         <span className="flex p-2 bg-foreground border border-dark-grey rounded text-white whitespace-nowrap">
           Demand Factor:{' '}
           {isLoading ? 'Loading...' : error ? error.message : demandFactor}
