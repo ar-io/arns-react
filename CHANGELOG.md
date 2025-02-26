@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.1] - 2025-02-25
+
+### Fixed
+
+- Fixed pricing jog on Returned Names chart
+
+### Added
+
+- Added Prices page on /prices
+
 ## [1.1.0] - 2025-02-20
 
 ### Changed
