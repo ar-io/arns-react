@@ -2,6 +2,7 @@ import { AoGetCostDetailsParams, mARIOToken } from '@ar.io/sdk';
 import { useCostDetails } from '@src/hooks/useCostDetails';
 import { useGlobalState, useWalletState } from '@src/state';
 import { formatARIOWithCommas, formatDateMDY } from '@src/utils';
+import { START_RNP_PREMIUM } from '@src/utils/constants';
 import Lottie from 'lottie-react';
 import { useEffect, useRef, useState } from 'react';
 import {
@@ -17,14 +18,14 @@ import { Coordinate } from 'recharts/types/util/types';
 
 import arioLoading from '../../icons/ario-spinner.json';
 
-const START_RNP_PREMIUM = 50;
-
 export function RNPChart({
   name,
   purchaseDetails,
+  dateNow,
 }: {
   name: string;
   purchaseDetails?: Partial<AoGetCostDetailsParams>;
+  dateNow?: number;
 }) {
   const [{ walletAddress }] = useWalletState();
   const { data: costDetails } = useCostDetails({
@@ -36,10 +37,12 @@ export function RNPChart({
     ...(purchaseDetails ?? {}),
   });
 
-  type ChartData = {
-    timestamp: number;
+  type PricePoint = {
     price: number;
-  }[];
+    timestamp: number;
+  };
+
+  type ChartData = PricePoint[];
 
   const [chartData, setChartData] = useState<ChartData>([]);
   const [activePayload, setActivePayload] = useState<any>(null);
@@ -51,6 +54,8 @@ export function RNPChart({
 
   const chartRef = useRef<{ state: CategoricalChartState }>(null);
   const [refReady, setRefReady] = useState(false);
+
+  const [currentPricePoint, setCurrentPricePoint] = useState<PricePoint>();
 
   // NOTE: there is *SOMETHING* wrong with chartRef in that it only *sometimes* triggers the below effect that positions the tooltip.
   // moving that effect up in the order helps some, but not perfectly. This was the only way to ensure reliable (if slow) triggering of that effect to set the position.
@@ -65,24 +70,31 @@ export function RNPChart({
   useEffect(() => {
     try {
       if (costDetails?.returnedNameDetails) {
-        const startPrice =
-          costDetails.returnedNameDetails.basePrice * START_RNP_PREMIUM;
-        const endPrice = costDetails.returnedNameDetails.basePrice;
-        const startTimestamp = costDetails.returnedNameDetails.startTimestamp;
-        const endTimestamp = costDetails.returnedNameDetails.endTimestamp;
+        const {
+          basePrice: endPrice,
+          startTimestamp,
+          endTimestamp,
+        } = costDetails.returnedNameDetails;
+        const startPrice = endPrice * START_RNP_PREMIUM;
         const pricePointCount = 14;
+
+        const priceAtTime = (timestamp: number) => {
+          const percentageOfPeriodPassed =
+            (timestamp - startTimestamp) / (endTimestamp - startTimestamp);
+          const price =
+            startPrice + percentageOfPeriodPassed * (endPrice - startPrice);
+          return price;
+        };
+
+        const timeDuration = endTimestamp - startTimestamp;
 
         const newChartData: ChartData = new Array(pricePointCount)
           .fill(true)
           .map((_, i) => {
             const timestamp =
-              startTimestamp +
-              ((endTimestamp - startTimestamp) / (pricePointCount - 1)) * i;
+              startTimestamp + (timeDuration / (pricePointCount - 1)) * i;
 
-            const percentageOfPeriodPassed =
-              (timestamp - startTimestamp) / (endTimestamp - startTimestamp);
-            const price =
-              startPrice + percentageOfPeriodPassed * (endPrice - startPrice);
+            const price = priceAtTime(timestamp);
 
             return {
               price: Math.round(price),
@@ -90,14 +102,19 @@ export function RNPChart({
             };
           });
 
+        const now = dateNow ?? Date.now();
+
+        const currentPricePoint = {
+          price: Math.round(priceAtTime(now)),
+          timestamp: now,
+        };
+
+        setCurrentPricePoint(currentPricePoint);
         setChartData(
           [
             ...newChartData,
             // Add the current price for tooltip orientation on default position
-            {
-              timestamp: Date.now(),
-              price: costDetails.tokenCost,
-            },
+            currentPricePoint,
           ].sort((a, b) => a.timestamp - b.timestamp),
         );
         return;
@@ -109,7 +126,7 @@ export function RNPChart({
   }, [costDetails]);
 
   useEffect(() => {
-    const point = chartData?.find((d) => d.price === costDetails?.tokenCost);
+    const point = chartData?.find((d) => d.price === currentPricePoint?.price);
     if (point) {
       const tipData = {
         payload: [
@@ -253,29 +270,34 @@ export function RNPChart({
             }
           />
 
-          <Line
-            animationDuration={200}
-            type="linear"
-            dataKey="price"
-            data={chartData.filter(
-              (point) => point.price >= costDetails.tokenCost,
-            )}
-            stroke="white"
-            strokeWidth={2}
-            dot={(props) => renderActiveDot(props)}
-          />
-          <Line
-            animationDuration={200}
-            type="linear"
-            dataKey="price"
-            data={chartData.filter(
-              (point) => point.price <= costDetails.tokenCost,
-            )}
-            stroke="white"
-            strokeWidth={2}
-            strokeDasharray="5 5"
-            dot={(props) => renderActiveDot(props)}
-          />
+          {currentPricePoint && (
+            <>
+              <Line
+                animationDuration={200}
+                type="linear"
+                dataKey="price"
+                data={chartData.filter(
+                  (point) => point.price >= currentPricePoint.price,
+                )}
+                stroke="white"
+                strokeWidth={2}
+                dot={(props) => renderActiveDot(props)}
+              />
+
+              <Line
+                animationDuration={200}
+                type="linear"
+                dataKey="price"
+                data={chartData.filter(
+                  (point) => point.price <= currentPricePoint.price,
+                )}
+                stroke="white"
+                strokeWidth={2}
+                strokeDasharray="5 5"
+                dot={(props) => renderActiveDot(props)}
+              />
+            </>
+          )}
         </LineChart>
       </ResponsiveContainer>{' '}
       <div className="flex justify-between pt-2 text-[14px] text-white">

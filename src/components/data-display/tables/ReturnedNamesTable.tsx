@@ -19,11 +19,11 @@ import {
   isArweaveTransactionID,
   lowerCaseDomain,
 } from '@src/utils';
-import { NETWORK_DEFAULTS } from '@src/utils/constants';
+import { NETWORK_DEFAULTS, START_RNP_PREMIUM } from '@src/utils/constants';
 import { useQueryClient } from '@tanstack/react-query';
 import { ColumnDef, Row, createColumnHelper } from '@tanstack/react-table';
 import { CircleAlertIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ReactNode } from 'react-markdown';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -97,6 +97,10 @@ const ReturnedNamesTable = ({
   const [filteredTableData, setFilteredTableData] = useState<TableData[]>([]);
   const [sortBy, setSortBy] = useState(searchParams.get('sortBy') ?? 'name');
 
+  const dateNow = useMemo(() => {
+    return Date.now();
+  }, []);
+
   useEffect(() => {
     setSortBy(searchParams.get('sortBy') ?? 'name');
   }, [searchParams]);
@@ -151,7 +155,19 @@ const ReturnedNamesTable = ({
         ),
       );
 
-      return res.tokenCost;
+      // calculate current price
+      if (!res.returnedNameDetails) {
+        throw new Error('Returned Name Details not found');
+      }
+      const {
+        startTimestamp,
+        endTimestamp,
+        basePrice: endPrice,
+      } = res.returnedNameDetails;
+      const startPrice = endPrice * START_RNP_PREMIUM;
+      const percent =
+        (dateNow - startTimestamp) / (endTimestamp - startTimestamp);
+      return Math.round(startPrice + (endPrice - startPrice) * percent);
     } catch (error: any) {
       return new Error(error.message);
     }
@@ -396,6 +412,7 @@ const ReturnedNamesTable = ({
           purchaseDetails={{
             type: purchaseType,
           }}
+          dateNow={dateNow}
         />
       </div>
     );

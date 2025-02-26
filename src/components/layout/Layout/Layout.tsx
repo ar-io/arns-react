@@ -20,7 +20,7 @@ function Layout() {
 
   return (
     <div
-      className="flex flex-column"
+      className="flex flex-col"
       style={{
         gap: 0,
         position: 'relative',

@@ -157,6 +157,8 @@ export const MIN_LEASE_DURATION = 1;
 export const SECONDS_IN_GRACE_PERIOD = 14 * 24 * 60 * 60; // 2 weeks
 export const MILLISECONDS_IN_GRACE_PERIOD = SECONDS_IN_GRACE_PERIOD * 1000;
 
+export const START_RNP_PREMIUM = 50;
+
 export const transactionByOwnerQuery = (address: ArweaveTransactionID) => {
   const queryObject = {
     query: `
@@ -200,7 +202,3 @@ export const PERMANENT_DOMAIN_MESSAGE = 'Indefinite';
 
 export const METAMASK_URL = 'https://metamask.io/';
 export const ANT_CHANGELOG = antChangelog;
-
-// TODO: Replace with final mainnet process ID from SDK
-export const ARIO_MAINNET_PROCESS_ID =
-  'qNvAoz0TgcH7DMg8BCVn8jF32QH5L6T29VjHxhHqqGE';
