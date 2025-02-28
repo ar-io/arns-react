@@ -48,6 +48,7 @@ function UpgradeDomainModal({
   const [, dispatchTransactionState] = useTransactionState();
   const [accepted, setAccepted] = useState(false);
   const [upgrading, setUpgrading] = useState(false);
+  const [signingMessage, setSigningMessage] = useState('');
 
   function handleClose() {
     setVisible(false);
@@ -96,6 +97,11 @@ function UpgradeDomainModal({
         signer,
         dispatchTransactionState,
         dispatchArNSState,
+        stepCallback: async (step?: string | Record<string, string>) => {
+          if (typeof step === 'string') {
+            setSigningMessage(`${step}`);
+          }
+        },
       }).catch(() => {
         failedUpgrades.push(domainData.processId);
       });
@@ -142,7 +148,7 @@ function UpgradeDomainModal({
             className="flex flex-row text-xl text-white"
             style={{ gap: '10px' }}
           >
-            Upgrade Domain
+            {signingMessage.length ? <>{signingMessage}</> : 'Upgrade Domain'}
           </h1>
           <button
             disabled={upgrading}
