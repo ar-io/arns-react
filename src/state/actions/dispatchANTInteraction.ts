@@ -64,11 +64,11 @@ export default async function dispatchANTInteraction({
 
     switch (workflowName) {
       case ANT_INTERACTION_TYPES.SET_NAME:
-        stepCallback('Setting Name, please wait...');
+        await stepCallback('Setting Name, please wait...');
         result = await antProcess.setName({ name: payload.name });
         break;
       case ANT_INTERACTION_TYPES.SET_TARGET_ID:
-        stepCallback('Setting Target ID, please wait...');
+        await stepCallback('Setting Target ID, please wait...');
         result = await antProcess.setRecord({
           undername: '@',
           transactionId: payload.transactionId,
@@ -76,7 +76,7 @@ export default async function dispatchANTInteraction({
         });
         break;
       case ANT_INTERACTION_TYPES.SET_TTL_SECONDS:
-        stepCallback('Setting TTL Seconds, please wait...');
+        await stepCallback('Setting TTL Seconds, please wait...');
         result = await antProcess.setRecord({
           undername: '@',
           transactionId: payload.transactionId,
@@ -84,25 +84,25 @@ export default async function dispatchANTInteraction({
         });
         break;
       case ANT_INTERACTION_TYPES.SET_TICKER:
-        stepCallback('Setting Ticker, please wait...');
+        await stepCallback('Setting Ticker, please wait...');
         result = await antProcess.setTicker({ ticker: payload.ticker });
         break;
       case ANT_INTERACTION_TYPES.SET_CONTROLLER:
-        stepCallback('Setting Controller, please wait...');
+        await stepCallback('Setting Controller, please wait...');
         result = await antProcess.addController({
           controller: payload.controller,
         });
         break;
       case ANT_INTERACTION_TYPES.REMOVE_CONTROLLER:
-        stepCallback('Removing Controller, please wait...');
+        await stepCallback('Removing Controller, please wait...');
         result = await antProcess.removeController({
           controller: payload.controller,
         });
         break;
       case ANT_INTERACTION_TYPES.TRANSFER:
-        stepCallback('Transferring Ownership, please wait...');
+        await stepCallback('Transferring Ownership, please wait...');
         if (payload.arnsDomain && payload.arioProcessId) {
-          stepCallback('Clearing Primary Names associated with ANT...');
+          await stepCallback('Clearing Primary Names associated with ANT...');
           await antProcess
             .removePrimaryNames({
               names: [payload.arnsDomain],
@@ -115,7 +115,7 @@ export default async function dispatchANTInteraction({
 
         break;
       case ANT_INTERACTION_TYPES.SET_RECORD:
-        stepCallback('Setting Undername, please wait...');
+        await stepCallback('Setting Undername, please wait...');
         result = await antProcess.setRecord({
           undername: lowerCaseDomain(payload.subDomain),
           transactionId: payload.transactionId,
@@ -123,7 +123,7 @@ export default async function dispatchANTInteraction({
         });
         break;
       case ANT_INTERACTION_TYPES.EDIT_RECORD:
-        stepCallback('Editing Undername, please wait...');
+        await stepCallback('Editing Undername, please wait...');
         result = await antProcess.setRecord({
           undername: lowerCaseDomain(payload.subDomain),
           transactionId: payload.transactionId,
@@ -131,21 +131,21 @@ export default async function dispatchANTInteraction({
         });
         break;
       case ANT_INTERACTION_TYPES.REMOVE_RECORD:
-        stepCallback('Removing Undername, please wait...');
+        await stepCallback('Removing Undername, please wait...');
         result = await antProcess.removeRecord({
           undername: lowerCaseDomain(payload.subDomain),
         });
         break;
 
       case ANT_INTERACTION_TYPES.RELEASE_NAME: {
-        stepCallback('Releasing ArNS Name, please wait...');
+        await stepCallback('Releasing ArNS Name, please wait...');
         const arioContract = ARIO.init({ processId: payload.arioProcessId });
 
         result = await antProcess.releaseName({
           name: payload.name,
           arioProcessId: payload.arioProcessId,
         });
-        stepCallback('Verifying Release, please wait...');
+        await stepCallback('Verifying Release, please wait...');
         const released = await arioContract
           .getArNSRecord({ name: payload.name })
           .catch((e: Error) => e);
@@ -158,7 +158,7 @@ export default async function dispatchANTInteraction({
       case ANT_INTERACTION_TYPES.REASSIGN_NAME: {
         let newAntProcessId = payload.newAntProcessId;
         if (!newAntProcessId) {
-          stepCallback('Spawning new ANT, please wait... 1/2');
+          await stepCallback('Spawning new ANT, please wait... 1/2');
           newAntProcessId = await spawnANT({
             ao,
             signer: createAoSigner(signer),
@@ -166,7 +166,7 @@ export default async function dispatchANTInteraction({
             luaCodeTxId: payload.luaCodeTxId,
           });
         }
-        stepCallback(
+        await stepCallback(
           'Reassigning ArNS name, please wait... ' +
             (payload.newAntProcessId ? '' : '2/2'),
         );
@@ -180,25 +180,25 @@ export default async function dispatchANTInteraction({
         break;
       }
       case ANT_INTERACTION_TYPES.SET_LOGO:
-        stepCallback('Setting Logo, please wait...');
+        await stepCallback('Setting Logo, please wait...');
         result = await antProcess.setLogo({
           txId: payload.logo,
         });
         break;
       case ANT_INTERACTION_TYPES.SET_DESCRIPTION:
-        stepCallback('Setting Description, please wait...');
+        await stepCallback('Setting Description, please wait...');
         result = await antProcess.setDescription({
           description: payload.description,
         });
         break;
       case ANT_INTERACTION_TYPES.SET_KEYWORDS:
-        stepCallback('Setting Keywords, please wait...');
+        await stepCallback('Setting Keywords, please wait...');
         result = await antProcess.setKeywords({
           keywords: payload.keywords,
         });
         break;
       case ANT_INTERACTION_TYPES.APPROVE_PRIMARY_NAME:
-        stepCallback('Approving Primary Name request, please wait...');
+        await stepCallback('Approving Primary Name request, please wait...');
         result = await antProcess.approvePrimaryNameRequest({
           name: payload.name,
           address: owner.toString(),
@@ -206,7 +206,7 @@ export default async function dispatchANTInteraction({
         });
         break;
       case ANT_INTERACTION_TYPES.REMOVE_PRIMARY_NAMES:
-        stepCallback('Removing Primary Name, please wait...');
+        await stepCallback('Removing Primary Name, please wait...');
 
         result = await antProcess.removePrimaryNames({
           names: payload.names,
@@ -215,7 +215,7 @@ export default async function dispatchANTInteraction({
         break;
 
       case ANT_INTERACTION_TYPES.UPGRADE_ANT: {
-        stepCallback('Upgrading ANT, please wait...');
+        await stepCallback('Upgrading ANT, please wait...');
         const state = payload.state;
         // spawn new ANT with previous state
         const newAntId = await spawnANT({
@@ -225,7 +225,7 @@ export default async function dispatchANTInteraction({
           state,
           stateContractTxId: processId,
         });
-        stepCallback('Validating state migration...');
+        await stepCallback('Validating state migration...');
         // validate new ANT is a valid ANT
         const newAnt = ANT.init({
           process: new AOProcess({
@@ -242,7 +242,7 @@ export default async function dispatchANTInteraction({
             throw new Error('State migration unsuccessful: ', e.message);
           });
         // reassign name to new ant
-        stepCallback('Reassigning ArNS Name...');
+        await stepCallback('Reassigning ArNS Name...');
         const reassignRes = await antProcess.reassignName({
           name: payload.name,
           arioProcessId: payload.arioProcessId,
@@ -300,7 +300,7 @@ export default async function dispatchANTInteraction({
   } catch (error) {
     eventEmitter.emit('error', error);
   } finally {
-    stepCallback(undefined);
+    await stepCallback(undefined);
     clearTimeout(aoCongestedTimeout);
   }
   if (!result) {
