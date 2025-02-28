@@ -41,7 +41,7 @@ function UpgradeDomainModal({
   domain: string;
 }) {
   const queryClient = useQueryClient();
-  const [{ antAoClient, aoNetwork, arioContract, arioProcessId }] =
+  const [{ antAoClient, aoNetwork, arioContract, arioProcessId, gateway }] =
     useGlobalState();
   const [, dispatchArNSState] = useArNSState();
   const [{ wallet, walletAddress }] = useWalletState();
@@ -71,6 +71,7 @@ function UpgradeDomainModal({
           arioProcessId,
           aoNetwork,
           wallet,
+          gateway,
         }),
       );
       const previousState: SpawnANTState = {

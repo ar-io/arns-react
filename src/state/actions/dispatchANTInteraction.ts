@@ -3,15 +3,18 @@ import {
   AOS_MODULE_ID as ANT_MODULE_ID,
   AOProcess,
   ARIO,
+  AoANTHandler,
   AoClient,
   AoMessageResult,
   ContractSigner,
   createAoSigner,
   spawnANT,
 } from '@ar.io/sdk/web';
+import { buildDomainInfoQuery } from '@src/hooks/useDomainInfo';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
 import { lowerCaseDomain, sleep } from '@src/utils';
+import { ARWEAVE_HOST, NETWORK_DEFAULTS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { queryClient } from '@src/utils/network';
 import { Dispatch } from 'react';
@@ -275,6 +278,16 @@ export default async function dispatchANTInteraction({
         result = reassignRes;
         // handle state mutations
         queryClient.resetQueries({ queryKey: ['domainInfo', payload.name] });
+        const domainInfo = await queryClient
+          .fetchQuery(
+            buildDomainInfoQuery({
+              antId: processId,
+              aoNetwork: NETWORK_DEFAULTS.AO,
+              gateway: ARWEAVE_HOST,
+            }),
+          )
+          .catch((e) => console.error(e));
+        if (!domainInfo) throw new Error('Unable to fetch domain info');
         // overwrite the existing domain with the updated record (only the process id should have changed)
         dispatchArNSState({
           type: 'addDomains',
@@ -286,8 +299,10 @@ export default async function dispatchANTInteraction({
           payload: {
             [newAntId]: {
               state: newAntState,
-              handlers: null,
-              processMeta: null,
+              handlers: (domainInfo.info?.Handlers ?? null) as
+                | AoANTHandler[]
+                | null,
+              processMeta: domainInfo.processMeta ?? null,
             },
           },
         });

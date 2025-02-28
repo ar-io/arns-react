@@ -35,6 +35,10 @@ export async function dispatchArNSUpdate({
   aoNetworkSettings: typeof NETWORK_DEFAULTS.AO;
 }) {
   try {
+    const gateway = aoNetworkSettings.ANT.GRAPHQL_URL.replace(
+      /^(https?:\/\/)?graphql(\/)?/,
+      '',
+    );
     const ao = connect(aoNetworkSettings.ARIO);
     const throttle = pLimit(20);
     // reset queries
@@ -90,10 +94,7 @@ export async function dispatchArNSUpdate({
     // Fetch ANT Process meta from graphql
     const antMetas = (await queryClient
       .fetchQuery<TransactionEdge['node'][] | null>(
-        buildAllGraphQLTransactionsQuery(
-          registeredUserAnts,
-          'arweave.net',
-        ) as any,
+        buildAllGraphQLTransactionsQuery(registeredUserAnts, gateway) as any,
       )
       .then((res) =>
         res?.reduce(
@@ -138,6 +139,7 @@ export async function dispatchArNSUpdate({
           buildDomainInfoQuery({
             antId: id,
             aoNetwork: aoNetworkSettings,
+            gateway,
           }),
         );
         dispatch({
