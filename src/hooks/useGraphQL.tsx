@@ -11,14 +11,14 @@ type GraphQLQueryParams = Parameters<
 >;
 
 export function buildGraphQLQuery(
-  gateway: string,
+  graphqlUrl: string,
   ...params: GraphQLQueryParams
 ) {
   return queryOptions<GetTransactionsQuery | null>({
-    queryKey: ['arweave-graphql', params, gateway],
+    queryKey: ['arweave-graphql', params, graphqlUrl],
     queryFn: async () => {
       try {
-        const gql = arweaveGraphql(`https://${gateway}/graphql`);
+        const gql = arweaveGraphql(graphqlUrl);
         const res = await gql.getTransactions(...params);
         return res;
       } catch (error) {
@@ -30,19 +30,19 @@ export function buildGraphQLQuery(
   });
 }
 export function useGraphQL(...params: GraphQLQueryParams) {
-  const [{ gateway }] = useGlobalState();
+  const [{ aoNetwork }] = useGlobalState();
 
   return useQuery<GetTransactionsQuery | null>(
-    buildGraphQLQuery(gateway, ...params),
+    buildGraphQLQuery(aoNetwork.ANT.GRAPHQL_URL, ...params),
   );
 }
 
 export function buildAllGraphQLTransactionsQuery(
   ids: string[],
-  gateway: string,
+  graphqlUrl: string,
 ) {
   return queryOptions<TransactionEdge['node'][]>({
-    queryKey: ['arweave-graphql', ids, gateway],
+    queryKey: ['arweave-graphql', ids, graphqlUrl],
     queryFn: async () => {
       const results: TransactionEdge['node'][] = [];
       let cursor = undefined;
@@ -51,7 +51,7 @@ export function buildAllGraphQLTransactionsQuery(
         // TODO: get data from query cache directly, filter out ids from batch, then query for ID missing from cache
         const res: GetTransactionsQuery | null =
           await queryClient.fetchQuery<GetTransactionsQuery | null>(
-            buildGraphQLQuery(gateway, {
+            buildGraphQLQuery(graphqlUrl, {
               ids,
               after: cursor,
               first: 100,
@@ -77,9 +77,9 @@ export function buildAllGraphQLTransactionsQuery(
 }
 
 export function useAllGraphQLTransactions(ids: string[]) {
-  const [{ gateway }] = useGlobalState();
+  const [{ aoNetwork }] = useGlobalState();
 
   return useQuery<TransactionEdge['node'][]>(
-    buildAllGraphQLTransactionsQuery(ids, gateway),
+    buildAllGraphQLTransactionsQuery(ids, aoNetwork.ANT.GRAPHQL_URL),
   );
 }

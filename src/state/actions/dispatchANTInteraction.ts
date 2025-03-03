@@ -14,7 +14,7 @@ import { buildDomainInfoQuery } from '@src/hooks/useDomainInfo';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
 import { lowerCaseDomain, sleep } from '@src/utils';
-import { ARWEAVE_HOST, NETWORK_DEFAULTS } from '@src/utils/constants';
+import { NETWORK_DEFAULTS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { queryClient } from '@src/utils/network';
 import { Dispatch } from 'react';
@@ -283,7 +283,6 @@ export default async function dispatchANTInteraction({
             buildDomainInfoQuery({
               antId: processId,
               aoNetwork: NETWORK_DEFAULTS.AO,
-              gateway: ARWEAVE_HOST,
             }),
           )
           .catch((e) => console.error(e));

@@ -44,7 +44,7 @@ function UpgradeDomainsModal({
   visible: boolean;
   setVisible: (visible: boolean) => void;
 }) {
-  const [{ antAoClient, aoNetwork, arioProcessId, arioContract, gateway }] =
+  const [{ antAoClient, aoNetwork, arioProcessId, arioContract }] =
     useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const [accepted, setAccepted] = useState(false);
@@ -98,7 +98,6 @@ function UpgradeDomainsModal({
             arioProcessId,
             aoNetwork,
             wallet,
-            gateway,
           }),
         );
         const previousState: SpawnANTState = {

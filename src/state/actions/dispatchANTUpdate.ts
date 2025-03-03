@@ -49,17 +49,11 @@ export async function dispatchANTUpdate({
       },
     });
 
-    const gateway = aoNetwork.ANT.GRAPHQL_URL.replace(
-      /^(https?:\/\/)?graphql(\/)?/,
-      '',
-    );
-
     const domainInfo = await queryClient
       .fetchQuery(
         buildDomainInfoQuery({
           antId: processId,
           aoNetwork,
-          gateway,
         }),
       )
       .catch((e) => console.error(e));
