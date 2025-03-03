@@ -242,7 +242,7 @@ export default async function dispatchANTInteraction({
         const newAntState = await newAnt
           .getState({ strict: true })
           .catch((e) => {
-            throw new Error('State migration unsuccessful: ', e.message);
+            throw new Error(`State migration unsuccessful: ${e.message}`);
           });
         // reassign name to new ant
         await stepCallback('Reassigning ArNS Name...');
