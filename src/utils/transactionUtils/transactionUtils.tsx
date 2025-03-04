@@ -6,6 +6,7 @@ import {
   ARNSMapping,
   ARNS_INTERACTION_TYPES,
   BuyRecordPayload,
+  EthAddress,
   ExcludedValidInteractionType,
   ExtendLeasePayload,
   INTERACTION_TYPES,
@@ -47,7 +48,7 @@ export function isArweaveTransactionID(id?: string) {
 const ETH_REGEX = /^0x[a-fA-F0-9]{40}$/;
 
 /** Check that address is EIP-55 compatible ETH address */
-export function isEthAddress(address: string) {
+export function isEthAddress(address: string): address is EthAddress {
   return (
     ETH_REGEX.test(address) && checksumAddress(address as Address) === address
   );
