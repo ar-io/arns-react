@@ -1,5 +1,5 @@
 import { StepProps } from 'antd';
-import { isAddress } from 'viem';
+import { Address, checksumAddress } from 'viem';
 
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import {
@@ -44,10 +44,13 @@ export function isArweaveTransactionID(id?: string) {
   return true;
 }
 
+const ETH_REGEX = /^0x[a-fA-F0-9]{40}$/;
+
+/** Check that address is EIP-55 compatible ETH address */
 export function isEthAddress(address: string) {
-  return isAddress(address, {
-    strict: true,
-  });
+  return (
+    ETH_REGEX.test(address) && checksumAddress(address as Address) === address
+  );
 }
 
 export function isValidAoAddress(address: string) {
