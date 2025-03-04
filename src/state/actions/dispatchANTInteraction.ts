@@ -265,13 +265,13 @@ export default async function dispatchANTInteraction({
         let retries = 0;
         const maxRetries = 10;
         while (record?.processId !== newAntId && retries < maxRetries) {
-          await sleep(5000);
           record = await ario
             .getArNSRecord({ name: payload.name })
             .catch((e) => {
               console.error(e);
             });
           retries++;
+          await sleep(5000);
         }
 
         if (record?.processId !== newAntId)
