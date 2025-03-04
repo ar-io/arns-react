@@ -32,6 +32,7 @@ import eventEmitter from '@src/utils/events';
 import { queryClient } from '@src/utils/network';
 import { Checkbox } from 'antd';
 import Lottie from 'lottie-react';
+import { pLimit } from 'plimit-lit';
 import { useCallback, useEffect, useState } from 'react';
 
 import arioLoading from '../../../icons/ario-spinner.json';
@@ -54,7 +55,6 @@ function UpgradeDomainsModal({
   // 0 or greater means loading, -1 means not loading
   const [progress, setProgress] = useState(-1);
   const isUpdatingAnts = useCallback(() => progress >= 0, [progress]);
-  const [signingMessage, setSigningMessage] = useState('');
 
   useEffect(() => {
     if (walletAddress) {
@@ -88,52 +88,62 @@ function UpgradeDomainsModal({
       }
 
       const signer = createAoSigner(wallet?.contractSigner as ContractSigner);
-      // deliberately not using concurrency here for UX reasons
       const failedUpgrades = [];
-      for (const domain of domainsToUpgrade) {
-        const domainData = await queryClient.fetchQuery(
-          buildDomainInfoQuery({
-            domain,
-            arioContract,
-            arioProcessId,
-            aoNetwork,
-            wallet,
-          }),
-        );
-        const previousState: SpawnANTState = {
-          controllers: domainData.controllers,
-          records: domainData.records,
-          owner: walletAddress.toString(),
-          ticker: domainData.ticker,
-          name: domainData.name,
-          description: domainData.state?.Description ?? '',
-          keywords: domainData.state?.Keywords ?? [],
-          balances: domainData.state?.Balances ?? {},
-        };
+      const throttle = pLimit(10);
 
-        await dispatchANTInteraction({
-          payload: {
-            arioProcessId,
-            state: previousState,
-            name: lowerCaseDomain(domain),
-          },
-          workflowName: ANT_INTERACTION_TYPES.UPGRADE_ANT,
-          processId: domainData.processId,
-          owner: walletAddress.toString(),
-          ao: antAoClient,
-          signer,
-          dispatchTransactionState,
-          dispatchArNSState,
-          stepCallback: async (step?: string | Record<string, string>) => {
-            if (typeof step === 'string') {
-              setSigningMessage(`${step}`);
+      await Promise.all(
+        domainsToUpgrade.map((domain) =>
+          throttle(async () => {
+            try {
+              const domainData = await queryClient.fetchQuery(
+                buildDomainInfoQuery({
+                  domain,
+                  arioContract,
+                  arioProcessId,
+                  aoNetwork,
+                  wallet,
+                }),
+              );
+              const previousState: SpawnANTState = {
+                controllers: domainData.controllers,
+                records: domainData.records,
+                owner: walletAddress.toString(),
+                ticker: domainData.ticker,
+                name: domainData.name,
+                description: domainData.state?.Description ?? '',
+                keywords: domainData.state?.Keywords ?? [],
+                balances: domainData.state?.Balances ?? {},
+              };
+
+              await dispatchANTInteraction({
+                payload: {
+                  arioProcessId,
+                  state: previousState,
+                  name: lowerCaseDomain(domain),
+                },
+                workflowName: ANT_INTERACTION_TYPES.UPGRADE_ANT,
+                processId: domainData.processId,
+                owner: walletAddress.toString(),
+                ao: antAoClient,
+                signer,
+                dispatchTransactionState,
+                dispatchArNSState,
+                stepCallback: async (
+                  step?: string | Record<string, string>,
+                ) => {
+                  console.debug(step, domainData);
+                },
+              });
+            } catch (error) {
+              failedUpgrades.push(domain);
             }
-          },
-        }).catch(() => {
-          failedUpgrades.push(domainData.processId);
-        });
-        setProgress((prev) => Math.round(prev + 100 / domainsToUpgrade.length));
-      }
+            setProgress((prev) =>
+              Math.round(prev + 100 / domainsToUpgrade.length),
+            );
+          }),
+        ),
+      );
+
       if (failedUpgrades.length < domainsToUpgrade.length) {
         eventEmitter.emit('success', {
           message: (
@@ -183,9 +193,7 @@ function UpgradeDomainsModal({
             {progress < 0 ? (
               <>Upgrade {domainsToUpgrade.length} of your Domains</>
             ) : (
-              <>
-                {signingMessage} {progress}%
-              </>
+              <>Upgrading domains... {progress}%</>
             )}
           </h1>
           <button
