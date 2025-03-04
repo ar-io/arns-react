@@ -31,14 +31,7 @@ export default async function dispatchANTInteraction({
   dispatchArNSState,
   ao,
   // this can allow for waiting on promise resolution for UI input on individual steps
-  stepCallback = async (step) => {
-    if (typeof step === 'string') {
-      dispatchTransactionState({
-        type: 'setSigningMessage',
-        payload: step,
-      });
-    }
-  },
+  stepCallback,
 }: {
   payload: Record<string, any>;
   workflowName: ANT_INTERACTION_TYPES;
@@ -50,6 +43,15 @@ export default async function dispatchANTInteraction({
   ao: AoClient;
   stepCallback?: (step?: Record<string, string> | string) => Promise<void>;
 }): Promise<ContractInteraction> {
+  stepCallback ??= async (step) => {
+    if (typeof step === 'string') {
+      dispatchTransactionState({
+        type: 'setSigningMessage',
+        payload: step,
+      });
+    }
+  };
+
   let result: AoMessageResult | undefined = undefined;
   const aoCongestedTimeout = setTimeout(
     () => {
