@@ -24,6 +24,7 @@ export type ArNSAction =
   | { type: 'setLoading'; payload: boolean }
   | { type: 'setPercentLoaded'; payload?: number }
   | { type: 'reset' }
+  | { type: 'setAntModuleId'; payload: string }
   | { type: 'refresh'; payload: AoAddress };
 
 export const arnsReducer = (
@@ -80,6 +81,12 @@ export const arnsReducer = (
       };
     case 'reset': {
       return initialArNSState;
+    }
+    case 'setAntModuleId': {
+      return {
+        ...state,
+        antModuleId: action.payload,
+      };
     }
     case 'refresh': {
       state.arnsEmitter.fetchProcessesOwnedByWallet({

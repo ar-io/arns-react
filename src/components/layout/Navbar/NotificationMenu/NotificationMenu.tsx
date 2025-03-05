@@ -53,13 +53,16 @@ export function createExpirationNotification(
 export function createUpdateAntsNotification({
   ants,
   userAddress,
+  currentModuleId,
 }: {
   ants: Record<string, ANTProcessData>;
   userAddress: string;
+  currentModuleId: string;
 }): Notification | undefined {
   const antsRequiringUpdate = getAntsRequiringUpdate({
     ants,
     userAddress,
+    currentModuleId,
   }).length;
 
   if (!antsRequiringUpdate) return;
@@ -119,7 +122,7 @@ export function createNamesExceedingUndernameLimitNotification({
 
 function NotificationMenu() {
   const [{ walletAddress }] = useWalletState();
-  const [{ domains, ants }] = useArNSState();
+  const [{ domains, ants, antModuleId }] = useArNSState();
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   useEffect(() => {
@@ -131,6 +134,7 @@ function NotificationMenu() {
           createUpdateAntsNotification({
             ants,
             userAddress: walletAddress.toString(),
+            currentModuleId: antModuleId,
           }),
         ].filter(
           (notification) => notification !== undefined,

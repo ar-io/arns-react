@@ -1,4 +1,3 @@
-import { AOS_MODULE_ID as ANT_MODULE_ID } from '@ar.io/sdk';
 import { ANTProcessData } from '@src/state';
 import emojiRegex from 'emoji-regex';
 import { asciiToUnicode, unicodeToAscii } from 'puny-coder';
@@ -133,9 +132,11 @@ export function lowerCaseDomain(domain: string) {
 export function getAntsRequiringUpdate({
   ants,
   userAddress,
+  currentModuleId,
 }: {
   ants: Record<string, ANTProcessData>;
   userAddress: string;
+  currentModuleId: string;
 }): string[] {
   return Object.entries(ants)
     .map(([id, ant]) => {
@@ -144,7 +145,7 @@ export function getAntsRequiringUpdate({
       if (
         !ant.processMeta ||
         ant.processMeta.tags.find(
-          (t) => t.name === 'Module' && t.value !== ANT_MODULE_ID,
+          (t) => t.name === 'Module' && t.value !== currentModuleId,
         )
       )
         return id;
@@ -155,11 +156,14 @@ export function getAntsRequiringUpdate({
 export function doAntsRequireUpdate({
   ants,
   userAddress,
+  currentModuleId,
 }: {
   ants: Record<string, ANTProcessData>;
   userAddress: string;
+  currentModuleId: string;
 }) {
-  const antReq = getAntsRequiringUpdate({ ants, userAddress }).length > 0;
+  const antReq =
+    getAntsRequiringUpdate({ ants, userAddress, currentModuleId }).length > 0;
 
   return antReq;
 }

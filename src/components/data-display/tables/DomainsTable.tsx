@@ -121,7 +121,7 @@ const DomainsTable = ({
   const queryClient = useQueryClient();
   const [{ walletAddress }] = useWalletState();
   const [{ arioProcessId, aoNetwork }] = useGlobalState();
-  const [, dispatchArNSState] = useArNSState();
+  const [{ antModuleId }, dispatchArNSState] = useArNSState();
   const [, dispatchModalState] = useModalState();
   const [, dispatchTransactionState] = useTransactionState();
   const { data: primaryNameData } = usePrimaryName();
@@ -157,6 +157,7 @@ const DomainsTable = ({
                   },
                 },
                 userAddress: walletAddress.toString(),
+                currentModuleId: antModuleId,
               })
             : false);
 

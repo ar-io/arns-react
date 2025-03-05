@@ -16,8 +16,10 @@ import './styles.css';
 
 function Manage() {
   const [{ arioProcessId, aoNetwork }] = useGlobalState();
-  const [{ loading: loadingArnsState, domains, ants }, dispatchArNSState] =
-    useArNSState();
+  const [
+    { loading: loadingArnsState, domains, ants, antModuleId },
+    dispatchArNSState,
+  ] = useArNSState();
   const [{ walletAddress }] = useWalletState();
   const [, dispatchModalState] = useModalState();
   const [search, setSearch] = useState<string>('');
@@ -69,6 +71,7 @@ function Manage() {
                   doAntsRequireUpdate({
                     ants,
                     userAddress: walletAddress.toString(),
+                    currentModuleId: antModuleId,
                   }) && (
                     <Tooltip
                       message={'Your Domains require an update'}

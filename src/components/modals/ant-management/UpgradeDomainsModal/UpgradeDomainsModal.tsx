@@ -51,7 +51,7 @@ function UpgradeDomainsModal({
   const [accepted, setAccepted] = useState(false);
   const [domainsToUpgrade, setDomainsToUpgrade] = useState<string[]>([]);
   const [, dispatchTransactionState] = useTransactionState();
-  const [{ ants, domains }, dispatchArNSState] = useArNSState();
+  const [{ ants, domains, antModuleId }, dispatchArNSState] = useArNSState();
   // 0 or greater means loading, -1 means not loading
   const [progress, setProgress] = useState(-1);
   const isUpdatingAnts = useCallback(() => progress >= 0, [progress]);
@@ -61,6 +61,7 @@ function UpgradeDomainsModal({
       const antsRequiringUpdate = getAntsRequiringUpdate({
         ants,
         userAddress: walletAddress.toString(),
+        currentModuleId: antModuleId,
       });
       setDomainsToUpgrade(
         Object.entries(domains).reduce((acc: string[], [domain, record]) => {
