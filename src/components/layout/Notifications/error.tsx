@@ -53,7 +53,6 @@ export const defaultError = ({
   placement: 'bottomRight',
   duration: 30,
   style: {
-    fontFamily: 'Rubik',
     background: 'var(--card-bg)',
     color: 'var(--text-white)',
     boxShadow: 'var(--shadow)',

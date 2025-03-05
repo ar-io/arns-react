@@ -61,7 +61,7 @@ function CopyTextButton({
           overlayInnerStyle={{
             color: 'var(--text-black)',
             boxShadow: 'var(--shadow)',
-            fontFamily: 'Rubik-Bold',
+            fontWeight: '700',
             backgroundColor: 'var(--text-white)',
             fontSize: '10px',
             display: 'flex',
