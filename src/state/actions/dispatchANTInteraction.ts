@@ -1,6 +1,5 @@
 import {
   ANT,
-  AOS_MODULE_ID as ANT_MODULE_ID,
   AOProcess,
   ARIO,
   AoANTHandler,
@@ -169,6 +168,7 @@ export default async function dispatchANTInteraction({
             signer: createAoSigner(signer),
             state: payload.previousState,
             luaCodeTxId: payload.luaCodeTxId,
+            module: payload.antModuleId,
           });
         }
         await stepCallback(
@@ -225,7 +225,7 @@ export default async function dispatchANTInteraction({
         // spawn new ANT with previous state
         const newAntId = await spawnANT({
           signer: createAoSigner(signer),
-          module: ANT_MODULE_ID,
+          module: payload.antModuleId,
           ao,
           state,
           stateContractTxId: processId,

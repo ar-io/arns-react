@@ -1,9 +1,4 @@
-import {
-  AOS_MODULE_ID as ANT_MODULE_ID,
-  ContractSigner,
-  SpawnANTState,
-  createAoSigner,
-} from '@ar.io/sdk/web';
+import { ContractSigner, SpawnANTState, createAoSigner } from '@ar.io/sdk/web';
 import AntChangelog from '@src/components/cards/AntChangelog';
 import { Tooltip } from '@src/components/data-display';
 import { CloseIcon } from '@src/components/icons';
@@ -43,7 +38,7 @@ function UpgradeDomainModal({
   const queryClient = useQueryClient();
   const [{ antAoClient, aoNetwork, arioContract, arioProcessId }] =
     useGlobalState();
-  const [, dispatchArNSState] = useArNSState();
+  const [{ antModuleId }, dispatchArNSState] = useArNSState();
   const [{ wallet, walletAddress }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const [accepted, setAccepted] = useState(false);
@@ -60,6 +55,10 @@ function UpgradeDomainModal({
     try {
       if (!wallet?.contractSigner || !walletAddress) {
         throw new Error('No Wander Signer found');
+      }
+
+      if (!antModuleId) {
+        throw new Error('No ANT Module available, try again later');
       }
       setUpgrading(true);
       const signer = createAoSigner(wallet?.contractSigner as ContractSigner);
@@ -89,6 +88,7 @@ function UpgradeDomainModal({
           arioProcessId,
           state: previousState,
           name: lowerCaseDomain(domain),
+          antModuleId,
         },
         workflowName: ANT_INTERACTION_TYPES.UPGRADE_ANT,
         processId: domainData.processId,
@@ -121,7 +121,7 @@ function UpgradeDomainModal({
                   characterCount={8}
                   shouldLink={true}
                   type={ArweaveIdTypes.TRANSACTION}
-                  id={new ArweaveTransactionID(ANT_MODULE_ID)}
+                  id={new ArweaveTransactionID(antModuleId)}
                 />
               </span>
             </div>

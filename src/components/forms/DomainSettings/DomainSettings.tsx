@@ -79,7 +79,7 @@ function DomainSettings({
   const [{ arioProcessId, antAoClient }] = useGlobalState();
   const [{ interactionResult }, dispatchTransactionState] =
     useTransactionState();
-  const [, dispatchArNSState] = useArNSState();
+  const [{ antModuleId }, dispatchArNSState] = useArNSState();
   const [{ wallet, walletAddress }] = useWalletState();
   const { data: primaryNameData } = usePrimaryName();
   const { data, isLoading, refetch } = useDomainInfo({ domain, antId });
@@ -276,6 +276,7 @@ function DomainSettings({
                         },
                       },
                       userAddress: walletAddress.toString(),
+                      currentModuleId: antModuleId,
                     })
                   : data?.processId
                   ? true

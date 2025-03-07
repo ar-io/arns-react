@@ -24,7 +24,7 @@ export type ArNSAction =
   | { type: 'setLoading'; payload: boolean }
   | { type: 'setPercentLoaded'; payload?: number }
   | { type: 'reset' }
-  | { type: 'setAntModuleId'; payload: string }
+  | { type: 'setAntModuleId'; payload: string | null }
   | { type: 'refresh'; payload: AoAddress };
 
 export const arnsReducer = (

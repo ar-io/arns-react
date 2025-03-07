@@ -57,7 +57,7 @@ export function createUpdateAntsNotification({
 }: {
   ants: Record<string, ANTProcessData>;
   userAddress: string;
-  currentModuleId: string;
+  currentModuleId: string | null;
 }): Notification | undefined {
   const antsRequiringUpdate = getAntsRequiringUpdate({
     ants,

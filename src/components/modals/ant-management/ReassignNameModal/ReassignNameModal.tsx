@@ -54,7 +54,7 @@ export function ReassignNameModal({
 }) {
   const queryClient = useQueryClient();
   const [{ arioProcessId, aoClient, aoNetwork }] = useGlobalState();
-  const [, dispatchArNSState] = useArNSState();
+  const [{ antModuleId }, dispatchArNSState] = useArNSState();
   const [{ signing }, dispatchTransactionState] = useTransactionState();
   const [{ wallet, walletAddress }] = useWalletState();
 
@@ -94,6 +94,10 @@ export function ReassignNameModal({
       if (!domainData?.info || !domainData?.state)
         throw new Error('Unable to get domain data');
 
+      if (!antModuleId) {
+        throw new Error('No ANT Module available, try again later');
+      }
+
       const previousState: SpawnANTState = {
         controllers: domainData.controllers,
         records: domainData.records,
@@ -120,6 +124,7 @@ export function ReassignNameModal({
               ? undefined
               : previousState,
           luaCodeTxId: DEFAULT_ANT_LUA_ID,
+          antModuleId,
         },
         processId,
         workflowName: ANT_INTERACTION_TYPES.REASSIGN_NAME,

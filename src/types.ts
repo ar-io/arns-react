@@ -335,6 +335,7 @@ export type BuyRecordPayload = {
   type: TRANSACTION_TYPES;
   qty?: number; // the cost displayed to the user when buying a record
   targetId?: ArweaveTransactionID;
+  antModuleId: string;
 };
 
 export type ExtendLeasePayload = {

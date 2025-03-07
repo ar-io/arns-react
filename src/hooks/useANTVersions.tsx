@@ -1,4 +1,4 @@
-import { ANTRegistry, ANT_REGISTRY_ID, AOProcess } from '@ar.io/sdk';
+import { ANTVersions, ANT_REGISTRY_ID, AOProcess } from '@ar.io/sdk';
 import { connect } from '@permaweb/aoconnect';
 import { useGlobalState } from '@src/state';
 import { useQuery } from '@tanstack/react-query';
@@ -8,20 +8,33 @@ export function useANTVersions() {
   const [{ aoNetwork }] = useGlobalState();
 
   return useQuery({
-    queryKey: ['ant-registry-versions', aoNetwork],
+    queryKey: ['ant-versions', aoNetwork],
     queryFn: async () => {
-      const antRegistry = ANTRegistry.init({
+      const versionRegistry = ANTVersions.init({
         process: new AOProcess({
           processId: ANT_REGISTRY_ID,
           ao: connect(aoNetwork.ANT),
         }),
       });
-      const versions = await antRegistry.getVersions().then((res) => {
-        return Object.fromEntries(
-          Object.entries(res).sort(([a], [b]) => a.localeCompare(b)),
-        );
+      return versionRegistry.getANTVersions();
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+export function useLatestANTVersion() {
+  const [{ aoNetwork }] = useGlobalState();
+
+  return useQuery({
+    queryKey: ['ant-latest-versions', aoNetwork],
+    queryFn: async () => {
+      const versionRegistry = ANTVersions.init({
+        process: new AOProcess({
+          processId: ANT_REGISTRY_ID,
+          ao: connect(aoNetwork.ANT),
+        }),
       });
-      return versions;
+      return versionRegistry.getLatestANTVersion();
     },
     staleTime: 1000 * 60 * 5,
   });

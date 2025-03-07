@@ -136,7 +136,7 @@ export function getAntsRequiringUpdate({
 }: {
   ants: Record<string, ANTProcessData>;
   userAddress: string;
-  currentModuleId: string;
+  currentModuleId: string | null;
 }): string[] {
   return Object.entries(ants)
     .map(([id, ant]) => {
@@ -160,7 +160,7 @@ export function doAntsRequireUpdate({
 }: {
   ants: Record<string, ANTProcessData>;
   userAddress: string;
-  currentModuleId: string;
+  currentModuleId: string | null;
 }) {
   const antReq =
     getAntsRequiringUpdate({ ants, userAddress, currentModuleId }).length > 0;

@@ -3,6 +3,7 @@ import { ANT, AOProcess, mARIOToken } from '@ar.io/sdk/web';
 import Tooltip from '@src/components/Tooltips/Tooltip';
 import { Accordion } from '@src/components/data-display';
 import { useCostDetails } from '@src/hooks/useCostDetails';
+import { useArNSState } from '@src/state';
 import { ValidationError } from '@src/utils/errors';
 import emojiRegex from 'emoji-regex';
 import { useEffect, useState } from 'react';
@@ -45,6 +46,7 @@ function RegisterNameForm() {
     { domain, leaseDuration, registrationType, antID, targetId },
     dispatchRegisterState,
   ] = useRegistrationState();
+  const [{ antModuleId }] = useArNSState();
   const { data: costDetails } = useCostDetails({
     intent: 'Buy-Name',
     name: domain,
@@ -126,6 +128,10 @@ function RegisterNameForm() {
         return;
       }
 
+      if (!antModuleId) {
+        throw new Error('No ANT Module available, try again later');
+      }
+
       setValidatingNext(true);
 
       if (hasValidationErrors) {
@@ -155,6 +161,7 @@ function RegisterNameForm() {
           : undefined,
       type: registrationType,
       targetId,
+      antModuleId,
     };
 
     dispatchTransactionState({
