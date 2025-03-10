@@ -79,6 +79,7 @@ export default async function dispatchArIOInteraction({
             signer: createAoSigner(signer),
             ao: ao,
             scheduler: scheduler,
+            module: payload.antModuleId,
           });
           const antRegistry = ANTRegistry.init({
             signer,

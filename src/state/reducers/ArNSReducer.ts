@@ -1,12 +1,11 @@
-import {
-  AoANTHandler,
-  AoANTState,
-  AoArNSNameData,
-  ArNSEventEmitter,
-} from '@ar.io/sdk/web';
+import { AoArNSNameData, ArNSEventEmitter } from '@ar.io/sdk/web';
 import { AoAddress } from '@src/types';
 
-import { ArNSState, initialArNSState } from '../contexts/ArNSState';
+import {
+  ANTProcessData,
+  ArNSState,
+  initialArNSState,
+} from '../contexts/ArNSState';
 
 export type ArNSAction =
   | { type: 'setArNSEmitter'; payload: ArNSEventEmitter }
@@ -14,31 +13,18 @@ export type ArNSAction =
   | { type: 'addDomains'; payload: Record<string, AoArNSNameData> }
   | {
       type: 'setAnts';
-      payload: Record<
-        string,
-        {
-          state: AoANTState | null;
-          handlers: AoANTHandler[] | null;
-          errors?: Error[];
-        }
-      >;
+      payload: Record<string, ANTProcessData>;
     }
   | {
       type: 'addAnts';
-      payload: Record<
-        string,
-        {
-          state: AoANTState | null;
-          handlers: AoANTHandler[] | null;
-          errors?: Error[];
-        }
-      >;
+      payload: Record<string, ANTProcessData>;
     }
   | { type: 'setAntCount'; payload: number }
   | { type: 'incrementAntCount' }
   | { type: 'setLoading'; payload: boolean }
   | { type: 'setPercentLoaded'; payload?: number }
   | { type: 'reset' }
+  | { type: 'setAntModuleId'; payload: string | null }
   | { type: 'refresh'; payload: AoAddress };
 
 export const arnsReducer = (
@@ -95,6 +81,12 @@ export const arnsReducer = (
       };
     case 'reset': {
       return initialArNSState;
+    }
+    case 'setAntModuleId': {
+      return {
+        ...state,
+        antModuleId: action.payload,
+      };
     }
     case 'refresh': {
       state.arnsEmitter.fetchProcessesOwnedByWallet({

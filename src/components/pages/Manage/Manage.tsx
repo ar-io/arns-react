@@ -16,8 +16,10 @@ import './styles.css';
 
 function Manage() {
   const [{ arioProcessId, aoNetwork }] = useGlobalState();
-  const [{ loading: loadingArnsState, domains, ants }, dispatchArNSState] =
-    useArNSState();
+  const [
+    { loading: loadingArnsState, domains, ants, antModuleId },
+    dispatchArNSState,
+  ] = useArNSState();
   const [{ walletAddress }] = useWalletState();
   const [, dispatchModalState] = useModalState();
   const [search, setSearch] = useState<string>('');
@@ -69,9 +71,10 @@ function Manage() {
                   doAntsRequireUpdate({
                     ants,
                     userAddress: walletAddress.toString(),
+                    currentModuleId: antModuleId,
                   }) && (
                     <Tooltip
-                      message={'Your ANTs require an update'}
+                      message={'Your Domains require an update'}
                       icon={
                         <button
                           onClick={() =>
@@ -82,7 +85,7 @@ function Manage() {
                           }
                           className="h-fit animate-pulse whitespace-nowrap rounded-[4px] bg-primary-thin px-4 py-1 text-sm text-primary transition-all hover:bg-primary hover:text-black"
                         >
-                          Upgrade ANTs
+                          Upgrade Domains
                         </button>
                       }
                     />

@@ -1,6 +1,6 @@
 import { AoANTHandler, AoANTState, AoArNSNameData } from '@ar.io/sdk';
 import { Tooltip } from '@src/components/data-display';
-import { useArNSState, useWalletState } from '@src/state';
+import { ANTProcessData, useArNSState, useWalletState } from '@src/state';
 import { getAntsRequiringUpdate } from '@src/utils';
 import { MILLISECONDS_IN_GRACE_PERIOD } from '@src/utils/constants';
 import { BellIcon, Circle, CircleAlert, Settings } from 'lucide-react';
@@ -53,16 +53,16 @@ export function createExpirationNotification(
 export function createUpdateAntsNotification({
   ants,
   userAddress,
+  currentModuleId,
 }: {
-  ants: Record<
-    string,
-    { state: AoANTState | null; handlers: AoANTHandler[] | null }
-  >;
+  ants: Record<string, ANTProcessData>;
   userAddress: string;
+  currentModuleId: string | null;
 }): Notification | undefined {
   const antsRequiringUpdate = getAntsRequiringUpdate({
     ants,
     userAddress,
+    currentModuleId,
   }).length;
 
   if (!antsRequiringUpdate) return;
@@ -122,7 +122,7 @@ export function createNamesExceedingUndernameLimitNotification({
 
 function NotificationMenu() {
   const [{ walletAddress }] = useWalletState();
-  const [{ domains, ants }] = useArNSState();
+  const [{ domains, ants, antModuleId }] = useArNSState();
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   useEffect(() => {
@@ -134,6 +134,7 @@ function NotificationMenu() {
           createUpdateAntsNotification({
             ants,
             userAddress: walletAddress.toString(),
+            currentModuleId: antModuleId,
           }),
         ].filter(
           (notification) => notification !== undefined,
