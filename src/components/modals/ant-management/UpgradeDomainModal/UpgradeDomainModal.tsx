@@ -168,41 +168,46 @@ function UpgradeDomainModal({
               <div className="flex scrollbar h-full min-h-[7.5rem] border-b-[1px] border-dark-grey pb-4 mb-4 overflow-y-scroll scrollbar-thumb-primary-thin scrollbar-thumb-rounded-full scrollbar-w-2">
                 <AntChangelog />
               </div>
-
-              <span
-                className="flex flex-row items-center text-sm"
-                style={{ gap: '10px' }}
-              >
-                <Checkbox
-                  rootClassName="accept-checkbox"
-                  onChange={(checked) => setAccepted(checked.target.checked)}
-                  value={accepted}
-                />
-                I understand and wish to proceed{' '}
-                <Tooltip
-                  message={
-                    <div className="flex flex-col">
-                      <span>
-                        This will conduct a &apos;Reassign&apos; Action on your
-                        ANT process to fork the ant to and upgraded version with
-                        the latest ANT Module ID. This means the ANT process ID
-                        associated with your ArNS domain will change.
-                      </span>
-                      <span className="pt-2 text-primary">
-                        View the code:{' '}
-                        <a
-                          className="text-link"
-                          href={`https://arscan.io/tx/${DEFAULT_ANT_LUA_ID}`}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          {formatForMaxCharCount(DEFAULT_ANT_LUA_ID, 8)}
-                        </a>
-                      </span>
-                    </div>
-                  }
-                />
-              </span>
+              <div className="flex flex-col gap-2">
+                <span>
+                  This upgrade will result in a new Process ID association for
+                  this ArNS Name.
+                </span>
+                <span
+                  className="flex flex-row items-center text-sm"
+                  style={{ gap: '10px' }}
+                >
+                  <Checkbox
+                    rootClassName="accept-checkbox"
+                    onChange={(checked) => setAccepted(checked.target.checked)}
+                    value={accepted}
+                  />
+                  I understand and wish to proceed{' '}
+                  <Tooltip
+                    message={
+                      <div className="flex flex-col">
+                        <span>
+                          This will automatically provision a new ANT Process,
+                          copy all previous ANT settings, and conduct a
+                          &apos;Reassign&apos; Action to point your ArNS Name to
+                          the new, upgraded ANT Process ID.
+                        </span>
+                        <span className="pt-2 text-primary">
+                          View the code:{' '}
+                          <a
+                            className="text-link"
+                            href={`https://arscan.io/tx/${DEFAULT_ANT_LUA_ID}`}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {formatForMaxCharCount(DEFAULT_ANT_LUA_ID, 8)}
+                          </a>
+                        </span>
+                      </div>
+                    }
+                  />
+                </span>
+              </div>
             </div>
           </>
         ) : (

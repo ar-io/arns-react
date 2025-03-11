@@ -1,6 +1,7 @@
 import React, { Suspense, useEffect, useState } from 'react';
 
 import DialogModal from '../modals/DialogModal/DialogModal';
+import ANTTools from './ANTTools';
 import ArNSRegistrySettings from './ArNSRegistrySettings';
 import NetworkSettings from './NetworkSettings';
 import TransferIO from './TransferIO';
@@ -62,6 +63,7 @@ const DevTools = () => {
                   <TransferIO />
                   <ArNSRegistrySettings />
                   <NetworkSettings />
+                  <ANTTools />
                   <button
                     onClick={() => setShowTanstackTools(true)}
                     className="border border-white rounded text-white p-2"
