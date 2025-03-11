@@ -179,9 +179,10 @@ function UpgradeDomainModal({
                   message={
                     <div className="flex flex-col">
                       <span>
-                        This will conduct an &apos;Reassign&apos; Action on your
+                        This will conduct a &apos;Reassign&apos; Action on your
                         ANT process to fork the ant to and upgraded version with
-                        the latest ANT Module ID
+                        the latest ANT Module ID. This means the ANT process ID
+                        associated with your ArNS domain will change.
                       </span>
                       <span className="pt-2 text-primary">
                         View the code:{' '}
