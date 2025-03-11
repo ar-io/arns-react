@@ -5,6 +5,7 @@ import ValidationInput from '@src/components/inputs/text/ValidationInput/Validat
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
+import { useLatestANTVersion } from '@src/hooks/useANTVersions';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import {
@@ -54,7 +55,9 @@ export function ReassignNameModal({
 }) {
   const queryClient = useQueryClient();
   const [{ arioProcessId, aoClient, aoNetwork }] = useGlobalState();
-  const [{ antModuleId }, dispatchArNSState] = useArNSState();
+  const [, dispatchArNSState] = useArNSState();
+  const { data: antVersion } = useLatestANTVersion();
+  const antModuleId = antVersion?.moduleId ?? null;
   const [{ signing }, dispatchTransactionState] = useTransactionState();
   const [{ wallet, walletAddress }] = useWalletState();
 

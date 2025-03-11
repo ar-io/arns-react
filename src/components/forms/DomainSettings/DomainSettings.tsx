@@ -6,6 +6,7 @@ import ArweaveID, {
 } from '@src/components/layout/ArweaveID/ArweaveID';
 import { ReassignNameModal } from '@src/components/modals/ant-management/ReassignNameModal/ReassignNameModal';
 import { ReturnNameModal } from '@src/components/modals/ant-management/ReturnNameModal/ReturnNameModal';
+import { useLatestANTVersion } from '@src/hooks/useANTVersions';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
@@ -79,7 +80,9 @@ function DomainSettings({
   const [{ arioProcessId, antAoClient }] = useGlobalState();
   const [{ interactionResult }, dispatchTransactionState] =
     useTransactionState();
-  const [{ antModuleId }, dispatchArNSState] = useArNSState();
+  const [, dispatchArNSState] = useArNSState();
+  const { data: antVersion } = useLatestANTVersion();
+  const antModuleId = antVersion?.moduleId ?? null;
   const [{ wallet, walletAddress }] = useWalletState();
   const { data: primaryNameData } = usePrimaryName();
   const { data, isLoading, refetch } = useDomainInfo({ domain, antId });

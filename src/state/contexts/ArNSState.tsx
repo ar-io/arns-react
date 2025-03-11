@@ -5,7 +5,6 @@ import {
   ArNSEventEmitter,
 } from '@ar.io/sdk/web';
 import { connect } from '@permaweb/aoconnect';
-import { useLatestANTVersion } from '@src/hooks/useANTVersions';
 import { NETWORK_DEFAULTS } from '@src/utils/constants';
 import { TransactionEdge } from 'arweave-graphql';
 import {
@@ -35,7 +34,6 @@ export type ArNSState = {
   percentLoaded: number;
   antCount: number;
   arnsEmitter: ArNSEventEmitter;
-  antModuleId: string | null;
 };
 
 export type ArNSStateProviderProps = {
@@ -58,7 +56,6 @@ export const initialArNSState: ArNSState = {
    */
   percentLoaded: 0,
   antCount: 0,
-  antModuleId: null,
 };
 
 export const ArNSStateContext = createContext<
@@ -77,16 +74,6 @@ export function ArNSStateProvider({
     useGlobalState();
   const [state, dispatchArNSState] = useReducer(reducer, initialArNSState);
   const [{ walletAddress }] = useWalletState();
-  const { data: antVersion } = useLatestANTVersion();
-
-  useEffect(() => {
-    if (antVersion?.moduleId) {
-      dispatchArNSState({
-        type: 'setAntModuleId',
-        payload: antVersion?.moduleId,
-      });
-    }
-  }, [antVersion]);
 
   useEffect(() => {
     dispatchArNSState({

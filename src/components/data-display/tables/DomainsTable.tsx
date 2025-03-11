@@ -11,6 +11,7 @@ import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
 import UpgradeDomainModal from '@src/components/modals/ant-management/UpgradeDomainModal/UpgradeDomainModal';
+import { useLatestANTVersion } from '@src/hooks/useANTVersions';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import {
   ANTProcessData,
@@ -121,7 +122,9 @@ const DomainsTable = ({
   const queryClient = useQueryClient();
   const [{ walletAddress }] = useWalletState();
   const [{ arioProcessId, aoNetwork }] = useGlobalState();
-  const [{ antModuleId }, dispatchArNSState] = useArNSState();
+  const [, dispatchArNSState] = useArNSState();
+  const { data: antVersion } = useLatestANTVersion();
+  const antModuleId = antVersion?.moduleId ?? null;
   const [, dispatchModalState] = useModalState();
   const [, dispatchTransactionState] = useTransactionState();
   const { data: primaryNameData } = usePrimaryName();

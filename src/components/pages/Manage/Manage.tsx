@@ -1,4 +1,5 @@
 import { Tooltip } from '@src/components/data-display';
+import { useLatestANTVersion } from '@src/hooks/useANTVersions';
 import {
   dispatchArNSUpdate,
   useArNSState,
@@ -16,10 +17,10 @@ import './styles.css';
 
 function Manage() {
   const [{ arioProcessId, aoNetwork }] = useGlobalState();
-  const [
-    { loading: loadingArnsState, domains, ants, antModuleId },
-    dispatchArNSState,
-  ] = useArNSState();
+  const [{ loading: loadingArnsState, domains, ants }, dispatchArNSState] =
+    useArNSState();
+  const { data: antVersion } = useLatestANTVersion();
+  const antModuleId = antVersion?.moduleId ?? null;
   const [{ walletAddress }] = useWalletState();
   const [, dispatchModalState] = useModalState();
   const [search, setSearch] = useState<string>('');

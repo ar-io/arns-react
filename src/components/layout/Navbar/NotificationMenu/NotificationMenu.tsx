@@ -1,5 +1,6 @@
 import { AoANTHandler, AoANTState, AoArNSNameData } from '@ar.io/sdk';
 import { Tooltip } from '@src/components/data-display';
+import { useLatestANTVersion } from '@src/hooks/useANTVersions';
 import { ANTProcessData, useArNSState, useWalletState } from '@src/state';
 import { getAntsRequiringUpdate } from '@src/utils';
 import { MILLISECONDS_IN_GRACE_PERIOD } from '@src/utils/constants';
@@ -122,7 +123,9 @@ export function createNamesExceedingUndernameLimitNotification({
 
 function NotificationMenu() {
   const [{ walletAddress }] = useWalletState();
-  const [{ domains, ants, antModuleId }] = useArNSState();
+  const [{ domains, ants }] = useArNSState();
+  const { data: antVersion } = useLatestANTVersion();
+  const antModuleId = antVersion?.moduleId ?? null;
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   useEffect(() => {

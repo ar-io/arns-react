@@ -5,6 +5,7 @@ import { CloseIcon } from '@src/components/icons';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
+import { useLatestANTVersion } from '@src/hooks/useANTVersions';
 import { buildDomainInfoQuery } from '@src/hooks/useDomainInfo';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import {
@@ -46,7 +47,9 @@ function UpgradeDomainsModal({
   const [accepted, setAccepted] = useState(false);
   const [domainsToUpgrade, setDomainsToUpgrade] = useState<string[]>([]);
   const [, dispatchTransactionState] = useTransactionState();
-  const [{ ants, domains, antModuleId }, dispatchArNSState] = useArNSState();
+  const [{ ants, domains }, dispatchArNSState] = useArNSState();
+  const { data: antVersion } = useLatestANTVersion();
+  const antModuleId = antVersion?.moduleId ?? null;
   // 0 or greater means loading, -1 means not loading
   const [progress, setProgress] = useState(-1);
   const isUpdatingAnts = useCallback(() => progress >= 0, [progress]);

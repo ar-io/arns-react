@@ -43,7 +43,7 @@ export default async function dispatchANTInteraction({
   stepCallback?: (step?: Record<string, string> | string) => Promise<void>;
 }): Promise<ContractInteraction> {
   stepCallback ??= async (step) => {
-    if (typeof step === 'string') {
+    if (!step || typeof step === 'string') {
       dispatchTransactionState({
         type: 'setSigningMessage',
         payload: step,

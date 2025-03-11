@@ -2,8 +2,8 @@ import { CheckCircleFilled } from '@ant-design/icons';
 import { ANT, AOProcess, mARIOToken } from '@ar.io/sdk/web';
 import Tooltip from '@src/components/Tooltips/Tooltip';
 import { Accordion } from '@src/components/data-display';
+import { useLatestANTVersion } from '@src/hooks/useANTVersions';
 import { useCostDetails } from '@src/hooks/useCostDetails';
-import { useArNSState } from '@src/state';
 import { ValidationError } from '@src/utils/errors';
 import emojiRegex from 'emoji-regex';
 import { useEffect, useState } from 'react';
@@ -46,7 +46,6 @@ function RegisterNameForm() {
     { domain, leaseDuration, registrationType, antID, targetId },
     dispatchRegisterState,
   ] = useRegistrationState();
-  const [{ antModuleId }] = useArNSState();
   const { data: costDetails } = useCostDetails({
     intent: 'Buy-Name',
     name: domain,
@@ -68,6 +67,8 @@ function RegisterNameForm() {
   const [hasValidationErrors, setHasValidationErrors] =
     useState<boolean>(false);
   const [validatingNext, setValidatingNext] = useState<boolean>(false);
+  const { data: antVersion } = useLatestANTVersion();
+  const antModuleId = antVersion?.moduleId ?? null;
 
   useEffect(() => {
     const redirect = searchParams.get('redirect');

@@ -5,6 +5,7 @@ import { CloseIcon } from '@src/components/icons';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
+import { useLatestANTVersion } from '@src/hooks/useANTVersions';
 import { buildDomainInfoQuery } from '@src/hooks/useDomainInfo';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import {
@@ -38,12 +39,15 @@ function UpgradeDomainModal({
   const queryClient = useQueryClient();
   const [{ antAoClient, aoNetwork, arioContract, arioProcessId }] =
     useGlobalState();
-  const [{ antModuleId }, dispatchArNSState] = useArNSState();
+  const [, dispatchArNSState] = useArNSState();
   const [{ wallet, walletAddress }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const [accepted, setAccepted] = useState(false);
   const [upgrading, setUpgrading] = useState(false);
   const [signingMessage, setSigningMessage] = useState('');
+
+  const { data: antVersion } = useLatestANTVersion();
+  const antModuleId = antVersion?.moduleId ?? null;
 
   function handleClose() {
     setVisible(false);
