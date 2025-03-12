@@ -37,7 +37,8 @@ jobs:
           VITE_ARNS_SERVICE_API: ${{ vars.ARNS_SERVICE_API }}
           VITE_ARNS_REGISTRY_ADDRESS: ${{ vars.VITE_ARNS_REGISTRY_ADDRESS }}
           VITE_ARIO_PROCESS_ID: ${{ vars.VITE_ARIO_PROCESS_ID }}
-          VITE_AO_CU_URL: ${{ vars.VITE_AO_CU_URL }}
+          VITE_ARIO_AO_CU_URL: ${{ vars.VITE_ARIO_AO_CU_URL }}
+          VITE_ANT_AO_CU_URL: ${{ vars.VITE_ANT_AO_CU_URL }}
 
       # Disribute to Firebase
       - name: Deploy 🚀
