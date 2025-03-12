@@ -58,6 +58,7 @@ export function WalletStateProvider({
   reducer,
   children,
 }: StateProviderProps): JSX.Element {
+  const walletType = window.localStorage.getItem('walletType');
   const [state, dispatchWalletState] = useReducer(reducer, initialState);
 
   const [
@@ -107,9 +108,17 @@ export function WalletStateProvider({
       }
     };
 
+    if (walletType === WALLET_TYPES.BEACON) {
+      state?.wallet?.on!('disconnected', removeWalletState);
+    }
     ARWEAVE_APP_API.on('disconnect', removeWalletState);
 
-    return () => ARWEAVE_APP_API.off('disconnect', removeWalletState);
+    return () => {
+      ARWEAVE_APP_API.off('disconnect', removeWalletState);
+      if (walletType === WALLET_TYPES.BEACON) {
+        state?.wallet?.off!('disconnected', removeWalletState);
+      }
+    };
   }, [walletAddress, wallet, aoClient]);
 
   useEffect(() => {
