@@ -38,7 +38,7 @@ import {
   NETWORK_DEFAULTS,
   PERMANENT_DOMAIN_MESSAGE,
 } from '@src/utils/constants';
-import { ANTStateError, UpgradeRequiredError } from '@src/utils/errors';
+import { ANTStateError } from '@src/utils/errors';
 import { queryClient } from '@src/utils/network';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { capitalize } from 'lodash';
@@ -260,7 +260,6 @@ const DomainsTable = ({
           : 'alphanumeric',
       cell: ({ row }) => {
         const antHandlers = row.original.handlers;
-        const antErrors = row.original.antErrors;
         const processId = row.original.processId;
         const rowValue = row.getValue(key) as any;
 
@@ -378,10 +377,8 @@ const DomainsTable = ({
               );
             }
             return rowValue === false && row.original.role !== 'controller' ? (
-              <ErrorsTip
-                errors={antErrors.filter(
-                  (e) => e instanceof UpgradeRequiredError,
-                )}
+              <Tooltip
+                message={'Upgrade Domain'}
                 icon={
                   <button
                     onClick={() => {

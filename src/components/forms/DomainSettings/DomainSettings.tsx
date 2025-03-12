@@ -182,7 +182,7 @@ function DomainSettings({
                         primaryNameData?.name === lowerCaseDomain(domain ?? '')
                           ? 'Cannot return ArNS name while set as primary name. Remove name as primary name to enable return name workflow.'
                           : !antHandlers.includes('releaseName')
-                          ? 'Update ANT to access Release Name workflow'
+                          ? 'Update Domain to access Release Name workflow'
                           : 'Returns the name to the ArNS protocol'
                       }
                       icon={
@@ -326,7 +326,7 @@ function DomainSettings({
                 <Tooltip
                   message={
                     !antHandlers.includes('reassignName')
-                      ? 'Update ANT to access Reassign Name workflow'
+                      ? 'Update Domain to access Reassign Name workflow'
                       : data?.isInGracePeriod
                       ? 'Lease must be extended before ANT can be Reassigned'
                       : 'Reassigns what ANT is registered to the ArNS Name'
