@@ -327,6 +327,10 @@ export default async function dispatchANTInteraction({
             },
           },
         });
+        dispatchArNSState({
+          type: 'removeAnts',
+          payload: [processId],
+        });
 
         break;
       }

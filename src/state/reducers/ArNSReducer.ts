@@ -19,6 +19,10 @@ export type ArNSAction =
       type: 'addAnts';
       payload: Record<string, ANTProcessData>;
     }
+  | {
+      type: 'removeAnts';
+      payload: string[];
+    }
   | { type: 'setAntCount'; payload: number }
   | { type: 'incrementAntCount' }
   | { type: 'setLoading'; payload: boolean }
@@ -54,8 +58,25 @@ export const arnsReducer = (
     case 'addAnts':
       return {
         ...state,
-        ants: { ...state.ants, ...action.payload },
+        ants: {
+          ...state.ants,
+          ...action.payload,
+        },
       };
+    case 'removeAnts': {
+      return {
+        ...state,
+        ants: Object.entries(state.ants).reduce(
+          (acc: Record<string, ANTProcessData>, [antId, antProcessData]) => {
+            if (!action.payload.includes(antId)) {
+              acc[antId] = antProcessData;
+            }
+            return acc;
+          },
+          {},
+        ),
+      };
+    }
     case 'setAntCount':
       return {
         ...state,
