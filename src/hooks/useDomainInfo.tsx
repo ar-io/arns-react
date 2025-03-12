@@ -15,9 +15,8 @@ import { isInGracePeriod } from '@src/components/layout/Navbar/NotificationMenu/
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { ArNSWalletConnector } from '@src/types';
-import { jsonSerialize } from '@src/utils';
 import { NETWORK_DEFAULTS } from '@src/utils/constants';
-import { ANTStateError, UpgradeRequiredError } from '@src/utils/errors';
+import { ANTStateError } from '@src/utils/errors';
 import {
   buildAntStateQuery,
   buildArNSRecordsQuery,
@@ -25,7 +24,6 @@ import {
 } from '@src/utils/network';
 import { useQuery } from '@tanstack/react-query';
 import { TransactionEdge } from 'arweave-graphql';
-import { Tag } from 'arweave/node/lib/transaction';
 
 import { buildGraphQLQuery } from './useGraphQL';
 
@@ -79,7 +77,6 @@ export function buildDomainInfoQuery({
       aoNetwork,
     ],
     queryFn: async () => {
-      const action = 'Set-Record';
       const errors: Error[] = [];
       const antAo = connect(aoNetwork.ANT);
 
@@ -133,40 +130,7 @@ export function buildDomainInfoQuery({
         queryKey: ['ant-info', processId],
         queryFn: async () => {
           try {
-            const drySetRecordRes = await antAo
-              .dryrun({
-                process: processId,
-                Owner: state?.Owner,
-                From: state?.Owner,
-                tags: [
-                  { name: 'Action', value: action },
-                  { name: 'TTL-Seconds', value: '86400' },
-                  { name: 'Transaction-Id', value: ''.padEnd(43, '1') },
-                  { name: 'Sub-Domain', value: '1' },
-                  { name: 'Priority', value: '1' },
-                ],
-              })
-              .catch(() => {
-                return {} as ReturnType<typeof antAo.dryrun>;
-              });
-            const maybeError = drySetRecordRes?.Messages?.find((msg) => {
-              return msg?.Tags?.find((t: Tag) => t.name === 'Error');
-            });
-
-            const priority: number | undefined =
-              drySetRecordRes?.Messages?.find((msg) => {
-                return jsonSerialize(msg.Data)?.priority;
-              });
-
-            if (maybeError !== undefined || !priority) {
-              errors.push(new UpgradeRequiredError(`Affected APIs: ${action}`));
-            }
-
-            const info = await ANT.init({
-              process: new AOProcess({ processId, ao: antAo }),
-            }).getInfo();
-            if (errors.length) info.Handlers = []; // for validation on api's, in order to update ant
-            return info;
+            return await antProcess.getInfo();
           } catch (error: any) {
             captureException(error);
             errors.push(
@@ -259,16 +223,16 @@ export default function useDomainInfo({
     ...query,
     refetch: () => {
       queryClient.resetQueries({
-        queryKey: ['domainInfo', antId],
-      });
-      queryClient.resetQueries({
-        queryKey: ['domainInfo', domain],
-      });
-      queryClient.resetQueries({
         queryKey: ['ant', antId],
       });
       queryClient.resetQueries({
         queryKey: ['ant-info', antId],
+      });
+      queryClient.resetQueries({
+        queryKey: ['domainInfo', antId],
+      });
+      queryClient.resetQueries({
+        queryKey: ['domainInfo', domain],
       });
     },
   };

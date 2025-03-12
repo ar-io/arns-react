@@ -10,29 +10,19 @@ import { ArNSAction } from '..';
 
 export async function dispatchANTUpdate({
   queryClient,
+  domain,
   processId,
   dispatch,
   aoNetwork,
 }: {
   queryClient: QueryClient;
+  domain?: string;
   processId: string;
   walletAddress: AoAddress;
   dispatch: Dispatch<ArNSAction>;
   aoNetwork: typeof NETWORK_DEFAULTS.AO;
 }) {
   try {
-    queryClient.resetQueries({
-      queryKey: ['domainInfo', processId],
-      exact: false,
-    });
-    queryClient.resetQueries({
-      queryKey: ['ant', processId],
-      exact: false,
-    });
-    queryClient.resetQueries({
-      queryKey: ['ant-info', processId],
-      exact: false,
-    });
     dispatch({
       type: 'setLoading',
       payload: true,
@@ -46,6 +36,18 @@ export async function dispatchANTUpdate({
           errors: [],
           processMeta: null,
         },
+      },
+    });
+
+    await queryClient.resetQueries({
+      predicate({ queryKey }) {
+        return (
+          ((queryKey.includes('ant') ||
+            queryKey.includes('ant-info') ||
+            queryKey.includes('domainInfo')) &&
+            queryKey.includes(processId)) ||
+          queryKey.includes(domain)
+        );
       },
     });
 

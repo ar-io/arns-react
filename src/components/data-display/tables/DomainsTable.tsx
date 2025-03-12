@@ -39,7 +39,7 @@ import {
   PERMANENT_DOMAIN_MESSAGE,
 } from '@src/utils/constants';
 import { ANTStateError, UpgradeRequiredError } from '@src/utils/errors';
-import { useQueryClient } from '@tanstack/react-query';
+import { queryClient } from '@src/utils/network';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { capitalize } from 'lodash';
 import { CircleCheck, Star } from 'lucide-react';
@@ -119,10 +119,10 @@ const DomainsTable = ({
 }) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
   const [{ walletAddress }] = useWalletState();
   const [{ arioProcessId, aoNetwork }] = useGlobalState();
-  const [, dispatchArNSState] = useArNSState();
+  const [{ loading: loadingArnsState }, dispatchArNSState] = useArNSState();
   const { data: antVersion } = useLatestANTVersion();
   const antModuleId = antVersion?.moduleId ?? null;
   const [, dispatchModalState] = useModalState();
@@ -201,7 +201,13 @@ const DomainsTable = ({
 
       setTableData(newTableData);
     }
-  }, [domainData, loading, primaryNameData]);
+  }, [
+    domainData,
+    loading,
+    loadingArnsState,
+    primaryNameData,
+    dispatchArNSState,
+  ]);
 
   useEffect(() => {
     if (filter) {
@@ -338,23 +344,27 @@ const DomainsTable = ({
             );
           }
           case 'ioCompatible': {
+            if (
+              loadingArnsState &&
+              !domainData.ants[row.original.processId]?.state
+            )
+              return (
+                <span className="animate-pulse whitespace-nowrap">
+                  Loading...
+                </span>
+              );
             if (rowValue instanceof ANTStateError && walletAddress) {
               return (
                 <button
                   className="flex whitespace-nowrap justify-center align-center gap-2 text-center"
                   onClick={async () => {
-                    await dispatchANTUpdate({
+                    dispatchANTUpdate({
                       processId,
+                      domain: lowerCaseDomain(row.original.name),
                       aoNetwork,
                       queryClient,
                       walletAddress,
                       dispatch: dispatchArNSState,
-                    });
-                    queryClient.resetQueries({
-                      queryKey: [
-                        'domainInfo',
-                        lowerCaseDomain(row.original.name),
-                      ],
                     });
                   }}
                 >
@@ -367,9 +377,7 @@ const DomainsTable = ({
                 </button>
               );
             }
-            return row.original.antErrors.find(
-              (e) => e instanceof UpgradeRequiredError,
-            ) && row.original.role === 'owner' ? (
+            return rowValue === false && row.original.role !== 'controller' ? (
               <ErrorsTip
                 errors={antErrors.filter(
                   (e) => e instanceof UpgradeRequiredError,

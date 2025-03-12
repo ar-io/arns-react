@@ -141,9 +141,13 @@ export function getAntsRequiringUpdate({
   return Object.entries(ants)
     .map(([id, ant]) => {
       // if user is not the owner, skip
-      if (!ant.state?.Owner || ant?.state.Owner !== userAddress) return;
       if (
         !ant.processMeta ||
+        !ant.state?.Owner ||
+        ant?.state.Owner !== userAddress
+      )
+        return;
+      if (
         ant.processMeta.tags.find(
           (t) => t.name === 'Module' && t.value !== currentModuleId,
         )
