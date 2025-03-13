@@ -5,6 +5,7 @@ import ValidationInput from '@src/components/inputs/text/ValidationInput/Validat
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
+import { useLatestANTVersion } from '@src/hooks/useANTVersions';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import {
@@ -55,6 +56,8 @@ export function ReassignNameModal({
   const queryClient = useQueryClient();
   const [{ arioProcessId, aoClient, aoNetwork }] = useGlobalState();
   const [, dispatchArNSState] = useArNSState();
+  const { data: antVersion } = useLatestANTVersion();
+  const antModuleId = antVersion?.moduleId ?? null;
   const [{ signing }, dispatchTransactionState] = useTransactionState();
   const [{ wallet, walletAddress }] = useWalletState();
 
@@ -94,6 +97,10 @@ export function ReassignNameModal({
       if (!domainData?.info || !domainData?.state)
         throw new Error('Unable to get domain data');
 
+      if (!antModuleId) {
+        throw new Error('No ANT Module available, try again later');
+      }
+
       const previousState: SpawnANTState = {
         controllers: domainData.controllers,
         records: domainData.records,
@@ -120,10 +127,12 @@ export function ReassignNameModal({
               ? undefined
               : previousState,
           luaCodeTxId: DEFAULT_ANT_LUA_ID,
+          antModuleId,
         },
         processId,
         workflowName: ANT_INTERACTION_TYPES.REASSIGN_NAME,
-        dispatch: dispatchTransactionState,
+        dispatchTransactionState,
+        dispatchArNSState,
         owner: walletAddress.toString(),
         ao: aoClient,
       });

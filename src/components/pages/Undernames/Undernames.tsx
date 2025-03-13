@@ -58,6 +58,7 @@ function Undernames() {
   }, [
     id,
     name,
+    data,
     data?.owner,
     data?.controllers,
     walletAddress,
