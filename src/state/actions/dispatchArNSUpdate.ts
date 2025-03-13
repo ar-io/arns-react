@@ -140,19 +140,31 @@ export async function dispatchArNSUpdate({
             aoNetwork: aoNetworkSettings,
           }),
         );
-        dispatch({
-          type: 'addAnts',
-          payload: {
-            [id]: {
-              state: domainInfo.state ?? null,
-              handlers: (domainInfo.info?.Handlers ??
-                domainInfo.info?.HandlerNames ??
-                null) as AoANTHandler[] | null,
-              processMeta: antMetas[id] ?? null,
-              errors: domainInfo.errors ?? [],
+        // if the user is not associated with the ant, do not load it
+        if (
+          domainInfo.state &&
+          domainInfo.state.Owner !== walletAddress.toString() &&
+          !domainInfo.state.Controllers.includes(walletAddress.toString())
+        ) {
+          dispatch({
+            type: 'removeAnts',
+            payload: [id],
+          });
+        } else {
+          dispatch({
+            type: 'addAnts',
+            payload: {
+              [id]: {
+                state: domainInfo.state ?? null,
+                handlers: (domainInfo.info?.Handlers ??
+                  domainInfo.info?.HandlerNames ??
+                  null) as AoANTHandler[] | null,
+                processMeta: antMetas[id] ?? null,
+                errors: domainInfo.errors ?? [],
+              },
             },
-          },
-        });
+          });
+        }
       } catch (error: any) {
         const errorHandler = (e: string) => {
           if (e.startsWith('Error getting ArNS records')) {
