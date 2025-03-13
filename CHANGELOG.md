@@ -3,9 +3,18 @@
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+and this project adheres to
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.2.0] - 2025-03-13
+
+### Changed
+
+- Converted Upgrade ANT workflow to Upgrade Domain workflow, which uses
+  Reassign-Name to fork the domains associated ANT process with a new ANT module
+  binary instead of using AOS `Eval` to update the code.
 
 ## [1.1.1] - 2025-02-25
 
@@ -43,7 +52,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Updated Return Name Table to use left-hand arrow button for expand/collapse of chart
+- Updated Return Name Table to use left-hand arrow button for expand/collapse of
+  chart
 
 ### Fixed
 
@@ -60,7 +70,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed auto-reconnect issue when disconnecting with Metamask and refreshing page.
+- Fixed auto-reconnect issue when disconnecting with Metamask and refreshing
+  page.
 - Fixed displaying Update button to non-owners (controllers) in domains table.
 - Disallow WWW on search page.
 
