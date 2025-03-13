@@ -23,7 +23,6 @@ import {
   lowerCaseDomain,
   sleep,
 } from '@src/utils';
-import { DEFAULT_ANT_LUA_ID } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { queryClient } from '@src/utils/network';
 import { Checkbox } from 'antd';
@@ -50,6 +49,7 @@ function UpgradeDomainsModal({
   const [{ ants, domains }, dispatchArNSState] = useArNSState();
   const { data: antVersion } = useLatestANTVersion();
   const antModuleId = antVersion?.moduleId ?? null;
+  const luaSourceId = antVersion?.luaSourceId ?? null;
   // 0 or greater means loading, -1 means not loading
   const [progress, setProgress] = useState(-1);
   const isUpdatingAnts = useCallback(() => progress >= 0, [progress]);
@@ -242,11 +242,13 @@ function UpgradeDomainsModal({
                           View the code:{' '}
                           <a
                             className="text-link"
-                            href={`https://arscan.io/tx/${DEFAULT_ANT_LUA_ID}`}
+                            href={`https://arscan.io/tx/${luaSourceId}`}
                             target="_blank"
                             rel="noreferrer"
                           >
-                            {formatForMaxCharCount(DEFAULT_ANT_LUA_ID, 8)}
+                            {luaSourceId
+                              ? formatForMaxCharCount(luaSourceId, 8)
+                              : 'No source ID found'}
                           </a>
                         </span>
                       </div>
