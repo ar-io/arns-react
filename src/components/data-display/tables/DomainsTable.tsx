@@ -1,9 +1,4 @@
-import {
-  AoANTHandler,
-  AoANTState,
-  AoArNSNameData,
-  isLeasedArNSRecord,
-} from '@ar.io/sdk';
+import { AoANTHandler, AoArNSNameData, isLeasedArNSRecord } from '@ar.io/sdk';
 import ErrorsTip from '@src/components/Tooltips/ErrorsTip';
 import {
   ChevronRightIcon,
@@ -15,9 +10,11 @@ import { Loader } from '@src/components/layout';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
-import UpgradeAntModal from '@src/components/modals/ant-management/UpgradeAntModal/UpgradeAntModal';
+import UpgradeDomainModal from '@src/components/modals/ant-management/UpgradeDomainModal/UpgradeDomainModal';
+import { useLatestANTVersion } from '@src/hooks/useANTVersions';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import {
+  ANTProcessData,
   useArNSState,
   useGlobalState,
   useModalState,
@@ -41,8 +38,8 @@ import {
   NETWORK_DEFAULTS,
   PERMANENT_DOMAIN_MESSAGE,
 } from '@src/utils/constants';
-import { ANTStateError, UpgradeRequiredError } from '@src/utils/errors';
-import { useQueryClient } from '@tanstack/react-query';
+import { ANTStateError } from '@src/utils/errors';
+import { queryClient } from '@src/utils/network';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { capitalize } from 'lodash';
 import { CircleCheck, Star } from 'lucide-react';
@@ -115,24 +112,19 @@ const DomainsTable = ({
 }: {
   domainData: {
     names: Record<string, AoArNSNameData>;
-    ants: Record<
-      string,
-      {
-        state: AoANTState | null;
-        handlers: AoANTHandler[] | null;
-        errors?: Error[];
-      }
-    >;
+    ants: Record<string, ANTProcessData>;
   };
   loading: boolean;
   filter?: string;
 }) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
   const [{ walletAddress }] = useWalletState();
   const [{ arioProcessId, aoNetwork }] = useGlobalState();
-  const [, dispatchArNSState] = useArNSState();
+  const [{ loading: loadingArnsState }, dispatchArNSState] = useArNSState();
+  const { data: antVersion } = useLatestANTVersion();
+  const antModuleId = antVersion?.moduleId ?? null;
   const [, dispatchModalState] = useModalState();
   const [, dispatchTransactionState] = useTransactionState();
   const { data: primaryNameData } = usePrimaryName();
@@ -140,9 +132,9 @@ const DomainsTable = ({
   const [filteredTableData, setFilteredTableData] = useState<TableData[]>([]);
   const [sortBy, setSortBy] = useState(searchParams.get('sortBy') ?? 'name');
 
-  const [showUpgradeAntModal, setShowUpgradeAntModal] =
+  const [showUpgradeDomainModal, setShowUpgradeDomainModal] =
     useState<boolean>(false);
-  const [antIdToUpgrade, setAntIdToUpgrade] = useState<string | undefined>(
+  const [domainToUpgrade, setDomainToUpgrade] = useState<string | undefined>(
     undefined,
   );
 
@@ -164,9 +156,11 @@ const DomainsTable = ({
                   [record.processId]: {
                     state: ant.state,
                     handlers: ant.handlers,
+                    processMeta: ant.processMeta,
                   },
                 },
                 userAddress: walletAddress.toString(),
+                currentModuleId: antModuleId,
               })
             : false);
 
@@ -207,7 +201,13 @@ const DomainsTable = ({
 
       setTableData(newTableData);
     }
-  }, [domainData, loading, primaryNameData]);
+  }, [
+    domainData,
+    loading,
+    loadingArnsState,
+    primaryNameData,
+    dispatchArNSState,
+  ]);
 
   useEffect(() => {
     if (filter) {
@@ -260,7 +260,6 @@ const DomainsTable = ({
           : 'alphanumeric',
       cell: ({ row }) => {
         const antHandlers = row.original.handlers;
-        const antErrors = row.original.antErrors;
         const processId = row.original.processId;
         const rowValue = row.getValue(key) as any;
 
@@ -344,23 +343,27 @@ const DomainsTable = ({
             );
           }
           case 'ioCompatible': {
+            if (
+              loadingArnsState &&
+              !domainData.ants[row.original.processId]?.state
+            )
+              return (
+                <span className="animate-pulse whitespace-nowrap">
+                  Loading...
+                </span>
+              );
             if (rowValue instanceof ANTStateError && walletAddress) {
               return (
                 <button
                   className="flex whitespace-nowrap justify-center align-center gap-2 text-center"
                   onClick={async () => {
-                    await dispatchANTUpdate({
+                    dispatchANTUpdate({
                       processId,
+                      domain: lowerCaseDomain(row.original.name),
                       aoNetwork,
                       queryClient,
                       walletAddress,
                       dispatch: dispatchArNSState,
-                    });
-                    queryClient.resetQueries({
-                      queryKey: [
-                        'domainInfo',
-                        lowerCaseDomain(row.original.name),
-                      ],
                     });
                   }}
                 >
@@ -373,18 +376,14 @@ const DomainsTable = ({
                 </button>
               );
             }
-            return row.original.antErrors.find(
-              (e) => e instanceof UpgradeRequiredError,
-            ) && row.original.role === 'owner' ? (
-              <ErrorsTip
-                errors={antErrors.filter(
-                  (e) => e instanceof UpgradeRequiredError,
-                )}
+            return rowValue === false && row.original.role !== 'controller' ? (
+              <Tooltip
+                message={'Upgrade Domain'}
                 icon={
                   <button
                     onClick={() => {
-                      setAntIdToUpgrade(processId);
-                      setShowUpgradeAntModal(true);
+                      setDomainToUpgrade(lowerCaseDomain(row.original.name));
+                      setShowUpgradeDomainModal(true);
                     }}
                     className="p-[4px] px-[8px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all whitespace-nowrap"
                   >
@@ -674,13 +673,13 @@ const DomainsTable = ({
           }}
         />
       </div>
-      {antIdToUpgrade && (
-        <UpgradeAntModal
-          antId={antIdToUpgrade}
-          visible={showUpgradeAntModal}
+      {domainToUpgrade && (
+        <UpgradeDomainModal
+          domain={domainToUpgrade}
+          visible={showUpgradeDomainModal}
           setVisible={(b: boolean) => {
-            setShowUpgradeAntModal(b);
-            setAntIdToUpgrade(undefined);
+            setShowUpgradeDomainModal(b);
+            setDomainToUpgrade(undefined);
           }}
         />
       )}
