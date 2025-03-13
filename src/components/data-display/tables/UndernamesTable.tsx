@@ -268,7 +268,6 @@ const UndernamesTable = ({
                   onClick={() => {
                     setSelectedUndername(undername);
                     setAction(UNDERNAME_TABLE_ACTIONS.EDIT);
-                    console.log('click');
                   }}
                 >
                   <PencilIcon width={'16px'} height={'16px'} fill="inherit" />

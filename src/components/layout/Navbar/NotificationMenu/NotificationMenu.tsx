@@ -51,11 +51,13 @@ export function createExpirationNotification(
   };
 }
 
-export function createUpdateAntsNotification({
+export function createUpdateDomainsNotification({
+  domains,
   ants,
   userAddress,
   currentModuleId,
 }: {
+  domains: Record<string, AoArNSNameData>;
   ants: Record<string, ANTProcessData>;
   userAddress: string;
   currentModuleId: string | null;
@@ -64,16 +66,27 @@ export function createUpdateAntsNotification({
     ants,
     userAddress,
     currentModuleId,
-  }).length;
+  });
+  const domainsRequiringUpdate = Object.entries(domains).reduce(
+    (acc: string[], [domain, record]) => {
+      if (antsRequiringUpdate.includes(record.processId)) {
+        acc.push(domain);
+      }
+      return acc;
+    },
+    [],
+  ).length;
 
-  if (!antsRequiringUpdate) return;
+  if (!domainsRequiringUpdate) return;
 
   return {
     type: 'warning',
     message: (
       <span className="w-full">
-        <span className="text-bold">{antsRequiringUpdate}</span>{' '}
-        {antsRequiringUpdate > 1 ? 'ANTs need updating' : ' ANT needs updating'}
+        <span className="text-bold">{domainsRequiringUpdate}</span>{' '}
+        {domainsRequiringUpdate > 1
+          ? 'Domains need updating'
+          : ' Domain needs updating'}
       </span>
     ),
     link:
@@ -134,7 +147,8 @@ function NotificationMenu() {
         [
           createExpirationNotification(domains),
           createNamesExceedingUndernameLimitNotification({ domains, ants }),
-          createUpdateAntsNotification({
+          createUpdateDomainsNotification({
+            domains,
             ants,
             userAddress: walletAddress.toString(),
             currentModuleId: antModuleId,

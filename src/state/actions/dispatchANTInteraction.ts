@@ -10,6 +10,7 @@ import {
   spawnANT,
 } from '@ar.io/sdk/web';
 import { buildDomainInfoQuery } from '@src/hooks/useDomainInfo';
+import { buildGraphQLQuery } from '@src/hooks/useGraphQL';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
 import { lowerCaseDomain, sleep } from '@src/utils';
@@ -279,7 +280,15 @@ export default async function dispatchANTInteraction({
         // finally, set result as the reassignment result
         result = reassignRes;
         // handle state mutations
-        queryClient.resetQueries({ queryKey: ['domainInfo', payload.name] });
+        await queryClient.resetQueries({
+          predicate({ queryKey }) {
+            return (
+              (queryKey.includes('domainInfo') &&
+                queryKey.includes(payload.name)) ||
+              queryKey.includes(processId)
+            );
+          },
+        });
         const domainInfo = await queryClient
           .fetchQuery(
             buildDomainInfoQuery({
@@ -289,6 +298,17 @@ export default async function dispatchANTInteraction({
           )
           .catch((e) => console.error(e));
         if (!domainInfo) throw new Error('Unable to fetch domain info');
+        const processMeta = await queryClient
+          .fetchQuery(
+            buildGraphQLQuery(NETWORK_DEFAULTS.AO.ANT.GRAPHQL_URL, {
+              ids: [newAntId],
+            }),
+          )
+          .then((res) => res?.transactions.edges[0].node)
+          .catch((e) => {
+            console.error(e);
+            return null;
+          });
         // overwrite the existing domain with the updated record (only the process id should have changed)
         dispatchArNSState({
           type: 'addDomains',
@@ -303,9 +323,13 @@ export default async function dispatchANTInteraction({
               handlers: (domainInfo.info?.Handlers ?? null) as
                 | AoANTHandler[]
                 | null,
-              processMeta: domainInfo.processMeta ?? null,
+              processMeta: (processMeta as any) ?? null,
             },
           },
+        });
+        dispatchArNSState({
+          type: 'removeAnts',
+          payload: [processId],
         });
 
         break;
