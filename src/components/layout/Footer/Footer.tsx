@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 
 import changeLog from '../../../../CHANGELOG.md?raw';
 import { ARIO_DISCORD_LINK } from '../../../utils/constants';
+import { APP_VERSION } from '../../../utils/constants';
 import { BrandLogo } from '../../icons';
 import './styles.css';
 
@@ -61,8 +62,7 @@ function Footer() {
             style={{ whiteSpace: 'nowrap' }}
             onClick={() => setShowChangeLogModal(true)}
           >
-            v{process.env.npm_package_version}-
-            {process.env.VITE_GITHUB_HASH?.slice(0, 6)}
+            v{APP_VERSION}-{import.meta.env.VITE_GITHUB_HASH?.slice(0, 6)}
           </button>
         </Tooltip>
         <Tooltip

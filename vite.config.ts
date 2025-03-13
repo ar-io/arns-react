@@ -39,18 +39,10 @@ export default defineConfig({
       : []),
   ],
   define: {
+    __NPM_PACKAGE_VERSION__: JSON.stringify(process.env.npm_package_version),
     'process.env': {
       // DO NOT EXPOSE THE ENTIRE process.env HERE - sensitive information on CI/CD could be exposed.
-      VITE_ARIO_PROCESS_ID: process.env.VITE_ARIO_PROCESS_ID,
-      VITE_ARIO_AO_CU_URL: process.env.VITE_ARIO_AO_CU_URL,
-      VITE_ARWEAVE_HOST: process.env.VITE_ARWEAVE_HOST,
-      VITE_ARWEAVE_GRAPHQL_URL: process.env.VITE_ARWEAVE_GRAPHQL_URL,
-      VITE_GITHUB_HASH: process.env.VITE_GITHUB_HASH,
-      npm_package_version: process.env.npm_package_version,
       URL: process.env.URL,
-    },
-    VITE_CONFIG: {
-      version: JSON.stringify(process.env.npm_package_version),
     },
   },
   resolve: {
