@@ -85,6 +85,7 @@ function UpgradeDomainModal({
         description: domainData.state?.Description ?? '',
         keywords: domainData.state?.Keywords ?? [],
         balances: domainData.state?.Balances ?? {},
+        logo: domainData.logo ?? '',
       };
 
       await dispatchANTInteraction({

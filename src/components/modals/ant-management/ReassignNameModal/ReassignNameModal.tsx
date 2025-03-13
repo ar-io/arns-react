@@ -110,6 +110,7 @@ export function ReassignNameModal({
         description: domainData.info.Description,
         keywords: domainData.info.Keywords,
         balances: domainData.state.Balances,
+        logo: domainData.logo ?? '',
       };
 
       const result = await dispatchANTInteraction({
