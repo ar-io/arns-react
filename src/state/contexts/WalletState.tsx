@@ -1,5 +1,5 @@
 import { AOProcess, ARIO } from '@ar.io/sdk/web';
-import { ArweaveAppError } from '@src/utils/errors';
+import { ArweaveAppError, BeaconError } from '@src/utils/errors';
 import React, {
   Dispatch,
   createContext,
@@ -12,6 +12,7 @@ import { useAccount, useConfig } from 'wagmi';
 import { useEffectOnce } from '../../hooks/useEffectOnce/useEffectOnce';
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import {
+  BeaconWalletConnector,
   EthWalletConnector,
   WanderWalletConnector,
 } from '../../services/wallets';
@@ -108,15 +109,30 @@ export function WalletStateProvider({
       }
     };
 
+    const removeWalletStateBeacon = () => {
+      if (walletAddress) {
+        localStorage.removeItem('walletType');
+        eventEmitter.emit('error', new BeaconError('Beacon disconnected'));
+        dispatchWalletState({
+          type: 'setWalletAddress',
+          payload: undefined,
+        });
+        dispatchWalletState({
+          type: 'setWallet',
+          payload: undefined,
+        });
+      }
+    };
+
     if (walletType === WALLET_TYPES.BEACON) {
-      state?.wallet?.on!('disconnected', removeWalletState);
+      state?.wallet?.on!('disconnected', removeWalletStateBeacon);
     }
     ARWEAVE_APP_API.on('disconnect', removeWalletState);
 
     return () => {
       ARWEAVE_APP_API.off('disconnect', removeWalletState);
       if (walletType === WALLET_TYPES.BEACON) {
-        state?.wallet?.off!('disconnected', removeWalletState);
+        state?.wallet?.off!('disconnected', removeWalletStateBeacon);
       }
     };
   }, [walletAddress, wallet, aoClient]);
@@ -194,6 +210,18 @@ export function WalletStateProvider({
             payload: connector,
           });
         }
+      } else if (walletType === WALLET_TYPES.BEACON) {
+        const connector = new BeaconWalletConnector();
+        const address = await connector?.getWalletAddress();
+
+        dispatchWalletState({
+          type: 'setWalletAddress',
+          payload: address,
+        });
+        dispatchWalletState({
+          type: 'setWallet',
+          payload: connector,
+        });
       }
     } catch (error) {
       eventEmitter.emit('error', error);
