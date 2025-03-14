@@ -5414,10 +5414,10 @@
   resolved "https://registry.yarnpkg.com/@ungap/structured-clone/-/structured-clone-1.2.0.tgz#756641adb587851b5ccb3e095daf27ae581c8406"
   integrity sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==
 
-"@vela-ventures/ao-sync-sdk@^1.1.13":
-  version "1.1.13"
-  resolved "https://registry.yarnpkg.com/@vela-ventures/ao-sync-sdk/-/ao-sync-sdk-1.1.13.tgz#1476c52be9bf300f0de7ff2fe1889a37aed26557"
-  integrity sha512-cbHw9PVru3zqYkjjzRqsDXCYPIyoGFePmoue1feeYX6irUB/FUTFh+PrkzhkGAC+yAmY/XMyKNs33fGRHFmCGQ==
+"@vela-ventures/ao-sync-sdk@^1.1.14":
+  version "1.1.14"
+  resolved "https://registry.yarnpkg.com/@vela-ventures/ao-sync-sdk/-/ao-sync-sdk-1.1.14.tgz#5b6f133ff522aa75c12629eaea0a552a81977f23"
+  integrity sha512-816MF/At+KqfgejJWsmVg/sWOXhkoqH7B4FdPGJ//zJBX2WOrlM9yh4y6XcW4oApkils8pfiTyUYav7peado8Q==
   dependencies:
     arconnect "^1.0.4"
     arweave "^1.15.5"

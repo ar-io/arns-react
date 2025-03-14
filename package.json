@@ -36,7 +36,7 @@
     "@tanstack/react-query-devtools": "^5.66.9",
     "@tanstack/react-query-persist-client": "^5.45.1",
     "@tanstack/react-table": "^8.20.5",
-    "@vela-ventures/ao-sync-sdk": "^1.1.13",
+    "@vela-ventures/ao-sync-sdk": "^1.1.14",
     "antd": "^5.20.6",
     "arconnect": "^1.0.3",
     "arweave": "^1.15.1",
