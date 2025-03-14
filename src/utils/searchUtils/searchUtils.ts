@@ -1,4 +1,4 @@
-import { AntHandlerNames, AoANTHandler, AoANTState } from '@ar.io/sdk';
+import { ANTProcessData } from '@src/state';
 import emojiRegex from 'emoji-regex';
 import { asciiToUnicode, unicodeToAscii } from 'puny-coder';
 
@@ -132,18 +132,26 @@ export function lowerCaseDomain(domain: string) {
 export function getAntsRequiringUpdate({
   ants,
   userAddress,
+  currentModuleId,
 }: {
-  ants: Record<
-    string,
-    { state: AoANTState | null; handlers: AoANTHandler[] | null }
-  >;
+  ants: Record<string, ANTProcessData>;
   userAddress: string;
+  currentModuleId: string | null;
 }): string[] {
   return Object.entries(ants)
     .map(([id, ant]) => {
       // if user is not the owner, skip
-      if (!ant.state?.Owner || ant?.state.Owner !== userAddress) return;
-      if (!AntHandlerNames.every((handler) => ant.handlers?.includes(handler)))
+      if (
+        !ant.processMeta ||
+        !ant.state?.Owner ||
+        ant?.state.Owner !== userAddress
+      )
+        return;
+      if (
+        ant.processMeta.tags.find(
+          (t) => t.name === 'Module' && t.value !== currentModuleId,
+        )
+      )
         return id;
     })
     .filter((id) => id !== undefined) as string[];
@@ -152,14 +160,14 @@ export function getAntsRequiringUpdate({
 export function doAntsRequireUpdate({
   ants,
   userAddress,
+  currentModuleId,
 }: {
-  ants: Record<
-    string,
-    { state: AoANTState | null; handlers: AoANTHandler[] | null }
-  >;
+  ants: Record<string, ANTProcessData>;
   userAddress: string;
+  currentModuleId: string | null;
 }) {
-  const antReq = getAntsRequiringUpdate({ ants, userAddress }).length > 0;
+  const antReq =
+    getAntsRequiringUpdate({ ants, userAddress, currentModuleId }).length > 0;
 
   return antReq;
 }

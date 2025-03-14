@@ -191,6 +191,7 @@ export enum ANT_INTERACTION_TYPES {
   SET_LOGO = 'Set Logo',
   SET_DESCRIPTION = 'Set Description',
   SET_KEYWORDS = 'Set Keywords',
+  UPGRADE_ANT = 'Upgrade ANT',
 }
 
 export enum ARNS_INTERACTION_TYPES {
@@ -337,6 +338,7 @@ export type BuyRecordPayload = {
   type: TRANSACTION_TYPES;
   qty?: number; // the cost displayed to the user when buying a record
   targetId?: ArweaveTransactionID;
+  antModuleId: string;
 };
 
 export type ExtendLeasePayload = {
