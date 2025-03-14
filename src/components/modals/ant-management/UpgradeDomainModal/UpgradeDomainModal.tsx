@@ -17,7 +17,6 @@ import {
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
 import { ANT_INTERACTION_TYPES } from '@src/types';
 import { formatForMaxCharCount, lowerCaseDomain, sleep } from '@src/utils';
-import { DEFAULT_ANT_LUA_ID } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { useQueryClient } from '@tanstack/react-query';
 import { Checkbox } from 'antd';
@@ -48,6 +47,7 @@ function UpgradeDomainModal({
 
   const { data: antVersion } = useLatestANTVersion();
   const antModuleId = antVersion?.moduleId ?? null;
+  const luaSourceId = antVersion?.luaSourceId ?? null;
 
   function handleClose() {
     setVisible(false);
@@ -85,6 +85,7 @@ function UpgradeDomainModal({
         description: domainData.state?.Description ?? '',
         keywords: domainData.state?.Keywords ?? [],
         balances: domainData.state?.Balances ?? {},
+        logo: domainData.logo ?? '',
       };
 
       await dispatchANTInteraction({
@@ -196,11 +197,13 @@ function UpgradeDomainModal({
                           View the code:{' '}
                           <a
                             className="text-link"
-                            href={`https://arscan.io/tx/${DEFAULT_ANT_LUA_ID}`}
+                            href={`https://arscan.io/tx/${luaSourceId}`}
                             target="_blank"
                             rel="noreferrer"
                           >
-                            {formatForMaxCharCount(DEFAULT_ANT_LUA_ID, 8)}
+                            {luaSourceId
+                              ? formatForMaxCharCount(luaSourceId, 8)
+                              : 'No source ID found'}
                           </a>
                         </span>
                       </div>

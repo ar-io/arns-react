@@ -13,8 +13,8 @@ and this project adheres to
 ### Changed
 
 - Converted Upgrade ANT workflow to Upgrade Domain workflow, which uses
-  Reassign-Name to fork the domain's associated ANT process with a new ANT module
-  binary instead of using AOS `Eval` to update the code.
+  Reassign-Name to fork the domain's associated ANT process with a new ANT
+  module binary instead of using AOS `Eval` to update the code.
 
 ## [1.1.1] - 2025-02-25
 
