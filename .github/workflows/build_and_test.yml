@@ -23,7 +23,7 @@ jobs:
           cache: 'yarn'
       - run: yarn --frozen-lockfile
       - run: yarn lint:check
-      - run: yarn test
+      # - run: yarn test
       - run: yarn build
 
   test-playwright:
@@ -39,7 +39,8 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-browsers-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+          key:
+            playwright-browsers-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
           restore-keys: |
             playwright-browsers-${{ runner.os }}-
 

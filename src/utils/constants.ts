@@ -19,7 +19,7 @@ import SAM_IMAGE from '../../assets/images/featured-domains/sam.png';
 import { ArweaveTransactionID } from '../services/arweave/ArweaveTransactionID';
 
 export const APP_NAME = 'AR-IO-ArNS-App';
-export const APP_VERSION = '1.0.0';
+export const APP_VERSION = __NPM_PACKAGE_VERSION__ || '1.0.0';
 export const WRITE_OPTIONS = {
   tags: [
     {
@@ -35,9 +35,9 @@ export const ARWEAVE_APP_API = new ArweaveWebWallet(
   { state: { url: 'arweave.app' } },
 );
 
-export const ARWEAVE_HOST = process.env.VITE_ARWEAVE_HOST ?? 'arweave.net';
+export const ARWEAVE_HOST = import.meta.env.VITE_ARWEAVE_HOST ?? 'arweave.net';
 export const ARWEAVE_GRAPHQL_URL =
-  process.env.VITE_ARWEAVE_GRAPHQL_URL ?? 'https://arweave.net/graphql';
+  import.meta.env.VITE_ARWEAVE_GRAPHQL_URL ?? 'https://arweave.net/graphql';
 
 export const DEFAULT_ARWEAVE = new Arweave({
   host: ARWEAVE_HOST,
@@ -89,14 +89,14 @@ export const URL_REGEX = new RegExp(
   'i',
 );
 export const ARIO_PROCESS_ID =
-  process.env.VITE_ARIO_PROCESS_ID || arioDevnetProcessId;
+  import.meta.env.VITE_ARIO_PROCESS_ID || arioDevnetProcessId;
 
 export const DEFAULT_ANT_LUA_ID = ANT_LUA_ID;
 export const ARIO_AO_CU_URL =
-  process.env.VITE_ARIO_AO_CU_URL || 'https://cu.ardrive.io';
+  import.meta.env.VITE_ARIO_AO_CU_URL || 'https://cu.ardrive.io';
 
 export const ANT_AO_CU_URL =
-  process.env.VITE_ARIO_AO_CU_URL || 'https://cu.ardrive.io';
+  import.meta.env.VITE_ANT_AO_CU_URL || 'https://cu.ardrive.io';
 
 export const NETWORK_DEFAULTS = {
   AO: {

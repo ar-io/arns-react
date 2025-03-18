@@ -29,6 +29,11 @@ function MarkdownModal({ title, markdownText, onClose }: MarkdownModalProps) {
               className="text-light-grey
             prose my-2 grow overflow-y-auto text-sm scrollbar prose-headings:text-white prose-h2:text-base prose-h3:text-sm
             "
+              components={{
+                code: ({ children }) => {
+                  return <code className="text-grey text-sm">{children}</code>;
+                },
+              }}
             >
               {markdownText}
             </ReactMarkdown>

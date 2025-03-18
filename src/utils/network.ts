@@ -48,18 +48,16 @@ export const queryClient = new QueryClient({
 export function buildAntStateQuery({
   processId,
   ao,
-  meta,
 }: {
   processId: string;
   ao: AoClient;
-  meta?: string[];
 }): {
   queryKey: ['ant', string] | string[];
   queryFn: () => Promise<AoANTState | null>;
   staleTime: number;
 } {
   return {
-    queryKey: ['ant', processId, ...(meta || [])],
+    queryKey: ['ant', processId],
     queryFn: async () => {
       if (!processId || !isArweaveTransactionID(processId))
         throw new Error('Must provide a valid process id');

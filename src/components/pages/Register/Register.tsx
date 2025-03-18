@@ -2,6 +2,7 @@ import { CheckCircleFilled } from '@ant-design/icons';
 import { ANT, AOProcess, mARIOToken } from '@ar.io/sdk/web';
 import Tooltip from '@src/components/Tooltips/Tooltip';
 import { Accordion } from '@src/components/data-display';
+import { useLatestANTVersion } from '@src/hooks/useANTVersions';
 import { useCostDetails } from '@src/hooks/useCostDetails';
 import { ValidationError } from '@src/utils/errors';
 import emojiRegex from 'emoji-regex';
@@ -66,6 +67,8 @@ function RegisterNameForm() {
   const [hasValidationErrors, setHasValidationErrors] =
     useState<boolean>(false);
   const [validatingNext, setValidatingNext] = useState<boolean>(false);
+  const { data: antVersion } = useLatestANTVersion();
+  const antModuleId = antVersion?.moduleId ?? null;
 
   useEffect(() => {
     const redirect = searchParams.get('redirect');
@@ -126,6 +129,10 @@ function RegisterNameForm() {
         return;
       }
 
+      if (!antModuleId) {
+        throw new Error('No ANT Module available, try again later');
+      }
+
       setValidatingNext(true);
 
       if (hasValidationErrors) {
@@ -155,6 +162,7 @@ function RegisterNameForm() {
           : undefined,
       type: registrationType,
       targetId,
+      antModuleId,
     };
 
     dispatchTransactionState({
