@@ -119,7 +119,6 @@ const DomainsTable = ({
 }) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  // const queryClient = useQueryClient();
   const [{ walletAddress }] = useWalletState();
   const [{ arioProcessId, aoNetwork }] = useGlobalState();
   const [{ loading: loadingArnsState }, dispatchArNSState] = useArNSState();
