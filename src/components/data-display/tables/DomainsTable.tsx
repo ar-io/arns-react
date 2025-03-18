@@ -193,8 +193,8 @@ const DomainsTable = ({
           // metadata used for search and other purposes
           antRecords: ant?.state?.Records,
           domainRecord: record,
-          handlers: ant.handlers,
-          antErrors: ant.errors ?? [],
+          handlers: ant?.handlers ?? [],
+          antErrors: ant?.errors ?? [],
         };
         newTableData.push(data);
       });
