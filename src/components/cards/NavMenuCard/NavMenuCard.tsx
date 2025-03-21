@@ -1,13 +1,15 @@
 import { AntLogoIcon } from '@src/components/data-display/AntLogoIcon';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
+import { useTurboCreditBalance } from '@src/hooks/useTurboCreditBalance';
 import { AoAddress } from '@src/types';
-import { shortPrimaryName } from '@src/utils';
+import { formatARIOWithCommas, shortPrimaryName } from '@src/utils';
 import { buildARBalanceQuery, buildIOBalanceQuery } from '@src/utils/network';
 import { useQueryClient } from '@tanstack/react-query';
 import { Tooltip } from 'antd';
+import Ar from 'arweave/node/ar';
 import { Settings2Icon } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { useIsMobile } from '../../../hooks';
@@ -41,13 +43,23 @@ function NavMenuCard() {
   const { data: domainDomain } = useDomainInfo({
     domain: primaryNameData?.name,
   });
+  const { data: turboCreditBalanceRes } = useTurboCreditBalance();
+  const turboCreditBalance = useMemo(() => {
+    if (!turboCreditBalanceRes) return '0';
+    const ar = new Ar();
+    return formatARIOWithCommas(
+      parseFloat(ar.winstonToAr(turboCreditBalanceRes.effectiveBalance)),
+    );
+  }, [turboCreditBalanceRes]);
   const isMobile = useIsMobile();
 
   const [showMenu, setShowMenu] = useState(false);
   const [walletDetails, setWalletDetails] = useState<{
+    'Turbo Credits': number | undefined | string;
     AR: number | undefined | string;
     [x: string]: number | undefined | string;
   }>({
+    'Turbo Credits': turboCreditBalance,
     AR: undefined,
     [arioTicker]: undefined,
   });
@@ -67,12 +79,13 @@ function NavMenuCard() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [menuRef, showMenu, wallet, walletAddress]);
+  }, [menuRef, showMenu, wallet, walletAddress, turboCreditBalance]);
 
   function resetWalletDetails() {
     setWalletDetails({
       [arioTicker]: undefined,
       AR: undefined,
+      'Turbo Credits': undefined,
     });
   }
 
@@ -102,6 +115,7 @@ function NavMenuCard() {
     setWalletDetails({
       AR: formattedBalance,
       [arioTicker]: formattedIOBalance,
+      'Turbo Credits': turboCreditBalance,
     });
   }
 
@@ -223,7 +237,10 @@ function NavMenuCard() {
                             gap: '10px',
                           }}
                         >
-                          <span style={{ fontWeight: 400 }}>
+                          <span
+                            className="whitespace-nowrap"
+                            style={{ fontWeight: 400 }}
+                          >
                             {key} Balance:
                           </span>
                           {value ? (
