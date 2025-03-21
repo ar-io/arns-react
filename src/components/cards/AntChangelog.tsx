@@ -26,6 +26,9 @@ function AntChangelog({ className }: { className?: string }) {
         className={className}
         children={FORMATTED_CHANGELOG ?? '# No changelog'}
         components={{
+          code: ({ children }) => {
+            return <code className="text-grey text-sm">{children}</code>;
+          },
           h1: ({ children }) => {
             return (
               <div>

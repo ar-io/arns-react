@@ -66,6 +66,16 @@ export const arnsReducer = (
     case 'removeAnts': {
       return {
         ...state,
+        // remove domains that are not associated with the ants that are being removed
+        domains: Object.entries(state.domains).reduce(
+          (acc: Record<string, AoArNSNameData>, [domain, domainData]) => {
+            if (!action.payload.includes(domainData.processId)) {
+              acc[domain] = domainData;
+            }
+            return acc;
+          },
+          {},
+        ),
         ants: Object.entries(state.ants).reduce(
           (acc: Record<string, ANTProcessData>, [antId, antProcessData]) => {
             if (!action.payload.includes(antId)) {
