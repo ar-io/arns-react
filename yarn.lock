@@ -2495,6 +2495,11 @@
   resolved "https://registry.yarnpkg.com/@floating-ui/utils/-/utils-0.2.8.tgz#21a907684723bbbaa5f0974cf7730bd797eb8e62"
   integrity sha512-kym7SodPp8/wloecOpcmSnWJsK7M0E5Wg8UcFA+uO4B9s5d0ywXOEro/8HM9x0rW+TljRzul/14UYz3TleT3ig==
 
+"@fontsource/sora@^5.2.5":
+  version "5.2.5"
+  resolved "https://registry.yarnpkg.com/@fontsource/sora/-/sora-5.2.5.tgz#9de5281ef46894860a602cafe066c399576a5f24"
+  integrity sha512-tYBw4RHgNEhwOrsqSVlFKt4hdpf9/2taC+ygQJzw6wyPvQnnqJgYz+rGwuTOi3Wuv1qgoyyRpHkcKO7O8nSrEw==
+
 "@glen/jest-raw-loader@^2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@glen/jest-raw-loader/-/jest-raw-loader-2.0.0.tgz#209377060d4aaaa19ab3ef46fb07650af4529d4c"
@@ -5414,11 +5419,12 @@
   resolved "https://registry.yarnpkg.com/@ungap/structured-clone/-/structured-clone-1.2.0.tgz#756641adb587851b5ccb3e095daf27ae581c8406"
   integrity sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==
 
-"@vela-ventures/ao-sync-sdk@^1.1.14":
-  version "1.1.14"
-  resolved "https://registry.yarnpkg.com/@vela-ventures/ao-sync-sdk/-/ao-sync-sdk-1.1.14.tgz#5b6f133ff522aa75c12629eaea0a552a81977f23"
-  integrity sha512-816MF/At+KqfgejJWsmVg/sWOXhkoqH7B4FdPGJ//zJBX2WOrlM9yh4y6XcW4oApkils8pfiTyUYav7peado8Q==
+"@vela-ventures/ao-sync-sdk@^1.1.16":
+  version "1.1.16"
+  resolved "https://registry.yarnpkg.com/@vela-ventures/ao-sync-sdk/-/ao-sync-sdk-1.1.16.tgz#7a6315a77cce9c49aef267f7099f34b3ead93e2c"
+  integrity sha512-YMgM2wlNuqfJsc8FlLGt2Y3vvuzPGrqkVFWVPBh3A9gZq0dUGa9cUHZ/iJyF5zHSi/Wrvk74ThM4KMP1XpXDKw==
   dependencies:
+    "@fontsource/sora" "^5.2.5"
     arconnect "^1.0.4"
     arweave "^1.15.5"
     buffer "^6.0.3"
