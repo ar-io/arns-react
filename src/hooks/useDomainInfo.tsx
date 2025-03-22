@@ -17,6 +17,7 @@ import { useWalletState } from '@src/state/contexts/WalletState';
 import { ArNSWalletConnector } from '@src/types';
 import { NETWORK_DEFAULTS } from '@src/utils/constants';
 import { ANTStateError } from '@src/utils/errors';
+import { SentryLogger } from '@src/utils/logger';
 import {
   buildAntStateQuery,
   buildArNSRecordsQuery,
@@ -110,6 +111,10 @@ export function buildDomainInfoQuery({
         process: new AOProcess({
           processId,
           ao: antAo,
+          logger: new SentryLogger({
+            component: 'ANT',
+            initialContext: { processId, domain, aoNetwork },
+          }) as any,
         }),
         ...(signer !== undefined ? { signer: signer as any } : {}),
       });
