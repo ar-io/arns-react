@@ -15,6 +15,7 @@ import { buildAllGraphQLTransactionsQuery } from '@src/hooks/useGraphQL';
 import { AoAddress } from '@src/types';
 import { NETWORK_DEFAULTS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
+import { SentryLogger } from '@src/utils/logger';
 import { queryClient } from '@src/utils/network';
 import { TransactionEdge } from 'arweave-graphql';
 import { pLimit } from 'plimit-lit';
@@ -34,6 +35,9 @@ export async function dispatchArNSUpdate({
   arioProcessId: string;
   aoNetworkSettings: typeof NETWORK_DEFAULTS.AO;
 }) {
+  const sentryLogger = new SentryLogger({
+    component: 'dispatchArNSUpdate',
+  });
   try {
     const ao = connect(aoNetworkSettings.ARIO);
     const throttle = pLimit(20);
@@ -52,12 +56,17 @@ export async function dispatchArNSUpdate({
       payload: true,
     });
     const arioContract = ARIO.init({
-      process: new AOProcess({ processId: arioProcessId, ao }),
+      process: new AOProcess({
+        processId: arioProcessId,
+        ao,
+        logger: sentryLogger.withContext({ component: 'ARIO' }),
+      }),
     }) as AoARIORead;
     const antRegistry = ANTRegistry.init({
       process: new AOProcess({
         processId: ANT_REGISTRY_ID,
         ao: connect(aoNetworkSettings.ANT),
+        logger: sentryLogger.withContext({ component: 'ANTRegistry' }),
       }),
     });
     // TODO: we should paginate or send a filter by process ID on the network process for the records we want
