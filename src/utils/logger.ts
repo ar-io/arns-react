@@ -38,7 +38,7 @@ export class SentryLogger extends Logger {
   }
 
   warn(message: string, context?: LogContext): void {
-    this.warn(message, context);
+    super.warn(message, context);
     // Also capture in Sentry as a warning
     captureMessage(message, {
       level: 'warning',
@@ -54,7 +54,7 @@ export class SentryLogger extends Logger {
 
   error(error: Error | string, context?: LogContext): void {
     const errorObj = typeof error === 'string' ? new Error(error) : error;
-    this.error(errorObj.message, context);
+    super.error(errorObj.message, context);
 
     // Capture in Sentry
     captureException(errorObj, {
