@@ -4,7 +4,10 @@ import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import { useTurboCreditBalance } from '@src/hooks/useTurboCreditBalance';
 import { AoAddress } from '@src/types';
 import { formatARIOWithCommas, shortPrimaryName } from '@src/utils';
-import { buildARBalanceQuery, buildIOBalanceQuery } from '@src/utils/network';
+import {
+  //buildARBalanceQuery,
+  buildIOBalanceQuery,
+} from '@src/utils/network';
 import { useQueryClient } from '@tanstack/react-query';
 import { Tooltip } from 'antd';
 import Ar from 'arweave/node/ar';
@@ -27,15 +30,16 @@ import { WalletAddress } from '../../layout/WalletAddress/WalletAddress';
 import './styles.css';
 
 function NavMenuCard() {
+  // TODO: all the balance queries here should be refactored to use balance hooks, or a central balance hook
   const queryClient = useQueryClient();
   const [
     {
-      arweaveDataProvider,
+      // arweaveDataProvider,
       arioContract,
       arioTicker,
       arioProcessId,
       aoNetwork,
-      gateway,
+      // gateway,
     },
   ] = useGlobalState();
   const [{ wallet, walletAddress }, dispatchWalletState] = useWalletState();
@@ -56,11 +60,11 @@ function NavMenuCard() {
   const [showMenu, setShowMenu] = useState(false);
   const [walletDetails, setWalletDetails] = useState<{
     'Turbo Credits': number | undefined | string;
-    AR: number | undefined | string;
+    //AR: number | undefined | string;
     [x: string]: number | undefined | string;
   }>({
     'Turbo Credits': turboCreditBalance,
-    AR: undefined,
+    // AR: undefined,
     [arioTicker]: undefined,
   });
   const menuRef = useRef<HTMLDivElement>(null);
@@ -84,7 +88,7 @@ function NavMenuCard() {
   function resetWalletDetails() {
     setWalletDetails({
       [arioTicker]: undefined,
-      AR: undefined,
+      // AR: undefined,
       'Turbo Credits': undefined,
     });
   }
@@ -97,23 +101,28 @@ function NavMenuCard() {
         meta: [arioProcessId, aoNetwork.ARIO.CU_URL],
       }),
     );
-    const arBalance = await queryClient.fetchQuery(
-      buildARBalanceQuery({
-        address: walletAddress,
-        provider: arweaveDataProvider,
-        meta: [gateway],
-      }),
-    );
-    const [formattedBalance, formattedIOBalance] = [arBalance, ioBalance].map(
-      (balance: string | number) =>
-        Intl.NumberFormat('en-US', {
-          notation: 'compact',
-          maximumFractionDigits: 2,
-          compactDisplay: 'short',
-        }).format(+balance),
+    // const arBalance = await queryClient.fetchQuery(
+    //   buildARBalanceQuery({
+    //     address: walletAddress,
+    //     provider: arweaveDataProvider,
+    //     meta: [gateway],
+    //   }),
+    // );
+    const [
+      //formattedBalance,
+      formattedIOBalance,
+    ] = [
+      //arBalance,
+      ioBalance,
+    ].map((balance: string | number) =>
+      Intl.NumberFormat('en-US', {
+        notation: 'compact',
+        maximumFractionDigits: 2,
+        compactDisplay: 'short',
+      }).format(+balance),
     );
     setWalletDetails({
-      AR: formattedBalance,
+      //  AR: formattedBalance,
       [arioTicker]: formattedIOBalance,
       'Turbo Credits': turboCreditBalance,
     });
