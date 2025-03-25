@@ -8,6 +8,16 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.3.0] - 2025-03-25
+
+### Added
+
+- Added Turbo credit balance
+
+### Changed
+
+- Removed AR balance
+
 ## [1.2.0] - 2025-03-13
 
 ### Changed
