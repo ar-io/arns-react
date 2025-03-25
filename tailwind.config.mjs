@@ -49,6 +49,7 @@ export default {
       grey: '#7d7d85',
       'metallic-grey': '#18191a',
       ['dark-grey']: '#38393b',
+      transparent: 'transparent',
     },
   },
   plugins: [

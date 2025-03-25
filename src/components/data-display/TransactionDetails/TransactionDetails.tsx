@@ -68,11 +68,11 @@ export function TransactionDetails({
       {' '}
       <div className="flex gap-10 w-full">
         <div className="flex flex-col gap-3 w-full">
-          <span className="text-grey w-fit">Select payment method</span>
-          <FundingSourceSelector
+          {/* <span className="text-grey w-fit">Select payment method</span> */}
+          {/* <FundingSourceSelector
             details={details}
             onChange={(v) => handleChange(v)}
-          />
+          /> */}
         </div>
         <div className="flex flex-col gap-2 items-end">
           <span
