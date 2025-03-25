@@ -36,7 +36,26 @@ function ANTTools() {
           Object.values(arnsDomains).map((record) => record.processId),
         ),
       );
-      setTotalAnts(antIds.length);
+
+      const antRegistryAntsRes = await antAoClient.dryrun({
+        process: ANT_REGISTRY_ID,
+        From: '4Ko7JmGPtbKLLqctNFr6ukWqX0lt4l0ktXgYKyMlbsM',
+        Owner: '4Ko7JmGPtbKLLqctNFr6ukWqX0lt4l0ktXgYKyMlbsM',
+        data: "print(require('json').encode(require('.utils').keys(ANTS)))",
+        tags: [
+          {
+            name: 'Action',
+            value: 'Eval',
+          },
+        ],
+      });
+      const registeredAnts = JSON.parse(antRegistryAntsRes.Output.data);
+
+      const antsToRegister = Array.from(new Set(antIds)).filter(
+        (antId) => !registeredAnts.includes(antId),
+      );
+      setTotalAnts(antsToRegister.length);
+
       const throttle = pLimit(50);
       const antRegistry = ANTRegistry.init({
         process: new AOProcess({
@@ -47,7 +66,7 @@ function ANTTools() {
       });
 
       await Promise.all(
-        antIds.map((antId) =>
+        antsToRegister.map((antId) =>
           throttle(() =>
             antRegistry
               .register({ processId: antId })
@@ -79,7 +98,7 @@ function ANTTools() {
                 >
                   {isUpdating
                     ? `Updating ANT Registry: ${registrations}/${totalAnts} updates completed`
-                    : 'Update ANT Registry'}
+                    : 'Update ANT Registry with missing ANTs'}
                 </button>
               </div>
             }
