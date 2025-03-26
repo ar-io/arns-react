@@ -122,6 +122,11 @@ export const NETWORK_DEFAULTS = {
   ARNS: {
     HOST: 'ar.io',
   },
+  TURBO: {
+    UPLOAD_URL: 'https://turbo.ardrive.io',
+    PAYMENT_URL: 'https://payment.ardrive.io',
+    GATEWAY_URL: 'https://arweave.net',
+  },
 };
 
 export const RECOMMENDED_TRANSACTION_CONFIRMATIONS = 50;

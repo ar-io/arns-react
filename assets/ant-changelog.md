@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [18] - [PMuRmTA2YQFK6kBx2ym2xq3XfRGAZZYnvqUV4siElVc] - (2025-3-25)
+
+### Fixed
+
+- Modified `Send` to validate message tags before sending.
+
 ## [17] - [BkdvmeNW3Hz3b37cUAa5RoUW_NI83EIsLDmboU1vH6A] - (2025-3-13)
 
 ### Changed
